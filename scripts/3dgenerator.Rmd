@@ -1,0 +1,80 @@
+---
+output: html_document
+title: '3 features'
+params:
+  plotpoints: NA
+  subsamplesize: NA
+  pointsize: NA
+  theta: NA
+  phi: NA
+---
+
+```{r setup, include=FALSE}
+#title: "Tests for 3D spike-density plots"
+#date: "`r Sys.time()`"
+#author: "[Luca](https://duralexnonlex.org)"
+library('knitr')
+options(rgl.useNULL=TRUE)
+library('rgl')
+knitr::opts_chunk$set(fig.path='./', echo=TRUE, warning=TRUE, message=TRUE)
+knit_hooks$set(webgl = hook_webgl)
+library('RColorBrewer')
+library('foreach')
+#library('RNetCDF')
+#library('matrixStats')
+options(bitmapType='cairo')
+mypurpleblue <- '#4477AA'
+myblue <- '#66CCEE'
+mygreen <- '#228833'
+myyellow <- '#CCBB44'
+myred <- '#EE6677'
+myredpurple <- '#AA3377'
+mygrey <- '#BBBBBB'
+mycolours <- c(myblue, myred, mygreen, myyellow, myredpurple, mypurpleblue, mygrey, 'black')
+palette(mycolours)
+barpalette <- colorRampPalette(c(mypurpleblue,'white',myredpurple),space='Lab')
+barpalettepos <- colorRampPalette(c('white','black'),space='Lab')
+##dev.off()
+
+plotpoints <- params$plotpoints
+featurenames <- colnames(plotpoints$yes)
+subsamplesize <- params$subsamplesize
+pointsize <- params$pointsize
+theta <- params$theta
+phi <- params$phi
+
+nrmsd <- length(plotpoints)
+
+for(i in 1:nrmsd){ nrows <- nrow(plotpoints[[i]])
+    if(nrows>subsamplesize){
+        plotpoints[[i]] <- plotpoints[[i]][sample(1:nrows,subsamplesize,replace=FALSE),]
+    } }
+
+xlim <- range(foreach(i=1:nrmsd, .combine=c)%do%{range(plotpoints[[i]][,1])})
+ylim <- range(foreach(i=1:nrmsd, .combine=c)%do%{range(plotpoints[[i]][,2])})
+zlim <- range(foreach(i=1:nrmsd, .combine=c)%do%{range(plotpoints[[i]][,3])})
+
+```
+
+Empirical distribution of features **`r featurenames`** and trichotomized
+RMSD. Subsampled to **`r subsamplesize`**.
+
+```{r 3Dplot, echo=FALSE, fig.width=10, fig.height=10, webgl=TRUE}
+##rgl.open() # comment: makes plot black
+plotvoid <- plot3d(x=matrix(0,4,3),type='p',size=0.1,
+                   xlab=featurenames[1],ylab=featurenames[2],zlab=featurenames[3],
+                   xlim=xlim,ylim=ylim,zlim=zlim,col='white')
+#view3d(theta=theta, phi=phi)
+plotyes <- plot3d(plotpoints$yes,type='s',size=pointsize,col=myblue,add=TRUE)
+plotno <- plot3d(plotpoints$no,type='s',size=pointsize,col=myred,add=TRUE)
+plotmaybe <- plot3d(plotpoints$maybe,type='s',size=pointsize,col=myyellow,add=TRUE)
+aspect3d(1,1,1)
+rglwidget(elementId="density")
+rgl.close()
+togyes <- toggleWidget(sceneId = "density", ids = plotyes, label = paste0('RMSD < 2 (blue)'))
+togno <- toggleWidget(sceneId = "density", ids = plotno, label = paste0('RMSD > 3 (red)'))
+togmaybe <- toggleWidget(sceneId = "density", ids = plotmaybe, label = paste0('2 < RMSD < 3 (yellow)'))
+#togtrfull <- toggleWidget(sceneId = "density", hidden = plotposfull, label = "full trajectory (heavy!)")
+asRow(togyes,togno,togmaybe)##,togtrfull)
+
+```

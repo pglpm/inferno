@@ -1,0 +1,40 @@
+
+Subject:
+Re: Questions on PReMiuM
+From:
+Silvia Liverani <liveranis@gmail.com>
+Date:
+2021-03-29, 23:41
+To:
+PierGianLuca Porta Mana <pgl@portamana.org>
+
+Dear Luca,
+
+Thanks for the email. It is always good to hear from users or potential users. :-)
+
+Yes, the package can fit a simple Gaussian mixture model. You can do so by using the option "excludeY" in the "profRegr" function.
+
+Hope this helps.
+
+Best wishes
+Silvia
+
+On 27/03/2021 06:52, PierGianLuca Porta Mana wrote:
+> Dear prof. Liverani,
+>
+> My name is Piero Luca Mana, I'm a researcher at the Western Norway University of Applied Sciences.
+>
+> I wanted to than you and your co-authors for the very informative papers about Dirichlet-process mixtures in Stat. Comput. and J. Stat. Software, and for their related R package PReMiuM. The review of the various sampling schemes and the discussion on diagnostics for convergence and mixing were extremely useful!
+>
+> I would be very interested in using your package to do some Bayesian inference, and was wondering if I could ask you some questions about it. From the PReMiuM manual it seems that the main function of the package does profile regression. My purpose is to do simple continuous-variable prediction (in the context of exchangeable sequences), similarly to the setup described in §3.1 of your paper in J. Stat. Software (but without too much focus on clustering). Does PReMiuM have any functions for this?
+>
+> Cordially – and with best wishes for the forthcoming holidays,
+> Luca
+
+-- 
+Silvia Liverani
+Senior Lecturer in Statistics
+Queen Mary University of London
+www.silvialiverani.com
+
+Pronouns: she/her/hers

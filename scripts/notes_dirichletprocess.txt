@@ -1,0 +1,28 @@
+– 'sig' in clusterParameters is the covariance matrix.
+
+– 'PriorDraw(mdobj,n)' gives n draws from the distribution mdobj. In the
+  mvn case in gives n pairs (mu, sigma) drawn from the normal-Wishart
+  distribution.
+
+– 'PosteriorClusters' gives several pairs (mu,sigma) drawn from the base
+  distribution together with the additional atomic measures. In the mvn
+  case it is the normal-Wishart summed with atomic measures on the
+  (mu,sigma) of the clusters under consideration.
+
+– A draw from the Dirichlet process can be seen as a discrete distribution,
+  but also as a set of parameters.
+
+
+– res_idnew101 is good to show deceiving prior that leads to good results
+
+– con 15 dim:
+ka <- 10/1
+la <- 1/510
+# or
+ka <- 100
+la <- 1/500
+mu <- 2
+dp <- DirichletProcessMvnormal(y,
+                               alphaPriors=c(1, 0.1),
+                               g0Priors=list(mu0=rep(0,dims), kappa0=ka, Lambda=diag(dims)*la, nu=dims-1+mu), numInitialClusters = 2)
+
