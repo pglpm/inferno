@@ -1,0 +1,74 @@
+Date and time: 2021-07-04 14:1822
+
+Data file path: -mc2output_input.txt
+
+Output file path: -mc2output
+
+Predict file path: No predictions run.
+
+Seed: 333
+
+Number of sweeps: 1000
+Burn in sweeps: 1000
+Output filter: 10
+Proposal Type: gibbsForVActive, Acceptance Rate: 1
+Proposal Type: updateForPhiActive, Acceptance Rate: 1
+Proposal Type: gibbsForMuActive, Acceptance Rate: 1
+Proposal Type: gibbsForTauActive, Acceptance Rate: 1
+Proposal Type: metropolisHastingsForKappa1, Acceptance Rate: 0.0765
+Proposal Type: gibbsForR1, Acceptance Rate: 1
+Proposal Type: gibbsForMu00, Acceptance Rate: 1
+Proposal Type: gibbsForTau00, Acceptance Rate: 1
+Proposal Type: metropolisHastingsForLabels123, Acceptance Rate: 0.00813008
+Proposal Type: metropolisHastingsForAlpha, Acceptance Rate: 0.43
+Proposal Type: gibbsForVInActive, Acceptance Rate: 1
+Proposal Type: gibbsForPhiInActive, Acceptance Rate: 1
+Proposal Type: gibbsForMuInActive, Acceptance Rate: 1
+Proposal Type: gibbsForTauInActive, Acceptance Rate: 1
+Proposal Type: gibbsForZ, Acceptance Rate: 1
+Number of subjects: 7597
+Number of prediction subjects: 0
+Prediction type: RaoBlackwell
+Sampler type: Truncated 49 clusters
+Number of initial clusters: 2
+Covariates: 
+Number of discrete covariates: 2
+Number of continuous covariates: 3
+	mcs_NumHeteroAtoms (categorical)
+	mcs_RingCount (categorical)
+	log_RMSD
+	log_mcs_unbonded_polar_sasa
+	logit_ec_tanimoto_similarity
+No fixed effects
+Model for Y: Bernoulli
+Extra Y variance: False
+Include response: False
+Update alpha: True
+Compute allocation entropy: False
+Model for X: Mixed
+Variable selection: None
+
+Hyperparameters:
+shapeAlpha: 2
+rateAlpha: 1
+aPhi[j]: 1 1 
+mu0: 
+ 1.20622
+  3.2684
+-1.44239
+Tau0:
+  0.032987          0          0
+         0 0.00359163          0
+         0          0  0.0139921
+R0: 
+1 0 0
+0 1 0
+0 0 1
+kappa0: 5
+kappa1: 0
+nu0: 0.01
+muTheta: 0
+sigmaTheta: 2.5
+dofTheta: 7
+
+2000 sweeps done in 196 seconds
