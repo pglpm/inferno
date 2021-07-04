@@ -1,7 +1,7 @@
 \pdfoutput=1
 %% Author: PGL  Porta Mana
 %% Created: 2015-05-01T20:53:34+0200
-%% Last-Updated: 2021-07-04T21:36:59+0200
+%% Last-Updated: 2021-07-04T22:41:24+0200
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \newif\ifarxiv
 \arxivfalse
@@ -679,6 +679,7 @@ Open Science Framework \doi{10.31219/osf.io/#1}%
 \newcommand*{\rmsd}{\textsc{rmsd}}
 \newcommand*{\wy}{\bar{y}}
 \newcommand*{\wx}{\bar{x}}
+\newcommand*{\yF}{\bm{F}}
 %%% Custom macros end @@@
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -803,11 +804,66 @@ various circumstances, for example during testing.
 \label{sec:exchang}
 
 Infinite exchangeability is the fact or assumption that the ordering of
-known and yet unknown datapoints is irrelevant for new inferences. It has
-the following important consequence. If we knew the infinite-limit long-run
-relative frequencies of the values of past and future datapoints,
-then the probability of observing a new value would be equal to the
-long-run relative frequency of that value, for symmetry reasons.
+known and yet unknown datapoints is irrelevant for new inferences. Good
+reviews are given by \textcite{dawid2013} and
+\textcite[\sect~4.2]{bernardoetal1994}. It has the following important
+consequence. If we knew the infinite-limit long-run relative frequencies
+$\yF\defd (F_{y,x})$ of the values of past and future datapoints, then the
+probability of observing a sequence of new values would be equal to the
+long-run relative frequency of those values, for symmetry reasons. For
+example:
+\begin{equation}
+  \label{eq:prob_freq}
+  \p(y_{1},x_{1},\ y_{2},x_{2} \| \yF, H) = F_{y_{1},x_{1}} \ 
+  F_{y_{2},x_{2}} \ .
+\end{equation}
+
+Another consequence is that conditional probabilities are also equal to the
+long-run \emph{conditional} frequencies $\yF_{\bm{\mid}}\defd (F_{y \|x}) =
+(F_{y,x}/\sum_{y'}F_{y',x})$. For example:
+\begin{equation}
+  \label{eq:prob_cond_freq}
+  \p(y_{1}, y_{2}\| x_{1}, x_{2},\ \yF, H) = F_{y_{1}\|x_{1}} \ 
+  F_{y_{2}\|x_{2}} \ .
+\end{equation}
+
+If the long-run frequencies $\yF$ are unknown, they can be marginalized,
+\ie\ integrated out, provided that we have a probability distribution
+$\p(\yF \| H)$ for them. For our examples above,
+\begin{equation}
+  \label{eq:prob_freq_integr}
+  \p(y_{1},x_{1},\ y_{2},x_{2}\| H) = \int F_{y_{1},x_{1}} \ 
+  F_{y_{2},x_{2}} \ \p(\yF \| H)\ \di\yF 
+\end{equation}
+and
+\begin{equation}
+  \label{eq:prob_cond_freq}
+  \p(y_{1}, y_{2}\| x_{1}, x_{2},\ H) = \int F_{y_{1}\|x_{1}} \ 
+  F_{y_{2}\|x_{2}}\ \p(\yF \| H)\ \di\yF \ .
+\end{equation}
+
+From the generalization of the equations above we obtain other
+probabilities for various cases of regression, such as
+\eqns~\eqref{eq:main_prob} or \eqref{eq:rev_prob}, by simply using the
+three rules of the probability calculus. For example, if $y_{0}$ is assumed
+to be exchangeable given $x_{0}$, but the latter is not assumed to be
+exchangeable with the other $\wx$ because hand-picked, we find
+\begin{equation}
+  \label{eq:main_prob_exch}
+  \p(y_{0} \| x_{0},\ \wy,\wx,\ H) =
+  \frac{
+    \int F_{y_{0}\|x_{0}} \ F_{y_{1},x_{1}} \  \dotsm \ 
+  F_{y_{N},x_{N}} \ \p(\yF \| H)\ \di\yF
+  }{
+    \int F_{y_{1},x_{1}} \  \dotsm \ 
+  F_{y_{N},x_{N}} \ \p(\yF \| H)\ \di\yF
+  } \ .
+\end{equation}
+
+All machine-learning algorithms calculate equations such as the one above
+or approximations to it, for some choice of the probability $\p(\yF \| H)$
+\parencites{mackay1992,bishop2006}.
+
 
 \section{Direct case: methodology}
 \label{sec:direct_method}
