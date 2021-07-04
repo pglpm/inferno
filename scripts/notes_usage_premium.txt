@@ -1,0 +1,27 @@
+• the values of the parameters are given by cluster number first. For
+  example for a matrix (a11,a21,a12,a22) they are given as
+
+a11(1st cluster) a11(2nd cluster) a11(3rd cluster) ... a21(1st cluster) ...
+
+this corresponds to joining the parameters into an array:
+
+array(c(par_clus_1, par_clus_2, par_clus3, ...), c(..dims_params.., nClusters))
+
+from which the parameters can be obtained as
+
+
+
+
+• covariance matrices are probably given by column
+
+• – psi: cluster weights (eqn 2)
+  – phi: probabilities of categories (eqn 11)
+  – mu: normal means
+  – Sigma: normal covariances
+  – nClusters: number of clusters
+  
+  – alpha: DP concentration
+  – mu00: normal hyperprior mean
+  – Sigma00: normal hyperprior covariance
+  – kappa1: invWishart hyperprior parameter
+  – R1: invWishart hyperprior matrix
