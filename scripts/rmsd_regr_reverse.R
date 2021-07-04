@@ -1,6 +1,6 @@
 ## Author: PGL  Porta Mana
 ## Created: 2021-03-20T10:07:17+0100
-## Last-Updated: 2021-07-04T21:47:47+0200
+## Last-Updated: 2021-07-04T23:31:43+0200
 ################
 ## Script for reverse regression
 ################
@@ -330,7 +330,11 @@ system.time(testres <- t(apply(testdata, 1, function(datum){
 ##
 mean(abs(testres[,1]==apply(testres[,-1],1,which.max)))
 mean(abs(testres[,1]==sample(1:3,nrow(testres),replace=TRUE)))
+##
 
+-mean(abs(testres[,1]-apply(testres[,-1],1,which.max)))
+-mean(c(c(0,1,2), c(1,0,1), c(2,1,0)))
+-mean(abs(testres[,1]-sample(1:3,nrow(testres),replace=TRUE)))
 
 
 predictYpar2 <- function(mcobj, x){
