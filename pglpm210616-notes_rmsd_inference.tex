@@ -1,7 +1,7 @@
 \pdfoutput=1
 %% Author: PGL  Porta Mana
 %% Created: 2015-05-01T20:53:34+0200
-%% Last-Updated: 2021-06-16T15:57:46+0200
+%% Last-Updated: 2021-07-04T16:40:52+0200
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \newif\ifarxiv
 \arxivfalse
@@ -19,13 +19,14 @@ british%
 \newcommand*{\firstdraft}{16 June 2021}
 \newcommand*{\firstpublished}{\firstdraft}
 \newcommand*{\updated}{\ifarxiv***\else\today\fi}
-\newcommand*{\propertitle}{Notes on root-mean-square-distance inference%\\{\large ***}%
+\newcommand*{\propertitle}{Notes on RMSD inference\\{\large for Alexander,
+    F\'abio, Ruth}%
 }% title uses LARGE; set Large for smaller
-\newcommand*{\pdftitle}{\propertitle}
+\newcommand*{\pdftitle}{Notes on RMSD inference}
 \newcommand*{\headtitle}{RMSD inference}
 \newcommand*{\pdfauthor}{P.G.L.  Porta Mana}
 \newcommand*{\headauthor}{Porta Mana}
-\newcommand*{\reporthead}{\ifarxiv\else Open Science Framework \href{https://doi.org/10.31219/osf.io/***}{\textsc{doi}:10.31219/osf.io/***}\fi}% Report number
+\newcommand*{\reporthead}{\iftrue\else Open Science Framework \href{https://doi.org/10.31219/osf.io/***}{\textsc{doi}:10.31219/osf.io/***}\fi}% Report number
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%% Calls to packages (uncomment as needed)
@@ -281,7 +282,8 @@ citestyle=authoryear-comp,bibstyle=pglpm-authoryear,autopunct=false,sorting=ny,s
 \defbibheading{bibliography}[\bibname]{\section*{#1}\addcontentsline{toc}{section}{#1}%\markboth{#1}{#1}
 }
 \newcommand*{\citep}{\footcites}
-\newcommand*{\citey}{\footcites}%{\parencites*}
+%\newcommand*{\citey}{\footcites}%{\parencites*}
+\newcommand*{\citey}{\parencites*}
 \newcommand*{\ibid}{\unspace\addtocounter{footnote}{-1}\footnotemark{}}
 %\renewcommand*{\cite}{\parencite}
 %\renewcommand*{\cites}{\parencites}
@@ -509,8 +511,9 @@ Open Science Framework \doi{10.31219/osf.io/#1}%
 % \footnotesize\epost{\email{***}{***}}}%
 % \hspace*{\stretch{1}}%
 \parbox{1\linewidth}%\makebox[0pt][c]%
-{\protect\centering P.G.L.  Porta Mana  \href{https://orcid.org/0000-0002-6070-0784}{\protect\includegraphics[scale=0.16]{orcid_32x32.png}}\\%
-\footnotesize Western Norway University of Applied Sciences\quad\epost{\email{pgl}{portamana.org}}}%
+{\protect\centering Luca  \href{https://orcid.org/0000-0002-6070-0784}{\protect\includegraphics[scale=0.16]{orcid_32x32.png}}\quad
+\footnotesize% Western Norway University of Applied Sciences\quad%
+\epost{\email{pgl}{portamana.org}}}%
 % Mohn Medical Imaging and Visualization Centre, Dept of Computer science, Electrical Engineering and Mathematical Sciences, Western Norway University of Applied Sciences, Bergen, Norway
 %% uncomment if additional authors present
 % \hspace*{\stretch{1}}%
@@ -590,21 +593,21 @@ Open Science Framework \doi{10.31219/osf.io/#1}%
 %\DeclarePairedDelimiter\norm{\lVert}{\rVert}
 \DeclarePairedDelimiter\set{\{}{\}}
 %\DeclareMathOperator{\pr}{P}%probability
-\newcommand*{\pf}{\mathrm{p}}%probability
-\newcommand*{\p}{\mathrm{P}}%probability
+\newcommand*{\p}{\mathrm{p}}%probability
+\renewcommand*{\P}{\mathrm{P}}%probability
 %\newcommand*{\E}{\mathrm{E}}
 %\renewcommand*{\|}{\nonscript\,\vert\nonscript\;\mathopen{}}
-\renewcommand*{\|}[1][]{\nonscript\,#1\vert\nonscript\;\mathopen{}}
-%\DeclarePairedDelimiterX{\cond}[2]{(}{)}{#1\nonscript\,\delimsize\vert\nonscript\;\mathopen{}#2}
-%\DeclarePairedDelimiterX{\condt}[2]{[}{]}{#1\nonscript\,\delimsize\vert\nonscript\;\mathopen{}#2}
-%\DeclarePairedDelimiterX{\conds}[2]{\{}{\}}{#1\nonscript\,\delimsize\vert\nonscript\;\mathopen{}#2}
+\renewcommand*{\|}[1][]{\nonscript\:#1\vert\nonscript\:\mathopen{}}
+%\DeclarePairedDelimiterX{\cp}[2]{(}{)}{#1\nonscript\:\delimsize\vert\nonscript\:\mathopen{}#2}
+%\DeclarePairedDelimiterX{\ct}[2]{[}{]}{#1\nonscript\;\delimsize\vert\nonscript\:\mathopen{}#2}
+%\DeclarePairedDelimiterX{\cs}[2]{\{}{\}}{#1\nonscript\:\delimsize\vert\nonscript\:\mathopen{}#2}
 %\newcommand*{\+}{\lor}
 %\renewcommand{\*}{\land}
 %% symbol = for equality statements within probabilities
 %% from https://tex.stackexchange.com/a/484142/97039
-%\newcommand*{\eq}{\mathrel{\!=\!}}
-%\let\texteq\=
-%\renewcommand*{\=}{\TextOrMath\texteq\eq}
+\newcommand*{\eq}{\mathrel{\!=\!}}
+\let\texteq\=
+\renewcommand*{\=}{\TextOrMath\texteq\eq}
 %%
 \newcommand*{\sect}{\S}% Sect.~
 \newcommand*{\sects}{\S\S}% Sect.~
@@ -673,6 +676,9 @@ Open Science Framework \doi{10.31219/osf.io/#1}%
 \newcommand*{\dob}{degree of belief}
 \newcommand*{\dobs}{degrees of belief}
 \newcommand*{\rms}{root-mean-square}
+\newcommand*{\rmsd}{\textsc{rmsd}}
+\newcommand*{\wy}{\bar{y}}
+\newcommand*{\wx}{\bar{x}}
 %%% Custom macros end @@@
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -694,7 +700,7 @@ Open Science Framework \doi{10.31219/osf.io/#1}%
 \setlength{\absrightindent}{0pt}
 \setlength{\abstitleskip}{-\absparindent}
 \begin{abstract}\labelsep 0pt%
-  \noindent ***
+  \noindent %***
 % \\\noindent\emph{\footnotesize Note: Dear Reader
 %     \amp\ Peer, this manuscript is being peer-reviewed by you. Thank you.}
 % \par%\\[\jot]
@@ -726,21 +732,97 @@ Open Science Framework \doi{10.31219/osf.io/#1}%
 %%% BEGINNING OF MAIN TEXT
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-\section{Overview of the inference}
+\section{Overview}
 \label{sec:overview}
 
-Root-mean-square-distance class: $c$. Tuple of features: $x$. We have a set
-$\set{c_{i}, x_{i} \mid i\in\set{1,2,\dotsc}}$ of known $(c,x)$ pairs. Our
-inference is about the class $c_{0}$ of a new observation with features $x_{0}$:
+We consider a quantity, the Root-Mean-Squared Distance, denoted by $y$, and
+a set of quantities called \enquote{features}, denoted by $x$. A
+value of \rmsd\ $y$
+and values for the  features $x$ can be associated with each target-ligand
+pair, which I'll call a \enquote{datapoint}.
+
+Our problem is to infer $y_{0}$ given: $x_{0}$ for a new datapoint, known
+pairs
+$(\wy,\wx) \defd \bigl((y_{1}, x_{1}), (y_{2}, x_{1}), \dotsc, (y_{N},
+x_{N})\bigr)$ for other $N$ datapoints, and additional facts and hypotheses
+$H$. Additional hypotheses are unavoidable since we are making an
+extrapolation. Our uncertainty about $y_{0}$ is expressed by a probability
+(density)
 \begin{equation}
-  \label{eq:main_inference}
-  \pf(c_{0} \| x_{0},\ \set{c_{i},x_{i}}) \ .
+  \label{eq:main_prob}
+  \p(y_{0} \| x_{0},\ \wy,\wx,\ H) \ ,
 \end{equation}
+which we want to quantify.
 
-One way to approach this is to assume that long-run frequencies of classes
-and features, if known, would be sufficient to quantify the probability.
-This is an exchangeability assumption.
+The first question we must ask in approaching this problem is how much our
+uncertainty about $y_{0}$ depends on the relative frequencies for previous
+datapoints $(\wy,\wx)$. For example, if $y_{0}$ is hand-picked by someone,
+then knowledge of the frequencies for $(\wy,\wx)$ is irrelevant. But even
+in such a case it might be that the reversed probability
+$\p(x_{0} \| y_{0},\ \wy,\wx,\ H)$ \emph{does} depend on the frequencies of
+previous datapoints, and it can be used to calculate~\eqref{eq:main_prob}
+as
+\begin{equation}
+  \label{eq:rev_prob}
+  \p(y_{0} \| x_{0},\ \wy,\wx,\ H) =
+  \frac{\p(x_{0} \| y_{0},\ \wy,\wx,\ H)\ \p(y_{0} \| H)}{
+    \sum_{y_{0}}\p(x_{0} \| y_{0},\ \wy,\wx,\ H)\ \p(y_{0} \| H)}
+\ .
+\end{equation}
+The important difference between \eqns~\eqref{eq:main_prob} and
+\eqref{eq:rev_prob} is that in the latter we must also quantify
+$\p(y_{0} \| H)$ using extra-data facts or hypotheses.
 
+In technical terms we are asking whether $y_{0}$ is \emph{exchangeable}
+given $x_{0}$, or vice versa. Or using Fisherian \citey[\sects~II.4,
+IV.1]{fisher1956} parlance we are asking whether $y_{0}$ should be
+considered as belonging to a \emph{subpopulation} determined by $x_{0}$ or
+vice versa. (Or neither, in which case our study would simply end here, so
+we won't consider this third possibility.) Another way of seeing our
+question is whether the \enquote{causal connections} mainly go in the
+direction $x_{0} \rightsquigarrow y_{0}$ or $y_{0} \rightsquigarrow x_{0}$
+\parencites[\cf][\sects~2.1.2, 2.2.5]{pearl1988}.
+
+This question is discussed in a brilliant paper by Lindley \amp\ Novick
+\citey{lindleyetal1981}, who show with examples its fundamental importance
+for making correct inferences.
+
+
+In this study we'll consider both possibilities.
+
+\section{Direct case: methodology}
+\label{sec:direct_method}
+
+For the direct case~\eqref{eq:main_prob} we shall consider the \rmsd\ $y$
+as a continuous variable, mapped to a log-scale.
+
+The assumption in this case is that $y_{0}$ is exchangeable given $x_{0}$,
+but $x_{0}$ is not exchangeable given the known datapoints $\wx$. This a
+sensible assumption -- a fact indeed -- if we are actually \emph{choosing}
+the specific value of $x_{0}$, as we do in testing for example.
+
+The calculation of $\p(y_{0} \| x_{0},\ \wy,\wx,\ H)$ is actually done via
+the calculation of the joint probability $\p(y_{0}, x_{0} \| \wy,\wx,\ H)$
+through
+\begin{equation}
+  \label{eq:cond_prob}
+  \p(y_{0} \| x_{0},\ \wy,\wx,\ H) =
+  \frac{\p(y_{0}, x_{0} \| \wy,\wx,\ H)}{\p(x_{0} \| \wy,\wx,\ H)}
+\end{equation}
+with the assumption that the marginal probability for $x_{0}$ is
+independent of the datapoints and equal to unity:
+$\p(x_{0} \| \wy,\wx,\ H) = \p(x_{0} \| H) = 1$, which is a sensible
+assumptions if we are actually \emph{choosing} the specific value of
+$x_{0}$, as we for example do in testing.
+
+\section{Reverse case: methodology}
+\label{sec:reverse_method}
+
+
+
+For the reverse case~\eqref{eq:rev_prob}
+we shall consider a binned \rmsd, divided into the three categories \enquote{good},
+\enquote{uncertain}, \enquote{bad}.
 
 
 \textcolor{white}{If you find this you can claim a postcard from me.}
