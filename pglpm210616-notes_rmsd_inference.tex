@@ -1,7 +1,7 @@
 \pdfoutput=1
 %% Author: PGL  Porta Mana
 %% Created: 2015-05-01T20:53:34+0200
-%% Last-Updated: 2021-07-04T16:40:52+0200
+%% Last-Updated: 2021-07-04T22:41:24+0200
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \newif\ifarxiv
 \arxivfalse
@@ -679,6 +679,7 @@ Open Science Framework \doi{10.31219/osf.io/#1}%
 \newcommand*{\rmsd}{\textsc{rmsd}}
 \newcommand*{\wy}{\bar{y}}
 \newcommand*{\wx}{\bar{x}}
+\newcommand*{\yF}{\bm{F}}
 %%% Custom macros end @@@
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -741,24 +742,29 @@ value of \rmsd\ $y$
 and values for the  features $x$ can be associated with each target-ligand
 pair, which I'll call a \enquote{datapoint}.
 
-Our problem is to infer $y_{0}$ given: $x_{0}$ for a new datapoint, known
-pairs
-$(\wy,\wx) \defd \bigl((y_{1}, x_{1}), (y_{2}, x_{1}), \dotsc, (y_{N},
-x_{N})\bigr)$ for other $N$ datapoints, and additional facts and hypotheses
-$H$. Additional hypotheses are unavoidable since we are making an
-extrapolation. Our uncertainty about $y_{0}$ is expressed by a probability
-(density)
+Our problem is to infer $y_{0}$ given:
+\begin{itemize}
+\item $x_{0}$ for a new datapoint,
+\item known pairs
+  $(\wy,\wx) \defd \bigl((y_{1}, x_{1}), (y_{2}, x_{1}), \dotsc, (y_{N},
+  x_{N})\bigr)$ for other $N$ datapoints,
+\item additional facts and hypotheses $H$.
+\end{itemize}
+Additional hypotheses are unavoidable since we are making an
+extrapolation.
+
+Our uncertainty about $y_{0}$ is expressed by the probability (density)
 \begin{equation}
   \label{eq:main_prob}
   \p(y_{0} \| x_{0},\ \wy,\wx,\ H) \ ,
 \end{equation}
 which we want to quantify.
 
-The first question we must ask in approaching this problem is how much our
-uncertainty about $y_{0}$ depends on the relative frequencies for previous
-datapoints $(\wy,\wx)$. For example, if $y_{0}$ is hand-picked by someone,
-then knowledge of the frequencies for $(\wy,\wx)$ is irrelevant. But even
-in such a case it might be that the reversed probability
+The first question we must ask in approaching this problem is: how much
+does our uncertainty about $y_{0}$ depend on the relative frequencies for
+previous datapoints $(\wy,\wx)$? For example, if $y_{0}$ is hand-picked by
+someone, then knowledge of the frequencies for $(\wy,\wx)$ is irrelevant.
+But even in such a case it might be that the reversed probability
 $\p(x_{0} \| y_{0},\ \wy,\wx,\ H)$ \emph{does} depend on the frequencies of
 previous datapoints, and it can be used to calculate~\eqref{eq:main_prob}
 as
@@ -774,7 +780,7 @@ The important difference between \eqns~\eqref{eq:main_prob} and
 $\p(y_{0} \| H)$ using extra-data facts or hypotheses.
 
 In technical terms we are asking whether $y_{0}$ is \emph{exchangeable}
-given $x_{0}$, or vice versa. Or using Fisherian \citey[\sects~II.4,
+given $x_{0}$, or vice versa. Using Fisherian \citey[\sects~II.4,
 IV.1]{fisher1956} parlance we are asking whether $y_{0}$ should be
 considered as belonging to a \emph{subpopulation} determined by $x_{0}$ or
 vice versa. (Or neither, in which case our study would simply end here, so
@@ -785,24 +791,96 @@ direction $x_{0} \rightsquigarrow y_{0}$ or $y_{0} \rightsquigarrow x_{0}$
 
 This question is discussed in a brilliant paper by Lindley \amp\ Novick
 \citey{lindleyetal1981}, who show with examples its fundamental importance
-for making correct inferences.
+for making correct inferences. Exchangeability is the basic fact or
+assumption upon which machine-learning algorithms and the calculations
+presented here are based. A short intuitive summary of this notion is given
+in the next section.
 
+In this study we'll study both possibilities mentioned above. At the end
+we'll compare the results and discuss which assumption makes more sense in
+various circumstances, for example during testing.
 
-In this study we'll consider both possibilities.
+\section{Short explanation of exchangeability}
+\label{sec:exchang}
+
+Infinite exchangeability is the fact or assumption that the ordering of
+known and yet unknown datapoints is irrelevant for new inferences. Good
+reviews are given by \textcite{dawid2013} and
+\textcite[\sect~4.2]{bernardoetal1994}. It has the following important
+consequence. If we knew the infinite-limit long-run relative frequencies
+$\yF\defd (F_{y,x})$ of the values of past and future datapoints, then the
+probability of observing a sequence of new values would be equal to the
+long-run relative frequency of those values, for symmetry reasons. For
+example:
+\begin{equation}
+  \label{eq:prob_freq}
+  \p(y_{1},x_{1},\ y_{2},x_{2} \| \yF, H) = F_{y_{1},x_{1}} \ 
+  F_{y_{2},x_{2}} \ .
+\end{equation}
+
+Another consequence is that conditional probabilities are also equal to the
+long-run \emph{conditional} frequencies $\yF_{\bm{\mid}}\defd (F_{y \|x}) =
+(F_{y,x}/\sum_{y'}F_{y',x})$. For example:
+\begin{equation}
+  \label{eq:prob_cond_freq}
+  \p(y_{1}, y_{2}\| x_{1}, x_{2},\ \yF, H) = F_{y_{1}\|x_{1}} \ 
+  F_{y_{2}\|x_{2}} \ .
+\end{equation}
+
+If the long-run frequencies $\yF$ are unknown, they can be marginalized,
+\ie\ integrated out, provided that we have a probability distribution
+$\p(\yF \| H)$ for them. For our examples above,
+\begin{equation}
+  \label{eq:prob_freq_integr}
+  \p(y_{1},x_{1},\ y_{2},x_{2}\| H) = \int F_{y_{1},x_{1}} \ 
+  F_{y_{2},x_{2}} \ \p(\yF \| H)\ \di\yF 
+\end{equation}
+and
+\begin{equation}
+  \label{eq:prob_cond_freq}
+  \p(y_{1}, y_{2}\| x_{1}, x_{2},\ H) = \int F_{y_{1}\|x_{1}} \ 
+  F_{y_{2}\|x_{2}}\ \p(\yF \| H)\ \di\yF \ .
+\end{equation}
+
+From the generalization of the equations above we obtain other
+probabilities for various cases of regression, such as
+\eqns~\eqref{eq:main_prob} or \eqref{eq:rev_prob}, by simply using the
+three rules of the probability calculus. For example, if $y_{0}$ is assumed
+to be exchangeable given $x_{0}$, but the latter is not assumed to be
+exchangeable with the other $\wx$ because hand-picked, we find
+\begin{equation}
+  \label{eq:main_prob_exch}
+  \p(y_{0} \| x_{0},\ \wy,\wx,\ H) =
+  \frac{
+    \int F_{y_{0}\|x_{0}} \ F_{y_{1},x_{1}} \  \dotsm \ 
+  F_{y_{N},x_{N}} \ \p(\yF \| H)\ \di\yF
+  }{
+    \int F_{y_{1},x_{1}} \  \dotsm \ 
+  F_{y_{N},x_{N}} \ \p(\yF \| H)\ \di\yF
+  } \ .
+\end{equation}
+
+All machine-learning algorithms calculate equations such as the one above
+or approximations to it, for some choice of the probability $\p(\yF \| H)$
+\parencites{mackay1992,bishop2006}.
+
 
 \section{Direct case: methodology}
 \label{sec:direct_method}
 
-For the direct case~\eqref{eq:main_prob} we shall consider the \rmsd\ $y$
-as a continuous variable, mapped to a log-scale.
+For the direct case~\eqref{eq:main_prob} we consider the \rmsd\ $y$ as a
+continuous variable, mapped to a log-scale to avoid dealing with finite
+ranges.
 
-The assumption in this case is that $y_{0}$ is exchangeable given $x_{0}$,
-but $x_{0}$ is not exchangeable given the known datapoints $\wx$. This a
-sensible assumption -- a fact indeed -- if we are actually \emph{choosing}
-the specific value of $x_{0}$, as we do in testing for example.
+In the direct case the assumption is that $y_{0}$ is exchangeable given
+$x_{0}$, but $x_{0}$ is not exchangeable given the known datapoints $\wx$.
+This a sensible assumption -- a fact indeed -- if we are actually
+\emph{choosing} the specific value of
+$x_{0}$.%, as we do in testing for example.
+The values $(\wy,\wx)$ are exchangeable.
 
-The calculation of $\p(y_{0} \| x_{0},\ \wy,\wx,\ H)$ is actually done via
-the calculation of the joint probability $\p(y_{0}, x_{0} \| \wy,\wx,\ H)$
+The calculation of $\p(y_{0} \| x_{0},\ \wy,\wx,\ H)$ is done via the
+calculation of the joint probability $\p(y_{0}, x_{0} \| \wy,\wx,\ H)$
 through
 \begin{equation}
   \label{eq:cond_prob}
