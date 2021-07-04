@@ -1,6 +1,6 @@
 ## Author: PGL  Porta Mana
 ## Created: 2021-03-20T10:07:17+0100
-## Last-Updated: 2021-07-04T14:18:19+0200
+## Last-Updated: 2021-07-04T14:45:46+0200
 ################
 ## Script for exploring Fabio's dataset
 ################
@@ -301,7 +301,7 @@ for(i in discreteCovs){
 }
 
 ##
-system.time(testmc <- profRegr(excludeY=TRUE, xModel='Mixed', nSweeps=1e3, nBurn=1e3, nFilter=10, data=as.data.frame(datamc), nClusInit=2, covNames=c(discreteCovs,continuousCovs), discreteCovs=discreteCovs, continuousCovs=continuousCovs, nProgress=100, seed=333, output='-mc2output', sampler='Truncated'))
+system.time(testmc <- profRegr(excludeY=TRUE, xModel='Mixed', nSweeps=7e3, nBurn=7e3, nFilter=10, data=as.data.frame(datamc), nClusInit=2, covNames=c(discreteCovs,continuousCovs), discreteCovs=discreteCovs, continuousCovs=continuousCovs, nProgress=100, seed=333, output='-mc2output'))
 ##
 fc <- file("-mc2output_logPost.txt")
 logPost <- sapply(strsplit(readLines(fc), " +"), as.numeric)
