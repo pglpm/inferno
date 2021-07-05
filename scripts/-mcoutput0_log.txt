@@ -1,4 +1,4 @@
-Date and time: 2021-07-04 20:3458
+Date and time: 2021-07-05 08:5008
 
 Data file path: -mcoutput0_input.txt
 
@@ -15,19 +15,19 @@ Proposal Type: gibbsForVActive, Acceptance Rate: 1
 Proposal Type: updateForPhiActive, Acceptance Rate: 1
 Proposal Type: gibbsForMuActive, Acceptance Rate: 1
 Proposal Type: gibbsForTauActive, Acceptance Rate: 1
-Proposal Type: metropolisHastingsForKappa1, Acceptance Rate: 0.386667
+Proposal Type: metropolisHastingsForKappa1, Acceptance Rate: 0.341833
 Proposal Type: gibbsForR1, Acceptance Rate: 1
 Proposal Type: gibbsForMu00, Acceptance Rate: 1
 Proposal Type: gibbsForTau00, Acceptance Rate: 1
-Proposal Type: metropolisHastingsForLabels123, Acceptance Rate: 0.0598667
+Proposal Type: metropolisHastingsForLabels123, Acceptance Rate: 0.0687
 Proposal Type: gibbsForU, Acceptance Rate: 1
-Proposal Type: metropolisHastingsForAlpha, Acceptance Rate: 0.4404
+Proposal Type: metropolisHastingsForAlpha, Acceptance Rate: 0.4414
 Proposal Type: gibbsForVInActive, Acceptance Rate: 1
 Proposal Type: gibbsForPhiInActive, Acceptance Rate: 1
 Proposal Type: gibbsForMuInActive, Acceptance Rate: 1
 Proposal Type: gibbsForTauInActive, Acceptance Rate: 1
 Proposal Type: gibbsForZ, Acceptance Rate: 1
-Number of subjects: 2016
+Number of subjects: 2023
 Number of prediction subjects: 0
 Prediction type: RaoBlackwell
 Sampler type: SliceDependent
@@ -53,8 +53,8 @@ shapeAlpha: 2
 rateAlpha: 1
 aPhi[j]: 1 1 
 mu0: 
- 4.14377
--1.06828
+ 4.14332
+-1.05978
 Tau0:
 0.00370977          0
          0  0.0151864
@@ -62,10 +62,10 @@ R0:
 1 0
 0 1
 kappa0: 4
-kappa1: 1.35413e-315
+kappa1: 0
 nu0: 0.01
 muTheta: 0
 sigmaTheta: 2.5
 dofTheta: 7
 
-30000 sweeps done in 297 seconds
+30000 sweeps done in 282 seconds
