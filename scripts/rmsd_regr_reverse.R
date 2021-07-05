@@ -1,6 +1,6 @@
 ## Author: PGL  Porta Mana
 ## Created: 2021-03-20T10:07:17+0100
-## Last-Updated: 2021-07-04T23:31:43+0200
+## Last-Updated: 2021-07-05T09:11:18+0200
 ################
 ## Script for reverse regression
 ################
@@ -185,27 +185,27 @@ discreteCovs <- covNames[sapply(covNames, function(x){is.integer(data[[x]])})]
 continuousCovs <- covNames[sapply(covNames, function(x){is.double(data[[x]])})]
 allCovNums <- c(rmsdCol, covNums)
 ##
+plan(sequential)
 plan(multisession, workers = 4L)
 rmsdVals <- 0:2
 ##
 rm(testmcall)
 system.time(
     testmcall <- foreach(val=rmsdVals, .inorder=FALSE)%dopar%{
-    outfile <- paste0('-mcoutput',val)
-    datamcr <- data[seldata]
-    datamcr <- datamcr[bin_RMSD==val, covNames, with=F]
-    for(i in discreteCovs){
-    ##print(i)
-    datum <- datamcr[[i]]
-    datum <- datum[!is.na(datum)]
-    missing <- which(tabulate(datum-min(data[[i]])+1)==0)
-    ##print(missing)
-        for(j in missing-1+min(data[[i]])){
-            dt <- data.table(j)
-            names(dt) <- i
-            datamcr <- rbind(datamcr, dt, fill=TRUE)
+        outfile <- paste0('-mcoutput',val)
+        datamcr <- data[seldata]
+        datamcr <- datamcr[bin_RMSD==val, covNames, with=F]
+        for(i in discreteCovs){
+            datum <- datamcr[[i]]
+            datum <- datum[!is.na(datum)]
+            levels <- as.numeric(names(table(data[[i]])))
+            for(level in setdiff(min(levels):max(levels), as.numeric(names(table(datum))))){
+                print(paste0(val,' ',i,' ',level))
+                dt <- data.table(level)
+                names(dt) <- i
+                datamcr <- rbind(datamcr, dt, fill=TRUE)
+            }
         }
-    }
 ##
    c(val=val, profRegr(excludeY=TRUE, xModel='Mixed', nSweeps=10e3, nBurn=20e3, nFilter=10, data=as.data.frame(datamcr), nClusInit=10, covNames=c(discreteCovs,continuousCovs), discreteCovs=discreteCovs, continuousCovs=continuousCovs, nProgress=100, seed=333, output=outfile))
     }
@@ -294,13 +294,13 @@ for(j in 1:length(sampledata)){
     }
 dev.off()
 #plan(sequential)
-
-
+save.image(file='reverse_500test.RData')
 
 
 discrMin <- sapply(data[,discreteCovs,with=F], min)-1
 dC <- discreteCovs
 cC <- continuousCovs
+plan(sequential)
 plan(multisession, workers = 4L)
 priorP <- rep(1,3)
 ##
@@ -315,11 +315,10 @@ normalize(foreach(val=rmsdVals+1, .combine=c)%:%foreach(sample=seq_along(dataobj
        #drop(dataobj[[val]]$phiList[[sample]]$bin_RMSD %*% weights)/sum(weights)
 }/length(dataobj[[val]]$nList)
 )}
-
 ##
 unseldata <- setdiff(1:nrow(data), seldata)
 ##
-nTest <- 500
+nTest <- 1000
 testdata <- data[unseldata, c('bin_RMSD',covNames), with=F]
 testdata <- rbind(head(testdata[bin_RMSD==0],n=nTest), head(testdata[bin_RMSD==1],n=nTest), head(testdata[bin_RMSD==2],n=nTest))
 ##
@@ -327,14 +326,20 @@ testdata <- rbind(head(testdata[bin_RMSD==0],n=nTest), head(testdata[bin_RMSD==1
 system.time(testres <- t(apply(testdata, 1, function(datum){
     c(datum['bin_RMSD']+1, (predictYpar(sampledata,datum)))
 })))
+save.image(file='reverse_500test.RData')
 ##
 mean(abs(testres[,1]==apply(testres[,-1],1,which.max)))
-mean(abs(testres[,1]==sample(1:3,nrow(testres),replace=TRUE)))
+1/3
 ##
-
 -mean(abs(testres[,1]-apply(testres[,-1],1,which.max)))
 -mean(c(c(0,1,2), c(1,0,1), c(2,1,0)))
--mean(abs(testres[,1]-sample(1:3,nrow(testres),replace=TRUE)))
+##
+mean(log(diag(testres[,testres[,1]+1])))
+log(1/3)
+plan(sequential)
+
+
+
 
 
 predictYpar2 <- function(mcobj, x){
