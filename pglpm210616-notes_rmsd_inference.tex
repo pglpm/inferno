@@ -1,7 +1,7 @@
 \pdfoutput=1
 %% Author: PGL  Porta Mana
 %% Created: 2015-05-01T20:53:34+0200
-%% Last-Updated: 2021-07-04T22:41:24+0200
+%% Last-Updated: 2021-07-05T10:12:27+0200
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \newif\ifarxiv
 \arxivfalse
@@ -664,7 +664,7 @@ Open Science Framework \doi{10.31219/osf.io/#1}%
 \newcommand*{\puzzle}{{\fontencoding{U}\fontfamily{fontawesometwo}\selectfont\symbol{225}}}
 \newcommand*{\wrench}{{\fontencoding{U}\fontfamily{fontawesomethree}\selectfont\symbol{114}}}
 \newcommand*{\pencil}{{\fontencoding{U}\fontfamily{fontawesometwo}\selectfont\symbol{210}}}
-\newcommand{\mynote}[1]{ {\color{notecolour}\puzzle\ #1}}
+\newcommand{\mynote}[1]{ {\color{notecolour}#1}}
 
 \newcommand*{\widebar}[1]{{\mkern1.5mu\skew{2}\overline{\mkern-1.5mu#1\mkern-1.5mu}\mkern 1.5mu}}
 
@@ -800,7 +800,7 @@ In this study we'll study both possibilities mentioned above. At the end
 we'll compare the results and discuss which assumption makes more sense in
 various circumstances, for example during testing.
 
-\section{Short explanation of exchangeability}
+\section{Exchangeability, approximations, machine learning}
 \label{sec:exchang}
 
 Infinite exchangeability is the fact or assumption that the ordering of
@@ -842,6 +842,14 @@ and
   F_{y_{2}\|x_{2}}\ \p(\yF \| H)\ \di\yF \ .
 \end{equation}
 
+There are several other types of exchangeability. For example, we may have
+\emph{conditional} or \emph{partial} exchangeability of $y$ given $x$ if
+\eqn~\eqref{eq:prob_cond_freq} holds, but not \eqn~\eqref{eq:prob_freq}.
+\textcite{lindleyetal1981} discuss the importance of conditional
+exchangeability for various inference problems, and the errors that arise
+if the wrong type of exchangeability is assumed.
+
+
 From the generalization of the equations above we obtain other
 probabilities for various cases of regression, such as
 \eqns~\eqref{eq:main_prob} or \eqref{eq:rev_prob}, by simply using the
@@ -863,6 +871,16 @@ exchangeable with the other $\wx$ because hand-picked, we find
 All machine-learning algorithms calculate equations such as the one above
 or approximations to it, for some choice of the probability $\p(\yF \| H)$
 \parencites{mackay1992,bishop2006}.
+
+The formulae above can be numerically implemented exactly or with a good
+approximation only if the features $x$ have low dimensions and the number
+$N$ of known data is small \mynote{\wrench\ add refs}. Many machine-learning
+algorithms, such as deep nets, manage to deal with larger dimensionality
+and datapoints by finding an argument that maximizes the integrands above
+\parencites{mackay1992,mackay1992b}, for example a value of $y_{0}$ that
+locally maximizes the integrand in the numerator of
+\eqn~\eqref{eq:main_prob_exch}. This means, though, that they lose the
+uncertainty quantification.
 
 
 \section{Direct case: methodology}
@@ -902,6 +920,8 @@ For the reverse case~\eqref{eq:rev_prob}
 we shall consider a binned \rmsd, divided into the three categories \enquote{good},
 \enquote{uncertain}, \enquote{bad}.
 
+
+%%run: 560 s in parallel, 20e3 burn-in, 10e3 sweeps, 10 thinning 
 
 \textcolor{white}{If you find this you can claim a postcard from me.}
 
