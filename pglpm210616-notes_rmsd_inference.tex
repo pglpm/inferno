@@ -1,7 +1,7 @@
 \pdfoutput=1
 %% Author: PGL  Porta Mana
 %% Created: 2015-05-01T20:53:34+0200
-%% Last-Updated: 2021-07-05T10:12:27+0200
+%% Last-Updated: 2021-07-05T23:19:32+0200
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \newif\ifarxiv
 \arxivfalse
@@ -796,22 +796,36 @@ assumption upon which machine-learning algorithms and the calculations
 presented here are based. A short intuitive summary of this notion is given
 in the next section.
 
-In this study we'll study both possibilities mentioned above. At the end
-we'll compare the results and discuss which assumption makes more sense in
-various circumstances, for example during testing.
+we'll study both possibilities mentioned above. At the end we'll compare
+the results and discuss which assumption makes more sense in various
+circumstances, for example during testing.
+
+The final goal is to compare the results of the present principled approach
+with those of machine-learning algorithms in a case where both can be used.
+More about this in \mynote{\wrench\ \sect***}.
 
 \section{Exchangeability, approximations, machine learning}
 \label{sec:exchang}
 
-Infinite exchangeability is the fact or assumption that the ordering of
+Exchangeability is the fact or assumption that the ordering of
 known and yet unknown datapoints is irrelevant for new inferences. Good
 reviews are given by \textcite{dawid2013} and
 \textcite[\sect~4.2]{bernardoetal1994}. It has the following important
-consequence. If we knew the infinite-limit long-run relative frequencies
-$\yF\defd (F_{y,x})$ of the values of past and future datapoints, then the
-probability of observing a sequence of new values would be equal to the
-long-run relative frequency of those values, for symmetry reasons. For
-example:
+consequence.
+
+A probability distribution $\p(z_{0}, z_{1}, z_{2}, \dotsc \| H)$ is called
+\emph{infinitely exchangeable} if it's invariant under permutations of the
+values $z_{0}, z_{1}, \dotsc$, no matter what and how many they are. In
+other words, the ordering of the observations doesn't matter. Usually one
+says, somewhat improperly, that \enquote{$z_{0}, z_{1}, \dotsc$ are
+  exchangeable} for short. In our case each $z$ is actually a pair of
+values $(y,x)$, where $x$ itself is multidimensional.
+
+Exchangeability has the following important consequence: if we knew the
+infinite-limit long-run relative frequencies $\yF\defd (F_{y,x})$ of the
+values of past and future datapoints, then the probability of observing a
+sequence of new values would be equal to the long-run relative frequency of
+those values, for symmetry reasons. For example:
 \begin{equation}
   \label{eq:prob_freq}
   \p(y_{1},x_{1},\ y_{2},x_{2} \| \yF, H) = F_{y_{1},x_{1}} \ 
@@ -874,13 +888,15 @@ or approximations to it, for some choice of the probability $\p(\yF \| H)$
 
 The formulae above can be numerically implemented exactly or with a good
 approximation only if the features $x$ have low dimensions and the number
-$N$ of known data is small \mynote{\wrench\ add refs}. Many machine-learning
-algorithms, such as deep nets, manage to deal with larger dimensionality
-and datapoints by finding an argument that maximizes the integrands above
+$N$ of known data is small \mynote{\wrench\ add refs}. Many
+machine-learning algorithms manage to deal with larger dimensionality and
+datapoints by parametrizing the $\yF$-space in a clever way (for example,
+deep nets parametrize the $\yF$ as nested compositions of some simple
+functions) and finding an argument that maximizes the integrands above
 \parencites{mackay1992,mackay1992b}, for example a value of $y_{0}$ that
 locally maximizes the integrand in the numerator of
-\eqn~\eqref{eq:main_prob_exch}. This means, though, that they lose the
-uncertainty quantification.
+\eqn~\eqref{eq:main_prob_exch}. This means, though, that they cannot
+quantify the uncertainty of the inference.
 
 
 \section{Direct case: methodology}
@@ -893,23 +909,52 @@ ranges.
 In the direct case the assumption is that $y_{0}$ is exchangeable given
 $x_{0}$, but $x_{0}$ is not exchangeable given the known datapoints $\wx$.
 This a sensible assumption -- a fact indeed -- if we are actually
-\emph{choosing} the specific value of
-$x_{0}$.%, as we do in testing for example.
-The values $(\wy,\wx)$ are exchangeable.
+\emph{choosing} the specific value of $x_{0}$, as we do in testing
+situations for example. The values $(\wy,\wx)$ are considered exchangeable.
 
-The calculation of $\p(y_{0} \| x_{0},\ \wy,\wx,\ H)$ is done via the
-calculation of the joint probability $\p(y_{0}, x_{0} \| \wy,\wx,\ H)$
-through
+The probability $\p(y_{0} \| x_{0},\ \wy,\wx,\ H)$ is then given by
+\eqn~\eqref{eq:main_prob_exch}, which can be rewritten this way:
 \begin{equation}
-  \label{eq:cond_prob}
+  \label{eq:direct_case_main}
+  \begin{gathered}
   \p(y_{0} \| x_{0},\ \wy,\wx,\ H) =
-  \frac{\p(y_{0}, x_{0} \| \wy,\wx,\ H)}{\p(x_{0} \| \wy,\wx,\ H)}
+  \int F_{y_{0}\|x_{0}} \ \p(\yF \| \wy, \wx,\ H)\ \di\yF
+  \\[\jot]
+  \text{with}\quad
+  \p(\yF \| \wy, \wx,\ H) =
+  \frac{
+    \ F_{y_{1},x_{1}} \  \dotsm \ 
+  F_{y_{N},x_{N}} \ \p(\yF \| H)
+  }{
+    \int F_{y_{1},x_{1}} \  \dotsm \ 
+  F_{y_{N},x_{N}} \ \p(\yF \| H)\ \di\yF
+  }  \ ,
+\end{gathered}
 \end{equation}
-with the assumption that the marginal probability for $x_{0}$ is
-independent of the datapoints and equal to unity:
-$\p(x_{0} \| \wy,\wx,\ H) = \p(x_{0} \| H) = 1$, which is a sensible
-assumptions if we are actually \emph{choosing} the specific value of
-$x_{0}$, as we for example do in testing.
+which is the main formula of the direct case.
+
+The integrals are over the set of long-run joint frequency distributions,
+which is an infinite-dimensional manifold. A currently popular way to
+parametrize it and at the same time choose a density $\p(\yF \| H)$ is by
+means of so-called Dirichlet-process mixtures. In short, a generic
+$F_{y,x}$ is represented as a countable weighted sum of a simpler
+distribution $K$, called the kernel, with different parameters:
+$F_{y,x} = \sum_{i}w_{i} K(y,x \| \theta_{i})$. The density $\p(\yF \| H)$
+is therefore defined over the possible infinite tuples
+$(w_{i},\theta_{i})$. A Dirichlet process is chosen for such density. An
+example of this approach is analysed and used by
+\textcites{muelleretal1996}.
+
+In the present case the kernel is the product of a multivariate normal
+distribution for $y$ and for the continuous features in $x$, and a
+Dirichlet distribution for the discrete features in $x$
+\parencites[\sect~3.3]{liveranietal2015}.
+
+The first integral in \eqn~\eqref{eq:direct_case_main} is numerically
+approximated by a sum of values of $F_{y_{0} \| x_{0}}$ sampled from the
+distribution $\p(\yF \| \wy, \wx,\ H)$ via Markov-chain Monte Carlo
+methods. Details about the sampling algorithm are given in \mynote{\wrench\
+  \sect***}.
 
 \section{Reverse case: methodology}
 \label{sec:reverse_method}
@@ -924,6 +969,12 @@ we shall consider a binned \rmsd, divided into the three categories \enquote{goo
 %%run: 560 s in parallel, 20e3 burn-in, 10e3 sweeps, 10 thinning 
 
 \textcolor{white}{If you find this you can claim a postcard from me.}
+
+\section{Evaluation metrics and calibration}
+\label{sec:evaluation}
+
+
+
 
 %%%% examples use empheq
 %   \begin{empheq}[left={\mathllap{\begin{aligned}    \de\yF_{\yc}/\de\yp&=0\text{:} \\
