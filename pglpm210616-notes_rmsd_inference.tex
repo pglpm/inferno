@@ -1,7 +1,7 @@
 \pdfoutput=1
 %% Author: PGL  Porta Mana
 %% Created: 2015-05-01T20:53:34+0200
-%% Last-Updated: 2021-07-05T23:19:32+0200
+%% Last-Updated: 2021-07-06T00:05:19+0200
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \newif\ifarxiv
 \arxivfalse
@@ -856,6 +856,7 @@ and
   F_{y_{2}\|x_{2}}\ \p(\yF \| H)\ \di\yF \ .
 \end{equation}
 
+
 There are several other types of exchangeability. For example, we may have
 \emph{conditional} or \emph{partial} exchangeability of $y$ given $x$ if
 \eqn~\eqref{eq:prob_cond_freq} holds, but not \eqn~\eqref{eq:prob_freq}.
@@ -882,8 +883,20 @@ exchangeable with the other $\wx$ because hand-picked, we find
   } \ .
 \end{equation}
 
+The distribution $\p(\yF \| H)$, usually called the \enquote{prior},
+embodies the assumptions that we make for the extrapolation. It therefore
+cannot be determined by the known datapoints. Given enough known datapoints
+$(\wy,\wx)$, the probability distribution for $y_{0}$ given $x_{0}$
+eventually does become equal to their limit conditional frequency. This
+sets the ultimate uncertainty with which the prediction can be made, and
+cannot be surpassed by any algorithm. So this approach eventually does
+yield an optimal inference. The quickness with which the limit conditional
+frequency is reached, however, depends heavily on the choice of prior. The
+prior should therefore be chosen in a well-reasoned manner. In practice the
+choice is limited by computational constraints.
+
 All machine-learning algorithms calculate equations such as the one above
-or approximations to it, for some choice of the probability $\p(\yF \| H)$
+or approximations to it, for some choice of the prior $\p(\yF \| H)$
 \parencites{mackay1992,bishop2006}.
 
 The formulae above can be numerically implemented exactly or with a good
@@ -935,20 +948,21 @@ which is the main formula of the direct case.
 
 The integrals are over the set of long-run joint frequency distributions,
 which is an infinite-dimensional manifold. A currently popular way to
-parametrize it and at the same time choose a density $\p(\yF \| H)$ is by
+parametrize it and at the same time choose a prior $\p(\yF \| H)$ is by
 means of so-called Dirichlet-process mixtures. In short, a generic
 $F_{y,x}$ is represented as a countable weighted sum of a simpler
 distribution $K$, called the kernel, with different parameters:
-$F_{y,x} = \sum_{i}w_{i} K(y,x \| \theta_{i})$. The density $\p(\yF \| H)$
-is therefore defined over the possible infinite tuples
-$(w_{i},\theta_{i})$. A Dirichlet process is chosen for such density. An
-example of this approach is analysed and used by
-\textcites{muelleretal1996}.
+$F_{y,x} = \sum_{i}w_{i} K(y,x \| \theta_{i})$. The prior is therefore
+defined over the possible infinite tuples $(w_{i},\theta_{i})$. A Dirichlet
+process is chosen as such prior. In the present case the kernel is the
+product of a multivariate normal distribution for $y$ and for the
+continuous features in $x$, and a Dirichlet distribution for the discrete
+features in $x$ \parencites[\sect~3.3]{liveranietal2015}. An example of
+this approach is analysed and used by \textcites{muelleretal1996}. A
+discussion of why such a choice of prior may not be sensible is discussed
+by \textcite{petrone2017} and \textcite[\sect~4]{quintanaetal2020}.
 
-In the present case the kernel is the product of a multivariate normal
-distribution for $y$ and for the continuous features in $x$, and a
-Dirichlet distribution for the discrete features in $x$
-\parencites[\sect~3.3]{liveranietal2015}.
+
 
 The first integral in \eqn~\eqref{eq:direct_case_main} is numerically
 approximated by a sum of values of $F_{y_{0} \| x_{0}}$ sampled from the
