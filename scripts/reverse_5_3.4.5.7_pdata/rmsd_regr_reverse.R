@@ -1,6 +1,6 @@
 ## Author: PGL  Porta Mana
 ## Created: 2021-03-20T10:07:17+0100
-## Last-Updated: 2021-07-06T13:43:44+0200
+## Last-Updated: 2021-07-06T19:33:49+0200
 ################
 ## Script for reverse regression
 ################
@@ -376,17 +376,18 @@ metrics <- function(testres, priorP){
 dC <- discreteCovs
 cC <- continuousCovs
 plan(sequential)
-plan(multisession, workers = 7L)
+plan(multisession, workers = 6L)
 priorP <- rep(1,3)/3
 ##
-predictYpar <- function(dataobj, x){
+predictYpar <- function(dataobj, X){
     foreach(sample=seq_along(dataobj$nList), .combine='+', .inorder=FALSE)%dopar%{
-        sum(exp(log(dataobj$psiList[[sample]]) + sapply(seq_len(dataobj$nList[sample]),function(j){
-            sum(log(sapply(dC, function(elem){
-                dataobj$phiList[[sample]][[elem]][x[elem], j]
-            }))) +
-                dmvnorm(x[cC], mean=dataobj$muList[[sample]][cC,j], sigma=as.matrix(dataobj$sigmaList[[sample]][cC,cC,j]), log=TRUE)
-        })))
+        sum(dataobj$psiList[[sample]] *
+            sapply(seq_len(dataobj$nList[sample]),function(cluster){
+            prod(sapply(dC, function(covariate){
+                dataobj$phiList[[sample]][[covariate]][X[covariate], cluster]
+            })) *
+                dmvnorm(X[cC], mean=dataobj$muList[[sample]][cC,cluster], sigma=as.matrix(dataobj$sigmaList[[sample]][cC,cC,cluster]))
+        }))
        #drop(dataobj$phiList[[sample]]$bin_RMSD %*% weights)/sum(weights)
 }/length(dataobj$nList)
 }
@@ -428,17 +429,18 @@ save.image(file='_reverse_test.RData')
 dC <- discreteCovs
 cC <- continuousCovs
 plan(sequential)
-plan(multisession, workers = 7L)
+plan(multisession, workers = 6L)
 priorP2 <- normalize(as.vector(table(data$bin_RMSD)))
 ##
-predictYpar2 <- function(dataobj, x){
+predictYpar2 <- function(dataobj, X){
     foreach(sample=seq_along(dataobj$nList), .combine='+', .inorder=FALSE)%dopar%{
-        sum(exp(log(dataobj$psiList[[sample]]) + sapply(seq_len(dataobj$nList[sample]),function(j){
-            sum(log(sapply(dC, function(elem){
-                dataobj$phiList[[sample]][[elem]][x[elem], j]
-            }))) +
-                dmvnorm(x[cC], mean=dataobj$muList[[sample]][cC,j], sigma=as.matrix(dataobj$sigmaList[[sample]][cC,cC,j]), log=TRUE)
-        })))
+        sum(dataobj$psiList[[sample]] *
+            sapply(seq_len(dataobj$nList[sample]),function(cluster){
+            prod(sapply(dC, function(covariate){
+                dataobj$phiList[[sample]][[covariate]][X[covariate], cluster]
+            })) *
+                dmvnorm(X[cC], mean=dataobj$muList[[sample]][cC,cluster], sigma=as.matrix(dataobj$sigmaList[[sample]][cC,cC,cluster]))
+        }))
        #drop(dataobj$phiList[[sample]]$bin_RMSD %*% weights)/sum(weights)
 }/length(dataobj$nList)
 }
@@ -881,3 +883,56 @@ dev.off()
 data2 <- cbind(data.table(logrmsd=log(data$rmsd)),
                data[,5:ncol(data)])
 write.table(data2,'dp_data.csv',sep=',',row.names=FALSE, col.names=TRUE)
+
+
+
+preci <- sapply(1:1000,function(sample){
+a <-         sum(exp(
+            log(dataobj$psiList[[sample]]) +
+            sapply(seq_len(dataobj$nList[sample]),function(cluster){
+            sum(log(sapply(dC, function(covariate){
+                dataobj$phiList[[sample]][[covariate]][X[covariate], cluster]
+            }))) +
+                dmvnorm(X[cC], mean=dataobj$muList[[sample]][cC,cluster], sigma=as.matrix(dataobj$sigmaList[[sample]][cC,cC,cluster]), log=TRUE)
+        })))
+b <-         sum(
+            (dataobj$psiList[[sample]]) *
+            sapply(seq_len(dataobj$nList[sample]),function(cluster){
+            prod((sapply(dC, function(covariate){
+                dataobj$phiList[[sample]][[covariate]][X[covariate], cluster]
+            }))) *
+                dmvnorm(X[cC], mean=dataobj$muList[[sample]][cC,cluster], sigma=as.matrix(dataobj$sigmaList[[sample]][cC,cC,cluster]))
+            }))
+abs((a-b)/(a+b))})
+summary(preci)
+
+
+rm(preci)
+gc()
+system.time(preci <- sapply(rep(1:1000,20),function(sample){
+ sum(exp(
+            log(dataobj$psiList[[sample]]) +
+            sapply(seq_len(dataobj$nList[sample]),function(cluster){
+            sum(log(sapply(dC, function(covariate){
+                dataobj$phiList[[sample]][[covariate]][X[covariate], cluster]
+            }))) +
+                dmvnorm(X[cC], mean=dataobj$muList[[sample]][cC,cluster], sigma=as.matrix(dataobj$sigmaList[[sample]][cC,cC,cluster]), log=TRUE)
+            })))
+ }))
+
+
+rm(preci)
+gc()
+system.time(preci <- sapply(rep(1:1000,20),function(sample){
+sum(
+            (dataobj$psiList[[sample]]) *
+            sapply(seq_len(dataobj$nList[sample]),function(cluster){
+            prod((sapply(dC, function(covariate){
+                dataobj$phiList[[sample]][[covariate]][X[covariate], cluster]
+            }))) *
+                dmvnorm(X[cC], mean=dataobj$muList[[sample]][cC,cluster], sigma=as.matrix(dataobj$sigmaList[[sample]][cC,cC,cluster]))
+            }))
+}))
+
+abs((a-b)/(a+b))})
+summary(preci)
