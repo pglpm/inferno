@@ -1,6 +1,6 @@
 ## Author: PGL  Porta Mana
 ## Created: 2021-03-20T10:07:17+0100
-## Last-Updated: 2021-07-06T19:33:49+0200
+## Last-Updated: 2021-07-06T22:37:36+0200
 ################
 ## Script for reverse regression
 ################
@@ -330,7 +330,7 @@ metrics <- function(testres, priorP){
             dgain[x[1], resample(which(y==max(y)))]
         })),
         mean(apply(testres,1,function(x){
-            y <- c(dgain %*% priorP)
+            y <- c(dgain %*% normalize(priorP))
             dgain[x[1], resample(which(y==max(y)))]
         })),
         0,1
@@ -342,7 +342,7 @@ metrics <- function(testres, priorP){
             cgain[x[1], resample(which(y==max(y)))]
         })),
         mean(apply(testres,1,function(x){
-            y <- c(cgain %*% priorP)
+            y <- c(cgain %*% normalize(priorP))
             cgain[x[1], resample(which(y==max(y)))]
         })),
         0,1
@@ -350,20 +350,24 @@ metrics <- function(testres, priorP){
     ##
     log_score=c(
         mean(apply(testres,1,function(x){
-            log(x[x[1]+1]*priorP[x[1]])
+            y <- normalize(x[-1] * priorP)
+            log(y[x[1]])
         })),
         mean(apply(testres,1,function(x){
-            log(priorP[x[1]])
+            y <- normalize(priorP)
+            log(y[x[1]])
         })),
         -Inf,0
     ),
     ##
     mean_score=c(
         mean(apply(testres,1,function(x){
-            (x[x[1]+1]*priorP[x[1]])
+            y <- normalize(x[-1] * priorP)
+            y[x[1]]
         })),
         mean(apply(testres,1,function(x){
-            (priorP[x[1]])
+            y <- normalize(priorP)
+            y[x[1]]
         })),
         0,1
     )
@@ -394,7 +398,7 @@ predictYpar <- function(dataobj, X){
 ##
 unseldata <- setdiff(1:nrow(data), seldata)
 ##
-## 500, 7 threads: 1291.88  961.86 9558.62 
+## 500, 6 threads: 1269.53  954.36 9520.95  
 nTest <- 500
 testdata <- data[unseldata, c('bin_RMSD',covNames), with=F]
 testd <- data.table()
@@ -403,13 +407,15 @@ for(val in rmsdVals){
 }
 testdata <- testd
 rm(testd)
-gc()
 ##
+rm(testres)
+gc()
 system.time(testres <- t(apply(testdata, 1, function(datum){
     c(datum['bin_RMSD'], sapply(rmsdVals,function(val){predictYpar(sampledata[[val]],datum)}))
 })))
 save.image(file='_reverse_test.RData')
 plan(sequential)
+
 ##
 evals1 <- metrics(testres, priorP)
 evals1
@@ -456,9 +462,10 @@ for(val in rmsdVals){
 }
 testdata <- testd
 rm(testd)
-gc()
 ##
 ## user  system elapsed  26.41   18.95  190.12
+rm(testres2)
+gc()
 system.time(testres2 <- t(apply(testdata, 1, function(datum){
     c(datum['bin_RMSD'], normalize(sapply(rmsdVals,function(val){predictYpar2(sampledata[[val]],datum)})))
 })))
@@ -475,6 +482,21 @@ save.image(file='_reverse_test.RData')
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+#####################################################################
+#####################################################################
+#####################################################################
+#####################################################################
 
 
 #### Evaluation - slower
