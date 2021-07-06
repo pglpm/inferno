@@ -1,6 +1,6 @@
 ## Author: PGL  Porta Mana
 ## Created: 2021-03-20T10:07:17+0100
-## Last-Updated: 2021-07-06T10:18:57+0200
+## Last-Updated: 2021-07-06T13:43:44+0200
 ################
 ## Script for reverse regression
 ################
@@ -317,30 +317,83 @@ dev.off()
 save.image(file='_reverse_test.RData')
 
 
+#### Metrics for evaluation
+dgain <- diag(1,3)
+cgain <- 1-sapply(1:3,function(x){abs(x-1:3)})/2
+resample <- function(x, ...) x[sample.int(length(x), ...)]
+metrics <- function(testres, priorP){
+    data.table(
+    model=c('model', 'chance','min','max'),
+    delta_gain=c(
+        mean(apply(testres,1,function(x){
+            y <- c(dgain %*% normalize(x[-1] * priorP))
+            dgain[x[1], resample(which(y==max(y)))]
+        })),
+        mean(apply(testres,1,function(x){
+            y <- c(dgain %*% priorP)
+            dgain[x[1], resample(which(y==max(y)))]
+        })),
+        0,1
+    ),
+    ##
+    contig_gain=c(
+        mean(apply(testres,1,function(x){
+            y <- c(cgain %*% normalize(x[-1] * priorP))
+            cgain[x[1], resample(which(y==max(y)))]
+        })),
+        mean(apply(testres,1,function(x){
+            y <- c(cgain %*% priorP)
+            cgain[x[1], resample(which(y==max(y)))]
+        })),
+        0,1
+    ),
+    ##
+    log_score=c(
+        mean(apply(testres,1,function(x){
+            log(x[x[1]+1]*priorP[x[1]])
+        })),
+        mean(apply(testres,1,function(x){
+            log(priorP[x[1]])
+        })),
+        -Inf,0
+    ),
+    ##
+    mean_score=c(
+        mean(apply(testres,1,function(x){
+            (x[x[1]+1]*priorP[x[1]])
+        })),
+        mean(apply(testres,1,function(x){
+            (priorP[x[1]])
+        })),
+        0,1
+    )
+)}
+
+
 #### Evaluation
 ##
 ##discrMin <- sapply(data[,discreteCovs,with=F], min)-1
 dC <- discreteCovs
 cC <- continuousCovs
 plan(sequential)
-plan(multisession, workers = 6L)
-priorP <- rep(1,3)
+plan(multisession, workers = 7L)
+priorP <- rep(1,3)/3
 ##
-predictYpar2 <- function(dataobj, x){
+predictYpar <- function(dataobj, x){
     foreach(sample=seq_along(dataobj$nList), .combine='+', .inorder=FALSE)%dopar%{
         sum(exp(log(dataobj$psiList[[sample]]) + sapply(seq_len(dataobj$nList[sample]),function(j){
             sum(log(sapply(dC, function(elem){
                 dataobj$phiList[[sample]][[elem]][x[elem], j]
             }))) +
                 dmvnorm(x[cC], mean=dataobj$muList[[sample]][cC,j], sigma=as.matrix(dataobj$sigmaList[[sample]][cC,cC,j]), log=TRUE)
-        }))) * priorP[val]
+        })))
        #drop(dataobj$phiList[[sample]]$bin_RMSD %*% weights)/sum(weights)
 }/length(dataobj$nList)
 }
 ##
 unseldata <- setdiff(1:nrow(data), seldata)
 ##
-## 500: 1291.88  961.86 9558.62 
+## 500, 7 threads: 1291.88  961.86 9558.62 
 nTest <- 500
 testdata <- data[unseldata, c('bin_RMSD',covNames), with=F]
 testd <- data.table()
@@ -352,64 +405,31 @@ rm(testd)
 gc()
 ##
 system.time(testres <- t(apply(testdata, 1, function(datum){
-    c(datum['bin_RMSD'], normalize(sapply(rmsdVals,function(val){predictYpar2(sampledata[[val]],datum)})))
+    c(datum['bin_RMSD'], sapply(rmsdVals,function(val){predictYpar(sampledata[[val]],datum)}))
 })))
 save.image(file='_reverse_test.RData')
-##
-resample <- function(x, ...) x[sample.int(length(x), ...)]
-dgain <- diag(1,3)
-cgain <- 1-sapply(1:3,function(x){abs(x-1:3)})/2
-##
-metrics <- data.table(
-    model=c('model', 'chance','min','max'),
-    delta_gain=c(
-        mean(apply(testres,1,function(x){
-            dgain[x[1], resample(which(x[-1]==max(x[-1])))]
-        })),
-        mean(dgain),
-        0,1
-    ),
-    ##
-    contig_gain=c(
-        mean(apply(testres,1,function(x){
-            cgain[x[1], resample(which(x[-1]==max(x[-1])))]
-        })),
-        mean(cgain),
-        0,1
-    ),
-    ##
-    log_score=c(
-        mean(log(diag(testres[,testres[,1]+1]))),
-        log(1/3),
-        -Inf,0
-    ),
-    ##
-    mean_score=c(
-        mean((diag(testres[,testres[,1]+1]))),
-        (1/3),
-        0,1
-    )
-)
 plan(sequential)
-metrics
+##
+evals1 <- metrics(testres, priorP)
+evals1
 save.image(file='_reverse_test.RData')
-## + > model delta_gain contig_gain log_score mean_score
-## 1:  model  0.4673333   0.6606667 -1.274633  0.4262124
-## 2: chance  0.3333333   0.5555556 -1.098612  0.3333333
+##     model delta_gain contig_gain log_score mean_score
+## 1:  model  0.4673333   0.6750000 -1.274633  0.4262124
+## 2: chance  0.3333333   0.6666667 -1.098612  0.3333333
 ## 3:    min  0.0000000   0.0000000      -Inf  0.0000000
 ## 4:    max  1.0000000   1.0000000  0.000000  1.0000000
 
 
 
 
-#### Evaluation
+#### Evaluation 2
 ##
 ##discrMin <- sapply(data[,discreteCovs,with=F], min)-1
 dC <- discreteCovs
 cC <- continuousCovs
 plan(sequential)
-plan(multisession, workers = 6L)
-priorP <- normalize(as.vector(table(data$bin_RMSD)))
+plan(multisession, workers = 7L)
+priorP2 <- normalize(as.vector(table(data$bin_RMSD)))
 ##
 predictYpar2 <- function(dataobj, x){
     foreach(sample=seq_along(dataobj$nList), .combine='+', .inorder=FALSE)%dopar%{
@@ -418,7 +438,7 @@ predictYpar2 <- function(dataobj, x){
                 dataobj$phiList[[sample]][[elem]][x[elem], j]
             }))) +
                 dmvnorm(x[cC], mean=dataobj$muList[[sample]][cC,j], sigma=as.matrix(dataobj$sigmaList[[sample]][cC,cC,j]), log=TRUE)
-        }))) * priorP[val]
+        })))
        #drop(dataobj$phiList[[sample]]$bin_RMSD %*% weights)/sum(weights)
 }/length(dataobj$nList)
 }
@@ -430,7 +450,7 @@ nTest <- 500
 testdata <- data[unseldata, c('bin_RMSD',covNames), with=F]
 testd <- data.table()
 for(val in rmsdVals){
-    testd <- rbind(testd, tail(testdata[bin_RMSD==val],n=round(3*nTest*priorP[val])))
+    testd <- rbind(testd, tail(testdata[bin_RMSD==val],n=round(3*nTest*priorP2[val])))
 }
 testdata <- testd
 rm(testd)
@@ -442,52 +462,14 @@ system.time(testres2 <- t(apply(testdata, 1, function(datum){
 })))
 save.image(file='_reverse_test.RData')
 ##
-resample <- function(x, ...) x[sample.int(length(x), ...)]
-dgain <- diag(1,3)
-cgain <- 1-sapply(1:3,function(x){abs(x-1:3)})/2
-##
-metrics2 <- data.table(
-    model=c('model', 'chance','min','max'),
-    delta_gain=c(
-        mean(apply(testres2,1,function(x){
-            dgain[x[1], resample(which(x[-1]==max(x[-1])))]
-        })),
-        mean(apply(testres2,1,function(x){
-            dgain[x[1], resample(which(priorP==max(priorP)))]
-        })),
-        0,1
-    ),
-    ##
-    contig_gain=c(
-        mean(apply(testres2,1,function(x){
-            cgain[x[1], resample(which(x[-1]==max(x[-1])))]
-        })),
-        mean(apply(testres2,1,function(x){
-            cgain[x[1], resample(which(priorP==max(priorP)))]
-        })),
-        0,1
-    ),
-    ##
-    log_score=c(
-        mean(log(diag(testres2[,testres2[,1]+1]))),
-        mean(log((priorP[testres2[,1]]))),
-        -Inf,0
-    ),
-    ##
-    mean_score=c(
-        mean((diag(testres2[,testres2[,1]+1]))),
-        mean(((priorP[testres2[,1]]))),
-        0,1
-    )
-)
-plan(sequential)
-metrics2
+evals2 <- metrics(testres2, priorP2)
+evals2
 save.image(file='_reverse_test.RData')
-## + > model delta_gain contig_gain log_score mean_score
-## 1:  model  0.4673333   0.6606667 -1.274633  0.4262124
-## 2: chance  0.3333333   0.5555556 -1.098612  0.3333333
-## 3:    min  0.0000000   0.0000000      -Inf  0.0000000
-## 4:    max  1.0000000   1.0000000  0.000000  1.0000000
+##     model delta_gain contig_gain  log_score mean_score
+## 1:  model  0.5793333   0.7056667 -1.0841823  0.4956913
+## 2: chance  0.6006667   0.6683333 -0.9284347  0.4487041
+## 3:    min  0.0000000   0.0000000       -Inf  0.0000000
+## 4:    max  1.0000000   1.0000000  0.0000000  1.0000000
 
 
 
