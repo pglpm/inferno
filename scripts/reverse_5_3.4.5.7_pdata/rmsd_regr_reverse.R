@@ -1,6 +1,6 @@
 ## Author: PGL  Porta Mana
 ## Created: 2021-03-20T10:07:17+0100
-## Last-Updated: 2021-07-06T10:09:09+0200
+## Last-Updated: 2021-07-06T10:18:57+0200
 ################
 ## Script for reverse regression
 ################
@@ -193,7 +193,7 @@ data <- fread('../processed_data.csv', sep=' ')
 
 ##################################################
 ## Mixed-x, no y-model
-##    user  system elapsed    7.86    0.33    8.25 
+##   user  system elapsed    0.08    0.03  371.17 
 ndata <- 1296 # nSamples = 37969
 #set.seed(222)
 seldata <- 1:ndata
