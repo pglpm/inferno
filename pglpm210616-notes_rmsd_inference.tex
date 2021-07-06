@@ -1,7 +1,7 @@
 \pdfoutput=1
 %% Author: PGL  Porta Mana
 %% Created: 2015-05-01T20:53:34+0200
-%% Last-Updated: 2021-07-06T14:37:44+0200
+%% Last-Updated: 2021-07-06T14:59:31+0200
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \newif\ifarxiv
 \arxivfalse
@@ -735,6 +735,11 @@ Open Science Framework \doi{10.31219/osf.io/#1}%
 %%% BEGINNING OF MAIN TEXT
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
+\mynote{\footnotesize\puzzle\ Note: the probability-theoretic derivations and
+  explanations below are very concise and likely not fully
+  comprehensible. I'll add some sections with clearer explanations and
+  fuller derivations later on.}
+
 \section{Overview}
 \label{sec:overview}
 
@@ -1000,7 +1005,7 @@ $y$ categories:
   \p(\yF_{\bm{x \mid} \text{inconcl.}} \| H)\cdot 
   \p(\yF_{\bm{x \mid} \text{bad}} \| H)\ .
 \end{equation}
-The result is
+The result is three distinct conditional probabilities:
 \begin{equation}
   \label{eq:reverse_case_main}
   \begin{gathered}
