@@ -1,6 +1,6 @@
 ## Author: PGL  Porta Mana
 ## Created: 2021-03-20T10:07:17+0100
-## Last-Updated: 2021-07-05T22:09:55+0200
+## Last-Updated: 2021-07-06T09:11:18+0200
 ################
 ## Script for reverse regression
 ################
@@ -340,6 +340,7 @@ predictYpar2 <- function(dataobj, x){
 ##
 unseldata <- setdiff(1:nrow(data), seldata)
 ##
+## 500: 1291.88  961.86 9558.62 
 nTest <- 500
 testdata <- data[unseldata, c('bin_RMSD',covNames), with=F]
 testd <- data.table()
@@ -355,17 +356,28 @@ system.time(testres <- t(apply(testdata, 1, function(datum){
     c(datum['bin_RMSD'], normalize(sapply(rmsdVals,function(val){predictYpar2(sampledata[[val]],datum)})))
 })))
 save.image(file='_reverse_test.RData')
+
+
+
+##
+resample <- function(x, ...) x[sample.int(length(x), ...)]
+dgain <- diag(1,3)
+cgain <- 2-sapply(1:3,function(x){abs(x-1:3)})
 ##
 metrics <- data.table(
     model=c('model', 'chance'),
     delta_gain=c(
-        mean((testres[,1]==apply(testres[,-1],1,which.max))-1),
-        -2/3
+        mean(apply(testres,1,function(x){
+            dgain[x[1], resample(which(x[-1]==max(x[-1])))]
+        })),
+        mean(dgain)
     ),
     ##
     contig_gain=c(
-        -mean(abs(testres[,1]-apply(testres[,-1],1,which.max))) ,
-        -mean(c(c(0,1,2), c(1,0,1), c(2,1,0)))
+        mean(apply(testres,1,function(x){
+            cgain[x[1], resample(which(x[-1]==max(x[-1])))]
+        })),
+        mean(cgain)
     ),
     ##
     log_score=c(
@@ -381,14 +393,9 @@ metrics <- data.table(
 plan(sequential)
 metrics
 save.image(file='_reverse_test.RData')
-## [1] 0.4313333
-## > [1] 0.3333333
-## > > [1] -0.7753333
-## > [1] -0.8888889
-## > > [1] -1.233647
-## > [1] -1.098612
-## [1] 0.3846496
-## > [1] 0.3333333
+## +     model delta_gain contig_gain log_score mean_score
+## 1:  model  0.4673333    1.321333 -1.274633  0.4262124
+## 2: chance  0.3333333    1.111111 -1.098612  0.3333333
 
 
 
