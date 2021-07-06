@@ -1,7 +1,7 @@
 \pdfoutput=1
 %% Author: PGL  Porta Mana
 %% Created: 2015-05-01T20:53:34+0200
-%% Last-Updated: 2021-07-06T14:36:41+0200
+%% Last-Updated: 2021-07-06T14:37:44+0200
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \newif\ifarxiv
 \arxivfalse
@@ -1004,25 +1004,25 @@ The result is
 \begin{equation}
   \label{eq:reverse_case_main}
   \begin{gathered}
-  \p(x_{0} \| y_{0},\ \wy,\wx,\ H) =
-\int F_{x_{0}\|y_{0}} \ \p(\yF_{\bm{x\mid}y_{0}} \| \wx,\ H)\ \di\yF_{\bm{x\mid}y_{0}}
+  \p(x_{0} \| y,\ \wy,\wx,\ H) =
+\int F_{x_{0}\|y} \ \p(\yF_{\bm{x\mid}y} \| \wx,\ H)\ \di\yF_{\bm{x\mid}y}
   \\[\jot]
-  \p(\yF_{\bm{x\mid}y_{0}} \| \wx,\ H) =
+  \p(\yF_{\bm{x\mid}y} \| \wx,\ H) =
   \frac{
-    \ F_{x_{1'}\| y_{0}} \  \dotsm \ 
-  F_{x_{N'}\| y_{0}} \ \p(\yF_{\bm{x\mid}y_{0}}  \| H)
+    \ F_{x_{1'}\| y} \  \dotsm \ 
+  F_{x_{N'}\| y} \ \p(\yF_{\bm{x\mid}y}  \| H)
   }{
     \int
-    \ F_{x_{1'}\| y_{0}} \  \dotsm \ 
-  F_{x_{N'}\| y_{0}} \ \p(\yF_{\bm{x\mid}y_{0}}  \| H)\ \di\yF_{\bm{x\mid}y_{0}} 
+    \ F_{x_{1'}\| y} \  \dotsm \ 
+  F_{x_{N'}\| y} \ \p(\yF_{\bm{x\mid}y}  \| H)\ \di\yF_{\bm{x\mid}y} 
 }\\[\jot]
-  \text{for each } y_{0} \in
+  \text{for each } y \in
   \set{\text{\enquote*{good}},\, \text{\enquote*{inconclusive}},\,
     \text{\enquote*{bad}}}\ ,
 \end{gathered}
 \end{equation}
 where the conditionals contain only $\wx$ values associated with that
-specific $y_{0}$ value \mynote{(\wrench\ I'll find clearer notation and
+specific $y$ value \mynote{(\wrench\ I'll find clearer notation and
   explanations)}.
 
 The fact that we have three distinct conditional probability distributions
