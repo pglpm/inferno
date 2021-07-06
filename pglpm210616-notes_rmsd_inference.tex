@@ -1,7 +1,7 @@
 \pdfoutput=1
 %% Author: PGL  Porta Mana
 %% Created: 2015-05-01T20:53:34+0200
-%% Last-Updated: 2021-07-06T12:24:04+0200
+%% Last-Updated: 2021-07-06T14:23:06+0200
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \newif\ifarxiv
 \arxivfalse
@@ -680,6 +680,8 @@ Open Science Framework \doi{10.31219/osf.io/#1}%
 \newcommand*{\wy}{\bar{y}}
 \newcommand*{\wx}{\bar{x}}
 \newcommand*{\yF}{\bm{F}}
+\newcommand*{\yFyx}{\yF_{\bm{y\mid x}}}
+\newcommand*{\yFxy}{\yF_{\bm{x\mid y}}}
 %%% Custom macros end @@@
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -832,7 +834,7 @@ those values, for symmetry reasons. For example:
 \end{equation}
 
 Another consequence is that conditional probabilities are also equal to the
-long-run \emph{conditional} frequencies $\yF_{\bm{\mid}}\defd (F_{y \|x}) =
+long-run \emph{conditional} frequencies $\yFyx \defd (F_{y \|x}) =
 (F_{y,x}/\sum_{y'}F_{y',x})$. For example:
 \begin{equation}
   \label{eq:prob_cond_freq}
@@ -842,27 +844,28 @@ long-run \emph{conditional} frequencies $\yF_{\bm{\mid}}\defd (F_{y \|x}) =
 
 If the long-run frequencies $\yF$ are unknown, they can be marginalized,
 \ie\ integrated out, provided that we have a probability distribution
-$\p(\yF \| H)$ for them. For our examples above,
+$\p(\yF \| H)$ for them. For example:
 \begin{equation}
   \label{eq:prob_freq_integr}
   \p(y_{1},x_{1},\ y_{2},x_{2}\| H) = \int F_{y_{1},x_{1}} \ 
-  F_{y_{2},x_{2}} \ \p(\yF \| H)\ \di\yF 
+  F_{y_{2},x_{2}} \ \p(\yF \| H)\ \di\yF \ ,
 \end{equation}
-and
-\begin{equation}
-  \label{eq:prob_cond_freq}
-  \p(y_{1}, y_{2}\| x_{1}, x_{2},\ H) = \int F_{y_{1}\|x_{1}} \ 
-  F_{y_{2}\|x_{2}}\ \p(\yF \| H)\ \di\yF \ .
-\end{equation}
-
+from which we can also obtain conditional probabilities.
 
 There are several other types of exchangeability. For example, we may have
 \emph{conditional} or \emph{partial} exchangeability of $y$ given $x$ if
-\eqn~\eqref{eq:prob_cond_freq} holds, but not \eqn~\eqref{eq:prob_freq}.
+\eqn~\eqref{eq:prob_cond_freq} holds, but not \eqn~\eqref{eq:prob_freq}. If
+we have a probability distribution $\p(\yFyx \| H)$ for the conditional
+frequencies, we obtain by marginalization
+\begin{equation}
+  \label{eq:prob_cond_freq_integr}
+  \p(y_{1}, y_{2}\| x_{1}, x_{2},\ H) = \int F_{y_{1}\|x_{1}} \ 
+  F_{y_{2}\|x_{2}}\ \p(\yFyx \| H)\ \di\yFyx \ .
+\end{equation}
+
 \textcite{lindleyetal1981} discuss the importance of conditional
 exchangeability for various inference problems, and the errors that arise
 if the wrong type of exchangeability is assumed.
-
 
 From the generalization of the equations above we obtain other
 probabilities for various cases of regression, such as
@@ -920,9 +923,9 @@ ranges.
 
 In the direct case the assumption is that $y_{0}$ is exchangeable given
 $x_{0}$, but $x_{0}$ is not exchangeable given the known datapoints $\wx$.
-This a sensible assumption -- a fact indeed -- if we are actually
-\emph{choosing} the specific value of $x_{0}$, as we do in testing
-situations for example. The values $(\wy,\wx)$ are considered exchangeable.
+This is a sensible assumption -- a fact indeed -- if we are \emph{choosing}
+the specific value of $x_{0}$, as we do in some testing situations for
+example. The values $(\wy,\wx)$ are considered exchangeable.
 
 The probability $\p(y_{0} \| x_{0},\ \wy,\wx,\ H)$ is then given by
 \eqn~\eqref{eq:main_prob_exch}, which can be rewritten this way:
@@ -972,11 +975,56 @@ methods. Details about the sampling algorithm are given in \mynote{\wrench\
 \section{Reverse case: methodology}
 \label{sec:reverse_method}
 
+For the reverse case~\eqref{eq:rev_prob} we consider a binned \rmsd\
+divided into three categories:
+$y \in \set{\text{\enquote*{good}},\, \text{\enquote*{inconclusive}},\,
+  \text{\enquote*{bad}}}$ .
+
+In the reverse case the assumption is that $x_{0}$ is exchangeable given
+$y_{0}$, but $y_{0}$ is not exchangeable given the known datapoints $\wy$.
+This is again a sensible assumption if we are choosing the specific value
+of $x_{0}$, as we do in testing situations, because then $y_{0}$ cannot be
+considered to come from some unsystematic process, if it is has some causal
+connections with $x_{0}$. The values $(\wy,\wx)$ are considered
+exchangeable.
+
+The probability $\p(x_{0} \| y_{0},\ \wy,\wx,\ H)$ is obtained analogously
+to \eqn~\eqref{eq:prob_cond_freq_integr}, reversing the roles of $y$ and
+$x$. We make the additional assumption that the prior
+$\p(\yFxy \| H)$ factorizes for the frequencies conditional on the three
+$y$ categories:
+\begin{equation}
+  \label{eq:factor_prior_cond}
+  \p(\yFxy \| H) =
+  \p(\yF_{\bm{x \mid} \text{good}} \| H)\cdot
+  \p(\yF_{\bm{x \mid} \text{inconcl.}} \| H)\cdot 
+  \p(\yF_{\bm{x \mid} \text{bad}} \| H)\ .
+\end{equation}
+The result is
+\begin{equation}
+  \label{eq:reverse_case_main}
+  \begin{gathered}
+  \p(x_{0} \| y_{0},\ \wy,\wx,\ H) =
+\prod_{y}  \int F_{x_{0}\|y} \ \p(\yF_{\bm{x\mid}y} \| \wx,\ H)\ \di\yF_{\bm{x\mid}y}
+  \\[\jot]
+  \text{with}\quad
+  \p(\yF_{\bm{x\mid}y} \| \wx,\ H) =
+  \frac{
+    \ F_{x_{1}\| y} \  \dotsm \ 
+  F_{x_{N}\| y} \ \p(\yF_{\bm{x\mid}y}  \| H)
+  }{
+    \int
+    \ F_{x_{1}\| y} \  \dotsm \ 
+  F_{x_{N}\| y} \ \p(\yF_{\bm{x\mid}y}  \| H)\ \di\yF_{\bm{x\mid}y} 
+}  \\
+\text{for } y \in \set{\text{\enquote*{good}},\, \text{\enquote*{inconclusive}},\,
+  \text{\enquote*{bad}}} \ .
+\end{gathered}
+\end{equation}
+where the conditionals contain only $\wx$ values associated with that
+specific $y$ value \mynote{(\wrench\ I'll find clearer notation and explanations)}.
 
 
-For the reverse case~\eqref{eq:rev_prob}
-we shall consider a binned \rmsd, divided into the three categories \enquote{good},
-\enquote{uncertain}, \enquote{bad}.
 
 
 %%run: 560 s in parallel, 20e3 burn-in, 10e3 sweeps, 10 thinning 
