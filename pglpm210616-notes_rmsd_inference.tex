@@ -1,7 +1,7 @@
 \pdfoutput=1
 %% Author: PGL  Porta Mana
 %% Created: 2015-05-01T20:53:34+0200
-%% Last-Updated: 2021-07-06T14:23:06+0200
+%% Last-Updated: 2021-07-06T14:36:41+0200
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \newif\ifarxiv
 \arxivfalse
@@ -1005,26 +1005,34 @@ The result is
   \label{eq:reverse_case_main}
   \begin{gathered}
   \p(x_{0} \| y_{0},\ \wy,\wx,\ H) =
-\prod_{y}  \int F_{x_{0}\|y} \ \p(\yF_{\bm{x\mid}y} \| \wx,\ H)\ \di\yF_{\bm{x\mid}y}
+\int F_{x_{0}\|y_{0}} \ \p(\yF_{\bm{x\mid}y_{0}} \| \wx,\ H)\ \di\yF_{\bm{x\mid}y_{0}}
   \\[\jot]
-  \text{with}\quad
-  \p(\yF_{\bm{x\mid}y} \| \wx,\ H) =
+  \p(\yF_{\bm{x\mid}y_{0}} \| \wx,\ H) =
   \frac{
-    \ F_{x_{1}\| y} \  \dotsm \ 
-  F_{x_{N}\| y} \ \p(\yF_{\bm{x\mid}y}  \| H)
+    \ F_{x_{1'}\| y_{0}} \  \dotsm \ 
+  F_{x_{N'}\| y_{0}} \ \p(\yF_{\bm{x\mid}y_{0}}  \| H)
   }{
     \int
-    \ F_{x_{1}\| y} \  \dotsm \ 
-  F_{x_{N}\| y} \ \p(\yF_{\bm{x\mid}y}  \| H)\ \di\yF_{\bm{x\mid}y} 
-}  \\
-\text{for } y \in \set{\text{\enquote*{good}},\, \text{\enquote*{inconclusive}},\,
-  \text{\enquote*{bad}}} \ .
+    \ F_{x_{1'}\| y_{0}} \  \dotsm \ 
+  F_{x_{N'}\| y_{0}} \ \p(\yF_{\bm{x\mid}y_{0}}  \| H)\ \di\yF_{\bm{x\mid}y_{0}} 
+}\\[\jot]
+  \text{for each } y_{0} \in
+  \set{\text{\enquote*{good}},\, \text{\enquote*{inconclusive}},\,
+    \text{\enquote*{bad}}}\ ,
 \end{gathered}
 \end{equation}
 where the conditionals contain only $\wx$ values associated with that
-specific $y$ value \mynote{(\wrench\ I'll find clearer notation and explanations)}.
+specific $y_{0}$ value \mynote{(\wrench\ I'll find clearer notation and
+  explanations)}.
 
+The fact that we have three distinct conditional probability distributions
+allows us to split the computation into three. They can be done in parallel
+and each has one less dimension and is being conditioned on fewer data, so
+the computation is somewhat faster.
 
+The computation of each probability is analogous to that explained in
+\sect~\ref{sec:direct_method}, based on a Dirichlet-process mixture with
+product kernels of multivariate normal and Dirichlet distributions.
 
 
 %%run: 560 s in parallel, 20e3 burn-in, 10e3 sweeps, 10 thinning 
