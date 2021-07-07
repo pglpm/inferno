@@ -1,6 +1,6 @@
 ## Author: PGL  Porta Mana
 ## Created: 2021-03-20T10:07:17+0100
-## Last-Updated: 2021-07-07T07:58:28+0200
+## Last-Updated: 2021-07-07T11:54:57+0200
 ################
 ## Script for reverse regression
 ################
@@ -198,7 +198,7 @@ ndata <- 1296 # nSamples = 37969
 #set.seed(222)
 seldata <- 1:ndata
 rmsdCol <- which(names(data)=='bin_RMSD')
-covNums <- c(3:5,7)
+covNums <- c(3:5,7,8)
 covNames <- names(data)[covNums]
 discreteCovs <- covNames[sapply(covNames, function(x){is.integer(data[[x]])})]
 continuousCovs <- covNames[sapply(covNames, function(x){is.double(data[[x]])})]
@@ -227,7 +227,7 @@ system.time(
             }
         }
 ##
-   c(val=val, profRegr(excludeY=TRUE, xModel='Mixed', nSweeps=10e3, nBurn=30e3, nFilter=10, data=as.data.frame(datamcr), nClusInit=60, covNames=c(discreteCovs,continuousCovs), discreteCovs=discreteCovs, continuousCovs=continuousCovs, nProgress=1000, seed=333, output=outfile))
+   c(val=val, profRegr(excludeY=TRUE, xModel='Mixed', nSweeps=30e3, nBurn=100e3, nFilter=30, data=as.data.frame(datamcr), nClusInit=60, covNames=c(discreteCovs,continuousCovs), discreteCovs=discreteCovs, continuousCovs=continuousCovs, nProgress=1000, seed=333, output=outfile))
     }
    )
 plan(sequential)
@@ -310,7 +310,7 @@ for(j in 1:length(sampledata)){
     matplot(sd$alphaList,type='l',ylim=range(sd$alphaList,na.rm=T,finite=T),ylab='alpha',col=mypalette[j], main=paste0('bin = ',j))
     }
 for(j in 1:length(sampledata)){
-    for(i in c(1,3)){matplot(sd$logPost[i,],type='l',ylim=range(sd$logPost[i,],na.rm=T,finite=T),col=mypalette[j]), main=paste0('bin = ',j)}
+    for(i in c(1,3)){matplot(sd$logPost[i,],type='l',ylim=range(sd$logPost[i,],na.rm=T,finite=T),col=mypalette[j], main=paste0('bin = ',j))}
     }
 dev.off()
 #plan(sequential)
@@ -421,7 +421,7 @@ evals1 <- metrics(testres, priorP)
 evals1
 save.image(file='_reverse_test.RData')
 ##     model delta_gain contig_gain log_score mean_score
-## 1:  model  0.4673333   0.6750000 -1.274633  0.4262124
+## 1:  model  0.4586667   0.6756667 -1.631715  0.4247677
 ## 2: chance  0.3333333   0.6666667 -1.098612  0.3333333
 ## 3:    min  0.0000000   0.0000000      -Inf  0.0000000
 ## 4:    max  1.0000000   1.0000000  0.000000  1.0000000
