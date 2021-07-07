@@ -1,6 +1,6 @@
 ## Author: PGL  Porta Mana
 ## Created: 2021-03-20T10:07:17+0100
-## Last-Updated: 2021-07-07T12:18:49+0200
+## Last-Updated: 2021-07-07T16:12:14+0200
 ################
 ## Script for reverse regression
 ################
@@ -227,7 +227,7 @@ system.time(
             }
         }
 ##
-   c(val=val, profRegr(excludeY=TRUE, xModel='Mixed', nSweeps=300e3, nBurn=10e3, nFilter=300, data=as.data.frame(datamcr), nClusInit=60, covNames=c(discreteCovs,continuousCovs), discreteCovs=discreteCovs, continuousCovs=continuousCovs, nProgress=1000, seed=333, output=outfile))
+   c(val=val, profRegr(excludeY=TRUE, xModel='Mixed', nSweeps=300e3, nBurn=50e3, nFilter=300, data=as.data.frame(datamcr), nClusInit=60, covNames=c(discreteCovs,continuousCovs), discreteCovs=discreteCovs, continuousCovs=continuousCovs, nProgress=1000, seed=333, output=outfile))
     }
    )
 plan(sequential)
@@ -310,6 +310,7 @@ for(j in 1:length(sampledata)){
     matplot(sd$alphaList,type='l',ylim=range(sd$alphaList,na.rm=T,finite=T),ylab='alpha',col=mypalette[j], main=paste0('bin = ',j))
     }
 for(j in 1:length(sampledata)){
+    sd <- sampledata[[j]]
     for(i in c(1,3)){matplot(sd$logPost[i,],type='l',ylim=range(sd$logPost[i,],na.rm=T,finite=T),col=mypalette[j], main=paste0('bin = ',j))}
     }
 dev.off()
