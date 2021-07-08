@@ -1,6 +1,6 @@
 ## Author: PGL  Porta Mana
 ## Created: 2021-03-20T10:07:17+0100
-## Last-Updated: 2021-07-07T16:12:14+0200
+## Last-Updated: 2021-07-07T20:15:32+0200
 ################
 ## Script for reverse regression
 ################
@@ -194,11 +194,11 @@ data <- fread('../processed_data2.csv', sep=' ')
 ##################################################
 ## Mixed-x, no y-model
 ##   user  system elapsed    0.08    0.03  371.17 
-ndata <- 1296 # nSamples = 37969
+ndata <- 2401 # nSamples = 37969
 #set.seed(222)
 seldata <- 1:ndata
 rmsdCol <- which(names(data)=='bin_RMSD')
-covNums <- c(3:5,7,8)
+covNums <- c(3:5,7)
 covNames <- names(data)[covNums]
 discreteCovs <- covNames[sapply(covNames, function(x){is.integer(data[[x]])})]
 continuousCovs <- covNames[sapply(covNames, function(x){is.double(data[[x]])})]
@@ -227,7 +227,7 @@ system.time(
             }
         }
 ##
-   c(val=val, profRegr(excludeY=TRUE, xModel='Mixed', nSweeps=300e3, nBurn=50e3, nFilter=300, data=as.data.frame(datamcr), nClusInit=60, covNames=c(discreteCovs,continuousCovs), discreteCovs=discreteCovs, continuousCovs=continuousCovs, nProgress=1000, seed=333, output=outfile))
+   c(val=val, profRegr(excludeY=TRUE, xModel='Mixed', nSweeps=300e3, nBurn=150e3, nFilter=300, data=as.data.frame(datamcr), nClusInit=80, covNames=c(discreteCovs,continuousCovs), discreteCovs=discreteCovs, continuousCovs=continuousCovs, nProgress=1000, seed=147, output=outfile))
     }
    )
 plan(sequential)
