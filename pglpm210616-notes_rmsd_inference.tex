@@ -1,7 +1,7 @@
 \pdfoutput=1
 %% Author: PGL  Porta Mana
 %% Created: 2015-05-01T20:53:34+0200
-%% Last-Updated: 2021-07-06T15:53:08+0200
+%% Last-Updated: 2021-07-08T14:28:52+0200
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \newif\ifarxiv
 \arxivfalse
@@ -585,8 +585,8 @@ Open Science Framework \doi{10.31219/osf.io/#1}%
 %\providecommand{\varparallel}{\ensuremath{\mathbin{/\mkern-7mu/}}}%parallel (tentative symbol)
 \renewcommand*{\le}{\leqslant}%less or equal
 \renewcommand*{\ge}{\geqslant}%greater or equal
-%\DeclarePairedDelimiter\clcl{[}{]}
-%\DeclarePairedDelimiter\clop{[}{[}
+\DeclarePairedDelimiter\clcl{[}{]}
+\DeclarePairedDelimiter\clop{[}{[}
 %\DeclarePairedDelimiter\opcl{]}{]}
 %\DeclarePairedDelimiter\opop{]}{[}
 \DeclarePairedDelimiter\abs{\lvert}{\rvert}
@@ -1129,10 +1129,49 @@ product kernels of multivariate normal and Dirichlet distributions.
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% 
 %\clearpage
 \bigskip
-% %\renewcommand*{\appendixpagename}{Appendix}
-% %\renewcommand*{\appendixname}{Appendix}
+%\renewcommand*{\appendixpagename}{Appendix}
+%\renewcommand*{\appendixname}{Appendix}
 % %\appendixpage
-% \appendix
+\appendix
+\mynote{\pencil\ These are just working notes}
+
+\section{Notes on selection of prior}
+\label{sec:sel_prior}
+
+The \enquote{sasa} quantities $x$ have a range in $\clop{0,+\infty}$. We
+consider them as scale quantities (even if the value $0$ is included) and
+transform them to a log-scale. Their prior distribution is chosen as
+almost uniform on this scale:
+$\p(\ln(x) \| H)\ \di\ln(x) \propto \di\ln(x)$, approximated by a normal
+with large standard deviation.
+
+The \enquote{tanimoto} quantities $x$ have a range in $\clcl{0,1}$. We
+transform them to $\RR$ using the cumulative normal distribution:
+\begin{equation}
+  \label{eq:transf_tanimoto}
+  x \mapsto \phi(x) \defd
+  \frac{1}{2}\operatorname{erf}\biggl(\frac{x}{\sqrt{2}}\biggr)
+  \equiv \frac{1}{\sqrt{2\pu}}\int_{-\infty}^{x} \e^{-t^{2}/2}\ \di t \ ,
+\end{equation}
+which we call an \defquote{erf-scale}.
+The prior is chosen as uniform in $\di x$, and therefore has a standard
+normal density in the erf-scale.
+
+Choosing a normal-inverse-Wishart distribution with parameters
+$\mu^{*}, \varDelta^{*}, \kappa^{*}, \nu^{*}$ as the mean for the Dirichlet
+process leads to a t-distribution as the predictive distribution for a
+quantity $x \in \RR^{d}$, with $\nu^{*}-n+1$ degrees of freedom, mean
+$\mu^{*}$, covariance
+$\frac{\kappa^{*}+1}{\kappa^{*}\ (\nu^{*}-d-1)}\varDelta^{*}$.
+
+This means that we want $\nu^{*}-n+1$ large, say ${}\sim 10$, in order to
+approximate a normal, $\mu^{*}$ equal to the zero vector, and
+$\frac{\kappa^{*}+1}{\kappa^{*}\ (\nu^{*}-d-1)}\varDelta^{*}$ diagonal and
+equal to $1$ in the direction of the \enquote{tanimoto} quantities, and
+equal to some larger value, say ${}\sim 4$, in the direction of the \enquote{sasa}
+quantities. These requirement leave the parameter $\kappa^{*}$ still undefined.
+
+
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%% Bibliography
