@@ -1,6 +1,6 @@
 ## Author: PGL  Porta Mana
 ## Created: 2021-03-20T10:07:17+0100
-## Last-Updated: 2021-07-08T18:06:19+0200
+## Last-Updated: 2021-07-08T20:51:28+0200
 ################
 ## Script for reverse regression
 ################
@@ -191,12 +191,46 @@ data <- fread('../processed_data2.csv', sep=' ')
 ##
 }
 
+## GOOD values:
+## sdsasa <- 1
+## sdtani <- 1
+## mymu0 <- c(5,0)
+## mynu0 <- 20+1
+## mykappa0 <- 0.05
+## coefdiag <- (mykappa0+1)/(mykappa0*(mynu0-length(mymu0)-1))
+## #diag(c(sdsasa,sdtani)^2/coefdiag)
+## testhp <- setHyperparams(mu0=mymu0, kappa0=mynu0, R0=solve(diag(c(sdsasa,sdtani)^2/coefdiag)),nu0=mykappa0)
+##
+## sdsasa <- 1/2
+## sdtani <- 1
+## mymu0 <- c(5,0)
+## mynu0 <- 20+1
+## mykappa0 <- 0.05
+## coefdiag <- (mykappa0+1)/(mykappa0*(mynu0-length(mymu0)-1))
+## #diag(c(sdsasa,sdtani)^2/coefdiag)
+## testhp <- setHyperparams(mu0=mymu0, kappa0=mynu0, R0=solve(diag(c(sdsasa,sdtani)^2/coefdiag)),nu0=mykappa0)
+##
+## sdsasa <- 1/2
+## sdtani <- 1
+## mymu0 <- c(5,0)
+## mynu0 <- 50+1
+## mykappa0 <- 0.05
+## coefdiag <- (mykappa0+1)/(mykappa0*(mynu0-length(mymu0)-1))
+## #diag(c(sdsasa,sdtani)^2/coefdiag)
+## testhp <- setHyperparams(mu0=mymu0, kappa0=mynu0, R0=solve(diag(c(sdsasa,sdtani)^2/coefdiag)),nu0=mykappa0)
+
+
+
 ## NB: nu here = kappa in fmri paper
 ## kappa here = nu in fmri paper
-sdsasa <- 4
+sdsasa <- 1/2
 sdtani <- 1
-testhp <- setHyperparams(mu0=rep(0,2), kappa0=20+1, R0=solve(diag(c(sdsasa,sdtani)^2)),nu0=1/20)
-
+mymu0 <- c(5,0)
+mynu0 <- 50+1
+mykappa0 <- 0.05
+coefdiag <- (mykappa0+1)/(mykappa0*(mynu0-length(mymu0)-1))
+#diag(c(sdsasa,sdtani)^2/coefdiag)
+testhp <- setHyperparams(mu0=mymu0, kappa0=mynu0, R0=solve(diag(c(sdsasa,sdtani)^2/coefdiag)),nu0=mykappa0)
 
 
 ##################################################
@@ -234,9 +268,8 @@ outfile <- paste0('_mcoutput',val)
         }
 ##
 datamcr <- datamcr[-1]
-
-
-regr <- profRegr(excludeY=TRUE, xModel='Mixed', nSweeps=10e3, nBurn=10e3, nFilter=10, data=as.data.frame(datamcr), nClusInit=80, covNames=c(discreteCovs,continuousCovs), discreteCovs=discreteCovs, continuousCovs=continuousCovs, nProgress=1000, seed=147, output=outfile, useHyperpriorR1=FALSE, useNormInvWishPrior=TRUE,hyper=testhp)
+##
+regr <- profRegr(excludeY=TRUE, xModel='Mixed', nSweeps=50e3, nBurn=10e3, nFilter=50, data=as.data.frame(datamcr), nClusInit=80, covNames=c(discreteCovs,continuousCovs), discreteCovs=discreteCovs, continuousCovs=continuousCovs, nProgress=1000, seed=147, output=outfile, useHyperpriorR1=FALSE, useNormInvWishPrior=TRUE,hyper=testhp,alpha=-2)
 testmcall <- list()
 testmcall[[1]] <- c(val=val,regr)
 names(testmcall) <- paste0('bin',sapply(testmcall,function(i){i$val}))
@@ -324,14 +357,14 @@ for(j in 1:length(sampledata)){
 dev.off()
 #plan(sequential)
 save.image(file='_reverse_test.RData')
-
+##
 ## Plots
 ##
 ##discrMin <- sapply(data[,discreteCovs,with=F], min)-1
 dC <- discreteCovs
 cC <- continuousCovs
 plan(sequential)
-plan(multisession, workers = 6L)
+#plan(multisession, workers = 6L)
 priorP <- rep(1,3)/3
 ##
 isasa <- cC[grepl('sasa', cC)]
@@ -353,7 +386,44 @@ predictSasaTani <- function(dataobj, X){
        #drop(dataobj$phiList[[sample]]$bin_RMSD %*% weights)/sum(weights)
 }/length(dataobj$nList)
 }
+predictSampleSasaTani <- function(dataobj,sample, X){
+        sum(dataobj$psiList[[sample]] *
+            sapply(seq_len(dataobj$nList[sample]),function(cluster){
+            ## prod(sapply(dC, function(covariate){
+            ##     dataobj$phiList[[sample]][[covariate]][X[covariate], cluster]
+            ## })) *
+                dmvnorm(X, mean=dataobj$muList[[sample]][cC,cluster], sigma=as.matrix(dataobj$sigmaList[[sample]][cC,cC,cluster]))
+        }))
+       #drop(dataobj$phiList[[sample]]$bin_RMSD %*% weights)/sum(weights)
+}
+##
 
+## Plot sample densities
+nplots <- 100
+plan(sequential)
+##plan(multisession, workers = 6L)
+xgrid <- seq(1, 150,length.out=20)
+ygrid <- seq(0.001,0.999,length.out=20)
+pdf(file=paste0('testsampledensities_seq.pdf'),height=11.7,width=16.5*10)
+## plot(NA,xlim=c(0,1),ylim=c(0,1),main='parameters')
+## text(0,1,(paste0('transf = ','id','\ndim = ',dims,'\nmeanalpha = ',meanalpha,'\nsdalpha = ',sdalpha,'\nK = ',ka,'\nL = ',la,'\nM = ',mu,'\nresc = ',resc,'\nNclust = ',mean(clusters))),adj = c(0,1),cex=5)
+##
+for(sample in round(seq(1,1000,length.out=nplots))){
+zgrid <- outer(xgrid,ygrid,function(x,y){
+    mapply(function(xx,yy){
+                    XX <- c(xx,yy)
+                    names(XX) <- cC
+                    YY <- c(log(xx),qnorm(yy))
+                    names(YY) <- cC
+                    predictSampleSasaTani(sampledata[[1]], sample,YY)*jac(XX)
+                    },
+        x,y)}
+        )
+persp(xgrid,ygrid,zgrid,zlim=c(0,max(zgrid)),ticktype='detailed',theta = 45, phi = 15)
+}
+dev.off()
+
+## Plot predictive density
 plan(multisession, workers = 6L)
 xgrid <- seq(0.1, 2,length.out=20)
 ygrid <- seq(0.001,0.999,length.out=20)
@@ -375,7 +445,6 @@ persp(xgrid,ygrid,zgrid,zlim=c(0,max(zgrid)),ticktype='detailed')
 dev.off()
 
 
-layout(matrix(1:10,1,10,byrow=TRUE))
 for(i in 1:100){
     zgrid <- outer(xgrid,ygrid,function(x,y){
         XX <- c(x,y)
@@ -385,6 +454,68 @@ for(i in 1:100){
 persp(xgrid,ygrid,zgrid,zlim=c(0,max(zgrid)),ticktype='detailed')
 }
 dev.off()
+
+
+
+
+xgrid <- seq(0.1, 2,length.out=20)
+ygrid <- seq(0.001,0.999,length.out=20)
+pdf(file=paste0('testsampledensities.pdf'),height=11.7,width=16.5*10)
+layout(matrix(1:10,1,10,byrow=TRUE))
+## plot(NA,xlim=c(0,1),ylim=c(0,1),main='parameters')
+## text(0,1,(paste0('transf = ','id','\ndim = ',dims,'\nmeanalpha = ',meanalpha,'\nsdalpha = ',sdalpha,'\nK = ',ka,'\nL = ',la,'\nM = ',mu,'\nresc = ',resc,'\nNclust = ',mean(clusters))),adj = c(0,1),cex=5)
+##
+for(sample in round(seq(1,1000,length.out=10^2))){
+zgrid <- outer(xgrid,ygrid,function(x,y){
+    mapply(function(xx,yy){
+                    XX <- c(xx,yy)
+                    names(XX) <- cC
+                    YY <- c(log(xx),qnorm(yy))
+                    names(YY) <- cC
+                    predictSampleSasaTani(sampledata[[1]], sample,YY)*jac(XX)
+                    },
+        x,y)}
+        )
+persp(xgrid,ygrid,zgrid,zlim=c(0,max(zgrid)),ticktype='detailed')
+}
+dev.off()
+
+for(i in 1:100){
+    zgrid <- outer(xgrid,ygrid,function(x,y){
+        XX <- c(x,y)
+        names(XX) <- cC
+        predictSasaTani(sampledata[[1]], XX)*jac(X)}
+        )
+persp(xgrid,ygrid,zgrid,zlim=c(0,max(zgrid)),ticktype='detailed')
+}
+dev.off()
+
+
+
+
+
+
+plan(sequential)
+xgrid <- seq(0.1, 2,length.out=20)
+ygrid <- seq(0.001,0.999,length.out=20)
+pdf(file=paste0('testsampledensities.pdf'),height=11.7,width=16.5*10)
+## plot(NA,xlim=c(0,1),ylim=c(0,1),main='parameters')
+## text(0,1,(paste0('transf = ','id','\ndim = ',dims,'\nmeanalpha = ',meanalpha,'\nsdalpha = ',sdalpha,'\nK = ',ka,'\nL = ',la,'\nM = ',mu,'\nresc = ',resc,'\nNclust = ',mean(clusters))),adj = c(0,1),cex=5)
+##
+zgrid <- outer(xgrid,ygrid,function(x,y){
+    mapply(function(xx,yy){
+                    XX <- c(xx,yy)
+                    names(XX) <- cC
+                    YY <- c(log(xx),qnorm(yy))
+                    names(YY) <- cC
+                    predictSampleSasaTani(sampledata[[1]], 3,YY)*jac(XX)
+                    },
+        x,y)}
+        )
+persp(xgrid,ygrid,zgrid,zlim=c(0,max(zgrid)),ticktype='detailed')
+dev.off()
+
+
 
 
 
