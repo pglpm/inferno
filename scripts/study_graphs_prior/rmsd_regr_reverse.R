@@ -1,6 +1,6 @@
 ## Author: PGL  Porta Mana
 ## Created: 2021-03-20T10:07:17+0100
-## Last-Updated: 2021-07-08T15:49:11+0200
+## Last-Updated: 2021-07-08T18:06:19+0200
 ################
 ## Script for reverse regression
 ################
@@ -334,6 +334,13 @@ plan(sequential)
 plan(multisession, workers = 6L)
 priorP <- rep(1,3)/3
 ##
+isasa <- cC[grepl('sasa', cC)]
+itani <- cC[grepl('tanimoto', cC)]
+##
+jac <- function(X){
+    sqrt(2*pi)*exp(qnorm(X[itani])^2/2)/(X[isasa])
+}
+##
 predictSasaTani <- function(dataobj, X){
     foreach(sample=seq_along(dataobj$nList), .combine='+', .inorder=FALSE)%dopar%{
         sum(dataobj$psiList[[sample]] *
@@ -341,19 +348,49 @@ predictSasaTani <- function(dataobj, X){
             ## prod(sapply(dC, function(covariate){
             ##     dataobj$phiList[[sample]][[covariate]][X[covariate], cluster]
             ## })) *
-                dmvnorm(X[cC], mean=dataobj$muList[[sample]][cC,cluster], sigma=as.matrix(dataobj$sigmaList[[sample]][cC,cC,cluster]))
+                dmvnorm(X, mean=dataobj$muList[[sample]][cC,cluster], sigma=as.matrix(dataobj$sigmaList[[sample]][cC,cC,cluster]))
         }))
        #drop(dataobj$phiList[[sample]]$bin_RMSD %*% weights)/sum(weights)
 }/length(dataobj$nList)
 }
 
+plan(multisession, workers = 6L)
+xgrid <- seq(0.1, 2,length.out=20)
+ygrid <- seq(0.001,0.999,length.out=20)
+pdf(file=paste0('testdensities.pdf'),height=11.7,width=16.5*10)
+## plot(NA,xlim=c(0,1),ylim=c(0,1),main='parameters')
+## text(0,1,(paste0('transf = ','id','\ndim = ',dims,'\nmeanalpha = ',meanalpha,'\nsdalpha = ',sdalpha,'\nK = ',ka,'\nL = ',la,'\nM = ',mu,'\nresc = ',resc,'\nNclust = ',mean(clusters))),adj = c(0,1),cex=5)
+##
+zgrid <- outer(xgrid,ygrid,function(x,y){
+    mapply(function(xx,yy){
+                    XX <- c(xx,yy)
+                    names(XX) <- cC
+                    YY <- c(log(xx),qnorm(yy))
+                    names(YY) <- cC
+                    predictSasaTani(sampledata[[1]], YY)*jac(XX)
+                    },
+        x,y)}
+        )
+persp(xgrid,ygrid,zgrid,zlim=c(0,max(zgrid)),ticktype='detailed')
+dev.off()
 
-isasa <- cC[grepl('sasa', cC)]
-itani <- cC[grepl('tanimoto', cC)]
 
-jac <- function(X){
-    sqrt(2*pi)*exp(qnorm[X[itani]]^2/2)/X[isasa]
+layout(matrix(1:10,1,10,byrow=TRUE))
+for(i in 1:100){
+    zgrid <- outer(xgrid,ygrid,function(x,y){
+        XX <- c(x,y)
+        names(XX) <- cC
+        predictSasaTani(sampledata[[1]], XX)*jac(X)}
+        )
+persp(xgrid,ygrid,zgrid,zlim=c(0,max(zgrid)),ticktype='detailed')
 }
+dev.off()
+
+
+
+#
+file.copy('testdensities.pdf',paste0('priordensities-','id_','D',dims,'_ma',meanalpha,'_sa',sdalpha,'_K',ka,'_L',la,'_M',mu,'_sc',resc,'_C',mean(clusters),'.pdf'))
+
 
 
 predictYpar <- function(dataobj, X){
