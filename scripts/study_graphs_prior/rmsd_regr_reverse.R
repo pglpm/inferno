@@ -1,6 +1,6 @@
 ## Author: PGL  Porta Mana
 ## Created: 2021-03-20T10:07:17+0100
-## Last-Updated: 2021-07-08T15:14:25+0200
+## Last-Updated: 2021-07-08T15:49:11+0200
 ################
 ## Script for reverse regression
 ################
@@ -334,6 +334,28 @@ plan(sequential)
 plan(multisession, workers = 6L)
 priorP <- rep(1,3)/3
 ##
+predictSasaTani <- function(dataobj, X){
+    foreach(sample=seq_along(dataobj$nList), .combine='+', .inorder=FALSE)%dopar%{
+        sum(dataobj$psiList[[sample]] *
+            sapply(seq_len(dataobj$nList[sample]),function(cluster){
+            ## prod(sapply(dC, function(covariate){
+            ##     dataobj$phiList[[sample]][[covariate]][X[covariate], cluster]
+            ## })) *
+                dmvnorm(X[cC], mean=dataobj$muList[[sample]][cC,cluster], sigma=as.matrix(dataobj$sigmaList[[sample]][cC,cC,cluster]))
+        }))
+       #drop(dataobj$phiList[[sample]]$bin_RMSD %*% weights)/sum(weights)
+}/length(dataobj$nList)
+}
+
+
+isasa <- cC[grepl('sasa', cC)]
+itani <- cC[grepl('tanimoto', cC)]
+
+jac <- function(X){
+    sqrt(2*pi)*exp(qnorm[X[itani]]^2/2)/X[isasa]
+}
+
+
 predictYpar <- function(dataobj, X){
     foreach(sample=seq_along(dataobj$nList), .combine='+', .inorder=FALSE)%dopar%{
         sum(dataobj$psiList[[sample]] *
@@ -346,6 +368,13 @@ predictYpar <- function(dataobj, X){
        #drop(dataobj$phiList[[sample]]$bin_RMSD %*% weights)/sum(weights)
 }/length(dataobj$nList)
 }
+
+
+
+
+
+
+
 ##
 unseldata <- setdiff(1:nrow(data), seldata)
 ##
