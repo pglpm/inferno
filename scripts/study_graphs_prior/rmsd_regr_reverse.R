@@ -1,6 +1,6 @@
 ## Author: PGL  Porta Mana
 ## Created: 2021-03-20T10:07:17+0100
-## Last-Updated: 2021-07-09T07:28:10+0200
+## Last-Updated: 2021-07-09T07:30:59+0200
 ################
 ## Script for reverse regression
 ################
@@ -219,7 +219,16 @@ data <- fread('../processed_data2.csv', sep=' ')
 ## #diag(c(sdsasa,sdtani)^2/coefdiag)
 ## alpha <- -2
 ## testhp <- setHyperparams(mu0=mymu0, kappa0=mynu0, R0=solve(diag(c(sdsasa,sdtani)^2/coefdiag)),nu0=mykappa0)
-
+##
+## sdsasa <- 1/2
+## sdtani <- 9/10
+## mymu0 <- c(4,0)
+## mynu0 <- 30+1
+## mykappa0 <- 0.1
+## coefdiag <- (mykappa0+1)/(mykappa0*(mynu0-length(mymu0)-1))
+## #diag(c(sdsasa,sdtani)^2/coefdiag)
+## testhp <- setHyperparams(mu0=mymu0, kappa0=mynu0, R0=solve(diag(c(sdsasa,sdtani)^2))*coefdiag,nu0=mykappa0)
+## alpha <- 4
 
 
 ## NB: nu here = kappa in fmri paper
