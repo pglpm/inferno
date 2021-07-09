@@ -1,6 +1,6 @@
 ## Author: PGL  Porta Mana
 ## Created: 2021-03-20T10:07:17+0100
-## Last-Updated: 2021-07-07T20:15:32+0200
+## Last-Updated: 2021-07-09T05:55:42+0200
 ################
 ## Script for reverse regression
 ################
@@ -194,7 +194,7 @@ data <- fread('../processed_data2.csv', sep=' ')
 ##################################################
 ## Mixed-x, no y-model
 ##   user  system elapsed    0.08    0.03  371.17 
-ndata <- 2401 # nSamples = 37969
+ndata <- 1296 # nSamples = 37969
 #set.seed(222)
 seldata <- 1:ndata
 rmsdCol <- which(names(data)=='bin_RMSD')
@@ -203,6 +203,17 @@ covNames <- names(data)[covNums]
 discreteCovs <- covNames[sapply(covNames, function(x){is.integer(data[[x]])})]
 continuousCovs <- covNames[sapply(covNames, function(x){is.double(data[[x]])})]
 allCovNums <- c(rmsdCol, covNums)
+##
+## NB: nu here = kappa in fmri paper
+## kappa here = nu in fmri paper
+sdsasa <- 1/2
+sdtani <- 1
+mymu0 <- c(5,0)
+mynu0 <- 50+1
+mykappa0 <- 0.05
+coefdiag <- (mykappa0+1)/(mykappa0*(mynu0-length(mymu0)-1))
+#diag(c(sdsasa,sdtani)^2/coefdiag)
+testhp <- setHyperparams(mu0=mymu0, kappa0=mynu0, R0=solve(diag(c(sdsasa,sdtani)^2/coefdiag)),nu0=mykappa0)
 ##
 rmsdVals <- 1:3
 ##
@@ -227,7 +238,7 @@ system.time(
             }
         }
 ##
-   c(val=val, profRegr(excludeY=TRUE, xModel='Mixed', nSweeps=300e3, nBurn=150e3, nFilter=300, data=as.data.frame(datamcr), nClusInit=80, covNames=c(discreteCovs,continuousCovs), discreteCovs=discreteCovs, continuousCovs=continuousCovs, nProgress=1000, seed=147, output=outfile))
+   c(val=val, profRegr(excludeY=TRUE, xModel='Mixed', nSweeps=20e3, nBurn=50e3, nFilter=20, data=as.data.frame(datamcr), nClusInit=80, covNames=c(discreteCovs,continuousCovs), discreteCovs=discreteCovs, continuousCovs=continuousCovs, nProgress=1000, seed=147, output=outfile, useHyperpriorR1=FALSE, useNormInvWishPrior=TRUE, hyper=testhp, alpha=4))
     }
    )
 plan(sequential)
@@ -400,7 +411,7 @@ predictYpar <- function(dataobj, X){
 unseldata <- setdiff(1:nrow(data), seldata)
 ##
 ## 500, 6 threads: 1269.53  954.36 9520.95  
-nTest <- 500
+nTest <- 100
 testdata <- data[unseldata, c('bin_RMSD',covNames), with=F]
 testd <- data.table()
 for(val in rmsdVals){
@@ -416,7 +427,6 @@ system.time(testres <- t(apply(testdata, 1, function(datum){
 })))
 save.image(file='_reverse_test.RData')
 plan(sequential)
-
 ##
 evals1 <- metrics(testres, priorP)
 evals1
