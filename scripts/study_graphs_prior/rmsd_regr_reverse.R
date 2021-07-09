@@ -1,6 +1,6 @@
 ## Author: PGL  Porta Mana
 ## Created: 2021-03-20T10:07:17+0100
-## Last-Updated: 2021-07-08T20:51:28+0200
+## Last-Updated: 2021-07-09T07:28:10+0200
 ################
 ## Script for reverse regression
 ################
@@ -217,6 +217,7 @@ data <- fread('../processed_data2.csv', sep=' ')
 ## mykappa0 <- 0.05
 ## coefdiag <- (mykappa0+1)/(mykappa0*(mynu0-length(mymu0)-1))
 ## #diag(c(sdsasa,sdtani)^2/coefdiag)
+## alpha <- -2
 ## testhp <- setHyperparams(mu0=mymu0, kappa0=mynu0, R0=solve(diag(c(sdsasa,sdtani)^2/coefdiag)),nu0=mykappa0)
 
 
@@ -224,13 +225,13 @@ data <- fread('../processed_data2.csv', sep=' ')
 ## NB: nu here = kappa in fmri paper
 ## kappa here = nu in fmri paper
 sdsasa <- 1/2
-sdtani <- 1
-mymu0 <- c(5,0)
-mynu0 <- 50+1
-mykappa0 <- 0.05
+sdtani <- 9/10
+mymu0 <- c(4,0)
+mynu0 <- 30+1
+mykappa0 <- 0.1
 coefdiag <- (mykappa0+1)/(mykappa0*(mynu0-length(mymu0)-1))
 #diag(c(sdsasa,sdtani)^2/coefdiag)
-testhp <- setHyperparams(mu0=mymu0, kappa0=mynu0, R0=solve(diag(c(sdsasa,sdtani)^2/coefdiag)),nu0=mykappa0)
+testhp <- setHyperparams(mu0=mymu0, kappa0=mynu0, R0=solve(diag(c(sdsasa,sdtani)^2))*coefdiag,nu0=mykappa0)
 
 
 ##################################################
@@ -269,7 +270,7 @@ outfile <- paste0('_mcoutput',val)
 ##
 datamcr <- datamcr[-1]
 ##
-regr <- profRegr(excludeY=TRUE, xModel='Mixed', nSweeps=50e3, nBurn=10e3, nFilter=50, data=as.data.frame(datamcr), nClusInit=80, covNames=c(discreteCovs,continuousCovs), discreteCovs=discreteCovs, continuousCovs=continuousCovs, nProgress=1000, seed=147, output=outfile, useHyperpriorR1=FALSE, useNormInvWishPrior=TRUE,hyper=testhp,alpha=-2)
+regr <- profRegr(excludeY=TRUE, xModel='Mixed', nSweeps=50e3, nBurn=10e3, nFilter=50, data=as.data.frame(datamcr), nClusInit=80, covNames=c(discreteCovs,continuousCovs), discreteCovs=discreteCovs, continuousCovs=continuousCovs, nProgress=1000, seed=147, output=outfile, useHyperpriorR1=FALSE, useNormInvWishPrior=TRUE,hyper=testhp,alpha=4)
 testmcall <- list()
 testmcall[[1]] <- c(val=val,regr)
 names(testmcall) <- paste0('bin',sapply(testmcall,function(i){i$val}))
@@ -397,9 +398,9 @@ predictSampleSasaTani <- function(dataobj,sample, X){
        #drop(dataobj$phiList[[sample]]$bin_RMSD %*% weights)/sum(weights)
 }
 ##
-
+##
 ## Plot sample densities
-nplots <- 100
+nplots <- 50
 plan(sequential)
 ##plan(multisession, workers = 6L)
 xgrid <- seq(1, 150,length.out=20)
@@ -424,8 +425,9 @@ persp(xgrid,ygrid,zgrid,zlim=c(0,max(zgrid)),ticktype='detailed',theta = 45, phi
 dev.off()
 
 ## Plot predictive density
+plan(sequential)
 plan(multisession, workers = 6L)
-xgrid <- seq(0.1, 2,length.out=20)
+xgrid <- seq(1, 100,length.out=20)
 ygrid <- seq(0.001,0.999,length.out=20)
 pdf(file=paste0('testdensities.pdf'),height=11.7,width=16.5*10)
 ## plot(NA,xlim=c(0,1),ylim=c(0,1),main='parameters')
@@ -441,7 +443,7 @@ zgrid <- outer(xgrid,ygrid,function(x,y){
                     },
         x,y)}
         )
-persp(xgrid,ygrid,zgrid,zlim=c(0,max(zgrid)),ticktype='detailed')
+persp(xgrid,ygrid,zgrid,zlim=c(0,max(zgrid)),ticktype='detailed',theta = 45, phi = 15)
 dev.off()
 
 
