@@ -1,6 +1,6 @@
 ## Author: PGL  Porta Mana
 ## Created: 2021-03-20T10:07:17+0100
-## Last-Updated: 2021-07-11T14:03:27+0200
+## Last-Updated: 2021-07-14T11:24:54+0200
 ################
 ## Script for reverse regression
 ################
@@ -65,27 +65,68 @@ entropy <- function(freqs,base=2){##in bits by default
 ## function to normalize absolute frequencies
 normalize <- function(freqs){freqs/sum(freqs)}
 
+## Good values:
+## mu0 <- c(5,0)
+## names(mu0) <- c('sasa','tanimoto')
+## sig0 <- c(3,1)^2
+## names(sig0) <- c('sasa','tanimoto')
+## df0 <- 20
+## hkappa0 <- 0.05
+##
+## mu0 <- c(5,0)
+## names(mu0) <- c('sasa','tanimoto')
+## sig0 <- c(3,1)^2
+## names(sig0) <- c('sasa','tanimoto')
+## df0 <- 20
+## hkappa0 <- 0.05
+##
+## musasa <- 4
+## mutani <- 0
+## mu0 <- c(musasa,mutani)
+## names(mu0) <- c('sasa','tanimoto')
+## sdsasa <- 5/2
+## sdtani <- 9/10
+## sig0 <- c(sdsasa,sdtani)^2
+## names(sig0) <- c('sasa','tanimoto')
+## df0 <- 20
+## hkappa0 <- 0.05
+## alpha <- 5
+
+doplots <- TRUE
 ## specify hyperparams
-mu0 <- c(2,0)
+musasa <- 0
+mutani <- 0
+mu0 <- c(musasa,mutani)
 names(mu0) <- c('sasa','tanimoto')
-sig0 <- c(4,1)^2
+sdsasa <- 1
+sdtani <- 1
+sig0 <- c(sdsasa,sdtani)^2
 names(sig0) <- c('sasa','tanimoto')
 df0 <- 1
 ##
 tanimoto2y <- function(x){
-    qt(x, df=df0)*sqrt(sig0['tanimoto'])+mu0['tanimoto'] # correct compared with study_prior_bayes_regr.nb
+    -log(1/x-1)/2
 }
 ##
 ## correct compared with study_prior_bayes_regr.nb
-Dtanimoto2y <- function(x){pi*(tanimoto2y(x)^2 + 1)}
-##
-y2tanimoto <- function(y){
-    1/2 + atan(y)/pi
+Dtanimoto2y <- function(x){
+    1/(2*x*(1-x))
 }
-## y2tanimoto2 <- function(y){ # this is too slow
-##     pt((y-mu0['tanimoto'])/sqrt(sig0['tanimoto']), df=df0)
+##
+## y2tanimoto <- function(y){
+##     1/2 + atan(y)/pi
 ## }
-    
+##
+sasa2y <- function(x){
+   log(x)/4
+}
+##
+## correct compared with study_prior_bayes_regr.nb
+Dsasa2y <- function(x){
+    1/(4*x)
+}
+##
+##
 ## Skip all preprocessing below if data is already saved
 ##if(TRUE){
 ## Read and reorganize data
@@ -103,19 +144,19 @@ logRmsdThreshold <- log(rmsdThreshold)
 ## transform 'sasa' features to log-scale
 indx <- grepl('sasa', colnames(data))
 for(elem in colnames(data)[indx]){
-    datum <- log(data[[elem]])
+    datum <- sasa2y(data[[elem]])
     eps <- max(diff(sort(unique(datum[abs(datum)!=Inf]))))
-    datum[datum==-Inf] <- min(datum[abs(datum)!=Inf])-3*eps
+    datum[datum==-Inf] <- min(datum[abs(datum)!=Inf])-2*eps
     data[, elem] <- datum
 }
-names(data)[indx] <- paste0('log_',names(data)[indx])
+names(data)[indx] <- paste0('scale_',names(data)[indx])
 ## transform 'tanimoto' features to logit scale
 indx <- grepl('tanimoto', colnames(data))
 for(elem in colnames(data)[indx]){
     datum <- tanimoto2y(data[[elem]])
     eps <- max(diff(sort(unique(datum[abs(datum)!=Inf]))))
-    datum[datum==Inf] <- max(datum[abs(datum)!=Inf])+3*eps
-    datum[datum==-Inf] <- min(datum[abs(datum)!=Inf])-3*eps
+    datum[datum==Inf] <- max(datum[abs(datum)!=Inf])+2*eps
+    datum[datum==-Inf] <- min(datum[abs(datum)!=Inf])-2*eps
     data[, elem] <- datum
 }
 names(data)[indx] <- paste0('scale_',names(data)[indx])
@@ -130,12 +171,9 @@ nameFeatures <- names(data)
 nSamples <- nrow(data)
 nFeatures <- ncol(data)
 ##
-
-
-##
+## Format bins to calculate mutual info
 nbinsq <- 6
 ##
-pdff('histograms_scaled_data')
 breakFeatures <- list()
 for(i in 1:ncol(data)){
     datum <- data[[i]]
@@ -150,46 +188,10 @@ for(i in 1:ncol(data)){
         breaks <- seq(summa[1]-drange/(nbins*100), summa[5]+drange/(nbins*100), length.out=nbins)
     }
     breakFeatures[[i]] <- breaks
-    print(ggplot(data[,..i], aes_(x=as.name(names(data)[i]))) + geom_histogram(breaks=breaks))
-    #hist(x=datum, breaks=breaks, main=nameFeatures[i], xlab=nameFeatures[i])
-    ## if(nameFeatures[i] == 'logrmsd'){
-    ##     matlines(y=matrix(c(-1,5000),2,1), x=matrix(rep(logRmsdThreshold,2),2,3,byrow=T),
-    ##              lty=c(2,3,2), lwd=3, col=c(myredpurple,myyellow,myredpurple))
-    ## }
 }
 names(breakFeatures) <- names(data)
-dev.off()
-
 ##
-nbinsq <- 6
 ##
-pdff('histograms_data')
-##breakFeatures <- list()
-for(i in 1:ncol(origdata)){
-    datum <- origdata[[i]]
-    summa <- fivenum(datum)
-    drange <- diff(range(datum))
-    #print(paste0('i',i));print(drange)
-    if(is.integer(datum)){
-        breaks <- (summa[1]:(summa[5]+1))-0.5
-    } else {
-        width <- diff(summa[c(2,4)])/nbinsq
-        nbins <- round(drange/width)
-        breaks <- seq(summa[1]-drange/(nbins*100), summa[5]+drange/(nbins*100), length.out=nbins)
-    }
-##    breakFeatures[[i]] <- breaks
-    print(ggplot(origdata[,..i], aes_(x=as.name(names(origdata)[i]))) + geom_histogram(breaks=breaks))
-    #hist(x=datum, breaks=breaks, main=nameFeatures[i], xlab=nameFeatures[i])
-    ## if(nameFeatures[i] == 'logrmsd'){
-    ##     matlines(y=matrix(c(-1,5000),2,1), x=matrix(rep(logRmsdThreshold,2),2,3,byrow=T),
-    ##              lty=c(2,3,2), lwd=3, col=c(myredpurple,myyellow,myredpurple))
-    ## }
-}
-##names(breakFeatures) <- names(data)
-dev.off()
-rm(origdata)
-gc()
-
 ## Mutual infos with RMSD
 minfos <- matrix(NA,4,nFeatures)
 rownames(minfos) <- c('MI','norm_MI','entropy','cond_entropy')
@@ -212,8 +214,19 @@ for(i in names(data)){
 reorder <- order(minfos[1,], decreasing=TRUE)
 minfos <- minfos[,reorder]
 data <- data[, ..reorder]
+origdata <- origdata[, setdiff(reorder-1,0), with=FALSE]
 breakFeatures <- breakFeatures[reorder]
-
+##
+##
+## Plots
+if(doplots==TRUE){
+pdff('histograms_scaled_data')
+for(i in 1:ncol(data)){
+    datum <- data[[i]]
+    breaks <- breakFeatures[[i]]
+    print(ggplot(data[,..i], aes_(x=as.name(names(data)[i]))) + geom_histogram(breaks=breaks))
+}
+dev.off()
 ##
 pdff('plotslogMI')
 for(k in 1:ncol(minfos)){
@@ -229,18 +242,35 @@ for(k in 1:ncol(minfos)){
                          ', MI = ',mi,' bit, norm = ',nmi,', cond entr = ',conden, ' bit'))
 }
 dev.off()
-
+##
+pdff('histograms_data')
+for(i in 1:ncol(origdata)){
+    datum <- origdata[[i]]
+    summa <- fivenum(datum)
+    drange <- diff(range(datum))
+    if(is.integer(datum)){
+        breaks <- (summa[1]:(summa[5]+1))-0.5
+    } else {
+        width <- diff(summa[c(2,4)])/nbinsq
+        nbins <- round(drange/width)
+        breaks <- seq(summa[1]-drange/(nbins*100), summa[5]+drange/(nbins*100), length.out=nbins)
+    }
+    print(ggplot(origdata[,..i], aes_(x=as.name(names(origdata)[i]))) + geom_histogram(breaks=breaks))
+}
+dev.off()}
+rm(origdata)
+gc()
+##
 ## Shuffle the data for training and test
 set.seed(222)
 data <- data[sample(1:nrow(data))]
-
+##
 fwrite(data,'../processed_data_scaled.csv', sep=' ')
-} else {
+##} else {
 ##
-data <- fread('../processed_data_scaled.csv', sep=' ')
+##data <- fread('../processed_data_scaled.csv', sep=' ')
 ##
-}
-
+##
 ## GOOD values:
 ## sdsasa <- 1
 ## sdtani <- 1
@@ -279,19 +309,9 @@ data <- fread('../processed_data_scaled.csv', sep=' ')
 ## #diag(c(sdsasa,sdtani)^2/coefdiag)
 ## testhp <- setHyperparams(mu0=mymu0, kappa0=mynu0, R0=solve(diag(c(sdsasa,sdtani)^2))*coefdiag,nu0=mykappa0)
 ## alpha <- 4
-
-
+##
 ## NB: nu here = kappa in fmri paper
 ## kappa here = nu in fmri paper
-sdsasa <- 1/2
-sdtani <- 9/10
-mymu0 <- c(4,0)
-mynu0 <- 30+1
-mykappa0 <- 0.1
-coefdiag <- (mykappa0+1)/(mykappa0*(mynu0-length(mymu0)-1))
-#diag(c(sdsasa,sdtani)^2/coefdiag)
-testhp <- setHyperparams(mu0=mymu0, kappa0=mynu0, R0=solve(diag(c(sdsasa,sdtani)^2))*coefdiag,nu0=mykappa0)
-
 
 ##################################################
 ## Mixed-x, no y-model
@@ -300,7 +320,9 @@ ndata <- 1 # nSamples = 37969
 #set.seed(222)
 seldata <- 1:ndata
 rmsdCol <- which(names(data)=='bin_RMSD')
-covNums <- c(3:4,6:7)
+covNums <- which(colnames(data) %in%  c('log_mcs_unbonded_polar_sasa', 'scale_ec_tanimoto_similarity', 'mcs_NumHeteroAtoms', # 'scale_fc_tanimoto_similarity'
+                                        # 'docked_HeavyAtomCount', 
+                                        'mcs_RingCount'))
 covNames <- names(data)[covNums]
 discreteCovs <- covNames[sapply(covNames, function(x){is.integer(data[[x]])})]
 continuousCovs <- covNames[sapply(covNames, function(x){is.double(data[[x]])})]
@@ -309,9 +331,14 @@ allCovNums <- c(rmsdCol, covNums)
 dimsC <- length(continuousCovs)
 itanimoto <- continuousCovs[grepl('tanimoto', continuousCovs)]
 isasa <- continuousCovs[grepl('sasa', continuousCovs)]
-##***
-
-
+## Hyperparameters
+hmu0 <- sapply(continuousCovs, function(x){mu0[sapply(names(mu0),function(y){grepl(y,x)})]})
+hnu0 <- df0 + dimsC -1
+hkappa0 <- 0.01
+hDelta0 <- solve(diag(sapply(continuousCovs, function(x){sig0[sapply(names(sig0),function(y){grepl(y,x)})]}))) * (hkappa0+1)/(df0 * hkappa0)
+colnames(hDelta0) <- rownames(hDelta0) <- names(hmu0)
+##
+testhp <- setHyperparams(mu0=hmu0, kappa0=hnu0, R0=hDelta0, nu0=hkappa0)
 ##
 rmsdVals <- 1
 ##
@@ -336,7 +363,7 @@ outfile <- paste0('_mcoutput',val)
 ##
 datamcr <- datamcr[-1]
 ##
-regr <- profRegr(excludeY=TRUE, xModel='Mixed', nSweeps=50e3, nBurn=10e3, nFilter=50, data=as.data.frame(datamcr), nClusInit=80, covNames=c(discreteCovs,continuousCovs), discreteCovs=discreteCovs, continuousCovs=continuousCovs, nProgress=1000, seed=147, output=outfile, useHyperpriorR1=FALSE, useNormInvWishPrior=TRUE,hyper=testhp,alpha=4)
+regr <- profRegr(excludeY=TRUE, xModel='Mixed', nSweeps=50e3, nBurn=20e3, nFilter=50, data=as.data.frame(datamcr), nClusInit=80, covNames=c(discreteCovs,continuousCovs), discreteCovs=discreteCovs, continuousCovs=continuousCovs, nProgress=1000, seed=147, output=outfile, useHyperpriorR1=FALSE, useNormInvWishPrior=TRUE, hyper=testhp, alpha=5)
 testmcall <- list()
 testmcall[[1]] <- c(val=val,regr)
 names(testmcall) <- paste0('bin',sapply(testmcall,function(i){i$val}))
@@ -438,7 +465,7 @@ isasa <- cC[grepl('sasa', cC)]
 itani <- cC[grepl('tanimoto', cC)]
 ##
 jac <- function(X){
-    sqrt(2*pi)*exp(qnorm(X[itani])^2/2)/(X[isasa])
+   Dtanimoto2y(X[itani])*Dsasa2y(X[isasa])
 }
 ##
 predictSasaTani <- function(dataobj, X){
@@ -469,7 +496,7 @@ predictSampleSasaTani <- function(dataobj,sample, X){
 nplots <- 50
 plan(sequential)
 ##plan(multisession, workers = 6L)
-xgrid <- seq(1, 150,length.out=20)
+xgrid <- seq(1, 200,length.out=20)
 ygrid <- seq(0.001,0.999,length.out=20)
 pdf(file=paste0('testsampledensities_seq.pdf'),height=11.7,width=16.5*10)
 ## plot(NA,xlim=c(0,1),ylim=c(0,1),main='parameters')
@@ -480,9 +507,9 @@ zgrid <- outer(xgrid,ygrid,function(x,y){
     mapply(function(xx,yy){
                     XX <- c(xx,yy)
                     names(XX) <- cC
-                    YY <- c(log(xx),qnorm(yy))
+                    YY <- c(sasa2y(xx),tanimoto2y(yy))
                     names(YY) <- cC
-                    predictSampleSasaTani(sampledata[[1]], sample,YY)*jac(XX)
+                    predictSampleSasaTani(sampledata[[1]], sample, YY)*jac(XX)
                     },
         x,y)}
         )
@@ -493,7 +520,7 @@ dev.off()
 ## Plot predictive density
 plan(sequential)
 plan(multisession, workers = 6L)
-xgrid <- seq(1, 100,length.out=20)
+xgrid <- seq(0.5, 200,length.out=20)
 ygrid <- seq(0.001,0.999,length.out=20)
 pdf(file=paste0('testdensities.pdf'),height=11.7,width=16.5*10)
 ## plot(NA,xlim=c(0,1),ylim=c(0,1),main='parameters')
@@ -503,7 +530,7 @@ zgrid <- outer(xgrid,ygrid,function(x,y){
     mapply(function(xx,yy){
                     XX <- c(xx,yy)
                     names(XX) <- cC
-                    YY <- c(log(xx),qnorm(yy))
+                    YY <- c(sasa2y(xx),tanimoto2y(yy))
                     names(YY) <- cC
                     predictSasaTani(sampledata[[1]], YY)*jac(XX)
                     },
@@ -526,7 +553,7 @@ dev.off()
 
 
 
-xgrid <- seq(0.1, 2,length.out=20)
+xgrid <- seq(0.5, 200,length.out=20)
 ygrid <- seq(0.001,0.999,length.out=20)
 pdf(file=paste0('testsampledensities.pdf'),height=11.7,width=16.5*10)
 layout(matrix(1:10,1,10,byrow=TRUE))

@@ -1,7 +1,7 @@
 \pdfoutput=1
 %% Author: PGL  Porta Mana
 %% Created: 2015-05-01T20:53:34+0200
-%% Last-Updated: 2021-07-08T14:28:52+0200
+%% Last-Updated: 2021-07-14T12:44:25+0200
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \newif\ifarxiv
 \arxivfalse
@@ -682,6 +682,7 @@ Open Science Framework \doi{10.31219/osf.io/#1}%
 \newcommand*{\yF}{\bm{F}}
 \newcommand*{\yFyx}{\yF_{\bm{y\mid x}}}
 \newcommand*{\yFxy}{\yF_{\bm{x\mid y}}}
+\DeclareMathOperator*{\logit}{logit}
 %%% Custom macros end @@@
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -1038,10 +1039,79 @@ the computation is somewhat faster.
 
 The computation of each probability is analogous to that explained in
 \sect~\ref{sec:direct_method}, based on a Dirichlet-process mixture with
-product kernels of multivariate normal and Dirichlet distributions.
+product kernels of multivariate normal and Dirichlet distributions. 
 
 
 %%run: 560 s in parallel, 20e3 burn-in, 10e3 sweeps, 10 thinning 
+
+
+\section{Selection of prior}
+\label{sec:sel_prior_reverse}
+
+As a first simplifying assumption we choose the three priors
+$\p(\yF_{\bm{x\mid}y} \| H)\ \di\yF_{\bm{x\mid}y}$ for
+$y \in \set{\text{\enquote*{good}},\, \text{\enquote*{inconclusive}},\,
+  \text{\enquote*{bad}}}$ to have the same form. They are therefore
+independent of $y$.
+
+Mathematically the prior is represented by a Dirichlet-process mixture with
+product kernels of multivariate normal and Dirichlet distributions. We
+choose the product of a normal-inverse-Wishart distribution and Dirichlet
+distributions as the average measure resulting from the Dirichlet process,
+because it leads to faster computation.
+
+Let us first focus on the continuous quantities, \enquote{tanimoto} and
+\enquote{sasa}.
+
+The normal-inverse-Wishart has four parameters, and leads to a multivariate
+t-distribution for the quantities. We choose these parameters, the
+concentration parameter of the Dirichlet process, and the coordinate
+systems on the space of the continuous quantities in order to build a prior
+distribution that represents as well as possible our knowledge before
+seeing the data. Here are some requirements:
+\begin{enumerate}[label=(\alph*)]
+\item The \enquote{sasa} quantities $x$ have a range in $\clop{0,+\infty}$.
+  We consider them as scale quantities (even if the value $0$ is included)
+  and transform them to a log-scale:
+    \begin{equation}
+    \label{eq:log_sasa}
+    x \mapsto y = \tfrac{1}{4}\ln x \ .
+  \end{equation}
+  Their prior distribution is chosen as almost uniform on this scale:
+  $\p[\ln(x) \| H]\ \di\ln(x) \propto \di\ln(x)$, approximated by a
+  t-distribution with large standard deviation.
+
+\item We set the mean of the t-distribution for the \enquote{sasa}
+  quantities equal to the mean observed in the full dataset, in order to represent
+  theoretical prior knowledge on this kind of quantities.
+
+\item The \enquote{tanimoto} quantities $x$ have a range in $\clcl{0,1}$.
+  In this coordinate system we assume that they have a Jeffreys prior $\p(x
+  \| H)\ \di x \propto \frac{\di x}{x\ (1-x)}$.
+  We transform them to $\RR$ with a logit function
+  \begin{equation}
+    \label{eq:logit_tanimoto}
+    x \mapsto y = \tfrac{1}{2}\logit(x) \defd \tfrac{1}{2}\ln\frac{x}{1-x} \ .
+  \end{equation}
+In this coordinate system the prior is uniform, approximated by a
+t-distribution with large standard deviation.
+\item We want the priors for the \enquote{sasa} and \enquote{tanimoto}
+  quantities to be approximately independent; this is obtained by choosing
+  a large degree-of-freedom parameter for the multivariate t-distribution.
+\item We choose the expected variances for the \enquote{sasa} and
+  \enquote{tanimoto} quantities mapped to $\RR$ to be approximately equal
+  to the variances observed in the full dataset, in order to represent
+  theoretical prior knowledge on this kind of quantities.
+\item We choose the standard deviations for the means of the \enquote{sasa}
+  and \enquote{tanimoto} quantities to be approximately equal to their
+  ranges observed in the full dataset, in order to represent theoretical
+  prior knowledge on this kind of quantities.
+\end{enumerate}
+
+
+
+
+
 
 \textcolor{white}{If you find this you can claim a postcard from me.}
 
@@ -1135,8 +1205,13 @@ product kernels of multivariate normal and Dirichlet distributions.
 \appendix
 \mynote{\pencil\ These are just working notes}
 
-\section{Notes on selection of prior}
+\section{Selection of prior}
 \label{sec:sel_prior}
+
+based on a Dirichlet-process mixture with
+product kernels of multivariate normal and Dirichlet distributions.
+
+
 
 The \enquote{sasa} quantities $x$ have a range in $\clop{0,+\infty}$. We
 consider them as scale quantities (even if the value $0$ is included) and
