@@ -1,6 +1,6 @@
 ## Author: PGL  Porta Mana
 ## Created: 2021-03-20T10:07:17+0100
-## Last-Updated: 2021-07-15T08:13:25+0200
+## Last-Updated: 2021-07-15T08:46:19+0200
 ################
 ## Script for reverse regression
 ################
@@ -79,7 +79,7 @@ normalize <- function(freqs){freqs/sum(freqs)}
 ## expvar0 <- c(expvarsasa,expvartani)
 ## names(expvar0) <- c('sasa','tanimoto')
 ## df0 <- 30
-## alpha <- 5
+## alpha <- 4 or 5
 
 doplots <- FALSE
 ## specify hyperparams
@@ -95,6 +95,8 @@ expvarsasa <- (1/2)^2
 expvartani <- (1/2)^2
 expvar0 <- c(expvarsasa,expvartani)
 names(expvar0) <- c('sasa','tanimoto')
+## diagvar0 <- (2)^2
+## df0 <- (2*expvarsasa^2)/diagvar0 + 4
 df0 <- 30
 ##
 tanimoto2y <- function(x){
@@ -357,7 +359,7 @@ outfile <- paste0('_mcoutput',val)
 ##
 datamcr <- datamcr[-1]
 ##
-regr <- profRegr(excludeY=TRUE, xModel='Mixed', nSweeps=50e3, nBurn=20e3, nFilter=50, data=as.data.frame(datamcr), nClusInit=80, covNames=c(discreteCovs,continuousCovs), discreteCovs=discreteCovs, continuousCovs=continuousCovs, nProgress=1000, seed=147, output=outfile, useHyperpriorR1=FALSE, useNormInvWishPrior=TRUE, hyper=testhp, alpha=3)
+regr <- profRegr(excludeY=TRUE, xModel='Mixed', nSweeps=50e3, nBurn=20e3, nFilter=50, data=as.data.frame(datamcr), nClusInit=80, covNames=c(discreteCovs,continuousCovs), discreteCovs=discreteCovs, continuousCovs=continuousCovs, nProgress=1000, seed=147, output=outfile, useHyperpriorR1=FALSE, useNormInvWishPrior=TRUE, hyper=testhp, alpha=4)
 testmcall <- list()
 testmcall[[1]] <- c(val=val,regr)
 names(testmcall) <- paste0('bin',sapply(testmcall,function(i){i$val}))
@@ -507,7 +509,7 @@ zgrid <- outer(xgrid,ygrid,function(x,y){
                     },
         x,y)}
         )
-persp(xgrid,ygrid,zgrid,zlim=c(0,max(zgrid)),ticktype='detailed',theta = 45, phi = 15)
+persp(xgrid,ygrid,zgrid,zlim=c(0,max(zgrid)),ticktype='detailed',theta = 45, phi = 15,xlab='sasa',ylab='tanimoto')
 }
 dev.off()
 ##
@@ -527,7 +529,7 @@ zgrid <- outer(xgrid,ygrid,function(x,y){
                     },
         x,y)}
         )
-persp(xgrid,ygrid,zgrid,zlim=c(0,max(zgrid)),ticktype='detailed',theta = 45, phi = 15)
+persp(xgrid,ygrid,zgrid,zlim=c(0,max(zgrid)),ticktype='detailed',theta = 45, phi = 15,xlab='scaled sasa',ylab='scaled tanimoto')
 }
 dev.off()
 
