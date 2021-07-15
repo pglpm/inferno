@@ -1,7 +1,7 @@
 \pdfoutput=1
 %% Author: PGL  Porta Mana
 %% Created: 2015-05-01T20:53:34+0200
-%% Last-Updated: 2021-07-14T12:44:25+0200
+%% Last-Updated: 2021-07-15T07:28:03+0200
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \newif\ifarxiv
 \arxivfalse
@@ -1063,12 +1063,20 @@ because it leads to faster computation.
 Let us first focus on the continuous quantities, \enquote{tanimoto} and
 \enquote{sasa}.
 
-The normal-inverse-Wishart has four parameters, and leads to a multivariate
-t-distribution for the quantities. We choose these parameters, the
-concentration parameter of the Dirichlet process, and the coordinate
-systems on the space of the continuous quantities in order to build a prior
-distribution that represents as well as possible our knowledge before
-seeing the data. Here are some requirements:
+The normal-inverse-Wishart has four parameters
+$\mu, \varSigma, \kappa, \delta$, and leads to a multivariate
+t-distribution for the quantities. The mean of the t-distribution is equal
+to $\mu$; the expected value of the covariance matrix is
+$\frac{1}{\delta-2}\varSigma$; the covariance of the t-distribution is
+$\frac{\kappa+1}{\kappa\ (\delta-2)}\varSigma$; the covariance of the mean
+is $\frac{1}{\kappa\ (\delta-2)}\varSigma$; the degrees of freedom of the
+t-distribution equal $\delta$.
+
+We choose these parameters, the concentration parameter of the Dirichlet
+process, and the coordinate systems on the space of the continuous
+quantities in order to build a prior distribution that represents as well
+as possible our knowledge before seeing the data. Here are some
+requirements:
 \begin{enumerate}[label=(\alph*)]
 \item The \enquote{sasa} quantities $x$ have a range in $\clop{0,+\infty}$.
   We consider them as scale quantities (even if the value $0$ is included)
@@ -1095,6 +1103,7 @@ seeing the data. Here are some requirements:
   \end{equation}
 In this coordinate system the prior is uniform, approximated by a
 t-distribution with large standard deviation.
+
 \item We want the priors for the \enquote{sasa} and \enquote{tanimoto}
   quantities to be approximately independent; this is obtained by choosing
   a large degree-of-freedom parameter for the multivariate t-distribution.
@@ -1108,7 +1117,23 @@ t-distribution with large standard deviation.
   prior knowledge on this kind of quantities.
 \end{enumerate}
 
-
+\begin{equation}
+  \label{eq:requirements_hyperparams}
+  \begin{aligned}
+   &\frac{\kappa+1}{\kappa\ (\delta-2)}\varSigma = 5^{2}
+&&\text{\small(t-distr. variance)}
+    \\
+    &\frac{1}{\kappa\ (\delta-2)}\varSigma = 1^{2}
+&&\text{\small(variance of mean)}
+    \\
+    &\frac{1}{\delta-2}\varSigma = \frac{1}{2^{2}}
+&&\text{\small(exp. variance)}
+    \\
+    &\mu_{\text{sasa}} = 1 &&
+    \\
+    &\delta = 30 &&
+  \end{aligned}
+\end{equation}
 
 
 

@@ -1,6 +1,6 @@
 ## Author: PGL  Porta Mana
 ## Created: 2021-03-20T10:07:17+0100
-## Last-Updated: 2021-07-14T11:24:54+0200
+## Last-Updated: 2021-07-15T08:13:25+0200
 ################
 ## Script for reverse regression
 ################
@@ -66,46 +66,39 @@ entropy <- function(freqs,base=2){##in bits by default
 normalize <- function(freqs){freqs/sum(freqs)}
 
 ## Good values:
-## mu0 <- c(5,0)
-## names(mu0) <- c('sasa','tanimoto')
-## sig0 <- c(3,1)^2
-## names(sig0) <- c('sasa','tanimoto')
-## df0 <- 20
-## hkappa0 <- 0.05
-##
-## mu0 <- c(5,0)
-## names(mu0) <- c('sasa','tanimoto')
-## sig0 <- c(3,1)^2
-## names(sig0) <- c('sasa','tanimoto')
-## df0 <- 20
-## hkappa0 <- 0.05
-##
-## musasa <- 4
+## musasa <- 1
 ## mutani <- 0
 ## mu0 <- c(musasa,mutani)
 ## names(mu0) <- c('sasa','tanimoto')
-## sdsasa <- 5/2
-## sdtani <- 9/10
-## sig0 <- c(sdsasa,sdtani)^2
-## names(sig0) <- c('sasa','tanimoto')
-## df0 <- 20
-## hkappa0 <- 0.05
+## varmusasa <- 2^2
+## varmutani <- 2^2
+## sigmu0 <- c(varmusasa,varmutani)
+## names(sigmu0) <- c('sasa','tanimoto')
+## expvarsasa <- (1/2)^2
+## expvartani <- (1/2)^2
+## expvar0 <- c(expvarsasa,expvartani)
+## names(expvar0) <- c('sasa','tanimoto')
+## df0 <- 30
 ## alpha <- 5
 
-doplots <- TRUE
+doplots <- FALSE
 ## specify hyperparams
-musasa <- 0
+musasa <- 1
 mutani <- 0
 mu0 <- c(musasa,mutani)
 names(mu0) <- c('sasa','tanimoto')
-sdsasa <- 1
-sdtani <- 1
-sig0 <- c(sdsasa,sdtani)^2
-names(sig0) <- c('sasa','tanimoto')
-df0 <- 1
+varmusasa <- 2^2
+varmutani <- 2^2
+sigmu0 <- c(varmusasa,varmutani)
+names(sigmu0) <- c('sasa','tanimoto')
+expvarsasa <- (1/2)^2
+expvartani <- (1/2)^2
+expvar0 <- c(expvarsasa,expvartani)
+names(expvar0) <- c('sasa','tanimoto')
+df0 <- 30
 ##
 tanimoto2y <- function(x){
-    -log(1/x-1)/2
+    -log(1/x-1)/2 ## faster than qlogis(x, scale=1/2)
 }
 ##
 ## correct compared with study_prior_bayes_regr.nb
@@ -320,7 +313,7 @@ ndata <- 1 # nSamples = 37969
 #set.seed(222)
 seldata <- 1:ndata
 rmsdCol <- which(names(data)=='bin_RMSD')
-covNums <- which(colnames(data) %in%  c('log_mcs_unbonded_polar_sasa', 'scale_ec_tanimoto_similarity', 'mcs_NumHeteroAtoms', # 'scale_fc_tanimoto_similarity'
+covNums <- which(colnames(data) %in%  c('scale_mcs_unbonded_polar_sasa', 'scale_ec_tanimoto_similarity', 'mcs_NumHeteroAtoms', # 'scale_fc_tanimoto_similarity'
                                         # 'docked_HeavyAtomCount', 
                                         'mcs_RingCount'))
 covNames <- names(data)[covNums]
@@ -333,9 +326,10 @@ itanimoto <- continuousCovs[grepl('tanimoto', continuousCovs)]
 isasa <- continuousCovs[grepl('sasa', continuousCovs)]
 ## Hyperparameters
 hmu0 <- sapply(continuousCovs, function(x){mu0[sapply(names(mu0),function(y){grepl(y,x)})]})
-hnu0 <- df0 + dimsC -1
-hkappa0 <- 0.01
-hDelta0 <- solve(diag(sapply(continuousCovs, function(x){sig0[sapply(names(sig0),function(y){grepl(y,x)})]}))) * (hkappa0+1)/(df0 * hkappa0)
+hnu0 <- df0 + dimsC - 1
+hkappa0 <- expvarsasa/varmusasa
+## hkappa0 <- 0.01
+hDelta0 <- solve(diag(sapply(continuousCovs, function(x){expvar0[sapply(names(expvar0),function(y){grepl(y,x)})]})))/(df0-2)
 colnames(hDelta0) <- rownames(hDelta0) <- names(hmu0)
 ##
 testhp <- setHyperparams(mu0=hmu0, kappa0=hnu0, R0=hDelta0, nu0=hkappa0)
@@ -363,7 +357,7 @@ outfile <- paste0('_mcoutput',val)
 ##
 datamcr <- datamcr[-1]
 ##
-regr <- profRegr(excludeY=TRUE, xModel='Mixed', nSweeps=50e3, nBurn=20e3, nFilter=50, data=as.data.frame(datamcr), nClusInit=80, covNames=c(discreteCovs,continuousCovs), discreteCovs=discreteCovs, continuousCovs=continuousCovs, nProgress=1000, seed=147, output=outfile, useHyperpriorR1=FALSE, useNormInvWishPrior=TRUE, hyper=testhp, alpha=5)
+regr <- profRegr(excludeY=TRUE, xModel='Mixed', nSweeps=50e3, nBurn=20e3, nFilter=50, data=as.data.frame(datamcr), nClusInit=80, covNames=c(discreteCovs,continuousCovs), discreteCovs=discreteCovs, continuousCovs=continuousCovs, nProgress=1000, seed=147, output=outfile, useHyperpriorR1=FALSE, useNormInvWishPrior=TRUE, hyper=testhp, alpha=3)
 testmcall <- list()
 testmcall[[1]] <- c(val=val,regr)
 names(testmcall) <- paste0('bin',sapply(testmcall,function(i){i$val}))
@@ -510,6 +504,26 @@ zgrid <- outer(xgrid,ygrid,function(x,y){
                     YY <- c(sasa2y(xx),tanimoto2y(yy))
                     names(YY) <- cC
                     predictSampleSasaTani(sampledata[[1]], sample, YY)*jac(XX)
+                    },
+        x,y)}
+        )
+persp(xgrid,ygrid,zgrid,zlim=c(0,max(zgrid)),ticktype='detailed',theta = 45, phi = 15)
+}
+dev.off()
+##
+##
+xgrid <- seq(-3, 3, length.out=20)
+ygrid <- seq(-3, 3, length.out=20)
+pdf(file=paste0('testsampledensities_scaled_seq.pdf'),height=11.7,width=16.5*10)
+## plot(NA,xlim=c(0,1),ylim=c(0,1),main='parameters')
+## text(0,1,(paste0('transf = ','id','\ndim = ',dims,'\nmeanalpha = ',meanalpha,'\nsdalpha = ',sdalpha,'\nK = ',ka,'\nL = ',la,'\nM = ',mu,'\nresc = ',resc,'\nNclust = ',mean(clusters))),adj = c(0,1),cex=5)
+##
+for(sample in round(seq(1,1000,length.out=nplots))){
+zgrid <- outer(xgrid,ygrid,function(x,y){
+    mapply(function(xx,yy){
+                    XX <- c(xx,yy)
+                    names(XX) <- cC
+                    predictSampleSasaTani(sampledata[[1]], sample, XX)
                     },
         x,y)}
         )
