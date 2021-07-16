@@ -1,6 +1,6 @@
 ## Author: PGL  Porta Mana
 ## Created: 2021-03-20T10:07:17+0100
-## Last-Updated: 2021-07-16T21:50:59+0200
+## Last-Updated: 2021-07-16T22:24:49+0200
 ################
 ## Script for reverse regression
 ################
@@ -721,6 +721,13 @@ save.image(file='_reverse_test.RData')
 evals2 <- metrics(testres2, priorP2)
 evals2
 save.image(file='_reverse_test.RData')
+## 5 covs, 2500 points, 7032 s
+##     model delta_gain contig_gain  log_score mean_score
+## 1:  model  0.6733333   0.7450000 -0.8941766  0.5928397
+## 2: chance  0.6006667   0.6683333 -0.9284347  0.4487041
+## 3:    min  0.0000000   0.0000000       -Inf  0.0000000
+## 4:    max  1.0000000   1.0000000  0.0000000  1.0000000
+##
 ## 3500 points, 7590 s
 ##     model delta_gain contig_gain  log_score mean_score
 ## 1:  model  0.6653333   0.7406667 -0.8515224  0.5708112
