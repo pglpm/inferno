@@ -1,6 +1,6 @@
 ## Author: PGL  Porta Mana
 ## Created: 2021-03-20T10:07:17+0100
-## Last-Updated: 2021-07-15T23:31:13+0200
+## Last-Updated: 2021-07-16T11:04:39+0200
 ################
 ## Script for reverse regression
 ################
@@ -311,7 +311,7 @@ fwrite(data,'../processed_data_scaled.csv', sep=' ')
 ##################################################
 ## Mixed-x, no y-model
 ##   user  system elapsed    0.08    0.03  371.17 
-ndata <- 2500 # nSamples = 37969
+ndata <- 3500 # nSamples = 37969
 #set.seed(222)
 seldata <- 1:ndata
 rmsdCol <- which(names(data)=='bin_RMSD')
@@ -530,102 +530,9 @@ zgrid <- outer(xgrid,ygrid,function(x,y){
 persp(xgrid,ygrid,zgrid,zlim=c(0,max(zgrid)),ticktype='detailed',theta = 45, phi = 15,xlab='scaled sasa',ylab='scaled tanimoto')
 }
 dev.off()
-
-## Plot predictive density
-plan(sequential)
-plan(multisession, workers = 6L)
-xgrid <- seq(0.5, 200,length.out=20)
-ygrid <- seq(0.001,0.999,length.out=20)
-pdf(file=paste0('testdensities.pdf'),height=11.7,width=16.5*10)
-## plot(NA,xlim=c(0,1),ylim=c(0,1),main='parameters')
-## text(0,1,(paste0('transf = ','id','\ndim = ',dims,'\nmeanalpha = ',meanalpha,'\nsdalpha = ',sdalpha,'\nK = ',ka,'\nL = ',la,'\nM = ',mu,'\nresc = ',resc,'\nNclust = ',mean(clusters))),adj = c(0,1),cex=5)
 ##
-zgrid <- outer(xgrid,ygrid,function(x,y){
-    mapply(function(xx,yy){
-                    XX <- c(xx,yy)
-                    names(XX) <- cC
-                    YY <- c(sasa2y(xx),tanimoto2y(yy))
-                    names(YY) <- cC
-                    predictSasaTani(sampledata[[1]], YY)*jac(XX)
-                    },
-        x,y)}
-        )
-persp(xgrid,ygrid,zgrid,zlim=c(0,max(zgrid)),ticktype='detailed',theta = 45, phi = 15)
-dev.off()
-
-
-for(i in 1:100){
-    zgrid <- outer(xgrid,ygrid,function(x,y){
-        XX <- c(x,y)
-        names(XX) <- cC
-        predictSasaTani(sampledata[[1]], XX)*jac(X)}
-        )
-persp(xgrid,ygrid,zgrid,zlim=c(0,max(zgrid)),ticktype='detailed')
-}
-dev.off()
-
-
-
-
-xgrid <- seq(0.5, 200,length.out=20)
-ygrid <- seq(0.001,0.999,length.out=20)
-pdf(file=paste0('testsampledensities.pdf'),height=11.7,width=16.5*10)
-layout(matrix(1:10,1,10,byrow=TRUE))
-## plot(NA,xlim=c(0,1),ylim=c(0,1),main='parameters')
-## text(0,1,(paste0('transf = ','id','\ndim = ',dims,'\nmeanalpha = ',meanalpha,'\nsdalpha = ',sdalpha,'\nK = ',ka,'\nL = ',la,'\nM = ',mu,'\nresc = ',resc,'\nNclust = ',mean(clusters))),adj = c(0,1),cex=5)
 ##
-for(sample in round(seq(1,1000,length.out=10^2))){
-zgrid <- outer(xgrid,ygrid,function(x,y){
-    mapply(function(xx,yy){
-                    XX <- c(xx,yy)
-                    names(XX) <- cC
-                    YY <- c(log(xx),qnorm(yy))
-                    names(YY) <- cC
-                    predictSampleSasaTani(sampledata[[1]], sample,YY)*jac(XX)
-                    },
-        x,y)}
-        )
-persp(xgrid,ygrid,zgrid,zlim=c(0,max(zgrid)),ticktype='detailed')
-}
-dev.off()
-
-for(i in 1:100){
-    zgrid <- outer(xgrid,ygrid,function(x,y){
-        XX <- c(x,y)
-        names(XX) <- cC
-        predictSasaTani(sampledata[[1]], XX)*jac(X)}
-        )
-persp(xgrid,ygrid,zgrid,zlim=c(0,max(zgrid)),ticktype='detailed')
-}
-dev.off()
-
-
-
-
-
-
-plan(sequential)
-xgrid <- seq(0.1, 2,length.out=20)
-ygrid <- seq(0.001,0.999,length.out=20)
-pdf(file=paste0('testsampledensities.pdf'),height=11.7,width=16.5*10)
-## plot(NA,xlim=c(0,1),ylim=c(0,1),main='parameters')
-## text(0,1,(paste0('transf = ','id','\ndim = ',dims,'\nmeanalpha = ',meanalpha,'\nsdalpha = ',sdalpha,'\nK = ',ka,'\nL = ',la,'\nM = ',mu,'\nresc = ',resc,'\nNclust = ',mean(clusters))),adj = c(0,1),cex=5)
 ##
-zgrid <- outer(xgrid,ygrid,function(x,y){
-    mapply(function(xx,yy){
-                    XX <- c(xx,yy)
-                    names(XX) <- cC
-                    YY <- c(log(xx),qnorm(yy))
-                    names(YY) <- cC
-                    predictSampleSasaTani(sampledata[[1]], 3,YY)*jac(XX)
-                    },
-        x,y)}
-        )
-persp(xgrid,ygrid,zgrid,zlim=c(0,max(zgrid)),ticktype='detailed')
-dev.off()
-
-
-
 ##################################################################
 ##################################################################
 ##################################################################
@@ -733,7 +640,14 @@ plan(sequential)
 evals1 <- metrics(testres, priorP)
 evals1
 save.image(file='_reverse_test.RData')
-## 2500 datapoints
+## 3500 points, 7484 s
+## > > > >     model delta_gain contig_gain log_score mean_score
+## 1:  model  0.4766667   0.6816667 -1.071031  0.4194373
+## 2: chance  0.3333333   0.6666667 -1.098612  0.3333333
+## 3:    min  0.0000000   0.0000000      -Inf  0.0000000
+## 4:    max  1.0000000   1.0000000  0.000000  1.0000000
+##
+## 2500 datapoints, 6483 s
 ##     model delta_gain contig_gain log_score mean_score
 ## 1:  model  0.4720000   0.6806667 -1.089924  0.4195193
 ## 2: chance  0.3333333   0.6666667 -1.098612  0.3333333
@@ -798,7 +712,14 @@ save.image(file='_reverse_test.RData')
 evals2 <- metrics(testres2, priorP2)
 evals2
 save.image(file='_reverse_test.RData')
-## 2500 datapoints
+## 3500 points, 7590 s
+##     model delta_gain contig_gain  log_score mean_score
+## 1:  model  0.6653333   0.7406667 -0.8515224  0.5708112
+## 2: chance  0.6006667   0.6683333 -0.9284347  0.4487041
+## 3:    min  0.0000000   0.0000000       -Inf  0.0000000
+## 4:    max  1.0000000   1.0000000  0.0000000  1.0000000
+##
+## 2500 datapoints, 6435 s
 ##     model delta_gain contig_gain  log_score mean_score
 ## 1:  model  0.6653333   0.7426667 -0.8641327  0.5757285
 ## 2: chance  0.6006667   0.6683333 -0.9284347  0.4487041
@@ -816,6 +737,105 @@ save.image(file='_reverse_test.RData')
 ## 2: chance  0.6006667   0.6683333 -0.9284347  0.4487041
 ## 3:    min  0.0000000   0.0000000       -Inf  0.0000000
 ## 4:    max  1.0000000   1.0000000  0.0000000  1.0000000
+
+
+
+
+
+## Plot predictive density
+plan(sequential)
+plan(multisession, workers = 6L)
+xgrid <- seq(0.5, 200,length.out=20)
+ygrid <- seq(0.001,0.999,length.out=20)
+pdf(file=paste0('testdensities.pdf'),height=11.7,width=16.5*10)
+## plot(NA,xlim=c(0,1),ylim=c(0,1),main='parameters')
+## text(0,1,(paste0('transf = ','id','\ndim = ',dims,'\nmeanalpha = ',meanalpha,'\nsdalpha = ',sdalpha,'\nK = ',ka,'\nL = ',la,'\nM = ',mu,'\nresc = ',resc,'\nNclust = ',mean(clusters))),adj = c(0,1),cex=5)
+##
+zgrid <- outer(xgrid,ygrid,function(x,y){
+    mapply(function(xx,yy){
+                    XX <- c(xx,yy)
+                    names(XX) <- cC
+                    YY <- c(sasa2y(xx),tanimoto2y(yy))
+                    names(YY) <- cC
+                    predictSasaTani(sampledata[[1]], YY)*jac(XX)
+                    },
+        x,y)}
+        )
+persp(xgrid,ygrid,zgrid,zlim=c(0,max(zgrid)),ticktype='detailed',theta = 45, phi = 15)
+dev.off()
+
+
+for(i in 1:100){
+    zgrid <- outer(xgrid,ygrid,function(x,y){
+        XX <- c(x,y)
+        names(XX) <- cC
+        predictSasaTani(sampledata[[1]], XX)*jac(X)}
+        )
+persp(xgrid,ygrid,zgrid,zlim=c(0,max(zgrid)),ticktype='detailed')
+}
+dev.off()
+
+
+
+
+xgrid <- seq(0.5, 200,length.out=20)
+ygrid <- seq(0.001,0.999,length.out=20)
+pdf(file=paste0('testsampledensities.pdf'),height=11.7,width=16.5*10)
+layout(matrix(1:10,1,10,byrow=TRUE))
+## plot(NA,xlim=c(0,1),ylim=c(0,1),main='parameters')
+## text(0,1,(paste0('transf = ','id','\ndim = ',dims,'\nmeanalpha = ',meanalpha,'\nsdalpha = ',sdalpha,'\nK = ',ka,'\nL = ',la,'\nM = ',mu,'\nresc = ',resc,'\nNclust = ',mean(clusters))),adj = c(0,1),cex=5)
+##
+for(sample in round(seq(1,1000,length.out=10^2))){
+zgrid <- outer(xgrid,ygrid,function(x,y){
+    mapply(function(xx,yy){
+                    XX <- c(xx,yy)
+                    names(XX) <- cC
+                    YY <- c(log(xx),qnorm(yy))
+                    names(YY) <- cC
+                    predictSampleSasaTani(sampledata[[1]], sample,YY)*jac(XX)
+                    },
+        x,y)}
+        )
+persp(xgrid,ygrid,zgrid,zlim=c(0,max(zgrid)),ticktype='detailed')
+}
+dev.off()
+
+for(i in 1:100){
+    zgrid <- outer(xgrid,ygrid,function(x,y){
+        XX <- c(x,y)
+        names(XX) <- cC
+        predictSasaTani(sampledata[[1]], XX)*jac(X)}
+        )
+persp(xgrid,ygrid,zgrid,zlim=c(0,max(zgrid)),ticktype='detailed')
+}
+dev.off()
+
+
+
+
+
+
+plan(sequential)
+xgrid <- seq(0.1, 2,length.out=20)
+ygrid <- seq(0.001,0.999,length.out=20)
+pdf(file=paste0('testsampledensities.pdf'),height=11.7,width=16.5*10)
+## plot(NA,xlim=c(0,1),ylim=c(0,1),main='parameters')
+## text(0,1,(paste0('transf = ','id','\ndim = ',dims,'\nmeanalpha = ',meanalpha,'\nsdalpha = ',sdalpha,'\nK = ',ka,'\nL = ',la,'\nM = ',mu,'\nresc = ',resc,'\nNclust = ',mean(clusters))),adj = c(0,1),cex=5)
+##
+zgrid <- outer(xgrid,ygrid,function(x,y){
+    mapply(function(xx,yy){
+                    XX <- c(xx,yy)
+                    names(XX) <- cC
+                    YY <- c(log(xx),qnorm(yy))
+                    names(YY) <- cC
+                    predictSampleSasaTani(sampledata[[1]], 3,YY)*jac(XX)
+                    },
+        x,y)}
+        )
+persp(xgrid,ygrid,zgrid,zlim=c(0,max(zgrid)),ticktype='detailed')
+dev.off()
+
+
 
 
 
