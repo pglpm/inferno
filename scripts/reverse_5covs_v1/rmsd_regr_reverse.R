@@ -1,6 +1,6 @@
 ## Author: PGL  Porta Mana
 ## Created: 2021-03-20T10:07:17+0100
-## Last-Updated: 2021-07-16T22:24:49+0200
+## Last-Updated: 2021-07-17T17:33:24+0200
 ################
 ## Script for reverse regression
 ################
@@ -311,7 +311,7 @@ fwrite(data,'../processed_data_scaled.csv', sep=' ')
 ##################################################
 ## Mixed-x, no y-model
 ##   user  system elapsed    0.08    0.03  371.17 
-ndata <- 2500 # nSamples = 37969
+ndata <- 4000 # nSamples = 37969
 #set.seed(222)
 seldata <- 1:ndata
 rmsdCol <- which(names(data)=='bin_RMSD')
@@ -360,7 +360,7 @@ system.time(
             }
         }
 ##
-   c(val=val, profRegr(excludeY=TRUE, xModel='Mixed', nSweeps=200e3, nBurn=100e3, nFilter=200, data=as.data.frame(datamcr), nClusInit=80, covNames=c(discreteCovs,continuousCovs), discreteCovs=discreteCovs, continuousCovs=continuousCovs, nProgress=1000, seed=147, output=outfile, useHyperpriorR1=FALSE, useNormInvWishPrior=TRUE, hyper=testhp, alpha=4))
+   c(val=val, profRegr(excludeY=TRUE, xModel='Mixed', nSweeps=500e3, nBurn=500e3, nFilter=500, data=as.data.frame(datamcr), nClusInit=80, covNames=c(discreteCovs,continuousCovs), discreteCovs=discreteCovs, continuousCovs=continuousCovs, nProgress=1000, seed=147, output=outfile, useHyperpriorR1=FALSE, useNormInvWishPrior=TRUE, hyper=testhp, alpha=4))
     }
    )
 plan(sequential)
@@ -445,7 +445,7 @@ for(j in 1:length(sampledata)){
     }
 dev.off()
 #plan(sequential)
-save.image(file='_reverse_test.RData')
+save.image(file=paste0('_reverse_test_N',ndata,'_',length(covNums),'covs.RData'))
 ##
 ## Plots
 ##
@@ -531,7 +531,7 @@ zgrid <- outer(xgrid,ygrid,function(x,y){
 persp(xgrid,ygrid,zgrid,zlim=c(0,max(zgrid)),ticktype='detailed',theta = 45, phi = 15,xlab='scaled sasa',ylab='scaled tanimoto')
 }
 dev.off()
-
+##
 ##
 ##
 ##################################################################
@@ -635,12 +635,18 @@ gc()
 system.time(testres <- t(apply(testdata, 1, function(datum){
     c(datum['bin_RMSD'], sapply(rmsdVals,function(val){predictYpar(sampledata[[val]],datum)}))
 })))
-save.image(file='_reverse_test.RData')
 plan(sequential)
 ##
 evals1 <- metrics(testres, priorP)
+save.image(file=paste0('_reverse_test_N',ndata,'_',length(covNums),'covs.RData'))
 evals1
-save.image(file='_reverse_test.RData')
+## 5 covs, 3500 points, 7305 s
+##     model delta_gain contig_gain log_score mean_score
+## 1:  model  0.4906667   0.6933333 -1.087008  0.4355049
+## 2: chance  0.3333333   0.6666667 -1.098612  0.3333333
+## 3:    min  0.0000000   0.0000000      -Inf  0.0000000
+## 4:    max  1.0000000   1.0000000  0.000000  1.0000000
+##
 ## 5 covs, 2500 points, 7016 s
 ##     model delta_gain contig_gain log_score mean_score
 ## 1:  model  0.4926667   0.6846667 -1.133043  0.4361120
@@ -716,11 +722,17 @@ gc()
 system.time(testres2 <- t(apply(testdata, 1, function(datum){
     c(datum['bin_RMSD'], normalize(sapply(rmsdVals,function(val){predictYpar2(sampledata[[val]],datum)})))
 })))
-save.image(file='_reverse_test.RData')
 ##
 evals2 <- metrics(testres2, priorP2)
+save.image(file=paste0('_reverse_test_N',ndata,'_',length(covNums),'covs.RData'))
 evals2
-save.image(file='_reverse_test.RData')
+## 5 covs, 3500 pts, 7348 s
+##     model delta_gain contig_gain  log_score mean_score
+## 1:  model  0.6700000   0.7480000 -0.8622665  0.5880038
+## 2: chance  0.6006667   0.6683333 -0.9284347  0.4487041
+## 3:    min  0.0000000   0.0000000       -Inf  0.0000000
+## 4:    max  1.0000000   1.0000000  0.0000000  1.0000000
+##
 ## 5 covs, 2500 points, 7032 s
 ##     model delta_gain contig_gain  log_score mean_score
 ## 1:  model  0.6733333   0.7450000 -0.8941766  0.5928397
