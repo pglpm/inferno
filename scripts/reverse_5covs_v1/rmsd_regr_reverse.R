@@ -1,6 +1,6 @@
 ## Author: PGL  Porta Mana
 ## Created: 2021-03-20T10:07:17+0100
-## Last-Updated: 2021-07-18T08:46:27+0200
+## Last-Updated: 2021-07-18T17:42:13+0200
 ################
 ## Script for reverse regression
 ################
@@ -341,9 +341,9 @@ rmsdVals <- 1:3
 ##
 rm(testmcall)
 gc()
+starttime <- Sys.time()
 plan(sequential)
 plan(multisession, workers = 4L)
-system.time(
     testmcall <- foreach(val=rmsdVals, .inorder=FALSE)%dopar%{
         outfile <- paste0('_mcoutput',val)
         datamcr <- data[seldata]
@@ -360,11 +360,12 @@ system.time(
             }
         }
 ##
-   c(val=val, profRegr(excludeY=TRUE, xModel='Mixed', nSweeps=500e3, nBurn=500e3, nFilter=500, data=as.data.frame(datamcr), nClusInit=80, covNames=c(discreteCovs,continuousCovs), discreteCovs=discreteCovs, continuousCovs=continuousCovs, nProgress=1000, seed=147, output=outfile, useHyperpriorR1=FALSE, useNormInvWishPrior=TRUE, hyper=testhp, alpha=4))
+   c(val=val, profRegr(excludeY=TRUE, xModel='Mixed', nSweeps=500e3, nBurn=500e3, nFilter=500, data=as.data.frame(datamcr), nClusInit=80, covNames=c(discreteCovs,continuousCovs), discreteCovs=discreteCovs, continuousCovs=continuousCovs, nProgress=1000, seed=241, output=outfile, useHyperpriorR1=FALSE, useNormInvWishPrior=TRUE, hyper=testhp, alpha=4))
     }
-   )
 plan(sequential)
 names(testmcall) <- paste0('bin',sapply(testmcall,function(i){i$val}))
+elapsedtime <- Sys.time() - starttime
+elapsedtime
 ##
 ##
 sampledata <- as.list(rep(NA,length(testmcall)))
@@ -646,7 +647,12 @@ evals1
 ## 2: chance  0.3333333   0.6666667 -1.098612  0.3333333
 ## 3:    min  0.0000000   0.0000000      -Inf  0.0000000
 ## 4:    max  1.0000000   1.0000000  0.000000  1.0000000
-
+## > > > >     model delta_gain contig_gain log_score mean_score
+## 1:  model  0.5053333   0.7020000 -1.067252  0.4357623
+## 2: chance  0.3333333   0.6666667 -1.098612  0.3333333
+## 3:    min  0.0000000   0.0000000      -Inf  0.0000000
+## 4:    max  1.0000000   1.0000000  0.000000  1.0000000
+##
 ## 5 covs, 3500 points, 7305 s
 ##     model delta_gain contig_gain log_score mean_score
 ## 1:  model  0.4906667   0.6933333 -1.087008  0.4355049
@@ -736,6 +742,11 @@ evals2
 ## 5 covs, 5000 points, 7308 s
 ##     model delta_gain contig_gain log_score mean_score
 ## 1:  model  0.6806667   0.7500000 -0.8471781  0.5860935
+## 2: chance  0.6006667   0.6683333 -0.9284347  0.4487041
+## 3:    min  0.0000000   0.0000000       -Inf  0.0000000
+## 4:    max  1.0000000   1.0000000  0.0000000  1.0000000
+## > > > >     model delta_gain contig_gain  log_score mean_score
+## 1:  model  0.6820000   0.7503333 -0.8500523  0.5854054
 ## 2: chance  0.6006667   0.6683333 -0.9284347  0.4487041
 ## 3:    min  0.0000000   0.0000000       -Inf  0.0000000
 ## 4:    max  1.0000000   1.0000000  0.0000000  1.0000000
