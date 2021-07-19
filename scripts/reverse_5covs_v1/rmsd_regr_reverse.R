@@ -1,6 +1,6 @@
 ## Author: PGL  Porta Mana
 ## Created: 2021-03-20T10:07:17+0100
-## Last-Updated: 2021-07-18T17:42:13+0200
+## Last-Updated: 2021-07-18T21:33:56+0200
 ################
 ## Script for reverse regression
 ################
@@ -641,6 +641,7 @@ plan(sequential)
 evals1 <- metrics(testres, priorP)
 save.image(file=paste0('_reverse_test_N',ndata,'_',length(covNums),'covs.RData'))
 evals1
+## for the 75% interval take mean+-(difference*2), see infer_error.nb
 ## 5 covs, 5000 points, 7348 s
 ##     model delta_gain contig_gain log_score mean_score
 ## 1:  model  0.5046667   0.6993333 -1.065359  0.4354056
