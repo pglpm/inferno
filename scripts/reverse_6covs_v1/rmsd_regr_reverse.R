@@ -1,6 +1,6 @@
 ## Author: PGL  Porta Mana
 ## Created: 2021-03-20T10:07:17+0100
-## Last-Updated: 2021-07-19T19:45:29+0200
+## Last-Updated: 2021-07-20T08:14:07+0200
 ################
 ## Script for reverse regression
 ################
@@ -643,6 +643,13 @@ plan(sequential)
 evals1 <- metrics(testres, priorP)
 save.image(file=paste0('_reverse_test_N',ndata,'_',length(covNums),'covs.RData'))
 evals1
+## 6 covs, 5000 pts, 9735 s
+##     model delta_gain contig_gain log_score mean_score
+## 1:  model  0.5080000   0.7036667 -1.106211  0.4532316
+## 2: chance  0.3333333   0.6666667 -1.098612  0.3333333
+## 3:    min  0.0000000   0.0000000      -Inf  0.0000000
+## 4:    max  1.0000000   1.0000000  0.000000  1.0000000
+##
 ## 5 covs, 5000 points, 7348 s
 ##     model delta_gain contig_gain log_score mean_score
 ## 1:  model  0.5046667   0.6993333 -1.065359  0.4354056
@@ -741,6 +748,13 @@ system.time(testres2 <- t(apply(testdata, 1, function(datum){
 evals2 <- metrics(testres2, priorP2)
 save.image(file=paste0('_reverse_test_N',ndata,'_',length(covNums),'covs.RData'))
 evals2
+## 6 covs, 5000 pts, 8411 s
+## > > >     model delta_gain contig_gain  log_score mean_score
+## 1:  model  0.6826667   0.7546667 -0.8769486  0.6062381
+## 2: chance  0.6006667   0.6683333 -0.9284347  0.4487041
+## 3:    min  0.0000000   0.0000000       -Inf  0.0000000
+## 4:    max  1.0000000   1.0000000  0.0000000  1.0000000
+##
 ## 5 covs, 5000 points, 7308 s
 ##     model delta_gain contig_gain log_score mean_score
 ## 1:  model  0.6806667   0.7500000 -0.8471781  0.5860935
