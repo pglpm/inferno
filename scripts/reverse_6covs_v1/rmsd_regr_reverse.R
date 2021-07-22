@@ -1,6 +1,6 @@
 ## Author: PGL  Porta Mana
 ## Created: 2021-03-20T10:07:17+0100
-## Last-Updated: 2021-07-20T08:14:07+0200
+## Last-Updated: 2021-07-21T22:56:04+0200
 ################
 ## Script for reverse regression
 ################
@@ -312,7 +312,7 @@ fwrite(data,'../processed_data_scaled.csv', sep=' ')
 ## Mixed-x, no y-model
 ## 5 covs, 5000 points: 14844 s
 ## 6 covs, 5000 pts: 9.696259 hours
-ndata <- 5000 # nSamples = 37969
+ndata <- 6000 # nSamples = 37969
 #set.seed(222)
 seldata <- 1:ndata
 rmsdCol <- which(names(data)=='bin_RMSD')
@@ -362,7 +362,7 @@ plan(multisession, workers = 4L)
             }
         }
 ##
-   c(val=val, profRegr(excludeY=TRUE, xModel='Mixed', nSweeps=1000e3, nBurn=1000e3, nFilter=1000, data=as.data.frame(datamcr), nClusInit=80, covNames=c(discreteCovs,continuousCovs), discreteCovs=discreteCovs, continuousCovs=continuousCovs, nProgress=1000, seed=147, output=outfile, useHyperpriorR1=FALSE, useNormInvWishPrior=TRUE, hyper=testhp, alpha=4))
+   c(val=val, profRegr(excludeY=TRUE, xModel='Mixed', nSweeps=1000e3, nBurn=2000e3, nFilter=1000, data=as.data.frame(datamcr), nClusInit=80, covNames=c(discreteCovs,continuousCovs), discreteCovs=discreteCovs, continuousCovs=continuousCovs, nProgress=1000, seed=147, output=outfile, useHyperpriorR1=FALSE, useNormInvWishPrior=TRUE, hyper=testhp, alpha=4))
     }
 plan(sequential)
 names(testmcall) <- paste0('bin',sapply(testmcall,function(i){i$val}))
@@ -536,7 +536,7 @@ persp(xgrid,ygrid,zgrid,zlim=c(0,max(zgrid)),ticktype='detailed',theta = 45, phi
 dev.off()
 ##
 ##
-##
+
 ##################################################################
 ##################################################################
 ##################################################################
