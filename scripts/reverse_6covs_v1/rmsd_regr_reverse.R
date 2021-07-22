@@ -1,6 +1,6 @@
 ## Author: PGL  Porta Mana
 ## Created: 2021-03-20T10:07:17+0100
-## Last-Updated: 2021-07-21T22:56:04+0200
+## Last-Updated: 2021-07-22T18:48:27+0200
 ################
 ## Script for reverse regression
 ################
@@ -311,7 +311,8 @@ fwrite(data,'../processed_data_scaled.csv', sep=' ')
 ##################################################
 ## Mixed-x, no y-model
 ## 5 covs, 5000 points: 14844 s
-## 6 covs, 5000 pts: 9.696259 hours
+## 6 covs, 5000 pts, 1000e3+1000e3 its: 9.696259 hours
+## 6 covs, 6000 pts, 2000e3+1000e3 its: 15.75 hours
 ndata <- 6000 # nSamples = 37969
 #set.seed(222)
 seldata <- 1:ndata
