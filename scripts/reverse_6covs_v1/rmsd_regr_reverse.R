@@ -1,6 +1,6 @@
 ## Author: PGL  Porta Mana
 ## Created: 2021-03-20T10:07:17+0100
-## Last-Updated: 2021-07-23T18:37:51+0200
+## Last-Updated: 2021-07-23T21:39:03+0200
 ################
 ## Script for reverse regression
 ################
@@ -547,6 +547,8 @@ dev.off()
 dgain <- diag(1,3)
 cgain <- 1-sapply(1:3,function(x){abs(x-1:3)})/2
 resample <- function(x, ...) x[sample.int(length(x), ...)]
+
+
 metrics <- function(testres, priorP){
     data.table(
     model=c('model', 'chance','min','max'),
@@ -630,6 +632,33 @@ predictYX <- function(dataobj, X, rvals){
     dimnames(freqs)[[3]] <- c('means','stds')
     dimnames(freqs)[[2]] <- paste0('binRMSD_',rvals)
     freqs
+}
+##
+predictYXcross <- function(dataobj, X){
+    X <- as.matrix(X[, c(dC,cC), with=FALSE])
+    freqs <- foreach(sample=seq_along(dataobj$nList), .combine=rbind, .inorder=FALSE)%dopar%{
+        colSums(exp(
+        log(dataobj$psiList[[sample]]) +
+        t(vapply(seq_len(dataobj$nList[sample]), function(cluster){
+            rowSums(log(
+                vapply(dC, function(covariate){
+                    dataobj$phiList[[sample]][[covariate]][X[,covariate], cluster]
+                }, numeric(nrow(X)))
+            )) +
+                dmvnorm(X[,cC], mean=dataobj$muList[[sample]][cC,cluster], sigma=as.matrix(dataobj$sigmaList[[sample]][cC,cC,cluster]), log=TRUE)
+        }, numeric(nrow(X))))
+    ))
+        ## colSums(dataobj$psiList[[sample]] *
+        ##     t(sapply(seq_len(dataobj$nList[sample]),function(cluster){
+        ##     exp(rowSums(log(sapply(dC, function(covariate){
+        ##         dataobj$phiList[[sample]][[covariate]][X[,covariate], cluster]
+        ##     })))) *
+        ##         dmvnorm(X[,cC], mean=dataobj$muList[[sample]][cC,cluster], sigma=as.matrix(dataobj$sigmaList[[sample]][cC,cC,cluster]))
+        ##     }))
+        ##     )
+    }
+    list(means=colMeans(freqs),
+         covariance=crossprod(freqs)/length(dataobj$nList))
 }
 ##
 #### Evaluation
@@ -1703,3 +1732,8 @@ predictYXtestsingle <- function(dataobj, X){
     me <- rowMeans(freqs)
     cbind(means=me, stds=sqrt(rowMeans(freqs^2) - me^2))
 }
+
+
+testmax <- function(x,y,z){max(x,y,z)}
+testmax <- Vectorize(testmax)
+
