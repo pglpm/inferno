@@ -1,6 +1,6 @@
 ## Author: PGL  Porta Mana
 ## Created: 2021-03-20T10:07:17+0100
-## Last-Updated: 2021-07-24T19:22:27+0200
+## Last-Updated: 2021-07-24T19:50:52+0200
 ################
 ## Script for reverse regression
 ################
@@ -821,9 +821,9 @@ sapply(1:nrow(testdata), function{})
 matplot(x=pbins[,1],y=pbins[,3],type='p',pch=15,xlim=c(0,1),ylim=c(0,1),col='black')
 for(i in 1:10000){
     psample <- c(rdirichlet(n=1, alpha=rep(1,3)))
-    dists <- apply(pbins,1,function(x){distfunction(psample,x)})
+    dists <- apply(pbins,1,function(x){distfunction(x,psample)})
     cent <- which.min(dists)
-    matpoints(x=psample[1],y=psample[3],type='p',pch=20,col=mypalette[cent])
+    matpoints(x=psample[1],y=psample[3],type='p',pch=20,col=mypalette[(cent%%7)+1])
 }
 matpoints(x=pbins[,1],y=pbins[,3],type='p',pch=15,xlim=c(0,1),ylim=c(0,1),col='black')
 
