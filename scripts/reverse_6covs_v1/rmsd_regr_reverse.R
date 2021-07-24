@@ -1,6 +1,6 @@
 ## Author: PGL  Porta Mana
 ## Created: 2021-03-20T10:07:17+0100
-## Last-Updated: 2021-07-24T12:25:53+0200
+## Last-Updated: 2021-07-24T12:54:18+0200
 ################
 ## Script for reverse regression
 ################
@@ -553,30 +553,30 @@ probscores <- function(truevalues,priorY,meanfunction,probX=matrix(rep(1L,length
     meanfunction(diag(y[,truevalues]))
 }
 ## function to construct data table with results
-metrics <- function(truevalues,probX,priorY){
+metrics <- function(truevalues, probX, priorY, chanceprior=priorY){
     data.table(
         model=c('model', 'chance','min','max'),
         delta_gain=c(
             mean(utilities(truevalues,priorY,dgain,probX)),
-            mean(utilities(truevalues,priorY,dgain)),
+            mean(utilities(truevalues,chanceprior,dgain)),
             0,1
         ),
         ##
         contig_gain=c(
             mean(utilities(truevalues,priorY,cgain,probX)),
-            mean(utilities(truevalues,priorY,cgain)),
+            mean(utilities(truevalues,chanceprior,cgain)),
             0,1
         ),
         ##
         log_score=c(
             mean(probscores(truevalues,priorY,log,probX)),
-            mean(probscores(truevalues,priorY,log)),
+            mean(probscores(truevalues,chanceprior,log)),
             -Inf,0
         ),
         ##
         mean_score=c(
             mean(probscores(truevalues,priorY,identity,probX)),
-            mean(probscores(truevalues,priorY,identity)),
+            mean(probscores(truevalues,chanceprior,identity)),
             0,1
         )
     )}
@@ -745,8 +745,18 @@ scores2
 ## set.seed(247)
 ## oldmetrics(cbind(testdata[,bin_RMSD], condfreqs[,,1]), priorP2)
 ##
+##
+##
+## Case with unequally occurring RMSD categories, uniform prior
+##
+set.seed(247)
+scores3 <- metrics(testdata[,bin_RMSD], condfreqs[,,1], priorP, priorP2)
+scores3
+## set.seed(247)
+## oldmetrics(cbind(testdata[,bin_RMSD], condfreqs[,,1]), priorP2)
+##
 ## Save scores
-save(list=c('scores1','scores2'), file=paste0('scores_T',nTest*3,'_reverse_test_N',ndata,'_',length(covNums),'covs.RData'))
+save(list=c('scores1','scores2','scores3'), file=paste0('scores_T',nTest*3,'_reverse_test_N',ndata,'_',length(covNums),'covs.RData'))
 
 
 
