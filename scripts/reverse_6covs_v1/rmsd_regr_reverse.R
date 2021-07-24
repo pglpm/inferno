@@ -1,6 +1,6 @@
 ## Author: PGL  Porta Mana
 ## Created: 2021-03-20T10:07:17+0100
-## Last-Updated: 2021-07-23T21:39:03+0200
+## Last-Updated: 2021-07-24T09:34:46+0200
 ################
 ## Script for reverse regression
 ################
@@ -64,6 +64,7 @@ entropy <- function(freqs,base=2){##in bits by default
 }
 ## function to normalize absolute frequencies
 normalize <- function(freqs){freqs/sum(freqs)}
+normalizem <- function(freqs){freqs/rowSums(freqs)}
 
 ## Good values:
 ## musasa <- 1
@@ -547,9 +548,44 @@ dev.off()
 dgain <- diag(1,3)
 cgain <- 1-sapply(1:3,function(x){abs(x-1:3)})/2
 resample <- function(x, ...) x[sample.int(length(x), ...)]
-
-
-metrics <- function(testres, priorP){
+gains <- function(truevalues,priorY,utilitym,probX=matrix(rep(1,length(truevalues)*length(priorY)),length(truevalues))){
+    y <- apply(t(tcrossprod(utilitym, normalizem(t(t(probX) * priorY)))), 1,
+               function(z){resample(which(z==max(z)))})
+    diag(utilitym[truevalues,y])
+}
+meanprobs <- function(truevalues,priorY,meanfunction,probX=matrix(rep(1,length(truevalues)*length(priorY)),length(truevalues))){
+    y <- normalizem(t(t(probX) * priorY))
+    meanfunction(diag(y[,truevalues]))
+}
+metrics <- function(truevalues,probX,priorY){
+    data.table(
+    model=c('model', 'chance','min','max'),
+    delta_gain=c(
+        mean(gains(truevalues,priorY,dgain,probX)),
+        mean(gains(truevalues,priorY,dgain)),
+        0,1
+    ),
+    ##
+    contig_gain=c(
+        mean(gains(truevalues,priorY,cgain,probX)),
+        mean(gains(truevalues,priorY,cgain)),
+        0,1
+    ),
+    ##
+    log_score=c(
+        mean(meanprobs(truevalues,priorY,log,probX)),
+        mean(meanprobs(truevalues,priorY,log)),
+        -Inf,0
+    ),
+    ##
+    mean_score=c(
+        mean(meanprobs(truevalues,priorY,identity,probX)),
+        mean(meanprobs(truevalues,priorY,identity)),
+        0,1
+    )
+)}
+##
+oldmetrics <- function(testres, priorP){
     data.table(
     model=c('model', 'chance','min','max'),
     delta_gain=c(
@@ -636,7 +672,7 @@ predictYX <- function(dataobj, X, rvals){
 ##
 predictYXcross <- function(dataobj, X){
     X <- as.matrix(X[, c(dC,cC), with=FALSE])
-    freqs <- foreach(sample=seq_along(dataobj$nList), .combine=rbind, .inorder=FALSE)%dopar%{
+    freqs <- foreach(sample=seq_along(dataobj$nList), .combine=cbind, .inorder=FALSE)%dopar%{
         colSums(exp(
         log(dataobj$psiList[[sample]]) +
         t(vapply(seq_len(dataobj$nList[sample]), function(cluster){
@@ -657,9 +693,11 @@ predictYXcross <- function(dataobj, X){
         ##     }))
         ##     )
     }
-    list(means=colMeans(freqs),
-         covariance=crossprod(freqs)/length(dataobj$nList))
+    me <- rowMeans(freqs)
+    list(means=me,
+         covariance=tcrossprod(freqs)/ncol(freqs)-tcrossprod(me))
 }
+
 ##
 #### Evaluation
 ##
@@ -677,19 +715,80 @@ for(val in rmsdVals){
 }
 rm(testd)
 ##
-rm(testres)
 gc()
 plan(sequential)
 plan(multisession, workers = 6L)
 condfreqs <- predictYX(sampledata, testdata, rmsdVals)
-
-
-
-system.time(testres <- t(apply(testdata, 1, function(datum){
-    c(datum['bin_RMSD'], sapply(rmsdVals,function(val){predictYpar(sampledata[[val]],datum)}))
-})))
 plan(sequential)
 ##
+evals1 <- metrics(testdata[,bin_RMSD], condfreqs[,,1], priorP)
+evals1
+oldmetrics(cbind(testdata[,bin_RMSD], condfreqs[,,1]), priorP)
+##
+
+
+
+priorP2 <- normalize(as.vector(table(data$bin_RMSD)))
+unseldata <- setdiff(1:nrow(data), seldata)
+##
+## 500: 1291.88  961.86 9558.62 
+nTest <- 1000
+testd <- data[unseldata, c('bin_RMSD',covNames), with=F]
+testdata <- data.table()
+for(val in rmsdVals){
+    testdata <- rbind(testdata, tail(testd[bin_RMSD==val],n=round(3*nTest*priorP2[val])))
+}
+rm(testd)
+##
+gc()
+plan(sequential)
+plan(multisession, workers = 6L)
+condfreqs <- predictYX(sampledata, testdata, rmsdVals)
+plan(sequential)
+##
+evals2 <- metrics(testdata[,bin_RMSD], condfreqs[,,1], priorP2)
+oldmetrics(cbind(testdata[,bin_RMSD], condfreqs[,,1]), priorP2)
+plan(sequential)
+##
+
+
+##
+#### Evaluation
+##
+##discrMin <- sapply(data[,discreteCovs,with=F], min)-1
+##
+priorP <- rep(1,3)/3
+unseldata <- setdiff(1:nrow(data), seldata)
+##
+## 500, 6 threads: 1269.53  954.36 9520.95  
+nTest <- 1000
+testd <- data[unseldata, c('bin_RMSD',covNames), with=F]
+testdata <- data.table()
+for(val in rmsdVals){
+    testdata <- rbind(testdata, tail(testd[bin_RMSD==val],n=nTest))
+}
+rm(testd)
+##
+gc()
+plan(sequential)
+plan(multisession, workers = 6L)
+condfreqs0 <- lapply(rmsdVals,function(val){predictYXcross(sampledata[[val]], testdata)})
+plan(sequential)
+##
+
+plan(sequential)
+plan(multisession, workers = 6L)
+condfreqs <- foreach(val=rmsdVals, .combine=cbind)%dorng%{
+    c(rmvnorm(n=1, mean=condfreqs0[[val]]$means, sigma=condfreqs0[[val]]$covariance/100))}
+plan(sequential)
+evals1 <- metrics(testdata[,bin_RMSD], condfreqs, priorP)
+evals1
+oldmetrics(cbind(testdata[,bin_RMSD], condfreqs), priorP)
+##
+
+
+
+
 evals1 <- metrics(testres, priorP)
 save.image(file=paste0('_reverse_test_N',ndata,'_',length(covNums),'covs.RData'))
 evals1
