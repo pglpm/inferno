@@ -1,6 +1,6 @@
 ## Author: PGL  Porta Mana
 ## Created: 2021-03-20T10:07:17+0100
-## Last-Updated: 2021-07-24T19:50:52+0200
+## Last-Updated: 2021-07-24T21:14:07+0200
 ################
 ## Script for reverse regression
 ################
@@ -776,23 +776,41 @@ centres1 <- nodes[-(divs+1)]+1/3/divs
 centres2 <- nodes[-(divs+(0:1))]+2/3/divs
 ##
 pbins <- rbind(
-    foreach(i1=1:divs, .combine=rbind)%:%foreach(i3=1:(divs-i1+1), .combine=rbind)%do%{
-    p1 <- centres1[i1]
-    p3 <- centres1[i3]
-    c(p1, 1-p1-p3, p3)
-},
-    foreach(i3=1:(divs-1), .combine=rbind)%:%foreach(i1=1:(divs-i3), .combine=rbind)%do%{
-    p1 <- centres2[i1]
-    p3 <- centres2[i3]
+    foreach(i1=1:(divs+1), .combine=rbind)%:%foreach(i3=1:(divs-i1+2), .combine=rbind)%do%{
+    p1 <- nodes[i1]
+    p3 <- nodes[i3]
     c(p1, 1-p1-p3, p3)
     })
 rownames(pbins) <- paste0('bin',1:nrow(pbins))
 ##
+## pbins <- rbind(
+##     foreach(i1=1:divs, .combine=rbind)%:%foreach(i3=1:(divs-i1+1), .combine=rbind)%do%{
+##     p1 <- centres1[i1]
+##     p3 <- centres1[i3]
+##     c(p1, 1-p1-p3, p3)
+## },
+##     foreach(i3=1:(divs-1), .combine=rbind)%:%foreach(i1=1:(divs-i3), .combine=rbind)%do%{
+##     p1 <- centres2[i1]
+##     p3 <- centres2[i3]
+##     c(p1, 1-p1-p3, p3)
+##     })
+## rownames(pbins) <- paste0('bin',1:nrow(pbins))
+##
+matplot(x=pbins[,1],y=pbins[,3],type='p',pch=15,xlim=c(0,1),ylim=c(0,1),col='black')
+##
+matplot(x=pbins[,1],y=pbins[,3],type='p',pch=15,xlim=c(0,1),ylim=c(0,1),col='black')
+for(i in 1:10000){
+    psample <- c(rdirichlet(n=1, alpha=rep(1,3)))
+    dists <- apply(pbins,1,function(x){distfunction(x,psample)})
+    cent <- which.min(dists)
+    matpoints(x=psample[1],y=psample[3],type='p',pch=20,col=mypalette[(cent%%7)+1])
+}
+matpoints(x=pbins[,1],y=pbins[,3],type='p',pch=15,xlim=c(0,1),ylim=c(0,1),col='black')
 
 freqbins <- 0*pbins
 for(sample in 1:nrow(condfreqs)){
     psample <- normalize(condfreqs[sample,,1]*priorP)
-    distances <- apply(pbins,1,function(x){distfunction(psample,x)})
+    distances <- apply(pbins,1,function(x){distfunction(x,psample)})
     bin <- which.min(distances)
     outcome <- testdata[sample,bin_RMSD]
     freqbins[bin,outcome] <- freqbins[bin,outcome] + 1
@@ -804,28 +822,35 @@ rfreqbins <- freqbins/wfreqbins
 pdf(file='calibration_plots.pdf',height=11.7,width=11.7)
 for(bin in order(wfreqbins, decreasing=TRUE)){
     matplot(x=pbins[,1],y=pbins[,3],type='p',pch=15,xlim=c(0,1),ylim=c(0,1),col='black',main=paste0('W = ',wfreqbins[bin]))
-for(lin in 1:divs){
-    matlines(x=rbind(nodes[1],nodes[divs-lin+2]),y=rbind(nodes[lin],nodes[lin]),type='l',lty=1,xlim=c(0,1),ylim=c(0,1),col=mygrey)
-    matlines(x=rbind(nodes[lin],nodes[lin]),y=rbind(nodes[1],nodes[divs-lin+2]),type='l',lty=1,xlim=c(0,1),ylim=c(0,1),col=mygrey)
-    matlines(x=rbind(nodes[divs-lin+2],nodes[1]),y=rbind(nodes[1],nodes[divs-lin+2]),type='l',lty=1,xlim=c(0,1),ylim=c(0,1),col=mygrey)
+    for(i in 1:10000){
+        psample <- c(rdirichlet(n=1, alpha=rep(1,3)+pbins[bin,]))
+        dists <- apply(pbins,1,function(x){distfunction(x,psample)})
+        if(bin==which.min(dists)){
+            matpoints(x=psample[1],y=psample[3],type='p',pch=20,col=mygrey)
+        }
     }
+    matlines(x=rbind(nodes[1],nodes[divs+1],nodes[1],nodes[1]),y=rbind(nodes[1],nodes[1],nodes[divs+1],nodes[1]),type='l',lty=1,xlim=c(0,1),ylim=c(0,1),col=mygrey)
     matlines(x=rbind(pbins[bin,1],rfreqbins[bin,1]),y=rbind(pbins[bin,3],rfreqbins[bin,3]),type='l',lty=1,col=myblue)
     matpoints(x=pbins[bin,1],y=pbins[bin,3],type='p',pch=18,cex=4,col=myred)
     matpoints(x=rfreqbins[bin,1],y=rfreqbins[bin,3],type='p',pch=20,cex=4,col=myblue)
 }
 dev.off()
+##
+## pdf(file='calibration_plots.pdf',height=11.7,width=11.7)
+## for(bin in order(wfreqbins, decreasing=TRUE)){
+##     matplot(x=pbins[,1],y=pbins[,3],type='p',pch=15,xlim=c(0,1),ylim=c(0,1),col='black',main=paste0('W = ',wfreqbins[bin]))
+## for(lin in 1:divs){
+##     matlines(x=rbind(nodes[1],nodes[divs-lin+2]),y=rbind(nodes[lin],nodes[lin]),type='l',lty=1,xlim=c(0,1),ylim=c(0,1),col=mygrey)
+##     matlines(x=rbind(nodes[lin],nodes[lin]),y=rbind(nodes[1],nodes[divs-lin+2]),type='l',lty=1,xlim=c(0,1),ylim=c(0,1),col=mygrey)
+##     matlines(x=rbind(nodes[divs-lin+2],nodes[1]),y=rbind(nodes[1],nodes[divs-lin+2]),type='l',lty=1,xlim=c(0,1),ylim=c(0,1),col=mygrey)
+##     }
+##     matlines(x=rbind(pbins[bin,1],rfreqbins[bin,1]),y=rbind(pbins[bin,3],rfreqbins[bin,3]),type='l',lty=1,col=myblue)
+##     matpoints(x=pbins[bin,1],y=pbins[bin,3],type='p',pch=18,cex=4,col=myred)
+##     matpoints(x=rfreqbins[bin,1],y=rfreqbins[bin,3],type='p',pch=20,cex=4,col=myblue)
+## }
+## dev.off()
 
 sapply(1:nrow(testdata), function{})
-
-
-matplot(x=pbins[,1],y=pbins[,3],type='p',pch=15,xlim=c(0,1),ylim=c(0,1),col='black')
-for(i in 1:10000){
-    psample <- c(rdirichlet(n=1, alpha=rep(1,3)))
-    dists <- apply(pbins,1,function(x){distfunction(x,psample)})
-    cent <- which.min(dists)
-    matpoints(x=psample[1],y=psample[3],type='p',pch=20,col=mypalette[(cent%%7)+1])
-}
-matpoints(x=pbins[,1],y=pbins[,3],type='p',pch=15,xlim=c(0,1),ylim=c(0,1),col='black')
 
 ##################################################
 ##################################################
