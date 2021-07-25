@@ -1,6 +1,6 @@
 ## Author: PGL  Porta Mana
 ## Created: 2021-03-20T10:07:17+0100
-## Last-Updated: 2021-07-24T21:14:07+0200
+## Last-Updated: 2021-07-25T08:02:35+0200
 ################
 ## Script for reverse regression
 ################
@@ -695,6 +695,7 @@ predictYXcross <- function(dataobj, X){
     list(means=me,
          covariance=tcrossprod(freqs)/ncol(freqs)-tcrossprod(me))
 }
+source(file='calibration_plots.R')
 
 #### Calculation of utilities and scores for test set
 ##
@@ -723,6 +724,8 @@ scores1
 ## oldmetrics(cbind(testdata[,bin_RMSD], condfreqs[,,1]), priorP)
 ##
 ##
+calibrationplots(condfreqs, priorP, divs=1, title='score1')
+calibrationplots(condfreqs, priorP, divs=2, title='score1')
 
 ## Case with unequally occurring RMSD categories
 priorP2 <- normalize(as.vector(table(data$bin_RMSD)))
@@ -747,6 +750,8 @@ scores2 <- metrics(testdata[,bin_RMSD], condfreqs[,,1], priorP2)
 scores2
 ## set.seed(247)
 ## oldmetrics(cbind(testdata[,bin_RMSD], condfreqs[,,1]), priorP2)
+calibrationplots(condfreqs, priorP2, divs=1, title='score2')
+calibrationplots(condfreqs, priorP2, divs=2, title='score2')
 ##
 ##
 ##
@@ -757,6 +762,8 @@ scores3 <- metrics(testdata[,bin_RMSD], condfreqs[,,1], priorP, priorP2)
 scores3
 ## set.seed(247)
 ## oldmetrics(cbind(testdata[,bin_RMSD], condfreqs[,,1]), priorP2)
+calibrationplots(condfreqs, priorP, divs=1, title='score3')
+calibrationplots(condfreqs, priorP, divs=2, title='score3')
 ##
 ## Save scores
 save(list=c('scores1','scores2','scores3'), file=paste0('scores_T',nTest*3,'_reverse_test_N',ndata,'_',length(covNums),'covs.RData'))
@@ -765,11 +772,14 @@ save(list=c('scores1','scores2','scores3'), file=paste0('scores_T',nTest*3,'_rev
 ##################################################################
 ##################################################################
 #### Calibration
-distfunction <- function(freq1,freq0){
+## distfunction <- function(freq1,freq0){
+##     sum(freq1*log(freq1/freq0),na.rm=TRUE)
+## }
+distfunction <- function(freq0,freq1){
     sum(freq1*log(freq1/freq0),na.rm=TRUE)
 }
 ##
-divs <- 3
+divs <- 1
 ##
 nodes <- seq(0,1,1/divs)
 centres1 <- nodes[-(divs+1)]+1/3/divs
@@ -782,6 +792,7 @@ pbins <- rbind(
     c(p1, 1-p1-p3, p3)
     })
 rownames(pbins) <- paste0('bin',1:nrow(pbins))
+#pbins <- normalizem(pbins + 1e-6)
 ##
 ## pbins <- rbind(
 ##     foreach(i1=1:divs, .combine=rbind)%:%foreach(i3=1:(divs-i1+1), .combine=rbind)%do%{
@@ -796,21 +807,11 @@ rownames(pbins) <- paste0('bin',1:nrow(pbins))
 ##     })
 ## rownames(pbins) <- paste0('bin',1:nrow(pbins))
 ##
-matplot(x=pbins[,1],y=pbins[,3],type='p',pch=15,xlim=c(0,1),ylim=c(0,1),col='black')
 ##
-matplot(x=pbins[,1],y=pbins[,3],type='p',pch=15,xlim=c(0,1),ylim=c(0,1),col='black')
-for(i in 1:10000){
-    psample <- c(rdirichlet(n=1, alpha=rep(1,3)))
-    dists <- apply(pbins,1,function(x){distfunction(x,psample)})
-    cent <- which.min(dists)
-    matpoints(x=psample[1],y=psample[3],type='p',pch=20,col=mypalette[(cent%%7)+1])
-}
-matpoints(x=pbins[,1],y=pbins[,3],type='p',pch=15,xlim=c(0,1),ylim=c(0,1),col='black')
-
-freqbins <- 0*pbins
+freqbins <- 0 * pbins
+psample <- normalizem(t(t(condfreqs[,,1]) * priorP))
 for(sample in 1:nrow(condfreqs)){
-    psample <- normalize(condfreqs[sample,,1]*priorP)
-    distances <- apply(pbins,1,function(x){distfunction(x,psample)})
+    distances <- apply(pbins,1,function(x){distfunction(psample[sample,],x)})
     bin <- which.min(distances)
     outcome <- testdata[sample,bin_RMSD]
     freqbins[bin,outcome] <- freqbins[bin,outcome] + 1
@@ -819,38 +820,39 @@ for(sample in 1:nrow(condfreqs)){
 wfreqbins <- rowSums(freqbins)
 rfreqbins <- freqbins/wfreqbins
 ##
-pdf(file='calibration_plots.pdf',height=11.7,width=11.7)
+##
+pdf(file=paste0('calibration_plots_1_',nrow(pbins),'bins.pdf'),height=11.7,width=11.7)
+matplot(x=rbind(nodes[1],nodes[divs+1],nodes[1],nodes[1]), y=rbind(nodes[1],nodes[1],nodes[divs+1],nodes[1]), type='l', lty=1, xlim=c(0,1), ylim=c(0,1), col=mygrey, xlab='p(1)', ylab='p(3)', cex.axis=2, cex.lab=2, cex.main=2, main='distribution of posterior probabilities')
+psample <- normalizem(t(t(condfreqs[,,1]) * priorP))
+matpoints(x=psample[,1],y=psample[,3],type='p',pch=1,col=mygrey)
+##
+matplot(x=rbind(nodes[1],nodes[divs+1],nodes[1],nodes[1]), y=rbind(nodes[1],nodes[1],nodes[divs+1],nodes[1]), type='l', lty=1, xlim=c(0,1), ylim=c(0,1), col=mygrey, xlab='p(1)', ylab='p(3)', cex.axis=2, cex.lab=2, cex.main=2, main='binning of probability simplex')
+psampled <- rdirichlet(n=10000, alpha=rep(1,3))
+for(i in 1:10000){
+    dists <- apply(pbins,1,function(x){distfunction(psampled[i,],x)})
+    cent <- which.min(dists)
+    matpoints(x=psampled[i,1],y=psampled[i,3],type='p',pch=20,col=mypalette[(cent%%7)+1])
+}
+matpoints(x=pbins[,1],y=pbins[,3],type='p',pch=18,cex=3,col='black')
+##
 for(bin in order(wfreqbins, decreasing=TRUE)){
-    matplot(x=pbins[,1],y=pbins[,3],type='p',pch=15,xlim=c(0,1),ylim=c(0,1),col='black',main=paste0('W = ',wfreqbins[bin]))
+    matplot(x=rbind(nodes[1],nodes[divs+1],nodes[1],nodes[1]), y=rbind(nodes[1],nodes[1],nodes[divs+1],nodes[1]), type='l', lty=1, xlim=c(0,1), ylim=c(0,1), col=mygrey, xlab='p(1)', ylab='p(3)', cex.axis=2, cex.lab=2, cex.main=2, main=paste0('W = ',wfreqbins[bin]))
+    matpoints(x=pbins[,1], y=pbins[,3], type='p', pch=15, col='black')
     for(i in 1:10000){
-        psample <- c(rdirichlet(n=1, alpha=rep(1,3)+pbins[bin,]))
-        dists <- apply(pbins,1,function(x){distfunction(x,psample)})
+        dists <- apply(pbins,1,function(x){distfunction(psampled[i,],x)})
         if(bin==which.min(dists)){
-            matpoints(x=psample[1],y=psample[3],type='p',pch=20,col=mygrey)
+            matpoints(x=psampled[i,1],y=psampled[i,3],type='p',pch=20,col=mygrey)
         }
     }
-    matlines(x=rbind(nodes[1],nodes[divs+1],nodes[1],nodes[1]),y=rbind(nodes[1],nodes[1],nodes[divs+1],nodes[1]),type='l',lty=1,xlim=c(0,1),ylim=c(0,1),col=mygrey)
-    matlines(x=rbind(pbins[bin,1],rfreqbins[bin,1]),y=rbind(pbins[bin,3],rfreqbins[bin,3]),type='l',lty=1,col=myblue)
-    matpoints(x=pbins[bin,1],y=pbins[bin,3],type='p',pch=18,cex=4,col=myred)
-    matpoints(x=rfreqbins[bin,1],y=rfreqbins[bin,3],type='p',pch=20,cex=4,col=myblue)
+#    matlines(x=rbind(pbins[bin,1],rfreqbins[bin,1]),y=rbind(pbins[bin,3],rfreqbins[bin,3]),type='l',lty=1,col=myblue)
+    matpoints(x=pbins[bin,1],y=pbins[bin,3],type='p',pch=18,cex=3,col='black')
+    matpoints(x=rfreqbins[bin,1],y=rfreqbins[bin,3],type='p',pch=20,cex=4,col=myred)
 }
 dev.off()
-##
-## pdf(file='calibration_plots.pdf',height=11.7,width=11.7)
-## for(bin in order(wfreqbins, decreasing=TRUE)){
-##     matplot(x=pbins[,1],y=pbins[,3],type='p',pch=15,xlim=c(0,1),ylim=c(0,1),col='black',main=paste0('W = ',wfreqbins[bin]))
-## for(lin in 1:divs){
-##     matlines(x=rbind(nodes[1],nodes[divs-lin+2]),y=rbind(nodes[lin],nodes[lin]),type='l',lty=1,xlim=c(0,1),ylim=c(0,1),col=mygrey)
-##     matlines(x=rbind(nodes[lin],nodes[lin]),y=rbind(nodes[1],nodes[divs-lin+2]),type='l',lty=1,xlim=c(0,1),ylim=c(0,1),col=mygrey)
-##     matlines(x=rbind(nodes[divs-lin+2],nodes[1]),y=rbind(nodes[1],nodes[divs-lin+2]),type='l',lty=1,xlim=c(0,1),ylim=c(0,1),col=mygrey)
-##     }
-##     matlines(x=rbind(pbins[bin,1],rfreqbins[bin,1]),y=rbind(pbins[bin,3],rfreqbins[bin,3]),type='l',lty=1,col=myblue)
-##     matpoints(x=pbins[bin,1],y=pbins[bin,3],type='p',pch=18,cex=4,col=myred)
-##     matpoints(x=rfreqbins[bin,1],y=rfreqbins[bin,3],type='p',pch=20,cex=4,col=myblue)
-## }
-## dev.off()
 
-sapply(1:nrow(testdata), function{})
+
+
+
 
 ##################################################
 ##################################################
