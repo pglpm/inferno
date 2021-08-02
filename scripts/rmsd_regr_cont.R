@@ -1,6 +1,6 @@
 ## Author: PGL  Porta Mana
 ## Created: 2021-03-20T10:07:17+0100
-## Last-Updated: 2021-07-04T14:45:46+0200
+## Last-Updated: 2021-08-01T18:18:36+0200
 ################
 ## Script for exploring Fabio's dataset
 ################
@@ -71,6 +71,10 @@ data <- data[!is.na(rmsd)]
 data <- data[, which(sapply(data, is.numeric)==TRUE), with=FALSE]
 ## doublecols <- which(sapply(data, function(x){all(is.double(x))}))
 ## posdoublecols <- which(sapply(data, function(x){all(is.double(x))&&all(x>0)}))
+minusfeatures <- which(apply(data,2,min)==-1)
+for(feat in minusfeatures){
+    data <- data[!(data[[feat]]==-1)]
+}
 data$rmsd <- log(data$rmsd)
 names(data)[which(names(data)=='rmsd')] <- 'log_RMSD'
 rmsdThreshold <- c(2, 2.5, 3)

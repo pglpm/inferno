@@ -1,6 +1,6 @@
 ## Author: PGL  Porta Mana
 ## Created: 2021-03-20T10:07:17+0100
-## Last-Updated: 2021-07-25T08:02:35+0200
+## Last-Updated: 2021-08-01T18:26:05+0200
 ################
 ## Script for reverse regression
 ################
@@ -84,7 +84,7 @@ normalizem <- function(freqs){freqs/rowSums(freqs)}
 ## df0 <- 30
 ## alpha <- 4 or 5
 ##
-doplots <- FALSE
+doplots <- TRUE
 ## specify hyperparams
 musasa <- 1
 mutani <- 0
@@ -132,6 +132,10 @@ rm(data)
 data <- as.data.table(read.csv(file='../dataset_template_based_docking_predict_rmsd.csv', header=T, sep=','))
 data <- data[!is.na(rmsd)]
 data <- data[, which(sapply(data, is.numeric)==TRUE), with=FALSE]
+minusfeatures <- which(apply(data,2,min)==-1)
+for(feat in minusfeatures){
+    data <- data[!(data[[feat]]==-1)]
+}
 origdata <- data
 ## doublecols <- which(sapply(data, function(x){all(is.double(x))}))
 ## posdoublecols <- which(sapply(data, function(x){all(is.double(x))&&all(x>0)}))
@@ -321,8 +325,8 @@ ndata <- 6000 # nSamples = 37969
 seldata <- 1:ndata
 rmsdCol <- which(names(data)=='bin_RMSD')
 covNums <- which(colnames(data) %in%  c('scale_mcs_unbonded_polar_sasa', 'scale_ec_tanimoto_similarity', 'mcs_NumHeteroAtoms', # 'scale_fc_tanimoto_similarity'
-                                        'mcs_RingCount',
                                         'docked_HeavyAtomCount',
+                                        'mcs_RingCount',
                                         'docked_NumRotatableBonds'
                                         ))
 covNames <- names(data)[covNums]
@@ -366,7 +370,7 @@ plan(multisession, workers = 4L)
             }
         }
 ##
-        c(val=val, profRegr(excludeY=TRUE, xModel='Mixed', nSweeps=1000e3, nBurn=2000e3, nFilter=1000, data=as.data.frame(datamcr), nClusInit=80, covNames=c(discreteCovs,continuousCovs), discreteCovs=discreteCovs, continuousCovs=continuousCovs, nProgress=1000, seed=147, output=outfile, useHyperpriorR1=FALSE, useNormInvWishPrior=TRUE, hyper=testhp, alpha=4))
+        c(val=val, profRegr(excludeY=TRUE, xModel='Mixed', nSweeps=2000e3, nBurn=3000e3, nFilter=2000, data=as.data.frame(datamcr), nClusInit=80, covNames=c(discreteCovs,continuousCovs), discreteCovs=discreteCovs, continuousCovs=continuousCovs, nProgress=1000, seed=147, output=outfile, useHyperpriorR1=FALSE, useNormInvWishPrior=TRUE, hyper=testhp, alpha=4))
     }
 plan(sequential)
 names(mcmcrun) <- paste0('bin',sapply(mcmcrun,function(i){i$val}))
