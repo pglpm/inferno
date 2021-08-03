@@ -1,6 +1,6 @@
 ## Author: PGL  Porta Mana
 ## Created: 2021-03-20T10:07:17+0100
-## Last-Updated: 2021-08-01T18:26:05+0200
+## Last-Updated: 2021-08-03T06:44:58+0200
 ################
 ## Script for reverse regression
 ################
@@ -320,6 +320,8 @@ fwrite(data,'../processed_data_scaled.csv', sep=' ')
 ## 5 covs, 5000 points: 14844 s
 ## 6 covs, 5000 pts, 1000e3+1000e3 its: 9.696259 hours
 ## 6 covs, 6000 pts, 2000e3+1000e3 its: 15.75 hours
+## 6 covs, 6000 pts, 3000e3+2000e3 its: 1.138318 days
+
 ndata <- 6000 # nSamples = 37969
 #set.seed(222)
 seldata <- 1:ndata
@@ -376,7 +378,7 @@ plan(sequential)
 names(mcmcrun) <- paste0('bin',sapply(mcmcrun,function(i){i$val}))
 elapsedtime <- Sys.time() - starttime
 elapsedtime
-##
+## 
 ## Save MCMC samples
 MCMCdata <- as.list(rep(NA,length(mcmcrun)))
 names(MCMCdata) <- names(mcmcrun)
