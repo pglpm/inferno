@@ -1,6 +1,6 @@
 ## Author: PGL  Porta Mana
 ## Created: 2021-03-20T10:07:17+0100
-## Last-Updated: 2021-08-03T06:44:58+0200
+## Last-Updated: 2021-08-04T09:47:17+0200
 ################
 ## Script for reverse regression
 ################
@@ -8,22 +8,10 @@
 #### Custom setup ####
 ## Colour-blind friendly palettes, from https://personal.sron.nl/~pault/
 ## (consider using khroma package instead)
-library('RColorBrewer')
-mypurpleblue <- '#4477AA'
-myblue <- '#66CCEE'
-mygreen <- '#228833'
-myyellow <- '#CCBB44'
-myred <- '#EE6677'
-myredpurple <- '#AA3377'
-mygrey <- '#BBBBBB'
-mypalette <- c(myblue, myred, mygreen, myyellow, myredpurple, mypurpleblue, mygrey, 'black')
-palette(mypalette)
-barpalette <- colorRampPalette(c(mypurpleblue,'white',myredpurple),space='Lab')
-barpalettepos <- colorRampPalette(c('white','black'),space='Lab')
-#dev.off()
-####
-library('data.table')
 library('khroma')
+palette(colour('bright')())
+## palette(colour('muted')())
+library('data.table')
 library('ggplot2')
 library('ggthemes')
 theme_set(theme_bw(base_size=18))
@@ -130,6 +118,7 @@ Dsasa2y <- function(x){
 ## Read and reorganize data
 rm(data)
 data <- as.data.table(read.csv(file='../dataset_template_based_docking_predict_rmsd.csv', header=T, sep=','))
+## remove datapoints with missing or erroneous features
 data <- data[!is.na(rmsd)]
 data <- data[, which(sapply(data, is.numeric)==TRUE), with=FALSE]
 minusfeatures <- which(apply(data,2,min)==-1)
@@ -137,8 +126,7 @@ for(feat in minusfeatures){
     data <- data[!(data[[feat]]==-1)]
 }
 origdata <- data
-## doublecols <- which(sapply(data, function(x){all(is.double(x))}))
-## posdoublecols <- which(sapply(data, function(x){all(is.double(x))&&all(x>0)}))
+## Transform RMSD to log-scale
 data$rmsd <- log(data$rmsd)
 names(data)[which(names(data)=='rmsd')] <- 'log_RMSD'
 rmsdThreshold <- c(2, 2.5, 3)
