@@ -1,6 +1,6 @@
 ## Author: PGL  Porta Mana
 ## Created: 2021-03-20T10:07:17+0100
-## Last-Updated: 2021-07-24T12:54:18+0200
+## Last-Updated: 2021-08-03T06:44:58+0200
 ################
 ## Script for reverse regression
 ################
@@ -36,6 +36,7 @@ library('doRNG')
 registerDoFuture()
 #library('LaplacesDemon') # used for Dirichlet generator
 library('ash')
+library('extraDistr')
 library('PReMiuM')
 library('mvtnorm')
 options(bitmapType='cairo')
@@ -83,7 +84,7 @@ normalizem <- function(freqs){freqs/rowSums(freqs)}
 ## df0 <- 30
 ## alpha <- 4 or 5
 ##
-doplots <- FALSE
+doplots <- TRUE
 ## specify hyperparams
 musasa <- 1
 mutani <- 0
@@ -131,6 +132,10 @@ rm(data)
 data <- as.data.table(read.csv(file='../dataset_template_based_docking_predict_rmsd.csv', header=T, sep=','))
 data <- data[!is.na(rmsd)]
 data <- data[, which(sapply(data, is.numeric)==TRUE), with=FALSE]
+minusfeatures <- which(apply(data,2,min)==-1)
+for(feat in minusfeatures){
+    data <- data[!(data[[feat]]==-1)]
+}
 origdata <- data
 ## doublecols <- which(sapply(data, function(x){all(is.double(x))}))
 ## posdoublecols <- which(sapply(data, function(x){all(is.double(x))&&all(x>0)}))
@@ -315,13 +320,15 @@ fwrite(data,'../processed_data_scaled.csv', sep=' ')
 ## 5 covs, 5000 points: 14844 s
 ## 6 covs, 5000 pts, 1000e3+1000e3 its: 9.696259 hours
 ## 6 covs, 6000 pts, 2000e3+1000e3 its: 15.75 hours
+## 6 covs, 6000 pts, 3000e3+2000e3 its: 1.138318 days
+
 ndata <- 6000 # nSamples = 37969
 #set.seed(222)
 seldata <- 1:ndata
 rmsdCol <- which(names(data)=='bin_RMSD')
 covNums <- which(colnames(data) %in%  c('scale_mcs_unbonded_polar_sasa', 'scale_ec_tanimoto_similarity', 'mcs_NumHeteroAtoms', # 'scale_fc_tanimoto_similarity'
-                                        'mcs_RingCount',
                                         'docked_HeavyAtomCount',
+                                        'mcs_RingCount',
                                         'docked_NumRotatableBonds'
                                         ))
 covNames <- names(data)[covNums]
@@ -365,13 +372,13 @@ plan(multisession, workers = 4L)
             }
         }
 ##
-        c(val=val, profRegr(excludeY=TRUE, xModel='Mixed', nSweeps=1000e3, nBurn=2000e3, nFilter=1000, data=as.data.frame(datamcr), nClusInit=80, covNames=c(discreteCovs,continuousCovs), discreteCovs=discreteCovs, continuousCovs=continuousCovs, nProgress=1000, seed=147, output=outfile, useHyperpriorR1=FALSE, useNormInvWishPrior=TRUE, hyper=testhp, alpha=4))
+        c(val=val, profRegr(excludeY=TRUE, xModel='Mixed', nSweeps=2000e3, nBurn=3000e3, nFilter=2000, data=as.data.frame(datamcr), nClusInit=80, covNames=c(discreteCovs,continuousCovs), discreteCovs=discreteCovs, continuousCovs=continuousCovs, nProgress=1000, seed=147, output=outfile, useHyperpriorR1=FALSE, useNormInvWishPrior=TRUE, hyper=testhp, alpha=4))
     }
 plan(sequential)
 names(mcmcrun) <- paste0('bin',sapply(mcmcrun,function(i){i$val}))
 elapsedtime <- Sys.time() - starttime
 elapsedtime
-##
+## 
 ## Save MCMC samples
 MCMCdata <- as.list(rep(NA,length(mcmcrun)))
 names(MCMCdata) <- names(mcmcrun)
@@ -536,6 +543,8 @@ dev.off()
 
 ##################################################################
 ##################################################################
+#### Valuation on test set
+##
 ## Utility matrices
 dgain <- diag(1,3)
 cgain <- 1-sapply(1:3,function(x){abs(x-1:3)})/2
@@ -692,6 +701,7 @@ predictYXcross <- function(dataobj, X){
     list(means=me,
          covariance=tcrossprod(freqs)/ncol(freqs)-tcrossprod(me))
 }
+source(file='calibration_plots.R')
 
 #### Calculation of utilities and scores for test set
 ##
@@ -720,7 +730,9 @@ scores1
 ## oldmetrics(cbind(testdata[,bin_RMSD], condfreqs[,,1]), priorP)
 ##
 ##
-##
+calibrationplots(condfreqs, priorP, divs=1, title='score1')
+calibrationplots(condfreqs, priorP, divs=2, title='score1')
+
 ## Case with unequally occurring RMSD categories
 priorP2 <- normalize(as.vector(table(data$bin_RMSD)))
 unseldata <- setdiff(1:nrow(data), seldata)
@@ -744,6 +756,8 @@ scores2 <- metrics(testdata[,bin_RMSD], condfreqs[,,1], priorP2)
 scores2
 ## set.seed(247)
 ## oldmetrics(cbind(testdata[,bin_RMSD], condfreqs[,,1]), priorP2)
+calibrationplots(condfreqs, priorP2, divs=1, title='score2')
+calibrationplots(condfreqs, priorP2, divs=2, title='score2')
 ##
 ##
 ##
@@ -754,9 +768,95 @@ scores3 <- metrics(testdata[,bin_RMSD], condfreqs[,,1], priorP, priorP2)
 scores3
 ## set.seed(247)
 ## oldmetrics(cbind(testdata[,bin_RMSD], condfreqs[,,1]), priorP2)
+calibrationplots(condfreqs, priorP, divs=1, title='score3')
+calibrationplots(condfreqs, priorP, divs=2, title='score3')
 ##
 ## Save scores
 save(list=c('scores1','scores2','scores3'), file=paste0('scores_T',nTest*3,'_reverse_test_N',ndata,'_',length(covNums),'covs.RData'))
+
+
+##################################################################
+##################################################################
+#### Calibration
+## distfunction <- function(freq1,freq0){
+##     sum(freq1*log(freq1/freq0),na.rm=TRUE)
+## }
+distfunction <- function(freq0,freq1){
+    sum(freq1*log(freq1/freq0),na.rm=TRUE)
+}
+##
+divs <- 1
+##
+nodes <- seq(0,1,1/divs)
+centres1 <- nodes[-(divs+1)]+1/3/divs
+centres2 <- nodes[-(divs+(0:1))]+2/3/divs
+##
+pbins <- rbind(
+    foreach(i1=1:(divs+1), .combine=rbind)%:%foreach(i3=1:(divs-i1+2), .combine=rbind)%do%{
+    p1 <- nodes[i1]
+    p3 <- nodes[i3]
+    c(p1, 1-p1-p3, p3)
+    })
+rownames(pbins) <- paste0('bin',1:nrow(pbins))
+#pbins <- normalizem(pbins + 1e-6)
+##
+## pbins <- rbind(
+##     foreach(i1=1:divs, .combine=rbind)%:%foreach(i3=1:(divs-i1+1), .combine=rbind)%do%{
+##     p1 <- centres1[i1]
+##     p3 <- centres1[i3]
+##     c(p1, 1-p1-p3, p3)
+## },
+##     foreach(i3=1:(divs-1), .combine=rbind)%:%foreach(i1=1:(divs-i3), .combine=rbind)%do%{
+##     p1 <- centres2[i1]
+##     p3 <- centres2[i3]
+##     c(p1, 1-p1-p3, p3)
+##     })
+## rownames(pbins) <- paste0('bin',1:nrow(pbins))
+##
+##
+freqbins <- 0 * pbins
+psample <- normalizem(t(t(condfreqs[,,1]) * priorP))
+for(sample in 1:nrow(condfreqs)){
+    distances <- apply(pbins,1,function(x){distfunction(psample[sample,],x)})
+    bin <- which.min(distances)
+    outcome <- testdata[sample,bin_RMSD]
+    freqbins[bin,outcome] <- freqbins[bin,outcome] + 1
+}
+##
+wfreqbins <- rowSums(freqbins)
+rfreqbins <- freqbins/wfreqbins
+##
+##
+pdf(file=paste0('calibration_plots_1_',nrow(pbins),'bins.pdf'),height=11.7,width=11.7)
+matplot(x=rbind(nodes[1],nodes[divs+1],nodes[1],nodes[1]), y=rbind(nodes[1],nodes[1],nodes[divs+1],nodes[1]), type='l', lty=1, xlim=c(0,1), ylim=c(0,1), col=mygrey, xlab='p(1)', ylab='p(3)', cex.axis=2, cex.lab=2, cex.main=2, main='distribution of posterior probabilities')
+psample <- normalizem(t(t(condfreqs[,,1]) * priorP))
+matpoints(x=psample[,1],y=psample[,3],type='p',pch=1,col=mygrey)
+##
+matplot(x=rbind(nodes[1],nodes[divs+1],nodes[1],nodes[1]), y=rbind(nodes[1],nodes[1],nodes[divs+1],nodes[1]), type='l', lty=1, xlim=c(0,1), ylim=c(0,1), col=mygrey, xlab='p(1)', ylab='p(3)', cex.axis=2, cex.lab=2, cex.main=2, main='binning of probability simplex')
+psampled <- rdirichlet(n=10000, alpha=rep(1,3))
+for(i in 1:10000){
+    dists <- apply(pbins,1,function(x){distfunction(psampled[i,],x)})
+    cent <- which.min(dists)
+    matpoints(x=psampled[i,1],y=psampled[i,3],type='p',pch=20,col=mypalette[(cent%%7)+1])
+}
+matpoints(x=pbins[,1],y=pbins[,3],type='p',pch=18,cex=3,col='black')
+##
+for(bin in order(wfreqbins, decreasing=TRUE)){
+    matplot(x=rbind(nodes[1],nodes[divs+1],nodes[1],nodes[1]), y=rbind(nodes[1],nodes[1],nodes[divs+1],nodes[1]), type='l', lty=1, xlim=c(0,1), ylim=c(0,1), col=mygrey, xlab='p(1)', ylab='p(3)', cex.axis=2, cex.lab=2, cex.main=2, main=paste0('W = ',wfreqbins[bin]))
+    matpoints(x=pbins[,1], y=pbins[,3], type='p', pch=15, col='black')
+    for(i in 1:10000){
+        dists <- apply(pbins,1,function(x){distfunction(psampled[i,],x)})
+        if(bin==which.min(dists)){
+            matpoints(x=psampled[i,1],y=psampled[i,3],type='p',pch=20,col=mygrey)
+        }
+    }
+#    matlines(x=rbind(pbins[bin,1],rfreqbins[bin,1]),y=rbind(pbins[bin,3],rfreqbins[bin,3]),type='l',lty=1,col=myblue)
+    matpoints(x=pbins[bin,1],y=pbins[bin,3],type='p',pch=18,cex=3,col='black')
+    matpoints(x=rfreqbins[bin,1],y=rfreqbins[bin,3],type='p',pch=20,cex=4,col=myred)
+}
+dev.off()
+
+
 
 
 
