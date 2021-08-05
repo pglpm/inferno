@@ -1,7 +1,7 @@
 \pdfoutput=1
 %% Author: PGL  Porta Mana
 %% Created: 2015-05-01T20:53:34+0200
-%% Last-Updated: 2021-08-05T10:33:06+0200
+%% Last-Updated: 2021-08-05T19:52:31+0200
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \newif\ifarxiv
 \arxivfalse
@@ -761,26 +761,37 @@ extrapolation).
 \end{itemize}
 
 In the following $r$ will be treated as discrete quantity assuming three
-possible values:
-$r \in \set{\text{\enquote*{good}},\, \text{\enquote*{inconclusive}},\,
-  \text{\enquote*{bad}}}$, corresponding to ${}<2\ \textrm{\AA}$, between
-$2$ and $3\ \textrm{\AA}$, and ${}>3\ \textrm{\AA}$.
+possible values: \enquote*{good} ($0\ \textrm{\AA}\le r \le 2\
+\textrm{\AA}$), \enquote*{inconclusive} ($2\ \textrm{\AA} < r < 3\
+\textrm{\AA}$),  \enquote*{bad} ($3\ \textrm{\AA} \le r$). 
+
 
 Our uncertainty about $r_{0}$ is expressed by the probability
 \begin{equation}
   \label{eq:main_prob}
   \p(r_{0} \| x_{0},\ \br,\bx,\ H) \ ,
 \end{equation}
-which we want to quantify.
+which we want to quantify using the probability calculus.
 
-The first question we must ask in approaching this problem is this: How much
-does our uncertainty about $r_{0}$ depend on the relative frequencies for the
-known datapoints $(\br,\bx)$? For example, if $r_{0}$ is hand-picked by
-someone, then knowledge of the frequencies for $(\br,\bx)$ is irrelevant.
-But even in such a case it might be that the reversed probability
-$\p(x_{0} \| r_{0},\ \br,\bx,\ H)$ \emph{does} depend on the frequencies of
-previous datapoints, and it can be used to calculate~\eqref{eq:main_prob}
-as
+The first question we must ask for such quantification is this: How much
+are the various relative frequencies for the known datapoints $(\br,\bx)$
+relevant to our uncertainty about $r_{0}$? To understand the meaning of
+this question, consider the case where $r_{0}$ is
+\emph{hand-picked} to be \enquote*{good}: then the frequency of
+$r_{0}=\text{\enquote*{good}}$ in the known dataset is obviously irrelevant
+to its \enquote{prediction}.
+
+We have three possible scenarios
+
+
+
+
+For example, if $r_{0}$ is
+hand-picked by someone, then knowledge of the frequencies for $(\br,\bx)$
+is irrelevant. But even in such a case it might be that the reversed
+probability $\p(x_{0} \| r_{0},\ \br,\bx,\ H)$ \emph{does} depend on the
+frequencies of previous datapoints, and it can be used to
+calculate~\eqref{eq:main_prob} as
 \begin{equation}
   \label{eq:rev_prob}
   \p(r_{0} \| x_{0},\ \br,\bx,\ H) =
