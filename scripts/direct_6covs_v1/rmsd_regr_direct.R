@@ -1,6 +1,6 @@
 ## Author: PGL  Porta Mana
 ## Created: 2021-03-20T10:07:17+0100
-## Last-Updated: 2021-08-04T10:43:10+0200
+## Last-Updated: 2021-08-04T12:11:24+0200
 ################
 ## Script for reverse regression
 ################
@@ -156,10 +156,10 @@ rmsdCol <- which(names(data)=='bin_RMSD')
 covNums <- which(colnames(data) %in%  c('bin_RMSD',
                                         'scale_mcs_unbonded_polar_sasa',
                                         'scale_ec_tanimoto_similarity',
-                                        ##'mcs_NumHeteroAtoms',
-                                        ## ##'scale_fc_tanimoto_similarity'
-                                        ##'docked_HeavyAtomCount',
-                                        ##'mcs_RingCount',
+                                        'mcs_NumHeteroAtoms',
+                                        ##'scale_fc_tanimoto_similarity'
+                                        'docked_HeavyAtomCount',
+                                        'mcs_RingCount',
                                         'docked_NumRotatableBonds'
                                         ))
 covNames <- names(data)[covNums]
@@ -181,16 +181,17 @@ colnames(hDelta0) <- rownames(hDelta0) <- names(hmu0)
 testhp <- setHyperparams(mu0=hmu0, kappa0=hnu0, R0=hDelta0, nu0=hkappa0)
 ##
 rmsdVals <- 1:3
+directcases <- c('fdata','fequal')
 ##
 rm(mcmcrun)
 gc()
 starttime <- Sys.time()
 plan(sequential)
 plan(multisession, workers = 3L)
-mcmcrun <- foreach(val=c('data','equal'), .inorder=FALSE)%dopar%{
-    outfile <- paste0('_mcoutput_',val)
+mcmcrun <- foreach(case=directcases, .inorder=FALSE)%dopar%{
+    outfile <- paste0('_mcoutput_',case)
     ##
-    if(val=='data'){
+    if(case=='data'){
         seldata <- 1:ndata
         datamcr <- data[seldata, covNames, with=F]
     } else {
@@ -210,7 +211,7 @@ mcmcrun <- foreach(val=c('data','equal'), .inorder=FALSE)%dopar%{
         datum <- datamcr[[i]]
         datum <- datum[!is.na(datum)]
         levels <- as.numeric(names(table(data[[i]])))
-        for(level in setdiff(min(levels):max(levels), as.numeric(names(table(datum))))){ #print(paste0(val,' ',i,' ',level))
+        for(level in setdiff(min(levels):max(levels), as.numeric(names(table(datum))))){ #print(paste0(case,' ',i,' ',level))
             dt <- data.table(level)
             names(dt) <- i
             datamcr <- rbind(datamcr, dt, fill=TRUE)
@@ -218,20 +219,21 @@ mcmcrun <- foreach(val=c('data','equal'), .inorder=FALSE)%dopar%{
     }
 ##
 ##
-        c(val=val, profRegr(excludeY=TRUE, xModel='Mixed', nSweeps=20, nBurn=30, nFilter=2, data=as.data.frame(datamcr), nClusInit=80, covNames=c(discreteCovs,continuousCovs), discreteCovs=discreteCovs, continuousCovs=continuousCovs, nProgress=1000, seed=147, output=outfile, useHyperpriorR1=FALSE, useNormInvWishPrior=TRUE, hyper=testhp, alpha=4))
+        c(case=case, profRegr(excludeY=TRUE, xModel='Mixed', nSweeps=2000e3, nBurn=3000e3, nFilter=2e3, data=as.data.frame(datamcr), nClusInit=80, covNames=c(discreteCovs,continuousCovs), discreteCovs=discreteCovs, continuousCovs=continuousCovs, nProgress=1000, seed=147, output=outfile, useHyperpriorR1=FALSE, useNormInvWishPrior=TRUE, hyper=testhp, alpha=4))
 }
 plan(sequential)
-names(mcmcrun) <- paste0('freqs',sapply(mcmcrun,function(i){i$val}))
+names(mcmcrun) <- paste0('freqs',sapply(mcmcrun,function(i){i$case}))
 elapsedtime <- Sys.time() - starttime
 elapsedtime
 ## 
 ## Save MCMC samples
 MCMCdata <- as.list(rep(NA,length(mcmcrun)))
 names(MCMCdata) <- names(mcmcrun)
+
 ##
-for(val in rmsdVals){
-    outfile <- paste0('_mcoutput',val)
-    testmc <- mcmcrun[[paste0('bin',val)]]
+for(case in directcases){
+    outfile <- paste0('_mcoutput_',case)
+    testmc <- mcmcrun[[paste0('freqs',case)]]
     ## log-likelihood and log-posteriors
     fc <- file(paste0(outfile,"_logPost.txt"))
     logPost <- sapply(strsplit(readLines(fc), " +"), as.numeric)
@@ -284,7 +286,7 @@ for(val in rmsdVals){
         rownames(muList[[i]]) <- testmc$continuousCovs
     }
     ## Save the samples above
-    MCMCdata[[paste0('bin',val)]] <- list(val=val, nList=nList, alphaList=alphaList, psiList=psiList, phiList=phiList, muList=muList, sigmaList=sigmaList, logPost=logPost)
+    MCMCdata[[paste0('freqs',case)]] <- list(case=case, nList=nList, alphaList=alphaList, psiList=psiList, phiList=phiList, muList=muList, sigmaList=sigmaList, logPost=logPost)
 }
 ##
 save.image(file=paste0('_reverse_test_N',ndata,'_',length(covNums),'covs.RData'))
@@ -293,23 +295,24 @@ save.image(file=paste0('_reverse_test_N',ndata,'_',length(covNums),'covs.RData')
 pdff('mcsummary')
 for(j in 1:length(MCMCdata)){
     sd <- MCMCdata[[j]]
-    matplot(sd$logPost[2,], type='l',ylim=range(sd$logPost[2,],na.rm=T,finite=T),ylab='log-likelihood',col=mypalette[j], main=paste0('bin = ',j))
+    matplot(sd$logPost[2,], type='l',ylim=range(sd$logPost[2,],na.rm=T,finite=T),ylab='log-likelihood',col=palette()[j], main=paste0('freqs: ',directcases[j]))
     }
 for(j in 1:length(MCMCdata)){
     sd <- MCMCdata[[j]]
-matplot(sd$nList,type='l',ylim=range(sd$nList,na.rm=T,finite=T),ylab='no. clusters',col=mypalette[j], main=paste0('bin = ',j))
+matplot(sd$nList,type='l',ylim=range(sd$nList,na.rm=T,finite=T),ylab='no. clusters',col=palette()[j], main=paste0('freqs: ',directcases[j]))
 }
 for(j in 1:length(MCMCdata)){
     sd <- MCMCdata[[j]]
-    matplot(sd$alphaList,type='l',ylim=range(sd$alphaList,na.rm=T,finite=T),ylab='alpha',col=mypalette[j], main=paste0('bin = ',j))
+    matplot(sd$alphaList,type='l',ylim=range(sd$alphaList,na.rm=T,finite=T),ylab='alpha',col=palette()[j], main=paste0('freqs: ',directcases[j]))
     }
 for(j in 1:length(MCMCdata)){
     sd <- MCMCdata[[j]]
-    for(i in c(1,3)){matplot(sd$logPost[i,],type='l',ylim=range(sd$logPost[i,],na.rm=T,finite=T),col=mypalette[j], main=paste0('bin = ',j))}
+    for(i in c(1,3)){matplot(sd$logPost[i,],type='l',ylim=range(sd$logPost[i,],na.rm=T,finite=T),col=palette()[j], main=paste0('freqs: ',directcases[j]))}
     }
 dev.off()
 ##
-## Plots
+
+## Plots of sample distributions
 isasa <- continuousCovs[grepl('sasa', continuousCovs)]
 itani <- continuousCovs[grepl('tanimoto', continuousCovs)]
 ## Jacobian determinant for scaled quantities
@@ -318,47 +321,48 @@ jac <- function(X){
 }
 ##
 predictSasaTani <- function(dataobj, X){
-    foreach(sample=seq_along(dataobj$nList), .combine='+', .inorder=FALSE)%dopar%{
-        sum(dataobj$psiList[[sample]] *
-            sapply(seq_len(dataobj$nList[sample]),function(cluster){
+    foreach(asample=seq_along(dataobj$nList), .combine='+', .inorder=FALSE)%dopar%{
+        sum(dataobj$psiList[[asample]] *
+            sapply(seq_len(dataobj$nList[asample]),function(cluster){
             ## prod(sapply(discreteCovs, function(covariate){
-            ##     dataobj$phiList[[sample]][[covariate]][X[covariate], cluster]
+            ##     dataobj$phiList[[asample]][[covariate]][X[covariate], cluster]
             ## })) *
-                dmvnorm(X, mean=dataobj$muList[[sample]][continuousCovs,cluster], sigma=as.matrix(dataobj$sigmaList[[sample]][continuousCovs,continuousCovs,cluster]))
+                dmvnorm(X, mean=dataobj$muList[[asample]][continuousCovs,cluster], sigma=as.matrix(dataobj$sigmaList[[asample]][continuousCovs,continuousCovs,cluster]))
         }))
-       #drop(dataobj$phiList[[sample]]$bin_RMSD %*% weights)/sum(weights)
+       #drop(dataobj$phiList[[asample]]$bin_RMSD %*% weights)/sum(weights)
 }/length(dataobj$nList)
 }
-predictSampleSasaTani <- function(dataobj,sample, X){
-        sum(dataobj$psiList[[sample]] *
-            sapply(seq_len(dataobj$nList[sample]),function(cluster){
+predictSampleSasaTani <- function(dataobj,asample, X){
+        sum(dataobj$psiList[[asample]] *
+            sapply(seq_len(dataobj$nList[asample]),function(cluster){
             ## prod(sapply(discreteCovs, function(covariate){
-            ##     dataobj$phiList[[sample]][[covariate]][X[covariate], cluster]
+            ##     dataobj$phiList[[asample]][[covariate]][X[covariate], cluster]
             ## })) *
-                dmvnorm(X, mean=dataobj$muList[[sample]][continuousCovs,cluster], sigma=as.matrix(dataobj$sigmaList[[sample]][continuousCovs,continuousCovs,cluster]))
+                dmvnorm(X, mean=dataobj$muList[[asample]][continuousCovs,cluster], sigma=as.matrix(dataobj$sigmaList[[asample]][continuousCovs,continuousCovs,cluster]))
         }))
-       #drop(dataobj$phiList[[sample]]$bin_RMSD %*% weights)/sum(weights)
+       #drop(dataobj$phiList[[asample]]$bin_RMSD %*% weights)/sum(weights)
 }
 ##
 ##
 ## Plot sample densities
 nplots <- 50
 plan(sequential)
-##plan(multisession, workers = 6L)
+plan(multisession, workers = 3L)
 xgrid <- seq(1, 200,length.out=20)
 ygrid <- seq(0.001,0.999,length.out=20)
-pdf(file=paste0('testsampledensities_seq.pdf'),height=11.7,width=16.5*10)
+for(j in 1:length(MCMCdata)){
+pdf(file=paste0('testsampledensities_seq_',directcases[j],'.pdf'),height=11.7,width=16.5*10)
 ## plot(NA,xlim=c(0,1),ylim=c(0,1),main='parameters')
 ## text(0,1,(paste0('transf = ','id','\ndim = ',dims,'\nmeanalpha = ',meanalpha,'\nsdalpha = ',sdalpha,'\nK = ',ka,'\nL = ',la,'\nM = ',mu,'\nresc = ',resc,'\nNclust = ',mean(clusters))),adj = c(0,1),cex=5)
 ##
-for(sample in round(seq(1,1000,length.out=nplots))){
+for(asample in round(seq(1,1000,length.out=nplots))){
 zgrid <- outer(xgrid,ygrid,function(x,y){
     mapply(function(xx,yy){
                     XX <- c(xx,yy)
                     names(XX) <- continuousCovs
                     YY <- c(sasa2y(xx),tanimoto2y(yy))
                     names(YY) <- continuousCovs
-                    predictSampleSasaTani(MCMCdata[[1]], sample, YY)*jac(XX)
+                    predictSampleSasaTani(MCMCdata[[j]], asample, YY)*jac(XX)
                     },
         x,y)}
         )
@@ -369,23 +373,23 @@ dev.off()
 ##
 xgrid <- seq(-3, 3, length.out=20)
 ygrid <- seq(-3, 3, length.out=20)
-pdf(file=paste0('testsampledensities_scaled_seq.pdf'),height=11.7,width=16.5*10)
+pdf(file=paste0('testsampledensities_scaled_seq_',directcases[j],'.pdf'),height=11.7,width=16.5*10)
 ## plot(NA,xlim=c(0,1),ylim=c(0,1),main='parameters')
 ## text(0,1,(paste0('transf = ','id','\ndim = ',dims,'\nmeanalpha = ',meanalpha,'\nsdalpha = ',sdalpha,'\nK = ',ka,'\nL = ',la,'\nM = ',mu,'\nresc = ',resc,'\nNclust = ',mean(clusters))),adj = c(0,1),cex=5)
 ##
-for(sample in round(seq(1,1000,length.out=nplots))){
+for(asample in round(seq(1,1000,length.out=nplots))){
 zgrid <- outer(xgrid,ygrid,function(x,y){
     mapply(function(xx,yy){
                     XX <- c(xx,yy)
                     names(XX) <- continuousCovs
-                    predictSampleSasaTani(MCMCdata[[1]], sample, XX)
+                    predictSampleSasaTani(MCMCdata[[j]], asample, XX)
                     },
         x,y)}
         )
 persp(xgrid,ygrid,zgrid,zlim=c(0,max(zgrid)),ticktype='detailed',theta = 45, phi = 15,xlab='scaled sasa',ylab='scaled tanimoto')
 }
 dev.off()
-
+}
 
 ##################################################################
 ##################################################################
@@ -491,24 +495,24 @@ oldmetrics <- function(testres, priorP){
 ## Samples of conditional probabilities for covariates and their variances
 predictYX <- function(dataobj, X, rvals){
     X <- as.matrix(X[, c(discreteCovs,continuousCovs), with=FALSE])
-    freqs <- foreach(val=rvals, .combine=rbind)%:%foreach(sample=seq_along(dataobj[[val]]$nList), .combine=cbind, .inorder=FALSE)%dopar%{
+    freqs <- foreach(val=rvals, .combine=rbind)%:%foreach(asample=seq_along(dataobj[[val]]$nList), .combine=cbind, .inorder=FALSE)%dopar%{
         colSums(exp(
-            log(dataobj[[val]]$psiList[[sample]]) +
-            t(vapply(seq_len(dataobj[[val]]$nList[sample]), function(cluster){
+            log(dataobj[[val]]$psiList[[asample]]) +
+            t(vapply(seq_len(dataobj[[val]]$nList[asample]), function(cluster){
                 rowSums(log(
                     vapply(discreteCovs, function(covariate){
-                        dataobj[[val]]$phiList[[sample]][[covariate]][X[,covariate], cluster]
+                        dataobj[[val]]$phiList[[asample]][[covariate]][X[,covariate], cluster]
                     }, numeric(nrow(X)))
                 )) +
-                    dmvnorm(X[,continuousCovs], mean=dataobj[[val]]$muList[[sample]][continuousCovs,cluster], sigma=as.matrix(dataobj[[val]]$sigmaList[[sample]][continuousCovs,continuousCovs,cluster]), log=TRUE)
+                    dmvnorm(X[,continuousCovs], mean=dataobj[[val]]$muList[[asample]][continuousCovs,cluster], sigma=as.matrix(dataobj[[val]]$sigmaList[[asample]][continuousCovs,continuousCovs,cluster]), log=TRUE)
             }, numeric(nrow(X))))
         ))
-        ## colSums(dataobj[[val]]$psiList[[sample]] *
-        ##     t(sapply(seq_len(dataobj[[val]]$nList[sample]),function(cluster){
+        ## colSums(dataobj[[val]]$psiList[[asample]] *
+        ##     t(sapply(seq_len(dataobj[[val]]$nList[asample]),function(cluster){
         ##     exp(rowSums(log(sapply(discreteCovs, function(covariate){
-        ##         dataobj[[val]]$phiList[[sample]][[covariate]][X[,covariate], cluster]
+        ##         dataobj[[val]]$phiList[[asample]][[covariate]][X[,covariate], cluster]
         ##     })))) *
-        ##         dmvnorm(X[,continuousCovs], mean=dataobj[[val]]$muList[[sample]][continuousCovs,cluster], sigma=as.matrix(dataobj[[val]]$sigmaList[[sample]][continuousCovs,continuousCovs,cluster]))
+        ##         dmvnorm(X[,continuousCovs], mean=dataobj[[val]]$muList[[asample]][continuousCovs,cluster], sigma=as.matrix(dataobj[[val]]$sigmaList[[asample]][continuousCovs,continuousCovs,cluster]))
         ##     }))
         ##     )
     }
@@ -522,24 +526,24 @@ predictYX <- function(dataobj, X, rvals){
 ## Samples of conditional probabilities for covariates, with covariance matrix
 predictYXcross <- function(dataobj, X){
     X <- as.matrix(X[, c(discreteCovs,continuousCovs), with=FALSE])
-    freqs <- foreach(sample=seq_along(dataobj$nList), .combine=cbind, .inorder=FALSE)%dopar%{
+    freqs <- foreach(asample=seq_along(dataobj$nList), .combine=cbind, .inorder=FALSE)%dopar%{
         colSums(exp(
-            log(dataobj$psiList[[sample]]) +
-            t(vapply(seq_len(dataobj$nList[sample]), function(cluster){
+            log(dataobj$psiList[[asample]]) +
+            t(vapply(seq_len(dataobj$nList[asample]), function(cluster){
                 rowSums(log(
                     vapply(discreteCovs, function(covariate){
-                        dataobj$phiList[[sample]][[covariate]][X[,covariate], cluster]
+                        dataobj$phiList[[asample]][[covariate]][X[,covariate], cluster]
                     }, numeric(nrow(X)))
                 )) +
-                    dmvnorm(X[,continuousCovs], mean=dataobj$muList[[sample]][continuousCovs,cluster], sigma=as.matrix(dataobj$sigmaList[[sample]][continuousCovs,continuousCovs,cluster]), log=TRUE)
+                    dmvnorm(X[,continuousCovs], mean=dataobj$muList[[asample]][continuousCovs,cluster], sigma=as.matrix(dataobj$sigmaList[[asample]][continuousCovs,continuousCovs,cluster]), log=TRUE)
             }, numeric(nrow(X))))
         ))
-        ## colSums(dataobj$psiList[[sample]] *
-        ##     t(sapply(seq_len(dataobj$nList[sample]),function(cluster){
+        ## colSums(dataobj$psiList[[asample]] *
+        ##     t(sapply(seq_len(dataobj$nList[asample]),function(cluster){
         ##     exp(rowSums(log(sapply(discreteCovs, function(covariate){
-        ##         dataobj$phiList[[sample]][[covariate]][X[,covariate], cluster]
+        ##         dataobj$phiList[[asample]][[covariate]][X[,covariate], cluster]
         ##     })))) *
-        ##         dmvnorm(X[,continuousCovs], mean=dataobj$muList[[sample]][continuousCovs,cluster], sigma=as.matrix(dataobj$sigmaList[[sample]][continuousCovs,continuousCovs,cluster]))
+        ##         dmvnorm(X[,continuousCovs], mean=dataobj$muList[[asample]][continuousCovs,cluster], sigma=as.matrix(dataobj$sigmaList[[asample]][continuousCovs,continuousCovs,cluster]))
         ##     }))
         ##     )
     }
@@ -662,10 +666,10 @@ rownames(pbins) <- paste0('bin',1:nrow(pbins))
 ##
 freqbins <- 0 * pbins
 psample <- normalizem(t(t(condfreqs[,,1]) * priorP))
-for(sample in 1:nrow(condfreqs)){
-    distances <- apply(pbins,1,function(x){distfunction(psample[sample,],x)})
+for(asample in 1:nrow(condfreqs)){
+    distances <- apply(pbins,1,function(x){distfunction(psample[asample,],x)})
     bin <- which.min(distances)
-    outcome <- testdata[sample,bin_RMSD]
+    outcome <- testdata[asample,bin_RMSD]
     freqbins[bin,outcome] <- freqbins[bin,outcome] + 1
 }
 ##
@@ -683,7 +687,7 @@ psampled <- rdirichlet(n=10000, alpha=rep(1,3))
 for(i in 1:10000){
     dists <- apply(pbins,1,function(x){distfunction(psampled[i,],x)})
     cent <- which.min(dists)
-    matpoints(x=psampled[i,1],y=psampled[i,3],type='p',pch=20,col=mypalette[(cent%%7)+1])
+    matpoints(x=psampled[i,1],y=psampled[i,3],type='p',pch=20,col=palette()[(cent%%7)+1])
 }
 matpoints(x=pbins[,1],y=pbins[,3],type='p',pch=18,cex=3,col='black')
 ##
@@ -780,15 +784,15 @@ save.image(file=paste0('_reverse_test_N',ndata,'_',length(covNums),'covs.RData')
 evals1
 ##
 predictYpar <- function(dataobj, X){
-    freqs <- foreach(sample=seq_along(dataobj$nList), .combine=c, .inorder=FALSE)%dopar%{
-        sum(dataobj$psiList[[sample]] *
-            sapply(seq_len(dataobj$nList[sample]),function(cluster){
+    freqs <- foreach(asample=seq_along(dataobj$nList), .combine=c, .inorder=FALSE)%dopar%{
+        sum(dataobj$psiList[[asample]] *
+            sapply(seq_len(dataobj$nList[asample]),function(cluster){
             prod(sapply(discreteCovs, function(covariate){
-                dataobj$phiList[[sample]][[covariate]][X[covariate], cluster]
+                dataobj$phiList[[asample]][[covariate]][X[covariate], cluster]
             })) *
-                dmvnorm(X[continuousCovs], mean=dataobj$muList[[sample]][continuousCovs,cluster], sigma=as.matrix(dataobj$sigmaList[[sample]][continuousCovs,continuousCovs,cluster]))
+                dmvnorm(X[continuousCovs], mean=dataobj$muList[[asample]][continuousCovs,cluster], sigma=as.matrix(dataobj$sigmaList[[asample]][continuousCovs,continuousCovs,cluster]))
         }))
-       #drop(dataobj$phiList[[sample]]$bin_RMSD %*% weights)/sum(weights)
+       #drop(dataobj$phiList[[asample]]$bin_RMSD %*% weights)/sum(weights)
     }
     me <- mean(freqs)
     c(me, sqrt(mean(freqs^2) - me^2))
@@ -928,15 +932,15 @@ plan(multisession, workers = 6L)
 priorP2 <- normalize(as.vector(table(data$bin_RMSD)))
 ##
 predictYpar2 <- function(dataobj, X){
-    freqs <- foreach(sample=seq_along(dataobj$nList), .combine='c', .inorder=FALSE)%dopar%{
-        sum(dataobj$psiList[[sample]] *
-            sapply(seq_len(dataobj$nList[sample]),function(cluster){
+    freqs <- foreach(asample=seq_along(dataobj$nList), .combine='c', .inorder=FALSE)%dopar%{
+        sum(dataobj$psiList[[asample]] *
+            sapply(seq_len(dataobj$nList[asample]),function(cluster){
             prod(sapply(discreteCovs, function(covariate){
-                dataobj$phiList[[sample]][[covariate]][X[covariate], cluster]
+                dataobj$phiList[[asample]][[covariate]][X[covariate], cluster]
             })) *
-                dmvnorm(X[continuousCovs], mean=dataobj$muList[[sample]][continuousCovs,cluster], sigma=as.matrix(dataobj$sigmaList[[sample]][continuousCovs,continuousCovs,cluster]))
+                dmvnorm(X[continuousCovs], mean=dataobj$muList[[asample]][continuousCovs,cluster], sigma=as.matrix(dataobj$sigmaList[[asample]][continuousCovs,continuousCovs,cluster]))
         }))
-       #drop(dataobj$phiList[[sample]]$bin_RMSD %*% weights)/sum(weights)
+       #drop(dataobj$phiList[[asample]]$bin_RMSD %*% weights)/sum(weights)
     }
     me <- mean(freqs)
     c(me, sqrt(mean(freqs^2)-me^2))
@@ -1070,14 +1074,14 @@ layout(matrix(1:10,1,10,byrow=TRUE))
 ## plot(NA,xlim=c(0,1),ylim=c(0,1),main='parameters')
 ## text(0,1,(paste0('transf = ','id','\ndim = ',dims,'\nmeanalpha = ',meanalpha,'\nsdalpha = ',sdalpha,'\nK = ',ka,'\nL = ',la,'\nM = ',mu,'\nresc = ',resc,'\nNclust = ',mean(clusters))),adj = c(0,1),cex=5)
 ##
-for(sample in round(seq(1,1000,length.out=10^2))){
+for(asample in round(seq(1,1000,length.out=10^2))){
 zgrid <- outer(xgrid,ygrid,function(x,y){
     mapply(function(xx,yy){
                     XX <- c(xx,yy)
                     names(XX) <- continuousCovs
                     YY <- c(log(xx),qnorm(yy))
                     names(YY) <- continuousCovs
-                    predictSampleSasaTani(MCMCdata[[1]], sample,YY)*jac(XX)
+                    predictSampleSasaTani(MCMCdata[[1]], asample,YY)*jac(XX)
                     },
         x,y)}
         )
@@ -1140,15 +1144,15 @@ dev.off()
 ## this is much slower
 predictYtest2 <- function(dataobj, testset){
     t(apply(testset[,c(discreteCovs,continuousCovs),with=FALSE], 1, function(X){
-        freqs <- foreach(sample=seq_along(dataobj$nList), .combine=c, .inorder=FALSE)%dopar%{
-        sum(dataobj$psiList[[sample]] *
-            sapply(seq_len(dataobj$nList[sample]),function(cluster){
+        freqs <- foreach(asample=seq_along(dataobj$nList), .combine=c, .inorder=FALSE)%dopar%{
+        sum(dataobj$psiList[[asample]] *
+            sapply(seq_len(dataobj$nList[asample]),function(cluster){
             prod(sapply(discreteCovs, function(covariate){
-                dataobj$phiList[[sample]][[covariate]][X[covariate], cluster]
+                dataobj$phiList[[asample]][[covariate]][X[covariate], cluster]
             })) *
-                dmvnorm(X[continuousCovs], mean=dataobj$muList[[sample]][continuousCovs,cluster], sigma=as.matrix(dataobj$sigmaList[[sample]][continuousCovs,continuousCovs,cluster]))
+                dmvnorm(X[continuousCovs], mean=dataobj$muList[[asample]][continuousCovs,cluster], sigma=as.matrix(dataobj$sigmaList[[asample]][continuousCovs,continuousCovs,cluster]))
         }))
-       #drop(dataobj$phiList[[sample]]$bin_RMSD %*% weights)/sum(weights)
+       #drop(dataobj$phiList[[asample]]$bin_RMSD %*% weights)/sum(weights)
     }
     me <- mean(freqs)
     c(me, sqrt(mean(freqs^2) - me^2))
@@ -1156,15 +1160,15 @@ predictYtest2 <- function(dataobj, testset){
 
 
 predictYpar <- function(dataobj, X){
-    foreach(sample=seq_along(dataobj$nList), .combine='+', .inorder=FALSE)%dopar%{
-        sum(dataobj$psiList[[sample]] *
-            sapply(seq_len(dataobj$nList[sample]),function(cluster){
+    foreach(asample=seq_along(dataobj$nList), .combine='+', .inorder=FALSE)%dopar%{
+        sum(dataobj$psiList[[asample]] *
+            sapply(seq_len(dataobj$nList[asample]),function(cluster){
             prod(sapply(discreteCovs, function(covariate){
-                dataobj$phiList[[sample]][[covariate]][X[covariate], cluster]
+                dataobj$phiList[[asample]][[covariate]][X[covariate], cluster]
             })) *
-                dmvnorm(X[continuousCovs], mean=dataobj$muList[[sample]][continuousCovs,cluster], sigma=as.matrix(dataobj$sigmaList[[sample]][continuousCovs,continuousCovs,cluster]))
+                dmvnorm(X[continuousCovs], mean=dataobj$muList[[asample]][continuousCovs,cluster], sigma=as.matrix(dataobj$sigmaList[[asample]][continuousCovs,continuousCovs,cluster]))
         }))
-       #drop(dataobj$phiList[[sample]]$bin_RMSD %*% weights)/sum(weights)
+       #drop(dataobj$phiList[[asample]]$bin_RMSD %*% weights)/sum(weights)
 }/length(dataobj$nList)
 }
 
@@ -1218,15 +1222,15 @@ plan(multisession, workers = 6L)
 priorP2 <- normalize(as.vector(table(data$bin_RMSD)))
 ##
 predictYpar2 <- function(dataobj, X){
-    foreach(sample=seq_along(dataobj$nList), .combine='+', .inorder=FALSE)%dopar%{
-        sum(dataobj$psiList[[sample]] *
-            sapply(seq_len(dataobj$nList[sample]),function(cluster){
+    foreach(asample=seq_along(dataobj$nList), .combine='+', .inorder=FALSE)%dopar%{
+        sum(dataobj$psiList[[asample]] *
+            sapply(seq_len(dataobj$nList[asample]),function(cluster){
             prod(sapply(discreteCovs, function(covariate){
-                dataobj$phiList[[sample]][[covariate]][X[covariate], cluster]
+                dataobj$phiList[[asample]][[covariate]][X[covariate], cluster]
             })) *
-                dmvnorm(X[continuousCovs], mean=dataobj$muList[[sample]][continuousCovs,cluster], sigma=as.matrix(dataobj$sigmaList[[sample]][continuousCovs,continuousCovs,cluster]))
+                dmvnorm(X[continuousCovs], mean=dataobj$muList[[asample]][continuousCovs,cluster], sigma=as.matrix(dataobj$sigmaList[[asample]][continuousCovs,continuousCovs,cluster]))
         }))
-       #drop(dataobj$phiList[[sample]]$bin_RMSD %*% weights)/sum(weights)
+       #drop(dataobj$phiList[[asample]]$bin_RMSD %*% weights)/sum(weights)
 }/length(dataobj$nList)
 }
 ##
@@ -1288,14 +1292,14 @@ plan(multisession, workers = 6L)
 priorP <- rep(1,3)
 ##
 predictYpar <- function(dataobj, x){
-normalize(foreach(val=rmsdVals, .combine=c)%:%foreach(sample=seq_along(dataobj[[val]]$nList), .combine='+', .inorder=FALSE)%dopar%{
-        sum(exp(log(dataobj[[val]]$psiList[[sample]]) + sapply(seq_len(dataobj[[val]]$nList[sample]),function(j){
+normalize(foreach(val=rmsdVals, .combine=c)%:%foreach(asample=seq_along(dataobj[[val]]$nList), .combine='+', .inorder=FALSE)%dopar%{
+        sum(exp(log(dataobj[[val]]$psiList[[asample]]) + sapply(seq_len(dataobj[[val]]$nList[asample]),function(j){
             sum(log(sapply(discreteCovs, function(elem){
-                dataobj[[val]]$phiList[[sample]][[elem]][x[elem], j]
+                dataobj[[val]]$phiList[[asample]][[elem]][x[elem], j]
             }))) +
-                dmvnorm(x[continuousCovs], mean=dataobj[[val]]$muList[[sample]][continuousCovs,j], sigma=as.matrix(dataobj[[val]]$sigmaList[[sample]][continuousCovs,continuousCovs,j]), log=TRUE)
+                dmvnorm(x[continuousCovs], mean=dataobj[[val]]$muList[[asample]][continuousCovs,j], sigma=as.matrix(dataobj[[val]]$sigmaList[[asample]][continuousCovs,continuousCovs,j]), log=TRUE)
         }))) * priorP[val]
-       #drop(dataobj[[val]]$phiList[[sample]]$bin_RMSD %*% weights)/sum(weights)
+       #drop(dataobj[[val]]$phiList[[asample]]$bin_RMSD %*% weights)/sum(weights)
 }/length(dataobj[[val]]$nList)
 )}
 ##
@@ -1364,14 +1368,14 @@ plan(sequential)
 
 
 predictYpar2 <- function(mcobj, x){
-    foreach(sample=1:length(nList), .combine=rbind, .inorder=FALSE)%dopar%{
+    foreach(asample=1:length(nList), .combine=rbind, .inorder=FALSE)%dopar%{
         discreteCovs <- mcobj$discreteCovs[mcobj$discreteCovs != 'bin_RMSD']
         continuousCovs <- mcobj$continuousCovs
-        weights <- exp(log(psiList[[sample]]) + sapply(seq_len(nList[sample]),function(j){
-            sum(log(mapply(function(xx,yy){xx[yy, j]}, phiList[[sample]][discreteCovs], x[discreteCovs]-discrMin[discreteCovs]))) +
-                dmvnorm(x[continuousCovs], mean=muList[[sample]][continuousCovs,j], sigma=as.matrix(sigmaList[[sample]][continuousCovs,continuousCovs,j]), log=TRUE)
+        weights <- exp(log(psiList[[asample]]) + sapply(seq_len(nList[asample]),function(j){
+            sum(log(mapply(function(xx,yy){xx[yy, j]}, phiList[[asample]][discreteCovs], x[discreteCovs]-discrMin[discreteCovs]))) +
+                dmvnorm(x[continuousCovs], mean=muList[[asample]][continuousCovs,j], sigma=as.matrix(sigmaList[[asample]][continuousCovs,continuousCovs,j]), log=TRUE)
         }))
-       drop(phiList[[sample]]$bin_RMSD %*% weights)/sum(weights)
+       drop(phiList[[asample]]$bin_RMSD %*% weights)/sum(weights)
 }
 }
 ##
