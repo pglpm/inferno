@@ -1,7 +1,7 @@
 \pdfoutput=1
 %% Author: PGL  Porta Mana
 %% Created: 2015-05-01T20:53:34+0200
-%% Last-Updated: 2021-08-05T19:52:31+0200
+%% Last-Updated: 2021-08-06T14:12:32+0200
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \newif\ifarxiv
 \arxivfalse
@@ -677,12 +677,39 @@ Open Science Framework \doi{10.31219/osf.io/#1}%
 \newcommand*{\dobs}{degrees of belief}
 \newcommand*{\rms}{root-mean-square}
 \newcommand*{\rmsd}{\textsc{rmsd}}
+\newcommand*{\ro}{r}
+\newcommand*{\xo}{x}
 \newcommand*{\br}{\bar{r}}
 \newcommand*{\bx}{\bar{x}}
 \newcommand*{\yF}{\bm{F}}
 \newcommand*{\yFrx}{\yF_{\bm{r\mid x}}}
 \newcommand*{\yFxr}{\yF_{\bm{x\mid r}}}
 \DeclareMathOperator*{\logit}{logit}
+% from https://tex.stackexchange.com/a/424252/97039
+\makeatletter
+\newcommand*{\q}{}% Check if undefined
+\DeclareRobustCommand*{\q}{%
+  \mathord{\mathpalette\bigcdot@{}}% changed mathbin to mathord
+}
+\newcommand*{\bigcdot@scalefactor}{0.7}
+\newcommand*{\bigcdot@widthfactor}{1.5}
+\newcommand*{\bigcdot@}[2]{%
+  % #1: math style
+  % #2: unused
+  \sbox0{$#1\vcenter{}$}% math axis
+  \sbox2{$#1\cdot\m@th$}%
+  \hbox to \bigcdot@widthfactor\wd2{%
+    \hfil
+    \raise\ht0\hbox{%
+      \scalebox{\bigcdot@scalefactor}{%
+        \lower\ht0\hbox{$#1\bullet\m@th$}%
+      }%
+    }%
+    \hfil
+  }%
+}
+\makeatother
+%\newcommand*{\q}{\bullet}
 %%% Custom macros end @@@
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -750,76 +777,117 @@ value of \rmsd\ $r$
 and values for the  features $x$ can be associated with each target-ligand
 pair, which I'll call a \enquote{datapoint}.
 
-Our problem is to infer the value $r_{0}$ of a new datapoint, given:
+Our problem is to infer the value $\ro$ of a new datapoint, given:
 \begin{itemize}
-\item features $x_{0}$ for the new datapoint,
+\item features $\xo$ for the new datapoint,
 \item known pairs
   $(\br,\bx) \defd \bigl((r_{1}, x_{1}), (r_{2}, x_{1}), \dotsc, (r_{N},
-  x_{N})\bigr)$ for other $N$ datapoints,
+  x_{N})\bigr)$ for other $N$ datapoints, called the training dataset,
 \item additional facts and hypotheses $H$ (unavoidable since we are making an
 extrapolation).
 \end{itemize}
 
 In the following $r$ will be treated as discrete quantity assuming three
-possible values: \enquote*{good} ($0\ \textrm{\AA}\le r \le 2\
-\textrm{\AA}$), \enquote*{inconclusive} ($2\ \textrm{\AA} < r < 3\
-\textrm{\AA}$),  \enquote*{bad} ($3\ \textrm{\AA} \le r$). 
+possible values: \enquote*{good}
+($0\ \textrm{\AA}\le r \le 2\ \textrm{\AA}$), \enquote*{inconclusive}
+($2\ \textrm{\AA} < r < 3\ \textrm{\AA}$), \enquote*{bad}
+($3\ \textrm{\AA} \le r$). Also, we denote with $F_{r\, x}$ the joint
+relative frequency for values $r$ and $x$ in the training dataset; with
+$F_{r\q}$ the marginal relative frequency for $r$, and with $F_{\q x}$ that
+for $x$; with $F_{r\mid x}$ the conditional relative frequency for $r$
+given $x$, and vice versa for $F_{x \mid r}$. These frequencies are related
+by
+\begin{equation}
+  \label{eq:frequencies_relations}
+  F_{r\q}=\sum_{x} F_{r\,x} \quad
+  F_{\q x}=\sum_{r} F_{r\,x}\quad
+  F_{r\mid x}=F_{r\,x}/F_{\q x} \quad
+  F_{x\mid r}=F_{r\,x}/F_{r\q}\ .
+\end{equation}
 
 
-Our uncertainty about $r_{0}$ is expressed by the probability
+Our uncertainty about $\ro$ is expressed by the probability
 \begin{equation}
   \label{eq:main_prob}
-  \p(r_{0} \| x_{0},\ \br,\bx,\ H) \ ,
+  \p(\ro \| \xo,\ \br,\bx,\ H) \ ,
 \end{equation}
 which we want to quantify using the probability calculus.
 
-The first question we must ask for such quantification is this: How much
-are the various relative frequencies for the known datapoints $(\br,\bx)$
-relevant to our uncertainty about $r_{0}$? To understand the meaning of
-this question, consider the case where $r_{0}$ is
-\emph{hand-picked} to be \enquote*{good}: then the frequency of
-$r_{0}=\text{\enquote*{good}}$ in the known dataset is obviously irrelevant
-to its \enquote{prediction}.
+The first question we must ask for such quantification is this: Are the
+various relative frequencies in the training dataset relevant to our
+uncertainty about $\ro$ and $\xo$?. We consider three mutually exclusive
+cases:
+\begin{enumerate}[label=\roman*.]
+\item The conditional frequency $F_{\ro\mid \xo}$ of $\ro$ given $\xo$ is
+  relevant to the inference of $\ro$ given $\xo$. The marginal frequency
+  $F_{\q \xo}$ of $\xo$, however, is irrelevant to the inference of $\xo$.
+\item The conditional frequency $F_{\xo\mid \ro}$ of $\xo$ given
+  $\ro$ is relevant to the inference of $\xo$ given $\ro$. The
+  marginal frequency $F_{\ro\q}$ of $\ro$, however, is irrelevant to
+  the latter's inference.
+\item The joint frequency $F_{\ro\, \xo}$ of $\ro$ and
+  $\xo$ is relevant to the joint inference of both. This is equivalent to
+  the relevance of $F_{\ro\mid \xo}$ and $F_{\q \xo}$, or of
+  $F_{\xo\mid \ro}$ and $F_{\ro\q}$.
+\end{enumerate}
+Either marginal frequency $F_{r\q}$ or $F_{\q x}$ could be irrelevant
+because the respective quantity could be chosen by hand or selected by some
+process different from that underlying the training dataset.
 
-We have three possible scenarios
+If $F_{\ro\q}$ is relevant, in technical terms we say that $\ro$ (or more
+precisely its probability) is \emph{exchangeable} with all $\br$ in the
+training dataset. Or we can say that $\ro$ belongs to the same population
+as the $\br$ do. If $F_{\ro\mid \xo}$ is relevant, we say that $\ro$ is
+exchangeable with the $\br$ in the training dataset \emph{given $\xo$}. Or
+we can say that $\ro$ belongs to the same subpopulation of $\br$
+characterized by a joint value $\xo$. Similarly for the converse cases.
+
+The question of exchangeability is discussed in a brilliant paper by
+Lindley \amp\ Novick \citey{lindleyetal1981}, who show with examples its
+fundamental importance for making correct inferences. Exchangeability is
+the basic fact or assumption upon which machine-learning algorithms and the
+calculations presented here are based. A short intuitive summary of this
+notion is given in appendix***. Several authors connect or motivate the
+relevance of either conditional frequency with the robustness of
+\enquote{causal connections} (which can originate from a common cause) in
+the directions $\xo \rightsquigarrow \ro$ or $\ro \rightsquigarrow \xo$
+\parencites[\cf][\sects~2.1.2, 2.2.5]{pearl1988}.
 
 
+\bigskip
+
+The three cases of exchangeability listed above lead to three different
+equations for the calculation of the probability~\eqref{eq:main_prob}.
 
 
-For example, if $r_{0}$ is
+For example, if $\ro$ is
 hand-picked by someone, then knowledge of the frequencies for $(\br,\bx)$
 is irrelevant. But even in such a case it might be that the reversed
-probability $\p(x_{0} \| r_{0},\ \br,\bx,\ H)$ \emph{does} depend on the
+probability $\p(\xo \| \ro,\ \br,\bx,\ H)$ \emph{does} depend on the
 frequencies of previous datapoints, and it can be used to
 calculate~\eqref{eq:main_prob} as
 \begin{equation}
   \label{eq:rev_prob}
-  \p(r_{0} \| x_{0},\ \br,\bx,\ H) =
-  \frac{\p(x_{0} \| r_{0},\ \br,\bx,\ H)\ \p(r_{0} \| H)}{
-    \sum_{r_{0}}\p(x_{0} \| r_{0},\ \br,\bx,\ H)\ \p(r_{0} \| H)}
+  \p(\ro \| \xo,\ \br,\bx,\ H) =
+  \frac{\p(\xo \| \ro,\ \br,\bx,\ H)\ \p(\ro \| H)}{
+    \sum_{\ro}\p(\xo \| \ro,\ \br,\bx,\ H)\ \p(\ro \| H)}
 \ .
 \end{equation}
 The important difference between \eqns~\eqref{eq:main_prob} and
 \eqref{eq:rev_prob} is that in the latter we must also quantify
-$\p(r_{0} \| H)$ using extra-data facts or hypotheses.
+$\p(\ro \| H)$ using extra-data facts or hypotheses.
 
-In technical terms we are asking whether $r_{0}$ is \emph{exchangeable}
-given $x_{0}$, or vice versa. Using Fisherian \citey[\sects~II.4,
-IV.1]{fisher1956} parlance we are asking whether $r_{0}$ should be
-considered as belonging to a \emph{subpopulation} determined by $x_{0}$ or
+In technical terms we are asking whether $\ro$ is \emph{exchangeable}
+given $\xo$, or vice versa. Using Fisherian \citey[\sects~II.4,
+IV.1]{fisher1956} parlance we are asking whether $\ro$ should be
+considered as belonging to a \emph{subpopulation} determined by $\xo$ or
 vice versa. (Or neither, in which case our study would simply end here, so
 we won't consider this third possibility.) Another way of seeing our
 question is whether \enquote{causal connections} (which can originate from
 a common cause) are more robust in the direction
-$x_{0} \rightsquigarrow r_{0}$ or $r_{0} \rightsquigarrow x_{0}$
+$\xo \rightsquigarrow \ro$ or $\ro \rightsquigarrow \xo$
 \parencites[\cf][\sects~2.1.2, 2.2.5]{pearl1988}.
 
-This question is discussed in a brilliant paper by Lindley \amp\ Novick
-\citey{lindleyetal1981}, who show with examples its fundamental importance
-for making correct inferences. Exchangeability is the basic fact or
-assumption upon which machine-learning algorithms and the calculations
-presented here are based. A short intuitive summary of this notion is given
-in the next section.
 
 We study both possibilities mentioned above. At the end we'll compare the
 results and discuss which assumption makes more sense in various
@@ -893,14 +961,14 @@ if the wrong type of exchangeability is assumed.
 From the generalization of the equations above we obtain other
 probabilities for various cases of regression, such as
 \eqns~\eqref{eq:main_prob} or \eqref{eq:rev_prob}, by simply using the
-three rules of the probability calculus. For example, if $r_{0}$ is assumed
-to be exchangeable given $x_{0}$, but the latter is not assumed to be
+three rules of the probability calculus. For example, if $\ro$ is assumed
+to be exchangeable given $\xo$, but the latter is not assumed to be
 exchangeable with the other $\bx$ because hand-picked, we find
 \begin{equation}
   \label{eq:main_prob_exch}
-  \p(r_{0} \| x_{0},\ \br,\bx,\ H) =
+  \p(\ro \| \xo,\ \br,\bx,\ H) =
   \frac{
-    \int F_{r_{0}\|x_{0}} \ F_{r_{1},x_{1}} \  \dotsm \ 
+    \int F_{\ro\|\xo} \ F_{r_{1},x_{1}} \  \dotsm \ 
   F_{r_{N},x_{N}} \ \p(\yF \| H)\ \di\yF
   }{
     \int F_{r_{1},x_{1}} \  \dotsm \ 
@@ -911,7 +979,7 @@ exchangeable with the other $\bx$ because hand-picked, we find
 The distribution $\p(\yF \| H)$, usually called the \enquote{prior},
 embodies the assumptions that we make for the extrapolation. It therefore
 cannot be determined by the known datapoints. Given enough known datapoints
-$(\br,\bx)$, the probability distribution for $r_{0}$ given $x_{0}$
+$(\br,\bx)$, the probability distribution for $\ro$ given $\xo$
 eventually does become equal to their limit conditional frequency. This
 sets the ultimate uncertainty with which the prediction can be made, and
 cannot be surpassed by any algorithm. So this approach eventually does
@@ -931,7 +999,7 @@ machine-learning algorithms manage to deal with larger dimensionality and
 datapoints by parametrizing the $\yF$-space in a clever way (for example,
 deep nets parametrize the $\yF$ as nested compositions of some simple
 functions) and finding an argument that maximizes the integrands above
-\parencites{mackay1992,mackay1992b}, for example a value of $r_{0}$ that
+\parencites{mackay1992,mackay1992b}, for example a value of $\ro$ that
 locally maximizes the integrand in the numerator of
 \eqn~\eqref{eq:main_prob_exch}. This means, though, that they cannot
 quantify the uncertainty of the inference.
@@ -944,19 +1012,19 @@ For the direct case~\eqref{eq:main_prob} we consider the \rmsd\ $r$ as a
 continuous variable, mapped to a log-scale to avoid dealing with finite
 ranges.
 
-In the direct case the assumption is that $r_{0}$ is exchangeable given
-$x_{0}$, but $x_{0}$ is not exchangeable given the known datapoints $\bx$.
+In the direct case the assumption is that $\ro$ is exchangeable given
+$\xo$, but $\xo$ is not exchangeable given the known datapoints $\bx$.
 This is a sensible assumption -- a fact indeed -- if we are \emph{choosing}
-the specific value of $x_{0}$, as we do in some testing situations for
+the specific value of $\xo$, as we do in some testing situations for
 example. The values $(\br,\bx)$ are considered exchangeable.
 
-The probability $\p(r_{0} \| x_{0},\ \br,\bx,\ H)$ is then given by
+The probability $\p(\ro \| \xo,\ \br,\bx,\ H)$ is then given by
 \eqn~\eqref{eq:main_prob_exch}, which can be rewritten this way:
 \begin{equation}
   \label{eq:direct_case_main}
   \begin{gathered}
-  \p(r_{0} \| x_{0},\ \br,\bx,\ H) =
-  \int F_{r_{0}\|x_{0}} \ \p(\yF \| \br, \bx,\ H)\ \di\yF
+  \p(\ro \| \xo,\ \br,\bx,\ H) =
+  \int F_{\ro\|\xo} \ \p(\yF \| \br, \bx,\ H)\ \di\yF
   \\[\jot]
   \text{with}\quad
   \p(\yF \| \br, \bx,\ H) =
@@ -990,7 +1058,7 @@ by \textcite{petrone2017} and \textcite[\sect~4]{quintanaetal2020}.
 
 
 The first integral in \eqn~\eqref{eq:direct_case_main} is numerically
-approximated by a sum of values of $F_{r_{0} \| x_{0}}$ sampled from the
+approximated by a sum of values of $F_{\ro \| \xo}$ sampled from the
 distribution $\p(\yF \| \br, \bx,\ H)$ via Markov-chain Monte Carlo
 methods. Details about the sampling algorithm are given in \mynote{\wrench\
   \sect***}.
@@ -1003,15 +1071,15 @@ divided into three categories:
 $r \in \set{\text{\enquote*{good}},\, \text{\enquote*{inconclusive}},\,
   \text{\enquote*{bad}}}$ .
 
-In the reverse case the assumption is that $x_{0}$ is exchangeable given
-$r_{0}$, but $r_{0}$ is not exchangeable given the known datapoints $\br$.
+In the reverse case the assumption is that $\xo$ is exchangeable given
+$\ro$, but $\ro$ is not exchangeable given the known datapoints $\br$.
 This is again a sensible assumption if we are choosing the specific value
-of $x_{0}$, as we do in testing situations, because then $r_{0}$ cannot be
+of $\xo$, as we do in testing situations, because then $\ro$ cannot be
 considered to come from some unsystematic process, if it is has some causal
-connections with $x_{0}$. The values $(\br,\bx)$ are considered
+connections with $\xo$. The values $(\br,\bx)$ are considered
 exchangeable.
 
-The probability $\p(x_{0} \| r_{0},\ \br,\bx,\ H)$ is obtained analogously
+The probability $\p(\xo \| \ro,\ \br,\bx,\ H)$ is obtained analogously
 to \eqn~\eqref{eq:prob_cond_freq_integr}, reversing the roles of $r$ and
 $x$. We make the additional assumption that the prior
 $\p(\yFxr \| H)$ factorizes for the frequencies conditional on the three
@@ -1027,8 +1095,8 @@ The result is three distinct conditional probabilities:
 \begin{equation}
   \label{eq:reverse_case_main}
   \begin{gathered}
-  \p(x_{0} \| r,\ \br,\bx,\ H) =
-\int F_{x_{0}\|r} \ \p(\yF_{\bm{x\mid}r} \| \bx,\ H)\ \di\yF_{\bm{x\mid}r}
+  \p(\xo \| r,\ \br,\bx,\ H) =
+\int F_{\xo\|r} \ \p(\yF_{\bm{x\mid}r} \| \bx,\ H)\ \di\yF_{\bm{x\mid}r}
   \\[\jot]
   \p(\yF_{\bm{x\mid}r} \| \bx,\ H) =
   \frac{
