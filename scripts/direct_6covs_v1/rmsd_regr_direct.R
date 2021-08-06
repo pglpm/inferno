@@ -1,8 +1,8 @@
 ## Author: PGL  Porta Mana
 ## Created: 2021-03-20T10:07:17+0100
-## Last-Updated: 2021-08-04T12:11:24+0200
+## Last-Updated: 2021-08-06T07:56:04+0200
 ################
-## Script for reverse regression
+## Script for direct regression
 ################
 
 #### Custom setup ####
@@ -191,10 +191,10 @@ plan(multisession, workers = 3L)
 mcmcrun <- foreach(case=directcases, .inorder=FALSE)%dopar%{
     outfile <- paste0('_mcoutput_',case)
     ##
-    if(case=='data'){
+    if(case==directcases[1]){
         seldata <- 1:ndata
         datamcr <- data[seldata, covNames, with=F]
-    } else {
+    } else if(case==directcases[2]){
         ## construct tranining set with equally occurring freqs of bin_RMSD
         testd <- data[, covNames, with=F]
         datamcr <- data.table()
@@ -205,7 +205,8 @@ mcmcrun <- foreach(case=directcases, .inorder=FALSE)%dopar%{
             seldata <- c(seldata,whichbin)
         }
         rm(testd)
-    }
+    } else {print('Error!')
+    datamcr <- NULL}
     ## make sure all levels of discrete variables appear
     for(i in discreteCovs){
         datum <- datamcr[[i]]
@@ -219,17 +220,18 @@ mcmcrun <- foreach(case=directcases, .inorder=FALSE)%dopar%{
     }
 ##
 ##
-        c(case=case, profRegr(excludeY=TRUE, xModel='Mixed', nSweeps=2000e3, nBurn=3000e3, nFilter=2e3, data=as.data.frame(datamcr), nClusInit=80, covNames=c(discreteCovs,continuousCovs), discreteCovs=discreteCovs, continuousCovs=continuousCovs, nProgress=1000, seed=147, output=outfile, useHyperpriorR1=FALSE, useNormInvWishPrior=TRUE, hyper=testhp, alpha=4))
+        c(case=case, profRegr(excludeY=TRUE, xModel='Mixed', nSweeps=2000e2, nBurn=3000e2, nFilter=2e2, data=as.data.frame(datamcr), nClusInit=80, covNames=c(discreteCovs,continuousCovs), discreteCovs=discreteCovs, continuousCovs=continuousCovs, nProgress=1000, seed=147, output=outfile, useHyperpriorR1=FALSE, useNormInvWishPrior=TRUE, hyper=testhp, alpha=4))
 }
 plan(sequential)
 names(mcmcrun) <- paste0('freqs',sapply(mcmcrun,function(i){i$case}))
 elapsedtime <- Sys.time() - starttime
 elapsedtime
-## 
+## 500: 1.22 min
+## 5000: 9.14 min
+## 50000: 53.22 min
 ## Save MCMC samples
 MCMCdata <- as.list(rep(NA,length(mcmcrun)))
 names(MCMCdata) <- names(mcmcrun)
-
 ##
 for(case in directcases){
     outfile <- paste0('_mcoutput_',case)
@@ -289,7 +291,7 @@ for(case in directcases){
     MCMCdata[[paste0('freqs',case)]] <- list(case=case, nList=nList, alphaList=alphaList, psiList=psiList, phiList=phiList, muList=muList, sigmaList=sigmaList, logPost=logPost)
 }
 ##
-save.image(file=paste0('_reverse_test_N',ndata,'_',length(covNums),'covs.RData'))
+save.image(file=paste0('_direct_test_N',ndata,'_',length(covNums),'covs.RData'))
 ##
 ## Diagnostic plots
 pdff('mcsummary')
@@ -622,7 +624,7 @@ calibrationplots(condfreqs, priorP, divs=1, title='score3')
 calibrationplots(condfreqs, priorP, divs=2, title='score3')
 ##
 ## Save scores
-save(list=c('scores1','scores2','scores3'), file=paste0('scores_T',nTest*3,'_reverse_test_N',ndata,'_',length(covNums),'covs.RData'))
+save(list=c('scores1','scores2','scores3'), file=paste0('scores_T',nTest*3,'_direct_test_N',ndata,'_',length(covNums),'covs.RData'))
 
 
 ##################################################################
@@ -780,7 +782,7 @@ oldmetrics(cbind(testdata[,bin_RMSD], condfreqs), priorP)
 
 
 evals1 <- metrics(testres, priorP)
-save.image(file=paste0('_reverse_test_N',ndata,'_',length(covNums),'covs.RData'))
+save.image(file=paste0('_direct_test_N',ndata,'_',length(covNums),'covs.RData'))
 evals1
 ##
 predictYpar <- function(dataobj, X){
@@ -859,7 +861,7 @@ system.time(testres <- t(apply(testdata, 1, function(datum){
 plan(sequential)
 ##
 evals1 <- metrics(testres, priorP)
-save.image(file=paste0('_reverse_test_N',ndata,'_',length(covNums),'covs.RData'))
+save.image(file=paste0('_direct_test_N',ndata,'_',length(covNums),'covs.RData'))
 evals1
 ## 6 covs, 5000 pts, 9735 s
 ##     model delta_gain contig_gain log_score mean_score
@@ -966,7 +968,7 @@ system.time(testres2 <- t(apply(testdata, 1, function(datum){
 })))
 ##
 evals2 <- metrics(testres2, priorP2)
-save.image(file=paste0('_reverse_test_N',ndata,'_',length(covNums),'covs.RData'))
+save.image(file=paste0('_direct_test_N',ndata,'_',length(covNums),'covs.RData'))
 evals2
 ## 6 covs, 5000 pts, 8411 s
 ## > > >     model delta_gain contig_gain  log_score mean_score
