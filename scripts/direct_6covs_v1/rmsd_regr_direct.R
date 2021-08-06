@@ -1,6 +1,6 @@
 ## Author: PGL  Porta Mana
 ## Created: 2021-03-20T10:07:17+0100
-## Last-Updated: 2021-08-06T07:56:04+0200
+## Last-Updated: 2021-08-06T14:19:15+0200
 ################
 ## Script for direct regression
 ################
@@ -220,7 +220,7 @@ mcmcrun <- foreach(case=directcases, .inorder=FALSE)%dopar%{
     }
 ##
 ##
-        c(case=case, profRegr(excludeY=TRUE, xModel='Mixed', nSweeps=2000e2, nBurn=3000e2, nFilter=2e2, data=as.data.frame(datamcr), nClusInit=80, covNames=c(discreteCovs,continuousCovs), discreteCovs=discreteCovs, continuousCovs=continuousCovs, nProgress=1000, seed=147, output=outfile, useHyperpriorR1=FALSE, useNormInvWishPrior=TRUE, hyper=testhp, alpha=4))
+        c(case=case, profRegr(excludeY=TRUE, xModel='Mixed', nSweeps=2000e3, nBurn=3000e3, nFilter=2e3, data=as.data.frame(datamcr), nClusInit=80, covNames=c(discreteCovs,continuousCovs), discreteCovs=discreteCovs, continuousCovs=continuousCovs, nProgress=1000, seed=147, output=outfile, useHyperpriorR1=FALSE, useNormInvWishPrior=TRUE, hyper=testhp, alpha=4))
 }
 plan(sequential)
 names(mcmcrun) <- paste0('freqs',sapply(mcmcrun,function(i){i$case}))
@@ -229,6 +229,7 @@ elapsedtime
 ## 500: 1.22 min
 ## 5000: 9.14 min
 ## 50000: 53.22 min
+## 500000: 355.8 min
 ## Save MCMC samples
 MCMCdata <- as.list(rep(NA,length(mcmcrun)))
 names(MCMCdata) <- names(mcmcrun)
