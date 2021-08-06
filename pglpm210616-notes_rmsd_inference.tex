@@ -1,7 +1,7 @@
 \pdfoutput=1
 %% Author: PGL  Porta Mana
 %% Created: 2015-05-01T20:53:34+0200
-%% Last-Updated: 2021-07-15T07:28:03+0200
+%% Last-Updated: 2021-08-05T19:52:31+0200
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \newif\ifarxiv
 \arxivfalse
@@ -677,11 +677,11 @@ Open Science Framework \doi{10.31219/osf.io/#1}%
 \newcommand*{\dobs}{degrees of belief}
 \newcommand*{\rms}{root-mean-square}
 \newcommand*{\rmsd}{\textsc{rmsd}}
-\newcommand*{\wy}{\bar{y}}
-\newcommand*{\wx}{\bar{x}}
+\newcommand*{\br}{\bar{r}}
+\newcommand*{\bx}{\bar{x}}
 \newcommand*{\yF}{\bm{F}}
-\newcommand*{\yFyx}{\yF_{\bm{y\mid x}}}
-\newcommand*{\yFxy}{\yF_{\bm{x\mid y}}}
+\newcommand*{\yFrx}{\yF_{\bm{r\mid x}}}
+\newcommand*{\yFxr}{\yF_{\bm{x\mid r}}}
 \DeclareMathOperator*{\logit}{logit}
 %%% Custom macros end @@@
 
@@ -744,58 +744,74 @@ Open Science Framework \doi{10.31219/osf.io/#1}%
 \section{Overview}
 \label{sec:overview}
 
-We consider a quantity, the Root-Mean-Squared Distance, denoted by $y$, and
+We consider a quantity, the Root-Mean-Squared Distance, denoted by $r$, and
 a set of quantities called \enquote{features}, denoted by $x$. A
-value of \rmsd\ $y$
+value of \rmsd\ $r$
 and values for the  features $x$ can be associated with each target-ligand
 pair, which I'll call a \enquote{datapoint}.
 
-Our problem is to infer $y_{0}$ given:
+Our problem is to infer the value $r_{0}$ of a new datapoint, given:
 \begin{itemize}
-\item $x_{0}$ for a new datapoint,
+\item features $x_{0}$ for the new datapoint,
 \item known pairs
-  $(\wy,\wx) \defd \bigl((y_{1}, x_{1}), (y_{2}, x_{1}), \dotsc, (y_{N},
+  $(\br,\bx) \defd \bigl((r_{1}, x_{1}), (r_{2}, x_{1}), \dotsc, (r_{N},
   x_{N})\bigr)$ for other $N$ datapoints,
-\item additional facts and hypotheses $H$.
+\item additional facts and hypotheses $H$ (unavoidable since we are making an
+extrapolation).
 \end{itemize}
-Additional hypotheses are unavoidable since we are making an
-extrapolation.
 
-Our uncertainty about $y_{0}$ is expressed by the probability (density)
+In the following $r$ will be treated as discrete quantity assuming three
+possible values: \enquote*{good} ($0\ \textrm{\AA}\le r \le 2\
+\textrm{\AA}$), \enquote*{inconclusive} ($2\ \textrm{\AA} < r < 3\
+\textrm{\AA}$),  \enquote*{bad} ($3\ \textrm{\AA} \le r$). 
+
+
+Our uncertainty about $r_{0}$ is expressed by the probability
 \begin{equation}
   \label{eq:main_prob}
-  \p(y_{0} \| x_{0},\ \wy,\wx,\ H) \ ,
+  \p(r_{0} \| x_{0},\ \br,\bx,\ H) \ ,
 \end{equation}
-which we want to quantify.
+which we want to quantify using the probability calculus.
 
-The first question we must ask in approaching this problem is: how much
-does our uncertainty about $y_{0}$ depend on the relative frequencies for
-previous datapoints $(\wy,\wx)$? For example, if $y_{0}$ is hand-picked by
-someone, then knowledge of the frequencies for $(\wy,\wx)$ is irrelevant.
-But even in such a case it might be that the reversed probability
-$\p(x_{0} \| y_{0},\ \wy,\wx,\ H)$ \emph{does} depend on the frequencies of
-previous datapoints, and it can be used to calculate~\eqref{eq:main_prob}
-as
+The first question we must ask for such quantification is this: How much
+are the various relative frequencies for the known datapoints $(\br,\bx)$
+relevant to our uncertainty about $r_{0}$? To understand the meaning of
+this question, consider the case where $r_{0}$ is
+\emph{hand-picked} to be \enquote*{good}: then the frequency of
+$r_{0}=\text{\enquote*{good}}$ in the known dataset is obviously irrelevant
+to its \enquote{prediction}.
+
+We have three possible scenarios
+
+
+
+
+For example, if $r_{0}$ is
+hand-picked by someone, then knowledge of the frequencies for $(\br,\bx)$
+is irrelevant. But even in such a case it might be that the reversed
+probability $\p(x_{0} \| r_{0},\ \br,\bx,\ H)$ \emph{does} depend on the
+frequencies of previous datapoints, and it can be used to
+calculate~\eqref{eq:main_prob} as
 \begin{equation}
   \label{eq:rev_prob}
-  \p(y_{0} \| x_{0},\ \wy,\wx,\ H) =
-  \frac{\p(x_{0} \| y_{0},\ \wy,\wx,\ H)\ \p(y_{0} \| H)}{
-    \sum_{y_{0}}\p(x_{0} \| y_{0},\ \wy,\wx,\ H)\ \p(y_{0} \| H)}
+  \p(r_{0} \| x_{0},\ \br,\bx,\ H) =
+  \frac{\p(x_{0} \| r_{0},\ \br,\bx,\ H)\ \p(r_{0} \| H)}{
+    \sum_{r_{0}}\p(x_{0} \| r_{0},\ \br,\bx,\ H)\ \p(r_{0} \| H)}
 \ .
 \end{equation}
 The important difference between \eqns~\eqref{eq:main_prob} and
 \eqref{eq:rev_prob} is that in the latter we must also quantify
-$\p(y_{0} \| H)$ using extra-data facts or hypotheses.
+$\p(r_{0} \| H)$ using extra-data facts or hypotheses.
 
-In technical terms we are asking whether $y_{0}$ is \emph{exchangeable}
+In technical terms we are asking whether $r_{0}$ is \emph{exchangeable}
 given $x_{0}$, or vice versa. Using Fisherian \citey[\sects~II.4,
-IV.1]{fisher1956} parlance we are asking whether $y_{0}$ should be
+IV.1]{fisher1956} parlance we are asking whether $r_{0}$ should be
 considered as belonging to a \emph{subpopulation} determined by $x_{0}$ or
 vice versa. (Or neither, in which case our study would simply end here, so
 we won't consider this third possibility.) Another way of seeing our
 question is whether \enquote{causal connections} (which can originate from
 a common cause) are more robust in the direction
-$x_{0} \rightsquigarrow y_{0}$ or $y_{0} \rightsquigarrow x_{0}$
+$x_{0} \rightsquigarrow r_{0}$ or $r_{0} \rightsquigarrow x_{0}$
 \parencites[\cf][\sects~2.1.2, 2.2.5]{pearl1988}.
 
 This question is discussed in a brilliant paper by Lindley \amp\ Novick
@@ -827,26 +843,26 @@ values $z_{0}, z_{1}, \dotsc$, no matter what and how many they are. In
 other words, the ordering of the observations doesn't matter. Usually one
 says, somewhat improperly, that \enquote{$z_{0}, z_{1}, \dotsc$ are
   exchangeable} for short. In our case each $z$ is actually a pair of
-values $(y,x)$, where $x$ itself is multidimensional.
+values $(r,x)$, where $x$ itself is multidimensional.
 
 Exchangeability has the following important consequence: if we knew the
-infinite-limit long-run relative frequencies $\yF\defd (F_{y,x})$ of the
+infinite-limit long-run relative frequencies $\yF\defd (F_{r,x})$ of the
 values of past and future datapoints, then the probability of observing a
 sequence of new values would be equal to the long-run relative frequency of
 those values, for symmetry reasons. For example:
 \begin{equation}
   \label{eq:prob_freq}
-  \p(y_{1},x_{1},\ y_{2},x_{2} \| \yF, H) = F_{y_{1},x_{1}} \ 
-  F_{y_{2},x_{2}} \ .
+  \p(r_{1},x_{1},\ r_{2},x_{2} \| \yF, H) = F_{r_{1},x_{1}} \ 
+  F_{r_{2},x_{2}} \ .
 \end{equation}
 
 Another consequence is that conditional probabilities are also equal to the
-long-run \emph{conditional} frequencies $\yFyx \defd (F_{y \|x}) =
-(F_{y,x}/\sum_{y'}F_{y',x})$. For example:
+long-run \emph{conditional} frequencies $\yFrx \defd (F_{r \|x}) =
+(F_{r,x}/\sum_{y'}F_{y',x})$. For example:
 \begin{equation}
   \label{eq:prob_cond_freq}
-  \p(y_{1}, y_{2}\| x_{1}, x_{2},\ \yF, H) = F_{y_{1}\|x_{1}} \ 
-  F_{y_{2}\|x_{2}} \ .
+  \p(r_{1}, r_{2}\| x_{1}, x_{2},\ \yF, H) = F_{r_{1}\|x_{1}} \ 
+  F_{r_{2}\|x_{2}} \ .
 \end{equation}
 
 If the long-run frequencies $\yF$ are unknown, they can be marginalized,
@@ -854,20 +870,20 @@ If the long-run frequencies $\yF$ are unknown, they can be marginalized,
 $\p(\yF \| H)$ for them. For example:
 \begin{equation}
   \label{eq:prob_freq_integr}
-  \p(y_{1},x_{1},\ y_{2},x_{2}\| H) = \int F_{y_{1},x_{1}} \ 
-  F_{y_{2},x_{2}} \ \p(\yF \| H)\ \di\yF \ ,
+  \p(r_{1},x_{1},\ r_{2},x_{2}\| H) = \int F_{r_{1},x_{1}} \ 
+  F_{r_{2},x_{2}} \ \p(\yF \| H)\ \di\yF \ ,
 \end{equation}
 from which we can also obtain conditional probabilities.
 
 There are several other types of exchangeability. For example, we may have
-\emph{conditional} or \emph{partial} exchangeability of $y$ given $x$ if
+\emph{conditional} or \emph{partial} exchangeability of $r$ given $x$ if
 \eqn~\eqref{eq:prob_cond_freq} holds, but not \eqn~\eqref{eq:prob_freq}. If
-we have a probability distribution $\p(\yFyx \| H)$ for the conditional
+we have a probability distribution $\p(\yFrx \| H)$ for the conditional
 frequencies, we obtain by marginalization
 \begin{equation}
   \label{eq:prob_cond_freq_integr}
-  \p(y_{1}, y_{2}\| x_{1}, x_{2},\ H) = \int F_{y_{1}\|x_{1}} \ 
-  F_{y_{2}\|x_{2}}\ \p(\yFyx \| H)\ \di\yFyx \ .
+  \p(r_{1}, r_{2}\| x_{1}, x_{2},\ H) = \int F_{r_{1}\|x_{1}} \ 
+  F_{r_{2}\|x_{2}}\ \p(\yFrx \| H)\ \di\yFrx \ .
 \end{equation}
 
 \textcite{lindleyetal1981} discuss the importance of conditional
@@ -877,25 +893,25 @@ if the wrong type of exchangeability is assumed.
 From the generalization of the equations above we obtain other
 probabilities for various cases of regression, such as
 \eqns~\eqref{eq:main_prob} or \eqref{eq:rev_prob}, by simply using the
-three rules of the probability calculus. For example, if $y_{0}$ is assumed
+three rules of the probability calculus. For example, if $r_{0}$ is assumed
 to be exchangeable given $x_{0}$, but the latter is not assumed to be
-exchangeable with the other $\wx$ because hand-picked, we find
+exchangeable with the other $\bx$ because hand-picked, we find
 \begin{equation}
   \label{eq:main_prob_exch}
-  \p(y_{0} \| x_{0},\ \wy,\wx,\ H) =
+  \p(r_{0} \| x_{0},\ \br,\bx,\ H) =
   \frac{
-    \int F_{y_{0}\|x_{0}} \ F_{y_{1},x_{1}} \  \dotsm \ 
-  F_{y_{N},x_{N}} \ \p(\yF \| H)\ \di\yF
+    \int F_{r_{0}\|x_{0}} \ F_{r_{1},x_{1}} \  \dotsm \ 
+  F_{r_{N},x_{N}} \ \p(\yF \| H)\ \di\yF
   }{
-    \int F_{y_{1},x_{1}} \  \dotsm \ 
-  F_{y_{N},x_{N}} \ \p(\yF \| H)\ \di\yF
+    \int F_{r_{1},x_{1}} \  \dotsm \ 
+  F_{r_{N},x_{N}} \ \p(\yF \| H)\ \di\yF
   } \ .
 \end{equation}
 
 The distribution $\p(\yF \| H)$, usually called the \enquote{prior},
 embodies the assumptions that we make for the extrapolation. It therefore
 cannot be determined by the known datapoints. Given enough known datapoints
-$(\wy,\wx)$, the probability distribution for $y_{0}$ given $x_{0}$
+$(\br,\bx)$, the probability distribution for $r_{0}$ given $x_{0}$
 eventually does become equal to their limit conditional frequency. This
 sets the ultimate uncertainty with which the prediction can be made, and
 cannot be surpassed by any algorithm. So this approach eventually does
@@ -915,7 +931,7 @@ machine-learning algorithms manage to deal with larger dimensionality and
 datapoints by parametrizing the $\yF$-space in a clever way (for example,
 deep nets parametrize the $\yF$ as nested compositions of some simple
 functions) and finding an argument that maximizes the integrands above
-\parencites{mackay1992,mackay1992b}, for example a value of $y_{0}$ that
+\parencites{mackay1992,mackay1992b}, for example a value of $r_{0}$ that
 locally maximizes the integrand in the numerator of
 \eqn~\eqref{eq:main_prob_exch}. This means, though, that they cannot
 quantify the uncertainty of the inference.
@@ -924,32 +940,32 @@ quantify the uncertainty of the inference.
 \section{Direct case: methodology}
 \label{sec:direct_method}
 
-For the direct case~\eqref{eq:main_prob} we consider the \rmsd\ $y$ as a
+For the direct case~\eqref{eq:main_prob} we consider the \rmsd\ $r$ as a
 continuous variable, mapped to a log-scale to avoid dealing with finite
 ranges.
 
-In the direct case the assumption is that $y_{0}$ is exchangeable given
-$x_{0}$, but $x_{0}$ is not exchangeable given the known datapoints $\wx$.
+In the direct case the assumption is that $r_{0}$ is exchangeable given
+$x_{0}$, but $x_{0}$ is not exchangeable given the known datapoints $\bx$.
 This is a sensible assumption -- a fact indeed -- if we are \emph{choosing}
 the specific value of $x_{0}$, as we do in some testing situations for
-example. The values $(\wy,\wx)$ are considered exchangeable.
+example. The values $(\br,\bx)$ are considered exchangeable.
 
-The probability $\p(y_{0} \| x_{0},\ \wy,\wx,\ H)$ is then given by
+The probability $\p(r_{0} \| x_{0},\ \br,\bx,\ H)$ is then given by
 \eqn~\eqref{eq:main_prob_exch}, which can be rewritten this way:
 \begin{equation}
   \label{eq:direct_case_main}
   \begin{gathered}
-  \p(y_{0} \| x_{0},\ \wy,\wx,\ H) =
-  \int F_{y_{0}\|x_{0}} \ \p(\yF \| \wy, \wx,\ H)\ \di\yF
+  \p(r_{0} \| x_{0},\ \br,\bx,\ H) =
+  \int F_{r_{0}\|x_{0}} \ \p(\yF \| \br, \bx,\ H)\ \di\yF
   \\[\jot]
   \text{with}\quad
-  \p(\yF \| \wy, \wx,\ H) =
+  \p(\yF \| \br, \bx,\ H) =
   \frac{
-    \ F_{y_{1},x_{1}} \  \dotsm \ 
-  F_{y_{N},x_{N}} \ \p(\yF \| H)
+    \ F_{r_{1},x_{1}} \  \dotsm \ 
+  F_{r_{N},x_{N}} \ \p(\yF \| H)
   }{
-    \int F_{y_{1},x_{1}} \  \dotsm \ 
-  F_{y_{N},x_{N}} \ \p(\yF \| H)\ \di\yF
+    \int F_{r_{1},x_{1}} \  \dotsm \ 
+  F_{r_{N},x_{N}} \ \p(\yF \| H)\ \di\yF
   }  \ ,
 \end{gathered}
 \end{equation}
@@ -959,12 +975,12 @@ The integrals are over the set of long-run joint frequency distributions,
 which is an infinite-dimensional manifold. A currently popular way to
 parametrize it and at the same time choose a prior $\p(\yF \| H)$ is by
 means of so-called Dirichlet-process mixtures. In short, a generic
-$F_{y,x}$ is represented as a countable weighted sum of a simpler
+$F_{r,x}$ is represented as a countable weighted sum of a simpler
 distribution $K$, called the kernel, with different parameters:
-$F_{y,x} = \sum_{i}w_{i} K(y,x \| \theta_{i})$. The prior is therefore
+$F_{r,x} = \sum_{i}w_{i} K(r,x \| \theta_{i})$. The prior is therefore
 defined over the possible infinite tuples $(w_{i},\theta_{i})$. A Dirichlet
 process is chosen as such prior. In the present case the kernel is the
-product of a multivariate normal distribution for $y$ and for the
+product of a multivariate normal distribution for $r$ and for the
 continuous features in $x$, and a Dirichlet distribution for the discrete
 features in $x$ \parencites[\sect~3.3]{liveranietal2015}. An example of
 this approach is analysed and used by \textcites{muelleretal1996}. A
@@ -974,8 +990,8 @@ by \textcite{petrone2017} and \textcite[\sect~4]{quintanaetal2020}.
 
 
 The first integral in \eqn~\eqref{eq:direct_case_main} is numerically
-approximated by a sum of values of $F_{y_{0} \| x_{0}}$ sampled from the
-distribution $\p(\yF \| \wy, \wx,\ H)$ via Markov-chain Monte Carlo
+approximated by a sum of values of $F_{r_{0} \| x_{0}}$ sampled from the
+distribution $\p(\yF \| \br, \bx,\ H)$ via Markov-chain Monte Carlo
 methods. Details about the sampling algorithm are given in \mynote{\wrench\
   \sect***}.
 
@@ -984,25 +1000,25 @@ methods. Details about the sampling algorithm are given in \mynote{\wrench\
 
 For the reverse case~\eqref{eq:rev_prob} we consider a binned \rmsd\
 divided into three categories:
-$y \in \set{\text{\enquote*{good}},\, \text{\enquote*{inconclusive}},\,
+$r \in \set{\text{\enquote*{good}},\, \text{\enquote*{inconclusive}},\,
   \text{\enquote*{bad}}}$ .
 
 In the reverse case the assumption is that $x_{0}$ is exchangeable given
-$y_{0}$, but $y_{0}$ is not exchangeable given the known datapoints $\wy$.
+$r_{0}$, but $r_{0}$ is not exchangeable given the known datapoints $\br$.
 This is again a sensible assumption if we are choosing the specific value
-of $x_{0}$, as we do in testing situations, because then $y_{0}$ cannot be
+of $x_{0}$, as we do in testing situations, because then $r_{0}$ cannot be
 considered to come from some unsystematic process, if it is has some causal
-connections with $x_{0}$. The values $(\wy,\wx)$ are considered
+connections with $x_{0}$. The values $(\br,\bx)$ are considered
 exchangeable.
 
-The probability $\p(x_{0} \| y_{0},\ \wy,\wx,\ H)$ is obtained analogously
-to \eqn~\eqref{eq:prob_cond_freq_integr}, reversing the roles of $y$ and
+The probability $\p(x_{0} \| r_{0},\ \br,\bx,\ H)$ is obtained analogously
+to \eqn~\eqref{eq:prob_cond_freq_integr}, reversing the roles of $r$ and
 $x$. We make the additional assumption that the prior
-$\p(\yFxy \| H)$ factorizes for the frequencies conditional on the three
-$y$ categories:
+$\p(\yFxr \| H)$ factorizes for the frequencies conditional on the three
+$r$ categories:
 \begin{equation}
   \label{eq:factor_prior_cond}
-  \p(\yFxy \| H) =
+  \p(\yFxr \| H) =
   \p(\yF_{\bm{x \mid} \text{good}} \| H)\cdot
   \p(\yF_{\bm{x \mid} \text{inconcl.}} \| H)\cdot 
   \p(\yF_{\bm{x \mid} \text{bad}} \| H)\ .
@@ -1011,25 +1027,25 @@ The result is three distinct conditional probabilities:
 \begin{equation}
   \label{eq:reverse_case_main}
   \begin{gathered}
-  \p(x_{0} \| y,\ \wy,\wx,\ H) =
-\int F_{x_{0}\|y} \ \p(\yF_{\bm{x\mid}y} \| \wx,\ H)\ \di\yF_{\bm{x\mid}y}
+  \p(x_{0} \| r,\ \br,\bx,\ H) =
+\int F_{x_{0}\|r} \ \p(\yF_{\bm{x\mid}r} \| \bx,\ H)\ \di\yF_{\bm{x\mid}r}
   \\[\jot]
-  \p(\yF_{\bm{x\mid}y} \| \wx,\ H) =
+  \p(\yF_{\bm{x\mid}r} \| \bx,\ H) =
   \frac{
-    \ F_{x_{1'}\| y} \  \dotsm \ 
-  F_{x_{N'}\| y} \ \p(\yF_{\bm{x\mid}y}  \| H)
+    \ F_{x_{1'}\| r} \  \dotsm \ 
+  F_{x_{N'}\| r} \ \p(\yF_{\bm{x\mid}r}  \| H)
   }{
     \int
-    \ F_{x_{1'}\| y} \  \dotsm \ 
-  F_{x_{N'}\| y} \ \p(\yF_{\bm{x\mid}y}  \| H)\ \di\yF_{\bm{x\mid}y} 
+    \ F_{x_{1'}\| r} \  \dotsm \ 
+  F_{x_{N'}\| r} \ \p(\yF_{\bm{x\mid}r}  \| H)\ \di\yF_{\bm{x\mid}r} 
 }\\[\jot]
-  \text{for each } y \in
+  \text{for each } r \in
   \set{\text{\enquote*{good}},\, \text{\enquote*{inconclusive}},\,
     \text{\enquote*{bad}}}\ ,
 \end{gathered}
 \end{equation}
-where the conditionals contain only $\wx$ values associated with that
-specific $y$ value \mynote{(\wrench\ I'll find clearer notation and
+where the conditionals contain only $\bx$ values associated with that
+specific $r$ value \mynote{(\wrench\ I'll find clearer notation and
   explanations)}.
 
 The fact that we have three distinct conditional probability distributions
@@ -1049,10 +1065,10 @@ product kernels of multivariate normal and Dirichlet distributions.
 \label{sec:sel_prior_reverse}
 
 As a first simplifying assumption we choose the three priors
-$\p(\yF_{\bm{x\mid}y} \| H)\ \di\yF_{\bm{x\mid}y}$ for
-$y \in \set{\text{\enquote*{good}},\, \text{\enquote*{inconclusive}},\,
+$\p(\yF_{\bm{x\mid}r} \| H)\ \di\yF_{\bm{x\mid}r}$ for
+$r \in \set{\text{\enquote*{good}},\, \text{\enquote*{inconclusive}},\,
   \text{\enquote*{bad}}}$ to have the same form. They are therefore
-independent of $y$.
+independent of $r$.
 
 Mathematically the prior is represented by a Dirichlet-process mixture with
 product kernels of multivariate normal and Dirichlet distributions. We
@@ -1083,7 +1099,7 @@ requirements:
   and transform them to a log-scale:
     \begin{equation}
     \label{eq:log_sasa}
-    x \mapsto y = \tfrac{1}{4}\ln x \ .
+    x \mapsto r = \tfrac{1}{4}\ln x \ .
   \end{equation}
   Their prior distribution is chosen as almost uniform on this scale:
   $\p[\ln(x) \| H]\ \di\ln(x) \propto \di\ln(x)$, approximated by a
@@ -1099,7 +1115,7 @@ requirements:
   We transform them to $\RR$ with a logit function
   \begin{equation}
     \label{eq:logit_tanimoto}
-    x \mapsto y = \tfrac{1}{2}\logit(x) \defd \tfrac{1}{2}\ln\frac{x}{1-x} \ .
+    x \mapsto r = \tfrac{1}{2}\logit(x) \defd \tfrac{1}{2}\ln\frac{x}{1-x} \ .
   \end{equation}
 In this coordinate system the prior is uniform, approximated by a
 t-distribution with large standard deviation.
