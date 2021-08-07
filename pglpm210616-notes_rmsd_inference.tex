@@ -1,7 +1,7 @@
 \pdfoutput=1
 %% Author: PGL  Porta Mana
 %% Created: 2015-05-01T20:53:34+0200
-%% Last-Updated: 2021-08-07T12:22:09+0200
+%% Last-Updated: 2021-08-07T19:45:04+0200
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \newif\ifarxiv
 \arxivfalse
@@ -708,6 +708,7 @@ Open Science Framework \doi{10.31219/osf.io/#1}%
 \newcommand*{\rd}{\bar{r}}
 \newcommand*{\xd}{\bar{x}}
 \newcommand*{\yF}{\bm{F}}
+\newcommand*{\yFr}{\yF_{\bm{\mid}r}}
 \newcommand*{\yFrx}{\yF_{\bm{r\mid x}}}
 \newcommand*{\yFxr}{\yF_{\bm{x\mid r}}}
 %%% Custom macros end @@@
@@ -804,14 +805,18 @@ ensuing probabilities on a test dataset.
 \section{Hypotheses and probabilities}
 \label{sec:hypotheses}
 
-Quantifying the probability~\eqref{eq:main_prob} involves two main steps.
-First we must ask what kind of relevance the training set has for our
-inference about the new datapoint. Secondly we must set the probability
-distribution for the long-run relative frequencies of \rmsd\ and feature
-values that the training set would have if, hypothetically, it were
-augmented indefinitely.
+Quantifying the probability~\eqref{eq:main_prob} requires two main
+assessments:
+\begin{itemize}
+\item What kind of relevance the training set has for our inference about
+  the new datapoint.
+\item The probability distribution for the long-run relative frequencies of
+  \rmsd\ and feature values that the training set would have if,
+  hypothetically, it were augmented indefinitely.
+\end{itemize}
+We discuss these assessments in the next two sections. Section
 
-\subsection{Exchangeability and subpopulations}
+\subsection{Relevance of training set: exchangeability and subpopulations}
 \label{sec:hyp_exch}
 
 The relevance of the training set to the new datapoint is usually expressed
@@ -826,7 +831,8 @@ Lindley \amp\ Novick \citey{lindleyetal1981}, who show with examples its
 fundamental importance for making correct inferences. A short intuitive
 summary of this notion is given in \mynote{\wrench appendix***}.
 
-We consider three mutually exclusive cases of exchangeability:
+We consider three mutually exclusive cases of exchangeability, the first
+seeming the most appropriate to our inference:
 \begin{enumerate}[label=\roman*.]
 \item\label{item:exch_rx}\emph{Exchangeability in \rmsd\ $r$ given features
     $x$}. The \rmsd s of the training set are relevant to the inference of
@@ -842,7 +848,9 @@ We consider three mutually exclusive cases of exchangeability:
 
 \item\label{item:exch_full}\emph{Exchangeability in \rmsd\ $r$ and features
     $x$}. Both the \rmsd s and the values of the features of the training
-  set are relevant to the inference of those of the new datapoint.
+  set are relevant to the inference of those of the new datapoint. This is
+  equivalent to the relevance of $r$ given $x$, and of $x$; and to the
+  relevance of $x$ given $r$, and of $r$.
 \end{enumerate}
 The mathematical representation of the three kinds of exchangeability above
 is given in \mynote{\wrench\sect***} for brevity.
@@ -860,24 +868,85 @@ $\ro \rightsquigarrow \xo$ \parencites[\cf][\sects~2.1.2,
 \subsection{Probability for long-run frequencies}
 \label{sec:prob_longrun}
 
-Let us imagine to indefinitely extend the size of the training set in such
+Let us imagine to extend the size of the training set indefinitely, in such
 a way that our probability assignments for any subset of it would be
-identical (this condition is more general than the \enquote{i.i.d.} one).
-We could then measure the joint, long-run relative frequencies $F_{r\,x}$
-for values $r$ and $x$ in the training dataset\footnote{\enquote{But this
-    \emph{long run} is a misleading guide to current affairs. \emph{In the
-      long run} we are all dead.} \citep[\sect~3.I,
-  p.~65]{keynes1923_r2013}}. We could also measure the marginal relative
-frequency $F_{r\q}$ for $r$, and $F_{\q x}$ for $x$; the conditional
-relative frequency $F_{r\mid x}$ for $r$ given $x$, and $F_{x \mid r}$ for
-$x$ given $r$. These frequencies are related by
+exchangeable (this condition is more general than an \enquote{i.i.d.} one).
+We could then measure the joint long-run relative frequencies $F_{r\,x}$
+for all values $r$ and $x$ in such extended training
+set\footnote{\enquote{But this \emph{long run} is a misleading guide to
+    current affairs. \emph{In the long run} we are all dead.}
+  \citep[\sect~3.I, p.~65]{keynes1923_r2013}}, as well as the marginal
+relative frequencies $F_{r\q}$ for $r$, and $F_{\q x}$ for $x$; and the
+conditional relative frequencies $F_{r\mid x}$ for $r$ given $x$, and
+$F_{x \mid r}$ for $x$ given $r$. These frequencies are related by
 \begin{equation}
   \label{eq:frequencies_relations}
   F_{r\q}=\sum_{x} F_{r\,x}\ , \quad
   F_{\q x}=\sum_{r} F_{r\,x}\ ,\quad
-  F_{r\mid x}=F_{r\,x}/F_{\q x}\ , \quad
-  F_{x\mid r}=F_{r\,x}/F_{r\q}\ .
+  F_{r\mid x}=\frac{F_{r\,x}}{F_{\q x}}\ , \quad
+  F_{x\mid r}=\frac{F_{r\,x}}{F_{r\q}}\ .
 \end{equation}
+The collection of joint frequencies $\bigl(F_{r\,x}\bigr)_{r\,x}$ is
+denoted by $\yF$. For later use we denote by $\yFr$ the collection of
+conditional frequencies $\bigl(F_{x\mid r}\bigr)_{x}$, for each value of
+$r$. Note that from $\yF$ we can obtain $\yFr$ and $F_{r\q}$ for each $r$,
+and vice versa.
+
+\medskip
+
+We need to specify a probability density
+\begin{equation}\label{eq:prior_F}
+\p(\yF \| H)\ \di\yF
+\end{equation}
+representing our belief and prior information as to what the long-run
+frequencies could be, before our observation of the training set. After the
+observation of the training set this probability is updated to
+\begin{equation}
+  \label{eq:post_prob_F}
+  \p(\yF\|\rd,\xd, H)\,\di\yF =
+  \frac{\displaystyle \p(\yF\| H)\ 
+    \prod_{r\,x} {F_{r\,x}}^{N\, f_{r\,x}}
+  }{\int \p(\yF\| H)\ 
+       \prod_{r\,x} {F_{r\,x}}^{N\, f_{r\,x}}
+              \ \di\yF
+  }\ \di\yF
+\end{equation}
+where $f_{r\,x}$ is the joint frequency of values $r$ and $x$ observed in
+the training set.
+
+
+The choice of density~\eqref{eq:prior_F} is constrained by analytic
+convenience and computational costs -- such a density is defined over an
+infinite-dimensional manifold. Our specific choices and their motivations are
+discussed more in detail in \mynote{\wrench appendix***}. Here we briefly
+discuss two main possibilities:
+\begin{enumerate}[label=\Roman*.]
+\item\label{item:p_F_factorizable} A density factorizable in the
+  conditional frequencies given $r$:
+  \begin{equation}
+    \label{eq:p_F_factorizable}
+    \p(\yF\| H)\ \di\yF =
+    \prod_{r} \p(\yFr \| H)\ \p(F_{r\q} \| H)\ \di\yFr\ \di F_{r\q}
+  \end{equation}
+
+\item\label{item:p_F_unfactorizable} An unfactorizable density.
+\end{enumerate}
+The first possibility will be used with assumption~\ref{item:exch_xr} of
+\sect~\ref{sec:hyp_exch}, leading to simplified and computationally cheaper
+formulae. The factors $\p(F_{r\q} \| H)\,\di F_{r\q}$ in particular will
+become irrelevant. The updated form for this density also factorizes:
+  \begin{multline}
+  \label{eq:post_prob_F_factorizable}
+  \p(\yF\|\rd,\xd, H)\,\di\yF \propto
+  \prod_{r} \p(F_{r\q} \| H)\ {F_{r\q}}^{N\,f_{r\q}}\ \ \di F_{r\q} \times{}\\
+  \prod_{r} \p(\yFr \| H)\
+  \Bigl(\prod_{x} {F_{x\mid r}}^{N\,f_{x\,r}}\Bigr)\ \di\yFr \ .
+\end{multline}
+
+
+
+\subsection{Required probability}
+\label{sec:p_final_inference}
 
 
 
