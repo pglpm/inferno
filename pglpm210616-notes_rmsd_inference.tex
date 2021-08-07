@@ -1,7 +1,7 @@
 \pdfoutput=1
 %% Author: PGL  Porta Mana
 %% Created: 2015-05-01T20:53:34+0200
-%% Last-Updated: 2021-08-06T20:27:40+0200
+%% Last-Updated: 2021-08-07T12:22:09+0200
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \newif\ifarxiv
 \arxivfalse
@@ -779,15 +779,123 @@ pair, which I'll call a \enquote{datapoint}.
 
 Our problem is to infer the value $\ro$ of a new datapoint, given:
 \begin{itemize}
-\item features $\xo$ for the new datapoint,
+\item features $\xo$ for the new datapoint;
 \item known pairs
   $(\rd,\xd) \defd \bigl((r_{1}, x_{1}), (r_{2}, x_{1}), \dotsc, (r_{N},
-  x_{N})\bigr)$ for other $N$ datapoints, called the training dataset,
+  x_{N})\bigr)$ for other $N$ datapoints, called the \enquote{training
+    set};
 \item additional facts and hypotheses $H$ (unavoidable since we are making an
 extrapolation).
 \end{itemize}
 
-In the following $r$ will be treated as discrete quantity assuming three
+Our uncertainty about $\ro$ is expressed by the probability
+\begin{equation}
+  \label{eq:main_prob}
+  \p(\ro \| \xo,\ \rd,\xd,\ H) 
+\end{equation}
+which we want to quantify using the probability calculus.
+
+In the next section we will examine several possible underlying hypotheses
+and calculate the probabilities they lead to. In \mynote{\wrench\ \sect***}
+we will examine the consequences of the different hypotheses and their
+ensuing probabilities on a test dataset.
+
+
+\section{Hypotheses and probabilities}
+\label{sec:hypotheses}
+
+Quantifying the probability~\eqref{eq:main_prob} involves two main steps.
+First we must ask what kind of relevance the training set has for our
+inference about the new datapoint. Secondly we must set the probability
+distribution for the long-run relative frequencies of \rmsd\ and feature
+values that the training set would have if, hypothetically, it were
+augmented indefinitely.
+
+\subsection{Exchangeability and subpopulations}
+\label{sec:hyp_exch}
+
+The relevance of the training set to the new datapoint is usually expressed
+mathematically as a form of symmetry or \emph{exchangeability} of the joint
+probability of the training set and the new datapoint. In terms of
+\enquote{populations}, such symmetries represent different kinds of
+membership of the new datapoint in various subpopulations that can be
+discerned in the training set.
+
+The question of exchangeability is discussed in a brilliant paper by
+Lindley \amp\ Novick \citey{lindleyetal1981}, who show with examples its
+fundamental importance for making correct inferences. A short intuitive
+summary of this notion is given in \mynote{\wrench appendix***}.
+
+We consider three mutually exclusive cases of exchangeability:
+\begin{enumerate}[label=\roman*.]
+\item\label{item:exch_rx}\emph{Exchangeability in \rmsd\ $r$ given features
+    $x$}. The \rmsd s of the training set are relevant to the inference of
+  the \rmsd\ of the new datapoint, given the same feature values. The
+  feature values of the training set, however, are not relevant for the
+  inference of the feature values of the new datapoint.
+
+\item\label{item:exch_xr}\emph{Exchangeability in features $x$ given \rmsd\
+    $r$}. The values of the features of the training set are relevant to
+  the inference of those of the new datapoint, given the same \rmsd\ value.
+  The \rmsd s of the training set, however, are not relevant for the \rmsd\
+  of the new datapoint.
+
+\item\label{item:exch_full}\emph{Exchangeability in \rmsd\ $r$ and features
+    $x$}. Both the \rmsd s and the values of the features of the training
+  set are relevant to the inference of those of the new datapoint.
+\end{enumerate}
+The mathematical representation of the three kinds of exchangeability above
+is given in \mynote{\wrench\sect***} for brevity.
+
+In the first and second case, the features or \rmsd\ of the training set
+could be irrelevant because the respective quantity of the new datapoint
+could be selected by hand or by some process different from that underlying
+the training set. Several authors connect or motivate these different kinds
+of relevance with the robustness of \enquote{causal connections} (which can
+stem from a common cause) in the directions $\xo \rightsquigarrow \ro$ or
+$\ro \rightsquigarrow \xo$ \parencites[\cf][\sects~2.1.2,
+2.2.5]{pearl1988}.
+
+
+\subsection{Probability for long-run frequencies}
+\label{sec:prob_longrun}
+
+Let us imagine to indefinitely extend the size of the training set in such
+a way that our probability assignments for any subset of it would be
+identical (this condition is more general than the \enquote{i.i.d.} one).
+We could then measure the joint, long-run relative frequencies $F_{r\,x}$
+for values $r$ and $x$ in the training dataset\footnote{\enquote{But this
+    \emph{long run} is a misleading guide to current affairs. \emph{In the
+      long run} we are all dead.} \citep[\sect~3.I,
+  p.~65]{keynes1923_r2013}}. We could also measure the marginal relative
+frequency $F_{r\q}$ for $r$, and $F_{\q x}$ for $x$; the conditional
+relative frequency $F_{r\mid x}$ for $r$ given $x$, and $F_{x \mid r}$ for
+$x$ given $r$. These frequencies are related by
+\begin{equation}
+  \label{eq:frequencies_relations}
+  F_{r\q}=\sum_{x} F_{r\,x}\ , \quad
+  F_{\q x}=\sum_{r} F_{r\,x}\ ,\quad
+  F_{r\mid x}=F_{r\,x}/F_{\q x}\ , \quad
+  F_{x\mid r}=F_{r\,x}/F_{r\q}\ .
+\end{equation}
+
+
+
+
+**********************************************************************
+
+
+
+We introduce the long-run, joint relative frequencies $F_{r\,x}$ that would
+be observed if the training dataset could hypothetically be extended to an
+infinite size. With these we also have
+marginal and conditional frequencies $F_{r\q}$, $F_{\q x}$, $F_{r\mid x}$,
+$F_{x \mid r}$. These frequencies are obviously unknown but they play a
+pivotal role in the inferences we are interested in. The collection of
+joint frequencies $\bigl(F_{r\,x}\bigr)_{r\,x}$ will be denoted by $\yF$.
+
+
+In the following $r$ will be treated as a discrete quantity with three
 possible values: \enquote*{good}
 ($0\ \textrm{\AA}\le r \le 2\ \textrm{\AA}$), \enquote*{inconclusive}
 ($2\ \textrm{\AA} < r < 3\ \textrm{\AA}$), \enquote*{bad}
@@ -818,54 +926,7 @@ joint frequencies $\bigl(F_{r\,x}\bigr)_{r\,x}$ will be denoted by $\yF$.
 
 \bigskip
 
-Our uncertainty about $\ro$ is expressed by the probability
-\begin{equation}
-  \label{eq:main_prob}
-  \p(\ro \| \xo,\ \rd,\xd,\ H) \ ,
-\end{equation}
-which we want to quantify using the probability calculus.
 
-The first question we must ask for such quantification is this: Are the
-various long-run frequencies $F_{r\,x}$ \etc\ relevant to our uncertainty
-about $\ro$ and $\xo$? We consider three mutually exclusive cases:
-\begin{enumerate}[label=\roman*.]
-\item\label{item:exch_rx} The conditional frequency $F_{\ro\mid \xo}$ of
-  $\ro$ given $\xo$ is relevant to the inference of $\ro$ given $\xo$. The
-  marginal frequency $F_{\q \xo}$, however, is irrelevant to the inference
-  of $\xo$.
-\item\label{item:exch_xr} The conditional frequency $F_{\xo\mid \ro}$ of
-  $\xo$ given $\ro$ is relevant to the inference of $\xo$ given $\ro$. The
-  marginal frequency $F_{\ro\q}$, however, is irrelevant to the inference
-  of $\ro$.
-\item\label{item:exch_full} The joint frequency $F_{\ro\, \xo}$ of $\ro$
-  and $\xo$ is relevant to the joint inference of both. This is equivalent
-  to the relevance of $F_{\ro\mid \xo}$ and $F_{\q \xo}$, and of
-  $F_{\xo\mid \ro}$ and $F_{\ro\q}$.
-\end{enumerate}
-Either marginal frequency $F_{\ro\q}$ or $F_{\q\xo}$ could be irrelevant
-because the respective quantity could be chosen by hand or selected by some
-process different from that underlying that frequency.
-
-If $F_{\ro\q}$ is relevant, in technical terms we say that $\ro$ (or more
-precisely its probability) is \emph{exchangeable} with all $\rd$ in the
-training dataset. Or we can say that $\ro$ belongs to the same population
-as the $\rd$ do. If $F_{\ro\mid \xo}$ is relevant, we say that $\ro$ is
-exchangeable with the $\rd$ in the training dataset \emph{given $\xo$}. Or
-we can say that $\ro$ belongs to the same subpopulation of $\rd$
-characterized by a joint value $\xo$. Similarly for the converse cases.
-
-The question of exchangeability is discussed in a brilliant paper by
-Lindley \amp\ Novick \citey{lindleyetal1981}, who show with examples its
-fundamental importance for making correct inferences. Exchangeability is
-the basic fact or assumption upon which machine-learning algorithms and the
-calculations presented here are based. A short intuitive summary of this
-notion is given in appendix***. Several authors connect or motivate the
-relevance of either conditional frequency with the robustness of
-\enquote{causal connections} (which can originate from a common cause) in
-the directions $\xo \rightsquigarrow \ro$ or $\ro \rightsquigarrow \xo$
-\parencites[\cf][\sects~2.1.2, 2.2.5]{pearl1988}.
-
-\bigskip
 
 The three cases of exchangeability listed above lead to three different
 equations for the calculation of the probability~\eqref{eq:main_prob}.
@@ -936,113 +997,6 @@ applications.
 The final goal is to compare the results of the present principled approach
 with those of machine-learning algorithms in a case where both can be used.
 More about this in \mynote{\wrench\ \sect***}.
-
-\section{Exchangeability, approximations, machine learning}
-\label{sec:exchang}
-
-Exchangeability is the fact or assumption that the ordering of
-known and yet unknown datapoints is irrelevant for new inferences. Good
-reviews are given by \textcite{dawid2013} and
-\textcite[\sect~4.2]{bernardoetal1994}.
-
-A probability distribution $\p(z_{0}, z_{1}, z_{2}, \dotsc \| H)$ is called
-\emph{infinitely exchangeable} if it's invariant under permutations of the
-values $z_{0}, z_{1}, \dotsc$, no matter what and how many they are. In
-other words, the ordering of the observations doesn't matter. Usually one
-says, somewhat improperly, that \enquote{$z_{0}, z_{1}, \dotsc$ are
-  exchangeable} for short. In our case each $z$ is actually a pair of
-values $(r,x)$, where $x$ itself is multidimensional.
-
-Exchangeability has the following important consequence: if we knew the
-infinite-limit long-run relative frequencies $\yF\defd (F_{r,x})$ of the
-values of past and future datapoints, then the probability of observing a
-sequence of new values would be equal to the long-run relative frequency of
-those values, for symmetry reasons. For example:
-\begin{equation}
-  \label{eq:prob_freq}
-  \p(r_{1},x_{1},\ r_{2},x_{2} \| \yF, H) = F_{r_{1},x_{1}} \ 
-  F_{r_{2},x_{2}} \ .
-\end{equation}
-
-Another consequence is that conditional probabilities are also equal to the
-long-run \emph{conditional} frequencies $\yFrx \defd (F_{r \|x}) =
-(F_{r,x}/\sum_{y'}F_{y',x})$. For example:
-\begin{equation}
-  \label{eq:prob_cond_freq}
-  \p(r_{1}, r_{2}\| x_{1}, x_{2},\ \yF, H) = F_{r_{1}\|x_{1}} \ 
-  F_{r_{2}\|x_{2}} \ .
-\end{equation}
-
-If the long-run frequencies $\yF$ are unknown, they can be marginalized,
-\ie\ integrated out, provided that we have a probability distribution
-$\p(\yF \| H)$ for them. For example:
-\begin{equation}
-  \label{eq:prob_freq_integr}
-  \p(r_{1},x_{1},\ r_{2},x_{2}\| H) = \int F_{r_{1},x_{1}} \ 
-  F_{r_{2},x_{2}} \ \p(\yF \| H)\ \di\yF \ ,
-\end{equation}
-from which we can also obtain conditional probabilities.
-
-There are several other types of exchangeability. For example, we may have
-\emph{conditional} or \emph{partial} exchangeability of $r$ given $x$ if
-\eqn~\eqref{eq:prob_cond_freq} holds, but not \eqn~\eqref{eq:prob_freq}. If
-we have a probability distribution $\p(\yFrx \| H)$ for the conditional
-frequencies, we obtain by marginalization
-\begin{equation}
-  \label{eq:prob_cond_freq_integr}
-  \p(r_{1}, r_{2}\| x_{1}, x_{2},\ H) = \int F_{r_{1}\|x_{1}} \ 
-  F_{r_{2}\|x_{2}}\ \p(\yFrx \| H)\ \di\yFrx \ .
-\end{equation}
-
-\textcite{lindleyetal1981} discuss the importance of conditional
-exchangeability for various inference problems, and the errors that arise
-if the wrong type of exchangeability is assumed.
-
-From the generalization of the equations above we obtain other
-probabilities for various cases of regression, such as
-\eqns~\eqref{eq:main_prob} or \eqref{eq:rev_prob}, by simply using the
-three rules of the probability calculus. For example, if $\ro$ is assumed
-to be exchangeable given $\xo$, but the latter is not assumed to be
-exchangeable with the other $\xd$ because hand-picked, we find
-\begin{equation}
-  \label{eq:main_prob_exch}
-  \p(\ro \| \xo,\ \rd,\xd,\ H) =
-  \frac{
-    \int F_{\ro\|\xo} \ F_{r_{1},x_{1}} \  \dotsm \ 
-  F_{r_{N},x_{N}} \ \p(\yF \| H)\ \di\yF
-  }{
-    \int F_{r_{1},x_{1}} \  \dotsm \ 
-  F_{r_{N},x_{N}} \ \p(\yF \| H)\ \di\yF
-  } \ .
-\end{equation}
-
-The distribution $\p(\yF \| H)$, usually called the \enquote{prior},
-embodies the assumptions that we make for the extrapolation. It therefore
-cannot be determined by the known datapoints. Given enough known datapoints
-$(\rd,\xd)$, the probability distribution for $\ro$ given $\xo$
-eventually does become equal to their limit conditional frequency. This
-sets the ultimate uncertainty with which the prediction can be made, and
-cannot be surpassed by any algorithm. So this approach eventually does
-yield an optimal inference. The quickness with which the limit conditional
-frequency is reached, however, depends heavily on the choice of prior. The
-prior should therefore be chosen in a well-reasoned manner. In practice the
-choice is limited by computational constraints.
-
-All machine-learning algorithms calculate equations such as the one above
-or approximations to it, for some choice of the prior $\p(\yF \| H)$
-\parencites{mackay1992,bishop2006}.
-
-The formulae above can be numerically implemented exactly or with a good
-approximation only if the features $x$ have low dimensions and the number
-$N$ of known data is small \mynote{\wrench\ add refs}. Many
-machine-learning algorithms manage to deal with larger dimensionality and
-datapoints by parametrizing the $\yF$-space in a clever way (for example,
-deep nets parametrize the $\yF$ as nested compositions of some simple
-functions) and finding an argument that maximizes the integrands above
-\parencites{mackay1992,mackay1992b}, for example a value of $\ro$ that
-locally maximizes the integrand in the numerator of
-\eqn~\eqref{eq:main_prob_exch}. This means, though, that they cannot
-quantify the uncertainty of the inference.
 
 
 \section{Direct case: methodology}
@@ -1354,6 +1308,180 @@ t-distribution with large standard deviation.
 \appendix
 \mynote{\pencil\ These are just working notes}
 
+\section{Exchangeability, approximations, machine learning}
+\label{sec:exchang}
+
+Exchangeability is
+the basic fact or assumption upon which machine-learning algorithms and the
+calculations presented here are based.
+
+Exchangeability is the fact or assumption that the ordering of
+known and yet unknown datapoints is irrelevant for new inferences. Good
+reviews are given by \textcite{dawid2013} and
+\textcite[\sect~4.2]{bernardoetal1994}.
+
+A probability distribution $\p(z_{0}, z_{1}, z_{2}, \dotsc \| H)$ is called
+\emph{infinitely exchangeable} if it's invariant under permutations of the
+values $z_{0}, z_{1}, \dotsc$, no matter what and how many they are. In
+other words, the ordering of the observations doesn't matter. Usually one
+says, somewhat improperly, that \enquote{$z_{0}, z_{1}, \dotsc$ are
+  exchangeable} for short. In our case each $z$ is actually a pair of
+values $(r,x)$, where $x$ itself is multidimensional.
+
+Exchangeability has the following important consequence: if we knew the
+infinite-limit long-run relative frequencies $\yF\defd (F_{r,x})$ of the
+values of past and future datapoints, then the probability of observing a
+sequence of new values would be equal to the long-run relative frequency of
+those values, for symmetry reasons. For example:
+\begin{equation}
+  \label{eq:prob_freq}
+  \p(r_{1},x_{1},\ r_{2},x_{2} \| \yF, H) = F_{r_{1},x_{1}} \ 
+  F_{r_{2},x_{2}} \ .
+\end{equation}
+
+Another consequence is that conditional probabilities are also equal to the
+long-run \emph{conditional} frequencies $\yFrx \defd (F_{r \|x}) =
+(F_{r,x}/\sum_{y'}F_{y',x})$. For example:
+\begin{equation}
+  \label{eq:prob_cond_freq}
+  \p(r_{1}, r_{2}\| x_{1}, x_{2},\ \yF, H) = F_{r_{1}\|x_{1}} \ 
+  F_{r_{2}\|x_{2}} \ .
+\end{equation}
+
+If the long-run frequencies $\yF$ are unknown, they can be marginalized,
+\ie\ integrated out, provided that we have a probability distribution
+$\p(\yF \| H)$ for them. For example:
+\begin{equation}
+  \label{eq:prob_freq_integr}
+  \p(r_{1},x_{1},\ r_{2},x_{2}\| H) = \int F_{r_{1},x_{1}} \ 
+  F_{r_{2},x_{2}} \ \p(\yF \| H)\ \di\yF \ ,
+\end{equation}
+from which we can also obtain conditional probabilities.
+
+There are several other types of exchangeability. For example, we may have
+\emph{conditional} or \emph{partial} exchangeability of $r$ given $x$ if
+\eqn~\eqref{eq:prob_cond_freq} holds, but not \eqn~\eqref{eq:prob_freq}. If
+we have a probability distribution $\p(\yFrx \| H)$ for the conditional
+frequencies, we obtain by marginalization
+\begin{equation}
+  \label{eq:prob_cond_freq_integr}
+  \p(r_{1}, r_{2}\| x_{1}, x_{2},\ H) = \int F_{r_{1}\|x_{1}} \ 
+  F_{r_{2}\|x_{2}}\ \p(\yFrx \| H)\ \di\yFrx \ .
+\end{equation}
+
+\textcite{lindleyetal1981} discuss the importance of conditional
+exchangeability for various inference problems, and the errors that arise
+if the wrong type of exchangeability is assumed.
+
+From the generalization of the equations above we obtain other
+probabilities for various cases of regression, such as
+\eqns~\eqref{eq:main_prob} or \eqref{eq:rev_prob}, by simply using the
+three rules of the probability calculus. For example, if $\ro$ is assumed
+to be exchangeable given $\xo$, but the latter is not assumed to be
+exchangeable with the other $\xd$ because hand-picked, we find
+\begin{equation}
+  \label{eq:main_prob_exch}
+  \p(\ro \| \xo,\ \rd,\xd,\ H) =
+  \frac{
+    \int F_{\ro\|\xo} \ F_{r_{1},x_{1}} \  \dotsm \ 
+  F_{r_{N},x_{N}} \ \p(\yF \| H)\ \di\yF
+  }{
+    \int F_{r_{1},x_{1}} \  \dotsm \ 
+  F_{r_{N},x_{N}} \ \p(\yF \| H)\ \di\yF
+  } \ .
+\end{equation}
+
+The distribution $\p(\yF \| H)$, usually called the \enquote{prior},
+embodies the assumptions that we make for the extrapolation. It therefore
+cannot be determined by the known datapoints. Given enough known datapoints
+$(\rd,\xd)$, the probability distribution for $\ro$ given $\xo$
+eventually does become equal to their limit conditional frequency. This
+sets the ultimate uncertainty with which the prediction can be made, and
+cannot be surpassed by any algorithm. So this approach eventually does
+yield an optimal inference. The quickness with which the limit conditional
+frequency is reached, however, depends heavily on the choice of prior. The
+prior should therefore be chosen in a well-reasoned manner. In practice the
+choice is limited by computational constraints.
+
+All machine-learning algorithms calculate equations such as the one above
+or approximations to it, for some choice of the prior $\p(\yF \| H)$
+\parencites{mackay1992,bishop2006}.
+
+The formulae above can be numerically implemented exactly or with a good
+approximation only if the features $x$ have low dimensions and the number
+$N$ of known data is small \mynote{\wrench\ add refs}. Many
+machine-learning algorithms manage to deal with larger dimensionality and
+datapoints by parametrizing the $\yF$-space in a clever way (for example,
+deep nets parametrize the $\yF$ as nested compositions of some simple
+functions) and finding an argument that maximizes the integrands above
+\parencites{mackay1992,mackay1992b}, for example a value of $\ro$ that
+locally maximizes the integrand in the numerator of
+\eqn~\eqref{eq:main_prob_exch}. This means, though, that they cannot
+quantify the uncertainty of the inference.
+
+\section{Exchangeability assumptions in formulae}
+\label{sec:exch_formulae}
+
+
+\begin{enumerate}[label=\roman*.]
+\item\label{item:exch_rx}\emph{Exchangeability of \rmsd\ given features}.
+  The \rmsd s of the training set are relevant to the inference of the
+  \rmsd\ of the new datapoint, given the same feature values. The features
+  of the training set, however,
+
+  Exchangeability of $r$ given $x$: The joint
+  probability of the \rmsd s of new datapoint and training set is symmetric
+  under exchanges of datapoints, given the same features. That is,
+  \begin{multline}
+    \label{eq:p_exch_rx}
+    \begin{aligned}
+    &\p(r=a_{0}, r_{1}=a_{1}, r_{2}=a_{2}, \dotsc \|
+    x_{1}=b, x_{2}=b, x_{3}=b, \dotsc,\ H) ={}\\
+    &\p(r=a_{1}, r_{1}=a_{0}, r_{2}=a_{2}, \dotsc \|
+    x_{1}=b, x_{2}=b, x_{3}=b, \dotsc,\ H) ={}\\
+    &\p(r=a_{2}, r_{1}=a_{1}, r_{2}=a_{0}, \dotsc \|
+    x_{1}=b, x_{2}=b, x_{3}=b, \dotsc,\ H) = \dotso
+    \end{aligned} \\
+    \text{and so on, for all simultaneous permutations of $a_{i}$ and any $b$.}
+  \end{multline}
+
+\item\label{item:exch_xr} Exchangeability of $x$ given $r$: The joint
+  probability of the features of new datapoint and training set is symmetric
+  under exchanges of datapoints, given the same \rmsd. That is,
+  \begin{multline}
+    \label{eq:p_exch_xr}
+    \begin{aligned}
+    &\p(x=b_{0}, x_{1}=b_{1}, x_{2}=b_{2}, \dotsc \|
+    r_{1}=a, r_{2}=a, r_{3}=a, \dotsc,\ H) ={}\\
+    &\p(x=b_{1}, x_{1}=b_{0}, x_{2}=b_{2}, \dotsc \|
+    r_{1}=a, r_{2}=a, r_{3}=a, \dotsc,\ H) ={}\\
+    &\p(x=b_{2}, x_{1}=b_{1}, x_{2}=b_{0}, \dotsc \|
+    r_{1}=a, r_{2}=a, r_{3}=a, \dotsc,\ H) = \dotso
+    \end{aligned} \\
+    \text{and so on, for all simultaneous permutations of $b_{i}$ and any $a$.}
+  \end{multline}
+\item\label{item:exch_full} The \rmsd s and features of the training set
+  are jointly relevant to the inference of those of the new datapoint. We
+  then have full exchangeability of $(r,x)$: the joint probability of new
+  datapoint and training set is symmetric under exchanges of datapoints.
+  That is,
+  \begin{multline}
+    \label{eq:p_exch_full}
+    \begin{aligned}
+    &\p(r=a_{0}, x=b_{0},\ r_{1}=a_{1},x_{1}=b_{1}, \
+    r_{2}=a_{2},x_{2}=b_{2}, \ \dotsc \| H) ={}\\
+    &\p(r=a_{1}, x=b_{1},\ r_{1}=a_{0},x_{1}=b_{0}, \
+    r_{2}=a_{2},x_{2}=b_{2}, \ \dotsc \| H) ={}\\
+    &\p(r=a_{2}, x=b_{2},\ r_{1}=a_{1},x_{1}=b_{1}, \
+      r_{2}=a_{0},x_{2}=b_{0}, \ \dotsc \| H) = \dotso
+    \end{aligned} \\
+    \text{and so on, for all simultaneous permutations of $a_{i}$ and $b_{i}$.}
+  \end{multline}
+
+\end{enumerate}
+
+
+
 \section{Selection of prior}
 \label{sec:sel_prior}
 
@@ -1416,6 +1544,34 @@ quantities. These requirement leave the parameter $\kappa^{*}$ still undefined.
 %%% Cut text (won't be compiled)
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% 
 
+The first question we must ask to find theis this: Are the
+various long-run frequencies $F_{r\,x}$ \etc\ relevant to our uncertainty
+about $\ro$ and $\xo$? We consider three mutually exclusive cases:
+\begin{enumerate}[label=\roman*.]
+\item\label{item:exch_rx} The conditional frequency $F_{\ro\mid \xo}$ of
+  $\ro$ given $\xo$ is relevant to the inference of $\ro$ given $\xo$. The
+  marginal frequency $F_{\q \xo}$, however, is irrelevant to the inference
+  of $\xo$.
+\item\label{item:exch_xr} The conditional frequency $F_{\xo\mid \ro}$ of
+  $\xo$ given $\ro$ is relevant to the inference of $\xo$ given $\ro$. The
+  marginal frequency $F_{\ro\q}$, however, is irrelevant to the inference
+  of $\ro$.
+\item\label{item:exch_full} The joint frequency $F_{\ro\, \xo}$ of $\ro$
+  and $\xo$ is relevant to the joint inference of both. This is equivalent
+  to the relevance of $F_{\ro\mid \xo}$ and $F_{\q \xo}$, and of
+  $F_{\xo\mid \ro}$ and $F_{\ro\q}$.
+\end{enumerate}
+Either marginal frequency $F_{\ro\q}$ or $F_{\q\xo}$ could be irrelevant
+because the respective quantity could be chosen by hand or selected by some
+process different from that underlying that frequency.
+
+If $F_{\ro\q}$ is relevant, in technical terms we say that $\ro$ (or more
+precisely its probability) is \emph{exchangeable} with all $\rd$ in the
+training dataset. Or we can say that $\ro$ belongs to the same population
+as the $\rd$ do. If $F_{\ro\mid \xo}$ is relevant, we say that $\ro$ is
+exchangeable with the $\rd$ in the training dataset \emph{given $\xo$}. Or
+we can say that $\ro$ belongs to the same subpopulation of $\rd$
+characterized by a joint value $\xo$. Similarly for the converse cases.
 
 %%% Local Variables: 
 %%% mode: LaTeX
