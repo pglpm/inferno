@@ -1,7 +1,7 @@
 \pdfoutput=1
 %% Author: PGL  Porta Mana
 %% Created: 2015-05-01T20:53:34+0200
-%% Last-Updated: 2021-08-07T19:45:04+0200
+%% Last-Updated: 2021-08-08T12:24:38+0200
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \newif\ifarxiv
 \arxivfalse
@@ -808,61 +808,15 @@ ensuing probabilities on a test dataset.
 Quantifying the probability~\eqref{eq:main_prob} requires two main
 assessments:
 \begin{itemize}
-\item What kind of relevance the training set has for our inference about
-  the new datapoint.
 \item The probability distribution for the long-run relative frequencies of
   \rmsd\ and feature values that the training set would have if,
   hypothetically, it were augmented indefinitely.
+\item What kind of relevance the training set has for our inference about
+  the new datapoint.
 \end{itemize}
-We discuss these assessments in the next two sections. Section
-
-\subsection{Relevance of training set: exchangeability and subpopulations}
-\label{sec:hyp_exch}
-
-The relevance of the training set to the new datapoint is usually expressed
-mathematically as a form of symmetry or \emph{exchangeability} of the joint
-probability of the training set and the new datapoint. In terms of
-\enquote{populations}, such symmetries represent different kinds of
-membership of the new datapoint in various subpopulations that can be
-discerned in the training set.
-
-The question of exchangeability is discussed in a brilliant paper by
-Lindley \amp\ Novick \citey{lindleyetal1981}, who show with examples its
-fundamental importance for making correct inferences. A short intuitive
-summary of this notion is given in \mynote{\wrench appendix***}.
-
-We consider three mutually exclusive cases of exchangeability, the first
-seeming the most appropriate to our inference:
-\begin{enumerate}[label=\roman*.]
-\item\label{item:exch_rx}\emph{Exchangeability in \rmsd\ $r$ given features
-    $x$}. The \rmsd s of the training set are relevant to the inference of
-  the \rmsd\ of the new datapoint, given the same feature values. The
-  feature values of the training set, however, are not relevant for the
-  inference of the feature values of the new datapoint.
-
-\item\label{item:exch_xr}\emph{Exchangeability in features $x$ given \rmsd\
-    $r$}. The values of the features of the training set are relevant to
-  the inference of those of the new datapoint, given the same \rmsd\ value.
-  The \rmsd s of the training set, however, are not relevant for the \rmsd\
-  of the new datapoint.
-
-\item\label{item:exch_full}\emph{Exchangeability in \rmsd\ $r$ and features
-    $x$}. Both the \rmsd s and the values of the features of the training
-  set are relevant to the inference of those of the new datapoint. This is
-  equivalent to the relevance of $r$ given $x$, and of $x$; and to the
-  relevance of $x$ given $r$, and of $r$.
-\end{enumerate}
-The mathematical representation of the three kinds of exchangeability above
-is given in \mynote{\wrench\sect***} for brevity.
-
-In the first and second case, the features or \rmsd\ of the training set
-could be irrelevant because the respective quantity of the new datapoint
-could be selected by hand or by some process different from that underlying
-the training set. Several authors connect or motivate these different kinds
-of relevance with the robustness of \enquote{causal connections} (which can
-stem from a common cause) in the directions $\xo \rightsquigarrow \ro$ or
-$\ro \rightsquigarrow \xo$ \parencites[\cf][\sects~2.1.2,
-2.2.5]{pearl1988}.
+We discuss these assessments in the next two sections.
+Section~\ref{sec:p_final_inference} combines them into final probability
+formulae.
 
 
 \subsection{Probability for long-run frequencies}
@@ -904,13 +858,20 @@ observation of the training set this probability is updated to
 \begin{equation}
   \label{eq:post_prob_F}
   \p(\yF\|\rd,\xd, H)\,\di\yF =
-  \frac{\displaystyle \p(\yF\| H)\ 
-    \prod_{r\,x} {F_{r\,x}}^{N\, f_{r\,x}}
+  \frac{\p(\yF\| H)\ 
+    \prod_{i=1}^{N} F_{r_{i}\,x_{i}}
   }{\int \p(\yF\| H)\ 
-       \prod_{r\,x} {F_{r\,x}}^{N\, f_{r\,x}}
-              \ \di\yF
+    \prod_{i=1}^{N} F_{r_{i}\,x_{i}}
+              \ \di\yF \ .
   }\ \di\yF
+  % \frac{\displaystyle \p(\yF\| H)\ 
+  %   \prod_{r\,x} {F_{r\,x}}^{N\, f_{r\,x}}
+  % }{\int \p(\yF\| H)\ 
+  %      \prod_{r\,x} {F_{r\,x}}^{N\, f_{r\,x}}
+  %             \ \di\yF
+  % }\ \di\yF
 \end{equation}
+The product $\prod_{i=1}^{N} F_{r_{i}\,x_{i}} = \prod_{r\,x} {F_{r\,x}}^{N\, f_{r\,x}}$,
 where $f_{r\,x}$ is the joint frequency of values $r$ and $x$ observed in
 the training set.
 
@@ -921,33 +882,190 @@ infinite-dimensional manifold. Our specific choices and their motivations are
 discussed more in detail in \mynote{\wrench appendix***}. Here we briefly
 discuss two main possibilities:
 \begin{enumerate}[label=\Roman*.]
+\item\label{item:p_F_unfactorizable} An unfactorizable density:
+    \begin{equation}
+    \label{eq:p_F_unfactorizable}
+    \p(\yF\| H_{\textrm{I}})\ \di\yF 
+    % \ne \prod_{r} \p(\yFr \| H_{\textrm{II}})\
+    % \p(F_{r\q} \| H_{\textrm{II}})\ \di\yFr\ \di F_{r\q}
+    \ .
+  \end{equation}
+
 \item\label{item:p_F_factorizable} A density factorizable in the
   conditional frequencies given $r$:
   \begin{equation}
     \label{eq:p_F_factorizable}
-    \p(\yF\| H)\ \di\yF =
-    \prod_{r} \p(\yFr \| H)\ \p(F_{r\q} \| H)\ \di\yFr\ \di F_{r\q}
+    \p(\yF\| H_{\textrm{II}})\ \di\yF =
+    \prod_{r} \p(\yFr \| H_{\textrm{II}})\
+    \p(F_{r\q} \| H_{\textrm{II}})\ \di\yFr\ \di F_{r\q} \ .
   \end{equation}
-
-\item\label{item:p_F_unfactorizable} An unfactorizable density.
+  It represents the assumption that the conditional frequencies $\yFr$ are
+  completely uninformative about the marginal frequencies $(F_{r\q})_{r}$,
+  and vice versa.
 \end{enumerate}
 The first possibility will be used with assumption~\ref{item:exch_xr} of
 \sect~\ref{sec:hyp_exch}, leading to simplified and computationally cheaper
 formulae. The factors $\p(F_{r\q} \| H)\,\di F_{r\q}$ in particular will
-become irrelevant. The updated form for this density also factorizes:
+become irrelevant. The updated density also factorizes in this case:
   \begin{multline}
   \label{eq:post_prob_F_factorizable}
-  \p(\yF\|\rd,\xd, H)\,\di\yF \propto
-  \prod_{r} \p(F_{r\q} \| H)\ {F_{r\q}}^{N\,f_{r\q}}\ \ \di F_{r\q} \times{}\\
-  \prod_{r} \p(\yFr \| H)\
-  \Bigl(\prod_{x} {F_{x\mid r}}^{N\,f_{x\,r}}\Bigr)\ \di\yFr \ .
+  \p(\yF\|\rd,\xd, H_{\textrm{II}})\,\di\yF \propto
+  \prod_{r} \p(F_{r\q} \| H_{\textrm{II}})\ {F_{r\q}}^{N\,f_{r\q}}\
+  \di F_{r\q} \times{}\\
+  \prod_{r} \p(\yFr \| H_{\textrm{II}})\
+  \Bigl(\prod_{\substack{i=1\\r_{i}=\ro}}^{N} F_{x_{i}\mid \ro}\Bigr)\ \di\yFr \ ,
 \end{multline}
+where $f_{r\q}$ is the marginal frequency of the $r$ value in the training set.
 
+
+\subsection{Relevance of training set: exchangeability and subpopulations}
+\label{sec:hyp_exch}
+
+The relevance of the training set to the new datapoint is usually expressed
+mathematically as a form of symmetry or \emph{exchangeability} of the joint
+probability of the training set and the new datapoint. Such a symmetry
+intuitively tells us if and how the new datapoint could be considered as a
+member of the training set if the latter were hypothetically augmented
+indefinitely. Then the long-run frequencies considered in the previous
+section directly give us probabilities for the new datapoint.
+
+% In terms of
+% \enquote{populations}, such symmetries represent different kinds of
+% membership of the new datapoint in various subpopulations that can be
+% discerned in the training set.
+
+The question of exchangeability is discussed in a brilliant paper by
+Lindley \amp\ Novick \citey{lindleyetal1981}, who show with examples its
+fundamental importance for making correct inferences. A short intuitive
+summary of this notion is given in \mynote{\wrench appendix***}.
+
+We consider three mutually exclusive cases of exchangeability, the first
+seeming the most appropriate to our inference:
+\begin{enumerate}[label=\roman*.]
+\item\label{item:exch_xr}\emph{Exchangeability in features $x$ given \rmsd\
+    $r$}. The values of the features of the training set are relevant to
+  the inference of those of the new datapoint, given the same \rmsd\ value.
+  The \rmsd s of the training set, however, are not relevant for the \rmsd\
+  of the new datapoint. This means that the probability for feature value
+  $\xo$ in the new datapoint, given \rmsd\ $\ro$, would be equal to the
+  long-run conditional frequency $F_{\xo\mid\ro}$ if the latter were known:
+  \begin{equation}
+    \label{eq:p_xr_F}
+    \p(\xo \| \ro,\ \yF, H_{\textrm{i}}) = F_{\xo\mid\ro} \ .
+  \end{equation}
+
+\item\label{item:exch_rx}\emph{Exchangeability in \rmsd\ $r$ given features
+    $x$}. The \rmsd s of the training set are relevant to the inference of
+  the \rmsd\ of the new datapoint, given the same feature values. The
+  feature values of the training set, however, are not relevant for the
+  inference of the feature values of the new datapoint. This means that the
+  probability for a \rmsd\ $\ro$ in the new datapoint, given features
+  $\xo$, would be equal to the long-run conditional frequency
+  $F_{\ro\mid\xo}$ if the latter were known:
+  \begin{equation}
+    \label{eq:p_rx_F}
+    \p(\ro \| \xo,\ \yF, H_{\textrm{ii}}) = F_{\ro\mid\xo} \ .
+  \end{equation}
+
+\item\label{item:exch_full}\emph{Exchangeability in \rmsd\ $r$ and features
+    $x$}. Both the \rmsd s and the values of the features of the training
+  set are relevant to the inference of those of the new datapoint. This is
+  equivalent to the relevance of $r$ given $x$, and of $x$; and to the
+  relevance of $x$ given $r$, and of $r$. It also means that the
+  probability for a \rmsd\ $\ro$ in the new datapoint, given features
+  $\xo$, would be equal to the long-run conditional frequency
+  $F_{\ro\mid\xo}$ if the latter were known:
+  \begin{equation}
+    \label{eq:p_full_F}
+    \p(\ro \| \xo,\ \yF, H_{\textrm{iii}}) = F_{\ro\mid\xo} \ .
+  \end{equation}
+  Owing to the exchangeability in $x$, we also have that our probability
+  for $\yF$ is updated by our knowledge of $\xo$ of the new datapoint:
+  \begin{equation}
+    \label{eq:F_update_xo}
+    \p(\yF \| \xo,\ \rd, \xd, H) =
+    \frac{F_{\q\xo}\ \p(\yF \| \rd, \xd, H)}{
+    \int F_{\q\xo}\ \p(\yF \| \rd, \xd, H)\ \di\yF} \ .
+  \end{equation}
+\end{enumerate}
+% The mathematical representation of the three kinds of exchangeability above
+% is given in \mynote{\wrench\sect***} for brevity.
+In the first and second case, the features or \rmsd\ of the training set
+could be irrelevant because the respective quantity of the new datapoint
+could be selected by hand or by some process different from that underlying
+the training set. Several authors connect or motivate these different kinds
+of relevance with the robustness of \enquote{causal connections} (which can
+stem from a common cause) in the directions $\xo \rightsquigarrow \ro$ or
+$\ro \rightsquigarrow \xo$ \parencites[\cf][\sects~2.1.2,
+2.2.5]{pearl1988}.
+
+In case~\ref{item:exch_rx} knowledge of the long-run frequencies cannot
+give us directly the probability of $\ro$ given $\xo$. Such probability can
+be obtained with Bayes's theorem:
+\begin{equation}
+  \label{eq:p_xr_bayes}
+  \p(\ro \| \xo,\ \yF, H_{\textrm{i}}) =
+  \frac{
+    \p(\xo \| \ro,\ \yF, H_{\textrm{i}}) \ \p(\ro\| H_{\textrm{i}})
+  }{
+\sum_{\ro'} \p(\xo \| \ro',\ \yF, H_{\textrm{i}}) \ \p(\ro'\| H_{\textrm{i}})
+} =
+  \frac{ F_{\xo\mid\ro} \ \p(\ro\|  H_{\textrm{i}})
+  }{ \sum_{\ro'} F_{\xo\mid\ro'} \ \p(\ro'\| H_{\textrm{i}})} \ .
+\end{equation}
+The prior probability $\p(\ro\| H_{\textrm{i}})$ required by the theorem
+cannot be obtained from the training set in this case, and need to be
+assessed from other kinds of information or assumptions.
 
 
 \subsection{Required probability}
 \label{sec:p_final_inference}
 
+The assumptions $H_{\textrm{i}}$, $H_{\textrm{i}}$, $H_{\textrm{iii}}$ of
+\sect~\ref{sec:hyp_exch} give us the probability of $\ro$ given $\xo$
+$\p(\ro \| \xo \dotsc)$ if the long-run frequencies were known. The
+assumptions $H_{\textrm{I}}$, $H_{\textrm{II}}$ of
+\sect~\ref{sec:prob_longrun} give us probabilities for these long-run
+frequencies. By combining the two kinds of assumptions we finally arrive at
+the probability of interest $\p(\ro \| \xo,\ \rd,\xd,\ H)$.
+
+We consider four combinations of assumptions:
+\begin{enumerate}[label=\arabic*.]
+\item $H_{\textrm{I}}$ and $H_{\textrm{ii}}$. Combining
+  \eqns~\eqref{eq:p_F_unfactorizable}, \eqref{eq:post_prob_F},
+  \eqref{eq:p_rx_F} we find
+  \begin{equation}
+    \label{eq:post_rx_simple}
+    \p(\ro \| \xo,\ \rd,\xd,\ H) 
+\propto  \int F_{\ro\mid\xo}\ \p(\yF\| H)\ 
+    \prod_{i=1}^{N} F_{r_{i}\,x_{i}} \ \di\yF \ .
+  % = \frac{\int F_{\ro\mid\xo}\ \p(\yF\| H)\ 
+  %   \prod_{r\,x} {F_{r\,x}}^{N\, f_{r\,x}} \ \di\yF
+  % }{\int \p(\yF\| H)\ 
+  %      \prod_{r\,x} {F_{r\,x}}^{N\, f_{r\,x}}
+  % }
+  \end{equation}
+This formula is valid when we assume exchangeability in $r$ given $x$, but
+not in $x$.
+  
+\item $H_{\textrm{I}}$ and $H_{\textrm{i}}$. Combining
+  \eqns~\eqref{eq:p_F_unfactorizable}, \eqref{eq:post_prob_F},
+  \eqref{eq:p_full_F},~\eqref{eq:F_update_xo} we find
+  \begin{equation}
+    \label{eq:post_rx_updated}
+    \p(\ro \| \xo,\ \rd,\xd,\ H) 
+\propto  \int F_{\ro\mid\xo}\ F_{\q\xo}\ \p(\yF\| H)\ 
+    \prod_{i=1}^{N} F_{r_{i}\,x_{i}} \ \di\yF \ .
+  % = \frac{\int F_{\ro\mid\xo}\ \p(\yF\| H)\ 
+  %   \prod_{r\,x} {F_{r\,x}}^{N\, f_{r\,x}} \ \di\yF
+  % }{\int \p(\yF\| H)\ 
+  %      \prod_{r\,x} {F_{r\,x}}^{N\, f_{r\,x}}
+  % }
+  \end{equation}
+  This formula is valid when we assume exchangeability in $r$ given $x$,
+  and also in $x$.
+  
+\end{enumerate}
 
 
 
