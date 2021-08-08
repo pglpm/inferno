@@ -1,7 +1,7 @@
 \pdfoutput=1
 %% Author: PGL  Porta Mana
 %% Created: 2015-05-01T20:53:34+0200
-%% Last-Updated: 2021-08-08T13:16:37+0200
+%% Last-Updated: 2021-08-08T15:42:53+0200
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \newif\ifarxiv
 \arxivfalse
@@ -802,7 +802,7 @@ we will examine the consequences of the different hypotheses and their
 ensuing probabilities on a test dataset.
 
 
-\section{Hypotheses and probabilities}
+\section{Underlying hypotheses}
 \label{sec:hypotheses}
 
 Quantifying the probability~\eqref{eq:main_prob} requires two main
@@ -1026,33 +1026,33 @@ be obtained with Bayes's theorem:
   \frac{
     \p(\xo \| \ro,\ \yF, H_{\textrm{i}}) \ \p(\ro\| H_{\textrm{i}})
   }{
-\sum_{\ro'} \p(\xo \| \ro',\ \yF, H_{\textrm{i}}) \ \p(\ro'\| H_{\textrm{i}})
+\sum_{r} \p(\xo \| r,\ \yF, H_{\textrm{i}}) \ \p(r\| H_{\textrm{i}})
 } =
   \frac{ F_{\xo\mid\ro} \ \p(\ro\|  H_{\textrm{i}})
-  }{ \sum_{\ro'} F_{\xo\mid\ro'} \ \p(\ro'\| H_{\textrm{i}})} \ .
+  }{ \sum_{r} F_{\xo\mid r} \ \p(r\| H_{\textrm{i}})} \ .
 \end{equation}
 The prior probability $\p(\ro\| H_{\textrm{i}})$ required by the theorem
 cannot be obtained from the training set in this case, and need to be
 assessed from other kinds of information or assumptions.
 
 
-\section{Required probability}
+\section{Required probability and approximations}
 \label{sec:p_final_inference}
 
 \subsection{Combination of assumptions and final formulae}
 \label{sec:combinations_cases_inference}
 
 The assumptions $H_{\textrm{i}}$, $H_{\textrm{i}}$, $H_{\textrm{iii}}$ of
-\sect~\ref{sec:hyp_exch} give us the probability of $\ro$ given $\xo$
-$\p(\ro \| \xo \dotsc)$ if the long-run frequencies were known. The
-assumptions $H_{\textrm{I}}$, $H_{\textrm{II}}$ of
-e\sect~\ref{sec:prob_longrun} give us probabilities for these long-run
-frequencies. By combining the two kinds of assumptions we finally arrive at
-the probability of interest $\p(\ro \| \xo,\ \rd,\xd,\ H)$.
+\sect~\ref{sec:hyp_exch} give us the probability $\p(\ro \| \xo \dotsc)$ of
+$\ro$ given $\xo$ if the long-run frequencies were known. The assumptions
+$H_{\textrm{I}}$, $H_{\textrm{II}}$ of e\sect~\ref{sec:prob_longrun} give
+us probabilities for these long-run frequencies. By combining the two kinds
+of assumptions we finally arrive at the probability of interest
+$\p(\ro \| \xo,\ \rd,\xd,\ H)$.
 
 We consider four combinations of assumptions:
 \begin{enumerate}[label=\arabic*.]
-\item $H_{\textrm{I}}$ and $H_{\textrm{ii}}$.
+\item\label{item:I_ii} $H_{\textrm{I}}$ and $H_{\textrm{ii}}$.
   % Combining
   % \eqns~\eqref{eq:p_F_unfactorizable}, \eqref{eq:post_prob_F},
   % \eqref{eq:p_rx_F}
@@ -1071,7 +1071,7 @@ We consider four combinations of assumptions:
 to be combined with \eqn~\eqref{eq:post_prob_F}. This formula is valid when
 we assume exchangeability in $r$ given $x$, but not in $x$.
   
-\item $H_{\textrm{I}}$ and $H_{\textrm{iii}}$. % Combining
+\item\label{item:I_iii} $H_{\textrm{I}}$ and $H_{\textrm{iii}}$. % Combining
   % \eqns~\eqref{eq:p_F_unfactorizable}, \eqref{eq:post_prob_F},
   % \eqref{eq:p_full_F},~\eqref{eq:F_update_xo}
   We find
@@ -1093,7 +1093,7 @@ we assume exchangeability in $r$ given $x$, but not in $x$.
   to be combined with \eqn~\eqref{eq:post_prob_F}. This formula is valid
   when we assume exchangeability in $r$ given $x$, and also in $x$.
 
-\item $H_{\textrm{I}}$ and $H_{\textrm{i}}$. Considering
+\item\label{item:I_i} $H_{\textrm{I}}$ and $H_{\textrm{i}}$. Considering
   \eqn~\eqref{eq:p_xr_bayes} we find
   \begin{equation}
     \label{eq:post_xr_unfactorized}
@@ -1101,7 +1101,7 @@ we assume exchangeability in $r$ given $x$, but not in $x$.
     \p(\ro\|  H_{\textrm{i}})\ \int F_{\xo\mid\ro}\ \p(\yF\| \rd,\xd,
     H_{\textrm{I}})\ \di\yF
   }{
-    \sum_{r'}\p(r'\|  H_{\textrm{i}})\ \int F_{\xo\mid r'}\ \p(\yF\| \rd,\xd,
+    \sum_{r}\p(r\|  H_{\textrm{i}})\ \int F_{\xo\mid r}\ \p(\yF\| \rd,\xd,
     H_{\textrm{I}})\ \di\yF
     }
 %\prod_{i=1}^{N} F_{r_{i}\,x_{i}} \ \di\yF \ .
@@ -1114,16 +1114,16 @@ we assume exchangeability in $r$ given $x$, but not in $x$.
 to be combined with \eqn~\eqref{eq:post_prob_F}. This formula is valid when
 we assume exchangeability in $r$ given $x$, but not in $x$.
   
-\item $H_{\textrm{II}}$ and $H_{\textrm{i}}$. Considering
+\item\label{item:II_i} $H_{\textrm{II}}$ and $H_{\textrm{i}}$. Considering
   \eqns~\eqref{eq:p_xr_bayes} and~\eqref{eq:post_prob_Fxcondr} we find
   \begin{equation}
     \label{eq:post_xr_factorized}
     \p(\ro \| \xo,\ \rd,\xd, H_{\textrm{i\,II}}) = \frac{
     \p(\ro\|  H_{\textrm{i}})\ \int F_{\xo\mid\ro}\ \p(\yFr\| \rd,\xd,
-    H_{\textrm{I}})\ \di\yFr
+    H_{\textrm{II}})\ \di\yFr
   }{
-    \sum_{r'}\p(r'\|  H_{\textrm{i}})\ \int F_{\xo\mid r'}\ \p(\yF_{\bm{\mid}r'}\| \rd,\xd,
-    H_{\textrm{I}})\ \di\yF_{\bm{\mid}r'}
+    \sum_{r}\p(r\|  H_{\textrm{i}})\ \int F_{\xo\mid r}\ \p(\yF_{\bm{\mid}r}\| \rd,\xd,
+    H_{\textrm{II}})\ \di\yF_{\bm{\mid}r}
     }
 %\prod_{i=1}^{N} F_{r_{i}\,x_{i}} \ \di\yF \ .
   % = \frac{\int F_{\ro\mid\xo}\ \p(\yF\| H)\ 
@@ -1138,12 +1138,76 @@ vanishing mutual information between marginal and conditional long-run
 frequencies $\yF_{r\q}$ and $\yFr$.
 \end{enumerate}
 
+Combination~\ref{item:I_ii} is used for example in
+\textcite{muelleretal1996} and discussed in
+\textcite[\sect~4]{quintanaetal2020}.
+
+Combination~\ref{item:I_iii} differs from~\ref{item:I_ii} in that its
+probability for the long-run frequencies $\yF$ is updated with the knowledge
+of $x$. When the training set is large there should be little difference
+between the two cases.
+
+Computationally combination~\ref{item:II_i} is the least costly, because it
+requires densities defined in one less dimension, and allows for parallel
+use of Markov-chain Monte Carlo samplers, one for each value $r$.
+
+Finally, combinations~\ref{item:I_i} and \ref{item:II_i} can be used only
+if $r$ is a discrete variable.
+
 
 \subsection{Monte Carlo approximations}
 \label{sec:mc_approx}
 
+As mentioned in \sect~\ref{sec:prob_longrun}, the probability densities
+$\p(\yF\|\rd,\xd, H_{\textrm{I}})\,\di\yF$ and
+$\p(\yFr\|\rd,\xd, H_{\textrm{II}})\,\di\yFr$ are effectively represented
+by a finite number $T$ of samples $\set{\yF^{(t)}}$ and
+$\set{\yFr^{(t)}}$ drawn from them via Markov-chain Monte Carlo
+methods, and integration with respect to them is approximated by summation
+over such samples. The formulae obtained in the previous section take the
+following approximate forms:
+\begin{enumerate}[wide,label=\arabic*'.]
+\item\label{item:approx_I_ii} $H_{\textrm{I}}$ and $H_{\textrm{ii}}$:
+  \begin{equation}
+    \label{eq:approx_post_rx_simple}
+    \p(\ro \| \xo,\ \rd,\xd, H_{\textrm{ii\,I}}) 
+    \approx  \sum_{t} F^{(t)}_{\ro\mid\xo} \ ,\qquad
+    \yF^{(t)}\text{ drawn from }\p(\yF\|\rd,\xd, H_{\textrm{I}})\,\di\yF \ .
+\end{equation}
+  
+\item\label{item:approx_I_iii} $H_{\textrm{I}}$ and $H_{\textrm{iii}}$:
+  \begin{equation}
+    \label{eq:approx_post_rx_updated}
+        \p(\ro \| \xo,\ \rd,\xd, H_{\textrm{iii\,I}}) \approx
+        \frac{\sum_{t} F^{(t)}_{\ro\,\xo}}{
+          \sum_{t} F^{(t)}_{\q\xo} } \ ,\qquad
+    \yF^{(t)}\text{ drawn from }\p(\yF\|\rd,\xd, H_{\textrm{I}})\,\di\yF \ .
+  \end{equation}
+
+\item\label{item:approx_I_i} $H_{\textrm{I}}$ and $H_{\textrm{i}}$:
+  \begin{multline}
+    \label{eq:approx_post_xr_unfactorized}
+    \p(\ro \| \xo,\ \rd,\xd, H_{\textrm{i\,I}}) \approx \frac{
+    \p(\ro\|  H_{\textrm{i}})\ \sum_{t} F^{(t)}_{\xo\mid\ro}
+  }{ \sum_{r}\p(r\|  H_{\textrm{i}})\ \sum_{t} F^{(t)}_{\xo\mid r} } \ ,\\
+    \yF^{(t)}\text{ drawn from }\p(\yF\|\rd,\xd, H_{\textrm{I}})\,\di\yF \ .
+\end{multline}
+  
+\item\label{item:approx_II_i} $H_{\textrm{II}}$ and $H_{\textrm{i}}$:
+  \begin{multline}
+    \label{eq:approx_post_xr_factorized}
+    \p(\ro \| \xo,\ \rd,\xd, H_{\textrm{i\,II}}) \approx \frac{
+    \p(\ro\|  H_{\textrm{i}})\ \sum_{t} F^{(t)}_{\xo\mid\ro}
+  }{ \sum_{r}\p(r\|  H_{\textrm{i}})\ \sum_{t} F^{(t)}_{\xo\mid r}} \ ,\\
+    \yF^{(t)}\text{ drawn from }\p(\yFr\|\rd,\xd, H_{\textrm{II}})\,\di\yFr \ .
+\end{multline}
+where the conditional frequencies $\set{\yFr^{(t)}}$ are drawn
+directly, rather than being calculated from samples of joint frequencies
+$\set{\yF^{(t)}}$ as in the previous three formulae.
+\end{enumerate}
 
 
+\clearpage
 \mynote{\wrench OLD TEXT BELOW}\\
 **********************************************************************
 
