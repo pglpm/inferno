@@ -1,7 +1,7 @@
 \pdfoutput=1
 %% Author: PGL  Porta Mana
 %% Created: 2015-05-01T20:53:34+0200
-%% Last-Updated: 2021-08-08T12:24:38+0200
+%% Last-Updated: 2021-08-08T13:16:37+0200
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \newif\ifarxiv
 \arxivfalse
@@ -915,7 +915,25 @@ become irrelevant. The updated density also factorizes in this case:
   \prod_{r} \p(\yFr \| H_{\textrm{II}})\
   \Bigl(\prod_{\substack{i=1\\r_{i}=\ro}}^{N} F_{x_{i}\mid \ro}\Bigr)\ \di\yFr \ ,
 \end{multline}
-where $f_{r\q}$ is the marginal frequency of the $r$ value in the training set.
+where $f_{r\q}$ is the marginal frequency of the $r$ value in the training
+set. The marginal densities for the long-run conditional frequencies
+$\yFr$, for each $r$, are also found more easily:
+  \begin{equation}
+  \label{eq:post_prob_Fxcondr}
+  \p(\yFr\|\rd,\xd, H_{\textrm{II}})\,\di\yFr \propto
+  \p(\yFr \| H_{\textrm{II}})\
+  \Bigl(\prod_{\substack{i=1\\r_{i}=\ro}}^{N} F_{x_{i}\mid \ro}\Bigr)\ \di\yFr \ .
+\end{equation}
+
+\medskip
+
+The prior and posterior probability densities for the long-run frequencies
+cannot be given in closed form. In practice they are represented by means
+of a finite number $T$ of typical samples,
+$\set{\yF^{(1)}, \yF^{(2)}, \dotsc, \yF^{(T)}}$, obtained by Markov-chain
+Monte Carlo methods. Integrations with respect to these densities is
+approximated by sums over these representative samples. These
+approximations are discussed in \mynote{\wrench\sect***}.
 
 
 \subsection{Relevance of training set: exchangeability and subpopulations}
@@ -1018,57 +1036,115 @@ cannot be obtained from the training set in this case, and need to be
 assessed from other kinds of information or assumptions.
 
 
-\subsection{Required probability}
+\section{Required probability}
 \label{sec:p_final_inference}
+
+\subsection{Combination of assumptions and final formulae}
+\label{sec:combinations_cases_inference}
 
 The assumptions $H_{\textrm{i}}$, $H_{\textrm{i}}$, $H_{\textrm{iii}}$ of
 \sect~\ref{sec:hyp_exch} give us the probability of $\ro$ given $\xo$
 $\p(\ro \| \xo \dotsc)$ if the long-run frequencies were known. The
 assumptions $H_{\textrm{I}}$, $H_{\textrm{II}}$ of
-\sect~\ref{sec:prob_longrun} give us probabilities for these long-run
+e\sect~\ref{sec:prob_longrun} give us probabilities for these long-run
 frequencies. By combining the two kinds of assumptions we finally arrive at
 the probability of interest $\p(\ro \| \xo,\ \rd,\xd,\ H)$.
 
 We consider four combinations of assumptions:
 \begin{enumerate}[label=\arabic*.]
-\item $H_{\textrm{I}}$ and $H_{\textrm{ii}}$. Combining
-  \eqns~\eqref{eq:p_F_unfactorizable}, \eqref{eq:post_prob_F},
-  \eqref{eq:p_rx_F} we find
+\item $H_{\textrm{I}}$ and $H_{\textrm{ii}}$.
+  % Combining
+  % \eqns~\eqref{eq:p_F_unfactorizable}, \eqref{eq:post_prob_F},
+  % \eqref{eq:p_rx_F}
+  We find
   \begin{equation}
     \label{eq:post_rx_simple}
-    \p(\ro \| \xo,\ \rd,\xd,\ H) 
-\propto  \int F_{\ro\mid\xo}\ \p(\yF\| H)\ 
-    \prod_{i=1}^{N} F_{r_{i}\,x_{i}} \ \di\yF \ .
+    \p(\ro \| \xo,\ \rd,\xd, H_{\textrm{ii\,I}}) 
+=  \int F_{\ro\mid\xo}\ \p(\yF\| \rd,\xd, H_{\textrm{I}})\ \di\yF
+%\prod_{i=1}^{N} F_{r_{i}\,x_{i}} \ \di\yF \ .
   % = \frac{\int F_{\ro\mid\xo}\ \p(\yF\| H)\ 
   %   \prod_{r\,x} {F_{r\,x}}^{N\, f_{r\,x}} \ \di\yF
   % }{\int \p(\yF\| H)\ 
   %      \prod_{r\,x} {F_{r\,x}}^{N\, f_{r\,x}}
   % }
-  \end{equation}
-This formula is valid when we assume exchangeability in $r$ given $x$, but
-not in $x$.
+\end{equation}
+to be combined with \eqn~\eqref{eq:post_prob_F}. This formula is valid when
+we assume exchangeability in $r$ given $x$, but not in $x$.
   
-\item $H_{\textrm{I}}$ and $H_{\textrm{i}}$. Combining
-  \eqns~\eqref{eq:p_F_unfactorizable}, \eqref{eq:post_prob_F},
-  \eqref{eq:p_full_F},~\eqref{eq:F_update_xo} we find
+\item $H_{\textrm{I}}$ and $H_{\textrm{iii}}$. % Combining
+  % \eqns~\eqref{eq:p_F_unfactorizable}, \eqref{eq:post_prob_F},
+  % \eqref{eq:p_full_F},~\eqref{eq:F_update_xo}
+  We find
   \begin{equation}
     \label{eq:post_rx_updated}
-    \p(\ro \| \xo,\ \rd,\xd,\ H) 
-\propto  \int F_{\ro\mid\xo}\ F_{\q\xo}\ \p(\yF\| H)\ 
-    \prod_{i=1}^{N} F_{r_{i}\,x_{i}} \ \di\yF \ .
+        \p(\ro \| \xo,\ \rd,\xd, H_{\textrm{iii\,I}}) 
+        =
+        \frac{\int F_{\ro\,\xo}\ \p(\yF\| \rd,\xd, H_{\textrm{I}})\
+          \di\yF}{
+          \int F_{\q\xo}\ \p(\yF\| \rd,\xd, H_{\textrm{I}})\
+          \di\yF
+        }
   % = \frac{\int F_{\ro\mid\xo}\ \p(\yF\| H)\ 
   %   \prod_{r\,x} {F_{r\,x}}^{N\, f_{r\,x}} \ \di\yF
   % }{\int \p(\yF\| H)\ 
   %      \prod_{r\,x} {F_{r\,x}}^{N\, f_{r\,x}}
   % }
   \end{equation}
-  This formula is valid when we assume exchangeability in $r$ given $x$,
-  and also in $x$.
+  to be combined with \eqn~\eqref{eq:post_prob_F}. This formula is valid
+  when we assume exchangeability in $r$ given $x$, and also in $x$.
+
+\item $H_{\textrm{I}}$ and $H_{\textrm{i}}$. Considering
+  \eqn~\eqref{eq:p_xr_bayes} we find
+  \begin{equation}
+    \label{eq:post_xr_unfactorized}
+    \p(\ro \| \xo,\ \rd,\xd, H_{\textrm{i\,I}}) = \frac{
+    \p(\ro\|  H_{\textrm{i}})\ \int F_{\xo\mid\ro}\ \p(\yF\| \rd,\xd,
+    H_{\textrm{I}})\ \di\yF
+  }{
+    \sum_{r'}\p(r'\|  H_{\textrm{i}})\ \int F_{\xo\mid r'}\ \p(\yF\| \rd,\xd,
+    H_{\textrm{I}})\ \di\yF
+    }
+%\prod_{i=1}^{N} F_{r_{i}\,x_{i}} \ \di\yF \ .
+  % = \frac{\int F_{\ro\mid\xo}\ \p(\yF\| H)\ 
+  %   \prod_{r\,x} {F_{r\,x}}^{N\, f_{r\,x}} \ \di\yF
+  % }{\int \p(\yF\| H)\ 
+  %      \prod_{r\,x} {F_{r\,x}}^{N\, f_{r\,x}}
+  % }
+\end{equation}
+to be combined with \eqn~\eqref{eq:post_prob_F}. This formula is valid when
+we assume exchangeability in $r$ given $x$, but not in $x$.
   
+\item $H_{\textrm{II}}$ and $H_{\textrm{i}}$. Considering
+  \eqns~\eqref{eq:p_xr_bayes} and~\eqref{eq:post_prob_Fxcondr} we find
+  \begin{equation}
+    \label{eq:post_xr_factorized}
+    \p(\ro \| \xo,\ \rd,\xd, H_{\textrm{i\,II}}) = \frac{
+    \p(\ro\|  H_{\textrm{i}})\ \int F_{\xo\mid\ro}\ \p(\yFr\| \rd,\xd,
+    H_{\textrm{I}})\ \di\yFr
+  }{
+    \sum_{r'}\p(r'\|  H_{\textrm{i}})\ \int F_{\xo\mid r'}\ \p(\yF_{\bm{\mid}r'}\| \rd,\xd,
+    H_{\textrm{I}})\ \di\yF_{\bm{\mid}r'}
+    }
+%\prod_{i=1}^{N} F_{r_{i}\,x_{i}} \ \di\yF \ .
+  % = \frac{\int F_{\ro\mid\xo}\ \p(\yF\| H)\ 
+  %   \prod_{r\,x} {F_{r\,x}}^{N\, f_{r\,x}} \ \di\yF
+  % }{\int \p(\yF\| H)\ 
+  %      \prod_{r\,x} {F_{r\,x}}^{N\, f_{r\,x}}
+  % }
+\end{equation}
+to be combined with \eqn~\eqref{eq:post_prob_Fxcondr}. This formula is
+valid when we assume exchangeability in $x$ given $r$, but not in $r$, and
+vanishing mutual information between marginal and conditional long-run
+frequencies $\yF_{r\q}$ and $\yFr$.
 \end{enumerate}
 
 
+\subsection{Monte Carlo approximations}
+\label{sec:mc_approx}
 
+
+
+\mynote{\wrench OLD TEXT BELOW}\\
 **********************************************************************
 
 
