@@ -1,7 +1,7 @@
 \pdfoutput=1
 %% Author: PGL  Porta Mana
 %% Created: 2015-05-01T20:53:34+0200
-%% Last-Updated: 2021-08-08T15:42:53+0200
+%% Last-Updated: 2021-08-08T16:05:29+0200
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \newif\ifarxiv
 \arxivfalse
@@ -1161,17 +1161,17 @@ if $r$ is a discrete variable.
 As mentioned in \sect~\ref{sec:prob_longrun}, the probability densities
 $\p(\yF\|\rd,\xd, H_{\textrm{I}})\,\di\yF$ and
 $\p(\yFr\|\rd,\xd, H_{\textrm{II}})\,\di\yFr$ are effectively represented
-by a finite number $T$ of samples $\set{\yF^{(t)}}$ and
-$\set{\yFr^{(t)}}$ drawn from them via Markov-chain Monte Carlo
-methods, and integration with respect to them is approximated by summation
-over such samples. The formulae obtained in the previous section take the
-following approximate forms:
-\begin{enumerate}[wide,label=\arabic*'.]
+by a finite number $T$ of samples $\set{\yF^{(t)}}$ and $\set{\yFr^{(t)}}$
+drawn from them via Markov-chain Monte Carlo methods, and integration with
+respect to them is approximated by summation over such samples. The
+formulae obtained in the previous section then take the following
+approximate forms:
+\begin{enumerate}[para,label=\arabic*'.]
 \item\label{item:approx_I_ii} $H_{\textrm{I}}$ and $H_{\textrm{ii}}$:
   \begin{equation}
     \label{eq:approx_post_rx_simple}
     \p(\ro \| \xo,\ \rd,\xd, H_{\textrm{ii\,I}}) 
-    \approx  \sum_{t} F^{(t)}_{\ro\mid\xo} \ ,\qquad
+    \approx  \sum_{t} F^{(t)}_{\ro\mid\xo} \ ,\quad
     \yF^{(t)}\text{ drawn from }\p(\yF\|\rd,\xd, H_{\textrm{I}})\,\di\yF \ .
 \end{equation}
   
@@ -1180,7 +1180,7 @@ following approximate forms:
     \label{eq:approx_post_rx_updated}
         \p(\ro \| \xo,\ \rd,\xd, H_{\textrm{iii\,I}}) \approx
         \frac{\sum_{t} F^{(t)}_{\ro\,\xo}}{
-          \sum_{t} F^{(t)}_{\q\xo} } \ ,\qquad
+          \sum_{t} F^{(t)}_{\q\xo} } \ ,\quad
     \yF^{(t)}\text{ drawn from }\p(\yF\|\rd,\xd, H_{\textrm{I}})\,\di\yF \ .
   \end{equation}
 
@@ -1199,13 +1199,430 @@ following approximate forms:
     \p(\ro \| \xo,\ \rd,\xd, H_{\textrm{i\,II}}) \approx \frac{
     \p(\ro\|  H_{\textrm{i}})\ \sum_{t} F^{(t)}_{\xo\mid\ro}
   }{ \sum_{r}\p(r\|  H_{\textrm{i}})\ \sum_{t} F^{(t)}_{\xo\mid r}} \ ,\\
-    \yF^{(t)}\text{ drawn from }\p(\yFr\|\rd,\xd, H_{\textrm{II}})\,\di\yFr \ .
+    \yFr^{(t)}\text{ drawn from }\p(\yFr\|\rd,\xd,
+    H_{\textrm{II}})\,\di\yFr \text{ for each $r$} \ .
 \end{multline}
-where the conditional frequencies $\set{\yFr^{(t)}}$ are drawn
-directly, rather than being calculated from samples of joint frequencies
-$\set{\yF^{(t)}}$ as in the previous three formulae.
 \end{enumerate}
 
+\mynote{\wrench Notes on the Markov-chain Monte Carlo adopted}
+
+
+
+\textcolor{white}{If you find this you can claim a postcard from me.}
+
+\section{Selection of features and training data}
+\label{sec:sel_features_data}
+
+
+
+
+\section{Evaluation metrics and calibration}
+\label{sec:evaluation}
+
+
+
+
+%%%% examples use empheq
+%   \begin{empheq}[left={\mathllap{\begin{aligned}    \de\yF_{\yc}/\de\yp&=0\text{:} \\
+%         \de\yF_{\yc}/\de\ym&=0\text{:}\\ \de\yF_{\yc}/\de\yl&=0\text{:}\end{aligned}}\qquad}\empheqlbrace]{align}
+%     \label{eq:con_p}
+% %    \de\yF_{\yc}/\de\yp &\equiv
+%     -\ln\yp + \ln\yq + \yl\yM + \ym\yu &=0,\\
+%     \label{eq:con_u}
+% %    \de\yF_{\yc}/\de\ym &\equiv
+%     \yu\yp-1 &=0,\\
+%     \label{eq:con_l}
+%     %\de\yF_{\yc}/\de\yl &\equiv
+%     \yM\yp-\yc &=0.
+%   \end{empheq}
+%%%%
+% \begin{empheq}[box=\widefbox]{equation}
+%   \label{eq:maxent_question}
+%   \p\bigl[\yE{N+1}{k} \bigcond \tsum\yo\yf{N}\in\yA, \yM\bigr] = \mathord{?}
+% \end{empheq}
+
+
+
+% \[
+%   \begin{tikzcd}
+%       M_{n,n}(\CC) \arrow{r}{R'_{a}(\Hat{U})} & M_{n,n}(\CC)
+%     \\
+%     L(\mathcal{H}) \arrow{r}{\Hat{U}} \arrow[swap]{d}{R_*}\arrow[swap]{u}{R'_*} & L(\mathcal{H}) \arrow{d}{R_*}\arrow{u}{R'_*} \\
+%       M_{n,n}(\CC) \arrow{r}{R_{a}(\Hat{U})} & M_{n,n}(\CC)
+%   \end{tikzcd}
+% \]
+
+% \[
+%   \begin{tikzcd}
+%       \CC^n \arrow{r}{R'_*(A)} & \CC^n
+%     \\
+%     \mathcal{H} \arrow{r}{A} \arrow[swap]{d}{R}\arrow[swap]{u}{R'} & \mathcal{H} \arrow{d}{R}\arrow{u}{R'} \\
+%       \CC^n \arrow{r}{R_*(A)} & \CC^n
+%   \end{tikzcd}
+% \]
+
+
+% \[
+%   \begin{tikzcd}
+%     \mathcal{H} \arrow{r}{A} \arrow[swap]{d}{R} & \mathcal{H} \arrow{d}{R} \\
+%       \CC^n \arrow{r}{R_*(A)} & \CC^n
+%   \end{tikzcd}
+% \]
+
+%%\setlength{\intextsep}{0ex}% with wrapfigure
+%%\setlength{\columnsep}{0ex}% with wrapfigure
+%\begin{figure}[p!]% with figure
+%\begin{wrapfigure}{r}{0.4\linewidth} % with wrapfigure
+%  \centering\includegraphics[trim={12ex 0 18ex 0},clip,width=\linewidth]{maxent_saddle.png}\\
+%\caption{caption}\label{fig:comparison_a5}
+%\end{figure}% exp_family_maxent.nb
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%% Acknowledgements
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% 
+\iffalse
+\begin{acknowledgements}
+  \ldots to Mari \amp\ Miri for continuous encouragement and affection, and
+  to Buster Keaton and Saitama for filling life with awe and inspiration.
+  To the developers and maintainers of \LaTeX, Emacs, AUC\TeX, Open Science
+  Framework, R, Python, Inkscape, Sci-Hub for making a free and impartial
+  scientific exchange possible.
+  % Our work was supported by the Trond Mohn Research Foundation, grant number BFS2018TMT07
+%\rotatebox{15}{P}\rotatebox{5}{I}\rotatebox{-10}{P}\rotatebox{10}{\reflectbox{P}}\rotatebox{-5}{O}.
+%\sourceatright{\autanet}
+\mbox{}\hfill\autanet
+\end{acknowledgements}
+\fi
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%% Appendices
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% 
+%\clearpage
+\bigskip
+%\renewcommand*{\appendixpagename}{Appendix}
+%\renewcommand*{\appendixname}{Appendix}
+% %\appendixpage
+\appendix
+\mynote{\wrench\ In progress}
+
+\section{Exchangeability, approximations, machine learning}
+\label{sec:exchang}
+
+Exchangeability is
+the basic fact or assumption upon which machine-learning algorithms and the
+calculations presented here are based.
+
+Exchangeability is the fact or assumption that the ordering of
+known and yet unknown datapoints is irrelevant for new inferences. Good
+reviews are given by \textcite{dawid2013} and
+\textcite[\sect~4.2]{bernardoetal1994}.
+
+A probability distribution $\p(z_{0}, z_{1}, z_{2}, \dotsc \| H)$ is called
+\emph{infinitely exchangeable} if it's invariant under permutations of the
+values $z_{0}, z_{1}, \dotsc$, no matter what and how many they are. In
+other words, the ordering of the observations doesn't matter. Usually one
+says, somewhat improperly, that \enquote{$z_{0}, z_{1}, \dotsc$ are
+  exchangeable} for short. In our case each $z$ is actually a pair of
+values $(r,x)$, where $x$ itself is multidimensional.
+
+Exchangeability has the following important consequence: if we knew the
+infinite-limit long-run relative frequencies $\yF\defd (F_{r,x})$ of the
+values of past and future datapoints, then the probability of observing a
+sequence of new values would be equal to the long-run relative frequency of
+those values, for symmetry reasons. For example:
+\begin{equation}
+  \label{eq:prob_freq}
+  \p(r_{1},x_{1},\ r_{2},x_{2} \| \yF, H) = F_{r_{1},x_{1}} \ 
+  F_{r_{2},x_{2}} \ .
+\end{equation}
+
+Another consequence is that conditional probabilities are also equal to the
+long-run \emph{conditional} frequencies $\yFrx \defd (F_{r \|x}) =
+(F_{r,x}/\sum_{y'}F_{y',x})$. For example:
+\begin{equation}
+  \label{eq:prob_cond_freq}
+  \p(r_{1}, r_{2}\| x_{1}, x_{2},\ \yF, H) = F_{r_{1}\|x_{1}} \ 
+  F_{r_{2}\|x_{2}} \ .
+\end{equation}
+
+If the long-run frequencies $\yF$ are unknown, they can be marginalized,
+\ie\ integrated out, provided that we have a probability distribution
+$\p(\yF \| H)$ for them. For example:
+\begin{equation}
+  \label{eq:prob_freq_integr}
+  \p(r_{1},x_{1},\ r_{2},x_{2}\| H) = \int F_{r_{1},x_{1}} \ 
+  F_{r_{2},x_{2}} \ \p(\yF \| H)\ \di\yF \ ,
+\end{equation}
+from which we can also obtain conditional probabilities.
+
+There are several other types of exchangeability. For example, we may have
+\emph{conditional} or \emph{partial} exchangeability of $r$ given $x$ if
+\eqn~\eqref{eq:prob_cond_freq} holds, but not \eqn~\eqref{eq:prob_freq}. If
+we have a probability distribution $\p(\yFrx \| H)$ for the conditional
+frequencies, we obtain by marginalization
+\begin{equation}
+  \label{eq:prob_cond_freq_integr}
+  \p(r_{1}, r_{2}\| x_{1}, x_{2},\ H) = \int F_{r_{1}\|x_{1}} \ 
+  F_{r_{2}\|x_{2}}\ \p(\yFrx \| H)\ \di\yFrx \ .
+\end{equation}
+
+\textcite{lindleyetal1981} discuss the importance of conditional
+exchangeability for various inference problems, and the errors that arise
+if the wrong type of exchangeability is assumed.
+
+From the generalization of the equations above we obtain other
+probabilities for various cases of regression, such as
+\eqns~\eqref{eq:main_prob} or \eqref{eq:rev_prob}, by simply using the
+three rules of the probability calculus. For example, if $\ro$ is assumed
+to be exchangeable given $\xo$, but the latter is not assumed to be
+exchangeable with the other $\xd$ because hand-picked, we find
+\begin{equation}
+  \label{eq:main_prob_exch}
+  \p(\ro \| \xo,\ \rd,\xd,\ H) =
+  \frac{
+    \int F_{\ro\|\xo} \ F_{r_{1},x_{1}} \  \dotsm \ 
+  F_{r_{N},x_{N}} \ \p(\yF \| H)\ \di\yF
+  }{
+    \int F_{r_{1},x_{1}} \  \dotsm \ 
+  F_{r_{N},x_{N}} \ \p(\yF \| H)\ \di\yF
+  } \ .
+\end{equation}
+
+The distribution $\p(\yF \| H)$, usually called the \enquote{prior},
+embodies the assumptions that we make for the extrapolation. It therefore
+cannot be determined by the known datapoints. Given enough known datapoints
+$(\rd,\xd)$, the probability distribution for $\ro$ given $\xo$
+eventually does become equal to their limit conditional frequency. This
+sets the ultimate uncertainty with which the prediction can be made, and
+cannot be surpassed by any algorithm. So this approach eventually does
+yield an optimal inference. The quickness with which the limit conditional
+frequency is reached, however, depends heavily on the choice of prior. The
+prior should therefore be chosen in a well-reasoned manner. In practice the
+choice is limited by computational constraints.
+
+All machine-learning algorithms calculate equations such as the one above
+or approximations to it, for some choice of the prior $\p(\yF \| H)$
+\parencites{mackay1992,bishop2006}.
+
+The formulae above can be numerically implemented exactly or with a good
+approximation only if the features $x$ have low dimensions and the number
+$N$ of known data is small \mynote{\wrench\ add refs}. Many
+machine-learning algorithms manage to deal with larger dimensionality and
+datapoints by parametrizing the $\yF$-space in a clever way (for example,
+deep nets parametrize the $\yF$ as nested compositions of some simple
+functions) and finding an argument that maximizes the integrands above
+\parencites{mackay1992,mackay1992b}, for example a value of $\ro$ that
+locally maximizes the integrand in the numerator of
+\eqn~\eqref{eq:main_prob_exch}. This means, though, that they cannot
+quantify the uncertainty of the inference.
+
+\section{Exchangeability assumptions in formulae}
+\label{sec:exch_formulae}
+
+
+\begin{enumerate}[label=\roman*.]
+\item\label{item:exch_rx}\emph{Exchangeability of \rmsd\ given features}.
+  The \rmsd s of the training set are relevant to the inference of the
+  \rmsd\ of the new datapoint, given the same feature values. The features
+  of the training set, however,
+
+  Exchangeability of $r$ given $x$: The joint
+  probability of the \rmsd s of new datapoint and training set is symmetric
+  under exchanges of datapoints, given the same features. That is,
+  \begin{multline}
+    \label{eq:p_exch_rx}
+    \begin{aligned}
+    &\p(r=a_{0}, r_{1}=a_{1}, r_{2}=a_{2}, \dotsc \|
+    x_{1}=b, x_{2}=b, x_{3}=b, \dotsc,\ H) ={}\\
+    &\p(r=a_{1}, r_{1}=a_{0}, r_{2}=a_{2}, \dotsc \|
+    x_{1}=b, x_{2}=b, x_{3}=b, \dotsc,\ H) ={}\\
+    &\p(r=a_{2}, r_{1}=a_{1}, r_{2}=a_{0}, \dotsc \|
+    x_{1}=b, x_{2}=b, x_{3}=b, \dotsc,\ H) = \dotso
+    \end{aligned} \\
+    \text{and so on, for all simultaneous permutations of $a_{i}$ and any $b$.}
+  \end{multline}
+
+\item\label{item:exch_xr} Exchangeability of $x$ given $r$: The joint
+  probability of the features of new datapoint and training set is symmetric
+  under exchanges of datapoints, given the same \rmsd. That is,
+  \begin{multline}
+    \label{eq:p_exch_xr}
+    \begin{aligned}
+    &\p(x=b_{0}, x_{1}=b_{1}, x_{2}=b_{2}, \dotsc \|
+    r_{1}=a, r_{2}=a, r_{3}=a, \dotsc,\ H) ={}\\
+    &\p(x=b_{1}, x_{1}=b_{0}, x_{2}=b_{2}, \dotsc \|
+    r_{1}=a, r_{2}=a, r_{3}=a, \dotsc,\ H) ={}\\
+    &\p(x=b_{2}, x_{1}=b_{1}, x_{2}=b_{0}, \dotsc \|
+    r_{1}=a, r_{2}=a, r_{3}=a, \dotsc,\ H) = \dotso
+    \end{aligned} \\
+    \text{and so on, for all simultaneous permutations of $b_{i}$ and any $a$.}
+  \end{multline}
+\item\label{item:exch_full} The \rmsd s and features of the training set
+  are jointly relevant to the inference of those of the new datapoint. We
+  then have full exchangeability of $(r,x)$: the joint probability of new
+  datapoint and training set is symmetric under exchanges of datapoints.
+  That is,
+  \begin{multline}
+    \label{eq:p_exch_full}
+    \begin{aligned}
+    &\p(r=a_{0}, x=b_{0},\ r_{1}=a_{1},x_{1}=b_{1}, \
+    r_{2}=a_{2},x_{2}=b_{2}, \ \dotsc \| H) ={}\\
+    &\p(r=a_{1}, x=b_{1},\ r_{1}=a_{0},x_{1}=b_{0}, \
+    r_{2}=a_{2},x_{2}=b_{2}, \ \dotsc \| H) ={}\\
+    &\p(r=a_{2}, x=b_{2},\ r_{1}=a_{1},x_{1}=b_{1}, \
+      r_{2}=a_{0},x_{2}=b_{0}, \ \dotsc \| H) = \dotso
+    \end{aligned} \\
+    \text{and so on, for all simultaneous permutations of $a_{i}$ and $b_{i}$.}
+  \end{multline}
+
+\end{enumerate}
+
+
+
+\section{Selection of prior}
+\label{sec:sel_prior}
+
+The prior densities $\p(\yF\| \rd, \xd, H_{\textrm{I}})\,\di\yF$ and
+$\p(\yFr\| \rd, \xd, H_{\textrm{II}})\,\di\yFr$ for each $r$ are
+represented by a Dirichlet-process mixture with product kernel of a
+multivariate normal for the continuous quantities and Dirichlet
+distributions for the discrete ones. As the average measure resulting from
+the Dirichlet process we choose the product of a normal-inverse-Wishart
+distribution and Dirichlet distributions; this choice leads to faster
+computation.
+
+Let us first focus on the continuous features \enquote{tanimoto} and
+\enquote{sasa}.
+
+The normal-inverse-Wishart has four parameters
+$\mu, \varSigma, \kappa, \delta$, and leads to a multivariate
+t-distribution for the quantities. The mean of the t-distribution is equal
+to $\mu$; the expected value of the covariance matrix is
+$\frac{1}{\delta-2}\varSigma$; the covariance of the t-distribution is
+$\frac{\kappa+1}{\kappa\ (\delta-2)}\varSigma$; the covariance of the mean
+is $\frac{1}{\kappa\ (\delta-2)}\varSigma$; the degrees of freedom of the
+t-distribution equal $\delta$.
+
+We choose these parameters, the concentration parameter of the Dirichlet
+process, and the coordinate systems on the space of the continuous
+quantities in order to build a prior distribution that represents as well
+as possible our knowledge before seeing the data. Here are some
+requirements:
+\begin{enumerate}[label=(\alph*)]
+\item The \enquote{sasa} quantities $x$ have a range in $\clop{0,+\infty}$.
+  We consider them as scale quantities (even if the value $0$ is included)
+  and transform them to a log-scale:
+    \begin{equation}
+    \label{eq:log_sasa}
+    x \mapsto r = \tfrac{1}{4}\ln x \ .
+  \end{equation}
+  Their prior distribution is chosen as almost uniform on this scale:
+  $\p[\ln(x) \| H]\ \di\ln(x) \propto \di\ln(x)$, approximated by a
+  t-distribution with large standard deviation.
+
+\item We set the mean of the t-distribution for the \enquote{sasa}
+  quantities equal to the mean observed in the full dataset, in order to represent
+  theoretical prior knowledge on this kind of quantities.
+
+\item The \enquote{tanimoto} quantities $x$ have a range in $\clcl{0,1}$.
+  In this coordinate system we assume that they have a Jeffreys prior $\p(x
+  \| H)\ \di x \propto \frac{\di x}{x\ (1-x)}$.
+  We transform them to $\RR$ with a logit function
+  \begin{equation}
+    \label{eq:logit_tanimoto}
+    x \mapsto r = \tfrac{1}{2}\logit(x) \defd \tfrac{1}{2}\ln\frac{x}{1-x} \ .
+  \end{equation}
+In this coordinate system the prior is uniform, approximated by a
+t-distribution with large standard deviation.
+
+\item We want the priors for the \enquote{sasa} and \enquote{tanimoto}
+  quantities to be approximately independent; this is obtained by choosing
+  a large degree-of-freedom parameter for the multivariate t-distribution.
+\item We choose the expected variances for the \enquote{sasa} and
+  \enquote{tanimoto} quantities mapped to $\RR$ to be approximately equal
+  to the variances observed in the full dataset, in order to represent
+  theoretical prior knowledge on this kind of quantities.
+\item We choose the standard deviations for the means of the \enquote{sasa}
+  and \enquote{tanimoto} quantities to be approximately equal to their
+  ranges observed in the full dataset, in order to represent theoretical
+  prior knowledge on this kind of quantities.
+\end{enumerate}
+
+\begin{equation}
+  \label{eq:requirements_hyperparams}
+  \begin{aligned}
+   &\frac{\kappa+1}{\kappa\ (\delta-2)}\varSigma = 5^{2}
+&&\text{\small(t-distr. variance)}
+    \\
+    &\frac{1}{\kappa\ (\delta-2)}\varSigma = 1^{2}
+&&\text{\small(variance of mean)}
+    \\
+    &\frac{1}{\delta-2}\varSigma = \frac{1}{2^{2}}
+&&\text{\small(exp. variance)}
+    \\
+    &\mu_{\text{sasa}} = 1 &&
+    \\
+    &\delta = 30 &&
+  \end{aligned}
+\end{equation}
+
+*****
+
+
+
+based on a Dirichlet-process mixture with
+product kernels of multivariate normal and Dirichlet distributions.
+
+
+
+The \enquote{sasa} quantities $x$ have a range in $\clop{0,+\infty}$. We
+consider them as scale quantities (even if the value $0$ is included) and
+transform them to a log-scale. Their prior distribution is chosen as
+almost uniform on this scale:
+$\p(\ln(x) \| H)\ \di\ln(x) \propto \di\ln(x)$, approximated by a normal
+with large standard deviation.
+
+The \enquote{tanimoto} quantities $x$ have a range in $\clcl{0,1}$. We
+transform them to $\RR$ using the cumulative normal distribution:
+\begin{equation}
+  \label{eq:transf_tanimoto}
+  x \mapsto \phi(x) \defd
+  \frac{1}{2}\operatorname{erf}\biggl(\frac{x}{\sqrt{2}}\biggr)
+  \equiv \frac{1}{\sqrt{2\pu}}\int_{-\infty}^{x} \e^{-t^{2}/2}\ \di t \ ,
+\end{equation}
+which we call an \defquote{erf-scale}.
+The prior is chosen as uniform in $\di x$, and therefore has a standard
+normal density in the erf-scale.
+
+Choosing a normal-inverse-Wishart distribution with parameters
+$\mu^{*}, \varDelta^{*}, \kappa^{*}, \nu^{*}$ as the mean for the Dirichlet
+process leads to a t-distribution as the predictive distribution for a
+quantity $x \in \RR^{d}$, with $\nu^{*}-n+1$ degrees of freedom, mean
+$\mu^{*}$, covariance
+$\frac{\kappa^{*}+1}{\kappa^{*}\ (\nu^{*}-d-1)}\varDelta^{*}$.
+
+This means that we want $\nu^{*}-n+1$ large, say ${}\sim 10$, in order to
+approximate a normal, $\mu^{*}$ equal to the zero vector, and
+$\frac{\kappa^{*}+1}{\kappa^{*}\ (\nu^{*}-d-1)}\varDelta^{*}$ diagonal and
+equal to $1$ in the direction of the \enquote{tanimoto} quantities, and
+equal to some larger value, say ${}\sim 4$, in the direction of the \enquote{sasa}
+quantities. These requirement leave the parameter $\kappa^{*}$ still undefined.
+
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%% Bibliography
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% 
+\renewcommand*{\finalnamedelim}{\addcomma\space}
+\defbibnote{prenote}{{\footnotesize (\enquote{de $X$} is listed under D,
+    \enquote{van $X$} under V, and so on, regardless of national
+    conventions.)\par}}
+% \defbibnote{postnote}{\par\medskip\noindent{\footnotesize% Note:
+%     \arxivp \mparcp \philscip \biorxivp}}
+
+\printbibliography[prenote=prenote%,postnote=postnote
+]
 
 \clearpage
 \mynote{\wrench OLD TEXT BELOW}\\
@@ -1449,421 +1866,6 @@ product kernels of multivariate normal and Dirichlet distributions.
 
 %%run: 560 s in parallel, 20e3 burn-in, 10e3 sweeps, 10 thinning 
 
-
-\section{Selection of prior}
-\label{sec:sel_prior_reverse}
-
-As a first simplifying assumption we choose the three priors
-$\p(\yF_{\bm{x\mid}r} \| H)\ \di\yF_{\bm{x\mid}r}$ for
-$r \in \set{\text{\enquote*{good}},\, \text{\enquote*{inconclusive}},\,
-  \text{\enquote*{bad}}}$ to have the same form. They are therefore
-independent of $r$.
-
-Mathematically the prior is represented by a Dirichlet-process mixture with
-product kernels of multivariate normal and Dirichlet distributions. We
-choose the product of a normal-inverse-Wishart distribution and Dirichlet
-distributions as the average measure resulting from the Dirichlet process,
-because it leads to faster computation.
-
-Let us first focus on the continuous quantities, \enquote{tanimoto} and
-\enquote{sasa}.
-
-The normal-inverse-Wishart has four parameters
-$\mu, \varSigma, \kappa, \delta$, and leads to a multivariate
-t-distribution for the quantities. The mean of the t-distribution is equal
-to $\mu$; the expected value of the covariance matrix is
-$\frac{1}{\delta-2}\varSigma$; the covariance of the t-distribution is
-$\frac{\kappa+1}{\kappa\ (\delta-2)}\varSigma$; the covariance of the mean
-is $\frac{1}{\kappa\ (\delta-2)}\varSigma$; the degrees of freedom of the
-t-distribution equal $\delta$.
-
-We choose these parameters, the concentration parameter of the Dirichlet
-process, and the coordinate systems on the space of the continuous
-quantities in order to build a prior distribution that represents as well
-as possible our knowledge before seeing the data. Here are some
-requirements:
-\begin{enumerate}[label=(\alph*)]
-\item The \enquote{sasa} quantities $x$ have a range in $\clop{0,+\infty}$.
-  We consider them as scale quantities (even if the value $0$ is included)
-  and transform them to a log-scale:
-    \begin{equation}
-    \label{eq:log_sasa}
-    x \mapsto r = \tfrac{1}{4}\ln x \ .
-  \end{equation}
-  Their prior distribution is chosen as almost uniform on this scale:
-  $\p[\ln(x) \| H]\ \di\ln(x) \propto \di\ln(x)$, approximated by a
-  t-distribution with large standard deviation.
-
-\item We set the mean of the t-distribution for the \enquote{sasa}
-  quantities equal to the mean observed in the full dataset, in order to represent
-  theoretical prior knowledge on this kind of quantities.
-
-\item The \enquote{tanimoto} quantities $x$ have a range in $\clcl{0,1}$.
-  In this coordinate system we assume that they have a Jeffreys prior $\p(x
-  \| H)\ \di x \propto \frac{\di x}{x\ (1-x)}$.
-  We transform them to $\RR$ with a logit function
-  \begin{equation}
-    \label{eq:logit_tanimoto}
-    x \mapsto r = \tfrac{1}{2}\logit(x) \defd \tfrac{1}{2}\ln\frac{x}{1-x} \ .
-  \end{equation}
-In this coordinate system the prior is uniform, approximated by a
-t-distribution with large standard deviation.
-
-\item We want the priors for the \enquote{sasa} and \enquote{tanimoto}
-  quantities to be approximately independent; this is obtained by choosing
-  a large degree-of-freedom parameter for the multivariate t-distribution.
-\item We choose the expected variances for the \enquote{sasa} and
-  \enquote{tanimoto} quantities mapped to $\RR$ to be approximately equal
-  to the variances observed in the full dataset, in order to represent
-  theoretical prior knowledge on this kind of quantities.
-\item We choose the standard deviations for the means of the \enquote{sasa}
-  and \enquote{tanimoto} quantities to be approximately equal to their
-  ranges observed in the full dataset, in order to represent theoretical
-  prior knowledge on this kind of quantities.
-\end{enumerate}
-
-\begin{equation}
-  \label{eq:requirements_hyperparams}
-  \begin{aligned}
-   &\frac{\kappa+1}{\kappa\ (\delta-2)}\varSigma = 5^{2}
-&&\text{\small(t-distr. variance)}
-    \\
-    &\frac{1}{\kappa\ (\delta-2)}\varSigma = 1^{2}
-&&\text{\small(variance of mean)}
-    \\
-    &\frac{1}{\delta-2}\varSigma = \frac{1}{2^{2}}
-&&\text{\small(exp. variance)}
-    \\
-    &\mu_{\text{sasa}} = 1 &&
-    \\
-    &\delta = 30 &&
-  \end{aligned}
-\end{equation}
-
-
-
-
-\textcolor{white}{If you find this you can claim a postcard from me.}
-
-\section{Evaluation metrics and calibration}
-\label{sec:evaluation}
-
-
-
-
-%%%% examples use empheq
-%   \begin{empheq}[left={\mathllap{\begin{aligned}    \de\yF_{\yc}/\de\yp&=0\text{:} \\
-%         \de\yF_{\yc}/\de\ym&=0\text{:}\\ \de\yF_{\yc}/\de\yl&=0\text{:}\end{aligned}}\qquad}\empheqlbrace]{align}
-%     \label{eq:con_p}
-% %    \de\yF_{\yc}/\de\yp &\equiv
-%     -\ln\yp + \ln\yq + \yl\yM + \ym\yu &=0,\\
-%     \label{eq:con_u}
-% %    \de\yF_{\yc}/\de\ym &\equiv
-%     \yu\yp-1 &=0,\\
-%     \label{eq:con_l}
-%     %\de\yF_{\yc}/\de\yl &\equiv
-%     \yM\yp-\yc &=0.
-%   \end{empheq}
-%%%%
-% \begin{empheq}[box=\widefbox]{equation}
-%   \label{eq:maxent_question}
-%   \p\bigl[\yE{N+1}{k} \bigcond \tsum\yo\yf{N}\in\yA, \yM\bigr] = \mathord{?}
-% \end{empheq}
-
-
-
-% \[
-%   \begin{tikzcd}
-%       M_{n,n}(\CC) \arrow{r}{R'_{a}(\Hat{U})} & M_{n,n}(\CC)
-%     \\
-%     L(\mathcal{H}) \arrow{r}{\Hat{U}} \arrow[swap]{d}{R_*}\arrow[swap]{u}{R'_*} & L(\mathcal{H}) \arrow{d}{R_*}\arrow{u}{R'_*} \\
-%       M_{n,n}(\CC) \arrow{r}{R_{a}(\Hat{U})} & M_{n,n}(\CC)
-%   \end{tikzcd}
-% \]
-
-% \[
-%   \begin{tikzcd}
-%       \CC^n \arrow{r}{R'_*(A)} & \CC^n
-%     \\
-%     \mathcal{H} \arrow{r}{A} \arrow[swap]{d}{R}\arrow[swap]{u}{R'} & \mathcal{H} \arrow{d}{R}\arrow{u}{R'} \\
-%       \CC^n \arrow{r}{R_*(A)} & \CC^n
-%   \end{tikzcd}
-% \]
-
-
-% \[
-%   \begin{tikzcd}
-%     \mathcal{H} \arrow{r}{A} \arrow[swap]{d}{R} & \mathcal{H} \arrow{d}{R} \\
-%       \CC^n \arrow{r}{R_*(A)} & \CC^n
-%   \end{tikzcd}
-% \]
-
-%%\setlength{\intextsep}{0ex}% with wrapfigure
-%%\setlength{\columnsep}{0ex}% with wrapfigure
-%\begin{figure}[p!]% with figure
-%\begin{wrapfigure}{r}{0.4\linewidth} % with wrapfigure
-%  \centering\includegraphics[trim={12ex 0 18ex 0},clip,width=\linewidth]{maxent_saddle.png}\\
-%\caption{caption}\label{fig:comparison_a5}
-%\end{figure}% exp_family_maxent.nb
-
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%%% Acknowledgements
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% 
-\iffalse
-\begin{acknowledgements}
-  \ldots to Mari \amp\ Miri for continuous encouragement and affection, and
-  to Buster Keaton and Saitama for filling life with awe and inspiration.
-  To the developers and maintainers of \LaTeX, Emacs, AUC\TeX, Open Science
-  Framework, R, Python, Inkscape, Sci-Hub for making a free and impartial
-  scientific exchange possible.
-  % Our work was supported by the Trond Mohn Research Foundation, grant number BFS2018TMT07
-%\rotatebox{15}{P}\rotatebox{5}{I}\rotatebox{-10}{P}\rotatebox{10}{\reflectbox{P}}\rotatebox{-5}{O}.
-%\sourceatright{\autanet}
-\mbox{}\hfill\autanet
-\end{acknowledgements}
-\fi
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%%% Appendices
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% 
-%\clearpage
-\bigskip
-%\renewcommand*{\appendixpagename}{Appendix}
-%\renewcommand*{\appendixname}{Appendix}
-% %\appendixpage
-\appendix
-\mynote{\pencil\ These are just working notes}
-
-\section{Exchangeability, approximations, machine learning}
-\label{sec:exchang}
-
-Exchangeability is
-the basic fact or assumption upon which machine-learning algorithms and the
-calculations presented here are based.
-
-Exchangeability is the fact or assumption that the ordering of
-known and yet unknown datapoints is irrelevant for new inferences. Good
-reviews are given by \textcite{dawid2013} and
-\textcite[\sect~4.2]{bernardoetal1994}.
-
-A probability distribution $\p(z_{0}, z_{1}, z_{2}, \dotsc \| H)$ is called
-\emph{infinitely exchangeable} if it's invariant under permutations of the
-values $z_{0}, z_{1}, \dotsc$, no matter what and how many they are. In
-other words, the ordering of the observations doesn't matter. Usually one
-says, somewhat improperly, that \enquote{$z_{0}, z_{1}, \dotsc$ are
-  exchangeable} for short. In our case each $z$ is actually a pair of
-values $(r,x)$, where $x$ itself is multidimensional.
-
-Exchangeability has the following important consequence: if we knew the
-infinite-limit long-run relative frequencies $\yF\defd (F_{r,x})$ of the
-values of past and future datapoints, then the probability of observing a
-sequence of new values would be equal to the long-run relative frequency of
-those values, for symmetry reasons. For example:
-\begin{equation}
-  \label{eq:prob_freq}
-  \p(r_{1},x_{1},\ r_{2},x_{2} \| \yF, H) = F_{r_{1},x_{1}} \ 
-  F_{r_{2},x_{2}} \ .
-\end{equation}
-
-Another consequence is that conditional probabilities are also equal to the
-long-run \emph{conditional} frequencies $\yFrx \defd (F_{r \|x}) =
-(F_{r,x}/\sum_{y'}F_{y',x})$. For example:
-\begin{equation}
-  \label{eq:prob_cond_freq}
-  \p(r_{1}, r_{2}\| x_{1}, x_{2},\ \yF, H) = F_{r_{1}\|x_{1}} \ 
-  F_{r_{2}\|x_{2}} \ .
-\end{equation}
-
-If the long-run frequencies $\yF$ are unknown, they can be marginalized,
-\ie\ integrated out, provided that we have a probability distribution
-$\p(\yF \| H)$ for them. For example:
-\begin{equation}
-  \label{eq:prob_freq_integr}
-  \p(r_{1},x_{1},\ r_{2},x_{2}\| H) = \int F_{r_{1},x_{1}} \ 
-  F_{r_{2},x_{2}} \ \p(\yF \| H)\ \di\yF \ ,
-\end{equation}
-from which we can also obtain conditional probabilities.
-
-There are several other types of exchangeability. For example, we may have
-\emph{conditional} or \emph{partial} exchangeability of $r$ given $x$ if
-\eqn~\eqref{eq:prob_cond_freq} holds, but not \eqn~\eqref{eq:prob_freq}. If
-we have a probability distribution $\p(\yFrx \| H)$ for the conditional
-frequencies, we obtain by marginalization
-\begin{equation}
-  \label{eq:prob_cond_freq_integr}
-  \p(r_{1}, r_{2}\| x_{1}, x_{2},\ H) = \int F_{r_{1}\|x_{1}} \ 
-  F_{r_{2}\|x_{2}}\ \p(\yFrx \| H)\ \di\yFrx \ .
-\end{equation}
-
-\textcite{lindleyetal1981} discuss the importance of conditional
-exchangeability for various inference problems, and the errors that arise
-if the wrong type of exchangeability is assumed.
-
-From the generalization of the equations above we obtain other
-probabilities for various cases of regression, such as
-\eqns~\eqref{eq:main_prob} or \eqref{eq:rev_prob}, by simply using the
-three rules of the probability calculus. For example, if $\ro$ is assumed
-to be exchangeable given $\xo$, but the latter is not assumed to be
-exchangeable with the other $\xd$ because hand-picked, we find
-\begin{equation}
-  \label{eq:main_prob_exch}
-  \p(\ro \| \xo,\ \rd,\xd,\ H) =
-  \frac{
-    \int F_{\ro\|\xo} \ F_{r_{1},x_{1}} \  \dotsm \ 
-  F_{r_{N},x_{N}} \ \p(\yF \| H)\ \di\yF
-  }{
-    \int F_{r_{1},x_{1}} \  \dotsm \ 
-  F_{r_{N},x_{N}} \ \p(\yF \| H)\ \di\yF
-  } \ .
-\end{equation}
-
-The distribution $\p(\yF \| H)$, usually called the \enquote{prior},
-embodies the assumptions that we make for the extrapolation. It therefore
-cannot be determined by the known datapoints. Given enough known datapoints
-$(\rd,\xd)$, the probability distribution for $\ro$ given $\xo$
-eventually does become equal to their limit conditional frequency. This
-sets the ultimate uncertainty with which the prediction can be made, and
-cannot be surpassed by any algorithm. So this approach eventually does
-yield an optimal inference. The quickness with which the limit conditional
-frequency is reached, however, depends heavily on the choice of prior. The
-prior should therefore be chosen in a well-reasoned manner. In practice the
-choice is limited by computational constraints.
-
-All machine-learning algorithms calculate equations such as the one above
-or approximations to it, for some choice of the prior $\p(\yF \| H)$
-\parencites{mackay1992,bishop2006}.
-
-The formulae above can be numerically implemented exactly or with a good
-approximation only if the features $x$ have low dimensions and the number
-$N$ of known data is small \mynote{\wrench\ add refs}. Many
-machine-learning algorithms manage to deal with larger dimensionality and
-datapoints by parametrizing the $\yF$-space in a clever way (for example,
-deep nets parametrize the $\yF$ as nested compositions of some simple
-functions) and finding an argument that maximizes the integrands above
-\parencites{mackay1992,mackay1992b}, for example a value of $\ro$ that
-locally maximizes the integrand in the numerator of
-\eqn~\eqref{eq:main_prob_exch}. This means, though, that they cannot
-quantify the uncertainty of the inference.
-
-\section{Exchangeability assumptions in formulae}
-\label{sec:exch_formulae}
-
-
-\begin{enumerate}[label=\roman*.]
-\item\label{item:exch_rx}\emph{Exchangeability of \rmsd\ given features}.
-  The \rmsd s of the training set are relevant to the inference of the
-  \rmsd\ of the new datapoint, given the same feature values. The features
-  of the training set, however,
-
-  Exchangeability of $r$ given $x$: The joint
-  probability of the \rmsd s of new datapoint and training set is symmetric
-  under exchanges of datapoints, given the same features. That is,
-  \begin{multline}
-    \label{eq:p_exch_rx}
-    \begin{aligned}
-    &\p(r=a_{0}, r_{1}=a_{1}, r_{2}=a_{2}, \dotsc \|
-    x_{1}=b, x_{2}=b, x_{3}=b, \dotsc,\ H) ={}\\
-    &\p(r=a_{1}, r_{1}=a_{0}, r_{2}=a_{2}, \dotsc \|
-    x_{1}=b, x_{2}=b, x_{3}=b, \dotsc,\ H) ={}\\
-    &\p(r=a_{2}, r_{1}=a_{1}, r_{2}=a_{0}, \dotsc \|
-    x_{1}=b, x_{2}=b, x_{3}=b, \dotsc,\ H) = \dotso
-    \end{aligned} \\
-    \text{and so on, for all simultaneous permutations of $a_{i}$ and any $b$.}
-  \end{multline}
-
-\item\label{item:exch_xr} Exchangeability of $x$ given $r$: The joint
-  probability of the features of new datapoint and training set is symmetric
-  under exchanges of datapoints, given the same \rmsd. That is,
-  \begin{multline}
-    \label{eq:p_exch_xr}
-    \begin{aligned}
-    &\p(x=b_{0}, x_{1}=b_{1}, x_{2}=b_{2}, \dotsc \|
-    r_{1}=a, r_{2}=a, r_{3}=a, \dotsc,\ H) ={}\\
-    &\p(x=b_{1}, x_{1}=b_{0}, x_{2}=b_{2}, \dotsc \|
-    r_{1}=a, r_{2}=a, r_{3}=a, \dotsc,\ H) ={}\\
-    &\p(x=b_{2}, x_{1}=b_{1}, x_{2}=b_{0}, \dotsc \|
-    r_{1}=a, r_{2}=a, r_{3}=a, \dotsc,\ H) = \dotso
-    \end{aligned} \\
-    \text{and so on, for all simultaneous permutations of $b_{i}$ and any $a$.}
-  \end{multline}
-\item\label{item:exch_full} The \rmsd s and features of the training set
-  are jointly relevant to the inference of those of the new datapoint. We
-  then have full exchangeability of $(r,x)$: the joint probability of new
-  datapoint and training set is symmetric under exchanges of datapoints.
-  That is,
-  \begin{multline}
-    \label{eq:p_exch_full}
-    \begin{aligned}
-    &\p(r=a_{0}, x=b_{0},\ r_{1}=a_{1},x_{1}=b_{1}, \
-    r_{2}=a_{2},x_{2}=b_{2}, \ \dotsc \| H) ={}\\
-    &\p(r=a_{1}, x=b_{1},\ r_{1}=a_{0},x_{1}=b_{0}, \
-    r_{2}=a_{2},x_{2}=b_{2}, \ \dotsc \| H) ={}\\
-    &\p(r=a_{2}, x=b_{2},\ r_{1}=a_{1},x_{1}=b_{1}, \
-      r_{2}=a_{0},x_{2}=b_{0}, \ \dotsc \| H) = \dotso
-    \end{aligned} \\
-    \text{and so on, for all simultaneous permutations of $a_{i}$ and $b_{i}$.}
-  \end{multline}
-
-\end{enumerate}
-
-
-
-\section{Selection of prior}
-\label{sec:sel_prior}
-
-based on a Dirichlet-process mixture with
-product kernels of multivariate normal and Dirichlet distributions.
-
-
-
-The \enquote{sasa} quantities $x$ have a range in $\clop{0,+\infty}$. We
-consider them as scale quantities (even if the value $0$ is included) and
-transform them to a log-scale. Their prior distribution is chosen as
-almost uniform on this scale:
-$\p(\ln(x) \| H)\ \di\ln(x) \propto \di\ln(x)$, approximated by a normal
-with large standard deviation.
-
-The \enquote{tanimoto} quantities $x$ have a range in $\clcl{0,1}$. We
-transform them to $\RR$ using the cumulative normal distribution:
-\begin{equation}
-  \label{eq:transf_tanimoto}
-  x \mapsto \phi(x) \defd
-  \frac{1}{2}\operatorname{erf}\biggl(\frac{x}{\sqrt{2}}\biggr)
-  \equiv \frac{1}{\sqrt{2\pu}}\int_{-\infty}^{x} \e^{-t^{2}/2}\ \di t \ ,
-\end{equation}
-which we call an \defquote{erf-scale}.
-The prior is chosen as uniform in $\di x$, and therefore has a standard
-normal density in the erf-scale.
-
-Choosing a normal-inverse-Wishart distribution with parameters
-$\mu^{*}, \varDelta^{*}, \kappa^{*}, \nu^{*}$ as the mean for the Dirichlet
-process leads to a t-distribution as the predictive distribution for a
-quantity $x \in \RR^{d}$, with $\nu^{*}-n+1$ degrees of freedom, mean
-$\mu^{*}$, covariance
-$\frac{\kappa^{*}+1}{\kappa^{*}\ (\nu^{*}-d-1)}\varDelta^{*}$.
-
-This means that we want $\nu^{*}-n+1$ large, say ${}\sim 10$, in order to
-approximate a normal, $\mu^{*}$ equal to the zero vector, and
-$\frac{\kappa^{*}+1}{\kappa^{*}\ (\nu^{*}-d-1)}\varDelta^{*}$ diagonal and
-equal to $1$ in the direction of the \enquote{tanimoto} quantities, and
-equal to some larger value, say ${}\sim 4$, in the direction of the \enquote{sasa}
-quantities. These requirement leave the parameter $\kappa^{*}$ still undefined.
-
-
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%%% Bibliography
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% 
-\renewcommand*{\finalnamedelim}{\addcomma\space}
-\defbibnote{prenote}{{\footnotesize (\enquote{de $X$} is listed under D,
-    \enquote{van $X$} under V, and so on, regardless of national
-    conventions.)\par}}
-% \defbibnote{postnote}{\par\medskip\noindent{\footnotesize% Note:
-%     \arxivp \mparcp \philscip \biorxivp}}
-
-\printbibliography[prenote=prenote%,postnote=postnote
-]
 
 \end{document}
 
