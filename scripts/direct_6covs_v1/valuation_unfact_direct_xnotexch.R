@@ -1,6 +1,6 @@
 ## Author: PGL  Porta Mana
 ## Created: 2021-03-20T10:07:17+0100
-## Last-Updated: 2021-08-09T15:07:15+0200
+## Last-Updated: 2021-08-09T16:59:43+0200
 ################
 ## Script for evaluation of regression.
 ## Unfactorizable prior
@@ -155,42 +155,87 @@ case <- 1 # 'fdata'
 scoresP <- scoresU <- list(NULL,NULL)
 names(scoresP) <- names(scoresU) <- c('tail','head')
 for(dset in names(scoresP)){
-## Compare with a model based only on prior frequencies of r
-priorR <- normalize(as.vector(table(data$bin_RMSD)))
-unseldata <- setdiff(1:nrow(data), seldata)
-nTest <- 2000
-## construct test set
-testdata <- data[do.call(dset,list(x=unseldata,n=3*nTest)), covNames, with=F]
-## testd <- data[unseldata, covNames, with=F]
-## testdata <- data.table()
-## for(val in rmsdVals){
-##     testdata <- rbind(testdata, tail(testd[bin_RMSD==val],n=round(3*nTest*priorR[val])))
-## }
-## rm(testd)
-##
-gc()
-plan(sequential)
-plan(multisession, workers = 6L)
-condfreqs <- predictYX(MCMCdata[[case]], testdata)
-plan(sequential)
-##
-set.seed(247)
+    ## Compare with a model based only on prior frequencies of r
+    priorR <- normalize(as.vector(table(data$bin_RMSD)))
+    unseldata <- setdiff(1:nrow(data), seldata)
+    nTest <- 2000
+    ## construct test set
+    testdata <- data[do.call(dset,list(x=unseldata,n=3*nTest)), covNames, with=F]
+    ## testd <- data[unseldata, covNames, with=F]
+    ## testdata <- data.table()
+    ## for(val in rmsdVals){
+    ##     testdata <- rbind(testdata, tail(testd[bin_RMSD==val],n=round(3*nTest*priorR[val])))
+    ## }
+    ## rm(testd)
+    ##
+    gc()
+    plan(sequential)
+    plan(multisession, workers = 6L)
+    condfreqs <- predictYX(MCMCdata[[case]], testdata)
+    plan(sequential)
+    ##
+    set.seed(247)
     scoresP[[dset]] <- metrics(truevalues=testdata[,bin_RMSD], probX=condfreqs[,,1], chanceprior=priorR)
     print(dset)
-#print(scoresP[[dset]])
-##
-## 
-## Compare with a "completely ignorant" model: uniform prior
-priorU <- rep(1, length(rmsdVals))/length(rmsdVals)
-set.seed(247)
-scoresU[[dset]] <- metrics(truevalues=testdata[,bin_RMSD], probX=condfreqs[,,1], chanceprior=priorU)
-#print(scoresU[[dset]])
-##
+    pdff(paste0('scores_',dset,'_informedchance'))
+    basescores <- scoresP[[dset]]
+    ##
+print(    ggplot(dt <- melt(basescores$delta_gain[,1:2])) +
+        geom_histogram(aes(x=value, fill=variable), color='white', bins=length(unique(c(dgain))), alpha=0.5, position='identity') + scale_fill_bright() +
+        xlab('delta utility') +
+        geom_vline(data=dt[,.(value=mean(value)), by=variable], aes(xintercept=value, color=variable, linetype=variable), alpha=0.5, size=2))
+    ##
+print(    ggplot(dt <- melt(basescores$contig_gain[,1:2])) +
+        geom_histogram(aes(x=value, fill=variable), color='white', bins=length(unique(c(cgain))), alpha=0.5, position='identity') + scale_fill_bright() +
+        xlab('contiguous utility') +
+        geom_vline(data=dt[,.(value=mean(value)), by=variable], aes(xintercept=value, color=variable, linetype=variable), alpha=0.5, size=2))
+    ##
+print(    ggplot(dt <- melt(basescores$log_score[,1:2])) +
+        geom_histogram(aes(x=value, fill=variable), color='white', bins=10, alpha=0.5, position='identity') + scale_fill_bright() +
+        xlab('log-probability') +
+        geom_vline(data=dt[,.(value=mean(value)), by=variable], aes(xintercept=value, color=variable, linetype=variable), alpha=0.5, size=2))
+    ##
+print(    ggplot(dt <- melt(basescores$mean_score[,1:2])) +
+        geom_histogram(aes(x=value, fill=variable), color='white', bins=10, alpha=0.5, position='identity') + scale_fill_bright() +
+        xlab('probability') +
+        geom_vline(data=dt[,.(value=mean(value)), by=variable], aes(xintercept=value, color=variable, linetype=variable), alpha=0.5, size=2))
+    ##
+    dev.off()
+    ##
+    ## 
+    ## Compare with a "completely ignorant" model: uniform prior
+    priorU <- rep(1, length(rmsdVals))/length(rmsdVals)
+    set.seed(247)
+    scoresU[[dset]] <- metrics(truevalues=testdata[,bin_RMSD], probX=condfreqs[,,1], chanceprior=priorU)
+                                        #print(scoresU[[dset]])
+    pdff(paste0('scores_',dset,'_uniformchance'))
+    basescores <- scoresU[[dset]]
+    ##
+print(    ggplot(dt <- melt(basescores$delta_gain[,1:2])) +
+        geom_histogram(aes(x=value, fill=variable), color='white', bins=length(unique(c(dgain))), alpha=0.5, position='identity') + scale_fill_bright() +
+        xlab('delta utility') +
+        geom_vline(data=dt[,.(value=mean(value)), by=variable], aes(xintercept=value, color=variable, linetype=variable), alpha=0.5, size=2))
+    ##
+print(    ggplot(dt <- melt(basescores$contig_gain[,1:2])) +
+        geom_histogram(aes(x=value, fill=variable), color='white', bins=length(unique(c(cgain))), alpha=0.5, position='identity') + scale_fill_bright() +
+        xlab('contiguous utility') +
+        geom_vline(data=dt[,.(value=mean(value)), by=variable], aes(xintercept=value, color=variable, linetype=variable), alpha=0.5, size=2))
+    ##
+print(    ggplot(dt <- melt(basescores$log_score[,1:2])) +
+        geom_histogram(aes(x=value, fill=variable), color='white', bins=10, alpha=0.5, position='identity') + scale_fill_bright() +
+        xlab('log-probability') +
+        geom_vline(data=dt[,.(value=mean(value)), by=variable], aes(xintercept=value, color=variable, linetype=variable), alpha=0.5, size=2))
+    ##
+print(    ggplot(dt <- melt(basescores$mean_score[,1:2])) +
+        geom_histogram(aes(x=value, fill=variable), color='white', bins=10, alpha=0.5, position='identity') + scale_fill_bright() +
+        xlab('probability') +
+        geom_vline(data=dt[,.(value=mean(value)), by=variable], aes(xintercept=value, color=variable, linetype=variable), alpha=0.5, size=2))
+    ##
+    dev.off()
+    ##
     ##
     }
 save(list=c('scoresP','scoresU'), file=paste0('scores_T',nTest*3,'_direct_test_N',ndata,'_',length(covNums),'covs.RData'))
-
-
 
 
 
