@@ -1,6 +1,6 @@
 ## Author: PGL  Porta Mana
 ## Created: 2021-03-20T10:07:17+0100
-## Last-Updated: 2021-08-09T14:23:32+0200
+## Last-Updated: 2021-08-09T23:23:33+0200
 ################
 ## Script for direct regression
 ################
@@ -220,7 +220,7 @@ mcmcrun <- foreach(case=directcases, .inorder=FALSE)%dopar%{
     }
 ##
 ##
-        c(case=case, profRegr(excludeY=TRUE, xModel='Mixed', nSweeps=2000e3, nBurn=3000e3, nFilter=2e3, data=as.data.frame(datamcr), nClusInit=80, covNames=c(discreteCovs,continuousCovs), discreteCovs=discreteCovs, continuousCovs=continuousCovs, nProgress=1000, seed=147, output=outfile, useHyperpriorR1=FALSE, useNormInvWishPrior=TRUE, hyper=testhp, alpha=4))
+        c(case=case, profRegr(excludeY=TRUE, xModel='Mixed', nSweeps=2000e3, nBurn=3000e3, nFilter=2e3, data=as.data.frame(datamcr), nClusInit=80, covNames=c(discreteCovs,continuousCovs), discreteCovs=discreteCovs, continuousCovs=continuousCovs, nProgress=100e3, seed=147, output=outfile, useHyperpriorR1=FALSE, useNormInvWishPrior=TRUE, hyper=testhp, alpha=4))
 }
 plan(sequential)
 names(mcmcrun) <- paste0('freqs',sapply(mcmcrun,function(i){i$case}))
