@@ -1,6 +1,6 @@
 ## Author: PGL  Porta Mana
 ## Created: 2021-03-20T10:07:17+0100
-## Last-Updated: 2021-08-09T16:59:43+0200
+## Last-Updated: 2021-08-09T17:32:48+0200
 ################
 ## Script for evaluation of regression.
 ## Unfactorizable prior
@@ -49,7 +49,7 @@ predictYX <- function(dataobj, X){
                     dmvnorm(X[,continuousCovs], mean=dataobj$muList[[asample]][continuousCovs,cluster], sigma=as.matrix(dataobj$sigmaList[[asample]][continuousCovs,continuousCovs,cluster]), log=TRUE)
             }, numeric(nrow(X))))
         )
-        colSums(dataobj$phiList[[asample]][['bin_RMSD']][val,] * W)/colSums(W)
+        ##
         ## colSums(dataobj$psiList[[asample]] *
         ##     t(sapply(seq_len(dataobj$nList[asample]),function(cluster){
         ##     exp(rowSums(log(sapply(dC, function(covariate){
@@ -58,6 +58,7 @@ predictYX <- function(dataobj, X){
         ##         dmvnorm(X[,continuousCovs], mean=dataobj$muList[[asample]][continuousCovs,cluster], sigma=as.matrix(dataobj$sigmaList[[asample]][continuousCovs,continuousCovs,cluster]))
         ##     }))
         ##     )
+        colSums(dataobj$phiList[[asample]][['bin_RMSD']][val,] * W)/colSums(W)
     }
     me <- rowMeans(freqs)
     freqs <- cbind(means=me, stds=sqrt(rowMeans(freqs^2) - me^2))
@@ -240,6 +241,14 @@ save(list=c('scoresP','scoresU'), file=paste0('scores_T',nTest*3,'_direct_test_N
 
 
 stop('End')
+
+
+
+
+
+
+
+
 
 if(false){
 ## TEST
