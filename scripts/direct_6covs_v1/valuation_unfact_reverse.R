@@ -1,6 +1,6 @@
 ## Author: PGL  Porta Mana
 ## Created: 2021-03-20T10:07:17+0100
-## Last-Updated: 2021-08-09T19:25:22+0200
+## Last-Updated: 2021-08-09T23:10:02+0200
 ################
 ## Script for evaluation of regression.
 ## Unfactorizable prior
@@ -32,14 +32,15 @@ options(bitmapType='cairo')
 
 ##################################################################
 ##################################################################
-## Function to calculate \sum_t F^{(t)}_{r,x}
+## Function to calculate \sum_t F^{(t)}_{x|r}
 ##
 predictYX <- function(dataobj, X){
     dC <- setdiff(discreteCovs,'bin_RMSD')
     X <- as.matrix(X[, c(dC,continuousCovs), with=FALSE])
     freqs <- foreach(val=rmsdVals, .combine=rbind)%:%foreach(asample=seq_along(dataobj$nList), .combine=cbind, .inorder=FALSE)%dopar%{
-        colSums(exp(
-            log(dataobj$psiList[[asample]]) +
+        W <- normalize(dataobj$psiList[[asample]] * dataobj$phiList[[asample]][['bin_RMSD']][val,])
+        ##
+        colSums(exp( log(W) +
             t(vapply(seq_len(dataobj$nList[asample]), function(cluster){
                 rowSums(log(
                     vapply(dC, function(covariate){
@@ -47,9 +48,10 @@ predictYX <- function(dataobj, X){
                     }, numeric(nrow(X)))
                 )) +
                     dmvnorm(X[,continuousCovs], mean=dataobj$muList[[asample]][continuousCovs,cluster], sigma=as.matrix(dataobj$sigmaList[[asample]][continuousCovs,continuousCovs,cluster]), log=TRUE)
-            }, numeric(nrow(X)))) +
-                    log(dataobj$phiList[[asample]][['bin_RMSD']][val,])
+            }, numeric(nrow(X))))
         ))
+        ##
+        ## colSums(dataobj$psiList[[asample]] *
         ##     t(sapply(seq_len(dataobj$nList[asample]),function(cluster){
         ##     exp(rowSums(log(sapply(dC, function(covariate){
         ##         dataobj$phiList[[asample]][[covariate]][X[,covariate], cluster]
@@ -61,8 +63,7 @@ predictYX <- function(dataobj, X){
     me <- rowMeans(freqs)
     freqs <- cbind(means=me, stds=sqrt(rowMeans(freqs^2) - me^2))
     dim(freqs) <- c(nrow(X), length(rmsdVals), 2)
-    #freqs[,,1] <- normalizem(freqs[,,1])
-    dimnames(freqs)[[3]] <- c('means','unimportant')
+    dimnames(freqs)[[3]] <- c('means','stds')
     dimnames(freqs)[[2]] <- paste0('binRMSD_',rmsdVals)
     freqs
 }
@@ -94,8 +95,6 @@ predictYX <- function(dataobj, X){
 ##     list(means=me,
 ##          covariance=tcrossprod(freqs)/ncol(freqs)-tcrossprod(me))
 ## }
-
-
 ##
 ## Utility matrices
 dgain <- diag(1,3)
@@ -142,7 +141,6 @@ metrics <- function(truevalues, probX, chanceprior){
                  range=c(0,1)
              )
         )}
-
 ##
 #### Calculation of utilities and scores for test set
 ## source(file='calibration_plots.R')
@@ -152,11 +150,12 @@ case <- 1 # 'fdata'
 ## It does not make sense to change them, because the conditional frequencies r|x
 ## then also change - we can then make the model have a score as bad as we please
 ##
-scoresP <- scoresU <- list(NULL,NULL)
-names(scoresP) <- names(scoresU) <- c('tail','head')
-for(dset in names(scoresP)){
+scores <- list()
+basepriors <- rbind(asdata=normalize(as.vector(table(data$bin_RMSD))), uniform=rep(1,3)/3)
+for(dset in c('tail', 'head')){
+    for(ii in 1:nrow(basepriors)){
+        priorR <- basepriors[ii,]
     ## Compare with a model based only on prior frequencies of r
-    priorR <- normalize(as.vector(table(data$bin_RMSD)))
     unseldata <- setdiff(1:nrow(data), seldata)
     nTest <- 2000
     ## construct test set
@@ -172,13 +171,14 @@ for(dset in names(scoresP)){
     plan(sequential)
     plan(multisession, workers = 6L)
     condfreqs <- predictYX(MCMCdata[[case]], testdata)
-    plan(sequential)
+        plan(sequential)
+        condfreqs[,,1] <- normalizem(t(t(condfreqs[,,1]) * priorR))
     ##
     set.seed(247)
-    scoresP[[dset]] <- metrics(truevalues=testdata[,bin_RMSD], probX=condfreqs[,,1], chanceprior=priorR)
+    scores[[dset]][[rownames(basepriors)[ii]]] <- metrics(truevalues=testdata[,bin_RMSD], probX=condfreqs[,,1], chanceprior=priorR)
     print(dset)
-    pdff(paste0('scores_fullexch_',dset,'_informedchance'))
-    basescores <- scoresP[[dset]]
+    pdff(paste0('scores_reverse_nonfact_P',rownames(basepriors)[ii],'_',dset))
+    basescores <- scores[[dset]][[ii]]
     ##
 print(    ggplot(dt <- melt(basescores$delta_gain[,1:2])) +
         geom_histogram(aes(x=value, fill=variable), color='white', bins=length(unique(c(dgain))), alpha=0.5, position='identity') + scale_fill_bright() +
@@ -191,51 +191,18 @@ print(    ggplot(dt <- melt(basescores$contig_gain[,1:2])) +
         geom_vline(data=dt[,.(value=mean(value)), by=variable], aes(xintercept=value, color=variable, linetype=variable), alpha=0.5, size=2))
     ##
 print(    ggplot(dt <- melt(basescores$log_score[,1:2])) +
-        geom_histogram(aes(x=value, fill=variable), color='white', bins=10, alpha=0.5, position='identity') + scale_fill_bright() +
-        xlab('log-probability') +
+        geom_histogram(aes(x=value, y=..density.., fill=variable), color='white', bins=10, alpha=0.5, position='identity') + scale_fill_bright() +
+        xlab('log-probability') + xlim(c(-4,0)) +
         geom_vline(data=dt[,.(value=mean(value)), by=variable], aes(xintercept=value, color=variable, linetype=variable), alpha=0.5, size=2))
     ##
 print(    ggplot(dt <- melt(basescores$mean_score[,1:2])) +
-        geom_histogram(aes(x=value, fill=variable), color='white', bins=10, alpha=0.5, position='identity') + scale_fill_bright() +
-        xlab('probability') +
+        geom_histogram(aes(x=value, y=..density.., fill=variable), color='white', bins=10, alpha=0.5, position='identity') + scale_fill_bright() +
+        xlab('probability') + xlim(c(0,1)) +
         geom_vline(data=dt[,.(value=mean(value)), by=variable], aes(xintercept=value, color=variable, linetype=variable), alpha=0.5, size=2))
     ##
     dev.off()
-    ##
-    ## 
-    ## Compare with a "completely ignorant" model: uniform prior
-    priorU <- rep(1, length(rmsdVals))/length(rmsdVals)
-    set.seed(247)
-    scoresU[[dset]] <- metrics(truevalues=testdata[,bin_RMSD], probX=condfreqs[,,1], chanceprior=priorU)
-                                        #print(scoresU[[dset]])
-    pdff(paste0('scores_fullexch_',dset,'_uniformchance'))
-    basescores <- scoresU[[dset]]
-    ##
-print(    ggplot(dt <- melt(basescores$delta_gain[,1:2])) +
-        geom_histogram(aes(x=value, fill=variable), color='white', bins=length(unique(c(dgain))), alpha=0.5, position='identity') + scale_fill_bright() +
-        xlab('delta utility') +
-        geom_vline(data=dt[,.(value=mean(value)), by=variable], aes(xintercept=value, color=variable, linetype=variable), alpha=0.5, size=2))
-    ##
-print(    ggplot(dt <- melt(basescores$contig_gain[,1:2])) +
-        geom_histogram(aes(x=value, fill=variable), color='white', bins=length(unique(c(cgain))), alpha=0.5, position='identity') + scale_fill_bright() +
-        xlab('contiguous utility') +
-        geom_vline(data=dt[,.(value=mean(value)), by=variable], aes(xintercept=value, color=variable, linetype=variable), alpha=0.5, size=2))
-    ##
-print(    ggplot(dt <- melt(basescores$log_score[,1:2])) +
-        geom_histogram(aes(x=value, fill=variable), color='white', bins=10, alpha=0.5, position='identity') + scale_fill_bright() +
-        xlab('log-probability') +
-        geom_vline(data=dt[,.(value=mean(value)), by=variable], aes(xintercept=value, color=variable, linetype=variable), alpha=0.5, size=2))
-    ##
-print(    ggplot(dt <- melt(basescores$mean_score[,1:2])) +
-        geom_histogram(aes(x=value, fill=variable), color='white', bins=10, alpha=0.5, position='identity') + scale_fill_bright() +
-        xlab('probability') +
-        geom_vline(data=dt[,.(value=mean(value)), by=variable], aes(xintercept=value, color=variable, linetype=variable), alpha=0.5, size=2))
-    ##
-    dev.off()
-    ##
-    ##
-    }
-save(list=c('scoresP','scoresU'), file=paste0('scores_fullexch_T',nTest*3,'_direct_test_N',ndata,'_',length(covNums),'covs.RData'))
+    }}
+save(list=c('scores'), file=paste0('scores_reverse_nonfact_T',nTest*3,'_N',ndata,'_',length(covNums),'covs.RData'))
 
 
 
