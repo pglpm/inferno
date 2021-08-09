@@ -1,11 +1,11 @@
 ## Author: PGL  Porta Mana
 ## Created: 2021-03-20T10:07:17+0100
-## Last-Updated: 2021-08-09T15:07:15+0200
+## Last-Updated: 2021-08-09T14:39:43+0200
 ################
 ## Script for evaluation of regression.
 ## Unfactorizable prior
 ## r|x exchangeable
-## x not exchangeable
+## x also exchangeable
 ################
 #### Custom setup ####
 ## Colour-blind friendly palettes, from https://personal.sron.nl/~pault/
@@ -104,45 +104,44 @@ cgain <- 1-sapply(1:3,function(x){abs(x-1:3)})/2
 resample <- function(x, ...) x[sample.int(length(x), ...)]
 ## function to compute utilities in test set
 utilities <- function(truevalues,probX,utilitym){
-    if(is.null(dim(probX))){probX <- t(matrix(probX,nrow=length(probX),ncol=length(truevalues)))}
     y <- apply(t(tcrossprod(utilitym, normalizem(probX))), 1,
                function(z){resample(which(z==max(z)))})
     diag(utilitym[truevalues,y])
 }
 ## function to compute various prob-averages in test set
 probscores <- function(truevalues,probX,meanfunction){
-    if(is.null(dim(probX))){probX <- t(matrix(probX,nrow=length(probX),ncol=length(truevalues)))}
     y <- normalizem(probX)
     meanfunction(diag(y[,truevalues]))
 }
 ## function to construct data table with results
 metrics <- function(truevalues, probX, chanceprior){
-    list(
-        delta_gain = data.table(
-                 model=utilities(truevalues,probX,dgain),
-                 chance=utilities(truevalues,chanceprior,dgain),
-                 range=range(dgain)
-             ),
-         ##
-        contig_gain = data.table(
-                 model=utilities(truevalues,probX,cgain),
-                 chance=utilities(truevalues,chanceprior,cgain),
-                 range=range(cgain)
-             ),
-         ##
-        log_score = data.table(
-                 model=probscores(truevalues,probX,log),
-                 chance=probscores(truevalues,chanceprior,log),
-                 range=c(-Inf,0)
-             ),
-         ##
-        mean_score = data.table(
-                 model=probscores(truevalues,probX,identity),
-                 chance=probscores(truevalues,chanceprior,identity),
-                 range=c(0,1)
-             )
-        )}
-
+    chanceProb <- t(matrix(chanceprior,nrow=length(chanceprior),ncol=length(truevalues)))
+    data.table(
+        model=c('model', 'chance','min','max'),
+        delta_gain=c(
+            mean(utilities(truevalues,probX,dgain)),
+            mean(utilities(truevalues,chanceProb,dgain)),
+            0,1
+        ),
+        ##
+        contig_gain=c(
+            mean(utilities(truevalues,probX,cgain)),
+            mean(utilities(truevalues,chanceProb,cgain)),
+            0,1
+        ),
+        ##
+        log_score=c(
+            mean(probscores(truevalues,probX,log)),
+            mean(probscores(truevalues,chanceProb,log)),
+            -Inf,0
+        ),
+        ##
+        mean_score=c(
+            mean(probscores(truevalues,probX,identity)),
+            mean(probscores(truevalues,chanceProb,identity)),
+            0,1
+        )
+    )}
 ##
 #### Calculation of utilities and scores for test set
 ## source(file='calibration_plots.R')
@@ -175,16 +174,15 @@ condfreqs <- predictYX(MCMCdata[[case]], testdata)
 plan(sequential)
 ##
 set.seed(247)
-    scoresP[[dset]] <- metrics(truevalues=testdata[,bin_RMSD], probX=condfreqs[,,1], chanceprior=priorR)
-    print(dset)
-#print(scoresP[[dset]])
+scoresP[[dset]] <- metrics(truevalues=testdata[,bin_RMSD], probX=condfreqs[,,1], chanceprior=priorR)
+print(scoresP[[dset]])
 ##
 ## 
 ## Compare with a "completely ignorant" model: uniform prior
 priorU <- rep(1, length(rmsdVals))/length(rmsdVals)
 set.seed(247)
 scoresU[[dset]] <- metrics(truevalues=testdata[,bin_RMSD], probX=condfreqs[,,1], chanceprior=priorU)
-#print(scoresU[[dset]])
+print(scoresU[[dset]])
 ##
     ##
     }
