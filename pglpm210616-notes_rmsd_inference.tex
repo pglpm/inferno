@@ -1,7 +1,7 @@
 \pdfoutput=1
 %% Author: PGL  Porta Mana
 %% Created: 2015-05-01T20:53:34+0200
-%% Last-Updated: 2021-08-08T16:05:29+0200
+%% Last-Updated: 2021-08-10T08:06:26+0200
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \newif\ifarxiv
 \arxivfalse
@@ -1052,7 +1052,9 @@ $\p(\ro \| \xo,\ \rd,\xd,\ H)$.
 
 We consider four combinations of assumptions:
 \begin{enumerate}[label=\arabic*.]
-\item\label{item:I_ii} $H_{\textrm{I}}$ and $H_{\textrm{ii}}$.
+\item\label{item:I_ii} $H_{\textrm{I}}$ and $H_{\textrm{ii}}$:
+  exchangeability in $r$ given $x$, mutually informative $\yF_{r\q}$ and
+  $\yFr$.
   % Combining
   % \eqns~\eqref{eq:p_F_unfactorizable}, \eqref{eq:post_prob_F},
   % \eqref{eq:p_rx_F}
@@ -1068,10 +1070,11 @@ We consider four combinations of assumptions:
   %      \prod_{r\,x} {F_{r\,x}}^{N\, f_{r\,x}}
   % }
 \end{equation}
-to be combined with \eqn~\eqref{eq:post_prob_F}. This formula is valid when
-we assume exchangeability in $r$ given $x$, but not in $x$.
+to be combined with \eqn~\eqref{eq:post_prob_F}.
   
-\item\label{item:I_iii} $H_{\textrm{I}}$ and $H_{\textrm{iii}}$. % Combining
+\item\label{item:I_iii} $H_{\textrm{I}}$ and $H_{\textrm{iii}}$:
+  exchangeability in $r$ and $x$, mutually informative $\yF_{r\q}$ and
+  $\yFr$. % Combining
   % \eqns~\eqref{eq:p_F_unfactorizable}, \eqref{eq:post_prob_F},
   % \eqref{eq:p_full_F},~\eqref{eq:F_update_xo}
   We find
@@ -1090,11 +1093,11 @@ we assume exchangeability in $r$ given $x$, but not in $x$.
   %      \prod_{r\,x} {F_{r\,x}}^{N\, f_{r\,x}}
   % }
   \end{equation}
-  to be combined with \eqn~\eqref{eq:post_prob_F}. This formula is valid
-  when we assume exchangeability in $r$ given $x$, and also in $x$.
+  to be combined with \eqn~\eqref{eq:post_prob_F}.
 
-\item\label{item:I_i} $H_{\textrm{I}}$ and $H_{\textrm{i}}$. Considering
-  \eqn~\eqref{eq:p_xr_bayes} we find
+\item\label{item:I_i} $H_{\textrm{I}}$ and $H_{\textrm{i}}$:
+  exchangeability in $x$ given $r$, mutually informative $\yF_{r\q}$ and
+  $\yFr$. Considering \eqn~\eqref{eq:p_xr_bayes} we find
   \begin{equation}
     \label{eq:post_xr_unfactorized}
     \p(\ro \| \xo,\ \rd,\xd, H_{\textrm{i\,I}}) = \frac{
@@ -1111,11 +1114,12 @@ we assume exchangeability in $r$ given $x$, but not in $x$.
   %      \prod_{r\,x} {F_{r\,x}}^{N\, f_{r\,x}}
   % }
 \end{equation}
-to be combined with \eqn~\eqref{eq:post_prob_F}. This formula is valid when
-we assume exchangeability in $r$ given $x$, but not in $x$.
+to be combined with \eqn~\eqref{eq:post_prob_F}.
   
-\item\label{item:II_i} $H_{\textrm{II}}$ and $H_{\textrm{i}}$. Considering
-  \eqns~\eqref{eq:p_xr_bayes} and~\eqref{eq:post_prob_Fxcondr} we find
+\item\label{item:II_i} $H_{\textrm{II}}$ and $H_{\textrm{i}}$:
+  exchangeability in $x$ given $r$, no mutual information between
+  $\yF_{r\q}$ and $\yFr$. Considering \eqns~\eqref{eq:p_xr_bayes}
+  and~\eqref{eq:post_prob_Fxcondr} we find
   \begin{equation}
     \label{eq:post_xr_factorized}
     \p(\ro \| \xo,\ \rd,\xd, H_{\textrm{i\,II}}) = \frac{
@@ -1132,10 +1136,7 @@ we assume exchangeability in $r$ given $x$, but not in $x$.
   %      \prod_{r\,x} {F_{r\,x}}^{N\, f_{r\,x}}
   % }
 \end{equation}
-to be combined with \eqn~\eqref{eq:post_prob_Fxcondr}. This formula is
-valid when we assume exchangeability in $x$ given $r$, but not in $r$, and
-vanishing mutual information between marginal and conditional long-run
-frequencies $\yF_{r\q}$ and $\yFr$.
+to be combined with \eqn~\eqref{eq:post_prob_Fxcondr}.
 \end{enumerate}
 
 Combination~\ref{item:I_ii} is used for example in
@@ -1166,7 +1167,7 @@ drawn from them via Markov-chain Monte Carlo methods, and integration with
 respect to them is approximated by summation over such samples. The
 formulae obtained in the previous section then take the following
 approximate forms:
-\begin{enumerate}[para,label=\arabic*'.]
+\begin{enumerate}[wide,label=\arabic*'.]
 \item\label{item:approx_I_ii} $H_{\textrm{I}}$ and $H_{\textrm{ii}}$:
   \begin{equation}
     \label{eq:approx_post_rx_simple}
@@ -1216,7 +1217,7 @@ approximate forms:
 
 
 
-\section{Evaluation metrics and calibration}
+\section{Evaluation}
 \label{sec:evaluation}
 
 
