@@ -1,6 +1,6 @@
 ## Author: PGL  Porta Mana
 ## Created: 2021-03-20T10:07:17+0100
-## Last-Updated: 2021-08-06T07:55:15+0200
+## Last-Updated: 2021-08-09T23:24:20+0200
 ################
 ## Script for reverse regression
 ################
@@ -55,25 +55,8 @@ entropy <- function(freqs,base=2){##in bits by default
 normalize <- function(freqs){freqs/sum(freqs)}
 ## for rows of frequency distributions
 normalizem <- function(freqs){freqs/rowSums(freqs)}
-
-## Good values:
-## musasa <- 1
-## mutani <- 0
-## mu0 <- c(musasa,mutani)
-## names(mu0) <- c('sasa','tanimoto')
-## varmusasa <- 2^2
-## varmutani <- 2^2
-## sigmu0 <- c(varmusasa,varmutani)
-## names(sigmu0) <- c('sasa','tanimoto')
-## expvarsasa <- (1/2)^2
-## expvartani <- (1/2)^2
-## expvar0 <- c(expvarsasa,expvartani)
-## names(expvar0) <- c('sasa','tanimoto')
-## df0 <- 30
-## alpha <- 4 or 5
 ##
-doplots <- TRUE
-## specify hyperparams
+## specify hyperparameters for hyperpriors of continuous variables
 musasa <- 1
 mutani <- 0
 mu0 <- c(musasa,mutani)
@@ -112,156 +95,14 @@ Dsasa2y <- function(x){
     1/(4*x)
 }
 ##
-##
-## Skip all preprocessing below if data is already saved
-##if(TRUE){
 ## Read and reorganize data
 rm(data)
-data <- as.data.table(read.csv(file='../dataset_template_based_docking_predict_rmsd.csv', header=T, sep=','))
-## remove datapoints with missing or erroneous features
-data <- data[!is.na(rmsd)]
-data <- data[, which(sapply(data, is.numeric)==TRUE), with=FALSE]
-minusfeatures <- which(apply(data,2,min)==-1)
-for(feat in minusfeatures){
-    data <- data[!(data[[feat]]==-1)]
-}
-origdata <- data
-## Transform RMSD to log-scale
-data$rmsd <- log(data$rmsd)
-names(data)[which(names(data)=='rmsd')] <- 'log_RMSD'
-rmsdThreshold <- c(2, 2.5, 3)
-logRmsdThreshold <- log(rmsdThreshold)
-## transform 'sasa' features to log-scale
-indx <- grepl('sasa', colnames(data))
-for(elem in colnames(data)[indx]){
-    datum <- sasa2y(data[[elem]])
-    eps <- max(diff(sort(unique(datum[abs(datum)!=Inf]))))
-    datum[datum==-Inf] <- min(datum[abs(datum)!=Inf])-2*eps
-    data[, elem] <- datum
-}
-names(data)[indx] <- paste0('scale_',names(data)[indx])
-## transform 'tanimoto' features to logit scale
-indx <- grepl('tanimoto', colnames(data))
-for(elem in colnames(data)[indx]){
-    datum <- tanimoto2y(data[[elem]])
-    eps <- max(diff(sort(unique(datum[abs(datum)!=Inf]))))
-    datum[datum==Inf] <- max(datum[abs(datum)!=Inf])+2*eps
-    datum[datum==-Inf] <- min(datum[abs(datum)!=Inf])-2*eps
-    data[, elem] <- datum
-}
-names(data)[indx] <- paste0('scale_',names(data)[indx])
-## shift integer features to start from value 1
-indx <- sapply(1:ncol(data), function(x){is.integer(data[[x]])})
-for(elem in colnames(data)[indx]){
-    data[, elem] <- data[, ..elem] - min(data[, ..elem],na.rm=TRUE) +1L
-}
-##
-data <- data.table(bin_RMSD=as.integer(1+(data$log_RMSD>logRmsdThreshold[1])+(data$log_RMSD>logRmsdThreshold[3])), data)
+data <- fread('../processed_data_scaled.csv', sep=' ')
 nameFeatures <- names(data)
 nSamples <- nrow(data)
 nFeatures <- ncol(data)
 ##
-## Format bins to calculate mutual info
-nbinsq <- 6
 ##
-breakFeatures <- list()
-for(i in 1:ncol(data)){
-    datum <- data[[i]]
-    summa <- fivenum(datum)
-    drange <- diff(range(datum))
-    #print(paste0('i',i));print(drange)
-    if(is.integer(datum)){
-        breaks <- (summa[1]:(summa[5]+1))-0.5
-    } else {
-        width <- diff(summa[c(2,4)])/nbinsq
-        nbins <- round(drange/width)
-        breaks <- seq(summa[1]-drange/(nbins*100), summa[5]+drange/(nbins*100), length.out=nbins)
-    }
-    breakFeatures[[i]] <- breaks
-}
-names(breakFeatures) <- names(data)
-##
-##
-## Mutual infos with RMSD
-minfos <- matrix(NA,4,nFeatures)
-rownames(minfos) <- c('MI','norm_MI','entropy','cond_entropy')
-yVar <- 'log_RMSD'
-##yVar <- 'bin_RMSD'
-colRmsd <- which(names(data)==yVar)
-rangeRmsd <- range(breakFeatures[[yVar]])
-colnames(minfos) <- names(data)
-for(i in names(data)){
-        freqs <- normalize(bin2(x=cbind(data[[yVar]],data[[i]]),
-                                ab=rbind(rangeRmsd,range(breakFeatures[[i]])),
-                                nbin=c(length(breakFeatures[[yVar]]), length(breakFeatures[[i]]))-1 )$nc)
-        mi <- mutualinfo(freqs)
-        en <- entropy(colSums(freqs))
-        enrmsd <- entropy(rowSums(freqs))
-        conden21 <- condentropy21(t(freqs)) 
-        minfos[,i] <- c(mi, mi/min(en,enrmsd),en, conden21)
-}
-##
-reorder <- order(minfos[1,], decreasing=TRUE)
-minfos <- minfos[,reorder]
-data <- data[, ..reorder]
-origdata <- origdata[, setdiff(reorder-1,0), with=FALSE]
-breakFeatures <- breakFeatures[reorder]
-##
-##
-## Plots
-if(doplots==TRUE){
-pdff('histograms_scaled_data')
-for(i in 1:ncol(data)){
-    datum <- data[[i]]
-    breaks <- breakFeatures[[i]]
-    print(ggplot(data[,..i], aes_(x=as.name(names(data)[i]))) + geom_histogram(breaks=breaks))
-}
-dev.off()
-##
-pdff('plotslogMI')
-for(k in 1:ncol(minfos)){
-    mi <- signif(minfos[1,k],4)
-    nmi <- signif(minfos[2,k],4)
-    en <- signif(minfos[3,k],4)
-    conden <- signif(minfos[4,k],4)
-    matplot(x=data[[k]], y=data$log_RMSD, type='p', pch='.', col=paste0('#000000','88'),
-            xlab=paste0(colnames(minfos)[k], ', H = ',en,' bit'),
-            ylab=paste0('log-RMSD')
-            )
-    title(paste0(colnames(minfos)[k],
-                         ', MI = ',mi,' bit, norm = ',nmi,', cond entr = ',conden, ' bit'))
-}
-dev.off()
-##
-pdff('histograms_data')
-for(i in 1:ncol(origdata)){
-    datum <- origdata[[i]]
-    summa <- fivenum(datum)
-    drange <- diff(range(datum))
-    if(is.integer(datum)){
-        breaks <- (summa[1]:(summa[5]+1))-0.5
-    } else {
-        width <- diff(summa[c(2,4)])/nbinsq
-        nbins <- round(drange/width)
-        breaks <- seq(summa[1]-drange/(nbins*100), summa[5]+drange/(nbins*100), length.out=nbins)
-    }
-    print(ggplot(origdata[,..i], aes_(x=as.name(names(origdata)[i]))) + geom_histogram(breaks=breaks))
-}
-dev.off()}
-rm(origdata)
-gc()
-##
-## Shuffle the data for training and test
-set.seed(222)
-data <- data[sample(1:nrow(data))]
-##
-fwrite(data,'../processed_data_scaled.csv', sep=' ')
-##} else {
-##
-##data <- fread('../processed_data_scaled.csv', sep=' ')
-##
-##
-
 ## GOOD values:
 ## sdsasa <- 1
 ## sdtani <- 1
@@ -314,7 +155,11 @@ ndata <- 6000 # nSamples = 37969
 #set.seed(222)
 seldata <- 1:ndata
 rmsdCol <- which(names(data)=='bin_RMSD')
-covNums <- which(colnames(data) %in%  c('scale_mcs_unbonded_polar_sasa', 'scale_ec_tanimoto_similarity', 'mcs_NumHeteroAtoms', # 'scale_fc_tanimoto_similarity'
+covNums <- which(colnames(data) %in%  c(##'bin_RMSD',
+                                        'scale_mcs_unbonded_polar_sasa',
+                                        'scale_ec_tanimoto_similarity',
+                                        'mcs_NumHeteroAtoms',
+                                        ##'scale_fc_tanimoto_similarity'
                                         'docked_HeavyAtomCount',
                                         'mcs_RingCount',
                                         'docked_NumRotatableBonds'
@@ -360,7 +205,7 @@ plan(multisession, workers = 4L)
             }
         }
 ##
-        c(val=val, profRegr(excludeY=TRUE, xModel='Mixed', nSweeps=2000e3, nBurn=3000e3, nFilter=2000, data=as.data.frame(datamcr), nClusInit=80, covNames=c(discreteCovs,continuousCovs), discreteCovs=discreteCovs, continuousCovs=continuousCovs, nProgress=1000, seed=147, output=outfile, useHyperpriorR1=FALSE, useNormInvWishPrior=TRUE, hyper=testhp, alpha=4))
+        c(val=val, profRegr(excludeY=TRUE, xModel='Mixed', nSweeps=2000e3, nBurn=3000e3, nFilter=2e3, data=as.data.frame(datamcr), nClusInit=80, covNames=c(discreteCovs,continuousCovs), discreteCovs=discreteCovs, continuousCovs=continuousCovs, nProgress=100e3, seed=147, output=outfile, useHyperpriorR1=FALSE, useNormInvWishPrior=TRUE, hyper=testhp, alpha=4))
     }
 plan(sequential)
 names(mcmcrun) <- paste0('bin',sapply(mcmcrun,function(i){i$val}))
@@ -429,7 +274,7 @@ for(val in rmsdVals){
     MCMCdata[[paste0('bin',val)]] <- list(val=val, nList=nList, alphaList=alphaList, psiList=psiList, phiList=phiList, muList=muList, sigmaList=sigmaList, logPost=logPost)
 }
 ##
-save.image(file=paste0('_reverse_test_N',ndata,'_',length(covNums),'covs.RData'))
+save.image(file=paste0('_reversemodel_N',ndata,'_',length(covNums),'covs.RData'))
 ##
 ## Diagnostic plots
 pdff('mcsummary')
@@ -451,6 +296,8 @@ for(j in 1:length(MCMCdata)){
     }
 dev.off()
 ##
+
+
 ## Plots
 isasa <- continuousCovs[grepl('sasa', continuousCovs)]
 itani <- continuousCovs[grepl('tanimoto', continuousCovs)]
