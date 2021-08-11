@@ -1,6 +1,6 @@
 ## Author: PGL  Porta Mana
 ## Created: 2021-03-20T10:07:17+0100
-## Last-Updated: 2021-08-09T23:24:20+0200
+## Last-Updated: 2021-08-11T07:22:09+0200
 ################
 ## Script for reverse regression
 ################
@@ -211,6 +211,7 @@ plan(sequential)
 names(mcmcrun) <- paste0('bin',sapply(mcmcrun,function(i){i$val}))
 elapsedtime <- Sys.time() - starttime
 elapsedtime
+## 5000e3: 1.108116 days
 ## 
 ## Save MCMC samples
 MCMCdata <- as.list(rep(NA,length(mcmcrun)))
