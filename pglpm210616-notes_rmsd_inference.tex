@@ -1,7 +1,7 @@
 \pdfoutput=1
 %% Author: PGL  Porta Mana
 %% Created: 2015-05-01T20:53:34+0200
-%% Last-Updated: 2021-08-10T08:06:26+0200
+%% Last-Updated: 2021-08-20T15:58:20+0200
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \newif\ifarxiv
 \arxivfalse
@@ -1012,14 +1012,14 @@ In the first and second case, the features or \rmsd\ of the training set
 could be irrelevant because the respective quantity of the new datapoint
 could be selected by hand or by some process different from that underlying
 the training set. Several authors connect or motivate these different kinds
-of relevance with the robustness of \enquote{causal connections} (which can
-stem from a common cause) in the directions $\xo \rightsquigarrow \ro$ or
-$\ro \rightsquigarrow \xo$ \parencites[\cf][\sects~2.1.2,
-2.2.5]{pearl1988}.
+of relevance with the robustness of \enquote{causal relations} (which can
+be direct or indirect, stemming for example from a common cause) in the
+directions $\xo \rightsquigarrow \ro$ or $\ro \rightsquigarrow \xo$
+\parencites[\cf][\sects~2.1.2, 2.2.5]{pearl1988}.
 
-In case~\ref{item:exch_rx} knowledge of the long-run frequencies cannot
-give us directly the probability of $\ro$ given $\xo$. Such probability can
-be obtained with Bayes's theorem:
+In case~\ref{item:exch_rx} knowledge of the long-run frequencies
+$F_{\xo\mid\ro}$ cannot give us directly the probability of $\ro$ given
+$\xo$. Such probability can be obtained with Bayes's theorem:
 \begin{equation}
   \label{eq:p_xr_bayes}
   \p(\ro \| \xo,\ \yF, H_{\textrm{i}}) =
@@ -1032,7 +1032,7 @@ be obtained with Bayes's theorem:
   }{ \sum_{r} F_{\xo\mid r} \ \p(r\| H_{\textrm{i}})} \ .
 \end{equation}
 The prior probability $\p(\ro\| H_{\textrm{i}})$ required by the theorem
-cannot be obtained from the training set in this case, and need to be
+cannot be obtained from the training set in this case. It needs to be
 assessed from other kinds of information or assumptions.
 
 
@@ -1220,7 +1220,95 @@ approximate forms:
 \section{Evaluation}
 \label{sec:evaluation}
 
+\mynote{\wrench Section still in progress}
 
+A short informal discussion on the \enquote{validation} and
+\enquote{testing} of probability models.
+
+What does it mean to \enquote{test} a predictive probability model? It does
+not make sense to test against the truth of falsity of what's being
+predicted for two reasons.
+
+First, probability models ordinarily do not give truths; they gives
+probabilities. And we can't compare a probability and a truth. It is also
+wrong to require that a model give highest probability to the true case, as
+a simple example shows.
+
+Suppose you're going to roll a regular die, and wonder about two exclusive
+outcomes: outcome $A$ is 1 to 2, outcome $B$ is 3 to 6. You adopt the
+probability model $M$, motivated by symmetry arguments, that assigns
+$\P(A \| M) = 2/6$ and $\P(B \| M) = 4/6$. Imagine also that a friend of
+yours -- who, like you, knows that the die and the roll procedure are
+regular -- uses a different probability model $M'$, with
+$\P(A \| M') = 0.999$ and $\P(B \| M') = 0.001$. I believe that you would
+ask your friend about the reason of this peculiar probability model: the
+prior information that you both have does not seem to support such an
+extremely high probability for $A$. Now you roll the die, and obtain 2. The
+\enquote{truth} is outcome $A$. Your model $M$ assigned the lower
+probability to $A$. You friend's model $M'$ assigned an extremely high
+probability to $A$ instead. Would you then say that your friend's model was
+\enquote{correct}, and yours \enquote{wrong}?
+
+I hope you agree, by simple common sense, that your model $M$ was the most
+\emph{reasonable}, because all evidence available to you and your friend
+made $A$ the least probable outcome of the two. This example shows that we
+cannot judge a model against the truth of the final outcome. We can only
+judge it against the prior evidence we had when it was formulated.
+
+Secondly, we consider a probability model because we don't know the truth.
+So we don't have any truth to test it against. If we had that truth, we
+would not be using a probability model. You might say \enquote{I can at
+  least test the model in cases where I know the truth} -- but how do you
+know that the truth of your test cases is the same as the real case? You
+don't. If you say \enquote{I suspect them to be similar to the real case},
+it means that you have some kind of relevant prior information about the
+latter. Then you should use this prior information in formulating your
+model (if you don't, you're misusing probability theory).
+
+One danger of judging a model against test cases is that we can end up
+modifying it in order to fit them better -- ending up in giving unreliable
+predictions for the real case, which may turn out to be very different from
+the test ones. % -- we don't know, otherwise we wouldn't be using probability theory
+
+
+Such \enquote{tests}, however, can also be viewed from a different and more
+reasonable perspective. It is often difficult to translate our prior
+information into a mathematical formula. We can apply a candidate
+mathematical formula thus obtained to cases in which we know what the
+reasonable predictions would be, given our prior information. If the
+mathematical formula leads to different predictions, then it means that our
+mathematical translation was incorrect, and we must find a better one. Good
+\citey[\sect~4.3 p.~35]{good1950} called this procedure the \enquote{device
+  of imaginary results}.
+
+It is in this last sense that we shall now \enquote{validate} the
+hypotheses discussed in \sect~\ref{sec:hypotheses}.
+
+\medskip
+
+\mynote{\wrench Validation plan:
+
+  • Set sampled from the original dataset. This represents a real case in
+  which the frequencies of $r$, $x$, and all the conditional ones are
+  expected to be as in our dataset.
+
+  • Set sampled from the original one but with proportions of $r$ values
+  different from those appearing in the original one. This represent a real
+  case in which the conditional frequencies $F_{x\mid r}$ are expected to
+  be as in our dataset, but the frequencies of the different $r$
+  values and the conditional frequencies $F_{r\mid x}$ are expected to be
+  different.
+
+
+  If we assume $M$ different values of $r$ and $N$ different values of $x$,
+  the set of frequencies
+  $\set{F_{r\q}, F_{\q x}, F_{r\mid x}, F_{x\mid r}}$ has $M+N+M N + N M$
+  components constrained by the $M N$ identities
+  $\set{F_{x\mid r}\ F_{r\q} = F_{r\mid x}\ F_{\q x}}$ and $N + M -1$
+  independent normalization conditions. This gives $M N - 1$ independent
+  components.
+
+}
 
 
 %%%% examples use empheq
@@ -1305,7 +1393,7 @@ approximate forms:
 %\renewcommand*{\appendixname}{Appendix}
 % %\appendixpage
 \appendix
-\mynote{\wrench\ In progress}
+\mynote{\wrench Sections still in progress}
 
 \section{Exchangeability, approximations, machine learning}
 \label{sec:exchang}

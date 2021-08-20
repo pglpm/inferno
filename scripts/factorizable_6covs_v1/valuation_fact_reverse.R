@@ -1,6 +1,6 @@
 ## Author: PGL  Porta Mana
 ## Created: 2021-03-20T10:07:17+0100
-## Last-Updated: 2021-08-11T07:31:05+0200
+## Last-Updated: 2021-08-20T13:39:04+0200
 ################
 ## Script for evaluation of regression.
 ## Unfactorizable prior
@@ -140,7 +140,7 @@ metrics <- function(truevalues, probX, chanceprior){
                  range=c(0,1)
              )
         )}
-##
+
 #### Calculation of utilities and scores for test set
 ## source(file='calibration_plots.R')
 ##
