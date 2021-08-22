@@ -1,6 +1,6 @@
 ## Author: PGL  Porta Mana
 ## Created: 2021-03-20T10:07:17+0100
-## Last-Updated: 2021-08-21T18:26:36+0200
+## Last-Updated: 2021-08-22T07:22:35+0200
 ################
 ## Script for direct regression, continuous RMSD
 ################
@@ -233,7 +233,7 @@ elapsedtime <- Sys.time() - starttime
 elapsedtime
 ## 2000: 7.64 min
 ## 2000e1: 49.2 min
-## 2000e2:  min
+## 2000e2: 6.41 h
 ## Save MCMC samples
 MCMCdata <- as.list(rep(NA,length(mcmcrun)))
 names(MCMCdata) <- names(mcmcrun)
