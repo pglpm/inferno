@@ -1,7 +1,7 @@
 \pdfoutput=1
 %% Author: PGL  Porta Mana
 %% Created: 2015-05-01T20:53:34+0200
-%% Last-Updated: 2021-08-20T15:58:20+0200
+%% Last-Updated: 2021-08-22T15:08:21+0200
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \newif\ifarxiv
 \arxivfalse
@@ -1008,6 +1008,7 @@ seeming the most appropriate to our inference:
 \end{enumerate}
 % The mathematical representation of the three kinds of exchangeability above
 % is given in \mynote{\wrench\sect***} for brevity.
+
 In the first and second case, the features or \rmsd\ of the training set
 could be irrelevant because the respective quantity of the new datapoint
 could be selected by hand or by some process different from that underlying
@@ -1288,16 +1289,16 @@ hypotheses discussed in \sect~\ref{sec:hypotheses}.
 
 \mynote{\wrench Validation plan:
 
-  • Set sampled from the original dataset. This represents a real case in
+  • Set sampled from the original dataset. This represents the case in
   which the frequencies of $r$, $x$, and all the conditional ones are
   expected to be as in our dataset.
 
   • Set sampled from the original one but with proportions of $r$ values
-  different from those appearing in the original one. This represent a real
+  different from those appearing in the original one. This represent the
   case in which the conditional frequencies $F_{x\mid r}$ are expected to
-  be as in our dataset, but the frequencies of the different $r$
-  values and the conditional frequencies $F_{r\mid x}$ are expected to be
-  different.
+  be as in our dataset, but the frequencies of the different $r$ values and
+  the conditional frequencies $F_{r\mid x}$ are not expected to be the
+  same.
 
 
   If we assume $M$ different values of $r$ and $N$ different values of $x$,
