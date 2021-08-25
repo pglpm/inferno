@@ -1,6 +1,6 @@
 ## Author: PGL  Porta Mana
 ## Created: 2021-03-20T10:07:17+0100
-## Last-Updated: 2021-08-22T07:22:35+0200
+## Last-Updated: 2021-08-22T13:58:45+0200
 ################
 ## Script for direct regression, continuous RMSD
 ################
@@ -225,7 +225,7 @@ mcmcrun <- foreach(case=directcases, .inorder=FALSE)%do%{
     }
 ##
 ##
-        c(case=case, profRegr(excludeY=TRUE, xModel='Mixed', nSweeps=2000e2, nBurn=3000e2, nFilter=2e2, nProgress=100e2, data=as.data.frame(datamcr), nClusInit=80, covNames=c(discreteCovs,continuousCovs), discreteCovs=discreteCovs, continuousCovs=continuousCovs, seed=147, output=outfile, useHyperpriorR1=FALSE, useNormInvWishPrior=TRUE, hyper=testhp, alpha=4))
+        c(case=case, profRegr(excludeY=TRUE, xModel='Mixed', nSweeps=2000e3, nBurn=3000e3, nFilter=2e3, nProgress=100e3, data=as.data.frame(datamcr), nClusInit=80, covNames=c(discreteCovs,continuousCovs), discreteCovs=discreteCovs, continuousCovs=continuousCovs, seed=147, output=outfile, useHyperpriorR1=FALSE, useNormInvWishPrior=TRUE, hyper=testhp, alpha=4))
 }
 plan(sequential)
 names(mcmcrun) <- paste0('freqs',sapply(mcmcrun,function(i){i$case}))
