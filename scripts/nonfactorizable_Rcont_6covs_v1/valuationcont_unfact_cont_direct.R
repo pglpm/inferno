@@ -1,6 +1,6 @@
 ## Author: PGL  Porta Mana
 ## Created: 2021-03-20T10:07:17+0100
-## Last-Updated: 2021-08-24T15:57:18+0200
+## Last-Updated: 2021-08-25T08:15:52+0200
 ################
 ## Script for evaluation of regression:
 ## Unfactorizable prior
@@ -31,7 +31,7 @@ library('PReMiuM')
 library('mvtnorm')
 options(bitmapType='cairo')
 
-load(file='_test_unfactor_cont_model_N6000_7covs.RData')
+load(file='_directmodel_contR_N6000_7covs.RData')
 ##################################################################
 ##################################################################
 ## Function to calculate \sum_t F^{(t)}_{r|x}
