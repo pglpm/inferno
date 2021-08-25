@@ -1,6 +1,6 @@
 ## Author: PGL  Porta Mana
 ## Created: 2021-03-20T10:07:17+0100
-## Last-Updated: 2021-08-24T06:20:31+0200
+## Last-Updated: 2021-08-25T08:05:16+0200
 ################
 ## Script for evaluation of regression:
 ## Unfactorizable prior
@@ -33,6 +33,7 @@ library('PReMiuM')
 library('mvtnorm')
 options(bitmapType='cairo')
 
+load(file='_directmodel_contR_N6000_7covs.RData')
 ##################################################################
 ##################################################################
 ## Function to calculate \sum_t F^{(t)}_{r|x}
@@ -40,49 +41,49 @@ options(bitmapType='cairo')
 rangeR <- fivenum(data$log_RMSD, na.rm=T)
 rangeR <- c(diff(rangeR[c(3,1)]), diff(rangeR[c(3,5)]))*1.1+rangeR[3]
 cC <- setdiff(continuousCovs,'log_RMSD')
-predictfXall <- function(dataobj, X){
-    X <- as.matrix(X[, c(discreteCovs,continuousCovs), with=FALSE])
-    ntestdata <- nrow(X)
-    freqs <- foreach(asample=seq_along(dataobj$nList), .combine=cbind, .inorder=FALSE)%dopar%{
-        numer <- colSums(
-            exp(
-            log(dataobj$psiList[[asample]]) +
-            t(vapply(seq_len(dataobj$nList[asample]), function(cluster){
-                rowSums(log(
-                    vapply(discreteCovs, function(covariate){
-                        dataobj$phiList[[asample]][[covariate]][X[,covariate], cluster]
-                    }, numeric(ntestdata*lrgrid))
-                )) +
-                    dmvnorm(X[,continuousCovs], mean=dataobj$muList[[asample]][continuousCovs,cluster], sigma=as.matrix(dataobj$sigmaList[[asample]][continuousCovs,continuousCovs,cluster]), log=TRUE)
-            }, numeric(ntestdata*lrgrid)))
-            )
-            )
+## predictfXall <- function(dataobj, X){
+##     X <- as.matrix(X[, c(discreteCovs,continuousCovs), with=FALSE])
+##     ntestdata <- nrow(X)
+##     freqs <- foreach(asample=seq_along(dataobj$nList), .combine=cbind, .inorder=FALSE)%dopar%{
+##         numer <- colSums(
+##             exp(
+##             log(dataobj$psiList[[asample]]) +
+##             t(vapply(seq_len(dataobj$nList[asample]), function(cluster){
+##                 rowSums(log(
+##                     vapply(discreteCovs, function(covariate){
+##                         dataobj$phiList[[asample]][[covariate]][X[,covariate], cluster]
+##                     }, numeric(ntestdata*lrgrid))
+##                 )) +
+##                     dmvnorm(X[,continuousCovs], mean=dataobj$muList[[asample]][continuousCovs,cluster], sigma=as.matrix(dataobj$sigmaList[[asample]][continuousCovs,continuousCovs,cluster]), log=TRUE)
+##             }, numeric(ntestdata*lrgrid)))
+##             )
+##             )
 
-        denom <- colSums(
-            exp(
-            log(dataobj$psiList[[asample]]) +
-            t(vapply(seq_len(dataobj$nList[asample]), function(cluster){
-                ## rowSums(log(
-                ##     vapply(discreteCovs, function(covariate){
-                ##         dataobj$phiList[[asample]][[covariate]][X[,covariate], cluster]
-                ##     }, numeric(ntestdata))
-                ## )) +
-                    dnorm(X[,'log_RMSD'], mean=dataobj$muList[[asample]]['log_RMSD',cluster], sd=sqrt(dataobj$sigmaList[[asample]]['log_RMSD','log_RMSD',cluster]), log=TRUE)
-            }, numeric(ntestdata*lrgrid)))
-            )
-            )
+##         denom <- colSums(
+##             exp(
+##             log(dataobj$psiList[[asample]]) +
+##             t(vapply(seq_len(dataobj$nList[asample]), function(cluster){
+##                 ## rowSums(log(
+##                 ##     vapply(discreteCovs, function(covariate){
+##                 ##         dataobj$phiList[[asample]][[covariate]][X[,covariate], cluster]
+##                 ##     }, numeric(ntestdata))
+##                 ## )) +
+##                     dnorm(X[,'log_RMSD'], mean=dataobj$muList[[asample]]['log_RMSD',cluster], sd=sqrt(dataobj$sigmaList[[asample]]['log_RMSD','log_RMSD',cluster]), log=TRUE)
+##             }, numeric(ntestdata*lrgrid)))
+##             )
+##             )
 
-        numer/denom
-    }
-        ## me <- rowMeans(freqs)
-    ## freqs <- cbind(means=me, stds=sqrt(rowMeans(freqs^2) - me^2))
-    ## dim(freqs) <- c(ntestdata, lrgrid, 2)
-    ## dimnames(freqs) <- list(NULL, NULL, c('means','stds'))
-    ## freqs
-    freqs <- rowMeans(freqs)
-    dim(freqs) <- c(ntestdata, lrgrid)
-    freqs
-}
+##         numer/denom
+##     }
+##         ## me <- rowMeans(freqs)
+##     ## freqs <- cbind(means=me, stds=sqrt(rowMeans(freqs^2) - me^2))
+##     ## dim(freqs) <- c(ntestdata, lrgrid, 2)
+##     ## dimnames(freqs) <- list(NULL, NULL, c('means','stds'))
+##     ## freqs
+##     freqs <- rowMeans(freqs)
+##     dim(freqs) <- c(ntestdata, lrgrid)
+##     freqs
+## }
 ##
 predictfXall <- function(dataobj, X){
     X <- as.matrix(X[, c(discreteCovs,continuousCovs), with=FALSE])
@@ -149,18 +150,19 @@ dim(distrf) <- c(length(rgrid), nrow(testdata), ncol(distrf))
 dimnames(distrf) <- list(NULL, paste0('testid',1:nrow(testdata)), NULL)
 ##
 
-nsamples <- 50
+nsamples <- 100
 pdff(paste0('distributions_samples_reverse_','tail'))
 for(atest in 1:nrow(testdata)){
     dat <- t(normalizem(t(distrf[,atest,round(seq(1,dim(distrf)[3],length.out=nsamples))])))
     matplot(x=rgrid, y=dat, type='l', col=paste0(palette()[5],'44'), lty=1, lwd=2, xlab='log-RMSD', ylab='probability density',cex.axis=1.5, cex.lab=1.5)
     matlines(x=rgrid, y=rowMeans(dat), col=palette()[1], lty=1, lwd=3)
     matlines(x=rep(testdata[atest,log_RMSD],2),y=c(0,max(dat)),lty=2,lwd=4,col=palette()[2])
+    matlines(x=rep(c(rgrid %*% normalize(rowMeans(dat))),2),y=c(0,max(dat)),lty=4,lwd=3,col=palette()[3])
     matlines(x=rep(boundaries[1],2),y=c(0,max(dat)),lty=3,lwd=4,col=palette()[4])
     matlines(x=rep(boundaries[2],2),y=c(0,max(dat)),lty=3,lwd=4,col=palette()[4])
     grid(lwd=1,lty=1)
-    legend('topleft',legend=c('predicted distributions','mean (final predictive)','true value', '2-3 \u00c5'),lty=c(1,1,2,3),col=palette()[c(5,1,2,4)], lwd=c(2,3,4,4),bty='n',cex=1.25)
-    legend('left',legend=paste0(names(testdata[atest]),' = ',signif(testdata[atest],3)), bty='n',horiz=F,inset=-0.03)
+    legend('topleft',legend=c('predicted distributions','mean (final predictive)','true value','quadratic-gain choice', '2-3 \u00c5'),lty=c(1,1,2,4,3),col=palette()[c(5,1,2,3,4)], lwd=c(2,3,4,3,4),bty='n',cex=1.25)
+        legend('topright',legend=paste0(names(testdata[atest]),' = ',signif(testdata[atest],3)), bty='n',horiz=F,inset=-0.005)
 }
 dev.off()
     
