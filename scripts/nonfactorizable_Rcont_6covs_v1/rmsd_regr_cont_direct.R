@@ -1,6 +1,6 @@
 ## Author: PGL  Porta Mana
 ## Created: 2021-03-20T10:07:17+0100
-## Last-Updated: 2021-08-22T13:58:45+0200
+## Last-Updated: 2021-08-25T07:31:32+0200
 ################
 ## Script for direct regression, continuous RMSD
 ################
@@ -296,7 +296,7 @@ for(case in directcases){
     MCMCdata[[paste0('freqs',case)]] <- list(case=case, nList=nList, alphaList=alphaList, psiList=psiList, phiList=phiList, muList=muList, sigmaList=sigmaList, logPost=logPost)
 }
 ##
-## save.image(file=paste0('_directmodel_N',ndata,'_',length(covNums),'covs.RData'))
+save.image(file=paste0('_directmodel_contR_N',ndata,'_',length(covNums),'covs.RData'))
 ##
 ## Diagnostic plots
 pdff('mcsummary')
