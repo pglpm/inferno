@@ -1,6 +1,6 @@
 ## Author: PGL  Porta Mana
 ## Created: 2021-03-20T10:07:17+0100
-## Last-Updated: 2021-09-09T14:06:15+0200
+## Last-Updated: 2021-09-09T14:28:02+0200
 ################
 ## Script for direct regression, continuous RMSD
 ################
@@ -133,7 +133,7 @@ plan(multisession, workers = 2L)
 library('nimble')
 ##
 nclusters <- 100
-ndata <- 1000
+ndata <- 500
 ##
 constants <- list(
     nClusters=nclusters,
@@ -156,29 +156,33 @@ dat <- list(
 ##
 inits <- list(
     q=rep(1,nclusters)/nclusters,
-    meanC=rep(0,nclusters),
-    tauC=rep(1,nclusters),
-    lambdaD=rep(1,nclusters),
+    meanC=matrix(0, nrow=length(continuousCovs), ncol=nclusters),
+    tauC=matrix(1, nrow=length(continuousCovs), ncol=nclusters),
+    lambdaD=matrix(1, nrow=length(discreteCovs), ncol=nclusters),
     C=rcat(n=ndata, prob=rep(1,nclusters)/nclusters)
 )
 ##
 bayesnet <- nimbleCode({
     q[1:nClusters] ~ ddirch(alpha=alpha0[1:nClusters])
     for(i in 1:nClusters){
-        meanC[i] ~ dnorm(mean=meanC0, tau=tauC0)
-        tauC[i] ~ dgamma(shape=shapeC0, rate=rateC0)
-        lambdaD[i] ~ dgamma(shape=shapeD0, rate=rateD0)
+        for(j in 1:nCvars){
+            meanC[j,i] ~ dnorm(mean=meanC0, tau=tauC0)
+            tauC[j,i] ~ dgamma(shape=shapeC0, rate=rateC0)
         }
+        for(j in 1:nDvars){
+            lambdaD[j,i] ~ dgamma(shape=shapeD0, rate=rateD0)
+        }
+    }
     ##
     for(i in 1:nData){
         C[i] ~ dcat(prob=q[1:nClusters])
     }
     for(i in 1:nData){
         for(j in 1:nCvars){
-            X[i,j] ~ dnorm(mean=meanC[C[j]], tau=tauC[C[j]])
+            X[i,j] ~ dnorm(mean=meanC[j,C[i]], tau=tauC[j,C[i]])
         }
         for(j in 1:nDvars){
-            Y[i,j] ~ dpois(lambda=lambdaD[C[j]])
+            Y[i,j] ~ dpois(lambda=lambdaD[j,C[i]])
         }
     }
 })
@@ -192,7 +196,7 @@ confmodel <- configureMCMC(Cmodel)
 mcmcsampler <- buildMCMC(confmodel)
 Cmcmcsampler <- compileNimble(mcmcsampler, resetFunctions = TRUE)
 
-mcsamples <- runMCMC(Cmcmcsampler, nburnin=1000, niter=3000, thin=2, setSeed=123)
+mcsamples <- runMCMC(Cmcmcsampler, nburnin=1000, niter=2000, thin=1, setSeed=123)
 
 
 
