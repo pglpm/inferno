@@ -1,6 +1,6 @@
 ## Author: PGL  Porta Mana
 ## Created: 2021-03-20T10:07:17+0100
-## Last-Updated: 2021-09-09T14:28:02+0200
+## Last-Updated: 2021-09-09T15:02:55+0200
 ################
 ## Script for direct regression, continuous RMSD
 ################
@@ -198,6 +198,152 @@ Cmcmcsampler <- compileNimble(mcmcsampler, resetFunctions = TRUE)
 
 mcsamples <- runMCMC(Cmcmcsampler, nburnin=1000, niter=2000, thin=1, setSeed=123)
 
+
+
+
+
+
+
+## Read and reorganize data
+rm(alldata)
+alldata <- fread('../processed_data_scaled.csv', sep=' ')
+nameFeatures <- names(alldata)
+nSamples <- nrow(alldata)
+nFeatures <- ncol(alldata)
+##
+##
+ndata <- 100 # nSamples = 37969
+#set.seed(222)
+rmsdCol <- which(names(alldata)=='log_RMSD')
+covNums <- which(colnames(alldata) %in%  c('log_RMSD',
+                                        'scale_mcs_unbonded_polar_sasa',
+                                        'scale_ec_tanimoto_similarity',
+                                        'mcs_NumHeteroAtoms',
+                                        ##'scale_fc_tanimoto_similarity'
+                                        'docked_HeavyAtomCount',
+                                        'mcs_RingCount',
+                                        'docked_NumRotatableBonds'
+                                        ))
+covNames <- names(alldata)[covNums]
+discreteCovs <- covNames[sapply(covNames, function(x){is.integer(alldata[[x]])})]
+continuousCovs <- covNames[sapply(covNames, function(x){is.double(alldata[[x]])})]
+allCovNums <- c(rmsdCol, covNums)
+##
+##
+rm(allmcmcrun)
+gc()
+totaltime <- Sys.time()
+plan(sequential)
+plan(multisession, workers = 2L)
+
+library('nimble')
+##
+nclusters <- 100
+ndata <- 500
+ncvars <- length(continuousCovs),
+ndvars <- length(discreteCovs),
+##
+testnf <- nimbleFunction(
+    run = function(x=double(0),
+                   meanC=double(2), sdC=double(2),
+                   log=integer(0, default=0)){
+        returnType(double(0))
+        prob <- sum(dnorm(x, mean=meanC, sd=sdC))
+        if(log) return(log(prob))
+        else return(prob)
+        })
+Ctestnf <- compileNimble(testnf)
+
+
+dF <- nimbleFunction(
+    run = function(x=double(1), y=integer(1),
+                   q=double(1),
+                   meanC=double(2), tauC=double(2),
+                   lambdaD=double(2),
+                   log=integer(0, default=0)){
+        returnType(double(0))
+        
+
+
+        
+            tx <- sum(x)
+            f <- exp(x)/sum(exp(x))
+            dmean <- inprod(f,0:(length(f)-1))
+            logp <- sum((alphas+1) * log(f)) + (shapegamma-1)*log(dmean) - (rategamma*dmean)^powerexp - sum((log(f) %*% smatrix)^2) - normstrength  * tx^2 
+            if(log) return(logp)
+            else return(exp(logp))
+        })
+    assign('dlogsmoothmean', dlogsmoothmean, envir = .GlobalEnv)
+constants <- list(
+    nClusters=nclusters,
+    nData=ndata,
+    nCvars=length(continuousCovs),
+    nDvars=length(discreteCovs),
+    alpha0=rep(1,nclusters)*4/nclusters,
+    meanC0=0,
+    tauC0=1/10^2,
+    shapeC0=1,
+    rateC0=1,
+    shapeD0=1,
+    rateD0=1
+)
+##
+dat <- list(
+    X=as.matrix(alldata[1:ndata, ..continuousCovs]),
+    Y=as.matrix(alldata[1:ndata, ..discreteCovs])
+)
+##
+inits <- list(
+    q=rep(1,nclusters)/nclusters,
+    meanC=matrix(0, nrow=length(continuousCovs), ncol=nclusters),
+    tauC=matrix(1, nrow=length(continuousCovs), ncol=nclusters),
+    lambdaD=matrix(1, nrow=length(discreteCovs), ncol=nclusters),
+    C=rcat(n=ndata, prob=rep(1,nclusters)/nclusters)
+)
+##
+bayesnet <- nimbleCode({
+    q[1:nClusters] ~ ddirch(alpha=alpha0[1:nClusters])
+    for(i in 1:nClusters){
+        for(j in 1:nCvars){
+            meanC[j,i] ~ dnorm(mean=meanC0, tau=tauC0)
+            tauC[j,i] ~ dgamma(shape=shapeC0, rate=rateC0)
+        }
+        for(j in 1:nDvars){
+            lambdaD[j,i] ~ dgamma(shape=shapeD0, rate=rateD0)
+        }
+    }
+    ##
+    for(i in 1:nData){
+        C[i] ~ dcat(prob=q[1:nClusters])
+    }
+    for(i in 1:nData){
+        for(j in 1:nCvars){
+            X[i,j] ~ dnorm(mean=meanC[j,C[i]], tau=tauC[j,C[i]])
+        }
+        for(j in 1:nDvars){
+            Y[i,j] ~ dpois(lambda=lambdaD[j,C[i]])
+        }
+    }
+})
+
+model <- nimbleModel(code=bayesnet, name='model1', constants=constants, inits=inits, data=dat)
+
+Cmodel <- compileNimble(model, showCompilerOutput=TRUE)
+
+confmodel <- configureMCMC(Cmodel)
+
+mcmcsampler <- buildMCMC(confmodel)
+Cmcmcsampler <- compileNimble(mcmcsampler, resetFunctions = TRUE)
+
+mcsamples <- runMCMC(Cmcmcsampler, nburnin=1000, niter=2000, thin=1, setSeed=123)
+
+
+
+
+##############################################################
+##############################################################
+##############################################################
+##############################################################
 
 
 
