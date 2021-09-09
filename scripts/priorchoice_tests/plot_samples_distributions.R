@@ -1,6 +1,6 @@
 ## Author: PGL  Porta Mana
 ## Created: 2021-03-20T10:07:17+0100
-## Last-Updated: 2021-08-29T07:50:36+0200
+## Last-Updated: 2021-09-02T13:04:02+0200
 ################
 ## Script for evaluation of regression:
 ## Unfactorizable prior
@@ -36,7 +36,7 @@ pdff <- function(filename){pdf(file=paste0(filename,'.pdf'),paper='a4r',height=1
 pngf <- function(filename,res=300){png(file=paste0(filename,'.png'),height=11.7*1.2,width=16.5,units='in',res=res,pointsize=36)} # to output in pdf format
 #### End custom setup ####
 
-indir <- 'output3-prior_N0_Ncov7/'
+indir <- 'output4valpha-prior_N0_Ncov7/'
 ##
 ## setwd(indir)
 mcmcoutput <- readRDS(paste0(indir, '_mcmcoutput.rds'))

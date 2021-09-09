@@ -1,6 +1,6 @@
 ## Author: PGL  Porta Mana
 ## Created: 2021-03-20T10:07:17+0100
-## Last-Updated: 2021-08-29T08:00:31+0200
+## Last-Updated: 2021-09-02T12:53:44+0200
 ################
 ## Script for direct regression, continuous RMSD
 ################
@@ -134,7 +134,7 @@ hkappa0 <- expvarsasa/varmusasa
 hDelta0 <- solve(diag(sapply(continuousCovs, function(x){expvar0[sapply(names(expvar0),function(y){grepl(y,x)})]})))/(df0-2)
 colnames(hDelta0) <- rownames(hDelta0) <- names(hmu0)
 ##
-hyperpar <- setHyperparams(mu0=hmu0, kappa0=hnu0, R0=hDelta0, nu0=hkappa0)
+hyperpar <- setHyperparams(mu0=hmu0, kappa0=hnu0, R0=hDelta0, nu0=hkappa0, shapeAlpha=2, rateAlpha=1)
 ##
 rmsdVals <- 1:3
 cases <- c('prior')
@@ -145,7 +145,7 @@ totaltime <- Sys.time()
 plan(sequential)
 plan(multisession, workers = 2L)
 allmcmcrun <- foreach(case=cases, .inorder=FALSE)%dopar%{
-    outdir <- paste0('output3-', case, '_N', ndata, '_Ncov', length(covNums), '/')
+    outdir <- paste0('output4valpha-', case, '_N', ndata, '_Ncov', length(covNums), '/')
     outfile <- paste0('_mcout_', case)
     if(!dir.exists(outdir)){dir.create(outdir)}
     setwd(outdir)
@@ -173,7 +173,7 @@ allmcmcrun <- foreach(case=cases, .inorder=FALSE)%dopar%{
                           nBurn=3000e1,
                           nFilter=2e1,
                           nProgress=100e1,
-                          data=as.data.frame(datamc), nClusInit=80, covNames=c(discreteCovs,continuousCovs), discreteCovs=discreteCovs, continuousCovs=continuousCovs, seed=147, output=outfile, useHyperpriorR1=FALSE, useNormInvWishPrior=TRUE, hyper=hyperpar, alpha=4),
+                          data=as.data.frame(datamc), nClusInit=20, covNames=c(discreteCovs,continuousCovs), discreteCovs=discreteCovs, continuousCovs=continuousCovs, seed=147, output=outfile, useHyperpriorR1=FALSE, useNormInvWishPrior=TRUE, hyper=hyperpar, alpha=-2),
                  list(case=case, hyperPar=hyperpar))
     runtime <- Sys.time() - runtime
     mcmcrun$runtime <- runtime

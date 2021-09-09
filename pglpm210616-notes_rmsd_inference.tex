@@ -1,7 +1,7 @@
 \pdfoutput=1
 %% Author: PGL  Porta Mana
 %% Created: 2015-05-01T20:53:34+0200
-%% Last-Updated: 2021-08-22T15:08:21+0200
+%% Last-Updated: 2021-09-06T12:14:45+0200
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \newif\ifarxiv
 \arxivfalse
@@ -591,7 +591,7 @@ Open Science Framework \doi{10.31219/osf.io/#1}%
 %\DeclarePairedDelimiter\opop{]}{[}
 \DeclarePairedDelimiter\abs{\lvert}{\rvert}
 %\DeclarePairedDelimiter\norm{\lVert}{\rVert}
-\DeclarePairedDelimiter\set{\{}{\}}
+\DeclarePairedDelimiter\set{\{}{\}}%}
 %\DeclareMathOperator{\pr}{P}%probability
 \newcommand*{\p}{\mathrm{p}}%probability
 \renewcommand*{\P}{\mathrm{P}}%probability
@@ -1699,7 +1699,49 @@ equal to $1$ in the direction of the \enquote{tanimoto} quantities, and
 equal to some larger value, say ${}\sim 4$, in the direction of the \enquote{sasa}
 quantities. These requirement leave the parameter $\kappa^{*}$ still undefined.
 
+\iffalse
+\section{Alternative formulations}
+\label{sec:alt_form}
 
+\begin{equation}
+  F(r \| x) = \sum_{k} q_{k}(x)\ N[r \| \mu_{k}(x), \sigma_{k}(x)]
+\end{equation}
+
+
+\begin{equation}
+  \p(F_{\bm{\mid}}  \| H)\ \di F_{\bm{\mid}} =
+  \p(\bm{q}, \bm{\mu}, \bm{\sigma} \| H)\
+  \di\bm{q}\ \di\bm{\mu}\ \di\bm{\sigma}
+\end{equation}
+with an infinite-dimensional normal distribution (Gaussian process).
+
+\begin{multline}
+  \p(r \| x, H) = \int F(r \| x)\ \p(F_{\bm{\mid}} \| H)\ \di F_{\bm{\mid}} ={}\\
+  \iiint \sum_{k} q_{k}(x)\ N[r \| \mu_{k}(x), \sigma_{k}(x)]\
+  \p(\bm{q}, \bm{\mu}, \bm{\sigma} \| H)\
+  \di\bm{q}\ \di\bm{\mu}\ \di\bm{\sigma}
+\end{multline}
+
+
+\begin{multline}
+  \p(F_{\bm{\mid}} \| \rd, \xd, H) =
+  \frac{\p(\rd \| F_{\bm{\mid}},\ \xd, H)\ \p(F_{\bm{\mid}} \| H)
+  }{
+  \int  \p(\rd \| F_{\bm{\mid}},\ \xd, H)\ \p(F_{\bm{\mid}} \| H)\ \di F_{\bm{\mid}}
+} ={}\\[2\jot]
+\frac{
+  \prod_{i}\bigl\{
+  \sum_{k} q_{k}(x_{i})\ N[r_{i} \| \mu_{k}(x_{i}),
+  \sigma_{k}(x_{i})]
+  \bigr\} \
+  \p(\bm{q}, \bm{\mu}, \bm{\sigma} \| H)
+}{
+\iiint   \sum_{k} q_{k}(x)\ N[r \| \mu_{k}(x), \sigma_{k}(x)] \
+\p(\bm{q}, \bm{\mu}, \bm{\sigma} \| H)\
+\di\bm{q}\ \di\bm{\mu}\ \di\bm{\sigma}
+}
+\end{multline}
+\fi
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%% Bibliography
