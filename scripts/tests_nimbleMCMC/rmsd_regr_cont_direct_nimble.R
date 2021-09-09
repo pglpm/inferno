@@ -1,6 +1,6 @@
 ## Author: PGL  Porta Mana
 ## Created: 2021-03-20T10:07:17+0100
-## Last-Updated: 2021-09-09T15:02:55+0200
+## Last-Updated: 2021-09-09T19:24:15+0200
 ################
 ## Script for direct regression, continuous RMSD
 ################
@@ -244,11 +244,11 @@ ncvars <- length(continuousCovs),
 ndvars <- length(discreteCovs),
 ##
 testnf <- nimbleFunction(
-    run = function(x=double(0),
+    run = function(x=double(1),
                    meanC=double(2), sdC=double(2),
                    log=integer(0, default=0)){
-        returnType(double(0))
-        prob <- sum(dnorm(x, mean=meanC, sd=sdC))
+        returnType(double(1))
+        prob <- dnorm(x, mean=meanC, sd=sdC)
         if(log) return(log(prob))
         else return(prob)
         })
@@ -256,13 +256,16 @@ Ctestnf <- compileNimble(testnf)
 
 
 dF <- nimbleFunction(
-    run = function(x=double(1), y=integer(1),
+    run = function(x=double(1),
                    q=double(1),
                    meanC=double(2), tauC=double(2),
                    lambdaD=double(2),
                    log=integer(0, default=0)){
         returnType(double(0))
-        
+        xC <- x[1:nCvars]
+        xD <- x[inDvars:fnDvars]
+        sum <- numeric(1, value=0)
+        log(q) + dnorm(x=xC, mean=meanC, sd=1/sqrt(tauC), log=TRUE)
 
 
         
@@ -277,8 +280,10 @@ dF <- nimbleFunction(
 constants <- list(
     nClusters=nclusters,
     nData=ndata,
-    nCvars=length(continuousCovs),
-    nDvars=length(discreteCovs),
+    nCvars=ncvars,
+    nDvars=ndvars,
+    inDvars=ncvars+1,
+    fnDvars=ncvars+ndvars,
     alpha0=rep(1,nclusters)*4/nclusters,
     meanC0=0,
     tauC0=1/10^2,
