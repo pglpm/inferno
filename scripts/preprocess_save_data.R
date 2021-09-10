@@ -1,6 +1,6 @@
 ## Author: PGL  Porta Mana
 ## Created: 2021-03-20T10:07:17+0100
-## Last-Updated: 2021-08-04T10:04:05+0200
+## Last-Updated: 2021-09-10T15:19:13+0200
 ################
 ## Script for reverse regression
 ################
@@ -31,7 +31,7 @@ pdff <- function(filename){pdf(file=paste0(filename,'.pdf'),paper='a4r',height=1
 pngf <- function(filename,res=300){png(file=paste0(filename,'.png'),height=11.7*1.2,width=16.5,units='in',res=res,pointsize=36)} # to output in pdf format
 #### End custom setup ####
 
-doplots <- TRUE
+doplots <- FALSE#TRUE
 #######################################
 #### FUNCTION TO CALCULATE MUTUAL INFO FROM FREQUENCY PAIRS
 ## freqs[,S] = response freqs for stimulus S: one column per stimulus
@@ -97,7 +97,7 @@ Dsasa2y <- function(x){
 ##
 ## Read and reorganize data
 rm(data)
-data <- as.data.table(read.csv(file='../dataset_template_based_docking_predict_rmsd.csv', header=T, sep=','))
+data <- as.data.table(read.csv(file='dataset_template_based_docking_predict_rmsd.csv', header=T, sep=','))
 ## remove datapoints with missing or erroneous features
 data <- data[!is.na(rmsd)]
 data <- data[, which(sapply(data, is.numeric)==TRUE), with=FALSE]
@@ -113,24 +113,24 @@ names(data)[which(names(data)=='rmsd')] <- 'log_RMSD'
 rmsdThreshold <- c(2, 2.5, 3)
 logRmsdThreshold <- log(rmsdThreshold)
 ## transform 'sasa' features to log-scale
-indx <- grepl('sasa', colnames(data))
-for(elem in colnames(data)[indx]){
+indxs <- grepl('sasa', colnames(data))
+for(elem in colnames(data)[indxs]){
     datum <- sasa2y(data[[elem]])
     eps <- max(diff(sort(unique(datum[abs(datum)!=Inf]))))
     datum[datum==-Inf] <- min(datum[abs(datum)!=Inf])-2*eps
     data[, elem] <- datum
 }
-names(data)[indx] <- paste0('scale_',names(data)[indx])
+names(data)[indxs] <- paste0('scale_',names(data)[indxs])
 ## transform 'tanimoto' features to logit scale
-indx <- grepl('tanimoto', colnames(data))
-for(elem in colnames(data)[indx]){
+indxt <- grepl('tanimoto', colnames(data))
+for(elem in colnames(data)[indxt]){
     datum <- tanimoto2y(data[[elem]])
     eps <- max(diff(sort(unique(datum[abs(datum)!=Inf]))))
     datum[datum==Inf] <- max(datum[abs(datum)!=Inf])+2*eps
     datum[datum==-Inf] <- min(datum[abs(datum)!=Inf])-2*eps
     data[, elem] <- datum
 }
-names(data)[indx] <- paste0('scale_',names(data)[indx])
+names(data)[indxt] <- paste0('scale_',names(data)[indxt])
 ## shift integer features to start from value 1
 indx <- sapply(1:ncol(data), function(x){is.integer(data[[x]])})
 for(elem in colnames(data)[indx]){

@@ -1,6 +1,6 @@
 ## Author: PGL  Porta Mana
 ## Created: 2021-03-20T10:07:17+0100
-## Last-Updated: 2021-09-10T08:24:08+0200
+## Last-Updated: 2021-09-10T10:44:34+0200
 ################
 ## Script for direct regression, continuous RMSD
 ################
@@ -264,12 +264,22 @@ ndvars <- length(discreteCovs)
 dF <- nimbleFunction(
     run = function(x=double(1),
                    nCvars=integer(0, default=ncvars),
+                   iCvars=integer(0, default=icvars),
+                   fCvars=integer(0, default=fcvars),
+                   nC0vars=integer(0, default=nc0vars),
+                   iC0vars=integer(0, default=ic0vars),
+                   fC0vars=integer(0, default=fc0vars),
+                   nC1vars=integer(0, default=nc1vars),
+                   iC1vars=integer(0, default=ic1vars),
+                   fC1vars=integer(0, default=fc1vars),
                    nDvars=integer(0, default=ndvars),
-                   inDvars=integer(0, default=ncvars+1),
-                   fnDvars=integer(0, default=ncvars+ndvars),
+                   iDvars=integer(0, default=idvars),
+                   fDvars=integer(0, default=fdvars),
                    nClusters=integer(0, default=nclusters),
-                   q=double(1),
-                   meanC=double(2), tauC=double(2),
+                   logq=double(1),
+                   meanC=double(2), logsdC=double(2),
+                   logshapeC=double(2), logscaleC=double(2),
+                   logshape1C=double(2), logsshape2C=double(2),
                    lambdaD=double(2),
                    log=integer(0, default=0)){
         returnType(double(0))
@@ -278,7 +288,7 @@ dF <- nimbleFunction(
         sumclusters <- 0
         for(i in 1:nClusters){
             sumclusters <- sumclusters + exp(
-                                             log(q[i]) +
+                                             logq[i] +
                 sum(dnorm(x=xC, mean=meanC[1:nCvars,i], sd=1/sqrt(tauC[1:nCvars,i]), log=TRUE)) +
                 sum(dpois(x=xD, lambda=lambdaD[1:nDvars,i], log=TRUE))
                 )
