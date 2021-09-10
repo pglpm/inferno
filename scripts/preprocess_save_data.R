@@ -1,6 +1,6 @@
 ## Author: PGL  Porta Mana
 ## Created: 2021-03-20T10:07:17+0100
-## Last-Updated: 2021-09-10T15:19:13+0200
+## Last-Updated: 2021-09-10T19:49:58+0200
 ################
 ## Script for reverse regression
 ################
@@ -56,30 +56,14 @@ normalize <- function(freqs){freqs/sum(freqs)}
 ## for rows of frequency distributions
 normalizem <- function(freqs){freqs/rowSums(freqs)}
 ##
-## specify hyperparameters for hyperpriors of continuous variables
-musasa <- 1
-mutani <- 0
-mu0 <- c(musasa,mutani)
-names(mu0) <- c('sasa','tanimoto')
-varmusasa <- 2^2
-varmutani <- 2^2
-sigmu0 <- c(varmusasa,varmutani)
-names(sigmu0) <- c('sasa','tanimoto')
-expvarsasa <- (1/2)^2
-expvartani <- (1/2)^2
-expvar0 <- c(expvarsasa,expvartani)
-names(expvar0) <- c('sasa','tanimoto')
-## diagvar0 <- (2)^2
-## df0 <- (2*expvarsasa^2)/diagvar0 + 4
-df0 <- 30
 ##
 tanimoto2y <- function(x){
-    -log(1/x-1)/2 ## faster than qlogis(x, scale=1/2)
+    -log(1/x-1) ## faster than qlogis(x, scale=1/2)
 }
 ##
 ## correct compared with study_prior_bayes_regr.nb
 Dtanimoto2y <- function(x){
-    1/(2*x*(1-x))
+    1/(x*(1-x))
 }
 ##
 ## y2tanimoto <- function(y){
@@ -87,12 +71,12 @@ Dtanimoto2y <- function(x){
 ## }
 ##
 sasa2y <- function(x){
-   log(x)/4
+   log(x)
 }
 ##
 ## correct compared with study_prior_bayes_regr.nb
 Dsasa2y <- function(x){
-    1/(4*x)
+    1/(x)
 }
 ##
 ## Read and reorganize data
@@ -107,39 +91,51 @@ for(feat in minusfeatures){
 }
 ## copy of data before rescaling, to plot histograms in the orig. scale
 origdata <- data
-## Transform RMSD to log-scale
-data$rmsd <- log(data$rmsd)
-names(data)[which(names(data)=='rmsd')] <- 'log_RMSD'
+## add log-RMSD
+data$log_RMSD <- log(data$rmsd)
 rmsdThreshold <- c(2, 2.5, 3)
 logRmsdThreshold <- log(rmsdThreshold)
-## transform 'sasa' features to log-scale
+##
+## Add column with three, binned RMSD values
+data$bin_RMSD <- as.integer(1+(data$log_RMSD>logRmsdThreshold[1])+(data$log_RMSD>logRmsdThreshold[3]))
+##
+## find log-'sasa' features
 indxs <- grepl('sasa', colnames(data))
+## add rescaled 'sasa' features
 for(elem in colnames(data)[indxs]){
-    datum <- sasa2y(data[[elem]])
+    print(elem)
+    datum <- data[[elem]]
+    datum <- datum/signif(mean(datum),1)
+    data[[paste0('scale_',elem)]] <- datum
+## add 'sasa' feature in standardized log-scale
+    datum <- sasa2y(datum)
+    print(signif(sd(datum[abs(datum)!=Inf]),1))
+    datum <- datum/signif(sd(datum[abs(datum)!=Inf]),1)
     eps <- max(diff(sort(unique(datum[abs(datum)!=Inf]))))
-    datum[datum==-Inf] <- min(datum[abs(datum)!=Inf])-2*eps
-    data[, elem] <- datum
+    datum[datum==-Inf] <- min(datum[abs(datum)!=Inf]) - 2 * eps
+    data[[paste0('log_',elem)]] <- datum
 }
-names(data)[indxs] <- paste0('scale_',names(data)[indxs])
-## transform 'tanimoto' features to logit scale
+## add 'tanimoto' features in logit-scale
 indxt <- grepl('tanimoto', colnames(data))
 for(elem in colnames(data)[indxt]){
     datum <- tanimoto2y(data[[elem]])
     eps <- max(diff(sort(unique(datum[abs(datum)!=Inf]))))
     datum[datum==Inf] <- max(datum[abs(datum)!=Inf])+2*eps
     datum[datum==-Inf] <- min(datum[abs(datum)!=Inf])-2*eps
-    data[, elem] <- datum
+    data[[paste0('logit_',elem)]] <- datum
 }
-names(data)[indxt] <- paste0('scale_',names(data)[indxt])
-## shift integer features to start from value 1
+## add shifted integer features to start from value 1
 indx <- sapply(1:ncol(data), function(x){is.integer(data[[x]])})
 for(elem in colnames(data)[indx]){
-    data[, elem] <- data[, ..elem] - min(data[, ..elem],na.rm=TRUE) +1L
+    datum <- data[[elem]]
+    datum <- datum - min(datum, na.rm=TRUE) + 1L
+    data[[paste0('shift_',elem)]] <- datum
 }
 ##
-## Add column with three, binned RMSD values
-data <- data.table(bin_RMSD=as.integer(1+(data$log_RMSD>logRmsdThreshold[1])+(data$log_RMSD>logRmsdThreshold[3])), data)
-##
+
+testindl <- grepl('log_', colnames(data))
+
+
 nameFeatures <- names(data)
 nSamples <- nrow(data)
 nFeatures <- ncol(data)
