@@ -1,6 +1,6 @@
 ## Author: PGL  Porta Mana
 ## Created: 2021-03-20T10:07:17+0100
-## Last-Updated: 2021-09-10T19:49:58+0200
+## Last-Updated: 2021-09-10T21:57:19+0200
 ################
 ## Script for reverse regression
 ################
@@ -103,13 +103,11 @@ data$bin_RMSD <- as.integer(1+(data$log_RMSD>logRmsdThreshold[1])+(data$log_RMSD
 indxs <- grepl('sasa', colnames(data))
 ## add rescaled 'sasa' features
 for(elem in colnames(data)[indxs]){
-    print(elem)
     datum <- data[[elem]]
     datum <- datum/signif(mean(datum),1)
     data[[paste0('scale_',elem)]] <- datum
 ## add 'sasa' feature in standardized log-scale
     datum <- sasa2y(datum)
-    print(signif(sd(datum[abs(datum)!=Inf]),1))
     datum <- datum/signif(sd(datum[abs(datum)!=Inf]),1)
     eps <- max(diff(sort(unique(datum[abs(datum)!=Inf]))))
     datum[datum==-Inf] <- min(datum[abs(datum)!=Inf]) - 2 * eps
@@ -119,6 +117,7 @@ for(elem in colnames(data)[indxs]){
 indxt <- grepl('tanimoto', colnames(data))
 for(elem in colnames(data)[indxt]){
     datum <- tanimoto2y(data[[elem]])
+    datum <- datum/signif(sd(datum[abs(datum)!=Inf]),1)
     eps <- max(diff(sort(unique(datum[abs(datum)!=Inf]))))
     datum[datum==Inf] <- max(datum[abs(datum)!=Inf])+2*eps
     datum[datum==-Inf] <- min(datum[abs(datum)!=Inf])-2*eps
@@ -133,15 +132,12 @@ for(elem in colnames(data)[indx]){
 }
 ##
 
-testindl <- grepl('log_', colnames(data))
-
-
 nameFeatures <- names(data)
 nSamples <- nrow(data)
 nFeatures <- ncol(data)
 ##
 ## Format bins to calculate mutual info
-nbinsq <- 6
+nbinsq <- 10
 ##
 breakFeatures <- list()
 for(i in 1:ncol(data)){
@@ -184,55 +180,60 @@ for(i in names(data)){
 reorder <- order(minfos[1,], decreasing=TRUE)
 minfos <- minfos[,reorder]
 data <- data[, ..reorder]
-origdata <- origdata[, setdiff(reorder-1,0), with=FALSE]
 breakFeatures <- breakFeatures[reorder]
+##origdata <- origdata[, setdiff(reorder-1,0), with=FALSE]
 ##
 ##
 ## Plots
 if(doplots==TRUE){
-pdff('histograms_scaled_data')
-for(i in 1:ncol(data)){
-    datum <- data[[i]]
-    breaks <- breakFeatures[[i]]
-    print(ggplot(data[,..i], aes_(x=as.name(names(data)[i]))) + geom_histogram(breaks=breaks))
-}
-dev.off()
-##
-pdff('plotslogMI')
-for(k in 1:ncol(minfos)){
-    mi <- signif(minfos[1,k],4)
-    nmi <- signif(minfos[2,k],4)
-    en <- signif(minfos[3,k],4)
-    conden <- signif(minfos[4,k],4)
-    matplot(x=data[[k]], y=data$log_RMSD, type='p', pch='.', col=paste0('#000000','88'),
-            xlab=paste0(colnames(minfos)[k], ', H = ',en,' bit'),
-            ylab=paste0('log-RMSD')
-            )
-    title(paste0(colnames(minfos)[k],
-                         ', MI = ',mi,' bit, norm = ',nmi,', cond entr = ',conden, ' bit'))
-}
-dev.off()
-##
-pdff('histograms_data')
-for(i in 1:ncol(origdata)){
-    datum <- origdata[[i]]
-    summa <- fivenum(datum)
-    drange <- diff(range(datum))
-    if(is.integer(datum)){
-        breaks <- (summa[1]:(summa[5]+1))-0.5
-    } else {
-        width <- diff(summa[c(2,4)])/nbinsq
-        nbins <- round(drange/width)
-        breaks <- seq(summa[1]-drange/(nbins*100), summa[5]+drange/(nbins*100), length.out=nbins)
+    pdff(paste0('histograms_data_transf_scaled_',nbinsq,'bins'))
+    for(i in 1:ncol(data)){
+        datum <- data[[i]]
+        breaks <- breakFeatures[[i]]
+        print(ggplot(data[,..i], aes_(x=as.name(names(data)[i]))) + geom_histogram(breaks=breaks))
     }
-    print(ggplot(origdata[,..i], aes_(x=as.name(names(origdata)[i]))) + geom_histogram(breaks=breaks))
+    dev.off()
+    ##
+    pdff(paste0('plotslogMI_transf_scaled_',nbinsq,'bins'))
+    for(k in 1:ncol(minfos)){
+        mi <- signif(minfos[1,k],4)
+        nmi <- signif(minfos[2,k],4)
+        en <- signif(minfos[3,k],4)
+        conden <- signif(minfos[4,k],4)
+        matplot(x=data[[k]], y=data$log_RMSD, type='p', pch='.', col=paste0('#000000','88'),
+                xlab=paste0(colnames(minfos)[k], ', H = ',en,' bit'),
+                ylab=paste0('log-RMSD')
+                )
+        title(paste0(colnames(minfos)[k],
+                     ', MI = ',mi,' bit, norm = ',nmi,', cond entr = ',conden, ' bit'))
+    }
+    dev.off()
 }
-dev.off()}
+##
+
+if(doplots==TRUE){
+    pdff('histograms_data')
+    for(i in 1:ncol(origdata)){
+        datum <- origdata[[i]]
+        summa <- fivenum(datum)
+        drange <- diff(range(datum))
+        if(is.integer(datum)){
+            breaks <- (summa[1]:(summa[5]+1))-0.5
+        } else {
+            width <- diff(summa[c(2,4)])/nbinsq
+            nbins <- round(drange/width)
+            breaks <- seq(summa[1]-drange/(nbins*100), summa[5]+drange/(nbins*100), length.out=nbins)
+        }
+        print(ggplot(origdata[,..i], aes_(x=as.name(names(origdata)[i]))) + geom_histogram(breaks=breaks))
+    }
+    dev.off()}
 rm(origdata)
 gc()
 ##
+
+##
+fwrite(data,'data_processed_transformed_rescaled.csv', sep=' ')
 ## Shuffle the data for training and test
 set.seed(222)
 data <- data[sample(1:nrow(data))]
-##
-fwrite(data,'processed_data_scaled.csv', sep=' ')
+fwrite(data,'data_processed_transformed_rescaled_shuffled.csv', sep=' ')
