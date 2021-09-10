@@ -1,6 +1,6 @@
 ## Author: PGL  Porta Mana
 ## Created: 2021-03-20T10:07:17+0100
-## Last-Updated: 2021-09-09T19:24:15+0200
+## Last-Updated: 2021-09-10T08:24:08+0200
 ################
 ## Script for direct regression, continuous RMSD
 ################
@@ -240,23 +240,34 @@ library('nimble')
 ##
 nclusters <- 100
 ndata <- 500
-ncvars <- length(continuousCovs),
-ndvars <- length(discreteCovs),
+ncvars <- length(continuousCovs)
+ndvars <- length(discreteCovs)
 ##
-testnf <- nimbleFunction(
-    run = function(x=double(1),
-                   meanC=double(2), sdC=double(2),
-                   log=integer(0, default=0)){
-        returnType(double(1))
-        prob <- dnorm(x, mean=meanC, sd=sdC)
-        if(log) return(log(prob))
-        else return(prob)
-        })
-Ctestnf <- compileNimble(testnf)
+## testnf <- nimbleFunction(
+##     run = function(x=double(1),
+##                    meanC=double(2), sdC=double(2),
+##                    log=integer(0, default=0)){
+##         returnType(double(0))
+##         prob <- x[1]
+## ##        prob <- dnorm(x, mean=meanC, sd=sdC)
+##         if(log) return(log(prob))
+##         else return(prob)
+##         })
+## Ctestnf <- compileNimble(testnf)
 
+## nClusters <- nclusters
+## nCvars <- ncvars
+## nDvars <- ndvars
+## inDvars <- ncvars+1
+## fnDvars <- ncvars+ndvars
 
 dF <- nimbleFunction(
     run = function(x=double(1),
+                   nCvars=integer(0, default=ncvars),
+                   nDvars=integer(0, default=ndvars),
+                   inDvars=integer(0, default=ncvars+1),
+                   fnDvars=integer(0, default=ncvars+ndvars),
+                   nClusters=integer(0, default=nclusters),
                    q=double(1),
                    meanC=double(2), tauC=double(2),
                    lambdaD=double(2),
@@ -264,22 +275,48 @@ dF <- nimbleFunction(
         returnType(double(0))
         xC <- x[1:nCvars]
         xD <- x[inDvars:fnDvars]
-        sum <- numeric(1, value=0)
-        log(q) + dnorm(x=xC, mean=meanC, sd=1/sqrt(tauC), log=TRUE)
-
-
-        
-            tx <- sum(x)
-            f <- exp(x)/sum(exp(x))
-            dmean <- inprod(f,0:(length(f)-1))
-            logp <- sum((alphas+1) * log(f)) + (shapegamma-1)*log(dmean) - (rategamma*dmean)^powerexp - sum((log(f) %*% smatrix)^2) - normstrength  * tx^2 
-            if(log) return(logp)
-            else return(exp(logp))
+        sumclusters <- 0
+        for(i in 1:nClusters){
+            sumclusters <- sumclusters + exp(
+                                             log(q[i]) +
+                sum(dnorm(x=xC, mean=meanC[1:nCvars,i], sd=1/sqrt(tauC[1:nCvars,i]), log=TRUE)) +
+                sum(dpois(x=xD, lambda=lambdaD[1:nDvars,i], log=TRUE))
+                )
+            }
+            if(log) return(log(sumclusters))
+            else return(sumclusters)
         })
-    assign('dlogsmoothmean', dlogsmoothmean, envir = .GlobalEnv)
+##CdF <- compileNimble(dF)
+rF <- nimbleFunction(
+    run = function(n=integer(0, default=1),
+                   nCvars=integer(0, default=ncvars),
+                   nDvars=integer(0, default=ndvars),
+                   inDvars=integer(0, default=ncvars+1),
+                   fnDvars=integer(0, default=ncvars+ndvars),
+                   nClusters=integer(0, default=nclusters),
+                   q=double(1),
+                   meanC=double(2), tauC=double(2),
+                   lambdaD=double(2)){
+        ## returnType(double(2))
+        ## xout <- matrix(type='double', nrow=n, ncol=fnDvars, init=FALSE)
+        ## for(i in 1:n){
+        ##     cluster <- rcat(n=1, prob=q)
+        ##     xout[i,1:nCvars] <- rnorm(nCvars, mean=meanC[1:nCvars, cluster], sd=1/sqrt(tauC[1:nCvars, cluster]))
+        ##     xout[i,inDvars:fnDvars] <- rpois(nDvars, lambda=lambdaD[1:nDvars, cluster])
+        ## }
+        returnType(double(1))
+        xout <- numeric(length=fnDvars, init=FALSE)
+        cluster <- rcat(n=1, prob=q)
+        xout[1:nCvars] <- rnorm(n=nCvars, mean=meanC[1:nCvars, cluster], sd=1/sqrt(tauC[1:nCvars, cluster]))
+        xout[inDvars:fnDvars] <- rpois(n=nDvars, lambda=lambdaD[1:nDvars, cluster])
+        ##
+        return(xout)
+})
+##CrF <- compileNimble(rF)
+##
 constants <- list(
-    nClusters=nclusters,
     nData=ndata,
+    nClusters=nclusters,
     nCvars=ncvars,
     nDvars=ndvars,
     inDvars=ncvars+1,
@@ -294,19 +331,18 @@ constants <- list(
 )
 ##
 dat <- list(
-    X=as.matrix(alldata[1:ndata, ..continuousCovs]),
-    Y=as.matrix(alldata[1:ndata, ..discreteCovs])
+    X=cbind(as.matrix(alldata[1:ndata, ..continuousCovs]),
+            as.matrix(alldata[1:ndata, ..discreteCovs]))
 )
 ##
 inits <- list(
     q=rep(1,nclusters)/nclusters,
-    meanC=matrix(0, nrow=length(continuousCovs), ncol=nclusters),
-    tauC=matrix(1, nrow=length(continuousCovs), ncol=nclusters),
-    lambdaD=matrix(1, nrow=length(discreteCovs), ncol=nclusters),
-    C=rcat(n=ndata, prob=rep(1,nclusters)/nclusters)
+    meanC=matrix(0, nrow=ncvars, ncol=nclusters),
+    tauC=matrix(1, nrow=ncvars, ncol=nclusters),
+    lambdaD=matrix(1, nrow=ndvars, ncol=nclusters)
 )
 ##
-bayesnet <- nimbleCode({
+bayesnet2 <- nimbleCode({
     q[1:nClusters] ~ ddirch(alpha=alpha0[1:nClusters])
     for(i in 1:nClusters){
         for(j in 1:nCvars){
@@ -319,28 +355,28 @@ bayesnet <- nimbleCode({
     }
     ##
     for(i in 1:nData){
-        C[i] ~ dcat(prob=q[1:nClusters])
-    }
-    for(i in 1:nData){
-        for(j in 1:nCvars){
-            X[i,j] ~ dnorm(mean=meanC[j,C[i]], tau=tauC[j,C[i]])
+            X[i,1:fnDvars] ~ dF(nCvars=nCvars,
+                   nDvars=nDvars,
+                   inDvars=inDvars,
+                   fnDvars=fnDvars,
+                   nClusters=nClusters,
+                   q=q[1:nClusters],
+                   meanC=meanC[1:nCvars,1:nClusters],
+                   tauC=tauC[1:nCvars,1:nClusters],
+                   lambdaD=lambdaD[1:nDvars,1:nClusters])
         }
-        for(j in 1:nDvars){
-            Y[i,j] ~ dpois(lambda=lambdaD[j,C[i]])
-        }
-    }
 })
 
-model <- nimbleModel(code=bayesnet, name='model1', constants=constants, inits=inits, data=dat)
+model2 <- nimbleModel(code=bayesnet2, name='model2', constants=constants, inits=inits, data=dat)
 
-Cmodel <- compileNimble(model, showCompilerOutput=TRUE)
+Cmodel2 <- compileNimble(model2, showCompilerOutput=TRUE)
 
-confmodel <- configureMCMC(Cmodel)
+confmodel2 <- configureMCMC(Cmodel2)
 
-mcmcsampler <- buildMCMC(confmodel)
-Cmcmcsampler <- compileNimble(mcmcsampler, resetFunctions = TRUE)
+mcmcsampler2 <- buildMCMC(confmodel2)
+Cmcmcsampler2 <- compileNimble(mcmcsampler2, resetFunctions = TRUE)
 
-mcsamples <- runMCMC(Cmcmcsampler, nburnin=1000, niter=2000, thin=1, setSeed=123)
+mcsamples2 <- runMCMC(Cmcmcsampler2, nburnin=1000, niter=2000, thin=1, setSeed=123)
 
 
 
