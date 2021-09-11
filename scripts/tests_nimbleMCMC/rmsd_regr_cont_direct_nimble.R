@@ -1,6 +1,6 @@
 ## Author: PGL  Porta Mana
 ## Created: 2021-03-20T10:07:17+0100
-## Last-Updated: 2021-09-11T09:29:20+0200
+## Last-Updated: 2021-09-11T14:55:47+0200
 ################
 ## Script for direct regression, continuous RMSD
 ################
@@ -90,7 +90,7 @@ plan(multisession, workers = 2L)
 library('nimble')
 ##
 nclusters <- 100
-ndata <- 500 # nSamples = 37969
+ndata <- 2000 # nSamples = 37969
 ##
 constants <- list(
     nClusters=nclusters,
@@ -154,13 +154,13 @@ Cmodel <- compileNimble(model, showCompilerOutput=TRUE)
 
 confmodel <- configureMCMC(Cmodel)
 
-confmodel$removeSamplers(paste0('sizeD'))
+## confmodel$removeSamplers(paste0('sizeD'))
 
-for(i in 1:nclusters){
-    for(j in 1:length(discreteCovs)){
-        confmodel$addSampler(target=paste0('sizeD[',j,', ',i,']'), type='AF_slice', control=list(sliceAdaptFactorMaxIter=10000, sliceAdaptFactorInterval=500, sliceAdaptWidthMaxIter=500, sliceMaxSteps=100, maxContractions=100))
-    }
-}
+## for(i in 1:nclusters){
+##     for(j in 1:length(discreteCovs)){
+##         confmodel$addSampler(target=paste0('sizeD[',j,', ',i,']'), type='AF_slice', control=list(sliceAdaptFactorMaxIter=10000, sliceAdaptFactorInterval=500, sliceAdaptWidthMaxIter=500, sliceMaxSteps=100, maxContractions=100))
+##     }
+## }
 
 
 mcmcsampler <- buildMCMC(confmodel)
@@ -170,9 +170,12 @@ totaltime <- Sys.time()
 mcsamples <- runMCMC(Cmcmcsampler, nburnin=1000, niter=2000, thin=1, setSeed=123)
 totaltime <- Sys.time() - totaltime
 totaltime
+## 7 vars, 1000 data, 100 cl: 38 min
 
-indq <- grepl('sizeD\\[', colnames(mcsamples))
-matplot(mcsamples[,indq],type='l',lty=1)
+saveRDS('mcsamples',file='_mcsamples_v7-d1000-c100.rds')
+
+indq <- grepl('probD\\[', colnames(mcsamples))
+matplot(mcsamples[,indq][,1],type='l',lty=1)
 
 
 
