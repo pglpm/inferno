@@ -1,6 +1,6 @@
 ## Author: PGL  Porta Mana
 ## Created: 2021-03-20T10:07:17+0100
-## Last-Updated: 2021-09-10T10:44:34+0200
+## Last-Updated: 2021-09-11T09:29:20+0200
 ################
 ## Script for direct regression, continuous RMSD
 ################
@@ -55,63 +55,20 @@ normalize <- function(freqs){freqs/sum(freqs)}
 ## for rows of frequency distributions
 normalizem <- function(freqs){freqs/rowSums(freqs)}
 ##
-## specify hyperparameters for hyperpriors of continuous variables
-murmsd <- 1
-musasa <- 1
-mutani <- 0
-mu0 <- c(murmsd,musasa,mutani)
-names(mu0) <- c('RMSD','sasa','tanimoto')
-varmurmsd <- 2^2
-varmusasa <- 2^2
-varmutani <- 2^2
-sigmu0 <- c(varmurmsd,varmusasa,varmutani)
-names(sigmu0) <- names(mu0)
-expvarrmsd <- (1/2)^2
-expvarsasa <- (1/2)^2
-expvartani <- (1/2)^2
-expvar0 <- c(expvarrmsd,expvarsasa,expvartani)
-names(expvar0) <- names(mu0)
-## diagvar0 <- (2)^2
-## df0 <- (2*expvarsasa^2)/diagvar0 + 4
-df0 <- 30
-##
-tanimoto2y <- function(x){
-    -log(1/x-1)/2 ## faster than qlogis(x, scale=1/2)
-}
-##
-## correct compared with study_prior_bayes_regr.nb
-Dtanimoto2y <- function(x){
-    1/(2*x*(1-x))
-}
-##
-## y2tanimoto <- function(y){
-##     1/2 + atan(y)/pi
-## }
-##
-sasa2y <- function(x){
-   log(x)/4
-}
-##
-## correct compared with study_prior_bayes_regr.nb
-Dsasa2y <- function(x){
-    1/(4*x)
-}
-##
 
 ## Read and reorganize data
 rm(alldata)
-alldata <- fread('../processed_data_scaled.csv', sep=' ')
+alldata <- fread('../data_processed_transformed_rescaled_shuffled.csv', sep=' ')
 nameFeatures <- names(alldata)
 nSamples <- nrow(alldata)
 nFeatures <- ncol(alldata)
 ##
 ##
-ndata <- 100 # nSamples = 37969
 #set.seed(222)
 rmsdCol <- which(names(alldata)=='log_RMSD')
 covNums <- which(colnames(alldata) %in%  c('log_RMSD',
-                                        'scale_mcs_unbonded_polar_sasa',
-                                        'scale_ec_tanimoto_similarity',
+                                        'log_mcs_unbonded_polar_sasa',
+                                        'logit_ec_tanimoto_similarity',
                                         'mcs_NumHeteroAtoms',
                                         ##'scale_fc_tanimoto_similarity'
                                         'docked_HeavyAtomCount',
@@ -133,7 +90,7 @@ plan(multisession, workers = 2L)
 library('nimble')
 ##
 nclusters <- 100
-ndata <- 500
+ndata <- 500 # nSamples = 37969
 ##
 constants <- list(
     nClusters=nclusters,
@@ -145,6 +102,8 @@ constants <- list(
     tauC0=1/10^2,
     shapeC0=1,
     rateC0=1,
+    shape1D0=1,
+    shape2D0=1,
     shapeD0=1,
     rateD0=1
 )
@@ -158,7 +117,8 @@ inits <- list(
     q=rep(1,nclusters)/nclusters,
     meanC=matrix(0, nrow=length(continuousCovs), ncol=nclusters),
     tauC=matrix(1, nrow=length(continuousCovs), ncol=nclusters),
-    lambdaD=matrix(1, nrow=length(discreteCovs), ncol=nclusters),
+    probD=matrix(0.5, nrow=length(discreteCovs), ncol=nclusters),
+    sizeD=matrix(50, nrow=length(discreteCovs), ncol=nclusters),
     C=rcat(n=ndata, prob=rep(1,nclusters)/nclusters)
 )
 ##
@@ -170,7 +130,8 @@ bayesnet <- nimbleCode({
             tauC[j,i] ~ dgamma(shape=shapeC0, rate=rateC0)
         }
         for(j in 1:nDvars){
-            lambdaD[j,i] ~ dgamma(shape=shapeD0, rate=rateD0)
+            probD[j,i] ~ dbeta(shape1=shape1D0, shape2=shape2D0)
+            sizeD[j,i] ~ dgamma(shape=shapeD0, rate=rateD0)
         }
     }
     ##
@@ -182,7 +143,7 @@ bayesnet <- nimbleCode({
             X[i,j] ~ dnorm(mean=meanC[j,C[i]], tau=tauC[j,C[i]])
         }
         for(j in 1:nDvars){
-            Y[i,j] ~ dpois(lambda=lambdaD[j,C[i]])
+            Y[i,j] ~ dnegbin(prob=probD[j,C[i]], size=sizeD[j,C[i]])
         }
     }
 })
@@ -193,13 +154,25 @@ Cmodel <- compileNimble(model, showCompilerOutput=TRUE)
 
 confmodel <- configureMCMC(Cmodel)
 
+confmodel$removeSamplers(paste0('sizeD'))
+
+for(i in 1:nclusters){
+    for(j in 1:length(discreteCovs)){
+        confmodel$addSampler(target=paste0('sizeD[',j,', ',i,']'), type='AF_slice', control=list(sliceAdaptFactorMaxIter=10000, sliceAdaptFactorInterval=500, sliceAdaptWidthMaxIter=500, sliceMaxSteps=100, maxContractions=100))
+    }
+}
+
+
 mcmcsampler <- buildMCMC(confmodel)
 Cmcmcsampler <- compileNimble(mcmcsampler, resetFunctions = TRUE)
 
+totaltime <- Sys.time()
 mcsamples <- runMCMC(Cmcmcsampler, nburnin=1000, niter=2000, thin=1, setSeed=123)
+totaltime <- Sys.time() - totaltime
+totaltime
 
-
-
+indq <- grepl('sizeD\\[', colnames(mcsamples))
+matplot(mcsamples[,indq],type='l',lty=1)
 
 
 
@@ -280,17 +253,24 @@ dF <- nimbleFunction(
                    meanC=double(2), logsdC=double(2),
                    logshapeC=double(2), logscaleC=double(2),
                    logshape1C=double(2), logsshape2C=double(2),
-                   lambdaD=double(2),
+                   logitprobD=double(2),
+                   logsizeD=double(2),
                    log=integer(0, default=0)){
         returnType(double(0))
-        xC <- x[1:nCvars]
+        xC <- x[iCvars:fCvars]
+        xC0 <- x[iC0vars:fC0vars]
+        xC1 <- x[iC1vars:fC1vars]
         xD <- x[inDvars:fnDvars]
+        lq <- logq[1:nClusters]-log(sum(exp(logq[1:nClusters])))
         sumclusters <- 0
         for(i in 1:nClusters){
             sumclusters <- sumclusters + exp(
-                                             logq[i] +
-                sum(dnorm(x=xC, mean=meanC[1:nCvars,i], sd=1/sqrt(tauC[1:nCvars,i]), log=TRUE)) +
-                sum(dpois(x=xD, lambda=lambdaD[1:nDvars,i], log=TRUE))
+                                             lq[i] +
+                sum(dnorm(x=xC, mean=meanC[1:nCvars,i], sd=exp(logsdC[1:nCvars,i]), log=TRUE)) +
+                sum(dgamma(x=xC0, shape=exp(logshapeC[1:nC0vars,i]), scale=exp(logscaleC[1:nC0vars,i]), log=TRUE)) +
+                sum(dbeta(x=xC1, shape1=exp(logshape1C[1:nC1vars,i]), shape2=exp(logshape2C[1:nC1vars,i]), log=TRUE)) +
+                sum(dnegbin(x=xD, prob=ilogit(logitprobD[j,C[i]], size=exp(logsizeD[1:nDvars,i], log=TRUE)
+                    pois(x=xD, lambda=exp(loglambdaD[1:nDvars,i]), log=TRUE))
                 )
             }
             if(log) return(log(sumclusters))
@@ -300,13 +280,23 @@ dF <- nimbleFunction(
 rF <- nimbleFunction(
     run = function(n=integer(0, default=1),
                    nCvars=integer(0, default=ncvars),
+                   iCvars=integer(0, default=icvars),
+                   fCvars=integer(0, default=fcvars),
+                   nC0vars=integer(0, default=nc0vars),
+                   iC0vars=integer(0, default=ic0vars),
+                   fC0vars=integer(0, default=fc0vars),
+                   nC1vars=integer(0, default=nc1vars),
+                   iC1vars=integer(0, default=ic1vars),
+                   fC1vars=integer(0, default=fc1vars),
                    nDvars=integer(0, default=ndvars),
-                   inDvars=integer(0, default=ncvars+1),
-                   fnDvars=integer(0, default=ncvars+ndvars),
+                   iDvars=integer(0, default=idvars),
+                   fDvars=integer(0, default=fdvars),
                    nClusters=integer(0, default=nclusters),
-                   q=double(1),
-                   meanC=double(2), tauC=double(2),
-                   lambdaD=double(2)){
+                   logq=double(1),
+                   meanC=double(2), logsdC=double(2),
+                   logshapeC=double(2), logscaleC=double(2),
+                   logshape1C=double(2), logsshape2C=double(2),
+                   loglambdaD=double(2)){
         ## returnType(double(2))
         ## xout <- matrix(type='double', nrow=n, ncol=fnDvars, init=FALSE)
         ## for(i in 1:n){
@@ -315,10 +305,12 @@ rF <- nimbleFunction(
         ##     xout[i,inDvars:fnDvars] <- rpois(nDvars, lambda=lambdaD[1:nDvars, cluster])
         ## }
         returnType(double(1))
-        xout <- numeric(length=fnDvars, init=FALSE)
-        cluster <- rcat(n=1, prob=q)
-        xout[1:nCvars] <- rnorm(n=nCvars, mean=meanC[1:nCvars, cluster], sd=1/sqrt(tauC[1:nCvars, cluster]))
-        xout[inDvars:fnDvars] <- rpois(n=nDvars, lambda=lambdaD[1:nDvars, cluster])
+        xout <- numeric(length=nCvars+nC0vars+nC1vars+nDvars, init=FALSE)
+        cluster <- rcat(n=1, prob=exp(logq[1:nClusters])/sum(exp(logq[1:nClusters])))
+        xout[iCvars:fCvars] <- rnorm(n=nCvars, mean=meanC[1:nCvars,i], sd=exp(logsdC[1:nCvars,i]))
+        xout[iC0vars:fC0vars] <- rgamma(n=nC0vars, shape=exp(logshapeC[1:nC0vars,i]), scale=exp(logscaleC[1:nC0vars,i]))
+        xout[iC1vars:fC1vars] <- rbeta(n=nC1vars, shape1=exp(logshape1C[1:nC1vars,i]), shape2=exp(logshape2C[1:nC1vars,i]))
+        xout[iDvars:fDvars] <- rpois(n=nDvars, lambda=exp(loglambdaD[1:nDvars,i]))
         ##
         return(xout)
 })
@@ -328,10 +320,19 @@ constants <- list(
     nData=ndata,
     nClusters=nclusters,
     nCvars=ncvars,
+    iCvars=icvars,
+    fCvars=fcvars,
+    nC0vars=nc0vars,
+    iC0vars=ic0vars,
+    fC0vars=fc0vars,
+    nC1vars=nc1vars,
+    iC1vars=ic1vars,
+    fC1vars=fc1vars,
     nDvars=ndvars,
-    inDvars=ncvars+1,
-    fnDvars=ncvars+ndvars,
-    alpha0=rep(1,nclusters)*4/nclusters,
+    iDvars=idvars,
+    fDvars=fdvars,
+    
+sdlogsd    alpha0=rep(1,nclusters)*4/nclusters,
     meanC0=0,
     tauC0=1/10^2,
     shapeC0=1,
