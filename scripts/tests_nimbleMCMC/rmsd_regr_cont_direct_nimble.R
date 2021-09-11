@@ -1,6 +1,6 @@
 ## Author: PGL  Porta Mana
 ## Created: 2021-03-20T10:07:17+0100
-## Last-Updated: 2021-09-11T09:29:20+0200
+## Last-Updated: 2021-09-11T09:31:26+0200
 ################
 ## Script for direct regression, continuous RMSD
 ################
@@ -269,7 +269,7 @@ dF <- nimbleFunction(
                 sum(dnorm(x=xC, mean=meanC[1:nCvars,i], sd=exp(logsdC[1:nCvars,i]), log=TRUE)) +
                 sum(dgamma(x=xC0, shape=exp(logshapeC[1:nC0vars,i]), scale=exp(logscaleC[1:nC0vars,i]), log=TRUE)) +
                 sum(dbeta(x=xC1, shape1=exp(logshape1C[1:nC1vars,i]), shape2=exp(logshape2C[1:nC1vars,i]), log=TRUE)) +
-                sum(dnegbin(x=xD, prob=ilogit(logitprobD[j,C[i]], size=exp(logsizeD[1:nDvars,i], log=TRUE)
+                sum(dnegbin(x=xD, prob=1/(1+exp(-logitprobD[1:nDvars,i])), size=exp(logsizeD[1:nDvars,i], log=TRUE)
                     pois(x=xD, lambda=exp(loglambdaD[1:nDvars,i]), log=TRUE))
                 )
             }
