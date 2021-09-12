@@ -1,6 +1,6 @@
 ## Author: PGL  Porta Mana
 ## Created: 2021-03-20T10:07:17+0100
-## Last-Updated: 2021-09-12T17:07:36+0200
+## Last-Updated: 2021-09-12T17:22:43+0200
 ################
 ## Script for direct regression, continuous RMSD
 ################
@@ -162,8 +162,7 @@ dMix <- nimbleFunction(
                                              sum(dnbinom(x=x[iDvars:fDvars], prob=1/(1+exp(-parms[iDparms1:fDparms1,i])), size=exp(parms[iDparms2:fDparms2,i]), log=TRUE))
                                          )
         }
-        sumclusters <- sumclusters/sum(exp(logq))
-            if(log) return( log(sumclusters) - log(sum(exp(logq))) )
+        if(log) return( log(sumclusters) - log(sum(exp(logq))) )
             else return( sumclusters/sum(exp(logq)) )
         })
 ##CdMix <- compileNimble(dMix)
@@ -390,8 +389,8 @@ model2 <- nimbleModel(code=bayesnet2, name='model2', constants=constants2, inits
 Cmodel2 <- compileNimble(model2, showCompilerOutput=TRUE)
 
 confmodel2 <- configureMCMC(Cmodel2, nodes=NULL)
-    confmodel2$addSampler(target=paste0('logq'), type='AF_slice', control=list(sliceAdaptFactorMaxIter=1000, sliceAdaptFactorInterval=100, sliceAdaptWidthMaxIter=100, sliceMaxSteps=100, maxContractions=100))
-confmodel2$addSampler(target=paste0('Parms'), type='AF_slice', control=list(sliceAdaptFactorMaxIter=1000, sliceAdaptFactorInterval=100, sliceAdaptWidthMaxIter=100, sliceMaxSteps=100, maxContractions=100))
+    confmodel2$addSampler(target=c('logq','Parms'), type='AF_slice', control=list(sliceAdaptFactorMaxIter=1000, sliceAdaptFactorInterval=100, sliceAdaptWidthMaxIter=100, sliceMaxSteps=100, maxContractions=100))
+## confmodel2$addSampler(target=paste0('Parms'), type='AF_slice', control=list(sliceAdaptFactorMaxIter=1000, sliceAdaptFactorInterval=100, sliceAdaptWidthMaxIter=100, sliceMaxSteps=100, maxContractions=100))
 ## for(i in 1:nclusters){
 ##     confmodel2$addSampler(target=paste0('Parms[1:',2*(ncvars+ndvars),', ',i,']'), type='AF_slice', control=list(sliceAdaptFactorMaxIter=1000, sliceAdaptFactorInterval=100, sliceAdaptWidthMaxIter=100, sliceMaxSteps=100, maxContractions=100))
 ## }
@@ -408,7 +407,7 @@ totaltime
 indq <- grepl('logq\\[', colnames(mcsamples2))
 testqs <- normalizem(exp(mcsamples2[,indq]))
 matplot(identity(testqs),type='l',lty=1)
-
+sum(testqs[2,])
 
 
 
