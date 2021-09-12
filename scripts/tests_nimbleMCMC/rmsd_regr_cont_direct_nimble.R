@@ -1,6 +1,6 @@
 ## Author: PGL  Porta Mana
 ## Created: 2021-03-20T10:07:17+0100
-## Last-Updated: 2021-09-12T16:31:16+0200
+## Last-Updated: 2021-09-12T16:46:03+0200
 ################
 ## Script for direct regression, continuous RMSD
 ################
@@ -324,7 +324,7 @@ rMix <- nimbleFunction(
 ##CrMix <- compileNimble(rMix)
 ##
 dparmsPrior <- nimbleFunction(
-    run = function(x=double(1),
+    run = function(x=double(2),
                    meanCmean=double(0),
                    meanCsd=double(0),
                    sdCshape=double(0),
@@ -333,6 +333,7 @@ dparmsPrior <- nimbleFunction(
                    probDshape2=double(0),
                    sizeDshape=double(0),
                    sizeDrate=double(0),
+                   nClusters=integer(0),
                    ##
                    iCparms1=integer(0, default=icparms1),
                    fCparms1=integer(0, default=fcparms1),
@@ -346,14 +347,14 @@ dparmsPrior <- nimbleFunction(
                    log=integer(0, default=0)){
         returnType(double(0))
         ##
-        lprob <- sum( -(x[iCparms1:fCparms1] - meanCmean)^2/(2*meanCsd^2) ) +
-            sum( -sdCshape * 2 * x[iCparms2:fCparms2] - sdCrate * exp(-2*x[iCparms2:fCparms2]) ) +
-            sum( probDshape1 * x[iDparms1:fDparms1] -
-                 (probDshape1+probDshape2) * log1p(exp(x[iDparms1:fDparms1])) ) +
+        lprob <- sum( -(x[iCparms1:fCparms1,1:nClusters] - meanCmean)^2/(2*meanCsd^2) ) +
+            sum( -sdCshape * 2 * x[iCparms2:fCparms2,1:nClusters] - sdCrate * exp(-2*x[iCparms2:fCparms2,1:nClusters]) ) +
+            sum( probDshape1 * x[iDparms1:fDparms1,1:nClusters] -
+                 (probDshape1+probDshape2) * log1p(exp(x[iDparms1:fDparms1,1:nClusters])) ) +
             ## sum( -(probDshape1-1) * log1p(exp(-x[iDparms1:fDparms1])) -
             ##      (probDshape2+1) * log1p(exp(x[iDparms1:fDparms1])) +
             ##      x[iDparms1:fDparms1] ) +
-            sum( sizeDshape * x[iDparms2:fDparms2] - sizeDrate * exp(x[iDparms2:fDparms2]) )
+            sum( sizeDshape * x[iDparms2:fDparms2,1:nClusters] - sizeDrate * exp(x[iDparms2:fDparms2,1:nClusters]) )
         ## lprob <- sum(dnorm(x=x[iCparms1:fCparms1], mean=meanCmean, sd=meanCsd, log=TRUE)) +
         ##     sum(dgamma(x=exp(-2*x[iCparms2:fCparms2]), shape=sdCshape, rate=sdCrate, log=TRUE) - 2*x[iCparms2:fCparms2]) +
         ##     sum(dbeta(x=1/(x[iDparms1:fDparms1])^2, shape=probDshape1, rate=probDshape2, log=TRUE) +  )
@@ -374,6 +375,7 @@ rparmsPrior <- nimbleFunction(
                    probDshape2=double(0),
                    sizeDshape=double(0),
                    sizeDrate=double(0),
+                   nClusters=integer(0),
                    ##
                    iCparms1=integer(0, default=icparms1),
                    fCparms1=integer(0, default=fcparms1),
@@ -384,15 +386,17 @@ rparmsPrior <- nimbleFunction(
                    iDparms2=integer(0, default=idparms2),
                    fDparms2=integer(0, default=fdparms2)
                    ){
-        returnType(double(1))
+        returnType(double(2))
         ##
         nCv <- fCparms1 - iCparms1 + 1
         nDv <- fDparms1 - iDparms1 + 1
-        parmsout <- numeric(length=2*(nCv+nDv), init=FALSE)
-        parmsout[iCparms1:fCparms1] <- rnorm(n=nCv, mean=meanCmean, sd=meanCsd)
-        parmsout[iCparms2:fCparms2] <- rgamma(n=nCv, shape=sdCshape, rate=sdCrate)
-        parmsout[iDparms1:fDparms1] <- rbeta(n=nDv, shape1=probDshape1, shape2=probDshape2)
-        parmsout[iDparms2:fDparms2] <- rgamma(n=nDv, shape=sizeDshape, rate=sizeDrate)
+        parmsout <- matrix(nrow=2*(nCv+nDv), ncol=nClusters, init=FALSE)
+        for(i in 1:nClusters){
+            parmsout[iCparms1:fCparms1,i] <- rnorm(n=nCv, mean=meanCmean, sd=meanCsd)
+            parmsout[iCparms2:fCparms2,i] <- rgamma(n=nCv, shape=sdCshape, rate=sdCrate)
+            parmsout[iDparms1:fDparms1,i] <- rbeta(n=nDv, shape1=probDshape1, shape2=probDshape2)
+            parmsout[iDparms2:fDparms2,i] <- rgamma(n=nDv, shape=sizeDshape, rate=sizeDrate)
+        }
         return( parmsout )
     })
 ##CrparmsPrior <- compileNimble(rparmsPrior)
@@ -475,8 +479,7 @@ inits2 <- list(
 ##
 bayesnet2 <- nimbleCode({
     logq[1:nClusters] ~ dlogqPrior(alpha=alpha[1:nClusters])
-    for(i in 1:nClusters){
-        Parms[1:nParms, i] ~ dparmsPrior( meanCmean=meanCmean,
+    Parms[1:nParms, 1:nClusters] ~ dparmsPrior( meanCmean=meanCmean,
                                          meanCsd=meanCsd,
                                          sdCshape=sdCshape,
                                          sdCrate=sdCrate,
@@ -488,7 +491,6 @@ bayesnet2 <- nimbleCode({
                                          iCparms2=iCparms2, fCparms2=fCparms2,
                                          iDparms1=iDparms1, fDparms1=fDparms1, 
                                          iDparms2=iDparms2, fDparms2=fDparms2 )
-    }
     ##
     for(i in 1:nData){
         X[i, 1:nVars] ~ dMix( logq=logq[1:nClusters],
