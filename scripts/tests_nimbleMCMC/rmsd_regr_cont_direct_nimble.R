@@ -1,6 +1,6 @@
 ## Author: PGL  Porta Mana
 ## Created: 2021-03-20T10:07:17+0100
-## Last-Updated: 2021-09-12T16:21:03+0200
+## Last-Updated: 2021-09-12T16:30:18+0200
 ################
 ## Script for direct regression, continuous RMSD
 ################
@@ -205,7 +205,7 @@ covNames <- c(continuousCovs, discreteCovs)
 library('nimble')
 ##
 
-rm(constants, dat, inits, bayesnet, model, Cmodel, confmodel, mcmcsampler, Cmcmcsampler)
+rm(constants2, dat2, inits2, bayesnet2, model2, Cmodel2, confmodel2, mcmcsampler2, Cmcmcsampler2)
 gc()
 nclusters <- 10
 ndata <- 20 # nSamples = 37969
@@ -404,7 +404,7 @@ dlogqPrior <- nimbleFunction(
                    log=integer(0, default=0)){
         returnType(double(0))
         ##
-        lprob <- sum( alpha * x - exp(x) )
+        lprob <- sum( alpha * x ) - 1000 * (sum(exp(x))-1)^2
         ##
         if(log) return( lprob )
         else return( exp(lprob) )
