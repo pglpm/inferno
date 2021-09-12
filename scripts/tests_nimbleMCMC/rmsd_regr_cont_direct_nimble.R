@@ -1,6 +1,6 @@
 ## Author: PGL  Porta Mana
 ## Created: 2021-03-20T10:07:17+0100
-## Last-Updated: 2021-09-12T15:35:06+0200
+## Last-Updated: 2021-09-12T15:51:01+0200
 ################
 ## Script for direct regression, continuous RMSD
 ################
@@ -204,18 +204,14 @@ covNames <- c(continuousCovs, discreteCovs)
 
 library('nimble')
 ##
-nclusters <- 100
-ndata <- 500 # nSamples = 37969
+nclusters <- 10
+ndata <- 20 # nSamples = 37969
 ## RMSD variable
 ##indc <- which(grepl('log_RMSD', covNames))
 indc <- which(covNames %in% continuousCovs)
 ncvars <- length(indc)
 icvars <- min(indc)
 fcvars <- max(indc)
-icparms1 <- icvars
-fcparms1 <- fcvars
-icparms2 <- ncvars + ndvars + icvars
-fcparms2 <- ncvars + ndvars + fcvars
 ## ## 0-inf variables
 ## indc0 <- which(grepl('sasa', covNames))
 ## nc0vars <- length(indc0)
@@ -231,6 +227,12 @@ indd <- which(covNames %in% discreteCovs)
 ndvars <- length(indd)
 idvars <- min(indd)
 fdvars <- max(indd)
+##
+icparms1 <- icvars
+fcparms1 <- fcvars
+icparms2 <- ncvars + ndvars + icvars
+fcparms2 <- ncvars + ndvars + fcvars
+##
 idparms1 <- idvars
 fdparms1 <- fdvars
 idparms2 <- ncvars + ndvars + idvars
@@ -423,12 +425,6 @@ constants2 <- list(
     nCvars=ncvars,
     iCvars=icvars,
     fCvars=fcvars,
-    nC0vars=nc0vars,
-    iC0vars=ic0vars,
-    fC0vars=fc0vars,
-    nC1vars=nc1vars,
-    iC1vars=ic1vars,
-    fC1vars=fc1vars,
     nDvars=ndvars,
     iDvars=idvars,
     fDvars=fdvars,
