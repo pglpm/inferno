@@ -1,6 +1,6 @@
 ## Author: PGL  Porta Mana
 ## Created: 2021-03-20T10:07:17+0100
-## Last-Updated: 2021-09-12T15:45:49+0200
+## Last-Updated: 2021-09-12T15:54:33+0200
 ################
 ## Script for direct regression, continuous RMSD
 ################
@@ -150,13 +150,11 @@ Cmodel <- compileNimble(model, showCompilerOutput=TRUE)
 confmodel <- configureMCMC(Cmodel)
 
 ## confmodel$removeSamplers(paste0('sizeD'))
-
 ## for(i in 1:nclusters){
 ##     for(j in 1:length(discreteCovs)){
 ##         confmodel$addSampler(target=paste0('sizeD[',j,', ',i,']'), type='AF_slice', control=list(sliceAdaptFactorMaxIter=10000, sliceAdaptFactorInterval=500, sliceAdaptWidthMaxIter=500, sliceMaxSteps=100, maxContractions=100))
 ##     }
 ## }
-
 
 mcmcsampler <- buildMCMC(confmodel)
 Cmcmcsampler <- compileNimble(mcmcsampler, resetFunctions = TRUE)
