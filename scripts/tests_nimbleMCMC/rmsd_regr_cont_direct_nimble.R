@@ -1,18 +1,6 @@
 ## Author: PGL  Porta Mana
 ## Created: 2021-03-20T10:07:17+0100
-<<<<<<< HEAD
-<<<<<<< HEAD
-## Last-Updated: 2021-09-12T11:47:08+0200
-=======
-## Last-Updated: 2021-09-12T11:30:23+0200
-=======
-<<<<<<< HEAD
-## Last-Updated: 2021-09-11T16:10:43+0200
->>>>>>> e1d934d8ae2db021a47d87e1df39c572caed325c
-=======
-## Last-Updated: 2021-09-11T14:55:47+0200
->>>>>>> 816c052238eeadfc8be9d026817409e9901e1e7d
->>>>>>> a017d0abfd9e5944d56a72e4fbd9773da0ca7219
+## Last-Updated: 2021-09-12T15:16:50+0200
 ################
 ## Script for direct regression, continuous RMSD
 ################
@@ -77,20 +65,18 @@ nFeatures <- ncol(alldata)
 ##
 ##
 #set.seed(222)
-rmsdCol <- which(names(alldata)=='log_RMSD')
-covNums <- which(colnames(alldata) %in%  c('log_RMSD',
-                                        'log_mcs_unbonded_polar_sasa',
-                                        'logit_ec_tanimoto_similarity',
-                                        'mcs_NumHeteroAtoms',
-                                        ##'scale_fc_tanimoto_similarity'
-                                        'docked_HeavyAtomCount',
-                                        'mcs_RingCount',
-                                        'docked_NumRotatableBonds'
-                                        ))
-covNames <- names(alldata)[covNums]
+covNames <-  c('log_RMSD',
+               'log_mcs_unbonded_polar_sasa',
+               'logit_ec_tanimoto_similarity',
+               'mcs_NumHeteroAtoms',
+               ##'scale_fc_tanimoto_similarity'
+               'docked_HeavyAtomCount',
+               'mcs_RingCount',
+               'docked_NumRotatableBonds'
+               )
 discreteCovs <- covNames[sapply(covNames, function(x){is.integer(alldata[[x]])})]
 continuousCovs <- covNames[sapply(covNames, function(x){is.double(alldata[[x]])})]
-allCovNums <- c(rmsdCol, covNums)
+covNames <- c(continuousCovs, discreteCovs)
 ##
 ##
 rm(allmcmcrun)
@@ -262,34 +248,24 @@ fdparms2 <- ncvars + ndvars + fdvars
 ##         else return(prob)
 ##         })
 ## Ctestnf <- compileNimble(testnf)
-dF <- nimbleFunction(
+dMix <- nimbleFunction(
     run = function(x=double(1),
-                   nCvars=integer(0, default=ncvars),
+                   logq=double(1), parms=double(2),
+                   ##
+                   nClusters=integer(0, default=nclusters),
                    iCvars=integer(0, default=icvars),
                    fCvars=integer(0, default=fcvars),
                    iCparms1=integer(0, default=icparms1),
                    fCparms1=integer(0, default=fcparms1),
                    iCparms2=integer(0, default=icparms2),
                    fCparms2=integer(0, default=fcparms2),
-                   ## nC0vars=integer(0, default=nc0vars),
-                   ## iC0vars=integer(0, default=ic0vars),
-                   ## fC0vars=integer(0, default=fc0vars),
-                   ## nC1vars=integer(0, default=nc1vars),
-                   ## iC1vars=integer(0, default=ic1vars),
-                   ## fC1vars=integer(0, default=fc1vars),
-                   nDvars=integer(0, default=ndvars),
                    iDvars=integer(0, default=idvars),
                    fDvars=integer(0, default=fdvars),
                    iDparms1=integer(0, default=idparms1),
                    fDparms1=integer(0, default=fdparms1),
                    iDparms2=integer(0, default=idparms2),
                    fDparms2=integer(0, default=fdparms2),
-                   nClusters=integer(0, default=nclusters),
-                   logq=double(1), parms=double(2),
-                   ## meanC=double(2), logsdC=double(2),
-                   ## logshapeC=double(2), logscaleC=double(2),
-                   ## logshape1C=double(2), logshape2C=double(2),
-                   ## logitprobD=double(2), logsizeD=double(2),
+                   ##
                    log=integer(0, default=0)){
         returnType(double(0))
         sumclusters <- 0
@@ -306,80 +282,44 @@ dF <- nimbleFunction(
             if(log) return( log(sumclusters) - log(sum(exp(logq))) )
             else return( sumclusters/sum(exp(logq)) )
         })
-CdF <- compileNimble(dF)
+##CdMix <- compileNimble(dMix)
 ##
-rF <- nimbleFunction(
+rMix <- nimbleFunction(
     run = function(n=integer(0, default=1),
-                   nCvars=integer(0, default=ncvars),
+                   logq=double(1), parms=double(2),
+                   ##
+                   nClusters=integer(0, default=nclusters),
                    iCvars=integer(0, default=icvars),
                    fCvars=integer(0, default=fcvars),
                    iCparms1=integer(0, default=icparms1),
                    fCparms1=integer(0, default=fcparms1),
                    iCparms2=integer(0, default=icparms2),
                    fCparms2=integer(0, default=fcparms2),
-                   ## nC0vars=integer(0, default=nc0vars),
-                   ## iC0vars=integer(0, default=ic0vars),
-                   ## fC0vars=integer(0, default=fc0vars),
-                   ## nC1vars=integer(0, default=nc1vars),
-                   ## iC1vars=integer(0, default=ic1vars),
-                   ## fC1vars=integer(0, default=fc1vars),
-                   nDvars=integer(0, default=ndvars),
                    iDvars=integer(0, default=idvars),
                    fDvars=integer(0, default=fdvars),
                    iDparms1=integer(0, default=idparms1),
                    fDparms1=integer(0, default=fdparms1),
                    iDparms2=integer(0, default=idparms2),
-                   fDparms2=integer(0, default=fdparms2),
-                   nClusters=integer(0, default=nclusters),
-                   logq=double(1), parms=double(2)
-                   ## meanC=double(2), logsdC=double(2),
-                   ## logshapeC=double(2), logscaleC=double(2),
-                   ## logshape1C=double(2), logshape2C=double(2),
-                   ##logitprobD=double(2), logsizeD=double(2)
+                   fDparms2=integer(0, default=fdparms2)
                    ){
         ##
         returnType(double(1))
-        xout <- numeric(length=nCvars+#nC0vars+nC1vars+
-                            nDvars, init=FALSE)
+        nCv <- fCvars - iCvars + 1
+        nDv <- fDvars - iDvars + 1
+        xout <- numeric(length=nCv+nDv, init=FALSE)
         cluster <- rcat(n=1, prob=exp(logq[1:nClusters])/sum(exp(logq[1:nClusters])))
         ##
-        xout[iCvars:fCvars] <- rnorm(n=nCvars, mean=parms[iCparms1:fCparms1,cluster], sd=exp(parms[iCparms2:fCparms2,cluster]))
+        xout[iCvars:fCvars] <- rnorm(n=nCv, mean=parms[iCparms1:fCparms1,cluster], sd=exp(parms[iCparms2:fCparms2,cluster]))
         ## xout[iC0vars:fC0vars] <- rgamma(n=nC0vars, shape=exp(logshapeC[1:nC0vars,cluster]), scale=exp(logscaleC[1:nC0vars,cluster]))
         ## xout[iC1vars:fC1vars] <- rbeta(n=nC1vars, shape1=exp(logshape1C[1:nC1vars,cluster]), shape2=exp(logshape2C[1:nC1vars,cluster]))
-        xout[iDvars:fDvars] <- rnbinom(n=nDvars, prob=1/(1+exp(-parms[iDparms1:fDparms1,cluster])), size=exp(parms[iDparms2:fDparms2,cluster]))
+        xout[iDvars:fDvars] <- rnbinom(n=nDv, prob=1/(1+exp(-parms[iDparms1:fDparms1,cluster])), size=exp(parms[iDparms2:fDparms2,cluster]))
         ##
         return(xout)
 })
-CrF <- compileNimble(rF)
+##CrMix <- compileNimble(rMix)
 ##
-dPrior <- nimbleFunction(
+dparmsPrior <- nimbleFunction(
     run = function(x=double(1),
-                   ## nCvars=integer(0, default=ncvars),
-                   ## iCvars=integer(0, default=icvars),
-                   ## fCvars=integer(0, default=fcvars),
-                   iCparms1=integer(0, default=icparms1),
-                   fCparms1=integer(0, default=fcparms1),
-                   iCparms2=integer(0, default=icparms2),
-                   fCparms2=integer(0, default=fcparms2),
-                   ## nC0vars=integer(0, default=nc0vars),
-                   ## iC0vars=integer(0, default=ic0vars),
-                   ## fC0vars=integer(0, default=fc0vars),
-                   ## nC1vars=integer(0, default=nc1vars),
-                   ## iC1vars=integer(0, default=ic1vars),
-                   ## fC1vars=integer(0, default=fc1vars),
-                   ## nDvars=integer(0, default=ndvars),
-                   ## iDvars=integer(0, default=idvars),
-                   ## fDvars=integer(0, default=fdvars),
-                   iDparms1=integer(0, default=idparms1),
-                   fDparms1=integer(0, default=fdparms1),
-                   iDparms2=integer(0, default=idparms2),
-                   fDparms2=integer(0, default=fdparms2),
-                   ##nClusters=integer(0, default=nclusters),
-                   ##logq=double(1),
-                   ## meanC=double(2), logsdC=double(2),
-                   ## logshapeC=double(2), logscaleC=double(2),
-                   ## logshape1C=double(2), logshape2C=double(2),
-                   ## logitprobD=double(2), logsizeD=double(2),
                    meanCmean=double(0),
                    meanCsd=double(0),
                    sdCshape=double(0),
@@ -388,6 +328,15 @@ dPrior <- nimbleFunction(
                    probDshape2=double(0),
                    sizeDshape=double(0),
                    sizeDrate=double(0),
+                   ##
+                   iCparms1=integer(0, default=icparms1),
+                   fCparms1=integer(0, default=fcparms1),
+                   iCparms2=integer(0, default=icparms2),
+                   fCparms2=integer(0, default=fcparms2),
+                   iDparms1=integer(0, default=idparms1),
+                   fDparms1=integer(0, default=fdparms1),
+                   iDparms2=integer(0, default=idparms2),
+                   fDparms2=integer(0, default=fdparms2),
                    ##
                    log=integer(0, default=0)){
         returnType(double(0))
@@ -408,36 +357,10 @@ dPrior <- nimbleFunction(
         if(log) return( lprob )
         else return( exp(lprob) )
     })
-CdPrior <- compileNimble(dPrior)
+##CdparmsPrior <- compileNimble(dparmsPrior)
 ##
-rPrior <- nimbleFunction(
+rparmsPrior <- nimbleFunction(
     run = function(n=integer(0, default=1),
-                   nCvars=integer(0, default=ncvars),
-                   ## iCvars=integer(0, default=icvars),
-                   ## fCvars=integer(0, default=fcvars),
-                   iCparms1=integer(0, default=icparms1),
-                   fCparms1=integer(0, default=fcparms1),
-                   iCparms2=integer(0, default=icparms2),
-                   fCparms2=integer(0, default=fcparms2),
-                   ## nC0vars=integer(0, default=nc0vars),
-                   ## iC0vars=integer(0, default=ic0vars),
-                   ## fC0vars=integer(0, default=fc0vars),
-                   ## nC1vars=integer(0, default=nc1vars),
-                   ## iC1vars=integer(0, default=ic1vars),
-                   ## fC1vars=integer(0, default=fc1vars),
-                   nDvars=integer(0, default=ndvars),
-                   ## iDvars=integer(0, default=idvars),
-                   ## fDvars=integer(0, default=fdvars),
-                   iDparms1=integer(0, default=idparms1),
-                   fDparms1=integer(0, default=fdparms1),
-                   iDparms2=integer(0, default=idparms2),
-                   fDparms2=integer(0, default=fdparms2),
-                   ##nClusters=integer(0, default=nclusters),
-                   ##logq=double(1),
-                   ## meanC=double(2), logsdC=double(2),
-                   ## logshapeC=double(2), logscaleC=double(2),
-                   ## logshape1C=double(2), logshape2C=double(2),
-                   ## logitprobD=double(2), logsizeD=double(2),
                    meanCmean=double(0),
                    meanCsd=double(0),
                    sdCshape=double(0),
@@ -445,20 +368,56 @@ rPrior <- nimbleFunction(
                    probDshape1=double(0),
                    probDshape2=double(0),
                    sizeDshape=double(0),
-                   sizeDrate=double(0)
+                   sizeDrate=double(0),
+                   ##
+                   iCparms1=integer(0, default=icparms1),
+                   fCparms1=integer(0, default=fcparms1),
+                   iCparms2=integer(0, default=icparms2),
+                   fCparms2=integer(0, default=fcparms2),
+                   iDparms1=integer(0, default=idparms1),
+                   fDparms1=integer(0, default=fdparms1),
+                   iDparms2=integer(0, default=idparms2),
+                   fDparms2=integer(0, default=fdparms2)
                    ){
         returnType(double(1))
         ##
-        parmsout <- numeric(length=2*(nCvars+nDvars), init=FALSE)
-        parmsout[iCparms1:fCparms1] <- rnorm(n=nCvars, mean=meanCmean, sd=meanCsd)
-        parmsout[iCparms2:fCparms2] <- rgamma(n=nCvars, shape=sdCshape, rate=sdCrate)
-        parmsout[iDparms1:fDparms1] <- rbeta(n=nDvars, shape1=probDshape1, shape2=probDshape2)
-        parmsout[iDparms2:fDparms2] <- rgamma(n=nDvars, shape=sizeDshape, rate=sizeDrate)
+        nCv <- fCparms1 - iCparms1 + 1
+        nDv <- fDparms1 - iDparms1 + 1
+        parmsout <- numeric(length=2*(nCv+nDv), init=FALSE)
+        parmsout[iCparms1:fCparms1] <- rnorm(n=nCv, mean=meanCmean, sd=meanCsd)
+        parmsout[iCparms2:fCparms2] <- rgamma(n=nCv, shape=sdCshape, rate=sdCrate)
+        parmsout[iDparms1:fDparms1] <- rbeta(n=nDv, shape1=probDshape1, shape2=probDshape2)
+        parmsout[iDparms2:fDparms2] <- rgamma(n=nDv, shape=sizeDshape, rate=sizeDrate)
         return( parmsout )
     })
-CrPrior <- compileNimble(rPrior)
-
-constants <- list(
+##CrparmsPrior <- compileNimble(rparmsPrior)
+##
+dlogqPrior <- nimbleFunction(
+    run = function(x=double(1),
+                   alpha=double(1),
+                   ##
+                   log=integer(0, default=0)){
+        returnType(double(0))
+        ##
+        lprob <- sum( alpha * x - exp(x) )
+        ##
+        if(log) return( lprob )
+        else return( exp(lprob) )
+    })
+##CdlogqPrior <- compileNimble(dlogqPrior)
+##
+rlogqPrior <- nimbleFunction(
+    run = function(n=integer(0, default=1),
+                   alpha=double(1)
+                   ){
+        returnType(double(1))
+        ##
+        logqout <- rdirch(n=1, alpha)
+        return( logqout )
+    })
+##CrlogqPrior <- compileNimble(rlogqPrior)
+##
+constants2 <- list(
     nData=ndata,
     nClusters=nclusters,
     nCvars=ncvars,
@@ -473,11 +432,13 @@ constants <- list(
     nDvars=ndvars,
     iDvars=idvars,
     fDvars=fdvars,
+    nVars=ncvars+ndvars,
+    nParms=2*(ncvars+ndvars),
     ##
-    alpha0=rep(1,nclusters)*4/nclusters,
+    alpha=rep(1,nclusters)*4/nclusters,
     meanCmean=0,
     meanCsd=2,
-    sdCshape=0,
+    sdCshape=1,
     sdCrate=1,
     probDshape1=1,
     probDshape2=1,
@@ -485,14 +446,14 @@ constants <- list(
     sizeDrate=1
 )
 ##
-dat <- list(
+dat2 <- list(
     X=as.matrix(alldata[1:ndata, ..covNames])
 )
 ##
-inits <- list(
-    logq=log(rep(1,nclusters)/nclusters),
-    parms=rbind( matrix(0, nrow=ncvars, ncol=nclusters),
-                plogis(matrix(0.5, nrow=ndvars, ncol=nclusters)),
+inits2 <- list(
+    logq=log(rep(1/nclusters, nclusters)),
+    Parms=rbind( matrix(0, nrow=ncvars, ncol=nclusters),
+                qlogis(matrix(0.5, nrow=ndvars, ncol=nclusters)),
                 log(matrix(1, nrow=ncvars, ncol=nclusters)),
                 log(matrix(10, nrow=ndvars, ncol=nclusters)) )
     ## meanC=matrix(0, nrow=ncvars, ncol=nclusters),
@@ -506,31 +467,36 @@ inits <- list(
 )
 ##
 bayesnet2 <- nimbleCode({
-    q[1:nClusters] ~ ddirch(alpha=alpha0[1:nClusters])
+    logq[1:nClusters] ~ dlogqPrior(alpha=alpha[1:nClusters])
     for(i in 1:nClusters){
-        for(j in 1:nCvars){
-            meanC[j,i] ~ dnorm(mean=meanC0, tau=tauC0)
-            tauC[j,i] ~ dgamma(shape=shapeC0, rate=rateC0)
-        }
-        for(j in 1:nDvars){
-            lambdaD[j,i] ~ dgamma(shape=shapeD0, rate=rateD0)
-        }
+        Parms[1:nParms, i] ~ dparmsPrior( meanCmean=meanCmean,
+                                         meanCsd=meanCsd,
+                                         sdCshape=sdCshape,
+                                         sdCrate=sdCrate,
+                                         probDshape1=probDshape1,
+                                         probDshape2=probDshape2,
+                                         sizeDshape=sizeDshape,
+                                         sizeDrate=sizeDrate,
+                                         iCparms1=iCparms1, fCparms1=fCparms1, 
+                                         iCparms2=iCparms2, fCparms2=fCparms2,
+                                         iDparms1=iDparms1, fDparms1=fDparms1, 
+                                         iDparms2=iDparms2, fDparms2=fDparms2 )
     }
     ##
     for(i in 1:nData){
-            X[i,1:fnDvars] ~ dF(nCvars=nCvars,
-                   nDvars=nDvars,
-                   inDvars=inDvars,
-                   fnDvars=fnDvars,
-                   nClusters=nClusters,
-                   q=q[1:nClusters],
-                   meanC=meanC[1:nCvars,1:nClusters],
-                   tauC=tauC[1:nCvars,1:nClusters],
-                   lambdaD=lambdaD[1:nDvars,1:nClusters])
-        }
+        X[i, 1:nVars] ~ dMix( logq=logq[1:nClusters],
+                           parms=Parms[1:(2*(nCvars+nDvars)), 1:nClusters],
+                           nClusters=nClusters,
+                           iCvars=iCvars, fCvars=fCvars,
+                           iCparms1=iCparms1, fCparms1=fCparms1, 
+                           iCparms2=iCparms2, fCparms2=fCparms2,
+                           iDvars=iDvars, fDvars=fDvars,
+                           iDparms1=iDparms1, fDparms1=fDparms1, 
+                           iDparms2=iDparms2, fDparms2=fDparms2 )
+    }
 })
 
-model2 <- nimbleModel(code=bayesnet2, name='model2', constants=constants, inits=inits, data=dat)
+model2 <- nimbleModel(code=bayesnet2, name='model2', constants=constants2, inits=inits2, data=dat2)
 
 Cmodel2 <- compileNimble(model2, showCompilerOutput=TRUE)
 
