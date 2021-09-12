@@ -1,10 +1,18 @@
 ## Author: PGL  Porta Mana
 ## Created: 2021-03-20T10:07:17+0100
 <<<<<<< HEAD
+<<<<<<< HEAD
 ## Last-Updated: 2021-09-12T11:26:38+0200
+=======
+## Last-Updated: 2021-09-12T11:30:23+0200
+=======
+<<<<<<< HEAD
+## Last-Updated: 2021-09-11T16:10:43+0200
+>>>>>>> e1d934d8ae2db021a47d87e1df39c572caed325c
 =======
 ## Last-Updated: 2021-09-11T14:55:47+0200
 >>>>>>> 816c052238eeadfc8be9d026817409e9901e1e7d
+>>>>>>> a017d0abfd9e5944d56a72e4fbd9773da0ca7219
 ################
 ## Script for direct regression, continuous RMSD
 ################
@@ -94,7 +102,7 @@ plan(multisession, workers = 2L)
 library('nimble')
 ##
 nclusters <- 100
-ndata <- 2000 # nSamples = 37969
+ndata <- 4000 # nSamples = 37969
 ##
 constants <- list(
     nClusters=nclusters,
@@ -175,11 +183,12 @@ mcsamples <- runMCMC(Cmcmcsampler, nburnin=1000, niter=2000, thin=1, setSeed=123
 totaltime <- Sys.time() - totaltime
 totaltime
 ## 7 vars, 1000 data, 100 cl: 38 min
+## 7 vars, 2000 data, 100 cl: 38.37 min
+## 7 vars, 4000 data, 100 cl: 1.26 hours
+saveRDS(mcsamples,file=paste0('_mcsamples_v',length(covNames),'-d',ndata,'-c',nclusters,'.rds'))
 
-saveRDS('mcsamples',file='_mcsamples_v7-d1000-c100.rds')
-
-indq <- grepl('probD\\[', colnames(mcsamples))
-matplot(mcsamples[,indq][,1],type='l',lty=1)
+indq <- grepl('meanC\\[', colnames(mcsamples))
+matplot(identity(mcsamples[,indq][,1]),type='l',lty=1)
 
 
 
