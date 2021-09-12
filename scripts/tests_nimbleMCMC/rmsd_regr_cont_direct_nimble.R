@@ -2,7 +2,7 @@
 ## Created: 2021-03-20T10:07:17+0100
 <<<<<<< HEAD
 <<<<<<< HEAD
-## Last-Updated: 2021-09-12T11:26:38+0200
+## Last-Updated: 2021-09-12T11:47:08+0200
 =======
 ## Last-Updated: 2021-09-12T11:30:23+0200
 =======
@@ -392,13 +392,13 @@ dPrior <- nimbleFunction(
                    log=integer(0, default=0)){
         returnType(double(0))
         ##
-        lprob <- sum( -((x[iCparms1:fCparms1] - meanCmean)/(2*meanCsd))^2 ) +
+        lprob <- sum( -(x[iCparms1:fCparms1] - meanCmean)^2/(2*meanCsd^2) ) +
             sum( -sdCshape * 2 * x[iCparms2:fCparms2] - sdCrate * exp(-2*x[iCparms2:fCparms2]) ) +
-            sum( probDshape1 * x[iDparms1:fDparms1,i] -
-                 (probDshape1+probDshape2) * log1p(exp(x[iDparms1:fDparms1,i])) ) +
-            ## sum( -(probDshape1-1) * log1p(exp(-x[iDparms1:fDparms1,i])) -
-            ##      (probDshape2+1) * log1p(exp(x[iDparms1:fDparms1,i])) +
-            ##      x[iDparms1:fDparms1,i] ) +
+            sum( probDshape1 * x[iDparms1:fDparms1] -
+                 (probDshape1+probDshape2) * log1p(exp(x[iDparms1:fDparms1])) ) +
+            ## sum( -(probDshape1-1) * log1p(exp(-x[iDparms1:fDparms1])) -
+            ##      (probDshape2+1) * log1p(exp(x[iDparms1:fDparms1])) +
+            ##      x[iDparms1:fDparms1] ) +
             sum( sizeDshape * x[iDparms2:fDparms2] - sizeDrate * exp(x[iDparms2:fDparms2]) )
         ## lprob <- sum(dnorm(x=x[iCparms1:fCparms1], mean=meanCmean, sd=meanCsd, log=TRUE)) +
         ##     sum(dgamma(x=exp(-2*x[iCparms2:fCparms2]), shape=sdCshape, rate=sdCrate, log=TRUE) - 2*x[iCparms2:fCparms2]) +
@@ -409,6 +409,54 @@ dPrior <- nimbleFunction(
         else return( exp(lprob) )
     })
 CdPrior <- compileNimble(dPrior)
+##
+rPrior <- nimbleFunction(
+    run = function(n=integer(0, default=1),
+                   nCvars=integer(0, default=ncvars),
+                   ## iCvars=integer(0, default=icvars),
+                   ## fCvars=integer(0, default=fcvars),
+                   iCparms1=integer(0, default=icparms1),
+                   fCparms1=integer(0, default=fcparms1),
+                   iCparms2=integer(0, default=icparms2),
+                   fCparms2=integer(0, default=fcparms2),
+                   ## nC0vars=integer(0, default=nc0vars),
+                   ## iC0vars=integer(0, default=ic0vars),
+                   ## fC0vars=integer(0, default=fc0vars),
+                   ## nC1vars=integer(0, default=nc1vars),
+                   ## iC1vars=integer(0, default=ic1vars),
+                   ## fC1vars=integer(0, default=fc1vars),
+                   nDvars=integer(0, default=ndvars),
+                   ## iDvars=integer(0, default=idvars),
+                   ## fDvars=integer(0, default=fdvars),
+                   iDparms1=integer(0, default=idparms1),
+                   fDparms1=integer(0, default=fdparms1),
+                   iDparms2=integer(0, default=idparms2),
+                   fDparms2=integer(0, default=fdparms2),
+                   ##nClusters=integer(0, default=nclusters),
+                   ##logq=double(1),
+                   ## meanC=double(2), logsdC=double(2),
+                   ## logshapeC=double(2), logscaleC=double(2),
+                   ## logshape1C=double(2), logshape2C=double(2),
+                   ## logitprobD=double(2), logsizeD=double(2),
+                   meanCmean=double(0),
+                   meanCsd=double(0),
+                   sdCshape=double(0),
+                   sdCrate=double(0),
+                   probDshape1=double(0),
+                   probDshape2=double(0),
+                   sizeDshape=double(0),
+                   sizeDrate=double(0)
+                   ){
+        returnType(double(1))
+        ##
+        parmsout <- numeric(length=2*(nCvars+nDvars), init=FALSE)
+        parmsout[iCparms1:fCparms1] <- rnorm(n=nCvars, mean=meanCmean, sd=meanCsd)
+        parmsout[iCparms2:fCparms2] <- rgamma(n=nCvars, shape=sdCshape, rate=sdCrate)
+        parmsout[iDparms1:fDparms1] <- rbeta(n=nDvars, shape1=probDshape1, shape2=probDshape2)
+        parmsout[iDparms2:fDparms2] <- rgamma(n=nDvars, shape=sizeDshape, rate=sizeDrate)
+        return( parmsout )
+    })
+CrPrior <- compileNimble(rPrior)
 
 constants <- list(
     nData=ndata,
@@ -435,14 +483,6 @@ constants <- list(
     probDshape2=1,
     sizeDshape=1,
     sizeDrate=1
-    
-    
-    meanC0=0,
-    tauC0=1/10^2,
-    shapeC0=1,
-    rateC0=1,
-    shapeD0=1,
-    rateD0=1
 )
 ##
 dat <- list(
