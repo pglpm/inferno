@@ -1,7 +1,6 @@
-<<<<<<< HEAD
 ## Author: PGL  Porta Mana
 ## Created: 2021-03-20T10:07:17+0100
-## Last-Updated: 2021-09-12T15:51:01+0200
+## Last-Updated: 2021-09-12T15:53:48+0200
 ################
 ## Script for direct regression, continuous RMSD
 ################
@@ -4383,4 +4382,3 @@ testnf <- nimbleFunction(
         else return(prob)
         })
 Ctestnf <- compileNimble(testnf)
->>>>>>> b8acb20612aba2f55bedf0e4192b240f9844c8fc
