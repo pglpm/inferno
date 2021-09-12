@@ -1,6 +1,6 @@
 ## Author: PGL  Porta Mana
 ## Created: 2021-03-20T10:07:17+0100
-## Last-Updated: 2021-09-12T16:46:03+0200
+## Last-Updated: 2021-09-12T16:49:40+0200
 ################
 ## Script for direct regression, continuous RMSD
 ################
@@ -487,6 +487,7 @@ bayesnet2 <- nimbleCode({
                                          probDshape2=probDshape2,
                                          sizeDshape=sizeDshape,
                                          sizeDrate=sizeDrate,
+                                         nClusters=nClusters,
                                          iCparms1=iCparms1, fCparms1=fCparms1, 
                                          iCparms2=iCparms2, fCparms2=fCparms2,
                                          iDparms1=iDparms1, fDparms1=fDparms1, 
@@ -511,9 +512,10 @@ Cmodel2 <- compileNimble(model2, showCompilerOutput=TRUE)
 
 confmodel2 <- configureMCMC(Cmodel2, nodes=NULL)
     confmodel2$addSampler(target=paste0('logq'), type='AF_slice', control=list(sliceAdaptFactorMaxIter=1000, sliceAdaptFactorInterval=100, sliceAdaptWidthMaxIter=100, sliceMaxSteps=100, maxContractions=100))
-for(i in 1:nclusters){
-    confmodel2$addSampler(target=paste0('Parms[1:',2*(ncvars+ndvars),', ',i,']'), type='AF_slice', control=list(sliceAdaptFactorMaxIter=1000, sliceAdaptFactorInterval=100, sliceAdaptWidthMaxIter=100, sliceMaxSteps=100, maxContractions=100))
-}
+confmodel2$addSampler(target=paste0('Parms'), type='AF_slice', control=list(sliceAdaptFactorMaxIter=1000, sliceAdaptFactorInterval=100, sliceAdaptWidthMaxIter=100, sliceMaxSteps=100, maxContractions=100))
+## for(i in 1:nclusters){
+##     confmodel2$addSampler(target=paste0('Parms[1:',2*(ncvars+ndvars),', ',i,']'), type='AF_slice', control=list(sliceAdaptFactorMaxIter=1000, sliceAdaptFactorInterval=100, sliceAdaptWidthMaxIter=100, sliceMaxSteps=100, maxContractions=100))
+## }
 confmodel2
 
 mcmcsampler2 <- buildMCMC(confmodel2)
