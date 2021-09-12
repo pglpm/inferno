@@ -1,7 +1,6 @@
-<<<<<<< HEAD
 ## Author: PGL  Porta Mana
 ## Created: 2021-03-20T10:07:17+0100
-## Last-Updated: 2021-09-12T15:51:01+0200
+## Last-Updated: 2021-09-12T16:00:46+0200
 ################
 ## Script for direct regression, continuous RMSD
 ################
@@ -80,11 +79,8 @@ continuousCovs <- covNames[sapply(covNames, function(x){is.double(alldata[[x]])}
 covNames <- c(continuousCovs, discreteCovs)
 ##
 ##
-rm(allmcmcrun)
+rm(constants, dat, inits, bayesnet, model, Cmodel, confmodel, mcmcsampler, Cmcmcsampler)
 gc()
-totaltime <- Sys.time()
-plan(sequential)
-plan(multisession, workers = 2L)
 
 library('nimble')
 ##
@@ -4381,4 +4377,4 @@ testnf <- nimbleFunction(
         else return(prob)
         })
 Ctestnf <- compileNimble(testnf)
->>>>>>> b8acb20612aba2f55bedf0e4192b240f9844c8fc
+
