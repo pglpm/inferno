@@ -1,6 +1,6 @@
 ## Author: PGL  Porta Mana
 ## Created: 2021-03-20T10:07:17+0100
-## Last-Updated: 2021-09-12T16:15:33+0200
+## Last-Updated: 2021-09-12T16:21:03+0200
 ################
 ## Script for direct regression, continuous RMSD
 ################
@@ -521,6 +521,10 @@ totaltime <- Sys.time()
 mcsamples2 <- runMCMC(Cmcmcsampler2, nburnin=1000, niter=2000, thin=1, setSeed=123)
 totaltime <- Sys.time() - totaltime
 totaltime
+
+indq <- grepl('logq\\[', colnames(mcsamples2))
+testqs <- normalizem(exp(mcsamples2[,indq]))
+matplot(identity(testqs),type='l',lty=1)
 
 
 
