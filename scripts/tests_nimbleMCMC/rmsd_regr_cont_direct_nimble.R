@@ -1,6 +1,6 @@
 ## Author: PGL  Porta Mana
 ## Created: 2021-03-20T10:07:17+0100
-## Last-Updated: 2021-09-12T15:16:50+0200
+## Last-Updated: 2021-09-12T15:35:06+0200
 ################
 ## Script for direct regression, continuous RMSD
 ################
@@ -432,6 +432,14 @@ constants2 <- list(
     nDvars=ndvars,
     iDvars=idvars,
     fDvars=fdvars,
+    iCparms1=icparms1,
+    fCparms1=fcparms1,
+    iCparms2=icparms2,
+    fCparms2=fcparms2,
+    iDparms1=idparms1,
+    fDparms1=fdparms1,
+    iDparms2=idparms2,
+    fDparms2=fdparms2,
     nVars=ncvars+ndvars,
     nParms=2*(ncvars+ndvars),
     ##
@@ -485,7 +493,7 @@ bayesnet2 <- nimbleCode({
     ##
     for(i in 1:nData){
         X[i, 1:nVars] ~ dMix( logq=logq[1:nClusters],
-                           parms=Parms[1:(2*(nCvars+nDvars)), 1:nClusters],
+                           parms=Parms[1:nParms, 1:nClusters],
                            nClusters=nClusters,
                            iCvars=iCvars, fCvars=fCvars,
                            iCparms1=iCparms1, fCparms1=fCparms1, 
@@ -500,12 +508,20 @@ model2 <- nimbleModel(code=bayesnet2, name='model2', constants=constants2, inits
 
 Cmodel2 <- compileNimble(model2, showCompilerOutput=TRUE)
 
-confmodel2 <- configureMCMC(Cmodel2)
+confmodel2 <- configureMCMC(Cmodel2, nodes=NULL)
+    confmodel2$addSampler(target=paste0('logq'), type='AF_slice', control=list(sliceAdaptFactorMaxIter=1000, sliceAdaptFactorInterval=100, sliceAdaptWidthMaxIter=100, sliceMaxSteps=100, maxContractions=100))
+for(i in 1:nclusters){
+    confmodel2$addSampler(target=paste0('Parms[1:',2*(ncvars+ndvars),', ',i,']'), type='AF_slice', control=list(sliceAdaptFactorMaxIter=1000, sliceAdaptFactorInterval=100, sliceAdaptWidthMaxIter=100, sliceMaxSteps=100, maxContractions=100))
+}
+confmodel2
 
 mcmcsampler2 <- buildMCMC(confmodel2)
 Cmcmcsampler2 <- compileNimble(mcmcsampler2, resetFunctions = TRUE)
 
+totaltime <- Sys.time()
 mcsamples2 <- runMCMC(Cmcmcsampler2, nburnin=1000, niter=2000, thin=1, setSeed=123)
+totaltime <- Sys.time() - totaltime
+totaltime
 
 
 
@@ -2163,9 +2179,11 @@ testnf <- nimbleFunction(
     run = function(x=double(1),
                    ##meanC=double(2), sdC=double(2),
                    log=integer(0, default=0)){
-        returnType(double(0))
-        prob <- x[1]
-##        prob <- dnorm(x, mean=meanC, sd=sdC)
+        returnType(double(1))
+        prob <- numeric(length=length(x), init=FALSE)
+        ##        prob <- dnorm(x, mean=meanC, sd=sdC)
+        prob[1:1] <- x[1:1] * 2
+        prob[2:length(x)] <- x[2:length(x)] * 3
         if(log) return(log(prob))
         else return(prob)
         })
