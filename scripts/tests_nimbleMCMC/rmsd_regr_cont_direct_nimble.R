@@ -1,6 +1,6 @@
 ## Author: PGL  Porta Mana
 ## Created: 2021-03-20T10:07:17+0100
-## Last-Updated: 2021-09-12T15:35:06+0200
+## Last-Updated: 2021-09-12T15:45:49+0200
 ################
 ## Script for direct regression, continuous RMSD
 ################
@@ -79,16 +79,13 @@ continuousCovs <- covNames[sapply(covNames, function(x){is.double(alldata[[x]])}
 covNames <- c(continuousCovs, discreteCovs)
 ##
 ##
-rm(allmcmcrun)
+rm(constants, dat, inits, bayesnet, model, Cmodel, confmodel, mcmcsampler, Cmcmcsampler)
 gc()
-totaltime <- Sys.time()
-plan(sequential)
-plan(multisession, workers = 2L)
 
 library('nimble')
 ##
 nclusters <- 100
-ndata <- 4000 # nSamples = 37969
+ndata <- 6000 # nSamples = 37969
 ##
 constants <- list(
     nClusters=nclusters,
@@ -176,6 +173,16 @@ saveRDS(mcsamples,file=paste0('_mcsamples_v',length(covNames),'-d',ndata,'-c',nc
 indq <- grepl('meanC\\[', colnames(mcsamples))
 matplot(identity(mcsamples[,indq][,1]),type='l',lty=1)
 
+
+
+
+
+
+
+#####################################################################
+#####################################################################
+#####################################################################
+#### Second approach
 
 
 ## Read and reorganize data
@@ -423,7 +430,7 @@ constants2 <- list(
     nCvars=ncvars,
     iCvars=icvars,
     fCvars=fcvars,
-    nC0vars=nc0vars,
+    nC0vars=nc0vars,
     iC0vars=ic0vars,
     fC0vars=fc0vars,
     nC1vars=nc1vars,
