@@ -1,6 +1,6 @@
 ## Author: PGL  Porta Mana
 ## Created: 2021-03-20T10:07:17+0100
-## Last-Updated: 2021-09-13T09:32:35+0200
+## Last-Updated: 2021-09-13T12:04:35+0200
 ################
 ## Script for direct regression, continuous RMSD
 ################
@@ -87,9 +87,72 @@ rm(constants, dat, inits, bayesnet, model, Cmodel, confmodel, mcmcsampler, Cmcmc
 gc()
 ##
 nclusters <- 100
-ndata <- 1000 # nSamples = 37969
+ndata <- 6000 # nSamples = 37969
 ncvars <- length(continuousCovs)
 ndvars <- length(discreteCovs)
+##
+##
+pData <- nimbleFunction(
+    run = function(X=double(2),
+                   Y=double(2),
+                   q=double(2),
+                   meanC=double(3),
+                   tauC=double(3),
+                   probD=double(3),
+                   sizeD=double(3),
+                   log=integer(0, default=1)
+                   ){
+        ##
+        returnType(double(2))
+        ndataz <- dim(X)[1]
+        nsamplesz <- dim(q)[1]
+        nclustersz <- dim(q)[2]
+        ncvarx <- dim(X)[2]
+        ndvarx <- dim(Y)[2]
+        pout <- nimMatrix(nrow=ndataz, ncol=nsamplesz, init=FALSE)
+        for(idat in 1:ndataz){
+            for(isam in 1:nsamplesz){
+                sumclusters <- 0
+                for(iclu in 1:nclustersz){
+                sumclusters <- sumclusters +
+                    exp(
+                        log(q[isam, iclu]) +
+                        sum( dnorm(x=X[idat, 1:ncvarx], mean=meanC[isam, 1:ncvarx, iclu], sd=1/sqrt(tauC[isam, 1:ncvarx, iclu]), log=TRUE)) + 
+                        sum( dnbinom(x=Y[idat, 1:ndvarx], prob=probD[isam, 1:ndvarx, iclu], size=sizeD[isam, 1:ndvarx, iclu], log=TRUE))
+                    )
+                }
+                pout[idat, isam] <- sumclusters
+            }
+        }
+        ##
+        if(log) return( log(pout))
+        else return(pout)
+})
+CpData <- compileNimble(pData)
+## testtime <- Sys.time()
+## testpout2 <- CpData(X=dat$X, Y=dat$Y, q=parmList$q, meanC=parmList$meanC, tauC=parmList$tauC, probD=parmList$probD, sizeD=parmList$sizeD, log=T)
+## Sys.time() - testtime
+##
+pData2 <- function(X, Y, q, meanC, tauC, probD, sizeD){
+    ndataz <- dim(X)[1]
+    nsamplesz <- dim(q)[1]
+    nclustersz <- dim(q)[2]
+    ncvarx <- dim(X)[2]
+    ndvarx <- dim(Y)[2]
+    foreach(idat=1:ndataz, .combine=rbind)%:%foreach(isam=1:nsamplesz, .combine=cbind)%dopar%{
+        log(sum(exp( sapply(1:nclustersz, function(iclu){
+            log(q[isam, iclu]) +
+                sum( dnorm(x=X[idat, 1:ncvarx], mean=meanC[isam, 1:ncvarx, iclu], sd=1/sqrt(tauC[isam, 1:ncvarx, iclu]), log=TRUE)) + 
+                sum( dnbinom(x=Y[idat, 1:ndvarx], prob=probD[isam, 1:ndvarx, iclu], size=sizeD[isam, 1:ndvarx, iclu], log=TRUE))
+        }) )))
+    }
+}
+## testtime <- Sys.time()
+## plan(sequential)
+## plan(multisession, workers = 6L)
+## testpout <- pData2(X=dat$X, Y=dat$Y, q=parmList$q, meanC=parmList$meanC, tauC=parmList$tauC, probD=parmList$probD, sizeD=parmList$sizeD)
+## plan(sequential)
+## Sys.time() - testtime
 ##
 constants <- list(
     nClusters=nclusters,
@@ -118,8 +181,7 @@ initsFunction <- function(){
     tauC=matrix(rgamma(n=ncvars*nclusters, shape=1, rate=1), nrow=ncvars, ncol=nclusters),
     probD=matrix(rbeta(n=ndvars*nclusters, shape1=1, shape2=2), nrow=ndvars, ncol=nclusters),
     sizeD=matrix(rgamma(n=ndvars*nclusters, shape=1, rate=1), nrow=ndvars, ncol=nclusters),
-    C=rep(1, ndata)
-#    C=rcat(n=ndata, prob=rep(1/nclusters,nclusters))
+    C=rcat(n=ndata, prob=rep(1/nclusters,nclusters))
     )
 }
 ##
@@ -131,37 +193,6 @@ inits <- list(
     sizeD=matrix(50, nrow=length(discreteCovs), ncol=nclusters),
     C=rcat(n=ndata, prob=rep(1,nclusters)/nclusters)
 )
-##
-lpdata <- nimbleFunction(
-    run = function(X=double(2),
-                   Y=double(2),
-                   q=double(1),
-                   meanC=double(2),
-                   tauC=double(2),
-                   probD=double(2),
-                   sizeD=double(2)
-                   ){
-        ##
-        returnType(double(0))
-        ncvarx <- dim(X)[2]
-        ndvarx <- dim(Y)[2]
-        nclx <- dim(q)[1]
-        lpout <- 0
-        for(i in 1:dim(X)[1]){
-            sumclusters <- 0
-            for(j in 1:nclx){
-                sumclusters <- sumclusters +
-                    exp(
-                        log(q[j]) +
-                        sum( dnorm(x=X[i,1:ncvarx], mean=meanC[1:ncvarx,j], sd=1/sqrt(tauC[1:ncvarx,j]), log=TRUE)) + 
-                        sum( dnbinom(x=Y[i,1:ndvarx], prob=probD[1:ndvarx,j], size=sizeD[1:ndvarx,j], log=TRUE))
-                    )
-            }
-            lpout <- lpout + log(sumclusters)
-        }
-        ##
-        return(lpout)
-})
 ##
 bayesnet <- nimbleCode({
     q[1:nClusters] ~ ddirch(alpha=alpha0[1:nClusters])
@@ -182,58 +213,58 @@ bayesnet <- nimbleCode({
     for(i in 1:nData){
         for(j in 1:nCvars){
             X[i,j] ~ dnorm(mean=meanC[j,C[i]], tau=tauC[j,C[i]])
-            ## lpX[i,j] <- dnorm(x=X[i,j], mean=meanC[j,C[i]], tau=tauC[j,C[i]], log=TRUE)
         }
         for(j in 1:nDvars){
             Y[i,j] ~ dnbinom(prob=probD[j,C[i]], size=sizeD[j,C[i]])
-            ## lpY[i,j] <- dnbinom(x=Y[i,j], prob=probD[j,C[i]], size=sizeD[j,C[i]], log=TRUE)
         }
     }
-    lp <- lpdata(X=X[1:nData,1:nCvars], Y=Y[1:nData,1:nDvars], q=q[1:nClusters], meanC=meanC[1:nCvars,1:nClusters], tauC=tauC[1:nCvars,1:nClusters], probD=probD[1:nDvars,1:nClusters], sizeD=sizeD[1:nDvars,1:nClusters])
-    ## lp <- sum(lpX[1:nData,1:nCvars])+sum(lpY[1:nData,1:nDvars])
-    ## for(i in 1:nClusters){ csize[i] <- sum(C[1:nData]==i) }
-    ## csize <- sum(C[1:nData]==1)
 })
 
 model <- nimbleModel(code=bayesnet, name='model1', constants=constants, inits=inits, data=dat)
-
 Cmodel <- compileNimble(model, showCompilerOutput=TRUE)
 
 confmodel <- configureMCMC(Cmodel)
-confmodel$addMonitors('lp')
 ## confmodel$removeSamplers(paste0('sizeD'))
 ## for(i in 1:nclusters){ for(j in 1:length(discreteCovs)){
 ##                            confmodel$addSampler(target=paste0('sizeD[',j,', ',i,']'), type='slice', control=list(adaptInterval=100))
 ##                        } }
-confmodel
-##
+## print(confmodel)
+
 mcmcsampler <- buildMCMC(confmodel)
 Cmcmcsampler <- compileNimble(mcmcsampler, resetFunctions = TRUE)
 
 totaltime <- Sys.time()
-mcsamples <- runMCMC(Cmcmcsampler, nburnin=0, niter=1000, thin=1, inits=initsFunction, setSeed=123)
+## NB: putting all data in one cluster at start leads to slow convergence
+mcsamples <- runMCMC(Cmcmcsampler, nburnin=0, niter=2000, thin=1, inits=initsFunction, setSeed=123)
 totaltime <- Sys.time() - totaltime
-totaltime
-## 7 vars, 1000 data, 100 cl: 38 min
-## 7 vars, 2000 data, 100 cl: 38.37 min
-## 7 vars, 4000 data, 100 cl: 1.26 hours
-## 7 vars, 6000 data, 100 cl: 1.85\1.88 hours
-saveRDS(mcsamples,file=paste0('_testmcsamplesl_v',length(covNames),'-d',ndata,'-c',nclusters,'.rds'))
+print(totaltime)
+## 7 vars, 6000 data, 100 cl, 200 iter: 12.52 mins
+saveRDS(mcsamples,file=paste0('_mcsamples',length(covNames),'-d',ndata,'-c',nclusters,'-i',nrow(mcsamples),'.rds'))
 ##
-
-pdff('mcsummary')
-## for(j in c(1:nclusters)){
-##             vcol <- paste0('csize[',j,']')
-## matplot(mcsamples[,vcol],type='l',lty=1, main=vcol)
-## }
-## matplot(mcsamples[,'csize'],type='l',lty=1, main='csize')
-matplot(mcsamples[,'lp'],type='l',lty=1,main='logpData')
-## matplot(mcsamples[,'logProb_X[1, 1]'],type='l',lty=1,main='logpCont')
-## matplot(mcsamples[,'logProb_Y[1, 1]'],type='l',lty=1,main='logpDisc')
-## matplot(mcsamples[,'logProb_X[1, 1]']+mcsamples[,'logProb_Y[1, 1]'],type='l',lty=1,main='logpData')
+parmNames <- c('q', 'meanC', 'tauC', 'probD', 'sizeD')
+##
+parmList <- foreach(var=parmNames)%dopar%{
+    out <- mcsamples[,grepl(paste0(var,'\\['), colnames(mcsamples))]
+    if(grepl('C', var)){
+        dim(out) <- c(nrow(mcsamples), ncvars, nclusters)
+    } else if(grepl('D', var)){
+        dim(out) <- c(nrow(mcsamples), ndvars, nclusters)
+    } else {dim(out) <- c(nrow(mcsamples), nclusters) }
+    out
+}
+names(parmList) <- parmNames
+##
+lpdat <- CpData(X=dat$X, Y=dat$Y, q=parmList$q, meanC=parmList$meanC, tauC=parmList$tauC, probD=parmList$probD, sizeD=parmList$sizeD, log=T)
+##
+pdff(paste0('mcsummary',length(covNames),'-d',ndata,'-c',nclusters,'-i',nrow(mcsamples),'.rds'))
+matplot(colSums(lpdat), type='l', lty=1, col=palette()[2], main='logprobData')
+matplot(log(t(apply(parmList$q,1,range))),type='l',lty=1, main='range p-clusters')
+##
 for(j in c(1,nclusters)){
     vcol <- paste0('q[',j,']')
     matplot(log(mcsamples[,vcol]),type='l',lty=1, main=vcol)
+}
+for(j in c(1,nclusters)){
     for(i in c(1,ncvars)){
         vcol <- paste0('meanC[',i,', ',j,']')
         matplot(mcsamples[,vcol], type='l', lty=1, main=vcol)
@@ -248,6 +279,20 @@ for(j in c(1,nclusters)){
     }
 }
 dev.off()
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 indq <- grepl('logProb_q\\[', colnames(mcsamples))
