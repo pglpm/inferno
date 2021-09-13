@@ -1,6 +1,6 @@
 ## Author: PGL  Porta Mana
 ## Created: 2021-03-20T10:07:17+0100
-## Last-Updated: 2021-09-12T17:22:43+0200
+## Last-Updated: 2021-09-13T14:52:05+0200
 ################
 ## Script for direct regression, continuous RMSD
 ################
@@ -409,8 +409,32 @@ testqs <- normalizem(exp(mcsamples2[,indq]))
 matplot(identity(testqs),type='l',lty=1)
 sum(testqs[2,])
 
+###########################################
 
+library('nimble')
 
+bayesnet3 <- nimbleCode({
+    m ~ dnorm(mean=0, sd=1)
+    x ~ dnorm(mean=m, sd=1)
+})
+##
+constants <- list()
+dat <- list(x=3)
+inits <- list(m=-5)
+
+model3 <- nimbleModel(code=bayesnet3, name='model3', constants=constants, inits=inits, data=dat)
+Cmodel3 <- compileNimble(model3, showCompilerOutput=TRUE)
+
+confmodel3 <- configureMCMC(Cmodel3)
+
+mcmcsampler3 <- buildMCMC(confmodel3)
+Cmcmcsampler3 <- compileNimble(mcmcsampler3)
+
+Cmcmcsampler3$run(niter=4, nburnin=2)
+
+Cmcmcsampler3$run(niter=4, nburnin=0, reset=FALSE)
+
+Cmcmcsampler3$run(niter=4, nburnin=1, reset=FALSE)
 
 #####################################################################
 #####################################################################
