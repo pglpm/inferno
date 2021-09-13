@@ -1,6 +1,6 @@
 ## Author: PGL  Porta Mana
 ## Created: 2021-03-20T10:07:17+0100
-## Last-Updated: 2021-09-12T17:29:26+0200
+## Last-Updated: 2021-09-13T05:43:19+0200
 ################
 ## Script for direct regression, continuous RMSD
 ################
@@ -79,22 +79,26 @@ continuousCovs <- covNames[sapply(covNames, function(x){is.double(alldata[[x]])}
 covNames <- c(continuousCovs, discreteCovs)
 ##
 ##
-rm(constants, dat, inits, bayesnet, model, Cmodel, confmodel, mcmcsampler, Cmcmcsampler)
-gc()
 
 library('nimble')
 ##
-nclusters <- 100
-ndata <- 6000 # nSamples = 37969
+
+rm(constants, dat, inits, bayesnet, model, Cmodel, confmodel, mcmcsampler, Cmcmcsampler)
+gc()
+##
+nclusters <- 10
+ndata <- 60 # nSamples = 37969
+ncvars <- length(continuousCovs)
+ndvars <- length(discreteCovs)
 ##
 constants <- list(
     nClusters=nclusters,
     nData=ndata,
-    nCvars=length(continuousCovs),
-    nDvars=length(discreteCovs),
+    nCvars=ncvars,
+    nDvars=ndvars,
     alpha0=rep(1,nclusters)*4/nclusters,
     meanC0=0,
-    tauC0=1/10^2,
+    tauC0=1/3^2,
     shapeC0=1,
     rateC0=1,
     shape1D0=1,
@@ -107,6 +111,15 @@ dat <- list(
     X=as.matrix(alldata[1:ndata, ..continuousCovs]),
     Y=as.matrix(alldata[1:ndata, ..discreteCovs])
 )
+##
+initsFunction <- function(){
+    list( q=rdirch(n=1, alpha=rep(1,nclusters)/nclusters),
+    meanC=matrix(rnorm(n=ncvars*nclusters, mean=0, sd=10), nrow=ncvars, ncol=nclusters),
+    tauC=matrix(rgamma(n=ncvars*nclusters, shape=1, rate=1), nrow=ncvars, ncol=nclusters),
+    probD=matrix(rbeta(n=ndvars*nclusters, shape1=1, shape2=2), nrow=ndvars, ncol=nclusters),
+    sizeD=matrix(rgamma(n=ndvars*nclusters, shape=1, rate=1), nrow=ndvars, ncol=nclusters),
+    C=rcat(n=ndata, prob=rep(1/nclusters,nclusters)) )
+}
 ##
 inits <- list(
     q=rep(1,nclusters)/nclusters,
@@ -144,33 +157,61 @@ bayesnet <- nimbleCode({
 })
 
 model <- nimbleModel(code=bayesnet, name='model1', constants=constants, inits=inits, data=dat)
-
 Cmodel <- compileNimble(model, showCompilerOutput=TRUE)
 
 confmodel <- configureMCMC(Cmodel)
-
-confmodel$removeSamplers(paste0('sizeD'))
-for(i in 1:nclusters){ for(j in 1:length(discreteCovs)){
-        confmodel$addSampler(target=paste0('sizeD[',j,', ',i,']'), type='slice', control=list(adaptInterval=100))
-                       } }
-confmodel$addMonitors('logProb_X')
+confmodel$addMonitors(c('logProb_q'))
+## confmodel$removeSamplers(paste0('sizeD'))
+## for(i in 1:nclusters){ for(j in 1:length(discreteCovs)){
+##                            confmodel$addSampler(target=paste0('sizeD[',j,', ',i,']'), type='slice', control=list(adaptInterval=100))
+##                        } }
+confmodel
 
 mcmcsampler <- buildMCMC(confmodel)
 Cmcmcsampler <- compileNimble(mcmcsampler, resetFunctions = TRUE)
 
 totaltime <- Sys.time()
-mcsamples <- runMCMC(Cmcmcsampler, nburnin=1000, niter=2000, thin=1, setSeed=123)
+mcsamples <- runMCMC(Cmcmcsampler, nburnin=0, niter=100000, thin=100, inits=initsFunction, setSeed=123)
 totaltime <- Sys.time() - totaltime
 totaltime
 ## 7 vars, 1000 data, 100 cl: 38 min
 ## 7 vars, 2000 data, 100 cl: 38.37 min
 ## 7 vars, 4000 data, 100 cl: 1.26 hours
-saveRDS(mcsamples,file=paste0('_mcsamples_v',length(covNames),'-d',ndata,'-c',nclusters,'.rds'))
+## 7 vars, 6000 data, 100 cl: 1.85\1.88 hours
+saveRDS(mcsamples,file=paste0('_testmcsamples_v',length(covNames),'-d',ndata,'-c',nclusters,'.rds'))
+##
+pdff('mcsummary')
+matplot(mcsamples[,'logProb_q[1]'],type='l',lty=1,main='logp')
+for(j in c(1,nclusters)){
+    for(i in c(1,ncvars)){
+        vcol <- paste0('meanC[',i,', ',j,']')
+        matplot(mcsamples[,vcol], type='l', lty=1, main=vcol)
+        vcol <- paste0('tauC[',i,', ',j,']')
+        matplot(log(mcsamples[,vcol]), type='l', lty=1, main=vcol)
+    }
+    for(i in c(1,ndvars)){
+        vcol <- paste0('probD[',i,', ',j,']')
+        matplot(log(mcsamples[,vcol]), type='l', lty=1, main=vcol)
+        vcol <- paste0('sizeD[',i,', ',j,']')
+        matplot(log(mcsamples[,vcol]), type='l', lty=1, main=vcol)
+    }
+}
+dev.off()
 
-indq <- grepl('meanC\\[', colnames(mcsamples))
-matplot(identity(mcsamples[,indq][,1]),type='l',lty=1)
 
+indq <- grepl('logProb_q\\[', colnames(mcsamples))
+matplot(identity(mcsamples[,indq]),type='l',lty=1)
 
+indq <- grepl('meanC\\[1, 1]', colnames(mcsamples)) || grepl('meanC\\[1, 1]', colnames(mcsamples))
+
+totaltime <- Sys.time()
+mcsamplesb <- runMCMC(Cmcmcsampler, nburnin=0, niter=2000, thin=1, nchains=2, inits=initsFunction, setSeed=123)
+totaltime <- Sys.time() - totaltime
+totaltime
+saveRDS(mcsamplesb,file=paste0('_mcsampleswburnin2_v',length(covNames),'-d',ndata,'-c',nclusters,'.rds'))
+
+indq <- grepl('q\\[', colnames(mcsamplesb))
+matplot(identity(mcsamplesb[,indq][,1]),type='l',lty=1)
 
 
 #####################################################################
