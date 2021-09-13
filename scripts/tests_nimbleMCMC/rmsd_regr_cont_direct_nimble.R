@@ -1,6 +1,6 @@
 ## Author: PGL  Porta Mana
 ## Created: 2021-03-20T10:07:17+0100
-## Last-Updated: 2021-09-13T14:53:17+0200
+## Last-Updated: 2021-09-13T14:55:34+0200
 ################
 ## Script for direct regression, continuous RMSD
 ################
@@ -91,6 +91,43 @@ ndata <- 6000 # nSamples = 37969
 ncvars <- length(continuousCovs)
 ndvars <- length(discreteCovs)
 ##
+pSamples <- nimbleFunction(
+    run = function(X=double(2),
+                   Y=double(2),
+                   q=double(2),
+                   meanC=double(3),
+                   tauC=double(3),
+                   probD=double(3),
+                   sizeD=double(3),
+                   log=integer(0, default=1)
+                   ){
+        ##
+        returnType(double(2))
+        ndataz <- dim(X)[1]
+        nsamplesz <- dim(q)[1]
+        nclustersz <- dim(q)[2]
+        ncvarx <- dim(X)[2]
+        ndvarx <- dim(Y)[2]
+        pout <- nimMatrix(nrow=ndataz, ncol=nsamplesz, init=FALSE)
+        for(idat in 1:ndataz){
+            for(isam in 1:nsamplesz){
+                sumclusters <- 0
+                for(iclu in 1:nclustersz){
+                sumclusters <- sumclusters +
+                    exp(
+                        log(q[isam, iclu]) +
+                        sum( dnorm(x=X[idat, 1:ncvarx], mean=meanC[isam, 1:ncvarx, iclu], sd=1/sqrt(tauC[isam, 1:ncvarx, iclu]), log=TRUE)) + 
+                        sum( dnbinom(x=Y[idat, 1:ndvarx], prob=probD[isam, 1:ndvarx, iclu], size=sizeD[isam, 1:ndvarx, iclu], log=TRUE))
+                    )
+                }
+                pout[idat, isam] <- sumclusters
+            }
+        }
+        ##
+        if(log) return( log(pout))
+        else return(pout)
+})
+CpSamples <- compileNimble(pSamples)
 ##
 pData <- nimbleFunction(
     run = function(X=double(2),
@@ -256,12 +293,13 @@ parmList <- foreach(var=parmNames)%dopar%{
 }
 names(parmList) <- parmNames
 ##
+
 lpdat <- CpData(X=dat$X, Y=dat$Y, q=parmList$q, meanC=parmList$meanC, tauC=parmList$tauC, probD=parmList$probD, sizeD=parmList$sizeD, log=T)
 ##
 
 
 pdff(paste0('mcsummary',length(covNames),'-d',ndata,'-c',nclusters,'-i',nrow(mcsamples),'.rds'))
-matplot(colSums(lpdat)[1000:2000], type='l', lty=1, col=palette()[2], main='logprobData')
+matplot(lpdat[1000:2000], type='l', lty=1, col=palette()[2], main='logprobData')
 matplot(log(t(apply(parmList$q,1,range))),type='l',lty=1, main='range p-clusters')
 ##
 for(j in c(1,nclusters)){
