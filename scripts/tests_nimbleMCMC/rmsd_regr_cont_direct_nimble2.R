@@ -1,6 +1,6 @@
 ## Author: PGL  Porta Mana
 ## Created: 2021-03-20T10:07:17+0100
-## Last-Updated: 2021-09-12T17:22:43+0200
+## Last-Updated: 2021-09-13T14:52:55+0200
 ################
 ## Script for direct regression, continuous RMSD
 ################
@@ -409,8 +409,32 @@ testqs <- normalizem(exp(mcsamples2[,indq]))
 matplot(identity(testqs),type='l',lty=1)
 sum(testqs[2,])
 
+###########################################
 
+library('nimble')
 
+bayesnet3 <- nimbleCode({
+    m ~ dnorm(mean=0, sd=1)
+    x ~ dnorm(mean=m, sd=1)
+})
+##
+constants <- list()
+dat <- list(x=3)
+inits <- list(m=-5)
+
+model3 <- nimbleModel(code=bayesnet3, name='model3', constants=constants, inits=inits, data=dat)
+Cmodel3 <- compileNimble(model3, showCompilerOutput=TRUE)
+
+confmodel3 <- configureMCMC(Cmodel3)
+
+mcmcsampler3 <- buildMCMC(confmodel3)
+Cmcmcsampler3 <- compileNimble(mcmcsampler3)
+
+Cmcmcsampler3$run(niter=4, nburnin=2)
+
+Cmcmcsampler3$run(niter=4, nburnin=0, reset=FALSE)
+
+Cmcmcsampler3$run(niter=4, nburnin=1, reset=FALSE)
 
 #####################################################################
 #####################################################################
@@ -429,3 +453,45 @@ testnf <- nimbleFunction(
         else return(prob)
         })
 Ctestnf <- compileNimble(testnf)
+
+
+
+
+
+pData <- nimbleFunction(
+    run = function(X=double(2),
+                   Y=double(2),
+                   q=double(2),
+                   meanC=double(3),
+                   tauC=double(3),
+                   probD=double(3),
+                   sizeD=double(3),
+                   log=integer(0, default=1)
+                   ){
+        ##
+        returnType(double(2))
+        ndataz <- dim(X)[1]
+        nsamplesz <- dim(q)[1]
+        nclustersz <- dim(q)[2]
+        ncvarx <- dim(X)[2]
+        ndvarx <- dim(Y)[2]
+        pout <- nimMatrix(nrow=ndataz, ncol=nsamplesz, init=FALSE)
+        for(idat in 1:ndataz){
+            for(isam in 1:nsamplesz){
+                sumclusters <- 0
+                for(iclu in 1:nclustersz){
+                sumclusters <- sumclusters +
+                    exp(
+                        log(q[isam, iclu]) +
+                        sum( dnorm(x=X[idat, 1:ncvarx], mean=meanC[isam, 1:ncvarx, iclu], sd=1/sqrt(tauC[isam, 1:ncvarx, iclu]), log=TRUE)) + 
+                        sum( dnbinom(x=Y[idat, 1:ndvarx], prob=probD[isam, 1:ndvarx, iclu], size=sizeD[isam, 1:ndvarx, iclu], log=TRUE))
+                    )
+                }
+                pout[idat, isam] <- sumclusters
+            }
+        }
+        ##
+        if(log) return( log(pout))
+        else return(pout)
+})
+CpData <- compileNimble(pData)
