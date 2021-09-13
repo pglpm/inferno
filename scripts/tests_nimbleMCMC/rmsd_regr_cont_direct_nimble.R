@@ -1,6 +1,6 @@
 ## Author: PGL  Porta Mana
 ## Created: 2021-03-20T10:07:17+0100
-## Last-Updated: 2021-09-13T14:55:34+0200
+## Last-Updated: 2021-09-13T18:56:35+0200
 ################
 ## Script for direct regression, continuous RMSD
 ################
@@ -91,43 +91,7 @@ ndata <- 6000 # nSamples = 37969
 ncvars <- length(continuousCovs)
 ndvars <- length(discreteCovs)
 ##
-pSamples <- nimbleFunction(
-    run = function(X=double(2),
-                   Y=double(2),
-                   q=double(2),
-                   meanC=double(3),
-                   tauC=double(3),
-                   probD=double(3),
-                   sizeD=double(3),
-                   log=integer(0, default=1)
-                   ){
-        ##
-        returnType(double(2))
-        ndataz <- dim(X)[1]
-        nsamplesz <- dim(q)[1]
-        nclustersz <- dim(q)[2]
-        ncvarx <- dim(X)[2]
-        ndvarx <- dim(Y)[2]
-        pout <- nimMatrix(nrow=ndataz, ncol=nsamplesz, init=FALSE)
-        for(idat in 1:ndataz){
-            for(isam in 1:nsamplesz){
-                sumclusters <- 0
-                for(iclu in 1:nclustersz){
-                sumclusters <- sumclusters +
-                    exp(
-                        log(q[isam, iclu]) +
-                        sum( dnorm(x=X[idat, 1:ncvarx], mean=meanC[isam, 1:ncvarx, iclu], sd=1/sqrt(tauC[isam, 1:ncvarx, iclu]), log=TRUE)) + 
-                        sum( dnbinom(x=Y[idat, 1:ndvarx], prob=probD[isam, 1:ndvarx, iclu], size=sizeD[isam, 1:ndvarx, iclu], log=TRUE))
-                    )
-                }
-                pout[idat, isam] <- sumclusters
-            }
-        }
-        ##
-        if(log) return( log(pout))
-        else return(pout)
-})
-CpSamples <- compileNimble(pSamples)
+
 ##
 pData <- nimbleFunction(
     run = function(X=double(2),
@@ -168,6 +132,150 @@ pData <- nimbleFunction(
         else return(pout)
 })
 CpData <- compileNimble(pData)
+
+
+
+probJointSamples2 <- nimbleFunction(
+    run = function(X=double(2),
+                   Y=double(2),
+                   q=double(2),
+                   meanC=double(3),
+                   tauC=double(3),
+                   probD=double(3),
+                   sizeD=double(3),
+                   log=integer(0, default=1)
+                   ){
+        ##
+        returnType(double(2))
+        ndataz <- dim(X)[1]
+        nsamplesz <- dim(q)[1]
+        nclustersz <- dim(q)[2]
+        ncvarx <- dim(X)[2]
+        ndvarx <- dim(Y)[2]
+        pout <- nimMatrix(nrow=ndataz, ncol=nsamplesz, init=FALSE)
+        for(idat in 1:ndataz){
+            for(isam in 1:nsamplesz){
+                sumclusters <- 0
+                for(iclu in 1:nclustersz){
+                sumclusters <- sumclusters +
+                    exp(
+                        log(q[isam, iclu]) +
+                        sum( dnorm(x=X[idat, 1:ncvarx], mean=meanC[isam, 1:ncvarx, iclu], sd=1/sqrt(tauC[isam, 1:ncvarx, iclu]), log=TRUE)) + 
+                        sum( dnbinom(x=Y[idat, 1:ndvarx], prob=probD[isam, 1:ndvarx, iclu], size=sizeD[isam, 1:ndvarx, iclu], log=TRUE))
+                    )
+                }
+                pout[idat, isam] <- sumclusters
+            }
+        }
+        ##
+        if(log) return( log(pout))
+        else return(pout)
+})
+CprobJointSamples2 <- compileNimble(probJointSamples2)
+##
+
+probJointSamples2 <- nimbleFunction(
+    run = function(X=double(2),
+                   Y=double(2),
+                   q=double(2),
+                   meanC=double(3),
+                   tauC=double(3),
+                   probD=double(3),
+                   sizeD=double(3),
+                   log=integer(0, default=1)
+                   ){
+        ##
+        returnType(double(2))
+        ndataz <- dim(X)[1]
+        ncparmz <- dim(X)[2]
+        ndparmz <- dim(Y)[2]
+        nsamplesz <- dim(q)[1]
+        nclustersz <- dim(q)[2]
+        freqs <- nimMatrix(nrow=ndataz, ncol=nsamplesz, init=FALSE)
+        for(asample in 1:nsamplesz){
+            matrixdataclus <- nimMatrix(nrow=nclustersz, ncol=ndataz, init=FALSE)
+            for(cluster in 1:nclustersz){
+                cvlist <- numeric(value=0, length=ndataz)
+                for(aparm in 1:ncparmz){
+                    cvlist <- cvlist + dnorm(X[1:ndataz,aparm], mean=meanC[asample,aparm,cluster], sd=1/sqrt(tauC[asample,aparm,cluster]), log=TRUE)
+                }
+                for(aparm in 1:ndparmz){
+                    cvlist <- cvlist + dnbinom(Y[1:ndataz,aparm], prob=probD[asample,aparm,cluster], size=sizeD[asample,aparm,cluster], log=TRUE)
+                }
+                matrixdataclus[cluster,1:ndataz] <- cvlist
+            }
+            colsum <- colsum +
+                exp(
+                    log(q[asample,1:nclustersz]) + matrixdataclus[1:nclustersz,1:ndata]
+
+
+                    )
+
+            
+        }
+
+
+
+
+        
+        nsamplesz <- dim(q)[1]
+        nclustersz <- dim(q)[2]
+        ncvarx <- dim(X)[2]
+        ndvarx <- dim(Y)[2]
+        pout <- nimMatrix(nrow=ndataz, ncol=nsamplesz, init=FALSE)
+        for(idat in 1:ndataz){
+            for(isam in 1:nsamplesz){
+                sumclusters <- 0
+                for(iclu in 1:nclustersz){
+                sumclusters <- sumclusters +
+                    exp(
+                        log(q[isam, iclu]) +
+                        sum( dnorm(x=X[idat, 1:ncvarx], mean=meanC[isam, 1:ncvarx, iclu], sd=1/sqrt(tauC[isam, 1:ncvarx, iclu]), log=TRUE)) + 
+                        sum( dnbinom(x=Y[idat, 1:ndvarx], prob=probD[isam, 1:ndvarx, iclu], size=sizeD[isam, 1:ndvarx, iclu], log=TRUE))
+                    )
+                }
+                pout[idat, isam] <- sumclusters
+            }
+        }
+        ##
+        if(log) return( log(pout))
+        else return(pout)
+})
+CprobJointSamples2 <- compileNimble(probJointSamples2)
+##
+
+counttime <- Sys.time()
+testjs2 <- CprobJointSamples2(X=dat$X[1:100,], Y=dat$Y[1:100,], q=parmList$q, meanC=parmList$meanC, tauC=parmList$tauC, probD=parmList$probD, sizeD=parmList$sizeD, log=TRUE)
+print(Sys.time()-counttime)
+
+
+probJointSamples <- function(dat, parmList, log=FALSE, inorder=FALSE){
+    ndataz <- nrow(dat$X)
+    q <- parmList$q
+    ##
+    freqs <- foreach(asample=seq_len(nrow(q)), .combine=cbind, .inorder=inorder)%dopar%{
+        colSums(
+            exp(
+                log(q[asample,]) +
+                t(vapply(seq_len(ncol(q)), function(cluster){
+                    ## continuous covariates
+                    colSums(dnorm(t(dat$X), mean=parmList$meanC[asample,,cluster], sd=1/sqrt(parmList$tauC[asample,,cluster]), log=TRUE)) +
+                        ## discrete covariates
+                    colSums(dnbinom(t(dat$Y), prob=parmList$probD[asample,,cluster], size=parmList$sizeD[asample,,cluster], log=TRUE))
+    }, numeric(ndataz)))
+            )
+        )
+    }
+    if(!log){freqs} else {log(freqs)}
+}
+
+counttime <- Sys.time()
+plan(sequential)
+plan(multisession, workers = 6L)
+testjs <- probJointSamples(dat=list(X=dat$X[1:100,], Y=dat$Y[1:100,]), parmList, log=TRUE)
+plan(sequential)
+print(Sys.time()-counttime)
+
 ## testtime <- Sys.time()
 ## testpout2 <- CpData(X=dat$X, Y=dat$Y, q=parmList$q, meanC=parmList$meanC, tauC=parmList$tauC, probD=parmList$probD, sizeD=parmList$sizeD, log=T)
 ## Sys.time() - testtime
