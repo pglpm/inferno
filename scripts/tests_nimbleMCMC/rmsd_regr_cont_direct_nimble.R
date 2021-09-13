@@ -1,6 +1,6 @@
 ## Author: PGL  Porta Mana
 ## Created: 2021-03-20T10:07:17+0100
-## Last-Updated: 2021-09-13T05:43:19+0200
+## Last-Updated: 2021-09-13T07:05:19+0200
 ################
 ## Script for direct regression, continuous RMSD
 ################
@@ -86,8 +86,8 @@ library('nimble')
 rm(constants, dat, inits, bayesnet, model, Cmodel, confmodel, mcmcsampler, Cmcmcsampler)
 gc()
 ##
-nclusters <- 10
-ndata <- 60 # nSamples = 37969
+nclusters <- 100
+ndata <- 1000 # nSamples = 37969
 ncvars <- length(continuousCovs)
 ndvars <- length(discreteCovs)
 ##
@@ -154,35 +154,45 @@ bayesnet <- nimbleCode({
             Y[i,j] ~ dnegbin(prob=probD[j,C[i]], size=sizeD[j,C[i]])
         }
     }
+    ## for(i in 1:nClusters){ csize[i] <- sum(C[1:nData]==i) }
+    csize <- sum(C[1:nData]==1)
 })
 
 model <- nimbleModel(code=bayesnet, name='model1', constants=constants, inits=inits, data=dat)
+
 Cmodel <- compileNimble(model, showCompilerOutput=TRUE)
 
 confmodel <- configureMCMC(Cmodel)
-confmodel$addMonitors(c('logProb_q'))
+confmodel$addMonitors(c('csize','logProb_q'))
 ## confmodel$removeSamplers(paste0('sizeD'))
 ## for(i in 1:nclusters){ for(j in 1:length(discreteCovs)){
 ##                            confmodel$addSampler(target=paste0('sizeD[',j,', ',i,']'), type='slice', control=list(adaptInterval=100))
 ##                        } }
 confmodel
-
+##
 mcmcsampler <- buildMCMC(confmodel)
 Cmcmcsampler <- compileNimble(mcmcsampler, resetFunctions = TRUE)
 
 totaltime <- Sys.time()
-mcsamples <- runMCMC(Cmcmcsampler, nburnin=0, niter=100000, thin=100, inits=initsFunction, setSeed=123)
+mcsamples <- runMCMC(Cmcmcsampler, nburnin=0, niter=10000, thin=1, inits=initsFunction, setSeed=123)
 totaltime <- Sys.time() - totaltime
 totaltime
 ## 7 vars, 1000 data, 100 cl: 38 min
 ## 7 vars, 2000 data, 100 cl: 38.37 min
 ## 7 vars, 4000 data, 100 cl: 1.26 hours
 ## 7 vars, 6000 data, 100 cl: 1.85\1.88 hours
-saveRDS(mcsamples,file=paste0('_testmcsamples_v',length(covNames),'-d',ndata,'-c',nclusters,'.rds'))
+saveRDS(mcsamples,file=paste0('_testmcsamples2_v',length(covNames),'-d',ndata,'-c',nclusters,'.rds'))
 ##
 pdff('mcsummary')
+## for(j in c(1:nclusters)){
+##             vcol <- paste0('csize[',j,']')
+## matplot(mcsamples[,vcol],type='l',lty=1, main=vcol)
+## }
+matplot(mcsamples[,'csize'],type='l',lty=1, main='csize')
 matplot(mcsamples[,'logProb_q[1]'],type='l',lty=1,main='logp')
 for(j in c(1,nclusters)){
+    vcol <- paste0('q[',j,']')
+    matplot(log(mcsamples[,vcol]),type='l',lty=1, main=vcol)
     for(i in c(1,ncvars)){
         vcol <- paste0('meanC[',i,', ',j,']')
         matplot(mcsamples[,vcol], type='l', lty=1, main=vcol)
