@@ -1,6 +1,6 @@
 ## Author: PGL  Porta Mana
 ## Created: 2021-03-20T10:07:17+0100
-## Last-Updated: 2021-09-14T19:04:04+0200
+## Last-Updated: 2021-09-14T22:45:48+0200
 ################
 ## Script for direct regression, continuous RMSD
 ################
@@ -272,7 +272,7 @@ Fsamples <- function(X, parmList){
     }
 }
 
-options(future.rng.onMisue = "ignore")
+options(doFuture.rng.onMisuse = "ignore")
 samplesFsamples <- function(varNames, parmList, nxsamples, seed=1234){
     cC <- varNames[varNames %in% continuousCovs]
     ncC <- length(cC)
@@ -363,6 +363,36 @@ parmList <- foreach(var=parmNames)%dopar%{
 }
 names(parmList) <- parmNames
 
+
+
+plotVars <- c(
+    "log_RMSD"
+    ,"log_mcs_unbonded_polar_sasa"
+    ## ,"logit_ec_tanimoto_similarity",
+    ## ,"mcs_NumHeteroAtoms",
+    ## ,"docked_HeavyAtomCount",
+    ## ,"mcs_RingCount",
+    ## ,"docked_NumRotatableBonds"
+  )
+nXsamples <- 1000
+plan(sequential)
+plan(multisession, workers = 6L)
+Xsamples <- samplesFsamples(varNames=plotVars, parmList=parmList, nxsamples=nXsamples)
+plan(sequential)
+
+plotvarRanges <- sapply(plotVars,function(var){
+    varrange <- summary(alldata[[var]])
+    varrange <- c(diff(varrange[c(4,1)]), diff(varrange[c(4,6)]))*1+varrange[4]
+    ##
+    ##seq(-10, 10, length.out=ngridpoints)
+})
+##
+pdff(paste0(indir, 'samplesvars2D'))
+subsample <- round(seq(1, dim(Xsamples)[3], length.out=20))
+for(asample in subsample){
+    matplot(x=Xsamples[1,,asample],y=Xsamples[2,,asample], type='p', pch=16, xlab=rownames(Xsamples)[1], ylab=rownames(Xsamples)[2], xlim=plotvarRanges[,rownames(Xsamples)[1]], ylim=plotvarRanges[,rownames(Xsamples)[2]])
+}
+dev.off()
 
 
 ## rm(alldata)
