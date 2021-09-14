@@ -1,6 +1,6 @@
 ## Author: PGL  Porta Mana
 ## Created: 2021-03-20T10:07:17+0100
-## Last-Updated: 2021-09-14T15:20:46+0200
+## Last-Updated: 2021-09-14T19:04:04+0200
 ################
 ## Script for direct regression, continuous RMSD
 ################
@@ -272,6 +272,31 @@ Fsamples <- function(X, parmList){
     }
 }
 
+options(future.rng.onMisue = "ignore")
+samplesFsamples <- function(varNames, parmList, nxsamples, seed=1234){
+    cC <- varNames[varNames %in% continuousCovs]
+    ncC <- length(cC)
+    dC <- varNames[varNames %in% discreteCovs]
+    ndC <- length(dC)
+    q <- parmList$q
+    npsamples <- nrow(q)
+    ##
+    rng <- RNGseq( npsamples * nxsamples * (ncC+ndC), seed)
+    allsamples <- foreach(asample=seq_len(npsamples), .combine=cbind, .inorder=FALSE)%:%foreach(adraw=seq_len(nxsamples), .combine=rbind, .inorder=FALSE, r=rng[(asample-1)*nxsamples*(ncC+ndC) + 1:(nxsamples*(ncC+ndC))])%dopar%{
+        rngtools::setRNG(r)
+        cluster <- rcat(n=ncol(q), prob=q[asample,])
+        c(
+            ## continuous covariates
+            rnorm(n=ncC, mean=parmList$meanC[asample,cC,cluster], sd=1/sqrt(parmList$tauC[asample,cC,cluster])),
+            ## discrete covariates
+            rnbinom(n=ndC, prob=parmList$probD[asample,dC,cluster], size=parmList$sizeD[asample,dC,cluster])
+        )
+    }
+    dim(allsamples) <- c(ncC+ndC, nxsamples, npsamples)
+    dimnames(allsamples) <- list(c(cC,dC), NULL, NULL)
+    allsamples
+}
+
 
 priormodel <- nimbleModel(code=priorbayesnet, name='priormodel1', constants=constants, inits=list(), data=list())
 Cpriormodel <- compileNimble(priormodel, showCompilerOutput=TRUE)
@@ -289,7 +314,7 @@ Cpriormcmcsampler <- compileNimble(priormcmcsampler, resetFunctions = TRUE)
 initsFunction <- function(){
     list( alpha0=rep(1,nclusters)*4/nclusters,
          meanC0=0,
-         tauC0=1/3^2,
+         tauC0=1/(2.5^2),
          shapeC0=0.5,
          rateC0=1,
          shape1D0=1,
