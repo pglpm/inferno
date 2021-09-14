@@ -1,6 +1,6 @@
 ## Author: PGL  Porta Mana
 ## Created: 2021-03-20T10:07:17+0100
-## Last-Updated: 2021-09-13T22:09:16+0200
+## Last-Updated: 2021-09-14T06:37:57+0200
 ################
 ## Script for direct regression, continuous RMSD
 ################
@@ -150,6 +150,25 @@ probJointMean <- function(dat, parmList){
     }/nsamples
 }
 ##
+probRCondMean <- function(dat, parmList){
+    ndataz <- nrow(dat$X)
+    q <- parmList$q
+    nsamples <- nrow(q)
+    ##
+    foreach(asample=seq_len(nsamples), .combine='+', .inorder=FALSE)%dopar%{
+        colSums(
+            exp(
+                log(q[asample,]) +
+                t(vapply(seq_len(ncol(q)), function(cluster){
+                    ## continuous covariates
+                    colSums(dnorm(t(dat$X), mean=parmList$meanC[asample,,cluster], sd=1/sqrt(parmList$tauC[asample,,cluster]), log=TRUE)) +
+                        ## discrete covariates
+                    colSums(dnbinom(t(dat$Y), prob=parmList$probD[asample,,cluster], size=parmList$sizeD[asample,,cluster], log=TRUE))
+    }, numeric(ndataz)))
+            )
+        )
+    }/nsamples
+}
 ##
 constants <- list(
     nClusters=nclusters,
@@ -240,6 +259,7 @@ mcsamples <- as.matrix(Cmcmcsampler$mvSamples)
 ## 7 vars, 6000 data, 100 cl, 200 iter: 12.52 mins
 ## 7 vars, 6000 data, 100 cl, 2000 iter: 1.88 hours
 saveRDS(mcsamples,file=paste0('_mcsamples2',length(covNames),'-d',ndata,'-c',nclusters,'-i',nrow(mcsamples),'.rds'))
+save(model,Cmodel,confmodel,mcmcsampler,Cmcmcsampler, file=paste0('_model',length(covNames),'-d',ndata,'-c',nclusters,'-i',nrow(mcsamples),'.RData'))
 ##
 parmNames <- c('q', 'meanC', 'tauC', 'probD', 'sizeD')
 ##
@@ -247,8 +267,10 @@ parmList <- foreach(var=parmNames)%dopar%{
     out <- mcsamples[,grepl(paste0(var,'\\['), colnames(mcsamples))]
     if(grepl('C', var)){
         dim(out) <- c(nrow(mcsamples), ncvars, nclusters)
+        dimnames(out) <- list(NULL, continuousCovs, NULL)
     } else if(grepl('D', var)){
         dim(out) <- c(nrow(mcsamples), ndvars, nclusters)
+        dimnames(out) <- list(NULL, discreteCovs, NULL)
     } else {dim(out) <- c(nrow(mcsamples), nclusters) }
     out
 }
