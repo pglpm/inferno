@@ -1,6 +1,6 @@
 ## Author: PGL  Porta Mana
 ## Created: 2021-03-20T10:07:17+0100
-## Last-Updated: 2021-09-15T18:36:50+0200
+## Last-Updated: 2021-09-15T18:50:49+0200
 ################
 ## Script for direct regression, continuous RMSD
 ################
@@ -301,8 +301,8 @@ initsFunction <- function(){
          rateC0=0.1, #2, #6, #0.03, #0.1,
          shape1D0=1,
          shape2D0=1,
-         shapeD0=1,
-         rateD0=1/20
+         shapeD0=2,
+         rateD0=1/2
          )
 }
 totaltime <- Sys.time()
@@ -344,11 +344,12 @@ plan(sequential)
 print(Sys.time()-timecount)
 
 ##
-plotvarRanges <- xlim <- ylim <- list()
+plotvarRanges <- plotvarQs <- xlim <- ylim <- list()
 for(var in covNames){
+    plotvarQs[[var]] <- quantile(alldata[[var]], prob=c(0.05,0.95))
     plotvarRanges[[var]] <- thisrange <- range(alldata[[var]])
-    xlim[[var]] <- c( min(thisrange, quantile(xsamples[var,,],prob=0.25)),
-                     max(thisrange, quantile(xsamples[var,,],prob=0.75)) )
+    xlim[[var]] <- c( min(thisrange, quantile(xsamples[var,,],prob=0.05)),
+                     max(thisrange, quantile(xsamples[var,,],prob=0.95)) )
 }
 ##
 subsamplep <- round(seq(1, dim(xsamples)[3], length.out=100))
@@ -363,6 +364,12 @@ for(addvar in setdiff(covNames, 'log_RMSD')){
             xlab='log_RMSD',
             ylab=addvar,
             type='p', pch=1, cex=0.2, lwd=1, col=palette()[2])
+        matlines(x=c(rep(plotvarRanges[['log_RMSD']], each=2), plotvarRanges[['log_RMSD']][1]),
+             y=c(plotvarRanges[[addvar]], rev(plotvarRanges[[addvar]]), plotvarRanges[[addvar]][1]),
+                 lwd=2, col=paste0(palette()[2],'88'))
+        matlines(x=c(rep(plotvarQs[['log_RMSD']], each=2), plotvarQs[['log_RMSD']][1]),
+             y=c(plotvarQs[[addvar]], rev(plotvarQs[[addvar]]), plotvarQs[[addvar]][1]),
+                 lwd=2, col=paste0(palette()[4],'88'))
 }
 for(asample in subsamplep){
 par(mfrow = c(2, 3))
@@ -376,7 +383,10 @@ for(addvar in setdiff(covNames, 'log_RMSD')){
             type='p', pch=1, cex=0.2, lwd=1, col=palette()[1])
     matlines(x=c(rep(plotvarRanges[['log_RMSD']], each=2), plotvarRanges[['log_RMSD']][1]),
              y=c(plotvarRanges[[addvar]], rev(plotvarRanges[[addvar]]), plotvarRanges[[addvar]][1]),
-                 lwd=3, col=palette()[2])
+             lwd=2, col=paste0(palette()[2],'88'))
+            matlines(x=c(rep(plotvarQs[['log_RMSD']], each=2), plotvarQs[['log_RMSD']][1]),
+             y=c(plotvarQs[[addvar]], rev(plotvarQs[[addvar]]), plotvarQs[[addvar]][1]),
+                 lwd=2, col=paste0(palette()[4],'88'))
 }
 }
 dev.off()
