@@ -1,6 +1,6 @@
 ## Author: PGL  Porta Mana
 ## Created: 2021-03-20T10:07:17+0100
-## Last-Updated: 2021-09-14T22:45:48+0200
+## Last-Updated: 2021-09-15T13:32:42+0200
 ################
 ## Script for direct regression, continuous RMSD
 ################
@@ -203,23 +203,23 @@ initsFunction <- function(){
          )
 }
 ##
-inits <- list( alpha0=rep(1,nclusters)*4/nclusters,
-              meanC0=0,
-              tauC0=1/3^2,
-              shapeC0=1,
-              rateC0=1,
-              shape1D0=1,
-              shape2D0=1,
-              shapeD0=1,
-              rateD0=1,
-              ##
-              q=rep(1,nclusters)/nclusters,
-              meanC=matrix(0, nrow=length(continuousCovs), ncol=nclusters),
-              tauC=matrix(1, nrow=length(continuousCovs), ncol=nclusters),
-              probD=matrix(0.5, nrow=length(discreteCovs), ncol=nclusters),
-              sizeD=matrix(50, nrow=length(discreteCovs), ncol=nclusters),
-              C=rcat(n=ndata, prob=rep(1,nclusters)/nclusters)
-)
+## inits <- list( alpha0=rep(1,nclusters)*4/nclusters,
+##               meanC0=0,
+##               tauC0=1/3^2,
+##               shapeC0=1,
+##               rateC0=1,
+##               shape1D0=1,
+##               shape2D0=1,
+##               shapeD0=1,
+##               rateD0=1,
+##               ##
+##               q=rep(1,nclusters)/nclusters,
+##               meanC=matrix(0, nrow=length(continuousCovs), ncol=nclusters),
+##               tauC=matrix(1, nrow=length(continuousCovs), ncol=nclusters),
+##               probD=matrix(0.5, nrow=length(discreteCovs), ncol=nclusters),
+##               sizeD=matrix(50, nrow=length(discreteCovs), ncol=nclusters),
+##               C=rcat(n=ndata, prob=rep(1,nclusters)/nclusters)
+## )
 ##
 priorbayesnet <- nimbleCode({
     q[1:nClusters] ~ ddirch(alpha=alpha0[1:nClusters])
@@ -229,8 +229,8 @@ priorbayesnet <- nimbleCode({
             tauC[j,i] ~ dgamma(shape=shapeC0, rate=rateC0)
         }
         for(j in 1:nDvars){
-            probD[j,i] ~ dbeta(shape1=shape1D0, shape2=shape2D0)
-            sizeD[j,i] ~ dgamma(shape=shapeD0, rate=rateD0)
+            probD[j,i] ~ dbeta(shape1=shape1D0[j], shape2=shape2D0[j])
+            sizeD[j,i] ~ dgamma(shape=shapeD0[j], rate=rateD0[j])
         }
     }
     ##
@@ -271,6 +271,7 @@ Fsamples <- function(X, parmList){
         )
     }
 }
+##
 
 options(doFuture.rng.onMisuse = "ignore")
 samplesFsamples <- function(varNames, parmList, nxsamples, seed=1234){
@@ -279,20 +280,20 @@ samplesFsamples <- function(varNames, parmList, nxsamples, seed=1234){
     dC <- varNames[varNames %in% discreteCovs]
     ndC <- length(dC)
     q <- parmList$q
-    npsamples <- nrow(q)
+    nmcsamples <- nrow(q)
     ##
-    rng <- RNGseq( npsamples * nxsamples * (ncC+ndC), seed)
-    allsamples <- foreach(asample=seq_len(npsamples), .combine=cbind, .inorder=FALSE)%:%foreach(adraw=seq_len(nxsamples), .combine=rbind, .inorder=FALSE, r=rng[(asample-1)*nxsamples*(ncC+ndC) + 1:(nxsamples*(ncC+ndC))])%dopar%{
+    rng <- RNGseq( nmcsamples * nxsamples, seed)
+    allsamples <- foreach(amcsample=seq_len(nmcsamples), .combine=cbind, .inorder=FALSE)%:%foreach(axsample=seq_len(nxsamples), .combine=c, .inorder=FALSE, r=rng[(amcsample-1)*nxsamples + 1:nxsamples])%dopar%{
         rngtools::setRNG(r)
-        cluster <- rcat(n=ncol(q), prob=q[asample,])
+        acluster <- rcat(n=1, prob=q[amcsample,])
         c(
             ## continuous covariates
-            rnorm(n=ncC, mean=parmList$meanC[asample,cC,cluster], sd=1/sqrt(parmList$tauC[asample,cC,cluster])),
+            rnorm(n=ncC, mean=parmList$meanC[amcsample,cC,acluster], sd=1/sqrt(parmList$tauC[amcsample,cC,acluster])),
             ## discrete covariates
-            rnbinom(n=ndC, prob=parmList$probD[asample,dC,cluster], size=parmList$sizeD[asample,dC,cluster])
+            rnbinom(n=ndC, prob=parmList$probD[amcsample,dC,acluster], size=parmList$sizeD[amcsample,dC,acluster])
         )
     }
-    dim(allsamples) <- c(ncC+ndC, nxsamples, npsamples)
+    dim(allsamples) <- c(ncC+ndC, nxsamples, nmcsamples)
     dimnames(allsamples) <- list(c(cC,dC), NULL, NULL)
     allsamples
 }
@@ -312,42 +313,38 @@ priormcmcsampler <- buildMCMC(confpriormodel)
 Cpriormcmcsampler <- compileNimble(priormcmcsampler, resetFunctions = TRUE)
 
 initsFunction <- function(){
-    list( alpha0=rep(1,nclusters)*4/nclusters,
+    list( alpha0=rep(10/nclusters, nclusters),
          meanC0=0,
-         tauC0=1/(2.5^2),
-         shapeC0=0.5,
-         rateC0=1,
+         tauC0=1/(3^2),
+         shapeC0=3, #7, #0.5, #0.6,
+         rateC0=2, #6, #0.03, #0.1,
          shape1D0=1,
          shape2D0=1,
          shapeD0=1,
-         rateD0=1,
+         rateD0=1/20
          ##
 #         C=rcat(n=ndata, prob=rep(1/nclusters,nclusters)),
-         q=rdirch(n=1, alpha=rep(1,nclusters)/nclusters),
-         meanC=matrix(rnorm(n=ncvars*nclusters, mean=0, sd=10), nrow=ncvars, ncol=nclusters),
-         tauC=matrix(rgamma(n=ncvars*nclusters, shape=1, rate=1), nrow=ncvars, ncol=nclusters),
-         probD=matrix(rbeta(n=ndvars*nclusters, shape1=1, shape2=2), nrow=ndvars, ncol=nclusters),
-         sizeD=matrix(rgamma(n=ndvars*nclusters, shape=1, rate=1), nrow=ndvars, ncol=nclusters)
+         ## q=rdirch(n=1, alpha=rep(1,nclusters)/nclusters),
+         ## meanC=matrix(rnorm(n=ncvars*nclusters, mean=0, sd=10), nrow=ncvars, ncol=nclusters),
+         ## tauC=matrix(rgamma(n=ncvars*nclusters, shape=1, rate=1), nrow=ncvars, ncol=nclusters),
+         ## probD=matrix(rbeta(n=ndvars*nclusters, shape1=1, shape2=2), nrow=ndvars, ncol=nclusters),
+         ## sizeD=matrix(rgamma(n=ndvars*nclusters, shape=1, rate=1), nrow=ndvars, ncol=nclusters)
          )
 }
-
 totaltime <- Sys.time()
 ## NB: putting all data in one cluster at start leads to slow convergence
-priormcsamples <- runMCMC(Cpriormcmcsampler, nburnin=0, niter=200, thin=1, inits=initsFunction, setSeed=123)
+priormcsamples <- runMCMC(Cpriormcmcsampler, nburnin=0, niter=100, thin=1, inits=initsFunction, setSeed=123)
 ## Cpriormcmcsampler$run(niter=2000, thin=1, reset=TRUE, setSeed=123, init=initsFunction)
 ## priormcsamples <- as.matrix(Cpriormcmcsampler$mvSamples)
 totaltime <- Sys.time() - totaltime
 print(totaltime)
-
 ##
 ## Cpriormcmcsampler$run(niter=2000, thin=1, reset=FALSE, resetMV=TRUE)
 ## priormcsamples <- as.matrix(Cmcmcsampler$mvSamples)
 ## 7 vars, 6000 data, 100 cl, 200 iter: 12.52 mins
 ## 7 vars, 6000 data, 100 cl, 2000 iter: 1.88 hours
-saveRDS(priormcsamples,file=paste0('_priormcsamples',length(covNames),'-c',nclusters,'-i',nrow(priormcsamples),'.rds'))
-save(priormodel,Cpriormodel,confpriormodel,priormcmcsampler,Cpriormcmcsampler, file=paste0('_priormodel',length(covNames),'-c',nclusters,'-i',nrow(priormcsamples),'.RData'))
-
-
+## saveRDS(priormcsamples,file=paste0('_priormcsamples',length(covNames),'-c',nclusters,'-i',nrow(priormcsamples),'.rds'))
+## save(priormodel,Cpriormodel,confpriormodel,priormcmcsampler,Cpriormcmcsampler, file=paste0('_priormodel',length(covNames),'-c',nclusters,'-i',nrow(priormcsamples),'.RData'))
 ##
 parmNames <- c('q', 'meanC', 'tauC', 'probD', 'sizeD')
 parmList <- foreach(var=parmNames)%dopar%{
@@ -363,37 +360,51 @@ parmList <- foreach(var=parmNames)%dopar%{
 }
 names(parmList) <- parmNames
 
-
-
+##
+for(addvar in c(
+    "log_mcs_unbonded_polar_sasa"
+    ,"logit_ec_tanimoto_similarity"
+    ,"mcs_NumHeteroAtoms"
+     ,"docked_HeavyAtomCount"
+    ,"mcs_RingCount"
+    ,"docked_NumRotatableBonds"
+  )){
 plotVars <- c(
-    "log_RMSD"
-    ,"log_mcs_unbonded_polar_sasa"
-    ## ,"logit_ec_tanimoto_similarity",
-    ## ,"mcs_NumHeteroAtoms",
-    ## ,"docked_HeavyAtomCount",
-    ## ,"mcs_RingCount",
+    "log_RMSD", addvar
+    ##,"log_mcs_unbonded_polar_sasa"
+    ## ,"logit_ec_tanimoto_similarity"
+    ## ,"mcs_NumHeteroAtoms"
+    ## ,"docked_HeavyAtomCount"
+    ## ,"mcs_RingCount"
     ## ,"docked_NumRotatableBonds"
   )
-nXsamples <- 1000
+nxsamples <- 1000
+##
+timecount <- Sys.time()
 plan(sequential)
 plan(multisession, workers = 6L)
-Xsamples <- samplesFsamples(varNames=plotVars, parmList=parmList, nxsamples=nXsamples)
+xsamples <- samplesFsamples(varNames=plotVars, parmList=parmList, nxsamples=nxsamples)
 plan(sequential)
-
-plotvarRanges <- sapply(plotVars,function(var){
-    varrange <- summary(alldata[[var]])
-    varrange <- c(diff(varrange[c(4,1)]), diff(varrange[c(4,6)]))*1+varrange[4]
-    ##
-    ##seq(-10, 10, length.out=ngridpoints)
-})
+print(Sys.time()-timecount)
 ##
-pdff(paste0(indir, 'samplesvars2D'))
-subsample <- round(seq(1, dim(Xsamples)[3], length.out=20))
-for(asample in subsample){
-    matplot(x=Xsamples[1,,asample],y=Xsamples[2,,asample], type='p', pch=16, xlab=rownames(Xsamples)[1], ylab=rownames(Xsamples)[2], xlim=plotvarRanges[,rownames(Xsamples)[1]], ylim=plotvarRanges[,rownames(Xsamples)[2]])
+plotvarRanges <- sapply(plotVars,function(var){ varrange <- range(alldata[[var]]) })
+xlim <- c( min((plotvarRanges[,rownames(xsamples)[1]]),quantile(xsamples[1,,],prob=0.25)),
+    max((plotvarRanges[,rownames(xsamples)[1]]),quantile(xsamples[1,,],prob=0.75)))
+ylim <- c( min((plotvarRanges[,rownames(xsamples)[2]]),quantile(xsamples[2,,],prob=0.25)),
+    max((plotvarRanges[,rownames(xsamples)[2]]),quantile(xsamples[2,,],prob=0.75)))
+##
+pdff(paste(c(indir, paste(c('samplesvars2D',plotVars), collapse='-')), sep = '', collapse = ''))
+subsamplep <- round(seq(1, dim(xsamples)[3], length.out=100))
+subsamplex <- round(seq(1, dim(xsamples)[2], length.out=1000))
+    matplot(x=alldata[[rownames(xsamples)[1]]][subsamplex],y=alldata[[rownames(xsamples)[2]]][subsamplex], type='p', pch=1, lwd=1, xlab=rownames(xsamples)[1], ylab=rownames(xsamples)[2], xlim=xlim, ylim=ylim, col=palette()[2])
+for(asample in subsamplep){
+    matplot(x=xsamples[1,subsamplex,asample],y=xsamples[2,subsamplex,asample], type='p', pch=1, lwd=1, xlab=rownames(xsamples)[1], ylab=rownames(xsamples)[2], xlim=xlim, ylim=ylim)
+    matlines(x=c(rep(plotvarRanges[,1], each=2),plotvarRanges[1,1]),
+             y=c(plotvarRanges[,2], rev(plotvarRanges[,2]), plotvarRanges[1,2]),
+             lwd=3, col=palette()[2])
 }
 dev.off()
-
+}
 
 ## rm(alldata)
 ## alldata <- fread('../processed_data_scaled.csv', sep=' ')
@@ -568,6 +579,65 @@ probJointSamples2 <- nimbleFunction(
 CprobJointSamples2 <- compileNimble(probJointSamples2)
 ##
 
+## sampleX <- nimbleFunction(
+##     run = function( niCparms=integer(0),
+##                    niDparms=integer(0),
+##                    q=double(2),
+##                    meanC=double(3),
+##                    tauC=double(3),
+##                    probD=double(3),
+##                    sizeD=double(3)
+##                    ){
+##         ##
+##         returnType(double(2))
+##         nsamplesz <- dim(q)[1]
+##         nclustersz <- dim(q)[2]
+##         niCparmsd <- niCparms+niDparms
+##         Xout <- nimMatrix(nrow=niCparmsd, ncol=nsamplesz, init=FALSE)
+##         for(asample in 1:nsamplesz){
+##             acluster <- rcat(n=1, prob=q[asample,1:nclustersz])
+##             if(niCparms > 0){
+##                 Xout[1:niCparms, asample] <- rnorm(n=niCparms, mean=meanC[asample, 1:niCparms, acluster], sd=1/sqrt(tauC[asample, 1:niCparms, acluster]))
+##                 }
+##             if(niDparms > 0){
+##                 niCparms1 <- niCparms+1
+##                 Xout[niCparms1:niCparmsd, asample] <- rnbinom(n=niDparms, prob=probD[asample, 1:niDparms, acluster], size=sizeD[asample, 1:niDparms, acluster])
+##             }
+##         }
+##         return(Xout)
+## })
+## CsampleX <- compileNimble(sampleX, showCompilerOutput = TRUE)
+## assign('CsampleX', CsampleX, envir = .GlobalEnv)
+## assign('sampleX', sampleX, envir = .GlobalEnv)
+## ##
+
+## tests <- CsampleX(niCparms=1, niDparms=0, q=parmList$q, meanC=parmList$meanC[,1,,drop=FALSE], tauC=parmList$tauC[,1,,drop=FALSE], probD=parmList$probD[,1,,drop=FALSE], sizeD=parmList$sizeD[,1,,drop=FALSE])
+
+## samplesFsamples2 <- function(varNames, parmList, nxsamples){
+##     cC <- varNames[varNames %in% continuousCovs]
+##     ncC <- length(cC)
+##     dC <- varNames[varNames %in% discreteCovs]
+##     ndC <- length(dC)
+##     q <- parmList$q
+##     if(ncC > 0){
+##     meanC <- parmList$meanC[,cC,,drop=FALSE]
+##     tauC <- parmList$tauC[,cC,,drop=FALSE]
+##     } else { meanC <- tauC <- array(0, dim=rep(2,3)) }
+##     if(ndC > 0){
+##     probD <- parmList$probD[,dC,,drop=FALSE]
+##     sizeD <- parmList$sizeD[,dC,,drop=FALSE]
+##     } else { probD <- sizeD <- array(0, dim=rep(2,3)) }
+##     ##
+##     ## rng <- RNGseq( npsamples * nxsamples * (ncC+ndC), seed)
+##     allsamples <- foreach(asample=seq_len(nxsamples), .combine=cbind, .inorder=FALSE)%dorng%{ 
+## ##        CsampleX(niCparms=1, niDparms=0, q=parmList$q, meanC=parmList$meanC[,1,,drop=FALSE], tauC=parmList$tauC[,1,,drop=FALSE], probD=parmList$probD[,1,,drop=FALSE], sizeD=parmList$sizeD[,1,,drop=FALSE])
+##          CsampleX(niCparms=ncC, niDparms=ndC, q=q, meanC=meanC, tauC=tauC, probD=probD, sizeD=sizeD)
+##     }
+##     dim(allsamples) <- c(ncC+ndC, nxsamples, nrow(q))
+##     dimnames(allsamples) <- list(c(cC,dC), NULL, NULL)
+##     allsamples
+## }
+##
 
 #####################################################################
 #####################################################################
