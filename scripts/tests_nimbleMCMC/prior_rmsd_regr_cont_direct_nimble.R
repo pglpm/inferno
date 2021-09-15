@@ -1,6 +1,6 @@
 ## Author: PGL  Porta Mana
 ## Created: 2021-03-20T10:07:17+0100
-## Last-Updated: 2021-09-15T15:33:15+0200
+## Last-Updated: 2021-09-15T18:36:50+0200
 ################
 ## Script for direct regression, continuous RMSD
 ################
@@ -302,14 +302,7 @@ initsFunction <- function(){
          shape1D0=1,
          shape2D0=1,
          shapeD0=1,
-         rateD0=1/30
-         ##
-#         C=rcat(n=ndata, prob=rep(1/nclusters,nclusters)),
-         ## q=rdirch(n=1, alpha=rep(1,nclusters)/nclusters),
-         ## meanC=matrix(rnorm(n=ncvars*nclusters, mean=0, sd=10), nrow=ncvars, ncol=nclusters),
-         ## tauC=matrix(rgamma(n=ncvars*nclusters, shape=1, rate=1), nrow=ncvars, ncol=nclusters),
-         ## probD=matrix(rbeta(n=ndvars*nclusters, shape1=1, shape2=2), nrow=ndvars, ncol=nclusters),
-         ## sizeD=matrix(rgamma(n=ndvars*nclusters, shape=1, rate=1), nrow=ndvars, ncol=nclusters)
+         rateD0=1/20
          )
 }
 totaltime <- Sys.time()
@@ -340,17 +333,7 @@ parmList <- foreach(var=parmNames)%dopar%{
     out
 }
 names(parmList) <- parmNames
-
 ##
-## for(addvar in c(
-##     #"log_mcs_unbonded_polar_sasa"
-##     #,"logit_ec_tanimoto_similarity"
-##     "mcs_NumHeteroAtoms"
-##      ,"docked_HeavyAtomCount"
-##     ,"mcs_RingCount"
-##     ,"docked_NumRotatableBonds"
-##     )){
-    
 nxsamples <- 1000
 ##
 timecount <- Sys.time()
@@ -361,34 +344,52 @@ plan(sequential)
 print(Sys.time()-timecount)
 
 ##
-plotVars <- c(
-    "log_RMSD" #, addvar
-    ##,"log_mcs_unbonded_polar_sasa"
-    ## ,"logit_ec_tanimoto_similarity"
-    ##,"mcs_NumHeteroAtoms"
-     ,"docked_HeavyAtomCount"
-    ## ,"mcs_RingCount"
-    ## ,"docked_NumRotatableBonds"
-  )
-plotvarRanges <- sapply(plotVars,function(var){ varrange <- range(alldata[[var]]) })
-xlim <- c( min((plotvarRanges[,rownames(xsamples)[1]]),quantile(xsamples[1,,],prob=0.25)),
-    max((plotvarRanges[,rownames(xsamples)[1]]),quantile(xsamples[1,,],prob=0.75)))
-ylim <- c( min((plotvarRanges[,rownames(xsamples)[2]]),quantile(xsamples[2,,],prob=0.25)),
-    max((plotvarRanges[,rownames(xsamples)[2]]),quantile(xsamples[2,,],prob=0.75)))
+plotvarRanges <- xlim <- ylim <- list()
+for(var in covNames){
+    plotvarRanges[[var]] <- thisrange <- range(alldata[[var]])
+    xlim[[var]] <- c( min(thisrange, quantile(xsamples[var,,],prob=0.25)),
+                     max(thisrange, quantile(xsamples[var,,],prob=0.75)) )
+}
 ##
-#pdff(paste(c(indir, paste(c('samplesvars2D',plotVars), collapse='-')), sep = '', collapse = ''))
-pdff('samplesvars2D')
 subsamplep <- round(seq(1, dim(xsamples)[3], length.out=100))
 subsamplex <- round(seq(1, dim(xsamples)[2], length.out=1000))
-    matplot(x=alldata[[rownames(xsamples)[1]]][subsamplex],y=alldata[[rownames(xsamples)[2]]][subsamplex], type='p', pch=1, lwd=1, xlab=rownames(xsamples)[1], ylab=rownames(xsamples)[2], xlim=xlim, ylim=ylim, col=palette()[2])
+pdff(paste0('samplesvars2D'))#'.pdf'), height=11.7, width=16.5)
+par(mfrow = c(2, 3))
+for(addvar in setdiff(covNames, 'log_RMSD')){
+    matplot(x=alldata[['log_RMSD']][subsamplex],
+            y=alldata[[addvar]][subsamplex],
+            xlim=xlim[['log_RMSD']],
+            ylim=xlim[[addvar]],
+            xlab='log_RMSD',
+            ylab=addvar,
+            type='p', pch=1, cex=0.2, lwd=1, col=palette()[2])
+}
 for(asample in subsamplep){
-    matplot(x=xsamples[1,subsamplex,asample],y=xsamples[2,subsamplex,asample], type='p', pch=1, lwd=1, xlab=rownames(xsamples)[1], ylab=rownames(xsamples)[2], xlim=xlim, ylim=ylim)
-    matlines(x=c(rep(plotvarRanges[,1], each=2),plotvarRanges[1,1]),
-             y=c(plotvarRanges[,2], rev(plotvarRanges[,2]), plotvarRanges[1,2]),
-             lwd=3, col=palette()[2])
+par(mfrow = c(2, 3))
+for(addvar in setdiff(covNames, 'log_RMSD')){
+    matplot(x=xsamples['log_RMSD', subsamplex, asample][subsamplex],
+            y=xsamples[addvar, subsamplex, asample][subsamplex],
+            xlim=xlim[['log_RMSD']],
+            ylim=xlim[[addvar]],
+            xlab='log_RMSD',
+            ylab=addvar,
+            type='p', pch=1, cex=0.2, lwd=1, col=palette()[1])
+    matlines(x=c(rep(plotvarRanges[['log_RMSD']], each=2), plotvarRanges[['log_RMSD']][1]),
+             y=c(plotvarRanges[[addvar]], rev(plotvarRanges[[addvar]]), plotvarRanges[[addvar]][1]),
+                 lwd=3, col=palette()[2])
+}
 }
 dev.off()
-##}
+
+matplot(x=1:2,y=1:2)
+
+
+    ## pdff('samplesvars2D')
+    for(asample in subsamplep){
+        matplot(x=xsamples[1,subsamplex,asample],y=xsamples[2,subsamplex,asample], type='p', pch=1, lwd=1, xlab=rownames(xsamples)[1], ylab=rownames(xsamples)[2], xlim=xlim, ylim=ylim)
+    }
+    dev.off()
+}
 
 
 
