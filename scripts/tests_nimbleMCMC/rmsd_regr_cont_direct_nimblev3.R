@@ -1,6 +1,6 @@
 ## Author: PGL  Porta Mana
 ## Created: 2021-03-20T10:07:17+0100
-## Last-Updated: 2021-09-15T13:42:13+0200
+## Last-Updated: 2021-09-15T13:49:08+0200
 ################
 ## Script for direct regression, continuous RMSD
 ################
@@ -103,7 +103,7 @@ llSamples <- function(dat, parmList){
                     ## continuous covariates
                     colSums(dnorm(t(dat$X), mean=parmList$meanC[asample,,cluster], sd=1/sqrt(parmList$tauC[asample,,cluster]), log=TRUE)) +
                         ## discrete covariates
-                    colSums(dnbinom(t(dat$Y), prob=parmList$probD[asample,,cluster], size=parmList$sizeD[asample,,cluster], log=TRUE))
+                    colSums(dbinom(t(dat$Y), prob=parmList$probD[asample,,cluster], size=parmList$sizeD[asample,,cluster], log=TRUE))
     }, numeric(ndataz)))
             )
         ) ) )
@@ -122,7 +122,7 @@ probJointSamples <- function(dat, parmList, log=FALSE, inorder=FALSE){
                     ## continuous covariates
                     colSums(dnorm(t(dat$X), mean=parmList$meanC[asample,,cluster], sd=1/sqrt(parmList$tauC[asample,,cluster]), log=TRUE)) +
                         ## discrete covariates
-                    colSums(dnbinom(t(dat$Y), prob=parmList$probD[asample,,cluster], size=parmList$sizeD[asample,,cluster], log=TRUE))
+                    colSums(dbinom(t(dat$Y), prob=parmList$probD[asample,,cluster], size=parmList$sizeD[asample,,cluster], log=TRUE))
     }, numeric(ndataz)))
             )
         )
@@ -143,7 +143,7 @@ probJointMean <- function(dat, parmList){
                     ## continuous covariates
                     colSums(dnorm(t(dat$X), mean=parmList$meanC[asample,,cluster], sd=1/sqrt(parmList$tauC[asample,,cluster]), log=TRUE)) +
                         ## discrete covariates
-                    colSums(dnbinom(t(dat$Y), prob=parmList$probD[asample,,cluster], size=parmList$sizeD[asample,,cluster], log=TRUE))
+                    colSums(dbinom(t(dat$Y), prob=parmList$probD[asample,,cluster], size=parmList$sizeD[asample,,cluster], log=TRUE))
     }, numeric(ndataz)))
             )
         )
@@ -163,7 +163,7 @@ probRCondMean <- function(dat, parmList){
                     ## continuous covariates
                     colSums(dnorm(t(dat$X), mean=parmList$meanC[asample,,cluster], sd=1/sqrt(parmList$tauC[asample,,cluster]), log=TRUE)) +
                         ## discrete covariates
-                    colSums(dnbinom(t(dat$Y), prob=parmList$probD[asample,,cluster], size=parmList$sizeD[asample,,cluster], log=TRUE))
+                    colSums(dbinom(t(dat$Y), prob=parmList$probD[asample,,cluster], size=parmList$sizeD[asample,,cluster], log=TRUE))
     }, numeric(ndataz)))
             )
         )
@@ -231,7 +231,7 @@ bayesnet <- nimbleCode({
             X[i,j] ~ dnorm(mean=meanC[j,C[i]], tau=tauC[j,C[i]])
         }
         for(j in 1:nDvars){
-            Y[i,j] ~ dnbinom(prob=probD[j,C[i]], size=sizeD[j,C[i]])
+            Y[i,j] ~ dbinom(prob=probD[j,C[i]], size=sizeD[j,C[i]])
         }
     }
 })
@@ -386,7 +386,7 @@ probJointSamples2 <- nimbleFunction(
                     exp(
                         log(q[isam, iclu]) +
                         sum( dnorm(x=X[idat, 1:ncvarx], mean=meanC[isam, 1:ncvarx, iclu], sd=1/sqrt(tauC[isam, 1:ncvarx, iclu]), log=TRUE)) + 
-                        sum( dnbinom(x=Y[idat, 1:ndvarx], prob=probD[isam, 1:ndvarx, iclu], size=sizeD[isam, 1:ndvarx, iclu], log=TRUE))
+                        sum( dbinom(x=Y[idat, 1:ndvarx], prob=probD[isam, 1:ndvarx, iclu], size=sizeD[isam, 1:ndvarx, iclu], log=TRUE))
                     )
                 }
                 pout[idat, isam] <- sumclusters
