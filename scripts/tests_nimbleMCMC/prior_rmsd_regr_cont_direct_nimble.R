@@ -1,6 +1,6 @@
 ## Author: PGL  Porta Mana
 ## Created: 2021-03-20T10:07:17+0100
-## Last-Updated: 2021-09-15T13:32:42+0200
+## Last-Updated: 2021-09-15T18:50:49+0200
 ################
 ## Script for direct regression, continuous RMSD
 ################
@@ -183,25 +183,6 @@ dat <- list(
     Y=as.matrix(alldata[1:ndata, ..discreteCovs])
 )
 ##
-initsFunction <- function(){
-    list( alpha0=rep(1,nclusters)*4/nclusters,
-         meanC0=0,
-         tauC0=1/3^2,
-         shapeC0=1,
-         rateC0=1,
-         shape1D0=1,
-         shape2D0=1,
-         shapeD0=1,
-         rateD0=1,
-         ##
-         q=rdirch(n=1, alpha=rep(1,nclusters)/nclusters),
-         meanC=matrix(rnorm(n=ncvars*nclusters, mean=0, sd=10), nrow=ncvars, ncol=nclusters),
-         tauC=matrix(rgamma(n=ncvars*nclusters, shape=1, rate=1), nrow=ncvars, ncol=nclusters),
-         probD=matrix(rbeta(n=ndvars*nclusters, shape1=1, shape2=2), nrow=ndvars, ncol=nclusters),
-         sizeD=matrix(rgamma(n=ndvars*nclusters, shape=1, rate=1), nrow=ndvars, ncol=nclusters),
-         C=rcat(n=ndata, prob=rep(1/nclusters,nclusters))
-         )
-}
 ##
 ## inits <- list( alpha0=rep(1,nclusters)*4/nclusters,
 ##               meanC0=0,
@@ -229,8 +210,8 @@ priorbayesnet <- nimbleCode({
             tauC[j,i] ~ dgamma(shape=shapeC0, rate=rateC0)
         }
         for(j in 1:nDvars){
-            probD[j,i] ~ dbeta(shape1=shape1D0[j], shape2=shape2D0[j])
-            sizeD[j,i] ~ dgamma(shape=shapeD0[j], rate=rateD0[j])
+            probD[j,i] ~ dbeta(shape1=shape1D0, shape2=shape2D0)
+            sizeD[j,i] ~ dgamma(shape=shapeD0, rate=rateD0)
         }
     }
     ##
@@ -271,8 +252,8 @@ Fsamples <- function(X, parmList){
         )
     }
 }
-##
 
+##
 options(doFuture.rng.onMisuse = "ignore")
 samplesFsamples <- function(varNames, parmList, nxsamples, seed=1234){
     cC <- varNames[varNames %in% continuousCovs]
@@ -283,7 +264,7 @@ samplesFsamples <- function(varNames, parmList, nxsamples, seed=1234){
     nmcsamples <- nrow(q)
     ##
     rng <- RNGseq( nmcsamples * nxsamples, seed)
-    allsamples <- foreach(amcsample=seq_len(nmcsamples), .combine=cbind, .inorder=FALSE)%:%foreach(axsample=seq_len(nxsamples), .combine=c, .inorder=FALSE, r=rng[(amcsample-1)*nxsamples + 1:nxsamples])%dopar%{
+    allsamples <- foreach(amcsample=seq_len(nmcsamples), .combine=cbind, .inorder=FALSE)%:%foreach(axsample=seq_len(nxsamples), r=rng[(amcsample-1)*nxsamples + 1:nxsamples], .combine=c, .inorder=FALSE)%dopar%{
         rngtools::setRNG(r)
         acluster <- rcat(n=1, prob=q[amcsample,])
         c(
@@ -301,39 +282,32 @@ samplesFsamples <- function(varNames, parmList, nxsamples, seed=1234){
 
 priormodel <- nimbleModel(code=priorbayesnet, name='priormodel1', constants=constants, inits=list(), data=list())
 Cpriormodel <- compileNimble(priormodel, showCompilerOutput=TRUE)
-
+##
 confpriormodel <- configureMCMC(Cpriormodel)
 ## confpriormodel$removeSamplers(paste0('sizeD'))
 ## for(i in 1:nclusters){ for(j in 1:length(discreteCovs)){
 ##                            confpriormodel$addSampler(target=paste0('sizeD[',j,', ',i,']'), type='slice', control=list(adaptInterval=100))
 ##                        } }
 ## print(confpriormodel)
-
+##
 priormcmcsampler <- buildMCMC(confpriormodel)
 Cpriormcmcsampler <- compileNimble(priormcmcsampler, resetFunctions = TRUE)
 
 initsFunction <- function(){
     list( alpha0=rep(10/nclusters, nclusters),
          meanC0=0,
-         tauC0=1/(3^2),
-         shapeC0=3, #7, #0.5, #0.6,
-         rateC0=2, #6, #0.03, #0.1,
+         tauC0=1/(0.5^2),
+         shapeC0=0.9, #3, #7, #0.5, #0.6,
+         rateC0=0.1, #2, #6, #0.03, #0.1,
          shape1D0=1,
          shape2D0=1,
-         shapeD0=1,
-         rateD0=1/20
-         ##
-#         C=rcat(n=ndata, prob=rep(1/nclusters,nclusters)),
-         ## q=rdirch(n=1, alpha=rep(1,nclusters)/nclusters),
-         ## meanC=matrix(rnorm(n=ncvars*nclusters, mean=0, sd=10), nrow=ncvars, ncol=nclusters),
-         ## tauC=matrix(rgamma(n=ncvars*nclusters, shape=1, rate=1), nrow=ncvars, ncol=nclusters),
-         ## probD=matrix(rbeta(n=ndvars*nclusters, shape1=1, shape2=2), nrow=ndvars, ncol=nclusters),
-         ## sizeD=matrix(rgamma(n=ndvars*nclusters, shape=1, rate=1), nrow=ndvars, ncol=nclusters)
+         shapeD0=2,
+         rateD0=1/2
          )
 }
 totaltime <- Sys.time()
 ## NB: putting all data in one cluster at start leads to slow convergence
-priormcsamples <- runMCMC(Cpriormcmcsampler, nburnin=0, niter=100, thin=1, inits=initsFunction, setSeed=123)
+priormcsamples <- runMCMC(Cpriormcmcsampler, nburnin=0, niter=101, thin=1, inits=initsFunction, setSeed=123)
 ## Cpriormcmcsampler$run(niter=2000, thin=1, reset=TRUE, setSeed=123, init=initsFunction)
 ## priormcsamples <- as.matrix(Cpriormcmcsampler$mvSamples)
 totaltime <- Sys.time() - totaltime
@@ -359,52 +333,78 @@ parmList <- foreach(var=parmNames)%dopar%{
     out
 }
 names(parmList) <- parmNames
-
 ##
-for(addvar in c(
-    "log_mcs_unbonded_polar_sasa"
-    ,"logit_ec_tanimoto_similarity"
-    ,"mcs_NumHeteroAtoms"
-     ,"docked_HeavyAtomCount"
-    ,"mcs_RingCount"
-    ,"docked_NumRotatableBonds"
-  )){
-plotVars <- c(
-    "log_RMSD", addvar
-    ##,"log_mcs_unbonded_polar_sasa"
-    ## ,"logit_ec_tanimoto_similarity"
-    ## ,"mcs_NumHeteroAtoms"
-    ## ,"docked_HeavyAtomCount"
-    ## ,"mcs_RingCount"
-    ## ,"docked_NumRotatableBonds"
-  )
 nxsamples <- 1000
 ##
 timecount <- Sys.time()
 plan(sequential)
 plan(multisession, workers = 6L)
-xsamples <- samplesFsamples(varNames=plotVars, parmList=parmList, nxsamples=nxsamples)
+xsamples <- samplesFsamples(varNames=covNames, parmList=parmList, nxsamples=nxsamples)
 plan(sequential)
 print(Sys.time()-timecount)
+
 ##
-plotvarRanges <- sapply(plotVars,function(var){ varrange <- range(alldata[[var]]) })
-xlim <- c( min((plotvarRanges[,rownames(xsamples)[1]]),quantile(xsamples[1,,],prob=0.25)),
-    max((plotvarRanges[,rownames(xsamples)[1]]),quantile(xsamples[1,,],prob=0.75)))
-ylim <- c( min((plotvarRanges[,rownames(xsamples)[2]]),quantile(xsamples[2,,],prob=0.25)),
-    max((plotvarRanges[,rownames(xsamples)[2]]),quantile(xsamples[2,,],prob=0.75)))
+plotvarRanges <- plotvarQs <- xlim <- ylim <- list()
+for(var in covNames){
+    plotvarQs[[var]] <- quantile(alldata[[var]], prob=c(0.05,0.95))
+    plotvarRanges[[var]] <- thisrange <- range(alldata[[var]])
+    xlim[[var]] <- c( min(thisrange, quantile(xsamples[var,,],prob=0.05)),
+                     max(thisrange, quantile(xsamples[var,,],prob=0.95)) )
+}
 ##
-pdff(paste(c(indir, paste(c('samplesvars2D',plotVars), collapse='-')), sep = '', collapse = ''))
 subsamplep <- round(seq(1, dim(xsamples)[3], length.out=100))
 subsamplex <- round(seq(1, dim(xsamples)[2], length.out=1000))
-    matplot(x=alldata[[rownames(xsamples)[1]]][subsamplex],y=alldata[[rownames(xsamples)[2]]][subsamplex], type='p', pch=1, lwd=1, xlab=rownames(xsamples)[1], ylab=rownames(xsamples)[2], xlim=xlim, ylim=ylim, col=palette()[2])
+pdff(paste0('samplesvars2D'))#'.pdf'), height=11.7, width=16.5)
+par(mfrow = c(2, 3))
+for(addvar in setdiff(covNames, 'log_RMSD')){
+    matplot(x=alldata[['log_RMSD']][subsamplex],
+            y=alldata[[addvar]][subsamplex],
+            xlim=xlim[['log_RMSD']],
+            ylim=xlim[[addvar]],
+            xlab='log_RMSD',
+            ylab=addvar,
+            type='p', pch=1, cex=0.2, lwd=1, col=palette()[2])
+        matlines(x=c(rep(plotvarRanges[['log_RMSD']], each=2), plotvarRanges[['log_RMSD']][1]),
+             y=c(plotvarRanges[[addvar]], rev(plotvarRanges[[addvar]]), plotvarRanges[[addvar]][1]),
+                 lwd=2, col=paste0(palette()[2],'88'))
+        matlines(x=c(rep(plotvarQs[['log_RMSD']], each=2), plotvarQs[['log_RMSD']][1]),
+             y=c(plotvarQs[[addvar]], rev(plotvarQs[[addvar]]), plotvarQs[[addvar]][1]),
+                 lwd=2, col=paste0(palette()[4],'88'))
+}
 for(asample in subsamplep){
-    matplot(x=xsamples[1,subsamplex,asample],y=xsamples[2,subsamplex,asample], type='p', pch=1, lwd=1, xlab=rownames(xsamples)[1], ylab=rownames(xsamples)[2], xlim=xlim, ylim=ylim)
-    matlines(x=c(rep(plotvarRanges[,1], each=2),plotvarRanges[1,1]),
-             y=c(plotvarRanges[,2], rev(plotvarRanges[,2]), plotvarRanges[1,2]),
-             lwd=3, col=palette()[2])
+par(mfrow = c(2, 3))
+for(addvar in setdiff(covNames, 'log_RMSD')){
+    matplot(x=xsamples['log_RMSD', subsamplex, asample][subsamplex],
+            y=xsamples[addvar, subsamplex, asample][subsamplex],
+            xlim=xlim[['log_RMSD']],
+            ylim=xlim[[addvar]],
+            xlab='log_RMSD',
+            ylab=addvar,
+            type='p', pch=1, cex=0.2, lwd=1, col=palette()[1])
+    matlines(x=c(rep(plotvarRanges[['log_RMSD']], each=2), plotvarRanges[['log_RMSD']][1]),
+             y=c(plotvarRanges[[addvar]], rev(plotvarRanges[[addvar]]), plotvarRanges[[addvar]][1]),
+             lwd=2, col=paste0(palette()[2],'88'))
+            matlines(x=c(rep(plotvarQs[['log_RMSD']], each=2), plotvarQs[['log_RMSD']][1]),
+             y=c(plotvarQs[[addvar]], rev(plotvarQs[[addvar]]), plotvarQs[[addvar]][1]),
+                 lwd=2, col=paste0(palette()[4],'88'))
+}
 }
 dev.off()
+
+matplot(x=1:2,y=1:2)
+
+
+    ## pdff('samplesvars2D')
+    for(asample in subsamplep){
+        matplot(x=xsamples[1,subsamplex,asample],y=xsamples[2,subsamplex,asample], type='p', pch=1, lwd=1, xlab=rownames(xsamples)[1], ylab=rownames(xsamples)[2], xlim=xlim, ylim=ylim)
+    }
+    dev.off()
 }
+
+
+
+
+
 
 ## rm(alldata)
 ## alldata <- fread('../processed_data_scaled.csv', sep=' ')
