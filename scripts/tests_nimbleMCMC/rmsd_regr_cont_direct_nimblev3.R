@@ -1,6 +1,6 @@
 ## Author: PGL  Porta Mana
 ## Created: 2021-03-20T10:07:17+0100
-## Last-Updated: 2021-09-15T19:06:52+0200
+## Last-Updated: 2021-09-16T06:33:21+0200
 ################
 ## Script for direct regression, continuous RMSD
 ################
@@ -267,11 +267,12 @@ initsFunction <- function(){
     C=rcat(n=ndata, prob=rep(1/nclusters,nclusters))
          )
 }
+
 ##
 totaltime <- Sys.time()
 ## NB: putting all data in one cluster at start leads to slow convergence
-mcsamples <- runMCMC(Cmcmcsampler, nburnin=0, niter=2000, thin=1, inits=initsFunction, setSeed=149)
-##Cmcmcsampler$run(niter=2000, thin=1, reset=FALSE, resetMV=TRUE)
+## mcsamples <- runMCMC(Cmcmcsampler, nburnin=0, niter=2000, thin=1, inits=initsFunction, setSeed=149)
+Cmcmcsampler$run(niter=2000, thin=1, reset=FALSE, resetMV=TRUE)
 totaltime <- Sys.time() - totaltime
 print(totaltime)
 mcsamples <- as.matrix(Cmcmcsampler$mvSamples)
@@ -329,6 +330,96 @@ save.image(file='_nimbleoutputv3.RData')
 
 
 
+options(doFuture.rng.onMisuse = "ignore")
+samplesFsamples <- function(varNames, parmList, nxsamples, seed=1234){
+    cC <- varNames[varNames %in% continuousCovs]
+    ncC <- length(cC)
+    dC <- varNames[varNames %in% discreteCovs]
+    ndC <- length(dC)
+    q <- parmList$q
+    nmcsamples <- nrow(q)
+    ##
+    rng <- RNGseq( nmcsamples * nxsamples, seed)
+    allsamples <- foreach(amcsample=seq_len(nmcsamples), .combine=cbind, .inorder=FALSE)%:%foreach(axsample=seq_len(nxsamples), r=rng[(amcsample-1)*nxsamples + 1:nxsamples], .combine=c, .inorder=FALSE)%dopar%{
+        rngtools::setRNG(r)
+        acluster <- rcat(n=1, prob=q[amcsample,])
+        c(
+            ## continuous covariates
+            rnorm(n=ncC, mean=parmList$meanC[amcsample,cC,acluster], sd=1/sqrt(parmList$tauC[amcsample,cC,acluster])),
+            ## discrete covariates
+            rnbinom(n=ndC, prob=parmList$probD[amcsample,dC,acluster], size=parmList$sizeD[amcsample,dC,acluster])
+        )
+    }
+    dim(allsamples) <- c(ncC+ndC, nxsamples, nmcsamples)
+    dimnames(allsamples) <- list(c(cC,dC), NULL, NULL)
+    allsamples
+}
+
+
+subsamplep <- round(seq(1, nrow(parmList$q), length.out=100))
+redparmList <- list(
+    q=parmList$q[subsamplep,],
+    meanC=parmList$meanC[subsamplep,,],
+    tauC=parmList$tauC[subsamplep,,],
+    probD=parmList$probD[subsamplep,,],
+    sizeD=parmList$sizeD[subsamplep,,]
+)
+
+nxsamples <- 1000
+##
+timecount <- Sys.time()
+plan(sequential)
+plan(multisession, workers = 6L)
+xsamples <- samplesFsamples(varNames=covNames, parmList=redparmList, nxsamples=nxsamples)
+plan(sequential)
+print(Sys.time()-timecount)
+
+##
+plotvarRanges <- plotvarQs <- xlim <- ylim <- list()
+for(var in covNames){
+    plotvarQs[[var]] <- quantile(alldata[[var]], prob=c(0.05,0.95))
+    plotvarRanges[[var]] <- thisrange <- range(alldata[[var]])
+    xlim[[var]] <- c( min(thisrange, quantile(c(xsamples[var,,]),prob=0.05)),
+                     max(thisrange, quantile(c(xsamples[var,,]),prob=0.95)) )
+}
+##
+subsamplex <- 1:nxsamples #round(seq(1, dim(xsamples)[2], length.out=1000))
+pdff(paste0('post_samplesvars2D'))#'.pdf'), height=11.7, width=16.5)
+par(mfrow = c(2, 3))
+for(addvar in setdiff(covNames, 'log_RMSD')){
+    matplot(x=alldata[['log_RMSD']][seq(1,nrow(alldata),length.out=1000)],
+            y=alldata[[addvar]][seq(1,nrow(alldata),length.out=1000)],
+            xlim=xlim[['log_RMSD']],
+            ylim=xlim[[addvar]],
+            xlab='log_RMSD',
+            ylab=addvar,
+            type='p', pch=1, cex=0.2, lwd=1, col=palette()[2])
+        matlines(x=c(rep(plotvarRanges[['log_RMSD']], each=2), plotvarRanges[['log_RMSD']][1]),
+             y=c(plotvarRanges[[addvar]], rev(plotvarRanges[[addvar]]), plotvarRanges[[addvar]][1]),
+                 lwd=2, col=paste0(palette()[2],'88'))
+        matlines(x=c(rep(plotvarQs[['log_RMSD']], each=2), plotvarQs[['log_RMSD']][1]),
+             y=c(plotvarQs[[addvar]], rev(plotvarQs[[addvar]]), plotvarQs[[addvar]][1]),
+                 lwd=2, col=paste0(palette()[4],'88'))
+}
+for(asample in 1:length(subsamplep)){
+par(mfrow = c(2, 3))
+for(addvar in setdiff(covNames, 'log_RMSD')){
+    matplot(x=xsamples['log_RMSD',, asample],
+            y=xsamples[addvar,, asample],
+            xlim=xlim[['log_RMSD']],
+            ylim=xlim[[addvar]],
+            xlab='log_RMSD',
+            ylab=addvar,
+            type='p', pch=1, cex=0.2, lwd=1, col=palette()[1])
+    matlines(x=c(rep(plotvarRanges[['log_RMSD']], each=2), plotvarRanges[['log_RMSD']][1]),
+             y=c(plotvarRanges[[addvar]], rev(plotvarRanges[[addvar]]), plotvarRanges[[addvar]][1]),
+             lwd=2, col=paste0(palette()[2],'88'))
+            matlines(x=c(rep(plotvarQs[['log_RMSD']], each=2), plotvarQs[['log_RMSD']][1]),
+             y=c(plotvarQs[[addvar]], rev(plotvarQs[[addvar]]), plotvarQs[[addvar]][1]),
+                 lwd=2, col=paste0(palette()[4],'88'))
+}
+}
+dev.off()
 
 
 
