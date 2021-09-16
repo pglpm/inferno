@@ -1,6 +1,6 @@
 ## Author: PGL  Porta Mana
 ## Created: 2021-03-20T10:07:17+0100
-## Last-Updated: 2021-09-15T18:50:49+0200
+## Last-Updated: 2021-09-15T18:52:40+0200
 ################
 ## Script for direct regression, continuous RMSD
 ################
@@ -354,7 +354,7 @@ for(var in covNames){
 ##
 subsamplep <- round(seq(1, dim(xsamples)[3], length.out=100))
 subsamplex <- round(seq(1, dim(xsamples)[2], length.out=1000))
-pdff(paste0('samplesvars2D'))#'.pdf'), height=11.7, width=16.5)
+pdff(paste0('priorsamplesvars2D'))#'.pdf'), height=11.7, width=16.5)
 par(mfrow = c(2, 3))
 for(addvar in setdiff(covNames, 'log_RMSD')){
     matplot(x=alldata[['log_RMSD']][subsamplex],
