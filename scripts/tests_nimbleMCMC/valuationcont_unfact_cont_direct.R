@@ -1,6 +1,6 @@
 ## Author: PGL  Porta Mana
 ## Created: 2021-03-20T10:07:17+0100
-## Last-Updated: 2021-09-14T09:30:50+0200
+## Last-Updated: 2021-09-16T09:21:37+0200
 ################
 ## Script for evaluation of regression:
 ## Unfactorizable prior
@@ -33,77 +33,24 @@ options(bitmapType='cairo')
 library('nimble')
 
 load(file='_nimbleoutputv2.RData')
+
 ##################################################################
 ##################################################################
 ## Function to calculate \sum_t F^{(t)}_{r|x}
 ##
+source('functions_rmsdregr_nimble.R')
 boundaries <- log(c(2,3))
-rangeR <- fivenum(alldata$log_RMSD, na.rm=T)
-rangeR <- c(diff(rangeR[c(3,1)]), diff(rangeR[c(3,5)]))*1.1+rangeR[3]
-rgrid <- seq(rangeR[1],rangeR[2],length.out=101)
-lrgrid <- length(rgrid)
-cC <- setdiff(continuousCovs, 'log_RMSD')
-predictRmeanX <- function(X, parmList){
-    ndataz <- nrow(X)
-    q <- parmList$q
-    nsamples <- nrow(q)
-    ##
-    foreach(asample=seq_len(nsamples), .combine='+', .inorder=FALSE)%dopar%{
-        ## W: rows=clusters, cols=datapoints
-        W <- exp(
-            log(q[asample,]) +
-            t(vapply(seq_len(ncol(q)), function(cluster){
-                ## continuous covariates
-                colSums(dnorm(t(X[,cC]), mean=parmList$meanC[asample,cC,cluster], sd=1/sqrt(parmList$tauC[asample,cC,cluster]), log=TRUE)) +
-                    ## discrete covariates
-                    colSums(dnbinom(t(X[,discreteCovs]), prob=parmList$probD[asample,,cluster], size=parmList$sizeD[asample,,cluster], log=TRUE))
-            }, numeric(ndataz)))
-        )
-        ##
-        pR <- t(vapply(seq_len(ncol(q)), function(cluster){
-            ## continuous covariates
-            colSums(dnorm(t(X[,'log_RMSD']), mean=parmList$meanC[asample,'log_RMSD',cluster], sd=1/sqrt(parmList$tauC[asample,'log_RMSD',cluster])))
-        }, numeric(ndataz)))
-
-        colSums(pR * W)/colSums(W)
-    }/nsamples
-}
-##
-predictfR <- function(X, parmList){
-    X <- X[, c(cC, discreteCovs)]
-    ndataz <- nrow(X)
-    q <- parmList$q
-    nsamples <- nrow(q)
-    ##
-    freqs <- foreach(asample=seq_len(nsamples), .combine='+', .inorder=FALSE)%dopar%{
-        ## W: rows=clusters, cols=datapoints
-        W <- exp(
-            log(q[asample,]) +
-            t(vapply(seq_len(ncol(q)), function(cluster){
-                ## continuous covariates
-                colSums(dnorm(t(X[,cC]), mean=parmList$meanC[asample,cC,cluster], sd=1/sqrt(parmList$tauC[asample,cC,cluster]), log=TRUE)) +
-                    ## discrete covariates
-                    colSums(dnbinom(t(X[,discreteCovs]), prob=parmList$probD[asample,,cluster], size=parmList$sizeD[asample,,cluster], log=TRUE))
-            }, numeric(ndataz)))
-        )
-        W <- matrix(rep(W,lrgrid),nrow=nrow(W))
-        ##
-        pR <- t(vapply(seq_len(ncol(q)), function(cluster){
-            ## continuous covariates
-            dnorm(x=rep(rgrid, each=ndataz), mean=parmList$meanC[asample,'log_RMSD',cluster], sd=1/sqrt(parmList$tauC[asample,'log_RMSD',cluster]))
-        }, numeric(ndataz*lrgrid)))
-        ##
-        colSums(pR * W)/colSums(W)
-    }/nsamples
-    dim(freqs) <- c(ndataz, lrgrid)
-    freqs
-}
+rangeR <- range(alldata$log_RMSD, na.rm=T)
+rangeR <- (rangeR - mean(rangeR)) * 1.1 + mean(rangeR)
+lRgrid <- 101
+Rgrid <- seq(rangeR[1],rangeR[2],length.out=lRgrid)
 
 ##
 ## Utility functions
 ## function to compute utilities in test set
 lossfunction <- function(truevalues,choices){-(truevalues-choices)^2}
 
+ndata <- 6000
 seldata <- 1:ndata
 dset <- 'tail'
 basepriors <- rbind(asdata=normalize(as.vector(table(alldata$bin_RMSD))), uniform=rep(1,3)/3)
@@ -122,7 +69,7 @@ testdata <- alldata[do.call(dset,list(x=unseldata,n=3*nTest)), c('bin_RMSD',covN
 gc()
 plan(sequential)
 plan(multisession, workers = 6L)
-condfreqs <- predictRmeanX(as.matrix(testdata), parmList)
+condfreqs <- pRvaluesgivenX(as.matrix(testdata), parmList)
 plan(sequential)
 ##
 gains <- lossfunction(testdata$log_RMSD, condfreqs)
