@@ -1,6 +1,6 @@
 ## Author: PGL  Porta Mana
 ## Created: 2021-03-20T10:07:17+0100
-## Last-Updated: 2021-09-14T07:55:08+0200
+## Last-Updated: 2021-09-15T13:42:13+0200
 ################
 ## Script for direct regression, continuous RMSD
 ################
@@ -249,6 +249,25 @@ confmodel <- configureMCMC(Cmodel)
 mcmcsampler <- buildMCMC(confmodel)
 Cmcmcsampler <- compileNimble(mcmcsampler, resetFunctions = TRUE)
 
+initsFunction <- function(){
+    list( alpha0=rep(1,nclusters)*4/nclusters,
+         meanC0=0,
+         tauC0=1/3^2,
+         shapeC0=1,
+         rateC0=1,
+         shape1D0=1,
+         shape2D0=1,
+         shapeD0=1,
+         rateD0=1,
+         ##
+         q=rdirch(n=1, alpha=rep(1,nclusters)/nclusters),
+         meanC=matrix(rnorm(n=ncvars*nclusters, mean=0, sd=10), nrow=ncvars, ncol=nclusters),
+         tauC=matrix(rgamma(n=ncvars*nclusters, shape=1, rate=1), nrow=ncvars, ncol=nclusters),
+         probD=matrix(rbeta(n=ndvars*nclusters, shape1=1, shape2=2), nrow=ndvars, ncol=nclusters),
+         sizeD=matrix(rgamma(n=ndvars*nclusters, shape=1, rate=1), nrow=ndvars, ncol=nclusters),
+         C=rcat(n=ndata, prob=rep(1/nclusters,nclusters))
+         )
+}
 totaltime <- Sys.time()
 ## NB: putting all data in one cluster at start leads to slow convergence
 ## mcsamples <- runMCMC(Cmcmcsampler, nburnin=0, niter=2000, thin=1, inits=initsFunction, setSeed=123)
