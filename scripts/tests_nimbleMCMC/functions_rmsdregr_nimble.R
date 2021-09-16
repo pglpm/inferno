@@ -7,11 +7,11 @@ llSamples <- function(dat, parmList){
         sum( log( colSums(
             exp(
                 log(q[asample,]) +
-                t(vapply(seq_len(ncol(q)), function(cluster){
+                t(vapply(seq_len(ncol(q)), function(acluster){
                     ## continuous covariates
-                    colSums(dnorm(t(dat$X), mean=parmList$meanC[asample,,cluster], sd=1/sqrt(parmList$tauC[asample,,cluster]), log=TRUE)) +
+                    colSums(dnorm(t(dat$X), mean=parmList$meanC[asample,,acluster], sd=1/sqrt(parmList$tauC[asample,,acluster]), log=TRUE)) +
                         ## discrete covariates
-                    colSums(dnbinom(t(dat$Y), prob=parmList$probD[asample,,cluster], size=parmList$sizeD[asample,,cluster], log=TRUE))
+                    colSums(dnbinom(t(dat$Y), prob=parmList$probD[asample,,acluster], size=parmList$sizeD[asample,,acluster], log=TRUE))
     }, numeric(ndataz)))
             )
         ) ) )
@@ -27,11 +27,11 @@ probJointSamples <- function(dat, parmList, log=FALSE, inorder=FALSE){
         colSums(
             exp(
                 log(q[asample,]) +
-                t(vapply(seq_len(ncol(q)), function(cluster){
+                t(vapply(seq_len(ncol(q)), function(acluster){
                     ## continuous covariates
-                    colSums(dnorm(t(dat$X), mean=parmList$meanC[asample,,cluster], sd=1/sqrt(parmList$tauC[asample,,cluster]), log=TRUE)) +
+                    colSums(dnorm(t(dat$X), mean=parmList$meanC[asample,,acluster], sd=1/sqrt(parmList$tauC[asample,,acluster]), log=TRUE)) +
                         ## discrete covariates
-                    colSums(dnbinom(t(dat$Y), prob=parmList$probD[asample,,cluster], size=parmList$sizeD[asample,,cluster], log=TRUE))
+                    colSums(dnbinom(t(dat$Y), prob=parmList$probD[asample,,acluster], size=parmList$sizeD[asample,,acluster], log=TRUE))
     }, numeric(ndataz)))
             )
         )
@@ -48,11 +48,11 @@ probJointMean <- function(dat, parmList){
         colSums(
             exp(
                 log(q[asample,]) +
-                t(vapply(seq_len(ncol(q)), function(cluster){
+                t(vapply(seq_len(ncol(q)), function(acluster){
                     ## continuous covariates
-                    colSums(dnorm(t(dat$X), mean=parmList$meanC[asample,,cluster], sd=1/sqrt(parmList$tauC[asample,,cluster]), log=TRUE)) +
+                    colSums(dnorm(t(dat$X), mean=parmList$meanC[asample,,acluster], sd=1/sqrt(parmList$tauC[asample,,acluster]), log=TRUE)) +
                         ## discrete covariates
-                    colSums(dnbinom(t(dat$Y), prob=parmList$probD[asample,,cluster], size=parmList$sizeD[asample,,cluster], log=TRUE))
+                    colSums(dnbinom(t(dat$Y), prob=parmList$probD[asample,,acluster], size=parmList$sizeD[asample,,acluster], log=TRUE))
     }, numeric(ndataz)))
             )
         )
@@ -85,8 +85,8 @@ samplesFsamples <- function(parmList, nxsamples=1000, nfsamples=100, seed=149){
     allsamples
 }
 ##
-## Calculates the predictive distribution for several log_RMSD values conditional on several feature values
-pRvaluesgivenX <- function(X, parmList){
+## Calculates the predictive probability for several log_RMSD values conditional on several feature values
+expeRgivenX <- function(X, parmList){
     continuousCovs <- dimnames(parmList$meanC)[[2]]
     discreteCovs <- dimnames(parmList$probD)[[2]]
     cC <- setdiff(continuousCovs, 'log_RMSD')
@@ -98,25 +98,20 @@ pRvaluesgivenX <- function(X, parmList){
         ## W: rows=clusters, cols=datapoints
         W <- exp(
             log(q[asample,]) +
-            t(vapply(seq_len(ncol(q)), function(cluster){
+            t(vapply(seq_len(ncol(q)), function(acluster){
                 ## continuous covariates
-                colSums(dnorm(t(X[,cC]), mean=parmList$meanC[asample,cC,cluster], sd=1/sqrt(parmList$tauC[asample,cC,cluster]), log=TRUE)) +
+                colSums(dnorm(t(X[,cC]), mean=parmList$meanC[asample,cC,acluster], sd=1/sqrt(parmList$tauC[asample,cC,acluster]), log=TRUE)) +
                     ## discrete covariates
-                    colSums(dnbinom(t(X[,discreteCovs]), prob=parmList$probD[asample,,cluster], size=parmList$sizeD[asample,,cluster], log=TRUE))
+                    colSums(dnbinom(t(X[,discreteCovs]), prob=parmList$probD[asample,,acluster], size=parmList$sizeD[asample,,acluster], log=TRUE))
             }, numeric(ndataz)))
         )
         ##
-        pR <- t(vapply(seq_len(ncol(q)), function(cluster){
-            ## continuous covariates
-            colSums(dnorm(t(X[,'log_RMSD']), mean=parmList$meanC[asample,'log_RMSD',cluster], sd=1/sqrt(parmList$tauC[asample,'log_RMSD',cluster])))
-        }, numeric(ndataz)))
-
-        colSums(pR * W)/colSums(W)
+        colSums(parmList$meanC[asample,'log_RMSD',] * W)/colSums(W)
     }/nsamples
 }
 ##
 ## Calculates the predictive distribution on a grid of log_RMSD conditional on several feature values
-pRgridgivenX <- function(X, parmList, RMSDgrid){
+distrRgivenX <- function(X, parmList, RMSDgrid){
     continuousCovs <- dimnames(parmList$meanC)[[2]]
     discreteCovs <- dimnames(parmList$probD)[[2]]
     cC <- setdiff(continuousCovs, 'log_RMSD')
@@ -129,18 +124,18 @@ pRgridgivenX <- function(X, parmList, RMSDgrid){
         ## W: rows=clusters, cols=datapoints
         W <- exp(
             log(q[asample,]) +
-            t(vapply(seq_len(ncol(q)), function(cluster){
+            t(vapply(seq_len(ncol(q)), function(acluster){
                 ## continuous covariates
-                colSums(dnorm(t(X[,cC]), mean=parmList$meanC[asample,cC,cluster], sd=1/sqrt(parmList$tauC[asample,cC,cluster]), log=TRUE)) +
+                colSums(dnorm(t(X[,cC]), mean=parmList$meanC[asample,cC,acluster], sd=1/sqrt(parmList$tauC[asample,cC,acluster]), log=TRUE)) +
                     ## discrete covariates
-                    colSums(dnbinom(t(X[,discreteCovs]), prob=parmList$probD[asample,,cluster], size=parmList$sizeD[asample,,cluster], log=TRUE))
+                    colSums(dnbinom(t(X[,discreteCovs]), prob=parmList$probD[asample,,acluster], size=parmList$sizeD[asample,,acluster], log=TRUE))
             }, numeric(ndataz)))
         )
         W <- matrix(rep(W,lRMSDgrid),nrow=nrow(W))
         ##
-        pR <- t(vapply(seq_len(ncol(q)), function(cluster){
+        pR <- t(vapply(seq_len(ncol(q)), function(acluster){
             ## continuous covariates
-            dnorm(x=rep(RMSDgrid, each=ndataz), mean=parmList$meanC[asample,'log_RMSD',cluster], sd=1/sqrt(parmList$tauC[asample,'log_RMSD',cluster]))
+            dnorm(x=rep(RMSDgrid, each=ndataz), mean=parmList$meanC[asample,'log_RMSD',acluster], sd=1/sqrt(parmList$tauC[asample,'log_RMSD',acluster]))
         }, numeric(ndataz*lRMSDgrid)))
         ##
         colSums(pR * W)/colSums(W)

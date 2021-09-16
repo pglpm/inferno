@@ -1,6 +1,6 @@
 ## Author: PGL  Porta Mana
 ## Created: 2021-03-20T10:07:17+0100
-## Last-Updated: 2021-09-16T09:21:37+0200
+## Last-Updated: 2021-09-16T10:05:50+0200
 ################
 ## Script for evaluation of regression:
 ## Unfactorizable prior
@@ -45,11 +45,6 @@ rangeR <- (rangeR - mean(rangeR)) * 1.1 + mean(rangeR)
 lRgrid <- 101
 Rgrid <- seq(rangeR[1],rangeR[2],length.out=lRgrid)
 
-##
-## Utility functions
-## function to compute utilities in test set
-lossfunction <- function(truevalues,choices){-(truevalues-choices)^2}
-
 ndata <- 6000
 seldata <- 1:ndata
 dset <- 'tail'
@@ -69,15 +64,20 @@ testdata <- alldata[do.call(dset,list(x=unseldata,n=3*nTest)), c('bin_RMSD',covN
 gc()
 plan(sequential)
 plan(multisession, workers = 6L)
-condfreqs <- pRvaluesgivenX(as.matrix(testdata), parmList)
+condfreqs <- expeRgivenX(as.matrix(testdata), parmList)
 plan(sequential)
+
+##
+## Utility functions
+## function to compute utilities in test set
+lossfunction <- function(truevalues,choices){-(truevalues-choices)^2}
 ##
 gains <- lossfunction(testdata$log_RMSD, condfreqs)
 chancegains <- lossfunction(testdata$log_RMSD, log(2.5))
 ##
 basescores <- data.table(model=gains, chance=chancegains)
 ##
-pdff(paste0('quadraticscores_direct_nonfact_conditional_P',rownames(basepriors)[2],'_',dset))
+pdff(paste0('quadraticscores_direct_nonfact_conditional_P_',dset))
 ##
 print(
     ggplot(dt <- melt(basescores[,1:2])) +
