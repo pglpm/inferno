@@ -39,8 +39,11 @@ probJointSamples <- function(dat, parmList, log=FALSE, inorder=FALSE){
     if(!log){freqs} else {log(freqs)}
 }
 ## Calculates the MCMC posterior probability of several datapoints
-probJointMean <- function(dat, parmList){
-    ndataz <- nrow(dat$X)
+probJointMean <- function(X, parmList){
+    continuousCovs <- dimnames(parmList$meanC)[[2]]
+    discreteCovs <- dimnames(parmList$probD)[[2]]
+    if(is.list(X)){ X <- cbind(X$X, X$Y) }
+    ndataz <- nrow(X)
     q <- parmList$q
     nsamples <- nrow(q)
     ##
@@ -50,9 +53,9 @@ probJointMean <- function(dat, parmList){
                 log(q[asample,]) +
                 t(vapply(seq_len(ncol(q)), function(acluster){
                     ## continuous covariates
-                    colSums(dnorm(t(dat$X), mean=parmList$meanC[asample,,acluster], sd=1/sqrt(parmList$tauC[asample,,acluster]), log=TRUE)) +
+                    colSums(dnorm(t(X[,continuousCovs]), mean=parmList$meanC[asample,,acluster], sd=1/sqrt(parmList$tauC[asample,,acluster]), log=TRUE)) +
                         ## discrete covariates
-                    colSums(dnbinom(t(dat$Y), prob=parmList$probD[asample,,acluster], size=parmList$sizeD[asample,,acluster], log=TRUE))
+                    colSums(dnbinom(t(X[,discreteCovs]), prob=parmList$probD[asample,,acluster], size=parmList$sizeD[asample,,acluster], log=TRUE))
     }, numeric(ndataz)))
             )
         )
@@ -110,21 +113,61 @@ expeRgivenX <- function(X, parmList){
     }/nsamples
 }
 ##
+## Gives samples of frequency distributions of log_RMSD conditional on several feature values
+samplesfRgivenX <- function(X, parmList, RMSDgrid, nfsamples=NULL){
+    continuousCovs <- dimnames(parmList$meanC)[[2]]
+    discreteCovs <- dimnames(parmList$probD)[[2]]
+    cC <- setdiff(continuousCovs, 'log_RMSD')
+    ndataz <- nrow(X)
+    lRMSDgrid <- length(RMSDgrid)
+    q <- parmList$q
+    nclusters <- ncol(q)
+    if(is.numeric(nfsamples)){
+        fsubsamples <- seq(1, nrow(q), length.out=nfsamples)
+    }else{
+        nfsamples <- nrow(q)
+        fsubsamples <- seq_len(nfsamples)
+    }
+    ##
+    freqs <- foreach(asample=fsubsamples, .combine=c, .inorder=FALSE)%dopar%{
+        ## W: rows=clusters, cols=datapoints
+        W <- exp(
+            log(q[asample,]) +
+            t(vapply(seq_len(nclusters), function(acluster){
+                ## continuous covariates
+                colSums(dnorm(t(X[,cC]), mean=parmList$meanC[asample,cC,acluster], sd=1/sqrt(parmList$tauC[asample,cC,acluster]), log=TRUE)) +
+                    ## discrete covariates
+                    colSums(dnbinom(t(X[,discreteCovs]), prob=parmList$probD[asample,,acluster], size=parmList$sizeD[asample,,acluster], log=TRUE))
+            }, numeric(ndataz)))
+        )
+        W <- matrix(rep(W, lRMSDgrid), nrow=nclusters) # strings copies of W column-wise
+        ## pR: rows=clusters, cols= P at grid points
+        pR <- t(vapply(seq_len(nclusters), function(acluster){
+            rep( dnorm(x=RMSDgrid, mean=parmList$meanC[asample,'log_RMSD',acluster], sd=1/sqrt(parmList$tauC[asample,'log_RMSD',acluster])) , each=ndataz)
+        }, numeric(lRMSDgrid * ndataz)))
+        ##
+        colSums(pR * W)/colSums(W)
+    }
+    dim(freqs) <- c(ndataz, lRMSDgrid, nfsamples)
+    freqs
+}
+##
 ## Calculates the predictive distribution on a grid of log_RMSD conditional on several feature values
-distrRgivenX <- function(X, parmList, RMSDgrid){
+pRgivenX <- function(X, parmList, RMSDgrid){
     continuousCovs <- dimnames(parmList$meanC)[[2]]
     discreteCovs <- dimnames(parmList$probD)[[2]]
     cC <- setdiff(continuousCovs, 'log_RMSD')
     ndataz <- nrow(X)
     q <- parmList$q
     nsamples <- nrow(q)
+    nclusters <- ncol(q)
     lRMSDgrid <- length(RMSDgrid)
     ##
     freqs <- foreach(asample=seq_len(nsamples), .combine='+', .inorder=FALSE)%dopar%{
         ## W: rows=clusters, cols=datapoints
         W <- exp(
             log(q[asample,]) +
-            t(vapply(seq_len(ncol(q)), function(acluster){
+            t(vapply(seq_len(nclusters), function(acluster){
                 ## continuous covariates
                 colSums(dnorm(t(X[,cC]), mean=parmList$meanC[asample,cC,acluster], sd=1/sqrt(parmList$tauC[asample,cC,acluster]), log=TRUE)) +
                     ## discrete covariates
@@ -133,7 +176,7 @@ distrRgivenX <- function(X, parmList, RMSDgrid){
         )
         W <- matrix(rep(W,lRMSDgrid),nrow=nrow(W))
         ##
-        pR <- t(vapply(seq_len(ncol(q)), function(acluster){
+        pR <- t(vapply(seq_len(nclusters), function(acluster){
             ## continuous covariates
             dnorm(x=rep(RMSDgrid, each=ndataz), mean=parmList$meanC[asample,'log_RMSD',acluster], sd=1/sqrt(parmList$tauC[asample,'log_RMSD',acluster]))
         }, numeric(ndataz*lRMSDgrid)))

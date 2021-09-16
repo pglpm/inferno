@@ -1,6 +1,6 @@
 ## Author: PGL  Porta Mana
 ## Created: 2021-03-20T10:07:17+0100
-## Last-Updated: 2021-08-25T08:02:21+0200
+## Last-Updated: 2021-09-16T14:38:35+0200
 ################
 ## Script for evaluation of regression:
 ## Unfactorizable prior
@@ -28,9 +28,9 @@ library('doRNG')
 registerDoFuture()
 #library('LaplacesDemon') # used for Dirichlet generator
 library('ash')
-library('extraDistr')
-library('PReMiuM')
-library('mvtnorm')
+## library('extraDistr')
+## library('PReMiuM')
+## library('mvtnorm')
 options(bitmapType='cairo')
 
 load(file='_directmodel_contR_N6000_7covs.RData')
@@ -115,52 +115,85 @@ predictfXall <- function(dataobj, X){
     freqs
 }
 
-    unseldata <- setdiff(1:nrow(data), seldata)
-    nTest <- 30
-    ## construct test set
-    testdata <- data[do.call('tail',list(x=unseldata,n=3*nTest)), c(covNames), with=F]
-    ## testd <- data[unseldata, covNames, with=F]
-    ## testdata <- data.table()
-    ## for(val in rmsdVals){
-    ##     testdata <- rbind(testdata, tail(testd[bin_RMSD==val],n=round(3*nTest*priorR[val])))
-    ## }
-    ## rm(testd)
+ndata <- 6000
+seldata <- 1:ndata
+unseldata <- setdiff(1:nrow(alldata), seldata)
+nTest <- 30
+## construct test set
+testdata <- as.matrix(alldata[do.call('tail',list(x=unseldata,n=3*nTest)), c(covNames), with=F])
+## testd <- data[unseldata, covNames, with=F]
+## testdata <- data.table()
+## for(val in rmsdVals){
+##     testdata <- rbind(testdata, tail(testd[bin_RMSD==val],n=round(3*nTest*priorR[val])))
+## }
+## rm(testd)
 ##
 boundaries <- log(c(2,3))
-rgrid <- seq(rangeR[1],rangeR[2],length.out=101)
-XX <- data.table()
-for(atest in 1:nrow(testdata)){
-    XX <- rbind(XX,
-                cbind(testid=atest, log_RMSD=rgrid, testdata[atest,!'log_RMSD'])
-                )
-}
+rangeR <- range(alldata$log_RMSD, na.rm=T)
+rangeR <- (rangeR - mean(rangeR)) * 1.1 + mean(rangeR)
+lRgrid <- 101
+Rgrid <- seq(rangeR[1],rangeR[2],length.out=lRgrid)
+## XX <- data.table()
+## for(atest in 1:nrow(testdata)){
+##     XX <- rbind(XX,
+##                 cbind(testid=atest, log_RMSD=rgrid, testdata[atest,!'log_RMSD'])
+##                 )
+## }
 ##
+
 gc()
 plan(sequential)
 plan(multisession, workers = 6L)
-distrf <- predictfXall(MCMCdata[[1]], XX)
+distrf <- samplesfRgivenX(testdata, parmList=parmList, RMSDgrid=Rgrid)
 plan(sequential)
-dim(distrf) <- c(length(rgrid), nrow(testdata), ncol(distrf))
-dimnames(distrf) <- list(NULL, paste0('testid',1:nrow(testdata)), NULL)
+##dimnames(distrf) <- list(NULL, paste0('testid',1:nrow(testdata)), NULL)
+
 ##
-
-
-nsamples <- 100
-pdff(paste0('distributions_samples_direct_','tail'))
+nplotsamples <- 100
+transparency <- '44'
+pdff(paste0('post_distributionsamples_direct_','tail'))
 for(atest in 1:nrow(testdata)){
-    dat <- distrf[,atest,round(seq(1,dim(distrf)[3],length.out=nsamples))]
-    matplot(x=rgrid, y=dat, type='l', col=paste0(palette()[5],'44'), lty=1, lwd=2, xlab='log-RMSD', ylab='probability density',cex.axis=1.5, cex.lab=1.5)
-    matlines(x=rgrid, y=rowMeans(dat), col=palette()[1], lty=1, lwd=3)
-    matlines(x=rep(testdata[atest,log_RMSD],2),y=c(0,max(dat)),lty=2,lwd=4,col=palette()[2])
-    matlines(x=rep(c(rgrid %*% normalize(rowMeans(dat))),2),y=c(0,max(dat)),lty=4,lwd=3,col=palette()[3])
+    dat <- distrf[atest,,]
+    mdat <- rowMeans(dat)
+    dat <- dat[,seq(1, ncol(dat), length.out=nplotsamples)]
+    matplot(x=Rgrid, y=dat, type='l', col=paste0(palette()[7], transparency), lty=1, lwd=2, xlab='log-RMSD', ylab='probability density',cex.axis=1.5, cex.lab=1.5)
+    matlines(x=Rgrid, y=mdat, col=palette()[1], lty=1, lwd=4)
+    matlines(x=rep(testdata[atest,'log_RMSD'], 2), y=c(0,max(dat)),lty=2,lwd=5,col=palette()[2])
+    matlines(x=rep(c(Rgrid %*% normalize(mdat)),2),y=c(0,max(dat)),lty=4,lwd=3,col=palette()[3])
     matlines(x=rep(boundaries[1],2),y=c(0,max(dat)),lty=3,lwd=4,col=palette()[4])
     matlines(x=rep(boundaries[2],2),y=c(0,max(dat)),lty=3,lwd=4,col=palette()[4])
     grid(lwd=1,lty=1)
-    legend('topleft',legend=c('predicted distributions','mean (final predictive)','true value','quadratic-gain choice', '2-3 \u00c5'),lty=c(1,1,2,4,3),col=palette()[c(5,1,2,3,4)], lwd=c(2,3,4,3,4),bty='n',cex=1.25)
-        legend('topright',legend=paste0(names(testdata[atest]),' = ',signif(testdata[atest],3)), bty='n',horiz=F,inset=-0.005)
+    legend('topleft',legend=c('predicted distributions','mean (final predictive)','true value','quadratic-gain choice', '2-3 \u00c5'),lty=c(1,1,2,4,3),col=palette()[c(7,1,2,3,4)], lwd=c(2,4,4,3,4),bty='n',cex=1.25)
+        legend('topright',legend=paste0(colnames(testdata),' = ',signif(testdata[atest,],3)), bty='n',horiz=F,inset=-0.005)
 }
 dev.off()
-    
+
+
+datum1 <- 3
+grid1 <- 5
+fsample1 <- 7
+testq <- parmList$q[fsample1,]
+testmeanC <- parmList$meanC[fsample1,,]
+testtauC <- parmList$tauC[fsample1,,]
+testprobD <- parmList$probD[fsample1,,]
+testsizeD <- parmList$sizeD[fsample1,,]
+##
+testdatum <- testdata[datum1,]
+## testdatum['log_RMSD'] <- Rgrid[grid1]
+testcC <- setdiff(continuousCovs, 'log_RMSD')
+##
+testW <- foreach(acluster=1:length(testq), .combine=c)%do%{
+    testq[acluster] *
+        prod(dnorm(testdatum[testcC], mean=testmeanC[testcC,acluster], sd=1/sqrt(testtauC[testcC,acluster]))) *
+        prod(dnbinom(testdatum[discreteCovs], prob=testprobD[,acluster], size=testsizeD[,acluster]))
+}
+testcond <- sum(testW * dnorm(Rgrid[grid1], mean=testmeanC['log_RMSD',], sd=1/sqrt(testtauC['log_RMSD',])))/sum(testW)
+testcond
+distrf[datum1,grid1,fsample1]
+
+
+
+
 ## pdff(paste0('distributions_samples_','tail'))
 ## for(atest in 1:nrow(testdata)){
 ##     print(
