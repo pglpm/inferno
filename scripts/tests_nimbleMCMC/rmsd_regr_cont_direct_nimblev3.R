@@ -1,6 +1,6 @@
 ## Author: PGL  Porta Mana
 ## Created: 2021-03-20T10:07:17+0100
-## Last-Updated: 2021-09-17T09:22:36+0200
+## Last-Updated: 2021-09-17T09:30:02+0200
 ################
 ## Script for direct regression, continuous RMSD
 ################
@@ -156,6 +156,9 @@ bayesnet <- nimbleCode({
         }
     }
 })
+##
+source('functions_rmsdregr_nimble.R')
+
 
 model <- nimbleModel(code=bayesnet, name='model1', constants=constants, inits=inits, data=dat)
 Cmodel <- compileNimble(model, showCompilerOutput=TRUE)
