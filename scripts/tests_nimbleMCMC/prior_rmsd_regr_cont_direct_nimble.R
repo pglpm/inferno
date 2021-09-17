@@ -1,6 +1,6 @@
 ## Author: PGL  Porta Mana
 ## Created: 2021-03-20T10:07:17+0100
-## Last-Updated: 2021-09-16T07:34:07+0200
+## Last-Updated: 2021-09-17T13:44:25+0200
 ################
 ## Script for direct regression, continuous RMSD
 ################
@@ -93,85 +93,6 @@ ndata <- 6000 # nSamples = 37969
 ncvars <- length(continuousCovs)
 ndvars <- length(discreteCovs)
 ##
-llSamples <- function(dat, parmList){
-    ndataz <- nrow(dat$X)
-    q <- parmList$q
-    ##
-    foreach(asample=seq_len(nrow(q)), .combine=c, .inorder=TRUE)%dopar%{
-        sum( log( colSums(
-            exp(
-                log(q[asample,]) +
-                t(vapply(seq_len(ncol(q)), function(cluster){
-                    ## continuous covariates
-                    colSums(dnorm(t(dat$X), mean=parmList$meanC[asample,,cluster], sd=1/sqrt(parmList$tauC[asample,,cluster]), log=TRUE)) +
-                        ## discrete covariates
-                    colSums(dnbinom(t(dat$Y), prob=parmList$probD[asample,,cluster], size=parmList$sizeD[asample,,cluster], log=TRUE))
-    }, numeric(ndataz)))
-            )
-        ) ) )
-    }
-}
-##
-probJointSamples <- function(dat, parmList, log=FALSE, inorder=FALSE){
-    ndataz <- nrow(dat$X)
-    q <- parmList$q
-    ##
-    freqs <- foreach(asample=seq_len(nrow(q)), .combine=cbind, .inorder=inorder)%dopar%{
-        colSums(
-            exp(
-                log(q[asample,]) +
-                t(vapply(seq_len(ncol(q)), function(cluster){
-                    ## continuous covariates
-                    colSums(dnorm(t(dat$X), mean=parmList$meanC[asample,,cluster], sd=1/sqrt(parmList$tauC[asample,,cluster]), log=TRUE)) +
-                        ## discrete covariates
-                    colSums(dnbinom(t(dat$Y), prob=parmList$probD[asample,,cluster], size=parmList$sizeD[asample,,cluster], log=TRUE))
-    }, numeric(ndataz)))
-            )
-        )
-    }
-    if(!log){freqs} else {log(freqs)}
-}
-##
-probJointMean <- function(dat, parmList){
-    ndataz <- nrow(dat$X)
-    q <- parmList$q
-    nsamples <- nrow(q)
-    ##
-    foreach(asample=seq_len(nsamples), .combine='+', .inorder=FALSE)%dopar%{
-        colSums(
-            exp(
-                log(q[asample,]) +
-                t(vapply(seq_len(ncol(q)), function(cluster){
-                    ## continuous covariates
-                    colSums(dnorm(t(dat$X), mean=parmList$meanC[asample,,cluster], sd=1/sqrt(parmList$tauC[asample,,cluster]), log=TRUE)) +
-                        ## discrete covariates
-                    colSums(dnbinom(t(dat$Y), prob=parmList$probD[asample,,cluster], size=parmList$sizeD[asample,,cluster], log=TRUE))
-    }, numeric(ndataz)))
-            )
-        )
-    }/nsamples
-}
-##
-probRCondMean <- function(dat, parmList){
-    ndataz <- nrow(dat$X)
-    q <- parmList$q
-    nsamples <- nrow(q)
-    ##
-    foreach(asample=seq_len(nsamples), .combine='+', .inorder=FALSE)%dopar%{
-        colSums(
-            exp(
-                log(q[asample,]) +
-                t(vapply(seq_len(ncol(q)), function(cluster){
-                    ## continuous covariates
-                    colSums(dnorm(t(dat$X), mean=parmList$meanC[asample,,cluster], sd=1/sqrt(parmList$tauC[asample,,cluster]), log=TRUE)) +
-                        ## discrete covariates
-                    colSums(dnbinom(t(dat$Y), prob=parmList$probD[asample,,cluster], size=parmList$sizeD[asample,,cluster], log=TRUE))
-    }, numeric(ndataz)))
-            )
-        )
-    }/nsamples
-}
-##
 constants <- list(
     nClusters=nclusters,
     nCvars=ncvars,
@@ -227,57 +148,7 @@ priorbayesnet <- nimbleCode({
     ## }
 })
 ##
-Fsamples <- function(X, parmList){
-    cC <- colnames(X)[colnames(X) %in% continuousCovs]
-    dC <- colnames(X)[colnames(X) %in% discreteCovs]
-    ndataz <- nrow(X)
-    q <- parmList$q
-    ##
-    foreach(asample=seq_len(nrow(q)), .combine=cbind, .inorder=FALSE)%dopar%{
-        colSums(
-            exp(
-                log(q[asample,]) +
-                t(vapply(seq_len(ncol(q)), function(cluster){
-                    ## continuous covariates
-                    if(length(cC) > 0){
-                        colSums(dnorm(t(X[,cC]), mean=parmList$meanC[asample,cC,cluster], sd=1/sqrt(parmList$tauC[asample,cC,cluster]), log=TRUE))
-                        }else{0} +
-                        ## discrete covariates
-                    if(length(dC) > 0){
-                        colSums(dnbinom(t(X[,dC]), prob=parmList$probD[asample,dC,cluster], size=parmList$sizeD[asample,dC,cluster], log=TRUE))
-                        }else{0}
-    }, numeric(ndataz)))
-            )
-        )
-    }
-}
-
-##
-options(doFuture.rng.onMisuse = "ignore")
-samplesFsamples <- function(varNames, parmList, nxsamples, seed=1234){
-    cC <- varNames[varNames %in% continuousCovs]
-    ncC <- length(cC)
-    dC <- varNames[varNames %in% discreteCovs]
-    ndC <- length(dC)
-    q <- parmList$q
-    nmcsamples <- nrow(q)
-    ##
-    rng <- RNGseq( nmcsamples * nxsamples, seed)
-    allsamples <- foreach(amcsample=seq_len(nmcsamples), .combine=cbind, .inorder=FALSE)%:%foreach(axsample=seq_len(nxsamples), r=rng[(amcsample-1)*nxsamples + 1:nxsamples], .combine=c, .inorder=FALSE)%dopar%{
-        rngtools::setRNG(r)
-        acluster <- rcat(n=1, prob=q[amcsample,])
-        c(
-            ## continuous covariates
-            rnorm(n=ncC, mean=parmList$meanC[amcsample,cC,acluster], sd=1/sqrt(parmList$tauC[amcsample,cC,acluster])),
-            ## discrete covariates
-            rnbinom(n=ndC, prob=parmList$probD[amcsample,dC,acluster], size=parmList$sizeD[amcsample,dC,acluster])
-        )
-    }
-    dim(allsamples) <- c(ncC+ndC, nxsamples, nmcsamples)
-    dimnames(allsamples) <- list(c(cC,dC), NULL, NULL)
-    allsamples
-}
-
+source('functions_rmsdregr_nimble.R')
 
 priormodel <- nimbleModel(code=priorbayesnet, name='priormodel1', constants=constants, inits=list(), data=list())
 Cpriormodel <- compileNimble(priormodel, showCompilerOutput=TRUE)
@@ -306,7 +177,7 @@ initsFunction <- function(){
 }
 totaltime <- Sys.time()
 ## NB: putting all data in one cluster at start leads to slow convergence
-priormcsamples <- runMCMC(Cpriormcmcsampler, nburnin=0, niter=101, thin=1, inits=initsFunction, setSeed=123)
+priormcsamples <- runMCMC(Cpriormcmcsampler, nburnin=1, niter=101, thin=1, inits=initsFunction, setSeed=123)
 ## Cpriormcmcsampler$run(niter=2000, thin=1, reset=TRUE, setSeed=123, init=initsFunction)
 ## priormcsamples <- as.matrix(Cpriormcmcsampler$mvSamples)
 totaltime <- Sys.time() - totaltime
@@ -333,82 +204,6 @@ parmList <- foreach(var=parmNames)%dopar%{
 }
 names(parmList) <- parmNames
 
-subsamplep <- round(seq(1, nrow(parmList$q), length.out=100))
-redparmList <- list(
-    q=parmList$q[subsamplep,],
-    meanC=parmList$meanC[subsamplep,,],
-    tauC=parmList$tauC[subsamplep,,],
-    probD=parmList$probD[subsamplep,,],
-    sizeD=parmList$sizeD[subsamplep,,]
-)
-##
-nxsamples <- 1000
-##
-timecount <- Sys.time()
-plan(sequential)
-plan(multisession, workers = 6L)
-xsamples <- samplesFsamples(varNames=covNames, parmList=redparmList, nxsamples=nxsamples)
-plan(sequential)
-print(Sys.time()-timecount)
-##
-plotvarRanges <- plotvarQs <- xlim <- ylim <- list()
-for(var in covNames){
-    plotvarQs[[var]] <- quantile(alldata[[var]], prob=c(0.05,0.95))
-    plotvarRanges[[var]] <- thisrange <- range(alldata[[var]])
-    xlim[[var]] <- c( min(thisrange, quantile(c(xsamples[var,,]),prob=0.05)),
-                     max(thisrange, quantile(c(xsamples[var,,]),prob=0.95)) )
-}
-##
-subsamplex <- 1:nxsamples #round(seq(1, dim(xsamples)[2], length.out=1000))
-pdff(paste0('prior_samplesvars2D'))#'.pdf'), height=11.7, width=16.5)
-par(mfrow = c(2, 3))
-for(addvar in setdiff(covNames, 'log_RMSD')){
-    matplot(x=alldata[['log_RMSD']][seq(1,nrow(alldata),length.out=1000)],
-            y=alldata[[addvar]][seq(1,nrow(alldata),length.out=1000)],
-            xlim=xlim[['log_RMSD']],
-            ylim=xlim[[addvar]],
-            xlab='log_RMSD',
-            ylab=addvar,
-            type='p', pch=1, cex=0.2, lwd=1, col=palette()[2])
-        matlines(x=c(rep(plotvarRanges[['log_RMSD']], each=2), plotvarRanges[['log_RMSD']][1]),
-             y=c(plotvarRanges[[addvar]], rev(plotvarRanges[[addvar]]), plotvarRanges[[addvar]][1]),
-                 lwd=2, col=paste0(palette()[2],'88'))
-        matlines(x=c(rep(plotvarQs[['log_RMSD']], each=2), plotvarQs[['log_RMSD']][1]),
-             y=c(plotvarQs[[addvar]], rev(plotvarQs[[addvar]]), plotvarQs[[addvar]][1]),
-                 lwd=2, col=paste0(palette()[4],'88'))
-}
-for(asample in 1:length(subsamplep)){
-par(mfrow = c(2, 3))
-for(addvar in setdiff(covNames, 'log_RMSD')){
-    matplot(x=xsamples['log_RMSD',, asample],
-            y=xsamples[addvar,, asample],
-            xlim=xlim[['log_RMSD']],
-            ylim=xlim[[addvar]],
-            xlab='log_RMSD',
-            ylab=addvar,
-            type='p', pch=1, cex=0.2, lwd=1, col=palette()[1])
-    matlines(x=c(rep(plotvarRanges[['log_RMSD']], each=2), plotvarRanges[['log_RMSD']][1]),
-             y=c(plotvarRanges[[addvar]], rev(plotvarRanges[[addvar]]), plotvarRanges[[addvar]][1]),
-             lwd=2, col=paste0(palette()[2],'88'))
-            matlines(x=c(rep(plotvarQs[['log_RMSD']], each=2), plotvarQs[['log_RMSD']][1]),
-             y=c(plotvarQs[[addvar]], rev(plotvarQs[[addvar]]), plotvarQs[[addvar]][1]),
-                 lwd=2, col=paste0(palette()[4],'88'))
-}
-}
-dev.off()
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 ##
 nxsamples <- 1000
@@ -416,10 +211,9 @@ nxsamples <- 1000
 timecount <- Sys.time()
 plan(sequential)
 plan(multisession, workers = 6L)
-xsamples <- samplesFsamples(varNames=covNames, parmList=parmList, nxsamples=nxsamples)
+xsamples <- samplesFsamples(parmList=parmList, nxsamples=nxsamples, nfsamples=NULL)
 plan(sequential)
 print(Sys.time()-timecount)
-
 ##
 plotvarRanges <- plotvarQs <- xlim <- ylim <- list()
 for(var in covNames){
@@ -431,7 +225,7 @@ for(var in covNames){
 ##
 subsamplep <- round(seq(1, dim(xsamples)[3], length.out=100))
 subsamplex <- round(seq(1, dim(xsamples)[2], length.out=1000))
-pdff(paste0('priorsamplesvars2D'))#'.pdf'), height=11.7, width=16.5)
+pdff(paste0('prior_g_samplesvars2D_run2'))#'.pdf'), height=11.7, width=16.5)
 par(mfrow = c(2, 3))
 for(addvar in setdiff(covNames, 'log_RMSD')){
     matplot(x=alldata[['log_RMSD']][subsamplex],
@@ -468,253 +262,11 @@ for(addvar in setdiff(covNames, 'log_RMSD')){
 }
 dev.off()
 
-matplot(x=1:2,y=1:2)
-
-
-    ## pdff('samplesvars2D')
-    for(asample in subsamplep){
-        matplot(x=xsamples[1,subsamplex,asample],y=xsamples[2,subsamplex,asample], type='p', pch=1, lwd=1, xlab=rownames(xsamples)[1], ylab=rownames(xsamples)[2], xlim=xlim, ylim=ylim)
-    }
-    dev.off()
-}
 
 
 
 
 
-
-## rm(alldata)
-## alldata <- fread('../processed_data_scaled.csv', sep=' ')
-plotVars <- c(
-    "log_RMSD"
-    ,"log_mcs_unbonded_polar_sasa"
-    ## ,"logit_ec_tanimoto_similarity",
-    ## ,"mcs_NumHeteroAtoms",
-    ## ,"docked_HeavyAtomCount",
-    ## ,"mcs_RingCount",
-    ## ,"docked_NumRotatableBonds"
-  )
-##
-ngridpoints <- 100
-plotgrids <- lapply(plotVars,function(var){
-    varrange <- summary(alldata[[var]])
-    varrange <- c(diff(varrange[c(4,1)]), diff(varrange[c(4,6)]))*1+varrange[4]
-    seq(varrange[1], varrange[2], length.out=ngridpoints)
-    ##
-    ##seq(-10, 10, length.out=ngridpoints)
-})
-names(plotgrids) <- plotVars
-##
-##gridpoints2 <- mesh(plotgrids[[1]], plotgrids[[2]])
-gridpoints <- cbind(rep(plotgrids[[1]],each=length(plotgrids[[2]])),
-                    rep(plotgrids[[2]],length(plotgrids[[1]])))
-colnames(gridpoints) <- plotVars
-
-##
-plan(sequential)
-plan(multisession, workers = 6L)
-zvalues <- Fsamples(X=gridpoints, parmList=parmList)
-plan(sequential)
-origz <- zvalues
-dim(zvalues) <- c(ngridpoints, ngridpoints, ncol(zvalues))
-
-##
-indir <- ''
-pdff(paste0(indir, 'samplesvars'))
-subsample <- round(seq(1, ncol(zvalues), length.out=20))
-for(asample in subsample){
-persp(plotgrids[[2]],plotgrids[[1]],zvalues[,,asample],zlim=c(0,max(zvalues[,,subsample])),ticktype='detailed',theta = 45, phi = 15,xlab=plotVars[2],ylab=plotVars[1],zlab='freq. density')
-}
-dev.off()
-
-
-
-
-q1 <- parmList$q[1,]
-meanC1 <- parmList$meanC[1,,]
-tauC1 <- parmList$tauC[1,,]
-probD1 <- parmList$probD[1,,]
-sizeD1 <- parmList$sizeD[1,,]
-
-xx <- gridpoints[1,]
-
-testd <- foreach(asample=1:2, .combine=cbind)%:%foreach(i=1:nrow(gridpoints), .combine=c)%do%{
-    xx <- gridpoints[i,]
-    sum(parmList$q[asample,] * exp(rowSums(t(dnorm(xx, mean=parmList$meanC[asample,plotVars,], sd=1/sqrt(parmList$tauC[asample,plotVars,]), log=TRUE)))))
-    }
-
-testd2 <- exp(rowSums(t(dnorm(xx, mean=meanC1[plotVars,], sd=1/sqrt(tauC1[plotVars,]), log=TRUE))))
-
-testd <- dnorm(xx, mean=meanC1[plotVars,], sd=1/sqrt(tauC1[plotVars,]))
-
-prod(dnorm(xx, mean=meanC1[plotVars,3], sd=1/sqrt(tauC1[plotVars,3])))
-
-foreach(var=plotVars, .combine=c)%do%{dnorm(xx[var], mean=meanC1[var,3], sd=1/sqrt(tauC1[var,3]))}
-
-
-timecount <- Sys.time()
-plan(sequential)
-plan(multisession, workers = 6L)
-loglikelihood <- llSamples(dat=dat, parmList=parmList)
-plan(sequential)
-print(Sys.time()-timecount)
-##
-pdff(paste0('mcsummary2',length(covNames),'-d',ndata,'-c',nclusters,'-i',nrow(mcsamples),'.rds'))
-matplot(loglikelihood, type='l', lty=1, col=palette()[2], main='logprobData')
-matplot(log(t(apply(parmList$q,1,range))),type='l',lty=1, main='range p-clusters')
-##
-for(j in c(1,nclusters)){
-    vcol <- paste0('q[',j,']')
-    matplot(log(mcsamples[,vcol]),type='l',lty=1, main=vcol)
-}
-for(j in c(1,nclusters)){
-    for(i in c(1,ncvars)){
-        vcol <- paste0('meanC[',i,', ',j,']')
-        matplot(mcsamples[,vcol], type='l', lty=1, main=vcol)
-        vcol <- paste0('tauC[',i,', ',j,']')
-        matplot(log(mcsamples[,vcol]), type='l', lty=1, main=vcol)
-    }
-    for(i in c(1,ndvars)){
-        vcol <- paste0('probD[',i,', ',j,']')
-        matplot(log(mcsamples[,vcol]), type='l', lty=1, main=vcol)
-        vcol <- paste0('sizeD[',i,', ',j,']')
-        matplot(log(mcsamples[,vcol]), type='l', lty=1, main=vcol)
-    }
-}
-dev.off()
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-indq <- grepl('logProb_q\\[', colnames(mcsamples))
-matplot(identity(mcsamples[,indq]),type='l',lty=1)
-
-indq <- grepl('meanC\\[1, 1]', colnames(mcsamples)) || grepl('meanC\\[1, 1]', colnames(mcsamples))
-
-totaltime <- Sys.time()
-mcsamplesb <- runMCMC(Cmcmcsampler, nburnin=0, niter=2000, thin=1, nchains=2, inits=initsFunction, setSeed=123)
-totaltime <- Sys.time() - totaltime
-totaltime
-saveRDS(mcsamplesb,file=paste0('_mcsampleswburnin2_v',length(covNames),'-d',ndata,'-c',nclusters,'.rds'))
-
-indq <- grepl('q\\[', colnames(mcsamplesb))
-matplot(identity(mcsamplesb[,indq][,1]),type='l',lty=1)
-
-
-###################################################
-###### not used ###################################
-###################################################
-
-probJointSamples2 <- nimbleFunction(
-    run = function(X=double(2),
-                   Y=double(2),
-                   q=double(2),
-                   meanC=double(3),
-                   tauC=double(3),
-                   probD=double(3),
-                   sizeD=double(3),
-                   log=integer(0, default=1)
-                   ){
-        ##
-        returnType(double(2))
-        ndataz <- dim(X)[1]
-        nsamplesz <- dim(q)[1]
-        nclustersz <- dim(q)[2]
-        ncvarx <- dim(X)[2]
-        ndvarx <- dim(Y)[2]
-        pout <- nimMatrix(nrow=ndataz, ncol=nsamplesz, init=FALSE)
-        for(idat in 1:ndataz){
-            for(isam in 1:nsamplesz){
-                sumclusters <- 0
-                for(iclu in 1:nclustersz){
-                sumclusters <- sumclusters +
-                    exp(
-                        log(q[isam, iclu]) +
-                        sum( dnorm(x=X[idat, 1:ncvarx], mean=meanC[isam, 1:ncvarx, iclu], sd=1/sqrt(tauC[isam, 1:ncvarx, iclu]), log=TRUE)) + 
-                        sum( dnbinom(x=Y[idat, 1:ndvarx], prob=probD[isam, 1:ndvarx, iclu], size=sizeD[isam, 1:ndvarx, iclu], log=TRUE))
-                    )
-                }
-                pout[idat, isam] <- sumclusters
-            }
-        }
-        ##
-        if(log) return( log(pout))
-        else return(pout)
-})
-CprobJointSamples2 <- compileNimble(probJointSamples2)
-##
-
-## sampleX <- nimbleFunction(
-##     run = function( niCparms=integer(0),
-##                    niDparms=integer(0),
-##                    q=double(2),
-##                    meanC=double(3),
-##                    tauC=double(3),
-##                    probD=double(3),
-##                    sizeD=double(3)
-##                    ){
-##         ##
-##         returnType(double(2))
-##         nsamplesz <- dim(q)[1]
-##         nclustersz <- dim(q)[2]
-##         niCparmsd <- niCparms+niDparms
-##         Xout <- nimMatrix(nrow=niCparmsd, ncol=nsamplesz, init=FALSE)
-##         for(asample in 1:nsamplesz){
-##             acluster <- rcat(n=1, prob=q[asample,1:nclustersz])
-##             if(niCparms > 0){
-##                 Xout[1:niCparms, asample] <- rnorm(n=niCparms, mean=meanC[asample, 1:niCparms, acluster], sd=1/sqrt(tauC[asample, 1:niCparms, acluster]))
-##                 }
-##             if(niDparms > 0){
-##                 niCparms1 <- niCparms+1
-##                 Xout[niCparms1:niCparmsd, asample] <- rnbinom(n=niDparms, prob=probD[asample, 1:niDparms, acluster], size=sizeD[asample, 1:niDparms, acluster])
-##             }
-##         }
-##         return(Xout)
-## })
-## CsampleX <- compileNimble(sampleX, showCompilerOutput = TRUE)
-## assign('CsampleX', CsampleX, envir = .GlobalEnv)
-## assign('sampleX', sampleX, envir = .GlobalEnv)
-## ##
-
-## tests <- CsampleX(niCparms=1, niDparms=0, q=parmList$q, meanC=parmList$meanC[,1,,drop=FALSE], tauC=parmList$tauC[,1,,drop=FALSE], probD=parmList$probD[,1,,drop=FALSE], sizeD=parmList$sizeD[,1,,drop=FALSE])
-
-## samplesFsamples2 <- function(varNames, parmList, nxsamples){
-##     cC <- varNames[varNames %in% continuousCovs]
-##     ncC <- length(cC)
-##     dC <- varNames[varNames %in% discreteCovs]
-##     ndC <- length(dC)
-##     q <- parmList$q
-##     if(ncC > 0){
-##     meanC <- parmList$meanC[,cC,,drop=FALSE]
-##     tauC <- parmList$tauC[,cC,,drop=FALSE]
-##     } else { meanC <- tauC <- array(0, dim=rep(2,3)) }
-##     if(ndC > 0){
-##     probD <- parmList$probD[,dC,,drop=FALSE]
-##     sizeD <- parmList$sizeD[,dC,,drop=FALSE]
-##     } else { probD <- sizeD <- array(0, dim=rep(2,3)) }
-##     ##
-##     ## rng <- RNGseq( npsamples * nxsamples * (ncC+ndC), seed)
-##     allsamples <- foreach(asample=seq_len(nxsamples), .combine=cbind, .inorder=FALSE)%dorng%{ 
-## ##        CsampleX(niCparms=1, niDparms=0, q=parmList$q, meanC=parmList$meanC[,1,,drop=FALSE], tauC=parmList$tauC[,1,,drop=FALSE], probD=parmList$probD[,1,,drop=FALSE], sizeD=parmList$sizeD[,1,,drop=FALSE])
-##          CsampleX(niCparms=ncC, niDparms=ndC, q=q, meanC=meanC, tauC=tauC, probD=probD, sizeD=sizeD)
-##     }
-##     dim(allsamples) <- c(ncC+ndC, nxsamples, nrow(q))
-##     dimnames(allsamples) <- list(c(cC,dC), NULL, NULL)
-##     allsamples
-## }
-##
 
 #####################################################################
 #####################################################################
