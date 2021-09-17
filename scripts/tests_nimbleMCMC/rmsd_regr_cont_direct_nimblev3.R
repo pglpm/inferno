@@ -1,6 +1,6 @@
 ## Author: PGL  Porta Mana
 ## Created: 2021-03-20T10:07:17+0100
-## Last-Updated: 2021-09-17T08:54:41+0200
+## Last-Updated: 2021-09-17T09:06:00+0200
 ################
 ## Script for direct regression, continuous RMSD
 ################
@@ -170,6 +170,8 @@ confmodel <- configureMCMC(Cmodel)
 mcmcsampler <- buildMCMC(confmodel)
 Cmcmcsampler <- compileNimble(mcmcsampler, resetFunctions = TRUE)
 
+
+version <- 3
 initsFunction <- function(){
     list( alpha0=rep(10/nclusters, nclusters),
          meanC0=0,
@@ -189,8 +191,6 @@ initsFunction <- function(){
     C=rcat(n=ndata, prob=rep(1/nclusters,nclusters))
          )
 }
-
-version <- 3
 ##
 totaltime <- Sys.time()
 ## NB: putting all data in one cluster at start leads to slow convergence
