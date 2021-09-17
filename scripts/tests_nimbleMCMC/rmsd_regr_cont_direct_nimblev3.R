@@ -1,6 +1,6 @@
 ## Author: PGL  Porta Mana
 ## Created: 2021-03-20T10:07:17+0100
-## Last-Updated: 2021-09-17T09:06:00+0200
+## Last-Updated: 2021-09-17T09:22:36+0200
 ################
 ## Script for direct regression, continuous RMSD
 ################
@@ -194,7 +194,7 @@ initsFunction <- function(){
 ##
 totaltime <- Sys.time()
 ## NB: putting all data in one cluster at start leads to slow convergence
-mcsamples <- runMCMC(Cmcmcsampler, nburnin=2000, niter=10000, thin=10, inits=initsFunction, setSeed=149)
+mcsamples <- runMCMC(Cmcmcsampler, nburnin=2000, niter=12000, thin=10, inits=initsFunction, setSeed=149)
 #Cmcmcsampler$run(niter=10000, thin=10, reset=FALSE, resetMV=TRUE)
 totaltime <- Sys.time() - totaltime
 print(totaltime)
