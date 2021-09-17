@@ -1,6 +1,6 @@
 ## Author: PGL  Porta Mana
 ## Created: 2021-03-20T10:07:17+0100
-## Last-Updated: 2021-09-16T08:48:09+0200
+## Last-Updated: 2021-09-17T08:54:41+0200
 ################
 ## Script for direct regression, continuous RMSD
 ################
@@ -53,7 +53,7 @@ entropy <- function(freqs,base=2){##in bits by default
 ## function to normalize absolute frequencies
 normalize <- function(freqs){freqs/sum(freqs)}
 ## for rows of frequency distributions
-normalizem <- function(freqs){freqs/rowSums(freqs)}
+##normalizem <- function(freqs){freqs/rowSums(freqs)}
 ##
 
 ## Read and reorganize data
@@ -190,18 +190,19 @@ initsFunction <- function(){
          )
 }
 
+version <- 3
 ##
 totaltime <- Sys.time()
 ## NB: putting all data in one cluster at start leads to slow convergence
-## mcsamples <- runMCMC(Cmcmcsampler, nburnin=0, niter=2000, thin=1, inits=initsFunction, setSeed=149)
-Cmcmcsampler$run(niter=2000, thin=1, reset=FALSE, resetMV=TRUE)
+mcsamples <- runMCMC(Cmcmcsampler, nburnin=2000, niter=10000, thin=10, inits=initsFunction, setSeed=149)
+#Cmcmcsampler$run(niter=10000, thin=10, reset=FALSE, resetMV=TRUE)
 totaltime <- Sys.time() - totaltime
 print(totaltime)
 mcsamples <- as.matrix(Cmcmcsampler$mvSamples)
 ## 7 vars, 6000 data, 100 cl, 200 iter: 12.52 mins
 ## 7 vars, 6000 data, 100 cl, 2000 iter: 1.88 hours
-saveRDS(mcsamples,file=paste0('_mcsamples2',length(covNames),'-d',ndata,'-c',nclusters,'-i',nrow(mcsamples),'.rds'))
-save(model,Cmodel,confmodel,mcmcsampler,Cmcmcsampler, file=paste0('_model',length(covNames),'-d',ndata,'-c',nclusters,'-i',nrow(mcsamples),'.RData'))
+saveRDS(mcsamples,file=paste0('_mcsamples-run',version,'-v',length(covNames),'-d',ndata,'-c',nclusters,'-i',nrow(mcsamples),'.rds'))
+save(model,Cmodel,confmodel,mcmcsampler,Cmcmcsampler, file=paste0('_model-',version,'-v',length(covNames),'-d',ndata,'-c',nclusters,'-i',nrow(mcsamples),'.RData'))
 ##
 parmNames <- c('q', 'meanC', 'tauC', 'probD', 'sizeD')
 parmList <- foreach(var=parmNames)%dopar%{
@@ -224,7 +225,7 @@ loglikelihood <- llSamples(dat=dat, parmList=parmList)
 plan(sequential)
 print(Sys.time()-timecount)
 ##
-pdff(paste0('mcsummary3',length(covNames),'-d',ndata,'-c',nclusters,'-i',nrow(mcsamples),'.rds'))
+pdff(paste0('mcsummary-run',version,'-v',length(covNames),'-d',ndata,'-c',nclusters,'-i',nrow(mcsamples),'.rds'))
 matplot(loglikelihood, type='l', lty=1, col=palette()[2], main='logprobData')
 matplot(log(t(apply(parmList$q,1,range))),type='l',lty=1, main='range p-clusters')
 ##
@@ -248,34 +249,10 @@ for(j in c(1,nclusters)){
 }
 dev.off()
 ##
-save.image(file='_nimbleoutputv3.RData')
+save.image(file=paste0('_nimbleoutput-run',version,'.RData'))
 
 
 
-options(doFuture.rng.onMisuse = "ignore")
-samplesFsamples <- function(varNames, parmList, nxsamples, seed=1234){
-    cC <- varNames[varNames %in% continuousCovs]
-    ncC <- length(cC)
-    dC <- varNames[varNames %in% discreteCovs]
-    ndC <- length(dC)
-    q <- parmList$q
-    nmcsamples <- nrow(q)
-    ##
-    rng <- RNGseq( nmcsamples * nxsamples, seed)
-    allsamples <- foreach(amcsample=seq_len(nmcsamples), .combine=cbind, .inorder=FALSE)%:%foreach(axsample=seq_len(nxsamples), r=rng[(amcsample-1)*nxsamples + 1:nxsamples], .combine=c, .inorder=FALSE)%dopar%{
-        rngtools::setRNG(r)
-        acluster <- rcat(n=1, prob=q[amcsample,])
-        c(
-            ## continuous covariates
-            rnorm(n=ncC, mean=parmList$meanC[amcsample,cC,acluster], sd=1/sqrt(parmList$tauC[amcsample,cC,acluster])),
-            ## discrete covariates
-            rnbinom(n=ndC, prob=parmList$probD[amcsample,dC,acluster], size=parmList$sizeD[amcsample,dC,acluster])
-        )
-    }
-    dim(allsamples) <- c(ncC+ndC, nxsamples, nmcsamples)
-    dimnames(allsamples) <- list(c(cC,dC), NULL, NULL)
-    allsamples
-}
 
 
 subsamplep <- round(seq(1, nrow(parmList$q), length.out=100))

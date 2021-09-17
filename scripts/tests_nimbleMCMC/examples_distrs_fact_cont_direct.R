@@ -1,6 +1,6 @@
 ## Author: PGL  Porta Mana
 ## Created: 2021-03-20T10:07:17+0100
-## Last-Updated: 2021-09-16T14:38:35+0200
+## Last-Updated: 2021-09-16T20:47:16+0200
 ################
 ## Script for evaluation of regression:
 ## Unfactorizable prior
@@ -34,86 +34,6 @@ library('ash')
 options(bitmapType='cairo')
 
 load(file='_directmodel_contR_N6000_7covs.RData')
-##################################################################
-##################################################################
-## Function to calculate \sum_t F^{(t)}_{r|x}
-##
-rangeR <- fivenum(data$log_RMSD, na.rm=T)
-rangeR <- c(diff(rangeR[c(3,1)]), diff(rangeR[c(3,5)]))*1.1+rangeR[3]
-predictfX <- function(dataobj, X){
-    cC <- setdiff(continuousCovs,'log_RMSD')
-    X <- as.matrix(X[, c(discreteCovs,continuousCovs), with=FALSE])
-    ntestdata <- nrow(X)
-    freqs <- foreach(asample=seq_along(dataobj$nList), .combine=cbind, .inorder=FALSE)%dopar%{
-        W <- exp(
-            log(dataobj$psiList[[asample]]) +
-            t(vapply(seq_len(dataobj$nList[asample]), function(cluster){
-                rowSums(log(
-                    vapply(discreteCovs, function(covariate){
-                        dataobj$phiList[[asample]][[covariate]][X[,covariate], cluster]
-                    }, numeric(ntestdata))
-                )) +
-                    dmvnorm(X[,cC], mean=dataobj$muList[[asample]][cC,cluster], sigma=as.matrix(dataobj$sigmaList[[asample]][cC,cC,cluster]), log=TRUE)
-            }, numeric(ntestdata)))
-        )
-        
-        ## XX <- matrix(rep(t(X[,cC]),length(boundaries)),nrow=length(cC))
-        ## rownames(XX) <- cC
-        conds <- t(vapply(seq_len(dataobj$nList[asample]), function(cluster){
-            invM <- dataobj$sigmaList[[asample]]['log_RMSD',cC,cluster] %*% solve(as.matrix(dataobj$sigmaList[[asample]][cC,cC,cluster]))
-                   dnorm(x=X[,'log_RMSD'],
-                  mean=dataobj$muList[[asample]]['log_RMSD',cluster] +
-                      invM %*% (t(X[,cC]) - dataobj$muList[[asample]][cC,cluster]),
-                  sd=sqrt(
-                      dataobj$sigmaList[[asample]]['log_RMSD','log_RMSD',cluster] -
-                      invM %*% dataobj$sigmaList[[asample]][cC,'log_RMSD',cluster]
-                  ))
-        }, numeric(ntestdata)))
-
-        colSums(conds * W)/colSums(W)
-    }
-    me <- rowMeans(freqs)
-    freqs <- cbind(means=me, stds=sqrt(rowMeans(freqs^2) - me^2))
-    dim(freqs) <- c(ntestdata, 2)
-    dimnames(freqs)[[2]] <- c('means','stds')
-    ## dimnames(freqs)[[1]] <- paste0('logRMSD_',rmsdVals)
-    freqs
-}
-##
-predictfXall <- function(dataobj, X){
-    cC <- setdiff(continuousCovs,'log_RMSD')
-    X <- as.matrix(X[, c(discreteCovs,continuousCovs), with=FALSE])
-    ntestdata <- nrow(X)
-    freqs <- foreach(asample=seq_along(dataobj$nList), .combine=cbind, .inorder=FALSE)%dopar%{
-        W <- exp(
-            log(dataobj$psiList[[asample]]) +
-            t(vapply(seq_len(dataobj$nList[asample]), function(cluster){
-                rowSums(log(
-                    vapply(discreteCovs, function(covariate){
-                        dataobj$phiList[[asample]][[covariate]][X[,covariate], cluster]
-                    }, numeric(ntestdata))
-                )) +
-                    dmvnorm(X[,cC], mean=dataobj$muList[[asample]][cC,cluster], sigma=as.matrix(dataobj$sigmaList[[asample]][cC,cC,cluster]), log=TRUE)
-            }, numeric(ntestdata)))
-        )
-        
-        ## XX <- matrix(rep(t(X[,cC]),length(boundaries)),nrow=length(cC))
-        ## rownames(XX) <- cC
-        conds <- t(vapply(seq_len(dataobj$nList[asample]), function(cluster){
-            invM <- dataobj$sigmaList[[asample]]['log_RMSD',cC,cluster] %*% solve(as.matrix(dataobj$sigmaList[[asample]][cC,cC,cluster]))
-                   dnorm(x=X[,'log_RMSD'],
-                  mean=dataobj$muList[[asample]]['log_RMSD',cluster] +
-                      invM %*% (t(X[,cC]) - dataobj$muList[[asample]][cC,cluster]),
-                  sd=sqrt(
-                      dataobj$sigmaList[[asample]]['log_RMSD','log_RMSD',cluster] -
-                      invM %*% dataobj$sigmaList[[asample]][cC,'log_RMSD',cluster]
-                  ))
-        }, numeric(ntestdata)))
-
-        colSums(conds * W)/colSums(W)
-    }
-    freqs
-}
 
 ndata <- 6000
 seldata <- 1:ndata
@@ -121,25 +41,12 @@ unseldata <- setdiff(1:nrow(alldata), seldata)
 nTest <- 30
 ## construct test set
 testdata <- as.matrix(alldata[do.call('tail',list(x=unseldata,n=3*nTest)), c(covNames), with=F])
-## testd <- data[unseldata, covNames, with=F]
-## testdata <- data.table()
-## for(val in rmsdVals){
-##     testdata <- rbind(testdata, tail(testd[bin_RMSD==val],n=round(3*nTest*priorR[val])))
-## }
-## rm(testd)
 ##
 boundaries <- log(c(2,3))
 rangeR <- range(alldata$log_RMSD, na.rm=T)
 rangeR <- (rangeR - mean(rangeR)) * 1.1 + mean(rangeR)
-lRgrid <- 101
+lRgrid <- 201
 Rgrid <- seq(rangeR[1],rangeR[2],length.out=lRgrid)
-## XX <- data.table()
-## for(atest in 1:nrow(testdata)){
-##     XX <- rbind(XX,
-##                 cbind(testid=atest, log_RMSD=rgrid, testdata[atest,!'log_RMSD'])
-##                 )
-## }
-##
 
 gc()
 plan(sequential)
@@ -151,7 +58,7 @@ plan(sequential)
 ##
 nplotsamples <- 100
 transparency <- '44'
-pdff(paste0('post_distributionsamples_direct_','tail'))
+pdff(paste0('post_distributionsamples_direct10_','tail'))
 for(atest in 1:nrow(testdata)){
     dat <- distrf[atest,,]
     mdat <- rowMeans(dat)
