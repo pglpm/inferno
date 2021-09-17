@@ -1,6 +1,6 @@
 ## Author: PGL  Porta Mana
 ## Created: 2021-03-20T10:07:17+0100
-## Last-Updated: 2021-09-16T07:34:07+0200
+## Last-Updated: 2021-09-17T09:28:26+0200
 ################
 ## Script for direct regression, continuous RMSD
 ################
@@ -93,85 +93,6 @@ ndata <- 6000 # nSamples = 37969
 ncvars <- length(continuousCovs)
 ndvars <- length(discreteCovs)
 ##
-llSamples <- function(dat, parmList){
-    ndataz <- nrow(dat$X)
-    q <- parmList$q
-    ##
-    foreach(asample=seq_len(nrow(q)), .combine=c, .inorder=TRUE)%dopar%{
-        sum( log( colSums(
-            exp(
-                log(q[asample,]) +
-                t(vapply(seq_len(ncol(q)), function(cluster){
-                    ## continuous covariates
-                    colSums(dnorm(t(dat$X), mean=parmList$meanC[asample,,cluster], sd=1/sqrt(parmList$tauC[asample,,cluster]), log=TRUE)) +
-                        ## discrete covariates
-                    colSums(dnbinom(t(dat$Y), prob=parmList$probD[asample,,cluster], size=parmList$sizeD[asample,,cluster], log=TRUE))
-    }, numeric(ndataz)))
-            )
-        ) ) )
-    }
-}
-##
-probJointSamples <- function(dat, parmList, log=FALSE, inorder=FALSE){
-    ndataz <- nrow(dat$X)
-    q <- parmList$q
-    ##
-    freqs <- foreach(asample=seq_len(nrow(q)), .combine=cbind, .inorder=inorder)%dopar%{
-        colSums(
-            exp(
-                log(q[asample,]) +
-                t(vapply(seq_len(ncol(q)), function(cluster){
-                    ## continuous covariates
-                    colSums(dnorm(t(dat$X), mean=parmList$meanC[asample,,cluster], sd=1/sqrt(parmList$tauC[asample,,cluster]), log=TRUE)) +
-                        ## discrete covariates
-                    colSums(dnbinom(t(dat$Y), prob=parmList$probD[asample,,cluster], size=parmList$sizeD[asample,,cluster], log=TRUE))
-    }, numeric(ndataz)))
-            )
-        )
-    }
-    if(!log){freqs} else {log(freqs)}
-}
-##
-probJointMean <- function(dat, parmList){
-    ndataz <- nrow(dat$X)
-    q <- parmList$q
-    nsamples <- nrow(q)
-    ##
-    foreach(asample=seq_len(nsamples), .combine='+', .inorder=FALSE)%dopar%{
-        colSums(
-            exp(
-                log(q[asample,]) +
-                t(vapply(seq_len(ncol(q)), function(cluster){
-                    ## continuous covariates
-                    colSums(dnorm(t(dat$X), mean=parmList$meanC[asample,,cluster], sd=1/sqrt(parmList$tauC[asample,,cluster]), log=TRUE)) +
-                        ## discrete covariates
-                    colSums(dnbinom(t(dat$Y), prob=parmList$probD[asample,,cluster], size=parmList$sizeD[asample,,cluster], log=TRUE))
-    }, numeric(ndataz)))
-            )
-        )
-    }/nsamples
-}
-##
-probRCondMean <- function(dat, parmList){
-    ndataz <- nrow(dat$X)
-    q <- parmList$q
-    nsamples <- nrow(q)
-    ##
-    foreach(asample=seq_len(nsamples), .combine='+', .inorder=FALSE)%dopar%{
-        colSums(
-            exp(
-                log(q[asample,]) +
-                t(vapply(seq_len(ncol(q)), function(cluster){
-                    ## continuous covariates
-                    colSums(dnorm(t(dat$X), mean=parmList$meanC[asample,,cluster], sd=1/sqrt(parmList$tauC[asample,,cluster]), log=TRUE)) +
-                        ## discrete covariates
-                    colSums(dnbinom(t(dat$Y), prob=parmList$probD[asample,,cluster], size=parmList$sizeD[asample,,cluster], log=TRUE))
-    }, numeric(ndataz)))
-            )
-        )
-    }/nsamples
-}
-##
 constants <- list(
     nClusters=nclusters,
     nCvars=ncvars,
@@ -251,32 +172,8 @@ Fsamples <- function(X, parmList){
         )
     }
 }
-
 ##
-options(doFuture.rng.onMisuse = "ignore")
-samplesFsamples <- function(varNames, parmList, nxsamples, seed=1234){
-    cC <- varNames[varNames %in% continuousCovs]
-    ncC <- length(cC)
-    dC <- varNames[varNames %in% discreteCovs]
-    ndC <- length(dC)
-    q <- parmList$q
-    nmcsamples <- nrow(q)
-    ##
-    rng <- RNGseq( nmcsamples * nxsamples, seed)
-    allsamples <- foreach(amcsample=seq_len(nmcsamples), .combine=cbind, .inorder=FALSE)%:%foreach(axsample=seq_len(nxsamples), r=rng[(amcsample-1)*nxsamples + 1:nxsamples], .combine=c, .inorder=FALSE)%dopar%{
-        rngtools::setRNG(r)
-        acluster <- rcat(n=1, prob=q[amcsample,])
-        c(
-            ## continuous covariates
-            rnorm(n=ncC, mean=parmList$meanC[amcsample,cC,acluster], sd=1/sqrt(parmList$tauC[amcsample,cC,acluster])),
-            ## discrete covariates
-            rnbinom(n=ndC, prob=parmList$probD[amcsample,dC,acluster], size=parmList$sizeD[amcsample,dC,acluster])
-        )
-    }
-    dim(allsamples) <- c(ncC+ndC, nxsamples, nmcsamples)
-    dimnames(allsamples) <- list(c(cC,dC), NULL, NULL)
-    allsamples
-}
+source('functions_rmsdregr_nimble.R')
 
 
 priormodel <- nimbleModel(code=priorbayesnet, name='priormodel1', constants=constants, inits=list(), data=list())
