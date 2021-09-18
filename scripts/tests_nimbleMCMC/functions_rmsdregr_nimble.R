@@ -1,6 +1,10 @@
 ## Calculates the probability of the data (likelihood of parameters) for several MCMC samples
-llSamples <- function(dat, parmList){
-    ndataz <- nrow(dat$X)
+llSamples <- function(X, parmList){
+    continuousCovs <- dimnames(parmList$meanC)[[2]]
+    discreteCovs <- dimnames(parmList$probD)[[2]]
+    print(discreteCovs)
+    if(is.list(X)){ X <- cbind(X$X, X$Y) }
+    ndataz <- nrow(X)
     q <- parmList$q
     ##
     foreach(asample=seq_len(nrow(q)), .combine=c, .inorder=TRUE)%dopar%{
@@ -9,9 +13,9 @@ llSamples <- function(dat, parmList){
                 log(q[asample,]) +
                 t(vapply(seq_len(ncol(q)), function(acluster){
                     ## continuous covariates
-                    colSums(dnorm(t(dat$X), mean=parmList$meanC[asample,,acluster], sd=1/sqrt(parmList$tauC[asample,,acluster]), log=TRUE)) +
+                    colSums(dnorm(t(X[,continuousCovs]), mean=parmList$meanC[asample,,acluster], sd=1/sqrt(parmList$tauC[asample,,acluster]), log=TRUE)) +
                         ## discrete covariates
-                    colSums(dnbinom(t(dat$Y), prob=parmList$probD[asample,,acluster], size=parmList$sizeD[asample,,acluster], log=TRUE))
+                    colSums(dnbinom(t(X[,discreteCovs]), prob=parmList$probD[asample,,acluster], size=parmList$sizeD[asample,,acluster], log=TRUE))
     }, numeric(ndataz)))
             )
         ) ) )

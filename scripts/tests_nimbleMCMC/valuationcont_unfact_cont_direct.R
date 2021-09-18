@@ -1,6 +1,6 @@
 ## Author: PGL  Porta Mana
 ## Created: 2021-03-20T10:07:17+0100
-## Last-Updated: 2021-09-16T20:49:06+0200
+## Last-Updated: 2021-09-18T07:18:46+0200
 ################
 ## Script for evaluation of regression:
 ## Unfactorizable prior
@@ -77,7 +77,7 @@ chancegains <- lossfunction(testdata$log_RMSD, log(2.5))
 ##
 basescores <- data.table(model=gains, chance=chancegains)
 ##
-pdff(paste0('quadraticscores10_direct_nonfact_conditional_P_',dset))
+pdff(paste0('quadraticscores_direct_nonfact_conditional-run',version,'_P_',dset))
 ##
 print(
     ggplot(dt <- melt(basescores[,1:2])) +

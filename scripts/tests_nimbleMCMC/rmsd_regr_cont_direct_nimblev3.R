@@ -1,6 +1,6 @@
 ## Author: PGL  Porta Mana
 ## Created: 2021-03-20T10:07:17+0100
-## Last-Updated: 2021-09-17T09:30:02+0200
+## Last-Updated: 2021-09-18T07:13:07+0200
 ################
 ## Script for direct regression, continuous RMSD
 ################
@@ -256,41 +256,32 @@ save.image(file=paste0('_nimbleoutput-run',version,'.RData'))
 
 
 
-
-
-subsamplep <- round(seq(1, nrow(parmList$q), length.out=100))
-redparmList <- list(
-    q=parmList$q[subsamplep,],
-    meanC=parmList$meanC[subsamplep,,],
-    tauC=parmList$tauC[subsamplep,,],
-    probD=parmList$probD[subsamplep,,],
-    sizeD=parmList$sizeD[subsamplep,,]
-)
-
+##
 nxsamples <- 1000
 ##
 timecount <- Sys.time()
 plan(sequential)
 plan(multisession, workers = 6L)
-xsamples <- samplesFsamples(varNames=covNames, parmList=redparmList, nxsamples=nxsamples)
+xsamples <- samplesFsamples(parmList=parmList, nxsamples=nxsamples, nfsamples=100)
 plan(sequential)
 print(Sys.time()-timecount)
-
 ##
 plotvarRanges <- plotvarQs <- xlim <- ylim <- list()
 for(var in covNames){
     plotvarQs[[var]] <- quantile(alldata[[var]], prob=c(0.05,0.95))
     plotvarRanges[[var]] <- thisrange <- range(alldata[[var]])
-    xlim[[var]] <- c( min(thisrange, quantile(c(xsamples[var,,]),prob=0.05)),
-                     max(thisrange, quantile(c(xsamples[var,,]),prob=0.95)) )
+    xlim[[var]] <- c( min(thisrange, quantile(xsamples[var,,],prob=0.05)),
+                     max(thisrange, quantile(xsamples[var,,],prob=0.95)) )
 }
 ##
-subsamplex <- 1:nxsamples #round(seq(1, dim(xsamples)[2], length.out=1000))
-pdff(paste0('post_samplesvars2D'))#'.pdf'), height=11.7, width=16.5)
+subsamplep <- round(seq(1, dim(xsamples)[3], length.out=100))
+subsamplex <- round(seq(1, dim(xsamples)[2], length.out=1000))
+##
+pdff(paste0('postsamplesvars2D-run',version)) #'.pdf'), height=11.7, width=16.5)
 par(mfrow = c(2, 3))
 for(addvar in setdiff(covNames, 'log_RMSD')){
-    matplot(x=alldata[['log_RMSD']][seq(1,nrow(alldata),length.out=1000)],
-            y=alldata[[addvar]][seq(1,nrow(alldata),length.out=1000)],
+    matplot(x=alldata[['log_RMSD']][subsamplex],
+            y=alldata[[addvar]][subsamplex],
             xlim=xlim[['log_RMSD']],
             ylim=xlim[[addvar]],
             xlab='log_RMSD',
@@ -303,11 +294,11 @@ for(addvar in setdiff(covNames, 'log_RMSD')){
              y=c(plotvarQs[[addvar]], rev(plotvarQs[[addvar]]), plotvarQs[[addvar]][1]),
                  lwd=2, col=paste0(palette()[4],'88'))
 }
-for(asample in 1:length(subsamplep)){
+for(asample in subsamplep){
 par(mfrow = c(2, 3))
 for(addvar in setdiff(covNames, 'log_RMSD')){
-    matplot(x=xsamples['log_RMSD',, asample],
-            y=xsamples[addvar,, asample],
+    matplot(x=xsamples['log_RMSD', subsamplex, asample][subsamplex],
+            y=xsamples[addvar, subsamplex, asample][subsamplex],
             xlim=xlim[['log_RMSD']],
             ylim=xlim[[addvar]],
             xlab='log_RMSD',
@@ -323,29 +314,6 @@ for(addvar in setdiff(covNames, 'log_RMSD')){
 }
 dev.off()
 
-
-
-
-
-
-
-
-
-
-
-indq <- grepl('logProb_q\\[', colnames(mcsamples))
-matplot(identity(mcsamples[,indq]),type='l',lty=1)
-
-indq <- grepl('meanC\\[1, 1]', colnames(mcsamples)) || grepl('meanC\\[1, 1]', colnames(mcsamples))
-
-totaltime <- Sys.time()
-mcsamplesb <- runMCMC(Cmcmcsampler, nburnin=0, niter=2000, thin=1, nchains=2, inits=initsFunction, setSeed=123)
-totaltime <- Sys.time() - totaltime
-totaltime
-saveRDS(mcsamplesb,file=paste0('_mcsampleswburnin2_v',length(covNames),'-d',ndata,'-c',nclusters,'.rds'))
-
-indq <- grepl('q\\[', colnames(mcsamplesb))
-matplot(identity(mcsamplesb[,indq][,1]),type='l',lty=1)
 
 
 ###################################################
