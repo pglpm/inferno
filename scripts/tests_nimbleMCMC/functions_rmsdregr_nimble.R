@@ -64,13 +64,18 @@ probJointMean <- function(X, parmList){
 ##
 ## Produces multidimensional samples from several MCMC distribution-samples
 options(doFuture.rng.onMisuse = "ignore")
-samplesFsamples <- function(parmList, nxsamples=1000, nfsamples=100, seed=149){
+samplesFsamples <- function(parmList, nxsamples=1000, nfsamples=NULL, seed=149){
     continuousCovs <- dimnames(parmList$meanC)[[2]]
     discreteCovs <- dimnames(parmList$probD)[[2]]
     ncC <- length(continuousCovs)
     ndC <- length(discreteCovs)
     q <- parmList$q
-    fsubsamples <- seq(1, nrow(q), length.out=nfsamples)
+        if(is.numeric(nfsamples)){
+        fsubsamples <- seq(1, nrow(q), length.out=nfsamples)
+    }else{
+        nfsamples <- nrow(q)
+        fsubsamples <- seq_len(nfsamples)
+    }
     ##
     rng <- RNGseq( nfsamples * nxsamples, seed)
     allsamples <- foreach(afsample=fsubsamples, .combine=cbind, .inorder=FALSE)%:%foreach(axsample=seq_len(nxsamples), r=rng[(afsample-1)*nxsamples + 1:nxsamples], .combine=c, .inorder=FALSE)%dopar%{
