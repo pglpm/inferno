@@ -1,6 +1,6 @@
 ## Author: PGL  Porta Mana
 ## Created: 2021-03-20T10:07:17+0100
-## Last-Updated: 2021-09-17T13:54:26+0200
+## Last-Updated: 2021-09-17T14:04:25+0200
 ################
 ## Script for direct regression, continuous RMSD
 ################
@@ -147,7 +147,7 @@ priorbayesnet <- nimbleCode({
         probDshape1[j] ~ dinvgamma(shape=0.5, scale=0.5)
         probDshape2[j] ~ dinvgamma(shape=0.5, scale=0.5)
         sizeDshape[j] ~ dinvgamma(shape=0.5, scale=0.5)
-        sizeDscale[j] ~ dgamma(shape=1, rate=1)
+        sizeDscale[j] ~ dgamma(shape=0.5, rate=0.5)
     }
     ##
     ## for(i in 1:nData){
