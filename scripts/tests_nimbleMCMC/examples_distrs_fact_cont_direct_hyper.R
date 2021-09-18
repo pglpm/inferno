@@ -1,6 +1,6 @@
 ## Author: PGL  Porta Mana
 ## Created: 2021-03-20T10:07:17+0100
-## Last-Updated: 2021-09-17T23:10:04+0200
+## Last-Updated: 2021-09-18T15:14:42+0200
 ################
 ## Script for evaluation of regression:
 ## Unfactorizable prior
@@ -58,7 +58,7 @@ plan(sequential)
 ##
 nplotsamples <- 100
 transparency <- '44'
-pdff(paste0('post_distributionsamples_direct_hyper_','tail'))
+pdff(paste0('post_distributionsamples_direct_','tail','-run',version))
 for(atest in 1:nrow(testdata)){
     dat <- distrf[atest,,]
     mdat <- rowMeans(dat)

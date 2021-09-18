@@ -1,6 +1,6 @@
 ## Author: PGL  Porta Mana
 ## Created: 2021-03-20T10:07:17+0100
-## Last-Updated: 2021-09-16T20:47:16+0200
+## Last-Updated: 2021-09-18T16:31:45+0200
 ################
 ## Script for evaluation of regression:
 ## Unfactorizable prior
