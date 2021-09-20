@@ -1,6 +1,6 @@
 ## Author: PGL  Porta Mana
 ## Created: 2021-03-20T10:07:17+0100
-## Last-Updated: 2021-09-19T08:28:40+0200
+## Last-Updated: 2021-09-20T10:52:29+0200
 ################
 ## Script for direct regression, continuous RMSD
 ################
@@ -86,8 +86,8 @@ library('nimble')
 rm(constants, dat, inits, bayesnet, model, Cmodel, confmodel, mcmcsampler, Cmcmcsampler)
 gc()
 ##
-nclusters <- 100
-ndata <- 6000 # nSamples = 37969
+nclusters <- 10
+ndata <- 60 # nSamples = 37969
 nccovs <- length(continuousCovs)
 ndcovs <- length(discreteCovs)
 meansccovs <- apply(alldata[1:ndata,..continuousCovs],2,mean)
@@ -144,7 +144,7 @@ bayesnet <- nimbleCode({
         }
         for(acov in 1:nDcovs){
             probD[acov,acluster] ~ dbeta(shape1=probDshape1[acov], shape2=probDshape2[acov])
-            sizeD[acov,acluster] ~ dbinom(prob=sizeDprob[acov], size=sizeDsize[acov])
+            sizeD[acov,acluster] ~ dnbinom(prob=sizeDprob[acov], size=sizeDsize[acov])
         }
     }
     for(acov in 1:nCcovs){
@@ -157,7 +157,7 @@ bayesnet <- nimbleCode({
         probDshape1[acov] ~ dinvgamma(shape=0.5, scale=0.5)
         probDshape2[acov] ~ dinvgamma(shape=0.5, scale=0.5)
         sizeDprob[acov] ~ dbeta(shape1=1, shape2=1)
-        sizeDsize[acov] ~ dbinom(prob=probsDcovs[acov], size=sizesDcovs[acov])
+        sizeDsize[acov] ~ dgamma(shape=0.5, rate=0.5/sizesDcovs[acov])
     }
     ##
     for(adatum in 1:nData){
@@ -172,19 +172,19 @@ bayesnet <- nimbleCode({
     }
 })
 ##
-source('functions_rmsdregr_nimble2.R')
 
 
-model <- nimbleModel(code=bayesnet, name='model1', constants=constants, inits=inits, data=dat)
+model <- nimbleModel(code=bayesnet, name='model1', constants=constants, inits=inits, data=list())
 Cmodel <- compileNimble(model, showCompilerOutput=TRUE)
 
-confmodel <- configureMCMC(Cmodel, monitors=c('q','meanC', 'tauC', 'probD', 'sizeD'))
+confmodel <- configureMCMC(Cmodel, monitors=c('q','meanC', 'tauC', 'probD', 'sizeD'), control=list(maxContractions=10000, maxContractionsWarning=FALSE))
 ## confmodel$removeSamplers(paste0,('sizeD'))
 ## for(i in 1:nclusters){ for(j in 1:length(discreteCovs)){
 ##                            confmodel$addSampler(target=paste0('sizeD[',j,', ',i,']'), type='slice', control=list(adaptInterval=100))
 ##                        } }
 ## print(confmodel)
 ##
+## samplerConfList <- confmodel$getSamplers()
 mcmcsampler <- buildMCMC(confmodel)
 Cmcmcsampler <- compileNimble(mcmcsampler, resetFunctions = TRUE)
 
@@ -206,7 +206,7 @@ list(
     probDshape1=rinvgamma(n=ndcovs, shape=0.5, scale=0.5),
     probDshape2=rinvgamma(n=ndcovs, shape=0.5, scale=0.5),
     sizeDprob=rbeta(n=ndcovs, shape1=1, shape2=1),
-    sizeDsize=rbinom(n=ndcovs, prob=meansdcovs/maxdcovs, size=maxdcovs),
+    sizeDsize=maxdcovs, #rbinom(n=ndcovs, prob=meansdcovs/maxdcovs, size=maxdcovs),
     ##
     q=rdirch(n=1, alpha=rep(1/nclusters, nclusters)),
     meanC=matrix(rnorm(n=nccovs*nclusters, mean=meansccovs, sd=sqrt(varsccovs)), nrow=nccovs, ncol=nclusters),
@@ -220,7 +220,7 @@ list(
 ##
 totaltime <- Sys.time()
 ## NB: putting all data in one cluster at start leads to slow convergence
-mcsamples <- runMCMC(Cmcmcsampler, nburnin=0, niter=100, thin=1, inits=initsFunction, setSeed=149)
+mcsamples <- runMCMC(Cmcmcsampler, nburnin=1000, niter=1101, thin=1, inits=initsFunction, setSeed=149)
 ## Cmcmcsampler$run(niter=2000, thin=1, reset=FALSE, resetMV=TRUE)
 ## mcsamples <- as.matrix(Cmcmcsampler$mvSamples)
 totaltime <- Sys.time() - totaltime
@@ -229,7 +229,7 @@ print(totaltime)
 ## 7 vars, 6000 data, 100 cl, 1000 iter: 51.23774 mins
 ## 7 vars, 6000 data, 100 cl, 2000 iter: 2.121366 hours
 saveRDS(mcsamples,file=paste0('_mcsamples-run',version,'-v',length(covNames),'-d',ndata,'-c',nclusters,'-i',nrow(mcsamples),'.rds'))
-save(model,Cmodel,confmodel,mcmcsampler,Cmcmcsampler, file=paste0('_model-',version,'-v',length(covNames),'-d',ndata,'-c',nclusters,'-i',nrow(mcsamples),'.RData'))
+## save(model,Cmodel,confmodel,mcmcsampler,Cmcmcsampler, file=paste0('_model-',version,'-v',length(covNames),'-d',ndata,'-c',nclusters,'-i',nrow(mcsamples),'.RData'))
 ##
 parmNames <- c('q', 'meanC', 'tauC', 'probD', 'sizeD')
 parmList <- foreach(var=parmNames)%dopar%{
@@ -244,6 +244,8 @@ parmList <- foreach(var=parmNames)%dopar%{
     out
 }
 names(parmList) <- parmNames
+##
+source('functions_rmsdregr_nimble2.R')
 ##
 timecount <- Sys.time()
 plan(sequential)
@@ -276,9 +278,7 @@ for(j in c(1,nclusters)){
 }
 dev.off()
 ##
-save.image(file=paste0('_nimbleoutput-run',version,'.RData'))
-
-
+##save.image(file=paste0('_nimbleoutput-run',version,'.RData'))
 
 ##
 nxsamples <- 1000
@@ -301,7 +301,7 @@ for(var in covNames){
 subsamplep <- round(seq(1, dim(xsamples)[3], length.out=100))
 subsamplex <- round(seq(1, dim(xsamples)[2], length.out=1000))
 ##
-pdff(paste0('hyerpostsamplesvars2D_run2'))#'.pdf'), height=11.7, width=16.5)
+pdff(paste0('hyerpostsamplesvars2D_run',version))#'.pdf'), height=11.7, width=16.5)
 par(mfrow = c(2, 3))
 for(addvar in setdiff(covNames, 'log_RMSD')){
     matplot(x=alldata[['log_RMSD']][subsamplex],
