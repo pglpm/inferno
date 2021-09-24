@@ -1,6 +1,6 @@
 ## Author: PGL  Porta Mana
 ## Created: 2021-03-20T10:07:17+0100
-## Last-Updated: 2021-09-24T14:00:41+0200
+## Last-Updated: 2021-09-24T15:10:02+0200
 ################
 ## Script for direct regression, continuous RMSD
 ################
@@ -164,7 +164,7 @@ mcmcsampler <- buildMCMC(confmodel)
 Cmcmcsampler <- compileNimble(mcmcsampler, resetFunctions = TRUE)
 
 ##
-version <- 'postH3AF'
+version <- 'postH3AF_2'
 source('functions_rmsdregr_nimble_binom.R')
 initsFunction <- function(){
 list(
@@ -192,11 +192,12 @@ list(
 ##
 totaltime <- Sys.time()
 ## NB: putting all data in one cluster at start leads to slow convergence
-mcsamples <- runMCMC(Cmcmcsampler, nburnin=1, niter=201, thin=1, inits=initsFunction, setSeed=149)
-## Cmcmcsampler$run(niter=2000, thin=1, reset=FALSE, resetMV=TRUE)
-## mcsamples <- as.matrix(Cmcmcsampler$mvSamples)
+## mcsamples <- runMCMC(Cmcmcsampler, nburnin=1, niter=201, thin=1, inits=initsFunction, setSeed=149)
+Cmcmcsampler$run(niter=500, thin=1, reset=FALSE, resetMV=TRUE)
+mcsamples <- as.matrix(Cmcmcsampler$mvSamples)
 totaltime <- Sys.time() - totaltime
 print(totaltime)
+## 7 vars, 6000 data, 100 cl, 201 iter, AFslice: 1.54 h
 ## 7 vars, 6000 data, 100 cl, 401 iter, adapt: 1.38 h
 ## 7 vars, 6000 data, 100 cl, 10 iter, adapt: 5.5 min
 ## 7 vars, 6000 data, 100 cl, 10 iter, nonadapt: 5.5 min
@@ -216,7 +217,6 @@ parmList <- foreach(var=parmNames)%dopar%{
     out
 }
 names(parmList) <- parmNames
-
 ##
 if(posterior){
     timecount <- Sys.time()
@@ -225,25 +225,28 @@ if(posterior){
     loglikelihood <- llSamples(dat=dat, parmList=parmList)
     plan(sequential)
     print(Sys.time()-timecount)
+
     ##
     pdff(paste0('mcsummary-R',version,'-V',length(covNames),'-D',ndata,'-K',nclusters,'-I',nrow(mcsamples)))
     matplot(loglikelihood, type='l', lty=1, col=palette()[2], main='logprobData')
-    matplot(mean(log(parmList$q)),type='l',lty=1, main='mean log-q')
-    matplot(sd(log(parmList$q)),type='l',lty=1, main='SD log-q')
+    matplot(apply((parmList$q),1,function(x){mean(log(x[x>0]))}),type='l',lty=1, main='mean log-q')
+    matplot(apply((parmList$q),1,function(x){sd(log(x[x>0]))}),type='l',lty=1, main='SD log-q')
     ##
     for(i in 1:nccovs){
-        matplot(mean((parmList$meanC[i,])),type='l',lty=1, main=paste0('mean means ', i))
-        matplot(sd((parmList$meanC[i,])),type='l',lty=1, main=paste0('SD means ', i))
-        matplot(mean(log(parmList$tauC[i,])),type='l',lty=1, main=paste0('mean taus ', i))
-        matplot(sd(log(parmList$tauC[i,])),type='l',lty=1, main=paste0('SD taus ', i))
+        matplot(rowMeans((parmList$meanC[,i,])),type='l',lty=1, main=paste0('mean means ', i))
+        matplot(apply(parmList$meanC[,i,],1,sd),type='l',lty=1, main=paste0('SD means ', i))
+        matplot(rowMeans(log(parmList$tauC[,i,])),type='l',lty=1, main=paste0('mean taus ', i))
+        matplot(apply(log(parmList$tauC[,i,]),1,sd),type='l',lty=1, main=paste0('SD taus ', i))
     }
     for(i in 1:ndcovs){
-        matplot(mean(log(parmList$probD[i,])),type='l',lty=1, main=paste0('mean log-probs ', i))
-        matplot(sd(log(parmList$probD[i,])),type='l',lty=1, main=paste0('SD log-probs ', i))
-        matplot(mean((parmList$sizeD[i,])),type='l',lty=1, main=paste0('mean sizes ', i))
-        matplot(sd((parmList$sizeD[i,])),type='l',lty=1, main=paste0('SD sizes ', i))
+        matplot(rowMeans(log(parmList$probD[,i,])),type='l',lty=1, main=paste0('mean probs ', i))
+        matplot(apply(log(parmList$probD[,i,]),1,sd),type='l',lty=1, main=paste0('SD probs ', i))
+        matplot(rowMeans((parmList$sizeD[,i,])),type='l',lty=1, main=paste0('mean sizes ', i))
+        matplot(apply(parmList$sizeD[,i,],1,sd),type='l',lty=1, main=paste0('SD sizes ', i))
     }
     dev.off()
+
+
 }
 ##
 ##save.image(file=paste0('_nimbleoutput-run',version,'.RData'))
