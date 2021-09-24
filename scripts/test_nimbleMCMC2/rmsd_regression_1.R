@@ -1,6 +1,6 @@
 ## Author: PGL  Porta Mana
 ## Created: 2021-03-20T10:07:17+0100
-## Last-Updated: 2021-09-24T15:10:02+0200
+## Last-Updated: 2021-09-24T16:19:33+0200
 ################
 ## Script for direct regression, continuous RMSD
 ################
@@ -59,7 +59,7 @@ covNames <- c(continuousCovs, discreteCovs)
 rm(constants, dat, inits, bayesnet, model, Cmodel, confmodel, mcmcsampler, Cmcmcsampler)
 gc()
 ##
-nclusters <- 100
+nclusters <- 20
 ndata <- 6000 # nSamples = 37969
 nccovs <- length(continuousCovs)
 ndcovs <- length(discreteCovs)
@@ -153,10 +153,10 @@ if(posterior){
 Cmodel <- compileNimble(model, showCompilerOutput=TRUE)
 
 confmodel <- configureMCMC(Cmodel, monitors=c('q','meanC', 'tauC', 'probD', 'sizeD')) #, control=list(adaptive=FALSE))
-confmodel$removeSamplers(paste0('sizeD'))
-for(i in 1:nclusters){
-    confmodel$addSampler(target=paste0('sizeD[',1:ndcovs,', ',i,']'), type='AF_slice', control=list(sliceAdaptFactorInterval=100))
-}
+## confmodel$removeSamplers(paste0('sizeD'))
+## for(i in 1:nclusters){
+##     confmodel$addSampler(target=paste0('sizeD[',1:ndcovs,', ',i,']'), type='AF_slice', control=list(sliceAdaptFactorInterval=100))
+## }
 print(confmodel)
 ##
 ## samplerConfList <- confmodel$getSamplers()
@@ -164,7 +164,7 @@ mcmcsampler <- buildMCMC(confmodel)
 Cmcmcsampler <- compileNimble(mcmcsampler, resetFunctions = TRUE)
 
 ##
-version <- 'postH3AF_2'
+version <- 'postHtests1S'
 source('functions_rmsdregr_nimble_binom.R')
 initsFunction <- function(){
 list(
@@ -192,11 +192,77 @@ list(
 ##
 totaltime <- Sys.time()
 ## NB: putting all data in one cluster at start leads to slow convergence
-## mcsamples <- runMCMC(Cmcmcsampler, nburnin=1, niter=201, thin=1, inits=initsFunction, setSeed=149)
-Cmcmcsampler$run(niter=500, thin=1, reset=FALSE, resetMV=TRUE)
-mcsamples <- as.matrix(Cmcmcsampler$mvSamples)
+runMCMC(Cmcmcsampler, nburnin=1, niter=3, thin=1, inits=initsFunction, setSeed=149)
+runTime <- system.time(
+    Cmcmcsampler$run(niter=1000, thin=1, reset=FALSE, resetMV=TRUE, progressBar = FALSE)
+    )['elapsed']
 totaltime <- Sys.time() - totaltime
 print(totaltime)
+Output1 <- as.mcmc(as.matrix(Cmcmcsampler$mvSamples))
+efficiency1 <- min(effectiveSize(Output1)/runTime)
+
+############################################################################
+confmodel <- configureMCMC(Cmodel, monitors=c('q','meanC', 'tauC', 'probD', 'sizeD')) #, control=list(adaptive=FALSE))
+confmodel$removeSamplers(paste0('sizeD'))
+for(i in 1:nclusters){
+    confmodel$addSampler(target=paste0('sizeD[',1:ndcovs,', ',i,']'), type='AF_slice', control=list(sliceAdaptFactorInterval=100, maxContractions=500))
+}
+print(confmodel)
+##
+## samplerConfList <- confmodel$getSamplers()
+mcmcsampler <- buildMCMC(confmodel)
+Cmcmcsampler <- compileNimble(mcmcsampler, resetFunctions = TRUE)
+
+##
+version <- 'postHtests1AF'
+source('functions_rmsdregr_nimble_binom.R')
+initsFunction <- function(){
+list(
+    qalphascale=1/(2*nclusters),
+    meansCcovs=meansccovs,
+    varsCcovs=varsccovs,
+    sizeDpar1=1/(1+maxdcovs),
+    sizeDpar2=1+0*maxdcovs,
+    ##
+    qalpha=rinvgamma(n=1, shape=0.5, scale=1/(2*nclusters)),
+    meanCmean=rnorm(n=nccovs, mean=meansccovs, sd=sqrt(varsccovs)),
+    meanCtau=rgamma(n=nccovs, shape=0.5, rate=varsccovs/2),
+    tauCshape=rinvgamma(n=nccovs, shape=0.5, scale=0.5),
+    tauCrate=rgamma(n=nccovs, shape=0.5, rate=0.5/varsccovs),
+    ##
+    q=rdirch(n=1, alpha=rep(1/nclusters, nclusters)),
+    meanC=matrix(rnorm(n=nccovs*nclusters, mean=meansccovs, sd=sqrt(varsccovs)), nrow=nccovs, ncol=nclusters),
+    tauC=matrix(rgamma(n=nccovs*nclusters, shape=0.5, rate=0.5/varsccovs), nrow=nccovs, ncol=nclusters),
+    probD=matrix(rbeta(n=ndcovs*nclusters, shape1=1, shape2=1), nrow=ndcovs, ncol=nclusters),
+    sizeD=matrix(rnbinom(n=ndcovs*nclusters, prob=1/(1+maxdcovs), size=maxdcovs), nrow=ndcovs, ncol=nclusters),
+    ##
+    C=rep(1,ndata) # rcat(n=ndata, prob=rep(1/nclusters,nclusters))
+         )
+}
+##
+totaltime <- Sys.time()
+## NB: putting all data in one cluster at start leads to slow convergence
+runMCMC(Cmcmcsampler, nburnin=1, niter=6, thin=1, inits=initsFunction, setSeed=149)
+runTime <- system.time(
+    Cmcmcsampler$run(niter=1000, thin=1, reset=FALSE, resetMV=TRUE, progressBar = FALSE)
+    )['elapsed']
+totaltime <- Sys.time() - totaltime
+print(totaltime)
+Output2 <- as.mcmc(as.matrix(Cmcmcsampler$mvSamples))
+efficiency2 <- min(effectiveSize(Output2)/runTime)
+
+
+############################################################################
+############################################################################
+############################################################################
+############################################################################
+############################################################################
+############################################################################
+
+
+
+
+mcsamples <- as.matrix(Cmcmcsampler$mvSamples)
 ## 7 vars, 6000 data, 100 cl, 201 iter, AFslice: 1.54 h
 ## 7 vars, 6000 data, 100 cl, 401 iter, adapt: 1.38 h
 ## 7 vars, 6000 data, 100 cl, 10 iter, adapt: 5.5 min
