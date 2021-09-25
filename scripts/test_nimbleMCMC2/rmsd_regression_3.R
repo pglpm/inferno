@@ -1,6 +1,6 @@
 ## Author: PGL  Porta Mana
 ## Created: 2021-03-20T10:07:17+0100
-## Last-Updated: 2021-09-25T08:04:13+0200
+## Last-Updated: 2021-09-25T11:50:26+0200
 ################
 ## Script for direct regression, continuous RMSD
 ################
@@ -69,7 +69,18 @@ varsccovs <- apply(alldata[1:ndata,..continuousCovs],2,function(x)var(x, na.rm=T
 meansdcovs <- apply(alldata[1:ndata,..discreteCovs],2,mean)
 varsdcovs <- apply(alldata[1:ndata,..discreteCovs],2,function(x)var(x, na.rm=T))
 maxdcovs <- apply(alldata[1:ndata,..discreteCovs],2,max)
-##
+tauQccovs <- sapply(continuousCovs, function(acov){
+    resu <- list(par=c(0.1,0.1))
+    for(i in 1:1000){
+        resu <- optim(par=resu$par,
+                      fn=function(parms){
+                          (pinvgamma(varsccovs[acov]/100, shape=parms[1], scale=parms[2]) - 0.05)^2 +
+                              (pinvgamma(varsccovs[acov]*100, shape=parms[1], scale=parms[2]) - 0.95)^2
+                      }
+                    , control=list(maxit=1000000)
+                      )
+    }
+    resu$par})
 ##
 constants <- list(
     nClusters=nclusters,
@@ -84,29 +95,23 @@ dat <- list(
 )
 ##
 inits <- list(
-    qalphascale=1/(2*nclusters),
-    meansCcovs=meansccovs,
-    varsCcovs=varsccovs,
+    alphaK=rep(5/nclusters, nclusters),
+    meanCmean=meansccovs,
+    meanCtau=0.5/varsccovs,
+    tauCshape=tauQccovs[1,],
+    tauCrate=tauQccovs[2,],
     sizeDpar1=1/(1+maxdcovs),
     sizeDpar2=1+0*maxdcovs,
     ##
-    qalpha=rinvgamma(n=1, shape=0.5, scale=1/(2*nclusters)),
-    meanCmean=rnorm(n=nccovs, mean=meansccovs, sd=sqrt(varsccovs)),
-    meanCtau=rgamma(n=nccovs, shape=0.5, rate=varsccovs/2),
-    tauCshape=rinvgamma(n=nccovs, shape=0.5, scale=0.5),
-    tauCrate=rgamma(n=nccovs, shape=0.5, rate=0.5/varsccovs),
-    ##
-    q=rdirch(n=1, alpha=rep(1/nclusters, nclusters)),
+    q=rdirch(n=1, alpha=rep(5/nclusters, nclusters)),
     meanC=matrix(rnorm(n=nccovs*nclusters, mean=meansccovs, sd=sqrt(varsccovs)), nrow=nccovs, ncol=nclusters),
-    tauC=matrix(rgamma(n=nccovs*nclusters, shape=0.5, rate=0.5/varsccovs), nrow=nccovs, ncol=nclusters),
+    tauC=matrix(rgamma(n=nccovs*nclusters, shape=tauQccovs[1,], rate=tauQccovs[2,]), nrow=nccovs, ncol=nclusters),
     probD=matrix(rbeta(n=ndcovs*nclusters, shape1=1, shape2=1), nrow=ndcovs, ncol=nclusters),
     sizeD=matrix(rnbinom(n=ndcovs*nclusters, prob=1/(1+maxdcovs), size=maxdcovs), nrow=ndcovs, ncol=nclusters),
     C=rep(1,ndata) # rcat(n=ndata, prob=rep(1/nclusters,nclusters))
          )
 ##
 bayesnet <- nimbleCode({
-    qalpha ~ dinvgamma(shape=0.5, scale=qalphascale)
-    alphaK[1:nClusters] <- qalpha
     q[1:nClusters] ~ ddirch(alpha=alphaK[1:nClusters])
     for(acluster in 1:nClusters){
         for(acov in 1:nCcovs){
@@ -118,17 +123,6 @@ bayesnet <- nimbleCode({
             sizeD[acov,acluster] ~ dnbinom(prob=sizeDpar1[acov], size=sizeDpar2[acov])
         }
     }
-    for(acov in 1:nCcovs){
-        meanCmean[acov] ~ dnorm(mean=meansCcovs[acov], sd=sqrt(varsCcovs[acov]))
-        meanCtau[acov] ~ dgamma(shape=0.5, rate=varsCcovs[acov]/2)
-        tauCshape[acov] ~ dinvgamma(shape=0.5, scale=0.5)
-        tauCrate[acov] ~ dgamma(shape=0.5, rate=0.5/varsCcovs[acov])
-    }
-    ## for(acov in 1:nDcovs){
-    ##     sizeDpar1[acov] ~ dinvgamma(shape=0.5, scale=0.5)
-    ##     sizeDpar2[acov] ~ dgamma(shape=0.5, rate=0.5*sizesDcovs[acov])
-    ## }
-    ##
     if(posterior){
         for(adatum in 1:nData){
             C[adatum] ~ dcat(prob=q[1:nClusters])
@@ -152,6 +146,7 @@ if(posterior){
     model <- nimbleModel(code=bayesnet, name='model1', constants=constants, inits=inits, data=list())
     }
 Cmodel <- compileNimble(model, showCompilerOutput=TRUE)
+gc()
 ##
 confmodel <- configureMCMC(Cmodel, monitors=c('q','meanC', 'tauC', 'probD', 'sizeD')) #, control=list(adaptive=FALSE))
 ## confmodel$removeSamplers(paste0('sizeD'))
@@ -161,31 +156,29 @@ confmodel <- configureMCMC(Cmodel, monitors=c('q','meanC', 'tauC', 'probD', 'siz
 ## print(confmodel)
 ##
 ## samplerConfList <- confmodel$getSamplers()
+
 mcmcsampler <- buildMCMC(confmodel)
 Cmcmcsampler <- compileNimble(mcmcsampler, resetFunctions = TRUE)
+gc()
+
 ##
-version <- 'postH4'
+version <- 'post5'
 source('functions_rmsdregr_nimble_binom.R')
 initsFunction <- function(){
-list(
-    qalphascale=1/(2*nclusters),
-    meansCcovs=meansccovs,
-    varsCcovs=varsccovs,
+inits <- list(
+    alphaK=rep(5/nclusters, nclusters),
+    meanCmean=meansccovs,
+    meanCtau=1/(4*varsccovs),
+    tauCshape=tauQccovs[1,],
+    tauCrate=tauQccovs[2,],
     sizeDpar1=1/(1+maxdcovs),
     sizeDpar2=1+0*maxdcovs,
     ##
-    qalpha=rinvgamma(n=1, shape=0.5, scale=1/(2*nclusters)),
-    meanCmean=rnorm(n=nccovs, mean=meansccovs, sd=sqrt(varsccovs)),
-    meanCtau=rgamma(n=nccovs, shape=0.5, rate=varsccovs/2),
-    tauCshape=rinvgamma(n=nccovs, shape=0.5, scale=0.5),
-    tauCrate=rgamma(n=nccovs, shape=0.5, rate=0.5/varsccovs),
-    ##
-    q=rdirch(n=1, alpha=rep(1/nclusters, nclusters)),
-    meanC=matrix(rnorm(n=nccovs*nclusters, mean=meansccovs, sd=sqrt(varsccovs)), nrow=nccovs, ncol=nclusters),
-    tauC=matrix(rgamma(n=nccovs*nclusters, shape=0.5, rate=0.5/varsccovs), nrow=nccovs, ncol=nclusters),
+    q=rdirch(n=1, alpha=rep(5/nclusters, nclusters)),
+    meanC=matrix(rnorm(n=nccovs*nclusters, mean=meansccovs, sd=sqrt(4*varsccovs)), nrow=nccovs, ncol=nclusters),
+    tauC=matrix(rgamma(n=nccovs*nclusters, shape=tauQccovs[1,], rate=tauQccovs[2,]), nrow=nccovs, ncol=nclusters),
     probD=matrix(rbeta(n=ndcovs*nclusters, shape1=1, shape2=1), nrow=ndcovs, ncol=nclusters),
     sizeD=matrix(rnbinom(n=ndcovs*nclusters, prob=1/(1+maxdcovs), size=maxdcovs), nrow=ndcovs, ncol=nclusters),
-    ##
     C=rep(1,ndata) # rcat(n=ndata, prob=rep(1/nclusters,nclusters))
          )
 }
@@ -199,10 +192,6 @@ print(totaltime)
 ##
 mcsamples <- as.matrix(Cmcmcsampler$mvSamples)
 ## 7 vars, 6000 data, 100 cl, 1000 iter, slice: 1.99 h
-## 7 vars, 6000 data, 100 cl, 201 iter, AFslice: 1.54 h
-## 7 vars, 6000 data, 100 cl, 401 iter, adapt: 1.38 h
-## 7 vars, 6000 data, 100 cl, 10 iter, adapt: 5.5 min
-## 7 vars, 6000 data, 100 cl, 10 iter, nonadapt: 5.5 min
 saveRDS(mcsamples,file=paste0('_mcsamples-R',version,'-V',length(covNames),'-D',ndata,'-K',nclusters,'-I',nrow(mcsamples),'.rds'))
 ## save(model,Cmodel,confmodel,mcmcsampler,Cmcmcsampler, file=paste0('_model-',version,'-v',length(covNames),'-d',ndata,'-c',nclusters,'-i',nrow(mcsamples),'.RData'))
 ##
