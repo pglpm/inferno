@@ -1,6 +1,6 @@
 ## Author: PGL  Porta Mana
 ## Created: 2021-03-20T10:07:17+0100
-## Last-Updated: 2021-09-24T21:55:00+0200
+## Last-Updated: 2021-09-26T06:58:05+0200
 ################
 ## Script for direct regression, continuous RMSD
 ################
@@ -30,6 +30,7 @@ options(bitmapType='cairo')
 pdff <- function(filename){pdf(file=paste0(filename,'.pdf'),paper='a4r',height=11.7,width=16.5)} # to output in pdf format
 pngf <- function(filename,res=300){png(file=paste0(filename,'.png'),height=11.7*1.2,width=16.5,units='in',res=res,pointsize=36)} # to output in pdf format
 library('nimble')
+library('coda')
 #### End custom setup ####
 
 #######################################
@@ -59,7 +60,7 @@ covNames <- c(continuousCovs, discreteCovs)
 rm(constants, dat, inits, bayesnet, model, Cmodel, confmodel, mcmcsampler, Cmcmcsampler)
 gc()
 ##
-nclusters <- 20
+nclusters <- 100
 ndata <- 6000 # nSamples = 37969
 nccovs <- length(continuousCovs)
 ndcovs <- length(discreteCovs)
@@ -68,7 +69,18 @@ varsccovs <- apply(alldata[1:ndata,..continuousCovs],2,function(x)var(x, na.rm=T
 meansdcovs <- apply(alldata[1:ndata,..discreteCovs],2,mean)
 varsdcovs <- apply(alldata[1:ndata,..discreteCovs],2,function(x)var(x, na.rm=T))
 maxdcovs <- apply(alldata[1:ndata,..discreteCovs],2,max)
-##
+tauQccovs <- sapply(continuousCovs, function(acov){
+    resu <- list(par=c(0.1,0.1))
+    for(i in 1:1000){
+        resu <- optim(par=resu$par,
+                      fn=function(parms){
+                          (pinvgamma(varsccovs[acov]/100, shape=parms[1], scale=parms[2]) - 0.05)^2 +
+                              (pinvgamma(varsccovs[acov]*100, shape=parms[1], scale=parms[2]) - 0.95)^2
+                      }
+                    , control=list(maxit=1000000)
+                      )
+    }
+    resu$par})
 ##
 constants <- list(
     nClusters=nclusters,
@@ -83,29 +95,23 @@ dat <- list(
 )
 ##
 inits <- list(
-    qalphascale=1/(2*nclusters),
-    meansCcovs=meansccovs,
-    varsCcovs=varsccovs,
+    alphaK=rep(5/nclusters, nclusters),
+    meanCmean=meansccovs,
+    meanCtau=0.5/varsccovs,
+    tauCshape=tauQccovs[1,],
+    tauCrate=tauQccovs[2,],
     sizeDpar1=1/(1+maxdcovs),
     sizeDpar2=1+0*maxdcovs,
     ##
-    qalpha=rinvgamma(n=1, shape=0.5, scale=1/(2*nclusters)),
-    meanCmean=rnorm(n=nccovs, mean=meansccovs, sd=sqrt(varsccovs)),
-    meanCtau=rgamma(n=nccovs, shape=0.5, rate=varsccovs/2),
-    tauCshape=rinvgamma(n=nccovs, shape=0.5, scale=0.5),
-    tauCrate=rgamma(n=nccovs, shape=0.5, rate=0.5/varsccovs),
-    ##
-    q=rdirch(n=1, alpha=rep(1/nclusters, nclusters)),
+    q=rdirch(n=1, alpha=rep(5/nclusters, nclusters)),
     meanC=matrix(rnorm(n=nccovs*nclusters, mean=meansccovs, sd=sqrt(varsccovs)), nrow=nccovs, ncol=nclusters),
-    tauC=matrix(rgamma(n=nccovs*nclusters, shape=0.5, rate=0.5/varsccovs), nrow=nccovs, ncol=nclusters),
+    tauC=matrix(rgamma(n=nccovs*nclusters, shape=tauQccovs[1,], rate=tauQccovs[2,]), nrow=nccovs, ncol=nclusters),
     probD=matrix(rbeta(n=ndcovs*nclusters, shape1=1, shape2=1), nrow=ndcovs, ncol=nclusters),
     sizeD=matrix(rnbinom(n=ndcovs*nclusters, prob=1/(1+maxdcovs), size=maxdcovs), nrow=ndcovs, ncol=nclusters),
     C=rep(1,ndata) # rcat(n=ndata, prob=rep(1/nclusters,nclusters))
          )
 ##
 bayesnet <- nimbleCode({
-    qalpha ~ dinvgamma(shape=0.5, scale=qalphascale)
-    alphaK[1:nClusters] <- qalpha
     q[1:nClusters] ~ ddirch(alpha=alphaK[1:nClusters])
     for(acluster in 1:nClusters){
         for(acov in 1:nCcovs){
@@ -117,17 +123,6 @@ bayesnet <- nimbleCode({
             sizeD[acov,acluster] ~ dnbinom(prob=sizeDpar1[acov], size=sizeDpar2[acov])
         }
     }
-    for(acov in 1:nCcovs){
-        meanCmean[acov] ~ dnorm(mean=meansCcovs[acov], sd=sqrt(varsCcovs[acov]))
-        meanCtau[acov] ~ dgamma(shape=0.5, rate=varsCcovs[acov]/2)
-        tauCshape[acov] ~ dinvgamma(shape=0.5, scale=0.5)
-        tauCrate[acov] ~ dgamma(shape=0.5, rate=0.5/varsCcovs[acov])
-    }
-    ## for(acov in 1:nDcovs){
-    ##     sizeDpar1[acov] ~ dinvgamma(shape=0.5, scale=0.5)
-    ##     sizeDpar2[acov] ~ dgamma(shape=0.5, rate=0.5*sizesDcovs[acov])
-    ## }
-    ##
     if(posterior){
         for(adatum in 1:nData){
             C[adatum] ~ dcat(prob=q[1:nClusters])
@@ -151,130 +146,52 @@ if(posterior){
     model <- nimbleModel(code=bayesnet, name='model1', constants=constants, inits=inits, data=list())
     }
 Cmodel <- compileNimble(model, showCompilerOutput=TRUE)
-
-
-
-library('coda')
-
-
-
+gc()
+##
 confmodel <- configureMCMC(Cmodel, monitors=c('q','meanC', 'tauC', 'probD', 'sizeD')) #, control=list(adaptive=FALSE))
 ## confmodel$removeSamplers(paste0('sizeD'))
 ## for(i in 1:nclusters){
 ##     confmodel$addSampler(target=paste0('sizeD[',1:ndcovs,', ',i,']'), type='AF_slice', control=list(sliceAdaptFactorInterval=100))
 ## }
-print(confmodel)
+## print(confmodel)
 ##
 ## samplerConfList <- confmodel$getSamplers()
+
 mcmcsampler <- buildMCMC(confmodel)
 Cmcmcsampler <- compileNimble(mcmcsampler, resetFunctions = TRUE)
+gc()
+
 ##
-version <- 'postHtests1S'
 source('functions_rmsdregr_nimble_binom.R')
 initsFunction <- function(){
-list(
-    qalphascale=1/(2*nclusters),
-    meansCcovs=meansccovs,
-    varsCcovs=varsccovs,
+inits <- list(
+    alphaK=rep(5/nclusters, nclusters),
+    meanCmean=meansccovs,
+    meanCtau=1/(4*varsccovs),
+    tauCshape=tauQccovs[1,],
+    tauCrate=tauQccovs[2,],
     sizeDpar1=1/(1+maxdcovs),
     sizeDpar2=1+0*maxdcovs,
     ##
-    qalpha=rinvgamma(n=1, shape=0.5, scale=1/(2*nclusters)),
-    meanCmean=rnorm(n=nccovs, mean=meansccovs, sd=sqrt(varsccovs)),
-    meanCtau=rgamma(n=nccovs, shape=0.5, rate=varsccovs/2),
-    tauCshape=rinvgamma(n=nccovs, shape=0.5, scale=0.5),
-    tauCrate=rgamma(n=nccovs, shape=0.5, rate=0.5/varsccovs),
-    ##
-    q=rdirch(n=1, alpha=rep(1/nclusters, nclusters)),
-    meanC=matrix(rnorm(n=nccovs*nclusters, mean=meansccovs, sd=sqrt(varsccovs)), nrow=nccovs, ncol=nclusters),
-    tauC=matrix(rgamma(n=nccovs*nclusters, shape=0.5, rate=0.5/varsccovs), nrow=nccovs, ncol=nclusters),
+    q=rdirch(n=1, alpha=rep(5/nclusters, nclusters)),
+    meanC=matrix(rnorm(n=nccovs*nclusters, mean=meansccovs, sd=sqrt(4*varsccovs)), nrow=nccovs, ncol=nclusters),
+    tauC=matrix(rgamma(n=nccovs*nclusters, shape=tauQccovs[1,], rate=tauQccovs[2,]), nrow=nccovs, ncol=nclusters),
     probD=matrix(rbeta(n=ndcovs*nclusters, shape1=1, shape2=1), nrow=ndcovs, ncol=nclusters),
     sizeD=matrix(rnbinom(n=ndcovs*nclusters, prob=1/(1+maxdcovs), size=maxdcovs), nrow=ndcovs, ncol=nclusters),
-    ##
     C=rep(1,ndata) # rcat(n=ndata, prob=rep(1/nclusters,nclusters))
          )
 }
 ##
+version <- 'post6'
 totaltime <- Sys.time()
-## NB: putting all data in one cluster at start leads to slow convergence
-runMCMC(Cmcmcsampler, nburnin=1, niter=3, thin=1, inits=initsFunction, setSeed=149)
-runTime1 <- system.time(
-    Cmcmcsampler$run(niter=1000, thin=1, reset=FALSE, resetMV=TRUE, progressBar = FALSE)
-    )['elapsed']
+## runMCMC(Cmcmcsampler, nburnin=1, niter=3, thin=1, inits=initsFunction, setSeed=149)
+Cmcmcsampler$run(niter=5000, thin=1, reset=TRUE)
+## Cmcmcsampler$run(niter=1000, thin=1, reset=FALSE, resetMV=TRUE)
 totaltime <- Sys.time() - totaltime
 print(totaltime)
-Output1 <- as.mcmc(as.matrix(Cmcmcsampler$mvSamples))
-efficiency1 <- min(effectiveSize(Output1)/runTime1)
-## 0.000698372
-## 23.7 min
-
-
-############################################################################
-confmodel <- configureMCMC(Cmodel, monitors=c('q','meanC', 'tauC', 'probD', 'sizeD')) #, control=list(adaptive=FALSE))
-confmodel$removeSamplers(paste0('sizeD'))
-for(i in 1:nclusters){
-    confmodel$addSampler(target=paste0('sizeD[',1:ndcovs,', ',i,']'), type='AF_slice', control=list(sliceAdaptFactorInterval=100, maxContractions=500))
-}
-print(confmodel)
 ##
-## samplerConfList <- confmodel$getSamplers()
-mcmcsampler <- buildMCMC(confmodel)
-Cmcmcsampler <- compileNimble(mcmcsampler, resetFunctions = TRUE)
-##
-version <- 'postHtests1AF'
-source('functions_rmsdregr_nimble_binom.R')
-initsFunction <- function(){
-list(
-    qalphascale=1/(2*nclusters),
-    meansCcovs=meansccovs,
-    varsCcovs=varsccovs,
-    sizeDpar1=1/(1+maxdcovs),
-    sizeDpar2=1+0*maxdcovs,
-    ##
-    qalpha=rinvgamma(n=1, shape=0.5, scale=1/(2*nclusters)),
-    meanCmean=rnorm(n=nccovs, mean=meansccovs, sd=sqrt(varsccovs)),
-    meanCtau=rgamma(n=nccovs, shape=0.5, rate=varsccovs/2),
-    tauCshape=rinvgamma(n=nccovs, shape=0.5, scale=0.5),
-    tauCrate=rgamma(n=nccovs, shape=0.5, rate=0.5/varsccovs),
-    ##
-    q=rdirch(n=1, alpha=rep(1/nclusters, nclusters)),
-    meanC=matrix(rnorm(n=nccovs*nclusters, mean=meansccovs, sd=sqrt(varsccovs)), nrow=nccovs, ncol=nclusters),
-    tauC=matrix(rgamma(n=nccovs*nclusters, shape=0.5, rate=0.5/varsccovs), nrow=nccovs, ncol=nclusters),
-    probD=matrix(rbeta(n=ndcovs*nclusters, shape1=1, shape2=1), nrow=ndcovs, ncol=nclusters),
-    sizeD=matrix(rnbinom(n=ndcovs*nclusters, prob=1/(1+maxdcovs), size=maxdcovs), nrow=ndcovs, ncol=nclusters),
-    ##
-    C=rep(1,ndata) # rcat(n=ndata, prob=rep(1/nclusters,nclusters))
-         )
-}
-##
-totaltime <- Sys.time()
-## NB: putting all data in one cluster at start leads to slow convergence
-runMCMC(Cmcmcsampler, nburnin=1, niter=6, thin=1, inits=initsFunction, setSeed=149)
-runTime2 <- system.time(
-    Cmcmcsampler$run(niter=1000, thin=1, reset=FALSE, resetMV=TRUE, progressBar = FALSE)
-    )['elapsed']
-totaltime <- Sys.time() - totaltime
-print(totaltime)
-Output2 <- as.mcmc(as.matrix(Cmcmcsampler$mvSamples))
-efficiency2 <- min(effectiveSize(Output2)/runTime2)
-## 0.0001495781
-## 2.34603 hours
-
-############################################################################
-############################################################################
-############################################################################
-############################################################################
-############################################################################
-############################################################################
-
-
-
-
 mcsamples <- as.matrix(Cmcmcsampler$mvSamples)
-## 7 vars, 6000 data, 100 cl, 201 iter, AFslice: 1.54 h
-## 7 vars, 6000 data, 100 cl, 401 iter, adapt: 1.38 h
-## 7 vars, 6000 data, 100 cl, 10 iter, adapt: 5.5 min
-## 7 vars, 6000 data, 100 cl, 10 iter, nonadapt: 5.5 min
+## 7 vars, 6000 data, 100 cl, 1000 iter, slice: 2.05 h -> 1.11 h
 saveRDS(mcsamples,file=paste0('_mcsamples-R',version,'-V',length(covNames),'-D',ndata,'-K',nclusters,'-I',nrow(mcsamples),'.rds'))
 ## save(model,Cmodel,confmodel,mcmcsampler,Cmcmcsampler, file=paste0('_model-',version,'-v',length(covNames),'-d',ndata,'-c',nclusters,'-i',nrow(mcsamples),'.RData'))
 ##
@@ -293,6 +210,9 @@ parmList <- foreach(var=parmNames)%dopar%{
 names(parmList) <- parmNames
 ##
 if(posterior){
+    ess <- effectiveSize(as.mcmc(mcsamples))
+    print(summary(ess))
+    ##
     timecount <- Sys.time()
     plan(sequential)
     plan(multisession, workers = 6L)
@@ -301,26 +221,27 @@ if(posterior){
     print(Sys.time()-timecount)
     ##
     pdff(paste0('mcsummary-R',version,'-V',length(covNames),'-D',ndata,'-K',nclusters,'-I',nrow(mcsamples)))
-    matplot(loglikelihood, type='l', lty=1, col=palette()[2], main='logprobData')
-    matplot(apply((parmList$q),1,function(x){mean(log(x[x>0]))}),type='l',lty=1, main='mean log-q')
-    matplot(apply((parmList$q),1,function(x){sd(log(x[x>0]))}),type='l',lty=1, main='SD log-q')
+    matplot(loglikelihood, type='l', lty=1, col=palette()[2], main='logprobData', ylab='logprobData')
+    matplot(apply((parmList$q),1,function(x){mean(log(x[x>0]))}),type='l',lty=1, main='mean log-q', ylab='mean log-q')
+    matplot(log(apply((parmList$q),1,function(x){sd(log(x[x>0]))})), type='l',lty=1, main='log-SD log-q', ylab='log-SD log-q')
     ##
     for(i in 1:nccovs){
-        matplot(rowMeans((parmList$meanC[,i,])),type='l',lty=1, main=paste0('mean means ', i))
-        matplot(apply(parmList$meanC[,i,],1,sd),type='l',lty=1, main=paste0('SD means ', i))
-        matplot(rowMeans(log(parmList$tauC[,i,])),type='l',lty=1, main=paste0('mean taus ', i))
-        matplot(apply(log(parmList$tauC[,i,]),1,sd),type='l',lty=1, main=paste0('SD taus ', i))
+        matplot(rowMeans((parmList$meanC[,i,])),type='l',lty=1, main=paste0('mean means ', i), ylab=paste0('mean means ', i))
+        matplot(log(apply(parmList$meanC[,i,],1,sd)), type='l',lty=1, main=paste0('log-SD means ', i), ylab=paste0('log-SD means ', i))
+        matplot(rowMeans(log(parmList$tauC[,i,])),type='l',lty=1, main=paste0('mean taus ', i), ylab=paste0('mean taus ', i))
+        matplot(log(apply(log(parmList$tauC[,i,]),1,sd)),type='l',lty=1, main=paste0('log-SD taus ', i), ylab=paste0('log-SD taus ', i))
     }
     for(i in 1:ndcovs){
-        matplot(rowMeans(log(parmList$probD[,i,])),type='l',lty=1, main=paste0('mean probs ', i))
-        matplot(apply(log(parmList$probD[,i,]),1,sd),type='l',lty=1, main=paste0('SD probs ', i))
-        matplot(rowMeans((parmList$sizeD[,i,])),type='l',lty=1, main=paste0('mean sizes ', i))
-        matplot(apply(parmList$sizeD[,i,],1,sd),type='l',lty=1, main=paste0('SD sizes ', i))
+        matplot(rowMeans(log(parmList$probD[,i,])),type='l',lty=1, main=paste0('mean probs ', i), ylab=paste0('mean probs ', i))
+        matplot(log(apply(log(parmList$probD[,i,]),1,sd)),type='l',lty=1, main=paste0('log-SD probs ', i), ylab=paste0('log-SD probs ', i))
+        matplot(rowMeans((parmList$sizeD[,i,])),type='l',lty=1, main=paste0('mean sizes ', i), ylab=paste0('mean sizes ', i))
+        matplot(log(apply(parmList$sizeD[,i,],1,sd)),type='l',lty=1, main=paste0('log-SD sizes ', i), ylab=paste0('log-SD sizes ', i))
     }
     dev.off()
 }
 ##
 ##save.image(file=paste0('_nimbleoutput-run',version,'.RData'))
+
 
 ##
 nxsamples <- 1000
