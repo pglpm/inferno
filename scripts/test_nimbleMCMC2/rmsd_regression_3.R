@@ -1,6 +1,6 @@
 ## Author: PGL  Porta Mana
 ## Created: 2021-03-20T10:07:17+0100
-## Last-Updated: 2021-09-25T11:50:26+0200
+## Last-Updated: 2021-09-26T06:58:05+0200
 ################
 ## Script for direct regression, continuous RMSD
 ################
@@ -162,7 +162,6 @@ Cmcmcsampler <- compileNimble(mcmcsampler, resetFunctions = TRUE)
 gc()
 
 ##
-version <- 'post5'
 source('functions_rmsdregr_nimble_binom.R')
 initsFunction <- function(){
 inits <- list(
@@ -183,15 +182,16 @@ inits <- list(
          )
 }
 ##
+version <- 'post6'
 totaltime <- Sys.time()
 ## runMCMC(Cmcmcsampler, nburnin=1, niter=3, thin=1, inits=initsFunction, setSeed=149)
-Cmcmcsampler$run(niter=1000, thin=1, reset=TRUE)
-## Cmcmcsampler$run(niter=1001, thin=1, reset=FALSE, resetMV=TRUE)
+Cmcmcsampler$run(niter=5000, thin=1, reset=TRUE)
+## Cmcmcsampler$run(niter=1000, thin=1, reset=FALSE, resetMV=TRUE)
 totaltime <- Sys.time() - totaltime
 print(totaltime)
 ##
 mcsamples <- as.matrix(Cmcmcsampler$mvSamples)
-## 7 vars, 6000 data, 100 cl, 1000 iter, slice: 1.99 h
+## 7 vars, 6000 data, 100 cl, 1000 iter, slice: 2.05 h -> 1.11 h
 saveRDS(mcsamples,file=paste0('_mcsamples-R',version,'-V',length(covNames),'-D',ndata,'-K',nclusters,'-I',nrow(mcsamples),'.rds'))
 ## save(model,Cmodel,confmodel,mcmcsampler,Cmcmcsampler, file=paste0('_model-',version,'-v',length(covNames),'-d',ndata,'-c',nclusters,'-i',nrow(mcsamples),'.RData'))
 ##
@@ -211,7 +211,7 @@ names(parmList) <- parmNames
 ##
 if(posterior){
     ess <- effectiveSize(as.mcmc(mcsamples))
-    print(min(ess))
+    print(summary(ess))
     ##
     timecount <- Sys.time()
     plan(sequential)
@@ -221,21 +221,21 @@ if(posterior){
     print(Sys.time()-timecount)
     ##
     pdff(paste0('mcsummary-R',version,'-V',length(covNames),'-D',ndata,'-K',nclusters,'-I',nrow(mcsamples)))
-    matplot(loglikelihood, type='l', lty=1, col=palette()[2], main='logprobData')
-    matplot(apply((parmList$q),1,function(x){mean(log(x[x>0]))}),type='l',lty=1, main='mean log-q')
-    matplot(log(apply((parmList$q),1,function(x){sd(log(x[x>0]))})), type='l',lty=1, main='log-SD log-q')
+    matplot(loglikelihood, type='l', lty=1, col=palette()[2], main='logprobData', ylab='logprobData')
+    matplot(apply((parmList$q),1,function(x){mean(log(x[x>0]))}),type='l',lty=1, main='mean log-q', ylab='mean log-q')
+    matplot(log(apply((parmList$q),1,function(x){sd(log(x[x>0]))})), type='l',lty=1, main='log-SD log-q', ylab='log-SD log-q')
     ##
     for(i in 1:nccovs){
-        matplot(rowMeans((parmList$meanC[,i,])),type='l',lty=1, main=paste0('mean means ', i))
-        matplot(log(apply(parmList$meanC[,i,],1,sd)), type='l',lty=1, main=paste0('log-SD means ', i))
-        matplot(rowMeans(log(parmList$tauC[,i,])),type='l',lty=1, main=paste0('mean taus ', i))
-        matplot(log(apply(log(parmList$tauC[,i,]),1,sd)),type='l',lty=1, main=paste0('log-SD taus ', i))
+        matplot(rowMeans((parmList$meanC[,i,])),type='l',lty=1, main=paste0('mean means ', i), ylab=paste0('mean means ', i))
+        matplot(log(apply(parmList$meanC[,i,],1,sd)), type='l',lty=1, main=paste0('log-SD means ', i), ylab=paste0('log-SD means ', i))
+        matplot(rowMeans(log(parmList$tauC[,i,])),type='l',lty=1, main=paste0('mean taus ', i), ylab=paste0('mean taus ', i))
+        matplot(log(apply(log(parmList$tauC[,i,]),1,sd)),type='l',lty=1, main=paste0('log-SD taus ', i), ylab=paste0('log-SD taus ', i))
     }
     for(i in 1:ndcovs){
-        matplot(rowMeans(log(parmList$probD[,i,])),type='l',lty=1, main=paste0('mean probs ', i))
-        matplot(log(apply(log(parmList$probD[,i,]),1,sd)),type='l',lty=1, main=paste0('log-SD probs ', i))
-        matplot(rowMeans((parmList$sizeD[,i,])),type='l',lty=1, main=paste0('mean sizes ', i))
-        matplot(log(apply(parmList$sizeD[,i,],1,sd)),type='l',lty=1, main=paste0('log-SD sizes ', i))
+        matplot(rowMeans(log(parmList$probD[,i,])),type='l',lty=1, main=paste0('mean probs ', i), ylab=paste0('mean probs ', i))
+        matplot(log(apply(log(parmList$probD[,i,]),1,sd)),type='l',lty=1, main=paste0('log-SD probs ', i), ylab=paste0('log-SD probs ', i))
+        matplot(rowMeans((parmList$sizeD[,i,])),type='l',lty=1, main=paste0('mean sizes ', i), ylab=paste0('mean sizes ', i))
+        matplot(log(apply(parmList$sizeD[,i,],1,sd)),type='l',lty=1, main=paste0('log-SD sizes ', i), ylab=paste0('log-SD sizes ', i))
     }
     dev.off()
 }
