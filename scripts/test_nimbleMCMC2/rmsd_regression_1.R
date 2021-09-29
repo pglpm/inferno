@@ -1,6 +1,6 @@
 ## Author: PGL  Porta Mana
 ## Created: 2021-03-20T10:07:17+0100
-## Last-Updated: 2021-09-24T21:55:00+0200
+## Last-Updated: 2021-09-29T09:59:25+0200
 ################
 ## Script for direct regression, continuous RMSD
 ################
@@ -23,9 +23,6 @@ library('doRNG')
 registerDoFuture()
 #library('LaplacesDemon') # used for Dirichlet generator
 library('ash')
-library('extraDistr')
-library('PReMiuM')
-library('mvtnorm')
 options(bitmapType='cairo')
 pdff <- function(filename){pdf(file=paste0(filename,'.pdf'),paper='a4r',height=11.7,width=16.5)} # to output in pdf format
 pngf <- function(filename,res=300){png(file=paste0(filename,'.png'),height=11.7*1.2,width=16.5,units='in',res=res,pointsize=36)} # to output in pdf format
