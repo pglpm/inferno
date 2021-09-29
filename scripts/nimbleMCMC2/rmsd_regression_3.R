@@ -1,6 +1,6 @@
 ## Author: PGL  Porta Mana
 ## Created: 2021-03-20T10:07:17+0100
-## Last-Updated: 2021-09-29T13:07:39+0200
+## Last-Updated: 2021-09-29T21:32:28+0200
 ################
 ## Script for direct regression, continuous RMSD
 ################
@@ -189,17 +189,17 @@ inits <- list(
     C=rep(1,ndata) # rcat(n=ndata, prob=rep(1/nclusters,nclusters))
          )
 }
+
 ##
-version <- 'post8a'
+version <- 'post8b'
 gc()
 totalruntime <- Sys.time()
-mcsamples <- runMCMC(Cmcmcsampler, nburnin=4000, niter=6000, thin=1, inits=initsFunction, setSeed=149)
-## Cmcmcsampler$run(niter=2000, thin=1, reset=FALSE, resetMV=TRUE)
-## mcsamples <- as.matrix(Cmcmcsampler$mvSamples)
+## mcsamples <- runMCMC(Cmcmcsampler, nburnin=4000, niter=6000, thin=1, inits=initsFunction, setSeed=149)
+Cmcmcsampler$run(niter=4000, thin=1, reset=FALSE, resetMV=TRUE)
+mcsamples <- as.matrix(Cmcmcsampler$mvSamples)
 totalruntime <- Sys.time() - totalruntime
 print(totalruntime)
-## 7 vars, 6000 data, 100 cl, 2000 iter, slice: 2.27 h
-## 7 vars, 6000 data, 100 cl, 5000 iter, slice: 8.24 h
+## 7 vars, 6000 data, 100 cl, 6000 iter, slice: 7.58 h
 ##
 saveRDS(mcsamples,file=paste0('_mcsamples-R',version,'-V',length(covNames),'-D',ndata,'-K',nclusters,'-I',nrow(mcsamples),'.rds'))
 ## save(model,Cmodel,confmodel,mcmcsampler,Cmcmcsampler, file=paste0('_model-',version,'-v',length(covNames),'-d',ndata,'-c',nclusters,'-i',nrow(mcsamples),'.RData'))
