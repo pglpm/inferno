@@ -1,6 +1,6 @@
 ## Author: PGL  Porta Mana
 ## Created: 2021-03-20T10:07:17+0100
-## Last-Updated: 2021-09-29T06:06:16+0200
+## Last-Updated: 2021-09-28T12:21:20+0200
 ################
 ## Script for direct regression, continuous RMSD
 ################
@@ -103,15 +103,11 @@ inits <- list(
     sizeDpar1=1/(1+maxdcovs),
     sizeDpar2=1+0*maxdcovs,
     ##
-    q=rep(1/nclusters, nclusters),
-    meanC=matrix(meansccovs, nrow=nccovs, ncol=nclusters),
-    tauC=matrix(1/varsccovs, nrow=nccovs, ncol=nclusters),
-    probD=matrix(meansdcovs/maxdcovs, nrow=ndcovs, ncol=nclusters),
-    sizeD=matrix(maxdcovs, nrow=ndcovs, ncol=nclusters),
-    ## meanC=matrix(rnorm(n=nccovs*nclusters, mean=meansccovs, sd=sqrt(varsccovs)), nrow=nccovs, ncol=nclusters),
-    ## tauC=matrix(rgamma(n=nccovs*nclusters, shape=tauQccovs[1,], rate=tauQccovs[2,]), nrow=nccovs, ncol=nclusters),
-    ## probD=matrix(rbeta(n=ndcovs*nclusters, shape1=1, shape2=1), nrow=ndcovs, ncol=nclusters),
-    ## sizeD=matrix(rnbinom(n=ndcovs*nclusters, prob=1/(1+maxdcovs), size=maxdcovs), nrow=ndcovs, ncol=nclusters),
+    q=rdirch(n=1, alpha=rep(5/nclusters, nclusters)),
+    meanC=matrix(rnorm(n=nccovs*nclusters, mean=meansccovs, sd=sqrt(varsccovs)), nrow=nccovs, ncol=nclusters),
+    tauC=matrix(rgamma(n=nccovs*nclusters, shape=tauQccovs[1,], rate=tauQccovs[2,]), nrow=nccovs, ncol=nclusters),
+    probD=matrix(rbeta(n=ndcovs*nclusters, shape1=1, shape2=1), nrow=ndcovs, ncol=nclusters),
+    sizeD=matrix(rnbinom(n=ndcovs*nclusters, prob=1/(1+maxdcovs), size=maxdcovs), nrow=ndcovs, ncol=nclusters),
     C=rep(1,ndata) # rcat(n=ndata, prob=rep(1/nclusters,nclusters))
          )
 ##
@@ -151,54 +147,51 @@ if(posterior){
     }
 Cmodel <- compileNimble(model, showCompilerOutput=TRUE)
 gc()
+
 ##
 confmodel <- configureMCMC(Cmodel, monitors=c('q','meanC', 'tauC', 'probD', 'sizeD')) #, control=list(adaptive=FALSE))
-## confmodel$removeSamplers(paste0('sizeD'))
-## for(i in 1:nclusters){
-##     confmodel$addSampler(target=paste0('sizeD[',1:ndcovs,', ',i,']'), type='AF_slice', control=list(sliceAdaptFactorInterval=100))
-## }
-## print(confmodel)
+confmodel$removeSamplers(paste0('sizeD'))
+for(i in 1:nclusters){
+    confmodel$addSampler(target=paste0('sizeD[',1:ndcovs,', ',i,']'), type='AF_slice', control=list(maxContractionsWarning=FALSE))
+}
+print(confmodel)
 ##
 ## samplerConfList <- confmodel$getSamplers()
-
+##
 mcmcsampler <- buildMCMC(confmodel)
 Cmcmcsampler <- compileNimble(mcmcsampler, resetFunctions = TRUE)
 gc()
-
 ##
 source('functions_rmsdregr_nimble_binom.R')
 initsFunction <- function(){
 inits <- list(
     alphaK=rep(5/nclusters, nclusters),
     meanCmean=meansccovs,
-    meanCtau=0.5/varsccovs,
+    meanCtau=1/(4*varsccovs),
     tauCshape=tauQccovs[1,],
     tauCrate=tauQccovs[2,],
     sizeDpar1=1/(1+maxdcovs),
     sizeDpar2=1+0*maxdcovs,
     ##
-    q=rep(1/nclusters, nclusters),
-    meanC=matrix(meansccovs, nrow=nccovs, ncol=nclusters),
-    tauC=matrix(1/varsccovs, nrow=nccovs, ncol=nclusters),
-    probD=matrix(meansdcovs/maxdcovs, nrow=ndcovs, ncol=nclusters),
-    sizeD=matrix(maxdcovs, nrow=ndcovs, ncol=nclusters),
-    ## meanC=matrix(rnorm(n=nccovs*nclusters, mean=meansccovs, sd=sqrt(varsccovs)), nrow=nccovs, ncol=nclusters),
-    ## tauC=matrix(rgamma(n=nccovs*nclusters, shape=tauQccovs[1,], rate=tauQccovs[2,]), nrow=nccovs, ncol=nclusters),
-    ## probD=matrix(rbeta(n=ndcovs*nclusters, shape1=1, shape2=1), nrow=ndcovs, ncol=nclusters),
-    ## sizeD=matrix(rnbinom(n=ndcovs*nclusters, prob=1/(1+maxdcovs), size=maxdcovs), nrow=ndcovs, ncol=nclusters),
+    q=rdirch(n=1, alpha=rep(5/nclusters, nclusters)),
+    meanC=matrix(rnorm(n=nccovs*nclusters, mean=meansccovs, sd=sqrt(4*varsccovs)), nrow=nccovs, ncol=nclusters),
+    tauC=matrix(rgamma(n=nccovs*nclusters, shape=tauQccovs[1,], rate=tauQccovs[2,]), nrow=nccovs, ncol=nclusters),
+    probD=matrix(rbeta(n=ndcovs*nclusters, shape1=1, shape2=1), nrow=ndcovs, ncol=nclusters),
+    sizeD=matrix(rnbinom(n=ndcovs*nclusters, prob=1/(1+maxdcovs), size=maxdcovs), nrow=ndcovs, ncol=nclusters),
     C=rep(1,ndata) # rcat(n=ndata, prob=rep(1/nclusters,nclusters))
          )
 }
 ##
-version <- 'post7b'
+version <- 'post6AS'
 totaltime <- Sys.time()
-## mcsamples <- runMCMC(Cmcmcsampler, nburnin=0, niter=5000, thin=1, inits=initsFunction, setSeed=149)
-Cmcmcsampler$run(niter=2000, thin=1, reset=FALSE, resetMV=TRUE)
-mcsamples <- as.matrix(Cmcmcsampler$mvSamples)
+## runMCMC(Cmcmcsampler, nburnin=1, niter=3, thin=1, inits=initsFunction, setSeed=149)
+Cmcmcsampler$run(niter=5000, thin=1, reset=TRUE)
+## Cmcmcsampler$run(niter=1000, thin=1, reset=FALSE, resetMV=TRUE)
 totaltime <- Sys.time() - totaltime
 print(totaltime)
-## 7 vars, 6000 data, 100 cl, 5000 iter, slice: 8.24 h
 ##
+mcsamples <- as.matrix(Cmcmcsampler$mvSamples)
+## 7 vars, 6000 data, 100 cl, 5000 iter, AFslice: 2.19 days
 saveRDS(mcsamples,file=paste0('_mcsamples-R',version,'-V',length(covNames),'-D',ndata,'-K',nclusters,'-I',nrow(mcsamples),'.rds'))
 ## save(model,Cmodel,confmodel,mcmcsampler,Cmcmcsampler, file=paste0('_model-',version,'-v',length(covNames),'-d',ndata,'-c',nclusters,'-i',nrow(mcsamples),'.RData'))
 ##
