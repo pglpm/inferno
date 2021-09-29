@@ -1,6 +1,6 @@
 ## Author: PGL  Porta Mana
 ## Created: 2021-03-20T10:07:17+0100
-## Last-Updated: 2021-09-29T06:06:16+0200
+## Last-Updated: 2021-09-29T09:04:15+0200
 ################
 ## Script for direct regression, continuous RMSD
 ################
@@ -190,13 +190,15 @@ inits <- list(
          )
 }
 ##
-version <- 'post7b'
-totaltime <- Sys.time()
+version <- 'post7c'
+gc()
+totalruntime <- Sys.time()
 ## mcsamples <- runMCMC(Cmcmcsampler, nburnin=0, niter=5000, thin=1, inits=initsFunction, setSeed=149)
 Cmcmcsampler$run(niter=2000, thin=1, reset=FALSE, resetMV=TRUE)
 mcsamples <- as.matrix(Cmcmcsampler$mvSamples)
-totaltime <- Sys.time() - totaltime
-print(totaltime)
+totalruntime <- Sys.time() - totalruntime
+print(totalruntime)
+## 7 vars, 6000 data, 100 cl, 2000 iter, slice: 2.27 h
 ## 7 vars, 6000 data, 100 cl, 5000 iter, slice: 8.24 h
 ##
 saveRDS(mcsamples,file=paste0('_mcsamples-R',version,'-V',length(covNames),'-D',ndata,'-K',nclusters,'-I',nrow(mcsamples),'.rds'))
@@ -216,9 +218,8 @@ parmList <- foreach(var=parmNames)%dopar%{
 }
 names(parmList) <- parmNames
 ##
-ess <- effectiveSize(as.mcmc(mcsamples))
-print(summary(ess))
-
+## ess <- effectiveSize(as.mcmc(mcsamples))
+## print(summary(ess))
 ##
 if(posterior){
     timecount <- Sys.time()
@@ -227,8 +228,12 @@ if(posterior){
     loglikelihood <- llSamples(dat=dat, parmList=parmList)
     plan(sequential)
     print(Sys.time()-timecount)
+    lless <- effectiveSize(as.mcmc(loglikelihood))
+##    print(lless)
     ##
     pdff(paste0('mcsummary-R',version,'-V',length(covNames),'-D',ndata,'-K',nclusters,'-I',nrow(mcsamples)))
+    matplot(1:2,1:2, type='l', lty=1, col='white')
+    legend('topleft',legend=c(paste0('time: ',signif(totalruntime,3)), paste0('LL ESS: ', signif(lless,3)), paste(c('ESS ',names(summary(ess))),collapse=' '), paste(c('ESS ',signif(summary(ess),3)),collapse=' ')),bty='n',cex=1)
     matplot(loglikelihood, type='l', lty=1, col=palette()[2], main='logprobData', ylab='logprobData')
     matplot(apply((parmList$q),1,function(x){mean(log(x[x>0]))}),type='l',lty=1, main='mean log-q', ylab='mean log-q')
     matplot(log(apply((parmList$q),1,function(x){sd(log(x[x>0]))})), type='l',lty=1, main='log-SD log-q', ylab='log-SD log-q')
@@ -395,10 +400,10 @@ matplot(identity(mcsamples[,indq]),type='l',lty=1)
 
 indq <- grepl('meanC\\[1, 1]', colnames(mcsamples)) || grepl('meanC\\[1, 1]', colnames(mcsamples))
 
-totaltime <- Sys.time()
+totalruntime <- Sys.time()
 mcsamplesb <- runMCMC(Cmcmcsampler, nburnin=0, niter=2000, thin=1, nchains=2, inits=initsFunction, setSeed=123)
-totaltime <- Sys.time() - totaltime
-totaltime
+totalruntime <- Sys.time() - totalruntime
+totalruntime
 saveRDS(mcsamplesb,file=paste0('_mcsampleswburnin2_v',length(covNames),'-d',ndata,'-c',nclusters,'.rds'))
 
 indq <- grepl('q\\[', colnames(mcsamplesb))
