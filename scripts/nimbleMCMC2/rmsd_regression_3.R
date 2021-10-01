@@ -1,6 +1,6 @@
 ## Author: PGL  Porta Mana
 ## Created: 2021-03-20T10:07:17+0100
-## Last-Updated: 2021-09-30T12:38:25+0200
+## Last-Updated: 2021-10-01T08:44:34+0200
 ################
 ## Script for direct regression, continuous RMSD
 ################
@@ -191,14 +191,15 @@ inits <- list(
 }
 
 ##
-version <- 'post8d'
+version <- 'post8g'
 gc()
 totalruntime <- Sys.time()
 ## mcsamples <- runMCMC(Cmcmcsampler, nburnin=4000, niter=6000, thin=1, inits=initsFunction, setSeed=149)
-Cmcmcsampler$run(niter=4000, thin=1, reset=FALSE, resetMV=TRUE)
+Cmcmcsampler$run(niter=1000, thin=1, reset=FALSE, resetMV=FALSE)
 mcsamples <- as.matrix(Cmcmcsampler$mvSamples)
 totalruntime <- Sys.time() - totalruntime
 print(totalruntime)
+## 7 vars, 6000 data, 100 cl, 1000 iter, slice: 1.15 h
 ## 7 vars, 6000 data, 100 cl, 4000 iter, slice: 4.66 h
 ## 7 vars, 6000 data, 100 cl, 4000 iter, slice: 4.58 h
 ## 7 vars, 6000 data, 100 cl, 6000 iter, slice: 7.58 h
