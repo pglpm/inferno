@@ -3,6 +3,47 @@ normalize <- function(freqs){freqs/sum(freqs)}
 ## Normalize rows of matrix
 normalizerows <- function(freqs){freqs/rowSums(freqs)}
 ##
+## Construct a list of parameter samples from the raw MCMC samples
+mcsamples2parmlist <- function(mcsamples, parmNames=c('q', 'meanC', 'tauC', 'probD', 'sizeD')){
+    nclusters <- sum(grepl(paste0(parmNames[1], '\\['), colnames(mcsamples)))
+    nccovs <- sum(grepl(paste0(parmNames[2], '\\[[^,]*, 1]'), colnames(mcsamples)))
+    ndcovs <- sum(grepl(paste0(parmNames[length(parmNames)], '\\[[^,]*, 1]'), colnames(mcsamples)))
+    ##
+    parmList <- foreach(var=parmNames)%dopar%{
+        out <- mcsamples[,grepl(paste0(var,'\\['), colnames(mcsamples))]
+        if(grepl('C', var)){
+            dim(out) <- c(nrow(mcsamples), nccovs, nclusters)
+            dimnames(out) <- list(NULL, continuousCovs, NULL)
+        } else if(grepl('D', var)){
+            dim(out) <- c(nrow(mcsamples), ndcovs, nclusters)
+            dimnames(out) <- list(NULL, discreteCovs, NULL)
+        } else {dim(out) <- c(nrow(mcsamples), nclusters) }
+        out
+    }
+    names(parmList) <- parmNames
+    parmList
+}
+##
+## Calculates means and covariances of the sampled frequency distributions
+moments12Samples <- function(parmList){
+    continuousCovs <- dimnames(parmList$meanC)[[2]]
+    discreteCovs <- dimnames(parmList$probD)[[2]]
+    namecovs <- c(continuousCovs, discreteCovs)
+    ncovs <- length(namecovs)
+    q <- t(parmList$q)
+    meansc <- aperm(parmList$meanC, c(3, 1, 2))
+    meansd <- aperm(parmList$probD * parmList$sizeD, c(3, 1, 2))
+    allmeans <- c(q) * c(meansc, meansd)
+    dim(allmeans) <- c(dim(meansc)[-3], ncovs)
+    dimnames(allmeans) <- list(NULL, NULL, namecovs)
+    allcovars <- foreach(cov1=seq_len(ncovs-1), .combine=cbind)%:%foreach(cov2=cov1:ncovs, .combine=cbind)%do%{
+       colSums(allmeans[,,cov1]*allmeans[,,cov2]) - colSums(allmeans[,,cov1])*colSums(allmeans[,,cov2])
+    }
+    colnames(allcovars) <- foreach(cov1=seq_len(ncovs-1), .combine=c)%:%foreach(cov2=cov1:ncovs, .combine=c)%do%{paste0(namecovs[cov1],'|',namecovs[cov2])}
+    ##
+    list(means=colSums(allmeans), covars=allcovars)
+}
+##
 ## Calculates the probability of the data (likelihood of parameters) for several MCMC samples
 llSamples <- function(dat, parmList){
     ndataz <- nrow(dat$X)
