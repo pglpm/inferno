@@ -1,0 +1,2 @@
+on Saga:
+6000 data, 100 clusters: ~18 min, ~7 GB
