@@ -1,0 +1,25 @@
+nimble version 0.11.1 is loaded.
+For more information on NIMBLE and a User Manual,
+please visit http://R-nimble.org.
+
+Attaching package: 'nimble'
+
+The following object is masked from 'package:data.table':
+
+    cube
+
+The following object is masked from 'package:stats':
+
+    simulate
+
+defining model...
+building model...
+setting data and initial values...
+running calculate on model (any error reports that follow may simply reflect missing values in model variables) ... 
+checking model sizes and dimensions...
+model building finished.
+compiling... this may take a minute. On some systems there may be some compiler warnings that can be safely ignored.
+compilation finished.
+compiling... this may take a minute. Use 'showCompilerOutput = TRUE' to see C++ compilation details.
+compilation finished.
+running chain 1...

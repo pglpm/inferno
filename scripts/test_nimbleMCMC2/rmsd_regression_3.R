@@ -1,6 +1,6 @@
 ## Author: PGL  Porta Mana
 ## Created: 2021-03-20T10:07:17+0100
-## Last-Updated: 2021-09-29T09:04:15+0200
+## Last-Updated: 2021-10-03T11:25:41+0200
 ################
 ## Script for direct regression, continuous RMSD
 ################
@@ -204,23 +204,71 @@ print(totalruntime)
 saveRDS(mcsamples,file=paste0('_mcsamples-R',version,'-V',length(covNames),'-D',ndata,'-K',nclusters,'-I',nrow(mcsamples),'.rds'))
 ## save(model,Cmodel,confmodel,mcmcsampler,Cmcmcsampler, file=paste0('_model-',version,'-v',length(covNames),'-d',ndata,'-c',nclusters,'-i',nrow(mcsamples),'.RData'))
 ##
-parmNames <- c('q', 'meanC', 'tauC', 'probD', 'sizeD')
-parmList <- foreach(var=parmNames)%dopar%{
-    out <- mcsamples[,grepl(paste0(var,'\\['), colnames(mcsamples))]
-    if(grepl('C', var)){
-        dim(out) <- c(nrow(mcsamples), nccovs, nclusters)
-        dimnames(out) <- list(NULL, continuousCovs, NULL)
-    } else if(grepl('D', var)){
-        dim(out) <- c(nrow(mcsamples), ndcovs, nclusters)
-        dimnames(out) <- list(NULL, discreteCovs, NULL)
-    } else {dim(out) <- c(nrow(mcsamples), nclusters) }
-    out
-}
-names(parmList) <- parmNames
+parmList <- mcsamples2parmlist(mcsamples, parmNames=c('q', 'meanC', 'tauC', 'probD', 'sizeD'))
+momentstraces <- moments12Samples(parmList)
+
+allmomentstraces <- cbind(Dcov=plogis(momentstraces$Dcovars,scale=1/10), momentstraces$means, log(momentstraces$vars), momentstraces$covars)
+diagnESS <- ESS(allmomentstraces)
+diagnBMK <- BMK.Diagnostic(allmomentstraces, batches=2)[,1]
+diagnMCSE <- 100*MCSE(allmomentstraces)/apply(allmomentstraces, 2, sd)
+diagnStat <- apply(allmomentstraces, 2, function(x){is.stationary(as.matrix(x,ncol=1))})
+
 ##
 ## ess <- effectiveSize(as.mcmc(mcsamples))
 ## print(summary(ess))
 ##
+if(posterior){
+    
+    pdff(paste0('mcsummary-R',version,'-V',length(covNames),'-D',ndata,'-K',nclusters,'-I',nrow(mcsamples)))
+
+    pdff('_testdiagn')
+    for(acov in colnames(allmomentstraces)){
+        matplot(allmomentstraces[, acov], type='l', lty=1,
+                col=palette()[if(grepl('^MEAN_', acov)){1}else if(grepl('^VAR_', acov)){3}else if(acov=='Dcov'){2}else{4}],
+                main=paste0(acov,
+                            '\nESS = ', signif(diagnESS[acov], 3),
+                            ' | BMK = ', signif(diagnBMK[acov], 3),
+                            ' | MCSE(6.27) = ', signif(diagnMCSE[acov], 3),
+                            ' | stat: ', diagnStat[acov]
+                            ),
+                ylab=acov)
+    }
+    dev.off()
+
+
+
+
+
+}
+
+        )
+
+        matplot(xgrid <- seq(-2,2,length.out=1000), sapply(xgrid,mixq), type='l')
+)
+    
+    matplot(apply((parmList$q),1,function(x){mean(log(x[x>0]))}),type='l',lty=1, main='mean log-q', ylab='mean log-q')
+    matplot(log(apply((parmList$q),1,function(x){sd(log(x[x>0]))})), type='l',lty=1, main='log-SD log-q', ylab='log-SD log-q')
+    ##
+    for(i in 1:nccovs){
+        matplot(rowMeans((parmList$meanC[,i,])),type='l',lty=1, main=paste0('mean means ', i), ylab=paste0('mean means ', i))
+        matplot(log(apply(parmList$meanC[,i,],1,sd)), type='l',lty=1, main=paste0('log-SD means ', i), ylab=paste0('log-SD means ', i))
+        matplot(rowMeans(log(parmList$tauC[,i,])),type='l',lty=1, main=paste0('mean taus ', i), ylab=paste0('mean taus ', i))
+        matplot(log(apply(log(parmList$tauC[,i,]),1,sd)),type='l',lty=1, main=paste0('log-SD taus ', i), ylab=paste0('log-SD taus ', i))
+    }
+    for(i in 1:ndcovs){
+        matplot(rowMeans(log(parmList$probD[,i,])),type='l',lty=1, main=paste0('mean probs ', i), ylab=paste0('mean probs ', i))
+        matplot(log(apply(log(parmList$probD[,i,]),1,sd)),type='l',lty=1, main=paste0('log-SD probs ', i), ylab=paste0('log-SD probs ', i))
+        matplot(rowMeans((parmList$sizeD[,i,])),type='l',lty=1, main=paste0('mean sizes ', i), ylab=paste0('mean sizes ', i))
+        matplot(log(apply(parmList$sizeD[,i,],1,sd)),type='l',lty=1, main=paste0('log-SD sizes ', i), ylab=paste0('log-SD sizes ', i))
+    }
+    dev.off()
+}
+
+
+
+
+
+
 if(posterior){
     timecount <- Sys.time()
     plan(sequential)
@@ -229,12 +277,65 @@ if(posterior){
     plan(sequential)
     print(Sys.time()-timecount)
     lless <- effectiveSize(as.mcmc(loglikelihood))
-##    print(lless)
+    ## print(lless)
     ##
     pdff(paste0('mcsummary-R',version,'-V',length(covNames),'-D',ndata,'-K',nclusters,'-I',nrow(mcsamples)))
     matplot(1:2,1:2, type='l', lty=1, col='white')
     legend('topleft',legend=c(paste0('time: ',signif(totalruntime,3)), paste0('LL ESS: ', signif(lless,3)), paste(c('ESS ',names(summary(ess))),collapse=' '), paste(c('ESS ',signif(summary(ess),3)),collapse=' ')),bty='n',cex=1)
     matplot(loglikelihood, type='l', lty=1, col=palette()[2], main='logprobData', ylab='logprobData')
+for(acov in colnames(moms$means)){
+    matplot(moms$means[,acov], type='l', lty=1, col=palette()[2], main=acov, ylab=acov)
+    }
+for(acov in colnames(moms$covars)){
+    matplot(moms$covars[,acov], type='l', lty=1, col=palette()[2], main=acov, ylab=acov)
+    }
+
+
+    
+    matplot(apply((parmList$q),1,function(x){mean(log(x[x>0]))}),type='l',lty=1, main='mean log-q', ylab='mean log-q')
+    matplot(log(apply((parmList$q),1,function(x){sd(log(x[x>0]))})), type='l',lty=1, main='log-SD log-q', ylab='log-SD log-q')
+    ##
+    for(i in 1:nccovs){
+        matplot(rowMeans((parmList$meanC[,i,])),type='l',lty=1, main=paste0('mean means ', i), ylab=paste0('mean means ', i))
+        matplot(log(apply(parmList$meanC[,i,],1,sd)), type='l',lty=1, main=paste0('log-SD means ', i), ylab=paste0('log-SD means ', i))
+        matplot(rowMeans(log(parmList$tauC[,i,])),type='l',lty=1, main=paste0('mean taus ', i), ylab=paste0('mean taus ', i))
+        matplot(log(apply(log(parmList$tauC[,i,]),1,sd)),type='l',lty=1, main=paste0('log-SD taus ', i), ylab=paste0('log-SD taus ', i))
+    }
+    for(i in 1:ndcovs){
+        matplot(rowMeans(log(parmList$probD[,i,])),type='l',lty=1, main=paste0('mean probs ', i), ylab=paste0('mean probs ', i))
+        matplot(log(apply(log(parmList$probD[,i,]),1,sd)),type='l',lty=1, main=paste0('log-SD probs ', i), ylab=paste0('log-SD probs ', i))
+        matplot(rowMeans((parmList$sizeD[,i,])),type='l',lty=1, main=paste0('mean sizes ', i), ylab=paste0('mean sizes ', i))
+        matplot(log(apply(parmList$sizeD[,i,],1,sd)),type='l',lty=1, main=paste0('log-SD sizes ', i), ylab=paste0('log-SD sizes ', i))
+    }
+    dev.off()
+}
+
+
+
+
+if(posterior){
+    timecount <- Sys.time()
+    plan(sequential)
+    plan(multisession, workers = 6L)
+    loglikelihood <- llSamples(dat=dat, parmList=parmList)
+    plan(sequential)
+    print(Sys.time()-timecount)
+    lless <- effectiveSize(as.mcmc(loglikelihood))
+    ## print(lless)
+    ##
+    pdff(paste0('mcsummary-R',version,'-V',length(covNames),'-D',ndata,'-K',nclusters,'-I',nrow(mcsamples)))
+    matplot(1:2,1:2, type='l', lty=1, col='white')
+    legend('topleft',legend=c(paste0('time: ',signif(totalruntime,3)), paste0('LL ESS: ', signif(lless,3)), paste(c('ESS ',names(summary(ess))),collapse=' '), paste(c('ESS ',signif(summary(ess),3)),collapse=' ')),bty='n',cex=1)
+    matplot(loglikelihood, type='l', lty=1, col=palette()[2], main='logprobData', ylab='logprobData')
+for(acov in colnames(moms$means)){
+    matplot(moms$means[,acov], type='l', lty=1, col=palette()[2], main=acov, ylab=acov)
+    }
+for(acov in colnames(moms$covars)){
+    matplot(moms$covars[,acov], type='l', lty=1, col=palette()[2], main=acov, ylab=acov)
+    }
+
+
+    
     matplot(apply((parmList$q),1,function(x){mean(log(x[x>0]))}),type='l',lty=1, main='mean log-q', ylab='mean log-q')
     matplot(log(apply((parmList$q),1,function(x){sd(log(x[x>0]))})), type='l',lty=1, main='log-SD log-q', ylab='log-SD log-q')
     ##
@@ -254,6 +355,37 @@ if(posterior){
 }
 ##
 ##save.image(file=paste0('_nimbleoutput-run',version,'.RData'))
+
+
+
+pdff(paste0('_test_tracemomentstraces'))
+for(acov in colnames(momentstraces$means)){
+    matplot(momentstraces$means[,acov], type='l', lty=1, col=palette()[1], main=paste0('distr. mean ', acov), ylab=paste0('distr. mean ', acov))
+    }
+for(acov in colnames(momentstraces$covars)){
+    matplot(momentstraces$covars[,acov], type='l', lty=1, col=palette()[3], main=paste0('distr. covar. ', acov), ylab=paste0('distr. covar. ', acov))
+    }
+dev.off()
+
+
+matplot(apply((parmList$q),1,function(x){mean(log(x[x>0]))}),type='l',lty=1, main='mean log-q', ylab='mean log-q')
+    matplot(log(apply((parmList$q),1,function(x){sd(log(x[x>0]))})), type='l',lty=1, main='log-SD log-q', ylab='log-SD log-q')
+    ##
+    for(i in 1:nccovs){
+        matplot(rowMeans((parmList$meanC[,i,])),type='l',lty=1, main=paste0('mean means ', i), ylab=paste0('mean means ', i))
+        matplot(log(apply(parmList$meanC[,i,],1,sd)), type='l',lty=1, main=paste0('log-SD means ', i), ylab=paste0('log-SD means ', i))
+        matplot(rowMeans(log(parmList$tauC[,i,])),type='l',lty=1, main=paste0('mean taus ', i), ylab=paste0('mean taus ', i))
+        matplot(log(apply(log(parmList$tauC[,i,]),1,sd)),type='l',lty=1, main=paste0('log-SD taus ', i), ylab=paste0('log-SD taus ', i))
+    }
+    for(i in 1:ndcovs){
+        matplot(rowMeans(log(parmList$probD[,i,])),type='l',lty=1, main=paste0('mean probs ', i), ylab=paste0('mean probs ', i))
+        matplot(log(apply(log(parmList$probD[,i,]),1,sd)),type='l',lty=1, main=paste0('log-SD probs ', i), ylab=paste0('log-SD probs ', i))
+        matplot(rowMeans((parmList$sizeD[,i,])),type='l',lty=1, main=paste0('mean sizes ', i), ylab=paste0('mean sizes ', i))
+        matplot(log(apply(parmList$sizeD[,i,],1,sd)),type='l',lty=1, main=paste0('log-SD sizes ', i), ylab=paste0('log-SD sizes ', i))
+    }
+    dev.off()
+
+
 
 
 ##

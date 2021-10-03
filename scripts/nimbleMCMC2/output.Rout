@@ -1,0 +1,58 @@
+nimble version 0.11.1 is loaded.
+For more information on NIMBLE and a User Manual,
+please visit http://R-nimble.org.
+
+Attaching package: 'nimble'
+
+The following object is masked from 'package:data.table':
+
+    cube
+
+The following object is masked from 'package:stats':
+
+    simulate
+
+          used (Mb) gc trigger  (Mb) max used (Mb)
+Ncells 1623945 86.8    3373992 180.2  1711167 91.4
+Vcells 4517498 34.5   10146329  77.5  5473059 41.8
+defining model...
+building model...
+setting data and initial values...
+running calculate on model (any error reports that follow may simply reflect missing values in model variables) ... 
+checking model sizes and dimensions...
+model building finished.
+compiling... this may take a minute. On some systems there may be some compiler warnings that can be safely ignored.
+"C:/rtools40/mingw64/bin/"g++ -std=gnu++11  -I"C:/PROGRA~1/R/R-41~1.1/include" -DNDEBUG -DR_NO_REMAP -I"C:\Program Files\R\R-4.1.1\library\nimble\include" -I"" -I"" -DEIGEN_MPL2_ONLY=1 -Wno-misleading-indentation -Wno-ignored-attributes -Wno-deprecated-declarations         -O3 -Wno-unused-variable -Wno-unused-function -Wno-ignored-attributes -Wno-deprecated-declarations -c dynamicRegistrations_10_01_14_21_33.cpp -o dynamicRegistrations_10_01_14_21_33.o
+C:/rtools40/mingw64/bin/g++ -std=gnu++11 -shared -s -static-libgcc -o dynamicRegistrations_10_01_14_21_33.dll tmp.def dynamicRegistrations_10_01_14_21_33.o -LC:\Program Files\R\R-4.1.1\library\nimble\CppCode -lnimble_x64 -lRlapack -lRblas -LC:/PROGRA~1/R/R-41~1.1/bin/x64 -lR
+"C:/rtools40/mingw64/bin/"g++ -std=gnu++11  -I"C:/PROGRA~1/R/R-41~1.1/include" -DNDEBUG -DR_NO_REMAP -I"C:\Program Files\R\R-4.1.1\library\nimble\include" -I"" -I"" -DEIGEN_MPL2_ONLY=1 -Wno-misleading-indentation -Wno-ignored-attributes -Wno-deprecated-declarations         -O3 -Wno-unused-variable -Wno-unused-function -Wno-ignored-attributes -Wno-deprecated-declarations -c P_1_model1.cpp -o P_1_model1.o
+"C:/rtools40/mingw64/bin/"g++ -std=gnu++11  -I"C:/PROGRA~1/R/R-41~1.1/include" -DNDEBUG -DR_NO_REMAP -I"C:\Program Files\R\R-4.1.1\library\nimble\include" -I"" -I"" -DEIGEN_MPL2_ONLY=1 -Wno-misleading-indentation -Wno-ignored-attributes -Wno-deprecated-declarations         -O3 -Wno-unused-variable -Wno-unused-function -Wno-ignored-attributes -Wno-deprecated-declarations -c P_1_model1_nfCode.cpp -o P_1_model1_nfCode.o
+C:/rtools40/mingw64/bin/g++ -std=gnu++11 -shared -s -static-libgcc -o P_1_model1_10_01_14_21_33.dll tmp.def P_1_model1.o P_1_model1_nfCode.o -LC:\Program Files\R\R-4.1.1\library\nimble\CppCode -lnimble_x64 -lRlapack -lRblas -LC:/PROGRA~1/R/R-41~1.1/bin/x64 -lR
+compilation finished.
+           used  (Mb) gc trigger  (Mb) max used  (Mb)
+Ncells  2732302 146.0    5662805 302.5  5662805 302.5
+Vcells 11358874  86.7   21468864 163.8 21468858 163.8
+===== Monitors =====
+thin = 1: q, meanC, tauC, probD, sizeD
+===== Samplers =====
+slice sampler (400)
+  - sizeD[]  (400 elements)
+conjugate sampler (1001)
+  - probD[]  (400 elements)
+  - meanC[]  (300 elements)
+  - tauC[]  (300 elements)
+  - q[1:100] 
+categorical sampler (6000)
+  - C[]  (6000 elements)
+compiling... this may take a minute. Use 'showCompilerOutput = TRUE' to see C++ compilation details.
+compilation finished.
+            used  (Mb) gc trigger   (Mb)  max used   (Mb)
+Ncells   4695488 250.8   11100736  592.9  27101404 1447.4
+Vcells 103803934 792.0  162321772 1238.5 141938959 1083.0
+            used  (Mb) gc trigger   (Mb)  max used   (Mb)
+Ncells   4700932 251.1   11100736  592.9  27101404 1447.4
+Vcells 103812098 792.1  162321772 1238.5 141938959 1083.0
+running chain 1...
+Time difference of 3.370882 mins
+Error in { : task 1 failed - "could not find function "grrepl""
+Calls: %do% -> <Anonymous>
+Execution halted
