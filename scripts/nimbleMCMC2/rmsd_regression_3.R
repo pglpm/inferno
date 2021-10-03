@@ -1,6 +1,6 @@
 ## Author: PGL  Porta Mana
 ## Created: 2021-03-20T10:07:17+0100
-## Last-Updated: 2021-10-01T08:44:34+0200
+## Last-Updated: 2021-10-03T12:35:53+0200
 ################
 ## Script for direct regression, continuous RMSD
 ################
@@ -207,33 +207,75 @@ print(totalruntime)
 saveRDS(mcsamples,file=paste0('_mcsamples-R',version,'-V',length(covNames),'-D',ndata,'-K',nclusters,'-I',nrow(mcsamples),'.rds'))
 ## save(model,Cmodel,confmodel,mcmcsampler,Cmcmcsampler, file=paste0('_model-',version,'-v',length(covNames),'-d',ndata,'-c',nclusters,'-i',nrow(mcsamples),'.RData'))
 ##
-parmNames <- c('q', 'meanC', 'tauC', 'probD', 'sizeD')
-parmList <- foreach(var=parmNames)%dopar%{
-    out <- mcsamples[,grepl(paste0(var,'\\['), colnames(mcsamples))]
-    if(grepl('C', var)){
-        dim(out) <- c(nrow(mcsamples), nccovs, nclusters)
-        dimnames(out) <- list(NULL, continuousCovs, NULL)
-    } else if(grepl('D', var)){
-        dim(out) <- c(nrow(mcsamples), ndcovs, nclusters)
-        dimnames(out) <- list(NULL, discreteCovs, NULL)
-    } else {dim(out) <- c(nrow(mcsamples), nclusters) }
-    out
-}
-names(parmList) <- parmNames
+parmList <- mcsamples2parmlist(mcsamples, parmNames=c('q', 'meanC', 'tauC', 'probD', 'sizeD'))
+momentstraces <- moments12Samples(parmList)
+allmomentstraces <- cbind(Dcov=plogis(momentstraces$Dcovars,scale=1/10), momentstraces$means, log(momentstraces$vars), momentstraces$covars)
 ##
-ess <- effectiveSize(as.mcmc(mcsamples))
+diagnESS <- LaplacesDemon::ESS(allmomentstraces)
+diagnBMK <- LaplacesDemon::BMK.Diagnostic(allmomentstraces, batches=2)[,1]
+diagnMCSE <- 100*LaplacesDemon::MCSE(allmomentstraces)/apply(allmomentstraces, 2, sd)
+diagnStat <- apply(allmomentstraces, 2, function(x){LaplacesDemon::is.stationary(as.matrix(x,ncol=1))})
 ## print(summary(ess))
 ##
+pdff(paste0('mcsummary-R',version,'-V',length(covNames),'-D',ndata,'-K',nclusters,'-I',nrow(mcsamples)))
+for(acov in colnames(allmomentstraces)){
+    matplot(allmomentstraces[, acov], type='l', lty=1,
+            col=palette()[if(grepl('^MEAN_', acov)){1}else if(grepl('^VAR_', acov)){3}else if(acov=='Dcov'){2}else{4}],
+            main=paste0(acov,
+                        '\nESS = ', signif(diagnESS[acov], 3),
+                        ' | BMK = ', signif(diagnBMK[acov], 3),
+                        ' | MCSE(6.27) = ', signif(diagnMCSE[acov], 3),
+                        ' | stat: ', diagnStat[acov]
+                        ),
+            ylab=acov)
+}
+dev.off()
+##
 if(posterior){
-    timecount <- Sys.time()
-    plan(sequential)
-    plan(multisession, workers = 6L)
-    loglikelihood <- llSamples(dat=dat, parmList=parmList)
-    plan(sequential)
-    print(Sys.time()-timecount)
-    lless <- effectiveSize(as.mcmc(loglikelihood))
-##    print(lless)
-    ##
+timecount <- Sys.time()
+plan(sequential)
+plan(multisession, workers = 6L)
+    loglikelihood <- matrix(llSamples(dat=dat, parmList=parmList), ncol=1)
+    colnames(loglikelihood) <- 'LL'
+plan(sequential)
+print(Sys.time()-timecount)
+allmomentstraces <- cbind(allmomentstraces, loglikelihood)
+##
+diagnESS <- LaplacesDemon::ESS(allmomentstraces)
+diagnBMK <- LaplacesDemon::BMK.Diagnostic(allmomentstraces, batches=2)[,1]
+diagnMCSE <- 100*LaplacesDemon::MCSE(allmomentstraces)/apply(allmomentstraces, 2, sd)
+diagnStat <- apply(allmomentstraces, 2, function(x){LaplacesDemon::is.stationary(as.matrix(x,ncol=1))})
+##
+    pdff(paste0('mcsummary-R',version,'-V',length(covNames),'-D',ndata,'-K',nclusters,'-I',nrow(mcsamples)))
+    for(acov in colnames(allmomentstraces)){
+        matplot(allmomentstraces[, acov], type='l', lty=1,
+                col=palette()[if(grepl('^MEAN_', acov)){1}else if(grepl('^VAR_', acov)){3}else if(acov=='Dcov'){2}else{4}],
+                main=paste0(acov,
+                            '\nESS = ', signif(diagnESS[acov], 3),
+                            ' | BMK = ', signif(diagnBMK[acov], 3),
+                            ' | MCSE(6.27) = ', signif(diagnMCSE[acov], 3),
+                            ' | stat: ', diagnStat[acov]
+                            ),
+                ylab=acov)
+    }
+    dev.off()
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    
     pdff(paste0('mcsummary-R',version,'-V',length(covNames),'-D',ndata,'-K',nclusters,'-I',nrow(mcsamples)))
     matplot(1:2,1:2, type='l', lty=1, col='white')
     legend('topleft',legend=c(paste0('time: ',signif(totalruntime,3)), paste0('LL ESS: ', signif(lless,3)), paste(c('ESS ',names(summary(ess))),collapse=' '), paste(c('ESS ',signif(summary(ess),3)),collapse=' ')),bty='n',cex=1)
