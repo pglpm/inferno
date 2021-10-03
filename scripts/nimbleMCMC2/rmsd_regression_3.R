@@ -1,6 +1,6 @@
 ## Author: PGL  Porta Mana
 ## Created: 2021-03-20T10:07:17+0100
-## Last-Updated: 2021-10-03T20:31:23+0200
+## Last-Updated: 2021-10-03T20:33:08+0200
 ################
 ## Script for direct regression, continuous RMSD
 ################
@@ -331,8 +331,9 @@ for(asample in subsamplep){
     }
 }
 dev.off()
+
 ##
-if(posterior){
+if(TRUE){
 timecount <- Sys.time()
 plan(sequential)
 plan(multisession, workers = 6L)
