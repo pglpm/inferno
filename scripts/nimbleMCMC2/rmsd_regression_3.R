@@ -1,6 +1,6 @@
 ## Author: PGL  Porta Mana
 ## Created: 2021-03-20T10:07:17+0100
-## Last-Updated: 2021-10-03T12:35:53+0200
+## Last-Updated: 2021-10-03T12:59:40+0200
 ################
 ## Script for direct regression, continuous RMSD
 ################
@@ -239,7 +239,7 @@ plan(multisession, workers = 6L)
     colnames(loglikelihood) <- 'LL'
 plan(sequential)
 print(Sys.time()-timecount)
-allmomentstraces <- cbind(allmomentstraces, loglikelihood)
+allmomentstraces <- cbind(loglikelihood, allmomentstraces)
 ##
 diagnESS <- LaplacesDemon::ESS(allmomentstraces)
 diagnBMK <- LaplacesDemon::BMK.Diagnostic(allmomentstraces, batches=2)[,1]
