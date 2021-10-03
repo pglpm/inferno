@@ -56,8 +56,8 @@ moments12Samples <- function(parmList){
          vars=mixvars,
          covars=mixcovars,
          Dcovars=colSums(c(q) * apply(
-                                    allmeans -
-                                    array(rep(c(mixmeans), each=nrow(q)), dim=dim(allmeans)),
+                                    (allmeans -
+                                    array(rep(c(mixmeans), each=nrow(q)), dim=dim(allmeans)))/array(rep(sqrt(c(mixvars)), each=nrow(q)), dim=dim(allmeans)),
                                     c(1,2), prod)))
 }
 ##
