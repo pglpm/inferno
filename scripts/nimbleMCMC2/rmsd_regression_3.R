@@ -1,6 +1,6 @@
 ## Author: PGL  Porta Mana
 ## Created: 2021-03-20T10:07:17+0100
-## Last-Updated: 2021-10-04T00:24:40+0200
+## Last-Updated: 2021-10-04T00:33:25+0200
 ################
 ## Script for direct regression, continuous RMSD
 ################
@@ -148,7 +148,7 @@ inits <- list(
     q=rep(1/nclusters, nclusters),
     meanC=matrix(meansccovs, nrow=nccovs, ncol=nclusters),
     tauC=matrix(1/varsccovs, nrow=nccovs, ncol=nclusters),
-    probD=matrix(meansdcovs/maxdcovs, nrow=ndcovs, ncol=nclusters),
+    probD=matrix(probsdcovs, nrow=ndcovs, ncol=nclusters),
     sizeD=matrix(maxdcovs, nrow=ndcovs, ncol=nclusters),
     ## meanC=matrix(rnorm(n=nccovs*nclusters, mean=meansccovs, sd=sqrt(varsccovs)), nrow=nccovs, ncol=nclusters),
     ## tauC=matrix(rgamma(n=nccovs*nclusters, shape=tauQccovs[1,], rate=tauQccovs[2,]), nrow=nccovs, ncol=nclusters),
@@ -185,7 +185,7 @@ bayesnet <- nimbleCode({
 })
 ##
 
-posterior <- FALSE
+posterior <- TRUE
 if(posterior){
     model <- nimbleModel(code=bayesnet, name='model1', constants=constants, inits=inits, data=dat)
 }else{
@@ -224,7 +224,7 @@ list(
     q=rep(1/nclusters, nclusters),
     meanC=matrix(meansccovs, nrow=nccovs, ncol=nclusters),
     tauC=matrix(1/varsccovs, nrow=nccovs, ncol=nclusters),
-    probD=matrix(meansdcovs/maxdcovs, nrow=ndcovs, ncol=nclusters),
+    probD=matrix(probsdcovs, nrow=ndcovs, ncol=nclusters),
     sizeD=matrix(maxdcovs, nrow=ndcovs, ncol=nclusters),
     ## meanC=matrix(rnorm(n=nccovs*nclusters, mean=meansccovs, sd=sqrt(varsccovs)), nrow=nccovs, ncol=nclusters),
     ## tauC=matrix(rgamma(n=nccovs*nclusters, shape=tauQccovs[1,], rate=tauQccovs[2,]), nrow=nccovs, ncol=nclusters),
