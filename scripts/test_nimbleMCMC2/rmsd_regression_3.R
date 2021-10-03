@@ -1,6 +1,6 @@
 ## Author: PGL  Porta Mana
 ## Created: 2021-03-20T10:07:17+0100
-## Last-Updated: 2021-10-02T15:20:33+0200
+## Last-Updated: 2021-10-03T11:25:41+0200
 ################
 ## Script for direct regression, continuous RMSD
 ################
@@ -206,33 +206,45 @@ saveRDS(mcsamples,file=paste0('_mcsamples-R',version,'-V',length(covNames),'-D',
 ##
 parmList <- mcsamples2parmlist(mcsamples, parmNames=c('q', 'meanC', 'tauC', 'probD', 'sizeD'))
 momentstraces <- moments12Samples(parmList)
-allmomentstraces <- cbind(momentstraces$means, momentstraces$covars)
+
+allmomentstraces <- cbind(Dcov=plogis(momentstraces$Dcovars,scale=1/10), momentstraces$means, log(momentstraces$vars), momentstraces$covars)
 diagnESS <- ESS(allmomentstraces)
 diagnBMK <- BMK.Diagnostic(allmomentstraces, batches=2)[,1]
 diagnMCSE <- 100*MCSE(allmomentstraces)/apply(allmomentstraces, 2, sd)
 diagnStat <- apply(allmomentstraces, 2, function(x){is.stationary(as.matrix(x,ncol=1))})
+
 ##
 ## ess <- effectiveSize(as.mcmc(mcsamples))
 ## print(summary(ess))
 ##
 if(posterior){
+    
     pdff(paste0('mcsummary-R',version,'-V',length(covNames),'-D',ndata,'-K',nclusters,'-I',nrow(mcsamples)))
 
     pdff('_testdiagn')
     for(acov in colnames(allmomentstraces)){
         matplot(allmomentstraces[, acov], type='l', lty=1,
-                col=palette()[if(grepl('\\|', acov)){3}else{1}],
+                col=palette()[if(grepl('^MEAN_', acov)){1}else if(grepl('^VAR_', acov)){3}else if(acov=='Dcov'){2}else{4}],
                 main=paste0(acov,
                             '\nESS = ', signif(diagnESS[acov], 3),
                             ' | BMK = ', signif(diagnBMK[acov], 3),
                             ' | MCSE(6.27) = ', signif(diagnMCSE[acov], 3),
-                            ' | stat : ', diagnStat[acov]
+                            ' | stat: ', diagnStat[acov]
                             ),
                 ylab=acov)
     }
     dev.off()
 
 
+
+
+
+}
+
+        )
+
+        matplot(xgrid <- seq(-2,2,length.out=1000), sapply(xgrid,mixq), type='l')
+)
     
     matplot(apply((parmList$q),1,function(x){mean(log(x[x>0]))}),type='l',lty=1, main='mean log-q', ylab='mean log-q')
     matplot(log(apply((parmList$q),1,function(x){sd(log(x[x>0]))})), type='l',lty=1, main='log-SD log-q', ylab='log-SD log-q')
