@@ -1,6 +1,6 @@
 ## Author: PGL  Porta Mana
 ## Created: 2021-03-20T10:07:17+0100
-## Last-Updated: 2021-10-03T18:06:51+0200
+## Last-Updated: 2021-10-03T20:31:23+0200
 ################
 ## Script for direct regression, continuous RMSD
 ################
@@ -70,17 +70,28 @@ meansdcovs <- apply(alldata[1:ndata,..discreteCovs],2,mean)
 varsdcovs <- apply(alldata[1:ndata,..discreteCovs],2,function(x)var(x, na.rm=T))
 maxdcovs <- apply(alldata[1:ndata,..discreteCovs],2,max)
 tauQccovs <- sapply(continuousCovs, function(acov){
-    resu <- list(par=c(0.1,0.1))
-    for(i in 1:1000){
-        resu <- optim(par=resu$par,
-                      fn=function(parms){
-                          (pinvgamma(varsccovs[acov]/100, shape=parms[1], scale=parms[2]) - 0.05)^2 +
-                              (pinvgamma(varsccovs[acov]*100, shape=parms[1], scale=parms[2]) - 0.95)^2
-                      }
-                    , control=list(maxit=1000000)
-                      )
+    fn <- function(parms){
+        (pinvgamma(varsccovs[acov]/10, shape=parms[1], scale=parms[2]) - 0.005)^2 +
+            (pinvgamma(varsccovs[acov]*10, shape=parms[1], scale=parms[2]) - 0.995)^2
     }
-    resu$par})
+    optim(c(1, 1), fn=fn,
+              gr = function(x) pracma::grad(fn, x), 
+              method = "L-BFGS-B",
+              lower = -Inf, upper = Inf,
+              control = list(factr = 1e-10,
+                             maxit = 100))$par
+    ## resu <- list(par=c(0.1,0.1))
+    ## for(i in 1:1000){
+    ##     resu <- optim(par=resu$par,
+    ##                   fn=function(parms){
+    ##                       (pinvgamma(varsccovs[acov]/5, shape=parms[1], scale=parms[2]) - 0.005)^2 +
+    ##                           (pinvgamma(varsccovs[acov]*5, shape=parms[1], scale=parms[2]) - 0.995)^2
+    ##                   }
+    ##                 , control=list(maxit=1000000)
+    ##                   )
+    ## }
+    ## resu$par
+})
 ##
 constants <- list(
     nClusters=nclusters,
@@ -100,7 +111,7 @@ inits <- list(
     meanCtau=0.5/varsccovs,
     tauCshape=tauQccovs[1,],
     tauCrate=tauQccovs[2,],
-    sizeDpar1=1/(1+maxdcovs),
+    sizeDpar1=1/(1+meansdcovs),
     sizeDpar2=1+0*maxdcovs,
     ##
     q=rep(1/nclusters, nclusters),
@@ -168,13 +179,13 @@ gc()
 ##
 source('functions_rmsdregr_nimble_binom.R')
 initsFunction <- function(){
-inits <- list(
+list(
     alphaK=rep(5/nclusters, nclusters),
     meanCmean=meansccovs,
     meanCtau=0.5/varsccovs,
     tauCshape=tauQccovs[1,],
     tauCrate=tauQccovs[2,],
-    sizeDpar1=1/(1+maxdcovs),
+    sizeDpar1=1/(1+meansdcovs),
     sizeDpar2=1+0*maxdcovs,
     ##
     q=rep(1/nclusters, nclusters),
@@ -189,12 +200,11 @@ inits <- list(
     C=rep(1,ndata) # rcat(n=ndata, prob=rep(1/nclusters,nclusters))
          )
 }
-
 ##
 version <- 'prior9thin'
 gc()
 totalruntime <- Sys.time()
-mcsamples <- runMCMC(Cmcmcsampler, nburnin=1, niter=20001, thin=10, inits=initsFunction, setSeed=149)
+mcsamples <- runMCMC(Cmcmcsampler, nburnin=1, niter=2001, thin=1, inits=initsFunction, setSeed=149)
 ## Cmcmcsampler$run(niter=1000, thin=1, reset=FALSE, resetMV=FALSE)
 ## mcsamples <- as.matrix(Cmcmcsampler$mvSamples)
 totalruntime <- Sys.time() - totalruntime
@@ -218,6 +228,11 @@ diagnStat <- apply(allmomentstraces, 2, function(x){LaplacesDemon::is.stationary
 ## print(summary(ess))
 ##
 pdff(paste0('mcsummary-R',version,'-V',length(covNames),'-D',ndata,'-K',nclusters,'-I',nrow(mcsamples)))
+matplot(1:2, type='l', col='white', main='Stats')
+legend(x='topleft', bty='n', cex=2, legend=c( paste0('min ESS = ', min(diagnESS)),
+                                        paste0('max BMK = ', max(diagnBMK)),
+                                        paste0('max MCSE = ', max(diagnMCSE)),
+                                        paste0('all stationary: ', all(diagnStat))))
 for(acov in colnames(allmomentstraces)){
     matplot(allmomentstraces[, acov], type='l', lty=1,
             col=palette()[if(grepl('^MEAN_', acov)){1}else if(grepl('^VAR_', acov)){3}else if(acov=='Dcov'){2}else{4}],
@@ -231,53 +246,50 @@ for(acov in colnames(allmomentstraces)){
 }
 dev.off()
 ##
-if(posterior){
+##
 timecount <- Sys.time()
 plan(sequential)
 plan(multisession, workers = 6L)
-loglikelihood <- matrix(llSamples(dat=dat, parmList=parmList), ncol=1)
-loglikelihood[is.infinite(loglikelihood)] <- NA
+quantileSamples <- foreach(asample=seq_len(nrow(parmList$q)), .combine=c)%:%foreach(acov=covNames, .combine=c)%dopar%{
+    if(acov %in% continuousCovs){
+        mixq <- function(x){sum(parmList$q[asample,] * pnorm(x, mean=parmList$meanC[asample,acov,], sd=1/sqrt(parmList$tauC[asample,acov,])))}
+        fn <- function(z){(mixq(z[1]) - 0.005)^2 + (mixq(z[2]) - 0.995)^2}
+        out <- optim(c(meansccovs[acov], meansccovs[acov]), fn,
+              gr = function(x) pracma::grad(fn, x), 
+              method = "L-BFGS-B",
+              lower = -Inf, upper = Inf,
+              control = list(factr = 1e-10,
+                             maxit = 100))$par
+    }else{
+        searchgrid <- 0:max(parmList$sizeD[asample,acov,])
+        dq <- colSums(c(parmList$q[asample,]) * pbinom(matrix(searchgrid, ncol=length(searchgrid), nrow=ncol(parmList$q), byrow=TRUE), prob=parmList$probD[asample,acov,], size=parmList$sizeD[asample,acov,]))
+        out <- c(0, which.min(abs(dq - 0.995))-1)        
+    }
+    out
+}
 plan(sequential)
 print(Sys.time()-timecount)
-allmomentstraces <- cbind(matrix(loglikelihood, ncol=1, dimnames=list(NULL, 'LL')), Dcov=plogis(momentstraces$Dcovars, scale=1/10), momentstraces$means, log(momentstraces$vars), momentstraces$covars)
 ##
-diagnESS <- apply(allmomentstraces, 2, function(x){LaplacesDemon::ESS(x[!is.na(x)])})
-diagnBMK <- LaplacesDemon::BMK.Diagnostic(allmomentstraces, batches=2)[,1]
-diagnMCSE <- 100*apply(allmomentstraces, 2, function(x){LaplacesDemon::MCSE(x[!is.na(x)])/sd(x, na.rm=TRUE)})
-diagnStat <- apply(allmomentstraces, 2, function(x){LaplacesDemon::is.stationary(as.matrix(x,ncol=1))})
+dim(quantileSamples) <- c(2, nccovs+ndcovs, nrow(parmList$q))
+quantileSamples <- aperm(quantileSamples)
+dimnames(quantileSamples) <- list(NULL, covNames, c('0.5%', '99.5%'))
 ##
-    pdff(paste0('mcsummary-R',version,'-V',length(covNames),'-D',ndata,'-K',nclusters,'-I',nrow(mcsamples)))
-    for(acov in colnames(allmomentstraces)){
-        matplot(allmomentstraces[, acov], type='l', lty=1,
-                col=palette()[if(grepl('^MEAN_', acov)){1}else if(grepl('^VAR_', acov)){3}else if(acov=='Dcov'){2}else{4}],
-                main=paste0(acov,
-                            '\nESS = ', signif(diagnESS[acov], 3),
-                            ' | BMK = ', signif(diagnBMK[acov], 3),
-                            ' | MCSE(6.27) = ', signif(diagnMCSE[acov], 3),
-                            ' | stat: ', diagnStat[acov]
-                            ),
-                ylab=acov)
-    }
-    dev.off()
-}
-
-
 ##
 nxsamples <- 1000
 ##
 timecount <- Sys.time()
 plan(sequential)
 plan(multisession, workers = 6L)
-xsamples <- samplesFsamples(parmList=parmList, nxsamples=nxsamples, nfsamples=NULL)
+xsamples <- samplesFsamples(parmList=parmList, nxsamples=nxsamples, nfsamples=100)
 plan(sequential)
 print(Sys.time()-timecount)
 ##
 plotvarRanges <- plotvarQs <- xlim <- ylim <- list()
-for(var in covNames){
-    plotvarQs[[var]] <- quantile(alldata[[var]], prob=c(0.05,0.95))
-    plotvarRanges[[var]] <- thisrange <- range(alldata[[var]])
-    xlim[[var]] <- c( min(thisrange, quantile(xsamples[var,,],prob=0.05)),
-                     max(thisrange, quantile(xsamples[var,,],prob=0.95)) )
+for(acov in covNames){
+    plotvarQs[[acov]] <- quantile(alldata[[acov]], prob=c(0.005,0.995))
+    plotvarRanges[[acov]] <- thisrange <- range(alldata[[acov]])
+    xlim[[acov]] <- c( min(thisrange, quantileSamples[,acov,1]),
+                     max(thisrange, quantileSamples[,acov,2]) )
 }
 ##
 subsamplep <- round(seq(1, dim(xsamples)[3], length.out=100))
@@ -292,7 +304,7 @@ for(addvar in setdiff(covNames, 'log_RMSD')){
             ylim=xlim[[addvar]],
             xlab='log_RMSD',
             ylab=addvar,
-            type='p', pch=1, cex=0.2, lwd=1, col=palette()[2])
+            type='p', pch=1, cex=0.2, lwd=1, col=palette()[3])
     matlines(x=c(rep(plotvarRanges[['log_RMSD']], each=2), plotvarRanges[['log_RMSD']][1]),
              y=c(plotvarRanges[[addvar]], rev(plotvarRanges[[addvar]]), plotvarRanges[[addvar]][1]),
              lwd=2, col=paste0(palette()[2],'88'))
@@ -319,6 +331,40 @@ for(asample in subsamplep){
     }
 }
 dev.off()
+##
+if(posterior){
+timecount <- Sys.time()
+plan(sequential)
+plan(multisession, workers = 6L)
+loglikelihood <- matrix(llSamples(dat=dat, parmList=parmList), ncol=1)
+plan(sequential)
+print(Sys.time()-timecount)
+loglikelihood[is.infinite(loglikelihood)] <- NA
+allmomentstraces <- cbind(matrix(loglikelihood, ncol=1, dimnames=list(NULL, 'Log-likelihood')), Dcov=plogis(momentstraces$Dcovars, scale=1/10), momentstraces$means, log(momentstraces$vars), momentstraces$covars)
+##
+diagnBMK <- LaplacesDemon::BMK.Diagnostic(allmomentstraces, batches=2)[,1]
+diagnMCSE <- 100*apply(allmomentstraces, 2, function(x){LaplacesDemon::MCSE(x[!is.na(x)])/sd(x, na.rm=TRUE)})
+diagnStat <- apply(allmomentstraces, 2, function(x){LaplacesDemon::is.stationary(as.matrix(x,ncol=1))})
+##
+pdff(paste0('mcsummary-R',version,'-V',length(covNames),'-D',ndata,'-K',nclusters,'-I',nrow(mcsamples)))
+matplot(1:2, type='l', col='white', main='Stats')
+legend(x='topleft', bty='n', cex=2, legend=c( paste0('min ESS = ', min(diagnESS)),
+                                        paste0('max BMK = ', max(diagnBMK)),
+                                        paste0('max MCSE = ', max(diagnMCSE)),
+                                        paste0('all stationary: ', all(diagnStat))))
+for(acov in colnames(allmomentstraces)){
+    matplot(allmomentstraces[, acov], type='l', lty=1,
+            col=palette()[if(grepl('^MEAN_', acov)){1}else if(grepl('^VAR_', acov)){3}else if(acov=='Dcov'){2}else{4}],
+            main=paste0(acov,
+                        '\nESS = ', signif(diagnESS[acov], 3),
+                        ' | BMK = ', signif(diagnBMK[acov], 3),
+                        ' | MCSE(6.27) = ', signif(diagnMCSE[acov], 3),
+                        ' | stat: ', diagnStat[acov]
+                        ),
+            ylab=acov)
+}
+dev.off()
+}
 
 
 
