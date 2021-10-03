@@ -34,21 +34,21 @@ moments12Samples <- function(parmList){
     ##
     meansc <- aperm(parmList$meanC, c(3, 1, 2))
     meansd <- aperm(parmList$probD * parmList$sizeD, c(3, 1, 2))
-    allmeans <- c(meansc, meansd)
-    dim(allmeans) <- c(dim(meansc)[-3], ncovs)
-    mixmeans <- colSums(c(q) * allmeans)
+    clustermeans <- c(meansc, meansd)
+    dim(clustermeans) <- c(dim(meansc)[-3], ncovs)
+    mixmeans <- colSums(c(q) * clustermeans)
     dimnames(mixmeans) <- list(NULL, paste0('MEAN_', namecovs))
     ##
-    quadrc <- aperm(1/parmList$tauC + parmList$meanC*parmList$meanC, c(3, 1, 2))
+    quadrc <- aperm(1/parmList$tauC + parmList$meanC * parmList$meanC, c(3, 1, 2))
     quadrd <- aperm(parmList$probD * parmList$sizeD *
-                    (1 + parmList$probD *(parmList$sizeD-1)), c(3, 1, 2))
+                    (1 + parmList$probD * (parmList$sizeD - 1)), c(3, 1, 2))
     mixvars <- c(quadrc, quadrd)
     dim(mixvars) <- c(dim(quadrc)[-3], ncovs)
     mixvars <- colSums(c(q) * mixvars) - mixmeans*mixmeans
     dimnames(mixvars) <- list(NULL, paste0('VAR_', namecovs))
     ##
     mixcovars <- foreach(cov1=seq_len(ncovs-1), .combine=cbind)%:%foreach(cov2=(cov1+1):ncovs, .combine=cbind)%do%{
-       colSums(c(q)*allmeans[,,cov1]*allmeans[,,cov2]) - mixmeans[,cov1]*mixmeans[,cov2]
+       colSums(c(q)*clustermeans[,,cov1]*clustermeans[,,cov2]) - mixmeans[,cov1]*mixmeans[,cov2]
     }
     colnames(mixcovars) <- foreach(cov1=seq_len(ncovs-1), .combine=c)%:%foreach(cov2=(cov1+1):ncovs, .combine=c)%do%{paste0('COV_',namecovs[cov1],'|',namecovs[cov2])}
     ##
@@ -56,8 +56,8 @@ moments12Samples <- function(parmList){
          vars=mixvars,
          covars=mixcovars,
          Dcovars=colSums(c(q) * apply(
-                                    (allmeans -
-                                    array(rep(c(mixmeans), each=nrow(q)), dim=dim(allmeans)))/array(rep(sqrt(c(mixvars)), each=nrow(q)), dim=dim(allmeans)),
+                                    (clustermeans -
+                                    array(rep(c(mixmeans), each=nrow(q)), dim=dim(clustermeans)))/array(rep(sqrt(c(mixvars)), each=nrow(q)), dim=dim(clustermeans)),
                                     c(1,2), prod)))
 }
 ##

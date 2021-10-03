@@ -1,6 +1,6 @@
 ## Author: PGL  Porta Mana
 ## Created: 2021-03-20T10:07:17+0100
-## Last-Updated: 2021-10-03T11:25:41+0200
+## Last-Updated: 2021-10-03T14:12:50+0200
 ################
 ## Script for direct regression, continuous RMSD
 ################
@@ -234,10 +234,25 @@ if(posterior){
                 ylab=acov)
     }
     dev.off()
+}
 
 
+asample <- 3687
+acov <- 1
+tempme <- sum(qq[asample,] * meanC[asample,acov,])
+sum(qq[asample,] *
+    (1/tauC[asample,acov,] + meanC[asample,acov,]^2)) - tempme^2
+momentstraces$vars[3687,1]
 
 
+mixdistr <- Vectorize(function(x){sum(qq[asample,]*dnorm(x,mean=meanC[asample,acov,], sd=1/sqrt(tauC[asample,acov,])))})
+
+integrate(function(y){y*mixdistr(y)}, lower=-Inf, upper=+Inf, subdivisions=10000L)
+
+
+xgrid <- seq(-1000,1000,length.out=100*1000); testdistr <- sapply(xgrid,function(x){sum(qq[asample,]*dnorm(x,mean=meanC[asample,acov,], sd=1/sqrt(tauC[asample,acov,])))})    
+
+integrate()
 
 }
 

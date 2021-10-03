@@ -1,6 +1,6 @@
 ## Author: PGL  Porta Mana
 ## Created: 2021-03-20T10:07:17+0100
-## Last-Updated: 2021-10-03T12:59:40+0200
+## Last-Updated: 2021-10-04T00:24:40+0200
 ################
 ## Script for direct regression, continuous RMSD
 ################
@@ -22,7 +22,7 @@ library('doFuture')
 library('doRNG')
 registerDoFuture()
 #library('LaplacesDemon') # used for Dirichlet generator
-library('ash')
+## library('ash')
 ## library('extraDistr')
 ## library('PReMiuM')
 ## library('mvtnorm')
@@ -30,12 +30,12 @@ options(bitmapType='cairo')
 pdff <- function(filename){pdf(file=paste0(filename,'.pdf'),paper='a4r',height=11.7,width=16.5)} # to output in pdf format
 pngf <- function(filename,res=300){png(file=paste0(filename,'.png'),height=11.7*1.2,width=16.5,units='in',res=res,pointsize=36)} # to output in pdf format
 library('nimble')
-library('coda')
+## library('coda')
 #### End custom setup ####
 
 #######################################
 ## Read and reorganize data
-rm(alldata)
+if(exists('alldata')){rm(alldata)}
 alldata <- fread('../data_id_processed_transformed_rescaled_shuffled.csv', sep=',')
 nameFeatures <- names(which(sapply(alldata, is.numeric)==TRUE))
 nSamples <- nrow(alldata)
@@ -57,7 +57,7 @@ continuousCovs <- covNames[sapply(covNames, function(x){is.double(alldata[[x]])}
 covNames <- c(continuousCovs, discreteCovs)
 ##
 
-rm(constants, dat, inits, bayesnet, model, Cmodel, confmodel, mcmcsampler, Cmcmcsampler)
+for(obj in c('constants', 'dat', 'inits', 'bayesnet', 'model', 'Cmodel', 'confmodel', 'mcmcsampler', 'Cmcmcsampler')){if(exists(obj)){do.call(rm,list(obj))}}
 gc()
 ##
 nclusters <- 100
@@ -70,17 +70,57 @@ meansdcovs <- apply(alldata[1:ndata,..discreteCovs],2,mean)
 varsdcovs <- apply(alldata[1:ndata,..discreteCovs],2,function(x)var(x, na.rm=T))
 maxdcovs <- apply(alldata[1:ndata,..discreteCovs],2,max)
 tauQccovs <- sapply(continuousCovs, function(acov){
-    resu <- list(par=c(0.1,0.1))
-    for(i in 1:1000){
-        resu <- optim(par=resu$par,
-                      fn=function(parms){
-                          (pinvgamma(varsccovs[acov]/100, shape=parms[1], scale=parms[2]) - 0.05)^2 +
-                              (pinvgamma(varsccovs[acov]*100, shape=parms[1], scale=parms[2]) - 0.95)^2
-                      }
-                    , control=list(maxit=1000000)
-                      )
+    fn <- function(parms){
+        (pinvgamma(varsccovs[acov]/5, shape=parms[1], scale=parms[2]) - 0.005)^2 +
+            (pinvgamma(varsccovs[acov]*5, shape=parms[1], scale=parms[2]) - 0.995)^2
     }
-    resu$par})
+    optim(c(1, 1), fn=fn,
+              gr = function(x) pracma::grad(fn, x), 
+              method = "L-BFGS-B",
+              lower = 0, upper = Inf,
+              control = list(factr = 1e-10,
+                             maxit = 100))$par
+})
+## tauQccovs2 <- sapply(continuousCovs, function(acov){
+##     resu <- list(par=c(0.1,0.1))
+##     for(i in 1:1000){
+##         resu <- optim(par=resu$par,
+##                       fn=function(parms){
+##                           (pinvgamma(varsccovs[acov]/5, shape=parms[1], scale=parms[2]) - 0.005)^2 +
+##                               (pinvgamma(varsccovs[acov]*5, shape=parms[1], scale=parms[2]) - 0.995)^2
+##                       }
+##                     , control=list(maxit=1000000)
+##                       )
+##     }
+##     resu$par
+## })
+sizeQdcovs <- sapply(discreteCovs, function(acov){
+    fn <- function(parms){
+        (pnbinom(ceiling(maxdcovs[acov]/3), prob=parms[1], size=parms[2]) - 0.005)^2 +
+            (pnbinom(maxdcovs[acov]*3, prob=parms[1], size=parms[2]) - 0.995)^2
+    }
+    resu <- optim(c(0.5, 2), fn=fn,
+              gr = function(x) pracma::grad(fn, x), 
+              method = "L-BFGS-B",
+              lower = c(0.001,0), upper = c(1,Inf),
+              control = list(factr = 1e-10,
+                             maxit = 100))
+##    print(resu)
+    resu$par
+})
+probsdcovs <- (maxdcovs-meansdcovs)/meansdcovs
+alphadcovs <- sapply(discreteCovs, function(acov){
+    fn <- function(parms){
+        parms2 <- parms*probsdcovs[acov]
+        -(lbeta(parms,parms2) - (parms-1)*digamma(parms) - (parms2-1)*digamma(parms2) + (parms+parms2-2)*digamma(parms+parms2))
+    }
+    optim(1, fn=fn,
+              gr = function(x) pracma::grad(fn, x), 
+              method = "L-BFGS-B",
+              lower = 0, upper = Inf,
+              control = list(factr = 1e-10,
+                             maxit = 100))$par
+})
 ##
 constants <- list(
     nClusters=nclusters,
@@ -100,8 +140,10 @@ inits <- list(
     meanCtau=0.5/varsccovs,
     tauCshape=tauQccovs[1,],
     tauCrate=tauQccovs[2,],
-    sizeDpar1=1/(1+maxdcovs),
-    sizeDpar2=1+0*maxdcovs,
+    probDshape1=alphadcovs,
+    probDshape2=alphadcovs*probsdcovs,
+    sizeDpar1=sizeQdcovs[1,], # 1/(maxdcovs), # 1/(1+2*meansdcovs),
+    sizeDpar2=sizeQdcovs[2,], # maxdcovs/(maxdcovs-1), # 1+0*maxdcovs,
     ##
     q=rep(1/nclusters, nclusters),
     meanC=matrix(meansccovs, nrow=nccovs, ncol=nclusters),
@@ -123,7 +165,7 @@ bayesnet <- nimbleCode({
             tauC[acov,acluster] ~ dgamma(shape=tauCshape[acov], rate=tauCrate[acov])
         }
         for(acov in 1:nDcovs){
-            probD[acov,acluster] ~ dbeta(shape1=1, shape2=1)
+            probD[acov,acluster] ~ dbeta(shape1=probDshape1[acov], shape2=probDshape2[acov])
             sizeD[acov,acluster] ~ dnbinom(prob=sizeDpar1[acov], size=sizeDpar2[acov])
         }
     }
@@ -143,13 +185,13 @@ bayesnet <- nimbleCode({
 })
 ##
 
-posterior <- TRUE
+posterior <- FALSE
 if(posterior){
     model <- nimbleModel(code=bayesnet, name='model1', constants=constants, inits=inits, data=dat)
 }else{
     model <- nimbleModel(code=bayesnet, name='model1', constants=constants, inits=inits, data=list())
     }
-Cmodel <- compileNimble(model, showCompilerOutput=TRUE)
+Cmodel <- compileNimble(model, showCompilerOutput=FALSE)
 gc()
 ##
 confmodel <- configureMCMC(Cmodel, monitors=c('q','meanC', 'tauC', 'probD', 'sizeD')) #, control=list(adaptive=FALSE))
@@ -168,14 +210,16 @@ gc()
 ##
 source('functions_rmsdregr_nimble_binom.R')
 initsFunction <- function(){
-inits <- list(
+list(
     alphaK=rep(5/nclusters, nclusters),
     meanCmean=meansccovs,
     meanCtau=0.5/varsccovs,
     tauCshape=tauQccovs[1,],
     tauCrate=tauQccovs[2,],
-    sizeDpar1=1/(1+maxdcovs),
-    sizeDpar2=1+0*maxdcovs,
+    probDshape1=alphadcovs,
+    probDshape2=alphadcovs*probsdcovs,
+    sizeDpar1=sizeQdcovs[1,], # 1/(maxdcovs), # 1/(1+2*meansdcovs),
+    sizeDpar2=sizeQdcovs[2,], # maxdcovs/(maxdcovs-1), # 1+0*maxdcovs,
     ##
     q=rep(1/nclusters, nclusters),
     meanC=matrix(meansccovs, nrow=nccovs, ncol=nclusters),
@@ -189,14 +233,13 @@ inits <- list(
     C=rep(1,ndata) # rcat(n=ndata, prob=rep(1/nclusters,nclusters))
          )
 }
-
 ##
-version <- 'post8g'
+version <- 'post9thinTps'
 gc()
 totalruntime <- Sys.time()
-## mcsamples <- runMCMC(Cmcmcsampler, nburnin=4000, niter=6000, thin=1, inits=initsFunction, setSeed=149)
-Cmcmcsampler$run(niter=1000, thin=1, reset=FALSE, resetMV=FALSE)
-mcsamples <- as.matrix(Cmcmcsampler$mvSamples)
+mcsamples <- runMCMC(Cmcmcsampler, nburnin=1, niter=2001, thin=1, inits=initsFunction, setSeed=149)
+## Cmcmcsampler$run(niter=1000, thin=1, reset=FALSE, resetMV=FALSE)
+## mcsamples <- as.matrix(Cmcmcsampler$mvSamples)
 totalruntime <- Sys.time() - totalruntime
 print(totalruntime)
 ## 7 vars, 6000 data, 100 cl, 1000 iter, slice: 1.15 h
@@ -209,7 +252,7 @@ saveRDS(mcsamples,file=paste0('_mcsamples-R',version,'-V',length(covNames),'-D',
 ##
 parmList <- mcsamples2parmlist(mcsamples, parmNames=c('q', 'meanC', 'tauC', 'probD', 'sizeD'))
 momentstraces <- moments12Samples(parmList)
-allmomentstraces <- cbind(Dcov=plogis(momentstraces$Dcovars,scale=1/10), momentstraces$means, log(momentstraces$vars), momentstraces$covars)
+allmomentstraces <- cbind(Dcov=plogis(momentstraces$Dcovars, scale=1/10), momentstraces$means, log(momentstraces$vars), momentstraces$covars)
 ##
 diagnESS <- LaplacesDemon::ESS(allmomentstraces)
 diagnBMK <- LaplacesDemon::BMK.Diagnostic(allmomentstraces, batches=2)[,1]
@@ -218,6 +261,11 @@ diagnStat <- apply(allmomentstraces, 2, function(x){LaplacesDemon::is.stationary
 ## print(summary(ess))
 ##
 pdff(paste0('mcsummary-R',version,'-V',length(covNames),'-D',ndata,'-K',nclusters,'-I',nrow(mcsamples)))
+matplot(1:2, type='l', col='white', main='Stats')
+legend(x='topleft', bty='n', cex=2, legend=c( paste0('min ESS = ', min(diagnESS)),
+                                        paste0('max BMK = ', max(diagnBMK)),
+                                        paste0('max MCSE = ', max(diagnMCSE)),
+                                        paste0('all stationary: ', all(diagnStat))))
 for(acov in colnames(allmomentstraces)){
     matplot(allmomentstraces[, acov], type='l', lty=1,
             col=palette()[if(grepl('^MEAN_', acov)){1}else if(grepl('^VAR_', acov)){3}else if(acov=='Dcov'){2}else{4}],
@@ -231,92 +279,49 @@ for(acov in colnames(allmomentstraces)){
 }
 dev.off()
 ##
-if(posterior){
+##
 timecount <- Sys.time()
 plan(sequential)
 plan(multisession, workers = 6L)
-    loglikelihood <- matrix(llSamples(dat=dat, parmList=parmList), ncol=1)
-    colnames(loglikelihood) <- 'LL'
+quantileSamples <- foreach(asample=seq_len(nrow(parmList$q)), .combine=c)%:%foreach(acov=covNames, .combine=c)%dopar%{
+    if(acov %in% continuousCovs){
+        mixq <- function(x){sum(parmList$q[asample,] * pnorm(x, mean=parmList$meanC[asample,acov,], sd=1/sqrt(parmList$tauC[asample,acov,])))}
+        fn <- function(z){(mixq(z[1]) - 0.005)^2 + (mixq(z[2]) - 0.995)^2}
+        out <- optim(c(meansccovs[acov], meansccovs[acov]), fn,
+              gr = function(x) pracma::grad(fn, x), 
+              method = "L-BFGS-B",
+              lower = -Inf, upper = Inf,
+              control = list(factr = 1e-10,
+                             maxit = 100))$par
+    }else{
+        searchgrid <- 0:max(parmList$sizeD[asample,acov,])
+        dq <- colSums(c(parmList$q[asample,]) * pbinom(matrix(searchgrid, ncol=length(searchgrid), nrow=ncol(parmList$q), byrow=TRUE), prob=parmList$probD[asample,acov,], size=parmList$sizeD[asample,acov,]))
+        out <- c(0, which.min(abs(dq - 0.995))-1)        
+    }
+    out
+}
 plan(sequential)
 print(Sys.time()-timecount)
-allmomentstraces <- cbind(loglikelihood, allmomentstraces)
 ##
-diagnESS <- LaplacesDemon::ESS(allmomentstraces)
-diagnBMK <- LaplacesDemon::BMK.Diagnostic(allmomentstraces, batches=2)[,1]
-diagnMCSE <- 100*LaplacesDemon::MCSE(allmomentstraces)/apply(allmomentstraces, 2, sd)
-diagnStat <- apply(allmomentstraces, 2, function(x){LaplacesDemon::is.stationary(as.matrix(x,ncol=1))})
+dim(quantileSamples) <- c(2, nccovs+ndcovs, nrow(parmList$q))
+quantileSamples <- aperm(quantileSamples)
+dimnames(quantileSamples) <- list(NULL, covNames, c('0.5%', '99.5%'))
 ##
-    pdff(paste0('mcsummary-R',version,'-V',length(covNames),'-D',ndata,'-K',nclusters,'-I',nrow(mcsamples)))
-    for(acov in colnames(allmomentstraces)){
-        matplot(allmomentstraces[, acov], type='l', lty=1,
-                col=palette()[if(grepl('^MEAN_', acov)){1}else if(grepl('^VAR_', acov)){3}else if(acov=='Dcov'){2}else{4}],
-                main=paste0(acov,
-                            '\nESS = ', signif(diagnESS[acov], 3),
-                            ' | BMK = ', signif(diagnBMK[acov], 3),
-                            ' | MCSE(6.27) = ', signif(diagnMCSE[acov], 3),
-                            ' | stat: ', diagnStat[acov]
-                            ),
-                ylab=acov)
-    }
-    dev.off()
-}
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-    
-    pdff(paste0('mcsummary-R',version,'-V',length(covNames),'-D',ndata,'-K',nclusters,'-I',nrow(mcsamples)))
-    matplot(1:2,1:2, type='l', lty=1, col='white')
-    legend('topleft',legend=c(paste0('time: ',signif(totalruntime,3)), paste0('LL ESS: ', signif(lless,3)), paste(c('ESS ',names(summary(ess))),collapse=' '), paste(c('ESS ',signif(summary(ess),3)),collapse=' ')),bty='n',cex=1)
-    matplot(loglikelihood, type='l', lty=1, col=palette()[2], main='logprobData', ylab='logprobData')
-    matplot(apply((parmList$q),1,function(x){mean(log(x[x>0]))}),type='l',lty=1, main='mean log-q', ylab='mean log-q')
-    matplot(log(apply((parmList$q),1,function(x){sd(log(x[x>0]))})), type='l',lty=1, main='log-SD log-q', ylab='log-SD log-q')
-    ##
-    for(i in continuousCovs){
-        matplot(rowMeans((parmList$meanC[,i,])),type='l',lty=1, main=paste0('mean means ', i), ylab=paste0('mean means ', i))
-        matplot(log(apply(parmList$meanC[,i,],1,sd)), type='l',lty=1, main=paste0('log-SD means ', i), ylab=paste0('log-SD means ', i))
-        matplot(rowMeans(log(parmList$tauC[,i,])),type='l',lty=1, main=paste0('mean taus ', i), ylab=paste0('mean log-taus ', i))
-        matplot(log(apply(log(parmList$tauC[,i,]),1,sd)),type='l',lty=1, main=paste0('log-SD taus ', i), ylab=paste0('log-SD log-taus ', i))
-    }
-    for(i in discreteCovs){
-        matplot(rowMeans(log(parmList$probD[,i,])),type='l',lty=1, main=paste0('mean probs ', i), ylab=paste0('mean log-probs ', i))
-        matplot(log(apply(log(parmList$probD[,i,]),1,sd)),type='l',lty=1, main=paste0('log-SD probs ', i), ylab=paste0('log-SD log-probs ', i))
-        matplot(rowMeans((parmList$sizeD[,i,])),type='l',lty=1, main=paste0('mean sizes ', i), ylab=paste0('mean sizes ', i))
-        matplot(log(apply(parmList$sizeD[,i,],1,sd)),type='l',lty=1, main=paste0('log-SD sizes ', i), ylab=paste0('log-SD sizes ', i))
-    }
-    dev.off()
-}
-##
-##save.image(file=paste0('_nimbleoutput-run',version,'.RData'))
-
-
 ##
 nxsamples <- 1000
 ##
 timecount <- Sys.time()
 plan(sequential)
 plan(multisession, workers = 6L)
-xsamples <- samplesFsamples(parmList=parmList, nxsamples=nxsamples, nfsamples=NULL)
+xsamples <- samplesFsamples(parmList=parmList, nxsamples=nxsamples, nfsamples=100)
 plan(sequential)
 print(Sys.time()-timecount)
 ##
 plotvarRanges <- plotvarQs <- xlim <- ylim <- list()
-for(var in covNames){
-    plotvarQs[[var]] <- quantile(alldata[[var]], prob=c(0.05,0.95))
-    plotvarRanges[[var]] <- thisrange <- range(alldata[[var]])
-    xlim[[var]] <- c( min(thisrange, quantile(xsamples[var,,],prob=0.05)),
-                     max(thisrange, quantile(xsamples[var,,],prob=0.95)) )
+for(acov in covNames){
+    plotvarQs[[acov]] <- quantile(alldata[[acov]], prob=c(0.005,0.995))
+    plotvarRanges[[acov]] <- thisrange <- range(alldata[[acov]])
+    xlim[[acov]] <- range(c(thisrange, quantileSamples[,acov,]))
 }
 ##
 subsamplep <- round(seq(1, dim(xsamples)[3], length.out=100))
@@ -331,34 +336,84 @@ for(addvar in setdiff(covNames, 'log_RMSD')){
             ylim=xlim[[addvar]],
             xlab='log_RMSD',
             ylab=addvar,
-            type='p', pch=1, cex=0.2, lwd=1, col=palette()[2])
-        matlines(x=c(rep(plotvarRanges[['log_RMSD']], each=2), plotvarRanges[['log_RMSD']][1]),
-             y=c(plotvarRanges[[addvar]], rev(plotvarRanges[[addvar]]), plotvarRanges[[addvar]][1]),
-                 lwd=2, col=paste0(palette()[2],'88'))
-        matlines(x=c(rep(plotvarQs[['log_RMSD']], each=2), plotvarQs[['log_RMSD']][1]),
-             y=c(plotvarQs[[addvar]], rev(plotvarQs[[addvar]]), plotvarQs[[addvar]][1]),
-                 lwd=2, col=paste0(palette()[4],'88'))
-}
-for(asample in subsamplep){
-par(mfrow = c(2, 3))
-for(addvar in setdiff(covNames, 'log_RMSD')){
-    matplot(x=xsamples['log_RMSD', subsamplex, asample][subsamplex],
-            y=xsamples[addvar, subsamplex, asample][subsamplex],
-            xlim=xlim[['log_RMSD']],
-            ylim=xlim[[addvar]],
-            xlab='log_RMSD',
-            ylab=addvar,
-            type='p', pch=1, cex=0.2, lwd=1, col=palette()[1])
+            type='p', pch=1, cex=0.2, lwd=1, col=palette()[3])
     matlines(x=c(rep(plotvarRanges[['log_RMSD']], each=2), plotvarRanges[['log_RMSD']][1]),
              y=c(plotvarRanges[[addvar]], rev(plotvarRanges[[addvar]]), plotvarRanges[[addvar]][1]),
              lwd=2, col=paste0(palette()[2],'88'))
-            matlines(x=c(rep(plotvarQs[['log_RMSD']], each=2), plotvarQs[['log_RMSD']][1]),
+    matlines(x=c(rep(plotvarQs[['log_RMSD']], each=2), plotvarQs[['log_RMSD']][1]),
              y=c(plotvarQs[[addvar]], rev(plotvarQs[[addvar]]), plotvarQs[[addvar]][1]),
-                 lwd=2, col=paste0(palette()[4],'88'))
+             lwd=2, col=paste0(palette()[4],'88'))
 }
+for(asample in subsamplep){
+    par(mfrow = c(2, 3))
+    for(addvar in setdiff(covNames, 'log_RMSD')){
+        matplot(x=xsamples['log_RMSD', subsamplex, asample][subsamplex],
+                y=xsamples[addvar, subsamplex, asample][subsamplex],
+                xlim=xlim[['log_RMSD']],
+                ylim=xlim[[addvar]],
+                xlab='log_RMSD',
+                ylab=addvar,
+                type='p', pch=1, cex=0.2, lwd=1, col=palette()[1])
+        matlines(x=c(rep(plotvarRanges[['log_RMSD']], each=2), plotvarRanges[['log_RMSD']][1]),
+                 y=c(plotvarRanges[[addvar]], rev(plotvarRanges[[addvar]]), plotvarRanges[[addvar]][1]),
+                 lwd=2, col=paste0(palette()[2],'88'))
+        matlines(x=c(rep(plotvarQs[['log_RMSD']], each=2), plotvarQs[['log_RMSD']][1]),
+                 y=c(plotvarQs[[addvar]], rev(plotvarQs[[addvar]]), plotvarQs[[addvar]][1]),
+                 lwd=2, col=paste0(palette()[4],'88'))
+    }
 }
 dev.off()
+##
+if(TRUE){
+timecount <- Sys.time()
+plan(sequential)
+plan(multisession, workers = 6L)
+loglikelihood <- loglikelihoodorig <- matrix(llSamples(dat=dat, parmList=parmList), ncol=1)
+plan(sequential)
+print(Sys.time()-timecount)
+loglikelihood[is.infinite(loglikelihood)] <- NA
+allmomentstraces <- cbind(matrix(loglikelihood, ncol=1, dimnames=list(NULL, 'Log-likelihood')), Dcov=plogis(momentstraces$Dcovars, scale=1/10), momentstraces$means, log(momentstraces$vars), momentstraces$covars)
+##
+diagnBMK <- LaplacesDemon::BMK.Diagnostic(allmomentstraces, batches=2)[,1]
+diagnMCSE <- 100*apply(allmomentstraces, 2, function(x){LaplacesDemon::MCSE(x[!is.na(x)])/sd(x, na.rm=TRUE)})
+diagnStat <- apply(allmomentstraces, 2, function(x){LaplacesDemon::is.stationary(as.matrix(x,ncol=1))})
+##
+pdff(paste0('mcsummary-R',version,'-V',length(covNames),'-D',ndata,'-K',nclusters,'-I',nrow(mcsamples)))
+matplot(1:2, type='l', col='white', main='Stats')
+legend(x='topleft', bty='n', cex=2, legend=c( paste0('min ESS = ', min(diagnESS)),
+                                        paste0('max BMK = ', max(diagnBMK)),
+                                        paste0('max MCSE = ', max(diagnMCSE)),
+                                        paste0('all stationary: ', all(diagnStat))))
+for(acov in colnames(allmomentstraces)){
+    matplot(allmomentstraces[, acov], type='l', lty=1,
+            col=palette()[if(grepl('^MEAN_', acov)){1}else if(grepl('^VAR_', acov)){3}else if(acov=='Dcov'){2}else{4}],
+            main=paste0(acov,
+                        '\nESS = ', signif(diagnESS[acov], 3),
+                        ' | BMK = ', signif(diagnBMK[acov], 3),
+                        ' | MCSE(6.27) = ', signif(diagnMCSE[acov], 3),
+                        ' | stat: ', diagnStat[acov]
+                        ),
+            ylab=acov)
+}
+dev.off()
+}
 
+asample <- 4
+adatum <- 1
+log(sum(foreach(acluster=1:nclusters, .combine=c)%do%{
+    parmList$q[asample,acluster] *
+        prod(dnorm(dat$X[adatum,],
+                   mean=parmList$meanC[asample,,acluster],
+                   sd=1/sqrt(parmList$tauC[asample,,acluster]))) *
+        prod(dbinom(dat$Y[adatum,], prob=parmList$probD[asample,,acluster],
+                    size=parmList$sizeD[asample,,acluster]))
+}))
+
+
+testme <- meansdcovs[1]
+testma <- maxdcovs[1]
+xgrid <- 0:ceiling(1.5*testma)
+matplot(xgrid, dnbinom(xgrid, prob=))
 
 
 
