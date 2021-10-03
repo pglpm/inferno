@@ -1,6 +1,6 @@
 ## Author: PGL  Porta Mana
 ## Created: 2021-03-20T10:07:17+0100
-## Last-Updated: 2021-10-03T12:35:53+0200
+## Last-Updated: 2021-10-03T18:06:51+0200
 ################
 ## Script for direct regression, continuous RMSD
 ################
@@ -35,7 +35,7 @@ library('coda')
 
 #######################################
 ## Read and reorganize data
-rm(alldata)
+if(exists('alldata')){rm(alldata)}
 alldata <- fread('../data_id_processed_transformed_rescaled_shuffled.csv', sep=',')
 nameFeatures <- names(which(sapply(alldata, is.numeric)==TRUE))
 nSamples <- nrow(alldata)
@@ -57,7 +57,7 @@ continuousCovs <- covNames[sapply(covNames, function(x){is.double(alldata[[x]])}
 covNames <- c(continuousCovs, discreteCovs)
 ##
 
-rm(constants, dat, inits, bayesnet, model, Cmodel, confmodel, mcmcsampler, Cmcmcsampler)
+for(obj in c('constants', 'dat', 'inits', 'bayesnet', 'model', 'Cmodel', 'confmodel', 'mcmcsampler', 'Cmcmcsampler')){if(exists(obj)){do.call(rm,list(obj))}}
 gc()
 ##
 nclusters <- 100
@@ -143,13 +143,13 @@ bayesnet <- nimbleCode({
 })
 ##
 
-posterior <- TRUE
+posterior <- FALSE
 if(posterior){
     model <- nimbleModel(code=bayesnet, name='model1', constants=constants, inits=inits, data=dat)
 }else{
     model <- nimbleModel(code=bayesnet, name='model1', constants=constants, inits=inits, data=list())
     }
-Cmodel <- compileNimble(model, showCompilerOutput=TRUE)
+Cmodel <- compileNimble(model, showCompilerOutput=FALSE)
 gc()
 ##
 confmodel <- configureMCMC(Cmodel, monitors=c('q','meanC', 'tauC', 'probD', 'sizeD')) #, control=list(adaptive=FALSE))
@@ -191,12 +191,12 @@ inits <- list(
 }
 
 ##
-version <- 'post8g'
+version <- 'prior9thin'
 gc()
 totalruntime <- Sys.time()
-## mcsamples <- runMCMC(Cmcmcsampler, nburnin=4000, niter=6000, thin=1, inits=initsFunction, setSeed=149)
-Cmcmcsampler$run(niter=1000, thin=1, reset=FALSE, resetMV=FALSE)
-mcsamples <- as.matrix(Cmcmcsampler$mvSamples)
+mcsamples <- runMCMC(Cmcmcsampler, nburnin=1, niter=20001, thin=10, inits=initsFunction, setSeed=149)
+## Cmcmcsampler$run(niter=1000, thin=1, reset=FALSE, resetMV=FALSE)
+## mcsamples <- as.matrix(Cmcmcsampler$mvSamples)
 totalruntime <- Sys.time() - totalruntime
 print(totalruntime)
 ## 7 vars, 6000 data, 100 cl, 1000 iter, slice: 1.15 h
@@ -209,7 +209,7 @@ saveRDS(mcsamples,file=paste0('_mcsamples-R',version,'-V',length(covNames),'-D',
 ##
 parmList <- mcsamples2parmlist(mcsamples, parmNames=c('q', 'meanC', 'tauC', 'probD', 'sizeD'))
 momentstraces <- moments12Samples(parmList)
-allmomentstraces <- cbind(Dcov=plogis(momentstraces$Dcovars,scale=1/10), momentstraces$means, log(momentstraces$vars), momentstraces$covars)
+allmomentstraces <- cbind(Dcov=plogis(momentstraces$Dcovars, scale=1/10), momentstraces$means, log(momentstraces$vars), momentstraces$covars)
 ##
 diagnESS <- LaplacesDemon::ESS(allmomentstraces)
 diagnBMK <- LaplacesDemon::BMK.Diagnostic(allmomentstraces, batches=2)[,1]
@@ -235,15 +235,15 @@ if(posterior){
 timecount <- Sys.time()
 plan(sequential)
 plan(multisession, workers = 6L)
-    loglikelihood <- matrix(llSamples(dat=dat, parmList=parmList), ncol=1)
-    colnames(loglikelihood) <- 'LL'
+loglikelihood <- matrix(llSamples(dat=dat, parmList=parmList), ncol=1)
+loglikelihood[is.infinite(loglikelihood)] <- NA
 plan(sequential)
 print(Sys.time()-timecount)
-allmomentstraces <- cbind(allmomentstraces, loglikelihood)
+allmomentstraces <- cbind(matrix(loglikelihood, ncol=1, dimnames=list(NULL, 'LL')), Dcov=plogis(momentstraces$Dcovars, scale=1/10), momentstraces$means, log(momentstraces$vars), momentstraces$covars)
 ##
-diagnESS <- LaplacesDemon::ESS(allmomentstraces)
+diagnESS <- apply(allmomentstraces, 2, function(x){LaplacesDemon::ESS(x[!is.na(x)])})
 diagnBMK <- LaplacesDemon::BMK.Diagnostic(allmomentstraces, batches=2)[,1]
-diagnMCSE <- 100*LaplacesDemon::MCSE(allmomentstraces)/apply(allmomentstraces, 2, sd)
+diagnMCSE <- 100*apply(allmomentstraces, 2, function(x){LaplacesDemon::MCSE(x[!is.na(x)])/sd(x, na.rm=TRUE)})
 diagnStat <- apply(allmomentstraces, 2, function(x){LaplacesDemon::is.stationary(as.matrix(x,ncol=1))})
 ##
     pdff(paste0('mcsummary-R',version,'-V',length(covNames),'-D',ndata,'-K',nclusters,'-I',nrow(mcsamples)))
@@ -260,45 +260,6 @@ diagnStat <- apply(allmomentstraces, 2, function(x){LaplacesDemon::is.stationary
     }
     dev.off()
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-    
-    pdff(paste0('mcsummary-R',version,'-V',length(covNames),'-D',ndata,'-K',nclusters,'-I',nrow(mcsamples)))
-    matplot(1:2,1:2, type='l', lty=1, col='white')
-    legend('topleft',legend=c(paste0('time: ',signif(totalruntime,3)), paste0('LL ESS: ', signif(lless,3)), paste(c('ESS ',names(summary(ess))),collapse=' '), paste(c('ESS ',signif(summary(ess),3)),collapse=' ')),bty='n',cex=1)
-    matplot(loglikelihood, type='l', lty=1, col=palette()[2], main='logprobData', ylab='logprobData')
-    matplot(apply((parmList$q),1,function(x){mean(log(x[x>0]))}),type='l',lty=1, main='mean log-q', ylab='mean log-q')
-    matplot(log(apply((parmList$q),1,function(x){sd(log(x[x>0]))})), type='l',lty=1, main='log-SD log-q', ylab='log-SD log-q')
-    ##
-    for(i in continuousCovs){
-        matplot(rowMeans((parmList$meanC[,i,])),type='l',lty=1, main=paste0('mean means ', i), ylab=paste0('mean means ', i))
-        matplot(log(apply(parmList$meanC[,i,],1,sd)), type='l',lty=1, main=paste0('log-SD means ', i), ylab=paste0('log-SD means ', i))
-        matplot(rowMeans(log(parmList$tauC[,i,])),type='l',lty=1, main=paste0('mean taus ', i), ylab=paste0('mean log-taus ', i))
-        matplot(log(apply(log(parmList$tauC[,i,]),1,sd)),type='l',lty=1, main=paste0('log-SD taus ', i), ylab=paste0('log-SD log-taus ', i))
-    }
-    for(i in discreteCovs){
-        matplot(rowMeans(log(parmList$probD[,i,])),type='l',lty=1, main=paste0('mean probs ', i), ylab=paste0('mean log-probs ', i))
-        matplot(log(apply(log(parmList$probD[,i,]),1,sd)),type='l',lty=1, main=paste0('log-SD probs ', i), ylab=paste0('log-SD log-probs ', i))
-        matplot(rowMeans((parmList$sizeD[,i,])),type='l',lty=1, main=paste0('mean sizes ', i), ylab=paste0('mean sizes ', i))
-        matplot(log(apply(parmList$sizeD[,i,],1,sd)),type='l',lty=1, main=paste0('log-SD sizes ', i), ylab=paste0('log-SD sizes ', i))
-    }
-    dev.off()
-}
-##
-##save.image(file=paste0('_nimbleoutput-run',version,'.RData'))
 
 
 ##
@@ -332,30 +293,30 @@ for(addvar in setdiff(covNames, 'log_RMSD')){
             xlab='log_RMSD',
             ylab=addvar,
             type='p', pch=1, cex=0.2, lwd=1, col=palette()[2])
-        matlines(x=c(rep(plotvarRanges[['log_RMSD']], each=2), plotvarRanges[['log_RMSD']][1]),
-             y=c(plotvarRanges[[addvar]], rev(plotvarRanges[[addvar]]), plotvarRanges[[addvar]][1]),
-                 lwd=2, col=paste0(palette()[2],'88'))
-        matlines(x=c(rep(plotvarQs[['log_RMSD']], each=2), plotvarQs[['log_RMSD']][1]),
-             y=c(plotvarQs[[addvar]], rev(plotvarQs[[addvar]]), plotvarQs[[addvar]][1]),
-                 lwd=2, col=paste0(palette()[4],'88'))
-}
-for(asample in subsamplep){
-par(mfrow = c(2, 3))
-for(addvar in setdiff(covNames, 'log_RMSD')){
-    matplot(x=xsamples['log_RMSD', subsamplex, asample][subsamplex],
-            y=xsamples[addvar, subsamplex, asample][subsamplex],
-            xlim=xlim[['log_RMSD']],
-            ylim=xlim[[addvar]],
-            xlab='log_RMSD',
-            ylab=addvar,
-            type='p', pch=1, cex=0.2, lwd=1, col=palette()[1])
     matlines(x=c(rep(plotvarRanges[['log_RMSD']], each=2), plotvarRanges[['log_RMSD']][1]),
              y=c(plotvarRanges[[addvar]], rev(plotvarRanges[[addvar]]), plotvarRanges[[addvar]][1]),
              lwd=2, col=paste0(palette()[2],'88'))
-            matlines(x=c(rep(plotvarQs[['log_RMSD']], each=2), plotvarQs[['log_RMSD']][1]),
+    matlines(x=c(rep(plotvarQs[['log_RMSD']], each=2), plotvarQs[['log_RMSD']][1]),
              y=c(plotvarQs[[addvar]], rev(plotvarQs[[addvar]]), plotvarQs[[addvar]][1]),
-                 lwd=2, col=paste0(palette()[4],'88'))
+             lwd=2, col=paste0(palette()[4],'88'))
 }
+for(asample in subsamplep){
+    par(mfrow = c(2, 3))
+    for(addvar in setdiff(covNames, 'log_RMSD')){
+        matplot(x=xsamples['log_RMSD', subsamplex, asample][subsamplex],
+                y=xsamples[addvar, subsamplex, asample][subsamplex],
+                xlim=xlim[['log_RMSD']],
+                ylim=xlim[[addvar]],
+                xlab='log_RMSD',
+                ylab=addvar,
+                type='p', pch=1, cex=0.2, lwd=1, col=palette()[1])
+        matlines(x=c(rep(plotvarRanges[['log_RMSD']], each=2), plotvarRanges[['log_RMSD']][1]),
+                 y=c(plotvarRanges[[addvar]], rev(plotvarRanges[[addvar]]), plotvarRanges[[addvar]][1]),
+                 lwd=2, col=paste0(palette()[2],'88'))
+        matlines(x=c(rep(plotvarQs[['log_RMSD']], each=2), plotvarQs[['log_RMSD']][1]),
+                 y=c(plotvarQs[[addvar]], rev(plotvarQs[[addvar]]), plotvarQs[[addvar]][1]),
+                 lwd=2, col=paste0(palette()[4],'88'))
+    }
 }
 dev.off()
 
