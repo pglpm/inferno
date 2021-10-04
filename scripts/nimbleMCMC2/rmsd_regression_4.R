@@ -1,6 +1,6 @@
 ## Author: PGL  Porta Mana
 ## Created: 2021-03-20T10:07:17+0100
-## Last-Updated: 2021-10-04T23:11:56+0200
+## Last-Updated: 2021-10-05T01:39:45+0200
 ################
 ## Script for direct regression, continuous RMSD
 ################
@@ -243,7 +243,7 @@ print(totalruntime)
 ##
 saveRDS(mcsamples,file=paste0('_mcsamples-R',version,'-V',length(covNames),'-D',ndata,'-K',nclusters,'-I',nrow(mcsamples),'.rds'))
 ##
-## mcsamples <- readRDS(file='_mcsamples-Rpost9thinTpsC-V7-D6000-K100-I2000.rds')
+## mcsamples <- readRDS(file='_mcsamples-RpriorHM-V7-D6000-K100-I2000.rds')
 parmList <- mcsamples2parmlist(mcsamples, parmNames=c('q', 'meanC', 'tauC', 'probD', 'sizeD'))
 momentstraces <- moments12Samples(parmList)
 allmomentstraces <- cbind(Dcov=plogis(momentstraces$Dcovars, scale=1/10), momentstraces$means, log(momentstraces$vars), momentstraces$covars)
@@ -409,8 +409,38 @@ dev.off()
 #######################################################################
 #######################################################################
 
+mcsamples <- readRDS(file='_mcsamples-RpriorHM-V7-D6000-K100-I2000.rds')[1:50,]
+parmList <- mcsamples2parmlist(mcsamples, parmNames=c('q', 'meanC', 'tauC', 'probD', 'sizeD'))
 
+nsamples <- nrow(parmList$q)
+chunksize <- 2
+nchunks <- nsamples/chunksize
+gc()
+timecount <- Sys.time()
+plan(sequential)
+##plan(multisession, workers = 6L)
+testll <- foreach(achunk=0:(nchunks-1), .combine=c)%dopar%{
+    subsamples <- chunksize*achunk+(1:chunksize)
+    probs <- rowSums( sapply(continuousCovs, function(acov){
+        dnorm(rep(dat$X[,acov], each=chunksize*nclusters), mean=c(t(parmList$meanC[subsamples,acov,])), sd=1/sqrt(c(t(parmList$tauC[subsamples,acov,]))), log=TRUE)
+    }) ) +
+        rowSums( sapply(discreteCovs, function(acov){
+            dbinom(rep(dat$Y[,acov], each=chunksize*nclusters), prob=c(t(parmList$probD[subsamples,acov,])), size=c(t(parmList$sizeD[subsamples,acov,])), log=TRUE)
+        }) ) +
+        log(c(t(parmList$q[subsamples,])))
+    dim(probs) <- c(nclusters, chunksize, ndata)
+    rowSums(log(colSums(exp(probs))))
+}
+plan(sequential)
+print(Sys.time()-timecount)
 
+gc()
+timecount <- Sys.time()
+plan(sequential)
+## plan(multisession, workers = 6L)
+testll2 <- llSamples(dat=dat, parmList=parmList)
+plan(sequential)
+print(Sys.time()-timecount)
 
 
 asample <- 4
