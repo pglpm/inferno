@@ -1,6 +1,6 @@
 ## Author: PGL  Porta Mana
 ## Created: 2021-03-20T10:07:17+0100
-## Last-Updated: 2021-10-04T18:13:50+0200
+## Last-Updated: 2021-10-04T18:38:48+0200
 ################
 ## Script for direct regression, continuous RMSD
 ################
@@ -66,9 +66,7 @@ nccovs <- length(continuousCovs)
 ndcovs <- length(discreteCovs)
 meansccovs <- apply(alldata[1:ndata,..continuousCovs],2,mean)
 varsccovs <- apply(alldata[1:ndata,..continuousCovs],2,function(x)var(x, na.rm=T))
-meansdcovs <- apply(alldata[1:ndata,..discreteCovs],2,mean)
-varsdcovs <- apply(alldata[1:ndata,..discreteCovs],2,function(x)var(x, na.rm=T))
-maxdcovs <- apply(alldata[1:ndata,..discreteCovs],2,max)
+## shape & scale parameters for the gamma distribution for tau
 tauQccovs <- sapply(continuousCovs, function(acov){
     fn <- function(parms){
         (pinvgamma(varsccovs[acov]/sqrt(10), shape=parms[1], scale=parms[2]) - 0.005)^2 +
@@ -102,6 +100,10 @@ print(sapply(continuousCovs, function(acov){
 ##     }
 ##     resu$par
 ## })
+meansdcovs <- apply(alldata[1:ndata,..discreteCovs],2,mean)
+varsdcovs <- apply(alldata[1:ndata,..discreteCovs],2,function(x)var(x, na.rm=T))
+maxdcovs <- apply(alldata[1:ndata,..discreteCovs],2,max)
+## prob and size parameters for the neg-binomial distribution for sizeD
 sizeQdcovs <- sapply(discreteCovs, function(acov){
     fn <- function(parms){
         (pnbinom(round(maxdcovs[acov]/sqrt(10)), prob=parms[1], size=parms[2]) - 0.005)^2 +
@@ -124,11 +126,11 @@ print(sapply(discreteCovs, function(acov){
          ) }
     fn(sizeQdcovs[,acov])
 }))
-##
-probsdcovs <- (maxdcovs-meansdcovs)/meansdcovs
+## shape1 and shape2 parameters for the beta distribution for probD
+shapesratio <- (maxdcovs-meansdcovs)/meansdcovs
 alphadcovs <- sapply(discreteCovs, function(acov){
     fn <- function(parms){
-        parms2 <- parms*probsdcovs[acov]
+        parms2 <- parms*shapesratio[acov]
         -(lbeta(parms,parms2) - (parms-1)*digamma(parms) - (parms2-1)*digamma(parms2) + (parms+parms2-2)*digamma(parms+parms2))
     }
     optim(1, fn=fn,
@@ -158,7 +160,7 @@ inits <- list(
     tauCshape=tauQccovs[1,],
     tauCrate=tauQccovs[2,],
     probDshape1=alphadcovs,
-    probDshape2=alphadcovs*probsdcovs,
+    probDshape2=alphadcovs*shapesratio,
     sizeDpar1=sizeQdcovs[1,], # 1/(maxdcovs), # 1/(1+2*meansdcovs),
     sizeDpar2=sizeQdcovs[2,], # maxdcovs/(maxdcovs-1), # 1+0*maxdcovs,
     ##
@@ -202,7 +204,7 @@ bayesnet <- nimbleCode({
 })
 ##
 
-posterior <- FALSE
+posterior <- TRUE
 if(posterior){
     model <- nimbleModel(code=bayesnet, name='model1', constants=constants, inits=inits, data=dat)
 }else{
@@ -234,7 +236,7 @@ list(
     tauCshape=tauQccovs[1,],
     tauCrate=tauQccovs[2,],
     probDshape1=alphadcovs,
-    probDshape2=alphadcovs*probsdcovs,
+    probDshape2=alphadcovs*shapesratio,
     sizeDpar1=sizeQdcovs[1,], # 1/(maxdcovs), # 1/(1+2*meansdcovs),
     sizeDpar2=sizeQdcovs[2,], # maxdcovs/(maxdcovs-1), # 1+0*maxdcovs,
     ##
@@ -251,16 +253,17 @@ list(
          )
 }
 ##
-version <- 'priorHM10'
+version <- 'postHM10'
 gc()
 totalruntime <- Sys.time()
-mcsamples <- runMCMC(Cmcmcsampler, nburnin=1, niter=2001, thin=1, inits=initsFunction, setSeed=149)
+mcsamples <- runMCMC(Cmcmcsampler, nburnin=1, niter=101, thin=1, inits=initsFunction, setSeed=149)
 ## Cmcmcsampler$run(niter=2000, thin=1, reset=FALSE, resetMV=TRUE)
 ## mcsamples <- as.matrix(Cmcmcsampler$mvSamples)
 totalruntime <- Sys.time() - totalruntime
 print(totalruntime)
 ## 7 vars, 6000 data, 100 cl, 2000 iter, slice: 2.48 h
 ## 7 vars, 6000 data, 100 cl, 5001 iter, slice: 6.84 h
+## 7 vars, 6000 data, 100 cl: rougly 8.2 min/(100 iterations)
 ##
 saveRDS(mcsamples,file=paste0('_mcsamples-R',version,'-V',length(covNames),'-D',ndata,'-K',nclusters,'-I',nrow(mcsamples),'.rds'))
 ##
