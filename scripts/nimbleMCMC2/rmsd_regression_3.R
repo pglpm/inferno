@@ -1,6 +1,6 @@
 ## Author: PGL  Porta Mana
 ## Created: 2021-03-20T10:07:17+0100
-## Last-Updated: 2021-10-04T00:33:25+0200
+## Last-Updated: 2021-10-04T16:55:03+0200
 ################
 ## Script for direct regression, continuous RMSD
 ################
@@ -233,23 +233,23 @@ list(
     C=rep(1,ndata) # rcat(n=ndata, prob=rep(1/nclusters,nclusters))
          )
 }
+
 ##
-version <- 'post9thinTps'
+version <- 'post9thinTpsC'
 gc()
 totalruntime <- Sys.time()
-mcsamples <- runMCMC(Cmcmcsampler, nburnin=1, niter=2001, thin=1, inits=initsFunction, setSeed=149)
-## Cmcmcsampler$run(niter=1000, thin=1, reset=FALSE, resetMV=FALSE)
-## mcsamples <- as.matrix(Cmcmcsampler$mvSamples)
+## mcsamples <- runMCMC(Cmcmcsampler, nburnin=1, niter=5001, thin=1, inits=initsFunction, setSeed=149)
+Cmcmcsampler$run(niter=2000, thin=1, reset=FALSE, resetMV=TRUE)
+mcsamples <- as.matrix(Cmcmcsampler$mvSamples)
 totalruntime <- Sys.time() - totalruntime
 print(totalruntime)
-## 7 vars, 6000 data, 100 cl, 1000 iter, slice: 1.15 h
-## 7 vars, 6000 data, 100 cl, 4000 iter, slice: 4.66 h
-## 7 vars, 6000 data, 100 cl, 4000 iter, slice: 4.58 h
-## 7 vars, 6000 data, 100 cl, 6000 iter, slice: 7.58 h
+## 7 vars, 6000 data, 100 cl, 2000 iter, slice: 2.48 h
+## 7 vars, 6000 data, 100 cl, 5001 iter, slice: 6.84 h
 ##
 saveRDS(mcsamples,file=paste0('_mcsamples-R',version,'-V',length(covNames),'-D',ndata,'-K',nclusters,'-I',nrow(mcsamples),'.rds'))
 ## save(model,Cmodel,confmodel,mcmcsampler,Cmcmcsampler, file=paste0('_model-',version,'-v',length(covNames),'-d',ndata,'-c',nclusters,'-i',nrow(mcsamples),'.RData'))
 ##
+mcsamples <- readRDS(file='_mcsamples-Rpost9thinTpsC-V7-D6000-K100-I2000.rds')
 parmList <- mcsamples2parmlist(mcsamples, parmNames=c('q', 'meanC', 'tauC', 'probD', 'sizeD'))
 momentstraces <- moments12Samples(parmList)
 allmomentstraces <- cbind(Dcov=plogis(momentstraces$Dcovars, scale=1/10), momentstraces$means, log(momentstraces$vars), momentstraces$covars)
@@ -363,6 +363,7 @@ for(asample in subsamplep){
     }
 }
 dev.off()
+
 ##
 if(TRUE){
 timecount <- Sys.time()
@@ -374,6 +375,7 @@ print(Sys.time()-timecount)
 loglikelihood[is.infinite(loglikelihood)] <- NA
 allmomentstraces <- cbind(matrix(loglikelihood, ncol=1, dimnames=list(NULL, 'Log-likelihood')), Dcov=plogis(momentstraces$Dcovars, scale=1/10), momentstraces$means, log(momentstraces$vars), momentstraces$covars)
 ##
+diagnESS <- LaplacesDemon::ESS(allmomentstraces)
 diagnBMK <- LaplacesDemon::BMK.Diagnostic(allmomentstraces, batches=2)[,1]
 diagnMCSE <- 100*apply(allmomentstraces, 2, function(x){LaplacesDemon::MCSE(x[!is.na(x)])/sd(x, na.rm=TRUE)})
 diagnStat <- apply(allmomentstraces, 2, function(x){LaplacesDemon::is.stationary(as.matrix(x,ncol=1))})
@@ -397,6 +399,16 @@ for(acov in colnames(allmomentstraces)){
 }
 dev.off()
 }
+
+
+#######################################################################
+#######################################################################
+#######################################################################
+#######################################################################
+
+
+
+
 
 asample <- 4
 adatum <- 1
