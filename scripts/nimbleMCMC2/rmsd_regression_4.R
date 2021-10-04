@@ -1,6 +1,6 @@
 ## Author: PGL  Porta Mana
 ## Created: 2021-03-20T10:07:17+0100
-## Last-Updated: 2021-10-04T19:33:23+0200
+## Last-Updated: 2021-10-04T23:07:48+0200
 ################
 ## Script for direct regression, continuous RMSD
 ################
@@ -64,6 +64,8 @@ nclusters <- 100
 ndata <- 6000 # nSamples = 37969
 nccovs <- length(continuousCovs)
 ndcovs <- length(discreteCovs)
+##
+source('functions_rmsdregr_nimble_binom.R')
 meansccovs <- apply(alldata[1:ndata,..continuousCovs],2,mean)
 varsccovs <- apply(alldata[1:ndata,..continuousCovs],2,function(x)var(x, na.rm=T))
 ## shape & scale parameters for the gamma distribution for tau
@@ -72,34 +74,18 @@ tauQccovs <- sapply(continuousCovs, function(acov){
         (pinvgamma(varsccovs[acov]/sqrt(10), shape=parms[1], scale=parms[2]) - 0.005)^2 +
             (pinvgamma(varsccovs[acov]*sqrt(10), shape=parms[1], scale=parms[2]) - 0.995)^2
     }
-    optim(c(1, 1), fn=fn,
-              gr = function(x) pracma::grad(fn, x), 
-              method = "L-BFGS-B",
-              lower = 0, upper = Inf,
-              control = list(factr = 1e-10, maxit = 100))$par
+    myoptimbounds(c(1, 1), fn=fn, lower=0, upper=Inf)$par
 })
-print(sapply(continuousCovs, function(acov){
-    fn <- function(parms){c(
-         qinvgamma(0.005, shape=parms[1], scale=parms[2]),
-         varsccovs[acov]/sqrt(10),
-         qinvgamma(0.995, shape=parms[1], scale=parms[2]),
-         varsccovs[acov]*sqrt(10)
-         ) }
-    fn(tauQccovs[,acov])
-}))
-## tauQccovs2 <- sapply(continuousCovs, function(acov){
-##     resu <- list(par=c(0.1,0.1))
-##     for(i in 1:1000){
-##         resu <- optim(par=resu$par,
-##                       fn=function(parms){
-##                           (pinvgamma(varsccovs[acov]/5, shape=parms[1], scale=parms[2]) - 0.005)^2 +
-##                               (pinvgamma(varsccovs[acov]*5, shape=parms[1], scale=parms[2]) - 0.995)^2
-##                       }
-##                     , control=list(maxit=1000000)
-##                       )
-##     }
-##     resu$par
-## })
+## print(sapply(continuousCovs, function(acov){
+##     fn <- function(parms){c(
+##          qinvgamma(0.005, shape=parms[1], scale=parms[2]),
+##          varsccovs[acov]/sqrt(10),
+##          qinvgamma(0.995, shape=parms[1], scale=parms[2]),
+##          varsccovs[acov]*sqrt(10)
+##          ) }
+##     fn(tauQccovs[,acov])
+## }))
+##
 meansdcovs <- apply(alldata[1:ndata,..discreteCovs],2,mean)
 varsdcovs <- apply(alldata[1:ndata,..discreteCovs],2,function(x)var(x, na.rm=T))
 maxdcovs <- apply(alldata[1:ndata,..discreteCovs],2,max)
@@ -109,23 +95,18 @@ sizeQdcovs <- sapply(discreteCovs, function(acov){
         (pnbinom(round(maxdcovs[acov]/sqrt(10)), prob=parms[1], size=parms[2]) - 0.005)^2 +
             (pnbinom(round(maxdcovs[acov]*sqrt(10)), prob=parms[1], size=parms[2]) - 0.995)^2
     }
-    resu <- optim(c(0.5, 1), fn=fn,
-              gr = function(x) pracma::grad(fn, x), 
-              method = "L-BFGS-B",
-              lower = c(0.001,0), upper = c(1,Inf),
-              control = list(factr = 1e-10, maxit = 1000))
-##    print(resu)
-    resu$par
+    myoptimbounds(c(0.5, 1), fn=fn, lower = c(0.001,0), upper = c(1,Inf))$par
 })
-print(sapply(discreteCovs, function(acov){
-    fn <- function(parms){c(
-         qnbinom(0.005, prob=parms[1], size=parms[2]),
-         round(maxdcovs[acov]/sqrt(10)),
-         qnbinom(0.995, prob=parms[1], size=parms[2]),
-         round(maxdcovs[acov]*sqrt(10))
-         ) }
-    fn(sizeQdcovs[,acov])
-}))
+## print(sapply(discreteCovs, function(acov){
+##     fn <- function(parms){c(
+##          qnbinom(0.005, prob=parms[1], size=parms[2]),
+##          round(maxdcovs[acov]/sqrt(10)),
+##          qnbinom(0.995, prob=parms[1], size=parms[2]),
+##          round(maxdcovs[acov]*sqrt(10))
+##          ) }
+##     fn(sizeQdcovs[,acov])
+## }))
+##
 ## shape1 and shape2 parameters for the beta distribution for probD
 shapesratio <- (maxdcovs-meansdcovs)/meansdcovs
 alphadcovs <- sapply(discreteCovs, function(acov){
@@ -133,12 +114,7 @@ alphadcovs <- sapply(discreteCovs, function(acov){
         parms2 <- parms*shapesratio[acov]
         -(lbeta(parms,parms2) - (parms-1)*digamma(parms) - (parms2-1)*digamma(parms2) + (parms+parms2-2)*digamma(parms+parms2))
     }
-    optim(1, fn=fn,
-              gr = function(x) pracma::grad(fn, x), 
-              method = "L-BFGS-B",
-              lower = 0, upper = Inf,
-              control = list(factr = 1e-10,
-                             maxit = 100))$par
+    myoptimbounds(1, fn=fn, lower = 0, upper = Inf)$par
 })
 ##
 constants <- list(
@@ -253,10 +229,10 @@ list(
          )
 }
 ##
-version <- 'postHM10'
+version <- 'priorHM'
 gc()
 totalruntime <- Sys.time()
-mcsamples <- runMCMC(Cmcmcsampler, nburnin=1, niter=101, thin=1, inits=initsFunction, setSeed=149)
+mcsamples <- runMCMC(Cmcmcsampler, nburnin=1, niter=2001, thin=1, inits=initsFunction, setSeed=149)
 ## Cmcmcsampler$run(niter=2000, thin=1, reset=FALSE, resetMV=TRUE)
 ## mcsamples <- as.matrix(Cmcmcsampler$mvSamples)
 totalruntime <- Sys.time() - totalruntime
@@ -277,7 +253,23 @@ diagnBMK <- LaplacesDemon::BMK.Diagnostic(allmomentstraces, batches=2)[,1]
 diagnMCSE <- 100*LaplacesDemon::MCSE(allmomentstraces)/apply(allmomentstraces, 2, sd)
 diagnStat <- apply(allmomentstraces, 2, function(x){LaplacesDemon::is.stationary(as.matrix(x,ncol=1))})
 diagnBurn <- apply(allmomentstraces, 2, function(x){LaplacesDemon::burnin(x)})
-## print(summary(ess))
+##
+##
+timecount <- Sys.time()
+plan(sequential)
+plan(multisession, workers = 6L)
+samplesQuantiles <- calcSampleQuantiles(parmList)
+plan(sequential)
+print(Sys.time()-timecount)
+## 7 covs, 2000 samples, serial: 1.722 min 
+##
+alldataRanges <- dataQuantiles <- xlimits <- list()
+for(acov in covNames){
+    dataQuantiles[[acov]] <- quantile(alldata[[acov]], prob=c(0.005,0.995))
+    alldataRanges[[acov]] <- range(alldata[[acov]])
+    xlimits[[acov]] <- range(c(alldataRanges[[acov]], samplesQuantiles[,acov,]))
+}
+##
 ##
 pdff(paste0('mcsummary-R',version,'-V',length(covNames),'-D',ndata,'-K',nclusters,'-I',nrow(mcsamples)))
 matplot(1:2, type='l', col='white', main='Stats')
@@ -286,6 +278,27 @@ legend(x='topleft', bty='n', cex=2, legend=c( paste0('min ESS = ', min(diagnESS)
                                         paste0('max MCSE = ', max(diagnMCSE)),
                                         paste0('all stationary: ', all(diagnStat)),
                                         paste0('burn: ', max(diagnBurn))))
+##
+par(mfrow = c(2, 3))
+for(addvar in setdiff(covNames, 'log_RMSD')){
+    matplot(x=c(rep(alldataRanges[['log_RMSD']], each=2),
+                alldataRanges[['log_RMSD']][1]),
+            y=c(alldataRanges[[addvar]], rev(alldataRanges[[addvar]]),
+                alldataRanges[[addvar]][1]),
+            type='l', lwd=2, col=paste0(palette()[2], '88'),
+             xlim=xlimits[['log_RMSD']],
+            ylim=xlimits[[addvar]],
+            xlab='log_RMSD',
+            ylab=addvar
+            )
+    matlines(x=c(rep(dataQuantiles[['log_RMSD']], each=2),
+                 dataQuantiles[['log_RMSD']][1]),
+             y=c(dataQuantiles[[addvar]], rev(dataQuantiles[[addvar]]),
+                 dataQuantiles[[addvar]][1]),
+             lwd=2, col=paste0(palette()[4], '88'))
+}
+##
+par(mfrow=c(1,1))
 for(acov in colnames(allmomentstraces)){
     matplot(allmomentstraces[, acov], type='l', lty=1,
             col=palette()[if(grepl('^MEAN_', acov)){1}else if(grepl('^VAR_', acov)){3}else if(acov=='Dcov'){2}else{4}],
@@ -301,34 +314,6 @@ for(acov in colnames(allmomentstraces)){
 dev.off()
 ##
 ##
-timecount <- Sys.time()
-plan(sequential)
-plan(multisession, workers = 6L)
-samplesQuantiles <- foreach(asample=seq_len(nrow(parmList$q)), .combine=c)%:%foreach(acov=covNames, .combine=c)%dopar%{
-    if(acov %in% continuousCovs){
-        mixq <- function(x){sum(parmList$q[asample,] * pnorm(x, mean=parmList$meanC[asample,acov,], sd=1/sqrt(parmList$tauC[asample,acov,])))}
-        fn <- function(z){(mixq(z[1]) - 0.005)^2 + (mixq(z[2]) - 0.995)^2}
-        out <- optim(c(meansccovs[acov], meansccovs[acov]), fn,
-              gr = function(x) pracma::grad(fn, x), 
-              method = "L-BFGS-B",
-              lower = -Inf, upper = Inf,
-              control = list(factr = 1e-10,
-                             maxit = 100))$par
-    }else{
-        searchgrid <- 0:max(parmList$sizeD[asample,acov,])
-        dq <- colSums(c(parmList$q[asample,]) * pbinom(matrix(searchgrid, ncol=length(searchgrid), nrow=ncol(parmList$q), byrow=TRUE), prob=parmList$probD[asample,acov,], size=parmList$sizeD[asample,acov,]))
-        out <- c(which.min(abs(dq - 0.005))-1, which.min(abs(dq - 0.995))-1)        
-    }
-    out
-}
-plan(sequential)
-print(Sys.time()-timecount)
-##
-dim(samplesQuantiles) <- c(2, nccovs+ndcovs, nrow(parmList$q))
-samplesQuantiles <- aperm(samplesQuantiles)
-dimnames(samplesQuantiles) <- list(NULL, covNames, c('0.5%', '99.5%'))
-##
-##
 nxsamples <- 1000
 nfsamples <- 100
 ##
@@ -338,13 +323,6 @@ plan(multisession, workers = 6L)
 xsamples <- samplesFsamples(parmList=parmList, nxsamples=nxsamples, nfsamples=nfsamples)
 plan(sequential)
 print(Sys.time()-timecount)
-##
-alldataRanges <- dataQuantiles <- xlimits <- list()
-for(acov in covNames){
-    dataQuantiles[[acov]] <- quantile(alldata[[acov]], prob=c(0.005,0.995))
-    alldataRanges[[acov]] <- range(alldata[[acov]])
-    xlimits[[acov]] <- range(c(alldataRanges[[acov]], samplesQuantiles[,acov,]))
-}
 ##
 subsamplep <- round(seq(1, dim(xsamples)[3], length.out=100))
 subsamplex <- round(seq(1, dim(xsamples)[2], length.out=1000))

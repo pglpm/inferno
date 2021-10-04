@@ -61,6 +61,59 @@ moments12Samples <- function(parmList){
                                     c(1,2), prod)))
 }
 ##
+## Improved optimization functions
+myoptim <- function(par, fn){
+    resu0 <- list(par=par)
+    resu <- optim(par=resu0$par, fn=fn, control=list(maxit=1000))
+    while(any(resu$par!=resu0$par)){
+        resu0 <- resu
+        resu <- optim(par=resu0$par, fn=fn, control=list(maxit=1000))
+    }
+    resu}
+myoptimbounds <- function(par, fn, lower, upper, maxit=100){
+    optim(par, fn=fn,
+          gr = function(x) pracma::grad(fn, x), 
+          method = "L-BFGS-B",
+          lower = lower, upper = upper,
+          control = list(factr = 1e-10, maxit = maxit))
+}
+##
+## Calculates the 0.5% and 99.5% quantiles of each sample frequency
+calcSampleQuantiles <- function(parmList){
+    continuousCovs <- dimnames(parmList$meanC)[[2]]
+    discreteCovs <- dimnames(parmList$probD)[[2]]
+    covNames <- c(continuousCovs, discreteCovs)
+    ncovs <- length(covNames)
+    q <- parmList$q
+    nsamples <- nrow(q)
+    ##
+    quants <- foreach(asample=seq_len(nsamples), .combine=c)%:%foreach(acov=covNames, .combine=c)%dopar%{
+        if(acov %in% continuousCovs){
+                mixq <- function(x){sum(q[asample,] * pnorm(x, mean=parmList$meanC[asample,acov,], sd=1/sqrt(parmList$tauC[asample,acov,])))}
+                fn <- function(par){(mixq(par[1]) - 0.005)^2 +
+                                        (mixq(par[2]) - 0.995)^2}
+                out <- myoptim(par=c(0,0), fn=fn)$par
+            ##     out <- sapply(c(0.005, 0.995), function(border){
+            ## optim(0, #rep(q[asample,] %*% parmList$meanC[asample,acov,], 2),
+            ##              fn=fn,
+            ##              gr = function(x) pracma::grad(fn, x), 
+            ##              method = "L-BFGS-B",
+            ##              lower = -Inf, upper = Inf,
+            ##              control = list(factr = 1e-10, pgtol = 0, maxit = 100))
+        }else{
+            searchgrid <- 0:max(parmList$sizeD[asample,acov,])
+            dq <- colSums(c(q[asample,]) * pbinom(matrix(searchgrid, ncol=length(searchgrid), nrow=ncol(q), byrow=TRUE), prob=parmList$probD[asample,acov,], size=parmList$sizeD[asample,acov,]))
+            out <- c(which.min(abs(dq - 0.005))-1, which.min(abs(dq - 0.995))-1)
+        }
+        out
+    }
+    ##
+    dim(quants) <- c(2, ncovs, nsamples)
+    quants <- aperm(quants)
+    dimnames(quants) <- list(NULL, covNames, c('0.5%', '99.5%'))
+    quants
+}
+##
 ## Calculates the probability of the data (likelihood of parameters) for several MCMC samples
 llSamples <- function(dat, parmList){
     ndataz <- nrow(dat$X)
