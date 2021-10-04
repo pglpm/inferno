@@ -1,6 +1,6 @@
 ## Author: PGL  Porta Mana
 ## Created: 2021-03-20T10:07:17+0100
-## Last-Updated: 2021-10-04T18:38:48+0200
+## Last-Updated: 2021-10-04T19:33:23+0200
 ################
 ## Script for direct regression, continuous RMSD
 ################
@@ -276,6 +276,7 @@ diagnESS <- LaplacesDemon::ESS(allmomentstraces)
 diagnBMK <- LaplacesDemon::BMK.Diagnostic(allmomentstraces, batches=2)[,1]
 diagnMCSE <- 100*LaplacesDemon::MCSE(allmomentstraces)/apply(allmomentstraces, 2, sd)
 diagnStat <- apply(allmomentstraces, 2, function(x){LaplacesDemon::is.stationary(as.matrix(x,ncol=1))})
+diagnBurn <- apply(allmomentstraces, 2, function(x){LaplacesDemon::burnin(x)})
 ## print(summary(ess))
 ##
 pdff(paste0('mcsummary-R',version,'-V',length(covNames),'-D',ndata,'-K',nclusters,'-I',nrow(mcsamples)))
@@ -283,7 +284,8 @@ matplot(1:2, type='l', col='white', main='Stats')
 legend(x='topleft', bty='n', cex=2, legend=c( paste0('min ESS = ', min(diagnESS)),
                                         paste0('max BMK = ', max(diagnBMK)),
                                         paste0('max MCSE = ', max(diagnMCSE)),
-                                        paste0('all stationary: ', all(diagnStat))))
+                                        paste0('all stationary: ', all(diagnStat)),
+                                        paste0('burn: ', max(diagnBurn))))
 for(acov in colnames(allmomentstraces)){
     matplot(allmomentstraces[, acov], type='l', lty=1,
             col=palette()[if(grepl('^MEAN_', acov)){1}else if(grepl('^VAR_', acov)){3}else if(acov=='Dcov'){2}else{4}],
@@ -291,7 +293,8 @@ for(acov in colnames(allmomentstraces)){
                         '\nESS = ', signif(diagnESS[acov], 3),
                         ' | BMK = ', signif(diagnBMK[acov], 3),
                         ' | MCSE(6.27) = ', signif(diagnMCSE[acov], 3),
-                        ' | stat: ', diagnStat[acov]
+                        ' | stat: ', diagnStat[acov],
+                        ' | burn: ', diagnBurn[acov]
                         ),
             ylab=acov)
 }
@@ -398,13 +401,15 @@ diagnESS <- LaplacesDemon::ESS(allmomentstraces)
 diagnBMK <- LaplacesDemon::BMK.Diagnostic(allmomentstraces, batches=2)[,1]
 diagnMCSE <- 100*apply(allmomentstraces, 2, function(x){LaplacesDemon::MCSE(x[!is.na(x)])/sd(x, na.rm=TRUE)})
 diagnStat <- apply(allmomentstraces, 2, function(x){LaplacesDemon::is.stationary(as.matrix(x,ncol=1))})
+diagnBurn <- apply(allmomentstraces, 2, function(x){LaplacesDemon::burnin(x)})
 ##
 pdff(paste0('mcsummary-R',version,'-V',length(covNames),'-D',ndata,'-K',nclusters,'-I',nrow(mcsamples)))
 matplot(1:2, type='l', col='white', main='Stats')
 legend(x='topleft', bty='n', cex=2, legend=c( paste0('min ESS = ', min(diagnESS)),
                                         paste0('max BMK = ', max(diagnBMK)),
                                         paste0('max MCSE = ', max(diagnMCSE)),
-                                        paste0('all stationary: ', all(diagnStat))))
+                                        paste0('all stationary: ', all(diagnStat)),
+                                        paste0('burn: ', max(diagnBurn))))
 for(acov in colnames(allmomentstraces)){
     matplot(allmomentstraces[, acov], type='l', lty=1,
             col=palette()[if(grepl('^MEAN_', acov)){1}else if(grepl('^VAR_', acov)){3}else if(acov=='Dcov'){2}else{4}],
@@ -412,7 +417,8 @@ for(acov in colnames(allmomentstraces)){
                         '\nESS = ', signif(diagnESS[acov], 3),
                         ' | BMK = ', signif(diagnBMK[acov], 3),
                         ' | MCSE(6.27) = ', signif(diagnMCSE[acov], 3),
-                        ' | stat: ', diagnStat[acov]
+                        ' | stat: ', diagnStat[acov],
+                        ' | burn: ', diagnBurn[acov]
                         ),
             ylab=acov)
 }
