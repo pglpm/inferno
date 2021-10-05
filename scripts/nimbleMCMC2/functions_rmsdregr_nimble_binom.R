@@ -28,8 +28,8 @@ mcsamples2parmlist <- function(mcsamples, parmNames=c('q', 'meanC', 'tauC', 'pro
 moments12Samples <- function(parmList){
     continuousCovs <- dimnames(parmList$meanC)[[2]]
     discreteCovs <- dimnames(parmList$probD)[[2]]
-    namecovs <- c(continuousCovs, discreteCovs)
-    ncovs <- length(namecovs)
+    covNames <- c(continuousCovs, discreteCovs)
+    ncovs <- length(covNames)
     q <- t(parmList$q)
     ##
     meansc <- aperm(parmList$meanC, c(3, 1, 2))
@@ -37,7 +37,7 @@ moments12Samples <- function(parmList){
     clustermeans <- c(meansc, meansd)
     dim(clustermeans) <- c(dim(meansc)[-3], ncovs)
     mixmeans <- colSums(c(q) * clustermeans)
-    dimnames(mixmeans) <- list(NULL, paste0('MEAN_', namecovs))
+    dimnames(mixmeans) <- list(NULL, paste0('MEAN_', covNames))
     ##
     quadrc <- aperm(1/parmList$tauC + parmList$meanC * parmList$meanC, c(3, 1, 2))
     quadrd <- aperm(parmList$probD * parmList$sizeD *
@@ -45,20 +45,23 @@ moments12Samples <- function(parmList){
     mixvars <- c(quadrc, quadrd)
     dim(mixvars) <- c(dim(quadrc)[-3], ncovs)
     mixvars <- colSums(c(q) * mixvars) - mixmeans*mixmeans
-    dimnames(mixvars) <- list(NULL, paste0('VAR_', namecovs))
+    dimnames(mixvars) <- list(NULL, paste0('logVAR_', covNames))
     ##
     mixcovars <- foreach(cov1=seq_len(ncovs-1), .combine=cbind)%:%foreach(cov2=(cov1+1):ncovs, .combine=cbind)%do%{
        colSums(c(q)*clustermeans[,,cov1]*clustermeans[,,cov2]) - mixmeans[,cov1]*mixmeans[,cov2]
     }
-    colnames(mixcovars) <- foreach(cov1=seq_len(ncovs-1), .combine=c)%:%foreach(cov2=(cov1+1):ncovs, .combine=c)%do%{paste0('COV_',namecovs[cov1],'|',namecovs[cov2])}
+    colnames(mixcovars) <- foreach(cov1=seq_len(ncovs-1), .combine=c)%:%foreach(cov2=(cov1+1):ncovs, .combine=c)%do%{paste0('COV_',covNames[cov1],'|',covNames[cov2])}
     ##
-    list(means=mixmeans,
-         vars=mixvars,
-         covars=mixcovars,
-         Dcovars=colSums(c(q) * apply(
-                                    (clustermeans -
-                                    array(rep(c(mixmeans), each=nrow(q)), dim=dim(clustermeans)))/array(rep(sqrt(c(mixvars)), each=nrow(q)), dim=dim(clustermeans)),
-                                    c(1,2), prod)))
+    list(
+        Dcovars=plogis(matrix(colSums(c(q) * apply(
+        (clustermeans -
+         array(rep(c(mixmeans), each=nrow(q)), dim=dim(clustermeans)))/array(rep(sqrt(c(mixvars)), each=nrow(q)), dim=dim(clustermeans)),
+        c(1,2), prod)),
+        ncol=1, dimnames=list(NULL, 'Dcov')), scale=1/10),
+        means=mixmeans,
+        vars=log(mixvars),
+        covars=mixcovars
+        )
 }
 ##
 ## Improved optimization functions
@@ -114,6 +117,30 @@ calcSampleQuantiles <- function(parmList){
     quants
 }
 ##
+## Calculates the probability of some datapoints for the MCMC samples
+probValuesSamples <- function(X, parmList){
+    continuousCovs <- dimnames(parmList$meanC)[[2]]
+    discreteCovs <- dimnames(parmList$probD)[[2]]
+    covNames <- c(continuousCovs, discreteCovs)
+    ncovs <- length(covNames)
+    q <- parmList$q
+    ndataz <- nrow(X)
+    ##
+    log(foreach(asample=seq_len(nrow(q)), .combine=cbind, .inorder=TRUE)%dopar%{
+        colSums(
+            exp(
+                log(q[asample,]) +
+                t(vapply(seq_len(ncol(q)), function(acluster){
+                    ## continuous covariates
+                    colSums(dnorm(t(X[,continuousCovs]), mean=parmList$meanC[asample,,acluster], sd=1/sqrt(parmList$tauC[asample,,acluster]), log=TRUE)) +
+                        ## discrete covariates
+                    colSums(dbinom(t(X[,discreteCovs]), prob=parmList$probD[asample,,acluster], size=parmList$sizeD[asample,,acluster], log=TRUE))
+    }, numeric(ndataz)))
+            )
+        )
+    })
+}
+##
 ## Calculates the probability of the data (likelihood of parameters) for several MCMC samples
 llSamples <- function(dat, parmList){
     ndataz <- nrow(dat$X)
@@ -133,6 +160,38 @@ llSamples <- function(dat, parmList){
         ) ) )
     }
 }
+##
+## Calculates the probability of the data (likelihood of parameters) for one MCMC samples
+## if(!exists('calcLL')){
+## calcLL <- nimbleFunction( run=function(
+##     X=double(2), Y=double(2), Q=double(1),
+##     MeanC=double(2), TauC=double(2),
+##     ProbD=double(2), SizeD=double(2)
+##     ){
+##     returnType(double(0))
+##     Nclusters <- length(Q)
+##     Ndata <- dim(X)[1]
+##     Nccovs <- dim(X)[2]
+##     Ndcovs <- dim(Y)[2]
+##     LL <- 0
+##     for(adatum in 1:Ndata){
+##         clustersum <- log(Q)
+##         for(acov in 1:Nccovs){
+##             clustersum <- clustersum +
+##                 dnorm(x=X[adatum,acov], mean=MeanC[acov,], sd=1/sqrt(TauC[acov,]), log=TRUE)
+##         }
+##         for(acov in 1:Ndcovs){
+##             clustersum <- clustersum +
+##                 dbinom(x=Y[adatum,acov], prob=ProbD[acov,], size=SizeD[acov,], log=TRUE)
+##         }
+##         LL <- LL + log(sum(exp(clustersum)))
+##     }
+##     return(LL)
+## } )
+## CcalcLL <- compileNimble(calcLL)
+## assign('CcalcLL', CcalcLL, envir = .GlobalEnv)
+## assign('calcLL', calcLL, envir = .GlobalEnv)
+## }
 ##
 ## Calculates the probability of several datapoints for several MCMC samples
 probJointSamples <- function(dat, parmList, log=FALSE, inorder=FALSE){

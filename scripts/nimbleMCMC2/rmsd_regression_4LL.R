@@ -1,6 +1,6 @@
 ## Author: PGL  Porta Mana
 ## Created: 2021-03-20T10:07:17+0100
-## Last-Updated: 2021-10-05T17:16:59+0200
+## Last-Updated: 2021-10-05T13:34:09+0200
 ################
 ## Script for direct regression, continuous RMSD
 ################
@@ -149,7 +149,8 @@ inits <- list(
     ## tauC=matrix(rgamma(n=nccovs*nclusters, shape=tauQccovs[1,], rate=tauQccovs[2,]), nrow=nccovs, ncol=nclusters),
     ## probD=matrix(rbeta(n=ndcovs*nclusters, shape1=1, shape2=1), nrow=ndcovs, ncol=nclusters),
     ## sizeD=matrix(rnbinom(n=ndcovs*nclusters, prob=1/(1+maxdcovs), size=maxdcovs), nrow=ndcovs, ncol=nclusters),
-    C=rep(1,ndata) # rcat(n=ndata, prob=rep(1/nclusters,nclusters))
+    C=rep(1,ndata), # rcat(n=ndata, prob=rep(1/nclusters,nclusters))
+    ML=0
          )
 ##
 bayesnet <- nimbleCode({
@@ -176,11 +177,15 @@ bayesnet <- nimbleCode({
                 Y[adatum,acov] ~ dbinom(prob=probD[acov,C[adatum]], size=sizeD[acov,C[adatum]])
             }
         }
+        ML <- calcLL(X=X[1:nData,1:nCcovs], Y=Y[1:nData,1:nDcovs],
+                      Q=q[1:nClusters],
+                      MeanC=meanC[1:nCcovs,1:nClusters], TauC=tauC[1:nCcovs,1:nClusters],
+                      ProbD=probD[1:nDcovs,1:nClusters], SizeD=sizeD[1:nDcovs,1:nClusters])
     }
 })
 ##
 
-posterior <- FALSE
+posterior <- TRUE
 if(posterior){
     model <- nimbleModel(code=bayesnet, name='model1', constants=constants, inits=inits, data=dat)
 }else{
@@ -189,7 +194,11 @@ if(posterior){
 Cmodel <- compileNimble(model, showCompilerOutput=FALSE)
 gc()
 ##
-confmodel <- configureMCMC(Cmodel, monitors=c('q','meanC', 'tauC', 'probD', 'sizeD')) #, control=list(adaptive=FALSE))
+if(posterior){
+    confmodel <- configureMCMC(Cmodel, monitors=c('q','meanC', 'tauC', 'probD', 'sizeD', 'ML')) #, control=list(adaptive=FALSE))
+}else{
+    confmodel <- configureMCMC(Cmodel, monitors=c('q','meanC', 'tauC', 'probD', 'sizeD')) #, control=list(adaptive=FALSE))
+}
 ## confmodel$removeSamplers(paste0('sizeD'))
 ## for(i in 1:nclusters){
 ##     confmodel$addSampler(target=paste0('sizeD[',1:ndcovs,', ',i,']'), type='AF_slice', control=list(sliceAdaptFactorInterval=100))
@@ -229,10 +238,10 @@ list(
          )
 }
 ##
-version <- 'priorHM'
+version <- 'testLLpostHM'
 gc()
 totalruntime <- Sys.time()
-mcsamples <- runMCMC(Cmcmcsampler, nburnin=1, niter=2001, thin=1, inits=initsFunction, setSeed=149)
+mcsamples <- runMCMC(Cmcmcsampler, nburnin=1, niter=101, thin=1, inits=initsFunction, setSeed=149)
 ## Cmcmcsampler$run(niter=2000, thin=1, reset=FALSE, resetMV=TRUE)
 ## mcsamples <- as.matrix(Cmcmcsampler$mvSamples)
 totalruntime <- Sys.time() - totalruntime
@@ -240,29 +249,23 @@ print(totalruntime)
 ## 7 vars, 6000 data, 100 cl, 2000 iter, slice: 2.48 h
 ## 7 vars, 6000 data, 100 cl, 5001 iter, slice: 6.84 h
 ## 7 vars, 6000 data, 100 cl: rougly 8.2 min/(100 iterations)
+
+
+
+
 ##
 saveRDS(mcsamples,file=paste0('_mcsamples-R',version,'-V',length(covNames),'-D',ndata,'-K',nclusters,'-I',nrow(mcsamples),'.rds'))
 ##
 ## mcsamples <- readRDS(file='_mcsamples-RpriorHM-V7-D6000-K100-I2000.rds')
 parmList <- mcsamples2parmlist(mcsamples, parmNames=c('q', 'meanC', 'tauC', 'probD', 'sizeD'))
 momentstraces <- moments12Samples(parmList)
-set.seed(941)
-ncheckpoints <- 10
-checkpoints <- rbind(
-    c(meansccovs, round(meansdcovs)),
-    c(meansccovs+sqrt(varsccovs), round(meansdcovs+sqrt(varsdcovs))),
-    c(meansccovs-sqrt(varsccovs), sapply(round(meansdcovs-sqrt(varsdcovs)), function(x){max(0,x)})),
-    as.matrix(alldata[sample(1:ndata, size=ncheckpoints), ..covNames])
-)
-rownames(checkpoints) <- c('datamean', 'cornerhi', 'cornerlo', paste0('datum',1:ncheckpoints))
-probCheckpoints <- t(probValuesSamples(checkpoints, parmList))
-traces <- cbind(probCheckpoints, do.call(cbind, momentstraces))
+allmomentstraces <- cbind(Dcov=plogis(momentstraces$Dcovars, scale=1/10), momentstraces$means, log(momentstraces$vars), momentstraces$covars)
 ##
-diagnESS <- LaplacesDemon::ESS(traces)
-diagnBMK <- LaplacesDemon::BMK.Diagnostic(traces, batches=2)[,1]
-diagnMCSE <- 100*LaplacesDemon::MCSE(traces)/apply(traces, 2, sd)
-diagnStat <- apply(traces, 2, function(x){LaplacesDemon::is.stationary(as.matrix(x,ncol=1))})
-diagnBurn <- apply(traces, 2, function(x){LaplacesDemon::burnin(x)})
+diagnESS <- LaplacesDemon::ESS(allmomentstraces)
+diagnBMK <- LaplacesDemon::BMK.Diagnostic(allmomentstraces, batches=2)[,1]
+diagnMCSE <- 100*LaplacesDemon::MCSE(allmomentstraces)/apply(allmomentstraces, 2, sd)
+diagnStat <- apply(allmomentstraces, 2, function(x){LaplacesDemon::is.stationary(as.matrix(x,ncol=1))})
+diagnBurn <- apply(allmomentstraces, 2, function(x){LaplacesDemon::burnin(x)})
 ##
 ##
 timecount <- Sys.time()
@@ -280,18 +283,6 @@ for(acov in covNames){
     xlimits[[acov]] <- range(c(alldataRanges[[acov]], samplesQuantiles[,acov,]))
 }
 ##
-
-##
-colpalette <- sapply(colnames(traces),function(acov){
-    if(acov=='datamean'){1}
-    else if(grepl('^corner', acov)){3}
-    else if(grepl('^datum', acov)){4}
-    else if(grepl('^logitDcov', acov)){2}
-    else if(grepl('^MEAN_', acov)){5}
-    else if(grepl('^logVAR_', acov)){3}
-    else{4}
-})
-names(colpalette) <- colnames(traces)
 ##
 pdff(paste0('mcsummary-R',version,'-V',length(covNames),'-D',ndata,'-K',nclusters,'-I',nrow(mcsamples)))
 matplot(1:2, type='l', col='white', main='Stats')
@@ -321,8 +312,9 @@ for(addvar in setdiff(covNames, 'log_RMSD')){
 }
 ##
 par(mfrow=c(1,1))
-for(acov in colnames(traces)){
-    matplot(traces[, acov], type='l', lty=1, col=colpalette[acov],
+for(acov in colnames(allmomentstraces)){
+    matplot(allmomentstraces[, acov], type='l', lty=1,
+            col=palette()[if(grepl('^MEAN_', acov)){1}else if(grepl('^VAR_', acov)){3}else if(acov=='Dcov'){2}else{4}],
             main=paste0(acov,
                         '\nESS = ', signif(diagnESS[acov], 3),
                         ' | BMK = ', signif(diagnBMK[acov], 3),
@@ -333,8 +325,6 @@ for(acov in colnames(traces)){
             ylab=acov)
 }
 dev.off()
-
-
 ##
 ##
 nxsamples <- 1000
@@ -387,33 +377,23 @@ for(asample in subsamplep){
 }
 dev.off()
 
-
-
-#######################################################################
-#######################################################################
-#######################################################################
-#######################################################################
-
-
-
 ##
-if(FALSE){
+if(TRUE){
 timecount <- Sys.time()
 plan(sequential)
 plan(multisession, workers = 6L)
-loglikelihood  <- matrix(llSamples(dat=dat, parmList=parmList), ncol=1)
+loglikelihood <- loglikelihoodorig <- matrix(llSamples(dat=dat, parmList=parmList), ncol=1)
 plan(sequential)
 print(Sys.time()-timecount)
 loglikelihood[is.infinite(loglikelihood)] <- NA
-traces2 <- cbind(matrix(loglikelihood, ncol=1, dimnames=list(NULL, 'Log-likelihood')), traces)
+allmomentstraces <- cbind(matrix(loglikelihood, ncol=1, dimnames=list(NULL, 'Log-likelihood')), Dcov=plogis(momentstraces$Dcovars, scale=1/10), momentstraces$means, log(momentstraces$vars), momentstraces$covars)
 ##
-diagnESS <- LaplacesDemon::ESS(traces2)
-diagnBMK <- LaplacesDemon::BMK.Diagnostic(traces2, batches=2)[,1]
-diagnMCSE <- 100*apply(traces2, 2, function(x){LaplacesDemon::MCSE(x[!is.na(x)])/sd(x, na.rm=TRUE)})
-diagnStat <- apply(traces2, 2, function(x){LaplacesDemon::is.stationary(as.matrix(x,ncol=1))})
-diagnBurn <- apply(traces2, 2, function(x){LaplacesDemon::burnin(x)})
+diagnESS <- LaplacesDemon::ESS(allmomentstraces)
+diagnBMK <- LaplacesDemon::BMK.Diagnostic(allmomentstraces, batches=2)[,1]
+diagnMCSE <- 100*apply(allmomentstraces, 2, function(x){LaplacesDemon::MCSE(x[!is.na(x)])/sd(x, na.rm=TRUE)})
+diagnStat <- apply(allmomentstraces, 2, function(x){LaplacesDemon::is.stationary(as.matrix(x,ncol=1))})
+diagnBurn <- apply(allmomentstraces, 2, function(x){LaplacesDemon::burnin(x)})
 ##
-
 pdff(paste0('mcsummary-R',version,'-V',length(covNames),'-D',ndata,'-K',nclusters,'-I',nrow(mcsamples)))
 matplot(1:2, type='l', col='white', main='Stats')
 legend(x='topleft', bty='n', cex=2, legend=c( paste0('min ESS = ', min(diagnESS)),
@@ -421,10 +401,9 @@ legend(x='topleft', bty='n', cex=2, legend=c( paste0('min ESS = ', min(diagnESS)
                                         paste0('max MCSE = ', max(diagnMCSE)),
                                         paste0('all stationary: ', all(diagnStat)),
                                         paste0('burn: ', max(diagnBurn))))
-for(acov in colnames(traces2)){
-    matplot(traces2[, acov], type='l', lty=1,
-            col=palette()[
-                if(grepl('^MEAN_', acov)){1}else if(grepl('^VAR_', acov)){3}else if(acov=='Dcov'){2}else if(acov=='centre'){1}else if(grepl('^corner',acov)){3}else{7}],
+for(acov in colnames(allmomentstraces)){
+    matplot(allmomentstraces[, acov], type='l', lty=1,
+            col=palette()[if(grepl('^MEAN_', acov)){1}else if(grepl('^VAR_', acov)){3}else if(acov=='Dcov'){2}else{4}],
             main=paste0(acov,
                         '\nESS = ', signif(diagnESS[acov], 3),
                         ' | BMK = ', signif(diagnBMK[acov], 3),
@@ -435,7 +414,6 @@ for(acov in colnames(traces2)){
             ylab=acov)
 }
 dev.off()
-
 }
 
 
