@@ -83,7 +83,7 @@ moments12Samples <- function(parmList){
         (clustermeans -
          array(rep(c(mixmeans), each=nrow(q)), dim=dim(clustermeans)))/array(rep(sqrt(c(mixvars)), each=nrow(q)), dim=dim(clustermeans)),
         c(1,2), prod)),
-        ncol=1, dimnames=list(NULL, 'Dcov')), scale=1/10),
+        ncol=1, dimnames=list(NULL, 'logitDcov')), scale=1/10),
         means=mixmeans,
         vars=log(mixvars),
         covars=mixcovars
