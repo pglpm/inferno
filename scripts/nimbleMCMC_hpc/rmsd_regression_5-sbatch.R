@@ -1,16 +1,18 @@
 ## Author: PGL  Porta Mana
 ## Created: 2021-03-20T10:07:17+0100
-## Last-Updated: 2021-10-07T10:15:47+0200
+## Last-Updated: 2021-10-07T16:02:07+0200
 ################
 ## Batch script for direct regression, continuous RMSD
 ################
 
 .libPaths(c("/cluster/home/user1/R",.libPaths()))
 
+baseversion <- 'postHM'
 nclusters <- 2L^6
 ndata <- 2L^12 # nSamples = 37969
 niter <- 2L^11
-nstages <- 0
+nstages <- 3L
+ncheckpoints <- 8L
 covNames <-  c('log_RMSD'
                ,'log_mcs_unbonded_polar_sasa'
                ,'logit_ec_tanimoto_similarity'
@@ -19,7 +21,7 @@ covNames <-  c('log_RMSD'
                ,'docked_HeavyAtomCount'
                ,'mcs_RingCount'
                ,'docked_NumRotatableBonds'
-               ## ,'mcs_NOCount'
+               ,'mcs_NOCount'
                )
 ## pdff('check_mutualinfo')
 ## for(i in 1:(length(covNames)-1)){
@@ -150,7 +152,7 @@ dat <- list(
 inits <- list(
     alphaK=rep(5/nclusters, nclusters),
     meanCmean=meansccovs,
-    meanCtau=0.5/varsccovs,
+    meanCtau=1/(sqrt(10)*varsccovs),
     tauCshape=tauQccovs[1,],
     tauCrate=tauQccovs[2,],
     probDshape1=alphadcovs,
@@ -197,6 +199,8 @@ bayesnet <- nimbleCode({
     }
 })
 ##
+
+timecount <- Sys.time()
 
 posterior <- TRUE
 if(posterior){
@@ -253,7 +257,6 @@ list(
     C=rep(1,ndata) # rcat(n=ndata, prob=rep(1/nclusters,nclusters))
          )
 }
-ncheckpoints <- 8
 set.seed(941)
 checkpoints <- rbind(
     c(meansccovs, round(meansdcovs)),
@@ -263,21 +266,24 @@ checkpoints <- rbind(
 )
 rownames(checkpoints) <- c('lPdatamean', 'lPcornerHi', 'lPcornerLo', paste0('lPdatum',1:ncheckpoints))
 
+print('Setup time:')
+print(Sys.time() - timecount)
+
 ##
 for(stage in 0:nstages){
-    
-    print(paste0('==== STAGE ', stage, ' ===='))
-    version <- paste0('testpostHM', stage)
-    gc()
     totalruntime <- Sys.time()
+
+    print(paste0('==== STAGE ', stage, ' ===='))
+    version <- paste0(baseversion, stage)
+    gc()
     if(stage==0){
         mcsamples <- runMCMC(Cmcmcsampler, nburnin=1, niter=niter+1, thin=1, thin2=niter, inits=initsFunction, setSeed=149)
     }else{
         Cmcmcsampler$run(niter=niter, thin=1, thin2=niter, reset=FALSE, resetMV=TRUE)
     }
     mcsamples <- as.matrix(Cmcmcsampler$mvSamples)
-    totalruntime <- Sys.time() - totalruntime
-    print(totalruntime)
+    print('MCMC time:')
+    print(Sys.time() - totalruntime)
     ## 7 vars, 6000 data, 100 cl, 2000 iter, slice: 2.48 h
     ## 7 vars, 6000 data, 100 cl, 5001 iter, slice: 6.84 h
     ## 7 vars, 6000 data, 100 cl: rougly 8.2 min/(100 iterations)
@@ -314,12 +320,10 @@ for(stage in 0:nstages){
           paste0('burn: ', max(diagnBurn[tracegroups[[agroup]]])))
     }
     ##
-    timecount <- Sys.time()
     ## plan(sequential)
     ## plan(multisession, workers = 6L)
     samplesQuantiles <- calcSampleQuantiles(parmList)
     ## plan(sequential)
-    print(Sys.time()-timecount)
     ## 7 covs, 2000 samples, serial: 1.722 min 
     ##
     alldataRanges <- dataQuantiles <- xlimits <- list()
@@ -352,7 +356,7 @@ for(stage in 0:nstages){
     legend(x='bottomright', bty='n', cex=1.5,
        legend=paste0('Occupied clusters: ', usedclusters, ' of ', nclusters))
     ##
-    par(mfrow = c(2, 3))
+    par(mfrow = c(2, 4))
     for(addvar in setdiff(covNames, 'log_RMSD')){
         matplot(x=c(rep(alldataRanges[['log_RMSD']], each=2),
                     alldataRanges[['log_RMSD']][1]),
@@ -384,106 +388,9 @@ for(stage in 0:nstages){
                 ylab=acov)
     }
     dev.off()
+
+    print('Total runtime:')
+    print(Sys.time() - totalruntime)
+
 }
-
-
-
-
-
-
-
-
-## parmList <- mcsamples2parmlist(mcsamples)
-## momentstraces <- moments12Samples(parmList)
-## probCheckpoints <- t(probValuesSamples(checkpoints, parmList))
-##     traces <- cbind(probCheckpoints, do.call(cbind, momentstraces))
-##     saveRDS(traces,file=paste0('_traces-R',version,'-V',length(covNames),'-D',ndata,'-K',nclusters,'-I',nrow(mcsamples),'.rds'))
-##     ##
-## diagnESS <- LaplacesDemon::ESS(traces)
-## diagnBMK <- LaplacesDemon::BMK.Diagnostic(traces, batches=2)[,1]
-## diagnMCSE <- 100*apply(traces, 2, function(x){LaplacesDemon::MCSE(x)/sd(x)})
-## diagnStat <- apply(traces, 2, function(x){LaplacesDemon::is.stationary(as.matrix(x,ncol=1))})
-## diagnBurn <- apply(traces, 2, function(x){LaplacesDemon::burnin(x)})
-## ##
-##     tracegroups <- list('maxD'=1:(ncheckpoints+3),
-##     '1D'=(ncheckpoints+3)+(1:(2*(nccovs+ndcovs))),
-##     '2D'=((ncheckpoints+3)+2*(nccovs+ndcovs)+1):ncol(traces) )
-##     grouplegends <- foreach(agroup=1:length(tracegroups))%do%{
-##         c( paste0('-- STATS ', names(tracegroups)[agroup], ' --'),
-##           paste0('min ESS = ', min(diagnESS[tracegroups[[agroup]]])),
-##           paste0('max BMK = ', max(diagnBMK[tracegroups[[agroup]]])),
-##           paste0('max MCSE = ', max(diagnMCSE[tracegroups[[agroup]]])),
-##           paste0('all stationary: ', all(diagnStat[tracegroups[[agroup]]])),
-##           paste0('burn: ', max(diagnBurn[tracegroups[[agroup]]])))
-## }
-##     ##
-## ## timecount <- Sys.time()
-## ## plan(sequential)
-## ## plan(multisession, workers = 6L)
-## samplesQuantiles <- calcSampleQuantiles(parmList)
-## ## plan(sequential)
-## ## print(Sys.time()-timecount)
-## ## 7 covs, 2000 samples, serial: 1.722 min 
-## ##
-## alldataRanges <- dataQuantiles <- xlimits <- list()
-## for(acov in covNames){
-##     dataQuantiles[[acov]] <- quantile(alldata[[acov]], prob=c(0.005,0.995))
-##     alldataRanges[[acov]] <- range(alldata[[acov]])
-##     xlimits[[acov]] <- range(c(alldataRanges[[acov]], samplesQuantiles[,acov,]))
-## }
-## ##
-
-## ##
-## colpalette <- sapply(colnames(traces),function(acov){
-##     if(acov=='lPdatamean'){1}
-##     else if(grepl('^lPcorner', acov)){3}
-##     else if(grepl('^lPdatum', acov)){4}
-##     else if(grepl('^logitDcov', acov)){2}
-##     else if(grepl('^MEAN_', acov)){5}
-##     else if(grepl('^logVAR_', acov)){3}
-##     else{4}
-## })
-## names(colpalette) <- colnames(traces)
-## ##
-## pdff(paste0('mcsummary-R',version,'-V',length(covNames),'-D',ndata,'-K',nclusters,'-I',nrow(mcsamples)))
-##     matplot(1:2, type='l', col='white', main=paste0('Stats stage ',stage), axes=FALSE, ann=FALSE)
-##     legendpositions <- c('topleft','bottomleft','topright')
-##     for(alegend in 1:length(grouplegends)){
-##         legend(x=legendpositions[alegend], bty='n', cex=1.5,
-##                legend=grouplegends[[alegend]] )
-##     }
-## ##
-## par(mfrow = c(2, 3))
-## for(addvar in setdiff(covNames, 'log_RMSD')){
-##     matplot(x=c(rep(alldataRanges[['log_RMSD']], each=2),
-##                 alldataRanges[['log_RMSD']][1]),
-##             y=c(alldataRanges[[addvar]], rev(alldataRanges[[addvar]]),
-##                 alldataRanges[[addvar]][1]),
-##             type='l', lwd=2, col=paste0(palette()[2], '88'),
-##              xlim=xlimits[['log_RMSD']],
-##             ylim=xlimits[[addvar]],
-##             xlab='log_RMSD',
-##             ylab=addvar
-##             )
-##     matlines(x=c(rep(dataQuantiles[['log_RMSD']], each=2),
-##                  dataQuantiles[['log_RMSD']][1]),
-##              y=c(dataQuantiles[[addvar]], rev(dataQuantiles[[addvar]]),
-##                  dataQuantiles[[addvar]][1]),
-##              lwd=2, col=paste0(palette()[4], '88'))
-## }
-## ##
-## par(mfrow=c(1,1))
-## for(acov in colnames(traces)){
-##     matplot(traces[, acov], type='l', lty=1, col=colpalette[acov],
-##             main=paste0(acov,
-##                         '\nESS = ', signif(diagnESS[acov], 3),
-##                         ' | BMK = ', signif(diagnBMK[acov], 3),
-##                         ' | MCSE(6.27) = ', signif(diagnMCSE[acov], 3),
-##                         ' | stat: ', diagnStat[acov],
-##                         ' | burn: ', diagnBurn[acov]
-##                         ),
-##             ylab=acov)
-## }
-## dev.off()
-## }
 
