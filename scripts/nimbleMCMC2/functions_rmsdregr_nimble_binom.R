@@ -4,21 +4,47 @@ normalize <- function(freqs){freqs/sum(freqs)}
 normalizerows <- function(freqs){freqs/rowSums(freqs)}
 ##
 ## Construct a list of parameter samples from the raw MCMC samples
-mcsamples2parmlist <- function(mcsamples, parmNames=c('q', 'meanC', 'tauC', 'probD', 'sizeD')){
-    nclusters <- sum(grepl(paste0(parmNames[1], '\\['), colnames(mcsamples)))
-    nccovs <- sum(grepl(paste0(parmNames[2], '\\[[^,]*, 1]'), colnames(mcsamples)))
-    ndcovs <- sum(grepl(paste0(parmNames[length(parmNames)], '\\[[^,]*, 1]'), colnames(mcsamples)))
+mcsamples2parmlist <- function(mcsamples){
+    parmNames <- c('q', 'meanC', 'tauC', 'probD', 'sizeD')
+    nclusters <- sum(grepl('^q\\[', colnames(mcsamples)))
+    nccovs <- sum(grepl('^meanC\\[[^,]*, 1]', colnames(mcsamples)))
+    ndcovs <- sum(grepl('^probD\\[[^,]*, 1]', colnames(mcsamples)))
     ##
     parmList <- foreach(var=parmNames)%dopar%{
-        out <- mcsamples[,grepl(paste0(var,'\\['), colnames(mcsamples))]
-        if(grepl('C', var)){
+        out <- mcsamples[,grepl(paste0('^',var,'\\['), colnames(mcsamples))]
+        if(var=='meanC'||var=='tauC'){
             dim(out) <- c(nrow(mcsamples), nccovs, nclusters)
             dimnames(out) <- list(NULL, continuousCovs, NULL)
-        } else if(grepl('D', var)){
+        } else if(var=='probD'||var=='sizeD'){
             dim(out) <- c(nrow(mcsamples), ndcovs, nclusters)
             dimnames(out) <- list(NULL, discreteCovs, NULL)
-        } else {dim(out) <- c(nrow(mcsamples), nclusters) }
-        out
+        } else if(var=='q'){
+            dim(out) <- c(nrow(mcsamples), nclusters)
+        }
+            out
+    }
+    names(parmList) <- parmNames
+    parmList
+}
+##
+## Construct a list of parameter samples from the raw MCMC samples for the second monitored set
+finalstate2list <- function(mcsamples){
+    if(!is.vector(mcsamples)){print('ERROR!')}
+    parmNames <- c('q', 'meanC', 'tauC', 'probD', 'sizeD', 'C')
+    nclusters <- sum(grepl('^q\\[', names(mcsamples)))
+    nccovs <- sum(grepl('^meanC\\[[^,]*, 1]', names(mcsamples)))
+    ndcovs <- sum(grepl('^probD\\[[^,]*, 1]', names(mcsamples)))
+    ##
+    parmList <- foreach(var=parmNames)%dopar%{
+        out <- mcsamples[grepl(paste0('^',var,'\\['), names(mcsamples))]
+        if(var=='meanC'||var=='tauC'){
+            dim(out) <- c(nccovs, nclusters)
+            dimnames(out) <- list(continuousCovs, NULL)
+        } else if(var=='probD'||var=='sizeD'){
+            dim(out) <- c(ndcovs, nclusters)
+            dimnames(out) <- list(discreteCovs, NULL)
+        } # 'q' and 'C' are vectors with no names
+            out
     }
     names(parmList) <- parmNames
     parmList
