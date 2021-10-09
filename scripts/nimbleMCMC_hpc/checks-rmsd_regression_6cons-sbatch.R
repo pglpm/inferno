@@ -1,6 +1,6 @@
 ## Author: PGL  Porta Mana
 ## Created: 2021-03-20T10:07:17+0100
-## Last-Updated: 2021-10-09T15:15:51+0200
+## Last-Updated: 2021-10-09T16:51:06+0200
 ################
 ## Batch script for direct regression, continuous RMSD
 ################
@@ -9,7 +9,7 @@ if(file.exists("/cluster/home/pglpm/R")){
 }
 
 seed <- 149
-baseversion <- 'checksHMUCU_'
+baseversion <- 'checksHMuc_'
 nclusters <- 2L^4 # 2L^6
 ndata <- 2L^8 # nSamples = 37969
 niter <- 2L^11
@@ -298,10 +298,10 @@ list(
     sizeDpar2=sizeQdcovs[2,], # maxdcovs/(maxdcovs-1), # 1+0*maxdcovs,
     ##
     q=rep(1/nclusters, nclusters),
-    meanC=matrix(rnorm(n=nccovs*nclusters, mean=meansccovs, sd=sqrt(sqrt(10)*varsccovs)), nrow=nccovs, ncol=nclusters),
-    tauC=matrix(rgamma(n=nccovs*nclusters, shape=tauQccovs[1,], rate=tauQccovs[2,]), nrow=nccovs, ncol=nclusters),
-    probD=matrix(rbeta(n=ndcovs*nclusters, shape1=alphadcovs, shape2=alphadcovs*shapesratiodcovs), nrow=ndcovs, ncol=nclusters),
-    sizeD=apply(matrix(rnbinom(n=ndcovs*nclusters, prob=sizeQdcovs[1,], size=sizeQdcovs[2,]), nrow=ndcovs, ncol=nclusters), 2, function(x){maxdcovs*(x<maxdcovs)+x*(x>=maxdcovs)}),
+    meanC=matrix(meansccovs, nrow=nccovs, ncol=nclusters),
+    tauC=matrix(1/varsccovs, nrow=nccovs, ncol=nclusters),
+    probD=matrix(meansdcovs/maxdcovs, nrow=ndcovs, ncol=nclusters),
+    sizeD=matrix(maxdcovs, nrow=ndcovs, ncol=nclusters),
 ##    C=rep(1,ndata)
     C=rcat(n=ndata, prob=rep(1/nclusters,nclusters))
          )
@@ -414,6 +414,22 @@ for(stage in 0:nstages){
     }
     legend(x='bottomright', bty='n', cex=1.5,
        legend=paste0('Occupied clusters: ', usedclusters, ' of ', nclusters))
+    ##
+    par(mfrow=c(1,1))
+    for(acov in continuousCovs){
+        Xgrid <- seq(min(alldata[[acov]]), max(alldata[[acov]]), length.out=2^8)
+        plotsamples <- samplesfX(acov, parmList, Xgrid)
+        plotsamplesTest <- samplesfX(acov, parmListTest, Xgrid, nfsamples=1)
+        matplot(Xgrid, plotsamples, type='l', col=paste0(palette()[7], '44'), lty=1, lwd=2, xlab=acov, ylab='probability density', cex.axis=1.5, cex.lab=1.5)
+        matlines(Xgrid,plotsamplesTest, col=palette()[2], lty=1, lwd=5)
+    }
+    for(acov in discreteCovs){
+        Xgrid <- seq(min(alldata[[acov]]), max(alldata[[acov]]), by=1)
+        plotsamples <- samplesfX(acov, parmList, Xgrid)
+        plotsamplesTest <- samplesfX(acov, parmListTest, Xgrid, nfsamples=1)
+        matplot(Xgrid, plotsamples, type='l', col=paste0(palette()[7], '44'), lty=1, lwd=2, xlab=acov, ylab='probability density', cex.axis=1.5, cex.lab=1.5)
+        matlines(Xgrid,plotsamplesTest, col=palette()[2], lty=1, lwd=5)
+    }
     ##
     par(mfrow = c(2, 4))
     for(addvar in setdiff(covNames, 'log_RMSD')){

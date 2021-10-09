@@ -392,3 +392,41 @@ pRgivenX <- function(X, parmList, RMSDgrid){
     dim(freqs) <- c(ndataz, lRMSDgrid)
     freqs
 }
+##
+## Gives samples of marginal frequency distributions of a covariate
+samplesfX <- function(acov, parmList, acovgrid, nfsamples=100){
+    continuousCovs <- dimnames(parmList$meanC)[[2]]
+    discreteCovs <- dimnames(parmList$probD)[[2]]
+    lacovgrid <- length(acovgrid)
+    q <- parmList$q
+    nclusters <- ncol(q)
+    if(is.numeric(nfsamples)){
+        fsubsamples <- seq(1, nrow(q), length.out=nfsamples)
+    }else{
+        nfsamples <- nrow(q)
+        fsubsamples <- seq_len(nfsamples)
+    }
+    ##
+    if(acov %in% continuousCovs){ ## continuous covariates
+    freqs <- foreach(asample=fsubsamples, .combine=cbind, .inorder=FALSE)%dopar%{
+        ## W: rows=clusters, cols=datapoints
+        colSums( exp(
+            log(q[asample,]) +
+            t(vapply(seq_len(nclusters), function(acluster){
+                dnorm(acovgrid, mean=parmList$meanC[asample,acov,acluster], sd=1/sqrt(parmList$tauC[asample,acov,acluster]), log=TRUE)
+            }, numeric(lacovgrid)))
+            ) )
+    }
+    }else{ ## discrete covariates
+    freqs <- foreach(asample=fsubsamples, .combine=cbind, .inorder=FALSE)%dopar%{
+        ## W: rows=clusters, cols=datapoints
+        colSums( exp(
+            log(q[asample,]) +
+            t(vapply(seq_len(nclusters), function(acluster){
+                dbinom(acovgrid, prob=parmList$probD[asample,acov,acluster], size=parmList$sizeD[asample,acov,acluster], log=TRUE)
+                            }, numeric(lacovgrid)))
+            ) )
+    }
+    }
+    freqs
+}
