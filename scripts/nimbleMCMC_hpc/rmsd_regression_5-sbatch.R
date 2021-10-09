@@ -1,11 +1,12 @@
 ## Author: PGL  Porta Mana
 ## Created: 2021-03-20T10:07:17+0100
-## Last-Updated: 2021-10-07T16:02:07+0200
+## Last-Updated: 2021-10-08T10:02:01+0200
 ################
 ## Batch script for direct regression, continuous RMSD
 ################
-
-.libPaths(c("/cluster/home/user1/R",.libPaths()))
+if(file.exists("/cluster/home/pglpm/R")){
+    .libPaths(c("/cluster/home/pglpm/R",.libPaths()))
+}
 
 baseversion <- 'postHM'
 nclusters <- 2L^6

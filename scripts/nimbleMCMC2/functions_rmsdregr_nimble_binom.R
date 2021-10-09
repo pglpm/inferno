@@ -74,7 +74,7 @@ moments12Samples <- function(parmList){
     dimnames(mixvars) <- list(NULL, paste0('logVAR_', covNames))
     ##
     mixcovars <- foreach(cov1=seq_len(ncovs-1), .combine=cbind)%:%foreach(cov2=(cov1+1):ncovs, .combine=cbind)%do%{
-       colSums(c(q)*clustermeans[,,cov1]*clustermeans[,,cov2]) - mixmeans[,cov1]*mixmeans[,cov2]
+       colSums(c(q)*clustermeans[,,cov1]*clustermeans[,,cov2,drop=FALSE]) - mixmeans[,cov1,drop=FALSE]*mixmeans[,cov2,drop=FALSE]
     }
     colnames(mixcovars) <- foreach(cov1=seq_len(ncovs-1), .combine=c)%:%foreach(cov2=(cov1+1):ncovs, .combine=c)%do%{paste0('COV_',covNames[cov1],'|',covNames[cov2])}
     ##
@@ -158,9 +158,9 @@ probValuesSamples <- function(X, parmList){
                 log(q[asample,]) +
                 t(vapply(seq_len(ncol(q)), function(acluster){
                     ## continuous covariates
-                    colSums(dnorm(t(X[,continuousCovs]), mean=parmList$meanC[asample,,acluster], sd=1/sqrt(parmList$tauC[asample,,acluster]), log=TRUE)) +
+                    colSums(dnorm(t(X[,continuousCovs]), mean=parmList$meanC[asample,,acluster,drop=FALSE], sd=1/sqrt(parmList$tauC[asample,,acluster,drop=FALSE]), log=TRUE)) +
                         ## discrete covariates
-                    colSums(dbinom(t(X[,discreteCovs]), prob=parmList$probD[asample,,acluster], size=parmList$sizeD[asample,,acluster], log=TRUE))
+                    colSums(dbinom(t(X[,discreteCovs]), prob=parmList$probD[asample,,acluster,drop=FALSE], size=parmList$sizeD[asample,,acluster,drop=FALSE], log=TRUE))
     }, numeric(ndataz)))
             )
         )

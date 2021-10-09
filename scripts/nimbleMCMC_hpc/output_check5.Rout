@@ -1,0 +1,158 @@
+nimble version 0.12.0 is loaded.
+For more information on NIMBLE and a User Manual,
+please visit https://R-nimble.org.
+
+Attaching package: ‘nimble’
+
+The following object is masked from ‘package:data.table’:
+
+    cube
+
+The following object is masked from ‘package:stats’:
+
+    simulate
+
+          used  (Mb) gc trigger  (Mb) max used  (Mb)
+Ncells 2057391 109.9    3310471 176.8  2181914 116.6
+Vcells 5325314  40.7   10146329  77.5  8384830  64.0
+Warning message:
+executing %dopar% sequentially: no parallel backend registered 
+[1] "Diagnostics tauQccovs"
+          log_RMSD log_mcs_unbonded_polar_sasa logit_ec_tanimoto_similarity
+         0.3342092                   1.4323247                    0.1625969
+log_RMSD 0.3342093                   0.5608877                    0.1625969
+         3.3420921                   5.6088808                    1.6259688
+log_RMSD 3.3420927                   5.6088767                    1.6259687
+[1] "Diagnostics sizeQdcovs"
+                   mcs_NumHeteroAtoms docked_HeavyAtomCount mcs_RingCount
+                                    3                    13             0
+mcs_NumHeteroAtoms                  2                    13             1
+                                   23                   126            12
+mcs_NumHeteroAtoms                 22                   126             9
+                   docked_NumRotatableBonds mcs_NOCount
+                                          4           3
+mcs_NumHeteroAtoms                        4           2
+                                         42          19
+mcs_NumHeteroAtoms                       41          19
+Defining model
+Building model
+Setting data and initial values
+Running calculate on model
+  [Note] Any error reports that follow may simply reflect missing values in model variables.
+Checking model sizes and dimensions
+Compiling
+  [Note] This may take a minute.
+  [Note] Use 'showCompilerOutput = TRUE' to see C++ compilation details.
+          used  (Mb) gc trigger  (Mb) max used  (Mb)
+Ncells 2836349 151.5    4331802 231.4  4331802 231.4
+Vcells 4293053  32.8   10146329  77.5 10144126  77.4
+===== Monitors =====
+thin = 1: meanC, probD, q, sizeD, tauC
+thin2 = 1: C
+===== Samplers =====
+slice sampler (80)
+  - sizeD[]  (80 elements)
+conjugate sampler (177)
+  - probD[]  (80 elements)
+  - meanC[]  (48 elements)
+  - tauC[]  (48 elements)
+  - q[1:16] 
+categorical sampler (512)
+  - C[]  (512 elements)
+Compiling
+  [Note] This may take a minute.
+  [Note] Use 'showCompilerOutput = TRUE' to see C++ compilation details.
+          used  (Mb) gc trigger  (Mb) max used  (Mb)
+Ncells 3489406 186.4    5405769 288.7  5405769 288.7
+Vcells 6314495  48.2   12255594  93.6 10144126  77.4
+[1] "Setup time:"
+Time difference of 2.703952 mins
+[1] "==== STAGE 0 ===="
+running chain 1...
+|-------------|-------------|-------------|-------------|
+|-------------------------------------------------------|
+[1] "MCMC time:"
+Time difference of 3.071392 mins
+[1] "OCCUPIED CLUSTERS: 7 OF 16"
+[1] "Total runtime:"
+Time difference of 3.979752 mins
+[1] "==== STAGE 1 ===="
+|-------------|-------------|-------------|-------------|
+|-------------------------------------------------------|
+[1] "MCMC time:"
+Time difference of 2.778424 mins
+[1] "OCCUPIED CLUSTERS: 6 OF 16"
+[1] "Total runtime:"
+Time difference of 3.699479 mins
+[1] "==== STAGE 2 ===="
+|-------------|-------------|-------------|-------------|
+|-------------------------------------------------------|
+[1] "MCMC time:"
+Time difference of 2.768266 mins
+[1] "OCCUPIED CLUSTERS: 6 OF 16"
+[1] "Total runtime:"
+Time difference of 3.680628 mins
+[1] "==== STAGE 3 ===="
+|-------------|-------------|-------------|-------------|
+|-------------------------------------------------------|
+[1] "MCMC time:"
+Time difference of 2.767702 mins
+[1] "OCCUPIED CLUSTERS: 5 OF 16"
+[1] "Total runtime:"
+Time difference of 3.67533 mins
+[1] "==== STAGE 4 ===="
+|-------------|-------------|-------------|-------------|
+|-------------------------------------------------------|
+[1] "MCMC time:"
+Time difference of 2.80189 mins
+[1] "OCCUPIED CLUSTERS: 5 OF 16"
+[1] "Total runtime:"
+Time difference of 3.701255 mins
+[1] "==== STAGE 5 ===="
+|-------------|-------------|-------------|-------------|
+|-------------------------------------------------------|
+[1] "MCMC time:"
+Time difference of 2.860941 mins
+[1] "OCCUPIED CLUSTERS: 5 OF 16"
+[1] "Total runtime:"
+Time difference of 3.760179 mins
+[1] "==== STAGE 6 ===="
+|-------------|-------------|-------------|-------------|
+|-------------------------------------------------------|
+[1] "MCMC time:"
+Time difference of 2.83916 mins
+[1] "OCCUPIED CLUSTERS: 5 OF 16"
+[1] "Total runtime:"
+Time difference of 3.737356 mins
+[1] "==== STAGE 7 ===="
+|-------------|-------------|-------------|-------------|
+|-------------------------------------------------------|
+[1] "MCMC time:"
+Time difference of 2.849166 mins
+[1] "OCCUPIED CLUSTERS: 6 OF 16"
+[1] "Total runtime:"
+Time difference of 3.744401 mins
+[1] "==== STAGE 8 ===="
+|-------------|-------------|-------------|-------------|
+|-------------------------------------------------------|
+[1] "MCMC time:"
+Time difference of 2.804866 mins
+[1] "OCCUPIED CLUSTERS: 5 OF 16"
+[1] "Total runtime:"
+Time difference of 3.690853 mins
+[1] "==== STAGE 9 ===="
+|-------------|-------------|-------------|-------------|
+|-------------------------------------------------------|
+[1] "MCMC time:"
+Time difference of 2.848473 mins
+[1] "OCCUPIED CLUSTERS: 5 OF 16"
+[1] "Total runtime:"
+Time difference of 3.734958 mins
+[1] "==== STAGE 10 ===="
+|-------------|-------------|-------------|-------------|
+|-------------------------------------------------------|
+[1] "MCMC time:"
+Time difference of 2.825761 mins
+[1] "OCCUPIED CLUSTERS: 5 OF 16"
+[1] "Total runtime:"
+Time difference of 3.714118 mins
