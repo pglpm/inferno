@@ -93,10 +93,10 @@ moments12Samples <- function(parmList){
 ## Improved optimization functions
 myoptim <- function(par, fn){
     resu0 <- list(par=par)
-    resu <- optim(par=resu0$par, fn=fn, control=list(maxit=1000))
+    resu <- optim(par=resu0$par, fn=fn, control=list(factr = 1e-10, maxit=10000))
     while(any(resu$par!=resu0$par)){
         resu0 <- resu
-        resu <- optim(par=resu0$par, fn=fn, control=list(maxit=1000))
+        resu <- optim(par=resu0$par, fn=fn, control=list(factr = 1e-10, maxit=10000))
     }
     resu}
 myoptimbounds <- function(par, fn, lower, upper, maxit=100){

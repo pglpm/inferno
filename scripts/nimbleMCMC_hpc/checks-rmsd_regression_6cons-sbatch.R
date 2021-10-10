@@ -1,6 +1,6 @@
 ## Author: PGL  Porta Mana
 ## Created: 2021-03-20T10:07:17+0100
-## Last-Updated: 2021-10-09T22:12:09+0200
+## Last-Updated: 2021-10-10T08:59:19+0200
 ################
 ## Batch script for direct regression, continuous RMSD
 ################
@@ -10,20 +10,20 @@ if(file.exists("/cluster/home/pglpm/R")){
 
 seed <- 149
 baseversion <- 'checksHMU_'
-nclusters <- 2L^4 # 2L^6
-ndata <- 2L^8 # nSamples = 37969
-niter <- 2L^11
+nclusters <- 2L^6
+ndata <- 2L^12 # nSamples = 37969
+niter <- 2L^10
 nstages <- 1L
 ncheckpoints <- 8L
 covNames <-  c('log_RMSD'
                ,'log_mcs_unbonded_polar_sasa'
-               ##,'logit_ec_tanimoto_similarity'
+               ,'logit_ec_tanimoto_similarity'
                ,'mcs_NumHeteroAtoms'
                ## ,'scale_fc_tanimoto_similarity'
                ,'docked_HeavyAtomCount'
-               ##,'mcs_RingCount'
-               ##,'docked_NumRotatableBonds'
-               ##,'mcs_NOCount'
+               ,'mcs_RingCount'
+               ,'docked_NumRotatableBonds'
+               ,'mcs_NOCount'
                )
 ## pdff('check_mutualinfo')
 ## for(i in 1:(length(covNames)-1)){
@@ -74,6 +74,7 @@ continuousCovs <- covNames[sapply(covNames, function(x){is.double(alldata[[x]])}
 covNames <- c(continuousCovs, discreteCovs)
 nccovs <- length(continuousCovs)
 ndcovs <- length(discreteCovs)
+rm(alldata)
 
 for(obj in c('constants', 'dat', 'inits', 'bayesnet', 'model', 'Cmodel', 'confmodel', 'mcmcsampler', 'Cmcmcsampler')){if(exists(obj)){do.call(rm,list(obj))}}
 gc()
@@ -94,8 +95,8 @@ maxdcovs <- readRDS(file='maxdcovs.rds')
 sizeQdcovs <- readRDS(file='sizeQdcovs.rds')
 shapesratiodcovs <- readRDS(file='shapesratiodcovs.rds')
 alphadcovs <- readRDS(file='alphadcovs.rds')
-parmListTest <- list()
 set.seed(222)
+parmListTest <- list()
 ##
 parmListTest$q <- matrix(rdirch(n=1, alpha=rep(5/nclusters, nclusters)), nrow=1)
 ##
@@ -116,6 +117,7 @@ alldata <- cbind(
     data.table(matrix(rbinom(n=ndcovs*ndata, prob=t(parmListTest$probD[1,discreteCovs,Cs]), size=t(parmListTest$sizeD[1,discreteCovs,Cs])), nrow=ndata, ncol=ndcovs))
     )
 colnames(alldata) <- covNames
+saveRDS(alldata,file=paste0('_alldataTest-R',baseversion,'-V',length(covNames),'-D',ndata,'-K',nclusters,'.rds'))
 ##
 ##
 dat <- list(
@@ -140,7 +142,7 @@ tauQccovs <- sapply(continuousCovs, function(acov){
         (pinvgamma(varsccovs[acov]/sqrt(10), shape=parms[1], scale=parms[2]) - 0.005)^2 +
             (pinvgamma(varsccovs[acov]*sqrt(10), shape=parms[1], scale=parms[2]) - 0.995)^2
     }
-    exp(myoptim(c(1, 1), fn=fn)$par)
+    exp(myoptim(c(2, 2), fn=fn)$par)
 })
 print('Diagnostics tauQccovs')
 print(sapply(continuousCovs, function(acov){
@@ -318,6 +320,7 @@ checkpoints <- rbind(
     as.matrix(alldata[sample(1:ndata, size=ncheckpoints), ..covNames])
 )
 rownames(checkpoints) <- c('Pdatamean', 'PdatacornerHi', 'PdatacornerLo', paste0('Pdatum',1:ncheckpoints))
+saveRDS(checkpoints,file=paste0('_checkpoints-R',baseversion,'-V',length(covNames),'-D',ndata,'-K',nclusters,'.rds'))
 
 print('Setup time:')
 print(Sys.time() - timecount)
