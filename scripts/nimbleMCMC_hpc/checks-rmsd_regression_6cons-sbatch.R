@@ -1,6 +1,6 @@
 ## Author: PGL  Porta Mana
 ## Created: 2021-03-20T10:07:17+0100
-## Last-Updated: 2021-10-10T08:59:19+0200
+## Last-Updated: 2021-10-10T13:37:54+0200
 ################
 ## Batch script for direct regression, continuous RMSD
 ################
@@ -9,7 +9,7 @@ if(file.exists("/cluster/home/pglpm/R")){
 }
 
 seed <- 149
-baseversion <- 'checksHMU_'
+baseversion <- 'checksHMU1_'
 nclusters <- 2L^6
 ndata <- 2L^12 # nSamples = 37969
 niter <- 2L^10
@@ -50,10 +50,8 @@ library('foreach')
 ## library('doFuture')
 ## library('doRNG')
 ## registerDoFuture()
-#library('LaplacesDemon') # used for Dirichlet generator
-## library('ash')
+## library('LaplacesDemon')
 ## library('extraDistr')
-## library('PReMiuM')
 ## library('mvtnorm')
 options(bitmapType='cairo')
 pdff <- function(filename){pdf(file=paste0(filename,'.pdf'),paper='a4r',height=11.7,width=16.5)} # to output in pdf format
@@ -98,7 +96,7 @@ alphadcovs <- readRDS(file='alphadcovs.rds')
 set.seed(222)
 parmListTest <- list()
 ##
-parmListTest$q <- matrix(rdirch(n=1, alpha=rep(5/nclusters, nclusters)), nrow=1)
+parmListTest$q <- matrix(rdirch(n=1, alpha=rep(1/nclusters, nclusters)), nrow=1)
 ##
 parmListTest$meanC <- array(rnorm(n=nccovs*nclusters, mean=meansccovs[continuousCovs], sd=sqrt(sqrt(10)*varsccovs[continuousCovs])), dim=c(1, nccovs, nclusters))
 parmListTest$tauC <- array(rgamma(n=nccovs*nclusters, shape=tauQccovs[1,continuousCovs], rate=tauQccovs[2,continuousCovs]), dim=c(1, nccovs, nclusters))
@@ -203,7 +201,7 @@ constants <- list(
 ## )
 ##
 inits <- list(
-    alphaK=rep(5/nclusters, nclusters),
+    alphaK=rep(1/nclusters, nclusters),
     meanCmean=meansccovs,
     meanCtau=1/(sqrt(10)*varsccovs),
     tauCshape=tauQccovs[1,],
@@ -289,7 +287,7 @@ gc()
 ## source('functions_rmsdregr_nimble_binom.R')
 initsFunction <- function(){
 list(
-    alphaK=rep(5/nclusters, nclusters),
+    alphaK=rep(1/nclusters, nclusters),
     meanCmean=meansccovs,
     meanCtau=1/(sqrt(10)*varsccovs),
     tauCshape=tauQccovs[1,],
@@ -430,14 +428,14 @@ for(stage in 0:nstages){
     par(mfrow=c(1,1))
     for(acov in continuousCovs){
         Xgrid <- seq(min(alldata[[acov]]), max(alldata[[acov]]), length.out=2^8)
-        plotsamples <- samplesfX(acov, parmList, Xgrid)
+        plotsamples <- samplesfX(acov, parmList, Xgrid, nfsamples=64)
         plotsamplesTest <- samplesfX(acov, parmListTest, Xgrid, nfsamples=1)
         matplot(Xgrid, plotsamples, type='l', col=paste0(palette()[7], '44'), lty=1, lwd=2, xlab=acov, ylab='probability density', cex.axis=1.5, cex.lab=1.5)
         matlines(Xgrid,plotsamplesTest, col=palette()[2], lty=1, lwd=5)
     }
     for(acov in discreteCovs){
         Xgrid <- seq(min(alldata[[acov]]), max(alldata[[acov]]), by=1)
-        plotsamples <- samplesfX(acov, parmList, Xgrid)
+        plotsamples <- samplesfX(acov, parmList, Xgrid, nfsamples=64)
         plotsamplesTest <- samplesfX(acov, parmListTest, Xgrid, nfsamples=1)
         matplot(Xgrid, plotsamples, type='l', col=paste0(palette()[7], '44'), lty=1, lwd=2, xlab=acov, ylab='probability density', cex.axis=1.5, cex.lab=1.5)
         matlines(Xgrid,plotsamplesTest, col=palette()[2], lty=1, lwd=5)
