@@ -1,6 +1,6 @@
 ## Author: PGL  Porta Mana
 ## Created: 2021-03-20T10:07:17+0100
-## Last-Updated: 2021-10-09T16:51:06+0200
+## Last-Updated: 2021-10-09T22:12:09+0200
 ################
 ## Batch script for direct regression, continuous RMSD
 ################
@@ -9,11 +9,11 @@ if(file.exists("/cluster/home/pglpm/R")){
 }
 
 seed <- 149
-baseversion <- 'checksHMuc_'
+baseversion <- 'checksHMU_'
 nclusters <- 2L^4 # 2L^6
 ndata <- 2L^8 # nSamples = 37969
 niter <- 2L^11
-nstages <- 10L
+nstages <- 1L
 ncheckpoints <- 8L
 covNames <-  c('log_RMSD'
                ,'log_mcs_unbonded_polar_sasa'
@@ -297,12 +297,16 @@ list(
     sizeDpar1=sizeQdcovs[1,], # 1/(maxdcovs), # 1/(1+2*meansdcovs),
     sizeDpar2=sizeQdcovs[2,], # maxdcovs/(maxdcovs-1), # 1+0*maxdcovs,
     ##
-    q=rep(1/nclusters, nclusters),
-    meanC=matrix(meansccovs, nrow=nccovs, ncol=nclusters),
-    tauC=matrix(1/varsccovs, nrow=nccovs, ncol=nclusters),
-    probD=matrix(meansdcovs/maxdcovs, nrow=ndcovs, ncol=nclusters),
-    sizeD=matrix(maxdcovs, nrow=ndcovs, ncol=nclusters),
-##    C=rep(1,ndata)
+    q=rep(1/nclusters, nclusters),    
+    ## meanC=matrix(meansccovs, nrow=nccovs, ncol=nclusters),
+    ## tauC=matrix(1/varsccovs, nrow=nccovs, ncol=nclusters),
+    ## probD=matrix(meansdcovs/maxdcovs, nrow=ndcovs, ncol=nclusters),
+    ## sizeD=matrix(maxdcovs, nrow=ndcovs, ncol=nclusters),
+    meanC=matrix(rnorm(n=nccovs*nclusters, mean=meansccovs, sd=sqrt(sqrt(10)*varsccovs)), nrow=nccovs, ncol=nclusters),
+    tauC=matrix(rgamma(n=nccovs*nclusters, shape=tauQccovs[1,], rate=tauQccovs[2,]), nrow=nccovs, ncol=nclusters),
+    probD=matrix(rbeta(n=ndcovs*nclusters, shape1=alphadcovs, shape2=alphadcovs*shapesratiodcovs), nrow=ndcovs, ncol=nclusters),
+    sizeD=apply(matrix(rnbinom(n=ndcovs*nclusters, prob=sizeQdcovs[1,], size=sizeQdcovs[2,]), nrow=ndcovs, ncol=nclusters), 2, function(x){maxdcovs*(x<maxdcovs)+x*(x>=maxdcovs)}),
+    ## C=rep(1,ndata)
     C=rcat(n=ndata, prob=rep(1/nclusters,nclusters))
          )
 }
@@ -347,6 +351,8 @@ for(stage in 0:nstages){
     ##
     parmList <- mcsamples2parmlist(mcsamples)
     ## Traces to follow for diagnostics
+    ll <- llSamples(dat, parmList)
+    llTest <- llSamples(dat, parmListTest)
     momentstraces <- moments12Samples(parmList)
     probCheckpoints <- t(probValuesSamples(checkpoints, parmList))
     traces <- cbind(probCheckpoints, do.call(cbind, momentstraces))
@@ -413,7 +419,10 @@ for(stage in 0:nstages){
                legend=grouplegends[[alegend]] )
     }
     legend(x='bottomright', bty='n', cex=1.5,
-       legend=paste0('Occupied clusters: ', usedclusters, ' of ', nclusters))
+           legend=c(
+               paste0('Occupied clusters: ', usedclusters, ' of ', nclusters),
+               paste0('LL: ', signif(mean(ll),3), ' +- ', signif(sd(ll),3))
+           ))
     ##
     par(mfrow=c(1,1))
     for(acov in continuousCovs){
@@ -451,6 +460,8 @@ for(stage in 0:nstages){
     }
     ##
     par(mfrow=c(1,1))
+    matplot(ll, type='l', col=palette()[3], lty=1, main='LL', ylab='LL', ylim=range(c(ll,llTest)))
+    matlines(x=c(1,length(ll)), rep(llTest,2), lwd=5, lty=1, col=paste0('#000000','88'))
     for(acov in colnames(traces)){
         if(grepl('^[PDV]', acov)){transf <- function(x){log(abs(x))}
         }else{transf <- identity}
