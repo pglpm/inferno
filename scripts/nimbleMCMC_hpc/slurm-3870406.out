@@ -1,0 +1,27 @@
+Starting job 3870406 on c11-60 at Sun Oct 10 13:46:47 CEST 2021
+
+  1) StdEnv
+slurmstepd: error: *** JOB 3870406 ON c11-60 CANCELLED AT 2021-10-10T21:57:00 ***
+
+Task and CPU usage stats:
+       JobID    JobName  AllocCPUS   NTasks     MinCPU MinCPUTask     AveCPU    Elapsed ExitCode 
+------------ ---------- ---------- -------- ---------- ---------- ---------- ---------- -------- 
+3870406      R_script_+          1                                             08:10:13      0:0 
+3870406.bat+      batch          1        1   08:08:44          0   08:08:44   08:10:14     0:15 
+3870406.ext+     extern          1        1   00:00:00          0   00:00:00   08:10:13      0:0 
+
+Memory usage stats:
+       JobID     MaxRSS MaxRSSTask     AveRSS MaxPages   MaxPagesTask   AvePages 
+------------ ---------- ---------- ---------- -------- -------------- ---------- 
+3870406                                                                          
+3870406.bat+   4206108K          0   4206108K        0              0          0 
+3870406.ext+          0          0          0        0              0          0 
+
+Disk usage stats:
+       JobID  MaxDiskRead MaxDiskReadTask    AveDiskRead MaxDiskWrite MaxDiskWriteTask   AveDiskWrite 
+------------ ------------ --------------- -------------- ------------ ---------------- -------------- 
+3870406                                                                                               
+3870406.bat+        8.05M               0          8.05M        0.14M                0          0.14M 
+3870406.ext+        0.00M               0          0.00M            0                0              0 
+
+Job 3870406 completed at Sun Oct 10 21:57:02 CEST 2021
