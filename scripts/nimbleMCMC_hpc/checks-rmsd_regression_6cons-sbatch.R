@@ -1,6 +1,6 @@
 ## Author: PGL  Porta Mana
 ## Created: 2021-03-20T10:07:17+0100
-## Last-Updated: 2021-10-11T09:58:00+0200
+## Last-Updated: 2021-10-11T12:27:09+0200
 ################
 ## Batch script for direct regression, continuous RMSD
 ################
@@ -13,7 +13,7 @@ baseversion <- 'checksHMUp_'
 nclusters <- 2L^6
 ndata <- 2L^12 # nSamples = 37969
 niter <- 2L^10
-nstages <- 1L
+nstages <- 0L
 ncheckpoints <- 8L
 covNames <-  c('log_RMSD'
                ,'log_mcs_unbonded_polar_sasa'
@@ -307,7 +307,7 @@ list(
     probD=parmListTest$probD[1,,], # probD=matrix(rbeta(n=ndcovs*nclusters, shape1=alphadcovs, shape2=alphadcovs*shapesratiodcovs), nrow=ndcovs, ncol=nclusters),
     sizeD=apply(parmListTest$sizeD[1,,], 2, function(x){maxdcovs*(x<maxdcovs)+x*(x>=maxdcovs)}), # sizeD=apply(matrix(rnbinom(n=ndcovs*nclusters, prob=sizeQdcovs[1,], size=sizeQdcovs[2,]), nrow=ndcovs, ncol=nclusters), 2, function(x){maxdcovs*(x<maxdcovs)+x*(x>=maxdcovs)}),
     ## C=rep(1,ndata)
-    C=rcat(n=ndata, prob=rep(1/nclusters,nclusters))
+    C=Cs # rcat(n=ndata, prob=rep(1/nclusters,nclusters))
          )
 }
 set.seed(941)
@@ -331,7 +331,7 @@ for(stage in 0:nstages){
     version <- paste0(baseversion, stage)
     gc()
     if(stage==0){
-        mcsamples <- runMCMC(Cmcmcsampler, nburnin=1, niter=niter+1, thin=1, thin2=niter, inits=initsFunction, setSeed=seed)
+        mcsamples <- runMCMC(Cmcmcsampler, nburnin=0, niter=3, thin=1, thin2=niter, inits=initsFunction, setSeed=seed)
     }else{
         Cmcmcsampler$run(niter=niter, thin=1, thin2=niter, reset=FALSE, resetMV=TRUE)
     }
