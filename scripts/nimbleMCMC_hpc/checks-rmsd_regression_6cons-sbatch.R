@@ -1,6 +1,6 @@
 ## Author: PGL  Porta Mana
 ## Created: 2021-03-20T10:07:17+0100
-## Last-Updated: 2021-10-10T13:37:54+0200
+## Last-Updated: 2021-10-11T09:58:00+0200
 ################
 ## Batch script for direct regression, continuous RMSD
 ################
@@ -9,7 +9,7 @@ if(file.exists("/cluster/home/pglpm/R")){
 }
 
 seed <- 149
-baseversion <- 'checksHMU1_'
+baseversion <- 'checksHMUp_'
 nclusters <- 2L^6
 ndata <- 2L^12 # nSamples = 37969
 niter <- 2L^10
@@ -297,15 +297,15 @@ list(
     sizeDpar1=sizeQdcovs[1,], # 1/(maxdcovs), # 1/(1+2*meansdcovs),
     sizeDpar2=sizeQdcovs[2,], # maxdcovs/(maxdcovs-1), # 1+0*maxdcovs,
     ##
-    q=rep(1/nclusters, nclusters),    
+    q=parmListTest$q[1,], # q=rep(1/nclusters, nclusters),    
     ## meanC=matrix(meansccovs, nrow=nccovs, ncol=nclusters),
     ## tauC=matrix(1/varsccovs, nrow=nccovs, ncol=nclusters),
     ## probD=matrix(meansdcovs/maxdcovs, nrow=ndcovs, ncol=nclusters),
     ## sizeD=matrix(maxdcovs, nrow=ndcovs, ncol=nclusters),
-    meanC=matrix(rnorm(n=nccovs*nclusters, mean=meansccovs, sd=sqrt(sqrt(10)*varsccovs)), nrow=nccovs, ncol=nclusters),
-    tauC=matrix(rgamma(n=nccovs*nclusters, shape=tauQccovs[1,], rate=tauQccovs[2,]), nrow=nccovs, ncol=nclusters),
-    probD=matrix(rbeta(n=ndcovs*nclusters, shape1=alphadcovs, shape2=alphadcovs*shapesratiodcovs), nrow=ndcovs, ncol=nclusters),
-    sizeD=apply(matrix(rnbinom(n=ndcovs*nclusters, prob=sizeQdcovs[1,], size=sizeQdcovs[2,]), nrow=ndcovs, ncol=nclusters), 2, function(x){maxdcovs*(x<maxdcovs)+x*(x>=maxdcovs)}),
+    meanC=parmListTest$meanC[1,,], # meanC=matrix(rnorm(n=nccovs*nclusters, mean=meansccovs, sd=sqrt(sqrt(10)*varsccovs)), nrow=nccovs, ncol=nclusters),
+    tauC=parmListTest$tauC[1,,], # tauC=matrix(rgamma(n=nccovs*nclusters, shape=tauQccovs[1,], rate=tauQccovs[2,]), nrow=nccovs, ncol=nclusters),
+    probD=parmListTest$probD[1,,], # probD=matrix(rbeta(n=ndcovs*nclusters, shape1=alphadcovs, shape2=alphadcovs*shapesratiodcovs), nrow=ndcovs, ncol=nclusters),
+    sizeD=apply(parmListTest$sizeD[1,,], 2, function(x){maxdcovs*(x<maxdcovs)+x*(x>=maxdcovs)}), # sizeD=apply(matrix(rnbinom(n=ndcovs*nclusters, prob=sizeQdcovs[1,], size=sizeQdcovs[2,]), nrow=ndcovs, ncol=nclusters), 2, function(x){maxdcovs*(x<maxdcovs)+x*(x>=maxdcovs)}),
     ## C=rep(1,ndata)
     C=rcat(n=ndata, prob=rep(1/nclusters,nclusters))
          )
@@ -373,7 +373,7 @@ for(stage in 0:nstages){
     momentstracesTest <- moments12Samples(parmListTest)
     probCheckpointsTest <- t(probValuesSamples(checkpoints, parmListTest))
     tracesTest <- cbind(probCheckpointsTest, do.call(cbind, momentstracesTest))
-    diagnSE <- vapply(colnames(traces), function(x){(mean(traces[,x])-tracesTest[1,x])/sd(traces[,x])}, FUN.VALUE=numeric(1))
+    diagnSE <- vapply(colnames(traces), function(x){100*ecdf(traces[,x])(tracesTest[1,x])}, FUN.VALUE=numeric(1))
     ##
     tracegroups <- list('maxD'=1:(ncheckpoints+4),
                         '1D'=(ncheckpoints+4)+(1:(2*(nccovs+ndcovs))),
@@ -385,7 +385,7 @@ for(stage in 0:nstages){
           paste0('max MCSE = ', max(diagnMCSE[tracegroups[[agroup]]])),
           paste0('all stationary: ', all(diagnStat[tracegroups[[agroup]]])),
           paste0('burn: ', max(diagnBurn[tracegroups[[agroup]]])),
-          paste0('max rel.err.: ', max(abs(diagnSE[tracegroups[[agroup]]]))) )
+          paste0('min percent.: ', min(c(diagnSE[tracegroups[[agroup]]],100-diagnSE[tracegroups[[agroup]]]))) )
     }
     ##
     ## plan(sequential)
@@ -473,7 +473,7 @@ for(stage in 0:nstages){
                             ' | MCSE(6.27) = ', signif(diagnMCSE[acov], 3),
                             ' | stat: ', diagnStat[acov],
                             ' | burn: ', diagnBurn[acov],
-                            ' | rel.err: ', signif(diagnSE[acov], 3)
+                            ' | percentile: ', signif(diagnSE[acov], 3)
                             ),
                 ylab=acov,
                 ylim=range(c(transf(traces[,acov]), transf(tracesTest[,acov][abs(tracesTest[,acov])<Inf]))))
