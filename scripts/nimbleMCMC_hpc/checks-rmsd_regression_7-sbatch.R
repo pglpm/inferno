@@ -1,6 +1,6 @@
 ## Author: PGL  Porta Mana
 ## Created: 2021-03-20T10:07:17+0100
-## Last-Updated: 2021-10-11T11:04:55+0200
+## Last-Updated: 2021-10-11T15:32:54+0200
 ################
 ## Batch script for direct regression, continuous RMSD
 ################
@@ -9,7 +9,7 @@ if(file.exists("/cluster/home/pglpm/R")){
 }
 
 seed <- 149
-baseversion <- 'checksHMUp_'
+baseversion <- 'checksHMUgamma_'
 nclusters <- 2L^6
 ndata <- 2L^12 # nSamples = 37969
 niter <- 2L^10
@@ -285,12 +285,12 @@ gc()
 initsFunction <- function(){
 list(
     alphaK=rep(1/nclusters, nclusters),
-    meanCmean=meansccovs,
-    meanCtau=1/(128*varsccovs),
-    tauCshape=tauQccovs[1,],
-    tauCrate=tauQccovs[2,],
-    probDshape1=alphadcovs,
-    probDshape2=alphadcovs*shapesratiodcovs,
+    meanCmean=0+0*meansccovs,
+    meanCtau=1/2^10 + 0*1/(128*varsccovs),
+    tauCshape=1/2^10 + 0*tauQccovs[1,],
+    tauCrate=1/2^10 + 0*tauQccovs[2,],
+    probDshape1=1 + 0*alphadcovs,
+    probDshape2=1 + 0*alphadcovs*shapesratiodcovs,
     sizeDpar1=sizeQdcovs[1,], # 1/(maxdcovs), # 1/(1+2*meansdcovs),
     sizeDpar2=sizeQdcovs[2,], # maxdcovs/(maxdcovs-1), # 1+0*maxdcovs,
     ##
@@ -299,9 +299,9 @@ list(
     ## tauC=matrix(1/varsccovs, nrow=nccovs, ncol=nclusters),
     ## probD=matrix(meansdcovs/maxdcovs, nrow=ndcovs, ncol=nclusters),
     ## sizeD=matrix(maxdcovs, nrow=ndcovs, ncol=nclusters),
-    meanC=matrix(rnorm(n=nccovs*nclusters, mean=meansccovs, sd=sqrt(128*varsccovs)), nrow=nccovs, ncol=nclusters),
-    tauC=matrix(rgamma(n=nccovs*nclusters, shape=tauQccovs[1,], rate=tauQccovs[2,]), nrow=nccovs, ncol=nclusters),
-    probD=matrix(rbeta(n=ndcovs*nclusters, shape1=alphadcovs, shape2=alphadcovs*shapesratiodcovs), nrow=ndcovs, ncol=nclusters),
+    meanC=matrix(rnorm(n=nccovs*nclusters, mean=0*meansccovs, sd=2^5+0*sqrt(128*varsccovs)), nrow=nccovs, ncol=nclusters),
+    tauC=matrix(rgamma(n=nccovs*nclusters, shape=1/2^10+0*tauQccovs[1,], rate=1/2^10+0*tauQccovs[2,]), nrow=nccovs, ncol=nclusters),
+    probD=matrix(rbeta(n=ndcovs*nclusters, shape1=1+0*alphadcovs, shape2=1+0*alphadcovs*shapesratiodcovs), nrow=ndcovs, ncol=nclusters),
     sizeD=apply(matrix(rnbinom(n=ndcovs*nclusters, prob=sizeQdcovs[1,], size=sizeQdcovs[2,]), nrow=ndcovs, ncol=nclusters), 2, function(x){maxdcovs*(x<maxdcovs)+x*(x>=maxdcovs)}),
     ## C=rep(1,ndata)
     C=rcat(n=ndata, prob=rep(1/nclusters,nclusters))
