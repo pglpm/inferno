@@ -1,6 +1,6 @@
 ## Author: PGL  Porta Mana
 ## Created: 2021-03-20T10:07:17+0100
-## Last-Updated: 2021-10-12T12:43:11+0200
+## Last-Updated: 2021-10-12T14:16:41+0200
 ################
 ## Batch script for direct regression, continuous RMSD
 ################
@@ -36,6 +36,11 @@ library('nimble')
 seed <- 149
 nclusters <- 2L^6
 
+###########################################
+#### Continuous cov
+###########################################
+
+
 meanmoments <- function(alpha, m, s, nclusters, nsamples=2^14){
     qs <- LaplacesDemon::rdirichlet(n=nsamples, alpha=rep(alpha/nclusters,nclusters))
     means <- matrix(rnorm(n=nclusters*nsamples, mean=m, sd=s), nrow=nsamples, ncol=nclusters)
@@ -61,7 +66,7 @@ dimnames(gridmeans) <- list(c('mean', 'sd'), minb:maxb, minb:maxb)
 plan(sequential)
 
 
-sdmoments <- function(alpha, m, s, shape, rate, nclusters, nsamples=2^15){
+sdmoments <- function(alpha, m, s, shape, rate, nclusters, nsamples=2^14){
     qs <- LaplacesDemon::rdirichlet(n=nsamples, alpha=rep(alpha/nclusters,nclusters))
     means <- matrix(rnorm(n=nclusters*nsamples, mean=m, sd=s), nrow=nsamples, ncol=nclusters)
     vars <- matrix(1/(rgamma(n=nclusters*nsamples, shape=shape, rate=rate)), nrow=nsamples, ncol=nclusters)
@@ -70,14 +75,108 @@ sdmoments <- function(alpha, m, s, shape, rate, nclusters, nsamples=2^15){
     c('mean'=mean(samples), 'sd'=sd(samples))
 }
 
-alpha <- 1/2
+drawxsamples <- function(alpha, m, s, shape, rate, nclusters, xgrid, nsamples=2^5){
+    foreach(x=xgrid, .combine=rbind)%dorng%{
+    qs <- LaplacesDemon::rdirichlet(n=nsamples, alpha=rep(alpha/nclusters,nclusters))
+    means <- matrix(rnorm(n=nclusters*nsamples, mean=m, sd=s), nrow=nsamples, ncol=nclusters)
+    sds <- matrix(1/sqrt(rgamma(n=nclusters*nsamples, shape=shape, rate=rate)), nrow=nsamples, ncol=nclusters)
+    rowSums(qs * dnorm(x=x, mean=means, sd=sds))
+    }
+}
+
+xgrid <- seq(-8,8,length.out=2^9)
+nclusters <- 2^6
+alpha <- 1
 m <- 0
-s <- 3*sqrt((1+alpha)/(1+alpha/nclusters))
-shape <- 2^10
-rate <- 2^-10
+s <- 0.75*sqrt((1+alpha)/(1+alpha/nclusters))
+shape <- 1/2
+rate <- 0.75/2
 ##
 print(meanmoments(alpha=alpha, m=m, s=s, nclusters=nclusters))
 print(sdmoments(alpha=alpha, m=m, s=s, shape=shape, rate=rate, nclusters=nclusters))
+print(sdmoments(alpha=alpha, m=m, s=s, shape=shape, rate=rate, nclusters=nclusters))
+##
+ygrid <- (drawxsamples(alpha=alpha, m=m, s=s, shape=shape, rate=rate, nclusters=nclusters, xgrid=xgrid, nsamples=256))
+pdff('test_marginal')
+matplot(xgrid, ygrid[,1:2], type='l', lty=1, lwd=2, ylab='p',ylim=c(0,max(ygrid[,1:2])), col=paste0(palette()[2:3],'88'))
+matlines(xgrid, rowMeans(ygrid), type='l', lty=1, lwd=5, ylab='p',ylim=c(0,max(ygrid)), col=paste0(palette()[1],'88'))
+dev.off()
+
+
+###########################################
+#### Discrete cov
+###########################################
+
+Dmoments <- function(alpha, shape1, shape2, prob, size, nclusters, nsamples=2^14){
+    qs <- LaplacesDemon::rdirichlet(n=nsamples, alpha=rep(alpha/nclusters,nclusters))
+    ps <- matrix(rbeta(n=nclusters*nsamples, shape1=shape1, shape2=shape2), nrow=nsamples, ncol=nclusters)
+    ns <- matrix(rnbinom(n=nclusters*nsamples, prob=prob, size=size), nrow=nsamples, ncol=nclusters)
+    ##
+    msamples <- rowSums(qs * ps*ns)
+    lssamples <- log10(rowSums(qs * (ps*ns*(1+ps*(ns-1)))) - msamples*msamples)/2
+    rbind(
+    'mean'=c('mean'=mean(msamples), 'sd'=sd(msamples)),
+    'log-sd'=c('mean'=mean(lssamples), 'sd'=sd(lssamples))
+    )
+}
+
+testm <- Dmoments(alpha=1, shape1=0.5, shape2=0.5, prob=0.5, size=10, nclusters=nclusters)
+print(testm)
+
+set.seed(seed)
+minb <- -9
+maxb <- 9
+plan(sequential)
+plan(multisession, workers=6)
+gridmeans <- foreach(x=minb:maxb, .combine=c)%dorng%{foreach(y=minb:maxb, .combine=c)%do%{
+    meanmoments(alpha=1, m=2^x, s=2^y, nclusters=nclusters)
+}
+}
+dim(gridmeans) <- c(2, maxb-minb+1, maxb-minb+1)
+dimnames(gridmeans) <- list(c('mean', 'sd'), minb:maxb, minb:maxb)
+plan(sequential)
+
+
+sdmoments <- function(alpha, m, s, shape, rate, nclusters, nsamples=2^14){
+    qs <- LaplacesDemon::rdirichlet(n=nsamples, alpha=rep(alpha/nclusters,nclusters))
+    means <- matrix(rnorm(n=nclusters*nsamples, mean=m, sd=s), nrow=nsamples, ncol=nclusters)
+    vars <- matrix(1/(rgamma(n=nclusters*nsamples, shape=shape, rate=rate)), nrow=nsamples, ncol=nclusters)
+    ##
+    samples <- log10(rowSums(qs * (vars+means*means)) - rowSums(qs * means)^2)/2
+    c('mean'=mean(samples), 'sd'=sd(samples))
+}
+
+drawxsamples <- function(alpha, shape1, shape2, prob, size, nclusters, xgrid, nsamples=2^5){
+    foreach(x=xgrid, .combine=rbind)%dorng%{
+    qs <- LaplacesDemon::rdirichlet(n=nsamples, alpha=rep(alpha/nclusters,nclusters))
+    ps <- matrix(rbeta(n=nclusters*nsamples, shape1=shape1, shape2=shape2), nrow=nsamples, ncol=nclusters)
+    ns <- matrix(rnbinom(n=nclusters*nsamples, prob=prob, size=size), nrow=nsamples, ncol=nclusters)
+    ##
+    rowSums(qs * dbinom(x=x, prob=ps, size=ns))
+    }
+}
+
+xgrid <- seq(0,30,by=1)
+nclusters <- 2^6
+alpha <- 1
+shape1 <- 1/2
+shape2 <- 1/2
+prob <- 1/2
+size <- 100
+##
+print(Dmoments(alpha=alpha, shape1=shape1, shape2=shape2, prob=prob, size=size, nclusters=nclusters))
+##
+      ygrid <- drawxsamples(alpha=alpha, shape1=shape1, shape2=shape2, prob=prob, size=size, nclusters=nclusters, xgrid=xgrid, nsamples=256)
+pdff('test_Dmarginal')
+matplot(xgrid, ygrid[,1:2], type='l', lty=1, lwd=2, ylab='p',ylim=c(0,max(ygrid[,1:2])), col=paste0(palette()[2:3],'88'))
+matlines(xgrid, rowMeans(ygrid), type='l', lty=1, lwd=5, ylab='p',ylim=c(0,max(ygrid)), col=paste0(palette()[1],'88'))
+dev.off()
+
+
+
+
+
+
 
 
 
