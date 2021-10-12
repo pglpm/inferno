@@ -1,6 +1,6 @@
 ## Author: PGL  Porta Mana
 ## Created: 2021-03-20T10:07:17+0100
-## Last-Updated: 2021-10-11T15:54:59+0200
+## Last-Updated: 2021-10-11T20:16:32+0200
 ################
 ## Batch script for direct regression, continuous RMSD
 ################
@@ -9,9 +9,9 @@ if(file.exists("/cluster/home/pglpm/R")){
 }
 
 seed <- 149
-baseversion <- 'checksHMUp_'
+baseversion <- 'checksHMUpgamma9_'
 nclusters <- 2L^6
-ndata <- 2L^12 # nSamples = 37969
+ndata <- 2L^11 # nSamples = 37969
 niter <- 2L^10
 nstages <- 0L
 ncheckpoints <- 8L
@@ -137,21 +137,19 @@ varsccovs <- apply(alldata[1:ndata,..continuousCovs],2,function(x)var(x, na.rm=T
 tauQccovs <- sapply(continuousCovs, function(acov){
     fn <- function(parms){
         parms <- exp(parms)
-        (pinvgamma(varsccovs[acov]/sqrt(10), shape=parms[1], scale=parms[2]) - 0.005)^2 +
-            (pinvgamma(varsccovs[acov]*sqrt(10), shape=parms[1], scale=parms[2]) - 0.995)^2
+        (qinvgamma(0.005, shape=parms[1], scale=parms[2])/(varsccovs[acov]/128)-1)^2 +
+            (qinvgamma(0.995, shape=parms[1], scale=parms[2])/(varsccovs[acov]*128)-1)^2
     }
-    exp(myoptim(c(2, 2), fn=fn)$par)
+    exp(myoptim(c(0, 0), fn=fn)$par)
 })
 print('Diagnostics tauQccovs')
-print(sapply(continuousCovs, function(acov){
-    fn <- function(parms){c(
-         qinvgamma(0.005, shape=parms[1], scale=parms[2]),
-         varsccovs[acov]/sqrt(10),
-         qinvgamma(0.995, shape=parms[1], scale=parms[2]),
-         varsccovs[acov]*sqrt(10)
-         ) }
-    fn(tauQccovs[,acov])
-}))
+fn <- function(parms){cbind(
+                          qinvgamma(0.005, shape=parms[1,], scale=parms[2,]),
+                          varsccovs/128,
+                          qinvgamma(0.995, shape=parms[1,], scale=parms[2,]),
+                          varsccovs*128
+                      ) }
+fn(tauQccovs)
 ##
 meansdcovs <- apply(alldata[1:ndata,..discreteCovs],2,mean)
 varsdcovs <- apply(alldata[1:ndata,..discreteCovs],2,function(x)var(x, na.rm=T))
@@ -160,22 +158,20 @@ maxdcovs <- apply(alldata[1:ndata,..discreteCovs],2,max)
 sizeQdcovs <- sapply(discreteCovs, function(acov){
     fn <- function(parms){
         parms <- c(plogis(parms[1]), exp(parms[2]))
-        (pnbinom(round(maxdcovs[acov]/sqrt(10)), prob=parms[1], size=parms[2]) - 0.005)^2 +
-            (pnbinom(round(maxdcovs[acov]*sqrt(10)), prob=parms[1], size=parms[2]) - 0.995)^2
+        (qnbinom(0.005, prob=parms[1], size=parms[2])/ceiling(maxdcovs[acov]/128)-1)^2 +
+            (qnbinom(0.995, prob=parms[1], size=parms[2])/round(maxdcovs[acov]*128)-1)^2
     }
-    out <- myoptim(c(0, 0), fn=fn)$par
-    out <- c(plogis(out[1]), exp(out[2]))
+    out <- myoptim(c(0, 1), fn=fn)$par
+    c(plogis(out[1]), exp(out[2]))
 })
 print('Diagnostics sizeQdcovs')
-print(sapply(discreteCovs, function(acov){
-    fn <- function(parms){c(
-         qnbinom(0.005, prob=parms[1], size=parms[2]),
-         round(maxdcovs[acov]/sqrt(10)),
-         qnbinom(0.995, prob=parms[1], size=parms[2]),
-         round(maxdcovs[acov]*sqrt(10))
-         ) }
-    fn(sizeQdcovs[,acov])
-}))
+fn <- function(parms){cbind(
+                          qnbinom(0.005, prob=parms[1,], size=parms[2,]),
+                          ceiling(maxdcovs/128),
+                          qnbinom(0.995, prob=parms[1,], size=parms[2,]),
+                          round(maxdcovs*128)
+                      ) }
+fn(sizeQdcovs)
 ##
 ## shape1 and shape2 parameters for the beta distribution for probD
 shapesratiodcovs <- (maxdcovs-meansdcovs)/meansdcovs
@@ -203,7 +199,7 @@ constants <- list(
 inits <- list(
     alphaK=rep(1/nclusters, nclusters),
     meanCmean=meansccovs,
-    meanCtau=1/(sqrt(10)*varsccovs),
+    meanCtau=1/(128*varsccovs),
     tauCshape=tauQccovs[1,],
     tauCrate=tauQccovs[2,],
     probDshape1=alphadcovs,
@@ -211,16 +207,17 @@ inits <- list(
     sizeDpar1=sizeQdcovs[1,], # 1/(maxdcovs), # 1/(1+2*meansdcovs),
     sizeDpar2=sizeQdcovs[2,], # maxdcovs/(maxdcovs-1), # 1+0*maxdcovs,
     ##
-    q=rep(1/nclusters, nclusters),
-    meanC=matrix(meansccovs, nrow=nccovs, ncol=nclusters),
-    tauC=matrix(1/varsccovs, nrow=nccovs, ncol=nclusters),
-    probD=matrix(meansdcovs/maxdcovs, nrow=ndcovs, ncol=nclusters),
-    sizeD=matrix(maxdcovs, nrow=ndcovs, ncol=nclusters),
-    ## meanC=matrix(rnorm(n=nccovs*nclusters, mean=meansccovs, sd=sqrt(varsccovs)), nrow=nccovs, ncol=nclusters),
-    ## tauC=matrix(rgamma(n=nccovs*nclusters, shape=tauQccovs[1,], rate=tauQccovs[2,]), nrow=nccovs, ncol=nclusters),
-    ## probD=matrix(rbeta(n=ndcovs*nclusters, shape1=1, shape2=1), nrow=ndcovs, ncol=nclusters),
-    ## sizeD=matrix(rnbinom(n=ndcovs*nclusters, prob=1/(1+maxdcovs), size=maxdcovs), nrow=ndcovs, ncol=nclusters),
-    C=rep(1,ndata) # rcat(n=ndata, prob=rep(1/nclusters,nclusters))
+    q=rep(1/nclusters, nclusters),    
+    ## meanC=matrix(meansccovs, nrow=nccovs, ncol=nclusters),
+    ## tauC=matrix(1/varsccovs, nrow=nccovs, ncol=nclusters),
+    ## probD=matrix(meansdcovs/maxdcovs, nrow=ndcovs, ncol=nclusters),
+    ## sizeD=matrix(maxdcovs, nrow=ndcovs, ncol=nclusters),
+    meanC=matrix(rnorm(n=nccovs*nclusters, mean=meansccovs, sd=sqrt(128*varsccovs)), nrow=nccovs, ncol=nclusters),
+    tauC=matrix(rgamma(n=nccovs*nclusters, shape=tauQccovs[1,], rate=tauQccovs[2,]), nrow=nccovs, ncol=nclusters),
+    probD=matrix(rbeta(n=ndcovs*nclusters, shape1=alphadcovs, shape2=alphadcovs*shapesratiodcovs), nrow=ndcovs, ncol=nclusters),
+    sizeD=apply(matrix(rnbinom(n=ndcovs*nclusters, prob=sizeQdcovs[1,], size=sizeQdcovs[2,]), nrow=ndcovs, ncol=nclusters), 2, function(x){maxdcovs*(x<maxdcovs)+x*(x>=maxdcovs)}),
+    ## C=rep(1,ndata)
+    C=rcat(n=ndata, prob=rep(1/nclusters,nclusters))
          )
 ##
 ##
@@ -288,26 +285,26 @@ gc()
 initsFunction <- function(){
 list(
     alphaK=rep(1/nclusters, nclusters),
-    meanCmean=meansccovs,
-    meanCtau=1/(sqrt(10)*varsccovs),
-    tauCshape=tauQccovs[1,],
-    tauCrate=tauQccovs[2,],
-    probDshape1=alphadcovs,
-    probDshape2=alphadcovs*shapesratiodcovs,
+    meanCmean=0+0*meansccovs,
+    meanCtau=1/(2^10*varsccovs),
+    tauCshape=1/2^30 + 0*tauQccovs[1,],
+    tauCrate=1/2^30 + 0*tauQccovs[2,],
+    probDshape1=1 + 0*alphadcovs,
+    probDshape2=1 + 0*alphadcovs*shapesratiodcovs,
     sizeDpar1=sizeQdcovs[1,], # 1/(maxdcovs), # 1/(1+2*meansdcovs),
     sizeDpar2=sizeQdcovs[2,], # maxdcovs/(maxdcovs-1), # 1+0*maxdcovs,
     ##
-    q=parmListTest$q[1,], # q=rep(1/nclusters, nclusters),    
+    q=rep(1/nclusters, nclusters),    
     ## meanC=matrix(meansccovs, nrow=nccovs, ncol=nclusters),
     ## tauC=matrix(1/varsccovs, nrow=nccovs, ncol=nclusters),
     ## probD=matrix(meansdcovs/maxdcovs, nrow=ndcovs, ncol=nclusters),
     ## sizeD=matrix(maxdcovs, nrow=ndcovs, ncol=nclusters),
-    meanC=parmListTest$meanC[1,,], # meanC=matrix(rnorm(n=nccovs*nclusters, mean=meansccovs, sd=sqrt(sqrt(10)*varsccovs)), nrow=nccovs, ncol=nclusters),
-    tauC=parmListTest$tauC[1,,], # tauC=matrix(rgamma(n=nccovs*nclusters, shape=tauQccovs[1,], rate=tauQccovs[2,]), nrow=nccovs, ncol=nclusters),
-    probD=parmListTest$probD[1,,], # probD=matrix(rbeta(n=ndcovs*nclusters, shape1=alphadcovs, shape2=alphadcovs*shapesratiodcovs), nrow=ndcovs, ncol=nclusters),
-    sizeD=apply(parmListTest$sizeD[1,,], 2, function(x){maxdcovs*(x<maxdcovs)+x*(x>=maxdcovs)}), # sizeD=apply(matrix(rnbinom(n=ndcovs*nclusters, prob=sizeQdcovs[1,], size=sizeQdcovs[2,]), nrow=ndcovs, ncol=nclusters), 2, function(x){maxdcovs*(x<maxdcovs)+x*(x>=maxdcovs)}),
+    meanC=matrix(rnorm(n=nccovs*nclusters, mean=0*meansccovs, sd=2^5*sqrt(varsccovs)), nrow=nccovs, ncol=nclusters),
+    tauC=matrix(rgamma(n=nccovs*nclusters, shape=1/2+0*tauQccovs[1,], rate=varsccovs/2 + 0*tauQccovs[2,]), nrow=nccovs, ncol=nclusters),
+    probD=matrix(rbeta(n=ndcovs*nclusters, shape1=1+0*alphadcovs, shape2=1+0*alphadcovs*shapesratiodcovs), nrow=ndcovs, ncol=nclusters),
+    sizeD=apply(matrix(rnbinom(n=ndcovs*nclusters, prob=sizeQdcovs[1,], size=sizeQdcovs[2,]), nrow=ndcovs, ncol=nclusters), 2, function(x){maxdcovs*(x<maxdcovs)+x*(x>=maxdcovs)}),
     ## C=rep(1,ndata)
-    C=Cs # rcat(n=ndata, prob=rep(1/nclusters,nclusters))
+    C=rcat(n=ndata, prob=rep(1/nclusters,nclusters))
          )
 }
 set.seed(941)
@@ -331,7 +328,7 @@ for(stage in 0:nstages){
     version <- paste0(baseversion, stage)
     gc()
     if(stage==0){
-        mcsamples <- runMCMC(Cmcmcsampler, nburnin=0, niter=3, thin=1, thin2=niter, inits=initsFunction, setSeed=seed)
+        mcsamples <- runMCMC(Cmcmcsampler, nburnin=1, niter=niter+1, thin=1, thin2=niter, inits=initsFunction, setSeed=seed)
     }else{
         Cmcmcsampler$run(niter=niter, thin=1, thin2=niter, reset=FALSE, resetMV=TRUE)
     }
