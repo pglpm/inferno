@@ -1,11 +1,15 @@
 ## Author: PGL  Porta Mana
 ## Created: 2021-03-20T10:07:17+0100
-## Last-Updated: 2021-10-13T10:55:48+0200
+## Last-Updated: 2021-10-14T21:51:53+0200
 ################
 ## Batch script for direct regression, continuous RMSD
 ################
-if(file.exists("/cluster/home/pglpm/R")){ .libPaths(c("/cluster/home/pglpm/R",.libPaths())) }
+if(file.exists("/cluster/home/pglpm/R")){ .libPaths(c("/cluster/home/pglpm/R",.libPaths())) }else{windowsFonts(mono=windowsFont(c('DejaVu Sans Mono')))}
 
+windowsFonts(mono=windowsFont(c('TT DejaVu Sans Mono')))
+windowsFonts(serif=windowsFont(c('TT Palatino LT Std')))
+windowsFonts(sans=windowsFont(c('TT Optima LT Std')))
+windowsFonts(sans=windowsFont(c('TT URW Classico')))
 #### Custom setup ####
 ## Colour-blind friendly palettes, from https://personal.sron.nl/~pault/
 library('khroma')
@@ -43,16 +47,13 @@ nclusters <- 2L^6
 Cmoments <- function(alpha, m, s, shape, rate, nclusters, nsamples=2^14){
     qs <- LaplacesDemon::rdirichlet(n=nsamples, alpha=rep(alpha/nclusters,nclusters))
     means <- matrix(rnorm(n=nclusters*nsamples, mean=m, sd=s), nrow=nsamples, ncol=nclusters)
-    vars <- matrix(1/(rgamma(n=nclusters*nsamples, shape=shape, rate=rate)), nrow=nsamples, ncol=nclusters)
+    sds <- matrix(1/sqrt(rgamma(n=nclusters*nsamples, shape=shape, rate=rate)), nrow=nsamples, ncol=nclusters)
     ##
     msamples <- rowSums(qs * means)
-    lssamples <- log10(rowSums(qs * (vars+means*means)) - msamples*msamples)/2
-    list(msamples=msamples,
-         lssamples=lssamples,
-         moments=rbind(
-             'mean'=c('mean'=mean(msamples), 'sd'=sd(msamples)),
-             'log-sd'=c('mean'=mean(lssamples), 'sd'=sd(lssamples))
-         )
+    lssamples <- log10(rowSums(qs * (sds*sds+means*means)) - msamples*msamples)/2
+    list(klssamples=log10(sds),
+         msamples=msamples,
+         lssamples=lssamples
          )
 }
 
@@ -65,30 +66,56 @@ drawxCsamples <- function(alpha, m, s, shape, rate, nclusters, xgrid, nsamples=2
     }
 }
 
-xgrid <- seq(-4,4,length.out=2^9)
+xgrid <- seq(-3,3,length.out=2^10)
 nclusters <- 2^6
-alpha <- 1
+alpha <- 4
 m <- 0
-s <- 1*sqrt((1+alpha)/(1+alpha/nclusters))
-gmean <- 1/10
-gsd <- 1000
-shape <- (gmean^2 + 2*gsd^2)/gsd^2
-rate <- -gmean+gmean*(gmean^2+2*gsd^2)/gsd^2
+s <- sqrt((1+alpha)/(1+alpha/nclusters))*(1/2) #*SD
+## gmean <- 1/10
+## gsd <- 1000
+shape <- 1 #(gmean^2 + 2*gsd^2)/gsd^2
+rate <- (1/4)^2 #-gmean+gmean*(gmean^2+2*gsd^2)/gsd^2
 ##
 draws <- Cmoments(alpha=alpha, m=m, s=s, shape=shape, rate=rate, nclusters=nclusters)
 ygrid <- drawxCsamples(alpha=alpha, m=m, s=s, shape=shape, rate=rate, nclusters=nclusters, xgrid=xgrid, nsamples=256)
 pdf(file=paste0('test_Cmarginal','.pdf'),height=11.7,width=16.5)
 par(mfrow=c(8,8), mar=rep(1,4))
+par(family='mono')
 for(aplot in 1:64){
     matplot(xgrid, ygrid[,aplot], type='l', lty=1, lwd=3, ylab='p',ylim=c(0,max(ygrid[,aplot])), col=paste0(palette(),'88'), bty='n', yaxt='n')
+    matlines(xgrid, dnorm(xgrid,0,1), type='l', lty=1, lwd=2, ylab='p', col=paste0(palette()[7],'88'), bty='n', yaxt='n')
 }
-par(mfrow=c(1,1), mar=c(5,4,4,2), cex.axis=2)
+par(mfrow=c(1,1), mar=c(5,4,4,2), cex=2)
 matplot(xgrid, rowMeans(ygrid), type='l', lty=1, lwd=6, ylab='p', col=paste0('#000000','88'))
-hist(draws$lssamples, main='log-SDs')
-legend(x='topright', legend=signif(draws$moments[2,],3))
+    matlines(xgrid, dnorm(xgrid,0,1), type='l', lty=1, lwd=2, ylab='p', col=paste0(palette()[7],'88'), bty='n', yaxt='n')
+hist(draws$klssamples, main='cluster log-SDs')
+legend(x='topright', legend=signif(c(mean(draws$klssamples), sd(draws$klssamples)),3))
+hist(draws$lssamples, main='full log-SDs')
+legend(x='topright', legend=signif(c(mean(draws$lssamples), sd(draws$lssamples)),3))
 hist(draws$msamples, main='means')
-legend(x='topright', legend=signif(draws$moments[1,],3))
+legend(x='topright', legend=signif(c(mean(draws$msamples), sd(draws$msamples)),3))
 dev.off()
+
+
+
+matplot(xgrid,cbind(dnorm(xgrid),
+                    qt(0.995,df=2)/3*dt(xgrid*qt(0.995,df=2)/3,df=2),
+                    qcauchy(0.995)/3*dcauchy(xgrid*qcauchy(0.995)/3)
+                    ) ,type='l',lwd=3)
+
+
+matplot(xgrid,cbind(dnorm(xgrid),
+                    qt(0.975,df=2)/2*dt(xgrid*qt(0.975,df=2)/2,df=2),
+                    qcauchy(0.975)/2*dcauchy(xgrid*qcauchy(0.975)/2)
+                    ) ,type='l',lwd=3)
+
+matplot(xgrid,cbind(
+                    qnorm(0.75)*dnorm(xgrid*qnorm(0.75)),
+                    qt(0.75,df=2)*dt(xgrid*qt(0.75,df=2),df=2),
+                    qcauchy(0.75)*dcauchy(xgrid*qcauchy(0.75))
+                    ) ,type='l',lwd=3,ylim=c(0,max(c(qnorm(0.75)*dnorm(xgrid*qnorm(0.75)),
+                    qt(0.75,df=2)*dt(xgrid*qt(0.75,df=2),df=2),
+                    qcauchy(0.75)*dcauchy(xgrid*qcauchy(0.75))))))
 
 
 ###########################################
@@ -99,16 +126,13 @@ Cmoments2 <- function(alpha, m, s, shape, shape2, rate2, nclusters, nsamples=2^1
     qs <- LaplacesDemon::rdirichlet(n=nsamples, alpha=rep(alpha/nclusters,nclusters))
     means <- matrix(rnorm(n=nclusters*nsamples, mean=m, sd=s), nrow=nsamples, ncol=nclusters)
     rates <- matrix(rgamma(n=nclusters*nsamples, shape=shape2, rate=rate2), nrow=nsamples, ncol=nclusters)
-    vars <- matrix(1/(rgamma(n=nclusters*nsamples, shape=shape, rate=rates)), nrow=nsamples, ncol=nclusters)
+    sds <- matrix(1/sqrt(rgamma(n=nclusters*nsamples, shape=shape, rate=rates)), nrow=nsamples, ncol=nclusters)
     ##
     msamples <- rowSums(qs * means)
-    lssamples <- log10(rowSums(qs * (vars+means*means)) - msamples*msamples)/2
-    list(msamples=msamples,
-         lssamples=lssamples,
-         moments=rbind(
-             'mean'=c('mean'=mean(msamples), 'sd'=sd(msamples)),
-             'log-sd'=c('mean'=mean(lssamples), 'sd'=sd(lssamples))
-         )
+    lssamples <- log10(rowSums(qs * (sds*sds+means*means)) - msamples*msamples)/2
+    list(klssamples=log10(sds),
+        msamples=msamples,
+         lssamples=lssamples
          )
 }
 
@@ -122,29 +146,148 @@ drawxCsamples2 <- function(alpha, m, s, shape, shape2, rate2, nclusters, xgrid, 
     }
 }
 
-xgrid <- seq(-2,2,length.out=2^9)
+xgrid <- seq(-3,3,length.out=2^10)
 nclusters <- 2^6
-alpha <- 1
+alpha <- 4
 m <- 0
-s <- 1/2*sqrt((1+alpha)/(1+alpha/nclusters)) #*sqrt(variance)
+s <- sqrt((1+alpha)/(1+alpha/nclusters))*(1/4) #*SD
 shape <- 1
 shape2 <- 1
-rate2 <- 1*1 #*variance
+rate2 <- 1/(1/2)^2 #1/SD^2
 ##
 draws <- Cmoments2(alpha=alpha, m=m, s=s, shape=shape, shape2=shape2, rate2=rate2, nclusters=nclusters)
 ygrid <- drawxCsamples2(alpha=alpha, m=m, s=s, shape=shape, shape2=shape2, rate2=rate2, nclusters=nclusters, xgrid=xgrid, nsamples=256)
 pdf(file=paste0('test_Cmarginal2','.pdf'),height=11.7,width=16.5)
+par(family='mono')
 par(mfrow=c(8,8), mar=rep(1,4))
 for(aplot in 1:64){
     matplot(xgrid, ygrid[,aplot], type='l', lty=1, lwd=3, ylab='p',ylim=c(0,max(ygrid[,aplot])), col=paste0(palette(),'88'), bty='n', yaxt='n')
+    matlines(xgrid, dnorm(xgrid,0,1), type='l', lty=1, lwd=2, ylab='p', col=paste0(palette()[7],'88'), bty='n', yaxt='n')
 }
-par(mfrow=c(1,1), mar=c(5,4,4,2), cex.axis=2)
+par(mfrow=c(1,1), mar=c(5,4,4,2), cex=2)
 matplot(xgrid, rowMeans(ygrid), type='l', lty=1, lwd=6, ylab='p', col=paste0('#000000','88'))
-hist(draws$lssamples, main='log-SDs')
-legend(x='topright', legend=signif(draws$moments[2,],3))
+    matlines(xgrid, dnorm(xgrid,0,1), type='l', lty=1, lwd=2, ylab='p', col=paste0(palette()[7],'88'), bty='n', yaxt='n')
+hist(draws$klssamples, main='cluster log-SDs')
+legend(x='topright', legend=signif(c(mean(draws$klssamples), sd(draws$klssamples)),3))
+hist(draws$lssamples, main='full log-SDs')
+legend(x='topright', legend=signif(c(mean(draws$lssamples), sd(draws$lssamples)),3))
 hist(draws$msamples, main='means')
-legend(x='topright', legend=signif(draws$moments[1,],3))
+legend(x='topright', legend=signif(c(mean(draws$msamples), sd(draws$msamples)),3))
 dev.off()
+
+###########################################
+#### Continuous cov + 2 level
+###########################################
+
+Cmoments3 <- function(alpha, m, msa, msb, s, shape, shape2, rate2, nclusters, nsamples=2^14){
+    qs <- LaplacesDemon::rdirichlet(n=nsamples, alpha=rep(alpha/nclusters,nclusters))
+    ## SD of normal for mean
+    msrates <- rgamma(n=nsamples, shape=msa, rate=msb)
+    msx <- 1/sqrt(rgamma(n=nsamples, shape=msa, rate=msrates))
+    basemeans <- matrix
+    ## SD of normal for mean
+    
+
+
+    Kmeans <- matrix(rnorm(n=nclusters*nsamples, mean=m))
+
+    basemeans <- rnorm(n=nclusters*nsamples, mean=mm, sd=ms)s)
+    rates <- matrix(rgamma(n=nclusters*nsamples, shape=shape2, rate=rate2), nrow=nsamples, ncol=nclusters)
+    sds <- matrix(1/sqrt(rgamma(n=nclusters*nsamples, shape=shape, rate=rates)), nrow=nsamples, ncol=nclusters)
+    ##
+    msamples <- rowSums(qs * means)
+    lssamples <- log10(rowSums(qs * (sds*sds+means*means)) - msamples*msamples)/2
+    list(klssamples=log10(sds),
+        msamples=msamples,
+         lssamples=lssamples
+         )
+}
+
+drawxCsamples3 <- function(alpha, m, Mshape, Mrate, shape, Sshape, Srate, nclusters, xgrid, nsamples=2^10){
+    qs <- LaplacesDemon::rdirichlet(n=nsamples, alpha=rep(alpha/nclusters,nclusters))
+    ##
+    iratesM <- rgamma(n=nsamples, shape=Mshape, rate=Mrate)
+    meantaus <- rgamma(n=nsamples, shape=Mshape, rate=iratesM)
+    ##
+    iratesS <- rgamma(n=nsamples, shape=Sshape, rate=Srate)
+    taurates <- rgamma(n=nsamples, shape=Sshape, rate=iratesS)
+    ##
+    Kmeans <-  matrix(rnorm(n=nsamples*nclusters, mean=m, sd=1/sqrt(meantaus)), nrow=nsamples, ncol=nclusters)
+    irates1 <- matrix(rgamma(n=nsamples*nclusters, shape=shape, rate=sdrates), nrow=nsamples, ncol=nclusters)
+    Ksds <- matrix(1/sqrt(rgamma(n=nsamples*nclusters, shape=shape, rate=irates1)), nrow=nsamples, ncol=nclusters)
+    ##
+    pdfs <- foreach(x=xgrid, .combine=rbind)%dorng%{
+    rowSums(qs * dnorm(x=x, mean=Kmeans, sd=Ksds))
+    }
+    pdfs    
+}
+
+xgrid <- seq(-10,10,length.out=2^10)
+nclusters <- 2^6
+alpha <- 4
+Mshape <- 1
+Mrate <- 1 #sqrt((1+alpha)/(1+alpha/nclusters))*(1/4) #*SD
+shape <- 1
+Sshape <- 1 # 0.8 # 1.3 # 1.4
+Srate <- 1
+ygrid <- drawxCsamples3(alpha=alpha, m=m, Mshape=Mshape, Mrate=Mrate, shape=shape, Sshape=Sshape, Srate=Srate, nclusters=nclusters, xgrid=xgrid, nsamples=64)
+pdf(file=paste0('test_Cmarginal3not','.pdf'), height=11.7, width=16.5)
+par(family='mono')
+par(mfrow=c(8,8), mar=rep(1,4))
+for(aplot in 1:64){
+    matplot(xgrid, ygrid[,aplot], type='l', lty=1, lwd=3, ylab='p',ylim=c(0,max(ygrid[,aplot])), col=paste0(palette(),'88'), bty='n', yaxt='n')
+    ## matlines(xgrid, dnorm(xgrid,0,1), type='l', lty=1, lwd=2, ylab='p', col=paste0(palette()[7],'88'), bty='n', yaxt='n')
+}
+dev.off()
+
+
+
+xgrid <- seq(-3,3,length.out=2^10)
+nclusters <- 2^6
+alpha <- 4
+m <- 0
+s <- sqrt((1+alpha)/(1+alpha/nclusters))*(1/4) #*SD
+shape <- 1
+shape2 <- 1
+rate2 <- 1/(1/2)^2 #1/SD^2
+##
+draws <- Cmoments2(alpha=alpha, m=m, s=s, shape=shape, shape2=shape2, rate2=rate2, nclusters=nclusters)
+ygrid <- drawxCsamples2(alpha=alpha, m=m, s=s, shape=shape, shape2=shape2, rate2=rate2, nclusters=nclusters, xgrid=xgrid, nsamples=256)
+pdf(file=paste0('test_Cmarginal2','.pdf'),height=11.7,width=16.5)
+par(family='mono')
+par(mfrow=c(8,8), mar=rep(1,4))
+for(aplot in 1:64){
+    matplot(xgrid, ygrid[,aplot], type='l', lty=1, lwd=3, ylab='p',ylim=c(0,max(ygrid[,aplot])), col=paste0(palette(),'88'), bty='n', yaxt='n')
+    matlines(xgrid, dnorm(xgrid,0,1), type='l', lty=1, lwd=2, ylab='p', col=paste0(palette()[7],'88'), bty='n', yaxt='n')
+}
+par(mfrow=c(1,1), mar=c(5,4,4,2), cex=2)
+matplot(xgrid, rowMeans(ygrid), type='l', lty=1, lwd=6, ylab='p', col=paste0('#000000','88'))
+    matlines(xgrid, dnorm(xgrid,0,1), type='l', lty=1, lwd=2, ylab='p', col=paste0(palette()[7],'88'), bty='n', yaxt='n')
+hist(draws$klssamples, main='cluster log-SDs')
+legend(x='topright', legend=signif(c(mean(draws$klssamples), sd(draws$klssamples)),3))
+hist(draws$lssamples, main='full log-SDs')
+legend(x='topright', legend=signif(c(mean(draws$lssamples), sd(draws$lssamples)),3))
+hist(draws$msamples, main='means')
+legend(x='topright', legend=signif(c(mean(draws$msamples), sd(draws$msamples)),3))
+dev.off()
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 ###########################################
@@ -245,7 +388,7 @@ drawxDsamples <- function(alpha, shape1, shape2, prob, size, nclusters, xgrid, n
 
 xgrid <- seq(0,32,by=1)
 nclusters <- 2^6
-alpha <- 1
+alpha <- 4
 shape1 <- 1
 shape2 <- 1
 prob <- 1/2
@@ -301,7 +444,7 @@ drawxDsamples2 <- function(alpha, shape1, shape2, shapeb1, shapeb2, size, nclust
 
 xgrid <- seq(0,32,by=1)
 nclusters <- 2^6
-alpha <- 1
+alpha <- 4
 shape1 <- 1
 shape2 <- 1
 shapeb1 <- 1
