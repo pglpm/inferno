@@ -1,6 +1,6 @@
 ## Author: PGL  Porta Mana
 ## Created: 2021-03-20T10:07:17+0100
-## Last-Updated: 2021-10-16T17:44:54+0200
+## Last-Updated: 2021-10-16T19:33:29+0200
 ################
 ## Batch script for direct regression, continuous RMSD
 ################
@@ -152,10 +152,10 @@ inits <- list(
     ##
     meanCmean=medianccovs,
     meanCshape1=rep(1/2, nccovs),
-    meanCrate2=(iqrccovs^2)/2,
+    meanCrate2=1/(iqrccovs/2)^2, # dims = inv. variance
     ##
     tauCshape1=rep(1/2, nccovs),
-    tauCrate2=(iqrccovs^2)/2,
+    tauCrate2=1/(iqrccovs/2)^2, # dims = inv. variance
     ##
     probDa1=rep(1, ndcovs),
     probDb1=rep(1, ndcovs),
@@ -164,9 +164,9 @@ inits <- list(
     sizeDb2=rep(1, ndcovs),
     ##
     ##
-    meanCtau1=1/iqrccovs^2,
-    meanCrate1=iqrccovs^2,
-    tauCrate1=iqrccovs^2,
+    meanCtau1=1/(iqrccovs/2)^2, # dims = inv. variance
+    meanCrate1=(iqrccovs/2)^2, # dims = variance
+    tauCrate1=(iqrccovs/2)^2, # dims = variance
     ##
     sizeDprob1=rep(1/2, ndcovs),
     ##
