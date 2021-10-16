@@ -1,6 +1,6 @@
 ## Author: PGL  Porta Mana
 ## Created: 2021-03-20T10:07:17+0100
-## Last-Updated: 2021-10-16T19:33:29+0200
+## Last-Updated: 2021-10-16T22:51:02+0200
 ################
 ## Batch script for direct regression, continuous RMSD
 ################
@@ -9,7 +9,7 @@ if(file.exists("/cluster/home/pglpm/R")){
 }
 
 seed <- 149
-baseversion <- 'checksGG12_'
+baseversion <- 'checksGG12corrB_'
 nclusters <- 2L^6
 ndata <- 2L^12 # nSamples = 37969
 niter <- 2L^10
@@ -152,10 +152,10 @@ inits <- list(
     ##
     meanCmean=medianccovs,
     meanCshape1=rep(1/2, nccovs),
-    meanCrate2=1/(iqrccovs/2)^2, # dims = inv. variance
+    meanCrate2=1/(iqrccovs/2/qnorm(3/4))^2, # dims = inv. variance
     ##
     tauCshape1=rep(1/2, nccovs),
-    tauCrate2=1/(iqrccovs/2)^2, # dims = inv. variance
+    tauCrate2=1/(iqrccovs/2/qnorm(3/4))^2, # dims = inv. variance
     ##
     probDa1=rep(1, ndcovs),
     probDb1=rep(1, ndcovs),
@@ -164,17 +164,17 @@ inits <- list(
     sizeDb2=rep(1, ndcovs),
     ##
     ##
-    meanCtau1=1/(iqrccovs/2)^2, # dims = inv. variance
-    meanCrate1=(iqrccovs/2)^2, # dims = variance
-    tauCrate1=(iqrccovs/2)^2, # dims = variance
+    meanCtau1=1/(iqrccovs/2/qnorm(3/4))^2, # dims = inv. variance
+    meanCrate1=(iqrccovs/2/qnorm(3/4))^2, # dims = variance
+    tauCrate1=(iqrccovs/2/qnorm(3/4))^2, # dims = variance
     ##
     sizeDprob1=rep(1/2, ndcovs),
     ##
     ##
     q=rep(1/nclusters, nclusters),
     ##
-    meanC=matrix(rnorm(n=nccovs*nclusters, mean=medianccovs, sd=iqrccovs), nrow=nccovs, ncol=nclusters),
-    tauC=matrix(rgamma(n=nccovs*nclusters, shape=1/2, rate=iqrccovs^2), nrow=nccovs, ncol=nclusters),
+    meanC=matrix(rnorm(n=nccovs*nclusters, mean=medianccovs, sd=iqrccovs/2/qnorm(3/4)), nrow=nccovs, ncol=nclusters),
+    tauC=matrix(rgamma(n=nccovs*nclusters, shape=1/2, rate=(iqrccovs/2/qnorm(3/4))^2), nrow=nccovs, ncol=nclusters),
     probD=matrix(rbeta(n=ndcovs*nclusters, shape1=1, shape2=1), nrow=ndcovs, ncol=nclusters),
     sizeD=apply(matrix(rnbinom(n=ndcovs*nclusters, prob=mediandcovs/maxdcovs, size=maxdcovs), nrow=ndcovs, ncol=nclusters), 2, function(x){maxdcovs*(x<maxdcovs)+x*(x>=maxdcovs)}),
     ## C=rep(1,ndata)
@@ -259,10 +259,10 @@ list(
     ##
     meanCmean=medianccovs,
     meanCshape1=rep(1/2, nccovs),
-    meanCrate2=(iqrccovs^2)/2,
+    meanCrate2=1/(iqrccovs/2/qnorm(3/4))^2, # dims = inv. variance
     ##
     tauCshape1=rep(1/2, nccovs),
-    tauCrate2=(iqrccovs^2)/2,
+    tauCrate2=1/(iqrccovs/2/qnorm(3/4))^2, # dims = inv. variance
     ##
     probDa1=rep(1, ndcovs),
     probDb1=rep(1, ndcovs),
@@ -271,17 +271,17 @@ list(
     sizeDb2=rep(1, ndcovs),
     ##
     ##
-    meanCtau1=1/iqrccovs^2,
-    meanCrate1=iqrccovs^2,
-    tauCrate1=iqrccovs^2,
+    meanCtau1=1/(iqrccovs/2/qnorm(3/4))^2, # dims = inv. variance
+    meanCrate1=(iqrccovs/2/qnorm(3/4))^2, # dims = variance
+    tauCrate1=(iqrccovs/2/qnorm(3/4))^2, # dims = variance
     ##
     sizeDprob1=rep(1/2, ndcovs),
     ##
     ##
     q=rep(1/nclusters, nclusters),
     ##
-    meanC=matrix(rnorm(n=nccovs*nclusters, mean=medianccovs, sd=iqrccovs), nrow=nccovs, ncol=nclusters),
-    tauC=matrix(rgamma(n=nccovs*nclusters, shape=1/2, rate=iqrccovs^2), nrow=nccovs, ncol=nclusters),
+    meanC=matrix(rnorm(n=nccovs*nclusters, mean=medianccovs, sd=iqrccovs/2/qnorm(3/4)), nrow=nccovs, ncol=nclusters),
+    tauC=matrix(rgamma(n=nccovs*nclusters, shape=1/2, rate=(iqrccovs/2/qnorm(3/4))^2), nrow=nccovs, ncol=nclusters),
     probD=matrix(rbeta(n=ndcovs*nclusters, shape1=1, shape2=1), nrow=ndcovs, ncol=nclusters),
     sizeD=apply(matrix(rnbinom(n=ndcovs*nclusters, prob=mediandcovs/maxdcovs, size=maxdcovs), nrow=ndcovs, ncol=nclusters), 2, function(x){maxdcovs*(x<maxdcovs)+x*(x>=maxdcovs)}),
     ## C=rep(1,ndata)
