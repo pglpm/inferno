@@ -1,6 +1,6 @@
 ## Author: PGL  Porta Mana
 ## Created: 2021-03-20T10:07:17+0100
-## Last-Updated: 2021-10-15T16:15:36+0200
+## Last-Updated: 2021-10-16T16:05:02+0200
 ################
 ## Batch script for direct regression, continuous RMSD
 ################
@@ -36,373 +36,349 @@ library('nimble')
 ## library('coda')
 #### End custom setup ####
 
-
-###########################################
-#### Continuous cov + 2 levels
-###########################################
-
-
-riggamma <- function(n, shape, scale, rate=1/scale){
-    rinvgamma(n=n, shape=shape, scale=rgamma(n=n, shape=shape, scale=scale))
+nfactor <- qnorm(3/4)
+##
+riggamma <- function(n, shape, logmean){
+    rinvgamma(n=n, shape=shape, scale=rgamma(n=n, shape=shape, scale=logmean))
+}
+##
+qpdf <- function(qs, Kmeans, Ksds, prob){
+    myoptim(rep(0,length(prob)),
+            function(xe){
+                sum((sapply(xe,function(i){
+                    sum(qs * pnorm(i, mean=Kmeans, sd=Ksds))
+                })/prob-1)^2)
+                })$par
 }
 
-drawxCsamples3 <- function(alpha, m, Mshape, Mscale, shape, Sshape, Sscale, nclusters, xgrid, nsamples=2^10){
+###########################################
+#### Continuous cov + mean 2 levels, sd 2 levels
+###########################################
+
+drawxCsamples3 <- function(alpha, m, Mshape, Mlogmean, shape, Sshape, Slogmean, nclusters, xgrid, nsamples=2^10){
     qs <- LaplacesDemon::rdirichlet(n=nsamples, alpha=rep(alpha/nclusters,nclusters))
     ##
-    meanvars <- riggamma(n=nsamples, shape=Mshape, scale=Mscale)
-    sdvars <- riggamma(n=nsamples, shape=Sshape, scale=Sscale)
+    meanvars <- riggamma(n=nsamples, shape=Mshape, logmean=Mlogmean)
+    sdvars <- riggamma(n=nsamples, shape=Sshape, logmean=Slogmean)
     ##
     Kmeans <-  matrix(rnorm(n=nsamples*nclusters, mean=m, sd=sqrt(meanvars)), nrow=nsamples, ncol=nclusters)
-    Ksds <- matrix(sqrt(riggamma(n=nsamples*nclusters, shape=shape, scale=sdvars)), nrow=nsamples, ncol=nclusters)
+    Ksds <- matrix(sqrt(riggamma(n=nsamples*nclusters, shape=shape, logmean=sdvars)), nrow=nsamples, ncol=nclusters)
     ##
-    pdfs <- foreach(x=xgrid, .combine=rbind)%dorng%{
+    pdfs <- foreach(x=xgrid, .combine=rbind)%do%{
     rowSums(qs * dnorm(x=x, mean=Kmeans, sd=Ksds))
+    }
+    ##
+    allquantiles <- foreach(i=1:nsamples, .combine=cbind)%dopar%{
+        qpdf(qs[i,], Kmeans[i,], Ksds[i,], prob=c(5/100, 1/4, 3/4, 95/100))
     }
     ##
     list(
         pdfs=pdfs,
+        allquantiles=allquantiles,
         meansamples=rowSums(qs * Kmeans),
         sdsamples=sqrt(rowSums(qs * (Ksds*Ksds+Kmeans*Kmeans)) - rowSums(qs * Kmeans)^2)
     )
 }
-
-xgrid <- seq(-5,5,length.out=2^10)
+##
+set.seed(149)
+xgrid <- seq(-10,10,length.out=2^11)
 nclusters <- 2^6
 alpha <- 4
 m <- 0
 Mshape <- 1/2
-Mscale <- 1 #quartile # /V #sqrt((1+alpha)/(1+alpha/nclusters))*(1/4) #*SD
+Mlogmean <- 1*nfactor^2/4 #quartile # /V #sqrt((1+alpha)/(1+alpha/nclusters))*(1/4) #*SD
 shape <- 1/2
 Sshape <- 1/2 # 0.8 # 1.3 # 1.4
-Sscale <- 1 # 1/quartile
-draws <- drawxCsamples3(alpha=alpha, m=m, Mshape=Mshape, Mscale=Mscale, shape=shape, Sshape=Sshape, Sscale=Sscale, nclusters=nclusters, xgrid=xgrid, nsamples=2^10)
+Slogmean <- 1*nfactor^2/4 # 
+draws <- drawxCsamples3(alpha=alpha, m=m, Mshape=Mshape, Mlogmean=Mlogmean, shape=shape, Sshape=Sshape, Slogmean=Slogmean, nclusters=nclusters, xgrid=xgrid, nsamples=2^10)
 ygrid <- draws$pdfs
 ##
-pdf(file=paste0('test_Cmarginal3not','.pdf'), height=11.7, width=16.5)
+pdf(file=paste0('test_Cmarginal3','.pdf'), height=11.7, width=16.5)
 par(family='mono')
 par(mfrow=c(8,8), mar=rep(1,4))
-for(aplot in 1:64){
-    matplot(xgrid, ygrid[,aplot], type='l', lty=1, lwd=3, ylab='p',ylim=c(0,max(ygrid[,aplot])), col=paste0(palette(),'88'), bty='n', yaxt='n')
+for(aplot in 1:(8*8)){
+    matplot(xgrid, ygrid[,aplot], type='l', lty=1, lwd=3, ylab='p',ylim=c(0,max(ygrid[,aplot])), col=paste0(palette(),'88'), bty='n', yaxt='n', xlim=c(-1,1)*max(abs(draws$allquantiles[c(1,4),aplot])))
     ## matlines(xgrid, dnorm(xgrid,0,1), type='l', lty=1, lwd=2, ylab='p', col=paste0(palette()[7],'88'), bty='n', yaxt='n')
 }
 par(mfrow=c(1,1), mar=c(5,4,4,2), cex=2)
-matplot(xgrid, rowMeans(ygrid), type='l', lty=1, lwd=6, ylab='p', col=paste0('#000000','88'))
-hist(log10(draws$sdsamples))
-hist(draws$meansamples)
+matplot(xgrid, rowMeans(ygrid), type='l', lty=1, lwd=6, ylab='p', col=paste0('#000000','88'), xlim=xlimit)
+hist(log10(draws$allquantiles[3,]-draws$allquantiles[2,]), main='log10-interquartile')
+hist(log10(draws$allquantiles[4,]-draws$allquantiles[1,]), main='log10-inter90-tile')
+hist(log10(draws$sdsamples), main='log10-SD')
+hist(draws$meansamples, main='mean')
 dev.off()
 
 
 ###########################################
-#### Continuous cov + 2 levels mean
+#### Continuous cov + mean 2 levels, sd 1 level
 ###########################################
 
-
-riggamma <- function(n, shape, scale, rate=1/scale){
-    rinvgamma(n=n, shape=shape, scale=rgamma(n=n, shape=shape, scale=scale))
-}
-
-drawxCsamples2 <- function(alpha, m, Mshape, Mscale, shape, scale, nclusters, xgrid, nsamples=2^10){
+drawxCsamples2 <- function(alpha, m, Mshape, Mlogmean, shape, logmean, nclusters, xgrid, nsamples=2^10){
     qs <- LaplacesDemon::rdirichlet(n=nsamples, alpha=rep(alpha/nclusters,nclusters))
     ##
-    meanvars <- riggamma(n=nsamples, shape=Mshape, scale=Mscale)
+    meanvars <- riggamma(n=nsamples, shape=Mshape, logmean=Mlogmean)
     ##
     Kmeans <-  matrix(rnorm(n=nsamples*nclusters, mean=m, sd=sqrt(meanvars)), nrow=nsamples, ncol=nclusters)
-    Ksds <- matrix(sqrt(riggamma(n=nsamples*nclusters, shape=shape, scale=scale)), nrow=nsamples, ncol=nclusters)
+    Ksds <- matrix(sqrt(riggamma(n=nsamples*nclusters, shape=shape, logmean=logmean)), nrow=nsamples, ncol=nclusters)
     ##
-    pdfs <- foreach(x=xgrid, .combine=rbind)%dorng%{
+    pdfs <- foreach(x=xgrid, .combine=rbind)%do%{
     rowSums(qs * dnorm(x=x, mean=Kmeans, sd=Ksds))
     }
-    pdfs    
+    ##
+    allquantiles <- foreach(i=1:nsamples, .combine=cbind)%dopar%{
+        qpdf(qs[i,], Kmeans[i,], Ksds[i,], prob=c(5/100, 1/4, 3/4, 95/100))
+    }
+    ##
+    list(
+        pdfs=pdfs,
+        allquantiles=allquantiles,
+        meansamples=rowSums(qs * Kmeans),
+        sdsamples=sqrt(rowSums(qs * (Ksds*Ksds+Kmeans*Kmeans)) - rowSums(qs * Kmeans)^2)
+    )
 }
-
-xgrid <- seq(-5,5,length.out=2^10)
+##
+set.seed(149)
+xgrid <- seq(-6,6,length.out=2^11)
 nclusters <- 2^6
 alpha <- 4
 m <- 0
 Mshape <- 1/2
-Mscale <- 1 #quartile # /V #sqrt((1+alpha)/(1+alpha/nclusters))*(1/4) #*SD
+Mlogmean <- 1*nfactor^2/4 #quartile # /V #sqrt((1+alpha)/(1+alpha/nclusters))*(1/4) #*SD
 shape <- 1/2
-scale <- 1 # 0.8 # 1.3 # 1.4
-ygrid <- drawxCsamples2(alpha=alpha, m=m, Mshape=Mshape, Mscale=Mscale, shape=shape, scale=scale, nclusters=nclusters, xgrid=xgrid, nsamples=2^10)
+logmean <- 1*nfactor^2/4 # 
+draws <- drawxCsamples2(alpha=alpha, m=m, Mshape=Mshape, Mlogmean=Mlogmean, shape=shape, logmean=logmean, nclusters=nclusters, xgrid=xgrid, nsamples=2^10)
+ygrid <- draws$pdfs
 ##
-pdf(file=paste0('test_Cmarginal2mean','.pdf'), height=11.7, width=16.5)
+pdf(file=paste0('test_Cmarginal2','.pdf'), height=11.7, width=16.5)
 par(family='mono')
 par(mfrow=c(8,8), mar=rep(1,4))
-for(aplot in 1:64){
-    matplot(xgrid, ygrid[,aplot], type='l', lty=1, lwd=3, ylab='p',ylim=c(0,max(ygrid[,aplot])), col=paste0(palette(),'88'), bty='n', yaxt='n')
+for(aplot in 1:(8*8)){
+    matplot(xgrid, ygrid[,aplot], type='l', lty=1, lwd=3, ylab='p',ylim=c(0,max(ygrid[,aplot])), col=paste0(palette(),'88'), bty='n', yaxt='n', xlim=c(-1,1)*max(abs(draws$allquantiles[c(1,4),aplot])))
     ## matlines(xgrid, dnorm(xgrid,0,1), type='l', lty=1, lwd=2, ylab='p', col=paste0(palette()[7],'88'), bty='n', yaxt='n')
 }
 par(mfrow=c(1,1), mar=c(5,4,4,2), cex=2)
-matplot(xgrid, rowMeans(ygrid), type='l', lty=1, lwd=6, ylab='p', col=paste0('#000000','88'))
+matplot(xgrid, rowMeans(ygrid), type='l', lty=1, lwd=6, ylab='p', col=paste0('#000000','88'), xlim=xlimit)
+hist(log10(draws$allquantiles[3,]-draws$allquantiles[2,]), main='log10-interquartile')
+hist(log10(draws$allquantiles[4,]-draws$allquantiles[1,]), main='log10-inter90-tile')
+#hist(log10(draws$ioranges), main='log10-interoctile')
+hist(log10(draws$sdsamples), main='log10-SD')
+hist(draws$meansamples, main='mean')
 dev.off()
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 ###########################################
-#### Continuous cov
+#### Continuous cov + mean 1 level, sd 1 level
 ###########################################
 
-Cmoments <- function(alpha, m, s, shape, rate, nclusters, nsamples=2^14){
+drawxCsamples1 <- function(alpha, m, var, shape, logmean, nclusters, xgrid, nsamples=2^10){
     qs <- LaplacesDemon::rdirichlet(n=nsamples, alpha=rep(alpha/nclusters,nclusters))
-    means <- matrix(rnorm(n=nclusters*nsamples, mean=m, sd=s), nrow=nsamples, ncol=nclusters)
-    sds <- matrix(1/sqrt(rgamma(n=nclusters*nsamples, shape=shape, rate=rate)), nrow=nsamples, ncol=nclusters)
     ##
-    msamples <- rowSums(qs * means)
-    lssamples <- log10(rowSums(qs * (sds*sds+means*means)) - msamples*msamples)/2
-    list(klssamples=log10(sds),
-         msamples=msamples,
-         lssamples=lssamples
-         )
-}
-
-drawxCsamples <- function(alpha, m, s, shape, rate, nclusters, xgrid, nsamples=2^10){
-    qs <- LaplacesDemon::rdirichlet(n=nsamples, alpha=rep(alpha/nclusters,nclusters))
-    means <- matrix(rnorm(n=nclusters*nsamples, mean=m, sd=s), nrow=nsamples, ncol=nclusters)
-    sds <- matrix(1/sqrt(rgamma(n=nclusters*nsamples, shape=shape, rate=rate)), nrow=nsamples, ncol=nclusters)
-    foreach(x=xgrid, .combine=rbind)%dorng%{
-    rowSums(qs * dnorm(x=x, mean=means, sd=sds))
+    ##
+    Kmeans <-  matrix(rnorm(n=nsamples*nclusters, mean=m, sd=sqrt(var)), nrow=nsamples, ncol=nclusters)
+    Ksds <- matrix(sqrt(riggamma(n=nsamples*nclusters, shape=shape, logmean=logmean)), nrow=nsamples, ncol=nclusters)
+    ##
+    pdfs <- foreach(x=xgrid, .combine=rbind)%do%{
+    rowSums(qs * dnorm(x=x, mean=Kmeans, sd=Ksds))
     }
+    ##
+    allquantiles <- foreach(i=1:nsamples, .combine=cbind)%dopar%{
+        qpdf(qs[i,], Kmeans[i,], Ksds[i,], prob=c(5/100, 1/4, 3/4, 95/100))
+    }
+    ##
+    list(
+        pdfs=pdfs,
+        allquantiles=allquantiles,
+        meansamples=rowSums(qs * Kmeans),
+        sdsamples=sqrt(rowSums(qs * (Ksds*Ksds+Kmeans*Kmeans)) - rowSums(qs * Kmeans)^2)
+    )
 }
-
-xgrid <- seq(-3,3,length.out=2^10)
+##
+set.seed(149)
+xgrid <- seq(-10,10,length.out=2^11)
 nclusters <- 2^6
 alpha <- 4
 m <- 0
-s <- sqrt((1+alpha)/(1+alpha/nclusters))*(1/2) #*SD
-## gmean <- 1/10
-## gsd <- 1000
-shape <- 1 #(gmean^2 + 2*gsd^2)/gsd^2
-rate <- (1/4)^2 #-gmean+gmean*(gmean^2+2*gsd^2)/gsd^2
+var <- 1*nfactor^2/4 #quartile # /V #sqrt((1+alpha)/(1+alpha/nclusters))*(1/4) #*SD
+shape <- 1/2
+logmean <- 1*nfactor^2/4 # 
+draws <- drawxCsamples1(alpha=alpha, m=m, var=var, shape=shape, logmean=logmean, nclusters=nclusters, xgrid=xgrid, nsamples=2^10)
+ygrid <- draws$pdfs
 ##
-draws <- Cmoments(alpha=alpha, m=m, s=s, shape=shape, rate=rate, nclusters=nclusters)
-ygrid <- drawxCsamples(alpha=alpha, m=m, s=s, shape=shape, rate=rate, nclusters=nclusters, xgrid=xgrid, nsamples=256)
-pdf(file=paste0('test_Cmarginal','.pdf'),height=11.7,width=16.5)
-par(mfrow=c(8,8), mar=rep(1,4))
+pdf(file=paste0('test_Cmarginal1','.pdf'), height=11.7, width=16.5)
 par(family='mono')
-for(aplot in 1:64){
-    matplot(xgrid, ygrid[,aplot], type='l', lty=1, lwd=3, ylab='p',ylim=c(0,max(ygrid[,aplot])), col=paste0(palette(),'88'), bty='n', yaxt='n')
-    matlines(xgrid, dnorm(xgrid,0,1), type='l', lty=1, lwd=2, ylab='p', col=paste0(palette()[7],'88'), bty='n', yaxt='n')
+par(mfrow=c(8,8), mar=rep(1,4))
+for(aplot in 1:(8*8)){
+    matplot(xgrid, ygrid[,aplot], type='l', lty=1, lwd=3, ylab='p',ylim=c(0,max(ygrid[,aplot])), col=paste0(palette(),'88'), bty='n', yaxt='n', xlim=c(-1,1)*max(abs(draws$allquantiles[c(1,4),aplot])))
+    ## matlines(xgrid, dnorm(xgrid,0,1), type='l', lty=1, lwd=2, ylab='p', col=paste0(palette()[7],'88'), bty='n', yaxt='n')
 }
 par(mfrow=c(1,1), mar=c(5,4,4,2), cex=2)
-matplot(xgrid, rowMeans(ygrid), type='l', lty=1, lwd=6, ylab='p', col=paste0('#000000','88'))
-    matlines(xgrid, dnorm(xgrid,0,1), type='l', lty=1, lwd=2, ylab='p', col=paste0(palette()[7],'88'), bty='n', yaxt='n')
-hist(draws$klssamples, main='cluster log-SDs')
-legend(x='topright', legend=signif(c(mean(draws$klssamples), sd(draws$klssamples)),3))
-hist(draws$lssamples, main='full log-SDs')
-legend(x='topright', legend=signif(c(mean(draws$lssamples), sd(draws$lssamples)),3))
-hist(draws$msamples, main='means')
-legend(x='topright', legend=signif(c(mean(draws$msamples), sd(draws$msamples)),3))
+matplot(xgrid, rowMeans(ygrid), type='l', lty=1, lwd=6, ylab='p', col=paste0('#000000','88'), xlim=xlimit)
+hist(log10(draws$allquantiles[3,]-draws$allquantiles[2,]), main='log10-interquartile')
+hist(log10(draws$allquantiles[4,]-draws$allquantiles[1,]), main='log10-inter90-tile')
+hist(log10(draws$sdsamples), main='log10-SD')
+hist(draws$meansamples, main='mean')
 dev.off()
 
 
 
-matplot(xgrid,cbind(dnorm(xgrid),
-                    qt(0.995,df=2)/3*dt(xgrid*qt(0.995,df=2)/3,df=2),
-                    qcauchy(0.995)/3*dcauchy(xgrid*qcauchy(0.995)/3)
-                    ) ,type='l',lwd=3)
 
-
-matplot(xgrid,cbind(dnorm(xgrid),
-                    qt(0.975,df=2)/2*dt(xgrid*qt(0.975,df=2)/2,df=2),
-                    qcauchy(0.975)/2*dcauchy(xgrid*qcauchy(0.975)/2)
-                    ) ,type='l',lwd=3)
-
-matplot(xgrid,cbind(
-                    qnorm(0.75)*dnorm(xgrid*qnorm(0.75)),
-                    qt(0.75,df=2)*dt(xgrid*qt(0.75,df=2),df=2),
-                    qcauchy(0.75)*dcauchy(xgrid*qcauchy(0.75))
-                    ) ,type='l',lwd=3,ylim=c(0,max(c(qnorm(0.75)*dnorm(xgrid*qnorm(0.75)),
-                    qt(0.75,df=2)*dt(xgrid*qt(0.75,df=2),df=2),
-                    qcauchy(0.75)*dcauchy(xgrid*qcauchy(0.75))))))
 
 
 ###########################################
-#### Continuous cov + 1 level
+#### Discrete cov + prob 1 level, size 1 level
 ###########################################
 
-Cmoments2 <- function(alpha, m, s, shape, shape2, rate2, nclusters, nsamples=2^14){
+qpmf <- function(distr, prob){
+    sapply(prob, function(q){
+        which.min(abs(cumsum(distr)/sum(distr) - q)) - 1
+    })
+}
+
+drawxDsamples1 <- function(alpha, probshape1, probshape2, sizeprob1, sizesize1, nclusters, xgrid, nsamples=2^10){
     qs <- LaplacesDemon::rdirichlet(n=nsamples, alpha=rep(alpha/nclusters,nclusters))
-    means <- matrix(rnorm(n=nclusters*nsamples, mean=m, sd=s), nrow=nsamples, ncol=nclusters)
-    rates <- matrix(rgamma(n=nclusters*nsamples, shape=shape2, rate=rate2), nrow=nsamples, ncol=nclusters)
-    sds <- matrix(1/sqrt(rgamma(n=nclusters*nsamples, shape=shape, rate=rates)), nrow=nsamples, ncol=nclusters)
     ##
-    msamples <- rowSums(qs * means)
-    lssamples <- log10(rowSums(qs * (sds*sds+means*means)) - msamples*msamples)/2
-    list(klssamples=log10(sds),
-        msamples=msamples,
-         lssamples=lssamples
-         )
-}
-
-drawxCsamples2 <- function(alpha, m, s, shape, shape2, rate2, nclusters, xgrid, nsamples=2^10){
-    qs <- LaplacesDemon::rdirichlet(n=nsamples, alpha=rep(alpha/nclusters,nclusters))
-    means <- matrix(rnorm(n=nclusters*nsamples, mean=m, sd=s), nrow=nsamples, ncol=nclusters)
-    rates <- matrix(rgamma(n=nclusters*nsamples, shape=shape2, rate=rate2), nrow=nsamples, ncol=nclusters)
-    sds <- matrix(1/sqrt(rgamma(n=nclusters*nsamples, shape=shape, rate=rates)), nrow=nsamples, ncol=nclusters)
-    foreach(x=xgrid, .combine=rbind)%dorng%{
-    rowSums(qs * dnorm(x=x, mean=means, sd=sds))
+    ##
+    Kprobs <- matrix(rbeta(n=nsamples*nclusters, shape1=probshape1, shape2=probshape2), nrow=nsamples, ncol=nclusters)
+    Ksizes <- matrix(rnbinom(n=nsamples*nclusters, prob=sizeprob1, size=sizesize1), nrow=nsamples, ncol=nclusters)
+    ##
+    pdfs <- foreach(x=xgrid, .combine=rbind)%do%{
+        rowSums(qs * dbinom(x=x, prob=Kprobs, size=Ksizes))
     }
+    iqranges <- apply(pdfs, 2, function(x){diff(qpmf(distr=x, prob=c(0.25,0.75)))})
+    ioranges <- apply(pdfs, 2, function(x){diff(qpmf(distr=x, prob=c(0.125,0.875)))})
+    ##
+    list(
+        pdfs=pdfs,
+        iqranges=iqranges,
+        ioranges=ioranges,
+        meansamples=rowSums(qs * Kprobs*Ksizes),
+        sdsamples=sqrt(rowSums(qs * (Kprobs*Ksizes*(1+Kprobs*(Ksizes-1)))) - rowSums(qs * Kprobs*Ksizes)^2)
+    )
 }
 
-xgrid <- seq(-3,3,length.out=2^10)
+set.seed(149)
+xgrid <- seq(0, 256, by=1)
+xlimit <- c(0, 64)
 nclusters <- 2^6
 alpha <- 4
-m <- 0
-s <- sqrt((1+alpha)/(1+alpha/nclusters))*(1/4) #*SD
-shape <- 1
-shape2 <- 1
-rate2 <- 1/(1/2)^2 #1/SD^2
+probshape1 <- 1
+probshape2 <- 1
+sizeprob1 <- 1/2
+sizesize1 <- 64
+draws <- drawxDsamples1(alpha=alpha, probshape1=probshape1, probshape2=probshape2, sizeprob1=sizeprob1, sizesize1=sizesize1, nclusters=nclusters, xgrid=xgrid, nsamples=2^10)
+ygrid <- draws$pdfs
 ##
-draws <- Cmoments2(alpha=alpha, m=m, s=s, shape=shape, shape2=shape2, rate2=rate2, nclusters=nclusters)
-ygrid <- drawxCsamples2(alpha=alpha, m=m, s=s, shape=shape, shape2=shape2, rate2=rate2, nclusters=nclusters, xgrid=xgrid, nsamples=256)
-pdf(file=paste0('test_Cmarginal2','.pdf'),height=11.7,width=16.5)
+pdf(file=paste0('test_Dmarginal1','.pdf'), height=11.7, width=16.5)
 par(family='mono')
 par(mfrow=c(8,8), mar=rep(1,4))
 for(aplot in 1:64){
-    matplot(xgrid, ygrid[,aplot], type='l', lty=1, lwd=3, ylab='p',ylim=c(0,max(ygrid[,aplot])), col=paste0(palette(),'88'), bty='n', yaxt='n')
-    matlines(xgrid, dnorm(xgrid,0,1), type='l', lty=1, lwd=2, ylab='p', col=paste0(palette()[7],'88'), bty='n', yaxt='n')
+    matplot(xgrid, ygrid[,aplot], type='l', lty=1, lwd=3, ylab='p',ylim=c(0,max(ygrid[,aplot])), col=paste0(palette(),'88'), bty='n', yaxt='n', xlim=xlimit)
+    ## matlines(xgrid, dnorm(xgrid,0,1), type='l', lty=1, lwd=2, ylab='p', col=paste0(palette()[7],'88'), bty='n', yaxt='n')
 }
 par(mfrow=c(1,1), mar=c(5,4,4,2), cex=2)
-matplot(xgrid, rowMeans(ygrid), type='l', lty=1, lwd=6, ylab='p', col=paste0('#000000','88'))
-    matlines(xgrid, dnorm(xgrid,0,1), type='l', lty=1, lwd=2, ylab='p', col=paste0(palette()[7],'88'), bty='n', yaxt='n')
-hist(draws$klssamples, main='cluster log-SDs')
-legend(x='topright', legend=signif(c(mean(draws$klssamples), sd(draws$klssamples)),3))
-hist(draws$lssamples, main='full log-SDs')
-legend(x='topright', legend=signif(c(mean(draws$lssamples), sd(draws$lssamples)),3))
-hist(draws$msamples, main='means')
-legend(x='topright', legend=signif(c(mean(draws$msamples), sd(draws$msamples)),3))
+matplot(xgrid, rowMeans(ygrid), type='l', lty=1, lwd=6, ylab='p', col=paste0('#000000','88'), xlim=xlimit)
+hist(log10(draws$iqranges), main='log10-interquartile')
+hist(log10(draws$ioranges), main='log10-interoctile')
+hist(log10(draws$sdsamples), main='log10-SD')
+hist(draws$meansamples, main='mean')
 dev.off()
 
 
-
-
-
-
-
-
-
-
-
 ###########################################
-#### Continuous cov + 2 levels
+#### Discrete cov + prob 1 level, size 2 levels
 ###########################################
 
-Cmoments3 <- function(alpha, m0, s0, s, shape, shape2, rate2, nclusters, nsamples=2^14){
+qpmf <- function(distr, prob){
+    sapply(prob, function(q){
+        which.min(abs(cumsum(distr)/sum(distr) - q)) - 1
+    })
+}
+
+drawxDsamples2 <- function(alpha, probshape1, probshape2, sizeshape1, sizeshape2, sizesize1, nclusters, xgrid, nsamples=2^10){
     qs <- LaplacesDemon::rdirichlet(n=nsamples, alpha=rep(alpha/nclusters,nclusters))
-    m0s <- rnorm(n=nsamples, mean=m0, sd=s0)
-    means <- matrix(rnorm(n=nclusters*nsamples, mean=m0s, sd=s), nrow=nsamples, ncol=nclusters)
-    basevars <- rgamma(n=nsamples, shape=1, rate=rate2)
-    rates <- matrix(rgamma(n=nclusters*nsamples, shape=shape2, rate=rate2), nrow=nsamples, ncol=nclusters)
-    vars <- matrix(1/(rgamma(n=nclusters*nsamples, shape=shape, rate=rates)), nrow=nsamples, ncol=nclusters)
     ##
-    msamples <- rowSums(qs * means)
-    lssamples <- log10(rowSums(qs * (vars+means*means)) - msamples*msamples)/2
-    list(msamples=msamples,
-         lssamples=lssamples,
-         moments=rbind(
-             'mean'=c('mean'=mean(msamples), 'sd'=sd(msamples)),
-             'log-sd'=c('mean'=mean(lssamples), 'sd'=sd(lssamples))
-         )
-         )
-}
-
-drawxCsamples3 <- function(alpha, m0, s0, s, shape, shape2, rate2, nclusters, xgrid, nsamples=2^10){
-    qs <- LaplacesDemon::rdirichlet(n=nsamples, alpha=rep(alpha/nclusters,nclusters))
-    m0s <- rnorm(n=nsamples, mean=m0, sd=s0)
-    means <- matrix(rnorm(n=nclusters*nsamples, mean=m0s, sd=s), nrow=nsamples, ncol=nclusters)
-    basevars <- rgamma(n=nsamples, shape=1, rate=rate2)
-    rates <- matrix(rgamma(n=nclusters*nsamples, shape=shape2, rate=basevars), nrow=nsamples, ncol=nclusters)
-    sds <- matrix(1/sqrt(rgamma(n=nclusters*nsamples, shape=shape, rate=rates)), nrow=nsamples, ncol=nclusters)
-    foreach(x=xgrid, .combine=rbind)%dorng%{
-    rowSums(qs * dnorm(x=x, mean=means, sd=sds))
+    sizeprobs <- matrix(rbeta(n=nsamples*nclusters, shape1=sizeshape1, shape2=sizeshape2), nrow=nsamples, ncol=nclusters)
+    ##
+    Kprobs <- matrix(rbeta(n=nsamples*nclusters, shape1=probshape1, shape2=probshape2), nrow=nsamples, ncol=nclusters)
+    Ksizes <- matrix(rnbinom(n=nsamples*nclusters, prob=sizeprobs, size=sizesize1), nrow=nsamples, ncol=nclusters)
+    ##
+    pdfs <- foreach(x=xgrid, .combine=rbind)%do%{
+        rowSums(qs * dbinom(x=x, prob=Kprobs, size=Ksizes))
     }
+    iqranges <- apply(pdfs, 2, function(x){diff(qpmf(distr=x, prob=c(0.25,0.75)))})
+    ioranges <- apply(pdfs, 2, function(x){diff(qpmf(distr=x, prob=c(0.125,0.875)))})
+    ##
+    list(
+        pdfs=pdfs,
+        iqranges=iqranges,
+        ioranges=ioranges,
+        meansamples=rowSums(qs * Kprobs*Ksizes),
+        sdsamples=sqrt(rowSums(qs * (Kprobs*Ksizes*(1+Kprobs*(Ksizes-1)))) - rowSums(qs * Kprobs*Ksizes)^2)
+    )
 }
 
-xgrid <- seq(-10,10,length.out=2^12)
+set.seed(149)
+xgrid <- seq(0, 256, by=1)
+xlimit <- c(0, 64)
 nclusters <- 2^6
-alpha <- 1
-m0 <- 0
-s0 <- 5
-s <- 1/2
-shape <- 1
-shape2 <- 1
-rate2 <- 1*1/4 #*variance
+alpha <- 4
+probshape1 <- 1
+probshape2 <- 1
+sizeshape1 <- 1
+sizeshape2 <- 1
+sizesize1 <- 64
+draws <- drawxDsamples2(alpha=alpha, probshape1=probshape1, probshape2=probshape2, sizeshape1=sizeshape1, sizeshape2=sizeshape2, sizesize1=sizesize1, nclusters=nclusters, xgrid=xgrid, nsamples=2^10)
+ygrid <- draws$pdfs
 ##
-## draws <- Cmoments3(alpha=alpha, m0=m0, s0=s0, s=s, shape=shape, shape2=shape2, rate2=rate2, nclusters=nclusters)
-ygrid <- drawxCsamples3(alpha=alpha, m0=m0, s0=s0, s=s, shape=shape, shape2=shape2, rate2=rate2, nclusters=nclusters, xgrid=xgrid, nsamples=256)
-pdf(file=paste0('test_Cmarginal3','.pdf'),height=11.7,width=16.5)
+pdf(file=paste0('test_Dmarginal2','.pdf'), height=11.7, width=16.5)
+par(family='mono')
 par(mfrow=c(8,8), mar=rep(1,4))
-for(aplot in 1:8^2){
-    cd <- cumsum(ygrid[,aplot])
-    xmin <- which.min(abs(cd-0.005))
-    xmax <- which.min(abs(cd-0.995))
-    xlimit <- xmin:xmax#xgrid[c(xmin, xmax)]
-    matplot(xgrid[xlimit], ygrid[xlimit,aplot], type='l', lty=1, lwd=3, ylab='p',ylim=c(0,max(ygrid[xmin:xmax,aplot])), col=paste0(palette(),'88'), bty='n', yaxt='n')
+for(aplot in 1:64){
+    matplot(xgrid, ygrid[,aplot], type='l', lty=1, lwd=3, ylab='p',ylim=c(0,max(ygrid[,aplot])), col=paste0(palette(),'88'), bty='n', yaxt='n', xlim=xlimit)
+    ## matlines(xgrid, dnorm(xgrid,0,1), type='l', lty=1, lwd=2, ylab='p', col=paste0(palette()[7],'88'), bty='n', yaxt='n')
 }
-par(mfrow=c(1,1), mar=c(5,4,4,2), cex.axis=2)
-matplot(xgrid, rowMeans(ygrid), type='l', lty=1, lwd=6, ylab='p', col=paste0('#000000','88'))
-## hist(draws$lssamples, main='log-SDs')
-## legend(x='topright', legend=signif(draws$moments[2,],3))
-## hist(draws$msamples, main='means')
-## legend(x='topright', legend=signif(draws$moments[1,],3))
+par(mfrow=c(1,1), mar=c(5,4,4,2), cex=2)
+matplot(xgrid, rowMeans(ygrid), type='l', lty=1, lwd=6, ylab='p', col=paste0('#000000','88'), xlim=xlimit)
+hist(log10(draws$iqranges), main='log10-interquartile')
+hist(log10(draws$ioranges), main='log10-interoctile')
+hist(log10(draws$sdsamples), main='log10-SD')
+hist(draws$meansamples, main='mean')
 dev.off()
 
 
 
 
-###########################################
-#### Discrete cov
-###########################################
 
-Dmoments <- function(alpha, shape1, shape2, prob, size, nclusters, nsamples=2^14){
-    qs <- LaplacesDemon::rdirichlet(n=nsamples, alpha=rep(alpha/nclusters,nclusters))
-    ps <- matrix(rbeta(n=nclusters*nsamples, shape1=shape1, shape2=shape2), nrow=nsamples, ncol=nclusters)
-    ns <- matrix(rnbinom(n=nclusters*nsamples, prob=prob, size=size), nrow=nsamples, ncol=nclusters)
-    ##
-    msamples <- rowSums(qs * ps*ns)
-    lssamples <- log10(rowSums(qs * (ps*ns*(1+ps*(ns-1)))) - msamples*msamples)/2
-    list(msamples=msamples,
-         lssamples=lssamples,
-         moments=rbind(
-             'mean'=c('mean'=mean(msamples), 'sd'=sd(msamples)),
-             'log-sd'=c('mean'=mean(lssamples), 'sd'=sd(lssamples))
-         )
-         )
-}
 
-drawxDsamples <- function(alpha, shape1, shape2, prob, size, nclusters, xgrid, nsamples=2^10){
-    qs <- LaplacesDemon::rdirichlet(n=nsamples, alpha=rep(alpha/nclusters,nclusters))
-    ps <- matrix(rbeta(n=nclusters*nsamples, shape1=shape1, shape2=shape2), nrow=nsamples, ncol=nclusters)
-    ns <- matrix(rnbinom(n=nclusters*nsamples, prob=prob, size=size), nrow=nsamples, ncol=nclusters)
-    foreach(x=xgrid, .combine=rbind)%dorng%{
-    rowSums(qs * dbinom(x=x, prob=ps, size=ns))
-    }
-}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 xgrid <- seq(0,32,by=1)
 nclusters <- 2^6
