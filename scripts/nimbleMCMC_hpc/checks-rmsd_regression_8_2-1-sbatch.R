@@ -1,6 +1,6 @@
 ## Author: PGL  Porta Mana
 ## Created: 2021-03-20T10:07:17+0100
-## Last-Updated: 2021-10-17T08:26:59+0200
+## Last-Updated: 2021-10-17T10:04:40+0200
 ################
 ## Batch script for direct regression, continuous RMSD
 ################
@@ -340,9 +340,10 @@ for(stage in 0:nstages){
     saveRDS(mcsamples,file=paste0('_mcsamples-R',version,'-V',length(covNames),'-D',ndata,'-K',nclusters,'-I',nrow(mcsamples),'.rds'))
     ## save final state of MCMC chain
     finalstate <- as.matrix(Cmcmcsampler$mvSamples2)
-    usedclusters <- length(unique(c(finalstate)))
-    print(paste0('OCCUPIED CLUSTERS: ', usedclusters, ' OF ', nclusters))
     finalstate <- c(mcsamples[nrow(mcsamples),], finalstate[nrow(finalstate),])
+    occupations <- finalstate[grepl('^C\\[', names(finalstate))]
+    usedclusters <- length(unique(occupations))
+    print(paste0('OCCUPIED CLUSTERS: ', usedclusters, ' OF ', nclusters))
     saveRDS(finalstate2list(finalstate),file=paste0('_finalstate-R',version,'-V',length(covNames),'-D',ndata,'-K',nclusters,'-I',nrow(mcsamples),'.rds'))
     ##
     parmList <- mcsamples2parmlist(mcsamples)
