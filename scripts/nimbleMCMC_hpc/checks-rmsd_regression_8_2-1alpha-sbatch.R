@@ -1,6 +1,6 @@
 ## Author: PGL  Porta Mana
 ## Created: 2021-03-20T10:07:17+0100
-## Last-Updated: 2021-10-17T17:41:38+0200
+## Last-Updated: 2021-10-17T17:43:11+0200
 ################
 ## Batch script for direct regression, continuous RMSD
 ################
@@ -468,9 +468,9 @@ for(stage in 0:nstages){
     }
     ##
     par(mfrow=c(1,1))
+    matplot(mcsamples[,'alpha'], type='l', col=palette()[4], lty=1, main='alpha', ylab='alpha')
     matplot(ll, type='l', col=palette()[3], lty=1, main='LL', ylab='LL', ylim=range(c(ll,llTest)))
     matlines(x=c(1,length(ll)), rep(llTest,2), lwd=5, lty=1, col=paste0('#000000','88'))
-    matplot(mcsamples[,'alpha'], type='l', col=palette()[4], lty=1, main='alpha', ylab='alpha')
     for(acov in colnames(traces)){
         if(grepl('^[PDV]', acov)){transf <- function(x){log(abs(x))}
         }else{transf <- identity}
