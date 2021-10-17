@@ -1,6 +1,6 @@
 ## Author: PGL  Porta Mana
 ## Created: 2021-03-20T10:07:17+0100
-## Last-Updated: 2021-10-17T07:30:59+0200
+## Last-Updated: 2021-10-17T10:28:51+0200
 ################
 ## Batch script for direct regression, continuous RMSD
 ################
@@ -9,11 +9,11 @@ if(file.exists("/cluster/home/pglpm/R")){
 }
 
 seed <- 149
-baseversion <- 'checksGG12corrC_'
-nclusters <- 2L^6
-ndata <- 2L^12 # nSamples = 37969
-niter <- 2L^10
-nstages <- 1L
+baseversion <- 'checksGG22_'
+nclusters <- 4#2L^6
+ndata <- 8#2L^12 # nSamples = 37969
+niter <- 20#2L^10
+nstages <- 1#31L
 ncheckpoints <- 8L
 covNames <-  c('log_RMSD'
                ,'log_mcs_unbonded_polar_sasa'
@@ -82,40 +82,48 @@ gc()
 #################
 ## Load last state from a past semi-converged sampling and calculate params
 source('functions_rmsdregr_nimble_binom.R')
-alldataRanges <- readRDS(file='alldataRanges.rds')
-dataQuantiles <- readRDS(file='dataQuantiles.rds')
-meansccovs <- readRDS(file='meansccovs.rds')
-varsccovs <- readRDS(file='varsccovs.rds')
-tauQccovs <- readRDS(file='tauQccovs.rds')
-meansdcovs <- readRDS(file='meansdcovs.rds')
-varsdcovs <- readRDS(file='varsdcovs.rds')
-maxdcovs <- readRDS(file='maxdcovs.rds')
-sizeQdcovs <- readRDS(file='sizeQdcovs.rds')
-shapesratiodcovs <- readRDS(file='shapesratiodcovs.rds')
-alphadcovs <- readRDS(file='alphadcovs.rds')
 set.seed(222)
-parmListTest <- list()
+parmListTestFile <- paste0('_parmListTest-V',length(covNames),'-K',nclusters,'.rds')
+if(file.exists(parmListTestFile)){
+    print('Reading parameters from existing file')
+    parmListTest <- readRDS(file=parmListTestFile)
+}else{
+    print('Creating and saving parameters')
+    meansccovs <- readRDS(file='meansccovs.rds')
+    varsccovs <- readRDS(file='varsccovs.rds')
+    tauQccovs <- readRDS(file='tauQccovs.rds')
+    sizeQdcovs <- readRDS(file='sizeQdcovs.rds')
+    shapesratiodcovs <- readRDS(file='shapesratiodcovs.rds')
+    alphadcovs <- readRDS(file='alphadcovs.rds')
+    parmListTest <- list()
+    ##
+    parmListTest$q <- matrix(rdirch(n=1, alpha=rep(1/nclusters, nclusters)), nrow=1)
+    ##
+    parmListTest$meanC <- array(rnorm(n=nccovs*nclusters, mean=meansccovs[continuousCovs], sd=sqrt(sqrt(10)*varsccovs[continuousCovs])), dim=c(1, nccovs, nclusters))
+    parmListTest$tauC <- array(rgamma(n=nccovs*nclusters, shape=tauQccovs[1,continuousCovs], rate=tauQccovs[2,continuousCovs]), dim=c(1, nccovs, nclusters))
+    dimnames(parmListTest$meanC) <- dimnames(parmListTest$tauC) <- list(NULL, continuousCovs, NULL)
+    ##
+    parmListTest$probD <- array(rbeta(n=ndcovs*nclusters, shape1=alphadcovs[discreteCovs], shape2=alphadcovs[discreteCovs]*shapesratiodcovs[discreteCovs]), dim=c(1, ndcovs, nclusters))
+    parmListTest$sizeD <- array(rnbinom(n=ndcovs*nclusters, prob=sizeQdcovs[1,discreteCovs], size=sizeQdcovs[2,discreteCovs]), dim=c(1, ndcovs, nclusters))
+    dimnames(parmListTest$probD) <- dimnames(parmListTest$sizeD) <- list(NULL, discreteCovs, NULL)
+    ##
+    saveRDS(parmListTest, file=parmListTestFile)
+}
 ##
-parmListTest$q <- matrix(rdirch(n=1, alpha=rep(1/nclusters, nclusters)), nrow=1)
-##
-parmListTest$meanC <- array(rnorm(n=nccovs*nclusters, mean=meansccovs[continuousCovs], sd=sqrt(sqrt(10)*varsccovs[continuousCovs])), dim=c(1, nccovs, nclusters))
-parmListTest$tauC <- array(rgamma(n=nccovs*nclusters, shape=tauQccovs[1,continuousCovs], rate=tauQccovs[2,continuousCovs]), dim=c(1, nccovs, nclusters))
-dimnames(parmListTest$meanC) <- dimnames(parmListTest$tauC) <- list(NULL, continuousCovs, NULL)
-##
-parmListTest$probD <- array(rbeta(n=ndcovs*nclusters, shape1=alphadcovs[discreteCovs], shape2=alphadcovs[discreteCovs]*shapesratiodcovs[discreteCovs]), dim=c(1, ndcovs, nclusters))
-parmListTest$sizeD <- array(rnbinom(n=ndcovs*nclusters, prob=sizeQdcovs[1,discreteCovs], size=sizeQdcovs[2,discreteCovs]), dim=c(1, ndcovs, nclusters))
-dimnames(parmListTest$probD) <- dimnames(parmListTest$sizeD) <- list(NULL, discreteCovs, NULL)
-##
-saveRDS(parmListTest, file=paste0('_parmListTest-R',baseversion,'-V',length(covNames),'-K',nclusters,'.rds'))
-
-##
-Cs <- rcat(n=ndata, prob=parmListTest$q[1,])
-alldata <- cbind(
-    data.table(matrix(rnorm(n=nccovs*ndata, mean=t(parmListTest$meanC[1,continuousCovs,Cs]), sd=1/sqrt(t(parmListTest$tauC[1,continuousCovs,Cs]))), nrow=ndata, ncol=nccovs)),
-    data.table(matrix(rbinom(n=ndcovs*ndata, prob=t(parmListTest$probD[1,discreteCovs,Cs]), size=t(parmListTest$sizeD[1,discreteCovs,Cs])), nrow=ndata, ncol=ndcovs))
+alldataTestFile <- paste0('_alldataTest-V',length(covNames),'-D',ndata,'-K',nclusters,'.rds')
+if(file.exists(alldataTestFile)){
+    print('Reading data from existing file')
+    alldata <- readRDS(file=alldataTestFile)
+}else{
+    print('Creating and saving data')
+    Cs <- rcat(n=ndata, prob=parmListTest$q[1,])
+    alldata <- cbind(
+        data.table(matrix(rnorm(n=nccovs*ndata, mean=t(parmListTest$meanC[1,continuousCovs,Cs]), sd=1/sqrt(t(parmListTest$tauC[1,continuousCovs,Cs]))), nrow=ndata, ncol=nccovs)),
+        data.table(matrix(rbinom(n=ndcovs*ndata, prob=t(parmListTest$probD[1,discreteCovs,Cs]), size=t(parmListTest$sizeD[1,discreteCovs,Cs])), nrow=ndata, ncol=ndcovs))
     )
-colnames(alldata) <- covNames
-saveRDS(alldata,file=paste0('_alldataTest-R',baseversion,'-V',length(covNames),'-D',ndata,'-K',nclusters,'.rds'))
+    colnames(alldata) <- covNames
+    saveRDS(alldata,file=alldataTestFile)
+}
 ##
 ##
 dat <- list(
@@ -136,10 +144,25 @@ for(acov in covNames){
 medianccovs <- apply(alldata[1:ndata,..continuousCovs],2,median)
 widthccovs <- irq2sd * apply(alldata[1:ndata,..continuousCovs],2,IQR)
 ##
-mediandcovs <- apply(alldata[1:ndata,..discreteCovs],2,median)
-## widthdcovs <- apply(alldata[1:ndata,..discreteCovs],2,IQR)
+mediandcovs <- apply(alldata[1:ndata,..discreteCovs],2,function(x){max(median(x),1)})
+widthdcovs <- ceiling(apply(alldata[1:ndata,..discreteCovs],2,IQR))
 maxdcovs <- apply(alldata[1:ndata,..discreteCovs],2,max)
 ##
+checkpointsFile <- paste0('_checkpoints-',ncheckpoints,'-V',length(covNames),'-D',ndata,'-K',nclusters,'.rds')
+if(file.exists(checkpointsFile)){
+    print('Reading checkpoints from existing file')
+    checkpoints <- readRDS(file=checkpointsFile)
+}else{
+    print('Creating and saving checkpoints')
+    checkpoints <- rbind(
+        c(medianccovs, round(mediandcovs)),
+        c(medianccovs+widthccovs, round(mediandcovs+widthdcovs)),
+        c(medianccovs-widthccovs, sapply(round(mediandcovs-widthdcovs), function(x){max(0,x)})),
+    as.matrix(alldata[sample(1:ndata, size=ncheckpoints), ..covNames])
+    )
+    rownames(checkpoints) <- c('Pdatamean', 'PdatacornerHi', 'PdatacornerLo', paste0('Pdatum',1:ncheckpoints))
+    saveRDS(checkpoints,file=checkpointsFile)
+    }
 ##
 ##
 constants <- list(
@@ -157,7 +180,8 @@ inits <- list(
     meanCrate2=1/(widthccovs/2)^2, # dims = inv. variance
     ##
     tauCshape1=rep(1/2, nccovs),
-    tauCrate2=1/(widthccovs/2)^2, # dims = inv. variance
+    tauCshape2=rep(1/2, nccovs),
+    tauCrate4=1/(widthccovs/2)^2, # dims = inv. variance
     ##
     probDa1=rep(1, ndcovs),
     probDb1=rep(1, ndcovs),
@@ -169,6 +193,8 @@ inits <- list(
     meanCtau1=1/(widthccovs/2)^2, # dims = inv. variance
     meanCrate1=(widthccovs/2)^2, # dims = variance
     tauCrate1=(widthccovs/2)^2, # dims = variance
+    tauCrate2=1/(widthccovs/2)^2, # dims = inv. variance
+    tauCrate3=(widthccovs/2)^2, # dims = variance
     ##
     sizeDprob1=rep(1/2, ndcovs),
     ##
@@ -201,6 +227,8 @@ bayesnet <- nimbleCode({
         meanCtau1[acov] ~ dgamma(shape=meanCshape1[acov], rate=meanCrate1[acov])
         meanCrate1[acov] ~ dgamma(shape=meanCshape1[acov], rate=meanCrate2[acov])
         tauCrate1[acov] ~ dgamma(shape=tauCshape1[acov], rate=tauCrate2[acov])
+        tauCrate2[acov] ~ dgamma(shape=tauCshape2[acov], rate=tauCrate3[acov])
+        tauCrate3[acov] ~ dgamma(shape=tauCshape2[acov], rate=tauCrate4[acov])
     }
     for(acov in 1:nDcovs){
         sizeDprob1[acov] ~ dbeta(shape1=sizeDa2[acov], shape2=sizeDb2[acov])
@@ -236,7 +264,7 @@ gc()
 if(posterior){
 confmodel <- configureMCMC(Cmodel,
                            monitors=c('q','meanC', 'tauC', 'probD', 'sizeD'),
-                           monitors2=c('C', 'meanCtau1', 'meanCrate1', 'tauCrate1', 'sizeDprob1')) #, control=list(adaptive=FALSE))
+                           monitors2=c('C', 'meanCtau1', 'meanCrate1', 'tauCrate1', 'tauCrate2', 'tauCrate3', 'sizeDprob1')) #, control=list(adaptive=FALSE))
 }else{
 confmodel <- configureMCMC(Cmodel,
                            monitors=c('q','meanC', 'tauC', 'probD', 'sizeD'))
@@ -264,7 +292,8 @@ list(
     meanCrate2=1/(widthccovs/2)^2, # dims = inv. variance
     ##
     tauCshape1=rep(1/2, nccovs),
-    tauCrate2=1/(widthccovs/2)^2, # dims = inv. variance
+    tauCshape2=rep(1/2, nccovs),
+    tauCrate4=1/(widthccovs/2)^2, # dims = inv. variance
     ##
     probDa1=rep(1, ndcovs),
     probDb1=rep(1, ndcovs),
@@ -276,6 +305,8 @@ list(
     meanCtau1=1/(widthccovs/2)^2, # dims = inv. variance
     meanCrate1=(widthccovs/2)^2, # dims = variance
     tauCrate1=(widthccovs/2)^2, # dims = variance
+    tauCrate2=1/(widthccovs/2)^2, # dims = inv. variance
+    tauCrate3=(widthccovs/2)^2, # dims = variance
     ##
     sizeDprob1=rep(1/2, ndcovs),
     ##
@@ -291,14 +322,6 @@ list(
 )
 }
 set.seed(941)
-checkpoints <- rbind(
-    c(meansccovs, round(meansdcovs)),
-    c(meansccovs+sqrt(varsccovs), round(meansdcovs+sqrt(varsdcovs))),
-    c(meansccovs-sqrt(varsccovs), sapply(round(meansdcovs-sqrt(varsdcovs)), function(x){max(0,x)})),
-    as.matrix(alldata[sample(1:ndata, size=ncheckpoints), ..covNames])
-)
-rownames(checkpoints) <- c('Pdatamean', 'PdatacornerHi', 'PdatacornerLo', paste0('Pdatum',1:ncheckpoints))
-saveRDS(checkpoints,file=paste0('_checkpoints-R',baseversion,'-V',length(covNames),'-D',ndata,'-K',nclusters,'.rds'))
 
 print('Setup time:')
 print(Sys.time() - timecount)
@@ -325,9 +348,10 @@ for(stage in 0:nstages){
     saveRDS(mcsamples,file=paste0('_mcsamples-R',version,'-V',length(covNames),'-D',ndata,'-K',nclusters,'-I',nrow(mcsamples),'.rds'))
     ## save final state of MCMC chain
     finalstate <- as.matrix(Cmcmcsampler$mvSamples2)
-    usedclusters <- length(unique(c(finalstate)))
-    print(paste0('OCCUPIED CLUSTERS: ', usedclusters, ' OF ', nclusters))
     finalstate <- c(mcsamples[nrow(mcsamples),], finalstate[nrow(finalstate),])
+    occupations <- finalstate[grepl('^C\\[', names(finalstate))]
+    usedclusters <- length(unique(occupations))
+    print(paste0('OCCUPIED CLUSTERS: ', usedclusters, ' OF ', nclusters))
     saveRDS(finalstate2list(finalstate),file=paste0('_finalstate-R',version,'-V',length(covNames),'-D',ndata,'-K',nclusters,'-I',nrow(mcsamples),'.rds'))
     ##
     parmList <- mcsamples2parmlist(mcsamples)
@@ -456,7 +480,7 @@ for(stage in 0:nstages){
                             ' | percentile: ', signif(diagnSE[acov], 3)
                             ),
                 ylab=acov,
-                ylim=range(c(transf(traces[,acov]), transf(tracesTest[,acov][abs(tracesTest[,acov])<Inf]))))
+                ylim=range(c(transf(traces[,acov][abs(transf(traces[,acov]))<Inf]), transf(tracesTest[,acov][abs(transf(tracesTest[,acov]))<Inf]))))
         matlines(x=c(1,nrow(traces)), rep(transf(tracesTest[,acov]),2), lwd=5, lty=1, col=paste0('#000000','88'))
     }
     dev.off()

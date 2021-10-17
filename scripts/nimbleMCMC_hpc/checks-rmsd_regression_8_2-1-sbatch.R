@@ -1,6 +1,6 @@
 ## Author: PGL  Porta Mana
 ## Created: 2021-03-20T10:07:17+0100
-## Last-Updated: 2021-10-17T10:04:40+0200
+## Last-Updated: 2021-10-17T10:28:43+0200
 ################
 ## Batch script for direct regression, continuous RMSD
 ################
@@ -144,8 +144,8 @@ for(acov in covNames){
 medianccovs <- apply(alldata[1:ndata,..continuousCovs],2,median)
 widthccovs <- irq2sd * apply(alldata[1:ndata,..continuousCovs],2,IQR)
 ##
-mediandcovs <- apply(alldata[1:ndata,..discreteCovs],2,median)
-widthdcovs <- apply(alldata[1:ndata,..discreteCovs],2,IQR)
+mediandcovs <- apply(alldata[1:ndata,..discreteCovs],2,function(x){max(median(x),1)})
+widthdcovs <- ceiling(apply(alldata[1:ndata,..discreteCovs],2,IQR))
 maxdcovs <- apply(alldata[1:ndata,..discreteCovs],2,max)
 ##
 checkpointsFile <- paste0('_checkpoints-',ncheckpoints,'-V',length(covNames),'-D',ndata,'-K',nclusters,'.rds')
