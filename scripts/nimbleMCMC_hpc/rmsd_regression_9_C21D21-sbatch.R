@@ -1,6 +1,6 @@
 ## Author: PGL  Porta Mana
 ## Created: 2021-03-20T10:07:17+0100
-## Last-Updated: 2021-10-18T17:22:15+0200
+## Last-Updated: 2021-10-18T17:46:00+0200
 ################
 ## Batch script for direct regression, continuous RMSD
 ################
