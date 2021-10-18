@@ -49,6 +49,69 @@ finalstate2list <- function(mcsamples){
     names(parmList) <- parmNames
     parmList
 }
+## ##
+## ## percentile functions for cont. and discr. covars
+## qpdf <- function(parmprob){
+##     myoptim(rep(0,length(prob)),
+##             function(xe){
+##                 sum((sapply(xe,function(i){
+##                     sum(qs * pnorm(i, mean=Kmeans, sd=Ksds))
+##                 })/prob-1)^2)
+##                 })$par
+## }
+## ##
+## qpmf <- function(qs, Kprobs, Ksizes, prob){
+##     sapply(prob,function(aprob){
+##         x <- 0
+##         while((sum(qs * pbinom(x, prob=Kprobs, size=Ksizes)) - aprob) < 0){
+##             x <- x + 1
+##         }
+##     x - 1
+##     })
+## }
+##
+## Calculates the median and IQR of each sample frequency
+calcSampleMQ <- function(parmList, maxD=1000){
+    continuousCovs <- dimnames(parmList$meanC)[[2]]
+    discreteCovs <- dimnames(parmList$probD)[[2]]
+    covNames <- c(continuousCovs, discreteCovs)
+    ncovs <- length(covNames)
+    q <- parmList$q
+    nsamples <- nrow(q)
+    ##
+    quants <- foreach(asample=seq_len(nsamples), .combine=c)%:%foreach(acov=covNames, .combine=c)%dopar%{
+        if(acov %in% continuousCovs){
+                mixq <- function(x){sum(q[asample,] * pnorm(x, mean=parmList$meanC[asample,acov,], sd=1/sqrt(parmList$tauC[asample,acov,])))}
+                fn <- function(par){
+                    (mixq(par[1]) - 0.5)^2 +
+                        (mixq(par[2]) - 0.25)^2 +
+                        (mixq(par[3]) - 0.75)^2
+                }
+                out <- myoptim(par=c(0,0,0), fn=fn)$par
+            ##     out <- sapply(c(0.005, 0.995), function(border){
+            ## optim(0, #rep(q[asample,] %*% parmList$meanC[asample,acov,], 2),
+            ##              fn=fn,
+            ##              gr = function(x) pracma::grad(fn, x), 
+            ##              method = "L-BFGS-B",
+            ##              lower = -Inf, upper = Inf,
+            ##              control = list(factr = 1e-10, pgtol = 0, maxit = 100))
+        }else{
+            searchgrid <- 0:maxD
+            dq <- colSums(c(q[asample,]) * pbinom(matrix(searchgrid, ncol=length(searchgrid), nrow=ncol(q), byrow=TRUE), prob=parmList$probD[asample,acov,], size=parmList$sizeD[asample,acov,]))
+            out <- c(
+                which.min(abs(dq - 0.5))-1,
+                which.min(abs(dq - 0.25))-1,
+                which.min(abs(dq - 0.75))-1
+            )
+        }
+        out
+    }
+    ##
+    dim(quants) <- c(3, ncovs, nsamples)
+    quants <- aperm(quants)
+    dimnames(quants) <- list(NULL, covNames, c('50%', '25%', '75%'))
+    quants
+}
 ##
 ## Calculates means and covariances of the sampled frequency distributions
 moments12Samples <- function(parmList){

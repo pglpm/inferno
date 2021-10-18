@@ -1,6 +1,6 @@
 ## Author: PGL  Porta Mana
 ## Created: 2021-03-20T10:07:17+0100
-## Last-Updated: 2021-10-18T08:47:30+0200
+## Last-Updated: 2021-10-18T12:00:39+0200
 ################
 ## Batch script for direct regression, continuous RMSD
 ################
@@ -9,7 +9,7 @@ if(file.exists("/cluster/home/pglpm/R")){
 }
 
 seed <- 149
-baseversion <- 'checksGG21Alphaslice_'
+baseversion <- 'checksC21D21Aslice_'
 nclusters <- 2L^6
 ndata <- 2L^12 # nSamples = 37969
 niter <- 2L^10
@@ -174,7 +174,7 @@ constants <- list(
 ##
 inits <- list(
     shapeAlpha=1,
-    rateAlpha2=4,
+    rateAlpha2=1,
     ##
     meanCmean=medianccovs,
     meanCshape1=rep(1/2, nccovs),
@@ -186,11 +186,11 @@ inits <- list(
     probDa1=rep(1, ndcovs),
     probDb1=rep(1, ndcovs),
     sizeDsize1=maxdcovs,
-    sizeDa2=rep(1, ndcovs),
-    sizeDb2=rep(1, ndcovs),
+    sizeDa2=rep(32, ndcovs),
+    sizeDb2=rep(32, ndcovs),
     ##
     ##
-    rateAlpha1=4,
+    rateAlpha1=1,
     meanCtau1=1/(widthccovs/2)^2, # dims = inv. variance
     meanCrate1=(widthccovs/2)^2, # dims = variance
     tauCrate1=(widthccovs/2)^2, # dims = variance
@@ -198,8 +198,8 @@ inits <- list(
     sizeDprob1=rep(1/2, ndcovs),
     ##
     ##
-    alpha=4,
-    alphaK=rep(4/nclusters, nclusters),
+    alpha=1,
+    alphaK=rep(1/nclusters, nclusters),
     q=rep(1/nclusters, nclusters),
     ##
     meanC=matrix(rnorm(n=nccovs*nclusters, mean=medianccovs, sd=widthccovs/2), nrow=nccovs, ncol=nclusters),
@@ -284,7 +284,7 @@ gc()
 initsFunction <- function(){
 list(
     shapeAlpha=1,
-    rateAlpha2=4,
+    rateAlpha2=1,
     ##
     meanCmean=medianccovs,
     meanCshape1=rep(1/2, nccovs),
@@ -296,11 +296,11 @@ list(
     probDa1=rep(1, ndcovs),
     probDb1=rep(1, ndcovs),
     sizeDsize1=maxdcovs,
-    sizeDa2=rep(1, ndcovs),
-    sizeDb2=rep(1, ndcovs),
+    sizeDa2=rep(32, ndcovs),
+    sizeDb2=rep(32, ndcovs),
     ##
     ##
-    rateAlpha1=4,
+    rateAlpha1=1,
     meanCtau1=1/(widthccovs/2)^2, # dims = inv. variance
     meanCrate1=(widthccovs/2)^2, # dims = variance
     tauCrate1=(widthccovs/2)^2, # dims = variance
@@ -308,8 +308,8 @@ list(
     sizeDprob1=rep(1/2, ndcovs),
     ##
     ##
-    alpha=4,
-    alphaK=rep(4/nclusters, nclusters),
+    alpha=1,
+    alphaK=rep(1/nclusters, nclusters),
     q=rep(1/nclusters, nclusters),
     ##
     meanC=matrix(rnorm(n=nccovs*nclusters, mean=medianccovs, sd=widthccovs/2), nrow=nccovs, ncol=nclusters),
@@ -320,7 +320,6 @@ list(
     C=rcat(n=ndata, prob=rep(1/nclusters,nclusters))
 )
 }
-set.seed(941)
 
 print('Setup time:')
 print(Sys.time() - timecount)

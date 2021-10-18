@@ -1,6 +1,6 @@
 ## Author: PGL  Porta Mana
 ## Created: 2021-03-20T10:07:17+0100
-## Last-Updated: 2021-10-18T08:47:30+0200
+## Last-Updated: 2021-10-18T15:50:43+0200
 ################
 ## Batch script for direct regression, continuous RMSD
 ################
@@ -9,7 +9,7 @@ if(file.exists("/cluster/home/pglpm/R")){
 }
 
 seed <- 149
-baseversion <- 'checksGG21Alphaslice_'
+baseversion <- 'checksC21D21Aslice_'
 nclusters <- 2L^6
 ndata <- 2L^12 # nSamples = 37969
 niter <- 2L^10
@@ -72,58 +72,12 @@ continuousCovs <- covNames[sapply(covNames, function(x){is.double(alldata[[x]])}
 covNames <- c(continuousCovs, discreteCovs)
 nccovs <- length(continuousCovs)
 ndcovs <- length(discreteCovs)
-rm(alldata)
+##
+alldata <- alldata[1:ndata,..covNames]
+
 
 for(obj in c('constants', 'dat', 'inits', 'bayesnet', 'model', 'Cmodel', 'confmodel', 'mcmcsampler', 'Cmcmcsampler')){if(exists(obj)){do.call(rm,list(obj))}}
 gc()
-##
-#################
-## Create test dataset
-#################
-## Load last state from a past semi-converged sampling and calculate params
-source('functions_rmsdregr_nimble_binom.R')
-set.seed(222)
-parmListTestFile <- paste0('_parmListTest-V',length(covNames),'-K',nclusters,'.rds')
-if(file.exists(parmListTestFile)){
-    print('Reading parameters from existing file')
-    parmListTest <- readRDS(file=parmListTestFile)
-}else{
-    print('Creating and saving parameters')
-    meansccovs <- readRDS(file='meansccovs.rds')
-    varsccovs <- readRDS(file='varsccovs.rds')
-    tauQccovs <- readRDS(file='tauQccovs.rds')
-    sizeQdcovs <- readRDS(file='sizeQdcovs.rds')
-    shapesratiodcovs <- readRDS(file='shapesratiodcovs.rds')
-    alphadcovs <- readRDS(file='alphadcovs.rds')
-    parmListTest <- list()
-    ##
-    parmListTest$q <- matrix(rdirch(n=1, alpha=rep(1/nclusters, nclusters)), nrow=1)
-    ##
-    parmListTest$meanC <- array(rnorm(n=nccovs*nclusters, mean=meansccovs[continuousCovs], sd=sqrt(sqrt(10)*varsccovs[continuousCovs])), dim=c(1, nccovs, nclusters))
-    parmListTest$tauC <- array(rgamma(n=nccovs*nclusters, shape=tauQccovs[1,continuousCovs], rate=tauQccovs[2,continuousCovs]), dim=c(1, nccovs, nclusters))
-    dimnames(parmListTest$meanC) <- dimnames(parmListTest$tauC) <- list(NULL, continuousCovs, NULL)
-    ##
-    parmListTest$probD <- array(rbeta(n=ndcovs*nclusters, shape1=alphadcovs[discreteCovs], shape2=alphadcovs[discreteCovs]*shapesratiodcovs[discreteCovs]), dim=c(1, ndcovs, nclusters))
-    parmListTest$sizeD <- array(rnbinom(n=ndcovs*nclusters, prob=sizeQdcovs[1,discreteCovs], size=sizeQdcovs[2,discreteCovs]), dim=c(1, ndcovs, nclusters))
-    dimnames(parmListTest$probD) <- dimnames(parmListTest$sizeD) <- list(NULL, discreteCovs, NULL)
-    ##
-    saveRDS(parmListTest, file=parmListTestFile)
-}
-##
-alldataTestFile <- paste0('_alldataTest-V',length(covNames),'-D',ndata,'-K',nclusters,'.rds')
-if(file.exists(alldataTestFile)){
-    print('Reading data from existing file')
-    alldata <- readRDS(file=alldataTestFile)
-}else{
-    print('Creating and saving data')
-    Cs <- rcat(n=ndata, prob=parmListTest$q[1,])
-    alldata <- cbind(
-        data.table(matrix(rnorm(n=nccovs*ndata, mean=t(parmListTest$meanC[1,continuousCovs,Cs]), sd=1/sqrt(t(parmListTest$tauC[1,continuousCovs,Cs]))), nrow=ndata, ncol=nccovs)),
-        data.table(matrix(rbinom(n=ndcovs*ndata, prob=t(parmListTest$probD[1,discreteCovs,Cs]), size=t(parmListTest$sizeD[1,discreteCovs,Cs])), nrow=ndata, ncol=ndcovs))
-    )
-    colnames(alldata) <- covNames
-    saveRDS(alldata,file=alldataTestFile)
-}
 ##
 ##
 dat <- list(
@@ -131,7 +85,6 @@ dat <- list(
     Y=alldata[, ..discreteCovs]
 )
 ##
-
 ##
 source('functions_rmsdregr_nimble_binom.R')
 irq2sd <- 1/(2*qnorm(3/4))
@@ -148,21 +101,16 @@ mediandcovs <- apply(alldata[1:ndata,..discreteCovs],2,function(x){max(median(x)
 widthdcovs <- ceiling(apply(alldata[1:ndata,..discreteCovs],2,IQR))
 maxdcovs <- apply(alldata[1:ndata,..discreteCovs],2,max)
 ##
-checkpointsFile <- paste0('_checkpoints-',ncheckpoints,'-V',length(covNames),'-D',ndata,'-K',nclusters,'.rds')
-if(file.exists(checkpointsFile)){
-    print('Reading checkpoints from existing file')
-    checkpoints <- readRDS(file=checkpointsFile)
-}else{
-    print('Creating and saving checkpoints')
-    checkpoints <- rbind(
-        c(medianccovs, round(mediandcovs)),
-        c(medianccovs+widthccovs, round(mediandcovs+widthdcovs)),
-        c(medianccovs-widthccovs, sapply(round(mediandcovs-widthdcovs), function(x){max(0,x)})),
+print('Creating and saving checkpoints')
+checkpointsFile <- paste0('_checkpoints-',ncheckpoints,'-R',baseversion,'-V',length(covNames),'-D',ndata,'-K',nclusters,'.rds')
+checkpoints <- rbind(
+    c(medianccovs, round(mediandcovs)),
+    c(medianccovs+widthccovs, round(mediandcovs+widthdcovs)),
+    c(medianccovs-widthccovs, sapply(round(mediandcovs-widthdcovs), function(x){max(0,x)})),
     as.matrix(alldata[sample(1:ndata, size=ncheckpoints), ..covNames])
-    )
-    rownames(checkpoints) <- c('Pdatamean', 'PdatacornerHi', 'PdatacornerLo', paste0('Pdatum',1:ncheckpoints))
-    saveRDS(checkpoints,file=checkpointsFile)
-    }
+)
+rownames(checkpoints) <- c('Pdatamean', 'PdatacornerHi', 'PdatacornerLo', paste0('Pdatum',1:ncheckpoints))
+saveRDS(checkpoints,file=checkpointsFile)
 ##
 ##
 constants <- list(
@@ -174,7 +122,7 @@ constants <- list(
 ##
 inits <- list(
     shapeAlpha=1,
-    rateAlpha2=4,
+    rateAlpha2=1,
     ##
     meanCmean=medianccovs,
     meanCshape1=rep(1/2, nccovs),
@@ -186,11 +134,11 @@ inits <- list(
     probDa1=rep(1, ndcovs),
     probDb1=rep(1, ndcovs),
     sizeDsize1=maxdcovs,
-    sizeDa2=rep(1, ndcovs),
-    sizeDb2=rep(1, ndcovs),
+    sizeDa2=rep(32, ndcovs),
+    sizeDb2=rep(32, ndcovs),
     ##
     ##
-    rateAlpha1=4,
+    rateAlpha1=1,
     meanCtau1=1/(widthccovs/2)^2, # dims = inv. variance
     meanCrate1=(widthccovs/2)^2, # dims = variance
     tauCrate1=(widthccovs/2)^2, # dims = variance
@@ -198,8 +146,8 @@ inits <- list(
     sizeDprob1=rep(1/2, ndcovs),
     ##
     ##
-    alpha=4,
-    alphaK=rep(4/nclusters, nclusters),
+    alpha=1,
+    alphaK=rep(1/nclusters, nclusters),
     q=rep(1/nclusters, nclusters),
     ##
     meanC=matrix(rnorm(n=nccovs*nclusters, mean=medianccovs, sd=widthccovs/2), nrow=nccovs, ncol=nclusters),
@@ -284,7 +232,7 @@ gc()
 initsFunction <- function(){
 list(
     shapeAlpha=1,
-    rateAlpha2=4,
+    rateAlpha2=1,
     ##
     meanCmean=medianccovs,
     meanCshape1=rep(1/2, nccovs),
@@ -296,11 +244,11 @@ list(
     probDa1=rep(1, ndcovs),
     probDb1=rep(1, ndcovs),
     sizeDsize1=maxdcovs,
-    sizeDa2=rep(1, ndcovs),
-    sizeDb2=rep(1, ndcovs),
+    sizeDa2=rep(32, ndcovs),
+    sizeDb2=rep(32, ndcovs),
     ##
     ##
-    rateAlpha1=4,
+    rateAlpha1=1,
     meanCtau1=1/(widthccovs/2)^2, # dims = inv. variance
     meanCrate1=(widthccovs/2)^2, # dims = variance
     tauCrate1=(widthccovs/2)^2, # dims = variance
@@ -308,8 +256,8 @@ list(
     sizeDprob1=rep(1/2, ndcovs),
     ##
     ##
-    alpha=4,
-    alphaK=rep(4/nclusters, nclusters),
+    alpha=1,
+    alphaK=rep(1/nclusters, nclusters),
     q=rep(1/nclusters, nclusters),
     ##
     meanC=matrix(rnorm(n=nccovs*nclusters, mean=medianccovs, sd=widthccovs/2), nrow=nccovs, ncol=nclusters),
@@ -320,7 +268,6 @@ list(
     C=rcat(n=ndata, prob=rep(1/nclusters,nclusters))
 )
 }
-set.seed(941)
 
 print('Setup time:')
 print(Sys.time() - timecount)
@@ -356,10 +303,18 @@ for(stage in 0:nstages){
     parmList <- mcsamples2parmlist(mcsamples)
     ## Traces to follow for diagnostics
     ll <- llSamples(dat, parmList)
-    llTest <- llSamples(dat, parmListTest)
     momentstraces <- moments12Samples(parmList)
+    miqrtraces <- calcSampleMQ(parmList)
     probCheckpoints <- t(probValuesSamples(checkpoints, parmList))
-    traces <- cbind(probCheckpoints, do.call(cbind, momentstraces))
+    medians <- miqrtraces[,,1]
+    colnames(medians) <- paste0('MEDIAN_',colnames(medians))
+    Q1s <- miqrtraces[,,2]
+    colnames(Q1s) <- paste0('Q1_',colnames(Q1s))
+    Q3s <- miqrtraces[,,3]
+    colnames(Q3s) <- paste0('Q3_',colnames(Q3s))
+    iqrs <- Q3s - Q1s
+    colnames(iqrs) <- paste0('IQR_',dimnames(miqrtraces)[[2]])
+    traces <- cbind(probCheckpoints, medians, iqrs, Q1s, Q3s, do.call(cbind, momentstraces))
     saveRDS(traces,file=paste0('_traces-R',version,'-V',length(covNames),'-D',ndata,'-K',nclusters,'-I',nrow(mcsamples),'.rds'))
     ##
     if(nrow(traces)>=1000){
@@ -373,14 +328,13 @@ for(stage in 0:nstages){
     diagnStat <- apply(traces, 2, function(x){LaplacesDemon::is.stationary(as.matrix(x,ncol=1))})
     diagnBurn <- apply(traces, 2, function(x){LaplacesDemon::burnin(matrix(x[1:(10*trunc(length(x)/10))], ncol=1))})
     ##
-    momentstracesTest <- moments12Samples(parmListTest)
-    probCheckpointsTest <- t(probValuesSamples(checkpoints, parmListTest))
-    tracesTest <- cbind(probCheckpointsTest, do.call(cbind, momentstracesTest))
-    diagnSE <- vapply(colnames(traces), function(x){100*ecdf(traces[,x])(tracesTest[1,x])}, FUN.VALUE=numeric(1))
     ##
-    tracegroups <- list('maxD'=1:(ncheckpoints+4),
-                        '1D'=(ncheckpoints+4)+(1:(2*(nccovs+ndcovs))),
-                        '2D'=((ncheckpoints+4)+2*(nccovs+ndcovs)+1):ncol(traces) )
+    tracenames <- colnames(traces)
+    tracegroups <- list(
+        'maxD'=(1:ncol(traces))[grepl('^(Pdat|Dcov)', tracenames)],
+        '1D'=(1:ncol(traces))[grepl('^(MEDIAN|Q1|Q3|IQR|MEAN|VAR)_', tracenames)],
+        '2D'=(1:ncol(traces))[grepl('^COV_', tracenames)]
+    )
     grouplegends <- foreach(agroup=1:length(tracegroups))%do%{
         c( paste0('-- STATS ', names(tracegroups)[agroup], ' --'),
           paste0('min ESS = ', min(diagnESS[tracegroups[[agroup]]])),
@@ -432,16 +386,12 @@ for(stage in 0:nstages){
     for(acov in continuousCovs){
         Xgrid <- seq(min(alldata[[acov]]), max(alldata[[acov]]), length.out=2^8)
         plotsamples <- samplesfX(acov, parmList, Xgrid, nfsamples=64)
-        plotsamplesTest <- samplesfX(acov, parmListTest, Xgrid, nfsamples=1)
         matplot(Xgrid, plotsamples, type='l', col=paste0(palette()[7], '44'), lty=1, lwd=2, xlab=acov, ylab='probability density', cex.axis=1.5, cex.lab=1.5)
-        matlines(Xgrid,plotsamplesTest, col=palette()[2], lty=1, lwd=5)
     }
     for(acov in discreteCovs){
         Xgrid <- seq(min(alldata[[acov]]), max(alldata[[acov]]), by=1)
         plotsamples <- samplesfX(acov, parmList, Xgrid, nfsamples=64)
-        plotsamplesTest <- samplesfX(acov, parmListTest, Xgrid, nfsamples=1)
         matplot(Xgrid, plotsamples, type='l', col=paste0(palette()[7], '44'), lty=1, lwd=2, xlab=acov, ylab='probability density', cex.axis=1.5, cex.lab=1.5)
-        matlines(Xgrid,plotsamplesTest, col=palette()[2], lty=1, lwd=5)
     }
     ##
     par(mfrow = c(2, 4))
@@ -465,8 +415,7 @@ for(stage in 0:nstages){
     ##
     par(mfrow=c(1,1))
     matplot(mcsamples[,'alpha'], type='l', col=palette()[4], lty=1, main='alpha', ylab='alpha')
-    matplot(ll, type='l', col=palette()[3], lty=1, main='LL', ylab='LL', ylim=range(c(ll,llTest)))
-    matlines(x=c(1,length(ll)), rep(llTest,2), lwd=5, lty=1, col=paste0('#000000','88'))
+    matplot(ll, type='l', col=palette()[3], lty=1, main='LL', ylab='LL', ylim=range(ll[abs(ll)<Inf]))
     for(acov in colnames(traces)){
         if(grepl('^[PDV]', acov)){transf <- function(x){log(abs(x))}
         }else{transf <- identity}
@@ -480,8 +429,7 @@ for(stage in 0:nstages){
                             ' | percentile: ', signif(diagnSE[acov], 3)
                             ),
                 ylab=acov,
-                ylim=range(c(transf(traces[,acov][abs(transf(traces[,acov]))<Inf]), transf(tracesTest[,acov][abs(transf(tracesTest[,acov]))<Inf]))))
-        matlines(x=c(1,nrow(traces)), rep(transf(tracesTest[,acov]),2), lwd=5, lty=1, col=paste0('#000000','88'))
+                ylim=range(c(transf(traces[,acov][abs(transf(traces[,acov]))<Inf]))))
     }
     dev.off()
 
