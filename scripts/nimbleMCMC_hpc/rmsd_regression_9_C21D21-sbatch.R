@@ -1,6 +1,6 @@
 ## Author: PGL  Porta Mana
 ## Created: 2021-03-20T10:07:17+0100
-## Last-Updated: 2021-10-18T17:22:04+0200
+## Last-Updated: 2021-10-18T17:22:15+0200
 ################
 ## Batch script for direct regression, continuous RMSD
 ################
@@ -9,7 +9,7 @@ if(file.exists("/cluster/home/pglpm/R")){
 }
 
 seed <- 149
-baseversion <- 'regressionC21D21Alpha_'
+baseversion <- 'regressionC21D21_'
 nclusters <- 2L^6
 ndata <- 2L^13 # nSamples = 37969
 niter <- 2L^10
@@ -124,9 +124,7 @@ constants <- list(
 ##
 initsFunction <- function(){
 list(
-    shapeAlpha=1,
-    rateAlpha2=1,
-    ##
+    alphaK=rep(1/nclusters, nclusters),
     meanCmean=medianccovs,
     meanCshape1=rep(1/2, nccovs),
     meanCrate2=1/(widthccovs/2)^2, # dims = inv. variance
@@ -141,7 +139,6 @@ list(
     sizeDb2=rep(32, ndcovs),
     ##
     ##
-    rateAlpha1=1,
     meanCtau1=1/(widthccovs/2)^2, # dims = inv. variance
     meanCrate1=(widthccovs/2)^2, # dims = variance
     tauCrate1=(widthccovs/2)^2, # dims = variance
@@ -149,8 +146,6 @@ list(
     sizeDprob1=rep(1/2, ndcovs),
     ##
     ##
-    alpha=1,
-    alphaK=rep(1/nclusters, nclusters),
     q=rep(1/nclusters, nclusters),
     ##
     meanC=matrix(rnorm(n=nccovs*nclusters, mean=medianccovs, sd=widthccovs/2), nrow=nccovs, ncol=nclusters),
@@ -164,9 +159,6 @@ list(
 ##
 ##
 bayesnet <- nimbleCode({
-    alpha ~ dgamma(shape=shapeAlpha, rate=rateAlpha1)
-    rateAlpha1 ~ dgamma(shape=shapeAlpha, rate=rateAlpha2)
-    alphaK[1:nClusters] <- alpha/nClusters
     q[1:nClusters] ~ ddirch(alpha=alphaK[1:nClusters])
     for(acluster in 1:nClusters){
         for(acov in 1:nCcovs){
@@ -216,10 +208,8 @@ gc()
 ##
 if(posterior){
 confmodel <- configureMCMC(Cmodel,
-                           monitors=c('q','meanC', 'tauC', 'probD', 'sizeD', 'alpha'),
-                           monitors2=c('C', 'rateAlpha1', 'meanCtau1', 'meanCrate1', 'tauCrate1', 'sizeDprob1')) #, control=list(adaptive=FALSE))
-confmodel$removeSamplers('alpha')
-confmodel$addSampler(target='alpha', type='slice')
+                           monitors=c('q','meanC', 'tauC', 'probD', 'sizeD'),
+                           monitors2=c('C', 'meanCtau1', 'meanCrate1', 'tauCrate1', 'sizeDprob1')) #, control=list(adaptive=FALSE))
 print(confmodel)
 }else{
 confmodel <- configureMCMC(Cmodel,
@@ -378,8 +368,6 @@ for(stage in 0:nstages){
     }
     ##
     par(mfrow=c(1,1))
-    matplot(mcsamples[,'alpha'], type='l', col=palette()[4], lty=1, main='alpha', ylab='alpha')
-    legend(x='top', legend=paste0('alpha mean: ', signif(mean(mcsamples[,'alpha']), 3), ' IQR: ', signif(median(mcsamples[,'alpha']), 3)), bty='n')
     matplot(ll, type='l', col=palette()[3], lty=1, main='LL', ylab='LL', ylim=range(ll[abs(ll)<Inf]))
     for(acov in colnames(traces)){
         if(grepl('^[PDV]', acov)){transf <- function(x){log(abs(x))}
