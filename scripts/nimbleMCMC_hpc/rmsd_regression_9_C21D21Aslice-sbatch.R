@@ -1,6 +1,6 @@
 ## Author: PGL  Porta Mana
 ## Created: 2021-03-20T10:07:17+0100
-## Last-Updated: 2021-10-18T17:22:04+0200
+## Last-Updated: 2021-10-18T17:23:46+0200
 ################
 ## Batch script for direct regression, continuous RMSD
 ################
@@ -13,7 +13,7 @@ baseversion <- 'regressionC21D21Alpha_'
 nclusters <- 2L^6
 ndata <- 2L^13 # nSamples = 37969
 niter <- 2L^10
-nstages <- 31L
+nstages <- 1L
 ncheckpoints <- 8L
 covNames <-  c('log_RMSD'
                ,'log_mcs_unbonded_polar_sasa'
