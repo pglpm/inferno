@@ -1,6 +1,6 @@
 ## Author: PGL  Porta Mana
 ## Created: 2021-03-20T10:07:17+0100
-## Last-Updated: 2021-10-18T17:46:00+0200
+## Last-Updated: 2021-10-19T07:20:37+0200
 ################
 ## Batch script for direct regression, continuous RMSD
 ################
@@ -9,11 +9,11 @@ if(file.exists("/cluster/home/pglpm/R")){
 }
 
 seed <- 149
-baseversion <- 'regressionC21D21_'
-nclusters <- 2L^6
-ndata <- 2L^13 # nSamples = 37969
-niter <- 2L^10
-nstages <- 31L
+baseversion <- 'testtestregressionC21D21b_'
+nclusters <- 4#2L^6
+ndata <- 10#2L^13 # nSamples = 37969
+niter <- 100#2L^11
+nstages <- 1#15L
 ncheckpoints <- 8L
 covNames <-  c('log_RMSD'
                ,'log_mcs_unbonded_polar_sasa'
@@ -124,7 +124,7 @@ constants <- list(
 ##
 initsFunction <- function(){
 list(
-    alphaK=rep(1/nclusters, nclusters),
+    alphaK=rep(4/nclusters, nclusters),
     meanCmean=medianccovs,
     meanCshape1=rep(1/2, nccovs),
     meanCrate2=1/(widthccovs/2)^2, # dims = inv. variance
@@ -148,12 +148,16 @@ list(
     ##
     q=rep(1/nclusters, nclusters),
     ##
-    meanC=matrix(rnorm(n=nccovs*nclusters, mean=medianccovs, sd=widthccovs/2), nrow=nccovs, ncol=nclusters),
-    tauC=matrix(rgamma(n=nccovs*nclusters, shape=1, rate=(widthccovs/2)^2), nrow=nccovs, ncol=nclusters),
-    probD=matrix(rbeta(n=ndcovs*nclusters, shape1=1, shape2=1), nrow=ndcovs, ncol=nclusters),
-    sizeD=apply(matrix(rnbinom(n=ndcovs*nclusters, prob=mediandcovs/maxdcovs, size=maxdcovs), nrow=ndcovs, ncol=nclusters), 2, function(x){maxdcovs*(x<maxdcovs)+x*(x>=maxdcovs)}),
-    ## C=rep(1,ndata)
-    C=rcat(n=ndata, prob=rep(1/nclusters,nclusters))
+    meanC=cbind(medianccovs,
+        matrix(rnorm(n=nccovs*(nclusters-1), mean=medianccovs, sd=1/sqrt(rgamma(n=nccovs, shape=1/2, rate=rgamma(n=nccovs, shape=1/2, rate=1/(widthccovs/2)^2)))), nrow=nccovs, ncol=nclusters-1) ),
+    tauC=cbind(1/(widthccovs)^2,
+                   matrix(rgamma(n=nccovs*(nclusters-1), shape=1/2, rate=rgamma(n=nccovs, shape=1/2, rate=1/(widthccovs/2)^2)), nrow=nccovs, ncol=nclusters-1) ),
+    probD=cbind((100*mediandcovs+maxdcovs)/103/maxdcovs,
+        matrix(rbeta(n=ndcovs*(nclusters-1), shape1=1, shape2=1), nrow=ndcovs, ncol=nclusters-1) ),
+    sizeD=cbind(maxdcovs,
+        apply(matrix(rnbinom(n=ndcovs*(nclusters-1), prob=rbeta(n=ndcovs, shape1=32, shape2=32), size=maxdcovs), nrow=ndcovs, ncol=nclusters-1), 2, function(x){maxdcovs*(x<maxdcovs)+x*(x>=maxdcovs)}) ),
+    C=rep(1,ndata)
+    ##C=rcat(n=ndata, prob=rep(1/nclusters,nclusters))
 )
 }
 ##
@@ -390,3 +394,56 @@ for(stage in 0:nstages){
 
 }
 
+
+
+
+
+
+
+## initsFunction <- function(){
+## list(
+##     alphaK=rep(4/nclusters, nclusters),
+##     meanCmean=medianccovs,
+##     meanCshape1=rep(1/2, nccovs),
+##     meanCrate2=1/(widthccovs/2)^2, # dims = inv. variance
+##     ##
+##     tauCshape1=rep(1/2, nccovs),
+##     tauCrate2=1/(widthccovs/2)^2, # dims = inv. variance
+##     ##
+##     probDa1=rep(1, ndcovs),
+##     probDb1=rep(1, ndcovs),
+##     sizeDsize1=maxdcovs,
+##     sizeDa2=rep(32, ndcovs),
+##     sizeDb2=rep(32, ndcovs),
+##     ##
+##     ##
+##     meanCtau1=1/(widthccovs/2)^2, # dims = inv. variance
+##     meanCrate1=(widthccovs/2)^2, # dims = variance
+##     tauCrate1=(widthccovs/2)^2, # dims = variance
+##     ##
+##     sizeDprob1=rep(1/2, ndcovs),
+##     ##
+##     ##
+##     q=rep(1/nclusters, nclusters),
+##     ##
+##     meanC=matrix(rnorm(n=nccovs*nclusters, mean=medianccovs, sd=1/sqrt(rgamma(n=nccovs,shape=1/2,rate=rgamma(n=nccovs,shape=1/2,rate=1/(widthccovs/2)^2)))), nrow=nccovs, ncol=nclusters),
+##     tauC=matrix(rgamma(n=nccovs*nclusters, shape=1/2, rate=rgamma(n=nccovs,shape=1/2,rate=1/(widthccovs/2)^2)), nrow=nccovs, ncol=nclusters),
+##     probD=matrix(rbeta(n=ndcovs*nclusters, shape1=1, shape2=1), nrow=ndcovs, ncol=nclusters),
+##     sizeD=apply(matrix(rnbinom(n=ndcovs*nclusters, prob=rbeta(n=ndcovs,shape1=32,shape2=32), size=maxdcovs), nrow=ndcovs, ncol=nclusters), 2, function(x){maxdcovs*(x<maxdcovs)+x*(x>=maxdcovs)}),
+##     ## C=rep(1,ndata)
+##     C=rcat(n=ndata, prob=rep(1/nclusters,nclusters))
+## )
+## }
+## temppdf <- function(x, acov){
+##     inits <- initsFunction()
+##     sum(inits$q * dnorm(x=x, mean=inits$meanC[acov,], sd=1/sqrt(inits$tauC[acov,])))
+## }
+## xgrid <- seq(-6,1,length.out=2^10)
+## ygrid <- sapply(xgrid, function(x){temppdf(x,3)})
+## matplot(xgrid,ygrid,type='l')
+## pdff('hists')
+## for(acov in covNames){
+##     hist(alldata[[acov]], breaks=100, main=acov)
+##     legend(x='top',legend=paste0('median: ', signif(c(medianccovs,mediandcovs)[acov],3), '  width: ', signif(c(widthccovs,widthdcovs)[acov],3)))
+## }
+## dev.off()
