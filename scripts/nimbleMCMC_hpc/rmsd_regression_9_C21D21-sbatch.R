@@ -1,6 +1,6 @@
 ## Author: PGL  Porta Mana
 ## Created: 2021-03-20T10:07:17+0100
-## Last-Updated: 2021-10-19T07:20:37+0200
+## Last-Updated: 2021-10-19T08:13:13+0200
 ################
 ## Batch script for direct regression, continuous RMSD
 ################
@@ -9,10 +9,11 @@ if(file.exists("/cluster/home/pglpm/R")){
 }
 
 seed <- 149
-baseversion <- 'testtestregressionC21D21b_'
-nclusters <- 4#2L^6
-ndata <- 10#2L^13 # nSamples = 37969
-niter <- 100#2L^11
+baseversion <- 'TESTregressionC21D21b_'
+nclusters <- 2L^6
+ndata <- 2L^13 # nSamples = 37969
+niter <- 2L^11
+niter0 <- 2L^10
 nstages <- 1#15L
 ncheckpoints <- 8L
 covNames <-  c('log_RMSD'
@@ -238,7 +239,7 @@ for(stage in 0:nstages){
     version <- paste0(baseversion, stage)
     gc()
     if(stage==0){
-        mcsamples <- runMCMC(Cmcmcsampler, nburnin=1, niter=niter+1, thin=1, thin2=niter, inits=initsFunction, setSeed=seed)
+        mcsamples <- runMCMC(Cmcmcsampler, nburnin=1, niter=niter0+1, thin=1, thin2=niter0, inits=initsFunction, setSeed=seed)
     }else{
         Cmcmcsampler$run(niter=niter, thin=1, thin2=niter, reset=FALSE, resetMV=TRUE)
     }
