@@ -1,6 +1,6 @@
 ## Author: PGL  Porta Mana
 ## Created: 2021-03-20T10:07:17+0100
-## Last-Updated: 2021-10-19T08:13:13+0200
+## Last-Updated: 2021-10-19T20:58:30+0200
 ################
 ## Batch script for direct regression, continuous RMSD
 ################
@@ -9,7 +9,7 @@ if(file.exists("/cluster/home/pglpm/R")){
 }
 
 seed <- 149
-baseversion <- 'TESTregressionC21D21b_'
+baseversion <- 'TEST3regressionC21D21b_'
 nclusters <- 2L^6
 ndata <- 2L^13 # nSamples = 37969
 niter <- 2L^11
@@ -149,16 +149,20 @@ list(
     ##
     q=rep(1/nclusters, nclusters),
     ##
-    meanC=cbind(medianccovs,
-        matrix(rnorm(n=nccovs*(nclusters-1), mean=medianccovs, sd=1/sqrt(rgamma(n=nccovs, shape=1/2, rate=rgamma(n=nccovs, shape=1/2, rate=1/(widthccovs/2)^2)))), nrow=nccovs, ncol=nclusters-1) ),
-    tauC=cbind(1/(widthccovs)^2,
-                   matrix(rgamma(n=nccovs*(nclusters-1), shape=1/2, rate=rgamma(n=nccovs, shape=1/2, rate=1/(widthccovs/2)^2)), nrow=nccovs, ncol=nclusters-1) ),
-    probD=cbind((100*mediandcovs+maxdcovs)/103/maxdcovs,
-        matrix(rbeta(n=ndcovs*(nclusters-1), shape1=1, shape2=1), nrow=ndcovs, ncol=nclusters-1) ),
-    sizeD=cbind(maxdcovs,
-        apply(matrix(rnbinom(n=ndcovs*(nclusters-1), prob=rbeta(n=ndcovs, shape1=32, shape2=32), size=maxdcovs), nrow=ndcovs, ncol=nclusters-1), 2, function(x){maxdcovs*(x<maxdcovs)+x*(x>=maxdcovs)}) ),
-    C=rep(1,ndata)
-    ##C=rcat(n=ndata, prob=rep(1/nclusters,nclusters))
+    meanC=matrix(rnorm(n=nccovs*(nclusters), mean=medianccovs, sd=1/sqrt(rgamma(n=nccovs, shape=1/2, rate=rgamma(n=nccovs, shape=1/2, rate=1/(widthccovs/2)^2)))), nrow=nccovs, ncol=nclusters),
+    tauC=matrix(rgamma(n=nccovs*(nclusters), shape=1/2, rate=rgamma(n=nccovs, shape=1/2, rate=1/(widthccovs/2)^2)), nrow=nccovs, ncol=nclusters),
+    probD=matrix(rbeta(n=ndcovs*(nclusters), shape1=1, shape2=1), nrow=ndcovs, ncol=nclusters),
+    sizeD=apply(matrix(rnbinom(n=ndcovs*(nclusters), prob=rbeta(n=ndcovs, shape1=32, shape2=32), size=maxdcovs), nrow=ndcovs, ncol=nclusters), 2, function(x){maxdcovs*(x<maxdcovs)+x*(x>=maxdcovs)}),
+    ## meanC=cbind(medianccovs,
+    ##     matrix(rnorm(n=nccovs*(nclusters-1), mean=medianccovs, sd=1/sqrt(rgamma(n=nccovs, shape=1/2, rate=rgamma(n=nccovs, shape=1/2, rate=1/(widthccovs/2)^2)))), nrow=nccovs, ncol=nclusters-1) ),
+    ## tauC=cbind(1/(widthccovs)^2,
+    ##                matrix(rgamma(n=nccovs*(nclusters-1), shape=1/2, rate=rgamma(n=nccovs, shape=1/2, rate=1/(widthccovs/2)^2)), nrow=nccovs, ncol=nclusters-1) ),
+    ## probD=cbind((100*mediandcovs+maxdcovs)/103/maxdcovs,
+    ##     matrix(rbeta(n=ndcovs*(nclusters-1), shape1=1, shape2=1), nrow=ndcovs, ncol=nclusters-1) ),
+    ## sizeD=cbind(maxdcovs,
+    ##     apply(matrix(rnbinom(n=ndcovs*(nclusters-1), prob=rbeta(n=ndcovs, shape1=32, shape2=32), size=maxdcovs), nrow=ndcovs, ncol=nclusters-1), 2, function(x){maxdcovs*(x<maxdcovs)+x*(x>=maxdcovs)}) ),
+    ##C=rep(1,ndata)
+    C=rcat(n=ndata, prob=rep(1/nclusters,nclusters))
 )
 }
 ##
@@ -343,14 +347,16 @@ for(stage in 0:nstages){
     ##
     par(mfrow=c(1,1))
     for(acov in continuousCovs){
-        Xgrid <- seq(min(alldata[[acov]]), max(alldata[[acov]]), length.out=2^8)
+        Xgrid <- seq(extendrange(alldata[[acov]])[1], extendrange(alldata[[acov]])[2], length.out=2^8)
+##        Xgrid <- seq(range(alldata[[acov]])[1], range(alldata[[acov]])[2], length.out=2^8)
+        df <- 1/min(diff(Xgrid))/2
         plotsamples <- samplesfX(acov, parmList, Xgrid, nfsamples=64)
-        matplot(Xgrid, plotsamples, type='l', col=paste0(palette()[7], '44'), lty=1, lwd=2, xlab=acov, ylab='probability density', cex.axis=1.5, cex.lab=1.5)
+        matplot(Xgrid, plotsamples, type='l', col=paste0(palette()[7], '44'), lty=1, lwd=2, xlab=acov, ylab='probability density', cex.axis=1.5, cex.lab=1.5, ylim=c(0, max(plotsamples[plotsamples<df])))
     }
     for(acov in discreteCovs){
         Xgrid <- seq(min(alldata[[acov]]), max(alldata[[acov]]), by=1)
         plotsamples <- samplesfX(acov, parmList, Xgrid, nfsamples=64)
-        matplot(Xgrid, plotsamples, type='l', col=paste0(palette()[7], '44'), lty=1, lwd=2, xlab=acov, ylab='probability density', cex.axis=1.5, cex.lab=1.5)
+        matplot(Xgrid, plotsamples, type='l', col=paste0(palette()[7], '44'), lty=1, lwd=2, xlab=acov, ylab='probability density', cex.axis=1.5, cex.lab=1.5, ylim=c(0, max(plotsamples)))
     }
     ##
     par(mfrow = c(2, 4))

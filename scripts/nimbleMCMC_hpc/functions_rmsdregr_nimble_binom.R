@@ -1,3 +1,7 @@
+## Extend range
+extendrange <- function(vec){
+    1.125 * range(vec)- 0.125 * mean(range(vec))
+}
 ## Normalize vector
 normalize <- function(freqs){freqs/sum(freqs)}
 ## Normalize rows of matrix
