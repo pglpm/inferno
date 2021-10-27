@@ -1,6 +1,6 @@
 ## Author: PGL  Porta Mana
 ## Created: 2021-03-20T10:07:17+0100
-## Last-Updated: 2021-10-27T12:44:46+0200
+## Last-Updated: 2021-10-27T15:44:46+0200
 ################
 ## Script for reverse regression
 ################
@@ -271,6 +271,15 @@ set.seed(222)
 alldata <- alldata[sample(1:nrow(alldata))]
 fwrite(alldata,'oldsmiledata_id_processed_transformed_shuffled.csv', sep=',')
 
+## separate for training and test
+ntest <- 2^10
+fwrite(head(alldata, nrow(alldata)-ntest),'train_oldsmiledata_id_processed_transformed_shuffled.csv', sep=',')
+fwrite(tail(alldata, ntest),'test_oldsmiledata_id_processed_transformed_shuffled.csv', sep=',')
+
+
+
+
+
 
 ## > nameFeatures[reorder]
 ##  [1] "log_RMSD"                       "rmsd"                          
@@ -291,3 +300,39 @@ fwrite(alldata,'oldsmiledata_id_processed_transformed_shuffled.csv', sep=',')
 ## [31] "template_RingCount"             "docked_NHOHCount"              
 ## [33] "template_NumHDonors"            "template_NumHAcceptors"        
 ## [35] "docked_NumHDonors"             
+
+## log_RMSD                      
+## rmsd                          
+## bin_RMSD                      
+## Xtransf_ec_tanimoto_similarity
+## ec_tanimoto_similarity        
+## fc_tanimoto_similarity        
+## Xtransf_fc_tanimoto_similarity
+## docked_HeavyAtomCount         
+## mcs_RingCount                 
+## template_HeavyAtomCount       
+## mcs_docked_NumHAcceptors      
+## mcs_template_NumHAcceptors    
+## mcs_NumHeteroAtoms            
+## mcs_NOCount                   
+## mcs_HeavyAtomCount            
+## docked_NumRotatableBonds      
+## mcs_docked_NumHDonors         
+## mcs_docked_NHOHCount          
+## mcs_template_NumHDonors       
+## mcs_template_NHOHCount        
+## docked_NumHeteroAtoms         
+## docked_RingCount              
+## docked_NOCount                
+## template_NumRotatableBonds    
+## mcs_docked_NumRotatableBonds  
+## template_NumHeteroAtoms       
+## docked_NumHAcceptors          
+## mcs_template_NumRotatableBonds
+## template_NOCount              
+## template_NHOHCount            
+## template_RingCount            
+## docked_NHOHCount              
+## template_NumHDonors           
+## template_NumHAcceptors        
+## docked_NumHDonors             
