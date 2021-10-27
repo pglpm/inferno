@@ -1,6 +1,6 @@
 ## Author: PGL  Porta Mana
 ## Created: 2021-03-20T10:07:17+0100
-## Last-Updated: 2021-10-27T10:08:42+0200
+## Last-Updated: 2021-10-27T12:43:54+0200
 ################
 ## Script for reverse regression
 ################
@@ -244,7 +244,7 @@ if(doplots==TRUE){
 
 if(doplots==TRUE){
     pdff('histograms_data')
-    for(i in nameFeatures){
+    for(i in intersect(nameFeatures, colnames(origdata))){
         datum <- origdata[[i]]
         summa <- fivenum(datum)
         drange <- diff(range(datum))
