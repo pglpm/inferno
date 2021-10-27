@@ -1,6 +1,6 @@
 ## Extend range
 extendrange <- function(vec){
-    1.125 * range(vec)- 0.125 * mean(range(vec))
+    1.125 * range(vec, na.rm=TRUE)- 0.125 * mean(range(vec, na.rm=TRUE))
 }
 ## Normalize vector
 normalize <- function(freqs){freqs/sum(freqs)}
@@ -14,7 +14,7 @@ mcsamples2parmlist <- function(mcsamples){
     nccovs <- sum(grepl('^meanC\\[[^,]*, 1]', colnames(mcsamples)))
     ndcovs <- sum(grepl('^probD\\[[^,]*, 1]', colnames(mcsamples)))
     ##
-    parmList <- foreach(var=parmNames)%dopar%{
+    parmList <- foreach(var=parmNames)%do%{
         out <- mcsamples[,grepl(paste0('^',var,'\\['), colnames(mcsamples))]
         if(var=='meanC'||var=='tauC'){
             dim(out) <- c(nrow(mcsamples), nccovs, nclusters)

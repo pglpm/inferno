@@ -1,6 +1,6 @@
 ## Author: PGL  Porta Mana
 ## Created: 2021-03-20T10:07:17+0100
-## Last-Updated: 2021-09-29T15:02:19+0200
+## Last-Updated: 2021-10-27T10:53:43+0200
 ################
 ## Script for reverse regression
 ################
@@ -98,43 +98,73 @@ logRmsdThreshold <- log(rmsdThreshold)
 ## Add column with three, binned RMSD values
 alldata$bin_RMSD <- as.integer(1+(alldata$log_RMSD>logRmsdThreshold[1])+(alldata$log_RMSD>logRmsdThreshold[3]))
 ##
-## find log-'sasa' features
-indxs <- grepl('sasa', colnames(alldata))
-## add rescaled 'sasa' features
-for(elem in colnames(alldata)[indxs]){
-    datum <- alldata[[elem]]
-    datum <- datum/signif(mean(datum),1)
-    if(min(datum) == 0){
-        datum <- datum + diff(sort(unique(datum))[1:2])/100
-    }
-    alldata[[paste0('scale_',elem)]] <- datum
-## add 'sasa' feature in standardized log-scale
-    datum <- sasa2y(datum)
-    ## eps <- max(diff(sort(unique(datum[abs(datum)!=Inf]))))
-    ## datum[datum==-Inf] <- min(datum[abs(datum)!=Inf]) - 2 * eps
-    datum <- datum/signif(sd(datum),1)
-    alldata[[paste0('log_',elem)]] <- datum
-}
-## add 'tanimoto' features in logit-scale
-indxt <- grepl('tanimoto', colnames(alldata))
-for(elem in colnames(alldata)[indxt]){
-    datum <- alldata[[elem]]
-    eps <- min(c(1-datum[datum < 1], datum[datum > 0]))/100
-    datum <- tanimoto2y((2*datum - 1)*(0.5-eps) + 0.5)
-    ## eps <- max(diff(sort(unique(datum[abs(datum)!=Inf]))))
-    ## datum[datum==Inf] <- max(datum[abs(datum)!=Inf])+2*eps
-    ## datum[datum==-Inf] <- min(datum[abs(datum)!=Inf])-2*eps
-    datum <- datum/signif(sd(datum[abs(datum)!=Inf]),1)
-    alldata[[paste0('logit_',elem)]] <- datum
-}
-## add shifted integer features to start from value 1
-indx <- sapply(1:ncol(alldata), function(x){is.integer(alldata[[x]])})
-for(elem in colnames(alldata)[indx]){
-    datum <- alldata[[elem]]
-    datum <- datum - min(datum, na.rm=TRUE) + 1L
-    alldata[[paste0('shift_',elem)]] <- datum
-}
 ##
+source('nimbleMCMC_hpc/functions_rmsdregr_nimble_binom.R')
+outfile <- file('data_transformation_parameters.txt', 'wb')
+write(x='Transformation parameters', file=outfile)
+## find 'sasa' features
+indxs <- grepl('sasa', colnames(alldata))
+## add 'sasa' features in transformed scale
+for(elem in colnames(alldata)[indxs]){
+    write(x='', file=outfile, append=TRUE)
+    write(x=paste0(elem, ':'), file=outfile, append=TRUE)
+    datum <- alldata[[elem]]
+    optimf <- function(par){
+        lambda <- exp(par[1])
+        mu <- par[2]
+        si <- exp(par[3])
+        -sum(dnorm(x=sasa2y(datum, lambda), mean=mu, sd=si, log=TRUE))
+    }
+    optout <- myoptim(c(0, 0, 0), optimf)
+    if(optout$convergence!=0){print(optout)}
+    loglambda <- round(log2(exp(optout$par[1])))
+    write(x=paste0('loglambda: ', loglambda), file=outfile, append=TRUE)
+    ## transform
+    datum <- sasa2y(datum, lambda=2^loglambda)
+    ## centre and standardize for numerical efficiency
+    datummean <- signif(mean(datum), 1)
+    write(x=paste0('mean: ', datummean), file=outfile, append=TRUE)
+    datumsd <- signif(sd(datum), 1)
+    write(x=paste0('SD: ', datumsd), file=outfile, append=TRUE)
+    datum <- (datum - datummean)/datumsd
+    alldata[[paste0('Xtransf_', elem)]] <- datum
+}
+## find 'tanimoto' features
+indxt <- grepl('tanimoto', colnames(alldata))
+## add 'tanimoto' features in transformed scale
+for(elem in colnames(alldata)[indxt]){
+    write(x='', file=outfile, append=TRUE)
+    write(x=paste0(elem, ':'), file=outfile, append=TRUE)
+    datum <- alldata[[elem]]
+    optimf <- function(par){
+        lambda <- exp(par[1])
+        mu <- par[2]
+        si <- exp(par[3])
+        -sum(dnorm(x=tanimoto2y(datum, lambda), mean=mu, sd=si, log=TRUE))
+    }
+    optout <- myoptim(c(0, 0, 0), optimf)
+    if(optout$convergence!=0){print(optout)}
+    loglambda <- round(log2(exp(optout$par[1])))
+    write(x=paste0('loglambda: ', loglambda), file=outfile, append=TRUE)
+    ## transform
+    datum <- tanimoto2y(datum, lambda=2^loglambda)
+    ## centre and standardize for numerical efficiency
+    datummean <- signif(mean(datum), 1)
+    write(x=paste0('mean: ', datummean), file=outfile, append=TRUE)
+    datumsd <- signif(sd(datum), 1)
+    write(x=paste0('SD: ', datumsd), file=outfile, append=TRUE)
+    datum <- (datum - datummean)/datumsd
+    alldata[[paste0('Xtransf_', elem)]] <- datum
+}
+## ## add shifted integer features to start from value 1
+## indx <- sapply(1:ncol(alldata), function(x){is.integer(alldata[[x]])})
+## for(elem in colnames(alldata)[indx]){
+##     datum <- alldata[[elem]]
+##     datum <- datum - min(datum, na.rm=TRUE) + 1L
+##     alldata[[paste0('shift_',elem)]] <- datum
+## }
+## ##
+close(outfile)
 
 
 ## alldata <- alldata[, which(sapply(alldata, is.numeric)==TRUE), with=FALSE]

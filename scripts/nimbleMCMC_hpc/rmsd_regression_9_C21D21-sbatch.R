@@ -1,6 +1,6 @@
 ## Author: PGL  Porta Mana
 ## Created: 2021-03-20T10:07:17+0100
-## Last-Updated: 2021-10-19T20:58:30+0200
+## Last-Updated: 2021-10-21T10:46:35+0200
 ################
 ## Batch script for direct regression, continuous RMSD
 ################
@@ -9,13 +9,13 @@ if(file.exists("/cluster/home/pglpm/R")){
 }
 
 seed <- 149
-baseversion <- 'TEST3regressionC21D21b_'
-nclusters <- 2L^6
-ndata <- 2L^13 # nSamples = 37969
-niter <- 2L^11
-niter0 <- 2L^10
-nstages <- 1#15L
-ncheckpoints <- 8L
+baseversion <- 'regrC21D21_A_'
+nclusters <- as.integer(2^7)
+ndata <- as.integer(2^13) # nSamples = 37969
+niter <- as.integer(2^11)
+niter0 <- as.integer(2^10)
+nstages <- as.integer(15)
+ncheckpoints <- as.integer(8)
 covNames <-  c('log_RMSD'
                ,'log_mcs_unbonded_polar_sasa'
                ,'logit_ec_tanimoto_similarity'
@@ -112,7 +112,7 @@ checkpoints <- rbind(
     c(medianccovs-widthccovs, sapply(round(mediandcovs-widthdcovs), function(x){max(0,x)})),
     as.matrix(alldata[sample(1:ndata, size=ncheckpoints), ..covNames])
 )
-rownames(checkpoints) <- c('Pdatamean', 'PdatacornerHi', 'PdatacornerLo', paste0('Pdatum',1:ncheckpoints))
+rownames(checkpoints) <- c('Pdatamedians', 'PdatacornerHi', 'PdatacornerLo', paste0('Pdatum',1:ncheckpoints))
 saveRDS(checkpoints,file=checkpointsFile)
 ##
 ##
@@ -136,8 +136,8 @@ list(
     probDa1=rep(1, ndcovs),
     probDb1=rep(1, ndcovs),
     sizeDsize1=maxdcovs,
-    sizeDa2=rep(32, ndcovs),
-    sizeDb2=rep(32, ndcovs),
+    sizeDa2=rep(16, ndcovs),
+    sizeDb2=rep(16, ndcovs),
     ##
     ##
     meanCtau1=1/(widthccovs/2)^2, # dims = inv. variance
@@ -148,20 +148,11 @@ list(
     ##
     ##
     q=rep(1/nclusters, nclusters),
-    ##
     meanC=matrix(rnorm(n=nccovs*(nclusters), mean=medianccovs, sd=1/sqrt(rgamma(n=nccovs, shape=1/2, rate=rgamma(n=nccovs, shape=1/2, rate=1/(widthccovs/2)^2)))), nrow=nccovs, ncol=nclusters),
     tauC=matrix(rgamma(n=nccovs*(nclusters), shape=1/2, rate=rgamma(n=nccovs, shape=1/2, rate=1/(widthccovs/2)^2)), nrow=nccovs, ncol=nclusters),
     probD=matrix(rbeta(n=ndcovs*(nclusters), shape1=1, shape2=1), nrow=ndcovs, ncol=nclusters),
-    sizeD=apply(matrix(rnbinom(n=ndcovs*(nclusters), prob=rbeta(n=ndcovs, shape1=32, shape2=32), size=maxdcovs), nrow=ndcovs, ncol=nclusters), 2, function(x){maxdcovs*(x<maxdcovs)+x*(x>=maxdcovs)}),
-    ## meanC=cbind(medianccovs,
-    ##     matrix(rnorm(n=nccovs*(nclusters-1), mean=medianccovs, sd=1/sqrt(rgamma(n=nccovs, shape=1/2, rate=rgamma(n=nccovs, shape=1/2, rate=1/(widthccovs/2)^2)))), nrow=nccovs, ncol=nclusters-1) ),
-    ## tauC=cbind(1/(widthccovs)^2,
-    ##                matrix(rgamma(n=nccovs*(nclusters-1), shape=1/2, rate=rgamma(n=nccovs, shape=1/2, rate=1/(widthccovs/2)^2)), nrow=nccovs, ncol=nclusters-1) ),
-    ## probD=cbind((100*mediandcovs+maxdcovs)/103/maxdcovs,
-    ##     matrix(rbeta(n=ndcovs*(nclusters-1), shape1=1, shape2=1), nrow=ndcovs, ncol=nclusters-1) ),
-    ## sizeD=cbind(maxdcovs,
-    ##     apply(matrix(rnbinom(n=ndcovs*(nclusters-1), prob=rbeta(n=ndcovs, shape1=32, shape2=32), size=maxdcovs), nrow=ndcovs, ncol=nclusters-1), 2, function(x){maxdcovs*(x<maxdcovs)+x*(x>=maxdcovs)}) ),
-    ##C=rep(1,ndata)
+    sizeD=apply(matrix(rnbinom(n=ndcovs*(nclusters), prob=rbeta(n=ndcovs, shape1=16, shape2=16), size=maxdcovs), nrow=ndcovs, ncol=nclusters), 2, function(x){maxdcovs*(x<maxdcovs)+x*(x>=maxdcovs)}),
+    ##
     C=rcat(n=ndata, prob=rep(1/nclusters,nclusters))
 )
 }
@@ -270,14 +261,14 @@ for(stage in 0:nstages){
     miqrtraces <- calcSampleMQ(parmList)
     probCheckpoints <- t(probValuesSamples(checkpoints, parmList))
     medians <- miqrtraces[,,1]
-    colnames(medians) <- paste0('MEDIAN_',colnames(medians))
+    colnames(medians) <- paste0('MEDIAN_', colnames(miqrtraces))
     Q1s <- miqrtraces[,,2]
-    colnames(Q1s) <- paste0('Q1_',colnames(Q1s))
+    colnames(Q1s) <- paste0('Q1_', colnames(miqrtraces))
     Q3s <- miqrtraces[,,3]
-    colnames(Q3s) <- paste0('Q3_',colnames(Q3s))
+    colnames(Q3s) <- paste0('Q3_', colnames(miqrtraces))
     iqrs <- Q3s - Q1s
-    colnames(iqrs) <- paste0('IQR_',dimnames(miqrtraces)[[2]])
-    traces <- cbind(probCheckpoints, medians, iqrs, Q1s, Q3s, do.call(cbind, momentstraces))
+    colnames(iqrs) <- paste0('IQR_', colnames(miqrtraces))
+    traces <- cbind(LL=ll, probCheckpoints, medians, iqrs, Q1s, Q3s, do.call(cbind, momentstraces))
     saveRDS(traces,file=paste0('_traces-R',version,'-V',length(covNames),'-D',ndata,'-K',nclusters,'-I',nrow(mcsamples),'.rds'))
     ##
     if(nrow(traces)>=1000){
@@ -294,9 +285,9 @@ for(stage in 0:nstages){
     ##
     tracenames <- colnames(traces)
     tracegroups <- list(
-        'maxD'=(1:ncol(traces))[grepl('^(Pdat|Dcov)', tracenames)],
-        '1D'=(1:ncol(traces))[grepl('^(MEDIAN|Q1|Q3|IQR|MEAN|VAR)_', tracenames)],
-        '2D'=(1:ncol(traces))[grepl('^COV_', tracenames)]
+        'maxD'=tracenames[grepl('^(Pdat|Dcov|LL)', tracenames)],
+        '1D'=tracenames[grepl('^(MEDIAN|Q1|Q3|IQR|MEAN|VAR)_', tracenames)],
+        '2D'=tracenames[grepl('^COV_', tracenames)]
     )
     grouplegends <- foreach(agroup=1:length(tracegroups))%do%{
         c( paste0('-- STATS ', names(tracegroups)[agroup], ' --'),
@@ -307,7 +298,27 @@ for(stage in 0:nstages){
           paste0('burn: ', max(diagnBurn[tracegroups[[agroup]]]))
           )
     }
+    colpalette <- sapply(tracenames, function(atrace){
+        c(2, 3, 1) %*%
+        sapply(tracegroups, function(agroup){atrace %in% agroup})
+        })
     ##
+    ##
+    ## tracegroups <- list(
+    ##     'maxD'=(1:ncol(traces))[grepl('^(Pdat|Dcov|LL)', tracenames)],
+    ##     '1D'=(1:ncol(traces))[grepl('^(MEDIAN|Q1|Q3|IQR|MEAN|VAR)_', tracenames)],
+    ##     '2D'=(1:ncol(traces))[grepl('^COV_', tracenames)]
+    ## )
+    ## grouplegends <- foreach(agroup=1:length(tracegroups))%do%{
+    ##     c( paste0('-- STATS ', names(tracegroups)[agroup], ' --'),
+    ##       paste0('min ESS = ', min(diagnESS[tracegroups[[agroup]]])),
+    ##       paste0('max BMK = ', max(diagnBMK[tracegroups[[agroup]]])),
+    ##       paste0('max MCSE = ', max(diagnMCSE[tracegroups[[agroup]]])),
+    ##       paste0('all stationary: ', all(diagnStat[tracegroups[[agroup]]])),
+    ##       paste0('burn: ', max(diagnBurn[tracegroups[[agroup]]]))
+    ##       )
+    ## }
+    ## ##
     ## plan(sequential)
     ## plan(multisession, workers = 6L)
     samplesQuantiles <- calcSampleQuantiles(parmList)
@@ -320,17 +331,6 @@ for(stage in 0:nstages){
     }
     ##
 
-    ##
-    colpalette <- sapply(colnames(traces),function(acov){
-        if(acov=='Pdatamean'){1}
-        else if(grepl('^Pdata', acov)){3}
-        else if(grepl('^Pdatum', acov)){4}
-        else if(grepl('^Dcov', acov)){2}
-        else if(grepl('^(MEAN|MEDIAN|Q1|Q3)_', acov)){5}
-        else if(grepl('^(VAR|IQR)_', acov)){3}
-        else{4}
-    })
-    names(colpalette) <- colnames(traces)
     ##
     pdff(paste0('mcsummary-R',version,'-V',length(covNames),'-D',ndata,'-K',nclusters,'-I',nrow(mcsamples)))
     matplot(1:2, type='l', col='white', main=paste0('Stats stage ',stage), axes=FALSE, ann=FALSE)
@@ -348,7 +348,6 @@ for(stage in 0:nstages){
     par(mfrow=c(1,1))
     for(acov in continuousCovs){
         Xgrid <- seq(extendrange(alldata[[acov]])[1], extendrange(alldata[[acov]])[2], length.out=2^8)
-##        Xgrid <- seq(range(alldata[[acov]])[1], range(alldata[[acov]])[2], length.out=2^8)
         df <- 1/min(diff(Xgrid))/2
         plotsamples <- samplesfX(acov, parmList, Xgrid, nfsamples=64)
         matplot(Xgrid, plotsamples, type='l', col=paste0(palette()[7], '44'), lty=1, lwd=2, xlab=acov, ylab='probability density', cex.axis=1.5, cex.lab=1.5, ylim=c(0, max(plotsamples[plotsamples<df])))
@@ -379,7 +378,7 @@ for(stage in 0:nstages){
     }
     ##
     par(mfrow=c(1,1))
-    matplot(ll, type='l', col=palette()[3], lty=1, main='LL', ylab='LL', ylim=range(ll[abs(ll)<Inf]))
+#    matplot(ll, type='l', col=palette()[3], lty=1, main='LL', ylab='LL', ylim=range(ll[abs(ll)<Inf]))
     for(acov in colnames(traces)){
         if(grepl('^[PDV]', acov)){transf <- function(x){log(abs(x))}
         }else{transf <- identity}
