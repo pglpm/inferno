@@ -1,6 +1,6 @@
 ## Author: PGL  Porta Mana
 ## Created: 2021-03-20T10:07:17+0100
-## Last-Updated: 2021-10-27T15:44:46+0200
+## Last-Updated: 2021-10-28T07:06:59+0200
 ################
 ## Script for reverse regression
 ################
@@ -173,7 +173,7 @@ nSamples <- nrow(alldata)
 nFeatures <- length(nameFeatures)
 ##
 ## Format bins to calculate mutual info
-nbinsq <- 10
+nbinsq <- 16
 ##
 breakFeatures <- list()
 for(i in nameFeatures){
@@ -277,62 +277,23 @@ fwrite(head(alldata, nrow(alldata)-ntest),'train_oldsmiledata_id_processed_trans
 fwrite(tail(alldata, ntest),'test_oldsmiledata_id_processed_transformed_shuffled.csv', sep=',')
 
 
-
-
-
-
 ## > nameFeatures[reorder]
 ##  [1] "log_RMSD"                       "rmsd"                          
-##  [3] "bin_RMSD"                       "Xtransf_ec_tanimoto_similarity"
-##  [5] "ec_tanimoto_similarity"         "fc_tanimoto_similarity"        
+##  [3] "bin_RMSD"                       "ec_tanimoto_similarity"        
+##  [5] "Xtransf_ec_tanimoto_similarity" "fc_tanimoto_similarity"        
 ##  [7] "Xtransf_fc_tanimoto_similarity" "docked_HeavyAtomCount"         
 ##  [9] "mcs_RingCount"                  "template_HeavyAtomCount"       
-## [11] "mcs_docked_NumHAcceptors"       "mcs_template_NumHAcceptors"    
-## [13] "mcs_NumHeteroAtoms"             "mcs_NOCount"                   
-## [15] "mcs_HeavyAtomCount"             "docked_NumRotatableBonds"      
+## [11] "mcs_HeavyAtomCount"             "mcs_docked_NumHAcceptors"      
+## [13] "mcs_NumHeteroAtoms"             "mcs_template_NumHAcceptors"    
+## [15] "mcs_NOCount"                    "docked_NumRotatableBonds"      
 ## [17] "mcs_docked_NumHDonors"          "mcs_docked_NHOHCount"          
 ## [19] "mcs_template_NumHDonors"        "mcs_template_NHOHCount"        
-## [21] "docked_NumHeteroAtoms"          "docked_RingCount"              
-## [23] "docked_NOCount"                 "template_NumRotatableBonds"    
+## [21] "docked_NumHeteroAtoms"          "docked_NOCount"                
+## [23] "template_NumRotatableBonds"     "docked_RingCount"              
 ## [25] "mcs_docked_NumRotatableBonds"   "template_NumHeteroAtoms"       
-## [27] "docked_NumHAcceptors"           "mcs_template_NumRotatableBonds"
+## [27] "mcs_template_NumRotatableBonds" "docked_NumHAcceptors"          
 ## [29] "template_NOCount"               "template_NHOHCount"            
 ## [31] "template_RingCount"             "docked_NHOHCount"              
 ## [33] "template_NumHDonors"            "template_NumHAcceptors"        
 ## [35] "docked_NumHDonors"             
 
-## log_RMSD                      
-## rmsd                          
-## bin_RMSD                      
-## Xtransf_ec_tanimoto_similarity
-## ec_tanimoto_similarity        
-## fc_tanimoto_similarity        
-## Xtransf_fc_tanimoto_similarity
-## docked_HeavyAtomCount         
-## mcs_RingCount                 
-## template_HeavyAtomCount       
-## mcs_docked_NumHAcceptors      
-## mcs_template_NumHAcceptors    
-## mcs_NumHeteroAtoms            
-## mcs_NOCount                   
-## mcs_HeavyAtomCount            
-## docked_NumRotatableBonds      
-## mcs_docked_NumHDonors         
-## mcs_docked_NHOHCount          
-## mcs_template_NumHDonors       
-## mcs_template_NHOHCount        
-## docked_NumHeteroAtoms         
-## docked_RingCount              
-## docked_NOCount                
-## template_NumRotatableBonds    
-## mcs_docked_NumRotatableBonds  
-## template_NumHeteroAtoms       
-## docked_NumHAcceptors          
-## mcs_template_NumRotatableBonds
-## template_NOCount              
-## template_NHOHCount            
-## template_RingCount            
-## docked_NHOHCount              
-## template_NumHDonors           
-## template_NumHAcceptors        
-## docked_NumHDonors             

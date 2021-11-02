@@ -1,6 +1,6 @@
 ## Author: PGL  Porta Mana
 ## Created: 2021-03-20T10:07:17+0100
-## Last-Updated: 2021-10-27T12:43:54+0200
+## Last-Updated: 2021-10-28T07:44:09+0200
 ################
 ## Script for reverse regression
 ################
@@ -171,7 +171,7 @@ nSamples <- nrow(alldata)
 nFeatures <- length(nameFeatures)
 ##
 ## Format bins to calculate mutual info
-nbinsq <- 10
+nbinsq <- 16
 ##
 breakFeatures <- list()
 for(i in nameFeatures){
@@ -258,7 +258,7 @@ if(doplots==TRUE){
         print(ggplot(origdata[,..i], aes_(x=as.name(i))) + geom_histogram(breaks=breaks))
     }
     dev.off()}
-rm(origdata)
+## rm(origdata)
 gc()
 ##
 
@@ -272,29 +272,28 @@ fwrite(alldata,'data_id_processed_transformed_shuffled.csv', sep=',')
 
 ## > nameFeatures[reorder]
 ##  [1] "log_RMSD"                         "rmsd"                            
-##  [3] "bin_RMSD"                         "Xtransf_mcs_unbonded_polar_sasa" 
-##  [5] "mcs_unbonded_polar_sasa"          "ec_tanimoto_similarity"          
-##  [7] "Xtransf_ec_tanimoto_similarity"   "fc_tanimoto_similarity"          
-##  [9] "Xtransf_fc_tanimoto_similarity"   "docked_HeavyAtomCount"           
-## [11] "mcs_NumHeteroAtoms"               "docked_NumRotatableBonds"        
-## [13] "mcs_RingCount"                    "mcs_NOCount"                     
-## [15] "Xtransf_mcs_unbonded_apolar_sasa" "mcs_HeavyAtomCount"              
-## [17] "Xtransf_sasa_unbonded_apolar"     "mcs_unbonded_apolar_sasa"        
-## [19] "Xtransf_sasa_bonded_apolar"       "sasa_unbonded_apolar"            
-## [21] "mcs_template_NumHAcceptors"       "mcs_docked_NumHAcceptors"        
-## [23] "mcs_docked_NumHDonors"            "mcs_docked_NHOHCount"            
-## [25] "sasa_bonded_apolar"               "mcs_bonded_polar_sasa"           
-## [27] "mcs_template_NHOHCount"           "mcs_template_NumHDonors"         
-## [29] "Xtransf_mcs_bonded_apolar_sasa"   "template_HeavyAtomCount"         
-## [31] "Xtransf_sasa_unbonded_polar"      "mcs_bonded_apolar_sasa"          
-## [33] "template_NumRotatableBonds"       "sasa_unbonded_polar"             
-## [35] "Xtransf_sasa_bonded_polar"        "sasa_bonded_polar"               
-## [37] "docked_RingCount"                 "docked_NumHAcceptors"            
-## [39] "docked_NumHeteroAtoms"            "mcs_template_NumRotatableBonds"  
-## [41] "mcs_docked_NumRotatableBonds"     "docked_NOCount"                  
-## [43] "template_RingCount"               "template_NumHeteroAtoms"         
-## [45] "docked_NHOHCount"                 "template_NOCount"                
-## [47] "Xtransf_mcs_bonded_polar_sasa"    "template_NHOHCount"              
+##  [3] "bin_RMSD"                         "ec_tanimoto_similarity"          
+##  [5] "Xtransf_ec_tanimoto_similarity"   "Xtransf_mcs_unbonded_polar_sasa" 
+##  [7] "mcs_unbonded_polar_sasa"          "fc_tanimoto_similarity"          
+##  [9] "Xtransf_fc_tanimoto_similarity"   "Xtransf_mcs_unbonded_apolar_sasa"
+## [11] "Xtransf_sasa_bonded_apolar"       "Xtransf_sasa_unbonded_apolar"    
+## [13] "docked_HeavyAtomCount"            "mcs_bonded_polar_sasa"           
+## [15] "mcs_unbonded_apolar_sasa"         "sasa_unbonded_apolar"            
+## [17] "mcs_NumHeteroAtoms"               "docked_NumRotatableBonds"        
+## [19] "sasa_bonded_apolar"               "Xtransf_mcs_bonded_apolar_sasa"  
+## [21] "mcs_RingCount"                    "mcs_NOCount"                     
+## [23] "Xtransf_sasa_unbonded_polar"      "mcs_HeavyAtomCount"              
+## [25] "sasa_unbonded_polar"              "mcs_bonded_apolar_sasa"          
+## [27] "sasa_bonded_polar"                "Xtransf_sasa_bonded_polar"       
+## [29] "mcs_template_NumHAcceptors"       "mcs_docked_NumHAcceptors"        
+## [31] "template_HeavyAtomCount"          "mcs_docked_NumHDonors"           
+## [33] "mcs_docked_NHOHCount"             "mcs_template_NHOHCount"          
+## [35] "mcs_template_NumHDonors"          "template_NumRotatableBonds"      
+## [37] "Xtransf_mcs_bonded_polar_sasa"    "docked_NumHeteroAtoms"           
+## [39] "docked_RingCount"                 "docked_NumHAcceptors"            
+## [41] "docked_NOCount"                   "mcs_template_NumRotatableBonds"  
+## [43] "mcs_docked_NumRotatableBonds"     "template_NumHeteroAtoms"         
+## [45] "template_NOCount"                 "docked_NHOHCount"                
+## [47] "template_RingCount"               "template_NHOHCount"              
 ## [49] "template_NumHAcceptors"           "docked_NumHDonors"               
-## [51] "template_NumHDonors"
-
+## [51] "template_NumHDonors"             

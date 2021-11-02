@@ -1,0 +1,27 @@
+Starting job 4286480 on c2-9 at Thu Oct 28 05:48:12 CEST 2021
+
+  1) StdEnv
+slurmstepd: error: *** JOB 4286480 ON c2-9 CANCELLED AT 2021-10-30T05:48:20 DUE TO TIME LIMIT ***
+
+Task and CPU usage stats:
+       JobID    JobName  AllocCPUS   NTasks     MinCPU MinCPUTask     AveCPU    Elapsed ExitCode 
+------------ ---------- ---------- -------- ---------- ---------- ---------- ---------- -------- 
+4286480       MCMCold11          3                                           2-00:00:08      0:0 
+4286480.bat+      batch          3        1 2-03:21:16          0 2-03:21:16 2-00:00:09     0:15 
+4286480.ext+     extern          3        1   00:00:00          0   00:00:00 2-00:00:08      0:0 
+
+Memory usage stats:
+       JobID     MaxRSS MaxRSSTask     AveRSS MaxPages   MaxPagesTask   AvePages 
+------------ ---------- ---------- ---------- -------- -------------- ---------- 
+4286480                                                                          
+4286480.bat+   8825316K          0   8825316K        0              0          0 
+4286480.ext+          0          0          0        0              0          0 
+
+Disk usage stats:
+       JobID  MaxDiskRead MaxDiskReadTask    AveDiskRead MaxDiskWrite MaxDiskWriteTask   AveDiskWrite 
+------------ ------------ --------------- -------------- ------------ ---------------- -------------- 
+4286480                                                                                               
+4286480.bat+        7.75M               0          7.75M        0.14M                0          0.14M 
+4286480.ext+        0.00M               0          0.00M            0                0              0 
+
+Job 4286480 completed at Sat Oct 30 05:48:22 CEST 2021
