@@ -425,6 +425,7 @@ samplesfRgivenX <- function(X, parmList, RMSDgrid, nfsamples=NULL){
     freqs
 }
 ##
+<<<<<<< HEAD
 ## Gives samples of frequency distributions of log_RMSD conditional on one feature value
 samplesfRgivenX1 <- function(X, parmList, RMSDgrid, nfsamples=NULL){
     continuousCovs <- dimnames(parmList$meanC)[[2]]
@@ -465,6 +466,8 @@ samplesfRgivenX1 <- function(X, parmList, RMSDgrid, nfsamples=NULL){
     colSums(pR * W)/colSums(W)
 }
 ##
+=======
+>>>>>>> 1251bcc3f758fc45c8b7e8e2c1f98e9780d0ac22
 ## Calculates the predictive distribution on a grid of log_RMSD conditional on several feature values
 pRgivenX <- function(X, parmList, RMSDgrid){
     continuousCovs <- dimnames(parmList$meanC)[[2]]
