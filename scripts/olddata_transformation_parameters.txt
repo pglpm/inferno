@@ -1,0 +1,11 @@
+Transformation parameters
+
+ec_tanimoto_similarity:
+loglambda: 1
+mean: -0.3
+SD: 0.1
+
+fc_tanimoto_similarity:
+loglambda: 1
+mean: -0.2
+SD: 0.1

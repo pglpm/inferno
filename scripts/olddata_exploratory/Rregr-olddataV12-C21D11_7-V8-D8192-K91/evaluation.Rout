@@ -1,0 +1,15 @@
+Loading required package: future
+Loading required package: rngtools
+[1] "availableCores:"
+Slurm 
+   24 
+[1] "availableCores-multicore:"
+Slurm 
+   24 
+          used (Mb) gc trigger (Mb) max used (Mb)
+Ncells  498797 26.7    1092060 58.4   666148 35.6
+Vcells 7254367 55.4   10798456 82.4  7370901 56.3
+[1] "average utility:"
+[1] -2.05957
+null device 
+          1 

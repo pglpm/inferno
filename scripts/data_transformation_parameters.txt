@@ -1,0 +1,51 @@
+Transformation parameters
+
+mcs_bonded_polar_sasa:
+loglambda: -2
+mean: -0.3
+SD: 3
+
+mcs_bonded_apolar_sasa:
+loglambda: -3
+mean: 3
+SD: 3
+
+mcs_unbonded_polar_sasa:
+loglambda: -3
+mean: 5
+SD: 3
+
+mcs_unbonded_apolar_sasa:
+loglambda: -31
+mean: 5
+SD: 0.6
+
+sasa_bonded_polar:
+loglambda: -3
+mean: 3
+SD: 3
+
+sasa_bonded_apolar:
+loglambda: -3
+mean: 5
+SD: 2
+
+sasa_unbonded_polar:
+loglambda: -33
+mean: 5
+SD: 0.4
+
+sasa_unbonded_apolar:
+loglambda: -31
+mean: 6
+SD: 0.4
+
+ec_tanimoto_similarity:
+loglambda: 1
+mean: -0.3
+SD: 0.1
+
+fc_tanimoto_similarity:
+loglambda: 1
+mean: -0.2
+SD: 0.1

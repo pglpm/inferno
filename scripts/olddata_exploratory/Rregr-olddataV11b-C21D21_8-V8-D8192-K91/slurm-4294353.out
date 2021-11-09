@@ -1,0 +1,27 @@
+Starting job 4294353 on c5-6 at Fri Oct 29 03:56:55 CEST 2021
+
+  1) StdEnv
+slurmstepd: error: *** JOB 4294353 ON c5-6 CANCELLED AT 2021-10-31T02:56:55 DUE TO TIME LIMIT ***
+
+Task and CPU usage stats:
+       JobID    JobName  AllocCPUS   NTasks     MinCPU MinCPUTask     AveCPU    Elapsed ExitCode 
+------------ ---------- ---------- -------- ---------- ---------- ---------- ---------- -------- 
+4294353      MCMCold11b          3                                           2-00:00:00      0:0 
+4294353.bat+      batch          3        1 2-03:12:58          0 2-03:12:58 2-00:00:02     0:15 
+4294353.ext+     extern          3        1   00:00:00          0   00:00:00 2-00:00:00      0:0 
+
+Memory usage stats:
+       JobID     MaxRSS MaxRSSTask     AveRSS MaxPages   MaxPagesTask   AvePages 
+------------ ---------- ---------- ---------- -------- -------------- ---------- 
+4294353                                                                          
+4294353.bat+  11655280K          0  11655280K        0              0          0 
+4294353.ext+          0          0          0        0              0          0 
+
+Disk usage stats:
+       JobID  MaxDiskRead MaxDiskReadTask    AveDiskRead MaxDiskWrite MaxDiskWriteTask   AveDiskWrite 
+------------ ------------ --------------- -------------- ------------ ---------------- -------------- 
+4294353                                                                                               
+4294353.bat+        7.75M               0          7.75M        0.14M                0          0.14M 
+4294353.ext+        0.00M               0          0.00M            0                0              0 
+
+Job 4294353 completed at Sun Oct 31 02:56:58 CET 2021

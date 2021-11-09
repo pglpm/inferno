@@ -1,0 +1,139 @@
+[1] TRUE
+Loading required package: future
+Loading required package: rngtools
+[1] "availableCores:"
+nproc 
+    3 
+[1] "availableCores-multicore:"
+nproc 
+    3 
+nimble version 0.12.1 is loaded.
+For more information on NIMBLE and a User Manual,
+please visit https://R-nimble.org.
+
+Attaching package: ‘nimble’
+
+The following object is masked from ‘package:future’:
+
+    values
+
+The following object is masked from ‘package:data.table’:
+
+    cube
+
+The following object is masked from ‘package:stats’:
+
+    simulate
+
+          used (Mb) gc trigger (Mb) max used  (Mb)
+Ncells 1822742 97.4    3500224  187  1988240 106.2
+Vcells 2547715 19.5    8388608   64  5793198  44.2
+[1] "Creating and saving checkpoints"
+Defining model
+Building model
+Setting data and initial values
+Running calculate on model
+  [Note] Any error reports that follow may simply reflect missing values in model variables.
+Checking model sizes and dimensions
+Compiling
+  [Note] This may take a minute.
+  [Note] Use 'showCompilerOutput = TRUE' to see C++ compilation details.
+           used  (Mb) gc trigger  (Mb) max used  (Mb)
+Ncells  3232883 172.7    6681432 356.9  6681432 356.9
+Vcells 11661207  89.0   21468864 163.8 21468864 163.8
+===== Monitors =====
+thin = 1: meanC, probD, q, sizeD, tauC
+thin2 = 1: C, meanCrate1, meanCtau1, tauCrate1
+===== Samplers =====
+===== Monitors =====
+thin = 1: meanC, probD, q, sizeD, tauC
+thin2 = 1: C, meanCrate1, meanCtau1, tauCrate1
+===== Samplers =====
+slice sampler (546)
+  - sizeD[]  (546 elements)
+conjugate sampler (917)
+  - meanC[]  (182 elements)
+  - tauC[]  (182 elements)
+  - probD[]  (546 elements)
+  - meanCtau1[]  (2 elements)
+  - meanCrate1[]  (2 elements)
+  - tauCrate1[]  (2 elements)
+  - q[1:91] 
+categorical sampler (8192)
+  - C[]  (8192 elements)
+Compiling
+  [Note] This may take a minute.
+  [Note] Use 'showCompilerOutput = TRUE' to see C++ compilation details.
+            used   (Mb) gc trigger   (Mb)  max used   (Mb)
+Ncells   5758410  307.6   10575495  564.8  10575495  564.8
+Vcells 132345575 1009.8  194584967 1484.6 162865975 1242.6
+[1] "Setup time:"
+Time difference of 19.70593 mins
+[1] "==== STAGE 0 ===="
+running chain 1...
+|-------------|-------------|-------------|-------------|
+|-------------------------------------------------------|
+[1] "MCMC time:"
+Time difference of 3.424715 hours
+[1] "OCCUPIED CLUSTERS: 32 OF 91"
+[1] "Total runtime:"
+Time difference of 3.62694 hours
+[1] "==== STAGE 1 ===="
+|-------------|-------------|-------------|-------------|
+|-------------------------------------------------------|
+[1] "MCMC time:"
+Time difference of 5.359549 hours
+[1] "OCCUPIED CLUSTERS: 39 OF 91"
+[1] "Total runtime:"
+Time difference of 5.757492 hours
+[1] "==== STAGE 2 ===="
+|-------------|-------------|-------------|-------------|
+|-------------------------------------------------------|
+[1] "MCMC time:"
+Time difference of 5.338303 hours
+[1] "OCCUPIED CLUSTERS: 43 OF 91"
+[1] "Total runtime:"
+Time difference of 5.733533 hours
+[1] "==== STAGE 3 ===="
+|-------------|-------------|-------------|-------------|
+|-------------------------------------------------------|
+[1] "MCMC time:"
+Time difference of 5.193272 hours
+[1] "OCCUPIED CLUSTERS: 47 OF 91"
+[1] "Total runtime:"
+Time difference of 5.582223 hours
+[1] "==== STAGE 4 ===="
+|-------------|-------------|-------------|-------------|
+|-------------------------------------------------------|
+[1] "MCMC time:"
+Time difference of 5.323918 hours
+[1] "OCCUPIED CLUSTERS: 48 OF 91"
+[1] "Total runtime:"
+Time difference of 5.712351 hours
+[1] "==== STAGE 5 ===="
+|-------------|-------------|-------------|-------------|
+|-------------------------------------------------------|
+[1] "MCMC time:"
+Time difference of 5.263708 hours
+[1] "OCCUPIED CLUSTERS: 48 OF 91"
+[1] "Total runtime:"
+Time difference of 5.658328 hours
+[1] "==== STAGE 6 ===="
+|-------------|-------------|-------------|-------------|
+|-------------------------------------------------------|
+[1] "MCMC time:"
+Time difference of 5.223617 hours
+[1] "OCCUPIED CLUSTERS: 50 OF 91"
+[1] "Total runtime:"
+Time difference of 5.609373 hours
+[1] "==== STAGE 7 ===="
+|-------------|-------------|-------------|-------------|
+|-------------------------------------------------------|
+[1] "MCMC time:"
+Time difference of 5.412115 hours
+[1] "OCCUPIED CLUSTERS: 49 OF 91"
+[1] "Total runtime:"
+Time difference of 5.820423 hours
+[1] "==== STAGE 8 ===="
+|-------------|-------------|-------------|-------------|
+|------------------------------------------
