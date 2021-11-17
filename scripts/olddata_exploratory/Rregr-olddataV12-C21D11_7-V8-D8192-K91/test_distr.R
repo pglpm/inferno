@@ -1,6 +1,6 @@
 ## Author: PGL  Porta Mana
 ## Created: 2021-03-20T10:07:17+0100
-## Last-Updated: 2021-11-09T19:56:35+0100
+## Last-Updated: 2021-11-17T18:49:13+0100
 ################
 ## Script for evaluation of regression:
 ## Unfactorizable prior
@@ -144,6 +144,7 @@ pdff('utilities_testset_hist')
 par(mar=c(5,5,1,0))
 bp <- barplot(ufreqs/ndata, xlab='utility', ylab='relative frequency', col=1, cex.axis=2, cex=2, cex.lab=2)
 grid(nx=NULL,ny=NULL,lwd=3)
+## bp <- barplot(ufreqs, xlab='utility', ylab='frequency', col=1, cex.axis=2, cex=2, cex.lab=2)
 meanline <- diff(bp)[1]/diff(urange)[1] * mean(actualutilities) + bp[1]- diff(bp)[1]/diff(urange)[1]*urange[1]
 abline(v=meanline, lty=2, lwd=6, col=3)
 legend('top', legend=paste0('mean utility: ', signif(mean(actualutilities),3)), bty='n', cex=2, lty=2, lwd=3, col=3)

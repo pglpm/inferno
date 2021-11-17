@@ -1,6 +1,6 @@
 ## Author: PGL  Porta Mana
 ## Created: 2021-03-20T10:07:17+0100
-## Last-Updated: 2021-11-17T15:53:05+0100
+## Last-Updated: 2021-11-17T19:50:25+0100
 ################
 ## Exploration for MMIV poster
 ################
@@ -542,16 +542,58 @@ for(yvalue in 1:length(ytest)){
 dev.off()
 
 egx1 <- cbind(x=2,lab=1)
-egygivenx1 <- normalize(rowMeans(samplesfRgivenX(maincov='y', X=egx1, parmList=parmList, covgrid=ygrid)[1,,]))
+egygivenx1 <- samplesfRgivenX(maincov='y', X=egx1, parmList=parmList, covgrid=ygrid)[1,,]
+pinter1 <- approxfun(ygrid, rowMeans(egygivenx1))
+cdfygivenx1 <- samplescdfRgivenX(maincov='y', X=egx1, parmList=parmList, covgrid=ygrid)[1,,]
+qinter1 <- approxfun(rowMeans(cdfygivenx1), ygrid)
+##
 egx2 <- cbind(x=2,lab=2)
-egygivenx2 <- normalize(rowMeans(samplesfRgivenX(maincov='y', X=egx2, parmList=parmList, covgrid=ygrid)[1,,]))
+egygivenx2 <- samplesfRgivenX(maincov='y', X=egx2, parmList=parmList, covgrid=ygrid)[1,,]
+pinter2 <- approxfun(ygrid, rowMeans(egygivenx2))
+cdfygivenx2 <- samplescdfRgivenX(maincov='y', X=egx2, parmList=parmList, covgrid=ygrid)[1,,]
+qinter2 <- approxfun(rowMeans(cdfygivenx2), ygrid)
+## rg1 <- ygrid[foreach(qua=c(16,50,84), .combine=c)%do%{ which.min(abs(cumsum(egygivenx1)-qua/100))}]
+## rg1
+## ## 0.4554005 1.3616589 2.1429162
+## diff(rg1)
+## rg2 <- ygrid[foreach(qua=c(16,50,84), .combine=c)%do%{ which.min(abs(cumsum(egygivenx2)-qua/100))}]
+## rg2
+## ## -0.8883620 -0.1071047  0.6429022
+## diff(rg2)
 
-rg1 <- ygrid[foreach(qua=c(16,50,84), .combine=c)%do%{ which.min(abs(cumsum(egygivenx1)-qua/100))}]
-rg1
-diff(rg1)
-rg2 <- ygrid[foreach(qua=c(16,50,84), .combine=c)%do%{ which.min(abs(cumsum(egygivenx2)-qua/100))}]
-rg2
-diff(rg2)
+Sys.setlocale("LC_TIME", "en_EN.UTF-8")
+
+meandist1 <- rowMeans(egygivenx1)
+qt1 <- signif(qinter1(c(1,4,7)/8),2)
+meandist2 <- rowMeans(egygivenx2)
+qt2 <- signif(qinter2(c(1,4,7)/8),2)
+##
+subsamples <- round(seq(1, niter, length.out=32))
+pdff('example_statement')
+mean1 <- ygrid %*% normalize(meandist1)
+mean2 <- ygrid %*% normalize(meandist2)
+    ##
+    ymax=max(egygivenx1[,subsamples], egygivenx2[,subsamples])*1.2
+    matplot(ygrid, egygivenx1[,subsamples], type='l', col=paste0(palette()[5],'44'), lty=1, lwd=2, xlab='y', ylab='predicted frequency in full population', ylim=c(0,ymax), cex.axis=1.5, cex.lab=1.5)
+    matplot(ygrid, egygivenx2[,subsamples], type='l', col=paste0(palette()[2],'44'), lty=1, lwd=2, xlab='x', ylab='y', add=TRUE)
+    matlines(ygrid, meandist1, type='l', col=1, lty=1, lwd=4)
+matlines(ygrid, meandist2, type='l', col=6, lty=2, lwd=4)
+seqpol <- seq(qt1[1],qt1[3],length.out=64)
+polygon(x=c(qt1[1], seqpol, qt1[3]),
+        y=c(0, pinter1(seqpol), 0), col=paste0(palette()[5],'33'), border=NA)
+seqpol <- seq(qt2[1],qt2[3],length.out=64)
+polygon(x=c(qt2[1], seqpol, qt2[3], qt2[1]),
+        y=c(0, pinter2(seqpol), 0, 0), col=paste0(palette()[2],'33'), border=NA)
+## abline(v=qt1[1], col=1, lty=3, lwd=5)
+## abline(v=qt1[3], col=1, lty=3, lwd=5)
+## abline(v=qt2[1], col=6, lty=3, lwd=5)
+## abline(v=qt2[3], col=6, lty=3, lwd=5)
+    grid(lwd=1,lty=1)
+    legend('topright', legend=paste0('x = 2'), cex=2, bty='n')
+    legend('topleft', legend=c(paste0('males: 75% with y in [',qt1[1],', ',qt1[3],']'),
+                               paste0('females: 75% with y in [',qt2[1],', ',qt2[3],']')
+                               ), lty=c(1,2), lwd=3, col=c(1,2), bty='n', cex=1.5)
+dev.off()
 
 
 ## initsFunction <- function(){

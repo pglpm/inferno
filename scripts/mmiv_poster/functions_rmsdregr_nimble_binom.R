@@ -386,6 +386,45 @@ expeRgivenX <- function(X, parmList){
     }/nsamples
 }
 ##
+## Gives samples of cumulative frequency distributions of log_RMSD conditional on several feature values
+samplescdfRgivenX <- function(maincov, X, parmList, covgrid, nfsamples=NULL){
+    continuousCovs <- dimnames(parmList$meanC)[[2]]
+    discreteCovs <- dimnames(parmList$probD)[[2]]
+    cC <- setdiff(continuousCovs, maincov)
+    ndataz <- nrow(X)
+    lcovgrid <- length(covgrid)
+    q <- parmList$q
+    nclusters <- ncol(q)
+    if(is.numeric(nfsamples)){
+        fsubsamples <- seq(1, nrow(q), length.out=nfsamples)
+    }else{
+        nfsamples <- nrow(q)
+        fsubsamples <- seq_len(nfsamples)
+    }
+    ##
+    freqs <- foreach(asample=fsubsamples, .combine=c, .inorder=FALSE)%dopar%{
+        ## W: rows=clusters, cols=datapoints
+        W <- exp(
+            log(q[asample,]) +
+            t(vapply(seq_len(nclusters), function(acluster){
+                ## continuous covariates
+                colSums(dnorm(t(X[,cC]), mean=parmList$meanC[asample,cC,acluster], sd=1/sqrt(parmList$tauC[asample,cC,acluster]), log=TRUE)) +
+                    ## discrete covariates
+                    colSums(dbinom(t(X[,discreteCovs]), prob=parmList$probD[asample,,acluster], size=parmList$sizeD[asample,,acluster], log=TRUE))
+            }, numeric(ndataz)))
+        )
+        W <- matrix(rep(W, lcovgrid), nrow=nclusters) # strings copies of W column-wise
+        ## pR: rows=clusters, cols= P at grid points
+        pR <- t(vapply(seq_len(nclusters), function(acluster){
+            rep( pnorm(q=covgrid, mean=parmList$meanC[asample,maincov,acluster], sd=1/sqrt(parmList$tauC[asample,maincov,acluster])) , each=ndataz)
+        }, numeric(lcovgrid * ndataz)))
+        ##
+        colSums(pR * W)/colSums(W)
+    }
+    dim(freqs) <- c(ndataz, lcovgrid, nfsamples)
+    freqs
+}
+##
 ## Gives samples of frequency distributions of log_RMSD conditional on several feature values
 samplesfRgivenX <- function(maincov, X, parmList, covgrid, nfsamples=NULL){
     continuousCovs <- dimnames(parmList$meanC)[[2]]
