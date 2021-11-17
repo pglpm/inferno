@@ -425,6 +425,49 @@ samplesfRgivenX <- function(X, parmList, RMSDgrid, nfsamples=NULL){
     freqs
 }
 ##
+<<<<<<< HEAD
+## Gives samples of frequency distributions of log_RMSD conditional on one feature value
+samplesfRgivenX1 <- function(X, parmList, RMSDgrid, nfsamples=NULL){
+    continuousCovs <- dimnames(parmList$meanC)[[2]]
+    discreteCovs <- dimnames(parmList$probD)[[2]]
+    cC <- setdiff(continuousCovs, 'log_RMSD')
+    X <- as.matrix(X)[1,]
+    lRMSDgrid <- length(RMSDgrid)
+    q <- parmList$q
+    nclusters <- ncol(q)
+    if(is.numeric(nfsamples)){
+        fsubsamples <- round(seq(1, nrow(q), length.out=nfsamples))
+    }else{
+        nfsamples <- nrow(q)
+        fsubsamples <- seq_len(nfsamples)
+    }
+    
+    ##
+        ## W: rows=samples, cols=clusters
+        W <- exp(
+            log(q[fsubsamples,]) +
+            vapply(seq_len(nclusters), function(acluster){
+                ## continuous covariates
+                colSums(dnorm(X[cC], mean=aperm(parmList$meanC[fsubsamples,cC,acluster,drop=FALSE], c(2,1,3)), sd=1/sqrt(aperm(parmList$tauC[fsubsamples,cC,acluster,drop=FALSE], c(2,1,3))), log=TRUE)) +
+                    ## discrete covariates
+                    colSums(dbinom(X[discreteCovs], prob=aperm(parmList$probD[fsubsamples,,acluster,drop=FALSE], c(2,1,3)), size=aperm(parmList$sizeD[fsubsamples,,acluster,drop=FALSE], c(2,1,3)), log=TRUE))
+            }, numeric(nfsamples))
+        )
+        ## W: rows=clusters*gridpoints, cols=samples
+        W <- matrix(rep(W, lRMSDgrid), ncol=nfsamples, byrow=TRUE) # strings copies of transposed W row-wise
+        dim(W) <- c(nclusters, lRMSDgrid, nfsamples)
+        ## pR: rows=clusters, cols= P at grid points
+        pR <- vapply(RMSDgrid, function(aRvalue){
+           dnorm(x=aRvalue, mean=parmList$meanC[fsubsamples,'log_RMSD',], sd=1/sqrt(parmList$tauC[fsubsamples,'log_RMSD',]))
+        }, numeric(nclusters * nfsamples))
+    dim(pR) <- c(nfsamples, nclusters, lRMSDgrid)
+    pR <- aperm(pR, c(2,3,1))
+        ##
+    colSums(pR * W)/colSums(W)
+}
+##
+=======
+>>>>>>> 1251bcc3f758fc45c8b7e8e2c1f98e9780d0ac22
 ## Calculates the predictive distribution on a grid of log_RMSD conditional on several feature values
 pRgivenX <- function(X, parmList, RMSDgrid){
     continuousCovs <- dimnames(parmList$meanC)[[2]]
