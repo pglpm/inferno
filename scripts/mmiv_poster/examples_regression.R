@@ -1,6 +1,6 @@
 ## Author: PGL  Porta Mana
 ## Created: 2021-03-20T10:07:17+0100
-## Last-Updated: 2021-11-18T07:08:03+0100
+## Last-Updated: 2021-11-18T07:57:01+0100
 ################
 ## Exploration for MMIV poster
 ################
@@ -588,10 +588,10 @@ polygon(x=c(qt2[1], seqpol, qt2[3])*2+20,
                                paste0('75% population B will have Y in [',round(qt2[1]*2+20),', ',round(qt2[3]*2+20),']')
                                ), lty=c(1,2), lwd=3, col=c(1,2), bty='n', cex=1.5)
 ##
-hist((medians1-medians2)*2, breaks=10, xlab='median Y group A  -  median Y group B', ylab='probability density', freq=F, col=3, cex.axis=1.5, cex.lab=1.5, main='Forecast of difference between medians of full populations', xlim=c(-4,4))#max(medians1-medians2)*2.1))
+hist((medians1-medians2)*2, breaks=10, xlab='median Y group A  -  median Y group B', ylab='probability density', freq=F, col=3, cex.axis=1.5, cex.lab=1.5, main='Forecast of difference between medians of full populations A and B', xlim=c(-4,4))#max(medians1-medians2)*2.1))
 grid(lwd=1,lty=1)
 abline(v=0)
-legend('topleft', legend=paste0('75% probability:\ndifference within [',signif(quantile(medians1-medians2,c(1)/8)*2,2),', ',signif(quantile(medians1-medians2,c(7)/8)*2,2),']'), bty='n', cex=1.5)
+legend('topleft', legend=paste0('difference within [',signif(quantile(medians1-medians2,c(1)/8)*2,2),', ',signif(quantile(medians1-medians2,c(7)/8)*2,2),']\nwith 75% probability'), bty='n', cex=1.5)
 dev.off()
 
 
