@@ -1,6 +1,6 @@
 ## Author: PGL  Porta Mana
 ## Created: 2021-03-20T10:07:17+0100
-## Last-Updated: 2021-11-18T09:56:19+0100
+## Last-Updated: 2021-11-18T09:57:51+0100
 ################
 ## Exploration for MMIV poster
 ################
@@ -63,10 +63,10 @@ dxfromy <- function(x,y){dnorm((x-abs(y)^(1.5)*sign(y))/(noise+1/((y^2-1)^2+1)))
 rxfromy <- function(n,y){
     rnorm(n=n)*(noise+1/((y^2-1)^2+1)) + abs(y)^(1.5)*sign(y)
 }
-nsamples1 <- 1000
+nsamples1 <- 100
 ysamples1 <- rnorm(nsamples1, mean=0.5, sd=0.5)
 xsamples1 <- rxfromy(nsamples1, ysamples1)
-nsamples2 <- 750
+nsamples2 <- 75
 ysamples2 <- rnorm(nsamples2, mean=-0.5, sd=0.5)
 xsamples2 <- rxfromy(nsamples2, ysamples2)
 ## matplot(xsamples1, ysamples1, type='p', pch=1, cex=0.5, col=1, xlim=range(c(xsamples1,xsamples2)), ylim=range(c(ysamples1,ysamples2)))#, xlim=c(-2,3))
@@ -76,14 +76,14 @@ pdff('alldata')
 matplot(c(xsamples1,xsamples2)*2+20, c(ysamples1,ysamples2)*2+20, type='p', pch=8, cex=0.5, cex.axis=1.5, cex.lab=1.5, col='black', xlim=range(c(xsamples1,xsamples2)*2+20), ylim=range(c(ysamples1,ysamples2)*2+20), xlab='T', ylab='Y', main='all data')
     grid(lwd=0.5,lty=1, col=paste0(palette()[7],'88'))
 ##
-matplot(xsamples1*2+20, ysamples1*2+20, type='p', pch=1, cex=0.5, cex.axis=1.5, cex.lab=1.5, col=1, xlim=range(c(xsamples1,xsamples2)*2+20), ylim=range(c(ysamples1,ysamples2)*2+20), xlab='T', ylab='Y', main='data according to group')
+matplot(xsamples1*2+20, ysamples1*2+20, type='p', pch=1, cex=1, cex.axis=1.5, cex.lab=1.5, col=1, xlim=range(c(xsamples1,xsamples2)*2+20), ylim=range(c(ysamples1,ysamples2)*2+20), xlab='T', ylab='Y', main='data according to group')
     legend('topleft', legend=c('group A', 'group B'), pch=c(1,3), col=c(1,2), bty='n', cex=2)
-matpoints(xsamples2*2+20, ysamples2*2+20, type='p', pch=3, cex=0.5, cex.axis=1.5, cex.lab=1.5, col=2, xlim=range(c(xsamples1,xsamples2)*2+20), ylim=range(c(ysamples1,ysamples2)*2+20), xlab='T', ylab='Y', main='all data')
+matpoints(xsamples2*2+20, ysamples2*2+20, type='p', pch=3, cex=1, cex.axis=1.5, cex.lab=1.5, col=2, xlim=range(c(xsamples1,xsamples2)*2+20), ylim=range(c(ysamples1,ysamples2)*2+20), xlab='T', ylab='Y', main='all data')
     grid(lwd=0.5,lty=1, col=paste0(palette()[7],'88'))
-matplot(xsamples1*2+20, ysamples1*2+20, type='p', pch=1, cex=0.5, cex.axis=1.5, cex.lab=1.5, col=1, xlim=range(c(xsamples1,xsamples2)*2+20), ylim=range(c(ysamples1,ysamples2)*2+20), xlab='T', ylab='Y')
+matplot(xsamples1*2+20, ysamples1*2+20, type='p', pch=1, cex=1, cex.axis=1.5, cex.lab=1.5, col=1, xlim=range(c(xsamples1,xsamples2)*2+20), ylim=range(c(ysamples1,ysamples2)*2+20), xlab='T', ylab='Y')
     legend('topleft', legend=c('group A'), pch=c(1), col=c(1), bty='n', cex=2)
     grid(lwd=0.5,lty=1, col=paste0(palette()[7],'88'))
-matplot(xsamples2*2+20, ysamples2*2+20, type='p', pch=3, cex=0.5, cex.axis=1.5, cex.lab=1.5, col=2, xlim=range(c(xsamples1,xsamples2)*2+20), ylim=range(c(ysamples1,ysamples2)*2+20), xlab='T', ylab='Y')
+matplot(xsamples2*2+20, ysamples2*2+20, type='p', pch=3, cex=1, cex.axis=1.5, cex.lab=1.5, col=2, xlim=range(c(xsamples1,xsamples2)*2+20), ylim=range(c(ysamples1,ysamples2)*2+20), xlab='T', ylab='Y')
     legend('topleft', legend=c('group B'), pch=c(3), col=c(2), bty='n', cex=2)
     grid(lwd=0.5,lty=1, col=paste0(palette()[7],'88'))
 dev.off()
