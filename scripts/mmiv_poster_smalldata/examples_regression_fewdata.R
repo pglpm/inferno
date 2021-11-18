@@ -1,6 +1,6 @@
 ## Author: PGL  Porta Mana
 ## Created: 2021-03-20T10:07:17+0100
-## Last-Updated: 2021-11-18T09:57:51+0100
+## Last-Updated: 2021-11-18T10:48:58+0100
 ################
 ## Exploration for MMIV poster
 ################
@@ -556,9 +556,9 @@ cdfygivenx2 <- samplescdfRgivenX(maincov='y', X=egx2, parmList=parmList, covgrid
 qinter2 <- approxfun(rowMeans(cdfygivenx2), ygrid)
 
 meandist1 <- rowMeans(egygivenx1)
-qt1 <- signif(qinter1(c(1,4,7)/8),2)
+qt1 <- qinter1(c(1,4,7)/8)
 meandist2 <- rowMeans(egygivenx2)
-qt2 <- signif(qinter2(c(1,4,7)/8),2)
+qt2 <- qinter2(c(1,4,7)/8)
 medians1 <- foreach(i=1:niter, .combine=c)%dopar%{
     approxfun(cdfygivenx1[,i], ygrid)(0.5)
 }
@@ -567,7 +567,7 @@ medians2 <- foreach(i=1:niter, .combine=c)%dopar%{
 }
 ##
 subsamples <- round(seq(1, niter, length.out=32))
-pdff('example_statement')
+pdff('few_example_statement')
 mean1 <- ygrid %*% normalize(meandist1)
 mean2 <- ygrid %*% normalize(meandist2)
     ##
@@ -584,14 +584,16 @@ polygon(x=c(qt2[1], seqpol, qt2[3])*2+20,
         y=c(0, pinter2(seqpol), 0), col=paste0(palette()[2],'33'), border=NA)
 grid(lwd=0.5,lty=1, col=paste0(palette()[7],'88'))
     legend('topright', legend=paste0('T = ',xtest[3]*2+20), cex=2, bty='n')
-    legend('topleft', legend=c(paste0('75% population A will have Y in [',round(qt1[1]*2+20),', ',round(qt1[3]*2+20),']'),
-                               paste0('75% population B will have Y in [',round(qt2[1]*2+20),', ',round(qt2[3]*2+20),']')
+    legend('topleft', legend=c(paste0('75% of full population A has ',signif(qt1[1]*2+20,3),' < Y < ',signif(qt1[3]*2+20,3)),
+                               paste0('75% of full population B has ',signif(qt2[1]*2+20,3),' < Y < ',signif(qt2[3]*2+20,3))
                                ), lty=c(1,2), lwd=3, col=c(1,2), bty='n', cex=1.5)
 ##
-hist((medians1-medians2)*2, breaks=10, xlab='median Y group A  -  median Y group B', ylab='probability density', freq=F, col=3, cex.axis=1.5, cex.lab=1.5, border=NA, main='Forecast of difference between medians of full populations A and B', xlim=c(-4,4))#max(medians1-medians2)*2.1))
+hist((medians1-medians2)*2, breaks=10, xlab='(median Y group A) - (median Y group B)', ylab='probability density', freq=F, col=3, cex.axis=1.5, cex.lab=1.5, border=NA, main='Forecast of difference between medians of full populations A and B', xlim=c(-4,4))#max(medians1-medians2)*2.1))
+axis(1, at=seq(1,3,by=1), cex.axis=1.5)
 grid(lwd=0.5,lty=1, col=paste0(palette()[7],'88'))
 abline(v=0, lwd=2, col=paste0(palette()[7],'88'))
-legend('topleft', legend=paste0('difference within [',signif(quantile(medians1-medians2,c(1)/8)*2,2),', ',signif(quantile(medians1-medians2,c(7)/8)*2,2),']\nwith 75% probability'), bty='n', cex=1.5)
+legend('topleft', legend=paste0(signif(quantile(medians1-medians2,c(1)/8)*2,2),' < difference < ',signif(quantile(medians1-medians2,c(7)/8)*2,2),'\nwith 75% probability','\n\n',
+                signif(quantile(medians1-medians2,c(5)/100)*2,2),' < difference < ',signif(quantile(medians1-medians2,c(95)/100)*2,2),'\nwith 90% probability'                ), bty='n', cex=1.5)
 dev.off()
 
 
