@@ -1,6 +1,6 @@
 ## Author: PGL  Porta Mana
 ## Created: 2021-03-20T10:07:17+0100
-## Last-Updated: 2021-11-17T19:50:25+0100
+## Last-Updated: 2021-11-18T13:35:33+0100
 ################
 ## Exploration for MMIV poster
 ################
@@ -42,59 +42,45 @@ library('nimble')
 ## library('coda')
 #### End custom setup ####
 
+
+## Create example data
+set.seed(123)
 noise <- 1
-dxfromy <- function(x,y){dnorm(x=(x-abs(y)^(2))*noise)}
+dxfromy <- function(x,y){dnorm((x-abs(y)^(1.5)*sign(y))/(noise+1/((y^2-1)^2+1)))}
 rxfromy <- function(n,y){
-    rnorm(n=n)/noise+abs(y)^(2)
+    rnorm(n=n)*(noise+1/((y^2-1)^2+1)) + abs(y)^(1.5)*sign(y)
 }
-nsamples <- 1000
-ysamples1 <- rnorm(nsamples, mean=0.5, sd=1)
-xsamples1 <- rxfromy(nsamples, ysamples1)
-matplot(xsamples1, ysamples1, type='p', pch=1, cex=0.5, col=1, xlim=c(-2,3))
-ysamples2 <- rnorm(nsamples, mean=-0.5, sd=1)
-xsamples2 <- rxfromy(nsamples, ysamples2)
-matplot(xsamples2, ysamples2, type='p', pch=1, cex=0.5, col=2, add=T)
-
-
-noise <- 1
-dxfromy <- function(x,y){dnorm((x-y)/(noise+1/((y^2-1)^2+1)))}
-rxfromy <- function(n,y){
-    rnorm(n=n)*(noise+1/((y^2-1)^2+1)) + y
-}
-nsamples <- 1000
-ysamples1 <- rnorm(nsamples, mean=1, sd=1)
-xsamples1 <- rxfromy(nsamples, ysamples1)
-ysamples2 <- rnorm(nsamples, mean=-1, sd=1)
-xsamples2 <- rxfromy(nsamples, ysamples2)
-matplot(xsamples1, ysamples1, type='p', pch=1, cex=0.5, col=1, xlim=range(c(xsamples1,xsamples2)), ylim=range(c(ysamples1,ysamples2)))#, xlim=c(-2,3))
-matplot(xsamples2, ysamples2, type='p', pch=1, cex=0.5, col=2, add=T)
-
-
-pdff('alldata')
-matplot(c(xsamples1,xsamples2), c(ysamples1,ysamples2), type='p', pch=8, cex=0.5, cex.axis=1.5, cex.lab=1.5, col='black', xlim=range(c(xsamples1,xsamples2)), ylim=range(c(ysamples1,ysamples2)), xlab='x', ylab='y', main='all data')
-    grid(lwd=1,lty=1)
+nsamples1 <- 100
+ysamples1 <- rnorm(nsamples1, mean=0.5, sd=0.5)
+xsamples1 <- rxfromy(nsamples1, ysamples1)
+nsamples2 <- 75
+ysamples2 <- rnorm(nsamples2, mean=-0.5, sd=0.5)
+xsamples2 <- rxfromy(nsamples2, ysamples2)
+## matplot(xsamples1, ysamples1, type='p', pch=1, cex=0.5, col=1, xlim=range(c(xsamples1,xsamples2)), ylim=range(c(ysamples1,ysamples2)))#, xlim=c(-2,3))
+## matplot(xsamples2, ysamples2, type='p', pch=1, cex=0.5, col=2, add=T)
 ##
-matplot(xsamples1, ysamples1, type='p', pch=1, cex=0.5, cex.axis=1.5, cex.lab=1.5, col=1, xlim=range(c(xsamples1,xsamples2)), ylim=range(c(ysamples1,ysamples2)), xlab='x', ylab='y', main='data according to lab')
-    legend('topleft', legend=c('lab #1', 'lab #2'), pch=c(1,3), col=c(1,2), bty='n', cex=2)
-matpoints(xsamples2, ysamples2, type='p', pch=3, cex=0.5, cex.axis=1.5, cex.lab=1.5, col=2, xlim=range(c(xsamples1,xsamples2)), ylim=range(c(ysamples1,ysamples2)), xlab='x', ylab='y', main='all data')
-    grid(lwd=1,lty=1)
-matplot(xsamples1, ysamples1, type='p', pch=1, cex=0.5, cex.axis=1.5, cex.lab=1.5, col=1, xlim=range(c(xsamples1,xsamples2)), ylim=range(c(ysamples1,ysamples2)), xlab='x', ylab='y')
-    legend('topleft', legend=c('lab #1'), pch=c(1), col=c(1), bty='n', cex=2)
-    grid(lwd=1,lty=1)
-matplot(xsamples2, ysamples2, type='p', pch=3, cex=0.5, cex.axis=1.5, cex.lab=1.5, col=2, xlim=range(c(xsamples1,xsamples2)), ylim=range(c(ysamples1,ysamples2)), xlab='x', ylab='y')
-    legend('topleft', legend=c('lab #2'), pch=c(3), col=c(2), bty='n', cex=2)
-    grid(lwd=1,lty=1)
+pdff('few_alldata')
+matplot(c(xsamples1,xsamples2)*2+20, c(ysamples1,ysamples2)*2+20, type='p', pch=8, cex=0.5, cex.axis=1.5, cex.lab=1.5, col='black', xlim=range(c(xsamples1,xsamples2)*2+20), ylim=range(c(ysamples1,ysamples2)*2+20), xlab='T', ylab='Y', main='all data')
+    grid(lwd=0.5,lty=1, col=paste0(palette()[7],'88'))
+##
+matplot(xsamples1*2+20, ysamples1*2+20, type='p', pch=1, cex=1, cex.axis=1.5, cex.lab=1.5, col=1, xlim=range(c(xsamples1,xsamples2)*2+20), ylim=range(c(ysamples1,ysamples2)*2+20), xlab='T', ylab='Y', main='data according to group')
+    legend('topleft', legend=c('group A', 'group B'), pch=c(1,3), col=c(1,2), bty='n', cex=2)
+matpoints(xsamples2*2+20, ysamples2*2+20, type='p', pch=3, cex=1, cex.axis=1.5, cex.lab=1.5, col=2, xlim=range(c(xsamples1,xsamples2)*2+20), ylim=range(c(ysamples1,ysamples2)*2+20), xlab='T', ylab='Y', main='all data')
+    grid(lwd=0.5,lty=1, col=paste0(palette()[7],'88'))
+matplot(xsamples1*2+20, ysamples1*2+20, type='p', pch=1, cex=1, cex.axis=1.5, cex.lab=1.5, col=1, xlim=range(c(xsamples1,xsamples2)*2+20), ylim=range(c(ysamples1,ysamples2)*2+20), xlab='T', ylab='Y')
+    legend('topleft', legend=c('group A'), pch=c(1), col=c(1), bty='n', cex=2)
+    grid(lwd=0.5,lty=1, col=paste0(palette()[7],'88'))
+matplot(xsamples2*2+20, ysamples2*2+20, type='p', pch=3, cex=1, cex.axis=1.5, cex.lab=1.5, col=2, xlim=range(c(xsamples1,xsamples2)*2+20), ylim=range(c(ysamples1,ysamples2)*2+20), xlab='T', ylab='Y')
+    legend('topleft', legend=c('group B'), pch=c(3), col=c(2), bty='n', cex=2)
+    grid(lwd=0.5,lty=1, col=paste0(palette()[7],'88'))
 dev.off()
 
 
-
-
-
-alldata <- rbind(
-    data.table(x=xsamples1, y=ysamples1, lab=1L),
-    data.table(x=xsamples2, y=ysamples2, lab=2L)
+## Put data together into a data table
+oalldata <- rbind(
+    data.table(T=xsamples1, Y=ysamples1, group=1L),
+    data.table(T=xsamples2, Y=ysamples2, group=2L)
 )
-oalldata <- alldata[c(rbind(1:1000,1001:2000))]
 
 
 seed <- 149
@@ -105,9 +91,9 @@ niter <- as.integer(2^11) #as.integer(2^11)
 niter0 <- as.integer(2^10) #as.integer(2^10)
 nstages <- as.integer(1)
 ncheckpoints <- as.integer(8)
-covNames <-  c('x'
-              ,'y'
-              ,'lab'
+covNames <-  c('T'
+              ,'Y'
+              ,'group'
                )
 posterior <- TRUE
 
@@ -297,7 +283,7 @@ print('Setup time:')
 print(Sys.time() - timecount)
 
 ##
-nstages <- 2
+nstages <- 3
 for(stage in 0:nstages){
     totalruntime <- Sys.time()
 
@@ -307,7 +293,7 @@ for(stage in 0:nstages){
     if(stage==0){
         mcsamples <- runMCMC(Cmcmcsampler, nburnin=1, niter=niter0+1, thin=1, thin2=niter0, inits=initsFunction, setSeed=seed)
     }else{
-        Cmcmcsampler$run(niter=niter, thin=1, thin2=niter, reset=FALSE, resetMV=TRUE)
+        Cmcmcsampler$run(niter=niter*2, thin=2, thin2=niter*2, reset=FALSE, resetMV=TRUE)
     }
     mcsamples <- as.matrix(Cmcmcsampler$mvSamples)
     print('MCMC time:')
@@ -430,7 +416,7 @@ for(stage in 0:nstages){
     }
     ##
     par(mfrow = c(2, 2))
-    for(maincov in c('x', 'y')){
+    for(maincov in c('T', 'Y')){
     for(addvar in setdiff(covNames, maincov)){
         matplot(x=c(rep(alldataRanges[[maincov]], each=2),
                     alldataRanges[[maincov]][1]),
@@ -473,25 +459,25 @@ for(stage in 0:nstages){
 }
 
 
-xrange <- range(alldata$x)
-xrangemin <- range(alldata$x)
+xrange <- range(alldata$T)
+xrangemin <- range(alldata$T)
 xgrid <- seq(xrange[1], xrange[2], length.out=256)
-xtest <- quantile(alldata$x, (1:3)/4)
+xtest <- round(quantile(alldata$T, (1:3)/4)*2)/2
 ##
-yrange <- range(alldata$y)
-yrangemin <- range(alldata$y)
+yrange <- range(alldata$Y)
+yrangemin <- range(alldata$Y)
 ygrid <- seq(yrange[1], yrange[2], length.out=256+1)
-ytest <- quantile(alldata$y, (1:3)/4)
-##
-##
-testx1 <- cbind(x=xtest,lab=1)
-samplesygivenx1 <- samplesfRgivenX(maincov='y', X=testx1, parmList=parmList, covgrid=ygrid)
-##
-testx2 <- cbind(x=xtest,lab=2)
-samplesygivenx2 <- samplesfRgivenX(maincov='y', X=testx2, parmList=parmList, covgrid=ygrid)
+ytest <- round(quantile(alldata$Y, (1:3)/4)*2)/2
 ##
 
-subsamples <- round(seq(1, niter, length.out=128))
+##
+testx1 <- cbind(T=xtest,group=1)
+samplesygivenx1 <- samplesfRgivenX(maincov='Y', X=testx1, parmList=parmList, covgrid=ygrid)
+##
+testx2 <- cbind(T=xtest,group=2)
+samplesygivenx2 <- samplesfRgivenX(maincov='Y', X=testx2, parmList=parmList, covgrid=ygrid)
+##
+subsamples <- round(seq(1, niter, length.out=64))
 pdff('testplots_ygivenx')
 for(xvalue in 1:length(xtest)){
     meandist1 <- rowMeans(samplesygivenx1[xvalue,,])
@@ -500,24 +486,24 @@ for(xvalue in 1:length(xtest)){
     mean2 <- ygrid %*% normalize(meandist2)
     ##
     ymax=max(samplesygivenx1[,,subsamples],samplesygivenx2[,,subsamples])
-    matplot(ygrid, samplesygivenx1[xvalue,,subsamples], type='l', col=paste0(palette()[5],'44'), lty=1, lwd=2, xlab='y', ylab='predicted frequency in full population', ylim=c(0,ymax), cex.axis=1.5, cex.lab=1.5, main='predicting Y given X')
-    matplot(ygrid, samplesygivenx2[xvalue,,subsamples], type='l', col=paste0(palette()[2],'44'), lty=1, lwd=2, xlab='x', ylab='y', add=TRUE)
-    matlines(ygrid, meandist1, type='l', col=1, lty=1, lwd=4)
-    matlines(ygrid, meandist2, type='l', col=6, lty=2, lwd=4)
-    grid(lwd=1,lty=1)
-    legend('topright', legend=paste0('x = ', signif(testx1[xvalue],3)), cex=2, bty='n')
-    legend('topleft', legend=c(paste0('lab #1'),#, mean(y) = ', signif(mean1,2)),
-                               paste0('lab #2')#', mean(y) = ', signif(mean2,2))
+    matplot(ygrid*2+20, samplesygivenx1[xvalue,,subsamples], type='l', col=paste0(palette()[5],'44'), lty=1, lwd=2, xlab='Y', ylab='predicted frequency in full population', ylim=c(0,ymax), cex.axis=1.5, cex.lab=1.5, , bty="n", main='predicting Y given T')
+    matplot(ygrid*2+20, samplesygivenx2[xvalue,,subsamples], type='l', col=paste0(palette()[2],'44'), lty=1, lwd=2, xlab='Y', ylab='T', add=TRUE)
+    matlines(ygrid*2+20, meandist1, type='l', col=1, lty=1, lwd=4)
+    matlines(ygrid*2+20, meandist2, type='l', col=6, lty=2, lwd=4)
+    grid(lwd=0.5,lty=1, col=paste0(palette()[7],'88'))
+    legend('topright', legend=paste0('T = ', signif(testx1[xvalue]*2+20,3)), cex=2, bty='n')
+    legend('topleft', legend=c(paste0('group A'),#, mean(y) = ', signif(mean1,2)),
+                               paste0('group B')#', mean(y) = ', signif(mean2,2))
                                ), lty=c(1,2), lwd=3, col=c(1,2), bty='n', cex=1.5)
 }
 dev.off()
 ##
 ##
-testy1 <- cbind(y=ytest,lab=1)
-samplesxgiveny1 <- samplesfRgivenX(maincov='x', X=testy1, parmList=parmList, covgrid=xgrid)
+testy1 <- cbind(Y=ytest,group=1)
+samplesxgiveny1 <- samplesfRgivenX(maincov='T', X=testy1, parmList=parmList, covgrid=xgrid)
 ##
-testy2 <- cbind(y=ytest,lab=2)
-samplesxgiveny2 <- samplesfRgivenX(maincov='x', X=testy2, parmList=parmList, covgrid=xgrid)
+testy2 <- cbind(Y=ytest,group=2)
+samplesxgiveny2 <- samplesfRgivenX(maincov='T', X=testy2, parmList=parmList, covgrid=xgrid)
 ##
 subsamples <- round(seq(1, niter, length.out=64))
 pdff('testplots_xgiveny')
@@ -529,70 +515,69 @@ for(yvalue in 1:length(ytest)){
     mean2 <- xgrid %*% normalize(meandist2)
     ##
     xmax=max(samplesxgiveny1[,,subsamples],samplesxgiveny2[,,subsamples])
-    matplot(xgrid, samplesxgiveny1[yvalue,,subsamples], type='l', col=paste0(palette()[5],'44'), lty=1, lwd=2, xlab='x', ylab='predicted frequency in full population', ylim=c(0,xmax), cex.axis=1.5, cex.lab=1.5, main='predicting X given Y')
-    matplot(xgrid, samplesxgiveny2[yvalue,,subsamples], type='l', col=paste0(palette()[2],'44'), lty=1, lwd=2, xlab='y', ylab='x', add=TRUE)
-    matlines(xgrid, meandist1, type='l', col=1, lty=1, lwd=4)
-    matlines(xgrid, meandist2, type='l', col=6, lty=2, lwd=4)
-        grid(lwd=1,lty=1)
-    legend('topright', legend=paste0('y = ', signif(testy1[yvalue],3)), cex=2, bty='n')
-    legend('topleft', legend=c(paste0('lab #1'),#, mean(x) = ', signif(mean1,2)),
-                               paste0('lab #2')#', mean(x) = ', signif(mean2,2))
+    matplot(xgrid*2+20, samplesxgiveny1[yvalue,,subsamples], type='l', col=paste0(palette()[5],'44'), lty=1, lwd=2, xlab='T', ylab='predicted frequency in full population', ylim=c(0,xmax), cex.axis=1.5, cex.lab=1.5, , bty="n", main='predicting T given Y')
+    matplot(xgrid*2+20, samplesxgiveny2[yvalue,,subsamples], type='l', col=paste0(palette()[2],'44'), lty=1, lwd=2, xlab='T', ylab='Y', add=TRUE)
+    matlines(xgrid*2+20, meandist1, type='l', col=1, lty=1, lwd=4)
+    matlines(xgrid*2+20, meandist2, type='l', col=6, lty=2, lwd=4)
+        grid(lwd=0.5,lty=1, col=paste0(palette()[7],'88'))
+    legend('topright', legend=paste0('Y = ', signif(testy1[yvalue]*2+20,3)), cex=2, bty='n')
+    legend('topleft', legend=c(paste0('group A'),#, mean(x) = ', signif(mean1,2)),
+                               paste0('group B')#', mean(x) = ', signif(mean2,2))
                                ), lty=c(1,2), lwd=3, col=c(1,2), bty='n', cex=1.5)
 }
 dev.off()
 
-egx1 <- cbind(x=2,lab=1)
-egygivenx1 <- samplesfRgivenX(maincov='y', X=egx1, parmList=parmList, covgrid=ygrid)[1,,]
+egx1 <- cbind(T=xtest[3],group=1)
+egygivenx1 <- samplesfRgivenX(maincov='Y', X=egx1, parmList=parmList, covgrid=ygrid)[1,,]
 pinter1 <- approxfun(ygrid, rowMeans(egygivenx1))
-cdfygivenx1 <- samplescdfRgivenX(maincov='y', X=egx1, parmList=parmList, covgrid=ygrid)[1,,]
+cdfygivenx1 <- samplescdfRgivenX(maincov='Y', X=egx1, parmList=parmList, covgrid=ygrid)[1,,]
 qinter1 <- approxfun(rowMeans(cdfygivenx1), ygrid)
 ##
-egx2 <- cbind(x=2,lab=2)
-egygivenx2 <- samplesfRgivenX(maincov='y', X=egx2, parmList=parmList, covgrid=ygrid)[1,,]
+egx2 <- cbind(T=xtest[3],group=2)
+egygivenx2 <- samplesfRgivenX(maincov='Y', X=egx2, parmList=parmList, covgrid=ygrid)[1,,]
 pinter2 <- approxfun(ygrid, rowMeans(egygivenx2))
-cdfygivenx2 <- samplescdfRgivenX(maincov='y', X=egx2, parmList=parmList, covgrid=ygrid)[1,,]
+cdfygivenx2 <- samplescdfRgivenX(maincov='Y', X=egx2, parmList=parmList, covgrid=ygrid)[1,,]
 qinter2 <- approxfun(rowMeans(cdfygivenx2), ygrid)
-## rg1 <- ygrid[foreach(qua=c(16,50,84), .combine=c)%do%{ which.min(abs(cumsum(egygivenx1)-qua/100))}]
-## rg1
-## ## 0.4554005 1.3616589 2.1429162
-## diff(rg1)
-## rg2 <- ygrid[foreach(qua=c(16,50,84), .combine=c)%do%{ which.min(abs(cumsum(egygivenx2)-qua/100))}]
-## rg2
-## ## -0.8883620 -0.1071047  0.6429022
-## diff(rg2)
-
-Sys.setlocale("LC_TIME", "en_EN.UTF-8")
 
 meandist1 <- rowMeans(egygivenx1)
-qt1 <- signif(qinter1(c(1,4,7)/8),2)
+qt1 <- qinter1(c(1,4,7)/8)
 meandist2 <- rowMeans(egygivenx2)
-qt2 <- signif(qinter2(c(1,4,7)/8),2)
+qt2 <- qinter2(c(1,4,7)/8)
+medians1 <- foreach(i=1:niter, .combine=c)%dopar%{
+    approxfun(cdfygivenx1[,i], ygrid)(0.5)
+}
+medians2 <- foreach(i=1:niter, .combine=c)%dopar%{
+    approxfun(cdfygivenx2[,i], ygrid)(0.5)
+}
 ##
 subsamples <- round(seq(1, niter, length.out=32))
-pdff('example_statement')
+pdff('few_example_statement')
 mean1 <- ygrid %*% normalize(meandist1)
 mean2 <- ygrid %*% normalize(meandist2)
     ##
     ymax=max(egygivenx1[,subsamples], egygivenx2[,subsamples])*1.2
-    matplot(ygrid, egygivenx1[,subsamples], type='l', col=paste0(palette()[5],'44'), lty=1, lwd=2, xlab='y', ylab='predicted frequency in full population', ylim=c(0,ymax), cex.axis=1.5, cex.lab=1.5)
-    matplot(ygrid, egygivenx2[,subsamples], type='l', col=paste0(palette()[2],'44'), lty=1, lwd=2, xlab='x', ylab='y', add=TRUE)
-    matlines(ygrid, meandist1, type='l', col=1, lty=1, lwd=4)
-matlines(ygrid, meandist2, type='l', col=6, lty=2, lwd=4)
+matplot(ygrid*2+20, egygivenx1[,subsamples], type='l', col=paste0(palette()[5],'44'), lty=1, lwd=2, xlab='Y', ylab='predicted frequency in full population', ylim=c(0,ymax), cex.axis=1.5, cex.lab=1.5, bty="n")
+    matplot(ygrid*2+20, egygivenx2[,subsamples], type='l', col=paste0(palette()[2],'44'), lty=1, lwd=2, xlab='Y', ylab='T', add=TRUE)
+    matlines(ygrid*2+20, meandist1, type='l', col=1, lty=1, lwd=4)
+matlines(ygrid*2+20, meandist2, type='l', col=6, lty=2, lwd=4)
 seqpol <- seq(qt1[1],qt1[3],length.out=64)
-polygon(x=c(qt1[1], seqpol, qt1[3]),
+polygon(x=c(qt1[1], seqpol, qt1[3])*2+20,
         y=c(0, pinter1(seqpol), 0), col=paste0(palette()[5],'33'), border=NA)
 seqpol <- seq(qt2[1],qt2[3],length.out=64)
-polygon(x=c(qt2[1], seqpol, qt2[3], qt2[1]),
-        y=c(0, pinter2(seqpol), 0, 0), col=paste0(palette()[2],'33'), border=NA)
-## abline(v=qt1[1], col=1, lty=3, lwd=5)
-## abline(v=qt1[3], col=1, lty=3, lwd=5)
-## abline(v=qt2[1], col=6, lty=3, lwd=5)
-## abline(v=qt2[3], col=6, lty=3, lwd=5)
-    grid(lwd=1,lty=1)
-    legend('topright', legend=paste0('x = 2'), cex=2, bty='n')
-    legend('topleft', legend=c(paste0('males: 75% with y in [',qt1[1],', ',qt1[3],']'),
-                               paste0('females: 75% with y in [',qt2[1],', ',qt2[3],']')
+polygon(x=c(qt2[1], seqpol, qt2[3])*2+20,
+        y=c(0, pinter2(seqpol), 0), col=paste0(palette()[2],'33'), border=NA)
+grid(lwd=0.5,lty=1, col=paste0(palette()[7],'88'))
+    legend('topright', legend=paste0('T = ',xtest[3]*2+20), cex=2, bty='n')
+    legend('topleft', legend=c(paste0('75% of full population A has ',signif(qt1[1]*2+20,3),' < Y < ',signif(qt1[3]*2+20,3)),
+                               paste0('75% of full population B has ',signif(qt2[1]*2+20,3),' < Y < ',signif(qt2[3]*2+20,3))
                                ), lty=c(1,2), lwd=3, col=c(1,2), bty='n', cex=1.5)
+##
+hist((medians1-medians2)*2, breaks=10, xlab='(median Y group A) - (median Y group B)', ylab='probability density', freq=F, col=3, cex.axis=1.5, cex.lab=1.5, border=NA, main='Forecast of difference between medians of full populations A and B', xlim=c(-4,4))#max(medians1-medians2)*2.1))
+axis(1, at=seq(1,3,by=1), cex.axis=1.5)
+grid(lwd=0.5,lty=1, col=paste0(palette()[7],'88'))
+abline(v=0, lwd=2, col=paste0(palette()[7],'88'))
+legend('topleft', legend=paste0(signif(quantile(medians1-medians2,c(1)/8)*2,2),' < difference < ',signif(quantile(medians1-medians2,c(7)/8)*2,2),'\nwith 75% probability','\n\n',
+                signif(quantile(medians1-medians2,c(5)/100)*2,2),' < difference < ',signif(quantile(medians1-medians2,c(95)/100)*2,2),'\nwith 90% probability'                ), bty='n', cex=1.5)
 dev.off()
 
 
