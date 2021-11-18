@@ -1,6 +1,6 @@
 ## Author: PGL  Porta Mana
 ## Created: 2021-03-20T10:07:17+0100
-## Last-Updated: 2021-11-18T07:57:01+0100
+## Last-Updated: 2021-11-18T09:26:59+0100
 ################
 ## Exploration for MMIV poster
 ################
@@ -74,18 +74,18 @@ xsamples2 <- rxfromy(nsamples2, ysamples2)
 ##
 pdff('alldata')
 matplot(c(xsamples1,xsamples2)*2+20, c(ysamples1,ysamples2)*2+20, type='p', pch=8, cex=0.5, cex.axis=1.5, cex.lab=1.5, col='black', xlim=range(c(xsamples1,xsamples2)*2+20), ylim=range(c(ysamples1,ysamples2)*2+20), xlab='T', ylab='Y', main='all data')
-    grid(lwd=1,lty=1)
+    grid(lwd=1,lty=1, col=paste0(palette()[7],'44'))
 ##
 matplot(xsamples1*2+20, ysamples1*2+20, type='p', pch=1, cex=0.5, cex.axis=1.5, cex.lab=1.5, col=1, xlim=range(c(xsamples1,xsamples2)*2+20), ylim=range(c(ysamples1,ysamples2)*2+20), xlab='T', ylab='Y', main='data according to group')
     legend('topleft', legend=c('group A', 'group B'), pch=c(1,3), col=c(1,2), bty='n', cex=2)
 matpoints(xsamples2*2+20, ysamples2*2+20, type='p', pch=3, cex=0.5, cex.axis=1.5, cex.lab=1.5, col=2, xlim=range(c(xsamples1,xsamples2)*2+20), ylim=range(c(ysamples1,ysamples2)*2+20), xlab='T', ylab='Y', main='all data')
-    grid(lwd=1,lty=1)
+    grid(lwd=1,lty=1, col=paste0(palette()[7],'44'))
 matplot(xsamples1*2+20, ysamples1*2+20, type='p', pch=1, cex=0.5, cex.axis=1.5, cex.lab=1.5, col=1, xlim=range(c(xsamples1,xsamples2)*2+20), ylim=range(c(ysamples1,ysamples2)*2+20), xlab='T', ylab='Y')
     legend('topleft', legend=c('group A'), pch=c(1), col=c(1), bty='n', cex=2)
-    grid(lwd=1,lty=1)
+    grid(lwd=1,lty=1, col=paste0(palette()[7],'44'))
 matplot(xsamples2*2+20, ysamples2*2+20, type='p', pch=3, cex=0.5, cex.axis=1.5, cex.lab=1.5, col=2, xlim=range(c(xsamples1,xsamples2)*2+20), ylim=range(c(ysamples1,ysamples2)*2+20), xlab='T', ylab='Y')
     legend('topleft', legend=c('group B'), pch=c(3), col=c(2), bty='n', cex=2)
-    grid(lwd=1,lty=1)
+    grid(lwd=1,lty=1, col=paste0(palette()[7],'44'))
 dev.off()
 
 
@@ -493,7 +493,7 @@ samplesygivenx1 <- samplesfRgivenX(maincov='y', X=testx1, parmList=parmList, cov
 testx2 <- cbind(x=xtest,lab=2)
 samplesygivenx2 <- samplesfRgivenX(maincov='y', X=testx2, parmList=parmList, covgrid=ygrid)
 ##
-subsamples <- round(seq(1, niter, length.out=128))
+subsamples <- round(seq(1, niter, length.out=64))
 pdff('testplots_ygivenx')
 for(xvalue in 1:length(xtest)){
     meandist1 <- rowMeans(samplesygivenx1[xvalue,,])
@@ -502,11 +502,11 @@ for(xvalue in 1:length(xtest)){
     mean2 <- ygrid %*% normalize(meandist2)
     ##
     ymax=max(samplesygivenx1[,,subsamples],samplesygivenx2[,,subsamples])
-    matplot(ygrid*2+20, samplesygivenx1[xvalue,,subsamples], type='l', col=paste0(palette()[5],'44'), lty=1, lwd=2, xlab='Y', ylab='predicted frequency in full population', ylim=c(0,ymax), cex.axis=1.5, cex.lab=1.5, main='predicting Y given T')
+    matplot(ygrid*2+20, samplesygivenx1[xvalue,,subsamples], type='l', col=paste0(palette()[5],'44'), lty=1, lwd=2, xlab='Y', ylab='predicted frequency in full population', ylim=c(0,ymax), cex.axis=1.5, cex.lab=1.5, , bty="n", main='predicting Y given T')
     matplot(ygrid*2+20, samplesygivenx2[xvalue,,subsamples], type='l', col=paste0(palette()[2],'44'), lty=1, lwd=2, xlab='Y', ylab='T', add=TRUE)
     matlines(ygrid*2+20, meandist1, type='l', col=1, lty=1, lwd=4)
     matlines(ygrid*2+20, meandist2, type='l', col=6, lty=2, lwd=4)
-    grid(lwd=1,lty=1)
+    grid(lwd=1,lty=1, col=paste0(palette()[7],'44'))
     legend('topright', legend=paste0('T = ', signif(testx1[xvalue]*2+20,3)), cex=2, bty='n')
     legend('topleft', legend=c(paste0('group A'),#, mean(y) = ', signif(mean1,2)),
                                paste0('group B')#', mean(y) = ', signif(mean2,2))
@@ -521,7 +521,7 @@ samplesxgiveny1 <- samplesfRgivenX(maincov='x', X=testy1, parmList=parmList, cov
 testy2 <- cbind(y=ytest,lab=2)
 samplesxgiveny2 <- samplesfRgivenX(maincov='x', X=testy2, parmList=parmList, covgrid=xgrid)
 ##
-subsamples <- round(seq(1, niter, length.out=128))
+subsamples <- round(seq(1, niter, length.out=64))
 pdff('testplots_xgiveny')
 for(yvalue in 1:length(ytest)){
     meandist1 <- rowMeans(samplesxgiveny1[yvalue,,])
@@ -531,12 +531,12 @@ for(yvalue in 1:length(ytest)){
     mean2 <- xgrid %*% normalize(meandist2)
     ##
     xmax=max(samplesxgiveny1[,,subsamples],samplesxgiveny2[,,subsamples])
-    matplot(xgrid*2+20, samplesxgiveny1[yvalue,,subsamples], type='l', col=paste0(palette()[5],'44'), lty=1, lwd=2, xlab='T', ylab='predicted frequency in full population', ylim=c(0,xmax), cex.axis=1.5, cex.lab=1.5, main='predicting T given Y')
+    matplot(xgrid*2+20, samplesxgiveny1[yvalue,,subsamples], type='l', col=paste0(palette()[5],'44'), lty=1, lwd=2, xlab='T', ylab='predicted frequency in full population', ylim=c(0,xmax), cex.axis=1.5, cex.lab=1.5, , bty="n", main='predicting T given Y')
     matplot(xgrid*2+20, samplesxgiveny2[yvalue,,subsamples], type='l', col=paste0(palette()[2],'44'), lty=1, lwd=2, xlab='T', ylab='Y', add=TRUE)
     matlines(xgrid*2+20, meandist1, type='l', col=1, lty=1, lwd=4)
     matlines(xgrid*2+20, meandist2, type='l', col=6, lty=2, lwd=4)
-        grid(lwd=1,lty=1)
-    legend('topright', legend=paste0('y = ', signif(testy1[yvalue]*2+20,3)), cex=2, bty='n')
+        grid(lwd=1,lty=1, col=paste0(palette()[7],'44'))
+    legend('topright', legend=paste0('Y = ', signif(testy1[yvalue]*2+20,3)), cex=2, bty='n')
     legend('topleft', legend=c(paste0('group A'),#, mean(x) = ', signif(mean1,2)),
                                paste0('group B')#', mean(x) = ', signif(mean2,2))
                                ), lty=c(1,2), lwd=3, col=c(1,2), bty='n', cex=1.5)
@@ -572,7 +572,7 @@ mean1 <- ygrid %*% normalize(meandist1)
 mean2 <- ygrid %*% normalize(meandist2)
     ##
     ymax=max(egygivenx1[,subsamples], egygivenx2[,subsamples])*1.2
-    matplot(ygrid*2+20, egygivenx1[,subsamples], type='l', col=paste0(palette()[5],'44'), lty=1, lwd=2, xlab='Y', ylab='predicted frequency in full population', ylim=c(0,ymax), cex.axis=1.5, cex.lab=1.5)
+matplot(ygrid*2+20, egygivenx1[,subsamples], type='l', col=paste0(palette()[5],'44'), lty=1, lwd=2, xlab='Y', ylab='predicted frequency in full population', ylim=c(0,ymax), cex.axis=1.5, cex.lab=1.5, bty="n")
     matplot(ygrid*2+20, egygivenx2[,subsamples], type='l', col=paste0(palette()[2],'44'), lty=1, lwd=2, xlab='Y', ylab='T', add=TRUE)
     matlines(ygrid*2+20, meandist1, type='l', col=1, lty=1, lwd=4)
 matlines(ygrid*2+20, meandist2, type='l', col=6, lty=2, lwd=4)
@@ -582,19 +582,19 @@ polygon(x=c(qt1[1], seqpol, qt1[3])*2+20,
 seqpol <- seq(qt2[1],qt2[3],length.out=64)
 polygon(x=c(qt2[1], seqpol, qt2[3])*2+20,
         y=c(0, pinter2(seqpol), 0), col=paste0(palette()[2],'33'), border=NA)
-    grid(lwd=1,lty=1)
+grid(lwd=1,lty=1, col=paste0(palette()[7],'44'))
     legend('topright', legend=paste0('T = ',xtest[3]*2+20), cex=2, bty='n')
     legend('topleft', legend=c(paste0('75% population A will have Y in [',round(qt1[1]*2+20),', ',round(qt1[3]*2+20),']'),
                                paste0('75% population B will have Y in [',round(qt2[1]*2+20),', ',round(qt2[3]*2+20),']')
                                ), lty=c(1,2), lwd=3, col=c(1,2), bty='n', cex=1.5)
 ##
-hist((medians1-medians2)*2, breaks=10, xlab='median Y group A  -  median Y group B', ylab='probability density', freq=F, col=3, cex.axis=1.5, cex.lab=1.5, main='Forecast of difference between medians of full populations A and B', xlim=c(-4,4))#max(medians1-medians2)*2.1))
-grid(lwd=1,lty=1)
-abline(v=0)
+hist((medians1-medians2)*2, breaks=10, xlab='median Y group A  -  median Y group B', ylab='probability density', freq=F, col=3, cex.axis=1.5, cex.lab=1.5, border=NA, main='Forecast of difference between medians of full populations A and B', xlim=c(-4,4))#max(medians1-medians2)*2.1))
+grid(lwd=1,lty=1, col=paste0(palette()[7],'44'))
+abline(v=0, lwd=2, col=paste0(palette()[7],'88'))
 legend('topleft', legend=paste0('difference within [',signif(quantile(medians1-medians2,c(1)/8)*2,2),', ',signif(quantile(medians1-medians2,c(7)/8)*2,2),']\nwith 75% probability'), bty='n', cex=1.5)
 dev.off()
 
-
+source('fancyaxis.R')
 
 
 ## initsFunction <- function(){
