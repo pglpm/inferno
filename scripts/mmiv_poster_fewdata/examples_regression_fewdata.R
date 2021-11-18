@@ -1,6 +1,6 @@
 ## Author: PGL  Porta Mana
 ## Created: 2021-03-20T10:07:17+0100
-## Last-Updated: 2021-11-18T13:35:33+0100
+## Last-Updated: 2021-11-18T13:44:04+0100
 ################
 ## Exploration for MMIV poster
 ################
@@ -43,7 +43,7 @@ library('nimble')
 #### End custom setup ####
 
 
-## Create example data
+## Create example data (later they will rescaled and shifted, d -> 2*d+20)
 set.seed(123)
 noise <- 1
 dxfromy <- function(x,y){dnorm((x-abs(y)^(1.5)*sign(y))/(noise+1/((y^2-1)^2+1)))}
@@ -82,9 +82,11 @@ oalldata <- rbind(
     data.table(T=xsamples2, Y=ysamples2, group=2L)
 )
 
+#################################
+## Setup for Monte Carlo sampling
+#################################
 
 seed <- 149
-baseversion <- 'regr-mmivposter-C21D11_'
 nclusters <- as.integer(32) #as.integer(2^6)
 ndata <- as.integer(nrow(alldata))
 niter <- as.integer(2^11) #as.integer(2^11)
@@ -97,21 +99,6 @@ covNames <-  c('T'
                )
 posterior <- TRUE
 
-## initial.options <- commandArgs(trailingOnly = FALSE)
-## thisscriptname <- sub('--file=', "", initial.options[grep('--file=', initial.options)])
-## file.copy(from=thisscriptname, to=paste0('script-R',baseversion,'-V',length(covNames),'-D',ndata,'-K',nclusters,'.Rscript'))
-
-## pdff('check_mutualinfo')
-## for(i in 1:(length(covNames)-1)){
-##     for(j in (i+1):length(covNames)){
-##         matplot(alldata[[covNames[i]]], alldata[[covNames[j]]], type='p', pch='.', col=paste0('#000000','88'), xlab=covNames[i], ylab=covNames[j])
-##     }
-## }
-## dev.off()
-
-
-##
-## alldata <- fread(datafile, sep=',')
 discreteCovs <- covNames[sapply(covNames, function(x){is.integer(oalldata[[x]])})]
 continuousCovs <- covNames[sapply(covNames, function(x){is.double(oalldata[[x]])})]
 covNames <- c(continuousCovs, discreteCovs)
@@ -276,13 +263,12 @@ mcmcsampler <- buildMCMC(confmodel)
 Cmcmcsampler <- compileNimble(mcmcsampler, resetFunctions = TRUE)
 gc()
 
-##
-## source('functions_rmsdregr_nimble_binom.R')
-
 print('Setup time:')
 print(Sys.time() - timecount)
 
-##
+##################################################
+## Monte Carlo sampler and plots of MC diagnostics
+##################################################
 nstages <- 3
 for(stage in 0:nstages){
     totalruntime <- Sys.time()
@@ -360,27 +346,7 @@ for(stage in 0:nstages){
         sapply(tracegroups, function(agroup){atrace %in% agroup})
         })
     ##
-    ##
-    ## tracegroups <- list(
-    ##     'maxD'=(1:ncol(traces))[grepl('^(Pdat|Dcov|LL)', tracenames)],
-    ##     '1D'=(1:ncol(traces))[grepl('^(MEDIAN|Q1|Q3|IQR|MEAN|VAR)_', tracenames)],
-    ##     '2D'=(1:ncol(traces))[grepl('^COV_', tracenames)]
-    ## )
-    ## grouplegends <- foreach(agroup=1:length(tracegroups))%do%{
-    ##     c( paste0('-- STATS ', names(tracegroups)[agroup], ' --'),
-    ##       paste0('min ESS = ', min(diagnESS[tracegroups[[agroup]]])),
-    ##       paste0('max BMK = ', max(diagnBMK[tracegroups[[agroup]]])),
-    ##       paste0('max MCSE = ', max(diagnMCSE[tracegroups[[agroup]]])),
-    ##       paste0('all stationary: ', all(diagnStat[tracegroups[[agroup]]])),
-    ##       paste0('burn: ', max(diagnBurn[tracegroups[[agroup]]]))
-    ##       )
-    ## }
-    ## ##
-    ## plan(sequential)
-    ## plan(multisession, workers = 6L)
     samplesQuantiles <- calcSampleQuantiles(parmList)
-    ## plan(sequential)
-    ## 7 covs, 2000 samples, serial: 1.722 min
     ##
     xlimits <- list()
     for(acov in covNames){
@@ -459,6 +425,11 @@ for(stage in 0:nstages){
 }
 
 
+############################################################
+## Example plots of various kinds of conditional predictions
+############################################################
+
+
 xrange <- range(alldata$T)
 xrangemin <- range(alldata$T)
 xgrid <- seq(xrange[1], xrange[2], length.out=256)
@@ -470,7 +441,8 @@ ygrid <- seq(yrange[1], yrange[2], length.out=256+1)
 ytest <- round(quantile(alldata$Y, (1:3)/4)*2)/2
 ##
 
-##
+##############################################
+## Given T, how well does Y predict the group?
 testx1 <- cbind(T=xtest,group=1)
 samplesygivenx1 <- samplesfRgivenX(maincov='Y', X=testx1, parmList=parmList, covgrid=ygrid)
 ##
@@ -499,6 +471,8 @@ for(xvalue in 1:length(xtest)){
 dev.off()
 ##
 ##
+##############################################
+## Given Y, how well does T predict the group?
 testy1 <- cbind(Y=ytest,group=1)
 samplesxgiveny1 <- samplesfRgivenX(maincov='T', X=testy1, parmList=parmList, covgrid=xgrid)
 ##
@@ -527,6 +501,7 @@ for(yvalue in 1:length(ytest)){
 }
 dev.off()
 
+## Calculations of quartiles and octiles
 egx1 <- cbind(T=xtest[3],group=1)
 egygivenx1 <- samplesfRgivenX(maincov='Y', X=egx1, parmList=parmList, covgrid=ygrid)[1,,]
 pinter1 <- approxfun(ygrid, rowMeans(egygivenx1))
@@ -539,6 +514,8 @@ pinter2 <- approxfun(ygrid, rowMeans(egygivenx2))
 cdfygivenx2 <- samplescdfRgivenX(maincov='Y', X=egx2, parmList=parmList, covgrid=ygrid)[1,,]
 qinter2 <- approxfun(rowMeans(cdfygivenx2), ygrid)
 
+##############################################
+## Given T, how distinguishable are the 75% ranges and the medians of Y for the two groups?
 meandist1 <- rowMeans(egygivenx1)
 qt1 <- qinter1(c(1,4,7)/8)
 meandist2 <- rowMeans(egygivenx2)
@@ -579,52 +556,3 @@ abline(v=0, lwd=2, col=paste0(palette()[7],'88'))
 legend('topleft', legend=paste0(signif(quantile(medians1-medians2,c(1)/8)*2,2),' < difference < ',signif(quantile(medians1-medians2,c(7)/8)*2,2),'\nwith 75% probability','\n\n',
                 signif(quantile(medians1-medians2,c(5)/100)*2,2),' < difference < ',signif(quantile(medians1-medians2,c(95)/100)*2,2),'\nwith 90% probability'                ), bty='n', cex=1.5)
 dev.off()
-
-
-## initsFunction <- function(){
-## list(
-##     alphaK=rep(4/nclusters, nclusters),
-##     meanCmean=medianccovs,
-##     meanCshape1=rep(1/2, nccovs),
-##     meanCrate2=1/(widthccovs/2)^2, # dims = inv. variance
-##     ##
-##     tauCshape1=rep(1/2, nccovs),
-##     tauCrate2=1/(widthccovs/2)^2, # dims = inv. variance
-##     ##
-##     probDa1=rep(1, ndcovs),
-##     probDb1=rep(1, ndcovs),
-##     sizeDsize1=maxdcovs,
-##     sizeDa2=rep(32, ndcovs),
-##     sizeDb2=rep(32, ndcovs),
-##     ##
-##     ##
-##     meanCtau1=1/(widthccovs/2)^2, # dims = inv. variance
-##     meanCrate1=(widthccovs/2)^2, # dims = variance
-##     tauCrate1=(widthccovs/2)^2, # dims = variance
-##     ##
-##     sizeDprob1=rep(1/2, ndcovs),
-##     ##
-##     ##
-##     q=rep(1/nclusters, nclusters),
-##     ##
-##     meanC=matrix(rnorm(n=nccovs*nclusters, mean=medianccovs, sd=1/sqrt(rgamma(n=nccovs,shape=1/2,rate=rgamma(n=nccovs,shape=1/2,rate=1/(widthccovs/2)^2)))), nrow=nccovs, ncol=nclusters),
-##     tauC=matrix(rgamma(n=nccovs*nclusters, shape=1/2, rate=rgamma(n=nccovs,shape=1/2,rate=1/(widthccovs/2)^2)), nrow=nccovs, ncol=nclusters),
-##     probD=matrix(rbeta(n=ndcovs*nclusters, shape1=1, shape2=1), nrow=ndcovs, ncol=nclusters),
-##     sizeD=apply(matrix(rnbinom(n=ndcovs*nclusters, prob=rbeta(n=ndcovs,shape1=32,shape2=32), size=maxdcovs), nrow=ndcovs, ncol=nclusters), 2, function(x){maxdcovs*(x<maxdcovs)+x*(x>=maxdcovs)}),
-##     ## C=rep(1,ndata)
-##     C=rcat(n=ndata, prob=rep(1/nclusters,nclusters))
-## )
-## }
-## temppdf <- function(x, acov){
-##     inits <- initsFunction()
-##     sum(inits$q * dnorm(x=x, mean=inits$meanC[acov,], sd=1/sqrt(inits$tauC[acov,])))
-## }
-## xgrid <- seq(-6,1,length.out=2^10)
-## ygrid <- sapply(xgrid, function(x){temppdf(x,3)})
-## matplot(xgrid,ygrid,type='l')
-## pdff('hists')
-## for(acov in covNames){
-##     hist(alldata[[acov]], breaks=100, main=acov)
-##     legend(x='top',legend=paste0('median: ', signif(c(medianccovs,mediandcovs)[acov],3), '  width: ', signif(c(widthccovs,widthdcovs)[acov],3)))
-## }
-## dev.off()
