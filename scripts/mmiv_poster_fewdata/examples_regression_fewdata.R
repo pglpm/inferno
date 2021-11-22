@@ -1,6 +1,6 @@
 ## Author: PGL  Porta Mana
 ## Created: 2021-03-20T10:07:17+0100
-## Last-Updated: 2021-11-20T00:46:40+0100
+## Last-Updated: 2021-11-22T16:23:48+0100
 ################
 ## Exploration for MMIV poster
 ################
@@ -438,6 +438,16 @@ if(!exists('mcsamples')){
 mcsamples <- readRDS('_mcsamples-Rregr-mmivposter-C21D11_3-V3-D175-K32-I2048.rds')
 }
 parmList <- mcsamples2parmlist(mcsamples)
+
+hi <- apply(parmList$sizeD, 3, function(x){thist(c(x), n='i')})
+pdff('testhistsize')
+for(i in 1:length(hi)){
+    ahist <- hi[[i]]
+    tplot(ahist$breaks, ahist$density, xlab='sizeD', ylab='density', main=i)
+    fivenumaxis(1, c(parmList$sizeD[,,i]))
+}
+dev.off()
+
 
 ############################################################
 ## Example plots of various kinds of conditional predictions
