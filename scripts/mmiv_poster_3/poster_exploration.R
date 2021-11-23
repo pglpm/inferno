@@ -1,6 +1,6 @@
 ## Author: PGL  Porta Mana
 ## Created: 2021-03-20T10:07:17+0100
-## Last-Updated: 2021-11-23T15:38:18+0100
+## Last-Updated: 2021-11-23T16:30:44+0100
 ################
 ## Exploration for MMIV poster
 ################
@@ -58,6 +58,9 @@ tplot(cbind(hi[[1]]$breaks, hi[[2]]$breaks), cbind(hi[[1]]$density, hi[[2]]$dens
 scatteraxis(1,oalldata[group==1,x], col=1)
 scatteraxis(3,oalldata[group==2,x], col=2)
 
+
+oalldata <- rbind(data.table(x=oalldata$x, group=1L),
+                  data.table(x=oalldata$y, group=2L))
 
 
 #################################
@@ -424,7 +427,6 @@ xrangemin <- range(alldata$x)
 xgrid <- seq(xrange[1], xrange[2], length.out=256)
 xtest <- round(quantile8(alldata$x, (1:3)/4)*2)/2
 
-egx1 <- cbind(group=1)
 fdists <- samplesfRgivenX(maincov='x', X=cbind(group=1:2), parmList=parmList, covgrid=xgrid, inorder=T)
 fdists <- aperm(fdists)
 preddists <- colMeans(fdists)
@@ -439,23 +441,22 @@ mdh <- thist(meandiffs)
 vdists <- samplesvarRgivenX(maincov='x', X=cbind(group=1:2), parmList=parmList, inorder=T)
 vdists <- aperm(vdists)
 vardiffs <- apply(vdists,1,function(x){-diff(x)})
-vdh <- thist(vardiffs)
+vdh <- thist(vardiffs, n=1000)
 
 
-hi <- foreach(g=1:2)%do%{
-    thist(edists[,g], n=tticks(c(edists),n=16))
-}
-tplot(sapply(hi,function(x){x$breaks}), sapply(hi, function(x){x$density}), xlim=range(c(edists)))
+## hi <- foreach(g=1:2)%do%{
+##     thist(edists[,g], n=tticks(c(edists),n=16))
+## }
+## tplot(sapply(hi,function(x){x$breaks}), sapply(hi, function(x){x$density}), xlim=range(c(edists)))
 
-cdists <- samplescdfRgivenX(maincov='x', X=cbind(group=1:2), parmList=parmList, covgrid=xgrid)
-cdists <- aperm(cdists)
-qinter <- foreach(g=1:2)%do%{ approxfun(colMeans(cdists[,,g]), xgrid) }
+## cdists <- samplescdfRgivenX(maincov='x', X=cbind(group=1:2), parmList=parmList, covgrid=xgrid)
+## cdists <- aperm(cdists)
+## qinter <- foreach(g=1:2)%do%{ approxfun(colMeans(cdists[,,g]), xgrid) }
 
 
 subsample <- seq(1,nrow(fdists),length.out=64)
-
 pdff('example_plot')
-tplot(x=xgrid, y=preddists, xlab='x', ylab='full-population distribution', lwd=2:3, ylim=c(0,max(margdists)), main='predicted distribution of full population')
+tplot(x=xgrid, y=preddists, xlab='x', ylab='full-population distribution', lwd=2:3, ylim=c(0,max(margdists2)), main='predicted distribution of full population')
 polygon(x=c(xgrid,rev(xgrid)), y=c(margdists1[1,,1],rev(margdists1[2,,1])), col=paste0(palette[1],'40'), border=NA)
 polygon(x=c(xgrid,rev(xgrid)), y=c(margdists2[1,,1],rev(margdists2[2,,1])), col=paste0(palette[1],'40'), border=NA)
 polygon(x=c(xgrid,rev(xgrid)), y=c(margdists1[1,,2],rev(margdists1[2,,2])), col=paste0(palette[2],'40'), border=NA)
@@ -463,7 +464,16 @@ polygon(x=c(xgrid,rev(xgrid)), y=c(margdists2[1,,2],rev(margdists2[2,,2])), col=
 scatteraxis(1,alldata[group==1,x],col=1)
 scatteraxis(1,alldata[group==2,x],col=2)
 legend('topright', legend=c(
-                   ))
+                       'predictive distribution group A',
+                       '25% uncertainty',
+                       '75% uncertainty',
+                       'predictive distribution group B',
+                       '25% uncertainty',
+                       '75% uncertainty'
+                   ),
+       lty=c(1,1,1,2,1,1), lwd=c(3,10,10),
+       col=paste0(palette[c(1,1,1,2,2,2)],c('ff','80','40')),
+       bty='n', cex=1.25)
 ##
 tplot(mdh$breaks, mdh$density, col=3, xlab='(mean group A) - (mean group B)', ylab='probability density', main='predicted difference between means of groups A and B')
 legend('topright', legend=paste0(
@@ -473,8 +483,8 @@ legend('topright', legend=paste0(
                        'difference > 0\nwith ',signif(sum(meandiffs>0)/length(meandiffs)*100,2),'% probability'
                                  ), bty='n', cex=1.5)
 ##
-tplot(vdh$breaks, vdh$density, col=4, xlab='(variance group A) - (variance group B)', ylab='probability density', main='predicted difference between variances of groups A and B')
-legend('topright', legend=paste0(
+tplot(vdh$breaks, vdh$density, col=4, xlab='(variance group A) - (variance group B)', ylab='probability density', main='predicted difference between variances of groups A and B', xlim=quantile8(vardiffs,c(0.5,99.5)/100))
+legend('topleft', legend=paste0(
                        'expected difference: ',signif(mean(vardiffs),2),'\u00b1',signif(sd(vardiffs),2),
                        ## signif(quantile8(meandiffs,c(1)/8)*2,2),' < difference < ',signif(quantile8(meandiffs,c(7)/8)*2,2),'\nwith 75% probability','\n\n',
                                  '\n\n',signif(quantile8(vardiffs,c(5)/100),2),' < difference < ',signif(quantile8(vardiffs,c(95)/100),2),'\nwith 90% probability\n\n',
