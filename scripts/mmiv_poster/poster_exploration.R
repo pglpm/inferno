@@ -1,6 +1,6 @@
 ## Author: PGL  Porta Mana
 ## Created: 2021-03-20T10:07:17+0100
-## Last-Updated: 2021-11-23T13:57:37+0100
+## Last-Updated: 2021-11-23T14:22:32+0100
 ################
 ## Exploration for MMIV poster
 ################
@@ -427,13 +427,29 @@ xtest <- round(quantile8(alldata$x, (1:3)/4)*2)/2
 egx1 <- cbind(group=1)
 fdists <- samplesfRgivenX(maincov='x', X=cbind(group=1:2), parmList=parmList, covgrid=xgrid)
 fdists <- aperm(fdists)
-
 preddists <- colMeans(fdists)
-maxdists <- 
+margdists1 <- apply(fdists,c(2,3),function(x){quantile8(x, c(1,3)/4)})
+margdists2 <- apply(fdists,c(2,3),function(x){quantile8(x, c(1,7)/8)})
+
+cdists <- samplescdfRgivenX(maincov='x', X=cbind(group=1:2), parmList=parmList, covgrid=xgrid)
+cdists <- aperm(cdists)
+qinter <- foreach(g=1:2)%do%{ approxfun(colMeans(cdists[,,g]), xgrid) }
+
+
+subsample <- seq(1,nrow(fdists),length.out=64)
 
 pdff('example_plot')
-tplot(x=xgrid, y=preddists, xlab='x', ylab='full-population distribution', lwd=2:3)
-
+tplot(x=xgrid, y=preddists, xlab='x', ylab='full-population distribution', lwd=2:3, ylim=c(0,max(margdists)))
+polygon(x=c(xgrid,rev(xgrid)), y=c(margdists1[1,,1],rev(margdists1[2,,1])), col=paste0(palette[1],'40'), border=NA)
+polygon(x=c(xgrid,rev(xgrid)), y=c(margdists2[1,,1],rev(margdists2[2,,1])), col=paste0(palette[1],'40'), border=NA)
+polygon(x=c(xgrid,rev(xgrid)), y=c(margdists1[1,,2],rev(margdists1[2,,2])), col=paste0(palette[2],'40'), border=NA)
+polygon(x=c(xgrid,rev(xgrid)), y=c(margdists2[1,,2],rev(margdists2[2,,2])), col=paste0(palette[2],'40'), border=NA)
+scatteraxis(1,alldata[group==1,x],col=1)
+scatteraxis(1,alldata[group==2,x],col=2)
+#
+tplot(x=xgrid, y=preddists, xlab='x', ylab='full-population distribution', lwd=2:3, ylim=c(0,max(fdists)/2))
+matlines(x=xgrid, y=t(fdists[subsample,,1]), col=paste0(palette[1],'40'),lty=1,lwd=1)
+matlines(x=xgrid, y=t(fdists[subsample,,2]), col=paste0(palette[2],'40'),lty=1,lwd=1)
 scatteraxis(1,alldata[group==1,x],col=1)
 scatteraxis(1,alldata[group==2,x],col=2)
 dev.off()

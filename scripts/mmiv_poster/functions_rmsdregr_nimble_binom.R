@@ -391,6 +391,7 @@ samplescdfRgivenX <- function(maincov, X, parmList, covgrid, nfsamples=NULL){
     continuousCovs <- dimnames(parmList$meanC)[[2]]
     discreteCovs <- dimnames(parmList$probD)[[2]]
     cC <- setdiff(continuousCovs, maincov)
+    dC <- setdiff(discreteCovs, maincov)
     ndataz <- nrow(X)
     lcovgrid <- length(covgrid)
     q <- parmList$q
@@ -408,15 +409,24 @@ samplescdfRgivenX <- function(maincov, X, parmList, covgrid, nfsamples=NULL){
             log(q[asample,]) +
             t(vapply(seq_len(nclusters), function(acluster){
                 ## continuous covariates
-                colSums(dnorm(t(X[,cC]), mean=parmList$meanC[asample,cC,acluster], sd=1/sqrt(parmList$tauC[asample,cC,acluster]), log=TRUE)) +
+                if(length(cC)>0){
+                    colSums(dnorm(t(X[,cC]), mean=parmList$meanC[asample,cC,acluster], sd=1/sqrt(parmList$tauC[asample,cC,acluster]), log=TRUE))
+                }else{0} +
                     ## discrete covariates
-                    colSums(dbinom(t(X[,discreteCovs]), prob=parmList$probD[asample,,acluster], size=parmList$sizeD[asample,,acluster], log=TRUE))
+                    if(length(dC)>0){
+                        colSums(dbinom(t(X[,dC]), prob=parmList$probD[asample,dC,acluster], size=parmList$sizeD[asample,dC,acluster], log=TRUE))
+                    }else{0}
             }, numeric(ndataz)))
         )
         W <- matrix(rep(W, lcovgrid), nrow=nclusters) # strings copies of W column-wise
         ## pR: rows=clusters, cols= P at grid points
         pR <- t(vapply(seq_len(nclusters), function(acluster){
-            rep( pnorm(q=covgrid, mean=parmList$meanC[asample,maincov,acluster], sd=1/sqrt(parmList$tauC[asample,maincov,acluster])) , each=ndataz)
+            rep(
+                if(maincov %in% continuousCovs){
+                    pnorm(q=covgrid, mean=parmList$meanC[asample,maincov,acluster], sd=1/sqrt(parmList$tauC[asample,maincov,acluster]))
+                }else{
+                    pbinom(q=covgrid, prob=parmList$probD[asample,maincov,acluster], size=parmList$sizeD[asample,maincov,acluster])
+                } , each=ndataz)
         }, numeric(lcovgrid * ndataz)))
         ##
         colSums(pR * W)/colSums(W)
