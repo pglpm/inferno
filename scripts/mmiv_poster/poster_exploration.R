@@ -1,6 +1,6 @@
 ## Author: PGL  Porta Mana
 ## Created: 2021-03-20T10:07:17+0100
-## Last-Updated: 2021-11-23T15:38:18+0100
+## Last-Updated: 2021-11-23T21:54:57+0100
 ################
 ## Exploration for MMIV poster
 ################
@@ -48,15 +48,15 @@ x=c(64, 60, 59, 65, 64, 62, 54, 68, 67, 79, 45, 48, 59, 65, 87, 49, 46, 46, 97, 
 y=c(74, 70, 65, 67, 62, 67, 51, 93, 56, 78, 58, 52, 60, 76, 74, 36, 42, 50, 79, 35, 60, 58, 57, 68, 60, 89, 58, 70)
 )
 
-tplot(oalldata[group==1,x], oalldata[group==1,y], xlim=range(oalldata$x), ylim=range(oalldata$y), type='p')
-matplot(oalldata[group==2,x], oalldata[group==2,y], type='p', pch=0, col=2, add=T)
+## tplot(oalldata[group==1,x], oalldata[group==1,y], xlim=range(oalldata$x), ylim=range(oalldata$y), type='p')
+## matplot(oalldata[group==2,x], oalldata[group==2,y], type='p', pch=0, col=2, add=T)
 
-hi <- foreach(g=1:2)%do%{
-    thist(oalldata[group==g,x], n=tticks(oalldata$x, n=8))
-}
-tplot(cbind(hi[[1]]$breaks, hi[[2]]$breaks), cbind(hi[[1]]$density, hi[[2]]$density))
-scatteraxis(1,oalldata[group==1,x], col=1)
-scatteraxis(3,oalldata[group==2,x], col=2)
+## hi <- foreach(g=1:2)%do%{
+##     thist(oalldata[group==g,x], n=tticks(oalldata$x, n=8))
+## }
+## tplot(cbind(hi[[1]]$breaks, hi[[2]]$breaks), cbind(hi[[1]]$density, hi[[2]]$density))
+## scatteraxis(1,oalldata[group==1,x], col=1)
+## scatteraxis(3,oalldata[group==2,x], col=2)
 
 
 
@@ -410,7 +410,7 @@ for(stage in 0:nstages){
 
 source('functions_rmsdregr_nimble_binom.R')
 if(!exists('mcsamples')){
-mcsamples <- readRDS('_mcsamples-Rregr-mmivposter-C21D11_3-V3-D175-K32-I2048.rds')
+mcsamples <- readRDS('_mcsamples-Rmmivexample_M12S1_3-V2-D28-K16-I2048.rds')
 parmList <- mcsamples2parmlist(mcsamples)
 }
 
@@ -418,6 +418,134 @@ parmList <- mcsamples2parmlist(mcsamples)
 ############################################################
 ## Example plots of various kinds of conditional predictions
 ############################################################
+
+xrange <- extendrange(alldata$x)
+xrangemin <- range(alldata$x)
+xgrid <- seq(xrange[1], xrange[2], length.out=256)
+xtest <- round(quantile8(alldata$x, (1:3)/4)*2)/2
+
+fdists <- samplesfRgivenX(maincov='x', X=cbind(group=1:2), parmList=parmList, covgrid=xgrid, inorder=T)
+fdists <- aperm(fdists)
+preddists <- colMeans(fdists)
+margdists1 <- apply(fdists,c(2,3),function(x){quantile8(x, c(1,3)/4)})
+margdists2 <- apply(fdists,c(2,3),function(x){quantile8(x, c(1,7)/8)})
+
+edists <- samplesmeanRgivenX(maincov='x', X=cbind(group=1:2), parmList=parmList, inorder=T)
+edists <- aperm(edists)
+meandiffs <- apply(edists,1,function(x){-diff(x)})
+mdh1 <- thist(edists[,1])
+mdh2 <- thist(edists[,2])
+mdh <- thist(meandiffs)
+
+vdists <- samplesvarRgivenX(maincov='x', X=cbind(group=1:2), parmList=parmList, inorder=T)
+vdists <- aperm(vdists)
+vardiffs <- apply(vdists,1,function(x){-diff(x)})
+vdh1 <- thist(vdists[,1])
+vdh2 <- thist(vdists[,2])
+vdh <- thist(vardiffs)
+
+
+## hi <- foreach(g=1:2)%do%{
+##     thist(edists[,g], n=tticks(c(edists),n=16))
+## }
+## tplot(sapply(hi,function(x){x$breaks}), sapply(hi, function(x){x$density}), xlim=range(c(edists)))
+
+## cdists <- samplescdfRgivenX(maincov='x', X=cbind(group=1:2), parmList=parmList, covgrid=xgrid)
+## cdists <- aperm(cdists)
+## qinter <- foreach(g=1:2)%do%{ approxfun(colMeans(cdists[,,g]), xgrid) }
+
+## https://www.socscistatistics.com/confidenceinterval/default4.aspx
+## μ1 - μ2 = (M1 - M2) = 15.11111, 95% CI [5.5625164, 24.6597036].
+## You can be 95% confident that the difference between your two population means (μ1 - μ2) lies between 5.5625164 and 24.6597036.
+## μ1 - μ2 = (M1 - M2) = 15.11111, 90% CI [7.1879676, 23.0342524].
+## You can be 90% confident that the difference between your two population means (μ1 - μ2) lies between 7.1879676 and 23.0342524.
+
+## https://stats.libretexts.org/Learning_Objects/02%3A_Interactive_Statistics/32%3A_Two_Independent_Samples_With_Statistics_Calculator
+## ≠ p 0.002225456123561953
+## < p 0.998887271938219
+## > p 0.0011127280617809765
+## t 3.4604299890224537
+## LB90% 7.612632347927092
+## UB90% 22.6095876520729
+## LB95% 6.0548586063425205
+## UB95% 24.167361393657472
+
+
+subsample <- seq(1,nrow(fdists),length.out=64)
+pdff('example_plot')
+tplot(x=xgrid, y=preddists, xlab='x', ylab='full-population distribution', lwd=2:3, ylim=c(0,max(margdists2)), main='predicted distribution of full population')
+polygon(x=c(xgrid,rev(xgrid)), y=c(margdists1[1,,1],rev(margdists1[2,,1])), col=paste0(palette[1],'40'), border=NA)
+polygon(x=c(xgrid,rev(xgrid)), y=c(margdists2[1,,1],rev(margdists2[2,,1])), col=paste0(palette[1],'40'), border=NA)
+polygon(x=c(xgrid,rev(xgrid)), y=c(margdists1[1,,2],rev(margdists1[2,,2])), col=paste0(palette[2],'40'), border=NA)
+polygon(x=c(xgrid,rev(xgrid)), y=c(margdists2[1,,2],rev(margdists2[2,,2])), col=paste0(palette[2],'40'), border=NA)
+scatteraxis(1,alldata[group==1,x],col=1)
+scatteraxis(1,alldata[group==2,x],col=2)
+legend('topright', legend=c(
+                       'predictive distribution group A',
+                       '25% uncertainty',
+                       '75% uncertainty',
+                       'predictive distribution group B',
+                       '25% uncertainty',
+                       '75% uncertainty'
+                   ),
+       lty=c(1,1,1,2,1,1), lwd=c(3,10,10),
+       col=paste0(palette[c(1,1,1,2,2,2)],c('ff','80','40')),
+       bty='n', cex=1.25)
+##
+tplot(mdh1$breaks, mdh1$density, col=1, xlab='mean', ylab='probability density', main='predicted means of groups A and B', xlim=range(c(mdh1$breaks,mdh2$breaks)), ylim=c(0,max(c(mdh1$density,mdh2$density))))
+tplot(mdh2$breaks, mdh2$density, col=2, xlab='mean group B', ylab='probability density', main='predicted mean of group A', xlim=range(c(mdh1$breaks,mdh2$breaks)), ylim=c(0,max(c(mdh1$density,mdh2$density))), add=T)
+##
+tplot(mdh$breaks, mdh$density, col=3, xlab='(mean group A) - (mean group B)', ylab='probability density', main='predicted difference between means of groups A and B')
+legend('topright', legend=paste0(
+                       'expected difference: ',signif(mean(meandiffs),2),
+                       ## signif(quantile8(meandiffs,c(1)/8)*2,2),' < difference < ',signif(quantile8(meandiffs,c(7)/8)*2,2),'\nwith 75% probability','\n\n',
+                                 '\n\n',signif(quantile8(meandiffs,c(2.5)/100),2),' < difference < ',signif(quantile8(meandiffs,c(97.5)/100),2),'\nwith 95% probability\n\n',
+                       'difference > 0\nwith ',signif(sum(meandiffs>0)/length(meandiffs)*100,2),'% probability'
+                                 ), bty='n', cex=1.5)
+##
+tplot(vdh1$breaks, vdh1$density, col=1, xlab='variance', ylab='probability density', main='predicted variances of groups A and B', #xlim=quantile8(vdists, c(2.5,97.5)/100),
+      ylim=c(0,max(c(vdh1$density,vdh2$density))))
+tplot(vdh2$breaks, vdh2$density, col=2, xlab='mean group B', ylab='probability density', main='predicted mean of group A', xlim=range(c(vdh1$breaks,vdh2$breaks)), ylim=c(0,max(c(vdh1$density,vdh2$density))), add=T)
+##
+tplot(vdh$breaks, vdh$density, col=4, xlab='(variance group A) - (variance group B)', ylab='probability density', main='predicted difference between variances of groups A and B') #xlim=quantile8(vardiffs,c(0.5,99.5)/100))
+legend('topleft', legend=paste0(
+                       'expected difference: ',signif(mean(vardiffs),2),'\u00b1',signif(sd(vardiffs),2),
+                       ## signif(quantile8(meandiffs,c(1)/8)*2,2),' < difference < ',signif(quantile8(meandiffs,c(7)/8)*2,2),'\nwith 75% probability','\n\n',
+                                 '\n\n',signif(quantile8(vardiffs,c(2.5)/100),2),' < difference < ',signif(quantile8(vardiffs,c(97.5)/100),2),'\nwith 95% probability\n\n',
+                       'difference > 0\nwith ',signif(sum(vardiffs>0)/length(vardiffs)*100,2),'% probability'
+                                 ), bty='n', cex=1.5)
+##
+tplot(x=xgrid, y=preddists, xlab='x', ylab='full-population distribution', lwd=2:3, ylim=c(0,max(fdists)/2))
+matlines(x=xgrid, y=t(fdists[subsample,,1]), col=paste0(palette[1],'40'),lty=1,lwd=1)
+matlines(x=xgrid, y=t(fdists[subsample,,2]), col=paste0(palette[2],'40'),lty=1,lwd=1)
+scatteraxis(1,alldata[group==1,x],col=1)
+scatteraxis(1,alldata[group==2,x],col=2)
+dev.off()
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 xrange <- extendrange(alldata$x)
 xrangemin <- range(alldata$x)

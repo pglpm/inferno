@@ -1,6 +1,6 @@
 ## Author: PGL  Porta Mana
 ## Created: 2021-03-20T10:07:17+0100
-## Last-Updated: 2021-11-23T16:30:44+0100
+## Last-Updated: 2021-11-23T18:54:19+0100
 ################
 ## Exploration for MMIV poster
 ################
@@ -436,12 +436,16 @@ margdists2 <- apply(fdists,c(2,3),function(x){quantile8(x, c(1,7)/8)})
 edists <- samplesmeanRgivenX(maincov='x', X=cbind(group=1:2), parmList=parmList, inorder=T)
 edists <- aperm(edists)
 meandiffs <- apply(edists,1,function(x){-diff(x)})
+mdh1 <- thist(edists[,1])
+mdh2 <- thist(edists[,2])
 mdh <- thist(meandiffs)
 
 vdists <- samplesvarRgivenX(maincov='x', X=cbind(group=1:2), parmList=parmList, inorder=T)
 vdists <- aperm(vdists)
 vardiffs <- apply(vdists,1,function(x){-diff(x)})
-vdh <- thist(vardiffs, n=1000)
+vdh1 <- thist(vdists[,1], n=100)
+vdh2 <- thist(vdists[,2], n=100)
+vdh <- thist(vardiffs, n=100)
 
 
 ## hi <- foreach(g=1:2)%do%{
@@ -475,6 +479,9 @@ legend('topright', legend=c(
        col=paste0(palette[c(1,1,1,2,2,2)],c('ff','80','40')),
        bty='n', cex=1.25)
 ##
+tplot(mdh1$breaks, mdh1$density, col=1, xlab='mean', ylab='probability density', main='predicted means of groups A and B', xlim=range(c(mdh1$breaks,mdh2$breaks)), ylim=c(0,max(c(mdh1$density,mdh2$density))))
+tplot(mdh2$breaks, mdh2$density, col=2, xlab='mean group B', ylab='probability density', main='predicted mean of group A', xlim=range(c(mdh1$breaks,mdh2$breaks)), ylim=c(0,max(c(mdh1$density,mdh2$density))), add=T)
+##
 tplot(mdh$breaks, mdh$density, col=3, xlab='(mean group A) - (mean group B)', ylab='probability density', main='predicted difference between means of groups A and B')
 legend('topright', legend=paste0(
                        'expected difference: ',signif(mean(meandiffs),2),
@@ -482,6 +489,9 @@ legend('topright', legend=paste0(
                                  '\n\n',signif(quantile8(meandiffs,c(5)/100),2),' < difference < ',signif(quantile8(meandiffs,c(95)/100),2),'\nwith 90% probability\n\n',
                        'difference > 0\nwith ',signif(sum(meandiffs>0)/length(meandiffs)*100,2),'% probability'
                                  ), bty='n', cex=1.5)
+##
+tplot(vdh1$breaks, vdh1$density, col=1, xlab='variance', ylab='probability density', main='predicted variances of groups A and B', xlim=quantile8(vdists, c(2.5,97.5)/100), ylim=c(0,max(c(vdh1$density,vdh2$density))))
+tplot(vdh2$breaks, vdh2$density, col=2, xlab='mean group B', ylab='probability density', main='predicted mean of group A', xlim=range(c(vdh1$breaks,vdh2$breaks)), ylim=c(0,max(c(vdh1$density,vdh2$density))), add=T)
 ##
 tplot(vdh$breaks, vdh$density, col=4, xlab='(variance group A) - (variance group B)', ylab='probability density', main='predicted difference between variances of groups A and B', xlim=quantile8(vardiffs,c(0.5,99.5)/100))
 legend('topleft', legend=paste0(
