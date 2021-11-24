@@ -1,6 +1,6 @@
 ## Author: PGL  Porta Mana
 ## Created: 2021-03-20T10:07:17+0100
-## Last-Updated: 2021-11-24T19:36:54+0100
+## Last-Updated: 2021-11-24T22:17:51+0100
 ################
 ## Exploration for MMIV poster
 ################
@@ -593,9 +593,9 @@ scatteraxis(1,alldata[group==1,x],col=2)
 dev.off()
 
 
-
-
-
+for(g in 1:2){
+print(paste0(signif(quant(edists[,g],c(2.5)/100),2),' < ',mean(edists[,g]),' < ',signif(quant(edists[,g],c(97.5)/100),2)))
+}
 
 
 ## hi <- foreach(g=1:2)%do%{
