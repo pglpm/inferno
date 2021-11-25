@@ -1,6 +1,6 @@
 ## Author: PGL  Porta Mana
 ## Created: 2021-03-20T10:07:17+0100
-## Last-Updated: 2021-11-25T09:53:12+0100
+## Last-Updated: 2021-11-25T14:52:14+0100
 ################
 ## Exploration for MMIV poster
 ################
@@ -65,12 +65,18 @@ x=c(74, 70, 65, 67, 62, 67, 51, 93, 56, 78, 58, 52, 60, 76, 74, 36, 42, 50, 79, 
 
 pdff('test_dataplot', height=4, paper='special')
 ## par(mai=c(0.8,2.8,0.8,0))
-tplot(xlim=range(oalldata$x)+c(-10,0), ylim=c(0,2), yaxis=NA, ygrid=NA, cex.axis=2, xlab='X', cex.lab=2)
+    par(mai=c(0.8,0.8,0.8,0))
+matplot(x=NA, y=NA, xlim=range(oalldata$x)+c(-10,0), ylim=c(0,2), axes=F, xlab='X = % tumour-volume increase after 6 months', ylab=NA, cex.lab=2)
+axis(1, tticks(range(oalldata$x)), #labels=sprintf('%2g', tticks(xlim)),
+         lwd=0, cex.axis=2, mgp=c(3,0.5,0), col.axis='#000000', gap.axis=0.25)
 ## axis(2, c(1.5,0.5), labels=c('group A', 'group B'), lwd=0, cex.axis=2, las=1, mgp=c(3,0.5,0), col.axis='black', gap.axis=0.25)
-text(x=-10 + min(oalldata$x), y=1.5, labels='group A', col=1, cex=2)
-text(x=-10 + min(oalldata$x), y=0.5, labels='group B', col=2, cex=2)
-matlines(x=rbind(oalldata[group==0,x],oalldata[group==0,x]), y=cbind(c(1,1.9)), lwd=8, lty=1, col=1)
-matlines(x=rbind(oalldata[group==1,x],oalldata[group==1,x]), y=cbind(c(0.1,1)), lwd=8, lty=1, col=2)
+text(x=-10 + min(oalldata$x), y=1.5, labels='group A', col=1, cex=2.5, xpd=NA)
+text(x=-10 + min(oalldata$x), y=0.5, labels='group B', col=2, cex=2.5, xpd=NA)
+for(i in tticks(range(oalldata$x))){abline(v=i, lty=1, lwd=3, col='#BBBBBB60')}
+add1 <- rnorm(length(oalldata[group==0,x]),0,0.5)
+add2 <- rnorm(length(oalldata[group==1,x]),0,0.5)
+matlines(x=rbind(oalldata[group==0,x]+add1,oalldata[group==0,x]+add1), y=cbind(c(1,1.9)), lwd=5, lty=1, col=paste0(palette()[1],'88'))
+matlines(x=rbind(oalldata[group==1,x]+add2,oalldata[group==1,x]+add2), y=cbind(c(0.1,1)), lwd=5, lty=1, col=paste0(palette()[2],'88'))
 dev.off()
 
 matplot(1:2,1:2,type='l', lwd=5,col=4)
