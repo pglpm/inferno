@@ -1,6 +1,6 @@
 ## Author: PGL  Porta Mana
 ## Created: 2021-03-20T10:07:17+0100
-## Last-Updated: 2021-11-24T22:17:51+0100
+## Last-Updated: 2021-11-25T09:53:12+0100
 ################
 ## Exploration for MMIV poster
 ################
@@ -490,14 +490,49 @@ vdh <- thist(vardiffs)
 ## UB95% 24.167361393657472
 
 
-subsample <- seq(1,nrow(fdists),length.out=64)
+subsample <- round(seq(1,nrow(fdists),length.out=4*8))
+##
+pdff('example_plot_2ndmeas_popsamples')
+par(mfrow=c(4,8))
+xticks <- tticks(xgrid)
+yticks <- tticks(c(0,max(fdists[subsample,,])))
+for(subs in subsample){
+    par(mai=c(3,3,0,0)/12)
+    matplot(x=xgrid, y=fdists[subs,,1:2], type='l',
+            xlab='', ylab='', lwd=c(3,3), lty=c('solid','91'), xlim=range(xgrid), ylim=c(0,max(fdists[subsample,,])),axes=F)
+        for(i in xticks){abline(v=i, lty=1, lwd=1, col='#BBBBBB60')}
+    for(i in yticks){abline(h=i, lty=1, lwd=1, col='#BBBBBB60')}
+    if(subs==subsample[3*8+1]){
+    ##     title(xlab='x')
+     axis(1, xticks, lwd=0, cex.axis=1, mgp=c(0,0,0), col.axis='#555555', gap.axis=0.25)
+     axis(2, yticks, lwd=0, cex.axis=1, mgp=c(0,0,0), col.axis='#555555', gap.axis=0.25)
+        text(x=xticks[length(xticks)/2],y=yticks[1]-1.75*diff(yticks)[1], 'x', cex=1.5, xpd=NA)
+        text(y=yticks[length(yticks)/2],x=xticks[1]-1.3*diff(xticks)[1], 'distribution', cex=1.5, xpd=NA, srt=90)
+     }
+## matlines(x=xgrid, y=t(fdists[subsample,,1]), col=paste0(palette()[1],'40'),lty=1,lwd=1)
+## matlines(x=xgrid, y=t(fdists[subsample,,2]), col=paste0(palette()[2],'40'),lty=1,lwd=1)
+## scatteraxis(1,alldata[group==0,x],col=1)
+## scatteraxis(1,alldata[group==1,x],col=2)
+}
+dev.off()
+##
+
+subsample2 <- round(seq(1,nrow(fdists),length.out=128*2))
+pdff('example_plot_2ndmeas_popsamplestogether')
+ytoplot <- rbind(t(fdists[subsample2,,1]), t(fdists[subsample2,,2]))
+dim(ytoplot) <- c(length(xgrid), length(subsample2)*2)
+tplot(x=xgrid, y=ytoplot, cex.lab=1.5, xlab='', ylab='', lwd=1, lty=1, col=1:2, alpha='40', xlim=range(xgrid), ylim=c(0,max(margdists2[2,,])),xaxis=F,yaxis=F)#, main='predicted distribution of full population')
+#tplot(x=xgrid, y=,  lwd=1, lty=1, col=2, alpha='40', add=T)#, main='predicted distribution of full population')
+dev.off()
+
+
 ##
 pdff('example_plot_2ndmeas_A')
 tplot(x=xgrid, y=preddists[,1], xlab='X', ylab='full-population distribution', lwd=4, ylim=c(0,max(margdists2)))#, main='predicted distribution of full population')
 polygon(x=c(xgrid,rev(xgrid)), y=c(margdists1[1,,1],rev(margdists1[2,,1])), col=paste0(palette()[1],'40'), border=NA)
 polygon(x=c(xgrid,rev(xgrid)), y=c(margdists2[1,,1],rev(margdists2[2,,1])), col=paste0(palette()[1],'40'), border=NA)
 legend('topright', legend=c(
-                       'estimate distribution group A',
+                       'estimate distribution A',
                        '50% uncertainty',
                        '75% uncertainty'
                    ),
@@ -513,7 +548,7 @@ polygon(x=c(xgrid,rev(xgrid)), y=c(margdists2[1,,2],rev(margdists2[2,,2])), col=
 ## scatteraxis(1,alldata[group==0,x],col=1)
 ## scatteraxis(1,alldata[group==1,x],col=2)
 legend('topright', legend=c(
-                       'estimate distribution group B',
+                       'estimate distribution B',
                        '50% uncertainty',
                        '75% uncertainty'
                    ),
@@ -522,27 +557,29 @@ legend('topright', legend=c(
        bty='n', cex=1.25)
 dev.off()
 ##
+
 pdff('example_plot_2ndmeas_AB')
-tplot(x=xgrid, y=preddists, xlab='X', ylab='full-population distribution', lwd=4:5, ylim=c(0,max(margdists2)))#, main='predicted distribution of full population')
+tplot(x=xgrid, y=preddists, xlab='X', ylab='distribution', lwd=4:5, lty=c('solid','91'), ylim=c(0,max(margdists2)), xlim=range(xgrid))#, main='predicted distribution of full population')
 polygon(x=c(xgrid,rev(xgrid)), y=c(margdists1[1,,1],rev(margdists1[2,,1])), col=paste0(palette()[1],'40'), border=NA)
 polygon(x=c(xgrid,rev(xgrid)), y=c(margdists2[1,,1],rev(margdists2[2,,1])), col=paste0(palette()[1],'40'), border=NA)
 polygon(x=c(xgrid,rev(xgrid)), y=c(margdists1[1,,2],rev(margdists1[2,,2])), col=paste0(palette()[2],'40'), border=NA)
 polygon(x=c(xgrid,rev(xgrid)), y=c(margdists2[1,,2],rev(margdists2[2,,2])), col=paste0(palette()[2],'40'), border=NA)
 ## scatteraxis(1,alldata[group==0,x],col=1)
 ## scatteraxis(1,alldata[group==1,x],col=2)
-## legend('topright', legend=c(
-##                        'estimate distribution group A',
-##                        '50% uncertainty',
-##                        '75% uncertainty',
-##                        'estimate distribution group B',
-##                        '50% uncertainty',
-##                        '75% uncertainty'
-##                    ),
-##        lty=c(1,1,1,2,1,1), lwd=c(3,10,10),
-##        col=paste0(palette()[c(1,1,1,2,2,2)],c('ff','80','40')),
-##        bty='n', cex=1.25)
+legend('topright', legend=c(
+                       'estimate distribution A',
+                       '50% uncertainty',
+                       '75% uncertainty',
+                       'estimate distribution B',
+                       '50% uncertainty',
+                       '75% uncertainty'
+                   ),
+       lty=c('solid','solid','solid','91','solid','solid'), lwd=c(3,10,10),
+       col=paste0(palette()[c(1,1,1,2,2,2)],c('ff','80','40')),
+       bty='n', cex=1.25)
 ##
 dev.off()
+
 pdff('example_plot_2ndmeas_means')
 tplot(mdh1$mid, mdh1$density, col=3, xlab='mean', ylab='probability density', xlim=range(c(mdh1$mid,mdh2$mid)), lwd=5, ylim=c(0,max(c(mdh1$density,mdh2$density))))#, main='predicted means of groups A and B')
 tplot(mdh2$mid, mdh2$density, col=4, xlab='mean group B', ylab='probability', main='predicted mean of group A', xlim=range(c(mdh1$mid,mdh2$mid)), ylim=c(0,max(c(mdh1$density,mdh2$density))), lty=2, lwd=6, add=T)
@@ -581,15 +618,6 @@ legend(x=-280,y=0.013, legend=paste0(
                                  '\n\n',signif(quant(vardiffs,c(2.5)/100),2),' < difference < ',signif(quant(vardiffs,c(97.5)/100),2),'\nwith 95% probability\n\n',
                        'difference > 0\nwith ',signif(sum(vardiffs>0)/length(vardiffs)*100,2),'% probability'
                                  ), bty='n', cex=1.5)
-dev.off()
-
-##
-pdff('example_plot_2ndmeas_popsamples')
-tplot(x=xgrid, y=preddists, xlab='x', ylab='full-population distribution', lwd=2:3, ylim=c(0,max(fdists)/2))
-matlines(x=xgrid, y=t(fdists[subsample,,1]), col=paste0(palette()[1],'40'),lty=1,lwd=1)
-matlines(x=xgrid, y=t(fdists[subsample,,2]), col=paste0(palette()[2],'40'),lty=1,lwd=1)
-scatteraxis(1,alldata[group==0,x],col=1)
-scatteraxis(1,alldata[group==1,x],col=2)
 dev.off()
 
 
