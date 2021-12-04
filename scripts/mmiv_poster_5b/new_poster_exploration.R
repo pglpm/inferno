@@ -1,6 +1,6 @@
 ## Author: PGL  Porta Mana
 ## Created: 2021-03-20T10:07:17+0100
-## Last-Updated: 2021-12-04T14:27:19+0100
+## Last-Updated: 2021-12-04T17:33:58+0100
 ################
 ## Exploration for MMIV poster
 ################
@@ -720,6 +720,7 @@ legend('topright', legend=c(
        bty='n', cex=1.25)
 dev.off()
 
+mdh <- thist(meandiffs, n=16)
 ##
 pdff('new_example_plot_2ndmeas_meansdiff')
 tplot(mdh$mid, mdh$density, col=3, lwd=5, xlab='(mean group A) - (mean group B)', ylab='probability')#, main='predicted difference between means of groups A and B')
@@ -734,7 +735,7 @@ legend('top',
                                  ), bty='n', cex=1.5)
 dev.off()
 
-vdh <- thist(vardiffs, n=32)
+vdh <- thist(vardiffs, n=64*4)
 ##
 pdff('new_example_plot_2ndmeas_varsdiff')
 tplot(vdh$mids, vdh$density, col=4, lwd=5, xlab='(variance group A) - (variance group B)', ylab='probability', xlim=quant(vardiffs,c(0,1)+c(1,-1)*0.1/100))#, main='predicted difference between means of groups A and B')
@@ -742,10 +743,10 @@ legend(#'topleft',
     x=-860,y=max(vdh$density)*1.1,
        legend=c(
                                                             paste0(
-                       'estimated difference between variances: ',signif(mean(meandiffs),2)),
+                       'estimated difference between variances: ',signif(mean(vardiffs),2)),
                        ## signif(quant(meandiffs,c(1)/8)*2,2),' < difference < ',signif(quant(meandiffs,c(7)/8)*2,2),'\nwith 75% probability','\n\n',
-                                 NA,paste0(signif(quant(meandiffs,c(2.5)/100),2),' < difference < ',signif(quant(meandiffs,c(97.5)/100),2),'  (95% probability)'),
-                       NA,paste0('difference > 0 with ',signif(sum(meandiffs>0)/length(meandiffs)*100,2),'% probability')
+                                 NA,paste0(signif(quant(vardiffs,c(2.5)/100),2),' < difference < ',signif(quant(vardiffs,c(97.5)/100),2),'  (95% probability)'),
+                       NA,paste0('difference > 0 with ',signif(sum(vardiffs>0)/length(meandiffs)*100,2),'% probability')
                                  ), bty='n', cex=1.5,xpd=NA)
 dev.off()
 
