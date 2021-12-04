@@ -1,6 +1,6 @@
 ## Author: PGL  Porta Mana
 ## Created: 2021-03-20T10:07:17+0100
-## Last-Updated: 2021-11-25T14:52:14+0100
+## Last-Updated: 2021-12-02T09:22:01+0100
 ################
 ## Exploration for MMIV poster
 ################
@@ -63,27 +63,39 @@ x=c(74, 70, 65, 67, 62, 67, 51, 93, 56, 78, 58, 52, 60, 76, 74, 36, 42, 50, 79, 
 ##                   data.table(x=oalldata$y, group=1L))
 
 
-pdff('test_dataplot', height=4, paper='special')
+pdff('new_test_dataplot', height=4, paper='special')
 ## par(mai=c(0.8,2.8,0.8,0))
-    par(mai=c(0.8,0.8,0.8,0))
-matplot(x=NA, y=NA, xlim=range(oalldata$x)+c(-10,0), ylim=c(0,2), axes=F, xlab='X = % tumour-volume increase after 6 months', ylab=NA, cex.lab=2)
-axis(1, tticks(range(oalldata$x)), #labels=sprintf('%2g', tticks(xlim)),
-         lwd=0, cex.axis=2, mgp=c(3,0.5,0), col.axis='#000000', gap.axis=0.25)
+##    par(mai=c(0.8,0.8,0.8,0))
+## matplot(x=NA, y=NA, xlim=range(oalldata$x)+c(-10,0), ylim=c(0,2), axes=F, xlab='X = % tumour-volume increase after 6 months', ylab=NA, cex.lab=2)
+## axis(1, tticks(range(oalldata$x)), #labels=sprintf('%2g', tticks(xlim)),
+##          lwd=0, cex.axis=2, mgp=c(3,0.5,0), col.axis='#000000', gap.axis=0.25)
 ## axis(2, c(1.5,0.5), labels=c('group A', 'group B'), lwd=0, cex.axis=2, las=1, mgp=c(3,0.5,0), col.axis='black', gap.axis=0.25)
-text(x=-10 + min(oalldata$x), y=1.5, labels='group A', col=1, cex=2.5, xpd=NA)
-text(x=-10 + min(oalldata$x), y=0.5, labels='group B', col=2, cex=2.5, xpd=NA)
-for(i in tticks(range(oalldata$x))){abline(v=i, lty=1, lwd=3, col='#BBBBBB60')}
-add1 <- rnorm(length(oalldata[group==0,x]),0,0.5)
-add2 <- rnorm(length(oalldata[group==1,x]),0,0.5)
-matlines(x=rbind(oalldata[group==0,x]+add1,oalldata[group==0,x]+add1), y=cbind(c(1,1.9)), lwd=5, lty=1, col=paste0(palette()[1],'88'))
-matlines(x=rbind(oalldata[group==1,x]+add2,oalldata[group==1,x]+add2), y=cbind(c(0.1,1)), lwd=5, lty=1, col=paste0(palette()[2],'88'))
+## text(x=-10 + min(oalldata$x), y=1.5, labels='group A', col=1, cex=2.5, xpd=NA)
+## text(x=-10 + min(oalldata$x), y=0.5, labels='group B', col=2, cex=2.5, xpd=NA)
+## for(i in pretty(range(oalldata$x))){abline(v=i, lty=1, lwd=3, col='#BBBBBB60')}
+#add1 <- rnorm(length(oalldata[group==0,x]),0,0.5)
+#add2 <- rnorm(length(oalldata[group==1,x]),0,0.5)
+## matlines(x=rbind(oalldata[group==0,x]+add1,oalldata[group==0,x]+add1), y=cbind(c(1,1.9)), lwd=5, lty=1, col=paste0(palette()[1],'88'))
+tplot(x=oalldata[group==0,x],
+##      y=runif(n=length(oalldata[group==0,x]), 1.25,1.75),
+      y=sample(seq(1.25, 1.75, length.out=length(oalldata[group==0,x]))),
+      type='p', pch=16, col=1, cex=2.25, alpha=0.25,
+      xlim=range(oalldata$x)+c(0,0),
+      ylim=c(0,2),
+      xlab='X = % tumour-volume increase after 6 months',
+      yticks=-30, 
+      mar=c(3.25, 12, 1, 1)+c(1,1,1,1)
+      )
+##
+tplot(x=oalldata[group==1,x],
+#      y=runif(n=length(oalldata[group==1,x]), 0.25, 0.75),
+      y=sample(seq(0.25, 0.75, length.out=length(oalldata[group==1,x]))),
+      type='p', pch=15, col=2, cex=2.25, alpha=0.25,
+      add=T)
+## matlines(x=rbind(oalldata[group==1,x]+add2,oalldata[group==1,x]+add2), y=cbind(c(0.1,1)), lwd=5, lty=1, col=paste0(palette()[2],'88'))
+ text(x=-10 + min(oalldata$x), y=1.5, labels='group A', col=1, cex=2.5, xpd=NA)
+ text(x=-10 + min(oalldata$x), y=0.5, labels='group B', col=2, cex=2.5, xpd=NA)
 dev.off()
-
-matplot(1:2,1:2,type='l', lwd=5,col=4)
-
-
-text(x=oalldata[group==0,x], y=1, labels=oalldata[group==0,x], cex=2)
-text(x=oalldata[group==1,x], y=2, labels=oalldata[group==1,x], cex=2)
 
 
 #################################
@@ -586,17 +598,18 @@ legend('topright', legend=c(
 ##
 dev.off()
 
-pdff('example_plot_2ndmeas_means')
-tplot(mdh1$mid, mdh1$density, col=3, xlab='mean', ylab='probability density', xlim=range(c(mdh1$mid,mdh2$mid)), lwd=5, ylim=c(0,max(c(mdh1$density,mdh2$density))))#, main='predicted means of groups A and B')
-tplot(mdh2$mid, mdh2$density, col=4, xlab='mean group B', ylab='probability', main='predicted mean of group A', xlim=range(c(mdh1$mid,mdh2$mid)), ylim=c(0,max(c(mdh1$density,mdh2$density))), lty=2, lwd=6, add=T)
+pdff('new_example_plot_2ndmeas_means')
+tplot(mdh1$mid, mdh1$density, col=5, alpha=0.25, xlab='mean', ylab='probability density', xlim=range(c(mdh1$mid,mdh2$mid)), lwd=6, border=NA, ylim=c(0,max(c(mdh1$density,mdh2$density))))#, main='predicted means of groups A and B')
+tplot(mdh2$mid, mdh2$density, col=6, alpha=0.25, xlab='mean group B', ylab='probability', main='predicted mean of group A', xlim=range(c(mdh1$mid,mdh2$mid)), ylim=c(0,max(c(mdh1$density,mdh2$density))), lty='82', lwd=4, border=NA, add=T)
 legend('topright', legend=c(
                        'uncertainty of mean for group A',
                        'uncertainty of mean for group B'
                    ),
-       lty=c(1,2), lwd=c(3,4),
-       col=paste0(palette()[3:4]),
+       lty=c('solid','31'), lwd=c(5,4),
+       col=c(5,6),
        bty='n', cex=1.25)
 dev.off()
+
 ##
 pdff('example_plot_2ndmeas_meansdiff')
 tplot(mdh$mid, mdh$density, col=3, lwd=5, xlab='(mean group A) - (mean group B)', ylab='probability')#, main='predicted difference between means of groups A and B')
