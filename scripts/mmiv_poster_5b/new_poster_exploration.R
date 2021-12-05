@@ -1,6 +1,6 @@
 ## Author: PGL  Porta Mana
 ## Created: 2021-03-20T10:07:17+0100
-## Last-Updated: 2021-12-04T17:33:58+0100
+## Last-Updated: 2021-12-05T09:05:34+0100
 ################
 ## Exploration for MMIV poster
 ################
@@ -622,7 +622,7 @@ vdh <- thist(vardiffs, n=32)
 
 subsample <- round(seq(1,nrow(fdists),length.out=4*8))
 ##
-pdff('new_example_plot_2ndmeas_popsamples')
+pdff('new2_example_plot_2ndmeas_popsamples')
 par(mfrow=c(4,8))
 xticks <- tticks(xgrid)
 yticks <- tticks(c(0,max(fdists[subsample,,])))
@@ -648,7 +648,7 @@ dev.off()
 ##
 
 subsample2 <- round(seq(1,nrow(fdists),length.out=128))
-pdff('example_plot_2ndmeas_popsamplestogether')
+pdff('new2_example_plot_2ndmeas_popsamplestogether')
 ytoplot <- rbind(t(fdists[subsample2,,1]), t(fdists[subsample2,,2]))
 dim(ytoplot) <- c(length(xgrid), length(subsample2)*2)
 tplot(x=xgrid, y=ytoplot, cex.lab=1.5, xlab='', ylab='', lwd=1, lty=1, col=1:2, alpha=0.5, xlim=range(xgrid), ylim=c(0,max(margdists0[2,,])),xticks=F,yticks=F)#, main='predicted distribution of full population')
@@ -688,7 +688,7 @@ legend('topright', legend=c(
 dev.off()
 ##
 
-pdff('new_example_plot_2ndmeas_AB')
+pdff('new2_example_plot_2ndmeas_AB')
 tplot(x=xgrid, y=preddists, xlab='X', ylab='full-population frequency distribution', lwd=4:5, lty=c('solid','91'), ylim=c(0,max(margdists0)), xlim=range(xgrid))#, main='predicted distribution of full population')
 polygon(x=c(xgrid,rev(xgrid)), y=c(margdists2[1,,1],rev(margdists2[2,,1])), col=paste0(palette()[1],'40'), border=NA)
 ##polygon(x=c(xgrid,rev(xgrid)), y=c(margdists2[1,,1],rev(margdists2[2,,1])), col=paste0(palette()[1],'40'), border=NA)
@@ -722,7 +722,7 @@ dev.off()
 
 mdh <- thist(meandiffs, n=16)
 ##
-pdff('new_example_plot_2ndmeas_meansdiff')
+pdff('new2_example_plot_2ndmeas_meansdiff')
 tplot(mdh$mid, mdh$density, col=3, lwd=5, xlab='(mean group A) - (mean group B)', ylab='probability')#, main='predicted difference between means of groups A and B')
 legend('top',
     #x=mdh$mid[length(mdh$mid)/2],y=max(mdh$density)*1.05,
@@ -737,7 +737,7 @@ dev.off()
 
 vdh <- thist(vardiffs, n=64*4)
 ##
-pdff('new_example_plot_2ndmeas_varsdiff')
+pdff('new2_example_plot_2ndmeas_varsdiff')
 tplot(vdh$mids, vdh$density, col=4, lwd=5, xlab='(variance group A) - (variance group B)', ylab='probability', xlim=quant(vardiffs,c(0,1)+c(1,-1)*0.1/100))#, main='predicted difference between means of groups A and B')
 legend(#'topleft',
     x=-860,y=max(vdh$density)*1.1,
