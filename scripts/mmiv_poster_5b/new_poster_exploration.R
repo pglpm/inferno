@@ -1,6 +1,6 @@
 ## Author: PGL  Porta Mana
 ## Created: 2021-03-20T10:07:17+0100
-## Last-Updated: 2021-12-05T09:05:34+0100
+## Last-Updated: 2021-12-05T14:24:01+0100
 ################
 ## Exploration for MMIV poster
 ################
@@ -226,8 +226,8 @@ initsFunction <- function(){c(list(
                         sizeI=matrix(maxicovs, nrow=nicovs, ncol=nclusters)
                         )},
        if(nbcovs>0){list(
-                        probBa1=rep(1,nbcovs),
-                        probBa2=rep(1,nbcovs),
+                        probBa1=rep(0.5,nbcovs),
+                        probBa2=rep(0.5,nbcovs),
                         ##
                         probB=matrix(0.5, nrow=nbcovs, ncol=nclusters)
                         )},
@@ -364,7 +364,7 @@ print(Sys.time() - timecount)
 ##################################################
 ## Monte Carlo sampler and plots of MC diagnostics
 ##################################################
-##nstages <- 3
+nstages <- 3
 for(stage in 0:nstages){
     totalruntime <- Sys.time()
 
@@ -620,7 +620,7 @@ vdh <- thist(vardiffs, n=32)
 ## UB95% 24.167361393657472
 
 
-subsample <- round(seq(1,nrow(fdists),length.out=4*8))
+subsample <- rev(round(seq(1,nrow(fdists),length.out=4*8)))
 ##
 pdff('new2_example_plot_2ndmeas_popsamples')
 par(mfrow=c(4,8))
@@ -655,6 +655,59 @@ tplot(x=xgrid, y=ytoplot, cex.lab=1.5, xlab='', ylab='', lwd=1, lty=1, col=1:2, 
 #tplot(x=xgrid, y=,  lwd=1, lty=1, col=2, alpha='40', add=T)#, main='predicted distribution of full population')
 dev.off()
 
+pdff('new2_example_plot_2ndmeas_AB')
+tplot(x=xgrid, y=preddists, xlab='X', ylab='full-population frequency distribution', lwd=4:5, lty=c('solid','91'), ylim=c(0,max(margdists0)), xlim=range(xgrid))#, main='predicted distribution of full population')
+polygon(x=c(xgrid,rev(xgrid)), y=c(margdists2[1,,1],rev(margdists2[2,,1])), col=paste0(palette()[1],'40'), border=NA)
+##polygon(x=c(xgrid,rev(xgrid)), y=c(margdists2[1,,1],rev(margdists2[2,,1])), col=paste0(palette()[1],'40'), border=NA)
+polygon(x=c(xgrid,rev(xgrid)), y=c(margdists2[1,,2],rev(margdists2[2,,2])), col=paste0(palette()[2],'40'), border=NA)
+##polygon(x=c(xgrid,rev(xgrid)), y=c(margdists2[1,,2],rev(margdists2[2,,2])), col=paste0(palette()[2],'40'), border=NA)
+## scatteraxis(1,alldata[group==0,x],col=1)
+## scatteraxis(1,alldata[group==1,x],col=2)
+legend('topleft', legend=c(
+                       'estimate distribution A',
+                       '75% uncertainty',
+                       'estimate distribution B',
+                       '75% uncertainty'
+                   ),
+       lty=c('solid','solid','52','solid'), lwd=c(3,10),
+       col=paste0(palette()[c(1,1,2,2)],c('ff','40')),
+       bty='n', cex=1.25)
+##
+dev.off()
+
+mdh <- thist(meandiffs, n=8)
+##
+pdff('new2_example_plot_2ndmeas_meansdiff')
+tplot(mdh$mid, mdh$density, col=3, lwd=5, xlab='(mean group A) - (mean group B)', ylab='probability')#, main='predicted difference between means of groups A and B')
+legend(x=12, y=0.07,
+    #x=mdh$mid[length(mdh$mid)/2],y=max(mdh$density)*1.05,
+       legend=c(
+                                                            paste0(
+                       'estimated difference between means: ',signif(mean(meandiffs),2)),
+                       ## signif(quant(meandiffs,c(1)/8)*2,2),' < difference < ',signif(quant(meandiffs,c(7)/8)*2,2),'\nwith 75% probability','\n\n',
+                                 NA,paste0(signif(quant(meandiffs,c(2.5)/100),2),' < difference < ',signif(quant(meandiffs,c(97.5)/100),2),'  (95% probability)'),
+                       NA,paste0('difference > 0 with ',signif(sum(meandiffs>0)/length(meandiffs)*100,2),'% probability')
+                                 ), bty='n', cex=1.5, xpd=NA)
+dev.off()
+
+vdh <- thist(vardiffs, n=64*4)
+##
+pdff('new2_example_plot_2ndmeas_varsdiff')
+tplot(vdh$mids, vdh$density, col=4, lwd=5, xlab='(variance group A) - (variance group B)', ylab='probability', xlim=quant(vardiffs,c(0,1)+c(1,-1)*0.2/100))#, main='predicted difference between means of groups A and B')
+legend('topleft',
+    ##x=-900,y=max(vdh$density)*1.1,
+       legend=c(
+                                                            paste0(
+                       'estimated difference between variances: ',signif(mean(vardiffs),2)),
+                       ## signif(quant(meandiffs,c(1)/8)*2,2),' < difference < ',signif(quant(meandiffs,c(7)/8)*2,2),'\nwith 75% probability','\n\n',
+                                 NA,paste0(signif(quant(vardiffs,c(2.5)/100),2),' < difference < ',signif(quant(vardiffs,c(97.5)/100),2),'  (95% probability)'),
+                       NA,paste0('difference > 0 with ',signif(sum(vardiffs>0)/length(meandiffs)*100,2),'% probability')
+                                 ), bty='n', cex=1.5,xpd=NA)
+dev.off()
+
+
+
+
 
 ##
 pdff('new_example_plot_2ndmeas_A')
@@ -688,25 +741,6 @@ legend('topright', legend=c(
 dev.off()
 ##
 
-pdff('new2_example_plot_2ndmeas_AB')
-tplot(x=xgrid, y=preddists, xlab='X', ylab='full-population frequency distribution', lwd=4:5, lty=c('solid','91'), ylim=c(0,max(margdists0)), xlim=range(xgrid))#, main='predicted distribution of full population')
-polygon(x=c(xgrid,rev(xgrid)), y=c(margdists2[1,,1],rev(margdists2[2,,1])), col=paste0(palette()[1],'40'), border=NA)
-##polygon(x=c(xgrid,rev(xgrid)), y=c(margdists2[1,,1],rev(margdists2[2,,1])), col=paste0(palette()[1],'40'), border=NA)
-polygon(x=c(xgrid,rev(xgrid)), y=c(margdists2[1,,2],rev(margdists2[2,,2])), col=paste0(palette()[2],'40'), border=NA)
-##polygon(x=c(xgrid,rev(xgrid)), y=c(margdists2[1,,2],rev(margdists2[2,,2])), col=paste0(palette()[2],'40'), border=NA)
-## scatteraxis(1,alldata[group==0,x],col=1)
-## scatteraxis(1,alldata[group==1,x],col=2)
-legend('topleft', legend=c(
-                       'estimate distribution A',
-                       '75% uncertainty',
-                       'estimate distribution B',
-                       '75% uncertainty'
-                   ),
-       lty=c('solid','solid','52','solid'), lwd=c(3,10),
-       col=paste0(palette()[c(1,1,2,2)],c('ff','40')),
-       bty='n', cex=1.25)
-##
-dev.off()
 
 pdff('new_example_plot_2ndmeas_means')
 tplot(mdh1$mid, mdh1$density, col=5, alpha=0.25, xlab='mean', ylab='probability density', xlim=range(c(mdh1$mid,mdh2$mid)), lwd=6, border=NA, ylim=c(0,max(c(mdh1$density,mdh2$density))))#, main='predicted means of groups A and B')
@@ -718,36 +752,6 @@ legend('topright', legend=c(
        lty=c('solid','31'), lwd=c(5,4),
        col=c(5,6),
        bty='n', cex=1.25)
-dev.off()
-
-mdh <- thist(meandiffs, n=16)
-##
-pdff('new2_example_plot_2ndmeas_meansdiff')
-tplot(mdh$mid, mdh$density, col=3, lwd=5, xlab='(mean group A) - (mean group B)', ylab='probability')#, main='predicted difference between means of groups A and B')
-legend('top',
-    #x=mdh$mid[length(mdh$mid)/2],y=max(mdh$density)*1.05,
-       legend=c(
-                                                            paste0(
-                       'estimated difference between means: ',signif(mean(meandiffs),2)),
-                       ## signif(quant(meandiffs,c(1)/8)*2,2),' < difference < ',signif(quant(meandiffs,c(7)/8)*2,2),'\nwith 75% probability','\n\n',
-                                 NA,paste0(signif(quant(meandiffs,c(2.5)/100),2),' < difference < ',signif(quant(meandiffs,c(97.5)/100),2),'  (95% probability)'),
-                       NA,paste0('difference > 0 with ',signif(sum(meandiffs>0)/length(meandiffs)*100,2),'% probability')
-                                 ), bty='n', cex=1.5)
-dev.off()
-
-vdh <- thist(vardiffs, n=64*4)
-##
-pdff('new2_example_plot_2ndmeas_varsdiff')
-tplot(vdh$mids, vdh$density, col=4, lwd=5, xlab='(variance group A) - (variance group B)', ylab='probability', xlim=quant(vardiffs,c(0,1)+c(1,-1)*0.1/100))#, main='predicted difference between means of groups A and B')
-legend(#'topleft',
-    x=-860,y=max(vdh$density)*1.1,
-       legend=c(
-                                                            paste0(
-                       'estimated difference between variances: ',signif(mean(vardiffs),2)),
-                       ## signif(quant(meandiffs,c(1)/8)*2,2),' < difference < ',signif(quant(meandiffs,c(7)/8)*2,2),'\nwith 75% probability','\n\n',
-                                 NA,paste0(signif(quant(vardiffs,c(2.5)/100),2),' < difference < ',signif(quant(vardiffs,c(97.5)/100),2),'  (95% probability)'),
-                       NA,paste0('difference > 0 with ',signif(sum(vardiffs>0)/length(meandiffs)*100,2),'% probability')
-                                 ), bty='n', cex=1.5,xpd=NA)
 dev.off()
 
 
