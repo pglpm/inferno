@@ -1,6 +1,6 @@
 ## Author: PGL  Porta Mana
 ## Created: 2021-03-20T10:07:17+0100
-## Last-Updated: 2021-12-05T14:24:01+0100
+## Last-Updated: 2021-12-06T15:17:01+0100
 ################
 ## Exploration for MMIV poster
 ################
@@ -103,7 +103,7 @@ dev.off()
 #################################
 
 seed <- 149
-baseversion <- 'new_mmivexample_X_'
+baseversion <- 'new_mmivexample_Xreduced2_'
 nclusters <- as.integer(16) #as.integer(2^6)
 niter <- as.integer(2^11) #as.integer(2^11)
 niter0 <- as.integer(2^11) #as.integer(2^10)
@@ -160,7 +160,7 @@ for(acov in covNames){
 }
 if(nrcovs>0){
 medianrcovs <- apply(alldata[1:ndata,..realCovs],2,median)
-widthrcovs <- apply(alldata[1:ndata,..realCovs],2,IQR)*3/4
+widthrcovs <- apply(alldata[1:ndata,..realCovs],2,IQR)
 }
 ##
 if(length(integerCovs)>0){
@@ -203,19 +203,19 @@ initsFunction <- function(){c(list(
        q=rep(1/nclusters, nclusters)
        ),
        if(nrcovs>0){list(
-                        meanRmean=medianrcovs,
-                        meanRshape1=rep(1/2, nrcovs),
-                        meanRrate2=1/(widthrcovs/2)^2, # dims = inv. variance
+                        meanRmean0=medianrcovs,
+                        meanRshape0=rep(1/2, nrcovs),
+                        meanRrate0=(widthrcovs^2)/2, # dims = variance
+                        ## meanRrate2=1/(widthrcovs*3)^2, # dims = inv. variance
                         ##
-                        tauRshape1=rep(1, nrcovs),
-                        tauRrate2=1/(widthrcovs/2)^2, # dims = inv. variance
+                        tauRshape0=rep(1/2, nrcovs),
+                        tauRrate0=1/(widthrcovs/(2*qnorm(3/4)))^2, # dims = inv. variance
                         ##
-                        meanRtau1=1/(widthrcovs/2)^2, # dims = inv. variance
-                        meanRrate1=(widthrcovs/2)^2, # dims = variance
-                        tauRrate1=(widthrcovs/2)^2, # dims = variance
+                        meanRtau=1/(widthrcovs/(2*qnorm(3/4)))^2, # dims = inv. variance
+                        tauRrate=(widthrcovs/(2*qnorm(3/4)))^2, # dims = variance
                         ##
-                        meanR=matrix(rnorm(n=nrcovs*(nclusters), mean=medianrcovs, sd=1/sqrt(rgamma(n=nrcovs, shape=1/2, rate=rgamma(n=nrcovs, shape=1/2, rate=1/(widthrcovs/2)^2)))), nrow=nrcovs, ncol=nclusters),
-                        tauR=matrix(rgamma(n=nrcovs*(nclusters), shape=1/2, rate=rgamma(n=nrcovs, shape=1/2, rate=1/(widthrcovs/2)^2)), nrow=nrcovs, ncol=nclusters)
+                        meanR=matrix(rnorm(n=nrcovs*(nclusters), mean=medianrcovs, sd=1/sqrt(rgamma(n=nrcovs, shape=1/2, rate=(widthrcovs^2)/2))), nrow=nrcovs, ncol=nclusters),
+                        tauR=matrix(rgamma(n=nrcovs*(nclusters), shape=1/2, rate=rgamma(n=nrcovs, shape=1/2, rate=1/(widthrcovs/(2*qnorm(3/4)))^2)), nrow=nrcovs, ncol=nclusters)
                         )},
        if(nicovs>0){list(
                         probIa1=rep(2, nicovs),
@@ -242,8 +242,8 @@ bayesnet <- nimbleCode({
     for(acluster in 1:nClusters){
         if(nrcovs>0){
             for(acov in 1:nRcovs){
-                meanR[acov,acluster] ~ dnorm(mean=meanRmean[acov], tau=meanRtau1[acov])
-                tauR[acov,acluster] ~ dgamma(shape=tauRshape1[acov], rate=tauRrate1[acov])
+                meanR[acov,acluster] ~ dnorm(mean=meanRmean0[acov], tau=meanRtau[acov])
+                tauR[acov,acluster] ~ dgamma(shape=tauRshape0[acov], rate=tauRrate[acov])
             }
         }
         if(nicovs>0){
@@ -261,9 +261,10 @@ bayesnet <- nimbleCode({
     ##
     if(nrcovs>0){
         for(acov in 1:nRcovs){
-            meanRtau1[acov] ~ dgamma(shape=meanRshape1[acov], rate=meanRrate1[acov])
-            meanRrate1[acov] ~ dgamma(shape=meanRshape1[acov], rate=meanRrate2[acov])
-            tauRrate1[acov] ~ dgamma(shape=tauRshape1[acov], rate=tauRrate2[acov])
+            meanRtau[acov] ~ dgamma(shape=meanRshape0[acov], rate=meanRrate0[acov])
+            ## meanRtau1[acov] ~ dgamma(shape=meanRshape1[acov], rate=meanRrate1[acov])
+            ## meanRrate1[acov] ~ dgamma(shape=meanRshape1[acov], rate=meanRrate2[acov])
+            tauRrate[acov] ~ dgamma(shape=tauRshape0[acov], rate=tauRrate0[acov])
         }
     }
     ##
@@ -311,7 +312,8 @@ if(posterior){
                                           if(nbcovs>0){c('probB')}
                                           ),
                                monitors2=c('C',
-                                           if(nrcovs>0){c('meanRtau1', 'meanRrate1', 'tauRrate1')}
+                                           if(nrcovs>0){c('meanRtau', #'meanRrate1',
+                                                          'tauRrate')}
                                            ))
     ##
     for(adatum in 1:ndata){
@@ -339,9 +341,9 @@ if(posterior){
     }
     if(nrcovs>0){
         for(acov in 1:nrcovs){
-            confmodel$addSampler(target=paste0('meanRtau1[', acov, ']'), type='conjugate')
-            confmodel$addSampler(target=paste0('meanRrate1[', acov, ']'), type='conjugate')
-            confmodel$addSampler(target=paste0('tauRrate1[', acov, ']'), type='conjugate')
+            confmodel$addSampler(target=paste0('meanRtau[', acov, ']'), type='conjugate')
+            ## confmodel$addSampler(target=paste0('meanRrate1[', acov, ']'), type='conjugate')
+            confmodel$addSampler(target=paste0('tauRrate[', acov, ']'), type='conjugate')
         }
     }
 }else{
@@ -622,7 +624,7 @@ vdh <- thist(vardiffs, n=32)
 
 subsample <- rev(round(seq(1,nrow(fdists),length.out=4*8)))
 ##
-pdff('new2_example_plot_2ndmeas_popsamples')
+pdff(paste0(dirname,'/new2_example_plot_2ndmeas_popsamples'))
 par(mfrow=c(4,8))
 xticks <- tticks(xgrid)
 yticks <- tticks(c(0,max(fdists[subsample,,])))
@@ -648,14 +650,14 @@ dev.off()
 ##
 
 subsample2 <- round(seq(1,nrow(fdists),length.out=128))
-pdff('new2_example_plot_2ndmeas_popsamplestogether')
+pdff(paste0(dirname,'/new2_example_plot_2ndmeas_popsamplestogether'))
 ytoplot <- rbind(t(fdists[subsample2,,1]), t(fdists[subsample2,,2]))
 dim(ytoplot) <- c(length(xgrid), length(subsample2)*2)
 tplot(x=xgrid, y=ytoplot, cex.lab=1.5, xlab='', ylab='', lwd=1, lty=1, col=1:2, alpha=0.5, xlim=range(xgrid), ylim=c(0,max(margdists0[2,,])),xticks=F,yticks=F)#, main='predicted distribution of full population')
 #tplot(x=xgrid, y=,  lwd=1, lty=1, col=2, alpha='40', add=T)#, main='predicted distribution of full population')
 dev.off()
 
-pdff('new2_example_plot_2ndmeas_AB')
+pdff(paste0(dirname,'/new2_example_plot_2ndmeas_AB'))
 tplot(x=xgrid, y=preddists, xlab='X', ylab='full-population frequency distribution', lwd=4:5, lty=c('solid','91'), ylim=c(0,max(margdists0)), xlim=range(xgrid))#, main='predicted distribution of full population')
 polygon(x=c(xgrid,rev(xgrid)), y=c(margdists2[1,,1],rev(margdists2[2,,1])), col=paste0(palette()[1],'40'), border=NA)
 ##polygon(x=c(xgrid,rev(xgrid)), y=c(margdists2[1,,1],rev(margdists2[2,,1])), col=paste0(palette()[1],'40'), border=NA)
@@ -675,25 +677,26 @@ legend('topleft', legend=c(
 ##
 dev.off()
 
-mdh <- thist(meandiffs, n=8)
+mdh <- thist(meandiffs, n=16)
 ##
-pdff('new2_example_plot_2ndmeas_meansdiff')
+pdff(paste0(dirname,'/new2_example_plot_2ndmeas_meansdiff'))
 tplot(mdh$mid, mdh$density, col=3, lwd=5, xlab='(mean group A) - (mean group B)', ylab='probability')#, main='predicted difference between means of groups A and B')
-legend(x=12, y=0.07,
+legend(x=-10, y=0.085,
     #x=mdh$mid[length(mdh$mid)/2],y=max(mdh$density)*1.05,
        legend=c(
                                                             paste0(
                        'estimated difference between means: ',signif(mean(meandiffs),2)),
                        ## signif(quant(meandiffs,c(1)/8)*2,2),' < difference < ',signif(quant(meandiffs,c(7)/8)*2,2),'\nwith 75% probability','\n\n',
-                                 NA,paste0(signif(quant(meandiffs,c(2.5)/100),2),' < difference < ',signif(quant(meandiffs,c(97.5)/100),2),'  (95% probability)'),
+                                 NA,paste0(round(signif(quant(meandiffs,c(2.5)/100),2)),' < difference < ',signif(quant(meandiffs,c(97.5)/100),2),'  (95% probability)'),
                        NA,paste0('difference > 0 with ',signif(sum(meandiffs>0)/length(meandiffs)*100,2),'% probability')
                                  ), bty='n', cex=1.5, xpd=NA)
 dev.off()
 
-vdh <- thist(vardiffs, n=64*4)
+qtv <- quant(vardiffs,c(0,1)+c(1,-1)*2.5/100)
+vdh <- thist(vardiffs[vardiffs>qtv[1]&vardiffs<qtv[2]], n=64)
 ##
-pdff('new2_example_plot_2ndmeas_varsdiff')
-tplot(vdh$mids, vdh$density, col=4, lwd=5, xlab='(variance group A) - (variance group B)', ylab='probability', xlim=quant(vardiffs,c(0,1)+c(1,-1)*0.2/100))#, main='predicted difference between means of groups A and B')
+pdff(paste0(dirname,'/new2_example_plot_2ndmeas_varsdiff'))
+tplot(vdh$mids, vdh$density, col=4, lwd=5, xlab='(variance group A) - (variance group B)', ylab='probability', xlim=quant(vardiffs,c(0,1)+c(1,-1)*2.5/100))#, main='predicted difference between means of groups A and B')
 legend('topleft',
     ##x=-900,y=max(vdh$density)*1.1,
        legend=c(
@@ -706,7 +709,9 @@ legend('topleft',
 dev.off()
 
 
-
+################################################
+################################################
+################################################
 
 
 ##
@@ -1232,3 +1237,39 @@ dev.off()
 ## ############################################################
 ## ## End MCMC
 ## ############################################################
+
+
+nn <- 10000
+set.seed(149)
+tauu <- rgamma(n=nn, shape=1, rate=1)
+muu <- rnorm(n=nn, mean=0, sd=1/sqrt(tauu*1))
+##
+mu1 <- rnorm(n=nn, mean=muu, sd=1/sqrt(tauu))
+mu2 <- rnorm(n=nn, mean=muu, sd=1/sqrt(tauu))
+lims <- quant(c(mu1,mu2),c(1,99)/100)
+pdff('testpriormu')
+tplot(x=mu1, y=mu2, xlab=expression(mu[1]), ylab=expression(mu[2]), type='p', pch='.', alpha=0.5,  asp=1, xlim=lims, ylim=lims)
+dev.off()
+
+
+
+nn <- 10000
+set.seed(149)
+tauu <- (rgamma(n=nn, shape=2, rate=4))
+muu <- (rnorm(n=nn, mean=0, sd=1/sqrt(tauu/2^2)))
+##
+mu1 <- rnorm(n=nn, mean=muu, sd=1/sqrt(tauu))
+mu2 <- rnorm(n=nn, mean=muu, sd=1/sqrt(tauu))
+lims <- c(-1,1)*6#quant(c(mu1,mu2),c(1,99)/100)
+pdff('testpriormu')
+tplot(x=mu1, y=mu2, xlab=expression(mu[1]), ylab=expression(mu[2]), type='p', pch='.', alpha=0.25,  asp=1, xlim=lims, ylim=lims)
+dev.off()
+
+
+
+
+
+
+
+
+
