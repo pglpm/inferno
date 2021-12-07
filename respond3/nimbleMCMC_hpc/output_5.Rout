@@ -1,0 +1,76 @@
+nimble version 0.12.0 is loaded.
+For more information on NIMBLE and a User Manual,
+please visit https://R-nimble.org.
+
+Attaching package: ‘nimble’
+
+The following object is masked from ‘package:data.table’:
+
+    cube
+
+The following object is masked from ‘package:stats’:
+
+    simulate
+
+          used  (Mb) gc trigger  (Mb) max used  (Mb)
+Ncells 2058043 110.0    3310445 176.8  2181683 116.6
+Vcells 5326995  40.7   10146329  77.5  8388602  64.0
+Defining model
+Building model
+Setting data and initial values
+Running calculate on model
+  [Note] Any error reports that follow may simply reflect missing values in model variables.
+Checking model sizes and dimensions
+Compiling
+  [Note] This may take a minute.
+  [Note] Use 'showCompilerOutput = TRUE' to see C++ compilation details.
+           used  (Mb) gc trigger  (Mb) max used  (Mb)
+Ncells  3073664 164.2    4501607 240.5  4501607 240.5
+Vcells 10518274  80.3   17824054 136.0 17824054 136.0
+===== Monitors =====
+thin = 1: meanC, probD, q, sizeD, tauC
+thin2 = 1: C
+===== Samplers =====
+slice sampler (320)
+  - sizeD[]  (320 elements)
+conjugate sampler (705)
+  - probD[]  (320 elements)
+  - meanC[]  (192 elements)
+  - tauC[]  (192 elements)
+  - q[1:64] 
+categorical sampler (4096)
+  - C[]  (4096 elements)
+Compiling
+  [Note] This may take a minute.
+  [Note] Use 'showCompilerOutput = TRUE' to see C++ compilation details.
+           used  (Mb) gc trigger  (Mb) max used   (Mb)
+Ncells  4624760 247.0    9791386 523.0 19123798 1021.4
+Vcells 56240136 429.1   93787227 715.6 81932164  625.1
+[1] "Setup time: 7.63975371917089"
+[1] "==== STAGE 0 ===="
+running chain 1...
+|-------------|-------------|-------------|-------------|
+|-------------------------------------------------------|
+[1] "MCMC time: 1.59413513282935"
+[1] "OCCUPIED CLUSTERS: 20 OF 64"
+[1] "Total runtime: 1.62557355927096"
+[1] "==== STAGE 1 ===="
+|-------------|-------------|-------------|-------------|
+|-------------------------------------------------------|
+[1] "MCMC time: 1.33850851496061"
+[1] "OCCUPIED CLUSTERS: 20 OF 64"
+[1] "Total runtime: 1.36811883138286"
+[1] "==== STAGE 2 ===="
+|-------------|-------------|-------------|-------------|
+|-------------------------------------------------------|
+[1] "MCMC time: 1.35528325577577"
+[1] "OCCUPIED CLUSTERS: 20 OF 64"
+[1] "Total runtime: 1.38746086749766"
+[1] "==== STAGE 3 ===="
+|-------------|-------------|-------------|-------------|
+|-------------------------------------------------------|
+[1] "MCMC time: 1.33776995493306"
+[1] "OCCUPIED CLUSTERS: 20 OF 64"
+[1] "Total runtime: 1.37002683997154"
+Warning message:
+executing %dopar% sequentially: no parallel backend registered 

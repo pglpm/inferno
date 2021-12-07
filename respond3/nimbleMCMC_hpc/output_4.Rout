@@ -1,0 +1,59 @@
+nimble version 0.12.0 is loaded.
+For more information on NIMBLE and a User Manual,
+please visit https://R-nimble.org.
+
+Attaching package: ‘nimble’
+
+The following object is masked from ‘package:data.table’:
+
+    cube
+
+The following object is masked from ‘package:stats’:
+
+    simulate
+
+          used  (Mb) gc trigger  (Mb) max used  (Mb)
+Ncells 2058025 110.0    3310182 176.8  2181729 116.6
+Vcells 5326975  40.7   10146329  77.5  8387128  64.0
+Defining model
+Building model
+Setting data and initial values
+Running calculate on model
+  [Note] Any error reports that follow may simply reflect missing values in model variables.
+Checking model sizes and dimensions
+Compiling
+  [Note] This may take a minute.
+  [Note] Use 'showCompilerOutput = TRUE' to see C++ compilation details.
+           used  (Mb) gc trigger  (Mb) max used  (Mb)
+Ncells  3171470 169.4    5703425 304.6  5703425 304.6
+Vcells 12148459  92.7   21468864 163.8 21463594 163.8
+===== Monitors =====
+thin = 1: meanC, probD, q, sizeD, tauC
+===== Samplers =====
+slice sampler (400)
+  - sizeD[]  (400 elements)
+conjugate sampler (1001)
+  - probD[]  (400 elements)
+  - meanC[]  (300 elements)
+  - tauC[]  (300 elements)
+  - q[1:100] 
+categorical sampler (6000)
+  - C[]  (6000 elements)
+Compiling
+  [Note] This may take a minute.
+  [Note] Use 'showCompilerOutput = TRUE' to see C++ compilation details.
+            used  (Mb) gc trigger   (Mb)  max used   (Mb)
+Ncells   5192561 277.4   11387467  608.2  27801430 1484.8
+Vcells 104311517 795.9  170863976 1303.6 147707871 1127.0
+[1] "==== STAGE 0 ===="
+running chain 1...
+|-------------|-------------|-------------|-------------|
+|-------------------------------------------------------|
+Time difference of 3.855308 hours
+[1] "==== STAGE 1 ===="
+|-------------|-------------|-------------|-------------|
+|-------------------------------------------------------|
+Time difference of 3.165447 hours
+[1] "==== STAGE 2 ===="
+|-------------|-------------|-------------|-------------|
+|--------------------------------------------------

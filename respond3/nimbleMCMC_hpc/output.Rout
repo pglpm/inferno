@@ -1,0 +1,54 @@
+nimble version 0.12.0 is loaded.
+For more information on NIMBLE and a User Manual,
+please visit https://R-nimble.org.
+
+Attaching package: ‘nimble’
+
+The following object is masked from ‘package:data.table’:
+
+    cube
+
+The following object is masked from ‘package:stats’:
+
+    simulate
+
+          used  (Mb) gc trigger  (Mb) max used  (Mb)
+Ncells 2055454 109.8    3310050 176.8  2188671 116.9
+Vcells 5321433  40.6   10146329  77.5  8385230  64.0
+Defining model
+Building model
+Setting data and initial values
+Running calculate on model
+  [Note] Any error reports that follow may simply reflect missing values in model variables.
+Checking model sizes and dimensions
+Compiling
+  [Note] This may take a minute.
+  [Note] Use 'showCompilerOutput = TRUE' to see C++ compilation details.
+           used  (Mb) gc trigger  (Mb) max used  (Mb)
+Ncells  3149551 168.3    5676837 303.2  5676837 303.2
+Vcells 12118976  92.5   21468864 163.8 21467378 163.8
+===== Monitors =====
+thin = 1: meanC, probD, q, sizeD, tauC
+===== Samplers =====
+slice sampler (400)
+  - sizeD[]  (400 elements)
+conjugate sampler (1001)
+  - probD[]  (400 elements)
+  - meanC[]  (300 elements)
+  - tauC[]  (300 elements)
+  - q[1:100] 
+categorical sampler (6000)
+  - C[]  (6000 elements)
+Compiling
+  [Note] This may take a minute.
+  [Note] Use 'showCompilerOutput = TRUE' to see C++ compilation details.
+            used  (Mb) gc trigger   (Mb)  max used   (Mb)
+Ncells   5170553 276.2   11381052  607.9  27785768 1484.0
+Vcells 104282084 795.7  166947999 1273.8 145394572 1109.3
+            used  (Mb) gc trigger   (Mb)  max used   (Mb)
+Ncells   5175987 276.5   11381052  607.9  27785768 1484.0
+Vcells 104290240 795.7  166947999 1273.8 145394572 1109.3
+running chain 1...
+Time difference of 2.995627 mins
+   Min. 1st Qu.  Median    Mean 3rd Qu.    Max. 
+   0.00   10.00   10.00   13.31   10.00  317.02 
