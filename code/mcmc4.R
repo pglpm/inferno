@@ -1,8 +1,9 @@
 ## Author: PGL  Porta Mana
 ## Created: 2021-11-25T14:52:14+0100
-## Last-Updated: 2021-12-06T17:10:35+0100
+## Last-Updated: 2021-12-10T13:49:37+0100
 ################
-## Prediction of population frequencies for Alzheimer study
+## Code for model-free probabilistic analysis and prediction of data
+## Works with continuous and discrete (categorical, binary, integer) variables
 ################
 if(file.exists("/cluster/home/pglpm/R")){
     .libPaths(c("/cluster/home/pglpm/R",.libPaths()))
