@@ -31,7 +31,7 @@ mcsamples2parmlist <- function(mcsamples){
             dimnames(out) <- list(NULL, realCovs, NULL)
         } else if((var=='probI'||var=='sizeI')){
             dim(out) <- c(nrow(mcsamples), nicovs, nclusters)
-            dimnames(out) <- list(NULL, integerCovs, NULL)
+            dimnames(out) <- list(NULL, integerCovs, NULsamplL)
         } else if((var=='probB')){
             dim(out) <- c(nrow(mcsamples), nbcovs, nclusters)
             dimnames(out) <- list(NULL, binaryCovs, NULL)
@@ -224,7 +224,7 @@ samplesF <- function(Y, X=NULL, parmList, nfsamples=NULL, inorder=FALSE){
         Y <- t(matrix(rep(t(Y), ceiling(nrow(X)/nrow(Y))), nrow=ncol(Y), dimnames=list(colnames(Y),NULL)))[1:nrow(X),,drop=FALSE]
     }
     }
-    ndata <- nrow(Y)
+    nydata <- nrow(Y)
     ##
     q <- parmList$q
     nclusters <- ncol(q)
@@ -242,41 +242,41 @@ samplesF <- function(Y, X=NULL, parmList, nfsamples=NULL, inorder=FALSE){
                 log(q[asample,]) +
                 t(rbind(vapply(seq_len(nclusters), function(acluster){
                     ## real covariates
-                    if(length(rX)>0){
+                    (if(length(rX)>0){
                         colSums(dnorm(x=t(X[,rX,drop=FALSE]), mean=parmList$meanR[asample,rX,acluster], sd=1/sqrt(parmList$tauR[asample,rX,acluster]), log=TRUE))
-                    }else{0} +
+                    }else{0}) +
                         ## integer covariates
-                        if(length(iX)>0){
+                        (if(length(iX)>0){
                             colSums(dbinom(x=t(X[,iX,drop=FALSE]), prob=parmList$probI[asample,iX,acluster], size=parmList$sizeI[asample,iX,acluster], log=TRUE))
-                        }else{0} +
+                        }else{0}) +
                         ## binary covariates
-                        if(length(bX)>0){
+                        (if(length(bX)>0){
                             colSums(log(
                                 parmList$probB[asample,bX,acluster] * t(X[,bX,drop=FALSE]) +
                                 (1-parmList$probB[asample,bX,acluster]) * (1-t(X[,bX,drop=FALSE]))
                             ))
-                        }else{0}
-                }, numeric(ndata))))
+                        }else{0})
+                }, numeric(nydata))))
             )
             ## pY: rows=clusters, cols=datapoints
             pY <- exp(
                 t(rbind(vapply(seq_len(nclusters), function(acluster){
                     ## real covariates
-                    if(length(rY)>0){
+                    (if(length(rY)>0){
                         colSums(dnorm(x=t(Y[,rY,drop=FALSE]), mean=parmList$meanR[asample,rY,acluster], sd=1/sqrt(parmList$tauR[asample,rY,acluster]), log=TRUE))
-                    }else{0} +
+                    }else{0}) +
                         ## integer covariates
-                        if(length(iY)>0){
+                        (if(length(iY)>0){
                             colSums(dbinom(x=t(Y[,iY,drop=FALSE]), prob=parmList$probI[asample,iY,acluster], size=parmList$sizeI[asample,iY,acluster], log=TRUE))
-                        }else{0} +
+                        }else{0}) +
                         ## binary covariates
-                        if(length(bY)>0){
+                        (if(length(bY)>0){
                             colSums(log(
                                 parmList$probB[asample,bY,acluster] * t(Y[,bY,drop=FALSE]) +
                                 (1-parmList$probB[asample,bY,acluster]) * (1-t(Y[,bY,drop=FALSE]))
                             ))
-                        }else{0}
-                }, numeric(ndata))))
+                        }else{0})
+                }, numeric(nydata))))
             )
             ##
             colSums(pX * pY)/colSums(pX)
@@ -288,21 +288,21 @@ samplesF <- function(Y, X=NULL, parmList, nfsamples=NULL, inorder=FALSE){
                 log(q[asample,]) +
                 t(rbind(vapply(seq_len(nclusters), function(acluster){
                     ## real covariates
-                    if(length(rY)>0){
+                    (if(length(rY)>0){
                         colSums(dnorm(x=t(Y[,rY,drop=FALSE]), mean=parmList$meanR[asample,rY,acluster], sd=1/sqrt(parmList$tauR[asample,rY,acluster]), log=TRUE))
-                    }else{0} +
+                    }else{0}) +
                         ## integer covariates
-                        if(length(iY)>0){
+                        (if(length(iY)>0){
                             colSums(dbinom(x=t(Y[,iY,drop=FALSE]), prob=parmList$probI[asample,iY,acluster], size=parmList$sizeI[asample,iY,acluster], log=TRUE))
-                        }else{0} +
+                        }else{0}) +
                         ## binary covariates
-                        if(length(bY)>0){
+                        (if(length(bY)>0){
                             colSums(log(
                                 parmList$probB[asample,bY,acluster] * t(Y[,bY,drop=FALSE]) +
                                 (1-parmList$probB[asample,bY,acluster]) * (1-t(Y[,bY,drop=FALSE]))
                             ))
-                        }else{0}
-                }, numeric(ndata))))
+                        }else{0})
+                }, numeric(nydata))))
             )
             ##
             colSums(pY)
@@ -375,20 +375,20 @@ samplesMeans <- function(Y, X=NULL, parmList, nfsamples=NULL, inorder=FALSE){
                 log(q[asample,]) +
                 t(rbind(vapply(seq_len(nclusters), function(acluster){
                     ## real covariates
-                    if(length(rX)>0){
+                    (if(length(rX)>0){
                         colSums(dnorm(x=t(X[,rX,drop=FALSE]), mean=parmList$meanR[asample,rX,acluster], sd=1/sqrt(parmList$tauR[asample,rX,acluster]), log=TRUE))
-                    }else{0} +
+                    }else{0}) +
                         ## integer covariates
-                        if(length(iX)>0){
+                        (if(length(iX)>0){
                             colSums(dbinom(x=t(X[,iX,drop=FALSE]), prob=parmList$probI[asample,iX,acluster], size=parmList$sizeI[asample,iX,acluster], log=TRUE))
-                        }else{0} +
+                        }else{0}) +
                         ## binary covariates
-                        if(length(bX)>0){
+                        (if(length(bX)>0){
                             colSums(log(
                                 parmList$probB[asample,bX,acluster] * t(X[,bX,drop=FALSE]) +
                                 (1-parmList$probB[asample,bX,acluster]) * (1-t(X[,bX,drop=FALSE]))
                             ))
-                        }else{0}
+                        }else{0})
                 }, numeric(ndata))))
             )
             ## pY: rows=means, cols=clusters
@@ -501,20 +501,20 @@ samplesVars <- function(Y, X=NULL, parmList, nfsamples=NULL, inorder=FALSE){
                 log(q[asample,]) +
                 t(rbind(vapply(seq_len(nclusters), function(acluster){
                     ## real covariates
-                    if(length(rX)>0){
+                    (if(length(rX)>0){
                         colSums(dnorm(x=t(X[,rX,drop=FALSE]), mean=parmList$meanR[asample,rX,acluster], sd=1/sqrt(parmList$tauR[asample,rX,acluster]), log=TRUE))
-                    }else{0} +
+                    }else{0}) +
                         ## integer covariates
-                        if(length(iX)>0){
+                        (if(length(iX)>0){
                             colSums(dbinom(x=t(X[,iX,drop=FALSE]), prob=parmList$probI[asample,iX,acluster], size=parmList$sizeI[asample,iX,acluster], log=TRUE))
-                        }else{0} +
+                        }else{0}) +
                         ## binary covariates
-                        if(length(bX)>0){
+                        (if(length(bX)>0){
                             colSums(log(
                                 parmList$probB[asample,bX,acluster] * t(X[,bX,drop=FALSE]) +
                                 (1-parmList$probB[asample,bX,acluster]) * (1-t(X[,bX,drop=FALSE]))
                             ))
-                        }else{0}
+                        }else{0})
                 }, numeric(ndata))))
             )
             ## pY: rows=means, cols=clusters
@@ -562,8 +562,74 @@ samplesVars <- function(Y, X=NULL, parmList, nfsamples=NULL, inorder=FALSE){
     dimnames(freqs) <- list(Y,NULL,NULL)
     freqs
 }
-
-
+##
+## Gives samples of feature values
+samplesX <- function(parmList, nperf=2, nfsamples=NULL, inorder=FALSE){
+    rCovs <- dimnames(parmList$meanR)[[2]]
+    iCovs <- dimnames(parmList$probI)[[2]]
+    bCovs <- dimnames(parmList$probB)[[2]]
+    covNames <- c(rCovs, iCovs, bCovs)
+    nrcovs <- length(rCovs)
+    nicovs <- length(iCovs)
+    nbcovs <- length(bCovs)
+    ##
+    q <- parmList$q
+    nclusters <- ncol(q)
+    if(is.numeric(nfsamples)){
+        fsubsamples <- round(seq(1, nrow(q), length.out=nfsamples))
+    }else{
+        nfsamples <- nrow(q)
+        fsubsamples <- seq_len(nfsamples)
+    }
+    ##
+    XX <- foreach(asample=fsubsamples, .combine=rbind, .inorder=inorder)%dorng%{
+        acluster <- rcat(n=nperf, prob=q[asample,])
+        ##
+        rX <- matrix(rnorm(n=nperf*nrcovs, mean=t(parmList$meanR[asample,,acluster]), sd=1/sqrt(t(parmList$tauR[asample,,acluster]))),
+                     nrow=nperf, dimnames=list(NULL,rCovs))
+        ##        
+        iX <- matrix(rbinom(n=nperf*nicovs, prob=t(parmList$probI[asample,,acluster]), size=t(parmList$sizeI[asample,,acluster])),
+                     nrow=nperf, dimnames=list(NULL, iCovs))
+        ##
+        bX <- sapply(bCovs, function(acov){sapply(acluster,function(clus){
+            sample(x=0:1, size=1, prob=c(1-parmList$probB[asample,acov,clus], parmList$probB[asample,acov,clus]))
+        })})
+        ##
+        cbind(rX, iX, bX)
+    }
+    XX
+}
+##
+## Function to draw 2D plot of two variates
+plot2dF <- function(xygrid, fsamples, grid=FALSE, labs=TRUE, ticks=TRUE, mar=NULL){
+    xcov <- colnames(xygrid)[1]
+    ycov <- colnames(xygrid)[2]
+    xgrid <- sort(unique(xygrid[,1]))
+    ygrid <- sort(unique(xygrid[,2]))
+    ##
+    ax <- diff(xgrid)[1]/2
+    ay <- diff(ygrid)[1]/2
+    if(ticks){
+    xticks <- if(xcov %in% realCovs){NULL}else{xgrid}
+    yticks <- if(ycov %in% realCovs){NULL}else{ygrid}
+    }else{
+        xticks <- yticks <- FALSE
+    }
+    xlim <- if(xcov %in% realCovs){extendrange(xgrid)}else{range(xgrid)+c(-1,1)/2}
+    ylim <- if(ycov %in% realCovs){extendrange(ygrid)}else{range(ygrid)+c(-1,1)/2}
+    pmax <- max(fsamples)
+    ##
+    tplot(x=NA, y=NA, xlim=xlim, ylim=ylim, xlab=(if(labs){xcov}else{NA}), ylab=(if(labs){ycov}else{NA}), xticks=xticks, yticks=yticks, mar=mar)
+    for(i in 1:nrow(xygrid)){
+        rat <- fsamples[i]/pmax
+        polygon(x=xygrid[i,1]+c(-1,1,1,-1)*ax,
+                y=xygrid[i,2]+c(-1,-1,1,1)*ay,
+                border=gray(1-rat), col=gray(1-rat))
+    }
+    if(grid){
+        tplot(x=NA, y=NA, xlim=xlim, ylim=ylim, xlab=xcov, ylab=ycov, xticks=xticks, yticks=yticks, mar=mar, add=T)
+    }
+}
 
 
 ####################################################
