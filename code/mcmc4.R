@@ -1,8 +1,8 @@
 ## Author: PGL  Porta Mana
 ## Created: 2021-11-25T14:52:14+0100
-## Last-Updated: 2021-12-10T13:49:37+0100
+## Last-Updated: 2021-12-12T11:18:50+0100
 ################
-## Code for model-free probabilistic analysis and prediction of data
+## Template code for model-free probabilistic analysis and prediction of data
 ## Works with continuous and discrete (categorical, binary, integer) variables
 ################
 if(file.exists("/cluster/home/pglpm/R")){
@@ -46,18 +46,19 @@ library('nimble')
 
 seed <- 149
 baseversion <- 'test_'
-nclusters <- as.integer(64) #as.integer(2^6)
-niter <- as.integer(256) #as.integer(2^11)
-niter0 <- as.integer(256) #as.integer(2^10)
-thin <- as.integer(1)
-nstages <- as.integer(1)
-ncheckpoints <- as.integer(4)
+nclusters <- 64L #as.integer(2^6)
+niter <- 1024L #as.integer(2^11)
+niter0 <- 1024L #as.integer(2^10)
+thin <- 8L
+nstages <- 3L
+ncheckpoints <- 4L
 maincov <- 'Subgroup_num_'
 family <- 'Palatino'
+##ndata
 posterior <- TRUE
 ##
 
-saveinfofile <- 'variates_info.csv'
+saveinfofile <- 'variateinfofilename.csv'
 variateinfo <- fread(saveinfofile, sep=',')
 covNames <- variateinfo$variate
 covTypes <- variateinfo$type
@@ -65,23 +66,33 @@ covMins <- variateinfo$min
 covMaxs <- variateinfo$max
 names(covTypes) <- names(covMins) <- names(covMaxs) <- covNames
 
-datafile <- 'data_transformed_shuffled.csv'
-alldata <- fread(datafile, sep=',')
-alldata <- alldata[Usage_ == 'train']
+datafile <- 'datafilename.csv'
+odata <- fread(datafile, sep=',')
 
 #################################
 ## Setup for Monte Carlo sampling
 #################################
 
-realCovs <- covNames[sapply(covNames, function(acov){is.double(alldata[[acov]])})]
-integerCovs <- covNames[sapply(covNames, function(acov){is.integer(alldata[[acov]]) && covMaxs[acov]>1})]
-binaryCovs <- covNames[sapply(covNames, function(acov){is.integer(alldata[[acov]]) && covMaxs[acov]==1})]
+realCovs <- covNames[covTypes=='double']
+integerCovs <- covNames[covTypes=='integer']
+binaryCovs <- covNames[covTypes=='binary']
 covNames <- c(realCovs, integerCovs, binaryCovs)
 nrcovs <- length(realCovs)
 nicovs <- length(integerCovs)
 nbcovs <- length(binaryCovs)
 ncovs <- length(covNames)
-ndata <- nrow(alldata)
+if(!exists('ndata') || is.null(ndata) || is.na(ndata)){ndata <- nrow(odata)}
+alldata <- odata[1:ndata, ..covNames]
+
+##
+for(obj in c('constants', 'dat', 'inits', 'bayesnet', 'model', 'Cmodel', 'confmodel', 'mcmcsampler', 'Cmcmcsampler')){if(exists(obj)){do.call(rm,list(obj))}}
+gc()
+
+dat <- list()
+if(nrcovs>0){ dat$X=data.matrix(alldata[, ..realCovs])}
+if(nicovs>0){ dat$Y=data.matrix(alldata[, ..integerCovs])}
+if(nbcovs>0){ dat$Z=data.matrix(alldata[, ..binaryCovs])}
+##
 ##
 dirname <- paste0(baseversion,'-V',length(covNames),'-D',ndata,'-K',nclusters,'-I',niter)
 dir.create(dirname)
@@ -91,24 +102,14 @@ thisscriptname <- sub('--file=', "", initial.options[grep('--file=', initial.opt
 file.copy(from=thisscriptname, to=paste0(dirname,'/script-R',baseversion,'-V',length(covNames),'-D',ndata,'-K',nclusters,'.Rscript'))
 }
 
-for(obj in c('constants', 'dat', 'inits', 'bayesnet', 'model', 'Cmodel', 'confmodel', 'mcmcsampler', 'Cmcmcsampler')){if(exists(obj)){do.call(rm,list(obj))}}
-gc()
-##
-##
-dat <- list()
-if(nrcovs>0){ dat$X=as.matrix(alldata[1:ndata, ..realCovs])}
-if(nicovs>0){ dat$Y=as.matrix(alldata[1:ndata, ..integerCovs])}
-if(nbcovs>0){ dat$Z=as.matrix(alldata[1:ndata, ..binaryCovs])}
-
 ##
 ##
 source('functions_mcmc.R')
-alldataRanges <- dataQuantiles <- list()
-for(acov in covNames){
-        dataQuantiles[[acov]] <- quant(alldata[1:ndata][[acov]], prob=c(0.005,0.995))
-        alldataRanges[[acov]] <- range(alldata[1:ndata][[acov]])
-}
-
+## alldataRanges <- dataQuantiles <- list()
+## for(acov in covNames){
+##         dataQuantiles[[acov]] <- quant(alldata[1:ndata][[acov]], prob=c(0.005,0.995))
+##         alldataRanges[[acov]] <- range(alldata[1:ndata][[acov]])
+## }
 ##
 if(nrcovs>0){
     medianrcovs <- apply(alldata[1:ndata,..realCovs],2,function(x)median(x, na.rm=TRUE))
@@ -188,7 +189,7 @@ initsFunction <- function(){
     if(nbcovs>0){# binary variates
         list(# hyperparameters
             probBa0=rep(1,nbcovs),
-            probBa0=rep(1,nbcovs),
+            probBb0=rep(1,nbcovs),
             ## variables
             probB=matrix(0.5, nrow=nbcovs, ncol=nclusters)
         )},
@@ -214,7 +215,7 @@ bayesnet <- nimbleCode({
         }
         if(nbcovs>0){# binary variates
             for(acov in 1:nBcovs){
-                probB[acov,acluster] ~ dbeta(shape1=probBa0[acov], shape2=probBa0[acov])
+                probB[acov,acluster] ~ dbeta(shape1=probBa0[acov], shape2=probBb0[acov])
             }
         }
     }
@@ -446,14 +447,14 @@ for(stage in 0:nstages){
     for(acov in covNames){
         datum <- alldata[1:ndata][[acov]]
         if(acov %in% realCovs){
-            rg <- range(datum)+c(-1,1)*IQR(datum)
+            rg <- range(datum, na.rm=T)+c(-1,1)*IQR(datum, type=8, na.rm=T)
             Xgrid <- seq(rg[1], rg[2], length.out=256)
             tpar <- unlist(variateinfo[variate==acov,c('transfM','transfW')])
             if(!any(is.na(tpar))){
                 Ogrid <- pretty(exp(tpar['transfW']*Xgrid + tpar['transfM']),n=10)
             }
         }else{
-            rg <- range(datum)
+            rg <- range(datum, na.rm=T)
             rg <- round(c((covMins[acov]+7*rg[1])/8, (covMaxs[acov]+7*rg[2])/8))
             Xgrid <- rg[1]:rg[2]
             tpar <- NA
@@ -461,7 +462,7 @@ for(stage in 0:nstages){
         Xgrid <- cbind(Xgrid)
         colnames(Xgrid) <- acov
         plotsamples <- samplesF(Y=Xgrid, parmList=parmList, nfsamples=min(64,nrow(mcsamples)), inorder=FALSE)
-        ymax <- quant(apply(plotsamples,2,function(x){quant(x,99/100)}),99/100)
+        ymax <- quant(apply(plotsamples,2,function(x){quant(x,99/100)}),99/100, na.rm=T)
         ## ymax <- quant(apply(plotsamples,2,max),99/100)
         tplot(x=Xgrid, y=plotsamples, type='l', col=paste0(palette()[7], '44'), lty=1, lwd=2, xlab=acov, ylab='probability density', ylim=c(0, ymax), family=family)#max(plotsamples[plotsamples<df])))
         if(!any(is.na(tpar))){
@@ -518,4 +519,3 @@ for(stage in 0:nstages){
 ############################################################
 ## End MCMC
 ############################################################
-
