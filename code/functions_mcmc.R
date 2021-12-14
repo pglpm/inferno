@@ -243,18 +243,18 @@ samplesF <- function(Y, X=NULL, parmList, nfsamples=NULL, inorder=FALSE){
                 t(rbind(vapply(seq_len(nclusters), function(acluster){
                     ## real covariates
                     (if(length(rX)>0){
-                        colSums(dnorm(x=t(X[,rX,drop=FALSE]), mean=parmList$meanR[asample,rX,acluster], sd=1/sqrt(parmList$tauR[asample,rX,acluster]), log=TRUE))
+                        colSums(dnorm(x=t(X[,rX,drop=FALSE]), mean=parmList$meanR[asample,rX,acluster], sd=1/sqrt(parmList$tauR[asample,rX,acluster]), log=TRUE), na.rm=TRUE)
                     }else{0}) +
                         ## integer covariates
                         (if(length(iX)>0){
-                            colSums(dbinom(x=t(X[,iX,drop=FALSE]), prob=parmList$probI[asample,iX,acluster], size=parmList$sizeI[asample,iX,acluster], log=TRUE))
+                            colSums(dbinom(x=t(X[,iX,drop=FALSE]), prob=parmList$probI[asample,iX,acluster], size=parmList$sizeI[asample,iX,acluster], log=TRUE), na.rm=TRUE)
                         }else{0}) +
                         ## binary covariates
                         (if(length(bX)>0){
                             colSums(log(
                                 parmList$probB[asample,bX,acluster] * t(X[,bX,drop=FALSE]) +
                                 (1-parmList$probB[asample,bX,acluster]) * (1-t(X[,bX,drop=FALSE]))
-                            ))
+                            ), na.rm=TRUE)
                         }else{0})
                 }, numeric(nydata))))
             )
@@ -263,18 +263,18 @@ samplesF <- function(Y, X=NULL, parmList, nfsamples=NULL, inorder=FALSE){
                 t(rbind(vapply(seq_len(nclusters), function(acluster){
                     ## real covariates
                     (if(length(rY)>0){
-                        colSums(dnorm(x=t(Y[,rY,drop=FALSE]), mean=parmList$meanR[asample,rY,acluster], sd=1/sqrt(parmList$tauR[asample,rY,acluster]), log=TRUE))
+                        colSums(dnorm(x=t(Y[,rY,drop=FALSE]), mean=parmList$meanR[asample,rY,acluster], sd=1/sqrt(parmList$tauR[asample,rY,acluster]), log=TRUE), na.rm=TRUE)
                     }else{0}) +
                         ## integer covariates
                         (if(length(iY)>0){
-                            colSums(dbinom(x=t(Y[,iY,drop=FALSE]), prob=parmList$probI[asample,iY,acluster], size=parmList$sizeI[asample,iY,acluster], log=TRUE))
+                            colSums(dbinom(x=t(Y[,iY,drop=FALSE]), prob=parmList$probI[asample,iY,acluster], size=parmList$sizeI[asample,iY,acluster], log=TRUE), na.rm=TRUE)
                         }else{0}) +
                         ## binary covariates
                         (if(length(bY)>0){
                             colSums(log(
                                 parmList$probB[asample,bY,acluster] * t(Y[,bY,drop=FALSE]) +
                                 (1-parmList$probB[asample,bY,acluster]) * (1-t(Y[,bY,drop=FALSE]))
-                            ))
+                            ), na.rm=TRUE)
                         }else{0})
                 }, numeric(nydata))))
             )
@@ -289,18 +289,18 @@ samplesF <- function(Y, X=NULL, parmList, nfsamples=NULL, inorder=FALSE){
                 t(rbind(vapply(seq_len(nclusters), function(acluster){
                     ## real covariates
                     (if(length(rY)>0){
-                        colSums(dnorm(x=t(Y[,rY,drop=FALSE]), mean=parmList$meanR[asample,rY,acluster], sd=1/sqrt(parmList$tauR[asample,rY,acluster]), log=TRUE))
+                        colSums(dnorm(x=t(Y[,rY,drop=FALSE]), mean=parmList$meanR[asample,rY,acluster], sd=1/sqrt(parmList$tauR[asample,rY,acluster]), log=TRUE), na.rm=TRUE)
                     }else{0}) +
                         ## integer covariates
                         (if(length(iY)>0){
-                            colSums(dbinom(x=t(Y[,iY,drop=FALSE]), prob=parmList$probI[asample,iY,acluster], size=parmList$sizeI[asample,iY,acluster], log=TRUE))
+                            colSums(dbinom(x=t(Y[,iY,drop=FALSE]), prob=parmList$probI[asample,iY,acluster], size=parmList$sizeI[asample,iY,acluster], log=TRUE), na.rm=TRUE)
                         }else{0}) +
                         ## binary covariates
                         (if(length(bY)>0){
                             colSums(log(
                                 parmList$probB[asample,bY,acluster] * t(Y[,bY,drop=FALSE]) +
                                 (1-parmList$probB[asample,bY,acluster]) * (1-t(Y[,bY,drop=FALSE]))
-                            ))
+                            ), na.rm=TRUE)
                         }else{0})
                 }, numeric(nydata))))
             )
