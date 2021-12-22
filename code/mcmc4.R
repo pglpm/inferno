@@ -1,6 +1,6 @@
 ## Author: PGL  Porta Mana
 ## Created: 2021-11-25T14:52:14+0100
-## Last-Updated: 2021-12-12T11:18:50+0100
+## Last-Updated: 2021-12-22T07:11:51+0100
 ################
 ## Template code for model-free probabilistic analysis and prediction of data
 ## Works with continuous and discrete (categorical, binary, integer) variables
@@ -46,15 +46,16 @@ library('nimble')
 
 seed <- 149
 baseversion <- 'test_'
-nclusters <- 64L #as.integer(2^6)
-niter <- 1024L #as.integer(2^11)
-niter0 <- 1024L #as.integer(2^10)
+nclusters <- 64L 
+niter <- 1024L
+niter0 <- 1024L
 thin <- 8L
 nstages <- 3L
 ncheckpoints <- 4L
 maincov <- 'Subgroup_num_'
 family <- 'Palatino'
-##ndata
+## ndata <-
+## continue <- ''
 posterior <- TRUE
 ##
 
@@ -135,18 +136,22 @@ if(nbcovs>0){
 ##
 print('Creating and saving checkpoints')
 checkpointsFile <- paste0(dirname,'/_checkpoints-',ncheckpoints,'-R',baseversion,'-V',length(covNames),'-D',ndata,'-K',nclusters,'.rds')
-checkpoints <- cbind(
-    if(nrcovs>0){rbind(medianrcovs, medianrcovs+widthrcovs, medianrcovs-widthrcovs,
-                       data.matrix(alldata[sample(1:ndata, size=ncheckpoints), ..realCovs]))},
-    if(nicovs>0){rbind(medianicovs,
-                       sapply(round(medianicovs+widthicovs), function(x){min(maxicovs,x)}),
-                       sapply(round(medianicovs-widthicovs), function(x){max(0,x)}),
-                       data.matrix(alldata[sample(1:ndata, size=ncheckpoints), ..integerCovs]))},
-    if(nbcovs>0){rbind(medianbcovs, rep(1,nbcovs), rep(0, nbcovs),
-                       data.matrix(alldata[sample(1:ndata, size=ncheckpoints), ..binaryCovs]))}
+if(exists('continue') && is.character(continue)){
+    checkpoints <- readRDS(checkpointsFile)
+}else{
+    checkpoints <- cbind(
+        if(nrcovs>0){rbind(medianrcovs, medianrcovs+widthrcovs, medianrcovs-widthrcovs,
+                           data.matrix(alldata[sample(1:ndata, size=ncheckpoints), ..realCovs]))},
+        if(nicovs>0){rbind(medianicovs,
+                           sapply(round(medianicovs+widthicovs), function(x){min(maxicovs,x)}),
+                           sapply(round(medianicovs-widthicovs), function(x){max(0,x)}),
+                           data.matrix(alldata[sample(1:ndata, size=ncheckpoints), ..integerCovs]))},
+        if(nbcovs>0){rbind(medianbcovs, rep(1,nbcovs), rep(0, nbcovs),
+                           data.matrix(alldata[sample(1:ndata, size=ncheckpoints), ..binaryCovs]))}
     )
-rownames(checkpoints) <- c('Pdatamedians', 'PdatacornerHi', 'PdatacornerLo', paste0('Pdatum',1:ncheckpoints))
-saveRDS(checkpoints,file=checkpointsFile)
+    rownames(checkpoints) <- c('Pdatamedians', 'PdatacornerHi', 'PdatacornerLo', paste0('Pdatum',1:ncheckpoints))
+    saveRDS(checkpoints,file=checkpointsFile)
+}
 
 ##
 ##
@@ -333,7 +338,12 @@ for(stage in 0:nstages){
     version <- paste0(baseversion, stage)
     gc()
     if(stage==0){
-        mcsamples <- runMCMC(Cmcmcsampler, nburnin=1, niter=niter0+1, thin=1, thin2=niter0, inits=initsFunction, setSeed=seed)
+        if(exists('continue') && is.character(continue)){
+            initsc <- readRDS(continue)
+            inits0 <- initsFunction()
+            for(aname in names(initsc)){inits0[[aname]] <- initsc[[aname]]}
+        }else{inits0 <- initsFunction}
+        mcsamples <- runMCMC(Cmcmcsampler, nburnin=1, niter=niter0+1, thin=1, thin2=niter0, inits=inits0, setSeed=seed)
     }else{
         Cmcmcsampler$run(niter=niter*thin, thin=thin, thin2=niter*thin, reset=FALSE, resetMV=TRUE)
     }
@@ -375,7 +385,7 @@ for(stage in 0:nstages){
     ## colnames(Q3s) <- paste0('Q3_', colnames(miqrtraces))
     ## iqrs <- Q3s - Q1s
     ## colnames(iqrs) <- paste0('IQR_', colnames(miqrtraces))
-    traces <- cbind(LL=ll, t(probCheckpoints), #medians, iqrs, Q1s, Q3s,
+    traces <- cbind(LL=ll, t(log(probCheckpoints)), #medians, iqrs, Q1s, Q3s,
                     do.call(cbind, momentstraces))
     badcols <- foreach(i=1:ncol(traces), .combine=c)%do%{if(all(is.na(traces[,i]))){i}else{NULL}}
     if(!is.null(badcols)){traces <- traces[,-badcols]}
@@ -495,9 +505,11 @@ for(stage in 0:nstages){
     ##
     par(mfrow=c(1,1))
 #    matplot(ll, type='l', col=palette()[3], lty=1, main='LL', ylab='LL', ylim=range(ll[abs(ll)<Inf]))
+        transf <- identity
     for(acov in colnames(traces)){
-        if(grepl('^[PDV]', acov)){transf <- function(x){log(abs(x)+1e-12)}
-        }else{transf <- identity}
+        ## if(grepl('^[PDV]', acov)){transf <- function(x){log(abs(x)+1e-12)}
+        ## if(grepl('^[PDV]', acov)){transf <- function(x){log(abs(x)+1e-12)}
+        ## }else{transf <- identity}
         tplot(y=transf(traces[,acov]), type='l', lty=1, col=colpalette[acov],
                 main=paste0(acov,
                             '\nESS = ', signif(diagnESS[acov], 3),
