@@ -1,6 +1,6 @@
 ## Author: PGL  Porta Mana
 ## Created: 2021-11-25T14:52:14+0100
-## Last-Updated: 2021-12-30T15:40:40+0100
+## Last-Updated: 2022-01-05T12:41:02+0100
 ################
 ## Template code for model-free probabilistic analysis and prediction of data
 ## Works with continuous and discrete (categorical, binary, integer) variables
@@ -45,7 +45,7 @@ library('nimble')
 
 
 seed <- 707
-baseversion <- 'FAQposteriorA2_'
+baseversion <- 'FILENAME_'
 nclusters <- 75L
 niter <- 1024L
 niter0 <- 1024L
@@ -383,7 +383,7 @@ for(stage in 0:nstages){
     saveRDS(finalstate2list(finalstate),file=paste0(dirname,'/_finalstate-R',version,'-V',length(covNames),'-D',ndata,'-K',nclusters,'-I',nrow(mcsamples),'.rds'))
     ##
     parmList <- mcsamples2parmlist(mcsamples)
-    saveRDS(parmList,file=paste0(dirname,'/_frequencies-R',version,'-V',length(covNames),'-D',ndata,'-K',nclusters,'-I',nrow(mcsamples),'.rds'))
+    saveRDS(parmList,file=paste0(dirname,'/_frequencies-R',version,'-V',length(covNames),'-D',ndata,'-K',nclusters,'-I',nrow(parmList$q),'.rds'))
     ## Traces to follow for diagnostics
     ll <- llSamples(dat, parmList)
     flagll <- FALSE
@@ -408,7 +408,7 @@ for(stage in 0:nstages){
                     ##do.call(cbind, momentstraces))
     badcols <- foreach(i=1:ncol(traces), .combine=c)%do%{if(all(is.na(traces[,i]))){i}else{NULL}}
     if(!is.null(badcols)){traces <- traces[,-badcols]}
-    saveRDS(traces,file=paste0(dirname,'/_probtraces-R',version,'-V',length(covNames),'-D',ndata,'-K',nclusters,'-I',nrow(mcsamples),'.rds'))
+    saveRDS(traces,file=paste0(dirname,'/_probtraces-R',version,'-V',length(covNames),'-D',ndata,'-K',nclusters,'-I',nrow(parmList$q),'.rds'))
     
     ##
     if(nrow(traces)>=1000){
@@ -460,7 +460,7 @@ for(stage in 0:nstages){
     ##
 
     ##
-    pdff(paste0(dirname,'/mcsummary2-R',version,'-V',length(covNames),'-D',ndata,'-K',nclusters,'-I',nrow(mcsamples)))
+    pdff(paste0(dirname,'/mcsummary2-R',version,'-V',length(covNames),'-D',ndata,'-K',nclusters,'-I',nrow(parmList$q)))
     matplot(1:2, type='l', col='white', main=paste0('Stats stage ',stage), axes=FALSE, ann=FALSE)
     legendpositions <- c('topleft','topright','bottomleft','bottomright')
     for(alegend in 1:length(grouplegends)){
