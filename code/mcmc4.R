@@ -1,6 +1,6 @@
 ## Author: PGL  Porta Mana
 ## Created: 2021-11-25T14:52:14+0100
-## Last-Updated: 2022-01-05T12:41:02+0100
+## Last-Updated: 2022-01-06T09:24:14+0100
 ################
 ## Template code for model-free probabilistic analysis and prediction of data
 ## Works with continuous and discrete (categorical, binary, integer) variables
@@ -45,21 +45,21 @@ library('nimble')
 
 
 seed <- 707
-baseversion <- 'FILENAME_'
-nclusters <- 75L
-niter <- 1024L
-niter0 <- 1024L
-thin <- 8L
-nstages <- 3L
+baseversion <- 'testmcmc4_'
+nclusters <- 64L
+niter <- 128L
+niter0 <- 128L
+thin <- 1L
+nstages <- 0L
 ncheckprobs1 <- 16L
 ncheckprobs2 <- 8L
-maincov <- 'Subgroup_num_'
+maincov <- 'Vb'
 family <- 'Palatino'
 ##ndata <- 128L
-posterior <- TRUE
+posterior <- FALSE
 ##
 
-saveinfofile <- 'variatesFAQng_info.csv'
+saveinfofile <- 'testdata_variate_info.csv'
 variateinfo <- fread(saveinfofile, sep=',')
 covNames <- variateinfo$variate
 covTypes <- variateinfo$type
@@ -67,7 +67,7 @@ covMins <- variateinfo$min
 covMaxs <- variateinfo$max
 names(covTypes) <- names(covMins) <- names(covMaxs) <- covNames
 
-datafile <- 'alldataFAQ_transformed_shuffled.csv'
+datafile <- 'testdata.csv'
 odata <- fread(datafile, sep=',')
 
 #################################
@@ -107,9 +107,9 @@ file.copy(from=thisscriptname, to=paste0(dirname,'/script-R',baseversion,'-V',le
 ##
 source('functions_mcmc.R')
 ## alldataRanges <- dataQuantiles <- list()
-## for(acov in covNames){
-##         dataQuantiles[[acov]] <- quant(alldata[1:ndata][[acov]], prob=c(0.005,0.995))
-##         alldataRanges[[acov]] <- range(alldata[1:ndata][[acov]])
+## for(avar in covNames){
+##         dataQuantiles[[avar]] <- quant(alldata[1:ndata][[avar]], prob=c(0.005,0.995))
+##         alldataRanges[[avar]] <- range(alldata[1:ndata][[avar]])
 ## }
 ##
 if(nrcovs>0){
@@ -123,8 +123,8 @@ if(length(integerCovs)>0){
     maxicovs <- apply(alldata[1:ndata,..integerCovs],2,function(x)max(x, na.rm=T))
     thmaxicovs <- covMaxs[integerCovs]
     matrixprobicovs <- matrix(0, nrow=nicovs, ncol=max(thmaxicovs), dimnames=list(integerCovs))
-    for(acov in integerCovs){
-        matrixprobicovs[acov,1:thmaxicovs[acov]] <- (1:thmaxicovs[acov])/sum(1:thmaxicovs[acov])
+    for(avar in integerCovs){
+        matrixprobicovs[avar,1:thmaxicovs[avar]] <- (1:thmaxicovs[avar])/sum(1:thmaxicovs[avar])
     }
 }
 ##
@@ -134,6 +134,7 @@ if(nbcovs>0){
 
 ##
 ##
+if(posterior){
 print('Creating and saving checkpoints')
 checkprobsFile <- paste0(dirname,'/_checkprobs-R',baseversion,'-V',length(covNames),'-D',ndata,'-K',nclusters,'.rds')
 if(exists('continue') && is.character(continue)){
@@ -168,6 +169,7 @@ if(exists('continue') && is.character(continue)){
                                  x=valuelist[psamples2[apoint], csamples2[apoint], drop=F] )})
     )
     saveRDS(checkprobs,file=checkprobsFile)
+}
 }
 ##
 ##
@@ -223,28 +225,28 @@ bayesnet <- nimbleCode({
     q[1:nClusters] ~ ddirch(alpha=qalpha0[1:nClusters])
     for(acluster in 1:nClusters){
         if(nrcovs>0){# real variates
-            for(acov in 1:nRcovs){
-                meanR[acov,acluster] ~ dnorm(mean=meanRmean0[acov], tau=meanRtau[acov])
-                tauR[acov,acluster] ~ dgamma(shape=tauRshape0[acov], rate=tauRrate[acov])
+            for(avar in 1:nRcovs){
+                meanR[avar,acluster] ~ dnorm(mean=meanRmean0[avar], tau=meanRtau[avar])
+                tauR[avar,acluster] ~ dgamma(shape=tauRshape0[avar], rate=tauRrate[avar])
             }
         }
         if(nicovs>0){# integer variates
-            for(acov in 1:nIcovs){
-                probI[acov,acluster] ~ dbeta(shape1=probIa0[acov], shape2=probIb0[acov])
-                sizeI[acov,acluster] ~ dcat(prob=sizeIprob0[acov,1:maxIcovs])
+            for(avar in 1:nIcovs){
+                probI[avar,acluster] ~ dbeta(shape1=probIa0[avar], shape2=probIb0[avar])
+                sizeI[avar,acluster] ~ dcat(prob=sizeIprob0[avar,1:maxIcovs])
             }
         }
         if(nbcovs>0){# binary variates
-            for(acov in 1:nBcovs){
-                probB[acov,acluster] ~ dbeta(shape1=probBa0[acov], shape2=probBb0[acov])
+            for(avar in 1:nBcovs){
+                probB[avar,acluster] ~ dbeta(shape1=probBa0[avar], shape2=probBb0[avar])
             }
         }
     }
     ##
     if(nrcovs>0){# integrated real variables
-        for(acov in 1:nRcovs){
-            meanRtau[acov] ~ dgamma(shape=meanRshape0[acov], rate=meanRrate0[acov])
-            tauRrate[acov] ~ dgamma(shape=tauRshape0[acov], rate=tauRrate0[acov])
+        for(avar in 1:nRcovs){
+            meanRtau[avar] ~ dgamma(shape=meanRshape0[avar], rate=meanRrate0[avar])
+            tauRrate[avar] ~ dgamma(shape=tauRshape0[avar], rate=tauRrate0[avar])
         }
     }
     ##
@@ -254,18 +256,18 @@ bayesnet <- nimbleCode({
         }            ##
         for(adatum in 1:nData){
             if(nrcovs>0){
-                for(acov in 1:nRcovs){
-                    X[adatum,acov] ~ dnorm(mean=meanR[acov,C[adatum]], tau=tauR[acov,C[adatum]])
+                for(avar in 1:nRcovs){
+                    X[adatum,avar] ~ dnorm(mean=meanR[avar,C[adatum]], tau=tauR[avar,C[adatum]])
                 }
             }
             if(nicovs>0){
-                for(acov in 1:nIcovs){
-                    Y[adatum,acov] ~ dbinom(prob=probI[acov,C[adatum]], size=sizeI[acov,C[adatum]])
+                for(avar in 1:nIcovs){
+                    Y[adatum,avar] ~ dbinom(prob=probI[avar,C[adatum]], size=sizeI[avar,C[adatum]])
                 }
             }
             if(nbcovs>0){
-                for(acov in 1:nBcovs){
-                    Z[adatum,acov] ~ dbern(prob=probB[acov,C[adatum]])
+                for(avar in 1:nBcovs){
+                    Z[adatum,avar] ~ dbern(prob=probB[avar,C[adatum]])
                 }
             }
         }
@@ -300,32 +302,32 @@ if(posterior){
     for(adatum in 1:ndata){
         confmodel$addSampler(target=paste0('C[', adatum, ']'), type='categorical')
     }
-    confmodel$addSampler(target=paste0('q[1:', nclusters, ']'), type='conjugate')
     for(acluster in 1:nclusters){
         if(nrcovs>0){
-            for(acov in 1:nrcovs){
-                confmodel$addSampler(target=paste0('meanR[', acov, ', ', acluster, ']'), type='conjugate')
-                confmodel$addSampler(target=paste0('tauR[', acov, ', ', acluster, ']'), type='conjugate')
+            for(avar in 1:nrcovs){
+                confmodel$addSampler(target=paste0('meanR[', avar, ', ', acluster, ']'), type='conjugate')
+                confmodel$addSampler(target=paste0('tauR[', avar, ', ', acluster, ']'), type='conjugate')
             }
         }
         if(nicovs>0){
-            for(acov in 1:nicovs){
-                confmodel$addSampler(target=paste0('probI[', acov, ', ', acluster, ']'), type='conjugate')
-                confmodel$addSampler(target=paste0('sizeI[', acov, ', ', acluster, ']'), type='categorical')
+            for(avar in 1:nicovs){
+                confmodel$addSampler(target=paste0('probI[', avar, ', ', acluster, ']'), type='conjugate')
+                confmodel$addSampler(target=paste0('sizeI[', avar, ', ', acluster, ']'), type='categorical')
             }
         }
         if(nbcovs>0){
-            for(acov in 1:nbcovs){
-                confmodel$addSampler(target=paste0('probB[', acov, ', ', acluster, ']'), type='conjugate')
+            for(avar in 1:nbcovs){
+                confmodel$addSampler(target=paste0('probB[', avar, ', ', acluster, ']'), type='conjugate')
             }
         }
     }
     if(nrcovs>0){
-        for(acov in 1:nrcovs){
-            confmodel$addSampler(target=paste0('meanRtau[', acov, ']'), type='conjugate')
-            confmodel$addSampler(target=paste0('tauRrate[', acov, ']'), type='conjugate')
+        for(avar in 1:nrcovs){
+            confmodel$addSampler(target=paste0('meanRtau[', avar, ']'), type='conjugate')
+            confmodel$addSampler(target=paste0('tauRrate[', avar, ']'), type='conjugate')
         }
     }
+    confmodel$addSampler(target=paste0('q[1:', nclusters, ']'), type='conjugate')
 }else{
     confmodel <- configureMCMC(Cmodel, 
                                monitors=c('q',
@@ -391,10 +393,12 @@ for(stage in 0:nstages){
         flagll <- TRUE
         ll <- rep(0, length(ll))}
     ##momentstraces <- moments12Samples(parmList)
+if(posterior){
     probCheckprobs <- foreach(apoint=checkprobs, .combine=rbind)%do%{
         samplesF(Y=apoint$y, X=apoint$x, parmList=parmList, inorder=TRUE)
     }
     rownames(probCheckprobs) <- checkprobs[[1]]$names
+    }
     ## miqrtraces <- calcSampleMQ(parmList)
     ## medians <- miqrtraces[,,1]
     ## colnames(medians) <- paste0('MEDIAN_', colnames(miqrtraces))
@@ -454,8 +458,8 @@ for(stage in 0:nstages){
     ## samplesQuantiles <- calcSampleQuantiles(parmList)
     ##
     ## xlimits <- list()
-    ## for(acov in covNames){
-    ##     xlimits[[acov]] <- range(c(alldataRanges[[acov]], samplesQuantiles[,acov,]))
+    ## for(avar in covNames){
+    ##     xlimits[[avar]] <- range(c(alldataRanges[[avar]], samplesQuantiles[,avar,]))
     ## }
     ##
 
@@ -479,33 +483,33 @@ for(stage in 0:nstages){
            ))
     ##
     par(mfrow=c(1,1))
-    for(acov in covNames){
-        datum <- alldata[1:ndata][[acov]]
-        if(acov %in% realCovs){
+    for(avar in covNames){
+        datum <- alldata[1:ndata][[avar]]
+        if(avar %in% realCovs){
             rg <- range(datum, na.rm=T)+c(-1,1)*IQR(datum, type=8, na.rm=T)
             Xgrid <- seq(rg[1], rg[2], length.out=256)
-            tpar <- unlist(variateinfo[variate==acov,c('transfM','transfW')])
+            tpar <- unlist(variateinfo[variate==avar,c('transfM','transfW')])
             if(!any(is.na(tpar))){
                 Ogrid <- pretty(exp(tpar['transfW']*Xgrid + tpar['transfM']),n=10)
             }
         }else{
             rg <- range(datum, na.rm=T)
-            rg <- round(c((covMins[acov]+7*rg[1])/8, (covMaxs[acov]+7*rg[2])/8))
+            rg <- round(c((covMins[avar]+7*rg[1])/8, (covMaxs[avar]+7*rg[2])/8))
             Xgrid <- rg[1]:rg[2]
             tpar <- NA
         }
         Xgrid <- cbind(Xgrid)
-        colnames(Xgrid) <- acov
+        colnames(Xgrid) <- avar
         plotsamples <- samplesF(Y=Xgrid, parmList=parmList, nfsamples=min(64,nrow(mcsamples)), inorder=FALSE)
         ymax <- quant(apply(plotsamples,2,function(x){quant(x,99/100)}),99/100, na.rm=T)
         ## ymax <- quant(apply(plotsamples,2,max),99/100)
-        tplot(x=Xgrid, y=plotsamples, type='l', col=paste0(palette()[7], '44'), lty=1, lwd=2, xlab=acov, ylab='probability density', ylim=c(0, ymax), family=family)#max(plotsamples[plotsamples<df])))
+        tplot(x=Xgrid, y=plotsamples, type='l', col=paste0(palette()[7], '44'), lty=1, lwd=2, xlab=avar, ylab='probability density', ylim=c(0, ymax), family=family)#max(plotsamples[plotsamples<df])))
         if(!any(is.na(tpar))){
             axis(3,at=(log(Ogrid)-tpar['transfM'])/tpar['transfW'],labels=Ogrid,lwd=0,lwd.ticks=1,col.ticks='#bbbbbb80')
         }
-        if(acov %in% binaryCovs){
+        if(avar %in% binaryCovs){
             histo <- thist(plotsamples[2,])
-            tplot(histo$breaks, histo$density, col=7, xlab=paste0('P(',acov,' = 1)'), ylab='probability density', ylim=c(0, max(histo$density)), xlim=c(0,1), family=family)
+            tplot(histo$breaks, histo$density, col=7, xlab=paste0('P(',avar,' = 1)'), ylab='probability density', ylim=c(0, max(histo$density)), xlim=c(0,1), family=family)
         }
     }
     ## ##
@@ -531,21 +535,21 @@ for(stage in 0:nstages){
     par(mfrow=c(1,1))
 #    matplot(ll, type='l', col=palette()[3], lty=1, main='LL', ylab='LL', ylim=range(ll[abs(ll)<Inf]))
         transf <- identity
-    for(acov in colnames(traces)){
-        ## if(grepl('^[PDV]', acov)){transf <- function(x){log(abs(x)+1e-12)}
-        ## if(grepl('^[PDV]', acov)){transf <- function(x){log(abs(x)+1e-12)}
+    for(avar in colnames(traces)){
+        ## if(grepl('^[PDV]', avar)){transf <- function(x){log(abs(x)+1e-12)}
+        ## if(grepl('^[PDV]', avar)){transf <- function(x){log(abs(x)+1e-12)}
         ## }else{transf <- identity}
-        tplot(y=transf(traces[,acov]), type='l', lty=1, col=colpalette[acov],
-                main=paste0(acov,
-                            '\nESS = ', signif(diagnESS[acov], 3),
-                            ' | IAT = ', signif(diagnIAT[acov], 3),
-                            ' | BMK = ', signif(diagnBMK[acov], 3),
-                            ' | MCSE(6.27) = ', signif(diagnMCSE[acov], 3),
-                            ' | stat: ', diagnStat[acov],
-                            ' | burn: ', diagnBurn[acov]
+        tplot(y=transf(traces[,avar]), type='l', lty=1, col=colpalette[avar],
+                main=paste0(avar,
+                            '\nESS = ', signif(diagnESS[avar], 3),
+                            ' | IAT = ', signif(diagnIAT[avar], 3),
+                            ' | BMK = ', signif(diagnBMK[avar], 3),
+                            ' | MCSE(6.27) = ', signif(diagnMCSE[avar], 3),
+                            ' | stat: ', diagnStat[avar],
+                            ' | burn: ', diagnBurn[avar]
                             ),
-                ylab=acov, family=family
-              #, ylim=range(c(transf(traces[,acov][abs(transf(traces[,acov]))<Inf])))
+                ylab=avar, family=family
+              #, ylim=range(c(transf(traces[,avar][abs(transf(traces[,avar]))<Inf])))
               )
     }
     dev.off()
@@ -557,3 +561,56 @@ for(stage in 0:nstages){
 ############################################################
 ## End MCMC
 ############################################################
+
+xrg <- 10
+xgrid <- seq(-xrg,xrg,length.out=512)
+plotgrid <- c(8,8)
+vrsamples <- samplesF(Y=cbind(Vr=xgrid), parmList=parmList, nfsamples=prod(plotgrid), inorder=T)
+vi1samples <- samplesF(Y=cbind(Vi1=0:thmaxicovs['Vi1']), parmList=parmList, nfsamples=prod(plotgrid), inorder=T)
+vi2samples <- samplesF(Y=cbind(Vi2=0:thmaxicovs['Vi2']), parmList=parmList, nfsamples=prod(plotgrid), inorder=T)
+pdff('plots_vr')
+par(mfrow=plotgrid,mar=c(0,0,0,0))
+for(i in 1:prod(plotgrid)){
+    tplot(x=xgrid, y=vrsamples[,i], lty=1, lwd=2, ylim=c(0,NA),
+          xlab=NA, ylab=NA, xlabels=F, ylabels=F, mar=c(0,0,0,0)+1)
+    }
+for(i in 1:prod(plotgrid)){
+    tplot(x=0:thmaxicovs['Vi1'], y=vi1samples[,i], lty=1, lwd=2, ylim=c(0,NA),
+          xlab=NA, ylab=NA, xlabels=F, ylabels=F, mar=c(0,0,0,0)+1)
+    }
+for(i in 1:prod(plotgrid)){
+    tplot(x=0:thmaxicovs['Vi2'], y=vi2samples[,i], lty=1, lwd=2, ylim=c(0,NA),
+          xlab=NA, ylab=NA, xlabels=F, ylabels=F, mar=c(0,0,0,0)+1)
+    }
+dev.off()
+
+
+nn <- 32L;
+sz <- 50L;
+nk <- 64L;
+shape1 <- 2;
+shape2 <- 1;
+prob <- (1:sz);
+##alph <- 1/nk;
+bsamples <- dbinom(array(rep(0:sz,nk*nn),dim=c(sz+1,nn,nk)), prob=rbeta(nk*nn, shape1=shape1, shape2=shape2), size=sample(x=1:sz,size=nk*nn,replace=TRUE,prob=prob))
+qsamples <- LaplacesDemon::rdirichlet(n=nn, alph=rep(1/nk,nk));
+isamples <- t(apply(bsamples,1,function(x){rowSums(qsamples*x)}))
+##
+par(mfrow=c(4,8),mar=c(0,0,0,0)); for(i in 1:nn){tplot(x=0:sz,isamples[,i],lty=1,lwd=2,ylim=c(0,NA),xlim=c(-1,sz+1),xlab=NA,ylab=NA,xlabels=F,ylabels=F,mar=c(0,0,0,0)+1)}
+
+
+
+nn <- 32L;
+nk <- 64L;
+shapem <- 1/2
+shapev <- 1/2
+xgrid <- seq(-10,10,length.out=256)
+##alph <- 1/nk;
+bsamples <- dnorm(array(rep(xgrid,nk*nn),dim=c(256,nn,nk)), mean=rnorm(nk*nn, mean=0, sd=1/sqrt(rgamma(nk*nn,shape=shapem, rate=1))), sd=1/sqrt(rgamma(nk*nn,shape=shapev,rate=rgamma(nk*nn,shape=shapev,rate=1))))
+qsamples <- LaplacesDemon::rdirichlet(n=nn, alph=rep(1/nk,nk));
+isamples <- t(apply(bsamples,1,function(x){rowSums(qsamples*x)}))
+##
+par(mfrow=c(4,8),mar=c(0,0,0,0));
+for(i in 1:nn){tplot(x=xgrid,y=isamples[,i],lty=1,lwd=2,ylim=c(0,NA),xlab=NA,ylab=NA,xlabels=F,ylabels=F,mar=c(0,0,0,0)+1)}
+dev.off()
+tplot(x=xgrid,y=isamples[,1],lty=1,lwd=2,ylim=c(0,NA),xlab=NA,ylab=NA)

@@ -1,0 +1,5 @@
+variate,type,min,max,transfM,transfW,origvariate
+Vr,double,-Inf,Inf,0,1,Vr
+Vi1,integer,0,10,,,Vi1
+Vi2,integer,0,100,,,Vi2
+Vb,binary,0,1,,,Vb
