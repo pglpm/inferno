@@ -567,7 +567,7 @@ samplesVars <- function(Y, X=NULL, parmList, nfsamples=NULL, inorder=FALSE){
 }
 ##
 ## Gives samples of variate values
-samplesX <- function(parmList, nperf=2, nfsamples=NULL, inorder=FALSE){
+samplesX <- function(parmList, nperf=2, nfsamples=NULL, inorder=FALSE, seed=NULL){
     rCovs <- dimnames(parmList$meanR)[[2]]
     iCovs <- dimnames(parmList$probI)[[2]]
     bCovs <- dimnames(parmList$probB)[[2]]
@@ -586,6 +586,7 @@ samplesX <- function(parmList, nperf=2, nfsamples=NULL, inorder=FALSE){
         fsubsamples <- seq_len(nfsamples)
     }
     ##
+    if(!is.null(seed)){set.seed(seed)}
     XX <- foreach(asample=fsubsamples, .combine=rbind, .inorder=inorder)%dorng%{
         acluster <- sample(x=sclusters, size=nperf, prob=q[asample,], replace=TRUE)
         ##
@@ -607,7 +608,7 @@ samplesX <- function(parmList, nperf=2, nfsamples=NULL, inorder=FALSE){
 }
 ## ##
 ## ## Gives samples of long-run mutual information for two sets of variates
-samplesMI2 <- function(Y, X=Y, X2=NULL, parmList, base=2L, nperf=1024, nfsamples=NULL, inorder=FALSE){
+samplesMI2 <- function(Y, X=Y, X2=NULL, parmList, base=2L, nperf=1024, nfsamples=NULL, inorder=FALSE, seed=NULL){
     rCovs <- dimnames(parmList$meanR)[[2]]
     iCovs <- dimnames(parmList$probI)[[2]]
     bCovs <- dimnames(parmList$probB)[[2]]
@@ -622,23 +623,6 @@ samplesMI2 <- function(Y, X=Y, X2=NULL, parmList, base=2L, nperf=1024, nfsamples
     rX2 <- X2[X2 %in% rCovs]
     iX2 <- X2[X2 %in% iCovs]
     bX2 <- X2[X2 %in% bCovs]
-    ##
-    ## rX <- X[X %in% rCovs]
-    ##     if(length(intersect(rX,rY))>0){
-    ##         warning('*WARNING: predictor and predictand have real variates in common. Removing from predictor*')
-    ##         rX <- setdiff(rX,rY)
-    ##     }
-    ##     iX <- X[X %in% iCovs]
-    ##     if(length(intersect(iX,iY))>0){
-    ##         warning('*WARNING: predictor and predictand have integer variates in common. Removing from predictor*')
-    ##         iX <- setdiff(iX,iY)
-    ##     }
-    ##     bX <- X[X %in% bCovs]
-    ##     if(length(intersect(bX,bY))>0){
-    ##         warning('*WARNING: predictor and predictand have binary variates in common. Removing from predictor*')
-    ##         bX <- setdiff(bX,bY)
-    ##     }
-    ##     if(length(c(rX,iX,bX))==0){stop('X is Null')}
     ##
     rZ <- union(rY,union(rX,rX2))
     iZ <- union(iY,union(iX,iX2))
@@ -657,6 +641,7 @@ samplesMI2 <- function(Y, X=Y, X2=NULL, parmList, base=2L, nperf=1024, nfsamples
         fsubsamples <- seq_len(nfsamples)
     }
     ##
+    if(!is.null(seed)){set.seed(seed)}
     MI <- foreach(asample=fsubsamples, .combine=cbind, .inorder=inorder)%dorng%{
         someclusters <- sample(x=sclusters, size=nperf, prob=q[asample,], replace=TRUE)
         ##
@@ -708,7 +693,7 @@ samplesMI2 <- function(Y, X=Y, X2=NULL, parmList, base=2L, nperf=1024, nfsamples
 }
 ## ##
 ## ## Gives samples of long-run mutual information for several sets of variates
-samplesMI <- function(Y, X, parmList, base=2L, nperf=1024, nfsamples=NULL, inorder=FALSE){
+samplesMI <- function(Y, X, parmList, base=2L, nperf=1024, nfsamples=NULL, inorder=FALSE, seed=NULL){
     rCovs <- dimnames(parmList$meanR)[[2]]
     iCovs <- dimnames(parmList$probI)[[2]]
     bCovs <- dimnames(parmList$probB)[[2]]
@@ -722,23 +707,6 @@ samplesMI <- function(Y, X, parmList, base=2L, nperf=1024, nfsamples=NULL, inord
     rX2 <- X2[X2 %in% rCovs]
     iX2 <- X2[X2 %in% iCovs]
     bX2 <- X2[X2 %in% bCovs]
-    ##
-    ## rX <- X[X %in% rCovs]
-    ##     if(length(intersect(rX,rY))>0){
-    ##         warning('*WARNING: predictor and predictand have real variates in common. Removing from predictor*')
-    ##         rX <- setdiff(rX,rY)
-    ##     }
-    ##     iX <- X[X %in% iCovs]
-    ##     if(length(intersect(iX,iY))>0){
-    ##         warning('*WARNING: predictor and predictand have integer variates in common. Removing from predictor*')
-    ##         iX <- setdiff(iX,iY)
-    ##     }
-    ##     bX <- X[X %in% bCovs]
-    ##     if(length(intersect(bX,bY))>0){
-    ##         warning('*WARNING: predictor and predictand have binary variates in common. Removing from predictor*')
-    ##         bX <- setdiff(bX,bY)
-    ##     }
-    ##     if(length(c(rX,iX,bX))==0){stop('X is Null')}
     ##
     rZ <- union(rY,rX2)
     iZ <- union(iY,iX2)
@@ -757,6 +725,7 @@ samplesMI <- function(Y, X, parmList, base=2L, nperf=1024, nfsamples=NULL, inord
         fsubsamples <- seq_len(nfsamples)
     }
     ##
+    if(!is.null(seed)){set.seed(seed)}
     MI <- foreach(asample=fsubsamples, .combine=cbind, .inorder=inorder)%dorng%{
         someclusters <- sample(x=sclusters, size=nperf, prob=q[asample,], replace=TRUE)
         ##
