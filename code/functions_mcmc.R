@@ -47,7 +47,7 @@ mcsamples2parmlist <- function(mcsamples){
 ## Construct a list of parameter samples from the raw MCMC samples for the second monitored set
 finalstate2list <- function(mcsamples){
     if(!is.vector(mcsamples)){print('ERROR!')}
-    parmNames <- c('q', 'meanR', 'tauR', 'probI', 'sizeI', 'probB', 'C', 'meanRtau', 'tauRrate')
+    parmNames <- c('q', 'meanR', 'tauR', 'probI', 'sizeI', 'probB', 'C') #, 'meanRtau', 'tauRrate')
     nclusters <- sum(grepl('^q\\[', names(mcsamples)))
     nrcovs <- sum(grepl('^meanR\\[[^,]*, 1]', names(mcsamples)))
     nicovs <- sum(grepl('^probI\\[[^,]*, 1]', names(mcsamples)))
