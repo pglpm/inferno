@@ -1,6 +1,6 @@
 ## Author: PGL  Porta Mana
 ## Created: 2021-11-25T14:52:14+0100
-## Last-Updated: 2022-04-16T08:04:23+0200
+## Last-Updated: 2022-04-17T10:29:01+0200
 ################
 ## Template code for model-free probabilistic analysis and prediction of data
 ## Works with continuous and discrete (categorical, binary, integer) variables
@@ -49,12 +49,11 @@ library('nimble')
 
 
 set.seed(707)
-baseversion <- 'testmcmc6_'
+baseversion <- 'testmcmc7_'
 nclusters <- 64L
 niter <- 128L # iterations AFTER thinning
 niter0 <- 128L
 thin <- 1L
-stagestart <- 2L # last saved + 1
 nstages <- 0L
 ncheckprobs1 <- 16L
 ncheckprobs2 <- 8L
@@ -62,11 +61,12 @@ maincov <- 'Vb'
 family <- 'Palatino'
 ##ndata <- 128L # if undefined: use all data
 posterior <- FALSE
+##
+## stagestart <- 2L # last saved + 1
+##
 saveinfofile <- 'testdata_variate_info.csv'
 datafile <- 'testdata.csv'
 ##
-##
-## continue <- paste0('_finalstate-R',baseversion,'_',mcmcseed,'_,'stagestart-1,'-V',length(covNames),'-D',ndata,'-K',nclusters,'-I',niter,'.rds') # if defined: continue from previous run
 
 baseversion <- paste0(baseversion,'_',mcmcseed,'_')
 variateinfo <- fread(saveinfofile, sep=',')
@@ -76,6 +76,11 @@ covMins <- variateinfo$min
 covMaxs <- variateinfo$max
 names(covTypes) <- names(covMins) <- names(covMaxs) <- covNames
 odata <- fread(datafile, sep=',')
+if(!exists('stagestart')){stagestart <- 0L}
+if(stagestart>0){
+    continue <- paste0('_finalstate-R',baseversion,stagestart-1,'-V',length(covNames),'-D',ndata,'-K',nclusters,'-I',niter,'.rds')
+}
+
 
 #################################
 ## Setup for Monte Carlo sampling
@@ -134,14 +139,14 @@ if(length(integerCovs)>0){
         matrixprobicovs[avar,1:thmaxicovs[avar]] <- (1:thmaxicovs[avar])/sum(1:thmaxicovs[avar])
     }
 }
-##
-if(nbcovs>0){
-    medianbcovs <- apply(alldata[1:ndata,..binaryCovs],2,function(x)median(x, na.rm=TRUE))
-}
+## Not used:
+## if(nbcovs>0){
+##     medianbcovs <- apply(alldata[1:ndata,..binaryCovs],2,function(x)median(x, na.rm=TRUE))
+## }
 
 ##
 ##
-if(posterior){
+if(TRUE){
 print('Creating and saving checkpoints')
 checkprobsFile <- paste0(dirname,'/_checkprobs-R',baseversion,'-V',length(covNames),'-D',ndata,'-K',nclusters,'.rds')
 if(exists('continue') && is.character(continue)){
@@ -200,6 +205,8 @@ initsFunction <- function(){
             tauRshape0=1/((1/4)*widthrcovs/(2*qnorm(3/4)))^2*(1/4),
             tauRrate0=rep(1/4,nrcovs) # dims = variance
             ## integrated parameters
+            ### NB: if we want a Cauchy for meanR and a compound Gamma for tauR,
+            ### then the extra Gammas & parameters need to be added PER CLUSTER
 #            meanRtau=1/(widthrcovs/(2*qnorm(3/4)))^2, # dims = inv. variance
 #            tauRrate=(widthrcovs/(2*qnorm(3/4)))^2, # dims = variance
             ## variables
@@ -234,6 +241,8 @@ bayesnet <- nimbleCode({
             for(avar in 1:nRcovs){
                 meanR[avar,acluster] ~ dnorm(mean=meanRmean0[avar], tau=meanRtau0[avar])
                 tauR[avar,acluster] ~ dgamma(shape=tauRshape0[avar], rate=tauRrate0[avar])
+            ### NB: if we want a Cauchy for meanR and a compound Gamma for tauR,
+            ### then the extra Gammas & parameters need to be added PER CLUSTER
             }
         }
         if(nicovs>0){# integer variates
@@ -341,7 +350,7 @@ print(Sys.time() - timecount)
 ##################################################
 ## Monte Carlo sampler and plots of MC diagnostics
 ##################################################
-for(stage in 0:nstages){
+for(stage in stagestart+(0:nstages)){
     totalruntime <- Sys.time()
 
     print(paste0('==== STAGE ', stage, ' ===='))
@@ -389,7 +398,7 @@ for(stage in 0:nstages){
         ll <- rep(0, length(ll))}
 
     ##momentstraces <- moments12Samples(parmList)
-if(posterior){
+if(TRUE){
     probCheckprobs <- foreach(apoint=checkprobs, .combine=rbind)%do%{
         samplesF(Y=apoint$y, X=apoint$x, parmList=parmList, inorder=TRUE)
     }
