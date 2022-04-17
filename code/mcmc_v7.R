@@ -1,6 +1,6 @@
 ## Author: PGL  Porta Mana
 ## Created: 2021-11-25T14:52:14+0100
-## Last-Updated: 2022-04-17T10:29:01+0200
+## Last-Updated: 2022-04-17T10:32:53+0200
 ################
 ## Template code for model-free probabilistic analysis and prediction of data
 ## Works with continuous and discrete (categorical, binary, integer) variables
@@ -196,7 +196,7 @@ if(posterior){constants$nData <- ndata}
 initsFunction <- function(){
     c(list(# cluster probabilities
         qalpha0=rep(1/nclusters, nclusters) # hyperparameters
-#        q=rep(1/nclusters, nclusters) # variables
+        ## q=rep(1/nclusters, nclusters) # variables
     ),
     if(nrcovs>0){# real variates
         list(# hyperparameters
@@ -204,30 +204,30 @@ initsFunction <- function(){
             meanRtau0=1/(widthrcovs/(2*qnorm(3/4)))^2, # dims = inv. variance
             tauRshape0=1/((1/4)*widthrcovs/(2*qnorm(3/4)))^2*(1/4),
             tauRrate0=rep(1/4,nrcovs) # dims = variance
-            ## integrated parameters
-            ### NB: if we want a Cauchy for meanR and a compound Gamma for tauR,
-            ### then the extra Gammas & parameters need to be added PER CLUSTER
-#            meanRtau=1/(widthrcovs/(2*qnorm(3/4)))^2, # dims = inv. variance
-#            tauRrate=(widthrcovs/(2*qnorm(3/4)))^2, # dims = variance
-            ## variables
-#            meanR=matrix(rnorm(n=nrcovs*(nclusters), mean=medianrcovs, sd=1/sqrt(rgamma(n=nrcovs, shape=1/2, rate=(widthrcovs^2)/2))), nrow=nrcovs, ncol=nclusters),
-#            tauR=matrix(rgamma(n=nrcovs*(nclusters), shape=1/2, rate=rgamma(n=nrcovs, shape=1/2, rate=1/(widthrcovs/(2*qnorm(3/4)))^2)), nrow=nrcovs, ncol=nclusters)
+            ## ## integrated parameters
+### NB: if we want a Cauchy for meanR and a compound Gamma for tauR,
+### then the extra Gammas & parameters need to be added PER CLUSTER
+            ## meanRtau=1/(widthrcovs/(2*qnorm(3/4)))^2, # dims = inv. variance
+            ## tauRrate=(widthrcovs/(2*qnorm(3/4)))^2, # dims = variance
+            ## ## variables
+            ## meanR=matrix(rnorm(n=nrcovs*(nclusters), mean=medianrcovs, sd=1/sqrt(rgamma(n=nrcovs, shape=1/2, rate=(widthrcovs^2)/2))), nrow=nrcovs, ncol=nclusters),
+            ## tauR=matrix(rgamma(n=nrcovs*(nclusters), shape=1/2, rate=rgamma(n=nrcovs, shape=1/2, rate=1/(widthrcovs/(2*qnorm(3/4)))^2)), nrow=nrcovs, ncol=nclusters)
         )},
     if(nicovs>0){# integer variates
         list(# hyperparameters
             probIa0=rep(2, nicovs),
             probIb0=rep(1, nicovs),
             sizeIprob0=matrixprobicovs*matrixprobicovs,
-            ## variables
-#            probI=matrix(rbeta(n=nicovs*(nclusters), shape1=2, shape2=1), nrow=nicovs, ncol=nclusters),
+            ## ## variables
+            ## probI=matrix(rbeta(n=nicovs*(nclusters), shape1=2, shape2=1), nrow=nicovs, ncol=nclusters),
             sizeI=matrix(maxicovs, nrow=nicovs, ncol=nclusters)
         )},
     if(nbcovs>0){# binary variates
         list(# hyperparameters
             probBa0=rep(1,nbcovs),
             probBb0=rep(1,nbcovs)
-            ## variables
-#            probB=matrix(0.5, nrow=nbcovs, ncol=nclusters)
+            ## ## variables
+            ## probB=matrix(0.5, nrow=nbcovs, ncol=nclusters)
         )},
     if(posterior){list(C=rep(1, ndata))} # cluster occupations
 )}
@@ -241,8 +241,8 @@ bayesnet <- nimbleCode({
             for(avar in 1:nRcovs){
                 meanR[avar,acluster] ~ dnorm(mean=meanRmean0[avar], tau=meanRtau0[avar])
                 tauR[avar,acluster] ~ dgamma(shape=tauRshape0[avar], rate=tauRrate0[avar])
-            ### NB: if we want a Cauchy for meanR and a compound Gamma for tauR,
-            ### then the extra Gammas & parameters need to be added PER CLUSTER
+### NB: if we want a Cauchy for meanR and a compound Gamma for tauR,
+### then the extra Gammas & parameters need to be added PER CLUSTER
             }
         }
         if(nicovs>0){# integer variates
@@ -512,10 +512,11 @@ if(TRUE){
         if(!any(is.na(tpar))){
             axis(3,at=(log(Ogrid)-tpar['transfM'])/tpar['transfW'],labels=Ogrid,lwd=0,lwd.ticks=1,col.ticks='#bbbbbb80')
         }
-        if(avar %in% binaryCovs){
-            histo <- thist(plotsamples[2,])
-            tplot(histo$breaks, histo$density, col=7, xlab=paste0('P(',avar,' = 1)'), ylab='probability density', ylim=c(0, max(histo$density)), xlim=c(0,1), family=family)
-        }
+### This plots the posterior predictive distribution of binary quantities
+        ## if(avar %in% binaryCovs){
+        ##     histo <- thist(plotsamples[2,])
+        ##     tplot(histo$breaks, histo$density, col=7, xlab=paste0('P(',avar,' = 1)'), ylab='probability density', ylim=c(0, max(histo$density)), xlim=c(0,1), family=family)
+        ## }
     }
     ## ##
     ## par(mfrow = rep(ceiling(sqrt(nicovs+nrcovs)), 2))
