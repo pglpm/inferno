@@ -87,17 +87,17 @@ llSamples <- function(dat, parmList){
                 t(vapply(seq_len(ncol(q)), function(acluster){
                     ## real covariates
                     if(nrcovs>0){
-                        colSums(dnorm(t(dat$X), mean=parmList$meanR[asample,,acluster], sd=1/sqrt(parmList$tauR[asample,,acluster]), log=TRUE), na.rm=T)
+                        colSums(dnorm(t(dat$Real), mean=parmList$meanR[asample,,acluster], sd=1/sqrt(parmList$tauR[asample,,acluster]), log=TRUE), na.rm=T)
                         }else{0} +
                         ## integer covariates
                         if(nicovs>0){
-                            colSums(dbinom(t(dat$Y), prob=parmList$probI[asample,,acluster], size=parmList$sizeI[asample,,acluster], log=TRUE), na.rm=T)
+                            colSums(dbinom(t(dat$Integer), prob=parmList$probI[asample,,acluster], size=parmList$sizeI[asample,,acluster], log=TRUE), na.rm=T)
                             }else{0} +
                     ## binary covariates
                     if(nbcovs>0){
                             colSums(log(
-                                parmList$probB[asample,,acluster] * t(dat$Z) +
-                                (1-parmList$probB[asample,,acluster]) * (1-t(dat$Z))
+                                parmList$probB[asample,,acluster] * t(dat$Binary) +
+                                (1-parmList$probB[asample,,acluster]) * (1-t(dat$Binary))
                                 ), na.rm=T)
                     }else{0}
     }, numeric(ndata)))
@@ -1330,7 +1330,7 @@ calcSampleQuantiles <- function(parmList){
 ##
 ## Calculates the probability of several datapoints for several MCMC samples
 probJointSamples <- function(dat, parmList, log=FALSE, inorder=FALSE){
-    ndataz <- nrow(dat$X)
+    ndataz <- nrow(dat$Real)
     q <- parmList$q
     ##
     freqs <- foreach(asample=seq_len(nrow(q)), .combine=cbind, .inorder=inorder)%dopar%{
@@ -1339,9 +1339,9 @@ probJointSamples <- function(dat, parmList, log=FALSE, inorder=FALSE){
                 log(q[asample,]) +
                 t(vapply(seq_len(ncol(q)), function(acluster){
                     ## real covariates
-                    colSums(dnorm(t(dat$X), mean=parmList$meanR[asample,,acluster], sd=1/sqrt(parmList$tauR[asample,,acluster]), log=TRUE)) +
+                    colSums(dnorm(t(dat$Real), mean=parmList$meanR[asample,,acluster], sd=1/sqrt(parmList$tauR[asample,,acluster]), log=TRUE)) +
                         ## integer covariates
-                    colSums(dbinom(t(dat$Y), prob=parmList$probI[asample,,acluster], size=parmList$sizeI[asample,,acluster], log=TRUE))
+                    colSums(dbinom(t(dat$Integer), prob=parmList$probI[asample,,acluster], size=parmList$sizeI[asample,,acluster], log=TRUE))
     }, numeric(ndataz)))
             )
         )
@@ -1352,7 +1352,7 @@ probJointSamples <- function(dat, parmList, log=FALSE, inorder=FALSE){
 probJointMean <- function(X, parmList){
     realCovs <- dimnames(parmList$meanR)[[2]]
     integerCovs <- dimnames(parmList$probI)[[2]]
-    if(is.list(X)){ X <- cbind(X$X, X$Y) }
+    if(is.list(X)){ X <- cbind(X$Real, X$Integer) }
     ndataz <- nrow(X)
     q <- parmList$q
     nsamples <- nrow(q)
