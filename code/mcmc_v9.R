@@ -1,6 +1,6 @@
 ## Author: PGL  Porta Mana
 ## Created: 2021-11-25T14:52:14+0100
-## Last-Updated: 2022-06-25T17:05:53+0200
+## Last-Updated: 2022-06-25T18:03:37+0200
 ################
 ## Exchangeable-probability calculation (non-parametric density regression)
 ################
@@ -62,8 +62,29 @@ variateinfo <- data.table(
     mean_mean=c(NA, NA, 0), # only for 'real' variates, NA for others
     mean_sigma=c(NA, NA, 1000),
     sigma_sqrtrate=c(NA, NA, 0.0001/0.3),
-    sigma_shape=c(NA, NA, 1/4) # with 1/4, then min SD value is ~ 0.3 times the one in sigma_sqrtrate
+    sigma_shape=c(NA, NA, 1/8) # with 1/4, then min SD value is ~ 0.3 times the one in sigma_sqrtrate
 )
+## Effects of shape parameter:
+## 1/8 (broader):
+## > testdata <- -log10(rgamma(n=10^6, shape=1/8, rate=1^2))/2
+## > 10^sort(c(quantile(testdata, c(1,7)/8),summary(testdata)))
+##         Min.        12.5%      1st Qu.       Median         Mean      3rd Qu.        87.5%         Max. 
+## 2.953894e-01 1.942542e+00 3.907964e+00 2.031920e+01 6.598714e+01 3.238969e+02 5.147364e+03 1.529446e+23 
+##
+## 1/4:
+## > testdata <- -log10(rgamma(n=10^6, shape=1/4, rate=1^2))/2
+## > 10^sort(c(quantile(testdata, c(1,7)/8),summary(testdata)))
+##         Min.        12.5%      1st Qu.       Median         Mean      3rd Qu.        87.5%         Max. 
+## 3.206804e-01 1.273500e+00 1.958767e+00 4.786957e+00 8.270111e+00 1.946847e+01 7.731127e+01 2.269262e+12 
+##
+## 1/2 (narrower):
+## > testdata <- -log10(rgamma(n=10^6, shape=1/2, rate=1^2))/2
+## > 10^sort(c(quantile(testdata, c(1,7)/8),summary(testdata)))
+##         Min.        12.5%      1st Qu.       Median         Mean      3rd Qu.        87.5%         Max. 
+## 2.822806e-01 9.213073e-01 1.228308e+00 2.097117e+00 2.669192e+00 4.443665e+00 8.989495e+00 8.112010e+05 
+
+
+
 #### FILE WITH DATA
 datafile <- 'TESTDATA.csv'
 ##
