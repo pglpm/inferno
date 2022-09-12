@@ -1,0 +1,14 @@
+variate,type,min,max,mean_mean,mean_sigma,sigma_sqrtrate,sigma_shape
+Site,integer,1,8,,,,
+SurfaceHoles,real,0,130,40,60,3.33333333333333,0.125
+Age,real,12,100,30,30,3.33333333333333,0.125
+Group,binary,0,1,,,,
+Sex,binary,0,0,,,,
+lh_WM_pericalcarine,real,50,100,75,20,0.000333333333333333,0.125
+lh_GM_pericalcarine,real,50,100,75,20,0.000333333333333333,0.125
+rh_WM_pericalcarine,real,50,100,75,20,0.000333333333333333,0.125
+rh_GM_pericalcarine,real,50,100,75,20,0.000333333333333333,0.125
+rh_WM_postcentral,real,50,100,75,20,0.000333333333333333,0.125
+rh_GM_postcentral,real,50,100,75,20,0.000333333333333333,0.125
+rh_WM_cuneus,real,50,100,75,20,0.000333333333333333,0.125
+rh_GM_cuneus,real,50,100,75,20,0.000333333333333333,0.125
