@@ -1,6 +1,6 @@
 ## Author: PGL  Porta Mana
 ## Created: 2022-09-08T17:03:24+0200
-## Last-Updated: 2022-09-12T15:26:51+0200
+## Last-Updated: 2022-09-12T21:54:19+0200
 ################
 ## Test script for VB's data analysis
 ################
@@ -24,7 +24,9 @@ print('availableCores:')
 print(availableCores())
 print('availableCores-multicore:')
 print(availableCores('multicore'))
-ncores <- 4#availableCores()-1
+if(file.exists("/cluster/home/pglpm/R")){
+    ncores <- availableCores()}else{
+    ncores <- 4}
 print(paste0('using ',ncores,' cores'))
 if(ncores>1){
     if(.Platform$OS.type=='unix'){
