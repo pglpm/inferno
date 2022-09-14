@@ -1,6 +1,6 @@
 ## Author: PGL  Porta Mana
 ## Created: 2022-09-08T17:03:24+0200
-## Last-Updated: 2022-09-14T15:40:10+0200
+## Last-Updated: 2022-09-14T16:07:32+0200
 ################
 ## Test script for VB's data analysis
 ################
@@ -76,16 +76,19 @@ variateinfo <- data.table(
     min=c(1, 0, 12, 0, 0,
           50, 50, 50, 50, 50, 50, 50, 50 ), # 'binary' should have 0, 'category' 1
     max=c(8, 130, 100, 1, 0,
-          100, 100, 100, 100, 100, 100, 100, 100 ), # 'binary' should have 1
-    mean_mean=c(NA, 40, 30, NA, NA,
-                75, 75, 75, 75, 75, 75, 75, 75), # only for 'real' variates, NA for others
-    mean_sigma=c(NA, 60, 30, NA, NA,
-                 20, 20, 20, 20, 20, 20, 20, 20 ),
-    sigma_sqrtscale=c(NA, 1, 1, NA, NA,
-                     0.0001, 0.0001, 0.0001, 0.0001, 0.0001, 0.0001, 0.0001, 0.0001 )/0.28,
-    ## with 1/2, then 1e-6 SD value is ~ 0.28 times the one in sigma_sqrtscale (divide by smaller value to have SD above mininum error)
-    sigma_shape=c(NA, 1, 1, NA, NA,
-                  1, 1, 1, 1, 1, 1, 1, 1 )/2
+          100, 100, 100, 100, 100, 100, 100, 100 ),
+    precision=c(NA, NA, NA, NA, NA,
+          NA, NA, NA, NA, NA, NA, NA, NA )
+  ## , # 'binary' should have 1
+  ##   mean_mean=c(NA, 40, 30, NA, NA,
+  ##               75, 75, 75, 75, 75, 75, 75, 75), # only for 'real' variates, NA for others
+  ##   mean_sigma=c(NA, 60, 30, NA, NA,
+  ##                20, 20, 20, 20, 20, 20, 20, 20 ),
+  ##   sigma_sqrtscale=c(NA, 1, 1, NA, NA,
+  ##                    0.0001, 0.0001, 0.0001, 0.0001, 0.0001, 0.0001, 0.0001, 0.0001 )/0.28,
+  ##   ## with 1/2, then 1e-6 SD value is ~ 0.28 times the one in sigma_sqrtscale (divide by smaller value to have SD above mininum error)
+  ##   sigma_shape=c(NA, 1, 1, NA, NA,
+  ##                 1, 1, 1, 1, 1, 1, 1, 1 )/2
 )
 ## Effects of shape parameter:
 ## 1/8 (broader):
@@ -108,34 +111,6 @@ variateinfo <- data.table(
 ## 2.571008e-01 9.218967e-01 1.229980e+00 2.098062e+00 2.670157e+00 4.440326e+00 
 ##        87.5%         Max. 
 ## 8.995125e+00 6.364370e+06 
-
-variatenorm <- data.table(variate=NULL, median=NULL, IQR=NULL, shape=NULL, scale=NULL)
-for(avar in variateinfo$variate){
-    ##
-    dato <- alldata[[avar]]
-    amedian <- signif(median(dato), log10(IQR(dato)))
-    aiqr <- signif(IQR(dato), 1)
-    if(avar %in% realCovs){
-        dato <- (dato-amedian)/aiqr
-        dmin <- min(diff(sort(unique(dato))))
-        ##
-        fn <- function(p, target){sum((log(qinvgamma(c(1e-6,0.5), shape=p[1], scale=p[2]))-log(target))^2)}
-        resu <- optim(par=c(1/2,1), fn=fn, target=c(dmin,1))
-        vals <- qinvgamma(c(1e-6,0.5), shape=resu$par[1], scale=resu$par[2])
-        if((vals[1] - dmin)/(vals[1] + dmin)*200 > 1 |
-           (vals[2] - 1)/(vals[2] + 1)*200 > 1){print('WARNING: bad parameters')}
-        ##
-        variatenorm <- rbind(variatenorm,
-                             list(variate=avar, median=amedian, IQR=aiqr,
-                                  shape=resu$par[1], scale=resu$par[2]))
-    }else{
-        variatenorm <- rbind(variatenorm,
-                             list(variate=avar, median=amedian, IQR=aiqr,
-                                  shape=NA, scale=NA))
-        }
-}
-
-    
 
 
 #### FILE WITH DATA
@@ -191,6 +166,41 @@ thisscriptname <- sub('--file=', "", initial.options[grep('--file=', initial.opt
 if(mcmcseed==1){file.copy(from=thisscriptname, to=paste0(dirname,'/script-R',baseversion,'-V',length(covNames),'-D',ndata,'-K',nclusters,'.Rscript'))
 }
 }
+
+## Normalization and standardization of real variates and calculation of hyperparams
+variatepars <- data.table(variate=NULL, median=NULL, IQR=NULL, shape=NULL, scale=NULL)
+for(avar in variateinfo$variate){
+    ##
+    dato <- alldata[[avar]]
+    amedian <- signif(median(dato), log10(IQR(dato)))
+    aiqr <- signif(IQR(dato), 1)
+    if(avar %in% realCovs){
+        dato <- (dato-amedian)/aiqr
+        if(is.na(variateinfo[variate==avar, precision])){
+            dmin <- min(diff(sort(unique(dato))))
+        }else{
+            dmin <- (variateinfo[variate==avar, precision]-amedian)/aiqr
+        }
+        ##
+        fn <- function(p, target){sum((log(qinvgamma(c(1e-6,0.5), shape=p[1], scale=p[2]))-log(target))^2)}
+        resu <- optim(par=c(1/2,1), fn=fn, target=c(dmin,IQR(dato)))
+        pars <- signif(resu$par, 3)
+        vals <- qinvgamma(c(1e-6,0.5), shape=pars[1], scale=pars[2])
+        if((vals[1] - dmin)/(vals[1] + dmin)*200 > 1 |
+           (vals[2] - IQR(dato))/(vals[2] + IQR(dato))*200 > 1){print(paste0('WARNING ', avar, ': bad parameters'))}
+        ##
+        variatepars <- rbind(variatepars,
+                             list(variate=avar, median=amedian, IQR=aiqr,
+                                  shape=pars[1], scale=pars[2]))
+    }else{
+        variatepars <- rbind(variatepars,
+                             list(variate=avar, median=amedian, IQR=aiqr,
+                                  shape=NA, scale=NA))
+        }
+}
+
+##
+fwrite(variatepars, file=paste0(dirname,'/variateparameters.csv'))
 
 
 
