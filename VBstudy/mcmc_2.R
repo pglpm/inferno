@@ -1,6 +1,6 @@
 ## Author: PGL  Porta Mana
 ## Created: 2022-09-08T17:03:24+0200
-## Last-Updated: 2022-09-14T16:07:32+0200
+## Last-Updated: 2022-09-15T15:19:03+0200
 ################
 ## Test script for VB's data analysis
 ################
@@ -51,8 +51,9 @@ thin <- 1L #
 nstages <- 1L # number of sampling stages beyond burn-in
 maincov <- 'Group'
 family <- 'Palatino'
-##ndata <- 400 # ***set this if you want to use fewer data
-##shuffle <- TRUE
+ndata <- 400 # ***set this if you want to use fewer data
+shuffledata <- TRUE
+datafile <- 'Cortical_myelination_faux.csv'
 posterior <- TRUE # if set to FALSE it samples and plots prior samples
 ##
 ## stagestart <- 0L # set this if continuing existing MC = last saved + 1
@@ -112,25 +113,12 @@ variateinfo <- data.table(
 ##        87.5%         Max. 
 ## 8.995125e+00 6.364370e+06 
 
-
-#### FILE WITH DATA
-datafile <- 'Cortical_myelination_faux.csv'
 ##
 covNames <- variateinfo$variate
 covTypes <- variateinfo$type
 covMins <- variateinfo$min
 covMaxs <- variateinfo$max
 names(covTypes) <- names(covMins) <- names(covMaxs) <- covNames
-odata <- fread(datafile, sep=',')
-if(!exists('stagestart')){stagestart <- 0L}
-
-## Shuffle
-if(exists('shuffle') && shuffle){ odata <- odata[sample(1:nrow(odata))] }
-
-#################################
-## Setup for Monte Carlo sampling
-#################################
-
 realCovs <- covNames[covTypes=='real']
 integerCovs <- covNames[covTypes=='integer']
 categoryCovs <- covNames[covTypes=='category']
@@ -141,19 +129,66 @@ nicovs <- length(integerCovs)
 nccovs <- length(categoryCovs)
 nbcovs <- length(binaryCovs)
 ncovs <- length(covNames)
-if(!exists('ndata') || is.null(ndata) || is.na(ndata)){ndata <- nrow(odata)}
-alldata <- odata[1:ndata, ..covNames]
+
+
+###########################################
+## READ DATA AND SETUP SOME HYPERPARAMETERS
+###########################################
+
+alldata <- fread(datafile, sep=',')
+if(!all(covNames %in% names(alldata))){print('ERROR: variates missing from datafile')}
+alldata <- alldata[, ..covNames]
+## shuffle data
+if(exists('shuffledata') && shuffledata){alldata <- alldata[sample(1:nrow(alldata))]}
+if(!exists('ndata') || is.null(ndata) || is.na(ndata)){ndata <- nrow(alldata)}
+alldata <- alldata[1:ndata]
+
+
+#################################
+## Setup for Monte Carlo sampling
+#################################
+
+if(!exists('stagestart')){stagestart <- 0L}
 if(stagestart>0){
     continue <- paste0('_finalstate-R',baseversion,'_',stagestart-1,'-V',length(covNames),'-D',ndata,'-K',nclusters,'-I',nsamples,'--',mcmcseed,'.rds')
 }
 ##
 
-##
 for(obj in c('constants', 'dat', 'inits', 'bayesnet', 'model', 'Cmodel', 'confmodel', 'mcmcsampler', 'Cmcmcsampler')){if(exists(obj)){do.call(rm,list(obj))}}
 gc()
 
+## Normalization and standardization of real variates and calculation of hyperparams
+realvariatepars <- NULL
+for(avar in realCovs){
+    ##
+    dato <- alldata[[avar]]
+    amedian <- signif(median(dato), log10(IQR(dato)))
+    aiqr <- signif(IQR(dato), 1)
+    dato <- (dato-amedian)/aiqr
+    if(is.na(variateinfo[variate==avar, precision])){
+        dmin <- min(diff(sort(unique(dato))))
+    }else{
+        dmin <- (variateinfo[variate==avar, precision]-amedian)/aiqr
+    }
+    ##
+    fn <- function(p, target){sum((log(qinvgamma(c(1e-6,0.5), shape=p[1], scale=p[2]))-log(target))^2)}
+    resu <- optim(par=c(1/2,1), fn=fn, target=c(dmin,IQR(dato)))
+    pars <- signif(resu$par, 3)
+    vals <- qinvgamma(c(1e-6,0.5), shape=pars[1], scale=pars[2])
+    if((vals[1] - dmin)/(vals[1] + dmin)*200 > 1 |
+       (vals[2] - IQR(dato))/(vals[2] + IQR(dato))*200 > 1){print(paste0('WARNING ', avar, ': bad parameters'))}
+    ##
+    realvariatepars <- rbind(realvariatepars,
+                             c(precision=dmin,
+                               median=amedian, IQR=aiqr,
+                               min=min(dato, na.rm=T), max=max(dato, na.rm=T),
+                                  shape=pars[1], scale=pars[2]))
+}
+rownames(realvariatepars) <- realCovs
+
+## Data (standardized for real variates)
 dat <- list()
-if(nrcovs>0){ dat$Real=data.matrix(alldata[, ..realCovs])}
+if(nrcovs>0){ dat$Real=t((t(data.matrix(alldata[, ..realCovs])) - realvariatepars[,'median'])/realvariatepars[,'IQR'])}
 if(nicovs>0){ dat$Integer=data.matrix(alldata[, ..integerCovs])}
 if(nccovs>0){ dat$Category=data.matrix(alldata[, ..categoryCovs])}
 if(nbcovs>0){ dat$Binary=data.matrix(alldata[, ..binaryCovs])}
@@ -161,52 +196,19 @@ if(nbcovs>0){ dat$Binary=data.matrix(alldata[, ..binaryCovs])}
 dirname <- paste0(baseversion,'-V',length(covNames),'-D',ndata,'-K',nclusters,'-I',nsamples)
 dir.create(dirname)
 if(file.exists("/cluster/home/pglpm/R")){
-initial.options <- commandArgs(trailingOnly = FALSE)
-thisscriptname <- sub('--file=', "", initial.options[grep('--file=', initial.options)])
-if(mcmcseed==1){file.copy(from=thisscriptname, to=paste0(dirname,'/script-R',baseversion,'-V',length(covNames),'-D',ndata,'-K',nclusters,'.Rscript'))
+    initial.options <- commandArgs(trailingOnly = FALSE)
+    thisscriptname <- sub('--file=', "", initial.options[grep('--file=', initial.options)])
+    if(mcmcseed==1){file.copy(from=thisscriptname, to=paste0(dirname,'/script-R',baseversion,'-V',length(covNames),'-D',ndata,'-K',nclusters,'.Rscript'))
+    }
 }
-}
-
-## Normalization and standardization of real variates and calculation of hyperparams
-variatepars <- data.table(variate=NULL, median=NULL, IQR=NULL, shape=NULL, scale=NULL)
-for(avar in variateinfo$variate){
-    ##
-    dato <- alldata[[avar]]
-    amedian <- signif(median(dato), log10(IQR(dato)))
-    aiqr <- signif(IQR(dato), 1)
-    if(avar %in% realCovs){
-        dato <- (dato-amedian)/aiqr
-        if(is.na(variateinfo[variate==avar, precision])){
-            dmin <- min(diff(sort(unique(dato))))
-        }else{
-            dmin <- (variateinfo[variate==avar, precision]-amedian)/aiqr
-        }
-        ##
-        fn <- function(p, target){sum((log(qinvgamma(c(1e-6,0.5), shape=p[1], scale=p[2]))-log(target))^2)}
-        resu <- optim(par=c(1/2,1), fn=fn, target=c(dmin,IQR(dato)))
-        pars <- signif(resu$par, 3)
-        vals <- qinvgamma(c(1e-6,0.5), shape=pars[1], scale=pars[2])
-        if((vals[1] - dmin)/(vals[1] + dmin)*200 > 1 |
-           (vals[2] - IQR(dato))/(vals[2] + IQR(dato))*200 > 1){print(paste0('WARNING ', avar, ': bad parameters'))}
-        ##
-        variatepars <- rbind(variatepars,
-                             list(variate=avar, median=amedian, IQR=aiqr,
-                                  shape=pars[1], scale=pars[2]))
-    }else{
-        variatepars <- rbind(variatepars,
-                             list(variate=avar, median=amedian, IQR=aiqr,
-                                  shape=NA, scale=NA))
-        }
-}
-
 ##
-fwrite(variatepars, file=paste0(dirname,'/variateparameters.csv'))
+fwrite(cbind(data.table(variate=realCovs),realvariatepars), file=paste0(dirname,'/realvariateparameters.csv'))
 
-
+    
 
 
 ####  CONSTANTS, PRIOR PARAMETERS, INITIAL VALUES
-source('functions_mcmc_c.R') # load functions for post-MCMC calculations
+source('functions_mcmc.R') # load functions for post-MCMC calculations
 ##
 ## In previous versions some statistics of the data were computed
 ## to decide on the hyperparameters.
@@ -244,32 +246,36 @@ if(posterior){constants$nData <- ndata}
 ##
 initsFunction <- function(){
     c(list(
-        qalpha0=rep(1/nclusters, nclusters) # cluster probabilities
+        qalpha0 = rep(1/nclusters, nclusters) # cluster probabilities
     ),
-    if(nrcovs>0){# real variates
+    if(nrcovs > 0){# real variates
         list(
-            meanRmean0=variateinfo[variate %in% realCovs, mean_mean],
-            meanRvar0=variateinfo[variate %in% realCovs, mean_sigma]^2, # dims = variance
-            varRscale0=variateinfo[variate %in% realCovs, sigma_sqrtrate]^2, # dims = variance
-            varRshape0=variateinfo[variate %in% realCovs, sigma_shape]
+            meanRmean0 = realvariatepars[,'median']*0,
+            meanRvar0 = (realvariatepars[,'IQR']*0+3)^2,
+            varRscale0 = realvariatepars[,'scale'],
+            varRshape0 = realvariatepars[,'shape']
         )},
-    if(nicovs>0){# integer variates
+    if(nicovs > 0){# integer variates
         list(
-            probIa0=rep(2, nicovs),
-            probIb0=rep(1, nicovs),
-            sizeIprob0=matrixprobicovs*matrixprobicovs,
-            sizeI=matrix(maxicovs, nrow=nicovs, ncol=nclusters)
+            probIa0 = rep(2, nicovs),
+            probIb0 = rep(1, nicovs),
+            sizeIprob0 = matrixprobicovs*matrixprobicovs,
+            sizeI = matrix(maxicovs, nrow=nicovs, ncol=nclusters)
         )},
-    if(nccovs>0){# categorical variates
+    if(nccovs > 0){# categorical variates
         list(
-            calpha0=calphapad
+            calpha0 = calphapad
         )},
-    if(nbcovs>0){# binary variates
+    if(nbcovs > 0){# binary variates
         list(
-            probBa0=rep(1,nbcovs),
-            probBb0=rep(1,nbcovs)
+            probBa0 = rep(1,nbcovs),
+            probBb0 = rep(1,nbcovs)
         )},
-    if(posterior){list(C=rep(1, ndata))} # cluster occupations: all in one cluster at first
+    if(posterior){list(C = rep(1, ndata))}, # cluster occupations: all in one cluster at first
+    if(chooseinitvalues & posterior){
+        list(q = rdirch(1, alpha=rep(1,nclusters)),
+        C = sample(1:nclusters, ndata, replace=TRUE))
+        }
 )}
 
 
@@ -282,7 +288,7 @@ bayesnet <- nimbleCode({
         if(nrcovs>0){# real variates
             for(avar in 1:nRcovs){
                 meanR[avar,acluster] ~ dnorm(mean=meanRmean0[avar], var=meanRvar0[avar])
-                varR[avar,acluster] ~ dinvgamma(shape=varRshape0[avar], rate=varRrate0[avar])
+                varR[avar,acluster] ~ dinvgamma(shape=varRshape0[avar], scale=varRscale0[avar])
             }
         }
         if(nicovs>0){# integer variates
@@ -348,7 +354,7 @@ gc()
 if(posterior){# Samplers for posterior sampling
     confmodel <- configureMCMC(Cmodel, nodes=NULL,
                                monitors=c('q',
-                                          if(nrcovs > 0){c('meanR', 'tauR')},
+                                          if(nrcovs > 0){c('meanR', 'varR')},
                                           if(nicovs > 0){c('probI', 'sizeI')},
                                           if(nccovs > 0){c('probC')},
                                           if(nbcovs > 0){c('probB')}
@@ -363,7 +369,7 @@ if(posterior){# Samplers for posterior sampling
         if(nrcovs>0){
             for(avar in 1:nrcovs){
                 confmodel$addSampler(target=paste0('meanR[', avar, ', ', acluster, ']'), type='conjugate')
-                confmodel$addSampler(target=paste0('tauR[', avar, ', ', acluster, ']'), type='conjugate')
+                confmodel$addSampler(target=paste0('varR[', avar, ', ', acluster, ']'), type='conjugate')
             }
         }
         if(nicovs>0){
@@ -388,7 +394,7 @@ if(posterior){# Samplers for posterior sampling
 }else{# sampler for prior sampling
     confmodel <- configureMCMC(Cmodel, 
                                monitors=c('q',
-                                          if(nrcovs>0){c('meanR', 'tauR')},
+                                          if(nrcovs>0){c('meanR', 'varR')},
                                           if(nicovs>0){c('probI', 'sizeI')},
                                           if(nccovs>0){c('probC')},
                                           if(nbcovs>0){c('probB')}
@@ -457,11 +463,11 @@ for(stage in stagestart+(0:nstages)){
     if(!posterior && !any(is.finite(ll))){
         flagll <- TRUE
         ll <- rep(0, length(ll))}
-    condprobsd <- logsumsamplesF(Y=data.matrix(na.omit(alldata))[, maincov, drop=F],
-                                 X=data.matrix(na.omit(alldata))[, setdiff(covNames, maincov), drop=F],
+    condprobsd <- logsumsamplesF(Y=do.call(cbind,dat)[, maincov, drop=F],
+                                 X=do.call(cbind,dat)[, setdiff(covNames, maincov), drop=F],
                                  parmList=parmList, inorder=T)
-    condprobsi <- logsumsamplesF(Y=data.matrix(na.omit(alldata))[, setdiff(covNames, maincov), drop=F],
-                                 X=data.matrix(na.omit(alldata))[, maincov, drop=F],               
+    condprobsi <- logsumsamplesF(Y=do.call(cbind,dat)[, setdiff(covNames, maincov), drop=F],
+                                 X=do.call(cbind,dat)[, maincov, drop=F],               
                                  parmList=parmList, inorder=T)
     ##
     traces <- cbind(loglikelihood=ll, 'mean of direct logprobabilities'=condprobsd, 'mean of inverse logprobabilities'=condprobsi)*10/log(10)/ndata #medians, iqrs, Q1s, Q3s,
