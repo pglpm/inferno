@@ -1,6 +1,6 @@
 ## Author: PGL  Porta Mana
 ## Created: 2022-09-08T17:03:24+0200
-## Last-Updated: 2022-09-17T10:32:11+0200
+## Last-Updated: 2022-09-17T11:35:19+0200
 ################
 ## Test script for VB's data analysis
 ################
@@ -43,7 +43,7 @@ library('nimble')
 
 set.seed(707)
 ## Base name of directory where to save data and plots
-baseversion <- '_mcmc2B'
+baseversion <- '_mcmc3'
 nclusters <- 64L
 nsamples <- 1024L * 1L # 2L # number of samples AFTER thinning
 niter0 <- 1024L * 1L # 3L # iterations burn-in
@@ -53,7 +53,7 @@ maincov <- 'Group'
 family <- 'Palatino'
 ndata <- 400 # ***set this if you want to use fewer data
 shuffledata <- TRUE
-chooseinitvalues <- FALSE
+chooseinitvalues <- TRUE
 datafile <- 'Cortical_myelination_faux.csv'
 posterior <- TRUE # if set to FALSE it samples and plots prior samples
 ##
@@ -73,7 +73,7 @@ variateinfo <- data.table(
               'rh_WM_cuneus',
               'rh_GM_cuneus'
               ),
-    type=c('category', 'real', 'real', 'binary', 'binary',
+    type=c('category', 'real', 'integer', 'binary', 'binary',
            'real', 'real', 'real', 'real', 'real', 'real', 'real', 'real'), # 'binary' or 'integer' or 'real'
     min=c(1, 0, 18, 0, 0,
           50, 50, 50, 50, 50, 50, 50, 50 ), # 'binary' should have 0, 'category' 1
@@ -163,7 +163,7 @@ for(avar in covNames){
             dmin <- variateinfo[variate==avar, precision]/aiqr
         }
         ##
-        qts <- c(2^-14, 0.75)
+        qts <- c(2^-14, 0.875)
         fn <- function(p, target){sum((log(qinvgamma(qts, shape=p[1], scale=p[2]))/2 - log(target))^2)}
         resu <- optim(par=c(1/2,1/2), fn=fn, target=c(dmin/2,aiqr))
 #        for(i in 1:10){resu <- optim(par=resu$par, fn=fn, target=c(dmin,aiqr))}
@@ -575,7 +575,7 @@ for(stage in stagestart+(0:nstages)){
         ## tplot(x=histo$breaks, y=histo$density, col=yellow, lty=1, lwd=1, xlab=avar, ylab='probability density', ylim=c(0, ymax), family=family)
         ymax <- quant(apply(plotsamples,2,function(x){quant(x,99/100)}),99/100, na.rm=T)
         tplot(x=Xgrid, y=plotsamples, type='l', col=paste0(palette()[7], '44'), lty=1, lwd=2, xlab=avar, ylab='probability density', ylim=c(0, ymax), family=family)
-        scatteraxis(side=1, x=datum[sample(1:length(datum),length(datum))]+rnorm(length(datum),mean=0,sd=prod(variatepars[avar,c('precision','IQR')])/16),col=yellow)
+        scatteraxis(side=1, n=NA, alpha='88', ext=8, x=datum[sample(1:length(datum),length(datum))]+rnorm(length(datum),mean=0,sd=prod(variatepars[avar,c('precision','IQR')])/16),col=yellow)
     }
     ##
     par(mfrow=c(1,1))

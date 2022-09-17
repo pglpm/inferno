@@ -1,6 +1,6 @@
 ## Author: PGL  Porta Mana
 ## Created: 2022-09-08T17:03:24+0200
-## Last-Updated: 2022-09-17T10:32:11+0200
+## Last-Updated: 2022-09-17T12:29:41+0200
 ################
 ## Test script for VB's data analysis
 ################
@@ -43,7 +43,7 @@ library('nimble')
 
 set.seed(707)
 ## Base name of directory where to save data and plots
-baseversion <- '_mcmc2B'
+baseversion <- '_mcmc4'
 nclusters <- 64L
 nsamples <- 1024L * 1L # 2L # number of samples AFTER thinning
 niter0 <- 1024L * 1L # 3L # iterations burn-in
@@ -51,8 +51,8 @@ thin <- 1L #
 nstages <- 0L # number of sampling stages beyond burn-in
 maincov <- 'Group'
 family <- 'Palatino'
-ndata <- 400 # ***set this if you want to use fewer data
-shuffledata <- TRUE
+##ndata <- 400 # ***set this if you want to use fewer data
+##shuffledata <- TRUE
 chooseinitvalues <- FALSE
 datafile <- 'Cortical_myelination_faux.csv'
 posterior <- TRUE # if set to FALSE it samples and plots prior samples
@@ -165,7 +165,7 @@ for(avar in covNames){
         ##
         qts <- c(2^-14, 0.75)
         fn <- function(p, target){sum((log(qinvgamma(qts, shape=p[1], scale=p[2]))/2 - log(target))^2)}
-        resu <- optim(par=c(1/2,1/2), fn=fn, target=c(dmin/2,aiqr))
+        resu <- optim(par=c(1/2,1/2), fn=fn, target=c(dmin/4,aiqr))
 #        for(i in 1:10){resu <- optim(par=resu$par, fn=fn, target=c(dmin,aiqr))}
         pars <- signif(resu$par, 3)
         ## pars <- c(1/8, (dmin/2/0.28)^2)
@@ -174,7 +174,7 @@ for(avar in covNames){
         ## print(avar)
         ## print(c(abs(vals[1] - dmin/2)/(vals[1] + dmin/2)*200,
         ##    abs(vals[2] - aiqr)/(vals[2] + aiqr)*200))
-        if(abs(vals[1] - dmin/2)/(vals[1] + dmin/2)*200 > 5 |
+        if(abs(vals[1] - dmin/4)/(vals[1] + dmin/4)*200 > 5 |
            abs(vals[2] - aiqr)/(vals[2] + aiqr)*200 > 5){print(paste0('WARNING ', avar, ': bad parameters'))}
         ## plot
         rg <- diff(range(dato, na.rm=T))
@@ -279,7 +279,7 @@ initsFunction <- function(){
         list(
             meanRmean0 = variatepars[realCovs,'median']*0,
             ## meanRvar0 = (variatepars[realCovs,'IQR']*0+2)^2,
-            meanRvar0 = 4*apply(abs(variatepars[realCovs,c('min','max')]),1,max)^2,
+            meanRvar0 = 4*apply(variatepars[realCovs,c('min','max')],1,diff)^2,
             varRscale0 = variatepars[realCovs,'scale'],
             varRshape0 = variatepars[realCovs,'shape']
         )},
@@ -575,7 +575,7 @@ for(stage in stagestart+(0:nstages)){
         ## tplot(x=histo$breaks, y=histo$density, col=yellow, lty=1, lwd=1, xlab=avar, ylab='probability density', ylim=c(0, ymax), family=family)
         ymax <- quant(apply(plotsamples,2,function(x){quant(x,99/100)}),99/100, na.rm=T)
         tplot(x=Xgrid, y=plotsamples, type='l', col=paste0(palette()[7], '44'), lty=1, lwd=2, xlab=avar, ylab='probability density', ylim=c(0, ymax), family=family)
-        scatteraxis(side=1, x=datum[sample(1:length(datum),length(datum))]+rnorm(length(datum),mean=0,sd=prod(variatepars[avar,c('precision','IQR')])/16),col=yellow)
+        scatteraxis(side=1, n=NA, alpha='88', ext=8, x=datum[sample(1:length(datum),length(datum))]+rnorm(length(datum),mean=0,sd=prod(variatepars[avar,c('precision','IQR')])/(if(avar %in% binaryCovs){16}else{4})),col=yellow)
     }
     ##
     par(mfrow=c(1,1))

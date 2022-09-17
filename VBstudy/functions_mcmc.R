@@ -196,18 +196,22 @@ if(length(realCovs)>0){
 }
 ##
 ## Gives samples of frequency distributions of any set of Y conditional on any set of X
-samplesF <- function(Y, X=NULL, parmList, nfsamples=NULL, inorder=FALSE){
+samplesF <- function(Y, X=NULL, parmList, nfsamples=NULL, inorder=FALSE, rescale=NULL){
     rCovs <- dimnames(parmList$meanR)[[2]]
     iCovs <- dimnames(parmList$probI)[[2]]
     cCovs <- dimnames(parmList$probC)[[2]]
     bCovs <- dimnames(parmList$probB)[[2]]
-    covNames <- c(rCovs, iCovs, cCovs, bCovs)
+    cNames <- c(rCovs, iCovs, cCovs, bCovs)
+    if(is.null(rescale)){
+        rescale <- matrix(c(0,1),nrow=length(cNames),ncol=2,byrow=TRUE,dimnames=list(cNames, c('median','sIQR')))
+    }
     nrcovs <- length(rCovs)
     nicovs <- length(iCovs)
     nccovs <- length(cCovs)
     nbcovs <- length(bCovs)
     ##
     Y <- data.matrix(rbind(Y))
+    Y <- t((t(Y)-rescale[colnames(Y),'median'])/rescale[colnames(Y),'sIQR'])
     rY <- colnames(Y)[colnames(Y) %in% rCovs]
     iY <- colnames(Y)[colnames(Y) %in% iCovs]
     cY <- colnames(Y)[colnames(Y) %in% cCovs]
@@ -215,6 +219,7 @@ samplesF <- function(Y, X=NULL, parmList, nfsamples=NULL, inorder=FALSE){
     ##
     if(!is.null(X)){
         X <- data.matrix(rbind(X))
+        X <- t((t(X)-rescale[colnames(X),'median'])/rescale[colnames(X),'sIQR'])
         rX <- colnames(X)[colnames(X) %in% rCovs]
         if(length(intersect(rX,rY))>0){
             warning('*WARNING: predictor and predictand have real variates in common. Removing from predictor*')
@@ -348,7 +353,7 @@ samplesF <- function(Y, X=NULL, parmList, nfsamples=NULL, inorder=FALSE){
             colSums(pY)
         }
     }
-    freqs
+    freqs/prod(variatepars[colnames(Y),'sIQR'])
 }
 ##
 ## Gives samples of sums of log-frequency distributions of any set of Y conditional on any set of X

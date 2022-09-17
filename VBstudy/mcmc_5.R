@@ -1,6 +1,6 @@
 ## Author: PGL  Porta Mana
 ## Created: 2022-09-08T17:03:24+0200
-## Last-Updated: 2022-09-17T10:32:11+0200
+## Last-Updated: 2022-09-17T21:36:55+0200
 ################
 ## Test script for VB's data analysis
 ################
@@ -10,7 +10,7 @@ if(!exists('tplot')){source('~/work/pglpm_plotfunctions.R')}
 ##
 ## Read MCMC seed from command line
 mcmcseed = as.integer(commandArgs(trailingOnly=TRUE))[1]
-if(is.na(mcmcseed) | (!is.na(mcmcseed) & mcmcseed <=0)){mcmcseed <- 666}
+if(is.na(mcmcseed) | (!is.na(mcmcseed) & mcmcseed <=0)){mcmcseed <- 103}
 print(paste0('MCMC seed = ',mcmcseed))
 ##
 #### Packages and setup ####
@@ -43,7 +43,7 @@ library('nimble')
 
 set.seed(707)
 ## Base name of directory where to save data and plots
-baseversion <- '_mcmc2B'
+baseversion <- '_mcmc5D'
 nclusters <- 64L
 nsamples <- 1024L * 1L # 2L # number of samples AFTER thinning
 niter0 <- 1024L * 1L # 3L # iterations burn-in
@@ -148,34 +148,35 @@ dirname <- paste0(baseversion,'-V',length(covNames),'-D',ndata,'-K',nclusters,'-
 dir.create(dirname)
 
 ## Normalization and standardization of real variates and calculation of hyperparams
-
+sd2iqr <- 0.5/qnorm(0.75)
+##
 pdff(paste0(dirname,'/densities_variances'),'a4')
 variatepars <- NULL
 for(avar in covNames){
     dato <- alldata[[avar]]
     if(avar %in% realCovs){
-        amedian <- signif(median(dato), log10(IQR(dato)))
-        aiqr <- signif(IQR(dato), 2)
-        dato <- (dato-amedian)/aiqr
+        amedian <- signif(median(dato), log10(IQR(dato)*sd2iqr))
+        siqr <- signif(IQR(dato)*sd2iqr, 2)
+        dato <- (dato-amedian)/siqr
         if(is.na(variateinfo[variate==avar, precision])){
             dmin <- min(diff(sort(unique(dato))))
         }else{
-            dmin <- variateinfo[variate==avar, precision]/aiqr
+            dmin <- variateinfo[variate==avar, precision]/siqr
         }
         ##
         qts <- c(2^-14, 0.75)
         fn <- function(p, target){sum((log(qinvgamma(qts, shape=p[1], scale=p[2]))/2 - log(target))^2)}
-        resu <- optim(par=c(1/2,1/2), fn=fn, target=c(dmin/2,aiqr))
-#        for(i in 1:10){resu <- optim(par=resu$par, fn=fn, target=c(dmin,aiqr))}
+        resu <- optim(par=c(1/2,1/2), fn=fn, target=c(dmin/4,siqr))
+#        for(i in 1:10){resu <- optim(par=resu$par, fn=fn, target=c(dmin,siqr))}
         pars <- signif(resu$par, 3)
-        ## pars <- c(1/8, (dmin/2/0.28)^2)
+        pars <- c(1, 1)/1
         #pars[1] <- 1/8
         vals <- sqrt(qinvgamma(qts, shape=pars[1], scale=pars[2]))
         ## print(avar)
         ## print(c(abs(vals[1] - dmin/2)/(vals[1] + dmin/2)*200,
-        ##    abs(vals[2] - aiqr)/(vals[2] + aiqr)*200))
-        if(abs(vals[1] - dmin/2)/(vals[1] + dmin/2)*200 > 5 |
-           abs(vals[2] - aiqr)/(vals[2] + aiqr)*200 > 5){print(paste0('WARNING ', avar, ': bad parameters'))}
+        ##    abs(vals[2] - siqr)/(vals[2] + siqr)*200))
+        if(TRUE | abs(vals[1] - dmin/4)/(vals[1] + dmin/4)*200 > 5 |
+           abs(vals[2] - siqr)/(vals[2] + siqr)*200 > 5){print(paste0('WARNING ', avar, ': bad parameters'))}
         ## plot
         rg <- diff(range(dato, na.rm=T))
         sgrid <- seq(log10(dmin/2), log10(rg*3), length.out=256)
@@ -183,17 +184,17 @@ for(avar in covNames){
         tplot(x=sgrid, y=dinvgamma(x=vv, shape=pars[1], scale=pars[2])*vv*2,
               xlab=expression(lg~sigma), ylim=c(0,NA), ylab=NA,
               main=paste0(avar, ': shape = ', pars[1],', scale = ',pars[2]))
-        abline(v=log10(c(dmin/2, dmin, IQR(dato), rg, rg*3)), col=yellow, lwd=3)
+        abline(v=log10(c(dmin/2, dmin, IQR(dato)*sd2iqr, rg, rg*3)), col=yellow, lwd=3)
     }else{
         dmin <- 1L
         amedian <- 0L
-        aiqr <- 1L
+        siqr <- 1L
         pars <- c(NA, NA)
     }
     ##
     variatepars <- rbind(variatepars,
                          c(precision=dmin,
-                           median=amedian, IQR=aiqr,
+                           median=amedian, sIQR=siqr,
                            min=min(dato, na.rm=T), max=max(dato, na.rm=T),
                            shape=pars[1], scale=pars[2]))
 }
@@ -217,7 +218,7 @@ gc()
 
 ## Data (standardized for real variates)
 dat <- list()
-if(nrcovs>0){ dat$Real=t((t(data.matrix(alldata[, ..realCovs])) - variatepars[realCovs,'median'])/variatepars[realCovs,'IQR'])}
+if(nrcovs>0){ dat$Real=t((t(data.matrix(alldata[, ..realCovs])) - variatepars[realCovs,'median'])/variatepars[realCovs,'sIQR'])}
 if(nicovs>0){ dat$Integer=data.matrix(alldata[, ..integerCovs])}
 if(nccovs>0){ dat$Category=data.matrix(alldata[, ..categoryCovs])}
 if(nbcovs>0){ dat$Binary=data.matrix(alldata[, ..binaryCovs])}
@@ -258,7 +259,7 @@ if(nccovs > 0){
     ncategories <- max(covMaxs[categoryCovs]) # largest number of categories
     calphapad <- array(0, dim=c(nccovs, ncategories), dimnames=list(categoryCovs,NULL))
     for(avar in categoryCovs){
-        calphapad[avar,1:covMaxs[avar]] <- 1
+        calphapad[avar,1:covMaxs[avar]] <- 1/covMaxs[avar]
     }
 }
 ## constants
@@ -278,8 +279,8 @@ initsFunction <- function(){
     if(nrcovs > 0){# real variates
         list(
             meanRmean0 = variatepars[realCovs,'median']*0,
-            ## meanRvar0 = (variatepars[realCovs,'IQR']*0+2)^2,
-            meanRvar0 = 4*apply(abs(variatepars[realCovs,c('min','max')]),1,max)^2,
+            ## meanRvar0 = (variatepars[realCovs,'sIQR']*0+2)^2,
+            meanRvar0 = 9 * variatepars[realCovs,'sIQR']^2,
             varRscale0 = variatepars[realCovs,'scale'],
             varRshape0 = variatepars[realCovs,'shape']
         )},
@@ -575,7 +576,7 @@ for(stage in stagestart+(0:nstages)){
         ## tplot(x=histo$breaks, y=histo$density, col=yellow, lty=1, lwd=1, xlab=avar, ylab='probability density', ylim=c(0, ymax), family=family)
         ymax <- quant(apply(plotsamples,2,function(x){quant(x,99/100)}),99/100, na.rm=T)
         tplot(x=Xgrid, y=plotsamples, type='l', col=paste0(palette()[7], '44'), lty=1, lwd=2, xlab=avar, ylab='probability density', ylim=c(0, ymax), family=family)
-        scatteraxis(side=1, x=datum[sample(1:length(datum),length(datum))]+rnorm(length(datum),mean=0,sd=prod(variatepars[avar,c('precision','IQR')])/16),col=yellow)
+        scatteraxis(side=1, n=NA, alpha='88', ext=8, x=datum[sample(1:length(datum),length(datum))]+rnorm(length(datum),mean=0,sd=prod(variatepars[avar,c('precision','sIQR')])/(if(avar %in% binaryCovs){16}else{4})),col=yellow)
     }
     ##
     par(mfrow=c(1,1))
