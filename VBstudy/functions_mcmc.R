@@ -55,7 +55,7 @@ mcsamples2parmlist <- function(mcsamples, realCovs, integerCovs, categoryCovs, b
 ## Construct a list of parameter samples from the raw MCMC samples for the second monitored set
 finalstate2list <- function(mcsamples){
     if(!is.vector(mcsamples)){print('ERROR!')}
-    parmNames <- c('q', 'meanR', 'varR', 'probI', 'sizeI', 'probB', 'C') #, 'meanRtau', 'tauRrate')
+    parmNames <- c('q', 'meanR', 'varR', 'probI', 'sizeI', 'probB', 'C', 'varRrate') #, 'meanRtau', 'tauRrate')
     nclusters <- sum(grepl('^q\\[', names(mcsamples)))
     nrcovs <- sum(grepl('^meanR\\[[^,]*, 1]', names(mcsamples)))
     nicovs <- sum(grepl('^probI\\[[^,]*, 1]', names(mcsamples)))
@@ -69,7 +69,7 @@ finalstate2list <- function(mcsamples){
         } else if(var=='probI'||var=='sizeI'){
             dim(out) <- c(nicovs, nclusters)
             dimnames(out) <- list(integerCovs, NULL)
-        } # 'q' and 'C' are vectors with no names
+        } # 'q' and 'C' and 'varRrate' are vectors with no names
             out
     }
     names(parmList) <- parmNames

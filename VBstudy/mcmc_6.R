@@ -1,6 +1,6 @@
 ## Author: PGL  Porta Mana
 ## Created: 2022-09-08T17:03:24+0200
-## Last-Updated: 2022-09-18T06:55:21+0200
+## Last-Updated: 2022-09-19T09:58:28+0200
 ################
 ## Test script for VB's data analysis
 ################
@@ -38,12 +38,12 @@ if(ncores>1){
     plan(sequential)
 }
 library('nimble')
-## NB: also requires library('LaplacesDemon')
+## NB: also requires libraries 'LaplacesDemon' and 'extraDistr'
 #### End custom setup ####
 
 set.seed(707)
 ## Base name of directory where to save data and plots
-baseversion <- '_mcmc5D'
+baseversion <- '_mcmc6'
 nclusters <- 64L
 nsamples <- 1024L * 1L # 2L # number of samples AFTER thinning
 niter0 <- 1024L * 1L # 3L # iterations burn-in
@@ -53,7 +53,8 @@ maincov <- 'Group'
 family <- 'Palatino'
 ndata <- 400 # ***set this if you want to use fewer data
 shuffledata <- TRUE
-chooseinitvalues <- FALSE
+compoundgamma <- TRUE
+chooseinitvalues <- TRUE
 datafile <- 'Cortical_myelination_faux.csv'
 posterior <- TRUE # if set to FALSE it samples and plots prior samples
 ##
@@ -155,47 +156,52 @@ variatepars <- NULL
 for(avar in covNames){
     dato <- alldata[[avar]]
     if(avar %in% realCovs){
-        amedian <- signif(median(dato), log10(IQR(dato)*sd2iqr))
+        amedian <- signif(median(dato), log10(IQR(dato)*sd2iqr)+1)
         siqr <- signif(IQR(dato)*sd2iqr, 2)
         dato <- (dato-amedian)/siqr
+        rg <- diff(range(dato, na.rm=T))
         if(is.na(variateinfo[variate==avar, precision])){
             dmin <- min(diff(sort(unique(dato))))
         }else{
             dmin <- variateinfo[variate==avar, precision]/siqr
         }
         ##
-        qts <- 2^-19
-        fn <- function(p, target){(log(qinvgamma(qts, shape=p, scale=p))/2 - log(target))^2}
-        resu <- optimize(f=fn, interval=c(0,16), target=dmin/2)
+        ## > ss <- 2; ss2 <- 1/2 ; test <- log10(rinvgamma(1e6, shape=ss, rate=rinvgamma(1e6, shape=ss2, scale=1)))/2; htest <- thist(test); testg <- seq(min(htest$breaks),max(htest$breaks),length.out=256) ; testo <- extraDistr::dbetapr(exp(log(10)*(-2*testg)),shape1=ss,shape2=ss2)*2*log(10)*exp(log(10)*(-2*testg)) ; tplot(list(htest$mids,testg),list(htest$density,testo))
+        qts <- c(2^-14, 1-2^-14)
+        fn <- function(p, target){
+            sum((log(extraDistr::qbetapr(qts,shape1=p[1],shape2=p[2]))/2 -log(target))^2)
+            }
+        resu <- optim(par=c(2,1/2), fn=fn, target=c(dmin/2,rg*3))
 #        for(i in 1:10){resu <- optim(par=resu$par, fn=fn, target=c(dmin,siqr))}
-        pars <- signif(resu$minimum, 3)
+        pars <- signif(resu$par, 3)
         ## pars <- c(1, 1)/1
         #pars[1] <- 1/8
-        vals <- sqrt(qinvgamma(qts, shape=pars, scale=pars))
-        print(avar)
-        print(log2(pars))
-        print(abs(vals - dmin/2)/(vals + dmin/2)*200)
-        if(abs(vals - dmin/2)/(vals + dmin/2)*200 > 5){print(paste0('WARNING ', avar, ': bad parameters'))}
+        pars <- c(1,1)
+        vals <- sqrt(extraDistr::qbetapr(qts, shape1=pars[1], shape2=pars[2]))
+        if(abs(vals[1] - dmin/2)/(vals[1] + dmin/2)*200 > 5 |
+           abs(vals[2] - rg*3)/(vals[2] + rg*3)*200 > 5
+           ){print(paste0('WARNING ', avar, ': bad parameters'))}
         ## plot
-        rg <- diff(range(dato, na.rm=T))
         sgrid <- seq(log10(dmin/2), log10(rg*3), length.out=256)
         vv <- exp(log(10)*2*sgrid)
-        tplot(x=sgrid, y=dinvgamma(x=vv, shape=pars, scale=pars)*vv*2,
-              xlab=expression(lg~sigma), ylim=c(0,NA), ylab=NA,
-              main=paste0(avar, ': shape = ', pars,', scale = ',pars))
+        test <- log10(rinvgamma(1e6, shape=pars[2], rate=rinvgamma(1e6, shape=pars[1], scale=1)))/2
+        htest <- thist(test)
+        tplot(x=list(htest$mids,sgrid), y=list(htest$density,extraDistr::dbetapr(x=vv, shape1=pars[1], shape2=pars[2])*vv*2*log(10)),
+              xlab=expression(lg~sigma), ylim=c(0,NA), ylab=NA,u
+              main=paste0(avar, ': shape1 = ', pars[1],', shape2 = ',pars[2]))
         abline(v=log10(c(dmin/2, dmin, IQR(dato)*sd2iqr, rg, rg*3)), col=yellow, lwd=3)
     }else{
         dmin <- 1L
         amedian <- 0L
         siqr <- 1L
-        pars <- NA
+        pars <- c(NA,NA)
     }
     ##
     variatepars <- rbind(variatepars,
                          c(precision=dmin,
                            median=amedian, sIQR=siqr,
                            min=min(dato, na.rm=T), max=max(dato, na.rm=T),
-                           shape=pars, scale=pars))
+                           shape1=pars[1], shape2=pars[2]))
 }
 rownames(variatepars) <- covNames
 dev.off()
@@ -279,9 +285,9 @@ initsFunction <- function(){
         list(
             meanRmean0 = variatepars[realCovs,'median']*0,
             ## meanRvar0 = (variatepars[realCovs,'sIQR']*0+2)^2,
-            meanRvar0 = 9 * variatepars[realCovs,'sIQR']^2,
-            varRscale0 = variatepars[realCovs,'scale'],
-            varRshape0 = variatepars[realCovs,'shape']
+            meanRvar0 = (3 * (variatepars[realCovs,'sIQR']*0+1))^2,
+            varRshape10 = variatepars[realCovs,'shape1'],
+            varRshape20 = variatepars[realCovs,'shape2']
         )},
     if(nicovs > 0){# integer variates
         list(
@@ -299,7 +305,10 @@ initsFunction <- function(){
             probBa0 = rep(1,nbcovs),
             probBb0 = rep(1,nbcovs)
         )},
-    if((!chooseinitvalues) & posterior){list(C = rep(1, ndata))}, # cluster occupations: all in one cluster at first
+    if((!chooseinitvalues) & posterior){list(
+                                            q = rep(1/nclusters, nclusters),
+                                            C = rep(1, ndata)  # cluster occupations: all in one cluster at first
+                                        )},
     if(chooseinitvalues & posterior){
         list(q = rdirch(1, alpha=rep(1,nclusters)),
              ## C = rep(1, ndata))
@@ -313,11 +322,17 @@ initsFunction <- function(){
 bayesnet <- nimbleCode({
     q[1:nClusters] ~ ddirch(alpha=qalpha0[1:nClusters])
     ##
+    if(nrcovs>0){# real variates
+        for(avar in 1:nRcovs){
+            varRrate[avar] ~ dinvgamma(shape=varRshape10[avar], scale=1)
+        }
+    }
+    ##
     for(acluster in 1:nClusters){
         if(nrcovs>0){# real variates
             for(avar in 1:nRcovs){
                 meanR[avar,acluster] ~ dnorm(mean=meanRmean0[avar], var=meanRvar0[avar])
-                varR[avar,acluster] ~ dinvgamma(shape=varRshape0[avar], scale=varRscale0[avar])
+                varR[avar,acluster] ~ dinvgamma(shape=varRshape20[avar], rate=varRrate[avar])
             }
         }
         if(nicovs>0){# integer variates
@@ -371,9 +386,9 @@ bayesnet <- nimbleCode({
 timecount <- Sys.time()
 
 if(posterior){
-    model <- nimbleModel(code=bayesnet, name='model1', constants=constants, inits=initsFunction(), data=dat, dimensions=list(q=nclusters, meanR=c(nrcovs,nclusters), tauR=c(nrcovs,nclusters), probI=c(nicovs,nclusters), probC=c(nccovs,nclusters,ncategories), probB=c(nbcovs,nclusters), C=ndata) )
+    model <- nimbleModel(code=bayesnet, name='model1', constants=constants, inits=initsFunction(), data=dat, dimensions=list(q=nclusters, meanR=c(nrcovs,nclusters), tauR=c(nrcovs,nclusters), varRrate=nrcovs, probI=c(nicovs,nclusters), probC=c(nccovs,nclusters,ncategories), probB=c(nbcovs,nclusters), C=ndata) )
 }else{
-    model <- nimbleModel(code=bayesnet, name='model1', constants=constants, inits=initsFunction(), data=list(), dimensions=list(q=nclusters, meanR=c(nrcovs,nclusters), tauR=c(nrcovs,nclusters), probI=c(nicovs,nclusters), probC=c(nccovs,nclusters,ncategories), probB=c(nbcovs,nclusters)))
+    model <- nimbleModel(code=bayesnet, name='model1', constants=constants, inits=initsFunction(), data=list(), dimensions=list(q=nclusters, meanR=c(nrcovs,nclusters), tauR=c(nrcovs,nclusters), varRrate=nrcovs, probI=c(nicovs,nclusters), probC=c(nccovs,nclusters,ncategories), probB=c(nbcovs,nclusters)))
 }
 Cmodel <- compileNimble(model, showCompilerOutput=FALSE)
 gc()
@@ -388,17 +403,24 @@ if(posterior){# Samplers for posterior sampling
                                           if(nccovs > 0){c('probC')},
                                           if(nbcovs > 0){c('probB')}
                                           ),
-                               monitors2=c('C')
+                               monitors2=c('C',
+                                           if(nrcovs > 0){c('varRrate')}
                                            )
+                               )
     ##
     for(adatum in 1:ndata){
         confmodel$addSampler(target=paste0('C[', adatum, ']'), type='categorical')
     }
+    if(nrcovs>0){
+        for(avar in 1:nrcovs){
+            confmodel$addSampler(target=paste0('varRrate[', avar, ']'), type='conjugate')
+        }
+    }
     for(acluster in 1:nclusters){
         if(nrcovs>0){
             for(avar in 1:nrcovs){
-                confmodel$addSampler(target=paste0('meanR[', avar, ', ', acluster, ']'), type='conjugate')
                 confmodel$addSampler(target=paste0('varR[', avar, ', ', acluster, ']'), type='conjugate')
+                confmodel$addSampler(target=paste0('meanR[', avar, ', ', acluster, ']'), type='conjugate')
             }
         }
         if(nicovs>0){
@@ -427,7 +449,10 @@ if(posterior){# Samplers for posterior sampling
                                           if(nicovs>0){c('probI', 'sizeI')},
                                           if(nccovs>0){c('probC')},
                                           if(nbcovs>0){c('probB')}
-                                          ))
+                                          ),
+                               monitors2=c(if(nrcovs > 0){c('varRrate')}
+                                           )
+                               )
 }
 ##
 print(confmodel)
