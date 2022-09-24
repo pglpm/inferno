@@ -1,6 +1,6 @@
 ## Author: PGL  Porta Mana
 ## Created: 2022-09-08T17:03:24+0200
-## Last-Updated: 2022-09-24T11:00:13+0200
+## Last-Updated: 2022-09-24T11:41:35+0200
 ################
 ## Exchangeable-probability calculation (non-parametric density regression)
 ################
@@ -66,10 +66,10 @@ posterior <- TRUE # if set to FALSE it samples and plots prior samples
 
 variateinfo <- data.table(rbind(
     ##	 'variate',			'type',		'min',	'max',	'precision')
-    list('REALVARNAME',			'real',		-100,	100,	NA)
-,   list('BINARYVARNAME',		'binary',	0,	1,	NA)
-,   list('INTEGERVARNAME',		'integer',	1,	10,	NA)
-,   list('CATEGORYVARNAME',		'category',	1,	10,	NA)
+    list('REANAME',		'real',		-100,	100,	NA)
+,   list('BINNAME',		'binary',	0,	1,	NA)
+,   list('INTNAME',		'integer',	0,	9,	NA)
+,   list('CATNAME',		'category',	1,	10,	NA)
 ))
 colnames(variateinfo) <- c('variate', 'type', 'min', 'max', 'precision')
 ## Effects of shape parameter:
