@@ -1,6 +1,6 @@
 ## Author: PGL  Porta Mana
 ## Created: 2022-09-08T17:03:24+0200
-## Last-Updated: 2022-09-24T11:41:35+0200
+## Last-Updated: 2022-09-24T15:28:27+0200
 ################
 ## Exchangeable-probability calculation (non-parametric density regression)
 ################
@@ -49,7 +49,7 @@ nsamples <- 1024L * 1L # 2L # number of samples AFTER thinning
 niter0 <- 1024L * 1L # 3L # iterations burn-in
 thin <- 1L #
 nstages <- 1L # number of sampling stages beyond burn-in
-mainvar <- 'BINARYVARNAME' # ***
+mainvar <- 'BINNAME' # ***
 family <- 'Palatino'
 ## ndata <- 100 # set this if you want to use fewer data
 ## shuffledata <- TRUE
@@ -64,14 +64,15 @@ posterior <- TRUE # if set to FALSE it samples and plots prior samples
 #### INFORMATION ABOUT THE VARIATES AND THEIR PRIOR PARAMETERS
 ## Pericalcarine r + h, postcentral r, cuneus r,
 
-variateinfo <- data.table(rbind(
+variateinfo <- do.call(rbind, list(
     ##	 'variate',			'type',		'min',	'max',	'precision')
-    list('REANAME',		'real',		-100,	100,	NA)
-,   list('BINNAME',		'binary',	0,	1,	NA)
-,   list('INTNAME',		'integer',	0,	9,	NA)
-,   list('CATNAME',		'category',	1,	10,	NA)
+    data.table('REANAME',		'real',		-100,	100,	NA)
+,   data.table('BINNAME',		'binary',	0,	1,	NA)
+,   data.table('INTNAME',		'integer',	0,	9,	NA)
+,   data.table('CATNAME',		'category',	1,	10,	NA)
 ))
 colnames(variateinfo) <- c('variate', 'type', 'min', 'max', 'precision')
+
 ## Effects of shape parameter:
 ## 1/8 (broader):
 ## > testdata <- log10(rinvgamma(n=10^7, shape=1/8, scale=1^2))/2 ; 10^sort(c(quantile(testdata, c(1,7)/8), summary(testdata)))
@@ -134,7 +135,9 @@ pdff(paste0(dirname,'/densities_variances'),'a4')
 variatepars <- NULL
 for(avar in varNames){
     dmin <- 1L
+    ashift <- 0L
     ascale <- 1L
+    pars <- c(NA,NA)
     ##
     dato <- alldata[[avar]]
     ##
@@ -166,7 +169,7 @@ for(avar in varNames){
         vv <- exp(log(10)*2*sgrid)
         ##
         if(compoundgamma){
-            pars <- c(1,1)
+            pars <- c(1/2,1/2)
             test <- thist(log10(rinvgamma(1e6, shape=pars[2], rate=rinvgamma(1e6, shape=pars[1], scale=1)))/2)
             vdistr <- extraDistr::dbetapr(x=vv, shape1=pars[1], shape2=pars[2])*vv*2*log(10)
         }else{
@@ -521,13 +524,15 @@ for(stage in stagestart+(0:nstages)){
         flagll <- TRUE
         ll <- rep(0, length(ll))}
     condprobsd <- logsumsamplesF(Y=do.call(cbind,dat)[, mainvar, drop=F],
-                                 X=do.call(cbind,dat)[, setdiff(varNames, mainvar), drop=F],
+                                 X=do.call(cbind,dat)[, setdiff(varNames, mainvar),
+                                                      drop=F],
                                  parmList=parmList, inorder=T)
-    condprobsi <- logsumsamplesF(Y=do.call(cbind,dat)[, setdiff(varNames, mainvar), drop=F],
-                                 X=do.call(cbind,dat)[, mainvar, drop=F],               
+    condprobsi <- logsumsamplesF(Y=do.call(cbind,dat)[, setdiff(varNames, mainvar),
+                                                      drop=F],
+                                 X=do.call(cbind,dat)[, mainvar, drop=F],
                                  parmList=parmList, inorder=T)
     ##
-    traces <- cbind(loglikelihood=ll, 'mean of direct logprobabilities'=condprobsd, 'mean of inverse logprobabilities'=condprobsi)*10/log(10)/ndata #medians, iqrs, Q1s, Q3s,
+    traces <- cbind(loglikelihood=ll, 'mean of direct logprobabilities'=condprobsd, 'mean of inverse logprobabilities'=condprobsi)*10/log(10)/ndata #medians, iqrs, Q1s, Q3s
     badcols <- foreach(i=1:ncol(traces), .combine=c)%do%{if(all(is.na(traces[,i]))){i}else{NULL}}
     if(!is.null(badcols)){traces <- traces[,-badcols]}
     saveRDS(traces,file=paste0(dirname,'/_probtraces-R',baseversion,'-V',length(varNames),'-D',ndata,'-K',nclusters,'-I',nrow(parmList$q),'--',stage,'-',mcmcseed,'.rds'))
