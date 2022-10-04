@@ -1,6 +1,6 @@
 ## Author: PGL  Porta Mana
 ## Created: 2022-09-08T17:03:24+0200
-## Last-Updated: 2022-09-24T15:28:27+0200
+## Last-Updated: 2022-10-04T20:34:10+0200
 ################
 ## Exchangeable-probability calculation (non-parametric density regression)
 ################
@@ -56,6 +56,7 @@ family <- 'Palatino'
 compoundgamma <- TRUE # use beta-prime distribution for variance instead of gamma
 chooseinitvalues <- FALSE
 datafile <- 'TESTDATA.csv' #***
+variateinfofile <- 'VARIATEINFO.csv' #***
 posterior <- TRUE # if set to FALSE it samples and plots prior samples
 ##
 ## stagestart <- 0L # set this if continuing existing MC = last saved + 1
@@ -64,14 +65,15 @@ posterior <- TRUE # if set to FALSE it samples and plots prior samples
 #### INFORMATION ABOUT THE VARIATES AND THEIR PRIOR PARAMETERS
 ## Pericalcarine r + h, postcentral r, cuneus r,
 
-variateinfo <- do.call(rbind, list(
-    ##	 'variate',			'type',		'min',	'max',	'precision')
-    data.table('REANAME',		'real',		-100,	100,	NA)
-,   data.table('BINNAME',		'binary',	0,	1,	NA)
-,   data.table('INTNAME',		'integer',	0,	9,	NA)
-,   data.table('CATNAME',		'category',	1,	10,	NA)
-))
-colnames(variateinfo) <- c('variate', 'type', 'min', 'max', 'precision')
+variateinfo <- fread(variateinfofile)
+## variateinfo <- do.call(rbind, list(
+##     ##	 'variate',			'type',		'min',	'max',	'precision')
+##     data.table('REANAME',		'real',		-100,	100,	NA)
+## ,   data.table('BINNAME',		'binary',	0,	1,	NA)
+## ,   data.table('INTNAME',		'integer',	0,	9,	NA)
+## ,   data.table('CATNAME',		'category',	1,	10,	NA)
+## ))
+## colnames(variateinfo) <- c('variate', 'type', 'min', 'max', 'precision')
 
 ## Effects of shape parameter:
 ## 1/8 (broader):
@@ -135,16 +137,16 @@ pdff(paste0(dirname,'/densities_variances'),'a4')
 variatepars <- NULL
 for(avar in varNames){
     dmin <- 1L
-    ashift <- 0L
+    alocation <- 0L
     ascale <- 1L
     pars <- c(NA,NA)
     ##
     dato <- alldata[[avar]]
     ##
     if(avar %in% realVars){
-        ashift <- signif(median(dato), log10(IQR(dato)*sd2iqr)+1)
+        alocation <- signif(median(dato), log10(IQR(dato)*sd2iqr)+1)
         ascale <- signif(IQR(dato)*sd2iqr, 2)
-        dato <- (dato-ashift)/ascale
+        dato <- (dato-alocation)/ascale
         rg <- diff(range(dato, na.rm=T))
         if(is.na(variateinfo[variate==avar, precision])){
             dmin <- min(diff(sort(unique(dato))))
@@ -187,21 +189,21 @@ for(avar in varNames){
         rm('test','sgrid','vdistr')
     }else if((avar %in% integerVars) | (avar %in% binaryVars)){
         if(is.na(variateinfo[variate==avar, min])){
-            ashift <- min(dato, na.rm=T)
+            alocation <- min(dato, na.rm=T)
         }else{
-            ashift <- variateinfo[variate==avar, min]
+            alocation <- variateinfo[variate==avar, min]
         }
     }else if(avar %in% categoryVars){
         if(is.na(variateinfo[variate==avar, min])){
-            ashift <- min(dato, na.rm=T) - 1L
+            alocation <- min(dato, na.rm=T) - 1L
         }else{
-            ashift <- variateinfo[variate==avar, min] - 1L
+            alocation <- variateinfo[variate==avar, min] - 1L
         }
     }
     ##
     variatepars <- rbind(variatepars,
                          c(precision=dmin,
-                           shift=ashift, scale=ascale,
+                           location=alocation, scale=ascale,
                            min=min(dato, na.rm=T), max=max(dato, na.rm=T),
                            shape1rate=pars[1], shape2shape=pars[2]))
 }
@@ -225,7 +227,7 @@ gc()
 
 ## Data (standardized for real variates)
 dat <- list()
-if(nrvars>0){ dat$Real=t((t(data.matrix(alldata[, ..realVars])) - variatepars[realVars,'shift'])/variatepars[realVars,'scale'])}
+if(nrvars>0){ dat$Real=t((t(data.matrix(alldata[, ..realVars])) - variatepars[realVars,'location'])/variatepars[realVars,'scale'])}
 if(nivars>0){ dat$Integer=data.matrix(alldata[, ..integerVars])}
 if(ncvars>0){ dat$Category=data.matrix(alldata[, ..categoryVars])}
 if(nbvars>0){ dat$Binary=data.matrix(alldata[, ..binaryVars])}
@@ -285,7 +287,7 @@ initsFunction <- function(){
     ),
     if(nrvars > 0){# real variates
         list(
-            meanRmean0 = variatepars[realVars,'shift']*0,
+            meanRmean0 = variatepars[realVars,'location']*0,
             meanRvar0 = (3 * (variatepars[realVars,'scale']*0+1))^2,
             varRshape2shape = variatepars[realVars,'shape2shape']
         )},

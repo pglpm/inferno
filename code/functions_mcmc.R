@@ -203,7 +203,7 @@ samplesF <- function(Y, X=NULL, parmList, nfsamples=NULL, inorder=FALSE, rescale
     bCovs <- dimnames(parmList$probB)[[2]]
     cNames <- c(rCovs, iCovs, cCovs, bCovs)
     if(is.null(rescale)){
-        rescale <- matrix(c(0,1),nrow=length(cNames),ncol=2,byrow=TRUE,dimnames=list(cNames, c('shift','scale')))
+        rescale <- matrix(c(0,1),nrow=length(cNames),ncol=2,byrow=TRUE,dimnames=list(cNames, c('location','scale')))
     }
     nrcovs <- length(rCovs)
     nicovs <- length(iCovs)
@@ -211,7 +211,7 @@ samplesF <- function(Y, X=NULL, parmList, nfsamples=NULL, inorder=FALSE, rescale
     nbcovs <- length(bCovs)
     ##
     Y <- data.matrix(rbind(Y))
-    Y <- t((t(Y)-rescale[colnames(Y),'shift'])/rescale[colnames(Y),'scale'])
+    Y <- t((t(Y)-rescale[colnames(Y),'location'])/rescale[colnames(Y),'scale'])
     rY <- colnames(Y)[colnames(Y) %in% rCovs]
     iY <- colnames(Y)[colnames(Y) %in% iCovs]
     cY <- colnames(Y)[colnames(Y) %in% cCovs]
@@ -219,7 +219,7 @@ samplesF <- function(Y, X=NULL, parmList, nfsamples=NULL, inorder=FALSE, rescale
     ##
     if(!is.null(X)){
         X <- data.matrix(rbind(X))
-        X <- t((t(X)-rescale[colnames(X),'shift'])/rescale[colnames(X),'scale'])
+        X <- t((t(X)-rescale[colnames(X),'location'])/rescale[colnames(X),'scale'])
         rX <- colnames(X)[colnames(X) %in% rCovs]
         if(length(intersect(rX,rY))>0){
             warning('*WARNING: predictor and predictand have real variates in common. Removing from predictor*')

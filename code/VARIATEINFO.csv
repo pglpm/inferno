@@ -1,0 +1,5 @@
+variate,type,min,max,precision
+REANAME,real,-100,100,
+BINNAME,binary,0,1,
+INTNAME,integer,0,9,
+CATNAME,category,1,10,
