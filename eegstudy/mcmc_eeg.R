@@ -1,6 +1,6 @@
 ## Author: PGL  Porta Mana
 ## Created: 2022-09-08T17:03:24+0200
-## Last-Updated: 2022-10-04T22:10:08+0200
+## Last-Updated: 2022-10-07T18:21:20+0200
 ################
 ## Exchangeable-probability calculation (non-parametric density regression)
 ################
@@ -43,23 +43,25 @@ library('nimble')
 
 set.seed(701)
 ## Base name of directory where to save data and plots
-baseversion <- '_TEST' # ***
+baseversion <- '_TESTyesintB1' # ***
 nclusters <- 64L
 nsamples <- 1024L * 1L # 2L # number of samples AFTER thinning
-niter0 <- 1024L * 1L # 3L # iterations burn-in
-thin <- 1L #
-nstages <- 1L # number of sampling stages beyond burn-in
+niter0 <- 1024L * 2L # 3L # iterations burn-in
+thin <- 4L #
+nstages <- 2L # number of sampling stages beyond burn-in
 mainvar <- 'group' # ***
 family <- 'Palatino'
 ## ndata <- 100 # set this if you want to use fewer data
 ## shuffledata <- TRUE
 compoundgamma <- TRUE # use beta-prime distribution for variance instead of gamma
+compoundgammapars <- c(1,1) #c(1,1)/2
+categoryprior <- 1 # choices: 'Haldane' (1/n) or a number
 chooseinitvalues <- FALSE
 datafile <- 'data_ep.csv' #***
 variateinfofile <- 'metadata_noSW.csv' #***
 posterior <- TRUE # if set to FALSE it samples and plots prior samples
 ##
-## stagestart <- 0L # set this if continuing existing MC = last saved + 1
+stagestart <- 3L # set this if continuing existing MC = last saved + 1
 ##
 
 #### INFORMATION ABOUT THE VARIATES AND THEIR PRIOR PARAMETERS
@@ -105,7 +107,7 @@ varMaxs <- variateinfo$max
 names(varTypes) <- names(varMins) <- names(varMaxs) <- varNames
 realVars <- varNames[varTypes=='real']
 integerVars <- varNames[varTypes=='integer']
-categoryVars <- varNames[varTypes=='category']
+categoryVars <- varNames[varTypes=='categorical']
 binaryVars <- varNames[varTypes=='binary']
 #varNames <- c(realVars, integerVars, categoryVars, binaryVars)
 nrvars <- length(realVars)
@@ -131,15 +133,26 @@ dirname <- paste0(baseversion,'-V',length(varNames),'-D',ndata,'-K',nclusters,'-
 dir.create(dirname)
 
 #### Get missing metadata from data
+## integers
 if(any(is.na(varMins[integerVars]))){
     print('WARNING: missing min for some integer variates; using min from data')
     nanames <- integerVars[is.na(varMins[integerVars])]
     varMins[nanames] <- sapply(alldata[,..nanames],function(x)min(x,na.rm=T))
 }
-##
 if(any(is.na(varMaxs[integerVars]))){
     print('WARNING: missing max for some integer variates; using max from data')
     nanames <- integerVars[is.na(varMaxs[integerVars])]
+    varMaxs[nanames] <- sapply(alldata[,..nanames],function(x)max(x,na.rm=T))
+}
+## categories
+if(any(is.na(varMins[categoryVars]))){
+    print('WARNING: missing min for some category variates; using min from data')
+    nanames <- categoryVars[is.na(varMins[categoryVars])]
+    varMins[nanames] <- sapply(alldata[,..nanames],function(x)min(x,na.rm=T))
+}
+if(any(is.na(varMaxs[categoryVars]))){
+    print('WARNING: missing max for some category variates; using max from data')
+    nanames <- categoryVars[is.na(varMaxs[categoryVars])]
     varMaxs[nanames] <- sapply(alldata[,..nanames],function(x)max(x,na.rm=T))
 }
 
@@ -161,6 +174,7 @@ for(avar in varNames){
     if(avar %in% realVars){
         alocation <- signif(median(dato), log10(IQR(dato)*sd2iqr)+1)
         ascale <- signif(IQR(dato)*sd2iqr, 2)
+        if(ascale==0){ascale <- 1}
         dato <- (dato-alocation)/ascale
         rg <- diff(range(dato, na.rm=T))
         if(is.na(variateinfo[variate==avar, precision])){
@@ -186,7 +200,8 @@ for(avar in varNames){
         vv <- exp(log(10)*2*sgrid)
         ##
         if(compoundgamma){
-            pars <- c(1/2,1/2)
+            pars <- compoundgammapars
+            ##pars <- c(1,1)
             test <- thist(log10(rinvgamma(1e6, shape=pars[2], rate=rinvgamma(1e6, shape=pars[1], scale=1)))/2)
             vdistr <- extraDistr::dbetapr(x=vv, shape1=pars[1], shape2=pars[2])*vv*2*log(10)
         }else{
@@ -225,6 +240,9 @@ for(avar in varNames){
 rownames(variatepars) <- varNames
 dev.off()
 
+locvarMins <- varMins-variatepars[,'location']
+locvarMaxs <- varMaxs-variatepars[,'location']
+
 
 #################################
 ## Setup for Monte Carlo sampling
@@ -232,9 +250,11 @@ dev.off()
 
 if(!exists('stagestart')){stagestart <- 0L}
 if(stagestart>0){
-    continue <- paste0('_finalstate-R',baseversion,'_',stagestart-1,'-V',length(varNames),'-D',ndata,'-K',nclusters,'-I',nsamples,'--',mcmcseed,'.rds')
+##    continue <- paste0('_finalstate-R',baseversion,'_',stagestart-1,'-V',length(varNames),'-D',ndata,'-K',nclusters,'-I',nsamples,'--',mcmcseed,'.rds')
+    continue <- paste0('_finalstate-R',baseversion,'-V',length(varNames),'-D',ndata,'-K',nclusters,'-I',nsamples,'--',stagestart-1,'-',mcmcseed,'.rds')
 }
 ##
+
 
 for(obj in c('constants', 'dat', 'inits', 'bayesnet', 'model', 'Cmodel', 'confmodel', 'mcmcsampler', 'Cmcmcsampler')){if(exists(obj)){do.call(rm,list(obj))}}
 gc()
@@ -243,9 +263,12 @@ gc()
 ## Data (standardized for real variates)
 dat <- list()
 if(nrvars>0){ dat$Real=t((t(data.matrix(alldata[, ..realVars])) - variatepars[realVars,'location'])/variatepars[realVars,'scale'])}
-if(nivars>0){ dat$Integer=data.matrix(alldata[, ..integerVars])}
-if(ncvars>0){ dat$Category=data.matrix(alldata[, ..categoryVars])}
-if(nbvars>0){ dat$Binary=data.matrix(alldata[, ..binaryVars])}
+## if(nivars>0){ dat$Integer=data.matrix(alldata[, ..integerVars])}
+if(nivars>0){ dat$Integer=t((t(data.matrix(alldata[, ..integerVars])) - variatepars[integerVars,'location']))}
+## if(ncvars>0){ dat$Category=data.matrix(alldata[, ..categoryVars])}
+if(ncvars>0){ dat$Category=t((t(data.matrix(alldata[, ..categoryVars])) - variatepars[categoryVars,'location']))}
+## if(nbvars>0){ dat$Binary=data.matrix(alldata[, ..binaryVars])}
+if(nbvars>0){ dat$Binary=t((t(data.matrix(alldata[, ..binaryVars])) - variatepars[binaryVars,'location']))}
 ##
 if(file.exists("/cluster/home/pglpm/R")){
     initial.options <- commandArgs(trailingOnly = FALSE)
@@ -270,8 +293,8 @@ source('functions_mcmc.R') # load functions for post-MCMC calculations
 ## Find max integer value in data
 if(nivars > 0){
     ## maximum in data (for inital values)
-    maxivars <- apply(alldata[,..integerVars],2,function(x)max(x, na.rm=T))
-    thmaxivars <- varMaxs[integerVars] # theoretical maximum
+    maxivars <- apply(dat$Integer,2,function(x)max(x, na.rm=T))
+    thmaxivars <- locvarMaxs[integerVars] # theoretical maximum
     matrixprobivars <- matrix(0, nrow=nivars, ncol=max(thmaxivars), dimnames=list(integerVars))
     for(avar in integerVars){
         matrixprobivars[avar,1:thmaxivars[avar]] <- (1:thmaxivars[avar])/sum(1:thmaxivars[avar])
@@ -280,10 +303,14 @@ if(nivars > 0){
 ##
 ## Find max number of categories in data
 if(ncvars > 0){
-    ncategories <- max(varMaxs[categoryVars]) # largest number of categories
+    ncategories <- max(locvarMaxs[categoryVars]) # largest number of categories
     calphapad <- array(0, dim=c(ncvars, ncategories), dimnames=list(categoryVars,NULL))
     for(avar in categoryVars){
-        calphapad[avar,1:varMaxs[avar]] <- 1/varMaxs[avar]
+        if(categoryprior=='Haldane'){
+            calphapad[avar,1:locvarMaxs[avar]] <- 1/locvarMaxs[avar]
+        }else{
+            calphapad[avar,1:locvarMaxs[avar]] <- categoryprior
+        }
     }
 }
 ## constants
@@ -422,7 +449,16 @@ if(posterior){
                              if(compoundgamma){list(varRrate=nrvars)})
                          )
 }else{
-    model <- nimbleModel(code=bayesnet, name='model1', constants=constants, inits=initsFunction(), data=list(), dimensions=c(list(q=nclusters, meanR=c(nrvars,nclusters), tauR=c(nrvars,nclusters), varRrate=nrvars, probI=c(nivars,nclusters), probC=c(ncvars,nclusters,ncategories), probB=c(nbvars,nclusters)), if(compoundgamma){list(varRrate=nrvars)}))
+    model <- nimbleModel(code=bayesnet, name='model1', constants=constants,
+                         inits=initsFunction(), data=list(),
+                         dimensions=c(
+                             list(q=nclusters),
+                             (if(nrvars>0){list(meanR=c(nrvars,nclusters), tauR=c(nrvars,nclusters))}),
+                             (if(nivars>0){list(probI=c(nivars,nclusters))}),
+                             (if(ncvars>0){list(probC=c(ncvars,nclusters,ncategories))}),
+                             (if(nbvars>0){list(probB=c(nbvars,nclusters))}),
+                             if(compoundgamma){list(varRrate=nrvars)})
+                         )
 }
 Cmodel <- compileNimble(model, showCompilerOutput=FALSE)
 gc()
@@ -502,8 +538,8 @@ print(Sys.time() - timecount)
 ## Monte Carlo sampler and plots of MC diagnostics
 ##################################################
 for(stage in stagestart+(0:nstages)){
-    calctime <- Sys.time()
 
+    calctime <- Sys.time()
     print(paste0('==== STAGE ', stage, ' ===='))
     gc()
     if(stage==stagestart){# first sampling stage
@@ -545,101 +581,129 @@ for(stage in stagestart+(0:nstages)){
     ##
     ## Diagnostics
     ## Log-likelihood
-    ll <- llSamples(dat, parmList)
-    flagll <- FALSE
-    if(!posterior && !any(is.finite(ll))){
-        flagll <- TRUE
-        ll <- rep(0, length(ll))}
-    condprobsd <- logsumsamplesF(Y=do.call(cbind,dat)[, mainvar, drop=F],
-                                 X=do.call(cbind,dat)[, setdiff(varNames, mainvar),
-                                                      drop=F],
-                                 parmList=parmList, inorder=T)
-    condprobsi <- logsumsamplesF(Y=do.call(cbind,dat)[, setdiff(varNames, mainvar),
-                                                      drop=F],
-                                 X=do.call(cbind,dat)[, mainvar, drop=F],
-                                 parmList=parmList, inorder=T)
-    ##
-    traces <- cbind(loglikelihood=ll, 'mean of direct logprobabilities'=condprobsd, 'mean of inverse logprobabilities'=condprobsi)*10/log(10)/ndata #medians, iqrs, Q1s, Q3s
-    badcols <- foreach(i=1:ncol(traces), .combine=c)%do%{if(all(is.na(traces[,i]))){i}else{NULL}}
-    if(!is.null(badcols)){traces <- traces[,-badcols]}
-    saveRDS(traces,file=paste0(dirname,'/_probtraces-R',baseversion,'-V',length(varNames),'-D',ndata,'-K',nclusters,'-I',nrow(parmList$q),'--',stage,'-',mcmcseed,'.rds'))
-    ##
-    if(nrow(traces)>=1000){
-        funMCSE <- function(x){LaplacesDemon::MCSE(x, method='batch.means')$se}
-    }else{
-        funMCSE <- function(x){LaplacesDemon::MCSE(x)}
+    if(posterior){
+        ll <- llSamples(dat, parmList)
+        flagll <- FALSE
+        if(!posterior && !any(is.finite(ll))){
+            flagll <- TRUE
+            ll <- rep(0, length(ll))}
+        condprobsd <- logsumsamplesF(Y=do.call(cbind,dat)[, mainvar, drop=F],
+                                     X=do.call(cbind,dat)[, setdiff(varNames, mainvar),
+                                                          drop=F],
+                                     parmList=parmList, inorder=T)
+        condprobsi <- logsumsamplesF(Y=do.call(cbind,dat)[, setdiff(varNames, mainvar),
+                                                          drop=F],
+                                     X=do.call(cbind,dat)[, mainvar, drop=F],
+                                     parmList=parmList, inorder=T)
+        ##
+        traces <- cbind(loglikelihood=ll, 'mean of direct logprobabilities'=condprobsd, 'mean of inverse logprobabilities'=condprobsi)*10/log(10)/ndata #medians, iqrs, Q1s, Q3s
+        badcols <- foreach(i=1:ncol(traces), .combine=c)%do%{if(all(is.na(traces[,i]))){i}else{NULL}}
+        if(!is.null(badcols)){traces <- traces[,-badcols]}
+        saveRDS(traces,file=paste0(dirname,'/_probtraces-R',baseversion,'-V',length(varNames),'-D',ndata,'-K',nclusters,'-I',nrow(parmList$q),'--',stage,'-',mcmcseed,'.rds'))
+        ##
+        if(nrow(traces)>=1000){
+            funMCSE <- function(x){LaplacesDemon::MCSE(x, method='batch.means')$se}
+        }else{
+            funMCSE <- function(x){LaplacesDemon::MCSE(x)}
+        }
+        diagnESS <- LaplacesDemon::ESS(traces * (abs(traces) < Inf))
+        diagnIAT <- apply(traces, 2, function(x){LaplacesDemon::IAT(x[is.finite(x)])})
+        diagnBMK <- LaplacesDemon::BMK.Diagnostic(traces, batches=2)[,1]
+        diagnMCSE <- 100*apply(traces, 2, function(x){funMCSE(x)/sd(x)})
+        diagnStat <- apply(traces, 2, function(x){LaplacesDemon::is.stationary(as.matrix(x,ncol=1))})
+        diagnBurn <- apply(traces, 2, function(x){LaplacesDemon::burnin(matrix(x[1:(10*trunc(length(x)/10))], ncol=1))})
+        ##
+        tracegroups <- list(loglikelihood=1,
+                            'main given rest'=2,
+                            'rest given main'=3
+                            )
+        grouplegends <- foreach(agroup=1:length(tracegroups))%do%{
+            c( paste0('-- STATS ', names(tracegroups)[agroup], ' --'),
+              paste0('min ESS = ', signif(min(diagnESS[tracegroups[[agroup]]]),6)),
+              paste0('max IAT = ', signif(max(diagnIAT[tracegroups[[agroup]]]),6)),
+              paste0('max BMK = ', signif(max(diagnBMK[tracegroups[[agroup]]]),6)),
+              paste0('max MCSE = ', signif(max(diagnMCSE[tracegroups[[agroup]]]),6)),
+              paste0('stationary: ', sum(diagnStat[tracegroups[[agroup]]]),'/',length(diagnStat[tracegroups[[agroup]]])),
+              paste0('burn: ', signif(max(diagnBurn[tracegroups[[agroup]]]),6))
+              )
+        }
+        colpalette <- c(7,2,1)
+        names(colpalette) <- colnames(traces)
     }
-    diagnESS <- LaplacesDemon::ESS(traces * (abs(traces) < Inf))
-    diagnIAT <- apply(traces, 2, function(x){LaplacesDemon::IAT(x[is.finite(x)])})
-    diagnBMK <- LaplacesDemon::BMK.Diagnostic(traces, batches=2)[,1]
-    diagnMCSE <- 100*apply(traces, 2, function(x){funMCSE(x)/sd(x)})
-    diagnStat <- apply(traces, 2, function(x){LaplacesDemon::is.stationary(as.matrix(x,ncol=1))})
-    diagnBurn <- apply(traces, 2, function(x){LaplacesDemon::burnin(matrix(x[1:(10*trunc(length(x)/10))], ncol=1))})
-    ##
-    tracegroups <- list(loglikelihood=1,
-                        'main given rest'=2,
-                        'rest given main'=3
-                        )
-    grouplegends <- foreach(agroup=1:length(tracegroups))%do%{
-        c( paste0('-- STATS ', names(tracegroups)[agroup], ' --'),
-          paste0('min ESS = ', signif(min(diagnESS[tracegroups[[agroup]]]),6)),
-          paste0('max IAT = ', signif(max(diagnIAT[tracegroups[[agroup]]]),6)),
-          paste0('max BMK = ', signif(max(diagnBMK[tracegroups[[agroup]]]),6)),
-          paste0('max MCSE = ', signif(max(diagnMCSE[tracegroups[[agroup]]]),6)),
-          paste0('stationary: ', sum(diagnStat[tracegroups[[agroup]]]),'/',length(diagnStat[tracegroups[[agroup]]])),
-          paste0('burn: ', signif(max(diagnBurn[tracegroups[[agroup]]]),6))
-          )
-    }
-    colpalette <- c(7,2,1)
-    names(colpalette) <- colnames(traces)
-
     ##
     ## Plot various info and traces
     pdff(paste0(dirname,'/mcsummary2-R',baseversion,'-V',length(varNames),'-D',ndata,'-K',nclusters,'-I',nrow(parmList$q),'--',stage,'-',mcmcseed),'a4')
-    matplot(1:2, type='l', col='white', main=paste0('Stats stage ',stage), axes=FALSE, ann=FALSE)
-    legendpositions <- c('topleft','topright','bottomleft','bottomright')
-    for(alegend in 1:length(grouplegends)){
-        legend(x=legendpositions[alegend], bty='n', cex=1.5,
-               legend=grouplegends[[alegend]] )
+    if(posterior){
+        matplot(1:2, type='l', col='white', main=paste0('Stats stage ',stage), axes=FALSE, ann=FALSE)
+        legendpositions <- c('topleft','topright','bottomleft','bottomright')
+        for(alegend in 1:length(grouplegends)){
+            legend(x=legendpositions[alegend], bty='n', cex=1.5,
+                   legend=grouplegends[[alegend]] )
+        }
+        legend(x='center', bty='n', cex=1,
+               legend=c(
+                   paste0('Occupied clusters: ', usedclusters, ' of ', nclusters),
+                   paste0('LL: ', signif(mean(ll),3), ' +- ', signif(sd(ll),3)),
+                   'WARNINGS:',
+                   if(any(is.na(mcsamples))){'some NA MC outputs'},
+                   if(any(!is.finite(mcsamples))){'some infinite MC outputs'},
+                   if(usedclusters > nclusters-5){'too many clusters occupied'},
+                   if(flagll){'infinite values in likelihood'}
+               ))
     }
-    legend(x='center', bty='n', cex=1,
-           legend=c(
-               paste0('Occupied clusters: ', usedclusters, ' of ', nclusters),
-               paste0('LL: ', signif(mean(ll),3), ' +- ', signif(sd(ll),3)),
-               'WARNINGS:',
-                    if(any(is.na(mcsamples))){'some NA MC outputs'},
-                    if(any(!is.finite(mcsamples))){'some infinite MC outputs'},
-                    if(usedclusters > nclusters-5){'too many clusters occupied'},
-                    if(flagll){'infinite values in likelihood'}
-           ))
     ##
-    par(mfrow=c(1,1))
-    for(avar in varNames){
+    nfsamples <- if(posterior){64}else{256}
+    for(avar in varNames){#print(avar)
         datum <- alldata[[avar]]
         if(avar %in% realVars){
             rg <- range(datum, na.rm=T)
-            rg <- round(c((varMins[avar]+7*rg[1])/8, (varMaxs[avar]+7*rg[2])/8))
-##            rg <- c(varMins[avar], varMaxs[avar])
+            rg <- signif(c((varMins[avar]+7*rg[1])/8, (varMaxs[avar]+7*rg[2])/8),2)
+            ##            rg <- c(varMins[avar], varMaxs[avar])
             if(!is.finite(rg[1])){rg[1] <- min(datum, na.rm=T) - IQR(datum, type=8, na.rm=T)}
             if(!is.finite(rg[2])){rg[2] <- max(datum, na.rm=T) + IQR(datum, type=8, na.rm=T)}
             Xgrid <- cbind(seq(rg[1], rg[2], length.out=256))
-            histo <- thist(datum, n=32)#-exp(mean(log(c(round(sqrt(length(datum))), length(Xgrid))))))
+            ##histo <- thist(datum, n=32)#-exp(mean(log(c(round(sqrt(length(datum))), length(Xgrid))))))
         }else{
             rg <- range(datum, na.rm=T)
             rg <- round(c((varMins[avar]+7*rg[1])/8, (varMaxs[avar]+7*rg[2])/8))
             Xgrid <- cbind(rg[1]:rg[2])
-            histo <- thist(datum, n='i')
+            ##histo <- thist(datum, n='i')
         }
         colnames(Xgrid) <- avar
-        plotsamples <- samplesF(Y=Xgrid, parmList=parmList, nfsamples=min(64,nrow(mcsamples)), inorder=FALSE, rescale=variatepars)
+        plotsamples <- samplesF(Y=Xgrid, parmList=parmList, nfsamples=min(nfsamples,nrow(mcsamples)), inorder=FALSE, rescale=variatepars)
         ## ymax <- max(quant(apply(plotsamples,2,function(x){quant(x,99/100)}),99/100, na.rm=T), histo$density)
         ## tplot(x=histo$breaks, y=histo$density, col=yellow, lty=1, lwd=1, xlab=avar, ylab='probability density', ylim=c(0, ymax), family=family)
         ymax <- quant(apply(plotsamples,2,function(x){quant(x,99/100)}),99/100, na.rm=T)
-        tplot(x=Xgrid, y=plotsamples, type='l', col=paste0(palette()[7], '44'), lty=1, lwd=2, xlab=avar, ylab='probability density', ylim=c(0, ymax), family=family)
-        scatteraxis(side=1, n=NA, alpha='88', ext=8, x=datum[sample(1:length(datum),length(datum))]+rnorm(length(datum),mean=0,sd=prod(variatepars[avar,c('precision','scale')])/(if(avar %in% binaryVars){16}else{4})),col=yellow)
-    }
+        fiven <- fivenum(datum, na.rm=T)
+        if(posterior){
+            par(mfrow=c(1,1))
+            tplot(x=Xgrid, y=plotsamples, type='l', col=paste0(palette()[7], '44'), lty=1, lwd=2, xlab=paste0(avar,' (',variateinfo[variate==avar,type],')'), ylab=paste0('frequency',if(avar %in% realVars){' density'}), ylim=c(0, ymax), family=family)
+            abline(v=fiven,col=paste0(palette()[c(2,4,5,4,2)], '44'),lwd=4)
+            scatteraxis(side=1, n=NA, alpha='88', ext=8, x=datum[sample(1:length(datum),length(datum))]+rnorm(length(datum),mean=0,sd=prod(variatepars[avar,c('precision','scale')])/(if(avar %in% binaryVars){16}else{16})),col=yellow)
+        }else{
+            par(mfrow=c(8,8),mar = c(0,0,0,0))
+            tplot(x=list(Xgrid,Xgrid), y=list(rowMeans(plotsamples),rep(0,length(Xgrid))), type='l', col=c(paste0(palette()[3], 'FF'), '#bbbbbb80'), lty=1, lwd=c(2,1), xlab=NA, ylab=NA, ylim=c(0, NA), family=family,
+                  xticks=NA, yticks=NA,
+                  mar=c(1,1,1,1))
+            abline(v=fiven,col=paste0(palette()[c(2,4,5,4,2)], '44'))
+            text(sum(range(Xgrid))/2, par('usr')[4]*0.9, avar)
+            ##
+            subsample <- round(seq(1,ncol(plotsamples), length.out=63))
+            for(aplot in 1:63){
+                tplot(x=list(Xgrid,Xgrid), y=list(plotsamples[,subsample[aplot]], rep(0,length(Xgrid))), type='l', col=c(paste0(palette()[1], 'FF'), '#bbbbbb80'), lty=1, lwd=c(1,1), xlab=NA, ylab=NA, ylim=c(0, NA), family=family,
+                      xticks=NA, yticks=NA,
+                      mar=c(1,1,1,1))
+                abline(v=fiven,col=paste0(palette()[c(2,4,5,4,2)], '44'))
+                if(aplot==1){ text(Xgrid[1], par('usr')[4]*0.9, variateinfo[variate==avar,type], pos=4)}
+                if(aplot==2){ text(Xgrid[1], par('usr')[4]*0.9, paste(signif(c(rg,diff(rg)),2),collapse=' -- '), pos=4)}
+                }
+
+        }
+##dev.off()
+}
     ##
-    par(mfrow=c(1,1))
+    if(posterior){
+        par(mfrow=c(1,1))
     for(avar in colnames(traces)){
         tplot(y=traces[,avar], type='l', lty=1, col=colpalette[avar],
                 main=paste0(avar,
@@ -653,6 +717,7 @@ for(stage in stagestart+(0:nstages)){
                 ylab=paste0(avar,'/dHart'), xlab='sample', family=family
               )
     }
+    }
     dev.off()
 
     ##
@@ -665,4 +730,54 @@ for(stage in stagestart+(0:nstages)){
 ## End MCMC
 ############################################################
 plan(sequential)
+
+stop('End of script')
+
+alldata <- fread('data_ep.csv')
+metadata <- fread('metadata.csv')
+allnames <- names(alldata)
+metadatanew <- metadata
+metadatanew$precision <- as.integer(metadatanew$precision)
+##
+boundarycat <- 0
+for(i in allnames){
+    if(metadata[variate==i,'type']=='integer'){
+        print(i)
+        if(is.na(metadata[variate==i,'max'])){
+            print(paste0(': max'))
+            metadatanew[variate==i,'max'] <- max(alldata[[i]],na.rm=T)
+        }
+        if(is.na(metadata[variate==i,'min'])){
+            print(paste0(': min'))
+            metadatanew[variate==i,'min'] <- min(alldata[[i]],na.rm=T)
+        }
+        rg <- metadatanew[variate==i,'max']-metadatanew[variate==i,'min']+1
+        if(boundarycat>0){
+            if(rg < boundarycat){
+                metadatanew[variate==i,'type'] <- 'categorical'
+                print(paste0(': to cat, ',rg))
+            }else{
+                metadatanew[variate==i,'type'] <- 'real'
+                print(paste0(': to real, ',rg))
+                metadatanew[variate==i,'precision'] <- 1L
+            }
+        }
+    }
+}
+
+fwrite(x=metadatanew, file=paste0('metadata_noint',boundarycat,'.csv'))
+
+nosw <- metadatanew$variate[grepl('_SW$',metadatanew$variate)]
+metadatanew2 <- metadatanew[!(variate %in% nosw),]
+fwrite(x=metadatanew2, file=paste0('metadata_noint',boundarycat,'_noSW.csv'))
+
+
+for(i in allnames){if(metadata[variate==i,type]=='integer' & !(min(diff(sort(unique(alldata[[i]]))))==1)){print(c(i,min(diff(sort(unique(alldata[[i]]))))))}}
+
+
+
+
+samplefiles <- list.files(pattern='^_mcsamples-')
+ncores <- max(as.integer(sub('.*-(\\d+).rds', '\\1', samplefiles)))
+nstages <- max(as.integer(sub('.*--(\\d+)-\\d+.rds', '\\1', testf)))
 
