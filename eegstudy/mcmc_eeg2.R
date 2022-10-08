@@ -1,10 +1,33 @@
 ## Author: PGL  Porta Mana
 ## Created: 2022-09-08T17:03:24+0200
-## Last-Updated: 2022-10-08T14:23:07+0200
+## Last-Updated: 2022-10-08T14:28:45+0200
 ################
 ## Exchangeable-probability calculation (non-parametric density regression)
 ################
 
+#### USER INPUTS AND CHOICES ####
+baseversion <- '_test2ib' # *** ## Base name of output directory
+nclusters <- 64L
+nsamples <- 1024L * 1L # 2L # number of samples AFTER thinning
+niter0 <- 1024L * 3L # 3L # iterations burn-in
+thin <- 16L #
+nstages <- 2L # number of sampling stages beyond burn-in
+mainvar <- 'group' # ***
+family <- 'Palatino'
+## ndata <- 100 # set this if you want to use fewer data
+## shuffledata <- TRUE # useful if subsetting data
+compoundgamma <- TRUE # use beta-prime distribution for variance instead of gamma
+compoundgammapars <- c(1,1) #c(1,1)/2
+categoryprior <- 1 # choices: 'Haldane' (1/n) or a number
+casualinitvalues <- TRUE
+datafile <- 'data_ep.csv' #***
+variateinfofile <- 'metadata_noSW.csv' #***
+posterior <- TRUE # if set to FALSE it samples and plots prior samples
+##stagestart <- 3L # set this if continuing existing MC = last saved + 1
+####
+
+
+#### Packages and setup ####
 ## load customized plot functions
 if(!exists('tplot')){source('~/work/pglpm_plotfunctions.R')}
 ##
@@ -13,7 +36,9 @@ mcmcseed = as.integer(commandArgs(trailingOnly=TRUE))[1]
 if(is.na(mcmcseed) | (!is.na(mcmcseed) & mcmcseed <=0)){mcmcseed <- 1}
 print(paste0('MCMC seed = ',mcmcseed))
 ##
-#### Packages and setup ####
+set.seed(701+mcmcseed)
+##
+## Packages
 library('data.table')
 library('png')
 library('foreach')
@@ -39,33 +64,9 @@ if(ncores>1){
 }
 library('nimble')
 ## NB: also requires libraries 'LaplacesDemon' and 'extraDistr'
-#### End custom setup ####
 
-set.seed(701+mcmcseed)
-## Base name of directory where to save data and plots
-baseversion <- '_test2ib' # ***
-nclusters <- 64L
-nsamples <- 1024L * 1L # 2L # number of samples AFTER thinning
-niter0 <- 1024L * 3L # 3L # iterations burn-in
-thin <- 16L #
-nstages <- 2L # number of sampling stages beyond burn-in
-mainvar <- 'group' # ***
-family <- 'Palatino'
-## ndata <- 100 # set this if you want to use fewer data
-## shuffledata <- TRUE
-compoundgamma <- TRUE # use beta-prime distribution for variance instead of gamma
-compoundgammapars <- c(1,1) #c(1,1)/2
-categoryprior <- 1 # choices: 'Haldane' (1/n) or a number
-casualinitvalues <- TRUE
-datafile <- 'data_ep.csv' #***
-variateinfofile <- 'metadata_noSW.csv' #***
-posterior <- TRUE # if set to FALSE it samples and plots prior samples
-##
-##stagestart <- 3L # set this if continuing existing MC = last saved + 1
-##
 
-#### INFORMATION ABOUT THE VARIATES AND THEIR PRIOR PARAMETERS
-## Pericalcarine r + h, postcentral r, cuneus r,
+#### EXTRACT INFORMATION ABOUT THE VARIATES AND THEIR PRIOR PARAMETERS
 
 variateinfo <- fread(variateinfofile)
 ## variateinfo <- do.call(rbind, list(
