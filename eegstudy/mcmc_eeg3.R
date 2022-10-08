@@ -1,6 +1,6 @@
 ## Author: PGL  Porta Mana
 ## Created: 2022-09-08T17:03:24+0200
-## Last-Updated: 2022-10-08T14:30:20+0200
+## Last-Updated: 2022-10-08T15:07:40+0200
 ################
 ## Exchangeable-probability calculation (non-parametric density regression)
 ################
@@ -17,6 +17,8 @@ niter0 <- 1024L * 3L # 3L # iterations burn-in
 ## ndata <- 100 # set this if you want to use fewer data
 ## shuffledata <- TRUE # useful if subsetting data
 posterior <- TRUE # if set to FALSE it samples and plots prior samples
+showdata <- FALSE # 'histogram' 'scatter' FALSE
+##
 nclusters <- 64L
 compoundgamma <- TRUE # use beta-prime distribution for variance instead of gamma
 compoundgammapars <- c(1,1) #c(1,1)/2
@@ -696,27 +698,29 @@ for(stage in stagestart+(0:nstages)){
             if(!is.finite(rg[1])){rg[1] <- diff(variateparameters[avar,c('scale','datamin')])}
             if(!is.finite(rg[2])){rg[2] <- sum(variateparameters[avar,c('scale','datamax')])}
             Xgrid <- cbind(seq(rg[1], rg[2], length.out=256))
-            ##histo <- thist(datum, n=32)#-exp(mean(log(c(round(sqrt(length(datum))), length(Xgrid))))))
         }else{
             rg <- round((variateparameters[avar,c('thmin','thmax')] + 
                 7*variateparameters[avar,c('datamin','datamax')])/8)
             Xgrid <- cbind(rg[1]:rg[2])
-            ##histo <- thist(datum, n='i')
         }
         colnames(Xgrid) <- avar
         plotsamples <- samplesF(Y=Xgrid, parmList=parmList, nfsamples=min(nfsamples,nrow(mcsamples)), inorder=FALSE, rescale=variateparameters)
-        ## ymax <- max(quant(apply(plotsamples,2,function(x){quant(x,99/100)}),99/100, na.rm=T), histo$density)
-        ## tplot(x=histo$breaks, y=histo$density, col=yellow, lty=1, lwd=1, xlab=avar, ylab='probability density', ylim=c(0, ymax), family=family)
-        ymax <- quant(apply(plotsamples,2,function(x){quant(x,99/100)}),99/100, na.rm=T)
         fiven <- variateparameters[avar,c('datamin','dataQ1','datamedian','dataQ2','datamax')]
         ##
         if(posterior){
             par(mfrow=c(1,1))
+            ymax <- quant(apply(plotsamples,2,function(x){quant(x,99/100)}),99/100, na.rm=T)
             tplot(x=Xgrid, y=plotsamples, type='l', col=paste0(palette()[7], '44'), lty=1, lwd=2, xlab=paste0(avar,' (',variateinfo[variate==avar,type],')'), ylab=paste0('frequency',if(avar %in% realVars){' density'}), ylim=c(0, ymax), family=family)
             abline(v=fiven,col=paste0(palette()[c(2,4,5,4,2)], '44'),lwd=4)
-            ## scatterplot
-            datum <- alldata[[avar]]
-            scatteraxis(side=1, n=NA, alpha='88', ext=8, x=datum+rnorm(length(datum),mean=0,sd=prod(variateparameters[avar,c('precision','scale')])/(if(avar %in% binaryVars){16}else{16})),col=yellow)
+            ##
+            if(showdata=='histogram'){
+                datum <- alldata[[avar]]
+                histo <- thist(datum, n=(if(avar %in% realVars){NULL}else{'i'}))#-exp(mean(log(c(round(sqrt(length(datum))), length(Xgrid))))))
+                tplot(x=histo$breaks, y=histo$density/max(histo$density)*max(rowMeans(plotsamples)), col=grey, alpha=0.75, border=NA, lty=1, lwd=1, family=family, ylim=c(0,NA), add=TRUE)
+            }else if(showdata=='scatter'){
+                datum <- alldata[[avar]]
+                scatteraxis(side=1, n=NA, alpha='88', ext=8, x=datum+rnorm(length(datum),mean=0,sd=prod(variateparameters[avar,c('precision','scale')])/(if(avar %in% binaryVars){16}else{16})),col=yellow)
+            }
         }else{
             par(mfrow=c(8,8),mar = c(0,0,0,0))
             tplot(x=list(Xgrid,Xgrid), y=list(rowMeans(plotsamples),rep(0,length(Xgrid))), type='l', col=c(paste0(palette()[3], 'FF'), '#bbbbbb80'), lty=1, lwd=c(2,1), xlab=NA, ylab=NA, ylim=c(0, NA), family=family,

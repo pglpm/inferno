@@ -1,6 +1,6 @@
 ## Author: PGL  Porta Mana
 ## Created: 2022-10-07T12:13:20+0200
-## Last-Updated: 2022-10-08T12:50:12+0200
+## Last-Updated: 2022-10-08T15:05:19+0200
 ################
 ## Combine multiple Monte Carlo chains
 ################
@@ -10,7 +10,7 @@ totsamples <- 1024
 variateinfofile <- 'metadata_noSW.csv' #***
 datafile <- 'data_ep.csv' #***
 mainvar <- 'group'
-
+showdata <- FALSE # 'histogram' 'scatter' FALSE
 
 ## load customized plot functions
 if(!exists('tplot')){source('~/work/pglpm_plotfunctions.R')}
@@ -157,6 +157,7 @@ names(colpalette) <- colnames(traces)
 ## Plot various info and traces
 print('Plotting traces and marginal samples')
 family <- 'Palatino'
+
 pdff(paste0(outputdirectory,'/jointmcsummary-',totsamples),'a4')
 ## Traces of likelihood and cond. probabilities
 for(avar in colnames(traces)){
@@ -197,10 +198,15 @@ for(avar in varNames){#print(avar)
     ##
         par(mfrow=c(1,1))
         tplot(x=Xgrid, y=plotsamples, type='l', col=paste0(palette()[7], '44'), lty=1, lwd=2, xlab=paste0(avar,' (',variateinfo[variate==avar,type],')'), ylab=paste0('frequency',if(avar %in% realVars){' density'}), ylim=c(0, ymax), family=family)
-        abline(v=fiven,col=paste0(palette()[c(2,4,5,4,2)], '44'),lwd=4)
-        ## scatterplot
+    abline(v=fiven,col=paste0(palette()[c(2,4,5,4,2)], '44'),lwd=4)
+    if(showdata=='histogram'){
+        datum <- alldata[[avar]]
+        histo <- thist(datum, n=(if(avar %in% realVars){NULL}else{'i'}))#-exp(mean(log(c(round(sqrt(length(datum))), length(Xgrid))))))
+        tplot(x=histo$breaks, y=histo$density/max(histo$density)*max(rowMeans(plotsamples)), col=grey, alpha=0.75, border=NA, lty=1, lwd=1, family=family, ylim=c(0,NA), add=TRUE)
+    }else if(showdata=='scatter'){
         datum <- alldata[[avar]]
         scatteraxis(side=1, n=NA, alpha='88', ext=8, x=datum+rnorm(length(datum),mean=0,sd=prod(variateparameters[avar,c('precision','scale')])/(if(avar %in% binaryVars){16}else{16})),col=yellow)
+    }
 }
 dev.off()
 print('Done')
