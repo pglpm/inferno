@@ -1,15 +1,15 @@
 ## Author: PGL  Porta Mana
 ## Created: 2022-09-08T17:03:24+0200
-## Last-Updated: 2022-10-08T15:07:40+0200
+## Last-Updated: 2022-10-08T21:54:40+0200
 ################
 ## Exchangeable-probability calculation (non-parametric density regression)
 ################
 
 #### USER INPUTS AND CHOICES ####
-baseversion <- '_test2ib' # *** ## Base name of output directory
+baseversion <- '_test3NI33' # *** ## Base name of output directory
 datafile <- 'data_ep.csv' #***
 mainvar <- 'group' # ***
-variateinfofile <- 'metadata_noSW.csv' #***
+variateinfofile <- 'metadata_noint33_noSW.csv' #***
 nsamples <- 1024L * 1L # 2L # number of samples AFTER thinning
 thin <- 16L #
 nstages <- 2L # number of sampling stages beyond burn-in
@@ -17,13 +17,13 @@ niter0 <- 1024L * 3L # 3L # iterations burn-in
 ## ndata <- 100 # set this if you want to use fewer data
 ## shuffledata <- TRUE # useful if subsetting data
 posterior <- TRUE # if set to FALSE it samples and plots prior samples
-showdata <- FALSE # 'histogram' 'scatter' FALSE
+showdata <- 'histogram' # 'histogram' 'scatter' FALSE
 ##
 nclusters <- 64L
 compoundgamma <- TRUE # use beta-prime distribution for variance instead of gamma
 compoundgammapars <- c(1,1) #c(1,1)/2
 categoryprior <- 1 # choices: 'Haldane' (1/n) or a number
-casualinitvalues <- TRUE
+casualinitvalues <- FALSE
 ##stagestart <- 3L # set this if continuing existing MC = last saved + 1
 family <- 'Palatino'
 ####
@@ -234,17 +234,9 @@ for(avar in varNames){
         ##
         rm('test','sgrid','vdistr')
     }else if((avar %in% integerVars) | (avar %in% binaryVars)){
-        if(is.na(variateinfo[variate==avar, min])){
-            alocation <- min(datum, na.rm=T)
-        }else{
-            alocation <- variateinfo[variate==avar, min]
-        }
+        alocation <- varMins[avar]
     }else if(avar %in% categoryVars){
-        if(is.na(variateinfo[variate==avar, min])){
-            alocation <- min(datum, na.rm=T) - 1L
-        }else{
-            alocation <- variateinfo[variate==avar, min] - 1L
-        }
+        alocation <- varMins[avar] - 1L
     }
     ##
     variateparameters <- rbind(variateparameters,
@@ -312,7 +304,7 @@ source('functions_mcmc.R') # load functions for post-MCMC calculations
 ##
 ## Find max integer value in data
 if(nivars > 0){
-    ## maximum in data (for inital values)
+    ## maximum in data (for initial values)
     maxivars <- apply(dat$Integer,2,function(x)max(x, na.rm=T))
     thmaxivars <- locvarMaxs[integerVars] # theoretical maximum
     matrixprobivars <- matrix(0, nrow=nivars, ncol=max(thmaxivars), dimnames=list(integerVars))
@@ -324,7 +316,7 @@ if(nivars > 0){
 ## Find max number of categories in data
 if(ncvars > 0){
     ncategories <- max(locvarMaxs[categoryVars]) # largest number of categories
-    calphapad <- array(0, dim=c(ncvars, ncategories), dimnames=list(categoryVars,NULL))
+    calphapad <- array(2^(-40), dim=c(ncvars, ncategories), dimnames=list(categoryVars,NULL))
     for(avar in categoryVars){
         if(categoryprior=='Haldane'){
             calphapad[avar,1:locvarMaxs[avar]] <- 1/locvarMaxs[avar]
@@ -761,7 +753,7 @@ allnames <- names(alldata)
 metadatanew <- metadata
 metadatanew$precision <- as.integer(metadatanew$precision)
 ##
-boundarycat <- 0
+boundarycat <- 100
 for(i in allnames){
     if(metadata[variate==i,'type']=='integer'){
         print(i)
@@ -791,6 +783,7 @@ fwrite(x=metadatanew, file=paste0('metadata_noint',boundarycat,'.csv'))
 
 nosw <- metadatanew$variate[grepl('_SW$',metadatanew$variate)]
 metadatanew2 <- metadatanew[!(variate %in% nosw),]
+
 fwrite(x=metadatanew2, file=paste0('metadata_noint',boundarycat,'_noSW.csv'))
 
 

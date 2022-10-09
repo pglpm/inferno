@@ -1,17 +1,20 @@
 ## Author: PGL  Porta Mana
 ## Created: 2022-10-07T12:13:20+0200
-## Last-Updated: 2022-10-08T15:05:19+0200
+## Last-Updated: 2022-10-09T14:14:48+0200
 ################
 ## Combine multiple Monte Carlo chains
 ################
 
-outputdirectory <- '_test1-V55-D40-K64-I1024'
+outputdirectory <- '_test3NI33-V55-D40-K64-I1024'
 totsamples <- 1024
-variateinfofile <- 'metadata_noSW.csv' #***
+variateinfofile <- 'metadata_noint33_noSW.csv' #***
 datafile <- 'data_ep.csv' #***
 mainvar <- 'group'
-showdata <- FALSE # 'histogram' 'scatter' FALSE
+showdata <- 'histogram' # 'histogram' 'scatter' FALSE
+plotmeans <- TRUE
 
+rm(list=ls())
+source('~/.Rprofile')
 ## load customized plot functions
 if(!exists('tplot')){source('~/work/pglpm_plotfunctions.R')}
 #### Packages and setup ####
@@ -85,6 +88,7 @@ mcsamples <- foreach(i=1:ncores, .combine=rbind, .inorder=TRUE)%do%{
     traces <- readRDS(file=paste0(outputdirectory,'/_mcsamples',basename,nstages,'-',i,'.rds'))
     lsamples <- nrow(traces)
     if(minESS >= filesamples){
+        print(paste0('chain ',i,': ESS = ',minESS))
         topick <- rev(seq(
         from=lsamples, length.out=filesamples, by=-ceiling(lsamples/minESS)
         ))
@@ -157,7 +161,7 @@ names(colpalette) <- colnames(traces)
 ## Plot various info and traces
 print('Plotting traces and marginal samples')
 family <- 'Palatino'
-
+##
 pdff(paste0(outputdirectory,'/jointmcsummary-',totsamples),'a4')
 ## Traces of likelihood and cond. probabilities
 for(avar in colnames(traces)){
@@ -174,7 +178,7 @@ for(avar in colnames(traces)){
           )
 }
 ## Samples of marginal frequency distributions
-nfsamples <- 64
+if(plotmeans){nfsamples <- totsamples}else{nfsamples <- 64}
 for(avar in varNames){#print(avar)
     if(avar %in% realVars){
         rg <- signif((variateparameters[avar,c('thmin','thmax')] + 
@@ -197,7 +201,10 @@ for(avar in varNames){#print(avar)
     fiven <- variateparameters[avar,c('datamin','dataQ1','datamedian','dataQ2','datamax')]
     ##
         par(mfrow=c(1,1))
-        tplot(x=Xgrid, y=plotsamples, type='l', col=paste0(palette()[7], '44'), lty=1, lwd=2, xlab=paste0(avar,' (',variateinfo[variate==avar,type],')'), ylab=paste0('frequency',if(avar %in% realVars){' density'}), ylim=c(0, ymax), family=family)
+    tplot(x=Xgrid, y=plotsamples[,round(seq(1,nfsamples,length.out=64))], type='l', col=paste0(palette()[7], '44'), lty=1, lwd=2, xlab=paste0(avar,' (',variateinfo[variate==avar,type],')'), ylab=paste0('frequency',if(avar %in% realVars){' density'}), ylim=c(0, ymax), family=family)
+    if(plotmeans){
+        tplot(x=Xgrid, y=rowMeans(plotsamples), type='l', col=paste0(palette()[1], '88'), lty=1, lwd=3, add=T)
+    }
     abline(v=fiven,col=paste0(palette()[c(2,4,5,4,2)], '44'),lwd=4)
     if(showdata=='histogram'){
         datum <- alldata[[avar]]
