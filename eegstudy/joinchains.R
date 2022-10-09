@@ -1,9 +1,11 @@
 ## Author: PGL  Porta Mana
 ## Created: 2022-10-07T12:13:20+0200
-## Last-Updated: 2022-10-09T14:14:48+0200
+## Last-Updated: 2022-10-09T18:29:58+0200
 ################
 ## Combine multiple Monte Carlo chains
 ################
+
+rm(list=ls())
 
 outputdirectory <- '_test3NI33-V55-D40-K64-I1024'
 totsamples <- 1024
@@ -13,7 +15,6 @@ mainvar <- 'group'
 showdata <- 'histogram' # 'histogram' 'scatter' FALSE
 plotmeans <- TRUE
 
-rm(list=ls())
 source('~/.Rprofile')
 ## load customized plot functions
 if(!exists('tplot')){source('~/work/pglpm_plotfunctions.R')}
@@ -186,17 +187,13 @@ for(avar in varNames){#print(avar)
         if(!is.finite(rg[1])){rg[1] <- diff(variateparameters[avar,c('scale','datamin')])}
         if(!is.finite(rg[2])){rg[2] <- sum(variateparameters[avar,c('scale','datamax')])}
         Xgrid <- cbind(seq(rg[1], rg[2], length.out=256))
-        ##histo <- thist(datum, n=32)#-exp(mean(log(c(round(sqrt(length(datum))), length(Xgrid))))))
     }else{
         rg <- round((variateparameters[avar,c('thmin','thmax')] + 
                      7*variateparameters[avar,c('datamin','datamax')])/8)
         Xgrid <- cbind(rg[1]:rg[2])
-        ##histo <- thist(datum, n='i')
     }
     colnames(Xgrid) <- avar
     plotsamples <- samplesF(Y=Xgrid, parmList=parmList, nfsamples=min(nfsamples,nrow(mcsamples)), inorder=FALSE, rescale=variateparameters)
-    ## ymax <- max(quant(apply(plotsamples,2,function(x){quant(x,99/100)}),99/100, na.rm=T), histo$density)
-    ## tplot(x=histo$breaks, y=histo$density, col=yellow, lty=1, lwd=1, xlab=avar, ylab='probability density', ylim=c(0, ymax), family=family)
     ymax <- quant(apply(plotsamples,2,function(x){quant(x,99/100)}),99/100, na.rm=T)
     fiven <- variateparameters[avar,c('datamin','dataQ1','datamedian','dataQ2','datamax')]
     ##
@@ -208,7 +205,7 @@ for(avar in varNames){#print(avar)
     abline(v=fiven,col=paste0(palette()[c(2,4,5,4,2)], '44'),lwd=4)
     if(showdata=='histogram'){
         datum <- alldata[[avar]]
-        histo <- thist(datum, n=(if(avar %in% realVars){NULL}else{'i'}))#-exp(mean(log(c(round(sqrt(length(datum))), length(Xgrid))))))
+        histo <- thist(datum, n=(if(avar %in% realVars){min(max(10,sqrt(ndata)),100)}else{'i'}))#-exp(mean(log(c(round(sqrt(length(datum))), length(Xgrid))))))
         tplot(x=histo$breaks, y=histo$density/max(histo$density)*max(rowMeans(plotsamples)), col=grey, alpha=0.75, border=NA, lty=1, lwd=1, family=family, ylim=c(0,NA), add=TRUE)
     }else if(showdata=='scatter'){
         datum <- alldata[[avar]]

@@ -1,15 +1,15 @@
 ## Author: PGL  Porta Mana
 ## Created: 2022-09-08T17:03:24+0200
-## Last-Updated: 2022-10-09T17:40:54+0200
+## Last-Updated: 2022-10-09T20:41:39+0200
 ################
 ## Exchangeable-probability calculation (non-parametric density regression)
 ################
 
 #### USER INPUTS AND CHOICES ####
-baseversion <- '_test4YI' # *** ## Base name of output directory
+baseversion <- '_notest4YI' # *** ## Base name of output directory
 datafile <- 'data_ep.csv' #***
 mainvar <- 'group' # ***
-variateinfofile <- 'metadata_noint33_noSW.csv' #***
+variateinfofile <- 'metadata_int10_100_noSW.csv' #***
 nsamples <- 1024L * 1L # 2L # number of samples AFTER thinning
 thin <- 16L #
 nstages <- 2L # number of sampling stages beyond burn-in
@@ -148,23 +148,31 @@ if(file.exists("/cluster/home/pglpm/R")){
 if(any(is.na(varMins[integerVars]))){
     print('WARNING: missing min for some integer variates; using min from data')
     nanames <- integerVars[is.na(varMins[integerVars])]
-    varMins[nanames] <- sapply(alldata[,..nanames],function(x)min(x,na.rm=T))
+    for(avar in nanames){
+        varMins[avar] <- min(alldata[[avar]], na.rm=T)
+    }
 }
 if(any(is.na(varMaxs[integerVars]))){
     print('WARNING: missing max for some integer variates; using max from data')
     nanames <- integerVars[is.na(varMaxs[integerVars])]
-    varMaxs[nanames] <- sapply(alldata[,..nanames],function(x)max(x,na.rm=T))
+    for(avar in nanames){
+        varMaxs[avar] <- max(alldata[[avar]], na.rm=T)
+    }
 }
 ## categories
 if(any(is.na(varMins[categoryVars]))){
     print('WARNING: missing min for some category variates; using min from data')
     nanames <- categoryVars[is.na(varMins[categoryVars])]
-    varMins[nanames] <- sapply(alldata[,..nanames],function(x)min(x,na.rm=T))
+    for(avar in nanames){
+        varMins[avar] <- min(alldata[[avar]], na.rm=T)
+    }
 }
 if(any(is.na(varMaxs[categoryVars]))){
     print('WARNING: missing max for some category variates; using max from data')
     nanames <- categoryVars[is.na(varMaxs[categoryVars])]
-    varMaxs[nanames] <- sapply(alldata[,..nanames],function(x)max(x,na.rm=T))
+    for(avar in nanames){
+        varMaxs[avar] <- max(alldata[[avar]], na.rm=T)
+    }
 }
 
 
@@ -175,9 +183,6 @@ sd2iqr <- 0.5/qnorm(0.75)
 pdff(paste0(dirname,'/densities_variances'),'a4')
 variateparameters <- NULL
 for(avar in varNames){
-    dmin <- 1L
-    alocation <- 0L
-    ascale <- 1L
     pars <- c(NA,NA)
     ##
     datum <- alldata[[avar]]
@@ -188,9 +193,10 @@ for(avar in varNames){
     dataQ2 <- quantile(datum, 0.75, type=8, na.rm=TRUE)
     ##
     if(avar %in% realVars){
-        alocation <- signif(median(datum), log10(IQR(datum)*sd2iqr)+1)
-        ascale <- signif(IQR(datum)*sd2iqr, 2)
-        if(ascale==0){ascale <- 1}
+        alocation <- median(datum)
+        ascale <- IQR(datum) * sd2iqr
+        if(ascale==0){ascale <- 1L}
+        ## shift and rescale data
         datum <- (datum-alocation)/ascale
         rg <- diff(range(datum, na.rm=T))
         if(is.na(variateinfo[variate==avar, precision])){
@@ -234,30 +240,27 @@ for(avar in varNames){
         ##
         rm('test','sgrid','vdistr')
     }else if((avar %in% integerVars) | (avar %in% binaryVars)){
-        alocation <- varMins[avar]
+        alocation <- varMins[avar] # integer and binary start from 0
+        ascale <- 1L
+        dmin <- 1L
     }else if(avar %in% categoryVars){
-        alocation <- varMins[avar] - 1L
+        alocation <- varMins[avar] - 1L # category start from 1
+        ascale <- 1L
+        dmin <- 1L
     }
     ##
     variateparameters <- rbind(variateparameters,
-                         c(precision=dmin,
-                           location=alocation, scale=ascale,
-                           min=min(datum, na.rm=T), max=max(datum, na.rm=T),
-                           shape1rate=pars[1], shape2shape=pars[2],
-                           datamin=datamin, datamax=datamax,
-                           datamedian=datamedian,
-                           dataQ1=dataQ1, dataQ2=dataQ2,
-                           thmin=varMins[avar], thmax=varMaxs[avar]
-                           ))
+                               cbind( location=alocation, scale=ascale,
+                                 precision=dmin,
+                                 min=min(datum, na.rm=T), max=max(datum, na.rm=T),
+                                 shape1rate=pars[1], shape2shape=pars[2],
+                                 datamin=datamin, datamax=datamax,
+                                 datamedian=datamedian,
+                                 dataQ1=dataQ1, dataQ2=dataQ2,
+                                 thmin=varMins[avar], thmax=varMaxs[avar]
+                                 ))
 }
 rownames(variateparameters) <- varNames
-colnames(variateparameters) <- c('precision',
-                                 'location', 'scale',
-                                 'min', 'max',
-                                 'shape1rate', 'shape2shape',
-                                 'datamin', 'datamax',
-                                 'datamedian', 'dataQ1', 'dataQ2',
-                                 'thmin', 'thmax')
 dev.off()
 ##
 fwrite(cbind(data.table(variate=varNames),variateparameters), file=paste0(dirname,'/variateparameters.csv'))
@@ -707,7 +710,7 @@ for(stage in stagestart+(0:nstages)){
             ##
             if(showdata=='histogram'){
                 datum <- alldata[[avar]]
-                histo <- thist(datum, n=(if(avar %in% realVars){NULL}else{'i'}))#-exp(mean(log(c(round(sqrt(length(datum))), length(Xgrid))))))
+                histo <- thist(datum, n=(if(avar %in% realVars){min(max(10,sqrt(ndata)),100)}else{'i'}))#-exp(mean(log(c(round(sqrt(length(datum))), length(Xgrid))))))
                 tplot(x=histo$breaks, y=histo$density/max(histo$density)*max(rowMeans(plotsamples)), col=grey, alpha=0.75, border=NA, lty=1, lwd=1, family=family, ylim=c(0,NA), add=TRUE)
             }else if(showdata=='scatter'){
                 datum <- alldata[[avar]]
