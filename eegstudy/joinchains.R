@@ -1,18 +1,18 @@
 ## Author: PGL  Porta Mana
 ## Created: 2022-10-07T12:13:20+0200
-## Last-Updated: 2022-10-09T18:29:58+0200
+## Last-Updated: 2022-10-10T18:54:31+0200
 ################
 ## Combine multiple Monte Carlo chains
 ################
 
 rm(list=ls())
 
-outputdirectory <- '_test3NI33-V55-D40-K64-I1024'
+outputdirectory <- '_TESTnoint33A'
 totsamples <- 1024
 variateinfofile <- 'metadata_noint33_noSW.csv' #***
 datafile <- 'data_ep.csv' #***
 mainvar <- 'group'
-showdata <- 'histogram' # 'histogram' 'scatter' FALSE
+showdata <- TRUE # 'histogram' 'scatter' FALSE
 plotmeans <- TRUE
 
 source('~/.Rprofile')
@@ -180,6 +180,7 @@ for(avar in colnames(traces)){
 }
 ## Samples of marginal frequency distributions
 if(plotmeans){nfsamples <- totsamples}else{nfsamples <- 64}
+subsample <- round(seq(1,nfsamples, length.out=63))
 for(avar in varNames){#print(avar)
     if(avar %in% realVars){
         rg <- signif((variateparameters[avar,c('thmin','thmax')] + 
@@ -193,21 +194,23 @@ for(avar in varNames){#print(avar)
         Xgrid <- cbind(rg[1]:rg[2])
     }
     colnames(Xgrid) <- avar
-    plotsamples <- samplesF(Y=Xgrid, parmList=parmList, nfsamples=min(nfsamples,nrow(mcsamples)), inorder=FALSE, rescale=variateparameters)
-    ymax <- quant(apply(plotsamples,2,function(x){quant(x,99/100)}),99/100, na.rm=T)
+    plotsamples <- samplesF(Y=Xgrid, parmList=parmList, nfsamples=min(nfsamples,nrow(mcsamples)), inorder=FALSE, transform=variateparameters)
     fiven <- variateparameters[avar,c('datamin','dataQ1','datamedian','dataQ2','datamax')]
     ##
-        par(mfrow=c(1,1))
-    tplot(x=Xgrid, y=plotsamples[,round(seq(1,nfsamples,length.out=64))], type='l', col=paste0(palette()[7], '44'), lty=1, lwd=2, xlab=paste0(avar,' (',variateinfo[variate==avar,type],')'), ylab=paste0('frequency',if(avar %in% realVars){' density'}), ylim=c(0, ymax), family=family)
+    par(mfrow=c(1,1))
+    ymax <- quant(apply(plotsamples,2,function(x){quant(x,99/100)}),99/100, na.rm=T)
+    tplot(x=Xgrid, y=plotsamples[,subsample], type='l', col=paste0(palette()[7], '44'), lty=1, lwd=2, xlab=paste0(avar,' (',variateinfo[variate==avar,type],')'), ylab=paste0('frequency',if(avar %in% realVars){' density'}), ylim=c(0, ymax), family=family)
     if(plotmeans){
         tplot(x=Xgrid, y=rowMeans(plotsamples), type='l', col=paste0(palette()[1], '88'), lty=1, lwd=3, add=T)
     }
     abline(v=fiven,col=paste0(palette()[c(2,4,5,4,2)], '44'),lwd=4)
-    if(showdata=='histogram'){
+    ##
+    if((showdata=='histogram')|(showdata==TRUE & !(avar %in% realVars))){
         datum <- alldata[[avar]]
         histo <- thist(datum, n=(if(avar %in% realVars){min(max(10,sqrt(ndata)),100)}else{'i'}))#-exp(mean(log(c(round(sqrt(length(datum))), length(Xgrid))))))
-        tplot(x=histo$breaks, y=histo$density/max(histo$density)*max(rowMeans(plotsamples)), col=grey, alpha=0.75, border=NA, lty=1, lwd=1, family=family, ylim=c(0,NA), add=TRUE)
-    }else if(showdata=='scatter'){
+        histomax <- (if(avar %in% realVars){max(rowMeans(plotsamples))/max(histo$density)}else{1L})
+        tplot(x=histo$breaks, y=histo$density*histomax, col=grey, alpha=0.75, border=NA, lty=1, lwd=1, family=family, ylim=c(0,NA), add=TRUE)
+    }else if((showdata=='scatter')|(showdata==TRUE & (avar %in% realVars))){
         datum <- alldata[[avar]]
         scatteraxis(side=1, n=NA, alpha='88', ext=8, x=datum+rnorm(length(datum),mean=0,sd=prod(variateparameters[avar,c('precision','scale')])/(if(avar %in% binaryVars){16}else{16})),col=yellow)
     }

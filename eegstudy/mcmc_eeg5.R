@@ -1,30 +1,31 @@
 ## Author: PGL  Porta Mana
 ## Created: 2022-09-08T17:03:24+0200
-## Last-Updated: 2022-10-10T06:21:09+0200
+## Last-Updated: 2022-10-10T21:37:17+0200
 ################
 ## Exchangeable-probability calculation (non-parametric density regression)
 ################
 
 #### USER INPUTS AND CHOICES ####
-baseversion <- '_deletetest4YI' # *** ## Base name of output directory
+baseversion <- '_deletetest128' # *** ## Base name of output directory
 datafile <- 'data_ep.csv' #***
 mainvar <- 'group' # ***
-variateinfofile <- 'metadata_int10_100_noSW.csv' #***
+variateinfofile <- 'metadata_noint33_noSW.csv' #***
 nsamples <- 1024L * 1L # 2L # number of samples AFTER thinning
-thin <- 16L #
+thin <- 1L #
 nstages <- 0L # number of sampling stages beyond burn-in
 niter0 <- 1024L * 1L # 3L # iterations burn-in
-## ndata <- 100 # set this if you want to use fewer data
+## ndata <- 10 # set this if you want to use fewer data
 ## shuffledata <- TRUE # useful if subsetting data
 posterior <- TRUE # if set to FALSE it samples and plots prior samples
 showdata <- TRUE # 'histogram' 'scatter' FALSE TRUE
+plotmeans <- FALSE # 'histogram' 'scatter' FALSE TRUE
 ##
-nclusters <- 64L
+nclusters <- 128L
 compoundgamma <- TRUE # use beta-prime distribution for variance instead of gamma
-compoundgammapars <- c(1,1) #c(1,1)/2
+compoundgammapars <- c(1,1)/2
 categoryprior <- 1 # choices: 'Haldane' (1/n) or a number
 casualinitvalues <- FALSE
-##stagestart <- 3L # set this if continuing existing MC = last saved + 1
+## stagestart <- 1L # set this if continuing existing MC = last saved + 1
 family <- 'Palatino'
 ####
 
@@ -70,7 +71,8 @@ library('nimble')
 
 #### EXTRACT INFORMATION ABOUT THE VARIATES AND THEIR PRIOR PARAMETERS
 
-variateinfo <- fread(variateinfofile)
+if(file.exists("/cluster/home/pglpm/R")){origdir <- '../'}else{origdir <- ''}
+variateinfo <- fread(paste0(origdir,variateinfofile))
 ## variateinfo <- do.call(rbind, list(
 ##     ##	 'variate',			'type',		'min',	'max',	'precision')
 ##     data.table('REANAME',		'real',		-100,	100,	NA)
@@ -124,7 +126,7 @@ nvars <- length(varNames)
 ## READ DATA AND SETUP SOME HYPERPARAMETERS
 ###########################################
 
-alldata <- fread(datafile, sep=',')
+alldata <- fread(paste0(origdir,datafile), sep=',')
 if(!all(varNames %in% names(alldata))){print('ERROR: variates missing from datafile')}
 alldata <- alldata[, ..varNames]
 ## shuffle data
@@ -132,16 +134,20 @@ if(exists('shuffledata') && shuffledata){alldata <- alldata[sample(1:nrow(alldat
 if(!exists('ndata') || is.null(ndata) || is.na(ndata)){ndata <- nrow(alldata)}
 alldata <- alldata[1:ndata]
 ##
-dirname <- paste0(baseversion,'-V',length(varNames),'-D',ndata,'-K',nclusters,'-I',nsamples)
-dir.create(dirname)
+if(file.exists("/cluster/home/pglpm/R")){
+    dirname <- ''
+}else{
+    dirname <- paste0(baseversion,'-V',length(varNames),'-D',ndata,'-K',nclusters,'-I',nsamples,'/')
+    dir.create(dirname)
+}
 
 ## Copy this script to output directory
-if(file.exists("/cluster/home/pglpm/R")){
-    initial.options <- commandArgs(trailingOnly = FALSE)
-    thisscriptname <- sub('--file=', "", initial.options[grep('--file=', initial.options)])
-    if(mcmcseed==1){file.copy(from=thisscriptname, to=paste0(dirname,'/script-R',baseversion,'-V',length(varNames),'-D',ndata,'-K',nclusters,'.Rscript'))
-    }
-}
+## if(file.exists("/cluster/home/pglpm/R")){
+##     initial.options <- commandArgs(trailingOnly = FALSE)
+##     thisscriptname <- sub('--file=', "", initial.options[grep('--file=', initial.options)])
+##     if(mcmcseed==1){file.copy(from=thisscriptname, to=paste0(dirname,'/script-R',baseversion,'-V',length(varNames),'-D',ndata,'-K',nclusters,'.Rscript'))
+##     }
+## }
 
 #### Get missing metadata from data
 ## integers
@@ -180,7 +186,7 @@ if(any(is.na(varMaxs[categoryVars]))){
 ## Normalization and standardization of real variates and calculation of hyperparams
 sd2iqr <- 0.5/qnorm(0.75)
 ##
-pdff(paste0(dirname,'/densities_variances'),'a4')
+pdff(paste0(dirname,'densities_variances'),'a4')
 variateparameters <- NULL
 for(avar in varNames){
     pars <- c(NA,NA)
@@ -267,7 +273,7 @@ for(avar in varNames){
 rownames(variateparameters) <- varNames
 dev.off()
 ##
-fwrite(cbind(data.table(variate=varNames),variateparameters), file=paste0(dirname,'/variateparameters.csv'))
+fwrite(cbind(data.table(variate=varNames),variateparameters), file=paste0(dirname,'variateparameters.csv'))
 ##
 locvarMins <- varMins-variateparameters[,'location']
 locvarMaxs <- varMaxs-variateparameters[,'location']
@@ -302,7 +308,7 @@ if(nbvars>0){ dat$Binary=t((t(data.matrix(alldata[, ..binaryVars])) - variatepar
 
 
 ####  CONSTANTS, PRIOR PARAMETERS, INITIAL VALUES
-source('functions_mcmc.R') # load functions for post-MCMC calculations
+source(paste0(origdir,'functions_mcmc.R')) # load functions for post-MCMC calculations
 ##
 ## In previous versions some statistics of the data were computed
 ## to decide on the hyperparameters.
@@ -564,7 +570,7 @@ for(stage in stagestart+(0:nstages)){
     gc()
     if(stage==stagestart){# first sampling stage
         if(exists('continue') && is.character(continue)){# continuing previous
-            initsc <- readRDS(paste0(dirname,'/',continue))
+            initsc <- readRDS(paste0(dirname,continue))
             inits0 <- initsFunction()
             for(aname in names(initsc)){inits0[[aname]] <- initsc[[aname]]}
             mcsamples <- runMCMC(Cmcmcsampler, nburnin=0, niter=nsamples*thin, thin=thin, thin2=nsamples*thin, inits=inits0, setSeed=mcmcseed+stage+100)
@@ -582,7 +588,7 @@ for(stage in stagestart+(0:nstages)){
     ##
     if(any(is.na(mcsamples))){print('WARNING: SOME NA OUTPUTS')}
     if(any(!is.finite(mcsamples))){print('WARNING: SOME INFINITE OUTPUTS')}
-    saveRDS(mcsamples,file=paste0(dirname,'/_mcsamples-R',baseversion,'-V',length(varNames),'-D',ndata,'-K',nclusters,'-I',nrow(mcsamples),'--',stage,'-',mcmcseed,'.rds'))
+    saveRDS(mcsamples,file=paste0(dirname,'_mcsamples-R',baseversion,'-V',length(varNames),'-D',ndata,'-K',nclusters,'-I',nrow(mcsamples),'--',stage,'-',mcmcseed,'.rds'))
     ##
     ## save final state of MCMC chain
     finalstate <- as.matrix(Cmcmcsampler$mvSamples2)
@@ -593,11 +599,11 @@ for(stage in stagestart+(0:nstages)){
     usedclusters <- length(unique(occupations))
     if(usedclusters > nclusters-5){print('WARNING: TOO MANY CLUSTERS OCCUPIED')}
     print(paste0('OCCUPIED CLUSTERS: ', usedclusters, ' OF ', nclusters))
-    saveRDS(finalstate2list(finalstate),file=paste0(dirname,'/_finalstate-R',baseversion,'-V',length(varNames),'-D',ndata,'-K',nclusters,'-I',nrow(mcsamples),'--',stage,'-',mcmcseed,'.rds'))
+    saveRDS(finalstate2list(finalstate, realVars, integerVars, categoryVars, binaryVars, compoundgamma), file=paste0(dirname,'_finalstate-R',baseversion,'-V',length(varNames),'-D',ndata,'-K',nclusters,'-I',nrow(mcsamples),'--',stage,'-',mcmcseed,'.rds'))
     ##
     ## SAVE THE PARAMETERS FOR THE TRANSDUCER
     parmList <- mcsamples2parmlist(mcsamples, realVars, integerVars, categoryVars, binaryVars)
-    saveRDS(parmList,file=paste0(dirname,'/_frequencies-R',baseversion,'-V',length(varNames),'-D',ndata,'-K',nclusters,'-I',nrow(parmList$q),'--',stage,'-',mcmcseed,'.rds'))
+    saveRDS(parmList,file=paste0(dirname,'_frequencies-R',baseversion,'-V',length(varNames),'-D',ndata,'-K',nclusters,'-I',nrow(parmList$q),'--',stage,'-',mcmcseed,'.rds'))
     ##
     ## Diagnostics
     ## Log-likelihood
@@ -619,7 +625,7 @@ for(stage in stagestart+(0:nstages)){
         traces <- cbind(loglikelihood=ll, 'mean of direct logprobabilities'=condprobsd, 'mean of inverse logprobabilities'=condprobsi)*10/log(10)/ndata #medians, iqrs, Q1s, Q3s
         badcols <- foreach(i=1:ncol(traces), .combine=c)%do%{if(all(is.na(traces[,i]))){i}else{NULL}}
         if(!is.null(badcols)){traces <- traces[,-badcols]}
-        saveRDS(traces,file=paste0(dirname,'/_probtraces-R',baseversion,'-V',length(varNames),'-D',ndata,'-K',nclusters,'-I',nrow(parmList$q),'--',stage,'-',mcmcseed,'.rds'))
+        saveRDS(traces,file=paste0(dirname,'_probtraces-R',baseversion,'-V',length(varNames),'-D',ndata,'-K',nclusters,'-I',nrow(parmList$q),'--',stage,'-',mcmcseed,'.rds'))
         ##
         if(nrow(traces)>=1000){
             funMCSE <- function(x){LaplacesDemon::MCSE(x, method='batch.means')$se}
@@ -652,7 +658,7 @@ for(stage in stagestart+(0:nstages)){
     }
     ##
     ## Plot various info and traces
-    pdff(paste0(dirname,'/mcmcsummary-R',baseversion,'-V',length(varNames),'-D',ndata,'-K',nclusters,'-I',nrow(parmList$q),'--',stage,'-',mcmcseed),'a4')
+    pdff(paste0(dirname,'mcmcsummary-R',baseversion,'-V',length(varNames),'-D',ndata,'-K',nclusters,'-I',nrow(parmList$q),'--',stage,'-',mcmcseed),'a4')
     ## Summary stats
     if(posterior){
         matplot(1:2, type='l', col='white', main=paste0('Stats stage ',stage), axes=FALSE, ann=FALSE)
@@ -690,7 +696,10 @@ for(stage in stagestart+(0:nstages)){
     }
     ##
     ## Samples of marginal frequency distributions
-    nfsamples <- if(posterior){64}else{256}
+    if(plotmeans){nfsamples <- totsamples
+    }else if(!posterior){nfsamples <- 256
+    }else{nfsamples <- 63}
+    subsample <- round(seq(1,nfsamples, length.out=63))
     for(avar in varNames){#print(avar)
         if(avar %in% realVars){
             rg <- signif((variateparameters[avar,c('thmin','thmax')] + 
@@ -699,24 +708,29 @@ for(stage in stagestart+(0:nstages)){
             if(!is.finite(rg[2])){rg[2] <- sum(variateparameters[avar,c('scale','datamax')])}
             Xgrid <- cbind(seq(rg[1], rg[2], length.out=256))
         }else{
-            rg <- round((variateparameters[avar,c('thmin','thmax')] + 
-                7*variateparameters[avar,c('datamin','datamax')])/8)
+            rg <- (variateparameters[avar,c('thmin','thmax')] + 
+                   7*variateparameters[avar,c('datamin','datamax')])/8
+            rg <- c(floor(rg[1]), ceiling(rg[2]))
             Xgrid <- cbind(rg[1]:rg[2])
         }
         colnames(Xgrid) <- avar
-        plotsamples <- samplesF(Y=Xgrid, parmList=parmList, nfsamples=min(nfsamples,nrow(mcsamples)), inorder=FALSE, rescale=variateparameters)
+        plotsamples <- samplesF(Y=Xgrid, parmList=parmList, nfsamples=min(nfsamples,nrow(mcsamples)), inorder=FALSE, transform=variateparameters)
         fiven <- variateparameters[avar,c('datamin','dataQ1','datamedian','dataQ2','datamax')]
         ##
         if(posterior){
             par(mfrow=c(1,1))
-            ymax <- quant(apply(plotsamples,2,function(x){quant(x,99/100)}),99/100, na.rm=T)
-            tplot(x=Xgrid, y=plotsamples, type='l', col=paste0(palette()[7], '44'), lty=1, lwd=2, xlab=paste0(avar,' (',variateinfo[variate==avar,type],')'), ylab=paste0('frequency',if(avar %in% realVars){' density'}), ylim=c(0, ymax), family=family)
+            ymax <- quant(apply(plotsamples[,subsample],2,function(x){quant(x,99/100)}),99/100, na.rm=T)
+            tplot(x=Xgrid, y=plotsamples[,subsample], type='l', col=paste0(palette()[7], '44'), lty=1, lwd=2, xlab=paste0(avar,' (',variateinfo[variate==avar,type],')'), ylab=paste0('frequency',if(avar %in% realVars){' density'}), ylim=c(0, ymax), family=family)
+            if(plotmeans){
+                tplot(x=Xgrid, y=rowMeans(plotsamples), type='l', col=paste0(palette()[1], '88'), lty=1, lwd=3, add=T)
+            }
             abline(v=fiven,col=paste0(palette()[c(2,4,5,4,2)], '44'),lwd=4)
             ##
             if((showdata=='histogram')|(showdata==TRUE & !(avar %in% realVars))){
                 datum <- alldata[[avar]]
                 histo <- thist(datum, n=(if(avar %in% realVars){min(max(10,sqrt(ndata)),100)}else{'i'}))#-exp(mean(log(c(round(sqrt(length(datum))), length(Xgrid))))))
-                tplot(x=histo$breaks, y=histo$density/max(histo$density)*max(rowMeans(plotsamples)), col=grey, alpha=0.75, border=NA, lty=1, lwd=1, family=family, ylim=c(0,NA), add=TRUE)
+                histomax <- (if(avar %in% realVars){max(rowMeans(plotsamples))/max(histo$density)}else{1L})
+                tplot(x=histo$breaks, y=histo$density*histomax, col=grey, alpha=0.75, border=NA, lty=1, lwd=1, family=family, ylim=c(0,NA), add=TRUE)
             }else if((showdata=='scatter')|(showdata==TRUE & (avar %in% realVars))){
                 datum <- alldata[[avar]]
                 scatteraxis(side=1, n=NA, alpha='88', ext=8, x=datum+rnorm(length(datum),mean=0,sd=prod(variateparameters[avar,c('precision','scale')])/(if(avar %in% binaryVars){16}else{16})),col=yellow)
@@ -729,7 +743,6 @@ for(stage in stagestart+(0:nstages)){
             abline(v=fiven,col=paste0(palette()[c(2,4,5,4,2)], '44'))
             text(sum(range(Xgrid))/2, par('usr')[4]*0.9, avar)
             ##
-            subsample <- round(seq(1,ncol(plotsamples), length.out=63))
             for(aplot in 1:63){
                 tplot(x=list(Xgrid,Xgrid), y=list(plotsamples[,subsample[aplot]], rep(0,length(Xgrid))), type='l', col=c(paste0(palette()[1], 'FF'), '#bbbbbb80'), lty=1, lwd=c(1,1), xlab=NA, ylab=NA, ylim=c(0, NA), family=family,
                       xticks=NA, yticks=NA,

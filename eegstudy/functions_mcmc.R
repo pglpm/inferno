@@ -8,24 +8,24 @@ normalize <- function(freqs){freqs/sum(freqs)}
 normalizerows <- function(freqs){freqs/rowSums(freqs)}
 ##
 ## Construct a list of parameter samples from the raw MCMC samples
-mcsamples2parmlist <- function(mcsamples, realCovs, integerCovs, categoryCovs, binaryCovs){
+mcsamples2parmlist <- function(mcsamples, realVars, integerVars, categoryVars, binaryVars){
     parmNames <- c('q', 'meanR', 'varR', 'probI', 'probC', 'sizeI', 'probB')
     nclusters <- sum(grepl('^q\\[', colnames(mcsamples)))
     ncategories <- sum(grepl('^probC\\[1, 1, ', colnames(mcsamples)))
     nrcovs <- sum(grepl('^meanR\\[[^,]*, 1]', colnames(mcsamples)))
-    if(nrcovs != length(realCovs)){
+    if(nrcovs != length(realVars)){
         warning('**WARNING: some problems with real variates**')
         }
     nicovs <- sum(grepl('^probI\\[[^,]*, 1]', colnames(mcsamples)))
-    if(nicovs != length(integerCovs)){
+    if(nicovs != length(integerVars)){
         warning('**WARNING: some problems with integer variates**')
         }
     nccovs <- sum(grepl('^probC\\[[^,]*, 1, 1]', colnames(mcsamples)))
-    if(nccovs != length(categoryCovs)){
+    if(nccovs != length(categoryVars)){
         warning('**WARNING: some problems with category variates**')
         }
     nbcovs <- sum(grepl('^probB\\[[^,]*, 1]', colnames(mcsamples)))
-    if(nbcovs != length(binaryCovs)){
+    if(nbcovs != length(binaryVars)){
         warning('**WARNING: some problems with binary variates**')
         }
     ##
@@ -33,16 +33,16 @@ mcsamples2parmlist <- function(mcsamples, realCovs, integerCovs, categoryCovs, b
         out <- mcsamples[,grepl(paste0('^',var,'\\['), colnames(mcsamples))]
         if((var=='meanR'||var=='varR')){
             dim(out) <- c(nrow(mcsamples), nrcovs, nclusters)
-            dimnames(out) <- list(NULL, realCovs, NULL)
+            dimnames(out) <- list(NULL, realVars, NULL)
         } else if((var=='probI'||var=='sizeI')){
             dim(out) <- c(nrow(mcsamples), nicovs, nclusters)
-            dimnames(out) <- list(NULL, integerCovs, NULL)
+            dimnames(out) <- list(NULL, integerVars, NULL)
         } else if((var=='probC')){
             dim(out) <- c(nrow(mcsamples), nccovs, nclusters, ncategories)
-            dimnames(out) <- list(NULL, categoryCovs, NULL, NULL)
+            dimnames(out) <- list(NULL, categoryVars, NULL, NULL)
         } else if((var=='probB')){
             dim(out) <- c(nrow(mcsamples), nbcovs, nclusters)
-            dimnames(out) <- list(NULL, binaryCovs, NULL)
+            dimnames(out) <- list(NULL, binaryVars, NULL)
         } else if(var=='q'){
             dim(out) <- c(nrow(mcsamples), nclusters)
         } else {NULL}
@@ -53,24 +53,37 @@ mcsamples2parmlist <- function(mcsamples, realCovs, integerCovs, categoryCovs, b
 }
 ##
 ## Construct a list of parameter samples from the raw MCMC samples for the second monitored set
-finalstate2list <- function(mcsamples){
-    if(!is.vector(mcsamples)){print('ERROR!')}
-    parmNames <- c('q', 'meanR', 'varR', 'probI', 'sizeI', 'probB', 'C', 'varRrate') #, 'meanRtau', 'tauRrate')
-    nclusters <- sum(grepl('^q\\[', names(mcsamples)))
-    nrcovs <- sum(grepl('^meanR\\[[^,]*, 1]', names(mcsamples)))
-    nicovs <- sum(grepl('^probI\\[[^,]*, 1]', names(mcsamples)))
-    nbcovs <- sum(grepl('^probB\\[[^,]*, 1]', names(mcsamples)))
+finalstate2list <- function(finalstate, realVars, integerVars, categoryVars, binaryVars, compoundgamma){
+    if(!is.vector(finalstate)){print('ERROR!')}
+    nclusters <- sum(grepl('^q\\[', names(finalstate)))
+    ncategories <- sum(grepl('^probC\\[1, 1, ', colnames(mcsamples)))
+    nrcovs <- length(realVars)
+    nicovs <- length(integerVars)
+    nccovs <- length(categoryVars)
+    nbcovs <- length(binaryVars)
     ##
-    parmList <- foreach(var=parmNames)%dopar%{
-        out <- mcsamples[grepl(paste0('^',var,'\\['), names(mcsamples))]
+    parmNames <- c('q',
+    (if(nrcovs>0){c('meanR', 'varR', (if(compoundgamma){'varRrate'}))}),
+    (if(nicovs>0){c('probI', 'sizeI')}),
+    (if(nccovs>0){'probC'}),
+    (if(nbcovs>0){'probB'})
+    )
+    parmList <- foreach(var=parmNames)%do%{
+        out <- finalstate[grepl(paste0('^',var,'\\['), names(finalstate))]
         if(var=='meanR'||var=='varR'){
             dim(out) <- c(nrcovs, nclusters)
             dimnames(out) <- list(realVars, NULL)
-        } else if(var=='probI'||var=='sizeI'){
+        }else if(var=='probI'||var=='sizeI'){
             dim(out) <- c(nicovs, nclusters)
             dimnames(out) <- list(integerVars, NULL)
+        }else if(var=='probC'){
+            dim(out) <- c(nccovs, nclusters, ncategories)
+            dimnames(out) <- list(categoryVars, NULL, NULL)
+        }else if(var=='probB'){
+            dim(out) <- c(nbcovs, nclusters)
+            dimnames(out) <- list(binaryVars, NULL)
         } # 'q' and 'C' and 'varRrate' are vectors with no names
-            out
+        out
     }
     names(parmList) <- parmNames
     parmList
@@ -196,14 +209,14 @@ if(length(realCovs)>0){
 }
 ##
 ## Gives samples of frequency distributions of any set of Y conditional on any set of X
-samplesF <- function(Y, X=NULL, parmList, nfsamples=NULL, inorder=FALSE, rescale=NULL){
+samplesF <- function(Y, X=NULL, parmList, nfsamples=NULL, inorder=FALSE, transform=NULL){
     rCovs <- dimnames(parmList$meanR)[[2]]
     iCovs <- dimnames(parmList$probI)[[2]]
     cCovs <- dimnames(parmList$probC)[[2]]
     bCovs <- dimnames(parmList$probB)[[2]]
     cNames <- c(rCovs, iCovs, cCovs, bCovs)
-    if(is.null(rescale)){
-        rescale <- matrix(c(0,1),nrow=length(cNames),ncol=2,byrow=TRUE,dimnames=list(cNames, c('location','scale')))
+    if(is.null(transform)){
+        transform <- matrix(c(0,1),nrow=length(cNames),ncol=2,byrow=TRUE,dimnames=list(cNames, c('location','scale')))
     }
     nrcovs <- length(rCovs)
     nicovs <- length(iCovs)
@@ -211,7 +224,7 @@ samplesF <- function(Y, X=NULL, parmList, nfsamples=NULL, inorder=FALSE, rescale
     nbcovs <- length(bCovs)
     ##
     Y <- data.matrix(rbind(Y))
-    Y <- t((t(Y)-rescale[colnames(Y),'location'])/rescale[colnames(Y),'scale'])
+    Y <- t((t(Y)-transform[colnames(Y),'location'])/transform[colnames(Y),'scale'])
     rY <- colnames(Y)[colnames(Y) %in% rCovs]
     iY <- colnames(Y)[colnames(Y) %in% iCovs]
     cY <- colnames(Y)[colnames(Y) %in% cCovs]
@@ -219,7 +232,7 @@ samplesF <- function(Y, X=NULL, parmList, nfsamples=NULL, inorder=FALSE, rescale
     ##
     if(!is.null(X)){
         X <- data.matrix(rbind(X))
-        X <- t((t(X)-rescale[colnames(X),'location'])/rescale[colnames(X),'scale'])
+        X <- t((t(X)-transform[colnames(X),'location'])/transform[colnames(X),'scale'])
         rX <- colnames(X)[colnames(X) %in% rCovs]
         if(length(intersect(rX,rY))>0){
             warning('*WARNING: predictor and predictand have real variates in common. Removing from predictor*')
@@ -353,7 +366,7 @@ samplesF <- function(Y, X=NULL, parmList, nfsamples=NULL, inorder=FALSE, rescale
             colSums(pY)
         }
     }
-    freqs/prod(rescale[colnames(Y),'scale'])
+    freqs/prod(transform[colnames(Y),'scale'])
 }
 ##
 ## Gives samples of sums of log-frequency distributions of any set of Y conditional on any set of X
