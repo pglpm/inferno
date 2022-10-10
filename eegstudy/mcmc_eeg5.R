@@ -1,6 +1,6 @@
 ## Author: PGL  Porta Mana
 ## Created: 2022-09-08T17:03:24+0200
-## Last-Updated: 2022-10-10T21:37:17+0200
+## Last-Updated: 2022-10-10T21:54:58+0200
 ################
 ## Exchangeable-probability calculation (non-parametric density regression)
 ################
@@ -20,7 +20,7 @@ posterior <- TRUE # if set to FALSE it samples and plots prior samples
 showdata <- TRUE # 'histogram' 'scatter' FALSE TRUE
 plotmeans <- FALSE # 'histogram' 'scatter' FALSE TRUE
 ##
-nclusters <- 128L
+nclusters <- 64L
 compoundgamma <- TRUE # use beta-prime distribution for variance instead of gamma
 compoundgammapars <- c(1,1)/2
 categoryprior <- 1 # choices: 'Haldane' (1/n) or a number
