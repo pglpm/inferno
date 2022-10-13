@@ -1,14 +1,14 @@
 ## Author: PGL  Porta Mana
 ## Created: 2022-10-07T12:13:20+0200
-## Last-Updated: 2022-10-10T18:54:31+0200
+## Last-Updated: 2022-10-13T19:15:01+0200
 ################
 ## Combine multiple Monte Carlo chains
 ################
 
 rm(list=ls())
 
-outputdirectory <- '_TESTnoint33A'
-totsamples <- 1024
+outputdir <- '_TESTnoint33U'
+totsamples <- 2048
 variateinfofile <- 'metadata_noint33_noSW.csv' #***
 datafile <- 'data_ep.csv' #***
 mainvar <- 'group'
@@ -43,7 +43,10 @@ if(ncores>1){
     plan(sequential)
 }
 
+outputdir <- sub('(.+)/','\\1',outputdir)
 variateinfo <- fread(variateinfofile)
+if(!file.exists(paste0(variateinfofile))){ stop(paste0('ERROR: cannot find file ',variateinfofile)) }
+
 varNames <- variateinfo$variate
 varTypes <- variateinfo$type
 names(varTypes) <- varNames
@@ -58,7 +61,7 @@ ncvars <- length(categoryVars)
 nbvars <- length(binaryVars)
 nvars <- length(varNames)
 ##
-variateparameters <- data.matrix(read.csv(paste0(outputdirectory,'/variateparameters.csv'), row.names='variate'))
+variateparameters <- data.matrix(read.csv(paste0(outputdir,'/variateparameters.csv'), row.names='variate'))
 alldata <- fread(datafile, sep=',')
 if(!all(varNames %in% names(alldata))){print('ERROR: variates missing from datafile')}
 alldata <- alldata[, ..varNames]
@@ -68,7 +71,7 @@ if(!exists('ndata') || is.null(ndata) || is.na(ndata)){ndata <- nrow(alldata)}
 alldata <- alldata[1:ndata]
 ##
 source('functions_mcmc.R')
-setwd(outputdirectory)
+setwd(outputdir)
 samplefiles <- list.files(pattern='^_mcsamples-')
 setwd('..')
 ncores <- max(as.integer(sub('.*-(\\d+).rds', '\\1', samplefiles)))
@@ -83,10 +86,10 @@ basename <- sub(paste0('^_[^-]+(-.+--)',nstages,'-\\d+\\.rds$'), '\\1', basename
 filesamples <- totsamples/ncores
 print(paste0('need ESS > ',filesamples))
 mcsamples <- foreach(i=1:ncores, .combine=rbind, .inorder=TRUE)%do%{
-    traces <- readRDS(file=paste0(outputdirectory,'/_probtraces',basename,nstages,'-',i,'.rds'))
+    traces <- readRDS(file=paste0(outputdir,'/_probtraces',basename,nstages,'-',i,'.rds'))
     minESS <- floor(min(LaplacesDemon::ESS(traces * (abs(traces) < Inf))))
     ## print(paste0('chain ',i,' ess=',minESS))
-    traces <- readRDS(file=paste0(outputdirectory,'/_mcsamples',basename,nstages,'-',i,'.rds'))
+    traces <- readRDS(file=paste0(outputdir,'/_mcsamples',basename,nstages,'-',i,'.rds'))
     lsamples <- nrow(traces)
     if(minESS >= filesamples){
         print(paste0('chain ',i,': ESS = ',minESS))
@@ -94,7 +97,7 @@ mcsamples <- foreach(i=1:ncores, .combine=rbind, .inorder=TRUE)%do%{
         from=lsamples, length.out=filesamples, by=-ceiling(lsamples/minESS)
         ))
         }else{
-        print(paste0('WARNING chain ',i,': insufficient sample size, ESS = ',minESS))
+        print(paste0('WARNING chain ',i,': insufficient ESS = ',minESS))
         topick <- rev(round(seq(
         from=lsamples, to=1, length.out=filesamples
         )))
@@ -103,7 +106,7 @@ mcsamples <- foreach(i=1:ncores, .combine=rbind, .inorder=TRUE)%do%{
 }
 ##
 parmList <- mcsamples2parmlist(mcsamples, realVars, integerVars, categoryVars, binaryVars)
-saveRDS(parmList,file=paste0(outputdirectory,'/_jointfrequencies-',totsamples,'.rds'))
+saveRDS(parmList,file=paste0(outputdir,'/_jointfrequencies-',outputdir,'-',totsamples,'.rds'))
 ##
 ## Traces
 ## Data (standardized for real variates)
@@ -132,7 +135,7 @@ condprobsi <- logsumsamplesF(Y=do.call(cbind,dat)[,
 traces <- cbind(loglikelihood=ll, 'mean of direct logprobabilities'=condprobsd, 'mean of inverse logprobabilities'=condprobsi)*10/log(10)/ndata #medians, iqrs, Q1s, Q3s
 badcols <- foreach(i=1:ncol(traces), .combine=c)%do%{if(all(is.na(traces[,i]))){i}else{NULL}}
 if(!is.null(badcols)){traces <- traces[,-badcols]}
-saveRDS(traces,file=paste0(outputdirectory,'/_jointprobtraces-',totsamples,'.rds'))
+saveRDS(traces,file=paste0(outputdir,'/_jointprobtraces-',outputdir,'-',totsamples,'.rds'))
 ##
 funMCSE <- function(x){LaplacesDemon::MCSE(x, method='batch.means')$se}
 diagnESS <- LaplacesDemon::ESS(traces * (abs(traces) < Inf))
@@ -159,12 +162,17 @@ diagnBurn <- apply(traces, 2, function(x){LaplacesDemon::burnin(matrix(x[1:(10*t
 colpalette <- c(7,2,1)
 names(colpalette) <- colnames(traces)
 ##
+
 ## Plot various info and traces
 print('Plotting traces and marginal samples')
 family <- 'Palatino'
 ##
-pdff(paste0(outputdirectory,'/jointmcsummary-',totsamples),'a4')
+pdff(paste0(outputdir,'/jointmcsummary-',outputdir,'-',totsamples),'a4')
+pdf1 <- dev.cur()
+pdff(paste0(outputdir,'/marginals-',outputdir,'-',totsamples),'a4')
+pdf2 <- dev.cur()
 ## Traces of likelihood and cond. probabilities
+dev.set(pdf1)
 for(avar in colnames(traces)){
     tplot(y=traces[,avar], type='l', lty=1, col=colpalette[avar],
           main=paste0(avar,
@@ -178,6 +186,7 @@ for(avar in colnames(traces)){
           ylab=paste0(avar,'/dHart'), xlab='sample', family=family
           )
 }
+par(mfrow=c(1,1))
 ## Samples of marginal frequency distributions
 if(plotmeans){nfsamples <- totsamples}else{nfsamples <- 64}
 subsample <- round(seq(1,nfsamples, length.out=63))
@@ -197,8 +206,8 @@ for(avar in varNames){#print(avar)
     plotsamples <- samplesF(Y=Xgrid, parmList=parmList, nfsamples=min(nfsamples,nrow(mcsamples)), inorder=FALSE, transform=variateparameters)
     fiven <- variateparameters[avar,c('datamin','dataQ1','datamedian','dataQ2','datamax')]
     ##
-    par(mfrow=c(1,1))
     ymax <- quant(apply(plotsamples,2,function(x){quant(x,99/100)}),99/100, na.rm=T)
+    dev.set(pdf1)
     tplot(x=Xgrid, y=plotsamples[,subsample], type='l', col=paste0(palette()[7], '44'), lty=1, lwd=2, xlab=paste0(avar,' (',variateinfo[variate==avar,type],')'), ylab=paste0('frequency',if(avar %in% realVars){' density'}), ylim=c(0, ymax), family=family)
     if(plotmeans){
         tplot(x=Xgrid, y=rowMeans(plotsamples), type='l', col=paste0(palette()[1], '88'), lty=1, lwd=3, add=T)
@@ -214,6 +223,23 @@ for(avar in varNames){#print(avar)
         datum <- alldata[[avar]]
         scatteraxis(side=1, n=NA, alpha='88', ext=8, x=datum+rnorm(length(datum),mean=0,sd=prod(variateparameters[avar,c('precision','scale')])/(if(avar %in% binaryVars){16}else{16})),col=yellow)
     }
+    ##
+    dev.set(pdf2)
+    marguncertainty <- t(apply(plotsamples, 1, function(x){quant(x, c(1,31)/32)}))
+    tplot(x=Xgrid, y=rowMeans(plotsamples), type='l', col=paste0(palette()[1]), lty=1, lwd=3, xlab=paste0(avar,' (',variateinfo[variate==avar,type],')'), ylab=paste0('frequency',if(avar %in% realVars){' density'}), ylim=c(0, ymax), family=family)
+    ##  93.75% marginal credibility intervals
+    plotquantiles(x=Xgrid, y=marguncertainty, col=4, alpha=0.75)
+    abline(v=fiven,col=paste0(palette()[c(2,4,5,4,2)], '44'),lwd=4)
+    ##
+    if((showdata=='histogram')|(showdata==TRUE & !(avar %in% realVars))){
+        tplot(x=histo$breaks, y=histo$density*histomax, col=grey, alpha=0.75, border=NA, lty=1, lwd=1, family=family, ylim=c(0,NA), add=TRUE)
+    }else if((showdata=='scatter')|(showdata==TRUE & (avar %in% realVars))){
+        scatteraxis(side=1, n=NA, alpha='88', ext=8, x=datum+rnorm(length(datum),mean=0,sd=prod(variateparameters[avar,c('precision','scale')])/(if(avar %in% binaryVars){16}else{16})),col=yellow)
+    }
+##
 }
 dev.off()
+dev.off()
 print('Done')
+
+
