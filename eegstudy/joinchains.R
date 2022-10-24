@@ -1,14 +1,14 @@
 ## Author: PGL  Porta Mana
 ## Created: 2022-10-07T12:13:20+0200
-## Last-Updated: 2022-10-13T19:15:01+0200
+## Last-Updated: 2022-10-24T18:35:58+0200
 ################
 ## Combine multiple Monte Carlo chains
 ################
 
 rm(list=ls())
 
-outputdir <- '_TESTnoint33U'
-totsamples <- 2048
+outputdir <- 'testnewMC'
+totsamples <- 1024*2
 variateinfofile <- 'metadata_noint33_noSW.csv' #***
 datafile <- 'data_ep.csv' #***
 mainvar <- 'group'
@@ -29,8 +29,8 @@ print('availableCores:')
 print(availableCores())
 print('availableCores-multicore:')
 print(availableCores('multicore'))
-if(file.exists("/cluster/home/pglpm/R")){
-    ncores <- availableCores()}else{
+if(Sys.info()['nodename']=='luca-HP-Z2-G9'){
+    ncores <- 20}else{
     ncores <- 4}
 print(paste0('using ',ncores,' cores'))
 if(ncores>1){
@@ -74,89 +74,86 @@ source('functions_mcmc.R')
 setwd(outputdir)
 samplefiles <- list.files(pattern='^_mcsamples-')
 setwd('..')
-ncores <- max(as.integer(sub('.*-(\\d+).rds', '\\1', samplefiles)))
-print(paste0('Found ',ncores,' chains'))
+nchains <- max(as.integer(sub('.*F-(\\d+).rds', '\\1', samplefiles)))
+print(paste0('Found ',nchains,' chains'))
 ##
-nstages <- max(as.integer(sub('.*--(\\d+)-\\d+.rds', '\\1', samplefiles)))
-print(paste0('Found ',nstages,' stages'))
+## nstages <- max(as.integer(sub('.*--(\\d+)-\\d+.rds', '\\1', samplefiles)))
+## print(paste0('Found ',nstages,' stages'))
 ##
-basename <- samplefiles[!(sub(paste0('^_[^-]+(-.+--)',nstages,'-\\d+\\.rds$'), '\\1', samplefiles)==samplefiles)][]
-basename <- sub(paste0('^_[^-]+(-.+--)',nstages,'-\\d+\\.rds$'), '\\1', basename[1])
+basename <- samplefiles[!(sub(paste0('^_[^-]+(-.+--)','F','-\\d+\\.rds$'), '\\1', samplefiles)==samplefiles)][]
+basename <- sub(paste0('^_[^-]+(-.+--)','F','-\\d+\\.rds$'), '\\1', basename[1])
 ##
-filesamples <- totsamples/ncores
-print(paste0('need ESS > ',filesamples))
-mcsamples <- foreach(i=1:ncores, .combine=rbind, .inorder=TRUE)%do%{
-    traces <- readRDS(file=paste0(outputdir,'/_probtraces',basename,nstages,'-',i,'.rds'))
-    minESS <- floor(min(LaplacesDemon::ESS(traces * (abs(traces) < Inf))))
-    ## print(paste0('chain ',i,' ess=',minESS))
-    traces <- readRDS(file=paste0(outputdir,'/_mcsamples',basename,nstages,'-',i,'.rds'))
-    lsamples <- nrow(traces)
-    if(minESS >= filesamples){
-        print(paste0('chain ',i,': ESS = ',minESS))
-        topick <- rev(seq(
-        from=lsamples, length.out=filesamples, by=-ceiling(lsamples/minESS)
-        ))
-        }else{
-        print(paste0('WARNING chain ',i,': insufficient ESS = ',minESS))
-        topick <- rev(round(seq(
-        from=lsamples, to=1, length.out=filesamples
-        )))
-        }
-    traces[topick, ]
+remainingsamples <- totsamples
+print(paste0('need ESS > ', totsamples/nchains))
+traces <- mcsamples <- NULL
+for(achain in 1:nchains){
+    totake <- round(remainingsamples/(nchains-achain+1))
+    temptrace <- readRDS(file=paste0(outputdir,'/_mctraces',basename,'F','-',achain,'.rds'))
+    minESS <- floor(min(LaplacesDemon::ESS(temptrace * (abs(temptrace) < Inf))))
+    lsamples <- nrow(temptrace)
+    if(minESS >= totake){
+        cat(paste0('chain ',achain,': ESS = ',minESS,'\n'))
+    }else{
+        cat(paste0('WARNING chain ',achain,': insufficient ESS = ',minESS,'\n'))
+    }
+        topick <- round(seq(from=1, to=lsamples, length.out=totake))
+    ##
+    traces <- rbind(traces, temptrace[topick,])
+    mcsamples <- rbind(mcsamples, readRDS(file=paste0(outputdir,'/_mcsamples',basename,'F','-',achain,'.rds'))[topick,])
+    remainingsamples <- remainingsamples - totake
 }
 ##
-parmList <- mcsamples2parmlist(mcsamples, realVars, integerVars, categoryVars, binaryVars)
-saveRDS(parmList,file=paste0(outputdir,'/_jointfrequencies-',outputdir,'-',totsamples,'.rds'))
+## parmList <- mcsamples2parmlist(mcsamples, realVars, integerVars, categoryVars, binaryVars)
+saveRDS(mcsamples,file=paste0(outputdir,'/_jointmcsamples-',outputdir,'-',totsamples,'.rds'))
 ##
 ## Traces
 ## Data (standardized for real variates)
-dat <- list()
-if(nrvars>0){ dat$Real=t((t(data.matrix(alldata[, ..realVars])) - variateparameters[realVars,'location'])/variateparameters[realVars,'scale'])}
-## if(nivars>0){ dat$Integer=data.matrix(alldata[, ..integerVars])}
-if(nivars>0){ dat$Integer=t((t(data.matrix(alldata[, ..integerVars])) - variateparameters[integerVars,'location']))}
-## if(ncvars>0){ dat$Category=data.matrix(alldata[, ..categoryVars])}
-if(ncvars>0){ dat$Category=t((t(data.matrix(alldata[, ..categoryVars])) - variateparameters[categoryVars,'location']))}
-## if(nbvars>0){ dat$Binary=data.matrix(alldata[, ..binaryVars])}
-if(nbvars>0){ dat$Binary=t((t(data.matrix(alldata[, ..binaryVars])) - variateparameters[binaryVars,'location']))}
+## dat <- list()
+## if(nrvars>0){ dat$Real=t((t(data.matrix(alldata[, ..realVars])) - variateparameters[realVars,'location'])/variateparameters[realVars,'scale'])}
+## ## if(nivars>0){ dat$Integer=data.matrix(alldata[, ..integerVars])}
+## if(nivars>0){ dat$Integer=t((t(data.matrix(alldata[, ..integerVars])) - variateparameters[integerVars,'location']))}
+## ## if(ncvars>0){ dat$Category=data.matrix(alldata[, ..categoryVars])}
+## if(ncvars>0){ dat$Category=t((t(data.matrix(alldata[, ..categoryVars])) - variateparameters[categoryVars,'location']))}
+## ## if(nbvars>0){ dat$Binary=data.matrix(alldata[, ..binaryVars])}
+## if(nbvars>0){ dat$Binary=t((t(data.matrix(alldata[, ..binaryVars])) - variateparameters[binaryVars,'location']))}
 ##
 ##
-print('Calculating traces...')
-ll <- llSamples(dat, parmList)
-condprobsd <- logsumsamplesF(Y=do.call(cbind,dat)[, mainvar, drop=F],
-                             X=do.call(cbind,dat)[, setdiff(varNames, mainvar),
-                                                  drop=F],
-                             parmList=parmList, inorder=T)
-condprobsi <- logsumsamplesF(Y=do.call(cbind,dat)[,
-                                                  setdiff(varNames, mainvar), drop=F],
-                             X=do.call(cbind,dat)[,
-                                                  mainvar, drop=F],
-                             parmList=parmList, inorder=T)
+## print('Calculating traces...')
+## ll <- llSamplesmc(dat, parmList)
+## condprobsd <- logsumsamplesF(Y=do.call(cbind,dat)[, mainvar, drop=F],
+##                              X=do.call(cbind,dat)[, setdiff(varNames, mainvar),
+##                                                   drop=F],
+##                              parmList=parmList, inorder=T)
+## condprobsi <- logsumsamplesF(Y=do.call(cbind,dat)[,
+##                                                   setdiff(varNames, mainvar), drop=F],
+##                              X=do.call(cbind,dat)[,
+##                                                   mainvar, drop=F],
+##                              parmList=parmList, inorder=T)
 ##
-traces <- cbind(loglikelihood=ll, 'mean of direct logprobabilities'=condprobsd, 'mean of inverse logprobabilities'=condprobsi)*10/log(10)/ndata #medians, iqrs, Q1s, Q3s
-badcols <- foreach(i=1:ncol(traces), .combine=c)%do%{if(all(is.na(traces[,i]))){i}else{NULL}}
-if(!is.null(badcols)){traces <- traces[,-badcols]}
-saveRDS(traces,file=paste0(outputdir,'/_jointprobtraces-',outputdir,'-',totsamples,'.rds'))
+## traces <- cbind(loglikelihood=ll, 'mean of direct logprobabilities'=condprobsd, 'mean of inverse logprobabilities'=condprobsi)*10/log(10)/ndata #medians, iqrs, Q1s, Q3s
+## badcols <- foreach(i=1:ncol(traces), .combine=c)%do%{if(all(is.na(traces[,i]))){i}else{NULL}}
+## if(!is.null(badcols)){traces <- traces[,-badcols]}
+## saveRDS(traces,file=paste0(outputdir,'/_jointprobtraces-',outputdir,'-',totsamples,'.rds'))
 ##
 funMCSE <- function(x){LaplacesDemon::MCSE(x, method='batch.means')$se}
 diagnESS <- LaplacesDemon::ESS(traces * (abs(traces) < Inf))
 diagnIAT <- apply(traces, 2, function(x){LaplacesDemon::IAT(x[is.finite(x)])})
-diagnBMK <- LaplacesDemon::BMK.Diagnostic(traces, batches=2)[,1]
+diagnBMK <- LaplacesDemon::BMK.Diagnostic(traces, batches=4)[,1]
 diagnMCSE <- 100*apply(traces, 2, function(x){funMCSE(x)/sd(x)})
 diagnStat <- apply(traces, 2, function(x){LaplacesDemon::is.stationary(as.matrix(x,ncol=1))})
 diagnBurn <- apply(traces, 2, function(x){LaplacesDemon::burnin(matrix(x[1:(10*trunc(length(x)/10))], ncol=1))})
+diagnBurn2 <- proposeburnin(traces, batches=10)
+diagnThin <- proposethinning(traces)
 ##
-## tracegroups <- list(loglikelihood=1,
-##                     'main given rest'=2,
-##                     'rest given main'=3
-##                     )
-## grouplegends <- foreach(agroup=1:length(tracegroups))%do%{
-##     c( paste0('-- STATS ', names(tracegroups)[agroup], ' --'),
-##       paste0('min ESS = ', signif(min(diagnESS[tracegroups[[agroup]]]),6)),
-##       paste0('max IAT = ', signif(max(diagnIAT[tracegroups[[agroup]]]),6)),
-##       paste0('max BMK = ', signif(max(diagnBMK[tracegroups[[agroup]]]),6)),
-##       paste0('max MCSE = ', signif(max(diagnMCSE[tracegroups[[agroup]]]),6)),
-##       paste0('stationary: ', sum(diagnStat[tracegroups[[agroup]]]),'/',length(diagnStat[tracegroups[[agroup]]])),
-##       paste0('burn: ', signif(max(diagnBurn[tracegroups[[agroup]]]),6))
+cat(paste0('\nESSs (',requiredESS,'): ',paste0(round(diagnESS), collapse=', ')))
+cat(paste0('\nIATs: ',paste0(round(diagnIAT), collapse=', ')))
+cat(paste0('\nBMKs: ',paste0(round(diagnBMK,3), collapse=', ')))
+cat(paste0('\nMCSEs: ',paste0(round(diagnMCSE,2), collapse=', ')))
+cat(paste0('\nStationary: ',paste0(diagnStat, collapse=', ')))
+cat(paste0('\nBurn-in I: ',paste0(diagnBurn, collapse=', ')))
+cat(paste0('\nBurn-in II: ',diagnBurn2))
+cat('\n')
+## cat(paste0('\nProposed thinning: ',paste0(diagnThin, collapse=', ')))
 ##       )
 ##         }
 colpalette <- c(7,2,1)
@@ -166,7 +163,9 @@ names(colpalette) <- colnames(traces)
 ## Plot various info and traces
 print('Plotting traces and marginal samples')
 family <- 'Palatino'
+
 ##
+graphics.off()
 pdff(paste0(outputdir,'/jointmcsummary-',outputdir,'-',totsamples),'a4')
 pdf1 <- dev.cur()
 pdff(paste0(outputdir,'/marginals-',outputdir,'-',totsamples),'a4')
@@ -179,9 +178,10 @@ for(avar in colnames(traces)){
                       '\nESS = ', signif(diagnESS[avar], 3),
                       ' | IAT = ', signif(diagnIAT[avar], 3),
                       ' | BMK = ', signif(diagnBMK[avar], 3),
-                      ' | MCSE(6.27) = ', signif(diagnMCSE[avar], 3),
+                      ' | MCSE = ', signif(diagnMCSE[avar], 3),
                       ' | stat: ', diagnStat[avar],
-                      ' | burn: ', diagnBurn[avar]
+                      ' | burn I: ', diagnBurn[avar],
+                      ' | burn II: ', diagnBurn2
                       ),
           ylab=paste0(avar,'/dHart'), xlab='sample', family=family
           )
@@ -203,7 +203,8 @@ for(avar in varNames){#print(avar)
         Xgrid <- cbind(rg[1]:rg[2])
     }
     colnames(Xgrid) <- avar
-    plotsamples <- samplesF(Y=Xgrid, parmList=parmList, nfsamples=min(nfsamples,nrow(mcsamples)), inorder=FALSE, transform=variateparameters)
+    plotsamples <- samplesFmc(Y=Xgrid, mcsamples=mcsamples, nfsamples=min(nfsamples,nrow(mcsamples)), inorder=FALSE, variateinfo=variateparameters)
+    ## plotsamples <- samplesF(Y=Xgrid, parmList=parmList, nfsamples=min(nfsamples,nrow(mcsamples)), inorder=FALSE, transform=variateparameters)
     fiven <- variateparameters[avar,c('datamin','dataQ1','datamedian','dataQ2','datamax')]
     ##
     ymax <- quant(apply(plotsamples,2,function(x){quant(x,99/100)}),99/100, na.rm=T)
@@ -238,8 +239,8 @@ for(avar in varNames){#print(avar)
     }
 ##
 }
-dev.off()
-dev.off()
-print('Done')
+dev.off(pdf1)
+dev.off(pdf2)
+cat('\nDone\n\n')
 
 

@@ -1,18 +1,18 @@
 ## Author: PGL  Porta Mana
 ## Created: 2022-09-08T17:03:24+0200
-## Last-Updated: 2022-10-10T21:54:58+0200
+## Last-Updated: 2022-10-21T08:36:50+0200
 ################
 ## Exchangeable-probability calculation (non-parametric density regression)
 ################
 
 #### USER INPUTS AND CHOICES ####
-baseversion <- '_deletetest128' # *** ## Base name of output directory
+baseversion <- '_testESS' # *** ## Base name of output directory
 datafile <- 'data_ep.csv' #***
 mainvar <- 'group' # ***
 variateinfofile <- 'metadata_noint33_noSW.csv' #***
 nsamples <- 1024L * 1L # 2L # number of samples AFTER thinning
 thin <- 1L #
-nstages <- 0L # number of sampling stages beyond burn-in
+nstages <- 5L # number of sampling stages beyond burn-in
 niter0 <- 1024L * 1L # 3L # iterations burn-in
 ## ndata <- 10 # set this if you want to use fewer data
 ## shuffledata <- TRUE # useful if subsetting data
@@ -21,6 +21,7 @@ showdata <- TRUE # 'histogram' 'scatter' FALSE TRUE
 plotmeans <- FALSE # 'histogram' 'scatter' FALSE TRUE
 ##
 nclusters <- 64L
+alpha <- 1
 compoundgamma <- TRUE # use beta-prime distribution for variance instead of gamma
 compoundgammapars <- c(1,1)/2
 categoryprior <- 1 # choices: 'Haldane' (1/n) or a number
@@ -350,7 +351,7 @@ if(posterior){constants$nData <- ndata}
 ##
 initsFunction <- function(){
     c(list(
-        qalpha0 = rep(1/nclusters, nclusters) # cluster probabilities
+        qalpha0 = rep(alpha/nclusters, nclusters) # cluster probabilities
     ),
     if(nrvars > 0){# real variates
         list(
@@ -599,7 +600,7 @@ for(stage in stagestart+(0:nstages)){
     usedclusters <- length(unique(occupations))
     if(usedclusters > nclusters-5){print('WARNING: TOO MANY CLUSTERS OCCUPIED')}
     print(paste0('OCCUPIED CLUSTERS: ', usedclusters, ' OF ', nclusters))
-    saveRDS(finalstate2list(finalstate, realVars, integerVars, categoryVars, binaryVars, compoundgamma), file=paste0(dirname,'_finalstate-R',baseversion,'-V',length(varNames),'-D',ndata,'-K',nclusters,'-I',nrow(mcsamples),'--',stage,'-',mcmcseed,'.rds'))
+    saveRDS(finalstate2list(finalstate, realVars=realVars, integerVars=integerVars, categoryVars=categoryVars, binaryVars=binaryVars, compoundgamma=compoundgamma), file=paste0(dirname,'_finalstate-R',baseversion,'-V',length(varNames),'-D',ndata,'-K',nclusters,'-I',nrow(mcsamples),'--',stage,'-',mcmcseed,'.rds'))
     ##
     ## SAVE THE PARAMETERS FOR THE TRANSDUCER
     parmList <- mcsamples2parmlist(mcsamples, realVars, integerVars, categoryVars, binaryVars)
