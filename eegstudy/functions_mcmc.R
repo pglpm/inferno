@@ -1258,90 +1258,113 @@ samplesVars <- function(Y, X=NULL, parmList, nfsamples=NULL, inorder=FALSE){
 }
 ##
 ## Gives samples of variate values. Uses mcsamples
-samplesXmc <- function(mcsamples, variateinfo, nperf=2, nfsamples=NULL, inorder=FALSE, seed=NULL){
+samplesXmc <- function(mcsamples, variateinfo, variates=NULL, drawspermcsample=2, fromsamples=nrow(mcsamples), inorder=FALSE, seed=NULL){
+    allvariates <- rownames(variateinfo)
+    if(!is.null(variates)){
+        if(!all(variates %in% allvariates)){
+            warning('*WARNING: some requested variates missing from variateinfo argument*')
+            warning(paste0('*Discarding: ',paste0(setdiff(variates,allvariates),collapse=' ')))
+            variates <- intersect(variates,allvariates)
+        }
+    }else{
+        variates <- allvariates
+    }
     ##
-    rCovs <- rownames(variateinfo)[variateinfo[,'type']==0]
-    iCovs <- rownames(variateinfo)[variateinfo[,'type']==3]
-    cCovs <- rownames(variateinfo)[variateinfo[,'type']==1]
-    bCovs <- rownames(variateinfo)[variateinfo[,'type']==2]
-    ## cNames <- c(rCovs, iCovs, cCovs, bCovs)
+    rCovs <- variates[variateinfo[variates,'type']==0]
+    iCovs <- variates[variateinfo[variates,'type']==3]
+    cCovs <- variates[variateinfo[variates,'type']==1]
+    bCovs <- variates[variateinfo[variates,'type']==2]
+    cNames <- c(rCovs, iCovs, cCovs, bCovs)
     nrcovs <- length(rCovs)
     nicovs <- length(iCovs)
     nccovs <- length(cCovs)
     nbcovs <- length(bCovs)
     ##
     if(!('location' %in% colnames(variateinfo))){
-        locations <- integer(length(cNames))
-        names(locations) <- cNames
-    }else{locations <- variateinfo[,'location']}
+        locations <- integer(length(variates))
+        names(locations) <- variates
+    }else{locations <- variateinfo[variates,'location']}
     if(!('scale' %in% colnames(variateinfo))){
         scales <- locations * 0L + 1L
-    }else{scales <- variateinfo[,'scale']}
+    }else{scales <- variateinfo[variates,'scale']}
     ##
     Qi <- grep('q',colnames(mcsamples))
     nclusters <- length(Qi)
     sclusters <- seq_len(nclusters)
     if(nrcovs>0){
-        meanRi <- grep('meanR',colnames(mcsamples))
-        varRi <- grep('varR',colnames(mcsamples))
+        totake <- variateinfo[rCovs,'index']
+        meanRi <- t(sapply(paste0('meanR\\[',totake,','),grep,colnames(mcsamples)))
+        varRi <- t(sapply(paste0('varR\\[',totake,','),grep,colnames(mcsamples)))
         dim(meanRi) <- dim(varRi) <- c(nrcovs, nclusters)
         rownames(meanRi) <- rownames(varRi) <- rCovs
         }
     if(nicovs>0){
-        probIi <- grep('probI',colnames(mcsamples))
-        sizeIi <- grep('sizeI',colnames(mcsamples))
+        totake <- variateinfo[iCovs,'index']
+        probIi <- t(sapply(paste0('probI\\[',totake,','),grep,colnames(mcsamples)))
+        sizeIi <- t(sapply(paste0('sizeI\\[',totake,','),grep,colnames(mcsamples)))
         dim(probIi) <- dim(sizeIi) <- c(nicovs,nclusters)
         rownames(probIi) <- rownames(sizeIi) <- iCovs
         }
     if(nccovs>0){
-        probCi <- grep('probC',colnames(mcsamples))
+        totake <- variateinfo[cCovs,'index']
+        probCi <- t(sapply(paste0('probC\\[',totake,','),grep,colnames(mcsamples)))
         ncategories <- length(probCi)/nccovs/nclusters
         dim(probCi) <- c(nccovs,nclusters,ncategories)
         dimnames(probCi) <- list(cCovs, NULL, NULL)
         scategories <- seq_len(ncategories)
         }
     if(nbcovs>0){
-        probBi <- grep('probB',colnames(mcsamples))
+        totake <- variateinfo[bCovs,'index']
+        probBi <- t(sapply(paste0('probB\\[',totake,','),grep,colnames(mcsamples)))
         dim(probBi) <- c(nbcovs,nclusters)
         rownames(probBi) <- bCovs
         sbins <- 0:1
         }
     ##
-    if(is.numeric(nfsamples)){
-        fsubsamples <- round(seq(1, nrow(q), length.out=nfsamples))
-    }else{
-        nfsamples <- nrow(q)
-        fsubsamples <- seq_len(nfsamples)
+    if(length(fromsamples) == 1){
+        if(inorder){
+            fromsamples <- round(seq(1, nrow(mcsamples), length.out=fromsamples))
+        }else{
+            fromsamples <- sample(1:nrow(mcsamples),fromsamples,replace=(fromsamples>nrow(mcsamples)))
+        }
     }
     ##
     if(!is.null(seed)){set.seed(seed)}
-    XX <- foreach(asample=t(mcsamples[fsubsamples,]), .combine=rbind, .inorder=inorder)%dorng%{
-        acluster <- sample(x=sclusters, size=nperf, prob=asample[Qi], replace=TRUE)
+    XX <- foreach(asample=t(mcsamples[fromsamples,,drop=F]), .combine=cbind, .inorder=inorder)%dorng%{
+        asample <- asample[,1]
+        acluster <- sample(x=sclusters, size=drawspermcsample, prob=asample[Qi], replace=TRUE)
+        
         ##
         (if(nrcovs>0){
-             rX <- matrix(rnorm(n=nperf*nrcovs, mean=t(asample[meanRi[,acluster]]), sd=sqrt(t(asample[varRi[,acluster]]))),
-                          nrow=nperf, dimnames=list(NULL,rCovs))
+             rX <- rnorm(n=drawspermcsample*nrcovs, mean=asample[meanRi[,acluster]], sd=sqrt(asample[varRi[,acluster]]))
+             dim(rX) <- c(nrcovs, drawspermcsample)
          }else{rX <- NULL})
         ##        
         (if(nicovs>0){
-        iX <- matrix(rbinom(n=nperf*nicovs, prob=t(asample[probIi[iX,acluster]]), size=t(asample[sizeIi[iX,acluster]])),
-                     nrow=nperf, dimnames=list(NULL, iCovs))
+             iX <- rbinom(n=drawspermcsample*nicovs, prob=asample[probIi[,acluster]], size=asample[sizeIi[,acluster]])
+             dim(iX) <- c(nicovs, drawspermcsample)#, dimnames=list(NULL, iCovs))
          }else{iX <- NULL})
         ##        
         (if(nccovs>0){
-             cX <- sapply(cCovs, function(acov){sapply(acluster,function(clus){
+             cX <- sapply(acluster, function(clus){sapply(cCovs,function(acov){
                  sample(x=scategories, size=1, prob=asample[probCi[acov,clus,]])
-        })})}else{cX <- NULL})
+             },USE.NAMES=F)})
+         }else{cX <- NULL})
         ##
         (if(nbcovs>0){
-        bX <- sapply(bCovs, function(acov){sapply(acluster,function(clus){
+        bX <- sapply(acluster, function(clus){sapply(bCovs,function(acov){
             sample(x=sbins, size=1, prob=c(1-asample[probBi[acov,clus]], asample[probBi[acov,clus]]))
-        })})}else{bX <- NULL})
+        },USE.NAMES=F)})
+         }else{bX <- NULL})
         ##
-        cbind(rX, iX, cX, bX)
+        ## print(dimnames(rbind(rX, iX, cX, bX)))
+        flag <- rbind(rX, iX, cX, bX)[order(match(cNames,variates)),,drop=F]
+        ## print(dimnames(flag))
+        flag
     }
-    attr(XX, 'rng') <- NULL
-    XX
+    attr(XX, 'rng') <- attr(XX, 'doRNG_version') <- NULL
+    rownames(XX) <- variates
+    t(XX*scales+locations)
 }
 ##
 ## Gives samples of variate values

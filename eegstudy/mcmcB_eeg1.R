@@ -1,21 +1,77 @@
-F## Author: PGL  Porta Mana
+## Author: PGL  Porta Mana
 ## Created: 2022-09-08T17:03:24+0200
-## Last-Updated: 2022-10-24T18:39:54+0200
+## Last-Updated: 2022-10-27T15:11:14+0200
 ################
 ## Exchangeable-probability calculation (non-parametric density regression)
 ################
 
 #### USER INPUTS AND CHOICES ####
-baseversion <- '_newmcmc2' # *** ## Base name of output directory
+baseversion <- '_newmcmc4096terB' # *** ## Base name of output directory
 datafile <- 'data_ep.csv' #***
-mainvar <- 'group' # ***
+mainvar <- c(
+##     "age",
+## "sex",
+## "group",
+## "EHI_right",
+## "EHI_left",
+## "EHI_LQ",
+## "edu_primary",
+## "edu_secondary",
+## "edu_university",
+## "subcog_mem",
+## "subcog_conc",
+"DS_forward",
+"DS_reverse",
+"DS_seq",
+"CWIT_2",
+"CWIT_3",
+"CWIT_4",
+"ERT_med_rt_overall",
+"ERT_total_hits",
+"OTS_mean_lat_first_overall",
+"OTS_cor_first",
+"PRM_mean_lat_delayed",
+"PRM_cor_delayed",
+"RTI_mean_react_time",
+"RTI_total_errors",
+"RVP_detection",
+"RVP_mean_lat_cor",
+"SSP_forw_length",
+"Total_Z_sum",
+"Total_Z_mean",
+"Total_Q_points"
+## "DMN_T_CPL",
+## "DMN_T_CC",
+## "DMN_A_CPL",
+## "DMN_A_CC",
+## "DMN_B_CPL",
+## "DMN_B_CC",
+## "DMN_G_CPL",
+## "DMN_G_CC",
+## "CEN_T_CPL",
+## "CEN_T_CC",
+## "CEN_A_CPL",
+## "CEN_A_CC",
+## "CEN_B_CPL",
+## "CEN_B_CC",
+## "CEN_G_CPL",
+## "CEN_G_CC",
+## "SN_T_CPL",
+## "SN_T_CC",
+## "SN_A_CPL",
+## "SN_A_CC",
+## "SN_B_CPL",
+## "SN_B_CC",
+## "SN_G_CPL",
+## "SN_G_CC"
+)
 variateinfofile <- 'metadata_noint33_noSW.csv' #***
-requiredESS <- round(2048/20) # required effective sample size
+requiredESS <- 1024*2/20 # required effective sample size
 nsamples <- 8*ceiling((requiredESS*1.5)/8) # number of samples AFTER thinning
 ## ndata <- 5 # set this if you want to use fewer data
 ## shuffledata <- TRUE # useful if subsetting data
 posterior <- TRUE # if set to FALSE it samples and plots prior samples
-minstepincrease <- 2L
+minstepincrease <- 8L
 savetempsamples <- FALSE # save temporary MCMC samples
 plottempdistributions <- FALSE # plot temporary sampled distributions
 showdata <- TRUE # 'histogram' 'scatter' FALSE TRUE
@@ -75,6 +131,7 @@ library('nimble')
 #### EXTRACT INFORMATION ABOUT THE VARIATES AND THEIR PRIOR PARAMETERS
 
 if(Sys.info()['nodename']=='luca-HP-Z2-G9'){origdir <- '../'}else{origdir <- ''}
+source(paste0(origdir,'functions_mcmc.R')) # load functions for post-MCMC calculations
 variateinfo <- fread(paste0(origdir,variateinfofile))
 ## variateinfo <- do.call(rbind, list(
 ##     ##	 'variate',			'type',		'min',	'max',	'precision')
@@ -329,7 +386,6 @@ if(nbvars>0){ dat$Binary=t((t(data.matrix(alldata[, ..binaryVars])) - variatepar
 
 
 ####  CONSTANTS, PRIOR PARAMETERS, INITIAL VALUES
-source(paste0(origdir,'functions_mcmc.R')) # load functions for post-MCMC calculations
 ##
 ## In previous versions some statistics of the data were computed
 ## to decide on the hyperparameters.
@@ -632,11 +688,11 @@ while(continue){
     usedclusters <- length(unique(occupations))
     if(usedclusters > nclusters-5){cat('\nWARNING: TOO MANY CLUSTERS OCCUPIED')}
     cat(paste0('\nOCCUPIED CLUSTERS: ', usedclusters, ' OF ', nclusters))
-##    saveRDS(finalstate2list(finalstate, realVars=realVars, integerVars=integerVars, categoryVars=categoryVars, binaryVars=binaryVars, compoundgamma=compoundgamma), file=paste0(dirname,'_finalstate-R',basename,'--',stage,'-',mcmcseed,'.rds'))
+##    saveRDS(finalstate2list(finalstate, realVars=realVars, integerVars=integerVars, categoryVars=categoryVars, binaryVars=binaryVars, compoundgamma=compoundgamma), file=paste0(dirname,'_finalstate-R',basename,'--',mcmcseed,'-',stage,'.rds'))
     ##
     ## SAVE THE PARAMETERS
     ##    parmList <- mcsamples2parmlist(mcsamples, realVars, integerVars, categoryVars, binaryVars)
-    ##  saveRDS(parmList,file=paste0(dirname,'_frequencies-R',baseversion,'-V',length(varNames),'-D',ndata,'-K',nclusters,'-I',nrow(parmList$q),'--',stage,'-',mcmcseed,'.rds'))
+    ##  saveRDS(parmList,file=paste0(dirname,'_frequencies-R',baseversion,'-V',length(varNames),'-D',ndata,'-K',nclusters,'-I',nrow(parmList$q),'--',mcmcseed,'-',stage,'.rds'))
     ##
     ## Diagnostics
     ## Log-likelihood
@@ -657,7 +713,7 @@ while(continue){
                                      mcsamples=newmcsamples,
                                      variateinfo=variateparameters, inorder=T))
         ##
-        traces <- rbind(traces[(burnin+1):nsamples,,drop=F],
+        traces <- rbind(traces,
                         10/log(10)/ndata *
                         cbind(loglikelihood=ll,
                               'mean of direct logprobabilities'=condprobsd,
@@ -665,7 +721,7 @@ while(continue){
                         )
         badcols <- foreach(i=1:ncol(traces), .combine=c)%do%{if(all(is.na(traces[,i]))){i}else{NULL}}
         if(!is.null(badcols)){traces <- traces[,-badcols]}
-        saveRDS(traces,file=paste0(dirname,'_mctraces-R',basename,'--',stage,'-',mcmcseed,'.rds'))
+        saveRDS(traces,file=paste0(dirname,'_mctraces-R',basename,'--',mcmcseed,'-',stage,'.rds'))
         ##
         if(nrow(traces)>=1000){
             funMCSE <- function(x){LaplacesDemon::MCSE(x, method='batch.means')$se}
@@ -690,29 +746,38 @@ while(continue){
         cat(paste0('\nBurn-in II: ',diagnBurn2))
         cat(paste0('\nProposed thinning: ',paste0(diagnThin, collapse=', ')))
         ##
-        mcsamples <- rbind(mcsamples[(burnin+1):nsamples,,drop=F], newmcsamples)
-        rm(newmcsamples)
-        ##
+        #########################################
+        #### CHECK IF WE NEED TO SAMPLE MORE ####
+        #########################################
         if(stage==0){
-            thin <- max(diagnThin)
+            thin <- round(max(diagnThin)*1.5)
             burnin <- niter0-1
-            niter <- nsamples-1
             continue <- TRUE
         }else{
-            if(min(diagnESS) >= requiredESS &
+            if(min(diagnESS) >= ceiling(requiredESS) &
                #max(diagnMCSE) < 6.27 &
                sum(diagnStat) == 3 &
                diagnBurn2 == 0
                ){
                 continue <- FALSE
+                burnin <- 0
             }else{
                 continue <- TRUE
+                ## if(max(diagnThin) > 1){
+                ##     thin <- thin*max(diagnThin)
+                ##     burnin <- nsamples-1
+                ## }else{
                 burnin <- min(max(diagnBurn2, minstepincrease), nsamples-1)
-                niter <- burnin
             }
         }
+        niter <- nsamples - nrow(traces) + burnin
+        #########################################
+        #### END CHECK                       ####
+        #########################################
+        mcsamples <- rbind(mcsamples, newmcsamples)
+        rm(newmcsamples)
         if(savetempsamples | !continue){
-            saveRDS(mcsamples,file=paste0(dirname,'_mcsamples-R',basename,'--',stage,'-',mcmcseed,'.rds'))
+            saveRDS(mcsamples,file=paste0(dirname,'_mcsamples-R',basename,'--',mcmcseed,'-',stage,'.rds'))
         }
 
         ##
@@ -737,7 +802,7 @@ while(continue){
     ## Plot various info and traces
         cat('\nPlotting MCMC traces')
         graphics.off()
-        pdff(paste0(dirname,'mcmcplottraces-R',basename,'--',stage,'-',mcmcseed),'a4')
+        pdff(paste0(dirname,'mcmcplottraces-R',basename,'--',mcmcseed,'-',stage),'a4')
     ## Summary stats
         matplot(1:2, type='l', col='white', main=paste0('Stats stage ',stage), axes=FALSE, ann=FALSE)
         legendpositions <- c('topleft','topright','bottomleft','bottomright')
@@ -747,6 +812,7 @@ while(continue){
         }
         legend(x='center', bty='n', cex=1,
                legend=c(
+                   paste0('STAGE ',stage),
                    paste0('Occupied clusters: ', usedclusters, ' of ', nclusters),
                    paste0('LL:  ( ', signif(mean(traces[,1]),3), ' +- ', signif(sd(traces[,1]),3),' ) dHart'),
                    'WARNINGS:',
@@ -784,7 +850,7 @@ dev.off()
         ##
         cat('\nPlotting samples of frequency distributions')
         graphics.off()
-        pdff(paste0(dirname,'mcmcdistributions-R',basename,'--',stage,'-',mcmcseed),'a4')
+        pdff(paste0(dirname,'mcmcdistributions-R',basename,'--',mcmcseed,'-',stage),'a4')
         for(avar in varNames){#cat(avar)
             if(avar %in% realVars){
                 rg <- signif((variateparameters[avar,c('thmin','thmax')] + 
@@ -848,15 +914,22 @@ dev.off()
     ## mcsamples <- mcsamples[(burnin+1):nrow(mcsamples),,drop=FALSE]
     ## traces <- traces[(burnin+1):nrow(traces),,drop=FALSE]
     ##
+    ## if(savetempsamples | !continue){
+    ##         saveRDS(mcsamples,file=paste0(dirname,'_mcsamples-R',basename,'--',mcmcseed,'-',stage,'.rds'))
+    ##     }
+
     if(!continue){
         ## Change name of rds files with final results
-        file.rename(from=paste0(dirname,'_mcsamples-R',basename,'--',stage,'-',mcmcseed,'.rds'), to=paste0(dirname,'_mcsamples-R',basename,'--','F','-',mcmcseed,'.rds') )
-        file.rename(from=paste0(dirname,'_mctraces-R',basename,'--',stage,'-',mcmcseed,'.rds'), to=paste0(dirname,'_mctraces-R',basename,'--','F','-',mcmcseed,'.rds') )
+        file.rename(from=paste0(dirname,'_mcsamples-R',basename,'--',mcmcseed,'-',stage,'.rds'), to=paste0(dirname,'_mcsamples-R',basename,'--',mcmcseed,'-','F','.rds') )
+        file.rename(from=paste0(dirname,'_mctraces-R',basename,'--',mcmcseed,'-',stage,'.rds'), to=paste0(dirname,'_mctraces-R',basename,'--',mcmcseed,'-','F','.rds') )
         ## Change name of pdf files with final plots
-        file.rename(from=paste0(dirname,'mcmcplottraces-R',basename,'--',stage,'-',mcmcseed,'.pdf'), to=paste0(dirname,'mcmcplottraces-R',basename,'--','F','-',mcmcseed,'.pdf') )
-        file.rename(from=paste0(dirname,'mcmcdistributions-R',basename,'--',stage,'-',mcmcseed,'.pdf'), to=paste0(dirname,'mcmcdistributions-R',basename,'--','F','-',mcmcseed,'.pdf'))
+        file.rename(from=paste0(dirname,'mcmcplottraces-R',basename,'--',mcmcseed,'-',stage,'.pdf'), to=paste0(dirname,'mcmcplottraces-R',basename,'--',mcmcseed,'-','F','.pdf') )
+        file.rename(from=paste0(dirname,'mcmcdistributions-R',basename,'--',mcmcseed,'-',stage,'.pdf'), to=paste0(dirname,'mcmcdistributions-R',basename,'--',mcmcseed,'-','F','.pdf'))
         ##
         cat('\n==== RESULTS SEEM STATIONARY. END ====\n\n')
+    }else{
+        mcsamples <- mcsamples[(burnin+1):nrow(traces),,drop=F]
+        traces <- traces[(burnin+1):nrow(traces),,drop=F]
     }
     ##
     

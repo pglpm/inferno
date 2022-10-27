@@ -1,21 +1,77 @@
 ## Author: PGL  Porta Mana
 ## Created: 2022-10-07T12:13:20+0200
-## Last-Updated: 2022-10-24T18:35:58+0200
+## Last-Updated: 2022-10-27T14:08:03+0200
 ################
 ## Combine multiple Monte Carlo chains
 ################
 
-rm(list=ls())
+#rm(list=ls())
 
-outputdir <- 'testnewMC'
-totsamples <- 1024*2
+outputdir <- '_newMC4096bis'
+totsamples <- 4096L
 variateinfofile <- 'metadata_noint33_noSW.csv' #***
 datafile <- 'data_ep.csv' #***
-mainvar <- 'group'
+mainvar <- c(
+##     "age",
+## "sex",
+## "group",
+## "EHI_right",
+## "EHI_left",
+## "EHI_LQ",
+## "edu_primary",
+## "edu_secondary",
+## "edu_university",
+## "subcog_mem",
+## "subcog_conc",
+"DS_forward",
+"DS_reverse",
+"DS_seq",
+"CWIT_2",
+"CWIT_3",
+"CWIT_4",
+"ERT_med_rt_overall",
+"ERT_total_hits",
+"OTS_mean_lat_first_overall",
+"OTS_cor_first",
+"PRM_mean_lat_delayed",
+"PRM_cor_delayed",
+"RTI_mean_react_time",
+"RTI_total_errors",
+"RVP_detection",
+"RVP_mean_lat_cor",
+"SSP_forw_length",
+"Total_Z_sum",
+"Total_Z_mean",
+"Total_Q_points"
+## "DMN_T_CPL",
+## "DMN_T_CC",
+## "DMN_A_CPL",
+## "DMN_A_CC",
+## "DMN_B_CPL",
+## "DMN_B_CC",
+## "DMN_G_CPL",
+## "DMN_G_CC",
+## "CEN_T_CPL",
+## "CEN_T_CC",
+## "CEN_A_CPL",
+## "CEN_A_CC",
+## "CEN_B_CPL",
+## "CEN_B_CC",
+## "CEN_G_CPL",
+## "CEN_G_CC",
+## "SN_T_CPL",
+## "SN_T_CC",
+## "SN_A_CPL",
+## "SN_A_CC",
+## "SN_B_CPL",
+## "SN_B_CC",
+## "SN_G_CPL",
+## "SN_G_CC"
+)
 showdata <- TRUE # 'histogram' 'scatter' FALSE
 plotmeans <- TRUE
 
-source('~/.Rprofile')
+#source('~/.Rprofile')
 ## load customized plot functions
 if(!exists('tplot')){source('~/work/pglpm_plotfunctions.R')}
 #### Packages and setup ####
@@ -72,34 +128,42 @@ alldata <- alldata[1:ndata]
 ##
 source('functions_mcmc.R')
 setwd(outputdir)
-samplefiles <- list.files(pattern='^_mcsamples-')
+samplefiles <- list.files(pattern='^_mcsamples-.*-F\\.rds')
+## print(samplefiles)
 setwd('..')
-nchains <- max(as.integer(sub('.*F-(\\d+).rds', '\\1', samplefiles)))
+nchains <- length(samplefiles)
+## nchains <- max(as.integer(sub('.*(\\d+)-F.rds', '\\1', samplefiles)))
 print(paste0('Found ',nchains,' chains'))
 ##
 ## nstages <- max(as.integer(sub('.*--(\\d+)-\\d+.rds', '\\1', samplefiles)))
 ## print(paste0('Found ',nstages,' stages'))
 ##
-basename <- samplefiles[!(sub(paste0('^_[^-]+(-.+--)','F','-\\d+\\.rds$'), '\\1', samplefiles)==samplefiles)][]
-basename <- sub(paste0('^_[^-]+(-.+--)','F','-\\d+\\.rds$'), '\\1', basename[1])
+## basename <- samplefiles[!(sub(paste0('^_[^-]+(-.+--)','\\d+','-F','\\.rds$'), '\\1', samplefiles)==samplefiles)][]
+basename <- sub(paste0('^_[^-]+(-.+--)','\\d+','-F','\\.rds$'), '\\1', samplefiles[1])
 ##
+print(paste0('Using files ',basename,'...'))
+chainlist <- sort(as.integer(sub(paste0('^_.*--','(\\d+)','-F','\\.rds$'), '\\1', samplefiles)))
+## print(chainlist)
 remainingsamples <- totsamples
 print(paste0('need ESS > ', totsamples/nchains))
 traces <- mcsamples <- NULL
-for(achain in 1:nchains){
-    totake <- round(remainingsamples/(nchains-achain+1))
-    temptrace <- readRDS(file=paste0(outputdir,'/_mctraces',basename,'F','-',achain,'.rds'))
+donechains <- 0
+for(achain in chainlist){
+    donechains <- donechains+1
+    totake <- round(remainingsamples/(nchains-donechains+1))
+    temptrace <- readRDS(file=paste0(outputdir,'/_mctraces',basename,achain,'-F.rds'))
     minESS <- floor(min(LaplacesDemon::ESS(temptrace * (abs(temptrace) < Inf))))
     lsamples <- nrow(temptrace)
     if(minESS >= totake){
-        cat(paste0('chain ',achain,': ESS = ',minESS,'\n'))
+        cat(paste0('chain ',achain,': ESS = ',minESS))
     }else{
-        cat(paste0('WARNING chain ',achain,': insufficient ESS = ',minESS,'\n'))
+        cat(paste0('WARNING chain ',achain,': insufficient ESS = ',minESS))
     }
+    cat(paste0(' (req. ',totake,')\n'))
         topick <- round(seq(from=1, to=lsamples, length.out=totake))
     ##
     traces <- rbind(traces, temptrace[topick,])
-    mcsamples <- rbind(mcsamples, readRDS(file=paste0(outputdir,'/_mcsamples',basename,'F','-',achain,'.rds'))[topick,])
+    mcsamples <- rbind(mcsamples, readRDS(file=paste0(outputdir,'/_mcsamples',basename,achain,'-F.rds'))[topick,])
     remainingsamples <- remainingsamples - totake
 }
 ##
@@ -145,7 +209,7 @@ diagnBurn <- apply(traces, 2, function(x){LaplacesDemon::burnin(matrix(x[1:(10*t
 diagnBurn2 <- proposeburnin(traces, batches=10)
 diagnThin <- proposethinning(traces)
 ##
-cat(paste0('\nESSs (',requiredESS,'): ',paste0(round(diagnESS), collapse=', ')))
+cat(paste0('\nESSs (',totsamples/nchains,'): ',paste0(round(diagnESS), collapse=', ')))
 cat(paste0('\nIATs: ',paste0(round(diagnIAT), collapse=', ')))
 cat(paste0('\nBMKs: ',paste0(round(diagnBMK,3), collapse=', ')))
 cat(paste0('\nMCSEs: ',paste0(round(diagnMCSE,2), collapse=', ')))
