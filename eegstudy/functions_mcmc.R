@@ -315,28 +315,33 @@ if(length(realCovs)>0){
 ##
 ## Gives samples of frequency distributions of any set of Y conditional on any set of X
 ## uses mcsamples
-samplesFmc <- function(Y, X=NULL, mcsamples, variateinfo, nfsamples=NULL, inorder=FALSE){
+samplesFmc <- function(Y, X=NULL, mcsamples, variateparameters, fromsamples=nrow(mcsamples), inorder=FALSE){
     ##
-    rCovs <- rownames(variateinfo)[variateinfo[,'type']==0]
-    iCovs <- rownames(variateinfo)[variateinfo[,'type']==3]
-    cCovs <- rownames(variateinfo)[variateinfo[,'type']==1]
-    bCovs <- rownames(variateinfo)[variateinfo[,'type']==2]
+    rCovs <- rownames(variateparameters)[variateparameters[,'type']==0]
+    iCovs <- rownames(variateparameters)[variateparameters[,'type']==3]
+    cCovs <- rownames(variateparameters)[variateparameters[,'type']==1]
+    bCovs <- rownames(variateparameters)[variateparameters[,'type']==2]
     cNames <- c(rCovs, iCovs, cCovs, bCovs)
     nrcovs <- length(rCovs)
     nicovs <- length(iCovs)
     nccovs <- length(cCovs)
     nbcovs <- length(bCovs)
-    if(!('location' %in% colnames(variateinfo))){
+    if(!('location' %in% colnames(variateparameters))){
         locations <- integer(length(cNames))
         names(locations) <- cNames
-    }else{locations <- variateinfo[,'location']}
-    if(!('scale' %in% colnames(variateinfo))){
+    }else{locations <- variateparameters[,'location']}
+    if(!('scale' %in% colnames(variateparameters))){
         scales <- locations * 0L + 1L
-    }else{scales <- variateinfo[,'scale']}
+    }else{scales <- variateparameters[,'scale']}
     ##
     Y <- data.matrix(rbind(Y))
     cnY <- colnames(Y)
-    Y <- t((t(Y)-locations[cnY])/scales[cnY])
+    if(!all(cnY %in% rownames(variateparameters))){
+        warning('*WARNING: some requested predictands missing from variateparameters argument*')
+        warning(paste0('*Discarding: ',paste0(setdiff(cnY,rownames(variateparameters)),collapse=' ')))
+        cnY <- intersect(cnY,rownames(variateparameters))
+    }
+    Y <- t((t(Y[,cnY,drop=F])-locations[cnY])/scales[cnY])
     rY <- cnY[cnY %in% rCovs]
     iY <- cnY[cnY %in% iCovs]
     cY <- cnY[cnY %in% cCovs]
@@ -344,8 +349,13 @@ samplesFmc <- function(Y, X=NULL, mcsamples, variateinfo, nfsamples=NULL, inorde
     ##
     if(!is.null(X)){
         X <- data.matrix(rbind(X))
-        cnX <- colnames(Y)
-        X <- t((t(X)-locations[cnX])/scales[cnX])
+        cnX <- colnames(X)
+        if(!all(cnX %in% rownames(variateparameters))){
+            warning('*WARNING: some requested predictands missing from variateparameters argument*')
+            warning(paste0('*Discarding: ',paste0(setdiff(cnX,rownames(variateparameters)),collapse=' ')))
+            cnX <- intersect(cnX,rownames(variateparameters))
+        }
+        X <- t((t(X[,cnX,drop=F])-locations[cnX])/scales[cnX])
         rX <- cnX[cnX %in% rCovs]
         if(length(intersect(rX,rY))>0){
             warning('*WARNING: predictor and predictand have real variates in common. Removing from predictor*')
@@ -407,15 +417,16 @@ samplesFmc <- function(Y, X=NULL, mcsamples, variateinfo, nfsamples=NULL, inorde
         rownames(probBi) <- bCovs
         }
     ##
-    if(is.numeric(nfsamples)){
-        fsubsamples <- round(seq(1, nrow(mcsamples), length.out=nfsamples))
-    }else{
-        nfsamples <- nrow(mcsamples)
-        fsubsamples <- seq_len(nfsamples)
+    if(length(fromsamples) == 1){
+        if(inorder){
+            fromsamples <- round(seq(1, nrow(mcsamples), length.out=fromsamples))
+        }else{
+            fromsamples <- sample(1:nrow(mcsamples),fromsamples,replace=(fromsamples>nrow(mcsamples)))
+        }
     }
     ##
     if(!is.null(X)){
-        freqs <- foreach(asample=t(mcsamples[fsubsamples,]), .combine=cbind, .inorder=inorder)%dopar%{
+        freqs <- foreach(asample=t(mcsamples[fromsamples,,drop=F]), .combine=cbind, .inorder=inorder)%dopar%{
             ## pX: rows=clusters, cols=datapoints
             pX <- exp(
                 log(asample[Qi]) +
@@ -471,7 +482,7 @@ samplesFmc <- function(Y, X=NULL, mcsamples, variateinfo, nfsamples=NULL, inorde
             colSums(pX * pY)/colSums(pX)
         }
     }else{
-        freqs <- foreach(asample=t(mcsamples[fsubsamples,]), .combine=cbind, .inorder=inorder)%dopar%{
+        freqs <- foreach(asample=t(mcsamples[fromsamples,,drop=F]), .combine=cbind, .inorder=inorder)%dopar%{
             ## pY: rows=clusters, cols=datapoints
             pY <- exp(
                 log(asample[Qi]) +
@@ -668,12 +679,12 @@ samplesF <- function(Y, X=NULL, parmList, nfsamples=NULL, inorder=FALSE, transfo
 ##
 ## Gives samples of sums of log-frequency distributions of any set of Y conditional on any set of X
 ## uses mcsamples
-logsumsamplesFmc <- function(Y, X=NULL, mcsamples, variateinfo, nfsamples=NULL, inorder=FALSE){
+logsumsamplesFmc <- function(Y, X=NULL, mcsamples, variateparameters, fromsamples=nrow(mcsamples), inorder=FALSE){
     ##
-    rCovs <- rownames(variateinfo)[variateinfo[,'type']==0]
-    iCovs <- rownames(variateinfo)[variateinfo[,'type']==3]
-    cCovs <- rownames(variateinfo)[variateinfo[,'type']==1]
-    bCovs <- rownames(variateinfo)[variateinfo[,'type']==2]
+    rCovs <- rownames(variateparameters)[variateparameters[,'type']==0]
+    iCovs <- rownames(variateparameters)[variateparameters[,'type']==3]
+    cCovs <- rownames(variateparameters)[variateparameters[,'type']==1]
+    bCovs <- rownames(variateparameters)[variateparameters[,'type']==2]
     cNames <- c(rCovs, iCovs, cCovs, bCovs)
     nrcovs <- length(rCovs)
     nicovs <- length(iCovs)
@@ -749,15 +760,16 @@ logsumsamplesFmc <- function(Y, X=NULL, mcsamples, variateinfo, nfsamples=NULL, 
         rownames(probBi) <- bCovs
         }
     ##
-    if(is.numeric(nfsamples)){
-        fsubsamples <- round(seq(1, nrow(mcsamples), length.out=nfsamples))
-    }else{
-        nfsamples <- nrow(mcsamples)
-        fsubsamples <- seq_len(nfsamples)
+    if(length(fromsamples) == 1){
+        if(inorder){
+            fromsamples <- round(seq(1, nrow(mcsamples), length.out=fromsamples))
+        }else{
+            fromsamples <- sample(1:nrow(mcsamples),fromsamples,replace=(fromsamples>nrow(mcsamples)))
+        }
     }
     ##
     if(!is.null(X)){
-        freqs <- foreach(asample=t(mcsamples[fsubsamples,]), .combine=cbind, .inorder=inorder)%dopar%{
+        freqs <- foreach(asample=t(mcsamples[fromsamples,,drop=F]), .combine=cbind, .inorder=inorder)%dopar%{
             ## pX: rows=clusters, cols=datapoints
             pX <- exp(
                 log(asample[Qi]) +
@@ -813,7 +825,7 @@ logsumsamplesFmc <- function(Y, X=NULL, mcsamples, variateinfo, nfsamples=NULL, 
             sum(log(colSums(pX * pY)))-sum(log(colSums(pX)))
         }
     }else{
-        freqs <- foreach(asample=fsubsamples, .combine=cbind, .inorder=inorder)%dopar%{
+        freqs <- foreach(asample=t(mcsamples[fromsamples,,drop=F]), .combine=cbind, .inorder=inorder)%dopar%{
             ## pY: rows=clusters, cols=datapoints
             pY <- exp(
                 log(asample[Qi]) +
@@ -1258,11 +1270,11 @@ samplesVars <- function(Y, X=NULL, parmList, nfsamples=NULL, inorder=FALSE){
 }
 ##
 ## Gives samples of variate values. Uses mcsamples
-samplesXmc <- function(mcsamples, variateinfo, variates=NULL, drawspermcsample=2, fromsamples=nrow(mcsamples), inorder=FALSE, seed=NULL){
-    allvariates <- rownames(variateinfo)
+samplesXmc <- function(mcsamples, variateparameters, variates=NULL, pointspermcsample=2, fromsamples=nrow(mcsamples), inorder=FALSE, seed=NULL){
+    allvariates <- rownames(variateparameters)
     if(!is.null(variates)){
         if(!all(variates %in% allvariates)){
-            warning('*WARNING: some requested variates missing from variateinfo argument*')
+            warning('*WARNING: some requested variates missing from variateparameters argument*')
             warning(paste0('*Discarding: ',paste0(setdiff(variates,allvariates),collapse=' ')))
             variates <- intersect(variates,allvariates)
         }
@@ -1270,43 +1282,43 @@ samplesXmc <- function(mcsamples, variateinfo, variates=NULL, drawspermcsample=2
         variates <- allvariates
     }
     ##
-    rCovs <- variates[variateinfo[variates,'type']==0]
-    iCovs <- variates[variateinfo[variates,'type']==3]
-    cCovs <- variates[variateinfo[variates,'type']==1]
-    bCovs <- variates[variateinfo[variates,'type']==2]
+    rCovs <- variates[variateparameters[variates,'type']==0]
+    iCovs <- variates[variateparameters[variates,'type']==3]
+    cCovs <- variates[variateparameters[variates,'type']==1]
+    bCovs <- variates[variateparameters[variates,'type']==2]
     cNames <- c(rCovs, iCovs, cCovs, bCovs)
     nrcovs <- length(rCovs)
     nicovs <- length(iCovs)
     nccovs <- length(cCovs)
     nbcovs <- length(bCovs)
     ##
-    if(!('location' %in% colnames(variateinfo))){
+    if(!('location' %in% colnames(variateparameters))){
         locations <- integer(length(variates))
         names(locations) <- variates
-    }else{locations <- variateinfo[variates,'location']}
-    if(!('scale' %in% colnames(variateinfo))){
+    }else{locations <- variateparameters[variates,'location']}
+    if(!('scale' %in% colnames(variateparameters))){
         scales <- locations * 0L + 1L
-    }else{scales <- variateinfo[variates,'scale']}
+    }else{scales <- variateparameters[variates,'scale']}
     ##
     Qi <- grep('q',colnames(mcsamples))
     nclusters <- length(Qi)
     sclusters <- seq_len(nclusters)
     if(nrcovs>0){
-        totake <- variateinfo[rCovs,'index']
+        totake <- variateparameters[rCovs,'index']
         meanRi <- t(sapply(paste0('meanR\\[',totake,','),grep,colnames(mcsamples)))
         varRi <- t(sapply(paste0('varR\\[',totake,','),grep,colnames(mcsamples)))
         dim(meanRi) <- dim(varRi) <- c(nrcovs, nclusters)
         rownames(meanRi) <- rownames(varRi) <- rCovs
         }
     if(nicovs>0){
-        totake <- variateinfo[iCovs,'index']
+        totake <- variateparameters[iCovs,'index']
         probIi <- t(sapply(paste0('probI\\[',totake,','),grep,colnames(mcsamples)))
         sizeIi <- t(sapply(paste0('sizeI\\[',totake,','),grep,colnames(mcsamples)))
         dim(probIi) <- dim(sizeIi) <- c(nicovs,nclusters)
         rownames(probIi) <- rownames(sizeIi) <- iCovs
         }
     if(nccovs>0){
-        totake <- variateinfo[cCovs,'index']
+        totake <- variateparameters[cCovs,'index']
         probCi <- t(sapply(paste0('probC\\[',totake,','),grep,colnames(mcsamples)))
         ncategories <- length(probCi)/nccovs/nclusters
         dim(probCi) <- c(nccovs,nclusters,ncategories)
@@ -1314,7 +1326,7 @@ samplesXmc <- function(mcsamples, variateinfo, variates=NULL, drawspermcsample=2
         scategories <- seq_len(ncategories)
         }
     if(nbcovs>0){
-        totake <- variateinfo[bCovs,'index']
+        totake <- variateparameters[bCovs,'index']
         probBi <- t(sapply(paste0('probB\\[',totake,','),grep,colnames(mcsamples)))
         dim(probBi) <- c(nbcovs,nclusters)
         rownames(probBi) <- bCovs
@@ -1332,17 +1344,17 @@ samplesXmc <- function(mcsamples, variateinfo, variates=NULL, drawspermcsample=2
     if(!is.null(seed)){set.seed(seed)}
     XX <- foreach(asample=t(mcsamples[fromsamples,,drop=F]), .combine=cbind, .inorder=inorder)%dorng%{
         asample <- asample[,1]
-        acluster <- sample(x=sclusters, size=drawspermcsample, prob=asample[Qi], replace=TRUE)
+        acluster <- sample(x=sclusters, size=pointspermcsample, prob=asample[Qi], replace=TRUE)
         
         ##
         (if(nrcovs>0){
-             rX <- rnorm(n=drawspermcsample*nrcovs, mean=asample[meanRi[,acluster]], sd=sqrt(asample[varRi[,acluster]]))
-             dim(rX) <- c(nrcovs, drawspermcsample)
+             rX <- rnorm(n=pointspermcsample*nrcovs, mean=asample[meanRi[,acluster]], sd=sqrt(asample[varRi[,acluster]]))
+             dim(rX) <- c(nrcovs, pointspermcsample)
          }else{rX <- NULL})
         ##        
         (if(nicovs>0){
-             iX <- rbinom(n=drawspermcsample*nicovs, prob=asample[probIi[,acluster]], size=asample[sizeIi[,acluster]])
-             dim(iX) <- c(nicovs, drawspermcsample)#, dimnames=list(NULL, iCovs))
+             iX <- rbinom(n=pointspermcsample*nicovs, prob=asample[probIi[,acluster]], size=asample[sizeIi[,acluster]])
+             dim(iX) <- c(nicovs, pointspermcsample)#, dimnames=list(NULL, iCovs))
          }else{iX <- NULL})
         ##        
         (if(nccovs>0){
@@ -1357,14 +1369,13 @@ samplesXmc <- function(mcsamples, variateinfo, variates=NULL, drawspermcsample=2
         },USE.NAMES=F)})
          }else{bX <- NULL})
         ##
-        ## print(dimnames(rbind(rX, iX, cX, bX)))
-        flag <- rbind(rX, iX, cX, bX)[order(match(cNames,variates)),,drop=F]
-        ## print(dimnames(flag))
-        flag
+        rbind(rX, iX, cX, bX)[order(match(cNames,variates)),,drop=F]
     }
     attr(XX, 'rng') <- attr(XX, 'doRNG_version') <- NULL
+    dim(XX) <- c(length(variates), pointspermcsample, length(fromsamples))
     rownames(XX) <- variates
-    t(XX*scales+locations)
+    ## rows: mcsamples, cols: samples from one mcsample, 3rd dim: variates
+    aperm(XX*scales+locations)
 }
 ##
 ## Gives samples of variate values

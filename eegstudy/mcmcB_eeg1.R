@@ -1,12 +1,12 @@
 ## Author: PGL  Porta Mana
 ## Created: 2022-09-08T17:03:24+0200
-## Last-Updated: 2022-10-27T15:11:14+0200
+## Last-Updated: 2022-10-27T23:56:53+0200
 ################
 ## Exchangeable-probability calculation (non-parametric density regression)
 ################
 
 #### USER INPUTS AND CHOICES ####
-baseversion <- '_newmcmc4096terB' # *** ## Base name of output directory
+baseversion <- '_testfun' # *** ## Base name of output directory
 datafile <- 'data_ep.csv' #***
 mainvar <- c(
 ##     "age",
@@ -706,12 +706,12 @@ while(continue){
                                      X=do.call(cbind,dat)[, setdiff(varNames, mainvar),
                                                           drop=F],
                                      mcsamples=newmcsamples,
-                                     variateinfo=variateparameters, inorder=T))
+                                     variateparameters=variateparameters, inorder=T))
         condprobsi <- c(logsumsamplesFmc(Y=do.call(cbind,dat)[, setdiff(varNames, mainvar),
                                                           drop=F],
                                      X=do.call(cbind,dat)[, mainvar, drop=F],
                                      mcsamples=newmcsamples,
-                                     variateinfo=variateparameters, inorder=T))
+                                     variateparameters=variateparameters, inorder=T))
         ##
         traces <- rbind(traces,
                         10/log(10)/ndata *
@@ -846,6 +846,7 @@ dev.off()
         if(plotmeans){nfsamples <- totsamples
         }else if(!posterior){nfsamples <- 256
         }else{nfsamples <- 63}
+        nfsamples <- min(nfsamples, nrow(mcsamples))
         subsample <- round(seq(1,nfsamples, length.out=63))
         ##
         cat('\nPlotting samples of frequency distributions')
@@ -865,7 +866,7 @@ dev.off()
                 Xgrid <- cbind(rg[1]:rg[2])
             }
             colnames(Xgrid) <- avar
-            plotsamples <- samplesFmc(Y=Xgrid, mcsamples=mcsamples, nfsamples=min(nfsamples,nrow(mcsamples)), inorder=FALSE, variateinfo=variateparameters)
+            plotsamples <- samplesFmc(Y=Xgrid, mcsamples=mcsamples, fromsamples=round(seq(1,nrow(mcsamples),length.out=nfsamples)), inorder=FALSE, variateparameters=variateparameters)
             fiven <- variateparameters[avar,c('datamin','dataQ1','datamedian','dataQ2','datamax')]
             ##
             if(posterior){
