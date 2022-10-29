@@ -239,6 +239,144 @@ llSamplesmc <- function(dat, mcsamples){
         ) ) )
     }
 }
+##
+## Calculate the distribution of means and variances
+samplesMVmc <- function(Ynames=NULL, X=NULL, mcsamples, variateparameters, fromsamples=nrow(mcsamples), inorder=FALSE){
+    allvariates <- rownames(variateparameters)
+    if(!is.null(X)){
+        X <- data.matrix(rbind(X))
+    }
+    Xnames <- colnames(X)
+    if(is.null(Ynames)){
+        Ynames <- allvariates
+    }
+    if(!all(Ynames %in% allvariates)){
+        warning('*Some requested variates missing from variateparameters argument*')
+        warning(paste0('*Discarding: ',paste0(setdiff(Ynames,allvariates),collapse=' ')))
+        Ynames <- intersect(Ynames,allvariates)
+    }
+    if(!all(Xnames %in% allvariates)){
+        warning('*Some conditional variates missing from variateparameters argument*')
+        warning(paste0('*Discarding: ',paste0(setdiff(Xnames,allvariates),collapse=' ')))
+        Xnames <- intersect(Xnames,allvariates)
+        X <- X[,Xnames]
+    }
+    if(length(intersect(Ynames,Xnames))>0){
+        warning('*Predictor and predictand have variates in common.*')
+        warning(paste0('*Discarding: ',paste0(intersect(Ynames,Xnames),collapse=' '),' from predictor'))
+        Xnames <- setdiff(Xnames,Ynames)
+    }
+    if(length(Xnames)==0){
+        X <- Xnames <- NULL
+    }
+    variateparameters <- variateparameters[c(Ynames,Xnames),]
+    ##
+    rCovs <- Ynames[variateparameters[,'type']==0]
+    iCovs <- Ynames[variateparameters[,'type']==3]
+    cCovs <- Ynames[variateparameters[,'type']==1]
+    bCovs <- Ynames[variateparameters[,'type']==2]
+    cNames <- c(rCovs, iCovs, cCovs, bCovs)
+    nrcovs <- length(rCovs)
+    nicovs <- length(iCovs)
+    nccovs <- length(cCovs)
+    nbcovs <- length(bCovs)
+    ##
+    if(!('location' %in% colnames(variateparameters))){
+        locations <- integer(length(Ynames))
+        names(locations) <- Ynames
+    }else{locations <- variateparameters[,'location']}
+    if(!('scale' %in% colnames(variateparameters))){
+        scales <- locations * 0L + 1L
+    }else{scales <- variateparameters[,'scale']}
+    ##
+    Qi <- grep('q',colnames(mcsamples))
+    nclusters <- length(Qi)
+    sclusters <- seq_len(nclusters)
+    if(nrcovs>0){
+        totake <- variateparameters[rCovs,'index']
+        meanRi <- t(sapply(paste0('meanR\\[',totake,','),grep,colnames(mcsamples)))
+        varRi <- t(sapply(paste0('varR\\[',totake,','),grep,colnames(mcsamples)))
+        ## dim(meanRi) <- dim(varRi) <- c(nrcovs, nclusters)
+        ## rownames(meanRi) <- rownames(varRi) <- rCovs
+        }
+    if(nicovs>0){
+        totake <- variateparameters[iCovs,'index']
+        probIi <- t(sapply(paste0('probI\\[',totake,','),grep,colnames(mcsamples)))
+        sizeIi <- t(sapply(paste0('sizeI\\[',totake,','),grep,colnames(mcsamples)))
+        dim(probIi) <- dim(sizeIi) <- c(nicovs,nclusters)
+        rownames(probIi) <- rownames(sizeIi) <- iCovs
+        }
+    if(nccovs>0){
+        totake <- variateparameters[cCovs,'index']
+        probCi <- t(sapply(paste0('probC\\[',totake,','),grep,colnames(mcsamples)))
+        ncategories <- length(probCi)/nccovs/nclusters
+        ## dim(probCi) <- c(nccovs,nclusters,ncategories)
+        ## dimnames(probCi) <- list(cCovs, NULL, NULL)
+        scategories <- seq_len(ncategories)
+        }
+    if(nbcovs>0){
+        totake <- variateparameters[bCovs,'index']
+        probBi <- t(sapply(paste0('probB\\[',totake,','),grep,colnames(mcsamples)))
+        ## dim(probBi) <- c(nbcovs,nclusters)
+        ## rownames(probBi) <- bCovs
+        ## sbins <- 0:1
+        }
+    ##
+    if(length(fromsamples) == 1){
+        if(inorder){
+            fromsamples <- round(seq(1, nrow(mcsamples), length.out=fromsamples))
+        }else{
+            fromsamples <- sample(1:nrow(mcsamples),fromsamples,replace=(fromsamples>nrow(mcsamples)))
+        }
+    }
+    nsamples <- length(fromsamples)
+    mcsamples <- mcsamples[fromsamples,,drop=F]
+    q <- c(t(mcsamples[,Qi,drop=F]))
+    ##
+    if(nrcovs>0){
+        ## out <- array(mcsamples[,meanRi], dim=c(nsamples,nrcovs,nclusters))
+        ## rM <- colSums(q*aperm(out))
+        ## rV <- colSums(q * aperm(array(mcsamples[,varRi],
+        ##                            dim=c(nsamples,nrcovs,nclusters)) +
+        ##                    out*out + c(t(rM))*(c(t(rM)) - 2*out)))
+        ##
+        out <- aperm(array(mcsamples[,meanRi], dim=c(nsamples,nrcovs,nclusters)))
+        rM <- colSums(q*out)
+        rV <- colSums(q * (aperm(array(mcsamples[,varRi],
+                                       dim=c(nsamples,nrcovs,nclusters))) +
+                           out*out)) - rM*rM
+        ##
+        ## out <- aperm(array(mcsamples[,meanRi], dim=c(nsamples,nrcovs,nclusters)))
+        ## rM <- colSums(q*out)
+        ## rV <- colSums(q * aperm(array(mcsamples[,varRi],
+        ##                                dim=c(nsamples,nrcovs,nclusters)))) +
+        ##                    colSums(q*aperm(aperm(out*out) - c(t(rM*rM))))
+    }else{rM <- rV <- NULL}
+    ##
+    if(nicovs>0){
+        out <- aperm(array(mcsamples[,probIi]*mcsamples[,sizeIi], dim=c(nsamples,nicovs,nclusters)))
+        iM <- colSums(q*out)
+        iV <- colSums(q*out*
+                      (out - aperm(array(mcsamples[,probIi], dim=c(nsamples,nicovs,nclusters))) + 1)) - rM*rM
+    }else{iM <- iV <- NULL}
+    ##
+    if(nccovs>0){
+        out <- aperm(array(mcsamples[,probCi], dim=c(nsamples,nccovs,nclusters,ncategories)))*scategories
+        cM <- colSums(q*colSums(out))
+        cV <- colSums(q*colSums(out*scategories))
+    }else{cM <- cV <- NULL}
+    if(exists('out')){rm(out)}
+    ##
+    if(nbcovs>0){
+        bM <- colSums(q*
+                      aperm(array(mcsamples[,probBi], dim=c(nsamples,nbcovs,nclusters))))
+        bV <- bM*(1-bM)
+    }else{bM <- bV <- NULL}
+    aperm(array(rbind(rM,iM,cM,bM,rV,iV,cV,bV),
+                dim=c(length(Ynames), 2, nsamples),
+                dimnames=list(cNames,c('mean','var'),NULL))[order(match(cNames,Ynames)),,,drop=F] * c(scales,scales*scales)+c(locations,locations*0L))
+}
+
 ## tottime <- Sys.time()
 ## for(i in 1:1e6){extraDistr::dbern(x=testx, prob=testp, log=TRUE)}
 ## Sys.time()-tottime
