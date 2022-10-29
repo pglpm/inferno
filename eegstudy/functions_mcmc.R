@@ -360,8 +360,8 @@ samplesMVmc <- function(Ynames=NULL, X=NULL, mcsamples, variateparameters, froms
         XprobCi <- t(sapply(paste0('probC\\[',totake,','),grep,colnames(mcsamples)))
         if(!exists('ncategories')){
             ncategories <- length(XprobCi)/ncX/nclusters
-            ## dim(probCi) <- c(nccovs,nclusters,ncategories)
-            ## dimnames(probCi) <- list(cCovs, NULL, NULL)
+            dim(XprobCi) <- c(ncX,nclusters,ncategories)
+            dimnames(XprobCi) <- list(cX, NULL, NULL)
             scategories <- seq_len(ncategories)
         }
     }
@@ -413,7 +413,6 @@ samplesMVmc <- function(Ynames=NULL, X=NULL, mcsamples, variateparameters, froms
                          }else{0})
                 }, numeric(ndata)))
             ))
-            
         pX <- t(pX/rowSums(pX)) # rows=clusters, cols=datapoints
     }else{
         pX <- q
@@ -454,10 +453,10 @@ samplesMVmc <- function(Ynames=NULL, X=NULL, mcsamples, variateparameters, froms
         })) # Y, moments, samples
     }else{bM <- NULL}
     if(exists('out2')){rm(out2)}
-    ##    
+    ##
     array(rbind(rM,iM,cM,bM),
-                dim=c(length(Ynames), 2, nsamples),
-                dimnames=list(cNamesY,c('mean','var'),NULL))[order(match(cNamesY,Ynames)),,,drop=F] * c(scales,scales*scales)+c(locations,locations*0L)
+                dim=c(length(cNamesY), 2, ndata),
+                dimnames=list(cNamesY,c('mean','var'),NULL))[order(match(cNamesY,Ynames)),,,drop=F] * c(scales[Ynames],scales[Ynames]*scales[Ynames])+c(locations[Ynames],locations[Ynames]*0L)
 }
 
 ## tottime <- Sys.time()
