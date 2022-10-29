@@ -312,7 +312,7 @@ samplesMVmc <- function(Ynames=NULL, X=NULL, mcsamples, variateparameters, froms
     }else{scales <- variateparameters[,'scale']}
     ##
     if(!is.null(X)){
-        X <- t((t(X)-locations[Xnames])/scales[Xnames])
+        X <- (t(X)-locations[Xnames])/scales[Xnames]
     }
     ##
     Qi <- grep('q',colnames(mcsamples))
@@ -320,24 +320,26 @@ samplesMVmc <- function(Ynames=NULL, X=NULL, mcsamples, variateparameters, froms
     sclusters <- seq_len(nclusters)
     if(nrY>0){
         totake <- variateparameters[rY,'index']
-        YmeanRi <- t(sapply(paste0('meanR\\[',totake,','),grep,colnames(mcsamples)))
-        YvarRi <- t(sapply(paste0('varR\\[',totake,','),grep,colnames(mcsamples)))
-        ## dim(meanRi) <- dim(varRi) <- c(nrcovs, nclusters)
-        ## rownames(meanRi) <- rownames(varRi) <- rCovs
+        YmeanRi <- sapply(paste0('meanR\\[',totake,','),grep,colnames(mcsamples))
+        YvarRi <- sapply(paste0('varR\\[',totake,','),grep,colnames(mcsamples))
+        dim(YmeanRi) <- dim(YvarRi) <- c(nclusters,nrY)
+        colnames(YmeanRi) <- colnames(YvarRi) <- rY
     }
     if(niY>0){
         totake <- variateparameters[iY,'index']
-        YprobIi <- t(sapply(paste0('probI\\[',totake,','),grep,colnames(mcsamples)))
-        YsizeIi <- t(sapply(paste0('sizeI\\[',totake,','),grep,colnames(mcsamples)))
-        dim(YprobIi) <- dim(YsizeIi) <- c(niY,nclusters)
-        rownames(YprobIi) <- rownames(YsizeIi) <- iY
+        YprobIi <- sapply(paste0('probI\\[',totake,','),grep,colnames(mcsamples))
+        YsizeIi <- sapply(paste0('sizeI\\[',totake,','),grep,colnames(mcsamples))
+        dim(YprobIi) <- dim(YsizeIi) <- c(nclusters,niY)
+        colnames(YprobIi) <- colnames(YsizeIi) <- iY
     }
     if(ncY>0){
         totake <- variateparameters[cY,'index']
         YprobCi <- t(sapply(paste0('probC\\[',totake,','),grep,colnames(mcsamples)))
         ncategories <- length(YprobCi)/ncY/nclusters
-        ## dim(probCi) <- c(nccovs,nclusters,ncategories)
-        ## dimnames(probCi) <- list(cCovs, NULL, NULL)
+        dim(YprobCi) <- c(ncY,nclusters,ncategories)
+        YprobCi <- aperm(YprobCi)
+        dim(YprobCi) <- c(ncategories*nclusters,ncY)
+        colnames(YprobCi) <- cY
         scategories <- seq_len(ncategories)
     }
     if(nbY>0){
@@ -387,83 +389,74 @@ samplesMVmc <- function(Ynames=NULL, X=NULL, mcsamples, variateparameters, froms
             fromsamples <- sample(1:nrow(mcsamples),fromsamples,replace=(fromsamples>nrow(mcsamples)))
         }
     }
+    mcsamples <- t(mcsamples[fromsamples,,drop=F])
     nsamples <- length(fromsamples)
-    mcsamples <- mcsamples[fromsamples,,drop=F]
-    q <- c(t(mcsamples[,Qi,drop=F]))
+    ndata <- max(ncol(X),nsamples)
+    q <- c(mcsamples[Qi,]) # rows=clusters
     ##
     if(!is.null(X)){
-            ## pX: rows=clusters, cols=datapoints
-            pX <- exp(
-                log(q) +
-                t(rbind(vapply(sclusters, function(acluster){#cols=clusters
+            ## pX: cols=clusters, rows=datapoints
+            pX <- t(exp(
+                log(q) + t(#rows=clusters
+                vapply(sclusters, function(acluster){#cols=clusters
                     ## real covariates (rows)
-                    (if(length(rX)>0){
-                        colSums(dnorm(x=t(X[,rX,drop=F]), mean=t(mcsamples[,XmeanRi[,acluster],drop=F]), sd=sqrt(t(mcsamples[,XvarRi[,acluster],drop=F])), log=TRUE), na.rm=TRUE)
+                    (if(nrX>0){
+                        colSums(dnorm(x=X[rX,,drop=F], mean=mcsamples[XmeanRi[,acluster],,drop=F], sd=sqrt(mcsamples[XvarRi[,acluster],,drop=F]), log=TRUE), na.rm=TRUE)
                     }else{0}) +
                         ## integer covariates (rows)
-                        (if(length(iX)>0){
-                            colSums(dbinom(x=t(X[,iX,drop=FALSE]), prob=t(mcsamples[,XprobIi[,acluster],drop=F]), size=t(mcsamples[,XsizeIi[,acluster],drop=F]), log=TRUE), na.rm=TRUE)
+                        (if(niX>0){
+                            colSums(dbinom(x=X[iX,,drop=FALSE], prob=mcsamples[XprobIi[,acluster],,drop=F], size=mcsamples[XsizeIi[,acluster],,drop=F], log=TRUE), na.rm=TRUE)
                         }else{0}) +
                         ## category variates (cols)
-                        (if(length(cX)>0){
+                        (if(ncX>0){
                              rowSums(sapply(cX,function(acov){
-                                 extraDistr::dcat(x=X[,cX], prob=mcsamples[,XprobCi[acov,acluster,],drop=F], log=TRUE)}), na.rm=TRUE)
+                                 extraDistr::dcat(x=X[acov,], prob=t(mcsamples[XprobCi[acov,acluster,],,drop=F]), log=TRUE)}), na.rm=TRUE)
                             }else{0}) +
                         ## binary covariates (rows)
-                        (if(length(bX)>0){
-                             colSums(
-                                 t(mcsamples[,XprobBi[,acluster],drop=F])*
-                                 c(t(X[,bX,drop=F])) +
-                                 t(1-mcsamples[,XprobBi[,acluster],drop=F])*
-                                 c(t(1-X[,bX,drop=F]))
-                             ,na.rm=TRUE)
-                        }else{0})
-                }, numeric(ndata))))
-            )
+                        (if(nbX>0){
+                             colSums(matrix(log(
+                                 c(mcsamples[XprobBi[,acluster],]) * c(X[bX,]) +
+                                 c(1-mcsamples[XprobBi[,acluster],])* c(1-X[bX,])
+                             ), nrow=nbX),
+                             na.rm=TRUE)
+                         }else{0})
+                }, numeric(ndata)))
+            ))
+            
+        pX <- c(t(pX/rowSums(pX))) # rows=clusters, cols=datapoints
     }else{
         pX <- q
     }
     ## pY: rows=clusters, cols=datapoints
-
-
-
-
+    mcsamples <- t(mcsamples)
     ##
-    if(nrcovs>0){
-        ## out <- array(mcsamples[,meanRi], dim=c(nsamples,nrcovs,nclusters))
-        ## rM <- colSums(q*aperm(out))
-        ## rV <- colSums(q * aperm(array(mcsamples[,varRi],
-        ##                            dim=c(nsamples,nrcovs,nclusters)) +
-        ##                    out*out + c(t(rM))*(c(t(rM)) - 2*out)))
-        ##
-        out <- aperm(array(mcsamples[,meanRi], dim=c(nsamples,nrcovs,nclusters)))
-        rM <- colSums(q*out)
-        rV <- colSums(q * (aperm(array(mcsamples[,varRi],
-                                       dim=c(nsamples,nrcovs,nclusters))) +
-                           out*out)) - rM*rM
-        ##
-        ## out <- aperm(array(mcsamples[,meanRi], dim=c(nsamples,nrcovs,nclusters)))
-        ## rM <- colSums(q*out)
-        ## rV <- colSums(q * aperm(array(mcsamples[,varRi],
-        ##                                dim=c(nsamples,nrcovs,nclusters)))) +
-        ##                    colSums(q*aperm(aperm(out*out) - c(t(rM*rM))))
-    }else{rM <- rV <- NULL}
+    if(nrY>0){
+        rM <- sapply(rY, function(acov){
+            out <- mcsamples[YmeanRi[,acov],]
+            rbind(out2 <- colSums(pX*out),
+              colSums(pX * (mcsamples[YvarRi[,acov],] + out*out)) -out2*out2)
+        }, simplify='array') # moments, samples, Y
+    }else{rM <- NULL}
     ##
-    if(nicovs>0){
-        out <- aperm(array(mcsamples[,probIi]*mcsamples[,sizeIi], dim=c(nsamples,nicovs,nclusters)))
-        iM <- colSums(q*out)
-        iV <- colSums(q*out*
-                      (out - aperm(array(mcsamples[,probIi], dim=c(nsamples,nicovs,nclusters))) + 1)) - rM*rM
-    }else{iM <- iV <- NULL}
+    if(niY>0){
+        iM <- sapply(iY, function(acov){
+            out <- mcsamples[YprobIi[,acov],]*mcsamples[YsizeIi[acov,],]
+            rbind(out2 <- colSums(pX*out),
+                  colSums(pX*out*
+                          (out-mcsamples[YprobIi[,acov],]+1)) -out2*out2)
+        }, simplify='array') # moments, samples, Y
+    }else{iM <- NULL}
     ##
-    if(nccovs>0){
-        out <- aperm(array(mcsamples[,probCi], dim=c(nsamples,nccovs,nclusters,ncategories)))*scategories
-        cM <- colSums(q*colSums(out))
-        cV <- colSums(q*colSums(out*scategories))
-    }else{cM <- cV <- NULL}
+    if(ncY>0){
+        cM <- sapply(cY, function(acov){
+            out <- matrix(mcsamples[YprobCi[,acov],],nrow=ncategories)*scategories
+            rbind(colSums(pX*colSums(out)),
+                  colSums(pX*colSums(out*scategories)))
+        }, simplify='array') # moments, samples, Y
+    }else{cM <- NULL}
     if(exists('out')){rm(out)}
     ##
-    if(nbcovs>0){
+    if(nbY>0){
         bM <- colSums(q*
                       aperm(array(mcsamples[,probBi], dim=c(nsamples,nbcovs,nclusters))))
         bV <- bM*(1-bM)
