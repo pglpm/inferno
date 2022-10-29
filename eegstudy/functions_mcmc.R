@@ -287,21 +287,12 @@ samplesMVmc <- function(Ynames=NULL, X=NULL, mcsamples, variateparameters, froms
     iX <- Xnames[variateparameters[Xnames,'type']==3]
     cX <- Xnames[variateparameters[Xnames,'type']==1]
     bX <- Xnames[variateparameters[Xnames,'type']==2]
-    cNamesX <- c(rX, iX, cX, bX)
+    ## cNamesX <- c(rX, iX, cX, bX)
     nrX <- length(rX)
     niX <- length(iX)
     ncX <- length(cX)
     nbX <- length(bX)
     ##
-    ## rCovs <- YXnames[variateparameters[,'type']==0]
-    ## iCovs <- YXnames[variateparameters[,'type']==3]
-    ## cCovs <- YXnames[variateparameters[,'type']==1]
-    ## bCovs <- YXnames[variateparameters[,'type']==2]
-    ## cNames <- c(rCovs, iCovs, cCovs, bCovs)
-    ## nrcovs <- length(rCovs)
-    ## nicovs <- length(iCovs)
-    ## nccovs <- length(cCovs)
-    ## nbcovs <- length(bCovs)
     ##
     if(!('location' %in% colnames(variateparameters))){
         locations <- integer(length(YXnames))
@@ -344,9 +335,9 @@ samplesMVmc <- function(Ynames=NULL, X=NULL, mcsamples, variateparameters, froms
     }
     if(nbY>0){
         totake <- variateparameters[bY,'index']
-        YprobBi <- t(sapply(paste0('probB\\[',totake,','),grep,colnames(mcsamples)))
-        ## dim(probBi) <- c(nbcovs,nclusters)
-        ## rownames(probBi) <- bCovs
+        YprobBi <- sapply(paste0('probB\\[',totake,','),grep,colnames(mcsamples))
+        dim(YprobBi) <- c(nclusters,nbY)
+        colnames(YprobBi) <- bY
         ## sbins <- 0:1
     }
     ##
@@ -392,7 +383,7 @@ samplesMVmc <- function(Ynames=NULL, X=NULL, mcsamples, variateparameters, froms
     mcsamples <- t(mcsamples[fromsamples,,drop=F])
     nsamples <- length(fromsamples)
     ndata <- max(ncol(X),nsamples)
-    q <- c(mcsamples[Qi,]) # rows=clusters
+    q <- mcsamples[Qi,] # rows=clusters
     ##
     if(!is.null(X)){
             ## pX: cols=clusters, rows=datapoints
@@ -423,47 +414,50 @@ samplesMVmc <- function(Ynames=NULL, X=NULL, mcsamples, variateparameters, froms
                 }, numeric(ndata)))
             ))
             
-        pX <- c(t(pX/rowSums(pX))) # rows=clusters, cols=datapoints
+        pX <- t(pX/rowSums(pX)) # rows=clusters, cols=datapoints
     }else{
         pX <- q
     }
-    ## pY: rows=clusters, cols=datapoints
-    mcsamples <- t(mcsamples)
+    ## 
+    ## mcsamples <- t(mcsamples)
     ##
     if(nrY>0){
-        rM <- sapply(rY, function(acov){
+        rM <- t(sapply(rY, function(acov){
             out <- mcsamples[YmeanRi[,acov],]
             rbind(out2 <- colSums(pX*out),
               colSums(pX * (mcsamples[YvarRi[,acov],] + out*out)) -out2*out2)
-        }, simplify='array') # moments, samples, Y
+        })) # Y, moments, samples
     }else{rM <- NULL}
     ##
     if(niY>0){
-        iM <- sapply(iY, function(acov){
+        iM <- t(sapply(iY, function(acov){
             out <- mcsamples[YprobIi[,acov],]*mcsamples[YsizeIi[acov,],]
             rbind(out2 <- colSums(pX*out),
                   colSums(pX*out*
                           (out-mcsamples[YprobIi[,acov],]+1)) -out2*out2)
-        }, simplify='array') # moments, samples, Y
+        })) # Y, moments, samples
     }else{iM <- NULL}
     ##
     if(ncY>0){
-        cM <- sapply(cY, function(acov){
+        cM <- t(sapply(cY, function(acov){
             out <- matrix(mcsamples[YprobCi[,acov],],nrow=ncategories)*scategories
             rbind(colSums(pX*colSums(out)),
                   colSums(pX*colSums(out*scategories)))
-        }, simplify='array') # moments, samples, Y
+        })) # Y, moments, samples
     }else{cM <- NULL}
     if(exists('out')){rm(out)}
     ##
     if(nbY>0){
-        bM <- colSums(q*
-                      aperm(array(mcsamples[,probBi], dim=c(nsamples,nbcovs,nclusters))))
-        bV <- bM*(1-bM)
-    }else{bM <- bV <- NULL}
-    aperm(array(rbind(rM,iM,cM,bM,rV,iV,cV,bV),
+        bM <- t(sapply(bY, function(acov){
+            rbind(out2 <- colSums(pX*mcsamples[YprobBi[,acov],]),
+                  out2*(1-out2))
+        })) # Y, moments, samples
+    }else{bM <- NULL}
+    if(exists('out2')){rm(out2)}
+    ##    
+    array(rbind(rM,iM,cM,bM),
                 dim=c(length(Ynames), 2, nsamples),
-                dimnames=list(cNames,c('mean','var'),NULL))[order(match(cNames,Ynames)),,,drop=F] * c(scales,scales*scales)+c(locations,locations*0L))
+                dimnames=list(cNamesY,c('mean','var'),NULL))[order(match(cNamesY,Ynames)),,,drop=F] * c(scales,scales*scales)+c(locations,locations*0L)
 }
 
 ## tottime <- Sys.time()
