@@ -458,7 +458,7 @@ samplesMVmc <- function(Ynames=NULL, X=NULL, mcsamples, variateparameters, froms
                 dim=c(length(cNamesY), 2, ndata),
                 dimnames=list(cNamesY,c('mean','var'),NULL))[order(match(cNamesY,Ynames)),,,drop=F] * c(scales[Ynames],scales[Ynames]*scales[Ynames])+c(locations[Ynames],locations[Ynames]*0L)
 }
-
+##
 ## tottime <- Sys.time()
 ## for(i in 1:1e6){extraDistr::dbern(x=testx, prob=testp, log=TRUE)}
 ## Sys.time()-tottime
