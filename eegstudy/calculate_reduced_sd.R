@@ -1,10 +1,10 @@
-
+gc()
 Ynames <- 'PRM_cor_delayed'
-Xnames <- setdiff(varNames, mainvar)
+## Xnames <- setdiff(varNames, mainvar)
 ## Xnames <- c( "DMN_T_CPL", "DMN_T_CC")
-##Xnames <- c(realVars[1:2],categoryVars[1:2],binaryVars[1:2])
+Xnames <- setdiff(varNames, c(mainvar,"DMN_T_CPL", "DMN_T_CC"))
 nXsamples <- 1024L*8L
-nmcsubsamples <- 128L
+nmcsubsamples <- 1024L
 set.seed(321)
 subsamples <- sample(1:nrow(mcsamples), nmcsubsamples, replace=F)
 ##
@@ -110,8 +110,8 @@ scales <- variateparameters[,'scale']
     ## Go through the selected MC samples
 ##graphics.off()
 ##pdff('testsdreduction')
-allmoments <- sapply(subsamples,function(asample){
-        amcsample <- mcsamples[asample,]
+allmoments <- bind_as_dim(foreach(amcsample=t(mcsamples[subsamples,]))%dorng%{
+        amcsample <- c(amcsample)
         aq <- amcsample[Qi]
         ##
         if(nrY>0){
@@ -219,12 +219,13 @@ allmoments <- sapply(subsamples,function(asample){
               )[order(match(ordYnames,Ynames)),,,drop=F] *
             c(scales[Ynames],scales[Ynames]*scales[Ynames]) +
             c(locations[Ynames],locations[Ynames]*0L)
-}, simplify='array')
+}, -1)
 ## END sampling
 
 graphics.off()
-## pdff(paste0('sdreduction-',Ynames,'--using-',paste0(Xnames,collapse='-')))
-pdff(paste0('sdreduction-',Ynames,'--using-allgraph'))
+## pdff(paste0('sdreduction-',Ynames,'--using-DMN_T'))
+## pdff(paste0('sdreduction-',Ynames,'--using-allgraph'))
+pdff(paste0('sdreduction-',Ynames,'--using-allgraph_minus_DMN_T'))
 allredu <- numeric(nmcsubsamples)
 for(i in 1:nmcsubsamples){
     origsdy <- sqrt(allmoments[1,2,1,i])
