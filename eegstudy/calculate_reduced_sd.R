@@ -1,12 +1,13 @@
 
-    
 Ynames <- 'PRM_cor_delayed'
 Xnames <- setdiff(varNames, mainvar)
+## Xnames <- c( "DMN_T_CPL", "DMN_T_CC")
 ##Xnames <- c(realVars[1:2],categoryVars[1:2],binaryVars[1:2])
-nXsamples <- 1024L*4L
-nmcsubsamples <- 7L
-
-
+nXsamples <- 1024L*8L
+nmcsubsamples <- 128L
+set.seed(321)
+subsamples <- sample(1:nrow(mcsamples), nmcsubsamples, replace=F)
+##
 allvariates <- rownames(variateparameters)
 locations <- variateparameters[,'location']
 scales <- variateparameters[,'scale']
@@ -105,11 +106,11 @@ scales <- variateparameters[,'scale']
                                 grep,colnames(mcsamples))),
                          dim=c(nbX,nclusters), dimnames=list(bX,NULL))
     }
-
 ##
     ## Go through the selected MC samples
-    subsamples <- sample(1:nrow(mcsamples), nmcsubsamples, replace=F)
-    for(asample in subsamples){
+##graphics.off()
+##pdff('testsdreduction')
+allmoments <- sapply(subsamples,function(asample){
         amcsample <- mcsamples[asample,]
         aq <- amcsample[Qi]
         ##
@@ -212,62 +213,43 @@ scales <- variateparameters[,'scale']
         }else{bM <- NULL}
         if(exists('out')){rm(out)}
         ##
-        moments <- array(rbind(rM,iM,cM,bM),
+        array(rbind(rM,iM,cM,bM),
               dim=c(length(ordYnames), 2, nXsamples+1),
               dimnames=list(ordYnames,c('mean','var'),NULL)
               )[order(match(ordYnames,Ynames)),,,drop=F] *
             c(scales[Ynames],scales[Ynames]*scales[Ynames]) +
             c(locations[Ynames],locations[Ynames]*0L)
+}, simplify='array')
+## END sampling
 
-        newsdy <- sqrt(moments[1,2,-1])
-        sdhisto <- thist(newsdy,n=-IQR(newsdy)/8)
-tplot(x=sdhisto$mids,y=sdhisto$density,xlim=sqrt(moments[,2,1])+c(-1,0.25)*abs(sqrt(moments[,2,1])-min(newsdy)),xlab=paste0('SD of ',Ynames),ylab='probability');abline(v=sqrt(moments[,2,1]),lwd=3,lty=2,col=redpurple);text(sqrt(moments[,2,1]),max(sdhisto$density)/2,'without\nknowledge\nof graph data',col=redpurple,pos=4)
+graphics.off()
+## pdff(paste0('sdreduction-',Ynames,'--using-',paste0(Xnames,collapse='-')))
+pdff(paste0('sdreduction-',Ynames,'--using-allgraph'))
+allredu <- numeric(nmcsubsamples)
+for(i in 1:nmcsubsamples){
+    origsdy <- sqrt(allmoments[1,2,1,i])
+    newsdy <- sqrt(allmoments[1,2,-1,i])
+##    sdhisto <- thist(newsdy,n=-abs(origsdy-quant(newsdy,1/8))/4)
+##    sdhisto <- thist(newsdy,n=-abs(diff(quant(newsdy,c(0.1,0.9))))/10)
+    sdhisto <- thist(newsdy,n=-0.5)
+    rg <- range(c(quant(newsdy,c(0.1,0.9)),origsdy))
+    redu <- round(median(newsdy/origsdy-1)*100)
+    allredu[i] <- redu
+    if(i<17){
+    tplot(x=sdhisto$mids,y=sdhisto$density,
+          xlim=rg,ylim=c(0,NA),
+          xlab=paste0('SD of ',Ynames),
+          ylab='probability',
+          lty=1,lwd=2,alpha=0,col=7,
+          main=paste0('median change: ',redu,'%'))
+    abline(v=origsdy,lwd=3,lty=2,col=redpurple)
+    text(origsdy,max(sdhisto$density)/2,'without\nknowledge\nof graph data',col=redpurple,pos=2)
     }
-
-        
-    ##
-    if(length(fromsamples) == 1){
-        if(inorder){
-            fromsamples <- round(seq(1, nrow(mcsamples), length.out=fromsamples))
-        }else{
-            fromsamples <- sample(1:nrow(mcsamples),fromsamples,replace=(fromsamples>nrow(mcsamples)))
-        }
-    }
-    ##
-    if(!is.null(seed)){set.seed(seed)}
-    XX <- foreach(asample=t(mcsamples[fromsamples,,drop=F]), .combine=cbind, .inorder=inorder)%dorng%{
-        asample <- asample[,1]
-        acluster <- sample(x=sclusters, size=pointspermcsample, prob=asample[Qi], replace=TRUE)
-        
-        ##
-        (if(nrcovs>0){
-             rX <- rnorm(n=pointspermcsample*nrcovs, mean=asample[meanRi[,acluster]], sd=sqrt(asample[varRi[,acluster]]))
-             dim(rX) <- c(nrcovs, pointspermcsample)
-         }else{rX <- NULL})
-        ##        
-        (if(nicovs>0){
-             iX <- rbinom(n=pointspermcsample*nicovs, prob=asample[probIi[,acluster]], size=asample[sizeIi[,acluster]])
-             dim(iX) <- c(nicovs, pointspermcsample)#, dimnames=list(NULL, iCovs))
-         }else{iX <- NULL})
-        ##        
-        (if(nccovs>0){
-             cX <- sapply(acluster, function(clus){sapply(cCovs,function(acov){
-                 sample(x=scategories, size=1, prob=asample[probCi[acov,clus,]])
-             },USE.NAMES=F)})
-         }else{cX <- NULL})
-        ##
-        (if(nbcovs>0){
-        bX <- sapply(acluster, function(clus){sapply(bCovs,function(acov){
-            sample(x=sbins, size=1, prob=c(1-asample[probBi[acov,clus]], asample[probBi[acov,clus]]))
-        },USE.NAMES=F)})
-         }else{bX <- NULL})
-        ##
-        rbind(rX, iX, cX, bX)[order(match(cNames,variates)),,drop=F]
-    }
-    attr(XX, 'rng') <- attr(XX, 'doRNG_version') <- NULL
-    dim(XX) <- c(length(variates), pointspermcsample, length(fromsamples))
-    rownames(XX) <- variates
-    ## rows: mcsamples, cols: samples from one mcsample, 3rd dim: variates
-    aperm(XX*scales+locations)
 }
-##
+redhisto <- thist(allredu,n=-5)
+tplot(x=redhisto$breaks,y=redhisto$density,xlab='median reduction',
+      ylab='probability',
+      xtransf=function(x){paste0(x,'%')})
+abline(v=0,lty=2,lwd=4,col=redpurple)
+abline(v=median(allredu),lty=3,lwd=4,col=green)
+dev.off()
