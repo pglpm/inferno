@@ -1,6 +1,6 @@
 ## Extend range
-extendrange <- function(vec){
-    1.125 * range(vec, na.rm=TRUE)- 0.125 * mean(range(vec, na.rm=TRUE))
+extendrange <- function(vec,by=0.125){
+    (1+by) * range(vec, na.rm=TRUE)- by * mean(range(vec, na.rm=TRUE))
 }
 ## Normalize vector
 normalize <- function(freqs){freqs/sum(freqs)}
@@ -297,10 +297,14 @@ samplesMVmc <- function(Ynames=NULL, X=NULL, mcsamples, variateparameters, froms
     if(!('location' %in% colnames(variateparameters))){
         locations <- integer(length(YXnames))
         names(locations) <- YXnames
-    }else{locations <- variateparameters[,'location']}
+    }else{locations <- variateparameters[,'location']
+        names(locations) <- rownames(variateparameters)
+    }
     if(!('scale' %in% colnames(variateparameters))){
         scales <- locations * 0L + 1L
-    }else{scales <- variateparameters[,'scale']}
+    }else{scales <- variateparameters[,'scale']
+            names(scales) <- rownames(variateparameters)
+    }
     ##
     if(!is.null(X)){
         X <- (t(X)-locations[Xnames])/scales[Xnames]
@@ -549,10 +553,12 @@ samplesFmc <- function(Y, X=NULL, mcsamples, variateparameters, fromsamples=nrow
     if(!('location' %in% colnames(variateparameters))){
         locations <- integer(length(cNames))
         names(locations) <- cNames
-    }else{locations <- variateparameters[,'location']}
+    }else{locations <- variateparameters[,'location']
+        names(locations) <- rownames(variateparameters)}
     if(!('scale' %in% colnames(variateparameters))){
         scales <- locations * 0L + 1L
-    }else{scales <- variateparameters[,'scale']}
+    }else{scales <- variateparameters[,'scale']
+        names(scales) <- rownames(variateparameters)}
     ##
     Y <- data.matrix(rbind(Y))
     cnY <- colnames(Y)
@@ -1490,22 +1496,22 @@ samplesVars <- function(Y, X=NULL, parmList, nfsamples=NULL, inorder=FALSE){
 }
 ##
 ## Gives samples of variate values. Uses mcsamples
-samplesXmc <- function(mcsamples, variateparameters, variates=NULL, pointspermcsample=2, fromsamples=nrow(mcsamples), inorder=FALSE, seed=NULL){
+samplesXmc <- function(mcsamples, variateparameters, Xnames=NULL, pointspermcsample=2, fromsamples=nrow(mcsamples), inorder=FALSE, seed=NULL){
     allvariates <- rownames(variateparameters)
-    if(!is.null(variates)){
-        if(!all(variates %in% allvariates)){
+    if(!is.null(Xnames)){
+        if(!all(Xnames %in% allvariates)){
             warning('*WARNING: some requested variates missing from variateparameters argument*')
-            warning(paste0('*Discarding: ',paste0(setdiff(variates,allvariates),collapse=' ')))
-            variates <- intersect(variates,allvariates)
+            warning(paste0('*Discarding: ',paste0(setdiff(Xnames,allvariates),collapse=' ')))
+            Xnames <- intersect(Xnames,allvariates)
         }
     }else{
-        variates <- allvariates
+        Xnames <- allvariates
     }
     ##
-    rCovs <- variates[variateparameters[variates,'type']==0]
-    iCovs <- variates[variateparameters[variates,'type']==3]
-    cCovs <- variates[variateparameters[variates,'type']==1]
-    bCovs <- variates[variateparameters[variates,'type']==2]
+    rCovs <- Xnames[variateparameters[Xnames,'type']==0]
+    iCovs <- Xnames[variateparameters[Xnames,'type']==3]
+    cCovs <- Xnames[variateparameters[Xnames,'type']==1]
+    bCovs <- Xnames[variateparameters[Xnames,'type']==2]
     cNames <- c(rCovs, iCovs, cCovs, bCovs)
     nrcovs <- length(rCovs)
     nicovs <- length(iCovs)
@@ -1513,12 +1519,14 @@ samplesXmc <- function(mcsamples, variateparameters, variates=NULL, pointspermcs
     nbcovs <- length(bCovs)
     ##
     if(!('location' %in% colnames(variateparameters))){
-        locations <- integer(length(variates))
-        names(locations) <- variates
-    }else{locations <- variateparameters[variates,'location']}
+        locations <- integer(length(Xnames))
+        names(locations) <- Xnames
+    }else{locations <- variateparameters[Xnames,'location']
+    names(locations) <- Xnames}
     if(!('scale' %in% colnames(variateparameters))){
         scales <- locations * 0L + 1L
-    }else{scales <- variateparameters[variates,'scale']}
+    }else{scales <- variateparameters[Xnames,'scale']
+    names(scales) <- Xnames}
     ##
     Qi <- grep('q',colnames(mcsamples))
     nclusters <- length(Qi)
@@ -1589,11 +1597,11 @@ samplesXmc <- function(mcsamples, variateparameters, variates=NULL, pointspermcs
         },USE.NAMES=F)})
          }else{bX <- NULL})
         ##
-        rbind(rX, iX, cX, bX)[order(match(cNames,variates)),,drop=F]
+        rbind(rX, iX, cX, bX)[order(match(cNames,Xnames)),,drop=F]
     }
     attr(XX, 'rng') <- attr(XX, 'doRNG_version') <- NULL
-    dim(XX) <- c(length(variates), pointspermcsample, length(fromsamples))
-    rownames(XX) <- variates
+    dim(XX) <- c(length(Xnames), pointspermcsample, length(fromsamples))
+    rownames(XX) <- Xnames
     ## rows: mcsamples, cols: samples from one mcsample, 3rd dim: variates
     aperm(XX*scales+locations)
 }

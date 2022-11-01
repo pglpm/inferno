@@ -1,6 +1,6 @@
 ## Author: PGL  Porta Mana
 ## Created: 2022-09-08T17:03:24+0200
-## Last-Updated: 2022-10-27T23:56:53+0200
+## Last-Updated: 2022-10-31T20:22:29+0100
 ################
 ## Exchangeable-probability calculation (non-parametric density regression)
 ################
@@ -871,7 +871,7 @@ dev.off()
             ##
             if(posterior){
                 par(mfrow=c(1,1))
-                ymax <- quant(apply(plotsamples[,subsample],2,function(x){quant(x,99/100)}),99/100, na.rm=T)
+                ymax <- tquant(apply(plotsamples[,subsample],2,function(x){tquant(x,99/100)}),99/100, na.rm=T)
                 tplot(x=Xgrid, y=plotsamples[,subsample], type='l', col=paste0(palette()[7], '44'), lty=1, lwd=2, xlab=paste0(avar,' (',variateinfo[variate==avar,type],')'), ylab=paste0('frequency',if(avar %in% realVars){' density'}), ylim=c(0, ymax), family=family)
                 if(plotmeans){
                     tplot(x=Xgrid, y=rowMeans(plotsamples), type='l', col=paste0(palette()[1], '88'), lty=1, lwd=3, add=T)

@@ -1,3 +1,29 @@
+library('data.table')
+library('png')
+library('foreach')
+library('doFuture')
+library('doRNG')
+registerDoFuture()
+cat('\navailableCores: ')
+cat(availableCores())
+cat('\navailableCores-multicore: ')
+cat(availableCores('multicore'))
+if(Sys.info()['nodename']=='luca-HP-Z2-G9'){
+    ncores <- 20}else{
+    ncores <- 4}
+cat(paste0('\nusing ',ncores,' cores\n'))
+if(ncores>1){
+    if(.Platform$OS.type=='unix'){
+        plan(multicore, workers=ncores)
+    }else{
+        plan(multisession, workers=ncores)
+    }
+}else{
+    plan(sequential)
+}
+mcsamples <- readRDS('_newMC4096ter/_jointmcsamples-_newMC4096ter-4096.rds')
+variateparameters <- fread('_newMC4096ter/variateparameters.csv')
+
 gc()
 Ynames <- 'PRM_cor_delayed'
 ## Xnames <- setdiff(varNames, mainvar)
