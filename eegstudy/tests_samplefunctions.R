@@ -85,13 +85,13 @@ names(X) <- choice
 X <- sample(X)
 Xnames <- names(X)
 
-Y0 <- data.matrix(alldata)[1,mainvar]
-X0 <- data.matrix(alldata)[1,othervars]
-Y0 <- (Y0-varinfo[colnames(Y0),'location'])/varinfo[colnames(Y0),'scale']
-X0 <- (X0-varinfo[colnames(X0),'location'])/varinfo[colnames(X0),'scale']
+ii <- sample(1:nrow(alldata),1)
+Y0 <- data.matrix(alldata)[ii,mainvar,drop=F]
+X0 <- data.matrix(alldata)[ii,othervars,drop=F]
 
 
 X <- c(Y0,X0)
+X <- (X-varinfo[c(colnames(Y0),colnames(X0)),'location'])/varinfo[c(colnames(Y0),colnames(X0)),'scale']
 
 X <- rbind(X)
 Xnames0 <- colnames(X)
@@ -111,24 +111,23 @@ takeB <- varinfo[Xnames,'type']==2
 Xorder <- 1:length(Xnames)
 Xorder <- c(Xorder[takeR], Xorder[takeC], Xorder[takeB])
 
+
 allout <- abind(
 (if(sum(takeR)>0){
-     out <- aperm(array(mcsamples[,unlist(sapply(paste0('meanR\\[',
-                                                     varinfo[Xnames[takeR],'index'],
-                                                     ',.+\\]'),
-                                              grep,colnames(mcsamples)))],
-                     dim=c(nmcsamples,nclusters,sum(takeR)),
-                     dimnames=list(NULL,NULL,Xnames[takeR]))) -
-         X[takeR]
-     ##
-     out2 <- aperm(array(mcsamples[,unlist(sapply(paste0('varR\\[',
-                                                     varinfo[Xnames[takeR],'index'],
-                                                     ',.+\\]'),
-                                              grep,colnames(mcsamples)))],
-                     dim=c(nmcsamples,nclusters,sum(takeR)),
-                     dimnames=list(NULL,NULL,Xnames[takeR])))
-     ##
-     -out*out/(2*out2) - log(out2)/2 - zconst
+     dnorm(x= X[takeR],
+           mean=aperm(array(mcsamples[,unlist(sapply(paste0('meanR\\[',
+                                                            varinfo[Xnames[takeR],'index'],
+                                                            ',.+\\]'),
+                                                     grep,colnames(mcsamples)))],
+                            dim=c(nmcsamples,nclusters,sum(takeR)),
+                            dimnames=list(NULL,NULL,Xnames[takeR]))),
+           sd=sqrt(aperm(array(mcsamples[,unlist(sapply(paste0('varR\\[',
+                                                               varinfo[Xnames[takeR],'index'],
+                                                               ',.+\\]'),
+                                                        grep,colnames(mcsamples)))],
+                               dim=c(nmcsamples,nclusters,sum(takeR)),
+                               dimnames=list(NULL,NULL,Xnames[takeR])))),
+           log=T)
  }),
 ##
 (if(sum(takeC)>0){
@@ -152,15 +151,17 @@ allout <- abind(
                         dim=c(nmcsamples, nclusters, sum(takeB)),
                         dimnames=list(NULL,NULL,Xnames[takeB])))
      log(X[takeB] * out + (1-X[takeB]) * (1-out))
-})
+ })
 , along=1)[order(Xorder),,,drop=F]
 
 
 
 test <- colSums(exp(colSums(abind(log(q),allout,along=1))))
+##
+test1 <- colSums(exp(colSums(abind(log(q),allout[colnames(Y0),,,drop=F],along=1))))
+##
+test2 <- test/colSums(exp(colSums(abind(log(q),allout[colnames(X0),,,drop=F],along=1))))
 
-
-test <- colSums(abind(log(q),allout[colnames(X0),,,drop=F],along=1))
 
 
 
