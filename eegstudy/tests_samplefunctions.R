@@ -1,5 +1,6 @@
 library('data.table')
 library('png')
+library('abind')
 library('foreach')
 library('doFuture')
 library('doRNG')
@@ -25,14 +26,14 @@ mcsamples <- readRDS('_newMC4096ter/_jointmcsamples-_newMC4096ter-4096.rds')
 varinfo <- data.matrix(read.csv('_newMC4096ter/variateparameters.csv',row.names=1,header=T))
 mainvar <- readRDS('cogvars.rds')
 source(paste0('functions_mcmc.R'))
-varNames <- rownames(variateparameters)
+varNames <- rownames(varinfo)
 othervars <- setdiff(varNames, mainvar)
 alldata <- fread('data_ep.csv', sep=',')
 ## mcsamples <- mcsamples[1:4,]
 ## testv <- c(sapply(0:2,function(i)rownames(varinfo)[varinfo[,'type']==i][1:2]))
 
 gc()
-## Xnames <- sapply(0:2,function(i)rownames(variateparameters[variateparameters[,'type']==i,])[1])
+## Xnames <- sapply(0:2,function(i)rownames(varinfo[varinfo[,'type']==i,])[1])
 Xnames <- setdiff(varNames, mainvar)
 ## Xnames <- c( "DMN_T_CPL", "DMN_T_CC")
 ## Xnames <- setdiff(varNames, c(mainvar,"DMN_T_CPL", "DMN_T_CC"))
@@ -42,29 +43,29 @@ set.seed(321)
 subsamples <- sample(1:nrow(mcsamples), nmcsubsamples, replace=F)
 
 
-Xvalues <- samplesXmc(pointspermcsample=1,mcsamples=mcsamples,Xnames=Xnames,variateparameters=variateparameters,seed=321,inorder=F)[,1,]
+Xvalues <- samplesXmc(pointspermcsample=1,mcsamples=mcsamples,Xnames=Xnames,varinfo=varinfo,seed=321,inorder=F)[,1,]
 nXsamples <- nrow(Xvalues)
 
 
 ##
-locations <- variateparameters[,'location']
-scales <- variateparameters[,'scale']
-names(scales) <- names(locations) <- rownames(variateparameters)
+locations <- varinfo[,'location']
+scales <- varinfo[,'scale']
+names(scales) <- names(locations) <- rownames(varinfo)
     ##
-    rY <- Ynames[variateparameters[Ynames,'type']==0]
-    iY <- Ynames[variateparameters[Ynames,'type']==3]
-    cY <- Ynames[variateparameters[Ynames,'type']==1]
-    bY <- Ynames[variateparameters[Ynames,'type']==2]
+    rY <- Ynames[varinfo[Ynames,'type']==0]
+    iY <- Ynames[varinfo[Ynames,'type']==3]
+    cY <- Ynames[varinfo[Ynames,'type']==1]
+    bY <- Ynames[varinfo[Ynames,'type']==2]
     ordYnames <- c(rY,iY,cY,bY)
     nrY <- length(rY)
     niY <- length(iY)
     ncY <- length(cY)
     nbY <- length(bY)
     ##
-    rX <- Xnames[variateparameters[Xnames,'type']==0]
-    iX <- Xnames[variateparameters[Xnames,'type']==3]
-    cX <- Xnames[variateparameters[Xnames,'type']==1]
-    bX <- Xnames[variateparameters[Xnames,'type']==2]
+    rX <- Xnames[varinfo[Xnames,'type']==0]
+    iX <- Xnames[varinfo[Xnames,'type']==3]
+    cX <- Xnames[varinfo[Xnames,'type']==1]
+    bX <- Xnames[varinfo[Xnames,'type']==2]
     ordXnames <- c(rX,iX,cX,bX)
     nrX <- length(rX)
     niX <- length(iX)
@@ -73,7 +74,166 @@ names(scales) <- names(locations) <- rownames(variateparameters)
     ##
     Qi <- grep('q',colnames(mcsamples))
     nclusters <- length(Qi)
-    sclusters <- seq_len(nclusters)
+sclusters <- seq_len(nclusters)
+
+
+svarinfo <- varinfo[testv,]
+
+choice <- c(sapply(0:2,function(i)rownames(varinfo)[varinfo[,'type']==i][c(1,1,2)]))
+X <- sample(0:1, length(choice), replace=T)
+names(X) <- choice
+X <- sample(X)
+Xnames <- names(X)
+
+Y0 <- data.matrix(alldata)[1,mainvar]
+X0 <- data.matrix(alldata)[1,othervars]
+Y0 <- (Y0-varinfo[colnames(Y0),'location'])/varinfo[colnames(Y0),'scale']
+X0 <- (X0-varinfo[colnames(X0),'location'])/varinfo[colnames(X0),'scale']
+
+
+X <- c(Y0,X0)
+
+X <- rbind(X)
+Xnames0 <- colnames(X)
+ndata <- nrow(X)
+X <- c(X)
+names(X) <- Xnames <- rep(Xnames0, each=ndata)
+nmcsamples <- nrow(mcsamples)
+zconst <- log(2*pi)/2
+Qi <- grep('q',colnames(mcsamples))
+nclusters <- length(Qi)
+q <- array(t(mcsamples[,Qi,drop=F]), dim=c(1,nclusters,nmcsamples))
+
+
+takeR <- varinfo[Xnames,'type']==0
+takeC <- varinfo[Xnames,'type']==1
+takeB <- varinfo[Xnames,'type']==2
+Xorder <- 1:length(Xnames)
+Xorder <- c(Xorder[takeR], Xorder[takeC], Xorder[takeB])
+
+allout <- abind(
+(if(sum(takeR)>0){
+     out <- aperm(array(mcsamples[,unlist(sapply(paste0('meanR\\[',
+                                                     varinfo[Xnames[takeR],'index'],
+                                                     ',.+\\]'),
+                                              grep,colnames(mcsamples)))],
+                     dim=c(nmcsamples,nclusters,sum(takeR)),
+                     dimnames=list(NULL,NULL,Xnames[takeR]))) -
+         X[takeR]
+     ##
+     out2 <- aperm(array(mcsamples[,unlist(sapply(paste0('varR\\[',
+                                                     varinfo[Xnames[takeR],'index'],
+                                                     ',.+\\]'),
+                                              grep,colnames(mcsamples)))],
+                     dim=c(nmcsamples,nclusters,sum(takeR)),
+                     dimnames=list(NULL,NULL,Xnames[takeR])))
+     ##
+     -out*out/(2*out2) - log(out2)/2 - zconst
+ }),
+##
+(if(sum(takeC)>0){
+     log(
+         aperm(array(mcsamples[,unlist(sapply(paste0('probC\\[',
+                                                     varinfo[Xnames[takeC],'index'],
+                                                     ',.+, ',
+                                                     X[takeC],
+                                                     '\\]'),grep,
+                                              colnames(mcsamples)))],
+                     dim=c(nmcsamples, nclusters, sum(takeC)),
+                     dimnames=list(NULL,NULL,Xnames[takeC])))
+     )
+ }),
+##
+(if(sum(takeB)>0){
+     out <- aperm(array(mcsamples[,unlist(sapply(paste0('probB\\[',
+                                                        varinfo[Xnames[takeB],'index'],
+                                                        ',.+\\]'),
+                                                 grep,colnames(mcsamples)))],
+                        dim=c(nmcsamples, nclusters, sum(takeB)),
+                        dimnames=list(NULL,NULL,Xnames[takeB])))
+     log(X[takeB] * out + (1-X[takeB]) * (1-out))
+})
+, along=1)[order(Xorder),,,drop=F]
+
+
+
+test <- colSums(exp(colSums(abind(log(q),allout,along=1))))
+
+
+test <- colSums(abind(log(q),allout[colnames(X0),,,drop=F],along=1))
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+out <- X[takeR] -
+    aperm(array(mcsamples[,unlist(sapply(paste0('probC\\[', varinfo[Xnames[takeR],'index'], ','),grep,colnames(mcsamples)))],
+                dim=c(nmcsamples,nclusters,sum(takeR)),
+                dimnames=list(NULL,NULL,Xnames[takeR])))
+##
+-out*out/
+    aperm(array(mcsamples[,unlist(sapply(paste0('varR\\[', varinfo[Xnames[takeR],'index'], ','),grep,colnames(mcsamples)))],
+              dim=c(nmcsamples,nclusters,sum(takeR)),
+              dimnames=list(NULL,NULL,Xnames[takeR])))/2 - zconst
+}),
+
+
+
+
+test <- aperm(array(rbind(colnames(mcsamples),colnames(mcsamples))[,unlist(sapply(paste0('probC\\[',
+                                        varinfo[Xnames[takeC],'index'],
+                                        ',.*, ',
+                                       X[takeC],
+                                       '\\]'),grep,
+                                       colnames(mcsamples)))],
+              dim=c(2, nclusters, sum(takeC))))
+
+
+test <- aperm(array(rbind(colnames(mcsamples),colnames(mcsamples))[,unlist(sapply(paste0('probC\\[',
+                                        varinfo[Xnames[takeC],'index'],
+                                        ',.*, ',
+                                       X[takeC],
+                                       '\\]'),grep,
+                                       colnames(mcsamples)))],
+              dim=c(2, nclusters, sum(takeC))))
+
+
+## test <- aperm(array(rbind(colnames(mcsamples),colnames(mcsamples))[,unlist(sapply(paste0('meanR\\[', varinfo[Xnames[totake],'index'], ','),grep,colnames(mcsamples)))],
+##                 dim=c(2,nclusters,sum(totake))))
+
+
+
+
+
+totake <- testv[varinfo[testv,'type']==0]
+varR <- aperm(array(mcsamples[,unlist(sapply(paste0('varR\\[', varinfo[totake,'index'], ','),grep,colnames(mcsamples)))],
+              dim=c(nrow(mcsamples),nclusters,length(totake)),
+              dimnames=list(NULL,NULL,totake)))
+
+
+
+
+varR <- aperm(array(mcsamples[,sapply(paste0('varR\\[', varinfo[totake,'index'], ','),grep,colnames(mcsamples))],
+              dim=c(nrow(mcsamples),nclusters,length(totake)),
+              dimnames=list(NULL,NULL,totake)))
+
+
+meansR <- array(sapply(paste0('meanR\\[', varinfo[totake,'index'], ','),
+                                grep,colnames(mcsamples)),
+                         dim=c(nclusters,length(totake)), dimnames=list(NULL,totake))
+
+
     if(nrY>0){
         totake <- variateparameters[rY,'index']
         imeanRY <- array(sapply(paste0('meanR\\[',totake,','),

@@ -38,7 +38,7 @@ sc <- c(1,2,4,8)
 combinations <- t(expand.grid(al,sd,sh1,sh2,sc))
 k <- 64
 ##
-foreach(combo=combinations[,1:2],.combine=c)%do%{
+foreach(combo=combinations,.combine=c)%dopar%{
     al <- combo[1]
     sd <- combo[2]
     sh1 <- combo[3]
