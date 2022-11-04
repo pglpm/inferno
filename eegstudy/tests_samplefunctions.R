@@ -11,7 +11,7 @@ cat('\navailableCores-multicore: ')
 cat(availableCores('multicore'))
 if(Sys.info()['nodename']=='luca-HP-Z2-G9'){
     ncores <- 20}else{
-    ncores <- 4}
+    ncores <- 6}
 cat(paste0('\nusing ',ncores,' cores\n'))
 if(ncores>1){
     if(.Platform$OS.type=='unix'){
@@ -32,72 +32,19 @@ alldata <- fread('data_ep.csv', sep=',')
 ## mcsamples <- mcsamples[1:4,]
 ## testv <- c(sapply(0:2,function(i)rownames(varinfo)[varinfo[,'type']==i][1:2]))
 
-gc()
-## Xnames <- sapply(0:2,function(i)rownames(varinfo[varinfo[,'type']==i,])[1])
-Xnames <- setdiff(varNames, mainvar)
-## Xnames <- c( "DMN_T_CPL", "DMN_T_CC")
-## Xnames <- setdiff(varNames, c(mainvar,"DMN_T_CPL", "DMN_T_CC"))
-Ynames <- 'PRM_cor_delayed'
-nmcsubsamples <- nrow(mcsamples)
-set.seed(321)
-subsamples <- sample(1:nrow(mcsamples), nmcsubsamples, replace=F)
+Y0 <- data.matrix(alldata)[,mainvar,drop=F]
+X0 <- data.matrix(alldata)[,othervars,drop=F]
 
-
-Xvalues <- samplesXmc(pointspermcsample=1,mcsamples=mcsamples,Xnames=Xnames,varinfo=varinfo,seed=321,inorder=F)[,1,]
-nXsamples <- nrow(Xvalues)
-
-
-##
-locations <- varinfo[,'location']
-scales <- varinfo[,'scale']
-names(scales) <- names(locations) <- rownames(varinfo)
-    ##
-    rY <- Ynames[varinfo[Ynames,'type']==0]
-    iY <- Ynames[varinfo[Ynames,'type']==3]
-    cY <- Ynames[varinfo[Ynames,'type']==1]
-    bY <- Ynames[varinfo[Ynames,'type']==2]
-    ordYnames <- c(rY,iY,cY,bY)
-    nrY <- length(rY)
-    niY <- length(iY)
-    ncY <- length(cY)
-    nbY <- length(bY)
-    ##
-    rX <- Xnames[varinfo[Xnames,'type']==0]
-    iX <- Xnames[varinfo[Xnames,'type']==3]
-    cX <- Xnames[varinfo[Xnames,'type']==1]
-    bX <- Xnames[varinfo[Xnames,'type']==2]
-    ordXnames <- c(rX,iX,cX,bX)
-    nrX <- length(rX)
-    niX <- length(iX)
-    ncX <- length(cX)
-    nbX <- length(bX)
-    ##
-    Qi <- grep('q',colnames(mcsamples))
-    nclusters <- length(Qi)
-sclusters <- seq_len(nclusters)
-
-
-svarinfo <- varinfo[testv,]
-
-choice <- c(sapply(0:2,function(i)rownames(varinfo)[varinfo[,'type']==i][c(1,1,2)]))
-X <- sample(0:1, length(choice), replace=T)
-names(X) <- choice
-X <- sample(X)
-Xnames <- names(X)
-
-ii <- sample(1:nrow(alldata),1)
-Y0 <- data.matrix(alldata)[ii,mainvar,drop=F]
-X0 <- data.matrix(alldata)[ii,othervars,drop=F]
-
-
-X <- c(Y0,X0)
-X <- (X-varinfo[c(colnames(Y0),colnames(X0)),'location'])/varinfo[c(colnames(Y0),colnames(X0)),'scale']
-
+X <- cbind(Y0,X0)
 X <- rbind(X)
 Xnames0 <- colnames(X)
 ndata <- nrow(X)
 X <- c(X)
 names(X) <- Xnames <- rep(Xnames0, each=ndata)
+X <- (X-varinfo[Xnames,'location'])/varinfo[Xnames,'scale']
+
+
+
 nmcsamples <- nrow(mcsamples)
 zconst <- log(2*pi)/2
 Qi <- grep('q',colnames(mcsamples))

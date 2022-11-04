@@ -1,12 +1,12 @@
 ## Author: PGL  Porta Mana
 ## Created: 2022-09-08T17:03:24+0200
-## Last-Updated: 2022-10-31T20:22:29+0100
+## Last-Updated: 2022-11-04T13:59:57+0100
 ################
 ## Exchangeable-probability calculation (non-parametric density regression)
 ################
 
 #### USER INPUTS AND CHOICES ####
-baseversion <- '_testfun' # *** ## Base name of output directory
+baseversion <- '_testfun2' # *** ## Base name of output directory
 datafile <- 'data_ep.csv' #***
 mainvar <- c(
 ##     "age",
@@ -258,7 +258,7 @@ if(mcmcseed==1){
     graphics.off()
     pdff(paste0(dirname,'densities_variances'),'a4')
 }
-variateparameters <- NULL
+varinfo <- NULL
 for(avar in varNames){
     pars <- c(NA,NA)
     ##
@@ -332,7 +332,7 @@ if(mcmcseed==1){
         datum <- (datum-alocation)
     }
     ##
-    variateparameters <- rbind(variateparameters,
+    varinfo <- rbind(varinfo,
                                cbind(type=typeNums[varTypes[avar]],
                                      index=varNums[avar],
                                      location=alocation, scale=ascale,
@@ -345,15 +345,15 @@ if(mcmcseed==1){
                                      thmin=varMins[avar], thmax=varMaxs[avar]
                                      ))
 }
-rownames(variateparameters) <- varNames
+rownames(varinfo) <- varNames
 ##
 if(mcmcseed==1){
     dev.off()
-    fwrite(cbind(data.table(variate=varNames),variateparameters), file=paste0(dirname,'variateparameters.csv'))
+    fwrite(cbind(data.table(variate=varNames),varinfo), file=paste0(dirname,'varinfo.csv'))
 }
 ##
-locvarMins <- varMins-variateparameters[,'location']
-locvarMaxs <- varMaxs-variateparameters[,'location']
+locvarMins <- varMins-varinfo[,'location']
+locvarMaxs <- varMaxs-varinfo[,'location']
 
 
 #################################
@@ -375,13 +375,13 @@ gc()
 
 ## Data (standardized for real variates)
 dat <- list()
-if(nrvars>0){ dat$Real=t((t(data.matrix(alldata[, ..realVars])) - variateparameters[realVars,'location'])/variateparameters[realVars,'scale'])}
+if(nrvars>0){ dat$Real=t((t(data.matrix(alldata[, ..realVars])) - varinfo[realVars,'location'])/varinfo[realVars,'scale'])}
 ## if(nivars>0){ dat$Integer=data.matrix(alldata[, ..integerVars])}
-if(nivars>0){ dat$Integer=t((t(data.matrix(alldata[, ..integerVars])) - variateparameters[integerVars,'location']))}
+if(nivars>0){ dat$Integer=t((t(data.matrix(alldata[, ..integerVars])) - varinfo[integerVars,'location']))}
 ## if(ncvars>0){ dat$Category=data.matrix(alldata[, ..categoryVars])}
-if(ncvars>0){ dat$Category=t((t(data.matrix(alldata[, ..categoryVars])) - variateparameters[categoryVars,'location']))}
+if(ncvars>0){ dat$Category=t((t(data.matrix(alldata[, ..categoryVars])) - varinfo[categoryVars,'location']))}
 ## if(nbvars>0){ dat$Binary=data.matrix(alldata[, ..binaryVars])}
-if(nbvars>0){ dat$Binary=t((t(data.matrix(alldata[, ..binaryVars])) - variateparameters[binaryVars,'location']))}
+if(nbvars>0){ dat$Binary=t((t(data.matrix(alldata[, ..binaryVars])) - varinfo[binaryVars,'location']))}
 
 
 
@@ -395,7 +395,7 @@ if(nbvars>0){ dat$Binary=t((t(data.matrix(alldata[, ..binaryVars])) - variatepar
 ## Find max integer value in data
 if(nivars > 0){
     ## maximum in data (for initial values)
-    maxivars <- variateparameters[integerVars, 'max']
+    maxivars <- varinfo[integerVars, 'max']
     thmaxivars <- locvarMaxs[integerVars] # theoretical maximum
     matrixprobivars <- matrix(0, nrow=nivars, ncol=max(thmaxivars), dimnames=list(integerVars))
     for(avar in integerVars){
@@ -431,14 +431,14 @@ initsFunction <- function(){
     ),
     if(nrvars > 0){# real variates
         list(
-            meanRmean0 = variateparameters[realVars,'location']*0,
-            meanRvar0 = (3 * (variateparameters[realVars,'scale']*0+1))^2,
-            varRshape2shape = variateparameters[realVars,'shape2shape']
+            meanRmean0 = varinfo[realVars,'location']*0,
+            meanRvar0 = (3 * (varinfo[realVars,'scale']*0+1))^2,
+            varRshape2shape = varinfo[realVars,'shape2shape']
         )},
     if(compoundgamma & nrvars > 0){
-        list(varRshape1 = variateparameters[realVars,'shape1rate'])
+        list(varRshape1 = varinfo[realVars,'shape1rate'])
     }else{
-        list(varRrate = variateparameters[realVars,'shape1rate'])
+        list(varRrate = varinfo[realVars,'shape1rate'])
     },
     if(nivars > 0){# integer variates
         list(
@@ -637,6 +637,45 @@ gc()
 cat('\nSetup time: ')
 print(Sys.time() - timecount)
 
+niter <- 100
+
+testi$
+testi$C <- rep(1, ndata)
+testi$meanR <- matrix(c(1,rep(100,nrvars*nclusters)),nrvars,nclusters)
+
+set.seed(777)
+testi <- initsFunction()
+testi$qalpha0 <- rep(100,nclusters)
+testi$meanR <- matrix(c(1,rep(100,nrvars*nclusters-1)),nrvars,nclusters)
+Cmodel$setInits(testi)
+Cmcmcsampler$run(niter=niter, thin=1, thin2=1, reset=T, resetMV=TRUE, nburnin=0, time=T)
+testm <- as.matrix(Cmcmcsampler$mvSamples)
+testm2 <- as.matrix(Cmcmcsampler$mvSamples2)
+testm2[c(1,2,niter-1,niter),'C[1]']
+testm[c(1,2,niter-1,niter),'meanR[1, 1]']
+testm[c(1,2,niter-1,niter),'q[1]']
+occupations <- testm2[,grepl('^C\\[', colnames(testm2))]
+apply(occupations,1,function(i)length(unique(i)))
+
+
+
+testm <- runMCMC(Cmcmcsampler, niter=niter, thin=1, thin2=1, nburnin=0,
+                 setSeed=777, inits=initsFunction)
+testm <- as.matrix(Cmcmcsampler$mvSamples)
+testm2 <- as.matrix(Cmcmcsampler$mvSamples2)
+testm2[c(1,2,niter-1,niter),'C[1]']
+testm[c(1,2,niter-1,niter),'meanR[1, 1]']
+testm[c(1,2,niter-1,niter),'q[1]']
+occupations <- testm2[,grepl('^C\\[', colnames(testm2))]
+apply(occupations,1,function(i)length(unique(i)))
+
+
+
+testm2[,'C[1]']
+testm[,'meanR[1, 1]']
+testm[,'q[1]']
+
+
 
 ##################################################
 ## Monte Carlo sampler and plots of MC diagnostics
@@ -706,12 +745,12 @@ while(continue){
                                      X=do.call(cbind,dat)[, setdiff(varNames, mainvar),
                                                           drop=F],
                                      mcsamples=newmcsamples,
-                                     variateparameters=variateparameters, inorder=T))
+                                     varinfo=varinfo, inorder=T))
         condprobsi <- c(logsumsamplesFmc(Y=do.call(cbind,dat)[, setdiff(varNames, mainvar),
                                                           drop=F],
                                      X=do.call(cbind,dat)[, mainvar, drop=F],
                                      mcsamples=newmcsamples,
-                                     variateparameters=variateparameters, inorder=T))
+                                     varinfo=varinfo, inorder=T))
         ##
         traces <- rbind(traces,
                         10/log(10)/ndata *
@@ -854,20 +893,20 @@ dev.off()
         pdff(paste0(dirname,'mcmcdistributions-R',basename,'--',mcmcseed,'-',stage),'a4')
         for(avar in varNames){#cat(avar)
             if(avar %in% realVars){
-                rg <- signif((variateparameters[avar,c('thmin','thmax')] + 
-                              7*variateparameters[avar,c('datamin','datamax')])/8, 2)
-                if(!is.finite(rg[1])){rg[1] <- diff(variateparameters[avar,c('scale','datamin')])}
-                if(!is.finite(rg[2])){rg[2] <- sum(variateparameters[avar,c('scale','datamax')])}
+                rg <- signif((varinfo[avar,c('thmin','thmax')] + 
+                              7*varinfo[avar,c('datamin','datamax')])/8, 2)
+                if(!is.finite(rg[1])){rg[1] <- diff(varinfo[avar,c('scale','datamin')])}
+                if(!is.finite(rg[2])){rg[2] <- sum(varinfo[avar,c('scale','datamax')])}
                 Xgrid <- cbind(seq(rg[1], rg[2], length.out=256))
             }else{
-                rg <- (variateparameters[avar,c('thmin','thmax')] + 
-                       7*variateparameters[avar,c('datamin','datamax')])/8
+                rg <- (varinfo[avar,c('thmin','thmax')] + 
+                       7*varinfo[avar,c('datamin','datamax')])/8
                 rg <- c(floor(rg[1]), ceiling(rg[2]))
                 Xgrid <- cbind(rg[1]:rg[2])
             }
             colnames(Xgrid) <- avar
-            plotsamples <- samplesFmc(Y=Xgrid, mcsamples=mcsamples, fromsamples=round(seq(1,nrow(mcsamples),length.out=nfsamples)), inorder=FALSE, variateparameters=variateparameters)
-            fiven <- variateparameters[avar,c('datamin','dataQ1','datamedian','dataQ2','datamax')]
+            plotsamples <- samplesFmc(Y=Xgrid, mcsamples=mcsamples, fromsamples=round(seq(1,nrow(mcsamples),length.out=nfsamples)), inorder=FALSE, varinfo=varinfo)
+            fiven <- varinfo[avar,c('datamin','dataQ1','datamedian','dataQ2','datamax')]
             ##
             if(posterior){
                 par(mfrow=c(1,1))
@@ -885,7 +924,7 @@ dev.off()
                     tplot(x=histo$breaks, y=histo$density*histomax, col=grey, alpha=0.75, border=NA, lty=1, lwd=1, family=family, ylim=c(0,NA), add=TRUE)
                 }else if((showdata=='scatter')|(showdata==TRUE & (avar %in% realVars))){
                     datum <- alldata[[avar]]
-                    scatteraxis(side=1, n=NA, alpha='88', ext=8, x=datum+rnorm(length(datum),mean=0,sd=prod(variateparameters[avar,c('precision','scale')])/(if(avar %in% binaryVars){16}else{16})),col=yellow)
+                    scatteraxis(side=1, n=NA, alpha='88', ext=8, x=datum+rnorm(length(datum),mean=0,sd=prod(varinfo[avar,c('precision','scale')])/(if(avar %in% binaryVars){16}else{16})),col=yellow)
                 }
             }else{
                 par(mfrow=c(8,8),mar = c(0,0,0,0))
