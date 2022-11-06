@@ -1,6 +1,6 @@
 ## Author: PGL  Porta Mana
 ## Created: 2022-09-08T17:03:24+0200
-## Last-Updated: 2022-11-04T13:59:57+0100
+## Last-Updated: 2022-11-05T19:06:55+0100
 ################
 ## Exchangeable-probability calculation (non-parametric density regression)
 ################
@@ -65,7 +65,7 @@ mainvar <- c(
 ## "SN_G_CPL",
 ## "SN_G_CC"
 )
-variateinfofile <- 'metadata_noint33_noSW.csv' #***
+variateinfofile <- 'metadata_realint_noSW.csv' #***
 requiredESS <- 1024*2/20 # required effective sample size
 nsamples <- 8*ceiling((requiredESS*1.5)/8) # number of samples AFTER thinning
 ## ndata <- 5 # set this if you want to use fewer data
@@ -113,7 +113,7 @@ cat('\navailableCores-multicore: ')
 cat(availableCores('multicore'))
 if(Sys.info()['nodename']=='luca-HP-Z2-G9'){
     ncores <- 1}else{
-    ncores <- 4}
+    ncores <- 6}
 cat(paste0('\nusing ',ncores,' cores\n'))
 if(ncores>1){
     if(.Platform$OS.type=='unix'){
@@ -369,7 +369,7 @@ if(stagestart>0){
 ##
 
 
-for(obj in c('constants', 'dat', 'inits', 'bayesnet', 'model', 'Cmodel', 'confmodel', 'mcmcsampler', 'Cmcmcsampler')){if(exists(obj)){do.call(rm,list(obj))}}
+for(obj in c('constants', 'dat', 'inits', 'finitemix', 'finitemixnimble', 'Cfinitemixnimble', 'confnimble', 'mcsampler', 'Cmcsampler')){if(exists(obj)){do.call(rm,list(obj))}}
 gc()
 
 
@@ -471,7 +471,7 @@ initsFunction <- function(){
 
 ##
 #### Mathematical form of the long-run frequency distribution
-bayesnet <- nimbleCode({
+finitemix <- nimbleCode({
     q[1:nClusters] ~ ddirch(alpha=qalpha0[1:nClusters])
     ##
     if(nrvars>0){# real variates
@@ -536,11 +536,10 @@ bayesnet <- nimbleCode({
 })
 
 ##
-##
 timecount <- Sys.time()
-
+##
 if(posterior){
-    model <- nimbleModel(code=bayesnet, name='model1', constants=constants,
+    finitemixnimble <- nimbleModel(code=finitemix, name='finitemixnimble1', constants=constants,
                          inits=initsFunction(), data=dat,
                          dimensions=c(
                              list(q=nclusters),
@@ -552,7 +551,7 @@ if(posterior){
                              if(compoundgamma){list(varRrate=nrvars)})
                          )
 }else{
-    model <- nimbleModel(code=bayesnet, name='model1', constants=constants,
+    finitemixnimble <- nimbleModel(code=finitemix, name='finitemixnimble1', constants=constants,
                          inits=initsFunction(), data=list(),
                          dimensions=c(
                              list(q=nclusters),
@@ -563,13 +562,13 @@ if(posterior){
                              if(compoundgamma){list(varRrate=nrvars)})
                          )
 }
-Cmodel <- compileNimble(model, showCompilerOutput=FALSE)
+Cfinitemixnimble <- compileNimble(finitemixnimble, showCompilerOutput=FALSE)
 gc()
 
 
 ##
 if(posterior){# Samplers for posterior sampling
-    confmodel <- configureMCMC(Cmodel, nodes=NULL,
+    confnimble <- configureMCMC(Cfinitemixnimble, nodes=NULL,
                                monitors=c('q',
                                           if(nrvars > 0){c('meanR', 'varR')},
                                           if(nivars > 0){c('probI', 'sizeI')},
@@ -582,41 +581,41 @@ if(posterior){# Samplers for posterior sampling
                                )
     ##
     for(adatum in 1:ndata){
-        confmodel$addSampler(target=paste0('C[', adatum, ']'), type='categorical')
+        confnimble$addSampler(target=paste0('C[', adatum, ']'), type='categorical')
     }
     if(compoundgamma & nrvars>0){
         for(avar in 1:nrvars){
-            confmodel$addSampler(target=paste0('varRrate[', avar, ']'), type='conjugate')
+            confnimble$addSampler(target=paste0('varRrate[', avar, ']'), type='conjugate')
         }
     }
     for(acluster in 1:nclusters){
         if(nrvars>0){
             for(avar in 1:nrvars){
-                confmodel$addSampler(target=paste0('varR[', avar, ', ', acluster, ']'), type='conjugate')
-                confmodel$addSampler(target=paste0('meanR[', avar, ', ', acluster, ']'), type='conjugate')
+                confnimble$addSampler(target=paste0('varR[', avar, ', ', acluster, ']'), type='conjugate')
+                confnimble$addSampler(target=paste0('meanR[', avar, ', ', acluster, ']'), type='conjugate')
             }
         }
         if(nivars>0){
             for(avar in 1:nivars){
-                confmodel$addSampler(target=paste0('probI[', avar, ', ', acluster, ']'), type='conjugate')
-                confmodel$addSampler(target=paste0('sizeI[', avar, ', ', acluster, ']'), type='categorical')
+                confnimble$addSampler(target=paste0('probI[', avar, ', ', acluster, ']'), type='conjugate')
+                confnimble$addSampler(target=paste0('sizeI[', avar, ', ', acluster, ']'), type='categorical')
             }
         }
         if(ncvars>0){
             for(avar in 1:ncvars){
-                confmodel$addSampler(target=paste0('probC[', avar, ', ', acluster, ', 1:', ncategories, ']'), type='conjugate')
+                confnimble$addSampler(target=paste0('probC[', avar, ', ', acluster, ', 1:', ncategories, ']'), type='conjugate')
             }
         }
         if(nbvars>0){
             for(avar in 1:nbvars){
-                confmodel$addSampler(target=paste0('probB[', avar, ', ', acluster, ']'), type='conjugate')
+                confnimble$addSampler(target=paste0('probB[', avar, ', ', acluster, ']'), type='conjugate')
             }
         }
     }
-    confmodel$addSampler(target=paste0('q[1:', nclusters, ']'), type='conjugate')
+    confnimble$addSampler(target=paste0('q[1:', nclusters, ']'), type='conjugate')
 ##
 }else{# sampler for prior sampling
-    confmodel <- configureMCMC(Cmodel, 
+    confnimble <- configureMCMC(Cfinitemixnimble, 
                                monitors=c('q',
                                           if(nrvars>0){c('meanR', 'varR')},
                                           if(nivars>0){c('probI', 'sizeI')},
@@ -628,54 +627,14 @@ if(posterior){# Samplers for posterior sampling
                                )
 }
 ##
-print(confmodel)
+print(confnimble)
 
-mcmcsampler <- buildMCMC(confmodel)
-Cmcmcsampler <- compileNimble(mcmcsampler, resetFunctions = TRUE)
+mcsampler <- buildMCMC(confnimble)
+Cmcsampler <- compileNimble(mcsampler, resetFunctions = TRUE)
 gc()
 
 cat('\nSetup time: ')
 print(Sys.time() - timecount)
-
-niter <- 100
-
-testi$
-testi$C <- rep(1, ndata)
-testi$meanR <- matrix(c(1,rep(100,nrvars*nclusters)),nrvars,nclusters)
-
-set.seed(777)
-testi <- initsFunction()
-testi$qalpha0 <- rep(100,nclusters)
-testi$meanR <- matrix(c(1,rep(100,nrvars*nclusters-1)),nrvars,nclusters)
-Cmodel$setInits(testi)
-Cmcmcsampler$run(niter=niter, thin=1, thin2=1, reset=T, resetMV=TRUE, nburnin=0, time=T)
-testm <- as.matrix(Cmcmcsampler$mvSamples)
-testm2 <- as.matrix(Cmcmcsampler$mvSamples2)
-testm2[c(1,2,niter-1,niter),'C[1]']
-testm[c(1,2,niter-1,niter),'meanR[1, 1]']
-testm[c(1,2,niter-1,niter),'q[1]']
-occupations <- testm2[,grepl('^C\\[', colnames(testm2))]
-apply(occupations,1,function(i)length(unique(i)))
-
-
-
-testm <- runMCMC(Cmcmcsampler, niter=niter, thin=1, thin2=1, nburnin=0,
-                 setSeed=777, inits=initsFunction)
-testm <- as.matrix(Cmcmcsampler$mvSamples)
-testm2 <- as.matrix(Cmcmcsampler$mvSamples2)
-testm2[c(1,2,niter-1,niter),'C[1]']
-testm[c(1,2,niter-1,niter),'meanR[1, 1]']
-testm[c(1,2,niter-1,niter),'q[1]']
-occupations <- testm2[,grepl('^C\\[', colnames(testm2))]
-apply(occupations,1,function(i)length(unique(i)))
-
-
-
-testm2[,'C[1]']
-testm[,'meanR[1, 1]']
-testm[,'q[1]']
-
-
 
 ##################################################
 ## Monte Carlo sampler and plots of MC diagnostics
@@ -696,30 +655,46 @@ while(continue){
     cat(paste0('\nIterations: ',niter,', thinning: ',thin,'\n'))
     gc()
     if(stage==0){# burn-in stage
-        inits0 <- initsFunction
-        newmcsamples <- runMCMC(Cmcmcsampler, nburnin=1, niter=niter+1, thin=thin, thin2=niter, inits=inits0, setSeed=mcmcseed+stage+100)
-    }else if(is.character(resume)){# continuing previous
+        set.seed(mcmcseed+stage+100)
+        Cfinitemixnimble$setInits(initsFunction())
+        newmcsamples <- Cmcsampler$run(niter=niter+1, thin=thin, thin2=niter, nburnin=1, time=T)
+    }else if(is.character(resume)){# continuing previous # must be fixed
         initsc <- readRDS(paste0(dirname,resume))
         inits0 <- initsFunction()
         for(aname in names(inits0)){inits0[[aname]] <- initsc[[aname]]}
         thin <- initsc[['thin']]
-        newmcsamples <- runMCMC(Cmcmcsampler, nburnin=0, niter=niter*thin, thin=thin, thin2=niter*thin, inits=inits0, setSeed=mcmcseed+stage+100)
+        set.seed(mcmcseed+stage+100)
+        Cfinitemixnimble$setInits(initsc)
+        newmcsamples <- Cmcsampler$run(niter=niter*thin, thin=thin, thin2=niter*thin, nburnin=0)
     }else{# subsequent sampling stages
         cat('\nForecasted computation time: ')
         print(comptime*thin*niter)
-        newmcsamples <- Cmcmcsampler$run(niter=niter*thin, thin=thin, thin2=niter*thin, reset=FALSE, resetMV=TRUE)
+        newmcsamples <- Cmcsampler$run(niter=niter*thin, thin=thin, thin2=niter*thin, reset=FALSE, resetMV=TRUE)
     }
     ##
     totaliter <- totaliter + niter*thin
-    newmcsamples <- as.matrix(Cmcmcsampler$mvSamples)
+    newmcsamples <- as.matrix(Cmcsampler$mvSamples)
     cat('\nTime MCMC: ')
     print(Sys.time() - calctime)
+    ##
+    ## ## Check sample-time partition
+    ## times <- Cmcsampler$getTimes()
+    ## names(times) <- sapply(confnimble$getSamplers(),function(x)x$target)
+    ## ##
+    ## cbind(sort(times[c('C[1]','q[1:64]','meanR[1, 1]', 'varR[1, 1]', 'probB[1, 1]', 'probC[1, 1, 1:21]', 'varRrate[1]')]))
+    ## ##
+    ## test <- sapply(c('C','q','meanR', 'varR', 'probB', 'probC', 'varRrate'),
+    ##        function(x){
+    ##            sum(times[grep(paste0('^',x),names(times))])
+    ##        })
+    ## names(test) <- c('C','q','meanR', 'varR', 'probB', 'probC', 'varRrate')
+    ## cbind(sort(test))
     ##
     if(any(is.na(newmcsamples))){cat('\nWARNING: SOME NA OUTPUTS')}
     if(any(!is.finite(newmcsamples))){cat('\nWARNING: SOME INFINITE OUTPUTS')}
     ##
     ## save final state of MCMC chain
-    finalstate <- as.matrix(Cmcmcsampler$mvSamples2)
+    finalstate <- as.matrix(Cmcsampler$mvSamples2)
     finalstate <- c(newmcsamples[nrow(newmcsamples),], finalstate[nrow(finalstate),])
     ##
     ## Check how many "clusters" were occupied. Warns if too many
@@ -988,28 +963,28 @@ allnames <- names(alldata)
 metadatanew <- metadata
 metadatanew$precision <- as.integer(metadatanew$precision)
 ##
-boundarycat <- 10
-boundaryrea <- 100
+boundarycat <- 0
+boundaryrea <- 0
 for(i in allnames){
     if(metadata[variate==i,'type']=='integer'){
-        cat(i)
+        print(i)
         if(is.na(metadata[variate==i,'max'])){
-            cat(paste0('(max)'))
+            print(paste0('(max)'))
             metadatanew[variate==i,'max'] <- max(alldata[[i]],na.rm=T)
         }
         if(is.na(metadata[variate==i,'min'])){
-            cat(paste0(': min'))
+            print(paste0(': min'))
             metadatanew[variate==i,'min'] <- min(alldata[[i]],na.rm=T)
         }
         rg <- metadatanew[variate==i,'max']-metadatanew[variate==i,'min']+1
         if(rg < boundarycat){
             metadatanew[variate==i,'type'] <- 'categorical'
-            cat(paste0(': to cat, ',rg))
+            print(paste0(': to cat, ',rg))
         }else if(rg>=boundaryrea){
             metadatanew[variate==i,'type'] <- 'real'
-            cat(paste0(': to real, ',rg))
+            print(paste0(': to real, ',rg))
             metadatanew[variate==i,'precision'] <- 1L
-        }else{cat(': no changes')}
+        }else{print(': no changes')}
     }
 }
 
@@ -1099,3 +1074,22 @@ t(sapply(1:36,function(i){
       LaplacesDemon::MCSE(x, method='batch.means')$se*100/sd(x),
       LaplacesDemon::is.stationary(cbind(x))
 )}))
+
+## q         0.029227
+## varRrate  0.707669
+## probB     1.131390
+## C         6.549711
+## meanR    11.425076
+## varR     15.414792
+## probC    94.969083
+
+
+
+
+xgrid <- seq(-5,-3,length.out=512)
+fn <- function(x,dx){pnorm(x)/(2*dx)-1}
+testy <- fn(xgrid,1e-4)
+tplot(x=xgrid,y=((testy)))
+
+qnorm(2*(1e-4))
+## qnorm of twice precision of variate = boundary
