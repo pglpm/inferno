@@ -1,5 +1,5 @@
-library('data.table')
 library('png')
+library('data.table')
 library('foreach')
 library('doFuture')
 library('doRNG')
@@ -10,7 +10,7 @@ cat('\navailableCores-multicore: ')
 cat(availableCores('multicore'))
 if(Sys.info()['nodename']=='luca-HP-Z2-G9'){
     ncores <- 20}else{
-    ncores <- 4}
+    ncores <- 6}
 cat(paste0('\nusing ',ncores,' cores\n'))
 if(ncores>1){
     if(.Platform$OS.type=='unix'){
@@ -23,12 +23,15 @@ if(ncores>1){
 }
 mcsamples <- readRDS('_newMC4096ter/_jointmcsamples-_newMC4096ter-4096.rds')
 variateparameters <- fread('_newMC4096ter/variateparameters.csv')
+cogvars <- readRDS('cogvars.rds')
+mainvar <- readRDS('mainvar.rds')
+varNames <- variateparameters$variate
 
 gc()
 Ynames <- 'PRM_cor_delayed'
-## Xnames <- setdiff(varNames, mainvar)
+Xnames <- setdiff(varNames, mainvar)
 ## Xnames <- c( "DMN_T_CPL", "DMN_T_CC")
-Xnames <- setdiff(varNames, c(mainvar,"DMN_T_CPL", "DMN_T_CC"))
+## Xnames <- setdiff(varNames, c(mainvar,"DMN_T_CPL", "DMN_T_CC"))
 nXsamples <- 1024L*8L
 nmcsubsamples <- 1024L
 set.seed(321)

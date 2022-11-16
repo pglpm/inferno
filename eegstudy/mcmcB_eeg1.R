@@ -1,6 +1,6 @@
 ## Author: PGL  Porta Mana
 ## Created: 2022-09-08T17:03:24+0200
-## Last-Updated: 2022-11-05T19:06:55+0100
+## Last-Updated: 2022-11-13T21:36:44+0100
 ################
 ## Exchangeable-probability calculation (non-parametric density regression)
 ################
@@ -1093,3 +1093,50 @@ tplot(x=xgrid,y=((testy)))
 
 qnorm(2*(1e-4))
 ## qnorm of twice precision of variate = boundary
+
+
+mm <- c(0,2,4)
+ss <- c(1,2,0.2)
+qq <- c(7,4,0.4)
+##
+f <- function(x){sapply(x,function(y)sum(qq*dnorm(y,mean=mm,sd=ss))/sum(qq))}
+##
+xgrid <- seq(-3,6,length.out=256)
+graphics.off()
+pdff('testcog1')
+tplot(xgrid,f(xgrid),ylim=c(0,NA),xlabels=NA,xlab='cog score #4',ylab='probability',ylabels=NA,lwd=5,ly=2,yticks=NA)
+plotquantiles(xgrid,rbind(
+                        f(xgrid)*
+                        (1+3*(dnorm(xgrid-min(xgrid))+0.2*dnorm(xgrid-2.5,sd=1)+dnorm(max(xgrid)-xgrid))),
+                        f(xgrid)*
+                        (1-3*(dnorm(xgrid-min(xgrid))+0.2*dnorm(xgrid-2.5,sd=1)+dnorm(max(xgrid)-xgrid)))
+                    ))
+dev.off()
+me <- sum(xgrid*f(xgrid))/sum(f(xgrid))
+sqrt(sum((xgrid-me)^2*f(xgrid))/sum(f(xgrid)))
+##
+##
+mm <- c(0,2,3)
+ss <- c(1,2,0.2)*0.5
+qq <- c(7,2,0.1)
+##
+f <- function(x){sapply(x,function(y)sum(qq*dnorm(y,mean=mm,sd=ss))/sum(qq))}
+##
+xgrid <- seq(-3,6,length.out=256)
+graphics.off()
+pdff('testcog2')
+tplot(xgrid,f(xgrid),ylim=c(0,NA),xlabels=NA,xlab='cog score #4',ylab='probability',ylabels=NA,lwd=5,ly=2,yticks=NA)
+plotquantiles(xgrid,rbind(
+                        f(xgrid)*
+                        (1+7*(dnorm(xgrid-min(xgrid))+0.1*dnorm(xgrid-2.5,sd=1)+dnorm(max(xgrid)-xgrid))),
+                        f(xgrid)*
+                        (1-7*(dnorm(xgrid-min(xgrid))+0.1*dnorm(xgrid-2.5,sd=1)+dnorm(max(xgrid)-xgrid)))
+                    ))
+dev.off()
+me <- sum(xgrid*f(xgrid))/sum(f(xgrid))
+sqrt(sum((xgrid-me)^2*f(xgrid))/sum(f(xgrid)))
+
+
+
+
+tplot(xgrid,dbeta((xgrid-min(xgrid))/diff(range(xgrid)), 0.2,0.2))

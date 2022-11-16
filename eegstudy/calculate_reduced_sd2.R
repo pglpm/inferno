@@ -10,7 +10,7 @@ cat('\navailableCores-multicore: ')
 cat(availableCores('multicore'))
 if(Sys.info()['nodename']=='luca-HP-Z2-G9'){
     ncores <- 20}else{
-    ncores <- 4}
+    ncores <- 6}
 cat(paste0('\nusing ',ncores,' cores\n'))
 if(ncores>1){
     if(.Platform$OS.type=='unix'){
@@ -25,14 +25,14 @@ mcsamples <- readRDS('_newMC4096ter/_jointmcsamples-_newMC4096ter-4096.rds')
 varinfo <- data.matrix(read.csv('_newMC4096ter/variateparameters.csv',row.names=1,header=T))
 mainvar <- readRDS('cogvars.rds')
 source(paste0('functions_mcmc.R'))
-varNames <- rownames(variateparameters)
+varNames <- rownames(varinfo)
 othervars <- setdiff(varNames, mainvar)
 alldata <- fread('data_ep.csv', sep=',')
 ## mcsamples <- mcsamples[1:4,]
 ## testv <- c(sapply(0:2,function(i)rownames(varinfo)[varinfo[,'type']==i][1:2]))
 
 gc()
-## Xnames <- sapply(0:2,function(i)rownames(variateparameters[variateparameters[,'type']==i,])[1])
+## Xnames <- sapply(0:2,function(i)rownames(varinfo[varinfo[,'type']==i,])[1])
 Xnames <- setdiff(varNames, mainvar)
 ## Xnames <- c( "DMN_T_CPL", "DMN_T_CC")
 ## Xnames <- setdiff(varNames, c(mainvar,"DMN_T_CPL", "DMN_T_CC"))
@@ -42,237 +42,255 @@ set.seed(321)
 subsamples <- sample(1:nrow(mcsamples), nmcsubsamples, replace=F)
 
 
-Xvalues <- samplesXmc(pointspermcsample=1,mcsamples=mcsamples,Xnames=Xnames,variateparameters=variateparameters,seed=321,inorder=F)[,1,]
+Xvalues <- samplesXmc(pointspermcsample=1,mcsamples=mcsamples,Xnames=Xnames,variateparameters=varinfo,seed=123,inorder=F)[,1,]
 nXsamples <- nrow(Xvalues)
 
 
 ##
-locations <- variateparameters[,'location']
-scales <- variateparameters[,'scale']
-names(scales) <- names(locations) <- rownames(variateparameters)
+locations <- varinfo[,'location']
+scales <- varinfo[,'scale']
+names(scales) <- names(locations) <- rownames(varinfo)
+##
+rY <- Ynames[varinfo[Ynames,'type']==0]
+iY <- Ynames[varinfo[Ynames,'type']==3]
+cY <- Ynames[varinfo[Ynames,'type']==1]
+bY <- Ynames[varinfo[Ynames,'type']==2]
+ordYnames <- c(rY,iY,cY,bY)
+nrY <- length(rY)
+niY <- length(iY)
+ncY <- length(cY)
+nbY <- length(bY)
+##
+rX <- Xnames[varinfo[Xnames,'type']==0]
+iX <- Xnames[varinfo[Xnames,'type']==3]
+cX <- Xnames[varinfo[Xnames,'type']==1]
+bX <- Xnames[varinfo[Xnames,'type']==2]
+ordXnames <- c(rX,iX,cX,bX)
+nrX <- length(rX)
+niX <- length(iX)
+ncX <- length(cX)
+nbX <- length(bX)
+##
+Qi <- grep('q',colnames(mcsamples))
+nclusters <- length(Qi)
+sclusters <- seq_len(nclusters)
+if(nrY>0){
+    totake <- varinfo[rY,'index']
+    imeanRY <- array(sapply(paste0('meanR\\[',totake,','),
+                            grep,colnames(mcsamples)),
+                     dim=c(nclusters,nrY), dimnames=list(NULL,rY))
+    ivarRY <- array(sapply(paste0('varR\\[',totake,','),
+                           grep,colnames(mcsamples)),
+                    dim=c(nclusters,nrY), dimnames=list(NULL,rY))
+}
+if(niY>0){
+    totake <- varinfo[iY,'index']
+    iprobIY <- array(sapply(paste0('probI\\[',totake,','),
+                            grep,colnames(mcsamples)),
+                     dim=c(nclusters,niY), dimnames=list(NULL,iY))
+    isizeIY <- array(sapply(paste0('sizeI\\[',totake,','),
+                            grep,colnames(mcsamples)),
+                     dim=c(nclusters,niY), dimnames=list(NULL,iY))
+}
+if(ncY>0){
+    totake <- varinfo[cY,'index']
+    iprobCY <- sapply(paste0('probC\\[',totake,','),
+                      grep,colnames(mcsamples))
+    ncategories <- length(iprobCY)/ncY/nclusters
+    scategories <- seq_len(ncategories)
+    iprobCY <- aperm(array(iprobCY,
+                           dim=c(nclusters,ncategories,ncY),
+                           dimnames=list(NULL,NULL,nY)),
+                     c(2,1,3))
+}
+if(nbY>0){
+    totake <- varinfo[bY,'index']
+    iprobBY <- array(sapply(paste0('probB\\[',totake,','),
+                            grep,colnames(mcsamples)),
+                     dim=c(nclusters,nbY), dimnames=list(NULL,bY))
+}
+##
+if(nrX>0){
+    totake <- varinfo[rX,'index']
+    imeanRX <- array(t(sapply(paste0('meanR\\[',totake,','),
+                              grep,colnames(mcsamples))),
+                     dim=c(nrX,nclusters), dimnames=list(rX,NULL))
+    ivarRX <- array(t(sapply(paste0('varR\\[',totake,','),
+                             grep,colnames(mcsamples))),
+                    dim=c(nrX,nclusters), dimnames=list(rX,NULL))
+}
+if(niX>0){
+    totake <- varinfo[iX,'index']
+    iprobIX <- array(t(sapply(paste0('probI\\[',totake,','),
+                              grep,colnames(mcsamples))),
+                     dim=c(niX,nclusters), dimnames=list(iX,NULL))
+    isizeIX <- array(t(sapply(paste0('sizeI\\[',totake,','),
+                              grep,colnames(mcsamples))),
+                     dim=c(niX,nclusters), dimnames=list(iX,NULL))
+}
+if(ncX>0){
+    totake <- varinfo[cX,'index']
+    iprobCX <- sapply(paste0('probC\\[',totake,','),
+                      grep,colnames(mcsamples))
+    ncategories <- length(iprobCX)/ncX/nclusters
+    scategories <- seq_len(ncategories)
+    iprobCX <- aperm(array(iprobCX,
+                           dim=c(nclusters,ncategories,ncX),
+                           dimnames=list(NULL,NULL,cX)),
+                     c(3,1,2))
+}
+if(nbX>0){
+    totake <- varinfo[bX,'index']
+    iprobBX <- array(t(sapply(paste0('probB\\[',totake,','),
+                              grep,colnames(mcsamples))),
+                     dim=c(nbX,nclusters), dimnames=list(bX,NULL))
+}
+##
+
+## Go through the selected MC samples
+##graphics.off()
+##pdff('testsdreduction')
+##
+## Draw X samples
+if(nrX>0){
+    drawrX <- (t(Xvalues[,rX,drop=F])-locations[rX])/scales[rX]
+}else{drawrX <- NULL}
+##        
+drawiX <- NULL
+##
+if(ncX>0){
+    drawcX <- (t(Xvalues[,cX,drop=F])-locations[cX])/scales[cX]
+}else{drawcX <- NULL}
+##
+if(nbX>0){
+    drawbX <- (t(Xvalues[,bX,drop=F])-locations[bX])/scales[bX]
+}else{drawbX <- NULL}
+
+## ## Calculate SD of Y conditional on the X samples
+##
+## First the conditional mixture weights
+Ymin <- (0-locations[Ynames])/scales[Ynames]
+Ymax <- (100-locations[Ynames])/scales[Ynames]
+fn <- function(...){Map('+',...)}
+allmoments <- foreach(amcsample=t(mcsamples), .combine=fn, .inorder=F)%dopar%{
+    amcsample <- c(amcsample)
+    aq <- amcsample[Qi]
     ##
-    rY <- Ynames[variateparameters[Ynames,'type']==0]
-    iY <- Ynames[variateparameters[Ynames,'type']==3]
-    cY <- Ynames[variateparameters[Ynames,'type']==1]
-    bY <- Ynames[variateparameters[Ynames,'type']==2]
-    ordYnames <- c(rY,iY,cY,bY)
-    nrY <- length(rY)
-    niY <- length(iY)
-    ncY <- length(cY)
-    nbY <- length(bY)
-    ##
-    rX <- Xnames[variateparameters[Xnames,'type']==0]
-    iX <- Xnames[variateparameters[Xnames,'type']==3]
-    cX <- Xnames[variateparameters[Xnames,'type']==1]
-    bX <- Xnames[variateparameters[Xnames,'type']==2]
-    ordXnames <- c(rX,iX,cX,bX)
-    nrX <- length(rX)
-    niX <- length(iX)
-    ncX <- length(cX)
-    nbX <- length(bX)
-    ##
-    Qi <- grep('q',colnames(mcsamples))
-    nclusters <- length(Qi)
-    sclusters <- seq_len(nclusters)
     if(nrY>0){
-        totake <- variateparameters[rY,'index']
-        imeanRY <- array(sapply(paste0('meanR\\[',totake,','),
-                                grep,colnames(mcsamples)),
-                         dim=c(nclusters,nrY), dimnames=list(NULL,rY))
-        ivarRY <- array(sapply(paste0('varR\\[',totake,','),
-                                grep,colnames(mcsamples)),
-                         dim=c(nclusters,nrY), dimnames=list(NULL,rY))
-        }
-    if(niY>0){
-        totake <- variateparameters[iY,'index']
-        iprobIY <- array(sapply(paste0('probI\\[',totake,','),
-                                grep,colnames(mcsamples)),
-                         dim=c(nclusters,niY), dimnames=list(NULL,iY))
-        isizeIY <- array(sapply(paste0('sizeI\\[',totake,','),
-                                grep,colnames(mcsamples)),
-                         dim=c(nclusters,niY), dimnames=list(NULL,iY))
-        }
+        mu0 <- replace(imeanRY,1:length(imeanRY),amcsample[imeanRY])
+        si0 <- sqrt(replace(ivarRY,1:length(ivarRY),amcsample[ivarRY]))
+        a0 <- (Ymin-mu0)/si0
+        b0 <- (Ymax-mu0)/si0
+        da0 <- dnorm(a0)
+        db0 <- dnorm(b0)
+        z0 <- pnorm(b0) - pnorm(a0)
+        ##
+        meanRY <- mu0 - si0*(db0-da0)/z0
+        varRY <- si0*si0*(1 - (b0*db0-a0*da0)/z0 - ((db0-da0)/z0)^2)
+    }
     if(ncY>0){
-        totake <- variateparameters[cY,'index']
-        iprobCY <- sapply(paste0('probC\\[',totake,','),
-                          grep,colnames(mcsamples))
-        ncategories <- length(iprobCY)/ncY/nclusters
-        scategories <- seq_len(ncategories)
-        iprobCY <- aperm(array(iprobCY,
-                         dim=c(nclusters,ncategories,ncY),
-                         dimnames=list(NULL,NULL,nY)),
-                         c(2,1,3))
-        }
+        probCY <- replace(iprobCY,1:length(iprobCY),amcsample[iprobCY])
+    }
     if(nbY>0){
-        totake <- variateparameters[bY,'index']
-        iprobBY <- array(sapply(paste0('probB\\[',totake,','),
-                                grep,colnames(mcsamples)),
-                         dim=c(nclusters,nbY), dimnames=list(NULL,bY))
+        probBY <- replace(iprobBY,1:length(iprobBY),amcsample[iprobBY])
     }
     ##
     if(nrX>0){
-        totake <- variateparameters[rX,'index']
-        imeanRX <- array(t(sapply(paste0('meanR\\[',totake,','),
-                                grep,colnames(mcsamples))),
-                         dim=c(nrX,nclusters), dimnames=list(rX,NULL))
-        ivarRX <- array(t(sapply(paste0('varR\\[',totake,','),
-                               grep,colnames(mcsamples))),
-                        dim=c(nrX,nclusters), dimnames=list(rX,NULL))
-    }
-    if(niX>0){
-        totake <- variateparameters[iX,'index']
-        iprobIX <- array(t(sapply(paste0('probI\\[',totake,','),
-                                grep,colnames(mcsamples))),
-                         dim=c(niX,nclusters), dimnames=list(iX,NULL))
-        isizeIX <- array(t(sapply(paste0('sizeI\\[',totake,','),
-                                grep,colnames(mcsamples))),
-                         dim=c(niX,nclusters), dimnames=list(iX,NULL))
-    }
-    if(ncX>0){
-        totake <- variateparameters[cX,'index']
-        iprobCX <- sapply(paste0('probC\\[',totake,','),
-                            grep,colnames(mcsamples))
-        ncategories <- length(iprobCX)/ncX/nclusters
-        scategories <- seq_len(ncategories)
-        iprobCX <- aperm(array(iprobCX,
-                         dim=c(nclusters,ncategories,ncX),
-                         dimnames=list(NULL,NULL,cX)),
-                         c(3,1,2))
-    }
-    if(nbX>0){
-        totake <- variateparameters[bX,'index']
-        iprobBX <- array(t(sapply(paste0('probB\\[',totake,','),
-                                grep,colnames(mcsamples))),
-                         dim=c(nbX,nclusters), dimnames=list(bX,NULL))
-    }
-##
-    ## Go through the selected MC samples
-##graphics.off()
-##pdff('testsdreduction')
-        ##
-        ## Draw X samples
-        if(nrX>0){
-             drawrX <- (t(Xvalues[,rX,drop=F])-locations[rX])/scales[rX]
-         }else{drawrX <- NULL}
-        ##        
-        drawiX <- NULL
-        ##
-        if(ncX>0){
-             drawcX <- (t(Xvalues[,cX,drop=F])-locations[cX])/scales[cX]
-         }else{drawcX <- NULL}
-        ##
-        if(nbX>0){
-             drawbX <- (t(Xvalues[,bX,drop=F])-locations[bX])/scales[bX]
-         }else{drawbX <- NULL}
-
-        ## ## Calculate SD of Y conditional on the X samples
-        ##
-        ## First the conditional mixture weights
-        Ymin <- (0-locations[Ynames])/scales[Ynames]
-Ymax <- (100-locations[Ynames])/scales[Ynames]
-allmoments <- foreach(amcsample=t(mcsamples),.combine='+',.inorder=F)%dopar%{
-        amcsample <- c(amcsample)
-        aq <- amcsample[Qi]
-        ##
-        if(nrY>0){
-        meanRY <- replace(imeanRY,1:length(imeanRY),amcsample[imeanRY])
-        varRY <- replace(ivarRY,1:length(ivarRY),amcsample[ivarRY])
-        ##
-        meanRY <- meanRY+sqrt(varRY)*(dnorm((Ymin-meanRY)/sqrt(varRY))-dnorm((Ymax-meanRY)/sqrt(varRY)))/(pnorm((Ymax-meanRY)/sqrt(varRY))-pnorm((Ymin-meanRY)/sqrt(varRY)))
-        varRY <- varRY*(1+
-                        (dnorm((Ymin-meanRY)/sqrt(varRY))*(Ymin-meanRY)/sqrt(varRY)-dnorm((Ymax-meanRY)/sqrt(varRY))*(Ymax-meanRY)/sqrt(varRY))/(pnorm((Ymax-meanRY)/sqrt(varRY))-pnorm((Ymin-meanRY)/sqrt(varRY))) -
-                        ((dnorm((Ymin-meanRY)/sqrt(varRY))-dnorm((Ymax-meanRY)/sqrt(varRY)))/(pnorm((Ymax-meanRY)/sqrt(varRY))-pnorm((Ymin-meanRY)/sqrt(varRY))))^2
-)
-        }
-        if(ncY>0){
-            probCY <- replace(iprobCY,1:length(iprobCY),amcsample[iprobCY])
-        }
-        if(nbY>0){
-        probBY <- replace(iprobBY,1:length(iprobBY),amcsample[iprobBY])
-        }
-        ##
-        if(nrX>0){
         meanRX <- replace(imeanRX,1:length(imeanRX),amcsample[imeanRX])
         sdRX <- sqrt(replace(ivarRX,1:length(ivarRX),amcsample[ivarRX]))
-        }
-        if(ncX>0){        
+    }
+    if(ncX>0){        
         probCX <- replace(iprobCX,1:length(iprobCX),amcsample[iprobCX])
-        }
-        if(nbX>0){
+    }
+    if(nbX>0){
         probBX <- replace(iprobBX,1:length(iprobBX),amcsample[iprobBX])
-        }
-        ##        
-        pX <- t(exp(#cols=clusters
-                log(aq) + t(#rows=clusters
-                vapply(sclusters, function(acluster){#cols=clusters
-                    ## real covariates (rows)
-                    (if(nrX>0){
-                         colSums(dnorm(x=drawrX, mean=meanRX[,acluster], sd=sdRX[,acluster], log=T), na.rm=T)
-                    }else{0}) +
-                        ## integer covariates (rows)
-                        (if(niX>0){
-                             colSums(dbinom(x=drawiX, prob=probIX[,acluster], size=sizeIX[,acluster], log=T), na.rm=T)
-                        }else{0}) +
-                        ## category variates (cols)
-                        (if(ncX>0){
-                             colSums(matrix(extraDistr::dcat(x=drawcX, prob=probCX[,acluster,], log=T), nrow=ncX), na.rm=T)
-                            }else{0}) +
-                        ## binary covariates (rows)
-                        (if(nbX>0){
-                             colSums(matrix(extraDistr::dbern(x=drawbX, prob=probBX[,acluster], log=T), nrow=nbX), na.rm=T)
-                         }else{0})
-                }, numeric(nXsamples)))
-            ))
-        pX <- cbind(aq,t(pX/rowSums(pX))) # rows=clusters, cols=Xsamples
-        ##
-        ## Now the means and SDs of Y
-        if(nrY>0){
-            rM <- t(sapply(rY, function(acov){
-                out <- meanRY[,acov]
-                rbind((out2 <- colSums(pX*out)) * scales[acov]+locations[acov],
-                      colSums(pX * (varRY[,acov] + out*out)) * scales[acov]*scales[acov] +2*scales[acov]*locations[acov]*out2 + locations[acov]*locations[acov]
-                      )
-            })) # Y, moments, samples
-        }else{rM <- NULL}
-        ##
-        if(niY>0){
-            iM <- t(sapply(iY, function(acov){
-                out <- probIY[,acov] * sizeIY[,acov]
-                rbind((out2 <- colSums(pX*out))* scales[acov]+locations[acov],
-                      colSums(pX*out*
-                              (out - probIY[,acov]+1)) * scales[acov]*scales[acov] +2*scales[acov]*locations[acov]*out2 + locations[acov]*locations[acov]
-                      )
-            })) # Y, moments, samples
-        }else{iM <- NULL}
-        ##
-        if(ncY>0){
-            cM <- t(sapply(cY, function(acov){
-                out <- probCY[,,acov]*scategories
-                rbind((out2 <- colSums(pX*colSums(out)))* scales[acov]+locations[acov],
-                      colSums(pX*colSums(out*scategories)) * scales[acov]*scales[acov] +2*scales[acov]*locations[acov]*out2 + locations[acov]*locations[acov]
-                      )
-            })) # Y, moments, samples
-        }else{cM <- NULL}
-        ##
-        if(nbY>0){
-            bM <- t(sapply(bY, function(acov){
-                rbind((out <- colSums(pX*probBY[,acov]))* scales[acov]+locations[acov],
-                      out * scales[acov]*scales[acov] +2*scales[acov]*locations[acov]*out2 + locations[acov]*locations[acov]
-                      )
-            })) # Y, moments, samples
-        }else{bM <- NULL}
-        if(exists('out')){rm(out)}
-        ##
-        test <- array(rbind(rM,iM,cM,bM),
-              dim=c(length(ordYnames), 2, nXsamples+1),
-              dimnames=list(ordYnames,c('1stRawMom','2ndRawMom'),NULL)
-              )[order(match(ordYnames,Ynames)),,,drop=F]
-        test[is.na(test)] <- 0
-        test/nmcsubsamples
+    }
+    ##
+    pX <- t(log(aq) + t(#rows=clusters
+                      vapply(sclusters, function(acluster){#cols=clusters
+                          ## real covariates (rows)
+                          (if(nrX>0){
+                               colSums(dnorm(x=drawrX, mean=meanRX[,acluster], sd=sdRX[,acluster], log=T), na.rm=T)
+                           }else{0}) +
+                              ## integer covariates (rows)
+                              (if(niX>0){
+                                   colSums(dbinom(x=drawiX, prob=probIX[,acluster], size=sizeIX[,acluster], log=T), na.rm=T)
+                               }else{0}) +
+                              ## category variates (cols)
+                              (if(ncX>0){
+                                   colSums(matrix(extraDistr::dcat(x=drawcX, prob=probCX[,acluster,], log=T), nrow=ncX), na.rm=T)
+                               }else{0}) +
+                              ## binary covariates (rows)
+                              (if(nbX>0){
+                                   colSums(matrix(extraDistr::dbern(x=drawbX, prob=probBX[,acluster], log=T), nrow=nbX), na.rm=T)
+                               }else{0})
+                      }, numeric(nXsamples))
+                      ))
+    ##
+    pX <- exp(pX - apply(pX,1,max,na.rm=T)) # max(lpX,na.rm=T)
+    ## pX <- cbind(aq,t(pX)) # rows=clusters, cols=Xsamples
+    ## cpX <- colSums(pX)
+    ## cpX[cpX==0] <- 1
+    pX <- cbind(aq,t(pX/rowSums(pX))) # rows=clusters, cols=Xsamples
+    pX[is.na(pX)] <- 0
+    ##
+    ## Now the means and SDs of Y
+    if(nrY>0){
+        rM <- t(sapply(rY, function(acov){
+            out <- meanRY[,acov]
+            out2 <- colSums(pX*out)
+            rbind(out2,
+                  colSums(pX * varRY[,acov]) +
+                  colSums(pX * outer(out,out2,'-')^2)
+                  )
+            ## out3 <- colSums(pX*out)/cpX
+            ## rbind(out3 * scales[acov]+locations[acov],
+            ##       colSums(pX * (varRY[,acov] + out*out))/cpX * scales[acov]*scales[acov] +2*scales[acov]*locations[acov]*out3 + locations[acov]*locations[acov]
+            ##       )
+        })) # Y, moments, samples
+    }else{rM <- NULL}
+    ##
+    if(niY>0){
+        iM <- t(sapply(iY, function(acov){
+            out <- probIY[,acov] * sizeIY[,acov]
+            rbind(colSums(pX*out),
+                  colSums(pX*out*
+                          (out - probIY[,acov]+1))
+                  )
+        })) # Y, moments, samples
+    }else{iM <- NULL}
+    ##
+    if(ncY>0){
+        cM <- t(sapply(cY, function(acov){
+            out <- probCY[,,acov]*scategories
+            rbind(colSums(pX*colSums(out)),
+                  colSums(pX*colSums(out*scategories))
+                  )
+        })) # Y, moments, samples
+    }else{cM <- NULL}
+    ##
+    if(nbY>0){
+        bM <- t(sapply(bY, function(acov){
+            out <- colSums(pX*probBY[,acov])
+            rbind(out,
+                  out
+                  )
+        })) # Y, moments, samples
+    }else{bM <- NULL}
+##    if(exists('out')){rm(out)}
+    ##
+    out <- array(rbind(rM,iM,cM,bM),
+                  dim=c(length(ordYnames), 2, nXsamples+1),
+                  dimnames=list(ordYnames,c('mean','variance'),NULL)
+                  )[order(match(ordYnames,Ynames)),,,drop=F]
+    ##    test[is.na(test)] <- 0
+    if(!any(is.na(out))){list(out,1)}else{list(0,0)}
 }
 ## END sampling
 
-Ysds <- sqrt(allmoments[1,2,]-allmoments[1,1,]*allmoments[1,1,])
+
+
+Ysds <- sqrt(allmoments[[1]][1,2,]/allmoments[[2]])*scales[Ynames]
 
 uncYsds <- Ysds[1]
 condYsds <- Ysds[-1]
@@ -280,17 +298,33 @@ bestX <- order(condYsds)[1:3]
 mehX <- order(abs(condYsds-uncYsds))[1:3]
 showX <- c(bestX,mehX)
 
+histo <- thist(condYsds,plot=F)
+graphics.off()
+pdff(paste0('sdreductionHisto-',Ynames,'--using-allgraph'))
+tplot(x=histo$breaks,y=histo$density,
+      xlab='standard deviation for prediction',
+      ylab='probability',
+      main=paste0('median improvement in SD: ',signif((median(condYsds)/uncYsds-1)*100,3),'%')
+      )
+abline(v=uncYsds,col=darkgrey,lwd=3,lty=2)
+text(uncYsds,mean(par('usr')[3:4]),paste0('without knowledge\nof graph variates'),col=darkgrey,pos=4)
+abline(v=median(condYsds),col=palette()[4],lwd=3,lty=1)
+xti <- par('xaxp')
+xti <- seq(xti[1],xti[2],length.out=xti[3]+1)
+axis(side=3,at=xti,labels=paste0(signif((xti/uncYsds-1)*100,2),'%'),tick=F)
+dev.off()
+
 ## rgY <- extendrange(range(alldata[[Ynames]]),by=1/4)
 rgYplot <- range(alldata[[Ynames]])
-rgY <- range(variateparameters[Ynames,c('thmax','thmin')])
+rgY <- range(varinfo[Ynames,c('thmax','thmin')])
 Ygrid <- matrix(seq(rgY[1],rgY[2],length.out=512),ncol=1,dimnames=list(NULL,Ynames))
 ##
 
-uncdistrY <- samplesFmc(Y=Ygrid,X=NULL,mcsamples=mcsamples,variateparameters=variateparameters,inorder=F)
+uncdistrY <- samplesFmc(Y=Ygrid,X=NULL,mcsamples=mcsamples,variateparameters=varinfo,inorder=F)
 
-distrYbest <- samplesFmc(Y=Ygrid,X=Xvalues[bestX[1],,drop=F],mcsamples=mcsamples,variateparameters=variateparameters,inorder=F)
+distrYbest <- samplesFmc(Y=Ygrid,X=Xvalues[bestX[1],,drop=F],mcsamples=mcsamples,variateparameters=varinfo,inorder=F)
 
-distrYmeh <- samplesFmc(Y=Ygrid,X=Xvalues[mehX[2],,drop=F],mcsamples=mcsamples,variateparameters=variateparameters,inorder=F)
+distrYmeh <- samplesFmc(Y=Ygrid,X=Xvalues[mehX[2],,drop=F],mcsamples=mcsamples,variateparameters=varinfo,inorder=F)
 
 apmean <- sum(rowMeans(uncdistrY,na.rm=T)*c(Ygrid))/sum(rowMeans(uncdistrY,na.rm=T))
 apsd <- sqrt(sum(rowMeans(uncdistrY,na.rm=T)*c(Ygrid-apmean)^2)/sum(rowMeans(uncdistrY,na.rm=T)))
@@ -303,7 +337,7 @@ bessd <- sqrt(sum(rowMeans(distrYbest,na.rm=T)*c(Ygrid-apmean)^2)/sum(rowMeans(d
 
 graphics.off()
 ## pdff(paste0('sdreduction2-',Ynames,'--using-DMN_T'))
-pdff(paste0('sdreduction2-',Ynames,'--using-allgraph'))
+pdff(paste0('sdreductionExamples-',Ynames,'--using-allgraph'))
 ## pdff(paste0('sdreduction2-',Ynames,'--using-allgraph_minus_DMN_T'))
 tplot(x=Ygrid,y=list(rowMeans(uncdistrY,na.rm=T),
                      rowMeans(distrYbest,na.rm=T),
@@ -311,7 +345,7 @@ tplot(x=Ygrid,y=list(rowMeans(uncdistrY,na.rm=T),
       lty=c(1,2,4), lwd=c(6,3,3), col=c(7,1,2),
       xlab=Ynames, ylab='probability',ylim=c(0,NA)
       )
-legend(x='topleft',legend=c('no predictors','good graph-predictor values','no good graph-predictor values'),
+legend(x='topleft',legend=c('no predictors','good graph-predictor value','bad graph-predictor value'),
        lty=c(1,2,4),lwd=c(6,3,3),col=c(7,1,2),
        bty='n')
 redhist <- thist(condYsds[!is.na(condYsds)],n=-abs(uncYsds-min(condYsds,na.rm=T))/20)
