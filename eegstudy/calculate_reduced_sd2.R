@@ -577,3 +577,68 @@ foreach(i=1:8, .combine=c)%dopar%{
         }
 dev.off()
 }
+
+
+
+
+
+
+dx <- 1e-4
+ygrid <- seq(-16,0,length.out=256)
+tplot(x=ygrid,
+      y=(pnorm(ygrid,log.p=T) - dnorm(ygrid,log=T) + dlogis(ygrid,log=T))/log(10))
+abline(v=-12*log(2))
+
+
+tplot(x=xgrid,
+      y=pnorm(xgrid+dx)/(2*pnorm(xgrid)))
+tplot(x=xgrid,
+      y=0.5+0.5*(dnorm(xgrid)*dx/pnorm(xgrid)), add=T,col=2,lty=2)
+
+
+aa <- -(1+exp(-8))/(exp(8)-exp(-8))
+aa2 <- -(1+exp(8))/(exp(16)-1)
+bb <- (1+exp(8))/(exp(8)-exp(-8))
+dd <- exp(log(MM-mm)+log(2^-expo+2+2^expo)-log(2^-expo+2^expo))
+
+expo <- 12
+expo2 <- expo/2
+mm <- 0
+MM <- 100
+aa <- (mm*2^expo2-MM*2^-expo2)/(2^expo2-2^-expo2)
+bb <- (MM*2^expo2-mm*2^-expo2)/(2^expo2-2^-expo2)
+dd <- exp(log(MM-mm)+log1p(2^-expo)-log1p(-2^-expo))
+##
+aa2 <- (mm*(1+2^expo)-MM*(1+2^-expo))/(2^expo-2^-expo)
+bb2 <- (MM*(1+2^expo)-mm*(1+2^-expo))/(2^expo-2^-expo)
+dd2 <- exp(log(MM-mm)+log(2^-expo+2+2^expo)-log(2^expo-2^-expo))
+##
+xgrid <- seq(mm,MM,length.out=256)
+tplot(x=xgrid, y=qlogis((xgrid-aa)/dd))
+##
+ygrid <- seq(-8,8,length.out=256)
+tplot(y=ygrid, x=plogis(ygrid)*dd+aa, add=T,col=2,lty=2)
+
+xgrid2 <- plogis(qlogis((xgrid-aa)/dd))*dd+aa
+
+
+tplot(x=xgrid,
+      y=qlogis((xgrid-aa)/(bb-aa)),add=T,col=2,lty=2)
+## tplot(x=xgrid,
+##       y=qlogis(xgrid, location=(aa+bb)/2, scale=dd),add=T,col=2,lty=2)
+
+tplot(x=xgrid,
+      y=qlogis((xgrid-aa2)/(bb2-aa2)),add=T,col=2,lty=2)
+
+tplot(x=xgrid,
+      y=qlogis((xgrid-aa)/dd),add=T,col=3,lty=3)
+
+
+
+tplot(x=xgrid,
+      y=log((xgrid-aa)/(bb-xgrid)))
+tplot(x=xgrid,
+      y=qlogis((xgrid-aa)/(bb-aa)),add=T,col=2,lty=2)
+tplot(x=xgrid,
+      y=qlogis((xgrid-aa)/dd),add=T,col=3,lty=3)
+
