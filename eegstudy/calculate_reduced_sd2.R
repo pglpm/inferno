@@ -642,3 +642,41 @@ tplot(x=xgrid,
 tplot(x=xgrid,
       y=qlogis((xgrid-aa)/dd),add=T,col=3,lty=3)
 
+mm <- 0
+MM <- 1
+me <- 1
+q1 <- 0.1
+q2 <- 1
+##
+fn <- function(a){
+    si <- log(q2-a)-log(q1-a)
+    ya <- (log(mm-a) - log(me-a))/si
+    pnorm(ya)/dnorm(ya)*si*(mm-a)
+}
+##
+lagrid <- seq(0,-14,length.out=512)
+agrid <- -2^lagrid
+tplot(x=lagrid,
+      y=log10(fn(agrid)))
+
+
+
+
+mm <- 0
+MM <- 100
+dd <- MM-mm
+me <- 50
+q1 <- 40
+q2 <- 60
+tra <- function(y){qlogis((y-mm)/dd*(1-2*a)+a)}
+##
+fn <- function(a){
+    si <- tra(q2)-tra(q1)
+    mu <- tra(me)
+    pnorm(mm)/dnorm(mm)*dlogis(mmsi*(mm-a)
+}
+##
+lagrid <- seq(0,-14,length.out=512)
+agrid <- -2^lagrid
+tplot(x=lagrid,
+      y=log10(fn(agrid)))
