@@ -1,8 +1,8 @@
 ## Author: PGL  Porta Mana
 ## Created: 2022-09-08T17:03:24+0200
-## Last-Updated: 2022-11-24T16:11:37+0100
+## Last-Updated: 2022-11-24T16:10:04+0100
 ################
-## Exchangeable-probability calculation (non-parametric density regression)
+## Preprocessing of data for Monte Carlo sampling
 ################
 
 #### USER INPUTS AND CHOICES ####
@@ -115,15 +115,18 @@ varMins <- variateinfo$min
 varMaxs <- variateinfo$max
 names(varTypes) <- names(varMins) <- names(varMaxs) <- varNames
 realVars <- varNames[varTypes=='real']
+integerVars <- varNames[varTypes=='integer']
 categoryVars <- varNames[varTypes=='categorical']
 binaryVars <- varNames[varTypes=='binary']
 ##
 nrvars <- length(realVars)
+nivars <- length(integerVars)
 ncvars <- length(categoryVars)
 nbvars <- length(binaryVars)
 nvars <- length(varNames)
 ##
 realNums <- sort(unclass(factor(realVars))); names(realNums) <- realVars
+integerNums <- sort(unclass(factor(integerVars))); names(integerNums) <- integerVars
 categoryNums <- sort(unclass(factor(categoryVars))); names(categoryNums) <- categoryVars
 binaryNums <- sort(unclass(factor(binaryVars))); names(binaryNums) <- binaryVars
 varNums <- c(realNums, integerNums, categoryNums, binaryNums)
