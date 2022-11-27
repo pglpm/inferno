@@ -25,6 +25,35 @@ if(ncores>1){
 set.seed(123)
 nn <- 32
 
+## 6.54423 is the largest value produced by rnorm that I have seen
+## 1e-3 -> 2^-10
+## 1e-4 -> 2^-14
+## 1e-5 -> 2^-17
+## 1e-6 -> 2^-20
+dx <- 1e-3
+ddp <- seq(-32,-8,length.out=128)
+dd <- 2^ddp
+tran <- function(x,dd){qlogis(x*(1-2*dd)+dd)}
+dtran <- function(x,dd){(1-2*dd)/dlogis(plogis(tran(x,dd)))}
+## tran <- function(x,dd){qlogis(x*(1-2*dd)+dd)}
+## dtran <- function(x,dd){(1-2*dd)/dlogis(plogis(tran(x,dd)))}
+tx <- tran(0,dd)
+dtx <- dtran(0,dd)
+ygrid <- dnorm(tx)*dtx*dx/pnorm(tx)
+## dtx <- dtran(dd,dd)-dtran(0,dd)
+## ygrid <- dtx/pnorm(tx)dx
+tplot(x=ddp,y=1/ygrid)
+
+ddp <- seq(1,15,length.out=128)
+tplot(x=ddp,y=qnorm(-ddp*log(10),log.p=T))
+
+ddp <- seq(1,3,length.out=128)
+tplot(x=ddp,y=dnorm(-10^ddp)==0)
+
+
+
+
+
 #### Doubly-bounded case
 #### Adding tails to last point
 dx <- 2^-11
@@ -71,6 +100,216 @@ for(i in 1:nsamples){
           type='p',cex=0.1,add=T)
     abline(h=0,lwd=0.5,col=alpha2hex(0.5,7),lty=1)
     abline(v=c(-1,1),lwd=0.5,col=alpha2hex(0.5,7),lty=2)
+}
+dev.off()
+
+
+#### Doubly-bounded case
+#### with transformation
+dd <- 2^-11
+tran <- function(x){qnorm(x*(1-2*dd)+dd)}
+jac <- function(x){1/dnorm(x*(1-2*dd)+dd)*(1-2*dd)}
+dx <- 2^-11
+##
+nsamples <- 400
+nclusters <- 64
+alphas <- c(1,2,0.5)
+means <- c(0)
+sds <- c(3)
+shape1s <- c(1) # large scales
+shape2s <- c(1/2) # small scales
+scales <- c(8)
+##
+alpha <- sample(rep(alphas,2),nsamples,replace=T)
+q <- extraDistr::rdirichlet(n=nsamples,alpha=matrix(alpha/nclusters,nsamples,nclusters))
+sd <- sample(rep(sds,2),nsamples*nclusters,replace=T)
+m <- matrix(rnorm(nsamples*nclusters,means,sd),nsamples)
+shape1 <- sample(rep(shape1s,2),nsamples*nclusters,replace=T)
+shape2 <- sample(rep(shape2s,2),nsamples*nclusters,replace=T)
+scale <- sample(rep(scales,2),nsamples*nclusters,replace=T)
+s <- matrix(sqrt(nimble::rinvgamma(nsamples*nclusters,shape=shape1,rate=nimble::rinvgamma(nsamples*nclusters,shape=shape2,scale=scale))),nsamples)
+##
+graphics.off()
+pdff('samples_doublybounded_transf')
+par(mfrow=c(20,20),mar = c(0,0,0,0))
+xgrid <- seq(0, 1, length.out=256)
+txgrid <- tran(xgrid)
+extr <- c(1,length(xgrid))
+ysum <- 0
+for(i in 1:nsamples){
+    y <- rowSums(sapply(1:nclusters,function(acluster){
+        dens <- c(
+            pnorm(txgrid[extr[1]], m[i,acluster], s[i,acluster]),
+            dnorm(txgrid[-extr], m[i,acluster], s[i,acluster])*jac(xgrid[-extr]),
+            pnorm(txgrid[extr[2]], m[i,acluster], s[i,acluster], lower.tail=F)
+        )
+        q[i,acluster]*dens}))
+    ysum <- ysum+y
+    if(i==nsamples){y <- ysum/nsamples}
+    y[extr] <- y[extr] * max(y[-extr])
+    tplot(x=xgrid, y=y,
+          ylim=c(0,NA),xlim=c(0-dx,1+dx),
+          xlabels=NA,ylabels=NA, xlab=NA,ylab=NA,
+          xticks=NA,yticks=NA,
+          mar=c(1,1,1,1)*0.5,
+          col=if(i<nsamples){1}else{if(any(is.infinite(ysum))){2}else{3}}, ly=1,lwd=0.5)
+    tplot(x=xgrid[extr], y=y[extr],
+          type='p',cex=0.1,add=T)
+    abline(h=0,lwd=0.5,col=alpha2hex(0.5,7),lty=1)
+    abline(v=c(0,1),lwd=0.5,col=alpha2hex(0.5,7),lty=2)
+}
+dev.off()
+
+
+#### Doubly-bounded case
+#### with norm transformation
+dd <- 2^-12
+## tran <- function(x){qnorm(x*(1-2*dd)+dd)}
+## jac <- function(x){1/dnorm(x*(1-2*dd)+dd)*(1-2*dd)}
+tran <- function(x){qnorm(x*(1-2*dd)+dd)}
+jac <- function(x){1/dnorm(tran(x))*(1-2*dd)}
+dx <- 1e-3
+##
+fract <- 400
+nsamples <- fract*4
+nclusters <- 64
+alphas <- c(1,2,0.5)
+means <- c(0)
+sds <- c(1)
+shape1s <- c(2) # large scales
+shape2s <- c(1) # small scales
+scales <- c(1/4)^-2
+##
+alpha <- sample(rep(alphas,2),nsamples,replace=T)
+q <- extraDistr::rdirichlet(n=nsamples,alpha=matrix(alpha/nclusters,nsamples,nclusters))
+sd <- sample(rep(sds,2),nsamples*nclusters,replace=T)
+m <- matrix(rnorm(nsamples*nclusters,means,sd),nsamples)
+shape1 <- sample(rep(shape1s,2),nsamples*nclusters,replace=T)
+shape2 <- sample(rep(shape2s,2),nsamples*nclusters,replace=T)
+scale <- sample(rep(scales,2),nsamples*nclusters,replace=T)
+s <- matrix(sqrt(nimble::rinvgamma(nsamples*nclusters,shape=shape1,rate=nimble::rinvgamma(nsamples*nclusters,shape=shape2,scale=scale))),nsamples)
+##
+xgrid <- c(0,-dd*7/8,seq(0, 1, length.out=256),1+dd*7/8,1)
+txgrid <- tran(xgrid)
+extr <- c(1,length(xgrid))
+ysum <- 0
+## tplot(x=xgrid,y=dnorm(txgrid)*jac(xgrid))
+graphics.off()
+pdff('samples_doublybounded_norm')
+par(mfrow=c(20,20),mar = c(0,0,0,0))
+for(i in 1:nsamples){
+    y <- rowSums(sapply(1:nclusters,function(acluster){
+        dens <- c(
+            pnorm(txgrid[extr[1]], m[i,acluster], s[i,acluster]),
+            dnorm(txgrid[-extr], m[i,acluster], s[i,acluster])*jac(xgrid[-extr]),
+            pnorm(txgrid[extr[2]], m[i,acluster], s[i,acluster], lower.tail=F)
+        )
+        q[i,acluster]*dens}))
+    ysum <- ysum+y
+    if(i<fract | i==nsamples){
+    if(i==nsamples){y <- ysum/nsamples}
+    y[extr] <- y[extr] * max(y[-extr])
+    tplot(x=xgrid[-extr], y=y[-extr],
+          ylim=c(0,max(y,1)),xlim=c(0-dd*7/8,1+dd*7/8),
+          xlabels=NA,ylabels=NA, xlab=NA,ylab=NA,
+          xticks=NA,yticks=NA,
+          mar=c(1,1,1,1)*0.5,
+          col=if(i<fract){1}else{if(any(is.infinite(ysum))){2}else{3}}, ly=1,lwd=0.5)
+    tplot(x=xgrid[extr+c(1,-1)], y=y[extr+c(1,-1)],
+          type='p',col=4,cex=0.15,add=T,pch=3)
+    tplot(x=xgrid[extr+c(2,-2)], y=y[extr+c(2,-2)],
+          type='p',cex=0.15,add=T,pch=2)
+    tplot(x=xgrid[extr], y=y[extr],
+          type='p',cex=0.075,col=2,add=T)
+    abline(h=c(0),lwd=0.5,col=alpha2hex(0.5,c(7,2)),lty=c(1,2))
+    if(i==nsamples){
+        abline(h=c(1),lwd=0.5,col=alpha2hex(0.5,c(2)),lty=1)
+    }
+    abline(v=c(0,1),lwd=0.5,col=alpha2hex(0.5,7),lty=2)
+    }
+}
+dev.off()
+
+
+
+nclusters <- 1
+nsamples <- 1e5
+shape1s <- c(8) # large scales
+shape2s <- c(1/2) # small scales
+scales <- 1^(-2)
+shape1 <- sample(rep(shape1s,2),nsamples*nclusters,replace=T)
+shape2 <- sample(rep(shape2s,2),nsamples*nclusters,replace=T)
+scale <- sample(rep(scales,2),nsamples*nclusters,replace=T)
+s <- log10(nimble::rinvgamma(nsamples*nclusters,shape=shape1,rate=nimble::rinvgamma(nsamples*nclusters,shape=shape2,scale=scale)))/2
+thist(s,plot=T)
+
+
+#### Doubly-bounded case
+#### with logis transformation
+dd <- 2^-10
+## tran <- function(x){qnorm(x*(1-2*dd)+dd)}
+## jac <- function(x){1/dnorm(x*(1-2*dd)+dd)*(1-2*dd)}
+tran <- function(x){qlogis(x*(1-2*dd)+dd)}
+jac <- function(x){1/dlogis(tran(x))*(1-2*dd)}
+dx <- 1e-3
+##
+fract <- 400
+nsamples <- fract*4
+nclusters <- 64
+alphas <- c(1,2,0.5)
+means <- c(0)
+sds <- c(1.5)
+shape1s <- c(1.25) # large scales
+shape2s <- c(1) # small scales
+scales <-  1/2^(-2)
+##
+alpha <- sample(rep(alphas,2),nsamples,replace=T)
+q <- extraDistr::rdirichlet(n=nsamples,alpha=matrix(alpha/nclusters,nsamples,nclusters))
+sd <- sample(rep(sds,2),nsamples*nclusters,replace=T)
+m <- matrix(rnorm(nsamples*nclusters,means,sd),nsamples)
+shape1 <- sample(rep(shape1s,2),nsamples*nclusters,replace=T)
+shape2 <- sample(rep(shape2s,2),nsamples*nclusters,replace=T)
+scale <- sample(rep(scales,2),nsamples*nclusters,replace=T)
+s <- matrix(sqrt(nimble::rinvgamma(nsamples*nclusters,shape=shape1,rate=nimble::rinvgamma(nsamples*nclusters,shape=shape2,scale=scale))),nsamples)
+##
+xgrid <- c(0,-dd*7/8,seq(0, 1, length.out=256),1+dd*7/8,1)
+txgrid <- tran(xgrid)
+extr <- c(1,length(xgrid))
+ysum <- 0
+## tplot(x=xgrid,y=dnorm(txgrid)*jac(xgrid))
+graphics.off()
+pdff('samples_doublybounded_logis')
+par(mfrow=c(20,20),mar = c(0,0,0,0))
+for(i in 1:nsamples){
+    y <- rowSums(sapply(1:nclusters,function(acluster){
+        dens <- c(
+            pnorm(txgrid[extr[1]], m[i,acluster], s[i,acluster]),
+            dnorm(txgrid[-extr], m[i,acluster], s[i,acluster])*jac(xgrid[-extr]),
+            pnorm(txgrid[extr[2]], m[i,acluster], s[i,acluster], lower.tail=F)
+        )
+        q[i,acluster]*dens}))
+    ysum <- ysum+y
+    if(i<fract | i==nsamples){
+    if(i==nsamples){y <- ysum/nsamples}
+    y[extr] <- y[extr] * max(y[-extr])
+    tplot(x=xgrid[-extr], y=y[-extr],
+          ylim=c(0,max(y,1)),xlim=c(0-dd*7/8,1+dd*7/8),
+          xlabels=NA,ylabels=NA, xlab=NA,ylab=NA,
+          xticks=NA,yticks=NA,
+          mar=c(1,1,1,1)*0.5,
+          col=if(i<fract){1}else{if(any(is.infinite(ysum))){2}else{3}}, ly=1,lwd=0.5)
+    tplot(x=xgrid[extr+c(1,-1)], y=y[extr+c(1,-1)],
+          type='p',col=4,cex=0.15,add=T,pch=3)
+    tplot(x=xgrid[extr+c(2,-2)], y=y[extr+c(2,-2)],
+          type='p',cex=0.15,add=T,pch=2)
+    tplot(x=xgrid[extr], y=y[extr],
+          type='p',cex=0.075,col=2,add=T)
+    abline(h=c(0),lwd=0.5,col=alpha2hex(0.5,c(7,2)),lty=c(1,2))
+    if(i==nsamples){
+        abline(h=c(1),lwd=0.5,col=alpha2hex(0.5,c(2)),lty=1)
+    }
+    abline(v=c(0,1),lwd=0.5,col=alpha2hex(0.5,7),lty=2)
+    }
 }
 dev.off()
 
