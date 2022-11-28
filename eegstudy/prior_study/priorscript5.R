@@ -383,19 +383,21 @@ dev.off()
 
 
 #### Integer
-#### with transformation
-dd <- 2^-11
-tran <- function(x){qlogis(x*(1-2*dd)+dd)}
+#### with norm transformation
+nint <- 8
+dd <- pnorm(qnorm(0.5/nint))
+tran <- function(x){qnorm(x*(1-2*dd)+dd)}
+## dd <- 2^-11
 ##
-nint <- 8+1
-nsamples <- 400
+nsamples <- 400*8
+nsubsamples <- 400
 nclusters <- 64
 alphas <- c(1,2,0.5)
 means <- c(0)
-sds <- c(1.5)
-shape1s <- c(1/2) # large scales
-shape2s <- c(1/4) # small scales
-scales <- c(1)
+sds <- c(1)
+shape1s <- c(2) # large scales
+shape2s <- c(1/2) # small scales
+scales <- 1/4^(-2)
 ##
 alpha <- sample(rep(alphas,2),nsamples,replace=T)
 q <- extraDistr::rdirichlet(n=nsamples,alpha=matrix(alpha/nclusters,nsamples,nclusters))
@@ -407,7 +409,7 @@ scale <- sample(rep(scales,2),nsamples*nclusters,replace=T)
 s <- matrix(sqrt(nimble::rinvgamma(nsamples*nclusters,shape=shape1,rate=nimble::rinvgamma(nsamples*nclusters,shape=shape2,scale=scale))),nsamples)
 ##
 graphics.off()
-pdff('samples_integer_transf')
+pdff('samples_integer_norm')
 par(mfrow=c(20,20),mar = c(0,0,0,0))
 xgrid <- seq(0,1,length.out=nint)
 extr <- c(1,length(xgrid))
@@ -431,6 +433,7 @@ for(i in 1:nsamples){
     ##     dens[extr[2]] <- pnorm(xgrid[extr[2]], m[i,acluster], s[i,acluster], lower.tail=F)
     ##     q[i,acluster]*dens}))
     ysum <- ysum+y
+    if(i<nsubsamples|i==nsamples){
     if(i==nsamples){y <- ysum/nsamples}
     #y2 <- y2*max(y[-extr])/max(y2[-extr])
     ## y[extr] <- y[extr] * max(y[-extr])
@@ -439,16 +442,105 @@ for(i in 1:nsamples){
           xlabels=NA,ylabels=NA, xlab=NA,ylab=NA,
           xticks=NA,yticks=NA,
           mar=c(1,1,1,1)*0.5,
-          col=c(if(i<nsamples){1}else{if(any(is.infinite(ysum))){2}else{3}},4), ly=1,lwd=0.5)
+          col=c(if(i<nsubsamples){1}else{if(any(is.infinite(ysum))){2}else{3}},4), ly=1,lwd=0.5)
     tplot(x=xgrid, y=y,type='p',cex=0.2,
           ylim=c(0,NA),xlim=range(xgrid),
           xlabels=NA,ylabels=NA, xlab=NA,ylab=NA,
           xticks=NA,yticks=NA,
           mar=c(1,1,1,1)*0.5,add=T,
-          col=if(i<nsamples){1}else{if(any(is.infinite(ysum))){2}else{3}}, ly=1,lwd=0.5)
+          col=if(i<nsubsamples){1}else{if(any(is.infinite(ysum))){2}else{3}}, ly=1,lwd=0.5)
+    tplot(x=xgrid[extr], y=y[extr],
+          type='p',cex=0.075,col=3,add=T)
     ## tplot(x=xgrid[extr], y=y[extr], type='p',cex=0.1,add=T)
     abline(h=0,lwd=0.5,col=alpha2hex(0.5,7),lty=1)
+    abline(h=0,lwd=0.5,col=alpha2hex(0.5,7),lty=1)
+    if(i==nsamples){
+        abline(h=c(1/nint),lwd=0.5,col=alpha2hex(0.5,c(2)),lty=1)
+    }
     ## abline(v=,lwd=0.5,col=alpha2hex(0.5,7),lty=2)
+    }
+}
+dev.off()
+
+
+#### Integer
+#### with logis transformation
+nint <- 16
+dd <- plogis(qnorm(0.5/nint))
+tran <- function(x){qlogis(x*(1-2*dd)+dd)}
+##
+nint <- 75
+nsamples <- 400*8
+nsubsamples <- 400
+nclusters <- 64
+alphas <- c(1,2,0.5)
+means <- c(0)
+sds <- c(1)
+shape1s <- c(1) # large scales
+shape2s <- c(1/2) # small scales
+scales <- 1/4^(-2)
+##
+alpha <- sample(rep(alphas,2),nsamples,replace=T)
+q <- extraDistr::rdirichlet(n=nsamples,alpha=matrix(alpha/nclusters,nsamples,nclusters))
+sd <- sample(rep(sds,2),nsamples*nclusters,replace=T)
+m <- matrix(rnorm(nsamples*nclusters,means,sd),nsamples)
+shape1 <- sample(rep(shape1s,2),nsamples*nclusters,replace=T)
+shape2 <- sample(rep(shape2s,2),nsamples*nclusters,replace=T)
+scale <- sample(rep(scales,2),nsamples*nclusters,replace=T)
+s <- matrix(sqrt(nimble::rinvgamma(nsamples*nclusters,shape=shape1,rate=nimble::rinvgamma(nsamples*nclusters,shape=shape2,scale=scale))),nsamples)
+##
+graphics.off()
+pdff('samples_integer_logis')
+par(mfrow=c(20,20),mar = c(0,0,0,0))
+xgrid <- seq(0,1,length.out=nint)
+extr <- c(1,length(xgrid))
+mgrid <- (xgrid[-extr[2]]+xgrid[-extr[1]])/2
+mextr <- c(1,length(mgrid))
+txgrid <- tran(xgrid)
+tmgrid <- tran(mgrid)
+dx <- 2/(nint-1)
+ysum <- 0
+for(i in 1:nsamples){
+    y <- rowSums(sapply(1:nclusters,function(acluster){
+        dens <- c(
+            pnorm(tmgrid[mextr[1]], m[i,acluster], s[i,acluster]),
+            pnorm(tmgrid[-mextr[1]], m[i,acluster], s[i,acluster]) - pnorm(tmgrid[-mextr[2]], m[i,acluster], s[i,acluster]),
+            pnorm(tmgrid[mextr[2]], m[i,acluster], s[i,acluster], lower.tail=F)
+        )
+        q[i,acluster]*dens}))
+    ## y2 <- rowSums(sapply(1:nclusters,function(acluster){
+    ##     dens <- dnorm(xgrid, m[i,acluster], s[i,acluster])*2*dx
+    ##     dens[extr[1]] <- pnorm(xgrid[extr[1]], m[i,acluster], s[i,acluster])
+    ##     dens[extr[2]] <- pnorm(xgrid[extr[2]], m[i,acluster], s[i,acluster], lower.tail=F)
+    ##     q[i,acluster]*dens}))
+    ysum <- ysum+y
+    if(i<nsubsamples|i==nsamples){
+    if(i==nsamples){y <- ysum/nsamples}
+    #y2 <- y2*max(y[-extr])/max(y2[-extr])
+    ## y[extr] <- y[extr] * max(y[-extr])
+    tplot(x=xgrid, y=y, #y=list(y,y2),
+          ylim=c(0,NA),xlim=range(xgrid),
+          xlabels=NA,ylabels=NA, xlab=NA,ylab=NA,
+          xticks=NA,yticks=NA,
+          mar=c(1,1,1,1)*0.5,
+          col=c(if(i<nsubsamples){1}else{if(any(is.infinite(ysum))){2}else{3}},4), ly=1,lwd=0.5)
+    tplot(x=xgrid, y=y,type='p',cex=0.2,
+          ylim=c(0,NA),xlim=range(xgrid),
+          xlabels=NA,ylabels=NA, xlab=NA,ylab=NA,
+          xticks=NA,yticks=NA,
+          mar=c(1,1,1,1)*0.5,add=T,
+          col=if(i<nsubsamples){1}else{if(any(is.infinite(ysum))){2}else{3}}, ly=1,lwd=0.5)
+    tplot(x=xgrid[extr], y=y[extr],
+          type='p',cex=0.075,col=3,add=T)
+    abline(h=c(0),lwd=0.5,col=alpha2hex(0.5,c(7,2)),lty=c(1,2))
+    ## tplot(x=xgrid[extr], y=y[extr], type='p',cex=0.1,add=T)
+    abline(h=0,lwd=0.5,col=alpha2hex(0.5,7),lty=1)
+    abline(h=0,lwd=0.5,col=alpha2hex(0.5,7),lty=1)
+    if(i==nsamples){
+        abline(h=c(1/nint),lwd=0.5,col=alpha2hex(0.5,c(2)),lty=1)
+    }
+    ## abline(v=,lwd=0.5,col=alpha2hex(0.5,7),lty=2)
+    }
 }
 dev.off()
 
@@ -762,3 +854,42 @@ dev.off()
 
     NULL
     }
+
+
+
+
+
+
+dt <- fread('~/repositories/ADBayes/_scripts2/data_transformed_shuffled.csv')
+
+outp <- t(sapply(dt2,function(x){c(uni=length(unique(x)),occ=length(x)/length(unique(x)),D=min(diff(sort(unique(x)))),rD=min(diff(sort(unique(x))))/diff(range(x)),min=min(x),max=max(x),tquant(x,(1:3)/4))}))
+signif(outp[order(outp[,1]),],2)
+
+##                  uni   occ       D      rD     min      max     25%      50%      75%
+## Apoe4_             2 340.0 1.0e+00 1.0e+00  0.0000   1.0000  0.0000   1.0000   1.0000
+## Subgroup_num_      2 340.0 1.0e+00 1.0e+00  0.0000   1.0000  0.0000   0.0000   1.0000
+## Gender_num_        2 340.0 1.0e+00 1.0e+00  0.0000   1.0000  0.0000   0.0000   1.0000
+## GDTOTAL_gds        7  97.0 1.0e+00 1.7e-01  0.0000   6.0000  1.0000   1.0000   2.0000
+## AVDEL30MIN_neuro  16  42.0 1.0e+00 6.7e-02  0.0000  15.0000  0.0000   3.0000   6.0000
+## AVDELTOT_neuro    16  42.0 1.0e+00 6.7e-02  0.0000  15.0000  8.0000  11.0000  13.0000
+## CATANIMSC_neuro   29  23.0 1.0e+00 3.3e-02  5.0000  35.0000 13.0000  17.0000  20.0000
+## ANARTERR_neuro    47  14.0 1.0e+00 2.0e-02  0.0000  50.0000  6.0000  10.0000  18.0000
+## RAVLT_immediate   52  13.0 1.0e+00 1.8e-02 11.0000  67.0000 26.0000  32.0000  39.0000
+## TRAASCOR_neuro    84   8.1 1.0e+00 7.3e-03 13.0000 150.0000 30.0000  37.0000  48.0000
+## TRABSCOR_neuro   190   3.6 1.0e+00 3.7e-03 33.0000 300.0000 73.0000 100.0000 140.0000
+## AGE              270   2.5 1.0e-01 2.7e-03 55.0000  91.0000 69.0000  74.0000  79.0000
+## LRHHC_n_long     680   1.0 1.6e-09 3.9e-07  0.0023   0.0065  0.0037   0.0042   0.0047
+
+Apoe4_
+Subgroup_num_    
+Gender_num_      
+GDTOTAL_gds      
+AVDEL30MIN_neuro 
+AVDELTOT_neuro   
+CATANIMSC_neuro  
+ANARTERR_neuro   
+RAVLT_immediate  
+TRAASCOR_neuro   
+TRABSCOR_neuro   
+AGE              
+LRHHC_n_long
