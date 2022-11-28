@@ -234,9 +234,9 @@ dev.off()
 
 nclusters <- 1
 nsamples <- 1e5
-shape1s <- c(8) # large scales
+shape1s <- c(1/2) # large scales
 shape2s <- c(1/2) # small scales
-scales <- 1^(-2)
+scales <- 1^(-2) #
 shape1 <- sample(rep(shape1s,2),nsamples*nclusters,replace=T)
 shape2 <- sample(rep(shape2s,2),nsamples*nclusters,replace=T)
 scale <- sample(rep(scales,2),nsamples*nclusters,replace=T)
@@ -381,10 +381,10 @@ dev.off()
 
 
 
-
+set.seed(111)
 #### Integer
 #### with norm transformation
-nint <- 8
+nint <- 16
 dd <- pnorm(qnorm(0.5/nint))
 tran <- function(x){qnorm(x*(1-2*dd)+dd)}
 ## dd <- 2^-11
@@ -396,7 +396,7 @@ alphas <- c(1,2,0.5)
 means <- c(0)
 sds <- c(1)
 shape1s <- c(2) # large scales
-shape2s <- c(1/2) # small scales
+shape2s <- c(1) # small scales
 scales <- 1/4^(-2)
 ##
 alpha <- sample(rep(alphas,2),nsamples,replace=T)
@@ -417,6 +417,7 @@ mgrid <- (xgrid[-extr[2]]+xgrid[-extr[1]])/2
 mextr <- c(1,length(mgrid))
 txgrid <- tran(xgrid)
 tmgrid <- tran(mgrid)
+##tmgrid <- (txgrid[-extr[2]]+txgrid[-extr[1]])/2
 dx <- 2/(nint-1)
 ysum <- 0
 for(i in 1:nsamples){
@@ -864,6 +865,9 @@ dt <- fread('~/repositories/ADBayes/_scripts2/data_transformed_shuffled.csv')
 
 outp <- t(sapply(dt2,function(x){c(uni=length(unique(x)),occ=length(x)/length(unique(x)),D=min(diff(sort(unique(x)))),rD=min(diff(sort(unique(x))))/diff(range(x)),min=min(x),max=max(x),tquant(x,(1:3)/4))}))
 signif(outp[order(outp[,1]),],2)
+
+
+v
 
 ##                  uni   occ       D      rD     min      max     25%      50%      75%
 ## Apoe4_             2 340.0 1.0e+00 1.0e+00  0.0000   1.0000  0.0000   1.0000   1.0000
