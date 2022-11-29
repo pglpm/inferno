@@ -7,30 +7,30 @@ library('nimble')
 
 nvars <- 10 # switch to include/exclude categorical components
 ndata <- 500
-
+ncens <- 8
 nclusters <- 64
-
+##
 set.seed(229)
 rdata <- matrix(rnorm(ndata*nvars, mean=0, sd=2), nrow=ndata)
 ## 1: 2.9, 2: 5
-bounds <- matrix(c(2.9, 5), nrow=ndata,ncol=2,byrow=T)
-xbounds <- matrix(+Inf,nrow=ndata,ncol=nvars-2)
+bounds <- matrix(seq(2.9,5,length.out=ncens), nrow=ndata,ncol=ncens,byrow=T)
+xbounds <- matrix(+Inf,nrow=ndata,ncol=nvars-ncens)
 ## censored <- cbind(rep(1,ndata), rep(0,ndata))
-censored <- rdata[,1:2] >= bounds
-xcensored <- rdata >= cbind(bounds,xbounds)
+censored <- rdata[,1:ncens] >= bounds
+allcensored <- rdata >= cbind(bounds,xbounds)
 ##
 rdata2 <- rdata
-rdata[xcensored] <- NA
+rdata[allcensored] <- NA
 
-cbind(rdata2,rdata,censored)
-bounds[!is.na(rdata)] <- signs[!is.na(rdata)]*Inf
+## cbind(rdata2,rdata,censored)
+## bounds[!is.na(rdata)] <- signs[!is.na(rdata)]*Inf
 
 
 datapoints <- c(
     list(Rdata = rdata, Censored=censored*1L)
 )
 
-constants <- list(ndata=ndata, nclusters=nclusters, bounds=bounds, nvars=nvars)
+constants <- list(ndata=ndata, nclusters=nclusters, bounds=bounds, nvars=nvars, ncens=ncens, ncens1=ncens+1)
 
 initsFunction <- function(){
     c(
@@ -65,7 +65,7 @@ infmixture <- nimbleCode({
     for(datum in 1:ndata){
         Labels[datum] ~ dcat(prob=q[1:nclusters])
         ##
-        for(variate in 1:2){# real variates
+        for(variate in 1:ncens){# real variates
             Censored[datum, variate] ~ dinterval(Rdata[datum, variate], bounds[datum, variate])
         }
         for(variate in 1:nvars){
@@ -79,7 +79,7 @@ model <- nimbleModel(code=infmixture, name='model',
                      inits=initsFunction(),
                      data=datapoints,
                      dimensions=c(
-                         list(Censored=c(ndata,2),
+                         list(Censored=c(ndata,ncens),
                               Labels=ndata,
                               q=nclusters,
                               Rrates=nvars,
@@ -103,11 +103,30 @@ mcsampler <- buildMCMC(confmodel)
 Cmcsampler <- compileNimble(mcsampler, resetFunctions = TRUE)
 
 ##
+timestart <- Sys.time()
 Cmodel$setInits(initsFunction())
 output <- Cmcsampler$run(niter=1100, thin=1, reset=T, resetMV=TRUE, nburnin=100, time=T)
+timestop <- Sys.time() - timestart
+timestop
+## ncens=2:
+## Time difference of 1.28007 mins
+## Rvariances     Rmeans     Labels          q     Rrates      Rdata     alpha0 
+##  31.709330  27.369537  16.857415   0.246917   0.236185   0.048782   0.016083 
 ##
+## ncens=8:
+## Time difference of 1.20523 mins
+## Rvariances     Rmeans     Labels          q     Rrates      Rdata     alpha0 
+##  29.695191  25.041273  16.612910   0.237851   0.223879   0.163691   0.014620 
+
 dpsamples <- as.matrix(Cmcsampler$mvSamples)
 times <- Cmcsampler$getTimes()
 names(times) <- sapply(confmodel$getSamplers(),function(x)x$target)
 
-Cmodel$plotGraph()
+## sum(times[grepl('^Rdata',names(times))])
+##
+prefs <- unique(sub('^([^[]+)(\\[.*\\])', '\\1', names(times)))
+sort(sapply(prefs, function(x)sum(times[grepl(x,names(times))])),decreasing=T)
+
+
+
+## Cmodel$plotGraph()
