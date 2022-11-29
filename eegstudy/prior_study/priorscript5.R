@@ -136,8 +136,6 @@ for(i in 1:nsamples){
 dev.off()
 
 
-##############################################################################
-
 ## set.seed(222)
 sd2iqr <- 0.5/qnorm(0.75)
 #### Strictly positive
@@ -201,6 +199,10 @@ for(i in 1:nsamples){
     }
 }
 dev.off()
+
+##############################################################################
+
+
 
 
 #### Doubly-bounded case
@@ -310,13 +312,22 @@ for(i in 1:nsamples){
 dev.off()
 
 
+set.seed(123)
 #### Doubly-bounded case
-#### with norm transformation
-dd <- 2^-12
+#### with norm transformation @@@
+pdist <- pnorm
+qdist <- qnorm
+ddist <- dnorm
+dd <- pdist(qnorm(2^-6)) # this is the amount of probability left in a tail
 ## tran <- function(x){qnorm(x*(1-2*dd)+dd)}
 ## jac <- function(x){1/dnorm(x*(1-2*dd)+dd)*(1-2*dd)}
-tran <- function(x){qnorm(x*(1-2*dd)+dd)}
-jac <- function(x){1/dnorm(tran(x))*(1-2*dd)}
+xmin <- 0
+xmax <- 1
+xscale <- (xmax-xmin)/(1-2*dd)
+xlocation <- xmin - dd*xscale
+tran <- function(x){qdist((x-xlocation)/xscale)}
+invtran <- function(y){pdist(y)*xscale+xlocation}
+jac <- function(y){1/ddist(y)/xscale}
 dx <- 1e-3
 ##
 fract <- 400
@@ -325,7 +336,7 @@ nclusters <- 64
 alphas <- c(1,2,0.5)
 means <- c(0)
 sds <- c(1)
-shape1s <- c(2) # large scales
+shape1s <- c(1) # large scales
 shape2s <- c(1) # small scales
 scales <- c(1/4)^-2
 ##
@@ -335,46 +346,206 @@ sd <- sample(rep(sds,2),nsamples*nclusters,replace=T)
 m <- matrix(rnorm(nsamples*nclusters,means,sd),nsamples)
 shape1 <- sample(rep(shape1s,2),nsamples*nclusters,replace=T)
 shape2 <- sample(rep(shape2s,2),nsamples*nclusters,replace=T)
-scale <- sample(rep(scales,2),nsamples*nclusters,replace=T)
-s <- matrix(sqrt(nimble::rinvgamma(nsamples*nclusters,shape=shape1,rate=nimble::rinvgamma(nsamples*nclusters,shape=shape2,scale=scale))),nsamples)
+scaleprec <- sample(rep(scales,2),nsamples*nclusters,replace=T)
+s <- matrix(sqrt(nimble::rinvgamma(nsamples*nclusters,shape=shape1,rate=nimble::rinvgamma(nsamples*nclusters,shape=shape2,scale=scaleprec))),nsamples)
 ##
-xgrid <- c(0,-dd*7/8,seq(0, 1, length.out=256),1+dd*7/8,1)
+xgrid <- c(xmin,invtran(qdist(dd/8)),seq(xmin, xmax, length.out=256),invtran(qdist(1-dd/8)),xmax)
 txgrid <- tran(xgrid)
 extr <- c(1,length(xgrid))
+extr2 <- c(2,length(xgrid)-1)
 ysum <- 0
 ## tplot(x=xgrid,y=dnorm(txgrid)*jac(xgrid))
 graphics.off()
-pdff('samples_doublybounded_norm')
+pdff('samples_doublybounded_norm_extr')
 par(mfrow=c(20,20),mar = c(0,0,0,0))
 for(i in 1:nsamples){
     y <- rowSums(sapply(1:nclusters,function(acluster){
         dens <- c(
             pnorm(txgrid[extr[1]], m[i,acluster], s[i,acluster]),
-            dnorm(txgrid[-extr], m[i,acluster], s[i,acluster])*jac(xgrid[-extr]),
+            dnorm(txgrid[-extr], m[i,acluster], s[i,acluster])*jac(txgrid[-extr]),
             pnorm(txgrid[extr[2]], m[i,acluster], s[i,acluster], lower.tail=F)
         )
         q[i,acluster]*dens}))
     ysum <- ysum+y
     if(i<fract | i==nsamples){
     if(i==nsamples){y <- ysum/nsamples}
-    y[extr] <- y[extr] * max(y[-extr])
-    tplot(x=xgrid[-extr], y=y[-extr],
-          ylim=c(0,max(y,1)),xlim=c(0-dd*7/8,1+dd*7/8),
+    y[extr] <- y[extr] * max(y[-c(extr,extr2)],1/(xmax-xmin))
+    tplot(x=xgrid[-c(extr,extr2)], y=y[-c(extr,extr2)],
+          ylim=c(0,max(y[-c(extr,extr2)],1/(xmax-xmin))),xlim=range(xgrid[-extr2]),
           xlabels=NA,ylabels=NA, xlab=NA,ylab=NA,
           xticks=NA,yticks=NA,
           mar=c(1,1,1,1)*0.5,
           col=if(i<fract){1}else{if(any(is.infinite(ysum))){2}else{3}}, ly=1,lwd=0.5)
-    tplot(x=xgrid[extr+c(1,-1)], y=y[extr+c(1,-1)],
-          type='p',col=4,cex=0.15,add=T,pch=3)
+    ## tplot(x=xgrid[extr2], y=y[extr2],
+    ##       type='p',col=4,cex=0.15,add=T,pch=3)
     tplot(x=xgrid[extr+c(2,-2)], y=y[extr+c(2,-2)],
-          type='p',cex=0.15,add=T,pch=2)
+          type='p',col=4,cex=0.075,add=T,pch=1)
     tplot(x=xgrid[extr], y=y[extr],
-          type='p',cex=0.075,col=2,add=T)
+          type='p',cex=0.1,col=1,add=T,pch=3)
     abline(h=c(0),lwd=0.5,col=alpha2hex(0.5,c(7,2)),lty=c(1,2))
     if(i==nsamples){
-        abline(h=c(1),lwd=0.5,col=alpha2hex(0.5,c(2)),lty=1)
+        abline(h=c(1/(xmax-xmin)),lwd=0.5,col=alpha2hex(0.5,c(2)),lty=1)
     }
-    abline(v=c(0,1),lwd=0.5,col=alpha2hex(0.5,7),lty=2)
+    abline(v=c(xmin,xmax),lwd=0.5,col=alpha2hex(0.5,7),lty=2)
+    }
+}
+dev.off()
+
+
+set.seed(123)
+#### Doubly-bounded case
+#### with identity transformation @@@
+pdist <- function(y){y/2+0.5}
+qdist <- function(x){x*2-1}
+ddist <- function(y){0.5}
+dd <- pdist(qnorm(2^-6)) # this is the amount of probability left in a tail
+## tran <- function(x){qnorm(x*(1-2*dd)+dd)}
+## jac <- function(x){1/dnorm(x*(1-2*dd)+dd)*(1-2*dd)}
+xmin <- 0
+xmax <- 150
+xscale <- (xmax-xmin)/(1-2*dd)
+xlocation <- xmin - dd*xscale
+tran <- function(x){qdist((x-xlocation)/xscale)}
+invtran <- function(y){pdist(y)*xscale+xlocation}
+jac <- function(y){1/ddist(y)/xscale}
+dx <- 1e-3
+##
+fract <- 400
+nsamples <- fract*4
+nclusters <- 64
+alphas <- c(1,2,0.5)
+means <- c(0)
+sds <- c(3)
+shape1s <- c(1/2) # large scales
+shape2s <- c(1/2) # small scales
+scales <- c(1/2)^-2
+##
+alpha <- sample(rep(alphas,2),nsamples,replace=T)
+q <- extraDistr::rdirichlet(n=nsamples,alpha=matrix(alpha/nclusters,nsamples,nclusters))
+sd <- sample(rep(sds,2),nsamples*nclusters,replace=T)
+m <- matrix(rnorm(nsamples*nclusters,means,sd),nsamples)
+shape1 <- sample(rep(shape1s,2),nsamples*nclusters,replace=T)
+shape2 <- sample(rep(shape2s,2),nsamples*nclusters,replace=T)
+scaleprec <- sample(rep(scales,2),nsamples*nclusters,replace=T)
+s <- matrix(sqrt(nimble::rinvgamma(nsamples*nclusters,shape=shape1,rate=nimble::rinvgamma(nsamples*nclusters,shape=shape2,scale=scaleprec))),nsamples)
+##
+xgrid <- c(xmin,invtran(qdist(dd/8)),seq(xmin, xmax, length.out=256),invtran(qdist(1-dd/8)),xmax)
+txgrid <- tran(xgrid)
+extr <- c(1,length(xgrid))
+extr2 <- c(2,length(xgrid)-1)
+ysum <- 0
+## tplot(x=xgrid,y=dnorm(txgrid)*jac(xgrid))
+graphics.off()
+pdff('samples_doublybounded_id_extr')
+par(mfrow=c(20,20),mar = c(0,0,0,0))
+for(i in 1:nsamples){
+    y <- rowSums(sapply(1:nclusters,function(acluster){
+        dens <- c(
+            pnorm(txgrid[extr[1]], m[i,acluster], s[i,acluster]),
+            dnorm(txgrid[-extr], m[i,acluster], s[i,acluster])*jac(txgrid[-extr]),
+            pnorm(txgrid[extr[2]], m[i,acluster], s[i,acluster], lower.tail=F)
+        )
+        q[i,acluster]*dens}))
+    ysum <- ysum+y
+    if(i<fract | i==nsamples){
+    if(i==nsamples){y <- ysum/nsamples}
+    y[extr] <- y[extr] * max(y[-c(extr,extr2)],1/(xmax-xmin))
+    tplot(x=xgrid[-c(extr,extr2)], y=y[-c(extr,extr2)],
+          ylim=c(0,max(y[-c(extr,extr2)],1/(xmax-xmin))),xlim=range(xgrid[-extr2]),
+          xlabels=NA,ylabels=NA, xlab=NA,ylab=NA,
+          xticks=NA,yticks=NA,
+          mar=c(1,1,1,1)*0.5,
+          col=if(i<fract){1}else{if(any(is.infinite(ysum))){2}else{3}}, ly=1,lwd=0.5)
+    ## tplot(x=xgrid[extr2], y=y[extr2],
+    ##       type='p',col=4,cex=0.15,add=T,pch=3)
+    tplot(x=xgrid[extr+c(2,-2)], y=y[extr+c(2,-2)],
+          type='p',col=4,cex=0.075,add=T,pch=1)
+    tplot(x=xgrid[extr], y=y[extr],
+          type='p',cex=0.1,col=1,add=T,pch=3)
+    abline(h=c(0),lwd=0.5,col=alpha2hex(0.5,c(7,2)),lty=c(1,2))
+    if(i==nsamples){
+        abline(h=c(1/(xmax-xmin)),lwd=0.5,col=alpha2hex(0.5,c(2)),lty=1)
+    }
+    abline(v=c(xmin,xmax),lwd=0.5,col=alpha2hex(0.5,7),lty=2)
+    }
+}
+dev.off()
+
+set.seed(123)
+#### Doubly-bounded case
+#### with logis transformation @@@
+pdist <- plogis
+qdist <- qlogis
+ddist <- dlogis
+dd <- pdist(qnorm(2^-6)) # this is the amount of probability left in a tail
+## tran <- function(x){qnorm(x*(1-2*dd)+dd)}
+## jac <- function(x){1/dnorm(x*(1-2*dd)+dd)*(1-2*dd)}
+xmin <- 0
+xmax <- 1
+xscale <- (xmax-xmin)/(1-2*dd)
+xlocation <- xmin - dd*xscale
+tran <- function(x){qdist((x-xlocation)/xscale)}
+invtran <- function(y){pdist(y)*xscale+xlocation}
+jac <- function(y){1/ddist(y)/xscale}
+dx <- 1e-3
+##
+fract <- 400
+nsamples <- fract*4
+nclusters <- 64
+alphas <- c(1,2,0.5)
+means <- c(0)
+sds <- c(1.5)
+shape1s <- c(1/2) # large scales
+shape2s <- c(1) # small scales
+scales <- c(1/4)^-2
+##
+alpha <- sample(rep(alphas,2),nsamples,replace=T)
+q <- extraDistr::rdirichlet(n=nsamples,alpha=matrix(alpha/nclusters,nsamples,nclusters))
+sd <- sample(rep(sds,2),nsamples*nclusters,replace=T)
+m <- matrix(rnorm(nsamples*nclusters,means,sd),nsamples)
+shape1 <- sample(rep(shape1s,2),nsamples*nclusters,replace=T)
+shape2 <- sample(rep(shape2s,2),nsamples*nclusters,replace=T)
+scaleprec <- sample(rep(scales,2),nsamples*nclusters,replace=T)
+s <- matrix(sqrt(nimble::rinvgamma(nsamples*nclusters,shape=shape1,rate=nimble::rinvgamma(nsamples*nclusters,shape=shape2,scale=scaleprec))),nsamples)
+##
+xgrid <- c(xmin,invtran(qdist(dd/8)),seq(xmin, xmax, length.out=256),invtran(qdist(1-dd/8)),xmax)
+txgrid <- tran(xgrid)
+extr <- c(1,length(xgrid))
+extr2 <- c(2,length(xgrid)-1)
+ysum <- 0
+## tplot(x=xgrid,y=dnorm(txgrid)*jac(xgrid))
+graphics.off()
+pdff('samples_doublybounded_logis_extr')
+par(mfrow=c(20,20),mar = c(0,0,0,0))
+for(i in 1:nsamples){
+    y <- rowSums(sapply(1:nclusters,function(acluster){
+        dens <- c(
+            pnorm(txgrid[extr[1]], m[i,acluster], s[i,acluster]),
+            dnorm(txgrid[-extr], m[i,acluster], s[i,acluster])*jac(txgrid[-extr]),
+            pnorm(txgrid[extr[2]], m[i,acluster], s[i,acluster], lower.tail=F)
+        )
+        q[i,acluster]*dens}))
+    ysum <- ysum+y
+    if(i<fract | i==nsamples){
+    if(i==nsamples){y <- ysum/nsamples}
+    y[extr] <- y[extr] * max(y[-c(extr,extr2)],1/(xmax-xmin))
+    tplot(x=xgrid[-c(extr,extr2)], y=y[-c(extr,extr2)],
+          ylim=c(0,max(y[-c(extr,extr2)],1/(xmax-xmin))),xlim=range(xgrid[-extr2]),
+          xlabels=NA,ylabels=NA, xlab=NA,ylab=NA,
+          xticks=NA,yticks=NA,
+          mar=c(1,1,1,1)*0.5,
+          col=if(i<fract){1}else{if(any(is.infinite(ysum))){2}else{3}}, ly=1,lwd=0.5)
+    ## tplot(x=xgrid[extr2], y=y[extr2],
+    ##       type='p',col=4,cex=0.15,add=T,pch=3)
+    tplot(x=xgrid[extr+c(2,-2)], y=y[extr+c(2,-2)],
+          type='p',col=4,cex=0.075,add=T,pch=1)
+    tplot(x=xgrid[extr], y=y[extr],
+          type='p',cex=0.1,col=1,add=T,pch=3)
+    abline(h=c(0),lwd=0.5,col=alpha2hex(0.5,c(7,2)),lty=c(1,2))
+    if(i==nsamples){
+        abline(h=c(1/(xmax-xmin)),lwd=0.5,col=alpha2hex(0.5,c(2)),lty=1)
+    }
+    abline(v=c(xmin,xmax),lwd=0.5,col=alpha2hex(0.5,7),lty=2)
     }
 }
 dev.off()
