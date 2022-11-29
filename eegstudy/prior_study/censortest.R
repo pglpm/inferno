@@ -9,13 +9,19 @@ includecat <- TRUE # switch to include/exclude categorical components
 ndata <- 7
 nclusters <- 4
 
-set.seed(223)
+set.seed(229)
 ##
 rdata <- matrix(rnorm(ndata*2, mean=0, sd=2), nrow=ndata)
-bounds <- cbind(rep(0.5,ndata), rep(1,ndata))
+bounds <- cbind(rep(-0.5,ndata), rep(1,ndata))
+signs <- cbind(rep(-1,ndata),rep(1,ndata))
+## censored <- cbind(rep(1,ndata), rep(0,ndata))
 censored <- rdata>=bounds
 ##
-rdata[censored] <- NA
+rdata2 <- rdata
+rdata[signs*rdata>=signs*bounds] <- NA
+cbind(rdata2,rdata,censored)
+bounds[!is.na(rdata)] <- signs[!is.na(rdata)]*Inf
+
 
 datapoints <- c(
     list(Rdata = rdata, Censored=censored*1L)
@@ -33,7 +39,9 @@ initsFunction <- function(){
             Labels = rep(1, ndata), # all data to first cluster
             Rrates = rinvgamma(2, shape=0.5, scale=1),
             Rmeans = matrix(rnorm(2*nclusters, mean=0, sd=3), nrow=2),
-            Rvariances = matrix(rinvgamma(2*nclusters, shape=0.5, rate=1), nrow=2)
+            Rvariances = matrix(rinvgamma(2*nclusters, shape=0.5, rate=1), nrow=2),
+            'Rdata[4, 1]'=-2,
+            'Rdata[3, 2]'=2
         )
     )
 }
@@ -81,14 +89,19 @@ Cmodel <- compileNimble(model, showCompilerOutput=FALSE)
 
 confmodel <- configureMCMC(Cmodel,
                            monitors=c('Labels','q','alpha0',
+                                      'Rdata[2, 1]',
+                                      'Rdata[4, 2]',
                                       'Rrates', 'Rmeans', 'Rvariances'
                            ))
 
 mcsampler <- buildMCMC(confmodel)
 Cmcsampler <- compileNimble(mcsampler, resetFunctions = TRUE)
-
+##
 Cmodel$setInits(initsFunction())
-output <- Cmcsampler$run(niter=100, thin=1, reset=T, resetMV=TRUE, nburnin=0)
-
+output <- Cmcsampler$run(niter=10000, thin=1, reset=T, resetMV=TRUE, nburnin=0, time=T)
+##
 dpsamples <- as.matrix(Cmcsampler$mvSamples)
+times <- Cmcsampler$getTimes()
+names(times) <- sapply(confmodel$getSamplers(),function(x)x$target)
 
+Cmodel$plotGraph()
