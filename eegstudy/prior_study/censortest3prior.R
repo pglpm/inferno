@@ -232,7 +232,7 @@ initsFunction <- function(){
             ivariance=1^2,
             ishapemicro=1,
             ishapemacro=1,
-            iscaleprec=1/8^-2,
+            iscaleprec=1/16^-2,
             ##
             rmean=0,
             rvariance=2^2,
@@ -255,7 +255,8 @@ dpsamples2 <- as.matrix(Cmcsampler$mvSamples2)
 ##
 pdff('testpriors_cens')
 for(i in 1:nivars){
-    data <- itraninv0(dpsamples2[, paste0('Idata[1, ',i,']')],
+    data <- itraninv0(c(dpsamples2[, paste0('Idata[1, ',i,']')],
+                        dpsamples2[, paste0('Idata[2, ',i,']')]),
                       n=varinfo[iint,'n'][i],
                       min=varinfo[iint,'min'][i],
                       max=varinfo[iint,'max'][i])
@@ -265,7 +266,8 @@ for(i in 1:nivars){
     tplot(x=xgrid, y=his$density, ylim=c(0,NA))
 }
 for(i in 1:nrvars){
-        data <- rtraninv(dpsamples2[, paste0('Rdata[1, ',i,']')],
+    data <- rtraninv(c(dpsamples2[, paste0('Rdata[1, ',i,']')],
+                       dpsamples2[, paste0('Rdata[2, ',i,']')]),
                       location=varinfo[irea,'location'][i],
                       scale=varinfo[irea,'scale'][i])
         data <- data[data<=1.5*max(dt[[rownames(varinfo)[irea][i]]],na.rm=T) &
@@ -273,7 +275,7 @@ for(i in 1:nrvars){
     his <- thist(data)
     ## xgrid <- seq(varinfo[iint,][i,'min'], varinfo[iint,][i,'max'],
     ##              length.out=varinfo[iint,][i,'n'])
-    tplot(x=his$mids, y=his$density)
+    tplot(x=his$mids, y=his$density,ylim=c(0,NA))
 }
 dev.off()
     
