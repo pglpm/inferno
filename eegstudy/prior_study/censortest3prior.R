@@ -253,7 +253,6 @@ timestop
 dpsamples <- as.matrix(Cmcsampler$mvSamples)
 dpsamples2 <- as.matrix(Cmcsampler$mvSamples2)
 ##
-
 pdff('testpriors_cens')
 for(i in 1:nivars){
     data <- itraninv0(dpsamples2[, paste0('Idata[1, ',i,']')],
