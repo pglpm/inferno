@@ -57,7 +57,7 @@ nint <- ncol(idata)
 iint <- 4:9
 ##
 initint <-  t((t(idata)-varinfo[iint,'min'])/(varinfo[iint,'max']-varinfo[iint,'min']))*2-1
-initint[is.na(initint)] <- 0
+## initint[is.na(initint)] <- 0
 
 ##
 iseqs <- apply(varinfo[iint,], 1, function(x) seq(-1,1,length.out=x['n']))
@@ -76,10 +76,10 @@ mbreaks <- t(sapply(breaks,function(x){c(x,rep(+Inf,maxnbreaks-length(x)))}))
 ##
 
 datapoints <- c(
-    list(Rdata = rdata, Idata = idata)
+    list(Rdata = rdata, Idata = initint)
 )
 ##
-constants <- list(ndata=ndata, nclusters=nclusters, nrvars=nrvars, nivars=nivars, mbreaks=mbreaks, maxnbreaks=maxnbreaks)
+constants <- list(ndata=ndata, nclusters=nclusters, nrvars=nrvars, nivars=nivars)
 ##
 initsFunction <- function(){
     c(
@@ -94,8 +94,7 @@ initsFunction <- function(){
             Rmeans = matrix(rnorm(nrvars*nclusters, mean=0, sd=3), nrow=nrvars, ncol=nclusters),
             Imeans = matrix(rnorm(nivars*nclusters, mean=0, sd=3), nrow=nivars, ncol=nclusters),
             Rvariances = matrix(rinvgamma(nrvars*nclusters, shape=0.5, rate=1), nrow=nrvars, ncol=nclusters),
-            Ivariances = matrix(rinvgamma(nivars*nclusters, shape=0.5, rate=1), nrow=nivars, ncol=nclusters),
-            Ihidden=initint
+            Ivariances = matrix(rinvgamma(nivars*nclusters, shape=0.5, rate=1), nrow=nivars, ncol=nclusters)
         )
     )
 }
@@ -129,8 +128,8 @@ infmixture <- nimbleCode({
             Rdata[datum, variate] ~ dnorm(mean=Rmeans[variate, Labels[datum]], var=Rvariances[variate, Labels[datum]])
         }
         for(variate in 1:nivars){# real variates
-            Idata[datum, variate] ~ dinterval(Ihidden[datum, variate], mbreaks[variate,1:maxnbreaks])
-            Ihidden[datum, variate] ~ dnorm(mean=Imeans[variate, Labels[datum]], var=Ivariances[variate, Labels[datum]])
+##            Idata[datum, variate] ~ dinterval(Ihidden[datum, variate], mbreaks[variate,1:maxnbreaks])
+            Idata[datum, variate] ~ dnorm(mean=Imeans[variate, Labels[datum]], var=Ivariances[variate, Labels[datum]])
         }
     }
 })
@@ -148,9 +147,7 @@ model <- nimbleModel(code=infmixture, name='model',
                               Rmeans=c(nrvars, nclusters),
                               Imeans=c(nivars, nclusters),
                               Rvariances=c(nrvars, nclusters),
-                             Ivariances=c(nivars, nclusters),
-                             Ihidden=c(ndata,nivars)
-                         )
+                              Ivariances=c(nivars, nclusters))
                      )
                      )
 
@@ -164,8 +161,7 @@ confmodel <- configureMCMC(Cmodel,
                                       ## 'Rdata[4, 2]',
                                       'Rrates', 'Rmeans', 'Rvariances',
                                       'Irates', 'Imeans', 'Ivariances'
-                                      ),
-                           monitors2='Idata')
+                           ))
 
 mcsampler <- buildMCMC(confmodel)
 Cmcsampler <- compileNimble(mcsampler, resetFunctions = TRUE)
@@ -174,19 +170,24 @@ Cmcsampler <- compileNimble(mcsampler, resetFunctions = TRUE)
 timestart <- Sys.time()
 Cmodel$setInits(initsFunction())
 output <- Cmcsampler$run(niter=100, thin=1, reset=TRUE, resetMV=TRUE, nburnin=1, time=T)
-
 output <- Cmcsampler$run(niter=1024, thin=1, reset=FALSE, resetMV=TRUE, nburnin=0, time=T)
 timestop <- Sys.time() - timestart
 timestop
 ##
 dpsamples <- as.matrix(Cmcsampler$mvSamples)
-dpsamples2 <- as.matrix(Cmcsampler$mvSamples2)
 times <- Cmcsampler$getTimes()
 names(times) <- sapply(confmodel$getSamplers(),function(x)x$target)
 ## sum(times[grepl('^Rdata',names(times))])
 ##
 prefs <- unique(sub('^([^[]+)(\\[.*\\])', '\\1', names(times)))
 sort(sapply(prefs, function(x)sum(times[grepl(x,names(times))])),decreasing=T)
+## with no hidden:
+## Time difference of 1.34841 mins
+## Ivariances     Labels     Imeans Rvariances     Rmeans          q     Irates 
+##  23.866105  21.831272  19.677902   7.862762   6.839495   0.318522   0.139907 
+##     Rrates     alpha0      Rdata      Idata 
+##   0.050686   0.015619   0.008161   0.004643 
+##
 ## with hidden:
 ## Time difference of 1.51792 mins
 ## Ivariances     Labels     Imeans Rvariances     Rmeans    Ihidden          q 
