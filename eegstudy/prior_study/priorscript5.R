@@ -136,6 +136,91 @@ for(i in 1:nsamples){
 dev.off()
 
 
+set.seed(222)
+#### Integer
+#### with norm transformation IV
+nint <- 16
+nmin <- 9
+nmax <- nmin-1+nint
+scale <- 1#-qnorm(0.5/nint)
+lx <- nmin - 0.5*(nmax-nmin)/(nint-1)
+sx <- nint*(nmax-nmin)/(nint-1)
+tran <- function(x){qnorm((x-lx)/sx)/scale}
+invtran <- function(y){round((sx*pnorm(y)+lx-nmin)*(nmax-nmin)/(nint-1))*(nmax-nmin)/(nint-1)+nmin}
+nsamples <- 400*8
+nsubsamples <- 400
+nclusters <- 64
+alphas <- c(1,2,0.5)
+means <- c(0)
+sds <- c(1)/scale
+shape1s <- c(1) # large scales
+shape2s <- c(1) # small scales
+scales <- (1/8/scale)^(-2)
+##
+alpha <- sample(rep(alphas,2),nsamples,replace=T)
+q <- extraDistr::rdirichlet(n=nsamples,alpha=matrix(alpha/nclusters,nsamples,nclusters))
+sd <- sample(rep(sds,2),nsamples*nclusters,replace=T)
+m <- matrix(rnorm(nsamples*nclusters,means,sd),nsamples)
+shape1 <- sample(rep(shape1s,2),nsamples*nclusters,replace=T)
+shape2 <- sample(rep(shape2s,2),nsamples*nclusters,replace=T)
+scaleprec <- sample(rep(scales,2),nsamples*nclusters,replace=T)
+s <- matrix(sqrt(nimble::rinvgamma(nsamples*nclusters,shape=shape1,rate=nimble::rinvgamma(nsamples*nclusters,shape=shape2,scale=scaleprec))),nsamples)
+##
+graphics.off()
+pdff('samples_integer_normIIb')
+par(mfrow=c(20,20),mar = c(0,0,0,0))
+xgrid <- seq(nmin,nmax,length.out=nint)
+extr <- c(1,length(xgrid))
+mgrid <- (xgrid[-extr[2]]+xgrid[-extr[1]])/2
+mextr <- c(1,length(mgrid))
+txgrid <- tran(xgrid)
+tmgrid <- tran(mgrid)
+##tmgrid <- (txgrid[-extr[2]]+txgrid[-extr[1]])/2
+dx <- 2/(nint-1)
+ysum <- 0
+for(i in 1:nsamples){
+    y <- rowSums(sapply(1:nclusters,function(acluster){
+        dens <- c(
+            pnorm(tmgrid[mextr[1]], m[i,acluster], s[i,acluster]),
+            pnorm(tmgrid[-mextr[1]], m[i,acluster], s[i,acluster]) - pnorm(tmgrid[-mextr[2]], m[i,acluster], s[i,acluster]),
+            pnorm(tmgrid[mextr[2]], m[i,acluster], s[i,acluster], lower.tail=F)
+        )
+        q[i,acluster]*dens}))
+    ## y2 <- rowSums(sapply(1:nclusters,function(acluster){
+    ##     dens <- dnorm(xgrid, m[i,acluster], s[i,acluster])*2*dx
+    ##     dens[extr[1]] <- pnorm(xgrid[extr[1]], m[i,acluster], s[i,acluster])
+    ##     dens[extr[2]] <- pnorm(xgrid[extr[2]], m[i,acluster], s[i,acluster], lower.tail=F)
+    ##     q[i,acluster]*dens}))
+    ysum <- ysum+y
+    if(i<nsubsamples|i==nsamples){
+    if(i==nsamples){y <- ysum/nsamples}
+    #y2 <- y2*max(y[-extr])/max(y2[-extr])
+    ## y[extr] <- y[extr] * max(y[-extr])
+    tplot(x=xgrid, y=y, #y=list(y,y2),
+          ylim=c(0,NA),xlim=range(xgrid),
+          xlabels=NA,ylabels=NA, xlab=NA,ylab=NA,
+          xticks=NA,yticks=NA,
+          mar=c(1,1,1,1)*0.5,
+          col=c(if(i<nsubsamples){1}else{if(any(is.infinite(ysum))){2}else{3}},4), ly=1,lwd=0.5)
+    tplot(x=xgrid, y=y,type='p',cex=0.2,
+          ylim=c(0,NA),xlim=range(xgrid),
+          xlabels=NA,ylabels=NA, xlab=NA,ylab=NA,
+          xticks=NA,yticks=NA,
+          mar=c(1,1,1,1)*0.5,add=T,
+          col=if(i<nsubsamples){1}else{if(any(is.infinite(ysum))){2}else{3}}, ly=1,lwd=0.5)
+    tplot(x=xgrid[extr], y=y[extr],
+          type='p',cex=0.075,col=3,add=T)
+    ## tplot(x=xgrid[extr], y=y[extr], type='p',cex=0.1,add=T)
+    abline(h=0,lwd=0.5,col=alpha2hex(0.5,7),lty=1)
+    if(i==nsamples){
+        abline(h=c(1/nint),lwd=0.5,col=alpha2hex(0.5,c(2)),lty=1)
+    }
+    ## abline(v=,lwd=0.5,col=alpha2hex(0.5,7),lty=2)
+    }
+}
+dev.off()
+
+
 ## set.seed(222)
 sd2iqr <- 0.5/qnorm(0.75)
 #### Strictly positive
