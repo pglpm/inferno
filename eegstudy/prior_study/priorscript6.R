@@ -138,12 +138,13 @@ dev.off()
 #### @@@
 dt <- fread('~/repositories/ADBayes/worldbrain/ingrid_data_nogds6.csv')
 varinfo <- read.csv('~/repositories/ADBayes/worldbrain/varinfo.csv',row.names=1)
-set.seed(101)
 #### Integer
 #### with norm transformation IV
+pregrid <- 1
 graphics.off()
-pdff('samples_integer_normIV')
+pdff(paste0('samples_integer_normIVC',pregrid*1))
 for(nint in c(7, 16, 51, 64, 76)){
+set.seed(103)
 varindex <- which(varinfo[,'n']==nint)[1]
 if(!is.na(varindex)){data <- dt[[rownames(varinfo)[varindex]]]}else{data <- NULL}
 ## dd <- qnorm(0.5/nint)/2 + 0.5
@@ -153,7 +154,8 @@ if(!is.na(varindex)){data <- dt[[rownames(varinfo)[varindex]]]}else{data <- NULL
 ## invtran <- function(y){(pnorm(y)-dd)/(1-2*dd)}
 nmin <- 0
 nmax <- nint-1
-dd <- pnorm(qnorm(1/2/nint))
+dd <- (nint-2)/(2*nint^2)#
+## dd <- pnorm(qnorm(1/2/nint))
 tran <- function(x){qnorm((x-nmin)/(nmax-nmin)*(1-2*dd)+dd)}
 ## invtran <- function(y){(pnorm(y)-dd)/(1-2*dd)}
 nsamples <- 400*8
@@ -186,7 +188,12 @@ extr <- c(1,length(xgrid))
 mgrid <- (xgrid[-extr[2]]+xgrid[-extr[1]])/2
 mextr <- c(1,length(mgrid))
 txgrid <- tran(xgrid)
-tmgrid <- tran(mgrid)
+if(pregrid){
+    mgrid <- (xgrid[-extr[2]]+xgrid[-extr[1]])/2
+    tmgrid <- tran(mgrid)
+}else{
+    tmgrid <- (txgrid[-extr[2]]+txgrid[-extr[1]])/2
+    }
 ##tmgrid <- (txgrid[-extr[2]]+txgrid[-extr[1]])/2
 dx <- 2/(nint-1)
 ysum <- 0
