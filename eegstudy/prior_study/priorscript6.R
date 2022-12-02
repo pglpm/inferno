@@ -424,6 +424,14 @@ for(i in 1:nsamples){
 dev.off()
 
 
+sd2iqr <- 0.5/qnorm(0.75)
+dt <- fread('~/repositories/ADBayes/worldbrain/ingrid_data_nogds6.csv')
+varinfo <- read.csv('~/repositories/ADBayes/worldbrain/varinfo.csv',row.names=1)
+varindex <- 'AGE'
+if(!is.na(varindex)){
+    data <- log(dt[[rownames(varinfo)[varindex]]])
+    data <- (data-median(data))/(IQR(data)*sd2iqr)
+}else{data <- NULL}
 set.seed(123)
 #### Doubly-bounded case
 #### with norm transformation @@@
@@ -482,14 +490,21 @@ for(i in 1:nsamples){
     if(i<fract | i==nsamples){
     if(i==nsamples){y <- ysum/nsamples}
     y[extr] <- y[extr] * max(y[-c(extr,extr2)],1/(xmax-xmin))
+    if(!is.null(data)){
+        his <- thist(data)
+        ymax <- max(y,his$density)
+    }else{ymax <- NULL}
     tplot(x=xgrid[-c(extr,extr2)], y=y[-c(extr,extr2)],
-          ylim=c(0,max(y[-c(extr,extr2)],1/(xmax-xmin))),xlim=range(xgrid[-extr2]),
+          ylim=c(0,max(y[-c(extr,extr2)],1/(xmax-xmin),ymax)),xlim=range(xgrid[-extr2]),
           xlabels=NA,ylabels=NA, xlab=NA,ylab=NA,
           xticks=NA,yticks=NA,
           mar=c(1,1,1,1)*0.5,
           col=if(i<fract){1}else{if(any(is.infinite(ysum))){2}else{3}}, ly=1,lwd=0.5)
     ## tplot(x=xgrid[extr2], y=y[extr2],
     ##       type='p',col=4,cex=0.15,add=T,pch=3)
+    if(!is.null(data)){
+        tplot(x=his$mids,y=his$density,type='l',lwd=0.5,add=T,alpha=0.25,col=4)
+    }
     tplot(x=xgrid[extr+c(2,-2)], y=y[extr+c(2,-2)],
           type='p',col=4,cex=0.075,add=T,pch=1)
     tplot(x=xgrid[extr], y=y[extr],
