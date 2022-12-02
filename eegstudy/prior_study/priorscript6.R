@@ -424,25 +424,26 @@ for(i in 1:nsamples){
 dev.off()
 
 
+#### Doubly-bounded case
+#### with norm transformation @@@
 sd2iqr <- 0.5/qnorm(0.75)
 dt <- fread('~/repositories/ADBayes/worldbrain/ingrid_data_nogds6.csv')
 varinfo <- read.csv('~/repositories/ADBayes/worldbrain/varinfo.csv',row.names=1)
-varindex <- 'AGE'
+graphics.off()
+pdff('samples_doublybounded_norm_extr')
+for(varindex in c('TRAASCOR_neuro','TRABSCOR_neuro')){
 if(!is.na(varindex)){
-    data <- log(dt[[rownames(varinfo)[varindex]]])
-    data <- (data-median(data))/(IQR(data)*sd2iqr)
+    data <- dt[[varindex]]
 }else{data <- NULL}
 set.seed(123)
-#### Doubly-bounded case
-#### with norm transformation @@@
 pdist <- pnorm
 qdist <- qnorm
 ddist <- dnorm
 dd <- pdist(qnorm(2^-6)) # this is the amount of probability left in a tail
 ## tran <- function(x){qnorm(x*(1-2*dd)+dd)}
 ## jac <- function(x){1/dnorm(x*(1-2*dd)+dd)*(1-2*dd)}
-xmin <- 0
-xmax <- 1
+xmin <- varinfo[varindex,'min']
+xmax <- varinfo[varindex,'max']
 xscale <- (xmax-xmin)/(1-2*dd)
 xlocation <- xmin - dd*xscale
 tran <- function(x){qdist((x-xlocation)/xscale)}
@@ -475,8 +476,6 @@ extr <- c(1,length(xgrid))
 extr2 <- c(2,length(xgrid)-1)
 ysum <- 0
 ## tplot(x=xgrid,y=dnorm(txgrid)*jac(xgrid))
-graphics.off()
-pdff('samples_doublybounded_norm_extr')
 par(mfrow=c(20,20),mar = c(0,0,0,0))
 for(i in 1:nsamples){
     y <- rowSums(sapply(1:nclusters,function(acluster){
@@ -515,6 +514,7 @@ for(i in 1:nsamples){
     }
     abline(v=c(xmin,xmax),lwd=0.5,col=alpha2hex(0.5,7),lty=2)
     }
+}
 }
 dev.off()
 
