@@ -3,39 +3,13 @@ library('nimble')
 
 varnames <- c('Apoe4_', 'Subgroup_num_',  'Gender_num_', 'GDTOTAL_gds',  'AVDEL30MIN_neuro', 'AVDELTOT_neuro',  'CATANIMSC_neuro', 'ANARTERR_neuro',  'RAVLT_immediate', 'TRAASCOR_neuro',  'TRABSCOR_neuro', 'AGE',  'LRHHC_n_long')
 ##
-dt0 <- fread('~/repositories/ADBayes/scripts/bl.csv')
-all(varnames %in% colnames(dt0))
-dt <- dt0[,..varnames]
-##
-nas <- (1:nrow(dt))[apply(dt,1,function(x)any(is.na(x)))]
-gds6 <- (1:nrow(dt))[dt[['GDTOTAL_gds']] >= 6]
-## ##
-## dt3 <- fread('~/repositories/ADBayes/scripts/3.13_pycharet_K50.csv')
-## diffs <- sapply(varnames,function(x){
-##     x1 <- sort(dt[[x]][-nas])
-##     x2 <- sort(dt3[[x]])
-##     abs(x1-x2)/(x1+x2+(x1+x2==0))/2
-## })
-## range(diffs)
-## ## [1] 0.00000e+00 8.94359e-15
-## ##
-## dtred <- dt[-nas]
-## ##
-## fwrite(dt, 'ingrid_data_all.csv')
-## fwrite(dt[-gds6], 'ingrid_data_nogds6.csv')
-## fwrite(dt[-nas], 'ingrid_data_nonan.csv')
-## fwrite(dt[-c(nas,gds6)], 'ingrid_data_nonangds6.csv')
-## rm(dt0,dt3)
+dt <- fread('~/repositories/ADBayes/worldbrain/scripts/ingrid_data_nogds6.csv')
+varinfo <- read.csv('~/repositories/ADBayes/worldbrain/scripts/varinfo.csv', row.names=1)
+varnames <- rownames(varinfo)
 
-varinfo <- cbind(
-    min=c(0,0,0,0,0,0,0,0,0,0,0,0,0),
-    max=c(1,1,1,6,15,15,63,50,75,150,300,Inf,Inf),
-    n=c(2,2,2,7,16,16,64,51,76,Inf,Inf,Inf,Inf)
-)
-rownames(varinfo) <- varnames
 
 subsel <- 4:nrow(varinfo)
-nclusters <- 64
+nclusters <- 15
 ##
 set.seed(229)
 idata <- cbind(
@@ -52,7 +26,7 @@ rdata <- cbind(
 )
 nivars <- ncol(idata)
 nrvars <- ncol(rdata)
-ndata <- nrow(rdata)
+ndata <- 10 # nrow(rdata)
 nint <- ncol(idata)
 iint <- 4:9
 ##
@@ -79,7 +53,7 @@ datapoints <- c(
     list(Rdata = rdata, Idata = initint)
 )
 ##
-constants <- list(ndata=ndata, nclusters=nclusters, nrvars=nrvars, nivars=nivars)
+constants <- list(ndata=ndata-1, nclusters=nclusters, nrvars=nrvars, nivars=nivars)
 ##
 initsFunction <- function(){
     c(
@@ -100,12 +74,12 @@ initsFunction <- function(){
 }
 
 infmixture <- nimbleCode({
-    alpha0 ~ dcat(prob=palphas[1:3])
-    qalpha[1:nclusters] <- 2^alpha0 * qalpha0[1:nclusters]
-    q[1:nclusters] ~ ddirch(alpha=qalpha[1:nclusters])
+    Alpha ~ dcat(prob=palphas[1:3])
+    Walpha[1:nclusters] <- 2^Alpha * qalpha0[1:nclusters]
+    W[1:nclusters] ~ ddirch(alpha=Walpha[1:nclusters])
     ##
-    for(variate in 1:nrvars){
-        Rrates[variate] ~ dinvgamma(shape=0.5, scale=1)
+    for(variate in 1:Rn){
+        Rrate[variate] ~ dinvgamma(shape=rshapein, rate=rscale)
     }
     for(variate in 1:nivars){
         Irates[variate] ~ dinvgamma(shape=0.5, scale=1)
