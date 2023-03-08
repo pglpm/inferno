@@ -1,0 +1,14 @@
+name,type,transf,n,min,max,tmin,tmax,location,scale,plotmin,plotmax,Q1,Q2,Q3
+Apoe4_,B,identity,2,0,1,,,0,1,0,1,,,
+Subgroup_num_,B,identity,2,0,1,,,0,1,0,1,,,
+Gender_num_,B,identity,2,0,1,,,0,1,0,1,,,
+GDTOTAL_gds,I,identity,6,0,5,,,-1,1,0,5,1,1,2
+AVDEL30MIN_neuro,I,identity,16,0,15,,,-1,1,0,15,0,3,6
+AVDELTOT_neuro,I,identity,16,0,15,,,-1,1,0,15,8,11,13
+CATANIMSC_neuro,I,identity,35,1,35,,,0,1,1.5,35,13,17,20
+ANARTERR_neuro,I,identity,51,0,50,,,-1,1,0,50,6,10,19
+RAVLT_immediate,I,identity,67,1,67,,,0,1,4.5,67,26,32,39
+TRAASCOR_neuro,R,log,Inf,0,Inf,-Inf,Inf,3.61091791264422,0.24362208265775,3.5,159.5,30,37,49
+TRABSCOR_neuro,D,log,Inf,0,Inf,-Inf,300,4.61014535141468,0.327912826455322,0,300,73,100.5,143.25
+AGE,R,log,Inf,0,Inf,-Inf,Inf,4.30203577978029,0.0693796017606791,49.8375,96.5625,68.625,73.85,79
+LRHHC_n_long,R,log,Inf,0,Inf,-Inf,Inf,-5.47606097161871,0.124279784423952,0.00181434945228322,0.00704591801187098,0.0037009241044315,0.00418578566520277,0.00475590345342856

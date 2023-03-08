@@ -1,0 +1,14 @@
+"","name","type","transform","min","max","n","tmin","tmax","location","scale","Q1","Q2","Q3","datamin","datamax","plotmin","plotmax"
+"AGE","AGE","R","log",0,Inf,0,-Inf,Inf,4.30203577978029,0.103828723358743,68.625,73.85,79,55,91.4,49.775,96.55
+"LRHHC_n_long","LRHHC_n_long","R","log",0,Inf,0,-Inf,Inf,-5.4760609716187,0.185179332876048,0.0037009241044315,0.00418578566520277,0.00475590345342856,0.00233967568535688,0.00652059177879732,0.00185481412458561,0.00709070956702311
+"Apoe4_","Apoe4_","B","identity",0,1,2,-Inf,Inf,0,1,0,1,1,0,1,0,1
+"Gender_num_","Gender_num_","B","identity",0,1,2,-Inf,Inf,0,1,0,0,1,0,1,0,1
+"Subgroup_num_","Subgroup_num_","B","identity",0,1,2,-Inf,Inf,0,1,0,0,1,0,1,0,1
+"ANARTERR_neuro","ANARTERR_neuro","I","probit",0,50,51,-Inf,Inf,0,1,6,10,19,0,50,0,50
+"AVDEL30MIN_neuro","AVDEL30MIN_neuro","I","probit",0,15,16,-Inf,Inf,0,1,0,3,6,0,15,0,15
+"AVDELTOT_neuro","AVDELTOT_neuro","I","probit",0,15,16,-Inf,Inf,0,1,8,11,13,0,15,0,15
+"CATANIMSC_neuro","CATANIMSC_neuro","I","probit",0,63,64,-Inf,Inf,0,1,13,17,20,5,35,1,38
+"GDTOTAL_gds","GDTOTAL_gds","I","probit",0,6,7,-Inf,Inf,0,1,1,1,2,0,5,0,6
+"RAVLT_immediate","RAVLT_immediate","I","probit",0,75,76,-Inf,Inf,0,1,26,32,39,11,67,5,74
+"TRAASCOR_neuro","TRAASCOR_neuro","I","probit",1,150,150,-Inf,Inf,1,1,30,37,49,13,150,6,150
+"TRABSCOR_neuro","TRABSCOR_neuro","I","probit",1,300,300,-Inf,Inf,1,1,73,101,143,33,300,5,300

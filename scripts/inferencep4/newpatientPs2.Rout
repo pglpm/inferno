@@ -1,0 +1,119 @@
+Loading required package: future
+Loading required package: rngtools
+[1] "availableCores:"
+system 
+    24 
+[1] "availableCores-multicore:"
+system 
+    24 
+[1] "using 20 cores"
+[1] "TRAASCOR_neuro"
+[1] "Remaining time:"
+Time difference of Inf secs
+[1] "TRABSCOR_neuro"
+[1] "Remaining time:"
+Time difference of 67.3341 mins
+[1] "AGE"
+[1] "Remaining time:"
+Time difference of 66.1061 mins
+[1] "LRHHC_n_long"
+[1] "Remaining time:"
+Time difference of 56.2178 mins
+[1] "Apoe4_"
+[1] "Remaining time:"
+Time difference of 50.4032 mins
+[1] "Gender_num_"
+[1] "Remaining time:"
+Time difference of 46.0492 mins
+[1] "ANARTERR_neuro"
+[1] "Remaining time:"
+Time difference of 42.5381 mins
+[1] "AVDEL30MIN_neuro"
+[1] "Remaining time:"
+Time difference of 42.3084 mins
+[1] "AVDELTOT_neuro"
+[1] "Remaining time:"
+Time difference of 41.5351 mins
+[1] "CATANIMSC_neuro"
+[1] "Remaining time:"
+Time difference of 40.2763 mins
+[1] "GDTOTAL_gds"
+[1] "Remaining time:"
+Time difference of 38.8544 mins
+[1] "RAVLT_immediate"
+[1] "Remaining time:"
+Time difference of 37.1178 mins
+ [1] "TRABSCOR_neuro"   "AGE"              "LRHHC_n_long"     "Apoe4_"          
+ [5] "Gender_num_"      "ANARTERR_neuro"   "AVDEL30MIN_neuro" "AVDELTOT_neuro"  
+ [9] "CATANIMSC_neuro"  "GDTOTAL_gds"      "RAVLT_immediate" 
+[1] "Remaining time:"
+Time difference of 35.3132 mins
+ [1] "TRAASCOR_neuro"   "AGE"              "LRHHC_n_long"     "Apoe4_"          
+ [5] "Gender_num_"      "ANARTERR_neuro"   "AVDEL30MIN_neuro" "AVDELTOT_neuro"  
+ [9] "CATANIMSC_neuro"  "GDTOTAL_gds"      "RAVLT_immediate" 
+[1] "Remaining time:"
+Time difference of 43.5422 mins
+ [1] "TRAASCOR_neuro"   "TRABSCOR_neuro"   "LRHHC_n_long"     "Apoe4_"          
+ [5] "Gender_num_"      "ANARTERR_neuro"   "AVDEL30MIN_neuro" "AVDELTOT_neuro"  
+ [9] "CATANIMSC_neuro"  "GDTOTAL_gds"      "RAVLT_immediate" 
+[1] "Remaining time:"
+Time difference of 49.5371 mins
+ [1] "TRAASCOR_neuro"   "TRABSCOR_neuro"   "AGE"              "Apoe4_"          
+ [5] "Gender_num_"      "ANARTERR_neuro"   "AVDEL30MIN_neuro" "AVDELTOT_neuro"  
+ [9] "CATANIMSC_neuro"  "GDTOTAL_gds"      "RAVLT_immediate" 
+[1] "Remaining time:"
+Time difference of 0.900102 hours
+ [1] "TRAASCOR_neuro"   "TRABSCOR_neuro"   "AGE"              "LRHHC_n_long"    
+ [5] "Gender_num_"      "ANARTERR_neuro"   "AVDEL30MIN_neuro" "AVDELTOT_neuro"  
+ [9] "CATANIMSC_neuro"  "GDTOTAL_gds"      "RAVLT_immediate" 
+[1] "Remaining time:"
+Time difference of 0.934101 hours
+ [1] "TRAASCOR_neuro"   "TRABSCOR_neuro"   "AGE"              "LRHHC_n_long"    
+ [5] "Apoe4_"           "ANARTERR_neuro"   "AVDEL30MIN_neuro" "AVDELTOT_neuro"  
+ [9] "CATANIMSC_neuro"  "GDTOTAL_gds"      "RAVLT_immediate" 
+[1] "Remaining time:"
+Time difference of 0.929766 hours
+ [1] "TRAASCOR_neuro"   "TRABSCOR_neuro"   "AGE"              "LRHHC_n_long"    
+ [5] "Apoe4_"           "Gender_num_"      "AVDEL30MIN_neuro" "AVDELTOT_neuro"  
+ [9] "CATANIMSC_neuro"  "GDTOTAL_gds"      "RAVLT_immediate" 
+[1] "Remaining time:"
+Time difference of 0.909024 hours
+ [1] "TRAASCOR_neuro"  "TRABSCOR_neuro"  "AGE"             "LRHHC_n_long"   
+ [5] "Apoe4_"          "Gender_num_"     "ANARTERR_neuro"  "AVDELTOT_neuro" 
+ [9] "CATANIMSC_neuro" "GDTOTAL_gds"     "RAVLT_immediate"
+[1] "Remaining time:"
+Time difference of 0.851029 hours
+ [1] "TRAASCOR_neuro"   "TRABSCOR_neuro"   "AGE"              "LRHHC_n_long"    
+ [5] "Apoe4_"           "Gender_num_"      "ANARTERR_neuro"   "AVDEL30MIN_neuro"
+ [9] "CATANIMSC_neuro"  "GDTOTAL_gds"      "RAVLT_immediate" 
+[1] "Remaining time:"
+Time difference of 0.782079 hours
+ [1] "TRAASCOR_neuro"   "TRABSCOR_neuro"   "AGE"              "LRHHC_n_long"    
+ [5] "Apoe4_"           "Gender_num_"      "ANARTERR_neuro"   "AVDEL30MIN_neuro"
+ [9] "AVDELTOT_neuro"   "GDTOTAL_gds"      "RAVLT_immediate" 
+[1] "Remaining time:"
+Time difference of 0.699556 hours
+ [1] "TRAASCOR_neuro"   "TRABSCOR_neuro"   "AGE"              "LRHHC_n_long"    
+ [5] "Apoe4_"           "Gender_num_"      "ANARTERR_neuro"   "AVDEL30MIN_neuro"
+ [9] "AVDELTOT_neuro"   "CATANIMSC_neuro"  "RAVLT_immediate" 
+[1] "Remaining time:"
+Time difference of 0.605232 hours
+ [1] "TRAASCOR_neuro"   "TRABSCOR_neuro"   "AGE"              "LRHHC_n_long"    
+ [5] "Apoe4_"           "Gender_num_"      "ANARTERR_neuro"   "AVDEL30MIN_neuro"
+ [9] "AVDELTOT_neuro"   "CATANIMSC_neuro"  "GDTOTAL_gds"     
+[1] "Remaining time:"
+Time difference of 0.501948 hours
+ [1] "ANARTERR_neuro"   "AVDEL30MIN_neuro" "AVDELTOT_neuro"   "CATANIMSC_neuro" 
+ [5] "GDTOTAL_gds"      "RAVLT_immediate"  "TRAASCOR_neuro"   "TRABSCOR_neuro"  
+ [9] "Gender_num_"      "AGE"             
+[1] "Remaining time:"
+Time difference of 0.387083 hours
+[1] "Apoe4_"       "LRHHC_n_long" "Gender_num_"  "AGE"         
+[1] "Remaining time:"
+Time difference of 0.264973 hours
+ [1] "TRAASCOR_neuro"   "TRABSCOR_neuro"   "AGE"              "LRHHC_n_long"    
+ [5] "Apoe4_"           "Gender_num_"      "ANARTERR_neuro"   "AVDEL30MIN_neuro"
+ [9] "AVDELTOT_neuro"   "CATANIMSC_neuro"  "GDTOTAL_gds"      "RAVLT_immediate" 
+[1] "Remaining time:"
+Time difference of 0.129284 hours
+[1] "done"

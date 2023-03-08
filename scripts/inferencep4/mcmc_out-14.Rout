@@ -1,0 +1,2833 @@
+
+MCMC seed = 14
+Loading required package: future
+Loading required package: rngtools
+
+availableCores: 24
+availableCores-multicore: 24
+using 1 cores
+nimble version 0.12.2 is loaded.
+For more information on NIMBLE and a User Manual,
+please visit https://R-nimble.org.
+
+Attaching package: ‘nimble’
+
+The following object is masked from ‘package:future’:
+
+    values
+
+The following object is masked from ‘package:data.table’:
+
+    cube
+
+The following object is masked from ‘package:stats’:
+
+    simulate
+
+          used  (Mb) gc trigger  (Mb) max used  (Mb)
+Ncells 1906049 101.8    3396327 181.4  2122415 113.4
+Vcells 2362433  18.1    8388608  64.0  5619116  42.9
+Defining model
+Building model
+Setting data and initial values
+Running calculate on model
+  [Note] Any error reports that follow may simply reflect missing values in model variables.
+Checking model sizes and dimensions
+  [Note] This model is not fully initialized. This is not an error.
+         To see which variables are not initialized, use model$initializeInfo().
+         For more information on model initialization, see help(modelInitialization).
+Compiling
+  [Note] This may take a minute.
+  [Note] Use 'showCompilerOutput = TRUE' to see C++ compilation details.
+          used  (Mb) gc trigger  (Mb) max used  (Mb)
+Ncells 3236162 172.9    5446332 290.9  5446332 290.9
+Vcells 6269800  47.9   12255594  93.6 10146329  77.5
+===== Monitors =====
+thin = 1: Bprob, Imean, Ivar, Rmean, Rvar, W
+thin2 = 1: Alphaindex, K
+===== Samplers =====
+posterior_predictive sampler (14)
+  - Rdata[]  (14 elements)
+conjugate sampler (1483)
+  - Bprob[]  (192 elements)
+  - Rmean[]  (128 elements)
+  - Imean[]  (512 elements)
+  - Rrate[]  (2 elements)
+  - Irate[]  (8 elements)
+  - Rvar[]  (128 elements)
+  - Ivar[]  (512 elements)
+  - W[1:64] 
+categorical sampler (715)
+  - Alphaindex
+  - Rvarscaleindex[]  (2 elements)
+  - Ivarscaleindex[]  (8 elements)
+  - K[]  (704 elements)
+RW sampler (5632)
+  - Icont[]  (5632 elements)
+Compiling
+  [Note] This may take a minute.
+  [Note] Use 'showCompilerOutput = TRUE' to see C++ compilation details.
+
+Setup time: Time difference of 3.71868 mins
+Seed: 933 
+Iterations: 1024 
+chain: 1. Est. remaining time: Time difference of Inf secs
+|-------------|-------------|-------------|-------------|
+|-------------------------------------------------------|
+
+Time MCMC: Time difference of 1.74884 mins
+
+OCCUPIED CLUSTERS: 7 OF 64 
+
+ESSs: 41, 49, 5
+IATs: 14, 20, 103
+BMKs: 0.501, 0.279, 0.711
+MCSEs: 12.09, 13.31, 16.1
+Stationary: FALSE, FALSE, FALSE
+Burn-in I: 612, 0, 612
+Burn-in II: 612
+Proposed thinning: 30, 29, 30 
+
+Time diagnostics: Time difference of 0.971238 secs
+
+Number of iterations 1024, required 1842 
+Increasing by 818 
+Iterations: 818 
+chain: 1. Est. remaining time: Time difference of Inf mins
+|-------------|-------------|-------------|-------------|
+|-------------------------------------------------------|
+
+Time MCMC: Time difference of 3.06032 mins
+
+OCCUPIED CLUSTERS: 8 OF 64 
+
+ESSs: 38, 88, 9
+IATs: 35, 14, 79
+BMKs: 0.172, 0.228, 0.491
+MCSEs: 11.19, 9.4, 13.4
+Stationary: FALSE, TRUE, FALSE
+Burn-in I: 368, 0, 552
+Burn-in II: 552
+Proposed thinning: 32, 31, 32 
+
+Time diagnostics: Time difference of 1.16681 secs
+
+Number of iterations 1842, required 1578 
+
+Plotting MCMC traces
+Time MCMC+diagnostics: Time difference of 3.08289 mins
+Seed: 934 
+Iterations: 1024 
+chain: 2. Est. remaining time: Time difference of 194.238 mins
+|-------------|-------------|-------------|-------------|
+|-------------------------------------------------------|
+
+Time MCMC: Time difference of 4.70584 mins
+
+OCCUPIED CLUSTERS: 9 OF 64 
+
+ESSs: 306, 186, 198
+IATs: 3, 5, 5
+BMKs: 0.15, 0.243, 0.125
+MCSEs: 6.35, 5.49, 7.29
+Stationary: FALSE, TRUE, TRUE
+Burn-in I: 0, 0, 0
+Burn-in II: 0
+Proposed thinning: 5, 9, 9 
+
+Time diagnostics: Time difference of 0.574026 secs
+
+Number of iterations 1024, required 54 
+
+Plotting MCMC traces
+Time MCMC+diagnostics: Time difference of 4.71679 mins
+Seed: 935 
+Iterations: 1024 
+chain: 3. Est. remaining time: Time difference of 146.224 mins
+|-------------|-------------|-------------|-------------|
+|-------------------------------------------------------|
+
+Time MCMC: Time difference of 6.37323 mins
+
+OCCUPIED CLUSTERS: 8 OF 64 
+
+ESSs: 17, 78, 11
+IATs: 26, 7, 68
+BMKs: 0.284, 0.244, 0.375
+MCSEs: 13.49, 8.69, 15.33
+Stationary: FALSE, TRUE, FALSE
+Burn-in I: 204, 0, 204
+Burn-in II: 204
+Proposed thinning: 30, 30, 30 
+
+Time diagnostics: Time difference of 0.374746 secs
+
+Number of iterations 1024, required 816 
+
+Plotting MCMC traces
+Time MCMC+diagnostics: Time difference of 6.3806 mins
+Seed: 936 
+Iterations: 1024 
+chain: 4. Est. remaining time: Time difference of 129.74 mins
+|-------------|-------------|-------------|-------------|
+|-------------------------------------------------------|
+
+Time MCMC: Time difference of 8.10206 mins
+
+OCCUPIED CLUSTERS: 6 OF 64 
+
+ESSs: 152, 338, 209
+IATs: 8, 3, 4
+BMKs: 0.219, 0.304, 0.215
+MCSEs: 7.77, 5.73, 7.42
+Stationary: FALSE, TRUE, FALSE
+Burn-in I: 102, 0, 0
+Burn-in II: 102
+Proposed thinning: 14, 5, 8 
+
+Time diagnostics: Time difference of 0.350252 secs
+
+Number of iterations 1024, required 288 
+
+Plotting MCMC traces
+Time MCMC+diagnostics: Time difference of 8.10903 mins
+Seed: 937 
+Iterations: 1024 
+chain: 5. Est. remaining time: Time difference of 121.637 mins
+|-------------|-------------|-------------|-------------|
+|-------------------------------------------------------|
+
+Time MCMC: Time difference of 9.75345 mins
+
+OCCUPIED CLUSTERS: 7 OF 64 
+
+ESSs: 46, 88, 24
+IATs: 21, 9, 40
+BMKs: 0.445, 0.415, 0.237
+MCSEs: 12.25, 9.51, 14.21
+Stationary: FALSE, TRUE, FALSE
+Burn-in I: 102, 306, 102
+Burn-in II: 306
+Proposed thinning: 30, 30, 30 
+
+Time diagnostics: Time difference of 0.605028 secs
+
+Number of iterations 1024, required 852 
+
+Plotting MCMC traces
+Time MCMC+diagnostics: Time difference of 9.76481 mins
+Seed: 938 
+Iterations: 1024 
+chain: 6. Est. remaining time: Time difference of 115.226 mins
+|-------------|-------------|-------------|-------------|
+|-------------------------------------------------------|
+
+Time MCMC: Time difference of 11.3928 mins
+
+OCCUPIED CLUSTERS: 6 OF 64 
+
+ESSs: 4, 3, 9
+IATs: 211, 207, 35
+BMKs: 0.815, 0.865, 0.337
+MCSEs: 16.98, 17.04, 14.53
+Stationary: FALSE, FALSE, TRUE
+Burn-in I: 306, 204, 408
+Burn-in II: 408
+Proposed thinning: 30, 30, 30 
+
+Time diagnostics: Time difference of 0.425618 secs
+
+Number of iterations 1024, required 2082 
+Increasing by 1058 
+Iterations: 1058 
+chain: 6. Est. remaining time: Time difference of 134.526 mins
+|-------------|-------------|-------------|-------------|
+|-------------------------------------------------------|
+
+Time MCMC: Time difference of 13.1273 mins
+
+OCCUPIED CLUSTERS: 6 OF 64 
+
+ESSs: 8, 9, 7
+IATs: 122, 71, 34
+BMKs: 0.632, 0.536, 0.403
+MCSEs: 13.67, 13.71, 13.12
+Stationary: FALSE, FALSE, FALSE
+Burn-in I: 416, 208, 1040
+Burn-in II: 1040
+Proposed thinning: 33, 33, 33 
+
+Time diagnostics: Time difference of 0.387203 secs
+
+Number of iterations 2082, required 2818 
+Increasing by 736 
+Iterations: 736 
+chain: 6. Est. remaining time: Time difference of 155.13 mins
+|-------------|-------------|-------------|-------------|
+|-------------------------------------------------------|
+
+Time MCMC: Time difference of 14.3351 mins
+
+OCCUPIED CLUSTERS: 7 OF 64 
+
+ESSs: 13, 10, 7
+IATs: 60, 68, 33
+BMKs: 0.394, 0.46, 0.492
+MCSEs: 12.19, 12.38, 12.05
+Stationary: FALSE, FALSE, FALSE
+Burn-in I: 1124, 281, 1124
+Burn-in II: 1124
+Proposed thinning: 34, 34, 34 
+
+Time diagnostics: Time difference of 0.503045 secs
+
+Number of iterations 2818, required 2662 
+
+Plotting MCMC traces
+Time MCMC+diagnostics: Time difference of 14.3454 mins
+Seed: 939 
+Iterations: 1024 
+chain: 7. Est. remaining time: Time difference of 138.672 mins
+|-------------|-------------|-------------|-------------|
+|-------------------------------------------------------|
+
+Time MCMC: Time difference of 16.0442 mins
+
+OCCUPIED CLUSTERS: 16 OF 64 
+
+ESSs: 35, 189, 43
+IATs: 19, 6, 7
+BMKs: 0.205, 0.192, 0.396
+MCSEs: 12.86, 6.86, 10.36
+Stationary: FALSE, TRUE, FALSE
+Burn-in I: 1020, 0, 204
+Burn-in II: 1024
+Proposed thinning: 30, 13, 30 
+
+Time diagnostics: Time difference of 0.356002 secs
+
+Number of iterations 1024, required 2228 
+Increasing by 1204 
+Iterations: 1204 
+chain: 7. Est. remaining time: Time difference of 155.154 mins
+|-------------|-------------|-------------|-------------|
+|-------------------------------------------------------|
+
+Time MCMC: Time difference of 18.5265 mins
+
+OCCUPIED CLUSTERS: 14 OF 64 
+
+ESSs: 17, 281, 149
+IATs: 23, 9, 4
+BMKs: 0.246, 0.087, 0.233
+MCSEs: 11.06, 6.56, 7.07
+Stationary: FALSE, TRUE, FALSE
+Burn-in I: 1554, 0, 0
+Burn-in II: 1554
+Proposed thinning: 33, 32, 23 
+
+Time diagnostics: Time difference of 0.666012 secs
+
+Number of iterations 2228, required 3306 
+Increasing by 1078 
+Iterations: 1078 
+chain: 7. Est. remaining time: Time difference of 179.203 mins
+|-------------|-------------|-------------|-------------|
+|-------------------------------------------------------|
+
+Time MCMC: Time difference of 21.6045 mins
+
+OCCUPIED CLUSTERS: 16 OF 64 
+
+ESSs: 22, 200, 288
+IATs: 21, 9, 6
+BMKs: 0.169, 0.205, 0.147
+MCSEs: 9.65, 5.8, 5.39
+Stationary: FALSE, TRUE, FALSE
+Burn-in I: 990, 0, 0
+Burn-in II: 990
+Proposed thinning: 35, 32, 21 
+
+Time diagnostics: Time difference of 1.28326 secs
+
+Number of iterations 3306, required 2190 
+
+Plotting MCMC traces
+Time MCMC+diagnostics: Time difference of 21.629 mins
+Seed: 940 
+Iterations: 1024 
+chain: 8. Est. remaining time: Time difference of 176.122 mins
+|-------------|-------------|-------------|-------------|
+|-------------------------------------------------------|
+
+Time MCMC: Time difference of 24.5271 mins
+
+OCCUPIED CLUSTERS: 6 OF 64 
+
+ESSs: 463, 213, 610
+IATs: 2, 5, 2
+BMKs: 0.075, 0.265, 0.145
+MCSEs: 4.23, 8.15, 4.48
+Stationary: TRUE, FALSE, TRUE
+Burn-in I: 0, 0, 0
+Burn-in II: 0
+Proposed thinning: 2, 10, 2 
+
+Time diagnostics: Time difference of 0.622869 secs
+
+Number of iterations 1024, required 60 
+
+Plotting MCMC traces
+Time MCMC+diagnostics: Time difference of 24.5388 mins
+Seed: 941 
+Iterations: 1024 
+chain: 9. Est. remaining time: Time difference of 171.772 mins
+|-------------|-------------|-------------|-------------|
+|-------------------------------------------------------|
+
+Time MCMC: Time difference of 27.4716 mins
+
+OCCUPIED CLUSTERS: 8 OF 64 
+
+ESSs: 562, 316, 61
+IATs: 2, 3, 7
+BMKs: 0.134, 0.172, 0.291
+MCSEs: 4.22, 4.39, 9.72
+Stationary: TRUE, TRUE, FALSE
+Burn-in I: 0, 0, 0
+Burn-in II: 0
+Proposed thinning: 3, 7, 30 
+
+Time diagnostics: Time difference of 0.671453 secs
+
+Number of iterations 1024, required 180 
+
+Plotting MCMC traces
+Time MCMC+diagnostics: Time difference of 27.4846 mins
+Seed: 942 
+Iterations: 1024 
+chain: 10. Est. remaining time: Time difference of 167.962 mins
+|-------------|-------------|-------------|-------------|
+|-------------------------------------------------------|
+
+Time MCMC: Time difference of 30.3942 mins
+
+OCCUPIED CLUSTERS: 7 OF 64 
+
+ESSs: 50, 132, 22
+IATs: 14, 8, 36
+BMKs: 0.356, 0.3, 0.528
+MCSEs: 11.55, 8.31, 14.22
+Stationary: FALSE, TRUE, FALSE
+Burn-in I: 408, 0, 204
+Burn-in II: 408
+Proposed thinning: 30, 15, 30 
+
+Time diagnostics: Time difference of 0.601458 secs
+
+Number of iterations 1024, required 1038 
+Increasing by 14 
+Iterations: 14 
+chain: 10. Est. remaining time: Time difference of 185.806 mins
+
+Time MCMC: Time difference of 30.4452 mins
+
+OCCUPIED CLUSTERS: 7 OF 64 
+
+ESSs: 56, 133, 22
+IATs: 14, 8, 36
+BMKs: 0.345, 0.31, 0.523
+MCSEs: 11.52, 8.28, 14.18
+Stationary: FALSE, TRUE, FALSE
+Burn-in I: 412, 0, 206
+Burn-in II: 412
+Proposed thinning: 30, 15, 30 
+
+Time diagnostics: Time difference of 0.255447 secs
+
+Number of iterations 1038, required 1046 
+Increasing by 8 
+Iterations: 8 
+chain: 10. Est. remaining time: Time difference of 186.081 mins
+
+Time MCMC: Time difference of 30.4729 mins
+
+OCCUPIED CLUSTERS: 7 OF 64 
+
+ESSs: 56, 135, 22
+IATs: 14, 8, 36
+BMKs: 0.337, 0.311, 0.518
+MCSEs: 11.49, 8.27, 14.17
+Stationary: FALSE, TRUE, FALSE
+Burn-in I: 416, 0, 208
+Burn-in II: 416
+Proposed thinning: 30, 15, 30 
+
+Time diagnostics: Time difference of 0.236422 secs
+
+Number of iterations 1046, required 1054 
+Increasing by 8 
+Iterations: 8 
+chain: 10. Est. remaining time: Time difference of 186.249 mins
+
+Time MCMC: Time difference of 30.5 mins
+
+OCCUPIED CLUSTERS: 7 OF 64 
+
+ESSs: 57, 135, 23
+IATs: 14, 8, 36
+BMKs: 0.329, 0.314, 0.514
+MCSEs: 11.48, 8.25, 14.13
+Stationary: FALSE, TRUE, FALSE
+Burn-in I: 420, 0, 210
+Burn-in II: 420
+Proposed thinning: 30, 15, 30 
+
+Time diagnostics: Time difference of 0.261237 secs
+
+Number of iterations 1054, required 1062 
+Increasing by 8 
+Iterations: 8 
+chain: 10. Est. remaining time: Time difference of 186.416 mins
+
+Time MCMC: Time difference of 30.5294 mins
+
+OCCUPIED CLUSTERS: 7 OF 64 
+
+ESSs: 52, 136, 23
+IATs: 14, 8, 36
+BMKs: 0.327, 0.311, 0.512
+MCSEs: 11.37, 8.23, 13.96
+Stationary: FALSE, TRUE, FALSE
+Burn-in I: 424, 0, 212
+Burn-in II: 424
+Proposed thinning: 30, 15, 30 
+
+Time diagnostics: Time difference of 0.235142 secs
+
+Number of iterations 1062, required 1070 
+Increasing by 8 
+Iterations: 8 
+chain: 10. Est. remaining time: Time difference of 186.593 mins
+
+Time MCMC: Time difference of 30.5564 mins
+
+OCCUPIED CLUSTERS: 7 OF 64 
+
+ESSs: 58, 136, 23
+IATs: 14, 8, 36
+BMKs: 0.325, 0.309, 0.508
+MCSEs: 11.36, 8.2, 13.94
+Stationary: FALSE, TRUE, FALSE
+Burn-in I: 428, 0, 214
+Burn-in II: 428
+Proposed thinning: 30, 17, 30 
+
+Time diagnostics: Time difference of 0.263341 secs
+
+Number of iterations 1070, required 1078 
+Increasing by 8 
+Iterations: 8 
+chain: 10. Est. remaining time: Time difference of 186.762 mins
+
+Time MCMC: Time difference of 30.5834 mins
+
+OCCUPIED CLUSTERS: 7 OF 64 
+
+ESSs: 53, 137, 24
+IATs: 14, 8, 36
+BMKs: 0.322, 0.318, 0.503
+MCSEs: 11.35, 8.19, 13.9
+Stationary: FALSE, TRUE, FALSE
+Burn-in I: 428, 0, 214
+Burn-in II: 428
+Proposed thinning: 30, 17, 30 
+
+Time diagnostics: Time difference of 0.236172 secs
+
+Number of iterations 1078, required 1078 
+
+Plotting MCMC traces
+Time MCMC+diagnostics: Time difference of 30.5886 mins
+Seed: 943 
+Iterations: 1024 
+chain: 11. Est. remaining time: Time difference of 165.179 mins
+|-------------|-------------|-------------|-------------|
+|-------------------------------------------------------|
+
+Time MCMC: Time difference of 33.4876 mins
+
+OCCUPIED CLUSTERS: 6 OF 64 
+
+ESSs: 23, 5, 5
+IATs: 57, 164, 98
+BMKs: 0.651, 0.767, 0.429
+MCSEs: 14.68, 16.62, 16.43
+Stationary: FALSE, FALSE, FALSE
+Burn-in I: 204, 204, 408
+Burn-in II: 408
+Proposed thinning: 30, 30, 30 
+
+Time diagnostics: Time difference of 0.591388 secs
+
+Number of iterations 1024, required 1806 
+Increasing by 782 
+Iterations: 782 
+chain: 11. Est. remaining time: Time difference of 180.889 mins
+|-------------|-------------|-------------|-------------|
+|-------------------------------------------------------|
+
+Time MCMC: Time difference of 35.7171 mins
+
+OCCUPIED CLUSTERS: 6 OF 64 
+
+ESSs: 38, 10, 8
+IATs: 27, 164, 96
+BMKs: 0.466, 0.573, 0.666
+MCSEs: 11.5, 14.13, 13.76
+Stationary: FALSE, FALSE, FALSE
+Burn-in I: 180, 180, 360
+Burn-in II: 360
+Proposed thinning: 32, 32, 32 
+
+Time diagnostics: Time difference of 0.516587 secs
+
+Number of iterations 1806, required 1704 
+
+Plotting MCMC traces
+Time MCMC+diagnostics: Time difference of 35.7276 mins
+Seed: 944 
+Iterations: 1024 
+chain: 12. Est. remaining time: Time difference of 172.143 mins
+|-------------|-------------|-------------|-------------|
+|-------------------------------------------------------|
+
+Time MCMC: Time difference of 38.6386 mins
+
+OCCUPIED CLUSTERS: 12 OF 64 
+
+ESSs: 128, 129, 209
+IATs: 7, 7, 5
+BMKs: 0.122, 0.207, 0.175
+MCSEs: 8.86, 7.56, 8.12
+Stationary: FALSE, TRUE, TRUE
+Burn-in I: 0, 0, 0
+Burn-in II: 0
+Proposed thinning: 30, 16, 15 
+
+Time diagnostics: Time difference of 0.580296 secs
+
+Number of iterations 1024, required 180 
+
+Plotting MCMC traces
+Time MCMC+diagnostics: Time difference of 38.6502 mins
+Seed: 945 
+Iterations: 1024 
+chain: 13. Est. remaining time: Time difference of 167.485 mins
+|-------------|-------------|-------------|-------------|
+|-------------------------------------------------------|
+
+Time MCMC: Time difference of 41.5627 mins
+
+OCCUPIED CLUSTERS: 6 OF 64 
+
+ESSs: 39, 13, 22
+IATs: 35, 53, 44
+BMKs: 0.374, 0.416, 0.521
+MCSEs: 13.44, 15.58, 13.85
+Stationary: FALSE, FALSE, FALSE
+Burn-in I: 102, 102, 204
+Burn-in II: 204
+Proposed thinning: 30, 30, 30 
+
+Time diagnostics: Time difference of 1.23404 secs
+
+Number of iterations 1024, required 726 
+
+Plotting MCMC traces
+Time MCMC+diagnostics: Time difference of 41.5852 mins
+Seed: 946 
+Iterations: 1024 
+chain: 14. Est. remaining time: Time difference of 163.143 mins
+|-------------|-------------|-------------|-------------|
+|-------------------------------------------------------|
+
+Time MCMC: Time difference of 44.4829 mins
+
+OCCUPIED CLUSTERS: 5 OF 64 
+
+ESSs: 47, 30, 34
+IATs: 15, 36, 36
+BMKs: 0.578, 0.359, 0.514
+MCSEs: 12.76, 13.7, 13.89
+Stationary: FALSE, FALSE, FALSE
+Burn-in I: 204, 102, 204
+Burn-in II: 204
+Proposed thinning: 30, 30, 30 
+
+Time diagnostics: Time difference of 0.564163 secs
+
+Number of iterations 1024, required 630 
+
+Plotting MCMC traces
+Time MCMC+diagnostics: Time difference of 44.494 mins
+Seed: 947 
+Iterations: 1024 
+chain: 15. Est. remaining time: Time difference of 158.908 mins
+|-------------|-------------|-------------|-------------|
+|-------------------------------------------------------|
+
+Time MCMC: Time difference of 46.4062 mins
+
+OCCUPIED CLUSTERS: 6 OF 64 
+
+ESSs: 4, 2, 5
+IATs: 308, 305, 114
+BMKs: 0.672, 0.471, 0.64
+MCSEs: 17.1, 17.4, 16.26
+Stationary: FALSE, FALSE, FALSE
+Burn-in I: 612, 510, 714
+Burn-in II: 714
+Proposed thinning: 30, 30, 30 
+
+Time diagnostics: Time difference of 0.365277 secs
+
+Number of iterations 1024, required 3282 
+Increasing by 2258 
+Iterations: 2258 
+chain: 15. Est. remaining time: Time difference of 165.76 mins
+|-------------|-------------|-------------|-------------|
+|-------------------------------------------------------|
+
+Time MCMC: Time difference of 51.714 mins
+
+OCCUPIED CLUSTERS: 9 OF 64 
+
+ESSs: 7, 8, 19
+IATs: 85, 138, 20
+BMKs: 0.524, 0.601, 0.634
+MCSEs: 12.41, 12.43, 10.82
+Stationary: FALSE, FALSE, FALSE
+Burn-in I: 328, 656, 656
+Burn-in II: 656
+Proposed thinning: 35, 35, 35 
+
+Time diagnostics: Time difference of 1.03829 secs
+
+Number of iterations 3282, required 2140 
+
+Plotting MCMC traces
+Time MCMC+diagnostics: Time difference of 51.7351 mins
+Seed: 948 
+Iterations: 1024 
+chain: 16. Est. remaining time: Time difference of 169.002 mins
+|-------------|-------------|-------------|-------------|
+|-------------------------------------------------------|
+
+Time MCMC: Time difference of 54.6257 mins
+
+OCCUPIED CLUSTERS: 5 OF 64 
+
+ESSs: 6, 4, 8
+IATs: 205, 228, 90
+BMKs: 0.754, 0.823, 0.758
+MCSEs: 16.8, 17.18, 16.13
+Stationary: FALSE, FALSE, FALSE
+Burn-in I: 612, 306, 816
+Burn-in II: 816
+Proposed thinning: 30, 30, 30 
+
+Time diagnostics: Time difference of 0.577955 secs
+
+Number of iterations 1024, required 3000 
+Increasing by 1976 
+Iterations: 1976 
+chain: 16. Est. remaining time: Time difference of 178.478 mins
+|-------------|-------------|-------------|-------------|
+|-------------------------------------------------------|
+
+Time MCMC: Time difference of 58.9963 mins
+
+OCCUPIED CLUSTERS: 8 OF 64 
+
+ESSs: 13, 9, 11
+IATs: 92, 135, 45
+BMKs: 0.402, 0.485, 0.597
+MCSEs: 11.79, 12.29, 11.94
+Stationary: FALSE, FALSE, FALSE
+Burn-in I: 3000, 300, 900
+Burn-in II: 3000
+Proposed thinning: 34, 34, 34 
+
+Time diagnostics: Time difference of 0.597923 secs
+
+Number of iterations 3000, required 6816 
+Increasing by 3816 
+Iterations: 3816 
+chain: 16. Est. remaining time: Time difference of 192.757 mins
+|-------------|-------------|-------------|-------------|
+|-------------------------------------------------------|
+
+Time MCMC: Time difference of 1.13275 hours
+
+OCCUPIED CLUSTERS: 9 OF 64 
+
+ESSs: 24, 33, 21
+IATs: 94, 33, 23
+BMKs: 0.319, 0.299, 0.424
+MCSEs: 9.42, 8.71, 8.46
+Stationary: FALSE, FALSE, FALSE
+Burn-in I: 2724, 681, 681
+Burn-in II: 2724
+Proposed thinning: 38, 38, 38 
+
+Time diagnostics: Time difference of 2.25487 secs
+
+Number of iterations 6816, required 6018 
+
+Plotting MCMC traces
+Time MCMC+diagnostics: Time difference of 1.1335 hours
+Seed: 949 
+Iterations: 1024 
+chain: 17. Est. remaining time: Time difference of 3.40051 hours
+|-------------|-------------|-------------|-------------|
+|-------------------------------------------------------|
+
+Time MCMC: Time difference of 1.18209 hours
+
+OCCUPIED CLUSTERS: 6 OF 64 
+
+ESSs: 10, 4, 6
+IATs: 38, 199, 74
+BMKs: 0.702, 0.882, 0.456
+MCSEs: 15.6, 16.89, 16.12
+Stationary: FALSE, FALSE, FALSE
+Burn-in I: 102, 204, 306
+Burn-in II: 306
+Proposed thinning: 30, 30, 30 
+
+Time diagnostics: Time difference of 0.554566 secs
+
+Number of iterations 1024, required 1812 
+Increasing by 788 
+Iterations: 788 
+chain: 17. Est. remaining time: Time difference of 3.54675 hours
+|-------------|-------------|-------------|-------------|
+|-------------------------------------------------------|
+
+Time MCMC: Time difference of 1.21954 hours
+
+OCCUPIED CLUSTERS: 6 OF 64 
+
+ESSs: 19, 7, 8
+IATs: 81, 146, 82
+BMKs: 0.439, 0.585, 0.716
+MCSEs: 12.67, 14.27, 13.44
+Stationary: FALSE, FALSE, FALSE
+Burn-in I: 181, 181, 362
+Burn-in II: 362
+Proposed thinning: 32, 32, 32 
+
+Time diagnostics: Time difference of 0.512661 secs
+
+Number of iterations 1812, required 1606 
+
+Plotting MCMC traces
+Time MCMC+diagnostics: Time difference of 1.21972 hours
+Seed: 950 
+Iterations: 1024 
+chain: 18. Est. remaining time: Time difference of 3.37217 hours
+|-------------|-------------|-------------|-------------|
+|-------------------------------------------------------|
+
+Time MCMC: Time difference of 1.24955 hours
+
+OCCUPIED CLUSTERS: 6 OF 64 
+
+ESSs: 19, 15, 4
+IATs: 47, 41, 146
+BMKs: 0.49, 0.373, 0.559
+MCSEs: 15.12, 14.9, 16.5
+Stationary: FALSE, FALSE, FALSE
+Burn-in I: 204, 102, 510
+Burn-in II: 510
+Proposed thinning: 30, 30, 30 
+
+Time diagnostics: Time difference of 0.341956 secs
+
+Number of iterations 1024, required 1902 
+Increasing by 878 
+Iterations: 878 
+chain: 18. Est. remaining time: Time difference of 3.45492 hours
+|-------------|-------------|-------------|-------------|
+|-------------------------------------------------------|
+
+Time MCMC: Time difference of 1.27341 hours
+
+OCCUPIED CLUSTERS: 6 OF 64 
+
+ESSs: 31, 37, 6
+IATs: 53, 34, 173
+BMKs: 0.425, 0.269, 0.777
+MCSEs: 12.34, 12.12, 13.78
+Stationary: FALSE, FALSE, FALSE
+Burn-in I: 190, 0, 1520
+Burn-in II: 1520
+Proposed thinning: 32, 32, 32 
+
+Time diagnostics: Time difference of 0.303885 secs
+
+Number of iterations 1902, required 4084 
+Increasing by 2182 
+Iterations: 2182 
+chain: 18. Est. remaining time: Time difference of 3.52085 hours
+|-------------|-------------|-------------|-------------|
+|-------------------------------------------------------|
+
+Time MCMC: Time difference of 1.33296 hours
+
+OCCUPIED CLUSTERS: 7 OF 64 
+
+ESSs: 37, 134, 10
+IATs: 43, 27, 45
+BMKs: 0.237, 0.212, 0.419
+MCSEs: 9.51, 7.82, 11.06
+Stationary: FALSE, TRUE, FALSE
+Burn-in I: 1632, 0, 1632
+Burn-in II: 1632
+Proposed thinning: 36, 36, 36 
+
+Time diagnostics: Time difference of 0.626291 secs
+
+Number of iterations 4084, required 3540 
+
+Plotting MCMC traces
+Time MCMC+diagnostics: Time difference of 1.33318 hours
+Seed: 951 
+Iterations: 1024 
+chain: 19. Est. remaining time: Time difference of 3.40703 hours
+|-------------|-------------|-------------|-------------|
+|-------------------------------------------------------|
+
+Time MCMC: Time difference of 1.36141 hours
+
+OCCUPIED CLUSTERS: 8 OF 64 
+
+ESSs: 127, 394, 158
+IATs: 5, 3, 6
+BMKs: 0.102, 0.146, 0.124
+MCSEs: 8.12, 4.08, 7.1
+Stationary: FALSE, TRUE, TRUE
+Burn-in I: 0, 0, 0
+Burn-in II: 0
+Proposed thinning: 16, 4, 10 
+
+Time diagnostics: Time difference of 0.546007 secs
+
+Number of iterations 1024, required 96 
+
+Plotting MCMC traces
+Time MCMC+diagnostics: Time difference of 1.36159 hours
+Seed: 952 
+Iterations: 1024 
+chain: 20. Est. remaining time: Time difference of 3.22483 hours
+|-------------|-------------|-------------|-------------|
+|-------------------------------------------------------|
+
+Time MCMC: Time difference of 1.39141 hours
+
+OCCUPIED CLUSTERS: 8 OF 64 
+
+ESSs: 89, 204, 13
+IATs: 10, 4, 49
+BMKs: 0.144, 0.133, 0.441
+MCSEs: 10.22, 6.8, 15.15
+Stationary: FALSE, TRUE, FALSE
+Burn-in I: 0, 0, 102
+Burn-in II: 102
+Proposed thinning: 30, 7, 30 
+
+Time diagnostics: Time difference of 0.341978 secs
+
+Number of iterations 1024, required 498 
+
+Plotting MCMC traces
+Time MCMC+diagnostics: Time difference of 1.39153 hours
+Seed: 953 
+Iterations: 1024 
+chain: 21. Est. remaining time: Time difference of 3.06137 hours
+|-------------|-------------|-------------|-------------|
+|-------------------------------------------------------|
+
+Time MCMC: Time difference of 1.41921 hours
+
+OCCUPIED CLUSTERS: 6 OF 64 
+
+ESSs: 4, 3, 4
+IATs: 214, 225, 144
+BMKs: 0.932, 0.927, 0.79
+MCSEs: 16.93, 17.12, 16.62
+Stationary: FALSE, FALSE, FALSE
+Burn-in I: 816, 306, 816
+Burn-in II: 816
+Proposed thinning: 30, 30, 30 
+
+Time diagnostics: Time difference of 0.349648 secs
+
+Number of iterations 1024, required 2982 
+Increasing by 1958 
+Iterations: 1958 
+chain: 21. Est. remaining time: Time difference of 3.12249 hours
+|-------------|-------------|-------------|-------------|
+|-------------------------------------------------------|
+
+Time MCMC: Time difference of 1.47315 hours
+
+OCCUPIED CLUSTERS: 9 OF 64 
+
+ESSs: 11, 13, 8
+IATs: 230, 82, 44
+BMKs: 0.431, 0.466, 0.714
+MCSEs: 12.34, 12.36, 12.05
+Stationary: FALSE, FALSE, FALSE
+Burn-in I: 298, 298, 596
+Burn-in II: 596
+Proposed thinning: 34, 34, 34 
+
+Time diagnostics: Time difference of 0.552145 secs
+
+Number of iterations 2982, required 2572 
+
+Plotting MCMC traces
+Time MCMC+diagnostics: Time difference of 1.47334 hours
+Seed: 954 
+Iterations: 1024 
+chain: 22. Est. remaining time: Time difference of 3.01684 hours
+|-------------|-------------|-------------|-------------|
+|-------------------------------------------------------|
+
+Time MCMC: Time difference of 1.50142 hours
+
+OCCUPIED CLUSTERS: 8 OF 64 
+
+ESSs: 217, 475, 28
+IATs: 5, 2, 27
+BMKs: 0.198, 0.133, 0.327
+MCSEs: 5.35, 4.13, 12.29
+Stationary: TRUE, TRUE, FALSE
+Burn-in I: 0, 0, 102
+Burn-in II: 102
+Proposed thinning: 10, 3, 30 
+
+Time diagnostics: Time difference of 0.344492 secs
+
+Number of iterations 1024, required 384 
+
+Plotting MCMC traces
+Time MCMC+diagnostics: Time difference of 1.50154 hours
+Seed: 955 
+Iterations: 1024 
+chain: 23. Est. remaining time: Time difference of 2.86658 hours
+|-------------|-------------|-------------|-------------|
+|-------------------------------------------------------|
+
+Time MCMC: Time difference of 1.52967 hours
+
+OCCUPIED CLUSTERS: 6 OF 64 
+
+ESSs: 31, 9, 7
+IATs: 21, 75, 143
+BMKs: 0.399, 0.503, 0.206
+MCSEs: 13.33, 16.1, 16.42
+Stationary: FALSE, FALSE, FALSE
+Burn-in I: 714, 102, 714
+Burn-in II: 714
+Proposed thinning: 30, 30, 30 
+
+Time diagnostics: Time difference of 0.363353 secs
+
+Number of iterations 1024, required 2286 
+Increasing by 1262 
+Iterations: 1262 
+chain: 23. Est. remaining time: Time difference of 2.92048 hours
+|-------------|-------------|-------------|-------------|
+|-------------------------------------------------------|
+
+Time MCMC: Time difference of 1.56304 hours
+
+OCCUPIED CLUSTERS: 8 OF 64 
+
+ESSs: 31, 33, 7
+IATs: 30, 63, 91
+BMKs: 0.396, 0.316, 0.784
+MCSEs: 11.16, 12.02, 13.18
+Stationary: FALSE, FALSE, FALSE
+Burn-in I: 684, 228, 684
+Burn-in II: 684
+Proposed thinning: 33, 33, 33 
+
+Time diagnostics: Time difference of 0.425656 secs
+
+Number of iterations 2286, required 1914 
+
+Plotting MCMC traces
+Time MCMC+diagnostics: Time difference of 1.56319 hours
+Seed: 956 
+Iterations: 1024 
+chain: 24. Est. remaining time: Time difference of 2.78656 hours
+|-------------|-------------|-------------|-------------|
+|-------------------------------------------------------|
+
+Time MCMC: Time difference of 1.59052 hours
+
+OCCUPIED CLUSTERS: 7 OF 64 
+
+ESSs: 123, 183, 4
+IATs: 7, 5, 112
+BMKs: 0.265, 0.182, 0.803
+MCSEs: 7.85, 6.21, 16.45
+Stationary: TRUE, TRUE, FALSE
+Burn-in I: 306, 0, 204
+Burn-in II: 306
+Proposed thinning: 10, 8, 30 
+
+Time diagnostics: Time difference of 0.338198 secs
+
+Number of iterations 1024, required 1290 
+Increasing by 266 
+Iterations: 266 
+chain: 24. Est. remaining time: Time difference of 2.83545 hours
+|-------------|-------------|-------------|-------------|
+|-------------------------------------------------------|
+
+Time MCMC: Time difference of 1.5977 hours
+
+OCCUPIED CLUSTERS: 7 OF 64 
+
+ESSs: 161, 232, 7
+IATs: 7, 5, 111
+BMKs: 0.284, 0.216, 0.614
+MCSEs: 7.11, 5.55, 15.33
+Stationary: TRUE, TRUE, FALSE
+Burn-in I: 0, 0, 258
+Burn-in II: 258
+Proposed thinning: 10, 8, 31 
+
+Time diagnostics: Time difference of 0.172989 secs
+
+Number of iterations 1290, required 1188 
+
+Plotting MCMC traces
+Time MCMC+diagnostics: Time difference of 1.59777 hours
+Seed: 957 
+Iterations: 1024 
+chain: 25. Est. remaining time: Time difference of 2.66295 hours
+|-------------|-------------|-------------|-------------|
+|-------------------------------------------------------|
+
+Time MCMC: Time difference of 1.63388 hours
+
+OCCUPIED CLUSTERS: 7 OF 64 
+
+ESSs: 57, 222, 27
+IATs: 15, 4, 28
+BMKs: 0.365, 0.191, 0.35
+MCSEs: 11.6, 5.36, 13.85
+Stationary: FALSE, TRUE, FALSE
+Burn-in I: 306, 0, 306
+Burn-in II: 306
+Proposed thinning: 30, 6, 30 
+
+Time diagnostics: Time difference of 0.577709 secs
+
+Number of iterations 1024, required 792 
+
+Plotting MCMC traces
+Time MCMC+diagnostics: Time difference of 1.63407 hours
+Seed: 958 
+Iterations: 1024 
+chain: 26. Est. remaining time: Time difference of 2.54916 hours
+|-------------|-------------|-------------|-------------|
+|-------------------------------------------------------|
+
+Time MCMC: Time difference of 1.6825 hours
+
+OCCUPIED CLUSTERS: 6 OF 64 
+
+ESSs: 34, 7, 6
+IATs: 17, 48, 82
+BMKs: 0.633, 0.79, 0.443
+MCSEs: 10.6, 16.43, 16.44
+Stationary: TRUE, FALSE, FALSE
+Burn-in I: 306, 306, 612
+Burn-in II: 612
+Proposed thinning: 30, 30, 30 
+
+Time diagnostics: Time difference of 0.562814 secs
+
+Number of iterations 1024, required 1722 
+Increasing by 698 
+Iterations: 698 
+chain: 26. Est. remaining time: Time difference of 2.62496 hours
+|-------------|-------------|-------------|-------------|
+|-------------------------------------------------------|
+
+Time MCMC: Time difference of 1.71566 hours
+
+OCCUPIED CLUSTERS: 6 OF 64 
+
+ESSs: 76, 12, 6
+IATs: 15, 47, 81
+BMKs: 0.6, 0.625, 0.468
+MCSEs: 8.89, 14.16, 14.51
+Stationary: FALSE, FALSE, FALSE
+Burn-in I: 344, 344, 516
+Burn-in II: 516
+Proposed thinning: 32, 32, 32 
+
+Time diagnostics: Time difference of 0.449205 secs
+
+Number of iterations 1722, required 1518 
+
+Plotting MCMC traces
+Time MCMC+diagnostics: Time difference of 1.71584 hours
+Seed: 959 
+Iterations: 1024 
+chain: 27. Est. remaining time: Time difference of 2.50776 hours
+|-------------|-------------|-------------|-------------|
+|-------------------------------------------------------|
+
+Time MCMC: Time difference of 1.76403 hours
+
+OCCUPIED CLUSTERS: 8 OF 64 
+
+ESSs: 51, 129, 11
+IATs: 18, 6, 101
+BMKs: 0.343, 0.252, 0.594
+MCSEs: 11.52, 5.67, 15.45
+Stationary: FALSE, TRUE, FALSE
+Burn-in I: 0, 0, 204
+Burn-in II: 204
+Proposed thinning: 30, 9, 30 
+
+Time diagnostics: Time difference of 0.575322 secs
+
+Number of iterations 1024, required 1014 
+
+Plotting MCMC traces
+Time MCMC+diagnostics: Time difference of 1.76423 hours
+Seed: 960 
+Iterations: 1024 
+chain: 28. Est. remaining time: Time difference of 2.41765 hours
+|-------------|-------------|-------------|-------------|
+|-------------------------------------------------------|
+
+Time MCMC: Time difference of 1.80384 hours
+
+OCCUPIED CLUSTERS: 8 OF 64 
+
+ESSs: 22, 18, 18
+IATs: 41, 42, 41
+BMKs: 0.528, 0.333, 0.465
+MCSEs: 14.83, 14.95, 13.52
+Stationary: FALSE, FALSE, FALSE
+Burn-in I: 204, 102, 714
+Burn-in II: 714
+Proposed thinning: 30, 30, 30 
+
+Time diagnostics: Time difference of 0.365603 secs
+
+Number of iterations 1024, required 1686 
+Increasing by 662 
+Iterations: 662 
+chain: 28. Est. remaining time: Time difference of 2.47208 hours
+|-------------|-------------|-------------|-------------|
+|-------------------------------------------------------|
+
+Time MCMC: Time difference of 1.82149 hours
+
+OCCUPIED CLUSTERS: 8 OF 64 
+
+ESSs: 45, 31, 35
+IATs: 37, 40, 45
+BMKs: 0.379, 0.305, 0.204
+MCSEs: 12.52, 12.54, 11.69
+Stationary: FALSE, FALSE, FALSE
+Burn-in I: 168, 0, 0
+Burn-in II: 168
+Proposed thinning: 32, 32, 32 
+
+Time diagnostics: Time difference of 0.27468 secs
+
+Number of iterations 1686, required 606 
+
+Plotting MCMC traces
+Time MCMC+diagnostics: Time difference of 1.8216 hours
+Seed: 961 
+Iterations: 1024 
+chain: 29. Est. remaining time: Time difference of 2.34206 hours
+|-------------|-------------|-------------|-------------|
+|-------------------------------------------------------|
+
+Time MCMC: Time difference of 1.85073 hours
+
+OCCUPIED CLUSTERS: 9 OF 64 
+
+ESSs: 45, 266, 108
+IATs: 16, 4, 9
+BMKs: 0.546, 0.365, 0.17
+MCSEs: 11.39, 6.76, 8.63
+Stationary: FALSE, FALSE, TRUE
+Burn-in I: 204, 0, 0
+Burn-in II: 204
+Proposed thinning: 30, 7, 13 
+
+Time diagnostics: Time difference of 1.08234 secs
+
+Number of iterations 1024, required 588 
+
+Plotting MCMC traces
+Time MCMC+diagnostics: Time difference of 1.85106 hours
+Seed: 962 
+Iterations: 1024 
+chain: 30. Est. remaining time: Time difference of 2.23404 hours
+|-------------|-------------|-------------|-------------|
+|-------------------------------------------------------|
+
+Time MCMC: Time difference of 1.87837 hours
+
+OCCUPIED CLUSTERS: 6 OF 64 
+
+ESSs: 52, 24, 39
+IATs: 19, 39, 29
+BMKs: 0.361, 0.384, 0.462
+MCSEs: 11.6, 14.37, 13.62
+Stationary: TRUE, FALSE, FALSE
+Burn-in I: 102, 102, 0
+Burn-in II: 102
+Proposed thinning: 30, 30, 30 
+
+Time diagnostics: Time difference of 0.35339 secs
+
+Number of iterations 1024, required 444 
+
+Plotting MCMC traces
+Time MCMC+diagnostics: Time difference of 1.87849 hours
+Seed: 963 
+Iterations: 1024 
+chain: 31. Est. remaining time: Time difference of 2.12896 hours
+|-------------|-------------|-------------|-------------|
+|-------------------------------------------------------|
+
+Time MCMC: Time difference of 1.90552 hours
+
+OCCUPIED CLUSTERS: 7 OF 64 
+
+ESSs: 46, 78, 16
+IATs: 4, 10, 70
+BMKs: 0.269, 0.474, 0.585
+MCSEs: 9.14, 9.68, 15.03
+Stationary: TRUE, TRUE, FALSE
+Burn-in I: 0, 0, 204
+Burn-in II: 204
+Proposed thinning: 30, 20, 30 
+
+Time diagnostics: Time difference of 0.351399 secs
+
+Number of iterations 1024, required 828 
+
+Plotting MCMC traces
+Time MCMC+diagnostics: Time difference of 1.90565 hours
+Seed: 964 
+Iterations: 1024 
+chain: 32. Est. remaining time: Time difference of 2.02859 hours
+|-------------|-------------|-------------|-------------|
+|-------------------------------------------------------|
+
+Time MCMC: Time difference of 1.93225 hours
+
+OCCUPIED CLUSTERS: 6 OF 64 
+
+ESSs: 17, 6, 4
+IATs: 30, 146, 44
+BMKs: 0.527, 0.656, 0.7
+MCSEs: 14.41, 16.96, 16.32
+Stationary: FALSE, FALSE, FALSE
+Burn-in I: 408, 204, 408
+Burn-in II: 408
+Proposed thinning: 30, 30, 30 
+
+Time diagnostics: Time difference of 0.352652 secs
+
+Number of iterations 1024, required 1698 
+Increasing by 674 
+Iterations: 674 
+chain: 32. Est. remaining time: Time difference of 2.05703 hours
+|-------------|-------------|-------------|-------------|
+|-------------------------------------------------------|
+
+Time MCMC: Time difference of 1.95043 hours
+
+OCCUPIED CLUSTERS: 7 OF 64 
+
+ESSs: 38, 9, 6
+IATs: 27, 145, 42
+BMKs: 0.404, 0.495, 0.757
+MCSEs: 11.61, 14.45, 14.09
+Stationary: FALSE, FALSE, FALSE
+Burn-in I: 169, 169, 338
+Burn-in II: 338
+Proposed thinning: 32, 32, 32 
+
+Time diagnostics: Time difference of 0.280205 secs
+
+Number of iterations 1698, required 1546 
+
+Plotting MCMC traces
+Time MCMC+diagnostics: Time difference of 1.95054 hours
+Seed: 965 
+Iterations: 1024 
+chain: 33. Est. remaining time: Time difference of 1.95054 hours
+|-------------|-------------|-------------|-------------|
+|-------------------------------------------------------|
+
+Time MCMC: Time difference of 1.97815 hours
+
+OCCUPIED CLUSTERS: 5 OF 64 
+
+ESSs: 21, 7, 6
+IATs: 31, 101, 56
+BMKs: 0.556, 0.557, 0.284
+MCSEs: 14.73, 16.39, 15.86
+Stationary: FALSE, FALSE, FALSE
+Burn-in I: 102, 102, 510
+Burn-in II: 510
+Proposed thinning: 30, 30, 30 
+
+Time diagnostics: Time difference of 0.354135 secs
+
+Number of iterations 1024, required 1632 
+Increasing by 608 
+Iterations: 608 
+chain: 33. Est. remaining time: Time difference of 1.97825 hours
+|-------------|-------------|-------------|-------------|
+|-------------------------------------------------------|
+
+Time MCMC: Time difference of 1.99419 hours
+
+OCCUPIED CLUSTERS: 6 OF 64 
+
+ESSs: 33, 12, 7
+IATs: 31, 94, 112
+BMKs: 0.486, 0.399, 0.654
+MCSEs: 12.28, 14.4, 14.27
+Stationary: FALSE, FALSE, FALSE
+Burn-in I: 163, 163, 1141
+Burn-in II: 1141
+Proposed thinning: 32, 32, 32 
+
+Time diagnostics: Time difference of 0.272696 secs
+
+Number of iterations 1632, required 2954 
+Increasing by 1322 
+Iterations: 1322 
+chain: 33. Est. remaining time: Time difference of 1.99428 hours
+|-------------|-------------|-------------|-------------|
+|-------------------------------------------------------|
+
+Time MCMC: Time difference of 2.03784 hours
+
+OCCUPIED CLUSTERS: 6 OF 64 
+
+ESSs: 54, 26, 8
+IATs: 47, 83, 68
+BMKs: 0.202, 0.353, 0.499
+MCSEs: 10.24, 11.61, 12.2
+Stationary: TRUE, FALSE, FALSE
+Burn-in I: 1180, 295, 1180
+Burn-in II: 1180
+Proposed thinning: 34, 34, 34 
+
+Time diagnostics: Time difference of 0.432269 secs
+
+Number of iterations 2954, required 2864 
+
+Plotting MCMC traces
+Time MCMC+diagnostics: Time difference of 2.03801 hours
+Seed: 966 
+Iterations: 1024 
+chain: 34. Est. remaining time: Time difference of 1.91449 hours
+|-------------|-------------|-------------|-------------|
+|-------------------------------------------------------|
+
+Time MCMC: Time difference of 2.06561 hours
+
+OCCUPIED CLUSTERS: 7 OF 64 
+
+ESSs: 26, 11, 4
+IATs: 25, 63, 88
+BMKs: 0.605, 0.485, 0.346
+MCSEs: 13.51, 15.5, 16.37
+Stationary: FALSE, FALSE, FALSE
+Burn-in I: 204, 102, 816
+Burn-in II: 816
+Proposed thinning: 30, 30, 30 
+
+Time diagnostics: Time difference of 0.346958 secs
+
+Number of iterations 1024, required 2160 
+Increasing by 1136 
+Iterations: 1136 
+chain: 34. Est. remaining time: Time difference of 1.94052 hours
+|-------------|-------------|-------------|-------------|
+|-------------------------------------------------------|
+
+Time MCMC: Time difference of 2.09636 hours
+
+OCCUPIED CLUSTERS: 7 OF 64 
+
+ESSs: 55, 34, 6
+IATs: 26, 54, 16
+BMKs: 0.186, 0.286, 0.759
+MCSEs: 10.06, 11.62, 13.48
+Stationary: FALSE, FALSE, FALSE
+Burn-in I: 864, 216, 864
+Burn-in II: 864
+Proposed thinning: 33, 33, 33 
+
+Time diagnostics: Time difference of 0.380753 secs
+
+Number of iterations 2160, required 2058 
+
+Plotting MCMC traces
+Time MCMC+diagnostics: Time difference of 2.09651 hours
+Seed: 967 
+Iterations: 1024 
+chain: 35. Est. remaining time: Time difference of 1.84986 hours
+|-------------|-------------|-------------|-------------|
+|-------------------------------------------------------|
+
+Time MCMC: Time difference of 2.12363 hours
+
+OCCUPIED CLUSTERS: 8 OF 64 
+
+ESSs: 11, 6, 14
+IATs: 100, 127, 51
+BMKs: 0.614, 0.705, 0.268
+MCSEs: 15.81, 16.49, 14.32
+Stationary: FALSE, FALSE, FALSE
+Burn-in I: 408, 204, 408
+Burn-in II: 408
+Proposed thinning: 30, 30, 30 
+
+Time diagnostics: Time difference of 0.359051 secs
+
+Number of iterations 1024, required 1578 
+Increasing by 554 
+Iterations: 554 
+chain: 35. Est. remaining time: Time difference of 1.87389 hours
+|-------------|-------------|-------------|-------------|
+|-------------------------------------------------------|
+
+Time MCMC: Time difference of 2.14464 hours
+
+OCCUPIED CLUSTERS: 8 OF 64 
+
+ESSs: 11, 12, 26
+IATs: 117, 116, 47
+BMKs: 0.515, 0.542, 0.607
+MCSEs: 14, 14.13, 12.34
+Stationary: FALSE, FALSE, FALSE
+Burn-in I: 942, 157, 157
+Burn-in II: 942
+Proposed thinning: 31, 31, 31 
+
+Time diagnostics: Time difference of 0.429959 secs
+
+Number of iterations 1578, required 2592 
+Increasing by 1014 
+Iterations: 1014 
+chain: 35. Est. remaining time: Time difference of 1.89244 hours
+|-------------|-------------|-------------|-------------|
+|-------------------------------------------------------|
+
+Time MCMC: Time difference of 2.19279 hours
+
+OCCUPIED CLUSTERS: 9 OF 64 
+
+ESSs: 19, 24, 48
+IATs: 65, 99, 19
+BMKs: 0.36, 0.402, 0.415
+MCSEs: 12.23, 11.74, 10.46
+Stationary: FALSE, FALSE, FALSE
+Burn-in I: 259, 259, 0
+Burn-in II: 259
+Proposed thinning: 34, 34, 34 
+
+Time diagnostics: Time difference of 0.625126 secs
+
+Number of iterations 2592, required 1118 
+
+Plotting MCMC traces
+Time MCMC+diagnostics: Time difference of 2.19302 hours
+Seed: 968 
+Iterations: 1024 
+chain: 36. Est. remaining time: Time difference of 1.81708 hours
+|-------------|-------------|-------------|-------------|
+|-------------------------------------------------------|
+
+Time MCMC: Time difference of 2.2413 hours
+
+OCCUPIED CLUSTERS: 6 OF 64 
+
+ESSs: 77, 89, 12
+IATs: 9, 9, 52
+BMKs: 0.385, 0.315, 0.486
+MCSEs: 10.39, 10.48, 14.7
+Stationary: TRUE, TRUE, FALSE
+Burn-in I: 0, 204, 102
+Burn-in II: 204
+Proposed thinning: 30, 30, 30 
+
+Time diagnostics: Time difference of 0.599303 secs
+
+Number of iterations 1024, required 720 
+
+Plotting MCMC traces
+Time MCMC+diagnostics: Time difference of 2.24152 hours
+Seed: 969 
+Iterations: 1024 
+chain: 37. Est. remaining time: Time difference of 1.7434 hours
+|-------------|-------------|-------------|-------------|
+|-------------------------------------------------------|
+
+Time MCMC: Time difference of 2.28447 hours
+
+OCCUPIED CLUSTERS: 6 OF 64 
+
+ESSs: 11, 4, 11
+IATs: 113, 207, 62
+BMKs: 0.76, 0.988, 0.53
+MCSEs: 15.49, 16.98, 14.76
+Stationary: FALSE, FALSE, FALSE
+Burn-in I: 306, 306, 306
+Burn-in II: 306
+Proposed thinning: 30, 30, 30 
+
+Time diagnostics: Time difference of 0.360918 secs
+
+Number of iterations 1024, required 1860 
+Increasing by 836 
+Iterations: 836 
+chain: 37. Est. remaining time: Time difference of 1.7769 hours
+|-------------|-------------|-------------|-------------|
+|-------------------------------------------------------|
+
+Time MCMC: Time difference of 2.30715 hours
+
+OCCUPIED CLUSTERS: 8 OF 64 
+
+ESSs: 19, 7, 21
+IATs: 28, 174, 60
+BMKs: 0.519, 0.611, 0.551
+MCSEs: 12.78, 14.3, 11.79
+Stationary: FALSE, FALSE, FALSE
+Burn-in I: 186, 186, 186
+Burn-in II: 186
+Proposed thinning: 32, 32, 32 
+
+Time diagnostics: Time difference of 0.305542 secs
+
+Number of iterations 1860, required 1422 
+
+Plotting MCMC traces
+Time MCMC+diagnostics: Time difference of 2.30727 hours
+Seed: 970 
+Iterations: 1024 
+chain: 38. Est. remaining time: Time difference of 1.68369 hours
+|-------------|-------------|-------------|-------------|
+|-------------------------------------------------------|
+
+Time MCMC: Time difference of 2.33558 hours
+
+OCCUPIED CLUSTERS: 7 OF 64 
+
+ESSs: 25, 9, 13
+IATs: 27, 64, 60
+BMKs: 0.413, 0.571, 0.412
+MCSEs: 13.56, 15.52, 14.76
+Stationary: FALSE, FALSE, FALSE
+Burn-in I: 306, 102, 102
+Burn-in II: 306
+Proposed thinning: 30, 30, 30 
+
+Time diagnostics: Time difference of 0.362018 secs
+
+Number of iterations 1024, required 1002 
+
+Plotting MCMC traces
+Time MCMC+diagnostics: Time difference of 2.33573 hours
+Seed: 971 
+Iterations: 1024 
+chain: 39. Est. remaining time: Time difference of 1.59813 hours
+|-------------|-------------|-------------|-------------|
+|-------------------------------------------------------|
+
+Time MCMC: Time difference of 2.36528 hours
+
+OCCUPIED CLUSTERS: 7 OF 64 
+
+ESSs: 5, 3, 4
+IATs: 80, 208, 22
+BMKs: 0.803, 0.92, 0.785
+MCSEs: 16.8, 16.89, 16.28
+Stationary: FALSE, FALSE, FALSE
+Burn-in I: 816, 306, 510
+Burn-in II: 816
+Proposed thinning: 30, 30, 30 
+
+Time diagnostics: Time difference of 0.370247 secs
+
+Number of iterations 1024, required 2880 
+Increasing by 1856 
+Iterations: 1856 
+chain: 39. Est. remaining time: Time difference of 1.61843 hours
+|-------------|-------------|-------------|-------------|
+|-------------------------------------------------------|
+
+Time MCMC: Time difference of 2.41314 hours
+
+OCCUPIED CLUSTERS: 8 OF 64 
+
+ESSs: 13, 17, 9
+IATs: 211, 125, 23
+BMKs: 0.581, 0.515, 0.626
+MCSEs: 12.24, 11.78, 11.62
+Stationary: FALSE, FALSE, FALSE
+Burn-in I: 288, 288, 576
+Burn-in II: 576
+Proposed thinning: 34, 34, 34 
+
+Time diagnostics: Time difference of 0.523602 secs
+
+Number of iterations 2880, required 2418 
+
+Plotting MCMC traces
+Time MCMC+diagnostics: Time difference of 2.41353 hours
+Seed: 972 
+Iterations: 1024 
+chain: 40. Est. remaining time: Time difference of 1.54714 hours
+|-------------|-------------|-------------|-------------|
+|-------------------------------------------------------|
+
+Time MCMC: Time difference of 2.44157 hours
+
+OCCUPIED CLUSTERS: 6 OF 64 
+
+ESSs: 68, 53, 6
+IATs: 14, 15, 60
+BMKs: 0.32, 0.252, 0.849
+MCSEs: 10.77, 12, 16.44
+Stationary: FALSE, FALSE, FALSE
+Burn-in I: 0, 0, 306
+Burn-in II: 306
+Proposed thinning: 21, 21, 30 
+
+Time diagnostics: Time difference of 0.337214 secs
+
+Number of iterations 1024, required 972 
+
+Plotting MCMC traces
+Time MCMC+diagnostics: Time difference of 2.4417 hours
+Seed: 973 
+Iterations: 1024 
+chain: 41. Est. remaining time: Time difference of 1.46502 hours
+|-------------|-------------|-------------|-------------|
+|-------------------------------------------------------|
+
+Time MCMC: Time difference of 2.46898 hours
+
+OCCUPIED CLUSTERS: 7 OF 64 
+
+ESSs: 79, 56, 8
+IATs: 12, 13, 77
+BMKs: 0.425, 0.237, 0.57
+MCSEs: 9.95, 11.35, 15.7
+Stationary: TRUE, FALSE, FALSE
+Burn-in I: 0, 0, 204
+Burn-in II: 204
+Proposed thinning: 21, 19, 30 
+
+Time diagnostics: Time difference of 0.351513 secs
+
+Number of iterations 1024, required 870 
+
+Plotting MCMC traces
+Time MCMC+diagnostics: Time difference of 2.46911 hours
+Seed: 974 
+Iterations: 1024 
+chain: 42. Est. remaining time: Time difference of 1.38511 hours
+|-------------|-------------|-------------|-------------|
+|-------------------------------------------------------|
+
+Time MCMC: Time difference of 2.49632 hours
+
+OCCUPIED CLUSTERS: 7 OF 64 
+
+ESSs: 72, 309, 32
+IATs: 5, 3, 23
+BMKs: 0.392, 0.172, 0.45
+MCSEs: 8.96, 5.83, 11.8
+Stationary: FALSE, TRUE, FALSE
+Burn-in I: 204, 0, 204
+Burn-in II: 204
+Proposed thinning: 30, 5, 30 
+
+Time diagnostics: Time difference of 0.344402 secs
+
+Number of iterations 1024, required 588 
+
+Plotting MCMC traces
+Time MCMC+diagnostics: Time difference of 2.49645 hours
+Seed: 975 
+Iterations: 1024 
+chain: 43. Est. remaining time: Time difference of 1.30767 hours
+|-------------|-------------|-------------|-------------|
+|-------------------------------------------------------|
+
+Time MCMC: Time difference of 2.52375 hours
+
+OCCUPIED CLUSTERS: 6 OF 64 
+
+ESSs: 5, 3, 8
+IATs: 183, 216, 56
+BMKs: 0.766, 0.857, 0.509
+MCSEs: 16.46, 17.03, 15.9
+Stationary: FALSE, FALSE, FALSE
+Burn-in I: 306, 306, 510
+Burn-in II: 510
+Proposed thinning: 30, 30, 30 
+
+Time diagnostics: Time difference of 0.350007 secs
+
+Number of iterations 1024, required 2322 
+Increasing by 1298 
+Iterations: 1298 
+chain: 43. Est. remaining time: Time difference of 1.32202 hours
+|-------------|-------------|-------------|-------------|
+|-------------------------------------------------------|
+
+Time MCMC: Time difference of 2.55924 hours
+
+OCCUPIED CLUSTERS: 7 OF 64 
+
+ESSs: 13, 8, 13
+IATs: 52, 224, 46
+BMKs: 0.433, 0.557, 0.437
+MCSEs: 12.61, 13.45, 12.67
+Stationary: FALSE, FALSE, FALSE
+Burn-in I: 464, 232, 464
+Burn-in II: 464
+Proposed thinning: 33, 33, 33 
+
+Time diagnostics: Time difference of 0.41532 secs
+
+Number of iterations 2322, required 2272 
+
+Plotting MCMC traces
+Time MCMC+diagnostics: Time difference of 2.5594 hours
+Seed: 976 
+Iterations: 1024 
+chain: 44. Est. remaining time: Time difference of 1.24994 hours
+|-------------|-------------|-------------|-------------|
+|-------------------------------------------------------|
+
+Time MCMC: Time difference of 2.59116 hours
+
+OCCUPIED CLUSTERS: 6 OF 64 
+
+ESSs: 16, 7, 6
+IATs: 51, 110, 95
+BMKs: 0.65, 0.583, 0.704
+MCSEs: 14.95, 16.52, 16.03
+Stationary: FALSE, FALSE, FALSE
+Burn-in I: 306, 102, 408
+Burn-in II: 408
+Proposed thinning: 30, 30, 30 
+
+Time diagnostics: Time difference of 0.577747 secs
+
+Number of iterations 1024, required 1482 
+Increasing by 458 
+Iterations: 458 
+chain: 44. Est. remaining time: Time difference of 1.26553 hours
+|-------------|-------------|-------------|-------------|
+|-------------------------------------------------------|
+
+Time MCMC: Time difference of 2.61295 hours
+
+OCCUPIED CLUSTERS: 6 OF 64 
+
+ESSs: 29, 12, 10
+IATs: 48, 108, 82
+BMKs: 0.336, 0.49, 0.588
+MCSEs: 13.07, 14.39, 14.15
+Stationary: FALSE, FALSE, FALSE
+Burn-in I: 444, 148, 444
+Burn-in II: 444
+Proposed thinning: 31, 31, 31 
+
+Time diagnostics: Time difference of 0.39615 secs
+
+Number of iterations 1482, required 1536 
+Increasing by 54 
+Iterations: 54 
+chain: 44. Est. remaining time: Time difference of 1.27615 hours
+
+Time MCMC: Time difference of 2.61563 hours
+
+OCCUPIED CLUSTERS: 6 OF 64 
+
+ESSs: 30, 11, 11
+IATs: 48, 107, 82
+BMKs: 0.332, 0.479, 0.602
+MCSEs: 12.96, 14.37, 14.36
+Stationary: FALSE, FALSE, FALSE
+Burn-in I: 459, 153, 459
+Burn-in II: 459
+Proposed thinning: 31, 31, 31 
+
+Time diagnostics: Time difference of 0.281479 secs
+
+Number of iterations 1536, required 1566 
+Increasing by 30 
+Iterations: 30 
+chain: 44. Est. remaining time: Time difference of 1.27744 hours
+
+Time MCMC: Time difference of 2.61713 hours
+
+OCCUPIED CLUSTERS: 6 OF 64 
+
+ESSs: 31, 11, 11
+IATs: 48, 107, 74
+BMKs: 0.334, 0.473, 0.607
+MCSEs: 12.76, 14.18, 14.19
+Stationary: FALSE, FALSE, FALSE
+Burn-in I: 468, 156, 312
+Burn-in II: 468
+Proposed thinning: 31, 31, 31 
+
+Time diagnostics: Time difference of 0.24643 secs
+
+Number of iterations 1566, required 1584 
+Increasing by 18 
+Iterations: 18 
+chain: 44. Est. remaining time: Time difference of 1.27817 hours
+
+Time MCMC: Time difference of 2.61805 hours
+
+OCCUPIED CLUSTERS: 6 OF 64 
+
+ESSs: 33, 11, 11
+IATs: 47, 107, 74
+BMKs: 0.334, 0.469, 0.614
+MCSEs: 12.7, 14.17, 14.15
+Stationary: FALSE, FALSE, FALSE
+Burn-in I: 474, 158, 316
+Burn-in II: 474
+Proposed thinning: 31, 31, 31 
+
+Time diagnostics: Time difference of 0.266653 secs
+
+Number of iterations 1584, required 1596 
+Increasing by 12 
+Iterations: 12 
+chain: 44. Est. remaining time: Time difference of 1.27862 hours
+
+Time MCMC: Time difference of 2.61869 hours
+
+OCCUPIED CLUSTERS: 6 OF 64 
+
+ESSs: 33, 11, 11
+IATs: 47, 107, 74
+BMKs: 0.333, 0.466, 0.619
+MCSEs: 12.69, 14.16, 14.14
+Stationary: FALSE, FALSE, FALSE
+Burn-in I: 477, 159, 0
+Burn-in II: 477
+Proposed thinning: 32, 32, 32 
+
+Time diagnostics: Time difference of 0.277918 secs
+
+Number of iterations 1596, required 1602 
+Increasing by 6 
+Iterations: 6 
+chain: 44. Est. remaining time: Time difference of 1.27894 hours
+
+Time MCMC: Time difference of 2.61907 hours
+
+OCCUPIED CLUSTERS: 6 OF 64 
+
+ESSs: 33, 11, 11
+IATs: 47, 107, 74
+BMKs: 0.333, 0.466, 0.619
+MCSEs: 12.64, 14.19, 14.13
+Stationary: FALSE, FALSE, FALSE
+Burn-in I: 480, 160, 0
+Burn-in II: 480
+Proposed thinning: 32, 32, 32 
+
+Time diagnostics: Time difference of 0.241224 secs
+
+Number of iterations 1602, required 1608 
+Increasing by 6 
+Iterations: 6 
+chain: 44. Est. remaining time: Time difference of 1.27911 hours
+
+Time MCMC: Time difference of 2.61946 hours
+
+OCCUPIED CLUSTERS: 6 OF 64 
+
+ESSs: 34, 11, 11
+IATs: 47, 107, 74
+BMKs: 0.334, 0.466, 0.621
+MCSEs: 12.64, 14.18, 14.13
+Stationary: FALSE, FALSE, FALSE
+Burn-in I: 480, 160, 0
+Burn-in II: 480
+Proposed thinning: 32, 32, 32 
+
+Time diagnostics: Time difference of 0.269165 secs
+
+Number of iterations 1608, required 1608 
+
+Plotting MCMC traces
+Time MCMC+diagnostics: Time difference of 2.61959 hours
+Seed: 977 
+Iterations: 1024 
+chain: 45. Est. remaining time: Time difference of 1.19072 hours
+|-------------|-------------|-------------|-------------|
+|-------------------------------------------------------|
+
+Time MCMC: Time difference of 2.66814 hours
+
+OCCUPIED CLUSTERS: 8 OF 64 
+
+ESSs: 14, 10, 11
+IATs: 55, 71, 72
+BMKs: 0.445, 0.526, 0.487
+MCSEs: 15.03, 16.19, 15.39
+Stationary: FALSE, FALSE, FALSE
+Burn-in I: 102, 102, 204
+Burn-in II: 204
+Proposed thinning: 30, 30, 30 
+
+Time diagnostics: Time difference of 0.575367 secs
+
+Number of iterations 1024, required 846 
+
+Plotting MCMC traces
+Time MCMC+diagnostics: Time difference of 2.66835 hours
+Seed: 978 
+Iterations: 1024 
+chain: 46. Est. remaining time: Time difference of 1.12664 hours
+|-------------|-------------|-------------|-------------|
+|-------------------------------------------------------|
+
+Time MCMC: Time difference of 2.71663 hours
+
+OCCUPIED CLUSTERS: 6 OF 64 
+
+ESSs: 117, 194, 4
+IATs: 8, 5, 60
+BMKs: 0.288, 0.182, 0.304
+MCSEs: 7.3, 4.59, 17.11
+Stationary: TRUE, TRUE, FALSE
+Burn-in I: 510, 0, 510
+Burn-in II: 510
+Proposed thinning: 10, 7, 30 
+
+Time diagnostics: Time difference of 0.589094 secs
+
+Number of iterations 1024, required 1380 
+Increasing by 356 
+Iterations: 356 
+chain: 46. Est. remaining time: Time difference of 1.14709 hours
+|-------------|-------------|-------------|-------------|
+|-------------------------------------------------------|
+
+Time MCMC: Time difference of 2.73368 hours
+
+OCCUPIED CLUSTERS: 7 OF 64 
+
+ESSs: 159, 290, 3
+IATs: 8, 4, 60
+BMKs: 0.195, 0.172, 0.605
+MCSEs: 6.39, 4.05, 15.81
+Stationary: TRUE, TRUE, FALSE
+Burn-in I: 0, 0, 414
+Burn-in II: 414
+Proposed thinning: 11, 8, 31 
+
+Time diagnostics: Time difference of 0.33964 secs
+
+Number of iterations 1380, required 1194 
+
+Plotting MCMC traces
+Time MCMC+diagnostics: Time difference of 2.73383 hours
+Seed: 979 
+Iterations: 1024 
+chain: 47. Est. remaining time: Time difference of 1.06976 hours
+|-------------|-------------|-------------|-------------|
+|-------------------------------------------------------|
+
+Time MCMC: Time difference of 2.7819 hours
+
+OCCUPIED CLUSTERS: 7 OF 64 
+
+ESSs: 5, 4, 5
+IATs: 136, 307, 102
+BMKs: 0.697, 0.513, 0.648
+MCSEs: 16.77, 17.41, 16.33
+Stationary: FALSE, FALSE, TRUE
+Burn-in I: 408, 510, 612
+Burn-in II: 612
+Proposed thinning: 30, 30, 30 
+
+Time diagnostics: Time difference of 0.579838 secs
+
+Number of iterations 1024, required 3072 
+Increasing by 2048 
+Iterations: 2048 
+chain: 47. Est. remaining time: Time difference of 1.08863 hours
+|-------------|-------------|-------------|-------------|
+|-------------------------------------------------------|
+
+Time MCMC: Time difference of 2.87869 hours
+
+OCCUPIED CLUSTERS: 8 OF 64 
+
+ESSs: 7, 9, 12
+IATs: 125, 123, 51
+BMKs: 0.661, 0.63, 0.587
+MCSEs: 12.51, 12.73, 11.52
+Stationary: FALSE, FALSE, FALSE
+Burn-in I: 307, 614, 614
+Burn-in II: 614
+Proposed thinning: 34, 34, 34 
+
+Time diagnostics: Time difference of 0.953282 secs
+
+Number of iterations 3072, required 1984 
+
+Plotting MCMC traces
+Time MCMC+diagnostics: Time difference of 2.87904 hours
+Seed: 980 
+Iterations: 1024 
+chain: 48. Est. remaining time: Time difference of 1.04135 hours
+|-------------|-------------|-------------|-------------|
+|-------------------------------------------------------|
+
+Time MCMC: Time difference of 2.92723 hours
+
+OCCUPIED CLUSTERS: 6 OF 64 
+
+ESSs: 85, 24, 12
+IATs: 10, 35, 54
+BMKs: 0.193, 0.37, 0.483
+MCSEs: 9.96, 14.01, 14.75
+Stationary: FALSE, FALSE, FALSE
+Burn-in I: 0, 102, 102
+Burn-in II: 102
+Proposed thinning: 22, 30, 30 
+
+Time diagnostics: Time difference of 0.592592 secs
+
+Number of iterations 1024, required 534 
+
+Plotting MCMC traces
+Time MCMC+diagnostics: Time difference of 2.92745 hours
+Seed: 981 
+Iterations: 1024 
+chain: 49. Est. remaining time: Time difference of 0.975816 hours
+|-------------|-------------|-------------|-------------|
+|-------------------------------------------------------|
+
+Time MCMC: Time difference of 2.97597 hours
+
+OCCUPIED CLUSTERS: 7 OF 64 
+
+ESSs: 334, 371, 12
+IATs: 3, 3, 59
+BMKs: 0.136, 0.124, 0.433
+MCSEs: 6.17, 5.02, 14.8
+Stationary: TRUE, TRUE, FALSE
+Burn-in I: 0, 0, 102
+Burn-in II: 102
+Proposed thinning: 4, 4, 30 
+
+Time diagnostics: Time difference of 0.584126 secs
+
+Number of iterations 1024, required 558 
+
+Plotting MCMC traces
+Time MCMC+diagnostics: Time difference of 2.97619 hours
+Seed: 982 
+Iterations: 1024 
+chain: 50. Est. remaining time: Time difference of 0.911079 hours
+|-------------|-------------|-------------|-------------|
+|-------------------------------------------------------|
+
+Time MCMC: Time difference of 3.02449 hours
+
+OCCUPIED CLUSTERS: 10 OF 64 
+
+ESSs: 26, 173, 39
+IATs: 16, 7, 16
+BMKs: 0.283, 0.142, 0.193
+MCSEs: 12.58, 7.73, 12.14
+Stationary: FALSE, TRUE, FALSE
+Burn-in I: 408, 0, 0
+Burn-in II: 408
+Proposed thinning: 30, 12, 30 
+
+Time diagnostics: Time difference of 0.5475 secs
+
+Number of iterations 1024, required 996 
+
+Plotting MCMC traces
+Time MCMC+diagnostics: Time difference of 3.02471 hours
+Seed: 983 
+Iterations: 1024 
+chain: 51. Est. remaining time: Time difference of 0.846919 hours
+|-------------|-------------|-------------|-------------|
+|-------------------------------------------------------|
+
+Time MCMC: Time difference of 3.07302 hours
+
+OCCUPIED CLUSTERS: 7 OF 64 
+
+ESSs: 12, 5, 8
+IATs: 36, 127, 48
+BMKs: 0.61, 0.596, 0.53
+MCSEs: 15.27, 16.58, 15.76
+Stationary: FALSE, FALSE, FALSE
+Burn-in I: 204, 204, 816
+Burn-in II: 816
+Proposed thinning: 30, 30, 30 
+
+Time diagnostics: Time difference of 0.570541 secs
+
+Number of iterations 1024, required 2400 
+Increasing by 1376 
+Iterations: 1376 
+chain: 51. Est. remaining time: Time difference of 0.860491 hours
+|-------------|-------------|-------------|-------------|
+|-------------------------------------------------------|
+
+Time MCMC: Time difference of 3.13826 hours
+
+OCCUPIED CLUSTERS: 8 OF 64 
+
+ESSs: 32, 17, 12
+IATs: 36, 110, 27
+BMKs: 0.321, 0.39, 0.493
+MCSEs: 11.48, 12.29, 11.78
+Stationary: FALSE, FALSE, FALSE
+Burn-in I: 1200, 240, 240
+Burn-in II: 1200
+Proposed thinning: 33, 33, 33 
+
+Time diagnostics: Time difference of 0.715235 secs
+
+Number of iterations 2400, required 3060 
+Increasing by 660 
+Iterations: 660 
+chain: 51. Est. remaining time: Time difference of 0.878773 hours
+|-------------|-------------|-------------|-------------|
+|-------------------------------------------------------|
+
+Time MCMC: Time difference of 3.16956 hours
+
+OCCUPIED CLUSTERS: 8 OF 64 
+
+ESSs: 38, 25, 16
+IATs: 35, 26, 26
+BMKs: 0.377, 0.321, 0.591
+MCSEs: 10.61, 11.01, 11.11
+Stationary: FALSE, FALSE, FALSE
+Burn-in I: 1224, 306, 0
+Burn-in II: 1224
+Proposed thinning: 34, 34, 34 
+
+Time diagnostics: Time difference of 0.474394 secs
+
+Number of iterations 3060, required 2658 
+
+Plotting MCMC traces
+Time MCMC+diagnostics: Time difference of 3.16976 hours
+Seed: 984 
+Iterations: 1024 
+chain: 52. Est. remaining time: Time difference of 0.807979 hours
+|-------------|-------------|-------------|-------------|
+|-------------------------------------------------------|
+
+Time MCMC: Time difference of 3.2168 hours
+
+OCCUPIED CLUSTERS: 13 OF 64 
+
+ESSs: 168, 105, 97
+IATs: 7, 11, 8
+BMKs: 0.273, 0.119, 0.34
+MCSEs: 7.07, 10.4, 9.65
+Stationary: FALSE, FALSE, FALSE
+Burn-in I: 0, 0, 0
+Burn-in II: 0
+Proposed thinning: 13, 30, 30 
+
+Time diagnostics: Time difference of 0.539038 secs
+
+Number of iterations 1024, required 180 
+
+Plotting MCMC traces
+Time MCMC+diagnostics: Time difference of 3.21701 hours
+Seed: 985 
+Iterations: 1024 
+chain: 53. Est. remaining time: Time difference of 0.742387 hours
+|-------------|-------------|-------------|-------------|
+|-------------------------------------------------------|
+
+Time MCMC: Time difference of 3.25026 hours
+
+OCCUPIED CLUSTERS: 6 OF 64 
+
+ESSs: 33, 113, 20
+IATs: 18, 8, 42
+BMKs: 0.592, 0.226, 0.638
+MCSEs: 13.18, 8.34, 14.75
+Stationary: FALSE, TRUE, FALSE
+Burn-in I: 204, 0, 204
+Burn-in II: 204
+Proposed thinning: 30, 12, 30 
+
+Time diagnostics: Time difference of 0.351825 secs
+
+Number of iterations 1024, required 666 
+
+Plotting MCMC traces
+Time MCMC+diagnostics: Time difference of 3.25039 hours
+Seed: 986 
+Iterations: 1024 
+chain: 54. Est. remaining time: Time difference of 0.67461 hours
+|-------------|-------------|-------------|-------------|
+|-------------------------------------------------------|
+
+Time MCMC: Time difference of 3.27689 hours
+
+OCCUPIED CLUSTERS: 6 OF 64 
+
+ESSs: 33, 426, 6
+IATs: 8, 2, 135
+BMKs: 0.417, 0.204, 0.672
+MCSEs: 10.66, 4.93, 16.37
+Stationary: FALSE, TRUE, FALSE
+Burn-in I: 408, 0, 1020
+Burn-in II: 1024
+Proposed thinning: 30, 3, 30 
+
+Time diagnostics: Time difference of 0.535376 secs
+
+Number of iterations 1024, required 2864 
+Increasing by 1840 
+Iterations: 1840 
+chain: 54. Est. remaining time: Time difference of 0.680141 hours
+|-------------|-------------|-------------|-------------|
+|-------------------------------------------------------|
+
+Time MCMC: Time difference of 3.32508 hours
+
+OCCUPIED CLUSTERS: 7 OF 64 
+
+ESSs: 72, 1277, 9
+IATs: 10, 3, 28
+BMKs: 0.128, 0.087, 0.577
+MCSEs: 7.86, 3.57, 12.23
+Stationary: TRUE, TRUE, FALSE
+Burn-in I: 858, 0, 858
+Burn-in II: 858
+Proposed thinning: 34, 3, 34 
+
+Time diagnostics: Time difference of 0.519638 secs
+
+Number of iterations 2864, required 1920 
+
+Plotting MCMC traces
+Time MCMC+diagnostics: Time difference of 3.32529 hours
+Seed: 987 
+Iterations: 1024 
+chain: 55. Est. remaining time: Time difference of 0.615794 hours
+|-------------|-------------|-------------|-------------|
+|-------------------------------------------------------|
+
+Time MCMC: Time difference of 3.35098 hours
+
+OCCUPIED CLUSTERS: 6 OF 64 
+
+ESSs: 51, 79, 4
+IATs: 17, 12, 16
+BMKs: 0.295, 0.339, 0.471
+MCSEs: 12.05, 10.63, 16.44
+Stationary: TRUE, FALSE, FALSE
+Burn-in I: 306, 0, 306
+Burn-in II: 306
+Proposed thinning: 24, 19, 30 
+
+Time diagnostics: Time difference of 0.333867 secs
+
+Number of iterations 1024, required 792 
+
+Plotting MCMC traces
+Time MCMC+diagnostics: Time difference of 3.35111 hours
+Seed: 988 
+Iterations: 1024 
+chain: 56. Est. remaining time: Time difference of 0.548364 hours
+|-------------|-------------|-------------|-------------|
+|-------------------------------------------------------|
+
+Time MCMC: Time difference of 3.37842 hours
+
+OCCUPIED CLUSTERS: 12 OF 64 
+
+ESSs: 170, 75, 114
+IATs: 8, 9, 10
+BMKs: 0.125, 0.275, 0.159
+MCSEs: 8.5, 9.88, 9.41
+Stationary: TRUE, FALSE, TRUE
+Burn-in I: 0, 0, 0
+Burn-in II: 0
+Proposed thinning: 19, 30, 30 
+
+Time diagnostics: Time difference of 0.326567 secs
+
+Number of iterations 1024, required 180 
+
+Plotting MCMC traces
+Time MCMC+diagnostics: Time difference of 3.37855 hours
+Seed: 989 
+Iterations: 1024 
+chain: 57. Est. remaining time: Time difference of 0.48265 hours
+|-------------|-------------|-------------|-------------|
+|-------------------------------------------------------|
+
+Time MCMC: Time difference of 3.40479 hours
+
+OCCUPIED CLUSTERS: 6 OF 64 
+
+ESSs: 28, 13, 16
+IATs: 39, 71, 48
+BMKs: 0.437, 0.526, 0.468
+MCSEs: 13.68, 16.1, 13.98
+Stationary: FALSE, FALSE, FALSE
+Burn-in I: 102, 102, 102
+Burn-in II: 102
+Proposed thinning: 30, 30, 30 
+
+Time diagnostics: Time difference of 0.352027 secs
+
+Number of iterations 1024, required 636 
+
+Plotting MCMC traces
+Time MCMC+diagnostics: Time difference of 3.40493 hours
+Seed: 990 
+Iterations: 1024 
+chain: 58. Est. remaining time: Time difference of 0.418149 hours
+|-------------|-------------|-------------|-------------|
+|-------------------------------------------------------|
+
+Time MCMC: Time difference of 3.43023 hours
+
+OCCUPIED CLUSTERS: 6 OF 64 
+
+ESSs: 24, 6, 5
+IATs: 40, 140, 99
+BMKs: 0.553, 0.672, 0.61
+MCSEs: 14.18, 16.57, 16.42
+Stationary: FALSE, FALSE, FALSE
+Burn-in I: 204, 204, 306
+Burn-in II: 306
+Proposed thinning: 30, 30, 30 
+
+Time diagnostics: Time difference of 0.340117 secs
+
+Number of iterations 1024, required 1452 
+Increasing by 428 
+Iterations: 428 
+chain: 58. Est. remaining time: Time difference of 0.421268 hours
+|-------------|-------------|-------------|-------------|
+|-------------------------------------------------------|
+
+Time MCMC: Time difference of 3.44073 hours
+
+OCCUPIED CLUSTERS: 7 OF 64 
+
+ESSs: 43, 9, 8
+IATs: 36, 139, 72
+BMKs: 0.397, 0.575, 0.701
+MCSEs: 12.63, 14.92, 14.58
+Stationary: FALSE, FALSE, FALSE
+Burn-in I: 145, 145, 290
+Burn-in II: 290
+Proposed thinning: 31, 31, 31 
+
+Time diagnostics: Time difference of 0.218559 secs
+
+Number of iterations 1452, required 1414 
+
+Plotting MCMC traces
+Time MCMC+diagnostics: Time difference of 3.44083 hours
+Seed: 991 
+Iterations: 1024 
+chain: 59. Est. remaining time: Time difference of 0.355948 hours
+|-------------|-------------|-------------|-------------|
+|-------------------------------------------------------|
+
+Time MCMC: Time difference of 3.46627 hours
+
+OCCUPIED CLUSTERS: 6 OF 64 
+
+ESSs: 40, 8, 6
+IATs: 24, 89, 49
+BMKs: 0.396, 0.518, 0.783
+MCSEs: 12.6, 16.02, 16.43
+Stationary: FALSE, FALSE, FALSE
+Burn-in I: 102, 102, 306
+Burn-in II: 306
+Proposed thinning: 30, 30, 30 
+
+Time diagnostics: Time difference of 0.328434 secs
+
+Number of iterations 1024, required 1152 
+Increasing by 128 
+Iterations: 128 
+chain: 59. Est. remaining time: Time difference of 0.35859 hours
+|-------------|-------------|-------------|-------------|
+|-------------------------------------------------------|
+
+Time MCMC: Time difference of 3.46948 hours
+
+OCCUPIED CLUSTERS: 6 OF 64 
+
+ESSs: 46, 7, 7
+IATs: 23, 89, 49
+BMKs: 0.361, 0.488, 0.854
+MCSEs: 12.06, 15.55, 15.53
+Stationary: FALSE, FALSE, FALSE
+Burn-in I: 115, 115, 345
+Burn-in II: 345
+Proposed thinning: 30, 30, 30 
+
+Time diagnostics: Time difference of 0.139753 secs
+
+Number of iterations 1152, required 1224 
+Increasing by 72 
+Iterations: 72 
+chain: 59. Est. remaining time: Time difference of 0.358916 hours
+|-------------|-------------|-------------|-------------|
+|-------------------------------------------------------|
+
+Time MCMC: Time difference of 3.47127 hours
+
+OCCUPIED CLUSTERS: 6 OF 64 
+
+ESSs: 51, 8, 6
+IATs: 23, 88, 37
+BMKs: 0.376, 0.479, 0.771
+MCSEs: 11.34, 15.22, 15.22
+Stationary: FALSE, FALSE, FALSE
+Burn-in I: 122, 122, 244
+Burn-in II: 244
+Proposed thinning: 30, 30, 30 
+
+Time diagnostics: Time difference of 0.145281 secs
+
+Number of iterations 1224, required 1022 
+
+Plotting MCMC traces
+Time MCMC+diagnostics: Time difference of 3.47135 hours
+Seed: 992 
+Iterations: 1024 
+chain: 60. Est. remaining time: Time difference of 0.294182 hours
+|-------------|-------------|-------------|-------------|
+|-------------------------------------------------------|
+
+Time MCMC: Time difference of 3.49898 hours
+
+OCCUPIED CLUSTERS: 6 OF 64 
+
+ESSs: 44, 57, 8
+IATs: 20, 14, 87
+BMKs: 0.556, 0.336, 0.402
+MCSEs: 12.56, 12.7, 16.03
+Stationary: FALSE, FALSE, TRUE
+Burn-in I: 1020, 0, 1020
+Burn-in II: 1024
+Proposed thinning: 30, 30, 30 
+
+Time diagnostics: Time difference of 0.545226 secs
+
+Number of iterations 1024, required 2576 
+Increasing by 1552 
+Iterations: 1552 
+chain: 60. Est. remaining time: Time difference of 0.296537 hours
+|-------------|-------------|-------------|-------------|
+|-------------------------------------------------------|
+
+Time MCMC: Time difference of 3.56982 hours
+
+OCCUPIED CLUSTERS: 9 OF 64 
+
+ESSs: 43, 183, 5
+IATs: 27, 11, 83
+BMKs: 0.26, 0.27, 0.553
+MCSEs: 10.29, 7.95, 13.2
+Stationary: FALSE, TRUE, FALSE
+Burn-in I: 257, 0, 1028
+Burn-in II: 1028
+Proposed thinning: 34, 34, 34 
+
+Time diagnostics: Time difference of 0.751886 secs
+
+Number of iterations 2576, required 2554 
+
+Plotting MCMC traces
+Time MCMC+diagnostics: Time difference of 3.57011 hours
+Seed: 993 
+Iterations: 1024 
+chain: 61. Est. remaining time: Time difference of 0.238007 hours
+|-------------|-------------|-------------|-------------|
+|-------------------------------------------------------|
+
+Time MCMC: Time difference of 3.6025 hours
+
+OCCUPIED CLUSTERS: 6 OF 64 
+
+ESSs: 12, 5, 5
+IATs: 81, 145, 128
+BMKs: 0.59, 0.662, 0.519
+MCSEs: 16.11, 17.06, 16.51
+Stationary: FALSE, FALSE, FALSE
+Burn-in I: 408, 204, 306
+Burn-in II: 408
+Proposed thinning: 30, 30, 30 
+
+Time diagnostics: Time difference of 0.334801 secs
+
+Number of iterations 1024, required 1692 
+Increasing by 668 
+Iterations: 668 
+chain: 61. Est. remaining time: Time difference of 0.240173 hours
+|-------------|-------------|-------------|-------------|
+|-------------------------------------------------------|
+
+Time MCMC: Time difference of 3.61862 hours
+
+OCCUPIED CLUSTERS: 8 OF 64 
+
+ESSs: 15, 9, 10
+IATs: 77, 99, 50
+BMKs: 0.416, 0.511, 0.425
+MCSEs: 13.66, 14.57, 13.85
+Stationary: FALSE, FALSE, FALSE
+Burn-in I: 1690, 169, 338
+Burn-in II: 1692
+Proposed thinning: 32, 32, 32 
+
+Time diagnostics: Time difference of 0.251608 secs
+
+Number of iterations 1692, required 3984 
+Increasing by 2292 
+Iterations: 2292 
+chain: 61. Est. remaining time: Time difference of 0.241247 hours
+|-------------|-------------|-------------|-------------|
+|-------------------------------------------------------|
+
+Time MCMC: Time difference of 3.67832 hours
+
+OCCUPIED CLUSTERS: 9 OF 64 
+
+ESSs: 29, 29, 37
+IATs: 48, 77, 72
+BMKs: 0.294, 0.338, 0.396
+MCSEs: 10.74, 10, 9.84
+Stationary: FALSE, FALSE, FALSE
+Burn-in I: 1592, 398, 0
+Burn-in II: 1592
+Proposed thinning: 36, 36, 36 
+
+Time diagnostics: Time difference of 0.739167 secs
+
+Number of iterations 3984, required 3652 
+
+Plotting MCMC traces
+Time MCMC+diagnostics: Time difference of 3.6786 hours
+Seed: 994 
+Iterations: 1024 
+chain: 62. Est. remaining time: Time difference of 0.180915 hours
+|-------------|-------------|-------------|-------------|
+|-------------------------------------------------------|
+
+Time MCMC: Time difference of 3.70343 hours
+
+OCCUPIED CLUSTERS: 6 OF 64 
+
+ESSs: 5, 3, 4
+IATs: 212, 226, 133
+BMKs: 0.867, 0.861, 0.855
+MCSEs: 16.74, 17.03, 16.61
+Stationary: FALSE, FALSE, FALSE
+Burn-in I: 612, 306, 714
+Burn-in II: 714
+Proposed thinning: 30, 30, 30 
+
+Time diagnostics: Time difference of 0.319193 secs
+
+Number of iterations 1024, required 2784 
+Increasing by 1760 
+Iterations: 1760 
+chain: 62. Est. remaining time: Time difference of 0.182141 hours
+|-------------|-------------|-------------|-------------|
+|-------------------------------------------------------|
+
+Time MCMC: Time difference of 3.74663 hours
+
+OCCUPIED CLUSTERS: 9 OF 64 
+
+ESSs: 11, 9, 15
+IATs: 136, 217, 34
+BMKs: 0.443, 0.508, 0.634
+MCSEs: 12.25, 12.56, 11.87
+Stationary: FALSE, FALSE, FALSE
+Burn-in I: 278, 278, 556
+Burn-in II: 556
+Proposed thinning: 34, 34, 34 
+
+Time diagnostics: Time difference of 1.05236 secs
+
+Number of iterations 2784, required 2414 
+
+Plotting MCMC traces
+Time MCMC+diagnostics: Time difference of 3.74698 hours
+Seed: 995 
+Iterations: 1024 
+chain: 63. Est. remaining time: Time difference of 0.120871 hours
+|-------------|-------------|-------------|-------------|
+|-------------------------------------------------------|
+
+Time MCMC: Time difference of 3.77294 hours
+
+OCCUPIED CLUSTERS: 4 OF 64 
+
+ESSs: 39, 17, 134
+IATs: 20, 37, 6
+BMKs: 0.3, 0.123, 0.26
+MCSEs: 11.98, 14.56, 8.25
+Stationary: FALSE, FALSE, TRUE
+Burn-in I: 0, 1020, 0
+Burn-in II: 1024
+Proposed thinning: 30, 30, 18 
+
+Time diagnostics: Time difference of 0.366388 secs
+
+Number of iterations 1024, required 2276 
+Increasing by 1252 
+Iterations: 1252 
+chain: 63. Est. remaining time: Time difference of 0.121711 hours
+|-------------|-------------|-------------|-------------|
+|-------------------------------------------------------|
+
+Time MCMC: Time difference of 3.80343 hours
+
+OCCUPIED CLUSTERS: 9 OF 64 
+
+ESSs: 7, 3, 5
+IATs: 51, 271, 63
+BMKs: 0.451, 0.463, 0.247
+MCSEs: 13.35, 13.91, 13.38
+Stationary: FALSE, FALSE, FALSE
+Burn-in I: 908, 908, 1135
+Burn-in II: 1135
+Proposed thinning: 33, 33, 33 
+
+Time diagnostics: Time difference of 0.341818 secs
+
+Number of iterations 2276, required 3902 
+Increasing by 1626 
+Iterations: 1626 
+chain: 63. Est. remaining time: Time difference of 0.122695 hours
+|-------------|-------------|-------------|-------------|
+|-------------------------------------------------------|
+
+Time MCMC: Time difference of 3.84085 hours
+
+OCCUPIED CLUSTERS: 9 OF 64 
+
+ESSs: 10, 4, 8
+IATs: 41, 93, 16
+BMKs: 0.877, 0.996, 0.77
+MCSEs: 11.54, 12.04, 11.5
+Stationary: FALSE, FALSE, FALSE
+Burn-in I: 780, 1170, 1170
+Burn-in II: 1170
+Proposed thinning: 35, 35, 35 
+
+Time diagnostics: Time difference of 0.389509 secs
+
+Number of iterations 3902, required 2904 
+
+Plotting MCMC traces
+Time MCMC+diagnostics: Time difference of 3.84101 hours
+Seed: 996 
+Iterations: 1024 
+chain: 64. Est. remaining time: Time difference of 0.0609684 hours
+|-------------|-------------|-------------|-------------|
+|-------------------------------------------------------|
+
+Time MCMC: Time difference of 3.86354 hours
+
+OCCUPIED CLUSTERS: 6 OF 64 
+
+ESSs: 34, 145, 9
+IATs: 30, 7, 18
+BMKs: 0.447, 0.187, 0.475
+MCSEs: 11.82, 7.75, 14.87
+Stationary: FALSE, TRUE, FALSE
+Burn-in I: 204, 0, 102
+Burn-in II: 204
+Proposed thinning: 30, 11, 30 
+
+Time diagnostics: Time difference of 0.28367 secs
+
+Number of iterations 1024, required 594 
+
+Plotting MCMC traces
+Time MCMC+diagnostics: Time difference of 3.86366 hours
+Seed: 997 
+
+ESSs: 126, 149, 49
+IATs: 3, 2, 5
+BMKs: 0.189, 0.227, 0.339
+MCSEs: 12.8, 10.76, 18.23
+Stationary: TRUE, TRUE, TRUE
+Burn-in I: 0, 0, 0
+Burn-in II: 0
+Proposed thinning: 4, 3, 7 
+
+Time diagnostics: Time difference of 0.149892 secs
+
+Plotting MCMC traces
+Plotting samples of frequency distributions
+Time MCMC+diagnostics: Time difference of 3.86451 hours
+
+Total time: Time difference of 3.86451 hours
+Error: NONE. End of script
+Execution halted

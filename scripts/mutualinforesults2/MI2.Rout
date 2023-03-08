@@ -1,0 +1,54 @@
+Loading required package: future
+Loading required package: rngtools
+[1] "availableCores:"
+system 
+    24 
+[1] "availableCores-multicore:"
+system 
+    24 
+[1] "using 20 cores"
+Warning message:
+In dir.create(outputdir) : 'mutualinforesults2' already exists
+[1] ""
+[1] "TRAASCOR_neuro"
+[1] "TRABSCOR_neuro"
+[1] "AGE"
+[1] "LRHHC_n_long"
+[1] "Apoe4_"
+[1] "Gender_num_"
+[1] "ANARTERR_neuro"
+[1] "AVDEL30MIN_neuro"
+[1] "AVDELTOT_neuro"
+[1] "CATANIMSC_neuro"
+[1] "GDTOTAL_gds"
+[1] "RAVLT_immediate"
+                      [,1]     [,2]
+AVDEL30MIN_neuro -11.33000 0.150300
+AVDELTOT_neuro    -4.58500 0.096850
+RAVLT_immediate   -3.42800 0.033650
+TRABSCOR_neuro    -2.02600 0.033540
+TRAASCOR_neuro    -1.27800 0.021190
+AGE               -0.85190 0.020760
+Apoe4_            -0.56940 0.012000
+LRHHC_n_long      -0.30740 0.002939
+Gender_num_       -0.26790 0.006076
+CATANIMSC_neuro   -0.23840 0.004323
+ANARTERR_neuro    -0.15640 0.003716
+all                0.00000 0.000000
+GDTOTAL_gds        0.04507 0.005863
+                    [,1]   [,2]
+AVDEL30MIN_neuro -11.300 0.1500
+AVDELTOT_neuro    -4.600 0.0970
+RAVLT_immediate   -3.400 0.0340
+TRABSCOR_neuro    -2.000 0.0340
+TRAASCOR_neuro    -1.280 0.0210
+AGE               -0.850 0.0210
+Apoe4_            -0.570 0.0120
+LRHHC_n_long      -0.307 0.0029
+Gender_num_       -0.270 0.0061
+CATANIMSC_neuro   -0.240 0.0043
+ANARTERR_neuro    -0.160 0.0037
+all                0.000 0.0000
+GDTOTAL_gds        0.050 0.0059
+Error: End of script
+Execution halted
