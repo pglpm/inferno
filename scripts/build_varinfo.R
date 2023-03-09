@@ -21,7 +21,14 @@ if(ncores>1){
 }else{
     plan(sequential)
 }
-    
+
+dt <- fread('ingrid_data_nogds6.csv')
+data(iris)
+iris <- as.data.table(iris)
+iris2 <- iris
+iris2$Species <- as.integer(iris2$Species)
+
+
 buildvarinfo <- function(data, file=NULL){
     gcd2 <- function(a, b){ if (b == 0) a else Recall(b, a %% b) }
     gcd <- function(...) Reduce(gcd2, c(...))
@@ -36,7 +43,7 @@ buildvarinfo <- function(data, file=NULL){
         Q2 <- NA
         Q3 <- NA
         if(length(unique(x)) == 2){# seems binary variate
-            vtype <- 'B'
+            vtype <- 'binary'
             vn <- 2
             vd <- NA
             vmin <- NA
@@ -50,7 +57,7 @@ buildvarinfo <- function(data, file=NULL){
             plotmin <- NA
             plotmax <- NA
         }else if(!is.numeric(x)){# nominal variate
-            vtype <- 'N'
+            vtype <- 'nominal'
             vn <- length(unique(x))
             vd <- NA
             vmin <- NA # Nimble index categorical from 1
@@ -65,15 +72,17 @@ buildvarinfo <- function(data, file=NULL){
             plotmax <- NA
         }else{# discrete, continuous, or boundary-singular variate
             ud <- unique(signif(diff(sort(unique(x))),3)) # differences
+            rx <- diff(range(x))
             multi <- 10^(-min(floor(log10(ud))))
             dd <- round(gcd(ud*multi))/multi # greatest common difference
+            print(c(dd,rx,dd/rx))
             ##
             Q1 <- quantile(x, probs=0.25, type=6)
             Q2 <- quantile(x, probs=0.5, type=6)
             Q3 <- quantile(x, probs=0.75, type=6)
-            if(dd == 0){ # consider it as continuous
+            if(dd/rx < 1e-3){ # consider it as continuous
                 ## temporary values
-                vtype <- 'R'
+                vtype <- 'continuous'
                 vn <- Inf
                 vd <- 0
                 vmin <- -Inf
@@ -104,7 +113,7 @@ buildvarinfo <- function(data, file=NULL){
                     plotmin <- max(vmin, plotmin)
                 }
             }else{# ordinal
-                vtype <- 'O'
+                vtype <- 'ordinal'
                 if(dd >= 1){ # seems originally integer
                     transf <- 'Q'
                     vmin <- min(1, x)
@@ -118,7 +127,7 @@ buildvarinfo <- function(data, file=NULL){
                     plotmin <- max(vmin, min(x) - IQR(x)/2)
                     plotmax <- max(x)
                 }else{ # seems a rounded continuous variate
-                    vtype <- 'R'
+                    vtype <- 'continuous'
                     vn <- Inf
                     vd <- dd
                     vmin <- -Inf
@@ -142,7 +151,7 @@ buildvarinfo <- function(data, file=NULL){
         }# end numeric
         ##
         varinfo <- rbind(varinfo,
-                         c(list(type=vtype, Nvalues=vn, step=vd, domainmin=vmin, domainmax=vmax, truncmin=tmin, truncmax=tmax, location=location, scale=scale, plotmin=plotmin, plotmax=plotmax),
+                         c(list(type=vtype, Nvalues=vn, rounding=vd, domainmin=vmin, domainmax=vmax, censormin=tmin, censormax=tmax, location=location, scale=scale, plotmin=plotmin, plotmax=plotmax),
                            as.list(vval)
                          ), fill=TRUE)
     }
@@ -182,17 +191,18 @@ buildvarinfoaux <- function(data, varinfo){
         x <- data[[xn]]
         x <- x[!is.na(x)]
         xinfo <- as.list(varinfo[name == xn])
+        xinfo$type <- tolower(xinfo$type)
         transf <- 'identity' # temporary
         Q1 <- NA
         Q2 <- NA
         Q3 <- NA
-        if(varinfo$type == 'B'){# seems binary variate
+        if(xinfo$type == 'binary'){# seems binary variate
             if(length(unique(x)) != 2){
-                cat(paste0('Warning: inconsistencies with variate ',xn,'\n'))
+                cat('Warning: inconsistencies with variate ', xn, '\n')
             }
             vtype <- 'B'
             vn <- xinfo$Nvalues
-            vd <- xinfo$step/2
+            vd <- xinfo$rounding/2
             vmin <- 0
             vmax <- 1
             tmin <- -Inf
@@ -202,10 +212,7 @@ buildvarinfoaux <- function(data, varinfo){
             scale <- 1
             plotmin <- 0
             plotmax <- 1
-        }else if(varinfo$type == 'N'){# nominal variate
-            if(!is.numeric(x)){
-                cat(paste0('Warning: inconsistencies with variate ',xn,'\n'))
-            }
+        }else if(xinfo$type == 'nominal'){# nominal variate
             vtype <- 'C'
             vn <- xinfo$Nvalues
             vd <- 0.5
@@ -214,14 +221,36 @@ buildvarinfoaux <- function(data, varinfo){
             tmin <- -Inf
             tmax <- +Inf
             vval <- as.vector(xinfo[paste0('V',1:vn)], mode='character')
-            location <- 0
+            location <- (vn*vmin - vmax)/
             scale <- 1
             plotmin <- 1
             plotmax <- vn
-        }else{# discrete, continuous, or boundary-singular variate
+        }else if(xinfo$type == 'ordinal'){
+            vtype <- 'Do'
+            transf <- 'Q'
+            vn <- xinfo$Nvalues
+            vd <- 0.5
+            vmin <- xinfo$domainmin
+            vmax <- xinfo$domainmax
+            tmin <- -Inf
+            tmax <- +Inf
+            vval <- as.vector(xinfo[paste0('V',1:vn)], mode='character')
+            location <- (vn*vmin - vmax)/(vn - 1)
+            scale <- (vmax - vmin)/(vn - 1)
+            plotmin <- xinfo$plotmin
+            plotmax <- xinfo$plotmax
+        }else if(xinfo$type == 'continuous'){
+            
+
+        }else{
+            stop(paste0('ERROR: unknown variate type for ', xn))
+        }
+            if(!is.numeric(x)){
+                cat('Warning: inconsistencies with variate ', xn, '\n')
+            }
             ## ud <- unique(signif(diff(sort(unique(x))),3)) # differences
             ## multi <- 10^(-min(floor(log10(ud))))
-            dd <- xinfo$step/2 # greatest common difference
+            dd <- xinfo$rounding/2 # greatest common difference
             ##
             Q1 <- quantile(x, probs=0.25, type=6)
             Q2 <- quantile(x, probs=0.5, type=6)
@@ -328,12 +357,6 @@ gcd2 <- function(a, b) {
   if (b == 0) a else Recall(b, a %% b)
 }
 gcd <- function(...) Reduce(gcd2, c(...))
-
-dt <- fread('ingrid_data_nogds6.csv')
-data(iris)
-iris <- as.data.table(iris)
-iris2 <- iris
-iris2$Species <- as.integer(iris2$Species)
 
 dtx <- dt
 dtx$extra <- rnorm(nrow(dtx))
