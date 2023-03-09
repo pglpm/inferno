@@ -75,7 +75,6 @@ buildvarinfo <- function(data, file=NULL){
             rx <- diff(range(x))
             multi <- 10^(-min(floor(log10(ud))))
             dd <- round(gcd(ud*multi))/multi # greatest common difference
-            print(c(dd,rx,dd/rx))
             ##
             Q1 <- quantile(x, probs=0.25, type=6)
             Q2 <- quantile(x, probs=0.5, type=6)
@@ -157,8 +156,9 @@ buildvarinfo <- function(data, file=NULL){
     }
     varinfo <- cbind(name=names(data), varinfo)
     if(!is.null(file)){
-        cat(paste0('Saved proposal variate-info file to ',file,'\n'))
+        file <- paste0(sub('.csv$', '', file), '.csv')
         fwrite(varinfo, file)
+        cat(paste0('Saved proposal variate-info file to ', file, '\n'))
     }else{
         varinfo
     }
@@ -174,10 +174,13 @@ testf <- function(a){
 }
 
 
-buildvarinfoaux <- function(data, varinfo){
+buildvarinfoaux <- function(data, varinfo, file=TRUE){
     if(is.character(data) && file.exists(data)){data <- fread(data)}
     data <- as.data.table(data)
-    if(is.character(varinfo) && file.exists(varinfo)){varinfo <- fread(varinfo)}
+    if(is.character(varinfo) && file.exists(varinfo)){
+        varinfoname <- varinfo
+        varinfo <- fread(varinfo)
+    }
     varinfo <- as.data.table(varinfo)
     ## consistency checks
     if(!identical(varinfo$name, colnames(data))){
@@ -193,6 +196,9 @@ buildvarinfoaux <- function(data, varinfo){
         xinfo <- as.list(varinfo[name == xn])
         xinfo$type <- tolower(xinfo$type)
         transf <- 'identity' # temporary
+        vval <- xinfo[grep('^V[0-9]+$', names(xinfo))]
+        ## print(xn)
+        ## str(vval)
         Q1 <- NA
         Q2 <- NA
         Q3 <- NA
@@ -207,7 +213,6 @@ buildvarinfoaux <- function(data, varinfo){
             vmax <- 1
             tmin <- -Inf
             tmax <- +Inf
-            vval <- as.vector(xinfo[paste0('V',1:vn)], mode='character')
             location <- 0
             scale <- 1
             plotmin <- 0
@@ -220,13 +225,12 @@ buildvarinfoaux <- function(data, varinfo){
             vmax <- vn
             tmin <- -Inf
             tmax <- +Inf
-            vval <- as.vector(xinfo[paste0('V',1:vn)], mode='character')
-            location <- (vn*vmin - vmax)/
+            location <- 0
             scale <- 1
             plotmin <- 1
             plotmax <- vn
         }else if(xinfo$type == 'ordinal'){
-            vtype <- 'Do'
+            vtype <- 'Lo'
             transf <- 'Q'
             vn <- xinfo$Nvalues
             vd <- 0.5
@@ -234,117 +238,68 @@ buildvarinfoaux <- function(data, varinfo){
             vmax <- xinfo$domainmax
             tmin <- -Inf
             tmax <- +Inf
-            vval <- as.vector(xinfo[paste0('V',1:vn)], mode='character')
+            ##vval <- as.vector(xinfo[paste0('V',1:vn)], mode='character')
             location <- (vn*vmin - vmax)/(vn - 1)
             scale <- (vmax - vmin)/(vn - 1)
-            plotmin <- xinfo$plotmin
-            plotmax <- xinfo$plotmax
         }else if(xinfo$type == 'continuous'){
-            
-
-        }else{
-            stop(paste0('ERROR: unknown variate type for ', xn))
-        }
-            if(!is.numeric(x)){
-                cat('Warning: inconsistencies with variate ', xn, '\n')
-            }
-            ## ud <- unique(signif(diff(sort(unique(x))),3)) # differences
-            ## multi <- 10^(-min(floor(log10(ud))))
-            dd <- xinfo$rounding/2 # greatest common difference
-            ##
+            vn <- +Inf
+            vd <- xinfo$rounding/2
+            vmin <- xinfo$domainmin
+            vmax <- xinfo$domainmax
+            tmin <- max(xinfo$censormin, -Inf, na.rm=TRUE)
+            tmax <- min(xinfo$censormax, +Inf, na.rm=TRUE)
+            location <- xinfo$location
+            scale <- xinfo$scale
             Q1 <- quantile(x, probs=0.25, type=6)
             Q2 <- quantile(x, probs=0.5, type=6)
             Q3 <- quantile(x, probs=0.75, type=6)
-            if(dd == 0){ # consider it as continuous
-                ## temporary values
+            plotmin <- xinfo$plotmin
+            plotmax <- xinfo$plotmax
+            if(is.finite(xinfo$domainmin) && is.finite(xinfo$domainmax)){ # needs transformation
+                transf <- 'probit'
+                location <- qnorm((location-vmin)/(vmax-vmin))
+                scale <- scale/((vmax-vmin)*dnorm(location))
+            }else if(is.finite(xinfo$domainmin)){
+                transf <- 'log'
+                scale <- scale/(location-vmin)
+                location <- log(location-vmin)
+            }else if(is.finite(xinfo$domainmax)){
+                transf <- 'logminus'
+                scale <- scale/(vmax-location)
+                location <- log(vmax-location)
+            }
+            if(!is.finite(xinfo$censormin) && !is.finite(xinfo$censormax) && (!is.finite(xinfo$rounding) || xinfo$rounding == 0)){ # no need for latent variate
                 vtype <- 'R'
-                vn <- Inf
-                vd <- 0
-                vmin <- -Inf
-                vmax <- +Inf
-                tmin <- xinfo$truncmin
-                tmax <- xinfo$truncmax
-                location <- xinfo$location
-                scale <- xinfo$scale
-                plotmin <- xinfo$plotmin
-                plotmax <- xinfo$plotmax
-                ##
-                ix <- x[!(x %in% range(x))] # exclude boundary values
-                repindex <- mean(table(ix)) # average of repeated inner values
-                ## contindex <- length(unique(diff(sort(unique(ix)))))/length(ix) # check for repeated values
-                if(is.finite(xinfo$domainmin) && !is.finite(xinfo$domainmax)){ # seems to be strictly positive
-                    transf <- 'log'
-                    vmin <- xinfo$domainmin
-                    location <- log(xinfo$location - xinfo$domainmin)
-                    ## scale <- (log(xinfo$location + xinfo$scale - xinfo$domainmin) - log(xinfo$location - xinfo$scale + xinfo$domainmin))/2
-                    scale <- xinfo$scale/(xinfo$location - xinfo$domainmin)
-                    tmin <- log(tmin)
-                    tmax <- log(tmax)
-                }
-                if(is.finite(xinfo$domainmin) && is.finite(xinfo$domainmax)){ # seems to be doubly bounded
-                    transf <- 'Q'
-                    vmin <- xinfo$domainmin
-                    vmax <- xinfo$domainmax
-                    location <- Q((xinfo$location - xinfo$domainmin)/(xinfo$domainmax - xinfo$domainmin))
-                    scale <- (Q((xinfo$location + xinfo$scale - xinfo$domainmin)/(xinfo$domainmax - xinfo$domainmin)) - Q((xinfo$location - xinfo$scale - xinfo$domainmin)/(xinfo$domainmax - xinfo$domainmin)))/2
-                    tmin <- Q((tmin - xinfo$domainmin)/(xinfo$domainmax - xinfo$domainmin))
-                    tmax <- Q((tmax - xinfo$domainmin)/(xinfo$domainmax - xinfo$domainmin))
-                }
-                if(is.finite(tmin) || is.finite(tmax)){ # seems to be singular at boundary 
-                    vtype <- 'D'
-                }
-
-            }else if(xinfo$type == 'O'){# ordinal
-                vtype <- 'I'
-                v
-                
-                if(dd >= 1){ # seems originally integer
-                    transf <- 'Q'
-                    vmin <- min(1, x)
-                    vmax <- max(x)
-                    vn <- vmax - vmin + 1
-                    vd <- 1
-                    tmin <- NA
-                    tmax <- NA
-                    location <- NA # (vn*vmin-vmax)/(vn-1)
-                    scale <- NA # (vmax-vmin)/(vn-1)
-                    plotmin <- max(vmin, min(x) - IQR(x)/2)
-                    plotmax <- max(x)
-                }else{ # seems a rounded continuous variate
-                    vtype <- 'R'
-                    vn <- Inf
-                    vd <- dd
-                    vmin <- -Inf
-                    vmax <- +Inf
-                    tmin <- NA
-                    tmax <- NA
-                    location <- Q2
-                    scale <- (Q3-Q1)/2
-                    plotmin <- min(x) - (Q3-Q1)/2
-                    plotmax <- max(x) + (Q3-Q1)/2
-                    if(all(x > 0)){ # seems to be strictly positive
-                        transf <- 'log'
-                        vmin <- 0
-                        ## location <- log(Q2)
-                        ## scale <- (log(Q3) - log(Q1))/2
-                        plotmin <- max(vmin, plotmin)
-                    }
-                }# end rounded
-            }# end integer
-            vval <- NULL
-        }# end numeric
+            }else{ # need latent variate
+                vtype <- 'Lr'
+            }
+        }else{
+            stop(paste0('ERROR: unknown variate type for ', xn))
+        }
         ##
-        varinfo <- rbind(varinfo,
-                         c(list(type=vtype, Nvalues=vn, step=vd, domainmin=vmin, domainmax=vmax, truncmin=tmin, truncmax=tmax, location=location, scale=scale, plotmin=plotmin, plotmax=plotmax),
-                           as.list(vval)
-                         ), fill=TRUE)
+        ## print(varinfoaux[nrow(varinfoaux)])
+        ## print(                         as.data.table(c(list(name=xn, type=vtype, transform=transf, Nvalues=vn, step=vd, domainmin=vmin, domainmax=vmax, censormin=tmin, censormax=tmax, tlocation=location, tscale=scale, plotmin=plotmin, plotmax=plotmax, Q1=Q1, Q2=Q2, Q3=Q3),
+        ##                    vval
+        ##                    )))
+        varinfoaux <- rbind(varinfoaux,
+                         c(list(name=xn, type=vtype, transform=transf, Nvalues=vn, step=vd, domainmin=vmin, domainmax=vmax, censormin=tmin, censormax=tmax, tlocation=location, tscale=scale, plotmin=plotmin, plotmax=plotmax, Q1=Q1, Q2=Q2, Q3=Q3),
+                           vval
+                           ), fill=FALSE)
     }
-    varinfo <- cbind(name=names(data), varinfo)
-    if(!is.null(file)){
-        cat(paste0('Saved proposal variate-info file to ',file,'\n'))
-        fwrite(varinfo, file)
+    if(is.character(file) || (is.logical(file) && file)){ # must save to file
+        if(is.character(file)){
+            file <- paste0(sub('.rds$', '', file), '.rds')
+        }else{
+            if(file.exists('varinfoaux.rds')){
+                file <- paste0('varinfoaux_',format(Sys.time(), '%y%m%dT%H%M%S'),'.rds')
+            }else{
+                file <- 'varinfoaux.rds'
+            }
+        }
+        fwrite(varinfoaux, file)
+        cat(paste0('Saved auxiliary variate-info file to ', file, '\n'))
     }else{
-        varinfo
+        varinfoaux
     }
 }
 
