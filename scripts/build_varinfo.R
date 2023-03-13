@@ -59,7 +59,7 @@ buildvarinfo <- function(data, file=NULL){
             vmax <- NA
             tmin <- NA
             tmax <- NA
-            vval <- as.character(unique(x))
+            vval <- sort(as.character(unique(x)))
             names(vval) <- paste0('V',1:2)
             plotmin <- NA
             plotmax <- NA
@@ -71,7 +71,7 @@ buildvarinfo <- function(data, file=NULL){
             vmax <- NA
             tmin <- NA
             tmax <- NA
-            vval <- as.character(unique(x))
+            vval <- sort(as.character(unique(x)))
             names(vval) <- paste0('V',1:vn)
             plotmin <- NA
             plotmax <- NA
@@ -195,6 +195,9 @@ buildvarinfoaux <- function(data, varinfo, file=TRUE){
         x <- x[!is.na(x)]
         xinfo <- as.list(varinfo[name == xn])
         xinfo$type <- tolower(xinfo$type)
+        ordinal <- NA
+        cens <- NA
+        rounded <- NA
         transf <- 'identity' # temporary
         vval <- xinfo[grep('^V[0-9]+$', names(xinfo))]
         ## print(xn)
@@ -230,8 +233,9 @@ buildvarinfoaux <- function(data, varinfo, file=TRUE){
             plotmin <- 1
             plotmax <- vn
         }else if(xinfo$type == 'ordinal'){
-            vtype <- 'Lo'
+            vtype <- 'L'
             transf <- 'Q'
+            ordinal <- TRUE
             vn <- xinfo$Nvalues
             vd <- 0.5
             vmin <- xinfo$domainmin
@@ -246,10 +250,12 @@ buildvarinfoaux <- function(data, varinfo, file=TRUE){
         }else if(xinfo$type == 'continuous'){
             vn <- +Inf
             vd <- xinfo$rounding/2
+            rounded <- (vd > 0)
             vmin <- xinfo$domainmin
             vmax <- xinfo$domainmax
             tmin <- max(xinfo$censormin, -Inf, na.rm=TRUE)
             tmax <- min(xinfo$censormax, +Inf, na.rm=TRUE)
+            cens <- any(is.finite(c(tmin,tmax)))
             location <- xinfo$location
             scale <- xinfo$scale
             Q1 <- quantile(x, probs=0.25, type=6)
@@ -273,7 +279,7 @@ buildvarinfoaux <- function(data, varinfo, file=TRUE){
             if(!is.finite(xinfo$censormin) && !is.finite(xinfo$censormax) && (!is.finite(xinfo$rounding) || xinfo$rounding == 0)){ # no need for latent variate
                 vtype <- 'R'
             }else{ # need latent variate
-                vtype <- 'Lr'
+                vtype <- 'L'
             }
         }else{
             stop(paste0('ERROR: unknown variate type for ', xn))
@@ -284,7 +290,7 @@ buildvarinfoaux <- function(data, varinfo, file=TRUE){
         ##                    vval
         ##                    )))
         varinfoaux <- rbind(varinfoaux,
-                         c(list(name=xn, type=vtype, transform=transf, Nvalues=vn, step=vd, domainmin=vmin, domainmax=vmax, censormin=tmin, censormax=tmax, tlocation=location, tscale=scale, plotmin=plotmin, plotmax=plotmax, Q1=Q1, Q2=Q2, Q3=Q3),
+                         c(list(name=xn, mcmctype=vtype, censored=cens, rounded=rounded, transform=transf, Nvalues=vn, step=vd, domainmin=vmin, domainmax=vmax, censormin=tmin, censormax=tmax, tlocation=location, tscale=scale, plotmin=plotmin, plotmax=plotmax, Q1=Q1, Q2=Q2, Q3=Q3),
                            vval
                            ), fill=FALSE)
     }
