@@ -23,6 +23,7 @@ if(ncores>1){
 }
 
 dt <- fread('ingrid_data_nogds6.csv')
+dt2 <- fread('testdata4.csv')
 data(iris)
 iris <- as.data.table(iris)
 iris2 <- iris
@@ -39,9 +40,17 @@ buildvarinfo <- function(data, file=NULL){
     for(x in data){
         x <- x[!is.na(x)]
         transf <- 'identity' # temporary
-        Q1 <- NA
-        Q2 <- NA
-        Q3 <- NA
+        if(is.numeric(x)){
+            Q1 <- quantile(x, probs=0.25, type=6)
+            Q2 <- quantile(x, probs=0.5, type=6)
+            Q3 <- quantile(x, probs=0.75, type=6)
+            location <- Q2
+            scale <- (Q3-Q1)/2
+            if(scale == 0){scale <- diff(range(x))/2}
+        }else{
+            location <- NA
+            scale <- NA
+            }
         if(length(unique(x)) == 2){# seems binary variate
             vtype <- 'binary'
             vn <- 2
@@ -52,8 +61,6 @@ buildvarinfo <- function(data, file=NULL){
             tmax <- NA
             vval <- as.character(unique(x))
             names(vval) <- paste0('V',1:2)
-            location <- NA
-            scale <- NA
             plotmin <- NA
             plotmax <- NA
         }else if(!is.numeric(x)){# nominal variate
@@ -66,8 +73,6 @@ buildvarinfo <- function(data, file=NULL){
             tmax <- NA
             vval <- as.character(unique(x))
             names(vval) <- paste0('V',1:vn)
-            location <- NA
-            scale <- NA
             plotmin <- NA
             plotmax <- NA
         }else{# discrete, continuous, or boundary-singular variate
@@ -76,9 +81,6 @@ buildvarinfo <- function(data, file=NULL){
             multi <- 10^(-min(floor(log10(ud))))
             dd <- round(gcd(ud*multi))/multi # greatest common difference
             ##
-            Q1 <- quantile(x, probs=0.25, type=6)
-            Q2 <- quantile(x, probs=0.5, type=6)
-            Q3 <- quantile(x, probs=0.75, type=6)
             if(dd/rx < 1e-3){ # consider it as continuous
                 ## temporary values
                 vtype <- 'continuous'
@@ -88,8 +90,6 @@ buildvarinfo <- function(data, file=NULL){
                 vmax <- +Inf
                 tmin <- NA
                 tmax <- NA
-                location <- Q2
-                scale <- (Q3-Q1)/2
                 plotmin <- min(x) - (Q3-Q1)/2
                 plotmax <- max(x) + (Q3-Q1)/2
                 ##
@@ -121,8 +121,8 @@ buildvarinfo <- function(data, file=NULL){
                     vd <- 1
                     tmin <- NA
                     tmax <- NA
-                    location <- NA # (vn*vmin-vmax)/(vn-1)
-                    scale <- NA # (vmax-vmin)/(vn-1)
+                    ## location <- NA # (vn*vmin-vmax)/(vn-1)
+                    ## scale <- NA # (vmax-vmin)/(vn-1)
                     plotmin <- max(vmin, min(x) - IQR(x)/2)
                     plotmax <- max(x)
                 }else{ # seems a rounded continuous variate
@@ -133,8 +133,8 @@ buildvarinfo <- function(data, file=NULL){
                     vmax <- +Inf
                     tmin <- NA
                     tmax <- NA
-                    location <- Q2
-                    scale <- (Q3-Q1)/2
+                    ## location <- Q2
+                    ## scale <- (Q3-Q1)/2
                     plotmin <- min(x) - (Q3-Q1)/2
                     plotmax <- max(x) + (Q3-Q1)/2
                     if(all(x > 0)){ # seems to be strictly positive
@@ -187,7 +187,7 @@ buildvarinfoaux <- function(data, varinfo, file=TRUE){
         stop('ERROR: mismatch in variate names or order')
     }
     ##
-    Q <- readRDS('Qfunction512.rds')
+    ##Q <- readRDS('Qfunction512.rds')
     ##
     varinfoaux <- data.table()
     for(xn in colnames(data)){
@@ -241,6 +241,8 @@ buildvarinfoaux <- function(data, varinfo, file=TRUE){
             ##vval <- as.vector(xinfo[paste0('V',1:vn)], mode='character')
             location <- (vn*vmin - vmax)/(vn - 1)
             scale <- (vmax - vmin)/(vn - 1)
+            plotmin <- 1
+            plotmax <- vn
         }else if(xinfo$type == 'continuous'){
             vn <- +Inf
             vd <- xinfo$rounding/2
