@@ -102,7 +102,7 @@ dev.off()
 incl <- 95
 nsamples <- 2^10
 nclusters <- 64
-rowcol <- c(22,22)
+rowcol <- c(20,20)
 prc <- prod(rowcol)
 drawf <- function(n, q, means, sds){
     ks <- sample(1:nclusters, size=n, prob=q, replace=T)
@@ -118,39 +118,79 @@ drawf <- function(n, q, means, sds){
               )
     )
 }
-plotpoints <- function(nsamples, q, means, sds){
+plotpoints2d <- function(nsamples, q, means, sds){
+    xl <- numeric(prc)
+    ## 2D
     for(i in 1:prc){
         points <- drawf(n=nsamples, q=q[i,], means=means[i,,], sds=sds[i,,])
-    xl <- max(abs(tquant(c(points), c((100-incl)/2,(100+incl)/2)/100)), 1)
-    tplot(x=points[,1], y=points[,2], type='p', pch='.',
-          xlab=NA, ylab=NA, xticks=NA, yticks=NA,
-          xlabels=NA, ylabels=NA,
-          xlim=c(-xl,xl), ylim=c(-xl,xl),
-          mar=rep(0.25,4))
-    abline(h=c(-1,1),col=alpha2hex2(0.5,2))
-    abline(v=c(-1,1),col=alpha2hex2(0.5,2))
-    abline(v=par('usr')[1:2],col='black',lwd=0.5)
+        xl[i] <- max(abs(tquant(c(points[,1]), c((100-incl)/2,(100+incl)/2)/100)), 1)
+        yl <- max(abs(tquant(c(points[,2]), c((100-incl)/2,(100+incl)/2)/100)), 1)
+        tplot(x=points[,1], y=points[,2], type='p', pch='.',
+              xlab=NA, ylab=NA, xticks=NA, yticks=NA,
+              xlabels=NA, ylabels=NA,
+              xlim=c(-xl[i],xl[i]), ylim=c(-yl,yl),
+              mar=rep(0.25,4))
+        abline(h=c(-1,1),col=alpha2hex2(0.5,2))
+        abline(v=c(-1,1),col=alpha2hex2(0.5,2))
+        abline(v=par('usr')[1:2],col='black',lwd=0.5)
         abline(h=par('usr')[3:4],col='black',lwd=0.5)
-        }
+    }
+    ## 1D
+    for(i in 1:prc){
+        xgrid <- seq(-xl[i], xl[i], length.out=256)
+        ygrid <- c(sapply(1:nclusters, function(cc){
+            dnorm(xgrid, mean=means[i,1,cc], sd=sds[i,1,cc])
+            }) %*% q[i,])
+        tplot(x=xgrid, y=ygrid, lwd=1,
+              xlab=NA, ylab=NA, xticks=NA, yticks=NA,
+              xlabels=NA, ylabels=NA,
+              ylim=c(0,NA),
+              mar=rep(0.25,4))
+        abline(h=c(0),col=alpha2hex2(0.5,7))
+        abline(v=c(-1,1),col=alpha2hex2(0.5,2))
+        ## abline(v=par('usr')[1:2],col='black',lwd=0.5)
+        ## abline(h=par('usr')[3:4],col='black',lwd=0.5)
+    }
 }
 ##
 alphas <- sample(rep(2^((-3):3), 2), size=prc, replace=T)
 q <- extraDistr::rdirichlet(n=prc,alpha=matrix(alphas/nclusters,nrow=prc,ncol=nclusters))
 ##
-pdff(apaper=3)
+meansm <- rnorm(prc*2, mean=0, sd=1)
+meanss <- sqrt(nimble::rinvgamma(prc*2, shape=1, rate= nimble::rinvgamma(prc*2, shape=1, rate=1)))
+sdss <- 2^sample((-1):1, size=prc*2, replace=T)
+sdsr <- nimble::rinvgamma(prc*2, shape=1, rate= nimble::rinvgamma(prc*2, shape=1, rate=1))
+##
+pdff('prior2D_nohyper',apaper=3)
 par(mfrow=rowcol,mar = c(0,0,0,0))
 ## independent
-means <- array(rnorm(2*nsamples*prc, mean=0, sd=1), dim=c(prc,2,nsamples))
-sds <- array(sqrt(nimble::rinvgamma(2*nsamples*prc, shape=1, rate=
-                                                           nimble::rinvgamma(2*nsamples*prc, shape=1, rate=1))), dim=c(prc,2,nsamples))
-plotpoints(nsamples=nsamples, q=q, means=means, sds=sds)
-##
-means <- array(rnorm(2*nsamples*prc, mean=rnorm(nsamples,mean=0,sd=1), sd=1), dim=c(prc,2,nsamples))
-sds <- array(sqrt(nimble::rinvgamma(2*nsamples*prc, shape=1, rate=
-                                                           nimble::rinvgamma(2*nsamples*prc, shape=1, rate=1))), dim=c(prc,2,nsamples))
-plotpoints(nsamples=nsamples, q=q, means=means, sds=sds)
-##
+set.seed(987)
+means <- array(rnorm(2*prc*nclusters, mean=0, sd=1), dim=c(prc,2,nclusters))
+sds <- array(sqrt(nimble::rinvgamma(2*prc*nclusters, shape=1, rate=
+                                                           nimble::rinvgamma(2*prc*nclusters, shape=1, rate=1))), dim=c(prc,2,nclusters))
+plotpoints2d(nsamples=nsamples, q=q, means=means, sds=sds)
 dev.off()
+##
+pdff('prior2D_hypermeansrates',apaper=3)
+par(mfrow=rowcol,mar = c(0,0,0,0))
+## independent
+set.seed(987)
+means <- array(rnorm(2*prc*nclusters, mean=meansm, sd=1), dim=c(prc,2,nclusters))
+sds <- array(sqrt(nimble::rinvgamma(2*prc*nclusters, shape=1, rate=
+                                                           nimble::rinvgamma(2*prc*nclusters, shape=1, rate=sdsr))), dim=c(prc,2,nclusters))
+plotpoints2d(nsamples=nsamples, q=q, means=means, sds=sds)
+dev.off()
+
+##
+## pdff('prior2D_hypermeansratescommon',apaper=3)
+## par(mfrow=rowcol,mar = c(0,0,0,0))
+## ## independent
+## set.seed(987)
+## means <- array(rnorm(2*prc*nclusters, mean=meansm[1:prc], sd=1), dim=c(prc,2,nclusters))
+## sds <- array(sqrt(nimble::rinvgamma(2*prc*nclusters, shape=1, rate=
+##                                                            nimble::rinvgamma(2*prc*nclusters, shape=1, rate=sdsr[1:prc]))), dim=c(prc,2,nclusters))
+## plotpoints2d(nsamples=nsamples, q=q, means=means, sds=sds)
+## dev.off()
 
 
 
