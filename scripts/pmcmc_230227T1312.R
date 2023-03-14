@@ -1,6 +1,6 @@
 ## Author: PGL  Porta Mana
 ## Created: 2022-09-08T17:03:24+0200
-## Last-Updated: 2023-03-13T14:33:11+0100
+## Last-Updated: 2023-03-13T18:24:24+0100
 #########################################
 ## Inference of exchangeable variates (nonparametric density regression)
 ## using effectively-infinite mixture of product kernels
@@ -235,74 +235,78 @@ constants <- c(
 initsFunction <- function(){
     probalpha0 <- rep(1/nalpha, nalpha)
     walpha0 <- matrix(alpha0/nclusters, nrow=nalpha, ncol=nclusters)
-    sAlphaindex <- extraDistr::rcat(n=1, prob=probalpha0)
-    sW <- rdirch(n=1, alpha=walpha0[sAlphaindex,])
+    Alphaindex <- extraDistr::rcat(n=1, prob=probalpha0)
+    W <- rdirch(n=1, alpha=walpha0[Alphaindex,])
     ##
-    if(len$R > 0){
-        Rmean0 <- rep(rmean0, len$R)
-        Rvar0 <- rep(rvar0, len$R)
-        Rshapein0 <- rep(rshapein0, len$R)
-        Rshapeout0 <- rep(rshapeout0, len$R)
+    if(H$Rlen > 0){
+        Rmean0 <- rep(H$Rmean0, H$Rlen)
+        Rmeanv0 <- rep(H$Rmeanv0, H$Rlen)
+        Rshapein0 <- rep(H$Rshapein0, H$Rlen)
+        Rshapeout0 <- rep(H$Rshapeout0, H$Rlen)
+        Rratev0 <- rep(H$Rratev0, H$Rlen)
+        ##
+        Rratev1 <- rinvgamma(n=H$Rlen, shape=Rshapein0, rate=Rratev0)
+
         Rvarscale <- rvarscales
         rprobvarscale0 <-rep(1/nrvarscales, nrvarscales)
-        sRvarscaleindex <- extraDistr::rcat(n=len$R, prob=rprobvarscale0)
-        sRrate <- rinvgamma(n=len$R, shape=Rshapein0, rate=Rvarscale[sRvarscaleindex])
-        sRmean <- matrix(rnorm(n=nclusters*len$R, mean=Rmean0, sd=sqrt(Rvar0)),
-                         nrow=len$R, ncol=nclusters)
-        sRvar <- matrix(rinvgamma(n=nclusters*len$R, shape=Rshapeout0, rate=sRrate),
-                         nrow=len$R, ncol=nclusters)
+        sRvarscaleindex <- extraDistr::rcat(n=H$Rlen, prob=rprobvarscale0)
+        sRrate <- rinvgamma(n=H$Rlen, shape=Rshapein0, rate=Rvarscale[sRvarscaleindex])
+        sRmean <- matrix(rnorm(n=nclusters*H$Rlen, mean=Rmean0, sd=sqrt(Rvar0)),
+                         nrow=H$Rlen, ncol=nclusters)
+        sRvar <- matrix(rinvgamma(n=nclusters*H$Rlen, shape=Rshapeout0, rate=sRrate),
+                         nrow=H$Rlen, ncol=nclusters)
         }
     ##
-    ## if(len$O > 0){
-    ##     Omean0 <- rep(omean0, len$O)
-    ##     Ovar0 <- rep(ovar0, len$O)
-    ##     Oshapein0 <- rep(oshapein0, len$O)
-    ##     Oshapeout0 <- rep(oshapeout0, len$O)
+    ## if(H$Olen > 0){
+    ##     Omean0 <- rep(omean0, H$Olen)
+    ##     Ovar0 <- rep(ovar0, H$Olen)
+    ##     Oshapein0 <- rep(oshapein0, H$Olen)
+    ##     Oshapeout0 <- rep(oshapeout0, H$Olen)
     ##     Ovarscale <- ovarscales
     ##     oprobvarscale0 <-rep(1/novarscales, novarscales)
-    ##     sOvarscaleindex <- extraDistr::rcat(n=len$O, prob=oprobvarscale0)
-    ##     sOrate <- rinvgamma(n=len$O, shape=Oshapein0, rate=Ovarscale[sOvarscaleindex])
-    ##     sOmean <- matrix(rnorm(n=nclusters*len$O, mean=Omean0, sd=sqrt(Ovar0)),
-    ##                      nrow=len$O, ncol=nclusters)
-    ##     sOvar <- matrix(rinvgamma(n=nclusters*len$O, shape=Oshapeout0, rate=sOrate),
-    ##                      nrow=len$O, ncol=nclusters)
+    ##     sOvarscaleindex <- extraDistr::rcat(n=H$Olen, prob=oprobvarscale0)
+    ##     sOrate <- rinvgamma(n=H$Olen, shape=Oshapein0, rate=Ovarscale[sOvarscaleindex])
+    ##     sOmean <- matrix(rnorm(n=nclusters*H$Olen, mean=Omean0, sd=sqrt(Ovar0)),
+    ##                      nrow=H$Olen, ncol=nclusters)
+    ##     sOvar <- matrix(rinvgamma(n=nclusters*H$Olen, shape=Oshapeout0, rate=sOrate),
+    ##                      nrow=H$Olen, ncol=nclusters)
     ##     }
     ##
-    if(len$D > 0){
-        Dmean0 <- rep(dmean0, len$D)
-        Dvar0 <- rep(dvar0, len$D)
-        Dshapein0 <- rep(dshapein0, len$D)
-        Dshapeout0 <- rep(dshapeout0, len$D)
+    if(H$Dlen > 0){
+        Dmean0 <- rep(dmean0, H$Dlen)
+        Dvar0 <- rep(dvar0, H$Dlen)
+        Dshapein0 <- rep(dshapein0, H$Dlen)
+        Dshapeout0 <- rep(dshapeout0, H$Dlen)
         Dvarscale <- dvarscales
         dprobvarscale0 <-rep(1/ndvarscales, ndvarscales)
-        sDvarscaleindex <- extraDistr::rcat(n=len$D, prob=dprobvarscale0)
-        sDrate <- rinvgamma(n=len$D, shape=Dshapein0, rate=Dvarscale[sDvarscaleindex])
-        sDmean <- matrix(rnorm(n=nclusters*len$D, mean=Dmean0, sd=sqrt(Dvar0)),
-                         nrow=len$D, ncol=nclusters)
-        sDvar <- matrix(rinvgamma(n=nclusters*len$D, shape=Dshapeout0, rate=sDrate),
-                         nrow=len$D, ncol=nclusters)
+        sDvarscaleindex <- extraDistr::rcat(n=H$Dlen, prob=dprobvarscale0)
+        sDrate <- rinvgamma(n=H$Dlen, shape=Dshapein0, rate=Dvarscale[sDvarscaleindex])
+        sDmean <- matrix(rnorm(n=nclusters*H$Dlen, mean=Dmean0, sd=sqrt(Dvar0)),
+                         nrow=H$Dlen, ncol=nclusters)
+        sDvar <- matrix(rinvgamma(n=nclusters*H$Dlen, shape=Dshapeout0, rate=sDrate),
+                         nrow=H$Dlen, ncol=nclusters)
         }
     ##
-    if(len$I > 0){
-        Imean0 <- rep(imean0, len$I)
-        Ivar0 <- rep(ivar0, len$I)
-        Ishapein0 <- rep(ishapein0, len$I)
-        Ishapeout0 <- rep(ishapeout0, len$I)
+    if(H$Ilen > 0){
+        Imean0 <- rep(imean0, H$Ilen)
+        Ivar0 <- rep(ivar0, H$Ilen)
+        Ishapein0 <- rep(ishapein0, H$Ilen)
+        Ishapeout0 <- rep(ishapeout0, H$Ilen)
         Ivarscale <- ivarscales
         iprobvarscale0 <-rep(1/nivarscales, nivarscales)
-        sIvarscaleindex <- extraDistr::rcat(n=len$I, prob=iprobvarscale0)
-        sIrate <- rinvgamma(n=len$I, shape=Ishapein0, rate=Ivarscale[sIvarscaleindex])
-        sImean <- matrix(rnorm(n=nclusters*len$I, mean=Imean0, sd=sqrt(Ivar0)),
-                         nrow=len$I, ncol=nclusters)
-        sIvar <- matrix(rinvgamma(n=nclusters*len$I, shape=Ishapeout0, rate=sIrate),
-                         nrow=len$I, ncol=nclusters)
+        sIvarscaleindex <- extraDistr::rcat(n=H$Ilen, prob=iprobvarscale0)
+        sIrate <- rinvgamma(n=H$Ilen, shape=Ishapein0, rate=Ivarscale[sIvarscaleindex])
+        sImean <- matrix(rnorm(n=nclusters*H$Ilen, mean=Imean0, sd=sqrt(Ivar0)),
+                         nrow=H$Ilen, ncol=nclusters)
+        sIvar <- matrix(rinvgamma(n=nclusters*H$Ilen, shape=Ishapeout0, rate=sIrate),
+                         nrow=H$Ilen, ncol=nclusters)
         }
     ##
-    if(len$B > 0){
-        Bshapeout0 <- rep(bshapeout0, len$B)
-        Bshapein0 <- rep(bshapein0, len$B)
-        sBprob <- matrix(rbeta(n=nclusters*len$B, shape1=Bshapein0, shape2=Bshapeout0),
-                         nrow=len$B, ncol=nclusters)
+    if(H$Blen > 0){
+        Bshapeout0 <- rep(bshapeout0, H$Blen)
+        Bshapein0 <- rep(bshapein0, H$Blen)
+        sBprob <- matrix(rbeta(n=nclusters*H$Blen, shape1=Bshapein0, shape2=Bshapeout0),
+                         nrow=H$Blen, ncol=nclusters)
     }
     ##
     ##
@@ -310,10 +314,10 @@ initsFunction <- function(){
         list( # distribution over concentration parameter
             probalpha0 = probalpha0,
             walpha0 = walpha0,
-            Alphaindex = sAlphaindex,
-            W = sW
+            Alphaindex = Alphaindex,
+            W = W
         ),
-        if(len$R > 0){list( # real variate
+        if(H$Rlen > 0){list( # real variate
                      Rmean0 = Rmean0,
                      Rvar0 = Rvar0,
                      Rshapein0 = Rshapein0,
@@ -325,7 +329,7 @@ initsFunction <- function(){
                      Rmean = sRmean,
                      Rvar = sRvar
                  )},
-        ## if(len$O > 0){c(list( # one-bounded variate
+        ## if(H$Olen > 0){c(list( # one-bounded variate
         ##              Omean0 = Omean0,
         ##              Ovar0 = Ovar0,
         ##              Oshapein0 = Oshapein0,
@@ -341,7 +345,7 @@ initsFunction <- function(){
         ##              Odata = transf(data0[,variate$O,with=F], varinfo, Oout='init')
         ##                            )}
         ##              )},
-        if(len$D > 0){c(list( # censored variate
+        if(H$Dlen > 0){c(list( # censored variate
                      Dmean0 = Dmean0,
                      Dvar0 = Dvar0,
                      Dshapein0 = Dshapein0,
@@ -357,7 +361,7 @@ initsFunction <- function(){
                      Ddata = transf(data0[,variate$D,with=F], varinfo, Dout='init')
                                    )}
                      )},
-        if(len$I > 0){c(list( # discrete ordinal variate
+        if(H$Ilen > 0){c(list( # discrete ordinal variate
                      Imean0 = Imean0,
                      Ivar0 = Ivar0,
                      Ishapein0 = Ishapein0,
@@ -373,12 +377,12 @@ initsFunction <- function(){
                      Icont = transf(data0[,variate$I,with=F], varinfo, Iout='init', Ifunction=ifunction)
                                    )}
                      )},
-        if(len$B > 0){list( # binay variate
+        if(H$Blen > 0){list( # binay variate
                      Bshapeout0 = Bshapeout0,
                      Bshapein0 = Bshapein0,
                      Bprob = sBprob
                  )},
-        if(len$C > 0){list( # categorical variate ***must be fixed***
+        if(H$Clen > 0){list( # categorical variate ***must be fixed***
                      Calpha0 = t(sapply(variate$B, function(v){
                          c( rep(varinfo[[ 'hshapeout']][v], varinfo[[ 'max']][v]),
                            rep(2^(-40), Cmaxn-varinfo[[ 'max']][v]) )
@@ -397,67 +401,47 @@ initsFunction <- function(){
 ##
 #### Mathematical representation of long-run frequency distributions
 finitemix <- nimbleCode({
-        Alphaindex ~ dcat(prob=probalpha0[1:nalpha])
-        W[1:nclusters] ~ ddirch(alpha=walpha0[Alphaindex, 1:nclusters])
+    Alphaindex ~ dcat(prob=probalpha0[1:nalpha])
+    W[1:nclusters] ~ ddirch(alpha=walpha0[Alphaindex, 1:nclusters])
     ##
-    if(len$R > 0){# real variates
+    if(H$Rlen > 0){# real variates
         for(v in 1:Rn){
-                Rvarscaleindex[v] ~ dcat(prob=rprobvarscale0[1:nrvarscales])
-                Rrate[v] ~ dinvgamma(shape=Rshapein0[v], rate=Rvarscale[Rvarscaleindex[v]])
+            Rmean1[v] ~ dnorm(mean=Rmean0, var=Rmeanv0)
+            Rratev1[v] ~ dinvgamma(shape=Rshapein0, rate=Rratev0)
+            Rvarv1[v] ~ dinvgamma(shape=Rshapeout0, rate=Rratev1[v])
         }
     }
-    ## if(len$O > 0){# one-censored variates
-    ##     for(v in 1:On){
-    ##             Ovarscaleindex[v] ~ dcat(prob=oprobvarscale0[1:novarscales])
-    ##             Orate[v] ~ dinvgamma(shape=Oshapein0[v], rate=Ovarscale[Ovarscaleindex[v]])
-    ##     }
-    ## }
-    if(len$D > 0){# censored variates
-        for(v in 1:Dn){
-                Dvarscaleindex[v] ~ dcat(prob=dprobvarscale0[1:ndvarscales])
-                Drate[v] ~ dinvgamma(shape=Dshapein0[v], rate=Dvarscale[Dvarscaleindex[v]])
-        }
-    }
-    if(len$I > 0){# integer variates
-        for(v in 1:In){
-                Ivarscaleindex[v] ~ dcat(prob=iprobvarscale0[1:nivarscales])
-                Irate[v] ~ dinvgamma(shape=Ishapein0[v], rate=Ivarscale[Ivarscaleindex[v]])
+    if(H$Llen > 0){# censored variates
+        for(v in 1:Ln){
+            Lmean1[v] ~ dnorm(mean=Lmean0, var=Lmeanv0)
+            Lratev1[v] ~ dinvgamma(shape=Lshapein0, rate=Lratev0)
+            Lvarv1[v] ~ dinvgamma(shape=Lshapeout0, rate=Lratev1[v])
         }
     }
     ##
     for(k in 1:nclusters){
-        if(len$R > 0){# real variates
+        if(H$Rlen > 0){# continuous variates
             for(v in 1:Rn){
-                Rmean[v, k] ~ dnorm(mean=Rmean0[v], var=Rvar0[v])
-                Rvar[v, k] ~ dinvgamma(shape=Rshapeout0[v], rate=Rrate[v])
+                Rmean[v, k] ~ dnorm(mean=Rmean1[v], var=Rmeanv0)
+                Rrate[v, k] ~ dinvgamma(shape=Rshapein0, rate=Rvarv1[v])
+                Rvar[v, k] ~ dinvgamma(shape=Rshapeout0, rate=Rrate[v, k])
             }
         }
-        ## if(len$O > 0){# logarithmic censored variates
-        ##     for(v in 1:On){
-        ##         Omean[v, k] ~ dnorm(mean=Omean0[v], var=Ovar0[v])
-        ##         Ovar[v, k] ~ dinvgamma(shape=Oshapeout0[v], rate=Orate[v])
-        ##     }
-        ## }
-        if(len$D > 0){# censored variates
-            for(v in 1:Dn){
-                Dmean[v, k] ~ dnorm(mean=Dmean0[v], var=Dvar0[v])
-                Dvar[v, k] ~ dinvgamma(shape=Dshapeout0[v], rate=Drate[v])
+        if(H$Llen > 0){# latent-based variates
+            for(v in 1:Ln){
+                Lmean[v, k] ~ dnorm(mean=Lmean1[v], var=Lmeanv0)
+                Lrate[v, k] ~ dinvgamma(shape=Lshapein0, rate=Lvarv1[v])
+                Lvar[v, k] ~ dinvgamma(shape=Lshapeout0[v], rate=Lrate[v, k])
             }
         }
-        if(len$I > 0){# integer variates
-            for(v in 1:In){
-                Imean[v, k] ~ dnorm(mean=Imean0[v], var=Ivar0[v])
-                Ivar[v, k] ~ dinvgamma(shape=Ishapeout0[v], rate=Irate[v])
-            }
-        }
-        if(len$B > 0){# binary variates
+        if(H$Blen > 0){# binary variates
             for(v in 1:Bn){
                 Bprob[v, k] ~ dbeta(shape1=Bshapein0[v], shape2=Bshapeout0[v])
             }
         }
-        if(len$C > 0){# categorical variates
+        if(H$Clen > 0){# nominal variates
             for(v in 1:Cn){
-                Cprob[v, k, 1:Cmaxn] ~ ddirch(alpha=Calpha0[v, 1:Cmaxn])
+                Cprob[v, k, 1:Cnmax] ~ ddirch(alpha=Calpha0[v, 1:Cnmax])
             }
         }
     }
@@ -466,37 +450,25 @@ finitemix <- nimbleCode({
         for(d in 1:ndata){
             K[d] ~ dcat(prob=W[1:nclusters])
             ##
-            if(len$R > 0){# real variates
+            if(H$Rlen > 0){# continuous variates
                 for(v in 1:Rn){
                     Rdata[d, v] ~ dnorm(mean=Rmean[v, K[d]], var=Rvar[v, K[d]])
                 }
             }
-            ## if(len$O > 0){# one-censored variates
-            ##     for(v in 1:On){
-            ##         Oaux[d, v] ~ dconstraint(Odata[d, v] >= Oleft[d, v])
-            ##         Odata[d, v] ~ dnorm(mean=Omean[v, K[d]], var=Ovar[v, K[d]])
-            ##     }
-            ## }
-            if(len$D > 0){# censored variates
-                for(v in 1:Dn){
-                    Daux[d, v] ~ dconstraint(Ddata[d, v] >= Dleft[d, v] & Ddata[d, v] <= Dright[d, v])
-                    Ddata[d, v] ~ dnorm(mean=Dmean[v, K[d]], var=Dvar[v, K[d]])
+            if(H$Llen > 0){# latent-based variates
+                for(v in 1:Ln){
+                    Laux[d, v] ~ dconstraint(Ldata[d, v] >= Lleft[d, v] & Ldata[d, v] <= Lright[d, v])
+                    Ldata[d, v] ~ dnorm(mean=Lmean[v, K[d]], var=Lvar[v, K[d]])
                 }
             }
-            if(len$I > 0){# integer variates
-                for(v in 1:In){
-                    Iaux[d, v] ~ dconstraint(Icont[d, v] > Ileft[d, v] & Icont[d, v] < Iright[d, v])
-                    Icont[d, v] ~ dnorm(mean=Imean[v, K[d]], var=Ivar[v, K[d]])
-                }
-            }
-            if(len$B > 0){# binary variates
+            if(H$Blen > 0){# binary variates
                 for(v in 1:Bn){
                     Bdata[d, v] ~ dbern(prob=Bprob[v, K[d]])
                 }
             }
-            if(len$C > 0){# categorical variates
+            if(H$Clen > 0){# categorical variates
                 for(v in 1:Cn){
-                    Cdata[d, v] ~ dcat(prob=Cprob[v, K[d], 1:Cmaxn])
+                    Cdata[d, v] ~ dcat(prob=Cprob[v, K[d], 1:Cnmax])
                 }
             }
         }
@@ -513,58 +485,58 @@ finitemixnimble <- nimbleModel(code=finitemix, name='finitemixnimble1',
                                dimensions=c(
                                    list(W=nclusters),
                                    list(walpha0=c(nalpha,nclusters)),
-                                   if(len$R > 0){list(
-                                                     Rmean=c(len$R,nclusters),
-                                                     Rvar=c(len$R,nclusters),
-                                                     Rrate=len$R,
-                                                     Rvarscaleindex=len$R
+                                   if(H$Rlen > 0){list(
+                                                     Rmean=c(H$Rlen,nclusters),
+                                                     Rvar=c(H$Rlen,nclusters),
+                                                     Rrate=H$Rlen,
+                                                     Rvarscaleindex=H$Rlen
                                                  )},
-                                   ## if(len$O > 0){list(
-                                   ##                   Omean=c(len$O,nclusters),
-                                   ##                   Ovar=c(len$O,nclusters),
-                                   ##                   Orate=len$O,
-                                   ##                   Ovarscaleindex=len$O
+                                   ## if(H$Olen > 0){list(
+                                   ##                   Omean=c(H$Olen,nclusters),
+                                   ##                   Ovar=c(H$Olen,nclusters),
+                                   ##                   Orate=H$Olen,
+                                   ##                   Ovarscaleindex=H$Olen
                                    ##               )},
-                                   if(len$D > 0){list(
-                                                     Dmean=c(len$D,nclusters),
-                                                     Dvar=c(len$D,nclusters),
-                                                     Drate=len$D,
-                                                     Dvarscaleindex=len$D
+                                   if(H$Dlen > 0){list(
+                                                     Dmean=c(H$Dlen,nclusters),
+                                                     Dvar=c(H$Dlen,nclusters),
+                                                     Drate=H$Dlen,
+                                                     Dvarscaleindex=H$Dlen
                                                  )},
-                                   if(len$I > 0){list(
-                                                     Imean=c(len$I,nclusters),
-                                                     Ivar=c(len$I,nclusters),
-                                                     Irate=len$I,
-                                                     Ivarscaleindex=len$I
+                                   if(H$Ilen > 0){list(
+                                                     Imean=c(H$Ilen,nclusters),
+                                                     Ivar=c(H$Ilen,nclusters),
+                                                     Irate=H$Ilen,
+                                                     Ivarscaleindex=H$Ilen
                                                  )},
-                                   if(len$B > 0){list(
-                                                     Bprob=c(len$B,nclusters)
+                                   if(H$Blen > 0){list(
+                                                     Bprob=c(H$Blen,nclusters)
                                                  )},
-                                   if(len$C > 0){list(
-                                                     Cprob=c(len$C,nclusters,Cmaxn)
+                                   if(H$Clen > 0){list(
+                                                     Cprob=c(H$Clen,nclusters,Cmaxn)
                                                  )},
                                    if(posterior){c(
                                        list(K=ndata),
-                                       if(len$R > 0){list(Rdata=c(ndata,len$R))},
-                                       ## if(len$O > 0){list(
-                                       ##                   Odata=c(ndata,len$O),
-                                       ##                   Oleft=c(ndata,len$O),
-                                       ##                   Oaux=c(ndata,len$O)
+                                       if(H$Rlen > 0){list(Rdata=c(ndata,H$Rlen))},
+                                       ## if(H$Olen > 0){list(
+                                       ##                   Odata=c(ndata,H$Olen),
+                                       ##                   Oleft=c(ndata,H$Olen),
+                                       ##                   Oaux=c(ndata,H$Olen)
                                        ##               )},
-                                       if(len$D > 0){list(
-                                                         Ddata=c(ndata,len$D),
-                                                         Dleft=c(ndata,len$D),
-                                                         Dright=c(ndata,len$D),
-                                                         Daux=c(ndata,len$D)
+                                       if(H$Dlen > 0){list(
+                                                         Ddata=c(ndata,H$Dlen),
+                                                         Dleft=c(ndata,H$Dlen),
+                                                         Dright=c(ndata,H$Dlen),
+                                                         Daux=c(ndata,H$Dlen)
                                                      )},
-                                       if(len$I > 0){list(
-                                                         Icont=c(ndata,len$I),
-                                                         Ileft=c(ndata,len$I),
-                                                         Iright=c(ndata,len$I),
-                                                         Iaux=c(ndata,len$I)
+                                       if(H$Ilen > 0){list(
+                                                         Icont=c(ndata,H$Ilen),
+                                                         Ileft=c(ndata,H$Ilen),
+                                                         Iright=c(ndata,H$Ilen),
+                                                         Iaux=c(ndata,H$Ilen)
                                                      )},
-                                       if(len$B > 0){list(Bdata=c(ndata,len$B))},
-                                       if(len$C > 0){list(Cdata=c(ndata,len$C))}
+                                       if(H$Blen > 0){list(Bdata=c(ndata,H$Blen))},
+                                       if(H$Clen > 0){list(Cdata=c(ndata,H$Clen))}
                                    )}
                                )
                                )
@@ -574,20 +546,20 @@ gc()
 
 confnimble <- configureMCMC(Cfinitemixnimble, #nodes=NULL,
                             monitors=c('W',
-                                       if(len$R > 0){c('Rmean', 'Rvar')},
-                                       ## if(len$O > 0){c('Omean', 'Ovar')},
-                                       if(len$D > 0){c('Dmean', 'Dvar')},
-                                       if(len$I > 0){c('Imean', 'Ivar')},
-                                       if(len$B > 0){c('Bprob')},
-                                       if(len$C > 0){c('Cprob')}
+                                       if(H$Rlen > 0){c('Rmean', 'Rvar')},
+                                       ## if(H$Olen > 0){c('Omean', 'Ovar')},
+                                       if(H$Dlen > 0){c('Dmean', 'Dvar')},
+                                       if(H$Ilen > 0){c('Imean', 'Ivar')},
+                                       if(H$Blen > 0){c('Bprob')},
+                                       if(H$Clen > 0){c('Cprob')}
                                        ),
                             monitors2=c( 'Alphaindex',
                                         if(posterior){'K'},
                                         if(showhyperparametertraces){c(
-                                            if(len$R > 0){ c( 'Rvarscaleindex') },
-                                            ## if(len$O > 0){ c( 'Ovarscaleindex') },
-                                            if(len$D > 0){ c( 'Dvarscaleindex') },
-                                            if(len$I > 0){ c( 'Ivarscaleindex') }
+                                            if(H$Rlen > 0){ c( 'Rvarscaleindex') },
+                                            ## if(H$Olen > 0){ c( 'Ovarscaleindex') },
+                                            if(H$Dlen > 0){ c( 'Dvarscaleindex') },
+                                            if(H$Ilen > 0){ c( 'Ivarscaleindex') }
                                         )}
                                         )
                             )

@@ -22,6 +22,9 @@ if(ncores>1){
     plan(sequential)
 }
 
+
+
+#### Check distributions for means
 nsamples <- 1e7
 ## tests0 <- runif(nsamples,-2,2)
 ## IQR(tests0)
@@ -47,6 +50,112 @@ testsa0 <- testsa0/IQR(testsa0)*2
 IQR(testsa0)
 ##
 
+nsamples <- 2^16
+incl <- 95
+means <- rnorm(nsamples, mean=0, sd=1)
+sds1 <- sqrt(nimble::rinvgamma(nsamples, shape=1, rate=1))
+sds2 <- sqrt(nimble::rinvgamma(nsamples, shape=1, rate=nimble::rinvgamma(nsamples, shape=1, rate=1)))
+test <- list()
+##
+test$a <- matrix(rnorm(nsamples*2, mean=0, sd=1), nrow=nsamples)
+##
+test$b <- matrix(rnorm(nsamples*2, mean=means, sd=1), nrow=nsamples)
+##
+test$c <- matrix(rnorm(nsamples*2, mean=0, sd=sds1), nrow=nsamples)
+##
+test$d <- matrix(rnorm(nsamples*2, mean=means, sd=sds1), nrow=nsamples)
+##
+test$e <- matrix(rnorm(nsamples*2, mean=means, sd=sds2), nrow=nsamples)
+##
+xl <- max(abs(sapply(test,function(xxx){tquant(c(xxx),c((100-incl)/2,(100+incl)/2)/100)})))
+pdff(apaper=3, asp=1)
+for(i in 1:length(test)){
+tplot(x=test[[i]][,1], y=test[[i]][,2], type='p', pch='.', xlim=c(-xl,xl), ylim=c(-xl,xl), xlab='mean 1', ylab='mean 2')
+}
+dev.off()
+
+#### check distributions for log-sds
+nsamples <- 2^16
+incl <- 95
+shapes <- 2^sample((-1):1,nsamples,replace=T)
+rates1 <- nimble::rinvgamma(nsamples, shape=1, rate=nimble::rinvgamma(nsamples, shape=1, rate=1))
+rates2 <- nimble::rinvgamma(nsamples, shape=1, rate=1)
+test <- list()
+##
+test$a <- matrix(nimble::rinvgamma(nsamples*2, shape=1, rate=nimble::rinvgamma(nsamples*2, shape=1, rate=1)), nrow=nsamples)
+##
+test$b <- matrix(nimble::rinvgamma(nsamples*2, shape=1, rate=nimble::rinvgamma(nsamples*2, shape=1, rate= rates1) ), nrow=nsamples)
+##
+test$c <- matrix(nimble::rinvgamma(nsamples*2, shape=shapes, rate=nimble::rinvgamma(nsamples*2, shape=shapes, rate=1) ), nrow=nsamples)
+##
+test$d <- matrix(nimble::rinvgamma(nsamples*2, shape=shapes, rate=nimble::rinvgamma(nsamples*2, shape=shapes, rate= rates1) ), nrow=nsamples)
+##
+xl <- max(abs(sapply(test,function(xxx){tquant(log10(c(xxx))/2,c((100-incl)/2,(100+incl)/2)/100)})))
+pdff(apaper=3, asp=1)
+for(i in 1:length(test)){
+tplot(x=log10(test[[i]][,1])/2, y=log10(test[[i]][,2])/2, type='p', pch='.', xlim=c(-xl,xl), ylim=c(-xl,xl), xlab='lg-sd 1', ylab='lg-sd 2')
+}
+dev.off()
+
+
+#### Check resulting densities for various choices of hyperpriors
+incl <- 95
+nsamples <- 2^10
+nclusters <- 64
+rowcol <- c(22,22)
+prc <- prod(rowcol)
+drawf <- function(n, q, means, sds){
+    ks <- sample(1:nclusters, size=n, prob=q, replace=T)
+    cbind(
+        rnorm(n,
+              mean=means[1,ks],
+              sd=sds[1,ks]
+              )
+       ,
+        rnorm(n,
+              mean=means[2,ks],
+              sd=sds[2,ks]
+              )
+    )
+}
+plotpoints <- function(nsamples, q, means, sds){
+    for(i in 1:prc){
+        points <- drawf(n=nsamples, q=q[i,], means=means[i,,], sds=sds[i,,])
+    xl <- max(abs(tquant(c(points), c((100-incl)/2,(100+incl)/2)/100)), 1)
+    tplot(x=points[,1], y=points[,2], type='p', pch='.',
+          xlab=NA, ylab=NA, xticks=NA, yticks=NA,
+          xlabels=NA, ylabels=NA,
+          xlim=c(-xl,xl), ylim=c(-xl,xl),
+          mar=rep(0.25,4))
+    abline(h=c(-1,1),col=alpha2hex2(0.5,2))
+    abline(v=c(-1,1),col=alpha2hex2(0.5,2))
+    abline(v=par('usr')[1:2],col='black',lwd=0.5)
+        abline(h=par('usr')[3:4],col='black',lwd=0.5)
+        }
+}
+##
+alphas <- sample(rep(2^((-3):3), 2), size=prc, replace=T)
+q <- extraDistr::rdirichlet(n=prc,alpha=matrix(alphas/nclusters,nrow=prc,ncol=nclusters))
+##
+pdff(apaper=3)
+par(mfrow=rowcol,mar = c(0,0,0,0))
+## independent
+means <- array(rnorm(2*nsamples*prc, mean=0, sd=1), dim=c(prc,2,nsamples))
+sds <- array(sqrt(nimble::rinvgamma(2*nsamples*prc, shape=1, rate=
+                                                           nimble::rinvgamma(2*nsamples*prc, shape=1, rate=1))), dim=c(prc,2,nsamples))
+plotpoints(nsamples=nsamples, q=q, means=means, sds=sds)
+##
+means <- array(rnorm(2*nsamples*prc, mean=rnorm(nsamples,mean=0,sd=1), sd=1), dim=c(prc,2,nsamples))
+sds <- array(sqrt(nimble::rinvgamma(2*nsamples*prc, shape=1, rate=
+                                                           nimble::rinvgamma(2*nsamples*prc, shape=1, rate=1))), dim=c(prc,2,nsamples))
+plotpoints(nsamples=nsamples, q=q, means=means, sds=sds)
+##
+dev.off()
+
+
+
+
+
 incl <- 95
 ran <- tquant(c(testsa,testsa2,testsa3,testsa4), c((100-incl)/2,(100+incl)/2)/100)
 ## breaks <- c(-Inf,seq(ran[1],ran[2],length.out=128+1), +Inf)
@@ -58,9 +167,9 @@ th2 <- thist(testsa2, n=breaks)
 th3 <- thist(testsa3, n=breaks)
 th4 <- thist(testsa4, n=breaks)
 th0 <- thist(testsa0, n=breaks)
-##pdff('justtest')
+pdff()
 tplot(x=list(th1$mids,th2$mids,th3$mids,th4$mids,th0$mids), y=list(th1$density,th2$density,th3$density,th4$density,th0$density), xlim=ran, ylim=c(0,NA))
-##dev.off()
+dev.off()
 
 sdovermad <- 1/qnorm(0.75)
 sdovermad2 <- 0.5/qnorm(0.75)
