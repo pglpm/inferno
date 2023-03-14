@@ -100,7 +100,7 @@ dev.off()
 
 #### Check resulting densities for various choices of hyperpriors
 incl <- 95
-nsamples <- 2^10
+nsamples <- 2^12
 nclusters <- 64
 rowcol <- c(21,21)
 prc <- prod(rowcol)
@@ -126,6 +126,7 @@ plotpoints2d <- function(nsamples, q, means, sds){
         xl[i] <- max(abs(tquant(c(points[,1]), c((100-incl)/2,(100+incl)/2)/100)), 1)
         yl <- max(abs(tquant(c(points[,2]), c((100-incl)/2,(100+incl)/2)/100)), 1)
         tplot(x=points[,1], y=points[,2], type='p', pch='.',
+              alpha=0.9,
               xlab=NA, ylab=NA, xticks=NA, yticks=NA,
               xlabels=NA, ylabels=NA,
               xlim=c(-xl[i],xl[i]), ylim=c(-yl,yl),
@@ -154,12 +155,13 @@ plotpoints2d <- function(nsamples, q, means, sds){
 }
 ##
 set.seed(111)
-alphas <- sample(rep(2^((-3):3), 2), size=prc, replace=T)
+maxalpha <- 5
+alphas <- sample(rep(2^((-maxalpha):maxalpha), 2), size=prc, replace=T)
 q <- extraDistr::rdirichlet(n=prc,alpha=matrix(alphas/nclusters,nrow=prc,ncol=nclusters))
 ##
 baseshape <- 1
 baseshape0 <- 1.5
-baseshape1 <- 1.5
+baseshape1 <- 2
 meansm <- rnorm(prc*2, mean=0, sd=1)
 meanss <- sqrt(nimble::rinvgamma(prc*2, shape=baseshape1, rate= nimble::rinvgamma(prc*2, shape=baseshape1, rate=1)))
 sdss <- 2^sample((-1):1, size=prc*2, replace=T)*baseshape1
@@ -184,15 +186,14 @@ sds <- array(sqrt(nimble::rinvgamma(2*prc*nclusters, shape=baseshape0, rate=
                                                            nimble::rinvgamma(2*prc*nclusters, shape=baseshape0, rate=sdsr))), dim=c(prc,2,nclusters))
 plotpoints2d(nsamples=nsamples, q=q, means=means, sds=sds)
 dev.off()
-
 ##
-pdff('prior2D_hypersdsshapes',apaper=3)
+pdff('prior2D_hyperallfour',apaper=3)
 par(mfrow=rowcol,mar = c(0,0,0,0))
 ## 
 set.seed(987)
-means <- array(rnorm(2*prc*nclusters, mean=0, sd=meanss), dim=c(prc,2,nclusters))
+means <- array(rnorm(2*prc*nclusters, mean=meansm, sd=meanss), dim=c(prc,2,nclusters))
 sds <- array(sqrt(nimble::rinvgamma(2*prc*nclusters, shape=sdss, rate=
-                                                           nimble::rinvgamma(2*prc*nclusters, shape=sdss, rate=1))), dim=c(prc,2,nclusters))
+                                                           nimble::rinvgamma(2*prc*nclusters, shape=sdss, rate=sdsr))), dim=c(prc,2,nclusters))
 plotpoints2d(nsamples=nsamples, q=q, means=means, sds=sds)
 dev.off()
 
