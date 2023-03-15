@@ -155,17 +155,30 @@ plotpoints2d <- function(nsamples, q, means, sds){
 }
 ##
 set.seed(111)
-maxalpha <- 5
+maxalpha <- 4
 alphas <- sample(rep(2^((-maxalpha):maxalpha), 2), size=prc, replace=T)
 q <- extraDistr::rdirichlet(n=prc,alpha=matrix(alphas/nclusters,nrow=prc,ncol=nclusters))
 ##
 baseshape <- 1
 baseshape0 <- 1.5
-baseshape1 <- 2
+baseshape1 <- 4
 meansm <- rnorm(prc*2, mean=0, sd=1)
 meanss <- sqrt(nimble::rinvgamma(prc*2, shape=baseshape1, rate= nimble::rinvgamma(prc*2, shape=baseshape1, rate=1)))
 sdss <- 2^sample((-1):1, size=prc*2, replace=T)*baseshape1
 sdsr <- nimble::rinvgamma(prc*2, shape=baseshape1, rate= nimble::rinvgamma(prc*2, shape=baseshape1, rate=1))
+##
+pdff('prior2D_hyperrates',apaper=3)
+par(mfrow=rowcol,mar = c(0,0,0,0))
+## 
+set.seed(987)
+means <- array(rnorm(2*prc*nclusters, mean=0, sd=1), dim=c(prc,2,nclusters))
+sds <- array(sqrt(nimble::rinvgamma(2*prc*nclusters, shape=3/4*8, rate=
+                                                           nimble::rinvgamma(2*prc*nclusters, shape=1/4*8, rate=1^2))), dim=c(prc,2,nclusters))
+plotpoints2d(nsamples=nsamples, q=q, means=means, sds=sds)
+dev.off()
+
+##
+
 ##
 pdff('prior2D_nohyper',apaper=3)
 par(mfrow=rowcol,mar = c(0,0,0,0))
@@ -184,6 +197,17 @@ set.seed(987)
 means <- array(rnorm(2*prc*nclusters, mean=meansm, sd=1), dim=c(prc,2,nclusters))
 sds <- array(sqrt(nimble::rinvgamma(2*prc*nclusters, shape=baseshape0, rate=
                                                            nimble::rinvgamma(2*prc*nclusters, shape=baseshape0, rate=sdsr))), dim=c(prc,2,nclusters))
+plotpoints2d(nsamples=nsamples, q=q, means=means, sds=sds)
+dev.off()
+##
+
+pdff('prior2D_hypermeansratescommonvar',apaper=3)
+par(mfrow=rowcol,mar = c(0,0,0,0))
+## 
+set.seed(987)
+means <- array(rnorm(2*prc*nclusters, mean=meansm[1:prc], sd=1), dim=c(prc,2,nclusters))
+sds <- array(sqrt(nimble::rinvgamma(2*prc*nclusters, shape=baseshape0, rate=
+                                                           nimble::rinvgamma(2*prc*nclusters, shape=baseshape0, rate=sdsr[1:prc]))), dim=c(prc,2,nclusters))
 plotpoints2d(nsamples=nsamples, q=q, means=means, sds=sds)
 dev.off()
 ##
@@ -209,6 +233,110 @@ dev.off()
 ## dev.off()
 
 
+#### Plot of mixture of Gaussians
+set.seed(111)
+## maxalpha <- 4
+## alphas <- sample(rep(2^((-maxalpha):maxalpha), 2), size=prc, replace=T)
+## q <- extraDistr::rdirichlet(n=prc,alpha=matrix(alphas/nclusters,nrow=prc,ncol=nclusters))
+##
+## baseshape <- 1
+## baseshape0 <- 1.5
+## baseshape1 <- 4
+## meansm <- rnorm(prc*2, mean=0, sd=1)
+## meanss <- sqrt(nimble::rinvgamma(prc*2, shape=baseshape1, rate= nimble::rinvgamma(prc*2, shape=baseshape1, rate=1)))
+## sdss <- 2^sample((-1):1, size=prc*2, replace=T)*baseshape1
+## sdsr <- nimble::rinvgamma(prc*2, shape=baseshape1, rate= nimble::rinvgamma(prc*2, shape=baseshape1, rate=1))
+##
+nsamples <- 2^24
+shapelow0 <- 3/4*8
+shapehigh0 <- 1/4*8
+xsamples <- rnorm(nsamples,
+                  mean=rnorm(nsamples,mean=0,sd=1),
+                  sd=sqrt(
+                      extraDistr::rbetapr(nsamples,shape1=shapehigh0,shape2=shapelow0,
+                                          scale=1)
+                  )
+                  )
+thismad <- mad(xsamples,constant=1)
+c(thismad, sd(xsamples))
+## xsamples <- rnorm(nsamples,
+##                   mean=rnorm(nsamples,mean=0,sd=1/thismad),
+##                   sd=sqrt(
+##                       extraDistr::rbetapr(nsamples,shape1=1/4*8,shape2=3/4*8,
+##                                           scale=1/thismad^2)
+##                   )
+##                   )
+## thismad <- mad(xsamples,constant=1)
+## thismad
+xr <- ceiling(max(abs(xsamples)))
+xgrid <- seq(-xr,xr,by=0.1)
+his <- thist(xsamples,n=xgrid)
+his$density <- (his$density + rev(his$density))/2
+pdff('Gaussmix')
+tplot(x=his$mids, y=list(his$density,dnorm(his$mids,sd=thismad/qnorm(3/4)),dcauchy(his$mids,scale=thismad),dlogis(his$mids,scale=thismad/qlogis(3/4))),
+      xlim=c(-1,1)*6,
+      xticks=seq(-xr,xr,by=1), xlabels=seq(-xr,xr,by=1),
+                                        #sapply(seq(-3,3,by=1),function(i)as.expression(bquote(.(i*2)*bar(sigma))))
+      xlab=expression(italic(x)/bar(sigma)), ylab='density',
+      lwd=c(3,2,2,5),lty=c(1,2,4,3), alpha=c(0,rep(0.25,3)),
+      mar=c(NA,5,2,1))
+abline(v=c(-1,1)*thismad,col=alpha2hex(7,0.25),lwd=2)
+dev.off()
+
+
+#### Calculate and save function Q, v2
+nint <- 512
+seqnint <- (1:(nint-1))/nint # seq(1/nint,(nint-1)/nint,length.out=nint-1)
+nsamplesx <- 2^24
+shapelow0 <- 3/4*8
+shapehigh0 <- 1/4*8
+qsamples <- rnorm(nsamplesx,
+                         mean=rnorm(nsamplesx,mean=0,sd=1),
+                         sd=sqrt(
+                             extraDistr::rbetapr(nsamplesx,shape1=shapehigh0,shape2=shapelow0, scale=1)
+                         )
+                         )
+thismad <- mad(qsamples, constant=1)
+thismad
+qsamples <- rnorm(nsamplesx,
+                         mean=rnorm(nsamplesx,mean=0,sd=1/thismad),
+                         sd=sqrt(
+                             extraDistr::rbetapr(nsamplesx,shape1=shapehigh0,shape2=shapelow0, scale=1/thismad^2)
+                         )
+                         )
+thismad <- mad(qsamples, constant=1)
+thismad
+
+testgr <- c(NULL,
+            tquant(qsamples, seqnint),
+            NULL)
+testgr <- (testgr-rev(testgr))/2
+approxq <- approxfun(x=seqnint, y=testgr, yleft=-Inf, yright=+Inf)
+
+saveRDS(approxq,'Qfunction512.rsd')
+
+xss <- foreach(nint=rev(c(5,
+                10,32,100,
+                256)))%do%{
+                (1:(nint-1))/nint}
+##
+nint <- 256
+xgrid <- seq(1/nint,(nint-1)/nint,length.out=nint-1)
+pdff()
+tplot(x=xgrid,y=list(approxq(xgrid),qnorm(xgrid,sd=1/qnorm(3/4)),qcauchy(xgrid,scale=1),qlogis(xgrid,scale=1/qlogis(3/4))),
+      lwd=c(3,2,2,5),lty=c(1,2,4,3), alpha=c(0,rep(0.25,3)),
+      ylim=range(approxq(xgrid)), 
+      ## xticks=c(0,0.25,0.5,0.75,1),xlabels=c(0,expression(italic(m)/4),expression(italic(m)/2),expression(3*italic(m)/4),expression(italic(m))),
+      xlab=expression(italic(x)), ylab=expression(italic(Q)(italic(x))),
+      mar=c(NA,5,2,1))
+dev.off()
+
+testhb <- thist(log10(extraDistr::rbetapr(2^24,shape1=1/4*8,shape2=3/4*8,
+                                          scale=1))/2)
+testhi <- thist(log10(nimble::rinvgamma(2^24,shape=3/4*8,rate=
+                                                       nimble::rinvgamma(2^24,shape=1/4*8,rate=1)))/2)
+tplot(x=list(testhb$mids, testhi$mids), y=list(testhb$density,testhi$density))
+                
 
 
 

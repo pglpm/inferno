@@ -1,7 +1,7 @@
 \pdfoutput=1
 %% Author: PGL  Porta Mana
 %% Created: 2015-05-01T20:53:34+0200
-%% Last-Updated: 2023-03-05T18:15:36+0100
+%% Last-Updated: 2023-03-15T11:54:47+0100
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \newif\ifarxiv
 \arxivfalse
@@ -1260,10 +1260,10 @@ For a binary variate $x \in \set{0,1}$ we choose a Bernoulli distribution with w
 
 Obviously any other binary values $\set{a,b}$ can be mapped into $\set{0,1}$.
 
-\subsection{Categorical variates}
-\label{sec:variates_categorical}
+\subsection{Nominal variates}
+\label{sec:variates_nominal}
 
-For a categorical variate with $n$ possible values, $x \in \set{a_{1}, \dotsc, a_{n}}$, we choose a categorical distribution with normalized weight parameters $q \defd (q_{a_1}, \dotsc, q_{a_n})$:
+For a nominal variate with $n$ possible values, $x \in \set{a_{1}, \dotsc, a_{n}}$, we choose a categorical distribution with normalized weight parameters $q \defd (q_{a_1}, \dotsc, q_{a_n})$:
 \begin{equation}
   \label{eq:K_cat}
   \begin{split}
@@ -1279,10 +1279,10 @@ For a categorical variate with $n$ possible values, $x \in \set{a_{1}, \dotsc, a
 
 Obviously the values $\set{a_{1}, \dotsc, a_{n}}$ can be set in one-one correspondence with $\set{1, \dotsc, n}$.
 
-\subsection{Integer or discrete ordinal variates}
+\subsection{Ordinal variates}
 \label{sec:variates_ordinal}
 
-By \enquote{discrete ordinal} variate it is meant a variate $x$ assuming a discrete number $m$ of values which have a natural ordering, for example integers $x \in \set{1,\dotsc, m}$. The fact that they have a natural ordering has implications for smoothness, in a loose sense of this word. That is, we expect the probabilities for two consecutive values not to have excessive jumps. This is the difference between a discrete-ordinal variate and the categorical one discussed above.
+By \enquote{ordinal} variate we mean a variate $x$ assuming a discrete number $m$ of values, $x \in \set{a_{1}, \dotsc, a_{m}}$, which have a natural ordering, although there is no notion of distance among them, for example denominations $x \in \set{\text{\enquote*{none}}, \text{\enquote*{low}}, \text{\enquote*{medium}}, \text{\enquote*{high}}, \text{\enquote*{maximum}}}$. The fact that they have a natural ordering has implications for smoothness, in a loose sense of this word: we expect the probabilities for two consecutive values not to have excessive jumps. This is the difference between an ordinal variate and the nominal one discussed above \autocites[\cf]{stevens1946}.
 
 For such a variate we can use a \enquote{discretized-Gaussian} distribution with mean and variance parameters $(\mui,\sigmai^{2})$. We first introduce the monotonically increasing function
 \begin{gather}
@@ -1293,11 +1293,11 @@ For such a variate we can use a \enquote{discretized-Gaussian} distribution with
     \quad 
     Q(1-x)=-Q(x) \ ,
 \end{gather}
-which is shown in the lower panel of \fig~\ref{fig:gaussmix} (\textcolor{bluepurple}{solid blue} curve) and will be described in more detail in \sect~\ref{sec:params_gaussian}. The distribution for $x$ is then given by
+which is shown in the lower panel of \fig~\ref{fig:gaussmix} (\textcolor{bluepurple}{solid blue} curve) and will be described in more detail in \sect~\ref{sec:params_gaussian}. Mapping first the values $\set{a_{1}, \dotsc, a_{m}}$ into integers $\set{1, \dotsc, m}$, the distribution for $x$ is then given by
 \begin{equation}
   \label{eq:K_int}
   \begin{split}
-    &x \in \set{1,\dotsc, m}:
+    &x \in \set{1, \dotsc, m}
     \\
     &\!\begin{aligned}
   K(x \| \mui, \sigmai^{2}) &\defd
@@ -1317,7 +1317,7 @@ which is shown in the lower panel of \fig~\ref{fig:gaussmix} (\textcolor{bluepur
 \end{equation}
 % The discretization points are chosen so that for $\mui=0$, $\sigmai=1$ the distribution $K$ is uniform with constant value $1/m$.
 
-Discrete ordinal variates with other domains can be mapped onto $\set{1,\dotsc,m}$.
+% Discrete ordinal variates with other domains can be mapped onto $\set{1,\dotsc,m}$.
 
 \subsection{Continuous real variates}
 \label{sec:variates_real}
@@ -1542,12 +1542,12 @@ The component distributions for a binary variate, \sect\,\ref{sec:variates_binar
 This is also the resulting uniform density $\p[\di F(X \mo 1) \|I]$ for the probability of any one of the binary values.
 
 
-\subsection{Density for the parameters of the categorical components}
-\label{sec:density_categorical}
+\subsection{Density for the parameters of the nominal components}
+\label{sec:density_nominal}
 
-Components with categorical variates have a categorical distribution with normalized weights $q \defd (q_{1},\dotsc,q_{n})$, as discussed in \sect\,\ref{sec:variates_categorical}. The density for these weights is a Dirichlet distribution with unit concentration parameter, or equivalently a constant density on the simplex $\set{q}$:
+Components with nominal variates have a categorical distribution with normalized weights $q \defd (q_{1},\dotsc,q_{n})$, as discussed in \sect\,\ref{sec:variates_nominal}. The density for these weights is a Dirichlet distribution with unit concentration parameter, or equivalently a constant density on the simplex $\set{q}$:
 \begin{equation}
-  \label{eq:density_q_categorical}
+  \label{eq:density_q_nominal}
   \p(\di q\|I) = \delt\bigl(\tsum_{i}q_{i}-1\bigr)\,\di q \ .
 \end{equation}
 
