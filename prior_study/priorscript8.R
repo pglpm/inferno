@@ -119,7 +119,7 @@ drawf <- function(n, q, means, sds){
     )
 }
 plotpoints2d <- function(nsamples, q, means, sds){
-    xl <- numeric(prc)
+    xl <-- numeric(prc)
     ## 2D
     for(i in 1:prc){
         points <- drawf(n=nsamples, q=q[i,], means=means[i,,], sds=sds[i,,])
@@ -136,6 +136,7 @@ plotpoints2d <- function(nsamples, q, means, sds){
         abline(v=par('usr')[1:2],col='black',lwd=0.5)
         abline(h=par('usr')[3:4],col='black',lwd=0.5)
     }
+    xl <<- xl
     ## 1D
     for(i in 1:prc){
         xgrid <- seq(-xl[i], xl[i], length.out=256)
@@ -180,6 +181,30 @@ sds <- array(sqrt(nimble::rinvgamma(2*prc*nclusters, shape=shapelow0, rate=
                                                            nimble::rinvgamma(2*prc*nclusters, shape=shapehigh0, rate=rate0^2))), dim=c(prc,2,nclusters))
 plotpoints2d(nsamples=nsamples, q=q, means=means, sds=sds)
 dev.off()
+##
+##
+rowcol <- c(25,25)
+prc <- prod(rowcol)
+pdff('../prior1D_real')
+par(mfrow=rowcol,mar = c(0,0,0,0))
+    ## 1D
+    for(i in 1:prc){
+        xgrid <- seq(-xl[i], xl[i], length.out=256)
+        ygrid <- c(sapply(1:nclusters, function(cc){
+            dnorm(xgrid, mean=means[i,1,cc], sd=sds[i,1,cc])
+            }) %*% q[i,])
+        tplot(x=xgrid, y=ygrid, lwd=1,
+              xlab=NA, ylab=NA, xticks=NA, yticks=NA,
+              xlabels=NA, ylabels=NA,
+              ylim=c(0,NA),
+              mar=rep(0.25,4))
+        abline(h=c(0),col=alpha2hex2(0.5,7))
+        abline(v=c(-1,1),col=alpha2hex2(0.5,2))
+        ## abline(v=par('usr')[1:2],col='black',lwd=0.5)
+        ## abline(h=par('usr')[3:4],col='black',lwd=0.5)
+    }
+dev.off()
+
 
 ##
 
