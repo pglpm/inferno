@@ -98,7 +98,7 @@ tplot(x=log10(test[[i]][,1])/2, y=log10(test[[i]][,2])/2, type='p', pch='.', xli
 dev.off()
 
 
-#### Check resulting densities for various choices of hyperpriors
+#### Check resulting densities for various choices of hyperpriors - cont variate
 incl <- 99
 nsamples <- 2^12
 nclusters <- 64
@@ -290,7 +290,7 @@ tplot(x=his$mids, y=list(his$density,dnorm(his$mids,sd=thismad/qnorm(3/4)),dcauc
       xlab=expression(italic(x)/bar(sigma)), ylab='density',
       lwd=c(3,2,2,5),lty=c(1,2,4,3), alpha=c(0,rep(0.25,3)),
       col=c(1,2,3,4),
-      mar=c(NA,5,2,1))
+      mar=c(NA,5,1,1))
 abline(v=c(-1,1)*thismad,col=alpha2hex(7,0.25),lwd=2)
 legend('topleft', c(expression(italic(Q)*"'"),'Gauss','Cauchy'), lwd=c(3,2,2,5), lty=c(1,2,4,3), col=c(1,2,3,4), bty='n')
 dev.off()
@@ -338,7 +338,7 @@ tplot(x=xgrid,y=list(approxq(xgrid),qnorm(xgrid,sd=thismad/qnorm(3/4)),qcauchy(x
       ylim=range(approxq(xgrid)), 
       ## xticks=c(0,0.25,0.5,0.75,1),xlabels=c(0,expression(italic(m)/4),expression(italic(m)/2),expression(3*italic(m)/4),expression(italic(m))),
       xlab=expression(italic(x)), ylab=expression(italic(Q)(italic(x))),
-      mar=c(NA,5,2,1))
+      mar=c(NA,5,1,1))
 legend('topleft', c(expression(italic(Q)),'Gauss','Cauchy'), lwd=c(3,2,2,5), lty=c(1,2,4,3), col=c(1,2,3,4), bty='n')
 dev.off()
 
@@ -347,9 +347,149 @@ testhb <- thist(log10(extraDistr::rbetapr(2^24,shape1=1/4*8,shape2=3/4*8,
 testhi <- thist(log10(nimble::rinvgamma(2^24,shape=3/4*8,rate=
                                                        nimble::rinvgamma(2^24,shape=1/4*8,rate=1)))/2)
 tplot(x=list(testhb$mids, testhi$mids), y=list(testhb$density,testhi$density))
-                
 
 
+#### Plot betaprime
+disp0 <- 1
+shapelow0 <- 4*5/8
+shapehigh0 <- 4*3/8
+rate0 <- 1 # as SD
+## from Mathematica
+gammaa <- 1.21433
+gammab <- 0.490932
+##
+pdff('betaprime_invgamma')
+xgrid <- seq(log(1/100),log(100),length.out=512)
+ygrid <- extraDistr::dbetapr(x=exp(2*xgrid), shape1=shapehigh0, shape2=shapelow0) *
+    2*exp(2*xgrid)
+ggrid <- nimble::dinvgamma(x=exp(2*xgrid), shape=gammaa, scale=gammab) *
+    2*exp(2*xgrid)
+tplot(x=xgrid, y=list(ygrid,ggrid),
+      xticks=log(10^((-2):2)),
+      xlabels= c(expression(ln~0.01), expression(ln~0.1), expression(ln~1), expression(ln~10), expression(ln~100)),
+      xlab=expression(ln(sigma/bar(sigma))),
+      ylab='density', family='Palatino',
+      mar=c(NA,4.5,1,1),
+      col=c(1,7), lwd=3
+      )
+dev.off()
+c(extraDistr::qbetapr(1/2,shape1=shapehigh0,shape2=shapelow0)
+ ,diff(extraDistr::qbetapr(c(1,3)/4,shape1=shapehigh0,shape2=shapelow0)))
+c(nimble::qinvgamma(1/2,shape=gammaa,scale=gammab)
+  ,diff(nimble::qinvgamma(c(1,3)/4,shape=gammaa,scale=gammab)))
+
+
+
+
+
+
+#### Check resulting marginal distributions for integer variate
+nint <- 32
+Qf <- readRDS('Qfunction512.rsd')
+incl <- 99
+nsamples <- 2^12
+nclusters <- 64
+rowcol <- c(25,25) # c(24,34)
+prc <- prod(rowcol)
+extras <- 0 # 5000
+## drawf <- function(n, q, means, sds){
+##     ks <- sample(1:nclusters, size=n, prob=q, replace=T)
+##     cbind(
+##         rnorm(n,
+##               mean=means[1,ks],
+##               sd=sds[1,ks]
+##               )
+##        ,
+##         rnorm(n,
+##               mean=means[2,ks],
+##               sd=sds[2,ks]
+##               )
+##     )
+## }
+plotpoints2d <- function(nsamples, q, means, sds){
+    ## xl <- numeric(prc)
+    ## ## 2D
+    ## for(i in 1:prc){
+    ##     points <- drawf(n=nsamples, q=q[i,], means=means[i,,], sds=sds[i,,])
+    ##     xl[i] <- max(abs(tquant(c(points[,1]), c((100-incl)/2,(100+incl)/2)/100)), 1)
+    ##     yl <- max(xl[i],abs(tquant(c(points[,2]), c((100-incl)/2,(100+incl)/2)/100)), 1)
+    ##     tplot(x=points[,1], y=points[,2], type='p', pch='.',
+    ##           alpha=0.9,
+    ##           xlab=NA, ylab=NA, xticks=NA, yticks=NA,
+    ##           xlabels=NA, ylabels=NA,
+    ##           xlim=c(-yl,yl), ylim=c(-yl,yl),
+    ##           mar=rep(0.2,4))
+    ##     abline(h=c(-1,1),col=alpha2hex2(0.5,2))
+    ##     abline(v=c(-1,1),col=alpha2hex2(0.5,2))
+    ##     abline(v=par('usr')[1:2],col='black',lwd=0.5)
+    ##     abline(h=par('usr')[3:4],col='black',lwd=0.5)
+    ## }
+    ## 1D
+    ysum <- 0
+    xgrid <- 1:nint
+    mgrid <- Qf(seq(0,1,length.out=nint+1))
+    if(extras > 0){
+    for(i in prc+(1:extras)){
+        ygrid <- c(sapply(1:nclusters, function(cc){
+            diff(pnorm(mgrid, mean=means[i,cc], sd=sds[i,cc]))
+        }) %*% q[i,])
+        ysum <- ysum + ygrid
+    }
+    }
+    for(i in 1:prc){
+        ygrid <- c(sapply(1:nclusters, function(cc){
+            diff(pnorm(mgrid, mean=means[i,cc], sd=sds[i,cc]))
+        }) %*% q[i,])
+        ysum <- ysum + ygrid
+        if(i == prc & extras > 0){ygrid <- ysum}
+        tplot(x=xgrid, y=ygrid, lwd=1,
+              xlab=NA, ylab=NA, xticks=NA, yticks=NA,
+              xlabels=NA, ylabels=NA,
+              ylim=c(0,NA),
+              mar=rep(0.25,4))
+        abline(h=c(0),col=alpha2hex2(0.5,7))
+        ## abline(v=c(-1,1),col=alpha2hex2(0.5,2))
+        ## abline(v=par('usr')[1:2],col='black',lwd=0.5)
+        ## abline(h=par('usr')[3:4],col='black',lwd=0.5)
+    }
+}
+##
+set.seed(111)
+maxalpha <- 4
+alphas <- sample(rep(2^((-maxalpha):maxalpha), 2), size=prc+extras, replace=T)
+q <- extraDistr::rdirichlet(n=prc+extras,alpha=matrix(alphas/nclusters,nrow=prc+extras,ncol=nclusters))
+##
+baseshape <- 1
+baseshape0 <- 1.5
+baseshape1 <- 4
+disp0 <- 1
+shapelow0 <- 4*5/8
+shapehigh0 <- 4*3/8
+rate0 <- 1 # as SD
+meansm <- rnorm(prc*2, mean=0, sd=1)
+meanss <- sqrt(nimble::rinvgamma(prc*2, shape=baseshape1, rate= nimble::rinvgamma(prc*2, shape=baseshape1, rate=1)))
+sdss <- 2^sample((-1):1, size=prc*2, replace=T)*baseshape1
+sdsr <- nimble::rinvgamma(prc*2, shape=baseshape1, rate= nimble::rinvgamma(prc*2, shape=baseshape1, rate=1))
+##
+pdff(paste0('../prior1D_integers_',nint))
+par(mfrow=rowcol,mar = c(0,0,0,0))
+## 
+set.seed(987)
+means <- array(rnorm((prc+extras)*nclusters, mean=0, sd=disp0), dim=c(prc+extras,nclusters))
+sds <- array(sqrt(nimble::rinvgamma((prc+extras)*nclusters, shape=shapelow0, rate=
+                                                           nimble::rinvgamma((prc+extras)*nclusters, shape=shapehigh0, rate=rate0^2))), dim=c(prc+extras,nclusters))
+plotpoints2d(nsamples=nsamples, q=q, means=means, sds=sds)
+dev.off()
+
+
+##################################################################
+##################################################################
+##################################################################
+##################################################################
+##################################################################
+##################################################################
+##################################################################
+#### OLD STUFF ####
 
 incl <- 95
 ran <- tquant(c(testsa,testsa2,testsa3,testsa4), c((100-incl)/2,(100+incl)/2)/100)

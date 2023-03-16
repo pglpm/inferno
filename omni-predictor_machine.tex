@@ -1,7 +1,7 @@
 \pdfoutput=1
 %% Author: PGL  Porta Mana
 %% Created: 2015-05-01T20:53:34+0200
-%% Last-Updated: 2023-03-15T11:54:47+0100
+%% Last-Updated: 2023-03-16T19:03:15+0100
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \newif\ifarxiv
 \arxivfalse
@@ -776,6 +776,8 @@ Open Science Framework \doi{10.17605/osf.io/#1}%
 \newcommand*{\vi}{\textrm{i}}
 \newcommand*{\vb}{\textrm{b}}
 \newcommand*{\vc}{\textrm{c}}
+\newcommand*{\shapeh}{\alpha}
+\newcommand*{\shapel}{\beta}
 %%% Custom macros end @@@
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -1442,44 +1444,70 @@ The density for the mean $\mu$ is a Gaussian distribution:
 
 \medskip
 
-The density for the variance $\sigma^{2}$ is a discrete mixture of beta-prime distributions (or beta distributions of the second kind) \autocites[\sect\,25.7, 27.2]{johnsonetal1970b_r1995}{mcdonald1984} having unit shape hyperparameters and different scale hyperparameters $\tau^{2}$. The beta-prime can in turn be written as a continuous mixture of inverse-gamma distributions \autocites{dubey1970} having different rate parameters $t$:
+The density for the variance $\sigma^{2}$ is a discrete mixture of beta-prime distributions (or beta distributions of the second kind) \autocites[\sect\,25.7, 27.2]{johnsonetal1970b_r1995}{mcdonald1984} having shape hyperparameters $\shapeh=3/2$, $\shapel=5/2$ and scale hyperparameter $\sigmao^{2}$. The beta-prime can in turn be written as a continuous mixture of inverse-gamma distributions \autocites{dubey1970} having different rate parameters $t$, the mixture weights also having an inverse-gamma distribution:
 \begin{equation}
   \label{eq:density_sigma}
   \begin{split}
-    \p(\di\sigma^{2}\|I) &=
-    \frac{1}{5}\sum_{l=2^{-2}}^{2^{2}}
-    (l\,\sigmao)^{-2}\,\biggl[1+\Bigl(\frac{\sigma}{l\,\sigmao}\Bigr)^{2}\biggr]^{-2}
-    \,\di\sigma^{2}
-  \\[2\jot]
+    \p(\di\sigma^{2}\|I)
+    &=
+    \frac{\shapeh\,\shapel\, (\shapeh+\shapel)!}{\shapeh!\,\shapel!\,(\shapeh+\shapel)}
+    \,\frac{(\sigma/\sigmao)^{2\shapeh}}
+    {\bigl(1+\sigma^{2}/\sigmao^{2}\bigr)^{\shapeh+\shapel}}
+    \,\frac{\di\sigma^{2}}{\sigma^{2}}
+\\[2\jot]
   &\equiv
+%    \frac{\di\sigma^{2}}{\sigmao^{2}}\ 
     \di\sigma^{2}\ 
-    \frac{1}{5}\sum_{l=2^{-2}}^{2^{2}}\,
     \int_{0}^{\infty}
+    \frac{\shapel}{\shapel!}\,
     \frac{\e^{-\frac{1}{t\,\sigma^{2}}}}{
-    t\,\sigma^{4}
-  }\,
-    \frac{\e^{-\frac{1}{(l\,\sigmao)^{2}\,t}}}{
-    (l\,\sigmao)^{2}\,t^{2}
-  }\,\di t \ .
+    t^{\shapel}\,\sigma^{2+2\shapel}
+  }\cdot
+    \frac{\shapeh}{\shapeh!}\,
+    \frac{\e^{-\frac{1}{\sigmao^{2}\,t}}}{
+    \sigmao^{2\shapeh}\,t^{1+\shapeh}
+  }\ \di t \ .
+  %   \p(\di\sigma^{2}\|I) &=
+  %   \frac{1}{5}\sum_{l=2^{-2}}^{2^{2}}
+  %   (l\,\sigmao)^{-2}\,\biggl[1+\Bigl(\frac{\sigma}{l\,\sigmao}\Bigr)^{2}\biggr]^{-2}
+  %   \,\di\sigma^{2}
+  % \\[2\jot]
+  % &\equiv
+  %   \di\sigma^{2}\ 
+  %   \frac{1}{5}\sum_{l=2^{-2}}^{2^{2}}\,
+  %   \int_{0}^{\infty}
+  %   \frac{\e^{-\frac{1}{t\,\sigma^{2}}}}{
+  %   t\,\sigma^{4}
+  % }\,
+  %   \frac{\e^{-\frac{1}{(l\,\sigmao)^{2}\,t}}}{
+  %   (l\,\sigmao)^{2}\,t^{2}
+  % }\,\di t \ .
 \end{split}
 \end{equation}
-The expression in terms of inverse-gammas is useful for conditionally conjugate Gibbs sampling. The beta-prime distribution has the appealing property of being symmetric with respect to the relative log-scale parameter $\ln(\sigma/\sigmao)$. We can in fact rewrite the density above as
+The expression in terms of inverse-gammas is useful for conditionally conjugate Gibbs sampling.
+
+The beta-prime distribution has the appealing property of having more symmetric tails for the distribution of the log-scale variable $\ln(\sigma/\sigmao)$. We can in fact rewrite the density above as
 \begin{equation}
   \label{eq:density_log-sigma}
-    \p(\di \ln\sigma\|I) =
-    \frac{1}{5}\sum_{l=2^{-2}}^{2^{2}}
-    2\,\Bigl(
-    \e^{\ln\frac{\sigma}{l\,\sigmao}}
-+    \e^{-\ln\frac{\sigma}{l\,\sigmao}}
-    \Bigr)^{-2}\, \di\ln\sigma
+    \p\bigl(\di \ln\tfrac{\sigma}{\sigmao}\|I\bigr) =
+    2\frac{\shapeh\,\shapel\, (\shapeh+\shapel)!}{\shapeh!\,\shapel!\,(\shapeh+\shapel)}
+    \,\Bigl(
+    \e^{-2\shapeh\ln\frac{\sigma}{\sigmao}}
++    \e^{2\shapel\ln\frac{\sigma}{\sigmao}}
+    \Bigr)^{-\shapeh-\shapel}\ \di\ln\tfrac{\sigma}{\sigmao}
+%     \frac{1}{5}\sum_{l=2^{-2}}^{2^{2}}
+%     2\,\Bigl(
+%     \e^{\ln\frac{\sigma}{l\,\sigmao}}
+% +    \e^{-\ln\frac{\sigma}{l\,\sigmao}}
+%     \Bigr)^{-2}\, \di\ln\sigma
 \end{equation}
-The mixture of several scale hyperparameters makes it somewhat broader without excessively fattening the tails, as shown in \fig~\ref{fig:betaprime}.
+This density function is shown in \fig~\ref{fig:betaprime}, together with the density function of an inverse gamma having the same median and interquartile range.
 %%\setlength{\intextsep}{0ex}% with wrapfigure
 %%\setlength{\columnsep}{0ex}% with wrapfigure
 \begin{figure}
 %\begin{wrapfigure}{r}{0.4\linewidth} % with wrapfigure
-\centering\includegraphics[width=0.75\linewidth]{betaprime.pdf}\\
-\caption{Solid blue: equal mixture of beta-prime~\eqref{eq:density_log-sigma}. Dashed grey: unmixed beta-prime with unit shape hyperparameters}\label{fig:betaprime}
+\centering\includegraphics[width=0.75\linewidth]{betaprime_invgamma.pdf}\\
+\caption{Solid blue: beta-prime~\eqref{eq:density_log-sigma}. Dashed grey: inverse gamma having same median and interquartile range. Both densities are shown in terms of the variable log-scale parameter $\ln(\sigma/\sigmao)$}\label{fig:betaprime}
 \end{figure}
 
 \medskip
@@ -1497,22 +1525,23 @@ The quantile function of this Gaussian mixture is also shown in \fig~\ref{fig:ga
 %%\setlength{\columnsep}{0ex}% with wrapfigure
 \begin{figure}
 %\begin{wrapfigure}{r}{0.4\linewidth} % with wrapfigure
-\centering\includegraphics[width=0.75\linewidth]{Gaussmix.pdf}\\%\hfill%
-\includegraphics[width=0.75\linewidth]{Qfunction2.pdf}%
+\centering\includegraphics[width=0.875\linewidth]{Gaussmix.pdf}\\%\hfill%
+\includegraphics[width=0.875\linewidth]{Qfunction2.pdf}%
 \\
-\caption{Upper panel, \textcolor{bluepurple}{solid blue}: density of the Gaussian mixture of \eqn~\eqref{eq:gaussian_mixture}. For comparison, Gaussian (\textcolor{redpurple}{dashed red}), Cauchy (\textcolor{green}{dot-dashed green}), logistic (\textcolor{yellow}{dotted yellow}) densities with the same median absolute deviation (\textcolor{grey}{thicker grey} vertical lines) are also shown. Lower panel: corresponding quantile functions; the \textcolor{bluepurple}{solid blue} curve is the function $Q(x)$ introduced in \sect\,\ref{sec:variates_ordinal}.}\label{fig:gaussmix}
+\caption{Upper panel, \textcolor{bluepurple}{solid blue}: density of the Gaussian mixture of \eqn~\eqref{eq:gaussian_mixture}. For comparison, Gaussian (\textcolor{redpurple}{dashed red}) and  Cauchy (\textcolor{green}{dot-dashed green})% , logistic (\textcolor{yellow}{dotted yellow})
+  densities with the same interquartile range (\textcolor{grey}{thicker grey} vertical lines) are also shown. Lower panel: corresponding quantile functions; the \textcolor{bluepurple}{solid blue} curve is the function $Q(x)$ introduced in \sect\,\ref{sec:variates_ordinal}.}\label{fig:gaussmix}
 \end{figure}
 
 \medskip
 
-The combination of prior densities~\eqref{eq:density_w}, \eqref{eq:density_mu}, \eqref{eq:density_sigma} leads to a distribution $\p(\di F\|I)$ of marginal densities $F(\di x)$ for the integer and continuous variates discussed in \sects~\ref{sec:variates_ordinal}, \ref{sec:variates_real}, \ref{sec:variates_censored}. These densities are illustrated in \figs~\ref{fig:marginal_integer}, \ref{fig:marginal_real}, \ref{fig:marginal_censored} in the form of 399 samples drawn from them, each sample being a possible distribution $F$.
+The combination of prior densities~\eqref{eq:density_w}, \eqref{eq:density_mu}, \eqref{eq:density_sigma} leads to a distribution $\p(\di F\|I)$ of marginal densities $F(\di x)$ for the ordinal and continuous variates discussed in \sects~\ref{sec:variates_ordinal}, \ref{sec:variates_real}, \ref{sec:variates_censored}. These densities are illustrated in \figs~\ref{fig:marginal_integer}, \ref{fig:marginal_real}, \ref{fig:marginal_censored} in the form of 625 samples drawn from them, each sample being a possible distribution $F$.
 
 %%\setlength{\intextsep}{0ex}% with wrapfigure
 %%\setlength{\columnsep}{0ex}% with wrapfigure
 \begin{figure}
 %\begin{wrapfigure}{r}{0.4\linewidth} % with wrapfigure
-\centering\includegraphics[width=\linewidth]{priorsamples_integer_32.pdf}\\
-\caption{399 samples from the density $\p[\di F \| I]$ for the marginal distribution $F(x)$ of an integer variate, discussed in \sect\,\ref{sec:variates_ordinal}, with values in $\set{1,\dotsc,32}$. The thicker green density at the bottom-right corner is the expected marginal distribution $\E[F\| I](x)$.}\label{fig:marginal_integer}
+\centering\includegraphics[width=\linewidth]{prior1D_integers_32.pdf}\\
+\caption{625 samples from the density $\p[\di F \| I]$ for the marginal distribution $F(x)$ of an ordinal variate, discussed in \sect\,\ref{sec:variates_ordinal}, taking on 32 different values. The  expected marginal distribution $\E[F\| I](x)$ is uniform.}\label{fig:marginal_integer}
 \end{figure}
 
 %%\setlength{\intextsep}{0ex}% with wrapfigure
