@@ -147,7 +147,7 @@ confnimble$setSamplerExecutionOrder(rev(confnimble$getSamplerExecutionOrder()))
 mcsampler <- buildMCMC(confnimble)
 Cmcsampler <- compileNimble(mcsampler, resetFunctions = TRUE)
 
-shapehi0 <- 2
+shapehi0 <- 0.5
 shapelo0 <- 4
 Cfinitemixnimble$setInits(initsFunction())
 todelete <- Cmcsampler$run(niter=16000, thin=1, thin2=1, nburnin=15000, time=FALSE, reset=TRUE, resetMV=TRUE)
