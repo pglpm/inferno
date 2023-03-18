@@ -190,10 +190,17 @@ set.seed(890)
 Cfinitemixnimble$setInits(initsFunction())
 thistime <- Sys.time()
 todelete <- Cmcsampler$run(niter=1, thin=1, thin2=1, nburnin=0, time=TRUE, reset=TRUE, resetMV=TRUE)
-todelete <- Cmcsampler$run(niter=15000, thin=1500/2, thin2=1, nburnin=0, time=TRUE, reset=FALSE, resetMV=FALSE)
+todelete <- Cmcsampler$run(niter=750*3, thin=1500/2, thin2=1, nburnin=0, time=TRUE, reset=FALSE, resetMV=FALSE)
 thistime <- Sys.time()-thistime
 print(thistime)
 mcsamples <- as.matrix(Cmcsampler$mvSamples)
+
+test <- apply(mcsamples,1,function(ss){
+    probs <- sapply(1:11,function(ii){
+        ddirch(ss[extract('W')], alpha=rep(walpha0[ii]/nclusters, nclusters), log=T)
+    })
+    dcat(1:11, prob=probs)
+})
 
 samplertimes <- Cmcsampler$getTimes()
 names(samplertimes) <- sapply(confnimble$getSamplers(),function(x)x$target)
