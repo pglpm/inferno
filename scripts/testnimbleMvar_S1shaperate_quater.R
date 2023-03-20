@@ -21,6 +21,7 @@ if(ncores>1){
 }else{
     plan(sequential)
 }
+
 library('nimble')
 ## nimbleOptions(MCMCusePredictiveDependenciesInCalculations = TRUE)
 
@@ -76,9 +77,9 @@ initsFunction <- function(){
     Rratem1 <- rinvgamma(n=nvar, shape=shapehi0, rate=1)
     Rvarm1 <- rinvgamma(n=nvar, shape=shapelo0, rate=Rratem1)
     ##
-    ## Rrate1 <- rinvgamma(n=nvar, shape=shapehi0, rate=1)
-    ## Rvar1 <- rinvgamma(n=nvar, shape=shapelo0, rate=Rrate1)
-    Rvar1 <- rep(1, nvar)
+    Rrate1 <- rinvgamma(n=nvar, shape=shapehi0, rate=1)
+    Rvar1 <- rinvgamma(n=nvar, shape=shapelo0, rate=Rrate1)
+    # Rvar1 <- rep(1, nvar)
     probshape0 <- numeric(nshape)
     ##probshape0[(minshape:maxshape)+nshape2+1] <- rep(1/(maxshape-minshape+1),maxshape-minshape+1)
     ## wshape0 <- 2^((-nshape2):nshape2)
@@ -103,7 +104,7 @@ initsFunction <- function(){
         Rmean1 = Rmean1,
         Rvarm1 = Rvarm1,
         Rratem1 = Rratem1,
-        ## Rrate1 = Rrate1,
+        Rrate1 = Rrate1,
         Rvar1 = Rvar1,
         Rmean = Rmean,
         Rrate = Rrate,
@@ -131,9 +132,9 @@ finitemix <- nimbleCode({
         Rvarm1[v] ~ dinvgamma(shape=shapelo0, rate=Rratem1[v])
         ##
         Shapeindexlo[v] ~ dunif(minshape, maxshape)
-        Shapeindexhi[v] ~ dunif(minshape, maxshape)
-        ## Rrate1[v] ~ dinvgamma(shape=shapehi0, rate=1)
-        ## Rvar1[v] ~ dinvgamma(shape=shapelo0, rate=Rrate1[v])
+        ## Shapeindexhi[v] ~ dunif(minshape, maxshape)
+        Rrate1[v] ~ dinvgamma(shape=shapehi0, rate=1)
+        Rvar1[v] ~ dinvgamma(shape=shapelo0, rate=Rrate1[v])
     }
     for(k in 1:nclusters){
         for(v in 1:nvar){
@@ -163,13 +164,15 @@ confnimble <- configureMCMC(Cfinitemixnimble,
                             monitors=c('Alpha', 'K',  'W', 'Rmean', 'Rvar',
                                        'Rvarm1',
                                        ##'Rrate',
-                                       'Shapeindexhi',
+                                       ##'Shapeindexhi',
                                        'Shapeindexlo',
                                        'Rvar1'
                                        )
                             )
-confnimble$removeSamplers(c('Alpha', 'Shapeindexlo','Shapeindexhi'))
-for(no in c('Alpha','Shapeindexhi[1]','Shapeindexhi[2]','Shapeindexlo[1]','Shapeindexlo[2]')){confnimble$addSampler(target=no,type='slice')}
+confnimble$removeSamplers(c('Alpha', #'Shapeindexhi',
+                            'Shapeindexlo'))
+for(no in c('Alpha',#'Shapeindexhi[1]','Shapeindexhi[2]',
+            'Shapeindexlo[1]','Shapeindexlo[2]')){confnimble$addSampler(target=no,type='slice')}
 print(confnimble)
 
 ## confnimble$printSamplers(executionOrder=TRUE)
@@ -182,8 +185,8 @@ Cmcsampler <- compileNimble(mcsampler, resetFunctions = TRUE)
 nclusters <- 64L
 minalpha <- 2^-3
 maxalpha <- 2^3
-minshape <- 2^-2
-maxshape <- 2^2
+minshape <- 2^-1
+maxshape <- 2^1
 shapehi0 <- 1
 shapelo0 <- 1
 ##
@@ -219,6 +222,18 @@ print(sort(sapply(sprefixes, function(x)sum(samplertimes[grepl(x,names(samplerti
 ##    57.077974    34.620131    30.770944     1.969160     1.319746     0.477963 
 ## Shapeindexlo       Rvarm1        Alpha      Rratem1 
 ##     0.425648     0.173787     0.076777     0.026015 
+print('alpha')
+mean(mcsamples[,extract('Alpha')])
+## print('shapehi')
+## mean(mcsamples[,extract('Shapeindexhi')])
+print('shapelo')
+mean(mcsamples[,extract('Shapeindexlo')])
+print('Rvar1')
+(mean(log10(mcsamples[,extract('Rvar1')])/2))
+#tplot(y=list(log10(mcsamples[,'Rvar1[1]'])/2,log10(mcsamples[,'Rvar1[2]'])/2))
+print('Rvarm1')
+(mean(log10(mcsamples[,extract('Rvarm1')])))
+#tplot(y=list(log10(mcsamples[,'Rvarm1[1]'])/2,log10(mcsamples[,'Rvarm1[2]'])/2))
 
 tplot(y=apply(mcsamples,1,function(rr){length(unique(rr[extract('K')]))}))
 table(apply(mcsamples,1,function(rr){length(unique(rr[extract('K')]))}))
@@ -226,7 +241,7 @@ table(apply(mcsamples,1,function(rr){length(unique(rr[extract('K')]))}))
 
 tplot(y=log2(mcsamples[,extract('Shapeindexlo')]))
 
-tplot(y=log2(mcsamples[,extract('Shapeindexhi')]))
+##tplot(y=log2(mcsamples[,extract('Shapeindexhi')]))
 
 ## test <- apply(mcsamples,1,function(ss){
 ##     probs <- sapply(1:11,function(ii){
@@ -237,18 +252,6 @@ tplot(y=log2(mcsamples[,extract('Shapeindexhi')]))
 
 
 
-print('alpha')
-mean(mcsamples[,extract('Alpha')])
-print('shapehi')
-mean(mcsamples[,extract('Shapeindexhi')])
-print('shapelo')
-mean(mcsamples[,extract('Shapeindexlo')])
-
-(mean(log10(mcsamples[,extract('Rvar1')])/2))
-#tplot(y=list(log10(mcsamples[,'Rvar1[1]'])/2,log10(mcsamples[,'Rvar1[2]'])/2))
-
-(mean(log10(mcsamples[,extract('Rvarm1')])))
-#tplot(y=list(log10(mcsamples[,'Rvarm1[1]'])/2,log10(mcsamples[,'Rvarm1[2]'])/2))
 
 
 ## pdff('testCnimble')
@@ -319,16 +322,16 @@ q <- extraDistr::rdirichlet(n=prc,alpha=matrix(alphas/nclusters,nrow=prc,ncol=nc
 ##meansm <- rnorm(prc*2, mean=0, sd=1)
 meanss <- sqrt(nimble::rinvgamma(prc*2, shape=1, rate= nimble::rinvgamma(prc*2, shape=1, rate=1)))
 sdssl <- runif(prc*2, minshape, maxshape)
-sdssh <- runif(prc*2, minshape, maxshape)
-sdsr <- 1#nimble::rinvgamma(prc*2, shape=baseshape1, rate= nimble::rinvgamma(prc*2, shape=baseshape1, rate=1))
+##sdssh <- runif(prc*2, minshape, maxshape)
+sdsr <- nimble::rinvgamma(prc*2, shape=shapelo0, rate= nimble::rinvgamma(prc*2, shape=shapehi0, rate=1))
 ##
-pdff(paste0('_xusprior2D_Mvar_S2shapes_A',minalpha,'_',maxalpha,'_S',minshape,'_',maxshape,'_N',npoints),apaper=3)
+pdff(paste0('_xusprior2D_Mvar_S1shaperate_A',minalpha,'_',maxalpha,'_S',minshape,'_',maxshape,'_N',npoints),apaper=3)
 par(mfrow=rowcol,mar = c(0,0,0,0))
 ## 
 set.seed(987)
 means <- array(rnorm(2*prc*nclusters, mean=0, sd=meanss), dim=c(prc,2,nclusters))
 sds <- array(sqrt(nimble::rinvgamma(prc*2*nclusters, shape=sdssl, rate=
-                                                           nimble::rinvgamma(prc*2*nclusters, shape=sdssh, rate=sdsr))), dim=c(prc,2,nclusters))
+                                                           nimble::rinvgamma(prc*2*nclusters, shape=sdssl, rate=sdsr))), dim=c(prc,2,nclusters))
 plotpoints2d(nsamples=nsamples, q=q, means=means, sds=sds)
 ##dev.off()
 ##
