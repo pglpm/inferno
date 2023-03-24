@@ -1,0 +1,34 @@
+== List of functions provided by the software, and logic of their use ==
+
+• buildvarinfo(data, file=NULL):
+  Helps the user to prepare a file contain prior information about the variates, such as:
+  – type (binary, nominal, ordinal, continuous)
+  – censoring or rounding
+  – domain
+  – location and dispersion
+  – required plot ranges
+
+• buildvarinfoaux(data, varinfo, file=TRUE):
+  Has to be called once the "varinfo" file is ready. It prepares a file having auxiliary info about variates and data, necessary for the computation, such as:
+  – variate type
+  – censoring or rounding
+  – number of values
+  – quartiles
+
+• inferdensity(varinfoaux, data, ...):
+  Can be called once the auxiliary varinfo file is ready
+  This function performs the Markov-chain Monte Carlo computation of the probability distribution over the possible long-run frequency distributions. The output is saved in a file.
+
+• longrunsamples(...):
+  Calculates samples of long-run frequencies for the specified variate values,
+  or report their average, corresponding to the current probabilities for those values. These frequencies can also be marginal or conditional.
+
+• samplelongrun(...):
+  generate samples, for the specified variates, from:
+  – either a sample of long-run frequency distribution,
+  – or the current probability distribution (expectation of the long-run frequency distributions).
+  These samples can also be marginal or conditional.
+
+• Additional functions to compute mutual information and relative entropy.
+
+– The "sample" functions might also produce plots.

@@ -182,8 +182,8 @@ Cmcsampler <- compileNimble(mcsampler, resetFunctions = TRUE)
 nclusters <- 64L
 minalpha <- 2^-3
 maxalpha <- 2^3
-minshape <- 2^-2
-maxshape <- 2^2
+minshape <- 2^-1
+maxshape <- 2^1
 shapehi0 <- 1
 shapelo0 <- 1
 ##
@@ -219,6 +219,18 @@ print(sort(sapply(sprefixes, function(x)sum(samplertimes[grepl(x,names(samplerti
 ##    57.077974    34.620131    30.770944     1.969160     1.319746     0.477963 
 ## Shapeindexlo       Rvarm1        Alpha      Rratem1 
 ##     0.425648     0.173787     0.076777     0.026015 
+print('alpha')
+mean(mcsamples[,extract('Alpha')])
+print('shapehi')
+mean(mcsamples[,extract('Shapeindexhi')])
+print('shapelo')
+mean(mcsamples[,extract('Shapeindexlo')])
+print('Rvar1')
+(mean(log10(mcsamples[,extract('Rvar1')])/2))
+#tplot(y=list(log10(mcsamples[,'Rvar1[1]'])/2,log10(mcsamples[,'Rvar1[2]'])/2))
+print('Rvarm1')
+(mean(log10(mcsamples[,extract('Rvarm1')])))
+#tplot(y=list(log10(mcsamples[,'Rvarm1[1]'])/2,log10(mcsamples[,'Rvarm1[2]'])/2))
 
 tplot(y=apply(mcsamples,1,function(rr){length(unique(rr[extract('K')]))}))
 table(apply(mcsamples,1,function(rr){length(unique(rr[extract('K')]))}))
@@ -237,18 +249,6 @@ tplot(y=log2(mcsamples[,extract('Shapeindexhi')]))
 
 
 
-print('alpha')
-mean(mcsamples[,extract('Alpha')])
-print('shapehi')
-mean(mcsamples[,extract('Shapeindexhi')])
-print('shapelo')
-mean(mcsamples[,extract('Shapeindexlo')])
-
-(mean(log10(mcsamples[,extract('Rvar1')])/2))
-#tplot(y=list(log10(mcsamples[,'Rvar1[1]'])/2,log10(mcsamples[,'Rvar1[2]'])/2))
-
-(mean(log10(mcsamples[,extract('Rvarm1')])))
-#tplot(y=list(log10(mcsamples[,'Rvarm1[1]'])/2,log10(mcsamples[,'Rvarm1[2]'])/2))
 
 
 ## pdff('testCnimble')
