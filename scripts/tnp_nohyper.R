@@ -1,28 +1,7 @@
-library('data.table')
-library('png')
-library('foreach')
-library('doRNG')
-## library('doFuture')
-## registerDoFuture()
-## cat('\navailableCores: ')
-## cat(availableCores())
-## cat('\navailableCores-multicore: ')
-## cat(availableCores('multicore'),'\n')
-## if(Sys.info()['nodename']=='luca-HP-Z2-G9'){
-##     ncores <- 20}else{
-##     ncores <- 6}
-## cat(paste0('\nusing ',ncores,' cores\n'))
-## if(ncores>1){
-##     if(.Platform$OS.type=='unix'){
-##         plan(multicore, workers=ncores)
-##     }else{
-##         plan(multisession, workers=ncores)
-##     }
-## }else{
-##     plan(sequential)
-## }
-##library('nimble')
-## nimbleOptions(MCMCusePredictiveDependenciesInCalculations = TRUE)
+mystartup()
+stopCluster(cluster)
+stopImplicitCluster()
+registerDoSEQ()
 
 extract <- function(x){
     grep(paste0('^',x,'(\\[.+\\])*$'), colnames(mcsamples))
@@ -230,9 +209,16 @@ Cmcsampler <- compileNimble(mcsampler, resetFunctions = TRUE)
     ##
 set.seed(thisseed)
 Cfinitemixnimble$setInits(initsFunction())
-todelete <- Cmcsampler$run(niter=1, thin=1, thin2=1, nburnin=0, time=TRUE, reset=TRUE, resetMV=TRUE)
-todelete <- Cmcsampler$run(niter=10000, thin=10000, thin2=1, nburnin=0, time=TRUE, reset=FALSE, resetMV=FALSE)
+todelete <- Cmcsampler$run(niter=1, thin=1, thin2=1, nburnin=0, time=FALSE, reset=TRUE, resetMV=TRUE)
+todelete <- Cmcsampler$run(niter=10000, thin=10000, thin2=1, nburnin=0, time=FALSE, reset=FALSE, resetMV=FALSE)
 todelete <- Cmcsampler$run(niter=100*100, thin=100, thin2=1, nburnin=0, time=TRUE, reset=FALSE, resetMV=FALSE)
+    ##
+    samplertimes <- Cmcsampler$getTimes()
+names(samplertimes) <- sapply(confnimble$getSamplers(),function(x)x$target)
+sprefixes <- unique(sub('^([^[]+)(\\[.*\\])', '\\1', names(samplertimes)))
+cat(paste0('\nSampler times:\n'))
+print(sort(sapply(sprefixes, function(x)sum(samplertimes[grepl(x,names(samplertimes))])),decreasing=T))
+##
     t(as.matrix(Cmcsampler$mvSamples))
     }
 thistime <- Sys.time()-thistime
@@ -245,46 +231,19 @@ registerDoSEQ()
 gc()
 
 
-
-##
-## tplot(y=log2(mcsamples[,'Alpha']))
-##
-samplertimes <- Cmcsampler$getTimes()
-names(samplertimes) <- sapply(confnimble$getSamplers(),function(x)x$target)
-sprefixes <- unique(sub('^([^[]+)(\\[.*\\])', '\\1', names(samplertimes)))
-cat(paste0('\nSampler times:\n'))
-print(sort(sapply(sprefixes, function(x)sum(samplertimes[grepl(x,names(samplertimes))])),decreasing=T))
-## > Sampler times:
-## >            K         Rvar        Rmean Shapehi Shapelo        Rrate 
-##    57.624822    31.890464    25.770928     4.600648     3.966075     3.226554 
-##            W        Alpha       Rvarm1      Rratem1 
-##     1.358030     0.629642     0.243421     0.037783 
 ## Sampler times:
-## >            K         Rvar        Rmean        Rrate            W Shapelo 
-##    59.860321    36.723186    27.529190     1.881085     1.390121     1.382306 
-## Shapehi   Alphaindex       Rvarm1      Rratem1 
-##     1.322861     0.400863     0.181544     0.024994 
-##
-## Sampler times:
-## >            K         Rvar        Rmean        Rrate            W Shapehi 
-##    57.077974    34.620131    30.770944     1.969160     1.319746     0.477963 
-## Shapelo       Rvarm1        Alpha      Rratem1 
-##     0.425648     0.173787     0.076777     0.026015 
-## print('alpha')
-## mean(mcsamples[,extract('Alpha')])
-## print('shapehi')
-## mean(mcsamples[,extract('Shapehi')])
-## print('shapelo')
-## mean(mcsamples[,extract('Shapelo')])
-## print('Rvar1')
-## (mean(log10(mcsamples[,extract('Rvar1')])/2))
-## #tplot(y=list(log10(mcsamples[,'Rvar1[1]'])/2,log10(mcsamples[,'Rvar1[2]'])/2))
-## print('Rvarm1')
-## (mean(log10(mcsamples[,extract('Rvarm1')])))
-## #tplot(y=list(log10(mcsamples[,'Rvarm1[1]'])/2,log10(mcsamples[,'Rvarm1[2]'])/2))
-
-## tplot(y=apply(mcsamples,1,function(rr){length(unique(rr[extract('K')]))}))
-## table(apply(mcsamples,1,function(rr){length(unique(rr[extract('K')]))}))
+##         K      Rvar     Rmean     Rrate         W     Alpha 
+## 38.344443 23.997377 19.620460  2.459773  1.144812  0.448341 
+## 38.383626 24.228465 20.465167  2.471785  1.142326  0.454622 
+## 38.058255 23.675885 19.431176  2.508051  1.140872  0.465032 
+## 38.064739 23.793607 19.535739  2.443887  1.126356  0.454095 
+## 37.74106 23.71560 20.11892  2.41589  1.13146  0.44499 
+## 36.838983 22.763314 18.839487  2.385294  1.098117  0.441332 
+## 41.62392 27.05462 22.44042  2.50587  1.20309  0.49493 
+## 37.112570 23.507219 19.079654  2.272759  1.091747  0.433269 
+## 36.743545 23.706603 19.843510  2.159650  1.077770  0.429274 
+## 33.814611 21.131176 17.960721  2.023431  1.000664  0.405883 
+## > > Time difference of 4.0236 mins
 
 
 ## tplot(y=(mcsamples[,extract('Shapelo')]))
@@ -375,7 +334,7 @@ sdssh <- maxshape + 0*nimble::rinvgamma(prc*2, shape=minshape, scale=maxshape)
 sdsr <- 1#nimble::rinvgamma(prc*2, shape=baseshape1, rate= nimble::rinvgamma(prc*2, shape=baseshape1, rate=1))
 ##
 set.seed(987)
-means <- array(rnorm(2*prc*nclusters, mean=0, sd=meanss), dim=c(prc,2,nclusters))
+means <- array(rnorm(2*prc*nclusters, mean=0, sd=1), dim=c(prc,2,nclusters))
 sds <- array(sqrt(nimble::rinvgamma(prc*2*nclusters, shape=sdssl, rate=
                                                            nimble::rinvgamma(prc*2*nclusters, shape=sdssh, rate=sdsr))), dim=c(prc,2,nclusters))
 ##

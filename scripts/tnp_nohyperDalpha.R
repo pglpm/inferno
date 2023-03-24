@@ -1,28 +1,7 @@
-library('data.table')
-library('png')
-library('foreach')
-library('doRNG')
-## library('doFuture')
-## registerDoFuture()
-## cat('\navailableCores: ')
-## cat(availableCores())
-## cat('\navailableCores-multicore: ')
-## cat(availableCores('multicore'),'\n')
-## if(Sys.info()['nodename']=='luca-HP-Z2-G9'){
-##     ncores <- 20}else{
-##     ncores <- 6}
-## cat(paste0('\nusing ',ncores,' cores\n'))
-## if(ncores>1){
-##     if(.Platform$OS.type=='unix'){
-##         plan(multicore, workers=ncores)
-##     }else{
-##         plan(multisession, workers=ncores)
-##     }
-## }else{
-##     plan(sequential)
-## }
-##library('nimble')
-## nimbleOptions(MCMCusePredictiveDependenciesInCalculations = TRUE)
+mystartup()
+stopCluster(cluster)
+stopImplicitCluster()
+registerDoSEQ()
 
 extract <- function(x){
     grep(paste0('^',x,'(\\[.+\\])*$'), colnames(mcsamples))
@@ -66,28 +45,28 @@ initsFunction <- function(){
     Alpha <- sample(1:nalpha, 1, prob=probalpha0, replace=T)
     baseD <- rep(1/nclusters, nclusters)
     alphaD <- baseD * 2^(Alpha+minalpha-1)
-    W <- rdirch(n=1, alpha=alphaD)
+    W <- nimble::rdirch(n=1, alpha=alphaD)
     ##
     ## Rmean1 <- rnorm(n=nvar, mean=0, sd=1)
     Rmean1 <- rep(0, nvar)
-    Rratem1 <- rinvgamma(n=nvar, shape=shapehi0, rate=1)
-    Rvarm1 <- 1+0*rinvgamma(n=nvar, shape=shapelo0, rate=Rratem1)
+    Rratem1 <- nimble::rinvgamma(n=nvar, shape=shapehi0, rate=1)
+    Rvarm1 <- 1+0*nimble::rinvgamma(n=nvar, shape=shapelo0, rate=Rratem1)
     ##
-    ## Rrate1 <- rinvgamma(n=nvar, shape=shapehi0, rate=1)
-    ## Rvar1 <- rinvgamma(n=nvar, shape=shapelo0, rate=Rrate1)
+    ## Rrate1 <- nimble::rinvgamma(n=nvar, shape=shapehi0, rate=1)
+    ## Rvar1 <- nimble::rinvgamma(n=nvar, shape=shapelo0, rate=Rrate1)
     Rvar1 <- rep(1, nvar)
     probshape0 <- numeric(nshape)
     ##probshape0[(minshape:maxshape)+nshape2+1] <- rep(1/(maxshape-minshape+1),maxshape-minshape+1)
     ## wshape0 <- 2^((-nshape2):nshape2)
-    Shapelo <- minshape + 0*rinvgamma(nvar, shape=minshape, scale=maxshape)
-    Shapehi <- maxshape + 0*rinvgamma(nvar, shape=minshape, scale=maxshape)
+    Shapelo <- minshape + 0*nimble::rinvgamma(nvar, shape=minshape, scale=maxshape)
+    Shapehi <- maxshape + 0*nimble::rinvgamma(nvar, shape=minshape, scale=maxshape)
     ##
     Rmean <- matrix(rnorm(n=nvar*nclusters, mean=Rmean1, sd=sqrt(Rvarm1)), nrow=nvar, ncol=nclusters)
-    Rrate <- matrix(rinvgamma(n=nvar*nclusters, shape=Shapehi, rate=Rvar1), nrow=nvar, ncol=nclusters)
-    Rvar <- matrix(rinvgamma(n=nvar*nclusters, shape=Shapelo, rate=Rrate), nrow=nvar, ncol=nclusters)
-    ## Rrate <- matrix(rinvgamma(n=nvar*nclusters, shape=shapehi0, rate=Rvar1), nrow=nvar, ncol=nclusters)
-    ## Rvar <- matrix(rinvgamma(n=nvar*nclusters, shape=shapelo0, rate=Rrate), nrow=nvar, ncol=nclusters)
-    K <- rep(1, npoints)
+    Rrate <- matrix(nimble::rinvgamma(n=nvar*nclusters, shape=Shapehi, rate=Rvar1), nrow=nvar, ncol=nclusters)
+    Rvar <- matrix(nimble::rinvgamma(n=nvar*nclusters, shape=Shapelo, rate=Rrate), nrow=nvar, ncol=nclusters)
+    ## Rrate <- matrix(nimble::rinvgamma(n=nvar*nclusters, shape=shapehi0, rate=Rvar1), nrow=nvar, ncol=nclusters)
+    ## Rvar <- matrix(nimble::rinvgamma(n=nvar*nclusters, shape=shapelo0, rate=Rrate), nrow=nvar, ncol=nclusters)
+    K <- rep(which(W>0)[1], npoints)
     list(
         minalpha = minalpha,
         maxalpha = maxalpha,
@@ -228,9 +207,16 @@ Cmcsampler <- compileNimble(mcsampler, resetFunctions = TRUE)
     ##
 set.seed(thisseed)
 Cfinitemixnimble$setInits(initsFunction())
-todelete <- Cmcsampler$run(niter=1, thin=1, thin2=1, nburnin=0, time=TRUE, reset=TRUE, resetMV=TRUE)
-todelete <- Cmcsampler$run(niter=10000, thin=10000, thin2=1, nburnin=0, time=TRUE, reset=FALSE, resetMV=FALSE)
-todelete <- Cmcsampler$run(niter=100*100, thin=100, thin2=1, nburnin=0, time=TRUE, reset=FALSE, resetMV=FALSE)
+todelete <- Cmcsampler$run(niter=1, thin=1, thin2=1, nburnin=0, time=FALSE, reset=TRUE, resetMV=TRUE)
+todelete <- Cmcsampler$run(niter=10000, thin=10000, thin2=1, nburnin=0, time=FALSE, reset=FALSE, resetMV=FALSE)
+    todelete <- Cmcsampler$run(niter=100*100, thin=100, thin2=1, nburnin=0, time=TRUE, reset=FALSE, resetMV=FALSE)
+    ##
+    samplertimes <- Cmcsampler$getTimes()
+names(samplertimes) <- sapply(confnimble$getSamplers(),function(x)x$target)
+sprefixes <- unique(sub('^([^[]+)(\\[.*\\])', '\\1', names(samplertimes)))
+cat(paste0('\nSampler times:\n'))
+print(sort(sapply(sprefixes, function(x)sum(samplertimes[grepl(x,names(samplertimes))])),decreasing=T))
+##
     t(as.matrix(Cmcsampler$mvSamples))
     }
 thistime <- Sys.time()-thistime
@@ -242,61 +228,19 @@ stopImplicitCluster()
 registerDoSEQ()
 gc()
 
-
-
-##
-## tplot(y=log2(mcsamples[,'Alpha']))
-##
-samplertimes <- Cmcsampler$getTimes()
-names(samplertimes) <- sapply(confnimble$getSamplers(),function(x)x$target)
-sprefixes <- unique(sub('^([^[]+)(\\[.*\\])', '\\1', names(samplertimes)))
-cat(paste0('\nSampler times:\n'))
-print(sort(sapply(sprefixes, function(x)sum(samplertimes[grepl(x,names(samplertimes))])),decreasing=T))
-## > Sampler times:
-## >            K         Rvar        Rmean Shapehi Shapelo        Rrate 
-##    57.624822    31.890464    25.770928     4.600648     3.966075     3.226554 
-##            W        Alpha       Rvarm1      Rratem1 
-##     1.358030     0.629642     0.243421     0.037783 
 ## Sampler times:
-## >            K         Rvar        Rmean        Rrate            W Shapelo 
-##    59.860321    36.723186    27.529190     1.881085     1.390121     1.382306 
-## Shapehi   Alphaindex       Rvarm1      Rratem1 
-##     1.322861     0.400863     0.181544     0.024994 
-##
-## Sampler times:
-## >            K         Rvar        Rmean        Rrate            W Shapehi 
-##    57.077974    34.620131    30.770944     1.969160     1.319746     0.477963 
-## Shapelo       Rvarm1        Alpha      Rratem1 
-##     0.425648     0.173787     0.076777     0.026015 
-## print('alpha')
-## mean(mcsamples[,extract('Alpha')])
-## print('shapehi')
-## mean(mcsamples[,extract('Shapehi')])
-## print('shapelo')
-## mean(mcsamples[,extract('Shapelo')])
-## print('Rvar1')
-## (mean(log10(mcsamples[,extract('Rvar1')])/2))
-## #tplot(y=list(log10(mcsamples[,'Rvar1[1]'])/2,log10(mcsamples[,'Rvar1[2]'])/2))
-## print('Rvarm1')
-## (mean(log10(mcsamples[,extract('Rvarm1')])))
-## #tplot(y=list(log10(mcsamples[,'Rvarm1[1]'])/2,log10(mcsamples[,'Rvarm1[2]'])/2))
-
-## tplot(y=apply(mcsamples,1,function(rr){length(unique(rr[extract('K')]))}))
-## table(apply(mcsamples,1,function(rr){length(unique(rr[extract('K')]))}))
-
-
-## tplot(y=(mcsamples[,extract('Shapelo')]))
-
-## tplot(y=(mcsamples[,extract('Shapehi')]))
-
-## test <- apply(mcsamples,1,function(ss){
-##     probs <- sapply(1:11,function(ii){
-##         ddirch(ss[extract('W')], alpha=rep(walpha0[ii]/nclusters, nclusters), log=T)
-##     })
-##     dcat(1:11, prob=exp(probs-max(probs)))
-## })
-
-
+##         K      Rvar     Rmean     Rrate         W     Alpha 
+## 38.675740 24.860368 19.795666  2.943231  1.136167  0.430086 
+## 38.877145 24.837957 19.629839  2.939321  1.142429  0.431768 
+## 38.351598 24.901791 19.395419  2.873670  1.129312  0.427725 
+## 38.640199 24.782642 19.569588  3.014579  1.157509  0.427167 
+## 38.341378 24.240458 19.388034  2.888843  1.131553  0.419218 
+## 38.106438 24.327557 19.255980  2.901845  1.128309  0.422863 
+## 37.817331 24.407819 19.121891  2.698918  1.088421  0.419414 
+## 36.864695 23.276255 18.897971  2.544404  1.052760  0.405768 
+## 35.035965 22.524319 17.339380  2.472710  1.008508  0.385897 
+## 33.906888 21.527071 17.323616  2.390923  0.981832  0.378128 
+## > > Time difference of 4.03417 mins
 
 
 
@@ -436,3 +380,7 @@ dev.off()
 ## thist(tests,plot=T)
 ## abline(v=testt, col=2)
 
+nsam <- 10000
+tests <- extraDistr::rcat(n=nsam,prob=t(apply(extraDistr::rdirichlet(n=nsam,alpha=rep(1/nclusters,nclusters)),1,sort)))
+tests2 <- extraDistr::rcat(n=nsam,prob=t(apply(extraDistr::rdirichlet(n=nsam,alpha=matrix(sample(2^((-3):3),nsam,replace=T),nrow=nsam,ncol=nclusters)/nclusters),1,sort)))
+tplot(y=list(table(1+nclusters-tests),table(1+nclusters-tests2)),ylim=c(0,NA))
