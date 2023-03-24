@@ -44,19 +44,15 @@ locdis <- t(apply(testp,1,function(xx){c(median(xx), mad(xx))}))
 mtestp <- t(apply(testp,1,function(xx){(xx-median(xx))/mad(xx)}))
 
 nclusters <- 64L
-nalpha2 <- 5
-minalpha <- 2^-3
-maxalpha <- 2^3
-nshape2 <- 5
+minalpha <- -3
+maxalpha <- 3
 minshape <- 0.5
 maxshape <- 0.5
 ##
 npoints <- ncol(testp)
 nvar <- nrow(testp)
-nalpha <- 2*nalpha2+1
-alpha0 <- 2^(minalpha:maxalpha)
-nshape <- 2*nshape2+1
-shape0 <- 2^(minshape:maxshape)
+nalpha <- length(minalpha:maxalpha)
+nshape <- length(minshape:maxshape)
 shapehi0 <- 1
 shapelo0 <- 1
 
@@ -66,10 +62,11 @@ datapoints <- list(datapoints = mtestp)
 constants <- list(npoints=npoints, nvar=nvar, nclusters=nclusters, nalpha=nalpha, nshape=nshape)
 ##
 initsFunction <- function(){
-    probalpha0 <- rep(1/nclusters, nclusters)
-    Alpha <- runif(1, minalpha, maxalpha)
-    walpha0 <- probalpha0 * Alpha
-    W <- rdirch(n=1, alpha=walpha0)
+    probalpha0 <- rep(1/nalpha, nalpha)
+    Alpha <- sample(1:nalpha, 1, prob=probalpha0, replace=T)
+    baseD <- rep(1/nclusters, nclusters)
+    alphaD <- baseD * 2^(Alpha+minalpha-1)
+    W <- rdirch(n=1, alpha=alphaD)
     ##
     ## Rmean1 <- rnorm(n=nvar, mean=0, sd=1)
     Rmean1 <- rep(0, nvar)
@@ -95,7 +92,8 @@ initsFunction <- function(){
         minalpha = minalpha,
         maxalpha = maxalpha,
         probalpha0 = probalpha0,
-        walpha0 = walpha0,
+        alphaD = alphaD,
+        baseD = baseD,
         Alpha = Alpha,
         W = W,
         K = K,
@@ -121,9 +119,9 @@ initsFunction <- function(){
 }
 ##
     finitemix <- nimble::nimbleCode({
-    Alpha ~ dunif(minalpha, maxalpha)
-    walpha0[1:nclusters] <- probalpha0[1:nclusters] * Alpha
-    W[1:nclusters] ~ ddirch(alpha=walpha0[1:nclusters])
+    Alpha ~ dcat(prob=probalpha0[1:nalpha])
+    alphaD[1:nclusters] <- baseD[1:nclusters] * 2^(Alpha+minalpha-1)
+    W[1:nclusters] ~ ddirch(alpha=alphaD[1:nclusters])
     ##
 if(FALSE){
     for(v in 1:nvar){
@@ -153,19 +151,19 @@ if(FALSE){
     }
 })
 ##
+
 nclusters <- 64L
-minalpha <- 2^-3
-maxalpha <- 2^3
-minshape <- 1
-maxshape <- 1
+minalpha <- -3
+maxalpha <- 3
+minshape <- 0.5
+maxshape <- 0.5
+##
+npoints <- ncol(testp)
+nvar <- nrow(testp)
+nalpha <- length(minalpha:maxalpha)
+nshape <- length(minshape:maxshape)
 shapehi0 <- 1
 shapelo0 <- 1
-##
-alpha0 <- 2^(minalpha:maxalpha)
-walpha0 <- 2^((-nalpha2):nalpha2)
-shape0 <- 2^(minshape:maxshape)
-##wshape0 <- 2^((-nshape2):nshape2)
-##
 
 ncores <- 10
 stopCluster(cluster)
@@ -308,7 +306,7 @@ print(sort(sapply(sprefixes, function(x)sum(samplertimes[grepl(x,names(samplerti
 
 
 #### Check resulting densities for various choices of hyperpriors - cont variate
-pdfname <- paste0('_tnprev-2D_Mn_Sn_A',minalpha,'_',maxalpha,'_S',minshape,'_',maxshape,'_N',npoints)
+pdfname <- paste0('_tnprev-2D_Mn_Sn_Adisc',minalpha,'_',maxalpha,'_S',minshape,'_',maxshape,'_N',npoints)
 incl <- 95
 nsamples <- 2^12
 rowcol <- c(24,34)
@@ -365,8 +363,8 @@ plotpoints2d <- function(nsamples, q, means, sds){
 }
 ##
 set.seed(111)
-alphas <- runif(prc, minalpha, maxalpha)
-q <- extraDistr::rdirichlet(n=prc,alpha=matrix(alphas/nclusters,nrow=prc,ncol=nclusters))
+alphas <- sample(1:nalpha, prc, replace=TRUE)
+q <- extraDistr::rdirichlet(n=prc,alpha=matrix(2^(alphas+minalpha-1)/nclusters,nrow=prc,ncol=nclusters))
 ##
 ##meansm <- rnorm(prc*2, mean=0, sd=1)
 meanss <- sqrt(nimble::rinvgamma(prc*2, shape=1, rate= nimble::rinvgamma(prc*2, shape=1, rate=1)))
@@ -375,13 +373,13 @@ sdssh <- maxshape + 0*nimble::rinvgamma(prc*2, shape=minshape, scale=maxshape)
 sdsr <- 1#nimble::rinvgamma(prc*2, shape=baseshape1, rate= nimble::rinvgamma(prc*2, shape=baseshape1, rate=1))
 ##
 set.seed(987)
-means <- array(rnorm(2*prc*nclusters, mean=0, sd=meanss), dim=c(prc,2,nclusters))
+means <- array(rnorm(2*prc*nclusters, mean=0, sd=1), dim=c(prc,2,nclusters))
 sds <- array(sqrt(nimble::rinvgamma(prc*2*nclusters, shape=sdssl, rate=
                                                            nimble::rinvgamma(prc*2*nclusters, shape=sdssh, rate=sdsr))), dim=c(prc,2,nclusters))
 ##
 pdff(pdfname,apaper=3)
 ##
-tplot(y=log2(mcsamples[,extract('Alpha')]), main=paste0('lb-alpha ',mean(mcsamples[,extract('Alpha')])), xlab=NA, ylab=NA)
+tplot(y=minalpha-1+(mcsamples[,extract('Alpha')]), main=paste0('lb-alpha ',minalpha-1+mean(mcsamples[,extract('Alpha')])), xlab=NA, ylab=NA)
 tplot(y=apply(mcsamples,1,function(rr){length(unique(rr[extract('K')]))}), main=paste0('K  ',mean(apply(mcsamples,1,function(rr){length(unique(rr[extract('K')]))}))), xlab=NA, ylab=NA, ylim=c(0,NA))
 tplot(y=log2(mcsamples[,extract('Shapelo')]), main=paste0('lb-shape-lo ',mean(mcsamples[,extract('Shapelo')])), xlab=NA, ylab=NA)
 if(length(extract('Shapehi'))){
