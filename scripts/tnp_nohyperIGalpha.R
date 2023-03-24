@@ -23,15 +23,19 @@ locdis <- t(apply(testp,1,function(xx){c(median(xx), mad(xx))}))
 mtestp <- t(apply(testp,1,function(xx){(xx-median(xx))/mad(xx)}))
 
 nclusters <- 64L
-minalpha <- -3
-maxalpha <- 3
+nalpha2 <- 5
+minalpha <- 1
+maxalpha <- 1
+nshape2 <- 5
 minshape <- 0.5
 maxshape <- 0.5
 ##
 npoints <- ncol(testp)
 nvar <- nrow(testp)
-nalpha <- length(minalpha:maxalpha)
-nshape <- length(minshape:maxshape)
+nalpha <- 2*nalpha2+1
+alpha0 <- 2^(minalpha:maxalpha)
+nshape <- 2*nshape2+1
+shape0 <- 2^(minshape:maxshape)
 shapehi0 <- 1
 shapelo0 <- 1
 
@@ -41,38 +45,36 @@ datapoints <- list(datapoints = mtestp)
 constants <- list(npoints=npoints, nvar=nvar, nclusters=nclusters, nalpha=nalpha, nshape=nshape)
 ##
 initsFunction <- function(){
-    probalpha0 <- rep(1/nalpha, nalpha)
-    Alpha <- sample(1:nalpha, 1, prob=probalpha0, replace=T)
-    baseD <- rep(1/nclusters, nclusters)
-    alphaD <- baseD * 2^(Alpha+minalpha-1)
-    W <- nimble::rdirch(n=1, alpha=alphaD)
+    probalpha0 <- rep(1/nclusters, nclusters)
+    Alpha <- rinvgamma(1, shape=minalpha, scale=maxalpha)
+    walpha0 <- probalpha0 * Alpha
+    W <- rdirch(n=1, alpha=walpha0)
     ##
     ## Rmean1 <- rnorm(n=nvar, mean=0, sd=1)
     Rmean1 <- rep(0, nvar)
-    Rratem1 <- nimble::rinvgamma(n=nvar, shape=shapehi0, rate=1)
-    Rvarm1 <- 1+0*nimble::rinvgamma(n=nvar, shape=shapelo0, rate=Rratem1)
+    Rratem1 <- rinvgamma(n=nvar, shape=shapehi0, rate=1)
+    Rvarm1 <- 1+0*rinvgamma(n=nvar, shape=shapelo0, rate=Rratem1)
     ##
-    ## Rrate1 <- nimble::rinvgamma(n=nvar, shape=shapehi0, rate=1)
-    ## Rvar1 <- nimble::rinvgamma(n=nvar, shape=shapelo0, rate=Rrate1)
+    ## Rrate1 <- rinvgamma(n=nvar, shape=shapehi0, rate=1)
+    ## Rvar1 <- rinvgamma(n=nvar, shape=shapelo0, rate=Rrate1)
     Rvar1 <- rep(1, nvar)
     probshape0 <- numeric(nshape)
     ##probshape0[(minshape:maxshape)+nshape2+1] <- rep(1/(maxshape-minshape+1),maxshape-minshape+1)
     ## wshape0 <- 2^((-nshape2):nshape2)
-    Shapelo <- minshape + 0*nimble::rinvgamma(nvar, shape=minshape, scale=maxshape)
-    Shapehi <- maxshape + 0*nimble::rinvgamma(nvar, shape=minshape, scale=maxshape)
+    Shapelo <- minshape + 0*rinvgamma(nvar, shape=minshape, scale=maxshape)
+    Shapehi <- maxshape + 0*rinvgamma(nvar, shape=minshape, scale=maxshape)
     ##
     Rmean <- matrix(rnorm(n=nvar*nclusters, mean=Rmean1, sd=sqrt(Rvarm1)), nrow=nvar, ncol=nclusters)
-    Rrate <- matrix(nimble::rinvgamma(n=nvar*nclusters, shape=Shapehi, rate=Rvar1), nrow=nvar, ncol=nclusters)
-    Rvar <- matrix(nimble::rinvgamma(n=nvar*nclusters, shape=Shapelo, rate=Rrate), nrow=nvar, ncol=nclusters)
-    ## Rrate <- matrix(nimble::rinvgamma(n=nvar*nclusters, shape=shapehi0, rate=Rvar1), nrow=nvar, ncol=nclusters)
-    ## Rvar <- matrix(nimble::rinvgamma(n=nvar*nclusters, shape=shapelo0, rate=Rrate), nrow=nvar, ncol=nclusters)
+    Rrate <- matrix(rinvgamma(n=nvar*nclusters, shape=Shapehi, rate=Rvar1), nrow=nvar, ncol=nclusters)
+    Rvar <- matrix(rinvgamma(n=nvar*nclusters, shape=Shapelo, rate=Rrate), nrow=nvar, ncol=nclusters)
+    ## Rrate <- matrix(rinvgamma(n=nvar*nclusters, shape=shapehi0, rate=Rvar1), nrow=nvar, ncol=nclusters)
+    ## Rvar <- matrix(rinvgamma(n=nvar*nclusters, shape=shapelo0, rate=Rrate), nrow=nvar, ncol=nclusters)
     K <- rep(which(W>0)[1], npoints)
     list(
         minalpha = minalpha,
         maxalpha = maxalpha,
         probalpha0 = probalpha0,
-        alphaD = alphaD,
-        baseD = baseD,
+        walpha0 = walpha0,
         Alpha = Alpha,
         W = W,
         K = K,
@@ -98,9 +100,9 @@ initsFunction <- function(){
 }
 ##
     finitemix <- nimble::nimbleCode({
-    Alpha ~ dcat(prob=probalpha0[1:nalpha])
-    alphaD[1:nclusters] <- baseD[1:nclusters] * 2^(Alpha+minalpha-1)
-    W[1:nclusters] ~ ddirch(alpha=alphaD[1:nclusters])
+    Alpha ~ dinvgamma(shape=minalpha,scale=maxalpha)
+    walpha0[1:nclusters] <- probalpha0[1:nclusters] * Alpha
+    W[1:nclusters] ~ ddirch(alpha=walpha0[1:nclusters])
     ##
 if(FALSE){
     for(v in 1:nvar){
@@ -130,19 +132,19 @@ if(FALSE){
     }
 })
 ##
-
 nclusters <- 64L
-minalpha <- -3
-maxalpha <- 3
+minalpha <- 1
+maxalpha <- 1
 minshape <- 0.5
 maxshape <- 0.5
-##
-npoints <- ncol(testp)
-nvar <- nrow(testp)
-nalpha <- length(minalpha:maxalpha)
-nshape <- length(minshape:maxshape)
 shapehi0 <- 1
 shapelo0 <- 1
+##
+alpha0 <- 2^(minalpha:maxalpha)
+walpha0 <- 2^((-nalpha2):nalpha2)
+shape0 <- 2^(minshape:maxshape)
+##wshape0 <- 2^((-nshape2):nshape2)
+##
 
 ncores <- 10
 stopCluster(cluster)
@@ -209,7 +211,7 @@ set.seed(thisseed)
 Cfinitemixnimble$setInits(initsFunction())
 todelete <- Cmcsampler$run(niter=1, thin=1, thin2=1, nburnin=0, time=FALSE, reset=TRUE, resetMV=TRUE)
 todelete <- Cmcsampler$run(niter=10000, thin=10000, thin2=1, nburnin=0, time=FALSE, reset=FALSE, resetMV=FALSE)
-    todelete <- Cmcsampler$run(niter=100*100, thin=100, thin2=1, nburnin=0, time=TRUE, reset=FALSE, resetMV=FALSE)
+todelete <- Cmcsampler$run(niter=100*100, thin=100, thin2=1, nburnin=0, time=TRUE, reset=FALSE, resetMV=FALSE)
     ##
     samplertimes <- Cmcsampler$getTimes()
 names(samplertimes) <- sapply(confnimble$getSamplers(),function(x)x$target)
@@ -228,19 +230,34 @@ stopImplicitCluster()
 registerDoSEQ()
 gc()
 
+
 ## Sampler times:
 ##         K      Rvar     Rmean     Rrate         W     Alpha 
-## 38.675740 24.860368 19.795666  2.943231  1.136167  0.430086 
-## 38.877145 24.837957 19.629839  2.939321  1.142429  0.431768 
-## 38.351598 24.901791 19.395419  2.873670  1.129312  0.427725 
-## 38.640199 24.782642 19.569588  3.014579  1.157509  0.427167 
-## 38.341378 24.240458 19.388034  2.888843  1.131553  0.419218 
-## 38.106438 24.327557 19.255980  2.901845  1.128309  0.422863 
-## 37.817331 24.407819 19.121891  2.698918  1.088421  0.419414 
-## 36.864695 23.276255 18.897971  2.544404  1.052760  0.405768 
-## 35.035965 22.524319 17.339380  2.472710  1.008508  0.385897 
-## 33.906888 21.527071 17.323616  2.390923  0.981832  0.378128 
-## > > Time difference of 4.03417 mins
+## 38.704841 24.099921 19.356414  2.490115  1.169152  0.491308 
+## 38.646530 23.871773 19.175630  2.435424  1.163763  0.507046 
+## 38.409936 23.819085 19.151079  2.405177  1.152800  0.496754 
+## 38.358763 23.683222 19.084005  2.384824  1.151751  0.490186 
+## 37.872690 23.235388 18.759412  2.358040  1.121403  0.495159 
+## 37.699322 23.288358 18.704634  2.424110  1.134010  0.485882 
+## 37.228390 23.463426 18.334054  2.212421  1.082220  0.478461 
+## 37.599391 23.317003 19.041924  2.262641  1.092660  0.478792 
+## 35.082045 21.857404 17.481442  2.142526  1.042110  0.459609 
+## 34.149170 21.316105 17.157912  2.044640  1.002399  0.435047 
+## > > Time difference of 3.91853 mins
+
+
+## tplot(y=(mcsamples[,extract('Shapelo')]))
+
+## tplot(y=(mcsamples[,extract('Shapehi')]))
+
+## test <- apply(mcsamples,1,function(ss){
+##     probs <- sapply(1:11,function(ii){
+##         ddirch(ss[extract('W')], alpha=rep(walpha0[ii]/nclusters, nclusters), log=T)
+##     })
+##     dcat(1:11, prob=exp(probs-max(probs)))
+## })
+
+
 
 
 
@@ -250,7 +267,7 @@ gc()
 
 
 #### Check resulting densities for various choices of hyperpriors - cont variate
-pdfname <- paste0('_tnprev-2D_Mn_Sn_Adisc',minalpha,'_',maxalpha,'_S',minshape,'_',maxshape,'_N',npoints)
+pdfname <- paste0('_tnprev-2D_Mn_Sn_Aig',minalpha,'_',maxalpha,'_S',minshape,'_',maxshape,'_N',npoints)
 incl <- 95
 nsamples <- 2^12
 rowcol <- c(24,34)
@@ -307,8 +324,8 @@ plotpoints2d <- function(nsamples, q, means, sds){
 }
 ##
 set.seed(111)
-alphas <- sample(1:nalpha, prc, replace=TRUE)
-q <- extraDistr::rdirichlet(n=prc,alpha=matrix(2^(alphas+minalpha-1)/nclusters,nrow=prc,ncol=nclusters))
+alphas <- nimble::rinvgamma(prc, shape=minalpha, scale=maxalpha)
+q <- extraDistr::rdirichlet(n=prc,alpha=matrix(alphas/nclusters,nrow=prc,ncol=nclusters))
 ##
 ##meansm <- rnorm(prc*2, mean=0, sd=1)
 meanss <- sqrt(nimble::rinvgamma(prc*2, shape=1, rate= nimble::rinvgamma(prc*2, shape=1, rate=1)))
@@ -323,7 +340,7 @@ sds <- array(sqrt(nimble::rinvgamma(prc*2*nclusters, shape=sdssl, rate=
 ##
 pdff(pdfname,apaper=3)
 ##
-tplot(y=minalpha-1+(mcsamples[,extract('Alpha')]), main=paste0('lb-alpha ',minalpha-1+mean(mcsamples[,extract('Alpha')])), xlab=NA, ylab=NA)
+tplot(y=log2(mcsamples[,extract('Alpha')]), main=paste0('lb-alpha ',mean(mcsamples[,extract('Alpha')])), xlab=NA, ylab=NA)
 tplot(y=apply(mcsamples,1,function(rr){length(unique(rr[extract('K')]))}), main=paste0('K  ',mean(apply(mcsamples,1,function(rr){length(unique(rr[extract('K')]))}))), xlab=NA, ylab=NA, ylim=c(0,NA))
 tplot(y=log2(mcsamples[,extract('Shapelo')]), main=paste0('lb-shape-lo ',mean(mcsamples[,extract('Shapelo')])), xlab=NA, ylab=NA)
 if(length(extract('Shapehi'))){
@@ -380,14 +397,3 @@ dev.off()
 ## thist(tests,plot=T)
 ## abline(v=testt, col=2)
 
-nsam <- 100000
-tests <- table(1+nclusters-extraDistr::rcat(n=nsam,prob=t(apply(extraDistr::rdirichlet(n=nsam,alpha=rep(1/nclusters,nclusters)),1,sort))))
-tests2 <- table(1+nclusters-extraDistr::rcat(n=nsam,prob=t(apply(extraDistr::rdirichlet(n=nsam,alpha=rep(2/nclusters,nclusters)),1,sort))))
-tests3 <- table(1+nclusters-extraDistr::rcat(n=nsam,prob=t(apply(extraDistr::rdirichlet(n=nsam,alpha=matrix(sample(2^((-3):3),nsam,replace=T),nrow=nsam,ncol=nclusters)/nclusters),1,sort))))
-tests4 <- table(1+nclusters-extraDistr::rcat(n=nsam,prob=t(apply(extraDistr::rdirichlet(n=nsam,alpha=matrix(runif(nsam,2^-3,2^3),nrow=nsam,ncol=nclusters)/nclusters),1,sort))))
-tests5 <- table(1+nclusters-extraDistr::rcat(n=nsam,prob=t(apply(extraDistr::rdirichlet(n=nsam,alpha=matrix(nimble::rinvgamma(nsam,shape=1,scale=1),nrow=nsam,ncol=nclusters)/nclusters),1,sort))))
-##
-
-tplot(y=lapply(list(tests,tests2,tests3,tests4,tests5),log10),
-      ylim=c(0,NA),xlim=c(0,NA),alpha=0.5)
-legend('topright',legend=c('1','2','2^unif','unif','igamma'),bty='n',col=1:5,lty=1:5,lwd=3)
