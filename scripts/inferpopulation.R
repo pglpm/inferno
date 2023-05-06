@@ -133,32 +133,73 @@ inferpopulation <- function(data, varinfoaux, predictands, nsamples=4096, file=T
         initsfn <- function(){
             nalpha <- length(minalpha:maxalpha)
             probalpha0 <- rep(1/nalpha, nalpha)
-            Alpha <- sample(1:nalpha, 1, prob=probalpha0, replace=T)
             basealphas <- rep((2^(minalpha-1L))/nclusters, nclusters)
-            W <- nimble::rdirch(n=1, alpha=basealphas*2^Alpha)
+            W <- 1/nclusters + 0*nimble::rdirch(n=1, alpha=basealphas*2^Alpha)
             outlist <- list(
-                nalpha = nalpha,
                 probalpha0 = probalpha0,
                 basealphas = basealphas,
+                Alpha = sample(1:nalpha, 1, prob=probalpha0, replace=T),
+                W = W,
+                K = rep(which(W>0)[1], npoints)
             )
             ##
             if(varR$n > 0){# continuous
-                list(Rmean1 = rep(0, varR$n),
-                     Rvarm1 = rep(1, varR$n),
-                     Rvar1 = rep(1, nvar),
-                     Rshapelo = rep(varR$shapelo, varR$n),
-                     Rshapehi = rep(varR$shapehi, varR$n),
-                     Rmean <- matrix(rnorm(n=varR$n*nclusters, mean=Rmean1, sd=sqrt(Rvarm1)), nrow=nvar, ncol=nclusters)
-
-
-                               
-                           )}
-            
-
-
-
-
-
+                Rmean1 <- rep(0, varR$n)
+                Rvarm1 <- rep(1, varR$n)
+                Rvar1 <- rep(1, varR$n)
+                Rshapelo <- rep(varR$shapelo, varR$n)
+                Rshapehi <- rep(varR$shapehi, varR$n)
+                Rrate <- matrix(nimble::rinvgamma(n=varR$n*nclusters, shape=Rshapehi, rate=Rvar1), nrow=varR$n, ncol=nclusters)
+                outlist <- c(outlist,
+                             list(
+                                 Rn = varR$n,
+                                 Rmean1 = Rmean1,
+                                 Rvarm1 = Rvarm1,
+                                 Rvar1 = Rvar1,
+                                 Rshapelo = Rshapelo,
+                                 Rshapehi = Rshapehi,
+                                 Rmean = matrix(rnorm(n=varR$n*nclusters, mean=Rmean1, sd=sqrt(Rvarm1)), nrow=varR$n, ncol=nclusters),
+                                 Rrate = Rrate,
+                                 Rvar <- matrix(nimble::rinvgamma(n=varR$n*nclusters, shape=Rshapelo, rate=Rrate), nrow=varR$n, ncol=nclusters)
+                             ))
+            }
+            if(varL$n > 0){# latent-based
+                Lmean1 <- rep(0, varL$n)
+                Lvarm1 <- rep(1, varL$n)
+                Lvar1 <- rep(1, varL$n)
+                Lshapelo <- rep(varL$shapelo, varL$n)
+                Lshapehi <- rep(varL$shapehi, varL$n)
+                Lrate <- matrix(nimble::rinvgamma(n=varL$n*nclusters, shape=Lshapehi, rate=Lvar1), nrow=varL$n, ncol=nclusters)
+                outlist <- c(outlist,
+                             list(
+                                 Ln = varL$n,
+                                 Lmean1 = Lmean1,
+                                 Lvarm1 = Lvarm1,
+                                 Lvar1 = Lvar1,
+                                 Lshapelo = Lshapelo,
+                                 Lshapehi = Lshapehi,
+                                 Lmean = matrix(rnorm(n=varL$n*nclusters, mean=Lmean1, sd=sqrt(Lvarm1)), nrow=varL$n, ncol=nclusters),
+                                 Lrate = Lrate,
+                                 Lvar <- matrix(nimble::rinvgamma(n=varL$n*nclusters, shape=Lshapelo, rate=Lrate), nrow=varL$n, ncol=nclusters)
+                             ))
+            }
+            if(varN$n > 0){# nominal
+                ## to be done
+            }
+            if(varB$n > 0){# binary
+                Bshapelo <- rep(varB$shapelo, varB$n)
+                Bshapehi <- rep(varB$shapehi, varB$n)
+                outlist <- c(outlist,
+                             list(
+                                 Bn = varB$n,
+                                 Bshapelo = Bshapelo,
+                                 Bshapehi = Bshapehi,
+                                 Bprob = matrix(rbeta(n=varB$n*nclusters, shape1=Bshapelo, shape2=Bshapehi), nrow=varB$n, ncol=nclusters)
+                             ))
+            }
+            ##
+            outlist
+        }
 
 
 }
