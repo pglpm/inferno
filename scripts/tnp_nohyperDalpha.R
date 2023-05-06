@@ -38,9 +38,12 @@ shapelo0 <- 1
 
 datapoints <- list(datapoints = mtestp)
 ##
-constants <- list(npoints=npoints, nvar=nvar, nclusters=nclusters, nalpha=nalpha, nshape=nshape)
+constants <- list(npoints=npoints, nvar=nvar, nclusters=nclusters, nalpha=length(minalpha:maxalpha), nshape=nshape)
+##
+alphafun <- function(Alpha){log2(2^(Alpha+minalpha-1))}
 ##
 initsFunction <- function(){
+    nalpha <- length(minalpha:maxalpha)
     probalpha0 <- rep(1/nalpha, nalpha)
     Alpha <- sample(1:nalpha, 1, prob=probalpha0, replace=T)
     baseD <- rep(1/nclusters, nclusters)
@@ -134,8 +137,8 @@ if(FALSE){
 nclusters <- 64L
 minalpha <- -3
 maxalpha <- 3
-minshape <- 0.5
-maxshape <- 0.5
+minshape <- 0.375
+maxshape <- 0.375
 ##
 npoints <- ncol(testp)
 nvar <- nrow(testp)
@@ -184,10 +187,10 @@ confnimble <- configureMCMC(Cfinitemixnimble,
                                        )
                             )
 stargets <- sapply(confnimble$getSamplers(), function(xx)xx$target)   
-confnimble$removeSamplers(c('Alpha', 'Shapelo','Shapehi'))
 ##
-##    
+confnimble$removeSamplers(c('Alpha', 'Shapelo','Shapehi'))
 for(no in intersect(c('Alpha','Shapehi[1]','Shapehi[2]','Shapelo[1]','Shapelo[2]'), stargets)){confnimble$addSampler(target=no,type='slice')}
+##    
 print(confnimble)
 ##
 ## confnimble$printSamplers(executionOrder=TRUE)
@@ -250,7 +253,7 @@ gc()
 
 
 #### Check resulting densities for various choices of hyperpriors - cont variate
-pdfname <- paste0('_tnprev-2D_Mn_Sn_Adisc',minalpha,'_',maxalpha,'_S',minshape,'_',maxshape,'_N',npoints)
+pdfname <- paste0('_tnprev-2D_Mn_Sn_noH_slAdisc_',alphafun(minalpha),'_',alphafun(maxalpha),'_S',minshape,'_',maxshape,'_N',npoints)
 incl <- 95
 nsamples <- 2^12
 rowcol <- c(24,34)
@@ -308,7 +311,7 @@ plotpoints2d <- function(nsamples, q, means, sds){
 ##
 set.seed(111)
 alphas <- sample(1:nalpha, prc, replace=TRUE)
-q <- extraDistr::rdirichlet(n=prc,alpha=matrix(2^(alphas+minalpha-1)/nclusters,nrow=prc,ncol=nclusters))
+q <- extraDistr::rdirichlet(n=prc,alpha=matrix(2^alphafun(alphas)/nclusters,nrow=prc,ncol=nclusters))
 ##
 ##meansm <- rnorm(prc*2, mean=0, sd=1)
 meanss <- sqrt(nimble::rinvgamma(prc*2, shape=1, rate= nimble::rinvgamma(prc*2, shape=1, rate=1)))
@@ -323,8 +326,12 @@ sds <- array(sqrt(nimble::rinvgamma(prc*2*nclusters, shape=sdssl, rate=
 ##
 pdff(pdfname,apaper=3)
 ##
-tplot(y=minalpha-1+(mcsamples[,extract('Alpha')]), main=paste0('lb-alpha ',minalpha-1+mean(mcsamples[,extract('Alpha')])), xlab=NA, ylab=NA)
+tplot(y=alphafun(mcsamples[,extract('Alpha')]), main=paste0('lb-alpha ',mean(alphafun(mcsamples[,extract('Alpha')]))), xlab=NA, ylab=NA)
 tplot(y=apply(mcsamples,1,function(rr){length(unique(rr[extract('K')]))}), main=paste0('K  ',mean(apply(mcsamples,1,function(rr){length(unique(rr[extract('K')]))}))), xlab=NA, ylab=NA, ylim=c(0,NA))
+tplot(y=apply(mcsamples,1,function(rr){min(log10(rr[extract('W')]))}), main=paste0('min lg-W; mean: ',mean(apply(mcsamples,1,function(rr){mean(log10(rr[extract('K')]),na.rm=T)}))), xlab=NA, ylab=NA)
+whichzero <- which(apply(mcsamples,1,function(rr){min((rr[extract('W')]))})==0)
+tplot(x=whichzero, y=rep(mean(par('usr')[3:4]), length(whichzero)), type='p',col=2,add=T)
+##
 tplot(y=log2(mcsamples[,extract('Shapelo')]), main=paste0('lb-shape-lo ',mean(mcsamples[,extract('Shapelo')])), xlab=NA, ylab=NA)
 if(length(extract('Shapehi'))){
     tplot(y=log2(mcsamples[,extract('Shapehi')]), main=paste0('lb-shape-hi ',mean(mcsamples[,extract('Shapehi')])), xlab=NA, ylab=NA)
