@@ -122,7 +122,7 @@ inferpopulation <- function(data, varinfoaux, predictands, nsamples=4096, file=T
             nalpha = length(minalpha:maxalpha),
         ),
         if(varR$n > 0){ list(Rn = varR$n) },
-        if(varL$n > 0){ list(Ln = varL$n) },
+        if(varL$n > 0){ list(Ln = varL$n, Lmaxn = varL$maxn) },
         if(varN$n > 0){ list(Nn = varN$n) },
         if(varB$n > 0){ list(Bn = varB$n) },
         if(len$B > 0){ list(Bn = len$B) }
@@ -160,7 +160,7 @@ inferpopulation <- function(data, varinfoaux, predictands, nsamples=4096, file=T
                                  Rshapehi = Rshapehi,
                                  Rmean = matrix(rnorm(n=varR$n*nclusters, mean=Rmean1, sd=sqrt(Rvarm1)), nrow=varR$n, ncol=nclusters),
                                  Rrate = Rrate,
-                                 Rvar <- matrix(nimble::rinvgamma(n=varR$n*nclusters, shape=Rshapelo, rate=Rrate), nrow=varR$n, ncol=nclusters)
+                                 Rvar = matrix(nimble::rinvgamma(n=varR$n*nclusters, shape=Rshapelo, rate=Rrate), nrow=varR$n, ncol=nclusters)
                              ))
             }
             if(varL$n > 0){# latent-based
@@ -180,7 +180,7 @@ inferpopulation <- function(data, varinfoaux, predictands, nsamples=4096, file=T
                                  Lshapehi = Lshapehi,
                                  Lmean = matrix(rnorm(n=varL$n*nclusters, mean=Lmean1, sd=sqrt(Lvarm1)), nrow=varL$n, ncol=nclusters),
                                  Lrate = Lrate,
-                                 Lvar <- matrix(nimble::rinvgamma(n=varL$n*nclusters, shape=Lshapelo, rate=Lrate), nrow=varL$n, ncol=nclusters)
+                                 Lvar = matrix(nimble::rinvgamma(n=varL$n*nclusters, shape=Lshapelo, rate=Lrate), nrow=varL$n, ncol=nclusters)
                              ))
             }
             if(varN$n > 0){# nominal
