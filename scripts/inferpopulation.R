@@ -77,6 +77,13 @@ inferpopulation <- function(data, varinfoaux, predictands, nsamples=4096, file=T
                         Lvar[v, k] ~ dinvgamma(shape=Lshapelo[v], rate=Lrate[v, k])
                     }
                 }
+                if(varO$n > 0){# ordinal
+                    for(v in 1:On){
+                        Omean[v, k] ~ dnorm(mean=Omean1[v], var=Ovarm1[v])
+                        Orate[v, k] ~ dinvgamma(shape=Oshapehi[v], rate=Ovar1[v])
+                        Ovar[v, k] ~ dinvgamma(shape=Oshapelo[v], rate=Orate[v, k])
+                    }
+                }
                 if(varN$n > 0){# nominal
                     for(v in 1:Nn){
                         Nprob[v, k, 1:Nmaxn] ~ ddirch(alpha=Nalpha0[v, 1:Nmaxn])
@@ -99,8 +106,14 @@ inferpopulation <- function(data, varinfoaux, predictands, nsamples=4096, file=T
                 }
                 if(varL$n > 0){# latent-based
                     for(v in 1:Ln){
-                        Lint[v, d] ~ dinterval(t=Llat[v, d], c=Lrange[v, 1:Lmaxn])
+                        Lint[v, d] ~ dconstraint(Llat[v, d] >= Lleft[v] & Llat[v, d] <= Lright[v])
                         Llat[v, d] ~ dnorm(mean=Lmean[v, K[d]], var=Lvar[v, K[d]])
+                    }
+                }
+                if(varO$n > 0){# ordinal
+                    for(v in 1:On){
+                        Oint[v, d] ~ dconstraint(Olat[v, d] >= Oleft[v, d] & Olat[v, d] < Oright[v, d])
+                        Olat[v, d] ~ dnorm(mean=Omean[v, K[d]], var=Ovar[v, K[d]])
                     }
                 }
                 if(varN$n > 0){# nominal
