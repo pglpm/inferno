@@ -1,0 +1,6 @@
+name,mcmctype,censored,rounded,transform,Nvalues,step,domainmin,domainmax,censormin,censormax,tlocation,tscale,plotmin,plotmax,Q1,Q2,Q3,V1,V2,V3,V4,V5
+Rvar,R,FALSE,FALSE,identity,Inf,0,-Inf,Inf,-Inf,Inf,-0.174469278957147,0.464508385800651,-1.47546805313986,1.20420444239779,-0.575398469411607,-0.174469278957147,0.353618302189695,"","","","",""
+Lvar,L,TRUE,FALSE,identity,Inf,0,-Inf,Inf,-1,1,-1,0.907031232549341,-1,1,-1,-1,0.814062465098682,"","","","",""
+Ovar,L,,,Q,7,0.5,1,7,-Inf,Inf,0,1,1,7,,,,"","","","",""
+Nvar,C,,,identity,5,0.5,1,5,-Inf,Inf,0,1,1,5,,,,b,d,e,g,h
+Bvar,B,,,identity,2,,0,1,-Inf,Inf,0,1,0,1,,,,0,1,"","",""

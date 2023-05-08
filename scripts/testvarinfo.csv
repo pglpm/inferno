@@ -1,2 +1,7 @@
-"","type","min","max","n","location","scale","Q1","Q3","Q2","plotmin","plotmax","mean","sd","shapeout","shapein","varscale"
-"GDTOTAL_gds",1,0,6,7,0,1,1,2,1,0,6,0,0.875,1,1,0.25
+name,type,Nvalues,rounding,domainmin,domainmax,censormin,censormax,location,scale,plotmin,plotmax,V1,V2,V3,V4,V5
+Rvar,continuous,Inf,0,-Inf,Inf,,,-0.174469278957147,0.464508385800651,-1.47546805313986,1.20420444239779,,,,,
+Rvar2,continuous,Inf,0.1,-Inf,Inf,,,-0.45,0.525,-1.525,1.425,,,,,
+Lvar,continuous,Inf,0,-Inf,Inf,-1,1,-0.597696367068056,1,-1,1,,,,,
+Ovar,ordinal,5,1,1,5,,,5,1.25,1,5,,,,,
+Nvar,nominal,5,,,,,,,,,,c,d,e,f,g
+Bvar,binary,2,,,,,,1,0.25,,,0,1,,,
