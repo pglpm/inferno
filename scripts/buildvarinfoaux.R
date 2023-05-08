@@ -1,5 +1,5 @@
 buildvarinfoaux <- function(data, varinfo, file=TRUE){
-    if(is.character(data) && file.exists(data)){data <- fread(data)}
+    if(is.character(data) && file.exists(data)){data <- fread(data, na.strings='')}
     data <- as.data.table(data)
     if(is.character(varinfo) && file.exists(varinfo)){
         varinfoname <- varinfo
@@ -45,7 +45,7 @@ buildvarinfoaux <- function(data, varinfo, file=TRUE){
             plotmin <- 0
             plotmax <- 1
         }else if(xinfo$type == 'nominal'){# nominal variate
-            vtype <- 'C'
+            vtype <- 'N'
             vn <- xinfo$Nvalues
             vd <- 0.5
             vmin <- 1 # Nimble index categorical from 1
@@ -57,7 +57,7 @@ buildvarinfoaux <- function(data, varinfo, file=TRUE){
             plotmin <- 1
             plotmax <- vn
         }else if(xinfo$type == 'ordinal'){
-            vtype <- 'L'
+            vtype <- 'O'
             transf <- 'Q'
             ordinal <- TRUE
             vn <- xinfo$Nvalues
@@ -100,10 +100,13 @@ buildvarinfoaux <- function(data, varinfo, file=TRUE){
                 scale <- scale/(vmax-location)
                 location <- log(vmax-location)
             }
-            if(!is.finite(xinfo$censormin) && !is.finite(xinfo$censormax) && (!is.finite(xinfo$rounding) || xinfo$rounding == 0)){ # no need for latent variate
+            if(xinfo$rounding > 0){ # continuous discretized
+                vtype <- 'D'
+            }
+            else if(is.finite(xinfo$censormin) || is.finite(xinfo$censormax)){ # censored
+                vtype <- 'C'
+            }else{ # continuous
                 vtype <- 'R'
-            }else{ # need latent variate
-                vtype <- 'L'
             }
         }else{
             stop(paste0('ERROR: unknown variate type for ', xn))

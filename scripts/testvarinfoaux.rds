@@ -1,6 +1,8 @@
-name,mcmctype,censored,rounded,transform,Nvalues,step,domainmin,domainmax,censormin,censormax,tlocation,tscale,plotmin,plotmax,Q1,Q2,Q3,V1,V2,V3,V4,V5
-Rvar,R,FALSE,FALSE,identity,Inf,0,-Inf,Inf,-Inf,Inf,-0.174469278957147,0.464508385800651,-1.47546805313986,1.20420444239779,-0.575398469411607,-0.174469278957147,0.353618302189695,"","","","",""
-Lvar,L,TRUE,FALSE,identity,Inf,0,-Inf,Inf,-1,1,-1,0.907031232549341,-1,1,-1,-1,0.814062465098682,"","","","",""
-Ovar,L,,,Q,7,0.5,1,7,-Inf,Inf,0,1,1,7,,,,"","","","",""
-Nvar,C,,,identity,5,0.5,1,5,-Inf,Inf,0,1,1,5,,,,b,d,e,g,h
-Bvar,B,,,identity,2,,0,1,-Inf,Inf,0,1,0,1,,,,0,1,"","",""
+name,mcmctype,censored,rounded,transform,Nvalues,step,domainmin,domainmax,censormin,censormax,tlocation,tscale,plotmin,plotmax,Q1,Q2,Q3,V1,V2,V3,V4,V5,V6,V7
+Rvar,R,FALSE,FALSE,identity,Inf,0,-Inf,Inf,-Inf,Inf,-0.174469278957147,0.464508385800651,-1.47546805313986,1.20420444239779,-0.575398469411607,-0.174469278957147,0.353618302189695,"","","","","","",""
+Cvar,C,TRUE,FALSE,identity,Inf,0,-Inf,Inf,-1,1,-0.597696367068056,1,-1,1,-1,-0.597696367068056,1,"","","","","","",""
+Dvar,D,FALSE,TRUE,identity,Inf,0.05,-Inf,Inf,-Inf,Inf,-0.6,0.65,-1.95,1.35,-1.1,-0.6,0.2,"","","","","","",""
+Ovar,O,,,Q,8,0.5,1,8,-Inf,Inf,0,1,1,8,,,,"","","","","","",""
+Nvar,N,,,identity,7,0.5,1,7,-Inf,Inf,0,1,1,7,,,,a,b,c,d,e,f,g
+Bvar,B,,,identity,2,,0,1,-Inf,Inf,0,1,0,1,,,,0,1,"","","","",""
+Rvar2,R,FALSE,FALSE,identity,Inf,0,-Inf,Inf,-Inf,Inf,0.597703693312296,0.546002129062801,-0.548782453767526,2.47390951940938,0.224118792548934,0.597703693312296,1.31612305067454,"","","","","","",""

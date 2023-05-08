@@ -1,6 +1,6 @@
 inferpopulation <- function(data, varinfoaux, predictands, nsamples=4096, file=TRUE, ncores=NULL){
     ## read data
-    if(is.character(data) && file.exists(data)){data <- fread(data)}
+    if(is.character(data) && file.exists(data)){data <- fread(data, na.strings='')}
     data <- as.data.table(data)
     ## varinfoaux
     if(is.character(varinfoaux) && file.exists(varinfoaux)){
@@ -37,11 +37,27 @@ inferpopulation <- function(data, varinfoaux, predictands, nsamples=4096, file=T
     nclusters <- 64L
     minalpha <- -3L
     maxalpha <- 3L
-    shapelo <- 0.5
-    shapehi <- 0.5
+    Rshapelo <- 0.5
+    Rshapehi <- 0.5
+    Cshapelo <- 0.5
+    Cshapehi <- 0.5
+    Dshapelo <- 0.5
+    Dshapehi <- 0.5
+    Oshapelo <- 0.5
+    Oshapehi <- 0.5
+    Bshapelo <- 1
+    Bshapehi <- 1
     ##
     nalpha <- length(minalpha:maxalpha)
 
+    vn <- list()
+    vnames <- list()
+    for(atype in c('R','C','D','O','N','B')){
+        vn[[atype]] <- length(varinfoaux[mcmctype==atype, name])
+        vnames[[atype]] <- varinfoaux[mcmctype==atype, name]
+    }
+
+    
     mcsamples <- foreach(chain=1:ncores, .combine=rbind, .packages='nimble', .inorder=FALSE)%dorng%{
         ##
         ## hierarchical probability structure
@@ -65,33 +81,40 @@ inferpopulation <- function(data, varinfoaux, predictands, nsamples=4096, file=T
             ## }
             ## Probability density for the parameters of the components
             for(k in 1:nclusters){
-                if(varR$n > 0){# continuous
+                if(vn$R > 0){# continuous
                     for(v in 1:Rn){
                         Rmean[v, k] ~ dnorm(mean=Rmean1[v], var=Rvarm1[v])
                         Rrate[v, k] ~ dinvgamma(shape=Rshapehi[v], rate=Rvar1[v])
                         Rvar[v, k] ~ dinvgamma(shape=Rshapelo[v], rate=Rrate[v, k])
                     }
                 }
-                if(varL$n > 0){# latent-based
-                    for(v in 1:Ln){
-                        Lmean[v, k] ~ dnorm(mean=Lmean1[v], var=Lvarm1[v])
-                        Lrate[v, k] ~ dinvgamma(shape=Lshapehi[v], rate=Lvar1[v])
-                        Lvar[v, k] ~ dinvgamma(shape=Lshapelo[v], rate=Lrate[v, k])
+                if(vn$C > 0){# censored
+                    for(v in 1:Cn){
+                        Cmean[v, k] ~ dnorm(mean=Cmean1[v], var=Cvarm1[v])
+                        Crate[v, k] ~ dinvgamma(shape=Cshapehi[v], rate=Cvar1[v])
+                        Cvar[v, k] ~ dinvgamma(shape=Cshapelo[v], rate=Crate[v, k])
                     }
                 }
-                if(varO$n > 0){# ordinal
+                if(vn$D > 0){# discretized
+                    for(v in 1:Dn){
+                        Dmean[v, k] ~ dnorm(mean=Dmean1[v], var=Dvarm1[v])
+                        Drate[v, k] ~ dinvgamma(shape=Dshapehi[v], rate=Dvar1[v])
+                        Dvar[v, k] ~ dinvgamma(shape=Dshapelo[v], rate=Drate[v, k])
+                    }
+                }
+                if(vn$O > 0){# ordinal
                     for(v in 1:On){
                         Omean[v, k] ~ dnorm(mean=Omean1[v], var=Ovarm1[v])
                         Orate[v, k] ~ dinvgamma(shape=Oshapehi[v], rate=Ovar1[v])
                         Ovar[v, k] ~ dinvgamma(shape=Oshapelo[v], rate=Orate[v, k])
                     }
                 }
-                if(varN$n > 0){# nominal
+                if(vn$N > 0){# nominal
                     for(v in 1:Nn){
                         Nprob[v, k, 1:Nmaxn] ~ ddirch(alpha=Nalpha0[v, 1:Nmaxn])
                     }
                 }
-                if(varB$n > 0){# binary
+                if(vn$B > 0){# binary
                     for(v in 1:Bn){
                         Bprob[v, k] ~ dbeta(shape1=Bshapelo[v], shape2=Bshapehi[v])
                     }
@@ -101,29 +124,35 @@ inferpopulation <- function(data, varinfoaux, predictands, nsamples=4096, file=T
             for(d in 1:npoints){
                 K[d] ~ dcat(prob=W[1:nclusters])
                 ##
-                if(varR$n > 0){# continuous
+                if(vn$R > 0){# continuous
                     for(v in 1:Rn){
                         Rdata[d, k] ~ dnorm(mean=Rmean[v, K[d]], var=Rvar[v, K[d]])
                     }
                 }
-                if(varL$n > 0){# latent-based
-                    for(v in 1:Ln){
-                        Laux[v, d] ~ dconstraint(Llat[v, d] >= Lleft[v] & Llat[v, d] <= Lright[v])
-                        Llat[v, d] ~ dnorm(mean=Lmean[v, K[d]], var=Lvar[v, K[d]])
+                if(vn$C > 0){# censored
+                    for(v in 1:Cn){
+                        Caux[v, d] ~ dconstraint(Clat[v, d] >= Cleft[v] & Clat[v, d] <= Cright[v])
+                        Clat[v, d] ~ dnorm(mean=Cmean[v, K[d]], var=Cvar[v, K[d]])
                     }
                 }
-                if(varO$n > 0){# ordinal
+                if(vn$D > 0){# discretized
+                    for(v in 1:Dn){
+                        Daux[v, d] ~ dconstraint(Dlat[v, d] >= Dleft[v, d] & Dlat[v, d] < Dright[v, d])
+                        Dlat[v, d] ~ dnorm(mean=Dmean[v, K[d]], var=Dvar[v, K[d]])
+                    }
+                }
+                if(vn$O > 0){# ordinal
                     for(v in 1:On){
                         Oaux[v, d] ~ dconstraint(Olat[v, d] >= Oleft[v, d] & Olat[v, d] < Oright[v, d])
                         Olat[v, d] ~ dnorm(mean=Omean[v, K[d]], var=Ovar[v, K[d]])
                     }
                 }
-                if(varN$n > 0){# nominal
+                if(vn$N > 0){# nominal
                     for(v in 1:Nn){
                         Ndata[v, d] ~ dcat(prob=Nprob[v, K[d], 1:Nmaxn])
                     }
                 }
-                if(varB$n > 0){# binary
+                if(vn$B > 0){# binary
                     for(v in 1:Bn){
                         Bdata[v, d] ~ dbern(prob=Bprob[v, K[d]])
                     }
@@ -139,67 +168,80 @@ inferpopulation <- function(data, varinfoaux, predictands, nsamples=4096, file=T
             probalpha0 = rep(1/nalpha, nalpha),
             basealphas = rep((2^(minalpha-1L))/nclusters, nclusters)
         ),
-        if(varR$n > 0){
-            list(Rn = varR$n,
-                 Rmean1 = rep(0, varR$n),
-                 Rvarm1 = rep(1, varR$n),
-                 Rvar1 = rep(1, varR$n),
-                 Rshapelo = rep(varR$shapelo, varR$n),
-                 Rshapehi = rep(varR$shapehi, varR$n)
+        if(vn$R > 0){# continuous
+            list(Rn = vn$R,
+                 Rmean1 = rep(0, vn$R),
+                 Rvarm1 = rep(1, vn$R),
+                 Rvar1 = rep(1, vn$R),
+                 Rshapelo = rep(Rshapelo, vn$R),
+                 Rshapehi = rep(Rshapehi, vn$R)
                  ) },
-        if(varL$n > 0){
-            list(Ln = varL$n,
-                 Lmean1 = rep(0, varL$n),
-                 Lvarm1 = rep(1, varL$n),
-                 Lvar1 = rep(1, varL$n),
-                 Lshapelo = rep(varL$shapelo, varL$n),
-                 Lshapehi = rep(varL$shapehi, varL$n),
-                 Lleft = vtransform(data0[,varL$names, with=F], varinfoaux, Lout='left'),
-                 Lright = vtransform(data0[,varL$names, with=F], varinfoaux, Lout='right')
+        if(vn$C > 0){# censored
+            list(Cn = vn$C,
+                 Cmean1 = rep(0, vn$C),
+                 Cvarm1 = rep(1, vn$C),
+                 Cvar1 = rep(1, vn$C),
+                 Cshapelo = rep(Cshapelo, vn$C),
+                 Cshapehi = rep(Cshapehi, vn$C),
+                 Cleft = vtransform(data0[,vnames$C, with=F], varinfoaux, Cout='left'),
+                 Cright = vtransform(data0[,vnames$C, with=F], varinfoaux, Cout='right')
                  ) },
-        if(varO$n > 0){
-            list(On = varO$n,
-                 Omean1 = rep(0, varO$n),
-                 Ovarm1 = rep(1, varO$n),
-                 Ovar1 = rep(1, varO$n),
-                 Oshapelo = rep(varO$shapelo, varO$n),
-                 Oshapehi = rep(varO$shapehi, varO$n),
-                 Oleft = vtransform(data0[,varO$names, with=F], varinfoaux, Oout='left'),
-                 Oright = vtransform(data0[,varO$names, with=F], varinfoaux, Oout='right')
+        if(vn$D > 0){# discretized
+            list(Dn = vn$D,
+                 Dmean1 = rep(0, vn$D),
+                 Dvarm1 = rep(1, vn$D),
+                 Dvar1 = rep(1, vn$D),
+                 Dshapelo = rep(Dshapelo, vn$D),
+                 Dshapehi = rep(Dshapehi, vn$D),
+                 Dleft = vtransform(data0[,vnames$D, with=F], varinfoaux, Dout='left'),
+                 Dright = vtransform(data0[,vnames$D, with=F], varinfoaux, Dout='right')
                  ) },
-        if(varN$n > 0){
-            list(Nn = varN$n,
+        if(vn$O > 0){# ordinal
+            list(On = vn$O,
+                 Omean1 = rep(0, vn$O),
+                 Ovarm1 = rep(1, vn$O),
+                 Ovar1 = rep(1, vn$O),
+                 Oshapelo = rep(Oshapelo, vn$O),
+                 Oshapehi = rep(Oshapehi, vn$O),
+                 Oleft = vtransform(data0[,vnames$O, with=F], varinfoaux, Oout='left'),
+                 Oright = vtransform(data0[,vnames$O, with=F], varinfoaux, Oout='right')
+                 ) },
+        if(vn$N > 0){# nominal
+            list(Nn = vn$N,
                  Nmaxn = varN$maxn
                  ## to be done
                  ) },
-        if(varB$n > 0){ list(Bn = varB$n) },
-        if(len$B > 0){
-            list(Bn = len$B,
-                 Bshapelo = rep(varB$shapelo, varB$n),
-                 Bshapehi = rep(varB$shapehi, varB$n)
-                 ) }
+        if(vn$B > 0){# binary
+            list(Bn = vn$B,
+                 Bshapelo = rep(Bshapelo, vn$B),
+                 Bshapehi = rep(Bshapehi, vn$B)
+                 ) },
         )
         ##
         ##
         datapoints <- c(
-            if(varR$n > 0){
+            if(vn$R > 0){# continuous
                 list(
-                    Rdata = vtransform(data0[,varR$names, with=F], varinfoaux)
+                    Rdata = vtransform(data0[,vnames$R, with=F], varinfoaux)
                 ) },
-            if(varL$n > 0){
+            if(vn$C > 0){# censored
                 list(
-                    Laux = vtransform(data0[,varL$names, with=F], varinfoaux, Lout='aux'),
-                    Llat = vtransform(data0[,varL$names, with=F], varinfoaux, Lout='lat')
+                    Caux = vtransform(data0[,vnames$C, with=F], varinfoaux, Cout='aux'),
+                    Clat = vtransform(data0[,vnames$C, with=F], varinfoaux, Cout='lat')
                 ) },
-            if(varO$n > 0){
+            if(vn$D > 0){# discretized
                 list(
-                    Oaux = vtransform(data0[,varO$names, with=F], varinfoaux, Oout='aux')
+                    Daux = vtransform(data0[,vnames$D, with=F], varinfoaux, Dout='aux')
                 ) },
-            if(varN$n > 0){
+            if(vn$O > 0){# ordinal
+                list(
+                    Oaux = vtransform(data0[,vnames$O, with=F], varinfoaux, Oout='aux')
+                ) },
+            if(vn$N > 0){# nominal
                 list(
                     Ndata = transf(data0[,variate$N,with=F], varinfo)                
                 ) },
-            if(varB$n > 0){
+            if(vn$B > 0){# binary
                 list(
                     Bdata = transf(data0[,variate$B,with=F], varinfo)                
                 ) }
@@ -215,42 +257,52 @@ inferpopulation <- function(data, varinfoaux, predictands, nsamples=4096, file=T
                 K = rep(which(W>0)[1], npoints)
             )
             ##
-            if(varR$n > 0){# continuous
-                Rrate <- matrix(nimble::rinvgamma(n=varR$n*nclusters, shape=constants$Rshapehi, rate=constants$Rvar1), nrow=varR$n, ncol=nclusters)
+            if(vn$R > 0){# continuous
+                Rrate <- matrix(nimble::rinvgamma(n=vn$R*nclusters, shape=constants$Rshapehi, rate=constants$Rvar1), nrow=vn$R, ncol=nclusters)
                 outlist <- c(outlist,
                              list(
-                                 Rmean = matrix(rnorm(n=varR$n*nclusters, mean=constants$Rmean1, sd=sqrt(constants$Rvarm1)), nrow=varR$n, ncol=nclusters),
+                                 Rmean = matrix(rnorm(n=vn$R*nclusters, mean=constants$Rmean1, sd=sqrt(constants$Rvarm1)), nrow=vn$R, ncol=nclusters),
                                  Rrate = Rrate,
-                                 Rvar = matrix(nimble::rinvgamma(n=varR$n*nclusters, shape=constants$Rshapelo, rate=Rrate), nrow=varR$n, ncol=nclusters)
+                                 Rvar = matrix(nimble::rinvgamma(n=vn$R*nclusters, shape=constants$Rshapelo, rate=Rrate), nrow=vn$R, ncol=nclusters)
                              ))
             }
-            if(varL$n > 0){# continuous
-                Lrate <- matrix(nimble::rinvgamma(n=varL$n*nclusters, shape=constants$Lshapehi, rate=constants$Lvar1), nrow=varL$n, ncol=nclusters)
+            if(vn$C > 0){# censored
+                Crate <- matrix(nimble::rinvgamma(n=vn$C*nclusters, shape=constants$Cshapehi, rate=constants$Cvar1), nrow=vn$C, ncol=nclusters)
                 outlist <- c(outlist,
                              list(
-                                 Lmean = matrix(rnorm(n=varL$n*nclusters, mean=constants$Lmean1, sd=sqrt(constants$Lvarm1)), nrow=varL$n, ncol=nclusters),
-                                 Lrate = Lrate,
-                                 Lvar = matrix(nimble::rinvgamma(n=varL$n*nclusters, shape=constants$Lshapelo, rate=Lrate), nrow=varL$n, ncol=nclusters),
-                                 Llat = vtransform(data0[,varL$names, with=F], varinfoaux, Lout='init') ## for data with boundary values
+                                 Cmean = matrix(rnorm(n=vn$C*nclusters, mean=constants$Cmean1, sd=sqrt(constants$Cvarm1)), nrow=vn$C, ncol=nclusters),
+                                 Crate = Crate,
+                                 Cvar = matrix(nimble::rinvgamma(n=vn$C*nclusters, shape=constants$Cshapelo, rate=Crate), nrow=vn$C, ncol=nclusters),
+                                 Clat = vtransform(data0[,vnames$C, with=F], varinfoaux, Cout='init') ## for data with boundary values
                              ))
             }
-            if(varO$n > 0){# continuous
-                Orate <- matrix(nimble::rinvgamma(n=varO$n*nclusters, shape=constants$Oshapehi, rate=constants$Ovar1), nrow=varO$n, ncol=nclusters)
+            if(vn$D > 0){# discretized
+                Drate <- matrix(nimble::rinvgamma(n=vn$D*nclusters, shape=constants$Dshapehi, rate=constants$Dvar1), nrow=vn$D, ncol=nclusters)
                 outlist <- c(outlist,
                              list(
-                                 Omean = matrix(rnorm(n=varO$n*nclusters, mean=constants$Omean1, sd=sqrt(constants$Ovarm1)), nrow=varO$n, ncol=nclusters),
+                                 Dmean = matrix(rnorm(n=vn$D*nclusters, mean=constants$Dmean1, sd=sqrt(constants$Dvarm1)), nrow=vn$D, ncol=nclusters),
+                                 Drate = Drate,
+                                 Dvar = matrix(nimble::rinvgamma(n=vn$D*nclusters, shape=constants$Dshapelo, rate=Drate), nrow=vn$D, ncol=nclusters),
+                                 Dlat = vtransform(data0[,vnames$D, with=F], varinfoaux, Dout='init') ## for data with boundary values
+                             ))
+            }
+            if(vn$O > 0){# ordinal
+                Orate <- matrix(nimble::rinvgamma(n=vn$O*nclusters, shape=constants$Oshapehi, rate=constants$Ovar1), nrow=vn$O, ncol=nclusters)
+                outlist <- c(outlist,
+                             list(
+                                 Omean = matrix(rnorm(n=vn$O*nclusters, mean=constants$Omean1, sd=sqrt(constants$Ovarm1)), nrow=vn$O, ncol=nclusters),
                                  Orate = Orate,
-                                 Ovar = matrix(nimble::rinvgamma(n=varO$n*nclusters, shape=constants$Oshapelo, rate=Orate), nrow=varO$n, ncol=nclusters),
-                                 Olat = vtransform(data0[,varO$names, with=F], varinfoaux, Oout='init') ## for data with boundary values
+                                 Ovar = matrix(nimble::rinvgamma(n=vn$O*nclusters, shape=constants$Oshapelo, rate=Orate), nrow=vn$O, ncol=nclusters),
+                                 Olat = vtransform(data0[,vnames$O, with=F], varinfoaux, Oout='init') ## for data with boundary values
                              ))
             }
-            if(varN$n > 0){# nominal
+            if(vn$N > 0){# nominal
                 ## to be done
             }
-            if(varB$n > 0){# binary
+            if(vn$B > 0){# binary
                 outlist <- c(outlist,
                              list(
-                                 Bprob = matrix(rbeta(n=varB$n*nclusters, shape1=constants$Bshapelo, shape2=constants$Bshapehi), nrow=varB$n, ncol=nclusters)
+                                 Bprob = matrix(rbeta(n=vn$B*nclusters, shape1=constants$Bshapelo, shape2=constants$Bshapehi), nrow=vn$B, ncol=nclusters)
                              ))
             }
             ##
@@ -272,7 +324,8 @@ inferpopulation <- function(data, varinfoaux, predictands, nsamples=4096, file=T
             Cfinitemixnimble, #nodes=NULL,
             monitors=c('W',
                        if(len$R > 0){c('Rmean', 'Rvar')},
-                       if(len$L > 0){c('Lmean', 'Lvar')},
+                       if(len$C > 0){c('Cmean', 'Cvar')},
+                       if(len$D > 0){c('Dmean', 'Dvar')},
                        if(len$O > 0){c('Omean', 'Ovar')},
                        if(len$N > 0){c('Nprob')},
                        if(len$B > 0){c('Bprob')},
@@ -286,11 +339,12 @@ inferpopulation <- function(data, varinfoaux, predictands, nsamples=4096, file=T
         for(no in c('Alpha')){confnimble$addSampler(target=no, type='slice')}
         ##
         samplerorder <- c('K',
-                          if(varR$n > 0){c('Rmean','Rrate','Rvar')},
-                          if(varL$n > 0){c('Lmean','Lrate','Lvar')},
-                          if(varO$n > 0){c('Omean','Orate','Ovar')},
-                          if(varN$n > 0){c('Nprob')},
-                          if(varB$n > 0){c('Bprob')},
+                          if(vn$R > 0){c('Rmean','Rrate','Rvar')},
+                          if(vn$C > 0){c('Cmean','Crate','Cvar')},
+                          if(vn$D > 0){c('Dmean','Drate','Dvar')},
+                          if(vn$O > 0){c('Omean','Orate','Ovar')},
+                          if(vn$N > 0){c('Nprob')},
+                          if(vn$B > 0){c('Bprob')},
                           'W','Alpha')
         neworder <- foreach(var=sampleorder, .combine=c)%do%{grep(paste0('^',var,'(\\[.+\\])*$'),targetslist)}
         neworder <- c(setdiff(confnimble$getSamplerExecutionOrder(), neworder), neworder)
@@ -301,418 +355,3 @@ inferpopulation <- function(data, varinfoaux, predictands, nsamples=4096, file=T
         
 
 }
-
-
-
-library('data.table')
-library('png')
-library('foreach')
-library('doFuture')
-library('doRNG')
-## registerDoFuture()
-## cat('\navailableCores: ')
-## cat(availableCores())
-## cat('\navailableCores-multicore: ')
-## cat(availableCores('multicore'))
-## if(Sys.info()['nodename']=='luca-HP-Z2-G9'){
-##     ncores <- 20}else{
-##     ncores <- 6}
-## cat(paste0('\nusing ',ncores,' cores\n'))
-## if(ncores>1){
-##     if(.Platform$OS.type=='unix'){
-##         plan(multicore, workers=ncores)
-##     }else{
-##         plan(multisession, workers=ncores)
-##     }
-## }else{
-##     plan(sequential)
-## }
-
-dt <- fread('ingrid_data_nogds6.csv')
-dt2 <- fread('testdata4.csv')
-data(iris)
-iris <- as.data.table(iris)
-iris2 <- iris
-iris2$Species <- as.integer(iris2$Species)
-
-
-buildvarinfo <- function(data, file=NULL){
-    gcd2 <- function(a, b){ if (b == 0) a else Recall(b, a %% b) }
-    gcd <- function(...) Reduce(gcd2, c(...))
-    ##
-    if(is.character(data) && file.exists(data)){data <- fread(data)}
-    data <- as.data.table(data)
-    varinfo <- data.table()
-    for(x in data){
-        x <- x[!is.na(x)]
-        transf <- 'identity' # temporary
-        if(is.numeric(x)){
-            Q1 <- quantile(x, probs=0.25, type=6)
-            Q2 <- quantile(x, probs=0.5, type=6)
-            Q3 <- quantile(x, probs=0.75, type=6)
-            location <- Q2
-            scale <- (Q3-Q1)/2
-            if(scale == 0){scale <- diff(range(x))/2}
-        }else{
-            location <- NA
-            scale <- NA
-            }
-        if(length(unique(x)) == 2){# seems binary variate
-            vtype <- 'binary'
-            vn <- 2
-            vd <- NA
-            vmin <- NA
-            vmax <- NA
-            tmin <- NA
-            tmax <- NA
-            vval <- sort(as.character(unique(x)))
-            names(vval) <- paste0('V',1:2)
-            plotmin <- NA
-            plotmax <- NA
-        }else if(!is.numeric(x)){# nominal variate
-            vtype <- 'nominal'
-            vn <- length(unique(x))
-            vd <- NA
-            vmin <- NA # Nimble index categorical from 1
-            vmax <- NA
-            tmin <- NA
-            tmax <- NA
-            vval <- sort(as.character(unique(x)))
-            names(vval) <- paste0('V',1:vn)
-            plotmin <- NA
-            plotmax <- NA
-        }else{# discrete, continuous, or boundary-singular variate
-            ud <- unique(signif(diff(sort(unique(x))),3)) # differences
-            rx <- diff(range(x))
-            multi <- 10^(-min(floor(log10(ud))))
-            dd <- round(gcd(ud*multi))/multi # greatest common difference
-            ##
-            if(dd/rx < 1e-3){ # consider it as continuous
-                ## temporary values
-                vtype <- 'continuous'
-                vn <- Inf
-                vd <- 0
-                vmin <- -Inf
-                vmax <- +Inf
-                tmin <- NA
-                tmax <- NA
-                plotmin <- min(x) - (Q3-Q1)/2
-                plotmax <- max(x) + (Q3-Q1)/2
-                ##
-                ix <- x[!(x %in% range(x))] # exclude boundary values
-                repindex <- mean(table(ix)) # average of repeated inner values
-                ## contindex <- length(unique(diff(sort(unique(ix)))))/length(ix) # check for repeated values
-                if(sum(x == min(x)) > repindex){ # seems to be left-singular
-                    tmin <- min(x)
-                    plotmin <- tmin
-                }
-                if(sum(x == max(x)) > repindex){ # seems to be right-singular
-                    tmax <- max(x)
-                    plotmax <- tmax
-                }
-                if(all(x > 0)){ # seems to be strictly positive
-                    transf <- 'log'
-                    vmin <- 0
-                    ## location <- log(Q2)
-                    ## scale <- (log(Q3) - log(Q1))/2
-                    plotmin <- max(vmin, plotmin)
-                }
-            }else{# ordinal
-                vtype <- 'ordinal'
-                if(dd >= 1){ # seems originally integer
-                    transf <- 'Q'
-                    vmin <- min(1, x)
-                    vmax <- max(x)
-                    vn <- vmax - vmin + 1
-                    vd <- 1
-                    tmin <- NA
-                    tmax <- NA
-                    ## location <- NA # (vn*vmin-vmax)/(vn-1)
-                    ## scale <- NA # (vmax-vmin)/(vn-1)
-                    plotmin <- max(vmin, min(x) - IQR(x)/2)
-                    plotmax <- max(x)
-                }else{ # seems a rounded continuous variate
-                    vtype <- 'continuous'
-                    vn <- Inf
-                    vd <- dd
-                    vmin <- -Inf
-                    vmax <- +Inf
-                    tmin <- NA
-                    tmax <- NA
-                    ## location <- Q2
-                    ## scale <- (Q3-Q1)/2
-                    plotmin <- min(x) - (Q3-Q1)/2
-                    plotmax <- max(x) + (Q3-Q1)/2
-                    if(all(x > 0)){ # seems to be strictly positive
-                        transf <- 'log'
-                        vmin <- 0
-                        ## location <- log(Q2)
-                        ## scale <- (log(Q3) - log(Q1))/2
-                        plotmin <- max(vmin, plotmin)
-                    }
-                }# end rounded
-            }# end integer
-            vval <- NULL
-        }# end numeric
-        ##
-        varinfo <- rbind(varinfo,
-                         c(list(type=vtype, Nvalues=vn, rounding=vd, domainmin=vmin, domainmax=vmax, censormin=tmin, censormax=tmax, location=location, scale=scale, plotmin=plotmin, plotmax=plotmax),
-                           as.list(vval)
-                         ), fill=TRUE)
-    }
-    varinfo <- cbind(name=names(data), varinfo)
-    if(!is.null(file)){
-        file <- paste0(sub('.csv$', '', file), '.csv')
-        fwrite(varinfo, file)
-        cat(paste0('Saved proposal variate-info file to ', file, '\n'))
-    }else{
-        varinfo
-    }
-}
-
-testf <- function(a){
-    if(a==1){
-        stop('abort')
-    }else{
-        print('continuing')
-    }
-    34
-}
-
-
-buildvarinfoaux <- function(data, varinfo, file=TRUE){
-    if(is.character(data) && file.exists(data)){data <- fread(data)}
-    data <- as.data.table(data)
-    if(is.character(varinfo) && file.exists(varinfo)){
-        varinfoname <- varinfo
-        varinfo <- fread(varinfo)
-    }
-    varinfo <- as.data.table(varinfo)
-    ## consistency checks
-    if(!identical(varinfo$name, colnames(data))){
-        stop('ERROR: mismatch in variate names or order')
-    }
-    ##
-    ##Q <- readRDS('Qfunction512.rds')
-    ##
-    varinfoaux <- data.table()
-    for(xn in colnames(data)){
-        x <- data[[xn]]
-        x <- x[!is.na(x)]
-        xinfo <- as.list(varinfo[name == xn])
-        xinfo$type <- tolower(xinfo$type)
-        ordinal <- NA
-        cens <- NA
-        rounded <- NA
-        transf <- 'identity' # temporary
-        vval <- xinfo[grep('^V[0-9]+$', names(xinfo))]
-        ## print(xn)
-        ## str(vval)
-        Q1 <- NA
-        Q2 <- NA
-        Q3 <- NA
-        if(xinfo$type == 'binary'){# seems binary variate
-            if(length(unique(x)) != 2){
-                cat('Warning: inconsistencies with variate ', xn, '\n')
-            }
-            vtype <- 'B'
-            vn <- xinfo$Nvalues
-            vd <- xinfo$rounding/2
-            vmin <- 0
-            vmax <- 1
-            tmin <- -Inf
-            tmax <- +Inf
-            location <- 0
-            scale <- 1
-            plotmin <- 0
-            plotmax <- 1
-        }else if(xinfo$type == 'nominal'){# nominal variate
-            vtype <- 'C'
-            vn <- xinfo$Nvalues
-            vd <- 0.5
-            vmin <- 1 # Nimble index categorical from 1
-            vmax <- vn
-            tmin <- -Inf
-            tmax <- +Inf
-            location <- 0
-            scale <- 1
-            plotmin <- 1
-            plotmax <- vn
-        }else if(xinfo$type == 'ordinal'){
-            vtype <- 'L'
-            transf <- 'Q'
-            ordinal <- TRUE
-            vn <- xinfo$Nvalues
-            vd <- 0.5
-            vmin <- xinfo$domainmin
-            vmax <- xinfo$domainmax
-            tmin <- -Inf
-            tmax <- +Inf
-            ##vval <- as.vector(xinfo[paste0('V',1:vn)], mode='character')
-            location <- (vn*vmin - vmax)/(vn - 1)
-            scale <- (vmax - vmin)/(vn - 1)
-            plotmin <- 1
-            plotmax <- vn
-        }else if(xinfo$type == 'continuous'){
-            vn <- +Inf
-            vd <- xinfo$rounding/2
-            rounded <- (vd > 0)
-            vmin <- xinfo$domainmin
-            vmax <- xinfo$domainmax
-            tmin <- max(xinfo$censormin, -Inf, na.rm=TRUE)
-            tmax <- min(xinfo$censormax, +Inf, na.rm=TRUE)
-            cens <- any(is.finite(c(tmin,tmax)))
-            location <- xinfo$location
-            scale <- xinfo$scale
-            Q1 <- quantile(x, probs=0.25, type=6)
-            Q2 <- quantile(x, probs=0.5, type=6)
-            Q3 <- quantile(x, probs=0.75, type=6)
-            plotmin <- xinfo$plotmin
-            plotmax <- xinfo$plotmax
-            if(is.finite(xinfo$domainmin) && is.finite(xinfo$domainmax)){ # needs transformation
-                transf <- 'probit'
-                location <- qnorm((location-vmin)/(vmax-vmin))
-                scale <- scale/((vmax-vmin)*dnorm(location))
-            }else if(is.finite(xinfo$domainmin)){
-                transf <- 'log'
-                scale <- scale/(location-vmin)
-                location <- log(location-vmin)
-            }else if(is.finite(xinfo$domainmax)){
-                transf <- 'logminus'
-                scale <- scale/(vmax-location)
-                location <- log(vmax-location)
-            }
-            if(!is.finite(xinfo$censormin) && !is.finite(xinfo$censormax) && (!is.finite(xinfo$rounding) || xinfo$rounding == 0)){ # no need for latent variate
-                vtype <- 'R'
-            }else{ # need latent variate
-                vtype <- 'L'
-            }
-        }else{
-            stop(paste0('ERROR: unknown variate type for ', xn))
-        }
-        ##
-        ## print(varinfoaux[nrow(varinfoaux)])
-        ## print(                         as.data.table(c(list(name=xn, type=vtype, transform=transf, Nvalues=vn, step=vd, domainmin=vmin, domainmax=vmax, censormin=tmin, censormax=tmax, tlocation=location, tscale=scale, plotmin=plotmin, plotmax=plotmax, Q1=Q1, Q2=Q2, Q3=Q3),
-        ##                    vval
-        ##                    )))
-        varinfoaux <- rbind(varinfoaux,
-                         c(list(name=xn, mcmctype=vtype, censored=cens, rounded=rounded, transform=transf, Nvalues=vn, step=vd, domainmin=vmin, domainmax=vmax, censormin=tmin, censormax=tmax, tlocation=location, tscale=scale, plotmin=plotmin, plotmax=plotmax, Q1=Q1, Q2=Q2, Q3=Q3),
-                           vval
-                           ), fill=FALSE)
-    }
-    if(is.character(file) || (is.logical(file) && file)){ # must save to file
-        if(is.character(file)){
-            file <- paste0(sub('.rds$', '', file), '.rds')
-        }else{
-            if(file.exists('varinfoaux.rds')){
-                file <- paste0('varinfoaux_',format(Sys.time(), '%y%m%dT%H%M%S'),'.rds')
-            }else{
-                file <- 'varinfoaux.rds'
-            }
-        }
-        fwrite(varinfoaux, file)
-        cat(paste0('Saved auxiliary variate-info file to ', file, '\n'))
-    }else{
-        varinfoaux
-    }
-}
-
-
-## gcd <- function(vect){Reduce(function(x,y) ifelse(y, Recall(y, x %% y), x), as.list(vect))}
-## gcdm <- function(...){Reduce(function(x,y) ifelse(y, Recall(y, x %% y), x), list(...))}
-
-
-gcd2 <- function(a, b) {
-  if (b == 0) a else Recall(b, a %% b)
-}
-gcd <- function(...) Reduce(gcd2, c(...))
-
-dtx <- dt
-dtx$extra <- rnorm(nrow(dtx))
-dtx <- dtx[sample(1:nrow(dtx), min(10,nrow(dtx)))]
-t(sapply(dtx, function(xx){
-    xx <- xx[!is.na(xx)]
-    testd <- unique(signif(diff(sort(unique(xx))),6))
-    multi <- 10^(-min(floor(log10(testd))))
-    round(gcd(testd*multi))/multi
-}))
-
-
-
-
-
-dtx <- iris
-dtx$extra <- rnorm(nrow(dtx))
-dtx <- dtx[sample(1:nrow(dtx), min(150,nrow(dtx)))]
-t(sapply(dtx, function(xx){
-    xx <- xx[!is.na(xx)]
-    if(length(unique(xx)) > 2){ix <- xx[!(xx %in% range(xx))]}else{ix <- xx}
-    dd0 <- diff(sort(xx))
-    dd <- diff(sort(unique(xx)))
-    q1 <- tquant(ix,0.25)
-    q3 <- tquant(ix,0.75)
-    c(
-      left=sum(xx==min(xx)),
-      right=sum(xx==max(xx)),
-      diffratio=length(unique(dd))/length(dd),
-      diffratio0=length(unique(dd0))/length(dd0),
-      diffindex=length(unique(dd))/length(xx),
-      diffindex0=length(unique(dd0))/length(xx),
-      meanrep=mean(table(ix)),
-      meanrepiqr=mean(table(ix[ix >= q1 & ix <=q3])),
-      iqrrange=IQR(ix)/diff(range(xx)),
-      min=min(xx),
-      max=max(xx),
-      int=is.integer(xx),
-      unique=length(unique(xx)),
-      uniqueratio=length(unique(xx))/length(xx),
-      rg=diff(range(xx)),
-      NULL
-      )
-}))
-rm(dtx)
-
-dtx <- dt
-dtx$extra <- rnorm(nrow(dtx))
-summary(t(sapply(1:100, function(xxx){set.seed(xxx)
-    dtx <- dtx[sample(1:nrow(dtx), 10)]
-    test <- t(sapply(dtx, function(xx){
-        xx <- xx[!is.na(xx)]
-        if(length(unique(xx)) > 2){ix <- xx[!(xx %in% range(xx))]}else{ix <- xx}
-        dd <- diff(sort(unique(xx)))
-        c(
-            sum(xx==min(xx)),
-            sum(xx==max(xx)),
-            length(unique(dd))/length(dd),
-            length(unique(dd))/length(xx),
-            mean(table(ix))
-        )
-    }))
-    c(sum(test['extra',5] < test[-c(13:14),5]),
-      sum(test['extra',4] > test[-c(13:14),4]),
-      sum(test['extra',3] > test[-c(13:14),3])
-      )
-})))
-
-dtx <- dt
-dtx$extra <- rnorm(nrow(dtx))
-resu <- (t(sapply(1:100, function(xxx){set.seed(xxx)
-    dtx <- dtx[sample(1:nrow(dtx), 150)]
-    test <- t(sapply(dtx, function(xx){
-        xx <- xx[!is.na(xx)]
-        if(length(unique(xx)) > 2){ix <- xx[!(xx %in% range(xx))]}else{ix <- xx}
-        dd <- diff(sort(unique(xx)))
-        c(
-            sum(xx==min(xx)),
-            sum(xx==max(xx)),
-            length(unique(dd))/length(dd),
-            length(unique(dd))/length(xx),
-            mean(table(ix))
-        )
-    }))
-    c(
-      min(test[13:14,4]),
-      max(test[-c(13:14),4])
-      )
-})))
-summary(resu)
