@@ -57,6 +57,13 @@ inferpopulation <- function(data, varinfoaux, predictands, nsamples=4096, file=T
         vnames[[atype]] <- varinfoaux[mcmctype==atype, name]
     }
 
+    if(vn$N > 0){
+        Nmaxn <- max(varinfoaux[mcmctype=='N', Nvalues])
+        Nalpha0 <- matrix(1e-100, nrow=vn$N, ncol=Nmaxn)
+        for(avar in 1:length(vnames$N)){
+            Nalpha0[avar, 1:varinfoaux[name==vnames$N[avar], Nvalues]] <- 1
+        }
+    }
     
     mcsamples <- foreach(chain=1:ncores, .combine=rbind, .packages='nimble', .inorder=FALSE)%dorng%{
         ##
@@ -208,8 +215,8 @@ inferpopulation <- function(data, varinfoaux, predictands, nsamples=4096, file=T
                  ) },
         if(vn$N > 0){# nominal
             list(Nn = vn$N,
-                 Nmaxn = varN$maxn
-                 ## to be done
+                 Nmaxn = Nmaxn,
+                 Nalpha0 = Nalpha0
                  ) },
         if(vn$B > 0){# binary
             list(Bn = vn$B,
@@ -297,8 +304,11 @@ inferpopulation <- function(data, varinfoaux, predictands, nsamples=4096, file=T
                              ))
             }
             if(vn$N > 0){# nominal
-                ## to be done
-            }
+                outlist <- c(outlist,
+                             list(
+                                 Nprob = aperm(array(sapply(1:vn$N, function(xx){sapply(1:nclusters, function(avar){rdirch(n=1, alpha=Nalpha0[avar,])})}), dim=c(Nmaxn,nclusters,vn$N)))
+                             ))
+                }
             if(vn$B > 0){# binary
                 outlist <- c(outlist,
                              list(
