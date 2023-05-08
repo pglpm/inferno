@@ -39,6 +39,8 @@ inferpopulation <- function(data, varinfoaux, predictands, nsamples=4096, file=T
     maxalpha <- 3L
     shapelo <- 0.5
     shapehi <- 0.5
+    ##
+    nalpha <- length(minalpha:maxalpha)
 
     mcsamples <- foreach(chain=1:ncores, .combine=rbind, .packages='nimble', .inorder=FALSE)%dorng%{
         ##
@@ -106,13 +108,13 @@ inferpopulation <- function(data, varinfoaux, predictands, nsamples=4096, file=T
                 }
                 if(varL$n > 0){# latent-based
                     for(v in 1:Ln){
-                        Lint[v, d] ~ dconstraint(Llat[v, d] >= Lleft[v] & Llat[v, d] <= Lright[v])
+                        Laux[v, d] ~ dconstraint(Llat[v, d] >= Lleft[v] & Llat[v, d] <= Lright[v])
                         Llat[v, d] ~ dnorm(mean=Lmean[v, K[d]], var=Lvar[v, K[d]])
                     }
                 }
                 if(varO$n > 0){# ordinal
                     for(v in 1:On){
-                        Oint[v, d] ~ dconstraint(Olat[v, d] >= Oleft[v, d] & Olat[v, d] < Oright[v, d])
+                        Oaux[v, d] ~ dconstraint(Olat[v, d] >= Oleft[v, d] & Olat[v, d] < Oright[v, d])
                         Olat[v, d] ~ dnorm(mean=Omean[v, K[d]], var=Ovar[v, K[d]])
                     }
                 }
@@ -129,91 +131,173 @@ inferpopulation <- function(data, varinfoaux, predictands, nsamples=4096, file=T
             }
         })
         ##
+        ##
         constants <- c( list(
             nclusters = nclusters,
             npoints = npoints,
-            nalpha = length(minalpha:maxalpha),
+            nalpha = nalpha,
+            probalpha0 = rep(1/nalpha, nalpha),
+            basealphas = rep((2^(minalpha-1L))/nclusters, nclusters)
         ),
-        if(varR$n > 0){ list(Rn = varR$n) },
-        if(varL$n > 0){ list(Ln = varL$n, Lmaxn = varL$maxn) },
-        if(varN$n > 0){ list(Nn = varN$n) },
+        if(varR$n > 0){
+            list(Rn = varR$n,
+                 Rmean1 = rep(0, varR$n),
+                 Rvarm1 = rep(1, varR$n),
+                 Rvar1 = rep(1, varR$n),
+                 Rshapelo = rep(varR$shapelo, varR$n),
+                 Rshapehi = rep(varR$shapehi, varR$n)
+                 ) },
+        if(varL$n > 0){
+            list(Ln = varL$n,
+                 Lmean1 = rep(0, varL$n),
+                 Lvarm1 = rep(1, varL$n),
+                 Lvar1 = rep(1, varL$n),
+                 Lshapelo = rep(varL$shapelo, varL$n),
+                 Lshapehi = rep(varL$shapehi, varL$n),
+                 Lleft = vtransform(data0[,varL$names, with=F], varinfoaux, Lout='left'),
+                 Lright = vtransform(data0[,varL$names, with=F], varinfoaux, Lout='right')
+                 ) },
+        if(varO$n > 0){
+            list(On = varO$n,
+                 Omean1 = rep(0, varO$n),
+                 Ovarm1 = rep(1, varO$n),
+                 Ovar1 = rep(1, varO$n),
+                 Oshapelo = rep(varO$shapelo, varO$n),
+                 Oshapehi = rep(varO$shapehi, varO$n),
+                 Oleft = vtransform(data0[,varO$names, with=F], varinfoaux, Oout='left'),
+                 Oright = vtransform(data0[,varO$names, with=F], varinfoaux, Oout='right')
+                 ) },
+        if(varN$n > 0){
+            list(Nn = varN$n,
+                 Nmaxn = varN$maxn
+                 ## to be done
+                 ) },
         if(varB$n > 0){ list(Bn = varB$n) },
-        if(len$B > 0){ list(Bn = len$B) }
+        if(len$B > 0){
+            list(Bn = len$B,
+                 Bshapelo = rep(varB$shapelo, varB$n),
+                 Bshapehi = rep(varB$shapehi, varB$n)
+                 ) }
         )
         ##
-
+        ##
+        datapoints <- c(
+            if(varR$n > 0){
+                list(
+                    Rdata = vtransform(data0[,varR$names, with=F], varinfoaux)
+                ) },
+            if(varL$n > 0){
+                list(
+                    Laux = vtransform(data0[,varL$names, with=F], varinfoaux, Lout='aux'),
+                    Llat = vtransform(data0[,varL$names, with=F], varinfoaux, Lout='lat')
+                ) },
+            if(varO$n > 0){
+                list(
+                    Oaux = vtransform(data0[,varO$names, with=F], varinfoaux, Oout='aux')
+                ) },
+            if(varN$n > 0){
+                list(
+                    Ndata = transf(data0[,variate$N,with=F], varinfo)                
+                ) },
+            if(varB$n > 0){
+                list(
+                    Bdata = transf(data0[,variate$B,with=F], varinfo)                
+                ) }
+        )
+        ##
         ##
         initsfn <- function(){
-            nalpha <- length(minalpha:maxalpha)
-            probalpha0 <- rep(1/nalpha, nalpha)
-            basealphas <- rep((2^(minalpha-1L))/nclusters, nclusters)
-            W <- 1/nclusters + 0*nimble::rdirch(n=1, alpha=basealphas*2^Alpha)
+            Alpha <- sample(1:nalpha, 1, prob=constants$probalpha0, replace=T),
+            W <- 1/nclusters + 0*nimble::rdirch(n=1, alpha=constants$basealphas*2^Alpha)
             outlist <- list(
-                probalpha0 = probalpha0,
-                basealphas = basealphas,
-                Alpha = sample(1:nalpha, 1, prob=probalpha0, replace=T),
+                Alpha = Alpha,
                 W = W,
                 K = rep(which(W>0)[1], npoints)
             )
             ##
             if(varR$n > 0){# continuous
-                Rmean1 <- rep(0, varR$n)
-                Rvarm1 <- rep(1, varR$n)
-                Rvar1 <- rep(1, varR$n)
-                Rshapelo <- rep(varR$shapelo, varR$n)
-                Rshapehi <- rep(varR$shapehi, varR$n)
-                Rrate <- matrix(nimble::rinvgamma(n=varR$n*nclusters, shape=Rshapehi, rate=Rvar1), nrow=varR$n, ncol=nclusters)
+                Rrate <- matrix(nimble::rinvgamma(n=varR$n*nclusters, shape=constants$Rshapehi, rate=constants$Rvar1), nrow=varR$n, ncol=nclusters)
                 outlist <- c(outlist,
                              list(
-                                 Rn = varR$n,
-                                 Rmean1 = Rmean1,
-                                 Rvarm1 = Rvarm1,
-                                 Rvar1 = Rvar1,
-                                 Rshapelo = Rshapelo,
-                                 Rshapehi = Rshapehi,
-                                 Rmean = matrix(rnorm(n=varR$n*nclusters, mean=Rmean1, sd=sqrt(Rvarm1)), nrow=varR$n, ncol=nclusters),
+                                 Rmean = matrix(rnorm(n=varR$n*nclusters, mean=constants$Rmean1, sd=sqrt(constants$Rvarm1)), nrow=varR$n, ncol=nclusters),
                                  Rrate = Rrate,
-                                 Rvar = matrix(nimble::rinvgamma(n=varR$n*nclusters, shape=Rshapelo, rate=Rrate), nrow=varR$n, ncol=nclusters)
+                                 Rvar = matrix(nimble::rinvgamma(n=varR$n*nclusters, shape=constants$Rshapelo, rate=Rrate), nrow=varR$n, ncol=nclusters)
                              ))
             }
-            if(varL$n > 0){# latent-based
-                Lmean1 <- rep(0, varL$n)
-                Lvarm1 <- rep(1, varL$n)
-                Lvar1 <- rep(1, varL$n)
-                Lshapelo <- rep(varL$shapelo, varL$n)
-                Lshapehi <- rep(varL$shapehi, varL$n)
-                Lrate <- matrix(nimble::rinvgamma(n=varL$n*nclusters, shape=Lshapehi, rate=Lvar1), nrow=varL$n, ncol=nclusters)
+            if(varL$n > 0){# continuous
+                Lrate <- matrix(nimble::rinvgamma(n=varL$n*nclusters, shape=constants$Lshapehi, rate=constants$Lvar1), nrow=varL$n, ncol=nclusters)
                 outlist <- c(outlist,
                              list(
-                                 Ln = varL$n,
-                                 Lmean1 = Lmean1,
-                                 Lvarm1 = Lvarm1,
-                                 Lvar1 = Lvar1,
-                                 Lshapelo = Lshapelo,
-                                 Lshapehi = Lshapehi,
-                                 Lmean = matrix(rnorm(n=varL$n*nclusters, mean=Lmean1, sd=sqrt(Lvarm1)), nrow=varL$n, ncol=nclusters),
+                                 Lmean = matrix(rnorm(n=varL$n*nclusters, mean=constants$Lmean1, sd=sqrt(constants$Lvarm1)), nrow=varL$n, ncol=nclusters),
                                  Lrate = Lrate,
-                                 Lvar = matrix(nimble::rinvgamma(n=varL$n*nclusters, shape=Lshapelo, rate=Lrate), nrow=varL$n, ncol=nclusters)
+                                 Lvar = matrix(nimble::rinvgamma(n=varL$n*nclusters, shape=constants$Lshapelo, rate=Lrate), nrow=varL$n, ncol=nclusters),
+                                 Llat = vtransform(data0[,varL$names, with=F], varinfoaux, Lout='init') ## for data with boundary values
+                             ))
+            }
+            if(varO$n > 0){# continuous
+                Orate <- matrix(nimble::rinvgamma(n=varO$n*nclusters, shape=constants$Oshapehi, rate=constants$Ovar1), nrow=varO$n, ncol=nclusters)
+                outlist <- c(outlist,
+                             list(
+                                 Omean = matrix(rnorm(n=varO$n*nclusters, mean=constants$Omean1, sd=sqrt(constants$Ovarm1)), nrow=varO$n, ncol=nclusters),
+                                 Orate = Orate,
+                                 Ovar = matrix(nimble::rinvgamma(n=varO$n*nclusters, shape=constants$Oshapelo, rate=Orate), nrow=varO$n, ncol=nclusters),
+                                 Olat = vtransform(data0[,varO$names, with=F], varinfoaux, Oout='init') ## for data with boundary values
                              ))
             }
             if(varN$n > 0){# nominal
                 ## to be done
             }
             if(varB$n > 0){# binary
-                Bshapelo <- rep(varB$shapelo, varB$n)
-                Bshapehi <- rep(varB$shapehi, varB$n)
                 outlist <- c(outlist,
                              list(
-                                 Bn = varB$n,
-                                 Bshapelo = Bshapelo,
-                                 Bshapehi = Bshapehi,
-                                 Bprob = matrix(rbeta(n=varB$n*nclusters, shape1=Bshapelo, shape2=Bshapehi), nrow=varB$n, ncol=nclusters)
+                                 Bprob = matrix(rbeta(n=varB$n*nclusters, shape1=constants$Bshapelo, shape2=constants$Bshapehi), nrow=varB$n, ncol=nclusters)
                              ))
             }
             ##
             outlist
         }
+        ##
+        ##
+        finitemixnimble <- nimbleModel(
+            code=finitemix, name='finitemixnimble1',
+            constants=constants,
+            data=datapoints,
+            inits=initsfn()
+            )
+        ##
+        Cfinitemixnimble <- compileNimble(finitemixnimble, showCompilerOutput=FALSE)
+        gc()
+        ##
+        confnimble <- configureMCMC(
+            Cfinitemixnimble, #nodes=NULL,
+            monitors=c('W',
+                       if(len$R > 0){c('Rmean', 'Rvar')},
+                       if(len$L > 0){c('Lmean', 'Lvar')},
+                       if(len$O > 0){c('Omean', 'Ovar')},
+                       if(len$N > 0){c('Nprob')},
+                       if(len$B > 0){c('Bprob')},
+                       ),
+            monitors2=c( 'Alpha', 'K')
+        )
+        ## get list of sampled variates
+        targetslist <- sapply(confnimble$getSamplers(), function(xx)xx$target)   
+        ## replace categorical sampler for Alpha with slice
+        confnimble$removeSamplers(c('Alpha'))
+        for(no in c('Alpha')){confnimble$addSampler(target=no, type='slice')}
+        ##
+        samplerorder <- c('K',
+                          if(varR$n > 0){c('Rmean','Rrate','Rvar')},
+                          if(varL$n > 0){c('Lmean','Lrate','Lvar')},
+                          if(varO$n > 0){c('Omean','Orate','Ovar')},
+                          if(varN$n > 0){c('Nprob')},
+                          if(varB$n > 0){c('Bprob')},
+                          'W','Alpha')
+        neworder <- foreach(var=sampleorder, .combine=c)%do%{grep(paste0('^',var,'(\\[.+\\])*$'),sampletargets)}
+confnimble$setSamplerExecutionOrder(neworder)
 
+
+
+        
 
 }
 

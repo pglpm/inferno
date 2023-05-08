@@ -3,17 +3,19 @@ library('nimble')
 rm(finitemixnimble,Cfinitemixnimble,confnimble,mcsampler,Cmcsampler)
 ##
 finitemix <- nimbleCode({
+    vmean ~ dnorm(mean=0, var=1)
+    vvar ~ dinvgamma(shape=1, rate=1)
     for(d in 1:ndata){
         Laux[d] ~ dconstraint(Lcont[d] >= Lleft[d] & Lcont[d] <= Lright[d])
-        Lcont[d] ~ dnorm(mean=0, var=1)
+        Lcont[d] ~ dnorm(mean=vmean, var=vvar)
     }
 })
 ##
 datapoints <- list(
-    Laux = rep(c(1L, 1L, 1L, NA),10),
-    Lleft = rep(c(-Inf, -Inf, -Inf, -Inf),10),
-    Lright = rep(c(+Inf, -1, -1, +Inf),10)
-    ,Lcont = rep(c(0, NA, NA, NA),10)
+    Laux = rep(c(1L, 1L, 1L, NA),1)
+   ,Lcont = rep(c(0, NA, NA, NA),1),
+    Lleft = rep(c(-Inf, -Inf, -Inf, -Inf),1),
+    Lright = rep(c(+Inf, -1, -1, +Inf),1)
 )
 ##
 constants <- list(
@@ -22,7 +24,7 @@ constants <- list(
 ##
 initsFunction <- function(){
     list(
-        Lcont = rep(c(NA, -2, -100, 0),10)
+        Lcont = rep(c(NA, -2, -100, 0),1)
     )
 }
 ##  
@@ -33,7 +35,7 @@ finitemixnimble <- nimbleModel(code=finitemix, name='test',
 
 Cfinitemixnimble <- compileNimble(finitemixnimble, showCompilerOutput=FALSE)
 
-confnimble <- configureMCMC(Cfinitemixnimble, monitors=c('Lcont','Laux','Lleft','Lright'))
+confnimble <- configureMCMC(Cfinitemixnimble, monitors=c('Lcont','Laux','vmean','vvar'))
 ## confnimble$removeSamplers('Lcont[4]')
 ## confnimble$addSampler(target='Lcont[4]', type='posterior_predictive')
 ##
@@ -45,17 +47,27 @@ Cmcsampler <- compileNimble(mcsampler, resetFunctions = TRUE)
 set.seed(890)
 Cfinitemixnimble$setInits(initsFunction())
 timecount <- Sys.time()
-todelete <- Cmcsampler$run(niter=1000000, thin=1000, thin2=1, nburnin=0, reset=TRUE, resetMV=TRUE)
+todelete <- Cmcsampler$run(niter=100000000, thin=100000, thin2=1, nburnin=0, reset=TRUE, resetMV=TRUE)
 print(Sys.time()-timecount)
 rm(todelete)
 mcsamples <- as.matrix(Cmcsampler$mvSamples)
 
 
-tplot(y=mcsamples[,'Lcont[1]'])
+tplot(y=mcsamples[,'Lright[2]'])
 
+## bounded
+## leftright as data
+## > Time difference of 1.43506 mins
+## leftright as init
+## > Time difference of 1.43888 mins
+## leftright as const
+## > Time difference of 1.41759 mins
 
-> Time difference of 3.27896 secs
-
+## ordinal
+## cont as just init
+## > Time difference of 43.3734 secs
+## cont as data
+## > Time difference of 45.2004 secs
 
 ## uncomment below for problematic W
 testW <- unlist(read.csv('testWbad.csv'))
