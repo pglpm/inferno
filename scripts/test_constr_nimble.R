@@ -13,13 +13,13 @@ finitemix <- nimbleCode({
 ##
 datapoints <- list(
     Laux = rep(c(1L, 1L, 1L, NA),1)
-   ,Lcont = rep(c(0, NA, NA, NA),1),
-    Lleft = rep(c(-Inf, -Inf, -Inf, -Inf),1),
-    Lright = rep(c(+Inf, -1, -1, +Inf),1)
+   ,Lcont = rep(c(0, NA, NA, NA),1)
 )
 ##
 constants <- list(
-    ndata=length(datapoints$Laux)
+    ndata=length(datapoints$Laux),
+    Lleft = rep(c(-Inf, -Inf, -Inf, -Inf),1),
+    Lright = rep(c(+Inf, -1, -1, +Inf),1)
 )
 ##
 initsFunction <- function(){
@@ -40,6 +40,11 @@ confnimble <- configureMCMC(Cfinitemixnimble, monitors=c('Lcont','Laux','vmean',
 ## confnimble$addSampler(target='Lcont[4]', type='posterior_predictive')
 ##
 print(confnimble)
+targetslist <- sapply(confnimble$getSamplers(), function(xx)xx$target)
+samplerorder <- c('vmean','vvar')
+neworder <- c(
+    foreach(var=setdiff(targetslist,samplerorder), .combine=c)%do%{grep(paste0('^',var,'$'),targetslist)},
+    foreach(var=samplerorder, .combine=c)%do%{grep(paste0('^',var,'(\\[.+\\])*$'),targetslist)}
 ##
 mcsampler <- buildMCMC(confnimble)
 Cmcsampler <- compileNimble(mcsampler, resetFunctions = TRUE)

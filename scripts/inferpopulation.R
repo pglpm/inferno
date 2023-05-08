@@ -292,8 +292,9 @@ inferpopulation <- function(data, varinfoaux, predictands, nsamples=4096, file=T
                           if(varN$n > 0){c('Nprob')},
                           if(varB$n > 0){c('Bprob')},
                           'W','Alpha')
-        neworder <- foreach(var=sampleorder, .combine=c)%do%{grep(paste0('^',var,'(\\[.+\\])*$'),sampletargets)}
-confnimble$setSamplerExecutionOrder(neworder)
+        neworder <- foreach(var=sampleorder, .combine=c)%do%{grep(paste0('^',var,'(\\[.+\\])*$'),targetslist)}
+        neworder <- c(setdiff(confnimble$getSamplerExecutionOrder(), neworder), neworder)
+        confnimble$setSamplerExecutionOrder(neworder)
 
 
 
