@@ -346,8 +346,26 @@ inferpopulation <- function(dataset, varinfoaux, predictands, nsamples=4096, fil
         
         ## replace Alpha's cat-sampler and RW samplers with slice
         targetslist <- sapply(confnimble$getSamplers(), function(xx)xx$target)   
+        nameslist <- sapply(confnimble$getSamplers(), function(xx)xx$name)
+
+        for(i in which(nameslist == 'RW')){
+            confnimble$getSamplers()[[i]]setSampler
+        }
+
+                for(asampler in c('Alpha')){
+            confnimble$replaceSamplers(target=asampler, type='slice')
+        }
+
+
+                for(asampler in c('Alpha', targetslist[nameslist == 'RW']){
+            confnimble$removeSamplers(asampler)
+            confnimble$addSampler(target=asampler, type='slice')
+        }
+
+
+        
         rwlist <- targetslist[which(sapply(confnimble$getSamplers(), function(xx)xx$name) == 'RW')]
-        for(asampler in c('Alpha', rwlist)){
+        for(asampler in c('Alpha', targetslist[nameslist == 'RW']){
             confnimble$removeSamplers(asampler)
             confnimble$addSampler(target=asampler, type='slice')
         }
