@@ -131,7 +131,7 @@ buildvarinfoaux <- function(data, varinfo, file=TRUE){
                 file <- 'varinfoaux.rds'
             }
         }
-        fwrite(varinfoaux, file)
+        saveRDS(varinfoaux, file)
         cat(paste0('Saved auxiliary variate-info file to ', file, '\n'))
     }else{
         varinfoaux

@@ -1,11 +1,11 @@
-inferpopulation <- function(data, varinfoaux, predictands, nsamples=4096, file=TRUE, ncores=NULL){
-    ## read data
-    if(is.character(data) && file.exists(data)){data <- fread(data, na.strings='')}
-    data <- as.data.table(data)
+inferpopulation <- function(dataset, varinfoaux, predictands, nsamples=4096, file=TRUE, ncores=NULL){
+    ## read dataset
+    if(is.character(dataset) && file.exists(dataset)){dataset <- fread(dataset, na.strings='')}
+    dataset <- as.data.table(dataset)
     ## varinfoaux
     if(is.character(varinfoaux) && file.exists(varinfoaux)){
         varinfoauxname <- varinfoaux
-        varinfoaux <- readRDS(varinfoaux)
+        varinfoaux <- readRDS(varinfoauxname)
     }
     ## list of predictand variates
     if(is.character(predictands) && file.exists(predictands)){
@@ -49,6 +49,7 @@ inferpopulation <- function(data, varinfoaux, predictands, nsamples=4096, file=T
     Bshapehi <- 1
     ##
     nalpha <- length(minalpha:maxalpha)
+    npoints <- nrow(dataset)
 
     vn <- list()
     vnames <- list()
@@ -190,8 +191,8 @@ inferpopulation <- function(data, varinfoaux, predictands, nsamples=4096, file=T
                  Cvar1 = rep(1, vn$C),
                  Cshapelo = rep(Cshapelo, vn$C),
                  Cshapehi = rep(Cshapehi, vn$C),
-                 Cleft = vtransform(data0[,vnames$C, with=F], varinfoaux, Cout='left'),
-                 Cright = vtransform(data0[,vnames$C, with=F], varinfoaux, Cout='right')
+                 Cleft = vtransform(dataset[,vnames$C, with=F], varinfoaux, Cout='left'),
+                 Cright = vtransform(dataset[,vnames$C, with=F], varinfoaux, Cout='right')
                  ) },
         if(vn$D > 0){# discretized
             list(Dn = vn$D,
@@ -200,8 +201,8 @@ inferpopulation <- function(data, varinfoaux, predictands, nsamples=4096, file=T
                  Dvar1 = rep(1, vn$D),
                  Dshapelo = rep(Dshapelo, vn$D),
                  Dshapehi = rep(Dshapehi, vn$D),
-                 Dleft = vtransform(data0[,vnames$D, with=F], varinfoaux, Dout='left'),
-                 Dright = vtransform(data0[,vnames$D, with=F], varinfoaux, Dout='right')
+                 Dleft = vtransform(dataset[,vnames$D, with=F], varinfoaux, Dout='left'),
+                 Dright = vtransform(dataset[,vnames$D, with=F], varinfoaux, Dout='right')
                  ) },
         if(vn$O > 0){# ordinal
             list(On = vn$O,
@@ -210,8 +211,8 @@ inferpopulation <- function(data, varinfoaux, predictands, nsamples=4096, file=T
                  Ovar1 = rep(1, vn$O),
                  Oshapelo = rep(Oshapelo, vn$O),
                  Oshapehi = rep(Oshapehi, vn$O),
-                 Oleft = vtransform(data0[,vnames$O, with=F], varinfoaux, Oout='left'),
-                 Oright = vtransform(data0[,vnames$O, with=F], varinfoaux, Oout='right')
+                 Oleft = vtransform(dataset[,vnames$O, with=F], varinfoaux, Oout='left'),
+                 Oright = vtransform(dataset[,vnames$O, with=F], varinfoaux, Oout='right')
                  ) },
         if(vn$N > 0){# nominal
             list(Nn = vn$N,
@@ -222,41 +223,41 @@ inferpopulation <- function(data, varinfoaux, predictands, nsamples=4096, file=T
             list(Bn = vn$B,
                  Bshapelo = rep(Bshapelo, vn$B),
                  Bshapehi = rep(Bshapehi, vn$B)
-                 ) },
+                 ) }
         )
         ##
         ##
         datapoints <- c(
             if(vn$R > 0){# continuous
                 list(
-                    Rdata = vtransform(data0[,vnames$R, with=F], varinfoaux)
+                    Rdata = vtransform(dataset[,vnames$R, with=F], varinfoaux)
                 ) },
             if(vn$C > 0){# censored
                 list(
-                    Caux = vtransform(data0[,vnames$C, with=F], varinfoaux, Cout='aux'),
-                    Clat = vtransform(data0[,vnames$C, with=F], varinfoaux, Cout='lat')
+                    Caux = vtransform(dataset[,vnames$C, with=F], varinfoaux, Cout='aux'),
+                    Clat = vtransform(dataset[,vnames$C, with=F], varinfoaux, Cout='lat')
                 ) },
             if(vn$D > 0){# discretized
                 list(
-                    Daux = vtransform(data0[,vnames$D, with=F], varinfoaux, Dout='aux')
+                    Daux = vtransform(dataset[,vnames$D, with=F], varinfoaux, Dout='aux')
                 ) },
             if(vn$O > 0){# ordinal
                 list(
-                    Oaux = vtransform(data0[,vnames$O, with=F], varinfoaux, Oout='aux')
+                    Oaux = vtransform(dataset[,vnames$O, with=F], varinfoaux, Oout='aux')
                 ) },
             if(vn$N > 0){# nominal
                 list(
-                    Ndata = transf(data0[,variate$N,with=F], varinfo)                
+                    Ndata = vtransform(dataset[,vnames$N,with=F], varinfoaux, Nout='numeric')                
                 ) },
             if(vn$B > 0){# binary
                 list(
-                    Bdata = transf(data0[,variate$B,with=F], varinfo)                
+                    Bdata = vtransform(dataset[,vnames$B,with=F], varinfoaux, Bout='numeric')                
                 ) }
         )
         ##
         ##
         initsfn <- function(){
-            Alpha <- sample(1:nalpha, 1, prob=constants$probalpha0, replace=T),
+            Alpha <- sample(1:nalpha, 1, prob=constants$probalpha0, replace=T)
             W <- 1/nclusters + 0*nimble::rdirch(n=1, alpha=constants$basealphas*2^Alpha)
             outlist <- list(
                 Alpha = Alpha,
@@ -280,7 +281,7 @@ inferpopulation <- function(data, varinfoaux, predictands, nsamples=4096, file=T
                                  Cmean = matrix(rnorm(n=vn$C*nclusters, mean=constants$Cmean1, sd=sqrt(constants$Cvarm1)), nrow=vn$C, ncol=nclusters),
                                  Crate = Crate,
                                  Cvar = matrix(nimble::rinvgamma(n=vn$C*nclusters, shape=constants$Cshapelo, rate=Crate), nrow=vn$C, ncol=nclusters),
-                                 Clat = vtransform(data0[,vnames$C, with=F], varinfoaux, Cout='init') ## for data with boundary values
+                                 Clat = vtransform(dataset[,vnames$C, with=F], varinfoaux, Cout='init') ## for data with boundary values
                              ))
             }
             if(vn$D > 0){# discretized
@@ -290,7 +291,7 @@ inferpopulation <- function(data, varinfoaux, predictands, nsamples=4096, file=T
                                  Dmean = matrix(rnorm(n=vn$D*nclusters, mean=constants$Dmean1, sd=sqrt(constants$Dvarm1)), nrow=vn$D, ncol=nclusters),
                                  Drate = Drate,
                                  Dvar = matrix(nimble::rinvgamma(n=vn$D*nclusters, shape=constants$Dshapelo, rate=Drate), nrow=vn$D, ncol=nclusters),
-                                 Dlat = vtransform(data0[,vnames$D, with=F], varinfoaux, Dout='init') ## for data with boundary values
+                                 Dlat = vtransform(dataset[,vnames$D, with=F], varinfoaux, Dout='init') ## for data with boundary values
                              ))
             }
             if(vn$O > 0){# ordinal
@@ -300,13 +301,13 @@ inferpopulation <- function(data, varinfoaux, predictands, nsamples=4096, file=T
                                  Omean = matrix(rnorm(n=vn$O*nclusters, mean=constants$Omean1, sd=sqrt(constants$Ovarm1)), nrow=vn$O, ncol=nclusters),
                                  Orate = Orate,
                                  Ovar = matrix(nimble::rinvgamma(n=vn$O*nclusters, shape=constants$Oshapelo, rate=Orate), nrow=vn$O, ncol=nclusters),
-                                 Olat = vtransform(data0[,vnames$O, with=F], varinfoaux, Oout='init') ## for data with boundary values
+                                 Olat = vtransform(dataset[,vnames$O, with=F], varinfoaux, Oout='init') ## for data with boundary values
                              ))
             }
             if(vn$N > 0){# nominal
                 outlist <- c(outlist,
                              list(
-                                 Nprob = aperm(array(sapply(1:vn$N, function(xx){sapply(1:nclusters, function(avar){rdirch(n=1, alpha=Nalpha0[avar,])})}), dim=c(Nmaxn,nclusters,vn$N)))
+                                 Nprob = aperm(array(sapply(1:vn$N, function(avar){sapply(1:nclusters, function(aclus){rdirch(n=1, alpha=Nalpha0[avar,])})}), dim=c(Nmaxn,nclusters,vn$N)))
                              ))
             }
             if(vn$B > 0){# binary
@@ -461,9 +462,9 @@ inferpopulation <- function(data, varinfoaux, predictands, nsamples=4096, file=T
             ## Diagnostics
             ## Log-likelihood
             diagntime <- Sys.time()
-            ll <- colSums(log(samplesFDistribution(Y=data.matrix(data0), X=NULL, mcsamples=mcsamples, varinfo=varinfo, jacobian=FALSE)), na.rm=T) #- sum(log(invjacobian(data.matrix(data0), varinfo)), na.rm=T)
-            lld <- colSums(log(samplesFDistribution(Y=data.matrix(data0[,..predictands]), X=data.matrix(data0[,..predictors]), mcsamples=mcsamples, varinfo=varinfo, jacobian=FALSE)), na.rm=T) # - sum(log(invjacobian(data.matrix(data0[,..predictands]), varinfo)), na.rm=T)
-            lli <- colSums(log(samplesFDistribution(Y=data.matrix(data0[,..predictors]), X=data.matrix(data0[,..predictands]), mcsamples=mcsamples, varinfo=varinfo, jacobian=FALSE)), na.rm=T) #- sum(log(invjacobian(data.matrix(data0[,..predictors]), varinfo)), na.rm=T)
+            ll <- colSums(log(samplesFDistribution(Y=data.matrix(dataset), X=NULL, mcsamples=mcsamples, varinfo=varinfo, jacobian=FALSE)), na.rm=T) #- sum(log(invjacobian(data.matrix(dataset), varinfo)), na.rm=T)
+            lld <- colSums(log(samplesFDistribution(Y=data.matrix(dataset[,..predictands]), X=data.matrix(dataset[,..predictors]), mcsamples=mcsamples, varinfo=varinfo, jacobian=FALSE)), na.rm=T) # - sum(log(invjacobian(data.matrix(dataset[,..predictands]), varinfo)), na.rm=T)
+            lli <- colSums(log(samplesFDistribution(Y=data.matrix(dataset[,..predictors]), X=data.matrix(dataset[,..predictands]), mcsamples=mcsamples, varinfo=varinfo, jacobian=FALSE)), na.rm=T) #- sum(log(invjacobian(data.matrix(dataset[,..predictors]), varinfo)), na.rm=T)
             ##
             traces <- rbind(traces,
                             10/log(10)/ndata *
