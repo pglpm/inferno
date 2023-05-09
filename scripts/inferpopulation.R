@@ -308,7 +308,7 @@ inferpopulation <- function(data, varinfoaux, predictands, nsamples=4096, file=T
                              list(
                                  Nprob = aperm(array(sapply(1:vn$N, function(xx){sapply(1:nclusters, function(avar){rdirch(n=1, alpha=Nalpha0[avar,])})}), dim=c(Nmaxn,nclusters,vn$N)))
                              ))
-                }
+            }
             if(vn$B > 0){# binary
                 outlist <- c(outlist,
                              list(
@@ -318,18 +318,19 @@ inferpopulation <- function(data, varinfoaux, predictands, nsamples=4096, file=T
             ##
             outlist
         }
-        ##
-        ##
+
+        timecount <- Sys.time()
+        
         finitemixnimble <- nimbleModel(
             code=finitemix, name='finitemixnimble1',
             constants=constants,
             data=datapoints,
             inits=initsfn()
-            )
-        ##
+        )
+
         Cfinitemixnimble <- compileNimble(finitemixnimble, showCompilerOutput=FALSE)
         gc()
-        ##
+
         confnimble <- configureMCMC(
             Cfinitemixnimble, #nodes=NULL,
             monitors=c('W',
@@ -362,8 +363,170 @@ inferpopulation <- function(data, varinfoaux, predictands, nsamples=4096, file=T
         neworder <- c(neworder, setdiff(confnimble$getSamplerExecutionOrder(), neworder))
         confnimble$setSamplerExecutionOrder(neworder)
 
-
-
+        mcsampler <- buildMCMC(confnimble)
+        Cmcsampler <- compileNimble(mcsampler, resetFunctions = TRUE)
         
+        cat('\nSetup time: ')
+        print(Sys.time() - timecount)
 
-}
+##################################################
+#### Monte Carlo sampler and plots of MC diagnostics
+##################################################
+        time0 <- Sys.time()
+        traces <- NULL
+        niterfinal <- niter0
+        nitertot <- 0L
+        stage <- 0L
+        continue <- TRUE
+
+        set.seed(chain+1000)
+        Cfinitemixnimble$setInits(initsfn())
+        while(continue){
+            showsamplertimes0 <- showsamplertimes && (stage==0)
+            showhyperparametertraces0 <- showhyperparametertraces && (stage==0)
+            if(testLength){
+                nsamples0 <- 1L
+                nburnin <- 0L
+                reset <- FALSE
+                niter <- niterfinal - nitertot
+            }else{
+                continue <- FALSE
+                nsamples0 <- nsamples
+                nburnin <- niterfinal-1L
+                niter <- niterfinal
+                reset <- TRUE
+                traces <- NULL
+                set.seed(mcmcseed+1000)
+            }
+
+            cat(paste0('Iterations: ', niter),'\n')
+            mcsamples <- finalstate <- NULL
+            calctime <- Sys.time()
+            for(achain in 1:nsamples0){
+                cat(paste0('chain: ', achain,', est. remaining time: ')); print((Sys.time()-calctime)/(achain-1)*(nsamples0-achain+1))
+                if(!continue){
+                    ## set.seed(mcmcseed+achain+999)
+                    Cfinitemixnimble$setInits(initsfn())
+                }
+                Cmcsampler$run(niter=niter, thin=1, thin2=1, nburnin=nburnin, time=showsamplertimes0, reset=reset, resetMV=TRUE)
+                mcsamples <- rbind(mcsamples, as.matrix(Cmcsampler$mvSamples))
+                finalstate <- rbind(finalstate, as.matrix(Cmcsampler$mvSamples2))
+            }
+            cat('\nTime MCMC: ')
+            print(Sys.time() - calctime)
+
+            if(any(!is.finite(mcsamples))){cat('\nWARNING: SOME NON-FINITE OUTPUTS')}
+            
+            if(showsamplertimes){
+                samplertimes <- Cmcsampler$getTimes()
+                names(samplertimes) <- sapply(confnimble$getSamplers(),function(x)x$target)
+                sprefixes <- unique(sub('^([^[]+)(\\[.*\\])', '\\1', names(samplertimes)))
+                cat(paste0('\nSampler times:\n'))
+                print(sort(sapply(sprefixes, function(x)sum(samplertimes[grepl(x,names(samplertimes))])),decreasing=T))
+            }
+            ##
+            if(showhyperparametertraces){
+                occupations <- apply(finalstate[,grepl('^K\\[', colnames(finalstate)),drop=F], 1, function(xxx){length(unique(xxx))})
+                cat(paste0('\nSTATS OCCUPIED CLUSTERS:\n'))
+                print(summary(occupations))
+                ##
+                pdff(paste0(dirname,'traces_hyperparameters-',mcmcseed,'-',stage))
+                tplot(y=occupations, ylab='occupied clusters',xlab=NA,ylim=c(0,nclusters))
+                histo <- thist(occupations,n='i')
+                tplot(x=histo$mids,y=histo$density,xlab='occupied clusters',ylab=NA)
+                tplot(y=finalstate[,'Alpha'], ylab='Alpha-index',xlab=NA)
+                histo <- thist(finalstate[,'Alphaindex'])
+                tplot(x=histo$mids,y=histo$density,xlab='Alpha-index',ylab='')
+                ## for(vtype in c('R','I',#'O',
+                ##                'D')){
+                ##     if(len[[vtype]] > 0){
+                ##         for(togrep in c('varscaleindex')){
+                ##             for(v in colnames(finalstate)[grepl(paste0('^',vtype,togrep,'\\['), colnames(finalstate))]){
+                ##                 tplot(y=finalstate[,v],ylab=v,xlab=NA,ylim=c(1,(2*hwidth+1)))
+                ##             }
+                ##         }
+                ##     }
+                ## }
+                dev.off()
+            }
+
+            finalstate <- c(mcsamples[nrow(mcsamples),], finalstate[nrow(finalstate),])
+            ## Check how many "clusters" were occupied. Warns if too many
+            occupations <- finalstate[grepl('^K\\[', names(finalstate))]
+            usedclusters <- length(unique(occupations))
+            if(usedclusters > nclusters-5){cat('\nWARNING: TOO MANY CLUSTERS OCCUPIED')}
+            cat(paste0('\nOCCUPIED CLUSTERS: ', usedclusters, ' OF ', nclusters),'\n')
+
+
+            ## Diagnostics
+            ## Log-likelihood
+            diagntime <- Sys.time()
+            ll <- colSums(log(samplesFDistribution(Y=data.matrix(data0), X=NULL, mcsamples=mcsamples, varinfo=varinfo, jacobian=FALSE)), na.rm=T) #- sum(log(invjacobian(data.matrix(data0), varinfo)), na.rm=T)
+            lld <- colSums(log(samplesFDistribution(Y=data.matrix(data0[,..predictands]), X=data.matrix(data0[,..predictors]), mcsamples=mcsamples, varinfo=varinfo, jacobian=FALSE)), na.rm=T) # - sum(log(invjacobian(data.matrix(data0[,..predictands]), varinfo)), na.rm=T)
+            lli <- colSums(log(samplesFDistribution(Y=data.matrix(data0[,..predictors]), X=data.matrix(data0[,..predictands]), mcsamples=mcsamples, varinfo=varinfo, jacobian=FALSE)), na.rm=T) #- sum(log(invjacobian(data.matrix(data0[,..predictors]), varinfo)), na.rm=T)
+            ##
+            traces <- rbind(traces,
+                            10/log(10)/ndata *
+                            cbind(loglikelihood=ll,
+                                  'mean of direct logprobabilities'=lld,
+                                  'mean of inverse logprobabilities'=lli)
+                            )
+            traces2 <- traces[apply(traces,1,function(x){all(is.finite(x))}),]
+            saveRDS(traces,file=paste0(dirname,'_mctraces-R',basename,'--',mcmcseed,'-',stage,'.rds'))
+            flagll <- nrow(traces) != nrow(traces2)
+            ##
+            if(nrow(traces2)>=1000){
+                funMCSE <- function(x){LaplacesDemon::MCSE(x, method='batch.means')$se}
+            }else{
+                funMCSE <- function(x){LaplacesDemon::MCSE(x)}
+            }
+            diagnESS <- LaplacesDemon::ESS(traces2)
+            diagnIAT <- apply(traces2, 2, function(x){LaplacesDemon::IAT(x)})
+            diagnBMK <- LaplacesDemon::BMK.Diagnostic(traces2[1:(4*trunc(nrow(traces2)/4)),], batches=4)[,1]
+            diagnMCSE <- 100*apply(traces2, 2, function(x){funMCSE(x)/sd(x)})
+            diagnStat <- apply(traces2, 2, function(x){LaplacesDemon::is.stationary(as.matrix(x,ncol=1))})
+            diagnBurn <- apply(traces2, 2, function(x){LaplacesDemon::burnin(matrix(x[1:(10*trunc(length(x)/10))], ncol=1))})
+            diagnBurn2 <- proposeburnin(traces2, batches=10)
+            diagnThin <- proposethinning(traces2)
+            ##
+            cat(paste0('\nESSs: ',paste0(round(diagnESS), collapse=', ')))
+            cat(paste0('\nIATs: ',paste0(round(diagnIAT), collapse=', ')))
+            cat(paste0('\nBMKs: ',paste0(round(diagnBMK,3), collapse=', ')))
+            cat(paste0('\nMCSEs: ',paste0(round(diagnMCSE,2), collapse=', ')))
+            cat(paste0('\nStationary: ',paste0(diagnStat, collapse=', ')))
+            cat(paste0('\nBurn-in I: ',paste0(diagnBurn, collapse=', ')))
+            cat(paste0('\nBurn-in II: ',diagnBurn2))
+            cat(paste0('\nProposed thinning: ',paste0(diagnThin, collapse=', ')),'\n')
+
+            cat('\nTime diagnostics: ')
+            print(Sys.time() - diagntime)
+            ##
+#########################################
+#### CHECK IF WE NEED TO SAMPLE MORE ####
+#########################################
+            lengthmeasure <- ceiling(nthreshold * max(diagnBurn2,diagnIAT))
+            ## lengthmeasure <- ceiling(max(diagnBurn2))
+            if(testLength){
+                if(niterfinal < lengthmeasure){
+                    cat(paste0('Number of iterations/threshold is too small: ', signif(niterfinal/lengthmeasure,2)), '. ')
+                    niterfinal <- lengthmeasure
+                    cat(paste0('Increasing to ', niterfinal), '\n')
+                    nitertot <- nitertot + niter
+                    stage <- stage + 1L
+                }else{
+                    cat(paste0('Number of iterations/threshold: ', signif(niterfinal/lengthmeasure,2)), '\n')
+                    testLength <- FALSE
+                }
+            }else{
+                saveRDS(mcsamples, file=paste0(dirname,'_mcsamples-R',basename,'--',mcmcseed,'-F.rds'))
+                saveRDS(traces, file=paste0(dirname,'_mctraces-R',basename,'--',mcmcseed,'-F.rds'))
+                stage <- 'F'
+            }
+#########################################
+#### END CHECK                       ####
+#########################################
+
+
+            
+
+        }
