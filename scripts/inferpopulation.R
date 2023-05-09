@@ -342,12 +342,14 @@ inferpopulation <- function(data, varinfoaux, predictands, nsamples=4096, file=T
                        ),
             monitors2=c( 'Alpha', 'K')
         )
-        ## get list of sampled variates
+        ## replace Alpha's cat-sampler and RW samplers with slice
         targetslist <- sapply(confnimble$getSamplers(), function(xx)xx$target)   
-        ## replace categorical sampler for Alpha with slice
-        confnimble$removeSamplers(c('Alpha'))
-        for(no in c('Alpha')){confnimble$addSampler(target=no, type='slice')}
-        ##
+        rwlist <- targetslist[which(sapply(confnimble$getSamplers(), function(xx)xx$name) == 'RW')]
+        for(asampler in c('Alpha', rwlist)){
+            confnimble$removeSamplers(asampler)
+            confnimble$addSampler(target=asampler, type='slice')
+        }
+        ## reorder samplers
         samplerorder <- c('K',
                           if(vn$R > 0){c('Rmean','Rrate','Rvar')},
                           if(vn$C > 0){c('Cmean','Crate','Cvar')},
@@ -356,8 +358,8 @@ inferpopulation <- function(data, varinfoaux, predictands, nsamples=4096, file=T
                           if(vn$N > 0){c('Nprob')},
                           if(vn$B > 0){c('Bprob')},
                           'W','Alpha')
-        neworder <- foreach(var=sampleorder, .combine=c)%do%{grep(paste0('^',var,'(\\[.+\\])*$'),targetslist)}
-        neworder <- c(setdiff(confnimble$getSamplerExecutionOrder(), neworder), neworder)
+        neworder <- foreach(var=samplerorder, .combine=c)%do%{grep(paste0('^',var,'(\\[.+\\])*$'),targetslist)}
+        neworder <- c(neworder, setdiff(confnimble$getSamplerExecutionOrder(), neworder))
         confnimble$setSamplerExecutionOrder(neworder)
 
 

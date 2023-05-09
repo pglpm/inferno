@@ -40,14 +40,20 @@ confnimble <- configureMCMC(Cfinitemixnimble, monitors=c('Lcont','Laux','vmean',
 ## confnimble$addSampler(target='Lcont[4]', type='posterior_predictive')
 ##
 print(confnimble)
-#3
-targetslist <- sapply(confnimble$getSamplers(), function(xx)xx$target)
+##
+targetslist <- sapply(confnimble$getSamplers(), function(xx)xx$target)   
+samplerslist <- sapply(confnimble$getSamplers(), function(xx)xx$name)
+rwlist <- targetslist[which(samplerslist == 'RW')]
+for(asampler in rwlist){
+    confnimble$removeSamplers(asampler)
+    confnimble$addSampler(target=asampler, type='slice')
+}
 samplerorder <- c('vmean','vvar')
 ## neworder <- c(
 ##     foreach(var=setdiff(targetslist,samplerorder), .combine=c)%do%{grep(paste0('^',var,'$'),targetslist)},
 ##     foreach(var=samplerorder, .combine=c)%do%{grep(paste0('^',var,'(\\[.+\\])*$'),targetslist)}
 neworder <- foreach(var=samplerorder, .combine=c)%do%{grep(paste0('^',var,'(\\[.+\\])*$'),targetslist)}
-neworder <- c(setdiff(confnimble$getSamplerExecutionOrder(), neworder), neworder)
+neworder <- c(neworder, setdiff(confnimble$getSamplerExecutionOrder(), neworder))
 confnimble$setSamplerExecutionOrder(neworder)
 
 ##
@@ -57,13 +63,24 @@ Cmcsampler <- compileNimble(mcsampler, resetFunctions = TRUE)
 set.seed(890)
 Cfinitemixnimble$setInits(initsFunction())
 timecount <- Sys.time()
-todelete <- Cmcsampler$run(niter=100000, thin=100, thin2=1, nburnin=0, reset=TRUE, resetMV=TRUE)
+todelete <- Cmcsampler$run(niter=100, thin=1, thin2=1, nburnin=0, reset=TRUE, resetMV=TRUE)
 print(Sys.time()-timecount)
 rm(todelete)
 mcsamples <- as.matrix(Cmcsampler$mvSamples)
 
+testrw <- mcsamples[,'Lcont[3]']
 
-tplot(y=mcsamples[,'Lcont[4]'])
+testsl <- mcsamples[,'Lcont[3]']
+
+tplot(y=mcsamples[,'Lcont[3]'])
+
+tplot(y=cbind(testrw,testsl))
+
+## with RW
+## > Time difference of 8.67991 secs
+## with slice replacing RW
+## > Time difference of 12.073 secs
+
 
 ## bounded
 ## leftright as data
