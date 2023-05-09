@@ -41,6 +41,27 @@ vtransform <- function(x, varinfoaux, Cout='init', Dout='data', Oout='data', Bou
                 datum <- datum * info$tscale + info$tlocation
             }
             ##
+        } else if(info$mcmctype == 'D'){ # ordinal
+            datum <- round((datum-info$tlocation)/info$tscale) # output is in range 0 to n-1
+            if(Dout == 'init'){ # in sampling functions or init MCMC
+                datum[is.na(datum)] <- info$Nvalues/2+0.5
+                datum <- Dfunction((datum-0.5)/info$Nvalues)
+            } else if(Dout == 'left'){ # as left for MCMC
+                datum <- Dfunction(pmax(0,datum-1)/info$Nvalues)
+                datum[is.na(datum)] <- -Inf
+            } else if(Dout == 'right'){ # as right for MCMC
+                datum <- Dfunction(pmin(info$Nvalues,datum)/info$Nvalues)
+                datum[is.na(datum)] <- +Inf
+            } else if(Dout == 'aux'){ # aux variable in MCMC
+                sel <- is.na(datum)
+                datum[sel] <- NA
+                datum[!sel] <- 1L
+            } else if(Dout == 'index'){ # in output functions
+                datum <- datum-1L
+            } else if(Dout == 'original'){ # in output functions
+                datum <- datum * info$tscale + info$tlocation
+            }
+            ##
         } else if(info$mcmctype == 'B'){ # binary
             bvalues <- 0:1
             names(bvalues) <- unlist(info[c('V1','V2')])
