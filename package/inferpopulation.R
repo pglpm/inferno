@@ -67,7 +67,7 @@ inferpopulation <- function(dataset, varinfoaux, predictands, nsamples=4096, fil
     }
     
     mcsamples <- foreach(chain=1:ncores, .combine=rbind, .packages='nimble', .inorder=FALSE)%dorng%{
-        ##
+
         ## hierarchical probability structure
         finitemix <- nimble::nimbleCode({
             ## Component weights
@@ -91,30 +91,30 @@ inferpopulation <- function(dataset, varinfoaux, predictands, nsamples=4096, fil
             for(k in 1:nclusters){
                 if(vn$R > 0){# continuous
                     for(v in 1:Rn){
-                        Rmean[v, k] ~ dnorm(mean=Rmean1[v], var=Rvarm1[v])
-                        Rrate[v, k] ~ dinvgamma(shape=Rshapehi[v], rate=Rvar1[v])
-                        Rvar[v, k] ~ dinvgamma(shape=Rshapelo[v], rate=Rrate[v, k])
+                        Rmean[v, k] ~ dnorm(mean=Rmean1, var=Rvarm1)
+                        Rrate[v, k] ~ dinvgamma(shape=Rshapehi, rate=Rvar1)
+                        Rvar[v, k] ~ dinvgamma(shape=Rshapelo, rate=Rrate[v, k])
                     }
                 }
                 if(vn$C > 0){# censored
                     for(v in 1:Cn){
-                        Cmean[v, k] ~ dnorm(mean=Cmean1[v], var=Cvarm1[v])
-                        Crate[v, k] ~ dinvgamma(shape=Cshapehi[v], rate=Cvar1[v])
-                        Cvar[v, k] ~ dinvgamma(shape=Cshapelo[v], rate=Crate[v, k])
+                        Cmean[v, k] ~ dnorm(mean=Cmean1, var=Cvarm1)
+                        Crate[v, k] ~ dinvgamma(shape=Cshapehi, rate=Cvar1)
+                        Cvar[v, k] ~ dinvgamma(shape=Cshapelo, rate=Crate[v, k])
                     }
                 }
                 if(vn$D > 0){# discretized
                     for(v in 1:Dn){
-                        Dmean[v, k] ~ dnorm(mean=Dmean1[v], var=Dvarm1[v])
-                        Drate[v, k] ~ dinvgamma(shape=Dshapehi[v], rate=Dvar1[v])
-                        Dvar[v, k] ~ dinvgamma(shape=Dshapelo[v], rate=Drate[v, k])
+                        Dmean[v, k] ~ dnorm(mean=Dmean1, var=Dvarm1)
+                        Drate[v, k] ~ dinvgamma(shape=Dshapehi, rate=Dvar1)
+                        Dvar[v, k] ~ dinvgamma(shape=Dshapelo, rate=Drate[v, k])
                     }
                 }
                 if(vn$O > 0){# ordinal
                     for(v in 1:On){
-                        Omean[v, k] ~ dnorm(mean=Omean1[v], var=Ovarm1[v])
-                        Orate[v, k] ~ dinvgamma(shape=Oshapehi[v], rate=Ovar1[v])
-                        Ovar[v, k] ~ dinvgamma(shape=Oshapelo[v], rate=Orate[v, k])
+                        Omean[v, k] ~ dnorm(mean=Omean1, var=Ovarm1)
+                        Orate[v, k] ~ dinvgamma(shape=Oshapehi, rate=Ovar1)
+                        Ovar[v, k] ~ dinvgamma(shape=Oshapelo, rate=Orate[v, k])
                     }
                 }
                 if(vn$N > 0){# nominal
@@ -124,7 +124,7 @@ inferpopulation <- function(dataset, varinfoaux, predictands, nsamples=4096, fil
                 }
                 if(vn$B > 0){# binary
                     for(v in 1:Bn){
-                        Bprob[v, k] ~ dbeta(shape1=Bshapelo[v], shape2=Bshapehi[v])
+                        Bprob[v, k] ~ dbeta(shape1=Bshapelo, shape2=Bshapehi)
                     }
                 }
             }
@@ -134,41 +134,40 @@ inferpopulation <- function(dataset, varinfoaux, predictands, nsamples=4096, fil
                 ##
                 if(vn$R > 0){# continuous
                     for(v in 1:Rn){
-                        Rdata[d, k] ~ dnorm(mean=Rmean[v, K[d]], var=Rvar[v, K[d]])
+                        Rdata[d, v] ~ dnorm(mean=Rmean[v, K[d]], var=Rvar[v, K[d]])
                     }
                 }
                 if(vn$C > 0){# censored
                     for(v in 1:Cn){
-                        Caux[v, d] ~ dconstraint(Clat[v, d] >= Cleft[v] & Clat[v, d] <= Cright[v])
-                        Clat[v, d] ~ dnorm(mean=Cmean[v, K[d]], var=Cvar[v, K[d]])
+                        Caux[d, v] ~ dconstraint(Clat[d, v] >= Cleft[d, v] & Clat[d, v] <= Cright[d, v])
+                        Clat[d, v] ~ dnorm(mean=Cmean[v, K[d]], var=Cvar[v, K[d]])
                     }
                 }
                 if(vn$D > 0){# discretized
                     for(v in 1:Dn){
-                        Daux[v, d] ~ dconstraint(Dlat[v, d] >= Dleft[v, d] & Dlat[v, d] < Dright[v, d])
-                        Dlat[v, d] ~ dnorm(mean=Dmean[v, K[d]], var=Dvar[v, K[d]])
+                        Daux[d, v] ~ dconstraint(Dlat[d, v] >= Dleft[d, v] & Dlat[d, v] < Dright[d, v])
+                        Dlat[d, v] ~ dnorm(mean=Dmean[v, K[d]], var=Dvar[v, K[d]])
                     }
                 }
                 if(vn$O > 0){# ordinal
                     for(v in 1:On){
-                        Oaux[v, d] ~ dconstraint(Olat[v, d] >= Oleft[v, d] & Olat[v, d] < Oright[v, d])
-                        Olat[v, d] ~ dnorm(mean=Omean[v, K[d]], var=Ovar[v, K[d]])
+                        Oaux[d, v] ~ dconstraint(Olat[d, v] >= Oleft[d, v] & Olat[d, v] < Oright[d, v])
+                        Olat[d, v] ~ dnorm(mean=Omean[v, K[d]], var=Ovar[v, K[d]])
                     }
                 }
                 if(vn$N > 0){# nominal
                     for(v in 1:Nn){
-                        Ndata[v, d] ~ dcat(prob=Nprob[v, K[d], 1:Nmaxn])
+                        Ndata[d, v] ~ dcat(prob=Nprob[v, K[d], 1:Nmaxn])
                     }
                 }
                 if(vn$B > 0){# binary
                     for(v in 1:Bn){
-                        Bdata[v, d] ~ dbern(prob=Bprob[v, K[d]])
+                        Bdata[d, v] ~ dbern(prob=Bprob[v, K[d]])
                     }
                 }
             }
         })
-        ##
-        ##
+
         constants <- c( list(
             nclusters = nclusters,
             npoints = npoints,
@@ -178,39 +177,39 @@ inferpopulation <- function(dataset, varinfoaux, predictands, nsamples=4096, fil
         ),
         if(vn$R > 0){# continuous
             list(Rn = vn$R,
-                 Rmean1 = rep(0, vn$R),
-                 Rvarm1 = rep(1, vn$R),
-                 Rvar1 = rep(1, vn$R),
-                 Rshapelo = rep(Rshapelo, vn$R),
-                 Rshapehi = rep(Rshapehi, vn$R)
+                 Rmean1 = rep(0, 1),
+                 Rvarm1 = rep(1, 1),
+                 Rvar1 = rep(1, 1),
+                 Rshapelo = rep(Rshapelo, 1),
+                 Rshapehi = rep(Rshapehi, 1)
                  ) },
         if(vn$C > 0){# censored
             list(Cn = vn$C,
-                 Cmean1 = rep(0, vn$C),
-                 Cvarm1 = rep(1, vn$C),
-                 Cvar1 = rep(1, vn$C),
-                 Cshapelo = rep(Cshapelo, vn$C),
-                 Cshapehi = rep(Cshapehi, vn$C),
+                 Cmean1 = rep(0, 1),
+                 Cvarm1 = rep(1, 1),
+                 Cvar1 = rep(1, 1),
+                 Cshapelo = rep(Cshapelo, 1),
+                 Cshapehi = rep(Cshapehi, 1),
                  Cleft = vtransform(dataset[,vnames$C, with=F], varinfoaux, Cout='left'),
                  Cright = vtransform(dataset[,vnames$C, with=F], varinfoaux, Cout='right')
                  ) },
         if(vn$D > 0){# discretized
             list(Dn = vn$D,
-                 Dmean1 = rep(0, vn$D),
-                 Dvarm1 = rep(1, vn$D),
-                 Dvar1 = rep(1, vn$D),
-                 Dshapelo = rep(Dshapelo, vn$D),
-                 Dshapehi = rep(Dshapehi, vn$D),
+                 Dmean1 = rep(0, 1),
+                 Dvarm1 = rep(1, 1),
+                 Dvar1 = rep(1, 1),
+                 Dshapelo = rep(Dshapelo, 1),
+                 Dshapehi = rep(Dshapehi, 1),
                  Dleft = vtransform(dataset[,vnames$D, with=F], varinfoaux, Dout='left'),
                  Dright = vtransform(dataset[,vnames$D, with=F], varinfoaux, Dout='right')
                  ) },
         if(vn$O > 0){# ordinal
             list(On = vn$O,
-                 Omean1 = rep(0, vn$O),
-                 Ovarm1 = rep(1, vn$O),
-                 Ovar1 = rep(1, vn$O),
-                 Oshapelo = rep(Oshapelo, vn$O),
-                 Oshapehi = rep(Oshapehi, vn$O),
+                 Omean1 = rep(0, 1),
+                 Ovarm1 = rep(1, 1),
+                 Ovar1 = rep(1, 1),
+                 Oshapelo = rep(Oshapelo, 1),
+                 Oshapehi = rep(Oshapehi, 1),
                  Oleft = vtransform(dataset[,vnames$O, with=F], varinfoaux, Oout='left'),
                  Oright = vtransform(dataset[,vnames$O, with=F], varinfoaux, Oout='right')
                  ) },
@@ -221,13 +220,13 @@ inferpopulation <- function(dataset, varinfoaux, predictands, nsamples=4096, fil
                  ) },
         if(vn$B > 0){# binary
             list(Bn = vn$B,
-                 Bshapelo = rep(Bshapelo, vn$B),
-                 Bshapehi = rep(Bshapehi, vn$B)
+                 Bshapelo = rep(Bshapelo, 1),
+                 Bshapehi = rep(Bshapehi, 1)
                  ) }
         )
-        ##
-        ##
-        datapoints <- c(
+
+
+       datapoints <- c(
             if(vn$R > 0){# continuous
                 list(
                     Rdata = vtransform(dataset[,vnames$R, with=F], varinfoaux)
@@ -254,8 +253,8 @@ inferpopulation <- function(dataset, varinfoaux, predictands, nsamples=4096, fil
                     Bdata = vtransform(dataset[,vnames$B,with=F], varinfoaux, Bout='numeric')                
                 ) }
         )
-        ##
-        ##
+
+
         initsfn <- function(){
             Alpha <- sample(1:nalpha, 1, prob=constants$probalpha0, replace=T)
             W <- 1/nclusters + 0*nimble::rdirch(n=1, alpha=constants$basealphas*2^Alpha)
@@ -335,15 +334,16 @@ inferpopulation <- function(dataset, varinfoaux, predictands, nsamples=4096, fil
         confnimble <- configureMCMC(
             Cfinitemixnimble, #nodes=NULL,
             monitors=c('W',
-                       if(len$R > 0){c('Rmean', 'Rvar')},
-                       if(len$C > 0){c('Cmean', 'Cvar')},
-                       if(len$D > 0){c('Dmean', 'Dvar')},
-                       if(len$O > 0){c('Omean', 'Ovar')},
-                       if(len$N > 0){c('Nprob')},
-                       if(len$B > 0){c('Bprob')},
+                       if(vn$R > 0){c('Rmean', 'Rvar')},
+                       if(vn$C > 0){c('Cmean', 'Cvar')},
+                       if(vn$D > 0){c('Dmean', 'Dvar')},
+                       if(vn$O > 0){c('Omean', 'Ovar')},
+                       if(vn$N > 0){c('Nprob')},
+                       if(vn$B > 0){c('Bprob')}
                        ),
             monitors2=c( 'Alpha', 'K')
         )
+        
         ## replace Alpha's cat-sampler and RW samplers with slice
         targetslist <- sapply(confnimble$getSamplers(), function(xx)xx$target)   
         rwlist <- targetslist[which(sapply(confnimble$getSamplers(), function(xx)xx$name) == 'RW')]
@@ -351,6 +351,8 @@ inferpopulation <- function(dataset, varinfoaux, predictands, nsamples=4096, fil
             confnimble$removeSamplers(asampler)
             confnimble$addSampler(target=asampler, type='slice')
         }
+
+        ## confnimble$printSamplers(executionOrder=TRUE)
         ## reorder samplers
         samplerorder <- c('K',
                           if(vn$R > 0){c('Rmean','Rrate','Rvar')},
@@ -360,8 +362,11 @@ inferpopulation <- function(dataset, varinfoaux, predictands, nsamples=4096, fil
                           if(vn$N > 0){c('Nprob')},
                           if(vn$B > 0){c('Bprob')},
                           'W','Alpha')
+        pplist <- targetslist[which(sapply(confnimble$getSamplers(), function(xx)xx$name) == 'posterior_predictive')]
         neworder <- foreach(var=samplerorder, .combine=c)%do%{grep(paste0('^',var,'(\\[.+\\])*$'),targetslist)}
-        neworder <- c(neworder, setdiff(confnimble$getSamplerExecutionOrder(), neworder))
+        neworder <- foreach(var=samplerorder, .combine=c)%do%{grep(paste0('^',var,'(\\[.+\\])*$'),targetslist)}
+        new
+        neworder <- c(setdiff(confnimble$getSamplerExecutionOrder(), c(neworder,))
         confnimble$setSamplerExecutionOrder(neworder)
 
         mcsampler <- buildMCMC(confnimble)
