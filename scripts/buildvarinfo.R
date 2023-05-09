@@ -9,16 +9,16 @@ buildvarinfo <- function(data, file=NULL){
         x <- x[!is.na(x)]
         transf <- 'identity' # temporary
         if(is.numeric(x)){
-            Q1 <- quantile(x, probs=0.25, type=6)
-            Q2 <- quantile(x, probs=0.5, type=6)
-            Q3 <- quantile(x, probs=0.75, type=6)
-            location <- Q2
-            scale <- (Q3-Q1)/2
-            if(scale == 0){scale <- diff(range(x))/2}
-        }else{
-            location <- NA
-            scale <- NA
+            Q1 <- loval <- quantile(x, probs=0.25, type=6)
+            Q2 <- meval <- quantile(x, probs=0.5, type=6)
+            Q3 <- hival <- quantile(x, probs=0.75, type=6)
+            if(loval == hival){
+                loval <- (Q1 + min(x))/2
+                hival <- (Q1 + max(x))/2
             }
+        }else{
+            loval <- meval <- hival <- NA
+        }
         if(length(unique(x)) == 2){# seems binary variate
             vtype <- 'binary'
             vn <- 2
@@ -43,7 +43,7 @@ buildvarinfo <- function(data, file=NULL){
             names(vval) <- paste0('V',1:vn)
             plotmin <- NA
             plotmax <- NA
-        }else{# ordinal, continuous, or boundary-singular variate
+        }else{# ordinal, continuous, censored, or discretized variate
             ud <- unique(signif(diff(sort(unique(x))),3)) # differences
             rx <- diff(range(x))
             multi <- 10^(-min(floor(log10(ud))))
@@ -118,7 +118,7 @@ buildvarinfo <- function(data, file=NULL){
         }# end numeric
         ##
         varinfo <- rbind(varinfo,
-                         c(list(type=vtype, Nvalues=vn, rounding=vd, domainmin=vmin, domainmax=vmax, censormin=tmin, censormax=tmax, location=location, scale=scale, plotmin=plotmin, plotmax=plotmax),
+                         c(list(type=vtype, Nvalues=vn, rounding=vd, domainmin=vmin, domainmax=vmax, censormin=tmin, censormax=tmax, centralvalue=meval, lowvalue=loval, highvalue=hival, plotmin=plotmin, plotmax=plotmax),
                            as.list(vval)
                          ), fill=TRUE)
     }

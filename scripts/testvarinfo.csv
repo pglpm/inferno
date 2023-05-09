@@ -1,8 +1,9 @@
-name,type,Nvalues,rounding,domainmin,domainmax,censormin,censormax,location,scale,plotmin,plotmax,V1,V2,V3,V4,V5,V6,V7
-Rvar,continuous,Inf,0,-Inf,Inf,,,-0.174469278957147,0.464508385800651,-1.47546805313986,1.20420444239779,,,,,,,
-Cvar,continuous,Inf,0,-Inf,Inf,-1,1,-0.597696367068056,1,-1,1,,,,,,,
-Dvar,continuous,Inf,0.1,-Inf,Inf,,,-0.6,0.65,-1.95,1.35,,,,,,,
-Ovar,ordinal,8,1,1,8,,,6,1.5,1,8,,,,,,,
-Nvar,nominal,7,,,,,,,,,,a,b,c,d,e,f,g
-Bvar,binary,2,,,,,,0,0.25,,,0,1,,,,,
-Rvar2,continuous,Inf,0,-Inf,Inf,,,0.597703693312296,0.546002129062801,-0.548782453767526,2.47390951940938,,,,,,,
+name,type,Nvalues,rounding,domainmin,domainmax,censormin,censormax,centralvalue,lowvalue,highvalue,plotmin,plotmax,V1,V2,V3,V4,V5,V6,V7
+Rvar,continuous,Inf,0,-Inf,Inf,,,-0.269535344671678,-0.532502909532471,0.268379097903041,-1.41140067105697,1.32834839406434,,,,,,,
+Cvar,continuous,Inf,0,-Inf,Inf,-1,1,-0.329677220772856,-1,1,-1,1,,,,,,,
+Dvar,continuous,Inf,0.1,-Inf,Inf,,,-0.5,-1.5,0.225,-2.7625,1.4625,,,,,,,
+Ovar,ordinal,8,1,1,8,,,4,3.5,5,1,8,,,,,,,
+Nvar,nominal,7,,,,,,,,,,,a,b,c,d,f,g,h
+Bvar,binary,2,,,,,,0,0,1,,,0,1,,,,,
+Rvar2,continuous,Inf,0,-Inf,Inf,,,0.766328752232149,0.279856103831682,1.38153840843014,-0.980533181774386,2.40741540982214,,,,,,,
+Rvarl,continuous,Inf,0,0,Inf,,,0.88955305265773,0.286810582246442,1.41400691626162,0,3.77256099226442,,,,,,,

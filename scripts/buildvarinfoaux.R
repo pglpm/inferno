@@ -77,11 +77,11 @@ buildvarinfoaux <- function(data, varinfo, file=TRUE){
             rounded <- (vd > 0)
             vmin <- xinfo$domainmin
             vmax <- xinfo$domainmax
-            tmin <- max(xinfo$censormin, -Inf, na.rm=TRUE)
-            tmax <- min(xinfo$censormax, +Inf, na.rm=TRUE)
+            tmin <- xinfo$censormin # max(xinfo$censormin, vmin, na.rm=TRUE)
+            tmax <- xinfo$censormax # min(xinfo$censormax, vmax, na.rm=TRUE)
             cens <- any(is.finite(c(tmin,tmax)))
-            location <- xinfo$location
-            scale <- xinfo$scale
+            location <- xinfo$centralvalue
+            scale <- abs(xinfo$highvalue - xinfo$lowvalue)
             Q1 <- quantile(x, probs=0.25, type=6)
             Q2 <- quantile(x, probs=0.5, type=6)
             Q3 <- quantile(x, probs=0.75, type=6)
@@ -90,15 +90,15 @@ buildvarinfoaux <- function(data, varinfo, file=TRUE){
             if(is.finite(xinfo$domainmin) && is.finite(xinfo$domainmax)){ # needs transformation
                 transf <- 'probit'
                 location <- qnorm((location-vmin)/(vmax-vmin))
-                scale <- scale/((vmax-vmin)*dnorm(location))
+                scale <- abs(qnorm((xinfo$highvalue-vmin)/(vmax-vmin)) - qnorm((xinfo$lowvalue-vmin)/(vmax-vmin)))
             }else if(is.finite(xinfo$domainmin)){
                 transf <- 'log'
-                scale <- scale/(location-vmin)
                 location <- log(location-vmin)
+                scale <- abs(log(xinfo$highvalue-vmin) - log(xinfo$lowvalue-vmin))
             }else if(is.finite(xinfo$domainmax)){
                 transf <- 'logminus'
-                scale <- scale/(vmax-location)
                 location <- log(vmax-location)
+                scale <- abs(log(vmax-xinfo$highvalue) - log(vmax-xinfo$lowvalue))
             }
             if(xinfo$rounding > 0){ # continuous discretized
                 vtype <- 'D'
