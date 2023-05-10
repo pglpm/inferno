@@ -1,5 +1,5 @@
 ## Transformation from variate to internal variable
-vtransform <- function(x, varinfoaux, Cout='init', Dout='data', Oout='data', Bout='numeric', Nout='numeric', Ofunction='Ofunction512', variates=NULL){
+vtransform <- function(x, varinfoaux, Cout='init', Dout='data', Oout='data', Bout='numeric', Nout='numeric', Qfunction='Qfunction512', variates=NULL){
     x <- as.data.table(cbind(x))
     if(!is.null(variates)){colnames(x) <- variates}
     matrix(sapply(colnames(x), function(v){
@@ -7,7 +7,7 @@ vtransform <- function(x, varinfoaux, Cout='init', Dout='data', Oout='data', Bou
         datum <- unlist(x[,v,with=F])
         info <- as.list(varinfoaux[name == v])
         ##
-        if(info$mcmctype == 'R'){
+        if(info$mcmctype == 'R'){# continuous
             if (info$transform == 'log'){
                 datum <- log(datum-info$domainmin)
             }else if (info$transform == 'logminus'){
@@ -18,18 +18,18 @@ vtransform <- function(x, varinfoaux, Cout='init', Dout='data', Oout='data', Bou
             datum <- (datum-info$tlocation)/info$tscale
             ##
         } else if(info$mcmctype == 'O'){ # ordinal
-            if(is.character(Ofunction)){
-                Ofunction <- readRDS(paste0(Ofunction,'.rds'))
+            if(is.character(Qfunction)){
+                Qfunction <- readRDS(paste0(Qfunction,'.rds'))
             }
             datum <- round((datum-info$tlocation)/info$tscale) # output is in range 0 to n-1
             if(Oout == 'init'){ # in sampling functions or init MCMC
                 datum[is.na(datum)] <- info$Nvalues/2+0.5
-                datum <- Ofunction((datum-0.5)/info$Nvalues)
+                datum <- Qfunction((datum-0.5)/info$Nvalues)
             } else if(Oout == 'left'){ # as left for MCMC
-                datum <- Ofunction(pmax(0,datum-1)/info$Nvalues)
+                datum <- Qfunction(pmax(0,datum-1)/info$Nvalues)
                 datum[is.na(datum)] <- -Inf
             } else if(Oout == 'right'){ # as right for MCMC
-                datum <- Ofunction(pmin(info$Nvalues,datum)/info$Nvalues)
+                datum <- Qfunction(pmin(info$Nvalues,datum)/info$Nvalues)
                 datum[is.na(datum)] <- +Inf
             } else if(Oout == 'aux'){ # aux variable in MCMC
                 sel <- is.na(datum)

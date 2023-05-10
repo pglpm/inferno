@@ -61,7 +61,7 @@ buildvarinfoaux <- function(data, varinfo, file=TRUE){
             scale <- 1
             plotmin <- 1
             plotmax <- vn
-        }else if(xinfo$type == 'ordinal'){
+        }else if(xinfo$type == 'ordinal'){# ordinal variate
             vtype <- 'O'
             vid <- idO
             idO <- idO+1L
@@ -78,7 +78,7 @@ buildvarinfoaux <- function(data, varinfo, file=TRUE){
             scale <- (vmax - vmin)/(vn - 1)
             plotmin <- 1
             plotmax <- vn
-        }else if(xinfo$type == 'continuous'){
+        }else if(xinfo$type == 'continuous'){# continuous variate (R,C,D)
             vn <- +Inf
             vd <- xinfo$rounding/2
             rounded <- (vd > 0)
@@ -107,12 +107,12 @@ buildvarinfoaux <- function(data, varinfo, file=TRUE){
                 location <- log(vmax-location)
                 scale <- abs(log(vmax-xinfo$highvalue) - log(vmax-xinfo$lowvalue))
             }
-            if(xinfo$rounding > 0){ # continuous discretized
+            if(xinfo$rounding > 0){# discretized
                 vtype <- 'D'
                 vid <- idD
                 idD <- idD+1L
             }
-            else if(is.finite(xinfo$censormin) || is.finite(xinfo$censormax)){ # censored
+            else if(is.finite(xinfo$censormin) || is.finite(xinfo$censormax)){# censored
                 vtype <- 'C'
                 vid <- idC
                 idC <- idC+1L
