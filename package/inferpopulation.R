@@ -25,8 +25,9 @@ inferpopulation <- function(dataset, varinfoaux, predictands, nsamples=4096, fil
         }
     }
     ##
+    
 #### various internal parameters
-    niter0 <- 1024L # 3L # iterations to try
+    niter0 <- 128L # 3L # iterations to try
     testLength <- TRUE
     nthreshold <- 2 # multiple of threshold for acceptable number of burn-in samples
     casualinitvalues <- FALSE
@@ -34,7 +35,7 @@ inferpopulation <- function(dataset, varinfoaux, predictands, nsamples=4096, fil
     showsamplertimes <- FALSE ##
     family <- 'Palatino'
 #### Hyperparameters
-    nclusters <- 64L
+    nclusters <- 3L
     minalpha <- -3L
     maxalpha <- 3L
     Rshapelo <- 0.5
@@ -341,38 +342,21 @@ inferpopulation <- function(dataset, varinfoaux, predictands, nsamples=4096, fil
                        if(vn$N > 0){c('Nprob')},
                        if(vn$B > 0){c('Bprob')}
                        ),
-            monitors2=c( 'Alpha', 'K')
+            monitors2=c( 'Alpha', 'K','Clat')
         )
         
         ## replace Alpha's cat-sampler and RW samplers with slice
         targetslist <- sapply(confnimble$getSamplers(), function(xx)xx$target)   
         nameslist <- sapply(confnimble$getSamplers(), function(xx)xx$name)
-
-        for(i in which(nameslist == 'RW')){
-            confnimble$getSamplers()[[i]]setSampler
-        }
-
-                for(asampler in c('Alpha')){
-            confnimble$replaceSamplers(target=asampler, type='slice')
-        }
-
-
-                for(asampler in c('Alpha', targetslist[nameslist == 'RW']){
+        for(asampler in c('Alpha', targetslist[nameslist == 'RW'])){
             confnimble$removeSamplers(asampler)
             confnimble$addSampler(target=asampler, type='slice')
         }
+        ## call this to do a first reordering
+        mcsampler <- buildMCMC(confnimble)
 
-
-        
-        rwlist <- targetslist[which(sapply(confnimble$getSamplers(), function(xx)xx$name) == 'RW')]
-        for(asampler in c('Alpha', targetslist[nameslist == 'RW']){
-            confnimble$removeSamplers(asampler)
-            confnimble$addSampler(target=asampler, type='slice')
-        }
-
-        ## confnimble$printSamplers(executionOrder=TRUE)
-        ## reorder samplers
-        samplerorder <- c('K',
+        ## change execution order for some variates
+        samplerorder <- c('K', 
                           if(vn$R > 0){c('Rmean','Rrate','Rvar')},
                           if(vn$C > 0){c('Cmean','Crate','Cvar')},
                           if(vn$D > 0){c('Dmean','Drate','Dvar')},
@@ -380,18 +364,33 @@ inferpopulation <- function(dataset, varinfoaux, predictands, nsamples=4096, fil
                           if(vn$N > 0){c('Nprob')},
                           if(vn$B > 0){c('Bprob')},
                           'W','Alpha')
-        pplist <- targetslist[which(sapply(confnimble$getSamplers(), function(xx)xx$name) == 'posterior_predictive')]
-        neworder <- foreach(var=samplerorder, .combine=c)%do%{grep(paste0('^',var,'(\\[.+\\])*$'),targetslist)}
-        neworder <- foreach(var=samplerorder, .combine=c)%do%{grep(paste0('^',var,'(\\[.+\\])*$'),targetslist)}
-        new
-        neworder <- c(setdiff(confnimble$getSamplerExecutionOrder(), c(neworder,))
-        confnimble$setSamplerExecutionOrder(neworder)
+        ##
+        neworder <- foreach(var=samplerorder, .combine=c)%do%{grep(paste0('^',var,'(\\[.+\\])*$'), sapply(confnimble$getSamplers(), function(x)x$target))}
+        ##
+        confnimble$setSamplerExecutionOrder(c(setdiff(confnimble$getSamplerExecutionOrder(), neworder), neworder))
+
 
         mcsampler <- buildMCMC(confnimble)
         Cmcsampler <- compileNimble(mcsampler, resetFunctions = TRUE)
+
         
         cat('\nSetup time: ')
         print(Sys.time() - timecount)
+
+
+        ## Cmcsampler$run(niter=10000, thin=100, thin2=100, nburnin=0, time=FALSE, reset=TRUE, resetMV=TRUE)
+
+        ## mcsamples <- as.matrix(Cmcsampler$mvSamples)
+        ## mcsamples2 <- as.matrix(Cmcsampler$mvSamples2)
+
+        ## tplot(y=mcsamples2[,'Alpha'])
+
+        ## tplot(y=mcsamples[,'Rmean[1, 1]'])
+
+        ## tplot(y=mcsamples2[,'Clat[3, 1]'])
+
+        ## tplot(y=log(apply(mcsamples,1,function(xx){min(xx[paste0('W[',1:nclusters,']')])})))
+
 
 ##################################################
 #### Monte Carlo sampler and plots of MC diagnostics
