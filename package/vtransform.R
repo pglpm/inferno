@@ -21,12 +21,12 @@ vtransform <- function(x, varinfoaux, Cout='init', Dout='data', Oout='data', Bou
             if(is.character(Qfunction)){
                 Qfunction <- readRDS(paste0(Qfunction,'.rds'))
             }
-            datum <- round((datum-info$tlocation)/info$tscale) # output is in range 0 to n-1
+            datum <- round((datum-info$tlocation)/info$tscale) # output is in range 1 to Nvalues
             if(Oout == 'init'){ # in sampling functions or init MCMC
                 datum[is.na(datum)] <- info$Nvalues/2+0.5
                 datum <- Qfunction((datum-0.5)/info$Nvalues)
             } else if(Oout == 'left'){ # as left for MCMC
-                datum <- Qfunction(pmax(0,datum-1)/info$Nvalues)
+                datum <- Qfunction(pmax(0,datum-1L)/info$Nvalues)
                 datum[is.na(datum)] <- -Inf
             } else if(Oout == 'right'){ # as right for MCMC
                 datum <- Qfunction(pmin(info$Nvalues,datum)/info$Nvalues)
