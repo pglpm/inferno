@@ -17,7 +17,12 @@ samplesFDistribution <- function(Y, X=NULL, mcsamples, varinfoaux, subsamples=NU
     if(length(intersect(Yv, Xv)) > 0){stop('overlap in Y and X variates\n')}
     varinfoaux <- varinfoaux[name %in% c(Yv,Xv)]
 
-    
+    (if(3>2){1}else{0})+
+        (if(5>4){
+             test <- 3
+             test+5
+         }else{0})+
+        (if(3<2){1}else{0})
 
     ## mcsamples and subsamples
     if(is.character(mcsamples) && file.exists(mcsamples)){
@@ -45,6 +50,8 @@ samplesFDistribution <- function(Y, X=NULL, mcsamples, varinfoaux, subsamples=NU
         Xt[[atype]] <- sapply(vnames[[atype]],function(xx)which(Xv==xx))
         Yn[[atype]] <- length(Yt[[atype]])
         Xn[[atype]] <- length(Xt[[atype]])
+        Yseq[[atype]] <- 1:Yn[[atype]]
+        Xseq[[atype]] <- 1:Xn[[atype]]
         ## these keep the column indices in the list of variates 'atype'
         ## present in Y,X
         Yi[[atype]] <- which(vnames[[atype]] %in% Yv)
@@ -99,6 +106,9 @@ samplesFDistribution <- function(Y, X=NULL, mcsamples, varinfoaux, subsamples=NU
             nn <- varinfoaux[name == avar, Nvalues]
             c(Qfunction((1:nn)/nn), rep(NA,Omaxn-nn))
         }))
+    }
+    if(vn$N > 0){# nominal
+        Nprob <- 
     }
     if(vn$B > 0){## binary
         Bprob <- array(t(mcsamples[,grep('^Bprob', allparams),drop=F]),
@@ -376,20 +386,22 @@ samplesFDistribution <- function(Y, X=NULL, mcsamples, varinfoaux, subsamples=NU
                 (if(Xn$C > 0){# censored
                      colSums(
                          array(
-                             t(sapply(Xt$C, function(v){
-                                 if(is.finite(x[v,])){
-                                     (dnorm(x=x[v,],
-                                            mean=Cmean[v,,],
-                                            sd=sqrt(Cvar[v,,]),log=T))
+                             t(sapply(Xseq$C, function(v){
+                                 v1 <- Xt$C[v]
+                                 v2 <- Xi$C[v]
+                                 if(is.finite(x[v1,])){
+                                     (dnorm(x=x[v1,],
+                                            mean=Cmean[v2,,],
+                                            sd=sqrt(Cvar[v2,,]),log=T))
                                  }else{
-                                     (pnorm(q=Cbounds[v,1.5+sign(x[v,])/2],
-                                            mean=Cmean[v,,],
-                                            sd=sqrt(Cvar[v,,]),
-                                            lower.tail=(x[v,]<0),
+                                     (pnorm(q=Cbounds[v2,1.5+sign(x[v1,])/2],
+                                            mean=Cmean[v2,,],
+                                            sd=sqrt(Cvar[v2,,]),
+                                            lower.tail=(x[v1,]<0),
                                             log.p=T))
                                  }
                              })),
-                             dim=c(Xn$C, nclusters, length(subsamples))),
+                             dim=c(Xn$C, nclusters, nsamples)),
                          na.rm=F)
                  }else{0}) +
                 (if(Xn$D > 0){# continuous
@@ -401,17 +413,26 @@ samplesFDistribution <- function(Y, X=NULL, mcsamples, varinfoaux, subsamples=NU
                          na.rm=F)
                  }else{0}) +
                 (if(Xn$O > 0){
-                     vv <- cbind(Oseq,x[Xt$O,])
+                     v2 <- cbind(Oseq,x[Xt$O,])
                      colSums(
                          array(log(
-                             pnorm(q=Oright[vv],
+                             pnorm(q=Oright[v2],
                                    mean=Omean[Xi$O,,],
                                    sd=sqrt(Ovar[Xi$O,,])) -
-                             pnorm(q=Oleft[vv],
+                             pnorm(q=Oleft[v2],
                                    mean=Omean[Xi$O,,],
                                    sd=sqrt(Ovar[Xi$O,,]))
                          ),
                          dim=c(Xn$O, nclusters, nsamples)),
+                         na.rm=F)
+                 }else{0}) +
+                (if(Xn$N > 0){
+                     colSums(
+                         array(
+                             t(sapply(Xseq$N, function(v){
+                                 Nprob[Xi$N[v],,Xt$N[v]]
+                                 })),
+                             dim=c(Xn$N, nclusters, nsamples)),
                          na.rm=F)
                  }else{0}) +
                 (if(Xn$B > 0){
