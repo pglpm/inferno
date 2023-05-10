@@ -13,6 +13,7 @@ buildvarinfoaux <- function(data, varinfo, file=TRUE){
     ##
     ##Q <- readRDS('Qfunction512.rds')
     ##
+    idR <- idC <- idD <- idO <- idB <- idN <- 1L
     varinfoaux <- data.table()
     for(xn in colnames(data)){
         x <- data[[xn]]
@@ -34,6 +35,8 @@ buildvarinfoaux <- function(data, varinfo, file=TRUE){
                 cat('Warning: inconsistencies with variate ', xn, '\n')
             }
             vtype <- 'B'
+            vid <- idB
+            idB <- idB+1L
             vn <- xinfo$Nvalues
             vd <- xinfo$rounding/2
             vmin <- 0
@@ -46,6 +49,8 @@ buildvarinfoaux <- function(data, varinfo, file=TRUE){
             plotmax <- 1
         }else if(xinfo$type == 'nominal'){# nominal variate
             vtype <- 'N'
+            vid <- idN
+            idN <- idN+1L
             vn <- xinfo$Nvalues
             vd <- 0.5
             vmin <- 1 # Nimble index categorical from 1
@@ -58,6 +63,8 @@ buildvarinfoaux <- function(data, varinfo, file=TRUE){
             plotmax <- vn
         }else if(xinfo$type == 'ordinal'){
             vtype <- 'O'
+            vid <- idO
+            idO <- idO+1L
             transf <- 'Q'
             ordinal <- TRUE
             vn <- xinfo$Nvalues
@@ -102,11 +109,17 @@ buildvarinfoaux <- function(data, varinfo, file=TRUE){
             }
             if(xinfo$rounding > 0){ # continuous discretized
                 vtype <- 'D'
+                vid <- idD
+                idD <- idD+1L
             }
             else if(is.finite(xinfo$censormin) || is.finite(xinfo$censormax)){ # censored
                 vtype <- 'C'
+                vid <- idC
+                idC <- idC+1L
             }else{ # continuous
                 vtype <- 'R'
+                vid <- idR
+                idR <- idR+1L
             }
         }else{
             stop(paste0('ERROR: unknown variate type for ', xn))
@@ -117,7 +130,7 @@ buildvarinfoaux <- function(data, varinfo, file=TRUE){
         ##                    vval
         ##                    )))
         varinfoaux <- rbind(varinfoaux,
-                         c(list(name=xn, mcmctype=vtype, censored=cens, rounded=rounded, transform=transf, Nvalues=vn, step=vd, domainmin=vmin, domainmax=vmax, censormin=tmin, censormax=tmax, tlocation=location, tscale=scale, plotmin=plotmin, plotmax=plotmax, Q1=Q1, Q2=Q2, Q3=Q3),
+                         c(list(name=xn, mcmctype=vtype, id=vid, censored=cens, rounded=rounded, transform=transf, Nvalues=vn, step=vd, domainmin=vmin, domainmax=vmax, censormin=tmin, censormax=tmax, tlocation=location, tscale=scale, plotmin=plotmin, plotmax=plotmax, Q1=Q1, Q2=Q2, Q3=Q3),
                            vval
                            ), fill=FALSE)
     }

@@ -1,19 +1,106 @@
-samplesFDistribution <- function(Y, X=NULL, mcsamples, varinfoaux, subsamples=1:nrow(mcsamples), jacobian=TRUE, fn=identity){
+samplesFDistribution <- function(Y, X=NULL, mcsamples, varinfoaux, subsamples=NULL, jacobian=TRUE, fn=identity){
+    ## Consistency checks
     if(length(dim(Y)) != 2){stop('Y must have two dimensions')}
     if(!is.null(X) && length(dim(X)) != 2){stop('X must be NULL or have two dimensions')}
     ##
     if(!is.null(X) && ncol(X) == 0){X <- NULL}
-    if(length(subsamples) == 1 && !is.numeric(subsamples)){
-        subsamples <- seq(1, nrow(mcsamples), length.out=round(abs(as.complex(subsamples))))
+    ## varinfoaux
+    if(is.character(varinfoaux) && file.exists(varinfoaux)){
+        varinfoaux <- readRDS(varinfoaux)
     }
-    mcsamples <- t(mcsamples[subsamples,,drop=FALSE])
+
+    ## More consistency checks
     Yv <- colnames(Y)
+    if(!all(Yv %in% varinfoaux$name)){stop('unknown Y variates\n')}
+    Xv <- colnames(X)
+    if(!all(Xv %in% varinfoaux$name)){stop('unknown X variates\n')}
+    if(length(intersect(Yv, Xv)) > 0){stop('overlap in Y and X variates\n')}
+    varinfoaux <- varinfoaux[name %in% c(Yv,Xv)]
+
+    
+
+    ## mcsamples and subsamples
+    if(is.character(mcsamples) && file.exists(mcsamples)){
+        mcsamples <- readRDS(mcsamples)
+    }
+    if(is.null(subsamples) || (is.logical(subsamples) && !subsamples)){
+        subsamples <- 1:nrow(mcsamples)
+    }else if(is.character(subsamples)){
+        subsamples <- round(seq(1,nrow(subsamples),length.out=as.numeric(subsamples)))
+    }
+    mcsamples <- mcsamples[subsamples,,drop=F]
+    nsamples <- nrow(mcsamples)
+
+    allparams <- colnames(mcsamples)
+    ##
+    vn <- vnames <- Yt <- Xt <- list()
+    vnames <- list()
+    for(atype in c('R','C','D','O','N','B')){
+        vn[[atype]] <- length(varinfoaux[mcmctype == atype, name])
+        vnames[[atype]] <- varinfoaux[mcmctype == atype, name]
+        ## these keep the column indices in Y,X
+        ## of the variates 'atype', in the order of varinfoaux
+        Yt[[atype]] <- sapply(vnames[[atype]],function(xx)which(Yv==xx))
+        Xt[[atype]] <- sapply(vnames[[atype]],function(xx)which(Xv==xx))
+        Yn[[atype]] <- length(Yt[[atype]])
+        Xn[[atype]] <- length(Xt[[atype]])
+        ## these keep the column indices in the list of variates 'atype'
+        ## present in Y,X
+        Yi[[atype]] <- which(vnames[[atype]] %in% Yv)
+        Xi[[atype]] <- which(vnames[[atype]] %in% Xv)
+    }
+    ##    
+    if(vn$N > 0){
+        Nmaxn <- max(varinfoaux[mcmctype == 'N', Nvalues])
+        Nalpha0 <- matrix(1e-100, nrow=vn$N, ncol=Nmaxn)
+        for(avar in 1:length(vnames$N)){
+            Nalpha0[avar, 1:varinfoaux[name == vnames$N[avar], Nvalues]] <- 1
+        }
+    }
+
+    ## W
+    W <- mcsamples[,grep('^W', allparams)]
+    nclusters <- length(W)
+
+    if(vn$R > 0){## continuous
+        Rmean <- array(t(mcsamples[,grep('^Rmean', allparams),drop=F]),
+                       dim=c(vn$R,nclusters,nsamples), dimnames=list(vnames$R,NULL))
+        Rvar <- array(t(mcsamples[,grep('^Rvar', allparams),drop=F]),
+                       dim=c(vn$R,nclusters,nsamples), dimnames=list(vnames$R,NULL))
+    }
+    if(vn$C > 0){## censored
+        Cmean <- array(t(mcsamples[,grep('^Cmean', allparams),drop=F]),
+                       dim=c(vn$C,nclusters,nsamples), dimnames=list(vnames$C,NULL))
+        Cvar <- array(t(mcsamples[,grep('^Cvar', allparams),drop=F]),
+                       dim=c(vn$C,nclusters,nsamples), dimnames=list(vnames$C,NULL))
+        Cleft <- c(vtransform(x=rbind(rep(NA,vn$C)),varinfoaux=varinfoaux,variates=vnames$C,Cout='sleft'))
+        Cright <- c(vtransform(x=rbind(rep(NA,vn$C)),varinfoaux=varinfoaux,variates=vnames$C,Cout='sright'))
+    }
+    if(vn$B > 0){## binary
+        Bprob <- array(t(mcsamples[,grep('^Bprob', allparams),drop=F]),
+                       dim=c(vn$B,nclusters,nsamples), dimnames=list(vnames$B,NULL))
+    }
+
+
+
+
+    
+            test <- array(grep('^Rvar', colnames(mcsamples)),
+                      dim=c(vn$R,nclusters), dimnames=list(vnames$R,NULL))
+
+
+
+    mcsamples <- t(mcsamples[subsamples,,drop=FALSE])
+    ##
+    Vv <- 
+
+
+    
+    
     Yvn <- length(Yv)
     Xv <- colnames(X)
     Xvn <- length(Xv)
-    Vv <- varinfo[['name']]
     if(length(intersect(Yv, Xv)) > 0){cat('WARNING: overlap in Y and X variates\n')}
-    if(!all(Yv %in% Vv)){cat('Warning: unknown Y variates\n')}
     if(!all(Xv %in% Vv)){cat('Warning: unknown X variates\n')}
     ##
     variate <- lapply(variatetypes, function(x)names(varinfo[['type']])[varinfo[['type']]==x])
@@ -256,23 +343,23 @@ foreach(y=t(Y2), x=t(X2), .combine=rbind, .inorder=T)%dopar%{
             ##
             probX <- t( # rows: MCsamples, cols: clusters
             log(W) + 
-                (if(xn$D > 0){
+                (if(xn$C > 0){
                      colSums(
                          array(
-                             t(sapply(xv$D, function(v){
+                             t(sapply(xv$C, function(v){
                                  if(is.finite(x[v,])){
                                      (dnorm(x=x[v,],
-                                             mean=mcsamples[Dmean[v,],],
-                                             sd=sqrt(mcsamples[Dvar[v,],]),log=T))
+                                             mean=mcsamples[Cmean[v,],],
+                                             sd=sqrt(mcsamples[Cvar[v,],]),log=T))
                                  }else{
-                                     (pnorm(q=Dbounds[v,]*sign(x[v,]),
-                                             mean=mcsamples[Dmean[v,],],
-                                             sd=sqrt(mcsamples[Dvar[v,],]),
+                                     (pnorm(q=Cbounds[v,]*sign(x[v,]),
+                                             mean=mcsamples[Cmean[v,],],
+                                             sd=sqrt(mcsamples[Cvar[v,],]),
                                              lower.tail=(x[v,]<0),
                                              log.p=T))
                                  }
                              })),
-                             dim=c(xn$D, nclusters, length(subsamples))),
+                             dim=c(xn$C, nclusters, length(subsamples))),
                          na.rm=F)
                  }else{0}) +
                 ## (if(xn$O > 0){
@@ -296,17 +383,17 @@ foreach(y=t(Y2), x=t(X2), .combine=rbind, .inorder=T)%dopar%{
                 ##  }else{0}) +
                 (if(xn$R > 0){
                      colSums(
-                         array(dnorm(x=x[xv$R,],
-                                     mean=mcsamples[Rmean[xv$R,],],
-                                     sd=sqrt(mcsamples[Rvar[xv$R,],]),log=T),
-                               dim=c(xn$R, nclusters, length(subsamples))),
+                         array(dnorm(x=x[Xt$R,],
+                                     mean=Rmean[Xi$R,,],
+                                     sd=sqrt(Rvar[Xi$R,,]),log=T),
+                               dim=c(Xn$R, nclusters, nsamples)),
                          na.rm=F)
                  }else{0}) +
                 (if(xn$B > 0){
                      colSums(
-                         array(log( x[xv$B,]*mcsamples[Bprob[xv$B,],] +
-                               (1-x[xv$B,])*(1-mcsamples[Bprob[xv$B,],]) ),
-                               dim=c(xn$B, nclusters, length(subsamples))),
+                         array(log( x[Xt$B,]*Bprob[Xi$B,,] +
+                               (1-x[Xt$B,])*(1-Bprob[Xi$B,,]) ),
+                               dim=c(Xn$B, nclusters, nsamples)),
                          na.rm=F)
                  }else{0}) +
                 (if(xn$I > 0){

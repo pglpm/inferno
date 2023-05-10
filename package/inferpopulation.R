@@ -4,8 +4,7 @@ inferpopulation <- function(dataset, varinfoaux, predictands, nsamples=4096, fil
     dataset <- as.data.table(dataset)
     ## varinfoaux
     if(is.character(varinfoaux) && file.exists(varinfoaux)){
-        varinfoauxname <- varinfoaux
-        varinfoaux <- readRDS(varinfoauxname)
+        varinfoaux <- readRDS(varinfoaux)
     }
     ## list of predictand variates
     if(is.character(predictands) && file.exists(predictands)){
@@ -55,15 +54,15 @@ inferpopulation <- function(dataset, varinfoaux, predictands, nsamples=4096, fil
     vn <- list()
     vnames <- list()
     for(atype in c('R','C','D','O','N','B')){
-        vn[[atype]] <- length(varinfoaux[mcmctype==atype, name])
-        vnames[[atype]] <- varinfoaux[mcmctype==atype, name]
+        vn[[atype]] <- length(varinfoaux[mcmctype == atype, name])
+        vnames[[atype]] <- varinfoaux[mcmctype == atype, name]
     }
 
     if(vn$N > 0){
-        Nmaxn <- max(varinfoaux[mcmctype=='N', Nvalues])
+        Nmaxn <- max(varinfoaux[mcmctype == 'N', Nvalues])
         Nalpha0 <- matrix(1e-100, nrow=vn$N, ncol=Nmaxn)
         for(avar in 1:length(vnames$N)){
-            Nalpha0[avar, 1:varinfoaux[name==vnames$N[avar], Nvalues]] <- 1
+            Nalpha0[avar, 1:varinfoaux[name == vnames$N[avar], Nvalues]] <- 1
         }
     }
     

@@ -1,6 +1,6 @@
 ## Transformation from variate to internal variable
 vtransform <- function(x, varinfoaux, Cout='init', Dout='data', Oout='data', Bout='numeric', Nout='numeric', Ofunction='Ofunction512', variates=NULL){
-    x <- cbind(x)
+    x <- as.data.table(cbind(x))
     if(!is.null(variates)){colnames(x) <- variates}
     matrix(sapply(colnames(x), function(v){
         ##
@@ -119,6 +119,10 @@ vtransform <- function(x, varinfoaux, Cout='init', Dout='data', Oout='data', Bou
             } else if(Cout == 'index'){ #in sampling functions
                 datum[xv >= info$censormax] <- +Inf
                 datum[xv <= info$censormin] <- -Inf
+            } else if(Cout == 'sleft'){ #in sampling functions
+                datum <- leftbound
+            } else if(Cout == 'sright'){ #in sampling functions
+                datum <- rightbound
             }
         } else if(info$mcmctype == 'B'){ # binary
             bvalues <- 0:1
