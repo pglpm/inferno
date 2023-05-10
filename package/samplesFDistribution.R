@@ -73,8 +73,10 @@ samplesFDistribution <- function(Y, X=NULL, mcsamples, varinfoaux, subsamples=NU
                        dim=c(vn$C,nclusters,nsamples), dimnames=list(vnames$C,NULL))
         Cvar <- array(t(mcsamples[,grep('^Cvar', allparams),drop=F]),
                        dim=c(vn$C,nclusters,nsamples), dimnames=list(vnames$C,NULL))
-        Cleft <- c(vtransform(x=rbind(rep(NA,vn$C)),varinfoaux=varinfoaux,variates=vnames$C,Cout='sleft'))
-        Cright <- c(vtransform(x=rbind(rep(NA,vn$C)),varinfoaux=varinfoaux,variates=vnames$C,Cout='sright'))
+        Cbounds <- cbind(
+            c(vtransform(x=rbind(rep(NA,vn$C)),varinfoaux=varinfoaux,variates=vnames$C,Cout='sleft')),
+            c(vtransform(x=rbind(rep(NA,vn$C)),varinfoaux=varinfoaux,variates=vnames$C,Cout='sright'))
+        )
     }
     if(vn$B > 0){## binary
         Bprob <- array(t(mcsamples[,grep('^Bprob', allparams),drop=F]),
@@ -346,15 +348,15 @@ foreach(y=t(Y2), x=t(X2), .combine=rbind, .inorder=T)%dopar%{
                 (if(xn$C > 0){
                      colSums(
                          array(
-                             t(sapply(xv$C, function(v){
+                             t(sapply(Xt$C, function(v){
                                  if(is.finite(x[v,])){
                                      (dnorm(x=x[v,],
-                                             mean=mcsamples[Cmean[v,],],
-                                             sd=sqrt(mcsamples[Cvar[v,],]),log=T))
+                                             mean=Cmean[v,,],
+                                             sd=sqrt(Cvar[v,,]),log=T))
                                  }else{
-                                     (pnorm(q=Cbounds[v,]*sign(x[v,]),
-                                             mean=mcsamples[Cmean[v,],],
-                                             sd=sqrt(mcsamples[Cvar[v,],]),
+                                     (pnorm(q=Cbounds[v,1.5+sign(x[v,])/2],
+                                             mean=Cmean[v,,],
+                                             sd=sqrt(Cvar[v,,]),
                                              lower.tail=(x[v,]<0),
                                              log.p=T))
                                  }
