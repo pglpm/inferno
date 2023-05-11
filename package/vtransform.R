@@ -10,10 +10,7 @@ vtransform <- function(x, varinfoaux, Cout='init', Dout='data', Oout='data', Bou
         if(invjacobian){
 #### Calculation of reciprocal Jacobian factors
             if(info$transform == 'log'){
-                print('yes')
-                print(datum)
                 datum <- (datum - info$domainmin) * info$tscale
-                print(datum)
             }else if(info$transform == 'logminus'){
                 datum <- (info$domainmax - datum) * info$tscale
             }else if(info$transform == 'probit'){
