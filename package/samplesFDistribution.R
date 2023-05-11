@@ -17,13 +17,6 @@ samplesFDistribution <- function(Y, X=NULL, mcsamples, varinfoaux, subsamples=NU
     if(length(intersect(Yv, Xv)) > 0){stop('overlap in Y and X variates\n')}
     varinfoaux <- varinfoaux[name %in% c(Yv,Xv)]
 
-    (if(3>2){1}else{0})+
-        (if(5>4){
-             test <- 3
-             test+5
-         }else{0})+
-        (if(3<2){1}else{0})
-
     ## mcsamples and subsamples
     if(is.character(mcsamples) && file.exists(mcsamples)){
         mcsamples <- readRDS(mcsamples)
@@ -38,7 +31,7 @@ samplesFDistribution <- function(Y, X=NULL, mcsamples, varinfoaux, subsamples=NU
 
     allparams <- colnames(mcsamples)
     ##
-    vn <- vnames <- Yt <- Xt <- list()
+    vn <- vnames <- Yt <- Xt <- Yi <- Xi <- Yn <- Xn <- Yseq <- Xseq <- vseq <- list()
     vnames <- list()
     for(atype in c('R','C','D','O','N','B')){
         vn[[atype]] <- length(varinfoaux[mcmctype == atype, name])
@@ -64,12 +57,12 @@ samplesFDistribution <- function(Y, X=NULL, mcsamples, varinfoaux, subsamples=NU
     ##    
     if(vn$O > 0){
         Omaxn <- max(varinfoaux[mcmctype == 'O', Nvalues])
-        Oseq <- 1:Omaxn
+        Oseq <- 1:vn$O
     }
 
     ## W
     W <- mcsamples[,grep('^W', allparams)]
-    nclusters <- length(W)
+    nclusters <- ncol(W)
 
     if(vn$R > 0){# continuous
         Rmean <- array(t(mcsamples[,grep('^Rmean', allparams),drop=F]),
@@ -210,7 +203,7 @@ samplesFDistribution <- function(Y, X=NULL, mcsamples, varinfoaux, subsamples=NU
                      colSums(
                          array(
                              t(sapply(Xseq$N, function(v){
-                                 Nprob[Xi$N[v],,Xt$N[v]]
+                                 Nprob[Xi$N[v],,Xt$N[v],]
                                  })),
                              dim=c(Xn$N, nclusters, nsamples)),
                          na.rm=F)
