@@ -136,86 +136,77 @@ samplesFDistribution <- function(Y, X=NULL, mcsamples, varinfoaux, subsamples=NU
         ##     x <- t(X2)[,1,drop=F]
         ##
         ##            
-        if(all(is.na(x))){
-            probX <- t(log(W))
-        }else{
-            x <- x[!is.na(x),,drop=F]
-            xv <- lapply(variatetypes, function(xx){out <- rownames(x)[varinfo[['type']][rownames(x)]==xx]
-                names(out) <- NULL
-                out})
-            xn <- lapply(xv,length)
-            names(xv) <- names(xn) <- variatetypes
-            ##
-            probX <- t( # rows: MCsamples, cols: clusters
-                log(W) + 
-                (if(Xn$R > 0){# continuous
-                     colSums(
-                         array(dnorm(x=x[Xt$R,],
-                                     mean=Rmean[Xi$R,,],
-                                     sd=sqrt(Rvar[Xi$R,,]),log=T),
-                               dim=c(Xn$R, nclusters, nsamples)),
-                         na.rm=T)
-                 }else{0}) +
-                (if(Xn$C > 0){# censored
-                     colSums(
-                         array(
-                             t(sapply(Xseq$C, function(v){
-                                 v1 <- x[Xt$C[v],]
-                                 v2 <- Xi$C[v]
-                                 if(is.finite(v1)){
-                                     (dnorm(x=v1,
-                                            mean=Cmean[v2,,],
-                                            sd=sqrt(Cvar[v2,,]),log=T))
-                                 }else{
-                                     (pnorm(q=Cbounds[v2, 2L-(v1 < 0)],
-                                            mean=Cmean[v2,,],
-                                            sd=sqrt(Cvar[v2,,]),
-                                            lower.tail=(v1 < 0),
-                                            log.p=T))
-                                 }
-                             })),
-                             dim=c(Xn$C, nclusters, nsamples)),
-                         na.rm=T)
-                 }else{0}) +
-                (if(Xn$D > 0){# continuous
-                     colSums(
-                         array(dnorm(x=x[Xt$D,],
-                                     mean=Dmean[Xi$D,,],
-                                     sd=sqrt(Dvar[Xi$D,,]),log=T),
-                               dim=c(Xn$D, nclusters, nsamples)),
-                         na.rm=T)
-                 }else{0}) +
-                (if(Xn$O > 0){
-                     v2 <- cbind(Oseq,x[Xt$O,])
-                     colSums(
-                         log(array(
-                             pnorm(q=Oright[v2],
-                                   mean=Omean[Xi$O,,],
-                                   sd=sqrt(Ovar[Xi$O,,])) -
-                             pnorm(q=Oleft[v2],
-                                   mean=Omean[Xi$O,,],
-                                   sd=sqrt(Ovar[Xi$O,,])),
+        ##
+        probX <- log(W) + 
+            t( # rows: MCsamples, cols: clusters
+            (if(Xn$R > 0){# continuous
+                 colSums(
+                     array(dnorm(x=x[Xt$R,],
+                                 mean=Rmean[Xi$R,,],
+                                 sd=sqrt(Rvar[Xi$R,,]),log=T),
+                           dim=c(Xn$R, nclusters, nsamples)),
+                     na.rm=T)
+             }else{0}) +
+            (if(Xn$C > 0){# censored
+                 colSums(
+                     array(
+                         t(sapply(Xseq$C, function(v){
+                             v1 <- x[Xt$C[v],]
+                             v2 <- Xi$C[v]
+                             if(is.finite(v1)){
+                                 (dnorm(x=v1,
+                                        mean=Cmean[v2,,],
+                                        sd=sqrt(Cvar[v2,,]),log=T))
+                             }else{
+                                 (pnorm(q=Cbounds[v2, 2L-(v1 < 0)],
+                                        mean=Cmean[v2,,],
+                                        sd=sqrt(Cvar[v2,,]),
+                                        lower.tail=(v1 < 0),
+                                        log.p=T))
+                             }
+                         })),
+                         dim=c(Xn$C, nclusters, nsamples)),
+                     na.rm=T)
+             }else{0}) +
+            (if(Xn$D > 0){# continuous
+                 colSums(
+                     array(dnorm(x=x[Xt$D,],
+                                 mean=Dmean[Xi$D,,],
+                                 sd=sqrt(Dvar[Xi$D,,]),log=T),
+                           dim=c(Xn$D, nclusters, nsamples)),
+                     na.rm=T)
+             }else{0}) +
+            (if(Xn$O > 0){
+                 v2 <- cbind(Oseq,x[Xt$O,])
+                 colSums(
+                     log(array(
+                         pnorm(q=Oright[v2],
+                               mean=Omean[Xi$O,,],
+                               sd=sqrt(Ovar[Xi$O,,])) -
+                         pnorm(q=Oleft[v2],
+                               mean=Omean[Xi$O,,],
+                               sd=sqrt(Ovar[Xi$O,,])),
                          dim=c(Xn$O, nclusters, nsamples))),
-                         na.rm=T)
-                 }else{0}) +
-                (if(Xn$N > 0){
-                     colSums(
-                         log(array(
-                             t(sapply(Xseq$N, function(v){
-                                 Nprob[Xi$N[v],,x[Xt$N[v],],]
-                                 })),
-                             dim=c(Xn$N, nclusters, nsamples))),
-                         na.rm=T)
-                 }else{0}) +
-                (if(Xn$B > 0){
-                     colSums(
-                         log(array(x[Xt$B,]*Bprob[Xi$B,,] +
-                                    (1-x[Xt$B,])*(1-Bprob[Xi$B,,]),
+                     na.rm=T)
+             }else{0}) +
+            (if(Xn$N > 0){
+                 colSums(
+                     log(array(
+                         t(sapply(Xseq$N, function(v){
+                             Nprob[Xi$N[v],,x[Xt$N[v],],]
+                         })),
+                         dim=c(Xn$N, nclusters, nsamples))),
+                     na.rm=T)
+             }else{0}) +
+            (if(Xn$B > 0){
+                 colSums(
+                     log(array(x[Xt$B,]*Bprob[Xi$B,,] +
+                               (1-x[Xt$B,])*(1-Bprob[Xi$B,,]),
                                dim=c(Xn$B, nclusters, nsamples))),
-                         na.rm=T)
-                 }else{0})
-            ) # end probX
-        }
+                     na.rm=T)
+             }else{0})
+        ) # end probX
+        
         ##
         y <- y[!is.na(y),,drop=F]
         yv <- lapply(variatetypes, function(xx){
