@@ -50,6 +50,9 @@ samplesFDistribution <- function(Y, X=NULL, mcsamples, varinfoaux, subsamples=NU
         Yi[[atype]] <- which(vnames[[atype]] %in% Yv)
         Xi[[atype]] <- which(vnames[[atype]] %in% Xv)
     }
+
+    print(Xt)
+
     ##    
     if(vn$N > 0){
         Nmaxn <- max(varinfoaux[mcmctype == 'N', Nvalues])
@@ -127,7 +130,7 @@ samplesFDistribution <- function(Y, X=NULL, mcsamples, varinfoaux, subsamples=NU
     ## ndata <- nrow(Y2)
     ##
     ##
-    foreach(y=t(Y2), x=t(X2), .combine=rbind, .inorder=T)%dopar%{
+    foreach(y=t(Y2), x=t(X2), .combine=rbind, .inorder=T)%do%{
         ## ## for debugging
         ## for(iii in 1:nrow(Y2)){
         ## print(iii)
@@ -292,146 +295,8 @@ samplesFDistribution <- function(Y, X=NULL, mcsamples, varinfoaux, subsamples=NU
         ## }
         fn( rowSums(exp(probX+probY))/rowSums(exp(probX)) )
     } *
-        (if(jacobian){exp(-rowSums(
-                               log(invjacobian(Y,varinfo=varinfo))
-                             , na.rm=T))}else{1L})
-}
-
-
-
-
-
-
-
-
-
-
-
-        
-        ##
-        y <- y[!is.na(y),,drop=F]
-        yv <- lapply(variatetypes, function(xx){
-            out <- rownames(y)[varinfo[['type']][rownames(y)]==xx]
-            names(out) <- NULL
-            out})
-        yn <- lapply(yv,length)
-        names(yv) <- names(yn) <- variatetypes
-        ##
-        if(all(is.na(y))){
-            probY <- NA
-        }else{
-            probY <- t( # rows: MCsamples, cols: clusters
-            (if(yn$D > 0){
-                 colSums(
-                     array(
-                         t(sapply(yv$D, function(v){
-                             if(is.finite(y[v,])){
-                                 (dnorm(x=y[v,],
-                                        mean=mcsamples[Dmean[v,],],
-                                        sd=sqrt(mcsamples[Dvar[v,],]),log=T))
-                             }else{
-                                 (pnorm(q=Dbounds[v,]*sign(y[v,]),
-                                        mean=mcsamples[Dmean[v,],],
-                                        sd=sqrt(mcsamples[Dvar[v,],]),
-                                        lower.tail=(y[v,]<0),
-                                        log.p=T))
-                             }
-                         })),
-                         dim=c(yn$D, nclusters, length(subsamples))),
-                     na.rm=F)
-             }else{0}) +
-            ## (if(yn$O > 0){
-            ##      colSums(
-            ##          array(
-            ##              t(sapply(yv$O, function(v){
-            ##                  if(is.finite(y[v,])){
-            ##                      (dnorm(x=y[v,],
-            ##                              mean=mcsamples[YOmean[v,],],
-            ##                              sd=sqrt(mcsamples[YOvar[v,],]),log=T))
-            ##                  }else{
-            ##                      (pnorm(q=YOlefts[1,v],
-            ##                              mean=mcsamples[YOmean[v,],],
-            ##                              sd=sqrt(mcsamples[YOvar[v,],]),
-            ##                              lower.tail=F,
-            ##                              log.p=T))
-            ##                  }
-            ##              })),
-            ##              dim=c(yn$O, nclusters, length(subsamples))),
-            ##          na.rm=F)
-            ##  }else{0}) +
-            (if(yn$R > 0){
-                 colSums(
-                     array(dnorm(x=y[yv$R,],
-                                 mean=mcsamples[Rmean[yv$R,],],
-                                 sd=sqrt(mcsamples[Rvar[yv$R,],]),log=T),
-                           dim=c(yn$R, nclusters, length(subsamples))),
-                     na.rm=F)
-             }else{0}) +
-            (if(yn$B > 0){
-                 colSums(
-                     array(log( y[yv$B,]*mcsamples[Bprob[yv$B,],] +
-                                (1-y[yv$B,])*(1-mcsamples[Bprob[yv$B,],]) ),
-                           dim=c(yn$B, nclusters, length(subsamples))),
-                     na.rm=F)
-             }else{0}) +
-            (if(yn$I > 0){
-                 colSums(
-                     array(
-                         t(sapply(yv$I, function(v){
-                             log(pnorm(q=Irights[[v]][y[v,]],
-                                       mean=mcsamples[Imean[v,],],
-                                       sd=sqrt(mcsamples[Ivar[v,],])) -
-                                 pnorm(q=Ilefts[[v]][y[v,]],
-                                       mean=mcsamples[Imean[v,],],
-                                       sd=sqrt(mcsamples[Ivar[v,],])))
-                             ## y2 <- YIrights[[v]][y[v,]]
-                             ## (pnorm(q=y2,
-                             ##         mean=mcsamples[YImean[v,],],
-                             ##         sd=sqrt(mcsamples[YIvar[v,],]), log.p=T) +
-                             ##   log1p(-pnorm(q=YIlefts[[v]][y[v,]],
-                             ##                mean=mcsamples[YImean[v,],],
-                             ##                sd=sqrt(mcsamples[YIvar[v,],]))/
-                             ##         pnorm(q=y2,
-                             ##               mean=mcsamples[YImean[v,],],
-                             ##               sd=sqrt(mcsamples[YIvar[v,],]))))
-                         })),
-                         dim=c(yn$I, nclusters, length(subsamples))),
-                     na.rm=F)
-             }else{0})
-            ) # end probY
-        }
-        ##
-        ## ## Other approaches tested for roundoff error
-        ## testc2 <- rowSums(exp(probX2 + probY - log(rowSums(exp(probX2)))))
-        ##
-        ## maxp <- apply(probX2 + probY - log(rowSums(exp(probX2))),1,max,na.rm=T)
-        ## testc2f <- exp(maxp)*rowSums(exp(probX2 + probY - log(rowSums(exp(probX2)))-maxp))
-        ##
-        ## testc1d <- rowSums(exp(probX+probY))/rowSums(exp(probX))
-        ##        
-        ## testc1 <- rowSums(exp(probX + probY - log(rowSums(exp(probX)))))
-        ##
-        ## maxp <- apply(probX + probY - log(rowSums(exp(probX))),1,max,na.rm=T)
-        ## testc1f <- exp(maxp)*rowSums(exp(probX + probY - log(rowSums(exp(probX)))-maxp))
-        ##
-        ## ## Comparison using Rmpfr library
-        ## dprobX <- mpfr(probX, precBits=200)
-        ## dprobY <- mpfr(probY, precBits=200)
-        ##
-        ## dtestc1 <- rowSums(exp(dprobX + dprobY - log(rowSums(exp(dprobX)))))
-        ## dtestc1d <- rowSums(exp(dprobX+dprobY))/rowSums(exp(dprobX))
-        ##
-        ##
-        ## This seems to minimize roundoff error
-        if(all(is.na(x))){
-            out <- rowSums(exp(probX+probY)) 
-        }else{
-            probX <- probX - apply(probX, 1, max, na.rm=T)
-            out <- rowSums(exp(probX+probY))/rowSums(exp(probX))
-        }
-        fn(out)
-    } *
-        (if(jacobian){exp(-rowSums(
-                               log(invjacobian(Y,varinfo=varinfo))
-                             , na.rm=T))}else{1L})
+        (if(jacobian){
+             exp(-rowSums(
+                      log(vtransform(Y, varinfoaux=varinfoaux, invjacobian=TRUE)),
+                      na.rm=T))}else{1L})
 }

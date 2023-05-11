@@ -112,7 +112,7 @@ buildvarinfoaux <- function(data, varinfo, file=TRUE){
                 vid <- idD
                 idD <- idD+1L
             }
-            else if(is.finite(xinfo$censormin) || is.finite(xinfo$censormax)){# censored
+            else if(cens){# censored
                 vtype <- 'C'
                 vid <- idC
                 idC <- idC+1L
