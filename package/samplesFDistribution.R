@@ -154,7 +154,7 @@ samplesFDistribution <- function(Y, X=NULL, mcsamples, varinfoaux, subsamples=NU
                                      mean=Rmean[Xi$R,,],
                                      sd=sqrt(Rvar[Xi$R,,]),log=T),
                                dim=c(Xn$R, nclusters, nsamples)),
-                         na.rm=F)
+                         na.rm=T)
                  }else{0}) +
                 (if(Xn$C > 0){# censored
                      colSums(
@@ -175,7 +175,7 @@ samplesFDistribution <- function(Y, X=NULL, mcsamples, varinfoaux, subsamples=NU
                                  }
                              })),
                              dim=c(Xn$C, nclusters, nsamples)),
-                         na.rm=F)
+                         na.rm=T)
                  }else{0}) +
                 (if(Xn$D > 0){# continuous
                      colSums(
@@ -183,7 +183,7 @@ samplesFDistribution <- function(Y, X=NULL, mcsamples, varinfoaux, subsamples=NU
                                      mean=Dmean[Xi$D,,],
                                      sd=sqrt(Dvar[Xi$D,,]),log=T),
                                dim=c(Xn$D, nclusters, nsamples)),
-                         na.rm=F)
+                         na.rm=T)
                  }else{0}) +
                 (if(Xn$O > 0){
                      v2 <- cbind(Oseq,x[Xt$O,])
@@ -196,7 +196,7 @@ samplesFDistribution <- function(Y, X=NULL, mcsamples, varinfoaux, subsamples=NU
                                    mean=Omean[Xi$O,,],
                                    sd=sqrt(Ovar[Xi$O,,])),
                          dim=c(Xn$O, nclusters, nsamples))),
-                         na.rm=F)
+                         na.rm=T)
                  }else{0}) +
                 (if(Xn$N > 0){
                      colSums(
@@ -205,14 +205,14 @@ samplesFDistribution <- function(Y, X=NULL, mcsamples, varinfoaux, subsamples=NU
                                  Nprob[Xi$N[v],,x[Xt$N[v],],]
                                  })),
                              dim=c(Xn$N, nclusters, nsamples))),
-                         na.rm=F)
+                         na.rm=T)
                  }else{0}) +
                 (if(Xn$B > 0){
                      colSums(
                          log(array(x[Xt$B,]*Bprob[Xi$B,,] +
                                     (1-x[Xt$B,])*(1-Bprob[Xi$B,,]),
                                dim=c(Xn$B, nclusters, nsamples))),
-                         na.rm=F)
+                         na.rm=T)
                  }else{0})
             ) # end probX
         }
