@@ -21,7 +21,7 @@ buildvarinfoaux <- function(data, varinfo, file=TRUE){
         xinfo <- as.list(varinfo[name == xn])
         xinfo$type <- tolower(xinfo$type)
         ordinal <- NA
-        cens <- NA
+        cens <- FALSE
         rounded <- NA
         transf <- 'identity' # temporary
         vval <- xinfo[grep('^V[0-9]+$', names(xinfo))]
@@ -65,7 +65,7 @@ buildvarinfoaux <- function(data, varinfo, file=TRUE){
             vtype <- 'O'
             vid <- idO
             idO <- idO+1L
-            transf <- 'Q'
+            transf <- 'identity'
             ordinal <- TRUE
             vn <- xinfo$Nvalues
             vd <- 0.5
@@ -86,7 +86,7 @@ buildvarinfoaux <- function(data, varinfo, file=TRUE){
             vmax <- xinfo$domainmax
             tmin <- xinfo$censormin # max(xinfo$censormin, vmin, na.rm=TRUE)
             tmax <- xinfo$censormax # min(xinfo$censormax, vmax, na.rm=TRUE)
-            cens <- any(is.finite(c(tmin,tmax)))
+            cens <- (tmin > vmin) || (tmax < vmax)
             location <- xinfo$centralvalue
             scale <- abs(xinfo$highvalue - xinfo$lowvalue)
             Q1 <- quantile(x, probs=0.25, type=6)

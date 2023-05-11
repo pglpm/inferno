@@ -75,6 +75,7 @@ buildvarinfo <- function(data, file=NULL){
                 if(all(x > 0)){ # seems to be strictly positive
                     transf <- 'log'
                     vmin <- 0
+                    tmin <- max(vmin, tmin)
                     ## location <- log(Q2)
                     ## scale <- (log(Q3) - log(Q1))/2
                     plotmin <- max(vmin, plotmin)
@@ -99,8 +100,8 @@ buildvarinfo <- function(data, file=NULL){
                     vd <- dd
                     vmin <- -Inf
                     vmax <- +Inf
-                    tmin <- NA
-                    tmax <- NA
+                    tmin <- -Inf
+                    tmax <- +Inf
                     ## location <- Q2
                     ## scale <- (Q3-Q1)/2
                     plotmin <- min(x) - (Q3-Q1)/2
@@ -108,6 +109,7 @@ buildvarinfo <- function(data, file=NULL){
                     if(all(x > 0)){ # seems to be strictly positive
                         transf <- 'log'
                         vmin <- 0
+                        tmin <- max(vmin, tmin)
                         ## location <- log(Q2)
                         ## scale <- (log(Q3) - log(Q1))/2
                         plotmin <- max(vmin, plotmin)
