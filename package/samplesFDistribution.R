@@ -137,75 +137,176 @@ samplesFDistribution <- function(Y, X=NULL, mcsamples, varinfoaux, subsamples=NU
         ##
         ##            
         ##
-        probX <- log(W) + 
-            t( # rows: MCsamples, cols: clusters
-            (if(Xn$R > 0){# continuous
-                 colSums(
-                     array(dnorm(x=x[Xt$R,],
-                                 mean=Rmean[Xi$R,,],
-                                 sd=sqrt(Rvar[Xi$R,,]),log=T),
-                           dim=c(Xn$R, nclusters, nsamples)),
-                     na.rm=T)
-             }else{0}) +
-            (if(Xn$C > 0){# censored
-                 colSums(
-                     array(
-                         t(sapply(Xseq$C, function(v){
-                             v1 <- x[Xt$C[v],]
-                             v2 <- Xi$C[v]
-                             if(is.finite(v1)){
-                                 (dnorm(x=v1,
-                                        mean=Cmean[v2,,],
-                                        sd=sqrt(Cvar[v2,,]),log=T))
-                             }else{
-                                 (pnorm(q=Cbounds[v2, 2L-(v1 < 0)],
-                                        mean=Cmean[v2,,],
-                                        sd=sqrt(Cvar[v2,,]),
-                                        lower.tail=(v1 < 0),
-                                        log.p=T))
-                             }
-                         })),
-                         dim=c(Xn$C, nclusters, nsamples)),
-                     na.rm=T)
-             }else{0}) +
-            (if(Xn$D > 0){# continuous
-                 colSums(
-                     array(dnorm(x=x[Xt$D,],
-                                 mean=Dmean[Xi$D,,],
-                                 sd=sqrt(Dvar[Xi$D,,]),log=T),
-                           dim=c(Xn$D, nclusters, nsamples)),
-                     na.rm=T)
-             }else{0}) +
-            (if(Xn$O > 0){
-                 v2 <- cbind(Oseq,x[Xt$O,])
-                 colSums(
-                     log(array(
-                         pnorm(q=Oright[v2],
-                               mean=Omean[Xi$O,,],
-                               sd=sqrt(Ovar[Xi$O,,])) -
-                         pnorm(q=Oleft[v2],
-                               mean=Omean[Xi$O,,],
-                               sd=sqrt(Ovar[Xi$O,,])),
-                         dim=c(Xn$O, nclusters, nsamples))),
-                     na.rm=T)
-             }else{0}) +
-            (if(Xn$N > 0){
-                 colSums(
-                     log(array(
-                         t(sapply(Xseq$N, function(v){
-                             Nprob[Xi$N[v],,x[Xt$N[v],],]
-                         })),
-                         dim=c(Xn$N, nclusters, nsamples))),
-                     na.rm=T)
-             }else{0}) +
-            (if(Xn$B > 0){
-                 colSums(
-                     log(array(x[Xt$B,]*Bprob[Xi$B,,] +
-                               (1-x[Xt$B,])*(1-Bprob[Xi$B,,]),
-                               dim=c(Xn$B, nclusters, nsamples))),
-                     na.rm=T)
-             }else{0})
-        ) # end probX
+        if(all(is.na(x))){
+            probX <- log(W) 
+        }else{
+            probX <- log(W) +
+                t( # rows: MCsamples, cols: clusters
+                (if(Xn$R > 0){# continuous
+                     colSums(
+                         array(dnorm(x=x[Xt$R,],
+                                     mean=Rmean[Xi$R,,],
+                                     sd=sqrt(Rvar[Xi$R,,]),log=T),
+                               dim=c(Xn$R, nclusters, nsamples)),
+                         na.rm=T)
+                 }else{0}) +
+                (if(Xn$C > 0){# censored
+                     colSums(
+                         array(
+                             t(sapply(Xseq$C, function(v){
+                                 v1 <- x[Xt$C[v],]
+                                 v2 <- Xi$C[v]
+                                 if(is.finite(v1)){
+                                     (dnorm(x=v1,
+                                            mean=Cmean[v2,,],
+                                            sd=sqrt(Cvar[v2,,]),log=T))
+                                 }else{
+                                     (pnorm(q=Cbounds[v2, 2L-(v1 < 0)],
+                                            mean=Cmean[v2,,],
+                                            sd=sqrt(Cvar[v2,,]),
+                                            lower.tail=(v1 < 0),
+                                            log.p=T))
+                                 }
+                             })),
+                             dim=c(Xn$C, nclusters, nsamples)),
+                         na.rm=T)
+                 }else{0}) +
+                (if(Xn$D > 0){# continuous
+                     colSums(
+                         array(dnorm(x=x[Xt$D,],
+                                     mean=Dmean[Xi$D,,],
+                                     sd=sqrt(Dvar[Xi$D,,]),log=T),
+                               dim=c(Xn$D, nclusters, nsamples)),
+                         na.rm=T)
+                 }else{0}) +
+                (if(Xn$O > 0){
+                     v2 <- cbind(Oseq,x[Xt$O,])
+                     colSums(
+                         log(array(
+                             pnorm(q=Oright[v2],
+                                   mean=Omean[Xi$O,,],
+                                   sd=sqrt(Ovar[Xi$O,,])) -
+                             pnorm(q=Oleft[v2],
+                                   mean=Omean[Xi$O,,],
+                                   sd=sqrt(Ovar[Xi$O,,])),
+                             dim=c(Xn$O, nclusters, nsamples))),
+                         na.rm=T)
+                 }else{0}) +
+                (if(Xn$N > 0){
+                     colSums(
+                         log(array(
+                             t(sapply(Xseq$N, function(v){
+                                 Nprob[Xi$N[v],,x[Xt$N[v],],]
+                             })),
+                             dim=c(Xn$N, nclusters, nsamples))),
+                         na.rm=T)
+                 }else{0}) +
+                (if(Xn$B > 0){
+                     colSums(
+                         log(array(x[Xt$B,]*Bprob[Xi$B,,] +
+                                   (1-x[Xt$B,])*(1-Bprob[Xi$B,,]),
+                                   dim=c(Xn$B, nclusters, nsamples))),
+                         na.rm=T)
+                 }else{0})
+                )
+        }# end probX
+        ##
+        if(all(is.na(y))){
+            probY <- NA
+        }else{
+            probY <- log(W) + 
+                t( # rows: MCsamples, cols: clusters
+                (if(Yn$R > 0){# continuous
+                     colSums(
+                         array(dnorm(x=y[Yt$R,],
+                                     mean=Rmean[Yi$R,,],
+                                     sd=sqrt(Rvar[Yi$R,,]),log=T),
+                               dim=c(Yn$R, nclusters, nsamples)),
+                         na.rm=T)
+                 }else{0}) +
+                (if(Yn$C > 0){# censored
+                     colSums(
+                         array(
+                             t(sapply(Yseq$C, function(v){
+                                 v1 <- y[Yt$C[v],]
+                                 v2 <- Yi$C[v]
+                                 if(is.finite(v1)){
+                                     (dnorm(x=v1,
+                                            mean=Cmean[v2,,],
+                                            sd=sqrt(Cvar[v2,,]),log=T))
+                                 }else{
+                                     (pnorm(q=Cbounds[v2, 2L-(v1 < 0)],
+                                            mean=Cmean[v2,,],
+                                            sd=sqrt(Cvar[v2,,]),
+                                            lower.tail=(v1 < 0),
+                                            log.p=T))
+                                 }
+                             })),
+                             dim=c(Yn$C, nclusters, nsamples)),
+                         na.rm=T)
+                 }else{0}) +
+                (if(Yn$D > 0){# continuous
+                     colSums(
+                         array(dnorm(x=y[Yt$D,],
+                                     mean=Dmean[Yi$D,,],
+                                     sd=sqrt(Dvar[Yi$D,,]),log=T),
+                               dim=c(Yn$D, nclusters, nsamples)),
+                         na.rm=T)
+                 }else{0}) +
+                (if(Yn$O > 0){
+                     v2 <- cbind(Oseq,y[Yt$O,])
+                     colSums(
+                         log(array(
+                             pnorm(q=Oright[v2],
+                                   mean=Omean[Yi$O,,],
+                                   sd=sqrt(Ovar[Yi$O,,])) -
+                             pnorm(q=Oleft[v2],
+                                   mean=Omean[Yi$O,,],
+                                   sd=sqrt(Ovar[Yi$O,,])),
+                             dim=c(Yn$O, nclusters, nsamples))),
+                         na.rm=T)
+                 }else{0}) +
+                (if(Yn$N > 0){
+                     colSums(
+                         log(array(
+                             t(sapply(Yseq$N, function(v){
+                                 Nprob[Yi$N[v],,y[Yt$N[v],],]
+                             })),
+                             dim=c(Yn$N, nclusters, nsamples))),
+                         na.rm=T)
+                 }else{0}) +
+                (if(Yn$B > 0){
+                     colSums(
+                         log(array(y[Yt$B,]*Bprob[Yi$B,,] +
+                                   (1-y[Yt$B,])*(1-Bprob[Yi$B,,]),
+                                   dim=c(Yn$B, nclusters, nsamples))),
+                         na.rm=T)
+                 }else{0})
+                ) # end probY
+        }
+        ##
+        ## if(all(is.na(x))){
+        ##     out <- rowSums(exp(probX+probY)) 
+        ## }else{
+        probX <- probX - apply(probX, 1, max, na.rm=T)
+        ## }
+        fn( rowSums(exp(probX+probY))/rowSums(exp(probX)) )
+    } *
+        (if(jacobian){exp(-rowSums(
+                               log(invjacobian(Y,varinfo=varinfo))
+                             , na.rm=T))}else{1L})
+}
+
+
+
+
+
+
+
+
+
+
+
         
         ##
         y <- y[!is.na(y),,drop=F]
