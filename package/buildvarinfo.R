@@ -56,8 +56,8 @@ buildvarinfo <- function(data, file=NULL){
                 vd <- 0
                 vmin <- -Inf
                 vmax <- +Inf
-                tmin <- NA
-                tmax <- NA
+                tmin <- -Inf
+                tmax <- +Inf
                 plotmin <- min(x) - (Q3-Q1)/2
                 plotmax <- max(x) + (Q3-Q1)/2
                 ##

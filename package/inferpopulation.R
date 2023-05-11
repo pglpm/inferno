@@ -341,7 +341,7 @@ inferpopulation <- function(dataset, varinfoaux, predictands, nsamples=4096, fil
                        if(vn$N > 0){c('Nprob')},
                        if(vn$B > 0){c('Bprob')}
                        ),
-            monitors2=c( 'Alpha', 'K','Clat')
+            monitors2=c( 'Alpha', 'K','Clat') # ****remove Clat****
         )
         
         ## replace Alpha's cat-sampler and RW samplers with slice
@@ -377,7 +377,7 @@ inferpopulation <- function(dataset, varinfoaux, predictands, nsamples=4096, fil
         print(Sys.time() - timecount)
 
 
-        ## Cmcsampler$run(niter=10000, thin=100, thin2=100, nburnin=0, time=FALSE, reset=TRUE, resetMV=TRUE)
+        ## Cmcsampler$run(niter=100, thin=1, thin2=1, nburnin=0, time=FALSE, reset=TRUE, resetMV=TRUE)
 
         ## mcsamples <- as.matrix(Cmcsampler$mvSamples)
         ## mcsamples2 <- as.matrix(Cmcsampler$mvSamples2)
