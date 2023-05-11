@@ -160,17 +160,17 @@ samplesFDistribution <- function(Y, X=NULL, mcsamples, varinfoaux, subsamples=NU
                      colSums(
                          array(
                              t(sapply(Xseq$C, function(v){
-                                 v1 <- Xt$C[v]
+                                 v1 <- x[Xt$C[v],]
                                  v2 <- Xi$C[v]
-                                 if(is.finite(x[v1,])){
-                                     (dnorm(x=x[v1,],
+                                 if(is.finite(v1)){
+                                     (dnorm(x=v1,
                                             mean=Cmean[v2,,],
                                             sd=sqrt(Cvar[v2,,]),log=T))
                                  }else{
-                                     (pnorm(q=Cbounds[v2,1.5+sign(x[v1,])/2],
+                                     (pnorm(q=Cbounds[v2, 2L-(v1 < 0)],
                                             mean=Cmean[v2,,],
                                             sd=sqrt(Cvar[v2,,]),
-                                            lower.tail=(x[v1,]<0),
+                                            lower.tail=(v1 < 0),
                                             log.p=T))
                                  }
                              })),
@@ -188,31 +188,30 @@ samplesFDistribution <- function(Y, X=NULL, mcsamples, varinfoaux, subsamples=NU
                 (if(Xn$O > 0){
                      v2 <- cbind(Oseq,x[Xt$O,])
                      colSums(
-                         array(log(
+                         log(array(
                              pnorm(q=Oright[v2],
                                    mean=Omean[Xi$O,,],
                                    sd=sqrt(Ovar[Xi$O,,])) -
                              pnorm(q=Oleft[v2],
                                    mean=Omean[Xi$O,,],
-                                   sd=sqrt(Ovar[Xi$O,,]))
-                         ),
-                         dim=c(Xn$O, nclusters, nsamples)),
+                                   sd=sqrt(Ovar[Xi$O,,])),
+                         dim=c(Xn$O, nclusters, nsamples))),
                          na.rm=F)
                  }else{0}) +
                 (if(Xn$N > 0){
                      colSums(
-                         array(
+                         log(array(
                              t(sapply(Xseq$N, function(v){
-                                 Nprob[Xi$N[v],,Xt$N[v],]
+                                 Nprob[Xi$N[v],,x[Xt$N[v],],]
                                  })),
-                             dim=c(Xn$N, nclusters, nsamples)),
+                             dim=c(Xn$N, nclusters, nsamples))),
                          na.rm=F)
                  }else{0}) +
                 (if(Xn$B > 0){
                      colSums(
-                         array(log( x[Xt$B,]*Bprob[Xi$B,,] +
-                                    (1-x[Xt$B,])*(1-Bprob[Xi$B,,]) ),
-                               dim=c(Xn$B, nclusters, nsamples)),
+                         log(array(x[Xt$B,]*Bprob[Xi$B,,] +
+                                    (1-x[Xt$B,])*(1-Bprob[Xi$B,,]),
+                               dim=c(Xn$B, nclusters, nsamples))),
                          na.rm=F)
                  }else{0})
             ) # end probX
