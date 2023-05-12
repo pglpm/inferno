@@ -15,7 +15,6 @@ samplesFDistribution <- function(Y, X=NULL, mcsamples, varinfoaux, subsamples=NU
     Xv <- colnames(X)
     if(!all(Xv %in% varinfoaux$name)){stop('unknown X variates\n')}
     if(length(intersect(Yv, Xv)) > 0){stop('overlap in Y and X variates\n')}
-    varinfoaux <- varinfoaux[name %in% c(Yv,Xv)]
 
     ## mcsamples and subsamples
     if(is.character(mcsamples) && file.exists(mcsamples)){
@@ -32,25 +31,34 @@ samplesFDistribution <- function(Y, X=NULL, mcsamples, varinfoaux, subsamples=NU
     allparams <- colnames(mcsamples)
     ##
     vn <- vnames <- Yt <- Xt <- Yi <- Xi <- Yn <- Xn <- Yseq <- Xseq <- vseq <- list()
-    vnames <- list()
+    varinfoaux <- varinfoaux[name %in% c(Yv,Xv)]
     for(atype in c('R','C','D','O','N','B')){
         vn[[atype]] <- length(varinfoaux[mcmctype == atype, name])
-        vseq[[atype]] <- 1:vn[[atype]]
         vnames[[atype]] <- varinfoaux[mcmctype == atype, name]
         ##
-        Yt[[atype]] <- sapply(intersect(vnames[[atype]], Yv),
-                              function(xx)which(Yv==xx))
-        Yi[[atype]] <- which(vnames[[atype]] %in% Yv)
-        Yn[[atype]] <- length(Yt[[atype]])
+        common <- Yv[Yv %in% vnames$R]
+        Yt[[atype]] <- which(Yv %in% common)
+        Yi[[atype]] <- sapply(common, function(xx)varinfoaux[name == xx, id])
+        Yn[[atype]] <- length(Yi[[atype]])
         Yseq[[atype]] <- 1:Yn[[atype]]
         ##
         Xt[[atype]] <- sapply(intersect(vnames[[atype]], Xv),
                               function(xx)which(Xv==xx))
-        Xi[[atype]] <- which(vnames[[atype]] %in% Xv)
-        Xn[[atype]] <- length(Xt[[atype]])
+        Xi[[atype]] <- sapply(intersect(vnames[[atype]], Xv),
+                              function(xx)varinfoaux[name==xx,id])
+        Xn[[atype]] <- length(Xi[[atype]])
         Xseq[[atype]] <- 1:Xn[[atype]]
+
+        print(atype)
+        print(Xn[[atype]])
+        print(Xv[Xt[[atype]]])
+        print(varinfoaux[mcmctype==atype,name][Xi[[atype]]])
+        print(Yn[[atype]])
+        print(Yv[Yt[[atype]]])
+        print(varinfoaux[mcmctype==atype,name][Yi[[atype]]])
     }
 
+    
     ##    
     if(vn$N > 0){
         Nmaxn <- max(varinfoaux[mcmctype == 'N', Nvalues])
@@ -88,6 +96,7 @@ samplesFDistribution <- function(Y, X=NULL, mcsamples, varinfoaux, subsamples=NU
                       dim=c(vn$D,nclusters,nsamples), dimnames=list(vnames$D,NULL))
     }
     if(vn$O > 0){# ordinal
+        Qfunction <- readRDS('Qfunction512.rds')
         Omean <- array(t(mcsamples[,grep('^Omean', allparams),drop=F]),
                        dim=c(vn$O,nclusters,nsamples), dimnames=list(vnames$O,NULL))
         Ovar <- array(t(mcsamples[,grep('^Ovar', allparams),drop=F]),
@@ -215,8 +224,7 @@ samplesFDistribution <- function(Y, X=NULL, mcsamples, varinfoaux, subsamples=NU
         if(all(is.na(y))){
             probY <- NA
         }else{
-            probY <- log(W) + 
-                t( # rows: MCsamples, cols: clusters
+            probY <- t( # rows: MCsamples, cols: clusters
                 (if(Yn$R > 0){# continuous
                      colSums(
                          array(dnorm(x=y[Yt$R,],
