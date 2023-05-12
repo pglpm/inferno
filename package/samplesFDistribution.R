@@ -33,29 +33,28 @@ samplesFDistribution <- function(Y, X=NULL, mcsamples, varinfoaux, subsamples=NU
     vn <- vnames <- Yt <- Xt <- Yi <- Xi <- Yn <- Xn <- Yseq <- Xseq <- vseq <- list()
     varinfoaux <- varinfoaux[name %in% c(Yv,Xv)]
     for(atype in c('R','C','D','O','N','B')){
-        vn[[atype]] <- length(varinfoaux[mcmctype == atype, name])
         vnames[[atype]] <- varinfoaux[mcmctype == atype, name]
+        vn[[atype]] <- length(vnames[[atype]])
         ##
-        common <- Yv[Yv %in% vnames$R]
+        common <- Yv[Yv %in% vnames[[atype]]]
+        Yn[[atype]] <- length(common)
         Yt[[atype]] <- which(Yv %in% common)
         Yi[[atype]] <- sapply(common, function(xx)varinfoaux[name == xx, id])
-        Yn[[atype]] <- length(Yi[[atype]])
         Yseq[[atype]] <- 1:Yn[[atype]]
         ##
-        Xt[[atype]] <- sapply(intersect(vnames[[atype]], Xv),
-                              function(xx)which(Xv==xx))
-        Xi[[atype]] <- sapply(intersect(vnames[[atype]], Xv),
-                              function(xx)varinfoaux[name==xx,id])
-        Xn[[atype]] <- length(Xi[[atype]])
+        common <- Xv[Xv %in% vnames[[atype]]]
+        Xn[[atype]] <- length(common)
+        Xt[[atype]] <- which(Xv %in% common)
+        Xi[[atype]] <- sapply(common, function(xx)varinfoaux[name == xx, id])
         Xseq[[atype]] <- 1:Xn[[atype]]
 
-        print(atype)
-        print(Xn[[atype]])
-        print(Xv[Xt[[atype]]])
-        print(varinfoaux[mcmctype==atype,name][Xi[[atype]]])
-        print(Yn[[atype]])
-        print(Yv[Yt[[atype]]])
-        print(varinfoaux[mcmctype==atype,name][Yi[[atype]]])
+        ## print(atype)
+        ## print(Xn[[atype]])
+        ## print(Xv[Xt[[atype]]])
+        ## print(varinfoaux[mcmctype==atype,name][Xi[[atype]]])
+        ## print(Yn[[atype]])
+        ## print(Yv[Yt[[atype]]])
+        ## print(varinfoaux[mcmctype==atype,name][Yi[[atype]]])
     }
 
     
