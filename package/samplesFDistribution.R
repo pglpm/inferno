@@ -28,15 +28,25 @@ samplesFDistribution <- function(Y, X=NULL, mcsamples, varinfoaux, subsamples=NU
     mcsamples <- mcsamples[subsamples,,drop=F]
     nsamples <- nrow(mcsamples)
 
+    allv <- union(Yv, Xv)
     allparams <- colnames(mcsamples)
+    
     ##
-    vn <- vnames <- Yt <- Xt <- Yi <- Xi <- Yn <- Xn <- Yseq <- Xseq <- vseq <- list()
-    varinfoaux <- varinfoaux[name %in% c(Yv,Xv)]
+    vn <- vnames <- Yt <- Xt <- Yi <- Xi <- Yn <- Xn <- Yseq <- Xseq <- vindices <- list()
+    varinfoaux <- varinfoaux[name %in% allv]
     for(atype in c('R','C','D','O','N','B')){
-        vnames[[atype]] <- varinfoaux[mcmctype == atype, name]
+        ## 
+        ## To save memory, we'll extract from mcsamples
+        ## only sample parameters belonging to vnames
+        vnames[[atype]] <- allv[allv %in% varinfoaux[mcmctype == atype, name]]
         vn[[atype]] <- length(vnames[[atype]])
+        vindices[[atype]] <- sapply(vnames[[atype]], function(xx)varinfoaux[name == xx, id])
+        ordering <- order(vindices[[atype]])
+        vnames[[atype]] <- vnames[[atype]][ordering]
+        vindices[[atype]] <- vindices[[atype]][ordering]
+        
         ##
-        common <- Yv[Yv %in% vnames[[atype]]]
+        common <- intersect(vnames[[atype]],Yv)
         Yn[[atype]] <- length(common)
         Yt[[atype]] <- which(Yv %in% common)
         Yi[[atype]] <- sapply(common, function(xx)varinfoaux[name == xx, id])
@@ -60,11 +70,11 @@ samplesFDistribution <- function(Y, X=NULL, mcsamples, varinfoaux, subsamples=NU
     
     ##    
     if(vn$N > 0){
-        Nmaxn <- max(varinfoaux[mcmctype == 'N', Nvalues])
+        Nmaxn <- max(varinfoaux[name %in% vnames$N, Nvalues])
     }
     ##    
     if(vn$O > 0){
-        Omaxn <- max(varinfoaux[mcmctype == 'O', Nvalues])
+        Omaxn <- max(varinfoaux[name %in% vnames$O, Nvalues])
         Oseq <- 1:vn$O
     }
 
@@ -73,32 +83,38 @@ samplesFDistribution <- function(Y, X=NULL, mcsamples, varinfoaux, subsamples=NU
     nclusters <- ncol(W)
 
     if(vn$R > 0){# continuous
-        Rmean <- array(t(mcsamples[,grep('^Rmean', allparams),drop=F]),
+        inds <- paste0(vis$R,collapse='|')
+        Rmean <- array(t(mcsamples[,grep(paste0('^Rmean\\[(',inds,')'), allparams),drop=F]),
                        dim=c(vn$R,nclusters,nsamples), dimnames=list(vnames$R,NULL))
-        Rvar <- array(t(mcsamples[,grep('^Rvar', allparams),drop=F]),
+        Rvar <- array(t(mcsamples[,grep(paste0('^Rvar\\[(',inds,')'), allparams),drop=F]),
                       dim=c(vn$R,nclusters,nsamples), dimnames=list(vnames$R,NULL))
     }
     if(vn$C > 0){# censored
-        Cmean <- array(t(mcsamples[,grep('^Cmean', allparams),drop=F]),
+        inds <- paste0(vis$C,collapse='|')
+        Cmean <- array(t(mcsamples[,grep(paste0('^Cmean\\[(',inds,')'), allparams),drop=F]),
                        dim=c(vn$C,nclusters,nsamples), dimnames=list(vnames$C,NULL))
-        Cvar <- array(t(mcsamples[,grep('^Cvar', allparams),drop=F]),
+        Cvar <- array(t(mcsamples[,grep(paste0('^Cvar\\[(',inds,')'), allparams),drop=F]),
                       dim=c(vn$C,nclusters,nsamples), dimnames=list(vnames$C,NULL))
         Cbounds <- cbind(
-            c(vtransform(x=rbind(rep(NA,vn$C)),varinfoaux=varinfoaux,variates=vnames$C,Cout='sleft')),
-            c(vtransform(x=rbind(rep(NA,vn$C)),varinfoaux=varinfoaux,variates=vnames$C,Cout='sright'))
+            c(vtransform(x=matrix(NA,nrow=1,ncol=vn$C,dimnames=list(NULL,vnames$C)),
+                         varinfoaux=varinfoaux,variates=vnames$C,Cout='sleft')),
+            c(vtransform(x=matrix(NA,nrow=1,ncol=vn$C,dimnames=list(NULL,vnames$C)),
+                         varinfoaux=varinfoaux,variates=vnames$C,Cout='sright'))
         )
     }
     if(vn$D > 0){## discretized
-        Dmean <- array(t(mcsamples[,grep('^Dmean', allparams),drop=F]),
+        inds <- paste0(vis$D,collapse='|')
+        Dmean <- array(t(mcsamples[,grep(paste0('^Dmean\\[(',inds,')'), allparams),drop=F]),
                        dim=c(vn$D,nclusters,nsamples), dimnames=list(vnames$D,NULL))
-        Dvar <- array(t(mcsamples[,grep('^Dvar', allparams),drop=F]),
+        Dvar <- array(t(mcsamples[,grep(paste0('^Dvar\\[(',inds,')'), allparams),drop=F]),
                       dim=c(vn$D,nclusters,nsamples), dimnames=list(vnames$D,NULL))
     }
     if(vn$O > 0){# ordinal
         Qfunction <- readRDS('Qfunction512.rds')
-        Omean <- array(t(mcsamples[,grep('^Omean', allparams),drop=F]),
+        inds <- paste0(vis$O,collapse='|')
+        Omean <- array(t(mcsamples[,grep(paste0('^Omean\\[(',inds,')'), allparams),drop=F]),
                        dim=c(vn$O,nclusters,nsamples), dimnames=list(vnames$O,NULL))
-        Ovar <- array(t(mcsamples[,grep('^Ovar', allparams),drop=F]),
+        Ovar <- array(t(mcsamples[,grep(paste0('^Ovar\\[(',inds,')'), allparams),drop=F]),
                       dim=c(vn$O,nclusters,nsamples), dimnames=list(vnames$O,NULL))
         Oleft <- t(sapply(vnames$O, function(avar){
             nn <- varinfoaux[name == avar, Nvalues]
@@ -110,11 +126,13 @@ samplesFDistribution <- function(Y, X=NULL, mcsamples, varinfoaux, subsamples=NU
         }))
     }
     if(vn$N > 0){# nominal
-        Nprob <- array(t(mcsamples[,grep('^Nprob', allparams),drop=F]),
+        inds <- paste0(vis$N,collapse='|')
+        Nprob <- array(t(mcsamples[,grep(paste0('^Nprob\\[(',inds,')'), allparams),drop=F]),
                        dim=c(vn$N,nclusters,Nmaxn,nsamples), dimnames=list(vnames$N,NULL))
     }
     if(vn$B > 0){## binary
-        Bprob <- array(t(mcsamples[,grep('^Bprob', allparams),drop=F]),
+        inds <- paste0(vis$B,collapse='|')
+        Bprob <- array(t(mcsamples[,grep(paste0('^Bprob\\[(',inds,')'), allparams),drop=F]),
                        dim=c(vn$B,nclusters,nsamples), dimnames=list(vnames$B,NULL))
     }
     rm(mcsamples)
