@@ -37,21 +37,19 @@ samplesFDistribution <- function(Y, X=NULL, mcsamples, varinfoaux, subsamples=NU
         vn[[atype]] <- length(varinfoaux[mcmctype == atype, name])
         vseq[[atype]] <- 1:vn[[atype]]
         vnames[[atype]] <- varinfoaux[mcmctype == atype, name]
-        ## these keep the column indices in Y,X
-        ## of the variates 'atype', in the order of varinfoaux
-        Yt[[atype]] <- sapply(vnames[[atype]],function(xx)which(Yv==xx))
-        Xt[[atype]] <- sapply(vnames[[atype]],function(xx)which(Xv==xx))
-        Yn[[atype]] <- length(Yt[[atype]])
-        Xn[[atype]] <- length(Xt[[atype]])
-        Yseq[[atype]] <- 1:Yn[[atype]]
-        Xseq[[atype]] <- 1:Xn[[atype]]
-        ## these keep the column indices in the list of variates 'atype'
-        ## present in Y,X
+        ##
+        Yt[[atype]] <- sapply(intersect(vnames[[atype]], Yv),
+                              function(xx)which(Yv==xx))
         Yi[[atype]] <- which(vnames[[atype]] %in% Yv)
+        Yn[[atype]] <- length(Yt[[atype]])
+        Yseq[[atype]] <- 1:Yn[[atype]]
+        ##
+        Xt[[atype]] <- sapply(intersect(vnames[[atype]], Xv),
+                              function(xx)which(Xv==xx))
         Xi[[atype]] <- which(vnames[[atype]] %in% Xv)
+        Xn[[atype]] <- length(Xt[[atype]])
+        Xseq[[atype]] <- 1:Xn[[atype]]
     }
-
-    print(Xt)
 
     ##    
     if(vn$N > 0){
@@ -130,7 +128,7 @@ samplesFDistribution <- function(Y, X=NULL, mcsamples, varinfoaux, subsamples=NU
     ## ndata <- nrow(Y2)
     ##
     ##
-    foreach(y=t(Y2), x=t(X2), .combine=rbind, .inorder=T)%do%{
+    foreach(y=t(Y2), x=t(X2), .combine=rbind, .inorder=T)%dopar%{
         ## ## for debugging
         ## for(iii in 1:nrow(Y2)){
         ## print(iii)
