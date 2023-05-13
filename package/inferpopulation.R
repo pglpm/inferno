@@ -1,16 +1,25 @@
 inferpopulation <- function(dataset, varinfoaux, predictands, nsamples=4096, file=TRUE, ncores=NULL){
+
+        require('data.table')
+        require('LaplacesDemon', include.only=NULL)
+
+    
     ## read dataset
     if(is.character(dataset) && file.exists(dataset)){dataset <- fread(dataset, na.strings='')}
     dataset <- as.data.table(dataset)
+
     ## varinfoaux
     if(is.character(varinfoaux) && file.exists(varinfoaux)){
         varinfoaux <- readRDS(varinfoaux)
     }
+
     ## list of predictand variates
     if(is.character(predictands) && file.exists(predictands)){
-        predictandsname <- predictands
         predictands <- as.vector(unlist(read.csv(predictands, header=F)))
+    }else{
+        predictands <- unlist(predictands)
     }
+    
     ## file to save output
     if(is.character(file) || (is.logical(file) && file)){ # must save to file
         if(is.character(file)){
@@ -23,7 +32,13 @@ inferpopulation <- function(dataset, varinfoaux, predictands, nsamples=4096, fil
             }
         }
     }
-    ##
+
+    ## set number of cores for parallel computation
+    if(is.null(cores)){
+        warning('The number of cores has not been given.\nIt is much preferable that it be set by the user.')
+        cores <- round(detectCores()/2)
+        cat('\nTrying to use ',cores,' cores\n')
+    }
     
 #### various internal parameters
     niter0 <- 1024L # 3L # iterations to try
@@ -57,6 +72,12 @@ inferpopulation <- function(dataset, varinfoaux, predictands, nsamples=4096, fil
         vn[[atype]] <- length(varinfoaux[mcmctype == atype, name])
         vnames[[atype]] <- varinfoaux[mcmctype == atype, name]
     }
+    ## choose predictands if unchosen
+    if(is.null(predictands) || !exists('predictands')){
+        predictands <- sapply(vnames,function(xx)xx[1])
+        cat('\nSelf-choosing predictand variates:\n', predictands, '\n')
+    }
+    predictors <- setdiff(unlist(vnames), predictands)
 
     if(vn$N > 0){
         Nmaxn <- max(varinfoaux[mcmctype == 'N', Nvalues])
@@ -71,7 +92,7 @@ inferpopulation <- function(dataset, varinfoaux, predictands, nsamples=4096, fil
         source('vtransform.R')
 
         ## hierarchical probability structure
-        finitemix <- nimble::nimbleCode({
+        finitemix <- nimbleCode({
             ## Component weights
             Alpha ~ dcat(prob=probalpha0[1:nalpha])
             alphas[1:nclusters] <- basealphas[1:nclusters] * 2^Alpha
