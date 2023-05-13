@@ -26,7 +26,7 @@ inferpopulation <- function(dataset, varinfoaux, predictands, nsamples=4096, fil
     ##
     
 #### various internal parameters
-    niter0 <- 128L # 3L # iterations to try
+    niter0 <- 1024L # 3L # iterations to try
     testLength <- TRUE
     nthreshold <- 2 # multiple of threshold for acceptable number of burn-in samples
     casualinitvalues <- FALSE
@@ -34,7 +34,7 @@ inferpopulation <- function(dataset, varinfoaux, predictands, nsamples=4096, fil
     showsamplertimes <- FALSE ##
     family <- 'Palatino'
 #### Hyperparameters
-    nclusters <- 3L
+    nclusters <- 64L
     minalpha <- -3L
     maxalpha <- 3L
     Rshapelo <- 0.5
@@ -67,6 +67,8 @@ inferpopulation <- function(dataset, varinfoaux, predictands, nsamples=4096, fil
     }
     
     mcsamples <- foreach(chain=1:ncores, .combine=rbind, .packages='nimble', .inorder=FALSE)%dorng%{
+
+        source('vtransform.R')
 
         ## hierarchical probability structure
         finitemix <- nimble::nimbleCode({
@@ -376,19 +378,19 @@ inferpopulation <- function(dataset, varinfoaux, predictands, nsamples=4096, fil
         cat('\nSetup time: ')
         print(Sys.time() - timecount)
 
+#### ****remove tests below****
+        Cmcsampler$run(niter=1024, thin=1, thin2=64, nburnin=0, time=FALSE, reset=TRUE, resetMV=TRUE)
 
-        ## Cmcsampler$run(niter=100, thin=1, thin2=1, nburnin=0, time=FALSE, reset=TRUE, resetMV=TRUE)
+        mcsamples <- as.matrix(Cmcsampler$mvSamples)
+        finalstate <- as.matrix(Cmcsampler$mvSamples2)
 
-        ## mcsamples <- as.matrix(Cmcsampler$mvSamples)
-        ## mcsamples2 <- as.matrix(Cmcsampler$mvSamples2)
+        tplot(y=mcsamples2[,'Alpha'])
 
-        ## tplot(y=mcsamples2[,'Alpha'])
+        tplot(y=mcsamples[,'Rmean[1, 1]'])
 
-        ## tplot(y=mcsamples[,'Rmean[1, 1]'])
+        tplot(y=mcsamples2[,'Clat[3, 1]'])
 
-        ## tplot(y=mcsamples2[,'Clat[3, 1]'])
-
-        ## tplot(y=log(apply(mcsamples,1,function(xx){min(xx[paste0('W[',1:nclusters,']')])})))
+        tplot(y=log(apply(mcsamples,1,function(xx){min(xx[paste0('W[',1:nclusters,']')])})))
 
 
 ##################################################
@@ -457,7 +459,7 @@ inferpopulation <- function(dataset, varinfoaux, predictands, nsamples=4096, fil
                 histo <- thist(occupations,n='i')
                 tplot(x=histo$mids,y=histo$density,xlab='occupied clusters',ylab=NA)
                 tplot(y=finalstate[,'Alpha'], ylab='Alpha-index',xlab=NA)
-                histo <- thist(finalstate[,'Alphaindex'])
+                histo <- thist(finalstate[,'Alpha'])
                 tplot(x=histo$mids,y=histo$density,xlab='Alpha-index',ylab='')
                 ## for(vtype in c('R','I',#'O',
                 ##                'D')){
@@ -483,7 +485,7 @@ inferpopulation <- function(dataset, varinfoaux, predictands, nsamples=4096, fil
             ## Diagnostics
             ## Log-likelihood
             diagntime <- Sys.time()
-            ll <- colSums(log(samplesFDistribution(Y=data.matrix(dataset), X=NULL, mcsamples=mcsamples, varinfo=varinfo, jacobian=FALSE)), na.rm=T) #- sum(log(invjacobian(data.matrix(dataset), varinfo)), na.rm=T)
+            ll <- colSums(log(samplesFDistribution(Y=data.matrix(dataset), X=NULL, mcsamples=mcsamples, varinfoaux=varinfoaux, jacobian=FALSE)), na.rm=T) #- sum(log(invjacobian(data.matrix(dataset), varinfo)), na.rm=T)
             lld <- colSums(log(samplesFDistribution(Y=data.matrix(dataset[,..predictands]), X=data.matrix(dataset[,..predictors]), mcsamples=mcsamples, varinfo=varinfo, jacobian=FALSE)), na.rm=T) # - sum(log(invjacobian(data.matrix(dataset[,..predictands]), varinfo)), na.rm=T)
             lli <- colSums(log(samplesFDistribution(Y=data.matrix(dataset[,..predictors]), X=data.matrix(dataset[,..predictands]), mcsamples=mcsamples, varinfo=varinfo, jacobian=FALSE)), na.rm=T) #- sum(log(invjacobian(data.matrix(dataset[,..predictors]), varinfo)), na.rm=T)
             ##
