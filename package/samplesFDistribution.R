@@ -220,7 +220,7 @@ XnB <- length(totake)
         if(all(is.na(x))){
             probX <- log(W) 
         }else{
-            probX <- log(W) +
+            probX <- 0*log(W) +
                 t( # rows: MCsamples, cols: clusters
                 (if(XnR > 0){# continuous
                      colSums(
@@ -288,8 +288,9 @@ XnB <- length(totake)
                                    dim=c(XnB, nclusters, nsamples))),
                          na.rm=T)
                  }else{0})
-                )
-        }# end probX
+                ) +
+                log(W)
+        } # end probX
         ##
         if(all(is.na(y))){
             probY <- array(NA, dim=dim(W))
