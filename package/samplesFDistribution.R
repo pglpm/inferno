@@ -25,15 +25,14 @@ samplesFDistribution <- function(Y, X=NULL, mcsamples, varinfoaux, subsamples=NU
     }else if(is.character(subsamples)){
         subsamples <- round(seq(1,nrow(subsamples),length.out=as.numeric(subsamples)))
     }
+
     mcsamples <- mcsamples[subsamples,,drop=F]
     nsamples <- nrow(mcsamples)
 
-    allv <- union(Yv, Xv)
-    allparams <- colnames(mcsamples)
-    
     ##
+    allv <- union(Yv, Xv)
     vn <- vnames <- vindices <- list()
-    varinfoaux <- varinfoaux[name %in% allv]
+    ##    varinfoaux <- varinfoaux[name %in% allv]
     for(atype in c('R','C','D','O','N','B')){
         ## 
         ## To save memory, we'll extract from mcsamples
@@ -46,16 +45,7 @@ samplesFDistribution <- function(Y, X=NULL, mcsamples, varinfoaux, subsamples=NU
         vindices[[atype]] <- vindices[[atype]][ordering]
     }
 
-    
-    ##    
-    if(vn$N > 0){
-        Nmaxn <- max(varinfoaux[name %in% vnames$N, Nvalues])
-    }
-    ##    
-    if(vn$O > 0){
-        Omaxn <- max(varinfoaux[name %in% vnames$O, Nvalues])
-        Oseq <- 1:vn$O
-    }
+    allparams <- colnames(mcsamples)
 
     ## W
     W <- mcsamples[,grep('^W', allparams)]
@@ -77,6 +67,8 @@ YnR <- length(totake)
 XnR <- length(totake)
         XiR <- unname(sapply(totake, function(xx){which(Xv==xx)}))
         XtR <- unname(sapply(totake, function(xx){which(vnames$R==xx)}))
+    }else{
+        YnR <- XnR <- 0
     }
     if(vn$C > 0){# censored
         inds <- paste0(vindices$C,collapse='|')
@@ -92,14 +84,19 @@ XnR <- length(totake)
         )
         ##
         totake <- intersect(vnames$C, Yv)
-YnC <- length(totake)
+        YnC <- length(totake)
         YiC <- unname(sapply(totake, function(xx){which(Yv==xx)}))
         YtC <- unname(sapply(totake, function(xx){which(vnames$C==xx)}))
         ##
         totake <- intersect(vnames$C, Xv)
-XnC <- length(totake)
+        XnC <- length(totake)
         XiC <- unname(sapply(totake, function(xx){which(Xv==xx)}))
         XtC <- unname(sapply(totake, function(xx){which(vnames$C==xx)}))
+        ##
+        YseqC <- 1:YnC
+        XseqC <- 1:XnC
+    }else{
+        YnC <- XnC <- 0
     }
     if(vn$D > 0){## discretized
         inds <- paste0(vindices$D,collapse='|')
@@ -117,6 +114,8 @@ YnD <- length(totake)
 XnD <- length(totake)
         XiD <- unname(sapply(totake, function(xx){which(Xv==xx)}))
         XtD <- unname(sapply(totake, function(xx){which(vnames$D==xx)}))
+    }else{
+        YnD <- XnD <- 0
     }
     if(vn$O > 0){# ordinal
         Qfunction <- readRDS('Qfunction512.rds')
@@ -125,6 +124,10 @@ XnD <- length(totake)
                        dim=c(vn$O,nclusters,nsamples), dimnames=list(vnames$O,NULL))
         Ovar <- array(t(mcsamples[,grep(paste0('^Ovar\\[(',inds,')'), allparams),drop=F]),
                       dim=c(vn$O,nclusters,nsamples), dimnames=list(vnames$O,NULL))
+        ##
+        Omaxn <- max(varinfoaux[name %in% vnames$O, Nvalues])
+        Oseq <- 1:vn$O
+        ##
         Oleft <- t(sapply(vnames$O, function(avar){
             nn <- varinfoaux[name == avar, Nvalues]
             c(Qfunction((0:(nn-1))/nn), rep(NA,Omaxn-nn))
@@ -143,11 +146,15 @@ YnO <- length(totake)
 XnO <- length(totake)
         XiO <- unname(sapply(totake, function(xx){which(Xv==xx)}))
         XtO <- unname(sapply(totake, function(xx){which(vnames$O==xx)}))
+    }else{
+        YnO <- XnO <- 0
     }
     if(vn$N > 0){# nominal
+        Nmaxn <- max(varinfoaux[name %in% vnames$N, Nvalues])
         inds <- paste0(vindices$N,collapse='|')
-        Nprob <- array(t(mcsamples[,grep(paste0('^Nprob\\[(',inds,')'), allparams),drop=F]),
-                       dim=c(vn$N,nclusters,Nmaxn,nsamples), dimnames=list(vnames$N,NULL))
+        indn <- paste0(1:Nmaxn,collapse='|')
+        Nprob <- array(t(mcsamples[,grep(paste0('^Nprob\\[(',inds,'), .*, (',indn,')\\]'), allparams),drop=F]),
+                       dim=c(vn$N,nclusters,Nmaxn,nsamples), dimnames=list(vnames$N,NULL,NULL,NULL))
         ##
         totake <- intersect(vnames$N, Yv)
 YnN <- length(totake)
@@ -158,6 +165,11 @@ YnN <- length(totake)
 XnN <- length(totake)
         XiN <- unname(sapply(totake, function(xx){which(Xv==xx)}))
         XtN <- unname(sapply(totake, function(xx){which(vnames$N==xx)}))
+        ##
+        YseqN <- 1:YnN
+        XseqN <- 1:XnN
+    }else{
+        YnN <- XnN <- 0
     }
     if(vn$B > 0){## binary
         inds <- paste0(vindices$B,collapse='|')
@@ -173,6 +185,8 @@ YnB <- length(totake)
 XnB <- length(totake)
         XiB <- unname(sapply(totake, function(xx){which(Xv==xx)}))
         XtB <- unname(sapply(totake, function(xx){which(vnames$B==xx)}))
+    }else{
+        YnB <- XnB <- 0
     }
     rm(mcsamples)
 
@@ -193,7 +207,7 @@ XnB <- length(totake)
     ## ndata <- nrow(Y2)
     ##
     ##
-    foreach(y=t(Y2), x=t(X2), .combine=rbind, .inorder=T)%dopar%{
+    foreach(y=t(Y2), x=t(X2), .combine=rbind, .inorder=T)%do%{
         ## ## for debugging
         ## for(iii in 1:nrow(Y2)){
         ## print(iii)
@@ -204,9 +218,9 @@ XnB <- length(totake)
         ##            
         ##
         if(all(is.na(x))){
-            probX <- log(W) 
+            probX <- 0*log(W) 
         }else{
-            probX <- log(W) +
+            probX <- 0*log(W) +
                 t( # rows: MCsamples, cols: clusters
                 (if(XnR > 0){# continuous
                      colSums(
@@ -219,7 +233,7 @@ XnB <- length(totake)
                 (if(XnC > 0){# censored
                      colSums(
                          array(
-                             t(sapply(Xseq$C, function(v){
+                             t(sapply(XseqC, function(v){
                                  v1 <- x[XiC[v],]
                                  v2 <- XtC[v]
                                  if(is.finite(v1)){
@@ -246,7 +260,7 @@ XnB <- length(totake)
                          na.rm=T)
                  }else{0}) +
                 (if(XnO > 0){
-                     v2 <- cbind(Oseq,x[XiO,])
+                     v2 <- cbind(XtO,x[XiO,])
                      colSums(
                          log(array(
                              pnorm(q=Oright[v2],
@@ -261,7 +275,7 @@ XnB <- length(totake)
                 (if(XnN > 0){
                      colSums(
                          log(array(
-                             t(sapply(Xseq$N, function(v){
+                             t(sapply(XseqN, function(v){
                                  Nprob[XtN[v],,x[XiN[v],],]
                              })),
                              dim=c(XnN, nclusters, nsamples))),
@@ -292,7 +306,7 @@ XnB <- length(totake)
                 (if(YnC > 0){# censored
                      colSums(
                          array(
-                             t(sapply(Yseq$C, function(v){
+                             t(sapply(YseqC, function(v){
                                  v1 <- y[YiC[v],]
                                  v2 <- YtC[v]
                                  if(is.finite(v1)){
@@ -319,7 +333,7 @@ XnB <- length(totake)
                          na.rm=T)
                  }else{0}) +
                 (if(YnO > 0){
-                     v2 <- cbind(Oseq,y[YiO,])
+                     v2 <- cbind(YtO,y[YiO,])
                      colSums(
                          log(array(
                              pnorm(q=Oright[v2],
@@ -334,7 +348,7 @@ XnB <- length(totake)
                 (if(YnN > 0){
                      colSums(
                          log(array(
-                             t(sapply(Yseq$N, function(v){
+                             t(sapply(YseqN, function(v){
                                  Nprob[YtN[v],,y[YiN[v],],]
                              })),
                              dim=c(YnN, nclusters, nsamples))),
@@ -353,9 +367,17 @@ XnB <- length(totake)
         ## if(all(is.na(x))){
         ##     out <- rowSums(exp(probX+probY)) 
         ## }else{
-        probX <- probX - apply(probX, 1, max, na.rm=T)
+        ## str(probX)
+        ## print(any(is.na(probX)))
+        ## print(apply(probX, 1, max, na.rm=T))
+        ##probX <- probX - apply(probX, 1, function(xx){max(xx[is.finite(xx)])})
+        ## str(probX)
+        ## print(any(is.na(probX)))
+        ## str(probY)
+        ## print(any(is.na(probY)))
         ## }
-        fn( rowSums(exp(probX+probY))/rowSums(exp(probX)) )
+        ##        fn( rowSums(exp(probX+probY))/rowSums(exp(probX)) )
+        rbind(log(W),probX,probY)
     } *
         (if(jacobian){
              exp(-rowSums(
