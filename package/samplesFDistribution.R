@@ -48,15 +48,15 @@ samplesFDistribution <- function(Y, X=NULL, mcsamples, varinfoaux, subsamples=NU
     allparams <- colnames(mcsamples)
 
     ## W
-    W <- mcsamples[,grep('^W', allparams)]
+    W <- mcsamples[,grep('^W', allparams),drop=F]
     nclusters <- ncol(W)
 
     if(vn$R > 0){# continuous
         inds <- paste0(vindices$R,collapse='|')
         Rmean <- array(t(mcsamples[,grep(paste0('^Rmean\\[(',inds,')'), allparams),drop=F]),
-                       dim=c(vn$R,nclusters,nsamples), dimnames=list(vnames$R,NULL))
+                       dim=c(vn$R,nclusters,nsamples), dimnames=NULL)
         Rvar <- array(t(mcsamples[,grep(paste0('^Rvar\\[(',inds,')'), allparams),drop=F]),
-                      dim=c(vn$R,nclusters,nsamples), dimnames=list(vnames$R,NULL))
+                      dim=c(vn$R,nclusters,nsamples), dimnames=NULL)
         ##
         totake <- intersect(vnames$R, Yv)
 YnR <- length(totake)
@@ -73,13 +73,13 @@ XnR <- length(totake)
     if(vn$C > 0){# censored
         inds <- paste0(vindices$C,collapse='|')
         Cmean <- array(t(mcsamples[,grep(paste0('^Cmean\\[(',inds,')'), allparams),drop=F]),
-                       dim=c(vn$C,nclusters,nsamples), dimnames=list(vnames$C,NULL))
+                       dim=c(vn$C,nclusters,nsamples), dimnames=NULL)
         Cvar <- array(t(mcsamples[,grep(paste0('^Cvar\\[(',inds,')'), allparams),drop=F]),
-                      dim=c(vn$C,nclusters,nsamples), dimnames=list(vnames$C,NULL))
+                      dim=c(vn$C,nclusters,nsamples), dimnames=NULL)
         Cbounds <- cbind(
-            c(vtransform(x=matrix(NA,nrow=1,ncol=vn$C,dimnames=list(NULL,vnames$C)),
+            c(vtransform(x=matrix(NA,nrow=1,ncol=vn$C,dimnames=NULL),
                          varinfoaux=varinfoaux,variates=vnames$C,Cout='sleft')),
-            c(vtransform(x=matrix(NA,nrow=1,ncol=vn$C,dimnames=list(NULL,vnames$C)),
+            c(vtransform(x=matrix(NA,nrow=1,ncol=vn$C,dimnames=NULL),
                          varinfoaux=varinfoaux,variates=vnames$C,Cout='sright'))
         )
         ##
@@ -101,9 +101,9 @@ XnR <- length(totake)
     if(vn$D > 0){## discretized
         inds <- paste0(vindices$D,collapse='|')
         Dmean <- array(t(mcsamples[,grep(paste0('^Dmean\\[(',inds,')'), allparams),drop=F]),
-                       dim=c(vn$D,nclusters,nsamples), dimnames=list(vnames$D,NULL))
+                       dim=c(vn$D,nclusters,nsamples), dimnames=NULL)
         Dvar <- array(t(mcsamples[,grep(paste0('^Dvar\\[(',inds,')'), allparams),drop=F]),
-                      dim=c(vn$D,nclusters,nsamples), dimnames=list(vnames$D,NULL))
+                      dim=c(vn$D,nclusters,nsamples), dimnames=NULL)
         ##
         totake <- intersect(vnames$D, Yv)
 YnD <- length(totake)
@@ -121,9 +121,9 @@ XnD <- length(totake)
         Qfunction <- readRDS('Qfunction512.rds')
         inds <- paste0(vindices$O,collapse='|')
         Omean <- array(t(mcsamples[,grep(paste0('^Omean\\[(',inds,')'), allparams),drop=F]),
-                       dim=c(vn$O,nclusters,nsamples), dimnames=list(vnames$O,NULL))
+                       dim=c(vn$O,nclusters,nsamples), dimnames=NULL)
         Ovar <- array(t(mcsamples[,grep(paste0('^Ovar\\[(',inds,')'), allparams),drop=F]),
-                      dim=c(vn$O,nclusters,nsamples), dimnames=list(vnames$O,NULL))
+                      dim=c(vn$O,nclusters,nsamples), dimnames=NULL)
         ##
         Omaxn <- max(varinfoaux[name %in% vnames$O, Nvalues])
         Oseq <- 1:vn$O
@@ -154,7 +154,7 @@ XnO <- length(totake)
         inds <- paste0(vindices$N,collapse='|')
         indn <- paste0(1:Nmaxn,collapse='|')
         Nprob <- array(t(mcsamples[,grep(paste0('^Nprob\\[(',inds,'), .*, (',indn,')\\]'), allparams),drop=F]),
-                       dim=c(vn$N,nclusters,Nmaxn,nsamples), dimnames=list(vnames$N,NULL,NULL,NULL))
+                       dim=c(vn$N,nclusters,Nmaxn,nsamples), dimnames=NULL)
         ##
         totake <- intersect(vnames$N, Yv)
 YnN <- length(totake)
@@ -174,7 +174,7 @@ XnN <- length(totake)
     if(vn$B > 0){## binary
         inds <- paste0(vindices$B,collapse='|')
         Bprob <- array(t(mcsamples[,grep(paste0('^Bprob\\[(',inds,')'), allparams),drop=F]),
-                       dim=c(vn$B,nclusters,nsamples), dimnames=list(vnames$B,NULL))
+                       dim=c(vn$B,nclusters,nsamples), dimnames=NULL)
         ##
         totake <- intersect(vnames$B, Yv)
 YnB <- length(totake)
@@ -207,7 +207,7 @@ XnB <- length(totake)
     ## ndata <- nrow(Y2)
     ##
     ##
-    foreach(y=t(Y2), x=t(X2), .combine=rbind, .inorder=T)%do%{
+    foreach(y=t(Y2), x=t(X2), .combine=rbind, .inorder=T)%dopar%{
         ## ## for debugging
         ## for(iii in 1:nrow(Y2)){
         ## print(iii)
@@ -218,9 +218,9 @@ XnB <- length(totake)
         ##            
         ##
         if(all(is.na(x))){
-            probX <- 0*log(W) 
+            probX <- log(W) 
         }else{
-            probX <- 0*log(W) +
+            probX <- log(W) +
                 t( # rows: MCsamples, cols: clusters
                 (if(XnR > 0){# continuous
                      colSums(
@@ -292,7 +292,7 @@ XnB <- length(totake)
         }# end probX
         ##
         if(all(is.na(y))){
-            probY <- NA
+            probY <- array(NA, dim=dim(W))
         }else{
             probY <- t( # rows: MCsamples, cols: clusters
                 (if(YnR > 0){# continuous
@@ -370,14 +370,14 @@ XnB <- length(totake)
         ## str(probX)
         ## print(any(is.na(probX)))
         ## print(apply(probX, 1, max, na.rm=T))
-        ##probX <- probX - apply(probX, 1, function(xx){max(xx[is.finite(xx)])})
+        probX <- probX - apply(probX, 1, function(xx){max(xx[is.finite(xx)])})
         ## str(probX)
         ## print(any(is.na(probX)))
         ## str(probY)
         ## print(any(is.na(probY)))
         ## }
-        ##        fn( rowSums(exp(probX+probY))/rowSums(exp(probX)) )
-        rbind(log(W),probX,probY)
+        fn( rowSums(exp(probX+probY))/rowSums(exp(probX)) )
+        ## rbind(log(W),probX,probY)
     } *
         (if(jacobian){
              exp(-rowSums(
