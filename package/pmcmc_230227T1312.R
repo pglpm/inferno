@@ -1,6 +1,6 @@
 ## Author: PGL  Porta Mana
 ## Created: 2022-09-08T17:03:24+0200
-## Last-Updated: 2023-05-13T23:01:53+0200
+## Last-Updated: 2023-05-13T20:22:57+0200
 #########################################
 ## Inference of exchangeable variates (nonparametric density regression)
 ## using effectively-infinite mixture of product kernels
@@ -11,10 +11,10 @@
 baseversion <- '_testnewthresh2' # Base name of output directory
 nsamples <- 64L # 256 gives 4096 samples with 16 parallel runs
 ncores <- 1
-datafile <- 'testdataset.csv'
+datafile <- 'traindataset.csv'
 predictorfile <- 'predictors.csv'
 predictandfile <- NULL # 'predictors.csv'
-varinfofile <- 'testdatabase_varinfoaux.rds'
+varinfofile <- 'varinfo.rds'
 ndata <- 20 # set this if you want to use fewer data
 shuffledata <- FALSE # useful if subsetting data
 posterior <- TRUE # if set to FALSE it samples and plots prior samples
