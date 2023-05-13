@@ -486,11 +486,11 @@ inferpopulation <- function(dataset, varinfoaux, predictands, nsamples=4096, fil
             ## Log-likelihood
             diagntime <- Sys.time()
             ll <- colSums(log(samplesFDistribution(Y=data.matrix(dataset), X=NULL, mcsamples=mcsamples, varinfoaux=varinfoaux, jacobian=FALSE)), na.rm=T) #- sum(log(invjacobian(data.matrix(dataset), varinfo)), na.rm=T)
-            lld <- colSums(log(samplesFDistribution(Y=data.matrix(dataset[,..predictands]), X=data.matrix(dataset[,..predictors]), mcsamples=mcsamples, varinfo=varinfo, jacobian=FALSE)), na.rm=T) # - sum(log(invjacobian(data.matrix(dataset[,..predictands]), varinfo)), na.rm=T)
-            lli <- colSums(log(samplesFDistribution(Y=data.matrix(dataset[,..predictors]), X=data.matrix(dataset[,..predictands]), mcsamples=mcsamples, varinfo=varinfo, jacobian=FALSE)), na.rm=T) #- sum(log(invjacobian(data.matrix(dataset[,..predictors]), varinfo)), na.rm=T)
+            lld <- colSums(log(samplesFDistribution(Y=data.matrix(dataset[,..predictands]), X=data.matrix(dataset[,..predictors]), mcsamples=mcsamples, varinfoaux=varinfoaux, jacobian=FALSE)), na.rm=T) # - sum(log(invjacobian(data.matrix(dataset[,..predictands]), varinfo)), na.rm=T)
+            lli <- colSums(log(samplesFDistribution(Y=data.matrix(dataset[,..predictors]), X=data.matrix(dataset[,..predictands]), mcsamples=mcsamples, varinfoaux=varinfoaux, jacobian=FALSE)), na.rm=T) #- sum(log(invjacobian(data.matrix(dataset[,..predictors]), varinfo)), na.rm=T)
             ##
             traces <- rbind(traces,
-                            10/log(10)/ndata *
+                            10/log(10)/npoints *
                             cbind(loglikelihood=ll,
                                   'mean of direct logprobabilities'=lld,
                                   'mean of inverse logprobabilities'=lli)
