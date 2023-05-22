@@ -1,4 +1,4 @@
-inferpopulation <- function(dataset, varinfoaux, predictands, outputdir=TRUE, nsamples=4096, nsamplesperchain=4, nchains, ncores, seed=701){
+inferpopulation <- function(dataset, varinfoaux, outputdir=TRUE, nsamples=4096, nsamplesperchain=4, nchains, ncores, seed=701){
 
     if(!missing(nsamples) && !missing(nchains) && missing(nsamplesperchain)){
         nsamplesperchain <- ceiling(nsamples/nchains)
@@ -36,12 +36,12 @@ stop('please specify exactly two among "nsamples", "nchains", "nsamplesperchain"
         varinfoaux <- readRDS(varinfoaux)
     }
 
-    ## list of predictand variates
-    if(is.character(predictands) && file.exists(predictands)){
-        predictands <- as.vector(unlist(read.csv(predictands, header=F)))
-    }else{
-        predictands <- unlist(predictands)
-    }
+    ## ## list of predictand variates
+    ## if(is.character(predictands) && file.exists(predictands)){
+    ##     predictands <- as.vector(unlist(read.csv(predictands, header=F)))
+    ## }else{
+    ##     predictands <- unlist(predictands)
+    ## }
     
     ## file to save output
     if(is.character(file) || (is.logical(file) && file)){ # must save to file
@@ -101,11 +101,11 @@ stop('please specify exactly two among "nsamples", "nchains", "nsamplesperchain"
         vn[[atype]] <- length(varinfoaux[mcmctype == atype, name])
         vnames[[atype]] <- varinfoaux[mcmctype == atype, name]
     }
-    ## choose predictands if not chosen
-    if(is.null(predictands) || !exists('predictands')){
-        predictands <- sapply(vnames,function(xx)xx[1])
-        cat('\nSelf-choosing predictand variates:\n', predictands, '\n')
-    }
+    ## ## choose predictands if not chosen
+    ## if(is.null(predictands) || !exists('predictands')){
+    ##     predictands <- sapply(vnames,function(xx)xx[1])
+    ##     cat('\nSelf-choosing predictand variates:\n', predictands, '\n')
+    ## }
 
     if(vn$N > 0){
         Nmaxn <- max(varinfoaux[mcmctype == 'N', Nvalues])
@@ -210,12 +210,7 @@ cluster <- makeCluster(ncores, outfile='')
 registerDoParallel(cluster)
 
     
-    mcsamples <- foreach(acore=1:ncores, .combine=rbind, .packages=c('nimble','data.table'), .export=c('predictands', 'constants', 'datapoints', 'vn', 'vnames', 'nalpha', 'nclusters'), .inorder=FALSE)%dorng%{
-
-        ## print(predictands)
-        ## print(predictors)
-        ## print(dataset[,..predictands])
-        ## print(dataset[,..predictors])
+    mcsamples <- foreach(acore=1:ncores, .combine=rbind, .packages=c('nimble','data.table'), .export=c('constants', 'datapoints', 'vn', 'vnames', 'nalpha', 'nclusters'), .inorder=FALSE)%dorng%{
 
         source('pglpm_plotfunctions.R')
         source('vtransform.R')
@@ -223,8 +218,7 @@ registerDoParallel(cluster)
         source('proposeburnin.R')
         source('proposethinning.R')
         
-
-        predictors <- setdiff(unlist(vnames), predictands)
+        ## predictors <- setdiff(unlist(vnames), predictands)
 
         ## hierarchical probability structure
         finitemix <- nimbleCode({
@@ -565,7 +559,7 @@ while(continue){
     ll <- t(
         log(samplesFDistribution(Y=testdata, X=NULL, mcsamples=mcsamples, varinfo=varinfo, jacobian=FALSE)) #- sum(log(invjacobian(data.matrix(data0), varinfo)), na.rm=T)
     )
-    colnames(ll) <- paste0('log-',c('Q2','Q1','Q3')) #,'pm','pM','dm','dM'))
+    colnames(ll) <- paste0('log-',c('mid','lo','hi')) #,'pm','pM','dm','dM'))
     ## testdatalld <- log(samplesFDistribution(Y=testdata[,predictands,drop=F], X=testdata[,predictors,drop=F], mcsamples=mcsamples, varinfo=varinfo, jacobian=FALSE)) # - sum(log(invjacobian(data.matrix(data0[,..predictands]), varinfo)), na.rm=T)
     ## rownames(testdatalld) <- paste0(c('Q2','Q1','Q3'),'d')
     ## testdatalli <- log(samplesFDistribution(Y=testdata[,predictors,drop=F], X=testdata[,predictands,drop=F], mcsamples=mcsamples, varinfo=varinfo, jacobian=FALSE)) #- sum(log(invjacobian(data.matrix(data0[,..predictors]), varinfo)), na.rm=T)
