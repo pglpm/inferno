@@ -47,8 +47,8 @@ buildvarinfoaux <- function(data, varinfo, file=TRUE){
             tmax <- +Inf
             location <- 0
             scale <- 1
-            plotmin <- 0
-            plotmax <- 1
+            plotmin <- NA
+            plotmax <- NA
             mctest1 <- vval[1]
             mctest2 <- vval[round(vn/2)]
             mctest3 <- vval[vn]
@@ -64,8 +64,8 @@ buildvarinfoaux <- function(data, varinfo, file=TRUE){
             tmax <- +Inf
             location <- 0
             scale <- 1
-            plotmin <- 1
-            plotmax <- vn
+            plotmin <- NA
+            plotmax <- NA
             mctest1 <- vval[1]
             mctest2 <- vval[round(vn/2)]
             mctest3 <- vval[vn]
@@ -84,8 +84,8 @@ buildvarinfoaux <- function(data, varinfo, file=TRUE){
             ##vval <- as.vector(xinfo[paste0('V',1:vn)], mode='character')
             location <- (vn*vmin - vmax)/(vn - 1)
             scale <- (vmax - vmin)/(vn - 1)
-            plotmin <- 1
-            plotmax <- vn
+            plotmin <- xinfo$plotmin
+            plotmax <- xinfo$plotmax
             Q1 <- mctest1 <- quantile(x, probs=0.25, type=6)
             Q2 <- mctest2 <- quantile(x, probs=0.5, type=6)
             Q3 <- mctest3 <- quantile(x, probs=0.75, type=6)

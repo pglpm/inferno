@@ -1,6 +1,7 @@
-samplesFDistribution <- function(Y, X=NULL, mcsamples, varinfoaux, subsamples=NULL, jacobian=TRUE, fn=identity){
+samplesFDistribution <- function(Y, X, mcsamples, varinfoaux, subsamples, jacobian=TRUE, fn=identity){
     ## Consistency checks
     if(length(dim(Y)) != 2){stop('Y must have two dimensions')}
+    if(missing(X)){X <- NULL}
     if(!is.null(X) && length(dim(X)) != 2){stop('X must be NULL or have two dimensions')}
     ##
     if(!is.null(X) && ncol(X) == 0){X <- NULL}
@@ -20,7 +21,7 @@ samplesFDistribution <- function(Y, X=NULL, mcsamples, varinfoaux, subsamples=NU
     if(is.character(mcsamples) && file.exists(mcsamples)){
         mcsamples <- readRDS(mcsamples)
     }
-    if(is.null(subsamples) || (is.logical(subsamples) && !subsamples)){
+    if(missing(subsamples) || is.null(subsamples) || (is.logical(subsamples) && !subsamples)){
         subsamples <- 1:nrow(mcsamples)
     }else if(is.character(subsamples)){
         subsamples <- round(seq(1,nrow(subsamples),length.out=as.numeric(subsamples)))

@@ -28,11 +28,15 @@ stop('please specify exactly two among "nsamples", "nchains", "nsamplesperchain"
     
 
     ## read dataset
-    if(is.character(dataset) && file.exists(dataset)){dataset <- fread(dataset, na.strings='')}
+    if(is.character(dataset) && file.exists(dataset)){
+        dataset <- paste0(sub('.csv$', '', dataset), '.csv')
+        dataset <- fread(dataset, na.strings='')
+    }
     dataset <- as.data.table(dataset)
 
     ## varinfoaux
     if(is.character(varinfoaux) && file.exists(varinfoaux)){
+        varinfoaux <- paste0(sub('.rds$', '', varinfoaux), '.rds')
         varinfoaux <- readRDS(varinfoaux)
     }
 
@@ -57,9 +61,9 @@ stop('please specify exactly two among "nsamples", "nchains", "nsamplesperchain"
     }
 
 #### various internal parameters
-    niter0 <- 1024L # 3L # initial iterations to try
+    niter0 <- 1024L # 3L # initial iterations to try ****
 #### Hyperparameters
-    nclusters <- 4L
+    nclusters <- 4L # ****
     minalpha <- -3L
     maxalpha <- 3L
     Rshapelo <- 0.5
@@ -77,13 +81,12 @@ stop('please specify exactly two among "nsamples", "nchains", "nsamplesperchain"
     npoints <- nrow(dataset)
 
     ## other options
+    plottemptraces <- TRUE # plot traces of single chains
     plottempdistributions <- FALSE # plot temporary sampled distributions
     showdata <- TRUE # 'histogram' 'scatter' FALSE TRUE
     plotmeans <- TRUE # plot frequency averages
     totsamples <- 'all' # 'all' number of samples if plotting frequency averages
     showsamples <- 100 # number of samples to show. Shown separately for posterior=F
-    testLength <- TRUE
-    nthreshold <- 2 # multiple of threshold for acceptable number of burn-in samples
     showhyperparametertraces <- FALSE ##
     showsamplertimes <- FALSE ##
     family <- 'Palatino'
@@ -93,6 +96,14 @@ stop('please specify exactly two among "nsamples", "nchains", "nsamplesperchain"
     dirname <- paste0(basename,'/')
     dir.create(dirname)
 
+    ## Parameter and function to test MCMC convergence
+    multcorr <- 2L
+    thresholdfn <- function(diagnESS, diagnIAT, diagnBMK, diagnMCSE, diagnStat, diagnBurn, diagnBurn2, diagnThin){
+    ceiling(2* max(diagnBurn2) + (nsamplesperchain-1L) * multcorr * ceiling(max(diagnIAT, diagnThin)))
+}
+
+
+    source('vtransform.R')
 
 
     vn <- list()
@@ -202,13 +213,16 @@ stop('please specify exactly two among "nsamples", "nchains", "nsamplesperchain"
         )
 
 
-stopCluster(cluster)
+## stopCluster(cluster)
 stopImplicitCluster()
 registerDoSEQ()
 ## cl <- makePSOCKcluster(ncores)
-cluster <- makeCluster(ncores, outfile='')
-registerDoParallel(cluster)
-
+if(ncores > 1){
+    cluster <- makeCluster(ncores, outfile='') # **** other output file
+    registerDoParallel(cluster)
+}else{
+    registerDoSEQ()
+}
     
     mcsamples <- foreach(acore=1:ncores, .combine=rbind, .packages=c('nimble','data.table'), .export=c('constants', 'datapoints', 'vn', 'vnames', 'nalpha', 'nclusters'), .inorder=FALSE)%dorng%{
 
@@ -479,9 +493,9 @@ while(continue){
         traces <- mcsamples <- prevmcsamples <- NULL
         achain <- achain + 1L
         mcmcseed <- seed + achain + (acore-1)*nchains
-        cat(paste0('Seed: ', mcmcseed, '\n')
+        cat('Seed: ', mcmcseed, '\n')
         set.seed(mcmcseed)
-        Cfinitemixnimble$setInits(initsFunction())
+        Cfinitemixnimble$setInits(initsfn())
     }else{
         prevmcsamples <- rbind(prevmcsamples,mcsamples)
         niter <- lengthmeasure - nitertot
@@ -557,7 +571,7 @@ while(continue){
     ## lli <- colMeans(log(samplesFDistribution(Y=data.matrix(data0[,..predictors]), X=data.matrix(data0[,..predictands]), mcsamples=mcsamples, varinfo=varinfo, jacobian=FALSE)),na.rm=T) #- sum(log(invjacobian(data.matrix(data0[,..predictors]), varinfo)), na.rm=T)
     ##
     ll <- t(
-        log(samplesFDistribution(Y=testdata, X=NULL, mcsamples=mcsamples, varinfo=varinfo, jacobian=FALSE)) #- sum(log(invjacobian(data.matrix(data0), varinfo)), na.rm=T)
+        log(samplesFDistribution(Y=testdata, X=NULL, mcsamples=mcsamples, varinfoaux=varinfoaux, subsamples=NULL, jacobian=FALSE)) #- sum(log(invjacobian(data.matrix(data0), varinfo)), na.rm=T)
     )
     colnames(ll) <- paste0('log-',c('mid','lo','hi')) #,'pm','pM','dm','dM'))
     ## testdatalld <- log(samplesFDistribution(Y=testdata[,predictands,drop=F], X=testdata[,predictors,drop=F], mcsamples=mcsamples, varinfo=varinfo, jacobian=FALSE)) # - sum(log(invjacobian(data.matrix(data0[,..predictands]), varinfo)), na.rm=T)
@@ -616,7 +630,7 @@ while(continue){
             newchain <- FALSE
         }else{
             mcsamples <- rbind(prevmcsamples, mcsamples)
-            allmcsamples <- rbind(allmcsamples, mcsamples[rev( nrow(mcsamples) - seq(from=0, length.out=samplesperchain, by=multcorr*ceiling(max(diagnIAT,diagnThin))) ),,drop=F])
+            allmcsamples <- rbind(allmcsamples, mcsamples[rev( nrow(mcsamples) - seq(from=0, length.out=nsamplesperchain, by=multcorr*ceiling(max(diagnIAT,diagnThin))) ),,drop=F])
             maxusedclusters <- max(usedclusters, maxusedclusters)
             newchain <- TRUE
         }
@@ -689,7 +703,7 @@ while(continue){
                               ' | burnI: ', diagnBurn[avar],
                               ' | burnII: ', diagnBurn2,
                               ' | thin: ', diagnThin[avar]
-                              ),
+                              ), cex.main=0.75,
                   ylab=paste0(avar,'/dHart'), xlab='sample', family=family
                   )
         }
@@ -703,25 +717,27 @@ dev.off()
         cat('\nPlotting samples of frequency distributions')
         graphics.off()
         pdff(paste0(dirname,'mcmcdistributions-R',basename,'--',mcmcseed,'-',achain),'a4')
-        for(v in unlist(variate)){#cat(avar)
-            contvar <- varinfo[['type']][v] %in% c('R','O','D')
-            rg <- c(varinfo[['plotmin']][v], varinfo[['plotmax']][v])
-            if(contvar){
-                Xgrid <- cbind(seq(rg[1], rg[2], length.out=256))
+        for(v in unlist(vnames)){#cat(avar)
+            varinfo <- as.list(varinfoaux[name==v])
+
+            if(varinfo[['mcmctype']] %in% c('R','C','O','D')){
+                Xgrid <- cbind(seq(
+                    varinfo[['plotmin']], varinfo[['plotmax']],
+                    length.out=min(256, varinfo[['Nvalues']])
+                ))
             }else{
-                Xgrid <- seq(varinfo[['min']][v], varinfo[['max']][v], length.out=varinfo[['n']][v])
-                Xgrid <- cbind(Xgrid[Xgrid >= rg[1] & Xgrid <= rg[2]])
+                Xgrid <- cbind(unlist(varinfo[paste0('V',1:varinfo[['Nvalues']])]))
             }
             colnames(Xgrid) <- v
-            plotsamples <- samplesFDistribution(Y=Xgrid, mcsamples=mcsamples, varinfo=varinfo, subsamples=subsamples, jacobian=TRUE)
+            plotsamples <- samplesFDistribution(Y=Xgrid, X=NULL, mcsamples=mcsamples, varinfoaux=varinfoaux, subsamples=subsamples, jacobian=TRUE)
             ##
-            if(posterior){
+            if(TRUE){ # ****
                 par(mfrow=c(1,1))
                 ymax <- tquant(apply(plotsamples[,showsubsample],2,function(x){tquant(x,31/32)}),31/32, na.rm=T)
-                if((showdata=='histogram' || showdata==TRUE) && !contvar){
-                    datum <- data0[[v]]
+                if((showdata=='histogram' || showdata==TRUE) && (varinfo[['mcmctype']] %in% c('O','N','B'))){
+                    datum <- dataset[[v]]
                     datum <- datum[!is.na(datum)]
-                    nh <- (varinfo[['max']][v]-varinfo[['min']][v])/(varinfo[['n']][v]-1)
+                    nh <- (varinfo[['max']]-varinfo[['min']][v])/(varinfo[['n']][v]-1)
                     nh <- seq(varinfo[['min']][v]-nh/2, varinfo[['max']][v]+nh/2, length.out=varinfo[['n']][v]+1)
                     histo <- thist(datum, n=nh)
                     ymax <- max(ymax,histo$counts/sum(histo$counts))
@@ -840,431 +856,7 @@ print(Sys.time() - time0)
 ## End MCMC
 ############################################################
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-        
-##################################################
-##################################################
-##################################################
-##################################################
-##################################################
-##################################################
-##################################################
-##################################################
-##################################################
-##################################################
-##################################################
-##################################################
-##################################################
-##################################################
-##################################################
-##################################################
-##################################################
-##################################################
-##################################################
-##################################################
-##################################################
-##################################################
-##################################################
-##################################################
-##################################################
-##################################################
-##################################################
-##################################################
-##################################################
-##################################################
-##################################################
-##################################################
-##################################################
-##################################################
-##################################################
-##################################################
-##################################################
-##################################################
-##################################################
-##################################################
-#### Monte Carlo sampler and plots of MC diagnostics
-##################################################
-        time0 <- Sys.time()
-        traces <- NULL
-        niterfinal <- niter0
-        nitertot <- 0L
-        stage <- 0L
-        continue <- TRUE
-
-        set.seed(chain+1000)
-        Cfinitemixnimble$setInits(initsfn())
-        while(continue){
-            showsamplertimes0 <- showsamplertimes && (stage==0)
-            showhyperparametertraces0 <- showhyperparametertraces && (stage==0)
-            if(testLength){
-                nsamples0 <- 1L
-                nburnin <- 0L
-                reset <- FALSE
-                niter <- niterfinal - nitertot
-            }else{
-                continue <- FALSE
-                nsamples0 <- nsamples
-                nburnin <- niterfinal-1L
-                niter <- niterfinal
-                reset <- TRUE
-                traces <- NULL
-                set.seed(chain+1000)
-            }
-
-            cat(paste0('Iterations: ', niter),'\n')
-            mcsamples <- finalstate <- NULL
-            calctime <- Sys.time()
-            for(achain in 1:nsamples0){
-                cat(paste0('chain: ', achain,', est. remaining time: ')); print((Sys.time()-calctime)/(achain-1)*(nsamples0-achain+1))
-                if(!continue){
-                    ## set.seed(mcmcseed+achain+999)
-                    Cfinitemixnimble$setInits(initsfn())
-                }
-                Cmcsampler$run(niter=niter, thin=1, thin2=1, nburnin=nburnin, time=showsamplertimes0, reset=reset, resetMV=TRUE)
-                mcsamples <- rbind(mcsamples, as.matrix(Cmcsampler$mvSamples))
-                finalstate <- rbind(finalstate, as.matrix(Cmcsampler$mvSamples2))
-            }
-            cat('\nTime MCMC: ')
-            print(Sys.time() - calctime)
-
-            if(any(!is.finite(mcsamples))){cat('\nWARNING: SOME NON-FINITE OUTPUTS')}
-            
-            if(showsamplertimes){
-                samplertimes <- Cmcsampler$getTimes()
-                names(samplertimes) <- sapply(confnimble$getSamplers(),function(x)x$target)
-                sprefixes <- unique(sub('^([^[]+)(\\[.*\\])', '\\1', names(samplertimes)))
-                cat(paste0('\nSampler times:\n'))
-                print(sort(sapply(sprefixes, function(x)sum(samplertimes[grepl(x,names(samplertimes))])),decreasing=T))
-            }
-            ##
-            if(showhyperparametertraces){
-                occupations <- apply(finalstate[,grepl('^K\\[', colnames(finalstate)),drop=F], 1, function(xxx){length(unique(xxx))})
-                cat(paste0('\nSTATS OCCUPIED CLUSTERS:\n'))
-                print(summary(occupations))
-                ##
-                pdff(paste0(dirname,'traces_hyperparameters-',chain,'-',stage))
-                tplot(y=occupations, ylab='occupied clusters',xlab=NA,ylim=c(0,nclusters))
-                histo <- thist(occupations,n='i')
-                tplot(x=histo$mids,y=histo$density,xlab='occupied clusters',ylab=NA)
-                tplot(y=finalstate[,'Alpha'], ylab='Alpha-index',xlab=NA)
-                histo <- thist(finalstate[,'Alpha'])
-                tplot(x=histo$mids,y=histo$density,xlab='Alpha-index',ylab='')
-                ## for(vtype in c('R','I',#'O',
-                ##                'D')){
-                ##     if(len[[vtype]] > 0){
-                ##         for(togrep in c('varscaleindex')){
-                ##             for(v in colnames(finalstate)[grepl(paste0('^',vtype,togrep,'\\['), colnames(finalstate))]){
-                ##                 tplot(y=finalstate[,v],ylab=v,xlab=NA,ylim=c(1,(2*hwidth+1)))
-                ##             }
-                ##         }
-                ##     }
-                ## }
-                dev.off()
-            }
-
-            finalstate <- c(mcsamples[nrow(mcsamples),], finalstate[nrow(finalstate),])
-            ## Check how many "clusters" were occupied. Warns if too many
-            occupations <- finalstate[grepl('^K\\[', names(finalstate))]
-            usedclusters <- length(unique(occupations))
-            if(usedclusters > nclusters-5){cat('\nWARNING: TOO MANY CLUSTERS OCCUPIED')}
-            cat(paste0('\nOCCUPIED CLUSTERS: ', usedclusters, ' OF ', nclusters),'\n')
-
-
-            ## Diagnostics
-            ## Log-likelihood
-            diagntime <- Sys.time()
-            ll <- colSums(log(samplesFDistribution(Y=dataset, X=NULL, mcsamples=mcsamples, varinfoaux=varinfoaux, jacobian=FALSE)), na.rm=T) #- sum(log(invjacobian(data.matrix(dataset), varinfo)), na.rm=T)
-            lld <- colSums(log(samplesFDistribution(Y=dataset[,..predictands], X=dataset[,..predictors], mcsamples=mcsamples, varinfoaux=varinfoaux, jacobian=FALSE)), na.rm=T) # - sum(log(invjacobian(data.matrix(dataset[,..predictands]), varinfo)), na.rm=T)
-            lli <- colSums(log(samplesFDistribution(Y=dataset[,..predictors], X=dataset[,..predictands], mcsamples=mcsamples, varinfoaux=varinfoaux, jacobian=FALSE)), na.rm=T) #- sum(log(invjacobian(data.matrix(dataset[,..predictors]), varinfo)), na.rm=T)
-            ##
-            traces <- rbind(traces,
-                            10/log(10)/npoints *
-                            cbind(loglikelihood=ll,
-                                  'mean of direct logprobabilities'=lld,
-                                  'mean of inverse logprobabilities'=lli)
-                            )
-            traces2 <- traces[apply(traces,1,function(x){all(is.finite(x))}),]
-            saveRDS(traces,file=paste0(dirname,'_mctraces-R',basename,'--',chain,'-',stage,'.rds'))
-            flagll <- nrow(traces) != nrow(traces2)
-            ##
-            if(nrow(traces2)>=1000){
-                funMCSE <- function(x){LaplacesDemon::MCSE(x, method='batch.means')$se}
-            }else{
-                funMCSE <- function(x){LaplacesDemon::MCSE(x)}
-            }
-            diagnESS <- LaplacesDemon::ESS(traces2)
-            diagnIAT <- apply(traces2, 2, function(x){LaplacesDemon::IAT(x)})
-            diagnBMK <- LaplacesDemon::BMK.Diagnostic(traces2[1:(4*trunc(nrow(traces2)/4)),], batches=4)[,1]
-            diagnMCSE <- 100*apply(traces2, 2, function(x){funMCSE(x)/sd(x)})
-            diagnStat <- apply(traces2, 2, function(x){LaplacesDemon::is.stationary(as.matrix(x,ncol=1))})
-            diagnBurn <- apply(traces2, 2, function(x){LaplacesDemon::burnin(matrix(x[1:(10*trunc(length(x)/10))], ncol=1))})
-            diagnBurn2 <- proposeburnin(traces2, batches=10)
-            diagnThin <- proposethinning(traces2)
-            ##
-            cat(paste0('\nESSs: ',paste0(round(diagnESS), collapse=', ')))
-            cat(paste0('\nIATs: ',paste0(round(diagnIAT), collapse=', ')))
-            cat(paste0('\nBMKs: ',paste0(round(diagnBMK,3), collapse=', ')))
-            cat(paste0('\nMCSEs: ',paste0(round(diagnMCSE,2), collapse=', ')))
-            cat(paste0('\nStationary: ',paste0(diagnStat, collapse=', ')))
-            cat(paste0('\nBurn-in I: ',paste0(diagnBurn, collapse=', ')))
-            cat(paste0('\nBurn-in II: ',diagnBurn2))
-            cat(paste0('\nProposed thinning: ',paste0(diagnThin, collapse=', ')),'\n')
-
-            cat('\nTime diagnostics: ')
-            print(Sys.time() - diagntime)
-            ##
-#########################################
-#### CHECK IF WE NEED TO SAMPLE MORE ####
-#########################################
-            lengthmeasure <- ceiling(nthreshold * max(diagnBurn2,diagnIAT))
-            ## lengthmeasure <- ceiling(max(diagnBurn2))
-            if(testLength){
-                if(niterfinal < lengthmeasure){
-                    cat(paste0('Number of iterations/threshold is too small: ', signif(niterfinal/lengthmeasure,2)), '. ')
-                    niterfinal <- lengthmeasure
-                    cat(paste0('Increasing to ', niterfinal), '\n')
-                    nitertot <- nitertot + niter
-                    stage <- stage + 1L
-                }else{
-                    cat(paste0('Number of iterations/threshold: ', signif(niterfinal/lengthmeasure,2)), '\n')
-                    testLength <- FALSE
-                }
-            }else{
-                saveRDS(mcsamples, file=paste0(dirname,'_mcsamples-R',basename,'--',chain,'-F.rds'))
-                saveRDS(traces, file=paste0(dirname,'_mctraces-R',basename,'--',chain,'-F.rds'))
-                stage <- 'F'
-            }
-#########################################
-#### END CHECK                       ####
-#########################################
-
-
-        ##
-        ###############
-        #### PLOTS ####
-        ###############
-        tracegroups <- list(loglikelihood=1,
-                            'predictand given predictor'=2,
-                            'predictor given predictand'=3
-                            )
-        grouplegends <- foreach(agroup=1:length(tracegroups))%do%{
-            c( paste0('-- STATS ', names(tracegroups)[agroup], ' --'),
-              paste0('min ESS = ', signif(min(diagnESS[tracegroups[[agroup]]]),6)),
-              paste0('max IAT = ', signif(max(diagnIAT[tracegroups[[agroup]]]),6)),
-              paste0('max BMK = ', signif(max(diagnBMK[tracegroups[[agroup]]]),6)),
-              paste0('max MCSE = ', signif(max(diagnMCSE[tracegroups[[agroup]]]),6)),
-              paste0('stationary: ', sum(diagnStat[tracegroups[[agroup]]]),'/',length(diagnStat[tracegroups[[agroup]]])),
-              ## paste0('burn: ', signif(max(diagnBurn[tracegroups[[agroup]]]),6))
-              paste0('burn: ', signif(diagnBurn2,6))
-              )
-        }
-        colpalette <- c(7,2,1)
-        names(colpalette) <- colnames(traces)
-    ##
-    ## Plot various info and traces
-        cat('\nPlotting MCMC traces')
-        graphics.off()
-        pdff(paste0(dirname,'mcmcplottraces-R',basename,'--',chain,'-',stage),'a4')
-    ## Summary stats
-        matplot(1:2, type='l', col='white', main=paste0('Stats stage ',stage), axes=FALSE, ann=FALSE)
-        legendpositions <- c('topleft','topright','bottomleft','bottomright')
-        for(alegend in 1:length(grouplegends)){
-            legend(x=legendpositions[alegend], bty='n', cex=1.5,
-                   legend=grouplegends[[alegend]] )
-        }
-        legend(x='center', bty='n', cex=1,
-               legend=c(
-                   paste0('STAGE ',stage),
-                   paste0('Occupied clusters: ', usedclusters, ' of ', nclusters),
-                   paste0('LL:  ( ', signif(mean(traces[,1]),3), ' +- ', signif(sd(traces[,1]),3),' ) dHart'),
-                   'NOTES:',
-                   if(any(is.na(mcsamples))){'some NA MC outputs'},
-                   if(any(!is.finite(mcsamples))){'some infinite MC outputs'},
-                   if(usedclusters > nclusters-5){'too many clusters occupied'},
-                   if(flagll){'infinite values in likelihood'}
-               ))
-        ##
-        ## Traces of likelihood and cond. probabilities
-        par(mfrow=c(1,1))
-        for(avar in colnames(traces)){
-            tplot(y=traces[,avar], type='l', lty=1, col=colpalette[avar],
-                  main=paste0(avar,
-                              '\nESS = ', signif(diagnESS[avar], 3),
-                              ' | IAT = ', signif(diagnIAT[avar], 3),
-                              ' | BMK = ', signif(diagnBMK[avar], 3),
-                              ' | MCSE = ', signif(diagnMCSE[avar], 3),
-                              ' | stat: ', diagnStat[avar],
-                              ' | burn I: ', diagnBurn[avar],
-                              ' | burn II: ', diagnBurn2
-                              ),
-                  ylab=paste0(avar,'/dHart'), xlab='sample', family=family
-                  )
-        }
-dev.off()
-    ##
-    ## Samples of marginal frequency distributions
-    if(plottempdistributions | !continue){
-        subsamples <- (if(totsamples=='all'){1:nrow(mcsamples)}else{round(seq(1, nrow(mcsamples), length.out=totsamples))})
-        showsubsample <- round(seq(1, length(subsamples), length.out=showsamples))
-        ##
-        cat('\nPlotting samples of frequency distributions')
-        graphics.off()
-        pdff(paste0(dirname,'mcmcdistributions-R',basename,'--',chain,'-',stage),'a4')
-        for(v in unlist(variate)){#cat(avar)
-            contvar <- varinfo[['type']][v] %in% c('R','O','D')
-            rg <- c(varinfo[['plotmin']][v], varinfo[['plotmax']][v])
-            if(contvar){
-                Xgrid <- cbind(seq(rg[1], rg[2], length.out=256))
-            }else{
-                Xgrid <- seq(varinfo[['min']][v], varinfo[['max']][v], length.out=varinfo[['n']][v])
-                Xgrid <- cbind(Xgrid[Xgrid >= rg[1] & Xgrid <= rg[2]])
-            }
-            colnames(Xgrid) <- v
-            plotsamples <- samplesFDistribution(Y=Xgrid, mcsamples=mcsamples, varinfo=varinfo, subsamples=subsamples, jacobian=TRUE)
-            ##
-            if(posterior){
-                par(mfrow=c(1,1))
-                ymax <- tquant(apply(plotsamples[,showsubsample],2,function(x){tquant(x,31/32)}),31/32, na.rm=T)
-                if((showdata=='histogram' || showdata==TRUE) && !contvar){
-                    datum <- dataset[[v]]
-                    datum <- datum[!is.na(datum)]
-                    nh <- (varinfo[['max']][v]-varinfo[['min']][v])/(varinfo[['n']][v]-1)
-                    nh <- seq(varinfo[['min']][v]-nh/2, varinfo[['max']][v]+nh/2, length.out=varinfo[['n']][v]+1)
-                    histo <- thist(datum, n=nh)
-                    ymax <- max(ymax,histo$counts/sum(histo$counts))
-                }
-                if(!(varinfo[['type']][v] %in% c('O','D'))){
-                    ##
-                    tplot(x=Xgrid, y=plotsamples[,showsubsample], type='l', col=5, alpha=7/8, lty=1, lwd=2,
-                          xlab=paste0(v, (if(varinfo[['type']][v] %in% c('I','B','C')){' (discrete)'}else{' (continuous)'})),
-                          ylab=paste0('frequency', (if(varinfo[['type']][v] %in% c('R','O','D')){' density'}else{''})),
-                          ylim=c(0, ymax), family=family)
-                    ##
-                    if(plotmeans){
-                        tplot(x=Xgrid, y=rowMeans(plotsamples, na.rm=T), type='l', col=1, alpha=0.25, lty=1, lwd=4, add=T)
-                    }
-                }else{ # plot of a continuous doubly-bounded variate
-                    interior <- which(Xgrid > varinfo[['tmin']][v] & Xgrid < varinfo[['tmax']][v])
-                    tplot(x=Xgrid[interior], y=plotsamples[interior,showsubsample], type='l', col=5, alpha=7/8, lty=1, lwd=2,
-                          xlab=paste0(v, ' (continuous with deltas)'),
-                          ylab=paste0('frequency (density)'),
-                          ylim=c(0, ymax), family=family)
-                    if(length(interior) < length(Xgrid)){
-                        tplot(x=Xgrid[-interior], y=plotsamples[-interior,showsubsample,drop=F]*ymax, type='p', pch=2, cex=2, col=5, alpha=7/8, lty=1, lwd=2, xlab=paste0(v), ylab=paste0('frequency'), ylim=c(0, ymax), family=family,add=T)
-                        }
-                    if(plotmeans){
-                        tplot(x=Xgrid[interior], y=rowMeans(plotsamples, na.rm=T)[interior], type='l', col=1, alpha=0.25, lty=1, lwd=3, add=T)
-                    if(length(interior) < length(Xgrid)){
-                        tplot(x=Xgrid[-interior], y=rowMeans(plotsamples, na.rm=T)[-interior]*ymax, type='p', pch=2, cex=2, col=1, alpha=0.25, lty=1, lwd=3, add=T)
-                        }
-                    }
-                }
-                ##
-                if((showdata=='histogram')||(showdata==TRUE && !contvar)){
-                    datum <- dataset[[v]]
-                    datum <- datum[!is.na(datum)]
-                    ##
-                    if(!(varinfo[['type']][v] %in% c('O','D'))){
-                        if(contvar){
-                            nh <- max(10,round(length(datum)/64))
-                        }else{
-                            nh <- (varinfo[['max']][v]-varinfo[['min']][v])/(varinfo[['n']][v]-1)
-                            nh <- seq(varinfo[['min']][v]-nh/2, varinfo[['max']][v]+nh/2, length.out=varinfo[['n']][v]+1)
-                        }
-                        histo <- thist(datum, n=nh)
-                        if(contvar){
-                            histomax <- max(rowMeans(plotsamples))/max(histo$density)
-                            tplot(x=histo$mids, y=histo$density*histomax, col=yellow, alpha=2/4, border=darkgrey, border.alpha=3/4, lty=1, lwd=4, family=family, ylim=c(0,NA), add=TRUE)
-                        }else{
-                            tplot(x=histo$mids, y=histo$counts/sum(histo$counts), col=yellow, alpha=2/4, border=darkgrey, border.alpha=3/4, lty=1, lwd=4, family=family, ylim=c(0,NA), add=TRUE)
-                        }
-                    }else{ # histogram for censored variate
-                        interior <- which(datum > varinfo[['tmin']][v] & datum < varinfo[['tmax']][v])
-                        histo <- thist(datum[interior], n=max(10,round(length(interior)/64)))
-                        interiorgrid <- which(Xgrid > varinfo[['tmin']][v] & Xgrid < varinfo[['tmax']][v])
-                        histomax <- 1#max(rowMeans(plotsamples)[interiorgrid])/max(histo$density)
-                        tplot(x=histo$mids, y=histo$density*histomax, col=yellow, alpha=2/4, border=darkgrey, border.alpha=3/4, lty=1, lwd=4, family=family, ylim=c(0,NA), add=TRUE)
-                        ##
-                        pborder <- sum(datum <= varinfo[['tmin']][v])/length(datum)
-                        if(pborder > 0){
-                            tplot(x=varinfo[['tmin']][v], y=pborder*ymax, type='p', pch=0, cex=2, col=yellow, alpha=0, lty=1, lwd=5, family=family, ylim=c(0,NA), add=TRUE)
-                        }
-                        ##
-                        pborder <- sum(datum >= varinfo[['tmax']][v])/length(datum)
-                        if(pborder > 0){
-                            tplot(x=varinfo[['tmax']][v], y=pborder*ymax, type='p', pch=0, cex=2, col=yellow, alpha=0, lty=1, lwd=5, family=family, ylim=c(0,NA), add=TRUE)
-                        }
-                    }
-                }else if((showdata=='scatter')|(showdata==TRUE & contvar)){
-                    datum <- dataset[[v]]
-                    datum <- datum[!is.na(datum)]
-                    diffdatum <- c(apply(cbind(c(0,diff(datum)),c(diff(datum),0)),1,min))/2
-                    scatteraxis(side=1, n=NA, alpha='88',
-                                ext=5, x=datum+runif(length(datum),
-                                                     min=-min(diff(sort(unique(datum))))/4,
-                                                     max=min(diff(sort(unique(datum))))/4),
-                                col=yellow)
-                }
-                ## fiven <- sapply(c('datamin','Q1','Q2','Q3','datamax'),function(xxx){varinfo[[xxx]][v]})
-                fiven <- fivenum(datum)
-                abline(v=fiven,col=paste0(palette()[c(2,4,5,4,2)], '44'),lwd=4)
-            }else{
-                fiven <- sapply(c('datamin','Q1','Q2','Q3','datamax'),function(xxx){varinfo[[xxx]][v]})
-                par(mfrow=c(floor(sqrt(showsamples)),floor(sqrt(showsamples))),mar = c(0,0,0,0))
-                ##
-                for(aplot in showsubsample[-1]){
-                    tplot(x=Xgrid, y=plotsamples[,aplot], type='l', col=1, lty=1, lwd=c(1,1), xlab=NA, ylab=NA, ylim=c(0, NA), family=family,
-                          xticks=NA, yticks=NA,
-                          mar=c(1,1,1,1))
-                    abline(h=0, col=7, lwd=1)
-                    abline(v=fiven, col=paste0(palette()[c(2,4,5,4,2)], '44'))
-                    ## if(aplot==1){ text(Xgrid[1], par('usr')[4]*0.9, variateinfo[variate==avar,type], pos=4)}
-                    ## if(aplot==2){ text(Xgrid[1], par('usr')[4]*0.9, paste(signif(c(rg,diff(rg)),2),collapse=' -- '), pos=4)}
-                }
-                ##
-                tplot(x=Xgrid, y=rowMeans(plotsamples), type='l', col=3, lty=1, lwd=2, xlab=NA, ylab=NA, ylim=c(0, NA), family=family,
-                      xticks=NA, yticks=NA,
-                      mar=c(1,1,1,1))
-                abline(h=0, col=7, lwd=1)
-                abline(v=fiven, col=paste0(palette()[c(2,4,5,4,2)], '44'),lwd=4)
-                text(sum(range(Xgrid))/2, par('usr')[4]*0.9, v)
-            }
-            }
-    dev.off()
     }
-    ##
-    cat('\nTime MCMC+diagnostics: ')
-    print(Sys.time() - calctime)
-    ##
-
-}
-mcsamples
-        }
-##
-cat('\nTotal time: ')
-print(Sys.time() - time0)
-
-############################################################
-## End MCMC
-############################################################
-registerDoSEQ()
-
-stop('NONE. End of script')
+    gc()
+    mcsamples
+    }

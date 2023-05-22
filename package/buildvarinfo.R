@@ -29,6 +29,7 @@ buildvarinfo <- function(data, file=NULL){
             tmax <- NA
             vval <- sort(as.character(unique(x)))
             names(vval) <- paste0('V',1:2)
+            loval <- meval <- hival <- NA
             plotmin <- NA
             plotmax <- NA
         }else if(!is.numeric(x)){# nominal variate
