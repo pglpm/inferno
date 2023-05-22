@@ -1,4 +1,6 @@
 buildvarinfoaux <- function(data, varinfo, file=TRUE){
+    require('data.table')
+    
     if(is.character(data) && file.exists(data)){data <- fread(data, na.strings='')}
     data <- as.data.table(data)
     if(is.character(varinfo) && file.exists(varinfo)){
@@ -47,6 +49,9 @@ buildvarinfoaux <- function(data, varinfo, file=TRUE){
             scale <- 1
             plotmin <- 0
             plotmax <- 1
+            mctest1 <- vval[1]
+            mctest2 <- vval[round(vn/2)]
+            mctest3 <- vval[vn]
         }else if(xinfo$type == 'nominal'){# nominal variate
             vtype <- 'N'
             vid <- idN
@@ -61,6 +66,9 @@ buildvarinfoaux <- function(data, varinfo, file=TRUE){
             scale <- 1
             plotmin <- 1
             plotmax <- vn
+            mctest1 <- vval[1]
+            mctest2 <- vval[round(vn/2)]
+            mctest3 <- vval[vn]
         }else if(xinfo$type == 'ordinal'){# ordinal variate
             vtype <- 'O'
             vid <- idO
@@ -78,6 +86,9 @@ buildvarinfoaux <- function(data, varinfo, file=TRUE){
             scale <- (vmax - vmin)/(vn - 1)
             plotmin <- 1
             plotmax <- vn
+            Q1 <- mctest1 <- quantile(x, probs=0.25, type=6)
+            Q2 <- mctest2 <- quantile(x, probs=0.5, type=6)
+            Q3 <- mctest3 <- quantile(x, probs=0.75, type=6)
         }else if(xinfo$type == 'continuous'){# continuous variate (R,C,D)
             vn <- +Inf
             vd <- xinfo$rounding/2
@@ -89,9 +100,9 @@ buildvarinfoaux <- function(data, varinfo, file=TRUE){
             cens <- (tmin > vmin) || (tmax < vmax)
             location <- xinfo$centralvalue
             scale <- abs(xinfo$highvalue - xinfo$lowvalue)
-            Q1 <- quantile(x, probs=0.25, type=6)
-            Q2 <- quantile(x, probs=0.5, type=6)
-            Q3 <- quantile(x, probs=0.75, type=6)
+            Q1 <- mctest1 <- quantile(x, probs=0.25, type=6)
+            Q2 <- mctest2 <- quantile(x, probs=0.5, type=6)
+            Q3 <- mctest3 <- quantile(x, probs=0.75, type=6)
             plotmin <- xinfo$plotmin
             plotmax <- xinfo$plotmax
             if(is.finite(xinfo$domainmin) && is.finite(xinfo$domainmax)){ # needs transformation
@@ -130,7 +141,7 @@ buildvarinfoaux <- function(data, varinfo, file=TRUE){
         ##                    vval
         ##                    )))
         varinfoaux <- rbind(varinfoaux,
-                         c(list(name=xn, mcmctype=vtype, id=vid, censored=cens, rounded=rounded, transform=transf, Nvalues=vn, step=vd, domainmin=vmin, domainmax=vmax, censormin=tmin, censormax=tmax, tlocation=location, tscale=scale, plotmin=plotmin, plotmax=plotmax, Q1=Q1, Q2=Q2, Q3=Q3),
+                         c(list(name=xn, mcmctype=vtype, id=vid, censored=cens, rounded=rounded, transform=transf, Nvalues=vn, step=vd, domainmin=vmin, domainmax=vmax, censormin=tmin, censormax=tmax, tlocation=location, tscale=scale, plotmin=plotmin, plotmax=plotmax, Q1=Q1, Q2=Q2, Q3=Q3, mctest1=mctest1, mctest2=mctest2, mctest3=mctest3),
                            vval
                            ), fill=FALSE)
     }
