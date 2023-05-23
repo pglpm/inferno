@@ -751,7 +751,8 @@ inferpopulation <- function(dataset, varinfoaux, outputdir=TRUE, nsamples=4096, 
     traces <- mcsamples[,1:3]
     mcsamples <- mcsamples[,-(1:3)]
     gc()
-    cat('\nFinished Monte Carlo sampling.\n')
+    cat('\nFinished Monte Carlo sampling. Closing connetions to cores.\n')
+    registerDoSEQ()
 
     saveRDS(mcsamples,file=paste0(dirname,'Fdistribution-',basename,'-',nsamples,'.rds'))
     saveRDS(traces,file=paste0(dirname,'MCtraces-',basename,'-',nsamples,'.rds'))
