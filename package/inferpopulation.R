@@ -67,7 +67,7 @@ inferpopulation <- function(dataset, varinfoaux, outputdir, nsamples=4096, nsamp
     }
 
 #### various internal parameters
-    niter0 <- 1024L # 3L # initial iterations to try ****
+    niter0 <- 1024L # initial iterations to try
 #### Hyperparameters
     nclusters <- 64L # ****
     minalpha <- -3L
@@ -99,7 +99,9 @@ inferpopulation <- function(dataset, varinfoaux, outputdir, nsamples=4096, nsamp
     ##
     dirname <- paste0(basename,'/')
     dir.create(dirname)
-    cat('\n\n**************************\nSaving output in directory\n',dirname,'\n**************************\n')
+    cat('\n\n',paste0(rep('*',max(nchar(dirname),26)),collapse=''),
+        '\n Saving output in directory\n',dirname,'\n',
+       paste0(rep('*',max(nchar(dirname),26)),collapse=''),'\n')
 
 
     ## Parameter and function to test MCMC convergence
@@ -111,8 +113,6 @@ inferpopulation <- function(dataset, varinfoaux, outputdir, nsamples=4096, nsamp
         source('proposeburnin.R')
         source('proposethinning.R')
         source('plotFsamples.R')
-
-
 
     vn <- list()
     vnames <- list()
@@ -220,14 +220,14 @@ inferpopulation <- function(dataset, varinfoaux, outputdir, nsamples=4096, nsamp
             ) }
     )
 
-    cat('\n\nStarting Monte Carlo sampling with',nchains,'chains over', ncores, 'cores.\n')
+    cat('\nStarting Monte Carlo sampling with',nchains,'chains over', ncores, 'cores.\n')
     cat('Core logs are being saved in individual files.\n...\n')
     ## stopCluster(cluster)
     stopImplicitCluster()
     registerDoSEQ()
     ## cl <- makePSOCKcluster(ncores)
     if(ncores > 1){
-        cluster <- makeCluster(ncores) # **** other output file
+        cluster <- makeCluster(ncores)
         registerDoParallel(cluster)
     }else{
         registerDoSEQ()
@@ -235,13 +235,18 @@ inferpopulation <- function(dataset, varinfoaux, outputdir, nsamples=4096, nsamp
     ## toexport <- c('constants', 'datapoints', 'vn', 'vnames', 'nalpha', 'nclusters')
     toexport <- c('vtransform','samplesFDistribution','proposeburnin','proposethinning','plotFsamples')
 
-    mcsamples <- foreach(acore=1:ncores, .combine=rbind, .packages=c('nimble','data.table'), .export=toexport, .inorder=FALSE)%dorng%{
+    mcsamples <- foreach(acore=1:ncores, .combine=rbind, .packages=c('nimble','data.table'), .inorder=FALSE)%dorng%{
 
         outcon <- file(paste0(dirname,'_log-',basename,'-',acore,'.log'), open = "a")
         sink(outcon)
         sink(outcon, type = "message")
 
         source('pglpm_plotfunctions.R')
+        source('vtransform.R')
+        source('samplesFDistribution.R')
+        source('proposeburnin.R')
+        source('proposethinning.R')
+        source('plotFsamples.R')
 
         thresholdfn <- function(diagnESS, diagnIAT, diagnBMK, diagnMCSE, diagnStat, diagnBurn, diagnBurn2, diagnThin){
             ceiling(2* max(diagnBurn2) + (nsamplesperchain-1L) * multcorr * ceiling(max(diagnIAT, diagnThin)))
@@ -439,7 +444,7 @@ inferpopulation <- function(dataset, varinfoaux, outputdir, nsamples=4096, nsamp
                        if(vn$N > 0){c('Nprob')},
                        if(vn$B > 0){c('Bprob')}
                        ),
-            monitors2=c( 'Alpha', 'K') # ****remove Clat****
+            monitors2=c( 'Alpha', 'K')
         )
         
         ## replace Alpha's cat-sampler and RW samplers with slice
@@ -473,20 +478,6 @@ inferpopulation <- function(dataset, varinfoaux, outputdir, nsamples=4096, nsamp
 
         
         cat('\nSetup', capture.output(print(Sys.time() - timecount)), '\n')
-
-        ## #### ****remove tests below****
-        ##         Cmcsampler$run(niter=1024, thin=1, thin2=64, nburnin=0, time=FALSE, reset=TRUE, resetMV=TRUE)
-
-        ##         mcsamples <- as.matrix(Cmcsampler$mvSamples)
-        ##         finalstate <- as.matrix(Cmcsampler$mvSamples2)
-
-        ##         tplot(y=mcsamples2[,'Alpha'])
-
-        ##         tplot(y=mcsamples[,'Rmean[1, 1]'])
-
-        ##         tplot(y=mcsamples2[,'Clat[3, 1]'])
-
-        ##         tplot(y=log(apply(mcsamples,1,function(xx){min(xx[paste0('W[',1:nclusters,']')])})))
 
 ##################################################
         ## Monte Carlo sampler and plots of MC diagnostics
