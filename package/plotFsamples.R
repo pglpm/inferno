@@ -1,4 +1,4 @@
-plotFsamples <- function(file, mcsamples, varinfoaux, dataset, plotmeans=TRUE, nsubsamples=100, showdata='histogram'){
+plotFsamples <- function(file, mcsamples, varinfoaux, dataset, plotmeans=TRUE, nsubsamples=100, showdata='histogram', parallel=TRUE){
 
     family <- 'Palatino'
     source('pglpm_plotfunctions.R')
@@ -37,7 +37,7 @@ plotFsamples <- function(file, mcsamples, varinfoaux, dataset, plotmeans=TRUE, n
             xleft <- Xgrid > varinfo[['censormin']]
             xright <- Xgrid < varinfo[['censormax']]
 
-            plotsamples <- samplesFDistribution(Y=Xgrid, X=NULL, mcsamples=mcsamples, varinfoaux=varinfoaux, subsamples=mcsubsamples, jacobian=TRUE)
+            plotsamples <- samplesFDistribution(Y=Xgrid, X=NULL, mcsamples=mcsamples, varinfoaux=varinfoaux, subsamples=mcsubsamples, jacobian=TRUE, parallel=parallel)
             
             ymax <- tquant(apply(plotsamples[xleft & xright, subsamples, drop=F],
                                  2,function(x){tquant(x,31/32)}),31/32, na.rm=T)
@@ -117,7 +117,7 @@ plotFsamples <- function(file, mcsamples, varinfoaux, dataset, plotmeans=TRUE, n
             Ngrid <- vtransform(x=Xgrid, varinfoaux=varinfoaux,
                                 Nout='numeric', Bout='numeric')
 
-            plotsamples <- samplesFDistribution(Y=Xgrid, X=NULL, mcsamples=mcsamples, varinfoaux=varinfoaux, subsamples=mcsubsamples, jacobian=TRUE)
+            plotsamples <- samplesFDistribution(Y=Xgrid, X=NULL, mcsamples=mcsamples, varinfoaux=varinfoaux, subsamples=mcsubsamples, jacobian=TRUE, parallel=parallel)
             
             ymax <- tquant(apply(plotsamples[, subsamples, drop=F],
                                  2,function(x){tquant(x,31/32)}),31/32, na.rm=T)

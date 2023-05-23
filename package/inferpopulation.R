@@ -29,8 +29,8 @@ inferpopulation <- function(dataset, varinfoaux, outputdir, nsamples=4096, nsamp
     require('data.table')
     require('LaplacesDemon', include.only=NULL)
     require('foreach')
-    require('doRNG')
     require('doParallel')
+    require('doRNG')
     
 
     ## read dataset
@@ -220,20 +220,20 @@ inferpopulation <- function(dataset, varinfoaux, outputdir, nsamples=4096, nsamp
             ) }
     )
 
-    cat('\nStarting Monte Carlo sampling with',nchains,'chains over', ncores, 'cores.\n')
+    cat('\nStarting Monte Carlo sampling with',nchains,'chains across', ncores, 'cores.\n')
     cat('Core logs are being saved in individual files.\n...\n')
     ## stopCluster(cluster)
     stopImplicitCluster()
     registerDoSEQ()
     ## cl <- makePSOCKcluster(ncores)
     if(ncores > 1){
-        cluster <- makeCluster(ncores)
-        registerDoParallel(cluster)
+        cl <- makeCluster(ncores)
+        registerDoParallel(cl)
     }else{
         registerDoSEQ()
     }
     ## toexport <- c('constants', 'datapoints', 'vn', 'vnames', 'nalpha', 'nclusters')
-    toexport <- c('vtransform','samplesFDistribution','proposeburnin','proposethinning','plotFsamples')
+    ## toexport <- c('vtransform','samplesFDistribution','proposeburnin','proposethinning','plotFsamples')
 
     mcsamples <- foreach(acore=1:ncores, .combine=rbind, .packages=c('nimble','data.table'), .inorder=FALSE)%dorng%{
 
@@ -500,10 +500,12 @@ inferpopulation <- function(dataset, varinfoaux, outputdir, nsamples=4096, nsamp
                 reset <- TRUE
                 traces <- mcsamples <- prevmcsamples <- NULL
                 achain <- achain + 1L
-                mcmcseed <- (acore-1L)*nchainspercore + achain
-                cat('Seed:', mcmcseed+seed, '\n')
-                set.seed(mcmcseed+seed)
-                Cfinitemixnimble$setInits(initsfn())
+                if(!(achain > nchainspercore)){
+                    mcmcseed <- (acore-1L)*nchainspercore + achain
+                    cat('Seed:', mcmcseed+seed, '\n')
+                    set.seed(mcmcseed+seed)
+                    Cfinitemixnimble$setInits(initsfn())
+                }
             }else{
                 prevmcsamples <- rbind(prevmcsamples,mcsamples)
                 niter <- lengthmeasure - nitertot + 1L
@@ -579,7 +581,7 @@ inferpopulation <- function(dataset, varinfoaux, outputdir, nsamples=4096, nsamp
             ## lli <- colMeans(log(samplesFDistribution(Y=data.matrix(data0[,..predictors]), X=data.matrix(data0[,..predictands]), mcsamples=mcsamples, varinfo=varinfo, jacobian=FALSE)),na.rm=T) #- sum(log(invjacobian(data.matrix(data0[,..predictors]), varinfo)), na.rm=T)
             ##
             ll <- t(
-                log(samplesFDistribution(Y=testdata, X=NULL, mcsamples=mcsamples, varinfoaux=varinfoaux, subsamples=NULL, jacobian=FALSE)) #- sum(log(invjacobian(data.matrix(data0), varinfo)), na.rm=T)
+                log(samplesFDistribution(Y=testdata, X=NULL, mcsamples=mcsamples, varinfoaux=varinfoaux, subsamples=NULL, jacobian=FALSE, parallel=FALSE)) #- sum(log(invjacobian(data.matrix(data0), varinfo)), na.rm=T)
             )
             colnames(ll) <- paste0('log-',c('mid','lo','hi')) #,'pm','pM','dm','dM'))
             ## testdatalld <- log(samplesFDistribution(Y=testdata[,predictands,drop=F], X=testdata[,predictors,drop=F], mcsamples=mcsamples, varinfo=varinfo, jacobian=FALSE)) # - sum(log(invjacobian(data.matrix(data0[,..predictands]), varinfo)), na.rm=T)
@@ -648,8 +650,8 @@ inferpopulation <- function(dataset, varinfoaux, outputdir, nsamples=4096, nsamp
 #########################################
             ##
             if(newchain && saveallchains){
-                saveRDS(traces,file=paste0(dirname,'_mctraces-R',basename,'--',mcmcseed,'-',achain,'.rds'))
-                saveRDS(allmcsamples, file=paste0(dirname,'_mcsamples-R',basename,'--',mcmcseed,'-','F','.rds'))
+                saveRDS(traces,file=paste0(dirname,'_mctraces-',basename,'--',mcmcseed,'-',achain,'.rds'))
+                saveRDS(allmcsamples, file=paste0(dirname,'_mcsamples-',basename,'--',mcmcseed,'-','F','.rds'))
             }
 
             if(newchain && (plotallchains || !continue)){
@@ -677,7 +679,7 @@ inferpopulation <- function(dataset, varinfoaux, outputdir, nsamples=4096, nsamp
                 ## Plot various info and traces
                 cat('\nPlotting MCMC traces')
                 graphics.off()
-                pdff(paste0(dirname,'mcmcpartialtraces-R',basename,'--',mcmcseed,'-',achain), apaper=4)
+                pdff(paste0(dirname,'_mcmcpartialtraces-',basename,'--',mcmcseed,'-',achain), apaper=4)
                 ## Summary stats
                 matplot(1:2, type='l', col='white', main=paste0('Stats chain ',achain), axes=FALSE, ann=FALSE)
                 legendpositions <- c('topleft','topright','bottomleft','bottomright')
@@ -710,7 +712,7 @@ inferpopulation <- function(dataset, varinfoaux, outputdir, nsamples=4096, nsamp
                                       ' | burnI: ', diagnBurn[avar],
                                       ' | burnII: ', diagnBurn2,
                                       ' | thin: ', diagnThin[avar]
-                                      ), cex.main=0.75,
+                                      ), 
                           ylab=paste0(avar,'/dHart'), xlab='sample', family=family
                           )
                 }
@@ -723,12 +725,13 @@ inferpopulation <- function(dataset, varinfoaux, outputdir, nsamples=4096, nsamp
                     ##
                     cat('\nPlotting samples of frequency distributions')
 
-                    plotFsamples(file=paste0(dirname,'mcmcdistributions-R',basename,'--',mcmcseed,'-',achain),
+                    plotFsamples(file=paste0(dirname,'mcmcdistributions-',basename,'--',mcmcseed,'-',achain),
                                  mcsamples=mcsamples[subsamples,,drop=F],
                                  varinfoaux=varinfoaux,
                                  dataset=dataset,
                                  nsubsamples=showsamples,
-                                 plotmeans=plotmeans, showdata='histogram'
+                                 plotmeans=plotmeans, showdata='histogram',
+                                 parallel=FALSE
                                  )
                 }
                 ##
@@ -740,20 +743,20 @@ inferpopulation <- function(dataset, varinfoaux, outputdir, nsamples=4096, nsamp
         ##
         cat('\nTotal', capture.output(print(Sys.time() - time0)), '\n')
 
+        ## Final output of foreach
+        cbind(traces,mcsamples)
+    }
 ############################################################
         ## End MCMC
 ############################################################
 
-        cbind(traces,mcsamples)
-    }
     attr(mcsamples, 'rng') <- NULL
     attr(mcsamples, 'doRNG_version') <- NULL
-    traces <- mcsamples[,1:3]
-    mcsamples <- mcsamples[,-(1:3)]
+    traces <- mcsamples[round(seq(1,nrow(mcsamples),length.out=nsamples)),1:3]
+    mcsamples <- mcsamples[round(seq(1,nrow(mcsamples),length.out=nsamples)),-(1:3)]
     saveRDS(mcsamples,file=paste0(dirname,'Fdistribution-',basename,'-',nsamples,'.rds'))
     saveRDS(traces,file=paste0(dirname,'MCtraces-',basename,'-',nsamples,'.rds'))
-    cat('\nFinished Monte Carlo sampling. Closing connetions to cores.\n')
-    registerDoSEQ()
+    cat('Finished Monte Carlo sampling.\n')
     gc()
 
 ############################################################
@@ -815,7 +818,10 @@ cat('\nSome diagnostics:\n')
                  mcsamples=mcsamples, varinfoaux=varinfoaux,
                  dataset=dataset,
                  nsubsamples=showsamples, plotmeans=TRUE,
-                 showdata = 'histogram')
+                 showdata = 'histogram', parallel=TRUE)
+    cat('\nClosing connections to cores.\n')
+    registerDoSEQ()
+    stopCluster(cl)
 
         cat('\nComputation', capture.output(print(Sys.time() - timestart0)), '\n')
     cat('Finished.\n\n')

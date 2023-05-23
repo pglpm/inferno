@@ -1,4 +1,4 @@
-samplesFDistribution <- function(Y, X, mcsamples, varinfoaux, subsamples, jacobian=TRUE, fn=identity){
+samplesFDistribution <- function(Y, X, mcsamples, varinfoaux, subsamples, jacobian=TRUE, fn=identity, parallel=TRUE){
     ## Consistency checks
     if(length(dim(Y)) != 2){stop('Y must have two dimensions')}
     if(missing(X)){X <- NULL}
@@ -208,7 +208,9 @@ XnB <- length(totake)
     ## ndata <- nrow(Y2)
     ##
     ##
-    foreach(y=t(Y2), x=t(X2), .combine=rbind, .inorder=T)%dopar%{
+
+    if(parallel){`%thisdo%` <- `%dopar%`}else{`%thisdo%` <- `%do%`}
+    foreach(y=t(Y2), x=t(X2), .combine=rbind, .inorder=T)%thisdo%{
         ## ## for debugging
         ## for(iii in 1:nrow(Y2)){
         ## print(iii)
