@@ -18,7 +18,7 @@ inferpopulation <- function(dataset, varinfoaux, outputdir, nsamples=4096, nsamp
     }
 
     if(missing(outputdir)){
-        outputdir <- paste0('inference_',format(Sys.time(), '%y%m%dT%H%M%S'))
+        outputdir <- paste0('_inference_',format(Sys.time(), '%y%m%dT%H%M%S'))
     }
 
     nchainspercore <- ceiling(nchains/ncores)
@@ -69,7 +69,7 @@ inferpopulation <- function(dataset, varinfoaux, outputdir, nsamples=4096, nsamp
 #### various internal parameters
     niter0 <- 1024L # initial iterations to try
 #### Hyperparameters
-    nclusters <- 64L # ****
+    nclusters <- 4L # ****
     minalpha <- -3L
     maxalpha <- 3L
     Rshapelo <- 0.5
@@ -221,13 +221,13 @@ inferpopulation <- function(dataset, varinfoaux, outputdir, nsamples=4096, nsamp
     )
 
     cat('\nStarting Monte Carlo sampling with',nchains,'chains across', ncores, 'cores.\n')
-    cat('Core logs are being saved in individual files.\n...\n')
+    cat('Core logs are being saved in individual files.\n\n')
     ## stopCluster(cluster)
     stopImplicitCluster()
     registerDoSEQ()
     ## cl <- makePSOCKcluster(ncores)
     if(ncores > 1){
-        cl <- makeCluster(ncores)
+        cl <- makeCluster(ncores, outfile='')
         registerDoParallel(cl)
     }else{
         registerDoSEQ()
@@ -235,11 +235,13 @@ inferpopulation <- function(dataset, varinfoaux, outputdir, nsamples=4096, nsamp
     ## toexport <- c('constants', 'datapoints', 'vn', 'vnames', 'nalpha', 'nclusters')
     ## toexport <- c('vtransform','samplesFDistribution','proposeburnin','proposethinning','plotFsamples')
 
-    mcsamples <- foreach(acore=1:ncores, .combine=rbind, .packages=c('nimble','data.table'), .inorder=FALSE)%dorng%{
+    mcsamples <- foreach(acore=1:ncores, .combine=rbind, .inorder=FALSE)%dorng%{
 
-        outcon <- file(paste0(dirname,'_log-',basename,'-',acore,'.log'), open = "a")
+        outcon <- file(paste0(dirname,'_log-',basename,'-',acore,'.log'), open = "w")
         sink(outcon)
         sink(outcon, type = "message")
+        suppressPackageStartupMessages(library('data.table'))
+        suppressPackageStartupMessages(library('nimble'))
 
         source('pglpm_plotfunctions.R')
         source('vtransform.R')
@@ -522,6 +524,12 @@ inferpopulation <- function(dataset, varinfoaux, outputdir, nsamples=4096, nsamp
                 usedclusters <- maxusedclusters
                 ## saveRDS(mcsamples, file=paste0(dirname,'_mcsamples-R',basename,'--',mcmcseed,'-',achain,'.rds'))
             }else{
+                if(acore==1){
+                    sink(NULL)
+                    cat('\rEst. Remaining',
+                        capture.output(print((Sys.time()-calctime)/(achain-1)*(nchainspercore-achain+1))), '')
+                    sink(outcon)
+                }
                 ##
                 cat('Iterations:', niter,'\n')
                 cat('chain:', achain,'of',nchainspercore,'. Est. Remaining',
@@ -756,7 +764,7 @@ inferpopulation <- function(dataset, varinfoaux, outputdir, nsamples=4096, nsamp
     mcsamples <- mcsamples[round(seq(1,nrow(mcsamples),length.out=nsamples)),-(1:3)]
     saveRDS(mcsamples,file=paste0(dirname,'Fdistribution-',basename,'-',nsamples,'.rds'))
     saveRDS(traces,file=paste0(dirname,'MCtraces-',basename,'-',nsamples,'.rds'))
-    cat('Finished Monte Carlo sampling.\n')
+    cat('\nFinished Monte Carlo sampling.\n')
     gc()
 
 ############################################################

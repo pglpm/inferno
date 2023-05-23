@@ -1,0 +1,19 @@
+$value
+function () 
+{
+    source("/home/pglpm/work/pglpm_plotfunctions.R")
+    library("data.table")
+    library("png")
+    library("foreach")
+    library("doRNG")
+    library("doParallel")
+    ncores <- 6
+    cluster <<- makeCluster(ncores, outfile = "")
+    registerDoParallel(cluster)
+    cat("\nUsing ", getDoParWorkers(), " ", getDoParName(), "cores out of ", 
+        detectCores(), "\n\n")
+}
+
+$visible
+[1] FALSE
+
