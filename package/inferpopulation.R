@@ -1,4 +1,4 @@
-inferpopulation <- function(dataset, varinfoaux, outputdir=TRUE, nsamples=4096, nsamplesperchain=4, nchains, ncores, saveallchains=F, plotallchains=F, seed=701){
+inferpopulation <- function(dataset, varinfoaux, outputdir, nsamples=4096, nsamplesperchain=4, nchains, ncores, saveallchains=F, plotallchains=F, seed=701){
 
     if(!missing(nsamples) && !missing(nchains) && missing(nsamplesperchain)){
         nsamplesperchain <- ceiling(nsamples/nchains)
@@ -17,10 +17,15 @@ inferpopulation <- function(dataset, varinfoaux, outputdir=TRUE, nsamples=4096, 
         cat('\nTrying to use ',ncores,' cores\n')
     }
 
+    if(missing(outputdir)){
+        outputdir <- paste0('inference_',format(Sys.time(), '%y%m%dT%H%M%S'))
+    }
+
     nchainspercore <- ceiling(nchains/ncores)
 
     timestart0 <- Sys.time()
-    
+
+    cat('\n')
     require('data.table')
     require('LaplacesDemon', include.only=NULL)
     require('foreach')
@@ -94,11 +99,19 @@ inferpopulation <- function(dataset, varinfoaux, outputdir=TRUE, nsamples=4096, 
     ##
     dirname <- paste0(basename,'/')
     dir.create(dirname)
+    cat('\n\n**************************\nSaving output in directory\n',dirname,'\n**************************\n')
+
 
     ## Parameter and function to test MCMC convergence
     multcorr <- 2L
 
-    source('vtransform.R')
+        source('pglpm_plotfunctions.R')
+        source('vtransform.R')
+        source('samplesFDistribution.R')
+        source('proposeburnin.R')
+        source('proposethinning.R')
+        source('plotFsamples.R')
+
 
 
     vn <- list()
@@ -220,19 +233,15 @@ inferpopulation <- function(dataset, varinfoaux, outputdir=TRUE, nsamples=4096, 
         registerDoSEQ()
     }
     ## toexport <- c('constants', 'datapoints', 'vn', 'vnames', 'nalpha', 'nclusters')
-    toexport <- c('constants', 'datapoints', 'vn', 'vnames', 'nalpha', 'nclusters')
-    mcsamples <- foreach(acore=1:ncores, .combine=rbind, .packages=c('nimble','data.table'), .inorder=FALSE)%dorng%{
+    toexport <- c('vtransform','samplesFDistribution','proposeburnin','proposethinning','plotFsamples')
+
+    mcsamples <- foreach(acore=1:ncores, .combine=rbind, .packages=c('nimble','data.table'), .export=toexport, .inorder=FALSE)%dorng%{
 
         outcon <- file(paste0(dirname,'_log-',basename,'-',acore,'.log'), open = "a")
         sink(outcon)
         sink(outcon, type = "message")
 
         source('pglpm_plotfunctions.R')
-        source('vtransform.R')
-        source('samplesFDistribution.R')
-        source('proposeburnin.R')
-        source('proposethinning.R')
-        source('plotFsamples.R')
 
         thresholdfn <- function(diagnESS, diagnIAT, diagnBMK, diagnMCSE, diagnStat, diagnBurn, diagnBurn2, diagnThin){
             ceiling(2* max(diagnBurn2) + (nsamplesperchain-1L) * multcorr * ceiling(max(diagnIAT, diagnThin)))
@@ -677,7 +686,7 @@ inferpopulation <- function(dataset, varinfoaux, outputdir=TRUE, nsamples=4096, 
                 ## Plot various info and traces
                 cat('\nPlotting MCMC traces')
                 graphics.off()
-                pdff(paste0(dirname,'mcmcplottraces-R',basename,'--',mcmcseed,'-',achain), apaper=4)
+                pdff(paste0(dirname,'mcmcpartialtraces-R',basename,'--',mcmcseed,'-',achain), apaper=4)
                 ## Summary stats
                 matplot(1:2, type='l', col='white', main=paste0('Stats chain ',achain), axes=FALSE, ann=FALSE)
                 legendpositions <- c('topleft','topright','bottomleft','bottomright')
@@ -750,14 +759,11 @@ inferpopulation <- function(dataset, varinfoaux, outputdir=TRUE, nsamples=4096, 
     attr(mcsamples, 'doRNG_version') <- NULL
     traces <- mcsamples[,1:3]
     mcsamples <- mcsamples[,-(1:3)]
-    gc()
-    cat('\nFinished Monte Carlo sampling. Closing connetions to cores.\n')
-    registerDoSEQ()
-
     saveRDS(mcsamples,file=paste0(dirname,'Fdistribution-',basename,'-',nsamples,'.rds'))
     saveRDS(traces,file=paste0(dirname,'MCtraces-',basename,'-',nsamples,'.rds'))
-
-
+    cat('\nFinished Monte Carlo sampling. Closing connetions to cores.\n')
+    registerDoSEQ()
+    gc()
 
 ############################################################
         ## Final joint diagnostics
