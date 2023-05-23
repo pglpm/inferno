@@ -1,4 +1,4 @@
-inferpopulation <- function(dataset, varinfoaux, outputdir=TRUE, nsamples=4096, nsamplesperchain=4, nchains, ncores, seed=701){
+inferpopulation <- function(dataset, varinfoaux, outputdir=TRUE, nsamples=4096, nsamplesperchain=4, nchains, ncores, saveallchains=F, plotallchains=F, seed=701){
 
     if(!missing(nsamples) && !missing(nchains) && missing(nsamplesperchain)){
         nsamplesperchain <- ceiling(nsamples/nchains)
@@ -19,6 +19,7 @@ inferpopulation <- function(dataset, varinfoaux, outputdir=TRUE, nsamples=4096, 
 
     nchainspercore <- ceiling(nchains/ncores)
 
+    timestart0 <- Sys.time()
     
     require('data.table')
     require('LaplacesDemon', include.only=NULL)
@@ -81,8 +82,6 @@ inferpopulation <- function(dataset, varinfoaux, outputdir=TRUE, nsamples=4096, 
     npoints <- nrow(dataset)
 
     ## other options
-    plottemptraces <- TRUE # plot traces of single chains
-    plottempdistributions <- FALSE # plot temporary sampled distributions
     showdata <- TRUE # 'histogram' 'scatter' FALSE TRUE
     plotmeans <- TRUE # plot frequency averages
     totsamples <- 'all' # 'all' number of samples if plotting frequency averages
@@ -98,10 +97,6 @@ inferpopulation <- function(dataset, varinfoaux, outputdir=TRUE, nsamples=4096, 
 
     ## Parameter and function to test MCMC convergence
     multcorr <- 2L
-    thresholdfn <- function(diagnESS, diagnIAT, diagnBMK, diagnMCSE, diagnStat, diagnBurn, diagnBurn2, diagnThin){
-        ceiling(2* max(diagnBurn2) + (nsamplesperchain-1L) * multcorr * ceiling(max(diagnIAT, diagnThin)))
-    }
-
 
     source('vtransform.R')
 
@@ -212,20 +207,23 @@ inferpopulation <- function(dataset, varinfoaux, outputdir=TRUE, nsamples=4096, 
             ) }
     )
 
-
+    cat('\n\nStarting Monte Carlo sampling with',nchains,'chains over', ncores, 'cores.\n')
+    cat('Core logs are being saved in individual files.\n...\n')
     ## stopCluster(cluster)
     stopImplicitCluster()
     registerDoSEQ()
     ## cl <- makePSOCKcluster(ncores)
     if(ncores > 1){
-        cluster <- makeCluster(ncores, outfile='') # **** other output file
+        cluster <- makeCluster(ncores) # **** other output file
         registerDoParallel(cluster)
     }else{
         registerDoSEQ()
     }
-    
-    mcsamples <- foreach(acore=1:ncores, .combine=rbind, .packages=c('nimble','data.table'), .export=c('constants', 'datapoints', 'vn', 'vnames', 'nalpha', 'nclusters'), .inorder=FALSE)%dorng%{
-        outcon <- file(paste0(dirname,'_log-',basename,'-',acore,'.txt'), open = "a")
+    ## toexport <- c('constants', 'datapoints', 'vn', 'vnames', 'nalpha', 'nclusters')
+    toexport <- c('constants', 'datapoints', 'vn', 'vnames', 'nalpha', 'nclusters')
+    mcsamples <- foreach(acore=1:ncores, .combine=rbind, .packages=c('nimble','data.table'), .inorder=FALSE)%dorng%{
+
+        outcon <- file(paste0(dirname,'_log-',basename,'-',acore,'.log'), open = "a")
         sink(outcon)
         sink(outcon, type = "message")
 
@@ -235,6 +233,12 @@ inferpopulation <- function(dataset, varinfoaux, outputdir=TRUE, nsamples=4096, 
         source('proposeburnin.R')
         source('proposethinning.R')
         source('plotFsamples.R')
+
+        thresholdfn <- function(diagnESS, diagnIAT, diagnBMK, diagnMCSE, diagnStat, diagnBurn, diagnBurn2, diagnThin){
+            ceiling(2* max(diagnBurn2) + (nsamplesperchain-1L) * multcorr * ceiling(max(diagnIAT, diagnThin)))
+    }
+
+
         
         ## predictors <- setdiff(unlist(vnames), predictands)
 
@@ -452,14 +456,14 @@ inferpopulation <- function(dataset, varinfoaux, outputdir=TRUE, nsamples=4096, 
         neworder <- foreach(var=samplerorder, .combine=c)%do%{grep(paste0('^',var,'(\\[.+\\])*$'), sapply(confnimble$getSamplers(), function(x)x$target))}
         ##
         confnimble$setSamplerExecutionOrder(c(setdiff(confnimble$getSamplerExecutionOrder(), neworder), neworder))
+        print(confnimble)
 
 
         mcsampler <- buildMCMC(confnimble)
         Cmcsampler <- compileNimble(mcsampler, resetFunctions = TRUE)
 
         
-        cat('\nSetup time: ')
-        print(Sys.time() - timecount)
+        cat('\nSetup', capture.output(print(Sys.time() - timecount)), '\n')
 
         ## #### ****remove tests below****
         ##         Cmcsampler$run(niter=1024, thin=1, thin2=64, nburnin=0, time=FALSE, reset=TRUE, resetMV=TRUE)
@@ -496,13 +500,13 @@ inferpopulation <- function(dataset, varinfoaux, outputdir=TRUE, nsamples=4096, 
                 reset <- TRUE
                 traces <- mcsamples <- prevmcsamples <- NULL
                 achain <- achain + 1L
-                mcmcseed <- seed + achain + (acore-1)*nchainspercore
-                cat('Seed: ', mcmcseed, '\n')
-                set.seed(mcmcseed)
+                mcmcseed <- (acore-1L)*nchainspercore + achain
+                cat('Seed:', mcmcseed+seed, '\n')
+                set.seed(mcmcseed+seed)
                 Cfinitemixnimble$setInits(initsfn())
             }else{
                 prevmcsamples <- rbind(prevmcsamples,mcsamples)
-                niter <- lengthmeasure - nitertot
+                niter <- lengthmeasure - nitertot + 1L
                 nitertot <- lengthmeasure
                 reset <- FALSE
             }
@@ -517,14 +521,13 @@ inferpopulation <- function(dataset, varinfoaux, outputdir=TRUE, nsamples=4096, 
                 ## saveRDS(mcsamples, file=paste0(dirname,'_mcsamples-R',basename,'--',mcmcseed,'-',achain,'.rds'))
             }else{
                 ##
-                cat(paste0('Iterations: ', niter),'\n')
-                cat(paste0('chain: ', achain,' of ',nchainspercore,'. Est. remaining time: '))
-                print((Sys.time()-calctime)/(achain-1)*(nchainspercore-achain+1))
+                cat('Iterations:', niter,'\n')
+                cat('chain:', achain,'of',nchainspercore,'. Est. Remaining',
+                capture.output(print((Sys.time()-calctime)/(achain-1)*(nchainspercore-achain+1))), '\n')
                 Cmcsampler$run(niter=niter, thin=1, thin2=niter, nburnin=0, time=showsamplertimes0, reset=reset, resetMV=TRUE)
                 mcsamples <- as.matrix(Cmcsampler$mvSamples)
                 finalstate <- as.matrix(Cmcsampler$mvSamples2)
-                cat('\nTime MCMC: ')
-                print(Sys.time() - calctime)
+                cat('\nMCMC', capture.output(print(Sys.time() - calctime)), '\n')
 
                 if(any(!is.finite(mcsamples))){cat('\nWARNING: SOME NON-FINITE OUTPUTS')}
                 
@@ -532,13 +535,13 @@ inferpopulation <- function(dataset, varinfoaux, outputdir=TRUE, nsamples=4096, 
                     samplertimes <- Cmcsampler$getTimes()
                     names(samplertimes) <- sapply(confnimble$getSamplers(),function(x)x$target)
                     sprefixes <- unique(sub('^([^[]+)(\\[.*\\])', '\\1', names(samplertimes)))
-                    cat(paste0('\nSampler times:\n'))
+                    cat('\nSampler times:\n')
                     print(sort(sapply(sprefixes, function(x)sum(samplertimes[grepl(x,names(samplertimes))])),decreasing=T))
                 }
                 ##
                 if(showhyperparametertraces){
                     occupations <- apply(finalstate[,grepl('^K\\[', colnames(finalstate)),drop=F], 1, function(xxx){length(unique(xxx))})
-                    cat(paste0('\nSTATS OCCUPIED CLUSTERS:\n'))
+                    cat('\nSTATS OCCUPIED CLUSTERS:\n')
                     print(summary(occupations))
                     ##
                     pdff(paste0(dirname,'traces_hyperparameters-',mcmcseed,'-',achain), apaper=4)
@@ -565,7 +568,7 @@ inferpopulation <- function(dataset, varinfoaux, outputdir=TRUE, nsamples=4096, 
                 occupations <- finalstate[grepl('^K\\[', names(finalstate))]
                 usedclusters <- length(unique(occupations))
                 if(usedclusters > nclusters-5){cat('\nWARNING: TOO MANY CLUSTERS OCCUPIED')}
-                cat(paste0('\nOCCUPIED CLUSTERS: ', usedclusters, ' OF ', nclusters),'\n')
+                cat('\nOCCUPIED CLUSTERS:', usedclusters, 'OF', nclusters,'\n')
             }
             ##
             ## Diagnostics
@@ -611,27 +614,26 @@ inferpopulation <- function(dataset, varinfoaux, outputdir=TRUE, nsamples=4096, 
             diagnBurn2 <- proposeburnin(traces2, batches=10)
             diagnThin <- proposethinning(traces2)
             ##
-            cat(paste0('\nESSs: ',paste0(round(diagnESS), collapse=', ')))
-            cat(paste0('\nIATs: ',paste0(round(diagnIAT), collapse=', ')))
-            cat(paste0('\nBMKs: ',paste0(round(diagnBMK,3), collapse=', ')))
-            cat(paste0('\nMCSEs: ',paste0(round(diagnMCSE,2), collapse=', ')))
-            cat(paste0('\nStationary: ',paste0(diagnStat, collapse=', ')))
-            cat(paste0('\nBurn-in I: ',paste0(diagnBurn, collapse=', ')))
-            cat(paste0('\nBurn-in II: ',diagnBurn2))
-            cat(paste0('\nProposed thinning: ',paste0(diagnThin, collapse=', ')),'\n')
+            cat('\nESSs:',paste0(round(diagnESS), collapse=', '))
+            cat('\nIATs:',paste0(round(diagnIAT), collapse=', '))
+            cat('\nBMKs:',paste0(round(diagnBMK,3), collapse=', '))
+            cat('\nMCSEs:',paste0(round(diagnMCSE,2), collapse=', '))
+            cat('\nStationary:',paste0(diagnStat, collapse=', '))
+            cat('\nBurn-in I:',paste0(diagnBurn, collapse=', '))
+            cat('\nBurn-in II:',diagnBurn2)
+            cat('\nProposed thinning:',paste0(diagnThin, collapse=', '),'\n')
 
-            cat('\nTime diagnostics: ')
-            print(Sys.time() - diagntime)
+            cat('\nDiagnostics', capture.output(print(Sys.time() - diagntime)), '\n')
 
 #########################################
 #### CHECK IF WE NEED TO SAMPLE MORE ####
 #########################################
             if(continue){
                 lengthmeasure <- thresholdfn(diagnESS=diagnESS, diagnIAT=diagnIAT, diagnBMK=diagnBMK, diagnMCSE=diagnMCSE, diagnStat=diagnStat, diagnBurn=diagnBurn, diagnBurn2=diagnBurn2, diagnThin=diagnThin)
-                cat(paste0('\nNumber of iterations ', nitertot, ', required ', lengthmeasure),'\n')
+                cat('\nNumber of iterations', nitertot, ', required', lengthmeasure,'\n')
                 ##
                 if(nitertot < lengthmeasure){
-                    cat(paste0('Increasing by ', lengthmeasure-nitertot), '\n')
+                    cat('Increasing by', lengthmeasure-nitertot+1L, '\n')
                     newchain <- FALSE
                 }else{
                     mcsamples <- rbind(prevmcsamples, mcsamples)
@@ -645,12 +647,12 @@ inferpopulation <- function(dataset, varinfoaux, outputdir=TRUE, nsamples=4096, 
 #### END CHECK                       ####
 #########################################
             ##
-            if(newchain){
+            if(newchain && saveallchains){
                 saveRDS(traces,file=paste0(dirname,'_mctraces-R',basename,'--',mcmcseed,'-',achain,'.rds'))
                 saveRDS(allmcsamples, file=paste0(dirname,'_mcsamples-R',basename,'--',mcmcseed,'-','F','.rds'))
             }
 
-            if(newchain && (plottemptraces || !continue)){
+            if(newchain && (plotallchains || !continue)){
                 ##
 ###############
 #### PLOTS ####
@@ -730,30 +732,95 @@ inferpopulation <- function(dataset, varinfoaux, outputdir=TRUE, nsamples=4096, 
                                  )
                 }
                 ##
-                cat('\nTime MCMC+diagnostics: ')
-                print(Sys.time() - calctime)
+                cat('\nMCMC+diagnostics', capture.output(print(Sys.time() - calctime)), '\n')
                 ##
 
             }
         }
         ##
-        cat('\nTotal time: ')
-        print(Sys.time() - time0)
+        cat('\nTotal', capture.output(print(Sys.time() - time0)), '\n')
 
 ############################################################
         ## End MCMC
 ############################################################
-        attr(mcsamples, 'rng') <- NULL
-        attr(mcsamples, 'doRNG_version') <- NULL
-        mcsamples
+
+        cbind(traces,mcsamples)
     }
+    attr(mcsamples, 'rng') <- NULL
+    attr(mcsamples, 'doRNG_version') <- NULL
+    traces <- mcsamples[,1:3]
+    mcsamples <- mcsamples[,-(1:3)]
     gc()
+    cat('\nFinished Monte Carlo sampling.\n')
+
+    saveRDS(mcsamples,file=paste0(dirname,'Fdistribution-',basename,'-',nsamples,'.rds'))
+    saveRDS(traces,file=paste0(dirname,'MCtraces-',basename,'-',nsamples,'.rds'))
+
+
+
+############################################################
+        ## Final joint diagnostics
+############################################################
+cat('\nSome diagnostics:\n')
+    traces2 <- traces[apply(traces,1,function(x){all(is.finite(x))}),]
+    flagll <- nrow(traces) != nrow(traces2)
+
+
+    funMCSE <- function(x){LaplacesDemon::MCSE(x, method='batch.means')$se}
+    diagnESS <- LaplacesDemon::ESS(traces2)
+    diagnIAT <- apply(traces2, 2, function(x){LaplacesDemon::IAT(x)})
+    diagnBMK <- LaplacesDemon::BMK.Diagnostic(traces2[1:(4*trunc(nrow(traces2)/4)),], batches=4)[,1]
+    diagnMCSE <- 100*apply(traces2, 2, function(x){funMCSE(x)/sd(x)})
+    diagnStat <- apply(traces2, 2, function(x){LaplacesDemon::is.stationary(as.matrix(x,ncol=1))})
+    diagnBurn <- apply(traces2, 2, function(x){LaplacesDemon::burnin(matrix(x[1:(10*trunc(length(x)/10))], ncol=1))})
+    diagnBurn2 <- proposeburnin(traces2, batches=10)
+    diagnThin <- proposethinning(traces2)
+    ##
+    cat('\nESSs:',paste0(round(diagnESS), collapse=', '))
+    cat('\nIATs:',paste0(round(diagnIAT), collapse=', '))
+    cat('\nBMKs:',paste0(round(diagnBMK,3), collapse=', '))
+    cat('\nMCSEs:',paste0(round(diagnMCSE,2), collapse=', '))
+    cat('\nStationary:',paste0(diagnStat, collapse=', '))
+    cat('\nBurn-in I:',paste0(diagnBurn, collapse=', '))
+    cat('\nBurn-in II:',diagnBurn2)
+    cat('\n')
+    ## cat(paste0('\nProposed thinning: ',paste0(diagnThin, collapse=', ')))
+    ##       )
+    ##         }
+    colpalette <- c(7,2,1)
+    names(colpalette) <- colnames(traces)
+##
+
+    ## Plot various info and traces
+    cat('\nPlotting final Monte Carlo traces and marginal samples.\n')
     
-    plotFsamples(file=paste0(dirname,'mcmcdistribution-R',basename,'-F'),
+    ##
+    graphics.off()
+    pdff(paste0(dirname,'MCtraces-',basename,'-',nsamples), apaper=4)
+    ## Traces of likelihood and cond. probabilities
+    for(avar in colnames(traces)){
+        tplot(y=traces[,avar], type='l', lty=1, col=colpalette[avar],
+              main=paste0(avar,
+                          '\nESS = ', signif(diagnESS[avar], 3),
+                          ' | IAT = ', signif(diagnIAT[avar], 3),
+                          ' | BMK = ', signif(diagnBMK[avar], 3),
+                          ' | MCSE = ', signif(diagnMCSE[avar], 3),
+                          ' | stat: ', diagnStat[avar],
+                          ' | burn I: ', diagnBurn[avar],
+                          ' | burn II: ', diagnBurn2
+                          ),
+              ylab=paste0(avar,'/dHart'), xlab='sample', family=family
+              )
+    }
+    
+    plotFsamples(file=paste0(dirname,'Fdistribution-',basename,'-',nsamples),
                  mcsamples=mcsamples, varinfoaux=varinfoaux,
                  dataset=dataset,
                  nsubsamples=showsamples, plotmeans=TRUE,
                  showdata = 'histogram')
+
+        cat('\nComputation', capture.output(print(Sys.time() - timestart0)), '\n')
+    cat('Finished.\n\n')
     
     mcsamples
 }

@@ -50,7 +50,7 @@ plotFsamples <- function(file, mcsamples, varinfoaux, dataset, plotmeans=TRUE, n
                 dleft <- datum > varinfo[['censormin']]
                 dright <- datum < varinfo[['censormax']]
                 histo <- thist(datum[dleft & dright],
-                               n=max(10,round(length(datum[dleft & dright])/64)))
+                               n=max(16,round(length(datum[dleft & dright])/64)))
                 hleft <- sum(!dleft)/length(datum)
                 hright <- sum(!dright)/length(datum)
                 
