@@ -518,7 +518,8 @@ inferpopulation <- function(dataset, varinfoaux, outputdir=TRUE, nsamples=4096, 
             }else{
                 ##
                 cat(paste0('Iterations: ', niter),'\n')
-                cat(paste0('chain: ', achain,' of ',nsamplesperchain,'. Est. remaining time: ')); print((Sys.time()-calctime)/(achain-1)*(nchainspercore-achain+1))
+                cat(paste0('chain: ', achain,' of ',nchainspercore,'. Est. remaining time: '))
+                print((Sys.time()-calctime)/(achain-1)*(nchainspercore-achain+1))
                 Cmcsampler$run(niter=niter, thin=1, thin2=niter, nburnin=0, time=showsamplertimes0, reset=reset, resetMV=TRUE)
                 mcsamples <- as.matrix(Cmcsampler$mvSamples)
                 finalstate <- as.matrix(Cmcsampler$mvSamples2)
@@ -742,6 +743,8 @@ inferpopulation <- function(dataset, varinfoaux, outputdir=TRUE, nsamples=4096, 
 ############################################################
         ## End MCMC
 ############################################################
+        attr(mcsamples, 'rng') <- NULL
+        attr(mcsamples, 'doRNG_version') <- NULL
         mcsamples
     }
     gc()
