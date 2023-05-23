@@ -79,7 +79,7 @@ buildvarinfo <- function(data, file=NULL){
                     tmin <- max(vmin, tmin)
                     ## location <- log(Q2)
                     ## scale <- (log(Q3) - log(Q1))/2
-                    plotmin <- max(vmin, plotmin)
+                    plotmin <- max(vmin+(plotmax-vmin)/256, plotmin)
                 }
             }else{# ordinal
                 vtype <- 'ordinal'

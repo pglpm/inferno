@@ -1,161 +1,167 @@
-plotFsamples <- function(mcsamples, varinfoaux, dataset, file, subsamples, showdata){
+plotFsamples <- function(file, mcsamples, varinfoaux, dataset, plotmeans=TRUE, nsubsamples=100, showdata='histogram'){
 
+    family <- 'Palatino'
     source('pglpm_plotfunctions.R')
     source('vtransform.R')
     source('samplesFDistribution.R')
 
+    if(nsubsamples=='all'){nsubsamples <- nrow(mcsamples)}
+    if(plotmeans){
+        mcsubsamples <- round(seq(1,nrow(mcsamples),length.out=nsubsamples))
+    }else{
+        mcsubsamples <- 1:nrow(mcsamples)
+    }
+        subsamples <- round(seq(1,length(mcsubsamples),length.out=nsubsamples))
+
     graphics.off()
-    pdff(file, 'a4')
+    pdff(file, apaper=4)
     par(mfrow=c(1,1))
 
     for(v in varinfoaux[['name']]){
-
         varinfo <- as.list(varinfoaux[name==v])
         vtype <- varinfo[['mcmctype']]
 
-        if(vtype %in% c('R','D')){ #
-            Xgrid <- cbind(seq(
-                varinfo[['plotmin']], varinfo[['plotmax']],
-                length.out=256
-            ))
+        if(vtype %in% c('R','D','C','O')){ #
+            if(vtype=='O'){
+                Xgrid <- seq(varinfo[['domainmin']], varinfo[['domainmax']],
+                             length.out=varinfo[['Nvalues']])
+                Xgrid <- cbind(Xgrid[Xgrid >= varinfo[['plotmin']] & Xgrid <= varinfo[['plotmax']]])
+            }else{
+                Xgrid <- cbind(seq(
+                    varinfo[['plotmin']], varinfo[['plotmax']],
+                    length.out=256
+                ))
+            }
             colnames(Xgrid) <- v
-
-            plotsamples <- samplesFDistribution(Y=Xgrid, X=NULL, mcsamples=mcsamples, varinfoaux=varinfoaux, subsamples=subsamples, jacobian=TRUE)
             
-            ymax <- tquant(apply(plotsamples[,showsubsample],2,function(x){tquant(x,31/32)}),31/32, na.rm=T)
+            xleft <- Xgrid > varinfo[['censormin']]
+            xright <- Xgrid < varinfo[['censormax']]
+
+            plotsamples <- samplesFDistribution(Y=Xgrid, X=NULL, mcsamples=mcsamples, varinfoaux=varinfoaux, subsamples=mcsubsamples, jacobian=TRUE)
+            
+            ymax <- tquant(apply(plotsamples[xleft & xright, subsamples, drop=F],
+                                 2,function(x){tquant(x,31/32)}),31/32, na.rm=T)
 
             addplot <- FALSE
             ## data plots if required
-            if(showdata=='histogram'){
+            if(showdata=='histogram' && !(missing(dataset) || is.null(dataset))){
                 datum <- dataset[[v]]
                 datum <- datum[!is.na(datum)]
-                histo <- thist(datum, n=32)
-
+                dleft <- datum > varinfo[['censormin']]
+                dright <- datum < varinfo[['censormax']]
+                histo <- thist(datum[dleft & dright],
+                               n=max(10,round(length(datum[dleft & dright])/64)))
+                hleft <- sum(!dleft)/length(datum)
+                hright <- sum(!dright)/length(datum)
+                
                 ymax <- max(ymax, histo$density)
 
                 histomax <- 1 # max(rowMeans(plotsamples))/max(histo$density)
                 tplot(x=histo$mids, y=histo$density*histomax,
                       xlim=range(Xgrid), ylim=c(0,ymax),
-                      lty=1, lwd=4,
+                      type='l', lty=1, lwd=4,
                       col=yellow, alpha=2/4, border=darkgrey, border.alpha=3/4,
-                      xlab=v, ylab='freq. density',
+                      xlab=v,
+                      ylab=paste0('frequency',(if(vtype=='O'){''}else{' density'})),
                       family=family)
+
+                if(any(!(dleft & dright))){
+                    tplot(x=c(varinfo[['censormin']],varinfo[['censormax']]), y=c(hleft,hright)*ymax,
+                          type='p', pch=0, cex=2,
+                          col=7, alpha=0,
+                          lty=1, lwd=5,
+                          family=family, add=TRUE)
+                }
+                fiven <- fivenum(datum)
+                abline(v=fiven,col=paste0(palette()[c(2,4,5,4,2)], '44'),lwd=4)
                 addplot <- TRUE
             }
-            tplot(x=Xgrid, y=plotsamples[,subsample],
+
+            ## Plot F samples
+            tplot(x=Xgrid, y=plotsamples[,subsamples,drop=F],
                   xlim=range(Xgrid), ylim=c(0,ymax),
                   type='l', lty=1, lwd=2,
                   col=5, alpha=7/8,
-                  xlab=v, ylab='freq. density',
+                  xlab=v,
+                  ylab=paste0('frequency',(if(vtype=='O'){''}else{' density'})),
                   family=family, add=addplot)
-
-            tplot(x=Xgrid, y=rowMeans(plotsamples, na.rm=T),
-                  type='l', lty=1, lwd=4,
-                  col=1, alpha=0.25,
-                  add=TRUE)
-
-        }else if(vtype %in% c('C')){ #
-            Xgrid <- cbind(seq(
-                varinfo[['plotmin']], varinfo[['plotmax']],
-                length.out=256
-            ))
-            colnames(Xgrid) <- v
-
-            plotsamples <- samplesFDistribution(Y=Xgrid, X=NULL, mcsamples=mcsamples, varinfoaux=varinfoaux, subsamples=subsamples, jacobian=TRUE)
-            
-            ymax <- tquant(apply(plotsamples[,showsubsample],2,function(x){tquant(x,31/32)}),31/32, na.rm=T)
-
-            addplot <- FALSE
-            ## data plots if required
-            if(showdata=='histogram'){
-                datum <- dataset[[v]]
-                datum <- datum[!is.na(datum)]
-                histo <- thist(datum, n=32)
-
-                ymax <- max(ymax, histo$density)
-
-                histomax <- 1 # max(rowMeans(plotsamples))/max(histo$density)
-                tplot(x=histo$mids, y=histo$density*histomax,
-                      xlim=range(Xgrid), ylim=c(0,ymax),
-                      lty=1, lwd=4,
-                      col=yellow, alpha=2/4, border=darkgrey, border.alpha=3/4,
-                      xlab=v, ylab='freq. density',
-                      family=family)
-                addplot <- TRUE
+            if(any(!(xleft & xright))){
+                tplot(x=Xgrid[!(xleft & xright)],
+                      y=plotsamples[!(xleft & xright),subsamples,drop=F]*ymax,
+                      type='p', pch=2, cex=2,
+                      col=5, alpha=7/8,
+                      family=family, add=TRUE)
             }
-            tplot(x=Xgrid, y=plotsamples[,subsample],
-                  xlim=range(Xgrid), ylim=c(0,ymax),
-                  type='l', lty=1, lwd=2,
-                  col=5, alpha=7/8,
-                  xlab=v, ylab='freq. density',
-                  family=family, add=addplot)
-
-            tplot(x=Xgrid, y=rowMeans(plotsamples, na.rm=T),
-                  type='l', lty=1, lwd=4,
-                  col=1, alpha=0.25,
-                  add=TRUE)
-
-
-        }
-
-
-
-
-
-
-
             
-        }else if(vtype=='O'){
-            rg <- seq(
-                varinfo[['domainmin']], varinfo[['domainmax']],
-                length.out=varinfo[['Nvalues']]
-            )
-            Xgrid <- rg <- cbind(rg[rg >= varinfo[['plotmin']] & rg <= varinfo[['plotmax']]])
-        else{
-            Xgrid <- rg <- cbind(unlist(varinfo[paste0('V',1:varinfo[['Nvalues']])]))
-        }
-        
-        plotsamples <- samplesFDistribution(Y=Xgrid, X=NULL, mcsamples=mcsamples, varinfoaux=varinfoaux, subsamples=subsamples, jacobian=TRUE)
-
-        ymax <- tquant(apply(plotsamples[,showsubsample],2,function(x){tquant(x,31/32)}),31/32, na.rm=T)
-
-        ## data plots if required
-        if(is.character(showdata) || (is.logical(showdata) && showdata)){
-
-            ## as histogram
-            if(showdata=='histogram' || (showdata==TRUE && vtype %in% c('O','N','B'))){
-                ## better via tabulation
-                if(vtype %in% c('O','N','B')){
-                    datum <- vtransform(rg, varinfoaux=varinfoaux, Oout='original', Nout='numeric', Bout='numeric')
-                    datum <- datum[!is.na(datum)]
-                    histo <- thist(datum, n=seq(min(datum)-0.5,max(datum)+0.5,by=1))
-                    ymax <- max(ymax, histo$counts)
-                    tplot(x=histo$mids,
-                          y=histo$counts,
-                          ylim=c(0,ylim),
-                          xlim=range(rg))
-                }else{
-                    datum <- dataset[[v]]
-                    datum <- datum[!is.na(datum)]
-                    pleft <- pright <- 0
-                    if(varinfo[['censormin']] >= varinfo[['plotmin']]){
-                        ## check left-censored values
-                        vleft <- datum <= varinfo[['censormin']]
-                        pleft <- sum(vleft)/length(datum)
-                        datum <- datum[!vleft]
-                    }
-                    if(varinfo[['censormax']] <= varinfo[['plotmax']]){
-                        ## check right-censored values
-                        vright <- datum >= varinfo[['censormax']]
-                        pright <- sum(vright)/length(datum)
-                        datum <- datum[!vright]
-                    }
-                    histox <- thist(datum, n=32)
-                    histoy <- histox$density
-                    histox <- histox$mids
+            ## Plot F means if required
+            if(plotmeans){
+                tplot(x=Xgrid, y=rowMeans(plotsamples, na.rm=T),
+                      type='l', lty=1, lwd=4,
+                      col=1, alpha=0.25,
+                      add=TRUE)
+                if(any(!(xleft & xright))){
+                    tplot(x=Xgrid[!(xleft & xright)],
+                          y=rowMeans(plotsamples, na.rm=T)[!(xleft & xright)]*ymax,
+                          type='p', pch=2, cex=2,
+                          col=1, alpha=0.25,
+                          lty=1, lwd=3,
+                          add=TRUE)
                 }
             }
+            
+            ## nominal or binary variate
+        }else{ 
 
-            ymax <- max(ymax, histoy, pleft, pright)
+            Xgrid <- cbind(unlist(varinfo[paste0('V',1:varinfo[['Nvalues']])]))
+            colnames(Xgrid) <- v
+            Ngrid <- vtransform(x=Xgrid, varinfoaux=varinfoaux,
+                                Nout='numeric', Bout='numeric')
 
-            tplot(x=)
+            plotsamples <- samplesFDistribution(Y=Xgrid, X=NULL, mcsamples=mcsamples, varinfoaux=varinfoaux, subsamples=mcsubsamples, jacobian=TRUE)
+            
+            ymax <- tquant(apply(plotsamples[, subsamples, drop=F],
+                                 2,function(x){tquant(x,31/32)}),31/32, na.rm=T)
+
+            addplot <- FALSE
+            ## data plots if required
+            if(showdata=='histogram' && !(missing(dataset) || is.null(dataset))){
+                datum <- dataset[[v]]
+                datum <- datum[!is.na(datum)]
+                histo <- as.vector(table(factor(datum, levels=Xgrid)))/length(datum)
+                
+                ymax <- max(ymax, histo)
+
+                histomax <- 1 # max(rowMeans(plotsamples))/max(histo$density)
+                tplot(x=Ngrid, y=histo*histomax,
+                      xlim=range(Ngrid), ylim=c(0,ymax),
+                      xticks=Ngrid, xlabels=Xgrid,
+                      type='l', lty=1, lwd=4,
+                      col=yellow, alpha=2/4, border=darkgrey, border.alpha=3/4,
+                      xlab=v,
+                      ylab='frequency',
+                      family=family)
+                addplot <- TRUE
+            }
+
+            ## Plot F samples
+            tplot(x=Ngrid, y=plotsamples[,subsamples,drop=F],
+                  xlim=range(Ngrid), ylim=c(0,ymax),
+                  xticks=Ngrid, xlabels=Xgrid,
+                  type='l', lty=1, lwd=2,
+                  col=5, alpha=7/8,
+                  xlab=v,
+                  ylab='frequency',
+                  family=family, add=addplot)
+            
+            ## Plot F means if required
+            if(plotmeans){
+                tplot(x=Ngrid, y=rowMeans(plotsamples, na.rm=T),
+                      type='l', lty=1, lwd=4,
+                      col=1, alpha=0.25,
+                      add=TRUE)
+            }
+        }
+
+    }
+    dev.off()
+}
