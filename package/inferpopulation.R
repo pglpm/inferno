@@ -101,19 +101,20 @@ inferpopulation <- function(dataset, varinfoaux, outputdir, nsamples=4096, nsamp
     dir.create(dirname)
     cat('\n',paste0(rep('*',max(nchar(dirname),26)),collapse=''),
         '\n Saving output in directory\n',dirname,'\n',
-       paste0(rep('*',max(nchar(dirname),26)),collapse=''),'\n')
+        paste0(rep('*',max(nchar(dirname),26)),collapse=''),'\n')
 
 
     ## Parameter and function to test MCMC convergence
     multcorr <- 2L
 
-        source('pglpm_plotfunctions.R')
-        source('vtransform.R')
-        source('samplesFDistribution.R')
-        source('proposeburnin.R')
-        source('proposethinning.R')
-        source('plotFsamples.R')
-
+    source('pglpm_plotfunctions.R')
+    source('vtransform.R')
+    source('samplesFDistribution.R')
+    source('proposeburnin.R')
+    source('proposethinning.R')
+    source('plotFsamples.R')
+    printtime <- function(tim){paste0(tim,' ',attr(tim,'units'))}
+    ## printtime <- function(tim){sub('^Time difference of (.*)', '\\1', capture.output(print(tim)))}
     vn <- list()
     vnames <- list()
     for(atype in c('R','C','D','O','N','B')){
@@ -221,7 +222,7 @@ inferpopulation <- function(dataset, varinfoaux, outputdir, nsamples=4096, nsamp
     )
 
     cat('\nStarting Monte Carlo sampling with',nchains,'chains across', ncores, 'cores.\n')
-    cat('Core logs are being saved in individual files.\n\nEst. Remaining Time...\r')
+    cat('Core logs are being saved in individual files.\nEstim. remaining time...\r')
     ## stopCluster(cluster)
     stopImplicitCluster()
     registerDoSEQ()
@@ -252,8 +253,10 @@ inferpopulation <- function(dataset, varinfoaux, outputdir, nsamples=4096, nsamp
 
         thresholdfn <- function(diagnESS, diagnIAT, diagnBMK, diagnMCSE, diagnStat, diagnBurn, diagnBurn2, diagnThin){
             ceiling(2* max(diagnBurn2) + (nsamplesperchain-1L) * multcorr * ceiling(max(diagnIAT, diagnThin)))
-    }
+        }
 
+        printtime <- function(tim){paste0(tim,' ',attr(tim,'units'))}
+        ## printtime <- function(tim){sub('^Time difference of (.*)', '\\1', capture.output(print(tim)))}
 
         
         ## predictors <- setdiff(unlist(vnames), predictands)
@@ -479,7 +482,7 @@ inferpopulation <- function(dataset, varinfoaux, outputdir, nsamples=4096, nsamp
         Cmcsampler <- compileNimble(mcsampler, resetFunctions = TRUE)
 
         
-        cat('\nSetup', capture.output(print(Sys.time() - timecount)), '\n')
+        cat('\nSetup time', printtime(Sys.time() - timecount), '\n')
 
 ##################################################
         ## Monte Carlo sampler and plots of MC diagnostics
@@ -503,11 +506,11 @@ inferpopulation <- function(dataset, varinfoaux, outputdir, nsamples=4096, nsamp
                 traces <- mcsamples <- prevmcsamples <- NULL
                 achain <- achain + 1L
                 ## if(TRUE){ # send message to user screen with est. remaining time
-                    sink(NULL,type='message')
-                    message(paste0('\rEst. Remaining ',
-                                   capture.output(print((Sys.time()-calctime)/(achain-1)*(nchainspercore-achain+1)))), appendLF=FALSE)
+                sink(NULL,type='message')
+                message(paste0('\rEstim. remaining time ',
+                               printtime((Sys.time()-calctime)/(achain-1)*(nchainspercore-achain+1))), appendLF=FALSE)
                 flush.console()
-                    sink(outcon,type='message')
+                sink(outcon,type='message')
                 ##}
                 if(!(achain > nchainspercore)){
                     mcmcseed <- (acore-1L)*nchainspercore + achain
@@ -533,12 +536,12 @@ inferpopulation <- function(dataset, varinfoaux, outputdir, nsamples=4096, nsamp
             }else{
                 ##
                 cat('Iterations:', niter,'\n')
-                cat('chain:', achain,'of',nchainspercore,'. Est. Remaining',
-                capture.output(print((Sys.time()-calctime)/(achain-1)*(nchainspercore-achain+1))), '\n')
+                cat('chain:', achain,'of',nchainspercore,'. Estim. remaining time',
+                    printtime((Sys.time()-calctime)/(achain-1)*(nchainspercore-achain+1)), '\n')
                 Cmcsampler$run(niter=niter, thin=1, thin2=niter, nburnin=0, time=showsamplertimes0, reset=reset, resetMV=TRUE)
                 mcsamples <- as.matrix(Cmcsampler$mvSamples)
                 finalstate <- as.matrix(Cmcsampler$mvSamples2)
-                cat('\nMCMC', capture.output(print(Sys.time() - calctime)), '\n')
+                cat('\nMCMC time', printtime(Sys.time() - calctime), '\n')
 
                 if(any(!is.finite(mcsamples))){cat('\nWARNING: SOME NON-FINITE OUTPUTS')}
                 
@@ -634,7 +637,7 @@ inferpopulation <- function(dataset, varinfoaux, outputdir, nsamples=4096, nsamp
             cat('\nBurn-in II:',diagnBurn2)
             cat('\nProposed thinning:',paste0(diagnThin, collapse=', '),'\n')
 
-            cat('\nDiagnostics', capture.output(print(Sys.time() - diagntime)), '\n')
+            cat('\nDiagnostics time', printtime(Sys.time() - diagntime), '\n')
 
 #########################################
 #### CHECK IF WE NEED TO SAMPLE MORE ####
@@ -744,19 +747,19 @@ inferpopulation <- function(dataset, varinfoaux, outputdir, nsamples=4096, nsamp
                                  )
                 }
                 ##
-                cat('\nMCMC+diagnostics', capture.output(print(Sys.time() - calctime)), '\n')
+                cat('\nMCMC+diagnostics time', printtime(Sys.time() - calctime), '\n')
                 ##
 
             }
         }
         ##
-        cat('\nTotal', capture.output(print(Sys.time() - time0)), '\n')
+        cat('\nTotal time', printtime(Sys.time() - time0), '\n')
 
         ## Final output of foreach
         cbind(traces,mcsamples)
     }
 ############################################################
-        ## End MCMC
+    ## End MCMC
 ############################################################
 
     attr(mcsamples, 'rng') <- NULL
@@ -769,9 +772,9 @@ inferpopulation <- function(dataset, varinfoaux, outputdir, nsamples=4096, nsamp
     gc()
 
 ############################################################
-        ## Final joint diagnostics
+    ## Final joint diagnostics
 ############################################################
-cat('\nSome diagnostics:\n')
+    cat('\nSome diagnostics:\n')
     traces2 <- traces[apply(traces,1,function(x){all(is.finite(x))}),]
     flagll <- nrow(traces) != nrow(traces2)
 
@@ -799,7 +802,7 @@ cat('\nSome diagnostics:\n')
     ##         }
     colpalette <- c(7,2,1)
     names(colpalette) <- colnames(traces)
-##
+    ##
 
     ## Plot various info and traces
     cat('\nPlotting final Monte Carlo traces and marginal samples.\n')
@@ -832,7 +835,7 @@ cat('\nSome diagnostics:\n')
     registerDoSEQ()
     stopCluster(cl)
 
-        cat('\nComputation', capture.output(print(Sys.time() - timestart0)), '\n')
+    cat('\nTotal computation time', printtime(Sys.time() - timestart0), '\n')
     cat('Finished.\n\n')
     
     mcsamples
