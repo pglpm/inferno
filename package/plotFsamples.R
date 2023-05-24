@@ -53,7 +53,6 @@ plotFsamples <- function(file, mcsamples, auxmetadata, dataset, plotmeans=TRUE, 
                     nh <- (varinfo[['domainmax']]-varinfo[['domainmin']])/(varinfo[['Nvalues']]-1L)/2
                     nh <- seq(varinfo[['domainmin']]-nh, varinfo[['domainmax']]+nh,
                               length.out=varinfo[['Nvalues']]+1L)
-                    print(nh)
                 }else{
                     nh <- max(16,round(length(datum[dleft & dright])/64))
                 }

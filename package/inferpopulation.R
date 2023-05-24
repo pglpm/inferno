@@ -525,11 +525,14 @@ inferpopulation <- function(dataset, auxmetadata, outputdir, nsamples=4096, nsam
                 traces <- mcsamples <- prevmcsamples <- NULL
                 achain <- achain + 1L
                 ## if(TRUE){ # send message to user screen with est. remaining time
-                sink(NULL,type='message')
-                message(paste0('\rEstim. remaining time ',
-                               printtime((Sys.time()-calctime)/(achain-1)*(nchainspercore-achain+1)), '        '), appendLF=FALSE)
-                flush.console()
-                sink(outcon,type='message')
+                ertime <- (Sys.time()-calctime)/(achain-1)*(nchainspercore-achain+1)
+                if(is.finite(ertime)){
+                    sink(NULL,type='message')
+                    message(paste0('\rEstim. remaining time ',
+                                   printtime(ertime), '        '), appendLF=FALSE)
+                    flush.console()
+                    sink(outcon,type='message')
+                }
                 ##}
                 if(!(achain > nchainspercore)){
                     mcmcseed <- (acore-1L)*nchainspercore + achain
