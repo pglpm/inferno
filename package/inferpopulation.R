@@ -456,20 +456,26 @@ inferpopulation <- function(dataset, auxmetadata, outputdir, nsamples=4096, nsam
                        ),
             monitors2=c( 'Alpha', 'K')
         )
-        
-        ## replace Alpha's cat-sampler and RW samplers with slice
-        targetslist <- sapply(confnimble$getSamplers(), function(xx)xx$target)   
+                                        # print(confnimble$getUnsampledNodes())
+
+        targetslist <- sapply(confnimble$getSamplers(), function(xx)xx$target)
         nameslist <- sapply(confnimble$getSamplers(), function(xx)xx$name)
+                                        # cat('\n******** NAMESLIST',nameslist,'\n')
+        ## replace Alpha's cat-sampler and RW samplers with slice
+        if(!('Alpha' %in% targetslist[nameslist == 'posterior_predictive'])){
         confnimble$removeSamplers('Alpha')
         confnimble$addSampler(target='Alpha', type='slice')
+        }
         if(RWtoslice){## replace all RW samplers with slice
             for(asampler in targetslist[nameslist == 'RW']){
                 confnimble$removeSamplers(asampler)
                 confnimble$addSampler(target=asampler, type='slice')
             }
         }
+                                        # print(confnimble$getUnsampledNodes())
         ## call this to do a first reordering
         mcsampler <- buildMCMC(confnimble)
+                                        # print(confnimble$getUnsampledNodes())
 
         ## change execution order for some variates
         samplerorder <- c('K', 
@@ -481,10 +487,14 @@ inferpopulation <- function(dataset, auxmetadata, outputdir, nsamples=4096, nsam
                           if(vn$B > 0){c('Bprob')},
                           'W','Alpha')
         ##
-        neworder <- foreach(var=samplerorder, .combine=c)%do%{grep(paste0('^',var,'(\\[.+\\])*$'), sapply(confnimble$getSamplers(), function(x)x$target))}
+        neworder <- foreach(var=samplerorder, .combine=c)%do%{grep(paste0('^',var,'(\\[.+\\])*$'), sapply(confnimble$getSamplers(), function(x){
+            if(!(x$name == 'posterior_predictive')){ x$target }else{NULL}
+            }))}
         ##
+                                        # cat('\n********NEW ORDER',neworder,'\n')
         confnimble$setSamplerExecutionOrder(c(setdiff(confnimble$getSamplerExecutionOrder(), neworder), neworder))
         print(confnimble)
+                                        # print(confnimble$getUnsampledNodes())
 
 
         mcsampler <- buildMCMC(confnimble)

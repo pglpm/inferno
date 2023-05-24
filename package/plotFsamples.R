@@ -44,7 +44,7 @@ plotFsamples <- function(file, mcsamples, auxmetadata, dataset, plotmeans=TRUE, 
 
             addplot <- FALSE
             ## data plots if required
-            if(showdata=='histogram' && !(missing(dataset) || is.null(dataset))){
+            if(showdata=='histogram' && !(missing(dataset) || is.null(dataset)) && !all(is.na(dataset[[v]]))){
                 datum <- dataset[[v]]
                 datum <- datum[!is.na(datum)]
                 dleft <- datum > varinfo[['censormin']]
@@ -124,7 +124,7 @@ plotFsamples <- function(file, mcsamples, auxmetadata, dataset, plotmeans=TRUE, 
 
             addplot <- FALSE
             ## data plots if required
-            if(showdata=='histogram' && !(missing(dataset) || is.null(dataset))){
+            if(showdata=='histogram' && !(missing(dataset) || is.null(dataset)) && !all(is.na(dataset[[v]]))){
                 datum <- dataset[[v]]
                 datum <- datum[!is.na(datum)]
                 histo <- as.vector(table(factor(datum, levels=Xgrid)))/length(datum)
