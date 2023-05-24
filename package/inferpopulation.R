@@ -69,7 +69,7 @@ inferpopulation <- function(dataset, varinfoaux, outputdir, nsamples=4096, nsamp
 #### various internal parameters
     niter0 <- 1024L # initial iterations to try
 #### Hyperparameters
-    nclusters <- 4L # ****
+    nclusters <- 64L # ****
     minalpha <- -3L
     maxalpha <- 3L
     Rshapelo <- 0.5
@@ -99,7 +99,7 @@ inferpopulation <- function(dataset, varinfoaux, outputdir, nsamples=4096, nsamp
     ##
     dirname <- paste0(basename,'/')
     dir.create(dirname)
-    cat('\n\n',paste0(rep('*',max(nchar(dirname),26)),collapse=''),
+    cat('\n',paste0(rep('*',max(nchar(dirname),26)),collapse=''),
         '\n Saving output in directory\n',dirname,'\n',
        paste0(rep('*',max(nchar(dirname),26)),collapse=''),'\n')
 
@@ -221,13 +221,13 @@ inferpopulation <- function(dataset, varinfoaux, outputdir, nsamples=4096, nsamp
     )
 
     cat('\nStarting Monte Carlo sampling with',nchains,'chains across', ncores, 'cores.\n')
-    cat('Core logs are being saved in individual files.\n\n')
+    cat('Core logs are being saved in individual files.\n\nEst. Remaining Time...\r')
     ## stopCluster(cluster)
     stopImplicitCluster()
     registerDoSEQ()
     ## cl <- makePSOCKcluster(ncores)
     if(ncores > 1){
-        cl <- makeCluster(ncores, outfile='')
+        cl <- makeCluster(ncores)
         registerDoParallel(cl)
     }else{
         registerDoSEQ()
@@ -502,6 +502,13 @@ inferpopulation <- function(dataset, varinfoaux, outputdir, nsamples=4096, nsamp
                 reset <- TRUE
                 traces <- mcsamples <- prevmcsamples <- NULL
                 achain <- achain + 1L
+                ## if(TRUE){ # send message to user screen with est. remaining time
+                    sink(NULL,type='message')
+                    message(paste0('\rEst. Remaining ',
+                                   capture.output(print((Sys.time()-calctime)/(achain-1)*(nchainspercore-achain+1)))), appendLF=FALSE)
+                flush.console()
+                    sink(outcon,type='message')
+                ##}
                 if(!(achain > nchainspercore)){
                     mcmcseed <- (acore-1L)*nchainspercore + achain
                     cat('Seed:', mcmcseed+seed, '\n')
@@ -524,12 +531,6 @@ inferpopulation <- function(dataset, varinfoaux, outputdir, nsamples=4096, nsamp
                 usedclusters <- maxusedclusters
                 ## saveRDS(mcsamples, file=paste0(dirname,'_mcsamples-R',basename,'--',mcmcseed,'-',achain,'.rds'))
             }else{
-                if(acore==1){
-                    sink(NULL)
-                    cat('\rEst. Remaining',
-                        capture.output(print((Sys.time()-calctime)/(achain-1)*(nchainspercore-achain+1))), '')
-                    sink(outcon)
-                }
                 ##
                 cat('Iterations:', niter,'\n')
                 cat('chain:', achain,'of',nchainspercore,'. Est. Remaining',
