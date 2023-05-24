@@ -1,26 +1,29 @@
-buildvarinfoaux <- function(data, varinfo, file=TRUE){
+buildauxmetadata <- function(data, metadata, file=TRUE){
     require('data.table')
-    
-    if(is.character(data) && file.exists(data)){data <- fread(data, na.strings='')}
-    data <- as.data.table(data)
-    if(is.character(varinfo) && file.exists(varinfo)){
-        varinfoname <- varinfo
-        varinfo <- fread(varinfo)
+
+    datafile <- NULL
+    if(is.character(data) && file.exists(data)){
+        datafile <- data
+        data <- fread(datafile, na.strings='')
     }
-    varinfo <- as.data.table(varinfo)
+    data <- as.data.table(data)
+    if(is.character(metadata) && file.exists(metadata)){
+        metadata <- fread(metadata, na.strings='')
+    }
+    metadata <- as.data.table(metadata)
     ## consistency checks
-    if(!identical(varinfo$name, colnames(data))){
+    if(!identical(metadata$name, colnames(data))){
         stop('ERROR: mismatch in variate names or order')
     }
     ##
     ##Q <- readRDS('Qfunction512.rds')
     ##
     idR <- idC <- idD <- idO <- idB <- idN <- 1L
-    varinfoaux <- data.table()
+    auxmetadata <- data.table()
     for(xn in colnames(data)){
         x <- data[[xn]]
         x <- x[!is.na(x)]
-        xinfo <- as.list(varinfo[name == xn])
+        xinfo <- as.list(metadata[name == xn])
         xinfo$type <- tolower(xinfo$type)
         ordinal <- NA
         cens <- FALSE
@@ -136,28 +139,29 @@ buildvarinfoaux <- function(data, varinfo, file=TRUE){
             stop(paste0('ERROR: unknown variate type for ', xn))
         }
         ##
-        ## print(varinfoaux[nrow(varinfoaux)])
+        ## print(auxmetadata[nrow(auxmetadata)])
         ## print(                         as.data.table(c(list(name=xn, type=vtype, transform=transf, Nvalues=vn, step=vd, domainmin=vmin, domainmax=vmax, censormin=tmin, censormax=tmax, tlocation=location, tscale=scale, plotmin=plotmin, plotmax=plotmax, Q1=Q1, Q2=Q2, Q3=Q3),
         ##                    vval
         ##                    )))
-        varinfoaux <- rbind(varinfoaux,
+        auxmetadata <- rbind(auxmetadata,
                          c(list(name=xn, mcmctype=vtype, id=vid, censored=cens, rounded=rounded, transform=transf, Nvalues=vn, step=vd, domainmin=vmin, domainmax=vmax, censormin=tmin, censormax=tmax, tlocation=location, tscale=scale, plotmin=plotmin, plotmax=plotmax, Q1=Q1, Q2=Q2, Q3=Q3, mctest1=mctest1, mctest2=mctest2, mctest3=mctest3),
                            vval
                            ), fill=FALSE)
     }
-    if(is.character(file) || (is.logical(file) && file)){ # must save to file
+
+    if(!missing(file) && file!=FALSE){# must save to file
         if(is.character(file)){
             file <- paste0(sub('.rds$', '', file), '.rds')
         }else{
-            if(file.exists('varinfoaux.rds')){
-                file <- paste0('varinfoaux_',format(Sys.time(), '%y%m%dT%H%M%S'),'.rds')
-            }else{
-                file <- 'varinfoaux.rds'
-            }
+            file <- paste0('auxmetadata_', datafile)
+            file <- paste0(sub('.csv$', '', file), '.rds')
         }
-        saveRDS(varinfoaux, file)
-        cat(paste0('Saved auxiliary variate-info file to ', file, '\n'))
+        if(file.exists(file)){
+            file.rename(from=file, to=paste0(sub('.rds$', '', file), '_bak',format(Sys.time(), '%y%m%dT%H%M%S'),'.rds'))
+        }
+        saveRDS(auxmetadata, file)
+        cat(paste0('Saved proposal aux-metadata file as ', file, '\n'))
     }else{
-        varinfoaux
+        auxmetadata
     }
 }

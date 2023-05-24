@@ -1,4 +1,4 @@
-inferpopulation <- function(dataset, varinfoaux, outputdir, nsamples=4096, nsamplesperchain=4, nchains, ncores, saveallchains=F, plotallchains=F, seed=701){
+inferpopulation <- function(dataset, auxmetadata, outputdir, nsamples=4096, nsamplesperchain=4, nchains, ncores, saveallchains=F, plotallchains=F, seed=701){
 
     if(!missing(nsamples) && !missing(nchains) && missing(nsamplesperchain)){
         nsamplesperchain <- ceiling(nsamples/nchains)
@@ -17,10 +17,6 @@ inferpopulation <- function(dataset, varinfoaux, outputdir, nsamples=4096, nsamp
         cat('\nTrying to use ',ncores,' cores\n')
     }
 
-    if(missing(outputdir)){
-        outputdir <- paste0('_inference_',format(Sys.time(), '%y%m%dT%H%M%S'))
-    }
-
     nchainspercore <- ceiling(nchains/ncores)
 
     timestart0 <- Sys.time()
@@ -34,16 +30,22 @@ inferpopulation <- function(dataset, varinfoaux, outputdir, nsamples=4096, nsamp
     
 
     ## read dataset
+    datafile <- NULL
     if(is.character(dataset) && file.exists(dataset)){
-        dataset <- paste0(sub('.csv$', '', dataset), '.csv')
-        dataset <- fread(dataset, na.strings='')
+        datafile <- paste0(sub('.csv$', '', dataset), '.csv')
+        dataset <- fread(datafile, na.strings='')
     }
     dataset <- as.data.table(dataset)
 
-    ## varinfoaux
-    if(is.character(varinfoaux) && file.exists(varinfoaux)){
-        varinfoaux <- paste0(sub('.rds$', '', varinfoaux), '.rds')
-        varinfoaux <- readRDS(varinfoaux)
+    ## auxmetadata
+    if(is.character(auxmetadata) && file.exists(auxmetadata)){
+        auxmetadata <- paste0(sub('.rds$', '', auxmetadata), '.rds')
+        auxmetadata <- readRDS(auxmetadata)
+    }
+
+    if(missing(outputdir)){
+        outputdir <- paste0('_output_', datafile)
+        outputdir <- paste0(sub('.csv$', '', outputdir))
     }
 
     ## ## list of predictand variates
@@ -85,6 +87,7 @@ inferpopulation <- function(dataset, varinfoaux, outputdir, nsamples=4096, nsamp
     ##
     nalpha <- length(minalpha:maxalpha)
     npoints <- nrow(dataset)
+    RWtoslice <- TRUE
 
     ## other options
     showdata <- TRUE # 'histogram' 'scatter' FALSE TRUE
@@ -95,7 +98,7 @@ inferpopulation <- function(dataset, varinfoaux, outputdir, nsamples=4096, nsamp
     showsamplertimes <- FALSE ##
     family <- 'Palatino'
 
-    basename <- paste0(outputdir,'-V',nrow(varinfoaux),'-D',npoints,'-K',nclusters,'-I',nsamples)
+    basename <- paste0(outputdir,'-V',nrow(auxmetadata),'-D',npoints,'-K',nclusters,'-I',nsamples)
     ##
     dirname <- paste0(basename,'/')
     dir.create(dirname)
@@ -113,13 +116,13 @@ inferpopulation <- function(dataset, varinfoaux, outputdir, nsamples=4096, nsamp
     source('proposeburnin.R')
     source('proposethinning.R')
     source('plotFsamples.R')
-    printtime <- function(tim){paste0(tim,' ',attr(tim,'units'))}
+    printtime <- function(tim){paste0(signif(tim,3),' ',attr(tim,'units'))}
     ## printtime <- function(tim){sub('^Time difference of (.*)', '\\1', capture.output(print(tim)))}
     vn <- list()
     vnames <- list()
     for(atype in c('R','C','D','O','N','B')){
-        vn[[atype]] <- length(varinfoaux[mcmctype == atype, name])
-        vnames[[atype]] <- varinfoaux[mcmctype == atype, name]
+        vn[[atype]] <- length(auxmetadata[mcmctype == atype, name])
+        vnames[[atype]] <- auxmetadata[mcmctype == atype, name]
     }
     ## ## choose predictands if not chosen
     ## if(is.null(predictands) || !exists('predictands')){
@@ -128,10 +131,10 @@ inferpopulation <- function(dataset, varinfoaux, outputdir, nsamples=4096, nsamp
     ## }
 
     if(vn$N > 0){
-        Nmaxn <- max(varinfoaux[mcmctype == 'N', Nvalues])
+        Nmaxn <- max(auxmetadata[mcmctype == 'N', Nvalues])
         Nalpha0 <- matrix(1e-100, nrow=vn$N, ncol=Nmaxn)
         for(avar in 1:length(vnames$N)){
-            Nalpha0[avar, 1:varinfoaux[name == vnames$N[avar], Nvalues]] <- 1
+            Nalpha0[avar, 1:auxmetadata[name == vnames$N[avar], Nvalues]] <- 1
         }
     }
 
@@ -157,8 +160,8 @@ inferpopulation <- function(dataset, varinfoaux, outputdir, nsamples=4096, nsamp
              Cvar1 = rep(1, 1),
              Cshapelo = rep(Cshapelo, 1),
              Cshapehi = rep(Cshapehi, 1),
-             Cleft = vtransform(dataset[,vnames$C, with=F], varinfoaux, Cout='left'),
-             Cright = vtransform(dataset[,vnames$C, with=F], varinfoaux, Cout='right')
+             Cleft = vtransform(dataset[,vnames$C, with=F], auxmetadata, Cout='left'),
+             Cright = vtransform(dataset[,vnames$C, with=F], auxmetadata, Cout='right')
              ) },
     if(vn$D > 0){# discretized
         list(Dn = vn$D,
@@ -167,8 +170,8 @@ inferpopulation <- function(dataset, varinfoaux, outputdir, nsamples=4096, nsamp
              Dvar1 = rep(1, 1),
              Dshapelo = rep(Dshapelo, 1),
              Dshapehi = rep(Dshapehi, 1),
-             Dleft = vtransform(dataset[,vnames$D, with=F], varinfoaux, Dout='left'),
-             Dright = vtransform(dataset[,vnames$D, with=F], varinfoaux, Dout='right')
+             Dleft = vtransform(dataset[,vnames$D, with=F], auxmetadata, Dout='left'),
+             Dright = vtransform(dataset[,vnames$D, with=F], auxmetadata, Dout='right')
              ) },
     if(vn$O > 0){# ordinal
         list(On = vn$O,
@@ -177,8 +180,8 @@ inferpopulation <- function(dataset, varinfoaux, outputdir, nsamples=4096, nsamp
              Ovar1 = rep(1, 1),
              Oshapelo = rep(Oshapelo, 1),
              Oshapehi = rep(Oshapehi, 1),
-             Oleft = vtransform(dataset[,vnames$O, with=F], varinfoaux, Oout='left'),
-             Oright = vtransform(dataset[,vnames$O, with=F], varinfoaux, Oout='right')
+             Oleft = vtransform(dataset[,vnames$O, with=F], auxmetadata, Oout='left'),
+             Oright = vtransform(dataset[,vnames$O, with=F], auxmetadata, Oout='right')
              ) },
     if(vn$N > 0){# nominal
         list(Nn = vn$N,
@@ -196,33 +199,35 @@ inferpopulation <- function(dataset, varinfoaux, outputdir, nsamples=4096, nsamp
     datapoints <- c(
         if(vn$R > 0){# continuous
             list(
-                Rdata = vtransform(dataset[,vnames$R, with=F], varinfoaux)
+                Rdata = vtransform(dataset[,vnames$R, with=F], auxmetadata)
             ) },
         if(vn$C > 0){# censored
             list(
-                Caux = vtransform(dataset[,vnames$C, with=F], varinfoaux, Cout='aux'),
-                Clat = vtransform(dataset[,vnames$C, with=F], varinfoaux, Cout='lat')
+                Caux = vtransform(dataset[,vnames$C, with=F], auxmetadata, Cout='aux'),
+                Clat = vtransform(dataset[,vnames$C, with=F], auxmetadata, Cout='lat')
             ) },
         if(vn$D > 0){# discretized
             list(
-                Daux = vtransform(dataset[,vnames$D, with=F], varinfoaux, Dout='aux')
+                Daux = vtransform(dataset[,vnames$D, with=F], auxmetadata, Dout='aux')
             ) },
         if(vn$O > 0){# ordinal
             list(
-                Oaux = vtransform(dataset[,vnames$O, with=F], varinfoaux, Oout='aux')
+                Oaux = vtransform(dataset[,vnames$O, with=F], auxmetadata, Oout='aux')
             ) },
         if(vn$N > 0){# nominal
             list(
-                Ndata = vtransform(dataset[,vnames$N,with=F], varinfoaux, Nout='numeric')                
+                Ndata = vtransform(dataset[,vnames$N,with=F], auxmetadata, Nout='numeric')                
             ) },
         if(vn$B > 0){# binary
             list(
-                Bdata = vtransform(dataset[,vnames$B,with=F], varinfoaux, Bout='numeric')                
+                Bdata = vtransform(dataset[,vnames$B,with=F], auxmetadata, Bout='numeric')                
             ) }
     )
 
     cat('\nStarting Monte Carlo sampling with',nchains,'chains across', ncores, 'cores.\n')
-    cat('Core logs are being saved in individual files.\nEstim. remaining time...\r')
+    cat('Core logs are being saved in individual files.\n')
+    cat('Setting up samplers (this can take tens of minutes if there are many data or variates).\n')
+    cat('Estim. remaining time...\r')
     ## stopCluster(cluster)
     stopImplicitCluster()
     registerDoSEQ()
@@ -255,7 +260,7 @@ inferpopulation <- function(dataset, varinfoaux, outputdir, nsamples=4096, nsamp
             ceiling(2* max(diagnBurn2) + (nsamplesperchain-1L) * multcorr * ceiling(max(diagnIAT, diagnThin)))
         }
 
-        printtime <- function(tim){paste0(tim,' ',attr(tim,'units'))}
+        printtime <- function(tim){paste0(signif(tim,3),' ',attr(tim,'units'))}
         ## printtime <- function(tim){sub('^Time difference of (.*)', '\\1', capture.output(print(tim)))}
 
         
@@ -388,7 +393,7 @@ inferpopulation <- function(dataset, varinfoaux, outputdir, nsamples=4096, nsamp
                                  Cmean = matrix(rnorm(n=vn$C*nclusters, mean=constants$Cmean1, sd=sqrt(constants$Cvarm1)), nrow=vn$C, ncol=nclusters),
                                  Crate = Crate,
                                  Cvar = matrix(nimble::rinvgamma(n=vn$C*nclusters, shape=constants$Cshapelo, rate=Crate), nrow=vn$C, ncol=nclusters),
-                                 Clat = vtransform(dataset[,vnames$C, with=F], varinfoaux, Cout='init') ## for data with boundary values
+                                 Clat = vtransform(dataset[,vnames$C, with=F], auxmetadata, Cout='init') ## for data with boundary values
                              ))
             }
             if(vn$D > 0){# discretized
@@ -398,7 +403,7 @@ inferpopulation <- function(dataset, varinfoaux, outputdir, nsamples=4096, nsamp
                                  Dmean = matrix(rnorm(n=vn$D*nclusters, mean=constants$Dmean1, sd=sqrt(constants$Dvarm1)), nrow=vn$D, ncol=nclusters),
                                  Drate = Drate,
                                  Dvar = matrix(nimble::rinvgamma(n=vn$D*nclusters, shape=constants$Dshapelo, rate=Drate), nrow=vn$D, ncol=nclusters),
-                                 Dlat = vtransform(dataset[,vnames$D, with=F], varinfoaux, Dout='init') ## for data with boundary values
+                                 Dlat = vtransform(dataset[,vnames$D, with=F], auxmetadata, Dout='init') ## for data with boundary values
                              ))
             }
             if(vn$O > 0){# ordinal
@@ -408,7 +413,7 @@ inferpopulation <- function(dataset, varinfoaux, outputdir, nsamples=4096, nsamp
                                  Omean = matrix(rnorm(n=vn$O*nclusters, mean=constants$Omean1, sd=sqrt(constants$Ovarm1)), nrow=vn$O, ncol=nclusters),
                                  Orate = Orate,
                                  Ovar = matrix(nimble::rinvgamma(n=vn$O*nclusters, shape=constants$Oshapelo, rate=Orate), nrow=vn$O, ncol=nclusters),
-                                 Olat = vtransform(dataset[,vnames$O, with=F], varinfoaux, Oout='init') ## for data with boundary values
+                                 Olat = vtransform(dataset[,vnames$O, with=F], auxmetadata, Oout='init') ## for data with boundary values
                              ))
             }
             if(vn$N > 0){# nominal
@@ -455,9 +460,13 @@ inferpopulation <- function(dataset, varinfoaux, outputdir, nsamples=4096, nsamp
         ## replace Alpha's cat-sampler and RW samplers with slice
         targetslist <- sapply(confnimble$getSamplers(), function(xx)xx$target)   
         nameslist <- sapply(confnimble$getSamplers(), function(xx)xx$name)
-        for(asampler in c('Alpha', targetslist[nameslist == 'RW'])){
-            confnimble$removeSamplers(asampler)
-            confnimble$addSampler(target=asampler, type='slice')
+        confnimble$removeSamplers('Alpha')
+        confnimble$addSampler(target='Alpha', type='slice')
+        if(RWtoslice){## replace all RW samplers with slice
+            for(asampler in targetslist[nameslist == 'RW']){
+                confnimble$removeSamplers(asampler)
+                confnimble$addSampler(target=asampler, type='slice')
+            }
         }
         ## call this to do a first reordering
         mcsampler <- buildMCMC(confnimble)
@@ -494,9 +503,9 @@ inferpopulation <- function(dataset, varinfoaux, outputdir, nsamples=4096, nsamp
         newchain <- TRUE
         allmcsamples <- NULL
         maxusedclusters <- 0
-        testdata <- t(varinfoaux[,paste0('mctest',1:3)])
-        colnames(testdata) <- varinfoaux[,name]
-        ## testdata <- rbind(varinfoaux[['Q2']], varinfo[['Q1']], varinfo[['Q3']]) #, varinfo[['plotmin']], varinfo[['plotmax']], varinfo[['datamin']], varinfo[['datamax']])
+        testdata <- t(auxmetadata[,paste0('mctest',1:3)])
+        colnames(testdata) <- auxmetadata[,name]
+        ## testdata <- rbind(auxmetadata[['Q2']], varinfo[['Q1']], varinfo[['Q3']]) #, varinfo[['plotmin']], varinfo[['plotmax']], varinfo[['datamin']], varinfo[['datamax']])
 
         calctime <- Sys.time()
         while(continue){
@@ -508,7 +517,7 @@ inferpopulation <- function(dataset, varinfoaux, outputdir, nsamples=4096, nsamp
                 ## if(TRUE){ # send message to user screen with est. remaining time
                 sink(NULL,type='message')
                 message(paste0('\rEstim. remaining time ',
-                               printtime((Sys.time()-calctime)/(achain-1)*(nchainspercore-achain+1))), appendLF=FALSE)
+                               printtime((Sys.time()-calctime)/(achain-1)*(nchainspercore-achain+1)), '                '), appendLF=FALSE)
                 flush.console()
                 sink(outcon,type='message')
                 ##}
@@ -593,7 +602,7 @@ inferpopulation <- function(dataset, varinfoaux, outputdir, nsamples=4096, nsamp
             ## lli <- colMeans(log(samplesFDistribution(Y=data.matrix(data0[,..predictors]), X=data.matrix(data0[,..predictands]), mcsamples=mcsamples, varinfo=varinfo, jacobian=FALSE)),na.rm=T) #- sum(log(invjacobian(data.matrix(data0[,..predictors]), varinfo)), na.rm=T)
             ##
             ll <- t(
-                log(samplesFDistribution(Y=testdata, X=NULL, mcsamples=mcsamples, varinfoaux=varinfoaux, subsamples=NULL, jacobian=FALSE, parallel=FALSE)) #- sum(log(invjacobian(data.matrix(data0), varinfo)), na.rm=T)
+                log(samplesFDistribution(Y=testdata, X=NULL, mcsamples=mcsamples, auxmetadata=auxmetadata, subsamples=NULL, jacobian=FALSE, parallel=FALSE)) #- sum(log(invjacobian(data.matrix(data0), varinfo)), na.rm=T)
             )
             colnames(ll) <- paste0('log-',c('mid','lo','hi')) #,'pm','pM','dm','dM'))
             ## testdatalld <- log(samplesFDistribution(Y=testdata[,predictands,drop=F], X=testdata[,predictors,drop=F], mcsamples=mcsamples, varinfo=varinfo, jacobian=FALSE)) # - sum(log(invjacobian(data.matrix(data0[,..predictands]), varinfo)), na.rm=T)
@@ -739,7 +748,7 @@ inferpopulation <- function(dataset, varinfoaux, outputdir, nsamples=4096, nsamp
 
                     plotFsamples(file=paste0(dirname,'mcmcdistributions-',basename,'--',mcmcseed,'-',achain),
                                  mcsamples=mcsamples[subsamples,,drop=F],
-                                 varinfoaux=varinfoaux,
+                                 auxmetadata=auxmetadata,
                                  dataset=dataset,
                                  nsubsamples=showsamples,
                                  plotmeans=plotmeans, showdata='histogram',
@@ -827,7 +836,7 @@ inferpopulation <- function(dataset, varinfoaux, outputdir, nsamples=4096, nsamp
     }
     
     plotFsamples(file=paste0(dirname,'Fdistribution-',basename,'-',nsamples),
-                 mcsamples=mcsamples, varinfoaux=varinfoaux,
+                 mcsamples=mcsamples, auxmetadata=auxmetadata,
                  dataset=dataset,
                  nsubsamples=showsamples, plotmeans=TRUE,
                  showdata = 'histogram', parallel=TRUE)

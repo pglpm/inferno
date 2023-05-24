@@ -1,20 +1,20 @@
-samplesFDistribution <- function(Y, X, mcsamples, varinfoaux, subsamples, jacobian=TRUE, fn=identity, parallel=TRUE){
+samplesFDistribution <- function(Y, X, mcsamples, auxmetadata, subsamples, jacobian=TRUE, fn=identity, parallel=TRUE){
     ## Consistency checks
     if(length(dim(Y)) != 2){stop('Y must have two dimensions')}
     if(missing(X)){X <- NULL}
     if(!is.null(X) && length(dim(X)) != 2){stop('X must be NULL or have two dimensions')}
     ##
     if(!is.null(X) && ncol(X) == 0){X <- NULL}
-    ## varinfoaux
-    if(is.character(varinfoaux) && file.exists(varinfoaux)){
-        varinfoaux <- readRDS(varinfoaux)
+    ## auxmetadata
+    if(is.character(auxmetadata) && file.exists(auxmetadata)){
+        auxmetadata <- readRDS(auxmetadata)
     }
 
     ## More consistency checks
     Yv <- colnames(Y)
-    if(!all(Yv %in% varinfoaux$name)){stop('unknown Y variates\n')}
+    if(!all(Yv %in% auxmetadata$name)){stop('unknown Y variates\n')}
     Xv <- colnames(X)
-    if(!all(Xv %in% varinfoaux$name)){stop('unknown X variates\n')}
+    if(!all(Xv %in% auxmetadata$name)){stop('unknown X variates\n')}
     if(length(intersect(Yv, Xv)) > 0){stop('overlap in Y and X variates\n')}
 
     ## mcsamples and subsamples
@@ -33,14 +33,14 @@ samplesFDistribution <- function(Y, X, mcsamples, varinfoaux, subsamples, jacobi
     ##
     allv <- union(Yv, Xv)
     vn <- vnames <- vindices <- list()
-    ##    varinfoaux <- varinfoaux[name %in% allv]
+    ##    auxmetadata <- auxmetadata[name %in% allv]
     for(atype in c('R','C','D','O','N','B')){
         ## 
         ## To save memory, we'll extract from mcsamples
         ## only sample parameters belonging to vnames
-        vnames[[atype]] <- allv[allv %in% varinfoaux[mcmctype == atype, name]]
+        vnames[[atype]] <- allv[allv %in% auxmetadata[mcmctype == atype, name]]
         vn[[atype]] <- length(vnames[[atype]])
-        vindices[[atype]] <- sapply(vnames[[atype]], function(xx)varinfoaux[name == xx, id])
+        vindices[[atype]] <- sapply(vnames[[atype]], function(xx)auxmetadata[name == xx, id])
         ordering <- order(vindices[[atype]])
         vnames[[atype]] <- vnames[[atype]][ordering]
         vindices[[atype]] <- vindices[[atype]][ordering]
@@ -79,9 +79,9 @@ XnR <- length(totake)
                       dim=c(vn$C,nclusters,nsamples), dimnames=NULL)
         Cbounds <- cbind(
             c(vtransform(x=matrix(NA,nrow=1,ncol=vn$C,dimnames=NULL),
-                         varinfoaux=varinfoaux,variates=vnames$C,Cout='sleft')),
+                         auxmetadata=auxmetadata,variates=vnames$C,Cout='sleft')),
             c(vtransform(x=matrix(NA,nrow=1,ncol=vn$C,dimnames=NULL),
-                         varinfoaux=varinfoaux,variates=vnames$C,Cout='sright'))
+                         auxmetadata=auxmetadata,variates=vnames$C,Cout='sright'))
         )
         ##
         totake <- intersect(vnames$C, Yv)
@@ -126,15 +126,15 @@ XnD <- length(totake)
         Ovar <- array(t(mcsamples[,grep(paste0('^Ovar\\[(',inds,')'), allparams),drop=F]),
                       dim=c(vn$O,nclusters,nsamples), dimnames=NULL)
         ##
-        Omaxn <- max(varinfoaux[name %in% vnames$O, Nvalues])
+        Omaxn <- max(auxmetadata[name %in% vnames$O, Nvalues])
         Oseq <- 1:vn$O
         ##
         Oleft <- t(sapply(vnames$O, function(avar){
-            nn <- varinfoaux[name == avar, Nvalues]
+            nn <- auxmetadata[name == avar, Nvalues]
             c(Qfunction((0:(nn-1))/nn), rep(NA,Omaxn-nn))
         }))
         Oright <- t(sapply(vnames$O, function(avar){
-            nn <- varinfoaux[name == avar, Nvalues]
+            nn <- auxmetadata[name == avar, Nvalues]
             c(Qfunction((1:nn)/nn), rep(NA,Omaxn-nn))
         }))
         ##
@@ -151,7 +151,7 @@ XnO <- length(totake)
         YnO <- XnO <- 0
     }
     if(vn$N > 0){# nominal
-        Nmaxn <- max(varinfoaux[name %in% vnames$N, Nvalues])
+        Nmaxn <- max(auxmetadata[name %in% vnames$N, Nvalues])
         inds <- paste0(vindices$N,collapse='|')
         indn <- paste0(1:Nmaxn,collapse='|')
         Nprob <- array(t(mcsamples[,grep(paste0('^Nprob\\[(',inds,'), .*, (',indn,')\\]'), allparams),drop=F]),
@@ -192,9 +192,9 @@ XnB <- length(totake)
     rm(mcsamples)
 
     ##
-    Y2 <- vtransform(Y, varinfoaux, Cout='index', Dout='', Oout='', Nout='numeric', Bout='numeric')
+    Y2 <- vtransform(Y, auxmetadata, Cout='index', Dout='', Oout='', Nout='numeric', Bout='numeric')
     if(!is.null(X)){
-        X2 <- vtransform(X, varinfoaux, Cout='index', Dout='', Oout='', Nout='numeric', Bout='numeric')
+        X2 <- vtransform(X, auxmetadata, Cout='index', Dout='', Oout='', Nout='numeric', Bout='numeric')
         if(nrow(X2) < nrow(Y2)){
             warning('*Note: X has fewer data than Y. Recycling*')
             X2 <- t(matrix(rep(t(X2), ceiling(nrow(Y2)/nrow(X2))), nrow=ncol(X2), dimnames=list(colnames(X2),NULL)))[1:nrow(Y2),,drop=FALSE]
@@ -385,6 +385,6 @@ XnB <- length(totake)
     } *
         (if(jacobian){
              exp(-rowSums(
-                      log(vtransform(Y, varinfoaux=varinfoaux, invjacobian=TRUE)),
+                      log(vtransform(Y, auxmetadata=auxmetadata, invjacobian=TRUE)),
                       na.rm=T))}else{1L})
 }

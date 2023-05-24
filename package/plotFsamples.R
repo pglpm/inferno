@@ -1,4 +1,4 @@
-plotFsamples <- function(file, mcsamples, varinfoaux, dataset, plotmeans=TRUE, nsubsamples=100, showdata='histogram', parallel=TRUE){
+plotFsamples <- function(file, mcsamples, auxmetadata, dataset, plotmeans=TRUE, nsubsamples=100, showdata='histogram', parallel=TRUE){
 
     family <- 'Palatino'
     source('pglpm_plotfunctions.R')
@@ -17,8 +17,8 @@ plotFsamples <- function(file, mcsamples, varinfoaux, dataset, plotmeans=TRUE, n
     pdff(file, apaper=4)
     par(mfrow=c(1,1))
 
-    for(v in varinfoaux[['name']]){
-        varinfo <- as.list(varinfoaux[name==v])
+    for(v in auxmetadata[['name']]){
+        varinfo <- as.list(auxmetadata[name==v])
         vtype <- varinfo[['mcmctype']]
 
         if(vtype %in% c('R','D','C','O')){ #
@@ -37,7 +37,7 @@ plotFsamples <- function(file, mcsamples, varinfoaux, dataset, plotmeans=TRUE, n
             xleft <- Xgrid > varinfo[['censormin']]
             xright <- Xgrid < varinfo[['censormax']]
 
-            plotsamples <- samplesFDistribution(Y=Xgrid, X=NULL, mcsamples=mcsamples, varinfoaux=varinfoaux, subsamples=mcsubsamples, jacobian=TRUE, parallel=parallel)
+            plotsamples <- samplesFDistribution(Y=Xgrid, X=NULL, mcsamples=mcsamples, auxmetadata=auxmetadata, subsamples=mcsubsamples, jacobian=TRUE, parallel=parallel)
             
             ymax <- tquant(apply(plotsamples[xleft & xright, subsamples, drop=F],
                                  2,function(x){tquant(x,31/32)}),31/32, na.rm=T)
@@ -114,10 +114,10 @@ plotFsamples <- function(file, mcsamples, varinfoaux, dataset, plotmeans=TRUE, n
 
             Xgrid <- cbind(unlist(varinfo[paste0('V',1:varinfo[['Nvalues']])]))
             colnames(Xgrid) <- v
-            Ngrid <- vtransform(x=Xgrid, varinfoaux=varinfoaux,
+            Ngrid <- vtransform(x=Xgrid, auxmetadata=auxmetadata,
                                 Nout='numeric', Bout='numeric')
 
-            plotsamples <- samplesFDistribution(Y=Xgrid, X=NULL, mcsamples=mcsamples, varinfoaux=varinfoaux, subsamples=mcsubsamples, jacobian=TRUE, parallel=parallel)
+            plotsamples <- samplesFDistribution(Y=Xgrid, X=NULL, mcsamples=mcsamples, auxmetadata=auxmetadata, subsamples=mcsubsamples, jacobian=TRUE, parallel=parallel)
             
             ymax <- tquant(apply(plotsamples[, subsamples, drop=F],
                                  2,function(x){tquant(x,31/32)}),31/32, na.rm=T)

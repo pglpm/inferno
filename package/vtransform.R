@@ -1,11 +1,16 @@
 ## Transformation from variate to internal variable
-vtransform <- function(x, varinfoaux, Cout='init', Dout='data', Oout='data', Bout='numeric', Nout='numeric', Qfunction='Qfunction512', variates=NULL, invjacobian=FALSE){
+vtransform <- function(x, auxmetadata, Cout='init', Dout='data', Oout='data', Bout='numeric', Nout='numeric', Qfunction='Qfunction8192', variates=NULL, invjacobian=FALSE){
+
+    if(is.character(Qfunction)){
+        Qfunction <- readRDS(paste0(Qfunction,'.rds'))
+    }
+
     x <- as.data.table(cbind(x))
     if(!is.null(variates)){colnames(x) <- variates}
     matrix(sapply(colnames(x), function(v){
         ##
         datum <- unlist(x[,v,with=F])
-        info <- as.list(varinfoaux[name == v])
+        info <- as.list(auxmetadata[name == v])
         ##
         if(invjacobian){
 #### Calculation of reciprocal Jacobian factors
@@ -37,13 +42,12 @@ vtransform <- function(x, varinfoaux, Cout='init', Dout='data', Oout='data', Bou
                 datum <- (datum-info$tlocation)/info$tscale
                 ##
             } else if(info$mcmctype == 'O'){ # ordinal
-                if(is.character(Qfunction)){
-                    Qfunction <- readRDS(paste0(Qfunction,'.rds'))
-                }
                 datum <- round((datum-info$tlocation)/info$tscale) # output is in range 1 to Nvalues
                 if(Oout == 'init'){ # in sampling functions or init MCMC
                     datum[is.na(datum)] <- info$Nvalues/2+0.5
                     datum <- Qfunction((datum-0.5)/info$Nvalues)
+                    datum[datum==+Inf] <- 1e6
+                    datum[datum==-Inf] <- -1e6
                 } else if(Oout == 'left'){ # as left for MCMC
                     datum <- Qfunction(pmax(0,datum-1L)/info$Nvalues)
                     datum[is.na(datum)] <- -Inf

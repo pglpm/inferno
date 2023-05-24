@@ -1,10 +1,15 @@
-buildvarinfo <- function(data, file=NULL){
+buildmetadata <- function(data, file=NULL){
+    require('data.table')
     gcd2 <- function(a, b){ if (b == 0) a else Recall(b, a %% b) }
     gcd <- function(...) Reduce(gcd2, c(...))
     ##
-    if(is.character(data) && file.exists(data)){data <- fread(data, na.strings='')}
+    datafile <- NULL
+    if(is.character(data) && file.exists(data)){
+        datafile <- data
+        data <- fread(datafile, na.strings='')
+    }
     data <- as.data.table(data)
-    varinfo <- data.table()
+    metadata <- data.table()
     for(x in data){
         x <- x[!is.na(x)]
         transf <- 'identity' # temporary
@@ -79,7 +84,7 @@ buildvarinfo <- function(data, file=NULL){
                     tmin <- max(vmin, tmin)
                     ## location <- log(Q2)
                     ## scale <- (log(Q3) - log(Q1))/2
-                    plotmin <- max(vmin+(plotmax-vmin)/256, plotmin)
+                    plotmin <- max((vmin+min(x))/2, plotmin)
                 }
             }else{# ordinal
                 vtype <- 'ordinal'
@@ -93,7 +98,7 @@ buildvarinfo <- function(data, file=NULL){
                     tmax <- NA
                     ## location <- NA # (vn*vmin-vmax)/(vn-1)
                     ## scale <- NA # (vmax-vmin)/(vn-1)
-                    plotmin <- max(vmin, min(x) - IQR(x)/2)
+                    plotmin <- max(vmin, min(x) - (Q3-Q1)/2)
                     plotmax <- max(x)
                 }else{ # seems a rounded continuous variate
                     vtype <- 'continuous'
@@ -120,17 +125,26 @@ buildvarinfo <- function(data, file=NULL){
             vval <- NULL
         }# end numeric
         ##
-        varinfo <- rbind(varinfo,
+        metadata <- rbind(metadata,
                          c(list(type=vtype, Nvalues=vn, rounding=vd, domainmin=vmin, domainmax=vmax, censormin=tmin, censormax=tmax, centralvalue=meval, lowvalue=loval, highvalue=hival, plotmin=plotmin, plotmax=plotmax),
                            as.list(vval)
                          ), fill=TRUE)
     }
-    varinfo <- cbind(name=names(data), varinfo)
-    if(!is.null(file)){
-        file <- paste0(sub('.csv$', '', file), '.csv')
-        fwrite(varinfo, file)
-        cat(paste0('Saved proposal variate-info file to ', file, '\n'))
+    metadata <- cbind(name=names(data), metadata)
+    
+    if(!missing(file) && file!=FALSE){# must save to file
+        if(is.character(file)){
+            file <- paste0(sub('.csv$', '', file), '.csv')
+        }else{
+            file <- paste0('metadata_', datafile)
+            file <- paste0(sub('.csv$', '', file), '.csv')
+        }
+        if(file.exists(file)){
+            file.rename(from=file, to=paste0(sub('.csv$', '', file), '_bak',format(Sys.time(), '%y%m%dT%H%M%S'),'.csv'))
+        }
+        fwrite(metadata, file)
+        cat(paste0('Saved proposal metadata file as ', file, '\n'))
     }else{
-        varinfo
+        metadata
     }
 }

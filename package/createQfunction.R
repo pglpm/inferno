@@ -1,5 +1,5 @@
 #### Calculate and save transformation function for ordinal variates
-createQfunction <- function(nint=512, nsamples=2^24L, mean=0, sd=1, shapelo=0.5, shapehi=0.5, scale=1, file=paste0('Qfunction',nint), plot=F){
+createQfunction <- function(nint=8192, nsamples=2^24L, mean=0, sd=1, shapelo=0.5, shapehi=0.5, scale=1, file=paste0('Qfunction',nint), plot=F){
     ##
     seqnint <- (1:(nint-1))/nint
     xsamples <- rnorm(nsamples,
