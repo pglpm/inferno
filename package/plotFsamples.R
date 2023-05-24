@@ -50,9 +50,10 @@ plotFsamples <- function(file, mcsamples, auxmetadata, dataset, plotmeans=TRUE, 
                 dleft <- datum > varinfo[['censormin']]
                 dright <- datum < varinfo[['censormax']]
                 if(vtype == 'O'){
-                    nh <- (varinfo[['domainmin']]-varinfo[['domainmax']])/(varinfo[['Nvalues']]-1L)/2
+                    nh <- (varinfo[['domainmax']]-varinfo[['domainmin']])/(varinfo[['Nvalues']]-1L)/2
                     nh <- seq(varinfo[['domainmin']]-nh, varinfo[['domainmax']]+nh,
-                             length.out=varinfo[['Nvalues']]+1L)
+                              length.out=varinfo[['Nvalues']]+1L)
+                    print(nh)
                 }else{
                     nh <- max(16,round(length(datum[dleft & dright])/64))
                 }

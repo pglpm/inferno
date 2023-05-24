@@ -555,7 +555,7 @@ inferpopulation <- function(dataset, auxmetadata, outputdir, nsamples=4096, nsam
             }else{
                 ##
                 cat('Iterations:', niter,'\n')
-                cat('chain:', achain,'of',nchainspercore,'. Estim. remaining time',
+                cat('chain:', achain,'of',nchainspercore,'- Estim. remaining time',
                     printtime((Sys.time()-calctime)/(achain-1)*(nchainspercore-achain+1)), '\n')
                 Cmcsampler$run(niter=niter, thin=1, thin2=niter, nburnin=0, time=showsamplertimes0, reset=reset, resetMV=TRUE)
                 mcsamples <- as.matrix(Cmcsampler$mvSamples)
