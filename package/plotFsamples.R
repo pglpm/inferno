@@ -22,7 +22,7 @@ plotFsamples <- function(file, mcsamples, auxmetadata, dataset, plotmeans=TRUE, 
         vtype <- varinfo[['mcmctype']]
 
         if(vtype %in% c('R','D','C','O')){ #
-            if(vtype=='O'){
+            if(vtype == 'O'){
                 Xgrid <- seq(varinfo[['domainmin']], varinfo[['domainmax']],
                              length.out=varinfo[['Nvalues']])
                 Xgrid <- cbind(Xgrid[Xgrid >= varinfo[['plotmin']] & Xgrid <= varinfo[['plotmax']]])
@@ -49,8 +49,15 @@ plotFsamples <- function(file, mcsamples, auxmetadata, dataset, plotmeans=TRUE, 
                 datum <- datum[!is.na(datum)]
                 dleft <- datum > varinfo[['censormin']]
                 dright <- datum < varinfo[['censormax']]
+                if(vtype == 'O'){
+                    nh <- (varinfo[['domainmin']]-varinfo[['domainmax']])/(varinfo[['Nvalues']]-1L)/2
+                    nh <- seq(varinfo[['domainmin']]-nh, varinfo[['domainmax']]+nh,
+                             length.out=varinfo[['Nvalues']]+1L)
+                }else{
+                    nh <- max(16,round(length(datum[dleft & dright])/64))
+                }
                 histo <- thist(datum[dleft & dright],
-                               n=max(16,round(length(datum[dleft & dright])/64)))
+                               n=nh)
                 hleft <- sum(!dleft)/length(datum)
                 hright <- sum(!dright)/length(datum)
                 
