@@ -116,7 +116,7 @@ inferpopulation <- function(dataset, auxmetadata, outputdir, nsamples=4096, nsam
     source('proposeburnin.R')
     source('proposethinning.R')
     source('plotFsamples.R')
-    printtime <- function(tim){paste0(signif(tim,3),' ',attr(tim,'units'))}
+    printtime <- function(tim){paste0(signif(tim,2),' ',attr(tim,'units'))}
     ## printtime <- function(tim){sub('^Time difference of (.*)', '\\1', capture.output(print(tim)))}
     vn <- list()
     vnames <- list()
@@ -260,7 +260,7 @@ inferpopulation <- function(dataset, auxmetadata, outputdir, nsamples=4096, nsam
             ceiling(2* max(diagnBurn2) + (nsamplesperchain-1L) * multcorr * ceiling(max(diagnIAT, diagnThin)))
         }
 
-        printtime <- function(tim){paste0(signif(tim,3),' ',attr(tim,'units'))}
+        printtime <- function(tim){paste0(signif(tim,2),' ',attr(tim,'units'))}
         ## printtime <- function(tim){sub('^Time difference of (.*)', '\\1', capture.output(print(tim)))}
 
         

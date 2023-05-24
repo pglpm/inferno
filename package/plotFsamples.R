@@ -11,7 +11,7 @@ plotFsamples <- function(file, mcsamples, auxmetadata, dataset, plotmeans=TRUE, 
     }else{
         mcsubsamples <- 1:nrow(mcsamples)
     }
-        subsamples <- round(seq(1,length(mcsubsamples),length.out=nsubsamples))
+    subsamples <- round(seq(1,length(mcsubsamples),length.out=nsubsamples))
 
     graphics.off()
     pdff(file, apaper=4)
@@ -42,7 +42,7 @@ plotFsamples <- function(file, mcsamples, auxmetadata, dataset, plotmeans=TRUE, 
             ymax <- tquant(apply(plotsamples[xleft & xright, subsamples, drop=F],
                                  2,function(x){tquant(x,31/32)}),31/32, na.rm=T)
 
-            addplot <- FALSE
+            dataplot <- FALSE
             ## data plots if required
             if(showdata=='histogram' && !(missing(dataset) || is.null(dataset)) && !all(is.na(dataset[[v]]))){
                 datum <- dataset[[v]]
@@ -63,35 +63,17 @@ plotFsamples <- function(file, mcsamples, auxmetadata, dataset, plotmeans=TRUE, 
                 
                 ymax <- max(ymax, histo$density)
 
-                histomax <- 1 # max(rowMeans(plotsamples))/max(histo$density)
-                tplot(x=histo$mids, y=histo$density*histomax,
-                      xlim=range(Xgrid), ylim=c(0,ymax),
-                      type='l', lty=1, lwd=4,
-                      col=yellow, alpha=2/4, border=darkgrey, border.alpha=3/4,
-                      xlab=v,
-                      ylab=paste0('frequency',(if(vtype=='O'){''}else{' density'})),
-                      family=family)
-
-                if(any(!(dleft & dright))){
-                    tplot(x=c(varinfo[['censormin']],varinfo[['censormax']]), y=c(hleft,hright)*ymax,
-                          type='p', pch=0, cex=2,
-                          col=7, alpha=0,
-                          lty=1, lwd=5,
-                          family=family, add=TRUE)
-                }
-                fiven <- fivenum(datum)
-                abline(v=fiven,col=paste0(palette()[c(2,4,5,4,2)], '44'),lwd=4)
-                addplot <- TRUE
+                dataplot <- TRUE
             }
 
             ## Plot F samples
-            tplot(x=Xgrid, y=plotsamples[,subsamples,drop=F],
+            tplot(x=Xgrid[xleft & xright], y=plotsamples[xleft & xright,subsamples,drop=F],
                   xlim=range(Xgrid), ylim=c(0,ymax),
                   type='l', lty=1, lwd=2,
                   col=5, alpha=7/8,
                   xlab=v,
                   ylab=paste0('frequency',(if(vtype=='O'){''}else{' density'})),
-                  family=family, add=addplot)
+                  family=family)
             if(any(!(xleft & xright))){
                 tplot(x=Xgrid[!(xleft & xright)],
                       y=plotsamples[!(xleft & xright),subsamples,drop=F]*ymax,
@@ -102,7 +84,7 @@ plotFsamples <- function(file, mcsamples, auxmetadata, dataset, plotmeans=TRUE, 
             
             ## Plot F means if required
             if(plotmeans){
-                tplot(x=Xgrid, y=rowMeans(plotsamples, na.rm=T),
+                tplot(x=Xgrid[xleft & xright], y=rowMeans(plotsamples[xleft & xright,,drop=F], na.rm=T),
                       type='l', lty=1, lwd=4,
                       col=1, alpha=0.25,
                       add=TRUE)
@@ -114,6 +96,27 @@ plotFsamples <- function(file, mcsamples, auxmetadata, dataset, plotmeans=TRUE, 
                           lty=1, lwd=3,
                           add=TRUE)
                 }
+            }
+
+            if(dataplot){
+                histomax <- 1 # max(rowMeans(plotsamples))/max(histo$density)
+                tplot(x=histo$mids, y=histo$density*histomax,
+                      xlim=range(Xgrid), ylim=c(0,ymax),
+                      type='l', lty=1, lwd=4,
+                      col=yellow, alpha=2/4, border=darkgrey, border.alpha=3/4,
+                      xlab=v,
+                      ylab=paste0('frequency',(if(vtype=='O'){''}else{' density'})),
+                      family=family, add=TRUE)
+
+                if(any(!(dleft & dright))){
+                    tplot(x=c(varinfo[['censormin']],varinfo[['censormax']]), y=c(hleft,hright)*ymax,
+                          type='p', pch=0, cex=2,
+                          col=7, alpha=0,
+                          lty=1, lwd=5,
+                          family=family, add=TRUE)
+                }
+                fiven <- fivenum(datum)
+                abline(v=fiven,col=paste0(palette()[c(2,4,5,4,2)], '44'),lwd=4)
             }
             
             ## nominal or binary variate
@@ -129,7 +132,7 @@ plotFsamples <- function(file, mcsamples, auxmetadata, dataset, plotmeans=TRUE, 
             ymax <- tquant(apply(plotsamples[, subsamples, drop=F],
                                  2,function(x){tquant(x,31/32)}),31/32, na.rm=T)
 
-            addplot <- FALSE
+            dataplot <- FALSE
             ## data plots if required
             if(showdata=='histogram' && !(missing(dataset) || is.null(dataset)) && !all(is.na(dataset[[v]]))){
                 datum <- dataset[[v]]
@@ -138,16 +141,7 @@ plotFsamples <- function(file, mcsamples, auxmetadata, dataset, plotmeans=TRUE, 
                 
                 ymax <- max(ymax, histo)
 
-                histomax <- 1 # max(rowMeans(plotsamples))/max(histo$density)
-                tplot(x=Ngrid, y=histo*histomax,
-                      xlim=range(Ngrid), ylim=c(0,ymax),
-                      xticks=Ngrid, xlabels=Xgrid,
-                      type='l', lty=1, lwd=4,
-                      col=yellow, alpha=2/4, border=darkgrey, border.alpha=3/4,
-                      xlab=v,
-                      ylab='frequency',
-                      family=family)
-                addplot <- TRUE
+                dataplot <- TRUE
             }
 
             ## Plot F samples
@@ -158,7 +152,7 @@ plotFsamples <- function(file, mcsamples, auxmetadata, dataset, plotmeans=TRUE, 
                   col=5, alpha=7/8,
                   xlab=v,
                   ylab='frequency',
-                  family=family, add=addplot)
+                  family=family)
             
             ## Plot F means if required
             if(plotmeans){
@@ -167,6 +161,19 @@ plotFsamples <- function(file, mcsamples, auxmetadata, dataset, plotmeans=TRUE, 
                       col=1, alpha=0.25,
                       add=TRUE)
             }
+
+            if(dataplot){
+                histomax <- 1 # max(rowMeans(plotsamples))/max(histo$density)
+                tplot(x=Ngrid, y=histo*histomax,
+                      xlim=range(Ngrid), ylim=c(0,ymax),
+                      xticks=Ngrid, xlabels=Xgrid,
+                      type='l', lty=1, lwd=4,
+                      col=yellow, alpha=2/4, border=darkgrey, border.alpha=3/4,
+                      xlab=v,
+                      ylab='frequency',
+                      family=family, add=TRUE)
+            }
+            
         }
 
     }
