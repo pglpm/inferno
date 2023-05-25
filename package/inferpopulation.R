@@ -526,7 +526,7 @@ inferpopulation <- function(dataset, auxmetadata, outputdir, nsamples=4096, nsam
                 achain <- achain + 1L
                 ## if(TRUE){ # send message to user screen with est. remaining time
                 ertime <- (Sys.time()-calctime)/(achain-1)*(nchainspercore-achain+1)
-                if(is.finite(ertime)){
+                if(is.finite(ertime) && ertime > 0){
                     sink(NULL,type='message')
                     message(paste0('\rEstim. remaining time ',
                                    printtime(ertime), '        '), appendLF=FALSE)
