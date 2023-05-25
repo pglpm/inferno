@@ -1,6 +1,8 @@
 buildauxmetadata <- function(data, metadata, file=TRUE){
     require('data.table')
 
+    sdoveriqr <- 0.5/qnorm(0.75)
+
     datafile <- NULL
     if(is.character(data) && file.exists(data)){
         datafile <- data
@@ -111,15 +113,15 @@ buildauxmetadata <- function(data, metadata, file=TRUE){
             if(is.finite(xinfo$domainmin) && is.finite(xinfo$domainmax)){ # needs transformation
                 transf <- 'probit'
                 location <- qnorm((location-vmin)/(vmax-vmin))
-                scale <- abs(qnorm((xinfo$highvalue-vmin)/(vmax-vmin)) - qnorm((xinfo$lowvalue-vmin)/(vmax-vmin)))
+                scale <- abs(qnorm((xinfo$highvalue-vmin)/(vmax-vmin)) - qnorm((xinfo$lowvalue-vmin)/(vmax-vmin)))*sdoveriqr
             }else if(is.finite(xinfo$domainmin)){
                 transf <- 'log'
                 location <- log(location-vmin)
-                scale <- abs(log(xinfo$highvalue-vmin) - log(xinfo$lowvalue-vmin))
+                scale <- abs(log(xinfo$highvalue-vmin) - log(xinfo$lowvalue-vmin))*sdoveriqr
             }else if(is.finite(xinfo$domainmax)){
                 transf <- 'logminus'
                 location <- log(vmax-location)
-                scale <- abs(log(vmax-xinfo$highvalue) - log(vmax-xinfo$lowvalue))
+                scale <- abs(log(vmax-xinfo$highvalue) - log(vmax-xinfo$lowvalue))*sdoveriqr
             }
             if(xinfo$rounding > 0){# discretized
                 vtype <- 'D'
