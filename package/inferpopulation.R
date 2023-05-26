@@ -43,7 +43,7 @@ inferpopulation <- function(dataset, auxmetadata, outputdir, nsamples=4096, nsam
         auxmetadata <- readRDS(auxmetadata)
     }
 
-    if(missing(outputdir)){
+    if(missing(outputdir) || outputdir==TRUE){
         outputdir <- paste0('_output_', datafile)
         outputdir <- paste0(sub('.csv$', '', outputdir))
     }
@@ -87,6 +87,7 @@ inferpopulation <- function(dataset, auxmetadata, outputdir, nsamples=4096, nsam
     ##
     nalpha <- length(minalpha:maxalpha)
     npoints <- nrow(dataset)
+    Alphatoslice <- TRUE
     RWtoslice <- TRUE
 
     ## other options
@@ -462,11 +463,12 @@ inferpopulation <- function(dataset, auxmetadata, outputdir, nsamples=4096, nsam
         nameslist <- sapply(confnimble$getSamplers(), function(xx)xx$name)
                                         # cat('\n******** NAMESLIST',nameslist,'\n')
         ## replace Alpha's cat-sampler and RW samplers with slice
-        if(!('Alpha' %in% targetslist[nameslist == 'posterior_predictive'])){
-        confnimble$removeSamplers('Alpha')
-        confnimble$addSampler(target='Alpha', type='slice')
+        if(Alphatoslice && !('Alpha' %in% targetslist[nameslist == 'posterior_predictive'])){
+            confnimble$removeSamplers('Alpha')
+            confnimble$addSampler(target='Alpha', type='slice')
         }
-        if(RWtoslice){## replace all RW samplers with slice
+        ## replace all RW samplers with slice
+        if(RWtoslice){
             for(asampler in targetslist[nameslist == 'RW']){
                 confnimble$removeSamplers(asampler)
                 confnimble$addSampler(target=asampler, type='slice')
@@ -489,7 +491,7 @@ inferpopulation <- function(dataset, auxmetadata, outputdir, nsamples=4096, nsam
         ##
         neworder <- foreach(var=samplerorder, .combine=c)%do%{grep(paste0('^',var,'(\\[.+\\])*$'), sapply(confnimble$getSamplers(), function(x){
             if(!(x$name == 'posterior_predictive')){ x$target }else{NULL}
-            }))}
+        }))}
         ##
                                         # cat('\n********NEW ORDER',neworder,'\n')
         confnimble$setSamplerExecutionOrder(c(setdiff(confnimble$getSamplerExecutionOrder(), neworder), neworder))

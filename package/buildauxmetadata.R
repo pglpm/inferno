@@ -28,7 +28,7 @@ buildauxmetadata <- function(data, metadata, file=TRUE){
         xinfo <- as.list(metadata[name == xn])
         xinfo$type <- tolower(xinfo$type)
         ordinal <- NA
-        cens <- FALSE
+        cens <- any(is.finite(c(xinfo$censormin, xinfo$censormax)))
         rounded <- NA
         transf <- 'identity' # temporary
         vval <- xinfo[grep('^V[0-9]+$', names(xinfo))]
@@ -46,10 +46,10 @@ buildauxmetadata <- function(data, metadata, file=TRUE){
             idB <- idB+1L
             vn <- xinfo$Nvalues
             vd <- xinfo$rounding/2
-            vmin <- 0
-            vmax <- 1
-            tmin <- -Inf
-            tmax <- +Inf
+            domainmin <- 0
+            domainmax <- 1
+            censormin <- -Inf
+            censormax <- +Inf
             location <- 0
             scale <- 1
             plotmin <- NA
@@ -63,10 +63,10 @@ buildauxmetadata <- function(data, metadata, file=TRUE){
             idN <- idN+1L
             vn <- xinfo$Nvalues
             vd <- 0.5
-            vmin <- 1 # Nimble index categorical from 1
-            vmax <- vn
-            tmin <- -Inf
-            tmax <- +Inf
+            domainmin <- 1 # Nimble index categorical from 1
+            domainmax <- vn
+            censormin <- -Inf
+            censormax <- +Inf
             location <- 0
             scale <- 1
             plotmin <- NA
@@ -82,13 +82,13 @@ buildauxmetadata <- function(data, metadata, file=TRUE){
             ordinal <- TRUE
             vn <- xinfo$Nvalues
             vd <- 0.5
-            vmin <- xinfo$domainmin
-            vmax <- xinfo$domainmax
-            tmin <- -Inf
-            tmax <- +Inf
+            domainmin <- xinfo$domainmin
+            domainmax <- xinfo$domainmax
+            censormin <- -Inf
+            censormax <- +Inf
             ##vval <- as.vector(xinfo[paste0('V',1:vn)], mode='character')
-            location <- (vn*vmin - vmax)/(vn - 1)
-            scale <- (vmax - vmin)/(vn - 1)
+            location <- (vn*domainmin - domainmax)/(vn - 1)
+            scale <- (domainmax - domainmin)/(vn - 1)
             plotmin <- xinfo$plotmin
             plotmax <- xinfo$plotmax
             Q1 <- mctest1 <- quantile(x, probs=0.25, type=6)
@@ -98,11 +98,11 @@ buildauxmetadata <- function(data, metadata, file=TRUE){
             vn <- +Inf
             vd <- xinfo$rounding/2
             rounded <- (vd > 0)
-            vmin <- xinfo$domainmin
-            vmax <- xinfo$domainmax
-            tmin <- xinfo$censormin # max(xinfo$censormin, vmin, na.rm=TRUE)
-            tmax <- xinfo$censormax # min(xinfo$censormax, vmax, na.rm=TRUE)
-            cens <- (tmin > vmin) || (tmax < vmax)
+            domainmin <- xinfo$domainmin
+            domainmax <- xinfo$domainmax
+            censormin <- max(-Inf, xinfo$censormin, na.rm=T)
+            censormax <- min(Inf, xinfo$censormax, na.rm=T)
+            ## cens <- (censormin > domainmin) || (censormax < domainmax)
             location <- xinfo$centralvalue
             scale <- abs(xinfo$highvalue - xinfo$lowvalue)
             Q1 <- mctest1 <- quantile(x, probs=0.25, type=6)
@@ -112,16 +112,16 @@ buildauxmetadata <- function(data, metadata, file=TRUE){
             plotmax <- xinfo$plotmax
             if(is.finite(xinfo$domainmin) && is.finite(xinfo$domainmax)){ # needs transformation
                 transf <- 'probit'
-                location <- qnorm((location-vmin)/(vmax-vmin))
-                scale <- abs(qnorm((xinfo$highvalue-vmin)/(vmax-vmin)) - qnorm((xinfo$lowvalue-vmin)/(vmax-vmin)))*sdoveriqr
+                location <- qnorm((location-domainmin)/(domainmax-domainmin))
+                scale <- abs(qnorm((xinfo$highvalue-domainmin)/(domainmax-domainmin)) - qnorm((xinfo$lowvalue-domainmin)/(domainmax-domainmin)))*sdoveriqr
             }else if(is.finite(xinfo$domainmin)){
                 transf <- 'log'
-                location <- log(location-vmin)
-                scale <- abs(log(xinfo$highvalue-vmin) - log(xinfo$lowvalue-vmin))*sdoveriqr
+                location <- log(location-domainmin)
+                scale <- abs(log(xinfo$highvalue-domainmin) - log(xinfo$lowvalue-domainmin))*sdoveriqr
             }else if(is.finite(xinfo$domainmax)){
                 transf <- 'logminus'
-                location <- log(vmax-location)
-                scale <- abs(log(vmax-xinfo$highvalue) - log(vmax-xinfo$lowvalue))*sdoveriqr
+                location <- log(domainmax-location)
+                scale <- abs(log(domainmax-xinfo$highvalue) - log(domainmax-xinfo$lowvalue))*sdoveriqr
             }
             if(xinfo$rounding > 0){# discretized
                 vtype <- 'D'
@@ -142,11 +142,12 @@ buildauxmetadata <- function(data, metadata, file=TRUE){
         }
         ##
         ## print(auxmetadata[nrow(auxmetadata)])
-        ## print(                         as.data.table(c(list(name=xn, type=vtype, transform=transf, Nvalues=vn, step=vd, domainmin=vmin, domainmax=vmax, censormin=tmin, censormax=tmax, tlocation=location, tscale=scale, plotmin=plotmin, plotmax=plotmax, Q1=Q1, Q2=Q2, Q3=Q3),
+        ## print(                         as.data.table(c(list(name=xn, type=vtype, transform=transf, Nvalues=vn, step=vd, domainmin=domainmin, domainmax=domainmax, censormin=censormin, censormax=censormax, tlocation=location, tscale=scale, plotmin=plotmin, plotmax=plotmax, Q1=Q1, Q2=Q2, Q3=Q3),
         ##                    vval
         ##                    )))
         auxmetadata <- rbind(auxmetadata,
-                         c(list(name=xn, mcmctype=vtype, id=vid, censored=cens, rounded=rounded, transform=transf, Nvalues=vn, step=vd, domainmin=vmin, domainmax=vmax, censormin=tmin, censormax=tmax, tlocation=location, tscale=scale, plotmin=plotmin, plotmax=plotmax, Q1=Q1, Q2=Q2, Q3=Q3, mctest1=mctest1, mctest2=mctest2, mctest3=mctest3),
+                             c(list(name=xn, mcmctype=vtype, id=vid, # censored=cens,
+                                    rounded=rounded, transform=transf, Nvalues=vn, step=vd, domainmin=domainmin, domainmax=domainmax, censormin=censormin, censormax=censormax, tlocation=location, tscale=scale, plotmin=plotmin, plotmax=plotmax, Q1=Q1, Q2=Q2, Q3=Q3, mctest1=mctest1, mctest2=mctest2, mctest3=mctest3),
                            vval
                            ), fill=FALSE)
     }

@@ -10,7 +10,7 @@ vtransform <- function(x, auxmetadata, Cout='init', Dout='data', Oout='data', Bo
     matrix(sapply(colnames(x), function(v){
         ##
         datum <- unlist(x[,v,with=F])
-        info <- as.list(auxmetadata[name == v])
+info <- as.list(auxmetadata[name == v])
         ##
         if(invjacobian){
 #### Calculation of reciprocal Jacobian factors
@@ -25,7 +25,7 @@ vtransform <- function(x, auxmetadata, Cout='init', Dout='data', Oout='data', Bo
                 datum <- rep(info$tscale, length(datum))
             }
             xv <- data.matrix(x[,..v])
-            if(info$censored){
+            if(info$mcmctype %in% c('C','D')){
                 datum[(xv >= info$censormax) | (xv <= info$censormin)] <- 1L
             }
             datum[is.na(xv)] <- 1L
@@ -65,8 +65,10 @@ vtransform <- function(x, auxmetadata, Cout='init', Dout='data', Oout='data', Bo
                 }
                 ##
             } else if(info$mcmctype == 'D'){ # discretized
-                leftbound <- datum - info$step
-                rightbound <- datum + info$step
+                leftbound <- pmax(datum - info$step, info$domainmin, na.rm=T)
+                leftbound[leftbound <= info$censormin] <- info$domainmin
+                rightbound <- pmin(datum + info$step, info$domainmax, na.rm=T)
+                rightbound[rightbound >= info$censormax] <- info$domainmax
                 if (info$transform == 'log'){
                     datum <- log(datum-info$domainmin)
                     leftbound <- log(leftbound-info$domainmin)
@@ -84,13 +86,9 @@ vtransform <- function(x, auxmetadata, Cout='init', Dout='data', Oout='data', Bo
                 rightbound <- (rightbound-info$tlocation)/info$tscale
                 leftbound <- (leftbound-info$tlocation)/info$tscale
                 if(Dout == 'left'){
-                    sel <- is.na(datum)
-                    datum[sel] <- -Inf
-                    datum[!sel] <- leftbound[!sel]
+                    datum <- leftbound
                 } else if(Dout == 'right'){
-                    sel <- is.na(datum)
-                    datum[sel] <- +Inf
-                    datum[!sel] <- rightbound[!sel]
+                    datum <- rightbound
                 } else if(Dout == 'init'){ #init in MCMC
                     datum[is.na(datum)] <- 0L
                 } else if(Dout == 'aux'){ # aux variable in MCMC
@@ -100,8 +98,10 @@ vtransform <- function(x, auxmetadata, Cout='init', Dout='data', Oout='data', Bo
                 }
                 ##
             } else if(info$mcmctype == 'C'){ # censored
-                leftbound <- info$censormin
-                rightbound <- info$censormax
+                leftbound <- rep(info$domainmin, length(datum))
+                leftbound[datum >= info$censormax] <- info$censormax
+                rightbound <- rep(info$domainmax, length(datum))
+                rightbound[datum <= info$censormin] <- info$censormin
                 if (info$transform == 'log'){
                     datum <- log(datum-info$domainmin)
                     leftbound <- log(leftbound-info$domainmin)
@@ -120,21 +120,17 @@ vtransform <- function(x, auxmetadata, Cout='init', Dout='data', Oout='data', Bo
                 leftbound <- (leftbound-info$tlocation)/info$tscale
                 xv <- data.matrix(x[,..v])
                 if(Cout == 'left'){ # in MCMC
-                    sel <- is.na(datum) | (xv < info$censormax)
-                    datum[sel] <- -Inf
-                    datum[!sel] <- rightbound
+                    datum <- leftbound
                 } else if(Cout == 'right'){ # in MCMC
-                    sel <- is.na(datum) | (xv > info$censormin)
-                    datum[sel] <- +Inf
-                    datum[!sel] <- leftbound
+                    datum <- rightbound
                 } else if(Cout == 'lat'){ # latent variable in MCMC
                     sel <- is.na(datum) | (xv >= info$censormax) | (xv <= info$censormin)
                     datum[sel] <- NA
                 } else if(Cout == 'init'){ #init in MCMC
-                    datum[is.na(datum)] <- 0L
-                    datum[!is.na(datum)] <- NA
-                    datum[xv >= info$censormax] <- rightbound + 0.125
-                    datum[xv <= info$censormin] <- leftbound - 0.125
+                    datum[is.na(xv)] <- 0L
+                    datum[!is.na(xv) & (xv <= info$censormin)] <- rightbound[!is.na(xv) & (xv <= info$censormin)] - 0.125
+                    datum[!is.na(xv) & (xv >= info$censormax)] <- leftbound[!is.na(xv) & (xv >= info$censormax)] + 0.125
+                    datum[!is.na(xv) & (xv < info$censormax) & (xv > info$censormin)] <- NA
                 } else if(Cout == 'aux'){ # aux variable in MCMC
                     sel <- is.na(datum)
                     datum[sel] <- NA
@@ -143,9 +139,9 @@ vtransform <- function(x, auxmetadata, Cout='init', Dout='data', Oout='data', Bo
                     datum[xv >= info$censormax] <- +Inf
                     datum[xv <= info$censormin] <- -Inf
                 } else if(Cout == 'sleft'){ #in sampling functions
-                    datum <- leftbound
+                    datum[!is.na(xv) & (xv <= info$censormin)] <- leftbound[!is.na(xv) & (xv <= info$censormin)]
                 } else if(Cout == 'sright'){ #in sampling functions
-                    datum <- rightbound
+                    datum[!is.na(xv) & (xv >= info$censormax)] <- rightbound[!is.na(xv) & (xv >= info$censormax)]
                 }
             } else if(info$mcmctype == 'B'){ # binary
                 bvalues <- 0:1
