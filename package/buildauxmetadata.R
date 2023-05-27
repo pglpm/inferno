@@ -100,8 +100,8 @@ buildauxmetadata <- function(data, metadata, file=TRUE){
             rounded <- (vd > 0)
             domainmin <- xinfo$domainmin
             domainmax <- xinfo$domainmax
-            censormin <- max(-Inf, xinfo$censormin, na.rm=T)
-            censormax <- min(Inf, xinfo$censormax, na.rm=T)
+            censormin <- max(domainmin, xinfo$censormin, na.rm=T)
+            censormax <- min(domainmax, xinfo$censormax, na.rm=T)
             ## cens <- (censormin > domainmin) || (censormax < domainmax)
             location <- xinfo$centralvalue
             scale <- abs(xinfo$highvalue - xinfo$lowvalue)
@@ -124,6 +124,9 @@ buildauxmetadata <- function(data, metadata, file=TRUE){
                 scale <- abs(log(domainmax-xinfo$highvalue) - log(domainmax-xinfo$lowvalue))*sdoveriqr
             }
             if(xinfo$rounding > 0){# discretized
+                ## if(diff(range(x))/xinfo$rounding > 256){
+                ##     Message('\nVariate ',xn,' is reported as "rounded".\nConsider the possibility of treating it as continuous setting "rounding" to 0.\n')
+                ## }
                 vtype <- 'D'
                 vid <- idD
                 idD <- idD+1L

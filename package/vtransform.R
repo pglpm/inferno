@@ -118,7 +118,9 @@ info <- as.list(auxmetadata[name == v])
                 } else if(Dout == 'sright'){ #in sampling functions
                     datum <- rep(censmax, length(datum))
                 }
-                datum <- (datum-info$tlocation)/info$tscale
+                if(Dout != 'aux'){
+                    datum <- (datum-info$tlocation)/info$tscale
+                    }
                 ##
             } else if(info$mcmctype == 'C'){ # censored
                 xv <- data.matrix(x[,..v])
@@ -168,7 +170,9 @@ info <- as.list(auxmetadata[name == v])
                 } else if(Cout == 'sright'){ #in sampling functions
                     datum <- rep(censmax, length(datum))
                 }
-                datum <- (datum-info$tlocation)/info$tscale
+                if(Cout != 'aux'){
+                    datum <- (datum-info$tlocation)/info$tscale
+                }
                 ##                
             } else if(info$mcmctype == 'B'){ # binary
                 bvalues <- 0:1

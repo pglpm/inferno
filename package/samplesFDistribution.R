@@ -244,7 +244,7 @@ XnB <- length(totake)
                      colSums(
                          array(dnorm(x=x[XiR,],
                                      mean=Rmean[XtR,,],
-                                     sd=Rvards[XtR,,],log=T),
+                                     sd=Rvarsd[XtR,,],log=T),
                                dim=c(XnR, nclusters, nsamples)),
                          na.rm=T)
                  }else{0}) +
@@ -257,11 +257,11 @@ XnB <- length(totake)
                                  if(is.finite(v1)){
                                      (dnorm(x=v1,
                                             mean=Cmean[v2,,],
-                                            sd=Cvards[v2,,],log=T))
+                                            sd=Cvarsd[v2,,],log=T))
                                  }else{
                                      (pnorm(q=Cbounds[v2, 2L-(v1 < 0)],
                                             mean=Cmean[v2,,],
-                                            sd=Cvards[v2,,],
+                                            sd=Cvarsd[v2,,],
                                             lower.tail=(v1 < 0),
                                             log.p=T))
                                  }
@@ -304,10 +304,10 @@ XnB <- length(totake)
                          log(array(
                              pnorm(q=Oright[v2],
                                    mean=Omean[XtO,,],
-                                   sd=Ovards[XtO,,]) -
+                                   sd=Ovarsd[XtO,,]) -
                              pnorm(q=Oleft[v2],
                                    mean=Omean[XtO,,],
-                                   sd=Ovards[XtO,,]),
+                                   sd=Ovarsd[XtO,,]),
                              dim=c(XnO, nclusters, nsamples))),
                          na.rm=T)
                  }else{0}) +
@@ -339,7 +339,7 @@ XnB <- length(totake)
                      colSums(
                          array(dnorm(x=y[YiR,],
                                      mean=Rmean[YtR,,],
-                                     sd=Rvards[YtR,,],log=T),
+                                     sd=Rvarsd[YtR,,],log=T),
                                dim=c(YnR, nclusters, nsamples)),
                          na.rm=T)
                  }else{0}) +
@@ -352,11 +352,11 @@ XnB <- length(totake)
                                  if(is.finite(v1)){
                                      (dnorm(x=v1,
                                             mean=Cmean[v2,,],
-                                            sd=Cvards[v2,,],log=T))
+                                            sd=Cvarsd[v2,,],log=T))
                                  }else{
                                      (pnorm(q=Cbounds[v2, 2L-(v1 < 0)],
                                             mean=Cmean[v2,,],
-                                            sd=Cvards[v2,,],
+                                            sd=Cvarsd[v2,,],
                                             lower.tail=(v1 < 0),
                                             log.p=T))
                                  }
@@ -399,10 +399,10 @@ XnB <- length(totake)
                          log(array(
                              pnorm(q=Oright[v2],
                                    mean=Omean[YtO,,],
-                                   sd=Ovards[YtO,,]) -
+                                   sd=Ovarsd[YtO,,]) -
                              pnorm(q=Oleft[v2],
                                    mean=Omean[YtO,,],
-                                   sd=Ovards[YtO,,]),
+                                   sd=Ovarsd[YtO,,]),
                              dim=c(YnO, nclusters, nsamples))),
                          na.rm=T)
                  }else{0}) +

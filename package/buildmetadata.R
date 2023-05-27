@@ -10,7 +10,8 @@ buildmetadata <- function(data, file=NULL){
     }
     data <- as.data.table(data)
     metadata <- data.table()
-    for(x in data){
+    for(xn in names(data)){
+        x <- data[[xn]]
         x <- x[!is.na(x)]
         transf <- 'identity' # temporary
         if(is.numeric(x)){
@@ -93,7 +94,7 @@ buildmetadata <- function(data, file=NULL){
                     domainmin <- min(1, x)
                     domainmax <- max(x)
                     vn <- domainmax - domainmin + 1
-                    vd <- 1
+                    vd <- NA
                     censormin <- NA
                     censormax <- NA
                     ## location <- NA # (vn*domainmin-domainmax)/(vn-1)
@@ -104,6 +105,9 @@ buildmetadata <- function(data, file=NULL){
                     vtype <- 'continuous'
                     vn <- Inf
                     vd <- dd
+                    if(diff(range(x))/vd > 256){
+                    message('\nNOTE: variate ',xn,' is reported as "rounded",\nbut consider the possibility of treating it as continuous,\nby setting its "rounding" to 0 in the metadata file.\n')
+                    }
                     domainmin <- -Inf
                     domainmax <- +Inf
                     censormin <- NA
