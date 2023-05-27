@@ -1,4 +1,4 @@
-plotFsamples <- function(file, mcsamples, auxmetadata, dataset, plotmeans=TRUE, nsubsamples=100, showdata='histogram', parallel=TRUE){
+plotFsamples <- function(file, mcsamples, auxmetadata, dataset, plotmeans=TRUE, nsubsamples=100, showdata='scatter', parallel=TRUE){
 
     family <- 'Palatino'
     source('pglpm_plotfunctions.R')
@@ -97,7 +97,7 @@ plotFsamples <- function(file, mcsamples, auxmetadata, dataset, plotmeans=TRUE, 
                           add=TRUE)
                 }
             }
-
+            
             if(dataplot){
                 histomax <- 1 # max(rowMeans(plotsamples))/max(histo$density)
                 tplot(x=histo$mids, y=histo$density*histomax,
@@ -174,6 +174,24 @@ plotFsamples <- function(file, mcsamples, auxmetadata, dataset, plotmeans=TRUE, 
                       family=family, add=TRUE)
             }
             
+        }
+
+        if(showdata=='scatter' && !(missing(dataset) || is.null(dataset)) && !all(is.na(dataset[[v]]))){
+            datum <- dataset[[v]]
+            datum <- datum[!is.na(datum)]
+            if(!(vtype %in% c('R','D','C','O'))){
+            datum <- vtransform(x=matrix(datum,ncol=1,nrow=length(datum),dimnames=list(NULL,v)), auxmetadata=auxmetadata,
+                       Nout='numeric', Bout='numeric')
+            }
+            scatteraxis(side=1, n=NA, alpha=0.5, ext=5,
+                        x=datum+runif(length(datum),
+                                      min=-min(diff(sort(unique(datum))))/4,
+                                      max=min(diff(sort(unique(datum))))/4),
+                        col=yellow)
+            if(vtype %in% c('R','D','C','O')){
+                fiven <- fivenum(datum)
+                abline(v=fiven,col=paste0(palette()[c(2,4,5,4,2)], '44'),lwd=4)
+            }
         }
 
     }

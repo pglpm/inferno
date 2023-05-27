@@ -1,4 +1,4 @@
-inferpopulation <- function(dataset, auxmetadata, outputdir, nsamples=4096, nsamplesperchain=4, nchains, ncores, saveallchains=F, plotallchains=F, seed=701){
+inferpopulation <- function(dataset, auxmetadata, outputdir, nsamples=4096, nsamplesperchain=4, nchains, ncores, saveallchains=F, plotallchains=F, seed=701, subsampledataset){
 
     if(!missing(nsamples) && !missing(nchains) && missing(nsamplesperchain)){
         nsamplesperchain <- ceiling(nsamples/nchains)
@@ -36,6 +36,9 @@ inferpopulation <- function(dataset, auxmetadata, outputdir, nsamples=4096, nsam
         dataset <- fread(datafile, na.strings='')
     }
     dataset <- as.data.table(dataset)
+    if(!missing(subsampledataset) && is.numeric(subsampledataset)){
+        dataset <- dataset[sample(1:nrow(dataset), min(subsampledataset,nrow(dataset)), replace=F),]
+    }
 
     ## auxmetadata
     if(is.character(auxmetadata) && file.exists(auxmetadata)){
@@ -228,7 +231,7 @@ inferpopulation <- function(dataset, auxmetadata, outputdir, nsamples=4096, nsam
     cat('\nStarting Monte Carlo sampling with',nchains,'chains across', ncores, 'cores.\n')
     cat('Core logs are being saved in individual files.\n')
     cat('Setting up samplers (this can take tens of minutes if there are many data or variates).\n')
-    cat('Estim. remaining time...\r')
+    cat('Estimated remaining time...\r')
     ## stopCluster(cluster)
     stopImplicitCluster()
     registerDoSEQ()
@@ -530,7 +533,7 @@ inferpopulation <- function(dataset, auxmetadata, outputdir, nsamples=4096, nsam
                 ertime <- (Sys.time()-calctime)/(achain-1)*(nchainspercore-achain+1)
                 if(is.finite(ertime) && ertime > 0){
                     sink(NULL,type='message')
-                    message(paste0('\rEstim. remaining time ',
+                    message(paste0('\rEstimated remaining time ',
                                    printtime(ertime), '        '), appendLF=FALSE)
                     flush.console()
                     sink(outcon,type='message')
@@ -560,7 +563,7 @@ inferpopulation <- function(dataset, auxmetadata, outputdir, nsamples=4096, nsam
             }else{
                 ##
                 cat('Iterations:', niter,'\n')
-                cat('chain:', achain,'of',nchainspercore,'- Estim. remaining time',
+                cat('chain:', achain,'of',nchainspercore,'- Estimated remaining time',
                     printtime((Sys.time()-calctime)/(achain-1)*(nchainspercore-achain+1)), '\n')
                 Cmcsampler$run(niter=niter, thin=1, thin2=niter, nburnin=0, time=showsamplertimes0, reset=reset, resetMV=TRUE)
                 mcsamples <- as.matrix(Cmcsampler$mvSamples)
@@ -766,7 +769,7 @@ inferpopulation <- function(dataset, auxmetadata, outputdir, nsamples=4096, nsam
                                  auxmetadata=auxmetadata,
                                  dataset=dataset,
                                  nsubsamples=showsamples,
-                                 plotmeans=plotmeans, showdata='histogram',
+                                 plotmeans=plotmeans, showdata='scatter',
                                  parallel=FALSE
                                  )
                 }
@@ -854,7 +857,7 @@ inferpopulation <- function(dataset, auxmetadata, outputdir, nsamples=4096, nsam
                  mcsamples=mcsamples, auxmetadata=auxmetadata,
                  dataset=dataset,
                  nsubsamples=showsamples, plotmeans=TRUE,
-                 showdata = 'histogram', parallel=TRUE)
+                 showdata = 'scatter', parallel=TRUE)
     cat('\nClosing connections to cores.\n')
     registerDoSEQ()
     stopCluster(cl)

@@ -85,6 +85,7 @@ info <- as.list(auxmetadata[name == v])
                 datum <- (datum-info$tlocation)/info$tscale
                 rightbound <- (rightbound-info$tlocation)/info$tscale
                 leftbound <- (leftbound-info$tlocation)/info$tscale
+                xv <- data.matrix(x[,..v])
                 if(Dout == 'left'){
                     datum <- leftbound
                 } else if(Dout == 'right'){
@@ -95,6 +96,13 @@ info <- as.list(auxmetadata[name == v])
                     sel <- is.na(datum)
                     datum[sel] <- NA
                     datum[!sel] <- 1L
+                } else if(Dout == 'index'){ #in sampling functions
+                    datum[xv >= info$censormax] <- +Inf
+                    datum[xv <= info$censormin] <- -Inf
+                } else if(Dout == 'sleft'){ #in sampling functions
+                    datum[!is.na(xv) & (xv <= info$censormin)] <- leftbound[!is.na(xv) & (xv <= info$censormin)]
+                } else if(Dout == 'sright'){ #in sampling functions
+                    datum[!is.na(xv) & (xv >= info$censormax)] <- rightbound[!is.na(xv) & (xv >= info$censormax)]
                 }
                 ##
             } else if(info$mcmctype == 'C'){ # censored

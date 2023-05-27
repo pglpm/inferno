@@ -34,6 +34,12 @@ samplesFDistribution <- function(Y, X, mcsamples, auxmetadata, subsamples, jacob
     allv <- union(Yv, Xv)
     vn <- vnames <- vindices <- list()
     ##    auxmetadata <- auxmetadata[name %in% allv]
+
+    ## Discretized variates need to be treated as censored to calculate these probs.
+    ## This is achieved by temporarily changing their type in auxmetadata
+    ## isD <- auxmetadata[['mcmctype']] == 'D'
+    ## auxmetadata[['mcmctype']][isD] <- 'C'
+    
     for(atype in c('R','C','D','O','N','B')){
         ## 
         ## To save memory, we'll extract from mcsamples
@@ -105,16 +111,25 @@ XnR <- length(totake)
                        dim=c(vn$D,nclusters,nsamples), dimnames=NULL)
         Dvar <- array(t(mcsamples[,grep(paste0('^Dvar\\[(',inds,')'), allparams),drop=F]),
                       dim=c(vn$D,nclusters,nsamples), dimnames=NULL)
+        Dbounds <- cbind(
+            c(vtransform(x=matrix(NA,nrow=1,ncol=vn$D,dimnames=NULL),
+                         auxmetadata=auxmetadata,variates=vnames$D,Dout='sleft')),
+            c(vtransform(x=matrix(NA,nrow=1,ncol=vn$D,dimnames=NULL),
+                         auxmetadata=auxmetadata,variates=vnames$D,Dout='sright'))
+        )
         ##
         totake <- intersect(vnames$D, Yv)
-YnD <- length(totake)
+        YnD <- length(totake)
         YiD <- unname(sapply(totake, function(xx){which(Yv==xx)}))
         YtD <- unname(sapply(totake, function(xx){which(vnames$D==xx)}))
         ##
         totake <- intersect(vnames$D, Xv)
-XnD <- length(totake)
+        XnD <- length(totake)
         XiD <- unname(sapply(totake, function(xx){which(Xv==xx)}))
         XtD <- unname(sapply(totake, function(xx){which(vnames$D==xx)}))
+        ##
+        YseqD <- 1:YnD
+        XseqD <- 1:XnD
     }else{
         YnD <- XnD <- 0
     }
@@ -192,9 +207,9 @@ XnB <- length(totake)
     rm(mcsamples)
 
     ##
-    Y2 <- vtransform(Y, auxmetadata, Cout='index', Dout='', Oout='', Nout='numeric', Bout='numeric')
+    Y2 <- vtransform(Y, auxmetadata, Cout='index', Dout='index', Oout='', Nout='numeric', Bout='numeric')
     if(!is.null(X)){
-        X2 <- vtransform(X, auxmetadata, Cout='index', Dout='', Oout='', Nout='numeric', Bout='numeric')
+        X2 <- vtransform(X, auxmetadata, Cout='index', Dout='index', Oout='', Nout='numeric', Bout='numeric')
         if(nrow(X2) < nrow(Y2)){
             warning('*Note: X has fewer data than Y. Recycling*')
             X2 <- t(matrix(rep(t(X2), ceiling(nrow(Y2)/nrow(X2))), nrow=ncol(X2), dimnames=list(colnames(X2),NULL)))[1:nrow(Y2),,drop=FALSE]
