@@ -116,7 +116,7 @@ auxmetadata <- data.table(
     plotmax=1.5,
     Q1=-0.5, Q2=0, Q3=0.75
 )
-outputs <- c('sleft','sright','left','right','init','aux','index')
+outputs <- c('sleft','sright','left','right','init','aux','boundisinf')
 dataout <- t(t(sapply(outputs,function(out){
     vtransform(x=dataset, auxmetadata=auxmetadata, Dout=out, invjacobian=F)
 }))+runif(length(outputs),-0.03,0.03))
@@ -131,33 +131,70 @@ legend(x='topleft',legend=outputs,bty='n',
 
 ## Test data for D-type variates
 varname <- 'VV'
-dataset <- cbind(c(seq(-2,2,by=0.01),NA))
+dataset <- cbind(c(seq(exp(-2),exp(2),by=0.01),NA))
 colnames(dataset) <- varname
 auxmetadata <- data.table(
-    name=varname, mcmctype='C', 'id'=1,
+    name=varname, mcmctype='D', 'id'=1,
     censored=T,
-    rounded=F,
-    transform='identity',
+    rounded=T,
+    transform='log',
     Nvalues=Inf,
-    step=0.5,
-    domainmin=-Inf,
+    step=0.3,
+    domainmin=0,
     domainmax=+Inf,
-    censormin=-1,
-    censormax=+1,
+    censormin=exp(-1),
+    censormax=exp(+1),
     tlocation=0,
     tscale=1,
     plotmin=-1.5,
     plotmax=1.5,
     Q1=-0.5, Q2=0, Q3=0.75
 )
-outputs <- c('sleft','sright','left','right','init','aux','index')
+outputs <- c('sleft','sright','left','right','init','aux','boundisinf')
+dataout <- t(t(sapply(outputs,function(out){
+    vtransform(x=dataset, auxmetadata=auxmetadata, Dout=out, invjacobian=F)
+}))+runif(length(outputs),-0.003,0.003))
+##
+dataset[is.na(dataset)] <- exp(2.2)
+dataout[!is.na(dataout) & abs(dataout)==Inf] <- (2.2*sign(dataout[!is.na(dataout) & abs(dataout)==Inf]))
+##
+tplot(x=dataset,y=dataout, lty=1:length(outputs), col=1:length(outputs), alpha=0.5,lwd=4)
+abline(v=c(auxmetadata[['censormin']],auxmetadata[['censormax']]), lwd=0.5)
+legend(x='topleft',legend=outputs,bty='n',
+       lty=1:length(outputs), col=1:length(outputs))
+
+
+
+## Test data for C-type variates
+varname <- 'VV'
+dataset <- cbind(c(seq(exp(-2),exp(2),by=0.01),NA))
+colnames(dataset) <- varname
+auxmetadata <- data.table(
+    name=varname, mcmctype='C', 'id'=1,
+    censored=T,
+    rounded=F,
+    transform='log',
+    Nvalues=Inf,
+    step=0.5,
+    domainmin=0,
+    domainmax=+Inf,
+    censormin=exp(-1),
+    censormax=exp(+1),
+    tlocation=0,
+    tscale=1,
+    plotmin=-1.5,
+    plotmax=1.5,
+    Q1=-0.5, Q2=0, Q3=0.75
+)
+outputs <- c('sleft','sright','left','right','init','aux','boundisinf')
 dataout <- t(t(sapply(outputs,function(out){
     vtransform(x=dataset, auxmetadata=auxmetadata, Cout=out, invjacobian=F)
-}))+runif(length(outputs),-0.03,0.03))
+}))+runif(length(outputs),-0.003,0.003))
 ##
-dataset[is.na(dataset)] <- 2.5
-dataout[!is.na(dataout) & abs(dataout)==Inf] <- 2.5*sign(dataout[!is.na(dataout) & abs(dataout)==Inf])
+dataset[is.na(dataset)] <- exp(2.1)
+dataout[!is.na(dataout) & abs(dataout)==Inf] <- 2.1*sign(dataout[!is.na(dataout) & abs(dataout)==Inf])
 ##
-tplot(x=dataset,y=dataout, lty=1:length(outputs), col=1:length(outputs), alpha=0.5,lwd=3)
+tplot(x=dataset,y=dataout, lty=1:length(outputs), col=1:length(outputs), alpha=0.5,lwd=4)
+abline(v=c(auxmetadata[['censormin']],auxmetadata[['censormax']]), lwd=0.5)
 legend(x='topleft',legend=outputs,bty='n',
        lty=1:length(outputs), col=1:length(outputs))

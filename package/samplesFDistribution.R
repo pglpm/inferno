@@ -207,9 +207,9 @@ XnB <- length(totake)
     rm(mcsamples)
 
     ##
-    Y2 <- vtransform(Y, auxmetadata, Cout='index', Dout='index', Oout='', Nout='numeric', Bout='numeric')
+    Y2 <- vtransform(Y, auxmetadata, Cout='boundisinf', Dout='boundisinf', Oout='', Nout='numeric', Bout='numeric')
     if(!is.null(X)){
-        X2 <- vtransform(X, auxmetadata, Cout='index', Dout='index', Oout='', Nout='numeric', Bout='numeric')
+        X2 <- vtransform(X, auxmetadata, Cout='boundisinf', Dout='boundisinf', Oout='', Nout='numeric', Bout='numeric')
         if(nrow(X2) < nrow(Y2)){
             warning('*Note: X has fewer data than Y. Recycling*')
             X2 <- t(matrix(rep(t(X2), ceiling(nrow(Y2)/nrow(X2))), nrow=ncol(X2), dimnames=list(colnames(X2),NULL)))[1:nrow(Y2),,drop=FALSE]

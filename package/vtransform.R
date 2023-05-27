@@ -58,7 +58,7 @@ info <- as.list(auxmetadata[name == v])
                     sel <- is.na(datum)
                     datum[sel] <- NA
                     datum[!sel] <- 1L
-                } else if(Oout == 'index'){ # in output functions
+                } else if(Oout == 'boundisinf'){ # in output functions
                     datum <- datum-1L
                 } else if(Oout == 'original'){ # in output functions
                     datum <- datum * info$tscale + info$tlocation
@@ -110,7 +110,7 @@ info <- as.list(auxmetadata[name == v])
                     sel <- is.na(xv)
                     datum[sel] <- NA
                     datum[!sel] <- 1L
-                } else if(Dout == 'index'){ #in sampling functions
+                } else if(Dout == 'boundisinf'){ #in sampling functions
                     datum[xv >= info$censormax] <- +Inf
                     datum[xv <= info$censormin] <- -Inf
                 } else if(Dout == 'sleft'){ #in sampling functions
@@ -160,7 +160,7 @@ info <- as.list(auxmetadata[name == v])
                     sel <- is.na(xv)
                     datum[sel] <- NA
                     datum[!sel] <- 1L
-                } else if(Cout == 'index'){ #in sampling functions
+                } else if(Cout == 'boundisinf'){ #in sampling functions
                     datum[xv >= info$censormax] <- +Inf
                     datum[xv <= info$censormin] <- -Inf
                 } else if(Cout == 'sleft'){ #in sampling functions
