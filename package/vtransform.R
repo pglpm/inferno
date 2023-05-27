@@ -65,92 +65,111 @@ info <- as.list(auxmetadata[name == v])
                 }
                 ##
             } else if(info$mcmctype == 'D'){ # discretized
+                xv <- data.matrix(x[,..v])
+                censmin <- info$censormin
+                censmax <- info$censormax
                 leftbound <- pmax(datum - info$step, info$domainmin, na.rm=T)
-                leftbound[leftbound <= info$censormin] <- info$domainmin
+                leftbound[leftbound <= censmin] <- info$domainmin
+                leftbound[leftbound >= censmax] <- censmax
                 rightbound <- pmin(datum + info$step, info$domainmax, na.rm=T)
-                rightbound[rightbound >= info$censormax] <- info$domainmax
+                rightbound[rightbound >= censmax] <- info$domainmax
+                rightbound[rightbound <= censmin] <- censmin
                 if (info$transform == 'log'){
                     datum <- log(datum-info$domainmin)
                     leftbound <- log(leftbound-info$domainmin)
                     rightbound <- log(rightbound-info$domainmin)
+                    censmin <- log(censmin-info$domainmin)
+                    censmax <- log(censmax-info$domainmin)
                 } else if (info$transform == 'logminus'){
                     datum <- log(info$domainmax-datum)
                     leftbound <- log(info$domainmax-leftbound)
                     rightbound <- log(info$domainmax-rightbound)
+                    censmin <- log(info$domainmax-censmin)
+                    censmax <- log(info$domainmax-censmax)
                 } else if (info$transform == 'probit'){
                     datum <- qnorm((datum-info$domainmin)/(info$domainmax-info$domainmin))
                     leftbound <- qnorm((leftbound-info$domainmin)/(info$domainmax-info$domainmin))
                     rightbound <- qnorm((rightbound-info$domainmin)/(info$domainmax-info$domainmin))
+                    censmin <- qnorm((censmin-info$domainmin)/(info$domainmax-info$domainmin))
+                    censmax <- qnorm((censmax-info$domainmin)/(info$domainmax-info$domainmin))
                 }
-                datum <- (datum-info$tlocation)/info$tscale
-                rightbound <- (rightbound-info$tlocation)/info$tscale
-                leftbound <- (leftbound-info$tlocation)/info$tscale
-                xv <- data.matrix(x[,..v])
+                ## datum <- (datum-info$tlocation)/info$tscale
+                ## rightbound <- (rightbound-info$tlocation)/info$tscale
+                ## leftbound <- (leftbound-info$tlocation)/info$tscale
+                ## censmax <- (censmax-info$tlocation)/info$tscale
+                ## censmin <- (censmin-info$tlocation)/info$tscale
                 if(Dout == 'left'){
                     datum <- leftbound
                 } else if(Dout == 'right'){
                     datum <- rightbound
                 } else if(Dout == 'init'){ #init in MCMC
-                    datum[is.na(datum)] <- 0L
+                    datum[is.na(xv)] <- 0L
+                    datum[!is.na(xv) & (xv <= info$censormin)] <- censmin - 0.125*info$tscale
+                    datum[!is.na(xv) & (xv >= info$censormax)] <- censmax + 0.125*info$tscale
                 } else if(Dout == 'aux'){ # aux variable in MCMC
-                    sel <- is.na(datum)
+                    sel <- is.na(xv)
                     datum[sel] <- NA
                     datum[!sel] <- 1L
                 } else if(Dout == 'index'){ #in sampling functions
                     datum[xv >= info$censormax] <- +Inf
                     datum[xv <= info$censormin] <- -Inf
                 } else if(Dout == 'sleft'){ #in sampling functions
-                    datum[!is.na(xv) & (xv <= info$censormin)] <- leftbound[!is.na(xv) & (xv <= info$censormin)]
+                    datum <- rep(censmin, length(datum))
                 } else if(Dout == 'sright'){ #in sampling functions
-                    datum[!is.na(xv) & (xv >= info$censormax)] <- rightbound[!is.na(xv) & (xv >= info$censormax)]
-                }
-                ##
-            } else if(info$mcmctype == 'C'){ # censored
-                leftbound <- rep(info$domainmin, length(datum))
-                leftbound[datum >= info$censormax] <- info$censormax
-                rightbound <- rep(info$domainmax, length(datum))
-                rightbound[datum <= info$censormin] <- info$censormin
-                if (info$transform == 'log'){
-                    datum <- log(datum-info$domainmin)
-                    leftbound <- log(leftbound-info$domainmin)
-                    rightbound <- log(rightbound-info$domainmin)
-                } else if (info$transform == 'logminus'){
-                    datum <- log(info$domainmax-datum)
-                    leftbound <- log(info$domainmax-leftbound)
-                    rightbound <- log(info$domainmax-rightbound)
-                } else if (info$transform == 'probit'){
-                    datum <- qnorm((datum-info$domainmin)/(info$domainmax-info$domainmin))
-                    leftbound <- qnorm((leftbound-info$domainmin)/(info$domainmax-info$domainmin))
-                    rightbound <- qnorm((rightbound-info$domainmin)/(info$domainmax-info$domainmin))
+                    datum <- rep(censmax, length(datum))
                 }
                 datum <- (datum-info$tlocation)/info$tscale
-                rightbound <- (rightbound-info$tlocation)/info$tscale
-                leftbound <- (leftbound-info$tlocation)/info$tscale
+                ##
+            } else if(info$mcmctype == 'C'){ # censored
                 xv <- data.matrix(x[,..v])
+                censmin <- info$censormin
+                censmax <- info$censormax
+                if (info$transform == 'log'){
+                    datum <- log(datum-info$domainmin)
+                    censmin <- log(censmin-info$domainmin)
+                    censmax <- log(censmax-info$domainmin)
+                } else if (info$transform == 'logminus'){
+                    datum <- log(info$domainmax-datum)
+                    censmin <- log(info$domainmax-censmin)
+                    censmax <- log(info$domainmax-censmax)
+                } else if (info$transform == 'probit'){
+                    datum <- qnorm((datum-info$domainmin)/(info$domainmax-info$domainmin))
+                    censmin <- qnorm((censmin-info$domainmin)/(info$domainmax-info$domainmin))
+                    censmax <- qnorm((censmax-info$domainmin)/(info$domainmax-info$domainmin))
+                }
+                ## datum <- (datum-info$tlocation)/info$tscale
+                ## censmax <- (censmax-info$tlocation)/info$tscale
+                ## censmin <- (censmin-info$tlocation)/info$tscale
                 if(Cout == 'left'){ # in MCMC
-                    datum <- leftbound
+                    sel <- is.na(xv) | (xv < info$censormax)
+                    datum[sel] <- -Inf
+                    datum[!sel] <- censmax
                 } else if(Cout == 'right'){ # in MCMC
-                    datum <- rightbound
+                    sel <- is.na(xv) | (xv > info$censormin)
+                    datum[sel] <- +Inf
+                    datum[!sel] <- censmin
                 } else if(Cout == 'lat'){ # latent variable in MCMC
-                    sel <- is.na(datum) | (xv >= info$censormax) | (xv <= info$censormin)
+                    sel <- is.na(xv) | (xv >= info$censormax) | (xv <= info$censormin)
                     datum[sel] <- NA
                 } else if(Cout == 'init'){ #init in MCMC
                     datum[is.na(xv)] <- 0L
-                    datum[!is.na(xv) & (xv <= info$censormin)] <- rightbound[!is.na(xv) & (xv <= info$censormin)] - 0.125
-                    datum[!is.na(xv) & (xv >= info$censormax)] <- leftbound[!is.na(xv) & (xv >= info$censormax)] + 0.125
+                    datum[!is.na(xv) & (xv <= info$censormin)] <- censmin - 0.125*info$tscale
+                    datum[!is.na(xv) & (xv >= info$censormax)] <- censmax + 0.125*info$tscale
                     datum[!is.na(xv) & (xv < info$censormax) & (xv > info$censormin)] <- NA
                 } else if(Cout == 'aux'){ # aux variable in MCMC
-                    sel <- is.na(datum)
+                    sel <- is.na(xv)
                     datum[sel] <- NA
                     datum[!sel] <- 1L
                 } else if(Cout == 'index'){ #in sampling functions
                     datum[xv >= info$censormax] <- +Inf
                     datum[xv <= info$censormin] <- -Inf
                 } else if(Cout == 'sleft'){ #in sampling functions
-                    datum[!is.na(xv) & (xv <= info$censormin)] <- leftbound[!is.na(xv) & (xv <= info$censormin)]
+                    datum <- rep(censmin, length(datum))
                 } else if(Cout == 'sright'){ #in sampling functions
-                    datum[!is.na(xv) & (xv >= info$censormax)] <- rightbound[!is.na(xv) & (xv >= info$censormax)]
+                    datum <- rep(censmax, length(datum))
                 }
+                datum <- (datum-info$tlocation)/info$tscale
+                ##                
             } else if(info$mcmctype == 'B'){ # binary
                 bvalues <- 0:1
                 names(bvalues) <- unlist(info[c('V1','V2')])

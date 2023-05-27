@@ -93,3 +93,71 @@ Rdatal2[9] <- NA
 testdatafile2 <- data.table(Rvvv=Rdata,Cvvv=Cdata,Dvvv=Ddata,Ovvv=Odata,Nvvv=Ndata,Bvvv=Bdata,Rvvvl=Rdatal,Rvvv2=Rdata2,Cvvv2=Cdata2,Dvvv2=Ddata2,Ovvv2=Odata2,Nvvv2=Ndata2,Bvvv2=Bdata2,Rvvv2l=Rdatal2)
 fwrite(testdatafile2, 'testdata2.csv')
 
+
+
+## Test data for D-type variates
+varname <- 'VV'
+dataset <- cbind(c(seq(-2,2,by=0.01),NA))
+colnames(dataset) <- varname
+auxmetadata <- data.table(
+    name=varname, mcmctype='D', 'id'=1,
+    censored=T,
+    rounded=T,
+    transform='identity',
+    Nvalues=Inf,
+    step=0.5,
+    domainmin=-Inf,
+    domainmax=+Inf,
+    censormin=-1,
+    censormax=+1,
+    tlocation=0,
+    tscale=1,
+    plotmin=-1.5,
+    plotmax=1.5,
+    Q1=-0.5, Q2=0, Q3=0.75
+)
+outputs <- c('sleft','sright','left','right','init','aux','index')
+dataout <- t(t(sapply(outputs,function(out){
+    vtransform(x=dataset, auxmetadata=auxmetadata, Dout=out, invjacobian=F)
+}))+runif(length(outputs),-0.03,0.03))
+##
+dataset[is.na(dataset)] <- 2.5
+dataout[!is.na(dataout) & abs(dataout)==Inf] <- 2.5*sign(dataout[!is.na(dataout) & abs(dataout)==Inf])
+##
+tplot(x=dataset,y=dataout, lty=1:length(outputs), col=1:length(outputs), alpha=0.5,lwd=3)
+legend(x='topleft',legend=outputs,bty='n',
+       lty=1:length(outputs), col=1:length(outputs))
+
+
+## Test data for D-type variates
+varname <- 'VV'
+dataset <- cbind(c(seq(-2,2,by=0.01),NA))
+colnames(dataset) <- varname
+auxmetadata <- data.table(
+    name=varname, mcmctype='C', 'id'=1,
+    censored=T,
+    rounded=F,
+    transform='identity',
+    Nvalues=Inf,
+    step=0.5,
+    domainmin=-Inf,
+    domainmax=+Inf,
+    censormin=-1,
+    censormax=+1,
+    tlocation=0,
+    tscale=1,
+    plotmin=-1.5,
+    plotmax=1.5,
+    Q1=-0.5, Q2=0, Q3=0.75
+)
+outputs <- c('sleft','sright','left','right','init','aux','index')
+dataout <- t(t(sapply(outputs,function(out){
+    vtransform(x=dataset, auxmetadata=auxmetadata, Cout=out, invjacobian=F)
+}))+runif(length(outputs),-0.03,0.03))
+##
+dataset[is.na(dataset)] <- 2.5
+dataout[!is.na(dataout) & abs(dataout)==Inf] <- 2.5*sign(dataout[!is.na(dataout) & abs(dataout)==Inf])
+##
+tplot(x=dataset,y=dataout, lty=1:length(outputs), col=1:length(outputs), alpha=0.5,lwd=3)
+legend(x='topleft',legend=outputs,bty='n',
+       lty=1:length(outputs), col=1:length(outputs))

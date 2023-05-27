@@ -62,8 +62,8 @@ samplesFDistribution <- function(Y, X, mcsamples, auxmetadata, subsamples, jacob
         inds <- paste0(vindices$R,collapse='|')
         Rmean <- array(t(mcsamples[,grep(paste0('^Rmean\\[(',inds,')'), allparams),drop=F]),
                        dim=c(vn$R,nclusters,nsamples), dimnames=NULL)
-        Rvar <- array(t(mcsamples[,grep(paste0('^Rvar\\[(',inds,')'), allparams),drop=F]),
-                      dim=c(vn$R,nclusters,nsamples), dimnames=NULL)
+        Rvarsd <- sqrt(array(t(mcsamples[,grep(paste0('^Rvar\\[(',inds,')'), allparams),drop=F]),
+                      dim=c(vn$R,nclusters,nsamples), dimnames=NULL))
         ##
         totake <- intersect(vnames$R, Yv)
 YnR <- length(totake)
@@ -81,8 +81,8 @@ XnR <- length(totake)
         inds <- paste0(vindices$C,collapse='|')
         Cmean <- array(t(mcsamples[,grep(paste0('^Cmean\\[(',inds,')'), allparams),drop=F]),
                        dim=c(vn$C,nclusters,nsamples), dimnames=NULL)
-        Cvar <- array(t(mcsamples[,grep(paste0('^Cvar\\[(',inds,')'), allparams),drop=F]),
-                      dim=c(vn$C,nclusters,nsamples), dimnames=NULL)
+        Cvarsd <- sqrt(array(t(mcsamples[,grep(paste0('^Cvar\\[(',inds,')'), allparams),drop=F]),
+                      dim=c(vn$C,nclusters,nsamples), dimnames=NULL))
         Cbounds <- cbind(
             c(vtransform(x=matrix(NA,nrow=1,ncol=vn$C,dimnames=NULL),
                          auxmetadata=auxmetadata,variates=vnames$C,Cout='sleft')),
@@ -109,8 +109,8 @@ XnR <- length(totake)
         inds <- paste0(vindices$D,collapse='|')
         Dmean <- array(t(mcsamples[,grep(paste0('^Dmean\\[(',inds,')'), allparams),drop=F]),
                        dim=c(vn$D,nclusters,nsamples), dimnames=NULL)
-        Dvar <- array(t(mcsamples[,grep(paste0('^Dvar\\[(',inds,')'), allparams),drop=F]),
-                      dim=c(vn$D,nclusters,nsamples), dimnames=NULL)
+        Dvarsd <- sqrt(array(t(mcsamples[,grep(paste0('^Dvar\\[(',inds,')'), allparams),drop=F]),
+                      dim=c(vn$D,nclusters,nsamples), dimnames=NULL))
         Dbounds <- cbind(
             c(vtransform(x=matrix(NA,nrow=1,ncol=vn$D,dimnames=NULL),
                          auxmetadata=auxmetadata,variates=vnames$D,Dout='sleft')),
@@ -138,8 +138,8 @@ XnR <- length(totake)
         inds <- paste0(vindices$O,collapse='|')
         Omean <- array(t(mcsamples[,grep(paste0('^Omean\\[(',inds,')'), allparams),drop=F]),
                        dim=c(vn$O,nclusters,nsamples), dimnames=NULL)
-        Ovar <- array(t(mcsamples[,grep(paste0('^Ovar\\[(',inds,')'), allparams),drop=F]),
-                      dim=c(vn$O,nclusters,nsamples), dimnames=NULL)
+        Ovarsd <- sqrt(array(t(mcsamples[,grep(paste0('^Ovar\\[(',inds,')'), allparams),drop=F]),
+                      dim=c(vn$O,nclusters,nsamples), dimnames=NULL))
         ##
         Omaxn <- max(auxmetadata[name %in% vnames$O, Nvalues])
         Oseq <- 1:vn$O
@@ -244,7 +244,7 @@ XnB <- length(totake)
                      colSums(
                          array(dnorm(x=x[XiR,],
                                      mean=Rmean[XtR,,],
-                                     sd=sqrt(Rvar[XtR,,]),log=T),
+                                     sd=Rvards[XtR,,],log=T),
                                dim=c(XnR, nclusters, nsamples)),
                          na.rm=T)
                  }else{0}) +
@@ -257,11 +257,11 @@ XnB <- length(totake)
                                  if(is.finite(v1)){
                                      (dnorm(x=v1,
                                             mean=Cmean[v2,,],
-                                            sd=sqrt(Cvar[v2,,]),log=T))
+                                            sd=Cvards[v2,,],log=T))
                                  }else{
                                      (pnorm(q=Cbounds[v2, 2L-(v1 < 0)],
                                             mean=Cmean[v2,,],
-                                            sd=sqrt(Cvar[v2,,]),
+                                            sd=Cvards[v2,,],
                                             lower.tail=(v1 < 0),
                                             log.p=T))
                                  }
@@ -269,24 +269,45 @@ XnB <- length(totake)
                              dim=c(XnC, nclusters, nsamples)),
                          na.rm=T)
                  }else{0}) +
-                (if(XnD > 0){# continuous
+                (if(XnD > 0){# continuous discretized
                      colSums(
-                         array(dnorm(x=x[XiD,],
-                                     mean=Dmean[XtD,,],
-                                     sd=sqrt(Dvar[XtD,,]),log=T),
-                               dim=c(XnD, nclusters, nsamples)),
+                         array(
+                             t(sapply(XseqD, function(v){
+                                 v1 <- x[XiD[v],]
+                                 v2 <- XtD[v]
+                                 if(is.finite(v1)){
+                                     (dnorm(x=v1,
+                                            mean=Dmean[v2,,],
+                                            sd=Dvarsd[v2,,],log=T))
+                                 }else{
+                                     (pnorm(q=Dbounds[v2, 2L-(v1 < 0)],
+                                            mean=Dmean[v2,,],
+                                            sd=Dvarsd[v2,,],
+                                            lower.tail=(v1 < 0),
+                                            log.p=T))
+                                 }
+                             })),
+                             dim=c(XnD, nclusters, nsamples)),
                          na.rm=T)
                  }else{0}) +
+                ## (if(XnD > 0){# continuous
+                ##      colSums(
+                ##          array(dnorm(x=x[XiD,],
+                ##                      mean=Dmean[XtD,,],
+                ##                      sd=Dvarsd[XtD,,],log=T),
+                ##                dim=c(XnD, nclusters, nsamples)),
+                ##          na.rm=T)
+                ##  }else{0}) +
                 (if(XnO > 0){
                      v2 <- cbind(XtO,x[XiO,])
                      colSums(
                          log(array(
                              pnorm(q=Oright[v2],
                                    mean=Omean[XtO,,],
-                                   sd=sqrt(Ovar[XtO,,])) -
+                                   sd=Ovards[XtO,,]) -
                              pnorm(q=Oleft[v2],
                                    mean=Omean[XtO,,],
-                                   sd=sqrt(Ovar[XtO,,])),
+                                   sd=Ovards[XtO,,]),
                              dim=c(XnO, nclusters, nsamples))),
                          na.rm=T)
                  }else{0}) +
@@ -318,7 +339,7 @@ XnB <- length(totake)
                      colSums(
                          array(dnorm(x=y[YiR,],
                                      mean=Rmean[YtR,,],
-                                     sd=sqrt(Rvar[YtR,,]),log=T),
+                                     sd=Rvards[YtR,,],log=T),
                                dim=c(YnR, nclusters, nsamples)),
                          na.rm=T)
                  }else{0}) +
@@ -331,11 +352,11 @@ XnB <- length(totake)
                                  if(is.finite(v1)){
                                      (dnorm(x=v1,
                                             mean=Cmean[v2,,],
-                                            sd=sqrt(Cvar[v2,,]),log=T))
+                                            sd=Cvards[v2,,],log=T))
                                  }else{
                                      (pnorm(q=Cbounds[v2, 2L-(v1 < 0)],
                                             mean=Cmean[v2,,],
-                                            sd=sqrt(Cvar[v2,,]),
+                                            sd=Cvards[v2,,],
                                             lower.tail=(v1 < 0),
                                             log.p=T))
                                  }
@@ -343,24 +364,45 @@ XnB <- length(totake)
                              dim=c(YnC, nclusters, nsamples)),
                          na.rm=T)
                  }else{0}) +
-                (if(YnD > 0){# continuous
+                (if(YnD > 0){# continuous discretized
                      colSums(
-                         array(dnorm(x=y[YiD,],
-                                     mean=Dmean[YtD,,],
-                                     sd=sqrt(Dvar[YtD,,]),log=T),
-                               dim=c(YnD, nclusters, nsamples)),
+                         array(
+                             t(sapply(YseqD, function(v){
+                                 v1 <- y[YiD[v],]
+                                 v2 <- YtD[v]
+                                 if(is.finite(v1)){
+                                     (dnorm(x=v1,
+                                            mean=Dmean[v2,,],
+                                            sd=Dvarsd[v2,,],log=T))
+                                 }else{
+                                     (pnorm(q=Dbounds[v2, 2L-(v1 < 0)],
+                                            mean=Dmean[v2,,],
+                                            sd=Dvarsd[v2,,],
+                                            lower.tail=(v1 < 0),
+                                            log.p=T))
+                                 }
+                             })),
+                             dim=c(YnD, nclusters, nsamples)),
                          na.rm=T)
                  }else{0}) +
+                ## (if(YnD > 0){# continuous
+                ##      colSums(
+                ##          array(dnorm(x=y[YiD,],
+                ##                      mean=Dmean[YtD,,],
+                ##                      sd=Dvarsd[YtD,,],log=T),
+                ##                dim=c(YnD, nclusters, nsamples)),
+                ##          na.rm=T)
+                ##  }else{0}) +
                 (if(YnO > 0){
                      v2 <- cbind(YtO,y[YiO,])
                      colSums(
                          log(array(
                              pnorm(q=Oright[v2],
                                    mean=Omean[YtO,,],
-                                   sd=sqrt(Ovar[YtO,,])) -
+                                   sd=Ovards[YtO,,]) -
                              pnorm(q=Oleft[v2],
                                    mean=Omean[YtO,,],
-                                   sd=sqrt(Ovar[YtO,,])),
+                                   sd=Ovards[YtO,,]),
                              dim=c(YnO, nclusters, nsamples))),
                          na.rm=T)
                  }else{0}) +
