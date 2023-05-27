@@ -29,8 +29,18 @@ inferpopulation <- function(dataset, auxmetadata, outputdir, nsamples=4096, nsam
     require('doRNG')
     
 
+    ## auxmetadata
+    if(is.character(auxmetadata) && file.exists(auxmetadata)){
+        auxmetadata <- paste0(sub('.rds$', '', auxmetadata), '.rds')
+        auxmetadata <- readRDS(auxmetadata)
+    }
+
     ## read dataset
     datafile <- NULL
+    if(missing(dataset) || dataset==FALSE){
+        message('Missing dataset: calculating prior distribution')
+        dataset <- as.data.table(matrix(NA,nrow=1,ncol=nrow(auxmetadata),dimnames=list(NULL,auxmetadata[['name']])))
+    }
     if(is.character(dataset) && file.exists(dataset)){
         datafile <- paste0(sub('.csv$', '', dataset), '.csv')
         dataset <- fread(datafile, na.strings='')
@@ -38,12 +48,6 @@ inferpopulation <- function(dataset, auxmetadata, outputdir, nsamples=4096, nsam
     dataset <- as.data.table(dataset)
     if(!missing(subsampledataset) && is.numeric(subsampledataset)){
         dataset <- dataset[sample(1:nrow(dataset), min(subsampledataset,nrow(dataset)), replace=F),]
-    }
-
-    ## auxmetadata
-    if(is.character(auxmetadata) && file.exists(auxmetadata)){
-        auxmetadata <- paste0(sub('.rds$', '', auxmetadata), '.rds')
-        auxmetadata <- readRDS(auxmetadata)
     }
 
     if(missing(outputdir) || outputdir==TRUE){
