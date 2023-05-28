@@ -35,11 +35,6 @@ samplesFDistribution <- function(Y, X, mcsamples, auxmetadata, subsamples, jacob
     vn <- vnames <- vindices <- list()
     ##    auxmetadata <- auxmetadata[name %in% allv]
 
-    ## Discretized variates need to be treated as censored to calculate these probs.
-    ## This is achieved by temporarily changing their type in auxmetadata
-    ## isD <- auxmetadata[['mcmctype']] == 'D'
-    ## auxmetadata[['mcmctype']][isD] <- 'C'
-    
     for(atype in c('R','C','D','O','N','B')){
         ## 
         ## To save memory, we'll extract from mcsamples
@@ -84,10 +79,10 @@ XnR <- length(totake)
         Cvarsd <- sqrt(array(t(mcsamples[,grep(paste0('^Cvar\\[(',inds,')'), allparams),drop=F]),
                       dim=c(vn$C,nclusters,nsamples), dimnames=NULL))
         Cbounds <- cbind(
-            c(vtransform(x=matrix(NA,nrow=1,ncol=vn$C,dimnames=NULL),
-                         auxmetadata=auxmetadata,variates=vnames$C,Cout='sleft')),
-            c(vtransform(x=matrix(NA,nrow=1,ncol=vn$C,dimnames=NULL),
-                         auxmetadata=auxmetadata,variates=vnames$C,Cout='sright'))
+            c(vtransform(x=matrix(NA,nrow=1,ncol=vn$C,dimnames=list(NULL,vnames$C)),
+                         auxmetadata=auxmetadata,Cout='sleft')),
+            c(vtransform(x=matrix(NA,nrow=1,ncol=vn$C,dimnames=list(NULL,vnames$C)),
+                         auxmetadata=auxmetadata,Cout='sright'))
         )
         ##
         totake <- intersect(vnames$C, Yv)
@@ -112,10 +107,10 @@ XnR <- length(totake)
         Dvarsd <- sqrt(array(t(mcsamples[,grep(paste0('^Dvar\\[(',inds,')'), allparams),drop=F]),
                       dim=c(vn$D,nclusters,nsamples), dimnames=NULL))
         Dbounds <- cbind(
-            c(vtransform(x=matrix(NA,nrow=1,ncol=vn$D,dimnames=NULL),
-                         auxmetadata=auxmetadata,variates=vnames$D,Dout='sleft')),
-            c(vtransform(x=matrix(NA,nrow=1,ncol=vn$D,dimnames=NULL),
-                         auxmetadata=auxmetadata,variates=vnames$D,Dout='sright'))
+            c(vtransform(x=matrix(NA,nrow=1,ncol=vn$D,dimnames=list(NULL,vnames$D)),
+                         auxmetadata=auxmetadata,Dout='sleft')),
+            c(vtransform(x=matrix(NA,nrow=1,ncol=vn$D,dimnames=list(NULL,vnames$D)),
+                         auxmetadata=auxmetadata,Dout='sright'))
         )
         ##
         totake <- intersect(vnames$D, Yv)

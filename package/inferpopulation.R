@@ -37,7 +37,7 @@ inferpopulation <- function(dataset, auxmetadata, outputdir, nsamples=4096, nsam
 
     ## read dataset
     datafile <- NULL
-    if(missing(dataset) || dataset==FALSE){
+    if(missing(dataset) || (is.logical(dataset) && dataset==FALSE)){
         message('Missing dataset: calculating prior distribution')
         dataset <- as.data.table(matrix(NA,nrow=1,ncol=nrow(auxmetadata),dimnames=list(NULL,auxmetadata[['name']])))
     }
@@ -113,6 +113,8 @@ inferpopulation <- function(dataset, auxmetadata, outputdir, nsamples=4096, nsam
     cat('\n',paste0(rep('*',max(nchar(dirname),26)),collapse=''),
         '\n Saving output in directory\n',dirname,'\n',
         paste0(rep('*',max(nchar(dirname),26)),collapse=''),'\n')
+
+    saveRDS(auxmetadata,file=paste0(dirname,'_auxmetadata_copy.rds'))
 
 
     ## Parameter and function to test MCMC convergence

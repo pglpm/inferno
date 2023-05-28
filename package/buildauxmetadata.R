@@ -111,9 +111,10 @@ buildauxmetadata <- function(data, metadata, file=TRUE){
             plotmin <- xinfo$plotmin
             plotmax <- xinfo$plotmax
             if(is.finite(xinfo$domainmin) && is.finite(xinfo$domainmax)){ # needs transformation
-                transf <- 'probit'
-                location <- qnorm((location-domainmin)/(domainmax-domainmin))
-                scale <- abs(qnorm((xinfo$highvalue-domainmin)/(domainmax-domainmin)) - qnorm((xinfo$lowvalue-domainmin)/(domainmax-domainmin)))*sdoveriqr
+                Qf <- readRDS('Qfunction8192.rds')
+                transf <- 'Q'
+                location <- Qf((location-domainmin)/(domainmax-domainmin))
+                scale <- abs(Qf((xinfo$highvalue-domainmin)/(domainmax-domainmin)) - Qf((xinfo$lowvalue-domainmin)/(domainmax-domainmin)))*sdoveriqr
             }else if(is.finite(xinfo$domainmin)){
                 transf <- 'log'
                 location <- log(location-domainmin)

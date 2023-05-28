@@ -1,9 +1,8 @@
 ## Transformation from variate to internal variable
-vtransform <- function(x, auxmetadata, Cout='init', Dout='data', Oout='data', Bout='numeric', Nout='numeric', Qfunction='Qfunction8192', variates=NULL, invjacobian=FALSE){
+vtransform <- function(x, auxmetadata, Cout='init', Dout='data', Oout='data', Bout='numeric', Nout='numeric', variates=NULL, invjacobian=FALSE){
 
-    if(is.character(Qfunction)){
-        Qfunction <- readRDS(paste0(Qfunction,'.rds'))
-    }
+        Qf <- readRDS('Qfunction8192.rds')
+        DQf <- readRDS('DQfunction2048.rds')
 
     x <- as.data.table(cbind(x))
     if(!is.null(variates)){colnames(x) <- variates}
@@ -18,9 +17,9 @@ info <- as.list(auxmetadata[name == v])
                 datum <- (datum - info$domainmin) * info$tscale
             }else if(info$transform == 'logminus'){
                 datum <- (info$domainmax - datum) * info$tscale
-            }else if(info$transform == 'probit'){
-                datum <- qnorm((datum-info$domainmin)/(info$domainmax-info$domainmin))
-                datum <- dnorm(datum) * info$tscale * (info$domainmax-info$domainmin) 
+            }else if(info$transform == 'Q'){
+                datum <- Qf((datum-info$domainmin)/(info$domainmax-info$domainmin))
+                datum <- DQf(datum) * info$tscale * (info$domainmax-info$domainmin) 
             }else{
                 datum <- rep(info$tscale, length(datum))
             }
@@ -36,8 +35,8 @@ info <- as.list(auxmetadata[name == v])
                     datum <- log(datum-info$domainmin)
                 }else if (info$transform == 'logminus'){
                     datum <- log(info$domainmax-datum)
-                }else if (info$transform == 'probit'){
-                    datum <- qnorm((datum-info$domainmin)/(info$domainmax-info$domainmin))
+                }else if (info$transform == 'Q'){
+                    datum <- Qf((datum-info$domainmin)/(info$domainmax-info$domainmin))
                 }
                 datum <- (datum-info$tlocation)/info$tscale
                 ##
@@ -45,14 +44,14 @@ info <- as.list(auxmetadata[name == v])
                 datum <- round((datum-info$tlocation)/info$tscale) # output is in range 1 to Nvalues
                 if(Oout == 'init'){ # in sampling functions or init MCMC
                     datum[is.na(datum)] <- info$Nvalues/2+0.5
-                    datum <- Qfunction((datum-0.5)/info$Nvalues)
+                    datum <- Qf((datum-0.5)/info$Nvalues)
                     datum[datum==+Inf] <- 1e6
                     datum[datum==-Inf] <- -1e6
                 } else if(Oout == 'left'){ # as left for MCMC
-                    datum <- Qfunction(pmax(0,datum-1L)/info$Nvalues)
+                    datum <- Qf(pmax(0,datum-1L)/info$Nvalues)
                     datum[is.na(datum)] <- -Inf
                 } else if(Oout == 'right'){ # as right for MCMC
-                    datum <- Qfunction(pmin(info$Nvalues,datum)/info$Nvalues)
+                    datum <- Qf(pmin(info$Nvalues,datum)/info$Nvalues)
                     datum[is.na(datum)] <- +Inf
                 } else if(Oout == 'aux'){ # aux variable in MCMC
                     sel <- is.na(datum)
@@ -86,12 +85,12 @@ info <- as.list(auxmetadata[name == v])
                     rightbound <- log(info$domainmax-rightbound)
                     censmin <- log(info$domainmax-censmin)
                     censmax <- log(info$domainmax-censmax)
-                } else if (info$transform == 'probit'){
-                    datum <- qnorm((datum-info$domainmin)/(info$domainmax-info$domainmin))
-                    leftbound <- qnorm((leftbound-info$domainmin)/(info$domainmax-info$domainmin))
-                    rightbound <- qnorm((rightbound-info$domainmin)/(info$domainmax-info$domainmin))
-                    censmin <- qnorm((censmin-info$domainmin)/(info$domainmax-info$domainmin))
-                    censmax <- qnorm((censmax-info$domainmin)/(info$domainmax-info$domainmin))
+                } else if (info$transform == 'Q'){
+                    datum <- Qf((datum-info$domainmin)/(info$domainmax-info$domainmin))
+                    leftbound <- Qf((leftbound-info$domainmin)/(info$domainmax-info$domainmin))
+                    rightbound <- Qf((rightbound-info$domainmin)/(info$domainmax-info$domainmin))
+                    censmin <- Qf((censmin-info$domainmin)/(info$domainmax-info$domainmin))
+                    censmax <- Qf((censmax-info$domainmin)/(info$domainmax-info$domainmin))
                 }
                 ## datum <- (datum-info$tlocation)/info$tscale
                 ## rightbound <- (rightbound-info$tlocation)/info$tscale
@@ -134,10 +133,10 @@ info <- as.list(auxmetadata[name == v])
                     datum <- log(info$domainmax-datum)
                     censmin <- log(info$domainmax-censmin)
                     censmax <- log(info$domainmax-censmax)
-                } else if (info$transform == 'probit'){
-                    datum <- qnorm((datum-info$domainmin)/(info$domainmax-info$domainmin))
-                    censmin <- qnorm((censmin-info$domainmin)/(info$domainmax-info$domainmin))
-                    censmax <- qnorm((censmax-info$domainmin)/(info$domainmax-info$domainmin))
+                } else if (info$transform == 'Q'){
+                    datum <- Qf((datum-info$domainmin)/(info$domainmax-info$domainmin))
+                    censmin <- Qf((censmin-info$domainmin)/(info$domainmax-info$domainmin))
+                    censmax <- Qf((censmax-info$domainmin)/(info$domainmax-info$domainmin))
                 }
                 ## datum <- (datum-info$tlocation)/info$tscale
                 ## censmax <- (censmax-info$tlocation)/info$tscale
