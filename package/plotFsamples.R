@@ -1,17 +1,29 @@
-plotFsamples <- function(file, mcsamples, auxmetadata, dataset, plotmeans=TRUE, nsubsamples=100, showdata='scatter', parallel=TRUE){
+plotFsamples <- function(file, mcsamples, auxmetadata, dataset, plotmeans=TRUE, plotuncertainty='samples', uncertainty=100, showdata='scatter', parallel=TRUE){
 
     family <- 'Palatino'
     source('pglpm_plotfunctions.R')
     source('vtransform.R')
     source('samplesFDistribution.R')
 
-    if(nsubsamples=='all'){nsubsamples <- nrow(mcsamples)}
-    if(plotmeans){
-        mcsubsamples <- round(seq(1,nrow(mcsamples),length.out=nsubsamples))
+    if(plotuncertainty=='quantiles'){
+        plotmeans <- TRUE
+        if(any(uncertainty <= 0 | uncertainty >=1)){
+            uncertainty <- c(1,7)/8
+        }
+        quants <- sort(unique(round(c(uncertainty,1-uncertainty),6)))
+        mcsubsamples <- subsamples <- 1:nrow(mcsamples)
     }else{
-        mcsubsamples <- 1:nrow(mcsamples)
+        if(uncertainty=='all'){uncertainty <- nrow(mcsamples)}
+        uncertainty <- abs(uncertainty)
+        if(plotmeans){
+            mcsubsamples <- 1:nrow(mcsamples)
+        }else{
+            mcsubsamples <- round(seq(1,nrow(mcsamples),length.out=abs(uncertainty)))
+        }
+        subsamples <- round(seq(1,length(mcsubsamples),length.out=uncertainty))
     }
-    subsamples <- round(seq(1,length(mcsubsamples),length.out=nsubsamples))
+
+    addplot <- FALSE
 
     graphics.off()
     pdff(file, apaper=4)
@@ -20,7 +32,6 @@ plotFsamples <- function(file, mcsamples, auxmetadata, dataset, plotmeans=TRUE, 
     for(v in auxmetadata[['name']]){
         varinfo <- as.list(auxmetadata[name==v])
         vtype <- varinfo[['mcmctype']]
-
         if(vtype %in% c('R','D','C','O')){ #
             if(vtype == 'O'){
                 Xgrid <- seq(varinfo[['domainmin']], varinfo[['domainmax']],
@@ -33,14 +44,19 @@ plotFsamples <- function(file, mcsamples, auxmetadata, dataset, plotmeans=TRUE, 
                 ))
             }
             colnames(Xgrid) <- v
-            
             xleft <- Xgrid > varinfo[['censormin']]
             xright <- Xgrid < varinfo[['censormax']]
 
             plotsamples <- samplesFDistribution(Y=Xgrid, X=NULL, mcsamples=mcsamples, auxmetadata=auxmetadata, subsamples=mcsubsamples, jacobian=TRUE, parallel=parallel)
-            
-            ymax <- tquant(apply(plotsamples[xleft & xright, subsamples, drop=F],
-                                 2,function(x){tquant(x,31/32)}),31/32, na.rm=T)
+
+            if(plotuncertainty=='samples'){
+                ymax <- tquant(apply(plotsamples[xleft & xright, subsamples, drop=F],
+                                     2,function(x){tquant(x,31/32)}),31/32, na.rm=T)
+            }else{
+                ymax <- apply(plotsamples[xleft & xright, , drop=F],
+                              1,function(x){tquant(x,max(quants))})
+                ymax <- max(ymax[is.finite(ymax)])
+            }
 
             dataplot <- FALSE
             ## data plots if required
@@ -67,27 +83,34 @@ plotFsamples <- function(file, mcsamples, auxmetadata, dataset, plotmeans=TRUE, 
             }
 
             ## Plot F samples
-            tplot(x=Xgrid[xleft & xright], y=plotsamples[xleft & xright,subsamples,drop=F],
-                  xlim=range(Xgrid), ylim=c(0,ymax),
-                  type='l', lty=1, lwd=2,
-                  col=5, alpha=7/8,
-                  xlab=v,
-                  ylab=paste0('frequency',(if(vtype=='O'){''}else{' density'})),
-                  family=family)
-            if(any(!(xleft & xright))){
-                tplot(x=Xgrid[!(xleft & xright)],
-                      y=plotsamples[!(xleft & xright),subsamples,drop=F]*ymax,
-                      type='p', pch=2, cex=2,
+            if(plotuncertainty=='samples'){
+                tplot(x=Xgrid[xleft & xright], y=plotsamples[xleft & xright,subsamples,drop=F],
+                      xlim=range(Xgrid), ylim=c(0,ymax),
+                      type='l', lty=1, lwd=2,
                       col=5, alpha=7/8,
-                      family=family, add=TRUE)
+                      xlab=v,
+                      ylab=paste0('frequency',(if(vtype=='O'){''}else{' density'})),
+                      family=family)
+                if(any(!(xleft & xright))){
+                    tplot(x=Xgrid[!(xleft & xright)],
+                          y=plotsamples[!(xleft & xright),subsamples,drop=F]*ymax,
+                          type='p', pch=2, cex=2,
+                          col=5, alpha=7/8,
+                          family=family, add=TRUE)
+                }
+                addplot <- TRUE
             }
             
             ## Plot F means if required
             if(plotmeans){
                 tplot(x=Xgrid[xleft & xright], y=rowMeans(plotsamples[xleft & xright,,drop=F], na.rm=T),
+                      xlim=range(Xgrid), ylim=c(0,ymax),
                       type='l', lty=1, lwd=4,
                       col=1, alpha=0.25,
-                      add=TRUE)
+                      xlab=v,
+                      ylab=paste0('frequency',(if(vtype=='O'){''}else{' density'})),
+                      family=family,
+                      add=addplot)
                 if(any(!(xleft & xright))){
                     tplot(x=Xgrid[!(xleft & xright)],
                           y=rowMeans(plotsamples, na.rm=T)[!(xleft & xright)]*ymax,
@@ -96,6 +119,10 @@ plotFsamples <- function(file, mcsamples, auxmetadata, dataset, plotmeans=TRUE, 
                           lty=1, lwd=3,
                           add=TRUE)
                 }
+            }
+            if(plotuncertainty=='quantiles'){
+                marguncertainty <- t(apply(plotsamples, 1, function(x){tquant(x, quants)}))
+                plotquantiles(x=Xgrid, y=marguncertainty, col=5, alpha=0.75)
             }
             
             if(dataplot){
@@ -118,19 +145,25 @@ plotFsamples <- function(file, mcsamples, auxmetadata, dataset, plotmeans=TRUE, 
                 fiven <- fivenum(datum)
                 abline(v=fiven,col=paste0(palette()[c(2,4,5,4,2)], '44'),lwd=4)
             }
-            
+
+#####
             ## nominal or binary variate
         }else{ 
-
             Xgrid <- cbind(unlist(varinfo[paste0('V',1:varinfo[['Nvalues']])]))
             colnames(Xgrid) <- v
             Ngrid <- vtransform(x=Xgrid, auxmetadata=auxmetadata,
                                 Nout='numeric', Bout='numeric')
 
             plotsamples <- samplesFDistribution(Y=Xgrid, X=NULL, mcsamples=mcsamples, auxmetadata=auxmetadata, subsamples=mcsubsamples, jacobian=TRUE, parallel=parallel)
-            
-            ymax <- tquant(apply(plotsamples[, subsamples, drop=F],
-                                 2,function(x){tquant(x,31/32)}),31/32, na.rm=T)
+
+            if(plotuncertainty=='samples'){
+                ymax <- tquant(apply(plotsamples[, subsamples, drop=F],
+                                     2,function(x){tquant(x,31/32)}),31/32, na.rm=T)
+            }else{
+                ymax <- apply(plotsamples[, , drop=F],
+                              1,function(x){tquant(x,max(quants))})
+                ymax <- max(ymax[is.finite(ymax)])
+            }
 
             dataplot <- FALSE
             ## data plots if required
@@ -145,21 +178,32 @@ plotFsamples <- function(file, mcsamples, auxmetadata, dataset, plotmeans=TRUE, 
             }
 
             ## Plot F samples
-            tplot(x=Ngrid, y=plotsamples[,subsamples,drop=F],
-                  xlim=range(Ngrid), ylim=c(0,ymax),
-                  xticks=Ngrid, xlabels=Xgrid,
-                  type='l', lty=1, lwd=2,
-                  col=5, alpha=7/8,
-                  xlab=v,
-                  ylab='frequency',
-                  family=family)
-            
+            if(plotuncertainty=='samples'){
+                tplot(x=Ngrid, y=plotsamples[,subsamples,drop=F],
+                      xlim=range(Ngrid), ylim=c(0,ymax),
+                      xticks=Ngrid, xlabels=Xgrid,
+                      type='l', lty=1, lwd=2,
+                      col=5, alpha=7/8,
+                      xlab=v,
+                      ylab='frequency',
+                      family=family)
+                addplot <- TRUE
+            }            
             ## Plot F means if required
             if(plotmeans){
                 tplot(x=Ngrid, y=rowMeans(plotsamples, na.rm=T),
+                      xlim=range(Ngrid), ylim=c(0,ymax),
+                      xticks=Ngrid, xlabels=Xgrid,
                       type='l', lty=1, lwd=4,
                       col=1, alpha=0.25,
-                      add=TRUE)
+                      xlab=v,
+                      ylab='frequency',
+                      family=family,
+                      add=addplot)
+            }
+            if(plotuncertainty=='quantiles'){
+                marguncertainty <- t(apply(plotsamples, 1, function(x){tquant(x, quants)}))
+                plotquantiles(x=Ngrid, y=marguncertainty, col=5, alpha=0.75)
             }
 
             if(dataplot){
@@ -180,8 +224,8 @@ plotFsamples <- function(file, mcsamples, auxmetadata, dataset, plotmeans=TRUE, 
             datum <- dataset[[v]]
             datum <- datum[!is.na(datum)]
             if(!(vtype %in% c('R','D','C','O'))){
-            datum <- vtransform(x=matrix(datum,ncol=1,nrow=length(datum),dimnames=list(NULL,v)), auxmetadata=auxmetadata,
-                       Nout='numeric', Bout='numeric')
+                datum <- vtransform(x=matrix(datum,ncol=1,nrow=length(datum),dimnames=list(NULL,v)), auxmetadata=auxmetadata,
+                                    Nout='numeric', Bout='numeric')
             }
             scatteraxis(side=1, n=NA, alpha=0.5, ext=5,
                         x=datum+runif(length(datum),

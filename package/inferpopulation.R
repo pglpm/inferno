@@ -774,7 +774,8 @@ inferpopulation <- function(dataset, auxmetadata, outputdir, nsamples=4096, nsam
                                  mcsamples=mcsamples[subsamples,,drop=F],
                                  auxmetadata=auxmetadata,
                                  dataset=dataset,
-                                 nsubsamples=showsamples,
+                                 plotuncertainty='samples',
+                                 uncertainty=showsamples,
                                  plotmeans=plotmeans, showdata='scatter',
                                  parallel=FALSE
                                  )
@@ -859,11 +860,18 @@ inferpopulation <- function(dataset, auxmetadata, outputdir, nsamples=4096, nsam
               )
     }
     
-    plotFsamples(file=paste0(dirname,'Fdistribution-',basename,'-',nsamples),
+    plotFsamples(file=paste0(dirname,'Fdistribution_samples-',basename,'-',nsamples),
                  mcsamples=mcsamples, auxmetadata=auxmetadata,
                  dataset=dataset,
-                 nsubsamples=showsamples, plotmeans=TRUE,
+                 plotuncertainty='samples',
+                 uncertainty=showsamples, plotmeans=TRUE,
                  showdata = 'scatter', parallel=TRUE)
+    plotFsamples(file=paste0(dirname,'Fdistribution_quantiles-',basename,'-',nsamples),
+                 mcsamples=mcsamples, auxmetadata=auxmetadata,
+                 dataset=dataset,
+                 plotuncertainty='quantiles',
+                 uncertainty=c(1,7)/8, plotmeans=TRUE,
+                 showdata = 'histogram', parallel=TRUE)
     cat('\nClosing connections to cores.\n')
     registerDoSEQ()
     stopCluster(cl)
