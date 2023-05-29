@@ -5,6 +5,7 @@ plotFsamples <- function(file, mcsamples, auxmetadata, dataset, plotmeans=TRUE, 
     source('vtransform.R')
     source('samplesFDistribution.R')
 
+    addylab <- ''
     if(plotuncertainty=='quantiles'){
         plotmeans <- TRUE
         if(any(uncertainty <= 0 | uncertainty >=1)){
@@ -12,6 +13,7 @@ plotFsamples <- function(file, mcsamples, auxmetadata, dataset, plotmeans=TRUE, 
         }
         quants <- sort(unique(round(c(uncertainty,1-uncertainty),6)))
         mcsubsamples <- subsamples <- 1:nrow(mcsamples)
+        addylab <- paste0(' (',ceiling(diff(quants)*100),'% unc.)')
     }else{
         if(uncertainty=='all'){uncertainty <- nrow(mcsamples)}
         uncertainty <- abs(uncertainty)
@@ -88,7 +90,7 @@ plotFsamples <- function(file, mcsamples, auxmetadata, dataset, plotmeans=TRUE, 
                       type='l', lty=1, lwd=2,
                       col=5, alpha=7/8,
                       xlab=v,
-                      ylab=paste0('frequency',(if(vtype=='O'){''}else{' density'})),
+                      ylab=paste0('frequency',(if(vtype=='O'){''}else{' density'}),addylab),
                       family=family)
                 if(any(!(xleft & xright))){
                     tplot(x=Xgrid[!(xleft & xright)],
@@ -107,7 +109,7 @@ plotFsamples <- function(file, mcsamples, auxmetadata, dataset, plotmeans=TRUE, 
                       type='l', lty=1, lwd=4,
                       col=1, alpha=0.25,
                       xlab=v,
-                      ylab=paste0('frequency',(if(vtype=='O'){''}else{' density'})),
+                      ylab=paste0('frequency',(if(vtype=='O'){''}else{' density'}),addylab),
                       family=family,
                       add=addplot)
                 if(any(!(xleft & xright))){
@@ -131,7 +133,7 @@ plotFsamples <- function(file, mcsamples, auxmetadata, dataset, plotmeans=TRUE, 
                       type='l', lty=1, lwd=4,
                       col=yellow, alpha=2/4, border=darkgrey, border.alpha=3/4,
                       xlab=v,
-                      ylab=paste0('frequency',(if(vtype=='O'){''}else{' density'})),
+                      ylab=paste0('frequency',(if(vtype=='O'){''}else{' density'}),addylab),
                       family=family, add=TRUE)
 
                 if(any(!(dleft & dright))){
@@ -184,7 +186,7 @@ plotFsamples <- function(file, mcsamples, auxmetadata, dataset, plotmeans=TRUE, 
                       type='l', lty=1, lwd=2,
                       col=5, alpha=7/8,
                       xlab=v,
-                      ylab='frequency',
+                      ylab=paste0('frequency',addylab),
                       family=family)
                 addplot <- TRUE
             }            
@@ -196,7 +198,7 @@ plotFsamples <- function(file, mcsamples, auxmetadata, dataset, plotmeans=TRUE, 
                       type='l', lty=1, lwd=4,
                       col=1, alpha=0.25,
                       xlab=v,
-                      ylab='frequency',
+                      ylab=paste0('frequency',addylab),
                       family=family,
                       add=addplot)
             }
@@ -213,7 +215,7 @@ plotFsamples <- function(file, mcsamples, auxmetadata, dataset, plotmeans=TRUE, 
                       type='l', lty=1, lwd=4,
                       col=yellow, alpha=2/4, border=darkgrey, border.alpha=3/4,
                       xlab=v,
-                      ylab='frequency',
+                      ylab=paste0('frequency',addylab),
                       family=family, add=TRUE)
             }
             
