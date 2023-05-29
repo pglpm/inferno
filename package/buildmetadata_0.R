@@ -13,6 +13,7 @@ buildmetadata <- function(data, file=NULL){
     for(xn in names(data)){
         x <- data[[xn]]
         x <- x[!is.na(x)]
+        transf <- 'identity' # temporary
         if(is.numeric(x)){
             Q1 <- loval <- quantile(x, probs=0.25, type=6)
             Q2 <- meval <- quantile(x, probs=0.5, type=6)
@@ -30,8 +31,8 @@ buildmetadata <- function(data, file=NULL){
             vd <- NA
             domainmin <- NA
             domainmax <- NA
-            censormin <- TRUE
-            censormax <- TRUE
+            censormin <- NA
+            censormax <- NA
             vval <- sort(as.character(unique(x)))
             names(vval) <- paste0('V',1:2)
             loval <- meval <- hival <- NA
@@ -43,8 +44,8 @@ buildmetadata <- function(data, file=NULL){
             vd <- NA
             domainmin <- NA # Nimble index categorical from 1
             domainmax <- NA
-            censormin <- TRUE
-            censormax <- TRUE
+            censormin <- NA
+            censormax <- NA
             vval <- sort(as.character(unique(x)))
             names(vval) <- paste0('V',1:vn)
             plotmin <- NA
@@ -60,37 +61,42 @@ buildmetadata <- function(data, file=NULL){
                 vtype <- 'continuous'
                 vn <- Inf
                 vd <- 0
-                domainmin <- signif(min(x) - 3*diff(range(x)),1)
-                domainmax <- signif(max(x) + 3*diff(range(x)),1)
-                censormin <- FALSE
-                censormax <- FALSE
+                domainmin <- -Inf
+                domainmax <- +Inf
+                censormin <- NA
+                censormax <- NA
                 plotmin <- min(x) - (Q3-Q1)/2
                 plotmax <- max(x) + (Q3-Q1)/2
                 ##
-                if(all(x >= 0)){ # seems to be strictly positive
-                    domainmin <- 0
-                    plotmin <- max((domainmin+min(x))/2, plotmin)
-                }
                 ix <- x[!(x %in% range(x))] # exclude boundary values
                 repindex <- mean(table(ix)) # average of repeated inner values
                 ## contindex <- length(unique(diff(sort(unique(ix)))))/length(ix) # check for repeated values
                 if(sum(x == min(x)) > repindex){ # seems to be left-singular
-                    domainmin <- plotmin <- min(x)
-                    censormin <- TRUE
+                    censormin <- min(x)
+                    plotmin <- censormin
                 }
                 if(sum(x == max(x)) > repindex){ # seems to be right-singular
-                    domainmax <- plotmax <- max(x)
-                    censormax <- TRUE
+                    censormax <- max(x)
+                    plotmax <- censormax
+                }
+                if(all(x > 0)){ # seems to be strictly positive
+                    transf <- 'log'
+                    domainmin <- 0
+                    censormin <- max(domainmin, censormin)
+                    ## location <- log(Q2)
+                    ## scale <- (log(Q3) - log(Q1))/2
+                    plotmin <- max((domainmin+min(x))/2, plotmin)
                 }
             }else{# ordinal
                 vtype <- 'ordinal'
                 if(dd >= 1){ # seems originally integer
+                    transf <- 'Q'
                     domainmin <- min(1, x)
                     domainmax <- max(x)
                     vn <- domainmax - domainmin + 1
                     vd <- NA
-                    censormin <- TRUE
-                    censormax <- TRUE
+                    censormin <- NA
+                    censormax <- NA
                     ## location <- NA # (vn*domainmin-domainmax)/(vn-1)
                     ## scale <- NA # (domainmax-domainmin)/(vn-1)
                     plotmin <- max(domainmin, min(x) - (Q3-Q1)/2)
@@ -102,10 +108,10 @@ buildmetadata <- function(data, file=NULL){
                     if(diff(range(x))/vd > 256){
                     message('\nNOTE: variate ',xn,' is reported as "rounded",\nbut consider the possibility of treating it as continuous,\nby setting its "rounding" to 0 in the metadata file.\n')
                     }
-                    domainmin <- signif(min(x) - 3*diff(range(x)),1)
-                    domainmax <- signif(max(x) + 3*diff(range(x)),1)
-                    censormin <- FALSE
-                    censormax <- FALSE
+                    domainmin <- -Inf
+                    domainmax <- +Inf
+                    censormin <- NA
+                    censormax <- NA
                     ## location <- Q2
                     ## scale <- (Q3-Q1)/2
                     plotmin <- min(x) - (Q3-Q1)/2
@@ -113,20 +119,21 @@ buildmetadata <- function(data, file=NULL){
                     ix <- x[!(x %in% range(x))] # exclude boundary values
                     repindex <- mean(table(ix)) # average of repeated inner values
                     ## contindex <- length(unique(diff(sort(unique(ix)))))/length(ix) # check for repeated values
-                    if(all(x >= 0)){ # seems to be strictly positive
-                        domainmin <- 0
-                        plotmin <- max((domainmin+min(x))/2, plotmin)
-                    }
-                    ix <- x[!(x %in% range(x))] # exclude boundary values
-                    repindex <- mean(table(ix)) # average of repeated inner values
-                    ## contindex <- length(unique(diff(sort(unique(ix)))))/length(ix) # check for repeated values
                     if(sum(x == min(x)) > repindex){ # seems to be left-singular
-                        domainmin <- plotmin <- min(x)
-                        censormin <- TRUE
+                        censormin <- min(x)
+                        plotmin <- max(plotmin, censormin)
                     }
                     if(sum(x == max(x)) > repindex){ # seems to be right-singular
-                        domainmax <- plotmax <- max(x)
-                        censormax <- TRUE
+                        censormax <- max(x)
+                        plotmax <- min(plotmax, censormax)
+                    }
+                    if(all(x > 0)){ # seems to be strictly positive
+                        transf <- 'log'
+                        domainmin <- 0
+                        censormin <- max(domainmin, censormin)
+                        ## location <- log(Q2)
+                        ## scale <- (log(Q3) - log(Q1))/2
+                        plotmin <- max(domainmin, plotmin)
                     }
                 }# end rounded
             }# end integer
@@ -134,11 +141,11 @@ buildmetadata <- function(data, file=NULL){
         }# end numeric
         ##
         metadata <- rbind(metadata,
-                          c(list(name=xn, type=vtype, Nvalues=vn, rounding=vd, domainmin=domainmin, domainmax=domainmax, minincluded=censormin, maxincluded=censormax, centralvalue=meval, lowvalue=loval, highvalue=hival, plotmin=plotmin, plotmax=plotmax),
+                          c(list(type=vtype, Nvalues=vn, rounding=vd, domainmin=domainmin, domainmax=domainmax, censormin=censormin, censormax=censormax, centralvalue=meval, lowvalue=loval, highvalue=hival, plotmin=plotmin, plotmax=plotmax),
                             as.list(vval)
                             ), fill=TRUE)
     }
-    ## metadata <- cbind(name=names(data), metadata)
+    metadata <- cbind(name=names(data), metadata)
     
     if(!missing(file) && file!=FALSE){# must save to file
         if(is.character(file)){

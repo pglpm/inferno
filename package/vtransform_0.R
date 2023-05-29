@@ -13,27 +13,22 @@ info <- as.list(auxmetadata[name == v])
         ##
         if(invjacobian){
 #### Calculation of reciprocal Jacobian factors
-            if(info$mcmctype %in% c('B','N','O')){
-                datum <- rep(1L, length(datum))
+            if(info$transform == 'log'){
+                datum <- (datum - info$domainmin) * info$tscale
+            }else if(info$transform == 'logminus'){
+                datum <- (info$domainmax - datum) * info$tscale
+            }else if(info$transform == 'Q'){
+                datum <- Qf((datum-info$domainmin)/(info$domainmax-info$domainmin))
+                datum <- DQf(datum) * info$tscale * (info$domainmax-info$domainmin) 
             }else{
-                if(info$transform == 'log'){
-                    datum <- (datum - info$domainmin) * info$tscale
-                }else if(info$transform == 'logminus'){
-                    datum <- (info$domainmax - datum) * info$tscale
-                }else if(info$transform == 'Q'){
-                    datum <- Qf((datum-info$domainmin)/(info$domainmax-info$domainmin))
-                    datum <- DQf(datum) * info$tscale * (info$domainmax-info$domainmin) 
-                }else{
-                    datum <- rep(info$tscale, length(datum))
-                }
-                xv <- data.matrix(x[,..v])
-                if(info$mcmctype %in% c('C','D')){
-                    datum[(xv >= info$censormax) | (xv <= info$censormin)] <- 1L
-                }
-                datum[is.na(xv)] <- 1L
+                datum <- rep(info$tscale, length(datum))
             }
+            xv <- data.matrix(x[,..v])
+            if(info$mcmctype %in% c('C','D')){
+                datum[(xv >= info$censormax) | (xv <= info$censormin)] <- 1L
+            }
+            datum[is.na(xv)] <- 1L
         }else{
-            
 #### Transformation to internal value for MCMC
             if(info$mcmctype == 'R'){# continuous
                 if (info$transform == 'log'){

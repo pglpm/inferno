@@ -28,7 +28,7 @@ buildauxmetadata <- function(data, metadata, file=TRUE){
         xinfo <- as.list(metadata[name == xn])
         xinfo$type <- tolower(xinfo$type)
         ordinal <- NA
-        cens <- any(c(xinfo$minincluded, xinfo$maxincluded), na.rm=T)
+        cens <- any(is.finite(c(xinfo$censormin, xinfo$censormax)))
         rounded <- NA
         transf <- 'identity' # temporary
         vval <- xinfo[grep('^V[0-9]+$', names(xinfo))]
@@ -78,7 +78,7 @@ buildauxmetadata <- function(data, metadata, file=TRUE){
             vtype <- 'O'
             vid <- idO
             idO <- idO+1L
-            transf <- 'Q'
+            transf <- 'identity'
             ordinal <- TRUE
             vn <- xinfo$Nvalues
             vd <- 0.5
@@ -98,10 +98,10 @@ buildauxmetadata <- function(data, metadata, file=TRUE){
             vn <- +Inf
             vd <- xinfo$rounding/2
             rounded <- (vd > 0)
-            domainmin <- censormin <- xinfo$domainmin
-            domainmax <- censormax <- xinfo$domainmax
-            ## censormin <- max(domainmin, xinfo$minincluded, na.rm=T)
-            ## censormax <- min(domainmax, xinfo$maxincluded, na.rm=T)
+            domainmin <- xinfo$domainmin
+            domainmax <- xinfo$domainmax
+            censormin <- max(domainmin, xinfo$censormin, na.rm=T)
+            censormax <- min(domainmax, xinfo$censormax, na.rm=T)
             ## cens <- (censormin > domainmin) || (censormax < domainmax)
             location <- xinfo$centralvalue
             scale <- abs(xinfo$highvalue - xinfo$lowvalue)
@@ -113,20 +113,6 @@ buildauxmetadata <- function(data, metadata, file=TRUE){
             if(is.finite(xinfo$domainmin) && is.finite(xinfo$domainmax)){ # needs transformation
                 Qf <- readRDS('Qfunction8192.rds')
                 transf <- 'Q'
-                if(xinfo$minincluded & !xinfo$maxincluded){
-                    censormin <- domainmin
-                    censormax <- +Inf
-                    domainmin <- (8*domainmin - domainmax)/7
-                }else if(!xinfo$minincluded & xinfo$maxincluded){
-                    censormax <- domainmax
-                    censormin <- -Inf
-                    domainmax <- (8*domainmax - domainmin)/7
-                }else if(xinfo$minincluded & xinfo$maxincluded){
-                    censormin <- domainmin
-                    censormax <- domainmax
-                    domainmin <- (7*domainmin - domainmax)/6
-                    domainmax <- (7*domainmax - domainmin)/6
-                }
                 location <- Qf((location-domainmin)/(domainmax-domainmin))
                 scale <- abs(Qf((xinfo$highvalue-domainmin)/(domainmax-domainmin)) - Qf((xinfo$lowvalue-domainmin)/(domainmax-domainmin)))*sdoveriqr
             }else if(is.finite(xinfo$domainmin)){

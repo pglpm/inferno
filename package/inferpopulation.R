@@ -102,6 +102,7 @@ inferpopulation <- function(dataset, auxmetadata, outputdir, nsamples=4096, nsam
     plotmeans <- TRUE # plot frequency averages
     totsamples <- 'all' # 'all' number of samples if plotting frequency averages
     showsamples <- 100 # number of samples to show. Shown separately for posterior=F
+    showquantiles <- c(1,31)/32 # number of samples to show. Shown separately for posterior=F
     showhyperparametertraces <- FALSE ##
     showsamplertimes <- FALSE ##
     family <- 'Palatino'
@@ -860,17 +861,17 @@ inferpopulation <- function(dataset, auxmetadata, outputdir, nsamples=4096, nsam
               )
     }
     
-    plotFsamples(file=paste0(dirname,'Fdistribution_samples-',basename,'-',nsamples),
+    plotFsamples(file=paste0(dirname,'plotsamples_Fdistribution-',basename,'-',nsamples),
                  mcsamples=mcsamples, auxmetadata=auxmetadata,
                  dataset=dataset,
                  plotuncertainty='samples',
                  uncertainty=showsamples, plotmeans=TRUE,
                  showdata = 'scatter', parallel=TRUE)
-    plotFsamples(file=paste0(dirname,'Fdistribution_quantiles-',basename,'-',nsamples),
+    plotFsamples(file=paste0(dirname,'plotquantiles_Fdistribution-',basename,'-',nsamples),
                  mcsamples=mcsamples, auxmetadata=auxmetadata,
                  dataset=dataset,
                  plotuncertainty='quantiles',
-                 uncertainty=c(1,7)/8, plotmeans=TRUE,
+                 uncertainty=showquantiles, plotmeans=TRUE,
                  showdata = 'histogram', parallel=TRUE)
     cat('\nClosing connections to cores.\n')
     registerDoSEQ()

@@ -48,7 +48,6 @@ plotFsamples <- function(file, mcsamples, auxmetadata, dataset, plotmeans=TRUE, 
             xright <- Xgrid < varinfo[['censormax']]
 
             plotsamples <- samplesFDistribution(Y=Xgrid, X=NULL, mcsamples=mcsamples, auxmetadata=auxmetadata, subsamples=mcsubsamples, jacobian=TRUE, parallel=parallel)
-
             if(plotuncertainty=='samples'){
                 ymax <- tquant(apply(plotsamples[xleft & xright, subsamples, drop=F],
                                      2,function(x){tquant(x,31/32)}),31/32, na.rm=T)

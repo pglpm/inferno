@@ -129,7 +129,7 @@ XnR <- length(totake)
         YnD <- XnD <- 0
     }
     if(vn$O > 0){# ordinal
-        Qfunction <- readRDS('Qfunction512.rds')
+        Qfunction <- readRDS('Qfunction8192.rds')
         inds <- paste0(vindices$O,collapse='|')
         Omean <- array(t(mcsamples[,grep(paste0('^Omean\\[(',inds,')'), allparams),drop=F]),
                        dim=c(vn$O,nclusters,nsamples), dimnames=NULL)
