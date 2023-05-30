@@ -102,8 +102,8 @@ buildmetadata <- function(data, file=NULL){
                     if(diff(range(x))/vd > 256){
                     message('\nNOTE: variate ',xn,' is reported as "rounded",\nbut consider the possibility of treating it as continuous,\nby setting its "rounding" to 0 in the metadata file.\n')
                     }
-                    domainmin <- signif(min(x) - 3*diff(range(x)),1)
-                    domainmax <- signif(max(x) + 3*diff(range(x)),1)
+                    domainmin <- signif(min(x) - 4*diff(range(x)),1)
+                    domainmax <- signif(max(x) + 4*diff(range(x)),1)
                     censormin <- FALSE
                     censormax <- FALSE
                     ## location <- Q2
