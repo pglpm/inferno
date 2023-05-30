@@ -1,6 +1,4 @@
 buildauxmetadata <- function(data, metadata, file=TRUE){
-    require('data.table')
-
     sdoveriqr <- 0.5/qnorm(0.75)
 
     datafile <- NULL

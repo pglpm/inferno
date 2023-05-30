@@ -1,7 +1,6 @@
 buildmetadata <- function(data, file=NULL){
-    require('data.table')
-    gcd2 <- function(a, b){ if (b == 0) a else Recall(b, a %% b) }
-    gcd <- function(...) Reduce(gcd2, c(...))
+    gcd2 <- function(a, b){suppressWarnings( if (b == 0) a else Recall(b, a %% b) )}
+    gcd <- function(...){suppressWarnings(Reduce(gcd2, c(...)))}
     ##
     datafile <- NULL
     if(is.character(data) && file.exists(data)){

@@ -1,4 +1,4 @@
-inferpopulation <- function(dataset, auxmetadata, outputdir, nsamples=4096, nsamplesperchain=4, nchains, ncores, saveallchains=F, plotallchains=F, seed=701, subsampledataset){
+inferpopulation <- function(data, auxmetadata, outputdir, nsamples=4096, nsamplesperchain=4, nchains, ncores, saveallchains=F, plotallchains=F, seed=701, subsampledata){
 
     if(!missing(nsamples) && !missing(nchains) && missing(nsamplesperchain)){
         nsamplesperchain <- ceiling(nsamples/nchains)
@@ -37,17 +37,17 @@ inferpopulation <- function(dataset, auxmetadata, outputdir, nsamples=4096, nsam
 
     ## read dataset
     datafile <- NULL
-    if(missing(dataset) || (is.logical(dataset) && dataset==FALSE)){
-        message('Missing dataset: calculating prior distribution')
-        dataset <- as.data.table(matrix(NA,nrow=1,ncol=nrow(auxmetadata),dimnames=list(NULL,auxmetadata[['name']])))
+    if(missing(data) || (is.logical(data) && data==FALSE)){
+        message('Missing data: calculating prior distribution')
+        data <- as.data.table(matrix(NA,nrow=1,ncol=nrow(auxmetadata),dimnames=list(NULL,auxmetadata[['name']])))
     }
-    if(is.character(dataset) && file.exists(dataset)){
-        datafile <- paste0(sub('.csv$', '', dataset), '.csv')
-        dataset <- fread(datafile, na.strings='')
+    if(is.character(data) && file.exists(data)){
+        datafile <- paste0(sub('.csv$', '', data), '.csv')
+        data <- fread(datafile, na.strings='')
     }
-    dataset <- as.data.table(dataset)
-    if(!missing(subsampledataset) && is.numeric(subsampledataset)){
-        dataset <- dataset[sample(1:nrow(dataset), min(subsampledataset,nrow(dataset)), replace=F),]
+    data <- as.data.table(data)
+    if(!missing(subsampledata) && is.numeric(subsampledata)){
+        data <- data[sample(1:nrow(data), min(subsampledata,nrow(data)), replace=F),]
     }
 
     if(missing(outputdir) || outputdir==TRUE){
@@ -93,7 +93,7 @@ inferpopulation <- function(dataset, auxmetadata, outputdir, nsamples=4096, nsam
     Bshapehi <- 1
     ##
     nalpha <- length(minalpha:maxalpha)
-    npoints <- nrow(dataset)
+    npoints <- nrow(data)
     Alphatoslice <- TRUE
     RWtoslice <- TRUE
 
@@ -171,8 +171,8 @@ inferpopulation <- function(dataset, auxmetadata, outputdir, nsamples=4096, nsam
              Cvar1 = rep(1, 1),
              Cshapelo = rep(Cshapelo, 1),
              Cshapehi = rep(Cshapehi, 1),
-             Cleft = vtransform(dataset[,vnames$C, with=F], auxmetadata, Cout='left'),
-             Cright = vtransform(dataset[,vnames$C, with=F], auxmetadata, Cout='right')
+             Cleft = vtransform(data[,vnames$C, with=F], auxmetadata, Cout='left'),
+             Cright = vtransform(data[,vnames$C, with=F], auxmetadata, Cout='right')
              ) },
     if(vn$D > 0){# discretized
         list(Dn = vn$D,
@@ -181,8 +181,8 @@ inferpopulation <- function(dataset, auxmetadata, outputdir, nsamples=4096, nsam
              Dvar1 = rep(1, 1),
              Dshapelo = rep(Dshapelo, 1),
              Dshapehi = rep(Dshapehi, 1),
-             Dleft = vtransform(dataset[,vnames$D, with=F], auxmetadata, Dout='left'),
-             Dright = vtransform(dataset[,vnames$D, with=F], auxmetadata, Dout='right')
+             Dleft = vtransform(data[,vnames$D, with=F], auxmetadata, Dout='left'),
+             Dright = vtransform(data[,vnames$D, with=F], auxmetadata, Dout='right')
              ) },
     if(vn$O > 0){# ordinal
         list(On = vn$O,
@@ -191,8 +191,8 @@ inferpopulation <- function(dataset, auxmetadata, outputdir, nsamples=4096, nsam
              Ovar1 = rep(1, 1),
              Oshapelo = rep(Oshapelo, 1),
              Oshapehi = rep(Oshapehi, 1),
-             Oleft = vtransform(dataset[,vnames$O, with=F], auxmetadata, Oout='left'),
-             Oright = vtransform(dataset[,vnames$O, with=F], auxmetadata, Oout='right')
+             Oleft = vtransform(data[,vnames$O, with=F], auxmetadata, Oout='left'),
+             Oright = vtransform(data[,vnames$O, with=F], auxmetadata, Oout='right')
              ) },
     if(vn$N > 0){# nominal
         list(Nn = vn$N,
@@ -210,28 +210,28 @@ inferpopulation <- function(dataset, auxmetadata, outputdir, nsamples=4096, nsam
     datapoints <- c(
         if(vn$R > 0){# continuous
             list(
-                Rdata = vtransform(dataset[,vnames$R, with=F], auxmetadata)
+                Rdata = vtransform(data[,vnames$R, with=F], auxmetadata)
             ) },
         if(vn$C > 0){# censored
             list(
-                Caux = vtransform(dataset[,vnames$C, with=F], auxmetadata, Cout='aux'),
-                Clat = vtransform(dataset[,vnames$C, with=F], auxmetadata, Cout='lat')
+                Caux = vtransform(data[,vnames$C, with=F], auxmetadata, Cout='aux'),
+                Clat = vtransform(data[,vnames$C, with=F], auxmetadata, Cout='lat')
             ) },
         if(vn$D > 0){# discretized
             list(
-                Daux = vtransform(dataset[,vnames$D, with=F], auxmetadata, Dout='aux')
+                Daux = vtransform(data[,vnames$D, with=F], auxmetadata, Dout='aux')
             ) },
         if(vn$O > 0){# ordinal
             list(
-                Oaux = vtransform(dataset[,vnames$O, with=F], auxmetadata, Oout='aux')
+                Oaux = vtransform(data[,vnames$O, with=F], auxmetadata, Oout='aux')
             ) },
         if(vn$N > 0){# nominal
             list(
-                Ndata = vtransform(dataset[,vnames$N,with=F], auxmetadata, Nout='numeric')                
+                Ndata = vtransform(data[,vnames$N,with=F], auxmetadata, Nout='numeric')                
             ) },
         if(vn$B > 0){# binary
             list(
-                Bdata = vtransform(dataset[,vnames$B,with=F], auxmetadata, Bout='numeric')                
+                Bdata = vtransform(data[,vnames$B,with=F], auxmetadata, Bout='numeric')                
             ) }
     )
 
@@ -404,7 +404,7 @@ inferpopulation <- function(dataset, auxmetadata, outputdir, nsamples=4096, nsam
                                  Cmean = matrix(rnorm(n=vn$C*nclusters, mean=constants$Cmean1, sd=sqrt(constants$Cvarm1)), nrow=vn$C, ncol=nclusters),
                                  Crate = Crate,
                                  Cvar = matrix(nimble::rinvgamma(n=vn$C*nclusters, shape=constants$Cshapelo, rate=Crate), nrow=vn$C, ncol=nclusters),
-                                 Clat = vtransform(dataset[,vnames$C, with=F], auxmetadata, Cout='init') ## for data with boundary values
+                                 Clat = vtransform(data[,vnames$C, with=F], auxmetadata, Cout='init') ## for data with boundary values
                              ))
             }
             if(vn$D > 0){# discretized
@@ -414,7 +414,7 @@ inferpopulation <- function(dataset, auxmetadata, outputdir, nsamples=4096, nsam
                                  Dmean = matrix(rnorm(n=vn$D*nclusters, mean=constants$Dmean1, sd=sqrt(constants$Dvarm1)), nrow=vn$D, ncol=nclusters),
                                  Drate = Drate,
                                  Dvar = matrix(nimble::rinvgamma(n=vn$D*nclusters, shape=constants$Dshapelo, rate=Drate), nrow=vn$D, ncol=nclusters),
-                                 Dlat = vtransform(dataset[,vnames$D, with=F], auxmetadata, Dout='init') ## for data with boundary values
+                                 Dlat = vtransform(data[,vnames$D, with=F], auxmetadata, Dout='init') ## for data with boundary values
                              ))
             }
             if(vn$O > 0){# ordinal
@@ -424,7 +424,7 @@ inferpopulation <- function(dataset, auxmetadata, outputdir, nsamples=4096, nsam
                                  Omean = matrix(rnorm(n=vn$O*nclusters, mean=constants$Omean1, sd=sqrt(constants$Ovarm1)), nrow=vn$O, ncol=nclusters),
                                  Orate = Orate,
                                  Ovar = matrix(nimble::rinvgamma(n=vn$O*nclusters, shape=constants$Oshapelo, rate=Orate), nrow=vn$O, ncol=nclusters),
-                                 Olat = vtransform(dataset[,vnames$O, with=F], auxmetadata, Oout='init') ## for data with boundary values
+                                 Olat = vtransform(data[,vnames$O, with=F], auxmetadata, Oout='init') ## for data with boundary values
                              ))
             }
             if(vn$N > 0){# nominal
@@ -770,11 +770,10 @@ inferpopulation <- function(dataset, auxmetadata, outputdir, nsamples=4096, nsam
                     ## showsubsample <- round(seq(1, length(subsamples), length.out=showsamples))
                     ##
                     cat('\nPlotting samples of frequency distributions')
-
                     plotFsamples(file=paste0(dirname,'mcmcdistributions-',basename,'--',mcmcseed,'-',achain),
                                  mcsamples=mcsamples[subsamples,,drop=F],
                                  auxmetadata=auxmetadata,
-                                 dataset=dataset,
+                                 data=data,
                                  plotuncertainty='samples',
                                  uncertainty=showsamples,
                                  plotmeans=plotmeans,
@@ -814,7 +813,6 @@ inferpopulation <- function(dataset, auxmetadata, outputdir, nsamples=4096, nsam
     traces2 <- traces[apply(traces,1,function(x){all(is.finite(x))}),]
     flagll <- nrow(traces) != nrow(traces2)
 
-
     funMCSE <- function(x){LaplacesDemon::MCSE(x, method='batch.means')$se}
     diagnESS <- LaplacesDemon::ESS(traces2)
     diagnIAT <- apply(traces2, 2, function(x){LaplacesDemon::IAT(x)})
@@ -841,7 +839,7 @@ inferpopulation <- function(dataset, auxmetadata, outputdir, nsamples=4096, nsam
     ##
 
     ## Plot various info and traces
-    cat('\nPlotting final Monte Carlo traces and marginal samples.\n')
+    cat('\nPlotting final Monte Carlo traces.\n')
     
     ##
     graphics.off()
@@ -862,16 +860,19 @@ inferpopulation <- function(dataset, auxmetadata, outputdir, nsamples=4096, nsam
               )
     }
     
+    cat('Plotting marginal samples.\n')
     plotFsamples(file=paste0(dirname,'plotsamples_Fdistribution-',basename,'-',nsamples),
                  mcsamples=mcsamples, auxmetadata=auxmetadata,
-                 dataset=dataset,
+                 data=data,
                  plotuncertainty='samples',
                  uncertainty=showsamples, plotmeans=TRUE,
                  datahistogram=TRUE, datascatter=TRUE,
                  parallel=TRUE)
+    
+    cat('Plotting marginal samples with quantiles.\n')
     plotFsamples(file=paste0(dirname,'plotquantiles_Fdistribution-',basename,'-',nsamples),
                  mcsamples=mcsamples, auxmetadata=auxmetadata,
-                 dataset=dataset,
+                 data=data,
                  plotuncertainty='quantiles',
                  uncertainty=showquantiles, plotmeans=TRUE,
                  datahistogram=TRUE, datascatter=TRUE,
