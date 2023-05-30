@@ -308,7 +308,7 @@ scatteraxis <- function(x, side=1, n=128, col='#555555', alpha=0.5, ext=5, lwd=0
     matlines(x=xl, y=yl, lty=1, lwd=lwd, col=col, ...)
 }
 
-thist <- function(x, n=NULL, type=8, pretty=FALSE, plot=FALSE, extendbreaks=TRUE){
+thist <- function(x, n=NULL, type=8, pretty=FALSE, plot=FALSE, extendbreaks=FALSE){
     if(!is.list(x)){x <- list(x)}
     if(!is.list(n)){n <- list(n)}
     out <- list()
