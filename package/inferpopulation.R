@@ -21,12 +21,12 @@ inferpopulation <- function(dataset, auxmetadata, outputdir, nsamples=4096, nsam
 
     timestart0 <- Sys.time()
 
-    cat('\n')
-    require('data.table')
-    require('LaplacesDemon', include.only=NULL)
-    require('foreach')
-    require('doParallel')
-    require('doRNG')
+    ## cat('\n')
+    ## library('data.table')
+    ## library('LaplacesDemon', include.only=NULL)
+    ## library('foreach')
+    ## library('doParallel')
+    ## library('doRNG')
     
 
     ## auxmetadata
@@ -238,7 +238,7 @@ inferpopulation <- function(dataset, auxmetadata, outputdir, nsamples=4096, nsam
     cat('\nStarting Monte Carlo sampling with',nchains,'chains across', ncores, 'cores.\n')
     cat('Core logs are being saved in individual files.\n')
     cat('Setting up samplers (this can take tens of minutes if there are many data or variates).\n')
-    cat('Estimated remaining time...\r')
+    cat('Estimating remaining time...\r')
     ## stopCluster(cluster)
     stopImplicitCluster()
     registerDoSEQ()
