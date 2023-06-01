@@ -468,7 +468,8 @@ inferpopulation <- function(data, auxmetadata, outputdir, nsamples=4096, nsample
             monitors2=c( 'Alpha', 'K')
         )
                                         # print(confnimble$getUnsampledNodes())
-
+        ## confnimble$printSamplers(executionOrder=TRUE)
+        
         targetslist <- sapply(confnimble$getSamplers(), function(xx)xx$target)
         nameslist <- sapply(confnimble$getSamplers(), function(xx)xx$name)
                                         # cat('\n******** NAMESLIST',nameslist,'\n')
@@ -478,12 +479,15 @@ inferpopulation <- function(data, auxmetadata, outputdir, nsamples=4096, nsample
             confnimble$addSampler(target='Alpha', type='slice')
         }
         ## replace all RW samplers with slice
+        testreptime <- Sys.time()
         if(RWtoslice){
             for(asampler in targetslist[nameslist == 'RW']){
                 confnimble$removeSamplers(asampler)
                 confnimble$addSampler(target=asampler, type='slice')
+                ## confnimble$replaceSampler(target=asampler, type='slice')
             }
         }
+
                                         # print(confnimble$getUnsampledNodes())
         ## call this to do a first reordering
         mcsampler <- buildMCMC(confnimble)
