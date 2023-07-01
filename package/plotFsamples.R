@@ -1,7 +1,7 @@
 plotFsamples <- function(file, mcsamples, auxmetadata, data, plotmeans=TRUE, plotuncertainty='samples', uncertainty=100, datahistogram=TRUE, datascatter=TRUE, parallel=TRUE){
 
     family <- 'Palatino'
-    source('pglpm_plotfunctions.R')
+    source('tplotfunctions.R')
     source('vtransform.R')
     source('samplesFDistribution.R')
 

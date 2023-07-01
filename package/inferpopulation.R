@@ -121,7 +121,7 @@ inferpopulation <- function(data, auxmetadata, outputdir, nsamples=4096, nsample
     ## Parameter and function to test MCMC convergence
     multcorr <- 2L
 
-    source('pglpm_plotfunctions.R')
+    source('tplotfunctions.R')
     source('vtransform.R')
     source('samplesFDistribution.R')
     source('proposeburnin.R')
@@ -260,7 +260,7 @@ inferpopulation <- function(data, auxmetadata, outputdir, nsamples=4096, nsample
         suppressPackageStartupMessages(library('data.table'))
         suppressPackageStartupMessages(library('nimble'))
 
-        source('pglpm_plotfunctions.R')
+        source('tplotfunctions.R')
         source('vtransform.R')
         source('samplesFDistribution.R')
         source('proposeburnin.R')
