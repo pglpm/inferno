@@ -832,8 +832,7 @@ inferpopulation <- function(data, auxmetadata, outputdir, nsamples=4096, nsample
                 par(mfrow=c(1,1))
                 for(avar in colnames(traces)){
                     tplot(y=traces[,avar], type='l', lty=1, col=colpalette[avar],
-                          main=paste0(avar,
-                                      '\nESS = ', signif(diagnESS[avar], 3),
+                          main=paste0( 'ESS = ', signif(diagnESS[avar], 3),
                                       ' | IAT = ', signif(diagnIAT[avar], 3),
                                       ' | BMK = ', signif(diagnBMK[avar], 3),
                                       ' | MCSE = ', signif(diagnMCSE[avar], 3),
@@ -842,8 +841,9 @@ inferpopulation <- function(data, auxmetadata, outputdir, nsamples=4096, nsample
                                       ' | burnII: ', diagnBurn2,
                                       ' | thin: ', diagnThin[avar]
                                       ), 
-                          ylab=paste0(avar,'/dHart'), xlab='sample', family=family
-                          )
+                          ylab=paste0(avar,'/dHart'),
+                          xlab='Monte Carlo sample',
+                          family=family, mar=c(NA,2,NA,NA) )
                 }
                 dev.off()
                 ##
