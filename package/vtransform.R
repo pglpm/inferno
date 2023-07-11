@@ -53,11 +53,11 @@ info <- as.list(auxmetadata[name == v])
                 if(Oout == 'init'){ # in sampling functions or init MCMC
                     datum[is.na(datum)] <- info$Nvalues/2+0.5
                     datum <- Qf((datum-0.5)/info$Nvalues)
+                    datum[datum==+Inf] <- 1e6
+                    datum[datum==-Inf] <- -1e6
                     if(useOquantiles){
                         datum <- (datum-info$tlocation)/info$tscale
                     }
-                    datum[datum==+Inf] <- 1e6
-                    datum[datum==-Inf] <- -1e6
                 } else if(Oout == 'left'){ # as left for MCMC
                     datum <- Qf(pmax(0,datum-1L)/info$Nvalues)
                     if(useOquantiles){

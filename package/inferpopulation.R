@@ -264,7 +264,8 @@ inferpopulation <- function(data, auxmetadata, outputdir, nsamples=4096, nsample
             ) }
     )
 
-    cat('\nStarting Monte Carlo sampling with',nchains,'chains across', ncores, 'cores.\n')
+    cat('\nStarting Monte Carlo sampling of',nsamples,'samples by',nchains,'chains across', ncores, 'cores.\n')
+    cat('\n',nsamplesperchain,'samples per chain, ',nchainspercore,'chains per core.\n')
     cat('Core logs are being saved in individual files.\n')
     cat('Setting up samplers (this can take tens of minutes if there are many data or variates).\n')
     cat('Estimating remaining time...\r')
@@ -590,7 +591,6 @@ inferpopulation <- function(data, auxmetadata, outputdir, nsamples=4096, nsample
             toadd
         }))
         colnames(testdata) <- auxmetadata[['name']]
-        str(testdata)
         ## testdata <- t(auxmetadata[,paste0('mctest',1:3)])
         ## colnames(testdata) <- auxmetadata[,name]
         ## testdata <- rbind(auxmetadata[['Q2']], varinfo[['Q1']], varinfo[['Q3']]) #, varinfo[['plotmin']], varinfo[['plotmax']], varinfo[['datamin']], varinfo[['datamax']])
