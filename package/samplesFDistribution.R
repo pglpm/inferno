@@ -141,11 +141,22 @@ XnR <- length(totake)
         ##
         Oleft <- t(sapply(vnames$O, function(avar){
             nn <- auxmetadata[name == avar, Nvalues]
-            c(Qfunction((0:(nn-1))/nn), rep(NA,Omaxn-nn))
+            ## c(Qfunction((0:(nn-1))/nn), rep(NA,Omaxn-nn))
+            c(vtransform(seq(auxmetadata[name == avar, domainmin],
+                             auxmetadata[name == avar, domainmax],
+                             length.out=auxmetadata[name == avar, Nvalues]
+                             ),
+                         auxmetadata, Oout='left', variates=avar),
+              rep(NA,Omaxn-nn))
         }))
         Oright <- t(sapply(vnames$O, function(avar){
             nn <- auxmetadata[name == avar, Nvalues]
-            c(Qfunction((1:nn)/nn), rep(NA,Omaxn-nn))
+            c(vtransform(seq(auxmetadata[name == avar, domainmin],
+                             auxmetadata[name == avar, domainmax],
+                             length.out=auxmetadata[name == avar, Nvalues]
+                             ),
+                         auxmetadata, Oout='right', variates=avar),
+                rep(NA,Omaxn-nn))
         }))
         ##
         totake <- intersect(vnames$O, Yv)

@@ -1,4 +1,4 @@
-inferpopulation <- function(data, auxmetadata, outputdir, nsamples=4096, nsamplesperchain=4, nchains, ncores, saveallchains=F, plotallchains=F, seed=701, subsampledata){
+inferpopulation <- function(data, auxmetadata, outputdir, nsamples=4096, nsamplesperchain=4, nchains, ncores, saveallchains=F, plotallchains=F, seed=701, subsampledata, selftune=TRUE){
 
     if(!missing(nsamples) && !missing(nchains) && missing(nsamplesperchain)){
         nsamplesperchain <- ceiling(nsamples/nchains)
@@ -37,7 +37,7 @@ inferpopulation <- function(data, auxmetadata, outputdir, nsamples=4096, nsample
 
     ## read dataset
     datafile <- NULL
-    if(missing(data) || (is.logical(data) && data==FALSE)){
+    if(missing(data) || is.null(data) || (is.logical(data) && data==FALSE)){
         message('Missing data: calculating prior distribution')
         data <- as.data.table(matrix(NA,nrow=1,ncol=nrow(auxmetadata),dimnames=list(NULL,auxmetadata[['name']])))
     }
@@ -55,6 +55,30 @@ inferpopulation <- function(data, auxmetadata, outputdir, nsamples=4096, nsample
         outputdir <- paste0(sub('.csv$', '', outputdir))
     }
 
+    ## Check consistency of variate names
+    if(!all(auxmetadata[['name']] %in% colnames(data))){
+        stop('Missing variates in data file.')
+    }
+    if(!all(colnames(data) %in% auxmetadata[['name']])){
+        message('Data file has additional variates. Dropping them.')
+        subvar <- intersect(colnames(data), auxmetadata[['name']])
+        ## cat(subvar,'\n')
+        data <- data[,..subvar]
+        ## auxmetadata <- auxmetadata[name %in% subvar]
+        }
+    ## ##
+    ## if(!missing(variates) && !is.null(variates) && is.character(variates)){
+    ##     subvar <- intersect(colnames(data), variates)
+    ##     if(length(subvar)==0){
+    ##         stop('There are no variates. Check argument consistency.')
+    ##     }
+    ##     message('Restricting to these variates:')
+    ##     cat(subvar,'\n')
+    ##     data <- data[,..subvar]
+    ##     auxmetadata <- auxmetadata[name %in% subvar]
+    ## }
+    
+    
     ## ## list of predictand variates
     ## if(is.character(predictands) && file.exists(predictands)){
     ##     predictands <- as.vector(unlist(read.csv(predictands, header=F)))
@@ -75,7 +99,9 @@ inferpopulation <- function(data, auxmetadata, outputdir, nsamples=4096, nsample
         }
     }
 
+##################################################
 #### various internal parameters
+    ## source('hyperparameters.R')
     niter0 <- 1024L # initial iterations to try
 #### Hyperparameters
     nclusters <- 64L # ****
@@ -94,32 +120,35 @@ inferpopulation <- function(data, auxmetadata, outputdir, nsamples=4096, nsample
     ##
     nalpha <- length(minalpha:maxalpha)
     npoints <- nrow(data)
-    Alphatoslice <- TRUE
-    RWtoslice <- TRUE
 
-    ## other options
+#### other options
+    Alphatoslice <- TRUE
+    Ktoslice <- FALSE
+    RWtoslice <- FALSE
+##
     showdata <- TRUE # 'histogram' 'scatter' FALSE TRUE
     plotmeans <- TRUE # plot frequency averages
     totsamples <- 'all' # 'all' number of samples if plotting frequency averages
-    showsamples <- 100 # number of samples to show. Shown separately for posterior=F
-    showquantiles <- c(1,31)/32 # number of samples to show. Shown separately for posterior=F
-    showhyperparametertraces <- FALSE ##
+    showsamples <- 100 # number of samples to show.
+    showquantiles <- c(1,31)/32 # quantiles to show
+    showhyperparametertraces <- TRUE ##
     showsamplertimes <- FALSE ##
     family <- 'Palatino'
+##################################################
 
-    basename <- paste0(outputdir,'-V',nrow(auxmetadata),'-D',npoints,'-K',nclusters,'-I',nsamples)
+
+    
+
+    nameroot <- paste0(outputdir,'-V',nrow(auxmetadata),'-D',npoints,'-K',nclusters,'-I',nsamples)
     ##
-    dirname <- paste0(basename,'/')
+    dirname <- paste0(nameroot,'/')
     dir.create(dirname)
     cat('\n',paste0(rep('*',max(nchar(dirname),26)),collapse=''),
         '\n Saving output in directory\n',dirname,'\n',
         paste0(rep('*',max(nchar(dirname),26)),collapse=''),'\n')
+    nameroot <- basename(nameroot)
 
     saveRDS(auxmetadata,file=paste0(dirname,'_auxmetadata_copy.rds'))
-
-
-    ## Parameter and function to test MCMC convergence
-    multcorr <- 2L
 
     source('tplotfunctions.R')
     source('vtransform.R')
@@ -254,7 +283,7 @@ inferpopulation <- function(data, auxmetadata, outputdir, nsamples=4096, nsample
 
     mcsamples <- foreach(acore=1:ncores, .combine=rbind, .inorder=FALSE)%dorng%{
 
-        outcon <- file(paste0(dirname,'_log-',basename,'-',acore,'.log'), open = "w")
+        outcon <- file(paste0(dirname,'_log-',nameroot,'-',acore,'.log'), open = "w")
         sink(outcon)
         sink(outcon, type = "message")
         suppressPackageStartupMessages(library('data.table'))
@@ -267,8 +296,17 @@ inferpopulation <- function(data, auxmetadata, outputdir, nsamples=4096, nsample
         source('proposethinning.R')
         source('plotFsamples.R')
 
-        thresholdfn <- function(diagnESS, diagnIAT, diagnBMK, diagnMCSE, diagnStat, diagnBurn, diagnBurn2, diagnThin){
-            ceiling(2* max(diagnBurn2) + (nsamplesperchain-1L) * multcorr * ceiling(max(diagnIAT, diagnThin)))
+        ## Parameter and function to test MCMC convergence
+        if(selftune){
+            multcorr <- 2L
+            thresholdfn <- function(diagnESS, diagnIAT, diagnBMK, diagnMCSE, diagnStat, diagnBurn, diagnBurn2, diagnThin){
+                ceiling(2* max(diagnBurn2) + (nsamplesperchain-1L) * multcorr * ceiling(max(diagnIAT, diagnThin)))
+            }
+        }else{
+            multcorr <- 0L
+            thresholdfn <- function(diagnESS, diagnIAT, diagnBMK, diagnMCSE, diagnStat, diagnBurn, diagnBurn2, diagnThin){
+                0
+            }
         }
 
         printtime <- function(tim){paste0(signif(tim,2),' ',attr(tim,'units'))}
@@ -385,7 +423,9 @@ inferpopulation <- function(data, auxmetadata, outputdir, nsamples=4096, nsample
             outlist <- list(
                 Alpha = Alpha,
                 W = W,
-                K = rep(which(W>0)[1], npoints)
+                ## K = rep(which(W>0)[1], npoints)
+                ## K = sample(rep(which(W>0),2), npoints, replace=T)
+                K = rep(sample(rep(which(W>0), 2), 1, replace=T), npoints)
             )
             ##
             if(vn$R > 0){# continuous
@@ -465,7 +505,7 @@ inferpopulation <- function(data, auxmetadata, outputdir, nsamples=4096, nsample
                        if(vn$N > 0){c('Nprob')},
                        if(vn$B > 0){c('Bprob')}
                        ),
-            monitors2=c( 'Alpha', 'K')
+            monitors2=c('Alpha', 'K')
         )
                                         # print(confnimble$getUnsampledNodes())
         ## confnimble$printSamplers(executionOrder=TRUE)
@@ -473,10 +513,19 @@ inferpopulation <- function(data, auxmetadata, outputdir, nsamples=4096, nsample
         targetslist <- sapply(confnimble$getSamplers(), function(xx)xx$target)
         nameslist <- sapply(confnimble$getSamplers(), function(xx)xx$name)
                                         # cat('\n******** NAMESLIST',nameslist,'\n')
-        ## replace Alpha's cat-sampler and RW samplers with slice
+        ## replace Alpha's cat-sampler with slice
         if(Alphatoslice && !('Alpha' %in% targetslist[nameslist == 'posterior_predictive'])){
             confnimble$removeSamplers('Alpha')
             confnimble$addSampler(target='Alpha', type='slice')
+        }
+        ## replace K's cat-sampler with slice
+        if(Ktoslice){
+            for(asampler in grep('^K\\[', targetslist,value=T)){
+                if(!(asampler %in% targetslist[nameslist == 'posterior_predictive'])){
+                    confnimble$removeSamplers(asampler)
+                    confnimble$addSampler(target=asampler, type='slice')
+                }
+            }
         }
         ## replace all RW samplers with slice
         testreptime <- Sys.time()
@@ -494,14 +543,16 @@ inferpopulation <- function(data, auxmetadata, outputdir, nsamples=4096, nsample
                                         # print(confnimble$getUnsampledNodes())
 
         ## change execution order for some variates
-        samplerorder <- c('K', 
-                          if(vn$R > 0){c('Rmean','Rrate','Rvar')},
-                          if(vn$C > 0){c('Cmean','Crate','Cvar')},
-                          if(vn$D > 0){c('Dmean','Drate','Dvar')},
-                          if(vn$O > 0){c('Omean','Orate','Ovar')},
-                          if(vn$N > 0){c('Nprob')},
-                          if(vn$B > 0){c('Bprob')},
-                          'W','Alpha')
+        samplerorder <- c(
+            'K',
+            if(vn$R > 0){c('Rmean','Rrate','Rvar')},
+            if(vn$C > 0){c('Cmean','Crate','Cvar')},
+            if(vn$D > 0){c('Dmean','Drate','Dvar')},
+            if(vn$O > 0){c('Omean','Orate','Ovar')},
+            if(vn$N > 0){c('Nprob')},
+            if(vn$B > 0){c('Bprob')},
+            'W','Alpha'
+        )
         ##
         neworder <- foreach(var=samplerorder, .combine=c)%do%{grep(paste0('^',var,'(\\[.+\\])*$'), sapply(confnimble$getSamplers(), function(x){
             if(!(x$name == 'posterior_predictive')){ x$target }else{NULL}
@@ -529,8 +580,19 @@ inferpopulation <- function(data, auxmetadata, outputdir, nsamples=4096, nsample
         newchain <- TRUE
         allmcsamples <- NULL
         maxusedclusters <- 0
-        testdata <- t(auxmetadata[,paste0('mctest',1:3)])
-        colnames(testdata) <- auxmetadata[,name]
+        ## build test data for assessing stationarity
+        testdata <- data.table(sapply(1:nrow(auxmetadata),function(xx){
+            xx <- auxmetadata[xx,]
+            toadd <- xx[,paste0('mctest',1:3),with=F]
+            if(xx[['mcmctype']] %in% c('B','N')){
+                toadd <- xx[1,paste0('V',toadd),with=F]
+            }
+            toadd
+        }))
+        colnames(testdata) <- auxmetadata[['name']]
+        str(testdata)
+        ## testdata <- t(auxmetadata[,paste0('mctest',1:3)])
+        ## colnames(testdata) <- auxmetadata[,name]
         ## testdata <- rbind(auxmetadata[['Q2']], varinfo[['Q1']], varinfo[['Q3']]) #, varinfo[['plotmin']], varinfo[['plotmax']], varinfo[['datamin']], varinfo[['datamax']])
 
         calctime <- Sys.time()
@@ -539,6 +601,9 @@ inferpopulation <- function(data, auxmetadata, outputdir, nsamples=4096, nsample
                 niter <- nitertot <- niter0
                 reset <- TRUE
                 traces <- mcsamples <- prevmcsamples <- NULL
+                if(showhyperparametertraces){
+                    mcsamples2 <- prevmcsamples2 <- NULL
+                }
                 achain <- achain + 1L
                 ## if(TRUE){ # send message to user screen with est. remaining time
                 ertime <- (Sys.time()-calctime)/(achain-1)*(nchainspercore-achain+1)
@@ -552,12 +617,16 @@ inferpopulation <- function(data, auxmetadata, outputdir, nsamples=4096, nsample
                 ##}
                 if(!(achain > nchainspercore)){
                     mcmcseed <- (acore-1L)*nchainspercore + achain
+                    cat('\nNew chain\n')
                     cat('Seed:', mcmcseed+seed, '\n')
                     set.seed(mcmcseed+seed)
                     Cfinitemixnimble$setInits(initsfn())
                 }
             }else{
                 prevmcsamples <- rbind(prevmcsamples,mcsamples)
+                if(showhyperparametertraces){
+                    prevmcsamples2 <- rbind(prevmcsamples2,mcsamples2)
+                }
                 niter <- lengthmeasure - nitertot + 1L
                 nitertot <- lengthmeasure
                 reset <- FALSE
@@ -570,19 +639,22 @@ inferpopulation <- function(data, auxmetadata, outputdir, nsamples=4096, nsample
                 achain <- 'F'
                 mcsamples <- allmcsamples
                 usedclusters <- maxusedclusters
-                ## saveRDS(mcsamples, file=paste0(dirname,'_mcsamples-R',basename,'--',mcmcseed,'-',achain,'.rds'))
+                ## saveRDS(mcsamples, file=paste0(dirname,'_mcsamples-R',nameroot,'--',mcmcseed,'-',achain,'.rds'))
             }else{
                 ##
                 cat('Iterations:', niter,'\n')
                 cat('chain:', achain,'of',nchainspercore,'- Estimated remaining time',
                     printtime((Sys.time()-calctime)/(achain-1)*(nchainspercore-achain+1)), '\n')
-                Cmcsampler$run(niter=niter, thin=1, thin2=niter, nburnin=0, time=showsamplertimes0, reset=reset, resetMV=TRUE)
+                Cmcsampler$run(niter=niter, thin=1, thin2=(if(showhyperparametertraces){min(niter,1)}else{niter}), nburnin=0, time=showsamplertimes0, reset=reset, resetMV=TRUE)
                 mcsamples <- as.matrix(Cmcsampler$mvSamples)
-                finalstate <- as.matrix(Cmcsampler$mvSamples2)
+                mcsamples2 <- as.matrix(Cmcsampler$mvSamples2)
                 cat('\nMCMC time', printtime(Sys.time() - calctime), '\n')
 
-                if(any(!is.finite(mcsamples))){cat('\nWARNING: SOME NON-FINITE OUTPUTS')}
-                
+                if(any(!is.finite(mcsamples))){
+                    sink(NULL,type='message')
+                    message('\nWARNING: SOME NON-FINITE OUTPUTS\n')}
+                    flush.console()
+                    sink(outcon,type='message')                
                 if(showsamplertimes){
                     samplertimes <- Cmcsampler$getTimes()
                     names(samplertimes) <- sapply(confnimble$getSamplers(),function(x)x$target)
@@ -591,33 +663,9 @@ inferpopulation <- function(data, auxmetadata, outputdir, nsamples=4096, nsample
                     print(sort(sapply(sprefixes, function(x)sum(samplertimes[grepl(x,names(samplertimes))])),decreasing=T))
                 }
                 ##
-                if(showhyperparametertraces){
-                    occupations <- apply(finalstate[,grepl('^K\\[', colnames(finalstate)),drop=F], 1, function(xxx){length(unique(xxx))})
-                    cat('\nSTATS OCCUPIED CLUSTERS:\n')
-                    print(summary(occupations))
-                    ##
-                    pdff(paste0(dirname,'traces_hyperparameters-',mcmcseed,'-',achain), apaper=4)
-                    tplot(y=occupations, ylab='occupied clusters',xlab=NA,ylim=c(0,nclusters))
-                    histo <- thist(occupations,n='i')
-                    tplot(x=histo$mids,y=histo$density,xlab='occupied clusters',ylab=NA)
-                    tplot(y=log2(alpha0[finalstate[,'Alpha']]), ylab='Alpha index',xlab=NA)
-                    histo <- thist(log2(alpha0[finalstate[,'Alpha']]))
-                    tplot(x=histo$mids,y=histo$density,xlab='Alpha index',ylab='')
-                    for(vtype in c('R','C','D','O','N','B')){
-                        if(len[[vtype]] > 0){
-                            for(togrep in c('varscaleindex')){
-                                for(v in colnames(finalstate)[grepl(paste0('^',vtype,togrep,'\\['), colnames(finalstate))]){
-                                    tplot(y=finalstate[,v],ylab=v,xlab=NA,ylim=c(1,(2*hwidth+1)))
-                                }
-                            }
-                        }
-                    }
-                    dev.off()
-                }
-                ##
-                finalstate <- c(mcsamples[nrow(mcsamples),], finalstate[nrow(finalstate),])
+                ## mcsamples2 <- c(mcsamples[nrow(mcsamples),], mcsamples2[nrow(mcsamples2),])
                 ## Check how many "clusters" were occupied. Warns if too many
-                occupations <- finalstate[grepl('^K\\[', names(finalstate))]
+                occupations <- mcsamples2[nrow(mcsamples2),grepl('^K\\[', colnames(mcsamples2))]
                 usedclusters <- length(unique(occupations))
                 if(usedclusters > nclusters-5){cat('\nWARNING: TOO MANY CLUSTERS OCCUPIED')}
                 cat('\nOCCUPIED CLUSTERS:', usedclusters, 'OF', nclusters,'\n')
@@ -689,8 +737,11 @@ inferpopulation <- function(data, auxmetadata, outputdir, nsamples=4096, nsample
                     newchain <- FALSE
                 }else{
                     mcsamples <- rbind(prevmcsamples, mcsamples)
-                    allmcsamples <- rbind(allmcsamples, mcsamples[rev( nrow(mcsamples) - seq(from=0, length.out=nsamplesperchain, by=multcorr*ceiling(max(diagnIAT,diagnThin))) ),,drop=F])
+                    allmcsamples <- rbind(allmcsamples, mcsamples[rev( nrow(mcsamples) - seq(0, length.out=nsamplesperchain, by=max(1,multcorr*ceiling(max(diagnIAT,diagnThin)), na.rm=T)) ),,drop=F])
                     maxusedclusters <- max(usedclusters, maxusedclusters)
+                    if(showhyperparametertraces){
+                        mcsamples2 <- rbind(prevmcsamples2, mcsamples2)
+                    }
                     newchain <- TRUE
                 }
             }
@@ -700,15 +751,43 @@ inferpopulation <- function(data, auxmetadata, outputdir, nsamples=4096, nsample
 #########################################
             ##
             if(newchain && saveallchains){
-                saveRDS(traces,file=paste0(dirname,'_mctraces-',basename,'--',mcmcseed,'-',achain,'.rds'))
-                saveRDS(allmcsamples, file=paste0(dirname,'_mcsamples-',basename,'--',mcmcseed,'-','F','.rds'))
+                saveRDS(traces,file=paste0(dirname,'_mctraces-',nameroot,'--',mcmcseed,'-',achain,'.rds'))
+                saveRDS(allmcsamples, file=paste0(dirname,'_mcsamples-',nameroot,'--',mcmcseed,'-','F','.rds'))
             }
 
-            if(newchain && (plotallchains || !continue)){
                 ##
 ###############
 #### PLOTS ####
 ###############
+            if(newchain && showhyperparametertraces && continue){
+                    cat('Plotting Alpha and K information.\n')
+                    occupations <- apply(mcsamples2[,grepl('^K\\[', colnames(mcsamples2)),drop=F], 1, function(xxx){length(unique(xxx))})
+                    cat('\nSTATS OCCUPIED CLUSTERS:\n')
+                    print(summary(occupations))
+                    ##
+                    pdff(paste0(dirname,'_hyperparams_traces-',nameroot,'--',mcmcseed,'-',achain), apaper=4)
+                    tplot(y=occupations, ylab='occupied clusters',xlab='iteration',ylim=c(0,nclusters))
+                    tplot(x=((-1):nclusters)+0.5,y=tabulate(occupations+1, nbins=nclusters+1), type='h', xlab='occupied clusters', ylab=NA, ylim=c(0,NA))
+                    ##
+                    cat('\nSTATS log2(alpha):\n')
+                    print(summary(mcsamples2[,'Alpha'], na.rm=T))
+                    tplot(y=mcsamples2[,'Alpha']+minalpha-1L, ylab=bquote(log2(alpha)),xlab='iteration',ylim=c(minalpha,maxalpha))
+                    histo <- thist(mcsamples2[,'Alpha']+minalpha-1L,n='i')
+                    tplot(x=(minalpha:(maxalpha+1))-0.5,y=tabulate(mcsamples2[,'Alpha'],nbin=nalpha), type='h', xlab=bquote(log2(alpha)), ylab='', ylim=c(0,NA))
+                    ## for(vtype in c('R','C','D','O','N','B')){
+                    ##     if(len[[vtype]] > 0){
+                    ##         for(togrep in c('varscaleindex')){
+                    ##             for(v in colnames(mcsamples2)[grepl(paste0('^',vtype,togrep,'\\['), colnames(mcsamples2))]){
+                    ##                 tplot(y=mcsamples2[,v],ylab=v,xlab=NA,ylim=c(1,(2*hwidth+1)))
+                    ##             }
+                    ##         }
+                    ##     }
+                    ## }
+                    dev.off()
+                }
+            if(newchain && plotallchains){
+                cat('\nPlotting traces and samples.\n')
+
                 tracegroups <- list(1,2,3)
                 names(tracegroups) <- colnames(traces)
                 grouplegends <- foreach(agroup=1:length(tracegroups))%do%{
@@ -729,7 +808,7 @@ inferpopulation <- function(data, auxmetadata, outputdir, nsamples=4096, nsample
                 ## Plot various info and traces
                 cat('\nPlotting MCMC traces')
                 graphics.off()
-                pdff(paste0(dirname,'_mcmcpartialtraces-',basename,'--',mcmcseed,'-',achain), apaper=4)
+                pdff(paste0(dirname,'_mcmcpartialtraces-',nameroot,'--',mcmcseed,'-',achain), apaper=4)
                 ## Summary stats
                 matplot(1:2, type='l', col='white', main=paste0('Stats chain ',achain), axes=FALSE, ann=FALSE)
                 legendpositions <- c('topleft','topright','bottomleft','bottomright')
@@ -769,12 +848,12 @@ inferpopulation <- function(data, auxmetadata, outputdir, nsamples=4096, nsample
                 dev.off()
                 ##
                 ## Samples of marginal frequency distributions
-                if(!continue){
+                ## if(!continue){
                     subsamples <- (if(totsamples=='all'){1:nrow(mcsamples)}else{round(seq(1, nrow(mcsamples), length.out=totsamples))})
                     ## showsubsample <- round(seq(1, length(subsamples), length.out=showsamples))
                     ##
                     cat('\nPlotting samples of frequency distributions')
-                    plotFsamples(file=paste0(dirname,'mcmcdistributions-',basename,'--',mcmcseed,'-',achain),
+                    plotFsamples(file=paste0(dirname,'mcmcdistributions-',nameroot,'--',mcmcseed,'-',achain),
                                  mcsamples=mcsamples[subsamples,,drop=F],
                                  auxmetadata=auxmetadata,
                                  data=data,
@@ -784,7 +863,7 @@ inferpopulation <- function(data, auxmetadata, outputdir, nsamples=4096, nsample
                                  datahistogram=TRUE, datascatter=TRUE,
                                  parallel=FALSE
                                  )
-                }
+                ## }
                 ##
                 cat('\nMCMC+diagnostics time', printtime(Sys.time() - calctime), '\n')
                 ##
@@ -797,6 +876,9 @@ inferpopulation <- function(data, auxmetadata, outputdir, nsamples=4096, nsample
         ## Final output of foreach
         cbind(traces,mcsamples)
     }
+    suppressWarnings(sink())
+    suppressWarnings(sink(NULL,type='message'))
+
 ############################################################
     ## End MCMC
 ############################################################
@@ -805,8 +887,8 @@ inferpopulation <- function(data, auxmetadata, outputdir, nsamples=4096, nsample
     attr(mcsamples, 'doRNG_version') <- NULL
     traces <- mcsamples[round(seq(1,nrow(mcsamples),length.out=nsamples)),1:3]
     mcsamples <- mcsamples[round(seq(1,nrow(mcsamples),length.out=nsamples)),-(1:3)]
-    saveRDS(mcsamples,file=paste0(dirname,'Fdistribution-',basename,'-',nsamples,'.rds'))
-    saveRDS(traces,file=paste0(dirname,'MCtraces-',basename,'-',nsamples,'.rds'))
+    saveRDS(mcsamples,file=paste0(dirname,'Fdistribution-',nameroot,'.rds'))
+    saveRDS(traces,file=paste0(dirname,'MCtraces-',nameroot,'.rds'))
     cat('\nFinished Monte Carlo sampling.\n')
     gc()
 
@@ -847,7 +929,7 @@ inferpopulation <- function(data, auxmetadata, outputdir, nsamples=4096, nsample
     
     ##
     graphics.off()
-    pdff(paste0(dirname,'MCtraces-',basename,'-',nsamples), apaper=4)
+    pdff(paste0(dirname,'MCtraces-',nameroot), apaper=4)
     ## Traces of likelihood and cond. probabilities
     for(avar in colnames(traces)){
         tplot(y=traces[,avar], type='l', lty=1, col=colpalette[avar],
@@ -865,7 +947,7 @@ inferpopulation <- function(data, auxmetadata, outputdir, nsamples=4096, nsample
     }
     
     cat('Plotting marginal samples.\n')
-    plotFsamples(file=paste0(dirname,'plotsamples_Fdistribution-',basename,'-',nsamples),
+    plotFsamples(file=paste0(dirname,'plotsamples_Fdistribution-',nameroot),
                  mcsamples=mcsamples, auxmetadata=auxmetadata,
                  data=data,
                  plotuncertainty='samples',
@@ -874,7 +956,7 @@ inferpopulation <- function(data, auxmetadata, outputdir, nsamples=4096, nsample
                  parallel=TRUE)
     
     cat('Plotting marginal samples with quantiles.\n')
-    plotFsamples(file=paste0(dirname,'plotquantiles_Fdistribution-',basename,'-',nsamples),
+    plotFsamples(file=paste0(dirname,'plotquantiles_Fdistribution-',nameroot),
                  mcsamples=mcsamples, auxmetadata=auxmetadata,
                  data=data,
                  plotuncertainty='quantiles',
@@ -883,7 +965,7 @@ inferpopulation <- function(data, auxmetadata, outputdir, nsamples=4096, nsample
                  parallel=TRUE)
     cat('\nClosing connections to cores.\n')
     registerDoSEQ()
-    stopCluster(cl)
+    if(ncores > 1){ stopCluster(cl) }
 
     cat('\nTotal computation time', printtime(Sys.time() - timestart0), '\n')
     cat('Finished.\n\n')

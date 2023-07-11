@@ -1,5 +1,5 @@
 ## Transformation from variate to internal variable
-vtransform <- function(x, auxmetadata, Cout='init', Dout='data', Oout='data', Bout='numeric', Nout='numeric', variates=NULL, invjacobian=FALSE){
+vtransform <- function(x, auxmetadata, Cout='init', Dout='data', Oout='data', Bout='numeric', Nout='numeric', variates=NULL, invjacobian=FALSE, useOquantiles=FALSE){
 
         Qf <- readRDS('Qfunction8192.rds')
         DQf <- readRDS('DQfunction2048.rds')
@@ -46,17 +46,29 @@ info <- as.list(auxmetadata[name == v])
                 datum <- (datum-info$tlocation)/info$tscale
                 ##
             } else if(info$mcmctype == 'O'){ # ordinal
-                datum <- round((datum-info$tlocation)/info$tscale) # output is in range 1 to Nvalues
+                olocation <- (info$Nvalues*info$domainmin - info$domainmax)/(info$Nvalues - 1)
+                oscale <- (info$domainmax - info$domainmin)/(info$Nvalues - 1)
+                ##
+                datum <- round((datum-olocation)/oscale) # output is in range 1 to Nvalues
                 if(Oout == 'init'){ # in sampling functions or init MCMC
                     datum[is.na(datum)] <- info$Nvalues/2+0.5
                     datum <- Qf((datum-0.5)/info$Nvalues)
+                    if(useOquantiles){
+                        datum <- (datum-info$tlocation)/info$tscale
+                    }
                     datum[datum==+Inf] <- 1e6
                     datum[datum==-Inf] <- -1e6
                 } else if(Oout == 'left'){ # as left for MCMC
                     datum <- Qf(pmax(0,datum-1L)/info$Nvalues)
+                    if(useOquantiles){
+                        datum <- (datum-info$tlocation)/info$tscale
+                    }
                     datum[is.na(datum)] <- -Inf
                 } else if(Oout == 'right'){ # as right for MCMC
                     datum <- Qf(pmin(info$Nvalues,datum)/info$Nvalues)
+                    if(useOquantiles){
+                        datum <- (datum-info$tlocation)/info$tscale
+                    }
                     datum[is.na(datum)] <- +Inf
                 } else if(Oout == 'aux'){ # aux variable in MCMC
                     sel <- is.na(datum)
@@ -65,7 +77,7 @@ info <- as.list(auxmetadata[name == v])
                 } else if(Oout == 'boundisinf'){ # in output functions
                     datum <- datum-1L
                 } else if(Oout == 'original'){ # in output functions
-                    datum <- datum * info$tscale + info$tlocation
+                    datum <- datum * oscale + olocation
                 }
                 ##
             } else if(info$mcmctype == 'D'){ # discretized

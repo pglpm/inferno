@@ -282,6 +282,10 @@ tplot <- function(x, y, xlim=c(NA,NA), ylim=c(NA,NA), asp=NA, n=10, family='', x
     }
 }
 
+tlegend <- function(x, y=NULL, legend, col=palette(), pch=c(1,0,2,5,6,3,4), lty=1:4, lwd=2, alpha=0, cex=1.5, ...){
+    suppressWarnings(col <- mapply(function(i,j)alpha2hex(i,j),col,alpha))
+    legend(x=x, y=y, legend=legend, col=col, pch=pch, lty=lty, lwd=lwd, bty='n', ...)
+}
 
 fivenumaxis <- function(side, x, col='#555555', type=8){
     x <- x[!is.na(x) && is.finite(x)]
@@ -330,25 +334,25 @@ plotquantiles <- function(x, y, col=7, alpha=0.75, border=NA){
             col=col, border=border)
 }
 
-scatteraxis <- function(x, side=1, n=128, col='#555555', alpha=0.5, ext=5, lwd=0.1, ...){
+scatteraxis <- function(x, side=1, n=128, col='#555555', alpha=0.5, ext=5, pos=NULL, exts=NULL, lwd=0.1, ...){
     x <- x[!is.na(x) & is.finite(x)]
     if(is.na(n)){n <- length(x)}
     x <- x[round(seq(1, length(x), length.out=n))]
-    ylim <- par('usr')
-    exts <- diff(ylim)[-2]
+    if(is.null(pos)){ pos <- par('usr') }
+    if(is.null(exts)){ exts <- diff(pos)[-2]/100}
     ##
     if(side==1){
         xl <- rbind(x, x)
-        yl <- rbind(rep(ylim[3],length(x))+2*exts[2]/100,rep(ylim[3],length(x))+ext*exts[2]/100)
+        yl <- rbind(rep(pos[3],length(x))+2*exts[2],rep(pos[3],length(x))+ext*exts[2])
     }else if(side==2){
         yl <- rbind(x, x)
-        xl <- rbind(rep(ylim[1],length(x))+2*exts[1]/100,rep(ylim[1],length(x))+ext*exts[1]/100)
+        xl <- rbind(rep(pos[1],length(x))+2*exts[1],rep(pos[1],length(x))+ext*exts[1])
     }else if(side==3){
         xl <- rbind(x, x)
-        yl <- rbind(rep(ylim[4],length(x))-2*exts[2]/100,rep(ylim[4],length(x))-ext*exts[2]/100)
+        yl <- rbind(rep(pos[4],length(x))-2*exts[2],rep(pos[4],length(x))-ext*exts[2])
     }else if(side==4){
         yl <- rbind(x, x)
-        xl <- rbind(rep(ylim[2],length(x))-2*exts[1]/100,rep(ylim[2],length(x))-ext*exts[1]/100)
+        xl <- rbind(rep(pos[2],length(x))-2*exts[1],rep(pos[2],length(x))-ext*exts[1])
     }
     ##
     if(sum(!is.na(col))>0 && !grepl('^#', col[!is.na(col)])){col[!is.na(col)] <- palette()[col[!is.na(col)]]}
@@ -405,9 +409,18 @@ tmad <- function(x){mad(x, constant=1, na.rm=TRUE)}
 tsummary <- function(x){
     x <- cbind(x)
     apply(x, 2, function(xx){
-        c(tquant(xx, c(2.5/100,1/8,2/8,4/8,6/8,7/8,97.5/100)), MAD=mad(xx,constant=1,na.rm=T), IQR=IQR(xx,na.rm=T), mean=mean(xx,na.rm=T), sd=sd(xx,na.rm=T), min=min(xx,na.rm=T), max=max(xx,na.rm=T), NAs=sum(is.na(xx)))
+        c(tquant(xx, c(2.5/100,1/8,2/8,4/8,6/8,7/8,97.5/100)), MAD=mad(xx,constant=1,na.rm=T), IQR=IQR(xx,na.rm=T), mean=mean(xx,na.rm=T), sd=sd(xx,na.rm=T), hr=diff(range(xx,na.rm=T))/2, min=min(xx,na.rm=T), max=max(xx,na.rm=T), NAs=sum(is.na(xx)))
     })
 }
+
+normalize <- function(x){
+    if(is.null(dim(x))){
+        x/sum(x,na.rm=T)
+    }else{
+        aperm(aperm(x)/c(aperm(cbind(colSums(x,na.rm=T)))))
+    }
+}
+
 
 ## > trythese <- foreach(i=1:1e6, .combine=cbind)%dorng%{tests <- rt(n=4096,df=4); cbind(1-tquant(tests,qlev)/qt(qlev,df=4))*100}
 ## > tsummary(t(trythese))

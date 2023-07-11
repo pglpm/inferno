@@ -10,18 +10,22 @@ buildmetadata <- function(data, file=NULL){
     data <- as.data.table(data)
     metadata <- data.table()
     for(xn in names(data)){
+        ## print(xn)
         x <- data[[xn]]
         x <- x[!is.na(x)]
         if(is.numeric(x)){
+            ## print('numeric')
             Q1 <- loval <- quantile(x, probs=0.25, type=6)
             Q2 <- meval <- quantile(x, probs=0.5, type=6)
             Q3 <- hival <- quantile(x, probs=0.75, type=6)
+            dmin <- min(x)
+            dmax <- max(x)
             if(loval == hival){
-                loval <- (Q1 + min(x))/2
-                hival <- (Q1 + max(x))/2
+                loval <- if(sum(x < Q1)>0){max(x[x < Q1])}else{max(x[x <= Q1])}
+                hival <- if(sum(x > Q3)>0){min(x[x > Q3])}else{min(x[x >= Q3])}
             }
         }else{
-            loval <- meval <- hival <- NA
+            loval <- meval <- hival <- dmin <- dmax <- NA
         }
         if(length(unique(x)) == 2){# seems binary variate
             vtype <- 'binary'
@@ -133,7 +137,7 @@ buildmetadata <- function(data, file=NULL){
         }# end numeric
         ##
         metadata <- rbind(metadata,
-                          c(list(name=xn, type=vtype, Nvalues=vn, rounding=vd, domainmin=domainmin, domainmax=domainmax, minincluded=censormin, maxincluded=censormax, centralvalue=meval, lowvalue=loval, highvalue=hival, plotmin=plotmin, plotmax=plotmax),
+                          c(list(name=xn, type=vtype, datamin=dmin, datamax=dmax, datamaxrep=max(table(x)), dataNvalues=length(unique(x)), Nvalues=vn, rounding=vd, domainmin=domainmin, domainmax=domainmax, minincluded=censormin, maxincluded=censormax, centralvalue=meval, lowvalue=loval, highvalue=hival, plotmin=plotmin, plotmax=plotmax),
                             as.list(vval)
                             ), fill=TRUE)
     }

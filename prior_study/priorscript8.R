@@ -1,27 +1,3 @@
-library('data.table')
-library('png')
-library('foreach')
-library('doFuture')
-library('doRNG')
-registerDoFuture()
-cat('\navailableCores: ')
-cat(availableCores())
-cat('\navailableCores-multicore: ')
-cat(availableCores('multicore'))
-if(Sys.info()['nodename']=='luca-HP-Z2-G9'){
-    ncores <- 20}else{
-    ncores <- 6}
-cat(paste0('\nusing ',ncores,' cores\n'))
-if(ncores>1){
-    if(.Platform$OS.type=='unix'){
-        plan(multicore, workers=ncores)
-    }else{
-        plan(multisession, workers=ncores)
-    }
-}else{
-    plan(sequential)
-}
-
 
 
 #### Check distributions for means
@@ -1822,3 +1798,74 @@ sds <- array(sqrt(nimble::rinvgamma(prc*2*nclusters, shape=sdssl, rate=
 plotpoints2d(nsamples=nsamples, q=q, means=means, sds=sds)
 dev.off()
 ##
+
+
+
+#### Test for latent distribution for ordinal variate
+Qf <- readRDS('../package/Qfunction8192.rds')
+
+Qf <- function(x){qt(x/((lambda+1)/baseshape),df=2*baseshape, )}
+
+borders <- Qf(seq(0,1,length.out=11))
+
+nclusters <- 64
+nsamples <- 2048*4
+baseshape <- 0.5
+lambda <- 16^2
+baserate <- 1
+##
+set.seed(111)
+sds <- array(sqrt(nimble::rinvgamma(nsamples*nclusters, shape=baseshape, rate=
+                                                           baserate+0*nimble::rinvgamma(nsamples*nclusters, shape=baseshape, rate=1))), dim=c(nsamples,nclusters))
+means <- array(rnorm(nsamples*nclusters, mean=0, sd=sds*sqrt(lambda)), dim=c(nsamples,nclusters))
+##
+alpha0 <- 2^((-3):3)
+alphas <- sample(rep(alpha0, 2), size=nsamples, replace=T)
+q <- extraDistr::rdirichlet(n=nsamples,alpha=matrix(alphas/nclusters,nrow=nsamples,ncol=nclusters))
+##
+##
+tsd <- sqrt((lambda+1)/(baserate*baseshape))
+Qf <- function(x){qt(x,df=2*baseshape)}*tsd
+nv <- 31
+borders <- Qf(seq(0,1,length.out=nv+1))
+##
+xgrid <- borders
+pars <- array(c(q,means,sds),dim=c(dim(q),3))
+curves <- t(colSums(aperm(apply(pars,c(1,2),function(xx){
+    xx[1]*diff(pnorm(xgrid,mean=xx[2],sd=xx[3]))
+}))))
+##
+##
+qts <- apply(curves,1,tquant,c(1,31)/32)
+subc <- curves[,round(seq(1,nsamples,length.out=8))]
+##
+tplot(x=1:nv,y=rowMeans(curves), lty=1, col=1, alpha=0.25,
+      ylim=c(0,max(qts)))
+## tplot(x=1:nv,y=subc, lty=1, lwd=2, alpha=0.75,
+##       ylim=c(0,max(qts)),add=T)
+qts <- apply(curves,1,tquant,c(1,31)/32)
+plotquantiles(x=1:nv,y=qts)
+qts <- apply(curves,1,tquant,c(1,7)/8)
+plotquantiles(x=1:nv,y=qts)
+
+## In[20]:= 
+## compdis[l_, s_, r_] = 
+##  FullSimplify@
+##   ParameterMixtureDistribution[
+##    ParameterMixtureDistribution[NormalDistribution[mm, Sqrt[vv]], 
+##     mm \[Distributed] NormalDistribution[0, Sqrt[vv*l]]], 
+##    vv \[Distributed] InverseGammaDistribution[s, 1/r]]
+##
+## Out[20]= StudentTDistribution[0, Sqrt[(1 + l)/(r s)], 2 s]
+##
+## In[30]:= Assuming[l > 0 && s > 0 && r > 0 && 0 < q < 1, 
+##  FullSimplify@(Quantile[StudentTDistribution[0, s, r], q] == 
+##     Quantile[StudentTDistribution[0, 1, r], q]*s)]
+##
+## Out[30]= True
+##
+## In[33]:= Assuming[l > 0 && s > 0 && r > 0 && 0 < q < 1, 
+##  FullSimplify@(PDF[StudentTDistribution[0, s, 1], x] == 
+##     PDF[CauchyDistribution[0, s], x])]
+
+## Out[33]= True

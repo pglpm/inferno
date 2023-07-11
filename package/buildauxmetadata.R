@@ -14,15 +14,18 @@ buildauxmetadata <- function(data, metadata, file=TRUE){
     }
     metadata <- as.data.table(metadata)
     ## consistency checks
-    if(!identical(metadata$name, colnames(data))){
-        stop('ERROR: mismatch in variate names or order')
+    if(!all(metadata$name %in% colnames(data))){
+        stop('ERROR: missing variates in data file')
+    }
+    if(!all(colnames(data) %in% metadata$name)){
+        cat('Warning: data file has additional variates. Dropping them.\n')
     }
     ##
     ##Q <- readRDS('Qfunction512.rds')
     ##
     idR <- idC <- idD <- idO <- idB <- idN <- 1L
     auxmetadata <- data.table()
-    for(xn in colnames(data)){
+    for(xn in metadata$name){
         x <- data[[xn]]
         x <- x[!is.na(x)]
         xinfo <- as.list(metadata[name == xn])
@@ -39,7 +42,7 @@ buildauxmetadata <- function(data, metadata, file=TRUE){
         Q3 <- NA
         if(xinfo$type == 'binary'){# seems binary variate
             if(length(unique(x)) != 2){
-                cat('Warning: inconsistencies with variate ', xn, '\n')
+                cat('Warning: inconsistencies with variate', xn, '\n')
             }
             vtype <- 'B'
             vid <- idB
@@ -75,6 +78,7 @@ buildauxmetadata <- function(data, metadata, file=TRUE){
             mctest2 <- vval[round(vn/2)]
             mctest3 <- vval[vn]
         }else if(xinfo$type == 'ordinal'){# ordinal variate
+            Qf <- readRDS('Qfunction8192.rds')
             vtype <- 'O'
             vid <- idO
             idO <- idO+1L
@@ -84,11 +88,26 @@ buildauxmetadata <- function(data, metadata, file=TRUE){
             vd <- 0.5
             domainmin <- xinfo$domainmin
             domainmax <- xinfo$domainmax
+            if((domainmax-domainmin) != vn-1){
+                cat('Warning: "Nvalues" for variate', xn, 'could be incorrect.\n')
+            }
             censormin <- -Inf
             censormax <- +Inf
             ##vval <- as.vector(xinfo[paste0('V',1:vn)], mode='character')
-            location <- (vn*domainmin - domainmax)/(vn - 1)
-            scale <- (domainmax - domainmin)/(vn - 1)
+            olocation <- (vn*domainmin - domainmax)/(vn - 1)
+            oscale <- (domainmax - domainmin)/(vn - 1)
+            print(xn)
+            print(olocation)
+            print(oscale)
+            location <- Qf(round((xinfo$centralvalue-olocation)/oscale)/vn)
+            scale <- abs(Qf(round((xinfo$highvalue-olocation)/oscale)/vn) -
+                         Qf(round((xinfo$lowvalue-olocation)/oscale)/vn)
+                         )*sdoveriqr
+            print(location)
+            print(scale)
+            print(round((xinfo$centralvalue-olocation)/oscale))
+            print(round((xinfo$highvalue-olocation)/oscale))
+            print(round((xinfo$lowvalue-olocation)/oscale))
             plotmin <- xinfo$plotmin
             plotmax <- xinfo$plotmax
             Q1 <- mctest1 <- quantile(x, probs=0.25, type=6)
@@ -96,6 +115,7 @@ buildauxmetadata <- function(data, metadata, file=TRUE){
             Q3 <- mctest3 <- quantile(x, probs=0.75, type=6)
         }else if(xinfo$type == 'continuous'){# continuous variate (R,C,D)
             vn <- +Inf
+            if(is.null(xinfo$rounding) || is.na(xinfo$rounding)){xinfo$rounding <- 0}
             vd <- xinfo$rounding/2
             rounded <- (vd > 0)
             domainmin <- censormin <- xinfo$domainmin
@@ -155,7 +175,7 @@ buildauxmetadata <- function(data, metadata, file=TRUE){
                 vid <- idR
                 idR <- idR+1L
             }
-        }else{
+        }else{ # end continuous case
             stop(paste0('ERROR: unknown variate type for ', xn))
         }
         ##
