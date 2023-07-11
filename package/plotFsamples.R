@@ -1,4 +1,4 @@
-plotFsamples <- function(file, mcsamples, auxmetadata, data, plotmeans=TRUE, plotuncertainty='samples', uncertainty=100, datahistogram=TRUE, datascatter=TRUE, parallel=TRUE){
+plotFsamples <- function(file, mcsamples, auxmetadata, data, plotmeans=TRUE, plotuncertainty='samples', uncertainty=100, datahistogram=TRUE, datascatter=TRUE, parallel=TRUE, useOquantiles=TRUE){
 
     family <- 'Palatino'
     source('tplotfunctions.R')
@@ -66,7 +66,7 @@ plotFsamples <- function(file, mcsamples, auxmetadata, data, plotmeans=TRUE, plo
             xleft <- Xgrid > varinfo[['censormin']]
             xright <- Xgrid < varinfo[['censormax']]
 
-            plotsamples <- samplesFDistribution(Y=Xgrid, X=NULL, mcsamples=mcsamples, auxmetadata=auxmetadata, subsamples=mcsubsamples, jacobian=TRUE, parallel=parallel)
+            plotsamples <- samplesFDistribution(Y=Xgrid, X=NULL, mcsamples=mcsamples, auxmetadata=auxmetadata, subsamples=mcsubsamples, jacobian=TRUE, parallel=parallel, useOquantiles=useOquantiles)
 
             if(plotuncertainty=='samples'){
                 ymax <- tquant(apply(plotsamples[xleft & xright, subsamples, drop=F],
@@ -180,9 +180,9 @@ plotFsamples <- function(file, mcsamples, auxmetadata, data, plotmeans=TRUE, plo
             Xgrid <- cbind(unlist(varinfo[paste0('V',1:varinfo[['Nvalues']])]))
             colnames(Xgrid) <- v
             Ngrid <- vtransform(x=Xgrid, auxmetadata=auxmetadata,
-                                Nout='numeric', Bout='numeric')
+                                Nout='numeric', Bout='numeric', useOquantiles=useOquantiles)
 
-            plotsamples <- samplesFDistribution(Y=Xgrid, X=NULL, mcsamples=mcsamples, auxmetadata=auxmetadata, subsamples=mcsubsamples, jacobian=TRUE, parallel=parallel)
+            plotsamples <- samplesFDistribution(Y=Xgrid, X=NULL, mcsamples=mcsamples, auxmetadata=auxmetadata, subsamples=mcsubsamples, jacobian=TRUE, parallel=parallel, useOquantiles=useOquantiles)
 
             if(plotuncertainty=='samples'){
                 ymax <- tquant(apply(plotsamples[, subsamples, drop=F],
@@ -250,7 +250,7 @@ plotFsamples <- function(file, mcsamples, auxmetadata, data, plotmeans=TRUE, plo
             datum <- datum[!is.na(datum)]
             if(!(vtype %in% c('R','D','C','O'))){
                 datum <- vtransform(x=matrix(datum,ncol=1,nrow=length(datum),dimnames=list(NULL,v)), auxmetadata=auxmetadata,
-                                    Nout='numeric', Bout='numeric')
+                                    Nout='numeric', Bout='numeric', useOquantiles=useOquantiles)
             }
             scatteraxis(side=1, n=NA, alpha=0.75, ext=5,
                         x=datum+runif(length(datum),

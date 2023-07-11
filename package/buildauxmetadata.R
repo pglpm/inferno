@@ -57,9 +57,9 @@ buildauxmetadata <- function(data, metadata, file=TRUE){
             scale <- 1
             plotmin <- NA
             plotmax <- NA
-            mctest1 <- vval[1]
-            mctest2 <- vval[round(vn/2)]
-            mctest3 <- vval[vn]
+            mctest1 <- match(names(which.min(table(x))),vval)
+            mctest2 <- match(names(which.max(table(x))),vval)
+            mctest3 <- match(names(which.min(table(x))),vval)
         }else if(xinfo$type == 'nominal'){# nominal variate
             vtype <- 'N'
             vid <- idN
@@ -74,9 +74,9 @@ buildauxmetadata <- function(data, metadata, file=TRUE){
             scale <- 1
             plotmin <- NA
             plotmax <- NA
-            mctest1 <- vval[1]
-            mctest2 <- vval[round(vn/2)]
-            mctest3 <- vval[vn]
+            mctest1 <- match(names(which.min(table(x))),vval)
+            mctest2 <- match(names(which.max(table(x))),vval)
+            mctest3 <- match(names(which.min(table(x))),vval)
         }else if(xinfo$type == 'ordinal'){# ordinal variate
             Qf <- readRDS('Qfunction8192.rds')
             vtype <- 'O'
@@ -96,23 +96,19 @@ buildauxmetadata <- function(data, metadata, file=TRUE){
             ##vval <- as.vector(xinfo[paste0('V',1:vn)], mode='character')
             olocation <- (vn*domainmin - domainmax)/(vn - 1)
             oscale <- (domainmax - domainmin)/(vn - 1)
-            print(xn)
-            print(olocation)
-            print(oscale)
             location <- Qf(round((xinfo$centralvalue-olocation)/oscale)/vn)
             scale <- abs(Qf(round((xinfo$highvalue-olocation)/oscale)/vn) -
                          Qf(round((xinfo$lowvalue-olocation)/oscale)/vn)
                          )*sdoveriqr
-            print(location)
-            print(scale)
-            print(round((xinfo$centralvalue-olocation)/oscale))
-            print(round((xinfo$highvalue-olocation)/oscale))
-            print(round((xinfo$lowvalue-olocation)/oscale))
             plotmin <- xinfo$plotmin
             plotmax <- xinfo$plotmax
             Q1 <- mctest1 <- quantile(x, probs=0.25, type=6)
             Q2 <- mctest2 <- quantile(x, probs=0.5, type=6)
             Q3 <- mctest3 <- quantile(x, probs=0.75, type=6)
+            if(mctest1 == mctest3){
+                mctest1 <- if(sum(x < Q1)>0){max(x[x < Q1])}else{max(x[x <= Q1])}
+                mctest3 <- if(sum(x > Q3)>0){min(x[x > Q3])}else{min(x[x >= Q3])}
+            }
         }else if(xinfo$type == 'continuous'){# continuous variate (R,C,D)
             vn <- +Inf
             if(is.null(xinfo$rounding) || is.na(xinfo$rounding)){xinfo$rounding <- 0}
@@ -128,6 +124,10 @@ buildauxmetadata <- function(data, metadata, file=TRUE){
             Q1 <- mctest1 <- quantile(x, probs=0.25, type=6)
             Q2 <- mctest2 <- quantile(x, probs=0.5, type=6)
             Q3 <- mctest3 <- quantile(x, probs=0.75, type=6)
+            if(mctest1 == mctest3){
+                mctest1 <- if(sum(x < Q1)>0){max(x[x < Q1])}else{max(x[x <= Q1])}
+                mctest3 <- if(sum(x > Q3)>0){min(x[x > Q3])}else{min(x[x >= Q3])}
+            }
             plotmin <- xinfo$plotmin
             plotmax <- xinfo$plotmax
             if(is.finite(xinfo$domainmin) && is.finite(xinfo$domainmax)){ # needs transformation

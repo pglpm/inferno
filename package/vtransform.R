@@ -1,5 +1,5 @@
 ## Transformation from variate to internal variable
-vtransform <- function(x, auxmetadata, Cout='init', Dout='data', Oout='data', Bout='numeric', Nout='numeric', variates=NULL, invjacobian=FALSE, useOquantiles=FALSE){
+vtransform <- function(x, auxmetadata, Cout='init', Dout='data', Oout='data', Bout='numeric', Nout='numeric', variates=NULL, invjacobian=FALSE, useOquantiles=TRUE){
 
         Qf <- readRDS('Qfunction8192.rds')
         DQf <- readRDS('DQfunction2048.rds')

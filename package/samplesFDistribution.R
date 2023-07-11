@@ -1,4 +1,4 @@
-samplesFDistribution <- function(Y, X, mcsamples, auxmetadata, subsamples, jacobian=TRUE, fn=identity, parallel=TRUE){
+samplesFDistribution <- function(Y, X, mcsamples, auxmetadata, subsamples, jacobian=TRUE, fn=identity, parallel=TRUE, useOquantiles=TRUE){
     ## Consistency checks
     if(length(dim(Y)) != 2){stop('Y must have two dimensions')}
     if(missing(X)){X <- NULL}
@@ -144,7 +144,8 @@ XnR <- length(totake)
             ## c(Qfunction((0:(nn-1))/nn), rep(NA,Omaxn-nn))
             c(vtransform(seq(auxmetadata[name == avar, domainmin],
                              auxmetadata[name == avar, domainmax],
-                             length.out=auxmetadata[name == avar, Nvalues]
+                             length.out=auxmetadata[name == avar, Nvalues],
+                             useOquantiles=useOquantiles
                              ),
                          auxmetadata, Oout='left', variates=avar),
               rep(NA,Omaxn-nn))
@@ -153,7 +154,8 @@ XnR <- length(totake)
             nn <- auxmetadata[name == avar, Nvalues]
             c(vtransform(seq(auxmetadata[name == avar, domainmin],
                              auxmetadata[name == avar, domainmax],
-                             length.out=auxmetadata[name == avar, Nvalues]
+                             length.out=auxmetadata[name == avar, Nvalues],
+                             useOquantiles=useOquantiles
                              ),
                          auxmetadata, Oout='right', variates=avar),
                 rep(NA,Omaxn-nn))
@@ -213,9 +215,9 @@ XnB <- length(totake)
     rm(mcsamples)
 
     ##
-    Y2 <- vtransform(Y, auxmetadata, Cout='boundisinf', Dout='boundisinf', Oout='', Nout='numeric', Bout='numeric')
+    Y2 <- vtransform(Y, auxmetadata, Cout='boundisinf', Dout='boundisinf', Oout='', Nout='numeric', Bout='numeric', useOquantiles=useOquantiles)
     if(!is.null(X)){
-        X2 <- vtransform(X, auxmetadata, Cout='boundisinf', Dout='boundisinf', Oout='', Nout='numeric', Bout='numeric')
+        X2 <- vtransform(X, auxmetadata, Cout='boundisinf', Dout='boundisinf', Oout='', Nout='numeric', Bout='numeric', useOquantiles=useOquantiles)
         if(nrow(X2) < nrow(Y2)){
             warning('*Note: X has fewer data than Y. Recycling*')
             X2 <- t(matrix(rep(t(X2), ceiling(nrow(Y2)/nrow(X2))), nrow=ncol(X2), dimnames=list(colnames(X2),NULL)))[1:nrow(Y2),,drop=FALSE]
@@ -448,6 +450,6 @@ XnB <- length(totake)
     } *
         (if(jacobian){
              exp(-rowSums(
-                      log(vtransform(Y, auxmetadata=auxmetadata, invjacobian=TRUE)),
+                      log(vtransform(Y, auxmetadata=auxmetadata, invjacobian=TRUE), useOquantiles=useOquantiles),
                       na.rm=T))}else{1L})
 }

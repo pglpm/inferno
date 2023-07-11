@@ -1,4 +1,4 @@
-inferpopulation <- function(data, auxmetadata, outputdir, nsamples=4096, nsamplesperchain=4, nchains, ncores, saveallchains=F, plotallchains=F, seed=701, subsampledata, selftune=TRUE){
+inferpopulation <- function(data, auxmetadata, outputdir, nsamples=4096, nsamplesperchain=4, nchains, ncores, saveallchains=F, plotallchains=F, seed=701, subsampledata, selftune=TRUE, useOquantiles=TRUE){
 
     if(!missing(nsamples) && !missing(nchains) && missing(nsamplesperchain)){
         nsamplesperchain <- ceiling(nsamples/nchains)
@@ -125,7 +125,7 @@ inferpopulation <- function(data, auxmetadata, outputdir, nsamples=4096, nsample
     Alphatoslice <- TRUE
     Ktoslice <- FALSE
     RWtoslice <- FALSE
-##
+    ##
     showdata <- TRUE # 'histogram' 'scatter' FALSE TRUE
     plotmeans <- TRUE # plot frequency averages
     totsamples <- 'all' # 'all' number of samples if plotting frequency averages
@@ -220,8 +220,8 @@ inferpopulation <- function(data, auxmetadata, outputdir, nsamples=4096, nsample
              Ovar1 = rep(1, 1),
              Oshapelo = rep(Oshapelo, 1),
              Oshapehi = rep(Oshapehi, 1),
-             Oleft = vtransform(data[,vnames$O, with=F], auxmetadata, Oout='left'),
-             Oright = vtransform(data[,vnames$O, with=F], auxmetadata, Oout='right')
+             Oleft = vtransform(data[,vnames$O, with=F], auxmetadata, Oout='left', useOquantiles=useOquantiles),
+             Oright = vtransform(data[,vnames$O, with=F], auxmetadata, Oout='right', useOquantiles=useOquantiles)
              ) },
     if(vn$N > 0){# nominal
         list(Nn = vn$N,
@@ -252,7 +252,7 @@ inferpopulation <- function(data, auxmetadata, outputdir, nsamples=4096, nsample
             ) },
         if(vn$O > 0){# ordinal
             list(
-                Oaux = vtransform(data[,vnames$O, with=F], auxmetadata, Oout='aux')
+                Oaux = vtransform(data[,vnames$O, with=F], auxmetadata, Oout='aux', useOquantiles=useOquantiles)
             ) },
         if(vn$N > 0){# nominal
             list(
@@ -679,7 +679,7 @@ inferpopulation <- function(data, auxmetadata, outputdir, nsamples=4096, nsample
             ## lli <- colMeans(log(samplesFDistribution(Y=data.matrix(data0[,..predictors]), X=data.matrix(data0[,..predictands]), mcsamples=mcsamples, varinfo=varinfo, jacobian=FALSE)),na.rm=T) #- sum(log(invjacobian(data.matrix(data0[,..predictors]), varinfo)), na.rm=T)
             ##
             ll <- t(
-                log(samplesFDistribution(Y=testdata, X=NULL, mcsamples=mcsamples, auxmetadata=auxmetadata, subsamples=NULL, jacobian=FALSE, parallel=FALSE)) #- sum(log(invjacobian(data.matrix(data0), varinfo)), na.rm=T)
+                log(samplesFDistribution(Y=testdata, X=NULL, mcsamples=mcsamples, auxmetadata=auxmetadata, subsamples=NULL, jacobian=FALSE, parallel=FALSE, useOquantiles=useOquantiles)) #- sum(log(invjacobian(data.matrix(data0), varinfo)), na.rm=T)
             )
             colnames(ll) <- paste0('log-',c('mid','lo','hi')) #,'pm','pM','dm','dM'))
             ## testdatalld <- log(samplesFDistribution(Y=testdata[,predictands,drop=F], X=testdata[,predictors,drop=F], mcsamples=mcsamples, varinfo=varinfo, jacobian=FALSE)) # - sum(log(invjacobian(data.matrix(data0[,..predictands]), varinfo)), na.rm=T)
@@ -861,7 +861,8 @@ inferpopulation <- function(data, auxmetadata, outputdir, nsamples=4096, nsample
                                  uncertainty=showsamples,
                                  plotmeans=plotmeans,
                                  datahistogram=TRUE, datascatter=TRUE,
-                                 parallel=FALSE
+                                 parallel=FALSE,
+                                 useOquantiles=useOquantiles
                                  )
                 ## }
                 ##
@@ -953,7 +954,9 @@ inferpopulation <- function(data, auxmetadata, outputdir, nsamples=4096, nsample
                  plotuncertainty='samples',
                  uncertainty=showsamples, plotmeans=TRUE,
                  datahistogram=TRUE, datascatter=TRUE,
-                 parallel=TRUE)
+                 parallel=TRUE,
+                 useOquantiles=useOquantiles
+                 )
     
     cat('Plotting marginal samples with quantiles.\n')
     plotFsamples(file=paste0(dirname,'plotquantiles_Fdistribution-',nameroot),
@@ -962,7 +965,9 @@ inferpopulation <- function(data, auxmetadata, outputdir, nsamples=4096, nsample
                  plotuncertainty='quantiles',
                  uncertainty=showquantiles, plotmeans=TRUE,
                  datahistogram=TRUE, datascatter=TRUE,
-                 parallel=TRUE)
+                 parallel=TRUE,
+                 useOquantiles=useOquantiles
+                 )
     cat('\nClosing connections to cores.\n')
     registerDoSEQ()
     if(ncores > 1){ stopCluster(cl) }

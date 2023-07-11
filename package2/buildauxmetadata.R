@@ -96,9 +96,6 @@ buildauxmetadata <- function(data, metadata, file=TRUE){
             ##vval <- as.vector(xinfo[paste0('V',1:vn)], mode='character')
             olocation <- (vn*domainmin - domainmax)/(vn - 1)
             oscale <- (domainmax - domainmin)/(vn - 1)
-            print(xn)
-            print(olocation)
-            print(oscale)
             location <- Qf(round((xinfo$centralvalue-olocation)/oscale)/vn)
             scale <- abs(Qf(round((xinfo$highvalue-olocation)/oscale)/vn) -
                          Qf(round((xinfo$lowvalue-olocation)/oscale)/vn)
