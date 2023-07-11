@@ -139,7 +139,7 @@ inferpopulation <- function(data, auxmetadata, outputdir, nsamples=4096, nsample
 
     
 
-    nameroot <- paste0(outputdir,'-V',nrow(auxmetadata),'-D',npoints,'-K',nclusters,'-I',nsamples)
+    nameroot <- paste0(outputdir,'-V',nrow(auxmetadata),'-D',(if(npoints==1 && all(is.na(data))){0}else{npoints}),'-K',nclusters,'-I',nsamples)
     ##
     dirname <- paste0(nameroot,'/')
     dir.create(dirname)

@@ -144,20 +144,20 @@ XnR <- length(totake)
             ## c(Qfunction((0:(nn-1))/nn), rep(NA,Omaxn-nn))
             c(vtransform(seq(auxmetadata[name == avar, domainmin],
                              auxmetadata[name == avar, domainmax],
-                             length.out=auxmetadata[name == avar, Nvalues],
-                             useOquantiles=useOquantiles
+                             length.out=auxmetadata[name == avar, Nvalues]
                              ),
-                         auxmetadata, Oout='left', variates=avar),
+                         auxmetadata, Oout='left', variates=avar,
+                             useOquantiles=useOquantiles),
               rep(NA,Omaxn-nn))
         }))
         Oright <- t(sapply(vnames$O, function(avar){
             nn <- auxmetadata[name == avar, Nvalues]
             c(vtransform(seq(auxmetadata[name == avar, domainmin],
                              auxmetadata[name == avar, domainmax],
-                             length.out=auxmetadata[name == avar, Nvalues],
-                             useOquantiles=useOquantiles
+                             length.out=auxmetadata[name == avar, Nvalues]
                              ),
-                         auxmetadata, Oout='right', variates=avar),
+                         auxmetadata, Oout='right', variates=avar,
+                             useOquantiles=useOquantiles),
                 rep(NA,Omaxn-nn))
         }))
         ##
@@ -450,6 +450,6 @@ XnB <- length(totake)
     } *
         (if(jacobian){
              exp(-rowSums(
-                      log(vtransform(Y, auxmetadata=auxmetadata, invjacobian=TRUE), useOquantiles=useOquantiles),
+                      log(vtransform(Y, auxmetadata=auxmetadata, invjacobian=TRUE, useOquantiles=useOquantiles)),
                       na.rm=T))}else{1L})
 }
