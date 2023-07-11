@@ -265,7 +265,7 @@ inferpopulation <- function(data, auxmetadata, outputdir, nsamples=4096, nsample
     )
 
     cat('\nStarting Monte Carlo sampling of',nsamples,'samples by',nchains,'chains across', ncores, 'cores.\n')
-    cat('\n',nsamplesperchain,'samples per chain, ',nchainspercore,'chains per core.\n')
+    cat(nsamplesperchain,'samples per chain,',nchainspercore,'chains per core.\n')
     cat('Core logs are being saved in individual files.\n')
     cat('Setting up samplers (this can take tens of minutes if there are many data or variates).\n')
     cat('Estimating remaining time...\r')
@@ -465,7 +465,7 @@ inferpopulation <- function(data, auxmetadata, outputdir, nsamples=4096, nsample
                                  Omean = matrix(rnorm(n=vn$O*nclusters, mean=constants$Omean1, sd=sqrt(constants$Ovarm1)), nrow=vn$O, ncol=nclusters),
                                  Orate = Orate,
                                  Ovar = matrix(nimble::rinvgamma(n=vn$O*nclusters, shape=constants$Oshapelo, rate=Orate), nrow=vn$O, ncol=nclusters),
-                                 Olat = vtransform(data[,vnames$O, with=F], auxmetadata, Oout='init') ## for data with boundary values
+                                 Olat = vtransform(data[,vnames$O, with=F], auxmetadata, Oout='init', useOquantiles=useOquantiles) ## for data with boundary values
                              ))
             }
             if(vn$N > 0){# nominal
