@@ -1,0 +1,17 @@
+name,mcmctype,censored,rounded,transform,Nvalues,step,domainmin,domainmax,censormin,censormax,tlocation,tscale,plotmin,plotmax,Q1,Q2,Q3,V1,V2,V3,V4,V5
+Apoe4_,B,,,identity,2,,0,1,-Inf,Inf,0,1,0,1,,,,0,1,,,
+Subgroup_num_,B,,,identity,2,,0,1,-Inf,Inf,0,1,0,1,,,,0,1,,,
+Gender_num_,B,,,identity,2,,0,1,-Inf,Inf,0,1,0,1,,,,0,1,,,
+GDTOTAL_gds,L,,,Q,6,0.5,0,5,-Inf,Inf,-1,1,1,6,,,,,,,,
+AVDEL30MIN_neuro,L,,,Q,16,0.5,0,15,-Inf,Inf,-1,1,1,16,,,,,,,,
+AVDELTOT_neuro,L,,,Q,16,0.5,0,15,-Inf,Inf,-1,1,1,16,,,,,,,,
+CATANIMSC_neuro,L,,,Q,35,0.5,1,35,-Inf,Inf,0,1,1,35,,,,,,,,
+ANARTERR_neuro,L,,,Q,51,0.5,0,50,-Inf,Inf,-1,1,1,51,,,,,,,,
+RAVLT_immediate,L,,,Q,67,0.5,1,67,-Inf,Inf,0,1,1,67,,,,,,,,
+TRAASCOR_neuro,L,,,Q,150,0.5,1,150,-Inf,Inf,0,1,1,150,,,,,,,,
+TRABSCOR_neuro,L,,,Q,300,0.5,1,300,-Inf,Inf,0,1,1,300,,,,,,,,
+AGE,L,FALSE,TRUE,log,Inf,0.05,0,Inf,-Inf,Inf,4.30203600897739,0.0702437373053487,49.8125,96.5875,68.625,73.85,79,,,,,
+LRHHC_n_long,R,FALSE,FALSE,log,Inf,0,0,Inf,-Inf,Inf,-5.47606085903972,0.126019274919797,0.00181218601085835,0.00704808145329585,0.0037009241044315,0.00418578566520277,0.00475590345342856,,,,,
+letters,C,,,identity,5,0.5,1,5,-Inf,Inf,0,1,1,5,,,,a,b,c,d,e
+gender2,B,,,identity,2,,0,1,-Inf,Inf,0,1,0,1,,,,F,M,,,
+cont,R,FALSE,FALSE,identity,Inf,0,-Inf,Inf,-Inf,Inf,-0.0524585057032383,0.680337077681756,-3.84578813693592,3.34919469167367,-0.745584053646126,-0.0524585057032383,0.615090101717387,,,,,

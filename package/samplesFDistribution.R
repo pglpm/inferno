@@ -246,8 +246,7 @@ XnB <- length(totake)
         if(all(is.na(x))){
             probX <- log(W) 
         }else{
-            probX <- 0*log(W) +
-                t( # rows: MCsamples, cols: clusters
+            probX <- t( # rows: MCsamples, cols: clusters
                 (if(XnR > 0){# continuous
                      colSums(
                          array(dnorm(x=x[XiR,],

@@ -1869,3 +1869,91 @@ plotquantiles(x=1:nv,y=qts)
 ##     PDF[CauchyDistribution[0, s], x])]
 
 ## Out[33]= True
+
+
+
+
+#### tests on binomial distribution for discrete variate
+
+nclusters <- 64
+nsamples <- 1024
+nn <- 15
+set.seed(111)
+means <- matrix(runif(nsamples*nclusters,0,nn),nrow=nsamples,ncol=nclusters)
+sds <- matrix(runif(nsamples*nclusters,0,1),nrow=nsamples,ncol=nclusters)
+##
+alpha0 <- 2^((-3):3)
+alphas <- sample(rep(alpha0, 2), size=nsamples, replace=T)
+q <- extraDistr::rdirichlet(n=nsamples,alpha=matrix(alphas/nclusters,nrow=nsamples,ncol=nclusters))
+xgrid <- 0:nn,
+##
+pars <- array(c(q,round(means/(1-qqs)),1-qqs),dim=c(dim(q),3))
+curves <- t(colSums(aperm(apply(pars,c(1,2),function(xx){
+    xx[1]*dbinom(xgrid,size=xx[2],prob=xx[3])
+}))))
+##
+qts <- apply(curves,1,tquant,c(1,31)/32)
+subc <- curves[,round(seq(1,nsamples,length.out=8))]
+##
+tplot(x=xgrid,y=rowMeans(curves), lty=1, col=1, alpha=0.25,
+      ylim=c(0,max(qts)))
+## tplot(x=1:nn,y=subc, lty=1, lwd=2, alpha=0.75,
+##       ylim=c(0,max(qts)),add=T)
+qts <- apply(curves,1,tquant,c(1,31)/32)
+plotquantiles(x=xgrid,y=qts)
+qts <- apply(curves,1,tquant,c(1,7)/8)
+plotquantiles(x=xgrid,y=qts)
+
+aa <- sample(0:nn,nsamples,replace=T)
+bb <- runif(nsamples,0,1)
+tplot(x=aa*bb,y=aa*bb*(1-bb),type='p',alpha=0.75,cex=1,col=4)
+##
+aa <- runif(nsamples,0,nn)
+bb <- runif(nsamples,0,1)
+tplot(x=aa,y=aa*(1-bb),type='p',cex=1,add=T)
+
+nn <- 15
+aa <- 10
+bb <- 0.5
+xgrid <- 0:nn
+tplot(x=xgrid+3,y=dbinom(xgrid,size=aa,prob=bb),type='b',xlim=range(xgrid))
+
+
+#### tests on beta distribution for bounded variate
+## In[10]:= FullSimplify@
+##  Solve[{mm == a/(a + b), vv == a*b/(a + b)^2/(a + b + 1)}, {a, b}]
+##
+## Out[10]= {{a -> -((mm ((-1 + mm) mm + vv))/vv), 
+##     b -> -1 + mm + ((-1 + mm)^2 mm)/vv}}
+
+nclusters <- 64
+nsamples <- 1024
+nn <- 15
+set.seed(111)
+means <- matrix(rgamma(nsamples*nclusters,shape=1,scale=1),nrow=nsamples,ncol=nclusters)+0.5
+vvs <- matrix(rgamma(nsamples*nclusters,shape=1,scale=1),nrow=nsamples,ncol=nclusters)+0.5
+##
+alpha0 <- 2^((-3):3)
+alphas <- sample(rep(alpha0, 2), size=nsamples, replace=T)
+q <- extraDistr::rdirichlet(n=nsamples,alpha=matrix(alphas/nclusters,nrow=nsamples,ncol=nclusters))
+##
+xgrid <- seq(0,1,length.out=512)
+pars <- array(c(q,
+                means,vvs),
+              dim=c(dim(q),3))
+curves <- t(colSums(aperm(apply(pars,c(1,2),function(xx){
+    xx[1]*dbeta(xgrid,shape1=xx[2],shape2=xx[3])
+}))))
+##
+qts <- apply(curves,1,tquant,c(1,31)/32)
+subc <- curves[,round(seq(1,nsamples,length.out=8))]
+##
+tplot(x=xgrid,y=rowMeans(curves), lty=1, col=1, alpha=0.25,
+      ylim=c(0,max(qts)))
+## tplot(x=1:nn,y=subc, lty=1, lwd=2, alpha=0.75,
+##       ylim=c(0,max(qts)),add=T)
+qts <- apply(curves,1,tquant,c(1,31)/32)
+plotquantiles(x=xgrid,y=qts)
+qts <- apply(curves,1,tquant,c(1,7)/8)
+plotquantiles(x=xgrid,y=qts)
+
