@@ -19,7 +19,7 @@ source('plotFsamples.R')
 ##         mapply(function(xx,yy){
 ##             temp <- c(xx,yy)
 ##             dx <- dim(xx)[-length(dim(xx))]
-##             dim(temp) <- c(dx, length(temp)/dx)
+##             dim(temp) <- c(dx, length(temp)/prod(dx))
 ##             temp
 ##         },
 ##         mc1, mc2)
