@@ -453,7 +453,7 @@ XnB <- length(totake)
         if(all(is.na(y))){
             probY <- array(NA, dim=dim(W))
         }else{
-            (if(YnR > 0){# continuous
+            probY <- (if(YnR > 0){# continuous
                  colSums(
                      dnorm(x=y[YiR,],
                            mean=mcsamples$Rmean[YtR,,drop=F],
@@ -534,104 +534,8 @@ XnB <- length(totake)
                               (1-y[YiB,])*(1-mcsamples$Bprob[YtB,,drop=F]) ),
                          na.rm=T)
                  }else{0})
-
-
-
-
-
-
-
-
-            probY <- t( # rows: MCsamples, cols: clusters
-                (if(YnR > 0){# continuous
-                     colSums(
-                         dnorm(x=y[YiR,],
-                                     mean=mcsamples$Rmean[YtR,,drop=F],
-                                     sd=mcsamples$Rvar[YtR,,drop=F]),log=T,
-                         na.rm=T)
-                 }else{0}) +
-                (if(YnC > 0){# censored
-                     colSums(
-                         array(
-                             t(sapply(YseqC, function(v){
-                                 v1 <- y[YiC[v],]
-                                 v2 <- YtC[v]
-                                 if(is.finite(v1)){
-                                     (dnorm(x=v1,
-                                            mean=Cmean[v2,,],
-                                            sd=Cvarsd[v2,,],log=T))
-                                 }else{
-                                     (pnorm(q=Cbounds[v2, 2L-(v1 < 0)],
-                                            mean=Cmean[v2,,],
-                                            sd=Cvarsd[v2,,],
-                                            lower.tail=(v1 < 0),
-                                            log.p=T))
-                                 }
-                             })),
-                             dim=c(YnC, nclusters, nsamples)),
-                         na.rm=T)
-                 }else{0}) +
-                (if(YnD > 0){# continuous discretized
-                     colSums(
-                         array(
-                             t(sapply(YseqD, function(v){
-                                 v1 <- y[YiD[v],]
-                                 v2 <- YtD[v]
-                                 if(is.finite(v1)){
-                                     (dnorm(x=v1,
-                                            mean=Dmean[v2,,],
-                                            sd=Dvarsd[v2,,],log=T))
-                                 }else{
-                                     (pnorm(q=Dbounds[v2, 2L-(v1 < 0)],
-                                            mean=Dmean[v2,,],
-                                            sd=Dvarsd[v2,,],
-                                            lower.tail=(v1 < 0),
-                                            log.p=T))
-                                 }
-                             })),
-                             dim=c(YnD, nclusters, nsamples)),
-                         na.rm=T)
-                 }else{0}) +
-                ## (if(YnD > 0){# continuous
-                ##      colSums(
-                ##          array(dnorm(x=y[YiD,],
-                ##                      mean=Dmean[YtD,,],
-                ##                      sd=Dvarsd[YtD,,],log=T),
-                ##                dim=c(YnD, nclusters, nsamples)),
-                ##          na.rm=T)
-                ##  }else{0}) +
-                (if(YnO > 0){
-                     v2 <- cbind(YtO,y[YiO,])
-                     colSums(
-                         log(array(
-                             pnorm(q=Oright[v2],
-                                   mean=Omean[YtO,,],
-                                   sd=Ovarsd[YtO,,]) -
-                             pnorm(q=Oleft[v2],
-                                   mean=Omean[YtO,,],
-                                   sd=Ovarsd[YtO,,]),
-                             dim=c(YnO, nclusters, nsamples))),
-                         na.rm=T)
-                 }else{0}) +
-                (if(YnN > 0){
-                     colSums(
-                         log(array(
-                             t(sapply(YseqN, function(v){
-                                 Nprob[YtN[v],,y[YiN[v],],]
-                             })),
-                             dim=c(YnN, nclusters, nsamples))),
-                         na.rm=T)
-                 }else{0}) +
-                (if(YnB > 0){
-                     colSums(
-                         log(array(y[YiB,]*Bprob[YtB,,] +
-                                   (1-y[YiB,])*(1-Bprob[YtB,,]),
-                                   dim=c(YnB, nclusters, nsamples))),
-                         na.rm=T)
-                 }else{0})
-                ) # end probY
         }
-#### Output: rows=samples, columns=clusters
+#### Output: rows=clusters, columns=samples
         ##
         ## if(all(is.na(x))){
         ##     out <- rowSums(exp(probX+probY)) 
