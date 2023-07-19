@@ -13,28 +13,110 @@ samplesFDistribution <- function(Y, X, mcsamples, auxmetadata, subsamples, jacob
     ## More consistency checks
     Yv <- colnames(Y)
     if(!all(Yv %in% auxmetadata$name)){stop('unknown Y variates\n')}
+    if(length(unique(Yv)) != length(Yv)){stop('duplicate Y variates\n')}
+    ##
     Xv <- colnames(X)
     if(!all(Xv %in% auxmetadata$name)){stop('unknown X variates\n')}
+    if(length(unique(Xv)) != length(Xv)){stop('duplicate X variates\n')}
+    ##
     if(length(intersect(Yv, Xv)) > 0){stop('overlap in Y and X variates\n')}
 
     ## mcsamples and subsamples
     if(is.character(mcsamples) && file.exists(mcsamples)){
         mcsamples <- readRDS(mcsamples)
     }
+    ##
     if(missing(subsamples) || is.null(subsamples) || (is.logical(subsamples) && !subsamples)){
-        subsamples <- 1:nrow(mcsamples)
+        subsamples <- 1:ncol(mcsamples$W)
     }else if(is.character(subsamples)){
         subsamples <- round(seq(1,nrow(subsamples),length.out=as.numeric(subsamples)))
     }
-
-    mcsamples <- mcsamples[subsamples,,drop=F]
-    nsamples <- nrow(mcsamples)
+    ##
+    mcsamples <- lapply(mcsamples,function(xx){
+        do.call('[',c(list(xx),rep(TRUE,length(dim(xx))-1), list(subsamples), list(drop=FALSE)) )
+    })
+    nsamples <- ncol(mcsamples$W)
 
     ##
     allv <- union(Yv, Xv)
     vn <- vnames <- vindices <- list()
     ##    auxmetadata <- auxmetadata[name %in% allv]
 
+#### Type R
+    vnames <- auxmetadata[mcmctype == 'R', name]
+    XiR <- match(vnames, Xv)
+    XtR <- which(!is.na(XiR))
+    XiR <- XiR[XtR]
+    XnR <- length(XiR)
+    ##
+    YiR <- match(vnames, Yv)
+    YtR <- which(!is.na(YiR))
+    YiR <- YiR[YtR]
+    YnR <- length(YiR)
+    ## if(YnR > 0 && XnR > 0){mcsamples$Rvar <- sqrt(mcsamples$Rvar)}
+
+#### Type C
+    vnames <- auxmetadata[mcmctype == 'C', name]
+    XiC <- match(vnames, Xv)
+    XtC <- which(!is.na(XiC))
+    XiC <- XiC[XtC]
+    XnC <- length(XiC)
+    ##
+    YiC <- match(vnames, Yv)
+    YtC <- which(!is.na(YiC))
+    YiC <- YiC[YtC]
+    YnC <- length(YiC)
+
+#### Type D
+    vnames <- auxmetadata[mcmctype == 'D', name]
+    XiD <- match(vnames, Xv)
+    XtD <- which(!is.na(XiD))
+    XiD <- XiD[XtD]
+    XnD <- length(XiD)
+    ##
+    YiD <- match(vnames, Yv)
+    YtD <- which(!is.na(YiD))
+    YiD <- YiD[YtD]
+    YnD <- length(YiD)
+
+#### Type O
+    vnames <- auxmetadata[mcmctype == 'O', name]
+    XiO <- match(vnames, Xv)
+    XtO <- which(!is.na(XiO))
+    XiO <- XiO[XtO]
+    XnO <- length(XiO)
+    ##
+    YiO <- match(vnames, Yv)
+    YtO <- which(!is.na(YiO))
+    YiO <- YiO[YtO]
+    YnO <- length(YiO)
+
+#### Type N
+    vnames <- auxmetadata[mcmctype == 'N', name]
+    XiN <- match(vnames, Xv)
+    XtN <- which(!is.na(XiN))
+    XiN <- XiN[XtN]
+    XnN <- length(XiN)
+    ##
+    YiN <- match(vnames, Yv)
+    YtN <- which(!is.na(YiN))
+    YiN <- YiN[YtN]
+    YnN <- length(YiN)
+
+#### Type B
+    vnames <- auxmetadata[mcmctype == 'B', name]
+    XiB <- match(vnames, Xv)
+    XtB <- which(!is.na(XiB))
+    XiB <- XiB[XtB]
+    XnB <- length(XiB)
+    ##
+    YiB <- match(vnames, Yv)
+    YtB <- which(!is.na(YiB))
+    YiB <- YiB[YtB]
+    YnB <- length(YiB)
+
+
+    
     for(atype in c('R','C','D','O','N','B')){
         ## 
         ## To save memory, we'll extract from mcsamples
@@ -51,7 +133,7 @@ samplesFDistribution <- function(Y, X, mcsamples, auxmetadata, subsamples, jacob
 
     ## W
     W <- mcsamples[,grep('^W', allparams),drop=F]
-    nclusters <- ncol(W)
+    nclusters <- nrow(mcsamples$W)
 
     if(vn$R > 0){# continuous
         inds <- paste0(vindices$R,collapse='|')
@@ -234,6 +316,8 @@ XnB <- length(totake)
 
     if(parallel){`%thisdo%` <- `%dopar%`}else{`%thisdo%` <- `%do%`}
     foreach(y=t(Y2), x=t(X2), .combine=rbind, .inorder=T)%thisdo%{
+#### the loop is over the columns of y and x
+#### each instance is a 1-column vector
         ## ## for debugging
         ## for(iii in 1:nrow(Y2)){
         ## print(iii)
@@ -249,22 +333,42 @@ XnB <- length(totake)
             probX <- t( # rows: MCsamples, cols: clusters
                 (if(XnR > 0){# continuous
                      colSums(
-                         array(dnorm(x=x[XiR,],
-                                     mean=Rmean[XtR,,],
-                                     sd=Rvarsd[XtR,,],log=T),
-                               dim=c(XnR, nclusters, nsamples)),
+                         dnorm(x=x[XiR,],
+                                     mean=mcsamples$Rmean[XtR,,drop=F],
+                                     sd=sqrt(mcsamples$Rvar[XtR,,drop=F]),log=T),
                          na.rm=T)
                  }else{0}) +
                 (if(XnC > 0){# censored
+                     indf <- which(is.finite(x[XiC,]))
+                     indi <- which(!is.finite(x[XiC,]))
+                     colSums(
+                         (if(length(indf) > 0){
+                         dnorm(x=x[XiC[indf],],
+                               mean=mcsamples$Cmean[XtC[indf],,drop=F],
+                               sd=sqrt(mcsamples$Cvar[XtC[indf],,drop=F]),log=T)
+                          }else{0}) +
+                         if(length(indi) > 0){
+                             pnorm(q=Cbounds[v2, 2L-(v1 < 0)],
+                                   mean=Cmean[v2,,],
+                                   sd=Cvarsd[v2,,],
+                                   lower.tail=(v1 < 0),
+                                   log.p=T)
+                         }else{0}
+                     }
+                             })),
+                             dim=c(XnC, nclusters, nsamples)),
+                         na.rm=T)
+
+                     
                      colSums(
                          array(
                              t(sapply(XseqC, function(v){
                                  v1 <- x[XiC[v],]
                                  v2 <- XtC[v]
                                  if(is.finite(v1)){
-                                     (dnorm(x=v1,
-                                            mean=Cmean[v2,,],
-                                            sd=Cvarsd[v2,,],log=T))
+                                     (dnorm(x=x[XiC[indf],],
+                                            mean=Cmean[XtC[indf],,],
+                                            sd=Cvarsd[XtC[indf],,],log=T))
                                  }else{
                                      (pnorm(q=Cbounds[v2, 2L-(v1 < 0)],
                                             mean=Cmean[v2,,],
@@ -344,10 +448,9 @@ XnB <- length(totake)
             probY <- t( # rows: MCsamples, cols: clusters
                 (if(YnR > 0){# continuous
                      colSums(
-                         array(dnorm(x=y[YiR,],
-                                     mean=Rmean[YtR,,],
-                                     sd=Rvarsd[YtR,,],log=T),
-                               dim=c(YnR, nclusters, nsamples)),
+                         dnorm(x=y[YiR,],
+                                     mean=mcsamples$Rmean[YtR,,drop=F],
+                                     sd=sqrt(mcsamples$Rvar[YtR,,drop=F]),log=T),
                          na.rm=T)
                  }else{0}) +
                 (if(YnC > 0){# censored
@@ -431,6 +534,7 @@ XnB <- length(totake)
                  }else{0})
                 ) # end probY
         }
+#### Output: rows=samples, columns=clusters
         ##
         ## if(all(is.na(x))){
         ##     out <- rowSums(exp(probX+probY)) 

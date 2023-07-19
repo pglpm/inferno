@@ -258,7 +258,7 @@ inferpopulation <- function(data, auxmetadata, outputdir, nsamples=4096, nsample
     cat('Starting Monte Carlo sampling of',nsamples,'samples by',nchains,'chains across', ncores, 'cores.\n')
     cat(nsamplesperchain,'samples per chain,',nchainspercore,'chains per core.\n')
     cat('Core logs are being saved in individual files.\n')
-    cat('Setting up samplers (this can take tens of minutes if there are many data or variates).\n')
+    cat('Setting up samplers (this can take tens of minutes if there are many data or variates).\n...\r')
     ##cat('Estimating remaining time...\r')
     ## stopCluster(cluster)
     stopImplicitCluster()
@@ -283,7 +283,7 @@ inferpopulation <- function(data, auxmetadata, outputdir, nsamples=4096, nsample
         suppressPackageStartupMessages(library('nimble'))
 
         
-
+#### Load and define various functions
         source('tplotfunctions.R')
         source('vtransform.R')
         source('samplesFDistribution.R')
@@ -299,6 +299,28 @@ inferpopulation <- function(data, auxmetadata, outputdir, nsamples=4096, nsample
                 funMCSE <- function(x){LaplacesDemon::MCSE(x)}
             }
         }
+
+        ## ## To join MC samples in list form
+        ## joinmc <- function(mc1, mc2){
+        ##     if(is.null(mc1)){
+        ##         mc2
+        ##     }else{
+        ##         mapply(function(xx,yy){
+        ##             temp <- c(xx,yy)
+        ##             dx <- dim(xx)[-length(dim(xx))]
+        ##             dim(temp) <- c(dx, length(temp)/dx)
+        ##             temp
+        ##         },
+        ##         mc1, mc2)
+        ##     }
+        ## }
+        ## ## To remove iterations with non-finite values
+        ## cleanmc <- function(mcx,toremove){
+        ##     lapply(mcx,function(xx){
+        ##         do.call('[',c(list(xx),rep(TRUE,length(dim(xx))-1), list(-toremove)) )
+        ##     })
+        ## }
+
 
 
         ## Parameter and function to test MCMC convergence
@@ -588,7 +610,7 @@ inferpopulation <- function(data, auxmetadata, outputdir, nsamples=4096, nsample
         
         cat('\nSetup time', printtime(Sys.time() - timecount), '\n')
 
-        printnull('Done. Estimating remaining time...\r', outcon)
+        printnull('Sampling. Estimating remaining time...\r', outcon)
 
 ##################################################
 #### LOOP OVER CHAINS (WITHIN ONE CORE)
@@ -621,12 +643,14 @@ inferpopulation <- function(data, auxmetadata, outputdir, nsamples=4096, nsample
             reset <- TRUE
             traces <- NULL
             allmcsamples <- NULL
+            allmcsamplesl <- NULL
             allclusterhypar <- list(Alpha=NULL, K=NULL)
             if(showclusterstraces){
                 clusterhypar <- NULL
             }
             flagll <- FALSE
             flagmc <- FALSE
+            gc()
             chainnumber <- (acore-1L)*nchainspercore + achain
             cat('\nChain #', chainnumber,
                 '(chain', achain,'of',nchainspercore,'for this core)\n')
@@ -639,22 +663,26 @@ inferpopulation <- function(data, auxmetadata, outputdir, nsamples=4096, nsample
                 cat('Iterations:', niter,'\n')
                 ertime <- (Sys.time()-starttime)/(achain-1)*(nchainspercore-achain+1)
                 if(is.finite(ertime) && ertime > 0){
-                    printnull(paste0('\rDone. Estimated remaining time ',
+                    printnull(paste0('\rSampling. Estimated remaining time ',
                                      printtime(ertime), '        '),
                               outcon)
                 }
                 
 #### MONTE-CARLO CALL
                 Cmcsampler$run(niter=niter, thin=1, thin2=(if(showclusterstraces){max(1,round(niter/nclustersamples))}else{niter}), nburnin=0, time=showsamplertimes0, reset=reset, resetMV=TRUE)
+                
                 mcsamples <- as.matrix(Cmcsampler$mvSamples)
+                mcsamplesl <- as.list(Cmcsampler$mvSamples, iterationAsLastIndex=T)
+
                 clusterhypar <- as.list(Cmcsampler$mvSamples2, iterationAsLastIndex=F)
                 clusterhypar$K <- apply(clusterhypar$K, 1, function(xx)length(unique(xx)))
                 clusterhypar$Alpha <- c(clusterhypar$Alpha)
 
                 cat('\nMCMC time', printtime(Sys.time() - starttime), '\n')
 
+#### Remove iterations with non-finite values
                 toremove <- which(!is.finite(mcsamples), arr.ind=T)
-
+                ##
                 if(length(toremove) > 0){
                     printnull('\nWARNING: SOME NON-FINITE OUTPUTS\n', outcon)
                     ##
@@ -670,6 +698,14 @@ inferpopulation <- function(data, auxmetadata, outputdir, nsamples=4096, nsample
                         mcsamples <- mcsamples[-unique(toremove[,1]),,drop=F]
                     }
                 }
+#### Remove iterations with non-finite values
+                toremove <- sort(unique(unlist(lapply(mcsamplesl,function(xx){temp <- which(is.na(xx),arr.ind=T);temp[,ncol(temp)]}))))
+                if(length(toremove) > 0){
+                    mcsamplesl <- lapply(mcsamplesl,function(xx){
+                        do.call('[', c(list(xx),rep(TRUE,length(dim(xx))-1), list(-toremove, drop=FALSE)) )
+                    })
+                }
+
                 
                 ##
                 if(showsamplertimes0){
@@ -737,6 +773,21 @@ inferpopulation <- function(data, auxmetadata, outputdir, nsamples=4096, nsample
                 allmcsamples <- rbind(allmcsamples, mcsamples)
                 rm(mcsamples)
                 gc()
+                
+                if(is.null(allmcsamplesl)){
+                    allmcsamplesl <- mcsamplesl
+                }else{
+                     allmcsamplesl <- mapply(function(xx,yy){
+                        temp <- c(xx,yy)
+                        dx <- dim(xx)[-length(dim(xx))]
+                        dim(temp) <- c(dx, length(temp)/prod(dx))
+                        temp
+                    },
+                    allmcsamplesl, mcsamplesl)
+                }
+                rm(mcsamplesl)
+                gc()
+
                 if(showclusterstraces){
                     allclusterhypar <- mapply(function(xx,yy){c(xx,yy)}, allclusterhypar, clusterhypar, SIMPLIFY=F)
                 }
@@ -758,10 +809,22 @@ inferpopulation <- function(data, auxmetadata, outputdir, nsamples=4096, nsample
 #########################################
 #### SAVE CHAIN ####
 #########################################
-
-            allmcsamples <- allmcsamples[rev( nrow(allmcsamples) - seq(0, length.out=nsamplesperchain, by=max(1,multcorr*ceiling(max(diagnIAT,diagnThin)), na.rm=T)) ),,drop=F]
-            
+            tokeep <- seq(to=nrow(allmcsamples), length.out=nsamplesperchain, by=max(1,multcorr*ceiling(max(diagnIAT,diagnThin)), na.rm=T))
+            allmcsamples <- allmcsamples[tokeep,,drop=F]
+            ##
             saveRDS(allmcsamples, file=paste0(dirname,'_mcsamples-',nameroot,'--',chainnumber,'.rds'))
+            ## rm(allmcsamples)
+
+            tokeep <- seq(to=ncol(allmcsamplesl$W), length.out=nsamplesperchain, by=max(1,multcorr*ceiling(max(diagnIAT,diagnThin)), na.rm=T))
+            allmcsamplesl <- lapply(allmcsamplesl,function(xx){
+                do.call('[',c(list(xx),rep(TRUE,length(dim(xx))-1), list(tokeep), list(drop=FALSE)) )
+            })
+            ##
+            saveRDS(allmcsamplesl, file=paste0(dirname,'_mcsamplesl-',nameroot,'--',chainnumber,'.rds'))
+            ## rm(allmcsamplesl)
+
+            gc()
+
             saveRDS(traces,file=paste0(dirname,'_mctraces-',nameroot,'--',chainnumber,'.rds'))
 
             for(i in 1:length(allclusterhypar))
@@ -773,7 +836,6 @@ inferpopulation <- function(data, auxmetadata, outputdir, nsamples=4096, nsample
                 printnull(paste0('\nOCCUPIED CLUSTERS:', usedclusters, 'OF', nclusters,'\n'), outcon)
             }
             cat('\nOCCUPIED CLUSTERS:', usedclusters, 'OF', nclusters,'\n')
-            gc()
 
 ###############
 #### PLOTS ####
@@ -886,8 +948,8 @@ inferpopulation <- function(data, auxmetadata, outputdir, nsamples=4096, nsample
 
         ##
         cat('\nTotal time', printtime(Sys.time() - starttime), '\n')
-        
-        c(maxusedclusters, allflagmc)
+
+        cbind(maxusedclusters, allflagmc)
     } #### END FOREACH OVER CORES
     suppressWarnings(sink())
     suppressWarnings(sink(NULL,type='message'))
@@ -906,7 +968,7 @@ inferpopulation <- function(data, auxmetadata, outputdir, nsamples=4096, nsample
 ############################################################
 #### Join chains
 ############################################################
-    mcsamples <- foreach(chainnumber=1:(ncores*nchainspercore), .combine=rbind, .inorder=TRUE)%dopar%{
+    mcsamples <- foreach(chainnumber=1:(ncores*nchainspercore), .combine=rbind)%do%{
         readRDS(file=paste0(dirname,'_mcsamples-',nameroot,'--',chainnumber,'.rds'))
     }
     ## attr(mcsamples, 'rng') <- NULL
@@ -915,12 +977,21 @@ inferpopulation <- function(data, auxmetadata, outputdir, nsamples=4096, nsample
     ## mcsamples <- mcsamples[round(seq(1,nrow(mcsamples),length.out=nsamples)),-(1:3)]
     saveRDS(mcsamples,file=paste0(dirname,'Fdistribution-',nameroot,'.rds'))
 
-#### remove partial files if required
-    if(cleanup){
-        
+    joinmc <- function(mc1, mc2){
+        mapply(function(xx,yy){
+            temp <- c(xx,yy)
+            dx <- dim(xx)[-length(dim(xx))]
+            dim(temp) <- c(dx, length(temp)/prod(dx))
+            temp
+            },
+            mc1, mc2)
     }
-
+    mcsamplesl <- foreach(chainnumber=1:(ncores*nchainspercore), .combine=joinmc, .multicombine=F)%do%{
+        readRDS(file=paste0(dirname,'_mcsamplesl-',nameroot,'--',chainnumber,'.rds'))
+    }
     
+    saveRDS(mcsamplesl,file=paste0(dirname,'Fdistributionl-',nameroot,'.rds'))
+
     ## traces <- mcsamples[round(seq(1,nrow(mcsamples),length.out=nsamples)),1:3]
     ## saveRDS(traces,file=paste0(dirname,'MCtraces-',nameroot,'.rds'))
 
@@ -1016,6 +1087,7 @@ inferpopulation <- function(data, auxmetadata, outputdir, nsamples=4096, nsample
         cat('Removing temporary output files.\n')
         for(chainnumber in 1:(ncores*nchainspercore)){
             file.remove(paste0(dirname,'_mcsamples-',nameroot,'--',chainnumber,'.rds'))
+            file.remove(paste0(dirname,'_mcsamplesl-',nameroot,'--',chainnumber,'.rds'))
             file.remove(paste0(dirname,'_mctraces-',nameroot,'--',chainnumber,'.rds'))
         }
     }
