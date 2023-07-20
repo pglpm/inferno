@@ -4,50 +4,81 @@ inferpopulation <- function(data, auxmetadata, outputdir, nsamples=4096, nsample
 #### Determine the status of parallel processing
     if(!missing(parallel) && is.logical(parallel) && parallel){
         if(getDoParRegistered()){
-            cat('Using already registered', getDoParName(), '\nwith', getDoParWorkers(), 'workers\n')
+            cat('Using already registered', getDoParName(), 'with', getDoParWorkers(), 'workers\n')
             ncores <- getDoParWorkers()
         }else{
             cat('No parallel backend registered.\n')
             ncores <- 1
         }
-    }else if(!missing(parallel) && is.integer(parallel) && parallel >= 2){
+    }else if(!missing(parallel) && is.numeric(parallel) && parallel >= 2){
         if(getDoParRegistered()){
-            cat('Using already registered', getDoParName(), '\nwith', getDoParWorkers(), 'workers\n')
-            ncores <- getDoParWorkers()
+            ncores <- min(getDoParWorkers(), parallel)
+            cat('Using already registered', getDoParName(), 'with', ncores, 'workers\n')
         }else{
-            registerDoSEQ()
+            ## registerDoSEQ()
             ## cl <- makePSOCKcluster(ncores)
             cl <- makeCluster(parallel)
             registerDoParallel(cl)
-            cat('Registered', getDoParName(), '\nwith', getDoParWorkers(), 'workers\n')
+            cat('Registered', getDoParName(), 'with', getDoParWorkers(), 'workers\n')
+            ncores <- parallel
         }
     }else{
         cat('No parallel backend registered.\n')
         ncores <- 1
     }
 
-    if(ncores < 2){ `%dochains%` <- `%do%` }else{ `%dochains%` <- `%dorng%` }
     
 #### Consistency checks for numbers of samples, chains, cores
     if(!missing(nsamples) && !missing(nchains) && missing(nsamplesperchain)){
+        ## nsamples and nchains given
+        if(nchains < ncores){ ncores <- nchains }
+        nchainspercore <- ceiling(nchains/ncores)
+        if(nchainspercore*ncores > nchains){
+            nchains <- nchainspercore*ncores
+            cat('Increasing number of chains to',nchains,'\n')
+        }
         nsamplesperchain <- ceiling(nsamples/nchains)
+        if(nsamplesperchain*nchains > nsamples){
+            nsamples <- nchains*nsamplesperchain
+            cat('Increasing number of samples to',nsamples,'\n')
+        }
+        ##
     }else if(!missing(nsamples) && missing(nchains) && !missing(nsamplesperchain)){
+        ## nsamples and nsamplesperchain given
         nchains <- ceiling(nsamples/nsamplesperchain)
+        if(nchains < ncores){ ncores <- nchains }
+        nchainspercore <- ceiling(nchains/ncores)
+        if(nchainspercore*ncores > nchains){
+            nchains <- nchainspercore*ncores
+        }
+        if(nsamplesperchain*nchains > nsamples){
+            nsamples <- nchains*nsamplesperchain
+            cat('Increasing number of samples to',nsamples,'\n')
+        }
+        ##
     }else if(missing(nsamples) && !missing(nchains) && !missing(nsamplesperchain)){
+        ## nchains and nsamplesperchain given
+        if(nchains < ncores){ ncores <- nchains }
+        nchainspercore <- ceiling(nchains/ncores)
+        if(nchainspercore*ncores > nchains){
+            nchains <- nchainspercore*ncores
+            cat('Increasing number of chains to',nchains,'\n')
+        }
         nsamples <- nchains * nsamplesperchain
+        ##
     }else{
         stop('please specify exactly two among "nsamples", "nchains", "nsamplesperchain"')
     }
 
-    ## set number of cores for parallel computation
-    if(missing(ncores) || !is.numeric(ncores)){
-        warning('The number of cores has not been given.\nIt is much preferable that it be set by the user.')
-        ncores <- round(parallel::detectCores()/2)
-        cat('\nTrying to use ',ncores,' cores\n')
-    }
+    ## ## set number of cores for parallel computation
+    ## if(missing(ncores) || !is.numeric(ncores)){
+    ##     warning('The number of cores has not been given.\nIt is much preferable that it be set by the user.')
+    ##     ncores <- round(parallel::detectCores()/2)
+    ##     cat('\nTrying to use ',ncores,' cores\n')
+    ## }
 
-    nchainspercore <- ceiling(nchains/ncores)
-
+    if(ncores < 2){ `%dochains%` <- `%do%` }else{ `%dochains%` <- `%dorng%` }
+    
     timestart0 <- Sys.time()
 
     ## cat('\n')
@@ -286,7 +317,7 @@ inferpopulation <- function(data, auxmetadata, outputdir, nsamples=4096, nsample
     cat('Starting Monte Carlo sampling of',nsamples,'samples by',nchains,'chains across', ncores, 'cores.\n')
     cat(nsamplesperchain,'samples per chain,',nchainspercore,'chains per core.\n')
     cat('Core logs are being saved in individual files.\n')
-    cat('Setting up samplers (this can take tens of minutes if there are many data or variates).\n...\r')
+    cat('Setting up samplers (this can take tens of minutes with many data or variates).\n...\r')
     ##cat('Estimating remaining time...\r')
     ## stopCluster(cluster)
     ## stopImplicitCluster()
@@ -325,7 +356,7 @@ inferpopulation <- function(data, auxmetadata, outputdir, nsamples=4096, nsample
             if(length(x) >= 1000){
                 LaplacesDemon::MCSE(x, method='batch.means')$se
             }else{
-                funMCSE <- function(x){LaplacesDemon::MCSE(x)}
+                LaplacesDemon::MCSE(x)
             }
         }
 
@@ -573,7 +604,7 @@ inferpopulation <- function(data, auxmetadata, outputdir, nsamples=4096, nsample
                        ),
             monitors2=c(if(showclusterstraces){'Alpha'}, 'K')
         )
-                                        # print(confnimble$getUnsampledNodes())
+        ## print(confnimble$getUnsampledNodes())
         ## confnimble$printSamplers(executionOrder=TRUE)
         
         targetslist <- sapply(confnimble$getSamplers(), function(xx)xx$target)
@@ -639,7 +670,9 @@ inferpopulation <- function(data, auxmetadata, outputdir, nsamples=4096, nsample
         
         cat('\nSetup time', printtime(Sys.time() - timecount), '\n')
 
-        printnull('Sampling. Estimating remaining time...\r', outcon)
+        if(acore == 1){
+            printnull('Done. Estimating remaining time, please be patient...', outcon)
+        }
 
 ##################################################
 #### LOOP OVER CHAINS (WITHIN ONE CORE)
@@ -667,6 +700,12 @@ inferpopulation <- function(data, auxmetadata, outputdir, nsamples=4096, nsample
             showsamplertimes0 <- showsamplertimes && (achain==1)
             ## showclusterstraces0 <- showclusterstraces && (achain==1)
             niter <- niter0
+            ## ## Experimental: decrease number of iterations based on previous chain
+            ## if(achain == 1){
+            ##     niter <- niter0
+            ## }else{
+            ##     niter <- max(min(niter0,lengthmeasure*2), 128)
+            ##     }
             nitertot <- 0
             lengthmeasure <- +Inf
             reset <- TRUE
@@ -690,12 +729,6 @@ inferpopulation <- function(data, auxmetadata, outputdir, nsamples=4096, nsample
 #### WHILE LOOP CONTINUING UNTIL CONVERGENCE
             while(nitertot < lengthmeasure){
                 cat('Iterations:', niter,'\n')
-                ertime <- (Sys.time()-starttime)/(achain-1)*(nchainspercore-achain+1)
-                if(is.finite(ertime) && ertime > 0){
-                    printnull(paste0('\rSampling. Estimated remaining time ',
-                                     printtime(ertime), '        '),
-                              outcon)
-                }
                 
 #### MONTE-CARLO CALL
                 Cmcsampler$run(niter=niter, thin=1, thin2=(if(showclusterstraces){max(1,round(niter/nclustersamples))}else{niter}), nburnin=0, time=showsamplertimes0, reset=reset, resetMV=TRUE)
@@ -709,28 +742,28 @@ inferpopulation <- function(data, auxmetadata, outputdir, nsamples=4096, nsample
 
                 cat('\nMCMC time', printtime(Sys.time() - starttime), '\n')
 
-## #### Remove iterations with non-finite values
-##                 toremove <- which(!is.finite(mcsamples), arr.ind=T)
-##                 ##
-##                 if(length(toremove) > 0){
-##                     printnull('\nWARNING: SOME NON-FINITE OUTPUTS\n', outcon)
-##                     ##
-##                     flagmc <- TRUE
-##                     allflagmc <- TRUE
-##                     if(length(unique(toremove[,1])) == nrow(mcsamples)){
-##                         suppressWarnings(sink())
-##                         suppressWarnings(sink(NULL,type='message'))
-##                         registerDoSEQ()
-##                         if(ncores > 1){ stopCluster(cl) }
-##                         stop('...TOO MANY NON-FINITE OUTPUTS. ABORTING')
-##                     }else{
-##                         mcsamples <- mcsamples[-unique(toremove[,1]),,drop=F]
-##                     }
-##                 }
+                ## #### Remove iterations with non-finite values
+                ##                 toremove <- which(!is.finite(mcsamples), arr.ind=T)
+                ##                 ##
+                ##                 if(length(toremove) > 0){
+                ##                     printnull('\nWARNING: SOME NON-FINITE OUTPUTS\n', outcon)
+                ##                     ##
+                ##                     flagmc <- TRUE
+                ##                     allflagmc <- TRUE
+                ##                     if(length(unique(toremove[,1])) == nrow(mcsamples)){
+                ##                         suppressWarnings(sink())
+                ##                         suppressWarnings(sink(NULL,type='message'))
+                ##                         registerDoSEQ()
+                ##                         if(ncores > 1){ stopCluster(cl) }
+                ##                         stop('...TOO MANY NON-FINITE OUTPUTS. ABORTING')
+                ##                     }else{
+                ##                         mcsamples <- mcsamples[-unique(toremove[,1]),,drop=F]
+                ##                     }
+                ##                 }
 #### Remove iterations with non-finite values
                 toremove <- sort(unique(unlist(lapply(mcsamplesl,function(xx){temp <- which(is.na(xx),arr.ind=T);temp[,ncol(temp)]}))))
                 if(length(toremove) > 0){
-                    printnull('\nWARNING: SOME NON-FINITE OUTPUTS\n', outcon)
+                    cat('\nWARNING:',length(toremove),'NON-FINITE SAMPLES\n')
                     ##
                     flagmc <- TRUE
                     allflagmc <- TRUE
@@ -771,7 +804,7 @@ inferpopulation <- function(data, auxmetadata, outputdir, nsamples=4096, nsample
                 diagntime <- Sys.time()
                 ##
                 ll <- t(
-                    log(samplesFDistribution(Y=testdata, X=NULL, mcsamples=mcsamplesl, auxmetadata=auxmetadata, subsamples=NULL, jacobian=FALSE, useOquantiles=useOquantiles, parallel=FALSE, silent=TRUE)) #- sum(log(invjacobian(data.matrix(data0), varinfo)), na.rm=T)
+                    log(samplesFDistribution(Y=testdata, X=NULL, mcsamples=mcsamplesl, auxmetadata=auxmetadata, jacobian=FALSE, useOquantiles=useOquantiles, parallel=FALSE, silent=TRUE)) #- sum(log(invjacobian(data.matrix(data0), varinfo)), na.rm=T)
                 )
                 colnames(ll) <- paste0('log-',c('mid','lo','hi')) #,'pm','pM','dm','dM'))
                 ##
@@ -789,21 +822,20 @@ inferpopulation <- function(data, auxmetadata, outputdir, nsamples=4096, nsample
                 }
                 ##
                 diagnESS <- LaplacesDemon::ESS(traces)
-                diagnIAT <- apply(traces, 2, function(x){LaplacesDemon::IAT(x)})
-                diagnBMK <- LaplacesDemon::BMK.Diagnostic(traces[1:(4*trunc(nrow(traces)/4)),], batches=4)[,1]
-                diagnMCSE <- 100*apply(traces, 2, function(x){funMCSE(x)/sd(x)})
-                diagnStat <- apply(traces, 2, function(x){LaplacesDemon::is.stationary(as.matrix(x,ncol=1))})
-                diagnBurn <- apply(traces, 2, function(x){LaplacesDemon::burnin(matrix(x[1:(10*trunc(length(x)/10))], ncol=1))})
-                diagnBurn2 <- proposeburnin(traces, batches=10)
-                diagnThin <- proposethinning(traces)
-                ##
                 cat('\nESSs:',paste0(round(diagnESS), collapse=', '))
+                diagnIAT <- apply(traces, 2, function(x){LaplacesDemon::IAT(x)})
                 cat('\nIATs:',paste0(round(diagnIAT), collapse=', '))
+                diagnBMK <- LaplacesDemon::BMK.Diagnostic(traces[1:(4*trunc(nrow(traces)/4)),], batches=4)[,1]
                 cat('\nBMKs:',paste0(round(diagnBMK,3), collapse=', '))
+                diagnMCSE <- 100*apply(traces, 2, function(x){funMCSE(x)/sd(x)})
                 cat('\nMCSEs:',paste0(round(diagnMCSE,2), collapse=', '))
+                diagnStat <- apply(traces, 2, function(x){LaplacesDemon::is.stationary(as.matrix(x,ncol=1))})
                 cat('\nStationary:',paste0(diagnStat, collapse=', '))
+                diagnBurn <- apply(traces, 2, function(x){LaplacesDemon::burnin(matrix(x[1:(10*trunc(length(x)/10))], ncol=1))})
                 cat('\nBurn-in I:',paste0(diagnBurn, collapse=', '))
+                diagnBurn2 <- proposeburnin(traces, batches=10)
                 cat('\nBurn-in II:',diagnBurn2)
+                diagnThin <- proposethinning(traces)
                 cat('\nProposed thinning:',paste0(diagnThin, collapse=', '),'\n')
 
                 cat('\nDiagnostics time', printtime(Sys.time() - diagntime), '\n')
@@ -816,7 +848,7 @@ inferpopulation <- function(data, auxmetadata, outputdir, nsamples=4096, nsample
                 if(is.null(allmcsamplesl)){
                     allmcsamplesl <- mcsamplesl
                 }else{
-                     allmcsamplesl <- mapply(function(xx,yy){
+                    allmcsamplesl <- mapply(function(xx,yy){
                         temp <- c(xx,yy)
                         dx <- dim(xx)[-length(dim(xx))]
                         dim(temp) <- c(dx, length(temp)/prod(dx))
@@ -844,6 +876,7 @@ inferpopulation <- function(data, auxmetadata, outputdir, nsamples=4096, nsample
                 }
                 reset <- FALSE
             }
+
             
 #########################################
 #### SAVE CHAIN ####
@@ -870,8 +903,8 @@ inferpopulation <- function(data, auxmetadata, outputdir, nsamples=4096, nsample
                 usedclusters <- allclusterhypar$K[length(allclusterhypar$K)]
             if(usedclusters > nclusters-5){
                 cat('\nWARNING: TOO MANY CLUSTERS OCCUPIED')
-                printnull('\nWARNING: TOO MANY CLUSTERS OCCUPIED\n', outcon)
-                printnull(paste0('\nOCCUPIED CLUSTERS:', usedclusters, 'OF', nclusters,'\n'), outcon)
+                ## printnull('\nWARNING: TOO MANY CLUSTERS OCCUPIED\n', outcon)
+                ## printnull(paste0('\nOCCUPIED CLUSTERS:', usedclusters, 'OF', nclusters,'\n'), outcon)
             }
             cat('\nOCCUPIED CLUSTERS:', usedclusters, 'OF', nclusters,'\n')
 
@@ -982,7 +1015,17 @@ inferpopulation <- function(data, auxmetadata, outputdir, nsamples=4096, nsample
 
             cat('\nMCMC+diagnostics time', printtime(Sys.time() - starttime), '\n')
             
-            rm(allmcsamplesl)            
+            rm(allmcsamplesl)
+
+#### Print estimated remaining time
+            ertime <- (Sys.time()-starttime)/achain*(nchainspercore-achain+1)
+            if(is.finite(ertime) && ertime > 0){
+                printnull(paste0('\rSampling. Estimated remaining time ',
+                                 printtime(ertime),
+                                 '                  '),
+                          outcon)
+            }
+
             maxusedclusters <- max(maxusedclusters, usedclusters)
         } #### END LOOP OVER CHAINS (WITHIN ONE CORE)
 
@@ -1020,8 +1063,8 @@ inferpopulation <- function(data, auxmetadata, outputdir, nsamples=4096, nsample
             dx <- dim(xx)[-length(dim(xx))]
             dim(temp) <- c(dx, length(temp)/prod(dx))
             temp
-            },
-            mc1, mc2)
+        },
+        mc1, mc2)
     }
     mcsamplesl <- foreach(chainnumber=1:(ncores*nchainspercore), .combine=joinmc, .multicombine=F)%do%{
         readRDS(file=paste0(dirname,'_mcsamplesl-',nameroot,'--',chainnumber,'.rds'))
@@ -1090,6 +1133,10 @@ inferpopulation <- function(data, auxmetadata, outputdir, nsamples=4096, nsample
     ## }
 
     cat('\nMax number of occupied clusters:',maxusedclusters,'\n')
+    if(maxusedclusters > nclusters-5){
+        cat('Too many clusters occupied\n')
+    }
+
     if(nonfinitechains > 0){
         cat(nonfinitechains,'chains with some non-finite outputs\n')
     }

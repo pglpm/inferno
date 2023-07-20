@@ -4,22 +4,22 @@ samplesFDistribution <- function(Y, X, mcsamples, auxmetadata, subsamples, jacob
 #### Determine the status of parallel processing
     if(!missing(parallel) && is.logical(parallel) && parallel){
         if(getDoParRegistered()){
-if(!silent){ cat('Using already registered', getDoParName(), '\nwith', getDoParWorkers(), 'workers\n') }
+if(!silent){ cat('Using already registered', getDoParName(), 'with', getDoParWorkers(), 'workers\n') }
             ncores <- getDoParWorkers()
         }else{
             if(!silent){ cat('No parallel backend registered.\n') }
             ncores <- 1
         }
-    }else if(!missing(parallel) && is.integer(parallel) && parallel >= 2){
+    }else if(!missing(parallel) && is.numeric(parallel) && parallel >= 2){
         if(getDoParRegistered()){
-            if(!silent){ cat('Using already registered', getDoParName(), '\nwith', getDoParWorkers(), 'workers\n') }
-            ncores <- getDoParWorkers()
+            ncores <- min(getDoParWorkers(), parallel)
+            if(!silent){ cat('Using already registered', getDoParName(), 'with', ncores, 'workers\n') }
         }else{
-            registerDoSEQ()
+            ## registerDoSEQ()
             ## cl <- makePSOCKcluster(ncores)
             cl <- makeCluster(parallel)
             registerDoParallel(cl)
-            if(!silent){ cat('Registered', getDoParName(), '\nwith', getDoParWorkers(), 'workers\n') }
+            if(!silent){ cat('Registered', getDoParName(), 'with', getDoParWorkers(), 'workers\n') }
         }
     }else{
         if(!silent){ cat('No parallel backend registered.\n') }
@@ -59,7 +59,7 @@ if(!silent){ cat('Using already registered', getDoParName(), '\nwith', getDoParW
     }
     
 #### Subsample and get nclusters and nsamples
-    if(!missing(subsamples) && (is.integer(subsamples) || (is.character(subsamples) && length(subsamples) == 1))){
+    if(!missing(subsamples) && (is.numeric(subsamples) || (is.character(subsamples) && length(subsamples) == 1))){
         if(is.character(subsamples)){
             subsamples <- round(seq(1, ncol(mcsamples$W),
                                     length.out=as.numeric(subsamples)))
