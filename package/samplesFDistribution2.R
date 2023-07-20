@@ -1,4 +1,4 @@
-samplesFDistribution <- function(Y, X, mcsamples, auxmetadata, subsamples, jacobian=TRUE, fn=identity, parallel=TRUE, useOquantiles=TRUE){
+samplesFDistribution2 <- function(Y, X, mcsamples, auxmetadata, subsamples, jacobian=TRUE, fn=identity, parallel=TRUE, useOquantiles=TRUE){
     ## Consistency checks
     if(length(dim(Y)) != 2){stop('Y must have two dimensions')}
     if(missing(X)){X <- NULL}
@@ -35,9 +35,12 @@ samplesFDistribution <- function(Y, X, mcsamples, auxmetadata, subsamples, jacob
     mcsamples <- lapply(mcsamples,function(xx){
         do.call('[',c(list(xx),rep(TRUE,length(dim(xx))-1), list(subsamples), list(drop=FALSE)) )
     })
-    nsamples <- ncol(mcsamples$W)
 
-    nclusters <- nrow(mcsamples$W)
+    W <- mcsamples$W
+    mcsamples$W <- NULL
+    nsamples <- ncol(W)
+
+    nclusters <- nrow(W)
 
 #### Type R
     vnames <- auxmetadata[mcmctype == 'R', name]
@@ -51,7 +54,10 @@ samplesFDistribution <- function(Y, X, mcsamples, auxmetadata, subsamples, jacob
     YiR <- YiR[YtR]
     YnR <- length(YiR)
     if(YnR > 0 || XnR > 0){
-        mcsamples$Rvar <- sqrt(mcsamples$Rvar)
+        Rmean <- mcsamples$Rmean
+        mcsamples$Rmean <- NULL
+        Rvar <- sqrt(mcsamples$Rvar)
+        mcsamples$Rvar <- NULL
     }
 
 #### Type C
@@ -66,7 +72,10 @@ samplesFDistribution <- function(Y, X, mcsamples, auxmetadata, subsamples, jacob
     YiC <- YiC[YtC]
     YnC <- length(YiC)
     if(YnC > 0 || XnC > 0){
-        mcsamples$Cvar <- sqrt(mcsamples$Cvar)
+        Cmean <- mcsamples$Cmean
+        mcsamples$Cmean <- NULL
+        Cvar <- sqrt(mcsamples$Cvar)
+        mcsamples$Cvar <- NULL
         Cbounds <- cbind(
             c(vtransform(x=matrix(NA,nrow=1,ncol=length(vnames),
                                   dimnames=list(NULL,vnames)),
@@ -91,7 +100,10 @@ samplesFDistribution <- function(Y, X, mcsamples, auxmetadata, subsamples, jacob
     YiD <- YiD[YtD]
     YnD <- length(YiD)
     if(YnD > 0 || XnD > 0){
-        mcsamples$Dvar <- sqrt(mcsamples$Dvar)
+        Dmean <- mcsamples$Dmean
+        mcsamples$Dmean <- NULL
+        Dvar <- sqrt(mcsamples$Dvar)
+        mcsamples$Dvar <- NULL
         Dbounds <- cbind(
             c(vtransform(x=matrix(NA,nrow=1,ncol=length(vnames),
                                   dimnames=list(NULL,vnames)),
@@ -116,7 +128,10 @@ samplesFDistribution <- function(Y, X, mcsamples, auxmetadata, subsamples, jacob
     YiO <- YiO[YtO]
     YnO <- length(YiO)
     if(YnO > 0 || XnO > 0){
-        mcsamples$Ovar <- sqrt(mcsamples$Ovar)
+        Omean <- mcsamples$Omean
+        mcsamples$Omean <- NULL
+        Ovar <- sqrt(mcsamples$Ovar)
+        mcsamples$Ovar <- NULL
         ##
         Omaxn <- max(auxmetadata[name %in% vnames, Nvalues])
         Oleft <- t(sapply(vnames, function(avar){
@@ -150,8 +165,10 @@ samplesFDistribution <- function(Y, X, mcsamples, auxmetadata, subsamples, jacob
     YtN <- which(!is.na(YiN))
     YiN <- YiN[YtN]
     YnN <- length(YiN)
-    ## if(YnN > 0 || XnN > 0){
-    ##     }
+    if(YnN > 0 || XnN > 0){
+        Nprob <- mcsamples$Nprob
+        mcsamples$Nprob <- NULL
+    }
 
 #### Type B
     vnames <- auxmetadata[mcmctype == 'B', name]
@@ -164,6 +181,10 @@ samplesFDistribution <- function(Y, X, mcsamples, auxmetadata, subsamples, jacob
     YtB <- which(!is.na(YiB))
     YiB <- YiB[YtB]
     YnB <- length(YiB)
+    if(YnB > 0 || XnB > 0){
+        Bprob <- mcsamples$Bprob
+        mcsamples$Bprob <- NULL
+    }
 
 #### transformation of inputs
     Y2 <- vtransform(Y, auxmetadata, Cout='boundisinf', Dout='boundisinf', Oout='', Nout='numeric', Bout='numeric', useOquantiles=useOquantiles)
@@ -184,22 +205,22 @@ samplesFDistribution <- function(Y, X, mcsamples, auxmetadata, subsamples, jacob
     ##
 
     if(parallel){`%thisdo%` <- `%dopar%`}else{`%thisdo%` <- `%do%`}
-    foreach(y=t(Y2), x=t(X2), .combine=rbind, .inorder=TRUE)%thisdo%{
+    foreach(y=t(Y2), x=t(X2), .combine=rbind, .inorder=T)%thisdo%{
 #### the loop is over the columns of y and x
 #### each instance is a 1-column vector
         ##
         if(all(is.na(x))){
-            probX <- log(mcsamples$W) 
+            probX <- log(W) 
         }else{
             ## rows: clusters, cols: samples
-            probX <- log(mcsamples$W) + 
+            probX <- log(W) + 
                 (if(XnR > 0){# continuous
                      colSums(
                          dnorm(x=x[XiR,],
-                               mean=mcsamples$Rmean[XtR,,,drop=FALSE],
-                               sd=mcsamples$Rvar[XtR,,,drop=FALSE],
-                               log=TRUE),
-                         na.rm=TRUE)
+                               mean=Rmean[XtR,,,drop=FALSE],
+                               sd=Rvar[XtR,,,drop=FALSE],
+                               log=T),
+                         na.rm=T)
                  }else{0}) +
                 (if(XnC > 0){# censored
                      indf <- which(is.finite(x[XiC,]))
@@ -207,10 +228,10 @@ samplesFDistribution <- function(Y, X, mcsamples, auxmetadata, subsamples, jacob
                      (if(length(indf) > 0){
                           colSums(
                               dnorm(x=x[XiC[indf],],
-                                    mean=mcsamples$Cmean[XtC[indf],,,drop=FALSE],
-                                    sd=mcsamples$Cvar[XtC[indf],,,drop=FALSE],
-                                    log=TRUE),
-                              na.rm=TRUE)
+                                    mean=Cmean[XtC[indf],,,drop=FALSE],
+                                    sd=Cvar[XtC[indf],,,drop=FALSE],
+                                    log=T),
+                              na.rm=T)
                       }else{0}) +
                          (if(length(indi) > 0){
                               v2 <- XtC[indi]
@@ -218,10 +239,10 @@ samplesFDistribution <- function(Y, X, mcsamples, auxmetadata, subsamples, jacob
                               ## for upper tail, take opposite mean and value
                               colSums(
                                   pnorm(q=Cbounds[cbind(v2, 1.5-0.5*v1)],
-                                        mean=v1*mcsamples$Cmean[v2,,,drop=FALSE],
-                                        sd=mcsamples$Cvar[v2,,,drop=FALSE],
-                                        log.p=TRUE),
-                                  na.rm=TRUE)
+                                        mean=v1*Cmean[v2,,,drop=FALSE],
+                                        sd=Cvar[v2,,,drop=FALSE],
+                                        log.p=T),
+                                  na.rm=T)
                           }else{0})
                  }else{0}) +
                 (if(XnD > 0){# continuous discretized
@@ -230,10 +251,10 @@ samplesFDistribution <- function(Y, X, mcsamples, auxmetadata, subsamples, jacob
                      (if(length(indf) > 0){
                           colSums(
                               dnorm(x=x[XiD[indf],],
-                                    mean=mcsamples$Dmean[XtD[indf],,,drop=FALSE],
-                                    sd=mcsamples$Dvar[XtD[indf],,,drop=FALSE],
-                                    log=TRUE),
-                              na.rm=TRUE)
+                                    mean=Dmean[XtD[indf],,,drop=FALSE],
+                                    sd=Dvar[XtD[indf],,,drop=FALSE],
+                                    log=T),
+                              na.rm=T)
                       }else{0}) +
                          (if(length(indi) > 0){
                               v2 <- XtD[indi]
@@ -241,10 +262,10 @@ samplesFDistribution <- function(Y, X, mcsamples, auxmetadata, subsamples, jacob
                               ## for upper tail, take opposite mean and value
                               colSums(
                                   pnorm(q=Dbounds[v2, 1.5-0.5*v1],
-                                        mean=v1*mcsamples$Dmean[v2,,,drop=FALSE],
-                                        sd=mcsamples$Dvar[v2,,,drop=FALSE],
-                                        log.p=TRUE),
-                                  na.rm=TRUE)
+                                        mean=v1*Dmean[v2,,,drop=FALSE],
+                                        sd=Dvar[v2,,,drop=FALSE],
+                                        log.p=T),
+                                  na.rm=T)
                           }else{0})
                  }else{0}) +
                 (if(XnO > 0){# ordinal
@@ -252,41 +273,27 @@ samplesFDistribution <- function(Y, X, mcsamples, auxmetadata, subsamples, jacob
                      colSums(
                          log(
                              pnorm(q=Oright[v2],
-                                   mean=mcsamples$Omean[XtO,,,drop=FALSE],
-                                   sd=mcsamples$Ovar[XtO,,,drop=FALSE]) -
+                                   mean=Omean[XtO,,,drop=FALSE],
+                                   sd=Ovar[XtO,,,drop=FALSE]) -
                              pnorm(q=Oleft[v2],
-                                   mean=mcsamples$Omean[XtO,,,drop=FALSE],
-                                   sd=mcsamples$Ovar[XtO,,,drop=FALSE])
+                                   mean=Omean[XtO,,,drop=FALSE],
+                                   sd=Ovar[XtO,,,drop=FALSE])
                          ),
-                         na.rm=TRUE)
+                         na.rm=T)
                  }else{0}) +
                 (if(XnN > 0){# nominal
-                      colSums(
-                         log( aperm(
-                                 vapply(seq_len(XnN), function(v){
-                                 mcsamples$Nprob[XtN[v],,x[XiN[v],],]
-                                 }, mcsamples$W),
-                                 c(3,1,2)) ),
-                         na.rm=TRUE)
-                    ## colSums(
-                    ##      log(array(
-                    ##          t(sapply(seq_len(XnN), function(v){
-                    ##              mcsamples$Nprob[XtN[v],,x[XiN[v],],]
-                    ##          })),
-                    ##          dim=c(XnN, nclusters, nsamples))),
-                    ##      na.rm=TRUE)
-                     ## temp <- apply(mcsamples$Nprob, c(2,4), function(xx){
-                     ##     xx[cbind(XtN, x[XiN,])]
-                     ## })
-                     ## dim(temp) <- c(XnN, nclusters, nsamples)
-                     ## ##
-                     ## colSums(log(temp), na.rm=TRUE)
+                     temp <- apply(Nprob, c(2,4), function(xx){
+                         xx[cbind(XtN, x[XiN,])]
+                     })
+                     dim(temp) <- c(XnN, nclusters, nsamples)
+                     ##
+                     colSums(log(temp), na.rm=T)
                  }else{0}) +
                 (if(XnB > 0){# binary
                      colSums(
-                         log( x[XiB,]*mcsamples$Bprob[XtB,,,drop=FALSE] +
-                              (1L-x[XiB,])*(1-mcsamples$Bprob[XtB,,,drop=FALSE]) ),
-                         na.rm=TRUE)
+                         log( x[XiB,]*Bprob[XtB,,,drop=FALSE] +
+                              (1L-x[XiB,])*(1-Bprob[XtB,,,drop=FALSE]) ),
+                         na.rm=T)
                  }else{0})
         } # end probX
         probX <- apply(probX, 2, function(xx){xx - max(xx[is.finite(xx)])})
@@ -298,10 +305,10 @@ samplesFDistribution <- function(Y, X, mcsamples, auxmetadata, subsamples, jacob
             probY <- (if(YnR > 0){# continuous
                           colSums(
                               dnorm(x=y[YiR,],
-                                    mean=mcsamples$Rmean[YtR,,,drop=FALSE],
-                                    sd=mcsamples$Rvar[YtR,,,drop=FALSE],
-                                    log=TRUE),
-                              na.rm=TRUE)
+                                    mean=Rmean[YtR,,,drop=FALSE],
+                                    sd=Rvar[YtR,,,drop=FALSE],
+                                    log=T),
+                              na.rm=T)
                       }else{0}) +
                 (if(YnC > 0){# censored
                      indf <- which(is.finite(y[YiC,]))
@@ -309,10 +316,10 @@ samplesFDistribution <- function(Y, X, mcsamples, auxmetadata, subsamples, jacob
                      (if(length(indf) > 0){
                           colSums(
                               dnorm(x=y[YiC[indf],],
-                                    mean=mcsamples$Cmean[YtC[indf],,,drop=FALSE],
-                                    sd=mcsamples$Cvar[YtC[indf],,,drop=FALSE],
-                                    log=TRUE),
-                              na.rm=TRUE)
+                                    mean=Cmean[YtC[indf],,,drop=FALSE],
+                                    sd=Cvar[YtC[indf],,,drop=FALSE],
+                                    log=T),
+                              na.rm=T)
                       }else{0}) +
                          (if(length(indi) > 0){
                               v2 <- YtC[indi]
@@ -320,10 +327,10 @@ samplesFDistribution <- function(Y, X, mcsamples, auxmetadata, subsamples, jacob
                               ## for upper tail, take opposite mean and value
                               colSums(
                                   pnorm(q=Cbounds[cbind(v2, 1.5-0.5*v1)],
-                                        mean=v1*mcsamples$Cmean[v2,,,drop=FALSE],
-                                        sd=mcsamples$Cvar[v2,,,drop=FALSE],
-                                        log.p=TRUE),
-                                  na.rm=TRUE)
+                                        mean=v1*Cmean[v2,,,drop=FALSE],
+                                        sd=Cvar[v2,,,drop=FALSE],
+                                        log.p=T),
+                                  na.rm=T)
                           }else{0})
                  }else{0}) +
                 (if(YnD > 0){# continuous discretized
@@ -332,10 +339,10 @@ samplesFDistribution <- function(Y, X, mcsamples, auxmetadata, subsamples, jacob
                      (if(length(indf) > 0){
                           colSums(
                               dnorm(x=y[YiD[indf],],
-                                    mean=mcsamples$Dmean[YtD[indf],,,drop=FALSE],
-                                    sd=mcsamples$Dvar[YtD[indf],,,drop=FALSE],
-                                    log=TRUE),
-                              na.rm=TRUE)
+                                    mean=Dmean[YtD[indf],,,drop=FALSE],
+                                    sd=Dvar[YtD[indf],,,drop=FALSE],
+                                    log=T),
+                              na.rm=T)
                       }else{0}) +
                          (if(length(indi) > 0){
                               v2 <- YtD[indi]
@@ -343,10 +350,10 @@ samplesFDistribution <- function(Y, X, mcsamples, auxmetadata, subsamples, jacob
                               ## for upper tail, take opposite mean and value
                               colSums(
                                   pnorm(q=Dbounds[v2, 1.5-0.5*v1],
-                                        mean=v1*mcsamples$Dmean[v2,,,drop=FALSE],
-                                        sd=mcsamples$Dvar[v2,,,drop=FALSE],
-                                        log.p=TRUE),
-                                  na.rm=TRUE)
+                                        mean=v1*Dmean[v2,,,drop=FALSE],
+                                        sd=Dvar[v2,,,drop=FALSE],
+                                        log.p=T),
+                                  na.rm=T)
                           }else{0})
                  }else{0}) +
                 (if(YnO > 0){# ordinal
@@ -354,34 +361,27 @@ samplesFDistribution <- function(Y, X, mcsamples, auxmetadata, subsamples, jacob
                      colSums(
                          log(
                              pnorm(q=Oright[v2],
-                                   mean=mcsamples$Omean[YtO,,,drop=FALSE],
-                                   sd=mcsamples$Ovar[YtO,,,drop=FALSE]) -
+                                   mean=Omean[YtO,,,drop=FALSE],
+                                   sd=Ovar[YtO,,,drop=FALSE]) -
                              pnorm(q=Oleft[v2],
-                                   mean=mcsamples$Omean[YtO,,,drop=FALSE],
-                                   sd=mcsamples$Ovar[YtO,,,drop=FALSE])
+                                   mean=Omean[YtO,,,drop=FALSE],
+                                   sd=Ovar[YtO,,,drop=FALSE])
                          ),
-                         na.rm=TRUE)
+                         na.rm=T)
                  }else{0}) +
                 (if(YnN > 0){# nominal
-                     colSums(
-                         log( aperm(
-                                 vapply(seq_len(YnN), function(v){
-                                 mcsamples$Nprob[YtN[v],,y[YiN[v],],]
-                                 }, mcsamples$W),
-                                 c(3,1,2)) ),
-                         na.rm=TRUE)
-                     ## temp <- apply(mcsamples$Nprob, c(2,4), function(xx){
-                     ##     xx[cbind(YtN, y[YiN,])]
-                     ## })
-                     ## dim(temp) <- c(YnN, nclusters, nsamples)
-                     ## ##
-                     ## colSums(log(temp), na.rm=TRUE)
+                     temp <- apply(Nprob, c(2,4), function(xx){
+                         xx[cbind(YtN, y[YiN,])]
+                     })
+                     dim(temp) <- c(YnN, nclusters, nsamples)
+                     ##
+                     colSums(log(temp), na.rm=T)
                  }else{0}) +
                 (if(YnB > 0){# binary
                      colSums(
-                         log( y[YiB,]*mcsamples$Bprob[YtB,,,drop=FALSE] +
-                              (1-y[YiB,])*(1-mcsamples$Bprob[YtB,,,drop=FALSE]) ),
-                         na.rm=TRUE)
+                         log( y[YiB,]*Bprob[YtB,,,drop=FALSE] +
+                              (1-y[YiB,])*(1-Bprob[YtB,,,drop=FALSE]) ),
+                         na.rm=T)
                  }else{0})
         }
 #### Output: rows=clusters, columns=samples
@@ -391,7 +391,7 @@ samplesFDistribution <- function(Y, X, mcsamples, auxmetadata, subsamples, jacob
         ## }else{
         ## str(probX)
         ## print(any(is.na(probX)))
-        ## print(apply(probX, 1, max, na.rm=TRUE))
+        ## print(apply(probX, 1, max, na.rm=T))
         ## str(probX)
         ## print(any(is.na(probX)))
         ## str(probY)
@@ -403,5 +403,5 @@ samplesFDistribution <- function(Y, X, mcsamples, auxmetadata, subsamples, jacob
     (if(jacobian){
          exp(-rowSums(
                   log(vtransform(Y, auxmetadata=auxmetadata, invjacobian=TRUE, useOquantiles=useOquantiles)),
-                  na.rm=TRUE))}else{1L})
+                  na.rm=T))}else{1L})
 }

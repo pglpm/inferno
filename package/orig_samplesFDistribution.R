@@ -1,4 +1,4 @@
-samplesFDistribution <- function(Y, X, mcsamples, auxmetadata, subsamples, jacobian=TRUE, fn=identity, parallel=TRUE, useOquantiles=TRUE){
+origsamplesFDistribution <- function(Y, X, mcsamples, auxmetadata, subsamples, jacobian=TRUE, fn=identity, parallel=TRUE, useOquantiles=TRUE){
     ## Consistency checks
     if(length(dim(Y)) != 2){stop('Y must have two dimensions')}
     if(missing(X)){X <- NULL}
