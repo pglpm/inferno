@@ -1,5 +1,33 @@
-samplesFDistribution <- function(Y, X, mcsamples, auxmetadata, subsamples, jacobian=TRUE, fn=identity, parallel=TRUE, useOquantiles=TRUE){
+samplesFDistribution <- function(Y, X, mcsamples, auxmetadata, subsamples, jacobian=TRUE, fn=identity, useOquantiles=TRUE, parallel=TRUE, silent=FALSE){
 
+    if(!silent){ cat('\n') }
+#### Determine the status of parallel processing
+    if(!missing(parallel) && is.logical(parallel) && parallel){
+        if(getDoParRegistered()){
+if(!silent){ cat('Using already registered', getDoParName(), '\nwith', getDoParWorkers(), 'workers\n') }
+            ncores <- getDoParWorkers()
+        }else{
+            if(!silent){ cat('No parallel backend registered.\n') }
+            ncores <- 1
+        }
+    }else if(!missing(parallel) && is.integer(parallel) && parallel >= 2){
+        if(getDoParRegistered()){
+            if(!silent){ cat('Using already registered', getDoParName(), '\nwith', getDoParWorkers(), 'workers\n') }
+            ncores <- getDoParWorkers()
+        }else{
+            registerDoSEQ()
+            ## cl <- makePSOCKcluster(ncores)
+            cl <- makeCluster(parallel)
+            registerDoParallel(cl)
+            if(!silent){ cat('Registered', getDoParName(), '\nwith', getDoParWorkers(), 'workers\n') }
+        }
+    }else{
+        if(!silent){ cat('No parallel backend registered.\n') }
+        ncores <- 1
+    }
+
+    if(ncores < 2){ `%dochains%` <- `%do%` }else{ `%dochains%` <- `%dopar%` }
+    
     source('vtransform.R')
     source('mcsubset.R')
 
@@ -186,8 +214,7 @@ samplesFDistribution <- function(Y, X, mcsamples, auxmetadata, subsamples, jacob
     ##
     ##
 
-    if(parallel){`%thisdo%` <- `%dopar%`}else{`%thisdo%` <- `%do%`}
-    foreach(y=t(Y2), x=t(X2), .combine=rbind, .inorder=TRUE)%thisdo%{
+    foreach(y=t(Y2), x=t(X2), .combine=rbind, .inorder=TRUE)%dochains%{
 #### the loop is over the columns of y and x
 #### each instance is a 1-column vector
         ##
@@ -264,20 +291,20 @@ samplesFDistribution <- function(Y, X, mcsamples, auxmetadata, subsamples, jacob
                          na.rm=TRUE)
                  }else{0}) +
                 (if(XnN > 0){# nominal
-                      colSums(
+                     colSums(
                          log( aperm(
-                                 vapply(seq_len(XnN), function(v){
+                             vapply(seq_len(XnN), function(v){
                                  mcsamples$Nprob[XtN[v],,x[XiN[v],],]
-                                 }, mcsamples$W),
-                                 c(3,1,2)) ),
+                             }, mcsamples$W),
+                             c(3,1,2)) ),
                          na.rm=TRUE)
-                    ## colSums(
-                    ##      log(array(
-                    ##          t(sapply(seq_len(XnN), function(v){
-                    ##              mcsamples$Nprob[XtN[v],,x[XiN[v],],]
-                    ##          })),
-                    ##          dim=c(XnN, nclusters, nsamples))),
-                    ##      na.rm=TRUE)
+                     ## colSums(
+                     ##      log(array(
+                     ##          t(sapply(seq_len(XnN), function(v){
+                     ##              mcsamples$Nprob[XtN[v],,x[XiN[v],],]
+                     ##          })),
+                     ##          dim=c(XnN, nclusters, nsamples))),
+                     ##      na.rm=TRUE)
                      ## temp <- apply(mcsamples$Nprob, c(2,4), function(xx){
                      ##     xx[cbind(XtN, x[XiN,])]
                      ## })
@@ -368,10 +395,10 @@ samplesFDistribution <- function(Y, X, mcsamples, auxmetadata, subsamples, jacob
                 (if(YnN > 0){# nominal
                      colSums(
                          log( aperm(
-                                 vapply(seq_len(YnN), function(v){
+                             vapply(seq_len(YnN), function(v){
                                  mcsamples$Nprob[YtN[v],,y[YiN[v],],]
-                                 }, mcsamples$W),
-                                 c(3,1,2)) ),
+                             }, mcsamples$W),
+                             c(3,1,2)) ),
                          na.rm=TRUE)
                      ## temp <- apply(mcsamples$Nprob, c(2,4), function(xx){
                      ##     xx[cbind(YtN, y[YiN,])]

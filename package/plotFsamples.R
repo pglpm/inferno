@@ -1,4 +1,4 @@
-plotFsamples <- function(file, mcsamples, auxmetadata, data, plotmeans=TRUE, plotuncertainty='samples', uncertainty=100, datahistogram=TRUE, datascatter=TRUE, parallel=TRUE, useOquantiles=TRUE){
+plotFsamples <- function(file, mcsamples, auxmetadata, data, plotmeans=TRUE, plotuncertainty='samples', uncertainty=100, datahistogram=TRUE, datascatter=TRUE, useOquantiles=TRUE, parallel=TRUE, silent=FALSE){
 
     family <- 'Palatino'
     source('tplotfunctions.R')
@@ -69,7 +69,7 @@ plotFsamples <- function(file, mcsamples, auxmetadata, data, plotmeans=TRUE, plo
             xleft <- Xgrid > varinfo[['censormin']]
             xright <- Xgrid < varinfo[['censormax']]
 
-            plotsamples <- samplesFDistribution(Y=Xgrid, X=NULL, mcsamples=mcsamples, auxmetadata=auxmetadata, subsamples=mcsubsamples, jacobian=TRUE, parallel=parallel, useOquantiles=useOquantiles)
+            plotsamples <- samplesFDistribution(Y=Xgrid, X=NULL, mcsamples=mcsamples, auxmetadata=auxmetadata, subsamples=mcsubsamples, jacobian=TRUE, useOquantiles=useOquantiles, parallel=parallel, silent=silent)
 
             if(plotuncertainty=='samples'){
                 ymax <- tquant(apply(plotsamples[xleft & xright, subsamples, drop=F],
@@ -185,7 +185,7 @@ plotFsamples <- function(file, mcsamples, auxmetadata, data, plotmeans=TRUE, plo
             Ngrid <- vtransform(x=Xgrid, auxmetadata=auxmetadata,
                                 Nout='numeric', Bout='numeric', useOquantiles=useOquantiles)
 
-            plotsamples <- samplesFDistribution(Y=Xgrid, X=NULL, mcsamples=mcsamples, auxmetadata=auxmetadata, subsamples=mcsubsamples, jacobian=TRUE, parallel=parallel, useOquantiles=useOquantiles)
+            plotsamples <- samplesFDistribution(Y=Xgrid, X=NULL, mcsamples=mcsamples, auxmetadata=auxmetadata, subsamples=mcsubsamples, jacobian=TRUE, useOquantiles=useOquantiles, parallel=parallel, silent=silent)
 
             if(plotuncertainty=='samples'){
                 ymax <- tquant(apply(plotsamples[, subsamples, drop=F],

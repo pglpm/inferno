@@ -1,5 +1,33 @@
-inferpopulation <- function(data, auxmetadata, outputdir, nsamples=4096, nsamplesperchain=4, nchains, ncores, plottraces=T, plotpartialsamples=FALSE, seed=701, subsampledata, selftune=TRUE, useOquantiles=TRUE, output=FALSE, cleanup=TRUE){
+inferpopulation <- function(data, auxmetadata, outputdir, nsamples=4096, nsamplesperchain=4, nchains, nchainspercore, parallel=TRUE, plottraces=T, plotpartialsamples=FALSE, seed=701, subsampledata, selftune=TRUE, useOquantiles=TRUE, output=FALSE, cleanup=TRUE){
 
+    cat('\n')
+#### Determine the status of parallel processing
+    if(!missing(parallel) && is.logical(parallel) && parallel){
+        if(getDoParRegistered()){
+            cat('Using already registered', getDoParName(), '\nwith', getDoParWorkers(), 'workers\n')
+            ncores <- getDoParWorkers()
+        }else{
+            cat('No parallel backend registered.\n')
+            ncores <- 1
+        }
+    }else if(!missing(parallel) && is.integer(parallel) && parallel >= 2){
+        if(getDoParRegistered()){
+            cat('Using already registered', getDoParName(), '\nwith', getDoParWorkers(), 'workers\n')
+            ncores <- getDoParWorkers()
+        }else{
+            registerDoSEQ()
+            ## cl <- makePSOCKcluster(ncores)
+            cl <- makeCluster(parallel)
+            registerDoParallel(cl)
+            cat('Registered', getDoParName(), '\nwith', getDoParWorkers(), 'workers\n')
+        }
+    }else{
+        cat('No parallel backend registered.\n')
+        ncores <- 1
+    }
+
+    if(ncores < 2){ `%dochains%` <- `%do%` }else{ `%dochains%` <- `%dorng%` }
+    
 #### Consistency checks for numbers of samples, chains, cores
     if(!missing(nsamples) && !missing(nchains) && missing(nsamplesperchain)){
         nsamplesperchain <- ceiling(nsamples/nchains)
@@ -261,20 +289,20 @@ inferpopulation <- function(data, auxmetadata, outputdir, nsamples=4096, nsample
     cat('Setting up samplers (this can take tens of minutes if there are many data or variates).\n...\r')
     ##cat('Estimating remaining time...\r')
     ## stopCluster(cluster)
-    stopImplicitCluster()
-    registerDoSEQ()
-    ## cl <- makePSOCKcluster(ncores)
-    if(ncores > 1){
-        cl <- makeCluster(ncores)
-        registerDoParallel(cl)
-    }else{
-        registerDoSEQ()
-    }
+    ## stopImplicitCluster()
+    ## registerDoSEQ()
+    ## ## cl <- makePSOCKcluster(ncores)
+    ## if(ncores > 1){
+    ##     cl <- makeCluster(ncores)
+    ##     registerDoParallel(cl)
+    ## }else{
+    ##     registerDoSEQ()
+    ## }
     ## toexport <- c('constants', 'datapoints', 'vn', 'vnames', 'nalpha', 'nclusters')
     ## toexport <- c('vtransform','samplesFDistribution','proposeburnin','proposethinning','plotFsamples')
 
 #### BEGINNING OF FOREACH LOOP OVER CORES
-    chaininfo <- foreach(acore=1:ncores, .combine=rbind, .inorder=FALSE)%dorng%{
+    chaininfo <- foreach(acore=1:ncores, .combine=rbind, .inorder=FALSE)%dochains%{
 
         outcon <- file(paste0(dirname,'_log-',nameroot,'-',acore,'.log'), open = "w")
         sink(outcon)
@@ -709,8 +737,8 @@ inferpopulation <- function(data, auxmetadata, outputdir, nsamples=4096, nsample
                     if(length(unique(toremove[,1])) == ncol(mcsamplesl$W)){
                         suppressWarnings(sink())
                         suppressWarnings(sink(NULL,type='message'))
-                        registerDoSEQ()
-                        if(ncores > 1){ stopCluster(cl) }
+                        ## registerDoSEQ()
+                        if(exists('cl')){ stopCluster(cl) }
                         stop('...TOO MANY NON-FINITE OUTPUTS. ABORTING')
                     }else{
                         mcsamplesl <- mcsubset(mcsamplesl, -toremove)
@@ -743,7 +771,7 @@ inferpopulation <- function(data, auxmetadata, outputdir, nsamples=4096, nsample
                 diagntime <- Sys.time()
                 ##
                 ll <- t(
-                    log(samplesFDistribution(Y=testdata, X=NULL, mcsamples=mcsamplesl, auxmetadata=auxmetadata, subsamples=NULL, jacobian=FALSE, parallel=FALSE, useOquantiles=useOquantiles)) #- sum(log(invjacobian(data.matrix(data0), varinfo)), na.rm=T)
+                    log(samplesFDistribution(Y=testdata, X=NULL, mcsamples=mcsamplesl, auxmetadata=auxmetadata, subsamples=NULL, jacobian=FALSE, useOquantiles=useOquantiles, parallel=FALSE, silent=TRUE)) #- sum(log(invjacobian(data.matrix(data0), varinfo)), na.rm=T)
                 )
                 colnames(ll) <- paste0('log-',c('mid','lo','hi')) #,'pm','pM','dm','dM'))
                 ##
@@ -947,8 +975,8 @@ inferpopulation <- function(data, auxmetadata, outputdir, nsamples=4096, nsample
                              uncertainty=showsamples,
                              plotmeans=plotmeans,
                              datahistogram=TRUE, datascatter=TRUE,
-                             parallel=FALSE,
-                             useOquantiles=useOquantiles
+                             useOquantiles=useOquantiles,
+                             parallel=FALSE, silent=TRUE
                              )
             }
 
@@ -965,9 +993,6 @@ inferpopulation <- function(data, auxmetadata, outputdir, nsamples=4096, nsample
     } #### END FOREACH OVER CORES
     suppressWarnings(sink())
     suppressWarnings(sink(NULL,type='message'))
-    cat('\nClosing connections to cores.\n')
-    registerDoSEQ()
-    if(ncores > 1){ stopCluster(cl) }
 
     maxusedclusters <- max(chaininfo[,1])
     nonfinitechains <- sum(chaininfo[,2])
@@ -1076,8 +1101,8 @@ inferpopulation <- function(data, auxmetadata, outputdir, nsamples=4096, nsample
                  plotuncertainty='samples',
                  uncertainty=showsamples, plotmeans=TRUE,
                  datahistogram=TRUE, datascatter=TRUE,
-                 parallel=TRUE,
-                 useOquantiles=useOquantiles
+                 useOquantiles=useOquantiles,
+                 parallel=TRUE, silent=TRUE
                  )
 
     cat('Plotting marginal samples with quantiles.\n')
@@ -1087,11 +1112,16 @@ inferpopulation <- function(data, auxmetadata, outputdir, nsamples=4096, nsample
                  plotuncertainty='quantiles',
                  uncertainty=showquantiles, plotmeans=TRUE,
                  datahistogram=TRUE, datascatter=TRUE,
-                 parallel=TRUE,
-                 useOquantiles=useOquantiles
+                 useOquantiles=useOquantiles,
+                 parallel=TRUE, silent=TRUE
                  )
 
     cat('\nTotal computation time', printtime(Sys.time() - timestart0), '\n')
+
+    if(exists('cl')){
+        cat('\nClosing connections to cores.\n')
+        stopCluster(cl)
+    }
 
     
 #### remove partial files if required
