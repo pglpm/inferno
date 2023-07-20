@@ -3,10 +3,7 @@ plotFsamples <- function(file, mcsamples, auxmetadata, data, plotmeans=TRUE, plo
     family <- 'Palatino'
     source('tplotfunctions.R')
     source('vtransform.R')
-    source('mcsubset.R')
     source('samplesFDistribution.R')
-
-    nsamples <- ncol(mcsamples$W)
 
     nodata <- missing(data) || is.null(data) || (is.logical(data) && !data)
     if(datahistogram && nodata){
@@ -25,15 +22,15 @@ plotFsamples <- function(file, mcsamples, auxmetadata, data, plotmeans=TRUE, plo
             uncertainty <- c(1,7)/8
         }
         quants <- sort(unique(round(c(uncertainty,1-uncertainty),6)))
-        mcsubsamples <- subsamples <- 1:nsamples
+        mcsubsamples <- subsamples <- 1:nrow(mcsamples)
         addylab <- paste0(' (',ceiling(diff(quants)*100),'% unc.)')
     }else{
-        if(uncertainty=='all'){uncertainty <- nsamples}
+        if(uncertainty=='all'){uncertainty <- nrow(mcsamples)}
         uncertainty <- abs(uncertainty)
         if(plotmeans){
-            mcsubsamples <- 1:nsamples
+            mcsubsamples <- 1:nrow(mcsamples)
         }else{
-            mcsubsamples <- round(seq(1,nsamples,length.out=abs(uncertainty)))
+            mcsubsamples <- round(seq(1,nrow(mcsamples),length.out=abs(uncertainty)))
         }
         subsamples <- round(seq(1,length(mcsubsamples),length.out=uncertainty))
     }

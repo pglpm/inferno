@@ -1,4 +1,8 @@
 samplesFDistribution <- function(Y, X, mcsamples, auxmetadata, subsamples, jacobian=TRUE, fn=identity, parallel=TRUE, useOquantiles=TRUE){
+
+    source('vtransform.R')
+    source('mcsubset.R')
+
     ## Consistency checks
     if(length(dim(Y)) != 2){stop('Y must have two dimensions')}
     if(missing(X)){X <- NULL}
@@ -21,22 +25,21 @@ samplesFDistribution <- function(Y, X, mcsamples, auxmetadata, subsamples, jacob
     ##
     if(length(intersect(Yv, Xv)) > 0){stop('overlap in Y and X variates\n')}
 
-    ## mcsamples and subsamples
+    ## mcsamples
     if(is.character(mcsamples) && file.exists(mcsamples)){
         mcsamples <- readRDS(mcsamples)
     }
-    ##
-    if(missing(subsamples) || is.null(subsamples) || (is.logical(subsamples) && !subsamples)){
-        subsamples <- 1:ncol(mcsamples$W)
-    }else if(is.character(subsamples)){
-        subsamples <- round(seq(1,nrow(subsamples),length.out=as.numeric(subsamples)))
+    
+#### Subsample and get nclusters and nsamples
+    if(!missing(subsamples) && (is.integer(subsamples) || (is.character(subsamples) && length(subsamples) == 1))){
+        if(is.character(subsamples)){
+            subsamples <- round(seq(1, ncol(mcsamples$W),
+                                    length.out=as.numeric(subsamples)))
+        }
+        mcsamples <- mcsubset(mcsamples, subsamples)
     }
-    ##
-    mcsamples <- lapply(mcsamples,function(xx){
-        do.call('[',c(list(xx),rep(TRUE,length(dim(xx))-1), list(subsamples), list(drop=FALSE)) )
-    })
-    nsamples <- ncol(mcsamples$W)
 
+    nsamples <- ncol(mcsamples$W)
     nclusters <- nrow(mcsamples$W)
 
 #### Type R
