@@ -770,14 +770,17 @@ inferpopulation <- function(data, auxmetadata, outputdir, nsamples=1200, nchains
                     ##
                     flagmc <- TRUE
                     allflagmc <- TRUE
-                    if(length(unique(toremove[,1])) == ncol(mcsamples$W)){
-                        suppressWarnings(sink())
-                        suppressWarnings(sink(NULL,type='message'))
-                        ## registerDoSEQ()
-                        if(exists('cl')){ stopCluster(cl) }
-                        stop('...TOO MANY NON-FINITE OUTPUTS. ABORTING')
-                    }else{
                         saveRDS(mcsamples, file=paste0(dirname,'_NONFINITEmcsamples-',nameroot,'--',chainnumber,'_',achain,'-',acore,'-i',nitertot,'.rds'))
+                    if(length(unique(toremove[,1])) == ncol(mcsamples$W)){
+                        cat('\n...TOO MANY NON-FINITE OUTPUTS!\n')
+                        printnull('\n...TOO MANY NON-FINITE OUTPUTS!\n', outcon)
+                        ## suppressWarnings(sink())
+                        ## suppressWarnings(sink(NULL,type='message'))
+                        ## ## registerDoSEQ()
+                        ## if(exists('cl')){ stopCluster(cl) }
+                        ## stop('...TOO MANY NON-FINITE OUTPUTS. ABORTING')
+                        mcsamples <- NULL
+                    }else{
                         mcsamples <- mcsubset(mcsamples, -toremove)
                     }
                 }
