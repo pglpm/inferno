@@ -674,7 +674,7 @@ inferpopulation <- function(data, auxmetadata, outputdir, nsamples=1200, nchains
         cat('\nSetup time', printtime(Sys.time() - timecount), '\n')
 
         if(acore == 1){
-            printnull('\rDone core ',acore,'. Estimating remaining time, please be patient...', outcon)
+            printnull(paste0('\rDone core ',acore,'. Estimating remaining time, please be patient...'), outcon)
         }
 
 ##################################################
