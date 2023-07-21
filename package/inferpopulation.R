@@ -1,4 +1,4 @@
-inferpopulation <- function(data, auxmetadata, outputdir, nsamples=1200, nchains=120, nsamplesperchain, parallel=TRUE, niterini=1024, plottraces=TRUE, showclusterstraces=TRUE, seed=701, subsampledata, selftune=TRUE, useOquantiles=TRUE, output=FALSE, cleanup=TRUE){
+inferpopulation <- function(data, auxmetadata, outputdir, nsamples=1200, nchains=120, nsamplesperchain, parallel=TRUE, niterini=1024, plottraces=TRUE, showclusterstraces=TRUE, seed=701, subsampledata, miniter=0, useOquantiles=TRUE, output=FALSE, cleanup=TRUE){
 
     cat('\n')
 #### Determine the status of parallel processing
@@ -383,16 +383,25 @@ inferpopulation <- function(data, auxmetadata, outputdir, nsamples=1200, nchains
 
 
         ## Parameter and function to test MCMC convergence
-        if(selftune){
+        if(miniter == 0){
             multcorr <- 2L
             thresholdfn <- function(diagnESS, diagnIAT, diagnBMK, diagnMCSE, diagnStat, diagnBurn, diagnBurn2, diagnThin){
                 ceiling(2* max(diagnBurn2) + (nsamplesperchain-1L) * multcorr * ceiling(max(diagnIAT, diagnThin)))
             }
-        }else{
+        }else if(miniter > 0){
+            multcorr <- 2L
+            thresholdfn <- function(diagnESS, diagnIAT, diagnBMK, diagnMCSE, diagnStat, diagnBurn, diagnBurn2, diagnThin){
+                max( ceiling(2* max(diagnBurn2) + (nsamplesperchain-1L) * multcorr * ceiling(max(diagnIAT, diagnThin))),
+                    miniter )
+            }
+        }else if(miniter < 0){
             multcorr <- 0L
             thresholdfn <- function(diagnESS, diagnIAT, diagnBMK, diagnMCSE, diagnStat, diagnBurn, diagnBurn2, diagnThin){
-                0
+                -miniter
             }
+            niterini <- min(-miniter, niterini)
+        }else{
+            stop('Invalid "miniter" argument.')
         }
 
         ## printtime <- function(tim){sub('^Time difference of (.*)', '\\1', capture.output(print(tim)))}
@@ -870,7 +879,8 @@ inferpopulation <- function(data, auxmetadata, outputdir, nsamples=1200, nchains
                 cat('\nNumber of iterations', nitertot, ', required', lengthmeasure,'\n')
                 ##
                 if(nitertot < lengthmeasure){
-                    niter <- lengthmeasure - nitertot + 1L
+                    ## limit number of iterations per loop, to save memory
+                    niter <- min(lengthmeasure - nitertot + 1L, niterini)
                     cat('Increasing by', niter, '\n')
                 }
                 reset <- FALSE
