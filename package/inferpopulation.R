@@ -165,7 +165,7 @@ inferpopulation <- function(data, auxmetadata, outputdir, nsamples=1200, nchains
 
 #### other options
     Alphatoslice <- TRUE
-    Ktoslice <- FALSE
+    Ktoslice <- TRUE
     RWtoslice <- FALSE
     ##
     ## showdata <- TRUE # 'histogram' 'scatter' FALSE TRUE
@@ -770,10 +770,10 @@ inferpopulation <- function(data, auxmetadata, outputdir, nsamples=1200, nchains
                     ##
                     flagmc <- TRUE
                     allflagmc <- TRUE
-                        saveRDS(mcsamples, file=paste0(dirname,'_NONFINITEmcsamples-',nameroot,'--',chainnumber,'_',achain,'-',acore,'-i',nitertot,'.rds'))
+                    saveRDS(mcsamples, file=paste0(dirname,'_NONFINITEmcsamples-',nameroot,'--',chainnumber,'_',achain,'-',acore,'-i',nitertot,'.rds'))
                     if(length(toremove) == ncol(mcsamples$W)){
                         cat('\n...TOO MANY NON-FINITE OUTPUTS!\n')
-                        printnull('\n...TOO MANY NON-FINITE OUTPUTS!\n', outcon)
+                        ## printnull('\n...TOO MANY NON-FINITE OUTPUTS!\n', outcon)
                         ## suppressWarnings(sink())
                         ## suppressWarnings(sink(NULL,type='message'))
                         ## ## registerDoSEQ()
