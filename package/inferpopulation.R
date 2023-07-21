@@ -1,4 +1,4 @@
-inferpopulation <- function(data, auxmetadata, outputdir, nsamples=1200, nchains=120, nsamplesperchain, parallel=TRUE, niterini=1024, plottraces=TRUE, showclusterstraces=TRUE, seed=701, subsampledata, miniter=0, useOquantiles=TRUE, output=FALSE, cleanup=TRUE){
+inferpopulation <- function(data, auxmetadata, outputdir, nsamples=1200, nchains=120, nsamplesperchain, parallel=TRUE, niterini=1024, miniter=0, maxiter=+Inf, thinning=0, plottraces=TRUE, showclusterstraces=TRUE, seed=701, subsampledata, useOquantiles=TRUE, output=FALSE, cleanup=TRUE){
 
     cat('\n')
 #### Determine the status of parallel processing
@@ -383,25 +383,20 @@ inferpopulation <- function(data, auxmetadata, outputdir, nsamples=1200, nchains
 
 
         ## Parameter and function to test MCMC convergence
-        if(miniter == 0){
+        if(thinning <= 0){
             multcorr <- 2L
+            thinning <- 1L
             thresholdfn <- function(diagnESS, diagnIAT, diagnBMK, diagnMCSE, diagnStat, diagnBurn, diagnBurn2, diagnThin){
                 ceiling(2* max(diagnBurn2) + (nsamplesperchain-1L) * multcorr * ceiling(max(diagnIAT, diagnThin)))
             }
-        }else if(miniter > 0){
-            multcorr <- 2L
+        }else if(thinning > 0){
+            multcorr <- -2L
             thresholdfn <- function(diagnESS, diagnIAT, diagnBMK, diagnMCSE, diagnStat, diagnBurn, diagnBurn2, diagnThin){
-                max( ceiling(2* max(diagnBurn2) + (nsamplesperchain-1L) * multcorr * ceiling(max(diagnIAT, diagnThin))),
-                    miniter )
+                ceiling(2* max(diagnBurn2) + (nsamplesperchain-1L) * (-multcorr) * ceiling(max(diagnIAT, diagnThin)))
             }
-        }else if(miniter < 0){
-            multcorr <- 0L
-            thresholdfn <- function(diagnESS, diagnIAT, diagnBMK, diagnMCSE, diagnStat, diagnBurn, diagnBurn2, diagnThin){
-                -miniter
-            }
-            niterini <- min(-miniter, niterini)
+            thinning <- ceiling(thinning)
         }else{
-            stop('Invalid "miniter" argument.')
+            stop('Invalid "thinning" argument.')
         }
 
         ## printtime <- function(tim){sub('^Time difference of (.*)', '\\1', capture.output(print(tim)))}
@@ -707,7 +702,7 @@ inferpopulation <- function(data, auxmetadata, outputdir, nsamples=1200, nchains
         for(achain in 1:nchainspercore){
             showsamplertimes0 <- showsamplertimes && (achain==1)
             ## showclusterstraces0 <- showclusterstraces && (achain==1)
-            niter <- niterini
+            niter <- min(niterini,maxiter)
             ## ## Experimental: decrease number of iterations based on previous chain
             ## if(achain == 1){
             ##     niter <- niterini
@@ -782,6 +777,7 @@ inferpopulation <- function(data, auxmetadata, outputdir, nsamples=1200, nchains
                         if(exists('cl')){ stopCluster(cl) }
                         stop('...TOO MANY NON-FINITE OUTPUTS. ABORTING')
                     }else{
+                        saveRDS(mcsamples, file=paste0(dirname,'_NONFINITEmcsamples-',nameroot,'--',chainnumber,'_',achain,'-',acore,'-i',nitertot,'.rds'))
                         mcsamples <- mcsubset(mcsamples, -toremove)
                     }
                 }
@@ -875,13 +871,16 @@ inferpopulation <- function(data, auxmetadata, outputdir, nsamples=1200, nchains
 #########################################
 #### CHECK IF CHAIN MUST BE CONTINUED ####
 #########################################
-                lengthmeasure <- thresholdfn(diagnESS=diagnESS, diagnIAT=diagnIAT, diagnBMK=diagnBMK, diagnMCSE=diagnMCSE, diagnStat=diagnStat, diagnBurn=diagnBurn, diagnBurn2=diagnBurn2, diagnThin=diagnThin)
+                lengthmeasure <- max( miniter, min( maxiter,
+                    thresholdfn(diagnESS=diagnESS, diagnIAT=diagnIAT, diagnBMK=diagnBMK, diagnMCSE=diagnMCSE, diagnStat=diagnStat, diagnBurn=diagnBurn, diagnBurn2=diagnBurn2, diagnThin=diagnThin) ) )
                 cat('\nNumber of iterations', nitertot, ', required', lengthmeasure,'\n')
                 ##
                 if(nitertot < lengthmeasure){
                     ## limit number of iterations per loop, to save memory
                     niter <- min(lengthmeasure - nitertot + 1L, niterini)
-                    cat('Increasing by', niter, '\n')
+                    cat('\nChain #', chainnumber,
+                        '(chain', achain,'of',nchainspercore,
+                        'for this core): increasing by', niter, '\n')
                 }
                 reset <- FALSE
             }
@@ -890,13 +889,15 @@ inferpopulation <- function(data, auxmetadata, outputdir, nsamples=1200, nchains
 #########################################
 #### SAVE CHAIN ####
 #########################################
-            ## tokeep <- seq(to=nrow(allmcsamples), length.out=nsamplesperchain, by=max(1,multcorr*ceiling(max(diagnIAT,diagnThin)), na.rm=T))
+            ## tokeep <- seq(to=nrow(allmcsamples), length.out=nsamplesperchain, by=max(thinning,multcorr*ceiling(max(diagnIAT,diagnThin)), na.rm=T))
             ## allmcsamples <- allmcsamples[tokeep,,drop=F]
             ## ##
             ## saveRDS(allmcsamples, file=paste0(dirname,'_mcsamples-',nameroot,'--',chainnumber,'.rds'))
             ## ## rm(allmcsamples)
 
-            tokeep <- seq(to=ncol(allmcsamples$W), length.out=nsamplesperchain, by=max(1,multcorr*ceiling(max(diagnIAT,diagnThin)), na.rm=T))
+            cat('\nKeeping last', nsamplesperchain, 'samples with thinning', max(thinning,multcorr*ceiling(max(diagnIAT,diagnThin)), na.rm=T), '\n')
+
+            tokeep <- seq(to=ncol(allmcsamples$W), length.out=nsamplesperchain, by=max(thinning,multcorr*ceiling(max(diagnIAT,diagnThin)), na.rm=T))
             ##
             saveRDS(mcsubset(allmcsamples, tokeep), file=paste0(dirname,'_mcsamples-',nameroot,'--',chainnumber,'.rds'))
             rm(allmcsamples)
@@ -1096,24 +1097,24 @@ inferpopulation <- function(data, auxmetadata, outputdir, nsamples=1200, nchains
     ## flagll <- nrow(traces) != nrow(traces)
 
     ## funMCSE <- function(x){LaplacesDemon::MCSE(x, method='batch.means')$se}
-    ## diagnESS <- LaplacesDemon::ESS(traces)
+    diagnESS <- LaplacesDemon::ESS(traces)
+    cat('\nEffective sample size:',round(max(diagnESS,na.rm=T)),'\n')
     ## diagnIAT <- apply(traces, 2, function(x){LaplacesDemon::IAT(x)})
-    ## diagnBMK <- LaplacesDemon::BMK.Diagnostic(traces[1:(4*trunc(nrow(traces)/4)),], batches=4)[,1]
-    ## diagnMCSE <- 100*apply(traces, 2, function(x){funMCSE(x)/sd(x)})
-    ## diagnStat <- apply(traces, 2, function(x){LaplacesDemon::is.stationary(as.matrix(x,ncol=1))})
-    ## diagnBurn <- apply(traces, 2, function(x){LaplacesDemon::burnin(matrix(x[1:(10*trunc(length(x)/10))], ncol=1))})
-    ## diagnBurn2 <- proposeburnin(traces, batches=10)
-    ## diagnThin <- proposethinning(traces)
-    ## ##
-    ## cat('\nESSs:',paste0(round(diagnESS), collapse=', '))
     ## cat('\nIATs:',paste0(round(diagnIAT), collapse=', '))
+    ## diagnBMK <- LaplacesDemon::BMK.Diagnostic(traces[1:(4*trunc(nrow(traces)/4)),], batches=4)[,1]
     ## cat('\nBMKs:',paste0(round(diagnBMK,3), collapse=', '))
+    ## diagnMCSE <- 100*apply(traces, 2, function(x){funMCSE(x)/sd(x)})
     ## cat('\nMCSEs:',paste0(round(diagnMCSE,2), collapse=', '))
+    ## diagnStat <- apply(traces, 2, function(x){LaplacesDemon::is.stationary(as.matrix(x,ncol=1))})
     ## cat('\nStationary:',paste0(diagnStat, collapse=', '))
+    ## diagnBurn <- apply(traces, 2, function(x){LaplacesDemon::burnin(matrix(x[1:(10*trunc(length(x)/10))], ncol=1))})
     ## cat('\nBurn-in I:',paste0(diagnBurn, collapse=', '))
+    ## diagnBurn2 <- proposeburnin(traces, batches=10)
     ## cat('\nBurn-in II:',diagnBurn2)
-    ## cat('\n')
+    ## diagnThin <- proposethinning(traces)
     ## ## cat(paste0('\nProposed thinning: ',paste0(diagnThin, collapse=', ')))
+    ## ##
+    ## cat('\n')
     ## ##       )
     ## ##         }
     ## ##
@@ -1129,15 +1130,14 @@ inferpopulation <- function(data, auxmetadata, outputdir, nsamples=1200, nchains
     ## Traces of likelihood and cond. probabilities
     for(avar in colnames(traces)){
         tplot(y=traces[,avar], type='l', lty=1, col=colpalette[avar],
-              ## main=paste0(avar,
-              ##             '\nESS = ', signif(diagnESS[avar], 3),
+              main=paste0('Effective sample size: ', signif(diagnESS[avar], 3)
               ##             ' | IAT = ', signif(diagnIAT[avar], 3),
               ##             ' | BMK = ', signif(diagnBMK[avar], 3),
               ##             ' | MCSE = ', signif(diagnMCSE[avar], 3),
               ##             ' | stat: ', diagnStat[avar],
               ##             ' | burn I: ', diagnBurn[avar],
               ##             ' | burn II: ', diagnBurn2
-              ##             ),
+                           ),
               ylab=paste0(avar,'/dHart'), xlab='sample', family=family
               )
     }
