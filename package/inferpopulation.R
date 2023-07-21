@@ -1,4 +1,4 @@
-inferpopulation <- function(data, auxmetadata, outputdir, nsamples=1200, nchains=120, nsamplesperchain, parallel=TRUE, niterini=1024, miniter=0, maxiter=+Inf, thinning=0, plottraces=TRUE, showclusterstraces=TRUE, seed=701, subsampledata, useOquantiles=TRUE, output=FALSE, cleanup=TRUE){
+inferpopulation <- function(data, auxmetadata, outputdir, nsamples=1200, nchains=120, nsamplesperchain, parallel=TRUE, niterini=1024, miniter=0, maxiter=+Inf, thinning=0, plottraces=TRUE, showclusterstraces=TRUE, seed=16, subsampledata, useOquantiles=TRUE, output=FALSE, cleanup=TRUE){
 
     cat('\n')
 #### Determine the status of parallel processing
@@ -674,7 +674,7 @@ inferpopulation <- function(data, auxmetadata, outputdir, nsamples=1200, nchains
         cat('\nSetup time', printtime(Sys.time() - timecount), '\n')
 
         if(acore == 1){
-            printnull('Done. Estimating remaining time, please be patient...', outcon)
+            printnull('\rDone core ',acore,'. Estimating remaining time, please be patient...', outcon)
         }
 
 ##################################################
@@ -723,6 +723,7 @@ inferpopulation <- function(data, auxmetadata, outputdir, nsamples=1200, nchains
             flagmc <- FALSE
             gc()
             chainnumber <- (acore-1L)*nchainspercore + achain
+            padchainnumber <- sprintf(paste0('%0',nchar(nchains),'i'), chainnumber)
             cat('\nChain #', chainnumber,
                 '(chain', achain,'of',nchainspercore,'for this core)\n')
             cat('Seed:', chainnumber+seed, '\n')
@@ -770,7 +771,7 @@ inferpopulation <- function(data, auxmetadata, outputdir, nsamples=1200, nchains
                     ##
                     flagmc <- TRUE
                     allflagmc <- TRUE
-                    saveRDS(mcsamples, file=paste0(dirname,'_NONFINITEmcsamples-',nameroot,'--',chainnumber,'_',achain,'-',acore,'-i',nitertot,'.rds'))
+                    saveRDS(mcsamples, file=paste0(dirname,'_NONFINITEmcsamples-',nameroot,'--', padchainnumber,'_',achain,'-',acore,'-i',nitertot,'.rds'))
                     if(length(toremove) == ncol(mcsamples$W)){
                         cat('\n...TOO MANY NON-FINITE OUTPUTS!\n')
                         ## printnull('\n...TOO MANY NON-FINITE OUTPUTS!\n', outcon)
@@ -895,20 +896,20 @@ inferpopulation <- function(data, auxmetadata, outputdir, nsamples=1200, nchains
             ## tokeep <- seq(to=nrow(allmcsamples), length.out=nsamplesperchain, by=max(thinning,multcorr*ceiling(max(diagnIAT,diagnThin)), na.rm=T))
             ## allmcsamples <- allmcsamples[tokeep,,drop=F]
             ## ##
-            ## saveRDS(allmcsamples, file=paste0(dirname,'_mcsamples-',nameroot,'--',chainnumber,'.rds'))
+            ## saveRDS(allmcsamples, file=paste0(dirname,'_mcsamples-',nameroot,'--', padchainnumber,'.rds'))
             ## ## rm(allmcsamples)
 
             cat('\nKeeping last', nsamplesperchain, 'samples with thinning', max(thinning,multcorr*ceiling(max(diagnIAT,diagnThin)), na.rm=T), '\n')
 
             tokeep <- seq(to=ncol(allmcsamples$W), length.out=nsamplesperchain, by=max(thinning,multcorr*ceiling(max(diagnIAT,diagnThin)), na.rm=T))
             ##
-            saveRDS(mcsubset(allmcsamples, tokeep), file=paste0(dirname,'_mcsamples-',nameroot,'--',chainnumber,'.rds'))
+            saveRDS(mcsubset(allmcsamples, tokeep), file=paste0(dirname,'_mcsamples-',nameroot,'--', padchainnumber,'.rds'))
             rm(allmcsamples)
             ## nitertot <- ncol(allmcsamples$W)
 
             gc()
 
-            saveRDS(traces[tokeep,],file=paste0(dirname,'_mctraces-',nameroot,'--',chainnumber,'.rds'))
+            saveRDS(traces[tokeep,],file=paste0(dirname,'_mctraces-',nameroot,'--', padchainnumber,'.rds'))
 
             for(i in 1:length(allclusterhypar))
                 ## Check how many clusters were occupied. Warns if too many
@@ -929,7 +930,7 @@ inferpopulation <- function(data, auxmetadata, outputdir, nsamples=1200, nchains
                 cat('\nSTATS OCCUPIED CLUSTERS:\n')
                 print(summary(allclusterhypar$K))
                 ##
-                pdff(paste0(dirname,'_hyperparams_traces-',nameroot,'--',chainnumber,'_',achain,'-',acore), apaper=4)
+                pdff(paste0(dirname,'_hyperparams_traces-',nameroot,'--', padchainnumber,'_',achain,'-',acore), apaper=4)
                 tplot(y=allclusterhypar$K, ylab='occupied clusters',xlab='iteration',ylim=c(0,nclusters))
                 tplot(x=((-1):nclusters)+0.5,y=tabulate(allclusterhypar$K + 1, nbins=nclusters+1), type='h', xlab='occupied clusters', ylab=NA, ylim=c(0,NA))
                 ##
@@ -964,7 +965,7 @@ inferpopulation <- function(data, auxmetadata, outputdir, nsamples=1200, nchains
                 ## Plot various info and traces
                 cat('\nPlotting MCMC traces')
                 graphics.off()
-                pdff(paste0(dirname,'_mcmcpartialtraces-',nameroot,'--',chainnumber,'_',achain,'-',acore), apaper=4)
+                pdff(paste0(dirname,'_mcmcpartialtraces-',nameroot,'--', padchainnumber,'_',achain,'-',acore), apaper=4)
                 ## Summary stats
                 matplot(1:2, type='l', col='white', main=paste0('Stats chain ',achain), axes=FALSE, ann=FALSE)
                 legendpositions <- c('topleft','topright','bottomleft','bottomright')
@@ -1012,7 +1013,7 @@ inferpopulation <- function(data, auxmetadata, outputdir, nsamples=1200, nchains
 ##                 ## showsubsample <- round(seq(1, length(subsamples), length.out=showsamples))
 ##                 ##
 ##                 cat('\nPlotting samples of frequency distributions')
-##                 plotFsamples(file=paste0(dirname,'mcmcdistributions-',nameroot,'--',chainnumber,'_',achain,'-',acore),
+##                 plotFsamples(file=paste0(dirname,'mcmcdistributions-',nameroot,'--', padchainnumber,'_',achain,'-',acore),
 ##                              mcsamples=mcsubset(allmcsamples,subsamples),
 ##                              auxmetadata=auxmetadata,
 ##                              data=data,
@@ -1031,7 +1032,7 @@ inferpopulation <- function(data, auxmetadata, outputdir, nsamples=1200, nchains
 #### Print estimated remaining time
             ertime <- (Sys.time()-starttime)/achain*(nchainspercore-achain+1)
             if(is.finite(ertime) && ertime > 0){
-                printnull(paste0('\rSampling. Estimated remaining time ',
+                printnull(paste0('\rSampling. Core ',acore,' estimated remaining time: ',
                                  printtime(ertime),
                                  '                  '),
                           outcon)
@@ -1060,7 +1061,7 @@ inferpopulation <- function(data, auxmetadata, outputdir, nsamples=1200, nchains
 #### Join chains
 ############################################################
     ## mcsamples <- foreach(chainnumber=1:(ncores*nchainspercore), .combine=rbind)%do%{
-    ##     readRDS(file=paste0(dirname,'_mcsamples-',nameroot,'--',chainnumber,'.rds'))
+    ##     readRDS(file=paste0(dirname,'_mcsamples-',nameroot,'--', padchainnumber,'.rds'))
     ## }
     ## ## attr(mcsamples, 'rng') <- NULL
     ## ## attr(mcsamples, 'doRNG_version') <- NULL
@@ -1078,13 +1079,15 @@ inferpopulation <- function(data, auxmetadata, outputdir, nsamples=1200, nchains
         mc1, mc2)
     }
     mcsamples <- foreach(chainnumber=1:(ncores*nchainspercore), .combine=joinmc, .multicombine=F)%do%{
-        readRDS(file=paste0(dirname,'_mcsamples-',nameroot,'--',chainnumber,'.rds'))
+        padchainnumber <- sprintf(paste0('%0',nchar(nchains),'i'), chainnumber)
+        readRDS(file=paste0(dirname,'_mcsamples-',nameroot,'--', padchainnumber,'.rds'))
     }
     
     saveRDS(mcsamples,file=paste0(dirname,'Fdistribution-',nameroot,'.rds'))
 
     traces <- foreach(chainnumber=1:(ncores*nchainspercore), .combine=rbind)%do%{
-        readRDS(file=paste0(dirname,'_mctraces-',nameroot,'--',chainnumber,'.rds'))
+        padchainnumber <- sprintf(paste0('%0',nchar(nchains),'i'), chainnumber)
+        readRDS(file=paste0(dirname,'_mctraces-',nameroot,'--', padchainnumber,'.rds'))
     }
     ## traces <- mcsamples[round(seq(1,nrow(mcsamples),length.out=nsamples)),1:3]
     saveRDS(traces,file=paste0(dirname,'MCtraces-',nameroot,'.rds'))
@@ -1188,9 +1191,10 @@ inferpopulation <- function(data, auxmetadata, outputdir, nsamples=1200, nchains
     if(cleanup){
         cat('Removing temporary output files.\n')
         for(chainnumber in 1:(ncores*nchainspercore)){
-            ## file.remove(paste0(dirname,'_mcsamples-',nameroot,'--',chainnumber,'.rds'))
-            file.remove(paste0(dirname,'_mcsamples-',nameroot,'--',chainnumber,'.rds'))
-            file.remove(paste0(dirname,'_mctraces-',nameroot,'--',chainnumber,'.rds'))
+            padchainnumber <- sprintf(paste0('%0',nchar(nchains),'i'), chainnumber)
+            ## file.remove(paste0(dirname,'_mcsamples-',nameroot,'--', padchainnumber,'.rds'))
+            file.remove(paste0(dirname,'_mcsamples-',nameroot,'--', padchainnumber,'.rds'))
+            file.remove(paste0(dirname,'_mctraces-',nameroot,'--', padchainnumber,'.rds'))
         }
     }
     
