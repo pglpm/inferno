@@ -781,12 +781,9 @@ inferpopulation <- function(data, auxmetadata, outputdir, nsamples=1200, nchains
                         ## stop('...TOO MANY NON-FINITE OUTPUTS. ABORTING')
                         mcsamples <- NULL
                     }else{
-                        print('DEBUG: removing')
                         mcsamples <- mcsubset(mcsamples, -toremove)
-                        print('DEBUG: removed')
                     }
                 }
-                        print('DEBUG: continue')
 
                 
                 ##
