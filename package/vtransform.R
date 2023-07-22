@@ -22,7 +22,7 @@ info <- as.list(auxmetadata[name == v])
                     datum <- (info$domainmax - datum) * info$tscale
                 }else if(info$transform == 'Q'){
                     datum <- Qf((datum-info$domainmin)/(info$domainmax-info$domainmin))
-                    datum <- DQf(datum) * info$tscale * (info$domainmax-info$domainmin) 
+                    datum <- DQf(datum) * info$tscale * (info$domainmax-info$domainmin)
                 }else{
                     datum <- rep(info$tscale, length(datum))
                 }
@@ -33,7 +33,7 @@ info <- as.list(auxmetadata[name == v])
                 datum[is.na(xv)] <- 1L
             }
         }else{
-            
+
 #### Transformation to internal value for MCMC
             if(info$mcmctype == 'R'){# continuous
                 if (info$transform == 'log'){
@@ -189,7 +189,7 @@ info <- as.list(auxmetadata[name == v])
                 if(Cout != 'aux'){
                     datum <- (datum-info$tlocation)/info$tscale
                 }
-                ##                
+                ##
             } else if(info$mcmctype == 'B'){ # binary
                 bvalues <- 0:1
                 names(bvalues) <- unlist(info[c('V1','V2')])

@@ -27,7 +27,7 @@ inferpopulation <- function(data, auxmetadata, outputdir, nsamples=1200, nchains
         ncores <- 1
     }
 
-    
+
 #### Consistency checks for numbers of samples, chains, cores
     if(!missing(nsamples) && !missing(nchains) && missing(nsamplesperchain)){
         ## nsamples and nchains given
@@ -78,7 +78,7 @@ inferpopulation <- function(data, auxmetadata, outputdir, nsamples=1200, nchains
     ## }
 
     if(ncores < 2){ `%dochains%` <- `%do%` }else{ `%dochains%` <- `%dorng%` }
-    
+
     timestart0 <- Sys.time()
 
     ## cat('\n')
@@ -304,11 +304,11 @@ inferpopulation <- function(data, auxmetadata, outputdir, nsamples=1200, nchains
             ) },
         if(vn$N > 0){# nominal
             list(
-                Ndata = vtransform(data[,vnames$N,with=F], auxmetadata, Nout='numeric')                
+                Ndata = vtransform(data[,vnames$N,with=F], auxmetadata, Nout='numeric')
             ) },
         if(vn$B > 0){# binary
             list(
-                Bdata = vtransform(data[,vnames$B,with=F], auxmetadata, Bout='numeric')                
+                Bdata = vtransform(data[,vnames$B,with=F], auxmetadata, Bout='numeric')
             ) }
     )
 
@@ -340,7 +340,7 @@ inferpopulation <- function(data, auxmetadata, outputdir, nsamples=1200, nchains
         suppressPackageStartupMessages(library('data.table'))
         suppressPackageStartupMessages(library('nimble'))
 
-        
+
 #### Load and define various functions
         source('tplotfunctions.R')
         source('vtransform.R')
@@ -609,7 +609,7 @@ inferpopulation <- function(data, auxmetadata, outputdir, nsamples=1200, nchains
         )
         ## print(confnimble$getUnsampledNodes())
         ## confnimble$printSamplers(executionOrder=TRUE)
-        
+
         targetslist <- sapply(confnimble$getSamplers(), function(xx)xx$target)
         nameslist <- sapply(confnimble$getSamplers(), function(xx)xx$name)
         ## cat('\n******** NAMESLIST',nameslist,'\n')
@@ -670,7 +670,7 @@ inferpopulation <- function(data, auxmetadata, outputdir, nsamples=1200, nchains
         mcsampler <- buildMCMC(confnimble)
         Cmcsampler <- compileNimble(mcsampler, resetFunctions = TRUE)
 
-        
+
         cat('\nSetup time', printtime(Sys.time() - timecount), '\n')
 
         if(acore == 1){
@@ -733,10 +733,10 @@ inferpopulation <- function(data, auxmetadata, outputdir, nsamples=1200, nchains
 #### WHILE LOOP CONTINUING UNTIL CONVERGENCE
             while(nitertot < lengthmeasure){
                 cat('Iterations:', niter,'\n')
-                
+
 #### MONTE-CARLO CALL
                 Cmcsampler$run(niter=niter, thin=1, thin2=(if(showclusterstraces){max(1,round(niter/nclustersamples))}else{niter}), nburnin=0, time=showsamplertimes0, reset=reset, resetMV=TRUE)
-                
+
                 ## mcsamples <- as.matrix(Cmcsampler$mvSamples)
                 mcsamples <- as.list(Cmcsampler$mvSamples, iterationAsLastIndex=T)
 
@@ -786,7 +786,7 @@ inferpopulation <- function(data, auxmetadata, outputdir, nsamples=1200, nchains
                     }
                 }
 
-                
+
                 ##
                 if(showsamplertimes0){
                     samplertimes <- Cmcsampler$getTimes()
@@ -796,7 +796,7 @@ inferpopulation <- function(data, auxmetadata, outputdir, nsamples=1200, nchains
                     print(sort(sapply(sprefixes, function(x)sum(samplertimes[grepl(x,names(samplertimes))])),decreasing=T))
                 }
                 ##
-                
+
                 ## Check how many clusters were occupied. Warns if too many
                 usedclusters <- clusterhypar$K[length(clusterhypar$K)]
                 ## maxusedclusters <- max(usedclusters, maxusedclusters)
@@ -805,7 +805,7 @@ inferpopulation <- function(data, auxmetadata, outputdir, nsamples=1200, nchains
                 ##     printnull('\nWARNING: TOO MANY CLUSTERS OCCUPIED\n', outcon)
                 ## }
                 cat('\nOCCUPIED CLUSTERS:', usedclusters, 'OF', nclusters,'\n')
-                
+
                 ##
                 ## Diagnostics
                 ## Log-likelihood
@@ -852,7 +852,7 @@ inferpopulation <- function(data, auxmetadata, outputdir, nsamples=1200, nchains
                 ## allmcsamples <- rbind(allmcsamples, mcsamples)
                 ## rm(mcsamples)
                 ## gc()
-                
+
                 if(is.null(allmcsamples)){
                     allmcsamples <- mcsamples
                 }else{
@@ -871,7 +871,7 @@ inferpopulation <- function(data, auxmetadata, outputdir, nsamples=1200, nchains
                     allclusterhypar <- mapply(function(xx,yy){c(xx,yy)}, allclusterhypar, clusterhypar, SIMPLIFY=F)
                 }
                 nitertot <- ncol(allmcsamples$W)
-                
+
 #########################################
 #### CHECK IF CHAIN MUST BE CONTINUED ####
 #########################################
@@ -889,7 +889,7 @@ inferpopulation <- function(data, auxmetadata, outputdir, nsamples=1200, nchains
                 reset <- FALSE
             }
 
-            
+
 #########################################
 #### SAVE CHAIN ####
 #########################################
@@ -940,7 +940,7 @@ inferpopulation <- function(data, auxmetadata, outputdir, nsamples=1200, nchains
                 tplot(x=(minalpha:(maxalpha+1))-0.5,y=tabulate(allclusterhypar$Alpha,nbin=nalpha), type='h', xlab=bquote(log2(alpha)), ylab='', ylim=c(0,NA))
                 dev.off()
             }
-            
+
 #### Plot diagnostic traces of current chain
             if(plottraces){
                 cat('\nPlotting traces and samples.\n')
@@ -996,14 +996,14 @@ inferpopulation <- function(data, auxmetadata, outputdir, nsamples=1200, nchains
                                       ' | burnI: ', diagnBurn[avar],
                                       ' | burnII: ', diagnBurn2,
                                       ' | thin: ', diagnThin[avar]
-                                      ), 
+                                      ),
                           ylab=paste0(avar,'/dHart'),
                           xlab='Monte Carlo sample',
                           family=family, mar=c(NA,6,NA,NA) )
                 }
                 dev.off()
             }
-            
+
             ##
 ## #### Plot samples from current chain
 ##             if(plotpartialsamples){
@@ -1027,7 +1027,7 @@ inferpopulation <- function(data, auxmetadata, outputdir, nsamples=1200, nchains
 ##             }
 
             cat('\nMCMC+diagnostics time', printtime(Sys.time() - starttime), '\n')
-            
+
 
 #### Print estimated remaining time
             ertime <- (Sys.time()-starttime)/achain*(nchainspercore-achain+1)
@@ -1051,12 +1051,12 @@ inferpopulation <- function(data, auxmetadata, outputdir, nsamples=1200, nchains
 
     maxusedclusters <- max(chaininfo[,1])
     nonfinitechains <- sum(chaininfo[,2])
-    
+
 ############################################################
 #### End of all MCMC
 ############################################################
 
-    
+
 ############################################################
 #### Join chains
 ############################################################
@@ -1082,7 +1082,7 @@ inferpopulation <- function(data, auxmetadata, outputdir, nsamples=1200, nchains
         padchainnumber <- sprintf(paste0('%0',nchar(nchains),'i'), chainnumber)
         readRDS(file=paste0(dirname,'_mcsamples-',nameroot,'--', padchainnumber,'.rds'))
     }
-    
+
     saveRDS(mcsamples,file=paste0(dirname,'Fdistribution-',nameroot,'.rds'))
 
     traces <- foreach(chainnumber=1:(ncores*nchainspercore), .combine=rbind)%do%{
@@ -1144,7 +1144,7 @@ inferpopulation <- function(data, auxmetadata, outputdir, nsamples=1200, nchains
               ##             ' | burn I: ', diagnBurn[avar],
               ##             ' | burn II: ', diagnBurn2
                            ),
-              ylab=paste0(avar,'/dHart'), xlab='sample', family=family
+              ylab=paste0(avar,'/dHart'), xlab='sample', family=family, mar=c(NA,6,NA,NA)
               )
     }
 
@@ -1186,7 +1186,7 @@ inferpopulation <- function(data, auxmetadata, outputdir, nsamples=1200, nchains
         stopCluster(cl)
     }
 
-    
+
 #### remove partial files if required
     if(cleanup){
         cat('Removing temporary output files.\n')
@@ -1197,7 +1197,7 @@ inferpopulation <- function(data, auxmetadata, outputdir, nsamples=1200, nchains
             file.remove(paste0(dirname,'_mctraces-',nameroot,'--', padchainnumber,'.rds'))
         }
     }
-    
+
     cat('Finished.\n\n')
 
     if(output){mcsamples}

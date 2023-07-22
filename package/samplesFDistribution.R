@@ -27,7 +27,7 @@ if(!silent){ cat('Using already registered', getDoParName(), 'with', getDoParWor
     }
 
     if(ncores < 2){ `%dochains%` <- `%do%` }else{ `%dochains%` <- `%dopar%` }
-    
+
     source('vtransform.R')
     source('mcsubset.R')
 
@@ -57,7 +57,7 @@ if(!silent){ cat('Using already registered', getDoParName(), 'with', getDoParWor
     if(is.character(mcsamples) && file.exists(mcsamples)){
         mcsamples <- readRDS(mcsamples)
     }
-    
+
 #### Subsample and get nclusters and nsamples
     if(!missing(subsamples) && (is.numeric(subsamples) || (is.character(subsamples) && length(subsamples) == 1))){
         if(is.character(subsamples)){
@@ -219,10 +219,10 @@ if(!silent){ cat('Using already registered', getDoParName(), 'with', getDoParWor
 #### each instance is a 1-column vector
         ##
         if(all(is.na(x))){
-            probX <- log(mcsamples$W) 
+            probX <- log(mcsamples$W)
         }else{
             ## rows: clusters, cols: samples
-            probX <- log(mcsamples$W) + 
+            probX <- log(mcsamples$W) +
                 (if(XnR > 0){# continuous
                      colSums(
                          dnorm(x=x[XiR,],
@@ -417,7 +417,7 @@ if(!silent){ cat('Using already registered', getDoParName(), 'with', getDoParWor
 #### Output: rows=clusters, columns=samples
         ##
         ## if(all(is.na(x))){
-        ##     out <- rowSums(exp(probX+probY)) 
+        ##     out <- rowSums(exp(probX+probY))
         ## }else{
         ## str(probX)
         ## print(any(is.na(probX)))

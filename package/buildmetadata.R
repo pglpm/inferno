@@ -142,7 +142,7 @@ buildmetadata <- function(data, file=NULL){
                             ), fill=TRUE)
     }
     ## metadata <- cbind(name=names(data), metadata)
-    
+
     if(!missing(file) && file!=FALSE){# must save to file
         if(is.character(file)){
             file <- paste0(sub('.csv$', '', file), '.csv')
