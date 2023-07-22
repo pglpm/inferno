@@ -515,7 +515,7 @@ inferpopulation <- function(data, auxmetadata, outputdir, nsamples=1200, nchains
 #### INITIAL-VALUE FUNCTION
         initsfn <- function(){
             Alpha <- sample(1:nalpha, 1, prob=constants$probalpha0, replace=T)
-            W <- 1/nclusters + 0*nimble::rdirch(n=1, alpha=constants$basealphas*2^Alpha)
+            W <- nimble::rdirch(n=1, alpha=constants$basealphas*2^Alpha)
             outlist <- list(
                 Alpha = Alpha,
                 W = W,
