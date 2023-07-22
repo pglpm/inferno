@@ -1,0 +1,5 @@
+no_of_adults,no_of_children,no_of_weekend_nights,no_of_week_nights,type_of_meal_plan,required_car_parking_space,room_type_reserved,lead_time,market_segment_type,repeated_guest,no_of_previous_cancellations,no_of_previous_bookings_not_canceled,avg_price_per_room,no_of_special_requests,arrival_day,booking_status
+2,2,2,1,Meal Plan 1,0,Room_Type 6,110,Online,0,0,0,168.1,3,212,Not_Canceled
+2,0,1,3,Not Selected,0,Room_Type 1,1,Online,0,0,0,96,1,223,Not_Canceled
+2,0,0,3,Meal Plan 1,0,Room_Type 1,192,Online,0,0,0,94.5,1,222,Canceled
+1,0,1,2,Meal Plan 1,0,Room_Type 1,19,Online,0,0,0,117.81,1,267,Not_Canceled

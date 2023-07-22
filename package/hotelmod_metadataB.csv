@@ -1,0 +1,17 @@
+name,type,datamin,datamax,datamaxrep,dataNvalues,Nvalues,rounding,domainmin,domainmax,minincluded,maxincluded,centralvalue,lowvalue,highvalue,plotmin,plotmax,V1,V2,V3,V4,V5,V6,V7
+no_of_adults,ordinal,0,4,26108,5,8,,0,7,TRUE,TRUE,2,1,3,0,4,,,,,,,
+no_of_children,ordinal,0,10,33577,6,16,,0,15,TRUE,TRUE,0,0,1,0,10,,,,,,,
+no_of_weekend_nights,ordinal,0,7,16872,8,12,,0,11,TRUE,TRUE,1,0,2,0,7,,,,,,,
+no_of_week_nights,ordinal,0,17,11444,18,25,,0,24,TRUE,TRUE,2,1,3,0,17,,,,,,,
+type_of_meal_plan,nominal,,,27835,4,4,,,,TRUE,TRUE,,,,,,Meal Plan 1,Meal Plan 2,Meal Plan 3,Not Selected,,,
+required_car_parking_space,binary,0,1,35151,2,2,,,,TRUE,TRUE,,,,,,0,1,,,,,
+room_type_reserved,nominal,,,28130,7,7,,,,TRUE,TRUE,,,,,,Room_Type 1,Room_Type 2,Room_Type 3,Room_Type 4,Room_Type 5,Room_Type 6,Room_Type 7
+lead_time,ordinal,0,443,1297,352,512,,0,511,TRUE,TRUE,57,17,126,0,443,,,,,,,
+market_segment_type,nominal,,,23214,5,5,,,,TRUE,TRUE,,,,,,Aviation,Complementary,Corporate,Offline,Online,,
+repeated_guest,binary,0,1,35345,2,2,,,,TRUE,TRUE,,,,,,0,1,,,,,
+no_of_previous_cancellations,ordinal,0,13,35937,9,22,,0,21,TRUE,TRUE,0,0,1,0,13,,,,,,,
+no_of_previous_bookings_not_canceled,ordinal,0,58,35463,59,90,,0,89,TRUE,TRUE,0,0,1,0,58,,,,,,,
+avg_price_per_room,continuous,0,540,848,3930,Inf,0,0,2000,TRUE,FALSE,99.45,80.3,120,0,559.85,,,,,,,
+no_of_special_requests,ordinal,0,5,19777,6,10,,0,9,TRUE,TRUE,0,0,1,0,5,,,,,,,
+arrival_day,ordinal,1,366,392,366,366,,1,366,TRUE,TRUE,227,136,287,1,366,,,,,,,
+booking_status,binary,,,24390,2,2,,,,TRUE,TRUE,,,,,,Canceled,Not_Canceled,,,,,

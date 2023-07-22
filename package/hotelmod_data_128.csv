@@ -1,0 +1,129 @@
+no_of_adults,no_of_children,no_of_weekend_nights,no_of_week_nights,type_of_meal_plan,required_car_parking_space,room_type_reserved,lead_time,market_segment_type,repeated_guest,no_of_previous_cancellations,no_of_previous_bookings_not_canceled,avg_price_per_room,no_of_special_requests,arrival_day,booking_status
+2,2,2,1,Meal Plan 1,0,Room_Type 6,110,Online,0,0,0,168.1,3,212,Not_Canceled
+2,0,1,3,Not Selected,0,Room_Type 1,1,Online,0,0,0,96,1,223,Not_Canceled
+2,0,0,3,Meal Plan 1,0,Room_Type 1,192,Online,0,0,0,94.5,1,222,Canceled
+1,0,1,2,Meal Plan 1,0,Room_Type 1,19,Online,0,0,0,117.81,1,267,Not_Canceled
+2,0,0,2,Meal Plan 1,0,Room_Type 1,30,Offline,0,0,0,140,0,154,Not_Canceled
+2,0,0,3,Meal Plan 2,0,Room_Type 1,84,Offline,0,0,0,100.33,0,366,Not_Canceled
+2,0,0,1,Not Selected,0,Room_Type 1,1,Online,0,0,0,81,2,220,Not_Canceled
+2,0,1,4,Meal Plan 2,0,Room_Type 2,34,Offline,0,0,0,111.96,0,300,Not_Canceled
+2,0,2,2,Meal Plan 1,0,Room_Type 1,9,Online,0,0,0,71.6,1,10,Not_Canceled
+2,0,0,2,Meal Plan 1,0,Room_Type 4,7,Online,0,0,0,116,1,98,Not_Canceled
+2,0,0,2,Meal Plan 2,0,Room_Type 1,102,Offline,0,0,0,101.5,0,290,Canceled
+2,0,2,5,Meal Plan 1,0,Room_Type 1,34,Online,0,0,0,68.45,1,332,Not_Canceled
+1,0,0,2,Meal Plan 1,0,Room_Type 1,12,Corporate,0,0,0,130,0,294,Not_Canceled
+1,0,0,1,Meal Plan 1,0,Room_Type 4,21,Offline,0,0,0,92,0,309,Not_Canceled
+0,2,2,1,Meal Plan 1,0,Room_Type 2,34,Online,0,0,0,119.5,1,164,Not_Canceled
+3,0,1,2,Meal Plan 1,0,Room_Type 4,80,Online,0,0,0,147.9,3,190,Not_Canceled
+1,0,0,3,Meal Plan 1,0,Room_Type 1,71,Offline,0,0,0,120,0,166,Not_Canceled
+2,1,1,0,Meal Plan 1,0,Room_Type 1,2,Online,0,0,0,109,1,39,Not_Canceled
+2,0,0,2,Meal Plan 1,0,Room_Type 1,122,Online,0,0,0,85,0,106,Canceled
+1,0,1,2,Meal Plan 1,0,Room_Type 1,3,Offline,0,0,0,75,0,360,Not_Canceled
+2,0,0,3,Meal Plan 1,0,Room_Type 1,193,Online,0,0,0,65,0,289,Canceled
+2,0,1,2,Meal Plan 1,0,Room_Type 1,106,Online,0,0,0,90,2,309,Canceled
+2,0,0,3,Meal Plan 1,0,Room_Type 1,70,Online,0,0,0,89.25,1,296,Not_Canceled
+2,0,0,3,Meal Plan 1,0,Room_Type 1,173,Offline,0,0,0,72.25,0,194,Not_Canceled
+2,0,1,0,Not Selected,0,Room_Type 1,5,Online,0,0,0,89,1,150,Not_Canceled
+2,0,1,2,Meal Plan 1,0,Room_Type 1,121,Offline,0,0,0,90,0,176,Canceled
+2,0,1,3,Meal Plan 1,0,Room_Type 1,1,Offline,0,0,0,176,0,266,Not_Canceled
+2,0,0,4,Meal Plan 2,0,Room_Type 1,296,Offline,0,0,0,117,1,265,Canceled
+3,0,1,5,Meal Plan 1,1,Room_Type 4,38,Online,0,0,0,177.3,2,228,Not_Canceled
+1,0,0,1,Meal Plan 1,0,Room_Type 1,47,Corporate,0,0,0,65,0,316,Not_Canceled
+2,0,2,3,Meal Plan 1,0,Room_Type 1,276,Online,0,0,0,61,0,134,Canceled
+2,0,1,3,Meal Plan 1,0,Room_Type 4,50,Online,0,0,0,98.6,0,88,Canceled
+2,0,2,2,Meal Plan 1,0,Room_Type 1,226,Offline,0,0,0,70,1,303,Not_Canceled
+2,0,2,3,Meal Plan 1,0,Room_Type 1,224,Online,0,0,0,82.11,0,364,Canceled
+2,0,1,2,Not Selected,0,Room_Type 1,13,Online,0,0,0,102.33,2,251,Not_Canceled
+2,0,0,1,Not Selected,0,Room_Type 1,69,Online,0,0,0,79.2,2,309,Not_Canceled
+2,0,0,3,Not Selected,0,Room_Type 1,17,Online,0,0,0,125.67,0,259,Canceled
+2,0,1,1,Meal Plan 1,0,Room_Type 1,3,Corporate,0,0,0,100,0,235,Not_Canceled
+2,0,2,6,Meal Plan 1,0,Room_Type 1,195,Online,0,0,0,109.23,0,247,Canceled
+1,0,1,0,Meal Plan 1,0,Room_Type 1,76,Offline,0,0,0,120,0,284,Canceled
+2,0,0,1,Meal Plan 1,0,Room_Type 1,10,Offline,0,0,0,85,1,249,Not_Canceled
+2,0,2,2,Meal Plan 1,0,Room_Type 1,47,Offline,0,0,0,80.75,0,290,Not_Canceled
+2,0,0,2,Meal Plan 1,0,Room_Type 4,2,Online,0,0,0,209.5,2,274,Not_Canceled
+2,0,1,5,Meal Plan 1,0,Room_Type 1,56,Online,0,0,0,118.95,0,249,Not_Canceled
+2,0,0,3,Meal Plan 1,0,Room_Type 4,62,Offline,0,0,0,60,0,324,Not_Canceled
+2,0,0,2,Meal Plan 1,0,Room_Type 1,40,Online,0,0,0,130,1,316,Not_Canceled
+2,0,2,1,Meal Plan 1,0,Room_Type 1,141,Online,0,0,0,105.3,2,199,Not_Canceled
+2,0,0,4,Meal Plan 1,0,Room_Type 1,25,Online,0,0,0,88.4,1,342,Not_Canceled
+2,0,0,3,Meal Plan 1,0,Room_Type 4,131,Online,0,0,0,114.3,1,126,Canceled
+1,0,0,1,Meal Plan 2,1,Room_Type 1,3,Complementary,1,0,5,0,0,100,Not_Canceled
+2,0,0,2,Meal Plan 1,0,Room_Type 1,44,Online,0,0,0,106.2,1,118,Not_Canceled
+2,0,0,5,Meal Plan 1,0,Room_Type 4,120,Online,0,0,0,127.8,1,222,Not_Canceled
+1,0,1,0,Meal Plan 1,0,Room_Type 1,6,Corporate,0,0,0,89,0,277,Not_Canceled
+1,0,2,0,Meal Plan 1,0,Room_Type 1,12,Online,0,0,0,81.62,1,150,Not_Canceled
+2,0,2,2,Meal Plan 1,0,Room_Type 1,145,Online,0,0,0,76.5,1,228,Not_Canceled
+2,0,0,1,Meal Plan 2,0,Room_Type 1,55,Offline,0,0,0,104,0,97,Not_Canceled
+1,0,1,0,Meal Plan 1,0,Room_Type 1,111,Online,0,0,0,120,0,284,Canceled
+2,0,0,2,Meal Plan 1,0,Room_Type 4,12,Online,0,0,0,148,0,365,Not_Canceled
+2,0,1,4,Meal Plan 1,0,Room_Type 1,19,Online,0,0,0,91,1,74,Not_Canceled
+1,0,0,1,Meal Plan 1,0,Room_Type 1,1,Corporate,1,0,1,65,1,7,Not_Canceled
+2,1,2,7,Meal Plan 1,0,Room_Type 1,237,Online,0,0,0,93.03,0,358,Canceled
+2,0,0,2,Meal Plan 1,0,Room_Type 1,51,Online,0,0,0,117.9,1,183,Not_Canceled
+2,0,0,2,Meal Plan 2,0,Room_Type 1,39,Offline,0,0,0,109,0,227,Not_Canceled
+2,0,2,1,Not Selected,0,Room_Type 1,57,Online,0,0,0,84.69,1,284,Not_Canceled
+3,0,2,2,Meal Plan 1,0,Room_Type 4,84,Online,0,0,0,150.3,1,218,Not_Canceled
+2,0,2,5,Meal Plan 1,0,Room_Type 1,258,Online,0,0,0,100.3,0,276,Canceled
+2,0,0,1,Meal Plan 1,0,Room_Type 1,1,Online,0,0,0,180,0,270,Not_Canceled
+2,0,0,1,Meal Plan 1,0,Room_Type 1,3,Online,0,0,0,78.3,0,8,Not_Canceled
+1,0,0,2,Meal Plan 1,0,Room_Type 1,1,Online,0,0,0,72.38,1,341,Not_Canceled
+1,0,0,1,Meal Plan 1,0,Room_Type 1,7,Corporate,0,0,0,79,0,308,Not_Canceled
+2,0,0,2,Meal Plan 1,0,Room_Type 1,172,Online,0,0,0,109.8,0,230,Canceled
+2,0,1,3,Meal Plan 1,0,Room_Type 1,210,Offline,0,0,0,72.75,0,282,Not_Canceled
+2,1,0,1,Meal Plan 1,0,Room_Type 1,45,Online,0,0,0,125.1,2,153,Not_Canceled
+2,0,0,2,Meal Plan 1,0,Room_Type 1,17,Corporate,0,0,0,80,1,77,Not_Canceled
+1,0,2,2,Meal Plan 1,0,Room_Type 1,56,Offline,0,0,0,185,0,269,Not_Canceled
+1,0,0,2,Meal Plan 1,0,Room_Type 1,298,Offline,0,0,0,76,0,131,Canceled
+2,0,2,1,Meal Plan 1,0,Room_Type 2,223,Online,0,0,0,86.63,0,206,Canceled
+3,0,0,2,Meal Plan 1,0,Room_Type 4,41,Online,0,0,0,140,1,323,Not_Canceled
+3,0,2,1,Meal Plan 1,0,Room_Type 4,172,Online,0,0,0,107.1,1,234,Canceled
+1,0,1,1,Not Selected,0,Room_Type 1,13,Online,0,0,0,88,0,340,Not_Canceled
+2,0,0,4,Meal Plan 1,0,Room_Type 1,37,Online,0,0,0,135.9,2,195,Not_Canceled
+2,1,2,3,Meal Plan 1,0,Room_Type 4,40,Offline,0,0,0,60,1,306,Not_Canceled
+2,0,0,2,Meal Plan 1,0,Room_Type 1,141,Online,0,0,0,96.3,1,183,Not_Canceled
+2,0,2,2,Meal Plan 1,0,Room_Type 4,5,Online,0,0,0,105,0,306,Not_Canceled
+2,0,0,3,Meal Plan 2,0,Room_Type 1,71,Offline,0,0,0,126,1,131,Not_Canceled
+2,0,2,0,Meal Plan 1,0,Room_Type 1,4,Offline,0,0,0,87,0,38,Not_Canceled
+2,0,0,2,Meal Plan 2,0,Room_Type 1,239,Offline,0,0,0,112.2,0,167,Canceled
+1,0,0,3,Not Selected,0,Room_Type 1,1,Online,0,0,0,78,1,348,Not_Canceled
+2,0,1,2,Meal Plan 1,0,Room_Type 4,83,Online,0,0,0,105.3,0,85,Canceled
+2,0,0,3,Meal Plan 1,0,Room_Type 1,12,Corporate,0,0,0,65,0,218,Not_Canceled
+1,0,0,3,Meal Plan 1,0,Room_Type 1,54,Offline,0,0,0,62.67,0,366,Not_Canceled
+2,0,0,2,Not Selected,0,Room_Type 1,74,Online,0,0,0,77.62,0,119,Not_Canceled
+2,0,1,4,Not Selected,0,Room_Type 1,143,Online,0,0,0,64.26,0,123,Not_Canceled
+2,0,1,1,Meal Plan 1,0,Room_Type 1,7,Online,0,0,0,140,1,235,Canceled
+2,0,2,0,Meal Plan 1,0,Room_Type 1,15,Online,0,0,0,111,0,150,Canceled
+2,0,2,2,Meal Plan 1,0,Room_Type 1,6,Online,0,0,0,122.48,3,365,Not_Canceled
+1,0,2,2,Meal Plan 1,0,Room_Type 1,163,Offline,0,0,0,100,0,157,Canceled
+1,0,0,2,Meal Plan 1,0,Room_Type 1,28,Offline,0,0,0,90,0,138,Not_Canceled
+2,0,0,2,Meal Plan 1,0,Room_Type 1,245,Offline,0,0,0,75,0,169,Canceled
+2,0,1,2,Meal Plan 1,0,Room_Type 1,280,Offline,0,0,0,110,0,263,Canceled
+2,0,1,4,Not Selected,0,Room_Type 1,90,Online,0,0,0,88.74,0,361,Canceled
+1,0,0,3,Meal Plan 1,0,Room_Type 1,12,Offline,0,0,0,72,0,19,Not_Canceled
+1,0,0,1,Not Selected,0,Room_Type 1,0,Offline,0,0,0,84,0,96,Not_Canceled
+2,0,2,1,Not Selected,0,Room_Type 1,65,Online,0,0,0,79.2,1,331,Not_Canceled
+2,0,0,2,Meal Plan 2,0,Room_Type 1,63,Offline,0,0,0,116,0,248,Not_Canceled
+2,0,0,3,Meal Plan 2,0,Room_Type 4,58,Online,0,0,0,153,1,96,Not_Canceled
+1,0,0,5,Meal Plan 1,0,Room_Type 1,8,Corporate,0,0,0,65,0,61,Not_Canceled
+1,0,2,3,Meal Plan 1,0,Room_Type 1,115,Offline,0,0,0,76,0,58,Not_Canceled
+2,0,1,1,Meal Plan 1,0,Room_Type 2,1,Online,0,0,0,74.25,1,4,Not_Canceled
+2,0,1,3,Not Selected,0,Room_Type 1,100,Online,0,0,0,91.38,1,123,Not_Canceled
+2,0,0,3,Meal Plan 1,0,Room_Type 1,104,Offline,0,0,0,75,0,338,Not_Canceled
+1,0,2,1,Meal Plan 1,0,Room_Type 1,11,Online,0,0,0,62.37,1,348,Not_Canceled
+2,0,1,2,Meal Plan 1,0,Room_Type 4,9,Online,0,0,0,151.67,1,239,Canceled
+2,0,1,4,Meal Plan 1,0,Room_Type 4,40,Online,0,0,0,98.82,0,74,Not_Canceled
+2,0,2,6,Not Selected,0,Room_Type 1,106,Online,0,0,0,94.5,0,194,Canceled
+2,0,1,2,Not Selected,0,Room_Type 1,141,Online,0,0,0,85.5,2,242,Not_Canceled
+1,0,2,3,Meal Plan 1,0,Room_Type 1,1,Online,0,0,0,119,1,114,Not_Canceled
+2,0,2,0,Meal Plan 1,0,Room_Type 1,212,Online,0,0,0,81.77,0,171,Canceled
+2,0,2,1,Not Selected,0,Room_Type 1,45,Online,0,0,0,71.1,1,73,Not_Canceled
+2,0,0,1,Meal Plan 1,0,Room_Type 1,107,Online,0,0,0,76.5,0,225,Not_Canceled
+2,0,2,5,Meal Plan 1,0,Room_Type 1,41,Offline,0,0,0,69.29,0,362,Not_Canceled
+1,0,0,2,Meal Plan 1,0,Room_Type 1,23,Online,0,0,0,104.5,0,261,Not_Canceled
+2,0,0,1,Meal Plan 1,0,Room_Type 1,105,Offline,0,0,0,75,0,97,Canceled
+2,0,0,4,Meal Plan 1,1,Room_Type 1,156,Online,0,0,0,114.83,1,187,Canceled
+2,0,2,1,Meal Plan 1,0,Room_Type 1,104,Online,0,0,0,135.9,2,262,Canceled
+1,0,0,2,Meal Plan 1,0,Room_Type 1,188,Offline,0,0,0,130,0,167,Canceled
+2,0,1,2,Meal Plan 1,0,Room_Type 1,31,Offline,0,0,0,75,0,260,Canceled
+2,0,0,2,Meal Plan 1,0,Room_Type 1,21,Offline,0,0,0,70,0,345,Not_Canceled
