@@ -166,7 +166,7 @@ inferpopulation <- function(data, auxmetadata, outputdir, nsamples=1200, nchains
 #### other options
     Alphatoslice <- TRUE
     Ktoslice <- TRUE
-    RWtoslice <- TRUE
+    RWtoslice <- FALSE
     ##
     ## showdata <- TRUE # 'histogram' 'scatter' FALSE TRUE
     plotmeans <- TRUE # plot frequency averages
