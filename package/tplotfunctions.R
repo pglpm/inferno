@@ -18,6 +18,7 @@ darkgrey <- '#555555'
 black <- '#000000'
 scale_colour_discrete <- scale_colour_bright
 
+## to output in pdf format
 pdff <- function(file='Rplot', apaper=5, portrait=FALSE, height=148/25.4, width=210/25.4, asp=NA, ...){
     if(is.numeric(apaper)){
         if(portrait){
@@ -32,8 +33,24 @@ pdff <- function(file='Rplot', apaper=5, portrait=FALSE, height=148/25.4, width=
         width <- height*asp
     }
     pdf(file=paste0(file,'.pdf'), paper='special', height=height, width=width, ...)
-} # to output in pdf format
-pngf <- function(filename='Rplot',res=300){png(file=paste0(filename,'.png'), height=11.7*1.2, width=16.5*1.2, units='in', res=res, pointsize=36)} # to output in png format
+}
+
+## to output in png format
+pngf <- function(filename='Rplot', res=300, apaper=5, portrait=FALSE, height=148/25.4, width=210/25.4, asp=NA, ...){
+    if(is.numeric(apaper)){
+        if(portrait){
+            height <- floor(841/sqrt(2)^(apaper-1))/25.4
+            width <- floor(841/sqrt(2)^(apaper))/25.4
+        }else{
+            width <- floor(841/sqrt(2)^(apaper-1))/25.4
+            height <- floor(841/sqrt(2)^(apaper))/25.4
+        }
+    }
+    if(!is.na(asp)){
+        width <- height*asp
+    }
+    png(file=paste0(filename,'.png'), height=height, width=width, units='in', res=res, pointsize=36)
+}
 
 alpha2hex2 <- function(alpha,col=NULL){
     if(!is.character(alpha)){alpha <- sprintf('%02x', round((1-alpha)*255))}
@@ -109,6 +126,9 @@ tplot <- function(x, y, xlim=c(NA,NA), ylim=c(NA,NA), asp=NA, n=10, family='', x
         xlim0 <- range(xx[is.finite(xx)], na.rm=TRUE)
     }else{
         uxx <- unique(xx)
+        if(is.character(xlabels) && all(uxx %in% xlabels)){
+            uxx <- intersect(xlabels,uxx)
+        }
         if(any(type=='h')){
             xlim0 <- c(0.5,length(uxx)+0.5)
         }else{
@@ -119,6 +139,9 @@ tplot <- function(x, y, xlim=c(NA,NA), ylim=c(NA,NA), asp=NA, n=10, family='', x
         ylim0 <- range(yy[is.finite(yy)], na.rm=TRUE)
     }else{
         uyy <- unique(yy)
+        if(is.character(ylabels) && all(uyy %in% ylabels)){
+            uyy <- intersect(ylabels,uyy)
+        }
         if(any(type=='h')){
             ylim0 <- c(0.5,length(uyy)+0.5)
         }else{
