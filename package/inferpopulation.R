@@ -2,7 +2,7 @@ inferpopulation <- function(data, auxmetadata, outputdir, nsamples=1200, nchains
 
     cat('\n')
 #### Determine the status of parallel processing
-    if(!missing(parallel) && is.logical(parallel) && parallel){
+    if(is.logical(parallel) && parallel){
         if(getDoParRegistered()){
             cat('Using already registered', getDoParName(), 'with', getDoParWorkers(), 'workers\n')
             ncores <- getDoParWorkers()
@@ -10,7 +10,7 @@ inferpopulation <- function(data, auxmetadata, outputdir, nsamples=1200, nchains
             cat('No parallel backend registered.\n')
             ncores <- 1
         }
-    }else if(!missing(parallel) && is.numeric(parallel) && parallel >= 2){
+    }else if(is.numeric(parallel) && parallel >= 2){
         if(getDoParRegistered()){
             ncores <- min(getDoParWorkers(), parallel)
             cat('Using already registered', getDoParName(), 'with', getDoParWorkers(), 'workers\n')
@@ -1076,10 +1076,11 @@ inferpopulation <- function(data, auxmetadata, outputdir, nsamples=1200, nchains
             dim(temp) <- c(dx, length(temp)/prod(dx))
             temp
         },
-        mc1, mc2)
+        mc1, mc2, SIMPLIFY=FALSE)
     }
     mcsamples <- foreach(chainnumber=1:(ncores*nchainspercore), .combine=joinmc, .multicombine=F)%do%{
         padchainnumber <- sprintf(paste0('%0',nchar(nchains),'i'), chainnumber)
+
         readRDS(file=paste0(dirname,'_mcsamples-',nameroot,'--', padchainnumber,'.rds'))
     }
 
@@ -1087,6 +1088,7 @@ inferpopulation <- function(data, auxmetadata, outputdir, nsamples=1200, nchains
 
     traces <- foreach(chainnumber=1:(ncores*nchainspercore), .combine=rbind)%do%{
         padchainnumber <- sprintf(paste0('%0',nchar(nchains),'i'), chainnumber)
+
         readRDS(file=paste0(dirname,'_mctraces-',nameroot,'--', padchainnumber,'.rds'))
     }
     ## traces <- mcsamples[round(seq(1,nrow(mcsamples),length.out=nsamples)),1:3]
