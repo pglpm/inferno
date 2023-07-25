@@ -1,4 +1,4 @@
-inferpopulation <- function(data, auxmetadata, outputdir, nsamples=1200, nchains=120, nsamplesperchain, parallel=TRUE, niterini=1024, miniter=0, maxiter=+Inf, thinning=0, plottraces=TRUE, showclusterstraces=TRUE, seed=16, subsampledata, useOquantiles=TRUE, output=FALSE, cleanup=TRUE){
+inferpopulation <- function(data, auxmetadata, outputdir, nsamples=1200, nchains=120, nsamplesperchain, parallel=TRUE, niterini=1024, miniter=0, maxiter=+Inf, thinning=0, plottraces=TRUE, showclusterstraces=TRUE, seed=16, loglikelihood=F, subsampledata, useOquantiles=TRUE, output=FALSE, cleanup=TRUE){
 
     cat('\n')
 #### Determine the status of parallel processing
@@ -100,6 +100,7 @@ inferpopulation <- function(data, auxmetadata, outputdir, nsamples=1200, nchains
     if(missing(data) || is.null(data) || (is.logical(data) && data==FALSE)){
         message('Missing data: calculating prior distribution')
         data <- as.data.table(matrix(NA,nrow=1,ncol=nrow(auxmetadata),dimnames=list(NULL,auxmetadata[['name']])))
+        loglikelihood <- FALSE
     }
     if(is.character(data) && file.exists(data)){
         datafile <- paste0(sub('.csv$', '', data), '.csv')
@@ -110,6 +111,16 @@ inferpopulation <- function(data, auxmetadata, outputdir, nsamples=1200, nchains
         ##@@TODO: use faster and memory-saving subsetting
         data <- data[sample(1:nrow(data), min(subsampledata,nrow(data)), replace=F),]
     }
+
+    ## Correct loglikelihood argument if necessary
+    if(is.numeric(loglikelihood)){
+        if(loglikelihood > 1){
+            loglikelihood <- min(round(loglikelihood), nrow(data))
+        }else{
+            loglikelihood <- FALSE
+        }
+    }
+
 
     if(missing(outputdir) || outputdir==TRUE){
         outputdir <- paste0('_output_', datafile)
@@ -340,7 +351,6 @@ inferpopulation <- function(data, auxmetadata, outputdir, nsamples=1200, nchains
         suppressPackageStartupMessages(library('data.table'))
         suppressPackageStartupMessages(library('nimble'))
 
-
 #### Load and define various functions
         source('tplotfunctions.R')
         source('vtransform.R')
@@ -379,7 +389,6 @@ inferpopulation <- function(data, auxmetadata, outputdir, nsamples=1200, nchains
         ##         do.call('[',c(list(xx),rep(TRUE,length(dim(xx))-1), list(-toremove)) )
         ##     })
         ## }
-
 
 
         ## Parameter and function to test MCMC convergence
@@ -721,6 +730,9 @@ inferpopulation <- function(data, auxmetadata, outputdir, nsamples=1200, nchains
             }
             flagll <- FALSE
             flagmc <- FALSE
+            if(is.numeric(loglikelihood)){
+                llseq <- sample(1:ndata, loglikelihood)
+            }
             gc()
             chainnumber <- (acore-1L)*nchainspercore + achain
             padchainnumber <- sprintf(paste0('%0',nchar(nchains),'i'), chainnumber)
@@ -815,6 +827,19 @@ inferpopulation <- function(data, auxmetadata, outputdir, nsamples=1200, nchains
                     log(samplesFDistribution(Y=testdata, X=NULL, mcsamples=mcsamples, auxmetadata=auxmetadata, jacobian=FALSE, useOquantiles=useOquantiles, parallel=FALSE, silent=TRUE)) #- sum(log(invjacobian(data.matrix(data0), varinfo)), na.rm=T)
                 )
                 colnames(ll) <- paste0('log-',c('mid','lo','hi')) #,'pm','pM','dm','dM'))
+                if(is.logical(loglikelihood) && loglikelihood){
+                    cat('\nCalculating log-likelihood...')
+                    ll <- cbind(ll,
+                                'log-ll'=log(samplesFDistribution(Y=data, X=NULL, mcsamples=mcsamples, auxmetadata=auxmetadata, jacobian=FALSE, useOquantiles=useOquantiles, parallel=FALSE, silent=TRUE, combine='+'))
+                                )
+                    cat('Done\n')
+                }else if(is.numeric(loglikelihood)){
+                    cat('\nCalculating log-likelihood...')
+                    ll <- cbind(ll,
+                                'log-ll'=log(samplesFDistribution(Y=data[llseq,], X=NULL, mcsamples=mcsamples, auxmetadata=auxmetadata, jacobian=FALSE, useOquantiles=useOquantiles, parallel=FALSE, silent=TRUE, combine='+'))
+                                )
+                    cat('Done\n')
+                }
                 ##
                 traces <- rbind(traces, 10/log(10) * ll)
                 ## pdff('testdifferenttraces2')
@@ -945,7 +970,7 @@ inferpopulation <- function(data, auxmetadata, outputdir, nsamples=1200, nchains
             if(plottraces){
                 cat('\nPlotting traces and samples.\n')
 
-                tracegroups <- list(1,2,3)
+                tracegroups <- as.list(1:ncol(traces))
                 names(tracegroups) <- colnames(traces)
                 grouplegends <- foreach(agroup=1:length(tracegroups))%do%{
                     c( paste0('-- STATS ', names(tracegroups)[agroup], ' --'),
@@ -959,7 +984,7 @@ inferpopulation <- function(data, auxmetadata, outputdir, nsamples=1200, nchains
                       paste0('max thin = ', signif(max(diagnThin[tracegroups[[agroup]]]),6))
                       )
                 }
-                colpalette <- c(7,2,1)
+                colpalette <- 1:ncol(traces)
                 names(colpalette) <- colnames(traces)
                 ##
                 ## Plot various info and traces
@@ -1131,7 +1156,7 @@ inferpopulation <- function(data, auxmetadata, outputdir, nsamples=1200, nchains
     cat('\nPlotting final Monte Carlo traces.\n')
 
     ##
-    colpalette <- c(7,2,1)
+    colpalette <- 1:ncol(traces)
     names(colpalette) <- colnames(traces)
     graphics.off()
     pdff(paste0(dirname,'MCtraces-',nameroot), apaper=4)

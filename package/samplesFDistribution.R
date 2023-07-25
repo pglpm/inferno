@@ -1,4 +1,4 @@
-samplesFDistribution <- function(Y, X, mcsamples, auxmetadata, subsamples, jacobian=TRUE, fn=identity, useOquantiles=TRUE, parallel=TRUE, silent=FALSE){
+samplesFDistribution <- function(Y, X, mcsamples, auxmetadata, subsamples, jacobian=TRUE, fn=identity, combine='rbind', useOquantiles=TRUE, parallel=TRUE, silent=FALSE){
 
     if(!silent){ cat('\n') }
 #### Determine the status of parallel processing
@@ -214,7 +214,7 @@ if(!silent){ cat('Using already registered', getDoParName(), 'with', getDoParWor
     ##
     ##
 
-    foreach(y=t(Y2), x=t(X2), .combine=rbind, .inorder=TRUE)%dochains%{
+    foreach(y=t(Y2), x=t(X2), .combine=combine, .inorder=TRUE)%dochains%{
 #### the loop is over the columns of y and x
 #### each instance is a 1-column vector
         ##
