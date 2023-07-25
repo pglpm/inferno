@@ -113,12 +113,14 @@ inferpopulation <- function(data, auxmetadata, outputdir, nsamples=1200, nchains
     }
 
     ## Correct loglikelihood argument if necessary
-    if(is.numeric(loglikelihood)){
-        if(loglikelihood > 1){
-            loglikelihood <- min(round(loglikelihood), nrow(data))
-        }else{
-            loglikelihood <- FALSE
-        }
+    datanona <- which(apply(data,1,function(xx){!any(is.na(xx))}))
+    ##
+    if(is.numeric(loglikelihood) && loglikelihood > 1 && length(datanona) > 1){
+            loglikelihood <- min(round(loglikelihood), length(datanona))
+    }else if(is.logical(loglikelihood) && loglikelihood && length(datanona) > 1){
+        loglikelihood <- length(datanona)
+    }else{
+        loglikelihood <- FALSE
     }
 
 
@@ -731,7 +733,7 @@ inferpopulation <- function(data, auxmetadata, outputdir, nsamples=1200, nchains
             flagll <- FALSE
             flagmc <- FALSE
             if(is.numeric(loglikelihood)){
-                llseq <- sample(1:ndata, loglikelihood)
+                llseq <- sort(sample(datanona, loglikelihood))
             }
             gc()
             chainnumber <- (acore-1L)*nchainspercore + achain
@@ -827,18 +829,11 @@ inferpopulation <- function(data, auxmetadata, outputdir, nsamples=1200, nchains
                     log(samplesFDistribution(Y=testdata, X=NULL, mcsamples=mcsamples, auxmetadata=auxmetadata, jacobian=FALSE, useOquantiles=useOquantiles, parallel=FALSE, silent=TRUE)) #- sum(log(invjacobian(data.matrix(data0), varinfo)), na.rm=T)
                 )
                 colnames(ll) <- paste0('log-',c('mid','lo','hi')) #,'pm','pM','dm','dM'))
-                if(is.logical(loglikelihood) && loglikelihood){
+                if(is.numeric(loglikelihood)){
                     lltime <- Sys.time()
                     cat('\nCalculating log-likelihood...')
                     ll <- cbind(ll,
-                                'log-ll'=log(samplesFDistribution(Y=data, X=NULL, mcsamples=mcsamples, auxmetadata=auxmetadata, jacobian=FALSE, useOquantiles=useOquantiles, parallel=FALSE, silent=TRUE, combine='+'))
-                                )
-                    cat('Done,\n', printtime(Sys.time() - lltime), '\n')
-                }else if(is.numeric(loglikelihood)){
-                    lltime <- Sys.time()
-                    cat('\nCalculating log-likelihood...')
-                    ll <- cbind(ll,
-                                'log-ll'=log(samplesFDistribution(Y=data[llseq,], X=NULL, mcsamples=mcsamples, auxmetadata=auxmetadata, jacobian=FALSE, useOquantiles=useOquantiles, parallel=FALSE, silent=TRUE, combine='+'))
+                                'log-ll'=log(samplesFDistribution(Y=data[llseq,], X=NULL, mcsamples=mcsamples, auxmetadata=auxmetadata, jacobian=FALSE, useOquantiles=useOquantiles, parallel=FALSE, silent=TRUE, combine='+'))/length(llseq)
                                 )
                     cat('Done,\n', printtime(Sys.time() - lltime), '\n')
                 }
