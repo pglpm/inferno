@@ -828,17 +828,19 @@ inferpopulation <- function(data, auxmetadata, outputdir, nsamples=1200, nchains
                 )
                 colnames(ll) <- paste0('log-',c('mid','lo','hi')) #,'pm','pM','dm','dM'))
                 if(is.logical(loglikelihood) && loglikelihood){
+                    lltime <- Sys.time()
                     cat('\nCalculating log-likelihood...')
                     ll <- cbind(ll,
                                 'log-ll'=log(samplesFDistribution(Y=data, X=NULL, mcsamples=mcsamples, auxmetadata=auxmetadata, jacobian=FALSE, useOquantiles=useOquantiles, parallel=FALSE, silent=TRUE, combine='+'))
                                 )
-                    cat('Done\n')
+                    cat('Done,\n', printtime(Sys.time() - lltime), '\n')
                 }else if(is.numeric(loglikelihood)){
+                    lltime <- Sys.time()
                     cat('\nCalculating log-likelihood...')
                     ll <- cbind(ll,
                                 'log-ll'=log(samplesFDistribution(Y=data[llseq,], X=NULL, mcsamples=mcsamples, auxmetadata=auxmetadata, jacobian=FALSE, useOquantiles=useOquantiles, parallel=FALSE, silent=TRUE, combine='+'))
                                 )
-                    cat('Done\n')
+                    cat('Done,\n', printtime(Sys.time() - lltime), '\n')
                 }
                 ##
                 traces <- rbind(traces, 10/log(10) * ll)
