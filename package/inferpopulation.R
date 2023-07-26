@@ -746,6 +746,7 @@ inferpopulation <- function(data, auxmetadata, outputdir, nsamples=1200, nchains
 
 #### WHILE LOOP CONTINUING UNTIL CONVERGENCE
             while(nitertot < lengthmeasure){
+                subiter <- 1L
                 cat('Iterations:', niter,'\n')
 
 #### MONTE-CARLO CALL
@@ -904,7 +905,8 @@ inferpopulation <- function(data, auxmetadata, outputdir, nsamples=1200, nchains
                 if(nitertot < lengthmeasure){
                     ## limit number of iterations per loop, to save memory
                     niter <- min(lengthmeasure - nitertot + 1L, niterini)
-                    cat('\nChain #', chainnumber,
+                    subiter <- subiter + 1L
+                    cat('\nChain #', chainnumber,'.',subiter,
                         '(chain', achain,'of',nchainspercore,
                         'for this core): increasing by', niter, '\n')
                 }
