@@ -745,8 +745,8 @@ inferpopulation <- function(data, auxmetadata, outputdir, nsamples=1200, nchains
             Cfinitemixnimble$setInits(initsfn())
 
 #### WHILE LOOP CONTINUING UNTIL CONVERGENCE
+            subiter <- 1L
             while(nitertot < lengthmeasure){
-                subiter <- 1L
                 cat('Iterations:', niter,'\n')
 
 #### MONTE-CARLO CALL
