@@ -201,7 +201,7 @@ buildauxmetadata <- function(data, metadata, file=TRUE){
             file.rename(from=file, to=paste0(sub('.rds$', '', file), '_bak',format(Sys.time(), '%y%m%dT%H%M%S'),'.rds'))
         }
         saveRDS(auxmetadata, file)
-        cat(paste0('Saved proposal aux-metadata file as ', file, '\n'))
+        cat('Saved proposal aux-metadata file as', file, '\n')
     }else{
         auxmetadata
     }

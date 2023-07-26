@@ -1,6 +1,7 @@
 buildmetadata <- function(data, file=NULL){
-    gcd2 <- function(a, b){suppressWarnings( if (b == 0) a else Recall(b, a %% b) )}
-    gcd <- function(...){suppressWarnings(Reduce(gcd2, c(...)))}
+    gcd <- function(...){suppressWarnings(Reduce(function(a, b){if (b == 0) a else Recall(b, a %% b)}, c(...)))}
+    ## gcd2 <- function(a, b){suppressWarnings( if (b == 0) a else Recall(b, a %% b) )}
+    ## gcd <- function(...){suppressWarnings(Reduce(gcd2, c(...)))}
     ##
     datafile <- NULL
     if(is.character(data) && file.exists(data)){
@@ -53,12 +54,18 @@ buildmetadata <- function(data, file=NULL){
             plotmin <- NA
             plotmax <- NA
         }else{# ordinal, continuous, censored, or discretized variate
+            ix <- x[!(x %in% range(x))] # exclude boundary values
+            maxrep <- max(table(ix)) # average of repeated inner values
             ud <- unique(signif(diff(sort(unique(x))),3)) # differences
             rx <- diff(range(x))
             multi <- 10^(-min(floor(log10(ud))))
-            dd <- round(gcd(ud*multi))/multi # greatest common difference
+            max(table(x))
+            dd <- gcd(round(ud*multi))/multi # greatest common difference
             ##
-            if(dd/rx < 1e-3){ # consider it as continuous
+            if(dd/rx < 1e-5 && maxrep > 100){
+                cat('Warning: variate',xn,'seems continuous but with singular values.\n')
+            }
+            if(dd/rx < 1e-5 || (dd/rx < 1e-3 && maxrep <= 100)){ # consider it as continuous
                 ## temporary values
                 vtype <- 'continuous'
                 vn <- Inf
@@ -154,7 +161,7 @@ buildmetadata <- function(data, file=NULL){
             file.rename(from=file, to=paste0(sub('.csv$', '', file), '_bak',format(Sys.time(), '%y%m%dT%H%M%S'),'.csv'))
         }
         fwrite(metadata, file)
-        cat(paste0('Saved proposal metadata file as ', file, '\n'))
+        cat('Saved proposal metadata file as',file,'\n')
     }else{
         metadata
     }
