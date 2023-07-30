@@ -1,0 +1,11 @@
+name,type,datamin,datamax,datamaxrep,dataNvalues,Nvalues,rounding,domainmin,domainmax,minincluded,maxincluded,centralvalue,lowvalue,highvalue,plotmin,plotmax,V1,V2,V3,V4,V5,V6,V7
+RI,continuous,1.51115,1.53393,3,178,Inf,0,1,5,TRUE,TRUE,1.51768,1.5165175,1.519165,1.50982625,1.53525375,,,,,,,
+Na,continuous,10.73,17.38,5,142,Inf,0.01,0,100,TRUE,TRUE,13.3,12.8975,13.84,10.25875,17.85125,,,,,,,
+Mg,continuous,0,4.49,42,94,Inf,0.01,0,100,TRUE,TRUE,3.48,2.0375,3.6025,0,5.2725,,,,,,,
+Al,continuous,0.29,3.5,8,118,Inf,0.01,0,100,TRUE,TRUE,1.36,1.19,1.63,0.145,3.72,,,,,,,
+Si,continuous,69.81,75.41,4,133,Inf,0.01,0,100,TRUE,TRUE,72.79,72.275,73.0925,69.40125,75.81875,,,,,,,
+K,continuous,0,6.21,30,65,Inf,0.01,0,100,TRUE,TRUE,0.555,0.12,0.61,0,6.455,,,,,,,
+Ca,continuous,5.43,16.19,5,143,Inf,0.01,0,100,TRUE,TRUE,8.6,8.2375,9.1925,4.9525,16.6675,,,,,,,
+Ba,continuous,0,3.15,176,34,Inf,0.01,0,100,TRUE,TRUE,0,0,0.06,0,3.15,,,,,,,
+Fe,continuous,0,0.51,144,32,Inf,0.01,0,100,TRUE,TRUE,0,0,0.1,0,0.56,,,,,,,
+Type,nominal,,,76,6,6,,,,TRUE,TRUE,,,,,,building_windows_float_processed,building_windows_non_float_processed,containers,headlamps,tableware,vehicle_windows_float_processed,vehicle_windows_non_float_processed

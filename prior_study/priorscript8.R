@@ -150,7 +150,7 @@ sdsr <- nimble::rinvgamma(prc*2, shape=baseshape1, rate= nimble::rinvgamma(prc*2
 ##
 pdff('prior2D_hyperrates',apaper=3)
 par(mfrow=rowcol,mar = c(0,0,0,0))
-## 
+##
 set.seed(987)
 means <- array(rnorm(2*prc*nclusters, mean=0, sd=disp0), dim=c(prc,2,nclusters))
 sds <- array(sqrt(nimble::rinvgamma(2*prc*nclusters, shape=shapelow0, rate=
@@ -198,7 +198,7 @@ dev.off()
 ##
 pdff('prior2D_hypermeansrates',apaper=3)
 par(mfrow=rowcol,mar = c(0,0,0,0))
-## 
+##
 set.seed(987)
 means <- array(rnorm(2*prc*nclusters, mean=meansm, sd=1), dim=c(prc,2,nclusters))
 sds <- array(sqrt(nimble::rinvgamma(2*prc*nclusters, shape=baseshape0, rate=
@@ -209,7 +209,7 @@ dev.off()
 
 pdff('prior2D_hypermeansratescommonvar',apaper=3)
 par(mfrow=rowcol,mar = c(0,0,0,0))
-## 
+##
 set.seed(987)
 means <- array(rnorm(2*prc*nclusters, mean=meansm[1:prc], sd=1), dim=c(prc,2,nclusters))
 sds <- array(sqrt(nimble::rinvgamma(2*prc*nclusters, shape=baseshape0, rate=
@@ -219,7 +219,7 @@ dev.off()
 ##
 pdff('prior2D_hyperallfour',apaper=3)
 par(mfrow=rowcol,mar = c(0,0,0,0))
-## 
+##
 set.seed(987)
 means <- array(rnorm(2*prc*nclusters, mean=meansm, sd=meanss), dim=c(prc,2,nclusters))
 sds <- array(sqrt(nimble::rinvgamma(2*prc*nclusters, shape=sdss, rate=
@@ -337,7 +337,7 @@ pdff('Qfunction2')
 tplot(x=xgrid,y=list(approxq(xgrid),qnorm(xgrid,sd=thismad/qnorm(3/4)),qcauchy(xgrid,scale=thismad)#,qlogis(xgrid,scale=1/qlogis(3/4))
                      ),
       lwd=c(3,2,2,5),lty=c(1,2,4,3), alpha=c(0,rep(0.25,3)),
-      ylim=range(approxq(xgrid)), 
+      ylim=range(approxq(xgrid)),
       ## xticks=c(0,0.25,0.5,0.75,1),xlabels=c(0,expression(italic(m)/4),expression(italic(m)/2),expression(3*italic(m)/4),expression(italic(m))),
       xlab=expression(italic(x)), ylab=expression(italic(Q)(italic(x))),
       mar=c(NA,5,1,1))
@@ -475,7 +475,7 @@ sdsr <- nimble::rinvgamma(prc*2, shape=baseshape1, rate= nimble::rinvgamma(prc*2
 ##
 pdff(paste0('../prior1D_integers_',nint))
 par(mfrow=rowcol,mar = c(0,0,0,0))
-## 
+##
 set.seed(987)
 means <- array(rnorm((prc+extras)*nclusters, mean=0, sd=disp0), dim=c(prc+extras,nclusters))
 sds <- array(sqrt(nimble::rinvgamma((prc+extras)*nclusters, shape=shapelow0, rate=
@@ -802,7 +802,7 @@ xgrid <- seq(1/nint,(nint-1)/nint,length.out=nint-1)
 pdff('Qfunction2')
 tplot(x=xgrid,y=list(approxq(xgrid),qnorm(xgrid,sd=thismad/qnorm(3/4)),qcauchy(xgrid,scale=thismad),qlogis(xgrid,scale=thismad/qlogis(3/4))),
       lwd=c(3,2,2,5),lty=c(1,2,4,3), alpha=c(0,rep(0.25,3)),
-      ylim=range(approxq(xgrid)), 
+      ylim=range(approxq(xgrid)),
       ## xticks=c(0,0.25,0.5,0.75,1),xlabels=c(0,expression(italic(m)/4),expression(italic(m)/2),expression(3*italic(m)/4),expression(italic(m))),
       xlab=expression(italic(x)), ylab=expression(italic(Q)(italic(x))),
       mar=c(NA,5,2,1))
@@ -1790,7 +1790,7 @@ sdsr <- 1#nimble::rinvgamma(prc*2, shape=baseshape1, rate= nimble::rinvgamma(prc
 ##
 pdff('prior2D_Mvar_S2shapes',apaper=3)
 par(mfrow=rowcol,mar = c(0,0,0,0))
-## 
+##
 set.seed(987)
 means <- array(rnorm(2*prc*nclusters, mean=0, sd=meanss), dim=c(prc,2,nclusters))
 sds <- array(sqrt(nimble::rinvgamma(prc*2*nclusters, shape=sdssl, rate=
@@ -1848,24 +1848,24 @@ plotquantiles(x=1:nv,y=qts)
 qts <- apply(curves,1,tquant,c(1,7)/8)
 plotquantiles(x=1:nv,y=qts)
 
-## In[20]:= 
-## compdis[l_, s_, r_] = 
+## In[20]:=
+## compdis[l_, s_, r_] =
 ##  FullSimplify@
 ##   ParameterMixtureDistribution[
-##    ParameterMixtureDistribution[NormalDistribution[mm, Sqrt[vv]], 
-##     mm \[Distributed] NormalDistribution[0, Sqrt[vv*l]]], 
+##    ParameterMixtureDistribution[NormalDistribution[mm, Sqrt[vv]],
+##     mm \[Distributed] NormalDistribution[0, Sqrt[vv*l]]],
 ##    vv \[Distributed] InverseGammaDistribution[s, 1/r]]
 ##
 ## Out[20]= StudentTDistribution[0, Sqrt[(1 + l)/(r s)], 2 s]
 ##
-## In[30]:= Assuming[l > 0 && s > 0 && r > 0 && 0 < q < 1, 
-##  FullSimplify@(Quantile[StudentTDistribution[0, s, r], q] == 
+## In[30]:= Assuming[l > 0 && s > 0 && r > 0 && 0 < q < 1,
+##  FullSimplify@(Quantile[StudentTDistribution[0, s, r], q] ==
 ##     Quantile[StudentTDistribution[0, 1, r], q]*s)]
 ##
 ## Out[30]= True
 ##
-## In[33]:= Assuming[l > 0 && s > 0 && r > 0 && 0 < q < 1, 
-##  FullSimplify@(PDF[StudentTDistribution[0, s, 1], x] == 
+## In[33]:= Assuming[l > 0 && s > 0 && r > 0 && 0 < q < 1,
+##  FullSimplify@(PDF[StudentTDistribution[0, s, 1], x] ==
 ##     PDF[CauchyDistribution[0, s], x])]
 
 ## Out[33]= True
@@ -1923,7 +1923,7 @@ tplot(x=xgrid+3,y=dbinom(xgrid,size=aa,prob=bb),type='b',xlim=range(xgrid))
 ## In[10]:= FullSimplify@
 ##  Solve[{mm == a/(a + b), vv == a*b/(a + b)^2/(a + b + 1)}, {a, b}]
 ##
-## Out[10]= {{a -> -((mm ((-1 + mm) mm + vv))/vv), 
+## Out[10]= {{a -> -((mm ((-1 + mm) mm + vv))/vv),
 ##     b -> -1 + mm + ((-1 + mm)^2 mm)/vv}}
 
 nclusters <- 64
