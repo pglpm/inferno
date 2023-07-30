@@ -446,16 +446,19 @@ powerset <<- function(set) {
 ## Greatest common denominator
 gcd <<- function(...){Reduce(function(a, b){if (b == 0) a else Recall(b, a %% b)}, c(...))}
 
-## Table with list of values
-tablev <- function(x, values=NULL){
-    table(c(x,values))-!(is.null(values))
-}
-
 ## Normalize according to row
-normalize <- function(x){
+tnormalize <- function(x){
     if(is.null(dim(x)) || is.table(x)){
         x/sum(x,na.rm=T)
     }else{
         aperm(aperm(x)/c(aperm(cbind(colSums(x,na.rm=T)))))
     }
 }
+
+## Table with list of values
+tablev <- function(x, values=NULL, norm=FALSE){
+    (if(norm){tnormalize}else{identity})(
+        temp <- table(c(x,values))-!(is.null(values))
+    )
+}
+
