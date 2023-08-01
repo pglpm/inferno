@@ -234,7 +234,8 @@ inferpopulation <- function(data, auxmetadata, outputdir, nsamples=1200, nchains
         Nmaxn <- max(auxmetadata[mcmctype == 'N', Nvalues])
         Nalpha0 <- matrix(1e-100, nrow=vn$N, ncol=Nmaxn)
         for(avar in 1:length(vnames$N)){
-            Nalpha0[avar, 1:auxmetadata[name == vnames$N[avar], Nvalues]] <- 1
+            nvalues <- auxmetadata[name == vnames$N[avar], Nvalues]
+            Nalpha0[avar, 1:nvalues] <- 1/nvalues
         }
     }
 
