@@ -457,8 +457,10 @@ tnormalize <- function(x){
 
 ## Table with list of values
 tablev <- function(x, values=NULL, norm=FALSE){
-    (if(norm){tnormalize}else{identity})(
-        temp <- table(c(x,values))-!(is.null(values))
-    )
+    if(norm){
+        tnormalize(table(c(x,values))-!(is.null(values)))
+    }else{
+        table(c(x,values))-!(is.null(values))
+        }
 }
 
