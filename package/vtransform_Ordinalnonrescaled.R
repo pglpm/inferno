@@ -1,8 +1,8 @@
 ## Transformation from variate to internal variable
 vtransform <- function(x, auxmetadata, Cout='init', Dout='data', Oout='data', Bout='numeric', Nout='numeric', variates=NULL, invjacobian=FALSE){
 
-        Qf <- readRDS('Qfunction8192.rds')
-        DQf <- readRDS('DQfunction2048.rds')
+        Qf <- readRDS('Qfunction3600_3.rds')
+        DQf <- readRDS('DQfunction3600_3.rds')
 
     x <- as.data.table(cbind(x))
     if(!is.null(variates)){colnames(x) <- variates}

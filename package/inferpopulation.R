@@ -1,4 +1,4 @@
-inferpopulation <- function(data, auxmetadata, outputdir, nsamples=1200, nchains=120, nsamplesperchain, parallel=TRUE, niterini=1024, miniter=0, maxiter=+Inf, thinning=0, plottraces=TRUE, showclusterstraces=TRUE, seed=16, loglikelihood=F, subsampledata, useOquantiles=TRUE, output=FALSE, cleanup=TRUE){
+inferpopulation <- function(data, auxmetadata, outputdir, nsamples=1200, nchains=120, nsamplesperchain, parallel=TRUE, niterini=1024, miniter=0, maxiter=+Inf, thinning=0, plottraces=TRUE, showclusterstraces=TRUE, seed=16, loglikelihood=F, subsampledata, useOquantiles=FALSE, output=FALSE, cleanup=TRUE){
 
     cat('\n')
 #### Determine the status of parallel processing
@@ -90,9 +90,13 @@ inferpopulation <- function(data, auxmetadata, outputdir, nsamples=1200, nchains
 
 
     ## auxmetadata
-    if(is.character(auxmetadata) && file.exists(auxmetadata)){
+    if(is.character(auxmetadata)){
         auxmetadata <- paste0(sub('.rds$', '', auxmetadata), '.rds')
-        auxmetadata <- readRDS(auxmetadata)
+         if(file.exists(auxmetadata)){
+             auxmetadata <- readRDS(auxmetadata)
+         }else{
+             stop('cannot find auxiliary metadata file')
+         }
     }
 
     ## read dataset
@@ -102,9 +106,13 @@ inferpopulation <- function(data, auxmetadata, outputdir, nsamples=1200, nchains
         data <- as.data.table(matrix(NA,nrow=1,ncol=nrow(auxmetadata),dimnames=list(NULL,auxmetadata[['name']])))
         loglikelihood <- FALSE
     }
-    if(is.character(data) && file.exists(data)){
+    if(is.character(data)){
         datafile <- paste0(sub('.csv$', '', data), '.csv')
-        data <- fread(datafile, na.strings='')
+        if(file.exists(data)){
+            data <- fread(datafile, na.strings='')
+        }else{
+            stop('cannot find data file')
+        }
     }
     data <- as.data.table(data)
     if(!missing(subsampledata) && is.numeric(subsampledata)){
@@ -164,14 +172,18 @@ inferpopulation <- function(data, auxmetadata, outputdir, nsamples=1200, nchains
     maxalpha <- 3L
     Rshapelo <- 0.5
     Rshapehi <- 0.5
+    Rvarm1 <- 3L^2L
     Cshapelo <- 0.5
     Cshapehi <- 0.5
+    Cvarm1 <- 3L^2L
     Dshapelo <- 0.5
     Dshapehi <- 0.5
+    Dvarm1 <- 3L^2L
     Oshapelo <- 0.5
     Oshapehi <- 0.5
-    Bshapelo <- 1
-    Bshapehi <- 1
+    Ovarm1 <- 3L^2L
+    Bshapelo <- 1L
+    Bshapehi <- 1L
     ##
     nalpha <- length(minalpha:maxalpha)
     npoints <- nrow(data)
@@ -250,7 +262,7 @@ inferpopulation <- function(data, auxmetadata, outputdir, nsamples=1200, nchains
     if(vn$R > 0){# continuous
         list(Rn = vn$R,
              Rmean1 = rep(0, 1),
-             Rvarm1 = rep(1, 1),
+             Rvarm1 = rep(Rvarm1, 1),
              Rvar1 = rep(1, 1),
              Rshapelo = rep(Rshapelo, 1),
              Rshapehi = rep(Rshapehi, 1)
@@ -258,7 +270,7 @@ inferpopulation <- function(data, auxmetadata, outputdir, nsamples=1200, nchains
     if(vn$C > 0){# censored
         list(Cn = vn$C,
              Cmean1 = rep(0, 1),
-             Cvarm1 = rep(1, 1),
+             Cvarm1 = rep(Cvarm1, 1),
              Cvar1 = rep(1, 1),
              Cshapelo = rep(Cshapelo, 1),
              Cshapehi = rep(Cshapehi, 1),
@@ -268,7 +280,7 @@ inferpopulation <- function(data, auxmetadata, outputdir, nsamples=1200, nchains
     if(vn$D > 0){# discretized
         list(Dn = vn$D,
              Dmean1 = rep(0, 1),
-             Dvarm1 = rep(1, 1),
+             Dvarm1 = rep(Dvarm1, 1),
              Dvar1 = rep(1, 1),
              Dshapelo = rep(Dshapelo, 1),
              Dshapehi = rep(Dshapehi, 1),
@@ -278,7 +290,7 @@ inferpopulation <- function(data, auxmetadata, outputdir, nsamples=1200, nchains
     if(vn$O > 0){# ordinal
         list(On = vn$O,
              Omean1 = rep(0, 1),
-             Ovarm1 = rep(1, 1),
+             Ovarm1 = rep(Ovarm1, 1),
              Ovar1 = rep(1, 1),
              Oshapelo = rep(Oshapelo, 1),
              Oshapehi = rep(Oshapehi, 1),
@@ -876,7 +888,6 @@ inferpopulation <- function(data, auxmetadata, outputdir, nsamples=1200, nchains
                 ## allmcsamples <- rbind(allmcsamples, mcsamples)
                 ## rm(mcsamples)
                 ## gc()
-
                 if(is.null(allmcsamples)){
                     allmcsamples <- mcsamples
                 }else{
@@ -886,21 +897,24 @@ inferpopulation <- function(data, auxmetadata, outputdir, nsamples=1200, nchains
                         dim(temp) <- c(dx, length(temp)/prod(dx))
                         temp
                     },
-                    allmcsamples, mcsamples)
+                    allmcsamples, mcsamples, SIMPLIFY=FALSE)
                 }
+
                 rm(mcsamples)
                 gc()
 
                 if(showclusterstraces){
-                    allclusterhypar <- mapply(function(xx,yy){c(xx,yy)}, allclusterhypar, clusterhypar, SIMPLIFY=F)
+                    allclusterhypar <- mapply(function(xx,yy){c(xx,yy)}, allclusterhypar, clusterhypar, SIMPLIFY=FALSE)
                 }
                 nitertot <- ncol(allmcsamples$W)
+
 
 #########################################
 #### CHECK IF CHAIN MUST BE CONTINUED ####
 #########################################
                 lengthmeasure <- max( miniter, min( maxiter,
                     thresholdfn(diagnESS=diagnESS, diagnIAT=diagnIAT, diagnBMK=diagnBMK, diagnMCSE=diagnMCSE, diagnStat=diagnStat, diagnBurn=diagnBurn, diagnBurn2=diagnBurn2, diagnThin=diagnThin) ) )
+
                 cat('\nNumber of iterations', nitertot, ', required', lengthmeasure,'\n')
                 ##
                 if(nitertot < lengthmeasure){

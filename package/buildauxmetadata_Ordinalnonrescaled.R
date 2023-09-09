@@ -3,6 +3,8 @@ buildauxmetadata <- function(data, metadata, file=TRUE){
 
     sdoveriqr <- 0.5/qnorm(0.75)
 
+    Qf <- readRDS('Qfunction3600_3.rds')
+
     datafile <- NULL
     if(is.character(data) && file.exists(data)){
         datafile <- data
@@ -118,7 +120,6 @@ buildauxmetadata <- function(data, metadata, file=TRUE){
             plotmin <- xinfo$plotmin
             plotmax <- xinfo$plotmax
             if(is.finite(xinfo$domainmin) && is.finite(xinfo$domainmax)){ # needs transformation
-                Qf <- readRDS('Qfunction8192.rds')
                 transf <- 'Q'
                 if(xinfo$minincluded & !xinfo$maxincluded){
                     censormin <- domainmin

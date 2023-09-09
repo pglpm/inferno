@@ -1,12 +1,14 @@
 #### Calculate and save transformation function for ordinal variates
-createQfunction <- function(nint=8192, nsamples=2^24L, mean=0, sd=1, shapelo=0.5, shapehi=0.5, rate=1, file=paste0('Qfunction',nint), plot=F){
+createQfunction <- function(nint=8192, nsamples=2^24L, mean=0, sd=1, shapelo=0.5, shapehi=0.5, rate=1, file=paste0('Qfunction',nint,'_',sd), plot=F){
     ##
     seqnint <- (1:(nint-1))/nint
-    xsamples <- rnorm(nsamples,
-                      mean=rnorm(nsamples,mean=mean,sd=sd),
-                      sd=sqrt(nimble::rinvgamma(nsamples, shape=shapelo, rate=nimble::rinvgamma(nsamples, shape=shapehi, rate=rate))
-                          ##extraDistr::rbetapr(nsamples, shape1=shapehi, shape2=shapelo, scale=scale)
+    means <- rnorm(nsamples,mean=mean,sd=sd)
+    sds <- sqrt(nimble::rinvgamma(nsamples, shape=shapelo, rate=nimble::rinvgamma(nsamples, shape=shapehi, rate=rate))
+                ##extraDistr::rbetapr(nsamples, shape1=shapehi, shape2=shapelo, scale=scale)
                       )
+    xsamples <- rnorm(nsamples,
+                      mean=means,
+                      sd=sds
                       )
     ##
     thismad <- mad(xsamples,constant=1)
@@ -34,9 +36,20 @@ createQfunction <- function(nint=8192, nsamples=2^24L, mean=0, sd=1, shapelo=0.5
     if(is.character(file)){
         saveRDS(approxq, paste0(file,'.rds'))
     }
-    approxq
+    ##
+    xsamples <- approxq(seqnint)
+    oquants <- foreach(x=xsamples, .combine=c)%dopar%{mean(dnorm(x, mean=means, sd=sds))}
+oquants <- (oquants+rev(oquants))/2
+##
+##
+dapproxq <- approxfun(x=xsamples, y=oquants, yleft=0, yright=0)
+    if(is.character(file)){
+        saveRDS(dapproxq, paste0('D',file,'.rds'))
+    }
+    list(Q=approxq, DQ=dapproxq)
 }
 
+if(FALSE){
 nsamples <- 2^24L
 mean <- 0
 sd <- 1
@@ -147,3 +160,5 @@ for(i in 1:100000){
 
 rg <- 0.1
 tplot(xgrid,list(fu,dq2048(xgrid),dq128(xgrid)),xlim=c(-rg,rg))
+
+}

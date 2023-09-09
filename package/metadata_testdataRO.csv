@@ -1,0 +1,6 @@
+name,type,datamin,datamax,datamaxrep,dataNvalues,Nvalues,rounding,domainmin,domainmax,minincluded,maxincluded,centralvalue,lowvalue,highvalue,plotmin,plotmax
+Rvar,continuous,-1,1,1,3,Inf,,-Inf,Inf,FALSE,FALSE,0,-1,1,-9,9
+RvarQ,continuous,-1,1,1,3,Inf,,-50,50,FALSE,FALSE,0,-1,1,-9,9
+Ovar5,ordinal,1,5,1,3,5,,1,5,TRUE,TRUE,3,2,4,1,5
+Ovar10,ordinal,1,10,1,3,10,,1,10,TRUE,TRUE,5,3,7,1,10
+Ovar36,ordinal,1,36,1,3,36,,1,36,TRUE,TRUE,18,9,27,1,36
