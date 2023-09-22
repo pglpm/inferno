@@ -6,6 +6,8 @@ library('khroma')
 cc <- colour('bright')()
 cc[8] <- '#000000'
 names(cc)[8] <- 'black'
+cc[9] <- '#777777'
+names(cc)[9] <- 'midgrey'
 palette(cc)
 bluepurple <- palette()[1]
 red <- palette()[2]
@@ -14,6 +16,7 @@ yellow <- palette()[4]
 blue <- palette()[5]
 redpurple <- palette()[6]
 grey <- palette()[7]
+midgrey <- palette()[9]
 darkgrey <- '#555555'
 black <- '#000000'
 scale_colour_discrete <- scale_colour_bright
@@ -35,8 +38,8 @@ pdff <- function(file='Rplot', apaper=5, portrait=FALSE, height=148/25.4, width=
     pdf(file=paste0(file,'.pdf'), paper='special', height=height, width=width, ...)
 }
 
-## to output in png format
-pngf <- function(filename='Rplot', res=300, apaper=5, portrait=FALSE, height=148/25.4, width=210/25.4, asp=NA, ...){
+## to output in svg format
+svgf <- function(filename='Rplot', apaper=5, portrait=FALSE, height=148/25.4, width=210/25.4, asp=NA, ...){
     if(is.numeric(apaper)){
         if(portrait){
             height <- floor(841/sqrt(2)^(apaper-1))/25.4
@@ -49,7 +52,26 @@ pngf <- function(filename='Rplot', res=300, apaper=5, portrait=FALSE, height=148
     if(!is.na(asp)){
         width <- height*asp
     }
-    png(file=paste0(filename,'.png'), height=height, width=width, units='in', res=res, pointsize=36)
+    svg(file=paste0(filename,'.svg'), height=height, width=width)
+}
+
+
+## to output in png format
+pngf <- function(filename='Rplot', res=300, apaper=5, portrait=FALSE, height=148/25.4, width=210/25.4, asp=NA, ...){
+    if(is.numeric(apaper)){
+        if(portrait){
+            height <- floor(841/sqrt(2)^(apaper-1))/25.4
+            width <- floor(841/sqrt(2)^(apaper))/25.4
+        }else{
+            width <- floor(841/sqrt(2)^(apaper-1))/25.4
+            height <- floor(841/sqrt(2)^(apaper))/25.4
+        }
+    }
+    if(!is.na(asp)){
+        ## width <- height*asp
+        height <- width/asp
+    }
+    png(file=paste0(filename,'.png'), height=height, width=width, units='in', res=res)
 }
 
 alpha2hex2 <- function(alpha,col=NULL){
@@ -87,7 +109,7 @@ tticks <- pretty
 ##     ((rg[1]%/%delta):((rg[2]%/%delta) + (rg[2]%%delta > 0)))*delta
 ## }
 
-tplot <- function(x, y, xlim=c(NA,NA), ylim=c(NA,NA), asp=NA, n=10, family='', xticks=NULL, xlabels=TRUE, yticks=NULL, ylabels=TRUE, cex=1.5, ly=NULL, lx=NULL, mar=NULL, lty.axis=1, lwd.axis=0, lwd.ticks=1, col.ticks='#bbbbbb80', col.lab='black', cex.axis=1.35, las.y=1, xgrid=NULL, ygrid=NULL, main=NULL, cex.main=1.5, xlab=NULL, ylab=NULL, cex.lab=1.5, type='l', col=palette(), pch=c(1,0,2,5,6,3,4), lty=1:4, lwd=2, alpha=NA, border=palette(), border.alpha=NA, xtransf=NULL, ytransf=NULL, add=FALSE){
+tplot <- function(x, y, xlim=c(NA,NA), ylim=c(NA,NA), asp=NA, n=10, family='', xticks=NULL, xlabels=TRUE, yticks=NULL, ylabels=TRUE, cex=1.5, ly=NULL, lx=NULL, mar=NULL, lty.axis=1, lwd.axis=0, lwd.ticks=1, col.ticks='#bbbbbb80', col.lab='black', cex.axis=1.12, las.y=1, xgrid=NULL, ygrid=NULL, main=NULL, cex.main=1.5, xlab=NULL, ylab=NULL, cex.lab=1.5, type='l', col=palette(), pch=c(1,0,2,5,6,3,4), lty=1:4, lwd=2, alpha=NA, border=palette(), border.alpha=NA, xtransf=NULL, ytransf=NULL, add=FALSE){
     ## if (missing(x)) {
     ##     if (missing(y)) 
     ##         stop("must specify at least one of 'x' and 'y'")
@@ -195,8 +217,8 @@ tplot <- function(x, y, xlim=c(NA,NA), ylim=c(NA,NA), asp=NA, n=10, family='', x
     if(!add){plot.new()
     ##par(mai=c(2, 3.5, 2, 0)/2.54, family='Palatino')#, mar=c(4,6,4,0)+0.1)
         if(is.null(main)){marup <- 0}else{marup <- 3.5}
-        if(is.null(mar)){mar <- c(3.25, ly, marup, 1)+c(1,1.1,1,1)}
-        mar[is.na(mar)] <- (c(3.25, ly, marup, 1)+c(1,1.1,1,1))[is.na(mar)]
+        if(is.null(mar)){mar <- c(3.25, ly, marup, 1)+c(1,1.5,1,1)}
+        mar[is.na(mar)] <- (c(3.25, ly, marup, 1)+c(1,1.5,1,1))[is.na(mar)]
         par(mar=mar, family=family)#, mar=c(4,6,4,0)+0.1)
     ##
     plot.window(xlim=xlim, ylim=ylim, xaxs='r', yaxs='r', asp=asp)
@@ -307,7 +329,7 @@ tplot <- function(x, y, xlim=c(NA,NA), ylim=c(NA,NA), asp=NA, n=10, family='', x
 
 tlegend <- function(x, y=NULL, legend, col=palette(), pch=c(1,0,2,5,6,3,4), lty=1:4, lwd=2, alpha=0, cex=1.5, ...){
     suppressWarnings(col <- mapply(function(i,j)alpha2hex(i,j),col,alpha))
-    legend(x=x, y=y, legend=legend, col=col, pch=pch, lty=lty, lwd=lwd, bty='n', ...)
+    legend(x=x, y=y, legend=legend, col=col, pch=pch, lty=lty, lwd=lwd, bty='n', cex=cex, ...)
 }
 
 fivenumaxis <- function(side, x, col='#555555', type=8){
@@ -359,7 +381,7 @@ plotquantiles <- function(x, y, col=7, alpha=0.75, border=NA){
 
 scatteraxis <- function(x, side=1, n=128, col='#555555', alpha=0.5, ext=5, pos=NULL, exts=NULL, lwd=0.1, ...){
     x <- x[!is.na(x) & is.finite(x)]
-    if(is.na(n)){n <- length(x)}
+    if(is.na(n)|| missing(n)){n <- length(x)}
     x <- x[round(seq(1, length(x), length.out=n))]
     if(is.null(pos)){ pos <- par('usr') }
     if(is.null(exts)){ exts <- diff(pos)[-2]/100}
@@ -385,15 +407,26 @@ scatteraxis <- function(x, side=1, n=128, col='#555555', alpha=0.5, ext=5, pos=N
     matlines(x=xl, y=yl, lty=1, lwd=lwd, col=col, ...)
 }
 
-thist <- function(x, n=NULL, type=8, pretty=FALSE, plot=FALSE, extendbreaks=FALSE){
+thist <- function(x, n=NULL, type=8, pretty=FALSE, plot=FALSE, extendbreaks=FALSE, ...){
     if(!is.list(x)){x <- list(x)}
     if(!is.list(n)){n <- list(n)}
     out <- list()
     for(i in 1:length(x)){
         ax <- x[[i]]
         an <- n[[(i-1)%%length(n)+1]]
-    ax <- ax[!is.na(ax) & is.finite(ax)]
-    if(is.null(an)){an <- (round(sqrt(length(ax))/2))}
+        if(is.character(ax)){
+            nextout <- c(table(ax[!is.na(ax)]))
+            nextout <- list(
+                breaks=NA,
+                counts=unname(nextout),
+                density=unname(nextout)/sum(nextout),
+                mids=names(nextout),
+                xname=names(x)[i],
+                equidist=NA
+            )
+        }else{
+        ax <- ax[!is.na(ax) & is.finite(ax)]
+        if(is.null(an)){an <- (round(sqrt(length(ax))/2))}
     if(length(an)==1 && (is.na(an) || an=='i' || an=='integer')){breaks <- (round(min(ax))-0.5):(round(max(ax))+0.5)}
     else if(length(an) > 1 || is.character(an)){breaks <- an}
     else if(length(an) == 1 && an > 0){
@@ -413,11 +446,15 @@ thist <- function(x, n=NULL, type=8, pretty=FALSE, plot=FALSE, extendbreaks=FALS
         if(extendbreaks){
          breaks <- c(-Inf,breaks,+Inf)
         }
-        out <- c(out,list(hist(x=ax, breaks=breaks, plot=FALSE)))
+        nextout <- hist(x=ax, breaks=breaks, plot=FALSE)
+        }
+        out <- c(out,list(nextout))
     }
     if(plot){
-        tplot(x=lapply(out,function(xx)xx$breaks),
-              y=lapply(out,function(xx)xx$density),ylim=c(0,NA))
+        tplot(x=lapply(out,function(xx){
+            if(length(xx$breaks)==1){xx$mids}else{xx$breaks}
+        } ),
+              y=lapply(out,function(xx)xx$density),ylim=c(0,NA),type='h', ...)
     }else{
         if(length(out)==1){unlist(out,recursive=F)}else{out}
     }
