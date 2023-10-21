@@ -1,17 +1,17 @@
 \pdfoutput=1
 %% Author: PGL  Porta Mana
 %% Created: 2015-05-01T20:53:34+0200
-%% Last-Updated: 2023-03-16T19:52:05+0100
+%% Last-Updated: 2023-10-07T08:55:48+0200
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \newif\ifarxiv
 \arxivfalse
-\iftrue\pdfmapfile{+classico.map}\fi
+%\iftrue\pdfmapfile{+classico.map}\fi
 \newif\ifafour
 \afourfalse% true = A4, false = A5
 \newif\iftypodisclaim % typographical disclaim on the side
 \typodisclaimtrue
-\newcommand*{\memfontfamily}{zplx}
-\newcommand*{\memfontpack}{newpxtext}
+\newcommand*{\memfontfamily}{zplr}
+\newcommand*{\memfontpack}{newpx}
 \documentclass[\ifafour a4paper,12pt,\else a5paper,10pt,\fi%extrafontsizes,%
 onecolumn,oneside,article,%french,italian,german,swedish,latin,
 british%
@@ -23,9 +23,10 @@ british%
 {\Large An algorithm for non-parametric density inference}% 
 }% title uses LARGE; set Large for smaller
 \newcommand*{\pdftitle}{\propertitle}
-\newcommand*{\headtitle}{}
-\newcommand*{\pdfauthor}{M. Koci\'nski, A. Lundervold\, A. J. Lundervold, A. S. Lundervold, P.G.L.  Porta Mana, I. Rye, A.~Vik}
-\newcommand*{\headauthor}{Porta Mana \etal}
+\newcommand*{\headtitle}{Optimal predictor machine}
+\newcommand*{\pdfauthor}{P.G.L.  Porta Mana}
+% \newcommand*{\pdfauthor}{M. Koci\'nski, A. Lundervold\, A. J. Lundervold, A. S. Lundervold, P.G.L.  Porta Mana, I. Rye, A.~Vik}
+\newcommand*{\headauthor}{Porta Mana}
 \newcommand*{\reporthead}{\ifarxiv\else Open Science Framework \href{https://doi.org/10.31219/osf.io/***}{\textsc{doi}:10.31219/osf.io/***}\fi}% Report number
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -35,8 +36,8 @@ british%
 %\usepackage{pifont}
 
 %\usepackage{fontawesome}
-
-\usepackage[T1]{fontenc} 
+\PassOptionsToPackage{obeyspaces}{url}
+\usepackage[T1]{fontenc}
 \input{glyphtounicode} \pdfgentounicode=1
 
 \usepackage[utf8]{inputenx}
@@ -112,7 +113,7 @@ british%
 %                         \parsep        \z@ \@plus\p@}%
 %                 \item[]\footnotesize}%
 %                 {\endlist}
-% \makeatother                
+% \makeatother
 
 
 \usepackage{amsthm}
@@ -145,7 +146,7 @@ british%
 % \setlist[itemize]{leftmargin=\parindent}
 % \setlist[description]{leftmargin=\parindent}
 
-\usepackage[babel,theoremfont,largesc]{newpxtext}
+\usepackage[babel,theoremfont,largesc,smallerops,nosymbolsc]{newpx}
 
 % For Baskerville see https://ctan.org/tex-archive/fonts/baskervillef?lang=en
 % and http://mirrors.ctan.org/fonts/baskervillef/doc/baskervillef-doc.pdf
@@ -156,8 +157,8 @@ british%
 % \usepackage[cal=boondoxo]{mathalfa}
 
 
-\usepackage[bigdelims,nosymbolsc%,smallerops % probably arXiv doesn't have it
-]{newpxmath}
+% \usepackage[bigdelims,nosymbolsc%,smallerops % probably arXiv doesn't have it
+% ]{newpxmath}
 %\useosf
 %\linespread{1.083}%
 %\linespread{1.05}% widely used
@@ -215,7 +216,124 @@ british%
 \def\prod{\DOTSI\prodop\slimits@}
 \def\coprod{\DOTSI\coprodop\slimits@}
 \makeatother
-\input{definegreek.tex}% Greek letters not usually given in LaTeX.
+%%%% Greek letters not usually given in LaTeX
+%%%% best to uncomment only the ones needed
+%% %% \input{definegreek.tex} % originally in a separate file
+\DeclareMathSymbol{\varpartial}{\mathalpha}{egreeki}{"40}
+%\DeclareMathSymbol{\partialup}{\mathalpha}{egreekr}{"40}
+% \DeclareMathSymbol{\alpha}{\mathalpha}{egreeki}{"0B}
+% \DeclareMathSymbol{\beta}{\mathalpha}{egreeki}{"0C}
+% \DeclareMathSymbol{\gamma}{\mathalpha}{egreeki}{"0D}
+% \DeclareMathSymbol{\delta}{\mathalpha}{egreeki}{"0E}
+% \DeclareMathSymbol{\epsilon}{\mathalpha}{egreeki}{"0F}
+% \DeclareMathSymbol{\zeta}{\mathalpha}{egreeki}{"10}
+% \DeclareMathSymbol{\eta}{\mathalpha}{egreeki}{"11}
+% \DeclareMathSymbol{\theta}{\mathalpha}{egreeki}{"12}
+% \DeclareMathSymbol{\iota}{\mathalpha}{egreeki}{"13}
+% \DeclareMathSymbol{\kappa}{\mathalpha}{egreeki}{"14}
+% \DeclareMathSymbol{\lambda}{\mathalpha}{egreeki}{"15}
+% \DeclareMathSymbol{\mu}{\mathalpha}{egreeki}{"16}
+% \DeclareMathSymbol{\nu}{\mathalpha}{egreeki}{"17}
+% \DeclareMathSymbol{\xi}{\mathalpha}{egreeki}{"18}
+% \DeclareMathSymbol{\omicron}{\mathalpha}{egreeki}{"6F}
+% \DeclareMathSymbol{\pi}{\mathalpha}{egreeki}{"19}
+% \DeclareMathSymbol{\rho}{\mathalpha}{egreeki}{"1A}
+% \DeclareMathSymbol{\sigma}{\mathalpha}{egreeki}{"1B}
+% \DeclareMathSymbol{\tau}{\mathalpha}{egreeki}{"1C}
+% \DeclareMathSymbol{\upsilon}{\mathalpha}{egreeki}{"1D}
+% \DeclareMathSymbol{\phi}{\mathalpha}{egreeki}{"1E}
+% \DeclareMathSymbol{\chi}{\mathalpha}{egreeki}{"1F}
+% \DeclareMathSymbol{\psi}{\mathalpha}{egreeki}{"20}
+% \DeclareMathSymbol{\omega}{\mathalpha}{egreeki}{"21}
+% \DeclareMathSymbol{\varepsilon}{\mathalpha}{egreeki}{"22}
+% \DeclareMathSymbol{\vartheta}{\mathalpha}{egreeki}{"23}
+% \DeclareMathSymbol{\varpi}{\mathalpha}{egreeki}{"24}
+% \let\varrho\rho 
+% \let\varsigma\sigma
+% \let\varkappa\kappa
+% \DeclareMathSymbol{\varphi}{\mathalpha}{egreeki}{"27}
+% %
+% \DeclareMathSymbol{\varAlpha}{\mathalpha}{egreeki}{"41}
+% \DeclareMathSymbol{\varBeta}{\mathalpha}{egreeki}{"42}
+% \DeclareMathSymbol{\varGamma}{\mathalpha}{egreeki}{"00}
+% \DeclareMathSymbol{\varDelta}{\mathalpha}{egreeki}{"01}
+% \DeclareMathSymbol{\varEpsilon}{\mathalpha}{egreeki}{"45}
+% \DeclareMathSymbol{\varZeta}{\mathalpha}{egreeki}{"5A}
+% \DeclareMathSymbol{\varEta}{\mathalpha}{egreeki}{"48}
+% \DeclareMathSymbol{\varTheta}{\mathalpha}{egreeki}{"02}
+% \DeclareMathSymbol{\varIota}{\mathalpha}{egreeki}{"49}
+% \DeclareMathSymbol{\varKappa}{\mathalpha}{egreeki}{"4B}
+% \DeclareMathSymbol{\varLambda}{\mathalpha}{egreeki}{"03}
+% \DeclareMathSymbol{\varMu}{\mathalpha}{egreeki}{"4D}
+% \DeclareMathSymbol{\varNu}{\mathalpha}{egreeki}{"4E}
+% \DeclareMathSymbol{\varXi}{\mathalpha}{egreeki}{"04}
+% \DeclareMathSymbol{\varOmicron}{\mathalpha}{egreeki}{"4F}
+% \DeclareMathSymbol{\varPi}{\mathalpha}{egreeki}{"05}
+% \DeclareMathSymbol{\varRho}{\mathalpha}{egreeki}{"50}
+% \DeclareMathSymbol{\varSigma}{\mathalpha}{egreeki}{"06}
+% \DeclareMathSymbol{\varTau}{\mathalpha}{egreeki}{"54}
+% \DeclareMathSymbol{\varUpsilon}{\mathalpha}{egreeki}{"07}
+% \DeclareMathSymbol{\varPhi}{\mathalpha}{egreeki}{"08}
+% \DeclareMathSymbol{\varChi}{\mathalpha}{egreeki}{"58}
+% \DeclareMathSymbol{\varPsi}{\mathalpha}{egreeki}{"09}
+% \DeclareMathSymbol{\varOmega}{\mathalpha}{egreeki}{"0A} 
+% %
+% \DeclareMathSymbol{\Alpha}{\mathalpha}{egreekr}{"41}
+% \DeclareMathSymbol{\Beta}{\mathalpha}{egreekr}{"42}
+% \DeclareMathSymbol{\Gamma}{\mathalpha}{egreekr}{"00}
+% \DeclareMathSymbol{\Delta}{\mathalpha}{egreekr}{"01}
+% \DeclareMathSymbol{\Epsilon}{\mathalpha}{egreekr}{"45}
+% \DeclareMathSymbol{\Zeta}{\mathalpha}{egreekr}{"5A}
+% \DeclareMathSymbol{\Eta}{\mathalpha}{egreekr}{"48}
+% \DeclareMathSymbol{\Theta}{\mathalpha}{egreekr}{"02}
+% \DeclareMathSymbol{\Iota}{\mathalpha}{egreekr}{"49}
+% \DeclareMathSymbol{\Kappa}{\mathalpha}{egreekr}{"4B}
+% \DeclareMathSymbol{\Lambda}{\mathalpha}{egreekr}{"03}
+% \DeclareMathSymbol{\Mu}{\mathalpha}{egreekr}{"4D}
+% \DeclareMathSymbol{\Nu}{\mathalpha}{egreekr}{"4E}
+% \DeclareMathSymbol{\Xi}{\mathalpha}{egreekr}{"04}
+% \DeclareMathSymbol{\Omicron}{\mathalpha}{egreekr}{"4F}
+% \DeclareMathSymbol{\Pi}{\mathalpha}{egreekr}{"05}
+% \DeclareMathSymbol{\Rho}{\mathalpha}{egreekr}{"50}
+% \DeclareMathSymbol{\Sigma}{\mathalpha}{egreekr}{"06}
+% \DeclareMathSymbol{\Tau}{\mathalpha}{egreekr}{"54}
+% \DeclareMathSymbol{\Upsilon}{\mathalpha}{egreekr}{"07}
+% \DeclareMathSymbol{\Phi}{\mathalpha}{egreekr}{"08}
+% \DeclareMathSymbol{\Chi}{\mathalpha}{egreekr}{"58}
+% \DeclareMathSymbol{\Psi}{\mathalpha}{egreekr}{"09}
+% \DeclareMathSymbol{\Omega}{\mathalpha}{egreekr}{"0A}
+% %
+% \DeclareMathSymbol{\alphaup}{\mathalpha}{egreekr}{"0B}
+% \DeclareMathSymbol{\betaup}{\mathalpha}{egreekr}{"0C}
+% \DeclareMathSymbol{\gammaup}{\mathalpha}{egreekr}{"0D}
+\DeclareMathSymbol{\deltaup}{\mathalpha}{egreekr}{"0E}
+% \DeclareMathSymbol{\epsilonup}{\mathalpha}{egreekr}{"0F}
+% \DeclareMathSymbol{\zetaup}{\mathalpha}{egreekr}{"10}
+% \DeclareMathSymbol{\etaup}{\mathalpha}{egreekr}{"11}
+% \DeclareMathSymbol{\thetaup}{\mathalpha}{egreekr}{"12}
+% \DeclareMathSymbol{\iotaup}{\mathalpha}{egreekr}{"13}
+% \DeclareMathSymbol{\kappaup}{\mathalpha}{egreekr}{"14}
+% \DeclareMathSymbol{\lambdaup}{\mathalpha}{egreekr}{"15}
+% \DeclareMathSymbol{\muup}{\mathalpha}{egreekr}{"16}
+% \DeclareMathSymbol{\nuup}{\mathalpha}{egreekr}{"17}
+% \DeclareMathSymbol{\xiup}{\mathalpha}{egreekr}{"18}
+% \DeclareMathSymbol{\omicronup}{\mathalpha}{egreekr}{"6F}
+\DeclareMathSymbol{\piup}{\mathalpha}{egreekr}{"19}
+% \DeclareMathSymbol{\rhoup}{\mathalpha}{egreekr}{"1A}
+% \DeclareMathSymbol{\sigmaup}{\mathalpha}{egreekr}{"1B}
+% \DeclareMathSymbol{\tauup}{\mathalpha}{egreekr}{"1C}
+% \DeclareMathSymbol{\upsilonup}{\mathalpha}{egreekr}{"1D}
+% \DeclareMathSymbol{\phiup}{\mathalpha}{egreekr}{"1E}
+% \DeclareMathSymbol{\chiup}{\mathalpha}{egreekr}{"1F}
+% \DeclareMathSymbol{\psiup}{\mathalpha}{egreekr}{"20}
+% \DeclareMathSymbol{\omegaup}{\mathalpha}{egreekr}{"21}
+% \DeclareMathSymbol{\varepsilonup}{\mathalpha}{egreekr}{"22}
+% \DeclareMathSymbol{\varthetaup}{\mathalpha}{egreekr}{"23}
+% \DeclareMathSymbol{\varpiup}{\mathalpha}{egreekr}{"24}
+% \let\varrhoup\rhoup 
+% \let\varsigmaup\sigmaup
+% \let\varkappaup\kappaup
+% \DeclareMathSymbol{\varphiup}{\mathalpha}{egreekr}{"27}
 
 %\usepackage%[scaled=0.9]%
 %{classico}%  Optima as sans-serif font
@@ -283,6 +401,9 @@ citestyle=authoryear-comp,bibstyle=pglpm-authoryear,autopunct=false,sorting=ny,s
 % \setcounter{biburlnumpenalty}{1} % to allow url breaks anywhere
 % \setcounter{biburlucpenalty}{0}
 % \setcounter{biburllcpenalty}{1}
+\setcounter{biburlucpenalty}{1}  %break URL after uppercase character
+\setcounter{biburlnumpenalty}{1} %break URL after number
+\setcounter{biburllcpenalty}{1}  %break URL after lowercase character
 \DeclareDelimFormat{multicitedelim}{\addsemicolon\addspace\space}
 \DeclareDelimFormat{compcitedelim}{\addsemicolon\addspace\space}
 \DeclareDelimFormat{postnotedelim}{\addspace}
@@ -309,16 +430,21 @@ citestyle=authoryear-comp,bibstyle=pglpm-authoryear,autopunct=false,sorting=ny,s
 \newcommand*{\chapb}{ch.}
 %
 %\def\UrlOrds{\do\*\do\-\do\~\do\'\do\"\do\-}%
-\def\myUrlOrds{\do\0\do\1\do\2\do\3\do\4\do\5\do\6\do\7\do\8\do\9\do\a\do\b\do\c\do\d\do\e\do\f\do\g\do\h\do\i\do\j\do\k\do\l\do\m\do\n\do\o\do\p\do\q\do\r\do\s\do\t\do\u\do\v\do\w\do\x\do\y\do\z\do\A\do\B\do\C\do\D\do\E\do\F\do\G\do\H\do\I\do\J\do\K\do\L\do\M\do\N\do\O\do\P\do\Q\do\R\do\S\do\T\do\U\do\V\do\W\do\X\do\Y\do\Z}%
+% \def\myUrlOrds{\do\0\do\1\do\2\do\3\do\4\do\5\do\6\do\7\do\8\do\9\do\a\do\b\do\c\do\d\do\e\do\f\do\g\do\h\do\i\do\j\do\k\do\l\do\m\do\n\do\o\do\p\do\q\do\r\do\s\do\t\do\u\do\v\do\w\do\x\do\y\do\z\do\A\do\B\do\C\do\D\do\E\do\F\do\G\do\H\do\I\do\J\do\K\do\L\do\M\do\N\do\O\do\P\do\Q\do\R\do\S\do\T\do\U\do\V\do\W\do\X\do\Y\do\Z}%
 \makeatletter
 %\g@addto@macro\UrlSpecials{\do={\newline}}
-\g@addto@macro{\UrlBreaks}{\myUrlOrds}
+\g@addto@macro{\UrlBreaks}{%
+\do\0\do\1\do\2\do\3\do\4\do\5\do\6\do\7\do\8\do\9\do\a\do\b\do\c\do\d\do\e\do\f\do\g\do\h\do\i\do\j\do\k\do\l\do\m\do\n\do\o\do\p\do\q\do\r\do\s\do\t\do\u\do\v\do\w\do\x\do\y\do\z\do\A\do\B\do\C\do\D\do\E\do\F\do\G\do\H\do\I\do\J\do\K\do\L\do\M\do\N\do\O\do\P\do\Q\do\R\do\S\do\T\do\U\do\V\do\W\do\X\do\Y\do\Z%
+}
+\g@addto@macro\UrlSpecials{%
+\do\/{\mbox{\UrlFont/}\hskip 0pt plus 10pt}%
+}
 \makeatother
 \newcommand*{\arxiveprint}[1]{%
 arXiv \doi{10.48550/arXiv.#1}%
 }
 \newcommand*{\mparceprint}[1]{%
-\href{http://www.ma.utexas.edu/mp_arc-bin/mpa?yn=#1}{mp\_arc:\allowbreak\nolinkurl{#1}}%
+\href{http://www.ma.utexas.edu/mp_arc-bin/mpa?yn=#1}{mp_arc:\allowbreak\nolinkurl{#1}}%
 }
 \newcommand*{\haleprint}[1]{%
 \href{https://hal.archives-ouvertes.fr/#1}{\textsc{hal}:\allowbreak\nolinkurl{#1}}%
@@ -536,57 +662,76 @@ Open Science Framework \doi{10.17605/osf.io/#1}%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \title{\propertitle}
 \author{%
-\iffalse\hspace*{\stretch{1}}%
-\parbox{0.33\linewidth}%\makebox[0pt][c]%
-{\protect\centering M. Koci\'nski %\href{https://orcid.org/0000-0002-6070-0784}{\protect\includegraphics[scale=0.16]{orcid_32x32.png}}
-\\\footnotesize
-%Western Norway University of Applied Sciences\quad%
-\epost{\email{***}{***}}}%
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \hspace*{\stretch{1}}%
-\parbox{0.33\linewidth}%\makebox[0pt][c]%
-{\protect\centering A. Lundervold %\href{https://orcid.org/0000-0002-6070-0784}{\protect\includegraphics[scale=0.16]{orcid_32x32.png}}
-\\\footnotesize
-%Western Norway University of Applied Sciences\quad%
-\epost{\email{***}{***}}}%
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\hspace*{\stretch{1}}%
-\parbox{0.33\linewidth}%\makebox[0pt][c]%
-{\protect\centering A. J. Lundervold %\href{https://orcid.org/0000-0002-6070-0784}{\protect\includegraphics[scale=0.16]{orcid_32x32.png}}
-\\\footnotesize
-%Western Norway University of Applied Sciences\quad%
-\epost{\email{***}{***}}}%
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\\\hspace*{\stretch{1}}%
-\parbox{0.33\linewidth}%\makebox[0pt][c]%
-{\protect\centering A. S. Lundervold %\href{https://orcid.org/0000-0002-6070-0784}{\protect\includegraphics[scale=0.16]{orcid_32x32.png}}
-\\\footnotesize
-%Western Norway University of Applied Sciences\quad%
-\epost{\email{***}{***}}}%
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\fi\hspace*{\stretch{1}}%
-\parbox{0.33\linewidth}%\makebox[0pt][c]%
+%% uncomment if additional authors present
+% \parbox{0.5\linewidth}%\makebox[0pt][c]%
+% {\protect\centering ***\\%
+% \footnotesize\epost{\email{***}{***}}}%
+% \hspace*{\stretch{1}}%
+\parbox{1\linewidth}%\makebox[0pt][c]%
 {\protect\centering P.G.L.  Porta Mana  \href{https://orcid.org/0000-0002-6070-0784}{\protect\includegraphics[scale=0.16]{orcid_32x32.png}}\\\footnotesize
-%Western Norway University of Applied Sciences\quad%
-\epost{\email{pgl}{portamana.org}}}%
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\hspace*{\stretch{1}}%
-\iffalse\parbox{0.33\linewidth}%\makebox[0pt][c]%
-{\protect\centering I. Rye %\href{https://orcid.org/0000-0002-6070-0784}{\protect\includegraphics[scale=0.16]{orcid_32x32.png}}
-\\\footnotesize
-%Western Norway University of Applied Sciences\quad%
-\epost{\email{***}{***}}}%
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\\\hspace*{\stretch{1}}%
-\parbox{0.33\linewidth}%\makebox[0pt][c]%
-{\protect\centering A. Vik %\href{https://orcid.org/0000-0002-6070-0784}{\protect\includegraphics[scale=0.16]{orcid_32x32.png}}
-\\\footnotesize
-%Western Norway University of Applied Sciences\quad%
-\epost{\email{***}{***}}}%
+Western Norway University of Applied Sciences%
+\quad\epost{\email{pgl}{portamana.org}}}%
 % Mohn Medical Imaging and Visualization Centre, Dept of Computer science, Electrical Engineering and Mathematical Sciences, Western Norway University of Applied Sciences, Bergen, Norway
+%% uncomment if additional authors present
+% \hspace*{\stretch{1}}%
+% \parbox{0.5\linewidth}%\makebox[0pt][c]%
+% {\protect\centering ***\\%
+% \footnotesize\epost{\email{***}{***}}}%
 \hspace*{\stretch{1}}%
-\medskip\par{\scriptsize(listed alphabetically)}%
-\fi}
+}
+% \author{%
+% \iffalse\hspace*{\stretch{1}}%
+% \parbox{0.33\linewidth}%\makebox[0pt][c]%
+% {\protect\centering M. Koci\'nski %\href{https://orcid.org/0000-0002-6070-0784}{\protect\includegraphics[scale=0.16]{orcid_32x32.png}}
+% \\\footnotesize
+% %Western Norway University of Applied Sciences\quad%
+% \epost{\email{***}{***}}}%
+% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% \hspace*{\stretch{1}}%
+% \parbox{0.33\linewidth}%\makebox[0pt][c]%
+% {\protect\centering A. Lundervold %\href{https://orcid.org/0000-0002-6070-0784}{\protect\includegraphics[scale=0.16]{orcid_32x32.png}}
+% \\\footnotesize
+% %Western Norway University of Applied Sciences\quad%
+% \epost{\email{***}{***}}}%
+% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% \hspace*{\stretch{1}}%
+% \parbox{0.33\linewidth}%\makebox[0pt][c]%
+% {\protect\centering A. J. Lundervold %\href{https://orcid.org/0000-0002-6070-0784}{\protect\includegraphics[scale=0.16]{orcid_32x32.png}}
+% \\\footnotesize
+% %Western Norway University of Applied Sciences\quad%
+% \epost{\email{***}{***}}}%
+% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% \\\hspace*{\stretch{1}}%
+% \parbox{0.33\linewidth}%\makebox[0pt][c]%
+% {\protect\centering A. S. Lundervold %\href{https://orcid.org/0000-0002-6070-0784}{\protect\includegraphics[scale=0.16]{orcid_32x32.png}}
+% \\\footnotesize
+% %Western Norway University of Applied Sciences\quad%
+% \epost{\email{***}{***}}}%
+% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% \fi\hspace*{\stretch{1}}%
+% \parbox{0.33\linewidth}%\makebox[0pt][c]%
+% {\protect\centering P.G.L.  Porta Mana  \href{https://orcid.org/0000-0002-6070-0784}{\protect\includegraphics[scale=0.16]{orcid_32x32.png}}\\\footnotesize
+% %Western Norway University of Applied Sciences\quad%
+% \epost{\email{pgl}{portamana.org}}}%
+% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% \hspace*{\stretch{1}}%
+% \iffalse\parbox{0.33\linewidth}%\makebox[0pt][c]%
+% {\protect\centering I. Rye %\href{https://orcid.org/0000-0002-6070-0784}{\protect\includegraphics[scale=0.16]{orcid_32x32.png}}
+% \\\footnotesize
+% %Western Norway University of Applied Sciences\quad%
+% \epost{\email{***}{***}}}%
+% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% \\\hspace*{\stretch{1}}%
+% \parbox{0.33\linewidth}%\makebox[0pt][c]%
+% {\protect\centering A. Vik %\href{https://orcid.org/0000-0002-6070-0784}{\protect\includegraphics[scale=0.16]{orcid_32x32.png}}
+% \\\footnotesize
+% %Western Norway University of Applied Sciences\quad%
+% \epost{\email{***}{***}}}%
+% % Mohn Medical Imaging and Visualization Centre, Dept of Computer science, Electrical Engineering and Mathematical Sciences, Western Norway University of Applied Sciences, Bergen, Norway
+% \hspace*{\stretch{1}}%
+% \medskip\par{\scriptsize(listed alphabetically)}%
+% \fi}
 
 %\date{Draft of \today\ (first drafted \firstdraft)}
 \date{\firstpublished; updated \updated}
@@ -600,7 +745,7 @@ Open Science Framework \doi{10.17605/osf.io/#1}%
 %\providecommand{\coloneqq}{\mathrel{\mathop:}=}
 %\providecommand{\eqqcolon}{=\mathrel{\mathop:}}
 %\providecommand{\varprod}{\prod}
-\newcommand*{\de}{\partialup}%partial diff
+\newcommand*{\de}{\uppartial}%partial diff
 \newcommand*{\pu}{\piup}%constant pi
 \newcommand*{\delt}{\deltaup}%Kronecker, Dirac
 %\newcommand*{\eps}{\varepsilonup}%Levi-Civita, Heaviside
@@ -634,7 +779,8 @@ Open Science Framework \doi{10.17605/osf.io/#1}%
 % \let\DiffSpace\relax
 % \fi\fi\fi\DiffSpace}
 % \makeatother
-%\newcommand*{\Di}{\mathrm{D}}%capital differential
+
+% \newcommand*{\Di}{\mathrm{D}}%capital differential
 %\newcommand*{\Li}{\mathrm{L}}%Lie derivative
 %\newcommand*{\planckc}{\hslash}
 %\newcommand*{\avogn}{N_{\textrm{A}}}
@@ -698,7 +844,7 @@ Open Science Framework \doi{10.17605/osf.io/#1}%
 % \let\texteq\=
 % \renewcommand*{\=}{\TextOrMath\texteq\eq}
 % \newcommand*{\eq}[1][=]{\mathrel{\!#1\!}}
-\newcommand*{\mo}[1][=]{\mathord{\,#1\,}}
+\newcommand*{\mo}[1][=]{\mathord{\nonscript\mkern1mu#1\nonscript\mkern1mu}\mathopen{}}
 %%
 \newcommand*{\sect}{\S}% Sect.~
 \newcommand*{\sects}{\S\S}% Sect.~
@@ -746,6 +892,8 @@ Open Science Framework \doi{10.17605/osf.io/#1}%
 %%\newcommand*{\QEM}%{\textnormal{$\Box$}}%{\ding{167}}
 %\newcommand*{\qem}{\leavevmode\unskip\penalty9999 \hbox{}\nobreak\hfill
 %\quad\hbox{\QEM}}
+%% from TUGboat 18 (1997) 1:
+\providecommand*{\unit}[1]{\ensuremath{\mathrm{\,#1}}}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%% Custom macros for this file @@@
@@ -1012,16 +1160,16 @@ If $\Iyx^{0}$ amounts to saying that the symmetry underlying the probabilities~\
   =
 {}\\[\jot]
   \frac{
-    \int F(y^{0},x^{0})\, F(y^{1},x^{1})\,\dotsm\  \p(\di F \|I)
+    \int F(y^{0},x^{0})\, F(y^{1},x^{1})\, F(y^{2},x^{2})\,\dotsm\  \p(\di F \|I)
   }{
-    \int \sum_{y}F(y,x^{0})\, F(y^{1},x^{1})\,\dotsm\  \p(\di F \|I)
+    \int \sum_{y}F(y,x^{0})\, F(y^{1},x^{1})\, F(y^{2},x^{2})\,\dotsm\  \p(\di F \|I)
   } \ .
 \end{multline}
 
 \subsection{Symmetry conditional on $X$ variates}
 \label{sec:unit0_condX}
 
-A more interesting kind of additional information $\Ix^{0}$  amounts to saying that there is an informational symmetry involving unit~$0$ an the other units, but only with regard to the $Y$ variates, and only with units sharing the same values $x^{*}$ of the $X$ variates. Using a different terminology, this would be a symmetry restricted to a subpopulation of units which is defined by particular $X$ values. Mathematically,
+A more interesting kind of additional information $\Ix^{0}$  amounts to saying that there is an informational symmetry involving unit~$0$ and the other units, but only with regard to the $Y$ variates, and only with units sharing the same values $x^{*}$ of the $X$ variates. Using a different terminology, this would be a symmetry restricted to a subpopulation of units which is defined by particular $X$ values. Mathematically,
 \begin{multline}
   \label{eq:exchangpartial}
   \p(Y^{0}\mo y^{0}, Y^{1}\mo y^{1}, Y^{2}\mo y^{2}
@@ -1075,9 +1223,9 @@ Under this kind of auxiliary information $\Ix^{0}$, our main probability~\eqref{
   =
 {}\\[\jot]
   \frac{
-    \int \frac{F(y^{0},x^{0})}{\sum_{y}F(y,x^{0})}\, F(y^{1},x^{1})\,\dotsm\  \p(\di F \|I)
+    \int \frac{F(y^{0},x^{0})}{\sum_{y}F(y,x^{0})}\, F(y^{1},x^{1})\, F(y^{2},x^{2})\,\dotsm\  \p(\di F \|I)
   }{
-    \int F(y^{1},x^{1})\,\dotsm\  \p(\di F \|I)
+    \int F(y^{1},x^{1})\, F(y^{2},x^{2})\,\dotsm\  \p(\di F \|I)
   } \ .
 \end{multline}
 
