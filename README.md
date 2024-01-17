@@ -1,4 +1,6 @@
-# Bayesian nonparametric inference (under exchangeability)
+<img src="opm_symbol.png" alt="Ensemble of densities" width="75%"/>
+
+# Bayesian nonparametric density inference
 This repository contains mathematical background and code for Bayesian nonparametric inference under exchangeability.
 
 The R functions depeloped here aspire to become an R package soon.
