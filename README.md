@@ -1,4 +1,4 @@
-<img src="opm_symbol.png" alt="Ensemble of densities" width="75%"/>
+<img src="opm_symbol.png" alt="Ensemble of densities" width="100%"/>
 
 # Bayesian nonparametric density inference
 This repository contains mathematical background and code for Bayesian nonparametric inference under exchangeability.
