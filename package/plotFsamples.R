@@ -1,4 +1,4 @@
-plotFsamples <- function(file, mcsamples, auxmetadata, data, plotmeans=TRUE, plotuncertainty='samples', uncertainty=100, datahistogram=TRUE, datascatter=TRUE, useOquantiles=TRUE, parallel=TRUE, silent=FALSE){
+plotFsamples <- function(file, mcoutput, data, plotmeans=TRUE, plotuncertainty='samples', uncertainty=100, datahistogram=TRUE, datascatter=TRUE, useOquantiles=TRUE, parallel=TRUE, silent=FALSE){
 
     family <- 'Palatino'
     source('tplotfunctions.R')
@@ -6,7 +6,24 @@ plotFsamples <- function(file, mcsamples, auxmetadata, data, plotmeans=TRUE, plo
     source('mcsubset.R')
     source('samplesFDistribution.R')
 
-    nsamples <- ncol(mcsamples$W)
+    ## Extract Monte Carlo output & aux-metadata
+    if(is.character(mcoutput)){
+        if(file_test('-d', mcoutput) && file.exists(paste0(mcoutput,'/Fdistribution.rds'))){
+            mcoutput <- readRDS(paste0(mcoutput,'/Fdistribution.rds'))
+        } else {
+            mcoutput <- paste0(sub('.rds$', '', mcoutput), '.rds')
+            if(file.exists(mcoutput)){
+                mcoutput <- readRDS(mcoutput,'/Fdistribution.rds')
+            } else {
+                stop('cannot find mcoutput file')
+            }
+        }
+    }
+    auxmetadata <- mcoutput$auxmetadata
+    ## mcoutput$auxmetadata <- NULL
+
+
+    nsamples <- ncol(mcoutput$W)
 
     nodata <- missing(data) || is.null(data) || (is.logical(data) && !data)
     if(datahistogram && nodata){
@@ -69,7 +86,7 @@ plotFsamples <- function(file, mcsamples, auxmetadata, data, plotmeans=TRUE, plo
             xleft <- Xgrid > varinfo[['censormin']]
             xright <- Xgrid < varinfo[['censormax']]
 
-            plotsamples <- samplesFDistribution(Y=Xgrid, X=NULL, mcsamples=mcsamples, auxmetadata=auxmetadata, subsamples=mcsubsamples, jacobian=TRUE, useOquantiles=useOquantiles, parallel=parallel, silent=silent)
+            plotsamples <- samplesFDistribution(Y=Xgrid, X=NULL, mcoutput=mcoutput, subsamples=mcsubsamples, jacobian=TRUE, useOquantiles=useOquantiles, parallel=parallel, silent=silent)
 
             if(plotuncertainty=='samples'){
                 ymax <- tquant(apply(plotsamples[xleft & xright, subsamples, drop=F],
@@ -185,7 +202,7 @@ plotFsamples <- function(file, mcsamples, auxmetadata, data, plotmeans=TRUE, plo
             Ngrid <- vtransform(x=Xgrid, auxmetadata=auxmetadata,
                                 Nout='numeric', Bout='numeric', useOquantiles=useOquantiles)
 
-            plotsamples <- samplesFDistribution(Y=Xgrid, X=NULL, mcsamples=mcsamples, auxmetadata=auxmetadata, subsamples=mcsubsamples, jacobian=TRUE, useOquantiles=useOquantiles, parallel=parallel, silent=silent)
+            plotsamples <- samplesFDistribution(Y=Xgrid, X=NULL, mcoutput=mcoutput, subsamples=mcsubsamples, jacobian=TRUE, useOquantiles=useOquantiles, parallel=parallel, silent=silent)
 
             if(plotuncertainty=='samples'){
                 ymax <- tquant(apply(plotsamples[, subsamples, drop=F],

@@ -2,6 +2,7 @@ library('data.table')
 library('foreach')
 library('doParallel')
 library('doRNG')
+library('khroma')
 loadNamespace('LaplacesDemon')
 loadNamespace('nimble')
 ##

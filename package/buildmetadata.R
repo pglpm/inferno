@@ -1,4 +1,4 @@
-buildmetadata <- function(data, file=NULL){
+buildmetadata <- function(data, file=NULL, diagnosticvalues=FALSE){
     gcd <- function(...){suppressWarnings(Reduce(function(a, b){if (b == 0) a else Recall(b, a %% b)}, c(...)))}
     ## gcd2 <- function(a, b){suppressWarnings( if (b == 0) a else Recall(b, a %% b) )}
     ## gcd <- function(...){suppressWarnings(Reduce(gcd2, c(...)))}
@@ -14,6 +14,10 @@ buildmetadata <- function(data, file=NULL){
         ## print(xn)
         x <- data[[xn]]
         x <- x[!is.na(x)]
+        if(all(is.na(x)) || min(x)==max(x)){
+            message('\nWARNING: variate ',xn,' does not have at least two distinct values!\nDiscarded because non-informative\n')
+            next
+            }
         if(is.numeric(x)){
             ## print('numeric')
             Q1 <- loval <- quantile(x, probs=0.25, type=6)
@@ -144,7 +148,11 @@ buildmetadata <- function(data, file=NULL){
         }# end numeric
         ##
         metadata <- rbind(metadata,
-                          c(list(name=xn, type=vtype, datamin=dmin, datamax=dmax, datamaxrep=max(table(x)), dataNvalues=length(unique(x)), Nvalues=vn, rounding=vd, domainmin=domainmin, domainmax=domainmax, minincluded=censormin, maxincluded=censormax, centralvalue=meval, lowvalue=loval, highvalue=hival, plotmin=plotmin, plotmax=plotmax),
+                          c(list(name=xn, type=vtype),
+                            if(diagnosticvalues){
+                                 list(datamin=dmin, datamax=dmax, datamaxrep=max(table(x)), dataNvalues=length(unique(x)))
+                            },
+                            list(Nvalues=vn, rounding=vd, domainmin=domainmin, domainmax=domainmax, minincluded=censormin, maxincluded=censormax, centralvalue=meval, lowvalue=loval, highvalue=hival, plotmin=plotmin, plotmax=plotmax),
                             as.list(vval)
                             ), fill=TRUE)
     }

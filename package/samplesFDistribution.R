@@ -1,4 +1,4 @@
-samplesFDistribution <- function(Y, X, mcsamples, auxmetadata, subsamples, jacobian=TRUE, fn=identity, combine='rbind', useOquantiles=TRUE, parallel=TRUE, silent=FALSE){
+samplesFDistribution <- function(Y, X, mcoutput, subsamples, jacobian=TRUE, fn=identity, combine='rbind', useOquantiles=TRUE, parallel=TRUE, silent=FALSE){
 
     if(!silent){ cat('\n') }
 #### Determine the status of parallel processing
@@ -28,6 +28,22 @@ if(!silent){ cat('Using already registered', getDoParName(), 'with', getDoParWor
 
     if(ncores < 2){ `%dochains%` <- `%do%` }else{ `%dochains%` <- `%dopar%` }
 
+    ## Extract Monte Carlo output & aux-metadata
+    if(is.character(mcoutput)){
+        if(file_test('-d', mcoutput) && file.exists(paste0(mcoutput,'/Fdistribution.rds'))){
+            mcoutput <- readRDS(paste0(mcoutput,'/Fdistribution.rds'))
+        } else {
+            mcoutput <- paste0(sub('.rds$', '', mcoutput), '.rds')
+            if(file.exists(mcoutput)){
+                mcoutput <- readRDS(mcoutput,'/Fdistribution.rds')
+            } else {
+                stop('cannot find mcoutput file')
+            }
+        }
+    }
+    auxmetadata <- mcoutput$auxmetadata
+    mcoutput$auxmetadata <- NULL
+
     source('vtransform.R')
     source('mcsubset.R')
 
@@ -53,22 +69,17 @@ if(!silent){ cat('Using already registered', getDoParName(), 'with', getDoParWor
     ##
     if(length(intersect(Yv, Xv)) > 0){stop('overlap in Y and X variates\n')}
 
-    ## mcsamples
-    if(is.character(mcsamples) && file.exists(mcsamples)){
-        mcsamples <- readRDS(mcsamples)
-    }
-
 #### Subsample and get nclusters and nsamples
     if(!missing(subsamples) && (is.numeric(subsamples) || (is.character(subsamples) && length(subsamples) == 1))){
         if(is.character(subsamples)){
-            subsamples <- round(seq(1, ncol(mcsamples$W),
+            subsamples <- round(seq(1, ncol(mcoutput$W),
                                     length.out=as.numeric(subsamples)))
         }
-        mcsamples <- mcsubset(mcsamples, subsamples)
+        mcoutput <- mcsubset(mcoutput, subsamples)
     }
 
-    nsamples <- ncol(mcsamples$W)
-    nclusters <- nrow(mcsamples$W)
+    nsamples <- ncol(mcoutput$W)
+    nclusters <- nrow(mcoutput$W)
 
 #### Type R
     vnames <- auxmetadata[mcmctype == 'R', name]
@@ -82,7 +93,7 @@ if(!silent){ cat('Using already registered', getDoParName(), 'with', getDoParWor
     YiR <- YiR[YtR]
     YnR <- length(YiR)
     if(YnR > 0 || XnR > 0){
-        mcsamples$Rvar <- sqrt(mcsamples$Rvar)
+        mcoutput$Rvar <- sqrt(mcoutput$Rvar)
     }
 
 #### Type C
@@ -97,7 +108,7 @@ if(!silent){ cat('Using already registered', getDoParName(), 'with', getDoParWor
     YiC <- YiC[YtC]
     YnC <- length(YiC)
     if(YnC > 0 || XnC > 0){
-        mcsamples$Cvar <- sqrt(mcsamples$Cvar)
+        mcoutput$Cvar <- sqrt(mcoutput$Cvar)
         Cbounds <- cbind(
             c(vtransform(x=matrix(NA,nrow=1,ncol=length(vnames),
                                   dimnames=list(NULL,vnames)),
@@ -122,7 +133,7 @@ if(!silent){ cat('Using already registered', getDoParName(), 'with', getDoParWor
     YiD <- YiD[YtD]
     YnD <- length(YiD)
     if(YnD > 0 || XnD > 0){
-        mcsamples$Dvar <- sqrt(mcsamples$Dvar)
+        mcoutput$Dvar <- sqrt(mcoutput$Dvar)
         Dbounds <- cbind(
             c(vtransform(x=matrix(NA,nrow=1,ncol=length(vnames),
                                   dimnames=list(NULL,vnames)),
@@ -147,7 +158,7 @@ if(!silent){ cat('Using already registered', getDoParName(), 'with', getDoParWor
     YiO <- YiO[YtO]
     YnO <- length(YiO)
     if(YnO > 0 || XnO > 0){
-        mcsamples$Ovar <- sqrt(mcsamples$Ovar)
+        mcoutput$Ovar <- sqrt(mcoutput$Ovar)
         ##
         Omaxn <- max(auxmetadata[name %in% vnames, Nvalues])
         Oleft <- t(sapply(vnames, function(avar){
@@ -219,15 +230,15 @@ if(!silent){ cat('Using already registered', getDoParName(), 'with', getDoParWor
 #### each instance is a 1-column vector
         ##
         if(all(is.na(x))){
-            probX <- log(mcsamples$W)
+            probX <- log(mcoutput$W)
         }else{
             ## rows: clusters, cols: samples
-            probX <- log(mcsamples$W) +
+            probX <- log(mcoutput$W) +
                 (if(XnR > 0){# continuous
                      colSums(
                          dnorm(x=x[XiR,],
-                               mean=mcsamples$Rmean[XtR,,,drop=FALSE],
-                               sd=mcsamples$Rvar[XtR,,,drop=FALSE],
+                               mean=mcoutput$Rmean[XtR,,,drop=FALSE],
+                               sd=mcoutput$Rvar[XtR,,,drop=FALSE],
                                log=TRUE),
                          na.rm=TRUE)
                  }else{0}) +
@@ -237,8 +248,8 @@ if(!silent){ cat('Using already registered', getDoParName(), 'with', getDoParWor
                      (if(length(indf) > 0){
                           colSums(
                               dnorm(x=x[XiC[indf],],
-                                    mean=mcsamples$Cmean[XtC[indf],,,drop=FALSE],
-                                    sd=mcsamples$Cvar[XtC[indf],,,drop=FALSE],
+                                    mean=mcoutput$Cmean[XtC[indf],,,drop=FALSE],
+                                    sd=mcoutput$Cvar[XtC[indf],,,drop=FALSE],
                                     log=TRUE),
                               na.rm=TRUE)
                       }else{0}) +
@@ -248,8 +259,8 @@ if(!silent){ cat('Using already registered', getDoParName(), 'with', getDoParWor
                               ## for upper tail, take opposite mean and value
                               colSums(
                                   pnorm(q=Cbounds[cbind(v2, 1.5-0.5*v1)],
-                                        mean=v1*mcsamples$Cmean[v2,,,drop=FALSE],
-                                        sd=mcsamples$Cvar[v2,,,drop=FALSE],
+                                        mean=v1*mcoutput$Cmean[v2,,,drop=FALSE],
+                                        sd=mcoutput$Cvar[v2,,,drop=FALSE],
                                         log.p=TRUE),
                                   na.rm=TRUE)
                           }else{0})
@@ -260,8 +271,8 @@ if(!silent){ cat('Using already registered', getDoParName(), 'with', getDoParWor
                      (if(length(indf) > 0){
                           colSums(
                               dnorm(x=x[XiD[indf],],
-                                    mean=mcsamples$Dmean[XtD[indf],,,drop=FALSE],
-                                    sd=mcsamples$Dvar[XtD[indf],,,drop=FALSE],
+                                    mean=mcoutput$Dmean[XtD[indf],,,drop=FALSE],
+                                    sd=mcoutput$Dvar[XtD[indf],,,drop=FALSE],
                                     log=TRUE),
                               na.rm=TRUE)
                       }else{0}) +
@@ -271,8 +282,8 @@ if(!silent){ cat('Using already registered', getDoParName(), 'with', getDoParWor
                               ## for upper tail, take opposite mean and value
                               colSums(
                                   pnorm(q=Dbounds[v2, 1.5-0.5*v1],
-                                        mean=v1*mcsamples$Dmean[v2,,,drop=FALSE],
-                                        sd=mcsamples$Dvar[v2,,,drop=FALSE],
+                                        mean=v1*mcoutput$Dmean[v2,,,drop=FALSE],
+                                        sd=mcoutput$Dvar[v2,,,drop=FALSE],
                                         log.p=TRUE),
                                   na.rm=TRUE)
                           }else{0})
@@ -282,11 +293,11 @@ if(!silent){ cat('Using already registered', getDoParName(), 'with', getDoParWor
                      colSums(
                          log(
                              pnorm(q=Oright[v2],
-                                   mean=mcsamples$Omean[XtO,,,drop=FALSE],
-                                   sd=mcsamples$Ovar[XtO,,,drop=FALSE]) -
+                                   mean=mcoutput$Omean[XtO,,,drop=FALSE],
+                                   sd=mcoutput$Ovar[XtO,,,drop=FALSE]) -
                              pnorm(q=Oleft[v2],
-                                   mean=mcsamples$Omean[XtO,,,drop=FALSE],
-                                   sd=mcsamples$Ovar[XtO,,,drop=FALSE])
+                                   mean=mcoutput$Omean[XtO,,,drop=FALSE],
+                                   sd=mcoutput$Ovar[XtO,,,drop=FALSE])
                          ),
                          na.rm=TRUE)
                  }else{0}) +
@@ -294,18 +305,18 @@ if(!silent){ cat('Using already registered', getDoParName(), 'with', getDoParWor
                      colSums(
                          log( aperm(
                              vapply(seq_len(XnN), function(v){
-                                 mcsamples$Nprob[XtN[v],,x[XiN[v],],]
-                             }, mcsamples$W),
+                                 mcoutput$Nprob[XtN[v],,x[XiN[v],],]
+                             }, mcoutput$W),
                              c(3,1,2)) ),
                          na.rm=TRUE)
                      ## colSums(
                      ##      log(array(
                      ##          t(sapply(seq_len(XnN), function(v){
-                     ##              mcsamples$Nprob[XtN[v],,x[XiN[v],],]
+                     ##              mcoutput$Nprob[XtN[v],,x[XiN[v],],]
                      ##          })),
                      ##          dim=c(XnN, nclusters, nsamples))),
                      ##      na.rm=TRUE)
-                     ## temp <- apply(mcsamples$Nprob, c(2,4), function(xx){
+                     ## temp <- apply(mcoutput$Nprob, c(2,4), function(xx){
                      ##     xx[cbind(XtN, x[XiN,])]
                      ## })
                      ## dim(temp) <- c(XnN, nclusters, nsamples)
@@ -314,8 +325,8 @@ if(!silent){ cat('Using already registered', getDoParName(), 'with', getDoParWor
                  }else{0}) +
                 (if(XnB > 0){# binary
                      colSums(
-                         log( x[XiB,]*mcsamples$Bprob[XtB,,,drop=FALSE] +
-                              (1L-x[XiB,])*(1-mcsamples$Bprob[XtB,,,drop=FALSE]) ),
+                         log( x[XiB,]*mcoutput$Bprob[XtB,,,drop=FALSE] +
+                              (1L-x[XiB,])*(1-mcoutput$Bprob[XtB,,,drop=FALSE]) ),
                          na.rm=TRUE)
                  }else{0})
         } # end probX
@@ -328,8 +339,8 @@ if(!silent){ cat('Using already registered', getDoParName(), 'with', getDoParWor
             probY <- (if(YnR > 0){# continuous
                           colSums(
                               dnorm(x=y[YiR,],
-                                    mean=mcsamples$Rmean[YtR,,,drop=FALSE],
-                                    sd=mcsamples$Rvar[YtR,,,drop=FALSE],
+                                    mean=mcoutput$Rmean[YtR,,,drop=FALSE],
+                                    sd=mcoutput$Rvar[YtR,,,drop=FALSE],
                                     log=TRUE),
                               na.rm=TRUE)
                       }else{0}) +
@@ -339,8 +350,8 @@ if(!silent){ cat('Using already registered', getDoParName(), 'with', getDoParWor
                      (if(length(indf) > 0){
                           colSums(
                               dnorm(x=y[YiC[indf],],
-                                    mean=mcsamples$Cmean[YtC[indf],,,drop=FALSE],
-                                    sd=mcsamples$Cvar[YtC[indf],,,drop=FALSE],
+                                    mean=mcoutput$Cmean[YtC[indf],,,drop=FALSE],
+                                    sd=mcoutput$Cvar[YtC[indf],,,drop=FALSE],
                                     log=TRUE),
                               na.rm=TRUE)
                       }else{0}) +
@@ -350,8 +361,8 @@ if(!silent){ cat('Using already registered', getDoParName(), 'with', getDoParWor
                               ## for upper tail, take opposite mean and value
                               colSums(
                                   pnorm(q=Cbounds[cbind(v2, 1.5-0.5*v1)],
-                                        mean=v1*mcsamples$Cmean[v2,,,drop=FALSE],
-                                        sd=mcsamples$Cvar[v2,,,drop=FALSE],
+                                        mean=v1*mcoutput$Cmean[v2,,,drop=FALSE],
+                                        sd=mcoutput$Cvar[v2,,,drop=FALSE],
                                         log.p=TRUE),
                                   na.rm=TRUE)
                           }else{0})
@@ -362,8 +373,8 @@ if(!silent){ cat('Using already registered', getDoParName(), 'with', getDoParWor
                      (if(length(indf) > 0){
                           colSums(
                               dnorm(x=y[YiD[indf],],
-                                    mean=mcsamples$Dmean[YtD[indf],,,drop=FALSE],
-                                    sd=mcsamples$Dvar[YtD[indf],,,drop=FALSE],
+                                    mean=mcoutput$Dmean[YtD[indf],,,drop=FALSE],
+                                    sd=mcoutput$Dvar[YtD[indf],,,drop=FALSE],
                                     log=TRUE),
                               na.rm=TRUE)
                       }else{0}) +
@@ -373,8 +384,8 @@ if(!silent){ cat('Using already registered', getDoParName(), 'with', getDoParWor
                               ## for upper tail, take opposite mean and value
                               colSums(
                                   pnorm(q=Dbounds[v2, 1.5-0.5*v1],
-                                        mean=v1*mcsamples$Dmean[v2,,,drop=FALSE],
-                                        sd=mcsamples$Dvar[v2,,,drop=FALSE],
+                                        mean=v1*mcoutput$Dmean[v2,,,drop=FALSE],
+                                        sd=mcoutput$Dvar[v2,,,drop=FALSE],
                                         log.p=TRUE),
                                   na.rm=TRUE)
                           }else{0})
@@ -384,11 +395,11 @@ if(!silent){ cat('Using already registered', getDoParName(), 'with', getDoParWor
                      colSums(
                          log(
                              pnorm(q=Oright[v2],
-                                   mean=mcsamples$Omean[YtO,,,drop=FALSE],
-                                   sd=mcsamples$Ovar[YtO,,,drop=FALSE]) -
+                                   mean=mcoutput$Omean[YtO,,,drop=FALSE],
+                                   sd=mcoutput$Ovar[YtO,,,drop=FALSE]) -
                              pnorm(q=Oleft[v2],
-                                   mean=mcsamples$Omean[YtO,,,drop=FALSE],
-                                   sd=mcsamples$Ovar[YtO,,,drop=FALSE])
+                                   mean=mcoutput$Omean[YtO,,,drop=FALSE],
+                                   sd=mcoutput$Ovar[YtO,,,drop=FALSE])
                          ),
                          na.rm=TRUE)
                  }else{0}) +
@@ -396,11 +407,11 @@ if(!silent){ cat('Using already registered', getDoParName(), 'with', getDoParWor
                      colSums(
                          log( aperm(
                              vapply(seq_len(YnN), function(v){
-                                 mcsamples$Nprob[YtN[v],,y[YiN[v],],]
-                             }, mcsamples$W),
+                                 mcoutput$Nprob[YtN[v],,y[YiN[v],],]
+                             }, mcoutput$W),
                              c(3,1,2)) ),
                          na.rm=TRUE)
-                     ## temp <- apply(mcsamples$Nprob, c(2,4), function(xx){
+                     ## temp <- apply(mcoutput$Nprob, c(2,4), function(xx){
                      ##     xx[cbind(YtN, y[YiN,])]
                      ## })
                      ## dim(temp) <- c(YnN, nclusters, nsamples)
@@ -409,8 +420,8 @@ if(!silent){ cat('Using already registered', getDoParName(), 'with', getDoParWor
                  }else{0}) +
                 (if(YnB > 0){# binary
                      colSums(
-                         log( y[YiB,]*mcsamples$Bprob[YtB,,,drop=FALSE] +
-                              (1-y[YiB,])*(1-mcsamples$Bprob[YtB,,,drop=FALSE]) ),
+                         log( y[YiB,]*mcoutput$Bprob[YtB,,,drop=FALSE] +
+                              (1-y[YiB,])*(1-mcoutput$Bprob[YtB,,,drop=FALSE]) ),
                          na.rm=TRUE)
                  }else{0})
         }
