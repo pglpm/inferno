@@ -1,4 +1,4 @@
-samplesFDistribution <- function(Y, X, mcoutput, subsamples, jacobian=TRUE, fn=identity, combine='rbind', useOquantiles=TRUE, parallel=TRUE, silent=FALSE){
+samplesFDistribution <- function(Y, X, mcoutput, subsamples, jacobian=TRUE, fn=identity, combine='rbind', useOquantiles=FALSE, parallel=TRUE, silent=FALSE){
 
     if(!silent){ cat('\n') }
 #### Determine the status of parallel processing
@@ -112,12 +112,14 @@ if(!silent){ cat('Using already registered', getDoParName(), 'with', getDoParWor
         Cbounds <- cbind(
             c(vtransform(x=matrix(NA,nrow=1,ncol=length(vnames),
                                   dimnames=list(NULL,vnames)),
-                         auxmetadata=auxmetadata, Cout='sleft')),
+                         auxmetadata=auxmetadata, Cout='sleft',
+                         useOquantiles=useOquantiles)),
             ## sign is important here:
             ## for upper tail, take opposite mean and value
             -c(vtransform(x=matrix(NA,nrow=1,ncol=length(vnames),
                                    dimnames=list(NULL,vnames)),
-                          auxmetadata=auxmetadata, Cout='sright'))
+                          auxmetadata=auxmetadata, Cout='sright',
+                          useOquantiles=useOquantiles))
         )
     }
 
@@ -137,12 +139,14 @@ if(!silent){ cat('Using already registered', getDoParName(), 'with', getDoParWor
         Dbounds <- cbind(
             c(vtransform(x=matrix(NA,nrow=1,ncol=length(vnames),
                                   dimnames=list(NULL,vnames)),
-                         auxmetadata=auxmetadata, Dout='sleft')),
+                         auxmetadata=auxmetadata, Dout='sleft',
+                         useOquantiles=useOquantiles)),
             ## sign is important here:
             ## for upper tail, take opposite mean and value
             -c(vtransform(x=matrix(NA,nrow=1,ncol=length(vnames),
                                    dimnames=list(NULL,vnames)),
-                          auxmetadata=auxmetadata, Dout='sright'))
+                          auxmetadata=auxmetadata, Dout='sright',
+                          useOquantiles=useOquantiles))
         )
     }
 

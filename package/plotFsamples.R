@@ -1,4 +1,4 @@
-plotFsamples <- function(file, mcoutput, data, plotmeans=TRUE, plotuncertainty='samples', uncertainty=100, datahistogram=TRUE, datascatter=TRUE, useOquantiles=TRUE, parallel=TRUE, silent=FALSE){
+plotFsamples <- function(file, mcoutput, data, plotmeans=TRUE, plotuncertainty='samples', uncertainty=100, datahistogram=TRUE, datascatter=TRUE, useOquantiles=FALSE, parallel=TRUE, silent=FALSE){
 
     family <- 'Palatino'
     source('tplotfunctions.R')

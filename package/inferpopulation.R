@@ -286,8 +286,8 @@ inferpopulation <- function(data, metadata, outputdir, nsamples=1200, nchains=12
              Cvar1 = rep(1, 1),
              Cshapelo = rep(Cshapelo, 1),
              Cshapehi = rep(Cshapehi, 1),
-             Cleft = vtransform(data[,vnames$C, with=F], auxmetadata, Cout='left'),
-             Cright = vtransform(data[,vnames$C, with=F], auxmetadata, Cout='right')
+             Cleft = vtransform(data[,vnames$C, with=F], auxmetadata, Cout='left', useOquantiles=useOquantiles),
+             Cright = vtransform(data[,vnames$C, with=F], auxmetadata, Cout='right', useOquantiles=useOquantiles)
              ) },
     if(vn$D > 0){# discretized
         list(Dn = vn$D,
@@ -296,8 +296,8 @@ inferpopulation <- function(data, metadata, outputdir, nsamples=1200, nchains=12
              Dvar1 = rep(1, 1),
              Dshapelo = rep(Dshapelo, 1),
              Dshapehi = rep(Dshapehi, 1),
-             Dleft = vtransform(data[,vnames$D, with=F], auxmetadata, Dout='left'),
-             Dright = vtransform(data[,vnames$D, with=F], auxmetadata, Dout='right')
+             Dleft = vtransform(data[,vnames$D, with=F], auxmetadata, Dout='left', useOquantiles=useOquantiles),
+             Dright = vtransform(data[,vnames$D, with=F], auxmetadata, Dout='right', useOquantiles=useOquantiles)
              ) },
     if(vn$O > 0){# ordinal
         list(On = vn$O,
@@ -325,16 +325,16 @@ inferpopulation <- function(data, metadata, outputdir, nsamples=1200, nchains=12
     datapoints <- c(
         if(vn$R > 0){# continuous
             list(
-                Rdata = vtransform(data[,vnames$R, with=F], auxmetadata)
+                Rdata = vtransform(data[,vnames$R, with=F], auxmetadata, useOquantiles=useOquantiles)
             ) },
         if(vn$C > 0){# censored
             list(
-                Caux = vtransform(data[,vnames$C, with=F], auxmetadata, Cout='aux'),
-                Clat = vtransform(data[,vnames$C, with=F], auxmetadata, Cout='lat')
+                Caux = vtransform(data[,vnames$C, with=F], auxmetadata, Cout='aux', useOquantiles=useOquantiles),
+                Clat = vtransform(data[,vnames$C, with=F], auxmetadata, Cout='lat', useOquantiles=useOquantiles)
             ) },
         if(vn$D > 0){# discretized
             list(
-                Daux = vtransform(data[,vnames$D, with=F], auxmetadata, Dout='aux')
+                Daux = vtransform(data[,vnames$D, with=F], auxmetadata, Dout='aux', useOquantiles=useOquantiles)
             ) },
         if(vn$O > 0){# ordinal
             list(
@@ -342,11 +342,11 @@ inferpopulation <- function(data, metadata, outputdir, nsamples=1200, nchains=12
             ) },
         if(vn$N > 0){# nominal
             list(
-                Ndata = vtransform(data[,vnames$N,with=F], auxmetadata, Nout='numeric')
+                Ndata = vtransform(data[,vnames$N,with=F], auxmetadata, Nout='numeric', useOquantiles=useOquantiles)
             ) },
         if(vn$B > 0){# binary
             list(
-                Bdata = vtransform(data[,vnames$B,with=F], auxmetadata, Bout='numeric')
+                Bdata = vtransform(data[,vnames$B,with=F], auxmetadata, Bout='numeric', useOquantiles=useOquantiles)
             ) }
     )
 
@@ -576,7 +576,7 @@ inferpopulation <- function(data, metadata, outputdir, nsamples=1200, nchains=12
                                  Cmean = matrix(rnorm(n=vn$C*nclusters, mean=constants$Cmean1, sd=sqrt(constants$Cvarm1)), nrow=vn$C, ncol=nclusters),
                                  Crate = Crate,
                                  Cvar = matrix(nimble::rinvgamma(n=vn$C*nclusters, shape=constants$Cshapelo, rate=Crate), nrow=vn$C, ncol=nclusters),
-                                 Clat = vtransform(data[,vnames$C, with=F], auxmetadata, Cout='init') ## for data with boundary values
+                                 Clat = vtransform(data[,vnames$C, with=F], auxmetadata, Cout='init', useOquantiles=useOquantiles) ## for data with boundary values
                              ))
             }
             if(vn$D > 0){# discretized
@@ -586,7 +586,7 @@ inferpopulation <- function(data, metadata, outputdir, nsamples=1200, nchains=12
                                  Dmean = matrix(rnorm(n=vn$D*nclusters, mean=constants$Dmean1, sd=sqrt(constants$Dvarm1)), nrow=vn$D, ncol=nclusters),
                                  Drate = Drate,
                                  Dvar = matrix(nimble::rinvgamma(n=vn$D*nclusters, shape=constants$Dshapelo, rate=Drate), nrow=vn$D, ncol=nclusters),
-                                 Dlat = vtransform(data[,vnames$D, with=F], auxmetadata, Dout='init') ## for data with boundary values
+                                 Dlat = vtransform(data[,vnames$D, with=F], auxmetadata, Dout='init', useOquantiles=useOquantiles) ## for data with boundary values
                              ))
             }
             if(vn$O > 0){# ordinal
