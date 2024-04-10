@@ -710,7 +710,7 @@ inferpopulation <- function(data, metadata, outputdir, nsamples=1200, nchains=12
         cat('\nSetup time', printtime(Sys.time() - timecount), '\n')
 
         if(acore == 1){
-            printnull(paste0('\rDone core ',acore,'. Estimating remaining time, please be patient...'), outcon)
+            printnull(paste0('\rCompiled core ',acore,'. Estimating remaining time, please be patient...'), outcon)
         }
 
 ##################################################
@@ -1085,7 +1085,7 @@ inferpopulation <- function(data, metadata, outputdir, nsamples=1200, nchains=12
             if(is.finite(ertime) && ertime > 0){
                 printnull(paste0('\rSampling. Core ',acore,' estimated remaining time: ',
                                  printtime(ertime),
-                                 '                  '),
+                                 '                      '),
                           outcon)
             }
 
@@ -1147,7 +1147,7 @@ inferpopulation <- function(data, metadata, outputdir, nsamples=1200, nchains=12
     ## traces <- mcsamples[round(seq(1,nrow(mcsamples),length.out=nsamples)),1:3]
     saveRDS(traces,file=paste0(dirname,'MCtraces',dashnameroot,'.rds'))
 
-    cat('\rFinished Monte Carlo sampling.\n')
+    cat('\rFinished Monte Carlo sampling.                                         \n')
     gc()
 
 ############################################################
