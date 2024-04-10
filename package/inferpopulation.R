@@ -1,4 +1,4 @@
-inferpopulation <- function(data, metadata, outputdir, nsamples=1200, nchains=120, nsamplesperchain, parallel=TRUE, niterini=1024, miniter=0, maxiter=+Inf, thinning=0, plottraces=TRUE, showclusterstraces=TRUE, seed=16, loglikelihood=F, subsampledata, useOquantiles=FALSE, output=FALSE, cleanup=TRUE){
+inferpopulation <- function(data, metadata, outputdir, nsamples=1200, nchains=120, nsamplesperchain, parallel=TRUE, niterini=1024, miniter=0, maxiter=+Inf, thinning=0, plottraces=TRUE, showclusterstraces=TRUE, seed=16, loglikelihood=F, subsampledata, useOquantiles=TRUE, output=FALSE, cleanup=TRUE){
 
     cat('\n')
 #### Determine the status of parallel processing

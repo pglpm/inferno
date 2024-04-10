@@ -1,4 +1,4 @@
-samplesFDistribution <- function(Y, X, mcoutput, subsamples, jacobian=TRUE, fn=identity, combine='rbind', useOquantiles=FALSE, parallel=TRUE, silent=FALSE){
+samplesFDistribution <- function(Y, X, mcoutput, subsamples, jacobian=TRUE, fn=identity, combine='rbind', useOquantiles=TRUE, parallel=TRUE, silent=FALSE){
 
     if(!silent){ cat('\n') }
 #### Determine the status of parallel processing
