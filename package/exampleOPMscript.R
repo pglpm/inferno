@@ -14,10 +14,9 @@ datafile <- 'exampledata.csv'
 source('bnpi.R')
 
 ## For parallel processing (on Linux)
-## I think it's best to use a number of cores equal to the number of chains +1
 ##
 ## Skip these lines if you don't want to use parallel computation
-ncores <- 2 # number of CPUs to use
+ncores <- 4 # number of CPUs to use
 mycluster <- makeCluster(ncores, outfile="")
 registerDoParallel(mycluster)
 
@@ -145,9 +144,9 @@ tplot(x=0:5, y=probdistr,
 dev.off() # close pdf
 
 
-## Now let's choose 50 datapoints from the full dataset
+## Now let's choose 100 datapoints from the full dataset
 ## excluding those used for training
-ntest <- 50
+ntest <- 100
 testpoints <- sort(sample(setdiff(1:nrow(alldata), trainpoints), ntest))
 
 ## For each of these points
@@ -159,18 +158,27 @@ testpoints <- sort(sample(setdiff(1:nrow(alldata), trainpoints), ntest))
 ## We also want to compare this probability with the softmax
 ## obtained from the 'Output_class' weights
 ##
+## And we compute the gain.
+## Utility matrix gives +1 for correct choice, 0 otherwise
+##
 ## We save all a plot for each datapoint as a pdf page
 ##
-## We reuse the Y matri from before,
+## We reuse the Y matrix from before,
 ## and for X we can use directly the data object 'alldata'
 ## but must select the variate columns first:
 Xcols <- paste0('Output_class_', 0:5)
+
+## Utility matrix
+utilities <- diag(6)
 
 ## Preselect samples of population-frequencies to display
 postsamples <- sample(1:ncol(testposterior), 100)
 
 pdff('testresult2')
 ##
+gain <- 0
+gainsoftmax <- 0
+gainpred <- 0 # check if "Predictions" is the same as the max softmax
 for(i in testpoints){
     ## get ML weights
     X <- alldata[i, ..Xcols] # note the tricky ".." syntax
@@ -181,6 +189,15 @@ for(i in testpoints){
     posterior <- samplesFDistribution(Y=Y, X=X, mcoutput=outputdir, silent=TRUE)
     probdistr <- rowMeans(posterior)
     samplefreqs <- posterior[, postsamples]
+    ##
+    ## make decision according to probability
+    choice <- which.max(utilities%*%probdistr)
+    choicesoftmax <- which.max(utilities%*%softmax)
+    predictedvalue <- alldata[i,Predictions]+1
+    truevalue <- alldata[i,Truth]+1
+    gain <- gain + utilities[truevalue,choice]
+    gainsoftmax <- gainsoftmax + utilities[truevalue,choicesoftmax]
+    gainpred <- gainpred + utilities[truevalue,predictedvalue]
     ##
     ## plot samples first
     tplot(x=0:5, y=samplefreqs,
@@ -194,10 +211,13 @@ for(i in testpoints){
           type='b', lty=2, lwd=2, col=2, add=T)
     text(x=2.5, y=1, adj=0.5,
          labels=paste0('Datapoint ', i,
-                       ' - Predicted: ', alldata[i,Predictions],
-                       ', True: ',alldata[i,Truth]) )
+                       ' - Predicted: ', predictedvalue,
+                       ', True: ',truevalue) )
     tplot(x=alldata[i,c('Truth','Predictions')], y=0.95,
           type='p', pch=c('T','P'), add=T)
 }
 dev.off()
-
+##
+cat('\nGain per sample:',gain/ntest,'\n')
+cat('Softmax gain per sample:',gainsoftmax/ntest,'\n')
+cat('Predicted gain per sample:',gainpred/ntest,'\n')

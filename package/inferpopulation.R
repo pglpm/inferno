@@ -350,11 +350,17 @@ inferpopulation <- function(data, metadata, outputdir, nsamples=1200, nchains=12
             ) }
     )
 
+
 #### Output info
-    cat('Starting Monte Carlo sampling of',nsamples,'samples by',nchains,'chains across', ncores, 'cores.\n')
+    cat('Starting Monte Carlo sampling of',nsamples,'samples\nin a space of',
+    (sum(as.numeric(vn)*c(2, 2, 2, 2, 0, 1))+sum(round(1/Nalpha0[,1])-1) + 1)*nclusters - 1,
+    '(effectively',
+            paste0((sum(as.numeric(vn)*c(3+npoints, 3+npoints, 3+npoints, 3+npoints, 0, 1+npoints))+sum(round(1/Nalpha0[,1])-1+npoints) + 1)*nclusters - 1 + nalpha-1,
+        ')'), 'dimensions.\n')
+    cat('Samples by',nchains,'chains across', ncores, 'cores.\n')
     cat(nsamplesperchain,'samples per chain,',nchainspercore,'chains per core.\n')
     cat('Core logs are being saved in individual files.\n')
-    cat('C-compiling samplers appropriate to these variates, with package Nimble\n(this can take tens of minutes with many data or variates).\n...\r')
+    cat('\nC-compiling samplers appropriate to the variates (package Nimble)\nthis can take tens of minutes with many data or variates.\n...\r')
     ##cat('Estimating remaining time...\r')
     ## stopCluster(cluster)
     ## stopImplicitCluster()
@@ -370,7 +376,7 @@ inferpopulation <- function(data, metadata, outputdir, nsamples=1200, nchains=12
     ## toexport <- c('vtransform','samplesFDistribution','proposeburnin','proposethinning','plotFsamples')
 
 #### BEGINNING OF FOREACH LOOP OVER CORES
-    chaininfo <- foreach(acore=1:ncores, .combine=rbind, .inorder=FALSE, .packages='khroma')%dochains%{
+    chaininfo <- foreach(acore=1:ncores, .combine=rbind, .inorder=FALSE, .packages=c('khroma','foreach','rngtools'))%dochains%{
 
         outcon <- file(paste0(dirname,'_log',dashnameroot,'-',acore,'.log'), open = "w")
         sink(outcon)
