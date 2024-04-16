@@ -1,4 +1,4 @@
-inferpopulation <- function(data, metadata, outputdir, nsamples=1200, nchains=120, nsamplesperchain, parallel=TRUE, niterini=1024, miniter=0, maxiter=+Inf, thinning=0, plottraces=TRUE, showclusterstraces=FALSE, seed=16, loglikelihood=F, subsampledata, useOquantiles=TRUE, output=FALSE, cleanup=TRUE){
+inferpopulation <- function(data, metadata, outputdir, nsamples=1200, nchains=120, nsamplesperchain, parallel=TRUE, niterini=1024, miniter=0, maxiter=+Inf, thinning=0, plottraces=TRUE, showclusterstraces=TRUE, seed=16, loglikelihood=F, subsampledata, useOquantiles=TRUE, output=FALSE, cleanup=TRUE){
 
     cat('\n')
 #### Determine the status of parallel processing
@@ -152,7 +152,8 @@ inferpopulation <- function(data, metadata, outputdir, nsamples=1200, nchains=12
         stop('Missing variates in data file.')
     }
     if(!all(colnames(data) %in% auxmetadata[['name']])){
-        message('Data file has additional variates. Dropping them.')
+        ## ## no need for message below, already given in buildauxmetadata()
+        ## message('Data file has additional variates. Dropping them.')
         subvar <- intersect(colnames(data), auxmetadata[['name']])
         ## cat(subvar,'\n')
         data <- data[,..subvar]
@@ -354,13 +355,14 @@ inferpopulation <- function(data, metadata, outputdir, nsamples=1200, nchains=12
 
 
 #### Output info
-    cat('Starting Monte Carlo sampling of',nsamples,'samples\nin a space of',
+    cat('Starting Monte Carlo sampling of',nsamples,'samples by',nchains,'chains')
+    cat('\nin a space of',
     (sum(as.numeric(vn)*c(2, 2, 2, 2, 0, 1))+sum(Nalpha0>2e-100)-nrow(Nalpha0) + 1)*nclusters - 1,
     '(effectively',
     paste0((sum(as.numeric(vn)*c(3+npoints, 3+npoints, 3+npoints, 3+npoints, 0, 1+npoints))+ sum(Nalpha0>2e-100)+nrow(Nalpha0)*(npoints-1) + 1)*nclusters - 1 + nalpha-1,
         ')'), 'dimensions.\n')
-    cat('Samples by',nchains,'chains across', ncores, 'cores.\n')
-    cat(nsamplesperchain,'samples per chain,',nchainspercore,'chains per core.\n')
+    cat('Using', ncores, 'cores:',
+        nsamplesperchain,'samples per chain,',nchainspercore,'chains per core.\n')
     cat('Core logs are being saved in individual files.\n')
     cat('\nC-compiling samplers appropriate to the variates (package Nimble)\nthis can take tens of minutes with many data or variates.\n...\r')
     ##cat('Estimating remaining time...\r')
