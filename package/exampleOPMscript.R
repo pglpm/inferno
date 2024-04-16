@@ -57,7 +57,7 @@ trainpoints <- sort(sample(1:nrow(alldata), ntrain))
 ## from two Monte Carlo chains
 ## We must also specify an output directory
 
-outputdir0 <- '_testexampledata2'
+outputdir0 <- '_testexampledata2_flattest2'
 inferpopulation(data=alldata[trainpoints], metadata='meta-exampledata-modified_nopred.csv', outputdir=outputdir0)
 
 ## !!!! Check the directory name given in the messages of 'inferpopulation()'
@@ -128,7 +128,7 @@ testposterior <- samplesFDistribution(Y=Y, X=X, mcoutput=outputdir, parallel=TRU
 probdistr <- rowMeans(testposterior)
 samplefreqs <- testposterior[,sample(1:ncol(testposterior), 100)]
 
-pdff('testresult1') # open a pdf for plotting
+pdff(paste0(outputdir,'/testresult1'))# open a pdf for plotting
 ## plot samples first
 tplot(x=0:5, y=samplefreqs,
       xlab='Truth', ylab='probability',
@@ -178,7 +178,7 @@ utilities <- diag(6)
 ## Preselect samples of population-frequencies to display
 postsamples <- sample(1:ncol(testposterior), 100)
 
-pdff('testresult2')
+pdff(paste0(outputdir,'/testresult2'))
 ##
 gain <- 0
 gainsoftmax <- 0

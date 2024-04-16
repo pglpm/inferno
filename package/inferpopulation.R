@@ -259,7 +259,9 @@ inferpopulation <- function(data, metadata, outputdir, nsamples=1200, nchains=12
         Nalpha0 <- matrix(1e-100, nrow=vn$N, ncol=Nmaxn)
         for(avar in 1:length(vnames$N)){
             nvalues <- auxmetadata[name == vnames$N[avar], Nvalues]
-            Nalpha0[avar, 1:nvalues] <- 1/nvalues
+            ## use Hadamard-like prior: 1/nvalues
+            ## other choice is flat prior: 1
+            Nalpha0[avar, 1:nvalues] <- 1/sqrt(nvalues)
         }
     }
 
@@ -353,9 +355,9 @@ inferpopulation <- function(data, metadata, outputdir, nsamples=1200, nchains=12
 
 #### Output info
     cat('Starting Monte Carlo sampling of',nsamples,'samples\nin a space of',
-    (sum(as.numeric(vn)*c(2, 2, 2, 2, 0, 1))+sum(round(1/Nalpha0[,1])-1) + 1)*nclusters - 1,
+    (sum(as.numeric(vn)*c(2, 2, 2, 2, 0, 1))+sum(Nalpha0>2e-100)-nrow(Nalpha0) + 1)*nclusters - 1,
     '(effectively',
-            paste0((sum(as.numeric(vn)*c(3+npoints, 3+npoints, 3+npoints, 3+npoints, 0, 1+npoints))+sum(round(1/Nalpha0[,1])-1+npoints) + 1)*nclusters - 1 + nalpha-1,
+    paste0((sum(as.numeric(vn)*c(3+npoints, 3+npoints, 3+npoints, 3+npoints, 0, 1+npoints))+ sum(Nalpha0>2e-100)+nrow(Nalpha0)*(npoints-1) + 1)*nclusters - 1 + nalpha-1,
         ')'), 'dimensions.\n')
     cat('Samples by',nchains,'chains across', ncores, 'cores.\n')
     cat(nsamplesperchain,'samples per chain,',nchainspercore,'chains per core.\n')
@@ -758,9 +760,7 @@ inferpopulation <- function(data, metadata, outputdir, nsamples=1200, nchains=12
             ## allmcsamples <- NULL
             allmcsamples <- NULL
             allclusterhypar <- list(Alpha=NULL, K=NULL)
-            if(showclusterstraces){
-                clusterhypar <- NULL
-            }
+            clusterhypar <- NULL
             flagll <- FALSE
             flagmc <- FALSE
             if(is.numeric(loglikelihood)){
@@ -921,9 +921,9 @@ inferpopulation <- function(data, metadata, outputdir, nsamples=1200, nchains=12
                 rm(mcsamples)
                 gc()
 
-                if(showclusterstraces){
+                ## if(showclusterstraces){
                     allclusterhypar <- mapply(function(xx,yy){c(xx,yy)}, allclusterhypar, clusterhypar, SIMPLIFY=FALSE)
-                }
+                ## }
                 nitertot <- ncol(allmcsamples$W)
 
 
