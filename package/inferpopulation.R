@@ -1,4 +1,4 @@
-inferpopulation <- function(data, metadata, outputdir, nsamples=1200, nchains=120, nsamplesperchain, parallel=TRUE, niterini=1024, miniter=0, maxiter=+Inf, thinning=0, plottraces=TRUE, showclusterstraces=TRUE, seed=16, loglikelihood=F, subsampledata, useOquantiles=TRUE, output=FALSE, cleanup=TRUE){
+inferpopulation <- function(data, metadata, outputdir, nsamples=1200, nchains=120, nsamplesperchain, parallel=TRUE, niterini=1024, miniter=0, maxiter=+Inf, thinning=0, plottraces=TRUE, showclusterstraces=FALSE, seed=16, loglikelihood=F, subsampledata, useOquantiles=TRUE, output=FALSE, cleanup=TRUE){
 
     cat('\n')
 #### Determine the status of parallel processing
@@ -38,7 +38,7 @@ inferpopulation <- function(data, metadata, outputdir, nsamples=1200, nchains=12
 
 
 #### Consistency checks for numbers of samples, chains, cores
-    if(!missing(nsamples) && !missing(nchains) && missing(nsamplesperchain)){
+    if(exists('nsamples') && exists('nchains') && exists('nsamplesperchain')){
         ## nsamples and nchains given
         if(nchains < ncores){ ncores <- nchains }
         nchainspercore <- ceiling(nchains/ncores)
@@ -52,7 +52,7 @@ inferpopulation <- function(data, metadata, outputdir, nsamples=1200, nchains=12
             cat('Increasing number of samples to',nsamples,'\n')
         }
         ##
-    }else if(!missing(nsamples) && missing(nchains) && !missing(nsamplesperchain)){
+    }else if(exists('nsamples') && exists('nchains') && exists('nsamplesperchain')){
         ## nsamples and nsamplesperchain given
         nchains <- ceiling(nsamples/nsamplesperchain)
         if(nchains < ncores){ ncores <- nchains }
@@ -65,7 +65,7 @@ inferpopulation <- function(data, metadata, outputdir, nsamples=1200, nchains=12
             cat('Increasing number of samples to',nsamples,'\n')
         }
         ##
-    }else if(missing(nsamples) && !missing(nchains) && !missing(nsamplesperchain)){
+    }else if(exists('nsamples') && exists('nchains') && exists('nsamplesperchain')){
         ## nchains and nsamplesperchain given
         if(nchains < ncores){ ncores <- nchains }
         nchainspercore <- ceiling(nchains/ncores)
@@ -1102,7 +1102,10 @@ inferpopulation <- function(data, metadata, outputdir, nsamples=1200, nchains=12
         cat('\nTotal time', printtime(Sys.time() - starttime), '\n')
 
         cbind(maxusedclusters, allflagmc)
-    } #### END FOREACH OVER CORES
+    }
+############################################################
+#### END OF FOREACH-LOOP OVER CORES
+############################################################
     suppressWarnings(sink())
     suppressWarnings(sink(NULL,type='message'))
 
@@ -1258,6 +1261,15 @@ inferpopulation <- function(data, metadata, outputdir, nsamples=1200, nchains=12
             file.remove(paste0(dirname,'_mctraces',dashnameroot,'--', padchainnumber,'.rds'))
         }
     }
+
+#### WHAT SHOULD BE ADDED:
+    ## 1. putting together a histogram over number of clusters used
+    ## (can be interesting for the research question)
+    ##
+    ## 2. When showclusterstraces=TRUE:
+    ## a histogram for the concentration parameter alpha
+    ##
+    ## at the moment these are instead left in the output directory as debris
 
     cat('Finished.\n\n')
 

@@ -1,5 +1,7 @@
 #### Example procedure for using the OPM
 
+set.seed(201) # random seed
+
 ### First of all, clone the repository
 ### https://github.com/pglpm/bayes_nonparametric_inference
 ### or at least the folder 'package' therein
@@ -31,7 +33,7 @@ alldata <- fread(datafile)
 ## that is available in the full dataset.
 ##
 ## This is especially important for the 'centralvalue'-'highvalue' metadata
-buildmetadata(data=alldata, file='meta-exampledata')
+# buildmetadata(data=alldata, file='meta-exampledata')
 
 ### Open the metadata .csv file and modify the metadata as appropriate
 ### In this case we do the following changes:
@@ -47,16 +49,21 @@ buildmetadata(data=alldata, file='meta-exampledata')
 
 ## Select a subset of data for training
 ntrain <- 100
-set.seed(18) # random seed
 trainpoints <- sort(sample(1:nrow(alldata), ntrain))
 
 ## Call the main function that does the Monte Carlo sampling / "training"
 ## note that we are feeding fewer datapoints
-## Let's ask for 256 Monte Carlo samples
+## Let's ask for 240 Monte Carlo samples
 ## from two Monte Carlo chains
 ## We must also specify an output directory
 
-inferpopulation(data=alldata[trainpoints], metadata='meta-exampledata-modified.csv', outputdir='_testexampledata', nsamples=240, nchains=12)
+outputdir0 <- '_testexampledata2'
+inferpopulation(data=alldata[trainpoints], metadata='meta-exampledata-modified_nopred.csv', outputdir=outputdir0)
+
+## !!!! Check the directory name given in the messages of 'inferpopulation()'
+outputdir <- paste0(outputdir0,'-V7-D',ntrain,'-K64-S',if(exists('nsamples')){nsamples}else{1200})
+
+
 
 ## The detailed Monte Carlo sampling can be monitored, for each core,
 ## by reading the files '_log-1.log', '_log-2.log', etc in the output dir
@@ -99,10 +106,7 @@ X <- cbind(Output_class_0=+1,
 ## It requires the specification of the Monte Carlo output directory
 ## (don't worry about 'recycling' warnings)
 
-## !!!! Check the directory name given in the messages of 'inferpopulation()'
-outputdir <- '_testexampledata-V8-D100-K64-S240'
-
-testposterior <- samplesFDistribution(Y=Y, X=X, mcoutput=outputdir)
+testposterior <- samplesFDistribution(Y=Y, X=X, mcoutput=outputdir, parallel=TRUE)
 
 ## 'testposterior' has:
 ## - one row for each Y value
@@ -178,7 +182,10 @@ pdff('testresult2')
 ##
 gain <- 0
 gainsoftmax <- 0
-gainpred <- 0 # check if "Predictions" is the same as the max softmax
+##
+surprise <- 0
+surprisesoftmax <- 0
+##
 for(i in testpoints){
     ## get ML weights
     X <- alldata[i, ..Xcols] # note the tricky ".." syntax
@@ -186,18 +193,21 @@ for(i in testpoints){
     softmax <- exp(as.numeric(X))
     softmax <- softmax/sum(softmax)
     ## calculate posterior probability & samples
-    posterior <- samplesFDistribution(Y=Y, X=X, mcoutput=outputdir, silent=TRUE)
+    posterior <- samplesFDistribution(Y=Y, X=X, mcoutput=outputdir, silent=TRUE, parallel=TRUE)
     probdistr <- rowMeans(posterior)
     samplefreqs <- posterior[, postsamples]
     ##
     ## make decision according to probability
     choice <- which.max(utilities%*%probdistr)
     choicesoftmax <- which.max(utilities%*%softmax)
+    ##
     predictedvalue <- alldata[i,Predictions]+1
     truevalue <- alldata[i,Truth]+1
     gain <- gain + utilities[truevalue,choice]
     gainsoftmax <- gainsoftmax + utilities[truevalue,choicesoftmax]
-    gainpred <- gainpred + utilities[truevalue,predictedvalue]
+    ##
+    surprise <- surprise - log10(probdistr[truevalue])
+    surprisesoftmax <- surprisesoftmax - log10(softmax[truevalue])
     ##
     ## plot samples first
     tplot(x=0:5, y=samplefreqs,
@@ -220,4 +230,5 @@ dev.off()
 ##
 cat('\nGain per sample:',gain/ntest,'\n')
 cat('Softmax gain per sample:',gainsoftmax/ntest,'\n')
-cat('Predicted gain per sample:',gainpred/ntest,'\n')
+cat('\nSurprise per sample:',surprise/ntest,'\n')
+cat('Softmax surprise per sample:',surprisesoftmax/ntest,'\n')
