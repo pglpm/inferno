@@ -262,7 +262,7 @@ inferpopulation <- function(data, metadata, outputdir, nsamples=1200, nchains=12
             nvalues <- auxmetadata[name == vnames$N[avar], Nvalues]
             ## use Hadamard-like prior: 1/nvalues
             ## other choice is flat prior: 1
-            Nalpha0[avar, 1:nvalues] <- 1/sqrt(nvalues)
+            Nalpha0[avar, 1:nvalues] <- 1/nvalues
         }
     }
 
