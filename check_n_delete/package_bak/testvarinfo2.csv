@@ -1,0 +1,15 @@
+name,type,Nvalues,rounding,domainmin,domainmax,censormin,censormax,centralvalue,lowvalue,highvalue,plotmin,plotmax,V1,V2,V3,V4,V5,V6,V7
+Rvvv,continuous,Inf,0,-Inf,Inf,-Inf,Inf,-0.269535344671678,-0.532502909532471,0.268379097903041,-1.41140067105697,1.32834839406434,,,,,,,
+Cvvv,continuous,Inf,0,-Inf,Inf,-1,1,-0.701013743303553,-1,1,-1,1,,,,,,,
+Dvvv,continuous,Inf,0.1,-Inf,Inf,-Inf,Inf,-0.2,-0.8,0.925,-2.1625,2.6625,,,,,,,
+Ovvv,ordinal,14,1,-9,4,,,1.5,-2,2.25,-9,4,,,,,,,
+Nvvv,nominal,7,,,,,,,,,,,a,b,c,d,e,f,g
+Bvvv,binary,2,,,,,,,,,,,0,1,,,,,
+Rvvvl,continuous,Inf,0,0,Inf,0,Inf,1.2481032097776,0.520276039290723,2.0028505390432,0.014190465878415,3.63275926487424,,,,,,,
+Rvvv2,continuous,Inf,0,-Inf,Inf,-Inf,Inf,-0.300227354495524,-1.11740448745304,0.655744575758186,-3.12292944178242,2.40949778312574,,,,,,,
+Cvvv2,continuous,Inf,0,-Inf,Inf,-Inf,2,0.324567937399352,-0.084369404816322,0.927740537188092,-1.2233680827819,2,,,,,,,
+Dvvv2,continuous,Inf,0.1,-Inf,Inf,-Inf,Inf,0.75,-1,1.325,-3.1625,2.9625,,,,,,,
+Ovvv2,ordinal,6,1,-1,4,,,1,-1,2,-1,4,,,,,,,
+Nvvv2,nominal,4,,,,,,,,,,,a,b,c,d,,,
+Bvvv2,binary,2,,,,,,,,,,,0,1,,,,,
+Rvvv2l,continuous,Inf,0,0,Inf,0,Inf,0.958923825030569,0.396940396404284,3.25493905484796,0.0268252392391827,6.86726124523077,,,,,,,

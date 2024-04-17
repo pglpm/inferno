@@ -1,0 +1,12 @@
+library('data.table')
+library('foreach')
+library('doParallel')
+library('doRNG')
+loadNamespace('LaplacesDemon')
+loadNamespace('nimble')
+##
+source('buildmetadata.R')
+source('buildauxmetadata.R')
+source('samplesFDistribution.R')
+source('inferpopulation.R')
+source('plotFsamples.R')
