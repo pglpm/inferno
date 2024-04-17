@@ -16,6 +16,7 @@ desktop.ini
 .Rhistory
 .RData
 Rplots.pdf
+git-truncate.sh
 *~
 _*
 _region_.*
