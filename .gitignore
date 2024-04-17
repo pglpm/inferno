@@ -1,6 +1,8 @@
 .directory
 .DS_Store
 desktop.ini
+Rplots.pdf
+git-truncate.sh
 *#
 .#*
 *.aux
@@ -15,8 +17,6 @@ desktop.ini
 *.out.ps
 .Rhistory
 .RData
-Rplots.pdf
-git-truncate.sh
 *~
 _*
 _region_.*
