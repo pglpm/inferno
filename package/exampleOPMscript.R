@@ -18,7 +18,7 @@ source('bnpi.R')
 ## For parallel processing (on Linux)
 ##
 ## Skip these lines if you don't want to use parallel computation
-ncores <- 4 # number of CPUs to use
+ncores <- 2 # number of CPUs to use
 mycluster <- makeCluster(ncores, outfile="")
 registerDoParallel(mycluster)
 

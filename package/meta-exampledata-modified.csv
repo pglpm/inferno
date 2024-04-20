@@ -1,6 +1,5 @@
 name,type,Nvalues,rounding,domainmin,domainmax,minincluded,maxincluded,centralvalue,lowvalue,highvalue,plotmin,plotmax,V1,V2,V3,V4,V5,V6
 Truth,nominal,6,,0,5,TRUE,TRUE,2.5,1,4,0,5,0,1,2,3,4,5
-Predictions,nominal,6,,0,5,TRUE,TRUE,2,1,4,0,5,0,1,2,3,4,5
 Output_class_0,continuous,Inf,0,-Infinity,Infinity,FALSE,FALSE,-6.24910235404968,-10.7303018569946,-0.798288255929947,-209.837848231196,13.2700581997633,,,,,,
 Output_class_1,continuous,Inf,0,-Infinity,Infinity,FALSE,FALSE,0.448819443583488,-0.171452216804028,1.05750396847725,-6.34004877135158,3.15211294218898,,,,,,
 Output_class_2,continuous,Inf,0,-Infinity,Infinity,FALSE,FALSE,-1.95936799049377,-3.51213425397873,-0.390021950006485,-13.8672256618738,10.8874950557947,,,,,,

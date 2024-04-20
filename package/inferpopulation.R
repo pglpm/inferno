@@ -1,4 +1,6 @@
-inferpopulation <- function(data, metadata, outputdir, nsamples=1200, nchains=120, nsamplesperchain, parallel=TRUE, niterini=1024, miniter=0, maxiter=+Inf, thinning=0, plottraces=TRUE, showclusterstraces=TRUE, seed=16, loglikelihood=F, subsampledata, useOquantiles=TRUE, output=FALSE, cleanup=TRUE){
+inferpopulation <- function(data, metadata, outputdir, nsamples=1200, nchains=120, nsamplesperchain, parallel=TRUE, niterini=1024, miniter=0, maxiter=+Inf, thinning=0, plottraces=TRUE, showKtraces=FALSE, showAlphatraces=FALSE, seed=16, loglikelihood=F, subsampledata, useOquantiles=TRUE, output=FALSE, cleanup=TRUE){
+
+    ## 'cleanup' removes files that can be used for debugging
 
     cat('\n')
 #### Determine the status of parallel processing
@@ -209,7 +211,7 @@ inferpopulation <- function(data, metadata, outputdir, nsamples=1200, nchains=12
     totsamples <- 'all' # 'all' number of samples if plotting frequency averages
     showsamples <- 100 # number of samples to show.
     showquantiles <- c(1,31)/32 # quantiles to show
-    nclustersamples <- 128 ## number of samples of Alpha and occupations
+    nclustersamples <- 128 ## number of samples of Alpha and K
     showsamplertimes <- FALSE ##
     family <- 'Palatino'
 ##################################################
@@ -223,6 +225,8 @@ inferpopulation <- function(data, metadata, outputdir, nsamples=1200, nchains=12
         '\n Saving output in directory\n',dirname,'\n',
         paste0(rep('*',max(nchar(dirname),26)),collapse=''),'\n')
     nameroot <- basename(nameroot)
+    ## This is in case we need to add some extra specifier to the output files
+    ## all 'dashnameroot' can be deleted in a final version
     dashnameroot <- NULL
 
     ## Save copy of metadata in directory
@@ -651,7 +655,10 @@ inferpopulation <- function(data, metadata, outputdir, nsamples=1200, nchains=12
                        if(vn$N > 0){c('Nprob')},
                        if(vn$B > 0){c('Bprob')}
                        ),
-            monitors2=c(if(showclusterstraces){'Alpha'}, 'K')
+            ## It is necessary to monitor K to see if all clusters were used
+            ## if 'showAlphatraces' is true then
+            ## the Alpha-parameter trace is also recorded and shown
+            monitors2=c(if(showAlphatraces){'Alpha'}, 'K')
         )
         ## print(confnimble$getUnsampledNodes())
         ## confnimble$printSamplers(executionOrder=TRUE)
@@ -747,7 +754,7 @@ inferpopulation <- function(data, metadata, outputdir, nsamples=1200, nchains=12
 
         for(achain in 1:nchainspercore){
             showsamplertimes0 <- showsamplertimes && (achain==1)
-            ## showclusterstraces0 <- showclusterstraces && (achain==1)
+            ## showAlphatraces0 <- showAlphatraces && (achain==1)
             niter <- min(niterini,maxiter)
             ## ## Experimental: decrease number of iterations based on previous chain
             ## if(achain == 1){
@@ -761,8 +768,8 @@ inferpopulation <- function(data, metadata, outputdir, nsamples=1200, nchains=12
             traces <- NULL
             ## allmcsamples <- NULL
             allmcsamples <- NULL
-            allclusterhypar <- list(Alpha=NULL, K=NULL)
-            clusterhypar <- NULL
+            allmcsamplesKA <- list(Alpha=NULL, K=NULL)
+            mcsamplesKA <- NULL
             flagll <- FALSE
             flagmc <- FALSE
             if(is.numeric(loglikelihood)){
@@ -783,15 +790,25 @@ inferpopulation <- function(data, metadata, outputdir, nsamples=1200, nchains=12
                 cat('Iterations:', niter,'\n')
 
 #### MONTE-CARLO CALL
-                Cmcsampler$run(niter=niter, thin=1, thin2=(if(showclusterstraces){max(1,round(niter/nclustersamples))}else{niter}), nburnin=0, time=showsamplertimes0, reset=reset, resetMV=TRUE)
+                Cmcsampler$run(niter=niter, thin=1,
+                               ## If reporting Alpha or K traces,
+                               ## then save them more frequently
+                               ## Otherwise just save the last value
+                               thin2=(if(showAlphatraces || showKtraces){max(1,round(niter/nclustersamples))}else{niter}),
+                               nburnin=0, time=showsamplertimes0, reset=reset, resetMV=TRUE)
 
                 ## mcsamples <- as.matrix(Cmcsampler$mvSamples)
+                ## iterationAsLastIndex: See sect 7.7 of Nimble manual
                 mcsamples <- as.list(Cmcsampler$mvSamples, iterationAsLastIndex=T)
-
-                clusterhypar <- as.list(Cmcsampler$mvSamples2, iterationAsLastIndex=F)
-                clusterhypar$K <- apply(clusterhypar$K, 1, function(xx)length(unique(xx)))
-                clusterhypar$Alpha <- c(clusterhypar$Alpha)
-
+                ## ## saveRDS(mcsamples,'__mcsamplestest.rds') # for debug
+                mcsamplesKA <- as.list(Cmcsampler$mvSamples2, iterationAsLastIndex=F)
+                ## ## saveRDS(mcsamplesKA,'__mcsamplesKAtest.rds') # for debug
+                ## 'mcsamplesKA$K' contains the cluster identity of each training datapoint
+                ## but we only want the number of distinct clusters used:
+                mcsamplesKA$K <- apply(mcsamplesKA$K, 1, function(xx)length(unique(xx)))
+                if(showAlphatraces){
+                    dim(mcsamplesKA$Alpha) <- NULL # from matrix to vector
+                }
                 cat('\nMCMC time', printtime(Sys.time() - starttime), '\n')
 
                 ## #### Remove iterations with non-finite values
@@ -845,13 +862,8 @@ inferpopulation <- function(data, metadata, outputdir, nsamples=1200, nchains=12
                 }
                 ##
 
-                ## Check how many clusters were occupied. Warns if too many
-                usedclusters <- clusterhypar$K[length(clusterhypar$K)]
-                ## maxusedclusters <- max(usedclusters, maxusedclusters)
-                ## if(usedclusters > nclusters-5){
-                ##     cat('\nWARNING: TOO MANY CLUSTERS OCCUPIED')
-                ##     printnull('\nWARNING: TOO MANY CLUSTERS OCCUPIED\n', outcon)
-                ## }
+                ## Check how many clusters were occupied at the last step
+                usedclusters <- mcsamplesKA$K[length(mcsamplesKA$K)]
                 cat('\nOCCUPIED CLUSTERS:', usedclusters, 'OF', nclusters,'\n')
 
                 ##
@@ -908,9 +920,10 @@ inferpopulation <- function(data, metadata, outputdir, nsamples=1200, nchains=12
                 ## allmcsamples <- rbind(allmcsamples, mcsamples)
                 ## rm(mcsamples)
                 ## gc()
-                if(is.null(allmcsamples)){
+                if(is.null(allmcsamples)){ # new chain
                     allmcsamples <- mcsamples
-                }else{
+                    allmcsamplesKA <- mcsamplesKA
+                }else{ # continuing chain, concat samples
                     allmcsamples <- mapply(function(xx,yy){
                         temp <- c(xx,yy)
                         dx <- dim(xx)[-length(dim(xx))]
@@ -918,14 +931,16 @@ inferpopulation <- function(data, metadata, outputdir, nsamples=1200, nchains=12
                         temp
                     },
                     allmcsamples, mcsamples, SIMPLIFY=FALSE)
+
+                    if(showAlphatraces || showKtraces){
+                        ## Concatenate samples of K and Alpha
+                        allmcsamplesKA <- mapply(function(xx,yy){c(xx,yy)}, allmcsamplesKA, mcsamplesKA, SIMPLIFY=FALSE)
+                    }
                 }
 
                 rm(mcsamples)
                 gc()
 
-                ## if(showclusterstraces){
-                    allclusterhypar <- mapply(function(xx,yy){c(xx,yy)}, allclusterhypar, clusterhypar, SIMPLIFY=FALSE)
-                ## }
                 nitertot <- ncol(allmcsamples$W)
 
 
@@ -970,34 +985,39 @@ inferpopulation <- function(data, metadata, outputdir, nsamples=1200, nchains=12
 
             saveRDS(traces[tokeep,],file=paste0(dirname,'_mctraces',dashnameroot,'--', padchainnumber,'.rds'))
 
-            for(i in 1:length(allclusterhypar))
-                ## Check how many clusters were occupied. Warns if too many
-                usedclusters <- allclusterhypar$K[length(allclusterhypar$K)]
-            if(usedclusters > nclusters-5){
-                cat('\nWARNING: TOO MANY CLUSTERS OCCUPIED')
-                ## printnull('\nWARNING: TOO MANY CLUSTERS OCCUPIED\n', outcon)
-                ## printnull(paste0('\nOCCUPIED CLUSTERS:', usedclusters, 'OF', nclusters,'\n'), outcon)
-            }
-            cat('\nOCCUPIED CLUSTERS:', usedclusters, 'OF', nclusters,'\n')
+            ## ## This part is debris?
+            ## for(i in 1:length(allmcsamplesKA))
+            ##     ## Check how many clusters were occupied. Warns if too many
+            ##     usedclusters <- allmcsamplesKA$K[length(allmcsamplesKA$K)]
+            ## if(usedclusters > nclusters-5){
+            ##     cat('\nWARNING: TOO MANY CLUSTERS OCCUPIED')
+            ##     ## printnull('\nWARNING: TOO MANY CLUSTERS OCCUPIED\n', outcon)
+            ##     ## printnull(paste0('\nOCCUPIED CLUSTERS:', usedclusters, 'OF', nclusters,'\n'), outcon)
+            ## }
+            ## cat('\nOCCUPIED CLUSTERS:', usedclusters, 'OF', nclusters,'\n')
 
 ###############
 #### PLOTS ####
 ###############
 #### Plot Alpha and cluster occupation, if required
-            if(showclusterstraces){
-                cat('Plotting Alpha and cluster information.\n')
-                cat('\nSTATS OCCUPIED CLUSTERS:\n')
-                print(summary(allclusterhypar$K))
-                ##
+            if(showAlphatraces || showKtraces){
+                cat('Plotting cluster and Alpha information.\n')
                 pdff(paste0(dirname,'_hyperparams_traces',dashnameroot,'--', padchainnumber,'_',achain,'-',acore), apaper=4)
-                tplot(y=allclusterhypar$K, ylab='occupied clusters',xlab='iteration',ylim=c(0,nclusters))
-                tplot(x=((-1):nclusters)+0.5,y=tabulate(allclusterhypar$K + 1, nbins=nclusters+1), type='h', xlab='occupied clusters', ylab=NA, ylim=c(0,NA))
-                ##
-                cat('\nSTATS log2(alpha):\n')
-                print(summary(allclusterhypar$Alpha+minalpha-1L, na.rm=T))
-                tplot(y=allclusterhypar$Alpha+minalpha-1L, ylab=bquote(log2(alpha)),xlab='iteration',ylim=c(minalpha,maxalpha))
-                tplot(x=(minalpha:(maxalpha+1))-0.5,y=tabulate(allclusterhypar$Alpha,nbin=nalpha), type='h', xlab=bquote(log2(alpha)), ylab='', ylim=c(0,NA))
-                dev.off()
+
+                if(showKtraces){
+                    cat('\nSTATS OCCUPIED CLUSTERS:\n')
+                    print(summary(allmcsamplesKA$K))
+                    ##
+                    tplot(y=allmcsamplesKA$K, ylab='occupied clusters',xlab='iteration',ylim=c(0,nclusters))
+                    tplot(x=((-1):nclusters)+0.5,y=tabulate(allmcsamplesKA$K + 1, nbins=nclusters+1), type='h', xlab='occupied clusters', ylab=NA, ylim=c(0,NA))
+                }
+                if(showAlphatraces){
+                    cat('\nSTATS log2(alpha):\n')
+                    print(summary(allmcsamplesKA$Alpha+minalpha-1L, na.rm=T))
+                    tplot(y=allmcsamplesKA$Alpha+minalpha-1L, ylab=bquote(log2(alpha)),xlab='iteration',ylim=c(minalpha,maxalpha))
+                    tplot(x=(minalpha:(maxalpha+1))-0.5,y=tabulate(allmcsamplesKA$Alpha,nbin=nalpha), type='h', xlab=bquote(log2(alpha)), ylab='', ylim=c(0,NA))
+                }
+                    dev.off()
             }
 
 #### Plot diagnostic traces of current chain
@@ -1024,7 +1044,7 @@ inferpopulation <- function(data, metadata, outputdir, nsamples=1200, nchains=12
                 ## Plot various info and traces
                 cat('\nPlotting MCMC traces')
                 graphics.off()
-                pdff(paste0(dirname,'_mcmcpartialtraces',dashnameroot,'--', padchainnumber,'_',achain,'-',acore), apaper=4)
+                pdff(paste0(dirname,'_mcpartialtraces',dashnameroot,'--', padchainnumber,'_',achain,'-',acore), apaper=4)
                 ## Summary stats
                 matplot(1:2, type='l', col='white', main=paste0('Stats chain ',achain), axes=FALSE, ann=FALSE)
                 legendpositions <- c('topleft','topright','bottomleft','bottomright')
@@ -1256,22 +1276,26 @@ inferpopulation <- function(data, metadata, outputdir, nsamples=1200, nchains=12
 #### remove partial files if required
     if(cleanup){
         cat('Removing temporary output files.\n')
-        for(chainnumber in 1:(ncores*nchainspercore)){
-            padchainnumber <- sprintf(paste0('%0',nchar(nchains),'i'), chainnumber)
-            ## file.remove(paste0(dirname,'_mcsamples',dashnameroot,'--', padchainnumber,'.rds'))
-            file.remove(paste0(dirname,'_mcsamples',dashnameroot,'--', padchainnumber,'.rds'))
-            file.remove(paste0(dirname,'_mctraces',dashnameroot,'--', padchainnumber,'.rds'))
-        }
+        file.remove(dir(dirname,
+                        pattern = paste0("^_mcsamples",dashnameroot,"--.*\\.rds$"),
+                        full.names = TRUE
+                        ))
+        file.remove(dir(dirname,
+                        pattern = paste0("^_mctraces",dashnameroot,"--.*\\.rds$"),
+                        full.names = TRUE
+                        ))
+        ## Should we leave the plots of partial traces?
+        ## maybe create an additional function argument?
+        file.remove(dir(dirname,
+                        pattern = paste0("^_mcpartialtraces",dashnameroot,"--.*\\.pdf$"),
+                        full.names = TRUE
+                        ))
     }
 
-#### WHAT SHOULD BE ADDED:
-    ## 1. putting together a histogram over number of clusters used
-    ## (can be interesting for the research question)
-    ##
-    ## 2. When showclusterstraces=TRUE:
-    ## a histogram for the concentration parameter alpha
-    ##
-    ## at the moment these are instead left in the output directory as debris
+#### WHAT MIGHT BE ADDED:
+    ## - when 'showKtraces' is true:
+    ## a histogram over number of clusters over all chains
+    ## (for the moment there's one plot per chain)
 
     cat('Finished.\n\n')
 
