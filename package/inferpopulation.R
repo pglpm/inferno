@@ -1,4 +1,4 @@
-inferpopulation <- function(data, metadata, outputdir, nsamples=1200, nchains=120, nsamplesperchain, parallel=TRUE, niterini=1024, miniter=0, maxiter=+Inf, thinning=0, plottraces=TRUE, showKtraces=FALSE, showAlphatraces=FALSE, seed=16, loglikelihood=F, subsampledata, useOquantiles=TRUE, output=FALSE, cleanup=TRUE){
+inferpopulation <- function(data, metadata, outputdir, nsamples=1200, nchains=120, nsamplesperchain, parallel=TRUE, niterini=1024, miniter=0, maxiter=+Inf, thinning=0, plottraces=TRUE, showKtraces=FALSE, showAlphatraces=FALSE, seed=NULL, loglikelihood=F, subsampledata, useOquantiles=TRUE, output=FALSE, cleanup=TRUE){
 
     ## 'cleanup' removes files that can be used for debugging
 
@@ -384,6 +384,12 @@ inferpopulation <- function(data, metadata, outputdir, nsamples=1200, nchains=12
     ## toexport <- c('vtransform','samplesFDistribution','proposeburnin','proposethinning','plotFsamples')
 
 #### BEGINNING OF FOREACH LOOP OVER CORES
+    ## Set the RNG seed if given by user, or if no seed already exists
+    if(!missing(seed) || !exists('.Random.seed')){set.seed(seed)}
+    ## Save current RNG seed in case needed by user
+    saveRDS(.Random.seed, file=paste0(dirname,'rng_seed',dashnameroot,'.rds'))
+
+    ##set.seed(seed)
     chaininfo <- foreach(acore=1:ncores, .combine=rbind, .inorder=FALSE, .packages=c('khroma','foreach','rngtools'))%dochains%{
 
         outcon <- file(paste0(dirname,'_log',dashnameroot,'-',acore,'.log'), open = "w")
@@ -780,8 +786,8 @@ inferpopulation <- function(data, metadata, outputdir, nsamples=1200, nchains=12
             padchainnumber <- sprintf(paste0('%0',nchar(nchains),'i'), chainnumber)
             cat('\nChain #', chainnumber,
                 '(chain', achain,'of',nchainspercore,'for this core)\n')
-            cat('Seed:', chainnumber+seed, '\n')
-            set.seed(chainnumber+seed)
+            ## cat('Seed:', chainnumber+seed, '\n')
+            ## set.seed(chainnumber+seed)
             Cfinitemixnimble$setInits(initsfn())
 
 #### WHILE LOOP CONTINUING UNTIL CONVERGENCE
@@ -1142,15 +1148,12 @@ inferpopulation <- function(data, metadata, outputdir, nsamples=1200, nchains=12
 ############################################################
 #### Join chains
 ############################################################
-    ## mcsamples <- foreach(chainnumber=1:(ncores*nchainspercore), .combine=rbind)%do%{
-    ##     readRDS(file=paste0(dirname,'_mcsamples',dashnameroot,'--', padchainnumber,'.rds'))
-    ## }
-    ## ## attr(mcsamples, 'rng') <- NULL
-    ## ## attr(mcsamples, 'doRNG_version') <- NULL
-    ## ## ## Remove extra chains
-    ## ## mcsamples <- mcsamples[round(seq(1,nrow(mcsamples),length.out=nsamples)),-(1:3)]
-    ## saveRDS(mcsamples,file=paste0(dirname,'Fdistribution',dashnameroot,'.rds'))
+    ## Save random seeds used in the parallel processing
+    if(!is.null(attr(chaininfo,'rng'))){ # parallel processing
+        saveRDS(attr(chaininfo,'rng'),file=paste0(dirname,'rng_parallelseeds',dashnameroot,'.rds'))
+    }
 
+    ## Read the samples saved by each chain and concatenate them
     joinmc <- function(mc1, mc2){
         mapply(function(xx,yy){
             temp <- c(xx,yy)
