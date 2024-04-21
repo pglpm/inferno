@@ -89,7 +89,6 @@ inferpopulation <- function(data, metadata, outputdir, nsamples=1200, nchains=12
     ## }
 
     if(ncores < 2){ `%dochains%` <- `%do%` }else{ `%dochains%` <- `%dorng%` }
-
     timestart0 <- Sys.time()
 
     ## cat('\n')
