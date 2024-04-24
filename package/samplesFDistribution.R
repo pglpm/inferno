@@ -338,7 +338,7 @@ if(!silent){ cat('Using already registered', getDoParName(), 'with', getDoParWor
         ##
         ##
         if(all(is.na(y))){
-            probY <- array(NA, dim=dim(W))
+            probY <- array(NA, dim=dim(mcoutput$W))
         }else{
             probY <- (if(YnR > 0){# continuous
                           colSums(

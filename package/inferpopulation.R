@@ -1,4 +1,4 @@
-inferpopulation <- function(data, metadata, outputdir, nsamples=1200, nchains=120, nsamplesperchain, parallel=TRUE, niterini=1024, miniter=0, maxiter=+Inf, thinning=0, plottraces=TRUE, showKtraces=FALSE, showAlphatraces=FALSE, seed=NULL, loglikelihood=F, subsampledata, useOquantiles=TRUE, output=FALSE, cleanup=TRUE){
+inferpopulation <- function(data, metadata, outputdir, nsamples=1200, nchains=120, nsamplesperchain, parallel=TRUE, niterini=1024, miniter=0, maxiter=+Inf, thinning=0, plottraces=TRUE, showKtraces=FALSE, showAlphatraces=FALSE, seed=NULL, loglikelihood=F, subsampledata, useOquantiles=FALSE, output=FALSE, cleanup=TRUE){
 
     ## 'cleanup' removes files that can be used for debugging
 
@@ -358,6 +358,7 @@ inferpopulation <- function(data, metadata, outputdir, nsamples=1200, nchains=12
 
 
 #### Output info
+    if(!exists('Nalpha0')){Nalpha0 <- cbind(1)}
     cat('Starting Monte Carlo sampling of',nsamples,'samples by',nchains,'chains')
     cat('\nin a space of',
     (sum(as.numeric(vn)*c(2, 2, 2, 2, 0, 1))+sum(Nalpha0>2e-100)-nrow(Nalpha0) + 1)*nclusters - 1,

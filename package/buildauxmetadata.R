@@ -101,8 +101,8 @@ buildauxmetadata <- function(data, metadata, file=TRUE){
             scale <- abs(Qf(round((xinfo$highvalue-olocation)/oscale)/vn) -
                          Qf(round((xinfo$lowvalue-olocation)/oscale)/vn)
                          )*sdoveriqr
-            plotmin <- xinfo$plotmin
-            plotmax <- xinfo$plotmax
+            plotmin <- (if(is.finite(xinfo$plotmin)){xinfo$plotmin}else{xinfo$domainmin})
+            plotmax <- (if(is.finite(xinfo$plotmax)){xinfo$plotmax}else{xinfo$domainmax})
             Q1 <- mctest1 <- quantile(x, probs=0.25, type=6)
             Q2 <- mctest2 <- quantile(x, probs=0.5, type=6)
             Q3 <- mctest3 <- quantile(x, probs=0.75, type=6)

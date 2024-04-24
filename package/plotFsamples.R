@@ -22,7 +22,6 @@ plotFsamples <- function(file, mcoutput, data, plotmeans=TRUE, plotuncertainty='
     auxmetadata <- mcoutput$auxmetadata
     ## mcoutput$auxmetadata <- NULL
 
-
     nsamples <- ncol(mcoutput$W)
 
     nodata <- missing(data) || is.null(data) || (is.logical(data) && !data)
@@ -195,6 +194,7 @@ plotFsamples <- function(file, mcoutput, data, plotmeans=TRUE, plotuncertainty='
             }
 
 #####
+
             ## nominal or binary variate
         }else{ 
             Xgrid <- cbind(unlist(varinfo[paste0('V',1:varinfo[['Nvalues']])]))
