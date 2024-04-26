@@ -62,5 +62,3 @@ fwrite(metadata, 'metatestdata.csv')
 auxmeta <- buildauxmetadata(data=testdata, metadata=metadata, file=F)
 
 
-source('bnpi.R')
-test <- inferpopulation(data=testdata, metadata=as.data.table(metadata), outputdir='__debug', nsamples=10, nchains=2, cleanup=F, parallel=2)
