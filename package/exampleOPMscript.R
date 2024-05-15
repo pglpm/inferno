@@ -33,7 +33,7 @@ alldata <- fread(datafile)
 ## that is available in the full dataset.
 ##
 ## This is especially important for the 'centralvalue'-'highvalue' metadata
-# buildmetadata(data=alldata, file='meta-exampledata')
+buildmetadata(data=alldata, file='meta-exampledata')
 
 ### Open the metadata .csv file and modify the metadata as appropriate
 ### In this case we do the following changes:
