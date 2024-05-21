@@ -57,13 +57,8 @@ trainpoints <- sort(sample(1:nrow(alldata), ntrain))
 ## from two Monte Carlo chains
 ## We must also specify an output directory
 
-outputdir0 <- '_testexampledata2_Jef'
-inferpopulation(data=alldata[trainpoints], metadata='meta-exampledata-modified_nopred.csv', outputdir=outputdir0)
-
-## !!!! Check the directory name given in the messages of 'inferpopulation()'
-outputdir <- paste0(outputdir0,'-V7-D',ntrain,'-K64-S',if(exists('nsamples')){nsamples}else{1200})
-
-
+outputdir <- '_testexampledata2'
+inferpopulation(data=alldata[trainpoints], metadata='meta-exampledata-modified.csv', outputdir=outputdir, nsamples=240, nchains=2, timestampdir=FALSE)
 
 ## The detailed Monte Carlo sampling can be monitored, for each core,
 ## by reading the files '_log-1.log', '_log-2.log', etc in the output dir

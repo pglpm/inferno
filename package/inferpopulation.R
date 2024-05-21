@@ -1,4 +1,4 @@
-inferpopulation <- function(data, metadata, outputdir, nsamples=1200, nchains=120, nsamplesperchain, parallel=TRUE, niterini=1024, miniter=0, maxiter=+Inf, thinning=0, plottraces=TRUE, showKtraces=FALSE, showAlphatraces=FALSE, seed=NULL, loglikelihood=F, subsampledata, useOquantiles=FALSE, output=FALSE, cleanup=TRUE){
+inferpopulation <- function(data, metadata, outputdir, nsamples=1200, nchains=120, nsamplesperchain, parallel=TRUE, niterini=1024, miniter=0, maxiter=+Inf, thinning=0, plottraces=TRUE, showKtraces=FALSE, showAlphatraces=FALSE, seed=NULL, loglikelihood=F, subsampledata, useOquantiles=FALSE, output=FALSE, cleanup=TRUE, timestampdir=TRUE){
 
     ## 'cleanup' removes files that can be used for debugging
 
@@ -215,8 +215,13 @@ inferpopulation <- function(data, metadata, outputdir, nsamples=1200, nchains=12
     family <- 'Palatino'
 ##################################################
 
-
-    nameroot <- paste0(outputdir,'-V',nrow(auxmetadata),'-D',(if(npoints==1 && all(is.na(data))){0}else{npoints}),'-K',nclusters,'-S',nsamples)
+    ## append time and sampling info to name of output directory
+    if(timestampdir){
+        timestamp <- paste0('-V',nrow(auxmetadata),'-D',(if(npoints==1 && all(is.na(data))){0}else{npoints}),'-K',nclusters,'-S',nsamples)
+    }else{
+        timestamp <- NULL
+    }
+    nameroot <- paste0(outputdir, timestamp)
     ##
     dirname <- paste0(nameroot,'/')
     dir.create(dirname)
