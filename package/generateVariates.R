@@ -1,6 +1,6 @@
-samplesFDistribution <- function(Y, X, mcoutput, subsamples, jacobian=TRUE, fn=identity, combine='rbind', useOquantiles=TRUE, parallel=TRUE, silent=FALSE){
+generateVariates <- function(n=1, Yvars, X, mcoutput, combine='rbind', useOquantiles=TRUE, parallel=TRUE, silent=FALSE){
 
-    if(!silent){ cat('\n') }
+        if(!silent){ cat('\n') }
 #### Determine the status of parallel processing
     if(!missing(parallel) && is.logical(parallel) && parallel){
         if(getDoParRegistered()){
@@ -26,7 +26,7 @@ if(!silent){ cat('Using already registered', getDoParName(), 'with', getDoParWor
         ncores <- 1
     }
 
-    if(ncores < 2){ `%dochains%` <- `%do%` }else{ `%dochains%` <- `%dopar%` }
+    ## if(ncores < 2){ `%dochains%` <- `%do%` }else{ `%dochains%` <- `%dopar%` }
 
     ## Extract Monte Carlo output & aux-metadata
     if(is.character(mcoutput)){
@@ -56,7 +56,7 @@ if(!silent){ cat('Using already registered', getDoParName(), 'with', getDoParWor
     }
 
     ## More consistency checks
-    Yv <- colnames(Y)
+    Yv <- Yvars
     if(!all(Yv %in% auxmetadata$name)){stop('unknown Y variates\n')}
     if(length(unique(Yv)) != length(Yv)){stop('duplicate Y variates\n')}
     ##
@@ -66,16 +66,11 @@ if(!silent){ cat('Using already registered', getDoParName(), 'with', getDoParWor
     ##
     if(length(intersect(Yv, Xv)) > 0){stop('overlap in Y and X variates\n')}
 
+
 #### Subsample and get nclusters and nsamples
     source('mcsubset.R')
-
-    if(!missing(subsamples) && (is.numeric(subsamples) || (is.character(subsamples) && length(subsamples) == 1))){
-        if(is.character(subsamples)){
-            subsamples <- round(seq(1, ncol(mcoutput$W),
-                                    length.out=as.numeric(subsamples)))
-        }
-        mcoutput <- mcsubset(mcoutput, subsamples)
-    }
+    subsamples <- sample(1:nrow(mcsamples), n, replace=(n > nrow(mcsamples)))
+    mcoutput <- mcsubset(mcoutput, subsamples)
 
     nsamples <- ncol(mcoutput$W)
     nclusters <- nrow(mcoutput$W)
@@ -213,32 +208,21 @@ if(!silent){ cat('Using already registered', getDoParName(), 'with', getDoParWor
     YnB <- length(YiB)
 
 #### transformation of inputs
-    Y2 <- vtransform(Y, auxmetadata, Cout='boundisinf', Dout='boundisinf', Oout='', Nout='numeric', Bout='numeric', useOquantiles=useOquantiles)
     if(!is.null(X)){
         X2 <- vtransform(X, auxmetadata, Cout='boundisinf', Dout='boundisinf', Oout='', Nout='numeric', Bout='numeric', useOquantiles=useOquantiles)
-        if(nrow(X2) < nrow(Y2)){
-            warning('*Note: X has fewer data than Y. Recycling*')
-            X2 <- t(matrix(rep(t(X2), ceiling(nrow(Y2)/nrow(X2))), nrow=ncol(X2), dimnames=list(colnames(X2),NULL)))[1:nrow(Y2),,drop=FALSE]
-        }
-        if(nrow(X2) > nrow(Y2)){
-            warning('*Note: X has more data than Y. Recycling*')
-            Y2 <- t(matrix(rep(t(Y2), ceiling(nrow(X2)/nrow(Y2))), nrow=ncol(Y2), dimnames=list(colnames(Y2),NULL)))[1:nrow(X2),,drop=FALSE]
-            Y <- t(matrix(rep(t(Y), ceiling(nrow(X2)/nrow(Y))), nrow=ncol(Y), dimnames=list(colnames(Y),NULL)))[1:nrow(X2),,drop=FALSE]
-        }
-    }else{X2 <- lapply(seq_len(nrow(Y2)),function(x)NA)}
-    ## ndata <- nrow(Y2)
-    ##
-    ##
+    }else{X2 <- t(NA)}
 
-    foreach(y=t(Y2), x=t(X2), .combine=combine, .inorder=TRUE)%dochains%{
-#### the loop is over the columns of y and x
-#### each instance is a 1-column vector
-        ##
+    out <- foreach(x=t(X2), .combine=combine, .inorder=TRUE)%dorng%{
+
+        yv <- Yv
+        yn <- Yn
+
         if(all(is.na(x))){
-            probX <- log(mcoutput$W)
+            probX <- mcoutput$W
         }else{
             ## rows: clusters, cols: samples
-            probX <- log(mcoutput$W) +
+            probX <- exp(
+                log(mcoutput$W) +
                 (if(XnR > 0){# continuous
                      colSums(
                          dnorm(x=x[XiR,],
@@ -334,120 +318,23 @@ if(!silent){ cat('Using already registered', getDoParName(), 'with', getDoParWor
                               (1L-x[XiB,])*(1-mcoutput$Bprob[XtB,,,drop=FALSE]) ),
                          na.rm=TRUE)
                  }else{0})
-        } # end probX
-        probX <- apply(probX, 2, function(xx){xx - max(xx[is.finite(xx)])})
+            )} # end probX
+        probX <- t(apply(probX, 2, function(xx){xx - max(xx[is.finite(xx)])}))
         ##
         ##
-        if(all(is.na(y))){
-            probY <- array(NA, dim=dim(mcoutput$W))
-        }else{
-            probY <- (if(YnR > 0){# continuous
-                          colSums(
-                              dnorm(x=y[YiR,],
-                                    mean=mcoutput$Rmean[YtR,,,drop=FALSE],
-                                    sd=mcoutput$Rvar[YtR,,,drop=FALSE],
-                                    log=TRUE),
-                              na.rm=TRUE)
-                      }else{0}) +
-                (if(YnC > 0){# censored
-                     indf <- which(is.finite(y[YiC,]))
-                     indi <- which(!is.finite(y[YiC,]))
-                     (if(length(indf) > 0){
-                          colSums(
-                              dnorm(x=y[YiC[indf],],
-                                    mean=mcoutput$Cmean[YtC[indf],,,drop=FALSE],
-                                    sd=mcoutput$Cvar[YtC[indf],,,drop=FALSE],
-                                    log=TRUE),
-                              na.rm=TRUE)
-                      }else{0}) +
-                         (if(length(indi) > 0){
-                              v2 <- YtC[indi]
-                              v1 <- -sign(y[YiC[indi],])
-                              ## for upper tail, take opposite mean and value
-                              colSums(
-                                  pnorm(q=Cbounds[cbind(v2, 1.5-0.5*v1)],
-                                        mean=v1*mcoutput$Cmean[v2,,,drop=FALSE],
-                                        sd=mcoutput$Cvar[v2,,,drop=FALSE],
-                                        log.p=TRUE),
-                                  na.rm=TRUE)
-                          }else{0})
-                 }else{0}) +
-                (if(YnD > 0){# continuous discretized
-                     indf <- which(is.finite(y[YiD,]))
-                     indi <- which(!is.finite(y[YiD,]))
-                     (if(length(indf) > 0){
-                          colSums(
-                              dnorm(x=y[YiD[indf],],
-                                    mean=mcoutput$Dmean[YtD[indf],,,drop=FALSE],
-                                    sd=mcoutput$Dvar[YtD[indf],,,drop=FALSE],
-                                    log=TRUE),
-                              na.rm=TRUE)
-                      }else{0}) +
-                         (if(length(indi) > 0){
-                              v2 <- YtD[indi]
-                              v1 <- -sign(y[YiD[indi],])
-                              ## for upper tail, take opposite mean and value
-                              colSums(
-                                  pnorm(q=Dbounds[v2, 1.5-0.5*v1],
-                                        mean=v1*mcoutput$Dmean[v2,,,drop=FALSE],
-                                        sd=mcoutput$Dvar[v2,,,drop=FALSE],
-                                        log.p=TRUE),
-                                  na.rm=TRUE)
-                          }else{0})
-                 }else{0}) +
-                (if(YnO > 0){# ordinal
-                     v2 <- cbind(YtO,y[YiO,])
-                     colSums(
-                         log(
-                             pnorm(q=Oright[v2],
-                                   mean=mcoutput$Omean[YtO,,,drop=FALSE],
-                                   sd=mcoutput$Ovar[YtO,,,drop=FALSE]) -
-                             pnorm(q=Oleft[v2],
-                                   mean=mcoutput$Omean[YtO,,,drop=FALSE],
-                                   sd=mcoutput$Ovar[YtO,,,drop=FALSE])
-                         ),
-                         na.rm=TRUE)
-                 }else{0}) +
-                (if(YnN > 0){# nominal
-                     colSums(
-                         log( aperm(
-                             vapply(seq_len(YnN), function(v){
-                                 mcoutput$Nprob[YtN[v],,y[YiN[v],],]
-                             }, mcoutput$W),
-                             c(3,1,2)) ),
-                         na.rm=TRUE)
-                     ## temp <- apply(mcoutput$Nprob, c(2,4), function(xx){
-                     ##     xx[cbind(YtN, y[YiN,])]
-                     ## })
-                     ## dim(temp) <- c(YnN, nclusters, nsamples)
-                     ## ##
-                     ## colSums(log(temp), na.rm=TRUE)
-                 }else{0}) +
-                (if(YnB > 0){# binary
-                     colSums(
-                         log( y[YiB,]*mcoutput$Bprob[YtB,,,drop=FALSE] +
-                              (1-y[YiB,])*(1-mcoutput$Bprob[YtB,,,drop=FALSE]) ),
-                         na.rm=TRUE)
-                 }else{0})
-        }
-#### Output: rows=clusters, columns=samples
-        ##
-        ## if(all(is.na(x))){
-        ##     out <- rowSums(exp(probX+probY))
-        ## }else{
-        ## str(probX)
-        ## print(any(is.na(probX)))
-        ## print(apply(probX, 1, max, na.rm=TRUE))
-        ## str(probX)
-        ## print(any(is.na(probX)))
-        ## str(probY)
-        ## print(any(is.na(probY)))
-        ## }
-        fn( colSums(exp(probX+probY))/colSums(exp(probX)) )
-        ## rbind(log(W),probX,probY)
-    } *
-    (if(jacobian){
-         exp(-rowSums(
-                  log(vtransform(Y, auxmetadata=auxmetadata, invjacobian=TRUE, useOquantiles=useOquantiles)),
-                  na.rm=TRUE))}else{1L})
+        Ws <- extraDistr::rcat(n=n, prob=probX) # rows: variates, cols: clusters
+        probY <- cbind( # rows: samples, cols: variates
+        (if(YnR > 0){
+             matrix(rnorm(n=n*YnR,
+                          mean=mcoutput$Rmean[YtR,,,drop=FALSE],
+                          mean=mcsamples[cbind(c(t(YRmean[,Ws])),seqn)],
+                          sd=sqrt(mcsamples[cbind(c(t(YRvar[,Ws])),seqn)])),
+                    nrow=n, ncol=Yn$R, dimnames=list(NULL,Yv$R))
+         }else{NULL}),
+
+            )
+
+
+        
+    } # end foreach
 }
