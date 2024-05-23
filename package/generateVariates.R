@@ -43,6 +43,8 @@ if(!silent){ cat('Using already registered', getDoParName(), 'with', getDoParWor
     }
     auxmetadata <- mcoutput$auxmetadata
     mcoutput$auxmetadata <- NULL
+    nsamples <- ncol(mcoutput$W)
+    nclusters <- nrow(mcoutput$W)
 
     ## Consistency checks
     if(length(dim(Y)) != 2){stop('Y must have two dimensions')}
@@ -69,11 +71,13 @@ if(!silent){ cat('Using already registered', getDoParName(), 'with', getDoParWor
 
 #### Subsample and get nclusters and nsamples
     source('mcsubset.R')
-    subsamples <- sample(1:nrow(mcsamples), n, replace=(n > nrow(mcsamples)))
+    if((is.logical(n) && n) || (is.character(n) && n=='all')){
+        n <- nsamples
+    }
+    subsamples <- c(rep(1:nsamples, n %/% nsamples),
+                    sort(sample(1:nsamples, n %% nsamples, replace=F)))
     mcoutput <- mcsubset(mcoutput, subsamples)
 
-    nsamples <- ncol(mcoutput$W)
-    nclusters <- nrow(mcoutput$W)
 
     source('vtransform.R')
 
@@ -221,8 +225,7 @@ if(!silent){ cat('Using already registered', getDoParName(), 'with', getDoParWor
             probX <- mcoutput$W
         }else{
             ## rows: clusters, cols: samples
-            probX <- exp(
-                log(mcoutput$W) +
+            probX <- log(mcoutput$W) +
                 (if(XnR > 0){# continuous
                      colSums(
                          dnorm(x=x[XiR,],
@@ -318,15 +321,15 @@ if(!silent){ cat('Using already registered', getDoParName(), 'with', getDoParWor
                               (1L-x[XiB,])*(1-mcoutput$Bprob[XtB,,,drop=FALSE]) ),
                          na.rm=TRUE)
                  }else{0})
-            )} # end probX
-        probX <- t(apply(probX, 2, function(xx){xx - max(xx[is.finite(xx)])}))
+            } # end probX
+        probX <- t(exp(apply(probX, 2, function(xx){xx - max(xx[is.finite(xx)])})))
         ##
         ##
         Ws <- extraDistr::rcat(n=n, prob=probX) # rows: variates, cols: clusters
         probY <- cbind( # rows: samples, cols: variates
         (if(YnR > 0){
              matrix(rnorm(n=n*YnR,
-                          mean=mcoutput$Rmean[YtR,,,drop=FALSE],
+                          mean=mcoutput$Rmean[YtR,Ws,,drop=FALSE],
                           mean=mcsamples[cbind(c(t(YRmean[,Ws])),seqn)],
                           sd=sqrt(mcsamples[cbind(c(t(YRvar[,Ws])),seqn)])),
                     nrow=n, ncol=Yn$R, dimnames=list(NULL,Yv$R))
