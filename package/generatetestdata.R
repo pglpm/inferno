@@ -33,32 +33,37 @@ Bdata[7] <- NA
 Pdata <- exp(rnorm(n=ndata, mean=0, sd=1))
 Pdata[8] <- NA
 
+## Nominal variate 2, 3 values 'a'-'c'
+Ndata2 <- sample(letters[1:3], ndata, replace=T, prob=LaplacesDemon::rdirichlet(alpha=rep(1,3),n=1))
+Ndata2[9] <- NA
+
 ##
-testdata <- data.table(Rvar=Rdata,Cvar=Cdata,Dvar=Ddata,Ovar=Odata,Nvar=Ndata,Bvar=Bdata,Pvar=Pdata)
+testdata <- data.table(Rvrt=Rdata,Cvrt=Cdata,Dvrt=Ddata,Ovrt=Odata,Nvrt=Ndata,Bvrt=Bdata,Pvrt=Pdata,Nvrt2=Ndata2)
 fwrite(testdata, 'testdata.csv')
 
 metadata <- list(
-    name=c('Rvar', 'Cvar', 'Dvar','Ovar','Nvar','Bvar','Pvar'),
-    type=c('continuous', 'continuous', 'continuous', 'ordinal', 'nominal', 'binary', 'continuous'),
-    Nvalues=c(Inf, Inf, Inf, 7, 5, 2, Inf),
-    rounding=c(0, 0, 0.1, NA, NA, NA, 0),
-    domainmin=c(-Inf, -1, -Inf, 1, NA, NA, 0),
-    domainmax=c(+Inf, +1, +Inf, 7, NA, NA, +Inf),
-    minincluded=c(FALSE, TRUE, FALSE, TRUE, TRUE, TRUE, FALSE),
-    maxincluded=c(FALSE, TRUE, FALSE, TRUE, TRUE, TRUE, FALSE),
-    centralvalue=c(0, 0, 0, 5, NA, NA, 1),
-    lowvalue=c(-0.7, -1, -0.7, 4, NA, NA, 0.5),
-    highvalue=c(0.7, 1, 0.7, 7, NA, NA, 2.0),
-    plotmin=c(-3, -1, -3, NA, NA, NA, 0),
-    plotmax=c(+3, +1, +3, NA, NA, NA, 10),
-    V1=c(NA, NA, NA, NA, 'A', 'no', NA),
-    V2=c(NA, NA, NA, NA, 'B', 'yes', NA),
-    V3=c(NA, NA, NA, NA, 'C', NA, NA),
-    V4=c(NA, NA, NA, NA, 'D', NA, NA),
-    V5=c(NA, NA, NA, NA, 'E', NA, NA)
+    name=c('Rvrt', 'Cvrt', 'Dvrt','Ovrt','Nvrt','Bvrt','Pvrt','Nvrt2'),
+    type=c('continuous', 'continuous', 'continuous', 'ordinal', 'nominal', 'binary', 'continuous','nominal'),
+    Nvalues=c(Inf, Inf, Inf, 7, 5, 2, Inf, 3),
+    rounding=c(0, 0, 0.1, NA, NA, NA, 0, NA),
+    domainmin=c(-Inf, -1, -Inf, 1, NA, NA, 0, NA),
+    domainmax=c(+Inf, +1, +Inf, 7, NA, NA, +Inf, NA),
+    minincluded=c(FALSE, TRUE, FALSE, TRUE, TRUE, TRUE, FALSE, TRUE),
+    maxincluded=c(FALSE, TRUE, FALSE, TRUE, TRUE, TRUE, FALSE, TRUE),
+    centralvalue=c(0, 0, 0, 5, NA, NA, 1, NA),
+    lowvalue=c(-0.7, -1, -0.7, 4, NA, NA, 0.5, NA),
+    highvalue=c(0.7, 1, 0.7, 7, NA, NA, 2.0, NA),
+    plotmin=c(-3, -1, -3, NA, NA, NA, 0, NA),
+    plotmax=c(+3, +1, +3, NA, NA, NA, 10, NA),
+    V1=c(NA, NA, NA, NA, 'A', 'no', NA, 'a'),
+    V2=c(NA, NA, NA, NA, 'B', 'yes', NA, 'b'),
+    V3=c(NA, NA, NA, NA, 'C', NA, NA, 'c'),
+    V4=c(NA, NA, NA, NA, 'D', NA, NA, NA),
+    V5=c(NA, NA, NA, NA, 'E', NA, NA, NA)
 )
 fwrite(metadata, 'metatestdata.csv')
 
-auxmeta <- buildauxmetadata(data=testdata, metadata=metadata, file=F)
+## source('buildauxmetadata.R')
+## auxmeta <- buildauxmetadata(data=testdata, metadata=metadata, file=F)
 
 

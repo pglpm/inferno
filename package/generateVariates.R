@@ -77,6 +77,7 @@ if(!silent){ cat('Using already registered', getDoParName(), 'with', getDoParWor
     subsamples <- c(rep(1:nsamples, n %/% nsamples),
                     sort(sample(1:nsamples, n %% nsamples, replace=F)))
     mcoutput <- mcsubset(mcoutput, subsamples)
+    sseq <- 1:n
 
 
     source('vtransform.R')
@@ -325,14 +326,42 @@ if(!silent){ cat('Using already registered', getDoParName(), 'with', getDoParWor
         probX <- t(exp(apply(probX, 2, function(xx){xx - max(xx[is.finite(xx)])})))
         ##
         ##
-        Ws <- extraDistr::rcat(n=n, prob=probX) # rows: variates, cols: clusters
+        Ws <- extraDistr::rcat(n=n, prob=probX)
         probY <- cbind( # rows: samples, cols: variates
-        (if(YnR > 0){
-             matrix(rnorm(n=n*YnR,
-                          mean=mcoutput$Rmean[YtR,Ws,,drop=FALSE],
-                          mean=mcsamples[cbind(c(t(YRmean[,Ws])),seqn)],
-                          sd=sqrt(mcsamples[cbind(c(t(YRvar[,Ws])),seqn)])),
-                    nrow=n, ncol=Yn$R, dimnames=list(NULL,Yv$R))
+        (if(YnR > 0){# continuous
+             totake <- cbind(rep(YtR,each=n), Ws, sseq)
+             rnorm(n=n*YnR,
+                   mean=mcoutput$Rmean[totake],
+                   sd=mcoutput$Rvar[totake]
+                   )
+         }else{NULL}),
+        (if(YnC > 0){# censored
+             totake <- cbind(rep(YtC,each=n), Ws, sseq)
+             rnorm(n=n*YnC,
+                   mean=mcoutput$Rmean[totake],
+                   sd=mcoutput$Rvar[totake]
+                   )
+         }else{NULL}),
+        (if(YnD > 0){# continuous discretized
+             totake <- cbind(rep(YtD,each=n), Ws, sseq)
+             rnorm(n=n*YnD,
+                   mean=mcoutput$Rmean[totake],
+                   sd=mcoutput$Rvar[totake]
+                   )
+         }else{NULL}),
+        (if(YnO > 0){# ordinal
+             totake <- cbind(rep(YtO,each=n), Ws, sseq)
+             rnorm(n=n*YnO,
+                   mean=mcoutput$Rmean[totake],
+                   sd=mcoutput$Rvar[totake]
+                   )
+         }else{NULL}),
+        (if(YnN > 0){# nominal
+             totake <- cbind(rep(YtO,each=n), Ws, sseq)
+             rnorm(n=n*YnO,
+                   mean=mcoutput$Rmean[totake],
+                   sd=mcoutput$Rvar[totake]
+                   )
          }else{NULL}),
 
             )
@@ -341,3 +370,28 @@ if(!silent){ cat('Using already registered', getDoParName(), 'with', getDoParWor
         
     } # end foreach
 }
+
+
+set.seed(1)
+system.time(for(i in 1:1000){
+                out <- rnorm(n=3*4*10000,mean=test1,sd=test1)
+                dim(out) <- c(3,4*10000)
+                })
+##
+set.seed(1)
+system.time(for(i in 1:1000){
+                out2 <- matrix(rnorm(n=3*4*10000,mean=test1,sd=test1), nrow=3, ncol=4*10000)
+                })
+identical(out,out2)
+
+set.seed(1)
+system.time(for(i in 1:1000){
+                out2 <- matrix(rnorm(n=3*4*10000,mean=test1,sd=test1), nrow=3, ncol=4*10000)
+                })
+##
+set.seed(1)
+system.time(for(i in 1:1000){
+                out <- rnorm(n=3*4*10000,mean=test1,sd=test1)
+                dim(out) <- c(3,4*10000)
+                })
+identical(out,out2)
