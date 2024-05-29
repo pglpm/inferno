@@ -369,7 +369,7 @@ if(!silent){ cat('Using already registered', getDoParName(), 'with', getDoParWor
 ## just adding a comment to test
     } # end foreach
 }
-
+## let's try this to reattach
 
 set.seed(1)
 system.time(for(i in 1:1000){
