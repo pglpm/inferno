@@ -367,7 +367,6 @@ if(!silent){ cat('Using already registered', getDoParName(), 'with', getDoParWor
             )
 
 
-        
     } # end foreach
 }
 
