@@ -369,8 +369,9 @@ if(!silent){ cat('Using already registered', getDoParName(), 'with', getDoParWor
 ## just adding a comment to test
     } # end foreach
 }
-## let's try this to reattach
 
+## let's try this to reattach
+## this was added in new branch
 set.seed(1)
 system.time(for(i in 1:1000){
                 out <- rnorm(n=3*4*10000,mean=test1,sd=test1)
