@@ -6,7 +6,7 @@ samplesFDistribution <- function(Y, X, mcoutput, subsamples, jacobian = TRUE,
                                  fn = identity, combine = 'rbind',
                                  useOquantiles = TRUE, parallel = TRUE,
                                  silent = FALSE) {
-  
+
   if (!silent) {
     cat('\n')
   }
@@ -465,7 +465,7 @@ samplesFDistribution <- function(Y, X, mcoutput, subsamples, jacobian = TRUE,
     ##
     ##
     if (all(is.na(y))) {
-      probY <- array(NA, dim=dim(mcoutput$W))
+      probY <- array(NA, dim = dim(mcoutput$W))
     } else {
       probY <- (if (YnR > 0) { # continuous
         colSums(
