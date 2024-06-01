@@ -1,7 +1,3 @@
-#imports
-source('vtransform.R')
-source('mcsubset.R')
-
 samplesFDistribution <- function(Y, X, mcoutput, subsamples, jacobian = TRUE,
                                  fn = identity, combine = 'rbind',
                                  useOquantiles = TRUE, parallel = TRUE,
@@ -109,7 +105,9 @@ samplesFDistribution <- function(Y, X, mcoutput, subsamples, jacobian = TRUE,
     stop('overlap in Y and X variates\n')
   }
 
-  #### Subsample and get nclusters and nsamples
+#### Subsample and get nclusters and nsamples
+  source('mcsubset.R')
+
   if (!missing(subsamples) &&
         (is.numeric(subsamples) || (is.character(subsamples)
                                     && length(subsamples) == 1))) {
@@ -123,6 +121,9 @@ samplesFDistribution <- function(Y, X, mcoutput, subsamples, jacobian = TRUE,
 
   nsamples <- ncol(mcoutput$W)
   nclusters <- nrow(mcoutput$W)
+
+  source('vtransform.R')
+
 
   #### Type R
   vnames <- auxmetadata[mcmctype == 'R', name]
@@ -571,7 +572,6 @@ samplesFDistribution <- function(Y, X, mcoutput, subsamples, jacobian = TRUE,
           0
         }) +
         (if (YnN > 0) { # nominal
-        cat('\n NOMINAL \n')
           colSums(
             log(aperm(
               vapply(seq_len(YnN), function(v) {
