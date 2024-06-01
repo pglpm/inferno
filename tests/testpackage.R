@@ -1,3 +1,15 @@
+startdir <- getwd()
+
+if(basename(startdir) == 'tests'){
+    setwd('../package/')
+    cat('\nSwitching to "package" directory\n')
+} else if(basename(startdir) == 'bayes_nonparametric_inference'){
+    setwd('package/')
+    cat('\nSwitching to "package" directory\n')
+} else if(basename(startdir) != 'package'){
+    stop('Please run this script from directory "package" or "tests" or base')
+}
+
 source('bnpi.R')
 
 testdir <- '../tests/'
@@ -19,5 +31,10 @@ test <- inferpopulation(data=paste0(testdir,'testdata.csv'),
 currentFdistribution <- readRDS(paste0(outputdirPrefix ,
                                        '-V8-D15-K64-S120/Fdistribution.rds'))
 
-print('Result of package test (TRUE = passed):')
+cat('\nResult of package test (TRUE = passed):\n')
 print(identical(currentFdistribution, readRDS(refFdistributionFile)))
+
+## return to original directory, in case called with 'source'
+cat('\nSwitching to original directory\n')
+setwd(startdir)
+
