@@ -1,21 +1,22 @@
 startdir <- getwd()
 
+#### Check and change working directory if necessary
 if(basename(startdir) == 'tests'){
-    setwd('../package/')
-    cat('\nSwitching to "package" directory\n')
+  setwd('../package/')
+  cat('\nSwitching to "package" directory\n')
 } else if(basename(startdir) == 'bayes_nonparametric_inference'){
-    setwd('package/')
-    cat('\nSwitching to "package" directory\n')
+  setwd('package/')
+  cat('\nSwitching to "package" directory\n')
 } else if(basename(startdir) != 'package'){
-    stop('Please run this script from directory "package" or "tests" or base')
+  stop('Please run this script from directory "package" or "tests" or base')
 }
 
 source('bnpi.R')
 
 testdir <- '../tests/'
 
-refFdistributionFile <- paste0(testdir,
-                               'reference_packagetest_seed16_240601T0912-V8-D15-K64-S120/Fdistribution.rds')
+refdir <- paste0(testdir,
+                 'reference_packagetest_seed16_240601T0912-V8-D15-K64-S120/')
 
 seed <- 16
 
@@ -28,13 +29,26 @@ test <- inferpopulation(data=paste0(testdir,'testdata.csv'),
                         nsamples=120, nchains=12, cleanup=F, parallel=4,
                         seed=seed)
 
-currentFdistribution <- readRDS(paste0(outputdirPrefix ,
-                                       '-V8-D15-K64-S120/Fdistribution.rds'))
+currenttestdir <- paste0(outputdirPrefix, '-V8-D15-K64-S120/')
 
-cat('\nResult of package test (TRUE = passed):\n')
-print(identical(currentFdistribution, readRDS(refFdistributionFile)))
+#### Test whether Fdistribution output is identical
+cat('\nVerifying equality of "Fdistribution.rds" (TRUE = passed):\n')
+print(identical(
+  readRDS(paste0(currenttestdir,'Fdistribution.rds')),
+  readRDS(paste0(refdir,'Fdistribution.rds'))
+))
 
-## return to original directory, in case called with 'source'
+#### Test whether computation log-1 is identical
+## remove lines containing diagnostic times, as they can vary
+cat('\nVerifying equality of "_log-1.log" (TRUE = passed):\n')
+reffile <- readLines(paste0(refdir,'_log-1.log'))
+reffile <- reffile[!grepl('time', reffile, fixed=TRUE)]
+currentfile <- readLines(paste0(currenttestdir,'_log-1.log'))
+currentfile <- currentfile[!grepl('time', currentfile, fixed=TRUE)]
+
+print(identical(currentfile, reffile))
+
+#### return to original directory, in case called with 'source'
 cat('\nSwitching to original directory\n')
 setwd(startdir)
 
