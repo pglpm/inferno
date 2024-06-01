@@ -3,7 +3,7 @@ source('bnpi.R')
 testdir <- '../tests/'
 
 refFdistributionFile <- paste0(testdir,
-                               'reference_packagetest_seed16_240531T1510-V8-D15-K64-S120/Fdistribution.rds')
+                               'reference_packagetest_seed16_240601T0912-V8-D15-K64-S120/Fdistribution.rds')
 
 seed <- 16
 
