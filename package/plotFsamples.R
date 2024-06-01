@@ -12,7 +12,7 @@ plotFsamples <- function(file, mcoutput, data, plotmeans = TRUE,
   source('mcsubset.R')
   source('samplesFDistribution.R')
   
-  family <- 'Palatino'
+  fontfamily <- 'Palatino'
 
   ## Extract Monte Carlo output & aux-metadata
   # This function does not make sense with the input format?
@@ -163,7 +163,7 @@ plotFsamples <- function(file, mcoutput, data, plotmeans = TRUE,
           } else {
             ' density'
           }), addylab),
-          family = family
+          family = fontfamily
         )
         if (any(!(xleft & xright))) {
           tplot(
@@ -171,7 +171,7 @@ plotFsamples <- function(file, mcoutput, data, plotmeans = TRUE,
             y = plotsamples[!(xleft & xright), subsamples, drop = FALSE] * ymax,
             type = 'p', pch = 2, cex = 2,
             col = 5, alpha = 7 / 8,
-            family = family, add = TRUE
+            family = fontfamily, add = TRUE
           )
         }
         addplot <- TRUE
@@ -196,7 +196,7 @@ plotFsamples <- function(file, mcoutput, data, plotmeans = TRUE,
           } else {
             ' density'
           }), addylab),
-          family = family,
+          family = fontfamily,
           add = addplot
         )
         if (any(!(xleft & xright))) {
@@ -248,7 +248,7 @@ plotFsamples <- function(file, mcoutput, data, plotmeans = TRUE,
           } else {
             ' density'
           }), addylab),
-          family = family, add = TRUE
+          family = fontfamily, add = TRUE
         )
 
         if (any(!(dleft & dright))) {
@@ -265,7 +265,7 @@ plotFsamples <- function(file, mcoutput, data, plotmeans = TRUE,
             type = 'p', pch = 0, cex = 2,
             col = 4, alpha = 0.5,
             lty = 1, lwd = 5,
-            family = family, add = TRUE
+            family = fontfamily, add = TRUE
           )
         }
         ## fiven <- fivenum(datum)
@@ -326,7 +326,7 @@ plotFsamples <- function(file, mcoutput, data, plotmeans = TRUE,
           col = 5, alpha = 7 / 8,
           xlab = v,
           ylab = paste0('frequency', addylab),
-          family = family
+          family = fontfamily
         )
         addplot <- TRUE
       }
@@ -340,7 +340,7 @@ plotFsamples <- function(file, mcoutput, data, plotmeans = TRUE,
           col = 1, alpha = 0.25,
           xlab = v,
           ylab = paste0('frequency', addylab),
-          family = family,
+          family = fontfamily,
           add = addplot
         )
       }
@@ -361,7 +361,7 @@ plotFsamples <- function(file, mcoutput, data, plotmeans = TRUE,
           col = yellow, alpha = 0.5, border = darkgrey, border.alpha = 3 / 4,
           xlab = v,
           ylab = paste0('frequency', addylab),
-          family = family, add = TRUE
+          family = fontfamily, add = TRUE
         )
       }
     }
