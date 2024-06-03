@@ -236,13 +236,11 @@ inferpopulation <- function(data, metadata, outputdir, nsamples = 0,
     data <- data[, subvar, with = FALSE]
   }
 
-
-
   ##################################################
-  #### various internal parameters
-  ## source('hyperparameters.R')
-  ## niterini # initial iterations to try
-  #### Hyperparameters
+  #### Various internal parameters
+  ##################################################
+
+  #### Hyperparameters (from hyperparameters.R)
   nclusters <- 64L # ****
   minalpha <- -3L
   maxalpha <- 3L
@@ -260,24 +258,22 @@ inferpopulation <- function(data, metadata, outputdir, nsamples = 0,
   Ovarm1 <- 3L^2L
   Bshapelo <- 1L
   Bshapehi <- 1L
-  ##
+
   nalpha <- length(minalpha:maxalpha)
   npoints <- nrow(data)
 
-  #### other options
+  #### Other options
   Alphatoslice <- TRUE
   Ktoslice <- TRUE
   RWtoslice <- FALSE
   ##
-  ## showdata <- TRUE # 'histogram' 'scatter' FALSE TRUE
-  plotmeans <- TRUE # plot frequency averages
-  totsamples <- "all" # 'all' number of samples if plotting frequency averages
+  ## plotmeans <- TRUE # plot frequency averages
+  ## totsamples <- 'all' # 'all' number of samples if plotting frequency averages
   showsamples <- 100 # number of samples to show.
   showquantiles <- c(1, 31) / 32 # quantiles to show
   nclustersamples <- 128 ## number of samples of Alpha and K
   showsamplertimes <- FALSE ##
-  family <- "Palatino"
-  ##################################################
+  family <- 'Palatino'
 
   ##################################################
   #### Folder setup
@@ -285,30 +281,31 @@ inferpopulation <- function(data, metadata, outputdir, nsamples = 0,
 
   ## append time and sampling info to name of output directory
   if (timestampdir) {
-    timestamp <- paste0("-V", nrow(auxmetadata), "-D", (if (npoints == 1 && all(is.na(data))) {
-      0
-    } else {
-      npoints
-    }), "-K", nclusters, "-S", nsamples)
+    timestamp <- paste0('-V', nrow(auxmetadata), '-D',
+                        (if (npoints == 1 && all(is.na(data))) {
+                          0
+                        } else {
+                          npoints
+                        }), '-K', nclusters, '-S', nsamples)
   } else {
     timestamp <- NULL
   }
 
   if (missing(outputdir) || outputdir == TRUE) {
-    outputdir <- paste0("_output_", datafile)
-    outputdir <- paste0(sub(".csv$", "", outputdir))
+    outputdir <- paste0('_output_', datafile)
+    outputdir <- paste0(sub('.csv$', '', outputdir))
   }
 
   nameroot <- paste0(outputdir, timestamp)
   ##
-  dirname <- paste0(nameroot, "/")
+  dirname <- paste0(nameroot, '/')
   # Create output directory if it does not exist
   dir.create(dirname)
   # Print information
   cat(
-    "\n", paste0(rep("*", max(nchar(dirname), 26)), collapse = ""),
-    "\n Saving output in directory\n", dirname, "\n",
-    paste0(rep("*", max(nchar(dirname), 26)), collapse = ""), "\n"
+    '\n', paste0(rep('*', max(nchar(dirname), 26)), collapse = ''),
+    '\n Saving output in directory\n', dirname, '\n',
+    paste0(rep('*', max(nchar(dirname), 26)), collapse = ''), '\n'
   )
   nameroot <- basename(nameroot)
   ## This is in case we need to add some extra specifier to the output files
@@ -316,25 +313,9 @@ inferpopulation <- function(data, metadata, outputdir, nsamples = 0,
   dashnameroot <- NULL
 
   ## Save copy of metadata in directory
-  fwrite(metadata, file = paste0(dirname, "metadata.csv"))
+  fwrite(metadata, file = paste0(dirname, 'metadata.csv'))
 
-  source("tplotfunctions.R")
-  source("vtransform.R")
-  source("samplesFDistribution.R")
-  source("proposeburnin.R")
-  source("proposethinning.R")
-  source("plotFsamples.R")
-  printtime <- function(tim) {
-    paste0(signif(tim, 2), " ", attr(tim, "units"))
-  }
-  printnull <- function(message, outcon) {
-    sink(NULL, type = "message")
-    message(message, appendLF = FALSE)
-    flush.console()
-    sink(outcon, type = "message")
-  }
 
-  ## printtime <- function(tim){sub('^Time difference of (.*)', '\\1', capture.output(print(tim)))}
   vn <- list()
   vnames <- list()
   for (atype in c("R", "C", "D", "O", "N", "B")) {
