@@ -1,30 +1,103 @@
-inferpopulation <- function(data, metadata, outputdir, nsamples = 1200, nchains = 120, nsamplesperchain, parallel = TRUE, niterini = 1024, miniter = 0, maxiter = +Inf, thinning = 0, plottraces = TRUE, showKtraces = FALSE, showAlphatraces = FALSE, seed = NULL, loglikelihood = F, subsampledata, useOquantiles = FALSE, output = FALSE, cleanup = TRUE, timestampdir = TRUE) {
-  ## 'cleanup' removes files that can be used for debugging
+#' Description
+#'
+#' @param data data.table object or filepath ##Can we make it so that this HAS to be data.table?
+#' @param metadata
+#' @param outputdir String, path to output file folder ## Rename to outputPrefix, also addSuffix?
+#' @param nsamples Integer, nr of desired MC samples
+#' @param nchains Integer, nr of MC chains
+#' @param nsamplesperchain Integer, nr of MC samples per chain
+#' @param parallel, Bool
+#' @param niterini, Int
+#' @param miniter, Int
+#' @param maxiter, 
+#' @param thinning ??
+#' @param plottraces
+#' @param showKtraces Bool, when true, it saves the Alpha parameter
+#'  during sampling and plots its trace and histogram at the end.
+#'  Keeping it to FALSE (default) saves a little computation time.
+#' @param showAlphatraces Bool, : when true, it saves the K parameter
+#'  more frequently during sampling and plots its trace and histogram
+#'  at the end. Keeping it to FALSE (default) saves a little
+#'  computation time.
+#' @param seed Integer, random number generator seed. If left as default NULL,
+#'  a random seed based on the system clock is used in the set.seed() function
+#' @param loglikelihood Positive integer or FALSE, default FALSE
+#' @param subsampledata ??
+#' @param useOquantiles Bool, ??
+#' @param output Bool, ??
+#' @param cleanup Bool, default TRUE, removes files that can be used for debugging
+#' @return ??
+#' @import foreach doParallel doRNG data.table LaplacesDemon
+inferpopulation <- function(data, metadata, outputdir, nsamples = 0,
+                            nchains = 0, nsamplesperchain = 0, parallel = TRUE,
+                            niterini = 1024, miniter = 0, maxiter = +Inf,
+                            thinning = 0, plottraces = TRUE,
+                            showKtraces = FALSE, showAlphatraces = FALSE,
+                            seed = NULL, loglikelihood = FALSE, subsampledata,
+                            useOquantiles = FALSE, output = FALSE,
+                            cleanup = TRUE, timestampdir = TRUE) {
 
-  cat("\n")
+  # Imports
+  source('buildauxmetadata.R')
+  source('samplesFDistribution.R')
+  source('plotFsamples.R')
+  source('tplotfunctions.R')
+  source('vtransform.R')
+  source('proposeburnin.R')
+  source('proposethinning.R')
+  source('mcsubset.R')
+  
+  ##################################################
+  #### Define functions
+  ##################################################
+  # Create function printtime to format printing of time
+  printtime <- function(tim) {
+    paste0(signif(tim, 2), ' ', attr(tim, 'units'))
+  }
+  # Specific print message function
+  printnull <- function(message, outcon) {
+    sink(NULL, type = 'message')
+    message(message, appendLF = FALSE)
+    flush.console()
+    sink(outcon, type = 'message')
+  }
+
+  cat('\n')
+
+  ##################################################
+  #### Setup parallel processing and start timer
+  ##################################################
+
   #### Determine the status of parallel processing
   if (is.logical(parallel) && parallel) {
-    if (getDoParRegistered()) {
-      cat("Using already registered", getDoParName(), "with", getDoParWorkers(), "workers\n")
-      ncores <- getDoParWorkers()
+    if (foreach::getDoParRegistered()) {
+      cat(
+        'Using already registered', foreach::getDoParName(), 'with',
+        foreach::getDoParWorkers(), 'workers\n'
+      )
+      ncores <- foreach::getDoParWorkers()
     } else {
-      cat("No parallel backend registered.\n")
+      cat('No parallel backend registered.\n')
       ncores <- 1
     }
   } else if (is.numeric(parallel) && parallel >= 2) {
-    if (getDoParRegistered()) {
-      ncores <- min(getDoParWorkers(), parallel)
-      cat("Using already registered", getDoParName(), "with", getDoParWorkers(), "workers\n")
+    if (foreach::getDoParRegistered()) {
+      ncores <- min(foreach::getDoParWorkers(), parallel)
+      cat(
+        'Using already registered', foreach::getDoParName(), 'with',
+        foreach::getDoParWorkers(), 'workers\n'
+      )
     } else {
-      ## registerDoSEQ()
-      ## cl <- makePSOCKcluster(ncores)
-      cl <- makeCluster(parallel)
-      registerDoParallel(cl)
-      cat("Registered", getDoParName(), "with", getDoParWorkers(), "workers\n")
+      cl <- parallel::makeCluster(parallel)
+      foreach::registerDoParallel(cl)
+      cat(
+        'Registered', foreach::getDoParName(), 'with',
+        foreach::getDoParWorkers(), 'workers\n'
+      )
       ncores <- parallel
     }
   } else {
-    cat("No parallel backend registered.\n")
+    cat('No parallel backend registered.\n')
     ncores <- 1
   }
 
