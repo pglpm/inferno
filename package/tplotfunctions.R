@@ -34,8 +34,8 @@ pdff <- function(file = 'Rplot', apaper = 5, portrait = FALSE,
   if (!is.na(asp)) {
     width <- height * asp
   }
-  grDevices::pdf(file = paste0(file, '.pdf'), paper = 'special',
-                 height = height, width = width, ...)
+  pdf(file = paste0(file, '.pdf'), paper = 'special',
+      height = height, width = width, ...)
 }
 
 ## to output in svg format
@@ -53,7 +53,7 @@ svgf <- function(filename = 'Rplot', apaper = 5, portrait = FALSE,
   if (!is.na(asp)) {
     width <- height * asp
   }
-  grDevices::svg(file = paste0(filename, '.svg'), height = height,
+  svg(file = paste0(filename, '.svg'), height = height,
                  width = width)
 }
 
@@ -74,7 +74,7 @@ pngf <- function(filename = 'Rplot', res = 300, apaper = 5, portrait = FALSE,
     ## width <- height*asp
     height <- width / asp
   }
-  grDevices::png(file = paste0(filename, '.png'), height = height,
+  png(file = paste0(filename, '.png'), height = height,
                  width = width, units = 'in', res = res)
 }
 
@@ -135,12 +135,12 @@ tplot <- function(x, y, xlim = c(NA, NA), ylim = c(NA, NA), asp = NA,
                   ytransf = NULL, add = FALSE) {
   ## if (missing(x)) {
   ##     if (missing(y))
-  ##         stop('must specify at least one of 'x' and 'y'')
+  ##         stop("must specify at least one of 'x' and 'y'")
   ##     else x <- seq_len(NROW(y))
   ## }
   ## else if (missing(y)) {
   ##     if (missing(x))
-  ##         stop('must specify at least one of 'x' and 'y'')
+  ##         stop("must specify at least one of 'x' and 'y'")
   ##     else y <- seq_len(NROW(x))
   ## }
   if (!missing(y) && !missing(x)) {
@@ -335,8 +335,8 @@ tplot <- function(x, y, xlim = c(NA, NA), ylim = c(NA, NA), asp = NA,
         yy <- match(yy, uyy)
       }
       if (length(xx) > length(yy) + 1 || length(yy) > length(xx) + 1) {
-        stop(paste0('plot ', j, ': "x" and "y" must have same number ',
-                    'of rows or differ by 1'))
+        stop(paste0('plot ', j,
+                    ': "x" and "y" must have same number of rows or differ by 1'))
       }
       ialpha <- alpha[(j - 1) %% length(alpha) + 1]
       icol <- col[(j - 1) %% length(col) + 1]
