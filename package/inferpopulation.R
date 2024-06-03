@@ -236,30 +236,6 @@ inferpopulation <- function(data, metadata, outputdir, nsamples = 0,
     data <- data[, subvar, with = FALSE]
   }
 
-  ## cat('\n')
-  ## library('data.table')
-  ## library('LaplacesDemon', include.only=NULL)
-  ## library('foreach')
-  ## library('doParallel')
-  ## library('doRNG')
-
-
-  #### Old code: now aux-metadata is computed internally
-  ## ## auxmetadata
-  ## if(is.character(auxmetadata)){
-  ##     auxmetadata <- paste0(sub('.rds$', '', auxmetadata), '.rds')
-  ##      if(file.exists(auxmetadata)){
-  ##          auxmetadata <- readRDS(auxmetadata)
-  ##      }else{
-  ##          stop('cannot find auxiliary metadata file')
-  ##      }
-  ## }
-
-  
-  if (missing(outputdir) || outputdir == TRUE) {
-    outputdir <- paste0("_output_", datafile)
-    outputdir <- paste0(sub(".csv$", "", outputdir))
-  }
 
 
   ##################################################
@@ -303,6 +279,10 @@ inferpopulation <- function(data, metadata, outputdir, nsamples = 0,
   family <- "Palatino"
   ##################################################
 
+  ##################################################
+  #### Folder setup
+  ##################################################
+
   ## append time and sampling info to name of output directory
   if (timestampdir) {
     timestamp <- paste0("-V", nrow(auxmetadata), "-D", (if (npoints == 1 && all(is.na(data))) {
@@ -313,10 +293,18 @@ inferpopulation <- function(data, metadata, outputdir, nsamples = 0,
   } else {
     timestamp <- NULL
   }
+
+  if (missing(outputdir) || outputdir == TRUE) {
+    outputdir <- paste0("_output_", datafile)
+    outputdir <- paste0(sub(".csv$", "", outputdir))
+  }
+
   nameroot <- paste0(outputdir, timestamp)
   ##
   dirname <- paste0(nameroot, "/")
+  # Create output directory if it does not exist
   dir.create(dirname)
+  # Print information
   cat(
     "\n", paste0(rep("*", max(nchar(dirname), 26)), collapse = ""),
     "\n Saving output in directory\n", dirname, "\n",
