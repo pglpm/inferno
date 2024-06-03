@@ -101,16 +101,6 @@ inferpopulation <- function(data, metadata, outputdir, nsamples = 0,
     ncores <- 1
   }
 
-  #### Build auxiliary metadata object; we'll save it later
-  if (is.character(metadata) && file.exists(metadata)) {
-    metadata <- fread(metadata, na.strings = "")
-  }
-  metadata <- as.data.table(metadata)
-  ##
-  auxmetadata <- buildauxmetadata(data = data, metadata = metadata)
-  cat("Calculating auxiliary metadata\n")
-
-
   #### Consistency checks for numbers of samples, chains, cores
   if (nsamples != 0 && nchains != 0 && nsamplesperchain != 0) {
     # Only two out of these three arguments can be given
@@ -169,7 +159,82 @@ inferpopulation <- function(data, metadata, outputdir, nsamples = 0,
     `%dochains%` <- `doRNG::%dorng%`
   }
 
+  #### Start timer
   timestart0 <- Sys.time()
+
+  ##################################################
+  #### Read and process metadata and data
+  ##################################################
+
+  #### Build auxiliary metadata object; we'll save it later
+  if (is.character(metadata) && file.exists(metadata)) {
+    metadata <- data.table::fread(metadata, na.strings = '')
+  }
+  metadata <- data.table::as.data.table(metadata)
+  auxmetadata <- buildauxmetadata(data = data, metadata = metadata)
+  cat('Calculating auxiliary metadata\n')
+
+  #### Read dataset
+  datafile <- NULL
+  # Check if data is missing, or set to some other 'non-value'
+  if (missing(data) || is.null(data) || is.logical(data) && data == FALSE) {
+    message('Missing data: calculating prior distribution')
+    data <- data.table::as.data.table(matrix(NA,
+      nrow = 1, ncol = nrow(auxmetadata),
+      dimnames = list(NULL, auxmetadata[['name']])
+    ))
+    loglikelihood <- FALSE
+  }
+  # Data could also be a file
+  if (is.character(data)) {
+    datafile <- paste0(sub('.csv$', '', data), '.csv')
+    if (file.exists(data)) {
+      data <- data.table::fread(datafile, na.strings = '')
+    } else {
+      stop('Cannot find data file')
+    }
+  }
+  # Set data variable to data.table format
+  data <- data.table::as.data.table(data)
+
+  if (!missing(subsampledata) && is.numeric(subsampledata)) {
+    ## @@TODO: use faster and memory-saving subsetting
+    data <- data[sample(seq_len(nrow(data)),
+                   min(subsampledata, nrow(data)),
+                   replace = FALSE
+                 ), ]
+  }
+
+  #### Correct loglikelihood argument if necessary
+  # Find which rows have no missing entries
+  dataNoNa <- which(apply(data, 1,
+    function(xx) {
+      !any(is.na(xx))
+    }
+  )
+  )
+  nRowsNoNa <- length(dataNoNa)
+  if (is.numeric(loglikelihood) && loglikelihood > 1 && nRowsNoNa > 1) {
+    # Make sure loglikelihood is not larger than the
+    # nr of rows without missing data
+    loglikelihood <- min(round(loglikelihood), nRowsNoNa)
+  } else if (is.logical(loglikelihood) && loglikelihood && nRowsNoNa > 1) {
+    # If loglikelihood is set to TRUE,
+    # set length equal to nr of rows without missing data
+    loglikelihood <- nRowsNoNa
+  } else {
+    loglikelihood <- FALSE
+  }
+
+  #### Check consistency of variate names
+  if (!all(auxmetadata[['name']] %in% colnames(data))) {
+    stop('Missing variates in data file. Check the metadata file.')
+  }
+  # Drop variate columns that are not in the metadata file
+  if (!all(colnames(data) %in% auxmetadata[['name']])) {
+    subvar <- intersect(colnames(data), auxmetadata[['name']])
+    data <- data[, subvar, with = FALSE]
+  }
 
   ## cat('\n')
   ## library('data.table')
@@ -190,71 +255,12 @@ inferpopulation <- function(data, metadata, outputdir, nsamples = 0,
   ##      }
   ## }
 
-  ## read dataset
-  datafile <- NULL
-  if (missing(data) || is.null(data) || (is.logical(data) && data == FALSE)) {
-    message("Missing data: calculating prior distribution")
-    data <- as.data.table(matrix(NA, nrow = 1, ncol = nrow(auxmetadata), dimnames = list(NULL, auxmetadata[["name"]])))
-    loglikelihood <- FALSE
-  }
-  if (is.character(data)) {
-    datafile <- paste0(sub(".csv$", "", data), ".csv")
-    if (file.exists(data)) {
-      data <- fread(datafile, na.strings = "")
-    } else {
-      stop("cannot find data file")
-    }
-  }
-  data <- as.data.table(data)
-  if (!missing(subsampledata) && is.numeric(subsampledata)) {
-    ## @@TODO: use faster and memory-saving subsetting
-    data <- data[sample(1:nrow(data), min(subsampledata, nrow(data)), replace = F), ]
-  }
-
-  ## Correct loglikelihood argument if necessary
-  datanona <- which(apply(data, 1, function(xx) {
-    !any(is.na(xx))
-  }))
-  ##
-  if (is.numeric(loglikelihood) && loglikelihood > 1 && length(datanona) > 1) {
-    loglikelihood <- min(round(loglikelihood), length(datanona))
-  } else if (is.logical(loglikelihood) && loglikelihood && length(datanona) > 1) {
-    loglikelihood <- length(datanona)
-  } else {
-    loglikelihood <- FALSE
-  }
-
-
+  
   if (missing(outputdir) || outputdir == TRUE) {
     outputdir <- paste0("_output_", datafile)
     outputdir <- paste0(sub(".csv$", "", outputdir))
   }
 
-  ## Check consistency of variate names
-  if (!all(auxmetadata[["name"]] %in% colnames(data))) {
-    stop("Missing variates in data file.")
-  }
-  if (!all(colnames(data) %in% auxmetadata[["name"]])) {
-    ## ## no need for message below, already given in buildauxmetadata()
-    ## message('Data file has additional variates. Dropping them.')
-    subvar <- intersect(colnames(data), auxmetadata[["name"]])
-    ## cat(subvar,'\n')
-    data <- data[, ..subvar]
-    ## auxmetadata <- auxmetadata[name %in% subvar]
-  }
-
-  ## ## file to save output
-  ## if(is.character(file) || (is.logical(file) && file)){ # must save to file
-  ##     if(is.character(file)){
-  ##         file <- paste0(sub('.rds$', '', file), '.rds')
-  ##     }else{
-  ##         if(file.exists('longrunsamples.rds')){
-  ##             file <- paste0('longrunsamples_',format(Sys.time(), '%y%m%dT%H%M%S'),'.rds')
-  ##         }else{
-  ##             file <- 'longrunsamples.rds'
-  ##         }
-  ##     }
-  ## }
 
   ##################################################
   #### various internal parameters
