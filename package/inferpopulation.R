@@ -39,65 +39,63 @@ inferpopulation <- function(data, metadata, outputdir, nsamples = 1200, nchains 
 
 
   #### Consistency checks for numbers of samples, chains, cores
-  if (exists("nsamples") && exists("nchains") && exists("nsamplesperchain")) {
-    ## nsamples and nchains given
-    if (nchains < ncores) {
-      ncores <- nchains
-    }
+  if (nsamples != 0 && nchains != 0 && nsamplesperchain != 0) {
+    # Only two out of these three arguments can be given
+    stop('Please specify exactly two among "nsamples", "nchains",
+         "nsamplesperchain"')
+  }
+  # nsamples and nchains given
+  if (nsamples > 0 && nchains > 0) {
+    # Set nchainspercore
     nchainspercore <- ceiling(nchains / ncores)
     if (nchainspercore * ncores > nchains) {
+      # Increase nr of chains to have equal nr of chains per core
       nchains <- nchainspercore * ncores
-      cat("Increasing number of chains to", nchains, "\n")
+      cat('Increasing number of chains to', nchains, '\n')
     }
     nsamplesperchain <- ceiling(nsamples / nchains)
     if (nsamplesperchain * nchains > nsamples) {
+      # Increase nr of samples to have equal nr of samples per chain
       nsamples <- nchains * nsamplesperchain
-      cat("Increasing number of samples to", nsamples, "\n")
+      cat('Increasing number of samples to', nsamples, '\n')
     }
-    ##
-  } else if (exists("nsamples") && exists("nchains") && exists("nsamplesperchain")) {
-    ## nsamples and nsamplesperchain given
+    # nsamples and nsamplesperchain given
+  } else if (nsamples > 0 && nsamplesperchain > 0) {
+    # Set nchains
     nchains <- ceiling(nsamples / nsamplesperchain)
-    if (nchains < ncores) {
-      ncores <- nchains
-    }
     nchainspercore <- ceiling(nchains / ncores)
     if (nchainspercore * ncores > nchains) {
       nchains <- nchainspercore * ncores
     }
     if (nsamplesperchain * nchains > nsamples) {
       nsamples <- nchains * nsamplesperchain
-      cat("Increasing number of samples to", nsamples, "\n")
+      cat('Increasing number of samples to', nsamples, '\n')
     }
-    ##
-  } else if (exists("nsamples") && exists("nchains") && exists("nsamplesperchain")) {
-    ## nchains and nsamplesperchain given
-    if (nchains < ncores) {
-      ncores <- nchains
-    }
+    # nchains and nsamplesperchain given
+  } else if (nchains > 0 && nsamplesperchain > 0) {
     nchainspercore <- ceiling(nchains / ncores)
     if (nchainspercore * ncores > nchains) {
       nchains <- nchainspercore * ncores
-      cat("Increasing number of chains to", nchains, "\n")
+      cat('Increasing number of chains to', nchains, '\n')
     }
+    # Set nsamples
     nsamples <- nchains * nsamplesperchain
-    ##
   } else {
-    stop('please specify exactly two among "nsamples", "nchains", "nsamplesperchain"')
+    stop('Make sure to set two of  "nsamples", "nchains", "nsamplesperchain"
+          to positive integer values')
+  }
+  # We don't need more cores than chains
+  if (nchains < ncores) {
+    ncores <- nchains
   }
 
-  ## ## set number of cores for parallel computation
-  ## if(missing(ncores) || !is.numeric(ncores)){
-  ##     warning('The number of cores has not been given.\nIt is much preferable that it be set by the user.')
-  ##     ncores <- round(parallel::detectCores()/2)
-  ##     cat('\nTrying to use ',ncores,' cores\n')
-  ## }
-
+  # Parallellisation if more than one core
   if (ncores < 2) {
     `%dochains%` <- `%do%`
   } else {
-    `%dochains%` <- `%dorng%`
+    `%dochains%` <- `doRNG::%dorng%`
   }
+
   timestart0 <- Sys.time()
 
   ## cat('\n')
