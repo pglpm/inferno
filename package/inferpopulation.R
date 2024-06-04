@@ -169,6 +169,8 @@ inferpopulation <- function(data, metadata, outputdir, nsamples = 0,
   #### Build auxiliary metadata object; we'll save it later
   if (is.character(metadata) && file.exists(metadata)) {
     metadata <- data.table::fread(metadata, na.strings = '')
+  } else {
+    stop('Please provide a metadata file.')
   }
   metadata <- data.table::as.data.table(metadata)
   auxmetadata <- buildauxmetadata(data = data, metadata = metadata)
@@ -300,7 +302,7 @@ inferpopulation <- function(data, metadata, outputdir, nsamples = 0,
   ##
   dirname <- paste0(nameroot, '/')
   # Create output directory if it does not exist
-  dir.create(dirname)
+  dir.create(dirname, showWarnings = FALSE)
   # Print information
   cat(
     '\n', paste0(rep('*', max(nchar(dirname), 26)), collapse = ''),
