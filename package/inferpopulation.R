@@ -89,7 +89,7 @@ inferpopulation <- function(data, metadata, outputdir, nsamples = 0,
       )
     } else {
       cl <- parallel::makeCluster(parallel)
-      foreach::registerDoParallel(cl)
+      doParallel::registerDoParallel(cl)
       cat(
         'Registered', foreach::getDoParName(), 'with',
         foreach::getDoParWorkers(), 'workers\n'
@@ -156,7 +156,7 @@ inferpopulation <- function(data, metadata, outputdir, nsamples = 0,
   if (ncores < 2) {
     `%dochains%` <- `%do%`
   } else {
-    `%dochains%` <- `doRNG::%dorng%`
+    `%dochains%` <- `%dorng%`
   }
 
   #### Start timer
@@ -515,7 +515,7 @@ inferpopulation <- function(data, metadata, outputdir, nsamples = 0,
   ## }else{
   ##     registerDoSEQ()
   ## }
-  ## toexport <- c('constants', 'datapoints', 'vn', 'vnames', 'nalpha', 'nclusters')
+  ## toexport <- c('constants', 'datapoints', 'nVars', 'varsName', 'nalpha', 'nclusters')
   ## toexport <- c('vtransform','samplesFDistribution','proposeburnin','proposethinning','plotFsamples')
 
   ## Set the RNG seed if given by user, or if no seed already exists
@@ -535,6 +535,16 @@ inferpopulation <- function(data, metadata, outputdir, nsamples = 0,
     acore = 1:ncores, .combine = rbind, .inorder = FALSE,
     .packages = c('khroma', 'foreach', 'rngtools')
   ) %dochains% {
+
+    #We have to source scripts again for each chain to be able to access them.
+    source('tplotfunctions.R')
+    source('vtransform.R')
+    source('samplesFDistribution.R')
+    source('proposeburnin.R')
+    source('proposethinning.R')
+    source('plotFsamples.R')
+    source('mcsubset.R')
+
     # Create log file
     outcon <- file(paste0(
       dirname, '_log', dashnameroot,
@@ -558,8 +568,8 @@ inferpopulation <- function(data, metadata, outputdir, nsamples = 0,
     if (thinning <= 0) {
       multcorr <- 2L
       thinning <- 1L
-      thresholdfn <- function(diagnIAT, nsamplesperchain, multcorr,
-                              diagnBurn2, diagnThin) {
+      thresholdfn <- function(diagnESS, diagnIAT, diagnBMK, diagnMCSE, diagnStat,
+                              diagnBurn, diagnBurn2, diagnThin) {
         ceiling(2 * max(diagnBurn2) +
                   ((nsamplesperchain - 1L) * multcorr *
                      ceiling(max(diagnIAT, diagnThin))))
@@ -567,8 +577,8 @@ inferpopulation <- function(data, metadata, outputdir, nsamples = 0,
     } else if (thinning > 0) {
       # These two options do exactly the same thing
       multcorr <- (-2L)
-      thresholdfn <- function(diagnIAT, nsamplesperchain, multcorr,
-                              diagnBurn2, diagnThin) {
+      thresholdfn <- function(diagnESS, diagnIAT, diagnBMK, diagnMCSE, diagnStat,
+                              diagnBurn, diagnBurn2, diagnThin) {
         ceiling(2 * max(diagnBurn2) +
                   ((nsamplesperchain - 1L) * (-multcorr) *
                      ceiling(max(diagnIAT, diagnThin))))
@@ -579,61 +589,52 @@ inferpopulation <- function(data, metadata, outputdir, nsamples = 0,
     }
 
     #### CLUSTER REPRESENTATION OF FREQUENCY SPACE
+
     ## hierarchical probability structure
-    finitemix <- nimbleCode({
+    finitemix <- nimble::nimbleCode({
       ## Component weights
       Alpha ~ dcat(prob = probalpha0[1:nalpha])
       alphas[1:nclusters] <- basealphas[1:nclusters] * 2^Alpha
       W[1:nclusters] ~ ddirch(alpha = alphas[1:nclusters])
-      ##
-      ## if(FALSE){
-      ##     for(v in 1:nvar){
-      ##         ## Rmean1[v] ~ dnorm(mean=0, var=1)
-      ##         ## Rratem1[v] ~ dinvgamma(shape=shapehi0, rate=1)
-      ##         Rvarm1[v] ~ dinvgamma(shape=shapelo0, rate=Rratem1[v])
-      ##         ##
-      ##         Shapelo[v] ~ dinvgamma(shape=minshape, scale=maxshape)
-      ##         Shapehi[v] ~ dinvgamma(shape=minshape, scale=maxshape)
-      ##         ## Rrate1[v] ~ dinvgamma(shape=shapehi0, rate=1)
-      ##         ## Rvar1[v] ~ dinvgamma(shape=shapelo0, rate=Rrate1[v])
-      ##     }
-      ## }
+
       ## Probability density for the parameters of the components
+      # Loop over clusters
       for (k in 1:nclusters) {
-        if (vn$R > 0) { # continuous
+        # Check for different types of variates
+        if (nVars$R > 0) { # continuous
           for (v in 1:Rn) {
             Rmean[v, k] ~ dnorm(mean = Rmean1, var = Rvarm1)
             Rrate[v, k] ~ dinvgamma(shape = Rshapehi, rate = Rvar1)
             Rvar[v, k] ~ dinvgamma(shape = Rshapelo, rate = Rrate[v, k])
           }
         }
-        if (vn$C > 0) { # censored
+        if (nVars$C > 0) { # censored
           for (v in 1:Cn) {
             Cmean[v, k] ~ dnorm(mean = Cmean1, var = Cvarm1)
             Crate[v, k] ~ dinvgamma(shape = Cshapehi, rate = Cvar1)
             Cvar[v, k] ~ dinvgamma(shape = Cshapelo, rate = Crate[v, k])
           }
         }
-        if (vn$D > 0) { # discretized
+        if (nVars$D > 0) { # discretized
           for (v in 1:Dn) {
             Dmean[v, k] ~ dnorm(mean = Dmean1, var = Dvarm1)
             Drate[v, k] ~ dinvgamma(shape = Dshapehi, rate = Dvar1)
             Dvar[v, k] ~ dinvgamma(shape = Dshapelo, rate = Drate[v, k])
           }
         }
-        if (vn$O > 0) { # ordinal
+        if (nVars$O > 0) { # ordinal
           for (v in 1:On) {
             Omean[v, k] ~ dnorm(mean = Omean1, var = Ovarm1)
             Orate[v, k] ~ dinvgamma(shape = Oshapehi, rate = Ovar1)
             Ovar[v, k] ~ dinvgamma(shape = Oshapelo, rate = Orate[v, k])
           }
         }
-        if (vn$N > 0) { # nominal
+        if (nVars$N > 0) { # nominal
           for (v in 1:Nn) {
             Nprob[v, k, 1:Nmaxn] ~ ddirch(alpha = Nalpha0[v, 1:Nmaxn])
           }
         }
-        if (vn$B > 0) { # binary
+        if (nVars$B > 0) { # binary
           for (v in 1:Bn) {
             Bprob[v, k] ~ dbeta(shape1 = Bshapelo, shape2 = Bshapehi)
           }
@@ -643,41 +644,44 @@ inferpopulation <- function(data, metadata, outputdir, nsamples = 0,
       for (d in 1:npoints) {
         K[d] ~ dcat(prob = W[1:nclusters])
         ##
-        if (vn$R > 0) { # continuous
+        if (nVars$R > 0) { # continuous
           for (v in 1:Rn) {
             Rdata[d, v] ~ dnorm(mean = Rmean[v, K[d]], var = Rvar[v, K[d]])
           }
         }
-        if (vn$C > 0) { # censored
+        if (nVars$C > 0) { # censored
           for (v in 1:Cn) {
-            Caux[d, v] ~ dconstraint(Clat[d, v] >= Cleft[d, v] & Clat[d, v] <= Cright[d, v])
+            Caux[d, v] ~ dconstraint(Clat[d, v] >= Cleft[d, v] &
+                                       Clat[d, v] <= Cright[d, v])
             Clat[d, v] ~ dnorm(mean = Cmean[v, K[d]], var = Cvar[v, K[d]])
           }
         }
-        if (vn$D > 0) { # discretized
+        if (nVars$D > 0) { # discretized
           for (v in 1:Dn) {
-            Daux[d, v] ~ dconstraint(Dlat[d, v] >= Dleft[d, v] & Dlat[d, v] < Dright[d, v])
+            Daux[d, v] ~ dconstraint(Dlat[d, v] >= Dleft[d, v] &
+                                       Dlat[d, v] < Dright[d, v])
             Dlat[d, v] ~ dnorm(mean = Dmean[v, K[d]], var = Dvar[v, K[d]])
           }
         }
-        if (vn$O > 0) { # ordinal
+        if (nVars$O > 0) { # ordinal
           for (v in 1:On) {
-            Oaux[d, v] ~ dconstraint(Olat[d, v] >= Oleft[d, v] & Olat[d, v] < Oright[d, v])
+            Oaux[d, v] ~ dconstraint(Olat[d, v] >= Oleft[d, v] &
+                                       Olat[d, v] < Oright[d, v])
             Olat[d, v] ~ dnorm(mean = Omean[v, K[d]], var = Ovar[v, K[d]])
           }
         }
-        if (vn$N > 0) { # nominal
+        if (nVars$N > 0) { # nominal
           for (v in 1:Nn) {
             Ndata[d, v] ~ dcat(prob = Nprob[v, K[d], 1:Nmaxn])
           }
         }
-        if (vn$B > 0) { # binary
+        if (nVars$B > 0) { # binary
           for (v in 1:Bn) {
             Bdata[d, v] ~ dbern(prob = Bprob[v, K[d]])
           }
         }
       }
-    })
+    }) # end finitemix NimbleCode
 
 
     #### INITIAL-VALUE FUNCTION
@@ -692,70 +696,70 @@ inferpopulation <- function(data, metadata, outputdir, nsamples = 0,
         K = rep(sample(rep(which(W > 0), 2), 1, replace = T), npoints)
       )
       ##
-      if (vn$R > 0) { # continuous
-        Rrate <- matrix(nimble::rinvgamma(n = vn$R * nclusters, shape = constants$Rshapehi, rate = constants$Rvar1), nrow = vn$R, ncol = nclusters)
+      if (nVars$R > 0) { # continuous
+        Rrate <- matrix(nimble::rinvgamma(n = nVars$R * nclusters, shape = constants$Rshapehi, rate = constants$Rvar1), nrow = nVars$R, ncol = nclusters)
         outlist <- c(
           outlist,
           list(
-            Rmean = matrix(rnorm(n = vn$R * nclusters, mean = constants$Rmean1, sd = sqrt(constants$Rvarm1)), nrow = vn$R, ncol = nclusters),
+            Rmean = matrix(rnorm(n = nVars$R * nclusters, mean = constants$Rmean1, sd = sqrt(constants$Rvarm1)), nrow = nVars$R, ncol = nclusters),
             Rrate = Rrate,
-            Rvar = matrix(nimble::rinvgamma(n = vn$R * nclusters, shape = constants$Rshapelo, rate = Rrate), nrow = vn$R, ncol = nclusters)
+            Rvar = matrix(nimble::rinvgamma(n = nVars$R * nclusters, shape = constants$Rshapelo, rate = Rrate), nrow = nVars$R, ncol = nclusters)
           )
         )
       }
-      if (vn$C > 0) { # censored
-        Crate <- matrix(nimble::rinvgamma(n = vn$C * nclusters, shape = constants$Cshapehi, rate = constants$Cvar1), nrow = vn$C, ncol = nclusters)
+      if (nVars$C > 0) { # censored
+        Crate <- matrix(nimble::rinvgamma(n = nVars$C * nclusters, shape = constants$Cshapehi, rate = constants$Cvar1), nrow = nVars$C, ncol = nclusters)
         outlist <- c(
           outlist,
           list(
-            Cmean = matrix(rnorm(n = vn$C * nclusters, mean = constants$Cmean1, sd = sqrt(constants$Cvarm1)), nrow = vn$C, ncol = nclusters),
+            Cmean = matrix(rnorm(n = nVars$C * nclusters, mean = constants$Cmean1, sd = sqrt(constants$Cvarm1)), nrow = nVars$C, ncol = nclusters),
             Crate = Crate,
-            Cvar = matrix(nimble::rinvgamma(n = vn$C * nclusters, shape = constants$Cshapelo, rate = Crate), nrow = vn$C, ncol = nclusters),
-            Clat = vtransform(data[, vnames$C, with = F], auxmetadata, Cout = "init", useOquantiles = useOquantiles) ## for data with boundary values
+            Cvar = matrix(nimble::rinvgamma(n = nVars$C * nclusters, shape = constants$Cshapelo, rate = Crate), nrow = nVars$C, ncol = nclusters),
+            Clat = vtransform(data[, varsName$C, with = F], auxmetadata, Cout = "init", useOquantiles = useOquantiles) ## for data with boundary values
           )
         )
       }
-      if (vn$D > 0) { # discretized
-        Drate <- matrix(nimble::rinvgamma(n = vn$D * nclusters, shape = constants$Dshapehi, rate = constants$Dvar1), nrow = vn$D, ncol = nclusters)
+      if (nVars$D > 0) { # discretized
+        Drate <- matrix(nimble::rinvgamma(n = nVars$D * nclusters, shape = constants$Dshapehi, rate = constants$Dvar1), nrow = nVars$D, ncol = nclusters)
         outlist <- c(
           outlist,
           list(
-            Dmean = matrix(rnorm(n = vn$D * nclusters, mean = constants$Dmean1, sd = sqrt(constants$Dvarm1)), nrow = vn$D, ncol = nclusters),
+            Dmean = matrix(rnorm(n = nVars$D * nclusters, mean = constants$Dmean1, sd = sqrt(constants$Dvarm1)), nrow = nVars$D, ncol = nclusters),
             Drate = Drate,
-            Dvar = matrix(nimble::rinvgamma(n = vn$D * nclusters, shape = constants$Dshapelo, rate = Drate), nrow = vn$D, ncol = nclusters),
-            Dlat = vtransform(data[, vnames$D, with = F], auxmetadata, Dout = "init", useOquantiles = useOquantiles) ## for data with boundary values
+            Dvar = matrix(nimble::rinvgamma(n = nVars$D * nclusters, shape = constants$Dshapelo, rate = Drate), nrow = nVars$D, ncol = nclusters),
+            Dlat = vtransform(data[, varsName$D, with = F], auxmetadata, Dout = "init", useOquantiles = useOquantiles) ## for data with boundary values
           )
         )
       }
-      if (vn$O > 0) { # ordinal
-        Orate <- matrix(nimble::rinvgamma(n = vn$O * nclusters, shape = constants$Oshapehi, rate = constants$Ovar1), nrow = vn$O, ncol = nclusters)
+      if (nVars$O > 0) { # ordinal
+        Orate <- matrix(nimble::rinvgamma(n = nVars$O * nclusters, shape = constants$Oshapehi, rate = constants$Ovar1), nrow = nVars$O, ncol = nclusters)
         outlist <- c(
           outlist,
           list(
-            Omean = matrix(rnorm(n = vn$O * nclusters, mean = constants$Omean1, sd = sqrt(constants$Ovarm1)), nrow = vn$O, ncol = nclusters),
+            Omean = matrix(rnorm(n = nVars$O * nclusters, mean = constants$Omean1, sd = sqrt(constants$Ovarm1)), nrow = nVars$O, ncol = nclusters),
             Orate = Orate,
-            Ovar = matrix(nimble::rinvgamma(n = vn$O * nclusters, shape = constants$Oshapelo, rate = Orate), nrow = vn$O, ncol = nclusters),
-            Olat = vtransform(data[, vnames$O, with = F], auxmetadata, Oout = "init", useOquantiles = useOquantiles) ## for data with boundary values
+            Ovar = matrix(nimble::rinvgamma(n = nVars$O * nclusters, shape = constants$Oshapelo, rate = Orate), nrow = nVars$O, ncol = nclusters),
+            Olat = vtransform(data[, varsName$O, with = F], auxmetadata, Oout = "init", useOquantiles = useOquantiles) ## for data with boundary values
           )
         )
       }
-      if (vn$N > 0) { # nominal
+      if (nVars$N > 0) { # nominal
         outlist <- c(
           outlist,
           list(
-            Nprob = aperm(array(sapply(1:vn$N, function(avar) {
+            Nprob = aperm(array(sapply(1:nVars$N, function(avar) {
               sapply(1:nclusters, function(aclus) {
                 rdirch(n = 1, alpha = Nalpha0[avar, ])
               })
-            }), dim = c(Nmaxn, nclusters, vn$N)))
+            }), dim = c(Nmaxn, nclusters, nVars$N)))
           )
         )
       }
-      if (vn$B > 0) { # binary
+      if (nVars$B > 0) { # binary
         outlist <- c(
           outlist,
           list(
-            Bprob = matrix(rbeta(n = vn$B * nclusters, shape1 = constants$Bshapelo, shape2 = constants$Bshapehi), nrow = vn$B, ncol = nclusters)
+            Bprob = matrix(rbeta(n = nVars$B * nclusters, shape1 = constants$Bshapelo, shape2 = constants$Bshapehi), nrow = nVars$B, ncol = nclusters)
           )
         )
       }
@@ -783,22 +787,22 @@ inferpopulation <- function(data, metadata, outputdir, nsamples = 0,
       Cfinitemixnimble, # nodes=NULL,
       monitors = c(
         "W",
-        if (vn$R > 0) {
+        if (nVars$R > 0) {
           c("Rmean", "Rvar")
         },
-        if (vn$C > 0) {
+        if (nVars$C > 0) {
           c("Cmean", "Cvar")
         },
-        if (vn$D > 0) {
+        if (nVars$D > 0) {
           c("Dmean", "Dvar")
         },
-        if (vn$O > 0) {
+        if (nVars$O > 0) {
           c("Omean", "Ovar")
         },
-        if (vn$N > 0) {
+        if (nVars$N > 0) {
           c("Nprob")
         },
-        if (vn$B > 0) {
+        if (nVars$B > 0) {
           c("Bprob")
         }
       ),
@@ -850,22 +854,22 @@ inferpopulation <- function(data, metadata, outputdir, nsamples = 0,
     #### change execution order for some variates
     samplerorder <- c(
       "K",
-      if (vn$R > 0) {
+      if (nVars$R > 0) {
         c("Rmean", "Rrate", "Rvar")
       },
-      if (vn$C > 0) {
+      if (nVars$C > 0) {
         c("Cmean", "Crate", "Cvar")
       },
-      if (vn$D > 0) {
+      if (nVars$D > 0) {
         c("Dmean", "Drate", "Dvar")
       },
-      if (vn$O > 0) {
+      if (nVars$O > 0) {
         c("Omean", "Orate", "Ovar")
       },
-      if (vn$N > 0) {
+      if (nVars$N > 0) {
         c("Nprob")
       },
-      if (vn$B > 0) {
+      if (nVars$B > 0) {
         c("Bprob")
       },
       "W", "Alpha"
