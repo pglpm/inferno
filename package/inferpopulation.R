@@ -423,62 +423,87 @@ inferpopulation <- function(data, metadata, outputdir, nsamples = 0,
     }
   ) # End constants
 
-  #### DATAPOINTS
+ #### DATAPOINTS
   datapoints <- c(
-    if (vn$R > 0) { # continuous
+    if (nVars$R > 0) { # continuous
       list(
-        Rdata = vtransform(data[, vnames$R, with = F], auxmetadata, useOquantiles = useOquantiles)
+        Rdata = vtransform(data[, varsName$R, with = FALSE], auxmetadata,
+          useOquantiles = useOquantiles
+        )
       )
     },
-    if (vn$C > 0) { # censored
+    if (nVars$C > 0) { # censored
       list(
-        Caux = vtransform(data[, vnames$C, with = F], auxmetadata, Cout = "aux", useOquantiles = useOquantiles),
-        Clat = vtransform(data[, vnames$C, with = F], auxmetadata, Cout = "lat", useOquantiles = useOquantiles)
+        Caux = vtransform(data[, varsName$C, with = FALSE], auxmetadata,
+          Cout = 'aux', useOquantiles = useOquantiles
+        ),
+        Clat = vtransform(data[, varsName$C, with = FALSE], auxmetadata,
+          Cout = 'lat', useOquantiles = useOquantiles
+        )
       )
     },
-    if (vn$D > 0) { # discretized
+    if (nVars$D > 0) { # discretized
       list(
-        Daux = vtransform(data[, vnames$D, with = F], auxmetadata, Dout = "aux", useOquantiles = useOquantiles)
+        Daux = vtransform(data[, varsName$D, with = FALSE], auxmetadata,
+          Dout = 'aux', useOquantiles = useOquantiles
+        )
       )
     },
-    if (vn$O > 0) { # ordinal
+    if (nVars$O > 0) { # ordinal
       list(
-        Oaux = vtransform(data[, vnames$O, with = F], auxmetadata, Oout = "aux", useOquantiles = useOquantiles)
+        Oaux = vtransform(data[, varsName$O, with = FALSE], auxmetadata,
+          Oout = 'aux', useOquantiles = useOquantiles
+        )
       )
     },
-    if (vn$N > 0) { # nominal
+    if (nVars$N > 0) { # nominal
       list(
-        Ndata = vtransform(data[, vnames$N, with = F], auxmetadata, Nout = "numeric", useOquantiles = useOquantiles)
+        Ndata = vtransform(data[, varsName$N, with = FALSE], auxmetadata,
+          Nout = 'numeric', useOquantiles = useOquantiles
+        )
       )
     },
-    if (vn$B > 0) { # binary
+    if (nVars$B > 0) { # binary
       list(
-        Bdata = vtransform(data[, vnames$B, with = F], auxmetadata, Bout = "numeric", useOquantiles = useOquantiles)
+        Bdata = vtransform(data[, varsName$B, with = FALSE], auxmetadata,
+          Bout = 'numeric', useOquantiles = useOquantiles
+        )
       )
     }
-  )
+  ) # End datapoints
 
-
-  #### Output info
-  if (!exists("Nalpha0")) {
+  #### Output 
+  if (!exists('Nalpha0')) {
     Nalpha0 <- cbind(1)
   }
-  cat("Starting Monte Carlo sampling of", nsamples, "samples by", nchains, "chains")
   cat(
-    "\nin a space of",
-    (sum(as.numeric(vn) * c(2, 2, 2, 2, 0, 1)) + sum(Nalpha0 > 2e-100) - nrow(Nalpha0) + 1) * nclusters - 1,
-    "(effectively",
+    'Starting Monte Carlo sampling of', nsamples, 'samples by',
+    nchains, 'chains'
+  )
+  cat(
+    '\nin a space of',
+    (sum(as.numeric(nVars) * c(2, 2, 2, 2, 0, 1)) +
+       sum(Nalpha0 > 2e-100) - nrow(Nalpha0) + 1) * nclusters - 1,
+    '(effectively',
     paste0(
-      (sum(as.numeric(vn) * c(3 + npoints, 3 + npoints, 3 + npoints, 3 + npoints, 0, 1 + npoints)) + sum(Nalpha0 > 2e-100) + nrow(Nalpha0) * (npoints - 1) + 1) * nclusters - 1 + nalpha - 1,
-      ")"
-    ), "dimensions.\n"
+      (sum(as.numeric(nVars) * c(
+        3 + npoints, 3 + npoints, 3 + npoints,
+        3 + npoints, 0, 1 + npoints
+      )) +
+        sum(Nalpha0 > 2e-100) +
+        nrow(Nalpha0) * (npoints - 1) + 1) * nclusters - 1 + nalpha - 1,
+      ')'
+    ), 'dimensions.\n'
   )
   cat(
-    "Using", ncores, "cores:",
-    nsamplesperchain, "samples per chain,", nchainspercore, "chains per core.\n"
+    'Using', ncores, 'cores:',
+    nsamplesperchain, 'samples per chain,', nchainspercore, 'chains per core.\n'
   )
-  cat("Core logs are being saved in individual files.\n")
-  cat("\nC-compiling samplers appropriate to the variates (package Nimble)\nthis can take tens of minutes with many data or variates.\n...\r")
+  cat('Core logs are being saved in individual files.\n')
+  cat('\nC-compiling samplers appropriate to the variates
+      (package Nimble)\nthis can take tens of minutes with
+       many data or variates.\n...\r')
+
   ## cat('Estimating remaining time...\r')
   ## stopCluster(cluster)
   ## stopImplicitCluster()
