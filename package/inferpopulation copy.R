@@ -331,29 +331,29 @@ inferpopulation <- function(data, metadata, outputdir, nsamples = 0,
 
   # R:rounded C:censored continous, D:discretized , O: ordinal,
   # N: nominal, B: binary
-  n_vars <- list() # How many variates of each type
-  vars_name <- list() # The names for variates of each type
+  nVars <- list() # How many variates of each type
+  varsName <- list() # The names for variates of each type
   for (atype in c('R', 'C', 'D', 'O', 'N', 'B')) {
-    n_vars[[atype]] <- length(auxmetadata[mcmctype == atype, name])
-    vars_name[[atype]] <- auxmetadata[mcmctype == atype, name]
+    nVars[[atype]] <- length(auxmetadata[mcmctype == atype, name])
+    varsName[[atype]] <- auxmetadata[mcmctype == atype, name]
   }
-  cat('\n ', n_vars$R, n_vars$C, n_vars$D, n_vars$O, n_vars$N, n_vars$B, '\n')
+  cat('\n ', nVars$R, nVars$C, nVars$D, nVars$O, nVars$N, nVars$B, '\n')
 
   #### CONSTANTS OF MONTE-CARLO SAMPLER
   # These constants are available in the Nimble environment
   # They don't have to be accessed by constants$varname
   constants <- c(
     list(
-      n_vars = n_vars,
+      nVars = nVars,
       nclusters = nclusters,
       npoints = npoints,
       nalpha = nalpha,
       probalpha0 = rep(1 / nalpha, nalpha),
       basealphas = rep((2^(minalpha - 1L)) / nclusters, nclusters)
     ),
-    if (n_vars$R > 0) { # continuous
+    if (nVars$R > 0) { # continuous
       list(
-        Rn = n_vars$R, # This indexing variable is needed internally
+        Rn = nVars$R, # This indexing variable is needed internally
         Rmean1 = rep(0, 1),
         Rvarm1 = rep(Rvarm1, 1),
         Rvar1 = rep(1, 1),
@@ -361,13 +361,13 @@ inferpopulation <- function(data, metadata, outputdir, nsamples = 0,
         Rshapehi = rep(Rshapehi, 1)
       )
     },
-    if (n_vars$C > 0) { # censored
-      Cleft <- vtransform(data[, vars_name$C, with = FALSE], auxmetadata,
+    if (nVars$C > 0) { # censored
+      Cleft <- vtransform(data[, varsName$C, with = FALSE], auxmetadata,
                           Cout = 'left', useOquantiles = useOquantiles)
-      Cright <- vtransform(data[, vars_name$C, with = FALSE], auxmetadata,
+      Cright <- vtransform(data[, varsName$C, with = FALSE], auxmetadata,
                            Cout = 'right', useOquantiles = useOquantiles)
       list(
-        Cn = n_vars$C, # This indexing variable is needed internally
+        Cn = nVars$C, # This indexing variable is needed internally
         Cmean1 = rep(0, 1),
         Cvarm1 = rep(Cvarm1, 1),
         Cvar1 = rep(1, 1),
@@ -377,13 +377,13 @@ inferpopulation <- function(data, metadata, outputdir, nsamples = 0,
         Cright = Cright
       )
     },
-    if (n_vars$D > 0) { # discretized
-      Dleft <- vtransform(data[, vars_name$D, with = FALSE], auxmetadata,
+    if (nVars$D > 0) { # discretized
+      Dleft <- vtransform(data[, varsName$D, with = FALSE], auxmetadata,
                           Dout = 'left', useOquantiles = useOquantiles)
-      Dright <- vtransform(data[, vars_name$D, with = FALSE], auxmetadata,
+      Dright <- vtransform(data[, varsName$D, with = FALSE], auxmetadata,
                             Dout = 'right', useOquantiles = useOquantiles)
       list(
-        Dn = n_vars$D, # This indexing variable is needed internally
+        Dn = nVars$D, # This indexing variable is needed internally
         Dmean1 = rep(0, 1),
         Dvarm1 = rep(Dvarm1, 1),
         Dvar1 = rep(1, 1),
@@ -393,13 +393,13 @@ inferpopulation <- function(data, metadata, outputdir, nsamples = 0,
         Dright = Dright
       )
     },
-    if (n_vars$O > 0) { # ordinal
-      Oleft <- vtransform(data[, vars_name$O, with = FALSE], auxmetadata,
+    if (nVars$O > 0) { # ordinal
+      Oleft <- vtransform(data[, varsName$O, with = FALSE], auxmetadata,
                           Oout = 'left', useOquantiles = useOquantiles)
-      Oright <- vtransform(data[, vars_name$O, with = FALSE], auxmetadata,
+      Oright <- vtransform(data[, varsName$O, with = FALSE], auxmetadata,
                            Oout = 'right', useOquantiles = useOquantiles)
       list(
-        On = n_vars$O, # This indexing variable is needed internally
+        On = nVars$O, # This indexing variable is needed internally
         Omean1 = rep(0, 1),
         Ovarm1 = rep(Ovarm1, 1),
         Ovar1 = rep(1, 1),
@@ -409,24 +409,24 @@ inferpopulation <- function(data, metadata, outputdir, nsamples = 0,
         Oright = Oright
       )
     },
-    if (n_vars$N > 0) { # nominal
+    if (nVars$N > 0) { # nominal
       Nmaxn <- max(auxmetadata[mcmctype == 'N', Nvalues])
-      Nalpha0 <- matrix(1e-100, nrow = n_vars$N, ncol = Nmaxn)
-      for (avar in seq_along(vars_name$N)) {
-        nvalues <- auxmetadata[name == vars_name$N[avar], Nvalues]
+      Nalpha0 <- matrix(1e-100, nrow = nVars$N, ncol = Nmaxn)
+      for (avar in seq_along(varsName$N)) {
+        nvalues <- auxmetadata[name == varsName$N[avar], Nvalues]
         ## use Hadamard-like prior: 1/nvalues
         ## other choice is flat prior: 1
         Nalpha0[avar, 1:nvalues] <- 1 / nvalues
       }
       list(
-        Nn = n_vars$N, # This indexing variable is needed internally
+        Nn = nVars$N, # This indexing variable is needed internally
         Nmaxn = Nmaxn,
         Nalpha0 = Nalpha0
       )
     },
-    if (n_vars$B > 0) { # binary
+    if (nVars$B > 0) { # binary
       list(
-        Bn = n_vars$B, # This indexing variable is needed internally
+        Bn = nVars$B, # This indexing variable is needed internally
         Bshapelo = rep(Bshapelo, 1),
         Bshapehi = rep(Bshapehi, 1)
       )
@@ -435,47 +435,47 @@ inferpopulation <- function(data, metadata, outputdir, nsamples = 0,
 
   #### DATAPOINTS
   datapoints <- c(
-    if (n_vars$R > 0) { # continuous
+    if (nVars$R > 0) { # continuous
       list(
-        Rdata = vtransform(data[, vars_name$R, with = FALSE], auxmetadata,
+        Rdata = vtransform(data[, varsName$R, with = FALSE], auxmetadata,
           useOquantiles = useOquantiles
         )
       )
     },
-    if (n_vars$C > 0) { # censored
+    if (nVars$C > 0) { # censored
       list(
-        Caux = vtransform(data[, vars_name$C, with = FALSE], auxmetadata,
+        Caux = vtransform(data[, varsName$C, with = FALSE], auxmetadata,
           Cout = 'aux', useOquantiles = useOquantiles
         ),
-        Clat = vtransform(data[, vars_name$C, with = FALSE], auxmetadata,
+        Clat = vtransform(data[, varsName$C, with = FALSE], auxmetadata,
           Cout = 'lat', useOquantiles = useOquantiles
         )
       )
     },
-    if (n_vars$D > 0) { # discretized
+    if (nVars$D > 0) { # discretized
       list(
-        Daux = vtransform(data[, vars_name$D, with = FALSE], auxmetadata,
+        Daux = vtransform(data[, varsName$D, with = FALSE], auxmetadata,
           Dout = 'aux', useOquantiles = useOquantiles
         )
       )
     },
-    if (n_vars$O > 0) { # ordinal
+    if (nVars$O > 0) { # ordinal
       list(
-        Oaux = vtransform(data[, vars_name$O, with = FALSE], auxmetadata,
+        Oaux = vtransform(data[, varsName$O, with = FALSE], auxmetadata,
           Oout = 'aux', useOquantiles = useOquantiles
         )
       )
     },
-    if (n_vars$N > 0) { # nominal
+    if (nVars$N > 0) { # nominal
       list(
-        Ndata = vtransform(data[, vars_name$N, with = FALSE], auxmetadata,
+        Ndata = vtransform(data[, varsName$N, with = FALSE], auxmetadata,
           Nout = 'numeric', useOquantiles = useOquantiles
         )
       )
     },
-    if (n_vars$B > 0) { # binary
+    if (nVars$B > 0) { # binary
       list(
-        Bdata = vtransform(data[, vars_name$B, with = FALSE], auxmetadata,
+        Bdata = vtransform(data[, varsName$B, with = FALSE], auxmetadata,
           Bout = 'numeric', useOquantiles = useOquantiles
         )
       )
@@ -492,11 +492,11 @@ inferpopulation <- function(data, metadata, outputdir, nsamples = 0,
   )
   cat(
     '\nin a space of',
-    (sum(as.numeric(n_vars) * c(2, 2, 2, 2, 0, 1)) +
+    (sum(as.numeric(nVars) * c(2, 2, 2, 2, 0, 1)) +
        sum(Nalpha0 > 2e-100) - nrow(Nalpha0) + 1) * nclusters - 1,
     '(effectively',
     paste0(
-      (sum(as.numeric(n_vars) * c(
+      (sum(as.numeric(nVars) * c(
         3 + npoints, 3 + npoints, 3 + npoints,
         3 + npoints, 0, 1 + npoints
       )) +
@@ -513,12 +513,8 @@ inferpopulation <- function(data, metadata, outputdir, nsamples = 0,
   cat('\nC-compiling samplers appropriate to the variates
       (package Nimble)\nthis can take tens of minutes with
        many data or variates.\n...\r')
-
-  #### BEGINNING OF FOREACH LOOP OVER CORES
-
+  
   ## Set the RNG seed if given by user, or if no seed already exists
-  ## As seed is set to NULL by default, this will never evaluate as FALSE
-  ## Why would a seed exist before this part of the code?
   if (!missing(seed) || !exists('.Random.seed')) {
     set.seed(seed)
   }
@@ -526,6 +522,11 @@ inferpopulation <- function(data, metadata, outputdir, nsamples = 0,
   saveRDS(.Random.seed,
           file = paste0(dirname, 'rng_seed', dashnameroot, '.rds'))
 
+  #####################################################
+  #### BEGINNING OF FOREACH LOOP OVER CORES
+  #####################################################
+
+  #Iterate over cores, using 'acore' variable as iterator
   chaininfo <- foreach::foreach(
     acore = 1:ncores, .combine = rbind, .inorder = FALSE,
     .packages = c('khroma', 'foreach', 'rngtools')
@@ -541,7 +542,7 @@ inferpopulation <- function(data, metadata, outputdir, nsamples = 0,
     suppressPackageStartupMessages(library('nimble'))
 
     ## Function for diagnostics
-    fun_MCSE <- function(x) {
+    funMCSE <- function(x) {
       if (length(x) >= 1000) {
         LaplacesDemon::MCSE(x, method = 'batch.means')$se
       } else {
@@ -586,40 +587,40 @@ inferpopulation <- function(data, metadata, outputdir, nsamples = 0,
       # Loop over clusters
       for (k in 1:nclusters) {
         # Check for different types of variates
-        if (n_vars$R > 0) { # continuous
+        if (nVars$R > 0) { # continuous
           for (v in 1:Rn) {
             Rmean[v, k] ~ dnorm(mean = Rmean1, var = Rvarm1)
             Rrate[v, k] ~ dinvgamma(shape = Rshapehi, rate = Rvar1)
             Rvar[v, k] ~ dinvgamma(shape = Rshapelo, rate = Rrate[v, k])
           }
         }
-        if (n_vars$C > 0) { # censored
+        if (nVars$C > 0) { # censored
           for (v in 1:Cn) {
             Cmean[v, k] ~ dnorm(mean = Cmean1, var = Cvarm1)
             Crate[v, k] ~ dinvgamma(shape = Cshapehi, rate = Cvar1)
             Cvar[v, k] ~ dinvgamma(shape = Cshapelo, rate = Crate[v, k])
           }
         }
-        if (n_vars$D > 0) { # discretized
+        if (nVars$D > 0) { # discretized
           for (v in 1:Dn) {
             Dmean[v, k] ~ dnorm(mean = Dmean1, var = Dvarm1)
             Drate[v, k] ~ dinvgamma(shape = Dshapehi, rate = Dvar1)
             Dvar[v, k] ~ dinvgamma(shape = Dshapelo, rate = Drate[v, k])
           }
         }
-        if (n_vars$O > 0) { # ordinal
+        if (nVars$O > 0) { # ordinal
           for (v in 1:On) {
             Omean[v, k] ~ dnorm(mean = Omean1, var = Ovarm1)
             Orate[v, k] ~ dinvgamma(shape = Oshapehi, rate = Ovar1)
             Ovar[v, k] ~ dinvgamma(shape = Oshapelo, rate = Orate[v, k])
           }
         }
-        if (n_vars$N > 0) { # nominal
+        if (nVars$N > 0) { # nominal
           for (v in 1:Nn) {
             Nprob[v, k, 1:Nmaxn] ~ ddirch(alpha = Nalpha0[v, 1:Nmaxn])
           }
         }
-        if (n_vars$B > 0) { # binary
+        if (nVars$B > 0) { # binary
           for (v in 1:Bn) {
             Bprob[v, k] ~ dbeta(shape1 = Bshapelo, shape2 = Bshapehi)
           }
@@ -629,38 +630,38 @@ inferpopulation <- function(data, metadata, outputdir, nsamples = 0,
       for (d in 1:npoints) {
         K[d] ~ dcat(prob = W[1:nclusters])
         ##
-        if (n_vars$R > 0) { # continuous
+        if (nVars$R > 0) { # continuous
           for (v in 1:Rn) {
             Rdata[d, v] ~ dnorm(mean = Rmean[v, K[d]], var = Rvar[v, K[d]])
           }
         }
-        if (n_vars$C > 0) { # censored
+        if (nVars$C > 0) { # censored
           for (v in 1:Cn) {
             Caux[d, v] ~ dconstraint(Clat[d, v] >= Cleft[d, v] &
                                        Clat[d, v] <= Cright[d, v])
             Clat[d, v] ~ dnorm(mean = Cmean[v, K[d]], var = Cvar[v, K[d]])
           }
         }
-        if (n_vars$D > 0) { # discretized
+        if (nVars$D > 0) { # discretized
           for (v in 1:Dn) {
             Daux[d, v] ~ dconstraint(Dlat[d, v] >= Dleft[d, v] &
                                        Dlat[d, v] < Dright[d, v])
             Dlat[d, v] ~ dnorm(mean = Dmean[v, K[d]], var = Dvar[v, K[d]])
           }
         }
-        if (n_vars$O > 0) { # ordinal
+        if (nVars$O > 0) { # ordinal
           for (v in 1:On) {
             Oaux[d, v] ~ dconstraint(Olat[d, v] >= Oleft[d, v] &
                                        Olat[d, v] < Oright[d, v])
             Olat[d, v] ~ dnorm(mean = Omean[v, K[d]], var = Ovar[v, K[d]])
           }
         }
-        if (n_vars$N > 0) { # nominal
+        if (nVars$N > 0) { # nominal
           for (v in 1:Nn) {
             Ndata[d, v] ~ dcat(prob = Nprob[v, K[d], 1:Nmaxn])
           }
         }
-        if (n_vars$B > 0) { # binary
+        if (nVars$B > 0) { # binary
           for (v in 1:Bn) {
             Bdata[d, v] ~ dbern(prob = Bprob[v, K[d]])
           }
@@ -679,69 +680,69 @@ inferpopulation <- function(data, metadata, outputdir, nsamples = 0,
         K = rep(sample(rep(which(W > 0), 2), 1, replace = TRUE), npoints)
       )
       ##
-      if (n_vars$R > 0) { # continuous
+      if (nVars$R > 0) { # continuous
         Rrate <- matrix(
           nimble::rinvgamma(
-            n = n_vars$R * nclusters,
+            n = nVars$R * nclusters,
             shape = constants$Rshapehi,
             rate = constants$Rvar1
           ),
-          nrow = n_vars$R, ncol = nclusters
+          nrow = nVars$R, ncol = nclusters
         )
         outlist <- c(
           outlist,
           list(
             Rmean = matrix(
               rnorm(
-                n = n_vars$R * nclusters,
+                n = nVars$R * nclusters,
                 mean = constants$Rmean1,
                 sd = sqrt(constants$Rvarm1)
               ),
-              nrow = n_vars$R, ncol = nclusters
+              nrow = nVars$R, ncol = nclusters
             ),
             Rrate = Rrate,
             Rvar = matrix(
               nimble::rinvgamma(
-                n = n_vars$R * nclusters,
+                n = nVars$R * nclusters,
                 shape = constants$Rshapelo,
                 rate = Rrate
               ),
-              nrow = n_vars$R, ncol = nclusters
+              nrow = nVars$R, ncol = nclusters
             )
           )
         )
       }
-      if (n_vars$C > 0) { # censored
+      if (nVars$C > 0) { # censored
         Crate <- matrix(
           nimble::rinvgamma(
-            n = n_vars$C * nclusters,
+            n = nVars$C * nclusters,
             shape = constants$Cshapehi,
             rate = constants$Cvar1
           ),
-          nrow = n_vars$C, ncol = nclusters
+          nrow = nVars$C, ncol = nclusters
         )
         outlist <- c(
           outlist,
           list(
             Cmean = matrix(
               rnorm(
-                n = n_vars$C * nclusters,
+                n = nVars$C * nclusters,
                 mean = constants$Cmean1,
                 sd = sqrt(constants$Cvarm1)
               ),
-              nrow = n_vars$C, ncol = nclusters
+              nrow = nVars$C, ncol = nclusters
             ),
             Crate = Crate,
             Cvar = matrix(
               nimble::rinvgamma(
-                n = n_vars$C * nclusters,
+                n = nVars$C * nclusters,
                 shape = constants$Cshapelo,
                 rate = Crate
               ),
-              nrow = n_vars$C, ncol = nclusters
+              nrow = nVars$C, ncol = nclusters
             ),
             ## for data with boundary values
-            Clat = vtransform(data[, vars_name$C, with = FALSE],
+            Clat = vtransform(data[, varsName$C, with = FALSE],
               auxmetadata,
               Cout = 'init',
               useOquantiles = useOquantiles
@@ -749,37 +750,37 @@ inferpopulation <- function(data, metadata, outputdir, nsamples = 0,
           )
         )
       }
-      if (n_vars$D > 0) { # discretized
+      if (nVars$D > 0) { # discretized
         Drate <- matrix(
           nimble::rinvgamma(
-            n = n_vars$D * nclusters,
+            n = nVars$D * nclusters,
             shape = constants$Dshapehi,
             rate = constants$Dvar1
           ),
-          nrow = n_vars$D, ncol = nclusters
+          nrow = nVars$D, ncol = nclusters
         )
         outlist <- c(
           outlist,
           list(
             Dmean = matrix(
               rnorm(
-                n = n_vars$D * nclusters,
+                n = nVars$D * nclusters,
                 mean = constants$Dmean1,
                 sd = sqrt(constants$Dvarm1)
               ),
-              nrow = n_vars$D, ncol = nclusters
+              nrow = nVars$D, ncol = nclusters
             ),
             Drate = Drate,
             Dvar = matrix(
               nimble::rinvgamma(
-                n = n_vars$D * nclusters,
+                n = nVars$D * nclusters,
                 shape = constants$Dshapelo,
                 rate = Drate
               ),
-              nrow = n_vars$D, ncol = nclusters
+              nrow = nVars$D, ncol = nclusters
             ),
             ## for data with boundary values
-            Dlat = vtransform(data[, vars_name$D, with = FALSE],
+            Dlat = vtransform(data[, varsName$D, with = FALSE],
               auxmetadata,
               Dout = 'init',
               useOquantiles = useOquantiles
@@ -787,37 +788,37 @@ inferpopulation <- function(data, metadata, outputdir, nsamples = 0,
           )
         )
       }
-      if (n_vars$O > 0) { # ordinal
+      if (nVars$O > 0) { # ordinal
         Orate <- matrix(
           nimble::rinvgamma(
-            n = n_vars$O * nclusters,
+            n = nVars$O * nclusters,
             shape = constants$Oshapehi,
             rate = constants$Ovar1
           ),
-          nrow = n_vars$O, ncol = nclusters
+          nrow = nVars$O, ncol = nclusters
         )
         outlist <- c(
           outlist,
           list(
             Omean = matrix(
               rnorm(
-                n = n_vars$O * nclusters,
+                n = nVars$O * nclusters,
                 mean = constants$Omean1,
                 sd = sqrt(constants$Ovarm1)
               ),
-              nrow = n_vars$O, ncol = nclusters
+              nrow = nVars$O, ncol = nclusters
             ),
             Orate = Orate,
             Ovar = matrix(
               nimble::rinvgamma(
-                n = n_vars$O * nclusters,
+                n = nVars$O * nclusters,
                 shape = constants$Oshapelo,
                 rate = Orate
               ),
-              nrow = n_vars$O, ncol = nclusters
+              nrow = nVars$O, ncol = nclusters
             ),
             ## for data with boundary values
-            Olat = vtransform(data[, vars_name$O, with = FALSE],
+            Olat = vtransform(data[, varsName$O, with = FALSE],
               auxmetadata,
               Oout = 'init',
               useOquantiles = useOquantiles
@@ -825,29 +826,29 @@ inferpopulation <- function(data, metadata, outputdir, nsamples = 0,
           )
         )
       }
-      if (n_vars$N > 0) { # nominal
+      if (nVars$N > 0) { # nominal
         outlist <- c(
           outlist,
           list(
-            Nprob = aperm(array(sapply(1:n_vars$N, function(avar) {
+            Nprob = aperm(array(sapply(1:nVars$N, function(avar) {
               sapply(1:nclusters, function(aclus) {
                 rdirch(n = 1, alpha = Nalpha0[avar, ])
               })
-            }), dim = c(Nmaxn, nclusters, n_vars$N)))
+            }), dim = c(Nmaxn, nclusters, nVars$N)))
           )
         )
       }
-      if (n_vars$B > 0) { # binary
+      if (nVars$B > 0) { # binary
         outlist <- c(
           outlist,
           list(
             Bprob = matrix(
               rbeta(
-                n = n_vars$B * nclusters,
+                n = nVars$B * nclusters,
                 shape1 = constants$Bshapelo,
                 shape2 = constants$Bshapehi
               ),
-              nrow = n_vars$B, ncol = nclusters
+              nrow = nVars$B, ncol = nclusters
             )
           )
         )
@@ -878,22 +879,22 @@ inferpopulation <- function(data, metadata, outputdir, nsamples = 0,
       Cfinitemixnimble, # nodes = NULL
       monitors = c(
         'W',
-        if (n_vars$R > 0) {
+        if (nVars$R > 0) {
           c('Rmean', 'Rvar')
         },
-        if (n_vars$C > 0) {
+        if (nVars$C > 0) {
           c('Cmean', 'Cvar')
         },
-        if (n_vars$D > 0) {
+        if (nVars$D > 0) {
           c('Dmean', 'Dvar')
         },
-        if (n_vars$O > 0) {
+        if (nVars$O > 0) {
           c('Omean', 'Ovar')
         },
-        if (n_vars$N > 0) {
+        if (nVars$N > 0) {
           c('Nprob')
         },
-        if (n_vars$B > 0) {
+        if (nVars$B > 0) {
           c('Bprob')
         }
       ),
@@ -939,22 +940,22 @@ inferpopulation <- function(data, metadata, outputdir, nsamples = 0,
     #### change execution order for some variates
     samplerorder <- c(
       'K',
-      if (n_vars$R > 0) {
+      if (nVars$R > 0) {
         c('Rmean', 'Rrate', 'Rvar')
       },
-      if (n_vars$C > 0) {
+      if (nVars$C > 0) {
         c('Cmean', 'Crate', 'Cvar')
       },
-      if (n_vars$D > 0) {
+      if (nVars$D > 0) {
         c('Dmean', 'Drate', 'Dvar')
       },
-      if (n_vars$O > 0) {
+      if (nVars$O > 0) {
         c('Omean', 'Orate', 'Ovar')
       },
-      if (n_vars$N > 0) {
+      if (nVars$N > 0) {
         c('Nprob')
       },
-      if (n_vars$B > 0) {
+      if (nVars$B > 0) {
         c('Bprob')
       },
       'W', 'Alpha'
@@ -1213,7 +1214,7 @@ inferpopulation <- function(data, metadata, outputdir, nsamples = 0,
         diagnBMK <- LaplacesDemon::BMK.Diagnostic(traces[1:(4 * trunc(nrow(traces) / 4)), ], batches = 4)[, 1]
         cat('\nBMKs:', paste0(round(diagnBMK, 3), collapse = ', '))
         diagnMCSE <- 100 * apply(traces, 2, function(x) {
-          fun_MCSE(x) / sd(x)
+          funMCSE(x) / sd(x)
         })
         cat('\nMCSEs:', paste0(round(diagnMCSE, 2), collapse = ', '))
         diagnStat <- apply(traces, 2, function(x) {
