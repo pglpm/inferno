@@ -1522,7 +1522,7 @@ inferpopulation <- function(data, metadata, outputdir, nsamples = 0,
   #### END OF FOREACH-LOOP OVER CORES
   ############################################################
   suppressWarnings(sink())
-  suppressWarnings(sink(NULL, type = "message"))
+  suppressWarnings(sink(NULL, type = 'message'))
 
   maxusedclusters <- max(chaininfo[, 1])
   nonfinitechains <- sum(chaininfo[, 2])
@@ -1535,9 +1535,11 @@ inferpopulation <- function(data, metadata, outputdir, nsamples = 0,
   ############################################################
   #### Join chains
   ############################################################
+
   ## Save random seeds used in the parallel processing
-  if (!is.null(attr(chaininfo, "rng"))) { # parallel processing
-    saveRDS(attr(chaininfo, "rng"), file = paste0(dirname, "rng_parallelseeds", dashnameroot, ".rds"))
+  if (!is.null(attr(chaininfo, 'rng'))) { # parallel processing
+    saveRDS(attr(chaininfo, 'rng'),
+            file = paste0(dirname, 'rng_parallelseeds', dashnameroot, '.rds'))
   }
 
   ## Read the samples saved by each chain and concatenate them
@@ -1553,31 +1555,35 @@ inferpopulation <- function(data, metadata, outputdir, nsamples = 0,
       SIMPLIFY = FALSE
     )
   }
-  mcsamples <- foreach(chainnumber = 1:(ncores * nchainspercore), .combine = joinmc, .multicombine = F) %do% {
-    padchainnumber <- sprintf(paste0("%0", nchar(nchains), "i"), chainnumber)
+  mcsamples <- foreach::foreach(chainnumber = 1:(ncores * nchainspercore),
+                                .combine = joinmc, .multicombine = FALSE) %do% {
+    padchainnumber <- sprintf(paste0('%0', nchar(nchains), 'i'), chainnumber)
 
-    readRDS(file = paste0(dirname, "_mcsamples", dashnameroot, "--", padchainnumber, ".rds"))
+    readRDS(file = paste0(dirname, '_mcsamples', dashnameroot, '--',
+                          padchainnumber, '.rds'))
   }
 
   #### Save all final parameters together with the aux-metadata in one file
   saveRDS(c(mcsamples, list(auxmetadata = auxmetadata)),
-    file = paste0(dirname, "Fdistribution", dashnameroot, ".rds")
+    file = paste0(dirname, 'Fdistribution', dashnameroot, '.rds')
   )
 
-  traces <- foreach(chainnumber = 1:(ncores * nchainspercore), .combine = rbind) %do% {
-    padchainnumber <- sprintf(paste0("%0", nchar(nchains), "i"), chainnumber)
+  traces <- foreach::foreach(chainnumber = 1:(ncores * nchainspercore),
+                             .combine = rbind) %do% {
+    padchainnumber <- sprintf(paste0('%0', nchar(nchains), 'i'), chainnumber)
 
-    readRDS(file = paste0(dirname, "_mctraces", dashnameroot, "--", padchainnumber, ".rds"))
+    readRDS(file = paste0(dirname, '_mctraces', dashnameroot, '--',
+                          padchainnumber, '.rds'))
   }
-  ## traces <- mcsamples[round(seq(1,nrow(mcsamples),length.out=nsamples)),1:3]
-  saveRDS(traces, file = paste0(dirname, "MCtraces", dashnameroot, ".rds"))
+  saveRDS(traces, file = paste0(dirname, 'MCtraces', dashnameroot, '.rds'))
 
-  cat("\rFinished Monte Carlo sampling.                                         \n")
-  gc()
+  cat('\rFinished Monte Carlo sampling.                                 \n')
+  gc() #garbage collection
 
   ############################################################
   #### Final joint diagnostics
   ############################################################
+
   ## cat('\nSome diagnostics:\n')
   traces <- traces[apply(traces, 1, function(x) {
     all(is.finite(x))
@@ -1586,7 +1592,7 @@ inferpopulation <- function(data, metadata, outputdir, nsamples = 0,
 
   ## funMCSE <- function(x){LaplacesDemon::MCSE(x, method='batch.means')$se}
   diagnESS <- LaplacesDemon::ESS(traces)
-  cat("\nEffective sample size:", round(max(diagnESS, na.rm = T)), "\n")
+  cat('\nEffective sample size:', round(max(diagnESS, na.rm = TRUE)), '\n')
   ## diagnIAT <- apply(traces, 2, function(x){LaplacesDemon::IAT(x)})
   ## cat('\nIATs:',paste0(round(diagnIAT), collapse=', '))
   ## diagnBMK <- LaplacesDemon::BMK.Diagnostic(traces[1:(4*trunc(nrow(traces)/4)),], batches=4)[,1]
@@ -1608,19 +1614,19 @@ inferpopulation <- function(data, metadata, outputdir, nsamples = 0,
   ## ##
 
   ## Plot various info and traces
-  cat("\nPlotting final Monte Carlo traces.\n")
+  cat('\nPlotting final Monte Carlo traces.\n')
 
   ##
-  colpalette <- 1:ncol(traces)
+  colpalette <- seq_len(ncol(traces))
   names(colpalette) <- colnames(traces)
   graphics.off()
-  pdff(paste0(dirname, "MCtraces", dashnameroot), apaper = 4)
+  pdff(paste0(dirname, 'MCtraces', dashnameroot), apaper = 4)
   ## Traces of likelihood and cond. probabilities
   for (avar in colnames(traces)) {
     tplot(
-      y = traces[, avar], type = "l", lty = 1, col = colpalette[avar],
+      y = traces[, avar], type = 'l', lty = 1, col = colpalette[avar],
       main = paste0(
-        "Effective sample size: ", signif(diagnESS[avar], 3)
+        'Effective sample size: ', signif(diagnESS[avar], 3)
         ##             ' | IAT = ', signif(diagnIAT[avar], 3),
         ##             ' | BMK = ', signif(diagnBMK[avar], 3),
         ##             ' | MCSE = ', signif(diagnMCSE[avar], 3),
@@ -1628,66 +1634,67 @@ inferpopulation <- function(data, metadata, outputdir, nsamples = 0,
         ##             ' | burn I: ', diagnBurn[avar],
         ##             ' | burn II: ', diagnBurn2
       ),
-      ylab = paste0(avar, "/dHart"), xlab = "sample", family = family, mar = c(NA, 6, NA, NA)
+      ylab = paste0(avar, '/dHart'), xlab = 'sample', family = family,
+      mar = c(NA, 6, NA, NA)
     )
   }
 
-  cat("\nMax number of occupied clusters:", maxusedclusters, "\n")
+  cat('\nMax number of occupied clusters:', maxusedclusters, '\n')
   if (maxusedclusters > nclusters - 5) {
-    cat("Too many clusters occupied\n")
+    cat('Too many clusters occupied\n')
   }
 
   if (nonfinitechains > 0) {
-    cat(nonfinitechains, "chains with some non-finite outputs\n")
+    cat(nonfinitechains, 'chains with some non-finite outputs\n')
   }
 
-  cat("Plotting marginal samples.\n")
+  cat('Plotting marginal samples.\n')
   plotFsamples(
-    file = paste0(dirname, "plotsamples_Fdistribution", dashnameroot),
+    file = paste0(dirname, 'plotsamples_Fdistribution', dashnameroot),
     mcoutput = c(mcsamples, list(auxmetadata = auxmetadata)),
     data = data,
-    plotuncertainty = "samples",
+    plotuncertainty = 'samples',
     uncertainty = showsamples, plotmeans = TRUE,
     datahistogram = TRUE, datascatter = TRUE,
     useOquantiles = useOquantiles,
     parallel = TRUE, silent = TRUE
   )
 
-  cat("Plotting marginal samples with quantiles.\n")
+  cat('Plotting marginal samples with quantiles.\n')
   plotFsamples(
-    file = paste0(dirname, "plotquantiles_Fdistribution", dashnameroot),
+    file = paste0(dirname, 'plotquantiles_Fdistribution', dashnameroot),
     mcoutput = c(mcsamples, list(auxmetadata = auxmetadata)),
     data = data,
-    plotuncertainty = "quantiles",
+    plotuncertainty = 'quantiles',
     uncertainty = showquantiles, plotmeans = TRUE,
     datahistogram = TRUE, datascatter = TRUE,
     useOquantiles = useOquantiles,
     parallel = TRUE, silent = TRUE
   )
 
-  cat("\nTotal computation time", printtime(Sys.time() - timestart0), "\n")
+  cat('\nTotal computation time', printtime(Sys.time() - timestart0), '\n')
 
-  if (exists("cl")) {
-    cat("\nClosing connections to cores.\n")
-    stopCluster(cl)
+  if (exists('cl')) {
+    cat('\nClosing connections to cores.\n')
+    parallel::stopCluster(cl)
   }
 
 
-  #### remove partial files if required
+  #### Remove partial files if required
   if (cleanup) {
-    cat("Removing temporary output files.\n")
+    cat('Removing temporary output files.\n')
     file.remove(dir(dirname,
-      pattern = paste0("^_mcsamples", dashnameroot, "--.*\\.rds$"),
+      pattern = paste0('^_mcsamples', dashnameroot, '--.*\\.rds$'),
       full.names = TRUE
     ))
     file.remove(dir(dirname,
-      pattern = paste0("^_mctraces", dashnameroot, "--.*\\.rds$"),
+      pattern = paste0('^_mctraces', dashnameroot, '--.*\\.rds$'),
       full.names = TRUE
     ))
     ## Should we leave the plots of partial traces?
     ## maybe create an additional function argument?
     file.remove(dir(dirname,
-      pattern = paste0("^_mcpartialtraces", dashnameroot, "--.*\\.pdf$"),
+      pattern = paste0('^_mcpartialtraces', dashnameroot, '--.*\\.pdf$'),
       full.names = TRUE
     ))
   }
@@ -1697,9 +1704,10 @@ inferpopulation <- function(data, metadata, outputdir, nsamples = 0,
   ## a histogram over number of clusters over all chains
   ## (for the moment there's one plot per chain)
 
-  cat("Finished.\n\n")
+  cat('Finished.\n\n')
 
   if (output) {
     mcsamples
   }
 }
+
