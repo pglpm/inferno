@@ -1348,108 +1348,132 @@ inferpopulation <- function(data, metadata, outputdir, nsamples = 0,
                             dashnameroot, '--',
                             padchainnumber, '.rds'))
 
+
       ###############
       #### PLOTS ####
       ###############
+
       #### Plot Alpha and cluster occupation, if required
       if (showAlphatraces || showKtraces) {
-        cat("Plotting cluster and Alpha information.\n")
-        pdff(paste0(dirname, "_hyperparams_traces", dashnameroot, "--", padchainnumber, "_", achain, "-", acore), apaper = 4)
+        cat('Plotting cluster and Alpha information.\n')
+        pdff(paste0(dirname, '_hyperparams_traces', dashnameroot, '--',
+                    padchainnumber, '_', achain, '-', acore),
+             apaper = 4)
 
         if (showKtraces) {
-          cat("\nSTATS OCCUPIED CLUSTERS:\n")
+          cat('\nSTATS OCCUPIED CLUSTERS:\n')
           print(summary(allmcsamplesKA$K))
           ##
-          tplot(y = allmcsamplesKA$K, ylab = "occupied clusters", xlab = "iteration", ylim = c(0, nclusters))
-          tplot(x = ((-1):nclusters) + 0.5, y = tabulate(allmcsamplesKA$K + 1, nbins = nclusters + 1), type = "h", xlab = "occupied clusters", ylab = NA, ylim = c(0, NA))
+          tplot(y = allmcsamplesKA$K, ylab = 'occupied clusters',
+                xlab = 'iteration', ylim = c(0, nclusters))
+          tplot(x = ((-1):nclusters) + 0.5,
+                y = tabulate(allmcsamplesKA$K + 1, nbins = nclusters + 1),
+                type = 'h', xlab = 'occupied clusters', ylab = NA,
+                ylim = c(0, NA))
         }
         if (showAlphatraces) {
-          cat("\nSTATS log2(alpha):\n")
-          print(summary(allmcsamplesKA$Alpha + minalpha - 1L, na.rm = T))
-          tplot(y = allmcsamplesKA$Alpha + minalpha - 1L, ylab = bquote(log2(alpha)), xlab = "iteration", ylim = c(minalpha, maxalpha))
-          tplot(x = (minalpha:(maxalpha + 1)) - 0.5, y = tabulate(allmcsamplesKA$Alpha, nbin = nalpha), type = "h", xlab = bquote(log2(alpha)), ylab = "", ylim = c(0, NA))
+          cat('\nSTATS log2(alpha):\n')
+          print(summary(allmcsamplesKA$Alpha + minalpha - 1L, na.rm = TRUE))
+          tplot(y = allmcsamplesKA$Alpha + minalpha - 1L,
+                ylab = bquote(log2(alpha)), xlab = 'iteration',
+                ylim = c(minalpha, maxalpha))
+          tplot(x = (minalpha:(maxalpha + 1)) - 0.5,
+                y = tabulate(allmcsamplesKA$Alpha, nbin = nalpha),
+                type = 'h', xlab = bquote(log2(alpha)), ylab = '',
+                ylim = c(0, NA))
         }
         dev.off()
       }
 
       #### Plot diagnostic traces of current chain
       if (plottraces) {
-        cat("\nPlotting traces and samples.\n")
+        cat('\nPlotting traces and samples.\n')
 
-        tracegroups <- as.list(1:ncol(traces))
+        tracegroups <- as.list(seq_len(ncol(traces)))
         names(tracegroups) <- colnames(traces)
-        grouplegends <- foreach(agroup = 1:length(tracegroups)) %do% {
+        grouplegends <- foreach::foreach(agroup = seq_along(tracegroups)) %do% {
           c(
-            paste0("-- STATS ", names(tracegroups)[agroup], " --"),
-            paste0("min ESS = ", signif(min(diagnESS[tracegroups[[agroup]]]), 6)),
-            paste0("max IAT = ", signif(max(diagnIAT[tracegroups[[agroup]]]), 6)),
-            paste0("max BMK = ", signif(max(diagnBMK[tracegroups[[agroup]]]), 6)),
-            paste0("max MCSE = ", signif(max(diagnMCSE[tracegroups[[agroup]]]), 6)),
-            paste0("stationary: ", sum(diagnStat[tracegroups[[agroup]]]), "/", length(diagnStat[tracegroups[[agroup]]])),
-            ## paste0('burn: ', signif(max(diagnBurn[tracegroups[[agroup]]]),6))
-            paste0("burn: ", signif(diagnBurn2, 6)),
-            paste0("max thin = ", signif(max(diagnThin[tracegroups[[agroup]]]), 6))
+            paste0('-- STATS ', names(tracegroups)[agroup], ' --'),
+            paste0('min ESS = ',
+                   signif(min(diagnESS[tracegroups[[agroup]]]), 6)),
+            paste0('max IAT = ',
+                   signif(max(diagnIAT[tracegroups[[agroup]]]), 6)),
+            paste0('max BMK = ',
+                   signif(max(diagnBMK[tracegroups[[agroup]]]), 6)),
+            paste0('max MCSE = ',
+                   signif(max(diagnMCSE[tracegroups[[agroup]]]), 6)),
+            paste0('stationary: ',
+                   sum(diagnStat[tracegroups[[agroup]]]), '/',
+                   length(diagnStat[tracegroups[[agroup]]])),
+            paste0('burn: ', signif(diagnBurn2, 6)),
+            paste0('max thin = ',
+                   signif(max(diagnThin[tracegroups[[agroup]]]), 6))
           )
         }
-        colpalette <- 1:ncol(traces)
-        names(colpalette) <- colnames(traces)
-        ##
+
         ## Plot various info and traces
-        cat("\nPlotting MCMC traces")
+        colpalette <- seq_len(ncol(traces))
+        names(colpalette) <- colnames(traces)
+        cat('\nPlotting MCMC traces')
         graphics.off()
-        pdff(paste0(dirname, "_mcpartialtraces", dashnameroot, "--", padchainnumber, "_", achain, "-", acore), apaper = 4)
+        pdff(paste0(dirname, '_mcpartialtraces', dashnameroot, '--',
+                    padchainnumber, '_', achain, '-', acore), apaper = 4)
+
         ## Summary stats
-        matplot(1:2, type = "l", col = "white", main = paste0("Stats chain ", achain), axes = FALSE, ann = FALSE)
-        legendpositions <- c("topleft", "topright", "bottomleft", "bottomright")
-        for (alegend in 1:length(grouplegends)) {
+        matplot(1:2, type = 'l', col = 'white',
+                main = paste0('Stats chain ', achain),
+                axes = FALSE, ann = FALSE)
+        # Legends
+        legendpositions <- c('topleft', 'topright', 'bottomleft', 'bottomright')
+        for (alegend in seq_along(grouplegends)) {
           legend(
-            x = legendpositions[alegend], bty = "n", cex = 1.5,
+            x = legendpositions[alegend], bty = 'n', cex = 1.5,
             legend = grouplegends[[alegend]]
           )
         }
         legend(
-          x = "center", bty = "n", cex = 1,
+          x = 'center', bty = 'n', cex = 1,
           legend = c(
-            paste0("Chain ", chainnumber, "_", achain, "-", acore),
-            paste0("Occupied clusters: ", usedclusters, " of ", nclusters),
-            paste0("LL:  ( ", signif(mean(traces[, 1]), 3), " +- ", signif(sd(traces[, 1]), 3), " ) dHart"),
-            "NOTES:",
+            paste0('Chain ', chainnumber, '_', achain, '-', acore),
+            paste0('Occupied clusters: ', usedclusters, ' of ', nclusters),
+            paste0('LL:  ( ', signif(mean(traces[, 1]), 3), ' +- ',
+                   signif(sd(traces[, 1]), 3), ' ) dHart'),
+            'NOTES:',
             if (flagmc) {
-              "some non-finite MC outputs"
+              'some non-finite MC outputs'
             },
             if (usedclusters > nclusters - 5) {
-              "too many clusters occupied"
+              'too many clusters occupied'
             },
             if (flagll) {
-              "non-finite values in diagnostics"
+              'non-finite values in diagnostics'
             }
           )
         )
-        ##
         ## Traces of likelihood and cond. probabilities
         par(mfrow = c(1, 1))
         for (avar in colnames(traces)) {
           tplot(
-            y = traces[, avar], type = "l", lty = 1, col = colpalette[avar],
+            y = traces[, avar], type = 'l', lty = 1, col = colpalette[avar],
             main = paste0(
-              "ESS = ", signif(diagnESS[avar], 3),
-              " | IAT = ", signif(diagnIAT[avar], 3),
-              " | BMK = ", signif(diagnBMK[avar], 3),
-              " | MCSE = ", signif(diagnMCSE[avar], 3),
-              " | stat: ", diagnStat[avar] * 1L,
-              " | burnI: ", diagnBurn[avar],
-              " | burnII: ", diagnBurn2,
-              " | thin: ", diagnThin[avar]
+              'ESS = ', signif(diagnESS[avar], 3),
+              ' | IAT = ', signif(diagnIAT[avar], 3),
+              ' | BMK = ', signif(diagnBMK[avar], 3),
+              ' | MCSE = ', signif(diagnMCSE[avar], 3),
+              ' | stat: ', diagnStat[avar] * 1L,
+              ' | burnI: ', diagnBurn[avar],
+              ' | burnII: ', diagnBurn2,
+              ' | thin: ', diagnThin[avar]
             ),
-            ylab = paste0(avar, "/dHart"),
-            xlab = "Monte Carlo sample",
+            ylab = paste0(avar, '/dHart'),
+            xlab = 'Monte Carlo sample',
             family = family, mar = c(NA, 6, NA, NA)
           )
         }
         dev.off()
       }
 
-      ##
+      ## Can this be deleted? AURORA
       ## #### Plot samples from current chain
       ##             if(plotpartialsamples){
       ##                 ## Samples of marginal frequency distributions
@@ -1469,19 +1493,18 @@ inferpopulation <- function(data, metadata, outputdir, nsamples = 0,
       ##                              useOquantiles=useOquantiles,
       ##                              parallel=FALSE, silent=TRUE
       ##                              )
-      ##             }
+      ##          }
 
-      cat("\nMCMC+diagnostics time", printtime(Sys.time() - starttime), "\n")
-
+      cat('\nMCMC + diagnostics time', printtime(Sys.time() - starttime), '\n')
 
       #### Print estimated remaining time
-      ertime <- (Sys.time() - starttime) / achain * (nchainspercore - achain + 1)
-      if (is.finite(ertime) && ertime > 0) {
+      er_time <- (Sys.time() - starttime) / achain * (nchainspercore - achain + 1)
+      if (is.finite(er_time) && er_time > 0) {
         printnull(
           paste0(
-            "\rSampling. Core ", acore, " estimated remaining time: ",
-            printtime(ertime),
-            "                      "
+            '\rSampling. Core ', acore, ' estimated remaining time: ',
+            printtime(er_time),
+            '                      '
           ),
           outcon
         )
@@ -1491,7 +1514,7 @@ inferpopulation <- function(data, metadata, outputdir, nsamples = 0,
     } #### END LOOP OVER CHAINS (WITHIN ONE CORE)
 
     ##
-    cat("\nTotal time", printtime(Sys.time() - starttime), "\n")
+    cat('\nTotal time', printtime(Sys.time() - starttime), '\n')
 
     cbind(maxusedclusters, allflagmc)
   }
