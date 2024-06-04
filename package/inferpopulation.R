@@ -1298,16 +1298,17 @@ inferpopulation <- function(data, metadata, outputdir, nsamples = 0,
           )
         ))
 
-        cat("\nNumber of iterations", nitertot, ", required", lengthmeasure, "\n")
+
+        cat('\nNumber of iterations', nitertot, ', required', lengthmeasure, '\n')
         ##
         if (nitertot < lengthmeasure) {
           ## limit number of iterations per loop, to save memory
           niter <- min(lengthmeasure - nitertot + 1L, niterini)
           subiter <- subiter + 1L
           cat(
-            "\nChain #", chainnumber, ".", subiter,
-            "(chain", achain, "of", nchainspercore,
-            "for this core): increasing by", niter, "\n"
+            '\nChain #', chainnumber, '.', subiter,
+            '(chain', achain, 'of', nchainspercore,
+            'for this core): increasing by', niter, '\n'
           )
         }
         reset <- FALSE
@@ -1317,34 +1318,35 @@ inferpopulation <- function(data, metadata, outputdir, nsamples = 0,
       #########################################
       #### SAVE CHAIN ####
       #########################################
-      ## tokeep <- seq(to=nrow(allmcsamples), length.out=nsamplesperchain, by=max(thinning,multcorr*ceiling(max(diagnIAT,diagnThin)), na.rm=T))
-      ## allmcsamples <- allmcsamples[tokeep,,drop=F]
+      
+      ## tokeep <- seq(to=nrow(allmcsamples), length.out=nsamplesperchain, by=max(thinning,multcorr*ceiling(max(diagnIAT,diagnThin)), na.rm=TRUE))
+      ## allmcsamples <- allmcsamples[tokeep,,drop=FALSE]
       ## ##
       ## saveRDS(allmcsamples, file=paste0(dirname,'_mcsamples',dashnameroot,'--', padchainnumber,'.rds'))
       ## ## rm(allmcsamples)
 
-      cat("\nKeeping last", nsamplesperchain, "samples with thinning", max(thinning, multcorr * ceiling(max(diagnIAT, diagnThin)), na.rm = T), "\n")
+      cat('\nKeeping last', nsamplesperchain, 'samples with thinning',
+          max(thinning, multcorr * ceiling(max(diagnIAT, diagnThin)),
+              na.rm = TRUE), '\n')
 
-      tokeep <- seq(to = ncol(allmcsamples$W), length.out = nsamplesperchain, by = max(thinning, multcorr * ceiling(max(diagnIAT, diagnThin)), na.rm = T))
-      ##
-      saveRDS(mcsubset(allmcsamples, tokeep), file = paste0(dirname, "_mcsamples", dashnameroot, "--", padchainnumber, ".rds"))
+      tokeep <- seq(to = ncol(allmcsamples$W), length.out = nsamplesperchain,
+                    by = max(thinning,
+                             multcorr * ceiling(max(diagnIAT, diagnThin)),
+                             na.rm = TRUE))
+
+      saveRDS(mcsubset(allmcsamples, tokeep),
+              file = paste0(dirname, '_mcsamples',
+                            dashnameroot, '--',
+                            padchainnumber, '.rds'))
       rm(allmcsamples)
       ## nitertot <- ncol(allmcsamples$W)
 
-      gc()
+      gc() #garbage collection
 
-      saveRDS(traces[tokeep, ], file = paste0(dirname, "_mctraces", dashnameroot, "--", padchainnumber, ".rds"))
-
-      ## ## This part is debris?
-      ## for(i in 1:length(allmcsamplesKA))
-      ##     ## Check how many clusters were occupied. Warns if too many
-      ##     usedclusters <- allmcsamplesKA$K[length(allmcsamplesKA$K)]
-      ## if(usedclusters > nclusters-5){
-      ##     cat('\nWARNING: TOO MANY CLUSTERS OCCUPIED')
-      ##     ## printnull('\nWARNING: TOO MANY CLUSTERS OCCUPIED\n', outcon)
-      ##     ## printnull(paste0('\nOCCUPIED CLUSTERS:', usedclusters, 'OF', nclusters,'\n'), outcon)
-      ## }
-      ## cat('\nOCCUPIED CLUSTERS:', usedclusters, 'OF', nclusters,'\n')
+      saveRDS(traces[tokeep, ],
+              file = paste0(dirname, '_mctraces',
+                            dashnameroot, '--',
+                            padchainnumber, '.rds'))
 
       ###############
       #### PLOTS ####
