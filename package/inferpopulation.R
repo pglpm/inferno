@@ -518,91 +518,65 @@ inferpopulation <- function(data, metadata, outputdir, nsamples = 0,
   ## toexport <- c('constants', 'datapoints', 'vn', 'vnames', 'nalpha', 'nclusters')
   ## toexport <- c('vtransform','samplesFDistribution','proposeburnin','proposethinning','plotFsamples')
 
-  #### BEGINNING OF FOREACH LOOP OVER CORES
   ## Set the RNG seed if given by user, or if no seed already exists
-  if (!missing(seed) || !exists(".Random.seed")) {
+  if (!missing(seed) || !exists('.Random.seed')) {
     set.seed(seed)
   }
   ## Save current RNG seed in case needed by user
-  saveRDS(.Random.seed, file = paste0(dirname, "rng_seed", dashnameroot, ".rds"))
+  saveRDS(.Random.seed,
+          file = paste0(dirname, 'rng_seed', dashnameroot, '.rds'))
 
-  ## set.seed(seed)
-  chaininfo <- foreach(acore = 1:ncores, .combine = rbind, .inorder = FALSE, .packages = c("khroma", "foreach", "rngtools")) %dochains% {
-    outcon <- file(paste0(dirname, "_log", dashnameroot, "-", acore, ".log"), open = "w")
+  #####################################################
+  #### BEGINNING OF FOREACH LOOP OVER CORES
+  #####################################################
+
+  #Iterate over cores, using 'acore' variable as iterator
+  chaininfo <- foreach::foreach(
+    acore = 1:ncores, .combine = rbind, .inorder = FALSE,
+    .packages = c('khroma', 'foreach', 'rngtools')
+  ) %dochains% {
+    # Create log file
+    outcon <- file(paste0(
+      dirname, '_log', dashnameroot,
+      '-', acore, '.log'
+    ), open = 'w')
     sink(outcon)
-    sink(outcon, type = "message")
-    suppressPackageStartupMessages(library("data.table"))
-    suppressPackageStartupMessages(library("nimble"))
-
-    #### Load and define various functions
-    source("tplotfunctions.R")
-    source("vtransform.R")
-    source("samplesFDistribution.R")
-    source("proposeburnin.R")
-    source("proposethinning.R")
-    source("plotFsamples.R")
-    source("mcsubset.R")
+    sink(outcon, type = 'message')
+    suppressPackageStartupMessages(library('data.table'))
+    suppressPackageStartupMessages(library('nimble'))
 
     ## Function for diagnostics
     funMCSE <- function(x) {
       if (length(x) >= 1000) {
-        LaplacesDemon::MCSE(x, method = "batch.means")$se
+        LaplacesDemon::MCSE(x, method = 'batch.means')$se
       } else {
         LaplacesDemon::MCSE(x)
       }
     }
 
-    ## ## To join MC samples in list form
-    ## joinmc <- function(mc1, mc2){
-    ##     if(is.null(mc1)){
-    ##         mc2
-    ##     }else{
-    ##         mapply(function(xx,yy){
-    ##             temp <- c(xx,yy)
-    ##             dx <- dim(xx)[-length(dim(xx))]
-    ##             dim(temp) <- c(dx, length(temp)/dx)
-    ##             temp
-    ##         },
-    ##         mc1, mc2)
-    ##     }
-    ## }
-    ## ## To remove iterations with non-finite values
-    ## cleanmc <- function(mcx,toremove){
-    ##     lapply(mcx,function(xx){
-    ##         do.call('[',c(list(xx),rep(TRUE,length(dim(xx))-1), list(-toremove)) )
-    ##     })
-    ## }
-
-
     ## Parameter and function to test MCMC convergence
     if (thinning <= 0) {
       multcorr <- 2L
       thinning <- 1L
-      thresholdfn <- function(diagnESS, diagnIAT, diagnBMK, diagnMCSE, diagnStat, diagnBurn, diagnBurn2, diagnThin) {
-        ceiling(2 * max(diagnBurn2) + (nsamplesperchain - 1L) * multcorr * ceiling(max(diagnIAT, diagnThin)))
+      thresholdfn <- function(diagnIAT, nsamplesperchain, multcorr,
+                              diagnBurn2, diagnThin) {
+        ceiling(2 * max(diagnBurn2) +
+                  ((nsamplesperchain - 1L) * multcorr *
+                     ceiling(max(diagnIAT, diagnThin))))
       }
     } else if (thinning > 0) {
-      multcorr <- -2L
-      thresholdfn <- function(diagnESS, diagnIAT, diagnBMK, diagnMCSE, diagnStat, diagnBurn, diagnBurn2, diagnThin) {
-        ceiling(2 * max(diagnBurn2) + (nsamplesperchain - 1L) * (-multcorr) * ceiling(max(diagnIAT, diagnThin)))
+      # These two options do exactly the same thing
+      multcorr <- (-2L)
+      thresholdfn <- function(diagnIAT, nsamplesperchain, multcorr,
+                              diagnBurn2, diagnThin) {
+        ceiling(2 * max(diagnBurn2) +
+                  ((nsamplesperchain - 1L) * (-multcorr) *
+                     ceiling(max(diagnIAT, diagnThin))))
       }
       thinning <- ceiling(thinning)
     } else {
       stop('Invalid "thinning" argument.')
     }
-
-    ## printtime <- function(tim){sub('^Time difference of (.*)', '\\1', capture.output(print(tim)))}
-    printtime <- function(tim) {
-      paste0(signif(tim, 2), " ", attr(tim, "units"))
-    }
-    printnull <- function(message, outcon) {
-      sink(NULL, type = "message")
-      message(message, appendLF = FALSE)
-      flush.console()
-      sink(outcon, type = "message")
-    }
-
-    ## predictors <- setdiff(unlist(vnames), predictands)
 
     #### CLUSTER REPRESENTATION OF FREQUENCY SPACE
     ## hierarchical probability structure
