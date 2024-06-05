@@ -41,7 +41,7 @@ print(identical(
 #### Test whether computation log-1 is identical
 ## remove lines containing diagnostic times, as they can vary
 cat('\nVerifying equality of "_log-1.log" (TRUE = passed):\n')
-reffile <- readLines(paste0(refdir,'_log-1.log'))
+reffile <- readLines(paste0(refdir,'log-1.log'))
 reffile <- reffile[!grepl('time', reffile, fixed=TRUE)]
 currentfile <- readLines(paste0(currenttestdir,'_log-1.log'))
 currentfile <- currentfile[!grepl('time', currentfile, fixed=TRUE)]
