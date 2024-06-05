@@ -1,0 +1,179 @@
+Defining model
+Building model
+Setting data and initial values
+Running calculate on model
+  [Note] Any error reports that follow may simply reflect missing values in model variables.
+Checking model sizes and dimensions
+  [Note] This model is not fully initialized. This is not an error.
+         To see which variables are not initialized, use model$initializeInfo().
+         For more information on model initialization, see help(modelInitialization).
+Compiling
+  [Note] This may take a minute.
+  [Note] Use 'showCompilerOutput = TRUE' to see C++ compilation details.
+===== Monitors =====
+thin = 1: Bprob, Cmean, Cvar, Dmean, Dvar, Nprob, Omean, Ovar, Rmean, Rvar, W
+thin2 = 1: K
+===== Samplers =====
+posterior_predictive sampler (8)
+  - Ndata[]  (2 elements)
+  - Bdata[]  (1 element)
+  - Rdata[]  (2 elements)
+  - Clat[]  (1 element)
+  - Dlat[]  (1 element)
+  - Olat[]  (1 element)
+conjugate sampler (1153)
+  - Rmean[]  (128 elements)
+  - Rrate[]  (128 elements)
+  - Cmean[]  (64 elements)
+  - Crate[]  (64 elements)
+  - Dmean[]  (64 elements)
+  - Drate[]  (64 elements)
+  - Omean[]  (64 elements)
+  - Orate[]  (64 elements)
+  - Bprob[]  (64 elements)
+  - Rvar[]  (128 elements)
+  - Cvar[]  (64 elements)
+  - Dvar[]  (64 elements)
+  - Ovar[]  (64 elements)
+  - Nprob[]  (128 multivariate elements)
+  - W[1:64] 
+categorical sampler (16)
+  - Alpha
+  - K[]  (15 elements)
+RW sampler (37)
+  - Clat[]  (9 elements)
+  - Dlat[]  (14 elements)
+  - Olat[]  (14 elements)
+===== Comments =====
+  [Note] Additional downstream predictive nodes are also being sampled by posterior_predictive sampler.
+  [Note] Reordering posterior_predictive samplers to execute last
+===== Monitors =====
+thin = 1: Bprob, Cmean, Cvar, Dmean, Dvar, Nprob, Omean, Ovar, Rmean, Rvar, W
+thin2 = 1: K
+===== Samplers =====
+slice sampler (16)
+  - Alpha
+  - K[]  (15 elements)
+posterior_predictive sampler (8)
+  - Ndata[]  (2 elements)
+  - Bdata[]  (1 element)
+  - Rdata[]  (2 elements)
+  - Clat[]  (1 element)
+  - Dlat[]  (1 element)
+  - Olat[]  (1 element)
+conjugate sampler (1153)
+  - Rmean[]  (128 elements)
+  - Rrate[]  (128 elements)
+  - Cmean[]  (64 elements)
+  - Crate[]  (64 elements)
+  - Dmean[]  (64 elements)
+  - Drate[]  (64 elements)
+  - Omean[]  (64 elements)
+  - Orate[]  (64 elements)
+  - Bprob[]  (64 elements)
+  - Rvar[]  (128 elements)
+  - Cvar[]  (64 elements)
+  - Dvar[]  (64 elements)
+  - Ovar[]  (64 elements)
+  - Nprob[]  (128 multivariate elements)
+  - W[1:64] 
+RW sampler (37)
+  - Clat[]  (9 elements)
+  - Dlat[]  (14 elements)
+  - Olat[]  (14 elements)
+===== Comments =====
+  [Note] Additional downstream predictive nodes are also being sampled by posterior_predictive sampler.
+Compiling
+  [Note] This may take a minute.
+  [Note] Use 'showCompilerOutput = TRUE' to see C++ compilation details.
+
+Setup time 45 secs 
+
+Chain # 7 (chain 1 of 3 for this core)
+Iterations: 1024 
+|-------------|-------------|-------------|-------------|
+|-------------------------------------------------------|
+
+MCMC time 4.7 secs 
+
+OCCUPIED CLUSTERS: 1 OF 64 
+
+ESSs: 35, 38, 19
+IATs: 2, 6, 4
+BMKs: 0.162, 0.227, 0.062
+MCSEs: 7.53, 11.69, 8.43
+Stationary: FALSE, FALSE, FALSE
+Burn-in I: 0, 0, 0
+Burn-in II: 0
+Proposed thinning: 3, 30, 30 
+
+Diagnostics time 0.54 secs 
+
+Number of iterations 1024 , required 540 
+
+Keeping last 10 samples with thinning 60 
+
+Plotting traces and samples.
+
+Plotting MCMC traces
+MCMC+diagnostics time 6.4 secs 
+
+Chain # 8 (chain 2 of 3 for this core)
+Iterations: 1024 
+|-------------|-------------|-------------|-------------|
+|-------------------------------------------------------|
+
+MCMC time 11 secs 
+
+OCCUPIED CLUSTERS: 1 OF 64 
+
+ESSs: 54, 139, 94
+IATs: 2, 7, 2
+BMKs: 0.2, 0.101, 0.172
+MCSEs: 7.74, 8.49, 7.02
+Stationary: FALSE, TRUE, FALSE
+Burn-in I: 0, 0, 0
+Burn-in II: 0
+Proposed thinning: 18, 20, 6 
+
+Diagnostics time 0.27 secs 
+
+Number of iterations 1024 , required 360 
+
+Keeping last 10 samples with thinning 40 
+
+Plotting traces and samples.
+
+Plotting MCMC traces
+MCMC+diagnostics time 12 secs 
+
+Chain # 9 (chain 3 of 3 for this core)
+Iterations: 1024 
+|-------------|-------------|-------------|-------------|
+|-------------------------------------------------------|
+
+MCMC time 17 secs 
+
+OCCUPIED CLUSTERS: 1 OF 64 
+
+ESSs: 659, 105, 929
+IATs: 1, 4, 1
+BMKs: 0.136, 0.235, 0.102
+MCSEs: 4.6, 8.32, 3.82
+Stationary: FALSE, TRUE, TRUE
+Burn-in I: 0, 0, 0
+Burn-in II: 0
+Proposed thinning: 1, 30, 1 
+
+Diagnostics time 0.29 secs 
+
+Number of iterations 1024 , required 540 
+
+Keeping last 10 samples with thinning 60 
+
+Plotting traces and samples.
+
+Plotting MCMC traces
+MCMC+diagnostics time 18 secs 
+
+Total time 18 secs 
