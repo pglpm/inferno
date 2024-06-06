@@ -329,7 +329,6 @@ inferpopulation <- function(data, metadata, outputdir, nsamples = 0,
     nVars[[atype]] <- length(auxmetadata[mcmctype == atype, name])
     varsName[[atype]] <- auxmetadata[mcmctype == atype, name]
   }
-  cat('\n ', nVars$R, nVars$C, nVars$D, nVars$O, nVars$N, nVars$B, '\n')
 
   #### CONSTANTS OF MONTE-CARLO SAMPLER
   # These constants are available in the Nimble environment
@@ -881,7 +880,6 @@ inferpopulation <- function(data, metadata, outputdir, nsamples = 0,
     ##################################################
     #### NIMBLE SETUP
     ##################################################
-    cat('Nimble setup \n')
     finitemixnimble <- nimbleModel(
       code = finitemix, name = 'finitemixnimble1',
       constants = constants,
