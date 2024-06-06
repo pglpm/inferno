@@ -570,8 +570,9 @@ inferpopulation <- function(data, metadata, outputdir, nsamples = 0,
     if (thinning <= 0) {
       multcorr <- 2L
       thinning <- 1L
-      thresholdfn <- function(diagnIAT, nsamplesperchain, multcorr,
-                              diagnBurn2, diagnThin) {
+      # Extra arguments for future use
+      thresholdfn <- function(diagnESS, diagnIAT, diagnBMK, diagnMCSE,
+                              diagnStat, diagnBurn, diagnBurn2, diagnThin) {
         ceiling(2 * max(diagnBurn2) +
                   ((nsamplesperchain - 1L) * multcorr *
                      ceiling(max(diagnIAT, diagnThin))))
@@ -579,8 +580,8 @@ inferpopulation <- function(data, metadata, outputdir, nsamples = 0,
     } else if (thinning > 0) {
       # These two options do exactly the same thing
       multcorr <- (-2L)
-      thresholdfn <- function(diagnIAT, nsamplesperchain, multcorr,
-                              diagnBurn2, diagnThin) {
+      thresholdfn <- function(diagnESS, diagnIAT, diagnBMK, diagnMCSE,
+                              diagnStat, diagnBurn, diagnBurn2, diagnThin) {
         ceiling(2 * max(diagnBurn2) +
                   ((nsamplesperchain - 1L) * (-multcorr) *
                      ceiling(max(diagnIAT, diagnThin))))
@@ -1295,8 +1296,8 @@ inferpopulation <- function(data, metadata, outputdir, nsamples = 0,
         lengthmeasure <- max(miniter, min(
           maxiter,
           thresholdfn(
-            diagnIAT, nsamplesperchain, multcorr,
-            diagnBurn2, diagnThin
+            diagnESS, diagnIAT, diagnBMK, diagnMCSE, diagnStat,
+            diagnBurn, diagnBurn2, diagnThin
           )
         ))
 
