@@ -335,8 +335,8 @@ tplot <- function(x, y, xlim = c(NA, NA), ylim = c(NA, NA), asp = NA,
         yy <- match(yy, uyy)
       }
       if (length(xx) > length(yy) + 1 || length(yy) > length(xx) + 1) {
-        stop(paste0('plot ', j,
-                    ': "x" and "y" must have same number of rows or differ by 1'))
+        stop(paste0('plot ', j, ': "x" and "y" must have same number ',
+                    'of rows or differ by 1'))
       }
       ialpha <- alpha[(j - 1) %% length(alpha) + 1]
       icol <- col[(j - 1) %% length(col) + 1]
@@ -425,238 +425,177 @@ tplot <- function(x, y, xlim = c(NA, NA), ylim = c(NA, NA), asp = NA,
   }
 }
 
-tlegend <- function(x, y = NULL, legend, col = palette(),
-                    pch = c(1, 0, 2, 5, 6, 3, 4), lty = 1:4,
-                    lwd = 2, alpha = 0, cex = 1.5, ...) {
-  suppressWarnings(col <- mapply(function(i, j) alpha2hex(i, j), col, alpha))
-  legend(x = x, y = y, legend = legend, col = col, pch = pch,
-         lty = lty, lwd = lwd, bty = 'n', cex = cex, ...)
+tlegend <- function(x, y=NULL, legend, col=palette(), pch=c(1,0,2,5,6,3,4), lty=1:4, lwd=2, alpha=0, cex=1.5, ...){
+    suppressWarnings(col <- mapply(function(i,j)alpha2hex(i,j),col,alpha))
+    legend(x=x, y=y, legend=legend, col=col, pch=pch, lty=lty, lwd=lwd, bty='n', cex=cex, ...)
 }
 
-fivenumaxis <- function(side, x, col = '#555555', type = 8) {
-  x <- x[!is.na(x) && is.finite(x)]
-  if (length(x) == 0) {
-    x <- c(0, 1)
-  }
-  if (diff(range(x)) == 0) {
-    x <- range(x) + c(-1, 1)
-  }
-  ylim <- par('usr')
-  five <- c(min(x), quantile(x = x, probs = (1:3) / 4, type = type), max(x))
-  ##
-  if (side == 1) {
-    xl <- rbind(five[c(1, 4)], five[c(2, 5)])
-    yl <- rep(ylim[3], 2)
-    xp <- five[3]
-    yp <- ylim[3]
-  } else if (side == 2) {
-    yl <- rbind(five[c(1, 4)], five[c(2, 5)])
-    xl <- rep(ylim[1], 2)
-    yp <- five[3]
-    xp <- ylim[1]
-  } else if (side == 3) {
-    xl <- rbind(five[c(1, 4)], five[c(2, 5)])
-    yl <- rep(ylim[2], 2)
-    xp <- five[3]
-    yp <- ylim[2]
-  } else if (side == 4) {
-    yl <- rbind(five[c(1, 4)], five[c(2, 5)])
-    xl <- rep(ylim[4], 2)
-    yp <- five[3]
-    xp <- ylim[4]
-  }
-  ##
-  matlines(x = xl, y = yl, lty = 1, lwd = 2, col = col)
-  matpoints(x = xp, y = yp, pch = 18, cex = 2, col = col)
-}
-
-plotquantiles <- function(x, y, col = 7, alpha = 0.75, border = NA) {
-  if (dim(y)[2] == 2) {
-    y <- t(y)
-  }
-  ##
-  ## col[!grepl('^#',col)] <- palette()[as.numeric(col[!grepl('^#',col)])]
-  if (is.na(alpha)) {
-    alpha <- 0
-  }
-  col <- alpha2hex(col, alpha)
-  ## if(is.na(alpha)){alpha <- ''}
-  ## else if(!is.character(alpha)){alpha <- alpha2hex(alpha)}
-  ## if(!(is.na(col) | nchar(col)>7)){col <- paste0(col, alpha)}
-  ##
-  polygon(
-    x = c(x, rev(x)), y = c(y[1, ], rev(y[2, ])),
-    col = col, border = border
-  )
-}
-
-scatteraxis <- function(x, side = 1, n = 128, col = '#555555', alpha = 0.5,
-                        ext = 5, pos = NULL, exts = NULL, lwd = 0.1, ...) {
-  x <- x[!is.na(x) & is.finite(x)]
-  if (is.na(n) || missing(n)) {
-    n <- length(x)
-  }
-  x <- x[round(seq(1, length(x), length.out = n))]
-  if (is.null(pos)) {
-    pos <- par('usr')
-  }
-  if (is.null(exts)) {
-    exts <- diff(pos)[-2] / 100
-  }
-  ##
-  if (side == 1) {
-    xl <- rbind(x, x)
-    yl <- rbind(rep(pos[3], length(x)) + 2 * exts[2],
-                rep(pos[3], length(x)) + ext * exts[2])
-  } else if (side == 2) {
-    yl <- rbind(x, x)
-    xl <- rbind(rep(pos[1], length(x)) + 2 * exts[1],
-                rep(pos[1], length(x)) + ext * exts[1])
-  } else if (side == 3) {
-    xl <- rbind(x, x)
-    yl <- rbind(rep(pos[4], length(x)) - 2 * exts[2],
-               rep(pos[4], length(x)) - ext * exts[2])
-  } else if (side == 4) {
-    yl <- rbind(x, x)
-    xl <- rbind(rep(pos[2], length(x)) - 2 * exts[1],
-                rep(pos[2], length(x)) - ext * exts[1])
-  }
-  ##
-  if (sum(!is.na(col)) > 0 && !grepl('^#', col[!is.na(col)])) {
-    col[!is.na(col)] <- palette()[col[!is.na(col)]]
-  }
-  col[!is.na(col)] <- alpha2hex(col[!is.na(col)], alpha)
-  ## if(!is.null(alpha) && !is.character(alpha)){alpha <- alpha2hex2(alpha)}
-  ## col[!is.na(col)] <- paste0(col[!is.na(col)], alpha)
-  matlines(x = xl, y = yl, lty = 1, lwd = lwd, col = col, ...)
-}
-
-thist <- function(x, n = NULL, type = 8, pretty = FALSE, plot = FALSE,
-                  extendbreaks = FALSE, ...) {
-  if (!is.list(x)) {
-    x <- list(x)
-  }
-  if (!is.list(n)) {
-    n <- list(n)
-  }
-  out <- list()
-  for (i in 1:length(x)) {
-    ax <- x[[i]]
-    an <- n[[(i - 1) %% length(n) + 1]]
-    if (is.character(ax)) {
-      nextout <- c(table(ax[!is.na(ax)]))
-      nextout <- list(
-        breaks = NA,
-        counts = unname(nextout),
-        density = unname(nextout) / sum(nextout),
-        mids = names(nextout),
-        xname = names(x)[i],
-        equidist = NA
-      )
-    } else {
-      ax <- ax[!is.na(ax) & is.finite(ax)]
-      if (is.null(an)) {
-        an <- (round(sqrt(length(ax)) / 2))
-      }
-      if (length(an) == 1 && (is.na(an) || an == 'i' || an == 'integer')) {
-        breaks <- (round(min(ax)) - 0.5):(round(max(ax)) + 0.5)
-      } else if (length(an) > 1 || is.character(an)) {
-        breaks <- an
-      } else if (length(an) == 1 && an > 0) {
-        rg <- range(ax)
-        if (diff(rg) == 0) {
-          rg <- rg + c(-0.5, 0.5)
-        }
-        breaks <- seq(rg[1], rg[2], length.out = an + 1)
-      } else if (length(an) == 1 && an < 0) {
-        rg <- range(ax)
-        if (diff(rg) == 0) {
-          rg <- rg + c(-0.5, 0.5)
-        }
-        breaks <- seq(rg[1], rg[2] - an, by = -an)
-        breaks <- breaks - (breaks[length(breaks)] - rg[2]) / 2
-      } else {
-        print('Error with n')
-      }
-      if (!is.null(pretty) && pretty) {
-        breaks <- pretty(ax, n = length(breaks) - 1)
-      }
-      if (extendbreaks) {
-        breaks <- c(-Inf, breaks, +Inf)
-      }
-      nextout <- hist(x = ax, breaks = breaks, plot = FALSE)
+fivenumaxis <- function(side, x, col='#555555', type=8){
+    x <- x[!is.na(x) && is.finite(x)]
+    if(length(x)==0){x <- c(0,1)}
+    if(diff(range(x))==0){x <- range(x) + c(-1,1)}
+    ylim <- par('usr')
+    five <- c(min(x), quantile(x=x, probs=(1:3)/4, type=type), max(x))
+    ##
+    if(side==1){
+        xl <- rbind(five[c(1,4)], five[c(2,5)])
+        yl <- rep(ylim[3],2)
+        xp <- five[3]
+        yp <- ylim[3]
+    }else if(side==2){
+        yl <- rbind(five[c(1,4)], five[c(2,5)])
+        xl <- rep(ylim[1],2)
+        yp <- five[3]
+        xp <- ylim[1]
+    }else if(side==3){
+        xl <- rbind(five[c(1,4)], five[c(2,5)])
+        yl <- rep(ylim[2],2)
+        xp <- five[3]
+        yp <- ylim[2]
+    }else if(side==4){
+        yl <- rbind(five[c(1,4)], five[c(2,5)])
+        xl <- rep(ylim[4],2)
+        yp <- five[3]
+        xp <- ylim[4]
     }
-    out <- c(out, list(nextout))
-  }
-  if (plot) {
-    tplot(
-      x = lapply(out, function(xx) {
-        if (length(xx$breaks) == 1) {
-          xx$mids
-        } else {
-          xx$breaks
-        }
-      }),
-      y = lapply(out, function(xx) xx$density), ylim = c(0, NA), type = 'h', ...
-    )
-  } else {
-    if (length(out) == 1) {
-      unlist(out, recursive = F)
-    } else {
-      out
+    ##
+    matlines(x=xl, y=yl, lty=1, lwd=2, col=col)
+    matpoints(x=xp, y=yp, pch=18, cex=2, col=col)
+}
+
+plotquantiles <- function(x, y, col=7, alpha=0.75, border=NA){
+    if(dim(y)[2]==2){y <- t(y)}
+    ##
+    ## col[!grepl('^#',col)] <- palette()[as.numeric(col[!grepl('^#',col)])]
+    if(is.na(alpha)){alpha <- 0}
+    col <- alpha2hex(col, alpha)
+    ## if(is.na(alpha)){alpha <- ''}
+    ## else if(!is.character(alpha)){alpha <- alpha2hex(alpha)}
+    ## if(!(is.na(col) | nchar(col)>7)){col <- paste0(col, alpha)}
+    ##
+    polygon(x=c(x,rev(x)), y=c(y[1,], rev(y[2,])),
+            col=col, border=border)
+}
+
+scatteraxis <- function(x, side=1, n=128, col='#555555', alpha=0.5, ext=5, pos=NULL, exts=NULL, lwd=0.1, ...){
+    x <- x[!is.na(x) & is.finite(x)]
+    if(is.na(n)|| missing(n)){n <- length(x)}
+    x <- x[round(seq(1, length(x), length.out=n))]
+    if(is.null(pos)){ pos <- par('usr') }
+    if(is.null(exts)){ exts <- diff(pos)[-2]/100}
+    ##
+    if(side==1){
+        xl <- rbind(x, x)
+        yl <- rbind(rep(pos[3],length(x))+2*exts[2],rep(pos[3],length(x))+ext*exts[2])
+    }else if(side==2){
+        yl <- rbind(x, x)
+        xl <- rbind(rep(pos[1],length(x))+2*exts[1],rep(pos[1],length(x))+ext*exts[1])
+    }else if(side==3){
+        xl <- rbind(x, x)
+        yl <- rbind(rep(pos[4],length(x))-2*exts[2],rep(pos[4],length(x))-ext*exts[2])
+    }else if(side==4){
+        yl <- rbind(x, x)
+        xl <- rbind(rep(pos[2],length(x))-2*exts[1],rep(pos[2],length(x))-ext*exts[1])
     }
-  }
+    ##
+    if(sum(!is.na(col))>0 && !grepl('^#', col[!is.na(col)])){col[!is.na(col)] <- palette()[col[!is.na(col)]]}
+    col[!is.na(col)] <- alpha2hex(col[!is.na(col)], alpha)
+    ## if(!is.null(alpha) && !is.character(alpha)){alpha <- alpha2hex2(alpha)}
+    ## col[!is.na(col)] <- paste0(col[!is.na(col)], alpha)
+    matlines(x=xl, y=yl, lty=1, lwd=lwd, col=col, ...)
 }
 
-tquant <- function(x, probs = c(1:3) / 4, na.rm = TRUE, names = TRUE,
-                   type = 6, ...) {
-  stats::quantile(x = x, probs = probs, na.rm = na.rm, names = names,
-                  type = type, ...)
+thist <- function(x, n=NULL, type=8, pretty=FALSE, plot=FALSE, extendbreaks=FALSE, ...){
+    if(!is.list(x)){x <- list(x)}
+    if(!is.list(n)){n <- list(n)}
+    out <- list()
+    for(i in 1:length(x)){
+        ax <- x[[i]]
+        an <- n[[(i-1)%%length(n)+1]]
+        if(is.character(ax)){
+            nextout <- c(table(ax[!is.na(ax)]))
+            nextout <- list(
+                breaks=NA,
+                counts=unname(nextout),
+                density=unname(nextout)/sum(nextout),
+                mids=names(nextout),
+                xname=names(x)[i],
+                equidist=NA
+            )
+        }else{
+        ax <- ax[!is.na(ax) & is.finite(ax)]
+        if(is.null(an)){an <- (round(sqrt(length(ax))/2))}
+    if(length(an)==1 && (is.na(an) || an=='i' || an=='integer')){breaks <- (round(min(ax))-0.5):(round(max(ax))+0.5)}
+    else if(length(an) > 1 || is.character(an)){breaks <- an}
+    else if(length(an) == 1 && an > 0){
+        rg <- range(ax)
+        if(diff(rg)==0){rg <- rg + c(-0.5,0.5)}
+        breaks <- seq(rg[1], rg[2], length.out=an+1)}
+    else if(length(an) == 1 && an < 0){
+        rg <- range(ax)
+        if(diff(rg)==0){rg <- rg + c(-0.5,0.5)}
+        breaks <- seq(rg[1], rg[2]-an, by=-an)
+        breaks <- breaks - (breaks[length(breaks)]-rg[2])/2
+    }
+    else {print('Error with n')}
+        if(!is.null(pretty) && pretty){
+            breaks <- pretty(ax, n=length(breaks)-1)
+        }
+        if(extendbreaks){
+         breaks <- c(-Inf,breaks,+Inf)
+        }
+        nextout <- hist(x=ax, breaks=breaks, plot=FALSE)
+        }
+        out <- c(out,list(nextout))
+    }
+    if(plot){
+        tplot(x=lapply(out,function(xx){
+            if(length(xx$breaks)==1){xx$mids}else{xx$breaks}
+        } ),
+              y=lapply(out,function(xx)xx$density),ylim=c(0,NA),type='h', ...)
+    }else{
+        if(length(out)==1){unlist(out,recursive=F)}else{out}
+    }
 }
 
-tmad <- function(x) {
-  mad(x, constant = 1, na.rm = TRUE)
+tquant <- function(x, probs=c(1:3)/4, na.rm=TRUE, names=TRUE, type=6, ...){
+    quantile(x=x, probs=probs, na.rm=na.rm, names=names, type=type, ...)
 }
 
-tsummary <- function(x) {
-  x <- cbind(x)
-  apply(x, 2, function(xx) {
-    c(tquant(xx, c(2.5 / 100, 1 / 8, 2 / 8, 4 / 8, 6 / 8, 7 / 8, 97.5 / 100)),
-      MAD = mad(xx, constant = 1, na.rm = T), IQR = IQR(xx, na.rm = T),
-      mean = mean(xx, na.rm = T), sd = sd(xx, na.rm = T),
-      hr = diff(range(xx, na.rm = T)) / 2, min = min(xx, na.rm = T),
-      max = max(xx, na.rm = T), NAs = sum(is.na(xx)))
-  })
+tmad <- function(x){mad(x, constant=1, na.rm=TRUE)}
+
+tsummary <- function(x){
+    x <- cbind(x)
+    apply(x, 2, function(xx){
+        c(tquant(xx, c(2.5/100,1/8,2/8,4/8,6/8,7/8,97.5/100)), MAD=mad(xx,constant=1,na.rm=T), IQR=IQR(xx,na.rm=T), mean=mean(xx,na.rm=T), sd=sd(xx,na.rm=T), hr=diff(range(xx,na.rm=T))/2, min=min(xx,na.rm=T), max=max(xx,na.rm=T), NAs=sum(is.na(xx)))
+    })
 }
 
 ## Function to build powerset
-powerset <<- function(set) {
+powerset <<- function(set){
   n <- length(set)
-  masks <- 2^(1:n - 1)
-  lapply(1:2^n - 1, function(u) set[bitwAnd(u, masks) != 0])
+  masks <- 2^(1:n-1)
+  lapply( 1:2^n-1, function(u) set[ bitwAnd(u, masks) != 0 ] )
 }
 
 ## Greatest common denominator
-gcd <<- function(...) {
-  Reduce(function(a, b) {
-    if (b == 0) a else Recall(b, a %% b)
-  }, c(...))
-}
+gcd <<- function(...){Reduce(function(a, b){if (b == 0) a else Recall(b, a %% b)}, c(...))}
 
 ## Normalize according to row
-tnormalize <- function(x) {
-  if (is.null(dim(x)) || is.table(x)) {
-    x / sum(x, na.rm = T)
-  } else {
-    aperm(aperm(x) / c(aperm(cbind(colSums(x, na.rm = T)))))
-  }
+tnormalize <- function(x){
+    if(is.null(dim(x)) || is.table(x)){
+        x/sum(x,na.rm=T)
+    }else{
+        aperm(aperm(x)/c(aperm(cbind(colSums(x,na.rm=T)))))
+    }
 }
 
 ## Table with list of values
-tablev <- function(x, values = NULL, norm = FALSE) {
-  if (norm) {
-    tnormalize(table(c(x, values)) - !(is.null(values)))
-  } else {
-    table(c(x, values)) - !(is.null(values))
-  }
+tablev <- function(x, values=NULL, norm=FALSE){
+    if(norm){
+        tnormalize(table(c(x,values))-!(is.null(values)))
+    }else{
+        table(c(x,values))-!(is.null(values))
+        }
 }
+
