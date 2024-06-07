@@ -553,6 +553,12 @@ inferpopulation <- function(data, metadata, outputdir, nsamples = 1200,
       ), open = 'w')
       sink(outcon)
       sink(outcon, type = 'message')
+
+      cat('Log core', acore)
+      cat(' - Current time:',
+          strftime(as.POSIXlt(Sys.time()), '%Y-%m-%d %H:%M:%S'))
+      cat('\n')
+
       suppressPackageStartupMessages(library('data.table'))
       suppressPackageStartupMessages(library('nimble'))
 
