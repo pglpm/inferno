@@ -12,18 +12,24 @@ samplesFDistribution <- function(Y, X, mcoutput, subsamples, jacobian = TRUE,
   #### Determine the status of parallel processing
   if (is.logical(parallel) && parallel) {
     if (foreach::getDoParRegistered()) {
+      if (!silent) {
       cat('Using already registered', foreach::getDoParName(),
           'with', foreach::getDoParWorkers(), 'workers\n')
+      }
       ncores <- foreach::getDoParWorkers()
     } else {
-      cat('No parallel backend registered.\n')
+      if (!silent) {
+        cat('No parallel backend registered.\n')
+      }
       ncores <- 1
     }
   } else if (is.numeric(parallel) && parallel >= 2) {
     if (foreach::getDoParRegistered()) {
       ncores <- min(foreach::getDoParWorkers(), parallel)
-      cat('Using already registered', foreach::getDoParName(),
-          'with', foreach::getDoParWorkers(), 'workers\n')
+      if (!silent) {
+        cat('Using already registered', foreach::getDoParName(),
+            'with', foreach::getDoParWorkers(), 'workers\n')
+      }
     } else {
       ## ##
       ## ## Alternative way to register cores;
@@ -33,12 +39,16 @@ samplesFDistribution <- function(Y, X, mcoutput, subsamples, jacobian = TRUE,
       ## ##
       cl <- makeCluster(parallel)
       doParallel::registerDoParallel(cl)
-      cat('Registered', foreach::getDoParName(),
-          'with', foreach::getDoParWorkers(), 'workers\n')
+      if (!silent) {
+        cat('Registered', foreach::getDoParName(),
+            'with', foreach::getDoParWorkers(), 'workers\n')
+      }
       ncores <- parallel
     }
   } else {
-    cat('No parallel backend registered.\n')
+    if (!silent) {
+      cat('No parallel backend registered.\n')
+      }
     ncores <- 1
   }
 
