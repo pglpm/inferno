@@ -1,38 +1,43 @@
 #' Description
 #'
-#' @param data data.table object or filepath ##Can we make it so that this HAS to be data.table?
+#' @param data data.table object or filepath ##Can we make it so that this
+#'   HAS to be data.table?
 #' @param metadata
-#' @param outputdir String, path to output file folder ## Rename to outputPrefix, also addSuffix?
+#' @param outputdir String, path to output file folder ## Rename to
+#'   outputPrefix, also addSuffix?
 #' @param nsamples Integer, nr of desired MC samples
 #' @param nchains Integer, nr of MC chains
 #' @param nsamplesperchain Integer, nr of MC samples per chain
-#' @param parallel, Bool
-#' @param niterini, Int
-#' @param miniter, Int
-#' @param maxiter, 
-#' @param thinning ??
-#' @param plottraces
-#' @param showKtraces Bool, when true, it saves the K parameter
-#'  during sampling and plots its trace and histogram at the end.
-#'  Keeping it to FALSE (default) saves a little computation time.
+#' @param parallel, Bool or numeric: whether to use pre-existing parallel
+#'   workers, or how many to create and use
+#' @param niterini, Number of initial MC iterations
+#' @param miniter, Minimum number of MC iterations after every check
+#' @param maxiter, Maximum number of MC iterations
+#' @param thinning If zero or negative, let the diagnostics decide the MC thinning; if positive, use this thinning value
+#' @param plottraces Bool: plot MC traces of diagnostic values
+#' @param showKtraces Bool, when true, it saves the K parameter during
+#'   sampling and plots its trace and histogram at the end. Keeping it to
+#'   FALSE (default) saves a little computation time.
 #' @param showAlphatraces Bool, : when true, it saves the Alpha parameter
-#'  more frequently during sampling and plots its trace and histogram
-#'  at the end. Keeping it to FALSE (default) saves a little
-#'  computation time.
-#' @param seed Integer, random number generator seed. If left as default NULL,
-#'  a random seed based on the system clock is used in the set.seed() function
-#' @param loglikelihood Positive integer or FALSE, default FALSE
-#' @param subsampledata ??
-#' @param useOquantiles Bool, ??
-#' @param output Bool, ??
-#' @param cleanup Bool, default TRUE, removes files that can be used for debugging
-#' @return ??
+#'   more frequently during sampling and plots its trace and histogram at
+#'   the end. Keeping it to FALSE (default) saves a little computation
+#'   time.
+#' @param seed Integer: seed for random number generator. If left as default
+#'   NULL, a random seed based on the system clock is used in the
+#'   set.seed() function
+#' @param loglikelihood Positive integer or Bool (default FALSE): whether to use the loglikelihood of some datapoints for convergence diagnostics. If numeric, use this number of datapoints (unsystematically sampled); if TRUE, use all datapoints
+#' @param subsampledata Numeric: use only a subsample of the datapoints in 'data'
+#' @param useOquantiles Bool: internal, use metadata quantiles for ordinal variates
+#' @param output Bool: whether to output the directory name as the result of this function
+#' @param cleanup Bool, default TRUE, removes files that can be used for
+#'   debugging
+#' @return name of directory containing output files
 #' @import foreach doParallel doRNG data.table LaplacesDemon
 inferpopulation <- function(data, metadata, outputdir, nsamples = 1200,
                             nchains = 120, nsamplesperchain = 10, parallel = TRUE,
                             seed = NULL, cleanup = TRUE,
                             appendtimestamp = TRUE, appendinfo = TRUE,
-                            subsampledata = FALSE, output = TRUE,
+                            subsampledata = NULL, output = TRUE,
                             niterini = 1024, miniter = 0, maxiter = +Inf,
                             thinning = 0, plottraces = TRUE,
                             showKtraces = FALSE, showAlphatraces = FALSE,
@@ -192,8 +197,8 @@ inferpopulation <- function(data, metadata, outputdir, nsamples = 1200,
   data <- data.table::as.data.table(data)
 
   ## Check if the user wants to use a subset of the dataset
-  if (!missing(subsampledata) && is.numeric(subsampledata)) {
-    ## @@TODO: use faster and memory-saving subsetting
+  if (is.numeric(subsampledata)) {
+    ## @@TODO: find faster and memory-saving subsetting
     data <- data[sample(seq_len(nrow(data)),
                    min(subsampledata, nrow(data)),
                    replace = FALSE), ]
@@ -207,22 +212,28 @@ inferpopulation <- function(data, metadata, outputdir, nsamples = 1200,
 
   #### Loglikelihood
   ## 'loglikelihood' argument says whether/how many datapoints to use
-  ## for calculating the loglikelihood
+  ## to calculate the loglikelihood
   ## it's a very expensive calculation
-  ## Find which datapoints have no missing entries
-  dataNoNa <- which(apply(data, 1, function(xx) { !any(is.na(xx)) }))
-  ndataNoNa <- length(dataNoNa)
-  if (is.numeric(loglikelihood) && loglikelihood > 1 && ndataNoNa > 1) {
-    ## Make sure loglikelihood is not larger
-    ## than the nr of datapoints without missing entries
-    loglikelihood <- min(round(loglikelihood), ndataNoNa)
-  } else if (is.logical(loglikelihood) && loglikelihood && ndataNoNa > 1) {
-    # If loglikelihood is TRUE, use all datapoints
-    loglikelihood <- ndataNoNa
+  if (is.numeric(loglikelihood) ||
+      (is.logical(loglikelihood) && loglikelihood)) {
+    ## Find which datapoints have no missing entries
+    dataNoNa <- which(apply(data, 1, function(xx) { !any(is.na(xx)) }))
+    ndataNoNa <- length(dataNoNa)
+    if(ndataNoNa > 1) {
+      ## Make sure loglikelihood is not larger
+      ## than the nr of datapoints without missing entries
+      if (is.logical(loglikelihood) && loglikelihood) {
+        ## If loglikelihood is TRUE, use all datapoints
+        loglikelihood <- ndataNoNa
+      }
+      loglikelihood <- min(round(abs(loglikelihood)), ndataNoNa)
+    } else {
+      loglikelihood <- FALSE
+    }
+    rm(ndataNoNa)
   } else {
     loglikelihood <- FALSE
   }
-  rm(ndataNoNa)
 
   #### Check consistency of variate names
   if (!all(auxmetadata[['name']] %in% colnames(data))) {
