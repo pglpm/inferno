@@ -25,12 +25,10 @@ outputdirPrefix <- paste0(paste0(testdir,'__packagetest'))
 currenttestdir <- inferpopulation(data = paste0(testdir, 'testdata.csv'),
                         metadata = paste0(testdir, 'metatestdata.csv'),
                         outputdir = outputdirPrefix,
-                        appendtimestamp = F, appendinfo = F,
+                        appendtimestamp = TRUE, appendinfo = TRUE,
                         nsamples = 120, nchains = 12,
                         cleanup = FALSE, parallel = 4,
                         seed = seed)
-
-# currenttestdir <- paste0(outputdirPrefix, '-V8-D15-K64-S120/')
 
 #### Test whether Fdistribution output is identical
 cat('\nVerifying equality of "Fdistribution.rds" (TRUE = passed):\n')

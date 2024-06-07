@@ -1141,6 +1141,8 @@ inferpopulation <- function(data, metadata, outputdir, nsamples = 1200,
           dim(mcsamplesKA$Alpha) <- NULL # from matrix to vector
         }
 
+        cat('\nCurrent time:',
+            strftime(as.POSIXlt(Sys.time()), '%Y-%m-%d %H:%M:%S'))
         cat('\nMCMC time', printtime(Sys.time() - starttime), '\n')
 
         ## #### Remove iterations with non-finite values
@@ -1312,7 +1314,7 @@ inferpopulation <- function(data, metadata, outputdir, nsamples = 1200,
 
         rm(mcsamples)
         gc() #garbage collection
-        
+
         nitertot <- ncol(allmcsamples$W)
 
 
@@ -1334,7 +1336,7 @@ inferpopulation <- function(data, metadata, outputdir, nsamples = 1200,
           niter <- min(lengthmeasure - nitertot + 1L, niterini)
           subiter <- subiter + 1L
           cat(
-            '\nChain #', chainnumber, '.', subiter,
+            '\nChain #', chainnumber, '- chunk', subiter,
             '(chain', achain, 'of', nchainspercore,
             'for this core): increasing by', niter, '\n'
           )
@@ -1521,6 +1523,7 @@ inferpopulation <- function(data, metadata, outputdir, nsamples = 1200,
       ##                              )
       ##          }
 
+      cat('\nCurrent time:', strftime(as.POSIXlt(Sys.time()), '%Y-%m-%d %H:%M:%S'))
       cat('\nMCMC + diagnostics time', printtime(Sys.time() - starttime), '\n')
 
       #### Print estimated remaining time
@@ -1540,6 +1543,8 @@ inferpopulation <- function(data, metadata, outputdir, nsamples = 1200,
     } #### END LOOP OVER CHAINS (WITHIN ONE CORE)
 
     ##
+    cat('\nCurrent time:',
+        strftime(as.POSIXlt(Sys.time()), '%Y-%m-%d %H:%M:%S'))
     cat('\nTotal time', printtime(Sys.time() - starttime), '\n')
 
     cbind(maxusedclusters, allflagmc)
