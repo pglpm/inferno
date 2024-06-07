@@ -28,53 +28,28 @@
 #' @param cleanup Bool, default TRUE, removes files that can be used for debugging
 #' @return ??
 #' @import foreach doParallel doRNG data.table LaplacesDemon
-inferpopulation <- function(data, metadata, outputdir, nsamples = 0,
-                            nchains = 0, nsamplesperchain = 0, parallel = TRUE,
+inferpopulation <- function(data, metadata, outputdir, nsamples = 1200,
+                            nchains = 120, nsamplesperchain = 10, parallel = TRUE,
+                            seed = NULL, cleanup = TRUE, timestampdir = TRUE,
+                            subsampledata = FALSE, output = FALSE,
                             niterini = 1024, miniter = 0, maxiter = +Inf,
                             thinning = 0, plottraces = TRUE,
                             showKtraces = FALSE, showAlphatraces = FALSE,
-                            seed = NULL, loglikelihood = FALSE, subsampledata,
-                            useOquantiles = FALSE, output = FALSE,
-                            cleanup = TRUE, timestampdir = TRUE) {
+                            loglikelihood = FALSE, useOquantiles = FALSE) {
 
-  # Imports
-  source('buildauxmetadata.R')
-  source('samplesFDistribution.R')
-  source('plotFsamples.R')
-  source('tplotfunctions.R')
-  source('vtransform.R')
-  source('proposeburnin.R')
-  source('proposethinning.R')
-  source('mcsubset.R')
+
+  cat('\n') # make sure possible error messages start on new line
+
   
   ##################################################
-  #### Define functions
-  ##################################################
-  # Create function printtime to format printing of time
-  printtime <- function(tim) {
-    paste0(signif(tim, 2), ' ', attr(tim, 'units'))
-  }
-  # Specific print message function
-  printnull <- function(message, outcon) {
-    sink(NULL, type = 'message')
-    message(message, appendLF = FALSE)
-    flush.console()
-    sink(outcon, type = 'message')
-  }
-
-  cat('\n')
-
-  ##################################################
-  #### Setup parallel processing and start timer
+  #### Argument-consistency checks
   ##################################################
 
   #### Determine the status of parallel processing
   if (is.logical(parallel) && parallel) {
     if (foreach::getDoParRegistered()) {
-      cat(
-        'Using already registered', foreach::getDoParName(), 'with',
-        foreach::getDoParWorkers(), 'workers\n'
-      )
+      cat('Using already registered', foreach::getDoParName(),
+          'with', foreach::getDoParWorkers(), 'workers\n')
       ncores <- foreach::getDoParWorkers()
     } else {
       cat('No parallel backend registered.\n')
@@ -83,17 +58,19 @@ inferpopulation <- function(data, metadata, outputdir, nsamples = 0,
   } else if (is.numeric(parallel) && parallel >= 2) {
     if (foreach::getDoParRegistered()) {
       ncores <- min(foreach::getDoParWorkers(), parallel)
-      cat(
-        'Using already registered', foreach::getDoParName(), 'with',
-        foreach::getDoParWorkers(), 'workers\n'
-      )
+      cat('Using already registered', foreach::getDoParName(),
+          'with', foreach::getDoParWorkers(), 'workers\n')
     } else {
-      cl <- parallel::makeCluster(parallel)
+      ## ##
+      ## ## Alternative way to register cores;
+      ## ## might need to be used for portability to Windows?
+      ## registerDoSEQ()
+      ## cl <- makePSOCKcluster(ncores)
+      ## ##
+      cl <- makeCluster(parallel)
       doParallel::registerDoParallel(cl)
-      cat(
-        'Registered', foreach::getDoParName(), 'with',
-        foreach::getDoParWorkers(), 'workers\n'
-      )
+      cat('Registered', foreach::getDoParName(),
+          'with', foreach::getDoParWorkers(), 'workers\n')
       ncores <- parallel
     }
   } else {
@@ -101,58 +78,68 @@ inferpopulation <- function(data, metadata, outputdir, nsamples = 0,
     ncores <- 1
   }
 
-  #### Consistency checks for numbers of samples, chains, cores
-  if (nsamples != 0 && nchains != 0 && nsamplesperchain != 0) {
-    # Only two out of these three arguments can be given
+#### Consistency checks for numbers of samples, chains, cores
+  ## The defaults are 1200 samples from 120 chains, so 10 samples per chain
+  ## If the user changes any of these three,
+  ## the user must also take responsibility of changing one of the other two
+  ## in an appropriate way
+
+  if (!missing(nsamples) && !missing(nchains) &&
+      missing(nsamplesperchain)) {
+    ## nsamples and nchains given
+    ## Doesn't make sense to have more cores than chains
+    if(nchains < ncores) {
+      ncores <- nchains
+    }
+    ## Ineffective is some core has fewer chains than others
+    nchainspercore <- ceiling(nchains / ncores)
+    if (nchainspercore * ncores > nchains) {
+      nchains <- nchainspercore * ncores
+      cat('Increasing number of chains to', nchains, '\n')
+    }
+    ## Ineffective to have chains with different required samples
+    nsamplesperchain <- ceiling(nsamples / nchains)
+    if(nsamplesperchain * nchains > nsamples) {
+      nsamples <- nchains * nsamplesperchain
+      cat('Increasing number of samples to', nsamples, '\n')
+    }
+  } else if (!missing(nsamples) && missing(nchains) &&
+             !missing(nsamplesperchain)) {
+    ## nsamples and nsamplesperchain given
+    nchains <- ceiling(nsamples / nsamplesperchain)
+    if(nchains < ncores) {
+      ncores <- nchains
+    }
+    nchainspercore <- ceiling(nchains / ncores)
+    if(nchainspercore * ncores > nchains) {
+      nchains <- nchainspercore*ncores
+    }
+    if(nsamplesperchain * nchains > nsamples) {
+      nsamples <- nchains * nsamplesperchain
+      cat('Increasing number of samples to', nsamples, '\n')
+    }
+  } else if (missing(nsamples) && !missing(nchains) &&
+             !missing(nsamplesperchain)) {
+    ## nchains and nsamplesperchain given
+    if(nchains < ncores){
+      ncores <- nchains
+    }
+    nchainspercore <- ceiling(nchains / ncores)
+    if(nchainspercore * ncores > nchains){
+      nchains <- nchainspercore * ncores
+      cat('Increasing number of chains to',nchains,'\n')
+    }
+    nsamples <- nchains * nsamplesperchain
+  } else  if ( !(missing(nsamples) && missing(nchains) &&
+                 missing(nsamplesperchain)) ) {
+    ## The user set all these three arguments or only one
     stop('Please specify exactly two among "nsamples", "nchains",
          "nsamplesperchain"')
   }
-  # nsamples and nchains given
-  if (nsamples > 0 && nchains > 0) {
-    # Set nchainspercore
-    nchainspercore <- ceiling(nchains / ncores)
-    if (nchainspercore * ncores > nchains) {
-      # Increase nr of chains to have equal nr of chains per core
-      nchains <- nchainspercore * ncores
-      cat('Increasing number of chains to', nchains, '\n')
-    }
-    nsamplesperchain <- ceiling(nsamples / nchains)
-    if (nsamplesperchain * nchains > nsamples) {
-      # Increase nr of samples to have equal nr of samples per chain
-      nsamples <- nchains * nsamplesperchain
-      cat('Increasing number of samples to', nsamples, '\n')
-    }
-    # nsamples and nsamplesperchain given
-  } else if (nsamples > 0 && nsamplesperchain > 0) {
-    # Set nchains
-    nchains <- ceiling(nsamples / nsamplesperchain)
-    nchainspercore <- ceiling(nchains / ncores)
-    if (nchainspercore * ncores > nchains) {
-      nchains <- nchainspercore * ncores
-    }
-    if (nsamplesperchain * nchains > nsamples) {
-      nsamples <- nchains * nsamplesperchain
-      cat('Increasing number of samples to', nsamples, '\n')
-    }
-    # nchains and nsamplesperchain given
-  } else if (nchains > 0 && nsamplesperchain > 0) {
-    nchainspercore <- ceiling(nchains / ncores)
-    if (nchainspercore * ncores > nchains) {
-      nchains <- nchainspercore * ncores
-      cat('Increasing number of chains to', nchains, '\n')
-    }
-    # Set nsamples
-    nsamples <- nchains * nsamplesperchain
-  } else {
-    stop('Make sure to set two of  "nsamples", "nchains", "nsamplesperchain"
-          to positive integer values')
-  }
-  # We don't need more cores than chains
-  if (nchains < ncores) {
-    ncores <- nchains
-  }
 
-  # Parallellisation if more than one core
+
+  ## Parallellisation if more than one core
+  ## Done now in case ncores was reduced because of nchains argument
   if (ncores < 2) {
     `%dochains%` <- `%do%`
   } else {
@@ -163,32 +150,36 @@ inferpopulation <- function(data, metadata, outputdir, nsamples = 0,
   timestart0 <- Sys.time()
 
   ##################################################
-  #### Read and process metadata and data
+  #### Read and process data and metadata
   ##################################################
 
-  #### Build auxiliary metadata object; we'll save it later
+
+  #### Read metadata
+  ## Check whether argument 'metadata' is a string for a file name
+  ## otherwise we assume it's a data.table or similar object
   if (is.character(metadata) && file.exists(metadata)) {
     metadata <- data.table::fread(metadata, na.strings = '')
-  } else {
-    stop('Please provide a metadata file.')
   }
   metadata <- data.table::as.data.table(metadata)
-  auxmetadata <- buildauxmetadata(data = data, metadata = metadata)
-  cat('Calculating auxiliary metadata\n')
 
   #### Read dataset
   datafile <- NULL
-  # Check if data is missing, or set to some other 'non-value'
-  if (missing(data) || is.null(data) || is.logical(data) && data == FALSE) {
+  ## Check if data is missing, or set to some other 'non-value'
+  ## It means the user wants to calculate the prior distribution
+  if (missing(data) || is.null(data) || (is.logical(data) && data == FALSE)) {
     message('Missing data: calculating prior distribution')
-    data <- data.table::as.data.table(matrix(NA,
-      nrow = 1, ncol = nrow(auxmetadata),
-      dimnames = list(NULL, auxmetadata[['name']])
-    ))
+    data <- data.table::as.data.table(
+                          matrix(NA, nrow = 1, ncol = nrow(auxmetadata),
+                                 dimnames = list(NULL, auxmetadata[['name']]))
+                        )
+    ## When no data present, Monte Carlo sampling is exact
+    ## No need to calculate loglikelihood
     loglikelihood <- FALSE
   }
-  # Data could also be a file
+  ## Check if 'data' argument is an existing file
+  ## otherwise we assume is an object
   if (is.character(data)) {
+    ## add '.csv' if missing
     datafile <- paste0(sub('.csv$', '', data), '.csv')
     if (file.exists(data)) {
       data <- data.table::fread(datafile, na.strings = '')
@@ -196,54 +187,60 @@ inferpopulation <- function(data, metadata, outputdir, nsamples = 0,
       stop('Cannot find data file')
     }
   }
-  # Set data variable to data.table format
+  ## Make sure data has data.table format
   data <- data.table::as.data.table(data)
 
+  ## Check if the user wants to use a subset of the dataset
   if (!missing(subsampledata) && is.numeric(subsampledata)) {
     ## @@TODO: use faster and memory-saving subsetting
     data <- data[sample(seq_len(nrow(data)),
                    min(subsampledata, nrow(data)),
-                   replace = FALSE
-                 ), ]
+                   replace = FALSE), ]
   }
 
-  #### Correct loglikelihood argument if necessary
-  # Find which rows have no missing entries
-  dataNoNa <- which(apply(data, 1,
-    function(xx) {
-      !any(is.na(xx))
-    }
-  )
-  )
-  nRowsNoNa <- length(dataNoNa)
-  if (is.numeric(loglikelihood) && loglikelihood > 1 && nRowsNoNa > 1) {
-    # Make sure loglikelihood is not larger than the
-    # nr of rows without missing data
-    loglikelihood <- min(round(loglikelihood), nRowsNoNa)
-  } else if (is.logical(loglikelihood) && loglikelihood && nRowsNoNa > 1) {
-    # If loglikelihood is set to TRUE,
-    # set length equal to nr of rows without missing data
-    loglikelihood <- nRowsNoNa
+  ## Build auxiliary metadata object; we'll save it later
+  ## We must do this after reading and checking the data argument
+  source('buildauxmetadata.R')
+  auxmetadata <- buildauxmetadata(data = data, metadata = metadata)
+  cat('Calculating auxiliary metadata\n')
+
+  #### Loglikelihood
+  ## 'loglikelihood' argument says whether/how many datapoints to use
+  ## for calculating the loglikelihood
+  ## it's a very expensive calculation
+  ## Find which datapoints have no missing entries
+  dataNoNa <- which(apply(data, 1, function(xx) { !any(is.na(xx)) }))
+  ndataNoNa <- length(dataNoNa)
+  if (is.numeric(loglikelihood) && loglikelihood > 1 && ndataNoNa > 1) {
+    ## Make sure loglikelihood is not larger
+    ## than the nr of datapoints without missing entries
+    loglikelihood <- min(round(loglikelihood), ndataNoNa)
+  } else if (is.logical(loglikelihood) && loglikelihood && ndataNoNa > 1) {
+    # If loglikelihood is TRUE, use all datapoints
+    loglikelihood <- ndataNoNa
   } else {
     loglikelihood <- FALSE
   }
+  rm(ndataNoNa)
 
   #### Check consistency of variate names
   if (!all(auxmetadata[['name']] %in% colnames(data))) {
-    stop('Missing variates in data file. Check the metadata file.')
+    stop('Missing variates in data file. Check data- or metadata-file.')
   }
-  # Drop variate columns that are not in the metadata file
+  ## Drop variates in data that are not in the metadata file
   if (!all(colnames(data) %in% auxmetadata[['name']])) {
     subvar <- intersect(colnames(data), auxmetadata[['name']])
     data <- data[, subvar, with = FALSE]
+    rm(subvar)
   }
 
   ##################################################
   #### Various internal parameters
   ##################################################
 
-  #### Hyperparameters (from hyperparameters.R)
-  nclusters <- 64L # ****
+#### Hyperparameters and other internal parameters
+  ## source('hyperparameters.R') doesn't seem to work
+  nclusters <- 64L
   minalpha <- -3L
   maxalpha <- 3L
   Rshapelo <- 0.5
@@ -270,12 +267,11 @@ inferpopulation <- function(data, metadata, outputdir, nsamples = 0,
   RWtoslice <- FALSE
   ##
   ## plotmeans <- TRUE # plot frequency averages
-  ## totsamples <- 'all' # 'all' number of samples if plotting frequency averages
   showsamples <- 100 # number of samples to show.
   showquantiles <- c(1, 31) / 32 # quantiles to show
-  nclustersamples <- 128 ## number of samples of Alpha and K
+  nclustersamples <- 128 # number of samples of Alpha and K
   showsamplertimes <- FALSE ##
-  family <- 'Palatino'
+  family <- 'Palatino' # font family in plots
 
   ##################################################
   #### Folder setup
@@ -283,19 +279,21 @@ inferpopulation <- function(data, metadata, outputdir, nsamples = 0,
 
   ## append time and sampling info to name of output directory
   if (timestampdir) {
-    timestamp <- paste0('-V', nrow(auxmetadata), '-D',
+    timestamp <- paste0('-V', nrow(auxmetadata),
+                        '-D',
                         (if (npoints == 1 && all(is.na(data))) {
                           0
                         } else {
                           npoints
-                        }), '-K', nclusters, '-S', nsamples)
+                        }),
+                        '-K', nclusters,
+                        '-S', nsamples)
   } else {
     timestamp <- NULL
   }
 
   if (missing(outputdir) || outputdir == TRUE) {
-    outputdir <- paste0('_output_', datafile)
-    outputdir <- paste0(sub('.csv$', '', outputdir))
+    outputdir <- paste0('_output_', sub('.csv$', '', datafile))
   }
 
   nameroot <- paste0(outputdir, timestamp)
@@ -304,11 +302,9 @@ inferpopulation <- function(data, metadata, outputdir, nsamples = 0,
   # Create output directory if it does not exist
   dir.create(dirname, showWarnings = FALSE)
   # Print information
-  cat(
-    '\n', paste0(rep('*', max(nchar(dirname), 26)), collapse = ''),
+  cat('\n', paste0(rep('*', max(nchar(dirname), 26)), collapse = ''),
     '\n Saving output in directory\n', dirname, '\n',
-    paste0(rep('*', max(nchar(dirname), 26)), collapse = ''), '\n'
-  )
+    paste0(rep('*', max(nchar(dirname), 26)), collapse = ''), '\n')
   nameroot <- basename(nameroot)
   ## This is in case we need to add some extra specifier to the output files
   ## all 'dashnameroot' can be deleted in a final version
@@ -317,34 +313,65 @@ inferpopulation <- function(data, metadata, outputdir, nsamples = 0,
   ## Save copy of metadata in directory
   fwrite(metadata, file = paste0(dirname, 'metadata.csv'))
 
- #####################################################
-  #### Sort different kinds of variates
-  #####################################################
+  ##################################################
+  #### Define functions
+  ##################################################
 
-  # R:rounded C:censored continous, D:discretized , O: ordinal,
-  # N: nominal, B: binary
-  nVars <- list() # How many variates of each type
-  varsName <- list() # The names for variates of each type
-  for (atype in c('R', 'C', 'D', 'O', 'N', 'B')) {
-    nVars[[atype]] <- length(auxmetadata[mcmctype == atype, name])
-    varsName[[atype]] <- auxmetadata[mcmctype == atype, name]
+  ## Load auxiliary functions from external files
+  source('samplesFDistribution.R')
+  source('plotFsamples.R')
+  source('tplotfunctions.R')
+  source('vtransform.R')
+  ## ## These are used within the foreach core loop
+  ## source('proposeburnin.R')
+  ## source('proposethinning.R')
+  ## source('mcsubset.R')
+
+  # function printtime to format printing of time
+  printtime <- function(tim) {
+    paste0(signif(tim, 2), ' ', attr(tim, 'units'))
+  }
+  ## We need to send some messages to the log files, others to the user.
+  ## This is done by changing output sink:
+  printnull <- function(message, outcon) {
+    sink(NULL, type = 'message')
+    message(message, appendLF = FALSE)
+    flush.console()
+    sink(outcon, type = 'message')
   }
 
-  #### CONSTANTS OF MONTE-CARLO SAMPLER
+
+#####################################################
+#### Prepare arguments for Nimble model
+#####################################################
+
+  ## R: continuous open domain
+  ## C: continuous closed domain (or censored)
+  ## D: continuous rounded
+  ## O: ordinal
+  ## N: nominal
+  ## B: binary
+  vn <- list() # How many variates of each type
+  vnames <- list() # The names for variates of each type
+  for (atype in c('R', 'C', 'D', 'O', 'N', 'B')) {
+    vn[[atype]] <- length(auxmetadata[mcmctype == atype, name])
+    vnames[[atype]] <- auxmetadata[mcmctype == atype, name]
+  }
+
+  #### CONSTANTS OF NIMBLE MODEL
   # These constants are available in the Nimble environment
   # They don't have to be accessed by constants$varname
   constants <- c(
     list(
-      nVars = nVars,
       nclusters = nclusters,
       npoints = npoints,
       nalpha = nalpha,
       probalpha0 = rep(1 / nalpha, nalpha),
       basealphas = rep((2^(minalpha - 1L)) / nclusters, nclusters)
     ),
-    if (nVars$R > 0) { # continuous
+    if (vn$R > 0) { # continuous open domain
       list(
-        Rn = nVars$R, # This indexing variable is needed internally
+        Rn = vn$R, # This indexing variable is needed internally
         Rmean1 = rep(0, 1),
         Rvarm1 = rep(Rvarm1, 1),
         Rvar1 = rep(1, 1),
@@ -352,72 +379,69 @@ inferpopulation <- function(data, metadata, outputdir, nsamples = 0,
         Rshapehi = rep(Rshapehi, 1)
       )
     },
-    if (nVars$C > 0) { # censored
-      Cleft <- vtransform(data[, varsName$C, with = FALSE], auxmetadata,
-                          Cout = 'left', useOquantiles = useOquantiles)
-      Cright <- vtransform(data[, varsName$C, with = FALSE], auxmetadata,
-                           Cout = 'right', useOquantiles = useOquantiles)
+    if (vn$C > 0) { # continuous closed domain
       list(
-        Cn = nVars$C, # This indexing variable is needed internally
+        Cn = vn$C, # This indexing variable is needed internally
         Cmean1 = rep(0, 1),
         Cvarm1 = rep(Cvarm1, 1),
         Cvar1 = rep(1, 1),
         Cshapelo = rep(Cshapelo, 1),
         Cshapehi = rep(Cshapehi, 1),
-        Cleft = Cleft,
-        Cright = Cright
+        Cleft = vtransform(data[, vnames$C, with = FALSE], auxmetadata,
+                          Cout = 'left', useOquantiles = useOquantiles),
+        Cright = vtransform(data[, vnames$C, with = FALSE], auxmetadata,
+                           Cout = 'right', useOquantiles = useOquantiles)
       )
+      ## Cleft & Cright are as many as the datapoints
+      ## so we do not create copies outside of Nimble
+      ## to save RAM
     },
-    if (nVars$D > 0) { # discretized
-      Dleft <- vtransform(data[, varsName$D, with = FALSE], auxmetadata,
-                          Dout = 'left', useOquantiles = useOquantiles)
-      Dright <- vtransform(data[, varsName$D, with = FALSE], auxmetadata,
-                            Dout = 'right', useOquantiles = useOquantiles)
+    if (vn$D > 0) { # continuous rounded
       list(
-        Dn = nVars$D, # This indexing variable is needed internally
+        Dn = vn$D, # This indexing variable is needed internally
         Dmean1 = rep(0, 1),
         Dvarm1 = rep(Dvarm1, 1),
         Dvar1 = rep(1, 1),
         Dshapelo = rep(Dshapelo, 1),
         Dshapehi = rep(Dshapehi, 1),
-        Dleft = Dleft,
-        Dright = Dright
+        Dleft = vtransform(data[, vnames$D, with = FALSE], auxmetadata,
+                          Dout = 'left', useOquantiles = useOquantiles),
+        Dright = vtransform(data[, vnames$D, with = FALSE], auxmetadata,
+                            Dout = 'right', useOquantiles = useOquantiles)
       )
     },
-    if (nVars$O > 0) { # ordinal
-      Oleft <- vtransform(data[, varsName$O, with = FALSE], auxmetadata,
-                          Oout = 'left', useOquantiles = useOquantiles)
-      Oright <- vtransform(data[, varsName$O, with = FALSE], auxmetadata,
-                           Oout = 'right', useOquantiles = useOquantiles)
+    if (vn$O > 0) { # ordinal
       list(
-        On = nVars$O, # This indexing variable is needed internally
+        On = vn$O, # This indexing variable is needed internally
         Omean1 = rep(0, 1),
         Ovarm1 = rep(Ovarm1, 1),
         Ovar1 = rep(1, 1),
         Oshapelo = rep(Oshapelo, 1),
         Oshapehi = rep(Oshapehi, 1),
-        Oleft = Oleft,
-        Oright = Oright
+        Oleft = vtransform(data[, vnames$O, with = FALSE], auxmetadata,
+                          Oout = 'left', useOquantiles = useOquantiles),
+        Oright = vtransform(data[, vnames$O, with = FALSE], auxmetadata,
+                           Oout = 'right', useOquantiles = useOquantiles)
       )
     },
-    if (nVars$N > 0) { # nominal
+    if (vn$N > 0) { # nominal
       Nmaxn <- max(auxmetadata[mcmctype == 'N', Nvalues])
-      Nalpha0 <- matrix(1e-100, nrow = nVars$N, ncol = Nmaxn)
-      for (avar in seq_along(varsName$N)) {
-        nvalues <- auxmetadata[name == varsName$N[avar], Nvalues]
+      Nalpha0 <- matrix(1e-100, nrow = vn$N, ncol = Nmaxn)
+      for (avar in seq_along(vnames$N)) {
+        nvalues <- auxmetadata[name == vnames$N[avar], Nvalues]
         ## use Hadamard-like prior: 1/nvalues
         ## other choice is flat prior: 1
         Nalpha0[avar, 1:nvalues] <- 1 / nvalues
       }
       list(
-        Nn = nVars$N, # This indexing variable is needed internally
+        Nn = vn$N, # This indexing variable is needed internally
         Nmaxn = Nmaxn,
         Nalpha0 = Nalpha0
       )
     },
-    if (nVars$B > 0) { # binary
+    if (vn$B > 0) { # binary
       list(
-        Bn = nVars$B, # This indexing variable is needed internally
+        Bn = vn$B, # This indexing variable is needed internally
         Bshapelo = rep(Bshapelo, 1),
         Bshapehi = rep(Bshapehi, 1)
       )
@@ -426,54 +450,48 @@ inferpopulation <- function(data, metadata, outputdir, nsamples = 0,
 
  #### DATAPOINTS
   datapoints <- c(
-    if (nVars$R > 0) { # continuous
+    if (vn$R > 0) { # continuous open domain
       list(
-        Rdata = vtransform(data[, varsName$R, with = FALSE], auxmetadata,
+        Rdata = vtransform(data[, vnames$R, with = FALSE], auxmetadata,
           useOquantiles = useOquantiles
         )
       )
     },
-    if (nVars$C > 0) { # censored
+    if (vn$C > 0) { # continuous closed domain
       list(
-        Caux = vtransform(data[, varsName$C, with = FALSE], auxmetadata,
-          Cout = 'aux', useOquantiles = useOquantiles
-        ),
-        Clat = vtransform(data[, varsName$C, with = FALSE], auxmetadata,
-          Cout = 'lat', useOquantiles = useOquantiles
-        )
+        Caux = vtransform(data[, vnames$C, with = FALSE], auxmetadata,
+          Cout = 'aux', useOquantiles = useOquantiles),
+        Clat = vtransform(data[, vnames$C, with = FALSE], auxmetadata,
+          Cout = 'lat', useOquantiles = useOquantiles)
       )
     },
-    if (nVars$D > 0) { # discretized
+    if (vn$D > 0) { # continuous rounded
       list(
-        Daux = vtransform(data[, varsName$D, with = FALSE], auxmetadata,
-          Dout = 'aux', useOquantiles = useOquantiles
-        )
+        Daux = vtransform(data[, vnames$D, with = FALSE], auxmetadata,
+          Dout = 'aux', useOquantiles = useOquantiles)
       )
     },
-    if (nVars$O > 0) { # ordinal
+    if (vn$O > 0) { # ordinal
       list(
-        Oaux = vtransform(data[, varsName$O, with = FALSE], auxmetadata,
-          Oout = 'aux', useOquantiles = useOquantiles
-        )
+        Oaux = vtransform(data[, vnames$O, with = FALSE], auxmetadata,
+          Oout = 'aux', useOquantiles = useOquantiles)
       )
     },
-    if (nVars$N > 0) { # nominal
+    if (vn$N > 0) { # nominal
       list(
-        Ndata = vtransform(data[, varsName$N, with = FALSE], auxmetadata,
-          Nout = 'numeric', useOquantiles = useOquantiles
-        )
+        Ndata = vtransform(data[, vnames$N, with = FALSE], auxmetadata,
+          Nout = 'numeric', useOquantiles = useOquantiles)
       )
     },
-    if (nVars$B > 0) { # binary
+    if (vn$B > 0) { # binary
       list(
-        Bdata = vtransform(data[, varsName$B, with = FALSE], auxmetadata,
-          Bout = 'numeric', useOquantiles = useOquantiles
-        )
+        Bdata = vtransform(data[, vnames$B, with = FALSE], auxmetadata,
+          Bout = 'numeric', useOquantiles = useOquantiles)
       )
     }
   ) # End datapoints
 
-  #### Output 
+  #### Output information to user
   if (!exists('Nalpha0')) {
     Nalpha0 <- cbind(1)
   }
@@ -483,11 +501,11 @@ inferpopulation <- function(data, metadata, outputdir, nsamples = 0,
   )
   cat(
     '\nin a space of',
-    (sum(as.numeric(nVars) * c(2, 2, 2, 2, 0, 1)) +
+    (sum(as.numeric(vn) * c(2, 2, 2, 2, 0, 1)) +
        sum(Nalpha0 > 2e-100) - nrow(Nalpha0) + 1) * nclusters - 1,
     '(effectively',
     paste0(
-      (sum(as.numeric(nVars) * c(
+      (sum(as.numeric(vn) * c(
         3 + npoints, 3 + npoints, 3 + npoints,
         3 + npoints, 0, 1 + npoints
       )) +
@@ -505,19 +523,6 @@ inferpopulation <- function(data, metadata, outputdir, nsamples = 0,
       (package Nimble)\nthis can take tens of minutes with
        many data or variates.\n...\r')
 
-  ## cat('Estimating remaining time...\r')
-  ## stopCluster(cluster)
-  ## stopImplicitCluster()
-  ## registerDoSEQ()
-  ## ## cl <- makePSOCKcluster(ncores)
-  ## if(ncores > 1){
-  ##     cl <- makeCluster(ncores)
-  ##     registerDoParallel(cl)
-  ## }else{
-  ##     registerDoSEQ()
-  ## }
-  ## toexport <- c('constants', 'datapoints', 'nVars', 'varsName', 'nalpha', 'nclusters')
-  ## toexport <- c('vtransform','samplesFDistribution','proposeburnin','proposethinning','plotFsamples')
 
   ## Set the RNG seed if given by user, or if no seed already exists
   if (!missing(seed) || !exists('.Random.seed')) {
@@ -532,52 +537,64 @@ inferpopulation <- function(data, metadata, outputdir, nsamples = 0,
   #####################################################
 
   #Iterate over cores, using 'acore' variable as iterator
-  chaininfo <- foreach::foreach(
-    acore = 1:ncores, .combine = rbind, .inorder = FALSE,
+  chaininfo <- foreach::foreach(acore = 1:ncores,
+    .combine = rbind, .inorder = FALSE,
     .packages = c('khroma', 'foreach', 'rngtools')
-  ) %dochains% {
+    ) %dochains% {
 
-    #We have to source scripts again for each chain to be able to access them.
-    source('tplotfunctions.R')
-    source('vtransform.R')
-    source('samplesFDistribution.R')
-    source('proposeburnin.R')
-    source('proposethinning.R')
-    source('plotFsamples.R')
-    source('mcsubset.R')
+      ## Create log file
+      ## Redirect diagnostics and service messages there
+      outcon <- file(paste0(
+        dirname, '_log', dashnameroot,
+        '-', acore, '.log'
+      ), open = 'w')
+      sink(outcon)
+      sink(outcon, type = 'message')
+      suppressPackageStartupMessages(library('data.table'))
+      suppressPackageStartupMessages(library('nimble'))
 
-    # Create log file
-    outcon <- file(paste0(
-      dirname, '_log', dashnameroot,
-      '-', acore, '.log'
-    ), open = 'w')
-    sink(outcon)
-    sink(outcon, type = 'message')
-    suppressPackageStartupMessages(library('data.table'))
-    suppressPackageStartupMessages(library('nimble'))
+      ## We have to source scripts again for each chain to be able to access them.
+      source('tplotfunctions.R')
+      source('vtransform.R')
+      source('samplesFDistribution.R')
+      source('proposeburnin.R')
+      source('proposethinning.R')
+      source('plotFsamples.R')
+      source('mcsubset.R')
 
-    ## Function for diagnostics
-    funMCSE <- function(x) {
-      if (length(x) >= 1000) {
-        LaplacesDemon::MCSE(x, method = 'batch.means')$se
-      } else {
-        LaplacesDemon::MCSE(x)
+      ## Function for diagnostics
+      ## it corrects a little bug in LaplacesDemon::MCSE
+      funMCSE <- function(x) {
+        if (length(x) >= 1000) {
+          LaplacesDemon::MCSE(x, method = 'batch.means')$se
+        } else {
+          LaplacesDemon::MCSE(x)
+        }
       }
-    }
+
+      ## ## Not needed?
+      ## printtime <- function(tim){paste0(signif(tim,2),' ',attr(tim,'units'))}
+      ## printnull <- function(message, outcon){
+      ##     sink(NULL,type='message')
+      ##     message(message, appendLF=FALSE)
+      ##     flush.console()
+      ##     sink(outcon,type='message')
+      ## }
 
     ## Parameter and function to test MCMC convergence
-    if (thinning <= 0) {
-      multcorr <- 2L
-      thinning <- 1L
-      # Extra arguments for future use
-      thresholdfn <- function(diagnESS, diagnIAT, diagnBMK, diagnMCSE,
-                              diagnStat, diagnBurn, diagnBurn2, diagnThin) {
-        ceiling(2 * max(diagnBurn2) +
+      if (thinning <= 0) {
+        multcorr <- 2L
+        thinning <- 1L
+        ## Extra arguments for future use
+        thresholdfn <- function(diagnESS, diagnIAT, diagnBMK, diagnMCSE,
+                                diagnStat, diagnBurn, diagnBurn2, diagnThin) {
+          ceiling(2 * max(diagnBurn2) +
                   ((nsamplesperchain - 1L) * multcorr *
-                     ceiling(max(diagnIAT, diagnThin))))
-      }
-    } else if (thinning > 0) {
-      # These two options do exactly the same thing
+                   ceiling(max(diagnIAT, diagnThin))))
+        }
+      } else if (thinning > 0) {
+        ## These two options do exactly the same thing
+        ## recheck what was the reasoning here...
       multcorr <- (-2L)
       thresholdfn <- function(diagnESS, diagnIAT, diagnBMK, diagnMCSE,
                               diagnStat, diagnBurn, diagnBurn2, diagnThin) {
@@ -602,41 +619,42 @@ inferpopulation <- function(data, metadata, outputdir, nsamples = 0,
       ## Probability density for the parameters of the components
       # Loop over clusters
       for (k in 1:nclusters) {
-        # Check for different types of variates
-        if (nVars$R > 0) { # continuous
+        ## Probability distributions of parameters
+        ## of the different variate types
+        if (vn$R > 0) { # continuous open domain
           for (v in 1:Rn) {
             Rmean[v, k] ~ dnorm(mean = Rmean1, var = Rvarm1)
             Rrate[v, k] ~ dinvgamma(shape = Rshapehi, rate = Rvar1)
             Rvar[v, k] ~ dinvgamma(shape = Rshapelo, rate = Rrate[v, k])
           }
         }
-        if (nVars$C > 0) { # censored
+        if (vn$C > 0) { # continuous closed domain
           for (v in 1:Cn) {
             Cmean[v, k] ~ dnorm(mean = Cmean1, var = Cvarm1)
             Crate[v, k] ~ dinvgamma(shape = Cshapehi, rate = Cvar1)
             Cvar[v, k] ~ dinvgamma(shape = Cshapelo, rate = Crate[v, k])
           }
         }
-        if (nVars$D > 0) { # discretized
+        if (vn$D > 0) { # continuous rounded
           for (v in 1:Dn) {
             Dmean[v, k] ~ dnorm(mean = Dmean1, var = Dvarm1)
             Drate[v, k] ~ dinvgamma(shape = Dshapehi, rate = Dvar1)
             Dvar[v, k] ~ dinvgamma(shape = Dshapelo, rate = Drate[v, k])
           }
         }
-        if (nVars$O > 0) { # ordinal
+        if (vn$O > 0) { # ordinal
           for (v in 1:On) {
             Omean[v, k] ~ dnorm(mean = Omean1, var = Ovarm1)
             Orate[v, k] ~ dinvgamma(shape = Oshapehi, rate = Ovar1)
             Ovar[v, k] ~ dinvgamma(shape = Oshapelo, rate = Orate[v, k])
           }
         }
-        if (nVars$N > 0) { # nominal
+        if (vn$N > 0) { # nominal
           for (v in 1:Nn) {
             Nprob[v, k, 1:Nmaxn] ~ ddirch(alpha = Nalpha0[v, 1:Nmaxn])
           }
         }
-        if (nVars$B > 0) { # binary
+        if (vn$B > 0) { # binary
           for (v in 1:Bn) {
             Bprob[v, k] ~ dbeta(shape1 = Bshapelo, shape2 = Bshapehi)
           }
@@ -646,38 +664,38 @@ inferpopulation <- function(data, metadata, outputdir, nsamples = 0,
       for (d in 1:npoints) {
         K[d] ~ dcat(prob = W[1:nclusters])
         ##
-        if (nVars$R > 0) { # continuous
+        if (vn$R > 0) { # continuous open domain
           for (v in 1:Rn) {
             Rdata[d, v] ~ dnorm(mean = Rmean[v, K[d]], var = Rvar[v, K[d]])
           }
         }
-        if (nVars$C > 0) { # censored
+        if (vn$C > 0) { # continuous closed domain
           for (v in 1:Cn) {
             Caux[d, v] ~ dconstraint(Clat[d, v] >= Cleft[d, v] &
                                        Clat[d, v] <= Cright[d, v])
             Clat[d, v] ~ dnorm(mean = Cmean[v, K[d]], var = Cvar[v, K[d]])
           }
         }
-        if (nVars$D > 0) { # discretized
+        if (vn$D > 0) { # continuous rounded
           for (v in 1:Dn) {
             Daux[d, v] ~ dconstraint(Dlat[d, v] >= Dleft[d, v] &
                                        Dlat[d, v] < Dright[d, v])
             Dlat[d, v] ~ dnorm(mean = Dmean[v, K[d]], var = Dvar[v, K[d]])
           }
         }
-        if (nVars$O > 0) { # ordinal
+        if (vn$O > 0) { # ordinal
           for (v in 1:On) {
             Oaux[d, v] ~ dconstraint(Olat[d, v] >= Oleft[d, v] &
                                        Olat[d, v] < Oright[d, v])
             Olat[d, v] ~ dnorm(mean = Omean[v, K[d]], var = Ovar[v, K[d]])
           }
         }
-        if (nVars$N > 0) { # nominal
+        if (vn$N > 0) { # nominal
           for (v in 1:Nn) {
             Ndata[d, v] ~ dcat(prob = Nprob[v, K[d], 1:Nmaxn])
           }
         }
-        if (nVars$B > 0) { # binary
+        if (vn$B > 0) { # binary
           for (v in 1:Bn) {
             Bdata[d, v] ~ dbern(prob = Bprob[v, K[d]])
           }
@@ -693,178 +711,176 @@ inferpopulation <- function(data, metadata, outputdir, nsamples = 0,
       outlist <- list(
         Alpha = Alpha,
         W = W,
+        ## distribute data unsystematically among the clusters
         K = rep(sample(rep(which(W > 0), 2), 1, replace = TRUE), npoints)
       )
       ##
-      if (nVars$R > 0) { # continuous
+      if (vn$R > 0) { # continuous open domain
         Rrate <- matrix(
           nimble::rinvgamma(
-            n = nVars$R * nclusters,
+            n = vn$R * nclusters,
             shape = constants$Rshapehi,
             rate = constants$Rvar1
           ),
-          nrow = nVars$R, ncol = nclusters
+          nrow = vn$R, ncol = nclusters
         )
         outlist <- c(
           outlist,
           list(
             Rmean = matrix(
               rnorm(
-                n = nVars$R * nclusters,
+                n = vn$R * nclusters,
                 mean = constants$Rmean1,
                 sd = sqrt(constants$Rvarm1)
               ),
-              nrow = nVars$R, ncol = nclusters
+              nrow = vn$R, ncol = nclusters
             ),
             Rrate = Rrate,
             Rvar = matrix(
               nimble::rinvgamma(
-                n = nVars$R * nclusters,
+                n = vn$R * nclusters,
                 shape = constants$Rshapelo,
                 rate = Rrate
               ),
-              nrow = nVars$R, ncol = nclusters
+              nrow = vn$R, ncol = nclusters
             )
           )
         )
       }
-      if (nVars$C > 0) { # censored
+      if (vn$C > 0) { # ccontinuous closed domain
         Crate <- matrix(
           nimble::rinvgamma(
-            n = nVars$C * nclusters,
+            n = vn$C * nclusters,
             shape = constants$Cshapehi,
             rate = constants$Cvar1
           ),
-          nrow = nVars$C, ncol = nclusters
+          nrow = vn$C, ncol = nclusters
         )
         outlist <- c(
           outlist,
           list(
             Cmean = matrix(
               rnorm(
-                n = nVars$C * nclusters,
+                n = vn$C * nclusters,
                 mean = constants$Cmean1,
                 sd = sqrt(constants$Cvarm1)
               ),
-              nrow = nVars$C, ncol = nclusters
+              nrow = vn$C, ncol = nclusters
             ),
             Crate = Crate,
             Cvar = matrix(
               nimble::rinvgamma(
-                n = nVars$C * nclusters,
+                n = vn$C * nclusters,
                 shape = constants$Cshapelo,
                 rate = Crate
               ),
-              nrow = nVars$C, ncol = nclusters
+              nrow = vn$C, ncol = nclusters
             ),
             ## for data with boundary values
-            Clat = vtransform(data[, varsName$C, with = FALSE],
-              auxmetadata,
-              Cout = 'init',
+            Clat = vtransform(data[, vnames$C, with = FALSE],
+              auxmetadata, Cout = 'init',
               useOquantiles = useOquantiles
             )
           )
         )
       }
-      if (nVars$D > 0) { # discretized
+      if (vn$D > 0) { # continuous rounded
         Drate <- matrix(
           nimble::rinvgamma(
-            n = nVars$D * nclusters,
+            n = vn$D * nclusters,
             shape = constants$Dshapehi,
             rate = constants$Dvar1
           ),
-          nrow = nVars$D, ncol = nclusters
+          nrow = vn$D, ncol = nclusters
         )
         outlist <- c(
           outlist,
           list(
             Dmean = matrix(
               rnorm(
-                n = nVars$D * nclusters,
+                n = vn$D * nclusters,
                 mean = constants$Dmean1,
                 sd = sqrt(constants$Dvarm1)
               ),
-              nrow = nVars$D, ncol = nclusters
+              nrow = vn$D, ncol = nclusters
             ),
             Drate = Drate,
             Dvar = matrix(
               nimble::rinvgamma(
-                n = nVars$D * nclusters,
+                n = vn$D * nclusters,
                 shape = constants$Dshapelo,
                 rate = Drate
               ),
-              nrow = nVars$D, ncol = nclusters
+              nrow = vn$D, ncol = nclusters
             ),
             ## for data with boundary values
-            Dlat = vtransform(data[, varsName$D, with = FALSE],
-              auxmetadata,
-              Dout = 'init',
+            Dlat = vtransform(data[, vnames$D, with = FALSE],
+              auxmetadata, Dout = 'init',
               useOquantiles = useOquantiles
             )
           )
         )
       }
-      if (nVars$O > 0) { # ordinal
+      if (vn$O > 0) { # ordinal
         Orate <- matrix(
           nimble::rinvgamma(
-            n = nVars$O * nclusters,
+            n = vn$O * nclusters,
             shape = constants$Oshapehi,
             rate = constants$Ovar1
           ),
-          nrow = nVars$O, ncol = nclusters
+          nrow = vn$O, ncol = nclusters
         )
         outlist <- c(
           outlist,
           list(
             Omean = matrix(
               rnorm(
-                n = nVars$O * nclusters,
+                n = vn$O * nclusters,
                 mean = constants$Omean1,
                 sd = sqrt(constants$Ovarm1)
               ),
-              nrow = nVars$O, ncol = nclusters
+              nrow = vn$O, ncol = nclusters
             ),
             Orate = Orate,
             Ovar = matrix(
               nimble::rinvgamma(
-                n = nVars$O * nclusters,
+                n = vn$O * nclusters,
                 shape = constants$Oshapelo,
                 rate = Orate
               ),
-              nrow = nVars$O, ncol = nclusters
+              nrow = vn$O, ncol = nclusters
             ),
             ## for data with boundary values
-            Olat = vtransform(data[, varsName$O, with = FALSE],
-              auxmetadata,
-              Oout = 'init',
+            Olat = vtransform(data[, vnames$O, with = FALSE],
+              auxmetadata, Oout = 'init',
               useOquantiles = useOquantiles
             )
           )
         )
       }
-      if (nVars$N > 0) { # nominal
+      if (vn$N > 0) { # nominal
         outlist <- c(
           outlist,
           list(
-            Nprob = aperm(array(sapply(1:nVars$N, function(avar) {
+            Nprob = aperm(array(sapply(1:vn$N, function(avar) {
               sapply(1:nclusters, function(aclus) {
                 rdirch(n = 1, alpha = Nalpha0[avar, ])
               })
-            }), dim = c(Nmaxn, nclusters, nVars$N)))
+            }), dim = c(Nmaxn, nclusters, vn$N)))
           )
         )
       }
-      if (nVars$B > 0) { # binary
+      if (vn$B > 0) { # binary
         outlist <- c(
           outlist,
           list(
             Bprob = matrix(
               rbeta(
-                n = nVars$B * nclusters,
+                n = vn$B * nclusters,
                 shape1 = constants$Bshapelo,
                 shape2 = constants$Bshapehi
               ),
-              nrow = nVars$B, ncol = nclusters
+              nrow = vn$B, ncol = nclusters
             )
           )
         )
@@ -895,22 +911,22 @@ inferpopulation <- function(data, metadata, outputdir, nsamples = 0,
       Cfinitemixnimble, # nodes = NULL
       monitors = c(
         'W',
-        if (nVars$R > 0) {
+        if (vn$R > 0) {
           c('Rmean', 'Rvar')
         },
-        if (nVars$C > 0) {
+        if (vn$C > 0) {
           c('Cmean', 'Cvar')
         },
-        if (nVars$D > 0) {
+        if (vn$D > 0) {
           c('Dmean', 'Dvar')
         },
-        if (nVars$O > 0) {
+        if (vn$O > 0) {
           c('Omean', 'Ovar')
         },
-        if (nVars$N > 0) {
+        if (vn$N > 0) {
           c('Nprob')
         },
-        if (nVars$B > 0) {
+        if (vn$B > 0) {
           c('Bprob')
         }
       ),
@@ -921,13 +937,18 @@ inferpopulation <- function(data, metadata, outputdir, nsamples = 0,
         'Alpha'
       }, 'K')
     )
+      ## ## Uncomment to debug Nimble (in case of Nimble updates)
+      ## print(confnimble$getUnsampledNodes())
+      ## confnimble$printSamplers(executionOrder=TRUE)
+
 
     targetslist <- sapply(confnimble$getSamplers(), function(xx) xx$target)
     nameslist <- sapply(confnimble$getSamplers(), function(xx) xx$name)
     ## cat('\n******** NAMESLIST', nameslist, '\n')
 
     ## replace Alpha's cat-sampler with slice
-    if (Alphatoslice && !('Alpha' %in% targetslist[nameslist == 'posterior_predictive'])) {
+      if (Alphatoslice &&
+          !('Alpha' %in% targetslist[nameslist == 'posterior_predictive'])) {
       confnimble$removeSamplers('Alpha')
       confnimble$addSampler(target = 'Alpha', type = 'slice')
     }
@@ -942,36 +963,42 @@ inferpopulation <- function(data, metadata, outputdir, nsamples = 0,
       }
     }
 
-    ## replace all RW samplers with slice
+      ## replace all RW samplers with slice
+      ## Should find a way to do this faster
+      ## testreptime <- Sys.time()
     if (RWtoslice) {
       for (asampler in targetslist[nameslist == 'RW']) {
         confnimble$removeSamplers(asampler)
         confnimble$addSampler(target = asampler, type = 'slice')
+        ## ## This was suggested by Nimble devs but doesn't work:
+        ## confnimble$replaceSampler(target=asampler, type='slice')
       }
     }
 
-    ## call this to do a first reordering
+    ## ## Uncomment when debugging Nimble
+    ## print(confnimble$getUnsampledNodes())
+    ## call this to do a first reordering of the samplers
     mcsampler <- buildMCMC(confnimble)
 
     #### change execution order for some variates
     samplerorder <- c(
       'K',
-      if (nVars$R > 0) {
+      if (vn$R > 0) {
         c('Rmean', 'Rrate', 'Rvar')
       },
-      if (nVars$C > 0) {
+      if (vn$C > 0) {
         c('Cmean', 'Crate', 'Cvar')
       },
-      if (nVars$D > 0) {
+      if (vn$D > 0) {
         c('Dmean', 'Drate', 'Dvar')
       },
-      if (nVars$O > 0) {
+      if (vn$O > 0) {
         c('Omean', 'Orate', 'Ovar')
       },
-      if (nVars$N > 0) {
+      if (vn$N > 0) {
         c('Nprob')
       },
-      if (nVars$B > 0) {
+      if (vn$B > 0) {
         c('Bprob')
       },
       'W', 'Alpha'
@@ -989,7 +1016,7 @@ inferpopulation <- function(data, metadata, outputdir, nsamples = 0,
         })
       )
     }
-    ##
+    ## ## Uncomment for debugging
     ## cat('\n********NEW ORDER',neworder,'\n')
     confnimble$setSamplerExecutionOrder(c(setdiff(
       confnimble$getSamplerExecutionOrder(),
@@ -1004,12 +1031,14 @@ inferpopulation <- function(data, metadata, outputdir, nsamples = 0,
 
     cat('\nSetup time', printtime(Sys.time() - timecount), '\n')
 
+    ## Inform user that compilation is done, if core 1:
     if (acore == 1) {
-      printnull(paste0('\rCompiled core ', acore, '. Estimating
-                       remaining time, please be patient...'), outcon)
+      printnull(paste0('\rCompiled core ', acore,
+                       '. Estimating remaining time, please be patient...'),
+                outcon)
     }
 
-    cat('Loop over chains')
+    ## cat('Loop over chains')
     ##################################################
     #### LOOP OVER CHAINS (WITHIN ONE CORE)
     ##################################################
@@ -1025,7 +1054,11 @@ inferpopulation <- function(data, metadata, outputdir, nsamples = 0,
       }
       toadd
     }))
-    colnames(testdata) <- auxmetadata[['name']]
+      colnames(testdata) <- auxmetadata[['name']]
+      ## ## Other possibilities for choice of convergence-test data
+      ## testdata <- t(auxmetadata[,paste0('mctest',1:3)])
+      ## colnames(testdata) <- auxmetadata[,name]
+      ## testdata <- rbind(auxmetadata[['Q2']], varinfo[['Q1']], varinfo[['Q3']]) #, varinfo[['plotmin']], varinfo[['plotmax']], varinfo[['datamin']], varinfo[['datamax']])
 
     # Start timer
     starttime <- Sys.time()
@@ -1061,9 +1094,9 @@ inferpopulation <- function(data, metadata, outputdir, nsamples = 0,
         '\nChain #', chainnumber,
         '(chain', achain, 'of', nchainspercore, 'for this core)\n'
       )
-      ## cat('Seed:', chainnumber + seed, '\n')
-      ## commenting out this changes the randomness of each chain to be the same? AURORA
-      ## set.seed(chainnumber + seed) 
+
+      ## Initial values for this chain
+      ## random seed is taken care of by %doRNG%
       Cfinitemixnimble$setInits(initsfn())
 
       #### WHILE LOOP CONTINUING UNTIL CONVERGENCE
@@ -1101,7 +1134,6 @@ inferpopulation <- function(data, metadata, outputdir, nsamples = 0,
           mcsamplesKA$K, 1,
           function(xx) length(unique(xx))
         )
-        mcsamplesKA$Alpha <- c(mcsamplesKA$Alpha)
         if (showAlphatraces) {
           dim(mcsamplesKA$Alpha) <- NULL # from matrix to vector
         }
@@ -1109,6 +1141,7 @@ inferpopulation <- function(data, metadata, outputdir, nsamples = 0,
         cat('\nMCMC time', printtime(Sys.time() - starttime), '\n')
 
         ## #### Remove iterations with non-finite values
+        ## ## old version
         ##                 toRemove <- which(!is.finite(mcsamples), arr.ind=TRUE)
         ##                 ##
         ##                 if(length(toRemove) > 0){
@@ -1169,11 +1202,13 @@ inferpopulation <- function(data, metadata, outputdir, nsamples = 0,
             names(samplertimes)
           ))
           cat('\nSampler times:\n')
-          print(sort(sapply(sprefixes, function(x) sum(samplertimes[grepl(x, names(samplertimes))])),
+          print(sort(sapply(sprefixes,
+                            function(x) sum(samplertimes[grepl(x, names(samplertimes))])),
             decreasing = TRUE
           ))
         }
 
+        ## Check how many clusters were occupied at the last step
         usedclusters <- mcsamplesKA$K[length(mcsamplesKA$K)]
         cat('\nOCCUPIED CLUSTERS:', usedclusters, 'OF', nclusters, '\n')
 
@@ -1211,11 +1246,6 @@ inferpopulation <- function(data, metadata, outputdir, nsamples = 0,
         }
         ##
         traces <- rbind(traces, 10 / log(10) * ll)
-        ## tplot(y=traces, lwd=1, lty=1)
-        ## for(i in 1:ncol(traces)){
-        ##     tplot(y=traces[,i], main=colnames(traces)[i])
-        ## }
-        ## dev.off()
         toRemove <- which(!is.finite(traces), arr.ind = TRUE)
         if (length(toRemove) > 0) {
           flagll <- TRUE
@@ -1252,6 +1282,7 @@ inferpopulation <- function(data, metadata, outputdir, nsamples = 0,
         if (is.null(allmcsamples)) {
           # new chain
           allmcsamples <- mcsamples
+          allmcsamplesKA <- mcsamplesKA
         } else {
           # continue chain, concat samples
           allmcsamples <- mapply(
@@ -1276,15 +1307,9 @@ inferpopulation <- function(data, metadata, outputdir, nsamples = 0,
           }
         }
 
-        if (showAlphatraces || showKtraces) {
-          ## Concatenate samples of K and Alpha
-          allmcsamplesKA <- mapply(function(xx, yy) {
-            c(xx, yy)
-          }, allmcsamplesKA, mcsamplesKA, SIMPLIFY = FALSE)
-        }
-
         rm(mcsamples)
         gc() #garbage collection
+        
         nitertot <- ncol(allmcsamples$W)
 
 
@@ -1292,12 +1317,11 @@ inferpopulation <- function(data, metadata, outputdir, nsamples = 0,
         #### CHECK IF CHAIN MUST BE CONTINUED ####
         #########################################
         lengthmeasure <- max(miniter, min(
-          maxiter,
-          thresholdfn(
-            diagnESS, diagnIAT, diagnBMK, diagnMCSE, diagnStat,
-            diagnBurn, diagnBurn2, diagnThin
-          )
-        ))
+              maxiter,
+              thresholdfn(diagnESS=diagnESS, diagnIAT=diagnIAT,
+                          diagnBMK=diagnBMK, diagnMCSE=diagnMCSE,
+                          diagnStat=diagnStat, diagnBurn=diagnBurn,
+                          diagnBurn2=diagnBurn2, diagnThin=diagnThin) ) )
 
 
         cat('\nNumber of iterations', nitertot, ', required', lengthmeasure, '\n')
@@ -1427,13 +1451,11 @@ inferpopulation <- function(data, metadata, outputdir, nsamples = 0,
         # Legends
         legendpositions <- c('topleft', 'topright', 'bottomleft', 'bottomright')
         for (alegend in seq_along(grouplegends)) {
-          legend(
-            x = legendpositions[alegend], bty = 'n', cex = 1.5,
+          legend(x = legendpositions[alegend], bty = 'n', cex = 1.5,
             legend = grouplegends[[alegend]]
           )
         }
-        legend(
-          x = 'center', bty = 'n', cex = 1,
+        legend(x = 'center', bty = 'n', cex = 1,
           legend = c(
             paste0('Chain ', chainnumber, '_', achain, '-', acore),
             paste0('Occupied clusters: ', usedclusters, ' of ', nclusters),
@@ -1474,8 +1496,8 @@ inferpopulation <- function(data, metadata, outputdir, nsamples = 0,
         dev.off()
       }
 
-      ## Can this be deleted? AURORA
       ## #### Plot samples from current chain
+      ## ## Can be uncommented if debugging is needed
       ##             if(plotpartialsamples){
       ##                 ## Samples of marginal frequency distributions
       ##                 ## if(!continue){
@@ -1499,12 +1521,12 @@ inferpopulation <- function(data, metadata, outputdir, nsamples = 0,
       cat('\nMCMC + diagnostics time', printtime(Sys.time() - starttime), '\n')
 
       #### Print estimated remaining time
-      er_time <- (Sys.time() - starttime) / achain * (nchainspercore - achain + 1)
-      if (is.finite(er_time) && er_time > 0) {
+      remainingTime <- (Sys.time() - starttime) / achain * (nchainspercore - achain + 1)
+      if (is.finite(remainingTime) && remainingTime > 0) {
         printnull(
           paste0(
             '\rSampling. Core ', acore, ' estimated remaining time: ',
-            printtime(er_time),
+            printtime(remainingTime),
             '                      '
           ),
           outcon
@@ -1519,9 +1541,10 @@ inferpopulation <- function(data, metadata, outputdir, nsamples = 0,
 
     cbind(maxusedclusters, allflagmc)
   }
-  ############################################################
-  #### END OF FOREACH-LOOP OVER CORES
-  ############################################################
+############################################################
+#### END OF FOREACH-LOOP OVER CORES
+############################################################
+  ## Close output to log files
   suppressWarnings(sink())
   suppressWarnings(sink(NULL, type = 'message'))
 
@@ -1544,6 +1567,7 @@ inferpopulation <- function(data, metadata, outputdir, nsamples = 0,
   }
 
   ## Read the samples saved by each chain and concatenate them
+  ## could be moved to a separate file?
   joinmc <- function(mc1, mc2) {
     mapply(
       function(xx, yy) {
@@ -1586,14 +1610,14 @@ inferpopulation <- function(data, metadata, outputdir, nsamples = 0,
   ############################################################
 
   ## cat('\nSome diagnostics:\n')
-  traces <- traces[apply(traces, 1, function(x) {
-    all(is.finite(x))
-  }), ]
+  traces <- traces[apply(traces, 1, function(x) { all(is.finite(x)) }), ]
   ## flagll <- nrow(traces) != nrow(traces)
 
   ## funMCSE <- function(x){LaplacesDemon::MCSE(x, method='batch.means')$se}
   diagnESS <- LaplacesDemon::ESS(traces)
   cat('\nEffective sample size:', round(max(diagnESS, na.rm = TRUE)), '\n')
+
+  ## ## Commented, but we may reconsider displaying this
   ## diagnIAT <- apply(traces, 2, function(x){LaplacesDemon::IAT(x)})
   ## cat('\nIATs:',paste0(round(diagnIAT), collapse=', '))
   ## diagnBMK <- LaplacesDemon::BMK.Diagnostic(traces[1:(4*trunc(nrow(traces)/4)),], batches=4)[,1]
@@ -1642,7 +1666,8 @@ inferpopulation <- function(data, metadata, outputdir, nsamples = 0,
 
   cat('\nMax number of occupied clusters:', maxusedclusters, '\n')
   if (maxusedclusters > nclusters - 5) {
-    cat('Too many clusters occupied\n')
+    cat('TOO MANY CLUSTERS OCCUPIED!\n')
+    cat('Consider re-running with increased "nclusters" parameter\n')
   }
 
   if (nonfinitechains > 0) {
@@ -1677,7 +1702,7 @@ inferpopulation <- function(data, metadata, outputdir, nsamples = 0,
 
   if (exists('cl')) {
     cat('\nClosing connections to cores.\n')
-    parallel::stopCluster(cl)
+    stopCluster(cl)
   }
 
 
@@ -1693,7 +1718,7 @@ inferpopulation <- function(data, metadata, outputdir, nsamples = 0,
       full.names = TRUE
     ))
     ## Should we leave the plots of partial traces?
-    ## maybe create an additional function argument?
+    ## maybe create an additional argument to let the user decide?
     file.remove(dir(dirname,
       pattern = paste0('^_mcpartialtraces', dashnameroot, '--.*\\.pdf$'),
       full.names = TRUE
@@ -1707,7 +1732,5 @@ inferpopulation <- function(data, metadata, outputdir, nsamples = 0,
 
   cat('Finished.\n\n')
 
-  if (output) {
-    mcsamples
-  }
+  if (output) { mcsamples }
 }
