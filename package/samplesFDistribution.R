@@ -1,3 +1,5 @@
+# mcoutput: string with path to folder containing Fdistributions.rds or
+# the direct path to the .rds file, or an R object
 samplesFDistribution <- function(Y, X, mcoutput, subsamples, jacobian = TRUE,
                                  fn = identity, combine = 'rbind',
                                  useOquantiles = TRUE, parallel = TRUE,
@@ -49,19 +51,26 @@ samplesFDistribution <- function(Y, X, mcoutput, subsamples, jacobian = TRUE,
   }
 
   ## Extract Monte Carlo output & aux-metadata
+
+  # If mcoutput is a string, check if it's a folder name or file name
   if (is.character(mcoutput)) {
+    # Check if it's a directory containing Fdistribution.rds
     if (file_test('-d', mcoutput) &&
           file.exists(paste0(mcoutput, '/Fdistribution.rds'))) {
       mcoutput <- readRDS(paste0(mcoutput, '/Fdistribution.rds'))
-    } else {
+    } else { # Assume it's a direct path
       mcoutput <- paste0(sub('.rds$', '', mcoutput), '.rds')
       if (file.exists(mcoutput)) {
         mcoutput <- readRDS(mcoutput, '/Fdistribution.rds')
       } else {
-        stop('cannot find mcoutput file')
+        cat('Mcoutpout file ', mcoutput, 'n')
+        stop('does not exist. Please provide either a path to a
+             folder containing Fdistribution.rds, or the path to
+             the .rds file with the mcoutput.')
       }
     }
   }
+  # Add check to see that mcoutput is correct type of object?
   auxmetadata <- mcoutput$auxmetadata
   mcoutput$auxmetadata <- NULL
 

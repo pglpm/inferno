@@ -1,4 +1,16 @@
 #### Example procedure for using the OPM
+startdir <- getwd()
+
+#### Check and change working directory if necessary
+if (basename(startdir) == 'tests') {
+  setwd('../package/')
+  cat('\nSwitching to "package" directory\n')
+} else if (basename(startdir) == 'bayes_nonparametric_inference') {
+  setwd('package/')
+  cat('\nSwitching to "package" directory\n')
+} else if (basename(startdir) != 'package') {
+  stop('Please run this script from directory "package" or "tests" or base')
+}
 
 set.seed(201) # random seed
 
@@ -9,7 +21,7 @@ set.seed(201) # random seed
 ### Then make sure that you're in the folder 'package'
 ###
 ### The example datafile is:
-datafile <- 'exampledata.csv'
+datafile <- '../tests/exampledata.csv'
 
 ## Load main functions and packages,
 ## including those for parallel processing
@@ -19,7 +31,7 @@ source('bnpi.R')
 ##
 ## Skip these lines if you don't want to use parallel computation
 ncores <- 2 # number of CPUs to use
-mycluster <- makeCluster(ncores, outfile="")
+mycluster <- makeCluster(ncores, outfile = '')
 registerDoParallel(mycluster)
 
 ## Read *all* available datapoints
@@ -33,7 +45,7 @@ alldata <- fread(datafile)
 ## that is available in the full dataset.
 ##
 ## This is especially important for the 'centralvalue'-'highvalue' metadata
-buildmetadata(data=alldata, file='meta-exampledata')
+buildmetadata(data = alldata, file = '../tests/meta-exampledata')
 
 ### Open the metadata .csv file and modify the metadata as appropriate
 ### In this case we do the following changes:
@@ -51,14 +63,14 @@ buildmetadata(data=alldata, file='meta-exampledata')
 ntrain <- 100
 trainpoints <- sort(sample(1:nrow(alldata), ntrain))
 
-## Call the main function that does the Monte Carlo sampling / "training"
+## Call the main function that does the Monte Carlo sampling / 'training'
 ## note that we are feeding fewer datapoints
 ## Let's ask for 240 Monte Carlo samples
 ## from two Monte Carlo chains
 ## We must also specify an output directory
 
-outputdir <- '_testexampledata2'
-inferpopulation(data=alldata[trainpoints], metadata='meta-exampledata-modified.csv', outputdir=outputdir, nsamples=240, nchains=2, timestampdir=FALSE)
+outputdir <- '../tests/_testexampledata2'
+inferpopulation(data = alldata[trainpoints], metadata = '../tests/meta-exampledata-modified.csv', outputdir = outputdir, nsamples = 240, nchains = 2, timestampdir = FALSE)
 
 ## The detailed Monte Carlo sampling can be monitored, for each core,
 ## by reading the files '_log-1.log', '_log-2.log', etc in the output dir
@@ -84,24 +96,26 @@ inferpopulation(data=alldata[trainpoints], metadata='meta-exampledata-modified.c
 ## Predictand:
 ## we must define a matrix having 'Truth' as column
 ## and the specified x values as rows:
-Y <- cbind(Truth=0:5)
+Y <- cbind(Truth = 0:5)
 
 ## Predictor:
 ## we must define a matrix having 'Output_class_0,',...,'Output_class_5' as columns
 ## and the desired values as
-X <- cbind(Output_class_0=+1,
-           Output_class_1=-1,
-           Output_class_2=-1,
-           Output_class_3=-1,
-           Output_class_4=-1,
-           Output_class_5=-1)
+X <- cbind(
+  Output_class_0 = +1,
+  Output_class_1 = -1,
+  Output_class_2 = -1,
+  Output_class_3 = -1,
+  Output_class_4 = -1,
+  Output_class_5 = -1
+)
 
 ## We use the function 'samplesFDistribution()'
 ## to calculate the posterior probability and its uncertainty.
 ## It requires the specification of the Monte Carlo output directory
 ## (don't worry about 'recycling' warnings)
 
-testposterior <- samplesFDistribution(Y=Y, X=X, mcoutput=outputdir, parallel=TRUE)
+testposterior <- samplesFDistribution(Y = Y, X = X, mcoutput = outputdir, parallel = TRUE)
 
 ## 'testposterior' has:
 ## - one row for each Y value
@@ -121,25 +135,29 @@ testposterior <- samplesFDistribution(Y=Y, X=X, mcoutput=outputdir, parallel=TRU
 ## which give a visual indication of the variability
 
 probdistr <- rowMeans(testposterior)
-samplefreqs <- testposterior[,sample(1:ncol(testposterior), 100)]
+samplefreqs <- testposterior[, sample(1:ncol(testposterior), 100)]
 
-pdff(paste0(outputdir,'/testresult1'))# open a pdf for plotting
+pdff(paste0(outputdir, '/testresult1')) # open a pdf for plotting
 ## plot samples first
-tplot(x=0:5, y=samplefreqs,
-      xlab='Truth', ylab='probability',
-      ylim=c(0,1),
-      lty=1, # solid lines
-      lwd=1, # thin
-      col=7, # grey
-      alpha=0.8) # quite transparent
+tplot(
+  x = 0:5, y = samplefreqs,
+  xlab = 'Truth', ylab = 'probability',
+  ylim = c(0, 1),
+  lty = 1, # solid lines
+  lwd = 1, # thin
+  col = 7, # grey
+  alpha = 0.8
+) # quite transparent
 ##
 ## plot P(Y|X)
-tplot(x=0:5, y=probdistr,
-      type='b', # line+points
-      lty=1, # solid
-      lwd=3, # thicker
-      col=1, # blue
-      add=T) # add to previous plot
+tplot(
+  x = 0:5, y = probdistr,
+  type = 'b', # line+points
+  lty = 1, # solid
+  lwd = 3, # thicker
+  col = 1, # blue
+  add = T
+) # add to previous plot
 dev.off() # close pdf
 
 
@@ -173,7 +191,7 @@ utilities <- diag(6)
 ## Preselect samples of population-frequencies to display
 postsamples <- sample(1:ncol(testposterior), 100)
 
-pdff(paste0(outputdir,'/testresult2'))
+pdff(paste0(outputdir, '/testresult2'))
 ##
 gain <- 0
 gainsoftmax <- 0
@@ -181,50 +199,61 @@ gainsoftmax <- 0
 surprise <- 0
 surprisesoftmax <- 0
 ##
-for(i in testpoints){
-    ## get ML weights
-    X <- alldata[i, ..Xcols] # note the tricky ".." syntax
-    ## calculate softmax
-    softmax <- exp(as.numeric(X))
-    softmax <- softmax/sum(softmax)
-    ## calculate posterior probability & samples
-    posterior <- samplesFDistribution(Y=Y, X=X, mcoutput=outputdir, silent=TRUE, parallel=TRUE)
-    probdistr <- rowMeans(posterior)
-    samplefreqs <- posterior[, postsamples]
-    ##
-    ## make decision according to probability
-    choice <- which.max(utilities%*%probdistr)
-    choicesoftmax <- which.max(utilities%*%softmax)
-    ##
-    predictedvalue <- alldata[i,Predictions]+1
-    truevalue <- alldata[i,Truth]+1
-    gain <- gain + utilities[truevalue,choice]
-    gainsoftmax <- gainsoftmax + utilities[truevalue,choicesoftmax]
-    ##
-    surprise <- surprise - log10(probdistr[truevalue])
-    surprisesoftmax <- surprisesoftmax - log10(softmax[truevalue])
-    ##
-    ## plot samples first
-    tplot(x=0:5, y=samplefreqs,
-          xlab='Truth', ylab='probability', ylim=c(0,1),
-          lty=1, lwd=1, col=7, alpha=0.8)
-    ## plot P(Y|X)
-    tplot(x=0:5, y=probdistr,
-          type='b', lty=1, lwd=3, col=1, add=T)
-    ## plot softmax
-    tplot(x=0:5, y=softmax,
-          type='b', lty=2, lwd=2, col=2, add=T)
-    text(x=2.5, y=1, adj=0.5,
-         labels=paste0('Datapoint ', i,
-                       ' - Predicted: ', predictedvalue,
-                       ', True: ',truevalue) )
-    tplot(x=alldata[i,c('Truth','Predictions')], y=0.95,
-          type='p', pch=c('T','P'), add=T)
+for (i in testpoints) {
+  ## get ML weights
+  X <- alldata[i, ..Xcols] # note the tricky '..' syntax
+  ## calculate softmax
+  softmax <- exp(as.numeric(X))
+  softmax <- softmax / sum(softmax)
+  ## calculate posterior probability & samples
+  posterior <- samplesFDistribution(Y = Y, X = X, mcoutput = outputdir, silent = TRUE, parallel = TRUE)
+  probdistr <- rowMeans(posterior)
+  samplefreqs <- posterior[, postsamples]
+  ##
+  ## make decision according to probability
+  choice <- which.max(utilities %*% probdistr)
+  choicesoftmax <- which.max(utilities %*% softmax)
+  ##
+  predictedvalue <- alldata[i, Predictions] + 1
+  truevalue <- alldata[i, Truth] + 1
+  gain <- gain + utilities[truevalue, choice]
+  gainsoftmax <- gainsoftmax + utilities[truevalue, choicesoftmax]
+  ##
+  surprise <- surprise - log10(probdistr[truevalue])
+  surprisesoftmax <- surprisesoftmax - log10(softmax[truevalue])
+  ##
+  ## plot samples first
+  tplot(
+    x = 0:5, y = samplefreqs,
+    xlab = 'Truth', ylab = 'probability', ylim = c(0, 1),
+    lty = 1, lwd = 1, col = 7, alpha = 0.8
+  )
+  ## plot P(Y|X)
+  tplot(
+    x = 0:5, y = probdistr,
+    type = 'b', lty = 1, lwd = 3, col = 1, add = T
+  )
+  ## plot softmax
+  tplot(
+    x = 0:5, y = softmax,
+    type = 'b', lty = 2, lwd = 2, col = 2, add = T
+  )
+  text(
+    x = 2.5, y = 1, adj = 0.5,
+    labels = paste0(
+      'Datapoint ', i,
+      ' - Predicted: ', predictedvalue,
+      ', True: ', truevalue
+    )
+  )
+  tplot(
+    x = alldata[i, c('Truth', 'Predictions')], y = 0.95,
+    type = 'p', pch = c('T', 'P'), add = T
+  )
 }
 dev.off()
 ##
-cat('\nGain per sample:',gain/ntest,'\n')
-cat('Softmax gain per sample:',gainsoftmax/ntest,'\n')
-cat('\nSurprise per sample:',surprise/ntest,'\n')
-cat('Softmax surprise per sample:',surprisesoftmax/ntest,'\n')
-
+cat('\nGain per sample:', gain / ntest, '\n')
+cat('Softmax gain per sample:', gainsoftmax / ntest, '\n')
+cat('\nSurprise per sample:', surprise / ntest, '\n')
+cat('Softmax surprise per sample:', surprisesoftmax / ntest, '\n')
