@@ -300,22 +300,21 @@ inferpopulation <- function(data, metadata, outputdir, nsamples = 1200,
                      ## '-K', nclusters, # unimportant for user
                      '-smp', nsamples)
   }
-  nameroot <- paste0(outputdir, suffix)
+  dirname <- paste0(outputdir, suffix)
   ##
-  dirname <- paste0(nameroot, '/')
   # Create output directory if it does not exist
   dir.create(dirname, showWarnings = FALSE)
   # Print information
   cat('\n', paste0(rep('*', max(nchar(dirname), 26)), collapse = ''),
     '\n Saving output in directory\n', dirname, '\n',
     paste0(rep('*', max(nchar(dirname), 26)), collapse = ''), '\n')
-  nameroot <- basename(nameroot)
+
   ## This is in case we need to add some extra specifier to the output files
   ## all 'dashnameroot' can be deleted in a final version
   dashnameroot <- NULL
 
   ## Save copy of metadata in directory
-  fwrite(metadata, file = paste0(dirname, 'metadata.csv'))
+  fwrite(metadata, file = file.path(dirname, 'metadata.csv'))
 
   ##################################################
   #### Define functions
@@ -533,7 +532,7 @@ inferpopulation <- function(data, metadata, outputdir, nsamples = 1200,
   }
   ## Save current RNG seed in case needed by user
   saveRDS(.Random.seed,
-          file = paste0(dirname, 'rng_seed', dashnameroot, '.rds'))
+          file = file.path(dirname, paste0('rng_seed', dashnameroot, '.rds')))
 
   #####################################################
   #### BEGINNING OF FOREACH LOOP OVER CORES
@@ -547,9 +546,9 @@ inferpopulation <- function(data, metadata, outputdir, nsamples = 1200,
 
       ## Create log file
       ## Redirect diagnostics and service messages there
-      outcon <- file(paste0(
-        dirname, 'log', dashnameroot,
-        '-', acore, '.log'
+      outcon <- file(file.path(dirname,
+        paste0('log', dashnameroot,
+        '-', acore, '.log')
       ), open = 'w')
       sink(outcon)
       sink(outcon, type = 'message')
@@ -1180,11 +1179,11 @@ inferpopulation <- function(data, metadata, outputdir, nsamples = 1200,
           ##
           flagmc <- TRUE
           allflagmc <- TRUE
-          saveRDS(mcsamples, file = paste0(
-            dirname, 'NONFINITEmcsamples',
+          saveRDS(mcsamples, file = file.path(dirname,
+            paste0('NONFINITEmcsamples',
             dashnameroot, '--', padchainnumber,
             '_', achain, '-',
-            acore, '-i', nitertot, '.rds'
+            acore, '-i', nitertot, '.rds')
           ))
           if (length(toRemove) == ncol(mcsamples$W)) {
             cat('\n...TOO MANY NON-FINITE OUTPUTS!\n')
@@ -1371,18 +1370,22 @@ inferpopulation <- function(data, metadata, outputdir, nsamples = 1200,
                              na.rm = TRUE))
 
       saveRDS(mcsubset(allmcsamples, tokeep),
-              file = paste0(dirname, '_mcsamples',
-                            dashnameroot, '--',
-                            padchainnumber, '.rds'))
+              file = file.path(dirname,
+                               paste0('_mcsamples',
+                                      dashnameroot, '--',
+                                      padchainnumber, '.rds')
+                               ))
       rm(allmcsamples)
       ## nitertot <- ncol(allmcsamples$W)
 
       gc() #garbage collection
 
       saveRDS(traces[tokeep, ],
-              file = paste0(dirname, '_mctraces',
+              file = file.path(dirname,
+                               paste0('_mctraces',
                             dashnameroot, '--',
-                            padchainnumber, '.rds'))
+                            padchainnumber, '.rds')
+                            ))
 
 
       ###############
@@ -1392,8 +1395,9 @@ inferpopulation <- function(data, metadata, outputdir, nsamples = 1200,
       #### Plot Alpha and cluster occupation, if required
       if (showAlphatraces || showKtraces) {
         cat('Plotting cluster and Alpha information.\n')
-        pdff(paste0(dirname, 'hyperparams_traces', dashnameroot, '--',
-                    padchainnumber, '_', achain, '-', acore),
+        pdff(file.path(dirname,
+                       paste0('hyperparams_traces', dashnameroot, '--',
+                    padchainnumber, '_', achain, '-', acore)),
              apaper = 4)
 
         if (showKtraces) {
@@ -1452,8 +1456,10 @@ inferpopulation <- function(data, metadata, outputdir, nsamples = 1200,
         names(colpalette) <- colnames(traces)
         cat('\nPlotting MCMC traces')
         graphics.off()
-        pdff(paste0(dirname, '_mcpartialtraces', dashnameroot, '--',
-                    padchainnumber, '_', achain, '-', acore), apaper = 4)
+        pdff(file.path(dirname,
+                       paste0('_mcpartialtraces', dashnameroot, '--',
+                              padchainnumber, '_', achain, '-', acore)
+                       ), apaper = 4)
 
         ## Summary stats
         matplot(1:2, type = 'l', col = 'white',
@@ -1577,7 +1583,9 @@ inferpopulation <- function(data, metadata, outputdir, nsamples = 1200,
   ## Save random seeds used in the parallel processing
   if (!is.null(attr(chaininfo, 'rng'))) { # parallel processing
     saveRDS(attr(chaininfo, 'rng'),
-            file = paste0(dirname, 'rng_parallelseeds', dashnameroot, '.rds'))
+            file = file.path(dirname,
+                             paste0('rng_parallelseeds', dashnameroot, '.rds')
+                             ))
   }
 
   ## Read the samples saved by each chain and concatenate them
@@ -1598,23 +1606,30 @@ inferpopulation <- function(data, metadata, outputdir, nsamples = 1200,
                                 .combine = joinmc, .multicombine = FALSE) %do% {
     padchainnumber <- sprintf(paste0('%0', nchar(nchains), 'i'), chainnumber)
 
-    readRDS(file = paste0(dirname, '_mcsamples', dashnameroot, '--',
-                          padchainnumber, '.rds'))
+    readRDS(file = file.path(dirname,
+                             paste0('_mcsamples', dashnameroot, '--',
+                                    padchainnumber, '.rds')
+                             ))
   }
 
   #### Save all final parameters together with the aux-metadata in one file
   saveRDS(c(mcsamples, list(auxmetadata = auxmetadata)),
-    file = paste0(dirname, 'Fdistribution', dashnameroot, '.rds')
-  )
+          file = file.path(dirname,
+                           paste0('Fdistribution', dashnameroot, '.rds')
+  ))
 
   traces <- foreach::foreach(chainnumber = 1:(ncores * nchainspercore),
                              .combine = rbind) %do% {
     padchainnumber <- sprintf(paste0('%0', nchar(nchains), 'i'), chainnumber)
 
-    readRDS(file = paste0(dirname, '_mctraces', dashnameroot, '--',
-                          padchainnumber, '.rds'))
+    readRDS(file = file.path(dirname,
+                             paste0('_mctraces', dashnameroot, '--',
+                                    padchainnumber, '.rds')
+                             ))
   }
-  saveRDS(traces, file = paste0(dirname, 'MCtraces', dashnameroot, '.rds'))
+  saveRDS(traces, file = file.path(dirname,
+                                   paste0('MCtraces', dashnameroot, '.rds')
+                                   ))
 
   cat('\rFinished Monte Carlo sampling.                                 \n')
   gc() #garbage collection
@@ -1659,7 +1674,9 @@ inferpopulation <- function(data, metadata, outputdir, nsamples = 1200,
   colpalette <- seq_len(ncol(traces))
   names(colpalette) <- colnames(traces)
   graphics.off()
-  pdff(paste0(dirname, 'MCtraces', dashnameroot), apaper = 4)
+  pdff(file.path(dirname,
+                 paste0('MCtraces', dashnameroot)
+                 ), apaper = 4)
   ## Traces of likelihood and cond. probabilities
   for (avar in colnames(traces)) {
     tplot(
@@ -1690,7 +1707,8 @@ inferpopulation <- function(data, metadata, outputdir, nsamples = 1200,
 
   cat('Plotting marginal samples.\n')
   plotFsamples(
-    file = paste0(dirname, 'plotsamples_Fdistribution', dashnameroot),
+    file = file.path(dirname,
+                     paste0('plotsamples_Fdistribution', dashnameroot)),
     mcoutput = c(mcsamples, list(auxmetadata = auxmetadata)),
     data = data,
     plotuncertainty = 'samples',
@@ -1702,7 +1720,8 @@ inferpopulation <- function(data, metadata, outputdir, nsamples = 1200,
 
   cat('Plotting marginal samples with quantiles.\n')
   plotFsamples(
-    file = paste0(dirname, 'plotquantiles_Fdistribution', dashnameroot),
+    file = file.path(dirname,
+                     paste0('plotquantiles_Fdistribution', dashnameroot)),
     mcoutput = c(mcsamples, list(auxmetadata = auxmetadata)),
     data = data,
     plotuncertainty = 'quantiles',
@@ -1739,6 +1758,6 @@ inferpopulation <- function(data, metadata, outputdir, nsamples = 1200,
 
   cat('Finished.\n\n')
 
-    ## What should we output? how about the output directory full name?
+    ## What should we output? how about the full name of the output dir?
     if (output) { dirname }
 }
