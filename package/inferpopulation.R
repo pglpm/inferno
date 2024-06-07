@@ -28,16 +28,16 @@
 #' @param loglikelihood Positive integer or Bool (default FALSE): whether to use the loglikelihood of some datapoints for convergence diagnostics. If numeric, use this number of datapoints (unsystematically sampled); if TRUE, use all datapoints
 #' @param subsampledata Numeric: use only a subsample of the datapoints in 'data'
 #' @param useOquantiles Bool: internal, use metadata quantiles for ordinal variates
-#' @param output Bool: whether to output the directory name as the result of this function
+#' @param output if string 'directory', return the output directory name; if string 'mcoutput', return the 'Fdistribution' object; anything else, no output
 #' @param cleanup Bool, default TRUE, removes files that can be used for
 #'   debugging
-#' @return name of directory containing output files
+#' @return name of directory containing output files, or Fdistribution object, or empty
 #' @import foreach doParallel doRNG data.table LaplacesDemon
 inferpopulation <- function(data, metadata, outputdir, nsamples = 1200,
                             nchains = 120, nsamplesperchain = 10, parallel = TRUE,
                             seed = NULL, cleanup = TRUE,
                             appendtimestamp = TRUE, appendinfo = TRUE,
-                            subsampledata = NULL, output = TRUE,
+                            subsampledata = NULL, output = 'directory',
                             niterini = 1024, miniter = 0, maxiter = +Inf,
                             thinning = 0, plottraces = TRUE,
                             showKtraces = FALSE, showAlphatraces = FALSE,
@@ -302,14 +302,14 @@ inferpopulation <- function(data, metadata, outputdir, nsamples = 1200,
   if (appendinfo) {
     suffix <- paste0(suffix,
                      '-vrt', nrow(auxmetadata),
-                     '-dat',
+                     '_dat',
                      (if (npoints == 1 && all(is.na(data))) {
                         0
                       } else {
                         npoints
                       }),
                      ## '-K', nclusters, # unimportant for user
-                     '-smp', nsamples)
+                     '_smp', nsamples)
   }
   dirname <- paste0(outputdir, suffix)
   ##
@@ -1770,5 +1770,11 @@ inferpopulation <- function(data, metadata, outputdir, nsamples = 1200,
   cat('Finished.\n\n')
 
     ## What should we output? how about the full name of the output dir?
-    if (output) { dirname }
+  if (is.character(output) && output == 'directory') {
+    dirname
+  } else if (is.character(output) && output == 'mcoutput') {
+    readRDS(file.path(dirname,
+                      paste0('Fdistribution', dashnameroot, '.rds')
+                      ))
+  }
 }
