@@ -25,7 +25,7 @@ outputdirPrefix <- paste0(paste0(testdir,'__packagetest'))
 currenttestdir <- inferpopulation(data = paste0(testdir, 'testdata.csv'),
                         metadata = paste0(testdir, 'metatestdata.csv'),
                         outputdir = outputdirPrefix,
-                        appendtimestamp = TRUE, appendinfo = TRUE,
+                        appendtimestamp = F, appendinfo = F,
                         nsamples = 120, nchains = 12,
                         cleanup = FALSE, parallel = 4,
                         seed = seed)
