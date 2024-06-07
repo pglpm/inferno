@@ -1,3 +1,5 @@
+#### This script call all libraries and functions needed by the protopackage
+## Needed libraries
 library('data.table')
 library('foreach')
 library('doParallel')
@@ -5,12 +7,27 @@ library('doRNG')
 library('khroma')
 loadNamespace('LaplacesDemon')
 loadNamespace('nimble')
-##
+
+## Main functions
 source('buildmetadata.R')
-source('buildauxmetadata.R')
-source('samplesFDistribution.R')
 source('inferpopulation.R')
+source('samplesFDistribution.R')
 source('plotFsamples.R')
+
+## Utility functions (should be invisible to the user in the package)
+source('tplotfunctions.R')
+source('util_buildauxmetadata.R')
+source('util_vtransform.R')
+source('util_mcsubset.R')
+source('util_proposethinning.R')
+source('util_proposeburnin.R')
+
+## These are not needed in normal use,
+## but may be needed for further development
+if(FALSE){
+  source('util_createQfunction.R')
+}
+
 
 ## ## To join MC samples in list form
 ## joinmc <- function(mc1, mc2){

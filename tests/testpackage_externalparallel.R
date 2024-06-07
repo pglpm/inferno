@@ -30,6 +30,7 @@ registerDoParallel(mycluster)
 currenttestdir <- inferpopulation(data = file.path(testdir, 'testdata.csv'),
                         metadata = file.path(testdir, 'metatestdata.csv'),
                         outputdir = outputdirPrefix,
+                        output = 'directory',
                         appendtimestamp = TRUE, appendinfo = TRUE,
                         nsamples = 120, nchains = 12,
                         cleanup = FALSE, # parallel = 4,

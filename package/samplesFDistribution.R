@@ -159,7 +159,7 @@ samplesFDistribution <- function(Y, X, mcoutput, subsamples, jacobian = TRUE,
   }
 
 #### Subsample and get nclusters and nsamples
-  source('mcsubset.R')
+  ## source('mcsubset.R')
 
   if (!missing(subsamples) &&
         (is.numeric(subsamples) || (is.character(subsamples)
@@ -175,7 +175,7 @@ samplesFDistribution <- function(Y, X, mcoutput, subsamples, jacobian = TRUE,
   nsamples <- ncol(mcoutput$W)
   nclusters <- nrow(mcoutput$W)
 
-  source('vtransform.R')
+  ## source('vtransform.R')
 
 
   #### Type R

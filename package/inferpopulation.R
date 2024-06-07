@@ -206,7 +206,7 @@ inferpopulation <- function(data, metadata, outputdir, nsamples = 1200,
 
   ## Build auxiliary metadata object; we'll save it later
   ## We must do this after reading and checking the data argument
-  source('buildauxmetadata.R')
+  ## source('buildauxmetadata.R')
   auxmetadata <- buildauxmetadata(data = data, metadata = metadata)
   cat('Calculating auxiliary metadata\n')
 
@@ -332,10 +332,10 @@ inferpopulation <- function(data, metadata, outputdir, nsamples = 1200,
   ##################################################
 
   ## Load auxiliary functions from external files
-  source('samplesFDistribution.R')
-  source('plotFsamples.R')
-  source('tplotfunctions.R')
-  source('vtransform.R')
+  ## source('samplesFDistribution.R')
+  ## source('plotFsamples.R')
+  ## source('tplotfunctions.R')
+  ## source('vtransform.R')
   ## ## These are used within the foreach core loop
   ## source('proposeburnin.R')
   ## source('proposethinning.R')
@@ -573,13 +573,13 @@ inferpopulation <- function(data, metadata, outputdir, nsamples = 1200,
       suppressPackageStartupMessages(library('nimble'))
 
       ## We have to source scripts again for each chain to be able to access them.
-      source('tplotfunctions.R')
-      source('vtransform.R')
-      source('samplesFDistribution.R')
-      source('proposeburnin.R')
-      source('proposethinning.R')
       source('plotFsamples.R')
-      source('mcsubset.R')
+      source('samplesFDistribution.R')
+      source('tplotfunctions.R')
+      source('util_vtransform.R')
+      source('util_proposeburnin.R')
+      source('util_proposethinning.R')
+      source('util_mcsubset.R')
 
       ## Function for diagnostics
       ## it corrects a little bug in LaplacesDemon::MCSE

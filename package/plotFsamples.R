@@ -6,11 +6,12 @@ plotFsamples <- function(file, mcoutput, data, plotmeans = TRUE,
                          datahistogram = TRUE, datascatter = TRUE,
                          useOquantiles = TRUE, parallel = TRUE,
                          silent = FALSE) {
-  #imports
-  source('tplotfunctions.R')
-  source('vtransform.R')
-  source('mcsubset.R')
-  source('samplesFDistribution.R')
+
+  ## old utility functions
+  ## source('tplotfunctions.R')
+  ## source('vtransform.R')
+  ## source('mcsubset.R')
+  ## source('samplesFDistribution.R')
   
   fontfamily <- 'Palatino'
 

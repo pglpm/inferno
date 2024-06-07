@@ -70,7 +70,7 @@ if(!silent){ cat('Using already registered', getDoParName(), 'with', getDoParWor
 
 
 #### Subsample and get nclusters and nsamples
-    source('mcsubset.R')
+    ## source('mcsubset.R')
     if((is.logical(n) && n) || (is.character(n) && n=='all')){
         n <- nsamples
     }
@@ -80,7 +80,7 @@ if(!silent){ cat('Using already registered', getDoParName(), 'with', getDoParWor
     sseq <- 1:n
 
 
-    source('vtransform.R')
+    ## source('vtransform.R')
 
 #### Type R
     vnames <- auxmetadata[mcmctype == 'R', name]
