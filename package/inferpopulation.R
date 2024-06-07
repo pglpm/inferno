@@ -519,9 +519,8 @@ inferpopulation <- function(data, metadata, outputdir, nsamples = 1200,
     nsamplesperchain, 'samples per chain,', nchainspercore, 'chains per core.\n'
   )
   cat('Core logs are being saved in individual files.\n')
-  cat('\nC-compiling samplers appropriate to the variates
-      (package Nimble)\nthis can take tens of minutes with
-       many data or variates.\n...\r')
+  cat('\nC-compiling samplers appropriate to the variates (package Nimble)\n')
+  cat('this can take tens of minutes with many data or variates.\n...\r')
 
 
   ## Set the RNG seed if given by user, or if no seed already exists
