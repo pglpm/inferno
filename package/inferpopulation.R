@@ -12,10 +12,10 @@
 #' @param maxiter, 
 #' @param thinning ??
 #' @param plottraces
-#' @param showKtraces Bool, when true, it saves the Alpha parameter
+#' @param showKtraces Bool, when true, it saves the K parameter
 #'  during sampling and plots its trace and histogram at the end.
 #'  Keeping it to FALSE (default) saves a little computation time.
-#' @param showAlphatraces Bool, : when true, it saves the K parameter
+#' @param showAlphatraces Bool, : when true, it saves the Alpha parameter
 #'  more frequently during sampling and plots its trace and histogram
 #'  at the end. Keeping it to FALSE (default) saves a little
 #'  computation time.
@@ -30,8 +30,9 @@
 #' @import foreach doParallel doRNG data.table LaplacesDemon
 inferpopulation <- function(data, metadata, outputdir, nsamples = 1200,
                             nchains = 120, nsamplesperchain = 10, parallel = TRUE,
-                            seed = NULL, cleanup = TRUE, timestampdir = TRUE,
-                            subsampledata = FALSE, output = FALSE,
+                            seed = NULL, cleanup = TRUE,
+                            appendtimestamp = TRUE, appendinfo = TRUE,
+                            subsampledata = FALSE, output = TRUE,
                             niterini = 1024, miniter = 0, maxiter = +Inf,
                             thinning = 0, plottraces = TRUE,
                             showKtraces = FALSE, showAlphatraces = FALSE,
@@ -40,7 +41,7 @@ inferpopulation <- function(data, metadata, outputdir, nsamples = 1200,
 
   cat('\n') # make sure possible error messages start on new line
 
-  
+
   ##################################################
   #### Argument-consistency checks
   ##################################################
@@ -274,29 +275,32 @@ inferpopulation <- function(data, metadata, outputdir, nsamples = 1200,
   family <- 'Palatino' # font family in plots
 
   ##################################################
-  #### Folder setup
+  #### Output-folder setup
   ##################################################
 
-  ## append time and sampling info to name of output directory
-  if (timestampdir) {
-    timestamp <- paste0('-V', nrow(auxmetadata),
-                        '-D',
-                        (if (npoints == 1 && all(is.na(data))) {
-                          0
-                        } else {
-                          npoints
-                        }),
-                        '-K', nclusters,
-                        '-S', nsamples)
-  } else {
-    timestamp <- NULL
-  }
-
-  if (missing(outputdir) || outputdir == TRUE) {
+  if (missing(outputdir) || (is.logical(outputdir) && outputdir)) {
     outputdir <- paste0('_output_', sub('.csv$', '', datafile))
   }
 
-  nameroot <- paste0(outputdir, timestamp)
+  ## append time and info to output directory, if requested
+  suffix <- NULL
+  if (appendtimestamp) {
+    suffix <- paste0(suffix, '-',
+                     strftime(as.POSIXlt(Sys.time()), '%y%m%dT%H%M%S') )
+  }
+  if (appendinfo) {
+    suffix <- paste0(suffix,
+                     '-vrt', nrow(auxmetadata),
+                     '-dat',
+                     (if (npoints == 1 && all(is.na(data))) {
+                        0
+                      } else {
+                        npoints
+                      }),
+                     ## '-K', nclusters, # unimportant for user
+                     '-smp', nsamples)
+  }
+  nameroot <- paste0(outputdir, suffix)
   ##
   dirname <- paste0(nameroot, '/')
   # Create output directory if it does not exist
@@ -1724,5 +1728,6 @@ inferpopulation <- function(data, metadata, outputdir, nsamples = 1200,
 
   cat('Finished.\n\n')
 
-  if (output) { mcsamples }
+    ## What should we output? how about the output directory full name?
+    if (output) { dirname }
 }

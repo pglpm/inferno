@@ -20,22 +20,22 @@ refdir <- paste0(testdir,
 
 seed <- 16
 
-outputdirPrefix <- paste0(paste0(testdir,'__packagetest-'),
-                          strftime(as.POSIXlt(Sys.time()), '%y%m%dT%H%M'))
-
 ncores <- 4
 library('doParallel')
 mycluster <- makeCluster(ncores, outfile="")
 registerDoParallel(mycluster)
 
-test <- inferpopulation(data=paste0(testdir,'testdata.csv'),
-                        metadata=paste0(testdir,'metatestdata.csv'),
-                        outputdir=outputdirPrefix,
-                        nsamples=120, nchains=12, cleanup=F,
-                        ## parallel=4,
-                        seed=seed)
+outputdirPrefix <- paste0(paste0(testdir,'__packagetest'))
 
-currenttestdir <- paste0(outputdirPrefix, '-V8-D15-K64-S120/')
+currenttestdir <- inferpopulation(data = paste0(testdir, 'testdata.csv'),
+                        metadata = paste0(testdir, 'metatestdata.csv'),
+                        outputdir = outputdirPrefix,
+                        appendtimestamp = TRUE, appendinfo = TRUE,
+                        nsamples = 120, nchains = 12,
+                        cleanup = FALSE,
+                        ## parallel = 4,
+                        seed = seed)
+
 
 #### Test whether Fdistribution output is identical
 cat('\nVerifying equality of "Fdistribution.rds" (TRUE = passed):\n')
