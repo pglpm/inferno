@@ -544,7 +544,7 @@ inferpopulation <- function(data, metadata, outputdir, nsamples = 1200,
       ## Create log file
       ## Redirect diagnostics and service messages there
       outcon <- file(paste0(
-        dirname, '_log', dashnameroot,
+        dirname, 'log', dashnameroot,
         '-', acore, '.log'
       ), open = 'w')
       sink(outcon)
@@ -1169,7 +1169,7 @@ inferpopulation <- function(data, metadata, outputdir, nsamples = 1200,
           flagmc <- TRUE
           allflagmc <- TRUE
           saveRDS(mcsamples, file = paste0(
-            dirname, '_NONFINITEmcsamples',
+            dirname, 'NONFINITEmcsamples',
             dashnameroot, '--', padchainnumber,
             '_', achain, '-',
             acore, '-i', nitertot, '.rds'
@@ -1380,7 +1380,7 @@ inferpopulation <- function(data, metadata, outputdir, nsamples = 1200,
       #### Plot Alpha and cluster occupation, if required
       if (showAlphatraces || showKtraces) {
         cat('Plotting cluster and Alpha information.\n')
-        pdff(paste0(dirname, '_hyperparams_traces', dashnameroot, '--',
+        pdff(paste0(dirname, 'hyperparams_traces', dashnameroot, '--',
                     padchainnumber, '_', achain, '-', acore),
              apaper = 4)
 
@@ -1705,21 +1705,14 @@ inferpopulation <- function(data, metadata, outputdir, nsamples = 1200,
   }
 
 
-  #### Remove partial files if required
+#### Remove partial files if required
+  ## Partial files are identified by an initial underscore "_"
+    ## Should we leave the plots of partial traces?
+    ## maybe create an additional argument to let the user decide?
   if (cleanup) {
     cat('Removing temporary output files.\n')
     file.remove(dir(dirname,
-      pattern = paste0('^_mcsamples', dashnameroot, '--.*\\.rds$'),
-      full.names = TRUE
-    ))
-    file.remove(dir(dirname,
-      pattern = paste0('^_mctraces', dashnameroot, '--.*\\.rds$'),
-      full.names = TRUE
-    ))
-    ## Should we leave the plots of partial traces?
-    ## maybe create an additional argument to let the user decide?
-    file.remove(dir(dirname,
-      pattern = paste0('^_mcpartialtraces', dashnameroot, '--.*\\.pdf$'),
+      pattern = paste0('^_.*\\..*$'),
       full.names = TRUE
     ))
   }

@@ -43,7 +43,7 @@ print(identical(
 cat('\nVerifying equality of "log-1" (TRUE = passed):\n')
 reffile <- readLines(paste0(refdir,'log-1.txt'))
 reffile <- reffile[!grepl('time', reffile, fixed=TRUE)]
-currentfile <- readLines(paste0(currenttestdir,'_log-1.log'))
+currentfile <- readLines(paste0(currenttestdir,'log-1.log'))
 currentfile <- currentfile[!grepl('time', currentfile, fixed=TRUE)]
 
 print(identical(currentfile, reffile))
