@@ -207,8 +207,8 @@ inferpopulation <- function(data, metadata, outputdir, nsamples = 1200,
   ## Build auxiliary metadata object; we'll save it later
   ## We must do this after reading and checking the data argument
   ## source('buildauxmetadata.R')
-  auxmetadata <- buildauxmetadata(data = data, metadata = metadata)
   cat('Calculating auxiliary metadata\n')
+  auxmetadata <- buildauxmetadata(data = data, metadata = metadata)
 
   #### Loglikelihood
   ## 'loglikelihood' argument says whether/how many datapoints to use

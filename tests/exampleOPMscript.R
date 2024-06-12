@@ -3,7 +3,7 @@ startdir <- getwd()
 
 #### Check and change working directory if necessary
 if (basename(startdir) == 'tests') {
-  setwd('../package/')
+  setwd(file.path('..', 'package'))
   cat('\nSwitching to "package" directory\n')
 } else if (basename(startdir) == 'bayes_nonparametric_inference') {
   setwd('package/')
@@ -21,7 +21,7 @@ set.seed(201) # random seed
 ### Then make sure that you're in the folder 'package'
 ###
 ### The example datafile is:
-datafile <- '../tests/exampledata.csv'
+datafile <- file.path('..', 'tests', 'exampledata.csv')
 
 ## Load main functions and packages,
 ## including those for parallel processing
@@ -45,7 +45,8 @@ alldata <- fread(datafile)
 ## that is available in the full dataset.
 ##
 ## This is especially important for the 'centralvalue'-'highvalue' metadata
-buildmetadata(data = alldata, file = '../tests/meta-exampledata')
+buildmetadata(data = alldata, file = file.path('..', 'tests',
+                                               'meta-exampledata'))
 
 ### Open the metadata .csv file and modify the metadata as appropriate
 ### In this case we do the following changes:
@@ -60,7 +61,7 @@ buildmetadata(data = alldata, file = '../tests/meta-exampledata')
 
 
 ## Select a subset of data for training
-ntrain <- 100
+ntrain <- 50
 trainpoints <- sort(sample(1:nrow(alldata), ntrain))
 
 ## Call the main function that does the Monte Carlo sampling / 'training'
@@ -69,8 +70,14 @@ trainpoints <- sort(sample(1:nrow(alldata), ntrain))
 ## from two Monte Carlo chains
 ## We must also specify an output directory
 
-outputdir <- '../tests/_testexampledata2'
-inferpopulation(data = alldata[trainpoints], metadata = '../tests/meta-exampledata-modified.csv', outputdir = outputdir, nsamples = 240, nchains = 2, timestampdir = FALSE)
+outputdir <- file.path('..', 'tests', '_testexampledata2')
+mcoutput <- inferpopulation(data = alldata[trainpoints],
+                           metadata = file.path('..', 'tests',
+                                                'meta-exampledata-modified.csv'),
+                           outputdir = outputdir,
+                           nsamples = 240, nchains = 2,
+                           appendtimestamp = FALSE,
+                           appendinfo = FALSE)
 
 ## The detailed Monte Carlo sampling can be monitored, for each core,
 ## by reading the files '_log-1.log', '_log-2.log', etc in the output dir
@@ -115,7 +122,9 @@ X <- cbind(
 ## It requires the specification of the Monte Carlo output directory
 ## (don't worry about 'recycling' warnings)
 
-testposterior <- samplesFDistribution(Y = Y, X = X, mcoutput = outputdir, parallel = TRUE)
+testposterior <- samplesFDistribution(Y = Y, X = X,
+                                      mcoutput = mcoutput,
+                                      parallel = TRUE)
 
 ## 'testposterior' has:
 ## - one row for each Y value
@@ -137,7 +146,7 @@ testposterior <- samplesFDistribution(Y = Y, X = X, mcoutput = outputdir, parall
 probdistr <- rowMeans(testposterior)
 samplefreqs <- testposterior[, sample(1:ncol(testposterior), 100)]
 
-pdff(paste0(outputdir, '/testresult1')) # open a pdf for plotting
+pdff(file.path(outputdir, 'testresult1')) # open a pdf for plotting
 ## plot samples first
 tplot(
   x = 0:5, y = samplefreqs,
@@ -191,7 +200,7 @@ utilities <- diag(6)
 ## Preselect samples of population-frequencies to display
 postsamples <- sample(1:ncol(testposterior), 100)
 
-pdff(paste0(outputdir, '/testresult2'))
+pdff(file.path(outputdir, 'testresult2'))
 ##
 gain <- 0
 gainsoftmax <- 0
