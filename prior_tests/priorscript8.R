@@ -1802,7 +1802,7 @@ dev.off()
 
 
 #### Test for latent distribution for ordinal variate
-Qf <- readRDS('../package/Qfunction8192.rds')
+Qf <- readRDS('../R/Qfunction8192.rds')
 
 Qf <- function(x){qt(x/((lambda+1)/baseshape),df=2*baseshape, )}
 

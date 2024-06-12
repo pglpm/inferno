@@ -2,13 +2,13 @@ startdir <- getwd()
 
 #### Check and change working directory if necessary
 if(basename(startdir) == 'tests'){
-  setwd(file.path('..','package'))
-  cat('\nSwitching to "package" directory\n')
+  setwd(file.path('..','R'))
+  cat('\nSwitching to "R" directory\n')
 } else if(basename(startdir) == 'bayes_nonparametric_inference'){
-  setwd('package')
-  cat('\nSwitching to "package" directory\n')
-} else if(basename(startdir) != 'package'){
-  stop('Please run this script from directory "package" or "tests" or base')
+  setwd('R')
+  cat('\nSwitching to "R" directory\n')
+} else if(basename(startdir) != 'R'){
+  stop('Please run this script from directory "R" or "tests" or base')
 }
 
 source('bnpi.R')

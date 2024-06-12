@@ -3,22 +3,22 @@ startdir <- getwd()
 
 #### Check and change working directory if necessary
 if (basename(startdir) == 'tests') {
-  setwd(file.path('..', 'package'))
-  cat('\nSwitching to "package" directory\n')
+  setwd(file.path('..', 'R'))
+  cat('\nSwitching to "R" directory\n')
 } else if (basename(startdir) == 'bayes_nonparametric_inference') {
-  setwd('package/')
-  cat('\nSwitching to "package" directory\n')
-} else if (basename(startdir) != 'package') {
-  stop('Please run this script from directory "package" or "tests" or base')
+  setwd('R/')
+  cat('\nSwitching to "R" directory\n')
+} else if (basename(startdir) != 'R') {
+  stop('Please run this script from directory "R" or "tests" or base')
 }
 
 set.seed(201) # random seed
 
 ### First of all, clone the repository
 ### https://github.com/pglpm/bayes_nonparametric_inference
-### or at least the folder 'package' therein
+### or at least the folder 'R' therein
 ###
-### Then make sure that you're in the folder 'package'
+### Then make sure that you're in the folder 'R'
 ###
 ### The example datafile is:
 datafile <- file.path('..', 'tests', 'exampledata.csv')
