@@ -1301,11 +1301,11 @@ inferpopulation <- function(data, metadata, outputdir, nsamples = 1200,
         cat('\nDiagnostics time', printtime(Sys.time() - diagntime), '\n')
 
         if (is.null(allmcsamples)) {
-          # new chain
+          ## new chain
           allmcsamples <- mcsamples
           allmcsamplesKA <- mcsamplesKA
         } else {
-          # continue chain, concat samples
+          ## continue chain, concat samples
           allmcsamples <- mapply(
             function(xx, yy) {
               temp <- c(xx, yy)
@@ -1334,9 +1334,9 @@ inferpopulation <- function(data, metadata, outputdir, nsamples = 1200,
         nitertot <- ncol(allmcsamples$W)
 
 
-        #########################################
+        ##########################################
         #### CHECK IF CHAIN MUST BE CONTINUED ####
-        #########################################
+        ##########################################
         lengthmeasure <- max(miniter, min(
               maxiter,
               thresholdfn(diagnESS=diagnESS, diagnIAT=diagnIAT,
