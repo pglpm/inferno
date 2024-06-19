@@ -274,9 +274,10 @@ inferpopulation <- function(data, metadata, outputdir, nsamples = 1200,
   npoints <- nrow(data)
 
   #### Other options
-  Alphatoslice <- TRUE
-  Ktoslice <- TRUE
+  Alphatoslice <- TRUE # FALSE typically leads to underflow
+  Ktoslice <- TRUE # FALSE typically leads to underflow
   RWtoslice <- FALSE
+  changeSamplerOrder <- TRUE
   ##
   ## plotmeans <- TRUE # plot frequency averages
   showsamples <- 100 # number of samples to show.
@@ -968,39 +969,45 @@ inferpopulation <- function(data, metadata, outputdir, nsamples = 1200,
     ## replace Alpha's cat-sampler with slice
       if (Alphatoslice &&
           !('Alpha' %in% targetslist[nameslist == 'posterior_predictive'])) {
-      confnimble$removeSamplers('Alpha')
-      confnimble$addSampler(target = 'Alpha', type = 'slice')
+        confnimble$replaceSampler(target='Alpha', type='slice')
+        ## ## Old replacement method, didn't work in previous Nimble
+        ## confnimble$removeSamplers('Alpha')
+        ## confnimble$addSampler(target = 'Alpha', type = 'slice')
     }
 
     ## replace K's cat-sampler with slice
     if (Ktoslice) {
       for (asampler in grep('^K\\[', targetslist, value = TRUE)) {
         if (!(asampler %in% targetslist[nameslist == 'posterior_predictive'])) {
-          confnimble$removeSamplers(asampler)
-          confnimble$addSampler(target = asampler, type = 'slice')
+          confnimble$replaceSampler(target=asampler, type='slice')
+          ## ## Old replacement method, didn't work in previous Nimble
+          ## confnimble$removeSamplers(asampler)
+          ## confnimble$addSampler(target = asampler, type = 'slice')
         }
       }
     }
 
-      ## replace all RW samplers with slice
-      ## Should find a way to do this faster
-      ## testreptime <- Sys.time()
+    ## replace all RW samplers with slice
+    ## Should find a way to do this faster
+    ## testreptime <- Sys.time()
     if (RWtoslice) {
       for (asampler in targetslist[nameslist == 'RW']) {
-        confnimble$removeSamplers(asampler)
-        confnimble$addSampler(target = asampler, type = 'slice')
-        ## ## This was suggested by Nimble devs but doesn't work:
-        ## confnimble$replaceSampler(target=asampler, type='slice')
+        confnimble$replaceSampler(target=asampler, type='slice')
+        ## ## Old replacement method, didn't work in previous Nimble
+        ## confnimble$removeSamplers(asampler)
+        ## confnimble$addSampler(target = asampler, type = 'slice')
       }
     }
 
     ## ## Uncomment when debugging Nimble
     ## print(confnimble$getUnsampledNodes())
-    ## call this to do a first reordering of the samplers
-    mcsampler <- buildMCMC(confnimble)
 
     #### change execution order for some variates
-    samplerorder <- c(
+    if (changeSamplerOrder) {
+      ## call this to do a first reordering of the samplers
+      mcsampler <- buildMCMC(confnimble)
+
+      samplerorder <- c(
       'K',
       if (vn$R > 0) {
         c('Rmean', 'Rrate', 'Rvar')
@@ -1041,11 +1048,13 @@ inferpopulation <- function(data, metadata, outputdir, nsamples = 1200,
       confnimble$getSamplerExecutionOrder(),
       neworder
     ), neworder))
+
+    }
+
+#### Compile Monte Carlo sampler
+    mcsampler <- buildMCMC(confnimble)
     print(confnimble)
     ## print(confnimble$getUnsampledNodes())
-
-    #### Compile Monte Carlo sampler
-    mcsampler <- buildMCMC(confnimble)
     Cmcsampler <- compileNimble(mcsampler, resetFunctions = TRUE)
 
     cat('\nSetup time', printtime(Sys.time() - timecount), '\n')
