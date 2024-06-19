@@ -1,4 +1,4 @@
-Log core 2 - Current time: 2024-06-19 14:20:32
+Log core 2 - Current time: 2024-06-19 17:22:51
 Defining model
 Building model
 Setting data and initial values
@@ -88,15 +88,15 @@ Compiling
   [Note] This may take a minute.
   [Note] Use 'showCompilerOutput = TRUE' to see C++ compilation details.
 
-Setup time 42 secs 
+Setup time 44 secs 
 
 Chain # 4 (chain 1 of 3 for this core)
 Iterations: 1024 
 |-------------|-------------|-------------|-------------|
 |-------------------------------------------------------|
 
-Current time: 2024-06-19 14:21:19
-MCMC time 3.8 secs 
+Current time: 2024-06-19 17:23:40
+MCMC time 3.9 secs 
 
 OCCUPIED CLUSTERS: 1 OF 64 
 
@@ -109,7 +109,7 @@ Burn-in I: 0, 0, 0
 Burn-in II: 0
 Proposed thinning: 1, 22, 1 
 
-Diagnostics time 0.42 secs 
+Diagnostics time 0.41 secs 
 
 Number of iterations 1024 , required 396 
 
@@ -118,16 +118,16 @@ Keeping last 10 samples with thinning 44
 Plotting traces and samples.
 
 Plotting MCMC traces
-Current time: 2024-06-19 14:21:20
-MCMC + diagnostics time 5.3 secs 
+Current time: 2024-06-19 17:23:42
+MCMC + diagnostics time 5.4 secs 
 
 Chain # 5 (chain 2 of 3 for this core)
 Iterations: 1024 
 |-------------|-------------|-------------|-------------|
 |-------------------------------------------------------|
 
-Current time: 2024-06-19 14:21:24
-MCMC time 9.1 secs 
+Current time: 2024-06-19 17:23:46
+MCMC time 9.4 secs 
 
 OCCUPIED CLUSTERS: 1 OF 64 
 
@@ -149,15 +149,15 @@ Keeping last 10 samples with thinning 32
 Plotting traces and samples.
 
 Plotting MCMC traces
-Current time: 2024-06-19 14:21:25
-MCMC + diagnostics time 10 secs 
+Current time: 2024-06-19 17:23:47
+MCMC + diagnostics time 11 secs 
 
 Chain # 6 (chain 3 of 3 for this core)
 Iterations: 1024 
 |-------------|-------------|-------------|-------------|
 |-------------------------------------------------------|
 
-Current time: 2024-06-19 14:21:29
+Current time: 2024-06-19 17:23:51
 MCMC time 14 secs 
 
 OCCUPIED CLUSTERS: 1 OF 64 
@@ -180,8 +180,8 @@ Keeping last 10 samples with thinning 60
 Plotting traces and samples.
 
 Plotting MCMC traces
-Current time: 2024-06-19 14:21:30
-MCMC + diagnostics time 15 secs 
+Current time: 2024-06-19 17:23:52
+MCMC + diagnostics time 16 secs 
 
-Current time: 2024-06-19 14:21:30
-Total time 15 secs 
+Current time: 2024-06-19 17:23:52
+Total time 16 secs 

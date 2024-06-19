@@ -1633,7 +1633,7 @@ inferpopulation <- function(data, metadata, outputdir, nsamples = 1200,
   }
 
   #### Save all final parameters together with the aux-metadata in one file
-  saveRDS(c(mcsamples, list(auxmetadata = auxmetadata)),
+  saveRDS(c(mcsamples, list(auxmetadata = auxmetadata, nchains=nchains)),
           file = file.path(dirname,
                            paste0('Fdistribution', dashnameroot, '.rds')
   ))
