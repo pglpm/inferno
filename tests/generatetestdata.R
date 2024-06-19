@@ -1,5 +1,5 @@
 set.seed(16)
-ndata <- 15
+ndata <- 150# 15
 ## Adding NAs in different places
 ## to check that missing data are handled correctly
 
@@ -39,7 +39,7 @@ Ndata2[9] <- NA
 
 ##
 testdata <- data.table(Rvrt=Rdata,Cvrt=Cdata,Dvrt=Ddata,Ovrt=Odata,Nvrt=Ndata,Bvrt=Bdata,Pvrt=Pdata,Nvrt2=Ndata2)
-fwrite(testdata, 'testdata.csv')
+fwrite(testdata, paste0('testdata_', ndata, '.csv'))
 
 metadata <- list(
     name=c('Rvrt', 'Cvrt', 'Dvrt','Ovrt','Nvrt','Bvrt','Pvrt','Nvrt2'),
