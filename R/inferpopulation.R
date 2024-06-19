@@ -1052,8 +1052,8 @@ inferpopulation <- function(data, metadata, outputdir, nsamples = 1200,
     }
 
 #### Compile Monte Carlo sampler
-    mcsampler <- buildMCMC(confnimble)
     print(confnimble)
+    mcsampler <- buildMCMC(confnimble)
     ## print(confnimble$getUnsampledNodes())
     Cmcsampler <- compileNimble(mcsampler, resetFunctions = TRUE)
 
