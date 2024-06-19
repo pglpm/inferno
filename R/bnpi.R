@@ -11,6 +11,7 @@ loadNamespace('nimble')
 ## Main functions
 source('buildmetadata.R')
 source('inferpopulation.R')
+## source('__orig_inferpopulation.R') # original version, for debugging
 source('samplesFDistribution.R')
 source('plotFsamples.R')
 

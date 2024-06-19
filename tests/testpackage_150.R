@@ -17,13 +17,13 @@ testdir <- file.path('..', 'tests')
 
 refdir <- file.path(testdir,
                     ## 'reference_packagetest_seed16_240601T0912-V8-D15-K64-S120')
-                 'reference_packagetest_seed16-V8-D15-K64-S120')
+                 'reference_packagetest_seed16-V8-D150-K64-S120')
 
 seed <- 16
 
 outputdirPrefix <- file.path(testdir,'__packagetest')
 
-currenttestdir <- inferpopulation(data = file.path(testdir, 'testdata.csv'),
+currenttestdir <- inferpopulation(data = file.path(testdir, 'testdata_150.csv'),
                         metadata = file.path(testdir, 'metatestdata.csv'),
                         outputdir = outputdirPrefix,
                         output = 'directory',

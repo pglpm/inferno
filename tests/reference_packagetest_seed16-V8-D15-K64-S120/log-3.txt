@@ -1,4 +1,4 @@
-Log core 1 - Current time: 2024-06-19 14:23:11
+Log core 3 - Current time: 2024-06-19 14:20:32
 Defining model
 Building model
 Setting data and initial values
@@ -38,13 +38,13 @@ conjugate sampler (1153)
   - Ovar[]  (64 elements)
   - Nprob[]  (128 multivariate elements)
   - W[1:64] 
-categorical sampler (151)
+categorical sampler (16)
   - Alpha
-  - K[]  (150 elements)
-RW sampler (372)
-  - Clat[]  (74 elements)
-  - Dlat[]  (149 elements)
-  - Olat[]  (149 elements)
+  - K[]  (15 elements)
+RW sampler (37)
+  - Clat[]  (9 elements)
+  - Dlat[]  (14 elements)
+  - Olat[]  (14 elements)
 ===== Comments =====
   [Note] Additional downstream predictive nodes are also being sampled by posterior_predictive sampler.
   [Note] Reordering posterior_predictive samplers to execute last
@@ -52,9 +52,9 @@ RW sampler (372)
 thin = 1: Bprob, Cmean, Cvar, Dmean, Dvar, Nprob, Omean, Ovar, Rmean, Rvar, W
 thin2 = 1: K
 ===== Samplers =====
-slice sampler (151)
+slice sampler (16)
   - Alpha
-  - K[]  (150 elements)
+  - K[]  (15 elements)
 posterior_predictive sampler (8)
   - Ndata[]  (2 elements)
   - Bdata[]  (1 element)
@@ -78,110 +78,110 @@ conjugate sampler (1153)
   - Ovar[]  (64 elements)
   - Nprob[]  (128 multivariate elements)
   - W[1:64] 
-RW sampler (372)
-  - Clat[]  (74 elements)
-  - Dlat[]  (149 elements)
-  - Olat[]  (149 elements)
+RW sampler (37)
+  - Clat[]  (9 elements)
+  - Dlat[]  (14 elements)
+  - Olat[]  (14 elements)
 ===== Comments =====
   [Note] Additional downstream predictive nodes are also being sampled by posterior_predictive sampler.
 Compiling
   [Note] This may take a minute.
   [Note] Use 'showCompilerOutput = TRUE' to see C++ compilation details.
 
-Setup time 1.3 mins 
+Setup time 43 secs 
 
-Chain # 1 (chain 1 of 3 for this core)
+Chain # 7 (chain 1 of 3 for this core)
 Iterations: 1024 
 |-------------|-------------|-------------|-------------|
 |-------------------------------------------------------|
 
-Current time: 2024-06-19 14:25:00
-MCMC time 28 secs 
+Current time: 2024-06-19 14:21:19
+MCMC time 3.9 secs 
 
 OCCUPIED CLUSTERS: 1 OF 64 
 
-ESSs: 407, 186, 289
-IATs: 3, 2, 1
-BMKs: 0.12, 0.121, 0.114
-MCSEs: 5.84, 6.34, 5.28
+ESSs: 35, 38, 19
+IATs: 2, 6, 4
+BMKs: 0.162, 0.227, 0.062
+MCSEs: 7.53, 11.69, 8.43
 Stationary: FALSE, FALSE, FALSE
 Burn-in I: 0, 0, 0
 Burn-in II: 0
-Proposed thinning: 5, 6, 1 
+Proposed thinning: 3, 30, 30 
 
-Diagnostics time 0.51 secs 
+Diagnostics time 0.41 secs 
 
-Number of iterations 1024 , required 108 
+Number of iterations 1024 , required 540 
 
-Keeping last 10 samples with thinning 12 
+Keeping last 10 samples with thinning 60 
 
 Plotting traces and samples.
 
 Plotting MCMC traces
-Current time: 2024-06-19 14:25:01
-MCMC + diagnostics time 29 secs 
+Current time: 2024-06-19 14:21:20
+MCMC + diagnostics time 5.4 secs 
 
-Chain # 2 (chain 2 of 3 for this core)
+Chain # 8 (chain 2 of 3 for this core)
 Iterations: 1024 
 |-------------|-------------|-------------|-------------|
 |-------------------------------------------------------|
 
-Current time: 2024-06-19 14:25:29
-MCMC time 57 secs 
+Current time: 2024-06-19 14:21:24
+MCMC time 9.2 secs 
 
 OCCUPIED CLUSTERS: 1 OF 64 
 
-ESSs: 1024, 222, 1024
-IATs: 1, 3, 1
-BMKs: 0.097, 0.16, 0.061
-MCSEs: 3.81, 6.42, 3.18
-Stationary: FALSE, FALSE, TRUE
+ESSs: 54, 139, 94
+IATs: 2, 7, 2
+BMKs: 0.2, 0.101, 0.172
+MCSEs: 7.74, 8.49, 7.02
+Stationary: FALSE, TRUE, FALSE
 Burn-in I: 0, 0, 0
 Burn-in II: 0
-Proposed thinning: 1, 5, 1 
+Proposed thinning: 18, 20, 6 
 
-Diagnostics time 0.28 secs 
+Diagnostics time 0.21 secs 
 
-Number of iterations 1024 , required 90 
+Number of iterations 1024 , required 360 
 
-Keeping last 10 samples with thinning 10 
+Keeping last 10 samples with thinning 40 
 
 Plotting traces and samples.
 
 Plotting MCMC traces
-Current time: 2024-06-19 14:25:30
-MCMC + diagnostics time 58 secs 
+Current time: 2024-06-19 14:21:25
+MCMC + diagnostics time 10 secs 
 
-Chain # 3 (chain 3 of 3 for this core)
+Chain # 9 (chain 3 of 3 for this core)
 Iterations: 1024 
 |-------------|-------------|-------------|-------------|
 |-------------------------------------------------------|
 
-Current time: 2024-06-19 14:25:58
-MCMC time 1.4 mins 
+Current time: 2024-06-19 14:21:29
+MCMC time 14 secs 
 
 OCCUPIED CLUSTERS: 1 OF 64 
 
-ESSs: 1024, 263, 649
-IATs: 1, 2, 1
-BMKs: 0.085, 0.136, 0.083
-MCSEs: 3.84, 6.47, 3.56
-Stationary: FALSE, FALSE, TRUE
+ESSs: 659, 105, 929
+IATs: 1, 4, 1
+BMKs: 0.136, 0.235, 0.102
+MCSEs: 4.6, 8.32, 3.82
+Stationary: FALSE, TRUE, TRUE
 Burn-in I: 0, 0, 0
 Burn-in II: 0
-Proposed thinning: 1, 5, 1 
+Proposed thinning: 1, 30, 1 
 
-Diagnostics time 0.23 secs 
+Diagnostics time 0.21 secs 
 
-Number of iterations 1024 , required 90 
+Number of iterations 1024 , required 540 
 
-Keeping last 10 samples with thinning 10 
+Keeping last 10 samples with thinning 60 
 
 Plotting traces and samples.
 
 Plotting MCMC traces
-Current time: 2024-06-19 14:25:59
-MCMC + diagnostics time 1.5 mins 
+Current time: 2024-06-19 14:21:30
+MCMC + diagnostics time 15 secs 
 
-Current time: 2024-06-19 14:25:59
-Total time 1.5 mins 
+Current time: 2024-06-19 14:21:30
+Total time 15 secs 
