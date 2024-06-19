@@ -16,7 +16,7 @@ source('bnpi.R')
 testdir <- file.path('..', 'tests')
 
 refdir <- file.path(testdir,
-                 'reference_packagetest_seed16_240601T0912-V8-D15-K64-S120')
+                 'reference_packagetest_seed16-V8-D15-K64-S120')
 
 seed <- 16
 
@@ -43,6 +43,13 @@ print(identical(
   readRDS(file.path(refdir,'Fdistribution.rds'))
 ))
 
+#### Test whether MCtraces output is identical
+cat('\nVerifying equality of "MCtraces.rds" (TRUE = passed):\n')
+print(identical(
+  readRDS(file.path(currenttestdir,'MCtraces.rds')),
+  readRDS(file.path(refdir,'MCtraces.rds'))
+))
+
 #### Test whether computation log-1 is identical
 ## remove lines containing diagnostic times, as they can vary
 cat('\nVerifying equality of "log-1" (TRUE = passed):\n')
@@ -56,4 +63,3 @@ print(identical(currentfile, reffile))
 #### return to original directory, in case called with 'source'
 cat('\nSwitching to original directory\n')
 setwd(startdir)
-
