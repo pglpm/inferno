@@ -1664,7 +1664,8 @@ inferpopulation <- function(data, metadata, outputdir, nsamples = 1200,
 
   ## funMCSE <- function(x){LaplacesDemon::MCSE(x, method='batch.means')$se}
   diagnESS <- LaplacesDemon::ESS(traces)
-  cat('\nEffective sample size:', round(max(diagnESS, na.rm = TRUE)), '\n')
+  cat('\nEFFECTIVE SAMPLE SIZE > ', nchains,
+      '(estim.: ', round(max(diagnESS, na.rm = TRUE)), ')\n')
 
   ## ## Commented, but we may reconsider displaying this
   ## diagnIAT <- apply(traces, 2, function(x){LaplacesDemon::IAT(x)})
@@ -1706,7 +1707,8 @@ inferpopulation <- function(data, metadata, outputdir, nsamples = 1200,
           col = 1:6, # to evidence consecutive chains
           ## col = colpalette[avar], # original, one color per trace
       main = paste0(
-        'Effective sample size: ', signif(diagnESS[avar], 3)
+        'Effective sample size > ', nchains,
+        ' (estimated: ', signif(diagnESS[avar], 3), ')'
         ##             ' | IAT = ', signif(diagnIAT[avar], 3),
         ##             ' | BMK = ', signif(diagnBMK[avar], 3),
         ##             ' | MCSE = ', signif(diagnMCSE[avar], 3),
