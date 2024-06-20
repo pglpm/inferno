@@ -1691,16 +1691,20 @@ inferpopulation <- function(data, metadata, outputdir, nsamples = 1200,
   cat('\nPlotting final Monte Carlo traces.\n')
 
   ##
-  colpalette <- seq_len(ncol(traces))
-  names(colpalette) <- colnames(traces)
+  ## colpalette <- seq_len(ncol(traces))
+  ## names(colpalette) <- colnames(traces)
   graphics.off()
   pdff(file.path(dirname,
                  paste0('MCtraces', dashnameroot)
                  ), apaper = 4)
   ## Traces of likelihood and cond. probabilities
   for (avar in colnames(traces)) {
-    tplot(
-      y = traces[, avar], type = 'l', lty = 1, col = colpalette[avar],
+    ## Do not join separate chains in the plot
+    tplot(x = matrix(seq_len(nsamples), ncol = nchains),
+          y = matrix(traces[, avar], ncol = nchains),
+          type = 'l', lty = 1,
+          col = 1:6, # to evidence consecutive chains
+          ## col = colpalette[avar], # original, one color per trace
       main = paste0(
         'Effective sample size: ', signif(diagnESS[avar], 3)
         ##             ' | IAT = ', signif(diagnIAT[avar], 3),
