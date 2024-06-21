@@ -1358,7 +1358,7 @@ inferpopulation <- function(data, metadata, outputdir, nsamples = 1200,
       #########################################
       #### SAVE CHAIN ####
       #########################################
-      
+
       ## tokeep <- seq(to=nrow(allmcsamples), length.out=nsamplesperchain, by=max(thinning,multcorr*ceiling(max(diagnIAT,diagnThin)), na.rm=TRUE))
       ## allmcsamples <- allmcsamples[tokeep,,drop=FALSE]
       ## ##
