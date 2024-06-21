@@ -608,9 +608,6 @@ inferpopulation <- function(data, metadata, outputdir, nsamples = 1200,
       ##     sink(outcon,type='message')
       ## }
 
-    ## Parameter and function to test MCMC convergence
-
-
     #### CLUSTER REPRESENTATION OF FREQUENCY SPACE
 
     ## hierarchical probability structure
