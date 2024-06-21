@@ -13,7 +13,7 @@
 #' @param niterini, Number of initial MC iterations
 #' @param miniter, Minimum number of MC iterations after every check
 #' @param maxiter, Maximum number of MC iterations
-#' @param thinning If zero or negative, let the diagnostics decide the MC thinning; if positive, use this thinning value
+#' @param thinning If NULL, let the diagnostics decide the MC thinning; if positive, use this thinning value
 #' @param plottraces Bool: plot MC traces of diagnostic values
 #' @param showKtraces Bool, when true, it saves the K parameter during
 #'   sampling and plots its trace and histogram at the end. Keeping it to
@@ -39,7 +39,7 @@ inferpopulation <- function(data, metadata, outputdir, nsamples = 1200,
                             appendtimestamp = TRUE, appendinfo = TRUE,
                             subsampledata = NULL, output = 'directory',
                             niterini = 1024, miniter = 0, maxiter = +Inf,
-                            thinning = 0, plottraces = TRUE,
+                            thinning = NULL, plottraces = TRUE,
                             showKtraces = FALSE, showAlphatraces = FALSE,
                             loglikelihood = FALSE, useOquantiles = FALSE) {
 
@@ -143,6 +143,11 @@ inferpopulation <- function(data, metadata, outputdir, nsamples = 1200,
          "nsamplesperchain"')
   }
 
+  if (is.numeric(thinning) && thinning > 0) {
+    thinning <- ceiling(thinning)
+  } else if (!is.null(thinning)) {
+    stop('Invalid "thinning" argument.')
+  }
 
   ## Parallellisation if more than one core
   ## Done now in case ncores was reduced because of nchains argument
@@ -581,6 +586,8 @@ inferpopulation <- function(data, metadata, outputdir, nsamples = 1200,
       source('util_proposeburnin.R')
       source('util_proposethinning.R')
       source('util_mcsubset.R')
+      source('util_thresholdfn.R')
+
 
       ## Function for diagnostics
       ## it corrects a little bug in LaplacesDemon::MCSE
@@ -602,30 +609,7 @@ inferpopulation <- function(data, metadata, outputdir, nsamples = 1200,
       ## }
 
     ## Parameter and function to test MCMC convergence
-      if (thinning <= 0) {
-        multcorr <- 2L
-        thinning <- 1L
-        ## Extra arguments for future use
-        thresholdfn <- function(diagnESS, diagnIAT, diagnBMK, diagnMCSE,
-                                diagnStat, diagnBurn, diagnBurn2, diagnThin) {
-          ceiling(2 * max(diagnBurn2) +
-                  ((nsamplesperchain - 1L) * multcorr *
-                   ceiling(max(diagnIAT, diagnThin))))
-        }
-      } else if (thinning > 0) {
-        ## These two options do exactly the same thing
-        ## recheck what was the reasoning here...
-      multcorr <- (-2L)
-      thresholdfn <- function(diagnESS, diagnIAT, diagnBMK, diagnMCSE,
-                              diagnStat, diagnBurn, diagnBurn2, diagnThin) {
-        ceiling(2 * max(diagnBurn2) +
-                  ((nsamplesperchain - 1L) * (-multcorr) *
-                     ceiling(max(diagnIAT, diagnThin))))
-      }
-      thinning <- ceiling(thinning)
-    } else {
-      stop('Invalid "thinning" argument.')
-    }
+
 
     #### CLUSTER REPRESENTATION OF FREQUENCY SPACE
 
@@ -1101,10 +1085,10 @@ inferpopulation <- function(data, metadata, outputdir, nsamples = 1200,
       ## if(achain == 1){
       ##   niter <- niterini
       ## }else{
-      ##  niter <- max(min(niterini,lengthmeasure*2), 128)
+      ##  niter <- max(min(niterini,requirediter*2), 128)
       ##  }
       nitertot <- 0
-      lengthmeasure <- +Inf
+      requirediter <- +Inf
       reset <- TRUE
       traces <- NULL
       allmcsamples <- NULL
@@ -1129,7 +1113,7 @@ inferpopulation <- function(data, metadata, outputdir, nsamples = 1200,
 
       #### WHILE LOOP CONTINUING UNTIL CONVERGENCE
       subiter <- 1L
-      while (nitertot < lengthmeasure) {
+      while (nitertot < requirediter) {
         cat('Iterations:', niter, '\n')
 
         #### MONTE-CARLO CALL
@@ -1346,19 +1330,23 @@ inferpopulation <- function(data, metadata, outputdir, nsamples = 1200,
         ##########################################
         #### CHECK IF CHAIN MUST BE CONTINUED ####
         ##########################################
-        lengthmeasure <- max(miniter, min(
-              maxiter,
-              thresholdfn(diagnESS=diagnESS, diagnIAT=diagnIAT,
-                          diagnBMK=diagnBMK, diagnMCSE=diagnMCSE,
-                          diagnStat=diagnStat, diagnBurn=diagnBurn,
-                          diagnBurn2=diagnBurn2, diagnThin=diagnThin) ) )
 
+        calcIterThinning <- thresholdfn(nsamplesperchain = nsamplesperchain,
+                                        thinning=thinning,
+                                        diagnESS=diagnESS, diagnIAT=diagnIAT,
+                                        diagnBMK=diagnBMK, diagnMCSE=diagnMCSE,
+                                        diagnStat=diagnStat, diagnBurn=diagnBurn,
+                                        diagnBurn2=diagnBurn2, diagnThin=diagnThin)
 
-        cat('\nNumber of iterations', nitertot, ', required', lengthmeasure, '\n')
+        requirediter <- max(miniter,
+                             min(maxiter, calcIterThinning$iter))
+        currentthinning <- calcIterThinning$thinning
+
+        cat('\nNumber of iterations', nitertot, ', required', requirediter, '\n')
         ##
-        if (nitertot < lengthmeasure) {
+        if (nitertot < requirediter) {
           ## limit number of iterations per loop, to save memory
-          niter <- min(lengthmeasure - nitertot + 1L, niterini)
+          niter <- min(requirediter - nitertot + 1L, niterini)
           subiter <- subiter + 1L
           cat(
             '\nChain #', chainnumber, '- chunk', subiter,
@@ -1381,13 +1369,11 @@ inferpopulation <- function(data, metadata, outputdir, nsamples = 1200,
       ## ## rm(allmcsamples)
 
       cat('\nKeeping last', nsamplesperchain, 'samples with thinning',
-          max(thinning, multcorr * ceiling(max(diagnIAT, diagnThin)),
-              na.rm = TRUE), '\n')
+          currentthinning, '\n')
 
-      tokeep <- seq(to = ncol(allmcsamples$W), length.out = nsamplesperchain,
-                    by = max(thinning,
-                             multcorr * ceiling(max(diagnIAT, diagnThin)),
-                             na.rm = TRUE))
+      tokeep <- seq(to = ncol(allmcsamples$W),
+                    length.out = nsamplesperchain,
+                    by = currentthinning)
 
       saveRDS(mcsubset(allmcsamples, tokeep),
               file = file.path(dirname,
