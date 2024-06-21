@@ -1585,8 +1585,11 @@ inferpopulation <- function(data, metadata, outputdir, nsamples = 1200,
 #### END OF FOREACH-LOOP OVER CORES
 ############################################################
   ## Close output to log files
-  suppressWarnings(sink())
-  suppressWarnings(sink(NULL, type = 'message'))
+  sink()
+  sink(NULL, type = 'message')
+  ## ## 'supplessWarnings' doesn't seem to be necessary; check on Windows
+  ## suppressWarnings(sink())
+  ## suppressWarnings(sink(NULL, type = 'message'))
 
   maxusedclusters <- max(chaininfo[, 1])
   nonfinitechains <- sum(chaininfo[, 2])
