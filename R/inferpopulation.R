@@ -586,7 +586,7 @@ inferpopulation <- function(data, metadata, outputdir, nsamples = 1200,
       source('util_proposeburnin.R')
       source('util_proposethinning.R')
       source('util_mcsubset.R')
-      source('util_thresholdfn.R')
+      source('util_mcmclength.R')
 
 
       ## Function for diagnostics
@@ -1328,12 +1328,12 @@ inferpopulation <- function(data, metadata, outputdir, nsamples = 1200,
         #### CHECK IF CHAIN MUST BE CONTINUED ####
         ##########################################
 
-        calcIterThinning <- thresholdfn(nsamplesperchain = nsamplesperchain,
-                                        thinning=thinning,
-                                        diagnESS=diagnESS, diagnIAT=diagnIAT,
-                                        diagnBMK=diagnBMK, diagnMCSE=diagnMCSE,
-                                        diagnStat=diagnStat, diagnBurn=diagnBurn,
-                                        diagnBurn2=diagnBurn2, diagnThin=diagnThin)
+        calcIterThinning <- mcmclength(nsamplesperchain = nsamplesperchain,
+                                       thinning=thinning,
+                                       diagnESS=diagnESS, diagnIAT=diagnIAT,
+                                       diagnBMK=diagnBMK, diagnMCSE=diagnMCSE,
+                                       diagnStat=diagnStat, diagnBurn=diagnBurn,
+                                       diagnBurn2=diagnBurn2, diagnThin=diagnThin)
 
         requirediter <- max(miniter,
                              min(maxiter, calcIterThinning$iter))

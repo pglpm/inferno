@@ -1,5 +1,5 @@
 ## Function for calculating total number of needed MCMC iterations
-thresholdfn <- function(nsamplesperchain, thinning,
+mcmclength <- function(nsamplesperchain, thinning,
                         diagnESS, diagnIAT, diagnBMK, diagnMCSE,
                         diagnStat, diagnBurn, diagnBurn2, diagnThin) {
   ## This function uses (or can potentially use) various diagnostics from

@@ -22,7 +22,7 @@ source('util_vtransform.R')
 source('util_mcsubset.R')
 source('util_proposethinning.R')
 source('util_proposeburnin.R')
-source('util_thresholdfn.R')
+source('util_mcmclength.R')
 
 ## These are not needed in normal use,
 ## but may be needed for further development
