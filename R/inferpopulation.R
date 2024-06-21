@@ -348,9 +348,9 @@ inferpopulation <- function(data, metadata, outputdir, nsamples = 1200,
   }
   ## We need to send some messages to the log files, others to the user.
   ## This is done by changing output sink:
-  printnull <- function(message, outcon) {
+  print2user <- function(msg, outcon) {
     sink(NULL, type = 'message')
-    message(message, appendLF = FALSE)
+    message(msg, appendLF = FALSE)
     flush.console()
     sink(outcon, type = 'message')
   }
@@ -594,7 +594,7 @@ inferpopulation <- function(data, metadata, outputdir, nsamples = 1200,
 
       ## ## Not needed?
       ## printtime <- function(tim){paste0(signif(tim,2),' ',attr(tim,'units'))}
-      ## printnull <- function(message, outcon){
+      ## print2user <- function(message, outcon){
       ##     sink(NULL,type='message')
       ##     message(message, appendLF=FALSE)
       ##     flush.console()
@@ -1061,7 +1061,7 @@ inferpopulation <- function(data, metadata, outputdir, nsamples = 1200,
 
     ## Inform user that compilation is done, if core 1:
     if (acore == 1) {
-      printnull(paste0('\rCompiled core ', acore,
+      print2user(paste0('\rCompiled core ', acore,
                        '. Estimating remaining time, please be patient...'),
                 outcon)
     }
@@ -1175,7 +1175,7 @@ inferpopulation <- function(data, metadata, outputdir, nsamples = 1200,
         ##                 toRemove <- which(!is.finite(mcsamples), arr.ind=TRUE)
         ##                 ##
         ##                 if(length(toRemove) > 0){
-        ##                     printnull('\nWARNING: SOME NON-FINITE OUTPUTS\n', outcon)
+        ##                     print2user('\nWARNING: SOME NON-FINITE OUTPUTS\n', outcon)
         ##                     ##
         ##                     flagmc <- TRUE
         ##                     allflagmc <- TRUE
@@ -1207,7 +1207,7 @@ inferpopulation <- function(data, metadata, outputdir, nsamples = 1200,
           ))
           if (length(toRemove) == ncol(mcsamples$W)) {
             cat('\n...TOO MANY NON-FINITE OUTPUTS!\n')
-            ## printnull('\n...TOO MANY NON-FINITE OUTPUTS!\n', outcon)
+            ## print2user('\n...TOO MANY NON-FINITE OUTPUTS!\n', outcon)
             ## suppressWarnings(sink())
             ## suppressWarnings(sink(NULL,type='message'))
             ## ## registerDoSEQ()
@@ -1561,7 +1561,7 @@ inferpopulation <- function(data, metadata, outputdir, nsamples = 1200,
       #### Print estimated remaining time
       remainingTime <- (Sys.time() - starttime) / achain * (nchainspercore - achain + 1)
       if (is.finite(remainingTime) && remainingTime > 0) {
-        printnull(
+        print2user(
           paste0(
             '\rSampling. Core ', acore, ' estimated remaining time: ',
             printtime(remainingTime),

@@ -36,6 +36,10 @@ currenttestdir <- inferpopulation(data = file.path(testdir, 'testdata.csv'),
                         cleanup = FALSE, # parallel = 4,
                         seed = seed)
 
+## Close connections to cores
+stopCluster(mycluster)
+
+
 #### Test whether Fdistribution output is identical
 cat('\nVerifying equality of "Fdistribution.rds" (TRUE = passed):\n')
 print(identical(
