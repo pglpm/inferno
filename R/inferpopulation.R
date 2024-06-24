@@ -1170,12 +1170,13 @@ inferpopulation <- function(data, metadata, outputdir, nsamples = 1200,
         ##                         mcsamples <- mcsamples[-unique(toRemove[,1]),,drop=FALSE]
         ##                     }
         ##                 }
-        #### Remove iterations with non-finite values
-        toRemove <- sort(unique(unlist(lapply(mcsamples, function(xx) {
-          temp <- which(is.na(xx), arr.ind = TRUE)
-          temp[, ncol(temp)]
-        }))))
-        if (length(toRemove) > 0) {
+#### Remove iterations with non-finite values
+        if(any(!is.finite(unlist(mcsamples)))) {
+          toRemove <- sort(unique(unlist(lapply(mcsamples, function(xx) {
+            temp <- which(!is.finite(xx), arr.ind = TRUE)
+            temp[, ncol(temp)]
+          }))))
+
           cat('\nWARNING:', length(toRemove), 'NON-FINITE SAMPLES\n')
           ##
           flagmc <- TRUE
@@ -1257,36 +1258,40 @@ inferpopulation <- function(data, metadata, outputdir, nsamples = 1200,
         }
         ##
         traces <- rbind(traces, 10 / log(10) * ll)
+
         toRemove <- which(!is.finite(traces), arr.ind = TRUE)
         if (length(toRemove) > 0) {
           flagll <- TRUE
-          traces <- traces[-unique(toRemove[, 1]), , drop = FALSE]
+          cleantraces <- traces[-unique(toRemove[, 1]), , drop = FALSE]
+        } else {
+          cleantraces <- traces
         }
         ##
-        diagnESS <- LaplacesDemon::ESS(traces)
+        diagnESS <- LaplacesDemon::ESS(cleantraces)
         cat('\nESSs:', paste0(round(diagnESS), collapse = ', '))
-        diagnIAT <- apply(traces, 2, function(x) {
+        diagnIAT <- apply(cleantraces, 2, function(x) {
           LaplacesDemon::IAT(x)
         })
         cat('\nIATs:', paste0(round(diagnIAT), collapse = ', '))
-        diagnBMK <- LaplacesDemon::BMK.Diagnostic(traces[1:(4 * trunc(nrow(traces) / 4)), ], batches = 4)[, 1]
+        diagnBMK <- LaplacesDemon::BMK.Diagnostic(cleantraces[1:(4 * trunc(nrow(cleantraces) / 4)), ], batches = 4)[, 1]
         cat('\nBMKs:', paste0(round(diagnBMK, 3), collapse = ', '))
-        diagnMCSE <- 100 * apply(traces, 2, function(x) {
+        diagnMCSE <- 100 * apply(cleantraces, 2, function(x) {
           funMCSE(x) / sd(x)
         })
         cat('\nMCSEs:', paste0(round(diagnMCSE, 2), collapse = ', '))
-        diagnStat <- apply(traces, 2, function(x) {
+        diagnStat <- apply(cleantraces, 2, function(x) {
           LaplacesDemon::is.stationary(as.matrix(x, ncol = 1))
         })
         cat('\nStationary:', paste0(diagnStat, collapse = ', '))
-        diagnBurn <- apply(traces, 2, function(x) {
+        diagnBurn <- apply(cleantraces, 2, function(x) {
           LaplacesDemon::burnin(matrix(x[1:(10 * trunc(length(x) / 10))], ncol = 1))
         })
         cat('\nBurn-in I:', paste0(diagnBurn, collapse = ', '))
-        diagnBurn2 <- proposeburnin(traces, batches = 10)
+        diagnBurn2 <- proposeburnin(cleantraces, batches = 10)
         cat('\nBurn-in II:', diagnBurn2)
-        diagnThin <- proposethinning(traces)
+        diagnThin <- proposethinning(cleantraces)
         cat('\nProposed thinning:', paste0(diagnThin, collapse = ', '), '\n')
+        rm(cleantraces)
 
         cat('\nDiagnostics time', printtime(Sys.time() - diagntime), '\n')
 
@@ -1376,8 +1381,8 @@ inferpopulation <- function(data, metadata, outputdir, nsamples = 1200,
               file = file.path(dirname,
                                paste0('_mcsamples',
                                       dashnameroot, '--',
-                                      padchainnumber, '.rds')
-                               ))
+                                      padchainnumber, '.rds'))
+                               )
       rm(allmcsamples)
       ## nitertot <- ncol(allmcsamples$W)
 
@@ -1497,7 +1502,8 @@ inferpopulation <- function(data, metadata, outputdir, nsamples = 1200,
         par(mfrow = c(1, 1))
         for (avar in colnames(traces)) {
           tplot(
-            y = traces[, avar], type = 'l', lty = 1, col = colpalette[avar],
+            y = traces[is.finite(traces[, avar]), avar],
+            type = 'l', lty = 1, col = colpalette[avar],
             main = paste0(
               'ESS = ', signif(diagnESS[avar], 3),
               ' | IAT = ', signif(diagnIAT[avar], 3),
@@ -1563,16 +1569,13 @@ inferpopulation <- function(data, metadata, outputdir, nsamples = 1200,
     cat('\nTotal time', printtime(Sys.time() - starttime), '\n')
 
     cbind(maxusedclusters, allflagmc)
-  }
+    }
 ############################################################
 #### END OF FOREACH-LOOP OVER CORES
 ############################################################
   ## Close output to log files
-  sink()
-  sink(NULL, type = 'message')
-  ## ## 'supplessWarnings' doesn't seem to be necessary; check on Windows
-  ## suppressWarnings(sink())
-  ## suppressWarnings(sink(NULL, type = 'message'))
+  suppressWarnings(sink())
+  suppressWarnings(sink(NULL, type = 'message'))
 
   maxusedclusters <- max(chaininfo[, 1])
   nonfinitechains <- sum(chaininfo[, 2])
@@ -1689,7 +1692,7 @@ inferpopulation <- function(data, metadata, outputdir, nsamples = 1200,
     ## Do not join separate chains in the plot
     tplot(x = matrix(seq_len(nsamples), ncol = nchains),
           y = matrix(traces[, avar], ncol = nchains),
-          type = 'l', lty = 1,
+          type = (if(nrow(traces) > nchains) {'l'} else {'b'}), lty = 1,
           col = 1:6, # to evidence consecutive chains
           ## col = colpalette[avar], # original, one color per trace
       main = paste0(
