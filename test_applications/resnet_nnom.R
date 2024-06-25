@@ -84,7 +84,7 @@ for(datum in seq_along(testpoints)){
   lty = 1, # solid lines
   lwd = 1, # thin
   col = 7, # grey
-  alpha = 0.8
+  alpha = 0.5
 ) # quite transparent
 ##
 ## plot P(Y|X)
