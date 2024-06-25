@@ -180,8 +180,8 @@ inferpopulation <- function(data, metadata, outputdir, nsamples = 1200,
   if (missing(data) || is.null(data) || (is.logical(data) && data == FALSE)) {
     message('Missing data: calculating prior distribution')
     data <- data.table::as.data.table(
-                          matrix(NA, nrow = 1, ncol = nrow(auxmetadata),
-                                 dimnames = list(NULL, auxmetadata[['name']]))
+                          matrix(NA, nrow = 1, ncol = nrow(metadata),
+                                 dimnames = list(NULL, metadata[['name']]))
                         )
     ## When no data present, Monte Carlo sampling is exact
     ## No need to calculate loglikelihood
@@ -1690,9 +1690,10 @@ inferpopulation <- function(data, metadata, outputdir, nsamples = 1200,
   ## Traces of likelihood and cond. probabilities
   for (avar in colnames(traces)) {
     ## Do not join separate chains in the plot
-    tplot(x = matrix(seq_len(nsamples), ncol = nchains),
-          y = matrix(traces[, avar], ncol = nchains),
-          type = (if(nrow(traces) > nchains) {'l'} else {'b'}), lty = 1,
+    division <- (if(nrow(traces) > nchains) nchains else 1)
+    tplot(x = matrix(seq_len(nsamples), ncol = division),
+          y = matrix(traces[, avar], ncol = division),
+          type = 'l', lty = 1,
           col = 1:6, # to evidence consecutive chains
           ## col = colpalette[avar], # original, one color per trace
       main = paste0(

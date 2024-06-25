@@ -26,7 +26,7 @@ source('bnpi.R')
 
 ## buildmetadata(data=dat, file='../test_applications/metadata_n_M', backup_files = F)
 
-metadatafile <- "../test_applications/metadata_n_M.csv"
+metadatafile <- "../test_applications/metadata_n.csv"
 ##
 set.seed(16)
 ntrain <- 100
@@ -35,58 +35,117 @@ trainpoints <- sort(sample(1:nrow(dat), ntrain))
 stopparallel()
 startparallel(4)
 ##
-outputdir <- file.path('..', 'test_applications', '_resnet_nM')
+outputdir <- file.path('..', 'test_applications', '_resnet_n')
 mcoutput <- inferpopulation(data = dat[trainpoints,],
                            metadata = metadatafile,
                            outputdir = outputdir,
-                           nsamples = 6, nchains = 6, parallel=2,
+                           nsamples = 120, nchains = 120,
                            appendtimestamp = FALSE,
                            appendinfo = FALSE, cleanup = FALSE)
+
+ndomain <- seq(0, 8, by=2)
+nprior <- rep(1/length(ndomain), length(ndomain))
+Xcols <- paste0('Output_class_', 0:5)
+
+ntest <- 100
+testpoints <- sort(sample(setdiff(1:nrow(dat), trainpoints), ntest))
+
 stopparallel()
+startparallel(4)
+nlikelihood <- samplesFDistribution(Y = dat[testpoints,Xcols],
+                                    X = cbind(n=rep(ndomain,
+                                                    each=length(testpoints))),
+                                    mcoutput = mcoutput)
 
+dim(nlikelihood) <- c(ntest, length(ndomain),
+                      prod(dim(nlikelihood))/(ntest*length(ndomain)))
 
-mctraces <- readRDS('/home/pglpm/repositories/bayes_nonparametric_inference/test_applications/_resnet_nM/MCtraces.rds')
+nposterior <- apply(nlikelihood, c(1,3), function(x){
+  x <- x*nprior
+  x/sum(x)
+})
 
-  traces <- mctraces[apply(mctraces, 1, function(x) { all(is.finite(x)) }), ]
-
-
-
-nfmc <- readRDS('/home/pglpm/repositories/bayes_nonparametric_inference/test_applications/_resnet_nM/NONFINITEmcsamples--6_3-2-i0.rds')
-
-allmcsamples <- readRDS('/home/pglpm/repositories/bayes_nonparametric_inference/test_applications/_resnet_nM/test_allmcsamples--06.rds')
-
-tokeep <- readRDS('/home/pglpm/repositories/bayes_nonparametric_inference/test_applications/_resnet_nM/test_tokeep--06.rds')
-
-traces <- readRDS('/home/pglpm/repositories/bayes_nonparametric_inference/test_applications/_resnet_nM/test_traces--6.rds')
-
-
-test <- mcsubset(allmcsamples,tokeep)
-
-
-test <- readRDS('/home/pglpm/repositories/bayes_nonparametric_inference/test_applications/_resnet_nM/NONFINITEmcsamples--06_3-2-i0.rds')
-
-pdff('../test_applications/test')
-for(nam in names(test)){
-  if(grepl('mean', nam, fixed = TRUE)){
-    vrt <- test[[nam]]
-  }else{
-    vrt <- log10(test[[nam]])
-  }
-  if(length(dim(vrt)) > 2){
-    for(j in seq_len(dim(vrt)[1])){
-      tplot(x=1:(dim(vrt)[3]),
-            y=t(vrt[j,,]),
-            type='l', lwd=1, lty=1, col=7,
-            main=nam)
-    }
-  } else{
-      tplot(x=1:(dim(vrt)[2]),
-            y=t(vrt),
-            type='l', lwd=1, lty=1, col=7,
-            main=nam)
-  }
+pdff(file.path(outputdir, 'n_posterior'))
+for(datum in seq_along(testpoints)){
+  tplot(
+  x = ndomain, y = nposterior[,datum,],
+  xlab = 'n', ylab = 'probability',
+  ylim = c(0, 1),
+  lty = 1, # solid lines
+  lwd = 1, # thin
+  col = 7, # grey
+  alpha = 0.8
+) # quite transparent
+##
+## plot P(Y|X)
+tplot(
+  x = ndomain, y = rowMeans(nposterior[,datum,]),
+  type = 'b', # line+points
+  lty = 1, # solid
+  lwd = 3, # thicker
+  col = 1, # blue
+  add = T
+) # add to previous plot
+  truevalue <- dat[testpoints[datum], 'n']
+  text(
+    x = 2.5, y = 1, adj = 0.5,
+    labels = paste0(
+      'Datapoint ', testpoints[datum],
+      ' - True: ', truevalue
+    )
+  )
+  tplot(
+    x = dat[testpoints[datum], 'n'], y = 0,
+    type = 'p', pch = 2, col=2, add = T
+  )
 }
 dev.off()
 
+
+
+
+
+
+
+Y <- cbind(
+  Output_class_0 = +1,
+  Output_class_1 = -1,
+  Output_class_2 = -1,
+  Output_class_3 = -1,
+  Output_class_4 = -1,
+  Output_class_5 = -1
+)
+##
+stopparallel()
+startparallel(4)
+nlikelihood <- samplesFDistribution(Y = Y, X = cbind(n=ndomain),
+                                    mcoutput = mcoutput)
+##
+nprior <- rep(1, length(X))/length(X)
+nposterior <- nlikelihood * nprior
+##
+nposterior <- apply(nposterior, 2, function(x)x/sum(x))
+
+## plot samples first
+tplot(
+  x = ndomain, y = nposterior,
+  xlab = 'n', ylab = 'probability',
+  ylim = c(0, 1),
+  lty = 1, # solid lines
+  lwd = 1, # thin
+  col = 7, # grey
+  alpha = 0.8
+) # quite transparent
+##
+## plot P(Y|X)
+tplot(
+  x = ndomain, y = rowMeans(nposterior),
+  type = 'b', # line+points
+  lty = 1, # solid
+  lwd = 3, # thicker
+  col = 1, # blue
+  add = T
+) # add to previous plot
+dev.off() # close pdf
 
 
