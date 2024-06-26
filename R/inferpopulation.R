@@ -13,6 +13,7 @@
 #' @param niterini, Number of initial MC iterations
 #' @param miniter, Minimum number of MC iterations after every check
 #' @param maxiter, Maximum number of MC iterations
+#' @param prior, Bool: Calculate the prior distribution of F?
 #' @param thinning If NULL, let the diagnostics decide the MC thinning; if positive, use this thinning value
 #' @param plottraces Bool: plot MC traces of diagnostic values
 #' @param showKtraces Bool, when true, it saves the K parameter during
@@ -25,10 +26,13 @@
 #' @param seed Integer: seed for random number generator. If left as default
 #'   NULL, a random seed based on the system clock is used in the
 #'   set.seed() function
-#' @param loglikelihood Positive integer or Bool (default FALSE): whether to use the loglikelihood of some datapoints for convergence diagnostics. If numeric, use this number of datapoints (unsystematically sampled); if TRUE, use all datapoints
+#' @param lldata Positive integer or Inf (default 12): number of datapoints
+#'   to use for loglikelihood calculations; if Inf, use all.
 #' @param subsampledata Numeric: use only a subsample of the datapoints in 'data'
 #' @param useOquantiles Bool: internal, use metadata quantiles for ordinal variates
-#' @param output if string 'directory', return the output directory name; if string 'mcoutput', return the 'Fdistribution' object; anything else, no output
+#' @param output if string 'directory', return the output directory name;
+#'   if string 'mcoutput', return the 'Fdistribution' object;
+#'   anything else, no output
 #' @param cleanup Bool, default TRUE, removes files that can be used for
 #'   debugging
 #' @return name of directory containing output files, or Fdistribution object, or empty
@@ -39,12 +43,20 @@ inferpopulation <- function(data, metadata, outputdir, nsamples = 1200,
                             appendtimestamp = TRUE, appendinfo = TRUE,
                             subsampledata = NULL, output = 'directory',
                             niterini = 1024, miniter = 0, maxiter = +Inf,
+                            prior = missing(data),
                             thinning = NULL, plottraces = TRUE,
                             showKtraces = FALSE, showAlphatraces = FALSE,
-                            loglikelihood = FALSE, useOquantiles = FALSE) {
+                            lldata = 12, useOquantiles = FALSE) {
 
 
-  cat('\n') # make sure possible error messages start on new line
+   cat('\n') # make sure possible error messages start on new line
+
+  ## Set the RNG seed if given by user, or if no seed already exists
+  if (!missing(seed) || !exists('.Random.seed')) {
+    set.seed(seed)
+  }
+  currentseed <- .Random.seed
+
 
 
   ##################################################
@@ -165,7 +177,7 @@ inferpopulation <- function(data, metadata, outputdir, nsamples = 1200,
   ##################################################
 
 
-  #### Read metadata
+#### Read metadata
   ## Check whether argument 'metadata' is a string for a file name
   ## otherwise we assume it's a data.table or similar object
   if (is.character(metadata) && file.exists(metadata)) {
@@ -173,89 +185,196 @@ inferpopulation <- function(data, metadata, outputdir, nsamples = 1200,
   }
   metadata <- data.table::as.data.table(metadata)
 
-  #### Read dataset
-  datafile <- NULL
-  ## Check if data is missing, or set to some other 'non-value'
-  ## It means the user wants to calculate the prior distribution
-  if (missing(data) || is.null(data) || (is.logical(data) && data == FALSE)) {
-    message('Missing data: calculating prior distribution')
+#### Dataset
+  ## Check if 'data' is given
+  if(!(missing(data) || is.null(data))) {
+    ## Check if 'data' argument is an existing file
+    ## otherwise we assume is an object
+    datafile <- NULL
+    if (is.character(data)) {
+      ## add '.csv' if missing
+      datafile <- paste0(sub('.csv$', '', data), '.csv')
+      if (file.exists(data)) {
+        data <- data.table::fread(datafile, na.strings = '')
+      } else {
+        stop('Cannot find data file')
+      }
+    }
+    ## Make sure data has data.table format
+    data <- data.table::as.data.table(data)
+
+    ## Consistency checks for data
+    ## They should be moved to an external function
+
+    ## Are data missing variates?
+    if (!all(metadata[['name']] %in% colnames(data))) {
+      stop('Missing variates in data. Check data- and metadata-files.')
+    }
+
+    ## Drop variates in data that are not in the metadata file
+    if (!all(colnames(data) %in% metadata[['name']])) {
+      cat('Warning: data have additional variates. Dropping them.\n')
+      subvar <- intersect(colnames(data), metadata[['name']])
+      data <- data[, subvar, with = FALSE]
+      rm(subvar)
+    }
+
+    ## Remove empty datapoints
+    tokeep <- which(apply(data, 1, function(xx) { !all(is.na(xx)) }))
+    if(length(tokeep) == 0 && !prior) {
+      stop('Data are given but empty')
+    } else if(length(tokeep) < nrow(data)) {
+      cat('Warning: data contain empty datapoints. Dropping them.\n')
+      data <- data[tokeep,]
+    }
+    rm(tokeep)
+
+    ## Check if the user wants to use a subset of the dataset
+    if (is.numeric(subsampledata)) {
+      ## @@TODO: find faster and memory-saving subsetting
+      cat('Subsampling data, as requested.\n')
+      data <- data[sample(seq_len(nrow(data)),
+                          min(subsampledata, nrow(data)),
+                          replace = FALSE), ]
+    }
+
+    npoints <- nrow(data)
+
+  } else {
+    ## data not given: we assume user wants prior calculation
+    message('Missing data')
+    prior <- TRUE
+    npoints <- 0
+  }
+
+  ## Build auxiliary metadata object; we'll save it later
+  cat('Calculating auxiliary metadata\n')
+  auxmetadata <- buildauxmetadata(data = data, metadata = metadata)
+
+
+  #### Output-folder setup
+  if (missing(outputdir) || (is.logical(outputdir) && outputdir)) {
+    outputdir <- paste0('_output_', sub('.csv$', '', datafile))
+  }
+
+  ## append time and info to output directory, if requested
+  suffix <- NULL
+  if (appendtimestamp) {
+    suffix <- paste0(suffix, '-',
+                     strftime(as.POSIXlt(Sys.time()), '%y%m%dT%H%M%S') )
+  }
+  if (appendinfo) {
+    suffix <- paste0(suffix,
+                     '-vrt', nrow(auxmetadata),
+                     '_dat',
+                     (if (npoints == 1 && all(is.na(data))) {
+                        0
+                      } else {
+                        npoints
+                      }),
+                     ## '-K', nclusters, # unimportant for user
+                     '_smp', nsamples)
+  }
+  dirname <- paste0(outputdir, suffix)
+  ##
+  # Create output directory if it does not exist
+  dir.create(dirname, showWarnings = FALSE)
+  # Print information
+  cat('\n', paste0(rep('*', max(nchar(dirname), 26)), collapse = ''),
+    '\n Saving output in directory\n', dirname, '\n',
+    paste0(rep('*', max(nchar(dirname), 26)), collapse = ''), '\n')
+
+  ## This is in case we need to add some extra specifier to the output files
+  ## all 'dashnameroot' can be deleted in a final version
+  dashnameroot <- NULL
+
+  ## Save copy of metadata in directory
+  data.table::fwrite(metadata, file = file.path(dirname, 'metadata.csv'))
+
+  ## Save initial RNG seed in case needed by user
+  saveRDS(currentseed,
+          file = file.path(dirname, paste0('rng_seed', dashnameroot, '.rds')))
+
+
+#### Check if user wants to calculate prior
+  if (prior) {
+    message('CALCULATING PRIOR DISTRIBUTION')
+    ## if data is not empty, we use it to create data for likelihood
+    if(!is.null(data)) {
+      ## if "testdata" is moved into the for-loop,
+      ## then each chain uses a different set of testdata
+      for(achain in seq_len(nchains)) {
+        testdata <- data[sort(sample(npoints, min(lldata, npoints))),]
+        saveRDS(testdata,
+                file = file.path(dirname, paste0('_testdata_', achain, '.rds')))
+      }
+    } else {
+      ## no data available: construct one datapoint from the metadata info
+      testdata <- data.table(sapply(seq_len(nrow(auxmetadata)), function(xx) {
+        ## consider making this function separate
+        xx <- auxmetadata[xx, ]
+        toadd <- xx[, paste0('mctest', 1:3), with = FALSE]
+        if (xx[['mcmctype']] %in% c('B', 'N')) {
+          toadd <- xx[1, paste0('V', toadd), with = FALSE]
+        }
+        toadd
+      }))
+      colnames(testdata) <- auxmetadata[['name']]
+      for(achain in seq_len(nchains)) {
+        saveRDS(testdata,
+                file = file.path(dirname, paste0('_testdata_', achain, '.rds')))
+      }
+    }
+    ## create empty dataset: Monte Carlo sampling is non-Markov
     data <- data.table::as.data.table(
                           matrix(NA, nrow = 1, ncol = nrow(metadata),
                                  dimnames = list(NULL, metadata[['name']]))
                         )
-    ## When no data present, Monte Carlo sampling is exact
-    ## No need to calculate loglikelihood
-    loglikelihood <- FALSE
-  }
-  ## Check if 'data' argument is an existing file
-  ## otherwise we assume is an object
-  if (is.character(data)) {
-    ## add '.csv' if missing
-    datafile <- paste0(sub('.csv$', '', data), '.csv')
-    if (file.exists(data)) {
-      data <- data.table::fread(datafile, na.strings = '')
-    } else {
-      stop('Cannot find data file')
+  } else {
+    ## create data for likelihood
+    ## if "testdata" is moved into the for-loop,
+    ## then each chain uses a different set of testdata
+    for(achain in seq_len(nchains)) {
+      testdata <- data[sort(sample(npoints, min(lldata, npoints))),]
+      saveRDS(testdata,
+              file = file.path(dirname, paste0('_testdata_', achain, '.rds')))
     }
   }
-  ## Make sure data has data.table format
-  data <- data.table::as.data.table(data)
+  rm(testdata)
 
-  ## Check if the user wants to use a subset of the dataset
-  if (is.numeric(subsampledata)) {
-    ## @@TODO: find faster and memory-saving subsetting
-    data <- data[sample(seq_len(nrow(data)),
-                   min(subsampledata, nrow(data)),
-                   replace = FALSE), ]
-  }
+## #### Select and save data for loglikelihood
+##   ## Find which datapoints have not all missing entries
+##   dataNoNa <- which(apply(data, 1, function(xx) { !all(is.na(xx)) }))
+##   ndataNoNa <- length(dataNoNa)
+## 
+##   if (ndataNoNa > 0) {
+##     ## if "testdata" is moved into the for-loop,
+##     ## then each chain uses a different set of testdata
+##     for(achain in seq_len(nchains)) {
+##       testdata <- data[sort(sample(dataNoNa, min(lldata, ndataNoNa))),]
+##       saveRDS(testdata,
+##               file = file.path(dirname, paste0('_testdata_', achain, '.rds')))
+##     }
+##   } else {
+##       ## no data available: construct one datapoint from the metadata info
+##       testdata <- data.table(sapply(seq_len(nrow(auxmetadata)), function(xx) {
+##       # consider making this function separate
+##       xx <- auxmetadata[xx, ]
+##       toadd <- xx[, paste0('mctest', 1:3), with = FALSE]
+##       if (xx[['mcmctype']] %in% c('B', 'N')) {
+##         toadd <- xx[1, paste0('V', toadd), with = FALSE]
+##       }
+##       toadd
+##     }))
+##     colnames(testdata) <- auxmetadata[['name']]
+##     for(achain in seq_len(nchains)) {
+##       saveRDS(testdata,
+##           file = file.path(dirname, paste0('_testdata_', achain, '.rds')))
+##     }
+##     rm(testdata)
+##     }
 
-  ## Build auxiliary metadata object; we'll save it later
-  ## We must do this after reading and checking the data argument
-  ## source('buildauxmetadata.R')
-  cat('Calculating auxiliary metadata\n')
-  if(all(is.na(data))) {
-    auxmetadata <- buildauxmetadata(data = NULL, metadata = metadata)
-  } else {
-    auxmetadata <- buildauxmetadata(data = data, metadata = metadata)
-  }
 
-  #### Loglikelihood
-  ## 'loglikelihood' argument says whether/how many datapoints to use
-  ## to calculate the loglikelihood
-  ## it's a very expensive calculation
-  if (is.numeric(loglikelihood) ||
-      (is.logical(loglikelihood) && loglikelihood)) {
-    ## Find which datapoints have not all missing entries
-    dataNoNa <- which(apply(data, 1, function(xx) { !all(is.na(xx)) }))
-    ndataNoNa <- length(dataNoNa)
-    if(ndataNoNa > 1) {
-      ## Make sure loglikelihood is not larger
-      ## than the nr of datapoints without missing entries
-      if (is.logical(loglikelihood) && loglikelihood) {
-        ## If loglikelihood is TRUE, use all datapoints
-        loglikelihood <- ndataNoNa
-      }
-      loglikelihood <- min(round(abs(loglikelihood)), ndataNoNa)
-      lldata <- data[sort(sample(dataNoNa, loglikelihood)),]
-    } else {
-      loglikelihood <- FALSE
-    }
-    rm(ndataNoNa)
-  } else {
-    loglikelihood <- FALSE
-  }
-
-  #### Check consistency of variate names
-  if (!all(auxmetadata[['name']] %in% colnames(data))) {
-    stop('Missing variates in data file. Check data- or metadata-file.')
-  }
-  ## Drop variates in data that are not in the metadata file
-  if (!all(colnames(data) %in% auxmetadata[['name']])) {
-    cat('Warning: data file has additional variates. Dropping them.\n')
-    subvar <- intersect(colnames(data), auxmetadata[['name']])
-    data <- data[, subvar, with = FALSE]
-    rm(subvar)
-  }
 
   ##################################################
   #### Various internal parameters
@@ -297,47 +416,6 @@ inferpopulation <- function(data, metadata, outputdir, nsamples = 1200,
   showsamplertimes <- FALSE ##
   family <- 'Palatino' # font family in plots
 
-  ##################################################
-  #### Output-folder setup
-  ##################################################
-
-  if (missing(outputdir) || (is.logical(outputdir) && outputdir)) {
-    outputdir <- paste0('_output_', sub('.csv$', '', datafile))
-  }
-
-  ## append time and info to output directory, if requested
-  suffix <- NULL
-  if (appendtimestamp) {
-    suffix <- paste0(suffix, '-',
-                     strftime(as.POSIXlt(Sys.time()), '%y%m%dT%H%M%S') )
-  }
-  if (appendinfo) {
-    suffix <- paste0(suffix,
-                     '-vrt', nrow(auxmetadata),
-                     '_dat',
-                     (if (npoints == 1 && all(is.na(data))) {
-                        0
-                      } else {
-                        npoints
-                      }),
-                     ## '-K', nclusters, # unimportant for user
-                     '_smp', nsamples)
-  }
-  dirname <- paste0(outputdir, suffix)
-  ##
-  # Create output directory if it does not exist
-  dir.create(dirname, showWarnings = FALSE)
-  # Print information
-  cat('\n', paste0(rep('*', max(nchar(dirname), 26)), collapse = ''),
-    '\n Saving output in directory\n', dirname, '\n',
-    paste0(rep('*', max(nchar(dirname), 26)), collapse = ''), '\n')
-
-  ## This is in case we need to add some extra specifier to the output files
-  ## all 'dashnameroot' can be deleted in a final version
-  dashnameroot <- NULL
-
-  ## Save copy of metadata in directory
-  fwrite(metadata, file = file.path(dirname, 'metadata.csv'))
 
   ##################################################
   #### Define functions
@@ -558,14 +636,6 @@ inferpopulation <- function(data, metadata, outputdir, nsamples = 1200,
   cat('\nC-compiling samplers appropriate to the variates (package Nimble)\n')
   cat('this can take tens of minutes with many data or variates.\n...\r')
 
-
-  ## Set the RNG seed if given by user, or if no seed already exists
-  if (!missing(seed) || !exists('.Random.seed')) {
-    set.seed(seed)
-  }
-  ## Save current RNG seed in case needed by user
-  saveRDS(.Random.seed,
-          file = file.path(dirname, paste0('rng_seed', dashnameroot, '.rds')))
 
   #####################################################
   #### BEGINNING OF FOREACH LOOP OVER CORES
@@ -1069,21 +1139,6 @@ inferpopulation <- function(data, metadata, outputdir, nsamples = 1200,
     ##################################################
     maxusedclusters <- 0
 
-    ## build test data for assessing stationarity
-    testdata <- data.table(sapply(seq_len(nrow(auxmetadata)), function(xx) {
-      # consider making this function separate
-      xx <- auxmetadata[xx, ]
-      toadd <- xx[, paste0('mctest', 1:3), with = FALSE]
-      if (xx[['mcmctype']] %in% c('B', 'N')) {
-        toadd <- xx[1, paste0('V', toadd), with = FALSE]
-      }
-      toadd
-    }))
-      colnames(testdata) <- auxmetadata[['name']]
-      ## ## Other possibilities for choice of convergence-test data
-      ## testdata <- t(auxmetadata[,paste0('mctest',1:3)])
-      ## colnames(testdata) <- auxmetadata[,name]
-      ## testdata <- rbind(auxmetadata[['Q2']], varinfo[['Q1']], varinfo[['Q3']]) #, varinfo[['plotmin']], varinfo[['plotmax']], varinfo[['datamin']], varinfo[['datamax']])
 
     # Start timer
     starttime <- Sys.time()
@@ -1109,9 +1164,6 @@ inferpopulation <- function(data, metadata, outputdir, nsamples = 1200,
       mcsamplesKA <- NULL
       flagll <- FALSE
       flagmc <- FALSE
-      ## if (is.numeric(loglikelihood)) {
-      ##   llseq <- sort(sample(dataNoNa, loglikelihood))
-      ## }
       gc() #garbage collection
       chainnumber <- (acore - 1L) * nchainspercore + achain
       padchainnumber <- sprintf(paste0('%0', nchar(nchains), 'i'), chainnumber)
@@ -1119,6 +1171,9 @@ inferpopulation <- function(data, metadata, outputdir, nsamples = 1200,
         '\nChain #', chainnumber,
         '(chain', achain, 'of', nchainspercore, 'for this core)\n'
       )
+      ## Read data to be used in log-likelihood
+      testdata <- readRDS(file = file.path(dirname,
+                      paste0('_testdata_', chainnumber, '.rds')))
 
       ## Initial values for this chain
       ## random seed is taken care of by %doRNG%
@@ -1244,37 +1299,40 @@ inferpopulation <- function(data, metadata, outputdir, nsamples = 1200,
         ## Log-likelihood
         diagntime <- Sys.time()
         ##
-        ll <- t(
+        ll <- cbind(
           log(samplesFDistribution(
             Y = testdata, X = NULL,
             mcoutput = c(mcsamples, list(auxmetadata = auxmetadata)),
             jacobian = FALSE,
             useOquantiles = useOquantiles,
             parallel = FALSE,
+           combine = '+',
             silent = TRUE
-          ))
+          )) / nrow(testdata)
         )
 
-        colnames(ll) <- paste0('log-', c('mid', 'lo', 'hi'))
+        ## colnames(ll) <- paste0('log-', c('mid', 'lo', 'hi'))
+        ## colnames(ll) <- paste0('log-', seq_len(ncol(ll)))
+       colnames(ll) <- paste0('log-F of ', nrow(testdata), ' data')
 
-        if (is.numeric(loglikelihood)) {
-          lltime <- Sys.time()
-          cat('\nCalculating log-likelihood...')
-          ll <- cbind(ll,
-            'log-ll' = log(samplesFDistribution(
-              Y = lldata, X = NULL,
-              ## Y = data[llseq, ], X = NULL,
-              mcoutput = c(mcsamples, list(auxmetadata = auxmetadata)),
-              jacobian = FALSE,
-              useOquantiles = useOquantiles,
-              parallel = FALSE, silent = TRUE,
-              combine = '+'
-            )) / nrow(lldata)
-          )
-          cat('Done,\n', printtime(Sys.time() - lltime), '\n')
-        }
+        ## if (is.numeric(loglikelihood)) {
+        ##   lltime <- Sys.time()
+        ##   cat('\nCalculating log-likelihood...')
+        ##   ll <- cbind(ll,
+        ##     'log-ll' = log(samplesFDistribution(
+        ##       Y = lldata, X = NULL,
+        ##       ## Y = data[llseq, ], X = NULL,
+        ##       mcoutput = c(mcsamples, list(auxmetadata = auxmetadata)),
+        ##       jacobian = FALSE,
+        ##       useOquantiles = useOquantiles,
+        ##       parallel = FALSE, silent = TRUE,
+        ##       combine = '+'
+        ##     )) / nrow(lldata)
+        ##   )
+        ##   cat('Done,\n', printtime(Sys.time() - lltime), '\n')
+        ## }
         ##
-        traces <- rbind(traces, 10 / log(10) * ll)
+        traces <- rbind(traces, ll * 10 / log(10))
 
         toRemove <- which(!is.finite(traces), arr.ind = TRUE)
         if (length(toRemove) > 0) {
@@ -1290,7 +1348,7 @@ inferpopulation <- function(data, metadata, outputdir, nsamples = 1200,
           LaplacesDemon::IAT(x)
         })
         cat('\nIATs:', paste0(round(diagnIAT), collapse = ', '))
-        diagnBMK <- LaplacesDemon::BMK.Diagnostic(cleantraces[1:(4 * trunc(nrow(cleantraces) / 4)), ], batches = 4)[, 1]
+        diagnBMK <- LaplacesDemon::BMK.Diagnostic(cleantraces[1:(4 * trunc(nrow(cleantraces) / 4)), , drop = FALSE], batches = 4)[, 1]
         cat('\nBMKs:', paste0(round(diagnBMK, 3), collapse = ', '))
         diagnMCSE <- 100 * apply(cleantraces, 2, function(x) {
           funMCSE(x) / sd(x)
@@ -1405,7 +1463,7 @@ inferpopulation <- function(data, metadata, outputdir, nsamples = 1200,
 
       gc() #garbage collection
 
-      saveRDS(traces[tokeep, ],
+      saveRDS(traces[tokeep, , drop = FALSE],
               file = file.path(dirname,
                                paste0('_mctraces',
                             dashnameroot, '--',
@@ -1454,8 +1512,8 @@ inferpopulation <- function(data, metadata, outputdir, nsamples = 1200,
       if (plottraces) {
         cat('\nPlotting traces and samples.\n')
 
-        tracegroups <- as.list(seq_len(ncol(traces)))
-        names(tracegroups) <- colnames(traces)
+        tracegroups <- as.list(seq_len(min(4, ncol(traces))))
+        names(tracegroups) <- colnames(traces)[1:min(4, ncol(traces))]
         grouplegends <- foreach::foreach(agroup = seq_along(tracegroups)) %do% {
           c(
             paste0('-- STATS ', names(tracegroups)[agroup], ' --'),
@@ -1477,8 +1535,8 @@ inferpopulation <- function(data, metadata, outputdir, nsamples = 1200,
         }
 
         ## Plot various info and traces
-        colpalette <- seq_len(ncol(traces))
-        names(colpalette) <- colnames(traces)
+        ## colpalette <- 1:6 #seq_len(ncol(traces))
+        ## names(colpalette) <- colnames(traces)[1:min(6, ncol(traces))]
         cat('\nPlotting MCMC traces')
         graphics.off()
         pdff(file.path(dirname,
@@ -1520,7 +1578,7 @@ inferpopulation <- function(data, metadata, outputdir, nsamples = 1200,
         for (avar in colnames(traces)) {
           tplot(
             y = traces[is.finite(traces[, avar]), avar],
-            type = 'l', lty = 1, col = colpalette[avar],
+            type = 'l', lty = 1, col = 1,
             main = paste0(
               'ESS = ', signif(diagnESS[avar], 3),
               ' | IAT = ', signif(diagnIAT[avar], 3),
@@ -1665,9 +1723,9 @@ inferpopulation <- function(data, metadata, outputdir, nsamples = 1200,
   ############################################################
 
   ## cat('\nSome diagnostics:\n')
-  traces <- traces[apply(traces, 1, function(x) { all(is.finite(x)) }), ]
+  traces <- traces[apply(traces, 1, function(x) { all(is.finite(x)) }), ,
+                   drop = FALSE]
   ## flagll <- nrow(traces) != nrow(traces)
-
   ## funMCSE <- function(x){LaplacesDemon::MCSE(x, method='batch.means')$se}
   diagnESS <- LaplacesDemon::ESS(traces)
   cat('\nEFFECTIVE SAMPLE SIZE > ', nchains,

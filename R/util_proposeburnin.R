@@ -5,7 +5,7 @@ proposeburnin <- function(x, batches = 16) {
   }
   lx <- nrow(x)
   if (lx %% batches != 0) {
-    x <- x[1:(batches * trunc(lx / batches)), ]
+    x <- x[1:(batches * trunc(lx / batches)), , drop = FALSE]
   }
   lx2 <- nrow(x)
   HD <- LaplacesDemon::BMK.Diagnostic(x, batches = batches)

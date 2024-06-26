@@ -21,7 +21,7 @@ refdir <- file.path(testdir,
 
 seed <- 16
 
-outputdirPrefix <- file.path(testdir,'__packagetest')
+outputdirPrefix <- file.path(testdir, '__packagetest')
 
 currenttestdir <- inferpopulation(data = file.path(testdir, 'testdata_150.csv'),
                         metadata = file.path(testdir, 'metatestdata.csv'),
@@ -30,6 +30,8 @@ currenttestdir <- inferpopulation(data = file.path(testdir, 'testdata_150.csv'),
                         appendtimestamp = TRUE, appendinfo = TRUE,
                         nsamples = 120, nchains = 12,
                         cleanup = FALSE, parallel = 4,
+                        ## prior = TRUE,
+                        ## lldata = 12,
                         seed = seed)
 
 #### Test whether Fdistribution output is identical
