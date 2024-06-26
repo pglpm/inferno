@@ -213,7 +213,11 @@ inferpopulation <- function(data, metadata, outputdir, nsamples = 1200,
   ## We must do this after reading and checking the data argument
   ## source('buildauxmetadata.R')
   cat('Calculating auxiliary metadata\n')
-  auxmetadata <- buildauxmetadata(data = data, metadata = metadata)
+  if(all(is.na(data))) {
+    auxmetadata <- buildauxmetadata(data = NULL, metadata = metadata)
+  } else {
+    auxmetadata <- buildauxmetadata(data = data, metadata = metadata)
+  }
 
   #### Loglikelihood
   ## 'loglikelihood' argument says whether/how many datapoints to use
@@ -221,8 +225,8 @@ inferpopulation <- function(data, metadata, outputdir, nsamples = 1200,
   ## it's a very expensive calculation
   if (is.numeric(loglikelihood) ||
       (is.logical(loglikelihood) && loglikelihood)) {
-    ## Find which datapoints have no missing entries
-    dataNoNa <- which(apply(data, 1, function(xx) { !any(is.na(xx)) }))
+    ## Find which datapoints have not all missing entries
+    dataNoNa <- which(apply(data, 1, function(xx) { !all(is.na(xx)) }))
     ndataNoNa <- length(dataNoNa)
     if(ndataNoNa > 1) {
       ## Make sure loglikelihood is not larger
@@ -232,6 +236,7 @@ inferpopulation <- function(data, metadata, outputdir, nsamples = 1200,
         loglikelihood <- ndataNoNa
       }
       loglikelihood <- min(round(abs(loglikelihood)), ndataNoNa)
+      lldata <- data[sort(sample(dataNoNa, loglikelihood)),]
     } else {
       loglikelihood <- FALSE
     }
@@ -246,6 +251,7 @@ inferpopulation <- function(data, metadata, outputdir, nsamples = 1200,
   }
   ## Drop variates in data that are not in the metadata file
   if (!all(colnames(data) %in% auxmetadata[['name']])) {
+    cat('Warning: data file has additional variates. Dropping them.\n')
     subvar <- intersect(colnames(data), auxmetadata[['name']])
     data <- data[, subvar, with = FALSE]
     rm(subvar)
@@ -408,9 +414,13 @@ inferpopulation <- function(data, metadata, outputdir, nsamples = 1200,
         Cshapelo = rep(Cshapelo, 1),
         Cshapehi = rep(Cshapehi, 1),
         Cleft = vtransform(data[, vnames$C, with = FALSE], auxmetadata,
-                          Cout = 'left', useOquantiles = useOquantiles),
+                           Cout = 'left', useOquantiles = useOquantiles),
         Cright = vtransform(data[, vnames$C, with = FALSE], auxmetadata,
-                           Cout = 'right', useOquantiles = useOquantiles)
+                            Cout = 'right', useOquantiles = useOquantiles),
+        Clatinit = vtransform(data[, vnames$C, with = FALSE],
+                          auxmetadata, Cout = 'init',
+                          useOquantiles = useOquantiles
+                          )
       )
       ## Cleft & Cright are as many as the datapoints
       ## so we do not create copies outside of Nimble
@@ -427,7 +437,10 @@ inferpopulation <- function(data, metadata, outputdir, nsamples = 1200,
         Dleft = vtransform(data[, vnames$D, with = FALSE], auxmetadata,
                           Dout = 'left', useOquantiles = useOquantiles),
         Dright = vtransform(data[, vnames$D, with = FALSE], auxmetadata,
-                            Dout = 'right', useOquantiles = useOquantiles)
+                            Dout = 'right', useOquantiles = useOquantiles),
+        Dlatinit = vtransform(data[, vnames$D, with = FALSE],
+                          auxmetadata, Dout = 'init',
+                          useOquantiles = useOquantiles)
       )
     },
     if (vn$O > 0) { # ordinal
@@ -441,7 +454,10 @@ inferpopulation <- function(data, metadata, outputdir, nsamples = 1200,
         Oleft = vtransform(data[, vnames$O, with = FALSE], auxmetadata,
                           Oout = 'left', useOquantiles = useOquantiles),
         Oright = vtransform(data[, vnames$O, with = FALSE], auxmetadata,
-                           Oout = 'right', useOquantiles = useOquantiles)
+                            Oout = 'right', useOquantiles = useOquantiles),
+        Olatinit = vtransform(data[, vnames$O, with = FALSE],
+                          auxmetadata, Oout = 'init',
+                          useOquantiles = useOquantiles)
       )
     },
     if (vn$N > 0) { # nominal
@@ -557,10 +573,10 @@ inferpopulation <- function(data, metadata, outputdir, nsamples = 1200,
 
   #Iterate over cores, using 'acore' variable as iterator
   chaininfo <- foreach::foreach(acore = 1:ncores,
-    .combine = rbind, .inorder = FALSE,
-    .packages = c('khroma', 'foreach', 'rngtools')
+                                .combine = rbind, .inorder = FALSE,
+                                .noexport = c('data'),
+                                .packages = c('khroma', 'foreach', 'rngtools')
     ) %dochains% {
-
       ## Create log file
       ## Redirect diagnostics and service messages there
       outcon <- file(file.path(dirname,
@@ -778,10 +794,10 @@ inferpopulation <- function(data, metadata, outputdir, nsamples = 1200,
               nrow = vn$C, ncol = nclusters
             ),
             ## for data with boundary values
-            Clat = vtransform(data[, vnames$C, with = FALSE],
-              auxmetadata, Cout = 'init',
-              useOquantiles = useOquantiles
-            )
+            Clat = constants$Clatinit
+            ## Clat = vtransform(data[, vnames$C, with = FALSE],
+            ##   auxmetadata, Cout = 'init',
+            ##   useOquantiles = useOquantiles)
           )
         )
       }
@@ -815,10 +831,10 @@ inferpopulation <- function(data, metadata, outputdir, nsamples = 1200,
               nrow = vn$D, ncol = nclusters
             ),
             ## for data with boundary values
-            Dlat = vtransform(data[, vnames$D, with = FALSE],
-              auxmetadata, Dout = 'init',
-              useOquantiles = useOquantiles
-            )
+            Dlat = constants$Dlatinit
+            ## Dlat = vtransform(data[, vnames$D, with = FALSE],
+            ##   auxmetadata, Dout = 'init',
+            ##   useOquantiles = useOquantiles)
           )
         )
       }
@@ -852,10 +868,10 @@ inferpopulation <- function(data, metadata, outputdir, nsamples = 1200,
               nrow = vn$O, ncol = nclusters
             ),
             ## for data with boundary values
-            Olat = vtransform(data[, vnames$O, with = FALSE],
-              auxmetadata, Oout = 'init',
-              useOquantiles = useOquantiles
-            )
+            Olat = constants$Olatinit
+            ## Olat = vtransform(data[, vnames$O, with = FALSE],
+            ##   auxmetadata, Oout = 'init',
+            ##   useOquantiles = useOquantiles)
           )
         )
       }
@@ -1093,9 +1109,9 @@ inferpopulation <- function(data, metadata, outputdir, nsamples = 1200,
       mcsamplesKA <- NULL
       flagll <- FALSE
       flagmc <- FALSE
-      if (is.numeric(loglikelihood)) {
-        llseq <- sort(sample(dataNoNa, loglikelihood))
-      }
+      ## if (is.numeric(loglikelihood)) {
+      ##   llseq <- sort(sample(dataNoNa, loglikelihood))
+      ## }
       gc() #garbage collection
       chainnumber <- (acore - 1L) * nchainspercore + achain
       padchainnumber <- sprintf(paste0('%0', nchar(nchains), 'i'), chainnumber)
@@ -1246,13 +1262,14 @@ inferpopulation <- function(data, metadata, outputdir, nsamples = 1200,
           cat('\nCalculating log-likelihood...')
           ll <- cbind(ll,
             'log-ll' = log(samplesFDistribution(
-              Y = data[llseq, ], X = NULL,
+              Y = lldata, X = NULL,
+              ## Y = data[llseq, ], X = NULL,
               mcoutput = c(mcsamples, list(auxmetadata = auxmetadata)),
               jacobian = FALSE,
               useOquantiles = useOquantiles,
               parallel = FALSE, silent = TRUE,
               combine = '+'
-            )) / length(llseq)
+            )) / nrow(lldata)
           )
           cat('Done,\n', printtime(Sys.time() - lltime), '\n')
         }

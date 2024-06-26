@@ -1,4 +1,4 @@
-Log core 4 - Current time: 2024-06-19 17:22:51
+Log core 4 - Current time: 2024-06-26 04:34:50
 Defining model
 Building model
 Setting data and initial values
@@ -88,68 +88,68 @@ Compiling
   [Note] This may take a minute.
   [Note] Use 'showCompilerOutput = TRUE' to see C++ compilation details.
 
-Setup time 44 secs 
+Setup time 43 secs 
 
 Chain # 10 (chain 1 of 3 for this core)
 Iterations: 1024 
 |-------------|-------------|-------------|-------------|
 |-------------------------------------------------------|
 
-Current time: 2024-06-19 17:23:40
-MCMC time 3.9 secs 
+Current time: 2024-06-26 04:35:38
+MCMC time 4 secs 
 
 OCCUPIED CLUSTERS: 1 OF 64 
 
-ESSs: 796, 167, 880
-IATs: 1, 6, 1
-BMKs: 0.056, 0.126, 0.062
-MCSEs: 3.92, 7.82, 4.17
+ESSs: 857, 1024, 775
+IATs: 1, 1, 1
+BMKs: 0.075, 0.063, 0.067
+MCSEs: 4.23, 2.63, 2.63
 Stationary: FALSE, TRUE, TRUE
 Burn-in I: 0, 0, 0
 Burn-in II: 0
-Proposed thinning: 2, 13, 1 
+Proposed thinning: 1, 1, 1 
 
-Diagnostics time 0.41 secs 
+Diagnostics time 0.43 secs 
 
-Number of iterations 1024 , required 234 
+Number of iterations 1024 , required 36 
 
-Keeping last 10 samples with thinning 26 
+Keeping last 10 samples with thinning 4 
 
 Plotting traces and samples.
 
 Plotting MCMC traces
-Current time: 2024-06-19 17:23:42
-MCMC + diagnostics time 5.3 secs 
+Current time: 2024-06-26 04:35:39
+MCMC + diagnostics time 5.6 secs 
 
 Chain # 11 (chain 2 of 3 for this core)
 Iterations: 1024 
 |-------------|-------------|-------------|-------------|
 |-------------------------------------------------------|
 
-Current time: 2024-06-19 17:23:46
-MCMC time 9.4 secs 
+Current time: 2024-06-26 04:35:43
+MCMC time 9.5 secs 
 
 OCCUPIED CLUSTERS: 1 OF 64 
 
-ESSs: 753, 334, 715
-IATs: 2, 4, 1
-BMKs: 0.056, 0.085, 0.061
-MCSEs: 4.05, 6.02, 3.19
-Stationary: TRUE, TRUE, TRUE
+ESSs: 652, 903, 927
+IATs: 2, 1, 1
+BMKs: 0.091, 0.071, 0.059
+MCSEs: 4.05, 3.77, 3.46
+Stationary: FALSE, TRUE, TRUE
 Burn-in I: 0, 0, 0
 Burn-in II: 0
-Proposed thinning: 1, 6, 1 
+Proposed thinning: 3, 1, 1 
 
 Diagnostics time 0.23 secs 
 
-Number of iterations 1024 , required 108 
+Number of iterations 1024 , required 54 
 
-Keeping last 10 samples with thinning 12 
+Keeping last 10 samples with thinning 6 
 
 Plotting traces and samples.
 
 Plotting MCMC traces
-Current time: 2024-06-19 17:23:47
+Current time: 2024-06-26 04:35:44
 MCMC + diagnostics time 11 secs 
 
 Chain # 12 (chain 3 of 3 for this core)
@@ -157,31 +157,31 @@ Iterations: 1024
 |-------------|-------------|-------------|-------------|
 |-------------------------------------------------------|
 
-Current time: 2024-06-19 17:23:51
-MCMC time 14 secs 
+Current time: 2024-06-26 04:35:48
+MCMC time 15 secs 
 
 OCCUPIED CLUSTERS: 1 OF 64 
 
-ESSs: 853, 162, 873
-IATs: 1, 5, 1
-BMKs: 0.105, 0.19, 0.073
-MCSEs: 3.05, 7.94, 3.66
+ESSs: 852, 1024, 932
+IATs: 1, 1, 1
+BMKs: 0.086, 0.116, 0.051
+MCSEs: 4.05, 2.99, 3.27
 Stationary: TRUE, TRUE, TRUE
 Burn-in I: 0, 0, 0
 Burn-in II: 0
-Proposed thinning: 1, 16, 1 
+Proposed thinning: 1, 1, 1 
 
 Diagnostics time 0.22 secs 
 
-Number of iterations 1024 , required 288 
+Number of iterations 1024 , required 36 
 
-Keeping last 10 samples with thinning 32 
+Keeping last 10 samples with thinning 4 
 
 Plotting traces and samples.
 
 Plotting MCMC traces
-Current time: 2024-06-19 17:23:52
+Current time: 2024-06-26 04:35:50
 MCMC + diagnostics time 16 secs 
 
-Current time: 2024-06-19 17:23:52
+Current time: 2024-06-26 04:35:50
 Total time 16 secs 

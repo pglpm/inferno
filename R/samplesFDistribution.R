@@ -132,10 +132,6 @@ samplesFDistribution <- function(Y, X, mcoutput, subsamples, jacobian = TRUE,
   if (!is.null(X) && ncol(X) == 0) {
     X <- NULL
   }
-  ## auxmetadata
-  if (is.character(auxmetadata) && file.exists(auxmetadata)) {
-    auxmetadata <- readRDS(auxmetadata)
-  }
 
   ## More consistency checks
   Yv <- colnames(Y)
@@ -176,7 +172,6 @@ samplesFDistribution <- function(Y, X, mcoutput, subsamples, jacobian = TRUE,
   nclusters <- nrow(mcoutput$W)
 
   ## source('vtransform.R')
-
 
   #### Type R
   vnames <- auxmetadata[mcmctype == 'R', name]

@@ -27,9 +27,10 @@ currenttestdir <- inferpopulation(data = file.path(testdir, 'testdata.csv'),
                         metadata = file.path(testdir, 'metatestdata.csv'),
                         outputdir = outputdirPrefix,
                         output = 'directory',
-                        appendtimestamp = TRUE, appendinfo = TRUE,
+                        appendtimestamp = F, appendinfo = F,
                         nsamples = 120, nchains = 12,
                         cleanup = FALSE, parallel = 4,
+                        loglikelihood=12,
                         seed = seed)
 
 #### Test whether Fdistribution output is identical

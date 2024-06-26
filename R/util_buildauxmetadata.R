@@ -3,8 +3,15 @@
 # @param metadata is either a file or a data.table object.
 # @param file Boolean, whether to save the aux metadatafile or not.
 
-buildauxmetadata <- function(data, metadata, file = TRUE) {
+buildauxmetadata <- function(data, metadata) {
+  ## Elements used in other scripts:
+  ## name, mcmctype, Nvalues, mctest, transform,
+  ## domainmin, domainmax, tscale, tlocation
+  ## censormax, censormin, step,
+  ## mctest1, mctest2, mctest3,
+  ## plotmin, plotmax, V...
   require('data.table')
+
 
   sdoveriqr <- 0.5 / qnorm(0.75)
 
@@ -33,8 +40,10 @@ buildauxmetadata <- function(data, metadata, file = TRUE) {
   idR <- idC <- idD <- idO <- idB <- idN <- 1L
   auxmetadata <- data.table()
   for (xn in metadata$name) {
-    x <- data[[xn]]
-    x <- x[!is.na(x)]
+    if(!is.null(data)) {
+      x <- data[[xn]]
+      x <- x[!is.na(x)]
+    }
     xinfo <- as.list(metadata[name == xn])
     xinfo$type <- tolower(xinfo$type)
     ordinal <- NA
@@ -48,9 +57,9 @@ buildauxmetadata <- function(data, metadata, file = TRUE) {
     Q2 <- NA
     Q3 <- NA
     if (xinfo$type == 'binary') { # seems binary variate
-      if (length(unique(x)) != 2) {
-        cat('Warning: inconsistencies with variate', xn, '\n')
-      }
+      ## if (length(unique(x)) != 2) {
+      ##   cat('Warning: inconsistencies with variate', xn, '\n')
+      ## }
       vtype <- 'B'
       vid <- idB
       idB <- idB + 1L
@@ -64,9 +73,18 @@ buildauxmetadata <- function(data, metadata, file = TRUE) {
       scale <- 1
       plotmin <- NA
       plotmax <- NA
-      mctest1 <- match(names(which.min(table(x))), vval)
-      mctest2 <- match(names(which.max(table(x))), vval)
-      mctest3 <- match(names(which.min(table(x))), vval)
+        mctest1 <- 1
+        mctest2 <- 2
+        mctest3 <- 2
+      ## if(!is.null(data)) {
+      ##   mctest1 <- match(names(which.min(table(x))), vval)
+      ##   mctest2 <- match(names(which.max(table(x))), vval)
+      ##   mctest3 <- match(names(which.min(table(x))), vval)
+      ## } else {
+      ##   mctest1 <- 1
+      ##   mctest2 <- 2
+      ##   mctest3 <- 2
+      ## }
     } else if (xinfo$type == 'nominal') { # nominal variate
       vtype <- 'N'
       vid <- idN
@@ -81,9 +99,18 @@ buildauxmetadata <- function(data, metadata, file = TRUE) {
       scale <- 1
       plotmin <- NA
       plotmax <- NA
-      mctest1 <- match(names(which.min(table(x))), vval)
-      mctest2 <- match(names(which.max(table(x))), vval)
-      mctest3 <- match(names(which.min(table(x))), vval)
+      ## if(!is.null(data)) {
+      ##   mctest1 <- match(names(which.min(table(x))), vval)
+      ##   mctest2 <- match(names(which.max(table(x))), vval)
+      ##   mctest3 <- match(names(which.min(table(x))), vval)
+      ## } else {
+            ## mctest1 <- 1
+            ## mctest2 <- round(xinfo$Nvalues/2)
+            ## mctest3 <- xinfo$Nvalues
+      ## }
+            mctest1 <- 1
+            mctest2 <- round(xinfo$Nvalues/2)
+            mctest3 <- xinfo$Nvalues
     } else if (xinfo$type == 'ordinal') { # ordinal variate
       vtype <- 'O'
       vid <- idO
@@ -107,21 +134,24 @@ buildauxmetadata <- function(data, metadata, file = TRUE) {
         Qf(round((xinfo$lowvalue - olocation) / oscale) / vn)) * sdoveriqr
       plotmin <- (if(is.finite(xinfo$plotmin)){xinfo$plotmin}else{xinfo$domainmin})
       plotmax <- (if(is.finite(xinfo$plotmax)){xinfo$plotmax}else{xinfo$domainmax})
-      Q1 <- mctest1 <- quantile(x, probs = 0.25, type = 6)
-      Q2 <- mctest2 <- quantile(x, probs = 0.5, type = 6)
-      Q3 <- mctest3 <- quantile(x, probs = 0.75, type = 6)
-      if (mctest1 == mctest3) {
-        mctest1 <- if (sum(x < Q1) > 0) {
-          max(x[x < Q1])
-        } else {
-          max(x[x <= Q1])
-        }
-        mctest3 <- if (sum(x > Q3) > 0) {
-          min(x[x > Q3])
-        } else {
-          min(x[x >= Q3])
-        }
-      }
+      ## Q1 <- mctest1 <- quantile(x, probs = 0.25, type = 6)
+      ## Q2 <- mctest2 <- quantile(x, probs = 0.5, type = 6)
+      ## Q3 <- mctest3 <- quantile(x, probs = 0.75, type = 6)
+      mctest1 <- xinfo$lowvalue
+      mctest2 <- xinfo$centralvalue
+      mctest3 <- xinfo$highvalue
+      ## if (mctest1 == mctest3) {
+      ##   mctest1 <- if (sum(x < Q1) > 0) {
+      ##     max(x[x < Q1])
+      ##   } else {
+      ##     max(x[x <= Q1])
+      ##   }
+      ##   mctest3 <- if (sum(x > Q3) > 0) {
+      ##     min(x[x > Q3])
+      ##   } else {
+      ##     min(x[x >= Q3])
+      ##   }
+      ## }
     } else if (xinfo$type == 'continuous') { # continuous variate (R,C,D)
       vn <- +Inf
       if (is.null(xinfo$rounding) || is.na(xinfo$rounding)) {
@@ -136,23 +166,26 @@ buildauxmetadata <- function(data, metadata, file = TRUE) {
       ## cens <- (censormin > domainmin) || (censormax < domainmax)
       location <- xinfo$centralvalue
       scale <- abs(xinfo$highvalue - xinfo$lowvalue)
-      Q1 <- mctest1 <- quantile(x, probs = 0.25, type = 6)
-      Q2 <- mctest2 <- quantile(x, probs = 0.5, type = 6)
-      Q3 <- mctest3 <- quantile(x, probs = 0.75, type = 6)
-      if (mctest1 == mctest3) {
-        mctest1 <- if (sum(x < Q1) > 0) {
-          max(x[x < Q1])
-        } else {
-          max(x[x <= Q1])
-        }
-        mctest3 <- if (sum(x > Q3) > 0) {
-          min(x[x > Q3])
-        } else {
-          min(x[x >= Q3])
-        }
-      }
       plotmin <- xinfo$plotmin
       plotmax <- xinfo$plotmax
+      ## Q1 <- mctest1 <- quantile(x, probs = 0.25, type = 6)
+      ## Q2 <- mctest2 <- quantile(x, probs = 0.5, type = 6)
+      ## Q3 <- mctest3 <- quantile(x, probs = 0.75, type = 6)
+      mctest1 <- xinfo$lowvalue
+      mctest2 <- xinfo$centralvalue
+      mctest3 <- xinfo$highvalue
+      ## if (mctest1 == mctest3) {
+      ##   mctest1 <- if (sum(x < Q1) > 0) {
+      ##     max(x[x < Q1])
+      ##   } else {
+      ##     max(x[x <= Q1])
+      ##   }
+      ##   mctest3 <- if (sum(x > Q3) > 0) {
+      ##     min(x[x > Q3])
+      ##   } else {
+      ##     min(x[x >= Q3])
+      ##   }
+      ## }
       # needs transformation
       if (is.finite(xinfo$domainmin) && is.finite(xinfo$domainmax)) {
         transf <- 'Q'
@@ -218,10 +251,13 @@ buildauxmetadata <- function(data, metadata, file = TRUE) {
       c(
         list(
           name = xn, mcmctype = vtype, id = vid, # censored=cens,
-          rounded = rounded, transform = transf, Nvalues = vn, step = vd,
-          domainmin = domainmin, domainmax = domainmax, censormin = censormin,
-          censormax = censormax, tlocation = location, tscale = scale,
-          plotmin = plotmin, plotmax = plotmax, Q1 = Q1, Q2 = Q2, Q3 = Q3,
+          ## rounded = rounded, # not used in other scripts, possibly remove
+          transform = transf, Nvalues = vn, step = vd,
+          domainmin = domainmin, domainmax = domainmax,
+          censormin = censormin, censormax = censormax,
+          tlocation = location, tscale = scale,
+          plotmin = plotmin, plotmax = plotmax,
+          ## Q1 = Q1, Q2 = Q2, Q3 = Q3, # not used in other scripts, possibly remove
           mctest1 = mctest1, mctest2 = mctest2, mctest3 = mctest3
         ),
         vval
@@ -230,21 +266,22 @@ buildauxmetadata <- function(data, metadata, file = TRUE) {
     )
   }
 
-  if (!missing(file) && file != FALSE) { # must save to file
-    if (is.character(file)) {
-      file <- paste0(sub('.rds$', '', file), '.rds')
-    } else {
-      file <- paste0('auxmetadata_', datafile)
-      file <- paste0(sub('.csv$', '', file), '.rds')
-    }
-    if (file.exists(file)) {
-      file.rename(from = file,
-                  to = paste0(sub('.rds$', '', file), '_bak',
-                              format(Sys.time(), '%y%m%dT%H%M%S'), '.rds'))
-    }
-    saveRDS(auxmetadata, file)
-    cat('Saved proposal aux-metadata file as', file, '\n')
-  } else {
-    auxmetadata
-  }
+  auxmetadata
+  ## if (!missing(file) && file != FALSE) { # must save to file
+  ##   if (is.character(file)) {
+  ##     file <- paste0(sub('.rds$', '', file), '.rds')
+  ##   } else {
+  ##     file <- paste0('auxmetadata_', datafile)
+  ##     file <- paste0(sub('.csv$', '', file), '.rds')
+  ##   }
+  ##   if (file.exists(file)) {
+  ##     file.rename(from = file,
+  ##                 to = paste0(sub('.rds$', '', file), '_bak',
+  ##                             format(Sys.time(), '%y%m%dT%H%M%S'), '.rds'))
+  ##   }
+  ##   saveRDS(auxmetadata, file)
+  ##   cat('Saved proposal aux-metadata file as', file, '\n')
+  ## } else {
+  ##   auxmetadata
+  ## }
 }
