@@ -10,8 +10,6 @@ buildauxmetadata <- function(data, metadata) {
   ## censormax, censormin, step,
   ## mctest1, mctest2, mctest3,
   ## plotmin, plotmax, V...
-  require('data.table')
-
 
   sdoveriqr <- 0.5 / qnorm(0.75)
 
@@ -20,13 +18,13 @@ buildauxmetadata <- function(data, metadata) {
   datafile <- NULL
   if (is.character(data) && file.exists(data)) {
     datafile <- data
-    data <- fread(datafile, na.strings = '')
+    data <- data.table::fread(datafile, na.strings = '')
   }
-  data <- as.data.table(data)
+  data <- data.table::as.data.table(data)
   if (is.character(metadata) && file.exists(metadata)) {
-    metadata <- fread(metadata, na.strings = '')
+    metadata <- data.table::fread(metadata, na.strings = '')
   }
-  metadata <- as.data.table(metadata)
+  metadata <- data.table::as.data.table(metadata)
   ## consistency checks
   if (!all(metadata$name %in% colnames(data))) {
     stop('ERROR: missing variates in data file')

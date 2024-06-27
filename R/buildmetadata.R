@@ -3,7 +3,9 @@
 # @param file is an optional parameter for the filename
 #
 buildmetadata <- function(data, file = NULL, diagnosticvalues = FALSE,
-                          backup_files = FALSE) {
+                          backupfiles = FALSE) {
+  require('data.table')
+
   gcd <- function(...) {
     suppressWarnings(Reduce(function(a, b) {
       if (b == 0) a else Recall(b, a %% b)
@@ -14,10 +16,10 @@ buildmetadata <- function(data, file = NULL, diagnosticvalues = FALSE,
   # Read datafile if it exists
   if (is.character(data) && file.exists(data)) {
     datafile <- data
-    data <- fread(datafile, na.strings = '')
+    data <- data.table::fread(datafile, na.strings = '')
   }
-  data <- as.data.table(data)
-  metadata <- data.table()
+  data <- data.table::as.data.table(data)
+  metadata <- data.table::data.table()
   # Loop over columns in data
   for (xn in names(data)) {
     ## print(xn)
@@ -209,9 +211,8 @@ buildmetadata <- function(data, file = NULL, diagnosticvalues = FALSE,
     }
     # If file is not a string, and the data is read from a file,
     # save the metadata as metadata_<datafile>.csv
-    else if (datafile != NULL) {
-      file <- paste0('metadata_', datafile)
-      file <- paste0(sub('.csv$', '', file), '.csv')
+    else if (!is.null(datafile)) {
+      file <- paste0(sub('.csv$', '', file), '_metadata.csv')
     }
     # If the file already exists, rename the old file as a backup file
     # and name this metadata file as intended

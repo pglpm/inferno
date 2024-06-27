@@ -98,19 +98,18 @@ samplesFDistribution <- function(Y, X, mcoutput, subsamples, jacobian = TRUE,
 
   # If mcoutput is a string, check if it's a folder name or file name
   if (is.character(mcoutput)) {
-    # Check if it's a directory containing Fdistribution.rds
+    # Check if 'mcoutput' is a folder containing Fdistribution.rds
     if (file_test('-d', mcoutput) &&
-          file.exists(paste0(mcoutput, '/Fdistribution.rds'))) {
-      mcoutput <- readRDS(paste0(mcoutput, '/Fdistribution.rds'))
-    } else { # Assume it's a direct path
+          file.exists(file.path(mcoutput, 'Fdistribution.rds'))) {
+      mcoutput <- readRDS(file.path(mcoutput, 'Fdistribution.rds'))
+    } else {
+      ## Assume 'mcoutput' the full path of Fdistributions.rds
+      ## possibly without the file extension '.rds'
       mcoutput <- paste0(sub('.rds$', '', mcoutput), '.rds')
       if (file.exists(mcoutput)) {
-        mcoutput <- readRDS(mcoutput, '/Fdistribution.rds')
+        mcoutput <- readRDS(mcoutput)
       } else {
-        cat('Mcoutpout file ', mcoutput, 'n')
-        stop('does not exist. Please provide either a path to a
-             folder containing Fdistribution.rds, or the path to
-             the .rds file with the mcoutput.')
+        stop("The argument 'mcoutput' must be a folder containing Fdistribution.rds, or the path to an rds-file containing the output from 'inferpopulation'.")
       }
     }
   }
