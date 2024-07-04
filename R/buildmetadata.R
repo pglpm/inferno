@@ -216,7 +216,7 @@ buildmetadata <- function(data, file = NULL, diagnosticvalues = FALSE,
     }
     # If the file already exists, rename the old file as a backup file
     # and name this metadata file as intended
-    if (backup_files) {
+    if (backupfiles) {
       if (file.exists(file)) {
         file.rename(from = file, to = paste0(sub('.csv$', '', file), '_bak', format(Sys.time(), '%y%m%dT%H%M%S'),'.csv'))
       }
