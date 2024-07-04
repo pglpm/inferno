@@ -4,7 +4,7 @@
 plotFsamples <- function(file, mcoutput, data, plotmeans = TRUE,
                          plotuncertainty = 'samples', uncertainty = 100,
                          datahistogram = TRUE, datascatter = TRUE,
-                         useOquantiles = TRUE, parallel = TRUE,
+                         useOquantiles = FALSE, parallel = TRUE,
                          silent = FALSE) {
 
   ## old utility functions

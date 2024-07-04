@@ -331,22 +331,18 @@ mutualinfo <- function(Yvrt, Xvrt, mcoutput, n=NULL, useOquantiles=TRUE, paralle
   ## rows: n samples, cols: Z variates
   dim(Zout) <- c(n, length(Zvrt))
   ## Match to original order of Zvrt
-  Zout <- vtransform(
-    Zout[, match(Zvrt, Zvrt[c(ZiR, ZiC, ZiD, ZiO, ZiN, ZiB)])],
-    auxmetadata = auxmetadata,
-    Rout = 'id',
-    Cout = 'idboundinf',
-    Dout = 'idboundinf',
-    Oout = 'original',
-    Nout = '',
-    Bout = '',
-    useOquantiles = useOquantiles)
-    
-    
+  Zout <- Zout[, match(Zvrt, Zvrt[c(ZiR, ZiC, ZiD, ZiO, ZiN, ZiB)])]
   colnames(Zout) <- Zvrt
-
+  Zout <- vtransform(Zout,
+                     auxmetadata = auxmetadata,
+                     Rout = 'id',
+                     Cout = 'idboundinf',
+                     Dout = 'idboundinf',
+                     Oout = 'integer',
+                     Nout = '',
+                     Bout = '',
+                     useOquantiles = useOquantiles)
   
-
   Yout <- Zout[, Yvrt]
   Xout <- Zout[, Xvrt]
   rm(Zout)
@@ -358,28 +354,3 @@ mutualinfo <- function(Yvrt, Xvrt, mcoutput, n=NULL, useOquantiles=TRUE, paralle
 
 
 }
-
-
-set.seed(1)
-system.time(for(i in 1:1000){
-                out <- rnorm(n=3*4*10000,mean=test1,sd=test1)
-                dim(out) <- c(3,4*10000)
-                })
-##
-set.seed(1)
-system.time(for(i in 1:1000){
-                out2 <- matrix(rnorm(n=3*4*10000,mean=test1,sd=test1), nrow=3, ncol=4*10000)
-                })
-identical(out,out2)
-
-set.seed(1)
-system.time(for(i in 1:1000){
-                out2 <- matrix(rnorm(n=3*4*10000,mean=test1,sd=test1), nrow=3, ncol=4*10000)
-                })
-##
-set.seed(1)
-system.time(for(i in 1:1000){
-                out <- rnorm(n=3*4*10000,mean=test1,sd=test1)
-                dim(out) <- c(3,4*10000)
-                })
-identical(out,out2)

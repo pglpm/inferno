@@ -8,7 +8,7 @@ vtransform <- function(x, auxmetadata,
                        Nout = 'numeric',
                        variates = NULL,
                        invjacobian = FALSE,
-                       useOquantiles = TRUE) {
+                       useOquantiles = FALSE) {
   Qf <- readRDS('Qfunction3600_3.rds')
   DQf <- readRDS('DQfunction3600_3.rds')
   invQf <- readRDS('invQfunction3600_3.rds')
@@ -222,8 +222,14 @@ vtransform <- function(x, auxmetadata,
           datum[!sel] <- 1L
         } else if (Oout == 'boundisinf') { # in output functions
           datum <- datum - 1L
-        } else if (Oout == 'original') { # in output functions
-          datum <- datum * oscale + olocation
+        } else if (Oout == 'integer') { # in mutualinfo
+          datum <- data.matrix(x[, ..v])
+          if (useOquantiles) {
+            datum <- datum * info$tscale + info$tlocation
+          }
+          datum <- round(invQf(datum) * info$Nvalues + 0.5)
+          datum[datum < 1] <- 1L
+          datum[datum > info$Nvalues] <- info$Nvalues
         }
 
       ## Nominal
@@ -235,7 +241,6 @@ vtransform <- function(x, auxmetadata,
         } else if (Nout == 'original') {
           datum <- names(bvalues[datum])
         }
-      }
 
       ## Binary
       } else if (info$mcmctype == 'B') {
@@ -246,7 +251,7 @@ vtransform <- function(x, auxmetadata,
         } else if (Bout == 'original') {
           datum <- names(bvalues[datum + 1])
         }
-
+      }
     }
     ##
     datum
