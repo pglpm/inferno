@@ -95,8 +95,7 @@ samplesFDistribution <- function(Y, X, mcoutput, subsamples, jacobian = TRUE,
   }
 
   ## Extract Monte Carlo output & aux-metadata
-
-  # If mcoutput is a string, check if it's a folder name or file name
+  ## If mcoutput is a string, check if it's a folder name or file name
   if (is.character(mcoutput)) {
     # Check if 'mcoutput' is a folder containing Fdistribution.rds
     if (file_test('-d', mcoutput) &&
