@@ -4,13 +4,13 @@ mutualinfo <- function(Yvrt, Xvrt, mcoutput, n=NULL, useOquantiles=TRUE, paralle
 #### Mutual information and conditional entropy between X and Y
 #### are calculated by Monte Carlo integration:
 #### 1. joint samples of Y_i, X_i are drawn
-#### 2. probabilities p(Y|X) and p(X) are calculated for each sample
+#### 2. probabilities p(Y|X) and p(Y) are calculated for each sample
 #### 3. the conditional entropy is Monte-Carlo approximated by
 ####    H(Y|X) = sum_{i} log p(Y_i | X_i)
 #### 4. the mutual info is Monte-Carlo approximated by
-####    I(Y|X) = sum_{i} [log p(Y_i | X_i) - log p(X_i)]
-####           = H(Y|X) - sum_{i} log p(X_i)
-#### (we also obtain the entropy of X for free.)
+####    I(Y|X) = sum_{i} [log p(Y_i | X_i) - log p(Y_i)]
+####           = H(Y|X) - sum_{i} log p(Y_i)
+#### (we also obtain the entropy of Y for free.)
 ####
 #### For these computations it is not necessary to transform the Y,X variates
 #### from the internal Monte Carlo representation to the original one
@@ -331,8 +331,21 @@ mutualinfo <- function(Yvrt, Xvrt, mcoutput, n=NULL, useOquantiles=TRUE, paralle
   ## rows: n samples, cols: Z variates
   dim(Zout) <- c(n, length(Zvrt))
   ## Match to original order of Zvrt
-  Zout <- Zout[, match(Zvrt, Zvrt[c(ZiR, ZiC, ZiD, ZiO, ZiN, ZiB)])]
+  Zout <- vtransform(
+    Zout[, match(Zvrt, Zvrt[c(ZiR, ZiC, ZiD, ZiO, ZiN, ZiB)])],
+    auxmetadata = auxmetadata,
+    Rout = 'id',
+    Cout = 'idboundinf',
+    Dout = 'idboundinf',
+    Oout = '',
+    Nout = '',
+    Bout = '',
+    useOquantiles = useOquantiles)
+    
+    
   colnames(Zout) <- Zvrt
+
+  
 
   Yout <- Zout[, Yvrt]
   Xout <- Zout[, Xvrt]

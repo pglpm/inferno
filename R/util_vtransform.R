@@ -1,7 +1,13 @@
 ## Transformation from variate to internal variable
-vtransform <- function(x, auxmetadata, Cout = 'init', Dout = 'data',
-                       Oout = 'data', Bout = 'numeric', Nout = 'numeric',
-                       variates = NULL, invjacobian = FALSE,
+vtransform <- function(x, auxmetadata,
+                       Rout = '',
+                       Cout = 'init',
+                       Dout = 'data',
+                       Oout = 'data',
+                       Bout = 'numeric',
+                       Nout = 'numeric',
+                       variates = NULL,
+                       invjacobian = FALSE,
                        useOquantiles = TRUE) {
   Qf <- readRDS('Qfunction3600_3.rds')
   DQf <- readRDS('DQfunction3600_3.rds')
@@ -38,17 +44,10 @@ vtransform <- function(x, auxmetadata, Cout = 'init', Dout = 'data',
     } else {
 #### Transformation to internal value for MCMC
 
-      if (info$mcmctype == 'R') { # continuous, open domain
-        if(Rout == 'original') { # for sample generation
-          datum <- datum * info$tscale + info$tlocation
-          if (info$transform == 'log') {
-            datum <- exp(datum) + info$domainmin
-          } else if (info$transform == 'logminus') {
-            datum <- info$domainmax - exp(datum)
-          } else if (info$transform == 'Q') {
-            ## ***todo: write inverse***
-            datum <- Qf((datum - info$domainmin) / (info$domainmax - info$domainmin))
-          }
+#### Continuous, open domain
+      if (info$mcmctype == 'R') {
+        if(Rout == 'id') { # used in mutualinfo()
+          datum
         } else { # transformation for internal MCMC use
           if (info$transform == 'log') {
             datum <- log(datum - info$domainmin)
@@ -60,11 +59,13 @@ vtransform <- function(x, auxmetadata, Cout = 'init', Dout = 'data',
           datum <- (datum - info$tlocation) / info$tscale
         }
 
-      } else if (info$mcmctype == 'O') { # ordinal
+#### Ordinal
+      } else if (info$mcmctype == 'O') {
         olocation <- (info$Nvalues * info$domainmin - info$domainmax) / (info$Nvalues - 1)
         oscale <- (info$domainmax - info$domainmin) / (info$Nvalues - 1)
         ##
-        datum <- round((datum - olocation) / oscale) # output is in range 1 to Nvalues
+        ## output is in range 1 to Nvalues
+        datum <- round((datum - olocation) / oscale)
         if (Oout == 'init') { # in sampling functions or init MCMC
           datum[is.na(datum)] <- info$Nvalues / 2 + 0.5
           datum <- Qf((datum - 0.5) / info$Nvalues)
@@ -95,8 +96,8 @@ vtransform <- function(x, auxmetadata, Cout = 'init', Dout = 'data',
           datum <- datum * oscale + olocation
         }
 
-      } else if (info$mcmctype == 'D') { # discretized
-        xv <- data.matrix(x[, ..v])
+#### Continuous rounded
+      } else if (info$mcmctype == 'D') {
         censmin <- info$censormin
         censmax <- info$censormax
         leftbound <- pmax(datum - info$step, info$domainmin, na.rm = T)
@@ -134,27 +135,35 @@ vtransform <- function(x, auxmetadata, Cout = 'init', Dout = 'data',
         } else if (Dout == 'right') {
           datum <- rightbound
         } else if (Dout == 'init') { # init in MCMC
+          xv <- data.matrix(x[, ..v])
           datum[is.na(xv)] <- 0L
           datum[!is.na(xv) & (xv <= info$censormin)] <- censmin - 0.125 * info$tscale
           datum[!is.na(xv) & (xv >= info$censormax)] <- censmax + 0.125 * info$tscale
         } else if (Dout == 'aux') { # aux variable in MCMC
+          xv <- data.matrix(x[, ..v])
           sel <- is.na(xv)
           datum[sel] <- NA
           datum[!sel] <- 1L
         } else if (Dout == 'boundisinf') { # in sampling functions
+          xv <- data.matrix(x[, ..v])
           datum[xv >= info$censormax] <- +Inf
           datum[xv <= info$censormin] <- -Inf
         } else if (Dout == 'sleft') { # in sampling functions
           datum <- rep(censmin, length(datum))
         } else if (Dout == 'sright') { # in sampling functions
           datum <- rep(censmax, length(datum))
+        } else if (Dout == 'idboundinf') { # in mutualinfo
+          datum <- xv <- data.matrix(x[, ..v])
+          datum[xv >= info$censormax] <- +Inf
+          datum[xv <= info$censormin] <- -Inf
         }
-        if (Dout != 'aux') {
+        ##
+        if (Dout != 'aux' && Dout != 'idboundinf') {
           datum <- (datum - info$tlocation) / info$tscale
         }
 
-      } else if (info$mcmctype == 'C') { # closed domain
-        xv <- data.matrix(x[, ..v])
+      ## Continuous, closed domain
+      } else if (info$mcmctype == 'C') {
         censmin <- info$censormin
         censmax <- info$censormax
         if (info$transform == 'log') {
@@ -174,38 +183,50 @@ vtransform <- function(x, auxmetadata, Cout = 'init', Dout = 'data',
         ## censmax <- (censmax-info$tlocation)/info$tscale
         ## censmin <- (censmin-info$tlocation)/info$tscale
         if (Cout == 'left') { # in MCMC
+          xv <- data.matrix(x[, ..v])
           sel <- is.na(xv) | (xv < info$censormax)
           datum[sel] <- -Inf
           datum[!sel] <- censmax
         } else if (Cout == 'right') { # in MCMC
+          xv <- data.matrix(x[, ..v])
           sel <- is.na(xv) | (xv > info$censormin)
           datum[sel] <- +Inf
           datum[!sel] <- censmin
         } else if (Cout == 'lat') { # latent variable in MCMC
+          xv <- data.matrix(x[, ..v])
           sel <- is.na(xv) | (xv >= info$censormax) | (xv <= info$censormin)
           datum[sel] <- NA
         } else if (Cout == 'init') { # init in MCMC
+          xv <- data.matrix(x[, ..v])
           datum[is.na(xv)] <- 0L
           datum[!is.na(xv) & (xv <= info$censormin)] <- censmin - 0.125 * info$tscale
           datum[!is.na(xv) & (xv >= info$censormax)] <- censmax + 0.125 * info$tscale
           datum[!is.na(xv) & (xv < info$censormax) & (xv > info$censormin)] <- NA
         } else if (Cout == 'aux') { # aux variable in MCMC
+          xv <- data.matrix(x[, ..v])
           sel <- is.na(xv)
           datum[sel] <- NA
           datum[!sel] <- 1L
         } else if (Cout == 'boundisinf') { # in sampling functions
+          xv <- data.matrix(x[, ..v])
           datum[xv >= info$censormax] <- +Inf
           datum[xv <= info$censormin] <- -Inf
         } else if (Cout == 'sleft') { # in sampling functions
           datum <- rep(censmin, length(datum))
         } else if (Cout == 'sright') { # in sampling functions
           datum <- rep(censmax, length(datum))
+        } else if (Cout == 'idboundinf') { # in mutualinfo
+          datum <- xv <- data.matrix(x[, ..v])
+          datum[xv >= info$censormax] <- +Inf
+          datum[xv <= info$censormin] <- -Inf
         }
-        if (Cout != 'aux') {
+        ##
+        if (Cout != 'aux' && Cout != 'idboundinf') {
           datum <- (datum - info$tlocation) / info$tscale
         }
 
-      } else if (info$mcmctype == 'B') { # binary
+      ## Binary
+      } else if (info$mcmctype == 'B') {
         bvalues <- 0:1
         names(bvalues) <- unlist(info[c('V1', 'V2')])
         if (Bout == 'numeric') {
@@ -214,7 +235,8 @@ vtransform <- function(x, auxmetadata, Cout = 'init', Dout = 'data',
           datum <- names(bvalues[datum + 1])
         }
 
-      } else if (info$mcmctype == 'N') { # nominal
+      ## Nominal
+      } else if (info$mcmctype == 'N') {
         bvalues <- 1:info$Nvalues
         names(bvalues) <- unlist(info[paste0('V', bvalues)])
         if (Nout == 'numeric') {
