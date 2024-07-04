@@ -358,7 +358,8 @@ samplesFDistribution <- function(Y, X, mcoutput, subsamples, jacobian = TRUE,
   }
   ## ndata <- nrow(Y2)
 
-  foreach::foreach(y = t(Y2), x = t(X2), .combine = combine,
+  foreach::foreach(y = t(Y2), x = t(X2),
+                   .combine = combine,
                    .inorder = TRUE) %dochains% {
     #### the loop is over the columns of y and x
     #### each instance is a 1-column vector

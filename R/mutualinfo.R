@@ -332,13 +332,15 @@ mutualinfo <- function(Yvrt, Xvrt, mcoutput, n=NULL, useOquantiles=TRUE, paralle
   dim(Zout) <- c(n, length(Zvrt))
   ## Match to original order of Zvrt
   Zout <- Zout[, match(Zvrt, Zvrt[c(ZiR, ZiC, ZiD, ZiO, ZiN, ZiB)])]
+  colnames(Zout) <- Zvrt
 
+  Yout <- Zout[, Yvrt]
+  Xout <- Zout[, Xvrt]
+  rm(Zout)
+  gc()
 
-  ## Reorder Z outputs (columns) according to original Yvrt and Xvrt
+#### STEP 2a. Calculate p(X) for all samples
 
-
-
-  
 
 
 
