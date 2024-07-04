@@ -15,7 +15,7 @@ vtransform <- function(x, auxmetadata, Cout = 'init', Dout = 'data',
     info <- as.list(auxmetadata[name == v])
     ##
     if (invjacobian) {
-      #### Calculation of reciprocal Jacobian factors
+#### Calculation of reciprocal Jacobian factors
       if (info$mcmctype %in% c('B', 'N', 'O')) {
         datum <- rep(1L, length(datum))
       } else {
@@ -36,17 +36,30 @@ vtransform <- function(x, auxmetadata, Cout = 'init', Dout = 'data',
         datum[is.na(xv)] <- 1L
       }
     } else {
-      #### Transformation to internal value for MCMC
-      if (info$mcmctype == 'R') { # continuous
-        if (info$transform == 'log') {
-          datum <- log(datum - info$domainmin)
-        } else if (info$transform == 'logminus') {
-          datum <- log(info$domainmax - datum)
-        } else if (info$transform == 'Q') {
-          datum <- Qf((datum - info$domainmin) / (info$domainmax - info$domainmin))
+#### Transformation to internal value for MCMC
+
+      if (info$mcmctype == 'R') { # continuous, open domain
+        if(Rout == 'original') { # for sample generation
+          datum <- datum * info$tscale + info$tlocation
+          if (info$transform == 'log') {
+            datum <- exp(datum) + info$domainmin
+          } else if (info$transform == 'logminus') {
+            datum <- info$domainmax - exp(datum)
+          } else if (info$transform == 'Q') {
+            ## ***todo: write inverse***
+            datum <- Qf((datum - info$domainmin) / (info$domainmax - info$domainmin))
+          }
+        } else { # transformation for internal MCMC use
+          if (info$transform == 'log') {
+            datum <- log(datum - info$domainmin)
+          } else if (info$transform == 'logminus') {
+            datum <- log(info$domainmax - datum)
+          } else if (info$transform == 'Q') {
+            datum <- Qf((datum - info$domainmin) / (info$domainmax - info$domainmin))
+          }
+          datum <- (datum - info$tlocation) / info$tscale
         }
-        datum <- (datum - info$tlocation) / info$tscale
-        ##
+
       } else if (info$mcmctype == 'O') { # ordinal
         olocation <- (info$Nvalues * info$domainmin - info$domainmax) / (info$Nvalues - 1)
         oscale <- (info$domainmax - info$domainmin) / (info$Nvalues - 1)
@@ -81,7 +94,7 @@ vtransform <- function(x, auxmetadata, Cout = 'init', Dout = 'data',
         } else if (Oout == 'original') { # in output functions
           datum <- datum * oscale + olocation
         }
-        ##
+
       } else if (info$mcmctype == 'D') { # discretized
         xv <- data.matrix(x[, ..v])
         censmin <- info$censormin
@@ -139,8 +152,8 @@ vtransform <- function(x, auxmetadata, Cout = 'init', Dout = 'data',
         if (Dout != 'aux') {
           datum <- (datum - info$tlocation) / info$tscale
         }
-        ##
-      } else if (info$mcmctype == 'C') { # censored
+
+      } else if (info$mcmctype == 'C') { # closed domain
         xv <- data.matrix(x[, ..v])
         censmin <- info$censormin
         censmax <- info$censormax
@@ -191,7 +204,7 @@ vtransform <- function(x, auxmetadata, Cout = 'init', Dout = 'data',
         if (Cout != 'aux') {
           datum <- (datum - info$tlocation) / info$tscale
         }
-        ##
+
       } else if (info$mcmctype == 'B') { # binary
         bvalues <- 0:1
         names(bvalues) <- unlist(info[c('V1', 'V2')])
@@ -200,7 +213,7 @@ vtransform <- function(x, auxmetadata, Cout = 'init', Dout = 'data',
         } else if (Bout == 'original') {
           datum <- names(bvalues[datum + 1])
         }
-        ##
+
       } else if (info$mcmctype == 'N') { # nominal
         bvalues <- 1:info$Nvalues
         names(bvalues) <- unlist(info[paste0('V', bvalues)])

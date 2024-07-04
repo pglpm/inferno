@@ -1,5 +1,19 @@
-#### Unfinished
-generateVariates <- function(n=1, Yvrt, X=NULL, mcoutput, combine='rbind', useOquantiles=TRUE, parallel=TRUE, silent=FALSE){
+#### In progress
+mutualinfo <- function(Yvrt, Xvrt, mcoutput, n=NULL, useOquantiles=TRUE, parallel=TRUE, silent=FALSE){
+
+#### Mutual information and conditional entropy between X and Y
+#### are calculated by Monte Carlo integration:
+#### 1. joint samples of Y_i, X_i are drawn
+#### 2. probabilities p(Y|X) and p(X) are calculated for each sample
+#### 3. the conditional entropy is Monte-Carlo approximated by
+####    H(Y|X) = sum_{i} log p(Y_i | X_i)
+#### 4. the mutual info is Monte-Carlo approximated by
+####    I(Y|X) = sum_{i} [log p(Y_i | X_i) - log p(X_i)]
+####           = H(Y|X) - sum_{i} log p(X_i)
+#### (we also obtain the entropy of X for free.)
+####
+#### For these computations it is not necessary to transform the Y,X variates
+#### from the internal Monte Carlo representation to the original one
 
   if (!silent) {
     cat('\n')
@@ -76,42 +90,40 @@ generateVariates <- function(n=1, Yvrt, X=NULL, mcoutput, combine='rbind', useOq
   auxmetadata <- mcoutput$auxmetadata
   mcoutput$auxmetadata <- NULL
 
-  nsamples <- ncol(mcoutput$W)
+  nMCsamples <- ncol(mcoutput$W)
   nclusters <- nrow(mcoutput$W)
 
   ## Consistency checks
   if(!is.character(Yvrt) || any(is.na(Yvrt))){
     stop('Yvrt must be a vector of variate names')
   }
-  if(!is.null(X) && length(dim(X)) != 2){
-    stop('X must be NULL or have two dimensions')
+  if(!is.character(Xvrt) || any(is.na(Xvrt))){
+    stop('Xvrt must be a vector of variate names')
   }
 
+  ## More consistency checks
   if(!all(Yvrt %in% auxmetadata$name)){stop('unknown Y variates\n')}
   if(length(unique(Yvrt)) != length(Yvrt)){stop('duplicate Y variates\n')}
   ##
-  Xv <- colnames(X)
-  if(!all(Xv %in% auxmetadata$name)){stop('unknown X variates\n')}
-  if(length(unique(Xv)) != length(Xv)){stop('duplicate X variates\n')}
+  if(!all(Xvrt %in% auxmetadata$name)){stop('unknown X variates\n')}
+  if(length(unique(Xvrt)) != length(Xvrt)){stop('duplicate X variates\n')}
   ##
-  if(length(intersect(Yvrt, Xv)) > 0){stop('overlap in Y and X variates\n')}
+  if(length(intersect(Yvrt, Xvrt)) > 0){stop('overlap in Y and X variates\n')}
 
 
-#### Subsample and get nclusters and nsamples
-  ## source('mcsubset.R')
-  if((is.logical(n) && n) || (is.character(n) && n=='all')){
-    n <- nsamples
-  }
-  subsamples <- c(rep(1:nsamples, n %/% nsamples),
-                  sort(sample(1:nsamples, n %% nsamples, replace=F)))
-  mcoutput <- mcsubset(mcoutput, subsamples)
+#### Calculate how many samples per MC sample
+  ## ***todo: account for the case where nsamples < nMCsamples
+  n <- ceiling(nsamples/nMCsamples)
   sseq <- seq_len(n)
 
   ## source('vtransform.R')
 
-#### Type R
+#### Combine Y,X into single Z for speed
+  Zvrt <- c(Yvrt, Xvrt)
+
+  ## Type R
   vnames <- auxmetadata[mcmctype == 'R', name]
-  XiR <- match(vnames, Xv)
+  XiR <- match(vnames, Xvrt)
   XtR <- which(!is.na(XiR))
   XiR <- XiR[XtR]
   XnR <- length(XiR)
@@ -123,10 +135,15 @@ generateVariates <- function(n=1, Yvrt, X=NULL, mcoutput, combine='rbind', useOq
   if(YnR > 0 || XnR > 0){
     mcoutput$Rvar <- sqrt(mcoutput$Rvar)
   }
+  ##
+  ZiR <- match(vnames, Zvrt)
+  ZtR <- which(!is.na(ZiR))
+  ZiR <- ZiR[ZtR]
+  ZnR <- length(ZiR)
 
-#### Type C
+  ## Type C
   vnames <- auxmetadata[mcmctype == 'C', name]
-  XiC <- match(vnames, Xv)
+  XiC <- match(vnames, Xvrt)
   XtC <- which(!is.na(XiC))
   XiC <- XiC[XtC]
   XnC <- length(XiC)
@@ -150,10 +167,15 @@ generateVariates <- function(n=1, Yvrt, X=NULL, mcoutput, combine='rbind', useOq
                     useOquantiles=useOquantiles))
     )
   }
+  ##
+  ZiC <- match(vnames, Zvrt)
+  ZtC <- which(!is.na(ZiC))
+  ZiC <- ZiC[ZtC]
+  ZnC <- length(ZiC)
 
-#### Type D
+  ## Type D
   vnames <- auxmetadata[mcmctype == 'D', name]
-  XiD <- match(vnames, Xv)
+  XiD <- match(vnames, Xvrt)
   XtD <- which(!is.na(XiD))
   XiD <- XiD[XtD]
   XnD <- length(XiD)
@@ -177,10 +199,15 @@ generateVariates <- function(n=1, Yvrt, X=NULL, mcoutput, combine='rbind', useOq
                     useOquantiles=useOquantiles))
     )
   }
+  ##
+  ZiD <- match(vnames, Zvrt)
+  ZtD <- which(!is.na(ZiD))
+  ZiD <- ZiD[ZtD]
+  ZnD <- length(ZiD)
 
-#### Type O
+  ## Type O
   vnames <- auxmetadata[mcmctype == 'O', name]
-  XiO <- match(vnames, Xv)
+  XiO <- match(vnames, Xvrt)
   XtO <- which(!is.na(XiO))
   XiO <- XiO[XtO]
   XnO <- length(XiO)
@@ -212,10 +239,16 @@ generateVariates <- function(n=1, Yvrt, X=NULL, mcoutput, combine='rbind', useOq
         rep(NA,Omaxn-nn))
     }))
   }
+  ##
+  ZiO <- match(vnames, Zvrt)
+  ZtO <- which(!is.na(ZiO))
+  ZiO <- ZiO[ZtO]
+  ZnO <- length(ZiO)
 
-#### Type N
+
+  ## Type N
   vnames <- auxmetadata[mcmctype == 'N', name]
-  XiN <- match(vnames, Xv)
+  XiN <- match(vnames, Xvrt)
   XtN <- which(!is.na(XiN))
   XiN <- XiN[XtN]
   XnN <- length(XiN)
@@ -224,12 +257,15 @@ generateVariates <- function(n=1, Yvrt, X=NULL, mcoutput, combine='rbind', useOq
   YtN <- which(!is.na(YiN))
   YiN <- YiN[YtN]
   YnN <- length(YiN)
-  ## if(YnN > 0 || XnN > 0){
-  ##     }
+  ##
+  ZiN <- match(vnames, Zvrt)
+  ZtN <- which(!is.na(ZiN))
+  ZiN <- ZiN[ZtN]
+  ZnN <- length(ZiN)
 
-#### Type B
+  ## Type B
   vnames <- auxmetadata[mcmctype == 'B', name]
-  XiB <- match(vnames, Xv)
+  XiB <- match(vnames, Xvrt)
   XtB <- which(!is.na(XiB))
   XiB <- XiB[XtB]
   XnB <- length(XiB)
@@ -238,185 +274,70 @@ generateVariates <- function(n=1, Yvrt, X=NULL, mcoutput, combine='rbind', useOq
   YtB <- which(!is.na(YiB))
   YiB <- YiB[YtB]
   YnB <- length(YiB)
+  ##
+  ZiB <- match(vnames, Zvrt)
+  ZtB <- which(!is.na(ZiB))
+  ZiB <- ZiB[ZtB]
+  ZnB <- length(ZiB)
 
-#### Match original order of Yvrt with the order from foreach loop
-  Yorder <- match(Yvrt, Yvrt[c(YiR, YiC, YiD, YiO, YiN, YiB)])
-  Yn <- length(Yvrt)
+#### STEP 1. Draw samples of Z (that is, Y,X)
 
-
-#### transformation of inputs
-  if(!is.null(X)){
-    X2 <- vtransform(X, auxmetadata,
-                     Cout='boundisinf',
-                     Dout='boundisinf',
-                     Oout='',
-                     Nout='numeric',
-                     Bout='numeric',
-                     useOquantiles=useOquantiles)
-  }else{X2 <- t(NA)}
-
-  out <- foreach(x=t(X2), .combine=rbind, .inorder=TRUE)%dochains%{
-
-    if(all(is.na(x))){
-      probX <- mcoutput$W
-    }else{
-      ## rows: clusters, cols: samples
-      probX <- log(mcoutput$W) +
-        (if(XnR > 0){# continuous
-           colSums(
-             dnorm(x=x[XiR,],
-                   mean=mcoutput$Rmean[XtR,,,drop=FALSE],
-                   sd=mcoutput$Rvar[XtR,,,drop=FALSE],
-                   log=TRUE),
-             na.rm=TRUE)
-         }else{0}) +
-        (if(XnC > 0){# censored
-           indf <- which(is.finite(x[XiC,]))
-           indi <- which(!is.finite(x[XiC,]))
-           (if(length(indf) > 0){
-              colSums(
-                dnorm(x=x[XiC[indf],],
-                      mean=mcoutput$Cmean[XtC[indf],,,drop=FALSE],
-                      sd=mcoutput$Cvar[XtC[indf],,,drop=FALSE],
-                      log=TRUE),
-                na.rm=TRUE)
-            }else{0}) +
-             (if(length(indi) > 0){
-                v2 <- XtC[indi]
-                v1 <- -sign(x[XiC[indi],])
-                ## for upper tail, take opposite mean and value
-                colSums(
-                  pnorm(q=Cbounds[cbind(v2, 1.5-0.5*v1)],
-                        mean=v1*mcoutput$Cmean[v2,,,drop=FALSE],
-                        sd=mcoutput$Cvar[v2,,,drop=FALSE],
-                        log.p=TRUE),
-                  na.rm=TRUE)
-              }else{0})
-         }else{0}) +
-        (if(XnD > 0){# continuous discretized
-           indf <- which(is.finite(x[XiD,]))
-           indi <- which(!is.finite(x[XiD,]))
-           (if(length(indf) > 0){
-              colSums(
-                dnorm(x=x[XiD[indf],],
-                      mean=mcoutput$Dmean[XtD[indf],,,drop=FALSE],
-                      sd=mcoutput$Dvar[XtD[indf],,,drop=FALSE],
-                      log=TRUE),
-                na.rm=TRUE)
-            }else{0}) +
-             (if(length(indi) > 0){
-                v2 <- XtD[indi]
-                v1 <- -sign(x[XiD[indi],])
-                ## for upper tail, take opposite mean and value
-                colSums(
-                  pnorm(q=Dbounds[v2, 1.5-0.5*v1],
-                        mean=v1*mcoutput$Dmean[v2,,,drop=FALSE],
-                        sd=mcoutput$Dvar[v2,,,drop=FALSE],
-                        log.p=TRUE),
-                  na.rm=TRUE)
-              }else{0})
-         }else{0}) +
-        (if(XnO > 0){# ordinal
-           v2 <- cbind(XtO,x[XiO,])
-           colSums(
-             log(
-               pnorm(q=Oright[v2],
-                     mean=mcoutput$Omean[XtO,,,drop=FALSE],
-                     sd=mcoutput$Ovar[XtO,,,drop=FALSE]) -
-               pnorm(q=Oleft[v2],
-                     mean=mcoutput$Omean[XtO,,,drop=FALSE],
-                     sd=mcoutput$Ovar[XtO,,,drop=FALSE])
-             ),
-             na.rm=TRUE)
-         }else{0}) +
-        (if(XnN > 0){# nominal
-           colSums(
-             log( aperm(
-               vapply(seq_len(XnN), function(v){
-                 mcoutput$Nprob[XtN[v],,x[XiN[v],],]
-               }, mcoutput$W),
-               c(3,1,2)) ),
-             na.rm=TRUE)
-           ## colSums(
-           ##      log(array(
-           ##          t(sapply(seq_len(XnN), function(v){
-           ##              mcoutput$Nprob[XtN[v],,x[XiN[v],],]
-           ##          })),
-           ##          dim=c(XnN, nclusters, nsamples))),
-           ##      na.rm=TRUE)
-           ## temp <- apply(mcoutput$Nprob, c(2,4), function(xx){
-           ##     xx[cbind(XtN, x[XiN,])]
-           ## })
-           ## dim(temp) <- c(XnN, nclusters, nsamples)
-           ## ##
-           ## colSums(log(temp), na.rm=TRUE)
-         }else{0}) +
-        (if(XnB > 0){# binary
-           colSums(
-             log( x[XiB,]*mcoutput$Bprob[XtB,,,drop=FALSE] +
-                  (1L-x[XiB,])*(1-mcoutput$Bprob[XtB,,,drop=FALSE]) ),
-             na.rm=TRUE)
-         }else{0})
-    } # end probX
-    probX <- t(exp(apply(probX, 2, function(xx){xx - max(xx[is.finite(xx)])})))
-    ## probX: each row is a MC sample
-    ## the row elements are the probabilities of the clusters
-    ## for that MC sample
-
-    ## Y is drawn as follows, for each MC sample:
+    ## Z is drawn as follows, for each MC sample:
     ## 1. draw a cluster, according to its probability
     ## 2. draw from the appropriate kernel distributions
     ## using the parameters of that cluster
-    Ws <- extraDistr::rcat(n=n, prob=probX)
-    Yout <- c( # rows: n samples, cols: Y variates
-    (if(YnR > 0){# continuous
-       totake <- cbind(rep(YtR,each=n), Ws, sseq)
-       rnorm(n=n*YnR,
+    Ws <- extraDistr::rcat(n=n, prob=t(mcoutput$W))
+    Zout <- c(
+    (if(ZnR > 0){# continuous
+       totake <- cbind(rep(ZtR,each=n), Ws, sseq)
+       rnorm(n=n*ZnR,
              mean=mcoutput$Rmean[totake],
              sd=mcoutput$Rvar[totake]
              )
      }else{NULL}),
-    (if(YnC > 0){# censored
-       totake <- cbind(rep(YtC,each=n), Ws, sseq)
-       rnorm(n=n*YnC,
+    (if(ZnC > 0){# censored
+       totake <- cbind(rep(ZtC,each=n), Ws, sseq)
+       rnorm(n=n*ZnC,
              mean=mcoutput$Rmean[totake],
              sd=mcoutput$Rvar[totake]
              )
      }else{NULL}),
-    (if(YnD > 0){# continuous discretized
-       totake <- cbind(rep(YtD,each=n), Ws, sseq)
-       rnorm(n=n*YnD,
+    (if(ZnD > 0){# continuous discretized
+       totake <- cbind(rep(ZtD,each=n), Ws, sseq)
+       rnorm(n=n*ZnD,
              mean=mcoutput$Rmean[totake],
              sd=mcoutput$Rvar[totake]
              )
      }else{NULL}),
-    (if(YnO > 0){# ordinal
-       totake <- cbind(rep(YtO,each=n), Ws, sseq)
-       rnorm(n=n*YnO,
+    (if(ZnO > 0){# ordinal
+       totake <- cbind(rep(ZtO,each=n), Ws, sseq)
+       rnorm(n=n*ZnO,
              mean=mcoutput$Rmean[totake],
              sd=mcoutput$Rvar[totake]
              )
      }else{NULL}),
-    (if(YnN > 0){# nominal
-       totake <- cbind(rep(YtN,each=n), Ws, sseq)
-       extraDistr::rcat(n=n*YnO,
+    (if(ZnN > 0){# nominal
+       totake <- cbind(rep(ZtN,each=n), Ws, sseq)
+       extraDistr::rcat(n=n*ZnO,
                         prob=apply(mcoutput$Nprob,3,`[`,totake))
      }else{NULL}),
-    (if(YnB > 0){# binary
-       totake <- cbind(rep(YtB,each=n), Ws, sseq)
-       extraDistr::rbern(n=n*YnO,
+    (if(ZnB > 0){# binary
+       totake <- cbind(rep(ZtB,each=n), Ws, sseq)
+       extraDistr::rbern(n=n*ZnO,
                          prob=mcoutput$Bprob[totake])
      }else{NULL})
     )
-    dim(Yout) <- c(n, Yn)
-  } # end foreach
 
-  ## Remove doRNG information
-  attr(out,'rng') <- NULL
-  attr(out,'doRNG_version') <- NULL
+  ## rows: n samples, cols: Z variates
+  dim(Zout) <- c(n, length(Zvrt))
+  ## Match to original order of Zvrt
+  Zout <- Zout[, match(Zvrt, Zvrt[c(ZiR, ZiC, ZiD, ZiO, ZiN, ZiB)])]
 
-  ## Reorder Y outputs (columns) according to original Yvrt
-  Yout <- Yout[,Yorder]
+
+  ## Reorder Z outputs (columns) according to original Yvrt and Xvrt
+
+
+
   
 
 

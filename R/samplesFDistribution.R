@@ -112,7 +112,7 @@ samplesFDistribution <- function(Y, X, mcoutput, subsamples, jacobian = TRUE,
       }
     }
   }
-  # Add check to see that mcoutput is correct type of object?
+  ## Add check to see that mcoutput is correct type of object?
   auxmetadata <- mcoutput$auxmetadata
   mcoutput$auxmetadata <- NULL
 
