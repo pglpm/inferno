@@ -337,7 +337,7 @@ mutualinfo <- function(Yvrt, Xvrt, mcoutput, n=NULL, useOquantiles=TRUE, paralle
     Rout = 'id',
     Cout = 'idboundinf',
     Dout = 'idboundinf',
-    Oout = '',
+    Oout = 'original',
     Nout = '',
     Bout = '',
     useOquantiles = useOquantiles)

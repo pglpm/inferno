@@ -1,5 +1,5 @@
 #### Calculate and save transformation function for ordinal variates
-createQfunction <- function(nint = 8192, nsamples = 2^24L, mean = 0, sd = 1, shapelo = 0.5, shapehi = 0.5, rate = 1, file = paste0('Qfunction', nint, '_', sd), plot = F) {
+createQfunction <- function(nint = 3600, nsamples = 2^24L, mean = 0, sd = 3, shapelo = 0.5, shapehi = 0.5, rate = 1, file = paste0('__Qfunction', nint, '_', sd), plot = F) {
   ##
   seqnint <- (1:(nint - 1)) / nint
   means <- rnorm(nsamples, mean = mean, sd = sd)
@@ -21,7 +21,25 @@ createQfunction <- function(nint = 8192, nsamples = 2^24L, mean = 0, sd = 1, sha
   rm(xsamples)
   oquants <- (oquants - rev(oquants)) / 2
   approxq <- approxfun(x = seqnint, y = oquants, yleft = -Inf, yright = +Inf)
-  if (is.character(plot)) {
+  approxinvq <- approxfun(y = seqnint, x = oquants, yleft = 0, yright = 1)
+
+  if (is.character(file)) {
+    saveRDS(approxq, paste0(file, '.rds'))
+    saveRDS(approxinvq, paste0(file,'_inv', '.rds'))
+  }
+  ##
+  xsamples <- approxq(seqnint)
+  oquants <- foreach(x = xsamples, .combine = c) %dopar% {
+    mean(dnorm(x, mean = means, sd = sds))
+  }
+  oquants <- (oquants + rev(oquants)) / 2
+  ##
+  ##
+  dapproxq <- approxfun(x = xsamples, y = oquants, yleft = 0, yright = 0)
+  if (is.character(file)) {
+    saveRDS(dapproxq, paste0('D', file, '.rds'))
+  }
+    if (is.character(plot)) {
     ##
     nint <- 256
     xgrid <- seq(1 / nint, (nint - 1) / nint, length.out = nint - 1)
@@ -39,22 +57,8 @@ createQfunction <- function(nint = 8192, nsamples = 2^24L, mean = 0, sd = 1, sha
     legend('topleft', c(expression(italic(Q)), 'Gauss', 'Cauchy'), lwd = c(3, 2, 2, 5), lty = c(1, 2, 4, 3), col = c(1, 2, 3, 4), bty = 'n')
     dev.off()
   }
-  if (is.character(file)) {
-    saveRDS(approxq, paste0(file, '.rds'))
-  }
-  ##
-  xsamples <- approxq(seqnint)
-  oquants <- foreach(x = xsamples, .combine = c) %dopar% {
-    mean(dnorm(x, mean = means, sd = sds))
-  }
-  oquants <- (oquants + rev(oquants)) / 2
-  ##
-  ##
-  dapproxq <- approxfun(x = xsamples, y = oquants, yleft = 0, yright = 0)
-  if (is.character(file)) {
-    saveRDS(dapproxq, paste0('D', file, '.rds'))
-  }
-  list(Q = approxq, DQ = dapproxq)
+
+  list(Q = approxq, invQ = approxinvq, DQ = dapproxq)
 }
 
 if (FALSE) {
