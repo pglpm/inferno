@@ -955,7 +955,7 @@ inferpopulation <- function(data, metadata, outputdir, nsamples = 1200,
           list(
             Nprob = aperm(array(sapply(1:vn$N, function(avar) {
               sapply(1:nclusters, function(aclus) {
-                rdirch(n = 1, alpha = Nalpha0[avar, ])
+                nimble::rdirch(n = 1, alpha = Nalpha0[avar, ])
               })
             }), dim = c(Nmaxn, nclusters, vn$N)))
           )
@@ -966,7 +966,7 @@ inferpopulation <- function(data, metadata, outputdir, nsamples = 1200,
           outlist,
           list(
             Bprob = matrix(
-              rbeta(
+              nimble::rbeta(
                 n = vn$B * nclusters,
                 shape1 = constants$Bshapelo,
                 shape2 = constants$Bshapehi
@@ -987,18 +987,18 @@ inferpopulation <- function(data, metadata, outputdir, nsamples = 1200,
     ##################################################
     #### NIMBLE SETUP
     ##################################################
-    finitemixnimble <- nimbleModel(
+    finitemixnimble <- nimble::nimbleModel(
       code = finitemix, name = 'finitemixnimble1',
       constants = constants,
       data = datapoints,
       inits = initsfn()
     )
 
-    Cfinitemixnimble <- compileNimble(finitemixnimble,
+    Cfinitemixnimble <- nimble::compileNimble(finitemixnimble,
                                       showCompilerOutput = FALSE)
     gc() #garbage collection
 
-    confnimble <- configureMCMC(
+    confnimble <- nimble::configureMCMC(
       Cfinitemixnimble, # nodes = NULL
       monitors = c(
         'W',
@@ -1076,7 +1076,7 @@ inferpopulation <- function(data, metadata, outputdir, nsamples = 1200,
     #### change execution order for some variates
     if (changeSamplerOrder) {
       ## call this to do a first reordering of the samplers
-      mcsampler <- buildMCMC(confnimble)
+      mcsampler <- nimble::buildMCMC(confnimble)
 
       samplerorder <- c(
       'K',
@@ -1124,9 +1124,9 @@ inferpopulation <- function(data, metadata, outputdir, nsamples = 1200,
 
 #### Compile Monte Carlo sampler
     print(confnimble)
-    mcsampler <- buildMCMC(confnimble)
+    mcsampler <- nimble::buildMCMC(confnimble)
     ## print(confnimble$getUnsampledNodes())
-    Cmcsampler <- compileNimble(mcsampler, resetFunctions = TRUE)
+    Cmcsampler <- nimble::compileNimble(mcsampler, resetFunctions = TRUE)
 
     cat('\nSetup time', printtime(Sys.time() - timecount), '\n')
 
