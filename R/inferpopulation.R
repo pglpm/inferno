@@ -646,7 +646,7 @@ inferpopulation <- function(data, metadata, outputdir, nsamples = 1200,
   chaininfo <- foreach::foreach(acore = 1:ncores,
                                 .combine = rbind,
                                 .inorder = FALSE,
-                                .packages = c('modelfreeinference')
+                                .packages = c('modelfreeinference'),
                                 .noexport = c('data')
                                 ##.packages = c('khroma', 'foreach', 'rngtools', 'data.table', 'nimble')
     ) %dochains% {
