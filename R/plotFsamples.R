@@ -5,7 +5,7 @@
 #'   path for a 'FDistribution.rds' object, or such an object itself
 #' @param data data.table object or filepath: datapoints
 #' @param plotvariability string, either 'samples' or 'quantiles': how to plot the variability of the probability distribution with new samples
-#' @param nsamples positive number: number of samples of representative frequency distributions to display as variability
+#' @param nFsamples positive number: if plotvariability='samples', then number of samples of representative frequency distributions to display as variability; if plotvariability='quantiles', then the quantiles (in range 0 to 0.5) to show
 #' @param datahistogram bool: plot the data as histogram?
 #' @param datascatter bool: plot the data as scatterplot along the x-axis?
 #' @param parallel Bool or numeric: whether to use pre-existing parallel
@@ -17,7 +17,7 @@
 #' @return A list with the mutual information, its error, and its unit
 #' @export
 plotFsamples <- function(file, mcoutput, data, plotmeans = TRUE,
-                         plotvariability = 'samples', nsamples = 100,
+                         plotvariability = 'samples', nFsamples = 100,
                          datahistogram = TRUE, datascatter = TRUE,
                          useOquantiles = FALSE, parallel = TRUE,
                          silent = FALSE) {
@@ -62,23 +62,23 @@ plotFsamples <- function(file, mcoutput, data, plotmeans = TRUE,
   addylab <- ''
   if (plotvariability == 'quantiles') {
     plotmeans <- TRUE
-    if (any(uncertainty <= 0 | uncertainty >= 1)) {
-      uncertainty <- c(1, 7) / 8
+    if (any(nFsamples <= 0 | nFsamples >= 1)) {
+      nFsamples <- c(1, 7) / 8
     }
-    quants <- sort(unique(round(c(uncertainty, 1 - uncertainty), 6)))
+    quants <- sort(unique(round(c(nFsamples, 1 - nFsamples), 6)))
     mcsubsamples <- subsamples <- 1:nsamples
     addylab <- paste0(' (', ceiling(diff(quants) * 100), '% unc.)')
   } else {
     if (nsamples == 'all') {
-      uncertainty <- nsamples
+      nFsamples <- nsamples
     }
-    uncertainty <- abs(uncertainty)
+    nFsamples <- abs(nFsamples)
     if (plotmeans) {
       mcsubsamples <- 1:nsamples
     } else {
-      mcsubsamples <- round(seq(1, nsamples, length.out = abs(uncertainty)))
+      mcsubsamples <- round(seq(1, nsamples, length.out = abs(nFsamples)))
     }
-    subsamples <- round(seq(1, length(mcsubsamples), length.out = uncertainty))
+    subsamples <- round(seq(1, length(mcsubsamples), length.out = nFsamples))
   }
 
   addplot <- FALSE
@@ -257,7 +257,7 @@ plotFsamples <- function(file, mcoutput, data, plotmeans = TRUE,
           } else {
             'l'
           }), cex = 0.5, lty = 1, lwd = 2,
-          col = yellow, alpha = 0.5, border = darkgrey, border.alpha = 3 / 4,
+          col = 4, alpha = 0.5, border = '#555555', border.alpha = 3 / 4,
           xlab = v,
           ylab = paste0('frequency', (if (vtype == 'O') {
             ''
@@ -374,7 +374,7 @@ plotFsamples <- function(file, mcoutput, data, plotmeans = TRUE,
           xlim = range(Ngrid), ylim = c(0, ymax),
           xticks = Ngrid, xlabels = Xgrid,
           type = 'b', lty = 1, lwd = 2,
-          col = yellow, alpha = 0.5, border = darkgrey, border.alpha = 3 / 4,
+          col = 4, alpha = 0.5, border = '#555555', border.alpha = 3 / 4,
           xlab = v,
           ylab = paste0('frequency', addylab),
           family = fontfamily, add = TRUE
@@ -398,7 +398,7 @@ plotFsamples <- function(file, mcoutput, data, plotmeans = TRUE,
           min = -min(diff(sort(c(par('usr')[1:2], unique(datum))))) / 1.5,
           max = min(diff(sort(c(par('usr')[1:2], unique(datum))))) / 1.5
         ),
-        col = yellow
+        col = 4
       )
       if (vtype %in% c('R', 'D', 'C', 'O')) {
         fiven <- fivenum(datum)

@@ -10,7 +10,7 @@ plotFsamples(
   data,
   plotmeans = TRUE,
   plotvariability = "samples",
-  nsamples = 100,
+  nFsamples = 100,
   datahistogram = TRUE,
   datascatter = TRUE,
   useOquantiles = FALSE,
@@ -28,7 +28,7 @@ path for a 'FDistribution.rds' object, or such an object itself}
 
 \item{plotvariability}{string, either 'samples' or 'quantiles': how to plot the variability of the probability distribution with new samples}
 
-\item{nsamples}{positive number: number of samples of representative frequency distributions to display as variability}
+\item{nFsamples}{positive number: if plotvariability='samples', then number of samples of representative frequency distributions to display as variability; if plotvariability='quantiles', then the quantiles (in range 0 to 0.5) to show}
 
 \item{datahistogram}{bool: plot the data as histogram?}
 

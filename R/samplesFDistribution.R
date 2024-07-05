@@ -20,7 +20,7 @@
 #' @return A list with the mutual information, its error, and its unit
 #' @export
 #'
-#' @import foreach doParallel data.table extraDistr
+#' @import parallel foreach doParallel data.table extraDistr
 samplesFDistribution <- function(Y, X, mcoutput, subsamples, jacobian = TRUE,
                                  fn = identity, combine = 'rbind',
                                  useOquantiles = FALSE, parallel = TRUE,
@@ -58,7 +58,7 @@ samplesFDistribution <- function(Y, X, mcoutput, subsamples, jacobian = TRUE,
       ## registerDoSEQ()
       ## cl <- makePSOCKcluster(ncores)
       ## ##
-      cl <- makeCluster(parallel)
+      cl <- parallel::makeCluster(parallel)
       doParallel::registerDoParallel(cl)
       if (!silent) {
         cat('Registered', foreach::getDoParName(),

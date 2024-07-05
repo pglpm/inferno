@@ -15,7 +15,7 @@
 #' @return A list with the mutual information, its error, and its unit
 #' @export
 #'
-#' @import foreach doParallel data.table extraDistr
+#' @import parallel foreach doParallel data.table extraDistr
 mutualinfo <- function(Yvrt, Xvrt, mcoutput, nsamples=3600, unit='Sh', useOquantiles=FALSE, parallel=TRUE, silent=FALSE){
 
 #### Mutual information and conditional entropy between X and Y
@@ -66,7 +66,7 @@ mutualinfo <- function(Yvrt, Xvrt, mcoutput, nsamples=3600, unit='Sh', useOquant
       ## registerDoSEQ()
       ## cl <- makePSOCKcluster(ncores)
       ## ##
-      cl <- makeCluster(parallel)
+      cl <- parallel::makeCluster(parallel)
       doParallel::registerDoParallel(cl)
       if (!silent) {
         cat('Registered', foreach::getDoParName(),
@@ -861,7 +861,7 @@ mutualinfo <- function(Yvrt, Xvrt, mcoutput, nsamples=3600, unit='Sh', useOquant
 
   if (!silent && exists('cl')) {
     cat('\nClosing connections to cores.\n')
-    stopCluster(cl)
+    parallel::stopCluster(cl)
   }
 
   ## error <- sd(lpYX[,1] - lpY[,1])/sqrt(nrow(lpYX))

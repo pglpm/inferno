@@ -37,7 +37,7 @@
 #'   debugging
 #' @return name of directory containing output files, or Fdistribution object, or empty
 #' @export
-#' @import foreach doParallel doRNG data.table LaplacesDemon nimble
+#' @import parallel foreach doParallel doRNG data.table nimble LaplacesDemon
 inferpopulation <- function(data, metadata, outputdir, nsamples = 1200,
                             nchains = 120, nsamplesperchain = 10, parallel = TRUE,
                             seed = NULL, cleanup = TRUE,
@@ -86,7 +86,7 @@ inferpopulation <- function(data, metadata, outputdir, nsamples = 1200,
       ## registerDoSEQ()
       ## cl <- makePSOCKcluster(ncores)
       ## ##
-      cl <- makeCluster(parallel)
+      cl <- parallel::makeCluster(parallel)
       doParallel::registerDoParallel(cl)
       cat('Registered', foreach::getDoParName(),
           'with', foreach::getDoParWorkers(), 'workers\n')
@@ -645,8 +645,9 @@ inferpopulation <- function(data, metadata, outputdir, nsamples = 1200,
   #Iterate over cores, using 'acore' variable as iterator
   chaininfo <- foreach::foreach(acore = 1:ncores,
                                 .combine = rbind, .inorder = FALSE,
-                                .noexport = c('data'),
-                                .packages = c('khroma', 'foreach', 'rngtools')
+                                .noexport = c('data')
+                                ##.packages = c('khroma', 'foreach', 'rngtools', 'data.table', 'nimble')
+                               ## .packages = c('modelfreeinference')
     ) %dochains% {
       ## Create log file
       ## Redirect diagnostics and service messages there
@@ -662,18 +663,19 @@ inferpopulation <- function(data, metadata, outputdir, nsamples = 1200,
           strftime(as.POSIXlt(Sys.time()), '%Y-%m-%d %H:%M:%S'))
       cat('\n')
 
-      suppressPackageStartupMessages(library('data.table'))
-      suppressPackageStartupMessages(library('nimble'))
+      ## suppressPackageStartupMessages(library('data.table'))
+      ## suppressPackageStartupMessages(library('nimble'))
+      requireNamespace("nimble", quietly = TRUE)
 
       ## We have to source scripts again for each chain to be able to access them.
-      source('plotFsamples.R')
-      source('samplesFDistribution.R')
-      source('tplotfunctions.R')
-      source('util_vtransform.R')
-      source('util_proposeburnin.R')
-      source('util_proposethinning.R')
-      source('util_mcsubset.R')
-      source('util_mcmclength.R')
+      ## source('plotFsamples.R')
+      ## source('samplesFDistribution.R')
+      ## source('tplotfunctions.R')
+      ## source('util_vtransform.R')
+      ## source('util_proposeburnin.R')
+      ## source('util_proposethinning.R')
+      ## source('util_mcsubset.R')
+      ## source('util_mcmclength.R')
 
 
       ## Function for diagnostics
@@ -1236,7 +1238,7 @@ inferpopulation <- function(data, metadata, outputdir, nsamples = 1200,
         ##                         suppressWarnings(sink())
         ##                         suppressWarnings(sink(NULL,type='message'))
         ##                         registerDoSEQ()
-        ##                         if(ncores > 1){ stopCluster(cl) }
+        ##                         if(ncores > 1){ parallel::stopCluster(cl) }
         ##                         stop('...TOO MANY NON-FINITE OUTPUTS. ABORTING')
         ##                     }else{
         ##                         mcsamples <- mcsamples[-unique(toRemove[,1]),,drop=FALSE]
@@ -1265,7 +1267,7 @@ inferpopulation <- function(data, metadata, outputdir, nsamples = 1200,
             ## suppressWarnings(sink())
             ## suppressWarnings(sink(NULL,type='message'))
             ## ## registerDoSEQ()
-            ## if(exists('cl')){ stopCluster(cl) }
+            ## if(exists('cl')){ parallel::stopCluster(cl) }
             ## stop('...TOO MANY NON-FINITE OUTPUTS. ABORTING')
             mcsamples <- NULL
           } else {
@@ -1804,7 +1806,7 @@ inferpopulation <- function(data, metadata, outputdir, nsamples = 1200,
     mcoutput = c(mcsamples, list(auxmetadata = auxmetadata)),
     data = data,
     plotvariability = 'samples',
-    nsamples = showsamples, plotmeans = TRUE,
+    nFsamples = showsamples, plotmeans = TRUE,
     datahistogram = TRUE, datascatter = TRUE,
     useOquantiles = useOquantiles,
     parallel = TRUE, silent = TRUE
@@ -1817,7 +1819,7 @@ inferpopulation <- function(data, metadata, outputdir, nsamples = 1200,
     mcoutput = c(mcsamples, list(auxmetadata = auxmetadata)),
     data = data,
     plotvariability = 'quantiles',
-    nsamples = showquantiles, plotmeans = TRUE,
+    nFsamples = showquantiles, plotmeans = TRUE,
     datahistogram = TRUE, datascatter = TRUE,
     useOquantiles = useOquantiles,
     parallel = TRUE, silent = TRUE
@@ -1827,7 +1829,7 @@ inferpopulation <- function(data, metadata, outputdir, nsamples = 1200,
 
   if (exists('cl')) {
     cat('\nClosing connections to cores.\n')
-    stopCluster(cl)
+    parallel::stopCluster(cl)
   }
 
 

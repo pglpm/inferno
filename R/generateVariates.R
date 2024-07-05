@@ -33,7 +33,7 @@ generateVariates <- function(n=1, Yvrt, X=NULL, mcoutput, combine='rbind', useOq
       ## registerDoSEQ()
       ## cl <- makePSOCKcluster(ncores)
       ## ##
-      cl <- makeCluster(parallel)
+      cl <- parallel::makeCluster(parallel)
       doParallel::registerDoParallel(cl)
       if (!silent) {
         cat('Registered', foreach::getDoParName(),

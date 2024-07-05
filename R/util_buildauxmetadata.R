@@ -13,7 +13,7 @@ buildauxmetadata <- function(data, metadata) {
 
   sdoveriqr <- 0.5 / qnorm(0.75)
 
-  Qf <- readRDS('Qfunction3600_3.rds')
+  ## Qf <- readRDS('Qfunction3600_3.rds')
 
   datafile <- NULL
   if (is.character(data) && file.exists(data)) {
