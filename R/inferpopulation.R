@@ -37,7 +37,7 @@
 #'   debugging
 #' @return name of directory containing output files, or Fdistribution object, or empty
 #' @export
-#' @import foreach doParallel doRNG data.table LaplacesDemon
+#' @import foreach doParallel doRNG data.table LaplacesDemon nimble
 inferpopulation <- function(data, metadata, outputdir, nsamples = 1200,
                             nchains = 120, nsamplesperchain = 10, parallel = TRUE,
                             seed = NULL, cleanup = TRUE,
