@@ -1,6 +1,6 @@
 Package: modelfreeinference
 Title: Bayesian non-parametric exchangeable inference
-Version: 0.0.0.9000
+Version: 0.0.1
 Authors@R: c(
   person("PierGianLuca", "Porta Mana", ,
   "pgl@portamana.org", role = c("aut", "cre"),
