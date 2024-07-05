@@ -644,10 +644,11 @@ inferpopulation <- function(data, metadata, outputdir, nsamples = 1200,
 
   #Iterate over cores, using 'acore' variable as iterator
   chaininfo <- foreach::foreach(acore = 1:ncores,
-                                .combine = rbind, .inorder = FALSE,
+                                .combine = rbind,
+                                .inorder = FALSE,
+                                .packages = c('modelfreeinference')
                                 .noexport = c('data')
                                 ##.packages = c('khroma', 'foreach', 'rngtools', 'data.table', 'nimble')
-                               ## .packages = c('modelfreeinference')
     ) %dochains% {
       ## Create log file
       ## Redirect diagnostics and service messages there
