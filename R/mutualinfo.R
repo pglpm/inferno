@@ -11,7 +11,7 @@
 #'   workers, or how many to create and use
 #' @param useOquantiles Bool: internal, use metadata quantiles for ordinal variates
 #' @param silent Bool: give warnings or updates in the computation
-#' @return A list with MI, the mutual information, and the unit
+#' @return A list with the mutual information, its error, and its unit
 #' @import foreach doParallel data.table
 mutualinfo <- function(Yvrt, Xvrt, mcoutput, nsamples=3600, unit='Sh', useOquantiles=FALSE, parallel=TRUE, silent=FALSE){
 
