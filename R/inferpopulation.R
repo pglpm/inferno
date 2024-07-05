@@ -646,7 +646,7 @@ inferpopulation <- function(data, metadata, outputdir, nsamples = 1200,
   chaininfo <- foreach::foreach(acore = 1:ncores,
                                 .combine = rbind,
                                 .inorder = FALSE,
-                                .packages = c('modelfreeinference'),
+                                .packages = c('nimble'),
                                 .noexport = c('data')
                                 ##.packages = c('khroma', 'foreach', 'rngtools', 'data.table', 'nimble')
     ) %dochains% {
@@ -666,7 +666,8 @@ inferpopulation <- function(data, metadata, outputdir, nsamples = 1200,
 
       ## suppressPackageStartupMessages(library('data.table'))
       ## suppressPackageStartupMessages(library('nimble'))
-      requireNamespace("nimble", quietly = TRUE)
+      ## requireNamespace("nimble", quietly = TRUE)
+      ##library('nimble')
 
       ## We have to source scripts again for each chain to be able to access them.
       ## source('plotFsamples.R')
@@ -966,7 +967,7 @@ inferpopulation <- function(data, metadata, outputdir, nsamples = 1200,
           outlist,
           list(
             Bprob = matrix(
-              nimble::rbeta(
+              rbeta(
                 n = vn$B * nclusters,
                 shape1 = constants$Bshapelo,
                 shape2 = constants$Bshapehi
