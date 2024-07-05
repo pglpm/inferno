@@ -1,2 +1,0 @@
-name,type,datamin,datamax,datamaxrep,dataNvalues,Nvalues,rounding,domainmin,domainmax,minincluded,maxincluded,centralvalue,lowvalue,highvalue,plotmin,plotmax
-Rvar,continuous,-1,1,1,3,Inf,,-50,50,FALSE,FALSE,0,-1,1,-9,9
