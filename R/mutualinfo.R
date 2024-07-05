@@ -1,4 +1,18 @@
-#### In progress
+#' Description
+#'
+#' @param Yvrt String vector: first group of joint variates
+#' @param Xvrt String vector: second group of joint variates
+#' @param mcoutput Either a string with the name of a directory or full path
+#'   for a 'FDistribution.rds' object, or such an object itself
+#' @param nsamples numeric: number of samples from which to approximately
+#'   calculate the mutual information. Default 3600
+#' @param unit Either one of 'Sh' (default), 'Hart', 'nat', or a positive real
+#' @param parallel, Bool or numeric: whether to use pre-existing parallel
+#'   workers, or how many to create and use
+#' @param useOquantiles Bool: internal, use metadata quantiles for ordinal variates
+#' @param silent Bool: give warnings or updates in the computation
+#' @return A list with MI, the mutual information, and the unit
+#' @import foreach doParallel data.table
 mutualinfo <- function(Yvrt, Xvrt, mcoutput, nsamples=3600, unit='Sh', useOquantiles=FALSE, parallel=TRUE, silent=FALSE){
 
 #### Mutual information and conditional entropy between X and Y
@@ -387,7 +401,7 @@ mutualinfo <- function(Yvrt, Xvrt, mcoutput, nsamples=3600, unit='Sh', useOquant
                      Nout = '',
                      Bout = '',
                      useOquantiles = useOquantiles)
-  
+
   Y2 <- Zout[, Yvrt]
   X2 <- Zout[, Xvrt]
   rm(Zout)
