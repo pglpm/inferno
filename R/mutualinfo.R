@@ -861,7 +861,6 @@ mutualinfo <- function(Yvrt, Xvrt, mcoutput, nsamples=3600, unit='Sh', useOquant
     stopCluster(cl)
   }
 
-  error <- sd(lpYX - lpY)/sqrt(length(lpYX))
   ## error <- sd(lpYX[,1] - lpY[,1])/sqrt(nrow(lpYX))
   ## error2 <- mean(lpYX[,2] + lpY[,2])
 
@@ -879,6 +878,6 @@ mutualinfo <- function(Yvrt, Xvrt, mcoutput, nsamples=3600, unit='Sh', useOquant
   ##      H = -lpY)
 
   list(MI = mean(lpYX - lpY),
-       error = error,
+       error = sd(lpYX - lpY)/sqrt(n),
        unit = unit)
 }
