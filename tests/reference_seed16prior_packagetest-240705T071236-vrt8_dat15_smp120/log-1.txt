@@ -1,4 +1,4 @@
-Log core 1 - Current time: 2024-06-26 11:37:27
+Log core 1 - Current time: 2024-07-05 07:12:37
 Defining model
   [Note] 'Clatinit' is provided in 'constants' but not used in the model code and is being ignored.
   [Note] 'Dlatinit' is provided in 'constants' but not used in the model code and is being ignored.
@@ -18,14 +18,7 @@ Compiling
 thin = 1: Bprob, Cmean, Cvar, Dmean, Dvar, Nprob, Omean, Ovar, Rmean, Rvar, W
 thin2 = 1: K
 ===== Samplers =====
-posterior_predictive sampler (8)
-  - Ndata[]  (2 elements)
-  - Bdata[]  (1 element)
-  - Rdata[]  (2 elements)
-  - Clat[]  (1 element)
-  - Dlat[]  (1 element)
-  - Olat[]  (1 element)
-conjugate sampler (1153)
+posterior_predictive sampler (833)
   - Rmean[]  (128 elements)
   - Rrate[]  (128 elements)
   - Cmean[]  (64 elements)
@@ -35,37 +28,15 @@ conjugate sampler (1153)
   - Omean[]  (64 elements)
   - Orate[]  (64 elements)
   - Bprob[]  (64 elements)
-  - Rvar[]  (128 elements)
-  - Cvar[]  (64 elements)
-  - Dvar[]  (64 elements)
-  - Ovar[]  (64 elements)
-  - Nprob[]  (128 multivariate elements)
-  - W[1:64] 
-categorical sampler (151)
   - Alpha
-  - K[]  (150 elements)
-RW sampler (372)
-  - Clat[]  (74 elements)
-  - Dlat[]  (149 elements)
-  - Olat[]  (149 elements)
+  - Nprob[]  (128 multivariate elements)
 ===== Comments =====
   [Note] Additional downstream predictive nodes are also being sampled by posterior_predictive sampler.
-  [Note] Reordering posterior_predictive samplers to execute last
 ===== Monitors =====
 thin = 1: Bprob, Cmean, Cvar, Dmean, Dvar, Nprob, Omean, Ovar, Rmean, Rvar, W
 thin2 = 1: K
 ===== Samplers =====
-slice sampler (151)
-  - Alpha
-  - K[]  (150 elements)
-posterior_predictive sampler (8)
-  - Ndata[]  (2 elements)
-  - Bdata[]  (1 element)
-  - Rdata[]  (2 elements)
-  - Clat[]  (1 element)
-  - Dlat[]  (1 element)
-  - Olat[]  (1 element)
-conjugate sampler (1153)
+posterior_predictive sampler (833)
   - Rmean[]  (128 elements)
   - Rrate[]  (128 elements)
   - Cmean[]  (64 elements)
@@ -75,44 +46,98 @@ conjugate sampler (1153)
   - Omean[]  (64 elements)
   - Orate[]  (64 elements)
   - Bprob[]  (64 elements)
-  - Rvar[]  (128 elements)
-  - Cvar[]  (64 elements)
-  - Dvar[]  (64 elements)
-  - Ovar[]  (64 elements)
+  - Alpha
   - Nprob[]  (128 multivariate elements)
-  - W[1:64] 
-RW sampler (372)
-  - Clat[]  (74 elements)
-  - Dlat[]  (149 elements)
-  - Olat[]  (149 elements)
 ===== Comments =====
   [Note] Additional downstream predictive nodes are also being sampled by posterior_predictive sampler.
 Compiling
   [Note] This may take a minute.
   [Note] Use 'showCompilerOutput = TRUE' to see C++ compilation details.
 
-Setup time 1.5 mins 
+Setup time 30 secs 
 
 Chain # 1 (chain 1 of 3 for this core)
 Iterations: 1024 
 |-------------|-------------|-------------|-------------|
 |-------------------------------------------------------|
 
-Current time: 2024-06-26 11:39:25
-MCMC time 28 secs 
+Current time: 2024-07-05 07:13:09
+MCMC time 0.97 secs 
 
 OCCUPIED CLUSTERS: 1 OF 64 
 
 ESSs: 1024
 IATs: 1
-BMKs: 0.081
-MCSEs: 3.79
+BMKs: 0.09
+MCSEs: 3.05
 Stationary: TRUE
 Burn-in I: 0
 Burn-in II: 0
 Proposed thinning: 1 
 
-Diagnostics time 1.5 secs 
+Diagnostics time 0.94 secs 
+
+Number of iterations 1024 , required 18 
+
+Keeping last 10 samples with thinning 2 
+
+Plotting traces and samples.
+
+Plotting MCMC traces
+Current time: 2024-07-05 07:13:12
+MCMC + diagnostics time 4.4 secs 
+
+Chain # 2 (chain 2 of 3 for this core)
+Iterations: 1024 
+|-------------|-------------|-------------|-------------|
+|-------------------------------------------------------|
+
+Current time: 2024-07-05 07:13:13
+MCMC time 5.4 secs 
+
+OCCUPIED CLUSTERS: 1 OF 64 
+
+ESSs: 1024
+IATs: 1
+BMKs: 0.131
+MCSEs: 2.53
+Stationary: FALSE
+Burn-in I: 0
+Burn-in II: 0
+Proposed thinning: 1 
+
+Diagnostics time 0.55 secs 
+
+Number of iterations 1024 , required 18 
+
+Keeping last 10 samples with thinning 2 
+
+Plotting traces and samples.
+
+Plotting MCMC traces
+Current time: 2024-07-05 07:13:15
+MCMC + diagnostics time 7.2 secs 
+
+Chain # 3 (chain 3 of 3 for this core)
+Iterations: 1024 
+|-------------|-------------|-------------|-------------|
+|-------------------------------------------------------|
+
+Current time: 2024-07-05 07:13:16
+MCMC time 8.2 secs 
+
+OCCUPIED CLUSTERS: 1 OF 64 
+
+ESSs: 1024
+IATs: 1
+BMKs: 0.085
+MCSEs: 3.02
+Stationary: TRUE
+Burn-in I: 0
+Burn-in II: 0
+Proposed thinning: 1 
+
+Diagnostics time 0.95 secs 
 
 Number of iterations 1024 , required 36 
 
@@ -121,70 +146,8 @@ Keeping last 10 samples with thinning 4
 Plotting traces and samples.
 
 Plotting MCMC traces
-Current time: 2024-06-26 11:39:29
-MCMC + diagnostics time 32 secs 
+Current time: 2024-07-05 07:13:18
+MCMC + diagnostics time 10 secs 
 
-Chain # 2 (chain 2 of 3 for this core)
-Iterations: 1024 
-|-------------|-------------|-------------|-------------|
-|-------------------------------------------------------|
-
-Current time: 2024-06-26 11:39:56
-MCMC time 58 secs 
-
-OCCUPIED CLUSTERS: 1 OF 64 
-
-ESSs: 304
-IATs: 2
-BMKs: 0.093
-MCSEs: 6.07
-Stationary: TRUE
-Burn-in I: 0
-Burn-in II: 0
-Proposed thinning: 7 
-
-Diagnostics time 1 secs 
-
-Number of iterations 1024 , required 126 
-
-Keeping last 10 samples with thinning 14 
-
-Plotting traces and samples.
-
-Plotting MCMC traces
-Current time: 2024-06-26 11:39:58
-MCMC + diagnostics time 1 mins 
-
-Chain # 3 (chain 3 of 3 for this core)
-Iterations: 1024 
-|-------------|-------------|-------------|-------------|
-|-------------------------------------------------------|
-
-Current time: 2024-06-26 11:40:25
-MCMC time 1.5 mins 
-
-OCCUPIED CLUSTERS: 1 OF 64 
-
-ESSs: 119
-IATs: 8
-BMKs: 0.14
-MCSEs: 9.32
-Stationary: TRUE
-Burn-in I: 0
-Burn-in II: 0
-Proposed thinning: 14 
-
-Diagnostics time 0.66 secs 
-
-Number of iterations 1024 , required 252 
-
-Keeping last 10 samples with thinning 28 
-
-Plotting traces and samples.
-
-Plotting MCMC traces
-Current time: 2024-06-26 11:40:27
-MCMC + diagnostics time 1.5 mins 
-
-Current time: 2024-06-26 11:40:27
-Total time 1.5 mins 
+Current time: 2024-07-05 07:13:18
+Total time 10 secs 

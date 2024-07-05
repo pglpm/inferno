@@ -1,4 +1,4 @@
-Log core 1 - Current time: 2024-06-26 11:33:46
+Log core 4 - Current time: 2024-07-05 06:49:35
 Defining model
   [Note] 'Clatinit' is provided in 'constants' but not used in the model code and is being ignored.
   [Note] 'Dlatinit' is provided in 'constants' but not used in the model code and is being ignored.
@@ -91,90 +91,90 @@ Compiling
   [Note] This may take a minute.
   [Note] Use 'showCompilerOutput = TRUE' to see C++ compilation details.
 
-Setup time 43 secs 
+Setup time 42 secs 
 
-Chain # 1 (chain 1 of 3 for this core)
+Chain # 10 (chain 1 of 3 for this core)
 Iterations: 1024 
 |-------------|-------------|-------------|-------------|
 |-------------------------------------------------------|
 
-Current time: 2024-06-26 11:34:35
-MCMC time 4.6 secs 
+Current time: 2024-07-05 06:50:22
+MCMC time 3.7 secs 
 
 OCCUPIED CLUSTERS: 1 OF 64 
 
-ESSs: 128
-IATs: 8
-BMKs: 0.316
-MCSEs: 8.72
-Stationary: FALSE
-Burn-in I: 0
-Burn-in II: 0
-Proposed thinning: 30 
-
-Diagnostics time 1.6 secs 
-
-Number of iterations 1024 , required 540 
-
-Keeping last 10 samples with thinning 60 
-
-Plotting traces and samples.
-
-Plotting MCMC traces
-Current time: 2024-06-26 11:34:39
-MCMC + diagnostics time 8.6 secs 
-
-Chain # 2 (chain 2 of 3 for this core)
-Iterations: 1024 
-|-------------|-------------|-------------|-------------|
-|-------------------------------------------------------|
-
-Current time: 2024-06-26 11:34:44
-MCMC time 14 secs 
-
-OCCUPIED CLUSTERS: 1 OF 64 
-
-ESSs: 437
-IATs: 3
-BMKs: 0.078
-MCSEs: 5.92
-Stationary: FALSE
-Burn-in I: 0
-Burn-in II: 0
-Proposed thinning: 4 
-
-Diagnostics time 0.73 secs 
-
-Number of iterations 1024 , required 72 
-
-Keeping last 10 samples with thinning 8 
-
-Plotting traces and samples.
-
-Plotting MCMC traces
-Current time: 2024-06-26 11:34:47
-MCMC + diagnostics time 16 secs 
-
-Chain # 3 (chain 3 of 3 for this core)
-Iterations: 1024 
-|-------------|-------------|-------------|-------------|
-|-------------------------------------------------------|
-
-Current time: 2024-06-26 11:34:52
-MCMC time 21 secs 
-
-OCCUPIED CLUSTERS: 1 OF 64 
-
-ESSs: 199
+ESSs: 110
 IATs: 5
-BMKs: 0.052
-MCSEs: 7.85
+BMKs: 0.216
+MCSEs: 7.49
+Stationary: FALSE
+Burn-in I: 0
+Burn-in II: 0
+Proposed thinning: 9 
+
+Diagnostics time 1.3 secs 
+
+Number of iterations 1024 , required 162 
+
+Keeping last 10 samples with thinning 18 
+
+Plotting traces and samples.
+
+Plotting MCMC traces
+Current time: 2024-07-05 06:50:25
+MCMC + diagnostics time 7.2 secs 
+
+Chain # 11 (chain 2 of 3 for this core)
+Iterations: 1024 
+|-------------|-------------|-------------|-------------|
+|-------------------------------------------------------|
+
+Current time: 2024-07-05 06:50:29
+MCMC time 11 secs 
+
+OCCUPIED CLUSTERS: 1 OF 64 
+
+ESSs: 246
+IATs: 2
+BMKs: 0.079
+MCSEs: 5.81
+Stationary: FALSE
+Burn-in I: 0
+Burn-in II: 0
+Proposed thinning: 3 
+
+Diagnostics time 0.58 secs 
+
+Number of iterations 1024 , required 54 
+
+Keeping last 10 samples with thinning 6 
+
+Plotting traces and samples.
+
+Plotting MCMC traces
+Current time: 2024-07-05 06:50:31
+MCMC + diagnostics time 13 secs 
+
+Chain # 12 (chain 3 of 3 for this core)
+Iterations: 1024 
+|-------------|-------------|-------------|-------------|
+|-------------------------------------------------------|
+
+Current time: 2024-07-05 06:50:35
+MCMC time 17 secs 
+
+OCCUPIED CLUSTERS: 1 OF 64 
+
+ESSs: 152
+IATs: 6
+BMKs: 0.127
+MCSEs: 6.89
 Stationary: TRUE
 Burn-in I: 0
 Burn-in II: 0
 Proposed thinning: 10 
 
-Diagnostics time 1.4 secs 
+Diagnostics time 0.98 secs 
 
 Number of iterations 1024 , required 180 
 
@@ -183,8 +183,8 @@ Keeping last 10 samples with thinning 20
 Plotting traces and samples.
 
 Plotting MCMC traces
-Current time: 2024-06-26 11:34:55
-MCMC + diagnostics time 24 secs 
+Current time: 2024-07-05 06:50:37
+MCMC + diagnostics time 19 secs 
 
-Current time: 2024-06-26 11:34:55
-Total time 24 secs 
+Current time: 2024-07-05 06:50:37
+Total time 19 secs 

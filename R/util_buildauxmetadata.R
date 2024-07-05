@@ -19,18 +19,7 @@ buildauxmetadata <- function(data, metadata) {
   if (is.character(data) && file.exists(data)) {
     datafile <- data
     data <- data.table::fread(datafile, na.strings = '')
-  }
   data <- data.table::as.data.table(data)
-  if (is.character(metadata) && file.exists(metadata)) {
-    metadata <- data.table::fread(metadata, na.strings = '')
-  }
-  metadata <- data.table::as.data.table(metadata)
-  ## consistency checks
-  if (!all(metadata$name %in% colnames(data))) {
-    stop('ERROR: missing variates in data file')
-  }
-  if (!all(colnames(data) %in% metadata$name)) {
-    cat('Warning: data file has additional variates. Dropping them.\n')
   }
   ##
   ## Q <- readRDS('Qfunction512.rds')

@@ -16,17 +16,12 @@ source('bnpi.R')
 testdir <- file.path('..', 'tests')
 
 refdir <- file.path(testdir,
-                    'reference_seed16_packagetest-240705T064934-vrt8_dat15_smp120'
+                    'reference_seed16prior_packagetest-240705T071236-vrt8_dat15_smp120'
                     )
 
 seed <- 16
 
 outputdirPrefix <- file.path(testdir,'__packagetest')
-
-ncores <- 4
-library('doParallel')
-mycluster <- makeCluster(ncores, outfile="")
-registerDoParallel(mycluster)
 
 currenttestdir <- inferpopulation(data = file.path(testdir, 'testdata.csv'),
                         metadata = file.path(testdir, 'metatestdata.csv'),
@@ -34,13 +29,11 @@ currenttestdir <- inferpopulation(data = file.path(testdir, 'testdata.csv'),
                         output = 'directory',
                         appendtimestamp = TRUE, appendinfo = TRUE,
                         nsamples = 120, nchains = 12,
-                        cleanup = FALSE, # parallel = 4,
+                        cleanup = FALSE, parallel = 4,
+                        prior = TRUE,
+                        ## lldata = 12,
                         useOquantiles = FALSE,
                         seed = seed)
-
-## Close connections to cores
-stopCluster(mycluster)
-
 
 #### Test whether Fdistribution output is identical
 cat('\nVerifying equality of "Fdistribution.rds" (TRUE = passed):\n')
@@ -69,3 +62,4 @@ print(identical(currentfile, reffile))
 #### return to original directory, in case called with 'source'
 cat('\nSwitching to original directory\n')
 setwd(startdir)
+

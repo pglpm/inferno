@@ -17,7 +17,7 @@ testdir <- file.path('..', 'tests')
 
 refdir <- file.path(testdir,
                     ## 'reference_packagetest_seed16_240601T0912-V8-D15-K64-S120')
-                 'reference_packagetest_seed16-V8-D150-K64-S120')
+                 'reference_seed16_packagetest-240705T065642-vrt8_dat150_smp120')
 
 seed <- 16
 
@@ -32,6 +32,7 @@ currenttestdir <- inferpopulation(data = file.path(testdir, 'testdata_150.csv'),
                         cleanup = FALSE, parallel = 4,
                         ## prior = TRUE,
                         ## lldata = 12,
+                        useOquantiles = FALSE,
                         seed = seed)
 
 #### Test whether Fdistribution output is identical
