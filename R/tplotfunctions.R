@@ -6,24 +6,24 @@
 
 ## Colour-blind friendly palettes, from https://personal.sron.nl/~pault/
 ## palette(colour('bright')())
-cc <- khroma::colour('bright')()
-cc[8] <- '#000000'
-names(cc)[8] <- 'black'
-cc[9] <- '#777777'
-names(cc)[9] <- 'midgrey'
-palette(cc)
-rm(cc)
-bluepurple <- palette()[1]
-red <- palette()[2]
-green <- palette()[3]
-yellow <- palette()[4]
-blue <- palette()[5]
-redpurple <- palette()[6]
-grey <- palette()[7]
-midgrey <- palette()[9]
-darkgrey <- '#555555'
-black <- '#000000'
-scale_colour_discrete <- khroma::scale_colour_bright
+## cc <- khroma::colour('bright')()
+## cc[8] <- '#000000'
+## names(cc)[8] <- 'black'
+## cc[9] <- '#777777'
+## names(cc)[9] <- 'midgrey'
+## palette(cc)
+## rm(cc)
+## bluepurple <- palette()[1]
+## red <- palette()[2]
+## green <- palette()[3]
+## yellow <- palette()[4]
+## blue <- palette()[5]
+## redpurple <- palette()[6]
+## grey <- palette()[7]
+## midgrey <- palette()[9]
+## darkgrey <- '#555555'
+## black <- '#000000'
+## scale_colour_discrete <- khroma::scale_colour_bright
 
 ## to output in pdf format
 pdff <- function(file = 'Rplot', apaper = 5, portrait = FALSE,
@@ -139,6 +139,8 @@ tplot <- function(x, y, xlim = c(NA, NA), ylim = c(NA, NA), asp = NA,
                   pch = c(1, 0, 2, 5, 6, 3, 4), lty = 1:4, lwd = 2, alpha = NA,
                   border = palette(), border.alpha = NA, xtransf = NULL,
                   ytransf = NULL, add = FALSE) {
+  palette(colour('bright')())
+  scale_colour_discrete <- khroma::scale_colour_bright
   ## if (missing(x)) {
   ##     if (missing(y))
   ##         stop("must specify at least one of 'x' and 'y'")

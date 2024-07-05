@@ -9,9 +9,9 @@ vtransform <- function(x, auxmetadata,
                        variates = NULL,
                        invjacobian = FALSE,
                        useOquantiles = FALSE) {
-  Qf <- readRDS('Qfunction3600_3.rds')
-  DQf <- readRDS('DQfunction3600_3.rds')
-  invQf <- readRDS('invQfunction3600_3.rds')
+  ## Qf <- readRDS('Qfunction3600_3.rds')
+  ## DQf <- readRDS('DQfunction3600_3.rds')
+  ## invQf <- readRDS('invQfunction3600_3.rds')
   x <- data.table::as.data.table(cbind(x))
   if (!is.null(variates)) {
     colnames(x) <- variates

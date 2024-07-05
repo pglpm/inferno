@@ -424,26 +424,26 @@ generateVariates <- function(n=1, Yvrt, X=NULL, mcoutput, combine='rbind', useOq
 }
 
 
-set.seed(1)
-system.time(for(i in 1:1000){
-                out <- rnorm(n=3*4*10000,mean=test1,sd=test1)
-                dim(out) <- c(3,4*10000)
-                })
-##
-set.seed(1)
-system.time(for(i in 1:1000){
-                out2 <- matrix(rnorm(n=3*4*10000,mean=test1,sd=test1), nrow=3, ncol=4*10000)
-                })
-identical(out,out2)
-
-set.seed(1)
-system.time(for(i in 1:1000){
-                out2 <- matrix(rnorm(n=3*4*10000,mean=test1,sd=test1), nrow=3, ncol=4*10000)
-                })
-##
-set.seed(1)
-system.time(for(i in 1:1000){
-                out <- rnorm(n=3*4*10000,mean=test1,sd=test1)
-                dim(out) <- c(3,4*10000)
-                })
-identical(out,out2)
+## set.seed(1)
+## system.time(for(i in 1:1000){
+##                 out <- rnorm(n=3*4*10000,mean=test1,sd=test1)
+##                 dim(out) <- c(3,4*10000)
+##                 })
+## ##
+## set.seed(1)
+## system.time(for(i in 1:1000){
+##                 out2 <- matrix(rnorm(n=3*4*10000,mean=test1,sd=test1), nrow=3, ncol=4*10000)
+##                 })
+## identical(out,out2)
+## 
+## set.seed(1)
+## system.time(for(i in 1:1000){
+##                 out2 <- matrix(rnorm(n=3*4*10000,mean=test1,sd=test1), nrow=3, ncol=4*10000)
+##                 })
+## ##
+## set.seed(1)
+## system.time(for(i in 1:1000){
+##                 out <- rnorm(n=3*4*10000,mean=test1,sd=test1)
+##                 dim(out) <- c(3,4*10000)
+##                 })
+## identical(out,out2)

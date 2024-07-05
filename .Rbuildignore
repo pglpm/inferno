@@ -1,0 +1,11 @@
+^LICENSE\.md$
+.gitignore
+.backups
+.directory
+^tests$
+^test_applications$
+^proto_package$
+^prior_tests$
+^check_n_delete$
+^manual$
+^_*
