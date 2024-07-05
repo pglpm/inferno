@@ -14,6 +14,7 @@ source('inferpopulation.R')
 ## source('__orig_inferpopulation.R') # original version, for debugging
 source('samplesFDistribution.R')
 source('plotFsamples.R')
+source('mutualinfo.R')
 
 ## Utility functions (should be invisible to the user in the package)
 source('tplotfunctions.R')
