@@ -411,7 +411,7 @@ mutualinfo <- function(Yvrt, Xvrt, mcoutput, nsamples=3600, unit='Sh', useOquant
 
   ## from samplesFDistribution.R with some modifications
   lpYX <- log(foreach::foreach(y = t(Y2), x = t(X2),
-                           .combine = '+',
+                           .combine = c,
                            .inorder = TRUE) %dochains% {
 #### the loop is over the columns of y and x
 #### each instance is a 1-column vector
@@ -697,14 +697,16 @@ mutualinfo <- function(Yvrt, Xvrt, mcoutput, nsamples=3600, unit='Sh', useOquant
                                   })
                              }
                              ## Output: rows=clusters, columns=samples
-                             mean(colSums(exp(probX + probY))/colSums(exp(probX)))
+                            ## temp <- colSums(exp(probX + probY))/colSums(exp(probX))
+                            ## c(mean(temp), 1+sd(temp)/length(temp)/mean(temp))
+                            mean(colSums(exp(probX + probY))/colSums(exp(probX)))
                            }, base = base)
 
 #### STEP 3. Calculate sum_i log2_p(Y) for all samples
 
   ## from samplesFDistribution.R with some modifications
   lpY <- log(foreach::foreach(y = t(Y2),
-                          .combine = '+',
+                          .combine = c,
                           .inorder = TRUE) %dochains% {
 #### the loop is over the columns of y and x
 #### each instance is a 1-column vector
@@ -849,8 +851,19 @@ mutualinfo <- function(Yvrt, Xvrt, mcoutput, nsamples=3600, unit='Sh', useOquant
                                  })
                             }
                             ## Output: rows=clusters, columns=samples
-                             mean(colSums(exp(probX + probY))/colSums(exp(probX)))
+                            ## temp <- colSums(exp(probX + probY))/colSums(exp(probX))
+                            ## c(mean(temp), 1+sd(temp)/length(temp)/mean(temp))
+                            mean(colSums(exp(probX + probY))/colSums(exp(probX)))
                           }, base = base)
+
+  if (!silent && exists('cl')) {
+    cat('\nClosing connections to cores.\n')
+    stopCluster(cl)
+  }
+
+  error <- sd(lpYX - lpY)/sqrt(length(lpYX))
+  ## error <- sd(lpYX[,1] - lpY[,1])/sqrt(nrow(lpYX))
+  ## error2 <- mean(lpYX[,2] + lpY[,2])
 
   ## ## ***todo: transform variates to original space & calculate Jacobian***
   ## ljac <- -rowSums(
@@ -865,5 +878,7 @@ mutualinfo <- function(Yvrt, Xvrt, mcoutput, nsamples=3600, unit='Sh', useOquant
   ##      condH = -lpYX,
   ##      H = -lpY)
 
-  list(MI = lpYX - lpY, unit=unit)
+  list(MI = mean(lpYX - lpY),
+       error = error,
+       unit = unit)
 }
