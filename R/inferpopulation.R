@@ -1,8 +1,8 @@
-#' Description
+#' Monte Carlo computation of posterior distribution of population frequencies
 #'
-#' @param data data.table object or filepath ##Can we make it so that this
-#'   HAS to be data.table?
-#' @param metadata
+#' @param data data.table object or filepath: datapoints
+#' @param metadata Either the name of the csv file containing metadata
+#'   of the current dataset, or a data.frame with the metadata
 #' @param outputdir String, path to output file folder ## Rename to
 #'   outputPrefix, also addSuffix?
 #' @param nsamples Integer, nr of desired MC samples
@@ -10,10 +10,10 @@
 #' @param nsamplesperchain Integer, nr of MC samples per chain
 #' @param parallel, Bool or numeric: whether to use pre-existing parallel
 #'   workers, or how many to create and use
-#' @param niterini, Number of initial MC iterations
-#' @param miniter, Minimum number of MC iterations after every check
-#' @param maxiter, Maximum number of MC iterations
-#' @param prior, Bool: Calculate the prior distribution of F?
+#' @param niterini Number of initial MC iterations
+#' @param miniter Minimum number of MC iterations after every check
+#' @param maxiter Maximum number of MC iterations
+#' @param prior Bool: Calculate the prior distribution of F?
 #' @param thinning If NULL, let the diagnostics decide the MC thinning; if positive, use this thinning value
 #' @param plottraces Bool: plot MC traces of diagnostic values
 #' @param showKtraces Bool, when true, it saves the K parameter during
@@ -36,6 +36,7 @@
 #' @param cleanup Bool, default TRUE, removes files that can be used for
 #'   debugging
 #' @return name of directory containing output files, or Fdistribution object, or empty
+#' @export
 #' @import foreach doParallel doRNG data.table LaplacesDemon
 inferpopulation <- function(data, metadata, outputdir, nsamples = 1200,
                             nchains = 120, nsamplesperchain = 10, parallel = TRUE,
@@ -1610,8 +1611,8 @@ inferpopulation <- function(data, metadata, outputdir, nsamples = 1200,
       ##                              mcsamples=mcsubset(allmcsamples,subsamples),
       ##                              auxmetadata=auxmetadata,
       ##                              data=data,
-      ##                              plotuncertainty='samples',
-      ##                              uncertainty=showsamples,
+      ##                              plotvariability='samples',
+      ##                              nsamples=showsamples,
       ##                              plotmeans=plotmeans,
       ##                              datahistogram=TRUE, datascatter=TRUE,
       ##                              useOquantiles=useOquantiles,
@@ -1802,8 +1803,8 @@ inferpopulation <- function(data, metadata, outputdir, nsamples = 1200,
                      paste0('plotsamples_Fdistribution', dashnameroot)),
     mcoutput = c(mcsamples, list(auxmetadata = auxmetadata)),
     data = data,
-    plotuncertainty = 'samples',
-    uncertainty = showsamples, plotmeans = TRUE,
+    plotvariability = 'samples',
+    nsamples = showsamples, plotmeans = TRUE,
     datahistogram = TRUE, datascatter = TRUE,
     useOquantiles = useOquantiles,
     parallel = TRUE, silent = TRUE
@@ -1815,8 +1816,8 @@ inferpopulation <- function(data, metadata, outputdir, nsamples = 1200,
                      paste0('plotquantiles_Fdistribution', dashnameroot)),
     mcoutput = c(mcsamples, list(auxmetadata = auxmetadata)),
     data = data,
-    plotuncertainty = 'quantiles',
-    uncertainty = showquantiles, plotmeans = TRUE,
+    plotvariability = 'quantiles',
+    nsamples = showquantiles, plotmeans = TRUE,
     datahistogram = TRUE, datascatter = TRUE,
     useOquantiles = useOquantiles,
     parallel = TRUE, silent = TRUE

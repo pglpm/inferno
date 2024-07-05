@@ -1,3 +1,9 @@
+#' Various plotting and statistics functions
+#'
+#' @export
+#'
+#' @import khroma
+
 ## Colour-blind friendly palettes, from https://personal.sron.nl/~pault/
 ## palette(colour('bright')())
 cc <- khroma::colour('bright')()

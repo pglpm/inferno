@@ -1,5 +1,26 @@
-                                        # mcoutput: string with path to folder containing Fdistributions.rds or
-                                        # the direct path to the .rds file, or an R object
+#' Calculate posterior probabilities
+#'
+#' @param Y matrix or data.table: values of some variates of which we want
+#'   the joint probability one variate per column
+#' @param X matrix or data.table: values of some variates conditional on
+#'   which we want the joint probability one variate per column
+#' @param mcoutput Either a string with the name of a directory or full
+#'   path for a 'FDistribution.rds' object, or such an object itself
+#' @param subsamples numeric: number of Monte Carlo samples to use
+#' @param jacobian include the Jacobian in the output probability
+#' @param fn function to apply to the group of MCsamples,
+#'   example 'identity' or 'mean'
+#' @param combine how to combine the output for the different variate values
+#' @param parallel Bool or numeric: whether to use pre-existing parallel
+#'   workers, or how many to create and use
+#' @param useOquantiles Bool: internal, use metadata quantiles for ordinal
+#'   variates
+#' @param silent Bool: give warnings or updates in the computation
+#'
+#' @return A list with the mutual information, its error, and its unit
+#' @export
+#'
+#' @import foreach doParallel data.table
 samplesFDistribution <- function(Y, X, mcoutput, subsamples, jacobian = TRUE,
                                  fn = identity, combine = 'rbind',
                                  useOquantiles = FALSE, parallel = TRUE,

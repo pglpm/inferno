@@ -1,8 +1,23 @@
-# DESCRIPTION
-#' @param mcoutput
-#' @param silent, Boolean # could set samplesDFistribution to TRUE
+#' Plot one-dimensional posterior probabilities
+#'
+#' @param file string: name of plot output file
+#' @param mcoutput Either a string with the name of a directory or full
+#'   path for a 'FDistribution.rds' object, or such an object itself
+#' @param data data.table object or filepath: datapoints
+#' @param plotvariability string, either 'samples' or 'quantiles': how to plot the variability of the probability distribution with new samples
+#' @param nsamples positive number: number of samples of representative frequency distributions to display as variability
+#' @param datahistogram bool: plot the data as histogram?
+#' @param datascatter bool: plot the data as scatterplot along the x-axis?
+#' @param parallel Bool or numeric: whether to use pre-existing parallel
+#'   workers, or how many to create and use
+#' @param useOquantiles Bool: internal, use metadata quantiles for ordinal
+#'   variates
+#' @param silent Bool: give warnings or updates in the computation
+#'
+#' @return A list with the mutual information, its error, and its unit
+#' @export
 plotFsamples <- function(file, mcoutput, data, plotmeans = TRUE,
-                         plotuncertainty = 'samples', uncertainty = 100,
+                         plotvariability = 'samples', nsamples = 100,
                          datahistogram = TRUE, datascatter = TRUE,
                          useOquantiles = FALSE, parallel = TRUE,
                          silent = FALSE) {
@@ -12,7 +27,7 @@ plotFsamples <- function(file, mcoutput, data, plotmeans = TRUE,
   ## source('vtransform.R')
   ## source('mcsubset.R')
   ## source('samplesFDistribution.R')
-  
+
   fontfamily <- 'Palatino'
 
   ## Extract Monte Carlo output & aux-metadata
@@ -45,7 +60,7 @@ plotFsamples <- function(file, mcoutput, data, plotmeans = TRUE,
   }
 
   addylab <- ''
-  if (plotuncertainty == 'quantiles') {
+  if (plotvariability == 'quantiles') {
     plotmeans <- TRUE
     if (any(uncertainty <= 0 | uncertainty >= 1)) {
       uncertainty <- c(1, 7) / 8
@@ -54,7 +69,7 @@ plotFsamples <- function(file, mcoutput, data, plotmeans = TRUE,
     mcsubsamples <- subsamples <- 1:nsamples
     addylab <- paste0(' (', ceiling(diff(quants) * 100), '% unc.)')
   } else {
-    if (uncertainty == 'all') {
+    if (nsamples == 'all') {
       uncertainty <- nsamples
     }
     uncertainty <- abs(uncertainty)
@@ -105,7 +120,7 @@ plotFsamples <- function(file, mcoutput, data, plotmeans = TRUE,
                                           parallel = parallel,
                                           silent = TRUE)
 
-      if (plotuncertainty == 'samples') {
+      if (plotvariability == 'samples') {
         ymax <- tquant(apply(
           plotsamples[xleft & xright, subsamples, drop = FALSE],
           2, function(x) {
@@ -151,7 +166,7 @@ plotFsamples <- function(file, mcoutput, data, plotmeans = TRUE,
       }
 
       ## Plot frequency samples
-      if (plotuncertainty == 'samples') {
+      if (plotvariability == 'samples') {
         tplot(
           x = Xgrid[xleft & xright],
           y = plotsamples[xleft & xright, subsamples, drop = FALSE],
@@ -212,7 +227,7 @@ plotFsamples <- function(file, mcoutput, data, plotmeans = TRUE,
         }
       }
 
-      if (plotuncertainty == 'quantiles') {
+      if (plotvariability == 'quantiles') {
         marguncertainty <- t(apply(plotsamples, 1, function(x) {
           tquant(x, quants)
         }))
@@ -291,7 +306,7 @@ plotFsamples <- function(file, mcoutput, data, plotmeans = TRUE,
                                           parallel = parallel,
                                           silent = TRUE)
 
-      if (plotuncertainty == 'samples') {
+      if (plotvariability == 'samples') {
         ymax <- tquant(apply(
           plotsamples[, subsamples, drop = FALSE],
           2, function(x) {
@@ -318,7 +333,7 @@ plotFsamples <- function(file, mcoutput, data, plotmeans = TRUE,
       }
 
       ## Plot FALSE samples
-      if (plotuncertainty == 'samples') {
+      if (plotvariability == 'samples') {
         tplot(
           x = Ngrid, y = plotsamples[, subsamples, drop = FALSE],
           xlim = range(Ngrid), ylim = c(0, ymax),
@@ -345,7 +360,7 @@ plotFsamples <- function(file, mcoutput, data, plotmeans = TRUE,
           add = addplot
         )
       }
-      if (plotuncertainty == 'quantiles') {
+      if (plotvariability == 'quantiles') {
         marguncertainty <- t(apply(plotsamples, 1, function(x) {
           tquant(x, quants)
         }))

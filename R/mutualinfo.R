@@ -1,4 +1,4 @@
-#' Description
+#' Calculate mutual information between groups of joint variates
 #'
 #' @param Yvrt String vector: first group of joint variates
 #' @param Xvrt String vector: second group of joint variates
@@ -11,7 +11,10 @@
 #'   workers, or how many to create and use
 #' @param useOquantiles Bool: internal, use metadata quantiles for ordinal variates
 #' @param silent Bool: give warnings or updates in the computation
+#'
 #' @return A list with the mutual information, its error, and its unit
+#' @export
+#'
 #' @import foreach doParallel data.table
 mutualinfo <- function(Yvrt, Xvrt, mcoutput, nsamples=3600, unit='Sh', useOquantiles=FALSE, parallel=TRUE, silent=FALSE){
 
