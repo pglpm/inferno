@@ -159,7 +159,7 @@ mutualinfo <- function(Yvrt, Xvrt, mcoutput, nsamples=3600, unit='Sh', useOquant
   Zvrt <- c(Yvrt, Xvrt)
 
 #### Type R
-  vnames <- auxmetadata[mcmctype == 'R', name]
+  vnames <- auxmetadata[auxmetadata$mcmctype == 'R', 'name']
   XiR <- match(vnames, Xvrt)
   XtR <- which(!is.na(XiR))
   XiR <- XiR[XtR]
@@ -179,7 +179,7 @@ mutualinfo <- function(Yvrt, Xvrt, mcoutput, nsamples=3600, unit='Sh', useOquant
   ZnR <- length(ZiR)
 
 #### Type C
-  vnames <- auxmetadata[mcmctype == 'C', name]
+  vnames <- auxmetadata[auxmetadata$mcmctype == 'C', 'name']
   XiC <- match(vnames, Xvrt)
   XtC <- which(!is.na(XiC))
   XiC <- XiC[XtC]
@@ -219,7 +219,7 @@ mutualinfo <- function(Yvrt, Xvrt, mcoutput, nsamples=3600, unit='Sh', useOquant
   ZnC <- length(ZiC)
 
 #### Type D
-  vnames <- auxmetadata[mcmctype == 'D', name]
+  vnames <- auxmetadata[auxmetadata$mcmctype == 'D', 'name']
   XiD <- match(vnames, Xvrt)
   XtD <- which(!is.na(XiD))
   XiD <- XiD[XtD]
@@ -259,7 +259,7 @@ mutualinfo <- function(Yvrt, Xvrt, mcoutput, nsamples=3600, unit='Sh', useOquant
   ZnD <- length(ZiD)
 
 #### Type O
-  vnames <- auxmetadata[mcmctype == 'O', name]
+  vnames <- auxmetadata[auxmetadata$mcmctype == 'O', 'name']
   XiO <- match(vnames, Xvrt)
   XtO <- which(!is.na(XiO))
   XiO <- XiO[XtO]
@@ -272,15 +272,15 @@ mutualinfo <- function(Yvrt, Xvrt, mcoutput, nsamples=3600, unit='Sh', useOquant
   if (YnO > 0 || XnO > 0) {
     mcoutput$Ovar <- sqrt(mcoutput$Ovar)
     ##
-    Omaxn <- max(auxmetadata[name %in% vnames, Nvalues])
+    Omaxn <- max(auxmetadata[auxmetadata$name %in% vnames, 'Nvalues'])
     Oleft <- t(sapply(vnames, function(avar) {
-      nn <- auxmetadata[name == avar, Nvalues]
-      seqs <- seq(auxmetadata[name == avar, domainmin],
-                  auxmetadata[name == avar, domainmax],
+      nn <- auxmetadata[auxmetadata$name == avar, 'Nvalues']
+      seqs <- seq(auxmetadata[auxmetadata$name == avar, 'domainmin'],
+                  auxmetadata[auxmetadata$name == avar, 'domainmax'],
                   length.out = nn
                   )
       c(
-        vtransform(seqs, auxmetadata,
+        vtransform(seqs, auxmetadata = auxmetadata,
                    Oout = 'left', variates = avar,
                    useOquantiles = useOquantiles
                    ),
@@ -288,13 +288,13 @@ mutualinfo <- function(Yvrt, Xvrt, mcoutput, nsamples=3600, unit='Sh', useOquant
       )
     }))
     Oright <- t(sapply(vnames, function(avar) {
-      nn <- auxmetadata[name == avar, Nvalues]
-      seqs <- seq(auxmetadata[name == avar, domainmin],
-                  auxmetadata[name == avar, domainmax],
+      nn <- auxmetadata[auxmetadata$name == avar, 'Nvalues']
+      seqs <- seq(auxmetadata[auxmetadata$name == avar, 'domainmin'],
+                  auxmetadata[auxmetadata$name == avar, 'domainmax'],
                   length.out = nn
                   )
       c(
-        vtransform(seqs, auxmetadata,
+        vtransform(seqs, auxmetadata = auxmetadata,
                    Oout = 'right', variates = avar,
                    useOquantiles = useOquantiles
                    ),
@@ -310,7 +310,7 @@ mutualinfo <- function(Yvrt, Xvrt, mcoutput, nsamples=3600, unit='Sh', useOquant
 
 
 #### Type N
-  vnames <- auxmetadata[mcmctype == 'N', name]
+  vnames <- auxmetadata[auxmetadata$mcmctype == 'N', 'name']
   XiN <- match(vnames, Xvrt)
   XtN <- which(!is.na(XiN))
   XiN <- XiN[XtN]
@@ -327,7 +327,7 @@ mutualinfo <- function(Yvrt, Xvrt, mcoutput, nsamples=3600, unit='Sh', useOquant
   ZnN <- length(ZiN)
 
 #### Type B
-  vnames <- auxmetadata[mcmctype == 'B', name]
+  vnames <- auxmetadata[auxmetadata$mcmctype == 'B', 'name']
   XiB <- match(vnames, Xvrt)
   XtB <- which(!is.na(XiB))
   XiB <- XiB[XtB]

@@ -7,12 +7,10 @@
 #'
 #' @return nothing or data.table object
 #' @export
-#'
-#' @importFrom data.table fread fwrite as.data.table data.table
 buildmetadata <- function(data, file = NULL,
                           diagnosticvalues = FALSE,
                           backupfiles = FALSE) {
-  require('data.table')
+  ## require('data.table')
 
   gcd <- function(...) {
     suppressWarnings(Reduce(function(a, b) {
@@ -24,12 +22,12 @@ buildmetadata <- function(data, file = NULL,
   # Read datafile if it exists
   if (is.character(data) && file.exists(data)) {
     datafile <- data
-    data <- data.table::fread(datafile, na.strings = '')
+    data <- read.csv(datafile, na.strings = '')
   }
-  data <- data.table::as.data.table(data)
-  metadata <- data.table::data.table()
+  data <- as.data.frame(data)
+  metadata <- data.frame()
   # Loop over columns in data
-  for (xn in names(data)) {
+  for (xn in colnames(data)) {
     ## print(xn)
     x <- data[[xn]]
     x <- x[!is.na(x)]
@@ -230,7 +228,7 @@ buildmetadata <- function(data, file = NULL,
       }
     }
     # Save the file
-    data.table::fwrite(metadata, file)
+    write.csv(metadata, file, row.names = FALSE, quote = FALSE, na = '')
     cat('Saved proposal metadata file as', file, '\n')
 
   } else {

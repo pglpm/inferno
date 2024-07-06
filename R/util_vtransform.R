@@ -12,14 +12,15 @@ vtransform <- function(x, auxmetadata,
   ## Qf <- readRDS('Qfunction3600_3.rds')
   ## DQf <- readRDS('DQfunction3600_3.rds')
   ## invQf <- readRDS('invQfunction3600_3.rds')
-  x <- data.table::as.data.table(cbind(x))
+  x <- as.data.frame(cbind(x))
   if (!is.null(variates)) {
     colnames(x) <- variates
   }
   matrix(sapply(colnames(x), function(v) {
     ##
-    datum <- unlist(x[, v, with = F])
-    info <- as.list(auxmetadata[name == v])
+    ## datum <- unlist(x[, v, with = F]) # old version, remove
+    datum <- x[[v]]
+    info <- as.list(auxmetadata[auxmetadata$name == v, ])
     ##
     if (invjacobian) {
 #### Calculation of reciprocal Jacobian factors
@@ -36,7 +37,7 @@ vtransform <- function(x, auxmetadata,
         } else {
           datum <- rep(info$tscale, length(datum))
         }
-        xv <- data.matrix(x[, ..v])
+        xv <- data.matrix(x[, v, drop = FALSE])
         if (info$mcmctype %in% c('C', 'D')) {
           datum[(xv >= info$censormax) | (xv <= info$censormin)] <- 1L
         }
@@ -81,32 +82,32 @@ vtransform <- function(x, auxmetadata,
         ## censmax <- (censmax-info$tlocation)/info$tscale
         ## censmin <- (censmin-info$tlocation)/info$tscale
         if (Cout == 'left') { # in MCMC
-          xv <- data.matrix(x[, ..v])
+          xv <- data.matrix(x[, v, drop = FALSE])
           sel <- is.na(xv) | (xv < info$censormax)
           datum[sel] <- -Inf
           datum[!sel] <- censmax
         } else if (Cout == 'right') { # in MCMC
-          xv <- data.matrix(x[, ..v])
+          xv <- data.matrix(x[, v, drop = FALSE])
           sel <- is.na(xv) | (xv > info$censormin)
           datum[sel] <- +Inf
           datum[!sel] <- censmin
         } else if (Cout == 'lat') { # latent variable in MCMC
-          xv <- data.matrix(x[, ..v])
+          xv <- data.matrix(x[, v, drop = FALSE])
           sel <- is.na(xv) | (xv >= info$censormax) | (xv <= info$censormin)
           datum[sel] <- NA
         } else if (Cout == 'init') { # init in MCMC
-          xv <- data.matrix(x[, ..v])
+          xv <- data.matrix(x[, v, drop = FALSE])
           datum[is.na(xv)] <- 0L
           datum[!is.na(xv) & (xv <= info$censormin)] <- censmin - 0.125 * info$tscale
           datum[!is.na(xv) & (xv >= info$censormax)] <- censmax + 0.125 * info$tscale
           datum[!is.na(xv) & (xv < info$censormax) & (xv > info$censormin)] <- NA
         } else if (Cout == 'aux') { # aux variable in MCMC
-          xv <- data.matrix(x[, ..v])
+          xv <- data.matrix(x[, v, drop = FALSE])
           sel <- is.na(xv)
           datum[sel] <- NA
           datum[!sel] <- 1L
         } else if (Cout == 'boundisinf') { # in sampling functions
-          xv <- data.matrix(x[, ..v])
+          xv <- data.matrix(x[, v, drop = FALSE])
           datum[xv >= info$censormax] <- +Inf
           datum[xv <= info$censormin] <- -Inf
         } else if (Cout == 'sleft') { # in sampling functions
@@ -114,7 +115,7 @@ vtransform <- function(x, auxmetadata,
         } else if (Cout == 'sright') { # in sampling functions
           datum <- rep(censmax, length(datum))
         } else if (Cout == 'idboundinf') { # in mutualinfo
-          datum <- xv <- data.matrix(x[, ..v])
+          datum <- xv <- data.matrix(x[, v, drop = FALSE])
           datum[xv >= info$censormax] <- +Inf
           datum[xv <= info$censormin] <- -Inf
         }
@@ -162,17 +163,17 @@ vtransform <- function(x, auxmetadata,
         } else if (Dout == 'right') {
           datum <- rightbound
         } else if (Dout == 'init') { # init in MCMC
-          xv <- data.matrix(x[, ..v])
+          xv <- data.matrix(x[, v, drop = FALSE])
           datum[is.na(xv)] <- 0L
           datum[!is.na(xv) & (xv <= info$censormin)] <- censmin - 0.125 * info$tscale
           datum[!is.na(xv) & (xv >= info$censormax)] <- censmax + 0.125 * info$tscale
         } else if (Dout == 'aux') { # aux variable in MCMC
-          xv <- data.matrix(x[, ..v])
+          xv <- data.matrix(x[, v, drop = FALSE])
           sel <- is.na(xv)
           datum[sel] <- NA
           datum[!sel] <- 1L
         } else if (Dout == 'boundisinf') { # in sampling functions
-          xv <- data.matrix(x[, ..v])
+          xv <- data.matrix(x[, v, drop = FALSE])
           datum[xv >= info$censormax] <- +Inf
           datum[xv <= info$censormin] <- -Inf
         } else if (Dout == 'sleft') { # in sampling functions
@@ -180,7 +181,7 @@ vtransform <- function(x, auxmetadata,
         } else if (Dout == 'sright') { # in sampling functions
           datum <- rep(censmax, length(datum))
         } else if (Dout == 'idboundinf') { # in mutualinfo
-          datum <- xv <- data.matrix(x[, ..v])
+          datum <- xv <- data.matrix(x[, v, drop = FALSE])
           datum[xv >= info$censormax] <- +Inf
           datum[xv <= info$censormin] <- -Inf
         }
@@ -223,7 +224,7 @@ vtransform <- function(x, auxmetadata,
         } else if (Oout == 'boundisinf') { # in output functions
           datum <- datum - 1L
         } else if (Oout == 'integer') { # in mutualinfo
-          datum <- data.matrix(x[, ..v])
+          datum <- data.matrix(x[, v, drop = FALSE])
           if (useOquantiles) {
             datum <- datum * info$tscale + info$tlocation
           }

@@ -1,8 +1,9 @@
-# DESCRIPTION
-# @param data is either a file or a data.table object.
-# @param metadata is either a file or a data.table object.
-# @param file Boolean, whether to save the aux metadatafile or not.
-
+#' Build preliminary metadata flie
+#'
+#' @param data data.frame object
+#' @param metadata data.frame object
+#'
+#' @return an auxmetadata data.frame object
 buildauxmetadata <- function(data, metadata) {
   ## Elements used in other scripts:
   ## name, mcmctype, Nvalues, mctest, transform,
@@ -15,23 +16,19 @@ buildauxmetadata <- function(data, metadata) {
 
   ## Qf <- readRDS('Qfunction3600_3.rds')
 
-  datafile <- NULL
-  if (is.character(data) && file.exists(data)) {
-    datafile <- data
-    data <- data.table::fread(datafile, na.strings = '')
-  data <- data.table::as.data.table(data)
-  }
-  ##
   ## Q <- readRDS('Qfunction512.rds')
   ##
   idR <- idC <- idD <- idO <- idB <- idN <- 1L
-  auxmetadata <- data.table()
+
+  auxmetadata <- data.frame()
+
   for (xn in metadata$name) {
     if(!is.null(data)) {
       x <- data[[xn]]
       x <- x[!is.na(x)]
     }
-    xinfo <- as.list(metadata[name == xn])
+    xinfo <- as.list(metadata[metadata$name == xn, ])
+    ## make sure 'type' is lowercase
     xinfo$type <- tolower(xinfo$type)
     ordinal <- NA
     cens <- any(c(xinfo$minincluded, xinfo$maxincluded), na.rm = TRUE)
@@ -40,9 +37,9 @@ buildauxmetadata <- function(data, metadata) {
     vval <- xinfo[grep('^V[0-9]+$', names(xinfo))]
     ## print(xn)
     ## str(vval)
-    Q1 <- NA
-    Q2 <- NA
-    Q3 <- NA
+    ## Q1 <- NA
+    ## Q2 <- NA
+    ## Q3 <- NA
     if (xinfo$type == 'binary') { # seems binary variate
       ## if (length(unique(x)) != 2) {
       ##   cat('Warning: inconsistencies with variate', xn, '\n')
@@ -234,6 +231,7 @@ buildauxmetadata <- function(data, metadata) {
     ## tscale=scale, plotmin=plotmin, plotmax=plotmax, Q1=Q1, Q2=Q2, Q3=Q3),
     ## vval
     ## )))
+
     auxmetadata <- rbind(auxmetadata,
       c(
         list(
@@ -248,9 +246,10 @@ buildauxmetadata <- function(data, metadata) {
           mctest1 = mctest1, mctest2 = mctest2, mctest3 = mctest3
         ),
         vval
-      ),
-      fill = FALSE
-    )
+      )
+      ## ## previously, with data.table:
+      ##      fill = FALSE
+      )
   }
 
   auxmetadata

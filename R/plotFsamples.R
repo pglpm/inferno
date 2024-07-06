@@ -90,10 +90,10 @@ plotFsamples <- function(file, mcoutput, data, plotmeans = TRUE,
   for (v in auxmetadata[['name']]) {
     ## Check if we have proper data for this variate
     if (datahistogram || datascatter) {
-      theresdata <- (sum(!is.na(data)) > 1)
+      theresdata <- (sum(!is.na(data[[v]])) > 1)
     }
 
-    varinfo <- as.list(auxmetadata[name == v])
+    varinfo <- as.list(auxmetadata[auxmetadata$name == v, ])
     vtype <- varinfo[['mcmctype']]
     if (vtype %in% c('R', 'D', 'C', 'O')) { #
       if (vtype == 'O') {

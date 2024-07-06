@@ -25,7 +25,6 @@ samplesFDistribution <- function(Y, X, mcoutput, subsamples, jacobian = TRUE,
                                  fn = identity, combine = 'rbind',
                                  useOquantiles = FALSE, parallel = TRUE,
                                  silent = FALSE) {
-
   if (!silent) {
     cat('\n')
   }
@@ -115,7 +114,7 @@ samplesFDistribution <- function(Y, X, mcoutput, subsamples, jacobian = TRUE,
     `%dochains%` <- `%dopar%`
   }
 
-  ## Extract Monte Carlo output & aux-metadata
+  ## Extract Monte Carlo output & auxmetadata
   ## If mcoutput is a string, check if it's a folder name or file name
   if (is.character(mcoutput)) {
                                         # Check if 'mcoutput' is a folder containing Fdistribution.rds
@@ -193,7 +192,7 @@ samplesFDistribution <- function(Y, X, mcoutput, subsamples, jacobian = TRUE,
   ## source('vtransform.R')
 
 #### Type R
-  vnames <- auxmetadata[mcmctype == 'R', name]
+  vnames <- auxmetadata[auxmetadata$mcmctype == 'R', 'name']
   XiR <- match(vnames, Xv)
   XtR <- which(!is.na(XiR))
   XiR <- XiR[XtR]
@@ -208,7 +207,7 @@ samplesFDistribution <- function(Y, X, mcoutput, subsamples, jacobian = TRUE,
   }
 
 #### Type C
-  vnames <- auxmetadata[mcmctype == 'C', name]
+  vnames <- auxmetadata[auxmetadata$mcmctype == 'C', 'name']
   XiC <- match(vnames, Xv)
   XtC <- which(!is.na(XiC))
   XiC <- XiC[XtC]
@@ -243,7 +242,7 @@ samplesFDistribution <- function(Y, X, mcoutput, subsamples, jacobian = TRUE,
   }
 
 #### Type D
-  vnames <- auxmetadata[mcmctype == 'D', name]
+  vnames <- auxmetadata[auxmetadata$mcmctype == 'D', 'name']
   XiD <- match(vnames, Xv)
   XtD <- which(!is.na(XiD))
   XiD <- XiD[XtD]
@@ -278,7 +277,7 @@ samplesFDistribution <- function(Y, X, mcoutput, subsamples, jacobian = TRUE,
   }
 
 #### Type O
-  vnames <- auxmetadata[mcmctype == 'O', name]
+  vnames <- auxmetadata[auxmetadata$mcmctype == 'O', 'name']
   XiO <- match(vnames, Xv)
   XtO <- which(!is.na(XiO))
   XiO <- XiO[XtO]
@@ -291,15 +290,15 @@ samplesFDistribution <- function(Y, X, mcoutput, subsamples, jacobian = TRUE,
   if (YnO > 0 || XnO > 0) {
     mcoutput$Ovar <- sqrt(mcoutput$Ovar)
     ##
-    Omaxn <- max(auxmetadata[name %in% vnames, Nvalues])
+    Omaxn <- max(auxmetadata[auxmetadata$name %in% vnames, 'Nvalues'])
     Oleft <- t(sapply(vnames, function(avar) {
-      nn <- auxmetadata[name == avar, Nvalues]
-      seqs <- seq(auxmetadata[name == avar, domainmin],
-                  auxmetadata[name == avar, domainmax],
+      nn <- auxmetadata[auxmetadata$name == avar, 'Nvalues']
+      seqs <- seq(auxmetadata[auxmetadata$name == avar, 'domainmin'],
+                  auxmetadata[auxmetadata$name == avar, 'domainmax'],
                   length.out = nn
                   )
       c(
-        vtransform(seqs, auxmetadata,
+        vtransform(seqs, auxmetadata = auxmetadata,
                    Oout = 'left', variates = avar,
                    useOquantiles = useOquantiles
                    ),
@@ -307,13 +306,13 @@ samplesFDistribution <- function(Y, X, mcoutput, subsamples, jacobian = TRUE,
       )
     }))
     Oright <- t(sapply(vnames, function(avar) {
-      nn <- auxmetadata[name == avar, Nvalues]
-      seqs <- seq(auxmetadata[name == avar, domainmin],
-                  auxmetadata[name == avar, domainmax],
+      nn <- auxmetadata[auxmetadata$name == avar, 'Nvalues']
+      seqs <- seq(auxmetadata[auxmetadata$name == avar, 'domainmin'],
+                  auxmetadata[auxmetadata$name == avar, 'domainmax'],
                   length.out = nn
                   )
       c(
-        vtransform(seqs, auxmetadata,
+        vtransform(seqs, auxmetadata = auxmetadata,
                    Oout = 'right', variates = avar,
                    useOquantiles = useOquantiles
                    ),
@@ -323,7 +322,7 @@ samplesFDistribution <- function(Y, X, mcoutput, subsamples, jacobian = TRUE,
   }
 
 #### Type N
-  vnames <- auxmetadata[mcmctype == 'N', name]
+  vnames <- auxmetadata[auxmetadata$mcmctype == 'N', 'name']
   XiN <- match(vnames, Xv)
   XtN <- which(!is.na(XiN))
   XiN <- XiN[XtN]
@@ -335,7 +334,7 @@ samplesFDistribution <- function(Y, X, mcoutput, subsamples, jacobian = TRUE,
   YnN <- length(YiN)
 
 #### Type B
-  vnames <- auxmetadata[mcmctype == 'B', name]
+  vnames <- auxmetadata[auxmetadata$mcmctype == 'B', 'name']
   XiB <- match(vnames, Xv)
   XtB <- which(!is.na(XiB))
   XiB <- XiB[XtB]
@@ -347,11 +346,11 @@ samplesFDistribution <- function(Y, X, mcoutput, subsamples, jacobian = TRUE,
   YnB <- length(YiB)
 
 #### transformation of inputs
-  Y2 <- vtransform(Y, auxmetadata, Cout = 'boundisinf', Dout = 'boundisinf',
+  Y2 <- vtransform(Y, auxmetadata = auxmetadata, Cout = 'boundisinf', Dout = 'boundisinf',
                    Oout = '', Nout = 'numeric', Bout = 'numeric',
                    useOquantiles = useOquantiles)
   if (!is.null(X)) {
-    X2 <- vtransform(X, auxmetadata, Cout = 'boundisinf', Dout = 'boundisinf',
+    X2 <- vtransform(X, auxmetadata = auxmetadata, Cout = 'boundisinf', Dout = 'boundisinf',
                      Oout = '', Nout = 'numeric', Bout = 'numeric',
                      useOquantiles = useOquantiles)
     if (nrow(X2) < nrow(Y2)) {

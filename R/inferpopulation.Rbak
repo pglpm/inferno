@@ -39,6 +39,7 @@
 #' @export
 #' @import parallel foreach doParallel doRNG nimble
 #' @importFrom LaplacesDemon MCSE ESS IAT BMK.Diagnostic is.stationary burnin
+#' @importFrom data.table fread fwrite as.data.table
 inferpopulation <- function(data, metadata, outputdir, nsamples = 1200,
                             nchains = 120, nsamplesperchain = 10, parallel = TRUE,
                             seed = NULL, cleanup = TRUE,
@@ -49,6 +50,7 @@ inferpopulation <- function(data, metadata, outputdir, nsamples = 1200,
                             thinning = NULL, plottraces = TRUE,
                             showKtraces = FALSE, showAlphatraces = FALSE,
                             lldata = 12, useOquantiles = FALSE) {
+
 
    cat('\n') # make sure possible error messages start on new line
 
@@ -182,9 +184,9 @@ inferpopulation <- function(data, metadata, outputdir, nsamples = 1200,
   ## Check whether argument 'metadata' is a string for a file name
   ## otherwise we assume it's a data.table or similar object
   if (is.character(metadata) && file.exists(metadata)) {
-    metadata <- read.csv(metadata, na.strings = '')
+    metadata <- data.table::fread(metadata, na.strings = '')
   }
-  metadata <- as.data.frame(metadata)
+  metadata <- data.table::as.data.table(metadata)
 
 #### Dataset
   ## Check if 'data' is given
@@ -196,12 +198,13 @@ inferpopulation <- function(data, metadata, outputdir, nsamples = 1200,
       ## add '.csv' if missing
       datafile <- paste0(sub('.csv$', '', data), '.csv')
       if (file.exists(data)) {
-        data <- read.csv(datafile, na.strings = '')
+        data <- data.table::fread(datafile, na.strings = '')
       } else {
         stop('Cannot find data file')
       }
     }
-    data <- as.data.frame(data)
+    ## Make sure data has data.table format
+    data <- data.table::as.data.table(data)
 
     ## Consistency checks for data
     ## They should be moved to an external function
@@ -215,7 +218,7 @@ inferpopulation <- function(data, metadata, outputdir, nsamples = 1200,
     if (!all(colnames(data) %in% metadata[['name']])) {
       cat('Warning: data have additional variates. Dropping them.\n')
       subvar <- intersect(colnames(data), metadata[['name']])
-      data <- data[, subvar]
+      data <- data[, subvar, with = FALSE]
       rm(subvar)
     }
 
@@ -250,6 +253,7 @@ inferpopulation <- function(data, metadata, outputdir, nsamples = 1200,
   ## Build auxiliary metadata object; we'll save it later
   cat('Calculating auxiliary metadata\n')
   auxmetadata <- buildauxmetadata(data = data, metadata = metadata)
+
 
   #### Output-folder setup
   if (missing(outputdir) || (is.logical(outputdir) && outputdir)) {
@@ -288,8 +292,7 @@ inferpopulation <- function(data, metadata, outputdir, nsamples = 1200,
   dashnameroot <- NULL
 
   ## Save copy of metadata in directory
-  write.csv(metadata, file = file.path(dirname, 'metadata.csv'),
-            row.names = FALSE, quote = FALSE, na = '')
+  data.table::fwrite(metadata, file = file.path(dirname, 'metadata.csv'))
 
   ## Save initial RNG seed in case needed by user
   saveRDS(currentseed,
@@ -326,16 +329,16 @@ inferpopulation <- function(data, metadata, outputdir, nsamples = 1200,
       }
     }
     ## create empty dataset: Monte Carlo sampling is non-Markov
-    data <- as.data.frame(
-      matrix(NA, nrow = 1, ncol = nrow(metadata),
-             dimnames = list(NULL, metadata$name))
-    )
+    data <- data.table::as.data.table(
+                          matrix(NA, nrow = 1, ncol = nrow(metadata),
+                                 dimnames = list(NULL, metadata[['name']]))
+                        )
   } else {
     ## create data for likelihood
     ## if "testdata" is moved into the for-loop,
     ## then each chain uses a different set of testdata
     for(achain in seq_len(nchains)) {
-      testdata <- data[sort(sample(npoints, min(lldata, npoints))), ]
+      testdata <- data[sort(sample(npoints, min(lldata, npoints))),]
       saveRDS(testdata,
               file = file.path(dirname, paste0('_testdata_', achain, '.rds')))
     }
@@ -455,21 +458,12 @@ inferpopulation <- function(data, metadata, outputdir, nsamples = 1200,
   ## O: ordinal
   ## N: nominal
   ## B: binary
-  ## number and names of variates of each type
-  vn <- vnames <- list(R=NULL, C=NULL, D=NULL, O=NULL, N=NULL, B=NULL)
-
-  for (atype in names(vn)) {
-    vnames[[atype]] <- auxmetadata[auxmetadata$mcmctype == atype, 'name']
-    vn[[atype]] <- length(vnames[[atype]])
+  vn <- list() # How many variates of each type
+  vnames <- list() # The names for variates of each type
+  for (atype in c('R', 'C', 'D', 'O', 'N', 'B')) {
+    vn[[atype]] <- length(auxmetadata[mcmctype == atype, name])
+    vnames[[atype]] <- auxmetadata[mcmctype == atype, name]
   }
-
-  ## ## REMOVE soon: previous version
-  ## vn <- list() # How many variates of each type
-  ## vnames <- list() # The names for variates of each type
-  ## for (atype in c('R', 'C', 'D', 'O', 'N', 'B')) {
-  ##   vnames[[atype]] <- auxmetadata[auxmetadata$mcmctype == atype, 'name']
-  ##   vn[[atype]] <- length(vnames[[atype]])
-  ## }
 
   #### CONSTANTS OF NIMBLE MODEL
   # These constants are available in the Nimble environment
@@ -500,11 +494,11 @@ inferpopulation <- function(data, metadata, outputdir, nsamples = 1200,
         Cvar1 = rep(1, 1),
         Cshapelo = rep(Cshapelo, 1),
         Cshapehi = rep(Cshapehi, 1),
-        Cleft = vtransform(data[, vnames$C, drop = FALSE], auxmetadata,
+        Cleft = vtransform(data[, vnames$C, with = FALSE], auxmetadata,
                            Cout = 'left', useOquantiles = useOquantiles),
-        Cright = vtransform(data[, vnames$C, drop = FALSE], auxmetadata,
+        Cright = vtransform(data[, vnames$C, with = FALSE], auxmetadata,
                             Cout = 'right', useOquantiles = useOquantiles),
-        Clatinit = vtransform(data[, vnames$C, drop = FALSE],
+        Clatinit = vtransform(data[, vnames$C, with = FALSE],
                           auxmetadata, Cout = 'init',
                           useOquantiles = useOquantiles
                           )
@@ -521,11 +515,11 @@ inferpopulation <- function(data, metadata, outputdir, nsamples = 1200,
         Dvar1 = rep(1, 1),
         Dshapelo = rep(Dshapelo, 1),
         Dshapehi = rep(Dshapehi, 1),
-        Dleft = vtransform(data[, vnames$D, drop = FALSE], auxmetadata,
+        Dleft = vtransform(data[, vnames$D, with = FALSE], auxmetadata,
                           Dout = 'left', useOquantiles = useOquantiles),
-        Dright = vtransform(data[, vnames$D, drop = FALSE], auxmetadata,
+        Dright = vtransform(data[, vnames$D, with = FALSE], auxmetadata,
                             Dout = 'right', useOquantiles = useOquantiles),
-        Dlatinit = vtransform(data[, vnames$D, drop = FALSE],
+        Dlatinit = vtransform(data[, vnames$D, with = FALSE],
                           auxmetadata, Dout = 'init',
                           useOquantiles = useOquantiles)
       )
@@ -538,20 +532,20 @@ inferpopulation <- function(data, metadata, outputdir, nsamples = 1200,
         Ovar1 = rep(1, 1),
         Oshapelo = rep(Oshapelo, 1),
         Oshapehi = rep(Oshapehi, 1),
-        Oleft = vtransform(data[, vnames$O, drop = FALSE], auxmetadata,
+        Oleft = vtransform(data[, vnames$O, with = FALSE], auxmetadata,
                           Oout = 'left', useOquantiles = useOquantiles),
-        Oright = vtransform(data[, vnames$O, drop = FALSE], auxmetadata,
+        Oright = vtransform(data[, vnames$O, with = FALSE], auxmetadata,
                             Oout = 'right', useOquantiles = useOquantiles),
-        Olatinit = vtransform(data[, vnames$O, drop = FALSE],
+        Olatinit = vtransform(data[, vnames$O, with = FALSE],
                           auxmetadata, Oout = 'init',
                           useOquantiles = useOquantiles)
       )
     },
     if (vn$N > 0) { # nominal
-      Nmaxn <- max(auxmetadata[auxmetadata$mcmctype == 'N', 'Nvalues'])
+      Nmaxn <- max(auxmetadata[mcmctype == 'N', Nvalues])
       Nalpha0 <- matrix(1e-100, nrow = vn$N, ncol = Nmaxn)
       for (avar in seq_along(vnames$N)) {
-        nvalues <- auxmetadata[auxmetadata$name == vnames$N[avar], 'Nvalues']
+        nvalues <- auxmetadata[name == vnames$N[avar], Nvalues]
         ## use Hadamard-like prior: 1/nvalues
         ## other choice is flat prior: 1
         Nalpha0[avar, 1:nvalues] <- 1 / nvalues
@@ -575,40 +569,40 @@ inferpopulation <- function(data, metadata, outputdir, nsamples = 1200,
   datapoints <- c(
     if (vn$R > 0) { # continuous open domain
       list(
-        Rdata = vtransform(data[, vnames$R, drop = FALSE], auxmetadata,
+        Rdata = vtransform(data[, vnames$R, with = FALSE], auxmetadata,
           useOquantiles = useOquantiles
         )
       )
     },
     if (vn$C > 0) { # continuous closed domain
       list(
-        Caux = vtransform(data[, vnames$C, drop = FALSE], auxmetadata,
+        Caux = vtransform(data[, vnames$C, with = FALSE], auxmetadata,
           Cout = 'aux', useOquantiles = useOquantiles),
-        Clat = vtransform(data[, vnames$C, drop = FALSE], auxmetadata,
+        Clat = vtransform(data[, vnames$C, with = FALSE], auxmetadata,
           Cout = 'lat', useOquantiles = useOquantiles)
       )
     },
     if (vn$D > 0) { # continuous rounded
       list(
-        Daux = vtransform(data[, vnames$D, drop = FALSE], auxmetadata,
+        Daux = vtransform(data[, vnames$D, with = FALSE], auxmetadata,
           Dout = 'aux', useOquantiles = useOquantiles)
       )
     },
     if (vn$O > 0) { # ordinal
       list(
-        Oaux = vtransform(data[, vnames$O, drop = FALSE], auxmetadata,
+        Oaux = vtransform(data[, vnames$O, with = FALSE], auxmetadata,
           Oout = 'aux', useOquantiles = useOquantiles)
       )
     },
     if (vn$N > 0) { # nominal
       list(
-        Ndata = vtransform(data[, vnames$N, drop = FALSE], auxmetadata,
+        Ndata = vtransform(data[, vnames$N, with = FALSE], auxmetadata,
           Nout = 'numeric', useOquantiles = useOquantiles)
       )
     },
     if (vn$B > 0) { # binary
       list(
-        Bdata = vtransform(data[, vnames$B, drop = FALSE], auxmetadata,
+        Bdata = vtransform(data[, vnames$B, with = FALSE], auxmetadata,
           Bout = 'numeric', useOquantiles = useOquantiles)
       )
     }
@@ -654,7 +648,7 @@ inferpopulation <- function(data, metadata, outputdir, nsamples = 1200,
   chaininfo <- foreach(acore = 1:ncores,
                                 .combine = rbind,
                                 .inorder = FALSE,
-                                ##.packages = c('modelfreeinference'),
+                                .packages = c('nimble'),
                                 .noexport = c('data')
                                 ##.packages = c('khroma', 'foreach', 'rngtools', 'data.table', 'nimble')
     ) %dochains% {
@@ -673,31 +667,9 @@ inferpopulation <- function(data, metadata, outputdir, nsamples = 1200,
       cat('\n')
 
       ## suppressPackageStartupMessages(library('data.table'))
-      suppressPackageStartupMessages(require('nimble'))
+      ## suppressPackageStartupMessages(library('nimble'))
       ## requireNamespace("nimble", quietly = TRUE)
       ##library('nimble')
-
-      ##         cat('\n***TEST00***\n')
-      ## mcsamples <- readRDS('mcoutput.rds')
-      ## mcsamples$auxmetadata <- NULL
-      ## chainnumber <- (acore - 1L) * nchainspercore + achain
-      ## testdata <- readRDS(file = file.path(dirname,
-      ##                 paste0('_testdata_', chainnumber, '.rds')))
-      ## cat('\n***TEST0***\n')
-      ##   str(samplesFDistribution)
-      ##   ll <- samplesFDistribution(
-      ##       Y = testdata, X = NULL,
-      ##       mcoutput = c(mcsamples, list(auxmetadata = auxmetadata)),
-      ##       jacobian = FALSE,
-      ##       useOquantiles = useOquantiles,
-      ##       parallel = FALSE,
-      ##       combine = '+',
-      ##       silent = TRUE
-      ##   )
-      ## str(ll)
-      ## cat('\n***TEST01***\n')
-      ## stop('HERE')
-
 
       ## We have to source scripts again for each chain to be able to access them.
       ## source('plotFsamples.R')
@@ -1329,6 +1301,7 @@ inferpopulation <- function(data, metadata, outputdir, nsamples = 1200,
         ## Check how many clusters were occupied at the last step
         usedclusters <- mcsamplesKA$K[length(mcsamplesKA$K)]
         cat('\nOCCUPIED CLUSTERS:', usedclusters, 'OF', nclusters, '\n')
+
         #### Diagnostics
         ## Log-likelihood
         diagntime <- Sys.time()
@@ -1340,7 +1313,7 @@ inferpopulation <- function(data, metadata, outputdir, nsamples = 1200,
             jacobian = FALSE,
             useOquantiles = useOquantiles,
             parallel = FALSE,
-            combine = '+',
+           combine = '+',
             silent = TRUE
           )) / nrow(testdata)
         )
