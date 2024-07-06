@@ -187,4 +187,22 @@ Current time: 2024-07-05 06:50:37
 MCMC + diagnostics time 19 secs 
 
 Current time: 2024-07-05 06:50:37
-Total time 19 secs 
+Total time 19 secs
+loaded modelfreeinference and set parent environment
+loaded modelfreeinference and set parent environment
+loaded modelfreeinference and set parent environment
+loaded modelfreeinference and set parent environment
+loaded modelfreeinference and set parent environment
+loaded modelfreeinference and set parent environment
+loaded modelfreeinference and set parent environment
+loaded modelfreeinference and set parent environment
+loaded modelfreeinference and set parent environment
+loaded modelfreeinference and set parent environment
+loaded modelfreeinference and set parent environment
+loaded modelfreeinference and set parent environment
+loaded modelfreeinference and set parent environment
+loaded modelfreeinference and set parent environment
+loaded modelfreeinference and set parent environment
+loaded modelfreeinference and set parent environment
+Warning message:
+replacing previous import ‘nimble::rcat’ by ‘extraDistr::rcat’ when loading ‘modelfreeinference’ 
