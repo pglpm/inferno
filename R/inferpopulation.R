@@ -37,8 +37,7 @@
 #'   debugging
 #' @return name of directory containing output files, or Fdistribution object, or empty
 #' @export
-#' @rawNamespace import(nimble, except = rcat)
-#' @import parallel foreach doParallel doRNG
+#' @import parallel foreach doParallel doRNG nimble
 #' @importFrom LaplacesDemon MCSE ESS IAT BMK.Diagnostic is.stationary burnin
 inferpopulation <- function(data, metadata, outputdir, nsamples = 1200,
                             nchains = 120, nsamplesperchain = 10, parallel = TRUE,
