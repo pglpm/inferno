@@ -500,9 +500,9 @@ inferpopulation <- function(data, metadata, outputdir, nsamples = 1200,
         Cvar1 = rep(1, 1),
         Cshapelo = rep(Cshapelo, 1),
         Cshapehi = rep(Cshapehi, 1),
-        Cleft = vtransform(data[, vnames$C, drop = FALSE], auxmetadata,
+        Cleft = vtransform(data[, vnames$C, drop = FALSE], auxmetadata = auxmetadata,
                            Cout = 'left', useOquantiles = useOquantiles),
-        Cright = vtransform(data[, vnames$C, drop = FALSE], auxmetadata,
+        Cright = vtransform(data[, vnames$C, drop = FALSE], auxmetadata = auxmetadata,
                             Cout = 'right', useOquantiles = useOquantiles),
         Clatinit = vtransform(data[, vnames$C, drop = FALSE],
                           auxmetadata, Cout = 'init',
@@ -521,9 +521,9 @@ inferpopulation <- function(data, metadata, outputdir, nsamples = 1200,
         Dvar1 = rep(1, 1),
         Dshapelo = rep(Dshapelo, 1),
         Dshapehi = rep(Dshapehi, 1),
-        Dleft = vtransform(data[, vnames$D, drop = FALSE], auxmetadata,
+        Dleft = vtransform(data[, vnames$D, drop = FALSE], auxmetadata = auxmetadata,
                           Dout = 'left', useOquantiles = useOquantiles),
-        Dright = vtransform(data[, vnames$D, drop = FALSE], auxmetadata,
+        Dright = vtransform(data[, vnames$D, drop = FALSE], auxmetadata = auxmetadata,
                             Dout = 'right', useOquantiles = useOquantiles),
         Dlatinit = vtransform(data[, vnames$D, drop = FALSE],
                           auxmetadata, Dout = 'init',
@@ -538,9 +538,9 @@ inferpopulation <- function(data, metadata, outputdir, nsamples = 1200,
         Ovar1 = rep(1, 1),
         Oshapelo = rep(Oshapelo, 1),
         Oshapehi = rep(Oshapehi, 1),
-        Oleft = vtransform(data[, vnames$O, drop = FALSE], auxmetadata,
+        Oleft = vtransform(data[, vnames$O, drop = FALSE], auxmetadata = auxmetadata,
                           Oout = 'left', useOquantiles = useOquantiles),
-        Oright = vtransform(data[, vnames$O, drop = FALSE], auxmetadata,
+        Oright = vtransform(data[, vnames$O, drop = FALSE], auxmetadata = auxmetadata,
                             Oout = 'right', useOquantiles = useOquantiles),
         Olatinit = vtransform(data[, vnames$O, drop = FALSE],
                           auxmetadata, Oout = 'init',
@@ -575,40 +575,40 @@ inferpopulation <- function(data, metadata, outputdir, nsamples = 1200,
   datapoints <- c(
     if (vn$R > 0) { # continuous open domain
       list(
-        Rdata = vtransform(data[, vnames$R, drop = FALSE], auxmetadata,
+        Rdata = vtransform(data[, vnames$R, drop = FALSE], auxmetadata = auxmetadata,
           useOquantiles = useOquantiles
         )
       )
     },
     if (vn$C > 0) { # continuous closed domain
       list(
-        Caux = vtransform(data[, vnames$C, drop = FALSE], auxmetadata,
+        Caux = vtransform(data[, vnames$C, drop = FALSE], auxmetadata = auxmetadata,
           Cout = 'aux', useOquantiles = useOquantiles),
-        Clat = vtransform(data[, vnames$C, drop = FALSE], auxmetadata,
+        Clat = vtransform(data[, vnames$C, drop = FALSE], auxmetadata = auxmetadata,
           Cout = 'lat', useOquantiles = useOquantiles)
       )
     },
     if (vn$D > 0) { # continuous rounded
       list(
-        Daux = vtransform(data[, vnames$D, drop = FALSE], auxmetadata,
+        Daux = vtransform(data[, vnames$D, drop = FALSE], auxmetadata = auxmetadata,
           Dout = 'aux', useOquantiles = useOquantiles)
       )
     },
     if (vn$O > 0) { # ordinal
       list(
-        Oaux = vtransform(data[, vnames$O, drop = FALSE], auxmetadata,
+        Oaux = vtransform(data[, vnames$O, drop = FALSE], auxmetadata = auxmetadata,
           Oout = 'aux', useOquantiles = useOquantiles)
       )
     },
     if (vn$N > 0) { # nominal
       list(
-        Ndata = vtransform(data[, vnames$N, drop = FALSE], auxmetadata,
+        Ndata = vtransform(data[, vnames$N, drop = FALSE], auxmetadata = auxmetadata,
           Nout = 'numeric', useOquantiles = useOquantiles)
       )
     },
     if (vn$B > 0) { # binary
       list(
-        Bdata = vtransform(data[, vnames$B, drop = FALSE], auxmetadata,
+        Bdata = vtransform(data[, vnames$B, drop = FALSE], auxmetadata = auxmetadata,
           Bout = 'numeric', useOquantiles = useOquantiles)
       )
     }

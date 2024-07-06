@@ -198,7 +198,7 @@ generateVariates <- function(n=1, Yvrt, X=NULL, mcoutput, combine='rbind', useOq
       seqs <- seq( auxmetadata[name == avar, domainmin],
                   auxmetadata[name == avar, domainmax],
                   length.out=nn )
-      c(vtransform(seqs, auxmetadata, Oout='left', variates=avar,
+      c(vtransform(seqs, auxmetadata = auxmetadata, Oout='left', variates=avar,
                    useOquantiles=useOquantiles),
         rep(NA,Omaxn-nn))
     }))
@@ -207,7 +207,7 @@ generateVariates <- function(n=1, Yvrt, X=NULL, mcoutput, combine='rbind', useOq
       seqs <- seq( auxmetadata[name == avar, domainmin],
                   auxmetadata[name == avar, domainmax],
                   length.out=nn )
-      c(vtransform(seqs, auxmetadata, Oout='right', variates=avar,
+      c(vtransform(seqs, auxmetadata = auxmetadata, Oout='right', variates=avar,
                    useOquantiles=useOquantiles),
         rep(NA,Omaxn-nn))
     }))
@@ -246,7 +246,7 @@ generateVariates <- function(n=1, Yvrt, X=NULL, mcoutput, combine='rbind', useOq
 
 #### transformation of inputs
   if(!is.null(X)){
-    X2 <- vtransform(X, auxmetadata,
+    X2 <- vtransform(X, auxmetadata = auxmetadata,
                      Cout='boundisinf',
                      Dout='boundisinf',
                      Oout='',
