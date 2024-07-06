@@ -10,7 +10,7 @@ Authors@R: c(
   comment = c(ORCID = "0009-0005-9063-4131"))
   )
 Description: Offers several functions for Bayesian nonparametric density/population/exchangeable inference, including Monte Carlo calculation of posterior densities.
-License: CC BY 4.0
+License: GPL (>= 3)
 Encoding: UTF-8
 Roxygen: list(markdown = TRUE)
 RoxygenNote: 7.3.2
