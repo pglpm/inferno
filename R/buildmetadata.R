@@ -8,7 +8,7 @@
 #' @return nothing or data.table object
 #' @export
 #'
-#' @import data.table
+#' @importFrom data.table fread fwrite as.data.table data.table
 buildmetadata <- function(data, file = NULL,
                           diagnosticvalues = FALSE,
                           backupfiles = FALSE) {

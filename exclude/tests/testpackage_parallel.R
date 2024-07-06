@@ -1,35 +1,25 @@
 startdir <- getwd()
 
 #### Check and change working directory if necessary
-if(basename(startdir) == 'tests'){
-  setwd(file.path('..','R'))
-  cat('\nSwitching to "R" directory\n')
-} else if(basename(startdir) == 'bayes_nonparametric_inference'){
-  setwd('R')
-  cat('\nSwitching to "R" directory\n')
-} else if(basename(startdir) != 'R'){
-  stop('Please run this script from directory "R" or "tests" or base')
+if(basename(startdir) != 'tests'){
+  cat('\nAre you in the correct folder?\n')
 }
 
-source('bnpi.R')
+library('modelfreeinference')
 
-testdir <- file.path('..', 'tests')
-
-refdir <- file.path(testdir,
-                    'reference_seed16_packagetest-240705T064934-vrt8_dat15_smp120'
-                    )
+refdir <- 'reference_seed16_packagetest-240705T064934-vrt8_dat15_smp120'
 
 seed <- 16
 
-outputdirPrefix <- file.path(testdir,'__packagetest')
+outputdirPrefix <- file.path('__packagetest')
 
 ncores <- 4
 library('doParallel')
 mycluster <- makeCluster(ncores, outfile="")
 registerDoParallel(mycluster)
 
-currenttestdir <- inferpopulation(data = file.path(testdir, 'testdata.csv'),
-                        metadata = file.path(testdir, 'metatestdata.csv'),
+currenttestdir <- inferpopulation(data = 'testdata.csv',
+                        metadata = 'metatestdata.csv',
                         outputdir = outputdirPrefix,
                         output = 'directory',
                         appendtimestamp = TRUE, appendinfo = TRUE,
@@ -65,7 +55,3 @@ currentfile <- readLines(file.path(currenttestdir,'log-1.log'))
 currentfile <- currentfile[!grepl('time', currentfile, fixed=TRUE)]
 
 print(identical(currentfile, reffile))
-
-#### return to original directory, in case called with 'source'
-cat('\nSwitching to original directory\n')
-setwd(startdir)

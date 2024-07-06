@@ -20,7 +20,7 @@
 #' @return A list with the mutual information, its error, and its unit
 #' @export
 #'
-#' @import parallel foreach doParallel data.table extraDistr
+#' @import parallel foreach doParallel
 samplesFDistribution <- function(Y, X, mcoutput, subsamples, jacobian = TRUE,
                                  fn = identity, combine = 'rbind',
                                  useOquantiles = FALSE, parallel = TRUE,

@@ -15,7 +15,8 @@
 #' @return A list with the mutual information, its error, and its unit
 #' @export
 #'
-#' @import parallel foreach doParallel data.table extraDistr
+#' @import parallel foreach doParallel
+#' @importFrom extraDistr rcat rbern
 mutualinfo <- function(Yvrt, Xvrt, mcoutput, nsamples=3600, unit='Sh', useOquantiles=FALSE, parallel=TRUE, silent=FALSE){
 
 #### Mutual information and conditional entropy between X and Y

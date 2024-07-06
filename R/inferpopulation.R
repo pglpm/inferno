@@ -37,7 +37,9 @@
 #'   debugging
 #' @return name of directory containing output files, or Fdistribution object, or empty
 #' @export
-#' @import parallel foreach doParallel doRNG data.table nimble LaplacesDemon
+#' @import parallel foreach doParallel doRNG nimble
+#' @importFrom LaplacesDemon MCSE ESS IAT BMK.Diagnostic is.stationary burnin
+#' @importFrom data.table fread fwrite as.data.table
 inferpopulation <- function(data, metadata, outputdir, nsamples = 1200,
                             nchains = 120, nsamplesperchain = 10, parallel = TRUE,
                             seed = NULL, cleanup = TRUE,
@@ -311,7 +313,7 @@ inferpopulation <- function(data, metadata, outputdir, nsamples = 1200,
       }
     } else {
       ## no data available: construct one datapoint from the metadata info
-      testdata <- data.table(sapply(seq_len(nrow(auxmetadata)), function(xx) {
+      testdata <- data.frame(sapply(seq_len(nrow(auxmetadata)), function(xx) {
         ## consider making this function separate
         xx <- auxmetadata[xx, ]
         toadd <- xx[, paste0('mctest', 1:3), with = FALSE]

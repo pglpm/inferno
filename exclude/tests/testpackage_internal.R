@@ -5,7 +5,8 @@ if(basename(startdir) != 'tests'){
   cat('\nAre you in the correct folder?\n')
 }
 
-library('modelfreeinference')
+library('devtools')
+load_all()
 
 refdir <- 'reference_seed16_packagetest-240705T064934-vrt8_dat15_smp120'
 
