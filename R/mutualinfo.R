@@ -413,7 +413,7 @@ mutualinfo <- function(Yvrt, Xvrt, mcoutput, nsamples=3600, unit='Sh', useOquant
 #### STEP 2. Calculate sum_i log2_p(Y|X) for all samples
 
   ## from samplesFDistribution.R with some modifications
-  lpYX <- log(foreach::foreach(y = t(Y2), x = t(X2),
+  lpYX <- log(foreach(y = t(Y2), x = t(X2),
                            .combine = c,
                            .inorder = TRUE) %dochains% {
 #### the loop is over the columns of y and x
@@ -708,7 +708,7 @@ mutualinfo <- function(Yvrt, Xvrt, mcoutput, nsamples=3600, unit='Sh', useOquant
 #### STEP 3. Calculate sum_i log2_p(Y) for all samples
 
   ## from samplesFDistribution.R with some modifications
-  lpY <- log(foreach::foreach(y = t(Y2),
+  lpY <- log(foreach(y = t(Y2),
                           .combine = c,
                           .inorder = TRUE) %dochains% {
 #### the loop is over the columns of y and x

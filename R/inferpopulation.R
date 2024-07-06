@@ -84,7 +84,7 @@ inferpopulation <- function(data, metadata, outputdir, nsamples = 1200,
       ## ## Alternative way to register cores;
       ## ## might need to be used for portability to Windows?
       ## registerDoSEQ()
-      ## cl <- makePSOCKcluster(ncores)
+      ## cl <- parallel::makePSOCKcluster(ncores)
       ## ##
       cl <- parallel::makeCluster(parallel)
       doParallel::registerDoParallel(cl)
@@ -643,7 +643,7 @@ inferpopulation <- function(data, metadata, outputdir, nsamples = 1200,
   #####################################################
 
   #Iterate over cores, using 'acore' variable as iterator
-  chaininfo <- foreach::foreach(acore = 1:ncores,
+  chaininfo <- foreach(acore = 1:ncores,
                                 .combine = rbind,
                                 .inorder = FALSE,
                                 .packages = c('nimble'),
@@ -702,7 +702,7 @@ inferpopulation <- function(data, metadata, outputdir, nsamples = 1200,
     #### CLUSTER REPRESENTATION OF FREQUENCY SPACE
 
     ## hierarchical probability structure
-    finitemix <- nimble::nimbleCode({
+    finitemix <- nimbleCode({
       ## Component weights
       Alpha ~ dcat(prob = probalpha0[1:nalpha])
       alphas[1:nclusters] <- basealphas[1:nclusters] * 2^Alpha
@@ -988,18 +988,18 @@ inferpopulation <- function(data, metadata, outputdir, nsamples = 1200,
     ##################################################
     #### NIMBLE SETUP
     ##################################################
-    finitemixnimble <- nimble::nimbleModel(
+    finitemixnimble <- nimbleModel(
       code = finitemix, name = 'finitemixnimble1',
       constants = constants,
       data = datapoints,
       inits = initsfn()
     )
 
-    Cfinitemixnimble <- nimble::compileNimble(finitemixnimble,
+    Cfinitemixnimble <- compileNimble(finitemixnimble,
                                       showCompilerOutput = FALSE)
     gc() #garbage collection
 
-    confnimble <- nimble::configureMCMC(
+    confnimble <- configureMCMC(
       Cfinitemixnimble, # nodes = NULL
       monitors = c(
         'W',
@@ -1077,7 +1077,7 @@ inferpopulation <- function(data, metadata, outputdir, nsamples = 1200,
     #### change execution order for some variates
     if (changeSamplerOrder) {
       ## call this to do a first reordering of the samplers
-      mcsampler <- nimble::buildMCMC(confnimble)
+      mcsampler <- buildMCMC(confnimble)
 
       samplerorder <- c(
       'K',
@@ -1102,7 +1102,7 @@ inferpopulation <- function(data, metadata, outputdir, nsamples = 1200,
       'W', 'Alpha'
     )
     ##
-    neworder <- foreach::foreach(var = samplerorder, .combine = c) %do% {
+    neworder <- foreach(var = samplerorder, .combine = c) %do% {
       grep(
         paste0('^', var, '(\\[.+\\])*$'),
         sapply(confnimble$getSamplers(), function(x) {
@@ -1125,9 +1125,9 @@ inferpopulation <- function(data, metadata, outputdir, nsamples = 1200,
 
 #### Compile Monte Carlo sampler
     print(confnimble)
-    mcsampler <- nimble::buildMCMC(confnimble)
+    mcsampler <- buildMCMC(confnimble)
     ## print(confnimble$getUnsampledNodes())
-    Cmcsampler <- nimble::compileNimble(mcsampler, resetFunctions = TRUE)
+    Cmcsampler <- compileNimble(mcsampler, resetFunctions = TRUE)
 
     cat('\nSetup time', printtime(Sys.time() - timecount), '\n')
 
@@ -1519,7 +1519,7 @@ inferpopulation <- function(data, metadata, outputdir, nsamples = 1200,
 
         tracegroups <- as.list(seq_len(min(4, ncol(traces))))
         names(tracegroups) <- colnames(traces)[1:min(4, ncol(traces))]
-        grouplegends <- foreach::foreach(agroup = seq_along(tracegroups)) %do% {
+        grouplegends <- foreach(agroup = seq_along(tracegroups)) %do% {
           c(
             paste0('-- STATS ', names(tracegroups)[agroup], ' --'),
             paste0('min ESS = ',
@@ -1691,7 +1691,7 @@ inferpopulation <- function(data, metadata, outputdir, nsamples = 1200,
       SIMPLIFY = FALSE
     )
   }
-  mcsamples <- foreach::foreach(chainnumber = 1:(ncores * nchainspercore),
+  mcsamples <- foreach(chainnumber = 1:(ncores * nchainspercore),
                                 .combine = joinmc, .multicombine = FALSE) %do% {
     padchainnumber <- sprintf(paste0('%0', nchar(nchains), 'i'), chainnumber)
 
@@ -1707,7 +1707,7 @@ inferpopulation <- function(data, metadata, outputdir, nsamples = 1200,
                            paste0('Fdistribution', dashnameroot, '.rds')
   ))
 
-  traces <- foreach::foreach(chainnumber = 1:(ncores * nchainspercore),
+  traces <- foreach(chainnumber = 1:(ncores * nchainspercore),
                              .combine = rbind) %do% {
     padchainnumber <- sprintf(paste0('%0', nchar(nchains), 'i'), chainnumber)
 
