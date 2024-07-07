@@ -1,4 +1,4 @@
-Log core 3 - Current time: 2024-07-05 06:56:42
+Log core 1 - Current time: 2024-07-07 08:06:55
 Defining model
   [Note] 'Clatinit' is provided in 'constants' but not used in the model code and is being ignored.
   [Note] 'Dlatinit' is provided in 'constants' but not used in the model code and is being ignored.
@@ -18,16 +18,16 @@ Compiling
 thin = 1: Bprob, Cmean, Cvar, Dmean, Dvar, Nprob, Omean, Ovar, Rmean, Rvar, W
 thin2 = 1: K
 ===== Samplers =====
-posterior_predictive sampler (8)
+posterior_predictive sampler (9)
   - Ndata[]  (2 elements)
   - Bdata[]  (1 element)
-  - Rdata[]  (2 elements)
+  - Rdata[]  (3 elements)
   - Clat[]  (1 element)
   - Dlat[]  (1 element)
   - Olat[]  (1 element)
-conjugate sampler (1153)
-  - Rmean[]  (128 elements)
-  - Rrate[]  (128 elements)
+conjugate sampler (1345)
+  - Rmean[]  (192 elements)
+  - Rrate[]  (192 elements)
   - Cmean[]  (64 elements)
   - Crate[]  (64 elements)
   - Dmean[]  (64 elements)
@@ -35,7 +35,7 @@ conjugate sampler (1153)
   - Omean[]  (64 elements)
   - Orate[]  (64 elements)
   - Bprob[]  (64 elements)
-  - Rvar[]  (128 elements)
+  - Rvar[]  (192 elements)
   - Cvar[]  (64 elements)
   - Dvar[]  (64 elements)
   - Ovar[]  (64 elements)
@@ -58,16 +58,16 @@ thin2 = 1: K
 slice sampler (151)
   - Alpha
   - K[]  (150 elements)
-posterior_predictive sampler (8)
+posterior_predictive sampler (9)
   - Ndata[]  (2 elements)
   - Bdata[]  (1 element)
-  - Rdata[]  (2 elements)
+  - Rdata[]  (3 elements)
   - Clat[]  (1 element)
   - Dlat[]  (1 element)
   - Olat[]  (1 element)
-conjugate sampler (1153)
-  - Rmean[]  (128 elements)
-  - Rrate[]  (128 elements)
+conjugate sampler (1345)
+  - Rmean[]  (192 elements)
+  - Rrate[]  (192 elements)
   - Cmean[]  (64 elements)
   - Crate[]  (64 elements)
   - Dmean[]  (64 elements)
@@ -75,7 +75,7 @@ conjugate sampler (1153)
   - Omean[]  (64 elements)
   - Orate[]  (64 elements)
   - Bprob[]  (64 elements)
-  - Rvar[]  (128 elements)
+  - Rvar[]  (192 elements)
   - Cvar[]  (64 elements)
   - Dvar[]  (64 elements)
   - Ovar[]  (64 elements)
@@ -91,59 +91,28 @@ Compiling
   [Note] This may take a minute.
   [Note] Use 'showCompilerOutput = TRUE' to see C++ compilation details.
 
-Setup time 1.2 mins 
+Setup time 1.4 mins 
 
-Chain # 7 (chain 1 of 3 for this core)
+Chain # 1 (chain 1 of 3 for this core)
 Iterations: 1024 
 |-------------|-------------|-------------|-------------|
 |-------------------------------------------------------|
 
-Current time: 2024-07-05 06:58:20
-MCMC time 23 secs 
+Current time: 2024-07-07 08:08:52
+MCMC time 30 secs 
 
 OCCUPIED CLUSTERS: 1 OF 64 
 
-ESSs: 233
-IATs: 3
-BMKs: 0.066
-MCSEs: 6.45
+ESSs: 583
+IATs: 1
+BMKs: 0.076
+MCSEs: 4.19
 Stationary: TRUE
 Burn-in I: 0
 Burn-in II: 0
-Proposed thinning: 8 
+Proposed thinning: 2 
 
-Diagnostics time 1.4 secs 
-
-Number of iterations 1024 , required 144 
-
-Keeping last 10 samples with thinning 16 
-
-Plotting traces and samples.
-
-Plotting MCMC traces
-Current time: 2024-07-05 06:58:24
-MCMC + diagnostics time 26 secs 
-
-Chain # 8 (chain 2 of 3 for this core)
-Iterations: 1024 
-|-------------|-------------|-------------|-------------|
-|-------------------------------------------------------|
-
-Current time: 2024-07-05 06:58:50
-MCMC time 53 secs 
-
-OCCUPIED CLUSTERS: 1 OF 64 
-
-ESSs: 690
-IATs: 2
-BMKs: 0.091
-MCSEs: 4.57
-Stationary: TRUE
-Burn-in I: 0
-Burn-in II: 0
-Proposed thinning: 1 
-
-Diagnostics time 1.1 secs 
+Diagnostics time 1.2 secs 
 
 Number of iterations 1024 , required 36 
 
@@ -152,39 +121,90 @@ Keeping last 10 samples with thinning 4
 Plotting traces and samples.
 
 Plotting MCMC traces
-Current time: 2024-07-05 06:58:53
-MCMC + diagnostics time 55 secs 
+Current time: 2024-07-07 08:08:55
+MCMC + diagnostics time 34 secs 
 
-Chain # 9 (chain 3 of 3 for this core)
+Chain # 2 (chain 2 of 3 for this core)
 Iterations: 1024 
 |-------------|-------------|-------------|-------------|
 |-------------------------------------------------------|
 
-Current time: 2024-07-05 06:59:20
-MCMC time 1.4 mins 
+Current time: 2024-07-07 08:09:26
+MCMC time 1.1 mins 
 
 OCCUPIED CLUSTERS: 1 OF 64 
 
-ESSs: 360
+ESSs: 223
 IATs: 2
-BMKs: 0.095
-MCSEs: 5.12
+BMKs: 0.146
+MCSEs: 6.14
 Stationary: TRUE
 Burn-in I: 0
 Burn-in II: 0
-Proposed thinning: 3 
+Proposed thinning: 6 
 
-Diagnostics time 0.5 secs 
+Diagnostics time 0.56 secs 
 
-Number of iterations 1024 , required 54 
+Number of iterations 1024 , required 108 
 
-Keeping last 10 samples with thinning 6 
+Keeping last 10 samples with thinning 12 
 
 Plotting traces and samples.
 
 Plotting MCMC traces
-Current time: 2024-07-05 06:59:22
-MCMC + diagnostics time 1.4 mins 
+Current time: 2024-07-07 08:09:28
+MCMC + diagnostics time 1.1 mins 
 
-Current time: 2024-07-05 06:59:22
-Total time 1.4 mins 
+Chain # 3 (chain 3 of 3 for this core)
+Iterations: 1024 
+|-------------|-------------|-------------|-------------|
+|-------------------------------------------------------|
+
+Current time: 2024-07-07 08:09:58
+MCMC time 1.6 mins 
+
+OCCUPIED CLUSTERS: 1 OF 64 
+
+ESSs: 224
+IATs: 4
+BMKs: 0.088
+MCSEs: 6.98
+Stationary: FALSE
+Burn-in I: 0
+Burn-in II: 0
+Proposed thinning: 6 
+
+Diagnostics time 0.57 secs 
+
+Number of iterations 1024 , required 108 
+
+Keeping last 10 samples with thinning 12 
+
+Plotting traces and samples.
+
+Plotting MCMC traces
+Current time: 2024-07-07 08:10:00
+MCMC + diagnostics time 1.6 mins 
+
+Current time: 2024-07-07 08:10:00
+Total time 1.6 mins 
+loaded modelfreeinference and set parent environment
+loaded modelfreeinference and set parent environment
+loaded modelfreeinference and set parent environment
+loaded modelfreeinference and set parent environment
+loaded modelfreeinference and set parent environment
+loaded modelfreeinference and set parent environment
+loaded modelfreeinference and set parent environment
+loaded modelfreeinference and set parent environment
+loaded modelfreeinference and set parent environment
+loaded modelfreeinference and set parent environment
+loaded modelfreeinference and set parent environment
+loaded modelfreeinference and set parent environment
+loaded modelfreeinference and set parent environment
+loaded modelfreeinference and set parent environment
+loaded modelfreeinference and set parent environment
+loaded modelfreeinference and set parent environment
+loaded modelfreeinference and set parent environment
+loaded modelfreeinference and set parent environment
+Warning message:
+replacing previous import ‘nimble::rcat’ by ‘extraDistr::rcat’ when loading ‘modelfreeinference’ 

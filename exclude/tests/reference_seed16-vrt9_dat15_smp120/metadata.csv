@@ -7,3 +7,4 @@ Nvrt,nominal,5,,,,TRUE,TRUE,,,,,,A,B,C,D,E
 Bvrt,binary,2,,,,TRUE,TRUE,,,,,,no,yes,,,
 Pvrt,continuous,Inf,0,0,Inf,FALSE,FALSE,1,0.5,2,0,10,,,,,
 Nvrt2,nominal,3,,,,TRUE,TRUE,,,,,,a,b,c,,
+Tvrt,continuous,Inf,,0,1,FALSE,FALSE,0.5,0.34,0.66,0,1,,,,,

@@ -13,7 +13,7 @@ seed <- 16
 
 outputdirPrefix <- file.path('__packagetest')
 
-currenttestdir <- inferpopulation(data = 'testdata.csv',
+currenttestdir <- inferpopulation(data = NULL,
                         metadata = 'metatestdata.csv',
                         outputdir = outputdirPrefix,
                         output = 'directory',

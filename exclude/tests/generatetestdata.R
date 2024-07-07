@@ -1,5 +1,5 @@
 set.seed(16)
-ndata <- 150# 15
+ndata <- 15# 15
 ## Adding NAs in different places
 ## to check that missing data are handled correctly
 
@@ -37,31 +37,37 @@ Pdata[8] <- NA
 Ndata2 <- sample(letters[1:3], ndata, replace=T, prob=LaplacesDemon::rdirichlet(alpha=rep(1,3),n=1))
 Ndata2[9] <- NA
 
+## Continuous variate, bounded domain
+Tdata <- plogis(rnorm(n=ndata, mean=0, sd=1))
+Tdata[10] <- NA
+
+
 ##
-testdata <- data.table(Rvrt=Rdata,Cvrt=Cdata,Dvrt=Ddata,Ovrt=Odata,Nvrt=Ndata,Bvrt=Bdata,Pvrt=Pdata,Nvrt2=Ndata2)
-fwrite(testdata, paste0('testdata_', ndata, '.csv'))
+testdata <- data.frame(Rvrt=Rdata,Cvrt=Cdata,Dvrt=Ddata,Ovrt=Odata,Nvrt=Ndata,Bvrt=Bdata,Pvrt=Pdata,Nvrt2=Ndata2,Tvrt=Tdata)
+write.csv(testdata, paste0('testdata_', ndata, '.csv'),
+          row.names=FALSE, quote=FALSE, na='')
 
 metadata <- list(
-    name=c('Rvrt', 'Cvrt', 'Dvrt','Ovrt','Nvrt','Bvrt','Pvrt','Nvrt2'),
-    type=c('continuous', 'continuous', 'continuous', 'ordinal', 'nominal', 'binary', 'continuous','nominal'),
-    Nvalues=c(Inf, Inf, Inf, 7, 5, 2, Inf, 3),
-    rounding=c(0, 0, 0.1, NA, NA, NA, 0, NA),
-    domainmin=c(-Inf, -1, -Inf, 1, NA, NA, 0, NA),
-    domainmax=c(+Inf, +1, +Inf, 7, NA, NA, +Inf, NA),
-    minincluded=c(FALSE, TRUE, FALSE, TRUE, TRUE, TRUE, FALSE, TRUE),
-    maxincluded=c(FALSE, TRUE, FALSE, TRUE, TRUE, TRUE, FALSE, TRUE),
-    centralvalue=c(0, 0, 0, 5, NA, NA, 1, NA),
-    lowvalue=c(-0.7, -1, -0.7, 4, NA, NA, 0.5, NA),
-    highvalue=c(0.7, 1, 0.7, 7, NA, NA, 2.0, NA),
-    plotmin=c(-3, -1, -3, NA, NA, NA, 0, NA),
-    plotmax=c(+3, +1, +3, NA, NA, NA, 10, NA),
-    V1=c(NA, NA, NA, NA, 'A', 'no', NA, 'a'),
-    V2=c(NA, NA, NA, NA, 'B', 'yes', NA, 'b'),
-    V3=c(NA, NA, NA, NA, 'C', NA, NA, 'c'),
-    V4=c(NA, NA, NA, NA, 'D', NA, NA, NA),
-    V5=c(NA, NA, NA, NA, 'E', NA, NA, NA)
+    name=c('Rvrt', 'Cvrt', 'Dvrt','Ovrt','Nvrt','Bvrt','Pvrt','Nvrt2','Tvrt'),
+    type=c('continuous', 'continuous', 'continuous', 'ordinal', 'nominal', 'binary', 'continuous','nominal','continuous'),
+    Nvalues=c(Inf, Inf, Inf, 7, 5, 2, Inf, 3, Inf),
+    rounding=c(0, 0, 0.1, NA, NA, NA, 0, NA, NA),
+    domainmin=c(-Inf, -1, -Inf, 1, NA, NA, 0, NA, 0),
+    domainmax=c(+Inf, +1, +Inf, 7, NA, NA, +Inf, NA, 1),
+    minincluded=c(FALSE, TRUE, FALSE, TRUE, TRUE, TRUE, FALSE, TRUE, FALSE),
+    maxincluded=c(FALSE, TRUE, FALSE, TRUE, TRUE, TRUE, FALSE, TRUE, FALSE),
+    centralvalue=c(0, 0, 0, 5, NA, NA, 1, NA, 0.5),
+    lowvalue=c(-0.7, -1, -0.7, 4, NA, NA, 0.5, NA, 0.34),
+    highvalue=c(0.7, 1, 0.7, 7, NA, NA, 2.0, NA, 0.66),
+    plotmin=c(-3, -1, -3, NA, NA, NA, 0, NA, 0),
+    plotmax=c(+3, +1, +3, NA, NA, NA, 10, NA, 1),
+    V1=c(NA, NA, NA, NA, 'A', 'no', NA, 'a', NA),
+    V2=c(NA, NA, NA, NA, 'B', 'yes', NA, 'b', NA),
+    V3=c(NA, NA, NA, NA, 'C', NA, NA, 'c', NA),
+    V4=c(NA, NA, NA, NA, 'D', NA, NA, NA, NA),
+    V5=c(NA, NA, NA, NA, 'E', NA, NA, NA, NA)
 )
-fwrite(metadata, 'metatestdata.csv')
+write.csv(metadata, 'metatestdata.csv', row.names=FALSE, quote=FALSE, na='')
 
 ## source('buildauxmetadata.R')
 ## auxmeta <- buildauxmetadata(data=testdata, metadata=metadata, file=F)

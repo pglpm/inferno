@@ -313,9 +313,9 @@ inferpopulation <- function(data, metadata, outputdir, nsamples = 1200,
       testdata <- data.frame(sapply(seq_len(nrow(auxmetadata)), function(xx) {
         ## consider making this function separate
         xx <- auxmetadata[xx, ]
-        toadd <- xx[, paste0('mctest', 1:3), with = FALSE]
+        toadd <- xx[, paste0('mctest', 1:3)]
         if (xx[['mcmctype']] %in% c('B', 'N')) {
-          toadd <- xx[1, paste0('V', toadd), with = FALSE]
+          toadd <- xx[1, paste0('V', toadd)]
         }
         toadd
       }))

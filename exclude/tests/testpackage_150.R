@@ -7,7 +7,7 @@ if(basename(startdir) != 'tests'){
 
 library('modelfreeinference')
 
-refdir <- 'reference_seed16_packagetest-240705T064934-vrt8_dat15_smp120'
+refdir <- 'reference_seed16-vrt8_dat150_smp120'
 
 seed <- 16
 

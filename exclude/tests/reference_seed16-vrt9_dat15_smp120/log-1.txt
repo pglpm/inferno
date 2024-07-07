@@ -1,4 +1,4 @@
-Log core 1 - Current time: 2024-07-05 06:49:35
+Log core 1 - Current time: 2024-07-07 08:04:49
 Defining model
   [Note] 'Clatinit' is provided in 'constants' but not used in the model code and is being ignored.
   [Note] 'Dlatinit' is provided in 'constants' but not used in the model code and is being ignored.
@@ -18,16 +18,16 @@ Compiling
 thin = 1: Bprob, Cmean, Cvar, Dmean, Dvar, Nprob, Omean, Ovar, Rmean, Rvar, W
 thin2 = 1: K
 ===== Samplers =====
-posterior_predictive sampler (8)
+posterior_predictive sampler (9)
   - Ndata[]  (2 elements)
   - Bdata[]  (1 element)
-  - Rdata[]  (2 elements)
+  - Rdata[]  (3 elements)
   - Clat[]  (1 element)
   - Dlat[]  (1 element)
   - Olat[]  (1 element)
-conjugate sampler (1153)
-  - Rmean[]  (128 elements)
-  - Rrate[]  (128 elements)
+conjugate sampler (1345)
+  - Rmean[]  (192 elements)
+  - Rrate[]  (192 elements)
   - Cmean[]  (64 elements)
   - Crate[]  (64 elements)
   - Dmean[]  (64 elements)
@@ -35,7 +35,7 @@ conjugate sampler (1153)
   - Omean[]  (64 elements)
   - Orate[]  (64 elements)
   - Bprob[]  (64 elements)
-  - Rvar[]  (128 elements)
+  - Rvar[]  (192 elements)
   - Cvar[]  (64 elements)
   - Dvar[]  (64 elements)
   - Ovar[]  (64 elements)
@@ -58,16 +58,16 @@ thin2 = 1: K
 slice sampler (16)
   - Alpha
   - K[]  (15 elements)
-posterior_predictive sampler (8)
+posterior_predictive sampler (9)
   - Ndata[]  (2 elements)
   - Bdata[]  (1 element)
-  - Rdata[]  (2 elements)
+  - Rdata[]  (3 elements)
   - Clat[]  (1 element)
   - Dlat[]  (1 element)
   - Olat[]  (1 element)
-conjugate sampler (1153)
-  - Rmean[]  (128 elements)
-  - Rrate[]  (128 elements)
+conjugate sampler (1345)
+  - Rmean[]  (192 elements)
+  - Rrate[]  (192 elements)
   - Cmean[]  (64 elements)
   - Crate[]  (64 elements)
   - Dmean[]  (64 elements)
@@ -75,7 +75,7 @@ conjugate sampler (1153)
   - Omean[]  (64 elements)
   - Orate[]  (64 elements)
   - Bprob[]  (64 elements)
-  - Rvar[]  (128 elements)
+  - Rvar[]  (192 elements)
   - Cvar[]  (64 elements)
   - Dvar[]  (64 elements)
   - Ovar[]  (64 elements)
@@ -91,28 +91,28 @@ Compiling
   [Note] This may take a minute.
   [Note] Use 'showCompilerOutput = TRUE' to see C++ compilation details.
 
-Setup time 42 secs 
+Setup time 44 secs 
 
 Chain # 1 (chain 1 of 3 for this core)
 Iterations: 1024 
 |-------------|-------------|-------------|-------------|
 |-------------------------------------------------------|
 
-Current time: 2024-07-05 06:50:21
-MCMC time 3.8 secs 
+Current time: 2024-07-07 08:05:37
+MCMC time 4.3 secs 
 
 OCCUPIED CLUSTERS: 1 OF 64 
 
-ESSs: 64
-IATs: 4
-BMKs: 0.258
-MCSEs: 9.03
-Stationary: TRUE
+ESSs: 57
+IATs: 9
+BMKs: 0.322
+MCSEs: 10.26
+Stationary: FALSE
 Burn-in I: 0
 Burn-in II: 0
 Proposed thinning: 30 
 
-Diagnostics time 1.3 secs 
+Diagnostics time 1 secs 
 
 Number of iterations 1024 , required 540 
 
@@ -121,73 +121,98 @@ Keeping last 10 samples with thinning 60
 Plotting traces and samples.
 
 Plotting MCMC traces
-Current time: 2024-07-05 06:50:25
-MCMC + diagnostics time 7.3 secs 
+Current time: 2024-07-07 08:05:40
+MCMC + diagnostics time 7.5 secs 
 
 Chain # 2 (chain 2 of 3 for this core)
 Iterations: 1024 
 |-------------|-------------|-------------|-------------|
 |-------------------------------------------------------|
 
-Current time: 2024-07-05 06:50:29
-MCMC time 11 secs 
+Current time: 2024-07-07 08:05:45
+MCMC time 12 secs 
 
 OCCUPIED CLUSTERS: 1 OF 64 
 
-ESSs: 317
-IATs: 3
-BMKs: 0.234
-MCSEs: 5.87
-Stationary: TRUE
+ESSs: 39
+IATs: 18
+BMKs: 0.213
+MCSEs: 12.3
+Stationary: FALSE
+Burn-in I: 510
+Burn-in II: 510
+Proposed thinning: 30 
+
+Diagnostics time 1.1 secs 
+
+Number of iterations 1024 , required 1560 
+
+Chain # 2 - chunk 2 (chain 2 of 3 for this core): increasing by 537 
+Iterations: 537 
+|-------------|-------------|-------------|-------------|
+|-------------------------------------------------------|
+
+Current time: 2024-07-07 08:05:49
+MCMC time 16 secs 
+
+OCCUPIED CLUSTERS: 1 OF 64 
+
+ESSs: 71
+IATs: 14
+BMKs: 0.186
+MCSEs: 9.93
+Stationary: FALSE
 Burn-in I: 0
 Burn-in II: 0
-Proposed thinning: 5 
+Proposed thinning: 31 
 
-Diagnostics time 0.57 secs 
+Diagnostics time 0.29 secs 
 
-Number of iterations 1024 , required 90 
+Number of iterations 1561 , required 558 
 
-Keeping last 10 samples with thinning 10 
+Keeping last 10 samples with thinning 62 
 
 Plotting traces and samples.
 
 Plotting MCMC traces
-Current time: 2024-07-05 06:50:31
-MCMC + diagnostics time 13 secs 
+Current time: 2024-07-07 08:05:50
+MCMC + diagnostics time 17 secs 
 
 Chain # 3 (chain 3 of 3 for this core)
 Iterations: 1024 
 |-------------|-------------|-------------|-------------|
 |-------------------------------------------------------|
 
-Current time: 2024-07-05 06:50:35
-MCMC time 17 secs 
+Current time: 2024-07-07 08:05:54
+MCMC time 21 secs 
 
 OCCUPIED CLUSTERS: 1 OF 64 
 
-ESSs: 134
-IATs: 6
-BMKs: 0.262
-MCSEs: 8.39
-Stationary: FALSE
+ESSs: 199
+IATs: 5
+BMKs: 0.063
+MCSEs: 7.52
+Stationary: TRUE
 Burn-in I: 0
 Burn-in II: 0
-Proposed thinning: 16 
+Proposed thinning: 7 
 
-Diagnostics time 1 secs 
+Diagnostics time 0.49 secs 
 
-Number of iterations 1024 , required 288 
+Number of iterations 1024 , required 126 
 
-Keeping last 10 samples with thinning 32 
+Keeping last 10 samples with thinning 14 
 
 Plotting traces and samples.
 
 Plotting MCMC traces
-Current time: 2024-07-05 06:50:37
-MCMC + diagnostics time 19 secs 
+Current time: 2024-07-07 08:05:55
+MCMC + diagnostics time 22 secs 
 
-Current time: 2024-07-05 06:50:37
-Total time 19 secs
+Current time: 2024-07-07 08:05:55
+Total time 22 secs 
+loaded modelfreeinference and set parent environment
+loaded modelfreeinference and set parent environment
 loaded modelfreeinference and set parent environment
 loaded modelfreeinference and set parent environment
 loaded modelfreeinference and set parent environment
