@@ -47,6 +47,7 @@ vtransform <- function(x, auxmetadata,
 #### Transformation to internal value for MCMC
 
 #### Continuous, open domain
+
       if (info$mcmctype == 'R') {
         if(Rout == 'id') { # used in mutualinfo()
           datum

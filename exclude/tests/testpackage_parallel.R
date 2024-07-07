@@ -7,7 +7,7 @@ if(basename(startdir) != 'tests'){
 
 library('modelfreeinference')
 
-refdir <- 'reference_seed16_packagetest-240705T064934-vrt8_dat15_smp120'
+refdir <- 'reference_seed16-vrt9_dat15_smp120'
 
 seed <- 16
 
@@ -18,7 +18,7 @@ library('doParallel')
 mycluster <- makeCluster(ncores, outfile="")
 registerDoParallel(mycluster)
 
-currenttestdir <- inferpopulation(data = 'testdata.csv',
+currenttestdir <- inferpopulation(data = 'testdata_15.csv',
                         metadata = 'metatestdata.csv',
                         outputdir = outputdirPrefix,
                         output = 'directory',

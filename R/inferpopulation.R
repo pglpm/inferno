@@ -310,15 +310,15 @@ inferpopulation <- function(data, metadata, outputdir, nsamples = 1200,
       }
     } else {
       ## no data available: construct one datapoint from the metadata info
-      testdata <- data.frame(sapply(seq_len(nrow(auxmetadata)), function(xx) {
-        ## consider making this function separate
-        xx <- auxmetadata[xx, ]
-        toadd <- xx[, paste0('mctest', 1:3)]
+      testdata <- data.frame(1:3)[,-1]
+      for(xx in seq_len(nrow(auxmetadata))) {
+        xx <- as.list(auxmetadata[xx, ])
+        toadd <- unlist(xx[paste0('mctest', 1:3)])
         if (xx[['mcmctype']] %in% c('B', 'N')) {
-          toadd <- xx[1, paste0('V', toadd)]
+          toadd <- unlist(xx[paste0('V', toadd)])
         }
-        toadd
-      }))
+        testdata <- cbind(testdata, toadd)
+      }
       colnames(testdata) <- auxmetadata[['name']]
       for(achain in seq_len(nchains)) {
         saveRDS(testdata,
@@ -684,7 +684,8 @@ inferpopulation <- function(data, metadata, outputdir, nsamples = 1200,
       ## testdata <- readRDS(file = file.path(dirname,
       ##                 paste0('_testdata_', chainnumber, '.rds')))
       ## cat('\n***TEST0***\n')
-      ##   str(samplesFDistribution)
+      ## str(testdata)
+      ## print(testdata)
       ##   ll <- samplesFDistribution(
       ##       Y = testdata, X = NULL,
       ##       mcoutput = c(mcsamples, list(auxmetadata = auxmetadata)),

@@ -5,9 +5,11 @@ if(basename(startdir) != 'tests'){
   cat('\nAre you in the correct folder?\n')
 }
 
+## library('devtools')
+## load_all()
 library('modelfreeinference')
 
-refdir <- 'reference_seed16_packagetest-240705T064934-vrt8_dat15_smp120'
+refdir <- 'reference_seed16-vrt9_dat0_smp120'
 
 seed <- 16
 
@@ -18,8 +20,8 @@ currenttestdir <- inferpopulation(data = NULL,
                         outputdir = outputdirPrefix,
                         output = 'directory',
                         appendtimestamp = TRUE, appendinfo = TRUE,
-                        nsamples = 120, nchains = 12,
-                        cleanup = FALSE, parallel = 4,
+                        nsamples = 120, nchains = 1,
+                        cleanup = FALSE, parallel = 1,
                         prior = TRUE,
                         ## lldata = 12,
                         useOquantiles = FALSE,

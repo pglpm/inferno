@@ -349,6 +349,7 @@ samplesFDistribution <- function(Y, X, mcoutput, subsamples, jacobian = TRUE,
   Y2 <- vtransform(Y, auxmetadata = auxmetadata, Cout = 'boundisinf', Dout = 'boundisinf',
                    Oout = '', Nout = 'numeric', Bout = 'numeric',
                    useOquantiles = useOquantiles)
+
   if (!is.null(X)) {
     X2 <- vtransform(X, auxmetadata = auxmetadata, Cout = 'boundisinf', Dout = 'boundisinf',
                      Oout = '', Nout = 'numeric', Bout = 'numeric',
@@ -372,13 +373,14 @@ samplesFDistribution <- function(Y, X, mcoutput, subsamples, jacobian = TRUE,
              )[seq_len(nrow(X2)), , drop = FALSE]
     }
   } else {
-    X2 <- lapply(seq_len(nrow(Y2)), function(x) NA)
+    X2 <- sapply(seq_len(nrow(Y2)), function(x) NA)
   }
   ## ndata <- nrow(Y2)
 
   foreach(y = t(Y2), x = t(X2),
-                   .combine = combine,
-                   .inorder = TRUE) %dochains% {
+          .combine = combine,
+          .inorder = TRUE) %dochains% {
+
 #### the loop is over the columns of y and x
 #### each instance is a 1-column vector
                      if (all(is.na(x))) {

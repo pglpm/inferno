@@ -8,13 +8,13 @@ if(basename(startdir) != 'tests'){
 library('devtools')
 load_all()
 
-refdir <- 'reference_seed16_packagetest-240705T064934-vrt8_dat15_smp120'
+refdir <- 'reference_seed16-vrt9_dat15_smp120'
 
 seed <- 16
 
 outputdirPrefix <- file.path('__packagetest')
 
-currenttestdir <- inferpopulation(data = 'testdata.csv',
+currenttestdir <- inferpopulation(data = 'testdata_15.csv',
                         metadata = 'metatestdata.csv',
                         outputdir = outputdirPrefix,
                         output = 'directory',
