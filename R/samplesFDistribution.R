@@ -321,6 +321,18 @@ samplesFDistribution <- function(Y, X, mcoutput, subsamples, jacobian = TRUE,
     }))
   }
 
+#### Type O
+  vnames <- auxmetadata[auxmetadata$mcmctype == 'O', 'name']
+  XiO <- match(vnames, Xv)
+  XtO <- which(!is.na(XiO))
+  XiO <- XiO[XtO]
+  XnO <- length(XiO)
+  ##
+  YiO <- match(vnames, Yv)
+  YtO <- which(!is.na(YiO))
+  YiO <- YiO[YtO]
+  YnO <- length(YiO)
+
 #### Type N
   vnames <- auxmetadata[auxmetadata$mcmctype == 'N', 'name']
   XiN <- match(vnames, Xv)

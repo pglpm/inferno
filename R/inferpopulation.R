@@ -314,7 +314,7 @@ inferpopulation <- function(data, metadata, outputdir, nsamples = 1200,
       for(xx in seq_len(nrow(auxmetadata))) {
         xx <- as.list(auxmetadata[xx, ])
         toadd <- unlist(xx[paste0('mctest', 1:3)])
-        if (xx[['mcmctype']] %in% c('B', 'N')) {
+        if (xx[['mcmctype']] %in% c('B', 'N', 'O')) {
           toadd <- unlist(xx[paste0('V', toadd)])
         }
         testdata <- cbind(testdata, toadd)
@@ -361,7 +361,7 @@ inferpopulation <- function(data, metadata, outputdir, nsamples = 1200,
 ##       # consider making this function separate
 ##       xx <- auxmetadata[xx, ]
 ##       toadd <- xx[, paste0('mctest', 1:3), with = FALSE]
-##       if (xx[['mcmctype']] %in% c('B', 'N')) {
+##       if (xx[['mcmctype']] %in% c('B', 'N', 'O)) {
 ##         toadd <- xx[1, paste0('V', toadd), with = FALSE]
 ##       }
 ##       toadd
@@ -452,11 +452,12 @@ inferpopulation <- function(data, metadata, outputdir, nsamples = 1200,
   ## R: continuous open domain
   ## C: continuous closed domain (or censored)
   ## D: continuous rounded
-  ## L: ordinal
+  ## L: latent
+  ## O: ordinal
   ## N: nominal
   ## B: binary
   ## number and names of variates of each type
-  vn <- vnames <- list(R=NULL, C=NULL, D=NULL, L=NULL, N=NULL, B=NULL)
+  vn <- vnames <- list(R=NULL, C=NULL, D=NULL, L=NULL, O=NULL, N=NULL, B=NULL)
 
   for (atype in names(vn)) {
     vnames[[atype]] <- auxmetadata[auxmetadata$mcmctype == atype, 'name']
@@ -466,7 +467,7 @@ inferpopulation <- function(data, metadata, outputdir, nsamples = 1200,
   ## ## REMOVE soon: previous version
   ## vn <- list() # How many variates of each type
   ## vnames <- list() # The names for variates of each type
-  ## for (atype in c('R', 'C', 'D', 'L', 'N', 'B')) {
+  ## for (atype in c('R', 'C', 'D', 'L', 'O', 'N', 'B')) {
   ##   vnames[[atype]] <- auxmetadata[auxmetadata$mcmctype == atype, 'name']
   ##   vn[[atype]] <- length(vnames[[atype]])
   ## }
@@ -530,7 +531,7 @@ inferpopulation <- function(data, metadata, outputdir, nsamples = 1200,
                           useLquantiles = useLquantiles)
       )
     },
-    if (vn$L > 0) { # ordinal
+    if (vn$L > 0) { # latent
       list(
         Ln = vn$L, # This indexing variable is needed internally
         Lmean1 = rep(0, 1),
@@ -545,6 +546,25 @@ inferpopulation <- function(data, metadata, outputdir, nsamples = 1200,
         Llatinit = vtransform(data[, vnames$L, drop = FALSE],
                           auxmetadata, Lout = 'init',
                           useLquantiles = useLquantiles)
+      )
+    },
+    if (vn$O > 0) { # ordinal
+      Omaxn <- max(abs(auxmetadata[auxmetadata$mcmctype == 'O', 'Ovalues']))
+      Oalpha0 <- matrix(1e-100, nrow = vn$O, ncol = Omaxn)
+      for (avar in seq_along(vnames$O)) {
+        nvalues <- auxmetadata[auxmetadata$name == vnames$O[avar], 'Ovalues']
+        ## negative nvalues means the variate is ordinal:
+        ## we choose a flatter hyperprior in that case
+        if(nvalues > 0) {
+          Oalpha0[avar, 1:nvalues] <- 1 / nvalues
+        } else {
+          Oalpha0[avar, 1:(-nvalues)] <- 1
+          }
+      }
+      list(
+        On = vn$O, # This indexing variable is needed internally
+        Omaxn = Omaxn,
+        Oalpha0 = Oalpha0
       )
     },
     if (vn$N > 0) { # nominal
@@ -598,10 +618,16 @@ inferpopulation <- function(data, metadata, outputdir, nsamples = 1200,
           Dout = 'aux', useLquantiles = useLquantiles)
       )
     },
-    if (vn$L > 0) { # ordinal
+    if (vn$L > 0) { # latent
       list(
         Laux = vtransform(data[, vnames$L, drop = FALSE], auxmetadata = auxmetadata,
           Lout = 'aux', useLquantiles = useLquantiles)
+      )
+    },
+    if (vn$O > 0) { # nominal
+      list(
+        Odata = vtransform(data[, vnames$O, drop = FALSE], auxmetadata = auxmetadata,
+          Oout = 'numeric', useLquantiles = useLquantiles)
       )
     },
     if (vn$N > 0) { # nominal
@@ -622,22 +648,28 @@ inferpopulation <- function(data, metadata, outputdir, nsamples = 1200,
   if (!exists('Nalpha0')) {
     Nalpha0 <- cbind(1)
   }
+  if (!exists('Oalpha0')) {
+    Oalpha0 <- cbind(1)
+  }
   cat(
     'Starting Monte Carlo sampling of', nsamples, 'samples by',
     nchains, 'chains'
   )
   cat(
     '\nin a space of',
-    (sum(as.numeric(vn) * c(2, 2, 2, 2, 0, 1)) +
-       sum(Nalpha0 > 2e-100) - nrow(Nalpha0) + 1) * nclusters - 1,
+    (sum(as.numeric(vn) * c(2, 2, 2, 2, 0, 0, 1)) +
+     sum(Nalpha0 > 2e-100) - nrow(Nalpha0) + 1 +
+     sum(Oalpha0 > 2e-100) - nrow(Oalpha0) + 1 ) * nclusters - 1,
     '(effectively',
     paste0(
       (sum(as.numeric(vn) * c(
         3 + npoints, 3 + npoints, 3 + npoints,
-        3 + npoints, 0, 1 + npoints
+        3 + npoints, 0, 0, 1 + npoints
       )) +
         sum(Nalpha0 > 2e-100) +
-        nrow(Nalpha0) * (npoints - 1) + 1) * nclusters - 1 + nalpha - 1,
+      nrow(Nalpha0) * (npoints - 1) + 1 +
+        sum(Oalpha0 > 2e-100) +
+      nrow(Oalpha0) * (npoints - 1) + 1 ) * nclusters - 1 + nalpha - 1,
       ')'
     ), 'dimensions.\n'
   )
@@ -769,11 +801,16 @@ inferpopulation <- function(data, metadata, outputdir, nsamples = 1200,
             Dvar[v, k] ~ dinvgamma(shape = Dshapelo, rate = Drate[v, k])
           }
         }
-        if (vn$L > 0) { # ordinal
+        if (vn$L > 0) { # latent
           for (v in 1:Ln) {
             Lmean[v, k] ~ dnorm(mean = Lmean1, var = Lvarm1)
             Lrate[v, k] ~ dinvgamma(shape = Lshapehi, rate = Lvar1)
             Lvar[v, k] ~ dinvgamma(shape = Lshapelo, rate = Lrate[v, k])
+          }
+        }
+        if (vn$O > 0) { # ordinal
+          for (v in 1:On) {
+            Oprob[v, k, 1:Omaxn] ~ ddirch(alpha = Oalpha0[v, 1:Omaxn])
           }
         }
         if (vn$N > 0) { # nominal
@@ -810,11 +847,16 @@ inferpopulation <- function(data, metadata, outputdir, nsamples = 1200,
             Dlat[d, v] ~ dnorm(mean = Dmean[v, K[d]], var = Dvar[v, K[d]])
           }
         }
-        if (vn$L > 0) { # ordinal
+        if (vn$L > 0) { # latent
           for (v in 1:Ln) {
             Laux[d, v] ~ dconstraint(Llat[d, v] >= Lleft[d, v] &
                                        Llat[d, v] < Lright[d, v])
             Llat[d, v] ~ dnorm(mean = Lmean[v, K[d]], var = Lvar[v, K[d]])
+          }
+        }
+        if (vn$O > 0) { # nominal
+          for (v in 1:On) {
+            Odata[d, v] ~ dcat(prob = Oprob[v, K[d], 1:Omaxn])
           }
         }
         if (vn$N > 0) { # nominal
@@ -948,7 +990,7 @@ inferpopulation <- function(data, metadata, outputdir, nsamples = 1200,
           )
         )
       }
-      if (vn$L > 0) { # ordinal
+      if (vn$L > 0) { # latent
         Lrate <- matrix(
           nimble::rinvgamma(
             n = vn$L * nclusters,
@@ -982,6 +1024,18 @@ inferpopulation <- function(data, metadata, outputdir, nsamples = 1200,
             ## Llat = vtransform(data[, vnames$L, with = FALSE],
             ##   auxmetadata, Lout = 'init',
             ##   useLquantiles = useLquantiles)
+          )
+        )
+      }
+      if (vn$O > 0) { # ordinal
+        outlist <- c(
+          outlist,
+          list(
+            Oprob = aperm(array(sapply(1:vn$O, function(avar) {
+              sapply(1:nclusters, function(aclus) {
+                nimble::rdirch(n = 1, alpha = Oalpha0[avar, ])
+              })
+            }), dim = c(Omaxn, nclusters, vn$O)))
           )
         )
       }
@@ -1049,6 +1103,9 @@ inferpopulation <- function(data, metadata, outputdir, nsamples = 1200,
         },
         if (vn$L > 0) {
           c('Lmean', 'Lvar')
+        },
+        if (vn$O > 0) {
+          c('Oprob')
         },
         if (vn$N > 0) {
           c('Nprob')
@@ -1127,6 +1184,9 @@ inferpopulation <- function(data, metadata, outputdir, nsamples = 1200,
       },
       if (vn$L > 0) {
         c('Lmean', 'Lrate', 'Lvar')
+      },
+      if (vn$O > 0) {
+        c('Oprob')
       },
       if (vn$N > 0) {
         c('Nprob')
