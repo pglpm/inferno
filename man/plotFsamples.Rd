@@ -13,7 +13,7 @@ plotFsamples(
   nFsamples = 100,
   datahistogram = TRUE,
   datascatter = TRUE,
-  useOquantiles = FALSE,
+  useLquantiles = FALSE,
   parallel = TRUE,
   silent = FALSE
 )
@@ -34,7 +34,7 @@ path for a 'FDistribution.rds' object, or such an object itself}
 
 \item{datascatter}{bool: plot the data as scatterplot along the x-axis?}
 
-\item{useOquantiles}{Bool: internal, use metadata quantiles for ordinal
+\item{useLquantiles}{Bool: internal, use metadata quantiles for ordinal
 variates}
 
 \item{parallel}{Bool or numeric: whether to use pre-existing parallel

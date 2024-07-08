@@ -1,5 +1,5 @@
 #### Unfinished
-generateVariates <- function(n=1, Yvrt, X=NULL, mcoutput, combine='rbind', useOquantiles=TRUE, parallel=TRUE, silent=FALSE){
+generateVariates <- function(n=1, Yvrt, X=NULL, mcoutput, combine='rbind', useLquantiles=TRUE, parallel=TRUE, silent=FALSE){
 
   if (!silent) {
     cat('\n')
@@ -141,13 +141,13 @@ generateVariates <- function(n=1, Yvrt, X=NULL, mcoutput, combine='rbind', useOq
       c(vtransform(x=matrix(NA,nrow=1,ncol=length(vnames),
                             dimnames=list(NULL,vnames)),
                    auxmetadata=auxmetadata, Cout='sleft',
-                   useOquantiles=useOquantiles)),
+                   useLquantiles=useLquantiles)),
       ## sign is important here:
       ## for upper tail, take opposite mean and value
       -c(vtransform(x=matrix(NA,nrow=1,ncol=length(vnames),
                              dimnames=list(NULL,vnames)),
                     auxmetadata=auxmetadata, Cout='sright',
-                    useOquantiles=useOquantiles))
+                    useLquantiles=useLquantiles))
     )
   }
 
@@ -168,13 +168,13 @@ generateVariates <- function(n=1, Yvrt, X=NULL, mcoutput, combine='rbind', useOq
       c(vtransform(x=matrix(NA,nrow=1,ncol=length(vnames),
                             dimnames=list(NULL,vnames)),
                    auxmetadata=auxmetadata, Dout='sleft',
-                   useOquantiles=useOquantiles)),
+                   useLquantiles=useLquantiles)),
       ## sign is important here:
       ## for upper tail, take opposite mean and value
       -c(vtransform(x=matrix(NA,nrow=1,ncol=length(vnames),
                              dimnames=list(NULL,vnames)),
                     auxmetadata=auxmetadata, Dout='sright',
-                    useOquantiles=useOquantiles))
+                    useLquantiles=useLquantiles))
     )
   }
 
@@ -199,7 +199,7 @@ generateVariates <- function(n=1, Yvrt, X=NULL, mcoutput, combine='rbind', useOq
                   auxmetadata[name == avar, domainmax],
                   length.out=nn )
       c(vtransform(seqs, auxmetadata = auxmetadata, Oout='left', variates=avar,
-                   useOquantiles=useOquantiles),
+                   useLquantiles=useLquantiles),
         rep(NA,Omaxn-nn))
     }))
     Oright <- t(sapply(vnames, function(avar){
@@ -208,7 +208,7 @@ generateVariates <- function(n=1, Yvrt, X=NULL, mcoutput, combine='rbind', useOq
                   auxmetadata[name == avar, domainmax],
                   length.out=nn )
       c(vtransform(seqs, auxmetadata = auxmetadata, Oout='right', variates=avar,
-                   useOquantiles=useOquantiles),
+                   useLquantiles=useLquantiles),
         rep(NA,Omaxn-nn))
     }))
   }
@@ -252,7 +252,7 @@ generateVariates <- function(n=1, Yvrt, X=NULL, mcoutput, combine='rbind', useOq
                      Oout='',
                      Nout='numeric',
                      Bout='numeric',
-                     useOquantiles=useOquantiles)
+                     useLquantiles=useLquantiles)
   }else{X2 <- t(NA)}
 
   out <- foreach(x=t(X2), .combine=rbind, .inorder=TRUE)%dochains%{

@@ -9,7 +9,7 @@
 #' @param unit Either one of 'Sh' (default), 'Hart', 'nat', or a positive real
 #' @param parallel, Bool or numeric: whether to use pre-existing parallel
 #'   workers, or how many to create and use
-#' @param useOquantiles Bool: internal, use metadata quantiles for ordinal variates
+#' @param useLquantiles Bool: internal, use metadata quantiles for ordinal variates
 #' @param silent Bool: give warnings or updates in the computation
 #'
 #' @return A list with the mutual information, its error, and its unit
@@ -17,7 +17,7 @@
 #'
 #' @import parallel foreach doParallel
 #' @importFrom extraDistr rcat rbern
-mutualinfo <- function(Yvrt, Xvrt, mcoutput, nsamples=3600, unit='Sh', useOquantiles=FALSE, parallel=TRUE, silent=FALSE){
+mutualinfo <- function(Yvrt, Xvrt, mcoutput, nsamples=3600, unit='Sh', useLquantiles=FALSE, parallel=TRUE, silent=FALSE){
 
 #### Mutual information and conditional entropy between X and Y
 #### are calculated by Monte Carlo integration:
@@ -198,7 +198,7 @@ mutualinfo <- function(Yvrt, Xvrt, mcoutput, nsamples=3600, unit='Sh', useOquant
                    dimnames = list(NULL, vnames)
                    ),
         auxmetadata = auxmetadata, Cout = 'sleft',
-        useOquantiles = useOquantiles
+        useLquantiles = useLquantiles
       )),
       ## sign is important here:
       ## for upper tail, take opposite mean and value
@@ -208,7 +208,7 @@ mutualinfo <- function(Yvrt, Xvrt, mcoutput, nsamples=3600, unit='Sh', useOquant
                     dimnames = list(NULL, vnames)
                     ),
          auxmetadata = auxmetadata, Cout = 'sright',
-         useOquantiles = useOquantiles
+         useLquantiles = useLquantiles
        ))
     )
   }
@@ -238,7 +238,7 @@ mutualinfo <- function(Yvrt, Xvrt, mcoutput, nsamples=3600, unit='Sh', useOquant
                    dimnames = list(NULL, vnames)
                    ),
         auxmetadata = auxmetadata, Dout = 'sleft',
-        useOquantiles = useOquantiles
+        useLquantiles = useLquantiles
       )),
       ## sign is important here:
       ## for upper tail, take opposite mean and value
@@ -248,7 +248,7 @@ mutualinfo <- function(Yvrt, Xvrt, mcoutput, nsamples=3600, unit='Sh', useOquant
                     dimnames = list(NULL, vnames)
                     ),
          auxmetadata = auxmetadata, Dout = 'sright',
-         useOquantiles = useOquantiles
+         useLquantiles = useLquantiles
        ))
     )
   }
@@ -258,22 +258,22 @@ mutualinfo <- function(Yvrt, Xvrt, mcoutput, nsamples=3600, unit='Sh', useOquant
   ZiD <- ZiD[ZtD]
   ZnD <- length(ZiD)
 
-#### Type O
-  vnames <- auxmetadata[auxmetadata$mcmctype == 'O', 'name']
-  XiO <- match(vnames, Xvrt)
-  XtO <- which(!is.na(XiO))
-  XiO <- XiO[XtO]
-  XnO <- length(XiO)
+#### Type L
+  vnames <- auxmetadata[auxmetadata$mcmctype == 'L', 'name']
+  XiL <- match(vnames, Xvrt)
+  XtL <- which(!is.na(XiL))
+  XiL <- XiL[XtL]
+  XnL <- length(XiL)
   ##
-  YiO <- match(vnames, Yvrt)
-  YtO <- which(!is.na(YiO))
-  YiO <- YiO[YtO]
-  YnO <- length(YiO)
-  if (YnO > 0 || XnO > 0) {
-    mcoutput$Ovar <- sqrt(mcoutput$Ovar)
+  YiL <- match(vnames, Yvrt)
+  YtL <- which(!is.na(YiL))
+  YiL <- YiL[YtL]
+  YnL <- length(YiL)
+  if (YnL > 0 || XnL > 0) {
+    mcoutput$Lvar <- sqrt(mcoutput$Lvar)
     ##
-    Omaxn <- max(auxmetadata[auxmetadata$name %in% vnames, 'Nvalues'])
-    Oleft <- t(sapply(vnames, function(avar) {
+    Lmaxn <- max(auxmetadata[auxmetadata$name %in% vnames, 'Nvalues'])
+    Lleft <- t(sapply(vnames, function(avar) {
       nn <- auxmetadata[auxmetadata$name == avar, 'Nvalues']
       seqs <- seq(auxmetadata[auxmetadata$name == avar, 'domainmin'],
                   auxmetadata[auxmetadata$name == avar, 'domainmax'],
@@ -281,13 +281,13 @@ mutualinfo <- function(Yvrt, Xvrt, mcoutput, nsamples=3600, unit='Sh', useOquant
                   )
       c(
         vtransform(seqs, auxmetadata = auxmetadata,
-                   Oout = 'left', variates = avar,
-                   useOquantiles = useOquantiles
+                   Lout = 'left', variates = avar,
+                   useLquantiles = useLquantiles
                    ),
-        rep(NA, Omaxn - nn)
+        rep(NA, Lmaxn - nn)
       )
     }))
-    Oright <- t(sapply(vnames, function(avar) {
+    Lright <- t(sapply(vnames, function(avar) {
       nn <- auxmetadata[auxmetadata$name == avar, 'Nvalues']
       seqs <- seq(auxmetadata[auxmetadata$name == avar, 'domainmin'],
                   auxmetadata[auxmetadata$name == avar, 'domainmax'],
@@ -295,18 +295,18 @@ mutualinfo <- function(Yvrt, Xvrt, mcoutput, nsamples=3600, unit='Sh', useOquant
                   )
       c(
         vtransform(seqs, auxmetadata = auxmetadata,
-                   Oout = 'right', variates = avar,
-                   useOquantiles = useOquantiles
+                   Lout = 'right', variates = avar,
+                   useLquantiles = useLquantiles
                    ),
-        rep(NA, Omaxn - nn)
+        rep(NA, Lmaxn - nn)
       )
     }))
   }
   ##
-  ZiO <- match(vnames, Zvrt)
-  ZtO <- which(!is.na(ZiO))
-  ZiO <- ZiO[ZtO]
-  ZnO <- length(ZiO)
+  ZiL <- match(vnames, Zvrt)
+  ZtL <- which(!is.na(ZiL))
+  ZiL <- ZiL[ZtL]
+  ZnL <- length(ZiL)
 
 
 #### Type N
@@ -372,9 +372,9 @@ mutualinfo <- function(Yvrt, Xvrt, mcoutput, nsamples=3600, unit='Sh', useOquant
            sd=mcoutput$Rvar[totake]
            )
    }else{NULL}),
-  (if(ZnO > 0){# ordinal
-     totake <- cbind(rep(ZtO,each=n), Ws, sseq)
-     rnorm(n=n*ZnO,
+  (if(ZnL > 0){# ordinal
+     totake <- cbind(rep(ZtL,each=n), Ws, sseq)
+     rnorm(n=n*ZnL,
            mean=mcoutput$Rmean[totake],
            sd=mcoutput$Rvar[totake]
            )
@@ -394,17 +394,17 @@ mutualinfo <- function(Yvrt, Xvrt, mcoutput, nsamples=3600, unit='Sh', useOquant
   ## rows: n samples, cols: Z variates
   dim(Zout) <- c(n, length(Zvrt))
   ## Match to original order of Zvrt
-  Zout <- Zout[, match(Zvrt, Zvrt[c(ZiR, ZiC, ZiD, ZiO, ZiN, ZiB)])]
+  Zout <- Zout[, match(Zvrt, Zvrt[c(ZiR, ZiC, ZiD, ZiL, ZiN, ZiB)])]
   colnames(Zout) <- Zvrt
   Zout <- vtransform(Zout,
                      auxmetadata = auxmetadata,
                      Rout = 'id',
                      Cout = 'idboundinf',
                      Dout = 'idboundinf',
-                     Oout = 'integer',
+                     Lout = 'integer',
                      Nout = '',
                      Bout = '',
-                     useOquantiles = useOquantiles)
+                     useLquantiles = useLquantiles)
 
   Y2 <- Zout[, Yvrt]
   X2 <- Zout[, Xvrt]
@@ -504,19 +504,19 @@ mutualinfo <- function(Yvrt, Xvrt, mcoutput, nsamples=3600, unit='Sh', useOquant
                                 } else {
                                   0
                                 }) +
-                               (if (XnO > 0) { # ordinal
-                                  v2 <- cbind(XtO, x[XiO, ])
+                               (if (XnL > 0) { # ordinal
+                                  v2 <- cbind(XtL, x[XiL, ])
                                   colSums(
                                     log(
                                       pnorm(
-                                        q = Oright[v2],
-                                        mean = mcoutput$Omean[XtO, , , drop = FALSE],
-                                        sd = mcoutput$Ovar[XtO, , , drop = FALSE]
+                                        q = Lright[v2],
+                                        mean = mcoutput$Lmean[XtL, , , drop = FALSE],
+                                        sd = mcoutput$Lvar[XtL, , , drop = FALSE]
                                       ) -
                                       pnorm(
-                                        q = Oleft[v2],
-                                        mean = mcoutput$Omean[XtO, , , drop = FALSE],
-                                        sd = mcoutput$Ovar[XtO, , , drop = FALSE]
+                                        q = Lleft[v2],
+                                        mean = mcoutput$Lmean[XtL, , , drop = FALSE],
+                                        sd = mcoutput$Lvar[XtL, , , drop = FALSE]
                                       )
                                     ),
                                     na.rm = TRUE
@@ -651,19 +651,19 @@ mutualinfo <- function(Yvrt, Xvrt, mcoutput, nsamples=3600, unit='Sh', useOquant
                                   } else {
                                     0
                                   }) +
-                                 (if (YnO > 0) { # ordinal
-                                    v2 <- cbind(YtO, y[YiO, ])
+                                 (if (YnL > 0) { # ordinal
+                                    v2 <- cbind(YtL, y[YiL, ])
                                     colSums(
                                       log(
                                         pnorm(
-                                          q = Oright[v2],
-                                          mean = mcoutput$Omean[YtO, , , drop = FALSE],
-                                          sd = mcoutput$Ovar[YtO, , , drop = FALSE]
+                                          q = Lright[v2],
+                                          mean = mcoutput$Lmean[YtL, , , drop = FALSE],
+                                          sd = mcoutput$Lvar[YtL, , , drop = FALSE]
                                         ) -
                                         pnorm(
-                                          q = Oleft[v2],
-                                          mean = mcoutput$Omean[YtO, , , drop = FALSE],
-                                          sd = mcoutput$Ovar[YtO, , , drop = FALSE]
+                                          q = Lleft[v2],
+                                          mean = mcoutput$Lmean[YtL, , , drop = FALSE],
+                                          sd = mcoutput$Lvar[YtL, , , drop = FALSE]
                                         )
                                       ),
                                       na.rm = TRUE
@@ -805,19 +805,19 @@ mutualinfo <- function(Yvrt, Xvrt, mcoutput, nsamples=3600, unit='Sh', useOquant
                                  } else {
                                    0
                                  }) +
-                                (if (YnO > 0) { # ordinal
-                                   v2 <- cbind(YtO, y[YiO, ])
+                                (if (YnL > 0) { # ordinal
+                                   v2 <- cbind(YtL, y[YiL, ])
                                    colSums(
                                      log(
                                        pnorm(
-                                         q = Oright[v2],
-                                         mean = mcoutput$Omean[YtO, , , drop = FALSE],
-                                         sd = mcoutput$Ovar[YtO, , , drop = FALSE]
+                                         q = Lright[v2],
+                                         mean = mcoutput$Lmean[YtL, , , drop = FALSE],
+                                         sd = mcoutput$Lvar[YtL, , , drop = FALSE]
                                        ) -
                                        pnorm(
-                                         q = Oleft[v2],
-                                         mean = mcoutput$Omean[YtO, , , drop = FALSE],
-                                         sd = mcoutput$Ovar[YtO, , , drop = FALSE]
+                                         q = Lleft[v2],
+                                         mean = mcoutput$Lmean[YtL, , , drop = FALSE],
+                                         sd = mcoutput$Lvar[YtL, , , drop = FALSE]
                                        )
                                      ),
                                      na.rm = TRUE
@@ -871,7 +871,7 @@ mutualinfo <- function(Yvrt, Xvrt, mcoutput, nsamples=3600, unit='Sh', useOquant
   ## ## ***todo: transform variates to original space & calculate Jacobian***
   ## ljac <- -rowSums(
   ##           log(vtransform(Y, auxmetadata = auxmetadata, invjacobian = TRUE,
-  ##                          useOquantiles = useOquantiles)),
+  ##                          useLquantiles = useLquantiles)),
   ##           na.rm = TRUE
   ##          )
 

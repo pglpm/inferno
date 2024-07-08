@@ -3,12 +3,12 @@ vtransform <- function(x, auxmetadata,
                        Rout = '',
                        Cout = 'init',
                        Dout = 'data',
-                       Oout = 'data',
+                       Lout = 'data',
                        Bout = 'numeric',
                        Nout = 'numeric',
                        variates = NULL,
                        invjacobian = FALSE,
-                       useOquantiles = FALSE) {
+                       useLquantiles = FALSE) {
   ## Qf <- readRDS('Qfunction3600_3.rds')
   ## DQf <- readRDS('DQfunction3600_3.rds')
   ## invQf <- readRDS('invQfunction3600_3.rds')
@@ -24,7 +24,7 @@ vtransform <- function(x, auxmetadata,
     ##
     if (invjacobian) {
 #### Calculation of reciprocal Jacobian factors
-      if (info$mcmctype %in% c('B', 'N', 'O')) {
+      if (info$mcmctype %in% c('B', 'N', 'L')) {
         datum <- rep(1L, length(datum))
       } else {
         if (info$transform == 'log') {
@@ -192,41 +192,41 @@ vtransform <- function(x, auxmetadata,
         }
 
 #### Ordinal
-      } else if (info$mcmctype == 'O') {
+      } else if (info$mcmctype == 'L') {
         olocation <- (info$Nvalues * info$domainmin - info$domainmax) / (info$Nvalues - 1)
         oscale <- (info$domainmax - info$domainmin) / (info$Nvalues - 1)
         ##
         ## output is in range 1 to Nvalues
         datum <- round((datum - olocation) / oscale)
-        if (Oout == 'init') { # in sampling functions or init MCMC
+        if (Lout == 'init') { # in sampling functions or init MCMC
           datum[is.na(datum)] <- info$Nvalues / 2 + 0.5
           datum <- Qf((datum - 0.5) / info$Nvalues)
           datum[datum == +Inf] <- 1e6
           datum[datum == -Inf] <- -1e6
-          if (useOquantiles) {
+          if (useLquantiles) {
             datum <- (datum - info$tlocation) / info$tscale
           }
-        } else if (Oout == 'left') { # as left for MCMC
+        } else if (Lout == 'left') { # as left for MCMC
           datum <- Qf(pmax(0, datum - 1L) / info$Nvalues)
-          if (useOquantiles) {
+          if (useLquantiles) {
             datum <- (datum - info$tlocation) / info$tscale
           }
           datum[is.na(datum)] <- -Inf
-        } else if (Oout == 'right') { # as right for MCMC
+        } else if (Lout == 'right') { # as right for MCMC
           datum <- Qf(pmin(info$Nvalues, datum) / info$Nvalues)
-          if (useOquantiles) {
+          if (useLquantiles) {
             datum <- (datum - info$tlocation) / info$tscale
           }
           datum[is.na(datum)] <- +Inf
-        } else if (Oout == 'aux') { # aux variable in MCMC
+        } else if (Lout == 'aux') { # aux variable in MCMC
           sel <- is.na(datum)
           datum[sel] <- NA
           datum[!sel] <- 1L
-        } else if (Oout == 'boundisinf') { # in output functions
+        } else if (Lout == 'boundisinf') { # in output functions
           datum <- datum - 1L
-        } else if (Oout == 'integer') { # in mutualinfo
+        } else if (Lout == 'integer') { # in mutualinfo
           datum <- data.matrix(x[, v, drop = FALSE])
-          if (useOquantiles) {
+          if (useLquantiles) {
             datum <- datum * info$tscale + info$tlocation
           }
           datum <- round(invQf(datum) * info$Nvalues + 0.5)

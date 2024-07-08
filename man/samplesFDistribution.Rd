@@ -12,7 +12,7 @@ samplesFDistribution(
   jacobian = TRUE,
   fn = identity,
   combine = "rbind",
-  useOquantiles = FALSE,
+  useLquantiles = FALSE,
   parallel = TRUE,
   silent = FALSE
 )
@@ -36,7 +36,7 @@ example 'identity' or 'mean'}
 
 \item{combine}{how to combine the output for the different variate values}
 
-\item{useOquantiles}{Bool: internal, use metadata quantiles for ordinal
+\item{useLquantiles}{Bool: internal, use metadata quantiles for ordinal
 variates}
 
 \item{parallel}{Bool or numeric: whether to use pre-existing parallel

@@ -13,7 +13,7 @@
 #' @param combine how to combine the output for the different variate values
 #' @param parallel Bool or numeric: whether to use pre-existing parallel
 #'   workers, or how many to create and use
-#' @param useOquantiles Bool: internal, use metadata quantiles for ordinal
+#' @param useLquantiles Bool: internal, use metadata quantiles for ordinal
 #'   variates
 #' @param silent Bool: give warnings or updates in the computation
 #'
@@ -23,7 +23,7 @@
 #' @import parallel foreach doParallel
 samplesFDistribution <- function(Y, X, mcoutput, subsamples, jacobian = TRUE,
                                  fn = identity, combine = 'rbind',
-                                 useOquantiles = FALSE, parallel = TRUE,
+                                 useLquantiles = FALSE, parallel = TRUE,
                                  silent = FALSE) {
   if (!silent) {
     cat('\n')
@@ -226,7 +226,7 @@ samplesFDistribution <- function(Y, X, mcoutput, subsamples, jacobian = TRUE,
                    dimnames = list(NULL, vnames)
                    ),
         auxmetadata = auxmetadata, Cout = 'sleft',
-        useOquantiles = useOquantiles
+        useLquantiles = useLquantiles
       )),
       ## sign is important here:
       ## for upper tail, take opposite mean and value
@@ -236,7 +236,7 @@ samplesFDistribution <- function(Y, X, mcoutput, subsamples, jacobian = TRUE,
                     dimnames = list(NULL, vnames)
                     ),
          auxmetadata = auxmetadata, Cout = 'sright',
-         useOquantiles = useOquantiles
+         useLquantiles = useLquantiles
        ))
     )
   }
@@ -261,7 +261,7 @@ samplesFDistribution <- function(Y, X, mcoutput, subsamples, jacobian = TRUE,
                    dimnames = list(NULL, vnames)
                    ),
         auxmetadata = auxmetadata, Dout = 'sleft',
-        useOquantiles = useOquantiles
+        useLquantiles = useLquantiles
       )),
       ## sign is important here:
       ## for upper tail, take opposite mean and value
@@ -271,27 +271,27 @@ samplesFDistribution <- function(Y, X, mcoutput, subsamples, jacobian = TRUE,
                     dimnames = list(NULL, vnames)
                     ),
          auxmetadata = auxmetadata, Dout = 'sright',
-         useOquantiles = useOquantiles
+         useLquantiles = useLquantiles
        ))
     )
   }
 
-#### Type O
-  vnames <- auxmetadata[auxmetadata$mcmctype == 'O', 'name']
-  XiO <- match(vnames, Xv)
-  XtO <- which(!is.na(XiO))
-  XiO <- XiO[XtO]
-  XnO <- length(XiO)
+#### Type L
+  vnames <- auxmetadata[auxmetadata$mcmctype == 'L', 'name']
+  XiL <- match(vnames, Xv)
+  XtL <- which(!is.na(XiL))
+  XiL <- XiL[XtL]
+  XnL <- length(XiL)
   ##
-  YiO <- match(vnames, Yv)
-  YtO <- which(!is.na(YiO))
-  YiO <- YiO[YtO]
-  YnO <- length(YiO)
-  if (YnO > 0 || XnO > 0) {
-    mcoutput$Ovar <- sqrt(mcoutput$Ovar)
+  YiL <- match(vnames, Yv)
+  YtL <- which(!is.na(YiL))
+  YiL <- YiL[YtL]
+  YnL <- length(YiL)
+  if (YnL > 0 || XnL > 0) {
+    mcoutput$Lvar <- sqrt(mcoutput$Lvar)
     ##
-    Omaxn <- max(auxmetadata[auxmetadata$name %in% vnames, 'Nvalues'])
-    Oleft <- t(sapply(vnames, function(avar) {
+    Lmaxn <- max(auxmetadata[auxmetadata$name %in% vnames, 'Nvalues'])
+    Lleft <- t(sapply(vnames, function(avar) {
       nn <- auxmetadata[auxmetadata$name == avar, 'Nvalues']
       seqs <- seq(auxmetadata[auxmetadata$name == avar, 'domainmin'],
                   auxmetadata[auxmetadata$name == avar, 'domainmax'],
@@ -299,13 +299,13 @@ samplesFDistribution <- function(Y, X, mcoutput, subsamples, jacobian = TRUE,
                   )
       c(
         vtransform(seqs, auxmetadata = auxmetadata,
-                   Oout = 'left', variates = avar,
-                   useOquantiles = useOquantiles
+                   Lout = 'left', variates = avar,
+                   useLquantiles = useLquantiles
                    ),
-        rep(NA, Omaxn - nn)
+        rep(NA, Lmaxn - nn)
       )
     }))
-    Oright <- t(sapply(vnames, function(avar) {
+    Lright <- t(sapply(vnames, function(avar) {
       nn <- auxmetadata[auxmetadata$name == avar, 'Nvalues']
       seqs <- seq(auxmetadata[auxmetadata$name == avar, 'domainmin'],
                   auxmetadata[auxmetadata$name == avar, 'domainmax'],
@@ -313,10 +313,10 @@ samplesFDistribution <- function(Y, X, mcoutput, subsamples, jacobian = TRUE,
                   )
       c(
         vtransform(seqs, auxmetadata = auxmetadata,
-                   Oout = 'right', variates = avar,
-                   useOquantiles = useOquantiles
+                   Lout = 'right', variates = avar,
+                   useLquantiles = useLquantiles
                    ),
-        rep(NA, Omaxn - nn)
+        rep(NA, Lmaxn - nn)
       )
     }))
   }
@@ -347,13 +347,13 @@ samplesFDistribution <- function(Y, X, mcoutput, subsamples, jacobian = TRUE,
 
 #### transformation of inputs
   Y2 <- vtransform(Y, auxmetadata = auxmetadata, Cout = 'boundisinf', Dout = 'boundisinf',
-                   Oout = '', Nout = 'numeric', Bout = 'numeric',
-                   useOquantiles = useOquantiles)
+                   Lout = '', Nout = 'numeric', Bout = 'numeric',
+                   useLquantiles = useLquantiles)
 
   if (!is.null(X)) {
     X2 <- vtransform(X, auxmetadata = auxmetadata, Cout = 'boundisinf', Dout = 'boundisinf',
-                     Oout = '', Nout = 'numeric', Bout = 'numeric',
-                     useOquantiles = useOquantiles)
+                     Lout = '', Nout = 'numeric', Bout = 'numeric',
+                     useLquantiles = useLquantiles)
     if (nrow(X2) < nrow(Y2)) {
       warning('*Note: X has fewer data than Y. Recycling*')
       X2 <- t(matrix(rep(t(X2), ceiling(nrow(Y2) / nrow(X2))),
@@ -471,19 +471,19 @@ samplesFDistribution <- function(Y, X, mcoutput, subsamples, jacobian = TRUE,
                           } else {
                             0
                           }) +
-                         (if (XnO > 0) { # ordinal
-                            v2 <- cbind(XtO, x[XiO, ])
+                         (if (XnL > 0) { # ordinal
+                            v2 <- cbind(XtL, x[XiL, ])
                             colSums(
                               log(
                                 pnorm(
-                                  q = Oright[v2],
-                                  mean = mcoutput$Omean[XtO, , , drop = FALSE],
-                                  sd = mcoutput$Ovar[XtO, , , drop = FALSE]
+                                  q = Lright[v2],
+                                  mean = mcoutput$Lmean[XtL, , , drop = FALSE],
+                                  sd = mcoutput$Lvar[XtL, , , drop = FALSE]
                                 ) -
                                 pnorm(
-                                  q = Oleft[v2],
-                                  mean = mcoutput$Omean[XtO, , , drop = FALSE],
-                                  sd = mcoutput$Ovar[XtO, , , drop = FALSE]
+                                  q = Lleft[v2],
+                                  mean = mcoutput$Lmean[XtL, , , drop = FALSE],
+                                  sd = mcoutput$Lvar[XtL, , , drop = FALSE]
                                 )
                               ),
                               na.rm = TRUE
@@ -618,19 +618,19 @@ samplesFDistribution <- function(Y, X, mcoutput, subsamples, jacobian = TRUE,
                           } else {
                             0
                           }) +
-                         (if (YnO > 0) { # ordinal
-                            v2 <- cbind(YtO, y[YiO, ])
+                         (if (YnL > 0) { # ordinal
+                            v2 <- cbind(YtL, y[YiL, ])
                             colSums(
                               log(
                                 pnorm(
-                                  q = Oright[v2],
-                                  mean = mcoutput$Omean[YtO, , , drop = FALSE],
-                                  sd = mcoutput$Ovar[YtO, , , drop = FALSE]
+                                  q = Lright[v2],
+                                  mean = mcoutput$Lmean[YtL, , , drop = FALSE],
+                                  sd = mcoutput$Lvar[YtL, , , drop = FALSE]
                                 ) -
                                 pnorm(
-                                  q = Oleft[v2],
-                                  mean = mcoutput$Omean[YtO, , , drop = FALSE],
-                                  sd = mcoutput$Ovar[YtO, , , drop = FALSE]
+                                  q = Lleft[v2],
+                                  mean = mcoutput$Lmean[YtL, , , drop = FALSE],
+                                  sd = mcoutput$Lvar[YtL, , , drop = FALSE]
                                 )
                               ),
                               na.rm = TRUE
@@ -686,7 +686,7 @@ samplesFDistribution <- function(Y, X, mcoutput, subsamples, jacobian = TRUE,
   (if (jacobian) {
      exp(-rowSums(
             log(vtransform(Y, auxmetadata = auxmetadata, invjacobian = TRUE,
-                           useOquantiles = useOquantiles)),
+                           useLquantiles = useLquantiles)),
             na.rm = TRUE
           ))
    } else {

@@ -27,7 +27,7 @@ inferpopulation(
   showKtraces = FALSE,
   showAlphatraces = FALSE,
   lldata = 12,
-  useOquantiles = FALSE
+  useLquantiles = FALSE
 )
 }
 \arguments{
@@ -85,7 +85,7 @@ time.}
 \item{lldata}{Positive integer or Inf (default 12): number of datapoints
 to use for loglikelihood calculations; if Inf, use all.}
 
-\item{useOquantiles}{Bool: internal, use metadata quantiles for ordinal variates}
+\item{useLquantiles}{Bool: internal, use metadata quantiles for ordinal variates}
 }
 \value{
 name of directory containing output files, or Fdistribution object, or empty

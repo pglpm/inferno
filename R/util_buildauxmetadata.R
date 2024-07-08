@@ -18,7 +18,7 @@ buildauxmetadata <- function(data, metadata) {
 
   ## Q <- readRDS('Qfunction512.rds')
   ##
-  idR <- idC <- idD <- idO <- idB <- idN <- 1L
+  idR <- idC <- idD <- idL <- idB <- idN <- 1L
 
   auxmetadata <- data.frame()
 
@@ -105,9 +105,9 @@ buildauxmetadata <- function(data, metadata) {
     } else if (xinfo$type == 'ordinal_2') {
       ## old treatment of ordinal variate
       ## to be deleted in the future, if not used
-      vtype <- 'O'
-      vid <- idO
-      idO <- idO + 1L
+      vtype <- 'L'
+      vid <- idL
+      idL <- idL + 1L
       transf <- 'Q'
       ordinal <- TRUE
       vn <- xinfo$Nvalues

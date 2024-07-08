@@ -10,7 +10,7 @@
 #' @param datascatter bool: plot the data as scatterplot along the x-axis?
 #' @param parallel Bool or numeric: whether to use pre-existing parallel
 #'   workers, or how many to create and use
-#' @param useOquantiles Bool: internal, use metadata quantiles for ordinal
+#' @param useLquantiles Bool: internal, use metadata quantiles for ordinal
 #'   variates
 #' @param silent Bool: give warnings or updates in the computation
 #'
@@ -19,7 +19,7 @@
 plotFsamples <- function(file, mcoutput, data, plotmeans = TRUE,
                          plotvariability = 'samples', nFsamples = 100,
                          datahistogram = TRUE, datascatter = TRUE,
-                         useOquantiles = FALSE, parallel = TRUE,
+                         useLquantiles = FALSE, parallel = TRUE,
                          silent = FALSE) {
 
   ## old utility functions
@@ -96,8 +96,8 @@ plotFsamples <- function(file, mcoutput, data, plotmeans = TRUE,
     varinfo <- as.list(auxmetadata[auxmetadata$name == v, ])
     varinfo$Nvalues <- abs(varinfo$Nvalues)
     vtype <- varinfo[['mcmctype']]
-    if (vtype %in% c('R', 'D', 'C', 'O')) { #
-      if (vtype == 'O') {
+    if (vtype %in% c('R', 'D', 'C', 'L')) { #
+      if (vtype == 'L') {
         Xgrid <- seq(varinfo[['domainmin']], varinfo[['domainmax']],
           length.out = varinfo[['Nvalues']]
         )
@@ -117,7 +117,7 @@ plotFsamples <- function(file, mcoutput, data, plotmeans = TRUE,
                                           mcoutput = mcoutput,
                                           subsamples = mcsubsamples,
                                           jacobian = TRUE,
-                                          useOquantiles = useOquantiles,
+                                          useLquantiles = useLquantiles,
                                           parallel = parallel,
                                           silent = TRUE)
 
@@ -144,7 +144,7 @@ plotFsamples <- function(file, mcoutput, data, plotmeans = TRUE,
         datum <- datum[!is.na(datum)]
         dleft <- datum > varinfo[['censormin']]
         dright <- datum < varinfo[['censormax']]
-        if (vtype == 'O') {
+        if (vtype == 'L') {
           dh <- (varinfo[['domainmax']] - varinfo[['domainmin']]) /
             (varinfo[['Nvalues']] - 1L) / 2
           nh <- seq(varinfo[['domainmin']] - dh, varinfo[['domainmax']] + dh,
@@ -175,7 +175,7 @@ plotFsamples <- function(file, mcoutput, data, plotmeans = TRUE,
           type = 'l', lty = 1, lwd = 2,
           col = 5, alpha = 7 / 8,
           xlab = v,
-          ylab = paste0('frequency', (if (vtype == 'O') {
+          ylab = paste0('frequency', (if (vtype == 'L') {
             ''
           } else {
             ' density'
@@ -201,14 +201,14 @@ plotFsamples <- function(file, mcoutput, data, plotmeans = TRUE,
           y = rowMeans(plotsamples[xleft & xright, , drop = FALSE],
                        na.rm = TRUE),
           xlim = range(Xgrid), ylim = c(0, ymax),
-          type = (if (vtype == 'O') {
+          type = (if (vtype == 'L') {
             'b'
           } else {
             'l'
           }), cex = 0.5, lty = 1, lwd = 4,
           col = 1, alpha = 0.25,
           xlab = v,
-          ylab = paste0('frequency', (if (vtype == 'O') {
+          ylab = paste0('frequency', (if (vtype == 'L') {
             ''
           } else {
             ' density'
@@ -253,14 +253,14 @@ plotFsamples <- function(file, mcoutput, data, plotmeans = TRUE,
         tplot(
           x = histo$mids, y = histo$density * histomax,
           xlim = range(Xgrid), ylim = c(0, ymax),
-          type = (if (vtype == 'O') {
+          type = (if (vtype == 'L') {
             'b'
           } else {
             'l'
           }), cex = 0.5, lty = 1, lwd = 2,
           col = 4, alpha = 0.5, border = '#555555', border.alpha = 3 / 4,
           xlab = v,
-          ylab = paste0('frequency', (if (vtype == 'O') {
+          ylab = paste0('frequency', (if (vtype == 'L') {
             ''
           } else {
             ' density'
@@ -296,14 +296,14 @@ plotFsamples <- function(file, mcoutput, data, plotmeans = TRUE,
       colnames(Xgrid) <- v
       Ngrid <- vtransform(
         x = Xgrid, auxmetadata = auxmetadata,
-        Nout = 'numeric', Bout = 'numeric', useOquantiles = useOquantiles
+        Nout = 'numeric', Bout = 'numeric', useLquantiles = useLquantiles
       )
 
       plotsamples <- samplesFDistribution(Y = Xgrid, X = NULL,
                                           mcoutput = mcoutput,
                                           subsamples = mcsubsamples,
                                           jacobian = TRUE,
-                                          useOquantiles = useOquantiles,
+                                          useLquantiles = useLquantiles,
                                           parallel = parallel,
                                           silent = TRUE)
 
@@ -386,11 +386,11 @@ plotFsamples <- function(file, mcoutput, data, plotmeans = TRUE,
     if (datascatter && theresdata) {
       datum <- data[[v]]
       datum <- datum[!is.na(datum)]
-      if (!(vtype %in% c('R', 'D', 'C', 'O'))) {
+      if (!(vtype %in% c('R', 'D', 'C', 'L'))) {
         datum <- vtransform(
           x = matrix(datum, ncol = 1, nrow = length(datum),
                      dimnames = list(NULL, v)), auxmetadata = auxmetadata,
-          Nout = 'numeric', Bout = 'numeric', useOquantiles = useOquantiles
+          Nout = 'numeric', Bout = 'numeric', useLquantiles = useLquantiles
         )
       }
       scatteraxis(
@@ -401,7 +401,7 @@ plotFsamples <- function(file, mcoutput, data, plotmeans = TRUE,
         ),
         col = 4
       )
-      if (vtype %in% c('R', 'D', 'C', 'O')) {
+      if (vtype %in% c('R', 'D', 'C', 'L')) {
         fiven <- fivenum(datum)
         abline(v = fiven, col = paste0(palette()[c(2, 4, 5, 4, 2)], '44'),
                lwd = 5, lty = 2)

@@ -8,7 +8,7 @@ if(basename(startdir) != 'tests'){
 library('devtools')
 load_all()
 
-refdir <- 'reference_seed16-vrt9_dat15_smp120'
+refdir <- 'intreference_seed16-vrt9_dat15_smp30'
 
 seed <- 16
 
@@ -23,7 +23,7 @@ currenttestdir <- inferpopulation(data = 'testdata_15.csv',
                         cleanup = FALSE, parallel = 1,
                         ## prior = TRUE,
                         ## lldata = 12,
-                        useOquantiles = FALSE,
+                        useLquantiles = FALSE,
                         seed = seed)
 
 #### Test whether Fdistribution output is identical
