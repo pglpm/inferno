@@ -5,6 +5,7 @@ vtransform <- function(x, auxmetadata,
                        Dout = 'data',
                        Lout = 'data',
                        Bout = 'numeric',
+                       Oout = 'numeric',
                        Nout = 'numeric',
                        variates = NULL,
                        invjacobian = FALSE,
@@ -24,7 +25,7 @@ vtransform <- function(x, auxmetadata,
     ##
     if (invjacobian) {
 #### Calculation of reciprocal Jacobian factors
-      if (info$mcmctype %in% c('B', 'N', 'L')) {
+      if (info$mcmctype %in% c('B', 'N', 'O', 'L')) {
         datum <- rep(1L, length(datum))
       } else {
         if (info$transform == 'log') {
@@ -191,7 +192,7 @@ vtransform <- function(x, auxmetadata,
           datum <- (datum - info$tlocation) / info$tscale
         }
 
-#### Ordinal
+#### Latent
       } else if (info$mcmctype == 'L') {
         olocation <- (info$Nvalues * info$domainmin - info$domainmax) / (info$Nvalues - 1)
         oscale <- (info$domainmax - info$domainmin) / (info$Nvalues - 1)
@@ -234,10 +235,19 @@ vtransform <- function(x, auxmetadata,
           datum[datum > info$Nvalues] <- info$Nvalues
         }
 
+      ## Ordinal
+      } else if (info$mcmctype == 'O') {
+        bvalues <- 1:info$Nvalues
+        names(bvalues) <- unlist(info[paste0('V', bvalues)])
+        if (Oout == 'numeric') {
+          datum <- bvalues[as.character(datum)]
+        } else if (Oout == 'original') {
+          datum <- names(bvalues[datum])
+        }
+
       ## Nominal
       } else if (info$mcmctype == 'N') {
-        ## Nvalues < 0 means the variate is ordinal
-        bvalues <- 1:abs(info$Nvalues)
+        bvalues <- 1:info$Nvalues
         names(bvalues) <- unlist(info[paste0('V', bvalues)])
         if (Nout == 'numeric') {
           datum <- bvalues[as.character(datum)]

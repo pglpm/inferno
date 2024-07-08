@@ -18,7 +18,7 @@ buildauxmetadata <- function(data, metadata) {
 
   ## Q <- readRDS('Qfunction512.rds')
   ##
-  idR <- idC <- idD <- idL <- idB <- idN <- 1L
+  idR <- idC <- idD <- idL <- idB <- idO <- idN <- 1L
 
   auxmetadata <- data.frame()
 
@@ -69,21 +69,15 @@ buildauxmetadata <- function(data, metadata) {
       ##   mctest2 <- 2
       ##   mctest3 <- 2
       ## }
-    } else if (xinfo$type == 'nominal' || xinfo$type == 'ordinal') {
-      ## nominal or ordinal variate
-      vtype <- 'N'
-      vid <- idN
-      idN <- idN + 1L
-      if(xinfo$type == 'nominal') {
-        vn <- abs(xinfo$Nvalues)
-      } else {
-        ## ordinal variates will have a flatter hyperprior
-        ## they are recognized by a negative 'Nvalues'
-        vn <- -abs(xinfo$Nvalues)
-      }
+    } else if (xinfo$type == 'ordinal') {
+      ## nominal variate
+      vtype <- 'O'
+      vid <- idO
+      idO <- idO + 1L
+      vn <- xinfo$Nvalues
       vd <- 0.5
       domainmin <- 1 # Nimble index categorical from 1
-      domainmax <- abs(vn)
+      domainmax <- vn
       censormin <- -Inf
       censormax <- +Inf
       location <- 0
@@ -100,9 +94,36 @@ buildauxmetadata <- function(data, metadata) {
             ## mctest3 <- xinfo$Nvalues
       ## }
             mctest1 <- 1
-            mctest2 <- round(abs(vn)/2)
-            mctest3 <- abs(vn)
-    } else if (xinfo$type == 'ordinal_2') {
+            mctest2 <- round(vn/2)
+            mctest3 <- vn
+    } else if (xinfo$type == 'nominal') {
+      ## nominal variate
+      vtype <- 'N'
+      vid <- idN
+      idN <- idN + 1L
+      vn <- xinfo$Nvalues
+      vd <- 0.5
+      domainmin <- 1 # Nimble index categorical from 1
+      domainmax <- vn
+      censormin <- -Inf
+      censormax <- +Inf
+      location <- 0
+      scale <- 1
+      plotmin <- NA
+      plotmax <- NA
+      ## if(!is.null(data)) {
+      ##   mctest1 <- match(names(which.min(table(x))), vval)
+      ##   mctest2 <- match(names(which.max(table(x))), vval)
+      ##   mctest3 <- match(names(which.min(table(x))), vval)
+      ## } else {
+            ## mctest1 <- 1
+            ## mctest2 <- round(xinfo$Nvalues/2)
+            ## mctest3 <- xinfo$Nvalues
+      ## }
+            mctest1 <- 1
+            mctest2 <- round(vn/2)
+            mctest3 <- vn
+    } else if (xinfo$type == 'latent') {
       ## old treatment of ordinal variate
       ## to be deleted in the future, if not used
       vtype <- 'L'

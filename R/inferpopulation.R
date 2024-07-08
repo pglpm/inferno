@@ -549,18 +549,14 @@ inferpopulation <- function(data, metadata, outputdir, nsamples = 1200,
       )
     },
     if (vn$O > 0) { # ordinal
-      Omaxn <- max(abs(auxmetadata[auxmetadata$mcmctype == 'O', 'Ovalues']))
+      Omaxn <- max(auxmetadata[auxmetadata$mcmctype == 'O', 'Nvalues'])
       Oalpha0 <- matrix(1e-100, nrow = vn$O, ncol = Omaxn)
       for (avar in seq_along(vnames$O)) {
-        nvalues <- auxmetadata[auxmetadata$name == vnames$O[avar], 'Ovalues']
-        ## negative nvalues means the variate is ordinal:
-        ## we choose a flatter hyperprior in that case
-        if(nvalues > 0) {
-          Oalpha0[avar, 1:nvalues] <- 1 / nvalues
-        } else {
-          Oalpha0[avar, 1:(-nvalues)] <- 1
-          }
+        nvalues <- auxmetadata[auxmetadata$name == vnames$O[avar], 'Nvalues']
+        ## we choose a flatter hyperprior for ordinal variates
+          Oalpha0[avar, 1:nvalues] <- 1
       }
+      ##
       list(
         On = vn$O, # This indexing variable is needed internally
         Omaxn = Omaxn,
@@ -568,18 +564,14 @@ inferpopulation <- function(data, metadata, outputdir, nsamples = 1200,
       )
     },
     if (vn$N > 0) { # nominal
-      Nmaxn <- max(abs(auxmetadata[auxmetadata$mcmctype == 'N', 'Nvalues']))
+      Nmaxn <- max(auxmetadata[auxmetadata$mcmctype == 'N', 'Nvalues'])
       Nalpha0 <- matrix(1e-100, nrow = vn$N, ncol = Nmaxn)
       for (avar in seq_along(vnames$N)) {
         nvalues <- auxmetadata[auxmetadata$name == vnames$N[avar], 'Nvalues']
-        ## negative nvalues means the variate is ordinal:
-        ## we choose a flatter hyperprior in that case
-        if(nvalues > 0) {
+        ## we choose a Hadamard-like hyperprior for nominal variates
           Nalpha0[avar, 1:nvalues] <- 1 / nvalues
-        } else {
-          Nalpha0[avar, 1:(-nvalues)] <- 1
-          }
       }
+      ##
       list(
         Nn = vn$N, # This indexing variable is needed internally
         Nmaxn = Nmaxn,

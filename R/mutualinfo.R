@@ -309,6 +309,23 @@ mutualinfo <- function(Yvrt, Xvrt, mcoutput, nsamples=3600, unit='Sh', useLquant
   ZnL <- length(ZiL)
 
 
+#### Type O
+  vnames <- auxmetadata[auxmetadata$mcmctype == 'O', 'name']
+  XiO <- match(vnames, Xvrt)
+  XtO <- which(!is.na(XiO))
+  XiO <- XiO[XtO]
+  XnO <- length(XiO)
+  ##
+  YiO <- match(vnames, Yvrt)
+  YtO <- which(!is.na(YiO))
+  YiO <- YiO[YtO]
+  YnO <- length(YiO)
+  ##
+  ZiO <- match(vnames, Zvrt)
+  ZtO <- which(!is.na(ZiO))
+  ZiO <- ZiO[ZtO]
+  ZnO <- length(ZiO)
+
 #### Type N
   vnames <- auxmetadata[auxmetadata$mcmctype == 'N', 'name']
   XiN <- match(vnames, Xvrt)
@@ -379,6 +396,11 @@ mutualinfo <- function(Yvrt, Xvrt, mcoutput, nsamples=3600, unit='Sh', useLquant
            sd=mcoutput$Rvar[totake]
            )
    }else{NULL}),
+  (if(ZnO > 0){# nominal
+     totake <- cbind(rep(ZtO,each=n), Ws, sseq)
+     extraDistr::rcat(n=n*ZnO,
+                      prob=apply(mcoutput$Oprob,3,`[`,totake))
+   }else{NULL}),
   (if(ZnN > 0){# nominal
      totake <- cbind(rep(ZtN,each=n), Ws, sseq)
      extraDistr::rcat(n=n*ZnN,
@@ -394,7 +416,7 @@ mutualinfo <- function(Yvrt, Xvrt, mcoutput, nsamples=3600, unit='Sh', useLquant
   ## rows: n samples, cols: Z variates
   dim(Zout) <- c(n, length(Zvrt))
   ## Match to original order of Zvrt
-  Zout <- Zout[, match(Zvrt, Zvrt[c(ZiR, ZiC, ZiD, ZiL, ZiN, ZiB)])]
+  Zout <- Zout[, match(Zvrt, Zvrt[c(ZiR, ZiC, ZiD, ZiL, ZiO, ZiN, ZiB)])]
   colnames(Zout) <- Zvrt
   Zout <- vtransform(Zout,
                      auxmetadata = auxmetadata,
@@ -402,6 +424,7 @@ mutualinfo <- function(Yvrt, Xvrt, mcoutput, nsamples=3600, unit='Sh', useLquant
                      Cout = 'idboundinf',
                      Dout = 'idboundinf',
                      Lout = 'integer',
+                     Oout = '',
                      Nout = '',
                      Bout = '',
                      useLquantiles = useLquantiles)
@@ -524,6 +547,19 @@ mutualinfo <- function(Yvrt, Xvrt, mcoutput, nsamples=3600, unit='Sh', useLquant
                                 } else {
                                   0
                                 }) +
+                               (if (XnO > 0) { # nominal
+                                  colSums(
+                                    log(aperm(
+                                      vapply(seq_len(XnO), function(v) {
+                                        mcoutput$Oprob[XtO[v], , x[XiO[v], ], ]
+                                      }, mcoutput$W),
+                                      c(3, 1, 2)
+                                    )),
+                                    na.rm = TRUE
+                                  )
+                                } else {
+                                  0
+                                }) +
                                (if (XnN > 0) { # nominal
                                   colSums(
                                     log(aperm(
@@ -534,19 +570,6 @@ mutualinfo <- function(Yvrt, Xvrt, mcoutput, nsamples=3600, unit='Sh', useLquant
                                     )),
                                     na.rm = TRUE
                                   )
-                                  ## colSums(
-                                  ##      log(array(
-                                  ##          t(sapply(seq_len(XnN), function(v){
-                                  ##              mcoutput$Nprob[XtN[v],,x[XiN[v],],]
-                                  ##          })),
-                                  ##          dim=c(XnN, nclusters, nsamples))),
-                                  ##      na.rm=TRUE)
-                                  ## temp <- apply(mcoutput$Nprob, c(2,4), function(xx){
-                                  ##     xx[cbind(XtN, x[XiN,])]
-                                  ## })
-                                  ## dim(temp) <- c(XnN, nclusters, nsamples)
-                                  ## ##
-                                  ## colSums(log(temp), na.rm=TRUE)
                                 } else {
                                   0
                                 }) +
@@ -671,6 +694,19 @@ mutualinfo <- function(Yvrt, Xvrt, mcoutput, nsamples=3600, unit='Sh', useLquant
                                   } else {
                                     0
                                   }) +
+                                 (if (YnO > 0) { # nominal
+                                    colSums(
+                                      log(aperm(
+                                        vapply(seq_len(YnO), function(v) {
+                                          mcoutput$Oprob[YtO[v], , y[YiO[v], ], ]
+                                        }, mcoutput$W),
+                                        c(3, 1, 2)
+                                      )),
+                                      na.rm = TRUE
+                                    )
+                                  } else {
+                                    0
+                                  }) +
                                  (if (YnN > 0) { # nominal
                                     colSums(
                                       log(aperm(
@@ -681,12 +717,6 @@ mutualinfo <- function(Yvrt, Xvrt, mcoutput, nsamples=3600, unit='Sh', useLquant
                                       )),
                                       na.rm = TRUE
                                     )
-                                    ## temp <- apply(mcoutput$Nprob, c(2,4), function(xx){
-                                    ##     xx[cbind(YtN, y[YiN,])]
-                                    ## })
-                                    ## dim(temp) <- c(YnN, nclusters, nsamples)
-                                    ## ##
-                                    ## colSums(log(temp), na.rm=TRUE)
                                   } else {
                                     0
                                   }) +
@@ -825,6 +855,19 @@ mutualinfo <- function(Yvrt, Xvrt, mcoutput, nsamples=3600, unit='Sh', useLquant
                                  } else {
                                    0
                                  }) +
+                                (if (YnO > 0) { # nominal
+                                   colSums(
+                                     log(aperm(
+                                       vapply(seq_len(YnO), function(v) {
+                                         mcoutput$Oprob[YtO[v], , y[YiO[v], ], ]
+                                       }, mcoutput$W),
+                                       c(3, 1, 2)
+                                     )),
+                                     na.rm = TRUE
+                                   )
+                                 } else {
+                                   0
+                                 }) +
                                 (if (YnN > 0) { # nominal
                                    colSums(
                                      log(aperm(
@@ -835,12 +878,6 @@ mutualinfo <- function(Yvrt, Xvrt, mcoutput, nsamples=3600, unit='Sh', useLquant
                                      )),
                                      na.rm = TRUE
                                    )
-                                   ## temp <- apply(mcoutput$Nprob, c(2,4), function(xx){
-                                   ##     xx[cbind(YtN, y[YiN,])]
-                                   ## })
-                                   ## dim(temp) <- c(YnN, nclusters, nsamples)
-                                   ## ##
-                                   ## colSums(log(temp), na.rm=TRUE)
                                  } else {
                                    0
                                  }) +

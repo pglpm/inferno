@@ -94,7 +94,6 @@ plotFsamples <- function(file, mcoutput, data, plotmeans = TRUE,
     }
 
     varinfo <- as.list(auxmetadata[auxmetadata$name == v, ])
-    varinfo$Nvalues <- abs(varinfo$Nvalues)
     vtype <- varinfo[['mcmctype']]
     if (vtype %in% c('R', 'D', 'C', 'L')) { #
       if (vtype == 'L') {
@@ -290,13 +289,14 @@ plotFsamples <- function(file, mcoutput, data, plotmeans = TRUE,
       }
 
       #####
-      ## nominal or binary variate
+      ## ordinal or nominal or binary variate
     } else {
       Xgrid <- cbind(unlist(varinfo[paste0('V', 1:varinfo[['Nvalues']])]))
       colnames(Xgrid) <- v
       Ngrid <- vtransform(
         x = Xgrid, auxmetadata = auxmetadata,
-        Nout = 'numeric', Bout = 'numeric', useLquantiles = useLquantiles
+        Oout = 'numeric', Nout = 'numeric',
+        Bout = 'numeric', useLquantiles = useLquantiles
       )
 
       plotsamples <- samplesFDistribution(Y = Xgrid, X = NULL,
@@ -390,7 +390,8 @@ plotFsamples <- function(file, mcoutput, data, plotmeans = TRUE,
         datum <- vtransform(
           x = matrix(datum, ncol = 1, nrow = length(datum),
                      dimnames = list(NULL, v)), auxmetadata = auxmetadata,
-          Nout = 'numeric', Bout = 'numeric', useLquantiles = useLquantiles
+          Oout = 'numeric', Nout = 'numeric',
+          Bout = 'numeric', useLquantiles = useLquantiles
         )
       }
       scatteraxis(

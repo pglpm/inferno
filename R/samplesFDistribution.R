@@ -358,13 +358,23 @@ samplesFDistribution <- function(Y, X, mcoutput, subsamples, jacobian = TRUE,
   YnB <- length(YiB)
 
 #### transformation of inputs
-  Y2 <- vtransform(Y, auxmetadata = auxmetadata, Cout = 'boundisinf', Dout = 'boundisinf',
-                   Lout = '', Nout = 'numeric', Bout = 'numeric',
+  Y2 <- vtransform(Y, auxmetadata = auxmetadata,
+                   Cout = 'boundisinf',
+                   Dout = 'boundisinf',
+                   Lout = '',
+                   Oout = 'numeric',
+                   Nout = 'numeric',
+                   Bout = 'numeric',
                    useLquantiles = useLquantiles)
 
   if (!is.null(X)) {
-    X2 <- vtransform(X, auxmetadata = auxmetadata, Cout = 'boundisinf', Dout = 'boundisinf',
-                     Lout = '', Nout = 'numeric', Bout = 'numeric',
+    X2 <- vtransform(X, auxmetadata = auxmetadata,
+                     Cout = 'boundisinf',
+                     Dout = 'boundisinf',
+                     Lout = '',
+                     Oout = 'numeric',
+                     Nout = 'numeric',
+                     Bout = 'numeric',
                      useLquantiles = useLquantiles)
     if (nrow(X2) < nrow(Y2)) {
       warning('*Note: X has fewer data than Y. Recycling*')
@@ -503,6 +513,19 @@ samplesFDistribution <- function(Y, X, mcoutput, subsamples, jacobian = TRUE,
                           } else {
                             0
                           }) +
+                         (if (XnO > 0) { # nominal
+                            colSums(
+                              log(aperm(
+                                vapply(seq_len(XnO), function(v) {
+                                  mcoutput$Oprob[XtO[v], , x[XiO[v], ], ]
+                                }, mcoutput$W),
+                                c(3, 1, 2)
+                              )),
+                              na.rm = TRUE
+                            )
+                          } else {
+                            0
+                          }) +
                          (if (XnN > 0) { # nominal
                             colSums(
                               log(aperm(
@@ -513,19 +536,6 @@ samplesFDistribution <- function(Y, X, mcoutput, subsamples, jacobian = TRUE,
                               )),
                               na.rm = TRUE
                             )
-                            ## colSums(
-                            ##      log(array(
-                            ##          t(sapply(seq_len(XnN), function(v){
-                            ##              mcoutput$Nprob[XtN[v],,x[XiN[v],],]
-                            ##          })),
-                            ##          dim=c(XnN, nclusters, nsamples))),
-                            ##      na.rm=TRUE)
-                            ## temp <- apply(mcoutput$Nprob, c(2,4), function(xx){
-                            ##     xx[cbind(XtN, x[XiN,])]
-                            ## })
-                            ## dim(temp) <- c(XnN, nclusters, nsamples)
-                            ## ##
-                            ## colSums(log(temp), na.rm=TRUE)
                           } else {
                             0
                           }) +
@@ -650,6 +660,19 @@ samplesFDistribution <- function(Y, X, mcoutput, subsamples, jacobian = TRUE,
                           } else {
                             0
                           }) +
+                         (if (YnO > 0) { # nominal
+                            colSums(
+                              log(aperm(
+                                vapply(seq_len(YnO), function(v) {
+                                  mcoutput$Oprob[YtO[v], , y[YiO[v], ], ]
+                                }, mcoutput$W),
+                                c(3, 1, 2)
+                              )),
+                              na.rm = TRUE
+                            )
+                          } else {
+                            0
+                          }) +
                          (if (YnN > 0) { # nominal
                             colSums(
                               log(aperm(
@@ -660,12 +683,6 @@ samplesFDistribution <- function(Y, X, mcoutput, subsamples, jacobian = TRUE,
                               )),
                               na.rm = TRUE
                             )
-                            ## temp <- apply(mcoutput$Nprob, c(2,4), function(xx){
-                            ##     xx[cbind(YtN, y[YiN,])]
-                            ## })
-                            ## dim(temp) <- c(YnN, nclusters, nsamples)
-                            ## ##
-                            ## colSums(log(temp), na.rm=TRUE)
                           } else {
                             0
                           }) +
