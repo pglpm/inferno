@@ -69,14 +69,21 @@ buildauxmetadata <- function(data, metadata) {
       ##   mctest2 <- 2
       ##   mctest3 <- 2
       ## }
-    } else if (xinfo$type == 'nominal') { # nominal variate
+    } else if (xinfo$type == 'nominal' || xinfo$type == 'ordinal') {
+      ## nominal or ordinal variate
       vtype <- 'N'
       vid <- idN
       idN <- idN + 1L
-      vn <- xinfo$Nvalues
+      if(xinfo$type == 'nominal') {
+        vn <- abs(xinfo$Nvalues)
+      } else {
+        ## ordinal variates will have a flatter hyperprior
+        ## they are recognized by a negative 'Nvalues'
+        vn <- -abs(xinfo$Nvalues)
+      }
       vd <- 0.5
       domainmin <- 1 # Nimble index categorical from 1
-      domainmax <- vn
+      domainmax <- abs(vn)
       censormin <- -Inf
       censormax <- +Inf
       location <- 0
@@ -93,9 +100,11 @@ buildauxmetadata <- function(data, metadata) {
             ## mctest3 <- xinfo$Nvalues
       ## }
             mctest1 <- 1
-            mctest2 <- round(xinfo$Nvalues/2)
-            mctest3 <- xinfo$Nvalues
-    } else if (xinfo$type == 'ordinal') { # ordinal variate
+            mctest2 <- round(abs(vn)/2)
+            mctest3 <- abs(vn)
+    } else if (xinfo$type == 'ordinal_2') {
+      ## old treatment of ordinal variate
+      ## to be deleted in the future, if not used
       vtype <- 'O'
       vid <- idO
       idO <- idO + 1L

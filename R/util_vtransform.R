@@ -236,7 +236,8 @@ vtransform <- function(x, auxmetadata,
 
       ## Nominal
       } else if (info$mcmctype == 'N') {
-        bvalues <- 1:info$Nvalues
+        ## Nvalues < 0 means the variate is ordinal
+        bvalues <- 1:abs(info$Nvalues)
         names(bvalues) <- unlist(info[paste0('V', bvalues)])
         if (Nout == 'numeric') {
           datum <- bvalues[as.character(datum)]

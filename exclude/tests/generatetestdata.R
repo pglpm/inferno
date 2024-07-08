@@ -61,11 +61,13 @@ metadata <- list(
     highvalue=c(0.7, 1, 0.7, 7, NA, NA, 2.0, NA, 0.66),
     plotmin=c(-3, -1, -3, NA, NA, NA, 0, NA, 0),
     plotmax=c(+3, +1, +3, NA, NA, NA, 10, NA, 1),
-    V1=c(NA, NA, NA, NA, 'A', 'no', NA, 'a', NA),
-    V2=c(NA, NA, NA, NA, 'B', 'yes', NA, 'b', NA),
-    V3=c(NA, NA, NA, NA, 'C', NA, NA, 'c', NA),
-    V4=c(NA, NA, NA, NA, 'D', NA, NA, NA, NA),
-    V5=c(NA, NA, NA, NA, 'E', NA, NA, NA, NA)
+    V1=c(NA, NA, NA, '1', 'A', 'no', NA, 'a', NA),
+    V2=c(NA, NA, NA, '2', 'B', 'yes', NA, 'b', NA),
+    V3=c(NA, NA, NA, '3', 'C', NA, NA, 'c', NA),
+    V4=c(NA, NA, NA, '4', 'D', NA, NA, NA, NA),
+    V5=c(NA, NA, NA, '5', 'E', NA, NA, NA, NA),
+    V6=c(NA, NA, NA, '6', NA, NA, NA, NA, NA),
+    V7=c(NA, NA, NA, '7', NA, NA, NA, NA, NA)
 )
 write.csv(metadata, 'metatestdata.csv', row.names=FALSE, quote=FALSE, na='')
 

@@ -25,7 +25,16 @@ buildmetadata <- function(data, file = NULL,
     data <- read.csv(datafile, na.strings = '')
   }
   data <- as.data.frame(data)
-  metadata <- data.frame()
+  metadata <- as.data.frame(c(list(name = NA, type = NA),
+        if (diagnosticvalues) {
+          list(datamin = NA, datamax = NA, datamaxrep = NA,
+               dataNvalues = NA)
+        },
+        list(Nvalues = NA, rounding = NA, domainmin = NA,
+             domainmax = NA, minincluded = NA,
+             maxincluded = NA, centralvalue = NA, lowvalue = NA,
+             highvalue = NA, plotmin = NA, plotmax = NA)
+        ))[-1,]
   # Loop over columns in data
   for (xn in colnames(data)) {
     ## print(xn)
@@ -91,9 +100,21 @@ buildmetadata <- function(data, file = NULL,
       names(vval) <- paste0('V', 1:vn)
       plotmin <- NA
       plotmax <- NA
-      # Ordinal, continuous, censored, or discretized variate
-      # (numeric with more than 2 different values)
+    } else if (length(unique(x)) <= 10) {
+      vtype <- 'ordinal'
+      vn <- length(unique(x))
+      vd <- NA
+      domainmin <- NA # Nimble index categorical from 1
+      domainmax <- NA
+      censormin <- TRUE
+      censormax <- TRUE
+      vval <- sort(as.character(unique(x)))
+      names(vval) <- paste0('V', 1:vn)
+      plotmin <- NA
+      plotmax <- NA
     } else {
+      ## Ordinal, continuous, censored, or discretized variate
+      ## (numeric with more than 2 different values)
       ix <- x[!(x %in% range(x))] # exclude boundary values
       maxrep <- max(table(ix)) # average of repeated inner values
       ud <- unique(signif(diff(sort(unique(x))), 3)) # differences
@@ -135,21 +156,21 @@ buildmetadata <- function(data, file = NULL,
           domainmax <- plotmax <- max(x)
           censormax <- TRUE
         }
-        # Seems to be an ordinal variate
       } else {
-        vtype <- 'ordinal'
-        if (dd >= 1) { # seems originally integer
-          domainmin <- min(1, x)
-          domainmax <- max(x)
-          vn <- domainmax - domainmin + 1
-          vd <- NA
-          censormin <- TRUE
-          censormax <- TRUE
-          ## location <- NA # (vn*domainmin-domainmax)/(vn-1)
-          ## scale <- NA # (domainmax-domainmin)/(vn-1)
-          plotmin <- max(domainmin, min(x) - (Q3 - Q1) / 2)
-          plotmax <- max(x)
-        } else { # seems a rounded continuous variate
+        ## # Seems to be an ordinal variate
+        ## vtype <- 'ordinal'
+        ## if (dd >= 1) { # seems originally integer
+        ##   domainmin <- min(1, x)
+        ##   domainmax <- max(x)
+        ##   vn <- domainmax - domainmin + 1
+        ##   vd <- NA
+        ##   censormin <- TRUE
+        ##   censormax <- TRUE
+        ##   ## location <- NA # (vn*domainmin-domainmax)/(vn-1)
+        ##   ## scale <- NA # (domainmax-domainmin)/(vn-1)
+        ##   plotmin <- max(domainmin, min(x) - (Q3 - Q1) / 2)
+        ##   plotmax <- max(x)
+        ## } else { # seems a rounded continuous variate
           vtype <- 'continuous'
           vn <- Inf
           vd <- dd
@@ -185,13 +206,15 @@ buildmetadata <- function(data, file = NULL,
             domainmax <- plotmax <- max(x)
             censormax <- TRUE
           }
-        } # end rounded
+        ## } # end rounded
       } # end integer
       vval <- NULL
     } # end numeric
     ##
-    # Create metadata object
-    metadata <- rbind(metadata,
+    ## Create metadata object
+    cat('\n***test***\n')
+    str(metadata)
+    metadata <- merge(metadata,
       c(
         list(name = xn, type = vtype),
         if (diagnosticvalues) {
@@ -204,8 +227,9 @@ buildmetadata <- function(data, file = NULL,
              highvalue = hival, plotmin = plotmin, plotmax = plotmax),
         as.list(vval)
       ),
-      fill = TRUE
-    )
+      sort = FALSE, all = TRUE)
+    cat('\n***test2***\n')
+    str(metadata)
   } # End loop over columns
   ## metadata <- cbind(name=names(data), metadata)
 

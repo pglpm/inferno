@@ -548,13 +548,17 @@ inferpopulation <- function(data, metadata, outputdir, nsamples = 1200,
       )
     },
     if (vn$N > 0) { # nominal
-      Nmaxn <- max(auxmetadata[auxmetadata$mcmctype == 'N', 'Nvalues'])
+      Nmaxn <- max(abs(auxmetadata[auxmetadata$mcmctype == 'N', 'Nvalues']))
       Nalpha0 <- matrix(1e-100, nrow = vn$N, ncol = Nmaxn)
       for (avar in seq_along(vnames$N)) {
         nvalues <- auxmetadata[auxmetadata$name == vnames$N[avar], 'Nvalues']
-        ## use Hadamard-like prior: 1/nvalues
-        ## other choice is flat prior: 1
-        Nalpha0[avar, 1:nvalues] <- 1 / nvalues
+        ## negative nvalues means the variate is ordinal:
+        ## we choose a flatter hyperprior in that case
+        if(nvalues > 0) {
+          Nalpha0[avar, 1:nvalues] <- 1 / nvalues
+        } else {
+          Nalpha0[avar, 1:(-nvalues)] <- 1
+          }
       }
       list(
         Nn = vn$N, # This indexing variable is needed internally

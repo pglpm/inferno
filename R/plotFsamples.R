@@ -94,6 +94,7 @@ plotFsamples <- function(file, mcoutput, data, plotmeans = TRUE,
     }
 
     varinfo <- as.list(auxmetadata[auxmetadata$name == v, ])
+    varinfo$Nvalues <- abs(varinfo$Nvalues)
     vtype <- varinfo[['mcmctype']]
     if (vtype %in% c('R', 'D', 'C', 'O')) { #
       if (vtype == 'O') {
