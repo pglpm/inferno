@@ -1,9 +1,0 @@
-name,type,Nvalues,rounding,domainmin,domainmax,minincluded,maxincluded,centralvalue,lowvalue,highvalue,plotmin,plotmax,V1,V2,V3,V4,V5
-Rvrt,continuous,Inf,0,-Inf,Inf,FALSE,FALSE,0,-0.7,0.7,-3,3,,,,,
-Cvrt,continuous,Inf,0,-1,1,TRUE,TRUE,0,-1,1,-1,1,,,,,
-Dvrt,continuous,Inf,0.1,-Inf,Inf,FALSE,FALSE,0,-0.7,0.7,-3,3,,,,,
-Ovrt,ordinal,7,,1,7,TRUE,TRUE,5,4,7,1,7,,,,,
-Nvrt,nominal,5,,,,TRUE,TRUE,,,,,,A,B,C,D,E
-Bvrt,binary,2,,,,TRUE,TRUE,,,,,,no,yes,,,
-Pvrt,continuous,Inf,0,0,Inf,FALSE,FALSE,1,0.5,2,0,10,,,,,
-Nvrt2,nominal,3,,,,TRUE,TRUE,,,,,,a,b,c,,
