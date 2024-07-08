@@ -24,7 +24,7 @@ currenttestdir <- inferpopulation(data = NULL,
                         cleanup = FALSE, parallel = 1,
                         prior = TRUE,
                         ## lldata = 12,
-                        useOquantiles = FALSE,
+                        useLquantiles = FALSE,
                         seed = seed)
 
 #### Test whether Fdistribution output is identical
