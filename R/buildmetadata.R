@@ -112,6 +112,7 @@ buildmetadata <- function(data, file = NULL,
       names(vval) <- paste0('V', 1:vn)
       plotmin <- NA
       plotmax <- NA
+      loval <- meval <- hival <- dmin <- dmax <- NA
     } else {
       ## Ordinal, continuous, censored, or discretized variate
       ## (numeric with more than 2 different values)
@@ -159,7 +160,11 @@ buildmetadata <- function(data, file = NULL,
       } else {
         ## # Seems to be an ordinal variate
         ## vtype <- 'ordinal'
-        ## if (dd >= 1) { # seems originally integer
+        if (dd >= 1) { # seems originally integer
+          message('\nNOTE: variate ', xn, ' might be ordinal,\n',
+                  'but is treated as continuous and rounded\n',
+                  'owing to its large range.\n')
+          }
         ##   domainmin <- min(1, x)
         ##   domainmax <- max(x)
         ##   vn <- domainmax - domainmin + 1
@@ -212,8 +217,6 @@ buildmetadata <- function(data, file = NULL,
     } # end numeric
     ##
     ## Create metadata object
-    cat('\n***test***\n')
-    str(metadata)
     metadata <- merge(metadata,
       c(
         list(name = xn, type = vtype),
@@ -228,8 +231,6 @@ buildmetadata <- function(data, file = NULL,
         as.list(vval)
       ),
       sort = FALSE, all = TRUE)
-    cat('\n***test2***\n')
-    str(metadata)
   } # End loop over columns
   ## metadata <- cbind(name=names(data), metadata)
 

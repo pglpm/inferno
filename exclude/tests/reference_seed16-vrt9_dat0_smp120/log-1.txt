@@ -1,8 +1,7 @@
-Log core 1 - Current time: 2024-07-07 09:37:46
+Log core 1 - Current time: 2024-07-08 08:09:18
 Defining model
-  [Note] 'Clatinit' is provided in 'constants' but not used in the model code and is being ignored.
   [Note] 'Dlatinit' is provided in 'constants' but not used in the model code and is being ignored.
-  [Note] 'Olatinit' is provided in 'constants' but not used in the model code and is being ignored.
+  [Note] 'Clatinit' is provided in 'constants' but not used in the model code and is being ignored.
 Building model
 Setting data and initial values
 Running calculate on model
@@ -15,77 +14,73 @@ Compiling
   [Note] This may take a minute.
   [Note] Use 'showCompilerOutput = TRUE' to see C++ compilation details.
 ===== Monitors =====
-thin = 1: Bprob, Cmean, Cvar, Dmean, Dvar, Nprob, Omean, Ovar, Rmean, Rvar, W
+thin = 1: Bprob, Cmean, Cvar, Dmean, Dvar, Nprob, Rmean, Rvar, W
 thin2 = 1: K
 ===== Samplers =====
-posterior_predictive sampler (961)
+posterior_predictive sampler (897)
   - Rmean[]  (192 elements)
   - Rrate[]  (192 elements)
   - Cmean[]  (64 elements)
   - Crate[]  (64 elements)
   - Dmean[]  (64 elements)
   - Drate[]  (64 elements)
-  - Omean[]  (64 elements)
-  - Orate[]  (64 elements)
   - Bprob[]  (64 elements)
   - Alpha
-  - Nprob[]  (128 multivariate elements)
+  - Nprob[]  (192 multivariate elements)
 ===== Comments =====
   [Note] Additional downstream predictive nodes are also being sampled by posterior_predictive sampler.
 ===== Monitors =====
-thin = 1: Bprob, Cmean, Cvar, Dmean, Dvar, Nprob, Omean, Ovar, Rmean, Rvar, W
+thin = 1: Bprob, Cmean, Cvar, Dmean, Dvar, Nprob, Rmean, Rvar, W
 thin2 = 1: K
 ===== Samplers =====
-posterior_predictive sampler (961)
+posterior_predictive sampler (897)
   - Rmean[]  (192 elements)
   - Rrate[]  (192 elements)
   - Cmean[]  (64 elements)
   - Crate[]  (64 elements)
   - Dmean[]  (64 elements)
   - Drate[]  (64 elements)
-  - Omean[]  (64 elements)
-  - Orate[]  (64 elements)
   - Bprob[]  (64 elements)
   - Alpha
-  - Nprob[]  (128 multivariate elements)
+  - Nprob[]  (192 multivariate elements)
 ===== Comments =====
   [Note] Additional downstream predictive nodes are also being sampled by posterior_predictive sampler.
 Compiling
   [Note] This may take a minute.
   [Note] Use 'showCompilerOutput = TRUE' to see C++ compilation details.
 
-Setup time 28 secs 
+Setup time 25 secs 
 
 Chain # 1 (chain 1 of 1 for this core)
 Iterations: 1024 
 |-------------|-------------|-------------|-------------|
 |-------------------------------------------------------|
 
-Current time: 2024-07-07 09:38:15
-MCMC time 0.86 secs 
+Current time: 2024-07-08 08:09:44
+MCMC time 1.1 secs 
 
 OCCUPIED CLUSTERS: 1 OF 64 
 
 ESSs: 1024
 IATs: 1
-BMKs: 0.11
-MCSEs: 2.89
+BMKs: 0.086
+MCSEs: 3.4
 Stationary: TRUE
 Burn-in I: 0
 Burn-in II: 0
 Proposed thinning: 1 
 
-Diagnostics time 0.58 secs 
+Diagnostics time 0.2 secs 
 
-Number of iterations 1024 , required 238 
+Number of iterations 1024 , required 476 
 
-Keeping last 120 samples with thinning 2 
+Keeping last 120 samples with thinning 4 
 
 Plotting traces and samples.
 
 Plotting MCMC traces
-Current time: 2024-07-07 09:38:17
-MCMC + diagnostics time 3 secs 
+Current time: 2024-07-08 08:09:46
+MCMC + diagnostics time 3.3 secs 
 
-Current time: 2024-07-07 09:38:17
-Total time 3 secs 
+Current time: 2024-07-08 08:09:46
+Total time 3.3 secs 
