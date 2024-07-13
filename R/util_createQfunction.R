@@ -61,6 +61,30 @@ createQfunction <- function(nint = 3600, nsamples = 2^24L, mean = 0, sd = 3, sha
   list(Q = approxq, invQ = approxinvq, DQ = dapproxq)
 }
 
+## calculateFpriorquantiles<- function(nint = 3600, ncsamples = 2^12L, nsamples = 2^10L, mean = 0, sd = 3, shapelo = 0.5, shapehi = 0.5, rate = 1, minalpha=-3L, maxalpha=3L, nclusters=64L, plot = F) {
+if(FALSE){
+  nalpha <- length(minalpha:maxalpha)
+
+sd <- 5
+ncsamples <- 2^14
+nsamples <- 2^14
+  test500 <- t(sapply(1:nsamples, function(i){
+    cat('\r',i)
+  alpha <- 2^(minalpha -1L +extraDistr::rcat(1, prob=rep(1/nalpha,nalpha)))/nclusters
+  W <- extraDistr::rdirichlet(n=1, alpha=rep(alpha,nclusters))
+  means <- rnorm(nclusters, mean = mean, sd = sd)
+  sds <- sqrt(
+    nimble::rinvgamma(nclusters, shape = shapelo, rate = nimble::rinvgamma(nclusters, shape = shapehi, rate = rate)))
+  clu <- extraDistr::rcat(n=ncsamples,prob=W)
+    quantile(rnorm(n=ncsamples, mean=means[clu], sd=sds[clu]), (1:3)/4,type=6)
+  }
+  ))
+    cat('\n')
+
+
+}
+
+
 if (FALSE) {
   nsamples <- 2^24L
   mean <- 0

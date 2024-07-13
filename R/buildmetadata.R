@@ -179,11 +179,11 @@ buildmetadata <- function(data, file = NULL,
           vtype <- 'continuous'
           vn <- Inf
           vd <- dd
-          if (diff(range(x)) / vd > 256) {
+          if (TRUE || diff(range(x)) / vd > 256) {
             message('\nNOTE: variate ', xn, ' is reported as "rounded",\n',
-                    'but consider the possibility of treating it as',
-                    'continuous, \n by setting its "rounding" to 0 in the',
-                    ' metadata file.\n')
+                    'but consider the possibility of treating it as ',
+                    'continuous\nby setting its "rounding" to 0 in the ',
+                    'metadata file.\n')
           }
           domainmin <- signif(min(x) - 4 * diff(range(x)), 1)
           domainmax <- signif(max(x) + 4 * diff(range(x)), 1)
