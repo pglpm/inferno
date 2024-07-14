@@ -65,10 +65,10 @@ createQfunction <- function(nint = 3600, nsamples = 2^24L, mean = 0, sd = 3, sha
 if(FALSE){
   nalpha <- length(minalpha:maxalpha)
 
-sd <- 5
+sd <- 3
 ncsamples <- 2^14
 nsamples <- 2^14
-  test500 <- t(sapply(1:nsamples, function(i){
+  test3 <- t(sapply(1:nsamples, function(i){
     cat('\r',i)
   alpha <- 2^(minalpha -1L +extraDistr::rcat(1, prob=rep(1/nalpha,nalpha)))/nclusters
   W <- extraDistr::rdirichlet(n=1, alpha=rep(alpha,nclusters))
@@ -79,6 +79,64 @@ nsamples <- 2^14
     quantile(rnorm(n=ncsamples, mean=means[clu], sd=sds[clu]), (1:3)/4,type=6)
   }
   ))
+    cat('\n')
+
+    cat('\n')
+  sd <- 3
+ncsamples <- 2^4
+nsamples <- 2^4
+  test3 <- t(sapply(1:nsamples, function(i){
+  alpha <- 2^(minalpha -1L +extraDistr::rcat(1, prob=rep(1/nalpha,nalpha)))/nclusters
+cat(i,alpha*nclusters,'\n')
+  W <- extraDistr::rdirichlet(n=1, alpha=rep(alpha,nclusters))
+  cat(signif(W,2),'\n')
+  means <- rnorm(nclusters, mean = mean, sd = sd)
+  sds <- sqrt(
+    nimble::rinvgamma(nclusters, shape = shapelo, rate = nimble::rinvgamma(nclusters, shape = shapehi, rate = rate)))
+  clu <- extraDistr::rcat(n=ncsamples,prob=W)
+    quantile(rnorm(n=ncsamples, mean=means[clu], sd=sds[clu]), (1:3)/4,type=6)
+  }
+  ))
+    cat('\n')
+
+    cat('\n')
+  sd <- 3
+ncsamples <- 2^14
+nsamples <- 2^13
+  sest3 <- t(sapply(1:nsamples, function(i){
+    cat('\r',i)
+  alpha <- 2^(minalpha -1L +extraDistr::rcat(1, prob=rep(1/nalpha,nalpha)))/nclusters
+  W <- extraDistr::rdirichlet(n=1, alpha=rep(alpha,nclusters))
+  means <- rnorm(nclusters, mean = mean, sd = sd)
+  sds <- sqrt(
+    nimble::rinvgamma(nclusters, shape = shapelo, rate = nimble::rinvgamma(nclusters, shape = shapehi, rate = rate)))
+  clu <- extraDistr::rcat(n=ncsamples,prob=W)
+    rnorm(n=ncsamples, mean=means[clu], sd=sds[clu])
+  }
+  ))
+
+
+
+
+
+  
+  pdff('justatest')
+  xgrid <- seq(-5,5,length.out=128)
+     cat('\n')
+  sd <- 3
+ncsamples <- 2^4
+nsamples <- 2^4
+  test3 <- t(sapply(1:nsamples, function(i){
+  alpha <- 2^(minalpha -1L +extraDistr::rcat(1, prob=rep(1/nalpha,nalpha)))/nclusters
+cat(i,alpha*nclusters,'\n')
+  W <- extraDistr::rdirichlet(n=1, alpha=rep(alpha,nclusters))
+  means <- rnorm(nclusters, mean = mean, sd = sd)
+  sds <- sqrt(
+    nimble::rinvgamma(nclusters, shape = shapelo, rate = nimble::rinvgamma(nclusters, shape = shapehi, rate = rate)))
+  tplot(x=xgrid,y=sapply(xgrid,function(x)sum(W*dnorm(x, mean=means, sd=sds))))
+  }
+))
+  dev.off()
     cat('\n')
 
 
