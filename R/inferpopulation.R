@@ -677,8 +677,6 @@ inferpopulation <- function(data, metadata, outputdir, nsamples = 1200,
   #####################################################
   #### BEGINNING OF FOREACH LOOP OVER CORES
   #####################################################
-  cat('\n***YES***\n')
-  print(`%dochains%`)
   #Iterate over cores, using 'acore' variable as iterator
   chaininfo <- foreach(acore = 1:ncores,
                                 .combine = rbind,

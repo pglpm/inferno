@@ -79,7 +79,45 @@ nsamples <- 2^14
     quantile(rnorm(n=ncsamples, mean=means[clu], sd=sds[clu]), (1:3)/4,type=6)
   }
   ))
-    cat('\n')
+  cat('\n')
+
+  shapehi <- shapelo <- 0.5
+  rate <- 1
+  mean <- 0
+  minalpha <- -3L
+  nalpha <- 7L
+  sdlist <- c(0.5,0.75,1,2,3,5)
+  nclusters <- 64
+  ##
+  ncsamples <- 2^14
+  nsamples <- 2^13
+  bqsamples <- foreach(sd=sdlist, .combine=c)%do%{
+    cat('\r',sd,'    ')
+    ##tfun <- readRDS(paste0('../exclude/proto_package/xQfunction3600_',sd,'.rds'))
+    itfun <- readRDS(paste0('../exclude/proto_package/xinvQfunction3600_',sd,'.rds'))
+    list(
+      apply(sapply(1:nsamples, function(i){
+    alpha <- 2^(minalpha -1L +
+                extraDistr::rcat(1, prob=rep(1/nalpha,nalpha)))/nclusters
+    W <- extraDistr::rdirichlet(n=1, alpha=rep(alpha,nclusters))
+    clu <- extraDistr::rcat(n=ncsamples,prob=W)
+    means <- rnorm(nclusters, mean = mean, sd = sd)
+    sds <- sqrt(nimble::rinvgamma(nclusters, shape = shapelo,
+                                  rate = nimble::rinvgamma(nclusters, shape = shapehi, rate = rate)))
+    itfun(quantile(rnorm(n=ncsamples, mean=means[clu], sd=sds[clu]),
+    (1:3)/4, type=6))
+      } ), 1, summary)
+    )
+  }
+  names(bqsamples) <- sdlist
+  cat('\n')
+
+
+
+
+
+
+  
 
     cat('\n')
   sd <- 3
@@ -108,8 +146,8 @@ nsamples <- 2^13
   alpha <- 2^(minalpha -1L +extraDistr::rcat(1, prob=rep(1/nalpha,nalpha)))/nclusters
   W <- extraDistr::rdirichlet(n=1, alpha=rep(alpha,nclusters))
   means <- rnorm(nclusters, mean = mean, sd = sd)
-  sds <- sqrt(
-    nimble::rinvgamma(nclusters, shape = shapelo, rate = nimble::rinvgamma(nclusters, shape = shapehi, rate = rate)))
+    sds <- sqrt( nimble::rinvgamma(nclusters, shape = shapelo,
+                                   rate = nimble::rinvgamma(nclusters, shape = shapehi, rate = rate)))
   clu <- extraDistr::rcat(n=ncsamples,prob=W)
     rnorm(n=ncsamples, mean=means[clu], sd=sds[clu])
   }
@@ -117,6 +155,31 @@ nsamples <- 2^13
 
 
 
+  shapehi <- shapelo <- 0.5
+  rate <- 1
+  mean <- 0
+  minalpha <- -3L
+  nalpha <- 7L
+  sdlist <- c(0.5,0.75,1,2,3,5)
+  nclusters <- 64
+  ##
+  nsamples <- 2^4
+  xgrid <- seq(0,1,length.out=512)
+  for(sd in sdlist){
+    tfun <- readRDS(paste0('../exclude/proto_package/xQfunction3600_',sd,'.rds'))
+    dtfun <- readRDS(paste0('../exclude/proto_package/xDQfunction3600_',sd,'.rds'))
+  pdff(paste0('justatestquantiles_',sd))
+  for(i in 1:nsamples){
+    alpha <- 2^(minalpha -1L +
+                extraDistr::rcat(1, prob=rep(1/nalpha,nalpha)))/nclusters
+    W <- extraDistr::rdirichlet(n=1, alpha=rep(alpha,nclusters))
+    means <- rnorm(nclusters, mean = mean, sd = sd)
+    sds <- sqrt(
+      nimble::rinvgamma(nclusters, shape = shapelo, rate = nimble::rinvgamma(nclusters, shape = shapehi, rate = rate)))
+    tplot(x=xgrid,y=sapply(tfun(xgrid),function(x)dtfun(x)*sum(W*dnorm(x, mean=means, sd=sds))))
+  }
+    dev.off()
+    }
 
 
   
