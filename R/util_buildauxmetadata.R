@@ -184,7 +184,8 @@ buildauxmetadata <- function(data, metadata) {
       ## so we set the scale to
       ## ([(Q3-Q2)+(Q2-Q1)]/2) /2
       ## this way the transformed Q3 is at approx 2
-      tscale <- abs(xinfo$highvalue - xinfo$lowvalue)/4
+      ## This need to be studied some more
+      tscale <- abs(xinfo$highvalue - xinfo$lowvalue)
       plotmin <- xinfo$plotmin
       plotmax <- xinfo$plotmax
       ## Q1 <- mctest1 <- quantile(x, probs = 0.25, type = 6)
