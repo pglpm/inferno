@@ -10,229 +10,266 @@
 buildmetadata <- function(data, file = NULL,
                           diagnosticvalues = FALSE,
                           backupfiles = FALSE) {
-  ## require('data.table')
 
+  ## Greater Common Denominator function
+  ## used to calculate multiplicity of values of continuous variates
+  ## and guess whether they are rounded
   gcd <- function(...) {
     suppressWarnings(Reduce(function(a, b) {
       if (b == 0) a else Recall(b, a %% b)
     }, c(...)))
   }
-  ##
+
+  ## Read datafile if it exists
   datafile <- NULL
-  # Read datafile if it exists
   if (is.character(data) && file.exists(data)) {
     datafile <- data
     data <- read.csv(datafile, na.strings = '')
   }
   data <- as.data.frame(data)
-  metadata <- as.data.frame(c(list(name = NA, type = NA),
-        if (diagnosticvalues) {
-          list(datamin = NA, datamax = NA, datamaxrep = NA,
-               dataNvalues = NA)
-        },
-        list(Nvalues = NA, rounding = NA, domainmin = NA,
-             domainmax = NA, minincluded = NA,
-             maxincluded = NA, centralvalue = NA, lowvalue = NA,
-             highvalue = NA, plotmin = NA, plotmax = NA)
-        ))[-1,]
-  # Loop over columns in data
-  for (xn in colnames(data)) {
-    ## print(xn)
-    x <- data[[xn]]
+  
+  ## Calculate multiplicity of datapoints
+  ## if multiplicity is low,
+  ## then potentially rounded variates
+  ## can be efficiently treated as continuous
+  dupesratio <- nrow(unique(data))/nrow(data)
+
+#### Prepare empty metadata frame
+  metadata <- as.data.frame(
+    c(list(name = NA,
+           type = NA,
+           Nvalues = NA,
+           rounding = NA,
+           domainmin = NA,
+           domainmax = NA,
+           minincluded = NA,
+           maxincluded = NA,
+           lowvalue = NA,
+           centralvalue = NA,
+           highvalue = NA,
+           plotmin = NA,
+           plotmax = NA),
+      if (diagnosticvalues) {
+        list(datamin = NA,
+             datamax = NA,
+             datamaxrep = NA,
+             dataNvalues = NA)
+      }
+      )
+  )[-1,]
+
+
+
+  ## Loop over variates (columns) in data frame
+  for (name in colnames(data)) {
+    ## remove missing values
+    x <- data[[name]]
     x <- x[!is.na(x)]
-    # Checks if the data contains useful information
-    if (all(is.na(x)) || min(x) == max(x)) {
-      message('\nWARNING: variate ', xn,
-              ' does not have at least two distinct values!',
+    lengthx <- length(unique(x))
+    ## if this variate has only one value, then it bears no information
+    if (lengthx <= 1) {
+      message('\nWARNING: variate ', name,
+              ' does not have at least two distinct values.',
               '\nDiscarded because non-informative\n')
       next
     }
-    # If the data is numeric, calculate the variation in the data
-    # (first and second quartile, min and max values)
+
+    ## If the variate is numeric,
+    ## calculate several characteristics used later
     if (is.numeric(x)) {
-      ## print('numeric')
-      Q1 <- loval <- quantile(x, probs = 0.25, type = 6)
-      Q2 <- meval <- quantile(x, probs = 0.5, type = 6) # Median. Not used for anything
-      Q3 <- hival <- quantile(x, probs = 0.75, type = 6)
-      dmin <- min(x)
-      dmax <- max(x)
-      # Edge case if the first and second quartile have the same value
-      if (loval == hival) {
-        loval <- if (sum(x < Q1) > 0) {
-          max(x[x < Q1])
-        } else {
-          max(x[x <= Q1])
-        }
-        hival <- if (sum(x > Q3) > 0) {
-          min(x[x > Q3])
-        } else {
-          min(x[x >= Q3])
-        }
-      }
-    } else {
-      loval <- meval <- hival <- dmin <- dmax <- NA
+      ## these two are used for diagnostic purposes
+      datamin <- min(x)
+      datamax <- max(x)
+      ## values strictly within the interior of the domain
+      ix <- x[!(x %in% range(x))]
+      maxrep <- max(table(ix)) # max of repeated inner values
+      meanrep <- mean(table(ix)) # average of repeated inner values
+      ## differences between consecutive unique values
+      jumpsx <- unique(signif(diff(sort(unique(x))), 3))
+      rangex <- diff(range(x))
+      multi <- 10^(-min(floor(log10(jumpsx))))
+      ## jumps between unique values are integer multiples
+      ## of 'jumpquantum'
+      jumpquantum <- gcd(round(jumpsx * multi)) / multi
     }
-    # Making an educated guess for the type of variates
-    # Binary variate (only has two unique values)
-    if (length(unique(x)) == 2) {
-      vtype <- 'binary'
-      vn <- 2
-      vd <- NA
+
+#### Now make educated guess for the type of variate
+
+    if (lengthx == 2) {
+    ## Binary variate? (has only two unique values)
+      type <- 'binary'
+      Nvalues <- 2
+      rounding <- NA
       domainmin <- NA
       domainmax <- NA
-      censormin <- TRUE
-      censormax <- TRUE
-      vval <- sort(as.character(unique(x)))
-      names(vval) <- paste0('V', 1:2)
-      loval <- meval <- hival <- NA
+      minincluded <- NA
+      maxincluded <- NA
+      lowvalue <- NA
+      centralvalue <- NA
+      highvalue <- NA
       plotmin <- NA
       plotmax <- NA
-      # Nominal variate (non numeric values)
+      datavalues <- sort(as.character(unique(x)))
+      names(datavalues) <- paste0('V', 1:2)
+
     } else if (!is.numeric(x)) {
-      vtype <- 'nominal'
-      vn <- length(unique(x))
-      vd <- NA
-      domainmin <- NA # Nimble index categorical from 1
+      ## Nominal variate? (non-numeric values)
+      type <- 'nominal'
+      Nvalues <- lengthx
+      rounding <- NA
+      domainmin <- NA
       domainmax <- NA
-      censormin <- TRUE
-      censormax <- TRUE
-      vval <- sort(as.character(unique(x)))
-      names(vval) <- paste0('V', 1:vn)
+      minincluded <- NA
+      maxincluded <- NA
+      lowvalue <- NA
+      centralvalue <- NA
+      highvalue <- NA
       plotmin <- NA
       plotmax <- NA
-    } else if (length(unique(x)) <= 10) {
-      vtype <- 'ordinal'
-      vn <- length(unique(x))
-      vd <- NA
-      domainmin <- NA # Nimble index categorical from 1
-      domainmax <- NA
-      censormin <- TRUE
-      censormax <- TRUE
-      vval <- sort(as.character(unique(x)))
-      names(vval) <- paste0('V', 1:vn)
+      datavalues <- sort(as.character(unique(x)))
+      names(datavalues) <- paste0('V', 1:Nvalues)
+
+    } else if (lengthx <= 10) {
+      ## Ordinal variate? (few distinct values, even if numeric)
+      type <- 'ordinal'
+      Nvalues <- lengthx
+      rounding <- NA
+      domainmin <- datamin
+      domainmax <- datamax
+      minincluded <- TRUE
+      maxincluded <- TRUE
+      lowvalue <- NA
+      centralvalue <- NA
+      highvalue <- NA
       plotmin <- NA
       plotmax <- NA
-      loval <- meval <- hival <- dmin <- dmax <- NA
+      datavalues <- sort(as.character(unique(x)))
+      names(datavalues) <- paste0('V', 1:Nvalues)
+
     } else {
-      ## Ordinal, continuous, censored, or discretized variate
-      ## (numeric with more than 2 different values)
-      ix <- x[!(x %in% range(x))] # exclude boundary values
-      maxrep <- max(table(ix)) # average of repeated inner values
-      ud <- unique(signif(diff(sort(unique(x))), 3)) # differences
-      rx <- diff(range(x))
-      multi <- 10^(-min(floor(log10(ud))))
-      max(table(x))
-      dd <- gcd(round(ud * multi)) / multi # greatest common difference
-      ##
-      if (dd / rx < 1e-5 && maxrep > 100) {
-        cat('Warning: variate', xn,
-            'seems continuous but with singular values.\n')
+      ## The variate seems continuous
+      type <- 'continuous'
+      Nvalues <- Inf
+      ## preliminary values, possibly modified below
+      rounding <- 0
+      domainmin <- signif(datamax - 3 * rangex, 1)
+      domainmax <- signif(datamax + 3 * rangex, 1)
+      minincluded <- FALSE
+      maxincluded <- FALSE
+      lowvalue <- Q1 <- quantile(x, probs = 0.25, type = 6)
+      centralvalue <- quantile(x, probs = 0.5, type = 6)
+      highvalue <- Q3 <- quantile(x, probs = 0.75, type = 6)
+      ## Borderline case if the first and second quartile have the same value
+      if (lowvalue == highvalue) {
+        lowvalue <- if (sum(x < Q1) > 0) {
+                      max(x[x < Q1])
+                    } else {
+                      max(x[x <= Q1])
+                    }
+        highvalue <- if (sum(x > Q3) > 0) {
+                       min(x[x > Q3])
+                     } else {
+                       min(x[x >= Q3])
+                     }
       }
-      # Continuous variate (the difference between values can be
-      # very small, but there is variation)
-      if (dd / rx < 1e-5 || (dd / rx < 1e-3 && maxrep <= 100)) {
-        ## temporary values
-        vtype <- 'continuous'
-        vn <- Inf
-        vd <- 0
-        domainmin <- signif(min(x) - 3 * diff(range(x)), 1)
-        domainmax <- signif(max(x) + 3 * diff(range(x)), 1)
-        censormin <- FALSE
-        censormax <- FALSE
-        plotmin <- min(x) - (Q3 - Q1) / 2
-        plotmax <- max(x) + (Q3 - Q1) / 2
-        ##
-        if (all(x >= 0)) { # seems to be strictly positive
-          domainmin <- 0
-          plotmin <- max((domainmin + min(x)) / 2, plotmin)
+      plotmin <- datamin - (Q3 - Q1) / 2
+      plotmax <- datamax + (Q3 - Q1) / 2
+      datavalues <- NULL
+
+#### Consider subcases for openness of domain
+      if (all(x >= 0)) {
+        ## seems to be strictly positive
+        domainmin <- 0
+        plotmin <- max((domainmin + datamin) / 2, plotmin)
+      }
+      if (sum(x == min(x)) > meanrep) {
+        ## seems to have left-closed domain
+        domainmin <- datamin
+        plotmin <- datamin
+        minincluded <- TRUE
+      }
+      if (sum(x == datamax) > meanrep) {
+        ## seems to right-closed domain
+        domainmax <- datamax
+        plotmax <- datamax
+        maxincluded <- TRUE
+      }
+
+#### Consider subcases for rounding
+          ## Variate has integer values, it's possibly ordinal
+      if (jumpquantum >= 1) {
+        message('\nNOTE: variate ', name, ' might be ordinal,\n',
+                  'but is treated as continuous\n',
+                  'owing to its large range of values.\n')
+          }
+
+      if (!(
+        jumpquantum / rangex < 1e-5 || # no visible gaps between values
+        (jumpquantum / rangex < 1e-3 &&
+         maxrep <= 100)  # visible gaps, but not many value repetitions
+      )) {
+        ## The variate seems to have quantized differences between unique values
+        ## hence it might be rounded or integer/ordinal
+
+        if(dupesratio < 0.1) {
+          ## The variate seems rounded,
+          ## but no latent-variable representation is needed
+          ## because the datapoints are distinct in higher dimension
+          message('\nNOTE: variate ', name, ' is probably rounded,\n',
+                  'but can be conveniently treated as not rounded ',
+                  'in the present dataset.\n',
+                  '\nPlease re-run the present metadata analysis ',
+                  'if you later add more datapoints to this dataset\n',
+                  'or if you use a different dataset.\n')
+          rounding <- 0
+
+        } else if(rangex / rounding > 256) {
+          ## The variate seems rounded,
+          ## but no latent-variable representation is needed
+          ## because the datapoints are distinct in higher dimension
+          message('\nNOTE: variate ', name, ' is probably rounded,\n',
+                  'but is treated as not rounded ',
+                  'owing to its large range of values.\n')
+          rounding <- 0
+
+        } else {
+          ## The variate seems rounded,
+          ## a latent-variable representation seems needed
+          ## because the datapoints are not distinct in higher dimension
+          rounding <- jumpquantum
+          domainmin <- signif(datamin - 4 * rangex, 1)
+          domainmax <- signif(datamax + 4 * rangex, 1)
         }
-        ix <- x[!(x %in% range(x))] # exclude boundary values
-        repindex <- mean(table(ix)) # average of repeated inner values
-        ## contindex <- length(unique(diff(sort(unique(ix)))))/length(ix) # check for repeated values
-        if (sum(x == min(x)) > repindex) { # seems to be left-singular
-          domainmin <- plotmin <- min(x)
-          censormin <- TRUE
-        }
-        if (sum(x == max(x)) > repindex) { # seems to be right-singular
-          domainmax <- plotmax <- max(x)
-          censormax <- TRUE
-        }
-      } else {
-        ## # Seems to be an ordinal variate
-        ## vtype <- 'ordinal'
-        if (dd >= 1) { # seems originally integer
-          message('\nNOTE: variate ', xn, ' might be ordinal,\n',
-                  'but is treated as continuous and rounded\n',
-                  'owing to its large range.\n')
-          }
-        ##   domainmin <- min(1, x)
-        ##   domainmax <- max(x)
-        ##   vn <- domainmax - domainmin + 1
-        ##   vd <- NA
-        ##   censormin <- TRUE
-        ##   censormax <- TRUE
-        ##   ## location <- NA # (vn*domainmin-domainmax)/(vn-1)
-        ##   ## scale <- NA # (domainmax-domainmin)/(vn-1)
-        ##   plotmin <- max(domainmin, min(x) - (Q3 - Q1) / 2)
-        ##   plotmax <- max(x)
-        ## } else { # seems a rounded continuous variate
-          vtype <- 'continuous'
-          vn <- Inf
-          vd <- dd
-          if (TRUE || diff(range(x)) / vd > 256) {
-            message('\nNOTE: variate ', xn, ' is reported as "rounded",\n',
-                    'but consider the possibility of treating it as ',
-                    'continuous\nby setting its "rounding" to 0 in the ',
-                    'metadata file.\n')
-          }
-          domainmin <- signif(min(x) - 4 * diff(range(x)), 1)
-          domainmax <- signif(max(x) + 4 * diff(range(x)), 1)
-          censormin <- FALSE
-          censormax <- FALSE
-          ## location <- Q2
-          ## scale <- (Q3-Q1)/2
-          plotmin <- min(x) - (Q3 - Q1) / 2
-          plotmax <- max(x) + (Q3 - Q1) / 2
-          ix <- x[!(x %in% range(x))] # exclude boundary values
-          repindex <- mean(table(ix)) # average of repeated inner values
-          ## contindex <- length(unique(diff(sort(unique(ix)))))/length(ix) # check for repeated values
-          if (all(x >= 0)) { # seems to be strictly positive
-            domainmin <- 0
-            plotmin <- max((domainmin + min(x)) / 2, plotmin)
-          }
-          ix <- x[!(x %in% range(x))] # exclude boundary values
-          repindex <- mean(table(ix)) # average of repeated inner values
-          ## contindex <- length(unique(diff(sort(unique(ix)))))/length(ix) # check for repeated values
-          if (sum(x == min(x)) > repindex) { # seems to be left-singular
-            domainmin <- plotmin <- min(x)
-            censormin <- TRUE
-          }
-          if (sum(x == max(x)) > repindex) { # seems to be right-singular
-            domainmax <- plotmax <- max(x)
-            censormax <- TRUE
-          }
-        ## } # end rounded
-      } # end integer
-      vval <- NULL
-    } # end numeric
-    ##
-    ## Create metadata object
+      } # End rounded case
+
+    } # End continuous-variate case
+
+#### Create metadata object
     metadata <- merge(metadata,
       c(
-        list(name = xn, type = vtype),
+        list(name = name,
+             type = type,
+             Nvalues = Nvalues,
+             rounding = rounding,
+             domainmin = domainmin,
+             domainmax = domainmax,
+             minincluded = minincluded,
+             maxincluded = maxincluded,
+             lowvalue = lowvalue,
+             centralvalue = centralvalue,
+             highvalue = highvalue,
+             plotmin = plotmin,
+             plotmax = plotmax),
         if (diagnosticvalues) {
-          list(datamin = dmin, datamax = dmax, datamaxrep = max(table(x)),
-               dataNvalues = length(unique(x)))
+          list(datamin = datamin,
+               datamax = datamax,
+               datamaxrep = max(table(x)),
+               dataNvalues = lengthx)
         },
-        list(Nvalues = vn, rounding = vd, domainmin = domainmin,
-             domainmax = domainmax, minincluded = censormin,
-             maxincluded = censormax, centralvalue = meval, lowvalue = loval,
-             highvalue = hival, plotmin = plotmin, plotmax = plotmax),
-        as.list(vval)
+        as.list(datavalues)
       ),
       sort = FALSE, all = TRUE)
-  } # End loop over columns
-  ## metadata <- cbind(name=names(data), metadata)
+  } # End loop over variates
 
   # Save to file if the file parameter is set
   if (!is.null(file)) {
