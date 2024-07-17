@@ -5,19 +5,22 @@
 #'
 #' @return an auxmetadata data.frame object
 buildauxmetadata <- function(data, metadata) {
-  ## Elements used in other scripts:
-  ## name, mcmctype, Nvalues, mctest, transform,
-  ## domainmin, domainmax, tscale, tlocation
-  ## censormax, censormin, step,
-  ## mctest1, mctest2, mctest3,
-  ## plotmin, plotmax, V...
 
-  sdoveriqr <- 0.5 / qnorm(0.75)
+  ## In the internal, rescaled representation,
+  ## with the SD of the means equal to 3 and
+  ## the rate of the variances equal to 1,
+  ## the median of Q3 of the possible F distribs is 1.95
+  ## and its mean is 2.55, while
+  ## the median of the IQR is 3.35
+  ## and its mean is 5.10.
+  ## So we could set the scale to
+  ## ([(Q3-Q2)+(Q2-Q1)]/2) /2
+  ## = (Q3-Q1)/4
+  ## this way the transformed Q3 is at approx 2
+  ## the factor "4" is instead "1" at the moment.
+  ## This need to be studied some more
+  iqrfactor <- 1
 
-  ## Qf <- readRDS('Qfunction3600_3.rds')
-
-  ## Q <- readRDS('Qfunction512.rds')
-  ##
   idR <- idC <- idD <- idL <- idB <- idO <- idN <- 1L
 
   auxmetadata <- data.frame()
@@ -31,18 +34,9 @@ buildauxmetadata <- function(data, metadata) {
     ## make sure 'type' is lowercase
     xinfo$type <- tolower(xinfo$type)
     ordinal <- NA
-    cens <- any(c(xinfo$minincluded, xinfo$maxincluded), na.rm = TRUE)
     transf <- 'identity' # temporary
-    vval <- xinfo[grep('^V[0-9]+$', names(xinfo))]
-    ## print(name)
-    ## str(vval)
-    ## Q1 <- NA
-    ## Q2 <- NA
-    ## Q3 <- NA
-    if (xinfo$type == 'binary') { # seems binary variate
-      ## if (length(unique(x)) != 2) {
-      ##   cat('Warning: inconsistencies with variate', name, '\n')
-      ## }
+    datavalues <- xinfo[grep('^V[0-9]+$', names(xinfo))]
+    if (xinfo$type == 'binary') {
       mcmctype <- 'B'
       id <- idB
       idB <- idB + 1L
@@ -56,13 +50,13 @@ buildauxmetadata <- function(data, metadata) {
       tscale <- 1
       plotmin <- NA
       plotmax <- NA
-        mctest1 <- 1
-        mctest2 <- 2
-        mctest3 <- 2
+      mctest1 <- 1
+      mctest2 <- 2
+      mctest3 <- 2
       ## if(!is.null(data)) {
-      ##   mctest1 <- match(names(which.min(table(x))), vval)
-      ##   mctest2 <- match(names(which.max(table(x))), vval)
-      ##   mctest3 <- match(names(which.min(table(x))), vval)
+      ##   mctest1 <- match(names(which.min(table(x))), datavalues)
+      ##   mctest2 <- match(names(which.max(table(x))), datavalues)
+      ##   mctest3 <- match(names(which.min(table(x))), datavalues)
       ## } else {
       ##   mctest1 <- 1
       ##   mctest2 <- 2
@@ -84,9 +78,9 @@ buildauxmetadata <- function(data, metadata) {
       plotmin <- NA
       plotmax <- NA
       ## if(!is.null(data)) {
-      ##   mctest1 <- match(names(which.min(table(x))), vval)
-      ##   mctest2 <- match(names(which.max(table(x))), vval)
-      ##   mctest3 <- match(names(which.min(table(x))), vval)
+      ##   mctest1 <- match(names(which.min(table(x))), datavalues)
+      ##   mctest2 <- match(names(which.max(table(x))), datavalues)
+      ##   mctest3 <- match(names(which.min(table(x))), datavalues)
       ## } else {
             ## mctest1 <- 1
             ## mctest2 <- round(xinfo$Nvalues/2)
@@ -111,9 +105,9 @@ buildauxmetadata <- function(data, metadata) {
       plotmin <- NA
       plotmax <- NA
       ## if(!is.null(data)) {
-      ##   mctest1 <- match(names(which.min(table(x))), vval)
-      ##   mctest2 <- match(names(which.max(table(x))), vval)
-      ##   mctest3 <- match(names(which.min(table(x))), vval)
+      ##   mctest1 <- match(names(which.min(table(x))), datavalues)
+      ##   mctest2 <- match(names(which.max(table(x))), datavalues)
+      ##   mctest3 <- match(names(which.min(table(x))), datavalues)
       ## } else {
             ## mctest1 <- 1
             ## mctest2 <- round(xinfo$Nvalues/2)
@@ -134,17 +128,16 @@ buildauxmetadata <- function(data, metadata) {
       step <- 0.5
       domainmin <- xinfo$domainmin
       domainmax <- xinfo$domainmax
-      if ((domainmax - domainmin) != Nvalues - 1) {
-        cat('Warning: "Nvalues" for variate', name, 'could be incorrect.\n')
-      }
       censormin <- -Inf
       censormax <- +Inf
-      ## vval <- as.vector(xinfo[paste0('V',1:Nvalues)], mode='character')
+      ## datavalues <- as.vector(xinfo[paste0('V',1:Nvalues)], mode='character')
       olocation <- (Nvalues * domainmin - domainmax) / (Nvalues - 1)
       oscale <- (domainmax - domainmin) / (Nvalues - 1)
       tlocation <- Qf(round((xinfo$centralvalue - olocation) / oscale) / Nvalues)
-      tscale <- abs(Qf(round((xinfo$highvalue - olocation) / oscale) / Nvalues) -
-        Qf(round((xinfo$lowvalue - olocation) / oscale) / Nvalues)) * sdoveriqr
+      tscale <- abs(
+        Qf(round((xinfo$highvalue - olocation) / oscale) / Nvalues) -
+        Qf(round((xinfo$lowvalue - olocation) / oscale) / Nvalues)
+      ) / iqrfactor
       plotmin <- (if(is.finite(xinfo$plotmin)){xinfo$plotmin}else{xinfo$domainmin})
       plotmax <- (if(is.finite(xinfo$plotmax)){xinfo$plotmax}else{xinfo$domainmax})
       ## Q1 <- mctest1 <- quantile(x, probs = 0.25, type = 6)
@@ -186,16 +179,9 @@ buildauxmetadata <- function(data, metadata) {
       domainmax <- censormax <- xinfo$domainmax
       ## censormin <- max(domainmin, xinfo$minincluded, na.rm=TRUE)
       ## censormax <- min(domainmax, xinfo$maxincluded, na.rm=TRUE)
-      ## cens <- (censormin > domainmin) || (censormax < domainmax)
+      ## closeddomain <- (censormin > domainmin) || (censormax < domainmax)
       tlocation <- xinfo$centralvalue
-      ## with the sd of the means equal to 3 and the rate of the vrns equal
-      ## to 1, the median of Q3 of the possible F distribs is 1.97
-      ## so we set the scale to
-      ## ([(Q3-Q2)+(Q2-Q1)]/2) /2
-      ## this way the transformed Q3 is at approx 2
-      ## tscale <- abs(xinfo$highvalue - xinfo$lowvalue)/4
-      ## This need to be studied some more
-      tscale <- abs(xinfo$highvalue - xinfo$lowvalue)
+      tscale <- abs(xinfo$highvalue - xinfo$lowvalue) / iqrfactor
       plotmin <- xinfo$plotmin
       plotmax <- xinfo$plotmax
       ## Q1 <- mctest1 <- quantile(x, probs = 0.25, type = 6)
@@ -204,55 +190,128 @@ buildauxmetadata <- function(data, metadata) {
       mctest1 <- xinfo$lowvalue
       mctest2 <- xinfo$centralvalue
       mctest3 <- xinfo$highvalue
-      ## if (mctest1 == mctest3) {
-      ##   mctest1 <- if (sum(x < Q1) > 0) {
-      ##     max(x[x < Q1])
-      ##   } else {
-      ##     max(x[x <= Q1])
-      ##   }
-      ##   mctest3 <- if (sum(x > Q3) > 0) {
-      ##     min(x[x > Q3])
-      ##   } else {
-      ##     min(x[x >= Q3])
-      ##   }
-      ## }
-      # needs transformation
-      if (is.finite(xinfo$domainmin) && is.finite(xinfo$domainmax)) {
+
+      ## variate transformation to real-line domain
+      if (is.finite(xinfo$domainmin) && is.finite(xinfo$domainmax) &&
+          !xinfo$minincluded && !xinfo$maxincluded) {
+        ## bounded open domain
         transf <- 'Q'
-        if (xinfo$minincluded && !xinfo$maxincluded) {
-          censormin <- domainmin
-          censormax <- +Inf
-          domainmin <- (8 * domainmin - domainmax) / 7
-        } else if (!xinfo$minincluded && xinfo$maxincluded) {
-          censormax <- domainmax
-          censormin <- -Inf
-          domainmax <- (8 * domainmax - domainmin) / 7
-        } else if (xinfo$minincluded && xinfo$maxincluded) {
-          censormin <- domainmin
-          censormax <- domainmax
-          domainmin <- (7 * domainmin - domainmax) / 6
-          domainmax <- (7 * domainmax - domainmin) / 6
-        }
+        closeddomain <- FALSE
+        censormin <- -Inf
+        censormax <- +Inf
         tlocation <- Qf((tlocation - domainmin) / (domainmax - domainmin))
-        tscale <- abs(Qf((xinfo$highvalue - domainmin) / (domainmax - domainmin)) -
-                       Qf((xinfo$lowvalue - domainmin) / (domainmax - domainmin))) *
-          sdoveriqr
-      } else if (is.finite(xinfo$domainmin)) {
+        tscale <- abs(
+          Qf((xinfo$highvalue - domainmin) / (domainmax - domainmin)) -
+          Qf((xinfo$lowvalue - domainmin) / (domainmax - domainmin))
+        ) / iqrfactor
+      } else if (is.finite(xinfo$domainmin) && is.finite(xinfo$domainmax) &&
+                 xinfo$minincluded && !xinfo$maxincluded) {
+        ## bounded right-open domain
+        transf <- 'Q'
+        closeddomain <- TRUE
+        censormin <- domainmin
+        censormax <- +Inf
+        domainmin <- (8 * domainmin - domainmax) / 7
+        tlocation <- Qf((tlocation - domainmin) / (domainmax - domainmin))
+        tscale <- abs(
+          Qf((xinfo$highvalue - domainmin) / (domainmax - domainmin)) -
+          Qf((xinfo$lowvalue - domainmin) / (domainmax - domainmin))
+        ) / iqrfactor
+      } else if (is.finite(xinfo$domainmin) && is.finite(xinfo$domainmax) &&
+                 !xinfo$minincluded && xinfo$maxincluded) {
+        ## bounded left-open domain
+        transf <- 'Q'
+        closeddomain <- TRUE
+        censormax <- domainmax
+        censormin <- -Inf
+        domainmax <- (8 * domainmax - domainmin) / 7
+        tlocation <- Qf((tlocation - domainmin) / (domainmax - domainmin))
+        tscale <- abs(
+          Qf((xinfo$highvalue - domainmin) / (domainmax - domainmin)) -
+          Qf((xinfo$lowvalue - domainmin) / (domainmax - domainmin))
+        ) / iqrfactor
+      } else if (is.finite(xinfo$domainmin) && is.finite(xinfo$domainmax) &&
+                 xinfo$minincluded && xinfo$maxincluded) {
+        ## bounded closed domain
+        transf <- 'Q'
+        closeddomain <- TRUE
+        censormin <- domainmin
+        censormax <- domainmax
+        domainmin <- (7 * domainmin - domainmax) / 6
+        domainmax <- (7 * domainmax - domainmin) / 6
+        tlocation <- Qf((tlocation - domainmin) / (domainmax - domainmin))
+        tscale <- abs(
+          Qf((xinfo$highvalue - domainmin) / (domainmax - domainmin)) -
+          Qf((xinfo$lowvalue - domainmin) / (domainmax - domainmin))
+        ) / iqrfactor
+      } else if (is.finite(xinfo$domainmin) && !xinfo$minincluded) {
+        ## left-bounded left-open domain
         transf <- 'log'
+        closeddomain <- FALSE
         tlocation <- log(tlocation - domainmin)
-        tscale <- abs(log(xinfo$highvalue - domainmin) -
-                       log(xinfo$lowvalue - domainmin)) * sdoveriqr
-      } else if (is.finite(xinfo$domainmax)) {
+        tscale <- abs(
+          log(xinfo$highvalue - domainmin) -
+          log(xinfo$lowvalue - domainmin)
+        ) / iqrfactor
+      } else if (is.finite(xinfo$domainmin) && xinfo$minincluded) {
+        ## left-bounded left-closed domain
+        transf <- 'identity'
+        domainmin <- -Inf
+        closeddomain <- TRUE
+      } else if (is.finite(xinfo$domainmax) && !xinfo$maxincluded) {
+        ## right-bounded right-open domain
         transf <- 'logminus'
+        closeddomain <- FALSE
         tlocation <- log(domainmax - tlocation)
-        tscale <- abs(log(domainmax - xinfo$highvalue) -
-                     log(domainmax - xinfo$lowvalue)) * sdoveriqr
+        tscale <- abs(
+          log(domainmax - xinfo$highvalue) -
+          log(domainmax - xinfo$lowvalue)
+        ) / iqrfactor
+      } else if (is.finite(xinfo$domainmax) && xinfo$maxincluded) {
+        ## left-bounded left-closed domain
+        transf <- 'identity'
+        domainmax <- +Inf
+        closeddomain <- TRUE
       }
-      if (step > 0) { # discretized
+    ## # Old cases
+    ## if (is.finite(xinfo$domainmin) && is.finite(xinfo$domainmax)) {
+    ##   transf <- 'Q'
+    ##   if (xinfo$minincluded && !xinfo$maxincluded) {
+    ##     censormin <- domainmin
+    ##     censormax <- +Inf
+    ##     domainmin <- (8 * domainmin - domainmax) / 7
+    ##   } else if (!xinfo$minincluded && xinfo$maxincluded) {
+    ##     censormax <- domainmax
+    ##     censormin <- -Inf
+    ##     domainmax <- (8 * domainmax - domainmin) / 7
+    ##   } else if (xinfo$minincluded && xinfo$maxincluded) {
+    ##     censormin <- domainmin
+    ##     censormax <- domainmax
+    ##     domainmin <- (7 * domainmin - domainmax) / 6
+    ##     domainmax <- (7 * domainmax - domainmin) / 6
+    ##   }
+    ##   tlocation <- Qf((tlocation - domainmin) / (domainmax - domainmin))
+    ##   tscale <- abs(Qf((xinfo$highvalue - domainmin) / (domainmax - domainmin)) -
+    ##                  Qf((xinfo$lowvalue - domainmin) / (domainmax - domainmin))) *
+    ##     sdoveriqr
+    ## } else if (is.finite(xinfo$domainmin)) {
+    ##   transf <- 'log'
+    ##   tlocation <- log(tlocation - domainmin)
+    ##   tscale <- abs(log(xinfo$highvalue - domainmin) -
+    ##                  log(xinfo$lowvalue - domainmin)) * sdoveriqr
+    ## } else if (is.finite(xinfo$domainmax)) {
+    ##   transf <- 'logminus'
+    ##   tlocation <- log(domainmax - tlocation)
+    ##   tscale <- abs(log(domainmax - xinfo$highvalue) -
+    ##                log(domainmax - xinfo$lowvalue)) * sdoveriqr
+    ## }
+
+
+    if (step > 0) { # discretized
         mcmctype <- 'D'
         id <- idD
         idD <- idD + 1L
-      } else if (cens) { # censored
+      } else if (closeddomain) { # censored
         mcmctype <- 'C'
         id <- idC
         idC <- idC + 1L
@@ -270,7 +329,7 @@ buildauxmetadata <- function(data, metadata) {
     ## Nvalues=Nvalues, step=step, domainmin=domainmin, domainmax=domainmax,
     ## censormin=censormin, censormax=censormax, tlocation=tlocation,
     ## tscale=tscale, plotmin=plotmin, plotmax=plotmax, Q1=Q1, Q2=Q2, Q3=Q3),
-    ## vval
+    ## datavalues
     ## )))
 
     auxmetadata <- rbind(auxmetadata,
@@ -285,7 +344,7 @@ buildauxmetadata <- function(data, metadata) {
           ## Q1 = Q1, Q2 = Q2, Q3 = Q3, # not used in other scripts, possibly remove
           mctest1 = mctest1, mctest2 = mctest2, mctest3 = mctest3
         ),
-        vval
+        datavalues
       )
       ## ## previously, with data.table:
       ##      fill = FALSE
