@@ -1,49 +1,50 @@
 set.seed(16)
-ndata <- 15# 15
+ndata <- 30
 ## Adding NAs in different places
 ## to check that missing data are handled correctly
 
 ## Continuous variate
-Rdata <- rnorm(n=ndata, mean=0, sd=1)
-Rdata[2] <- NA
+Rdata <- rnorm(n=ndata, mean=2, sd=3)
 
-## Censored variate, [-1, 1]
+## Closed-domain vvariate, [-1, 1]
 Cdata <- rnorm(n=ndata, mean=0, sd=1.5)
 Cdata[Cdata <= -1] <- -1
 Cdata[Cdata >= 1] <- 1
-Cdata[3] <- NA
+
+## Continuous, positive
+Pdata <- exp(rnorm(n=ndata, mean=1, sd=2))
 
 ## Continuous-rounded variate 0.1
-Ddata <- round(rnorm(n=ndata, mean=0, sd=1), 1)
-Ddata[4] <- NA
+Ddata <- round(rnorm(n=ndata, mean=2, sd=3), 1)
 
 ## Ordinal variate, 7 values 1--7
 Odata <- sample(1:7, ndata, replace=T, prob=1:7)
-Odata[5] <- NA
 
 ## Nominal variate, 5 values 'A'-'E'
 Ndata <- sample(LETTERS[1:5], ndata, replace=T, prob=LaplacesDemon::rdirichlet(alpha=rep(1,5),n=1))
-Ndata[6] <- NA
 
 ## Binary variate
 Bdata <- sample(c('no','yes'), ndata, replace=T, prob=1:2)
-Bdata[7] <- NA
-
-## Continuous, positive
-Pdata <- exp(rnorm(n=ndata, mean=0, sd=1))
-Pdata[8] <- NA
 
 ## Nominal variate 2, 3 values 'a'-'c'
 Ndata2 <- sample(letters[1:3], ndata, replace=T, prob=LaplacesDemon::rdirichlet(alpha=rep(1,3),n=1))
-Ndata2[9] <- NA
 
-## Continuous variate, bounded domain
-Tdata <- plogis(rnorm(n=ndata, mean=0, sd=1))
-Tdata[10] <- NA
+## Continuous variate, bounded open domain
+Tdata <- plogis(rnorm(n=ndata, mean=1, sd=2))
 
 
 ##
-testdata <- data.frame(Rvrt=Rdata,Cvrt=Cdata,Dvrt=Ddata,Ovrt=Odata,Nvrt=Ndata,Bvrt=Bdata,Pvrt=Pdata,Nvrt2=Ndata2,Tvrt=Tdata)
+testdata <- data.frame(Rvrt=Rdata,
+                       Cvrt=Cdata,
+                       Pvrt=Pdata,
+                       Tvrt=Tdata,
+                       Dvrt=Ddata,
+                       Ovrt=Odata,
+                       Nvrt=Ndata,
+                       Bvrt=Bdata,
+                       Nvrt2=Ndata2)
+for(i in 1:ncol(testdata)){testdata[nrow(testdata)+1-i,i] <- NA}
+
 write.csv(testdata, paste0('testdata_', ndata, '.csv'),
           row.names=FALSE, quote=FALSE, na='')
 

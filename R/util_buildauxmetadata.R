@@ -22,33 +22,32 @@ buildauxmetadata <- function(data, metadata) {
 
   auxmetadata <- data.frame()
 
-  for (xn in metadata$name) {
+  for (name in metadata$name) {
     if(!is.null(data)) {
-      x <- data[[xn]]
+      x <- data[[name]]
       x <- x[!is.na(x)]
     }
-    xinfo <- as.list(metadata[metadata$name == xn, ])
+    xinfo <- as.list(metadata[metadata$name == name, ])
     ## make sure 'type' is lowercase
     xinfo$type <- tolower(xinfo$type)
     ordinal <- NA
     cens <- any(c(xinfo$minincluded, xinfo$maxincluded), na.rm = TRUE)
-    rounded <- NA
     transf <- 'identity' # temporary
     vval <- xinfo[grep('^V[0-9]+$', names(xinfo))]
-    ## print(xn)
+    ## print(name)
     ## str(vval)
     ## Q1 <- NA
     ## Q2 <- NA
     ## Q3 <- NA
     if (xinfo$type == 'binary') { # seems binary variate
       ## if (length(unique(x)) != 2) {
-      ##   cat('Warning: inconsistencies with variate', xn, '\n')
+      ##   cat('Warning: inconsistencies with variate', name, '\n')
       ## }
-      vtype <- 'B'
-      vid <- idB
+      mcmctype <- 'B'
+      id <- idB
       idB <- idB + 1L
-      vn <- xinfo$Nvalues
-      vd <- xinfo$rounding / 2
+      Nvalues <- xinfo$Nvalues
+      step <- xinfo$rounding / 2
       domainmin <- 0
       domainmax <- 1
       censormin <- -Inf
@@ -71,13 +70,13 @@ buildauxmetadata <- function(data, metadata) {
       ## }
     } else if (xinfo$type == 'ordinal') {
       ## nominal variate
-      vtype <- 'O'
-      vid <- idO
+      mcmctype <- 'O'
+      id <- idO
       idO <- idO + 1L
-      vn <- xinfo$Nvalues
-      vd <- 0.5
+      Nvalues <- xinfo$Nvalues
+      step <- 0.5
       domainmin <- 1 # Nimble index categorical from 1
-      domainmax <- vn
+      domainmax <- Nvalues
       censormin <- -Inf
       censormax <- +Inf
       tlocation <- 0
@@ -94,17 +93,17 @@ buildauxmetadata <- function(data, metadata) {
             ## mctest3 <- xinfo$Nvalues
       ## }
             mctest1 <- 1
-            mctest2 <- round(vn/2)
-            mctest3 <- vn
+            mctest2 <- round(Nvalues/2)
+            mctest3 <- Nvalues
     } else if (xinfo$type == 'nominal') {
       ## nominal variate
-      vtype <- 'N'
-      vid <- idN
+      mcmctype <- 'N'
+      id <- idN
       idN <- idN + 1L
-      vn <- xinfo$Nvalues
-      vd <- 0.5
+      Nvalues <- xinfo$Nvalues
+      step <- 0.5
       domainmin <- 1 # Nimble index categorical from 1
-      domainmax <- vn
+      domainmax <- Nvalues
       censormin <- -Inf
       censormax <- +Inf
       tlocation <- 0
@@ -121,31 +120,31 @@ buildauxmetadata <- function(data, metadata) {
             ## mctest3 <- xinfo$Nvalues
       ## }
             mctest1 <- 1
-            mctest2 <- round(vn/2)
-            mctest3 <- vn
+            mctest2 <- round(Nvalues/2)
+            mctest3 <- Nvalues
     } else if (xinfo$type == 'latent') {
       ## old treatment of ordinal variate
       ## to be deleted in the future, if not used
-      vtype <- 'L'
-      vid <- idL
+      mcmctype <- 'L'
+      id <- idL
       idL <- idL + 1L
       transf <- 'Q'
       ordinal <- TRUE
-      vn <- xinfo$Nvalues
-      vd <- 0.5
+      Nvalues <- xinfo$Nvalues
+      step <- 0.5
       domainmin <- xinfo$domainmin
       domainmax <- xinfo$domainmax
-      if ((domainmax - domainmin) != vn - 1) {
-        cat('Warning: "Nvalues" for variate', xn, 'could be incorrect.\n')
+      if ((domainmax - domainmin) != Nvalues - 1) {
+        cat('Warning: "Nvalues" for variate', name, 'could be incorrect.\n')
       }
       censormin <- -Inf
       censormax <- +Inf
-      ## vval <- as.vector(xinfo[paste0('V',1:vn)], mode='character')
-      olocation <- (vn * domainmin - domainmax) / (vn - 1)
-      oscale <- (domainmax - domainmin) / (vn - 1)
-      tlocation <- Qf(round((xinfo$centralvalue - olocation) / oscale) / vn)
-      tscale <- abs(Qf(round((xinfo$highvalue - olocation) / oscale) / vn) -
-        Qf(round((xinfo$lowvalue - olocation) / oscale) / vn)) * sdoveriqr
+      ## vval <- as.vector(xinfo[paste0('V',1:Nvalues)], mode='character')
+      olocation <- (Nvalues * domainmin - domainmax) / (Nvalues - 1)
+      oscale <- (domainmax - domainmin) / (Nvalues - 1)
+      tlocation <- Qf(round((xinfo$centralvalue - olocation) / oscale) / Nvalues)
+      tscale <- abs(Qf(round((xinfo$highvalue - olocation) / oscale) / Nvalues) -
+        Qf(round((xinfo$lowvalue - olocation) / oscale) / Nvalues)) * sdoveriqr
       plotmin <- (if(is.finite(xinfo$plotmin)){xinfo$plotmin}else{xinfo$domainmin})
       plotmax <- (if(is.finite(xinfo$plotmax)){xinfo$plotmax}else{xinfo$domainmax})
       ## Q1 <- mctest1 <- quantile(x, probs = 0.25, type = 6)
@@ -167,12 +166,22 @@ buildauxmetadata <- function(data, metadata) {
       ##   }
       ## }
     } else if (xinfo$type == 'continuous') { # continuous variate (R,C,D)
-      vn <- +Inf
+      Nvalues <- +Inf
+
+      ## Rounded variates
       if (is.null(xinfo$rounding) || is.na(xinfo$rounding)) {
-        xinfo$rounding <- 0
+        step <- 0
+      } else {
+        step <- xinfo$rounding / 2
       }
-      vd <- xinfo$rounding / 2
-      rounded <- (vd > 0)
+      ## If the variate is rounded,
+      ## no latent-variable representation is needed anyway
+      ## if the datapoints are distinct in higher dimension
+      if(step > 0 &&
+         (is.null(data) || nrow(unique(data))/nrow(data) > 0.5)) {
+        step <- 0
+      }
+
       domainmin <- censormin <- xinfo$domainmin
       domainmax <- censormax <- xinfo$domainmax
       ## censormin <- max(domainmin, xinfo$minincluded, na.rm=TRUE)
@@ -184,6 +193,7 @@ buildauxmetadata <- function(data, metadata) {
       ## so we set the scale to
       ## ([(Q3-Q2)+(Q2-Q1)]/2) /2
       ## this way the transformed Q3 is at approx 2
+      ## tscale <- abs(xinfo$highvalue - xinfo$lowvalue)/4
       ## This need to be studied some more
       tscale <- abs(xinfo$highvalue - xinfo$lowvalue)
       plotmin <- xinfo$plotmin
@@ -238,31 +248,26 @@ buildauxmetadata <- function(data, metadata) {
         tscale <- abs(log(domainmax - xinfo$highvalue) -
                      log(domainmax - xinfo$lowvalue)) * sdoveriqr
       }
-      if (xinfo$rounding > 0) { # discretized
-      ## if(diff(range(x))/xinfo$rounding > 256){
-      ##     Message('\nVariate ',xn,' is reported as "rounded".\n
-      ##            Consider the possibility of treating it as continuous 
-      ##            setting "rounding" to 0.\n')
-      ## }
-        vtype <- 'D'
-        vid <- idD
+      if (step > 0) { # discretized
+        mcmctype <- 'D'
+        id <- idD
         idD <- idD + 1L
       } else if (cens) { # censored
-        vtype <- 'C'
-        vid <- idC
+        mcmctype <- 'C'
+        id <- idC
         idC <- idC + 1L
       } else { # continuous
-        vtype <- 'R'
-        vid <- idR
+        mcmctype <- 'R'
+        id <- idR
         idR <- idR + 1L
       }
     } else { # end continuous case
-      stop(paste0('ERROR: unknown variate type for ', xn))
+      stop(paste0('ERROR: unknown variate type for ', name))
     }
     ## Debugging
     ## print(auxmetadata[nrow(auxmetadata)])
-    ## print(as.data.table(c(list(name=xn, type=vtype, transform=transf,
-    ## Nvalues=vn, step=vd, domainmin=domainmin, domainmax=domainmax,
+    ## print(as.data.table(c(list(name=name, type=mcmctype, transform=transf,
+    ## Nvalues=Nvalues, step=step, domainmin=domainmin, domainmax=domainmax,
     ## censormin=censormin, censormax=censormax, tlocation=tlocation,
     ## tscale=tscale, plotmin=plotmin, plotmax=plotmax, Q1=Q1, Q2=Q2, Q3=Q3),
     ## vval
@@ -271,9 +276,8 @@ buildauxmetadata <- function(data, metadata) {
     auxmetadata <- rbind(auxmetadata,
       c(
         list(
-          name = xn, mcmctype = vtype, id = vid, # censored=cens,
-          ## rounded = rounded, # not used in other scripts, possibly remove
-          transform = transf, Nvalues = vn, step = vd,
+          name = name, mcmctype = mcmctype, id = id, # censored=cens,
+          transform = transf, Nvalues = Nvalues, step = step,
           domainmin = domainmin, domainmax = domainmax,
           censormin = censormin, censormax = censormax,
           tlocation = tlocation, tscale = tscale,

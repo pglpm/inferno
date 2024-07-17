@@ -27,12 +27,6 @@ buildmetadata <- function(data, file = NULL,
     data <- read.csv(datafile, na.strings = '')
   }
   data <- as.data.frame(data)
-  
-  ## Calculate multiplicity of datapoints
-  ## if multiplicity is low,
-  ## then potentially rounded variates
-  ## can be efficiently treated as continuous
-  dupesratio <- nrow(unique(data))/nrow(data)
 
 #### Prepare empty metadata frame
   metadata <- as.data.frame(
@@ -65,9 +59,9 @@ buildmetadata <- function(data, file = NULL,
     ## remove missing values
     x <- data[[name]]
     x <- x[!is.na(x)]
-    lengthx <- length(unique(x))
+    uniquex <- length(unique(x))
     ## if this variate has only one value, then it bears no information
-    if (lengthx <= 1) {
+    if (uniquex <= 1) {
       message('\nWARNING: variate ', name,
               ' does not have at least two distinct values.',
               '\nDiscarded because non-informative\n')
@@ -95,7 +89,7 @@ buildmetadata <- function(data, file = NULL,
 
 #### Now make educated guess for the type of variate
 
-    if (lengthx == 2) {
+    if (uniquex == 2) {
     ## Binary variate? (has only two unique values)
       type <- 'binary'
       Nvalues <- 2
@@ -115,7 +109,7 @@ buildmetadata <- function(data, file = NULL,
     } else if (!is.numeric(x)) {
       ## Nominal variate? (non-numeric values)
       type <- 'nominal'
-      Nvalues <- lengthx
+      Nvalues <- uniquex
       rounding <- NA
       domainmin <- NA
       domainmax <- NA
@@ -129,10 +123,10 @@ buildmetadata <- function(data, file = NULL,
       datavalues <- sort(as.character(unique(x)))
       names(datavalues) <- paste0('V', 1:Nvalues)
 
-    } else if (lengthx <= 10) {
+    } else if (uniquex <= 10) {
       ## Ordinal variate? (few distinct values, even if numeric)
       type <- 'ordinal'
-      Nvalues <- lengthx
+      Nvalues <- uniquex
       rounding <- NA
       domainmin <- datamin
       domainmax <- datamax
@@ -151,11 +145,12 @@ buildmetadata <- function(data, file = NULL,
       type <- 'continuous'
       Nvalues <- Inf
       ## preliminary values, possibly modified below
-      rounding <- 0
+      rounding <- NA
       domainmin <- signif(datamax - 3 * rangex, 1)
       domainmax <- signif(datamax + 3 * rangex, 1)
       minincluded <- FALSE
       maxincluded <- FALSE
+
       lowvalue <- Q1 <- quantile(x, probs = 0.25, type = 6)
       centralvalue <- quantile(x, probs = 0.5, type = 6)
       highvalue <- Q3 <- quantile(x, probs = 0.75, type = 6)
@@ -199,7 +194,7 @@ buildmetadata <- function(data, file = NULL,
           ## Variate has integer values, it's possibly ordinal
       if (jumpquantum >= 1) {
         message('\nNOTE: variate ', name, ' might be ordinal,\n',
-                  'but is treated as continuous\n',
+                  'but is treated as continuous and rounded\n',
                   'owing to its large range of values.\n')
           }
 
@@ -211,35 +206,17 @@ buildmetadata <- function(data, file = NULL,
         ## The variate seems to have quantized differences between unique values
         ## hence it might be rounded or integer/ordinal
 
-        if(dupesratio < 0.1) {
-          ## The variate seems rounded,
-          ## but no latent-variable representation is needed
-          ## because the datapoints are distinct in higher dimension
-          message('\nNOTE: variate ', name, ' is probably rounded,\n',
-                  'but can be conveniently treated as not rounded ',
-                  'in the present dataset.\n',
-                  '\nPlease re-run the present metadata analysis ',
-                  'if you later add more datapoints to this dataset\n',
-                  'or if you use a different dataset.\n')
-          rounding <- 0
-
-        } else if(rangex / rounding > 256) {
-          ## The variate seems rounded,
-          ## but no latent-variable representation is needed
-          ## because the datapoints are distinct in higher dimension
-          message('\nNOTE: variate ', name, ' is probably rounded,\n',
-                  'but is treated as not rounded ',
-                  'owing to its large range of values.\n')
-          rounding <- 0
-
-        } else {
-          ## The variate seems rounded,
-          ## a latent-variable representation seems needed
-          ## because the datapoints are not distinct in higher dimension
-          rounding <- jumpquantum
-          domainmin <- signif(datamin - 4 * rangex, 1)
-          domainmax <- signif(datamax + 4 * rangex, 1)
-        }
+        ## if(rangex / rounding > 256) {
+        ##   ## The variate seems rounded,
+        ##   ## but no latent-variable representation is needed
+        ##   message('\nNOTE: variate ', name, ' is probably rounded,\n',
+        ##           'but is treated as not rounded ',
+        ##           'owing to its large range of values.\n')
+        ##   rounding <- 0
+        ## } else {
+        rounding <- jumpquantum
+        domainmin <- signif(datamin - 4 * rangex, 1)
+        domainmax <- signif(datamax + 4 * rangex, 1)
       } # End rounded case
 
     } # End continuous-variate case
@@ -264,7 +241,7 @@ buildmetadata <- function(data, file = NULL,
           list(datamin = datamin,
                datamax = datamax,
                datamaxrep = max(table(x)),
-               dataNvalues = lengthx)
+               dataNvalues = uniquex)
         },
         as.list(datavalues)
       ),
