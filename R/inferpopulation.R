@@ -170,6 +170,8 @@ inferpopulation <- function(data, metadata, outputdir, nsamples = 1200,
     `%dochains%` <- `%dorng%`
   }
 
+  ## Make sure 'niterini' is at least 2
+  niterini <- max(2, niterini)
   #### Start timer
   timestart0 <- Sys.time()
 
@@ -215,7 +217,7 @@ inferpopulation <- function(data, metadata, outputdir, nsamples = 1200,
     if (!all(colnames(data) %in% metadata[['name']])) {
       cat('Warning: data have additional variates. Dropping them.\n')
       subvar <- intersect(colnames(data), metadata[['name']])
-      data <- data[, subvar]
+      data <- data[, subvar, drop = FALSE]
       rm(subvar)
     }
 
@@ -225,7 +227,7 @@ inferpopulation <- function(data, metadata, outputdir, nsamples = 1200,
       stop('Data are given but empty')
     } else if(length(tokeep) < nrow(data)) {
       cat('Warning: data contain empty datapoints. Dropping them.\n')
-      data <- data[tokeep,]
+      data <- data[tokeep, , drop = FALSE]
     }
     rm(tokeep)
 
@@ -304,7 +306,8 @@ inferpopulation <- function(data, metadata, outputdir, nsamples = 1200,
       ## if "testdata" is moved into the for-loop,
       ## then each chain uses a different set of testdata
       for(achain in seq_len(nchains)) {
-        testdata <- data[sort(sample(npoints, min(lldata, npoints))),]
+        testdata <- data[sort(sample(npoints, min(lldata, npoints))), ,
+                         drop = FALSE]
         saveRDS(testdata,
                 file = file.path(dirname, paste0('_testdata_', achain, '.rds')))
       }
@@ -335,7 +338,8 @@ inferpopulation <- function(data, metadata, outputdir, nsamples = 1200,
     ## if "testdata" is moved into the for-loop,
     ## then each chain uses a different set of testdata
     for(achain in seq_len(nchains)) {
-      testdata <- data[sort(sample(npoints, min(lldata, npoints))), ]
+      testdata <- data[sort(sample(npoints, min(lldata, npoints))), ,
+                       drop = FALSE]
       saveRDS(testdata,
               file = file.path(dirname, paste0('_testdata_', achain, '.rds')))
     }
@@ -473,8 +477,9 @@ inferpopulation <- function(data, metadata, outputdir, nsamples = 1200,
   ## }
 
   #### CONSTANTS OF NIMBLE MODEL
-  # These constants are available in the Nimble environment
-  # They don't have to be accessed by constants$varname
+  ## These constants are available in the Nimble environment
+  ## They don't have to be accessed by constants$varname
+  ## vn$R + vn$C + vn$D + vn$L
   constants <- c(
     list(
       nclusters = nclusters,
@@ -871,8 +876,17 @@ inferpopulation <- function(data, metadata, outputdir, nsamples = 1200,
       outlist <- list(
         Alpha = Alpha,
         W = W,
-        ## distribute data unsystematically among the clusters
+        ## ## assign all points to an unsystematically chosen cluster
         K = rep(sample(rep(which(W > 0), 2), 1, replace = TRUE), npoints)
+        ## ## or:
+        ## ## assign all points to the most probable cluster
+        ## K = rep(which.max(W), npoints)
+        ## ## assign all points to the least probable cluster
+        ## K = rep(which(W == min(W[W > 0]))[1], npoints)
+        ## ## or:
+        ## ## or:
+        ## ## distribute points unsystematically among clusters
+        ## K = sample(rep(which(W > 0), 2), npoints, replace = TRUE)
       )
       ##
       if (vn$R > 0) { # continuous open domain
@@ -1059,7 +1073,7 @@ inferpopulation <- function(data, metadata, outputdir, nsamples = 1200,
       }
       ##
       outlist
-    } #End initfns
+    } #End initsfns
 
     # Timer
     timecount <- Sys.time()
@@ -1108,9 +1122,8 @@ inferpopulation <- function(data, metadata, outputdir, nsamples = 1200,
       ## It is necessary to monitor K to see if all clusters were used
       ## if 'showAlphatraces' is true then
       ## the Alpha-parameter trace is also recorded and shown
-      monitors2 = c(if (showAlphatraces) {
-        'Alpha'
-      }, 'K')
+      monitors2 = c(if (showAlphatraces) { 'Alpha' },
+                    'K')
     )
       ## ## Uncomment to debug Nimble (in case of Nimble updates)
       ## print(confnimble$getUnsampledNodes())
@@ -1284,7 +1297,7 @@ inferpopulation <- function(data, metadata, outputdir, nsamples = 1200,
           thin2 = (if (showAlphatraces || showKtraces) {
             max(1, round(niter / nclustersamples))
           } else {
-            niter
+            max(2, floor(niter / 2))
           }),
           nburnin = 0, time = showsamplertimes0,
           reset = reset, resetMV = TRUE
@@ -1298,6 +1311,7 @@ inferpopulation <- function(data, metadata, outputdir, nsamples = 1200,
         mcsamplesKA <- as.list(Cmcsampler$mvSamples2,
           iterationAsLastIndex = FALSE
         )
+
         ## ## saveRDS(mcsamplesKA,'__mcsamplesKAtest.rds') # for debug
         ## 'mcsamplesKA$K' contains the cluster identity of each training datapoint
         ## but we only want the number of distinct clusters used:
@@ -1305,6 +1319,7 @@ inferpopulation <- function(data, metadata, outputdir, nsamples = 1200,
           mcsamplesKA$K, 1,
           function(xx) length(unique(xx))
         )
+
         if (showAlphatraces) {
           dim(mcsamplesKA$Alpha) <- NULL # from matrix to vector
         }
@@ -1382,9 +1397,10 @@ inferpopulation <- function(data, metadata, outputdir, nsamples = 1200,
           ))
         }
 
-        ## Check how many clusters were occupied at the last step
-        usedclusters <- mcsamplesKA$K[length(mcsamplesKA$K)]
-        cat('\nOCCUPIED CLUSTERS:', usedclusters, 'OF', nclusters, '\n')
+        ## Check how many clusters were used at the last step
+        ## usedclusters <- mcsamplesKA$K[length(mcsamplesKA$K)]
+        usedclusters <- max(mcsamplesKA$K)
+        cat('\nUSED CLUSTERS:', usedclusters, 'OF', nclusters, '\n')
         #### Diagnostics
         ## Log-likelihood
         diagntime <- Sys.time()
@@ -1574,14 +1590,14 @@ inferpopulation <- function(data, metadata, outputdir, nsamples = 1200,
              apaper = 4)
 
         if (showKtraces) {
-          cat('\nSTATS OCCUPIED CLUSTERS:\n')
+          cat('\nSTATS USED CLUSTERS:\n')
           print(summary(allmcsamplesKA$K))
           ##
-          tplot(y = allmcsamplesKA$K, ylab = 'occupied clusters',
+          tplot(y = allmcsamplesKA$K, ylab = 'used clusters',
                 xlab = 'iteration', ylim = c(0, nclusters))
           tplot(x = ((-1):nclusters) + 0.5,
                 y = tabulate(allmcsamplesKA$K + 1, nbins = nclusters + 1),
-                type = 'h', xlab = 'occupied clusters', ylab = NA,
+                type = 'h', xlab = 'used clusters', ylab = NA,
                 ylim = c(0, NA))
         }
         if (showAlphatraces) {
@@ -1648,7 +1664,7 @@ inferpopulation <- function(data, metadata, outputdir, nsamples = 1200,
         legend(x = 'center', bty = 'n', cex = 1,
           legend = c(
             paste0('Chain ', chainnumber, '_', achain, '-', acore),
-            paste0('Occupied clusters: ', usedclusters, ' of ', nclusters),
+            paste0('Used clusters: ', usedclusters, ' of ', nclusters),
             paste0('LL:  ( ', signif(mean(traces[, 1]), 3), ' +- ',
                    signif(sd(traces[, 1]), 3), ' ) dHart'),
             'NOTES:',
@@ -1656,7 +1672,7 @@ inferpopulation <- function(data, metadata, outputdir, nsamples = 1200,
               'some non-finite MC outputs'
             },
             if (usedclusters > nclusters - 5) {
-              'too many clusters occupied'
+              'too many clusters used'
             },
             if (flagll) {
               'non-finite values in diagnostics'
@@ -1876,9 +1892,9 @@ inferpopulation <- function(data, metadata, outputdir, nsamples = 1200,
     )
   }
 
-  cat('\nMax number of occupied clusters:', maxusedclusters, '\n')
+  cat('\nMax number of used clusters:', maxusedclusters, '\n')
   if (maxusedclusters > nclusters - 5) {
-    cat('TOO MANY CLUSTERS OCCUPIED!\n')
+    cat('TOO MANY CLUSTERS USED!\n')
     cat('Consider re-running with increased "nclusters" parameter\n')
   }
 

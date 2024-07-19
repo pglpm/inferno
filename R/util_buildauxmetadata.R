@@ -19,7 +19,9 @@ buildauxmetadata <- function(data, metadata) {
   ## this way the transformed Q3 is at approx 2
   ## the factor "4" is instead "1" at the moment.
   ## This need to be studied some more
-  iqrfactor <- 1
+  iqrfactor <- 2 * 2
+  iqrfactorLog <- 2 * 2 # 6
+  iqrfactorQ <- 2 * 0.25
 
   idR <- idC <- idD <- idL <- idB <- idO <- idN <- 1L
 
@@ -137,7 +139,7 @@ buildauxmetadata <- function(data, metadata) {
       tscale <- abs(
         Qf(round((xinfo$highvalue - olocation) / oscale) / Nvalues) -
         Qf(round((xinfo$lowvalue - olocation) / oscale) / Nvalues)
-      ) / iqrfactor
+      ) / iqrfactorQ
       plotmin <- (if(is.finite(xinfo$plotmin)){xinfo$plotmin}else{xinfo$domainmin})
       plotmax <- (if(is.finite(xinfo$plotmax)){xinfo$plotmax}else{xinfo$domainmax})
       ## Q1 <- mctest1 <- quantile(x, probs = 0.25, type = 6)
@@ -204,7 +206,7 @@ buildauxmetadata <- function(data, metadata) {
           Qf(0.5 +
              (xinfo$lowvalue - (domainmax + domainmin)/2) /
              (domainmax - domainmin))
-        ) / iqrfactor
+        ) / iqrfactorQ
         closeddomain <- FALSE
         censormin <- -Inf
         censormax <- +Inf
@@ -216,7 +218,7 @@ buildauxmetadata <- function(data, metadata) {
         tscale <- abs(
           log(domainmax - xinfo$highvalue) -
           log(domainmax - xinfo$lowvalue)
-        ) / iqrfactor
+        ) / iqrfactorLog
         closeddomain <- TRUE
         censormin <- domainmin
         censormax <- domainmax
@@ -228,7 +230,7 @@ buildauxmetadata <- function(data, metadata) {
         tscale <- abs(
           log(xinfo$highvalue - domainmin) -
           log(xinfo$lowvalue - domainmin)
-        ) / iqrfactor
+        ) / iqrfactorLog
         closeddomain <- TRUE
         censormin <- domainmin
         censormax <- domainmax
@@ -248,7 +250,7 @@ buildauxmetadata <- function(data, metadata) {
         tscale <- abs(
           log(xinfo$highvalue - domainmin) -
           log(xinfo$lowvalue - domainmin)
-        ) / iqrfactor
+        ) / iqrfactorLog
         closeddomain <- FALSE
         censormin <- domainmin
         censormax <- +Inf
@@ -268,7 +270,7 @@ buildauxmetadata <- function(data, metadata) {
         tscale <- abs(
           log(domainmax - xinfo$highvalue) -
           log(domainmax - xinfo$lowvalue)
-        ) / iqrfactor
+        ) / iqrfactorLog
         closeddomain <- FALSE
         censormin <- -Inf
         censormax <- domainmax

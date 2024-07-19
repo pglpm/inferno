@@ -377,14 +377,14 @@ samplesFDistribution <- function(Y, X, mcoutput, subsamples, jacobian = TRUE,
                      Bout = 'numeric',
                      useLquantiles = useLquantiles)
     if (nrow(X2) < nrow(Y2)) {
-      warning('*Note: X has fewer data than Y. Recycling*')
+      message('*Note: X has fewer data than Y. Recycling*')
       X2 <- t(matrix(rep(t(X2), ceiling(nrow(Y2) / nrow(X2))),
                      nrow = ncol(X2),
                      dimnames = list(colnames(X2), NULL))
               )[seq_len(nrow(Y2)), , drop = FALSE]
     }
     if (nrow(X2) > nrow(Y2)) {
-      warning('*Note: X has more data than Y. Recycling*')
+      message('*Note: X has more data than Y. Recycling*')
       Y2 <- t(matrix(rep(t(Y2), ceiling(nrow(X2) / nrow(Y2))),
                      nrow = ncol(Y2),
                      dimnames = list(colnames(Y2), NULL))
