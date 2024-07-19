@@ -11,9 +11,9 @@ refdir <- 'reference_seed16-vrt9_dat15_smp120'
 
 seed <- 16
 
-outputdirPrefix <- file.path('__K1un_IQRdiv_packagetest')
+outputdirPrefix <- file.path('__packagetest')
 
-currenttestdir <- inferpopulation(data = 'data_test_custom_150.csv',
+currenttestdir <- inferpopulation(data = 'data_test_custom_30.csv',
                         metadata = 'metadata_test_custom.csv',
                         outputdir = outputdirPrefix,
                         output = 'directory',
