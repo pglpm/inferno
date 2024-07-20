@@ -486,7 +486,8 @@ inferpopulation <- function(data, metadata, outputdir, nsamples = 1200,
       npoints = npoints,
       nalpha = nalpha,
       probalpha0 = rep(1 / nalpha, nalpha),
-      basealphas = rep((2^(minalpha - 1L)) / nclusters, nclusters)
+      basealphas = rep((2^(minalpha - 1L #- 1L + vn$R + vn$C + vn$D + vn$L
+      )) / nclusters, nclusters)
     ),
     if (vn$R > 0) { # continuous open domain
       list(
@@ -883,7 +884,6 @@ inferpopulation <- function(data, metadata, outputdir, nsamples = 1200,
         ## K = rep(which.max(W), npoints)
         ## ## assign all points to the least probable cluster
         ## K = rep(which(W == min(W[W > 0]))[1], npoints)
-        ## ## or:
         ## ## or:
         ## ## distribute points unsystematically among clusters
         ## K = sample(rep(which(W > 0), 2), npoints, replace = TRUE)

@@ -58,7 +58,10 @@ vtransform <- function(x, auxmetadata,
           } else if (info$transform == 'logminus') {
             datum <- log(info$domainmax - datum)
           } else if (info$transform == 'Q') {
-            datum <- Qf((datum - info$domainmin) / (info$domainmax - info$domainmin))
+          datum <- Qf(0.5 +
+                      (datum - (info$domainmin + info$domainmax)/2) /
+                      (info$domainmax - info$domainmin)
+                      )
           }
           datum <- (datum - info$tlocation) / info$tscale
         }
@@ -67,40 +70,43 @@ vtransform <- function(x, auxmetadata,
       } else if (info$mcmctype == 'C') {
         if (info$transform == 'log') {
           datum <- log(datum - info$domainmin)
-          censormin <- log(info$censormin - info$domainmin)
-          censormax <- log(info$censormin - info$domainmin)
+          tcensormin <- log(info$censormin - info$domainmin)
+          tcensormax <- log(info$censormin - info$domainmin)
         } else if (info$transform == 'logminus') {
           datum <- log(info$domainmax - datum)
-          censormin <- log(info$domainmax - censormin)
-          censormax <- log(info$domainmax - censormax)
+          tcensormin <- log(info$domainmax - info$censormin)
+          tcensormax <- log(info$domainmax - info$censormax)
         } else if (info$transform == 'Q') {
           datum <- Qf(0.5 +
                       (datum - (info$domainmin + info$domainmax)/2) /
-                      (info$domainmax - info$domainmin))
-          censormin <- Qf(0.5 +
+                      (info$domainmax - info$domainmin)
+                      )
+          tcensormin <- Qf(0.5 +
                       (info$censormin - (info$domainmin + info$domainmax)/2) /
-                      (info$domainmax - info$domainmin))
-          censormax <- Qf(0.5 +
+                      (info$domainmax - info$domainmin)
+                      )
+          tcensormax <- Qf(0.5 +
                       (info$censormax - (info$domainmin + info$domainmax)/2) /
-                      (info$domainmax - info$domainmin))
+                      (info$domainmax - info$domainmin)
+                      )
         } else {
-          censormin <- info$censormin
-          censormax <- info$censormax
+          tcensormin <- info$censormin
+          tcensormax <- info$censormax
 
         }
         ## datum <- (datum-info$tlocation)/info$tscale
-        ## censormax <- (censormax-info$tlocation)/info$tscale
-        ## censormin <- (censormin-info$tlocation)/info$tscale
+        ## tcensormax <- (tcensormax-info$tlocation)/info$tscale
+        ## tcensormin <- (tcensormin-info$tlocation)/info$tscale
         if (Cout == 'left') { # in MCMC
           xv <- data.matrix(x[, v, drop = FALSE])
           sel <- is.na(xv) | (xv < info$censormax)
           datum[sel] <- -Inf
-          datum[!sel] <- censormax
+          datum[!sel] <- tcensormax
         } else if (Cout == 'right') { # in MCMC
           xv <- data.matrix(x[, v, drop = FALSE])
           sel <- is.na(xv) | (xv > info$censormin)
           datum[sel] <- +Inf
-          datum[!sel] <- censormin
+          datum[!sel] <- tcensormin
         } else if (Cout == 'lat') { # latent variable in MCMC
           xv <- data.matrix(x[, v, drop = FALSE])
           sel <- is.na(xv) | (xv >= info$censormax) | (xv <= info$censormin)
@@ -108,8 +114,8 @@ vtransform <- function(x, auxmetadata,
         } else if (Cout == 'init') { # init in MCMC
           xv <- data.matrix(x[, v, drop = FALSE])
           datum[is.na(xv)] <- 0L
-          datum[!is.na(xv) & (xv <= info$censormin)] <- censormin - 0.125 * info$tscale
-          datum[!is.na(xv) & (xv >= info$censormax)] <- censormax + 0.125 * info$tscale
+          datum[!is.na(xv) & (xv <= info$censormin)] <- tcensormin - 0.125 * info$tscale
+          datum[!is.na(xv) & (xv >= info$censormax)] <- tcensormax + 0.125 * info$tscale
           datum[!is.na(xv) & (xv < info$censormax) & (xv > info$censormin)] <- NA
         } else if (Cout == 'aux') { # aux variable in MCMC
           xv <- data.matrix(x[, v, drop = FALSE])
@@ -121,14 +127,15 @@ vtransform <- function(x, auxmetadata,
           datum[xv >= info$censormax] <- +Inf
           datum[xv <= info$censormin] <- -Inf
         } else if (Cout == 'sleft') { # in sampling functions
-          datum <- rep(censormin, length(datum))
+          datum <- rep(tcensormin, length(datum))
         } else if (Cout == 'sright') { # in sampling functions
-          datum <- rep(censormax, length(datum))
+          datum <- rep(tcensormax, length(datum))
         } else if (Cout == 'idboundinf') { # in mutualinfo
           datum <- xv <- data.matrix(x[, v, drop = FALSE])
           datum[xv >= info$censormax] <- +Inf
           datum[xv <= info$censormin] <- -Inf
         }
+        ##
         ##
         if (Cout != 'aux' && Cout != 'idboundinf') {
           datum <- (datum - info$tlocation) / info$tscale
@@ -136,38 +143,38 @@ vtransform <- function(x, auxmetadata,
 
 #### Continuous rounded
       } else if (info$mcmctype == 'D') {
-        censormin <- info$censormin
-        censormax <- info$censormax
+        tcensormin <- info$censormin
+        tcensormax <- info$censormax
         leftbound <- pmax(datum - info$step, info$domainmin, na.rm = T)
-        leftbound[leftbound <= censormin] <- info$domainmin
-        leftbound[leftbound >= censormax] <- censormax
+        leftbound[leftbound <= tcensormin] <- info$domainmin
+        leftbound[leftbound >= tcensormax] <- tcensormax
         rightbound <- pmin(datum + info$step, info$domainmax, na.rm = T)
-        rightbound[rightbound >= censormax] <- info$domainmax
-        rightbound[rightbound <= censormin] <- censormin
+        rightbound[rightbound >= tcensormax] <- info$domainmax
+        rightbound[rightbound <= tcensormin] <- tcensormin
         if (info$transform == 'log') {
           datum <- log(datum - info$domainmin)
           leftbound <- log(leftbound - info$domainmin)
           rightbound <- log(rightbound - info$domainmin)
-          censormin <- log(censormin - info$domainmin)
-          censormax <- log(censormax - info$domainmin)
+          tcensormin <- log(tcensormin - info$domainmin)
+          tcensormax <- log(tcensormax - info$domainmin)
         } else if (info$transform == 'logminus') {
           datum <- log(info$domainmax - datum)
           leftbound <- log(info$domainmax - leftbound)
           rightbound <- log(info$domainmax - rightbound)
-          censormin <- log(info$domainmax - censormin)
-          censormax <- log(info$domainmax - censormax)
+          tcensormin <- log(info$domainmax - tcensormin)
+          tcensormax <- log(info$domainmax - tcensormax)
         } else if (info$transform == 'Q') {
           datum <- Qf((datum - info$domainmin) / (info$domainmax - info$domainmin))
           leftbound <- Qf((leftbound - info$domainmin) / (info$domainmax - info$domainmin))
           rightbound <- Qf((rightbound - info$domainmin) / (info$domainmax - info$domainmin))
-          censormin <- Qf((censormin - info$domainmin) / (info$domainmax - info$domainmin))
-          censormax <- Qf((censormax - info$domainmin) / (info$domainmax - info$domainmin))
+          tcensormin <- Qf((tcensormin - info$domainmin) / (info$domainmax - info$domainmin))
+          tcensormax <- Qf((tcensormax - info$domainmin) / (info$domainmax - info$domainmin))
         }
         ## datum <- (datum-info$tlocation)/info$tscale
         ## rightbound <- (rightbound-info$tlocation)/info$tscale
         ## leftbound <- (leftbound-info$tlocation)/info$tscale
-        ## censormax <- (censormax-info$tlocation)/info$tscale
-        ## censormin <- (censormin-info$tlocation)/info$tscale
+        ## tcensormax <- (tcensormax-info$tlocation)/info$tscale
+        ## tcensormin <- (tcensormin-info$tlocation)/info$tscale
         if (Dout == 'left') {
           datum <- leftbound
         } else if (Dout == 'right') {
@@ -175,8 +182,8 @@ vtransform <- function(x, auxmetadata,
         } else if (Dout == 'init') { # init in MCMC
           xv <- data.matrix(x[, v, drop = FALSE])
           datum[is.na(xv)] <- 0L
-          datum[!is.na(xv) & (xv <= info$censormin)] <- censormin - 0.125 * info$tscale
-          datum[!is.na(xv) & (xv >= info$censormax)] <- censormax + 0.125 * info$tscale
+          datum[!is.na(xv) & (xv <= info$censormin)] <- tcensormin - 0.125 * info$tscale
+          datum[!is.na(xv) & (xv >= info$censormax)] <- tcensormax + 0.125 * info$tscale
         } else if (Dout == 'aux') { # aux variable in MCMC
           xv <- data.matrix(x[, v, drop = FALSE])
           sel <- is.na(xv)
@@ -187,9 +194,9 @@ vtransform <- function(x, auxmetadata,
           datum[xv >= info$censormax] <- +Inf
           datum[xv <= info$censormin] <- -Inf
         } else if (Dout == 'sleft') { # in sampling functions
-          datum <- rep(censormin, length(datum))
+          datum <- rep(tcensormin, length(datum))
         } else if (Dout == 'sright') { # in sampling functions
-          datum <- rep(censormax, length(datum))
+          datum <- rep(tcensormax, length(datum))
         } else if (Dout == 'idboundinf') { # in mutualinfo
           datum <- xv <- data.matrix(x[, v, drop = FALSE])
           datum[xv >= info$censormax] <- +Inf

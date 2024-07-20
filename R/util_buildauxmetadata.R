@@ -19,9 +19,9 @@ buildauxmetadata <- function(data, metadata) {
   ## this way the transformed Q3 is at approx 2
   ## the factor "4" is instead "1" at the moment.
   ## This need to be studied some more
-  iqrfactor <- 2 * 2
-  iqrfactorLog <- 2 * 2 # 6
-  iqrfactorQ <- 2 * 0.25
+  iqrfactor <- 2 * 3.5
+  iqrfactorLog <- 2 * 6
+  iqrfactorQ <- 2 * 0.3
 
   idR <- idC <- idD <- idL <- idB <- idO <- idN <- 1L
 
