@@ -415,7 +415,7 @@ inferpopulation <- function(data, metadata, outputdir, nsamples = 1200,
   ##
   ## plotmeans <- TRUE # plot frequency averages
   showsamples <- 100 # number of samples to show.
-  showquantiles <- c(1, 31) / 32 # quantiles to show
+  plotDisplayedQuantiles <- c(1, 31) / 32 # quantiles to show
   nclustersamples <- 128 # number of samples of Alpha and K
   showsamplertimes <- FALSE ##
   family <- 'Palatino' # font family in plots
@@ -887,6 +887,10 @@ inferpopulation <- function(data, metadata, outputdir, nsamples = 1200,
         ## ## or:
         ## ## distribute points unsystematically among clusters
         ## K = sample(rep(which(W > 0), 2), npoints, replace = TRUE)
+        ## ## or:
+        ## ## distribute points unsystematically among M=2 clusters
+        ## K = sample(sample(rep(which(W > 0), 2), 2, replace = TRUE),
+        ##           npoints, replace = TRUE)
       )
       ##
       if (vn$R > 0) { # continuous open domain
@@ -1922,7 +1926,7 @@ inferpopulation <- function(data, metadata, outputdir, nsamples = 1200,
     mcoutput = c(mcsamples, list(auxmetadata = auxmetadata)),
     data = data,
     plotvariability = 'quantiles',
-    nFsamples = showquantiles, plotmeans = TRUE,
+    nFsamples = plotDisplayedQuantiles, plotmeans = TRUE,
     datahistogram = TRUE, datascatter = TRUE,
     useLquantiles = useLquantiles,
     parallel = TRUE, silent = TRUE

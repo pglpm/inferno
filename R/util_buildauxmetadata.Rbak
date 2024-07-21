@@ -19,9 +19,9 @@ buildauxmetadata <- function(data, metadata) {
   ## this way the transformed Q3 is at approx 2
   ## the factor "4" is instead "1" at the moment.
   ## This need to be studied some more
-  iqrfactor <- 2
-#  iqrfactorLog <- 2 * 6
-#  iqrfactorQ <- 2 * 0.3
+  iqrfactor <- 2 * 3.5
+  iqrfactorLog <- 2 * 6
+  iqrfactorQ <- 2 * 0.3
 
   idR <- idC <- idD <- idL <- idB <- idO <- idN <- 1L
 
@@ -135,22 +135,11 @@ buildauxmetadata <- function(data, metadata) {
       ## datavalues <- as.vector(xinfo[paste0('V',1:Nvalues)], mode='character')
       olocation <- (Nvalues * domainmin - domainmax) / (Nvalues - 1)
       oscale <- (domainmax - domainmin) / (Nvalues - 1)
-      if(!is.null(data)) {
-        tlocation <- median(Qf(
-          round((x - olocation) / oscale) / Nvalues
-        ))
-        tscale <- mad(Qf(
-          round((x - olocation) / oscale) / Nvalues
-        )) / iqrfactor
-        } else {
-          tlocation <- 0
-          tscale <- 1 / iqrfactor
-        }
-      ## tlocation <- Qf(round((xinfo$centralvalue - olocation) / oscale) / Nvalues)
-      ## tscale <- abs(
-      ##   Qf(round((xinfo$highvalue - olocation) / oscale) / Nvalues) -
-      ##   Qf(round((xinfo$lowvalue - olocation) / oscale) / Nvalues)
-      ## ) / iqrfactorQ
+      tlocation <- Qf(round((xinfo$centralvalue - olocation) / oscale) / Nvalues)
+      tscale <- abs(
+        Qf(round((xinfo$highvalue - olocation) / oscale) / Nvalues) -
+        Qf(round((xinfo$lowvalue - olocation) / oscale) / Nvalues)
+      ) / iqrfactorQ
       plotmin <- (if(is.finite(xinfo$plotmin)){xinfo$plotmin}else{xinfo$domainmin})
       plotmax <- (if(is.finite(xinfo$plotmax)){xinfo$plotmax}else{xinfo$domainmax})
       ## Q1 <- mctest1 <- quantile(x, probs = 0.25, type = 6)
@@ -207,49 +196,29 @@ buildauxmetadata <- function(data, metadata) {
           !xinfo$minincluded && !xinfo$maxincluded) {
         ## doubly-bounded open domain
         transf <- 'Q'
-        if(!is.null(data)) {
-          tlocation <- median(Qf(0.5 +
-                                 (x - (domainmax + domainmin)/2) /
-                                 (domainmax - domainmin)
-                                 ))
-          tscale <- mad(Qf(0.5 +
-                           (x - (domainmax + domainmin)/2) /
-                           (domainmax - domainmin)
-                           )) / iqrfactor
-        } else {
-          tlocation <- 0
-          tscale <- 1 / iqrfactor
-        }
-        ## tlocation <- Qf(0.5 +
-        ##                 (xinfo$centralvalue - (domainmax + domainmin)/2) /
-        ##                 (domainmax - domainmin))
-        ## tscale <- abs(
-        ##   Qf(0.5 +
-        ##      (xinfo$highvalue - (domainmax + domainmin)/2) /
-        ##      (domainmax - domainmin)) -
-        ##   Qf(0.5 +
-        ##      (xinfo$lowvalue - (domainmax + domainmin)/2) /
-        ##      (domainmax - domainmin))
-        ## ) / iqrfactorQ
+        tlocation <- Qf(0.5 +
+                        (xinfo$centralvalue - (domainmax + domainmin)/2) /
+                        (domainmax - domainmin))
+        tscale <- abs(
+          Qf(0.5 +
+             (xinfo$highvalue - (domainmax + domainmin)/2) /
+             (domainmax - domainmin)) -
+          Qf(0.5 +
+             (xinfo$lowvalue - (domainmax + domainmin)/2) /
+             (domainmax - domainmin))
+        ) / iqrfactorQ
         closeddomain <- FALSE
-        censormin <- domainmin
-        censormax <- domainmax
+        censormin <- -Inf
+        censormax <- +Inf
       } else if (is.finite(xinfo$domainmin) && is.finite(xinfo$domainmax) &&
                  xinfo$minincluded && !xinfo$maxincluded) {
         ## doubly-bounded left-closed domain
         transf <- 'logminus'
-        if(!is.null(data)) {
-          tlocation <- median(log(domainmax - x))
-          tscale <- mad(log(domainmax - x)) / iqrfactor
-        } else {
-          tlocation <- 0
-          tscale <- 1 / iqrfactor
-        }
-        ## tlocation <- log(domainmax - xinfo$centralvalue)
-        ## tscale <- abs(
-        ##   log(domainmax - xinfo$highvalue) -
-        ##   log(domainmax - xinfo$lowvalue)
-        ## ) / iqrfactorLog
+        tlocation <- log(domainmax - xinfo$centralvalue)
+        tscale <- abs(
+          log(domainmax - xinfo$highvalue) -
+          log(domainmax - xinfo$lowvalue)
+        ) / iqrfactorLog
         closeddomain <- TRUE
         censormin <- domainmin
         censormax <- domainmax
@@ -257,18 +226,11 @@ buildauxmetadata <- function(data, metadata) {
                  !xinfo$minincluded && xinfo$maxincluded) {
         ## doubly-bounded right-closed domain
         transf <- 'log'
-        if(!is.null(data)) {
-          tlocation <- median(log(x - domainmin))
-          tscale <- mad(log(x - domainmin)) / iqrfactor
-        } else {
-          tlocation <- 0
-          tscale <- 1 / iqrfactor
-        }
-        ## tlocation <- log(xinfo$centralvalue - domainmin)
-        ## tscale <- abs(
-        ##   log(xinfo$highvalue - domainmin) -
-        ##   log(xinfo$lowvalue - domainmin)
-        ## ) / iqrfactorLog
+        tlocation <- log(xinfo$centralvalue - domainmin)
+        tscale <- abs(
+          log(xinfo$highvalue - domainmin) -
+          log(xinfo$lowvalue - domainmin)
+        ) / iqrfactorLog
         closeddomain <- TRUE
         censormin <- domainmin
         censormax <- domainmax
@@ -276,101 +238,59 @@ buildauxmetadata <- function(data, metadata) {
                  xinfo$minincluded && xinfo$maxincluded) {
         ## doubly-bounded closed domain
         transf <- 'identity'
-        if(!is.null(data)) {
-          tlocation <- median(x)
-          tscale <- mad(x) / iqrfactor
-        } else {
-          tlocation <- 0
-          tscale <- 1 / iqrfactor
-        }
-        ## tlocation <- xinfo$centralvalue
-        ## tscale <- abs(xinfo$highvalue - xinfo$lowvalue) / iqrfactor
+        tlocation <- xinfo$centralvalue
+        tscale <- abs(xinfo$highvalue - xinfo$lowvalue) / iqrfactor
         closeddomain <- TRUE
         censormin <- domainmin
         censormax <- domainmax
       } else if (is.finite(xinfo$domainmin) && !xinfo$minincluded) {
         ## left-bounded left-open domain
         transf <- 'log'
-        if(!is.null(data)) {
-          tlocation <- median(log(x - domainmin))
-          tscale <- mad(log(x - domainmin)) / iqrfactor
-        } else {
-          tlocation <- 0
-          tscale <- 1 / iqrfactor
-        }
-        ## tlocation <- log(xinfo$centralvalue - domainmin)
-        ## tscale <- abs(
-        ##   log(xinfo$highvalue - domainmin) -
-        ##   log(xinfo$lowvalue - domainmin)
-        ## ) / iqrfactorLog
+        tlocation <- log(xinfo$centralvalue - domainmin)
+        tscale <- abs(
+          log(xinfo$highvalue - domainmin) -
+          log(xinfo$lowvalue - domainmin)
+        ) / iqrfactorLog
         closeddomain <- FALSE
         censormin <- domainmin
-        censormax <- domainmax
+        censormax <- +Inf
       } else if (is.finite(xinfo$domainmin) && xinfo$minincluded) {
         ## left-bounded left-closed domain
         transf <- 'identity'
-        if(!is.null(data)) {
-          tlocation <- median(x)
-          tscale <- mad(x) / iqrfactor
-        } else {
-          tlocation <- 0
-          tscale <- 1 / iqrfactor
-        }
-        ## tlocation <- xinfo$centralvalue
-        ## tscale <- abs(xinfo$highvalue - xinfo$lowvalue) / iqrfactor
+        tlocation <- xinfo$centralvalue
+        tscale <- abs(xinfo$highvalue - xinfo$lowvalue) / iqrfactor
         closeddomain <- TRUE
         censormin <- domainmin
-        censormax <- domainmax
+        censormax <- +Inf
         domainmin <- -Inf
       } else if (is.finite(xinfo$domainmax) && !xinfo$maxincluded) {
         ## right-bounded right-open domain
         transf <- 'logminus'
-        if(!is.null(data)) {
-          tlocation <- median(log(domainmax - x))
-          tscale <- mad(log(domainmax - x)) / iqrfactor
-        } else {
-          tlocation <- 0
-          tscale <- 1 / iqrfactor
-        }
-        ## tlocation <- log(domainmax - xinfo$centralvalue)
-        ## tscale <- abs(
-        ##   log(domainmax - xinfo$highvalue) -
-        ##   log(domainmax - xinfo$lowvalue)
-        ## ) / iqrfactorLog
+        tlocation <- log(domainmax - xinfo$centralvalue)
+        tscale <- abs(
+          log(domainmax - xinfo$highvalue) -
+          log(domainmax - xinfo$lowvalue)
+        ) / iqrfactorLog
         closeddomain <- FALSE
-        censormin <- domainmin
+        censormin <- -Inf
         censormax <- domainmax
       } else if (is.finite(xinfo$domainmax) && xinfo$maxincluded) {
         ## right-bounded right-closed domain
         transf <- 'identity'
-        if(!is.null(data)) {
-          tlocation <- median(x)
-          tscale <- mad(x) / iqrfactor
-        } else {
-          tlocation <- 0
-          tscale <- 1 / iqrfactor
-        }
-        ## tlocation <- xinfo$centralvalue
-        ## tscale <- abs(xinfo$highvalue - xinfo$lowvalue) / iqrfactor
+        tlocation <- xinfo$centralvalue
+        tscale <- abs(xinfo$highvalue - xinfo$lowvalue) / iqrfactor
         closeddomain <- TRUE
-        censormin <- domainmin
+        censormin <- -Inf
         censormax <- domainmax
         domainmax <- +Inf
       } else {
         ## unbounded, open domain
         transf <- 'identity'
-        if(!is.null(data)) {
-          tlocation <- median(x)
-          tscale <- mad(x) / iqrfactor
-        } else {
-          tlocation <- 0
-          tscale <- 1 / iqrfactor
-        }
-        ## tlocation <- xinfo$centralvalue
-        ## tscale <- abs(xinfo$highvalue - xinfo$lowvalue) / iqrfactor
+        tlocation <- xinfo$centralvalue
+        tscale <- abs(xinfo$highvalue - xinfo$lowvalue) / iqrfactor
         closeddomain <- FALSE
-        censormin <- domainmin
-        censormax <- domainmax
+        censormin <- -Inf
+        censormax <- +Inf
       }
     ## # Old cases
     ## if (is.finite(xinfo$domainmin) && is.finite(xinfo$domainmax)) {

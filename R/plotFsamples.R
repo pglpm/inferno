@@ -16,10 +16,16 @@
 #'
 #' @return A list with the mutual information, its error, and its unit
 #' @export
-plotFsamples <- function(file, mcoutput, data, plotmeans = TRUE,
-                         plotvariability = 'samples', nFsamples = 100,
-                         datahistogram = TRUE, datascatter = TRUE,
-                         useLquantiles = FALSE, parallel = TRUE,
+plotFsamples <- function(file,
+                         mcoutput,
+                         data,
+                         plotmeans = TRUE,
+                         plotvariability = 'samples',
+                         nFsamples = NULL,
+                         datahistogram = !(missing(data) || is.null(data)),
+                         datascatter = !(missing(data) || is.null(data)),
+                         useLquantiles = FALSE,
+                         parallel = TRUE,
                          silent = FALSE) {
 
   ## old utility functions
@@ -109,6 +115,7 @@ plotFsamples <- function(file, mcoutput, data, plotmeans = TRUE,
         ))
       }
       colnames(Xgrid) <- v
+
       xleft <- Xgrid > varinfo[['censormin']]
       xright <- Xgrid < varinfo[['censormax']]
 
@@ -121,17 +128,17 @@ plotFsamples <- function(file, mcoutput, data, plotmeans = TRUE,
                                           silent = TRUE)
 
       if (plotvariability == 'samples') {
-        ymax <- tquant(apply(
+        ymax <- quantile(apply(
           plotsamples[xleft & xright, subsamples, drop = FALSE],
           2, function(x) {
-            tquant(x, 31 / 32)
+            quantile(x, 31 / 32, type = 6)
           }
-        ), 31 / 32, na.rm = TRUE)
+        ), 31 / 32, type = 6, na.rm = TRUE)
       } else {
         ymax <- apply(
           plotsamples[xleft & xright, , drop = FALSE], 1,
           function(x) {
-            tquant(x, max(quants))
+            quantile(x, max(quants), type = 6)
           }
         )
         ymax <- max(ymax[is.finite(ymax)])
@@ -229,7 +236,7 @@ plotFsamples <- function(file, mcoutput, data, plotmeans = TRUE,
 
       if (plotvariability == 'quantiles') {
         marguncertainty <- t(apply(plotsamples, 1, function(x) {
-          tquant(x, quants)
+          quantile(x, quants, type = 6, na.rm = TRUE)
         }))
         plotquantiles(x = Xgrid[xleft & xright],
                       y = marguncertainty[xleft & xright, , drop = FALSE],
@@ -308,17 +315,17 @@ plotFsamples <- function(file, mcoutput, data, plotmeans = TRUE,
                                           silent = TRUE)
 
       if (plotvariability == 'samples') {
-        ymax <- tquant(apply(
+        ymax <- quantile(apply(
           plotsamples[, subsamples, drop = FALSE],
           2, function(x) {
-            tquant(x, 31 / 32)
+            quantile(x, 31 / 32, type = 6)
           }
-        ), 31 / 32, na.rm = TRUE)
+        ), 31 / 32, type = 6, na.rm = TRUE)
       } else {
         ymax <- apply(
           plotsamples[, , drop = FALSE],
           1, function(x) {
-            tquant(x, max(quants))
+            quantile(x, max(quants), type = 6)
           }
         )
         ymax <- max(ymax[is.finite(ymax)])
@@ -363,7 +370,7 @@ plotFsamples <- function(file, mcoutput, data, plotmeans = TRUE,
       }
       if (plotvariability == 'quantiles') {
         marguncertainty <- t(apply(plotsamples, 1, function(x) {
-          tquant(x, quants)
+          quantile(x, quants, type = 6)
         }))
         plotquantiles(x = Ngrid, y = marguncertainty, col = 5, alpha = 0.75)
       }

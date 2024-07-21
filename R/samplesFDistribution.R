@@ -135,6 +135,7 @@ samplesFDistribution <- function(Y, X, mcoutput, subsamples, jacobian = TRUE,
   ## Add check to see that mcoutput is correct type of object?
   auxmetadata <- mcoutput$auxmetadata
   mcoutput$auxmetadata <- NULL
+  mcoutput$nchains <- NULL
 
   ## Consistency checks
   if (length(dim(Y)) != 2) {
@@ -174,7 +175,6 @@ samplesFDistribution <- function(Y, X, mcoutput, subsamples, jacobian = TRUE,
 
 #### Subsample and get nclusters and nsamples
   ## source('mcsubset.R')
-
   if (!missing(subsamples) &&
       (is.numeric(subsamples) || (is.character(subsamples)
         && length(subsamples) == 1))) {
