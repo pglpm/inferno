@@ -10,8 +10,8 @@
 #' @param nsamplesperchain Integer, nr of MC samples per chain
 #' @param parallel, Bool or numeric: whether to use pre-existing parallel
 #'   workers, or how many to create and use
-#' @param niterini Number of initial MC iterations
-#' @param miniter Minimum number of MC iterations after every check
+#' @param niterini Number of initial (burn-in) MC iterations
+#' @param miniter Minimum number of MC iterations to be done
 #' @param maxiter Maximum number of MC iterations
 #' @param prior Bool: Calculate the prior distribution of F?
 #' @param thinning If NULL, let the diagnostics decide the MC thinning; if positive, use this thinning value
@@ -44,7 +44,7 @@ inferpopulation <- function(data, metadata, outputdir, nsamples = 1200,
                             seed = NULL, cleanup = TRUE,
                             appendtimestamp = TRUE, appendinfo = TRUE,
                             subsampledata = NULL, output = 'directory',
-                            niterini = 1024, miniter = 0, maxiter = +Inf,
+                            niterini = 1200, miniter = 3600, maxiter = +Inf,
                             prior = missing(data),
                             thinning = NULL, plottraces = TRUE,
                             showKtraces = FALSE, showAlphatraces = FALSE,
