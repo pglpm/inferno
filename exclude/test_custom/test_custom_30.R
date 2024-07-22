@@ -11,7 +11,7 @@ refdir <- 'reference_seed16-vrt9_dat15_smp120'
 
 seed <- 16
 
-outputdirPrefix <- file.path('_NI_packagetest')
+outputdirPrefix <- file.path('_packagetest')
 
 currenttestdir <- inferpopulation(data = 'data_test_custom_30.csv',
                         metadata = 'metadata_test_custom.csv',
@@ -21,7 +21,7 @@ currenttestdir <- inferpopulation(data = 'data_test_custom_30.csv',
                         appendinfo = TRUE,
                         nsamples = 120, nchains = 12,
                         cleanup = FALSE, parallel = 4,
-                        miniter = 1200, 
+                        ## miniter = 1200, 
                         ## prior = TRUE,
                         ## lldata = 12,
                         showKtraces = T,
