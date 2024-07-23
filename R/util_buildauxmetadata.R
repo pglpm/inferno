@@ -48,6 +48,8 @@ buildauxmetadata <- function(data, metadata) {
       domainmax <- 1
       censormin <- -Inf
       censormax <- +Inf
+      tcensormin <- -Inf
+      tcensormax <- +Inf
       tlocation <- 0
       tscale <- 1
       plotmin <- NA
@@ -75,6 +77,8 @@ buildauxmetadata <- function(data, metadata) {
       domainmax <- Nvalues
       censormin <- -Inf
       censormax <- +Inf
+      tcensormin <- -Inf
+      tcensormax <- +Inf
       tlocation <- 0
       tscale <- 1
       plotmin <- NA
@@ -102,6 +106,8 @@ buildauxmetadata <- function(data, metadata) {
       domainmax <- Nvalues
       censormin <- -Inf
       censormax <- +Inf
+      tcensormin <- -Inf
+      tcensormax <- +Inf
       tlocation <- 0
       tscale <- 1
       plotmin <- NA
@@ -132,6 +138,8 @@ buildauxmetadata <- function(data, metadata) {
       domainmax <- xinfo$domainmax
       censormin <- -Inf
       censormax <- +Inf
+      tcensormin <- -Inf
+      tcensormax <- +Inf
       ## datavalues <- as.vector(xinfo[paste0('V',1:Nvalues)], mode='character')
       olocation <- (Nvalues * domainmin - domainmax) / (Nvalues - 1)
       oscale <- (domainmax - domainmin) / (Nvalues - 1)
@@ -234,6 +242,14 @@ buildauxmetadata <- function(data, metadata) {
         closeddomain <- FALSE
         censormin <- domainmin
         censormax <- domainmax
+        tcensormin <- (Qf(0.5 +
+                         (censormin - (domainmax + domainmin)/2) /
+                         (domainmax - domainmin)
+                         ) - tlocation) / tscale
+        tcensormax <- (Qf(0.5 +
+                         (censormax - (domainmax + domainmin)/2) /
+                         (domainmax - domainmin)
+                         ) - tlocation) / tscale
       } else if (is.finite(xinfo$domainmin) && is.finite(xinfo$domainmax) &&
                  xinfo$minincluded && !xinfo$maxincluded) {
         ## doubly-bounded left-closed domain
@@ -253,6 +269,8 @@ buildauxmetadata <- function(data, metadata) {
         closeddomain <- TRUE
         censormin <- domainmin
         censormax <- domainmax
+        tcensormin <- (log(domainmax - censormin) - tlocation) / tscale
+        tcensormax <- (log(domainmax - censormax) - tlocation) / tscale
       } else if (is.finite(xinfo$domainmin) && is.finite(xinfo$domainmax) &&
                  !xinfo$minincluded && xinfo$maxincluded) {
         ## doubly-bounded right-closed domain
@@ -272,6 +290,8 @@ buildauxmetadata <- function(data, metadata) {
         closeddomain <- TRUE
         censormin <- domainmin
         censormax <- domainmax
+        tcensormin <- (log(censormin - domainmin) - tlocation) / tscale
+        tcensormax <- (log(censormax - domainmin) - tlocation) / tscale
       } else if (is.finite(xinfo$domainmin) && is.finite(xinfo$domainmax) &&
                  xinfo$minincluded && xinfo$maxincluded) {
         ## doubly-bounded closed domain
@@ -288,6 +308,8 @@ buildauxmetadata <- function(data, metadata) {
         closeddomain <- TRUE
         censormin <- domainmin
         censormax <- domainmax
+        tcensormin <- (censormin - tlocation) / tscale
+        tcensormax <- (censormax - tlocation) / tscale
       } else if (is.finite(xinfo$domainmin) && !xinfo$minincluded) {
         ## left-bounded left-open domain
         transf <- 'log'
@@ -306,6 +328,8 @@ buildauxmetadata <- function(data, metadata) {
         closeddomain <- FALSE
         censormin <- domainmin
         censormax <- domainmax
+        tcensormin <- (log(censormin - domainmin) - tlocation) / tscale
+        tcensormax <- (log(censormax - domainmin) - tlocation) / tscale
       } else if (is.finite(xinfo$domainmin) && xinfo$minincluded) {
         ## left-bounded left-closed domain
         transf <- 'identity'
@@ -322,6 +346,8 @@ buildauxmetadata <- function(data, metadata) {
         censormin <- domainmin
         censormax <- domainmax
         domainmin <- -Inf
+        tcensormin <- (censormin - tlocation) / tscale
+        tcensormax <- (censormax - tlocation) / tscale
       } else if (is.finite(xinfo$domainmax) && !xinfo$maxincluded) {
         ## right-bounded right-open domain
         transf <- 'logminus'
@@ -340,6 +366,8 @@ buildauxmetadata <- function(data, metadata) {
         closeddomain <- FALSE
         censormin <- domainmin
         censormax <- domainmax
+        tcensormin <- (log(domainmax - censormin) - tlocation) / tscale
+        tcensormax <- (log(domainmax - censormax) - tlocation) / tscale
       } else if (is.finite(xinfo$domainmax) && xinfo$maxincluded) {
         ## right-bounded right-closed domain
         transf <- 'identity'
@@ -356,6 +384,8 @@ buildauxmetadata <- function(data, metadata) {
         censormin <- domainmin
         censormax <- domainmax
         domainmax <- +Inf
+        tcensormin <- (censormin - tlocation) / tscale
+        tcensormax <- (censormax - tlocation) / tscale
       } else {
         ## unbounded, open domain
         transf <- 'identity'
@@ -371,6 +401,8 @@ buildauxmetadata <- function(data, metadata) {
         closeddomain <- FALSE
         censormin <- domainmin
         censormax <- domainmax
+        tcensormin <- (censormin - tlocation) / tscale
+        tcensormax <- (censormax - tlocation) / tscale
       }
     ## # Old cases
     ## if (is.finite(xinfo$domainmin) && is.finite(xinfo$domainmax)) {
@@ -438,6 +470,7 @@ buildauxmetadata <- function(data, metadata) {
           transform = transf, Nvalues = Nvalues, step = step,
           domainmin = domainmin, domainmax = domainmax,
           censormin = censormin, censormax = censormax,
+          tcensormin = tcensormin, tcensormax = tcensormax,
           tlocation = tlocation, tscale = tscale,
           plotmin = plotmin, plotmax = plotmax,
           ## Q1 = Q1, Q2 = Q2, Q3 = Q3, # not used in other scripts, possibly remove

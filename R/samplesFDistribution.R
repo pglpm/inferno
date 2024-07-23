@@ -225,7 +225,8 @@ samplesFDistribution <- function(Y, X, mcoutput, subsamples, jacobian = TRUE,
                    nrow = 1, ncol = length(vnames),
                    dimnames = list(NULL, vnames)
                    ),
-        auxmetadata = auxmetadata, Cout = 'sleft',
+        auxmetadata = auxmetadata,
+        Cout = 'sleft',
         useLquantiles = useLquantiles
       )),
       ## sign is important here:
@@ -235,7 +236,8 @@ samplesFDistribution <- function(Y, X, mcoutput, subsamples, jacobian = TRUE,
                     nrow = 1, ncol = length(vnames),
                     dimnames = list(NULL, vnames)
                     ),
-         auxmetadata = auxmetadata, Cout = 'sright',
+         auxmetadata = auxmetadata,
+         Cout = 'sright',
          useLquantiles = useLquantiles
        ))
     )
@@ -260,7 +262,8 @@ samplesFDistribution <- function(Y, X, mcoutput, subsamples, jacobian = TRUE,
                    nrow = 1, ncol = length(vnames),
                    dimnames = list(NULL, vnames)
                    ),
-        auxmetadata = auxmetadata, Dout = 'sleft',
+        auxmetadata = auxmetadata,
+        Dout = 'sleft',
         useLquantiles = useLquantiles
       )),
       ## sign is important here:
@@ -270,7 +273,8 @@ samplesFDistribution <- function(Y, X, mcoutput, subsamples, jacobian = TRUE,
                     nrow = 1, ncol = length(vnames),
                     dimnames = list(NULL, vnames)
                     ),
-         auxmetadata = auxmetadata, Dout = 'sright',
+         auxmetadata = auxmetadata,
+         Dout = 'sright',
          useLquantiles = useLquantiles
        ))
     )
@@ -299,7 +303,8 @@ samplesFDistribution <- function(Y, X, mcoutput, subsamples, jacobian = TRUE,
                   )
       c(
         vtransform(seqs, auxmetadata = auxmetadata,
-                   Lout = 'left', variates = avar,
+                   Lout = 'left',
+                   variates = avar,
                    useLquantiles = useLquantiles
                    ),
         rep(NA, Lmaxn - nn)
@@ -313,7 +318,8 @@ samplesFDistribution <- function(Y, X, mcoutput, subsamples, jacobian = TRUE,
                   )
       c(
         vtransform(seqs, auxmetadata = auxmetadata,
-                   Lout = 'right', variates = avar,
+                   Lout = 'right',
+                   variates = avar,
                    useLquantiles = useLquantiles
                    ),
         rep(NA, Lmaxn - nn)

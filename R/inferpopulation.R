@@ -507,12 +507,17 @@ inferpopulation <- function(data, metadata, outputdir, nsamples = 1200,
         Cvar1 = rep(1, 1),
         Cshapelo = rep(Cshapelo, 1),
         Cshapehi = rep(Cshapehi, 1),
-        Cleft = vtransform(data[, vnames$C, drop = FALSE], auxmetadata = auxmetadata,
-                           Cout = 'left', useLquantiles = useLquantiles),
-        Cright = vtransform(data[, vnames$C, drop = FALSE], auxmetadata = auxmetadata,
-                            Cout = 'right', useLquantiles = useLquantiles),
+        Cleft = vtransform(data[, vnames$C, drop = FALSE],
+                           auxmetadata = auxmetadata,
+                           Cout = 'left',
+                           useLquantiles = useLquantiles),
+        Cright = vtransform(data[, vnames$C, drop = FALSE],
+                            auxmetadata = auxmetadata,
+                            Cout = 'right',
+                            useLquantiles = useLquantiles),
         Clatinit = vtransform(data[, vnames$C, drop = FALSE],
-                          auxmetadata, Cout = 'init',
+                              auxmetadata,
+                              Cout = 'init',
                           useLquantiles = useLquantiles
                           )
       )
@@ -528,13 +533,18 @@ inferpopulation <- function(data, metadata, outputdir, nsamples = 1200,
         Dvar1 = rep(1, 1),
         Dshapelo = rep(Dshapelo, 1),
         Dshapehi = rep(Dshapehi, 1),
-        Dleft = vtransform(data[, vnames$D, drop = FALSE], auxmetadata = auxmetadata,
-                          Dout = 'left', useLquantiles = useLquantiles),
-        Dright = vtransform(data[, vnames$D, drop = FALSE], auxmetadata = auxmetadata,
-                            Dout = 'right', useLquantiles = useLquantiles),
+        Dleft = vtransform(data[, vnames$D, drop = FALSE],
+                           auxmetadata = auxmetadata,
+                           Dout = 'left',
+                           useLquantiles = useLquantiles),
+        Dright = vtransform(data[, vnames$D, drop = FALSE],
+                            auxmetadata = auxmetadata,
+                            Dout = 'right',
+                            useLquantiles = useLquantiles),
         Dlatinit = vtransform(data[, vnames$D, drop = FALSE],
-                          auxmetadata, Dout = 'init',
-                          useLquantiles = useLquantiles)
+                              auxmetadata,
+                              Dout = 'init',
+                              useLquantiles = useLquantiles)
       )
     },
     if (vn$L > 0) { # latent
@@ -545,13 +555,18 @@ inferpopulation <- function(data, metadata, outputdir, nsamples = 1200,
         Lvar1 = rep(1, 1),
         Lshapelo = rep(Lshapelo, 1),
         Lshapehi = rep(Lshapehi, 1),
-        Lleft = vtransform(data[, vnames$L, drop = FALSE], auxmetadata = auxmetadata,
-                          Lout = 'left', useLquantiles = useLquantiles),
-        Lright = vtransform(data[, vnames$L, drop = FALSE], auxmetadata = auxmetadata,
-                            Lout = 'right', useLquantiles = useLquantiles),
+        Lleft = vtransform(data[, vnames$L, drop = FALSE],
+                           auxmetadata = auxmetadata,
+                           Lout = 'left',
+                           useLquantiles = useLquantiles),
+        Lright = vtransform(data[, vnames$L, drop = FALSE],
+                            auxmetadata = auxmetadata,
+                            Lout = 'right',
+                            useLquantiles = useLquantiles),
         Llatinit = vtransform(data[, vnames$L, drop = FALSE],
-                          auxmetadata, Lout = 'init',
-                          useLquantiles = useLquantiles)
+                              auxmetadata,
+                              Lout = 'init',
+                              useLquantiles = useLquantiles)
       )
     },
     if (vn$O > 0) { # ordinal
@@ -597,47 +612,63 @@ inferpopulation <- function(data, metadata, outputdir, nsamples = 1200,
   datapoints <- c(
     if (vn$R > 0) { # continuous open domain
       list(
-        Rdata = vtransform(data[, vnames$R, drop = FALSE], auxmetadata = auxmetadata,
-          useLquantiles = useLquantiles
-        )
+        Rdata = vtransform(data[, vnames$R, drop = FALSE],
+                           auxmetadata = auxmetadata,
+                           Rout = 'normalized'
+                           useLquantiles = useLquantiles
+                           )
       )
     },
     if (vn$C > 0) { # continuous closed domain
       list(
-        Caux = vtransform(data[, vnames$C, drop = FALSE], auxmetadata = auxmetadata,
-          Cout = 'aux', useLquantiles = useLquantiles),
-        Clat = vtransform(data[, vnames$C, drop = FALSE], auxmetadata = auxmetadata,
-          Cout = 'lat', useLquantiles = useLquantiles)
+        Caux = vtransform(data[, vnames$C, drop = FALSE],
+                          auxmetadata = auxmetadata,
+                          Cout = 'aux',
+                          useLquantiles = useLquantiles),
+        Clat = vtransform(data[, vnames$C, drop = FALSE],
+                          auxmetadata = auxmetadata,
+                          Cout = 'lat',
+                          useLquantiles = useLquantiles)
       )
     },
     if (vn$D > 0) { # continuous rounded
       list(
-        Daux = vtransform(data[, vnames$D, drop = FALSE], auxmetadata = auxmetadata,
-          Dout = 'aux', useLquantiles = useLquantiles)
+        Daux = vtransform(data[, vnames$D, drop = FALSE],
+                          auxmetadata = auxmetadata,
+                          Dout = 'aux',
+                          useLquantiles = useLquantiles)
       )
     },
     if (vn$L > 0) { # latent
       list(
-        Laux = vtransform(data[, vnames$L, drop = FALSE], auxmetadata = auxmetadata,
-          Lout = 'aux', useLquantiles = useLquantiles)
+        Laux = vtransform(data[, vnames$L, drop = FALSE],
+                          auxmetadata = auxmetadata,
+                          Lout = 'aux',
+                          useLquantiles = useLquantiles)
       )
     },
     if (vn$O > 0) { # nominal
       list(
-        Odata = vtransform(data[, vnames$O, drop = FALSE], auxmetadata = auxmetadata,
-          Oout = 'numeric', useLquantiles = useLquantiles)
+        Odata = vtransform(data[, vnames$O, drop = FALSE],
+                           auxmetadata = auxmetadata,
+                           Oout = 'numeric',
+                           useLquantiles = useLquantiles)
       )
     },
     if (vn$N > 0) { # nominal
       list(
-        Ndata = vtransform(data[, vnames$N, drop = FALSE], auxmetadata = auxmetadata,
-          Nout = 'numeric', useLquantiles = useLquantiles)
+        Ndata = vtransform(data[, vnames$N, drop = FALSE],
+                           auxmetadata = auxmetadata,
+                           Nout = 'numeric',
+                           useLquantiles = useLquantiles)
       )
     },
     if (vn$B > 0) { # binary
       list(
-        Bdata = vtransform(data[, vnames$B, drop = FALSE], auxmetadata = auxmetadata,
-          Bout = 'numeric', useLquantiles = useLquantiles)
+        Bdata = vtransform(data[, vnames$B, drop = FALSE],
+                           auxmetadata = auxmetadata,
+                           Bout = 'numeric',
+                           useLquantiles = useLquantiles)
       )
     }
   ) # End datapoints
