@@ -24,11 +24,11 @@ currenttestdir <- inferpopulation(data = 'data_test_custom_150.csv',
                         metadata = 'metadata_test_custom.csv',
                         outputdir = outputdirPrefix,
                         output = 'directory',
-                        appendtimestamp = FALSE,
+                        appendtimestamp = TRUE,
                         appendinfo = TRUE,
                         nsamples = 120, nchains = 12,
                         cleanup = FALSE, parallel = 4,
-                        ## miniter = 1200, 
+                        ## miniter = 1200,
                         ## prior = TRUE,
                         ## lldata = 12,
                         showKtraces = T,
@@ -65,4 +65,3 @@ currentfile <- currentfile[!grepl('time', currentfile, fixed=TRUE)]
 
 print(identical(currentfile, reffile))
 }
-

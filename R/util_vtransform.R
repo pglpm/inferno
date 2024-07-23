@@ -10,7 +10,6 @@
 #'  'init': for internal MCMC use (init input)
 #'  'left', 'right': for internal MCMC use
 #'  'aux', 'lat': for internal MCMC use
-#'  'sleft', 'sright': for sampling functions
 #'  'boundisinf': for sampling functions
 #'  'mi': for use in mutualinfo()
 #'  'original': original representation
@@ -18,7 +17,6 @@
 #'  'init': for internal MCMC use (init input)
 #'  'left', 'right': for internal MCMC use
 #'  'aux': for internal MCMC use
-#'  'sleft', 'sright': for sampling functions
 #'  'boundisinf': for sampling functions
 #'  'mi': for use in mutualinfo()
 #'  'original': original representation
@@ -26,7 +24,6 @@
 #'  'init': for internal MCMC use (init input)
 #'  'left', 'right': for internal MCMC use
 #'  'aux': for internal MCMC use
-#'  'sleft', 'sright': for sampling functions
 #'  'boundisinf': for sampling functions
 #'  'mi': for use in mutualinfo()
 #'  'original': original representation
@@ -40,18 +37,18 @@
 #'  'numeric': for internal MCMC use, values 0,1
 #'  'original': original representation
 #' @param variates string vector, names of variates
-#'   corresponding to columns of x
+#'   corresponding to columns of x (in case x misses column names)
 #' @param invjacobian logical: calculate Jacobian factor?
 #' @param useLquantiles logical: use L quantiles in transformation?
 vtransform <- function(x, auxmetadata,
-                       Rout,
-                       Cout,
-                       Dout,
-                       Lout,
-                       Bout,
-                       Oout,
-                       Nout,
-                       variates,
+                       Rout = NULL,
+                       Cout = NULL,
+                       Dout = NULL,
+                       Lout = NULL,
+                       Bout = NULL,
+                       Oout = NULL,
+                       Nout = NULL,
+                       variates = NULL,
                        invjacobian = FALSE,
                        useLquantiles = FALSE) {
   ## Qf <- readRDS('Qfunction3600_3.rds')
@@ -62,11 +59,9 @@ vtransform <- function(x, auxmetadata,
     colnames(x) <- variates
   }
   matrix(sapply(colnames(x), function(v) {
-    ##
-    ## datum <- unlist(x[, v, with = F]) # old version, remove
     datum <- x[[v]]
     info <- as.list(auxmetadata[auxmetadata$name == v, ])
-    ##
+
     if (invjacobian) {
 #### Calculation of reciprocal Jacobian factors
       if (info$mcmctype %in% c('B', 'N', 'O', 'L')) {
@@ -77,10 +72,15 @@ vtransform <- function(x, auxmetadata,
         } else if (info$transform == 'logminus') {
           datum <- (info$domainmax - datum) * info$tscale
         } else if (info$transform == 'Q') {
-          datum <- Qf((datum - info$domainmin) / (info$domainmax - info$domainmin))
+          datum <- Qf(0.5 +
+                      (datum - (info$domainmin + info$domainmax)/2) /
+                      (info$domainmax - info$domainmin)
+                      )
           datum <- DQf(datum) * info$tscale * (info$domainmax - info$domainmin)
+        } else if (info$transform == 'identity') {
+          datum[] <- info$tscale
         } else {
-          datum <- rep(info$tscale, length(datum))
+          stop('Unknown transformation for variate', v)
         }
         xv <- data.matrix(x[, v, drop = FALSE])
         if (info$mcmctype %in% c('C', 'D')) {
@@ -102,16 +102,12 @@ vtransform <- function(x, auxmetadata,
           } else if (info$transform == 'logminus') {
             datum <- log(info$domainmax - datum)
           } else if (info$transform == 'Q') {
-          datum <- Qf(0.5 +
-                      (datum - (info$domainmin + info$domainmax)/2) /
-                      (info$domainmax - info$domainmin)
-                      )
+            datum <- Qf(0.5 +
+                        (datum - (info$domainmin + info$domainmax)/2) /
+                        (info$domainmax - info$domainmin)
+                        )
           }
           datum <- (datum - info$tlocation) / info$tscale
-
-        } else if(Rout == 'mi') {
-          ## used in mutualinfo()
-          datum
 
         } else if (Rout == 'original') {
           ## transformation from MCMC representation
@@ -123,10 +119,11 @@ vtransform <- function(x, auxmetadata,
             datum <- info$domainmax - exp(datum)
           } else if (info$transform == 'Q') {
             datum <- (invQf(datum) - 0.5) * (info$domainmax - info$domainmin) +
-               (info$domainmin + info$domainmax)/2
+              (info$domainmin + info$domainmax)/2
           }
 
-        } else {
+        } else if (Rout != 'mi'){
+          ## used in mutualinfo()
           stop('Unknown transformation for variate', v)
         }
 
@@ -202,13 +199,13 @@ vtransform <- function(x, auxmetadata,
           datum[selmin] <- -Inf
           datum <- (datum - info$tlocation) / info$tscale
 
-        } else if (Cout == 'sleft') {
-          ## used in sampling functions
-          datum <- rep(info$tcensormin, length(datum))
-
-        } else if (Cout == 'sright') {
-          ## used in sampling functions
-          datum <- rep(info$tcensormax, length(datum))
+        ## } else if (Cout == 'sleft') {
+        ##   ## used in sampling functions
+        ##   datum[] <- info$tcensormin
+        ## 
+        ## } else if (Cout == 'sright') {
+        ##   ## used in sampling functions
+        ##   datum[] <- info$tcensormax
 
         } else if (Cout == 'mi') {
           ## used in mutualinfo
@@ -225,7 +222,7 @@ vtransform <- function(x, auxmetadata,
             datum <- info$domainmax - exp(datum)
           } else if (info$transform == 'Q') {
             datum <- (invQf(datum) - 0.5) * (info$domainmax - info$domainmin) +
-               (info$domainmin + info$domainmax)/2
+              (info$domainmin + info$domainmax)/2
           }
           datum[datum <= info$censormin] <- censormin
           datum[datum >= info$censormax] <- censormax
@@ -345,13 +342,13 @@ vtransform <- function(x, auxmetadata,
           datum[selmin] <- -Inf
           datum <- (datum - info$tlocation) / info$tscale
 
-        } else if (Dout == 'sleft') {
-          ## in sampling functions
-          datum <- rep(info$tcensormin, length(datum))
-
-        } else if (Dout == 'sright') {
-          ## in sampling functions
-          datum <- rep(info$tcensormax, length(datum))
+        ## } else if (Dout == 'sleft') {
+        ##   ## in sampling functions
+        ##   datum[] <- info$tcensormin
+        ## 
+        ## } else if (Dout == 'sright') {
+        ##   ## in sampling functions
+        ##   datum[] <- info$tcensormax
 
         } else if (Dout == 'mi') {
           ## used in mutualinfo
@@ -368,7 +365,7 @@ vtransform <- function(x, auxmetadata,
             datum <- info$domainmax - exp(datum)
           } else if (info$transform == 'Q') {
             datum <- (invQf(datum) - 0.5) * (info$domainmax - info$domainmin) +
-               (info$domainmin + info$domainmax)/2
+              (info$domainmin + info$domainmax)/2
           }
           datum[datum <= info$censormin] <- censormin
           datum[datum >= info$censormax] <- censormax
@@ -415,7 +412,7 @@ vtransform <- function(x, auxmetadata,
         } else if (Lout == 'boundisinf') { # in output functions
           datum <- datum - 1L
 
-        } else if (Lout == 'integer') { # in mutualinfo
+        } else if (Lout == 'mi') { # in mutualinfo
           datum <- data.matrix(x[, v, drop = FALSE])
           if (useLquantiles) {
             datum <- datum * info$tscale + info$tlocation
@@ -424,11 +421,11 @@ vtransform <- function(x, auxmetadata,
           datum[datum < 1] <- 1L
           datum[datum > info$Nvalues] <- info$Nvalues
 
-        } else {
+        } else if (Lout != 'normalized') { # in sampling functions
           stop('Unknown transformation for variate', v)
         }
 
-      ## Ordinal
+        ## Ordinal
       } else if (info$mcmctype == 'O') {
         bvalues <- 1:info$Nvalues
         names(bvalues) <- unlist(info[paste0('V', bvalues)])
@@ -439,11 +436,11 @@ vtransform <- function(x, auxmetadata,
         } else if (Oout == 'original') {
           datum <- names(bvalues[datum])
 
-        } else {
+        } else if (Oout != 'mi') {
           stop('Unknown transformation for variate', v)
         }
 
-      ## Nominal
+        ## Nominal
       } else if (info$mcmctype == 'N') {
         bvalues <- 1:info$Nvalues
         names(bvalues) <- unlist(info[paste0('V', bvalues)])
@@ -454,11 +451,11 @@ vtransform <- function(x, auxmetadata,
         } else if (Nout == 'original') {
           datum <- names(bvalues[datum])
 
-        } else {
+        } else if (Nout != 'mi') {
           stop('Unknown transformation for variate', v)
         }
 
-      ## Binary
+        ## Binary
       } else if (info$mcmctype == 'B') {
         bvalues <- 0:1
         names(bvalues) <- unlist(info[c('V1', 'V2')])
@@ -469,11 +466,12 @@ vtransform <- function(x, auxmetadata,
         } else if (Bout == 'original') {
           datum <- names(bvalues[datum + 1])
 
-        } else {
+        } else if (Bout != 'mi') {
           stop('Unknown transformation for variate', v)
         }
+      }
+
     }
-    ##
     datum
   }), ncol = ncol(x), dimnames = list(NULL, colnames(x)))
 }

@@ -192,25 +192,33 @@ mutualinfo <- function(Yvrt, Xvrt, mcoutput, nsamples=3600, unit='Sh', useLquant
   if (YnC > 0 || XnC > 0) {
     mcoutput$Cvar <- sqrt(mcoutput$Cvar)
     Cbounds <- cbind(
-      c(vtransform(
-        x = matrix(NA,
-                   nrow = 1, ncol = length(vnames),
-                   dimnames = list(NULL, vnames)
-                   ),
-        auxmetadata = auxmetadata, Cout = 'sleft',
-        useLquantiles = useLquantiles
-      )),
+      auxmetadata[match(vnames, auxmetadata$name), 'tcensormin'],
       ## sign is important here:
       ## for upper tail, take opposite mean and value
-      -c(vtransform(
-         x = matrix(NA,
-                    nrow = 1, ncol = length(vnames),
-                    dimnames = list(NULL, vnames)
-                    ),
-         auxmetadata = auxmetadata, Cout = 'sright',
-         useLquantiles = useLquantiles
-       ))
-    )
+      -auxmetadata[match(vnames, auxmetadata$name), 'tcensormax']
+      )
+    ## Cbounds <- cbind(
+    ##   c(vtransform(
+    ##     x = matrix(NA,
+    ##                nrow = 1, ncol = length(vnames),
+    ##                dimnames = list(NULL, vnames)
+    ##                ),
+    ##     auxmetadata = auxmetadata,
+    ##     Cout = 'sleft',
+    ##     useLquantiles = useLquantiles
+    ##   )),
+    ##   ## sign is important here:
+    ##   ## for upper tail, take opposite mean and value
+    ##   -c(vtransform(
+    ##      x = matrix(NA,
+    ##                 nrow = 1, ncol = length(vnames),
+    ##                 dimnames = list(NULL, vnames)
+    ##                 ),
+    ##      auxmetadata = auxmetadata,
+    ##      Cout = 'sright',
+    ##      useLquantiles = useLquantiles
+    ##    ))
+    ## )
   }
   ##
   ZiC <- match(vnames, Zvrt)
@@ -232,25 +240,33 @@ mutualinfo <- function(Yvrt, Xvrt, mcoutput, nsamples=3600, unit='Sh', useLquant
   if (YnD > 0 || XnD > 0) {
     mcoutput$Dvar <- sqrt(mcoutput$Dvar)
     Dbounds <- cbind(
-      c(vtransform(
-        x = matrix(NA,
-                   nrow = 1, ncol = length(vnames),
-                   dimnames = list(NULL, vnames)
-                   ),
-        auxmetadata = auxmetadata, Dout = 'sleft',
-        useLquantiles = useLquantiles
-      )),
+      auxmetadata[match(vnames, auxmetadata$name), 'tcensormin'],
       ## sign is important here:
       ## for upper tail, take opposite mean and value
-      -c(vtransform(
-         x = matrix(NA,
-                    nrow = 1, ncol = length(vnames),
-                    dimnames = list(NULL, vnames)
-                    ),
-         auxmetadata = auxmetadata, Dout = 'sright',
-         useLquantiles = useLquantiles
-       ))
-    )
+      -auxmetadata[match(vnames, auxmetadata$name), 'tcensormax']
+      )
+    ## Dbounds <- cbind(
+    ##   c(vtransform(
+    ##     x = matrix(NA,
+    ##                nrow = 1, ncol = length(vnames),
+    ##                dimnames = list(NULL, vnames)
+    ##                ),
+    ##     auxmetadata = auxmetadata,
+    ##     Dout = 'sleft',
+    ##     useLquantiles = useLquantiles
+    ##   )),
+    ##   ## sign is important here:
+    ##   ## for upper tail, take opposite mean and value
+    ##   -c(vtransform(
+    ##      x = matrix(NA,
+    ##                 nrow = 1, ncol = length(vnames),
+    ##                 dimnames = list(NULL, vnames)
+    ##                 ),
+    ##      auxmetadata = auxmetadata,
+    ##      Dout = 'sright',
+    ##      useLquantiles = useLquantiles
+    ##    ))
+    ## )
   }
   ##
   ZiD <- match(vnames, Zvrt)
@@ -281,7 +297,8 @@ mutualinfo <- function(Yvrt, Xvrt, mcoutput, nsamples=3600, unit='Sh', useLquant
                   )
       c(
         vtransform(seqs, auxmetadata = auxmetadata,
-                   Lout = 'left', variates = avar,
+                   Lout = 'left',
+                   variates = avar,
                    useLquantiles = useLquantiles
                    ),
         rep(NA, Lmaxn - nn)
@@ -295,7 +312,8 @@ mutualinfo <- function(Yvrt, Xvrt, mcoutput, nsamples=3600, unit='Sh', useLquant
                   )
       c(
         vtransform(seqs, auxmetadata = auxmetadata,
-                   Lout = 'right', variates = avar,
+                   Lout = 'right',
+                   variates = avar,
                    useLquantiles = useLquantiles
                    ),
         rep(NA, Lmaxn - nn)
@@ -420,11 +438,11 @@ mutualinfo <- function(Yvrt, Xvrt, mcoutput, nsamples=3600, unit='Sh', useLquant
   colnames(Zout) <- Zvrt
   Zout <- vtransform(Zout,
                      auxmetadata = auxmetadata,
-                     Rout = 'id',
-                     Cout = 'idboundinf',
-                     Dout = 'idboundinf',
-                     Lout = 'integer',
-                     Oout = '',
+                     Rout = 'mi',
+                     Cout = 'mi',
+                     Dout = 'mi',
+                     Lout = 'mi',
+                     Oout = 'mi',
                      Nout = '',
                      Bout = '',
                      useLquantiles = useLquantiles)

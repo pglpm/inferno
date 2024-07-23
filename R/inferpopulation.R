@@ -614,7 +614,7 @@ inferpopulation <- function(data, metadata, outputdir, nsamples = 1200,
       list(
         Rdata = vtransform(data[, vnames$R, drop = FALSE],
                            auxmetadata = auxmetadata,
-                           Rout = 'normalized'
+                           Rout = 'normalized',
                            useLquantiles = useLquantiles
                            )
       )

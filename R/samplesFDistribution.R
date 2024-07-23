@@ -220,27 +220,34 @@ samplesFDistribution <- function(Y, X, mcoutput, subsamples, jacobian = TRUE,
   if (YnC > 0 || XnC > 0) {
     mcoutput$Cvar <- sqrt(mcoutput$Cvar)
     Cbounds <- cbind(
-      c(vtransform(
-        x = matrix(NA,
-                   nrow = 1, ncol = length(vnames),
-                   dimnames = list(NULL, vnames)
-                   ),
-        auxmetadata = auxmetadata,
-        Cout = 'sleft',
-        useLquantiles = useLquantiles
-      )),
+      auxmetadata[match(vnames, auxmetadata$name), 'tcensormin'],
       ## sign is important here:
       ## for upper tail, take opposite mean and value
-      -c(vtransform(
-         x = matrix(NA,
-                    nrow = 1, ncol = length(vnames),
-                    dimnames = list(NULL, vnames)
-                    ),
-         auxmetadata = auxmetadata,
-         Cout = 'sright',
-         useLquantiles = useLquantiles
-       ))
-    )
+      -auxmetadata[match(vnames, auxmetadata$name), 'tcensormax']
+      )
+## Old version, to be removed after checks
+    ## Cbounds <- cbind(
+    ##   c(vtransform(
+    ##     x = matrix(NA,
+    ##                nrow = 1, ncol = length(vnames),
+    ##                dimnames = list(NULL, vnames)
+    ##                ),
+    ##     auxmetadata = auxmetadata,
+    ##     Cout = 'sleft',
+    ##     useLquantiles = useLquantiles
+    ##   )),
+    ##   ## sign is important here:
+    ##   ## for upper tail, take opposite mean and value
+    ##   -c(vtransform(
+    ##      x = matrix(NA,
+    ##                 nrow = 1, ncol = length(vnames),
+    ##                 dimnames = list(NULL, vnames)
+    ##                 ),
+    ##      auxmetadata = auxmetadata,
+    ##      Cout = 'sright',
+    ##      useLquantiles = useLquantiles
+    ##    ))
+    ## )
   }
 
 #### Type D
@@ -257,27 +264,33 @@ samplesFDistribution <- function(Y, X, mcoutput, subsamples, jacobian = TRUE,
   if (YnD > 0 || XnD > 0) {
     mcoutput$Dvar <- sqrt(mcoutput$Dvar)
     Dbounds <- cbind(
-      c(vtransform(
-        x = matrix(NA,
-                   nrow = 1, ncol = length(vnames),
-                   dimnames = list(NULL, vnames)
-                   ),
-        auxmetadata = auxmetadata,
-        Dout = 'sleft',
-        useLquantiles = useLquantiles
-      )),
+      auxmetadata[match(vnames, auxmetadata$name), 'tcensormin'],
       ## sign is important here:
       ## for upper tail, take opposite mean and value
-      -c(vtransform(
-         x = matrix(NA,
-                    nrow = 1, ncol = length(vnames),
-                    dimnames = list(NULL, vnames)
-                    ),
-         auxmetadata = auxmetadata,
-         Dout = 'sright',
-         useLquantiles = useLquantiles
-       ))
-    )
+      -auxmetadata[match(vnames, auxmetadata$name), 'tcensormax']
+      )
+    ## Dbounds <- cbind(
+    ##   c(vtransform(
+    ##     x = matrix(NA,
+    ##                nrow = 1, ncol = length(vnames),
+    ##                dimnames = list(NULL, vnames)
+    ##                ),
+    ##     auxmetadata = auxmetadata,
+    ##     Dout = 'sleft',
+    ##     useLquantiles = useLquantiles
+    ##   )),
+    ##   ## sign is important here:
+    ##   ## for upper tail, take opposite mean and value
+    ##   -c(vtransform(
+    ##      x = matrix(NA,
+    ##                 nrow = 1, ncol = length(vnames),
+    ##                 dimnames = list(NULL, vnames)
+    ##                 ),
+    ##      auxmetadata = auxmetadata,
+    ##      Dout = 'sright',
+    ##      useLquantiles = useLquantiles
+    ##    ))
+    ## )
   }
 
 #### Type L
@@ -365,9 +378,10 @@ samplesFDistribution <- function(Y, X, mcoutput, subsamples, jacobian = TRUE,
 
 #### transformation of inputs
   Y2 <- vtransform(Y, auxmetadata = auxmetadata,
+                   Rout = 'normalized',
                    Cout = 'boundisinf',
                    Dout = 'boundisinf',
-                   Lout = '',
+                   Lout = 'normalized',
                    Oout = 'numeric',
                    Nout = 'numeric',
                    Bout = 'numeric',
@@ -375,9 +389,10 @@ samplesFDistribution <- function(Y, X, mcoutput, subsamples, jacobian = TRUE,
 
   if (!is.null(X)) {
     X2 <- vtransform(X, auxmetadata = auxmetadata,
+                     Rout = 'normalized',
                      Cout = 'boundisinf',
                      Dout = 'boundisinf',
-                     Lout = '',
+                     Lout = 'normalized',
                      Oout = 'numeric',
                      Nout = 'numeric',
                      Bout = 'numeric',
@@ -720,7 +735,9 @@ samplesFDistribution <- function(Y, X, mcoutput, subsamples, jacobian = TRUE,
                    } *
   (if (jacobian) {
      exp(-rowSums(
-            log(vtransform(Y, auxmetadata = auxmetadata, invjacobian = TRUE,
+            log(vtransform(Y,
+                           auxmetadata = auxmetadata,
+                           invjacobian = TRUE,
                            useLquantiles = useLquantiles)),
             na.rm = TRUE
           ))
