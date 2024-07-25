@@ -99,25 +99,25 @@ plotFsamples <- function(file,
       theresdata <- (sum(!is.na(data[[v]])) > 1)
     }
 
-    varinfo <- as.list(auxmetadata[auxmetadata$name == v, ])
-    vtype <- varinfo[['mcmctype']]
+    xinfo <- as.list(auxmetadata[auxmetadata$name == v, ])
+    vtype <- xinfo[['mcmctype']]
     if (vtype %in% c('R', 'D', 'C', 'L')) { #
       if (vtype == 'L') {
-        Xgrid <- seq(varinfo[['domainmin']], varinfo[['domainmax']],
-          length.out = varinfo[['Nvalues']]
+        Xgrid <- seq(xinfo[['domainmin']], xinfo[['domainmax']],
+          length.out = xinfo[['Nvalues']]
         )
-        Xgrid <- cbind(Xgrid[Xgrid >= varinfo[['plotmin']]
-                             & Xgrid <= varinfo[['plotmax']]])
+        Xgrid <- cbind(Xgrid[Xgrid >= xinfo[['plotmin']]
+                             & Xgrid <= xinfo[['plotmax']]])
       } else {
         Xgrid <- cbind(seq(
-          varinfo[['plotmin']], varinfo[['plotmax']],
+          xinfo[['plotmin']], xinfo[['plotmax']],
           length.out = 256
         ))
       }
       colnames(Xgrid) <- v
 
-      xleft <- Xgrid > varinfo[['censormin']]
-      xright <- Xgrid < varinfo[['censormax']]
+      xleft <- Xgrid > xinfo[['censormin']]
+      xright <- Xgrid < xinfo[['censormax']]
 
       plotsamples <- samplesFDistribution(Y = Xgrid, X = NULL,
                                           mcoutput = mcoutput,
@@ -148,13 +148,13 @@ plotFsamples <- function(file,
       if (datahistogram && theresdata) {
         datum <- data[[v]]
         datum <- datum[!is.na(datum)]
-        dleft <- datum > varinfo[['censormin']]
-        dright <- datum < varinfo[['censormax']]
+        dleft <- datum > xinfo[['censormin']]
+        dright <- datum < xinfo[['censormax']]
         if (vtype == 'L') {
-          dh <- (varinfo[['domainmax']] - varinfo[['domainmin']]) /
-            (varinfo[['Nvalues']] - 1L) / 2
-          nh <- seq(varinfo[['domainmin']] - dh, varinfo[['domainmax']] + dh,
-            length.out = varinfo[['Nvalues']] + 1L
+          dh <- (xinfo[['domainmax']] - xinfo[['domainmin']]) /
+            (xinfo[['Nvalues']] - 1L) / 2
+          nh <- seq(xinfo[['domainmin']] - dh, xinfo[['domainmax']] + dh,
+            length.out = xinfo[['Nvalues']] + 1L
           )
           nh <- nh[nh >= min(datum) - dh & nh <= max(datum) + dh]
         } else {
@@ -277,9 +277,9 @@ plotFsamples <- function(file,
         if (any(!(dleft & dright))) {
           tplot(
             x = c(if (hleft > 0) {
-              varinfo[['censormin']]
+              xinfo[['censormin']]
             }, if (hright > 0) {
-              varinfo[['censormax']]
+              xinfo[['censormax']]
             }), y = c(if (hleft > 0) {
               hleft
             }, if (hright > 0) {
@@ -298,13 +298,15 @@ plotFsamples <- function(file,
       #####
       ## ordinal or nominal or binary variate
     } else {
-      Xgrid <- cbind(unlist(varinfo[paste0('V', 1:varinfo[['Nvalues']])]))
+      Xgrid <- cbind(unlist(xinfo[paste0('V', 1:xinfo[['Nvalues']])]))
       colnames(Xgrid) <- v
-      Ngrid <- vtransform(
+      Ngrid <- as.matrix(vtransform(
         x = Xgrid, auxmetadata = auxmetadata,
-        Oout = 'numeric', Nout = 'numeric',
-        Bout = 'numeric', useLquantiles = useLquantiles
-      )
+        Oout = 'numeric',
+        Nout = 'numeric',
+        Bout = 'numeric',
+        useLquantiles = useLquantiles
+      ))
 
       plotsamples <- samplesFDistribution(Y = Xgrid, X = NULL,
                                           mcoutput = mcoutput,
@@ -394,12 +396,12 @@ plotFsamples <- function(file,
       datum <- data[[v]]
       datum <- datum[!is.na(datum)]
       if (!(vtype %in% c('R', 'D', 'C', 'L'))) {
-        datum <- vtransform(
-          x = matrix(datum, ncol = 1, nrow = length(datum),
-                     dimnames = list(NULL, v)), auxmetadata = auxmetadata,
+        datum <- as.matrix(vtransform(
+          x = datum, variates = v,
+          auxmetadata = auxmetadata,
           Oout = 'numeric', Nout = 'numeric',
           Bout = 'numeric', useLquantiles = useLquantiles
-        )
+        ))
       }
       scatteraxis(
         side = 1, n = NA, alpha = 0.75, ext = 5,

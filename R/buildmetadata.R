@@ -38,9 +38,9 @@ buildmetadata <- function(data, file = NULL,
            domainmax = NA,
            minincluded = NA,
            maxincluded = NA,
-           lowvalue = NA,
-           centralvalue = NA,
-           highvalue = NA,
+           ## lowvalue = NA,
+           ## centralvalue = NA,
+           ## highvalue = NA,
            plotmin = NA,
            plotmax = NA),
       if (diagnosticvalues) {
@@ -98,9 +98,9 @@ buildmetadata <- function(data, file = NULL,
       domainmax <- NA
       minincluded <- NA
       maxincluded <- NA
-      lowvalue <- NA
-      centralvalue <- NA
-      highvalue <- NA
+      ## lowvalue <- NA
+      ## centralvalue <- NA
+      ## highvalue <- NA
       plotmin <- NA
       plotmax <- NA
       datavalues <- sort(as.character(unique(x)))
@@ -115,9 +115,9 @@ buildmetadata <- function(data, file = NULL,
       domainmax <- NA
       minincluded <- NA
       maxincluded <- NA
-      lowvalue <- NA
-      centralvalue <- NA
-      highvalue <- NA
+      ## lowvalue <- NA
+      ## centralvalue <- NA
+      ## highvalue <- NA
       plotmin <- NA
       plotmax <- NA
       datavalues <- sort(as.character(unique(x)))
@@ -132,9 +132,9 @@ buildmetadata <- function(data, file = NULL,
       domainmax <- datamax
       minincluded <- TRUE
       maxincluded <- TRUE
-      lowvalue <- NA
-      centralvalue <- NA
-      highvalue <- NA
+      ## lowvalue <- NA
+      ## centralvalue <- NA
+      ## highvalue <- NA
       plotmin <- NA
       plotmax <- NA
       datavalues <- sort(as.character(unique(x)))
@@ -151,22 +151,22 @@ buildmetadata <- function(data, file = NULL,
       minincluded <- FALSE
       maxincluded <- FALSE
 
-      lowvalue <- Q1 <- quantile(x, probs = 0.25, type = 6)
-      centralvalue <- quantile(x, probs = 0.5, type = 6)
-      highvalue <- Q3 <- quantile(x, probs = 0.75, type = 6)
-      ## Borderline case if the first and second quartile have the same value
-      if (lowvalue == highvalue) {
-        lowvalue <- if (sum(x < Q1) > 0) {
-                      max(x[x < Q1])
-                    } else {
-                      max(x[x <= Q1])
-                    }
-        highvalue <- if (sum(x > Q3) > 0) {
-                       min(x[x > Q3])
-                     } else {
-                       min(x[x >= Q3])
-                     }
-      }
+      ## lowvalue <- Q1 <- quantile(x, probs = 0.25, type = 6)
+      ## centralvalue <- quantile(x, probs = 0.5, type = 6)
+      ## highvalue <- Q3 <- quantile(x, probs = 0.75, type = 6)
+      ## ## Borderline case if the first and second quartile have the same value
+      ## if (lowvalue == highvalue) {
+      ##   lowvalue <- if (sum(x < Q1) > 0) {
+      ##                 max(x[x < Q1])
+      ##               } else {
+      ##                 max(x[x <= Q1])
+      ##               }
+      ##   highvalue <- if (sum(x > Q3) > 0) {
+      ##                  min(x[x > Q3])
+      ##                } else {
+      ##                  min(x[x >= Q3])
+      ##                }
+      ## }
       plotmin <- datamin - (Q3 - Q1) / 2
       plotmax <- datamax + (Q3 - Q1) / 2
       datavalues <- NULL
@@ -232,9 +232,9 @@ buildmetadata <- function(data, file = NULL,
              domainmax = domainmax,
              minincluded = minincluded,
              maxincluded = maxincluded,
-             lowvalue = signif(lowvalue,3),
-             centralvalue = signif(centralvalue,3),
-             highvalue = signif(highvalue,3),
+             ## lowvalue = signif(lowvalue,3),
+             ## centralvalue = signif(centralvalue,3),
+             ## highvalue = signif(highvalue,3),
              plotmin = signif(plotmin,2),
              plotmax = signif(plotmax,2)),
         if (diagnosticvalues) {

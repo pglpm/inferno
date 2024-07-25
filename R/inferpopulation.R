@@ -303,8 +303,10 @@ inferpopulation <- function(data, metadata, outputdir, nsamples = 1200,
     message('CALCULATING PRIOR DISTRIBUTION')
     ## if data is not empty, we use it to create data for likelihood
     if(!is.null(data)) {
-      ## if "testdata" is moved into the for-loop,
-      ## then each chain uses a different set of testdata
+      ## testdata is created and saved outside of the parallel processes
+      ## so that the dataset does not need to be exported to them
+      ## (using extra memory)
+      ## Each chain uses a different set of testdata
       for(achain in seq_len(nchains)) {
         testdata <- data[sort(sample(npoints, min(lldata, npoints))), ,
                          drop = FALSE]
@@ -313,16 +315,46 @@ inferpopulation <- function(data, metadata, outputdir, nsamples = 1200,
       }
     } else {
       ## no data available: construct one datapoint from the metadata info
-      testdata <- data.frame(1:3)[,-1]
-      for(xx in seq_len(nrow(auxmetadata))) {
-        xx <- as.list(auxmetadata[xx, ])
-        toadd <- unlist(xx[paste0('mctest', 1:3)])
-        if (xx[['mcmctype']] %in% c('B', 'N', 'O')) {
-          toadd <- unlist(xx[paste0('V', toadd)])
-        }
-        testdata <- cbind(testdata, toadd)
-      }
-      colnames(testdata) <- auxmetadata[['name']]
+      testdata <- vtransform(
+        as.data.frame(
+        lapply(seq_len(nrow(auxmetadata)),
+               function(ii){
+                 if(auxmetadata[ii, 'mcmctype'] %in% c('R', 'C', 'D', 'L')) {
+                   rnorm(n = lldata, mean = 0, sd = 2)
+                 } else {
+                   sample(1:auxmetadata[ii, 'Nvalues'], lldata, replace = TRUE)
+                 }
+               }
+               ),
+        col.names = auxmetadata$name),
+        auxmetadata = auxmetadata,
+        Rout = 'original',
+        Cout = 'original',
+        Dout = 'original',
+        Lout = 'original',
+        Nout = 'original',
+        Oout = 'original',
+        Bout = 'original')
+      ## testdata <- vtransform(test,
+      ##            auxmetadata = auxmetadata,
+      ##   Rout = 'original',
+      ##   Cout = 'original',
+      ##   Dout = 'original',
+      ##   Lout = 'original',
+      ##   Nout = 'original',
+      ##   Oout = 'original',
+      ##   Bout = 'original')
+
+      ## testdata <- data.frame(1:3)[,-1]
+      ## for(xx in seq_len(nrow(auxmetadata))) {
+      ##   xx <- as.list(auxmetadata[xx, ])
+      ##   toadd <- unlist(xx[paste0('mctest', 1:3)])
+      ##   if (xx[['mcmctype']] %in% c('B', 'N', 'O')) {
+      ##     toadd <- unlist(xx[paste0('V', toadd)])
+      ##   }
+      ##   testdata <- cbind(testdata, toadd)
+      ## }
+      ## colnames(testdata) <- auxmetadata[['name']]
       for(achain in seq_len(nchains)) {
         saveRDS(testdata,
                 file = file.path(dirname, paste0('_testdata_', achain, '.rds')))
@@ -350,7 +382,7 @@ inferpopulation <- function(data, metadata, outputdir, nsamples = 1200,
 ##   ## Find which datapoints have not all missing entries
 ##   dataNoNa <- which(apply(data, 1, function(xx) { !all(is.na(xx)) }))
 ##   ndataNoNa <- length(dataNoNa)
-## 
+##
 ##   if (ndataNoNa > 0) {
 ##     ## if "testdata" is moved into the for-loop,
 ##     ## then each chain uses a different set of testdata
