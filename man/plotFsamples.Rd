@@ -10,10 +10,9 @@ plotFsamples(
   data,
   plotmeans = TRUE,
   plotvariability = "samples",
-  nFsamples = 100,
-  datahistogram = TRUE,
-  datascatter = TRUE,
-  useLquantiles = FALSE,
+  nFsamples = NULL,
+  datahistogram = !(missing(data) || is.null(data)),
+  datascatter = !(missing(data) || is.null(data)),
   parallel = TRUE,
   silent = FALSE
 )
@@ -30,17 +29,14 @@ path for a 'FDistribution.rds' object, or such an object itself}
 
 \item{nFsamples}{positive number: if plotvariability='samples', then number of samples of representative frequency distributions to display as variability; if plotvariability='quantiles', then the quantiles (in range 0 to 0.5) to show}
 
-\item{datahistogram}{bool: plot the data as histogram?}
+\item{datahistogram}{logical: plot the data as histogram?}
 
-\item{datascatter}{bool: plot the data as scatterplot along the x-axis?}
-
-\item{useLquantiles}{Bool: internal, use metadata quantiles for ordinal
-variates}
+\item{datascatter}{logical: plot the data as scatterplot along the x-axis?}
 
 \item{parallel}{Bool or numeric: whether to use pre-existing parallel
 workers, or how many to create and use}
 
-\item{silent}{Bool: give warnings or updates in the computation}
+\item{silent}{logical: give warnings or updates in the computation}
 }
 \value{
 A list with the mutual information, its error, and its unit

@@ -7,6 +7,7 @@
 inferpopulation(
   data,
   metadata,
+  auxdata = NULL,
   outputdir,
   nsamples = 1200,
   nchains = 120,
@@ -18,23 +19,26 @@ inferpopulation(
   appendinfo = TRUE,
   subsampledata = NULL,
   output = "directory",
-  niterini = 1024,
-  miniter = 0,
+  niterini = 1200,
+  miniter = 3600,
   maxiter = +Inf,
   prior = missing(data),
   thinning = NULL,
   plottraces = TRUE,
   showKtraces = FALSE,
   showAlphatraces = FALSE,
-  lldata = 12,
-  useLquantiles = FALSE
+  lldata = 12
 )
 }
 \arguments{
-\item{data}{data.table object or filepath: datapoints}
+\item{data}{data.frame object or filepath: datapoints}
 
 \item{metadata}{Either the name of the csv file containing metadata
 of the current dataset, or a data.frame with the metadata}
+
+\item{auxdata}{data.frame object or filepath: extra datapoints
+which would be too many to use in the Monte Carlo sampling,
+but can be used to calculate hyperparameters}
 
 \item{outputdir}{String, path to output file folder ## Rename to
 outputPrefix, also addSuffix?}
@@ -45,14 +49,14 @@ outputPrefix, also addSuffix?}
 
 \item{nsamplesperchain}{Integer, nr of MC samples per chain}
 
-\item{parallel, }{Bool or numeric: whether to use pre-existing parallel
+\item{parallel, }{logical or numeric: whether to use pre-existing parallel
 workers, or how many to create and use}
 
 \item{seed}{Integer: seed for random number generator. If left as default
 NULL, a random seed based on the system clock is used in the
 set.seed() function}
 
-\item{cleanup}{Bool, default TRUE, removes files that can be used for
+\item{cleanup}{logical, default TRUE, removes files that can be used for
 debugging}
 
 \item{subsampledata}{Numeric: use only a subsample of the datapoints in 'data'}
@@ -61,31 +65,29 @@ debugging}
 if string 'mcoutput', return the 'Fdistribution' object;
 anything else, no output}
 
-\item{niterini}{Number of initial MC iterations}
+\item{niterini}{Number of initial (burn-in) MC iterations}
 
-\item{miniter}{Minimum number of MC iterations after every check}
+\item{miniter}{Minimum number of MC iterations to be done}
 
 \item{maxiter}{Maximum number of MC iterations}
 
-\item{prior}{Bool: Calculate the prior distribution of F?}
+\item{prior}{logical: Calculate the prior distribution of F?}
 
 \item{thinning}{If NULL, let the diagnostics decide the MC thinning; if positive, use this thinning value}
 
-\item{plottraces}{Bool: plot MC traces of diagnostic values}
+\item{plottraces}{logical: plot MC traces of diagnostic values}
 
-\item{showKtraces}{Bool, when true, it saves the K parameter during
+\item{showKtraces}{logical, when true, it saves the K parameter during
 sampling and plots its trace and histogram at the end. Keeping it to
 FALSE (default) saves a little computation time.}
 
-\item{showAlphatraces}{Bool, : when true, it saves the Alpha parameter
+\item{showAlphatraces}{logical, : when true, it saves the Alpha parameter
 more frequently during sampling and plots its trace and histogram at
 the end. Keeping it to FALSE (default) saves a little computation
 time.}
 
 \item{lldata}{Positive integer or Inf (default 12): number of datapoints
 to use for loglikelihood calculations; if Inf, use all.}
-
-\item{useLquantiles}{Bool: internal, use metadata quantiles for ordinal variates}
 }
 \value{
 name of directory containing output files, or Fdistribution object, or empty

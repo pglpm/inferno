@@ -10,7 +10,6 @@ mutualinfo(
   mcoutput,
   nsamples = 3600,
   unit = "Sh",
-  useOquantiles = FALSE,
   parallel = TRUE,
   silent = FALSE
 )
@@ -28,12 +27,10 @@ calculate the mutual information. Default 3600}
 
 \item{unit}{Either one of 'Sh' (default), 'Hart', 'nat', or a positive real}
 
-\item{useOquantiles}{Bool: internal, use metadata quantiles for ordinal variates}
-
-\item{parallel, }{Bool or numeric: whether to use pre-existing parallel
+\item{parallel, }{logical or numeric: whether to use pre-existing parallel
 workers, or how many to create and use}
 
-\item{silent}{Bool: give warnings or updates in the computation}
+\item{silent}{logical: give warnings or updates in the computation}
 }
 \value{
 A list with the mutual information, its error, and its unit

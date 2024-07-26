@@ -87,7 +87,7 @@ plotFsamples <- function(file,
   addplot <- FALSE
 
   graphics.off()
-  pdff(file, apaper = 4)
+  pdf(file = paste0(file, '.pdf'), family = fontfamily, height = 8.27, width = 11.69)
   par(mfrow = c(1, 1))
 
   for (v in auxmetadata[['name']]) {

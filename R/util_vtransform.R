@@ -56,7 +56,7 @@ vtransform <- function(x, auxmetadata,
   ## DQf <- readRDS('DQfunction3600_3.rds')
   ## invQf <- readRDS('invQfunction3600_3.rds')
   x <- as.data.frame(cbind(x))
-  if (!missing(variates)) {
+  if (!(missing(variates) || is.null(variates))) {
     colnames(x) <- variates
   }
 as.data.frame(lapply(colnames(x), function(v) {

@@ -1,8 +1,11 @@
 #' Monte Carlo computation of posterior distribution of population frequencies
 #'
-#' @param data data.table object or filepath: datapoints
+#' @param data data.frame object or filepath: datapoints
 #' @param metadata Either the name of the csv file containing metadata
 #'   of the current dataset, or a data.frame with the metadata
+#' @param auxdata data.frame object or filepath: extra datapoints
+#'   which would be too many to use in the Monte Carlo sampling,
+#'   but can be used to calculate hyperparameters
 #' @param outputdir String, path to output file folder ## Rename to
 #'   outputPrefix, also addSuffix?
 #' @param nsamples Integer, nr of desired MC samples
@@ -38,7 +41,8 @@
 #' @export
 #' @import parallel foreach doParallel doRNG nimble
 #' @importFrom LaplacesDemon MCSE ESS IAT BMK.Diagnostic is.stationary burnin
-inferpopulation <- function(data, metadata, outputdir, nsamples = 1200,
+inferpopulation <- function(data, metadata, auxdata = NULL,
+                            outputdir, nsamples = 1200,
                             nchains = 120, nsamplesperchain = 10, parallel = TRUE,
                             seed = NULL, cleanup = TRUE,
                             appendtimestamp = TRUE, appendinfo = TRUE,
@@ -181,7 +185,7 @@ inferpopulation <- function(data, metadata, outputdir, nsamples = 1200,
 
 #### Read metadata
   ## Check whether argument 'metadata' is a string for a file name
-  ## otherwise we assume it's a data.table or similar object
+  ## otherwise we assume it's a data.frame or similar object
   if (is.character(metadata) && file.exists(metadata)) {
     metadata <- read.csv(metadata, na.strings = '')
   }
@@ -191,7 +195,7 @@ inferpopulation <- function(data, metadata, outputdir, nsamples = 1200,
   ## Check if 'data' is given
   if(!(missing(data) || is.null(data))) {
     ## Check if 'data' argument is an existing file
-    ## otherwise we assume is an object
+    ## otherwise we assume it is an object
     datafile <- NULL
     if (is.character(data)) {
       ## add '.csv' if missing
@@ -248,9 +252,61 @@ inferpopulation <- function(data, metadata, outputdir, nsamples = 1200,
     npoints <- 0
   }
 
+#### Auxiliary dataset
+  ## used to extract information about hyperparameters
+  ## Check if 'auxdata' is given
+  if(!(missing(auxdata) || is.null(auxdata))) {
+    ## Check if 'auxdata' argument is an existing file
+    ## otherwise we assume it is an object
+    auxdatafile <- NULL
+    if (is.character(auxdata)) {
+      ## add '.csv' if missing
+      auxdatafile <- paste0(sub('.csv$', '', auxdata), '.csv')
+      if (file.exists(auxdata)) {
+        auxdata <- read.csv(auxdatafile, na.strings = '')
+      } else {
+        stop('Cannot find auxdata file')
+      }
+    }
+    auxdata <- as.data.frame(auxdata)
+
+    ## Consistency checks for auxdata
+    ## They should be moved to an external function
+
+    ## Are auxdata missing variates?
+    if (!all(metadata[['name']] %in% colnames(auxdata))) {
+      stop('Missing variates in auxdata. Check auxdata- and metadata-files.')
+    }
+
+    ## Drop variates in auxdata that are not in the metadata file
+    if (!all(colnames(auxdata) %in% metadata[['name']])) {
+      cat('Warning: auxdata have additional variates. Dropping them.\n')
+      subvar <- intersect(colnames(auxdata), metadata[['name']])
+      auxdata <- auxdata[, subvar, drop = FALSE]
+      rm(subvar)
+    }
+
+    ## Remove empty datapoints
+    tokeep <- which(apply(auxdata, 1, function(xx) { !all(is.na(xx)) }))
+    if(length(tokeep) == 0 && !prior) {
+      stop('Auxdata are given but empty')
+    } else if(length(tokeep) < nrow(auxdata)) {
+      cat('Warning: auxdata contain empty datapoints. Dropping them.\n')
+      auxdata <- auxdata[tokeep, , drop = FALSE]
+    }
+    rm(tokeep)
+
+  } else {
+    ## auxdata not given
+    auxdata <- NULL
+  }
+
+
   ## Build auxiliary metadata object; we'll save it later
   cat('Calculating auxiliary metadata\n')
-  auxmetadata <- buildauxmetadata(data = data, metadata = metadata)
+  auxmetadata <- buildauxmetadata(
+    data = (if (is.null(auxdata)) {data} else {auxdata}),
+    metadata = metadata)
 
   #### Output-folder setup
   if (missing(outputdir) || (is.logical(outputdir) && outputdir)) {
@@ -724,7 +780,6 @@ inferpopulation <- function(data, metadata, outputdir, nsamples = 1200,
                                 .inorder = FALSE,
                                 ##.packages = c('modelfreeinference'),
                                 .noexport = c('data')
-                                ##.packages = c('khroma', 'foreach', 'rngtools', 'data.table', 'nimble')
     ) %dochains% {
       ## Create log file
       ## Redirect diagnostics and service messages there
@@ -740,7 +795,6 @@ inferpopulation <- function(data, metadata, outputdir, nsamples = 1200,
           strftime(as.POSIXlt(Sys.time()), '%Y-%m-%d %H:%M:%S'))
       cat('\n')
 
-      ## suppressPackageStartupMessages(library('data.table'))
       suppressPackageStartupMessages(require('nimble'))
       ## requireNamespace("nimble", quietly = TRUE)
       ##library('nimble')
@@ -1617,10 +1671,10 @@ inferpopulation <- function(data, metadata, outputdir, nsamples = 1200,
       #### Plot Alpha and cluster occupation, if required
       if (showAlphatraces || showKtraces) {
         cat('Plotting cluster and Alpha information.\n')
-        pdff(file.path(dirname,
+        pdf(file = file.path(dirname,
                        paste0('hyperparams_traces', dashnameroot, '--',
-                    padchainnumber, '_', achain, '-', acore)),
-             apaper = 4)
+                    padchainnumber, '_', achain, '-', acore, '.pdf')),
+             height = 8.27, width = 11.69)
 
         if (showKtraces) {
           cat('\nSTATS USED CLUSTERS:\n')
@@ -1678,10 +1732,10 @@ inferpopulation <- function(data, metadata, outputdir, nsamples = 1200,
         ## names(colpalette) <- colnames(traces)[1:min(6, ncol(traces))]
         cat('\nPlotting MCMC traces')
         graphics.off()
-        pdff(file.path(dirname,
+        pdf(file.path(dirname,
                        paste0('_mcpartialtraces', dashnameroot, '--',
-                              padchainnumber, '_', achain, '-', acore)
-                       ), apaper = 4)
+                              padchainnumber, '_', achain, '-', acore, '.pdf')
+                       ), height = 8.27, width = 11.69)
 
         ## Summary stats
         matplot(1:2, type = 'l', col = 'white',
@@ -1897,9 +1951,9 @@ inferpopulation <- function(data, metadata, outputdir, nsamples = 1200,
   ## colpalette <- seq_len(ncol(traces))
   ## names(colpalette) <- colnames(traces)
   graphics.off()
-  pdff(file.path(dirname,
-                 paste0('MCtraces', dashnameroot)
-                 ), apaper = 4)
+  pdf(file.path(dirname,
+                 paste0('MCtraces', dashnameroot, '.pdf')
+                 ), height = 8.27, width = 11.69)
   ## Traces of likelihood and cond. probabilities
   for (avar in colnames(traces)) {
     ## Do not join separate chains in the plot

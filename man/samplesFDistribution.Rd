@@ -12,7 +12,6 @@ samplesFDistribution(
   jacobian = TRUE,
   fn = identity,
   combine = "rbind",
-  useLquantiles = FALSE,
   parallel = TRUE,
   silent = FALSE
 )
@@ -36,13 +35,10 @@ example 'identity' or 'mean'}
 
 \item{combine}{how to combine the output for the different variate values}
 
-\item{useLquantiles}{Bool: internal, use metadata quantiles for ordinal
-variates}
-
-\item{parallel}{Bool or numeric: whether to use pre-existing parallel
+\item{parallel}{logical or numeric: whether to use pre-existing parallel
 workers, or how many to create and use}
 
-\item{silent}{Bool: give warnings or updates in the computation}
+\item{silent}{logical: give warnings or updates in the computation}
 }
 \value{
 A list with the mutual information, its error, and its unit

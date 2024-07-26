@@ -3,7 +3,6 @@
 export(buildmetadata)
 export(inferpopulation)
 export(mutualinfo)
-export(pdff)
 export(plotFsamples)
 export(samplesFDistribution)
 import(doParallel)

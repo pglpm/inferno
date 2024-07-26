@@ -12,10 +12,11 @@
 #' @param silent logical: give warnings or updates in the computation
 #'
 #' @return A list with the mutual information, its error, and its unit
-#' @export
 #'
 #' @import parallel foreach doParallel
 #' @importFrom extraDistr rcat rbern
+#'
+#' @export
 mutualinfo <- function(Yvrt, Xvrt, mcoutput,
                        nsamples = 3600,
                        unit = 'Sh',
