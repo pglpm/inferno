@@ -1,7 +1,7 @@
 #' Calculate mutual information between groups of joint variates
 #'
-#' @param Y1vrt String vector: first group of joint variates
-#' @param Y2vrt String vector: second group of joint variates
+#' @param Y1names String vector: first group of joint variates
+#' @param Y2names String vector: second group of joint variates
 #' @param X matrix or data.frame or NULL: values of some variates conditional on
 #'   which we want the probabilities
 #' @param mcoutput Either a string with the name of a directory or full path
@@ -19,7 +19,7 @@
 #' @importFrom extraDistr rcat rbern
 #'
 #' @export
-mutualinfo <- function(Y1vrt, Y2vrt, X = NULL, mcoutput,
+mutualinfo <- function(Y1names, Y2names, X = NULL, mcoutput,
                        nsamples = 3600,
                        unit = 'Sh',
                        parallel = TRUE,
@@ -135,11 +135,11 @@ mutualinfo <- function(Y1vrt, Y2vrt, X = NULL, mcoutput,
   }
 
 
-  if(!is.character(Y1vrt) || any(is.na(Y1vrt))){
-    stop('Y1vrt must be a vector of variate names')
+  if(!is.character(Y1names) || any(is.na(Y1names))){
+    stop('Y1names must be a vector of variate names')
   }
-  if(!is.character(Y2vrt) || any(is.na(Y2vrt))){
-    stop('Y2vrt must be a vector of variate names')
+  if(!is.character(Y2names) || any(is.na(Y2names))){
+    stop('Y2names must be a vector of variate names')
   }
   if (!is.null(X) && length(dim(X)) != 2) {
     stop('X must be NULL or have two dimensions')
@@ -150,35 +150,35 @@ mutualinfo <- function(Y1vrt, Y2vrt, X = NULL, mcoutput,
   }
 
   ## More consistency checks
-  if(!all(Y1vrt %in% auxmetadata$name)) {
+  if(!all(Y1names %in% auxmetadata$name)) {
     stop('unknown Y1 variates\n')
   }
-  if(length(unique(Y1vrt)) != length(Y1vrt)) {
+  if(length(unique(Y1names)) != length(Y1names)) {
     stop('duplicate Y1 variates\n')
   }
   ##
-  if(!all(Y2vrt %in% auxmetadata$name)){
+  if(!all(Y2names %in% auxmetadata$name)){
     stop('unknown Y2 variates\n')
   }
-  if(length(unique(Y2vrt)) != length(Y2vrt)) {
+  if(length(unique(Y2names)) != length(Y2names)) {
     stop('duplicate Y2 variates\n')
   }
   ##
-  Xvrt <- colnames(X)
-  if (!all(Xvrt %in% auxmetadata$name)) {
+  Xnames <- colnames(X)
+  if (!all(Xnames %in% auxmetadata$name)) {
     stop('unknown X variates\n')
   }
-  if (length(unique(Xvrt)) != length(Xvrt)) {
+  if (length(unique(Xnames)) != length(Xnames)) {
     stop('duplicate X variates\n')
   }
   ##
-  if(length(intersect(Y1vrt, Y2vrt)) > 0) {
+  if(length(intersect(Y1names, Y2names)) > 0) {
     stop('overlap in Y1 and Y2 variates\n')
   }
-  if(length(intersect(Y1vrt, Xvrt)) > 0) {
+  if(length(intersect(Y1names, Xnames)) > 0) {
     stop('overlap in Y1 and X variates\n')
   }
-  if(length(intersect(Y2vrt, Xvrt)) > 0) {
+  if(length(intersect(Y2names, Xnames)) > 0) {
     stop('overlap in Y2 and X variates\n')
   }
 
@@ -195,21 +195,21 @@ mutualinfo <- function(Y1vrt, Y2vrt, X = NULL, mcoutput,
   ## source('vtransform.R')
 
 #### Combine Y1,Y2 into single Z for speed
-  Zvrt <- c(Y1vrt, Y2vrt)
+  Znames <- c(Y1names, Y2names)
 
 #### Type R
   vnames <- auxmetadata[auxmetadata$mcmctype == 'R', 'name']
-  Y2iR <- match(vnames, Y2vrt)
+  Y2iR <- match(vnames, Y2names)
   Y2tR <- which(!is.na(Y2iR))
   Y2iR <- Y2iR[Y2tR]
   Y2nR <- length(Y2iR)
   ##
-  Y1iR <- match(vnames, Y1vrt)
+  Y1iR <- match(vnames, Y1names)
   Y1tR <- which(!is.na(Y1iR))
   Y1iR <- Y1iR[Y1tR]
   Y1nR <- length(Y1iR)
   ##
-  XiR <- match(vnames, Xvrt)
+  XiR <- match(vnames, Xnames)
   XtR <- which(!is.na(XiR))
   XiR <- XiR[XtR]
   XnR <- length(XiR)
@@ -217,24 +217,24 @@ mutualinfo <- function(Y1vrt, Y2vrt, X = NULL, mcoutput,
     mcoutput$Rvar <- sqrt(mcoutput$Rvar)
   }
   ##
-  ZiR <- match(vnames, Zvrt)
+  ZiR <- match(vnames, Znames)
   ZtR <- which(!is.na(ZiR))
   ZiR <- ZiR[ZtR]
   ZnR <- length(ZiR)
 
 #### Type C
   vnames <- auxmetadata[auxmetadata$mcmctype == 'C', 'name']
-  Y2iC <- match(vnames, Y2vrt)
+  Y2iC <- match(vnames, Y2names)
   Y2tC <- which(!is.na(Y2iC))
   Y2iC <- Y2iC[Y2tC]
   Y2nC <- length(Y2iC)
   ##
-  Y1iC <- match(vnames, Y1vrt)
+  Y1iC <- match(vnames, Y1names)
   Y1tC <- which(!is.na(Y1iC))
   Y1iC <- Y1iC[Y1tC]
   Y1nC <- length(Y1iC)
   ##
-  XiC <- match(vnames, Xvrt)
+  XiC <- match(vnames, Xnames)
   XtC <- which(!is.na(XiC))
   XiC <- XiC[XtC]
   XnC <- length(XiC)
@@ -268,24 +268,24 @@ mutualinfo <- function(Y1vrt, Y2vrt, X = NULL, mcoutput,
     ## )
   }
   ##
-  ZiC <- match(vnames, Zvrt)
+  ZiC <- match(vnames, Znames)
   ZtC <- which(!is.na(ZiC))
   ZiC <- ZiC[ZtC]
   ZnC <- length(ZiC)
 
 #### Type D
   vnames <- auxmetadata[auxmetadata$mcmctype == 'D', 'name']
-  Y2iD <- match(vnames, Y2vrt)
+  Y2iD <- match(vnames, Y2names)
   Y2tD <- which(!is.na(Y2iD))
   Y2iD <- Y2iD[Y2tD]
   Y2nD <- length(Y2iD)
   ##
-  Y1iD <- match(vnames, Y1vrt)
+  Y1iD <- match(vnames, Y1names)
   Y1tD <- which(!is.na(Y1iD))
   Y1iD <- Y1iD[Y1tD]
   Y1nD <- length(Y1iD)
   ##
-  XiD <- match(vnames, Xvrt)
+  XiD <- match(vnames, Xnames)
   XtD <- which(!is.na(XiD))
   XiD <- XiD[XtD]
   XnD <- length(XiD)
@@ -319,24 +319,24 @@ mutualinfo <- function(Y1vrt, Y2vrt, X = NULL, mcoutput,
     ## )
   }
   ##
-  ZiD <- match(vnames, Zvrt)
+  ZiD <- match(vnames, Znames)
   ZtD <- which(!is.na(ZiD))
   ZiD <- ZiD[ZtD]
   ZnD <- length(ZiD)
 
 #### Type L
   vnames <- auxmetadata[auxmetadata$mcmctype == 'L', 'name']
-  Y2iL <- match(vnames, Y2vrt)
+  Y2iL <- match(vnames, Y2names)
   Y2tL <- which(!is.na(Y2iL))
   Y2iL <- Y2iL[Y2tL]
   Y2nL <- length(Y2iL)
   ##
-  Y1iL <- match(vnames, Y1vrt)
+  Y1iL <- match(vnames, Y1names)
   Y1tL <- which(!is.na(Y1iL))
   Y1iL <- Y1iL[Y1tL]
   Y1nL <- length(Y1iL)
   ##
-  XiL <- match(vnames, Xvrt)
+  XiL <- match(vnames, Xnames)
   XtL <- which(!is.na(XiL))
   XiL <- XiL[XtL]
   XnL <- length(XiL)
@@ -372,7 +372,7 @@ mutualinfo <- function(Y1vrt, Y2vrt, X = NULL, mcoutput,
     }))
   }
   ##
-  ZiL <- match(vnames, Zvrt)
+  ZiL <- match(vnames, Znames)
   ZtL <- which(!is.na(ZiL))
   ZiL <- ZiL[ZtL]
   ZnL <- length(ZiL)
@@ -380,66 +380,66 @@ mutualinfo <- function(Y1vrt, Y2vrt, X = NULL, mcoutput,
 
 #### Type O
   vnames <- auxmetadata[auxmetadata$mcmctype == 'O', 'name']
-  Y2iO <- match(vnames, Y2vrt)
+  Y2iO <- match(vnames, Y2names)
   Y2tO <- which(!is.na(Y2iO))
   Y2iO <- Y2iO[Y2tO]
   Y2nO <- length(Y2iO)
   ##
-  Y1iO <- match(vnames, Y1vrt)
+  Y1iO <- match(vnames, Y1names)
   Y1tO <- which(!is.na(Y1iO))
   Y1iO <- Y1iO[Y1tO]
   Y1nO <- length(Y1iO)
   ##
-  XiO <- match(vnames, Xvrt)
+  XiO <- match(vnames, Xnames)
   XtO <- which(!is.na(XiO))
   XiO <- XiO[XtO]
   XnO <- length(XiO)
   ##
-  ZiO <- match(vnames, Zvrt)
+  ZiO <- match(vnames, Znames)
   ZtO <- which(!is.na(ZiO))
   ZiO <- ZiO[ZtO]
   ZnO <- length(ZiO)
 
 #### Type N
   vnames <- auxmetadata[auxmetadata$mcmctype == 'N', 'name']
-  Y2iN <- match(vnames, Y2vrt)
+  Y2iN <- match(vnames, Y2names)
   Y2tN <- which(!is.na(Y2iN))
   Y2iN <- Y2iN[Y2tN]
   Y2nN <- length(Y2iN)
   ##
-  Y1iN <- match(vnames, Y1vrt)
+  Y1iN <- match(vnames, Y1names)
   Y1tN <- which(!is.na(Y1iN))
   Y1iN <- Y1iN[Y1tN]
   Y1nN <- length(Y1iN)
   ##
-  XiN <- match(vnames, Xvrt)
+  XiN <- match(vnames, Xnames)
   XtN <- which(!is.na(XiN))
   XiN <- XiN[XtN]
   XnN <- length(XiN)
   ##
-  ZiN <- match(vnames, Zvrt)
+  ZiN <- match(vnames, Znames)
   ZtN <- which(!is.na(ZiN))
   ZiN <- ZiN[ZtN]
   ZnN <- length(ZiN)
 
 #### Type B
   vnames <- auxmetadata[auxmetadata$mcmctype == 'B', 'name']
-  Y2iB <- match(vnames, Y2vrt)
+  Y2iB <- match(vnames, Y2names)
   Y2tB <- which(!is.na(Y2iB))
   Y2iB <- Y2iB[Y2tB]
   Y2nB <- length(Y2iB)
   ##
-  Y1iB <- match(vnames, Y1vrt)
+  Y1iB <- match(vnames, Y1names)
   Y1tB <- which(!is.na(Y1iB))
   Y1iB <- Y1iB[Y1tB]
   Y1nB <- length(Y1iB)
   ##
-  XiB <- match(vnames, Xvrt)
+  XiB <- match(vnames, Xnames)
   XtB <- which(!is.na(XiB))
   XiB <- XiB[XtB]
   XnB <- length(XiB)
   ##
-  ZiB <- match(vnames, Zvrt)
+  ZiB <- match(vnames, Znames)
   ZtB <- which(!is.na(ZiB))
   ZiB <- ZiB[ZtB]
   ZnB <- length(ZiB)
@@ -658,10 +658,10 @@ mutualinfo <- function(Y1vrt, Y2vrt, X = NULL, mcoutput,
   )
 
   ## rows: n samples, cols: Z variates
-  dim(Zout) <- c(n, length(Zvrt))
-  ## Match to original order of Zvrt
-  Zout <- Zout[, match(Zvrt, Zvrt[c(ZiR, ZiC, ZiD, ZiL, ZiO, ZiN, ZiB)])]
-  colnames(Zout) <- Zvrt
+  dim(Zout) <- c(n, length(Znames))
+  ## Match to original order of Znames
+  Zout <- Zout[, match(Znames, Znames[c(ZiR, ZiC, ZiD, ZiL, ZiO, ZiN, ZiB)])]
+  colnames(Zout) <- Znames
   Zout <- vtransform(Zout,
                      auxmetadata = auxmetadata,
                      Rout = 'mi',
@@ -672,8 +672,8 @@ mutualinfo <- function(Y1vrt, Y2vrt, X = NULL, mcoutput,
                      Nout = 'mi',
                      Bout = 'mi')
 
-  Y1transf <- Zout[, Y1vrt]
-  Y2transf <- Zout[, Y2vrt]
+  Y1transf <- Zout[, Y1names]
+  Y2transf <- Zout[, Y2names]
   rm(Zout)
   gc()
 

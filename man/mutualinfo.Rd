@@ -5,8 +5,9 @@
 \title{Calculate mutual information between groups of joint variates}
 \usage{
 mutualinfo(
-  Yvrt,
-  Xvrt,
+  Y1names,
+  Y2names,
+  X = NULL,
   mcoutput,
   nsamples = 3600,
   unit = "Sh",
@@ -15,9 +16,12 @@ mutualinfo(
 )
 }
 \arguments{
-\item{Yvrt}{String vector: first group of joint variates}
+\item{Y1names}{String vector: first group of joint variates}
 
-\item{Xvrt}{String vector: second group of joint variates}
+\item{Y2names}{String vector: second group of joint variates}
+
+\item{X}{matrix or data.frame or NULL: values of some variates conditional on
+which we want the probabilities}
 
 \item{mcoutput}{Either a string with the name of a directory or full path
 for a 'FDistribution.rds' object, or such an object itself}
