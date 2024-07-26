@@ -7,17 +7,20 @@
 #' @param nsamples numeric: number of samples from which to approximately
 #'   calculate the mutual information. Default 3600
 #' @param unit Either one of 'Sh' (default), 'Hart', 'nat', or a positive real
-#' @param parallel, Bool or numeric: whether to use pre-existing parallel
+#' @param parallel, logical or numeric: whether to use pre-existing parallel
 #'   workers, or how many to create and use
-#' @param useLquantiles Bool: internal, use metadata quantiles for ordinal variates
-#' @param silent Bool: give warnings or updates in the computation
+#' @param silent logical: give warnings or updates in the computation
 #'
 #' @return A list with the mutual information, its error, and its unit
 #' @export
 #'
 #' @import parallel foreach doParallel
 #' @importFrom extraDistr rcat rbern
-mutualinfo <- function(Yvrt, Xvrt, mcoutput, nsamples=3600, unit='Sh', useLquantiles=FALSE, parallel=TRUE, silent=FALSE){
+mutualinfo <- function(Yvrt, Xvrt, mcoutput,
+                       nsamples = 3600,
+                       unit = 'Sh',
+                       parallel = TRUE,
+                       silent = FALSE){
 
 #### Mutual information and conditional entropy between X and Y
 #### are calculated by Monte Carlo integration:
@@ -204,8 +207,7 @@ mutualinfo <- function(Yvrt, Xvrt, mcoutput, nsamples=3600, unit='Sh', useLquant
     ##                dimnames = list(NULL, vnames)
     ##                ),
     ##     auxmetadata = auxmetadata,
-    ##     Cout = 'sleft',
-    ##     useLquantiles = useLquantiles
+    ##     Cout = 'sleft'
     ##   )),
     ##   ## sign is important here:
     ##   ## for upper tail, take opposite mean and value
@@ -215,8 +217,7 @@ mutualinfo <- function(Yvrt, Xvrt, mcoutput, nsamples=3600, unit='Sh', useLquant
     ##                 dimnames = list(NULL, vnames)
     ##                 ),
     ##      auxmetadata = auxmetadata,
-    ##      Cout = 'sright',
-    ##      useLquantiles = useLquantiles
+    ##      Cout = 'sright'
     ##    ))
     ## )
   }
@@ -252,8 +253,7 @@ mutualinfo <- function(Yvrt, Xvrt, mcoutput, nsamples=3600, unit='Sh', useLquant
     ##                dimnames = list(NULL, vnames)
     ##                ),
     ##     auxmetadata = auxmetadata,
-    ##     Dout = 'sleft',
-    ##     useLquantiles = useLquantiles
+    ##     Dout = 'sleft'
     ##   )),
     ##   ## sign is important here:
     ##   ## for upper tail, take opposite mean and value
@@ -263,8 +263,7 @@ mutualinfo <- function(Yvrt, Xvrt, mcoutput, nsamples=3600, unit='Sh', useLquant
     ##                 dimnames = list(NULL, vnames)
     ##                 ),
     ##      auxmetadata = auxmetadata,
-    ##      Dout = 'sright',
-    ##      useLquantiles = useLquantiles
+    ##      Dout = 'sright'
     ##    ))
     ## )
   }
@@ -298,9 +297,7 @@ mutualinfo <- function(Yvrt, Xvrt, mcoutput, nsamples=3600, unit='Sh', useLquant
       c(
         vtransform(seqs, auxmetadata = auxmetadata,
                    Lout = 'left',
-                   variates = avar,
-                   useLquantiles = useLquantiles
-                   ),
+                   variates = avar),
         rep(NA, Lmaxn - nn)
       )
     }))
@@ -313,9 +310,7 @@ mutualinfo <- function(Yvrt, Xvrt, mcoutput, nsamples=3600, unit='Sh', useLquant
       c(
         vtransform(seqs, auxmetadata = auxmetadata,
                    Lout = 'right',
-                   variates = avar,
-                   useLquantiles = useLquantiles
-                   ),
+                   variates = avar),
         rep(NA, Lmaxn - nn)
       )
     }))
@@ -443,9 +438,8 @@ mutualinfo <- function(Yvrt, Xvrt, mcoutput, nsamples=3600, unit='Sh', useLquant
                      Dout = 'mi',
                      Lout = 'mi',
                      Oout = 'mi',
-                     Nout = '',
-                     Bout = '',
-                     useLquantiles = useLquantiles)
+                     Nout = 'mi',
+                     Bout = 'mi')
 
   Y2 <- Zout[, Yvrt]
   X2 <- Zout[, Xvrt]
@@ -925,8 +919,7 @@ mutualinfo <- function(Yvrt, Xvrt, mcoutput, nsamples=3600, unit='Sh', useLquant
 
   ## ## ***todo: transform variates to original space & calculate Jacobian***
   ## ljac <- -rowSums(
-  ##           log(vtransform(Y, auxmetadata = auxmetadata, invjacobian = TRUE,
-  ##                          useLquantiles = useLquantiles)),
+  ##           log(vtransform(Y, auxmetadata = auxmetadata, invjacobian = TRUE)),
   ##           na.rm = TRUE
   ##          )
 

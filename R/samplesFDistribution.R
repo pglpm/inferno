@@ -11,19 +11,20 @@
 #' @param fn function to apply to the group of MCsamples,
 #'   example 'identity' or 'mean'
 #' @param combine how to combine the output for the different variate values
-#' @param parallel Bool or numeric: whether to use pre-existing parallel
+#' @param parallel logical or numeric: whether to use pre-existing parallel
 #'   workers, or how many to create and use
-#' @param useLquantiles Bool: internal, use metadata quantiles for ordinal
-#'   variates
-#' @param silent Bool: give warnings or updates in the computation
+#' @param silent logical: give warnings or updates in the computation
 #'
 #' @return A list with the mutual information, its error, and its unit
 #' @export
 #'
 #' @import parallel foreach doParallel
-samplesFDistribution <- function(Y, X, mcoutput, subsamples, jacobian = TRUE,
-                                 fn = identity, combine = 'rbind',
-                                 useLquantiles = FALSE, parallel = TRUE,
+samplesFDistribution <- function(Y, X, mcoutput,
+                                 subsamples,
+                                 jacobian = TRUE,
+                                 fn = identity,
+                                 combine = 'rbind',
+                                 parallel = TRUE,
                                  silent = FALSE) {
   if (!silent) {
     cat('\n')
@@ -233,8 +234,7 @@ samplesFDistribution <- function(Y, X, mcoutput, subsamples, jacobian = TRUE,
     ##                dimnames = list(NULL, vnames)
     ##                ),
     ##     auxmetadata = auxmetadata,
-    ##     Cout = 'sleft',
-    ##     useLquantiles = useLquantiles
+    ##     Cout = 'sleft'
     ##   )),
     ##   ## sign is important here:
     ##   ## for upper tail, take opposite mean and value
@@ -244,8 +244,7 @@ samplesFDistribution <- function(Y, X, mcoutput, subsamples, jacobian = TRUE,
     ##                 dimnames = list(NULL, vnames)
     ##                 ),
     ##      auxmetadata = auxmetadata,
-    ##      Cout = 'sright',
-    ##      useLquantiles = useLquantiles
+    ##      Cout = 'sright'
     ##    ))
     ## )
   }
@@ -276,8 +275,7 @@ samplesFDistribution <- function(Y, X, mcoutput, subsamples, jacobian = TRUE,
     ##                dimnames = list(NULL, vnames)
     ##                ),
     ##     auxmetadata = auxmetadata,
-    ##     Dout = 'sleft',
-    ##     useLquantiles = useLquantiles
+    ##     Dout = 'sleft'
     ##   )),
     ##   ## sign is important here:
     ##   ## for upper tail, take opposite mean and value
@@ -287,8 +285,7 @@ samplesFDistribution <- function(Y, X, mcoutput, subsamples, jacobian = TRUE,
     ##                 dimnames = list(NULL, vnames)
     ##                 ),
     ##      auxmetadata = auxmetadata,
-    ##      Dout = 'sright',
-    ##      useLquantiles = useLquantiles
+    ##      Dout = 'sright'
     ##    ))
     ## )
   }
@@ -317,9 +314,7 @@ samplesFDistribution <- function(Y, X, mcoutput, subsamples, jacobian = TRUE,
       c(
         vtransform(seqs, auxmetadata = auxmetadata,
                    Lout = 'left',
-                   variates = avar,
-                   useLquantiles = useLquantiles
-                   ),
+                   variates = avar),
         rep(NA, Lmaxn - nn)
       )
     }))
@@ -332,9 +327,7 @@ samplesFDistribution <- function(Y, X, mcoutput, subsamples, jacobian = TRUE,
       c(
         vtransform(seqs, auxmetadata = auxmetadata,
                    Lout = 'right',
-                   variates = avar,
-                   useLquantiles = useLquantiles
-                   ),
+                   variates = avar),
         rep(NA, Lmaxn - nn)
       )
     }))
@@ -384,8 +377,7 @@ samplesFDistribution <- function(Y, X, mcoutput, subsamples, jacobian = TRUE,
                    Lout = 'normalized',
                    Oout = 'numeric',
                    Nout = 'numeric',
-                   Bout = 'numeric',
-                   useLquantiles = useLquantiles)
+                   Bout = 'numeric')
 
   if (!is.null(X)) {
     X2 <- vtransform(X, auxmetadata = auxmetadata,
@@ -395,8 +387,7 @@ samplesFDistribution <- function(Y, X, mcoutput, subsamples, jacobian = TRUE,
                      Lout = 'normalized',
                      Oout = 'numeric',
                      Nout = 'numeric',
-                     Bout = 'numeric',
-                     useLquantiles = useLquantiles)
+                     Bout = 'numeric')
     if (nrow(X2) < nrow(Y2)) {
       message('*Note: X has fewer data than Y. Recycling*')
       X2 <- t(matrix(rep(t(X2), ceiling(nrow(Y2) / nrow(X2))),
@@ -737,8 +728,7 @@ samplesFDistribution <- function(Y, X, mcoutput, subsamples, jacobian = TRUE,
      exp(-rowSums(
             log(vtransform(Y,
                            auxmetadata = auxmetadata,
-                           invjacobian = TRUE,
-                           useLquantiles = useLquantiles)),
+                           invjacobian = TRUE)),
             na.rm = TRUE
           ))
    } else {

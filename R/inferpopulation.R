@@ -8,18 +8,18 @@
 #' @param nsamples Integer, nr of desired MC samples
 #' @param nchains Integer, nr of MC chains
 #' @param nsamplesperchain Integer, nr of MC samples per chain
-#' @param parallel, Bool or numeric: whether to use pre-existing parallel
+#' @param parallel, logical or numeric: whether to use pre-existing parallel
 #'   workers, or how many to create and use
 #' @param niterini Number of initial (burn-in) MC iterations
 #' @param miniter Minimum number of MC iterations to be done
 #' @param maxiter Maximum number of MC iterations
-#' @param prior Bool: Calculate the prior distribution of F?
+#' @param prior logical: Calculate the prior distribution of F?
 #' @param thinning If NULL, let the diagnostics decide the MC thinning; if positive, use this thinning value
-#' @param plottraces Bool: plot MC traces of diagnostic values
-#' @param showKtraces Bool, when true, it saves the K parameter during
+#' @param plottraces logical: plot MC traces of diagnostic values
+#' @param showKtraces logical, when true, it saves the K parameter during
 #'   sampling and plots its trace and histogram at the end. Keeping it to
 #'   FALSE (default) saves a little computation time.
-#' @param showAlphatraces Bool, : when true, it saves the Alpha parameter
+#' @param showAlphatraces logical, : when true, it saves the Alpha parameter
 #'   more frequently during sampling and plots its trace and histogram at
 #'   the end. Keeping it to FALSE (default) saves a little computation
 #'   time.
@@ -29,11 +29,10 @@
 #' @param lldata Positive integer or Inf (default 12): number of datapoints
 #'   to use for loglikelihood calculations; if Inf, use all.
 #' @param subsampledata Numeric: use only a subsample of the datapoints in 'data'
-#' @param useLquantiles Bool: internal, use metadata quantiles for ordinal variates
 #' @param output if string 'directory', return the output directory name;
 #'   if string 'mcoutput', return the 'Fdistribution' object;
 #'   anything else, no output
-#' @param cleanup Bool, default TRUE, removes files that can be used for
+#' @param cleanup logical, default TRUE, removes files that can be used for
 #'   debugging
 #' @return name of directory containing output files, or Fdistribution object, or empty
 #' @export
@@ -48,7 +47,7 @@ inferpopulation <- function(data, metadata, outputdir, nsamples = 1200,
                             prior = missing(data),
                             thinning = NULL, plottraces = TRUE,
                             showKtraces = FALSE, showAlphatraces = FALSE,
-                            lldata = 12, useLquantiles = FALSE) {
+                            lldata = 12) {
 
    cat('\n') # make sure possible error messages start on new line
 
@@ -326,6 +325,7 @@ inferpopulation <- function(data, metadata, outputdir, nsamples = 1200,
                  }
                }
                ),
+        row.names = NULL,
         col.names = auxmetadata$name),
         auxmetadata = auxmetadata,
         Rout = 'original',
@@ -335,16 +335,7 @@ inferpopulation <- function(data, metadata, outputdir, nsamples = 1200,
         Nout = 'original',
         Oout = 'original',
         Bout = 'original')
-      ## testdata <- vtransform(test,
-      ##            auxmetadata = auxmetadata,
-      ##   Rout = 'original',
-      ##   Cout = 'original',
-      ##   Dout = 'original',
-      ##   Lout = 'original',
-      ##   Nout = 'original',
-      ##   Oout = 'original',
-      ##   Bout = 'original')
-
+      ## ## original alternative way. Delete soon
       ## testdata <- data.frame(1:3)[,-1]
       ## for(xx in seq_len(nrow(auxmetadata))) {
       ##   xx <- as.list(auxmetadata[xx, ])
@@ -541,17 +532,13 @@ inferpopulation <- function(data, metadata, outputdir, nsamples = 1200,
         Cshapehi = rep(Cshapehi, 1),
         Cleft = vtransform(data[, vnames$C, drop = FALSE],
                            auxmetadata = auxmetadata,
-                           Cout = 'left',
-                           useLquantiles = useLquantiles),
+                           Cout = 'left'),
         Cright = vtransform(data[, vnames$C, drop = FALSE],
                             auxmetadata = auxmetadata,
-                            Cout = 'right',
-                            useLquantiles = useLquantiles),
+                            Cout = 'right'),
         Clatinit = vtransform(data[, vnames$C, drop = FALSE],
                               auxmetadata,
-                              Cout = 'init',
-                          useLquantiles = useLquantiles
-                          )
+                              Cout = 'init')
       )
       ## Cleft & Cright are as many as the datapoints
       ## so we do not create copies outside of Nimble
@@ -567,16 +554,13 @@ inferpopulation <- function(data, metadata, outputdir, nsamples = 1200,
         Dshapehi = rep(Dshapehi, 1),
         Dleft = vtransform(data[, vnames$D, drop = FALSE],
                            auxmetadata = auxmetadata,
-                           Dout = 'left',
-                           useLquantiles = useLquantiles),
+                           Dout = 'left'),
         Dright = vtransform(data[, vnames$D, drop = FALSE],
                             auxmetadata = auxmetadata,
-                            Dout = 'right',
-                            useLquantiles = useLquantiles),
+                            Dout = 'right'),
         Dlatinit = vtransform(data[, vnames$D, drop = FALSE],
                               auxmetadata,
-                              Dout = 'init',
-                              useLquantiles = useLquantiles)
+                              Dout = 'init')
       )
     },
     if (vn$L > 0) { # latent
@@ -589,16 +573,13 @@ inferpopulation <- function(data, metadata, outputdir, nsamples = 1200,
         Lshapehi = rep(Lshapehi, 1),
         Lleft = vtransform(data[, vnames$L, drop = FALSE],
                            auxmetadata = auxmetadata,
-                           Lout = 'left',
-                           useLquantiles = useLquantiles),
+                           Lout = 'left'),
         Lright = vtransform(data[, vnames$L, drop = FALSE],
                             auxmetadata = auxmetadata,
-                            Lout = 'right',
-                            useLquantiles = useLquantiles),
+                            Lout = 'right'),
         Llatinit = vtransform(data[, vnames$L, drop = FALSE],
                               auxmetadata,
-                              Lout = 'init',
-                              useLquantiles = useLquantiles)
+                              Lout = 'init')
       )
     },
     if (vn$O > 0) { # ordinal
@@ -646,61 +627,52 @@ inferpopulation <- function(data, metadata, outputdir, nsamples = 1200,
       list(
         Rdata = vtransform(data[, vnames$R, drop = FALSE],
                            auxmetadata = auxmetadata,
-                           Rout = 'normalized',
-                           useLquantiles = useLquantiles
-                           )
+                           Rout = 'normalized')
       )
     },
     if (vn$C > 0) { # continuous closed domain
       list(
         Caux = vtransform(data[, vnames$C, drop = FALSE],
                           auxmetadata = auxmetadata,
-                          Cout = 'aux',
-                          useLquantiles = useLquantiles),
+                          Cout = 'aux'),
         Clat = vtransform(data[, vnames$C, drop = FALSE],
                           auxmetadata = auxmetadata,
-                          Cout = 'lat',
-                          useLquantiles = useLquantiles)
+                          Cout = 'lat')
       )
     },
     if (vn$D > 0) { # continuous rounded
       list(
         Daux = vtransform(data[, vnames$D, drop = FALSE],
                           auxmetadata = auxmetadata,
-                          Dout = 'aux',
-                          useLquantiles = useLquantiles)
+                          Dout = 'aux')
       )
     },
     if (vn$L > 0) { # latent
       list(
         Laux = vtransform(data[, vnames$L, drop = FALSE],
                           auxmetadata = auxmetadata,
-                          Lout = 'aux',
-                          useLquantiles = useLquantiles)
+                          Lout = 'aux')
       )
     },
     if (vn$O > 0) { # nominal
       list(
         Odata = vtransform(data[, vnames$O, drop = FALSE],
                            auxmetadata = auxmetadata,
-                           Oout = 'numeric',
-                           useLquantiles = useLquantiles)
+                           Oout = 'numeric')
       )
     },
     if (vn$N > 0) { # nominal
       list(
         Ndata = vtransform(data[, vnames$N, drop = FALSE],
                            auxmetadata = auxmetadata,
-                           Nout = 'numeric',
-                           useLquantiles = useLquantiles)
+                           Nout = 'numeric')
       )
     },
     if (vn$B > 0) { # binary
       list(
         Bdata = vtransform(data[, vnames$B, drop = FALSE],
                            auxmetadata = auxmetadata,
-                           Bout = 'numeric',
-                           useLquantiles = useLquantiles)
+                           Bout = 'numeric')
       )
     }
   ) # End datapoints
@@ -786,7 +758,6 @@ inferpopulation <- function(data, metadata, outputdir, nsamples = 1200,
       ##       Y = testdata, X = NULL,
       ##       mcoutput = c(mcsamples, list(auxmetadata = auxmetadata)),
       ##       jacobian = FALSE,
-      ##       useLquantiles = useLquantiles,
       ##       parallel = FALSE,
       ##       combine = '+',
       ##       silent = TRUE
@@ -1020,8 +991,7 @@ inferpopulation <- function(data, metadata, outputdir, nsamples = 1200,
             ## for data with boundary values
             Clat = constants$Clatinit
             ## Clat = vtransform(data[, vnames$C, with = FALSE],
-            ##   auxmetadata, Cout = 'init',
-            ##   useLquantiles = useLquantiles)
+            ##   auxmetadata, Cout = 'init')
           )
         )
       }
@@ -1057,8 +1027,7 @@ inferpopulation <- function(data, metadata, outputdir, nsamples = 1200,
             ## for data with boundary values
             Dlat = constants$Dlatinit
             ## Dlat = vtransform(data[, vnames$D, with = FALSE],
-            ##   auxmetadata, Dout = 'init',
-            ##   useLquantiles = useLquantiles)
+            ##   auxmetadata, Dout = 'init')
           )
         )
       }
@@ -1094,8 +1063,7 @@ inferpopulation <- function(data, metadata, outputdir, nsamples = 1200,
             ## for data with boundary values
             Llat = constants$Llatinit
             ## Llat = vtransform(data[, vnames$L, with = FALSE],
-            ##   auxmetadata, Lout = 'init',
-            ##   useLquantiles = useLquantiles)
+            ##   auxmetadata, Lout = 'init')
           )
         )
       }
@@ -1477,7 +1445,6 @@ inferpopulation <- function(data, metadata, outputdir, nsamples = 1200,
             Y = testdata, X = NULL,
             mcoutput = c(mcsamples, list(auxmetadata = auxmetadata)),
             jacobian = FALSE,
-            useLquantiles = useLquantiles,
             parallel = FALSE,
             combine = '+',
             silent = TRUE
@@ -1497,7 +1464,6 @@ inferpopulation <- function(data, metadata, outputdir, nsamples = 1200,
         ##       ## Y = data[llseq, ], X = NULL,
         ##       mcoutput = c(mcsamples, list(auxmetadata = auxmetadata)),
         ##       jacobian = FALSE,
-        ##       useLquantiles = useLquantiles,
         ##       parallel = FALSE, silent = TRUE,
         ##       combine = '+'
         ##     )) / nrow(lldata)
@@ -1787,7 +1753,6 @@ inferpopulation <- function(data, metadata, outputdir, nsamples = 1200,
       ##                              nsamples=showsamples,
       ##                              plotmeans=plotmeans,
       ##                              datahistogram=TRUE, datascatter=TRUE,
-      ##                              useLquantiles=useLquantiles,
       ##                              parallel=FALSE, silent=TRUE
       ##                              )
       ##          }
@@ -1978,7 +1943,6 @@ inferpopulation <- function(data, metadata, outputdir, nsamples = 1200,
     plotvariability = 'samples',
     nFsamples = showsamples, plotmeans = TRUE,
     datahistogram = TRUE, datascatter = TRUE,
-    useLquantiles = useLquantiles,
     parallel = TRUE, silent = TRUE
   )
 
@@ -1991,7 +1955,6 @@ inferpopulation <- function(data, metadata, outputdir, nsamples = 1200,
     plotvariability = 'quantiles',
     nFsamples = plotDisplayedQuantiles, plotmeans = TRUE,
     datahistogram = TRUE, datascatter = TRUE,
-    useLquantiles = useLquantiles,
     parallel = TRUE, silent = TRUE
   )
 

@@ -39,7 +39,8 @@
 #' @param variates string vector, names of variates
 #'   corresponding to columns of x (in case x misses column names)
 #' @param invjacobian logical: calculate Jacobian factor?
-#' @param useLquantiles logical: use L quantiles in transformation?
+#'
+#' @return data frame of transformed variates
 vtransform <- function(x, auxmetadata,
                        Rout = NULL,
                        Cout = NULL,
@@ -49,8 +50,8 @@ vtransform <- function(x, auxmetadata,
                        Oout = NULL,
                        Nout = NULL,
                        variates = NULL,
-                       invjacobian = FALSE,
-                       useLquantiles = FALSE) {
+                       invjacobian = FALSE) {
+  useLquantiles <- TRUE
   ## Qf <- readRDS('Qfunction3600_3.rds')
   ## DQf <- readRDS('DQfunction3600_3.rds')
   ## invQf <- readRDS('invQfunction3600_3.rds')
@@ -202,7 +203,7 @@ as.data.frame(lapply(colnames(x), function(v) {
         ## } else if (Cout == 'sleft') {
         ##   ## used in sampling functions
         ##   datum[] <- xinfo$tcensormin
-        ## 
+        ##
         ## } else if (Cout == 'sright') {
         ##   ## used in sampling functions
         ##   datum[] <- xinfo$tcensormax
@@ -345,7 +346,7 @@ as.data.frame(lapply(colnames(x), function(v) {
         ## } else if (Dout == 'sleft') {
         ##   ## in sampling functions
         ##   datum[] <- xinfo$tcensormin
-        ## 
+        ##
         ## } else if (Dout == 'sright') {
         ##   ## in sampling functions
         ##   datum[] <- xinfo$tcensormax
@@ -473,6 +474,5 @@ as.data.frame(lapply(colnames(x), function(v) {
 
     }
     datum
-  }), row.names = NULL,#ncol = ncol(x), dimnames = list(NULL, colnames(x)))
-  col.names = colnames(x))
+  }), row.names = NULL,  col.names = colnames(x))
 }

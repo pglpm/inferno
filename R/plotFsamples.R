@@ -6,13 +6,11 @@
 #' @param data data.table object or filepath: datapoints
 #' @param plotvariability string, either 'samples' or 'quantiles': how to plot the variability of the probability distribution with new samples
 #' @param nFsamples positive number: if plotvariability='samples', then number of samples of representative frequency distributions to display as variability; if plotvariability='quantiles', then the quantiles (in range 0 to 0.5) to show
-#' @param datahistogram bool: plot the data as histogram?
-#' @param datascatter bool: plot the data as scatterplot along the x-axis?
+#' @param datahistogram logical: plot the data as histogram?
+#' @param datascatter logical: plot the data as scatterplot along the x-axis?
 #' @param parallel Bool or numeric: whether to use pre-existing parallel
 #'   workers, or how many to create and use
-#' @param useLquantiles Bool: internal, use metadata quantiles for ordinal
-#'   variates
-#' @param silent Bool: give warnings or updates in the computation
+#' @param silent logical: give warnings or updates in the computation
 #'
 #' @return A list with the mutual information, its error, and its unit
 #' @export
@@ -24,7 +22,6 @@ plotFsamples <- function(file,
                          nFsamples = NULL,
                          datahistogram = !(missing(data) || is.null(data)),
                          datascatter = !(missing(data) || is.null(data)),
-                         useLquantiles = FALSE,
                          parallel = TRUE,
                          silent = FALSE) {
 
@@ -123,7 +120,6 @@ plotFsamples <- function(file,
                                           mcoutput = mcoutput,
                                           subsamples = mcsubsamples,
                                           jacobian = TRUE,
-                                          useLquantiles = useLquantiles,
                                           parallel = parallel,
                                           silent = TRUE)
 
@@ -304,15 +300,13 @@ plotFsamples <- function(file,
         x = Xgrid, auxmetadata = auxmetadata,
         Oout = 'numeric',
         Nout = 'numeric',
-        Bout = 'numeric',
-        useLquantiles = useLquantiles
+        Bout = 'numeric'
       ))
 
       plotsamples <- samplesFDistribution(Y = Xgrid, X = NULL,
                                           mcoutput = mcoutput,
                                           subsamples = mcsubsamples,
                                           jacobian = TRUE,
-                                          useLquantiles = useLquantiles,
                                           parallel = parallel,
                                           silent = TRUE)
 
@@ -400,7 +394,7 @@ plotFsamples <- function(file,
           x = datum, variates = v,
           auxmetadata = auxmetadata,
           Oout = 'numeric', Nout = 'numeric',
-          Bout = 'numeric', useLquantiles = useLquantiles
+          Bout = 'numeric'
         ))
       }
       scatteraxis(
