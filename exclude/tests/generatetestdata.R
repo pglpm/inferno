@@ -69,7 +69,7 @@ for(i in 1:ncol(testdata)){testdata[nrow(testdata)+1-i,i] <- NA}
 
 ## modelfreeinference::buildmetadata(testdata,file='metadata_test_custom.csv')
 
-for(ndata in c(30,150)){
+for(ndata in c(30,150,500)){
   write.csv(testdata[1:ndata,,drop=F],
             paste0('data_test_custom_', ndata, '.csv'),
             row.names=FALSE, quote=FALSE, na='')
