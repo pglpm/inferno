@@ -1,8 +1,8 @@
 #' Calculate posterior probabilities
 #'
-#' @param Y matrix or data.table: values of some variates of which we want
+#' @param Y matrix or data.frame: values of some variates of which we want
 #'   the joint probability one variate per column
-#' @param X matrix or data.table: values of some variates conditional on
+#' @param X matrix or data.frame or NULL: values of some variates conditional on
 #'   which we want the joint probability one variate per column
 #' @param mcoutput Either a string with the name of a directory or full
 #'   path for a 'FDistribution.rds' object, or such an object itself
@@ -19,7 +19,7 @@
 #' @export
 #'
 #' @import parallel foreach doParallel
-samplesFDistribution <- function(Y, X, mcoutput,
+samplesFDistribution <- function(Y, X = NULL, mcoutput,
                                  subsamples,
                                  jacobian = TRUE,
                                  fn = identity,
@@ -142,15 +142,8 @@ samplesFDistribution <- function(Y, X, mcoutput,
   if (length(dim(Y)) != 2) {
     stop('Y must have two dimensions')
   }
-  if (missing(X)) {
-    X <- NULL
-  }
   if (!is.null(X) && length(dim(X)) != 2) {
     stop('X must be NULL or have two dimensions')
-  }
-  ##
-  if (!is.null(X) && ncol(X) == 0) {
-    X <- NULL
   }
 
   ## More consistency checks
