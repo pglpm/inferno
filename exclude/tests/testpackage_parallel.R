@@ -25,7 +25,6 @@ currenttestdir <- inferpopulation(data = 'testdata_15.csv',
                         appendtimestamp = TRUE, appendinfo = TRUE,
                         nsamples = 120, nchains = 12,
                         cleanup = FALSE, # parallel = 4,
-                        useLquantiles = FALSE,
                         seed = seed)
 
 ## Close connections to cores

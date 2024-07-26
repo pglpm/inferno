@@ -25,7 +25,6 @@ currenttestdir <- inferpopulation(data = 'data_test_custom_30.csv',
                         ## lldata = 12,
                         showKtraces = F,
                         showAlphatraces = F,
-                        useLquantiles = FALSE,
                         seed = seed)
 
 #### Test whether Fdistribution output is identical

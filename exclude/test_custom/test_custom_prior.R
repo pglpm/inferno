@@ -33,7 +33,6 @@ currenttestdir <- inferpopulation(data = NULL,
                         ## lldata = 12,
                         showKtraces = T,
                         showAlphatraces = T,
-                        useLquantiles = FALSE,
                         seed = seed)
 
 if(FALSE){

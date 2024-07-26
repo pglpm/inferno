@@ -140,14 +140,12 @@ generateVariates <- function(n=1, Yvrt, X=NULL, mcoutput, combine='rbind', useLq
     Cbounds <- cbind(
       c(vtransform(x=matrix(NA,nrow=1,ncol=length(vnames),
                             dimnames=list(NULL,vnames)),
-                   auxmetadata=auxmetadata, Cout='sleft',
-                   useLquantiles=useLquantiles)),
+                   auxmetadata=auxmetadata, Cout='sleft')),
       ## sign is important here:
       ## for upper tail, take opposite mean and value
       -c(vtransform(x=matrix(NA,nrow=1,ncol=length(vnames),
                              dimnames=list(NULL,vnames)),
-                    auxmetadata=auxmetadata, Cout='sright',
-                    useLquantiles=useLquantiles))
+                    auxmetadata=auxmetadata, Cout='sright'))
     )
   }
 
@@ -167,14 +165,12 @@ generateVariates <- function(n=1, Yvrt, X=NULL, mcoutput, combine='rbind', useLq
     Dbounds <- cbind(
       c(vtransform(x=matrix(NA,nrow=1,ncol=length(vnames),
                             dimnames=list(NULL,vnames)),
-                   auxmetadata=auxmetadata, Dout='sleft',
-                   useLquantiles=useLquantiles)),
+                   auxmetadata=auxmetadata, Dout='sleft')),
       ## sign is important here:
       ## for upper tail, take opposite mean and value
       -c(vtransform(x=matrix(NA,nrow=1,ncol=length(vnames),
                              dimnames=list(NULL,vnames)),
-                    auxmetadata=auxmetadata, Dout='sright',
-                    useLquantiles=useLquantiles))
+                    auxmetadata=auxmetadata, Dout='sright'))
     )
   }
 
