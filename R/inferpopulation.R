@@ -42,16 +42,24 @@
 #' @import parallel foreach doParallel doRNG nimble
 #' @importFrom LaplacesDemon MCSE ESS IAT BMK.Diagnostic is.stationary burnin
 inferpopulation <- function(data, metadata, auxdata = NULL,
-                            outputdir, nsamples = 1200,
-                            nchains = 120, nsamplesperchain = 10, parallel = TRUE,
-                            seed = NULL, cleanup = TRUE,
-                            appendtimestamp = TRUE, appendinfo = TRUE,
-                            subsampledata = NULL, output = 'directory',
-                            niterini = 1200, miniter = 3600, maxiter = +Inf,
+                            outputdir,
+                            nsamples = 3600,
+                            nchains = 60,
+                            nsamplesperchain = 60,
+                            parallel = TRUE,
+                            seed = NULL,
+                            cleanup = TRUE,
+                            appendtimestamp = TRUE,
+                            appendinfo = TRUE,
+                            subsampledata = NULL,
+                            output = 'directory',
+                            niterini = 1200,
+                            miniter = 1200,
+                            maxiter = +Inf,
                             prior = missing(data),
                             thinning = NULL, plottraces = TRUE,
                             showKtraces = FALSE, showAlphatraces = FALSE,
-                            lldata = 12) {
+                            lldata = 4) {
 
    cat('\n') # make sure possible error messages start on new line
 
@@ -149,7 +157,7 @@ inferpopulation <- function(data, metadata, auxdata = NULL,
   ##     nsamples <- nchains * nsamplesperchain
   ##     cat('Increasing number of samples to', nsamples, '\n')
   ##   }
-  ## 
+  ##
   ##   ## nsamples & nsamplesperchain
   ## } else if (!missing(nsamples) && missing(nchains) &&
   ##            !missing(nsamplesperchain)) {
@@ -165,7 +173,7 @@ inferpopulation <- function(data, metadata, auxdata = NULL,
   ##     nsamples <- nchains * nsamplesperchain
   ##     cat('Increasing number of samples to', nsamples, '\n')
   ##   }
-  ## 
+  ##
   ##   ## nchains & nsamplesperchain
   ## } else if (missing(nsamples) && !missing(nchains) &&
   ##            !missing(nsamplesperchain)) {
@@ -178,14 +186,14 @@ inferpopulation <- function(data, metadata, auxdata = NULL,
   ##     cat('Increasing number of chains to',nchains,'\n')
   ##   }
   ##   nsamples <- nchains * nsamplesperchain
-  ## 
+  ##
   ##   ## The user set all these three arguments or only one
   ## } else if (!(missing(nsamples) && missing(nchains) &&
   ##            missing(nsamplesperchain))) {
   ##   stop('Please specify exactly two among "nsamples", "nchains", "nsamplesperchain"')
   ## }
 
-  
+
   if (is.numeric(thinning) && thinning > 0) {
     thinning <- ceiling(thinning)
   } else if (!is.null(thinning)) {
@@ -1527,14 +1535,14 @@ inferpopulation <- function(data, metadata, auxdata = NULL,
             mcoutput = c(mcsamples, list(auxmetadata = auxmetadata)),
             jacobian = FALSE,
             parallel = FALSE,
-            combine = '+',
+            combine = `cbind`,
             silent = TRUE
-          )) / nrow(testdata)
+          )) # / nrow(testdata)
         )
 
         ## colnames(ll) <- paste0('log-', c('mid', 'lo', 'hi'))
         ## colnames(ll) <- paste0('log-', seq_len(ncol(ll)))
-       colnames(ll) <- paste0('log-F of ', nrow(testdata), ' data')
+       colnames(ll) <- paste0('log-F_',1:ncol(ll))
 
         ## if (is.numeric(loglikelihood)) {
         ##   lltime <- Sys.time()
@@ -1629,6 +1637,7 @@ inferpopulation <- function(data, metadata, auxdata = NULL,
         ##########################################
 
         calcIterThinning <- mcmclength(nsamplesperchain = nsamplesperchain,
+                                       nitertot = nitertot,
                                        thinning=thinning,
                                        diagnESS=diagnESS, diagnIAT=diagnIAT,
                                        diagnBMK=diagnBMK, diagnMCSE=diagnMCSE,
@@ -1636,7 +1645,7 @@ inferpopulation <- function(data, metadata, auxdata = NULL,
                                        diagnBurn2=diagnBurn2, diagnThin=diagnThin)
 
         requirediter <- max(miniter,
-                             min(maxiter, calcIterThinning$iter))
+                             min(maxiter, calcIterThinning$reqiter))
         currentthinning <- calcIterThinning$thinning
 
         cat('\nNumber of iterations', nitertot, ', required', requirediter, '\n')
@@ -1809,6 +1818,7 @@ inferpopulation <- function(data, metadata, auxdata = NULL,
               ' | burnII: ', diagnBurn2,
               ' | thin: ', diagnThin[avar]
             ),
+            cex.main = 1.25,
             ylab = paste0(avar, '/dHart'),
             xlab = 'Monte Carlo sample',
             family = family, mar = c(NA, 6, NA, NA)

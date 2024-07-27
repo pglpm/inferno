@@ -713,7 +713,7 @@ samplesFDistribution <- function(Y, X = NULL, mcoutput,
                      ## print(any(is.na(probX)))
                      ## str(probY)
                      ## print(any(is.na(probY)))
-                     ## }
+            ## }
                      fn(colSums(exp(probX + probY)) / colSums(exp(probX)))
                      ## rbind(log(W),probX,probY)
                    } *
