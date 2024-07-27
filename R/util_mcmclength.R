@@ -10,11 +10,11 @@ mcmclength <- function(nsamplesperchain, nitertot, thinning,
   ## Current method: require:
   ## 1. MCSE/sd > 6.27%
   ## 2. number of iterations larger than the required samples * ESS
-  autothinning <- ceiling(max(diagnIAT, diagnThin))
+  autothinning <- 2 * ceiling(max(diagnIAT, diagnThin))
   list(reqiter = nitertot +
          (if(
          max(diagnMCSE) < 6.27 &&
-         nitertot > (2 * autothinning * (nsamplesperchain - 1L))
+         nitertot > (autothinning * (nsamplesperchain - 1L))
        ) {
             0
           } else {
@@ -22,7 +22,7 @@ mcmclength <- function(nsamplesperchain, nitertot, thinning,
           }),
        ##
        thinning = (if (is.null(thinning)) {
-                     2 * autothinning
+                     autothinning
                    } else {
                      thinning
                    })

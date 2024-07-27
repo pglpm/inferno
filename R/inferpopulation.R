@@ -678,8 +678,9 @@ inferpopulation <- function(data, metadata, auxdata = NULL,
       Oalpha0 <- matrix(1e-100, nrow = vn$O, ncol = Omaxn)
       for (avar in seq_along(vnames$O)) {
         nvalues <- auxmetadata[auxmetadata$name == vnames$O[avar], 'Nvalues']
-        ## we choose a flatter hyperprior for ordinal variates
-          Oalpha0[avar, 1:nvalues] <- 1
+        ## ## we choose a flatter hyperprior for ordinal variates
+        ## we choose a Hadamard-like hyperprior for nominal variates
+          Oalpha0[avar, 1:nvalues] <- 1/nvalues
       }
       ##
       list(
