@@ -106,59 +106,86 @@ inferpopulation <- function(data, metadata, auxdata = NULL,
   ## the user must also take responsibility of changing one of the other two
   ## in an appropriate way
 
-  if (!missing(nsamples) && !missing(nchains) &&
-      missing(nsamplesperchain)) {
-    ## nsamples and nchains given
-    ## Doesn't make sense to have more cores than chains
-    if(nchains < ncores) {
-      ncores <- nchains
-    }
-    ## Ineffective is some core has fewer chains than others
-    nchainspercore <- ceiling(nchains / ncores)
-    if (nchainspercore * ncores > nchains) {
-      nchains <- nchainspercore * ncores
-      cat('Increasing number of chains to', nchains, '\n')
-    }
-    ## Ineffective to have chains with different required samples
-    nsamplesperchain <- ceiling(nsamples / nchains)
-    if(nsamplesperchain * nchains > nsamples) {
-      nsamples <- nchains * nsamplesperchain
-      cat('Increasing number of samples to', nsamples, '\n')
-    }
-  } else if (!missing(nsamples) && missing(nchains) &&
-             !missing(nsamplesperchain)) {
-    ## nsamples and nsamplesperchain given
-    nchains <- ceiling(nsamples / nsamplesperchain)
-    if(nchains < ncores) {
-      ncores <- nchains
-    }
-    nchainspercore <- ceiling(nchains / ncores)
-    if(nchainspercore * ncores > nchains) {
-      nchains <- nchainspercore*ncores
-    }
-    if(nsamplesperchain * nchains > nsamples) {
-      nsamples <- nchains * nsamplesperchain
-      cat('Increasing number of samples to', nsamples, '\n')
-    }
-  } else if (missing(nsamples) && !missing(nchains) &&
-             !missing(nsamplesperchain)) {
-    ## nchains and nsamplesperchain given
-    if(nchains < ncores){
-      ncores <- nchains
-    }
-    nchainspercore <- ceiling(nchains / ncores)
-    if(nchainspercore * ncores > nchains){
-      nchains <- nchainspercore * ncores
-      cat('Increasing number of chains to',nchains,'\n')
-    }
-    nsamples <- nchains * nsamplesperchain
-  } else  if ( !(missing(nsamples) && missing(nchains) &&
-                 missing(nsamplesperchain)) ) {
+  if (!(missing(nsamples) && missing(nchains) &&
+        missing(nsamplesperchain)) &&
+      (!missing(nsamples) && !missing(nchains) &&
+             !missing(nsamplesperchain))) {
     ## The user set all these three arguments or only one
-    stop('Please specify exactly two among "nsamples", "nchains",
-         "nsamplesperchain"')
+    stop('Please specify exactly two among "nsamples", "nchains", "nsamplesperchain"')
   }
 
+  ## Doesn't make sense to have more cores than chains
+  if(nchains < ncores) {
+    ncores <- nchains
+  }
+  ## Ineffective if some cores have fewer chains than others
+  nchainspercore <- ceiling(nchains / ncores)
+  if (nchainspercore * ncores > nchains) {
+    nchains <- nchainspercore * ncores
+    cat('Increasing number of chains to', nchains, 'for efficiency\n')
+  }
+  ## Ineffective to have chains with different required samples
+  nsamplesperchain <- ceiling(nsamples / nchains)
+  if(nsamplesperchain * nchains > nsamples) {
+    nsamples <- nchains * nsamplesperchain
+    cat('Increasing number of samples to', nsamples, 'for efficiency\n')
+  }
+
+
+  ## ## nsamples & nchains
+  ##   ## Doesn't make sense to have more cores than chains
+  ##   if(nchains < ncores) {
+  ##     ncores <- nchains
+  ##   }
+  ##   ## Ineffective is some core has fewer chains than others
+  ##   nchainspercore <- ceiling(nchains / ncores)
+  ##   if (nchainspercore * ncores > nchains) {
+  ##     nchains <- nchainspercore * ncores
+  ##     cat('Increasing number of chains to', nchains, '\n')
+  ##   }
+  ##   ## Ineffective to have chains with different required samples
+  ##   nsamplesperchain <- ceiling(nsamples / nchains)
+  ##   if(nsamplesperchain * nchains > nsamples) {
+  ##     nsamples <- nchains * nsamplesperchain
+  ##     cat('Increasing number of samples to', nsamples, '\n')
+  ##   }
+  ## 
+  ##   ## nsamples & nsamplesperchain
+  ## } else if (!missing(nsamples) && missing(nchains) &&
+  ##            !missing(nsamplesperchain)) {
+  ##   nchains <- ceiling(nsamples / nsamplesperchain)
+  ##   if(nchains < ncores) {
+  ##     ncores <- nchains
+  ##   }
+  ##   nchainspercore <- ceiling(nchains / ncores)
+  ##   if(nchainspercore * ncores > nchains) {
+  ##     nchains <- nchainspercore*ncores
+  ##   }
+  ##   if(nsamplesperchain * nchains > nsamples) {
+  ##     nsamples <- nchains * nsamplesperchain
+  ##     cat('Increasing number of samples to', nsamples, '\n')
+  ##   }
+  ## 
+  ##   ## nchains & nsamplesperchain
+  ## } else if (missing(nsamples) && !missing(nchains) &&
+  ##            !missing(nsamplesperchain)) {
+  ##   if(nchains < ncores){
+  ##     ncores <- nchains
+  ##   }
+  ##   nchainspercore <- ceiling(nchains / ncores)
+  ##   if(nchainspercore * ncores > nchains){
+  ##     nchains <- nchainspercore * ncores
+  ##     cat('Increasing number of chains to',nchains,'\n')
+  ##   }
+  ##   nsamples <- nchains * nsamplesperchain
+  ## 
+  ##   ## The user set all these three arguments or only one
+  ## } else if (!(missing(nsamples) && missing(nchains) &&
+  ##            missing(nsamplesperchain))) {
+  ##   stop('Please specify exactly two among "nsamples", "nchains", "nsamplesperchain"')
+  ## }
+
+  
   if (is.numeric(thinning) && thinning > 0) {
     thinning <- ceiling(thinning)
   } else if (!is.null(thinning)) {
