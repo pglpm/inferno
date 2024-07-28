@@ -13,12 +13,12 @@ mcmclength <- function(nsamplesperchain, nitertot, thinning,
   autothinning <- 2 * ceiling(max(diagnIAT, diagnThin))
   list(reqiter = nitertot +
          (if(
-         max(diagnMCSE) < 6.27 &&
+         max(diagnMCSE) < 6.2 &&
          nitertot > (autothinning * (nsamplesperchain - 1L))
        ) {
             0
           } else {
-            2 * autothinning
+            3 * autothinning
           }),
        ##
        thinning = (if (is.null(thinning)) {
