@@ -8,7 +8,7 @@
 #'   path for a 'FDistribution.rds' object, or such an object itself
 #' @param subsamples numeric: number of Monte Carlo samples to use
 #' @param jacobian include the Jacobian in the output probability
-#' @param fn function to apply to the group of MCsamples,
+#' @param fn NULL or function to apply to the group of MCsamples,
 #'   example 'identity' or 'mean'
 #' @param combine how to combine the output for the different variate values
 #' @param parallel logical or numeric: whether to use pre-existing parallel
@@ -22,8 +22,8 @@
 samplesFDistribution <- function(Y, X = NULL, mcoutput,
                                  subsamples,
                                  jacobian = TRUE,
-                                 fn = identity,
-                                 combine = 'rbind',
+                                 fn = NULL,
+                                 combine = `rbind`,
                                  parallel = TRUE,
                                  silent = FALSE) {
   if (!silent) {
@@ -714,8 +714,13 @@ samplesFDistribution <- function(Y, X = NULL, mcoutput,
                      ## str(probY)
                      ## print(any(is.na(probY)))
             ## }
-                     fn(colSums(exp(probX + probY)) / colSums(exp(probX)))
-                     ## rbind(log(W),probX,probY)
+            ## rbind(log(W),probX,probY)
+            ## using if + NULL condition is faster than using fn=identity
+            if(is.null(fn)) {
+              colSums(exp(probX + probY)) / colSums(exp(probX))
+            } else {
+              fn(colSums(exp(probX + probY)) / colSums(exp(probX)))
+            }
                    } *
   (if (jacobian) {
      exp(-rowSums(
