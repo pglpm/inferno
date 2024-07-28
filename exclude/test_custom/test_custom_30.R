@@ -18,7 +18,7 @@ library('modelfreeinference')
 
 seed <- 16
 
-outputdirPrefix <- file.path('_mcse062_Ksample_packagetest')
+outputdirPrefix <- file.path('_4lld4_Ksample_packagetest')
 
 currenttestdir <- inferpopulation(data = 'data_test_custom_30.csv',
                         metadata = 'metadata_test_custom.csv',
@@ -29,7 +29,7 @@ currenttestdir <- inferpopulation(data = 'data_test_custom_30.csv',
                         nsamples = 900,
                         nchains = 30,
                         parallel = 5,
-                        ## lldata = 4,
+                        lldata = 4,
                         cleanup = FALSE,
                         miniter = 1200,
                         ## prior = TRUE,
