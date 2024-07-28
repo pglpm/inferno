@@ -9,9 +9,9 @@ inferpopulation(
   metadata,
   auxdata = NULL,
   outputdir,
-  nsamples = 1200,
-  nchains = 120,
-  nsamplesperchain = 10,
+  nsamples = 3600,
+  nchains = 60,
+  nsamplesperchain = 60,
   parallel = TRUE,
   seed = NULL,
   cleanup = TRUE,
@@ -20,14 +20,14 @@ inferpopulation(
   subsampledata = NULL,
   output = "directory",
   niterini = 1200,
-  miniter = 3600,
+  miniter = 1200,
   maxiter = +Inf,
+  lldata = 12,
   prior = missing(data),
   thinning = NULL,
   plottraces = TRUE,
   showKtraces = FALSE,
-  showAlphatraces = FALSE,
-  lldata = 12
+  showAlphatraces = FALSE
 )
 }
 \arguments{
@@ -71,6 +71,9 @@ anything else, no output}
 
 \item{maxiter}{Maximum number of MC iterations}
 
+\item{lldata}{Positive integer or Inf (default 12): number of datapoints
+to use for loglikelihood calculations; if Inf, use all.}
+
 \item{prior}{logical: Calculate the prior distribution of F?}
 
 \item{thinning}{If NULL, let the diagnostics decide the MC thinning; if positive, use this thinning value}
@@ -85,9 +88,6 @@ FALSE (default) saves a little computation time.}
 more frequently during sampling and plots its trace and histogram at
 the end. Keeping it to FALSE (default) saves a little computation
 time.}
-
-\item{lldata}{Positive integer or Inf (default 12): number of datapoints
-to use for loglikelihood calculations; if Inf, use all.}
 }
 \value{
 name of directory containing output files, or Fdistribution object, or empty

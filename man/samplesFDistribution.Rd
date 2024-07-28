@@ -10,8 +10,8 @@ samplesFDistribution(
   mcoutput,
   subsamples,
   jacobian = TRUE,
-  fn = identity,
-  combine = "rbind",
+  fn = NULL,
+  combine = rbind,
   parallel = TRUE,
   silent = FALSE
 )
@@ -30,7 +30,7 @@ path for a 'FDistribution.rds' object, or such an object itself}
 
 \item{jacobian}{include the Jacobian in the output probability}
 
-\item{fn}{function to apply to the group of MCsamples,
+\item{fn}{NULL or function to apply to the group of MCsamples,
 example 'identity' or 'mean'}
 
 \item{combine}{how to combine the output for the different variate values}

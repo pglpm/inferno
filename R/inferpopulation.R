@@ -17,7 +17,8 @@
 #' @param miniter Minimum number of MC iterations to be done
 #' @param maxiter Maximum number of MC iterations
 #' @param prior logical: Calculate the prior distribution of F?
-#' @param thinning If NULL, let the diagnostics decide the MC thinning; if positive, use this thinning value
+#' @param thinning If NULL, let the diagnostics decide the MC thinning;
+#'   if positive, use this thinning value
 #' @param plottraces logical: plot MC traces of diagnostic values
 #' @param showKtraces logical, when true, it saves the K parameter during
 #'   sampling and plots its trace and histogram at the end. Keeping it to
@@ -37,10 +38,14 @@
 #'   anything else, no output
 #' @param cleanup logical, default TRUE, removes files that can be used for
 #'   debugging
-#' @return name of directory containing output files, or Fdistribution object, or empty
-#' @export
+#'
+#' @return name of directory containing output files, or Fdistribution object,
+#'   or empty
+#'
 #' @import parallel foreach doParallel doRNG nimble
 #' @importFrom LaplacesDemon MCSE ESS IAT BMK.Diagnostic is.stationary burnin
+#'
+#' @export
 inferpopulation <- function(
     data,
     metadata,
@@ -866,17 +871,6 @@ inferpopulation <- function(
         ## stop('HERE')
 
 
-        ## We have to source scripts again for each chain to be able to access them.
-        ## source('plotFsamples.R')
-        ## source('samplesFDistribution.R')
-        ## source('tplotfunctions.R')
-        ## source('util_vtransform.R')
-        ## source('util_proposeburnin.R')
-        ## source('util_proposethinning.R')
-        ## source('util_mcsubset.R')
-        ## source('util_mcmclength.R')
-
-
         ## Function for diagnostics
         ## it corrects a little bug in LaplacesDemon::MCSE
         funMCSE <- function(x) {
@@ -1654,7 +1648,7 @@ inferpopulation <- function(
 #### CHECK IF CHAIN MUST BE CONTINUED ####
 ##########################################
 
-                calcIterThinning <- mcmclength(nsamplesperchain = nsamplesperchain,
+                calcIterThinning <- mcmcstop(nsamplesperchain = nsamplesperchain,
                     nitertot = nitertot,
                     thinning=thinning,
                     diagnESS=diagnESS, diagnIAT=diagnIAT,
