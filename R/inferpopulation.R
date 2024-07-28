@@ -806,11 +806,14 @@ inferpopulation <- function(data, metadata, auxdata = NULL,
   cat('\nC-compiling samplers appropriate to the variates (package Nimble)\n')
   cat('this can take tens of minutes with many data or variates.\n...\r')
 
+  ## Alternate initialization system of cluster distribution among chains
+  Ksample <- sample(0:1, 1)
 
   #####################################################
   #### BEGINNING OF FOREACH LOOP OVER CORES
   #####################################################
-  #Iterate over cores, using 'acore' variable as iterator
+  ## Iterate over cores, using 'acore' variable as iterator
+
   chaininfo <- foreach(acore = 1:ncores,
                                 .combine = rbind,
                                 .inorder = FALSE,
@@ -1001,8 +1004,13 @@ inferpopulation <- function(data, metadata, auxdata = NULL,
       outlist <- list(
         Alpha = Alpha,
         W = W,
-        ## ## assign all points to an unsystematically chosen cluster
-        K = rep(sample(rep(which(W > 0), 2), 1, replace = TRUE), npoints)
+        K = (if(achain %% 2 == Ksample) {
+               ## ## assign all points to an unsystematically chosen cluster
+               rep(sample(rep(which(W > 0), 2), 1, replace = TRUE), npoints)
+             } else {
+               ## distribute points unsystematically among clusters
+               sample(rep(which(W > 0), 2), npoints, replace = TRUE)
+             })
         ## ## or:
         ## ## assign all points to the most probable cluster
         ## K = rep(which.max(W), npoints)
@@ -1366,9 +1374,6 @@ inferpopulation <- function(data, metadata, auxdata = NULL,
     ##################################################
     #### LOOP OVER CHAINS (WITHIN ONE CORE)
     ##################################################
-    maxusedclusters <- 0
-
-
     # Start timer
     starttime <- Sys.time()
 
@@ -1384,6 +1389,8 @@ inferpopulation <- function(data, metadata, auxdata = NULL,
       ## }else{
       ##  niter <- max(min(niterini,requirediter*2), 128)
       ##  }
+      maxusedclusters <- 0
+      maxiterations <- 0
       nitertot <- 0
       requirediter <- +Inf
       reset <- TRUE
@@ -1866,6 +1873,7 @@ inferpopulation <- function(data, metadata, auxdata = NULL,
       }
 
       maxusedclusters <- max(maxusedclusters, usedclusters)
+      maxiterations <- max(maxiterations, nitertot)
     } #### END LOOP OVER CHAINS (WITHIN ONE CORE)
 
     ##
@@ -1873,7 +1881,9 @@ inferpopulation <- function(data, metadata, auxdata = NULL,
         strftime(as.POSIXlt(Sys.time()), '%Y-%m-%d %H:%M:%S'))
     cat('\nTotal time', printtime(Sys.time() - starttime), '\n')
 
-    cbind(maxusedclusters, allflagmc)
+      cbind(maxusedclusters = maxusedclusters,
+            maxiterations = maxiterations,
+            allflagmc = allflagmc)
     }
 ############################################################
 #### END OF FOREACH-LOOP OVER CORES
@@ -1882,8 +1892,9 @@ inferpopulation <- function(data, metadata, auxdata = NULL,
   suppressWarnings(sink())
   suppressWarnings(sink(NULL, type = 'message'))
 
-  maxusedclusters <- max(chaininfo[, 1])
-  nonfinitechains <- sum(chaininfo[, 2])
+  maxusedclusters <- max(chaininfo[, 'maxusedclusters'])
+  maxiterations <- max(chaininfo[, 'maxiterations'])
+  nonfinitechains <- sum(chaininfo[, 'allflagmc'])
 
   ############################################################
   #### End of all MCMC
@@ -2016,6 +2027,7 @@ inferpopulation <- function(data, metadata, auxdata = NULL,
     )
   }
 
+  cat('\nMax number of Monte Carlo iterations:', maxiterations)
   cat('\nMax number of used clusters:', maxusedclusters, '\n')
   if (maxusedclusters > nclusters - 5) {
     cat('TOO MANY CLUSTERS USED!\n')
@@ -2026,7 +2038,7 @@ inferpopulation <- function(data, metadata, auxdata = NULL,
     cat(nonfinitechains, 'chains with some non-finite outputs\n')
   }
 
-  cat('Plotting marginal samples.\n')
+  cat('\nPlotting marginal samples.\n')
   plotFsamples(
     file = file.path(dirname,
                      paste0('plotsamples_Fdistribution', dashnameroot)),
