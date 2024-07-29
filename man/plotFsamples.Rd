@@ -25,9 +25,14 @@ path for a 'FDistribution.rds' object, or such an object itself}
 
 \item{data}{data.table object or filepath: datapoints}
 
-\item{plotvariability}{string, either 'samples' or 'quantiles': how to plot the variability of the probability distribution with new samples}
+\item{plotvariability}{string, either 'samples' or 'quantiles':
+how to plot the variability of the probability distribution with new samples}
 
-\item{nFsamples}{positive number: if plotvariability='samples', then number of samples of representative frequency distributions to display as variability; if plotvariability='quantiles', then the quantiles (in range 0 to 0.5) to show}
+\item{nFsamples}{positive number: if plotvariability='samples', then
+number of samples of representative frequency distributions to display
+as variability;
+if plotvariability='quantiles', then
+the quantiles (in range 0 to 0.5) to show}
 
 \item{datahistogram}{logical: plot the data as histogram?}
 

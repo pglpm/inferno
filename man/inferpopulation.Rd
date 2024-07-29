@@ -76,7 +76,8 @@ to use for loglikelihood calculations; if Inf, use all.}
 
 \item{prior}{logical: Calculate the prior distribution of F?}
 
-\item{thinning}{If NULL, let the diagnostics decide the MC thinning; if positive, use this thinning value}
+\item{thinning}{If NULL, let the diagnostics decide the MC thinning;
+if positive, use this thinning value}
 
 \item{plottraces}{logical: plot MC traces of diagnostic values}
 
@@ -90,7 +91,8 @@ the end. Keeping it to FALSE (default) saves a little computation
 time.}
 }
 \value{
-name of directory containing output files, or Fdistribution object, or empty
+name of directory containing output files, or Fdistribution object,
+or empty
 }
 \description{
 Monte Carlo computation of posterior distribution of population frequencies
