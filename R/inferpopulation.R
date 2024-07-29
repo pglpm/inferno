@@ -3,7 +3,7 @@
 #' @param data data.frame object or filepath: datapoints
 #' @param metadata Either the name of the csv file containing metadata
 #'   of the current dataset, or a data.frame with the metadata
-#' @param auxdata data.frame object or filepath: extra datapoints
+#' @param auxdata NULL or data.frame object or filepath: extra datapoints
 #'   which would be too many to use in the Monte Carlo sampling,
 #'   but can be used to calculate hyperparameters
 #' @param outputdir String, path to output file folder ## Rename to
@@ -13,9 +13,27 @@
 #' @param nsamplesperchain Integer, nr of MC samples per chain
 #' @param parallel, logical or numeric: whether to use pre-existing parallel
 #'   workers, or how many to create and use
+#' @param seed Integer: seed for random number generator. If left as default
+#'   NULL, a random seed based on the system clock is used in the
+#'   set.seed() function
+#' @param cleanup logical, default TRUE, removes files that can be used for
+#'   debugging
+#' @param appendtimestamp logical, default TRUE: add timestamp to name of
+#'   output directory
+#' @param appendinfo logical, default TRUE: add some simulation information
+#'   to name of output directory
+#' @param output if string 'directory', return the output directory name;
+#'   if string 'mcoutput', return the 'Fdistribution' object;
+#'   anything else, no output
+#' @param subsampledata Numeric: use only a subsample of the datapoints in 'data'
 #' @param niterini Number of initial (burn-in) MC iterations
 #' @param miniter Minimum number of MC iterations to be done
 #' @param maxiter Maximum number of MC iterations
+#' @param ncheckpoints NULL (default), positive integer, or Inf:
+#'   number of datapoints to use for stopping the sampling;
+#'   if NULL, equal to number of variates + 2; if Inf, use all datapoints
+#' @param relerror positive real: relative error of calculated probabilities
+#'   with respect to their variability with new data. It is only approximate
 #' @param prior logical: Calculate the prior distribution of F?
 #' @param thinning If NULL, let the diagnostics decide the MC thinning;
 #'   if positive, use this thinning value
@@ -27,17 +45,6 @@
 #'   more frequently during sampling and plots its trace and histogram at
 #'   the end. Keeping it to FALSE (default) saves a little computation
 #'   time.
-#' @param seed Integer: seed for random number generator. If left as default
-#'   NULL, a random seed based on the system clock is used in the
-#'   set.seed() function
-#' @param lldata Positive integer or Inf (default 12): number of datapoints
-#'   to use for loglikelihood calculations; if Inf, use all.
-#' @param subsampledata Numeric: use only a subsample of the datapoints in 'data'
-#' @param output if string 'directory', return the output directory name;
-#'   if string 'mcoutput', return the 'Fdistribution' object;
-#'   anything else, no output
-#' @param cleanup logical, default TRUE, removes files that can be used for
-#'   debugging
 #'
 #' @return name of directory containing output files, or Fdistribution object,
 #'   or empty
@@ -59,12 +66,13 @@ inferpopulation <- function(
     cleanup = TRUE,
     appendtimestamp = TRUE,
     appendinfo = TRUE,
-    subsampledata = NULL,
     output = 'directory',
+    subsampledata = NULL,
     niterini = 1200,
     miniter = 1200,
     maxiter = +Inf,
-    lldata = 12,
+    ncheckpoints = NULL,
+    relerror = 0.1/(2*qnorm(0.95)), # 1/sqrt(2 * nsamplesperchain) # explore this
     prior = missing(data),
     thinning = NULL,
     plottraces = TRUE,
@@ -407,7 +415,7 @@ inferpopulation <- function(
             ## (using extra memory)
             ## Each chain uses a different set of testdata
             for(achain in seq_len(nchains)) {
-                testdata <- data[sort(sample(npoints, min(lldata, npoints))), ,
+                testdata <- data[sort(sample(npoints, min(ncheckpoints, npoints))), ,
                     drop = FALSE]
                 saveRDS(testdata,
                     file = file.path(dirname, paste0('_testdata_', achain, '.rds')))
@@ -420,9 +428,9 @@ inferpopulation <- function(
                         function(ii){
                             if(auxmetadata[ii, 'mcmctype'] %in%
                                c('R', 'C', 'D', 'L')) {
-                                rnorm(n = lldata, mean = 0, sd = 2)
+                                rnorm(n = ncheckpoints, mean = 0, sd = 2)
                             } else {
-                                sample(1:auxmetadata[ii, 'Nvalues'], lldata,
+                                sample(1:auxmetadata[ii, 'Nvalues'], ncheckpoints,
                                     replace = TRUE)
                             }
                         }
@@ -463,7 +471,7 @@ inferpopulation <- function(
         ## if "testdata" is moved into the for-loop,
         ## then each chain uses a different set of testdata
         for(achain in seq_len(nchains)) {
-            testdata <- data[sort(sample(npoints, min(lldata, npoints))), ,
+            testdata <- data[sort(sample(npoints, min(ncheckpoints, npoints))), ,
                 drop = FALSE]
             saveRDS(testdata,
                 file = file.path(dirname, paste0('_testdata_', achain, '.rds')))
@@ -480,7 +488,7 @@ inferpopulation <- function(
     ##     ## if "testdata" is moved into the for-loop,
     ##     ## then each chain uses a different set of testdata
     ##     for(achain in seq_len(nchains)) {
-    ##       testdata <- data[sort(sample(dataNoNa, min(lldata, ndataNoNa))),]
+    ##       testdata <- data[sort(sample(dataNoNa, min(ncheckpoints, ndataNoNa))),]
     ##       saveRDS(testdata,
     ##               file = file.path(dirname, paste0('_testdata_', achain, '.rds')))
     ##     }
@@ -560,7 +568,24 @@ inferpopulation <- function(
     ## source('proposethinning.R')
     ## source('mcsubset.R')
 
-                                        # function printtime to format printing of time
+    ## ## Function for Monte Carlo stopping rule
+    if(is.null(ncheckpoints)) {
+        ncheckpoints <- nrow(auxmetadata) + 2
+    }
+    funMCSE <- function(x) {
+        x <- cbind(x)
+        N <- nrow(x)
+        b <- floor(sqrt(N))
+        a <- floor(N/b)
+        Ys <- rbind(sapply(seq_len(a), function(k) {
+            colMeans(x[((k - 1) * b + 1):(k * b), , drop = FALSE])
+        }))
+        ##
+        sqrt(b * rowSums((Ys - rowMeans(Ys))^2) / ((a - 1) * N))
+    }
+
+
+    ## function printtime to format printing of time
     printtime <- function(tim) {
         paste0(signif(tim, 2), ' ', attr(tim, 'units'))
     }
@@ -871,20 +896,18 @@ inferpopulation <- function(
         ## stop('HERE')
 
 
-        ## Function for diagnostics
-        ## it corrects a little bug in LaplacesDemon::MCSE
-        funMCSE <- function(x) {
-            x <- cbind(x)
-            N <- nrow(x)
-            b <- floor(sqrt(N))
-            a <- floor(N/b)
-            Ys <- rbind(sapply(seq_len(a), function(k) {
-                colMeans(x[((k - 1) * b + 1):(k * b), , drop = FALSE])
-            }))
-            ##
-            sqrt(b * rowSums((Ys - rowMeans(Ys))^2) / ((a - 1) * N))
-        }
-        mcsefactor <- 0.062 #/(2*qnorm(0.975)) # 1/sqrt(2 * nsamplesperchain)
+        ## ## Function for Monte Carlo stopping rule
+        ## funMCSE <- function(x) {
+        ##     x <- cbind(x)
+        ##     N <- nrow(x)
+        ##     b <- floor(sqrt(N))
+        ##     a <- floor(N/b)
+        ##     Ys <- rbind(sapply(seq_len(a), function(k) {
+        ##         colMeans(x[((k - 1) * b + 1):(k * b), , drop = FALSE])
+        ##     }))
+        ##     ##
+        ##     sqrt(b * rowSums((Ys - rowMeans(Ys))^2) / ((a - 1) * N))
+        ## }
 
         ## ## Not needed?
         ## printtime <- function(tim){paste0(signif(tim,2),' ',attr(tim,'units'))}
@@ -1548,17 +1571,29 @@ inferpopulation <- function(
                 diagntime <- Sys.time()
                 ##
                 ll <- cbind(
-                    rowSums(
-                        log(samplesFDistribution(
-                            Y = testdata, X = NULL,
-                            mcoutput = c(mcsamples, list(auxmetadata = auxmetadata)),
+                        samplesFDistribution(
+                            Y = testdata,
+                            X = NULL,
+                            mcoutput = c(mcsamples,
+                                list(auxmetadata = auxmetadata)),
                             jacobian = FALSE,
                             parallel = FALSE,
                             combine = `cbind`,
                             silent = TRUE
-                        ))
-                    )
+                        )
                 )
+                ## ll <- exp(cbind(
+                ##     rowSums(
+                ##         log(samplesFDistribution(
+                ##             Y = testdata, X = NULL,
+                ##             mcoutput = c(mcsamples, list(auxmetadata = auxmetadata)),
+                ##             jacobian = FALSE,
+                ##             parallel = FALSE,
+                ##             combine = `cbind`,
+                ##             silent = TRUE
+                ##         ))
+                ##     )/ncheckpoints
+                ## ))
                 colnames(ll) <- paste0('log-F_', seq_len(ncol(ll)))
 
                 ## if (is.numeric(loglikelihood)) {
@@ -1566,13 +1601,13 @@ inferpopulation <- function(
                 ##   cat('\nCalculating log-likelihood...')
                 ##   ll <- cbind(ll,
                 ##     'log-ll' = log(samplesFDistribution(
-                ##       Y = lldata, X = NULL,
+                ##       Y = ncheckpoints, X = NULL,
                 ##       ## Y = data[llseq, ], X = NULL,
                 ##       mcoutput = c(mcsamples, list(auxmetadata = auxmetadata)),
                 ##       jacobian = FALSE,
                 ##       parallel = FALSE, silent = TRUE,
                 ##       combine = '+'
-                ##     )) / nrow(lldata)
+                ##     )) / nrow(ncheckpoints)
                 ##   )
                 ##   cat('Done,\n', printtime(Sys.time() - lltime), '\n')
                 ## }
@@ -1588,32 +1623,51 @@ inferpopulation <- function(
                 }
                 ##
                 diagnESS <- LaplacesDemon::ESS(cleantraces)
-                cat('\nESSs:', paste0(round(diagnESS), collapse = ', '))
+                cat('\nESSs:',
+                    paste0(round(range(diagnESS)), collapse = ', '))
+
                 diagnIAT <- apply(cleantraces, 2, function(x) {
                     LaplacesDemon::IAT(x)
                 })
-                cat('\nIATs:', paste0(round(diagnIAT), collapse = ', '))
-                diagnBMK <- LaplacesDemon::BMK.Diagnostic(cleantraces[1:(4 * trunc(nrow(cleantraces) / 4)), , drop = FALSE], batches = 4)[, 1]
-                cat('\nBMKs:', paste0(round(diagnBMK, 3), collapse = ', '))
+                cat('\nIATs:',
+                    paste0(round(range(diagnIAT)), collapse = ', '))
+
+                diagnBMK <- LaplacesDemon::BMK.Diagnostic(
+                    cleantraces[1:(4 * trunc(nrow(cleantraces) / 4)), ,
+                        drop = FALSE], batches = 4)[, 1]
+                cat('\nBMKs:',
+                    paste0(round(range(diagnBMK), 3), collapse = ', '))
+
                 diagnMCSE <- funMCSE(cleantraces) /
                     apply(cleantraces, 2, sd)
-                cat('\nMCSEs (', signif(mcsefactor,2),
-                    '):', paste0(signif(diagnMCSE, 2), collapse = ', '))
+                cat('\nrel-MCSEs (', signif(relerror,2), '):',
+                    paste0(signif(range(diagnMCSE), 2), collapse = ', '))
+
                 diagnStat <- apply(cleantraces, 2, function(x) {
                     LaplacesDemon::is.stationary(as.matrix(x, ncol = 1))
                 })
-                cat('\nStationary:', paste0(diagnStat, collapse = ', '))
+                cat('\nStationary:',
+                    paste0(range(diagnStat), collapse = ', '))
+
                 diagnBurn <- apply(cleantraces, 2, function(x) {
-                    LaplacesDemon::burnin(matrix(x[1:(10 * trunc(length(x) / 10))], ncol = 1))
+                    LaplacesDemon::burnin(
+                        matrix(x[1:(10 * trunc(length(x) / 10))], ncol = 1))
                 })
-                cat('\nBurn-in I:', paste0(diagnBurn, collapse = ', '))
+                cat('\nBurn-in I:',
+                    paste0(range(diagnBurn), collapse = ', '))
+
                 diagnBurn2 <- proposeburnin(cleantraces, batches = 10)
-                cat('\nBurn-in II:', diagnBurn2)
+                cat('\nBurn-in II:',
+                    range(diagnBurn2))
+
                 diagnThin <- proposethinning(cleantraces)
-                cat('\nProposed thinning:', paste0(diagnThin, collapse = ', '), '\n')
+                cat('\nProposed thinning:',
+                    paste0(range(diagnThin), collapse = ', '), '\n')
+
                 rm(cleantraces)
 
-                cat('\nDiagnostics time', printtime(Sys.time() - diagntime), '\n')
+                cat('\nDiagnostics time',
+                    printtime(Sys.time() - diagntime), '\n')
 
                 if (is.null(allmcsamples)) {
                     ## new chain
@@ -1654,7 +1708,7 @@ inferpopulation <- function(
 ##########################################
 
                 calcIterThinning <- mcmcstop(
-                    mcsefactor = mcsefactor,
+                    relerror = relerror,
                     nsamplesperchain = nsamplesperchain,
                     nitertot = nitertot,
                     thinning=thinning,
@@ -1825,7 +1879,7 @@ inferpopulation <- function(
                 par(mfrow = c(1, 1))
                 for (avar in colnames(traces)) {
                     tplot(
-                        y = traces[is.finite(traces[, avar]), avar],
+                        y = log10(traces[is.finite(traces[, avar]), avar]),
                         type = 'l', lty = 1, col = 1,
                         main = paste0(
                             'ESS = ', signif(diagnESS[avar], 3),
@@ -1978,7 +2032,10 @@ inferpopulation <- function(
     traces <- traces[apply(traces, 1, function(x) { all(is.finite(x)) }), ,
         drop = FALSE]
     ## flagll <- nrow(traces) != nrow(traces)
-    ## funMCSE <- function(x){LaplacesDemon::MCSE(x, method='batch.means')$se}
+    diagnMCSE <- 2 * qnorm(0.975) *
+        funMCSE(traces) / apply(traces, 2, sd)
+    cat('\nrel. MC standard error ',
+        signif(100 * max(diagnMCSE, na.rm = TRUE), 3), '%')
     diagnESS <- LaplacesDemon::ESS(traces)
     cat('\nEFFECTIVE SAMPLE SIZE > ', nchains,
         '(estim.: ', round(max(diagnESS, na.rm = TRUE)), ')\n')
@@ -2019,12 +2076,13 @@ inferpopulation <- function(
         ## Do not join separate chains in the plot
         division <- (if(nrow(traces) > nchains) nchains else 1)
         tplot(x = matrix(seq_len(nsamples), ncol = division),
-            y = matrix(traces[, avar], ncol = division),
+            y = matrix(log10(traces[, avar]), ncol = division),
             type = 'l', lty = 1,
             col = 1:6, # to evidence consecutive chains
             ## col = colpalette[avar], # original, one color per trace
             main = paste0(
-                'Effective sample size > ', nchains,
+                'rel-MCSE ', signif(100 * diagnMCSE[avar], 3), '%',
+                ' | ESS > ', nchains,
                 ' (estimated: ', signif(diagnESS[avar], 3), ')'
                 ##             ' | IAT = ', signif(diagnIAT[avar], 3),
                 ##             ' | BMK = ', signif(diagnBMK[avar], 3),

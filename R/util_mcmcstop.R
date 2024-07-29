@@ -1,6 +1,6 @@
 ## Function for calculating total number of needed MCMC iterations
 mcmcstop <- function(
-    mcsefactor,
+    relerror,
     nsamplesperchain,
     nitertot,
     thinning,
@@ -23,12 +23,12 @@ mcmcstop <- function(
     autothinning <- 2 * ceiling(max(diagnIAT, diagnThin))
     list(reqiter = nitertot +
              (if(
-                 max(diagnMCSE) < mcsefactor #&&
+                 max(diagnMCSE) < relerror #&&
                  ## nitertot > (autothinning * (nsamplesperchain - 1L))
              ) {
                   0
               } else {
-                  3 * autothinning
+                  autothinning * (nsamplesperchain - 1L)
               }),
         ##
         thinning = (if (is.null(thinning)) {
