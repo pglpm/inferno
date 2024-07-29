@@ -405,10 +405,11 @@ inferpopulation <- function(
         file = file.path(dirname, paste0('rng_seed', dashnameroot, '.rds')))
 
 #### number ofcheckpoints for Monte Carlo stopping rule
-    ncheckpoints <- round(ncheckpoints)
     if(is.null(ncheckpoints)) {
         ncheckpoints <- nrow(auxmetadata) + 1
-    } else if (ncheckpoints < 1) {
+    }
+    ncheckpoints <- round(ncheckpoints)
+    if (ncheckpoints < 1) {
         stop('"ncheckpoints" must be > 0')
     }
 
