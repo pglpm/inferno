@@ -1,11 +1,13 @@
 #' Build preliminary metadata flie
 #'
 #' @param data data.frame object or filepath
-#' @param file string: name of output metadata file; NULL: output metadata as data.frame
+#' @param file string: name of output metadata file;
+#'   NULL: output metadata as data.frame
 #' @param diagnosticvalues Bool: also output some diagnostic statistics?
 #' @param backupfiles Bool: rename previous metadata file if it exists?
 #'
 #' @return nothing or data.table object
+#'
 #' @export
 buildmetadata <- function(data, file = NULL,
                           diagnosticvalues = FALSE,

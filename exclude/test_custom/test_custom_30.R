@@ -18,7 +18,7 @@ library('modelfreeinference')
 
 seed <- 16
 
-outputdirPrefix <- file.path('_4lld4_Ksample_packagetest')
+outputdirPrefix <- file.path('_4lld4_newmcse_packagetest')
 
 currenttestdir <- inferpopulation(data = 'data_test_custom_30.csv',
                         metadata = 'metadata_test_custom.csv',

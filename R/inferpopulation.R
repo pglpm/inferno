@@ -17,7 +17,8 @@
 #' @param miniter Minimum number of MC iterations to be done
 #' @param maxiter Maximum number of MC iterations
 #' @param prior logical: Calculate the prior distribution of F?
-#' @param thinning If NULL, let the diagnostics decide the MC thinning; if positive, use this thinning value
+#' @param thinning If NULL, let the diagnostics decide the MC thinning;
+#'   if positive, use this thinning value
 #' @param plottraces logical: plot MC traces of diagnostic values
 #' @param showKtraces logical, when true, it saves the K parameter during
 #'   sampling and plots its trace and histogram at the end. Keeping it to
@@ -37,10 +38,14 @@
 #'   anything else, no output
 #' @param cleanup logical, default TRUE, removes files that can be used for
 #'   debugging
-#' @return name of directory containing output files, or Fdistribution object, or empty
-#' @export
+#'
+#' @return name of directory containing output files, or Fdistribution object,
+#'   or empty
+#'
 #' @import parallel foreach doParallel doRNG nimble
 #' @importFrom LaplacesDemon MCSE ESS IAT BMK.Diagnostic is.stationary burnin
+#'
+#' @export
 inferpopulation <- function(
     data,
     metadata,
@@ -866,26 +871,20 @@ inferpopulation <- function(
         ## stop('HERE')
 
 
-        ## We have to source scripts again for each chain to be able to access them.
-        ## source('plotFsamples.R')
-        ## source('samplesFDistribution.R')
-        ## source('tplotfunctions.R')
-        ## source('util_vtransform.R')
-        ## source('util_proposeburnin.R')
-        ## source('util_proposethinning.R')
-        ## source('util_mcsubset.R')
-        ## source('util_mcmclength.R')
-
-
         ## Function for diagnostics
         ## it corrects a little bug in LaplacesDemon::MCSE
         funMCSE <- function(x) {
-            if (length(x) >= 1000) {
-                LaplacesDemon::MCSE(x, method = 'batch.means')$se
-            } else {
-                LaplacesDemon::MCSE(x)
-            }
+            x <- cbind(x)
+            N <- nrow(x)
+            b <- floor(sqrt(N))
+            a <- floor(N/b)
+            Ys <- rbind(sapply(seq_len(a), function(k) {
+                colMeans(x[((k - 1) * b + 1):(k * b), , drop = FALSE])
+            }))
+            ##
+            sqrt(b * rowSums((Ys - rowMeans(Ys))^2) / ((a - 1) * N))
         }
+        mcsefactor <- 0.062/(2*qnorm(0.975)) # 1/sqrt(2 * nsamplesperchain)
 
         ## ## Not needed?
         ## printtime <- function(tim){paste0(signif(tim,2),' ',attr(tim,'units'))}
@@ -1596,10 +1595,10 @@ inferpopulation <- function(
                 cat('\nIATs:', paste0(round(diagnIAT), collapse = ', '))
                 diagnBMK <- LaplacesDemon::BMK.Diagnostic(cleantraces[1:(4 * trunc(nrow(cleantraces) / 4)), , drop = FALSE], batches = 4)[, 1]
                 cat('\nBMKs:', paste0(round(diagnBMK, 3), collapse = ', '))
-                diagnMCSE <- 100 * apply(cleantraces, 2, function(x) {
-                    funMCSE(x) / sd(x)
-                })
-                cat('\nMCSEs:', paste0(round(diagnMCSE, 2), collapse = ', '))
+                diagnMCSE <- funMCSE(cleantraces) /
+                    apply(cleantraces, 2, sd)
+                cat('\nMCSEs (', signif(mcsefactor,2),
+                   '):', paste0(signif(diagnMCSE, 2), collapse = ', '))
                 diagnStat <- apply(cleantraces, 2, function(x) {
                     LaplacesDemon::is.stationary(as.matrix(x, ncol = 1))
                 })
@@ -1654,7 +1653,9 @@ inferpopulation <- function(
 #### CHECK IF CHAIN MUST BE CONTINUED ####
 ##########################################
 
-                calcIterThinning <- mcmclength(nsamplesperchain = nsamplesperchain,
+                calcIterThinning <- mcmcstop(
+                    mcsefactor = mcsefactor,
+                    nsamplesperchain = nsamplesperchain,
                     nitertot = nitertot,
                     thinning=thinning,
                     diagnESS=diagnESS, diagnIAT=diagnIAT,
