@@ -884,7 +884,7 @@ inferpopulation <- function(
             ##
             sqrt(b * rowSums((Ys - rowMeans(Ys))^2) / ((a - 1) * N))
         }
-        mcsefactor <- 0.062/(2*qnorm(0.975)) # 1/sqrt(2 * nsamplesperchain)
+        mcsefactor <- 0.062 #/(2*qnorm(0.975)) # 1/sqrt(2 * nsamplesperchain)
 
         ## ## Not needed?
         ## printtime <- function(tim){paste0(signif(tim,2),' ',attr(tim,'units'))}
@@ -1598,7 +1598,7 @@ inferpopulation <- function(
                 diagnMCSE <- funMCSE(cleantraces) /
                     apply(cleantraces, 2, sd)
                 cat('\nMCSEs (', signif(mcsefactor,2),
-                   '):', paste0(signif(diagnMCSE, 2), collapse = ', '))
+                    '):', paste0(signif(diagnMCSE, 2), collapse = ', '))
                 diagnStat <- apply(cleantraces, 2, function(x) {
                     LaplacesDemon::is.stationary(as.matrix(x, ncol = 1))
                 })
