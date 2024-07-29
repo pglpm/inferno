@@ -17,12 +17,13 @@ inferpopulation(
   cleanup = TRUE,
   appendtimestamp = TRUE,
   appendinfo = TRUE,
-  subsampledata = NULL,
   output = "directory",
+  subsampledata = NULL,
   niterini = 1200,
   miniter = 1200,
   maxiter = +Inf,
-  lldata = 12,
+  ncheckpoints = NULL,
+  relerror = 0.1/(2 * qnorm(0.95)),
   prior = missing(data),
   thinning = NULL,
   plottraces = TRUE,
@@ -36,7 +37,7 @@ inferpopulation(
 \item{metadata}{Either the name of the csv file containing metadata
 of the current dataset, or a data.frame with the metadata}
 
-\item{auxdata}{data.frame object or filepath: extra datapoints
+\item{auxdata}{NULL or data.frame object or filepath: extra datapoints
 which would be too many to use in the Monte Carlo sampling,
 but can be used to calculate hyperparameters}
 
@@ -59,11 +60,17 @@ set.seed() function}
 \item{cleanup}{logical, default TRUE, removes files that can be used for
 debugging}
 
-\item{subsampledata}{Numeric: use only a subsample of the datapoints in 'data'}
+\item{appendtimestamp}{logical, default TRUE: add timestamp to name of
+output directory}
+
+\item{appendinfo}{logical, default TRUE: add some simulation information
+to name of output directory}
 
 \item{output}{if string 'directory', return the output directory name;
 if string 'mcoutput', return the 'Fdistribution' object;
 anything else, no output}
+
+\item{subsampledata}{Numeric: use only a subsample of the datapoints in 'data'}
 
 \item{niterini}{Number of initial (burn-in) MC iterations}
 
@@ -71,8 +78,12 @@ anything else, no output}
 
 \item{maxiter}{Maximum number of MC iterations}
 
-\item{lldata}{Positive integer or Inf (default 12): number of datapoints
-to use for loglikelihood calculations; if Inf, use all.}
+\item{ncheckpoints}{NULL (default), positive integer, or Inf:
+number of datapoints to use for stopping the sampling;
+if NULL, equal to number of variates + 2; if Inf, use all datapoints}
+
+\item{relerror}{positive real: relative error of calculated probabilities
+with respect to their variability with new data. It is only approximate}
 
 \item{prior}{logical: Calculate the prior distribution of F?}
 
