@@ -9,7 +9,8 @@ buildmetadata(data, file = NULL, diagnosticvalues = FALSE, backupfiles = FALSE)
 \arguments{
 \item{data}{data.frame object or filepath}
 
-\item{file}{string: name of output metadata file; NULL: output metadata as data.frame}
+\item{file}{string: name of output metadata file;
+NULL: output metadata as data.frame}
 
 \item{diagnosticvalues}{Bool: also output some diagnostic statistics?}
 
