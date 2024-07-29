@@ -11,7 +11,8 @@ mcmcstop <- function(
     diagnStat,
     diagnBurn,
     diagnBurn2,
-    diagnThin) {
+    diagnThin
+) {
     ## This function uses (or can potentially use) various diagnostics from
     ## the LaplacesDemon package in order to determine
     ## the total number of needed MCMC iterations as well as
@@ -28,7 +29,7 @@ mcmcstop <- function(
              ) {
                   0
               } else {
-                  autothinning * (nsamplesperchain - 1L)
+                  ceiling(autothinning * (nsamplesperchain - 1L)/2)
               }),
         ##
         thinning = (if (is.null(thinning)) {

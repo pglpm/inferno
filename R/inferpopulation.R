@@ -404,6 +404,14 @@ inferpopulation <- function(
     saveRDS(currentseed,
         file = file.path(dirname, paste0('rng_seed', dashnameroot, '.rds')))
 
+#### number ofcheckpoints for Monte Carlo stopping rule
+    ncheckpoints <- round(ncheckpoints)
+    if(is.null(ncheckpoints)) {
+        ncheckpoints <- nrow(auxmetadata) + 1
+    } else if (ncheckpoints < 1) {
+        stop('"ncheckpoints" must be > 0')
+    }
+
 
 #### Check if user wants to calculate prior
     if (prior) {
@@ -568,10 +576,6 @@ inferpopulation <- function(
     ## source('proposethinning.R')
     ## source('mcsubset.R')
 
-    ## ## Function for Monte Carlo stopping rule
-    if(is.null(ncheckpoints)) {
-        ncheckpoints <- nrow(auxmetadata) + 2
-    }
     funMCSE <- function(x) {
         x <- cbind(x)
         N <- nrow(x)
@@ -1640,7 +1644,7 @@ inferpopulation <- function(
 
                 diagnMCSE <- funMCSE(cleantraces) /
                     apply(cleantraces, 2, sd)
-                cat('\nrel-MCSEs (', signif(relerror,2), '):',
+                cat('\nrel-MCSEs (', signif(relerror, 2), '):',
                     paste0(signif(range(diagnMCSE), 2), collapse = ', '))
 
                 diagnStat <- apply(cleantraces, 2, function(x) {
