@@ -23,7 +23,7 @@ inferpopulation(
   miniter = 1200,
   maxiter = +Inf,
   ncheckpoints = NULL,
-  relerror = 0.1/(2 * qnorm(0.95)),
+  relerror = 0.1,
   prior = missing(data),
   thinning = NULL,
   plottraces = TRUE,

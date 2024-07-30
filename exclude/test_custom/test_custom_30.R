@@ -18,18 +18,19 @@ library('modelfreeinference')
 
 seed <- 16
 
-outputdirPrefix <- file.path('_mcse01-095_llnew_packagetest')
+outputdirPrefix <- file.path('_test_packagetest')
 
 currenttestdir <- inferpopulation(
     data = 'data_test_custom_30.csv',
     metadata = 'metadata_test_custom.csv',
     outputdir = outputdirPrefix,
     output = 'directory',
-    appendtimestamp = TRUE,
+    appendtimestamp = F,
     appendinfo = TRUE,
-    nsamples = 900,
-    nchains = 30,
-    parallel = 5,
+    nsamples = 120,
+    nchains = 12,
+    parallel = 4,
+    relerror = 0.062,
     ncheckpoints = NULL,
     cleanup = FALSE,
     miniter = 1200,
