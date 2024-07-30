@@ -35,7 +35,7 @@ tplot(x=c('no','yes'), y=c(0.25,0.75), type='b', ylim=c(0,1), xlab='Bvrt', ylab=
 ## Nominal variate, 5 values 'A'-'E'
 ## probs <- LaplacesDemon::rdirichlet(alpha=rep(1,5),n=1)
 Ndata <- sample(LETTERS[1:5], ndata, replace=T,
-                prob=c(0.06, 0.11, 0.34, 0.19, 0.3))
+    prob=c(0.06, 0.11, 0.34, 0.19, 0.3))
 thist(Ndata, plot=T, border.alpha=1, xlab='Nvrt', ylab=NA)
 
 ## Ordinal variate, 7 values 1--7
@@ -58,21 +58,21 @@ dev.off()
 
 ##
 testdata <- data.frame(Rvrt=Rdata,
-                       Cvrt=Cdata,
-                       Rpvrt=Rpdata,
-                       Ruvrt=Rudata,
-                       Bvrt=Bdata,
-                       Nvrt=Ndata,
-                       Ovrt=Odata,
-                       N2vrt=N2data)
+    Cvrt=Cdata,
+    Rpvrt=Rpdata,
+    Ruvrt=Rudata,
+    Bvrt=Bdata,
+    Nvrt=Ndata,
+    Ovrt=Odata,
+    N2vrt=N2data)
 for(i in 1:ncol(testdata)){testdata[nrow(testdata)+1-i,i] <- NA}
 
 ## modelfreeinference::buildmetadata(testdata,file='metadata_test_custom.csv')
 
 for(ndata in c(30,150,500)){
-  write.csv(testdata[1:ndata,,drop=F],
-            paste0('data_test_custom_', ndata, '.csv'),
-            row.names=FALSE, quote=FALSE, na='')
+    write.csv(testdata[1:ndata,,drop=F],
+        paste0('data_test_custom_', ndata, '.csv'),
+        row.names=FALSE, quote=FALSE, na='')
 }
 
 

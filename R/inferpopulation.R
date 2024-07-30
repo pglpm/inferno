@@ -528,8 +528,8 @@ inferpopulation <- function(
 #### Hyperparameters and other internal parameters
     ## source('hyperparameters.R') doesn't seem to work
     nclusters <- 64L
-    minalpha <- -3L
-    maxalpha <- 3L
+    minalpha <- -4L
+    maxalpha <- 4L
     Rshapelo <- 0.5
     Rshapehi <- 0.5
     Rvarm1 <- 3L^2L

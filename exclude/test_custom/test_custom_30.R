@@ -18,7 +18,7 @@ library('modelfreeinference')
 
 seed <- 16
 
-outputdirPrefix <- file.path('_test_packagetest')
+outputdirPrefix <- file.path('_deletetest_packagetest')
 
 currenttestdir <- inferpopulation(
     data = 'data_test_custom_30.csv',
@@ -39,6 +39,23 @@ currenttestdir <- inferpopulation(
     showAlphatraces = T,
     seed = seed
 )
+
+cat('\nTest calculation of mutual information:\n')
+
+mi <- mutualinfo(
+    Y1names = c('N2vrt'),
+    Y2names = c('Rvrt'),
+    X = cbind(Bvrt = 'no'),
+    mcoutput = currenttestdir,
+    nsamples = 3600,
+    parallel = 4
+)
+
+print(mi)
+
+cat('\nEnd\n')
+
+
 
 if(FALSE){
     ## The maths of the new package version has changed a little,

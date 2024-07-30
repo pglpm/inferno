@@ -133,8 +133,8 @@ buildmetadata <- function(
             type <- 'ordinal'
             Nvalues <- uniquex
             rounding <- NA
-            domainmin <- datamin
-            domainmax <- datamax
+            domainmin <- NA
+            domainmax <- NA
             minincluded <- TRUE
             maxincluded <- TRUE
             ## lowvalue <- NA
