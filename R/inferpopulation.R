@@ -50,7 +50,6 @@
 #'   or empty
 #'
 #' @import parallel foreach doParallel doRNG nimble
-#' @importFrom LaplacesDemon MCSE ESS IAT BMK.Diagnostic is.stationary burnin
 #'
 #' @export
 inferpopulation <- function(
