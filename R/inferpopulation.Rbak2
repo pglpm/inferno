@@ -3,7 +3,7 @@
 #' @param data data.frame object or filepath: datapoints
 #' @param metadata Either the name of the csv file containing metadata
 #'   of the current dataset, or a data.frame with the metadata
-#' @param auxdata NULL or data.frame object or filepath: extra datapoints
+#' @param auxdata data.frame object or filepath: extra datapoints
 #'   which would be too many to use in the Monte Carlo sampling,
 #'   but can be used to calculate hyperparameters
 #' @param outputdir String, path to output file folder ## Rename to
@@ -13,27 +13,9 @@
 #' @param nsamplesperchain Integer, nr of MC samples per chain
 #' @param parallel, logical or numeric: whether to use pre-existing parallel
 #'   workers, or how many to create and use
-#' @param seed Integer: seed for random number generator. If left as default
-#'   NULL, a random seed based on the system clock is used in the
-#'   set.seed() function
-#' @param cleanup logical, default TRUE, removes files that can be used for
-#'   debugging
-#' @param appendtimestamp logical, default TRUE: add timestamp to name of
-#'   output directory
-#' @param appendinfo logical, default TRUE: add some simulation information
-#'   to name of output directory
-#' @param output if string 'directory', return the output directory name;
-#'   if string 'mcoutput', return the 'Fdistribution' object;
-#'   anything else, no output
-#' @param subsampledata Numeric: use only a subsample of the datapoints in 'data'
 #' @param niterini Number of initial (burn-in) MC iterations
 #' @param miniter Minimum number of MC iterations to be done
 #' @param maxiter Maximum number of MC iterations
-#' @param ncheckpoints NULL (default), positive integer, or Inf:
-#'   number of datapoints to use for stopping the sampling;
-#'   if NULL, equal to number of variates + 2; if Inf, use all datapoints
-#' @param relerror positive real: relative error of calculated probabilities
-#'   with respect to their variability with new data. It is only approximate
 #' @param prior logical: Calculate the prior distribution of F?
 #' @param thinning If NULL, let the diagnostics decide the MC thinning;
 #'   if positive, use this thinning value
@@ -45,11 +27,23 @@
 #'   more frequently during sampling and plots its trace and histogram at
 #'   the end. Keeping it to FALSE (default) saves a little computation
 #'   time.
+#' @param seed Integer: seed for random number generator. If left as default
+#'   NULL, a random seed based on the system clock is used in the
+#'   set.seed() function
+#' @param lldata Positive integer or Inf (default 12): number of datapoints
+#'   to use for loglikelihood calculations; if Inf, use all.
+#' @param subsampledata Numeric: use only a subsample of the datapoints in 'data'
+#' @param output if string 'directory', return the output directory name;
+#'   if string 'mcoutput', return the 'Fdistribution' object;
+#'   anything else, no output
+#' @param cleanup logical, default TRUE, removes files that can be used for
+#'   debugging
 #'
 #' @return name of directory containing output files, or Fdistribution object,
 #'   or empty
 #'
 #' @import parallel foreach doParallel doRNG nimble
+#' @importFrom LaplacesDemon MCSE ESS IAT BMK.Diagnostic is.stationary burnin
 #'
 #' @export
 inferpopulation <- function(
@@ -65,13 +59,12 @@ inferpopulation <- function(
     cleanup = TRUE,
     appendtimestamp = TRUE,
     appendinfo = TRUE,
-    output = 'directory',
     subsampledata = NULL,
+    output = 'directory',
     niterini = 1200,
     miniter = 1200,
     maxiter = +Inf,
-    ncheckpoints = NULL,
-    relerror = 0.05, #/(2*qnorm(0.95)), # 1/sqrt(2 * nsamplesperchain) # explore this
+    lldata = 12,
     prior = missing(data),
     thinning = NULL,
     plottraces = TRUE,
@@ -403,15 +396,6 @@ inferpopulation <- function(
     saveRDS(currentseed,
         file = file.path(dirname, paste0('rng_seed', dashnameroot, '.rds')))
 
-#### number ofcheckpoints for Monte Carlo stopping rule
-    if(is.null(ncheckpoints)) {
-        ncheckpoints <- nrow(auxmetadata) + 1
-    }
-    ncheckpoints <- round(ncheckpoints)
-    if (ncheckpoints < 1) {
-        stop('"ncheckpoints" must be > 0')
-    }
-
 
 #### Check if user wants to calculate prior
     if (prior) {
@@ -422,8 +406,8 @@ inferpopulation <- function(
             ## so that the dataset does not need to be exported to them
             ## (using extra memory)
             ## Each chain uses a different set of testdata
-            for(achain in 0:nchains) {
-                testdata <- data[sort(sample(npoints, min(ncheckpoints, npoints))), ,
+            for(achain in seq_len(nchains)) {
+                testdata <- data[sort(sample(npoints, min(lldata, npoints))), ,
                     drop = FALSE]
                 saveRDS(testdata,
                     file = file.path(dirname, paste0('_testdata_', achain, '.rds')))
@@ -436,9 +420,9 @@ inferpopulation <- function(
                         function(ii){
                             if(auxmetadata[ii, 'mcmctype'] %in%
                                c('R', 'C', 'D', 'L')) {
-                                rnorm(n = ncheckpoints, mean = 0, sd = 2)
+                                rnorm(n = lldata, mean = 0, sd = 2)
                             } else {
-                                sample(1:auxmetadata[ii, 'Nvalues'], ncheckpoints,
+                                sample(1:auxmetadata[ii, 'Nvalues'], lldata,
                                     replace = TRUE)
                             }
                         }
@@ -464,7 +448,7 @@ inferpopulation <- function(
             ##   testdata <- cbind(testdata, toadd)
             ## }
             ## colnames(testdata) <- auxmetadata[['name']]
-            for(achain in 0:nchains) {
+            for(achain in seq_len(nchains)) {
                 saveRDS(testdata,
                     file = file.path(dirname, paste0('_testdata_', achain, '.rds')))
             }
@@ -478,8 +462,8 @@ inferpopulation <- function(
         ## create data for likelihood
         ## if "testdata" is moved into the for-loop,
         ## then each chain uses a different set of testdata
-        for(achain in 0:nchains) {
-            testdata <- data[sort(sample(npoints, min(ncheckpoints, npoints))), ,
+        for(achain in seq_len(nchains)) {
+            testdata <- data[sort(sample(npoints, min(lldata, npoints))), ,
                 drop = FALSE]
             saveRDS(testdata,
                 file = file.path(dirname, paste0('_testdata_', achain, '.rds')))
@@ -496,7 +480,7 @@ inferpopulation <- function(
     ##     ## if "testdata" is moved into the for-loop,
     ##     ## then each chain uses a different set of testdata
     ##     for(achain in seq_len(nchains)) {
-    ##       testdata <- data[sort(sample(dataNoNa, min(ncheckpoints, ndataNoNa))),]
+    ##       testdata <- data[sort(sample(dataNoNa, min(lldata, ndataNoNa))),]
     ##       saveRDS(testdata,
     ##               file = file.path(dirname, paste0('_testdata_', achain, '.rds')))
     ##     }
@@ -576,7 +560,7 @@ inferpopulation <- function(
     ## source('proposethinning.R')
     ## source('mcsubset.R')
 
-    ## function printtime to format printing of time
+                                        # function printtime to format printing of time
     printtime <- function(tim) {
         paste0(signif(tim, 2), ' ', attr(tim, 'units'))
     }
@@ -887,18 +871,20 @@ inferpopulation <- function(
         ## stop('HERE')
 
 
-        ## ## Function for Monte Carlo stopping rule
-        ## funMCSE <- function(x) {
-        ##     x <- cbind(x)
-        ##     N <- nrow(x)
-        ##     b <- floor(sqrt(N))
-        ##     a <- floor(N/b)
-        ##     Ys <- rbind(sapply(seq_len(a), function(k) {
-        ##         colMeans(x[((k - 1) * b + 1):(k * b), , drop = FALSE])
-        ##     }))
-        ##     ##
-        ##     sqrt(b * rowSums((Ys - rowMeans(Ys))^2) / ((a - 1) * N))
-        ## }
+        ## Function for diagnostics
+        ## it corrects a little bug in LaplacesDemon::MCSE
+        funMCSE <- function(x) {
+            x <- cbind(x)
+            N <- nrow(x)
+            b <- floor(sqrt(N))
+            a <- floor(N/b)
+            Ys <- rbind(sapply(seq_len(a), function(k) {
+                colMeans(x[((k - 1) * b + 1):(k * b), , drop = FALSE])
+            }))
+            ##
+            sqrt(b * rowSums((Ys - rowMeans(Ys))^2) / ((a - 1) * N))
+        }
+        mcsefactor <- 0.062 #/(2*qnorm(0.975)) # 1/sqrt(2 * nsamplesperchain)
 
         ## ## Not needed?
         ## printtime <- function(tim){paste0(signif(tim,2),' ',attr(tim,'units'))}
@@ -1415,7 +1401,7 @@ inferpopulation <- function(
             ## }else{
             ##  niter <- max(min(niterini,requirediter*2), 128)
             ##  }
-            nitertot <- availiter <- 0L
+            nitertot <- 0
             requirediter <- +Inf
             reset <- TRUE
             traces <- NULL
@@ -1441,7 +1427,7 @@ inferpopulation <- function(
 
 #### WHILE LOOP CONTINUING UNTIL CONVERGENCE
             subiter <- 1L
-            while (requirediter > 0) {
+            while (nitertot < requirediter) {
                 cat('Iterations:', niter, '\n')
 
 #### MONTE-CARLO CALL
@@ -1503,7 +1489,6 @@ inferpopulation <- function(
                 ##                         mcsamples <- mcsamples[-unique(toRemove[,1]),,drop=FALSE]
                 ##                     }
                 ##                 }
-
 #### Remove iterations with non-finite values
                 if(any(!is.finite(unlist(mcsamples)))) {
                     toRemove <- sort(unique(unlist(lapply(mcsamples, function(xx) {
@@ -1530,15 +1515,11 @@ inferpopulation <- function(
                         ## if(exists('cl')){ parallel::stopCluster(cl) }
                         ## stop('...TOO MANY NON-FINITE OUTPUTS. ABORTING')
                         mcsamples <- NULL
-                        niter <- 0
                     } else {
                         mcsamples <- mcsubset(mcsamples, -toRemove)
-                        niter <- niter - length(toRemove)
                     }
                 }
 
-                nitertot <- nitertot + niter
-                availiter <- availiter + niter
 
                 ##
                 if (showsamplertimes0) {
@@ -1567,29 +1548,17 @@ inferpopulation <- function(
                 diagntime <- Sys.time()
                 ##
                 ll <- cbind(
-                    samplesFDistribution(
-                        Y = testdata,
-                        X = NULL,
-                        mcoutput = c(mcsamples,
-                            list(auxmetadata = auxmetadata)),
-                        jacobian = FALSE,
-                        parallel = FALSE,
-                        combine = `cbind`,
-                        silent = TRUE
+                    rowSums(
+                        log(samplesFDistribution(
+                            Y = testdata, X = NULL,
+                            mcoutput = c(mcsamples, list(auxmetadata = auxmetadata)),
+                            jacobian = FALSE,
+                            parallel = FALSE,
+                            combine = `cbind`,
+                            silent = TRUE
+                        ))
                     )
                 )
-                ## ll <- exp(cbind(
-                ##     rowSums(
-                ##         log(samplesFDistribution(
-                ##             Y = testdata, X = NULL,
-                ##             mcoutput = c(mcsamples, list(auxmetadata = auxmetadata)),
-                ##             jacobian = FALSE,
-                ##             parallel = FALSE,
-                ##             combine = `cbind`,
-                ##             silent = TRUE
-                ##         ))
-                ##     )/ncheckpoints
-                ## ))
                 colnames(ll) <- paste0('log-F_', seq_len(ncol(ll)))
 
                 ## if (is.numeric(loglikelihood)) {
@@ -1597,18 +1566,18 @@ inferpopulation <- function(
                 ##   cat('\nCalculating log-likelihood...')
                 ##   ll <- cbind(ll,
                 ##     'log-ll' = log(samplesFDistribution(
-                ##       Y = ncheckpoints, X = NULL,
+                ##       Y = lldata, X = NULL,
                 ##       ## Y = data[llseq, ], X = NULL,
                 ##       mcoutput = c(mcsamples, list(auxmetadata = auxmetadata)),
                 ##       jacobian = FALSE,
                 ##       parallel = FALSE, silent = TRUE,
                 ##       combine = '+'
-                ##     )) / nrow(ncheckpoints)
+                ##     )) / nrow(lldata)
                 ##   )
                 ##   cat('Done,\n', printtime(Sys.time() - lltime), '\n')
                 ## }
                 ##
-                traces <- rbind(traces, ll)
+                traces <- rbind(traces, ll * 10 / log(10))
 
                 toRemove <- which(!is.finite(traces), arr.ind = TRUE)
                 if (length(toRemove) > 0) {
@@ -1617,32 +1586,37 @@ inferpopulation <- function(
                 } else {
                     cleantraces <- traces
                 }
-
-                diagn <- mcmcstop(traces = cleantraces,
-                    nsamples = nsamplesperchain,
-                    availiter = availiter,
-                    relerror = relerror,
-                    thinning = thinning)
-
-                ## Output available diagnostics
-                for(i in names(diagn$toprint)) {
-                    thisdiagn <- diagn$toprint[[i]]
-                    cat(paste0('\n', i, ':'),
-                        if(length(thisdiagn) > 1){
-                            paste(signif(range(thisdiagn), 3), collapse = ' to ')
-                        } else {
-                            signif(thisdiagn, 3)
-                        }
-                    )
-                }
-
+                ##
+                diagnESS <- LaplacesDemon::ESS(cleantraces)
+                cat('\nESSs:', paste0(round(diagnESS), collapse = ', '))
+                diagnIAT <- apply(cleantraces, 2, function(x) {
+                    LaplacesDemon::IAT(x)
+                })
+                cat('\nIATs:', paste0(round(diagnIAT), collapse = ', '))
+                diagnBMK <- LaplacesDemon::BMK.Diagnostic(cleantraces[1:(4 * trunc(nrow(cleantraces) / 4)), , drop = FALSE], batches = 4)[, 1]
+                cat('\nBMKs:', paste0(round(diagnBMK, 3), collapse = ', '))
+                diagnMCSE <- funMCSE(cleantraces) /
+                    apply(cleantraces, 2, sd)
+                cat('\nMCSEs (', signif(mcsefactor,2),
+                    '):', paste0(signif(diagnMCSE, 2), collapse = ', '))
+                diagnStat <- apply(cleantraces, 2, function(x) {
+                    LaplacesDemon::is.stationary(as.matrix(x, ncol = 1))
+                })
+                cat('\nStationary:', paste0(diagnStat, collapse = ', '))
+                diagnBurn <- apply(cleantraces, 2, function(x) {
+                    LaplacesDemon::burnin(matrix(x[1:(10 * trunc(length(x) / 10))], ncol = 1))
+                })
+                cat('\nBurn-in I:', paste0(diagnBurn, collapse = ', '))
+                diagnBurn2 <- proposeburnin(cleantraces, batches = 10)
+                cat('\nBurn-in II:', diagnBurn2)
+                diagnThin <- proposethinning(cleantraces)
+                cat('\nProposed thinning:', paste0(diagnThin, collapse = ', '), '\n')
                 rm(cleantraces)
 
-                cat('\nDiagnostics time',
-                    printtime(Sys.time() - diagntime), '\n')
+                cat('\nDiagnostics time', printtime(Sys.time() - diagntime), '\n')
 
                 if (is.null(allmcsamples)) {
-                    ## chain just started
+                    ## new chain
                     allmcsamples <- mcsamples
                     allmcsamplesKA <- mcsamplesKA
                 } else {
@@ -1657,7 +1631,6 @@ inferpopulation <- function(
                         allmcsamples, mcsamples,
                         SIMPLIFY = FALSE
                     )
-
                     if (showAlphatraces || showKtraces) {
                         ## Concatenate samples of K and Alpha
                         allmcsamplesKA <- mapply(
@@ -1673,42 +1646,32 @@ inferpopulation <- function(
                 rm(mcsamples)
                 gc() #garbage collection
 
-                ## to save memory, only keep enough last iterations
-                currentthinning <- diagn$proposed.thinning
-
-                enoughiter <- currentthinning * (nsamplesperchain + 1L)
-
-                if(availiter > enoughiter) {
-                    allmcsamples <- mcsubset(
-                        allmcsamples, -seq_len(availiter - enoughiter)
-                    )
-                    availiter <- enoughiter
-                }
+                nitertot <- ncol(allmcsamples$W)
 
 
 ##########################################
 #### CHECK IF CHAIN MUST BE CONTINUED ####
 ##########################################
 
-                ## calcIterThinning <- mcmcstop(
-                ##     relerror = relerror,
-                ##     nsamplesperchain = nsamplesperchain,
-                ##     nitertot = nitertot,
-                ##     thinning=thinning,
-                ##     diagnESS=diagnESS, diagnIAT=diagnIAT,
-                ##     diagnBMK=diagnBMK, diagnMCSE=diagnMCSE,
-                ##     diagnStat=diagnStat, diagnBurn=diagnBurn,
-                ##     diagnBurn2=diagnBurn2, diagnThin=diagnThin)
+                calcIterThinning <- mcmcstop(
+                    mcsefactor = mcsefactor,
+                    nsamplesperchain = nsamplesperchain,
+                    nitertot = nitertot,
+                    thinning=thinning,
+                    diagnESS=diagnESS, diagnIAT=diagnIAT,
+                    diagnBMK=diagnBMK, diagnMCSE=diagnMCSE,
+                    diagnStat=diagnStat, diagnBurn=diagnBurn,
+                    diagnBurn2=diagnBurn2, diagnThin=diagnThin)
 
-                requirediter <- max(miniter - nitertot,
-                    min(maxiter - nitertot, diagn$reqiter) )
+                requirediter <- max(miniter,
+                    min(maxiter, calcIterThinning$reqiter))
+                currentthinning <- calcIterThinning$thinning
 
-                cat('\nTotal number of iterations', nitertot,
-                    ', required further', requirediter, '\n')
+                cat('\nNumber of iterations', nitertot, ', required', requirediter, '\n')
                 ##
-                if (requirediter > 0) {
+                if (nitertot < requirediter) {
                     ## limit number of iterations per loop, to save memory
-                    niter <- min(requirediter + 1L, niterini)
+                    niter <- min(requirediter - nitertot + 1L, niterini)
                     subiter <- subiter + 1L
                     cat(
                         '\nChain #', chainnumber, '- chunk', subiter,
@@ -1797,27 +1760,27 @@ inferpopulation <- function(
             if (plottraces) {
                 cat('\nPlotting traces and samples.\n')
 
-                ## tracegroups <- as.list(seq_len(min(4, ncol(traces))))
-                ## names(tracegroups) <- colnames(traces)[1:min(4, ncol(traces))]
-                ## grouplegends <- foreach(agroup = seq_along(tracegroups)) %do% {
-                ##     c(
-                ##         paste0('-- STATS ', names(tracegroups)[agroup], ' --'),
-                ##         paste0('min ESS = ',
-                ##             signif(min(diagnESS[tracegroups[[agroup]]]), 6)),
-                ##         paste0('max IAT = ',
-                ##             signif(max(diagnIAT[tracegroups[[agroup]]]), 6)),
-                ##         paste0('max BMK = ',
-                ##             signif(max(diagnBMK[tracegroups[[agroup]]]), 6)),
-                ##         paste0('max MCSE = ',
-                ##             signif(max(diagnMCSE[tracegroups[[agroup]]]), 6)),
-                ##         paste0('stationary: ',
-                ##             sum(diagnStat[tracegroups[[agroup]]]), '/',
-                ##             length(diagnStat[tracegroups[[agroup]]])),
-                ##         paste0('burn: ', signif(diagnBurn2, 6)),
-                ##         paste0('max thin = ',
-                ##             signif(max(diagnThin[tracegroups[[agroup]]]), 6))
-                ##     )
-                ## }
+                tracegroups <- as.list(seq_len(min(4, ncol(traces))))
+                names(tracegroups) <- colnames(traces)[1:min(4, ncol(traces))]
+                grouplegends <- foreach(agroup = seq_along(tracegroups)) %do% {
+                    c(
+                        paste0('-- STATS ', names(tracegroups)[agroup], ' --'),
+                        paste0('min ESS = ',
+                            signif(min(diagnESS[tracegroups[[agroup]]]), 6)),
+                        paste0('max IAT = ',
+                            signif(max(diagnIAT[tracegroups[[agroup]]]), 6)),
+                        paste0('max BMK = ',
+                            signif(max(diagnBMK[tracegroups[[agroup]]]), 6)),
+                        paste0('max MCSE = ',
+                            signif(max(diagnMCSE[tracegroups[[agroup]]]), 6)),
+                        paste0('stationary: ',
+                            sum(diagnStat[tracegroups[[agroup]]]), '/',
+                            length(diagnStat[tracegroups[[agroup]]])),
+                        paste0('burn: ', signif(diagnBurn2, 6)),
+                        paste0('max thin = ',
+                            signif(max(diagnThin[tracegroups[[agroup]]]), 6))
+                    )
+                }
 
                 ## Plot various info and traces
                 ## colpalette <- 1:6 #seq_len(ncol(traces))
@@ -1833,19 +1796,19 @@ inferpopulation <- function(
                 matplot(1:2, type = 'l', col = 'white',
                     main = paste0('Stats chain ', achain),
                     axes = FALSE, ann = FALSE)
-                ## Legends
-                ## legendpositions <- c('topleft', 'topright', 'bottomleft', 'bottomright')
-                ## for (alegend in seq_along(grouplegends)) {
-                ##     legend(x = legendpositions[alegend], bty = 'n', cex = 1.5,
-                ##         legend = grouplegends[[alegend]]
-                ##     )
-                ## }
+                                        # Legends
+                legendpositions <- c('topleft', 'topright', 'bottomleft', 'bottomright')
+                for (alegend in seq_along(grouplegends)) {
+                    legend(x = legendpositions[alegend], bty = 'n', cex = 1.5,
+                        legend = grouplegends[[alegend]]
+                    )
+                }
                 legend(x = 'center', bty = 'n', cex = 1,
                     legend = c(
                         paste0('Chain ', chainnumber, '_', achain, '-', acore),
                         paste0('Used clusters: ', usedclusters, ' of ', nclusters),
-                        ## paste0('LL:  ( ', signif(mean(traces[, 1]), 3), ' +- ',
-                        ##     signif(sd(traces[, 1]), 3), ' ) dHart'),
+                        paste0('LL:  ( ', signif(mean(traces[, 1]), 3), ' +- ',
+                            signif(sd(traces[, 1]), 3), ' ) dHart'),
                         'NOTES:',
                         if (flagmc) {
                             'some non-finite MC outputs'
@@ -1860,19 +1823,22 @@ inferpopulation <- function(
                 )
                 ## Traces of likelihood and cond. probabilities
                 par(mfrow = c(1, 1))
-                for (avar in 1:ncol(traces)) {
+                for (avar in colnames(traces)) {
                     tplot(
-                        y = 10*log10(traces[is.finite(traces[, avar]), avar]),
+                        y = traces[is.finite(traces[, avar]), avar],
                         type = 'l', lty = 1, col = 1,
-                        main = paste(
-                            names(diagn$toprint),
-                            sapply(diagn$toprint, function(xx){
-                                signif(xx[avar], 3)
-                            }),
-                            collapse = ' | ', sep = ': '
+                        main = paste0(
+                            'ESS = ', signif(diagnESS[avar], 3),
+                            ' | IAT = ', signif(diagnIAT[avar], 3),
+                            ' | BMK = ', signif(diagnBMK[avar], 3),
+                            ' | MCSE = ', signif(diagnMCSE[avar], 3),
+                            ' | stat: ', diagnStat[avar] * 1L,
+                            ' | burnI: ', diagnBurn[avar],
+                            ' | burnII: ', diagnBurn2,
+                            ' | thin: ', diagnThin[avar]
                         ),
                         cex.main = 1.25,
-                        ylab = paste0(colnames(traces)[avar], '/dHart'),
+                        ylab = paste0(avar, '/dHart'),
                         xlab = 'Monte Carlo sample',
                         family = family, mar = c(NA, 6, NA, NA)
                     )
@@ -1880,6 +1846,26 @@ inferpopulation <- function(
                 dev.off()
             }
 
+            ## #### Plot samples from current chain
+            ## ## Can be uncommented if debugging is needed
+            ##             if(plotpartialsamples){
+            ##                 ## Samples of marginal frequency distributions
+            ##                 ## if(!continue){
+            ##                 subsamples <- (if(totsamples=='all'){1:nitertot}else{round(seq(1, nitertot, length.out=totsamples))})
+            ##                 ## showsubsample <- round(seq(1, length(subsamples), length.out=showsamples))
+            ##                 ##
+            ##                 cat('\nPlotting samples of frequency distributions')
+            ##                 plotFsamples(file=paste0(dirname,'mcmcdistributions',dashnameroot,'--', padchainnumber,'_',achain,'-',acore),
+            ##                              mcsamples=mcsubset(allmcsamples,subsamples),
+            ##                              auxmetadata=auxmetadata,
+            ##                              data=data,
+            ##                              plotvariability='samples',
+            ##                              nsamples=showsamples,
+            ##                              plotmeans=plotmeans,
+            ##                              datahistogram=TRUE, datascatter=TRUE,
+            ##                              parallel=FALSE, silent=TRUE
+            ##                              )
+            ##          }
 
             cat('\nCurrent time:', strftime(as.POSIXlt(Sys.time()), '%Y-%m-%d %H:%M:%S'))
             cat('\nMCMC + diagnostics time', printtime(Sys.time() - starttime), '\n')
@@ -1978,7 +1964,7 @@ inferpopulation <- function(
             ))
         }
     saveRDS(traces, file = file.path(dirname,
-        paste0('MCtraces_chains', dashnameroot, '.rds')
+        paste0('MCtraces', dashnameroot, '.rds')
     ))
 
     cat('\rFinished Monte Carlo sampling.                                 \n')
@@ -1988,46 +1974,35 @@ inferpopulation <- function(
 #### Final joint diagnostics
 ############################################################
 
-    cat('\nChecking test data:')
-    testdata <- readRDS(file = file.path(dirname,
-        paste0('_testdata_', 0, '.rds')))
-
-    traces <- cbind(
-        samplesFDistribution(
-            Y = testdata,
-            X = NULL,
-            mcoutput = c(mcsamples,
-                list(auxmetadata = auxmetadata)),
-            jacobian = FALSE,
-            parallel = FALSE,
-            combine = `cbind`,
-            silent = TRUE
-        )
-    )
+    ## cat('\nSome diagnostics:\n')
     traces <- traces[apply(traces, 1, function(x) { all(is.finite(x)) }), ,
         drop = FALSE]
-    colnames(traces) <- paste0('log-F_', seq_len(ncol(traces)))
+    ## flagll <- nrow(traces) != nrow(traces)
+    ## funMCSE <- function(x){LaplacesDemon::MCSE(x, method='batch.means')$se}
+    diagnESS <- LaplacesDemon::ESS(traces)
+    cat('\nEFFECTIVE SAMPLE SIZE > ', nchains,
+        '(estim.: ', round(max(diagnESS, na.rm = TRUE)), ')\n')
 
-    saveRDS(traces, file = file.path(dirname,
-        paste0('MCtraces', dashnameroot, '.rds')
-    ))
-
-    diagn <- mcmcstop(traces = traces,
-        nsamples = nsamples,
-        availiter = 0,
-        relerror = relerror,
-        thinning = thinning)
-
-    for(i in names(diagn$toprint)) {
-        thisdiagn <- diagn$toprint[[i]]
-        cat(paste0('\n', i, ':'),
-            if(length(thisdiagn) > 1){
-                paste(signif(range(thisdiagn), 3), collapse = ' to ')
-            } else {
-                signif(thisdiagn, 3)
-            }
-        )
-    }
+    ## ## Commented, but we may reconsider displaying this
+    ## diagnIAT <- apply(traces, 2, function(x){LaplacesDemon::IAT(x)})
+    ## cat('\nIATs:',paste0(round(diagnIAT), collapse=', '))
+    ## diagnBMK <- LaplacesDemon::BMK.Diagnostic(traces[1:(4*trunc(nrow(traces)/4)),], batches=4)[,1]
+    ## cat('\nBMKs:',paste0(round(diagnBMK,3), collapse=', '))
+    ## diagnMCSE <- 100*apply(traces, 2, function(x){funMCSE(x)/sd(x)})
+    ## cat('\nMCSEs:',paste0(round(diagnMCSE,2), collapse=', '))
+    ## diagnStat <- apply(traces, 2, function(x){LaplacesDemon::is.stationary(as.matrix(x,ncol=1))})
+    ## cat('\nStationary:',paste0(diagnStat, collapse=', '))
+    ## diagnBurn <- apply(traces, 2, function(x){LaplacesDemon::burnin(matrix(x[1:(10*trunc(length(x)/10))], ncol=1))})
+    ## cat('\nBurn-in I:',paste0(diagnBurn, collapse=', '))
+    ## diagnBurn2 <- proposeburnin(traces, batches=10)
+    ## cat('\nBurn-in II:',diagnBurn2)
+    ## diagnThin <- proposethinning(traces)
+    ## ## cat(paste0('\nProposed thinning: ',paste0(diagnThin, collapse=', ')))
+    ## ##
+    ## cat('\n')
+    ## ##       )
+    ## ##         }
+    ## ##
 
     ## Plot various info and traces
     cat('\nPlotting final Monte Carlo traces.\n')
@@ -2040,23 +2015,25 @@ inferpopulation <- function(
         paste0('MCtraces', dashnameroot, '.pdf')
     ), height = 8.27, width = 11.69)
     ## Traces of likelihood and cond. probabilities
-    for (avar in 1:ncol(traces)) {
+    for (avar in colnames(traces)) {
         ## Do not join separate chains in the plot
         division <- (if(nrow(traces) > nchains) nchains else 1)
         tplot(x = matrix(seq_len(nsamples), ncol = division),
-            y = matrix(10*log10(traces[, avar]), ncol = division),
+            y = matrix(traces[, avar], ncol = division),
             type = 'l', lty = 1,
             col = 1:6, # to evidence consecutive chains
-            main = paste(
-                names(diagn$toprint),
-                sapply(diagn$toprint, function(xx){
-                    signif(xx[avar], 3)
-                }),
-                collapse = ' | ', sep = ': '
+            ## col = colpalette[avar], # original, one color per trace
+            main = paste0(
+                'Effective sample size > ', nchains,
+                ' (estimated: ', signif(diagnESS[avar], 3), ')'
+                ##             ' | IAT = ', signif(diagnIAT[avar], 3),
+                ##             ' | BMK = ', signif(diagnBMK[avar], 3),
+                ##             ' | MCSE = ', signif(diagnMCSE[avar], 3),
+                ##             ' | stat: ', diagnStat[avar],
+                ##             ' | burn I: ', diagnBurn[avar],
+                ##             ' | burn II: ', diagnBurn2
             ),
-            cex.main = 1.25,
-            ylab = paste0(colnames(traces)[avar], '/dHart'),
-            xlab = 'sample', family = family,
+            ylab = paste0(avar, '/dHart'), xlab = 'sample', family = family,
             mar = c(NA, 6, NA, NA)
         )
     }
