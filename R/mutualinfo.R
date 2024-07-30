@@ -72,6 +72,10 @@ mutualinfo <- function(
             if (!silent) {
                 cat('Using already registered', foreach::getDoParName(),
                     'with', foreach::getDoParWorkers(), 'workers\n')
+                if(parallel > ncores) {
+                    cat('NOTE: fewer pre-registered cores',
+                        'than requested in the "parallel" argument.\n')
+                }
             }
         } else {
             ## ##
@@ -87,6 +91,14 @@ mutualinfo <- function(
                     'with', foreach::getDoParWorkers(), 'workers\n')
             }
             ncores <- parallel
+            closecoresonexit <- function(){
+                cat('\nClosing connections to cores.\n')
+                foreach::registerDoSEQ()
+                parallel::stopCluster(cl)
+                env <- foreach:::.foreachGlobals
+                rm(list=ls(name=env), pos=env)
+            }
+            on.exit(closecoresonexit())
         }
     } else {
         if (!silent) {
@@ -1145,10 +1157,11 @@ mutualinfo <- function(
             mean(colSums(exp(probX + probY))/colSums(exp(probX)))
         }, base = base)
 
-    if (!silent && exists('cl')) {
-        cat('\nClosing connections to cores.\n')
-        parallel::stopCluster(cl)
-    }
+    ## if (!silent && exists('cl')) {
+    ##     cat('\nClosing connections to cores.\n')
+    ##     foreach::registerDoSEQ()
+    ##     parallel::stopCluster(cl)
+    ## }
 
     ## error <- sd(lpYX[,1] - lpY[,1])/sqrt(nrow(lpYX))
     ## error2 <- mean(lpYX[,2] + lpY[,2])

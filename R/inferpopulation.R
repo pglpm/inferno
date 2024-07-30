@@ -106,6 +106,10 @@ inferpopulation <- function(
             ncores <- min(foreach::getDoParWorkers(), parallel)
             cat('Using already registered', foreach::getDoParName(),
                 'with', foreach::getDoParWorkers(), 'workers\n')
+            if(parallel > ncores) {
+                cat('NOTE: fewer pre-registered cores',
+                    'than requested in the "parallel" argument.\n')
+            }
         } else {
             ## ##
             ## ## Alternative way to register cores;
@@ -118,6 +122,15 @@ inferpopulation <- function(
             cat('Registered', foreach::getDoParName(),
                 'with', foreach::getDoParWorkers(), 'workers\n')
             ncores <- parallel
+            closecoresonexit <- function(){
+                cat('\nClosing connections to cores.\n')
+                foreach::registerDoSEQ()
+                parallel::stopCluster(cl)
+                env <- foreach:::.foreachGlobals
+                rm(list=ls(name=env), pos=env)
+            }
+            on.exit(closecoresonexit())
+
         }
     } else {
         cat('No parallel backend registered.\n')
@@ -2098,10 +2111,11 @@ inferpopulation <- function(
 
     cat('\nTotal computation time', printtime(Sys.time() - timestart0), '\n')
 
-    if (exists('cl')) {
-        cat('\nClosing connections to cores.\n')
-        parallel::stopCluster(cl)
-    }
+    ## if (exists('cl')) {
+    ##     cat('\nClosing connections to cores.\n')
+    ##     foreach::registerDoSEQ()
+    ##     parallel::stopCluster(cl)
+    ## }
 
 
 #### Remove partial files if required

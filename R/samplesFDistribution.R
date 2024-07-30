@@ -55,6 +55,10 @@ samplesFDistribution <- function(
             if (!silent) {
                 cat('Using already registered', foreach::getDoParName(),
                     'with', foreach::getDoParWorkers(), 'workers\n')
+                if(parallel > ncores) {
+                    cat('NOTE: fewer pre-registered cores',
+                        'than requested in the "parallel" argument.\n')
+                }
             }
         } else {
             ## ##
@@ -70,6 +74,14 @@ samplesFDistribution <- function(
                     'with', foreach::getDoParWorkers(), 'workers\n')
             }
             ncores <- parallel
+            closecoresonexit <- function(){
+                cat('\nClosing connections to cores.\n')
+                foreach::registerDoSEQ()
+                parallel::stopCluster(cl)
+                env <- foreach:::.foreachGlobals
+                rm(list=ls(name=env), pos=env)
+            }
+            on.exit(closecoresonexit())
         }
     } else {
         if (!silent) {

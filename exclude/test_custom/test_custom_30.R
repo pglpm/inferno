@@ -20,6 +20,11 @@ seed <- 16
 
 outputdirPrefix <- file.path('_deletetest_packagetest')
 
+## ncores <- 4
+## library('doParallel')
+## mycluster <- makeCluster(ncores)
+## registerDoParallel(mycluster)
+
 currenttestdir <- inferpopulation(
     data = 'data_test_custom_30.csv',
     metadata = 'metadata_test_custom.csv',
