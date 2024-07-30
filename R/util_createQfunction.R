@@ -1,4 +1,6 @@
 #### Calculate and save transformation function for ordinal variates
+## NB: the functional form of this function does not depend on
+##   the number of clusters, minalpha, and maxalpha parameters
 createQfunction <- function(
     nint = 3600,
     nsamples = 2^24L,
@@ -8,6 +10,7 @@ createQfunction <- function(
     shapehi = 0.5,
     rate = 1,
     file = paste0('__Qfunction', nint, '_', sd),
+    save = TRUE, # save using usethis::use_data()
     plot = F
 ) {
     ##
@@ -30,24 +33,24 @@ createQfunction <- function(
     )
     rm(xsamples)
     oquants <- (oquants - rev(oquants)) / 2
-    approxq <- approxfun(x = seqnint, y = oquants, yleft = -Inf, yright = +Inf)
-    approxinvq <- approxfun(y = seqnint, x = oquants, yleft = 0, yright = 1)
+    util_Q <- approxfun(x = seqnint, y = oquants, yleft = -Inf, yright = +Inf)
+    util_invQ <- approxfun(y = seqnint, x = oquants, yleft = 0, yright = 1)
 
     if (is.character(file)) {
-        saveRDS(approxq, paste0(file, '.rds'))
-        saveRDS(approxinvq, paste0(file,'_inv', '.rds'))
+        saveRDS(util_Q, paste0(file, '.rds'))
+        saveRDS(util_invQ, paste0(file,'_inv', '.rds'))
     }
     ##
-    xsamples <- approxq(seqnint)
+    xsamples <- util_Q(seqnint)
     oquants <- foreach(x = xsamples, .combine = c) %dopar% {
         mean(dnorm(x, mean = means, sd = sds))
     }
     oquants <- (oquants + rev(oquants)) / 2
     ##
     ##
-    dapproxq <- approxfun(x = xsamples, y = oquants, yleft = 0, yright = 0)
+    util_DQ <- approxfun(x = xsamples, y = oquants, yleft = 0, yright = 0)
     if (is.character(file)) {
-        saveRDS(dapproxq, paste0('D', file, '.rds'))
+        saveRDS(util_DQ, paste0('D', file, '.rds'))
     }
     if (is.character(plot)) {
         ##
@@ -56,10 +59,10 @@ createQfunction <- function(
         pdff(plot)
         tplot(
             x = xgrid, y = list(
-                approxq(xgrid), qnorm(xgrid, sd = thismad / qnorm(3 / 4)), qcauchy(xgrid, scale = thismad) # ,qlogis(xgrid,scale=1/qlogis(3/4))
+                util_Q(xgrid), qnorm(xgrid, sd = thismad / qnorm(3 / 4)), qcauchy(xgrid, scale = thismad) # ,qlogis(xgrid,scale=1/qlogis(3/4))
             ),
             lwd = c(3, 2, 2, 5), lty = c(1, 2, 4, 3), alpha = c(0, rep(0.25, 3)),
-            ylim = range(approxq(xgrid)),
+            ylim = range(util_Q(xgrid)),
             ## xticks=c(0,0.25,0.5,0.75,1),xlabels=c(0,expression(italic(m)/4),expression(italic(m)/2),expression(3*italic(m)/4),expression(italic(m))),
             xlab = expression(italic(x)), ylab = expression(italic(Q)(italic(x))),
             mar = c(NA, 5, 1, 1)
@@ -68,5 +71,10 @@ createQfunction <- function(
         dev.off()
     }
 
-    list(Q = approxq, invQ = approxinvq, DQ = dapproxq)
+    if(save){
+        usethis::use_data(util_Q, util_invQ, util_DQ,
+            internal = TRUE, overwrite = TRUE)
+    }
+
+    list(util_Q = util_Q, util_invQ = util_invQ, util_DQ = util_DQ)
 }

@@ -55,9 +55,7 @@ vtransform <- function(
     invjacobian = FALSE
 ) {
     useLquantiles <- TRUE
-    ## Qf <- readRDS('Qfunction3600_3.rds')
-    ## DQf <- readRDS('DQfunction3600_3.rds')
-    ## invQf <- readRDS('invQfunction3600_3.rds')
+
     x <- as.data.frame(cbind(x))
     if (!(missing(variates) || is.null(variates))) {
         colnames(x) <- variates
@@ -76,11 +74,11 @@ vtransform <- function(
                 } else if (xinfo$transform == 'logminus') {
                     datum <- (xinfo$domainmax - datum) * xinfo$tscale
                 } else if (xinfo$transform == 'Q') {
-                    datum <- Qf(0.5 +
+                    datum <- util_Q(0.5 +
                                 (datum - (xinfo$domainmin + xinfo$domainmax)/2) /
                                 (xinfo$domainmax - xinfo$domainmin)
                     )
-                    datum <- DQf(datum) * xinfo$tscale * (xinfo$domainmax - xinfo$domainmin)
+                    datum <- util_DQ(datum) * xinfo$tscale * (xinfo$domainmax - xinfo$domainmin)
                 } else if (xinfo$transform == 'identity') {
                     datum[] <- xinfo$tscale
                 } else {
@@ -106,7 +104,7 @@ vtransform <- function(
                     } else if (xinfo$transform == 'logminus') {
                         datum <- log(xinfo$domainmax - datum)
                     } else if (xinfo$transform == 'Q') {
-                        datum <- Qf(0.5 +
+                        datum <- util_Q(0.5 +
                                     (datum - (xinfo$domainmin + xinfo$domainmax)/2) /
                                     (xinfo$domainmax - xinfo$domainmin)
                         )
@@ -122,7 +120,7 @@ vtransform <- function(
                     } else if (xinfo$transform == 'logminus') {
                         datum <- xinfo$domainmax - exp(datum)
                     } else if (xinfo$transform == 'Q') {
-                        datum <- (invQf(datum) - 0.5) * (xinfo$domainmax - xinfo$domainmin) +
+                        datum <- (util_invQ(datum) - 0.5) * (xinfo$domainmax - xinfo$domainmin) +
                             (xinfo$domainmin + xinfo$domainmax)/2
                     }
 
@@ -167,7 +165,7 @@ vtransform <- function(
                     } else if (xinfo$transform == 'logminus') {
                         datum <- log(xinfo$domainmax - datum)
                     } else if (xinfo$transform == 'Q') {
-                        datum <- Qf(0.5 +
+                        datum <- util_Q(0.5 +
                                     (datum -
                                      (xinfo$domainmin + xinfo$domainmax)/2) /
                                     (xinfo$domainmax - xinfo$domainmin)
@@ -192,7 +190,7 @@ vtransform <- function(
                     } else if (xinfo$transform == 'logminus') {
                         datum <- log(xinfo$domainmax - datum)
                     } else if (xinfo$transform == 'Q') {
-                        datum <- Qf(0.5 +
+                        datum <- util_Q(0.5 +
                                     (datum -
                                      (xinfo$domainmin + xinfo$domainmax)/2) /
                                     (xinfo$domainmax - xinfo$domainmin)
@@ -225,7 +223,7 @@ vtransform <- function(
                     } else if (xinfo$transform == 'logminus') {
                         datum <- xinfo$domainmax - exp(datum)
                     } else if (xinfo$transform == 'Q') {
-                        datum <- (invQf(datum) - 0.5) * (xinfo$domainmax - xinfo$domainmin) +
+                        datum <- (util_invQ(datum) - 0.5) * (xinfo$domainmax - xinfo$domainmin) +
                             (xinfo$domainmin + xinfo$domainmax)/2
                     }
                     datum[datum <= xinfo$censormin] <- xinfo$censormin
@@ -292,7 +290,7 @@ vtransform <- function(
                     } else if (xinfo$transform == 'logminus') {
                         datum <- log(xinfo$domainmax - datum)
                     } else if (xinfo$transform == 'Q') {
-                        datum <- Qf(0.5 +
+                        datum <- util_Q(0.5 +
                                     (datum -
                                      (xinfo$domainmin + xinfo$domainmax)/2) /
                                     (xinfo$domainmax - xinfo$domainmin)
@@ -311,7 +309,7 @@ vtransform <- function(
                     } else if (xinfo$transform == 'logminus') {
                         datum <- log(xinfo$domainmax - datum)
                     } else if (xinfo$transform == 'Q') {
-                        datum <- Qf(0.5 +
+                        datum <- util_Q(0.5 +
                                     (datum -
                                      (xinfo$domainmin + xinfo$domainmax)/2) /
                                     (xinfo$domainmax - xinfo$domainmin)
@@ -335,7 +333,7 @@ vtransform <- function(
                     } else if (xinfo$transform == 'logminus') {
                         datum <- log(xinfo$domainmax - datum)
                     } else if (xinfo$transform == 'Q') {
-                        datum <- Qf(0.5 +
+                        datum <- util_Q(0.5 +
                                     (datum -
                                      (xinfo$domainmin + xinfo$domainmax)/2) /
                                     (xinfo$domainmax - xinfo$domainmin)
@@ -368,7 +366,7 @@ vtransform <- function(
                     } else if (xinfo$transform == 'logminus') {
                         datum <- xinfo$domainmax - exp(datum)
                     } else if (xinfo$transform == 'Q') {
-                        datum <- (invQf(datum) - 0.5) * (xinfo$domainmax - xinfo$domainmin) +
+                        datum <- (util_invQ(datum) - 0.5) * (xinfo$domainmax - xinfo$domainmin) +
                             (xinfo$domainmin + xinfo$domainmax)/2
                     }
                     datum[datum <= xinfo$censormin] <- xinfo$censormin
@@ -388,7 +386,7 @@ vtransform <- function(
 
                 if (Lout == 'init') { # in sampling functions or init MCMC
                     datum[is.na(datum)] <- xinfo$Nvalues / 2 + 0.5
-                    datum <- Qf((datum - 0.5) / xinfo$Nvalues)
+                    datum <- util_Q((datum - 0.5) / xinfo$Nvalues)
                     datum[datum == +Inf] <- 1e6
                     datum[datum == -Inf] <- -1e6
                     if (useLquantiles) {
@@ -396,14 +394,14 @@ vtransform <- function(
                     }
 
                 } else if (Lout == 'left') { # as left for MCMC
-                    datum <- Qf(pmax(0, datum - 1L) / xinfo$Nvalues)
+                    datum <- util_Q(pmax(0, datum - 1L) / xinfo$Nvalues)
                     if (useLquantiles) {
                         datum <- (datum - xinfo$tlocation) / xinfo$tscale
                     }
                     datum[is.na(datum)] <- -Inf
 
                 } else if (Lout == 'right') { # as right for MCMC
-                    datum <- Qf(pmin(xinfo$Nvalues, datum) / xinfo$Nvalues)
+                    datum <- util_Q(pmin(xinfo$Nvalues, datum) / xinfo$Nvalues)
                     if (useLquantiles) {
                         datum <- (datum - xinfo$tlocation) / xinfo$tscale
                     }
@@ -421,7 +419,7 @@ vtransform <- function(
                     if (useLquantiles) {
                         datum <- datum * xinfo$tscale + xinfo$tlocation
                     }
-                    datum <- round(invQf(datum) * xinfo$Nvalues + 0.5)
+                    datum <- round(util_invQ(datum) * xinfo$Nvalues + 0.5)
                     datum[datum < 1] <- 1L
                     datum[datum > xinfo$Nvalues] <- xinfo$Nvalues
 

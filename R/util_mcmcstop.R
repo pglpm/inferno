@@ -31,19 +31,19 @@ mcmcstop <- function(
     relmcse <- funMCSE(traces) / apply(traces, 2, sd)
     ess <- 1/relmcse^2
     maxrelmcse <- max(relmcse)
+    autothinning <- ceiling(1.5 * nrow(traces)/ess)
+
     if(is.null(thinning)) {
-        autothinning <- ceiling(1.5 * nrow(traces)/min(ess))
-    } else {
-        autothinning <- thinning
+        thinning <- max(autothinning)
     }
-    missingsamples <- autothinning * (nsamples - 1) - availiter
+    missingsamples <- thinning * (nsamples - 1) - availiter
 
     if(max(relmcse) < relerror) {
         ## sampling could be stopped
         reqiter <- 0
     } else {
         ## sampling should continue
-        reqiter <- ceiling(autothinning * sqrt(nsamples))
+        reqiter <- ceiling(thinning * sqrt(nsamples))
     }
 
     if(missingsamples > 0) {
@@ -53,32 +53,11 @@ mcmcstop <- function(
 
     list(
         reqiter = reqiter,
-        proposed.thinning = autothinning,
+        proposed.thinning = thinning,
         toprint = list(
             'rel. MC standard error' = relmcse,
-            'eff. sample size' = ess
+            'eff. sample size' = ess,
+            'needed thinning' = autothinning
         )
-        )
+    )
 }
-
-## oldmcmclength <- function(nsamplesperchain, nitertot, thinning,
-##                         diagnESS, diagnIAT, diagnBMK, diagnMCSE,
-##                         diagnStat, diagnBurn, diagnBurn2, diagnThin) {
-##   ## This function uses (or can potentially use) various diagnostics from
-##   ## the LaplacesDemon package in order to determine
-##   ## the total number of needed MCMC iterations as well as
-##   ## the needed thinning
-##   ## Current method: no. of iterations is given by:
-##   ## 2 * diagnosed burn-in +
-##   ## 2 * (maximum between needed thinning and integrated autocorrelation time) *
-##   ## number of independent samples needed (minus last one)
-##   list(reqiter = ceiling(3 * max(diagnBurn2) +
-##           ( 2 * ceiling(max(diagnIAT, diagnThin)) *
-##            (nsamplesperchain - 1L) ) ),
-##        thinning = (if (is.null(thinning)) {
-##          2 * ceiling(max(diagnIAT, diagnThin))
-##        } else {
-##          thinning
-##        })
-##        )
-## }

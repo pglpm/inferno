@@ -144,10 +144,10 @@ buildauxmetadata <- function(data, metadata) {
             olocation <- (Nvalues * domainmin - domainmax) / (Nvalues - 1)
             oscale <- (domainmax - domainmin) / (Nvalues - 1)
             if(!is.null(data)) {
-                tlocation <- median(Qf(
+                tlocation <- median(util_Q(
                     round((x - olocation) / oscale) / Nvalues
                 ))
-                tscale <- mad(Qf(
+                tscale <- mad(util_Q(
                     round((x - olocation) / oscale) / Nvalues
                 )) / iqrfactor
             } else {
@@ -216,13 +216,13 @@ buildauxmetadata <- function(data, metadata) {
                 ## doubly-bounded open domain
                 transf <- 'Q'
                 if(!is.null(data)) {
-                    tlocation <- median(Qf(0.5 +
-                                           (x - (domainmax + domainmin)/2) /
-                                           (domainmax - domainmin)
+                    tlocation <- median(util_Q(0.5 +
+                                               (x - (domainmax + domainmin)/2) /
+                                               (domainmax - domainmin)
                     ))
-                    tscale <- mad(Qf(0.5 +
-                                     (x - (domainmax + domainmin)/2) /
-                                     (domainmax - domainmin)
+                    tscale <- mad(util_Q(0.5 +
+                                         (x - (domainmax + domainmin)/2) /
+                                         (domainmax - domainmin)
                     )) / iqrfactor
                 } else {
                     tlocation <- 0
@@ -242,13 +242,13 @@ buildauxmetadata <- function(data, metadata) {
                 closeddomain <- FALSE
                 censormin <- domainmin
                 censormax <- domainmax
-                tcensormin <- (Qf(0.5 +
-                                  (censormin - (domainmax + domainmin)/2) /
-                                  (domainmax - domainmin)
+                tcensormin <- (util_Q(0.5 +
+                                      (censormin - (domainmax + domainmin)/2) /
+                                      (domainmax - domainmin)
                 ) - tlocation) / tscale
-                tcensormax <- (Qf(0.5 +
-                                  (censormax - (domainmax + domainmin)/2) /
-                                  (domainmax - domainmin)
+                tcensormax <- (util_Q(0.5 +
+                                      (censormax - (domainmax + domainmin)/2) /
+                                      (domainmax - domainmin)
                 ) - tlocation) / tscale
             } else if (is.finite(minfo$domainmin) && is.finite(minfo$domainmax) &&
                        minfo$minincluded && !minfo$maxincluded) {
