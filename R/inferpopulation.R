@@ -1034,13 +1034,16 @@ inferpopulation <- function(
 
 #### INITIAL-VALUE FUNCTION
         ## Choose
-        minpc <- min(npoints, nclusters)
-        cldatapoints <- sample(1:npoints, minpc)
+        minpoints <- min(npoints, nclusters) - 1
+        rempoints <- npoints - minpoints
+        cldatapoints <- sample(1:npoints, minpoints)
         initsfn <- function() {
             Alpha <- sample(1:nalpha, 1, prob = constants$probalpha0, replace = TRUE)
             W <- rep(1/nclusters, nclusters)
+            ## W <- c(rep(rempoints, minpoints), rep(1, nclusters - minpoints))
+            ## W <- W/sum(W)
             K <- rep(nclusters, npoints) # any remaining points to same cluster
-            K[cldatapoints] <- 1:minpc
+            K[cldatapoints] <- 1:minpoints
             outlist <- list(
                 Alpha = Alpha,
                 W = W,
@@ -1074,7 +1077,7 @@ inferpopulation <- function(
                 initmeans <- matrix(0,
                     nrow = vn$R, ncol = nclusters
                 )
-                initmeans[,1:minpc] <- t(
+                initmeans[,1:minpoints] <- t(
                     datapoints$Rdata[cldatapoints, ]
                 )
                 initmeans[which(is.na(initmeans))] <- 0
@@ -1097,7 +1100,7 @@ inferpopulation <- function(
                 initmeans <- matrix(0,
                     nrow = vn$C, ncol = nclusters
                 )
-                initmeans[,1:minpc] <- t(
+                initmeans[,1:minpoints] <- t(
                     datapoints$Clat[cldatapoints, ]
                 )
                 initmeans[which(is.na(initmeans))] <- 0
@@ -1124,7 +1127,7 @@ inferpopulation <- function(
                 initmeans <- matrix(0,
                     nrow = vn$D, ncol = nclusters
                 )
-                initmeans[,1:minpc] <- t(
+                initmeans[,1:minpoints] <- t(
                     datapoints$Dlat[cldatapoints, ]
                 )
                 initmeans[which(is.na(initmeans))] <- 0
@@ -1151,7 +1154,7 @@ inferpopulation <- function(
                 initmeans <- matrix(0,
                     nrow = vn$L, ncol = nclusters
                 )
-                initmeans[,1:minpc] <- t(
+                initmeans[,1:minpoints] <- t(
                     datapoints$Llat[cldatapoints, ]
                 )
                 initmeans[which(is.na(initmeans))] <- 0
