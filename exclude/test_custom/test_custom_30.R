@@ -18,7 +18,7 @@ library('modelfreeinference')
 
 seed <- 16
 
-outputdirPrefix <- file.path('_deletetest_packagetest')
+outputdirPrefix <- file.path('_deletetest_Al2_packagetest')
 
 ## ncores <- 4
 ## library('doParallel')
@@ -35,7 +35,7 @@ currenttestdir <- inferpopulation(
     nsamples = 120,
     nchains = 12,
     parallel = 4,
-    relerror = 0.062,
+    # relerror = 0.062,
     ncheckpoints = NULL,
     cleanup = FALSE,
     miniter = 1200,

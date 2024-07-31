@@ -541,8 +541,9 @@ inferpopulation <- function(
 #### Hyperparameters and other internal parameters
     ## source('hyperparameters.R') doesn't seem to work
     nclusters <- 64L
-    minalpha <- -4L
-    maxalpha <- 4L
+    minalpha <- -4
+    maxalpha <- 4
+    byalpha <- 0.5
     Rshapelo <- 0.5
     Rshapehi <- 0.5
     Rvarm1 <- 3L^2L
@@ -558,7 +559,7 @@ inferpopulation <- function(
     Bshapelo <- 1L
     Bshapehi <- 1L
 
-    nalpha <- length(minalpha:maxalpha)
+    nalpha <- length(seq(minalpha, maxalpha, by = byalpha))
     npoints <- nrow(data)
 
 #### Other options
@@ -634,14 +635,16 @@ inferpopulation <- function(
     ## These constants are available in the Nimble environment
     ## They don't have to be accessed by constants$varname
     ## vn$R + vn$C + vn$D + vn$L
+    probalpha0 <- (1:nalpha)^2.25
+    probalpha0 <- probalpha0/sum(probalpha0)
     constants <- c(
         list(
             nclusters = nclusters,
             npoints = npoints,
             nalpha = nalpha,
-            probalpha0 = rep(1 / nalpha, nalpha),
-            basealphas = rep((2^(minalpha - 1L #- 1L + vn$R + vn$C + vn$D + vn$L
-            )) / nclusters, nclusters)
+            alphabase = sqrt(2),
+            probalpha0 = probalpha0,
+            dirchalphas = rep((2^(minalpha - 0.5)) / nclusters, nclusters)
         ),
         if (vn$R > 0) { # continuous open domain
             list(
@@ -928,7 +931,7 @@ inferpopulation <- function(
         finitemix <- nimbleCode({
             ## Component weights
             Alpha ~ dcat(prob = probalpha0[1:nalpha])
-            alphas[1:nclusters] <- basealphas[1:nclusters] * 2^Alpha
+            alphas[1:nclusters] <- dirchalphas[1:nclusters] * alphabase^Alpha
             W[1:nclusters] ~ ddirch(alpha = alphas[1:nclusters])
 
             ## Probability density for the parameters of the components
@@ -1032,7 +1035,8 @@ inferpopulation <- function(
 #### INITIAL-VALUE FUNCTION
         initsfn <- function() {
             Alpha <- sample(1:nalpha, 1, prob = constants$probalpha0, replace = TRUE)
-            W <- nimble::rdirch(n = 1, alpha = constants$basealphas * 2^Alpha)
+            W <- nimble::rdirch(n = 1,
+                alpha = constants$dirchalphas * constants$alphabase^Alpha)
             outlist <- list(
                 Alpha = Alpha,
                 W = W,
@@ -1793,14 +1797,14 @@ inferpopulation <- function(
                         ylim = c(0, NA))
                 }
                 if (showAlphatraces) {
-                    cat('\nSTATS log2(alpha):\n')
-                    print(summary(allmcsamplesKA$Alpha + minalpha - 1L, na.rm = TRUE))
-                    tplot(y = allmcsamplesKA$Alpha + minalpha - 1L,
-                        ylab = bquote(log2(alpha)), xlab = 'iteration',
-                        ylim = c(minalpha, maxalpha))
-                    tplot(x = (minalpha:(maxalpha + 1)) - 0.5,
+                    cat('\nSTATS alpha:\n')
+                    print(summary(allmcsamplesKA$Alpha, na.rm = TRUE))
+                    tplot(y = allmcsamplesKA$Alpha,
+                        ylab = bquote(alpha), xlab = 'iteration',
+                        ylim = c(1, nalpha))
+                    tplot(x = seq(minalpha, maxalpha, by = byalpha) - byalpha/2,
                         y = tabulate(allmcsamplesKA$Alpha, nbin = nalpha),
-                        type = 'h', xlab = bquote(log2(alpha)), ylab = '',
+                        type = 'h', xlab = bquote(alpha), ylab = '',
                         ylim = c(0, NA))
                 }
                 dev.off()
