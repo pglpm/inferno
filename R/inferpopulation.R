@@ -543,7 +543,7 @@ inferpopulation <- function(
     nclusters <- 64L
     minalpha <- -4
     maxalpha <- 4
-    byalpha <- 0.5
+    byalpha <- 1
     Rshapelo <- 0.5
     Rshapehi <- 0.5
     Rvarm1 <- 3L^2L
