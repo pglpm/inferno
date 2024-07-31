@@ -1033,15 +1033,19 @@ inferpopulation <- function(
 
 
 #### INITIAL-VALUE FUNCTION
+        ## Choose
+        minpc <- min(npoints, nclusters)
+        cldatapoints <- sample(1:npoints, minpc)
         initsfn <- function() {
             Alpha <- sample(1:nalpha, 1, prob = constants$probalpha0, replace = TRUE)
-            W <- nimble::rdirch(n = 1,
-                alpha = constants$dirchalphas * constants$alphabase^Alpha)
+            W <- rep(1/nclusters, nclusters)
+            K <- rep(nclusters, npoints) # any remaining points to same cluster
+            K[cldatapoints] <- 1:minpc
             outlist <- list(
                 Alpha = Alpha,
                 W = W,
                 ## ## A. assign all points to an unsystematically chosen cluster
-                K = rep(sample(rep(which(W > 0), 2), 1, replace = TRUE), npoints)
+                K = K
                 ## ## or:
                 ## ## B. distribute points unsystematically among clusters
                 ## K = sample(rep(which(W > 0), 2), npoints, replace = TRUE)
@@ -1067,66 +1071,48 @@ inferpopulation <- function(
             )
             ##
             if (vn$R > 0) { # continuous open domain
-                Rrate <- matrix(
-                    nimble::rinvgamma(
-                        n = vn$R * nclusters,
-                        shape = constants$Rshapehi,
-                        rate = constants$Rvar1
-                    ),
+                initmeans <- matrix(0,
                     nrow = vn$R, ncol = nclusters
                 )
+                initmeans[,1:minpc] <- t(
+                    datapoints$Rdata[cldatapoints, ]
+                )
+                initmeans[which(is.na(initmeans))] <- 0
                 outlist <- c(
                     outlist,
                     list(
-                        Rmean = matrix(
-                            rnorm(
-                                n = vn$R * nclusters,
-                                mean = constants$Rmean1,
-                                sd = sqrt(constants$Rvarm1)
-                            ),
+                        Rmean = initmeans,
+                        Rrate = matrix(
+                            nimble::qinvgamma(p = 0.5,
+                                shape = constants$Rshapehi,
+                                rate = constants$Rvar1),
                             nrow = vn$R, ncol = nclusters
                         ),
-                        Rrate = Rrate,
-                        Rvar = matrix(
-                            nimble::rinvgamma(
-                                n = vn$R * nclusters,
-                                shape = constants$Rshapelo,
-                                rate = Rrate
-                            ),
-                            nrow = vn$R, ncol = nclusters
-                        )
+                        Rvar = matrix(1,
+                            nrow = vn$R, ncol = nclusters)
                     )
                 )
             }
             if (vn$C > 0) { # ccontinuous closed domain
-                Crate <- matrix(
-                    nimble::rinvgamma(
-                        n = vn$C * nclusters,
-                        shape = constants$Cshapehi,
-                        rate = constants$Cvar1
-                    ),
+                initmeans <- matrix(0,
                     nrow = vn$C, ncol = nclusters
                 )
+                initmeans[,1:minpc] <- t(
+                    datapoints$Clat[cldatapoints, ]
+                )
+                initmeans[which(is.na(initmeans))] <- 0
                 outlist <- c(
                     outlist,
                     list(
-                        Cmean = matrix(
-                            rnorm(
-                                n = vn$C * nclusters,
-                                mean = constants$Cmean1,
-                                sd = sqrt(constants$Cvarm1)
-                            ),
+                        Cmean = initmeans,
+                        Crate = matrix(
+                            nimble::qinvgamma(p = 0.5,
+                                shape = constants$Cshapehi,
+                                rate = constants$Cvar1),
                             nrow = vn$C, ncol = nclusters
                         ),
-                        Crate = Crate,
-                        Cvar = matrix(
-                            nimble::rinvgamma(
-                                n = vn$C * nclusters,
-                                shape = constants$Cshapelo,
-                                rate = Crate
-                            ),
-                            nrow = vn$C, ncol = nclusters
-                        ),
+                        Cvar = matrix(1,
+                            nrow = vn$C, ncol = nclusters),
                         ## for data with boundary values
                         Clat = constants$Clatinit
                         ## Clat = vtransform(data[, vnames$C, with = FALSE],
@@ -1135,34 +1121,25 @@ inferpopulation <- function(
                 )
             }
             if (vn$D > 0) { # continuous rounded
-                Drate <- matrix(
-                    nimble::rinvgamma(
-                        n = vn$D * nclusters,
-                        shape = constants$Dshapehi,
-                        rate = constants$Dvar1
-                    ),
+                initmeans <- matrix(0,
                     nrow = vn$D, ncol = nclusters
                 )
+                initmeans[,1:minpc] <- t(
+                    datapoints$Dlat[cldatapoints, ]
+                )
+                initmeans[which(is.na(initmeans))] <- 0
                 outlist <- c(
                     outlist,
                     list(
-                        Dmean = matrix(
-                            rnorm(
-                                n = vn$D * nclusters,
-                                mean = constants$Dmean1,
-                                sd = sqrt(constants$Dvarm1)
-                            ),
+                        Dmean = initmeans,
+                        Drate = matrix(
+                            nimble::qinvgamma(p = 0.5,
+                                shape = constants$Dshapehi,
+                                rate = constants$Dvar1),
                             nrow = vn$D, ncol = nclusters
                         ),
-                        Drate = Drate,
-                        Dvar = matrix(
-                            nimble::rinvgamma(
-                                n = vn$D * nclusters,
-                                shape = constants$Dshapelo,
-                                rate = Drate
-                            ),
-                            nrow = vn$D, ncol = nclusters
-                        ),
+                        Dvar = matrix(1,
+                            nrow = vn$D, ncol = nclusters),
                         ## for data with boundary values
                         Dlat = constants$Dlatinit
                         ## Dlat = vtransform(data[, vnames$D, with = FALSE],
@@ -1171,34 +1148,25 @@ inferpopulation <- function(
                 )
             }
             if (vn$L > 0) { # latent
-                Lrate <- matrix(
-                    nimble::rinvgamma(
-                        n = vn$L * nclusters,
-                        shape = constants$Lshapehi,
-                        rate = constants$Lvar1
-                    ),
+                initmeans <- matrix(0,
                     nrow = vn$L, ncol = nclusters
                 )
+                initmeans[,1:minpc] <- t(
+                    datapoints$Llat[cldatapoints, ]
+                )
+                initmeans[which(is.na(initmeans))] <- 0
                 outlist <- c(
                     outlist,
                     list(
-                        Lmean = matrix(
-                            rnorm(
-                                n = vn$L * nclusters,
-                                mean = constants$Lmean1,
-                                sd = sqrt(constants$Lvarm1)
-                            ),
+                        Lmean = initmeans,
+                        Lrate = matrix(
+                            nimble::qinvgamma(p = 0.5,
+                                shape = constants$Lshapehi,
+                                rate = constants$Lvar1),
                             nrow = vn$L, ncol = nclusters
                         ),
-                        Lrate = Lrate,
-                        Lvar = matrix(
-                            nimble::rinvgamma(
-                                n = vn$L * nclusters,
-                                shape = constants$Lshapelo,
-                                rate = Lrate
-                            ),
-                            nrow = vn$L, ncol = nclusters
-                        ),
+                        Lvar = matrix(1,
+                            nrow = vn$L, ncol = nclusters),
                         ## for data with boundary values
                         Llat = constants$Llatinit
                         ## Llat = vtransform(data[, vnames$L, with = FALSE],
@@ -1212,7 +1180,8 @@ inferpopulation <- function(
                     list(
                         Oprob = aperm(array(sapply(1:vn$O, function(avar) {
                             sapply(1:nclusters, function(aclus) {
-                                nimble::rdirch(n = 1, alpha = Oalpha0[avar, ])
+                                Oalpha0[avar, ]/sum(Oalpha0[avar, ])
+                                ## nimble::rdirch(n = 1, alpha = Oalpha0[avar, ])
                             })
                         }), dim = c(Omaxn, nclusters, vn$O)))
                     )
@@ -1224,7 +1193,8 @@ inferpopulation <- function(
                     list(
                         Nprob = aperm(array(sapply(1:vn$N, function(avar) {
                             sapply(1:nclusters, function(aclus) {
-                                nimble::rdirch(n = 1, alpha = Nalpha0[avar, ])
+                                Nalpha0[avar, ]/sum(Nalpha0[avar, ])
+                                ## nimble::rdirch(n = 1, alpha = Nalpha0[avar, ])
                             })
                         }), dim = c(Nmaxn, nclusters, vn$N)))
                     )
@@ -1234,12 +1204,7 @@ inferpopulation <- function(
                 outlist <- c(
                     outlist,
                     list(
-                        Bprob = matrix(
-                            rbeta(
-                                n = vn$B * nclusters,
-                                shape1 = constants$Bshapelo,
-                                shape2 = constants$Bshapehi
-                            ),
+                        Bprob = matrix(0.5,
                             nrow = vn$B, ncol = nclusters
                         )
                     )
@@ -1249,7 +1214,7 @@ inferpopulation <- function(
             outlist
         } #End initsfns
 
-                                        # Timer
+        ## Timer
         timecount <- Sys.time()
 
 
