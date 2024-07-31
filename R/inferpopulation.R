@@ -1415,13 +1415,14 @@ inferpopulation <- function(
 ##################################################
 #### LOOP OVER CHAINS (WITHIN ONE CORE)
 ##################################################
-                                        # Start timer
+        ## Start timer
         starttime <- Sys.time()
 
-#### Loop over chains in core
         allflagmc <- FALSE
         maxusedclusters <- 0
         maxiterations <- 0
+        gc() # garbage collection
+#### LOOP OVER CHAINS IN CORE
         for (achain in 1:nchainspercore) {
             showsamplertimes0 <- showsamplertimes && (achain == 1)
             ## showAlphatraces0 <- showAlphatraces && (achain==1)
@@ -1438,10 +1439,8 @@ inferpopulation <- function(
             traces <- NULL
             allmcsamples <- NULL
             allmcsamplesKA <- list(Alpha = NULL, K = NULL)
-            mcsamplesKA <- NULL
             flagll <- FALSE
             flagmc <- FALSE
-            gc() #garbage collection
             chainnumber <- (acore - 1L) * nchainspercore + achain
             padchainnumber <- sprintf(paste0('%0', nchar(nchains), 'i'), chainnumber)
             cat(
@@ -1456,42 +1455,40 @@ inferpopulation <- function(
             ## random seed is taken care of by %doRNG%
             Cfinitemixnimble$setInits(initsfn())
 
-#### WHILE LOOP CONTINUING UNTIL CONVERGENCE
             subiter <- 1L
+#### WHILE-LOOP CONTINUING UNTIL CONVERGENCE
             while (requirediter > 0) {
                 cat('Iterations:', niter, '\n')
 
-#### MONTE-CARLO CALL
+                ## MONTE-CARLO CALL
                 ## If reporting Alpha or K traces,
                 ## then save them more frequently
                 ## Otherwise just save the last value
                 Cmcsampler$run(
-                    niter = niter, thin = 1,
+                    niter = niter,
+                    thin = 1,
                     thin2 = (if (showAlphatraces || showKtraces) {
                                  max(1, round(niter / nclustersamples))
                              } else {
                                  max(2, floor(niter / 2))
                              }),
-                    nburnin = 0, time = showsamplertimes0,
-                    reset = reset, resetMV = TRUE
+                    nburnin = 0,
+                    time = showsamplertimes0,
+                    reset = reset,
+                    resetMV = TRUE
                 )
 
                 ## iterationAsLastIndex: See sect 7.7 of Nimble manual
                 mcsamples <- as.list(Cmcsampler$mvSamples,
-                    iterationAsLastIndex = TRUE
-                )
-                ## ## saveRDS(mcsamples,'__mcsamplestest.rds') # for debug
+                    iterationAsLastIndex = TRUE)
                 mcsamplesKA <- as.list(Cmcsampler$mvSamples2,
-                    iterationAsLastIndex = FALSE
-                )
+                    iterationAsLastIndex = FALSE)
 
-                ## ## saveRDS(mcsamplesKA,'__mcsamplesKAtest.rds') # for debug
-                ## 'mcsamplesKA$K' contains the cluster identity of each training datapoint
-                ## but we only want the number of distinct clusters used:
-                mcsamplesKA$K <- apply(
-                    mcsamplesKA$K, 1,
-                    function(xx) length(unique(xx))
-                )
+                ## 'mcsamplesKA$K' contains the cluster identity
+                ## of each training datapoint, but we only want
+                ## the number of distinct clusters used:
+                mcsamplesKA$K <- apply(mcsamplesKA$K, 1,
+                    function(xx){length(unique(xx))})
 
                 if (showAlphatraces) {
                     dim(mcsamplesKA$Alpha) <- NULL # from matrix to vector
@@ -1687,9 +1684,6 @@ inferpopulation <- function(
                     }
                 }
 
-                rm(mcsamples)
-                gc() #garbage collection
-
                 ## to save memory, only keep enough last iterations
                 currentthinning <- diagn$proposed.thinning
 
@@ -1703,9 +1697,9 @@ inferpopulation <- function(
                 }
 
 
-##########################################
-#### CHECK IF CHAIN MUST BE CONTINUED ####
-##########################################
+                ## ######################################
+                ## ## CHECK IF CHAIN MUST BE CONTINUED ##
+                ## ######################################
 
                 ## calcIterThinning <- mcmcstop(
                 ##     relerror = relerror,
@@ -1722,7 +1716,7 @@ inferpopulation <- function(
 
                 cat('\nTotal number of iterations', nitertot,
                     ', required further', requirediter, '\n')
-                ##
+
                 if (requirediter > 0) {
                     ## limit number of iterations per loop, to save memory
                     niter <- min(requirediter + 1L, niterini)
@@ -1735,11 +1729,12 @@ inferpopulation <- function(
                 }
                 reset <- FALSE
             }
+#### END WHILE-LOOP OVER CHUNKS OF ONE CHAIN
 
 
-#########################################
-#### SAVE CHAIN ####
-#########################################
+            ## ################
+            ## ## SAVE CHAIN ##
+            ## ################
 
             ## tokeep <- seq(to=nrow(allmcsamples), length.out=nsamplesperchain, by=max(thinning,multcorr*ceiling(max(diagnIAT,diagnThin)), na.rm=TRUE))
             ## allmcsamples <- allmcsamples[tokeep,,drop=FALSE]
@@ -1760,22 +1755,26 @@ inferpopulation <- function(
                         dashnameroot, '--',
                         padchainnumber, '.rds'))
             )
-            rm(allmcsamples)
-            ## nitertot <- ncol(allmcsamples$W)
 
-            gc() #garbage collection
-
-            saveRDS(traces[tokeep, , drop = FALSE],
+            saveRDS(allmcsamplesKA,
                 file = file.path(dirname,
-                    paste0('_mctraces',
+                    paste0('_hyperparams_traces',
+                        dashnameroot, '--',
+                        padchainnumber, '.rds'))
+            )
+
+
+            ## put 'tokeep' in first slot to save only the last nsamplesperchain
+            saveRDS(traces[ , , drop = FALSE],
+                file = file.path(dirname,
+                    paste0('_mcpartialtraces',
                         dashnameroot, '--',
                         padchainnumber, '.rds')
                 ))
 
-
-###############
-#### PLOTS ####
-###############
+            ## ###########
+            ## ## PLOTS ##
+            ## ###########
 
 #### Plot Alpha and cluster occupation, if required
             if (showAlphatraces || showKtraces) {
@@ -1802,7 +1801,8 @@ inferpopulation <- function(
                     tplot(y = allmcsamplesKA$Alpha,
                         ylab = bquote(alpha), xlab = 'iteration',
                         ylim = c(1, nalpha))
-                    tplot(x = seq(minalpha, maxalpha, by = byalpha) - byalpha/2,
+                    tplot(x = seq(minalpha, maxalpha + byalpha, by = byalpha) -
+                              byalpha/2,
                         y = tabulate(allmcsamplesKA$Alpha, nbin = nalpha),
                         type = 'h', xlab = bquote(alpha), ylab = '',
                         ylim = c(0, NA))
@@ -1810,7 +1810,7 @@ inferpopulation <- function(
                 dev.off()
             }
 
-#### Plot diagnostic traces of current chain
+            ## Plot diagnostic traces of current chain
             if (plottraces) {
                 cat('\nPlotting traces and samples.\n')
 
@@ -1898,11 +1898,14 @@ inferpopulation <- function(
             }
 
 
-            cat('\nCurrent time:', strftime(as.POSIXlt(Sys.time()), '%Y-%m-%d %H:%M:%S'))
-            cat('\nMCMC + diagnostics time', printtime(Sys.time() - starttime), '\n')
+            cat('\nCurrent time:', strftime(as.POSIXlt(Sys.time()),
+                '%Y-%m-%d %H:%M:%S'))
+            cat('\nMCMC + diagnostics time',
+                printtime(Sys.time() - starttime), '\n')
 
 #### Print estimated remaining time
-            remainingTime <- (Sys.time() - starttime) / achain * (nchainspercore - achain + 1)
+            remainingTime <- (Sys.time() - starttime) / achain *
+                (nchainspercore - achain + 1)
             if (is.finite(remainingTime) && remainingTime > 0) {
                 print2user(
                     paste0(
@@ -1916,7 +1919,8 @@ inferpopulation <- function(
 
             maxusedclusters <- max(maxusedclusters, usedclusters)
             maxiterations <- max(maxiterations, nitertot)
-        } #### END LOOP OVER CHAINS (WITHIN ONE CORE)
+        }
+#### END LOOP OVER CHAINS (WITHIN ONE CORE)
 
         ##
         cat('\nCurrent time:',
@@ -1937,7 +1941,7 @@ inferpopulation <- function(
     maxusedclusters <- max(chaininfo[, 'maxusedclusters'])
     maxiterations <- max(chaininfo[, 'maxiterations'])
     nonfinitechains <- sum(chaininfo[, 'allflagmc'])
-
+    gc() # garbage collection
 ############################################################
 #### End of all MCMC
 ############################################################
@@ -1985,21 +1989,20 @@ inferpopulation <- function(
             paste0('Fdistribution', dashnameroot, '.rds')
         ))
 
-    traces <- foreach(chainnumber = 1:(ncores * nchainspercore),
-        .combine = rbind) %do% {
-            padchainnumber <- sprintf(paste0('%0', nchar(nchains), 'i'), chainnumber)
-
-            readRDS(file = file.path(dirname,
-                paste0('_mctraces', dashnameroot, '--',
-                    padchainnumber, '.rds')
-            ))
-        }
-    saveRDS(traces, file = file.path(dirname,
-        paste0('MCtraces_chains', dashnameroot, '.rds')
-    ))
+    ## traces <- foreach(chainnumber = 1:(ncores * nchainspercore),
+    ##     .combine = rbind) %do% {
+    ##         padchainnumber <- sprintf(paste0('%0', nchar(nchains), 'i'), chainnumber)
+    ##
+    ##         readRDS(file = file.path(dirname,
+    ##             paste0('_mctraces', dashnameroot, '--',
+    ##                 padchainnumber, '.rds')
+    ##         ))
+    ##     }
+    ## saveRDS(traces, file = file.path(dirname,
+    ##     paste0('MCtraces_chains', dashnameroot, '.rds')
+    ## ))
 
     cat('\rFinished Monte Carlo sampling.                                 \n')
-    gc() #garbage collection
 
 ############################################################
 #### Final joint diagnostics
