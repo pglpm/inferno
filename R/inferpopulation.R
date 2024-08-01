@@ -1969,7 +1969,12 @@ inferpopulation <- function(
         thisdiagn <- diagn$toprint[[i]]
         cat(paste0(i, ':'),
             if(length(thisdiagn) > 1){
-                paste(signif(range(thisdiagn), 3), collapse = ' to ')
+                paste0(
+                    'min: ', signif(min(thisdiagn), 2),
+                    '  max: ', signif(max(thisdiagn), 2),
+                    '  mean: ', signif(mean(thisdiagn), 2)
+                    )
+                ## paste(signif(range(thisdiagn), 3), collapse = ' to ')
             } else {
                 signif(thisdiagn, 3)
             },
@@ -1988,7 +1993,7 @@ inferpopulation <- function(
     }
 
     ## Plot various info and traces
-    cat('\nPlotting final Monte Carlo traces.\n')
+    cat('\nPlotting final Monte Carlo traces and marginal samples.\n')
 
     ##
     ## colpalette <- seq_len(ncol(traces))
@@ -2019,7 +2024,7 @@ inferpopulation <- function(
         )
     }
 
-    cat('Plotting marginal samples.\n')
+    ## cat('Plotting marginal samples.\n')
     plotFsamples(
         file = file.path(dirname,
             paste0('plotsamples_Fdistribution', dashnameroot)),
@@ -2031,7 +2036,7 @@ inferpopulation <- function(
         parallel = TRUE, silent = TRUE
     )
 
-    cat('Plotting marginal samples with quantiles.\n')
+    ## cat('Plotting marginal samples with quantiles.\n')
     plotFsamples(
         file = file.path(dirname,
             paste0('plotquantiles_Fdistribution', dashnameroot)),
@@ -2045,7 +2050,7 @@ inferpopulation <- function(
 
     totalfinaltime <- Sys.time() - timestart0
     cat('\nTotal computation time:', printtime(totalfinaltime), '\n')
-    cat('Average time per chain:', printtime(totalfinaltime/nchains), '\n')
+    cat('Average total time per chain:', printtime(totalfinaltime/nchains), '\n')
 
     ## if (exists('cl')) {
     ##     cat('\nClosing connections to cores.\n')
