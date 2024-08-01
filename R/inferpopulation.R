@@ -1230,7 +1230,8 @@ inferpopulation <- function(
 #### NIMBLE SETUP
 ##################################################
         finitemixnimble <- nimbleModel(
-            code = finitemix, name = 'finitemixnimble1',
+            code = finitemix,
+            name = 'finitemixnimble1',
             constants = constants,
             data = datapoints,
             inits = initsfn()
@@ -1409,7 +1410,6 @@ inferpopulation <- function(
             nitertot <- availiter <- 0L
             requirediter <- +Inf
             reset <- TRUE
-            traces <- NULL
             allmcsamples <- NULL
             allmcsamplesKA <- list(Alpha = NULL, K = NULL)
             flagll <- FALSE
@@ -1425,6 +1425,11 @@ inferpopulation <- function(
                 paste0('_testdata_', chainnumber, '.rds')))
             cat('\nDatapoints for testing convergence:\n',
                 paste0('#', rownames(testdata)), '\n')
+
+            ## will contain the MC traces of the test points
+            traces <- matrix(NA, nrow = 0, ncol = nrow(testdata),
+                dimnames = list(NULL, rownames(testdata)))
+
 
             ## Initial values for this chain
             ## random seed is taken care of by %doRNG%
@@ -1579,7 +1584,7 @@ inferpopulation <- function(
                 ##         ))
                 ##     )/ncheckpoints
                 ## ))
-                colnames(ll) <- paste0('log-F_', seq_len(ncol(ll)))
+                ## colnames(ll) <- paste0('log-F_', seq_len(ncol(ll)))
 
                 ## if (is.numeric(loglikelihood)) {
                 ##   lltime <- Sys.time()
@@ -1751,6 +1756,99 @@ inferpopulation <- function(
             ## ## PLOTS ##
             ## ###########
 
+#### Plot diagnostic traces of current chain
+            if (plottraces) {
+                cat('\nPlotting traces and samples.\n')
+
+                ## tracegroups <- as.list(seq_len(min(4, ncol(traces))))
+                ## names(tracegroups) <- colnames(traces)[1:min(4, ncol(traces))]
+                ## grouplegends <- foreach(agroup = seq_along(tracegroups)) %do% {
+                ##     c(
+                ##         paste0('-- STATS ', names(tracegroups)[agroup], ' --'),
+                ##         paste0('min ESS = ',
+                ##             signif(min(diagnESS[tracegroups[[agroup]]]), 6)),
+                ##         paste0('max IAT = ',
+                ##             signif(max(diagnIAT[tracegroups[[agroup]]]), 6)),
+                ##         paste0('max BMK = ',
+                ##             signif(max(diagnBMK[tracegroups[[agroup]]]), 6)),
+                ##         paste0('max MCSE = ',
+                ##             signif(max(diagnMCSE[tracegroups[[agroup]]]), 6)),
+                ##         paste0('stationary: ',
+                ##             sum(diagnStat[tracegroups[[agroup]]]), '/',
+                ##             length(diagnStat[tracegroups[[agroup]]])),
+                ##         paste0('burn: ', signif(diagnBurn2, 6)),
+                ##         paste0('max thin = ',
+                ##             signif(max(diagnThin[tracegroups[[agroup]]]), 6))
+                ##     )
+                ## }
+
+                ## Plot various info and traces
+                ## colpalette <- 1:6 #seq_len(ncol(traces))
+                ## names(colpalette) <- colnames(traces)[1:min(6, ncol(traces))]
+                graphics.off()
+                pdf(file.path(dirname,
+                    paste0('_mcpartialtraces', dashnameroot, '--',
+                        padchainnumber, '_', achain, '-', acore, '.pdf')
+                ), height = 8.27, width = 11.69)
+
+                ## Summary stats
+                matplot(1:2, type = 'l', col = 'white',
+                    main = paste0('Stats chain ', achain),
+                    axes = FALSE, ann = FALSE)
+                ## Legends
+                ## legendpositions <- c('topleft', 'topright', 'bottomleft', 'bottomright')
+                ## for (alegend in seq_along(grouplegends)) {
+                ##     legend(x = legendpositions[alegend], bty = 'n', cex = 1.5,
+                ##         legend = grouplegends[[alegend]]
+                ##     )
+                ## }
+                legend(x = 'left', bty = 'n', cex = 1,
+                    legend = c(
+                        paste0('Chain ', chainnumber, ' - ',
+                            achain, ' of core ', acore),
+                        paste0('Test points ',
+                            paste0('#', rownames(testdata), collapse=' ')
+                        ),
+                        paste0('Used clusters: ', usedclusters, ' of ', nclusters),
+                        ## paste0('LL:  ( ', signif(mean(traces[, 1]), 3), ' +- ',
+                        ##     signif(sd(traces[, 1]), 3), ' ) dHart'),
+                        'NOTES:',
+                        if (flagmc) {
+                            'some non-finite MC outputs'
+                        },
+                        if (usedclusters > nclusters - 5) {
+                            'too many clusters used'
+                        },
+                        if (flagll) {
+                            'non-finite values in diagnostics'
+                        }
+                    )
+                )
+                ## Traces of likelihood and cond. probabilities
+                par(mfrow = c(1, 1))
+                for (avar in 1:ncol(traces)) {
+                    tplot(
+                        y = 10*log10(traces[is.finite(traces[, avar]), avar]),
+                        type = 'l', lty = 1, col = 1,
+                        main = paste0('#', colnames(traces)[avar], ': ',
+                            paste(
+                                names(diagn$toprint),
+                                sapply(diagn$toprint, function(xx){
+                                    signif(xx[avar], 3)
+                                }),
+                                collapse = ' | ', sep = ': '
+                            )),
+                        cex.main = 1.25,
+                        ylab = paste0('log_F(#',
+                            colnames(traces)[avar],
+                            ')/dHart'),
+                        xlab = 'Monte Carlo sample',
+                        family = family, mar = c(NA, 6, NA, NA)
+                    )
+                }
+                dev.off()
+            }
+
 #### Plot Alpha and cluster occupation, if required
             if (showAlphatraces || showKtraces) {
                 cat('Plotting cluster and Alpha information.\n')
@@ -1781,93 +1879,6 @@ inferpopulation <- function(
                         y = tabulate(allmcsamplesKA$Alpha, nbin = nalpha),
                         type = 'h', xlab = bquote(alpha), ylab = '',
                         ylim = c(0, NA))
-                }
-                dev.off()
-            }
-
-            ## Plot diagnostic traces of current chain
-            if (plottraces) {
-                cat('\nPlotting traces and samples.\n')
-
-                ## tracegroups <- as.list(seq_len(min(4, ncol(traces))))
-                ## names(tracegroups) <- colnames(traces)[1:min(4, ncol(traces))]
-                ## grouplegends <- foreach(agroup = seq_along(tracegroups)) %do% {
-                ##     c(
-                ##         paste0('-- STATS ', names(tracegroups)[agroup], ' --'),
-                ##         paste0('min ESS = ',
-                ##             signif(min(diagnESS[tracegroups[[agroup]]]), 6)),
-                ##         paste0('max IAT = ',
-                ##             signif(max(diagnIAT[tracegroups[[agroup]]]), 6)),
-                ##         paste0('max BMK = ',
-                ##             signif(max(diagnBMK[tracegroups[[agroup]]]), 6)),
-                ##         paste0('max MCSE = ',
-                ##             signif(max(diagnMCSE[tracegroups[[agroup]]]), 6)),
-                ##         paste0('stationary: ',
-                ##             sum(diagnStat[tracegroups[[agroup]]]), '/',
-                ##             length(diagnStat[tracegroups[[agroup]]])),
-                ##         paste0('burn: ', signif(diagnBurn2, 6)),
-                ##         paste0('max thin = ',
-                ##             signif(max(diagnThin[tracegroups[[agroup]]]), 6))
-                ##     )
-                ## }
-
-                ## Plot various info and traces
-                ## colpalette <- 1:6 #seq_len(ncol(traces))
-                ## names(colpalette) <- colnames(traces)[1:min(6, ncol(traces))]
-                cat('\nPlotting MCMC traces')
-                graphics.off()
-                pdf(file.path(dirname,
-                    paste0('_mcpartialtraces', dashnameroot, '--',
-                        padchainnumber, '_', achain, '-', acore, '.pdf')
-                ), height = 8.27, width = 11.69)
-
-                ## Summary stats
-                matplot(1:2, type = 'l', col = 'white',
-                    main = paste0('Stats chain ', achain),
-                    axes = FALSE, ann = FALSE)
-                ## Legends
-                ## legendpositions <- c('topleft', 'topright', 'bottomleft', 'bottomright')
-                ## for (alegend in seq_along(grouplegends)) {
-                ##     legend(x = legendpositions[alegend], bty = 'n', cex = 1.5,
-                ##         legend = grouplegends[[alegend]]
-                ##     )
-                ## }
-                legend(x = 'center', bty = 'n', cex = 1,
-                    legend = c(
-                        paste0('Chain ', chainnumber, '_', achain, '-', acore),
-                        paste0('Used clusters: ', usedclusters, ' of ', nclusters),
-                        ## paste0('LL:  ( ', signif(mean(traces[, 1]), 3), ' +- ',
-                        ##     signif(sd(traces[, 1]), 3), ' ) dHart'),
-                        'NOTES:',
-                        if (flagmc) {
-                            'some non-finite MC outputs'
-                        },
-                        if (usedclusters > nclusters - 5) {
-                            'too many clusters used'
-                        },
-                        if (flagll) {
-                            'non-finite values in diagnostics'
-                        }
-                    )
-                )
-                ## Traces of likelihood and cond. probabilities
-                par(mfrow = c(1, 1))
-                for (avar in 1:ncol(traces)) {
-                    tplot(
-                        y = 10*log10(traces[is.finite(traces[, avar]), avar]),
-                        type = 'l', lty = 1, col = 1,
-                        main = paste(
-                            names(diagn$toprint),
-                            sapply(diagn$toprint, function(xx){
-                                signif(xx[avar], 3)
-                            }),
-                            collapse = ' | ', sep = ': '
-                        ),
-                        cex.main = 1.25,
-                        ylab = paste0(colnames(traces)[avar], '/dHart'),
-                        xlab = 'Monte Carlo sample',
-                        family = family, mar = c(NA, 6, NA, NA)
-                    )
                 }
                 dev.off()
             }
@@ -2001,7 +2012,7 @@ inferpopulation <- function(
     )
     traces <- traces[apply(traces, 1, function(x) { all(is.finite(x)) }), ,
         drop = FALSE]
-    colnames(traces) <- paste0('log-F_', seq_len(ncol(traces)))
+    colnames(traces) <- rownames(testdata)
 
     saveRDS(traces, file = file.path(dirname,
         paste0('MCtraces', dashnameroot, '.rds')
@@ -2058,16 +2069,19 @@ inferpopulation <- function(
         tplot(x = matrix(seq_len(nsamples), ncol = division),
             y = matrix(10*log10(traces[, avar]), ncol = division),
             type = 'l', lty = 1,
-            col = 1:6, # to evidence consecutive chains
-            main = paste(
-                names(diagn$toprint),
-                sapply(diagn$toprint, function(xx){
-                    signif(xx[avar], 3)
-                }),
-                collapse = ' | ', sep = ': '
-            ),
+            ## col = 1:6, # to evidence consecutive chains
+            main = paste0('#', colnames(traces)[avar], ': ',
+                paste(
+                    names(diagn$toprint),
+                    sapply(diagn$toprint, function(xx){
+                        signif(xx[avar], 3)
+                    }),
+                    collapse = ' | ', sep = ': '
+                )),
             cex.main = 1.25,
-            ylab = paste0(colnames(traces)[avar], '/dHart'),
+            ylab = paste0('log_F(#',
+                colnames(traces)[avar],
+                ')/dHart'),
             xlab = 'sample', family = family,
             mar = c(NA, 6, NA, NA)
         )
