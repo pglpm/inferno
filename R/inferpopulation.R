@@ -760,57 +760,60 @@ inferpopulation <- function(
     datapoints <- c(
         if (vn$R > 0) { # continuous open domain
             list(
-                Rdata = vtransform(data[, vnames$R, drop = FALSE],
+                Rdata = as.matrix(vtransform(data[, vnames$R, drop = FALSE],
                     auxmetadata = auxmetadata,
-                    Rout = 'normalized')
+                    Rout = 'normalized'))
             )
         },
         if (vn$C > 0) { # continuous closed domain
             list(
-                Caux = vtransform(data[, vnames$C, drop = FALSE],
+                Caux = as.matrix(vtransform(data[, vnames$C, drop = FALSE],
                     auxmetadata = auxmetadata,
-                    Cout = 'aux'),
-                Clat = vtransform(data[, vnames$C, drop = FALSE],
+                    Cout = 'aux')),
+                Clat = as.matrix(vtransform(data[, vnames$C, drop = FALSE],
                     auxmetadata = auxmetadata,
-                    Cout = 'lat')
+                    Cout = 'lat'))
             )
         },
         if (vn$D > 0) { # continuous rounded
             list(
-                Daux = vtransform(data[, vnames$D, drop = FALSE],
+                Daux = as.matrix(vtransform(data[, vnames$D, drop = FALSE],
                     auxmetadata = auxmetadata,
-                    Dout = 'aux')
-            )
+                    Dout = 'aux'))
+                )
         },
         if (vn$L > 0) { # latent
             list(
-                Laux = vtransform(data[, vnames$L, drop = FALSE],
+                Laux = as.matrix(vtransform(data[, vnames$L, drop = FALSE],
                     auxmetadata = auxmetadata,
-                    Lout = 'aux')
+                    Lout = 'aux'))
             )
         },
         if (vn$O > 0) { # nominal
             list(
-                Odata = vtransform(data[, vnames$O, drop = FALSE],
+                Odata = as.matrix(vtransform(data[, vnames$O, drop = FALSE],
                     auxmetadata = auxmetadata,
-                    Oout = 'numeric')
+                    Oout = 'numeric'))
             )
         },
         if (vn$N > 0) { # nominal
             list(
-                Ndata = vtransform(data[, vnames$N, drop = FALSE],
+                Ndata = as.matrix(vtransform(data[, vnames$N, drop = FALSE],
                     auxmetadata = auxmetadata,
-                    Nout = 'numeric')
+                    Nout = 'numeric'))
             )
         },
         if (vn$B > 0) { # binary
             list(
-                Bdata = vtransform(data[, vnames$B, drop = FALSE],
+                Bdata = as.matrix(vtransform(data[, vnames$B, drop = FALSE],
                     auxmetadata = auxmetadata,
-                    Bout = 'numeric')
+                    Bout = 'numeric'))
             )
         }
     ) # End datapoints
+    cat('\n***test\n')
+    str(datapoints)
+    saveRDS(datapoints,'deletedp.rds')
 
 #### Output information to user
     if (!exists('Nalpha0')) {
