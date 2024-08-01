@@ -989,7 +989,6 @@ inferpopulation <- function(
 
 
 #### INITIAL-VALUE FUNCTION
-        ## Choose
         minpoints <- min(npoints, nclusters) - 1
         rempoints <- npoints - minpoints
         cldatapoints <- sample(1:npoints, minpoints)
