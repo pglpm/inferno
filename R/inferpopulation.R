@@ -811,9 +811,6 @@ inferpopulation <- function(
             )
         }
     ) # End datapoints
-    cat('\n***test\n')
-    str(datapoints)
-    saveRDS(datapoints,'deletedp.rds')
 
 #### Output information to user
     if (!exists('Nalpha0')) {
@@ -992,60 +989,94 @@ inferpopulation <- function(
 
 
 #### INITIAL-VALUE FUNCTION
-<<<<<<< HEAD
-        ## Create clusters centres
-        if (vn$R > 0) { # continuous open domain
-            Rmeans = matrix(rnorm(
-                n = vn$R * nclusters,
-                mean = constants$Rmean1,
-                sd = sqrt(constants$Rvarm1)
-            ), nrow = vn$R, ncol = nclusters)
-            ## square distances from datapoints
-            Rdists <-
-        }
-        if (vn$C > 0) { # ccontinuous closed domain
-            Cmeans = matrix(rnorm(
-                n = vn$C * nclusters,
-                mean = constants$Cmean1,
-                sd = sqrt(constants$Cvarm1)
-            ), nrow = vn$C, ncol = nclusters)
-        }
-        if (vn$D > 0) { # continuous rounded
-            Dmeans = matrix(rnorm(
-                n = vn$D * nclusters,
-                mean = constants$Dmean1,
-                sd = sqrt(constants$Dvarm1)
-            ), nrow = vn$D, ncol = nclusters)
-        }
-        if (vn$L > 0) { # latent
-            Lmeans = matrix(rnorm(
-                n = vn$L * nclusters,
-                mean = constants$Lmean1,
-                sd = sqrt(constants$Lvarm1)
-            ), nrow = vn$L, ncol = nclusters)
-        }
-        ## assign datapoints to cluster with closest centre
-        for(apoint in seq_len(npoints)) {
-            which.min(
-                sapply(seq_len(nclusters)), function(acluster){
-
-                }
-            )
-        }
-
-        ## Choose
-=======
->>>>>>> 4454ea00e0e26110ee9792223a0d864bf7b0e9be
-        minpoints <- min(npoints, nclusters) - 1
-        rempoints <- npoints - minpoints
-        cldatapoints <- sample(1:npoints, minpoints)
         initsfn <- function() {
+            ## Create clusters centres
+            distances <- matrix(0, nrow = npoints, ncol = nclusters)
+
+            if (vn$R > 0) { # continuous open domain
+                Rmeans <- matrix(rnorm(
+                    n = vn$R * nclusters,
+                    mean = constants$Rmean1,
+                    sd = sqrt(constants$Rvarm1)
+                ), nrow = vn$R, ncol = nclusters)
+                ## square distances from datapoints
+                distances <- apply(Rmeans, 2, function(ameans){
+                    colSums((t(datapoints$Rdata) - ameans)^2, na.rm = TRUE)
+                })
+            }
+            if (vn$C > 0) { # continuous open domain
+                Cmeans <- matrix(rnorm(
+                    n = vn$C * nclusters,
+                    mean = constants$Cmean1,
+                    sd = sqrt(constants$Cvarm1)
+                ), nrow = vn$C, ncol = nclusters)
+                ## square distances from datapoints
+                distances <- distances + apply(Cmeans, 2, function(ameans){
+                    colSums((t(datapoints$Clat) - ameans)^2, na.rm = TRUE)
+                })
+            }
+            if (vn$D > 0) { # continuous open domain
+                Dmeans <- matrix(rnorm(
+                    n = vn$D * nclusters,
+                    mean = constants$Dmean1,
+                    sd = sqrt(constants$Dvarm1)
+                ), nrow = vn$D, ncol = nclusters)
+                ## square distances from datapoints
+                distances <- distances + apply(Dmeans, 2, function(ameans){
+                    colSums((t(datapoints$Dlat) - ameans)^2, na.rm = TRUE)
+                })
+            }
+            if (vn$L > 0) { # continuous open domain
+                Lmeans <- matrix(rnorm(
+                    n = vn$L * nclusters,
+                    mean = constants$Lmean1,
+                    sd = sqrt(constants$Lvarm1)
+                ), nrow = vn$L, ncol = nclusters)
+                ## square distances from datapoints
+                distances <- distances + apply(Lmeans, 2, function(ameans){
+                    colSums((t(datapoints$Llat) - ameans)^2, na.rm = TRUE)
+                })
+            }
+
+            ## assign datapoints to cluster with closest centre
+            K <- apply(distances, 1, which.min)
+            occupied <- unique(K)
+
+            ## recalculate clusters centres according to their points
+            if (vn$R > 0) { # continuous open domain
+                Rmeans[, occupied] <- sapply(occupied, function(acluster){
+                    colMeans(datapoints$Rdata[which(K == acluster), , drop = FALSE],
+                        na.rm = TRUE)
+                })
+                Rmeans[, -occupied] <- 0
+            }
+            if (vn$C > 0) { # continuous open domain
+                Cmeans[, occupied] <- sapply(occupied, function(acluster){
+                    colMeans(datapoints$Clat[which(K == acluster), , drop = FALSE],
+                        na.rm = TRUE)
+                })
+                Cmeans[, -occupied] <- 0
+            }
+            if (vn$D > 0) { # continuous open domain
+                Dmeans[, occupied] <- sapply(occupied, function(acluster){
+                    colMeans(datapoints$Dlat[which(K == acluster), , drop = FALSE],
+                        na.rm = TRUE)
+                })
+                Dmeans[, -occupied] <- 0
+            }
+            if (vn$L > 0) { # continuous open domain
+                Lmeans[, occupied] <- sapply(occupied, function(acluster){
+                    colMeans(datapoints$Llat[which(K == acluster), , drop = FALSE],
+                        na.rm = TRUE)
+                })
+                Lmeans[, -occupied] <- 0
+            }
+
             Alpha <- sample(1:nalpha, 1, prob = constants$probalpha0, replace = TRUE)
             W <- rep(1/nclusters, nclusters)
             ## W <- c(rep(rempoints, minpoints), rep(1, nclusters - minpoints))
             ## W <- W/sum(W)
-            K <- rep(nclusters, npoints) # any remaining points to same cluster
-            K[cldatapoints] <- 1:minpoints
+
             outlist <- list(
                 Alpha = Alpha,
                 W = W,
@@ -1076,17 +1107,10 @@ inferpopulation <- function(
             )
             ##
             if (vn$R > 0) { # continuous open domain
-                initmeans <- matrix(0,
-                    nrow = vn$R, ncol = nclusters
-                )
-                initmeans[,1:minpoints] <- t(
-                    datapoints$Rdata[cldatapoints, ]
-                )
-                initmeans[which(is.na(initmeans))] <- 0
                 outlist <- c(
                     outlist,
                     list(
-                        Rmean = initmeans,
+                        Rmean = Rmeans,
                         Rrate = matrix(
                             nimble::qinvgamma(p = 0.5,
                                 shape = constants$Rshapehi,
@@ -1099,17 +1123,10 @@ inferpopulation <- function(
                 )
             }
             if (vn$C > 0) { # ccontinuous closed domain
-                initmeans <- matrix(0,
-                    nrow = vn$C, ncol = nclusters
-                )
-                initmeans[,1:minpoints] <- t(
-                    datapoints$Clat[cldatapoints, ]
-                )
-                initmeans[which(is.na(initmeans))] <- 0
                 outlist <- c(
                     outlist,
                     list(
-                        Cmean = initmeans,
+                        Cmean = Cmeans,
                         Crate = matrix(
                             nimble::qinvgamma(p = 0.5,
                                 shape = constants$Cshapehi,
@@ -1126,17 +1143,10 @@ inferpopulation <- function(
                 )
             }
             if (vn$D > 0) { # continuous rounded
-                initmeans <- matrix(0,
-                    nrow = vn$D, ncol = nclusters
-                )
-                initmeans[,1:minpoints] <- t(
-                    datapoints$Dlat[cldatapoints, ]
-                )
-                initmeans[which(is.na(initmeans))] <- 0
                 outlist <- c(
                     outlist,
                     list(
-                        Dmean = initmeans,
+                        Dmean = Dmeans,
                         Drate = matrix(
                             nimble::qinvgamma(p = 0.5,
                                 shape = constants$Dshapehi,
@@ -1153,17 +1163,10 @@ inferpopulation <- function(
                 )
             }
             if (vn$L > 0) { # latent
-                initmeans <- matrix(0,
-                    nrow = vn$L, ncol = nclusters
-                )
-                initmeans[,1:minpoints] <- t(
-                    datapoints$Llat[cldatapoints, ]
-                )
-                initmeans[which(is.na(initmeans))] <- 0
                 outlist <- c(
                     outlist,
                     list(
-                        Lmean = initmeans,
+                        Lmean = Lmeans,
                         Lrate = matrix(
                             nimble::qinvgamma(p = 0.5,
                                 shape = constants$Lshapehi,
