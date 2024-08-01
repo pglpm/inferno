@@ -989,6 +989,46 @@ inferpopulation <- function(
 
 
 #### INITIAL-VALUE FUNCTION
+        ## Create clusters centres
+        if (vn$R > 0) { # continuous open domain
+            Rmeans = matrix(rnorm(
+                n = vn$R * nclusters,
+                mean = constants$Rmean1,
+                sd = sqrt(constants$Rvarm1)
+            ), nrow = vn$R, ncol = nclusters)
+            ## square distances from datapoints
+            Rdists <-
+        }
+        if (vn$C > 0) { # ccontinuous closed domain
+            Cmeans = matrix(rnorm(
+                n = vn$C * nclusters,
+                mean = constants$Cmean1,
+                sd = sqrt(constants$Cvarm1)
+            ), nrow = vn$C, ncol = nclusters)
+        }
+        if (vn$D > 0) { # continuous rounded
+            Dmeans = matrix(rnorm(
+                n = vn$D * nclusters,
+                mean = constants$Dmean1,
+                sd = sqrt(constants$Dvarm1)
+            ), nrow = vn$D, ncol = nclusters)
+        }
+        if (vn$L > 0) { # latent
+            Lmeans = matrix(rnorm(
+                n = vn$L * nclusters,
+                mean = constants$Lmean1,
+                sd = sqrt(constants$Lvarm1)
+            ), nrow = vn$L, ncol = nclusters)
+        }
+        ## assign datapoints to cluster with closest centre
+        for(apoint in seq_len(npoints)) {
+            which.min(
+                sapply(seq_len(nclusters)), function(acluster){
+
+                }
+            )
+        }
+
         ## Choose
         minpoints <- min(npoints, nclusters) - 1
         rempoints <- npoints - minpoints
