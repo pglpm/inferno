@@ -1384,7 +1384,7 @@ inferpopulation <- function(
             subiter <- 1L
 #### WHILE-LOOP CONTINUING UNTIL CONVERGENCE
             while (requirediter > 0) {
-                cat('Iterations:', niter, '\n')
+                cat('\nIterations:', niter, '\n')
 
                 ## MONTE-CARLO CALL
                 ## If reporting Alpha or K traces,
@@ -1937,7 +1937,6 @@ inferpopulation <- function(
     testdata <- readRDS(file = file.path(dirname,
         paste0('_testdata_', 0, '.rds')))
     cat('\nChecking test data\n(', paste0('#', rownames(testdata)), ')\n')
-)
 
     traces <- cbind(
         samplesFDistribution(
@@ -1965,15 +1964,27 @@ inferpopulation <- function(
         relerror = relerror,
         thinning = thinning)
 
+    cat('\n')
     for(i in names(diagn$toprint)) {
         thisdiagn <- diagn$toprint[[i]]
-        cat(paste0('\n', i, ':'),
+        cat(paste0(i, ':'),
             if(length(thisdiagn) > 1){
                 paste(signif(range(thisdiagn), 3), collapse = ' to ')
             } else {
                 signif(thisdiagn, 3)
-            }
-        )
+            },
+        '\n')
+    }
+
+    cat('\nMax number of Monte Carlo iterations:', maxiterations, '\n')
+    cat('Max number of used clusters:', maxusedclusters, '\n')
+    if (maxusedclusters > nclusters - 5) {
+        cat('TOO MANY CLUSTERS USED!\n')
+        cat('Consider re-running with increased "nclusters" parameter\n')
+    }
+
+    if (nonfinitechains > 0) {
+        cat(nonfinitechains, 'chains with some non-finite outputs\n')
     }
 
     ## Plot various info and traces
@@ -2008,18 +2019,7 @@ inferpopulation <- function(
         )
     }
 
-    cat('\nMax number of Monte Carlo iterations:', maxiterations)
-    cat('\nMax number of used clusters:', maxusedclusters, '\n')
-    if (maxusedclusters > nclusters - 5) {
-        cat('TOO MANY CLUSTERS USED!\n')
-        cat('Consider re-running with increased "nclusters" parameter\n')
-    }
-
-    if (nonfinitechains > 0) {
-        cat(nonfinitechains, 'chains with some non-finite outputs\n')
-    }
-
-    cat('\nPlotting marginal samples.\n')
+    cat('Plotting marginal samples.\n')
     plotFsamples(
         file = file.path(dirname,
             paste0('plotsamples_Fdistribution', dashnameroot)),
@@ -2043,7 +2043,9 @@ inferpopulation <- function(
         parallel = TRUE, silent = TRUE
     )
 
-    cat('\nTotal computation time', printtime(Sys.time() - timestart0), '\n')
+    totalfinaltime <- Sys.time() - timestart0
+    cat('\nTotal computation time:', printtime(totalfinaltime), '\n')
+    cat('Average time per chain:', printtime(totalfinaltime/nchains), '\n')
 
     ## if (exists('cl')) {
     ##     cat('\nClosing connections to cores.\n')
@@ -2057,7 +2059,7 @@ inferpopulation <- function(
     ## Should we leave the plots of partial traces?
     ## maybe create an additional argument to let the user decide?
     if (cleanup) {
-        cat('Removing temporary output files.\n')
+        cat('\nRemoving temporary output files.\n')
         file.remove(dir(dirname,
             pattern = paste0('^_.*\\..*$'),
             full.names = TRUE
