@@ -2066,9 +2066,11 @@ inferpopulation <- function(
     for (avar in 1:ncol(traces)) {
         ## Do not join separate chains in the plot
         division <- (if(nrow(traces) > nchains) nchains else 1)
-        tplot(x = matrix(seq_len(nsamples), ncol = division),
-            y = matrix(10*log10(traces[, avar]), ncol = division),
-            type = 'l', lty = 1,
+        tplot(
+            y = 10*log10(traces[is.finite(traces[, avar]), avar]),
+            ## x = matrix(seq_len(nsamples), ncol = division),
+            ## y = matrix(10*log10(traces[, avar]), ncol = division),
+            type = 'l', lty = 1, col = 1,
             ## col = 1:6, # to evidence consecutive chains
             main = paste0('#', colnames(traces)[avar], ': ',
                 paste(

@@ -18,7 +18,7 @@ library('modelfreeinference')
 
 seed <- 16
 
-outputdirPrefix <- file.path('_delete2_Kafter_packagetest')
+outputdirPrefix <- file.path('_delete2_packagetest')
 
 ## ncores <- 4
 ## library('doParallel')
