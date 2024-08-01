@@ -881,50 +881,6 @@ inferpopulation <- function(
         ## requireNamespace("nimble", quietly = TRUE)
         ##library('nimble')
 
-        ##         cat('\n***TEST00***\n')
-        ## mcsamples <- readRDS('mcoutput.rds')
-        ## mcsamples$auxmetadata <- NULL
-        ## chainnumber <- (acore - 1L) * nchainspercore + achain
-        ## testdata <- readRDS(file = file.path(dirname,
-        ##                 paste0('_testdata_', chainnumber, '.rds')))
-        ## cat('\n***TEST0***\n')
-        ## str(testdata)
-        ## print(testdata)
-        ##   ll <- samplesFDistribution(
-        ##       Y = testdata, X = NULL,
-        ##       mcoutput = c(mcsamples, list(auxmetadata = auxmetadata)),
-        ##       jacobian = FALSE,
-        ##       parallel = FALSE,
-        ##       combine = '+',
-        ##       silent = TRUE
-        ##   )
-        ## str(ll)
-        ## cat('\n***TEST01***\n')
-        ## stop('HERE')
-
-
-        ## ## Function for Monte Carlo stopping rule
-        ## funMCSE <- function(x) {
-        ##     x <- cbind(x)
-        ##     N <- nrow(x)
-        ##     b <- floor(sqrt(N))
-        ##     a <- floor(N/b)
-        ##     Ys <- rbind(sapply(seq_len(a), function(k) {
-        ##         colMeans(x[((k - 1) * b + 1):(k * b), , drop = FALSE])
-        ##     }))
-        ##     ##
-        ##     sqrt(b * rowSums((Ys - rowMeans(Ys))^2) / ((a - 1) * N))
-        ## }
-
-        ## ## Not needed?
-        ## printtime <- function(tim){paste0(signif(tim,2),' ',attr(tim,'units'))}
-        ## print2user <- function(message, outcon){
-        ##     sink(NULL,type='message')
-        ##     message(message, appendLF=FALSE)
-        ##     flush.console()
-        ##     sink(outcon,type='message')
-        ## }
-
 #### CLUSTER REPRESENTATION OF FREQUENCY SPACE
 
         ## hierarchical probability structure
@@ -1418,6 +1374,8 @@ inferpopulation <- function(
             ## Read data to be used in log-likelihood
             testdata <- readRDS(file = file.path(dirname,
                 paste0('_testdata_', chainnumber, '.rds')))
+            cat('\nDatapoints for testing convergence:\n',
+                paste0('#', rownames(testdata)), '\n')
 
             ## Initial values for this chain
             ## random seed is taken care of by %doRNG%
@@ -1976,9 +1934,10 @@ inferpopulation <- function(
 #### Final joint diagnostics
 ############################################################
 
-    cat('\nChecking test data:')
     testdata <- readRDS(file = file.path(dirname,
         paste0('_testdata_', 0, '.rds')))
+    cat('\nChecking test data\n(', paste0('#', rownames(testdata)), ')\n')
+)
 
     traces <- cbind(
         samplesFDistribution(
