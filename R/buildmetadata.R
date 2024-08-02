@@ -3,6 +3,8 @@
 #' @param data data.frame object or filepath
 #' @param file string: name of output metadata file;
 #'   NULL: output metadata as data.frame
+#' @param includevrt string or NULL: name variates in data to be included
+#' @param excludevrt string or NULL: name variates in data to be excluded
 #' @param diagnosticvalues Bool: also output some diagnostic statistics?
 #' @param backupfiles Bool: rename previous metadata file if it exists?
 #'
@@ -12,6 +14,8 @@
 buildmetadata <- function(
     data,
     file = NULL,
+    includevrt = NULL,
+    excludevrt = NULL,
     diagnosticvalues = FALSE,
     backupfiles = FALSE
 ) {
@@ -58,9 +62,15 @@ buildmetadata <- function(
     )[-1,]
 
 
-
+    variatelist <- colnames(data)
+    if(!is.null(includevrt)) {
+        variatelist <- intersect(variatelist, includevrt)
+    }
+    if(!is.null(excludevrt)) {
+        variatelist <- setdiff(variatelist, excludevrt)
+    }
     ## Loop over variates (columns) in data frame
-    for (name in colnames(data)) {
+    for (name in variatelist) {
         ## remove missing values
         x <- data[[name]]
         x <- x[!is.na(x)]
@@ -156,9 +166,9 @@ buildmetadata <- function(
             minincluded <- FALSE
             maxincluded <- FALSE
 
-            ## lowvalue <- Q1 <- quantile(x, probs = 0.25, type = 6)
+            Q1 <- quantile(x, probs = 0.25, type = 6)
             ## centralvalue <- quantile(x, probs = 0.5, type = 6)
-            ## highvalue <- Q3 <- quantile(x, probs = 0.75, type = 6)
+            Q3 <- quantile(x, probs = 0.75, type = 6)
             ## ## Borderline case if the first and second quartile have the same value
             ## if (lowvalue == highvalue) {
             ##   lowvalue <- if (sum(x < Q1) > 0) {
@@ -220,8 +230,8 @@ buildmetadata <- function(
                 ##   rounding <- 0
                 ## } else {
                 rounding <- jumpquantum
-                domainmin <- signif(datamin - 4 * rangex, 1)
-                domainmax <- signif(datamax + 4 * rangex, 1)
+                ## domainmin <- signif(datamin - 4 * rangex, 1)
+                ## domainmax <- signif(datamax + 4 * rangex, 1)
             } # End rounded case
 
         } # End continuous-variate case

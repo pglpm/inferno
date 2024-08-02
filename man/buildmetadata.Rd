@@ -4,13 +4,24 @@
 \alias{buildmetadata}
 \title{Build preliminary metadata flie}
 \usage{
-buildmetadata(data, file = NULL, diagnosticvalues = FALSE, backupfiles = FALSE)
+buildmetadata(
+  data,
+  file = NULL,
+  includevrt = NULL,
+  excludevrt = NULL,
+  diagnosticvalues = FALSE,
+  backupfiles = FALSE
+)
 }
 \arguments{
 \item{data}{data.frame object or filepath}
 
 \item{file}{string: name of output metadata file;
 NULL: output metadata as data.frame}
+
+\item{includevrt}{string or NULL: name variates in data to be included}
+
+\item{excludevrt}{string or NULL: name variates in data to be excluded}
 
 \item{diagnosticvalues}{Bool: also output some diagnostic statistics?}
 
