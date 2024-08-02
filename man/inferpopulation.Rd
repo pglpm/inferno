@@ -23,6 +23,7 @@ inferpopulation(
   niterini = 1200,
   miniter = 1200,
   maxiter = +Inf,
+  maxtime = +Inf,
   ncheckpoints = NULL,
   relerror = 0.05,
   prior = missing(data),
@@ -50,6 +51,7 @@ inferpopulation(
   niterini = 1200,
   miniter = 1200,
   maxiter = +Inf,
+  maxtime = +Inf,
   ncheckpoints = NULL,
   relerror = 0.05,
   prior = missing(data),
@@ -77,6 +79,7 @@ inferpopulation(
   niterini = 1200,
   miniter = 1200,
   maxiter = +Inf,
+  maxtime = +Inf,
   ncheckpoints = NULL,
   relerror = 0.05,
   prior = missing(data),
@@ -132,6 +135,8 @@ anything else, no output}
 \item{miniter}{Minimum number of MC iterations to be done}
 
 \item{maxiter}{Maximum number of MC iterations}
+
+\item{maxtime}{Maximum (approximately) time in minutes allowed to MC computation}
 
 \item{ncheckpoints}{NULL (default), positive integer, or Inf:
 number of datapoints to use for stopping the sampling;

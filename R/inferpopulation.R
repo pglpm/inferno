@@ -29,6 +29,7 @@
 #' @param niterini Number of initial (burn-in) MC iterations
 #' @param miniter Minimum number of MC iterations to be done
 #' @param maxiter Maximum number of MC iterations
+#' @param maxtime Maximum (approximately) time in minutes allowed to MC computation
 #' @param ncheckpoints NULL (default), positive integer, or Inf:
 #'   number of datapoints to use for stopping the sampling;
 #'   if NULL, equal to number of variates + 2; if Inf, use all datapoints
@@ -70,6 +71,7 @@ inferpopulation <- function(
     niterini = 1200,
     miniter = 1200,
     maxiter = +Inf,
+    maxtime = +Inf,
     ncheckpoints = NULL,
     relerror = 0.05, #/(2*qnorm(0.95)), # 1/sqrt(2 * nsamplesperchain) # explore this
     prior = missing(data),
@@ -79,13 +81,14 @@ inferpopulation <- function(
     showAlphatraces = FALSE
 ) {
 
+#### Start timer
+    timestart0 <- Sys.time()
+
     cat('\n') # make sure possible error messages start on new line
 
     ## Set the RNG seed if given by user, or if no seed already exists
     if (!missing(seed) || !exists('.Random.seed')) {set.seed(seed)}
     currentseed <- .Random.seed
-
-
 
 ##################################################
 #### Argument-consistency checks
@@ -239,8 +242,6 @@ inferpopulation <- function(
 
     ## Make sure 'niterini' is at least 2
     niterini <- max(2, niterini)
-#### Start timer
-    timestart0 <- Sys.time()
 
 ##################################################
 #### Read and process data and metadata
@@ -863,6 +864,7 @@ inferpopulation <- function(
         ##.packages = c('modelfreeinference'),
         .noexport = c('data')
     ) %dochains% {
+
         ## Create log file
         ## Redirect diagnostics and service messages there
         outcon <- file(file.path(dirname,
@@ -1402,6 +1404,12 @@ inferpopulation <- function(
         gc() # garbage collection
 #### LOOP OVER CHAINS IN CORE
         for (achain in 1:nchainspercore) {
+
+            ## calculate how the remaining time is allotted to remaining chains
+            timeleft <- (maxtime -
+                         as.double(Sys.time() - timestart0, units = 'mins')) /
+                (nchainspercore - achain + 1)
+
             showsamplertimes0 <- showsamplertimes && (achain == 1)
             ## showAlphatraces0 <- showAlphatraces && (achain==1)
             niter <- min(niterini, maxiter)
@@ -1700,6 +1708,11 @@ inferpopulation <- function(
 
                 cat('\nTotal number of iterations', nitertot,
                     ', required further', requirediter, '\n')
+
+                if(as.double(Sys.time() - timestart0, units = 'mins') >= timeleft) {
+                    cat('\nStopping chain owing to lack of time\n')
+                    requirediter <- 0
+                }
 
                 if (requirediter > 0) {
                     ## limit number of iterations per loop, to save memory
