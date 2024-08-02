@@ -35,7 +35,7 @@ currenttestdir <- inferpopulation(
     nsamples = 120,
     nchains = 12,
     parallel = 4,
-    maxtime = 3,
+    maxhours = 2*1/60,
     ## relerror = 0.062,
     ncheckpoints = NULL,
     cleanup = FALSE,

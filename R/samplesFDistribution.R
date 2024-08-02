@@ -153,7 +153,7 @@ samplesFDistribution <- function(
     ## Add check to see that mcoutput is correct type of object?
     auxmetadata <- mcoutput$auxmetadata
     mcoutput$auxmetadata <- NULL
-    mcoutput$nchains <- NULL
+    mcoutput$auxinfo <- NULL
 
     ## Consistency checks
     if (length(dim(Y)) != 2) {

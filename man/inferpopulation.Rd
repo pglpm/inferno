@@ -20,10 +20,10 @@ inferpopulation(
   appendinfo = TRUE,
   output = "directory",
   subsampledata = NULL,
-  niterini = 1200,
-  miniter = 1200,
+  niterini = 1024,
+  miniter = 1024,
   maxiter = +Inf,
-  maxtime = +Inf,
+  maxhours = +Inf,
   ncheckpoints = NULL,
   relerror = 0.05,
   prior = missing(data),
@@ -48,10 +48,10 @@ inferpopulation(
   appendinfo = TRUE,
   output = "directory",
   subsampledata = NULL,
-  niterini = 1200,
-  miniter = 1200,
+  niterini = 1024,
+  miniter = 1024,
   maxiter = +Inf,
-  maxtime = +Inf,
+  maxhours = +Inf,
   ncheckpoints = NULL,
   relerror = 0.05,
   prior = missing(data),
@@ -76,10 +76,10 @@ inferpopulation(
   appendinfo = TRUE,
   output = "directory",
   subsampledata = NULL,
-  niterini = 1200,
-  miniter = 1200,
+  niterini = 1024,
+  miniter = 1024,
   maxiter = +Inf,
-  maxtime = +Inf,
+  maxhours = +Inf,
   ncheckpoints = NULL,
   relerror = 0.05,
   prior = missing(data),
@@ -136,7 +136,7 @@ anything else, no output}
 
 \item{maxiter}{Maximum number of MC iterations}
 
-\item{maxtime}{Maximum (approximately) time in minutes allowed to MC computation}
+\item{maxhours}{Maximum (approximately) time in hours for MC computation}
 
 \item{ncheckpoints}{NULL (default), positive integer, or Inf:
 number of datapoints to use for stopping the sampling;

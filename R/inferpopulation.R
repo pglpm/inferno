@@ -29,7 +29,7 @@
 #' @param niterini Number of initial (burn-in) MC iterations
 #' @param miniter Minimum number of MC iterations to be done
 #' @param maxiter Maximum number of MC iterations
-#' @param maxtime Maximum (approximately) time in minutes allowed to MC computation
+#' @param maxhours Maximum (approximately) time in hours for MC computation
 #' @param ncheckpoints NULL (default), positive integer, or Inf:
 #'   number of datapoints to use for stopping the sampling;
 #'   if NULL, equal to number of variates + 2; if Inf, use all datapoints
@@ -68,10 +68,10 @@ inferpopulation <- function(
     appendinfo = TRUE,
     output = 'directory',
     subsampledata = NULL,
-    niterini = 1200,
-    miniter = 1200,
+    niterini = 1024,
+    miniter = 1024,
     maxiter = +Inf,
-    maxtime = +Inf,
+    maxhours = +Inf,
     ncheckpoints = NULL,
     relerror = 0.05, #/(2*qnorm(0.95)), # 1/sqrt(2 * nsamplesperchain) # explore this
     prior = missing(data),
@@ -1398,16 +1398,19 @@ inferpopulation <- function(
         ## Start timer
         starttime <- Sys.time()
 
-        allflagmc <- FALSE
         maxusedclusters <- 0
         maxiterations <- 0
+        ## keep count of chains having non-finite outputs
+        nonfinitechains <- 0L
+        ## keep count of chains stopped before convergence
+        stoppedchains <- 0L
         gc() # garbage collection
 #### LOOP OVER CHAINS IN CORE
         for (achain in 1:nchainspercore) {
 
             ## calculate how the remaining time is allotted to remaining chains
-            timeleft <- (maxtime -
-                         as.double(Sys.time() - timestart0, units = 'mins')) /
+            timeleft <- (maxhours -
+                         as.double(Sys.time() - timestart0, units = 'hours')) /
                 (nchainspercore - achain + 1)
 
             showsamplertimes0 <- showsamplertimes && (achain == 1)
@@ -1425,7 +1428,7 @@ inferpopulation <- function(
             allmcsamples <- NULL
             allmcsamplesKA <- list(Alpha = NULL, K = NULL)
             flagll <- FALSE
-            flagmc <- FALSE
+            flagnonfinite <- FALSE
             chainnumber <- (acore - 1L) * nchainspercore + achain
             padchainnumber <- sprintf(paste0('%0', nchar(nchains), 'i'), chainnumber)
             cat(
@@ -1497,8 +1500,8 @@ inferpopulation <- function(
                 ##                 if(length(toRemove) > 0){
                 ##                     print2user('\nWARNING: SOME NON-FINITE OUTPUTS\n', outcon)
                 ##                     ##
-                ##                     flagmc <- TRUE
-                ##                     allflagmc <- TRUE
+                ##                     flagnonfinite <- TRUE
+                ##                     nonfinitechains <- TRUE
                 ##                     if(length(unique(toRemove[,1])) == nrow(mcsamples)){
                 ##                         suppressWarnings(sink())
                 ##                         suppressWarnings(sink(NULL,type='message'))
@@ -1519,8 +1522,8 @@ inferpopulation <- function(
 
                     cat('\nWARNING:', length(toRemove), 'NON-FINITE SAMPLES\n')
                     ##
-                    flagmc <- TRUE
-                    allflagmc <- TRUE
+                    flagnonfinite <- TRUE
+                    nonfinitechains <- TRUE
                     saveRDS(mcsamples, file = file.path(dirname,
                         paste0('NONFINITEmcsamples',
                             dashnameroot, '--', padchainnumber,
@@ -1709,8 +1712,11 @@ inferpopulation <- function(
                 cat('\nTotal number of iterations', nitertot,
                     ', required further', requirediter, '\n')
 
-                if(as.double(Sys.time() - timestart0, units = 'mins') >= timeleft) {
-                    cat('\nStopping chain owing to lack of time\n')
+                if(as.double(
+                    Sys.time() - timestart0, units = 'hours'
+                ) >= timeleft) {
+                    cat('but stopping chain owing to lack of time\n')
+                    stoppedchains <- stoppedchains + 1L
                     requirediter <- 0
                 }
 
@@ -1768,6 +1774,9 @@ inferpopulation <- function(
                         dashnameroot, '--',
                         padchainnumber, '.rds')
                 ))
+
+            ## possibly increase the count of chains with non-finite outputs
+            nonfinitechains <- nonfinitechains + flagnonfinite
 
             ## ###########
             ## ## PLOTS ##
@@ -1830,7 +1839,7 @@ inferpopulation <- function(
                         ## paste0('LL:  ( ', signif(mean(traces[, 1]), 3), ' +- ',
                         ##     signif(sd(traces[, 1]), 3), ' ) dHart'),
                         'NOTES:',
-                        if (flagmc) {
+                        if (flagnonfinite) {
                             'some non-finite MC outputs'
                         },
                         if (usedclusters > nclusters - 5) {
@@ -1930,9 +1939,14 @@ inferpopulation <- function(
             strftime(as.POSIXlt(Sys.time()), '%Y-%m-%d %H:%M:%S'))
         cat('\nTotal time', printtime(Sys.time() - starttime), '\n')
 
-        cbind(maxusedclusters = maxusedclusters,
+        ## output information from a core,
+        ## passed to the originally calling process
+        cbind(
+            maxusedclusters = maxusedclusters,
             maxiterations = maxiterations,
-            allflagmc = allflagmc)
+            nonfinitechains = nonfinitechains,
+            stoppedchains = stoppedchains
+        )
     }
 ############################################################
 #### END OF FOREACH-LOOP OVER CORES
@@ -1943,7 +1957,8 @@ inferpopulation <- function(
 
     maxusedclusters <- max(chaininfo[, 'maxusedclusters'])
     maxiterations <- max(chaininfo[, 'maxiterations'])
-    nonfinitechains <- sum(chaininfo[, 'allflagmc'])
+    nonfinitechains <- sum(chaininfo[, 'nonfinitechains'])
+    stoppedchains <- sum(chaininfo[, 'stoppedchains'])
     gc() # garbage collection
 ############################################################
 #### End of all MCMC
@@ -1987,25 +2002,33 @@ inferpopulation <- function(
         }
 
 #### Save all final parameters together with the aux-metadata in one file
-    saveRDS(c(mcsamples, list(auxmetadata = auxmetadata, nchains=nchains)),
+    saveRDS(c(mcsamples,
+        list(auxmetadata = auxmetadata,
+            auxinfo = list(nchains = nchains)) ),
         file = file.path(dirname,
             paste0('Fdistribution', dashnameroot, '.rds')
         ))
 
-    ## traces <- foreach(chainnumber = 1:(ncores * nchainspercore),
-    ##     .combine = rbind) %do% {
-    ##         padchainnumber <- sprintf(paste0('%0', nchar(nchains), 'i'), chainnumber)
-    ##
-    ##         readRDS(file = file.path(dirname,
-    ##             paste0('_mctraces', dashnameroot, '--',
-    ##                 padchainnumber, '.rds')
-    ##         ))
-    ##     }
-    ## saveRDS(traces, file = file.path(dirname,
-    ##     paste0('MCtraces_chains', dashnameroot, '.rds')
-    ## ))
-
     cat('\rFinished Monte Carlo sampling.                                 \n')
+
+    cat('\nMax number of Monte Carlo iterations across chains:', maxiterations, '\n')
+    cat('Max number of used mixture components:', maxusedclusters, '\n')
+    if (maxusedclusters > nclusters - 5) {
+        cat('TOO MANY MIXTURE COMPONENTS USED!\nConsider',
+            're-running with increased "nclusters" parameter\n')
+    }
+
+    if (nonfinitechains > 0) {
+        cat('\nNote:', nonfinitechains, 'chains had some non-finite outputs\n')
+    }
+    if (stoppedchains > 0) {
+        cat('\nNote:', stoppedchains,
+            'chains were stopped',
+            'before reaching required precision\nin order',
+            'to meet the required time constraints\n')
+    }
+
+
 
 ############################################################
 #### Final joint diagnostics
@@ -2056,17 +2079,6 @@ inferpopulation <- function(
                 signif(thisdiagn, 3)
             },
         '\n')
-    }
-
-    cat('\nMax number of Monte Carlo iterations:', maxiterations, '\n')
-    cat('Max number of used clusters:', maxusedclusters, '\n')
-    if (maxusedclusters > nclusters - 5) {
-        cat('TOO MANY CLUSTERS USED!\n')
-        cat('Consider re-running with increased "nclusters" parameter\n')
-    }
-
-    if (nonfinitechains > 0) {
-        cat(nonfinitechains, 'chains with some non-finite outputs\n')
     }
 
     ## Plot various info and traces
