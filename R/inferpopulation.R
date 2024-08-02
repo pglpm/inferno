@@ -1710,9 +1710,9 @@ inferpopulation <- function(
                     min(maxiter - nitertot, diagn$reqiter) )
 
                 cat('\nTotal number of iterations', nitertot,
-                    ', required further', requirediter, '\n')
+                    '- required further', requirediter, '\n')
 
-                if(as.double(
+                if(requirediter > 0 && as.double(
                     Sys.time() - timestart0, units = 'hours'
                 ) >= timeleft) {
                     cat('but stopping chain owing to lack of time\n')
