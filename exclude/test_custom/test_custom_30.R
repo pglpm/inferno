@@ -18,7 +18,7 @@ library('modelfreeinference')
 
 seed <- 16
 
-outputdirPrefix <- file.path('_delete2_packagetest')
+outputdirPrefix <- file.path('_A4-1_KWA_packagetest')
 
 ## ncores <- 4
 ## library('doParallel')
@@ -30,7 +30,7 @@ currenttestdir <- inferpopulation(
     metadata = 'metadata_test_custom.csv',
     outputdir = outputdirPrefix,
     output = 'directory',
-    appendtimestamp = F,
+    appendtimestamp = T,
     appendinfo = TRUE,
     nsamples = 120,
     nchains = 12,

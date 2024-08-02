@@ -1072,14 +1072,13 @@ inferpopulation <- function(
                 Lmeans[, -occupied] <- 0
             }
 
-            Alpha <- sample(1:nalpha, 1, prob = constants$probalpha0, replace = TRUE)
-            W <- rep(1/nclusters, nclusters)
+            ## Alpha <- sample(1:nalpha, 1, prob = constants$probalpha0, replace = TRUE)
             ## W <- c(rep(rempoints, minpoints), rep(1, nclusters - minpoints))
             ## W <- W/sum(W)
 
             outlist <- list(
-                Alpha = Alpha,
-                W = W,
+                Alpha = round(nalpha/2),
+                W = rep(1/nclusters, nclusters),
                 ## ## A. assign all points to an unsystematically chosen cluster
                 K = K
                 ## ## or:
@@ -1275,8 +1274,8 @@ inferpopulation <- function(
         )
         ## ## Uncomment to debug Nimble (in case of Nimble updates)
         ## print(confnimble$getUnsampledNodes())
+        ## cat('\nEX1\n')
         ## confnimble$printSamplers(executionOrder=TRUE)
-
 
         targetslist <- sapply(confnimble$getSamplers(), function(xx) xx$target)
         nameslist <- sapply(confnimble$getSamplers(), function(xx) xx$name)
@@ -1317,6 +1316,8 @@ inferpopulation <- function(
 
         ## ## Uncomment when debugging Nimble
         ## print(confnimble$getUnsampledNodes())
+        ## cat('\nEX2\n')
+        ## confnimble$printSamplers(executionOrder=TRUE)
 
 #### change execution order for some variates
         if (changeSamplerOrder) {
@@ -1325,6 +1326,8 @@ inferpopulation <- function(
 
             samplerorder <- c(
                 'K',
+                'W',
+                'Alpha',
                 if (vn$R > 0) {
                     c('Rmean', 'Rrate', 'Rvar')
                 },
@@ -1345,8 +1348,7 @@ inferpopulation <- function(
                 },
                 if (vn$B > 0) {
                     c('Bprob')
-                },
-                'W', 'Alpha'
+                }
             )
             ##
             neworder <- foreach(var = samplerorder, .combine = c) %do% {
@@ -1367,6 +1369,8 @@ inferpopulation <- function(
                 confnimble$getSamplerExecutionOrder(),
                 neworder
             ), neworder))
+        ## cat('\nEX3\n')
+        ## confnimble$printSamplers(executionOrder=TRUE)
 
         }
 
