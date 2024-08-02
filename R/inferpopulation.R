@@ -665,15 +665,15 @@ inferpopulation <- function(
                 Cvar1 = rep(1, 1),
                 Cshapelo = rep(Cshapelo, 1),
                 Cshapehi = rep(Cshapehi, 1),
-                Cleft = vtransform(data[, vnames$C, drop = FALSE],
+                Cleft = as.matrix(vtransform(data[, vnames$C, drop = FALSE],
                     auxmetadata = auxmetadata,
-                    Cout = 'left'),
-                Cright = vtransform(data[, vnames$C, drop = FALSE],
+                    Cout = 'left')),
+                Cright = as.matrix(vtransform(data[, vnames$C, drop = FALSE],
                     auxmetadata = auxmetadata,
-                    Cout = 'right'),
-                Clatinit = vtransform(data[, vnames$C, drop = FALSE],
+                    Cout = 'right')),
+                Clatinit = as.matrix(vtransform(data[, vnames$C, drop = FALSE],
                     auxmetadata,
-                    Cout = 'init')
+                    Cout = 'init'))
             )
             ## Cleft & Cright are as many as the datapoints
             ## so we do not create copies outside of Nimble
@@ -687,15 +687,15 @@ inferpopulation <- function(
                 Dvar1 = rep(1, 1),
                 Dshapelo = rep(Dshapelo, 1),
                 Dshapehi = rep(Dshapehi, 1),
-                Dleft = vtransform(data[, vnames$D, drop = FALSE],
+                Dleft = as.matrix(vtransform(data[, vnames$D, drop = FALSE],
                     auxmetadata = auxmetadata,
-                    Dout = 'left'),
-                Dright = vtransform(data[, vnames$D, drop = FALSE],
+                    Dout = 'left')),
+                Dright = as.matrix(vtransform(data[, vnames$D, drop = FALSE],
                     auxmetadata = auxmetadata,
-                    Dout = 'right'),
-                Dlatinit = vtransform(data[, vnames$D, drop = FALSE],
+                    Dout = 'right')),
+                Dlatinit = as.matrix(vtransform(data[, vnames$D, drop = FALSE],
                     auxmetadata,
-                    Dout = 'init')
+                    Dout = 'init'))
             )
         },
         if (vn$L > 0) { # latent
@@ -706,15 +706,15 @@ inferpopulation <- function(
                 Lvar1 = rep(1, 1),
                 Lshapelo = rep(Lshapelo, 1),
                 Lshapehi = rep(Lshapehi, 1),
-                Lleft = vtransform(data[, vnames$L, drop = FALSE],
+                Lleft = as.matrix(vtransform(data[, vnames$L, drop = FALSE],
                     auxmetadata = auxmetadata,
-                    Lout = 'left'),
-                Lright = vtransform(data[, vnames$L, drop = FALSE],
+                    Lout = 'left')),
+                Lright = as.matrix(vtransform(data[, vnames$L, drop = FALSE],
                     auxmetadata = auxmetadata,
-                    Lout = 'right'),
-                Llatinit = vtransform(data[, vnames$L, drop = FALSE],
+                    Lout = 'right')),
+                Llatinit = as.matrix(vtransform(data[, vnames$L, drop = FALSE],
                     auxmetadata,
-                    Lout = 'init')
+                    Lout = 'init'))
             )
         },
         if (vn$O > 0) { # ordinal
@@ -1025,7 +1025,7 @@ inferpopulation <- function(
                 ), nrow = vn$D, ncol = nclusters)
                 ## square distances from datapoints
                 distances <- distances + apply(Dmeans, 2, function(ameans){
-                    colSums((t(datapoints$Dlat) - ameans)^2, na.rm = TRUE)
+                    colSums((t(constants$Dlatinit) - ameans)^2, na.rm = TRUE)
                 })
             }
             if (vn$L > 0) { # continuous open domain
@@ -1036,7 +1036,7 @@ inferpopulation <- function(
                 ), nrow = vn$L, ncol = nclusters)
                 ## square distances from datapoints
                 distances <- distances + apply(Lmeans, 2, function(ameans){
-                    colSums((t(datapoints$Llat) - ameans)^2, na.rm = TRUE)
+                    colSums((t(constants$Llatinit) - ameans)^2, na.rm = TRUE)
                 })
             }
 
@@ -1061,14 +1061,14 @@ inferpopulation <- function(
             }
             if (vn$D > 0) { # continuous open domain
                 Dmeans[, occupied] <- sapply(occupied, function(acluster){
-                    colMeans(datapoints$Dlat[which(K == acluster), , drop = FALSE],
+                    colMeans(constants$Dlatinit[which(K == acluster), , drop = FALSE],
                         na.rm = TRUE)
                 })
                 Dmeans[, -occupied] <- 0
             }
             if (vn$L > 0) { # continuous open domain
                 Lmeans[, occupied] <- sapply(occupied, function(acluster){
-                    colMeans(datapoints$Llat[which(K == acluster), , drop = FALSE],
+                    colMeans(constants$Llatinit[which(K == acluster), , drop = FALSE],
                         na.rm = TRUE)
                 })
                 Lmeans[, -occupied] <- 0
@@ -1226,7 +1226,6 @@ inferpopulation <- function(
         ## Timer
         timecount <- Sys.time()
 
-
 ##################################################
 #### NIMBLE SETUP
 ##################################################
@@ -1237,7 +1236,6 @@ inferpopulation <- function(
             data = datapoints,
             inits = initsfn()
         )
-
         Cfinitemixnimble <- compileNimble(finitemixnimble,
             showCompilerOutput = FALSE)
         gc() #garbage collection
@@ -1382,7 +1380,9 @@ inferpopulation <- function(
         ## print(confnimble$getUnsampledNodes())
         Cmcsampler <- compileNimble(mcsampler, resetFunctions = TRUE)
 
-        cat('\nSetup time', printtime(Sys.time() - timecount), '\n')
+        cat('\nSetup time',
+            printtime(difftime(Sys.time(), timecount, units = 'auto')),
+                '\n')
 
         ## Inform user that compilation is done, if core 1:
         if (acore == 1) {
@@ -1491,7 +1491,9 @@ inferpopulation <- function(
 
                 cat('\nCurrent time:',
                     strftime(as.POSIXlt(Sys.time()), '%Y-%m-%d %H:%M:%S'))
-                cat('\nMCMC time', printtime(Sys.time() - starttime), '\n')
+                cat('\nMCMC time',
+                    printtime(difftime(Sys.time(), starttime, units = 'auto')),
+                    '\n')
 
                 ## #### Remove iterations with non-finite values
                 ## ## old version
@@ -1648,7 +1650,8 @@ inferpopulation <- function(
                 rm(cleantraces)
 
                 cat('\nDiagnostics time',
-                    printtime(Sys.time() - diagntime), '\n')
+                    printtime(difftime(Sys.time(), diagntime, units = 'auto')),
+                    '\n')
 
                 if (is.null(allmcsamples)) {
                     ## chain just started
@@ -1913,11 +1916,12 @@ inferpopulation <- function(
             cat('\nCurrent time:', strftime(as.POSIXlt(Sys.time()),
                 '%Y-%m-%d %H:%M:%S'))
             cat('\nMCMC + diagnostics time',
-                printtime(Sys.time() - starttime), '\n')
+                printtime(difftime(Sys.time(), starttime, units = 'auto')),
+                '\n')
 
 #### Print estimated remaining time
-            remainingTime <- (Sys.time() - starttime) / achain *
-                (nchainspercore - achain + 1)
+            remainingTime <- difftime(Sys.time(), starttime, units = 'auto') /
+                achain * (nchainspercore - achain + 1)
             if (is.finite(remainingTime) && remainingTime > 0) {
                 print2user(
                     paste0(
@@ -1937,7 +1941,9 @@ inferpopulation <- function(
         ##
         cat('\nCurrent time:',
             strftime(as.POSIXlt(Sys.time()), '%Y-%m-%d %H:%M:%S'))
-        cat('\nTotal time', printtime(Sys.time() - starttime), '\n')
+        cat('\nTotal time',
+            printtime(difftime(Sys.time(), starttime, units = 'auto')),
+                '\n')
 
         ## output information from a core,
         ## passed to the originally calling process
@@ -2142,7 +2148,7 @@ inferpopulation <- function(
         parallel = TRUE, silent = TRUE
     )
 
-    totalfinaltime <- Sys.time() - timestart0
+    totalfinaltime <- difftime(Sys.time(), timestart0, units = 'auto')
     cat('\nTotal computation time:', printtime(totalfinaltime), '\n')
     cat('Average total time per chain:', printtime(totalfinaltime/nchains), '\n')
 
