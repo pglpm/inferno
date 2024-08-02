@@ -11,8 +11,8 @@
   nsamples <- 2^13
   bqsamples <- foreach(sd=sdlist, .combine=c)%do%{
     cat('\r',sd,'    ')
-    ##tfun <- readRDS(paste0('../exclude/proto_package/xQfunction3600_',sd,'.rds'))
-    ## itfun <- readRDS(paste0('../exclude/proto_package/xinvQfunction3600_',sd,'.rds'))
+    ##tfun <- readRDS(paste0('../development/proto_package/xQfunction3600_',sd,'.rds'))
+    ## itfun <- readRDS(paste0('../development/proto_package/xinvQfunction3600_',sd,'.rds'))
     list(
       apply(sapply(1:nsamples, function(i){
     alpha <- 2^(minalpha -1L +
@@ -38,7 +38,7 @@
 ## Mean       -2.722123   0.00693539    2.753016 5.47399e+00 4.04379e+00
 ## 3rd Qu.    -0.422418   0.23549166    1.315688 2.39788e+00 1.76707e+00
 ## Max.        1.100349  25.46162442 2428.086709 4.88279e+03 3.61999e+03
-## 
+##
 ## $`0.75`
 ##                 25%         50%        75%         IQR         MAD
 ## Min.    -888.742473 -4.88716057  -1.910988 7.61462e-04 5.64744e-04
@@ -47,7 +47,7 @@
 ## Mean      -2.313046  0.00638922   2.318621 4.63064e+00 3.40412e+00
 ## 3rd Qu.   -0.441822  0.34874156   1.471164 2.54571e+00 1.85910e+00
 ## Max.       2.217239  6.67591747 891.189039 1.77915e+03 1.31827e+03
-## 
+##
 ## $`1`
 ##                  25%         50%         75%         IQR         MAD
 ## Min.    -2531.134508 -3.27826562   -2.966249 6.70205e-05 4.96438e-05
@@ -56,7 +56,7 @@
 ## Mean       -2.395823  0.00793756    2.418870 4.81388e+00 3.52074e+00
 ## 3rd Qu.    -0.448847  0.46627767    1.700507 2.80022e+00 2.03974e+00
 ## Max.        3.005248  3.75440255 2451.168681 4.98170e+03 3.69296e+03
-## 
+##
 ## $`2`
 ##                  25%         50%         75%         IQR         MAD
 ## Min.    -2228.716903 -7.11410269   -6.864767 1.43381e-04 1.06304e-04
@@ -65,7 +65,7 @@
 ## Mean       -2.834768 -0.00818035    2.851680 5.68546e+00 4.06740e+00
 ## 3rd Qu.    -0.463697  0.94014301    2.573440 4.03026e+00 2.81677e+00
 ## Max.        6.508074 10.50531107 2307.416423 4.52000e+03 3.35442e+03
-## 
+##
 ## Id
 ## $`3`
 ##                  25%         50%         75%         IQR         MAD
@@ -75,7 +75,7 @@
 ## Mean       -3.308923  -0.0368181    3.236807 6.54454e+00 4.56643e+00
 ## 3rd Qu.    -0.354466   1.4387305    3.500002 5.32415e+00 3.55291e+00
 ## Max.        8.965375  14.9074137 1747.839160 3.60726e+03 2.67938e+03
-## 
+##
 ## $`5`
 ##                 25%         50%        75%         IQR         MAD
 ## Min.    -598.583898 -19.5330165 -18.688365 1.27167e-04 9.43895e-05
@@ -100,7 +100,7 @@
   nsamples <- 2^13
   bqsamples <- foreach(sd=sdlist, .combine=c)%do%{
     cat('\r',sd,'    ')
-    ##tfun <- readRDS(paste0('../exclude/proto_package/xQfunction3600_',sd,'.rds'))
+    ##tfun <- readRDS(paste0('../development/proto_package/xQfunction3600_',sd,'.rds'))
     itfun <- readRDS(paste0('xinvQfunction3600_',sd,'.rds'))
     list(
       apply(sapply(1:nsamples, function(i){
@@ -127,7 +127,7 @@ cat('\n')
 ## Mean    0.270186 0.49958806 0.730574 0.460341181 0.304385445
 ## 3rd Qu. 0.345728 0.58647375 0.827703 0.613273957 0.410733775
 ## Max.    0.839770 0.92887774 1.000000 1.000000000 0.724931767
-## 
+##
 ## $`0.75`
 ##                 25%      50%      75%         IQR         MAD
 ## Min.    0.000305386 0.110495 0.129007 0.000358519 0.000265973
@@ -136,7 +136,7 @@ cat('\n')
 ## Mean    0.285047180 0.501362 0.715938 0.430845648 0.278743656
 ## 3rd Qu. 0.368953532 0.604742 0.825069 0.578142895 0.382263304
 ## Max.    0.881607153 0.957186 0.999678 0.999372456 0.735049190
-## 
+##
 ## $`1`
 ##              25%       50%      75%          IQR          MAD
 ## Min.    0.000000 0.0838557 0.100599 0.0000921514 0.0000683179
@@ -145,7 +145,7 @@ cat('\n')
 ## Mean    0.292924 0.4982269 0.702899 0.4099297951 0.2621473407
 ## 3rd Qu. 0.385255 0.6139892 0.827434 0.5614411662 0.3666670841
 ## Max.    0.921052 0.9287755 1.000000 1.0000000000 0.7378825357
-## 
+##
 ## $`2`
 ##              25%       50%       75%        IQR          MAD
 ## Min.    0.000000 0.0402894 0.0489904 0.00019374 0.0000155096
@@ -154,7 +154,7 @@ cat('\n')
 ## Mean    0.321664 0.4982858 0.6763986 0.35469083 0.2196215338
 ## 3rd Qu. 0.436445 0.6421251 0.8270260 0.50525526 0.3206806232
 ## Max.    0.952641 0.9577334 1.0000000 1.00000000 0.7344296937
-## 
+##
 ## Q
 ## $`3`
 ##              25%        50%       75%        IQR          MAD
@@ -164,7 +164,7 @@ cat('\n')
 ## Mean    0.336147 0.49819724 0.6613702 0.32518154 0.1957611123
 ## 3rd Qu. 0.459672 0.65108102 0.8227428 0.48216344 0.2988670003
 ## Max.    0.971607 0.97241515 1.0000000 1.00000000 0.7388856264
-## 
+##
 ## $`5`
 ##              25%        50%       75%          IQR          MAD
 ## Min.    0.000000 0.00409817 0.0149372 0.0000599431 0.0000382326
@@ -188,7 +188,7 @@ cat('\n')
   nsamples <- 2^13
   bqsamples <- foreach(sd=sdlist, .combine=c)%do%{
     cat('\r',sd,'    ')
-    ##tfun <- readRDS(paste0('../exclude/proto_package/xQfunction3600_',sd,'.rds'))
+    ##tfun <- readRDS(paste0('../development/proto_package/xQfunction3600_',sd,'.rds'))
     itfun <- exp
     list(
       apply(sapply(1:nsamples, function(i){
@@ -215,7 +215,7 @@ cat('\n')
 ## Mean    0.505527 1.08479e+00      Inf         Inf 9.96471e-01
 ## 3rd Qu. 0.654784 1.26887e+00 3.600595 3.121903537 1.30287e+00
 ## Max.    8.711117 1.82051e+01      Inf         Inf 2.69909e+01
-## 
+##
 ## $`0.75`
 ##              25%         50%       75%          IQR         MAD
 ## Min.    0.000000 6.53324e-02 0.0828285 0.0000583159 4.29604e-05
@@ -224,7 +224,7 @@ cat('\n')
 ## Mean    0.515824 2.97009e+07       Inf          Inf 4.40346e+07
 ## 3rd Qu. 0.635812 1.41393e+00 4.3792231 3.7565377249 1.47154e+00
 ## Max.    7.651265 2.43310e+11       Inf          Inf 3.60731e+11
-## 
+##
 ## $`1`
 ##               25%        50%       75%        IQR          MAD
 ## Min.     0.000000  0.0184723 0.0200941 0.00130665  0.000951792
@@ -233,7 +233,7 @@ cat('\n')
 ## Mean     0.567280  1.3593252       Inf        Inf  1.329931841
 ## 3rd Qu.  0.625702  1.5850092 5.3642381 4.70179412  1.664814094
 ## Max.    34.466069 34.7956124       Inf        Inf 29.377214311
-## 
+##
 ## $`2`
 ##                  25%         50%         75%          IQR         MAD
 ## Min.       0.0000000 4.38489e-04  0.00167189  0.000559134 1.67578e-04
@@ -242,7 +242,7 @@ cat('\n')
 ## Mean       1.8147808 1.84911e+02         Inf          Inf 2.71756e+02
 ## 3rd Qu.    0.6385548 2.65251e+00 13.71913282 12.253952219 2.83433e+00
 ## Max.    2507.5984353 1.47647e+06         Inf          Inf 2.18902e+06
-## 
+##
 ## Log
 ## $`3`
 ##                 25%         50%         75%         IQR         MAD
@@ -252,7 +252,7 @@ cat('\n')
 ## Mean    2.47405e+01 6.43355e+01         Inf         Inf 6.68471e+01
 ## 3rd Qu. 7.14161e-01 4.25040e+00 3.36054e+01 2.92318e+01 4.50420e+00
 ## Max.    1.30007e+05 3.30255e+05         Inf         Inf 3.66165e+05
-## 
+##
 ## $`5`
 ##                 25%         50%         75%         IQR         MAD
 ## Min.    0.00000e+00 2.08208e-09 2.72504e-09 1.12488e-09 7.99765e-10
@@ -348,8 +348,8 @@ nsamples <- 2^14
   nsamples <- 2^13
   bqsamples <- foreach(sd=sdlist, .combine=c)%do%{
     cat('\r',sd,'    ')
-    ##tfun <- readRDS(paste0('../exclude/proto_package/xQfunction3600_',sd,'.rds'))
-    itfun <- readRDS(paste0('../exclude/proto_package/xinvQfunction3600_',sd,'.rds'))
+    ##tfun <- readRDS(paste0('../development/proto_package/xQfunction3600_',sd,'.rds'))
+    itfun <- readRDS(paste0('../development/proto_package/xinvQfunction3600_',sd,'.rds'))
     list(
       apply(sapply(1:nsamples, function(i){
     alpha <- 2^(minalpha -1L +
@@ -375,7 +375,7 @@ nsamples <- 2^14
 
 
 
-  
+
 
     cat('\n')
   sd <- 3
@@ -424,8 +424,8 @@ nsamples <- 2^13
   nsamples <- 2^4
   xgrid <- seq(0,1,length.out=512)
   for(sd in sdlist){
-    tfun <- readRDS(paste0('../exclude/proto_package/xQfunction3600_',sd,'.rds'))
-    dtfun <- readRDS(paste0('../exclude/proto_package/xDQfunction3600_',sd,'.rds'))
+    tfun <- readRDS(paste0('../development/proto_package/xQfunction3600_',sd,'.rds'))
+    dtfun <- readRDS(paste0('../development/proto_package/xDQfunction3600_',sd,'.rds'))
   pdff(paste0('justatestquantiles_',sd))
   for(i in 1:nsamples){
     alpha <- 2^(minalpha -1L +
@@ -440,7 +440,7 @@ nsamples <- 2^13
     }
 
 
-  
+
   pdff('justatest')
   xgrid <- seq(-5,5,length.out=128)
      cat('\n')
