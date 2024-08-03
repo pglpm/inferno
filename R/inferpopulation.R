@@ -1063,17 +1063,17 @@ inferpopulation <- function(
                     colSums((t(constants$Llatinit) - ameans)^2, na.rm = TRUE)
                 })
             }
-            if (vn$B > 0) {
-                Bprobs <- matrix(rbeta(
-                    n = vn$B * nclusters,
-                    shape1 = Bshapelo,
-                    shape2 = Bshapehi,
-                    ), nrow = vn$B, ncol = nclusters)
-                ## square distances from datapoints
-                distances <- distances + apply(Bprobs, 2, function(ameans){
-                    colSums((t(datapoints$Bdata) - ameans)^2, na.rm = TRUE)
-                })
-            }
+            ## if (vn$B > 0) {
+            ##     Bprobs <- matrix(rbeta(
+            ##         n = vn$B * nclusters,
+            ##         shape1 = Bshapelo,
+            ##         shape2 = Bshapehi,
+            ##         ), nrow = vn$B, ncol = nclusters)
+            ##     ## square distances from datapoints
+            ##     distances <- distances + apply(Bprobs, 2, function(ameans){
+            ##         colSums((t(datapoints$Bdata) - ameans)^2, na.rm = TRUE)
+            ##     })
+            ## }
 
             ## assign datapoints to cluster with closest centre
             K <- apply(distances, 1, which.min)
@@ -1108,13 +1108,13 @@ inferpopulation <- function(
                 })
                 Lmeans[, -occupied] <- 0
             }
-            if (vn$B > 0) {
-                Bprobs[, occupied] <- sapply(occupied, function(acluster){
-                    colMeans(datapoints$Bdata[which(K == acluster), , drop = FALSE],
-                        na.rm = TRUE)
-                })
-                Bprobs[, -occupied] <- 0.5
-            }
+            ## if (vn$B > 0) {
+            ##     Bprobs[, occupied] <- sapply(occupied, function(acluster){
+            ##         colMeans(datapoints$Bdata[which(K == acluster), , drop = FALSE],
+            ##             na.rm = TRUE)
+            ##     })
+            ##     Bprobs[, -occupied] <- 0.5
+            ## }
             ## Alpha <- sample(1:nalpha, 1, prob = constants$probalpha0, replace = TRUE)
             ## W <- c(rep(rempoints, minpoints), rep(1, nclusters - minpoints))
             ## W <- W/sum(W)
@@ -1254,7 +1254,8 @@ inferpopulation <- function(
                 outlist <- c(
                     outlist,
                     list(
-                        Bprob = Bprobs # matrix(0.5, nrow = vn$B, ncol = nclusters)
+                        ## Bprob = Bprobs
+                        Bprob = matrix(0.5, nrow = vn$B, ncol = nclusters)
                     )
                 )
             }
