@@ -41,6 +41,7 @@ buildauxmetadata <- function(data, metadata, Dthreshold = Dthreshold) {
         ordinal <- NA
         transf <- 'identity' # temporary
         datavalues <- minfo[grep('^V[0-9]+$', names(minfo))]
+
         if (minfo$type == 'binary') {
             mcmctype <- 'B'
             id <- idB
@@ -69,35 +70,6 @@ buildauxmetadata <- function(data, metadata, Dthreshold = Dthreshold) {
             ##   mctest2 <- 2
             ##   mctest3 <- 2
             ## }
-        } else if (minfo$type == 'ordinal') {
-            ## nominal variate
-            mcmctype <- 'O'
-            id <- idO
-            idO <- idO + 1L
-            Nvalues <- minfo$Nvalues
-            step <- 0.5
-            domainmin <- 1 # Nimble index categorical from 1
-            domainmax <- Nvalues
-            censormin <- -Inf
-            censormax <- +Inf
-            tcensormin <- -Inf
-            tcensormax <- +Inf
-            tlocation <- 0
-            tscale <- 1
-            plotmin <- NA
-            plotmax <- NA
-            ## if(!is.null(data)) {
-            ##   mctest1 <- match(names(which.min(table(x))), datavalues)
-            ##   mctest2 <- match(names(which.max(table(x))), datavalues)
-            ##   mctest3 <- match(names(which.min(table(x))), datavalues)
-            ## } else {
-            ## mctest1 <- 1
-            ## mctest2 <- round(minfo$Nvalues/2)
-            ## mctest3 <- minfo$Nvalues
-            ## }
-            ## mctest1 <- 1
-            ## mctest2 <- round(Nvalues/2)
-            ## mctest3 <- Nvalues
         } else if (minfo$type == 'nominal') {
             ## nominal variate
             mcmctype <- 'N'
@@ -127,7 +99,40 @@ buildauxmetadata <- function(data, metadata, Dthreshold = Dthreshold) {
             ## mctest1 <- 1
             ## mctest2 <- round(Nvalues/2)
             ## mctest3 <- Nvalues
-        } else if (minfo$type == 'latent') {
+        } else if (minfo$type == 'ordinal' &&
+                   !all(is.na(datavalues)) &&
+                   minfo$Nvalues <= 10) {
+            ## nominal variate
+            mcmctype <- 'O'
+            id <- idO
+            idO <- idO + 1L
+            Nvalues <- minfo$Nvalues
+            step <- 0.5
+            domainmin <- 1 # Nimble index categorical from 1
+            domainmax <- Nvalues
+            censormin <- -Inf
+            censormax <- +Inf
+            tcensormin <- -Inf
+            tcensormax <- +Inf
+            tlocation <- 0
+            tscale <- 1
+            plotmin <- NA
+            plotmax <- NA
+            ## if(!is.null(data)) {
+            ##   mctest1 <- match(names(which.min(table(x))), datavalues)
+            ##   mctest2 <- match(names(which.max(table(x))), datavalues)
+            ##   mctest3 <- match(names(which.min(table(x))), datavalues)
+            ## } else {
+            ## mctest1 <- 1
+            ## mctest2 <- round(minfo$Nvalues/2)
+            ## mctest3 <- minfo$Nvalues
+            ## }
+            ## mctest1 <- 1
+            ## mctest2 <- round(Nvalues/2)
+            ## mctest3 <- Nvalues
+        } else if (minfo$type == 'ordinal' &&
+                   all(is.na(datavalues))  &&
+                   minfo$Nvalues > 10) {
             ## old treatment of ordinal variate
             ## to be deleted in the future, if not used
             mcmctype <- 'L'
@@ -184,6 +189,9 @@ buildauxmetadata <- function(data, metadata, Dthreshold = Dthreshold) {
             ##     min(x[x >= Q3])
             ##   }
             ## }
+        } else if (minfo$type == 'ordinal') {
+            stop('\nDiscrepancy with ordinal variate ', name, '\n')
+
         } else if (minfo$type == 'continuous') { # continuous variate (R,C,D)
             Nvalues <- +Inf
 
@@ -488,6 +496,7 @@ buildauxmetadata <- function(data, metadata, Dthreshold = Dthreshold) {
         )
     }
 
+    ## print(auxmetadata) # for debugging
     auxmetadata
     ## if (!missing(file) && file != FALSE) { # must save to file
     ##   if (is.character(file)) {
