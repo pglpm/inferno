@@ -173,7 +173,8 @@ plotFsamples <- function(
                 hleft <- sum(!dleft) / length(datum)
                 hright <- sum(!dright) / length(datum)
 
-                ymax <- max(ymax, histo$density)
+                histo$density <- histo$density/max(histo$density) * ymax
+                ## ymax <- max(ymax, histo$density)
             }
 
             ## Plot frequency samples

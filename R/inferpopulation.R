@@ -46,6 +46,7 @@
 #'   more frequently during sampling and plots its trace and histogram at
 #'   the end. Keeping it to FALSE (default) saves a little computation
 #'   time.
+#' @param hyperparams list of hyperparameters (used for debugging)
 #'
 #' @return name of directory containing output files, or Fdistribution object,
 #'   or empty
@@ -78,7 +79,28 @@ inferpopulation <- function(
     thinning = NULL,
     plottraces = TRUE,
     showKtraces = FALSE,
-    showAlphatraces = FALSE
+    showAlphatraces = FALSE,
+    hyperparams = list(
+        nclusters = 64,
+        minalpha = -1,
+        maxalpha = 1,
+        byalpha = 1,
+        Rshapelo = 0.5,
+        Rshapehi = 0.5,
+        Rvarm1 = 3^2,
+        Cshapelo = 0.5,
+        Cshapehi = 0.5,
+        Cvarm1 = 3^2,
+        Dshapelo = 0.5,
+        Dshapehi = 0.5,
+        Dvarm1 = 3^2,
+        Lshapelo = 0.5,
+        Lshapehi = 0.5,
+        Lvarm1 = 3^2,
+        Bshapelo = 1,
+        Bshapehi = 1,
+        Dthreshold = 1
+    )
 ) {
 
 #### Start timer
@@ -371,7 +393,9 @@ inferpopulation <- function(
     cat('Calculating auxiliary metadata\n')
     auxmetadata <- buildauxmetadata(
         data = (if (is.null(auxdata)) {data} else {auxdata}),
-        metadata = metadata)
+        metadata = metadata,
+        Dthreshold = hyperparams$Dthreshold)
+    print(auxmetadata)
 
 #### Output-folder setup
     if (missing(outputdir) || (is.logical(outputdir) && outputdir)) {
@@ -541,24 +565,24 @@ inferpopulation <- function(
 
 #### Hyperparameters and other internal parameters
     ## source('hyperparameters.R') doesn't seem to work
-    nclusters <- 64L
-    minalpha <- -4
-    maxalpha <- 4
-    byalpha <- 1
-    Rshapelo <- 0.5
-    Rshapehi <- 0.5
-    Rvarm1 <- 3L^2L
-    Cshapelo <- 0.5
-    Cshapehi <- 0.5
-    Cvarm1 <- 3L^2L
-    Dshapelo <- 0.5
-    Dshapehi <- 0.5
-    Dvarm1 <- 3L^2L
-    Lshapelo <- 0.5
-    Lshapehi <- 0.5
-    Lvarm1 <- 3L^2L
-    Bshapelo <- 1L
-    Bshapehi <- 1L
+    nclusters <- hyperparams$nclusters
+    minalpha <- hyperparams$minalpha
+    maxalpha <- hyperparams$maxalpha
+    byalpha <- hyperparams$byalpha
+    Rshapelo <- hyperparams$Rshapelo
+    Rshapehi <- hyperparams$Rshapehi
+    Rvarm1 <- hyperparams$Rvarm1
+    Cshapelo <- hyperparams$Cshapelo
+    Cshapehi <- hyperparams$Cshapehi
+    Cvarm1 <- hyperparams$Cvarm1
+    Dshapelo <- hyperparams$Dshapelo
+    Dshapehi <- hyperparams$Dshapehi
+    Dvarm1 <- hyperparams$Dvarm1
+    Lshapelo <- hyperparams$Lshapelo
+    Lshapehi <- hyperparams$Lshapehi
+    Lvarm1 <- hyperparams$Lvarm1
+    Bshapelo <- hyperparams$Bshapelo
+    Bshapehi <- hyperparams$Bshapehi
 
     nalpha <- length(seq(minalpha, maxalpha, by = byalpha))
     npoints <- nrow(data)
@@ -719,6 +743,7 @@ inferpopulation <- function(
         },
         if (vn$O > 0) { # ordinal
             Omaxn <- max(auxmetadata[auxmetadata$mcmctype == 'O', 'Nvalues'])
+            str(Omaxn)
             Oalpha0 <- matrix(1e-100, nrow = vn$O, ncol = Omaxn)
             for (avar in seq_along(vnames$O)) {
                 nvalues <- auxmetadata[auxmetadata$name == vnames$O[avar], 'Nvalues']
@@ -781,7 +806,7 @@ inferpopulation <- function(
                 Daux = as.matrix(vtransform(data[, vnames$D, drop = FALSE],
                     auxmetadata = auxmetadata,
                     Dout = 'aux'))
-                )
+            )
         },
         if (vn$L > 0) { # latent
             list(
@@ -1039,6 +1064,17 @@ inferpopulation <- function(
                     colSums((t(constants$Llatinit) - ameans)^2, na.rm = TRUE)
                 })
             }
+            if (vn$B > 0) {
+                Bprobs <- matrix(rbeta(
+                    n = vn$B * nclusters,
+                    shape1 = Bshapelo,
+                    shape2 = Bshapehi,
+                    ), nrow = vn$B, ncol = nclusters)
+                ## square distances from datapoints
+                distances <- distances + apply(Bprobs, 2, function(ameans){
+                    colSums((t(datapoints$Bdata) - ameans)^2, na.rm = TRUE)
+                })
+            }
 
             ## assign datapoints to cluster with closest centre
             K <- apply(distances, 1, which.min)
@@ -1073,7 +1109,13 @@ inferpopulation <- function(
                 })
                 Lmeans[, -occupied] <- 0
             }
-
+            if (vn$B > 0) {
+                Bprobs[, occupied] <- sapply(occupied, function(acluster){
+                    colMeans(datapoints$Bdata[which(K == acluster), , drop = FALSE],
+                        na.rm = TRUE)
+                })
+                Bprobs[, -occupied] <- 0.5
+            }
             ## Alpha <- sample(1:nalpha, 1, prob = constants$probalpha0, replace = TRUE)
             ## W <- c(rep(rempoints, minpoints), rep(1, nclusters - minpoints))
             ## W <- W/sum(W)
@@ -1213,9 +1255,7 @@ inferpopulation <- function(
                 outlist <- c(
                     outlist,
                     list(
-                        Bprob = matrix(0.5,
-                            nrow = vn$B, ncol = nclusters
-                        )
+                        Bprob = Bprobs # matrix(0.5, nrow = vn$B, ncol = nclusters)
                     )
                 )
             }
@@ -1279,7 +1319,7 @@ inferpopulation <- function(
 
         targetslist <- sapply(confnimble$getSamplers(), function(xx) xx$target)
         nameslist <- sapply(confnimble$getSamplers(), function(xx) xx$name)
-        ## cat('\n******** NAMESLIST', nameslist, '\n')
+        ## cat('\nNAMESLIST', nameslist, '\n')
 
         ## replace Alpha's cat-sampler with slice
         if (Alphatoslice &&
@@ -1364,13 +1404,13 @@ inferpopulation <- function(
                 )
             }
             ## ## Uncomment for debugging
-            ## cat('\n********NEW ORDER',neworder,'\n')
+            ## cat('\nNEW ORDER',neworder,'\n')
             confnimble$setSamplerExecutionOrder(c(setdiff(
                 confnimble$getSamplerExecutionOrder(),
                 neworder
             ), neworder))
-        ## cat('\nEX3\n')
-        ## confnimble$printSamplers(executionOrder=TRUE)
+            ## cat('\nEX3\n')
+            ## confnimble$printSamplers(executionOrder=TRUE)
 
         }
 
@@ -1382,7 +1422,7 @@ inferpopulation <- function(
 
         cat('\nSetup time',
             printtime(difftime(Sys.time(), timecount, units = 'auto')),
-                '\n')
+            '\n')
 
         ## Inform user that compilation is done, if core 1:
         if (acore == 1) {
@@ -1943,7 +1983,7 @@ inferpopulation <- function(
             strftime(as.POSIXlt(Sys.time()), '%Y-%m-%d %H:%M:%S'))
         cat('\nTotal time',
             printtime(difftime(Sys.time(), starttime, units = 'auto')),
-                '\n')
+            '\n')
 
         ## output information from a core,
         ## passed to the originally calling process
@@ -2079,16 +2119,16 @@ inferpopulation <- function(
                     'min: ', signif(min(thisdiagn), 2),
                     '  max: ', signif(max(thisdiagn), 2),
                     '  mean: ', signif(mean(thisdiagn), 2)
-                    )
+                )
                 ## paste(signif(range(thisdiagn), 3), collapse = ' to ')
             } else {
                 signif(thisdiagn, 3)
             },
-        '\n')
+            '\n')
     }
 
     ## Plot various info and traces
-    cat('\nPlotting final Monte Carlo traces and marginal samples.\n')
+    cat('\nPlotting final Monte Carlo traces and marginal samples...\n')
 
     ##
     ## colpalette <- seq_len(ncol(traces))

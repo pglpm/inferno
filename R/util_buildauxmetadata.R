@@ -2,9 +2,12 @@
 #'
 #' @param data data.frame object
 #' @param metadata data.frame object
+#' @param Dthreshold positive number: threshold of fraction
+#'   of unique datapoints to total datapoints, to decide
+#'   whether to treat a rounded variate as continuous
 #'
 #' @return an auxmetadata data.frame object
-buildauxmetadata <- function(data, metadata) {
+buildauxmetadata <- function(data, metadata, Dthreshold = Dthreshold) {
 
     ## In the internal, rescaled representation,
     ## with the SD of the means equal to 3 and
@@ -20,8 +23,8 @@ buildauxmetadata <- function(data, metadata) {
     ## the factor "4" is instead "1" at the moment.
     ## This need to be studied some more
     iqrfactor <- 2
-                                        #  iqrfactorLog <- 2 * 6
-                                        #  iqrfactorQ <- 2 * 0.3
+    ##  iqrfactorLog <- 2 * 6
+    ##  iqrfactorQ <- 2 * 0.3
 
     idR <- idC <- idD <- idL <- idB <- idO <- idN <- 1L
 
@@ -130,37 +133,39 @@ buildauxmetadata <- function(data, metadata) {
             mcmctype <- 'L'
             id <- idL
             idL <- idL + 1L
-            transf <- 'Q'
-            ordinal <- TRUE
             Nvalues <- minfo$Nvalues
-            step <- 0.5
             domainmin <- minfo$domainmin
             domainmax <- minfo$domainmax
-            censormin <- -Inf
-            censormax <- +Inf
-            tcensormin <- -Inf
-            tcensormax <- +Inf
+            plotmin <- (if(is.finite(minfo$plotmin)){minfo$plotmin}else{minfo$domainmin})
+            plotmax <- (if(is.finite(minfo$plotmax)){minfo$plotmax}else{minfo$domainmax})
+            step <- 0.5
             ## datavalues <- as.vector(minfo[paste0('V',1:Nvalues)], mode='character')
             olocation <- (Nvalues * domainmin - domainmax) / (Nvalues - 1)
             oscale <- (domainmax - domainmin) / (Nvalues - 1)
+            transf <- 'Q'
             if(!is.null(data)) {
                 tlocation <- median(util_Q(
-                    round((x - olocation) / oscale) / Nvalues
+                    (round((x - olocation) / oscale) - 0.5) / Nvalues
                 ))
                 tscale <- mad(util_Q(
-                    round((x - olocation) / oscale) / Nvalues
+                    (round((x - olocation) / oscale) - 0.5) / Nvalues
                 )) / iqrfactor
             } else {
                 tlocation <- 0
-                tscale <- 1 / iqrfactor
+                tscale <- 1
             }
+            ## tlocation <- minfo$centralvalue
+            ## tscale <- abs(minfo$highvalue - minfo$lowvalue) / iqrfactor
+            closeddomain <- FALSE
+            censormin <- domainmin
+            censormax <- domainmax
+            tcensormin <- (censormin - tlocation) / tscale
+            tcensormax <- (censormax - tlocation) / tscale
             ## tlocation <- Qf(round((minfo$centralvalue - olocation) / oscale) / Nvalues)
             ## tscale <- abs(
             ##   Qf(round((minfo$highvalue - olocation) / oscale) / Nvalues) -
             ##   Qf(round((minfo$lowvalue - olocation) / oscale) / Nvalues)
             ## ) / iqrfactorQ
-            plotmin <- (if(is.finite(minfo$plotmin)){minfo$plotmin}else{minfo$domainmin})
-            plotmax <- (if(is.finite(minfo$plotmax)){minfo$plotmax}else{minfo$domainmax})
             ## Q1 <- mctest1 <- quantile(x, probs = 0.25, type = 6)
             ## Q2 <- mctest2 <- quantile(x, probs = 0.5, type = 6)
             ## Q3 <- mctest3 <- quantile(x, probs = 0.75, type = 6)
@@ -192,7 +197,7 @@ buildauxmetadata <- function(data, metadata) {
             ## no latent-variable representation is needed anyway
             ## if the datapoints are distinct in higher dimension
             if(step > 0 &&
-               (is.null(data) || nrow(unique(data))/nrow(data) > 0.5)) {
+               (is.null(data) || nrow(unique(data))/nrow(data) > Dthreshold)) {
                 step <- 0
             }
 

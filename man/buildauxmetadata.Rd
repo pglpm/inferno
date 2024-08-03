@@ -4,12 +4,16 @@
 \alias{buildauxmetadata}
 \title{Build preliminary metadata flie}
 \usage{
-buildauxmetadata(data, metadata)
+buildauxmetadata(data, metadata, Dthreshold = Dthreshold)
 }
 \arguments{
 \item{data}{data.frame object}
 
 \item{metadata}{data.frame object}
+
+\item{Dthreshold}{positive number: threshold of fraction
+of unique datapoints to total datapoints, to decide
+whether to treat a rounded variate as continuous}
 }
 \value{
 an auxmetadata data.frame object
