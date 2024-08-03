@@ -61,7 +61,7 @@ buildmetadata <- function(
         )
     )[-1,]
 
-
+    cat('\n')
     variatelist <- colnames(data)
     if(!is.null(includevrt)) {
         variatelist <- intersect(variatelist, includevrt)
@@ -77,7 +77,7 @@ buildmetadata <- function(
         uniquex <- length(unique(x))
         ## if this variate has only one value, then it bears no information
         if (uniquex <= 1) {
-            message('\nWARNING: variate ', name,
+            message('WARNING: variate "', name, '"',
                 ' does not have at least two distinct values.',
                 '\nDiscarded because non-informative\n')
             next
@@ -139,14 +139,14 @@ buildmetadata <- function(
             names(datavalues) <- paste0('V', 1:Nvalues)
 
         } else if (uniquex <= 10) {
-            ## Ordinal variate? (few distinct values, even if numeric)
+            ## Ordinal variate with few numeric values?
             type <- 'ordinal'
             Nvalues <- uniquex
             rounding <- NA
             domainmin <- NA
             domainmax <- NA
-            minincluded <- TRUE
-            maxincluded <- TRUE
+            minincluded <- NA
+            maxincluded <- NA
             ## lowvalue <- NA
             ## centralvalue <- NA
             ## highvalue <- NA
@@ -154,6 +154,25 @@ buildmetadata <- function(
             plotmax <- NA
             datavalues <- sort(as.character(unique(x)))
             names(datavalues) <- paste0('V', 1:Nvalues)
+
+        } else if (jumpquantum >= 1) {
+            ## Ordinal variate with many numeric values?
+            message('WARNING: please check variate "', name, '":',
+                '\nit seems ordinal, but it could also be',
+                ' a rounded continous variate\n')
+            type <- 'ordinal'
+            Nvalues <- uniquex
+            rounding <- jumpquantum
+            domainmin <- datamin
+            domainmax <- datamax
+            minincluded <- NA
+            maxincluded <- NA
+            ## lowvalue <- NA
+            ## centralvalue <- NA
+            ## highvalue <- NA
+            plotmin <- NA
+            plotmax <- NA
+            datavalues <- NULL
 
         } else {
             ## The variate seems continuous
@@ -206,12 +225,12 @@ buildmetadata <- function(
             }
 
 #### Consider subcases for rounding
-            ## Variate has integer values, it's possibly ordinal
-            if (jumpquantum >= 1) {
-                message('\nNOTE: variate ', name, ' might be ordinal,\n',
-                    'but is treated as continuous and rounded\n',
-                    'owing to its large range of values.\n')
-            }
+            ## ## Variate has integer values, it's possibly ordinal
+            ## if (jumpquantum >= 1) {
+            ##     message('\nNOTE: variate ', name, ' might be ordinal,\n',
+            ##         'but is treated as continuous and rounded\n',
+            ##         'owing to its large range of values.\n')
+            ## }
 
             if (!(
                 jumpquantum / rangex < 1e-5 || # no visible gaps between values

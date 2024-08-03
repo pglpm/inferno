@@ -20,9 +20,9 @@ inferpopulation(
   appendinfo = TRUE,
   output = "directory",
   subsampledata = NULL,
-  niterini = 1024,
-  miniter = 3600,
-  maxiter = +Inf,
+  startupMCiterations = 3600,
+  minMCiterations = 0,
+  maxMCiterations = +Inf,
   maxhours = +Inf,
   ncheckpoints = NULL,
   relerror = 0.05,
@@ -52,9 +52,9 @@ inferpopulation(
   appendinfo = TRUE,
   output = "directory",
   subsampledata = NULL,
-  niterini = 1024,
-  miniter = 3600,
-  maxiter = +Inf,
+  startupMCiterations = 3600,
+  minMCiterations = 0,
+  maxMCiterations = +Inf,
   maxhours = +Inf,
   ncheckpoints = NULL,
   relerror = 0.05,
@@ -84,9 +84,9 @@ inferpopulation(
   appendinfo = TRUE,
   output = "directory",
   subsampledata = NULL,
-  niterini = 1024,
-  miniter = 3600,
-  maxiter = +Inf,
+  startupMCiterations = 3600,
+  minMCiterations = 0,
+  maxMCiterations = +Inf,
   maxhours = +Inf,
   ncheckpoints = NULL,
   relerror = 0.05,
@@ -142,11 +142,11 @@ anything else, no output}
 
 \item{subsampledata}{Numeric: use only a subsample of the datapoints in 'data'}
 
-\item{niterini}{Number of initial (burn-in) MC iterations}
+\item{startupMCiterations}{Number of initial (burn-in) MC iterations}
 
-\item{miniter}{Minimum number of MC iterations to be done}
+\item{minMCiterations}{Minimum number of MC iterations to be done}
 
-\item{maxiter}{Maximum number of MC iterations}
+\item{maxMCiterations}{Maximum number of MC iterations}
 
 \item{maxhours}{Maximum (approximately) time in hours for MC computation}
 
