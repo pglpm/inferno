@@ -385,8 +385,8 @@ vtransform <- function(
                     ## output is in range 1 to Nvalues
                     datum <- round((datum - olocation) / oscale)
 
-                    datum[is.na(datum)] <- xinfo$Nvalues / 2 + 0.5
                     datum <- util_Q((datum - 0.5) / xinfo$Nvalues)
+                    datum[is.na(datum)] <- 0
                     datum[datum == +Inf] <- 1e6
                     datum[datum == -Inf] <- -1e6
                     if (useLquantiles) {
@@ -426,13 +426,13 @@ vtransform <- function(
                     datum[sel] <- NA
                     datum[!sel] <- 1L
 
-                } else if (Lout == 'boundisinf') { # in output functions
-                    olocation <- (xinfo$Nvalues * xinfo$domainmin -
-                                  xinfo$domainmax) / (xinfo$Nvalues - 1)
-                    oscale <- (xinfo$domainmax - xinfo$domainmin) /
-                        (xinfo$Nvalues - 1)
-                    ## output is in range 1 to Nvalues
-                    datum <- round((datum - olocation) / oscale) - 1L
+                ## } else if (Lout == 'boundisinf') { # in output functions
+                ##     olocation <- (xinfo$Nvalues * xinfo$domainmin -
+                ##                   xinfo$domainmax) / (xinfo$Nvalues - 1)
+                ##     oscale <- (xinfo$domainmax - xinfo$domainmin) /
+                ##         (xinfo$Nvalues - 1)
+                ##     ## output is in range 1 to Nvalues
+                ##     datum <- round((datum - olocation) / oscale) - 1L
 
                 } else if (Lout == 'mi') { # in mutualinfo
                     if (useLquantiles) {
@@ -442,7 +442,15 @@ vtransform <- function(
                     datum[datum < 1] <- 1L
                     datum[datum > xinfo$Nvalues] <- xinfo$Nvalues
 
-                } else if (Lout != 'normalized') { # in sampling functions
+                } else if (Lout == 'normalized') { # in sampling functions
+                    olocation <- (xinfo$Nvalues * xinfo$domainmin -
+                                  xinfo$domainmax) / (xinfo$Nvalues - 1)
+                    oscale <- (xinfo$domainmax - xinfo$domainmin) /
+                        (xinfo$Nvalues - 1)
+                    ## output is in range 1 to Nvalues
+                    datum <- round((datum - olocation) / oscale)
+
+                } else {
                     stop('Unknown transformation for variate', v)
                 }
 

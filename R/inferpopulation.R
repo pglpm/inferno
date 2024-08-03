@@ -70,7 +70,7 @@ inferpopulation <- function(
     output = 'directory',
     subsampledata = NULL,
     niterini = 1024,
-    miniter = 1024,
+    miniter = 3600,
     maxiter = +Inf,
     maxhours = +Inf,
     ncheckpoints = NULL,
@@ -82,8 +82,8 @@ inferpopulation <- function(
     showAlphatraces = FALSE,
     hyperparams = list(
         nclusters = 64,
-        minalpha = -1,
-        maxalpha = 1,
+        minalpha = -4,
+        maxalpha = 4,
         byalpha = 1,
         Rshapelo = 0.5,
         Rshapehi = 0.5,
@@ -395,7 +395,7 @@ inferpopulation <- function(
         data = (if (is.null(auxdata)) {data} else {auxdata}),
         metadata = metadata,
         Dthreshold = hyperparams$Dthreshold)
-    print(auxmetadata)
+    ## print(auxmetadata) # for debugging
 
 #### Output-folder setup
     if (missing(outputdir) || (is.logical(outputdir) && outputdir)) {

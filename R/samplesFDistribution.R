@@ -329,9 +329,9 @@ samplesFDistribution <- function(
                 length.out = nn
             )
             c(
-                vtransform(seqs, auxmetadata = auxmetadata,
+                as.matrix(vtransform(seqs, auxmetadata = auxmetadata,
                     Lout = 'left',
-                    variates = avar),
+                    variates = avar)),
                 rep(NA, Lmaxn - nn)
             )
         }))
@@ -342,9 +342,9 @@ samplesFDistribution <- function(
                 length.out = nn
             )
             c(
-                vtransform(seqs, auxmetadata = auxmetadata,
+                as.matrix(vtransform(seqs, auxmetadata = auxmetadata,
                     Lout = 'right',
-                    variates = avar),
+                    variates = avar)),
                 rep(NA, Lmaxn - nn)
             )
         }))
@@ -387,24 +387,24 @@ samplesFDistribution <- function(
     YnB <- length(YiB)
 
 #### transformation of inputs
-    Y2 <- vtransform(Y, auxmetadata = auxmetadata,
+    Y2 <- as.matrix(vtransform(Y, auxmetadata = auxmetadata,
         Rout = 'normalized',
         Cout = 'boundisinf',
         Dout = 'boundisinf',
         Lout = 'normalized',
         Oout = 'numeric',
         Nout = 'numeric',
-        Bout = 'numeric')
+        Bout = 'numeric'))
 
     if (!is.null(X)) {
-        X2 <- vtransform(X, auxmetadata = auxmetadata,
+        X2 <- as.matrix(vtransform(X, auxmetadata = auxmetadata,
             Rout = 'normalized',
             Cout = 'boundisinf',
             Dout = 'boundisinf',
             Lout = 'normalized',
             Oout = 'numeric',
             Nout = 'numeric',
-            Bout = 'numeric')
+            Bout = 'numeric'))
         if (nrow(X2) < nrow(Y2)) {
             message('*Note: X has fewer data than Y. Recycling*')
             X2 <- t(matrix(rep(t(X2), ceiling(nrow(Y2) / nrow(X2))),
