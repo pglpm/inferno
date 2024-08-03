@@ -743,7 +743,6 @@ inferpopulation <- function(
         },
         if (vn$O > 0) { # ordinal
             Omaxn <- max(auxmetadata[auxmetadata$mcmctype == 'O', 'Nvalues'])
-            str(Omaxn)
             Oalpha0 <- matrix(1e-100, nrow = vn$O, ncol = Omaxn)
             for (avar in seq_along(vnames$O)) {
                 nvalues <- auxmetadata[auxmetadata$name == vnames$O[avar], 'Nvalues']
