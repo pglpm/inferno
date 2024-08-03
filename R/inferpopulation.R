@@ -26,9 +26,9 @@
 #'   if string 'mcoutput', return the 'Fdistribution' object;
 #'   anything else, no output
 #' @param subsampledata Numeric: use only a subsample of the datapoints in 'data'
-#' @param niterini Number of initial (burn-in) MC iterations
-#' @param miniter Minimum number of MC iterations to be done
-#' @param maxiter Maximum number of MC iterations
+#' @param startupMCiterations Number of initial (burn-in) MC iterations
+#' @param minMCiterations Minimum number of MC iterations to be done
+#' @param maxMCiterations Maximum number of MC iterations
 #' @param maxhours Maximum (approximately) time in hours for MC computation
 #' @param ncheckpoints NULL (default), positive integer, or Inf:
 #'   number of datapoints to use for stopping the sampling;
@@ -69,9 +69,9 @@ inferpopulation <- function(
     appendinfo = TRUE,
     output = 'directory',
     subsampledata = NULL,
-    niterini = 1024,
-    miniter = 3600,
-    maxiter = +Inf,
+    startupMCiterations = 1024,
+    minMCiterations = 3600,
+    maxMCiterations = +Inf,
     maxhours = +Inf,
     ncheckpoints = NULL,
     relerror = 0.05, #/(2*qnorm(0.95)), # 1/sqrt(2 * nsamplesperchain) # explore this
@@ -262,8 +262,8 @@ inferpopulation <- function(
         `%dochains%` <- `%dorng%`
     }
 
-    ## Make sure 'niterini' is at least 2
-    niterini <- max(2, niterini)
+    ## Make sure 'startupMCiterations' is at least 2
+    startupMCiterations <- max(2, startupMCiterations)
 
 ##################################################
 #### Read and process data and metadata
@@ -1455,12 +1455,12 @@ inferpopulation <- function(
 
             showsamplertimes0 <- showsamplertimes && (achain == 1)
             ## showAlphatraces0 <- showAlphatraces && (achain==1)
-            niter <- min(niterini, maxiter)
+            niter <- min(startupMCiterations, maxMCiterations)
             ## ## Experimental: decrease number of iterations based on previous chain
             ## if(achain == 1){
-            ##   niter <- niterini
+            ##   niter <- startupMCiterations
             ## }else{
-            ##  niter <- max(min(niterini,requirediter*2), 128)
+            ##  niter <- max(min(startupMCiterations,requirediter*2), 128)
             ##  }
             nitertot <- availiter <- 0L
             requirediter <- +Inf
@@ -1749,8 +1749,8 @@ inferpopulation <- function(
                 ##     diagnStat=diagnStat, diagnBurn=diagnBurn,
                 ##     diagnBurn2=diagnBurn2, diagnThin=diagnThin)
 
-                requirediter <- max(miniter - nitertot,
-                    min(maxiter - nitertot, diagn$reqiter) )
+                requirediter <- max(minMCiterations - nitertot,
+                    min(maxMCiterations - nitertot, diagn$reqiter) )
 
                 cat('\nTotal number of iterations', nitertot,
                     '- required further', requirediter, '\n')
@@ -1765,7 +1765,7 @@ inferpopulation <- function(
 
                 if (requirediter > 0) {
                     ## limit number of iterations per loop, to save memory
-                    niter <- min(requirediter + 1L, niterini)
+                    niter <- min(requirediter + 1L, startupMCiterations)
                     subiter <- subiter + 1L
                     cat(
                         '\nChain #', chainnumber, '- chunk', subiter,

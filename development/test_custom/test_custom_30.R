@@ -39,7 +39,7 @@ currenttestdir <- inferpopulation(
     ## relerror = 0.062,
     ncheckpoints = NULL,
     cleanup = FALSE,
-    ## miniter = 1200,
+    ## minMCiterations = 1200,
     prior = FALSE,
     showKtraces = TRUE,
     showAlphatraces = TRUE,
