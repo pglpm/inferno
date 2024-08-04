@@ -9,8 +9,9 @@ buildmetadata(
   file = NULL,
   includevrt = NULL,
   excludevrt = NULL,
-  diagnosticvalues = FALSE,
-  backupfiles = FALSE
+  addsummary2metadata = FALSE,
+  backupfiles = FALSE,
+  verbose = TRUE
 )
 }
 \arguments{
@@ -23,9 +24,12 @@ NULL: output metadata as data.frame}
 
 \item{excludevrt}{string or NULL: name variates in data to be excluded}
 
-\item{diagnosticvalues}{Bool: also output some diagnostic statistics?}
+\item{addsummary2metadata}{Bool: also output some diagnostic statistics
+in the metadata?}
 
 \item{backupfiles}{Bool: rename previous metadata file if it exists?}
+
+\item{verbose}{Bool: output heuristics for each variate, default TRUE}
 }
 \value{
 nothing or data.table object
