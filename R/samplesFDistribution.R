@@ -326,27 +326,21 @@ samplesFDistribution <- function(
             nn <- auxmetadata[auxmetadata$name == avar, 'Nvalues']
             seqs <- seq(auxmetadata[auxmetadata$name == avar, 'domainmin'],
                 auxmetadata[auxmetadata$name == avar, 'domainmax'],
-                length.out = nn
-            )
-            c(
-                as.matrix(vtransform(seqs, auxmetadata = auxmetadata,
+                length.out = nn)
+            c(as.matrix(vtransform(seqs, auxmetadata = auxmetadata,
                     Lout = 'left',
                     variates = avar)),
-                rep(NA, Lmaxn - nn)
-            )
+                rep(NA, Lmaxn - nn))
         }))
         Lright <- t(sapply(vnames, function(avar) {
             nn <- auxmetadata[auxmetadata$name == avar, 'Nvalues']
             seqs <- seq(auxmetadata[auxmetadata$name == avar, 'domainmin'],
                 auxmetadata[auxmetadata$name == avar, 'domainmax'],
-                length.out = nn
-            )
-            c(
-                as.matrix(vtransform(seqs, auxmetadata = auxmetadata,
+                length.out = nn)
+            c(as.matrix(vtransform(seqs, auxmetadata = auxmetadata,
                     Lout = 'right',
                     variates = avar)),
-                rep(NA, Lmaxn - nn)
-            )
+                rep(NA, Lmaxn - nn))
         }))
     }
 
