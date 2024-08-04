@@ -1,6 +1,6 @@
 #### Calculate and save transformation function for ordinal variates
 ## NB: the functional form of this function does not depend on
-##   the number of clusters, minalpha, and maxalpha parameters
+##   the number of components, minalpha, and maxalpha parameters
 createQfunction <- function(
     nint = 3600,
     nsamples = 2^24L,

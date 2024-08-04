@@ -19,9 +19,9 @@ generateVariates <- function(n, Ynames, X=NULL, mcsamples, varinfo){
     names(variate) <- names(len) <- variatetypes
     ##
     Wi <- grep('W',rownames(mcsamples))
-    nclusters <- length(Wi)
-    W <- mcsamples[Wi,] # rows: clusters, cols: MC samples
-    ## seqclusters <- seq_len(nclusters)
+    ncomponents <- length(Wi)
+    W <- mcsamples[Wi,] # rows: components, cols: MC samples
+    ## seqcomponents <- seq_len(ncomponents)
     ##
     Yv <- lapply(variatetypes, function(zzz){out <- Yv[varinfo[['type']][Yv]==zzz]
         names(out) <- NULL
@@ -39,30 +39,30 @@ generateVariates <- function(n, Ynames, X=NULL, mcsamples, varinfo){
     totake <- sapply(Yv$C,function(x)which(variate$C == x))
     YCprob <- sapply(paste0('Cprob\\[',totake,','),
                             grep,rownames(mcsamples))
-    ncategories <- length(YCprob)/length(totake)/nclusters
+    ncategories <- length(YCprob)/length(totake)/ncomponents
     seqcategories <- seq_len(ncategories)
     YCprob <- aperm(array(YCprob,
-                           dim=c(nclusters,ncategories,length(totake)),
+                           dim=c(ncomponents,ncategories,length(totake)),
                            dimnames=list(NULL,NULL,Yv$C)),
                     c(2,1,3))
     }
     if(Yn$B > 0){## binary
     totake <- sapply(Yv$B,function(x)which(variate$B == x))
     YBprob <- array(t(vapply(paste0('Bprob\\[',totake,','), grep,
-                           numeric(nclusters),
+                           numeric(ncomponents),
                            rownames(mcsamples))),
-                     dim=c(length(totake),nclusters), dimnames=list(Yv$B,NULL))
+                     dim=c(length(totake),ncomponents), dimnames=list(Yv$B,NULL))
     }
     if(Yn$I > 0){## integer ordinal
     totake <- sapply(Yv$I,function(x)which(variate$I == x))
     YImean <- array(t(vapply(paste0('Imean\\[',totake,','), grep,
-                           numeric(nclusters),
+                           numeric(ncomponents),
                            rownames(mcsamples))),
-                     dim=c(length(totake),nclusters), dimnames=list(Yv$I,NULL))
+                     dim=c(length(totake),ncomponents), dimnames=list(Yv$I,NULL))
     YIvar <- array(t(vapply(paste0('Ivar\\[',totake,','), grep,
-                           numeric(nclusters),
+                           numeric(ncomponents),
                            rownames(mcsamples))),
-                     dim=c(length(totake),nclusters), dimnames=list(Yv$I,NULL))
+                     dim=c(length(totake),ncomponents), dimnames=list(Yv$I,NULL))
     ## YIlefts <- lapply(Yv$I,function(v){ qnorm((0:(varinfo[['n']][v]-1L))/varinfo[['n']][v]) })
     ## YIrights <- lapply(Yv$I,function(v){ qnorm((1:(varinfo[['n']][v]))/varinfo[['n']][v]) })
     ## names(YIlefts) <- names(YIrights) <- Yv$I
@@ -70,24 +70,24 @@ generateVariates <- function(n, Ynames, X=NULL, mcsamples, varinfo){
     if(Yn$R > 0){## real
     totake <- sapply(Yv$R,function(x)which(variate$R == x))
     YRmean <- array(t(vapply(paste0('Rmean\\[',totake,','), grep,
-                           numeric(nclusters),
+                           numeric(ncomponents),
                            rownames(mcsamples))),
-                     dim=c(length(totake),nclusters), dimnames=list(Yv$R,NULL))
+                     dim=c(length(totake),ncomponents), dimnames=list(Yv$R,NULL))
     YRvar <- array(t(vapply(paste0('Rvar\\[',totake,','), grep,
-                           numeric(nclusters),
+                           numeric(ncomponents),
                            rownames(mcsamples))),
-                     dim=c(length(totake),nclusters), dimnames=list(Yv$R,NULL))
+                     dim=c(length(totake),ncomponents), dimnames=list(Yv$R,NULL))
     }
     if(Yn$O > 0){## one-side censored
     totake <- sapply(Yv$O,function(x)which(variate$O == x))
     YOmean <- array(t(vapply(paste0('Omean\\[',totake,','), grep,
-                           numeric(nclusters),
+                           numeric(ncomponents),
                            rownames(mcsamples))),
-                     dim=c(length(totake),nclusters), dimnames=list(Yv$O,NULL))
+                     dim=c(length(totake),ncomponents), dimnames=list(Yv$O,NULL))
     YOvar <- array(t(vapply(paste0('Ovar\\[',totake,','), grep,
-                           numeric(nclusters),
+                           numeric(ncomponents),
                            rownames(mcsamples))),
-                     dim=c(length(totake),nclusters), dimnames=list(Yv$O,NULL))
+                     dim=c(length(totake),ncomponents), dimnames=list(Yv$O,NULL))
     ## YOlefts <- c(sapply(Yv$O, function(v){
     ##     out <- varinfo[['t']][[v]](varinfo[['max']][v])
     ##     names(out) <- NULL
@@ -96,13 +96,13 @@ generateVariates <- function(n, Ynames, X=NULL, mcsamples, varinfo){
     if(Yn$D > 0){## two-bounded
     totake <- sapply(Yv$D,function(x)which(variate$D == x))
     YDmean <- array(t(vapply(paste0('Dmean\\[',totake,','), grep,
-                           numeric(nclusters),
+                           numeric(ncomponents),
                            rownames(mcsamples))),
-                     dim=c(length(totake),nclusters), dimnames=list(Yv$D,NULL))
+                     dim=c(length(totake),ncomponents), dimnames=list(Yv$D,NULL))
     YDvar <- array(t(vapply(paste0('Dvar\\[',totake,','), grep,
-                           numeric(nclusters),
+                           numeric(ncomponents),
                            rownames(mcsamples))),
-                   dim=c(length(totake),nclusters), dimnames=list(Yv$D,NULL))
+                   dim=c(length(totake),ncomponents), dimnames=list(Yv$D,NULL))
     }
     ##
     ##
@@ -110,30 +110,30 @@ generateVariates <- function(n, Ynames, X=NULL, mcsamples, varinfo){
     totake <- sapply(Xv$C,function(x)which(variate$C == x))
     XCprob <- sapply(paste0('Cprob\\[',totake,','),
                             grep,rownames(mcsamples))
-    ncategories <- length(XCprob)/length(totake)/nclusters
+    ncategories <- length(XCprob)/length(totake)/ncomponents
     seqcategories <- seq_len(ncategories)
     XCprob <- aperm(array(XCprob,
-                           dim=c(nclusters,ncategories,length(totake)),
+                           dim=c(ncomponents,ncategories,length(totake)),
                            dimnames=list(NULL,NULL,Xv$C)),
                     c(2,1,3))
     }
     if(Xn$B > 0){## binary
     totake <- sapply(Xv$B,function(x)which(variate$B == x))
     XBprob <- array(t(vapply(paste0('Bprob\\[',totake,','), grep,
-                           numeric(nclusters),
+                           numeric(ncomponents),
                            rownames(mcsamples))),
-                     dim=c(length(totake),nclusters), dimnames=list(Xv$B,NULL))
+                     dim=c(length(totake),ncomponents), dimnames=list(Xv$B,NULL))
     }
     if(Xn$I > 0){## integer ordinal
     totake <- sapply(Xv$I,function(x)which(variate$I == x))
     XImean <- array(t(vapply(paste0('Imean\\[',totake,','), grep,
-                           numeric(nclusters),
+                           numeric(ncomponents),
                            rownames(mcsamples))),
-                     dim=c(length(totake),nclusters), dimnames=list(Xv$I,NULL))
+                     dim=c(length(totake),ncomponents), dimnames=list(Xv$I,NULL))
     XIvar <- array(t(vapply(paste0('Ivar\\[',totake,','), grep,
-                           numeric(nclusters),
+                           numeric(ncomponents),
                            rownames(mcsamples))),
-                     dim=c(length(totake),nclusters), dimnames=list(Xv$I,NULL))
+                     dim=c(length(totake),ncomponents), dimnames=list(Xv$I,NULL))
     XIlefts <- lapply(Xv$I,function(v){ qnorm((0:(varinfo[['n']][v]-1L))/varinfo[['n']][v]) })
     XIrights <- lapply(Xv$I,function(v){ qnorm((1:(varinfo[['n']][v]))/varinfo[['n']][v]) })
     names(XIlefts) <- names(XIrights) <- Xv$I
@@ -141,36 +141,36 @@ generateVariates <- function(n, Ynames, X=NULL, mcsamples, varinfo){
     if(Xn$R > 0){## real
     totake <- sapply(Xv$R,function(x)which(variate$R == x))
     XRmean <- array(t(vapply(paste0('Rmean\\[',totake,','), grep,
-                           numeric(nclusters),
+                           numeric(ncomponents),
                            rownames(mcsamples))),
-                     dim=c(length(totake),nclusters), dimnames=list(Xv$R,NULL))
+                     dim=c(length(totake),ncomponents), dimnames=list(Xv$R,NULL))
     XRvar <- array(t(vapply(paste0('Rvar\\[',totake,','), grep,
-                           numeric(nclusters),
+                           numeric(ncomponents),
                            rownames(mcsamples))),
-                     dim=c(length(totake),nclusters), dimnames=list(Xv$R,NULL))
+                     dim=c(length(totake),ncomponents), dimnames=list(Xv$R,NULL))
     }
     if(Xn$O > 0){## one-side censored
     totake <- sapply(Xv$O,function(x)which(variate$O == x))
     XOmean <- array(t(vapply(paste0('Omean\\[',totake,','), grep,
-                           numeric(nclusters),
+                           numeric(ncomponents),
                            rownames(mcsamples))),
-                     dim=c(length(totake),nclusters), dimnames=list(Xv$O,NULL))
+                     dim=c(length(totake),ncomponents), dimnames=list(Xv$O,NULL))
     XOvar <- array(t(vapply(paste0('Ovar\\[',totake,','), grep,
-                           numeric(nclusters),
+                           numeric(ncomponents),
                            rownames(mcsamples))),
-                     dim=c(length(totake),nclusters), dimnames=list(Xv$O,NULL))
+                     dim=c(length(totake),ncomponents), dimnames=list(Xv$O,NULL))
     XOlefts <- transf(rbind(varinfo[['tmax']][Xv$O]),varinfo,Oout='')
     }
     if(Xn$D > 0){## two-bounded
     totake <- sapply(Xv$D,function(x)which(variate$D == x))
     XDmean <- array(t(vapply(paste0('Dmean\\[',totake,','), grep,
-                           numeric(nclusters),
+                           numeric(ncomponents),
                            rownames(mcsamples))),
-                     dim=c(length(totake),nclusters), dimnames=list(Xv$D,NULL))
+                     dim=c(length(totake),ncomponents), dimnames=list(Xv$D,NULL))
     XDvar <- array(t(vapply(paste0('Dvar\\[',totake,','), grep,
-                           numeric(nclusters),
+                           numeric(ncomponents),
                            rownames(mcsamples))),
-                   dim=c(length(totake),nclusters), dimnames=list(Xv$D,NULL))
+                   dim=c(length(totake),ncomponents), dimnames=list(Xv$D,NULL))
     XDbounds <- -qnorm(varinfo[['n']][Xv$D])
     }
     ##
@@ -225,7 +225,7 @@ generateVariates <- function(n, Ynames, X=NULL, mcsamples, varinfo){
                 xn <- Xn
                 }
                 ##
-        probX <- t(exp( # rows: MCsamples, cols: clusters
+        probX <- t(exp( # rows: MCsamples, cols: components
             log(W) + 
                 (if(xn$D > 0){
                      colSums(
@@ -243,7 +243,7 @@ generateVariates <- function(n, Ynames, X=NULL, mcsamples, varinfo){
                                              log.p=T))
                                  }
                              })),
-                             dim=c(xn$D, nclusters, length(subsamples))),
+                             dim=c(xn$D, ncomponents, length(subsamples))),
                          na.rm=F)
                  }else{0}) +
                 (if(xn$O > 0){
@@ -262,7 +262,7 @@ generateVariates <- function(n, Ynames, X=NULL, mcsamples, varinfo){
                                              log.p=T))
                                  }
                              })),
-                             dim=c(xn$O, nclusters, length(subsamples))),
+                             dim=c(xn$O, ncomponents, length(subsamples))),
                          na.rm=F)
                  }else{0}) +
                 (if(xn$R > 0){
@@ -270,14 +270,14 @@ generateVariates <- function(n, Ynames, X=NULL, mcsamples, varinfo){
                          array(dnorm(x=x[xv$R,],
                                      mean=mcsamples[XRmean,],
                                      sd=sqrt(mcsamples[XRvar,]),log=T),
-                               dim=c(xn$R, nclusters, length(subsamples))),
+                               dim=c(xn$R, ncomponents, length(subsamples))),
                          na.rm=F)
                  }else{0}) +
                 (if(xn$B > 0){
                      colSums(
                          array(log( x[xv$B,]*mcsamples[XBprob,] +
                                (1-x[xv$B,])*(1-mcsamples[XBprob,]) ),
-                               dim=c(xn$B, nclusters, length(subsamples))),
+                               dim=c(xn$B, ncomponents, length(subsamples))),
                          na.rm=F)
                  }else{0}) +
                 (if(xn$I > 0){
@@ -301,7 +301,7 @@ generateVariates <- function(n, Ynames, X=NULL, mcsamples, varinfo){
                                  ##               mean=mcsamples[XImean[v,],],
                                  ##               sd=sqrt(mcsamples[XIvar[v,],]))))
                              })),
-                             dim=c(xn$I, nclusters, length(subsamples))),
+                             dim=c(xn$I, ncomponents, length(subsamples))),
                          na.rm=F)
                  }else{0})
         )) # end probX

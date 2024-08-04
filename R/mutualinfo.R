@@ -33,7 +33,7 @@ mutualinfo <- function(
 #### Mutual information and conditional entropy between Y2 and Y1
 #### conditional on X, data, prior information
 #### are calculated by Monte Carlo integration:
-#### 0. adjusted cluster weights are calculated for conditioning on X
+#### 0. adjusted component weights are calculated for conditioning on X
 #### 1. joint samples of Y1_i, Y2_i are drawn
 #### 2. probabilities p(Y1|Y2) are calculated for each sample
 ####    the conditional entropy is Monte-Carlo approximated by
@@ -136,7 +136,7 @@ mutualinfo <- function(
     mcoutput$auxmetadata <- NULL
 
     nMCsamples <- ncol(mcoutput$W)
-    nclusters <- nrow(mcoutput$W)
+    ncomponents <- nrow(mcoutput$W)
 
     ## Consistency checks
     if (unit == 'Sh') {
@@ -455,7 +455,7 @@ mutualinfo <- function(
     ZiB <- ZiB[ZtB]
     ZnB <- length(ZiB)
 
-#### STEP 0. Adjust cluster weights W for conditioning on X
+#### STEP 0. Adjust component weights W for conditioning on X
     if(is.null(X)){
         W <- mcoutput$W
     } else {
@@ -617,9 +617,9 @@ mutualinfo <- function(
 #### STEP 1. Draw samples of Z (that is, Y1,Y2)
 
     ## Z is drawn as follows, for each MC sample:
-    ## 1. draw a cluster, according to its probability
+    ## 1. draw a component, according to its probability
     ## 2. draw from the appropriate kernel distributions
-    ## using the parameters of that cluster
+    ## using the parameters of that component
 
     Ws <- extraDistr::rcat(n=n, prob=t(W))
     Zout <- c(
@@ -696,7 +696,7 @@ mutualinfo <- function(
         .inorder = TRUE) %dochains% {
 #### the loop is over the columns of y and x
 #### each instance is a 1-column vector
-            ## rows: clusters, cols: samples
+            ## rows: components, cols: samples
             probX <- log(W) +
                 (if (Y2nR > 0) { # continuous
                      colSums(
@@ -984,7 +984,7 @@ mutualinfo <- function(
                          0
                      })
             }
-            ## Output: rows=clusters, columns=samples
+            ## Output: rows=components, columns=samples
             ## temp <- colSums(exp(probX + probY))/colSums(exp(probX))
             ## c(mean(temp), 1+sd(temp)/length(temp)/mean(temp))
             mean(colSums(exp(probX + probY))/colSums(exp(probX)))
@@ -1145,7 +1145,7 @@ mutualinfo <- function(
                          0
                      })
             }
-            ## Output: rows=clusters, columns=samples
+            ## Output: rows=components, columns=samples
             ## temp <- colSums(exp(probX + probY))/colSums(exp(probX))
             ## c(mean(temp), 1+sd(temp)/length(temp)/mean(temp))
             mean(colSums(exp(probX + probY))/colSums(exp(probX)))

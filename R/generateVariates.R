@@ -77,7 +77,7 @@ generateVariates <- function(n=1, Yvrt, X=NULL, mcoutput, combine='rbind', useLq
   mcoutput$auxmetadata <- NULL
 
   nsamples <- ncol(mcoutput$W)
-  nclusters <- nrow(mcoutput$W)
+  ncomponents <- nrow(mcoutput$W)
 
   ## Consistency checks
   if(!is.character(Yvrt) || any(is.na(Yvrt))){
@@ -97,7 +97,7 @@ generateVariates <- function(n=1, Yvrt, X=NULL, mcoutput, combine='rbind', useLq
   if(length(intersect(Yvrt, Xv)) > 0){stop('overlap in Y and X variates\n')}
 
 
-#### Subsample and get nclusters and nsamples
+#### Subsample and get ncomponents and nsamples
   ## source('mcsubset.R')
   if((is.logical(n) && n) || (is.character(n) && n=='all')){
     n <- nsamples
@@ -256,7 +256,7 @@ generateVariates <- function(n=1, Yvrt, X=NULL, mcoutput, combine='rbind', useLq
     if(all(is.na(x))){
       probX <- mcoutput$W
     }else{
-      ## rows: clusters, cols: samples
+      ## rows: components, cols: samples
       probX <- log(mcoutput$W) +
         (if(XnR > 0){# continuous
            colSums(
@@ -338,12 +338,12 @@ generateVariates <- function(n=1, Yvrt, X=NULL, mcoutput, combine='rbind', useLq
            ##          t(sapply(seq_len(XnN), function(v){
            ##              mcoutput$Nprob[XtN[v],,x[XiN[v],],]
            ##          })),
-           ##          dim=c(XnN, nclusters, nsamples))),
+           ##          dim=c(XnN, ncomponents, nsamples))),
            ##      na.rm=TRUE)
            ## temp <- apply(mcoutput$Nprob, c(2,4), function(xx){
            ##     xx[cbind(XtN, x[XiN,])]
            ## })
-           ## dim(temp) <- c(XnN, nclusters, nsamples)
+           ## dim(temp) <- c(XnN, ncomponents, nsamples)
            ## ##
            ## colSums(log(temp), na.rm=TRUE)
          }else{0}) +
@@ -356,13 +356,13 @@ generateVariates <- function(n=1, Yvrt, X=NULL, mcoutput, combine='rbind', useLq
     } # end probX
     probX <- t(exp(apply(probX, 2, function(xx){xx - max(xx[is.finite(xx)])})))
     ## probX: each row is a MC sample
-    ## the row elements are the probabilities of the clusters
+    ## the row elements are the probabilities of the components
     ## for that MC sample
 
     ## Y is drawn as follows, for each MC sample:
-    ## 1. draw a cluster, according to its probability
+    ## 1. draw a component, according to its probability
     ## 2. draw from the appropriate kernel distributions
-    ## using the parameters of that cluster
+    ## using the parameters of that component
     Ws <- extraDistr::rcat(n=n, prob=probX)
     Yout <- c( # rows: n samples, cols: Y variates
     (if(YnR > 0){# continuous

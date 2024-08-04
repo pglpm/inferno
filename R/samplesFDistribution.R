@@ -191,7 +191,7 @@ samplesFDistribution <- function(
         stop('overlap in Y and X variates\n')
     }
 
-#### Subsample and get nclusters and nsamples
+#### Subsample and get ncomponents and nsamples
     ## source('mcsubset.R')
     if (!missing(subsamples) &&
         (is.numeric(subsamples) || (is.character(subsamples)
@@ -205,7 +205,7 @@ samplesFDistribution <- function(
     }
 
     nsamples <- ncol(mcoutput$W)
-    nclusters <- nrow(mcoutput$W)
+    ncomponents <- nrow(mcoutput$W)
 
     ## source('vtransform.R')
 
@@ -431,7 +431,7 @@ samplesFDistribution <- function(
             if (all(is.na(x))) {
                 probX <- log(mcoutput$W)
             } else {
-                ## rows: clusters, cols: samples
+                ## rows: components, cols: samples
                 probX <- log(mcoutput$W) +
                     (if (XnR > 0) { # continuous
                          colSums(
@@ -719,7 +719,7 @@ samplesFDistribution <- function(
                          0
                      })
             }
-#### Output: rows=clusters, columns=samples
+#### Output: rows=components, columns=samples
             ##
             ## if(all(is.na(x))){
             ##     out <- rowSums(exp(probX+probY))

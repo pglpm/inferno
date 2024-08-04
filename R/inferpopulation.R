@@ -81,7 +81,7 @@ inferpopulation <- function(
     showKtraces = FALSE,
     showAlphatraces = FALSE,
     hyperparams = list(
-        nclusters = 64,
+        ncomponents = 64,
         minalpha = -4,
         maxalpha = 4,
         byalpha = 1,
@@ -417,7 +417,7 @@ inferpopulation <- function(
              } else {
                  npoints
              }),
-            ## '-K', nclusters, # unimportant for user
+            ## '-K', ncomponents, # unimportant for user
             '_smp', nsamples)
     }
     dirname <- paste0(outputdir, suffix)
@@ -565,7 +565,7 @@ inferpopulation <- function(
 
 #### Hyperparameters and other internal parameters
     ## source('hyperparameters.R') doesn't seem to work
-    nclusters <- hyperparams$nclusters
+    ncomponents <- hyperparams$ncomponents
     minalpha <- hyperparams$minalpha
     maxalpha <- hyperparams$maxalpha
     byalpha <- hyperparams$byalpha
@@ -596,7 +596,7 @@ inferpopulation <- function(
     ## plotmeans <- TRUE # plot frequency averages
     showsamples <- 100 # number of samples to show.
     plotDisplayedQuantiles <- c(1, 31) / 32 # quantiles to show
-    nclustersamples <- 128 # number of samples of Alpha and K
+    ncomponentsamples <- 128 # number of samples of Alpha and K
     showsamplertimes <- FALSE ##
     family <- 'Palatino' # font family in plots
 
@@ -664,12 +664,12 @@ inferpopulation <- function(
     probalpha0 <- probalpha0/sum(probalpha0)
     constants <- c(
         list(
-            nclusters = nclusters,
+            ncomponents = ncomponents,
             npoints = npoints,
             nalpha = nalpha,
             alphabase = sqrt(2),
             probalpha0 = probalpha0,
-            dirchalphas = rep((2^(minalpha - 0.5)) / nclusters, nclusters)
+            dirchalphas = rep((2^(minalpha - 0.5)) / ncomponents, ncomponents)
         ),
         if (vn$R > 0) { # continuous open domain
             list(
@@ -852,7 +852,7 @@ inferpopulation <- function(
         '\nin a space of',
         (sum(as.numeric(vn) * c(2, 2, 2, 2, 0, 0, 1)) +
          sum(Nalpha0 > 2e-100) - nrow(Nalpha0) + 1 +
-         sum(Oalpha0 > 2e-100) - nrow(Oalpha0) + 1 ) * nclusters - 1,
+         sum(Oalpha0 > 2e-100) - nrow(Oalpha0) + 1 ) * ncomponents - 1,
         '(effectively',
         paste0(
         (sum(as.numeric(vn) * c(
@@ -862,7 +862,7 @@ inferpopulation <- function(
         sum(Nalpha0 > 2e-100) +
         nrow(Nalpha0) * (npoints - 1) + 1 +
         sum(Oalpha0 > 2e-100) +
-        nrow(Oalpha0) * (npoints - 1) + 1 ) * nclusters - 1 + nalpha - 1,
+        nrow(Oalpha0) * (npoints - 1) + 1 ) * ncomponents - 1 + nalpha - 1,
         ')'
         ), 'dimensions.\n'
     )
@@ -907,18 +907,18 @@ inferpopulation <- function(
         ## requireNamespace("nimble", quietly = TRUE)
         ##library('nimble')
 
-#### CLUSTER REPRESENTATION OF FREQUENCY SPACE
+#### COMPONENT REPRESENTATION OF FREQUENCY SPACE
 
         ## hierarchical probability structure
         finitemix <- nimbleCode({
             ## Component weights
             Alpha ~ dcat(prob = probalpha0[1:nalpha])
-            alphas[1:nclusters] <- dirchalphas[1:nclusters] * alphabase^Alpha
-            W[1:nclusters] ~ ddirch(alpha = alphas[1:nclusters])
+            alphas[1:ncomponents] <- dirchalphas[1:ncomponents] * alphabase^Alpha
+            W[1:ncomponents] ~ ddirch(alpha = alphas[1:ncomponents])
 
             ## Probability density for the parameters of the components
-                                        # Loop over clusters
-            for (k in 1:nclusters) {
+                                        # Loop over components
+            for (k in 1:ncomponents) {
                 ## Probability distributions of parameters
                 ## of the different variate types
                 if (vn$R > 0) { # continuous open domain
@@ -967,7 +967,7 @@ inferpopulation <- function(
             }
             ## Probability of data
             for (d in 1:npoints) {
-                K[d] ~ dcat(prob = W[1:nclusters])
+                K[d] ~ dcat(prob = W[1:ncomponents])
                 ##
                 if (vn$R > 0) { # continuous open domain
                     for (v in 1:Rn) {
@@ -1016,15 +1016,15 @@ inferpopulation <- function(
 
 #### INITIAL-VALUE FUNCTION
         initsfn <- function() {
-            ## Create clusters centres
-            distances <- matrix(0, nrow = npoints, ncol = nclusters)
+            ## Create components centres
+            distances <- matrix(0, nrow = npoints, ncol = ncomponents)
 
             if (vn$R > 0) { # continuous open domain
                 Rmeans <- matrix(rnorm(
-                    n = vn$R * nclusters,
+                    n = vn$R * ncomponents,
                     mean = constants$Rmean1,
                     sd = sqrt(constants$Rvarm1)
-                ), nrow = vn$R, ncol = nclusters)
+                ), nrow = vn$R, ncol = ncomponents)
                 ## square distances from datapoints
                 distances <- apply(Rmeans, 2, function(ameans){
                     colSums((t(datapoints$Rdata) - ameans)^2, na.rm = TRUE)
@@ -1032,10 +1032,10 @@ inferpopulation <- function(
             }
             if (vn$C > 0) { # continuous open domain
                 Cmeans <- matrix(rnorm(
-                    n = vn$C * nclusters,
+                    n = vn$C * ncomponents,
                     mean = constants$Cmean1,
                     sd = sqrt(constants$Cvarm1)
-                ), nrow = vn$C, ncol = nclusters)
+                ), nrow = vn$C, ncol = ncomponents)
                 ## square distances from datapoints
                 distances <- distances + apply(Cmeans, 2, function(ameans){
                     colSums((t(datapoints$Clat) - ameans)^2, na.rm = TRUE)
@@ -1043,10 +1043,10 @@ inferpopulation <- function(
             }
             if (vn$D > 0) { # continuous open domain
                 Dmeans <- matrix(rnorm(
-                    n = vn$D * nclusters,
+                    n = vn$D * ncomponents,
                     mean = constants$Dmean1,
                     sd = sqrt(constants$Dvarm1)
-                ), nrow = vn$D, ncol = nclusters)
+                ), nrow = vn$D, ncol = ncomponents)
                 ## square distances from datapoints
                 distances <- distances + apply(Dmeans, 2, function(ameans){
                     colSums((t(constants$Dlatinit) - ameans)^2, na.rm = TRUE)
@@ -1054,10 +1054,10 @@ inferpopulation <- function(
             }
             if (vn$L > 0) { # continuous open domain
                 Lmeans <- matrix(rnorm(
-                    n = vn$L * nclusters,
+                    n = vn$L * ncomponents,
                     mean = constants$Lmean1,
                     sd = sqrt(constants$Lvarm1)
-                ), nrow = vn$L, ncol = nclusters)
+                ), nrow = vn$L, ncol = ncomponents)
                 ## square distances from datapoints
                 distances <- distances + apply(Lmeans, 2, function(ameans){
                     colSums((t(constants$Llatinit) - ameans)^2, na.rm = TRUE)
@@ -1065,85 +1065,85 @@ inferpopulation <- function(
             }
             ## if (vn$B > 0) {
             ##     Bprobs <- matrix(rbeta(
-            ##         n = vn$B * nclusters,
+            ##         n = vn$B * ncomponents,
             ##         shape1 = Bshapelo,
             ##         shape2 = Bshapehi,
-            ##         ), nrow = vn$B, ncol = nclusters)
+            ##         ), nrow = vn$B, ncol = ncomponents)
             ##     ## square distances from datapoints
             ##     distances <- distances + apply(Bprobs, 2, function(ameans){
             ##         colSums((t(datapoints$Bdata) - ameans)^2, na.rm = TRUE)
             ##     })
             ## }
 
-            ## assign datapoints to cluster with closest centre
+            ## assign datapoints to component with closest centre
             K <- apply(distances, 1, which.min)
             occupied <- unique(K)
 
-            ## recalculate clusters centres according to their points
+            ## recalculate components centres according to their points
             if (vn$R > 0) { # continuous open domain
-                Rmeans[, occupied] <- sapply(occupied, function(acluster){
-                    colMeans(datapoints$Rdata[which(K == acluster), , drop = FALSE],
+                Rmeans[, occupied] <- sapply(occupied, function(acomponent){
+                    colMeans(datapoints$Rdata[which(K == acomponent), , drop = FALSE],
                         na.rm = TRUE)
                 })
                 Rmeans[, -occupied] <- 0
             }
             if (vn$C > 0) { # continuous open domain
-                Cmeans[, occupied] <- sapply(occupied, function(acluster){
-                    colMeans(datapoints$Clat[which(K == acluster), , drop = FALSE],
+                Cmeans[, occupied] <- sapply(occupied, function(acomponent){
+                    colMeans(datapoints$Clat[which(K == acomponent), , drop = FALSE],
                         na.rm = TRUE)
                 })
                 Cmeans[, -occupied] <- 0
             }
             if (vn$D > 0) { # continuous open domain
-                Dmeans[, occupied] <- sapply(occupied, function(acluster){
-                    colMeans(constants$Dlatinit[which(K == acluster), , drop = FALSE],
+                Dmeans[, occupied] <- sapply(occupied, function(acomponent){
+                    colMeans(constants$Dlatinit[which(K == acomponent), , drop = FALSE],
                         na.rm = TRUE)
                 })
                 Dmeans[, -occupied] <- 0
             }
             if (vn$L > 0) { # continuous open domain
-                Lmeans[, occupied] <- sapply(occupied, function(acluster){
-                    colMeans(constants$Llatinit[which(K == acluster), , drop = FALSE],
+                Lmeans[, occupied] <- sapply(occupied, function(acomponent){
+                    colMeans(constants$Llatinit[which(K == acomponent), , drop = FALSE],
                         na.rm = TRUE)
                 })
                 Lmeans[, -occupied] <- 0
             }
             ## if (vn$B > 0) {
-            ##     Bprobs[, occupied] <- sapply(occupied, function(acluster){
-            ##         colMeans(datapoints$Bdata[which(K == acluster), , drop = FALSE],
+            ##     Bprobs[, occupied] <- sapply(occupied, function(acomponent){
+            ##         colMeans(datapoints$Bdata[which(K == acomponent), , drop = FALSE],
             ##             na.rm = TRUE)
             ##     })
             ##     Bprobs[, -occupied] <- 0.5
             ## }
             ## Alpha <- sample(1:nalpha, 1, prob = constants$probalpha0, replace = TRUE)
-            ## W <- c(rep(rempoints, minpoints), rep(1, nclusters - minpoints))
+            ## W <- c(rep(rempoints, minpoints), rep(1, ncomponents - minpoints))
             ## W <- W/sum(W)
 
             outlist <- list(
                 Alpha = round(nalpha/2),
-                W = rep(1/nclusters, nclusters),
-                ## ## A. assign all points to an unsystematically chosen cluster
+                W = rep(1/ncomponents, ncomponents),
+                ## ## A. assign all points to an unsystematically chosen component
                 K = K
                 ## ## or:
-                ## ## B. distribute points unsystematically among clusters
+                ## ## B. distribute points unsystematically among components
                 ## K = sample(rep(which(W > 0), 2), npoints, replace = TRUE)
                 ## ## or:
-                ## ## C. assign all points to the most probable cluster
+                ## ## C. assign all points to the most probable component
                 ## K = rep(which.max(W), npoints)
                 ## ## or:
-                ## ## D. assign all points to the least probable cluster
+                ## ## D. assign all points to the least probable component
                 ## K = rep(which(W == min(W[W > 0]))[1], npoints)
                 ## ## or:
-                ## ## E. distribute points unsystematically among M=2 clusters
+                ## ## E. distribute points unsystematically among M=2 components
                 ## K = sample(sample(rep(which(W > 0), 2), 2, replace = TRUE),
                 ##           npoints, replace = TRUE)
                 ## ## or:
                 ## ## F. mix methods A. and B.
                 ## K = (if(achain %% 2 == Ksample) {
-                ##        ## ## assign all points to an unsystematically chosen cluster
+                ##        ## ## assign all points to an unsystematically chosen component
                 ##        rep(sample(rep(which(W > 0), 2), 1, replace = TRUE), npoints)
                 ##      } else {
-                ##        ## distribute points unsystematically among clusters
+                ##        ## distribute points unsystematically among components
                 ##        sample(rep(which(W > 0), 2), npoints, replace = TRUE)
                 ##      })
             )
@@ -1157,10 +1157,10 @@ inferpopulation <- function(
                             nimble::qinvgamma(p = 0.5,
                                 shape = constants$Rshapehi,
                                 rate = constants$Rvar1),
-                            nrow = vn$R, ncol = nclusters
+                            nrow = vn$R, ncol = ncomponents
                         ),
                         Rvar = matrix(1,
-                            nrow = vn$R, ncol = nclusters)
+                            nrow = vn$R, ncol = ncomponents)
                     )
                 )
             }
@@ -1173,10 +1173,10 @@ inferpopulation <- function(
                             nimble::qinvgamma(p = 0.5,
                                 shape = constants$Cshapehi,
                                 rate = constants$Cvar1),
-                            nrow = vn$C, ncol = nclusters
+                            nrow = vn$C, ncol = ncomponents
                         ),
                         Cvar = matrix(1,
-                            nrow = vn$C, ncol = nclusters),
+                            nrow = vn$C, ncol = ncomponents),
                         ## for data with boundary values
                         Clat = constants$Clatinit
                         ## Clat = vtransform(data[, vnames$C, with = FALSE],
@@ -1193,10 +1193,10 @@ inferpopulation <- function(
                             nimble::qinvgamma(p = 0.5,
                                 shape = constants$Dshapehi,
                                 rate = constants$Dvar1),
-                            nrow = vn$D, ncol = nclusters
+                            nrow = vn$D, ncol = ncomponents
                         ),
                         Dvar = matrix(1,
-                            nrow = vn$D, ncol = nclusters),
+                            nrow = vn$D, ncol = ncomponents),
                         ## for data with boundary values
                         Dlat = constants$Dlatinit
                         ## Dlat = vtransform(data[, vnames$D, with = FALSE],
@@ -1213,10 +1213,10 @@ inferpopulation <- function(
                             nimble::qinvgamma(p = 0.5,
                                 shape = constants$Lshapehi,
                                 rate = constants$Lvar1),
-                            nrow = vn$L, ncol = nclusters
+                            nrow = vn$L, ncol = ncomponents
                         ),
                         Lvar = matrix(1,
-                            nrow = vn$L, ncol = nclusters),
+                            nrow = vn$L, ncol = ncomponents),
                         ## for data with boundary values
                         Llat = constants$Llatinit
                         ## Llat = vtransform(data[, vnames$L, with = FALSE],
@@ -1229,11 +1229,11 @@ inferpopulation <- function(
                     outlist,
                     list(
                         Oprob = aperm(array(sapply(1:vn$O, function(avar) {
-                            sapply(1:nclusters, function(aclus) {
+                            sapply(1:ncomponents, function(aclus) {
                                 Oalpha0[avar, ]/sum(Oalpha0[avar, ])
                                 ## nimble::rdirch(n = 1, alpha = Oalpha0[avar, ])
                             })
-                        }), dim = c(Omaxn, nclusters, vn$O)))
+                        }), dim = c(Omaxn, ncomponents, vn$O)))
                     )
                 )
             }
@@ -1242,11 +1242,11 @@ inferpopulation <- function(
                     outlist,
                     list(
                         Nprob = aperm(array(sapply(1:vn$N, function(avar) {
-                            sapply(1:nclusters, function(aclus) {
+                            sapply(1:ncomponents, function(aclus) {
                                 Nalpha0[avar, ]/sum(Nalpha0[avar, ])
                                 ## nimble::rdirch(n = 1, alpha = Nalpha0[avar, ])
                             })
-                        }), dim = c(Nmaxn, nclusters, vn$N)))
+                        }), dim = c(Nmaxn, ncomponents, vn$N)))
                     )
                 )
             }
@@ -1255,7 +1255,7 @@ inferpopulation <- function(
                     outlist,
                     list(
                         ## Bprob = Bprobs
-                        Bprob = matrix(0.5, nrow = vn$B, ncol = nclusters)
+                        Bprob = matrix(0.5, nrow = vn$B, ncol = ncomponents)
                     )
                 )
             }
@@ -1306,7 +1306,7 @@ inferpopulation <- function(
                     c('Bprob')
                 }
             ),
-            ## It is necessary to monitor K to see if all clusters were used
+            ## It is necessary to monitor K to see if all components were used
             ## if 'showAlphatraces' is true then
             ## the Alpha-parameter trace is also recorded and shown
             monitors2 = c(if (showAlphatraces) { 'Alpha' },
@@ -1438,7 +1438,7 @@ inferpopulation <- function(
         ## Start timer
         starttime <- Sys.time()
 
-        maxusedclusters <- 0
+        maxusedcomponents <- 0
         maxiterations <- 0
         ## keep count of chains having non-finite outputs
         nonfinitechains <- 0L
@@ -1503,7 +1503,7 @@ inferpopulation <- function(
                     niter = niter,
                     thin = 1,
                     thin2 = (if (showAlphatraces || showKtraces) {
-                                 max(1, round(niter / nclustersamples))
+                                 max(1, round(niter / ncomponentsamples))
                              } else {
                                  max(2, floor(niter / 2))
                              }),
@@ -1519,9 +1519,9 @@ inferpopulation <- function(
                 mcsamplesKA <- as.list(Cmcsampler$mvSamples2,
                     iterationAsLastIndex = FALSE)
 
-                ## 'mcsamplesKA$K' contains the cluster identity
+                ## 'mcsamplesKA$K' contains the component identity
                 ## of each training datapoint, but we only want
-                ## the number of distinct clusters used:
+                ## the number of distinct components used:
                 mcsamplesKA$K <- apply(mcsamplesKA$K, 1,
                     function(xx){length(unique(xx))})
 
@@ -1609,10 +1609,10 @@ inferpopulation <- function(
                     ))
                 }
 
-                ## Check how many clusters were used at the last step
-                ## usedclusters <- mcsamplesKA$K[length(mcsamplesKA$K)]
-                usedclusters <- max(mcsamplesKA$K)
-                cat('\nUSED CLUSTERS:', usedclusters, 'OF', nclusters, '\n')
+                ## Check how many components were used at the last step
+                ## usedcomponents <- mcsamplesKA$K[length(mcsamplesKA$K)]
+                usedcomponents <- max(mcsamplesKA$K)
+                cat('\nUSED COMPONENTS:', usedcomponents, 'OF', ncomponents, '\n')
 #### Diagnostics
                 ## Log-likelihood
                 diagntime <- Sys.time()
@@ -1878,15 +1878,15 @@ inferpopulation <- function(
                         paste0('Test points ',
                             paste0('#', rownames(testdata), collapse=' ')
                         ),
-                        paste0('Used clusters: ', usedclusters, ' of ', nclusters),
+                        paste0('Used components: ', usedcomponents, ' of ', ncomponents),
                         ## paste0('LL:  ( ', signif(mean(traces[, 1]), 3), ' +- ',
                         ##     signif(sd(traces[, 1]), 3), ' ) dHart'),
                         'NOTES:',
                         if (flagnonfinite) {
                             'some non-finite MC outputs'
                         },
-                        if (usedclusters > nclusters - 5) {
-                            'too many clusters used'
+                        if (usedcomponents > ncomponents - 5) {
+                            'too many components used'
                         },
                         if (flagll) {
                             'non-finite values in diagnostics'
@@ -1918,23 +1918,23 @@ inferpopulation <- function(
                 dev.off()
             }
 
-#### Plot Alpha and cluster occupation, if required
+#### Plot Alpha and component occupation, if required
             if (showAlphatraces || showKtraces) {
-                cat('Plotting cluster and Alpha information.\n')
+                cat('Plotting component and Alpha information.\n')
                 pdf(file = file.path(dirname,
                     paste0('hyperparams_traces', dashnameroot, '--',
                         padchainnumber, '_', achain, '-', acore, '.pdf')),
                     height = 8.27, width = 11.69)
 
                 if (showKtraces) {
-                    cat('\nSTATS USED CLUSTERS:\n')
+                    cat('\nSTATS USED COMPONENTS:\n')
                     print(summary(allmcsamplesKA$K))
                     ##
-                    tplot(y = allmcsamplesKA$K, ylab = 'used clusters',
-                        xlab = 'iteration', ylim = c(0, nclusters))
-                    tplot(x = ((-1):nclusters) + 0.5,
-                        y = tabulate(allmcsamplesKA$K + 1, nbins = nclusters + 1),
-                        type = 'h', xlab = 'used clusters', ylab = NA,
+                    tplot(y = allmcsamplesKA$K, ylab = 'used components',
+                        xlab = 'iteration', ylim = c(0, ncomponents))
+                    tplot(x = ((-1):ncomponents) + 0.5,
+                        y = tabulate(allmcsamplesKA$K + 1, nbins = ncomponents + 1),
+                        type = 'h', xlab = 'used components', ylab = NA,
                         ylim = c(0, NA))
                 }
                 if (showAlphatraces) {
@@ -1973,7 +1973,7 @@ inferpopulation <- function(
                 )
             }
 
-            maxusedclusters <- max(maxusedclusters, usedclusters)
+            maxusedcomponents <- max(maxusedcomponents, usedcomponents)
             maxiterations <- max(maxiterations, nitertot)
         }
 #### END LOOP OVER CHAINS (WITHIN ONE CORE)
@@ -1988,7 +1988,7 @@ inferpopulation <- function(
         ## output information from a core,
         ## passed to the originally calling process
         cbind(
-            maxusedclusters = maxusedclusters,
+            maxusedcomponents = maxusedcomponents,
             maxiterations = maxiterations,
             nonfinitechains = nonfinitechains,
             stoppedchains = stoppedchains
@@ -2001,7 +2001,7 @@ inferpopulation <- function(
     suppressWarnings(sink())
     suppressWarnings(sink(NULL, type = 'message'))
 
-    maxusedclusters <- max(chaininfo[, 'maxusedclusters'])
+    maxusedcomponents <- max(chaininfo[, 'maxusedcomponents'])
     maxiterations <- max(chaininfo[, 'maxiterations'])
     nonfinitechains <- sum(chaininfo[, 'nonfinitechains'])
     stoppedchains <- sum(chaininfo[, 'stoppedchains'])
@@ -2058,10 +2058,10 @@ inferpopulation <- function(
     cat('\rFinished Monte Carlo sampling.                                 \n')
 
     cat('\nMax number of Monte Carlo iterations across chains:', maxiterations, '\n')
-    cat('Max number of used mixture components:', maxusedclusters, '\n')
-    if (maxusedclusters > nclusters - 5) {
+    cat('Max number of used mixture components:', maxusedcomponents, '\n')
+    if (maxusedcomponents > ncomponents - 5) {
         cat('TOO MANY MIXTURE COMPONENTS USED!\nConsider',
-            're-running with increased "nclusters" parameter\n')
+            're-running with increased "ncomponents" parameter\n')
     }
 
     if (nonfinitechains > 0) {
@@ -2213,7 +2213,7 @@ inferpopulation <- function(
 
 #### WHAT MIGHT BE ADDED:
     ## - when 'showKtraces' is true:
-    ## a histogram over number of clusters over all chains
+    ## a histogram over number of components over all chains
     ## (for the moment there's one plot per chain)
 
     cat('Finished.\n\n')
