@@ -74,7 +74,7 @@ inferpopulation <- function(
     maxMCiterations = +Inf,
     maxhours = +Inf,
     ncheckpoints = NULL,
-    relerror = 0.05, #/(2*qnorm(0.95)), # 1/sqrt(2 * nsamplesperchain) # explore this
+    relerror = 0.05,
     prior = missing(data),
     thinning = NULL,
     plottraces = TRUE,
@@ -338,6 +338,8 @@ inferpopulation <- function(
         prior <- TRUE
         npoints <- 0
     }
+
+    cat('\nUsing', nopoints, 'datapoints\n')
 
 #### Auxiliary dataset
     ## used to extract information about hyperparameters

@@ -168,8 +168,7 @@ plotFsamples <- function(
                 }
 
                 histo <- thist(datum[dleft & dright],
-                    n = nh, extendbreaks = FALSE
-                )
+                    n = nh, extendbreaks = FALSE)
                 hleft <- sum(!dleft) / length(datum)
                 hright <- sum(!dright) / length(datum)
 

@@ -33,7 +33,8 @@ mutualinfo <- function(
 #### Mutual information and conditional entropy between Y2 and Y1
 #### conditional on X, data, prior information
 #### are calculated by Monte Carlo integration:
-#### 0. adjusted component weights are calculated for conditioning on X
+#### 0. adjusted component weights are calculated for conditioning on X:
+####     all probabilities below are conditional on X &data & prior
 #### 1. joint samples of Y1_i, Y2_i are drawn
 #### 2. probabilities p(Y1|Y2) are calculated for each sample
 ####    the conditional entropy is Monte-Carlo approximated by
