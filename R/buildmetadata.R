@@ -5,8 +5,10 @@
 #'   NULL: output metadata as data.frame
 #' @param includevrt string or NULL: name variates in data to be included
 #' @param excludevrt string or NULL: name variates in data to be excluded
-#' @param diagnosticvalues Bool: also output some diagnostic statistics?
+#' @param addsummary2metadata Bool: also output some diagnostic statistics
+#'    in the metadata?
 #' @param backupfiles Bool: rename previous metadata file if it exists?
+#' @param verbose Bool: output heuristics for each variate, default TRUE
 #'
 #' @return nothing or data.table object
 #'
@@ -16,8 +18,9 @@ buildmetadata <- function(
     file = NULL,
     includevrt = NULL,
     excludevrt = NULL,
-    diagnosticvalues = FALSE,
-    backupfiles = FALSE
+    addsummary2metadata = FALSE,
+    backupfiles = FALSE,
+    verbose = TRUE
 ) {
 
     ## Greater Common Denominator function
@@ -52,7 +55,7 @@ buildmetadata <- function(
             ## highvalue = NA,
             plotmin = NA,
             plotmax = NA),
-            if (diagnosticvalues) {
+            if (addsummary2metadata) {
                 list(datamin = NA,
                     datamax = NA,
                     datamaxrep = NA,
@@ -71,6 +74,7 @@ buildmetadata <- function(
     }
     ## Loop over variates (columns) in data frame
     for (name in variatelist) {
+        if(verbose){ cat('\n* Variate,' paste0('"', name, '"'), ':\n') }
         ## remove missing values
         x <- data[[name]]
         x <- x[!is.na(x)]
@@ -120,6 +124,13 @@ buildmetadata <- function(
             plotmax <- NA
             datavalues <- sort(as.character(unique(x)))
             names(datavalues) <- paste0('V', 1:2)
+            ##
+            if(verbose){
+                cat('  Two different values detected:\n',
+                    paste0('"', datavalues, '"', collapse=', '),
+                    '\n')
+                cat('  Assuming variate to be BINARY.\n')
+            }
 
         } else if (!is.numeric(x)) {
             ## Nominal variate? (non-numeric values)
@@ -137,6 +148,13 @@ buildmetadata <- function(
             plotmax <- NA
             datavalues <- sort(as.character(unique(x)))
             names(datavalues) <- paste0('V', 1:Nvalues)
+            ##
+            if(verbose){
+                cat(' ', Nvalues, 'different non-numeric values detected:\n',
+                    paste0('"', datavalues, '"', collapse=', '),
+                    '\n')
+                cat('  Assuming variate to be NOMINAL.\n')
+            }
 
         } else if (uniquex <= 10) {
             ## Ordinal variate with few numeric values?
@@ -154,12 +172,16 @@ buildmetadata <- function(
             plotmax <- NA
             datavalues <- sort(as.character(unique(x)))
             names(datavalues) <- paste0('V', 1:Nvalues)
+            ##
+            if(verbose){
+                cat('  Only', Nvalues, 'different numeric values detected:\n',
+                    paste0('"', datavalues, '"', collapse=', '),
+                    '\n')
+                cat('  Assuming variate to be ORDINAL.\n')
+            }
 
         } else if (jumpquantum >= 1) {
             ## Ordinal variate with many numeric values?
-            message('WARNING: please check variate "', name, '":',
-                '\nit seems ordinal, but it could also be',
-                ' a rounded continous variate\n')
             type <- 'ordinal'
             Nvalues <- uniquex
             rounding <- jumpquantum
@@ -173,6 +195,17 @@ buildmetadata <- function(
             plotmin <- NA
             plotmax <- NA
             datavalues <- NULL
+            ##
+            if(verbose){
+                cat(' ', Nvalues, 'different numeric values detected\n')
+                cat('  there is a large minimum distance of', jumpquantum,
+                    'between datapoints.\n')
+                cat('  Assuming variate to be ORDINAL.\n')
+            }
+            message('WARNING: please check variate "', name, '":',
+                '\nit seems ordinal, but it could also be',
+                ' a rounded continous variate\n')
+
 
         } else {
             ## The variate seems continuous
@@ -271,7 +304,7 @@ buildmetadata <- function(
                     ## highvalue = signif(highvalue,3),
                     plotmin = signif(plotmin,2),
                     plotmax = signif(plotmax,2)),
-                if (diagnosticvalues) {
+                if (addsummary2metadata) {
                     list(datamin = datamin,
                         datamax = datamax,
                         datamaxrep = max(table(x)),
