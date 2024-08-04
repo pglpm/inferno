@@ -339,7 +339,7 @@ inferpopulation <- function(
         npoints <- 0
     }
 
-    cat('\nUsing', nopoints, 'datapoints\n')
+    cat('\nUsing', npoints, 'datapoints\n')
 
 #### Auxiliary dataset
     ## used to extract information about hyperparameters
@@ -853,31 +853,29 @@ inferpopulation <- function(
         'Starting Monte Carlo sampling of', nsamples, 'samples by',
         nchains, 'chains'
     )
-    cat(
-        '\nin a space of',
+    cat('\nin a space of',
         (sum(as.numeric(vn) * c(2, 2, 2, 2, 0, 0, 1)) +
          sum(Nalpha0 > 2e-100) - nrow(Nalpha0) + 1 +
          sum(Oalpha0 > 2e-100) - nrow(Oalpha0) + 1 ) * ncomponents - 1,
-        '(effectively',
-        paste0(
-        (sum(as.numeric(vn) * c(
-            3 + npoints, 3 + npoints, 3 + npoints,
-            3 + npoints, 0, 0, 1 + npoints
-        )) +
-        sum(Nalpha0 > 2e-100) +
-        nrow(Nalpha0) * (npoints - 1) + 1 +
-        sum(Oalpha0 > 2e-100) +
-        nrow(Oalpha0) * (npoints - 1) + 1 ) * ncomponents - 1 + nalpha - 1,
-        ')'
-        ), 'dimensions.\n'
-    )
-    cat(
-        'Using', ncores, 'cores:',
-        nsamplesperchain, 'samples per chain,', nchainspercore, 'chains per core.\n'
-    )
+        ## '(effectively',
+        ## paste0(
+        ## (sum(as.numeric(vn) * c(
+        ##     3 + npoints, 3 + npoints, 3 + npoints,
+        ##     3 + npoints, 0, 0, 1 + npoints
+        ## )) +
+        ## sum(Nalpha0 > 2e-100) +
+        ## nrow(Nalpha0) * (npoints - 1) + 1 +
+        ## sum(Oalpha0 > 2e-100) +
+        ## nrow(Oalpha0) * (npoints - 1) + 1 ) * ncomponents - 1 + nalpha - 1,
+        ## ')' ),
+        'dimensions.\n')
+
+    cat('Using', ncores, 'cores:',
+        nsamplesperchain, 'samples per chain,',
+        nchainspercore, 'chains per core.\n')
     cat('Core logs are being saved in individual files.\n')
     cat('\nC-compiling samplers appropriate to the variates (package Nimble)\n')
-    cat('this can take tens of minutes with many data or variates.\n...\r')
+    cat('this can take tens of minutes with many data or variates.\nPlease wait...\r')
 
     ## ## Needed if method F. for K initialization is used
     ## Ksample <- sample(0:1, 1)
@@ -1317,6 +1315,7 @@ inferpopulation <- function(
             monitors2 = c(if (showAlphatraces) { 'Alpha' },
                 'K')
         )
+
         ## ## Uncomment to debug Nimble (in case of Nimble updates)
         ## print(confnimble$getUnsampledNodes())
         ## cat('\nEX1\n')
@@ -1431,8 +1430,10 @@ inferpopulation <- function(
 
         ## Inform user that compilation is done, if core 1:
         if (acore == 1) {
-            print2user(paste0('\rCompiled core ', acore,
-                '. Estimating remaining time, please be patient...'),
+            print2user(paste0('\rCompiled core ', acore, '. ',
+                'Effective dimensions of sampled space: ',
+                length(confnimble$samplerExecutionOrder), '.\n',
+                'Estimating remaining time, please be patient...'),
                 outcon)
         }
 
