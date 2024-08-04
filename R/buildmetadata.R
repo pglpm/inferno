@@ -74,7 +74,7 @@ buildmetadata <- function(
     }
     ## Loop over variates (columns) in data frame
     for (name in variatelist) {
-        if(verbose){ cat('\n* Variate,' paste0('"', name, '"'), ':\n') }
+        if(verbose){ cat('\n* Variate', paste0('"', name, '"'), ':\n') }
         ## remove missing values
         x <- data[[name]]
         x <- x[!is.na(x)]
@@ -150,7 +150,7 @@ buildmetadata <- function(
             names(datavalues) <- paste0('V', 1:Nvalues)
             ##
             if(verbose){
-                cat(' ', Nvalues, 'different non-numeric values detected:\n',
+                cat('  - ', Nvalues, 'different non-numeric values detected:\n',
                     paste0('"', datavalues, '"', collapse=', '),
                     '\n')
                 cat('  Assuming variate to be NOMINAL.\n')
@@ -174,7 +174,7 @@ buildmetadata <- function(
             names(datavalues) <- paste0('V', 1:Nvalues)
             ##
             if(verbose){
-                cat('  Only', Nvalues, 'different numeric values detected:\n',
+                cat('  - Only', Nvalues, 'different numeric values detected:\n',
                     paste0('"', datavalues, '"', collapse=', '),
                     '\n')
                 cat('  Assuming variate to be ORDINAL.\n')
@@ -197,7 +197,7 @@ buildmetadata <- function(
             datavalues <- NULL
             ##
             if(verbose){
-                cat(' ', Nvalues, 'different numeric values detected\n')
+                cat(' - ', Nvalues, 'different numeric values detected\n')
                 cat('  there is a large minimum distance of', jumpquantum,
                     'between datapoints.\n')
                 cat('  Assuming variate to be ORDINAL.\n')
@@ -237,24 +237,50 @@ buildmetadata <- function(
             plotmin <- datamin - (Q3 - Q1) / 2
             plotmax <- datamax + (Q3 - Q1) / 2
             datavalues <- NULL
+            ##
+            if(verbose){
+                cat('  - Numeric values between',
+                    datamin, 'and', datamax, '\n')
+                cat('  Assuming variate to be CONTINUOUS.\n')
+            }
 
 #### Consider subcases for openness of domain
-            if (all(x >= 0)) {
-                ## seems to be strictly positive
-                domainmin <- 0
-                plotmin <- max((domainmin + datamin) / 2, plotmin)
-            }
             if (sum(x == min(x)) > meanrep) {
                 ## seems to have left-closed domain
                 domainmin <- datamin
                 plotmin <- datamin
                 minincluded <- TRUE
+                ##
+                if(verbose){
+                    cat('  - Many datapoints have minimum value\n')
+                    cat('  Assuming "domainmin" to be the minimum observed value\n')
+                    cat('  and to be included in the domain',
+                        '(singular probabilities there).\n')
+                }
+            } else if (all(x > 0)) {
+                ## seems to be strictly positive
+                domainmin <- 0
+                plotmin <- max((domainmin + datamin) / 2, plotmin)
+                ##
+                if(verbose){
+                    cat('  - All values are non-negative\n')
+                    cat('  Assuming "domainmin" to be 0\n')
+                    cat('  but value "0" not to be part of domain.\n')
+                }
             }
+
             if (sum(x == datamax) > meanrep) {
                 ## seems to right-closed domain
                 domainmax <- datamax
                 plotmax <- datamax
                 maxincluded <- TRUE
+                ##
+                if(verbose){
+                    cat('  - Many datapoints have maximum value\n')
+                    cat('  Assuming "domainmax" to be the maximum observed value\n')
+                    cat('  and to be included in the domain',
+                        '(singular probabilities there).\n')
+                }
             }
 
 #### Consider subcases for rounding
@@ -282,6 +308,12 @@ buildmetadata <- function(
                 ##   rounding <- 0
                 ## } else {
                 rounding <- jumpquantum
+                ##
+                if(verbose){
+                    cat('  - There is a minimum distance of', jumpquantum,
+                        'between datapoints.\n')
+                    cat('  Assuming variate to be ROUNDED.\n')
+                }
                 ## domainmin <- signif(datamin - 4 * rangex, 1)
                 ## domainmax <- signif(datamax + 4 * rangex, 1)
             } # End rounded case
@@ -335,7 +367,7 @@ buildmetadata <- function(
         }
                                         # Save the file
         write.csv(metadata, file, row.names = FALSE, quote = FALSE, na = '')
-        cat('Saved proposal metadata file as', file, '\n')
+        cat('\nSaved proposal metadata file as', paste0('"', file, '"'), '\n')
 
     } else {
                                         # Else just print to console
