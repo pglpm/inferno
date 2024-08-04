@@ -564,25 +564,28 @@ inferpopulation <- function(
 ##################################################
 
 #### Hyperparameters and other internal parameters
-    ## source('hyperparameters.R') doesn't seem to work
-    ncomponents <- hyperparams$ncomponents
-    minalpha <- hyperparams$minalpha
-    maxalpha <- hyperparams$maxalpha
-    byalpha <- hyperparams$byalpha
-    Rshapelo <- hyperparams$Rshapelo
-    Rshapehi <- hyperparams$Rshapehi
-    Rvarm1 <- hyperparams$Rvarm1
-    Cshapelo <- hyperparams$Cshapelo
-    Cshapehi <- hyperparams$Cshapehi
-    Cvarm1 <- hyperparams$Cvarm1
-    Dshapelo <- hyperparams$Dshapelo
-    Dshapehi <- hyperparams$Dshapehi
-    Dvarm1 <- hyperparams$Dvarm1
-    Lshapelo <- hyperparams$Lshapelo
-    Lshapehi <- hyperparams$Lshapehi
-    Lvarm1 <- hyperparams$Lvarm1
-    Bshapelo <- hyperparams$Bshapelo
-    Bshapehi <- hyperparams$Bshapehi
+    ## assign the hyperparameter values to corresponding objects
+    ## ncomponents <- hyperparams$ncomponents
+    ## minalpha <- hyperparams$minalpha
+    ## maxalpha <- hyperparams$maxalpha
+    ## byalpha <- hyperparams$byalpha
+    ## Rshapelo <- hyperparams$Rshapelo
+    ## Rshapehi <- hyperparams$Rshapehi
+    ## Rvarm1 <- hyperparams$Rvarm1
+    ## Cshapelo <- hyperparams$Cshapelo
+    ## Cshapehi <- hyperparams$Cshapehi
+    ## Cvarm1 <- hyperparams$Cvarm1
+    ## Dshapelo <- hyperparams$Dshapelo
+    ## Dshapehi <- hyperparams$Dshapehi
+    ## Dvarm1 <- hyperparams$Dvarm1
+    ## Lshapelo <- hyperparams$Lshapelo
+    ## Lshapehi <- hyperparams$Lshapehi
+    ## Lvarm1 <- hyperparams$Lvarm1
+    ## Bshapelo <- hyperparams$Bshapelo
+    ## Bshapehi <- hyperparams$Bshapehi
+    for(aname in names(hyperparams)){
+        assign(aname, hyperparams[[aname]])
+    }
 
     nalpha <- length(seq(minalpha, maxalpha, by = byalpha))
     npoints <- nrow(data)

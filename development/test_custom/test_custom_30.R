@@ -18,7 +18,7 @@ library('modelfreeinference')
 
 seed <- 16
 
-outputdirPrefix <- file.path('_packagetest')
+outputdirPrefix <- file.path('_deletepackagetest')
 
 ## ncores <- 4
 ## library('doParallel')
@@ -35,7 +35,7 @@ currenttestdir <- inferpopulation(
     nsamples = 120,
     nchains = 12,
     parallel = 4,
-    maxhours = Inf,
+    maxhours = 1/60,
     ## relerror = 0.062,
     ncheckpoints = NULL,
     cleanup = FALSE,
@@ -45,6 +45,8 @@ currenttestdir <- inferpopulation(
     showAlphatraces = TRUE,
     seed = seed
 )
+
+warnings()
 
 cat('\nTest calculation of mutual information:\n')
 
@@ -58,6 +60,9 @@ mi <- mutualinfo(
 )
 
 print(mi)
+
+warnings()
+
 
 cat('\nEnd\n')
 
