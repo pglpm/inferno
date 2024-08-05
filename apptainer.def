@@ -3,10 +3,6 @@ From: ubuntu:22.04
 
 # Image for running the tests in modelfreeinference
 
-#%files
-#	/etc/localtime
-#	/etc/timezone
-
 %environment
 	export LC_ALL="en_US.UTF-8"
 	export R_LIBS_USER=R-packages
@@ -14,6 +10,7 @@ From: ubuntu:22.04
 %post
 	# Install software
 	apt-get update -y
+    DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends tzdata
 	apt-get install -y language-pack-en-base
 	apt-get install curl -y
 	apt-get install git -y
@@ -22,7 +19,7 @@ From: ubuntu:22.04
 	apt-get install libharfbuzz-dev libfribidi-dev -y
 	apt-get install libfreetype6-dev libpng-dev libtiff5-dev libjpeg-dev -y
 	# Get newest version of R
-	printf "y\n8\n36\n" | apt-get install r-base
+	apt-get install r-base -y
 	apt-get install r-base-dev -y
 	apt install build-essential libcurl4-openssl-dev libssl-dev libxml2-dev	
 	Rscript -e "install.packages('devtools')"
