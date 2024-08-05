@@ -32,6 +32,13 @@ buildmetadata <- function(
         }, c(...)))
     }
 
+    ## keywords to recognize ordinal variates
+    ordinalkeywords <- c('low', 'high', 'very', 'medium', 'strong',
+        'poor', 'good', 'always')
+
+    ## collect warning messages to be given at the end
+    warninglist <- NULL
+
     ## Read datafile if it exists
     datafile <- NULL
     if (is.character(data) && file.exists(data)) {
@@ -64,7 +71,8 @@ buildmetadata <- function(
         )
     )[-1,]
 
-    cat('\n')
+    ## build list of variates, including only those in 'includevrt'
+    ## and excluding those in 'excludevrt'
     variatelist <- colnames(data)
     if(!is.null(includevrt)) {
         variatelist <- intersect(variatelist, includevrt)
@@ -72,24 +80,36 @@ buildmetadata <- function(
     if(!is.null(excludevrt)) {
         variatelist <- setdiff(variatelist, excludevrt)
     }
+
+
     ## Loop over variates (columns) in data frame
+    ## cat('\n')
     for (name in variatelist) {
         if(verbose){ cat('\n* Variate', paste0('"', name, '"'), ':\n') }
         ## remove missing values
         x <- data[[name]]
         x <- x[!is.na(x)]
+        ## check if it's a 'factor' object and transform
+        if(is.factor(x)){
+            x <- as.character(x)
+            testx <- suppressWarnings(as.numeric(x))
+            if(!any(is.na(testx))){
+                x <- testx
+            }
+        }
         uniquex <- length(unique(x))
         ## if this variate has only one value, then it bears no information
         if (uniquex <= 1) {
-            message('WARNING: variate "', name, '"',
-                ' does not have at least two distinct values.',
-                '\nDiscarded because non-informative\n')
+            warninglist <- c(warninglist,
+                paste0('* Variate "', name, '"',
+                    ' does not have at least two distinct values.',
+                    '\nDiscarded because non-informative'))
             next
         }
 
         ## If the variate is numeric,
         ## calculate several characteristics used later
-        if (is.numeric(x)) {
+        if (is.numeric(x) && uniquex > 2) {
             ## these two are used for diagnostic purposes
             datamin <- min(x)
             datamax <- max(x)
@@ -104,6 +124,9 @@ buildmetadata <- function(
             ## jumps between unique values are integer multiples
             ## of 'jumpquantum'
             jumpquantum <- gcd(round(jumpsx * multi)) / multi
+            datavalues <- NULL
+        } else {
+            datavalues <- as.character(sort(unique(x)))
         }
 
 #### Now make educated guess for the type of variate
@@ -122,7 +145,6 @@ buildmetadata <- function(
             ## highvalue <- NA
             plotmin <- NA
             plotmax <- NA
-            datavalues <- sort(as.character(unique(x)))
             names(datavalues) <- paste0('V', 1:2)
             ##
             if(verbose){
@@ -132,7 +154,10 @@ buildmetadata <- function(
                 cat('  Assuming variate to be BINARY.\n')
             }
 
-        } else if (!is.numeric(x)) {
+        } else if (!is.numeric(x) &&
+                   !any(sapply(ordinalkeywords, function(keyw){
+                       grepl(keyw, datavalues, fixed = TRUE)
+                   }))) {
             ## Nominal variate? (non-numeric values)
             type <- 'nominal'
             Nvalues <- uniquex
@@ -146,17 +171,18 @@ buildmetadata <- function(
             ## highvalue <- NA
             plotmin <- NA
             plotmax <- NA
-            datavalues <- sort(as.character(unique(x)))
             names(datavalues) <- paste0('V', 1:Nvalues)
             ##
             if(verbose){
                 cat('  - ', Nvalues, 'different non-numeric values detected:\n',
                     paste0('"', datavalues, '"', collapse=', '),
                     '\n')
+                cat('  which do not seem to refer to an ordered scale.\n')
                 cat('  Assuming variate to be NOMINAL.\n')
             }
 
-        } else if (uniquex <= 10) {
+        } else if (!is.numeric(x)) {
+            ## Nominal variate? (non-numeric values)
             ## Ordinal variate with few numeric values?
             type <- 'ordinal'
             Nvalues <- uniquex
@@ -170,17 +196,62 @@ buildmetadata <- function(
             ## highvalue <- NA
             plotmin <- NA
             plotmax <- NA
-            datavalues <- sort(as.character(unique(x)))
             names(datavalues) <- paste0('V', 1:Nvalues)
             ##
             if(verbose){
-                cat('  - Only', Nvalues, 'different numeric values detected:\n',
+                cat('  - ', Nvalues, 'different non-numeric values detected:\n',
                     paste0('"', datavalues, '"', collapse=', '),
                     '\n')
+                cat('  which seem to refer to an ordered scale.\n')
+                cat('  Assuming variate to be ORDINAL.\n')
+                cat('  Please appropriately reorder its values in metadata file.\n')
+            }
+            warninglist <- c(warninglist,
+                paste0('* Variate "', name, '"',
+                    ' appears to be ordinal.',
+                    '\nPlease appropriately reorder its values in metadata file.'))
+
+
+#### Now we know that the variate is numeric
+
+        } else if (uniquex <= 10) {
+            ## Ordinal variate with few numeric values?
+            type <- 'ordinal'
+            Nvalues <- uniquex
+            ## if the values are spaced by an integer,
+            ## no need to use the 'V' fields
+            if(jumpquantum == round(jumpquantum)) {
+                rounding <- jumpquantum
+                domainmin <- datamin
+                domainmax <- datamax
+                datavalues <- NULL
+            } else {
+                rounding <- NA
+                domainmin <- NA
+                domainmax <- NA
+                names(datavalues) <- paste0('V', 1:Nvalues)
+            }
+            minincluded <- NA
+            maxincluded <- NA
+            ## lowvalue <- NA
+            ## centralvalue <- NA
+            ## highvalue <- NA
+            plotmin <- NA
+            plotmax <- NA
+            ##
+            if(verbose){
+                cat('  - Only', Nvalues, 'different numeric values detected:\n')
+                if(jumpquantum == round(jumpquantum)) {
+                    cat('from', domainmin, 'to', domainmax,
+                        'in steps of', jumpquantum, '\n')
+                } else {
+                    cat(paste0('"', datavalues, '"', collapse=', '), '\n')
+                }
                 cat('  Assuming variate to be ORDINAL.\n')
             }
 
-        } else if (jumpquantum >= 1) {
+        } else if (jumpquantum >= 1 &&
+                   datamin <= 2) {
             ## Ordinal variate with many numeric values?
             type <- 'ordinal'
             Nvalues <- uniquex
@@ -198,13 +269,14 @@ buildmetadata <- function(
             ##
             if(verbose){
                 cat(' - ', Nvalues, 'different numeric values detected\n')
-                cat('  there is a large minimum distance of', jumpquantum,
-                    'between datapoints.\n')
+                cat('  distance between datapoints is a multiple of',
+                    jumpquantum, '\n')
                 cat('  Assuming variate to be ORDINAL.\n')
             }
-            message('WARNING: please check variate "', name, '":',
-                '\nit seems ordinal, but it could also be',
-                ' a rounded continous variate\n')
+            warninglist <- c(warninglist,
+                paste0('* Variate "', name, '"',
+                    ' appears to be ordinal,',
+                    '\nbut it could also be a rounded continous variate'))
 
 
         } else {
@@ -213,8 +285,8 @@ buildmetadata <- function(
             Nvalues <- Inf
             ## preliminary values, possibly modified below
             rounding <- NA
-            domainmin <- signif(datamax - 3 * rangex, 1)
-            domainmax <- signif(datamax + 3 * rangex, 1)
+            domainmin <- -Inf # signif(datamax - 3 * rangex, 1)
+            domainmax <- +Inf # signif(datamax + 3 * rangex, 1)
             minincluded <- FALSE
             maxincluded <- FALSE
 
@@ -264,8 +336,8 @@ buildmetadata <- function(
                 ##
                 if(verbose){
                     cat('  - All values are non-negative\n')
-                    cat('  Assuming "domainmin" to be 0\n')
-                    cat('  but value "0" not to be part of domain.\n')
+                    cat('  Assuming "domainmin" to be 0,',
+                        'with 0 excluded from domain.\n')
                 }
             }
 
@@ -310,9 +382,15 @@ buildmetadata <- function(
                 rounding <- jumpquantum
                 ##
                 if(verbose){
-                    cat('  - There is a minimum distance of', jumpquantum,
-                        'between datapoints.\n')
+                    cat('  - Distance between datapoints is a multiple of',
+                        jumpquantum, '\n')
                     cat('  Assuming variate to be ROUNDED.\n')
+                }
+                if(jumpquantum >=1) {
+                    warninglist <- c(warninglist,
+                        paste0('* Variate "', name, '"',
+                            ' appears to be continuous and rounded,',
+                    '\nbut it could also be an ordinal variate'))
                 }
                 ## domainmin <- signif(datamin - 4 * rangex, 1)
                 ## domainmax <- signif(datamax + 4 * rangex, 1)
@@ -346,6 +424,15 @@ buildmetadata <- function(
             ),
             sort = FALSE, all = TRUE)
     } # End loop over variates
+    if(verbose){cat('\n')}
+
+    ## Print warnings
+    if(!is.null(warninglist)){
+        message('\nWARNINGS',
+            ' - please make sure to check these variates in the metadata file:')
+        for(awarning in warninglist){message(awarning)}
+        cat('\n')
+    }
 
                                         # Save to file if the file parameter is set
     if (!is.null(file)) {
