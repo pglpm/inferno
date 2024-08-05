@@ -25,14 +25,8 @@ jobs:
         run: |
           singularity build container.sif apptainer.def
 
-      - name: Install package and dependencies
+      - name: Install package and dependencies and run test
         run: |
           singularity run container.sif
       
-      - name: Run tests
-        run: |
-          cd ${{ github.workspace }} && \
-          cd development/test_custom && \
-          singularity shell container.sif && 
-          Rscript test_R_30.R
       

@@ -29,6 +29,10 @@ From: r-base
         echo "Package modelfreeinference has not been installed."
         exit 1
     fi
+	cd $GITHUB_WORKSPACE && \
+	cd development/test_custom && \
+	Rscript -e "library('modelfreeinference')" && \
+	Rscript test_R_30.R
 
 
 
