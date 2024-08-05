@@ -249,7 +249,7 @@ buildmetadata <- function(
                 }
                 cat('  Assuming variate to be ORDINAL.\n')
             }
-
+# (ess-set-style 'OWN)
         } else if (jumpquantum >= 1 &&
                    datamin <= 2) {
             ## Ordinal variate with many numeric values?

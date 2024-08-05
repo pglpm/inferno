@@ -150,10 +150,10 @@ buildauxmetadata <- function(data, metadata, Dthreshold = Dthreshold) {
             transf <- 'Q'
             if(!is.null(data)) {
                 tlocation <- median(util_Q(
-                    (round((x - olocation) / oscale) - 0.5) / Nvalues
+                (round((x - olocation) / oscale) - 0.5) / Nvalues
                 ))
                 tscale <- mad(util_Q(
-                    (round((x - olocation) / oscale) - 0.5) / Nvalues
+                (round((x - olocation) / oscale) - 0.5) / Nvalues
                 )) / iqrfactor
             } else {
                 tlocation <- 0
