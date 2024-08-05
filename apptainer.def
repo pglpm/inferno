@@ -4,7 +4,7 @@ From: r-base
 # Image for running the tests in modelfreeinference
 
 %environment
-	export R_LIBS_USER=R-packages
+	export R_LIBS_USER=~/R-packages
 
 %post
 	# Install software
@@ -19,8 +19,9 @@ From: r-base
 	Rscript -e "install.packages('devtools')"
 
 %runscript
-    mkdir R-packages
-    Rscript -e "devtools::install($GITHUB_WORKSPACE)"
+    mkdir ~/R-packages
+    echo $R_LIBS_USER
+    Rscript -e "devtools::install()"
     Rscript -e "library('modelfreeinference')"
 	if [ $? -eq 0 ]; then
         echo "Package modelfreeinference has been installed."
