@@ -16,15 +16,15 @@ jobs:
         options: --privileged
 
     name: Build Container
-        steps:
+    steps:
 
-          - name: Check out code for the container builds
-            uses: actions/checkout@v4
+      - name: Check out code for the container builds
+        uses: actions/checkout@v4
 
-          - name: Build Container
-            run: |
-              singularity build container.sif apptainer.def
+      - name: Build Container
+        run: |
+          singularity build container.sif apptainer.def
 
-          - name: Run Container
-            run: |
-              singularity run container.sif
+      - name: Run Container
+        run: |
+          singularity run container.sif
