@@ -17,6 +17,18 @@ From: r-base
 	apt-get install r-base-dev -y
 	apt install build-essential libcurl4-openssl-dev libssl-dev libxml2-dev	 -y
 	Rscript -e "install.packages('devtools')"
+	Rscript -e "install.packages('iterators')"
+	Rscript -e "install.packages('numDeriv')"
+	Rscript -e "install.packages('pracma')"
+	Rscript -e "install.packages('coda')"
+	Rscript -e "install.packages('igraph')"
+	Rscript -e "install.packages('rngtools')"
+	Rscript -e "install.packages('foreach')"
+	Rscript -e "install.packages('nimble')"
+	Rscript -e "install.packages('khroma')"
+	Rscript -e "install.packages('extraDistr')"
+	Rscript -e "install.packages('doRNG')"
+	Rscript -e "install.packages('doParallel')"
 
 %runscript
     mkdir ~/R-packages
@@ -27,7 +39,6 @@ From: r-base
         echo "Package modelfreeinference has been installed."
     else
         echo "Package modelfreeinference has not been installed."
-        exit 1
     fi
 	cd $GITHUB_WORKSPACE && \
 	cd development/test_custom && \

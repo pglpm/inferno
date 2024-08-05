@@ -25,7 +25,7 @@ jobs:
         run: |
           singularity build container.sif apptainer.def
 
-      - name: Install package and dependencies and run test
+      - name: Install package and run test
         run: |
           singularity run container.sif
       
