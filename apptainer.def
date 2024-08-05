@@ -10,11 +10,11 @@ From: r-base
 	# Install software
 	apt-get update -y
 	apt-get install curl -y
-	apt-get install xml2 -y
-	apt-get install libfontconfig1-dev -y
-	apt-get install libharfbuzz-dev libfribidi-dev -y
-	apt-get install libfreetype6-dev libpng-dev libtiff5-dev libjpeg-dev -y
-	apt install build-essential libcurl4-openssl-dev libssl-dev libxml2-dev	 -y
+	# apt-get install xml2 -y
+	# apt-get install libfontconfig1-dev -y
+	# apt-get install libharfbuzz-dev libfribidi-dev -y
+	# apt-get install libfreetype6-dev libpng-dev libtiff5-dev libjpeg-dev -y
+	# apt install build-essential libcurl4-openssl-dev libssl-dev libxml2-dev	 -y
 	Rscript -e "install.packages('iterators')"
 	Rscript -e "install.packages('numDeriv')"
 	Rscript -e "install.packages('pracma')"
