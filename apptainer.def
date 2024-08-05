@@ -1,40 +1,18 @@
 BootStrap: docker
-From: ubuntu:22.04
+From: r-base
 
 # Image for running the tests in modelfreeinference
 
 %environment
-	export LC_ALL="en_US.UTF-8"
 	export R_LIBS_USER=R-packages
 
 %post
 	# Install software
-	apt-get update -y
-    DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends tzdata
-	apt-get install -y language-pack-en-base
-	apt-get install curl -y
-	apt-get install git -y
-	apt-get install xml2 -y
-	apt-get install libfontconfig1-dev -y
-	apt-get install libharfbuzz-dev libfribidi-dev -y
-	apt-get install libfreetype6-dev libpng-dev libtiff5-dev libjpeg-dev -y
-	# Get newest version of R
-	apt-get install r-base -y
-	apt-get install r-base-dev -y
-	apt install build-essential libcurl4-openssl-dev libssl-dev libxml2-dev	
-	Rscript -e "install.packages('devtools')"
+	echo $GITHUB_WORKSPACE
+    ls $GITHUB_WORKSPACE
 
 %runscript
-	# Install modelfreeinference
-	mkdir R-packages
-	export R_LIBS=R-packages
-	export R_LIBS_USER=R-packages
-	if [-d R-packages/modelfreeinference]; then
-		echo "Package modelfreeinference is already installed. Removing it... \n"
-		rm R-packages/modelfreeinference -rf
-	fi
-	Rscript -e "devtools::install()"
-	Rscript -e "library('modelfreeinference')"
+    Rscript -e "library('modelfreeinference')"
 	if [ $? -eq 0 ]; then
         echo "Package modelfreeinference has been installed."
     else
