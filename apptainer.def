@@ -14,9 +14,7 @@ From: r-base
 	apt-get install libfontconfig1-dev -y
 	apt-get install libharfbuzz-dev libfribidi-dev -y
 	apt-get install libfreetype6-dev libpng-dev libtiff5-dev libjpeg-dev -y
-	apt-get install r-base-dev -y
 	apt install build-essential libcurl4-openssl-dev libssl-dev libxml2-dev	 -y
-	Rscript -e "install.packages('devtools')"
 	Rscript -e "install.packages('iterators')"
 	Rscript -e "install.packages('numDeriv')"
 	Rscript -e "install.packages('pracma')"
@@ -33,16 +31,9 @@ From: r-base
 %runscript
     mkdir ~/R-packages
     echo $R_LIBS_USER
-    Rscript -e "devtools::install()"
-    Rscript -e "library('modelfreeinference')"
-	if [ $? -eq 0 ]; then
-        echo "Package modelfreeinference has been installed."
-    else
-        echo "Package modelfreeinference has not been installed."
-    fi
+	Rscript -e "install.packages(pkgs=Sys.getenv('GITHUB_WORKSPACE'), repos=NULL)"
 	cd $GITHUB_WORKSPACE && \
 	cd development/test_custom && \
-	Rscript -e "library('modelfreeinference')" && \
 	Rscript test_R_30.R
 
 
