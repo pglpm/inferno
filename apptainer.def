@@ -12,6 +12,8 @@ From: r-base
     ls $GITHUB_WORKSPACE
 
 %runscript
+    echo $GITHUB_WORKSPACE
+    ls $GITHUB_WORKSPACE
     Rscript -e "library('modelfreeinference')"
 	if [ $? -eq 0 ]; then
         echo "Package modelfreeinference has been installed."
