@@ -8,12 +8,19 @@ From: r-base
 
 %post
 	# Install software
-	echo $GITHUB_WORKSPACE
-    ls $GITHUB_WORKSPACE
+	apt-get update -y
+	apt-get install curl -y
+	apt-get install xml2 -y
+	apt-get install libfontconfig1-dev -y
+	apt-get install libharfbuzz-dev libfribidi-dev -y
+	apt-get install libfreetype6-dev libpng-dev libtiff5-dev libjpeg-dev -y
+	apt-get install r-base-dev -y
+	apt install build-essential libcurl4-openssl-dev libssl-dev libxml2-dev	
+	Rscript -e "install.packages('devtools')"
 
 %runscript
-    echo $GITHUB_WORKSPACE
-    ls $GITHUB_WORKSPACE
+    mkdir R-packages
+    Rscript -e "devtools::install($GITHUB_WORKSPACE)"
     Rscript -e "library('modelfreeinference')"
 	if [ $? -eq 0 ]; then
         echo "Package modelfreeinference has been installed."
@@ -21,5 +28,6 @@ From: r-base
         echo "Package modelfreeinference has not been installed."
         exit 1
     fi
+
 
 

@@ -1,4 +1,4 @@
-name: Apptainer Build Deploy
+name: Apptainer Build
 
 on:
   push:
@@ -15,7 +15,7 @@ jobs:
         image: quay.io/singularity/singularity:v4.1.0
         options: --privileged
 
-    name: Build Container
+    name: Build and test Package
     steps:
 
       - name: Check out code for the container builds
@@ -25,6 +25,13 @@ jobs:
         run: |
           singularity build container.sif apptainer.def
 
-      - name: Run Container
+      - name: Install package and dependencies
         run: |
           singularity run container.sif
+      
+      - name: Run tests
+        run: |
+          cd ${{ github.workspace }} && \
+          cd development/test_custom && \
+          Rscript test_R_30.R
+      
