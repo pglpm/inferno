@@ -1,0 +1,30 @@
+name: Apptainer Build Deploy
+
+on:
+  push:
+    branches: [choisant-CI-test]
+
+jobs:
+  build-test-container:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+
+    container:
+        image: quay.io/singularity/singularity:v4.1.0
+        options: --privileged
+
+    name: Build Container
+        steps:
+
+          - name: Check out code for the container builds
+            uses: actions/checkout@v4
+
+          - name: Build Container
+            run: |
+              singularity build container.sif apptainer.def
+
+          - name: Run Container
+            run: |
+              singularity run container.sif
