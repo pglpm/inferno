@@ -3,9 +3,9 @@ From: ubuntu:22.04
 
 # Image for running the tests in modelfreeinference
 
-%files
-	/etc/localtime
-	/etc/timezone
+#%files
+#	/etc/localtime
+#	/etc/timezone
 
 %environment
 	export LC_ALL="en_US.UTF-8"
