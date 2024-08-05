@@ -15,7 +15,7 @@ From: r-base
 	apt-get install libharfbuzz-dev libfribidi-dev -y
 	apt-get install libfreetype6-dev libpng-dev libtiff5-dev libjpeg-dev -y
 	apt-get install r-base-dev -y
-	apt install build-essential libcurl4-openssl-dev libssl-dev libxml2-dev	
+	apt install build-essential libcurl4-openssl-dev libssl-dev libxml2-dev	 -y
 	Rscript -e "install.packages('devtools')"
 
 %runscript
