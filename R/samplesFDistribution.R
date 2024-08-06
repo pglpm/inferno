@@ -260,7 +260,7 @@ samplesFDistribution <- function(
     YnD <- length(YiD)
     if (YnD > 0 || XnD > 0) {
         mcoutput$Dvar <- sqrt(mcoutput$Dvar)
-        Dsteps <- auxmetadata[match(vnames, auxmetadata$name), 'step'] /
+        Dsteps <- auxmetadata[match(vnames, auxmetadata$name), 'halfstep'] /
             auxmetadata[match(vnames, auxmetadata$name), 'tscale']
         Drights <- auxmetadata[match(vnames, auxmetadata$name), 'tdomainmax']
         Dlefts <- auxmetadata[match(vnames, auxmetadata$name), 'tdomainmin']
