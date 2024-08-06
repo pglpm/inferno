@@ -107,22 +107,22 @@ plotFsamples <- function(
         xinfo <- as.list(auxmetadata[auxmetadata$name == v, ])
         vtype <- xinfo[['mcmctype']]
         if (vtype %in% c('R', 'D', 'C', 'L')) { #
-            if (vtype == 'L') {
-                Xgrid <- seq(xinfo[['domainmin']], xinfo[['domainmax']],
-                    length.out = xinfo[['Nvalues']]
-                )
-                Xgrid <- cbind(Xgrid[Xgrid >= xinfo[['plotmin']]
-                    & Xgrid <= xinfo[['plotmax']]])
-            } else {
+            ## if (vtype == 'L') {
+            ##     Xgrid <- seq(xinfo[['domainmin']], xinfo[['domainmax']],
+            ##         length.out = xinfo[['Nvalues']]
+            ##     )
+            ##     Xgrid <- cbind(Xgrid[Xgrid >= xinfo[['plotmin']]
+            ##         & Xgrid <= xinfo[['plotmax']]])
+            ## } else {
                 Xgrid <- cbind(seq(
                     xinfo[['plotmin']], xinfo[['plotmax']],
                     length.out = 256
                 ))
-            }
+            ## }
             colnames(Xgrid) <- v
 
-            xleft <- Xgrid > xinfo[['censormin']]
-            xright <- Xgrid < xinfo[['censormax']]
+            xleft <- Xgrid > xinfo[['domainmin']]
+            xright <- Xgrid < xinfo[['domainmax']]
 
             plotsamples <- samplesFDistribution(Y = Xgrid, X = NULL,
                 mcoutput = mcoutput,
@@ -154,18 +154,18 @@ plotFsamples <- function(
                 datum <- datum[!is.na(datum)]
                 dleft <- datum > xinfo[['censormin']]
                 dright <- datum < xinfo[['censormax']]
-                if (vtype == 'L') {
-                    dh <- (xinfo[['domainmax']] - xinfo[['domainmin']]) /
-                        (xinfo[['Nvalues']] - 1L) / 2
-                    nh <- seq(xinfo[['domainmin']] - dh, xinfo[['domainmax']] + dh,
-                        length.out = xinfo[['Nvalues']] + 1L
-                    )
-                    nh <- nh[nh >= min(datum) - dh & nh <= max(datum) + dh]
-                } else {
+                ## if (vtype == 'L') {
+                ##     dh <- (xinfo[['domainmax']] - xinfo[['domainmin']]) /
+                ##         (xinfo[['Nvalues']] - 1L) / 2
+                ##     nh <- seq(xinfo[['domainmin']] - dh, xinfo[['domainmax']] + dh,
+                ##         length.out = xinfo[['Nvalues']] + 1L
+                ##     )
+                ##     nh <- nh[nh >= min(datum) - dh & nh <= max(datum) + dh]
+                ## } else {
                     ## nh <- seq(min(datum[dleft & dright]), max(datum[dleft & dright]),
                     ## length.out=max(16, round(length(datum[dleft & dright])/64)))
                     nh <- max(32, round(length(datum[dleft & dright]) / 64))
-                }
+                ## }
 
                 histo <- thist(datum[dleft & dright],
                     n = nh, extendbreaks = FALSE)
@@ -182,10 +182,11 @@ plotFsamples <- function(
                     x = Xgrid[xleft & xright],
                     y = plotsamples[xleft & xright, subsamples, drop = FALSE],
                     xlim = range(Xgrid), ylim = c(0, ymax),
-                    type = 'l', lty = 1, lwd = 2,
+                    type =  (if (vtype == 'D') {'b'} else {'l'}),
+                    lty = 1, lwd = 2,
                     col = 5, alpha = 7 / 8,
                     xlab = v,
-                    ylab = paste0('frequency', (if (vtype == 'L') {
+                    ylab = paste0('frequency', (if (vtype == 'D') {
                                                     ''
                                                 } else {
                                                     ' density'
@@ -211,14 +212,11 @@ plotFsamples <- function(
                     y = rowMeans(plotsamples[xleft & xright, , drop = FALSE],
                         na.rm = TRUE),
                     xlim = range(Xgrid), ylim = c(0, ymax),
-                    type = (if (vtype == 'L') {
-                                'b'
-                            } else {
-                                'l'
-                            }), cex = 0.5, lty = 1, lwd = 4,
+                    type = (if (vtype == 'D') {'b'} else {'l'}),
+                    cex = 0.5, lty = 1, lwd = 4,
                     col = 1, alpha = 0.25,
                     xlab = v,
-                    ylab = paste0('frequency', (if (vtype == 'L') {
+                    ylab = paste0('frequency', (if (vtype == 'D') {
                                                     ''
                                                 } else {
                                                     ' density'
@@ -250,7 +248,8 @@ plotFsamples <- function(
                         x = matrix(Xgrid[!(xleft & xright)],
                             nrow = 2, ncol = sum(!(xleft & xright)), byrow = TRUE),
                         y = t(marguncertainty[!(xleft & xright), , drop = FALSE]) * ymax,
-                        type = 'l', pch = 2, cex = 2,
+                        type = (if (vtype == 'D') {'b'} else {'l'}),
+                        pch = 2, cex = 2,
                         col = 5, alpha = 0.75,
                         lty = 1, lwd = 16,
                         add = TRUE
@@ -263,14 +262,11 @@ plotFsamples <- function(
                 tplot(
                     x = histo$mids, y = histo$density * histomax,
                     xlim = range(Xgrid), ylim = c(0, ymax),
-                    type = (if (vtype == 'L') {
-                                'b'
-                            } else {
-                                'l'
-                            }), cex = 0.5, lty = 1, lwd = 2,
+                    type = (if (vtype == 'D') {'b'} else {'l'}),
+                    cex = 0.5, lty = 1, lwd = 2,
                     col = 4, alpha = 0.5, border = '#555555', border.alpha = 3 / 4,
                     xlab = v,
-                    ylab = paste0('frequency', (if (vtype == 'L') {
+                    ylab = paste0('frequency', (if (vtype == 'D') {
                                                     ''
                                                 } else {
                                                     ' density'
@@ -281,9 +277,9 @@ plotFsamples <- function(
                 if (any(!(dleft & dright))) {
                     tplot(
                         x = c(if (hleft > 0) {
-                                  xinfo[['censormin']]
+                                  xinfo[['domainmin']]
                               }, if (hright > 0) {
-                                     xinfo[['censormax']]
+                                     xinfo[['domainmax']]
                                  }), y = c(if (hleft > 0) {
                                                hleft
                                            }, if (hright > 0) {

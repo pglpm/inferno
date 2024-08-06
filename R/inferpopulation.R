@@ -489,7 +489,6 @@ inferpopulation <- function(
                 Rout = 'original',
                 Cout = 'original',
                 Dout = 'original',
-                Lout = 'original',
                 Nout = 'original',
                 Oout = 'original',
                 Bout = 'original')

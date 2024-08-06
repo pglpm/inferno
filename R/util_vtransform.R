@@ -269,6 +269,15 @@ vtransform <- function(
                     datum[sel] <- NA
                     datum[!sel] <- 1L
 
+                } else if (Dout == 'boundisinf') {
+                    ## used in sampling functions
+                    selmax <- (datum + xinfo$halfstep >= xinfo$domainmax)
+                    selmin <- (datum - xinfo$halfstep <= xinfo$domainmin)
+                    ##
+                    datum <- (datum - xinfo$tlocation) / xinfo$tscale
+                    datum[selmax] <- +Inf
+                    datum[selmin] <- -Inf
+
                 } else if (Dout == 'normalized') {
                     ## used in sampling functions
                     datum <- (datum - xinfo$tlocation) / xinfo$tscale

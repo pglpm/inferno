@@ -266,43 +266,6 @@ samplesFDistribution <- function(
         Dlefts <- auxmetadata[match(vnames, auxmetadata$name), 'tdomainmin']
     }
 
-## #### Type L
-##     vnames <- auxmetadata[auxmetadata$mcmctype == 'L', 'name']
-##     XiL <- match(vnames, Xv)
-##     XtL <- which(!is.na(XiL))
-##     XiL <- XiL[XtL]
-##     XnL <- length(XiL)
-##     ##
-##     YiL <- match(vnames, Yv)
-##     YtL <- which(!is.na(YiL))
-##     YiL <- YiL[YtL]
-##     YnL <- length(YiL)
-##     if (YnL > 0 || XnL > 0) {
-##         mcoutput$Lvar <- sqrt(mcoutput$Lvar)
-##         ##
-##         Lmaxn <- max(auxmetadata[auxmetadata$name %in% vnames, 'Nvalues'])
-##         Lleft <- t(sapply(vnames, function(avar) {
-##             nn <- auxmetadata[auxmetadata$name == avar, 'Nvalues']
-##             seqs <- seq(auxmetadata[auxmetadata$name == avar, 'domainmin'],
-##                 auxmetadata[auxmetadata$name == avar, 'domainmax'],
-##                 length.out = nn)
-##             c(as.matrix(vtransform(seqs, auxmetadata = auxmetadata,
-##                 Lout = 'left',
-##                 variates = avar)),
-##                 rep(NA, Lmaxn - nn))
-##         }))
-##         Lright <- t(sapply(vnames, function(avar) {
-##             nn <- auxmetadata[auxmetadata$name == avar, 'Nvalues']
-##             seqs <- seq(auxmetadata[auxmetadata$name == avar, 'domainmin'],
-##                 auxmetadata[auxmetadata$name == avar, 'domainmax'],
-##                 length.out = nn)
-##             c(as.matrix(vtransform(seqs, auxmetadata = auxmetadata,
-##                 Lout = 'right',
-##                 variates = avar)),
-##                 rep(NA, Lmaxn - nn))
-##         }))
-##     }
-
 #### Type O
     vnames <- auxmetadata[auxmetadata$mcmctype == 'O', 'name']
     XiO <- match(vnames, Xv)
@@ -339,12 +302,12 @@ samplesFDistribution <- function(
     YiB <- YiB[YtB]
     YnB <- length(YiB)
 
+
 #### transformation of inputs
     Y2 <- as.matrix(vtransform(Y, auxmetadata = auxmetadata,
         Rout = 'normalized',
         Cout = 'boundisinf',
-        Dout = 'normalized',
-        Lout = 'normalized',
+        Dout = 'boundisinf',
         Oout = 'numeric',
         Nout = 'numeric',
         Bout = 'numeric'))
@@ -354,7 +317,6 @@ samplesFDistribution <- function(
             Rout = 'normalized',
             Cout = 'boundisinf',
             Dout = 'boundisinf',
-            Lout = 'normalized',
             Oout = 'numeric',
             Nout = 'numeric',
             Bout = 'numeric'))
@@ -399,9 +361,7 @@ samplesFDistribution <- function(
                                 mean = mcoutput$Rmean[XtR, , , drop = FALSE],
                                 sd = mcoutput$Rvar[XtR, , , drop = FALSE],
                                 log = TRUE
-                            ),
-                            na.rm = TRUE
-                        )
+                            ), na.rm = TRUE)
                     } else {
                         0
                     }) +
@@ -438,18 +398,18 @@ samplesFDistribution <- function(
                         0
                     }) +
                     (if (XnD > 0) { # discretized
-                        vrights <- x[XiD, ] + Dsteps[XtD]
-                        vrights[vrights >= Drights[XtD]] <- +Inf
-                        vlefts <- x[XiD, ] - Dsteps[XtD]
-                        vlefts[vlefts <= Dlefts[XtD]] <- -Inf
+                        ## vrights <- x[XiD, ] + Dsteps[XtD]
+                        ## vrights[vrights >= Drights[XtD]] <- +Inf
+                        ## vlefts <- x[XiD, ] - Dsteps[XtD]
+                        ## vlefts[vlefts <= Dlefts[XtD]] <- -Inf
                         colSums(log(
                             pnorm(
-                                q = vrights,
+                                q = x[XiD, ] + Dsteps[XtD],
                                 mean = mcoutput$Dmean[XtD, , , drop = FALSE],
                                 sd = mcoutput$Dvar[XtD, , , drop = FALSE]
                             ) -
                             pnorm(
-                                q = vlefts,
+                                q = x[XiD, ] - Dsteps[XtD],
                                 mean = mcoutput$Dmean[XtD, , , drop = FALSE],
                                 sd = mcoutput$Dvar[XtD, , , drop = FALSE]
                             )
@@ -504,9 +464,7 @@ samplesFDistribution <- function(
                             mean = mcoutput$Rmean[YtR, , , drop = FALSE],
                             sd = mcoutput$Rvar[YtR, , , drop = FALSE],
                             log = TRUE
-                        ),
-                        na.rm = TRUE
-                    )
+                        ), na.rm = TRUE)
                 } else {
                     0
                 }) +
@@ -543,18 +501,18 @@ samplesFDistribution <- function(
                         0
                     }) +
                     (if (YnD > 0) { # discretized
-                        vrights <- y[YiD, ] + Dsteps[YtD]
-                        vrights[vrights >= Drights[YtD]] <- +Inf
-                        vlefts <- y[YiD, ] - Dsteps[YtD]
-                        vlefts[vlefts <= Dlefts[YtD]] <- -Inf
+                        ## vrights <- y[YiD, ] + Dsteps[YtD]
+                        ## vrights[vrights >= Drights[YtD]] <- +Inf
+                        ## vlefts <- y[YiD, ] - Dsteps[YtD]
+                        ## vlefts[vlefts <= Dlefts[YtD]] <- -Inf
                         colSums(log(
                             pnorm(
-                                q = vrights,
+                                q = y[YiD, ] + Dsteps[YtD],
                                 mean = mcoutput$Dmean[YtD, , , drop = FALSE],
                                 sd = mcoutput$Dvar[YtD, , , drop = FALSE]
                             ) -
                             pnorm(
-                                q = vlefts,
+                                q = y[YiD, ] - Dsteps[YtD],
                                 mean = mcoutput$Dmean[YtD, , , drop = FALSE],
                                 sd = mcoutput$Dvar[YtD, , , drop = FALSE]
                             )
