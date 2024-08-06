@@ -20,13 +20,6 @@
 #'  'boundisinf': for sampling functions
 #'  'mi': for use in mutualinfo()
 #'  'original': original representation
-#' @param Lout string, output of L-type variate, with possible values:
-#'  'init': for internal MCMC use (init input)
-#'  'left', 'right': for internal MCMC use
-#'  'aux': for internal MCMC use
-#'  'boundisinf': for sampling functions
-#'  'mi': for use in mutualinfo()
-#'  'original': original representation
 #' @param Oout string, output of O-type variate, with possible values:
 #'  'numeric': for internal MCMC use, values 1,2,...
 #'  'original': original representation
@@ -47,7 +40,6 @@ vtransform <- function(
     Rout = NULL,
     Cout = NULL,
     Dout = NULL,
-    Lout = NULL,
     Bout = NULL,
     Oout = NULL,
     Nout = NULL,
@@ -66,7 +58,7 @@ vtransform <- function(
 
         if (invjacobian) {
 #### Calculation of reciprocal Jacobian factors
-            if (xinfo$mcmctype %in% c('B', 'N', 'O', 'L')) {
+            if (xinfo$mcmctype %in% c('B', 'N', 'O', 'D')) {
                 datum <- rep(1L, length(datum))
             } else {
                 if (xinfo$transform == 'log') {
@@ -86,7 +78,7 @@ vtransform <- function(
                 }
                 xv <- data.matrix(x[, v, drop = FALSE])
                 if (xinfo$mcmctype %in% c('C', 'D')) {
-                    datum[(xv >= xinfo$censormax) | (xv <= xinfo$censormin)] <- 1L
+                    datum[(xv >= xinfo$domainmax) | (xv <= xinfo$domainmin)] <- 1L
                 }
                 datum[is.na(xv)] <- 1L
             }
@@ -102,7 +94,7 @@ vtransform <- function(
                     if (xinfo$transform == 'log') {
                         datum <- log(datum - xinfo$domainmin)
                     } else if (xinfo$transform == 'logminus') {
-                        datum <- log(xinfo$domainmax - datum)
+                        datum <- -log(xinfo$domainmax - datum)
                     } else if (xinfo$transform == 'Q') {
                         datum <- util_Q(0.5 +
                                     (datum - (xinfo$domainmin + xinfo$domainmax)/2) /
@@ -118,7 +110,7 @@ vtransform <- function(
                     if (xinfo$transform == 'log') {
                         datum <- exp(datum) + xinfo$domainmin
                     } else if (xinfo$transform == 'logminus') {
-                        datum <- xinfo$domainmax - exp(datum)
+                        datum <- xinfo$domainmax - exp(-datum)
                     } else if (xinfo$transform == 'Q') {
                         datum <- (util_invQ(datum) - 0.5) * (xinfo$domainmax - xinfo$domainmin) +
                             (xinfo$domainmin + xinfo$domainmax)/2
@@ -143,85 +135,77 @@ vtransform <- function(
                     ## for datapoints at boundaries
                     ## we set it slightly outside the boundaries.
                     selna <- is.na(datum)
-                    selmin <- !is.na(datum) & (datum <= xinfo$censormin)
-                    selmax <- !is.na(datum) & (datum >= xinfo$censormax)
+                    selmin <- !is.na(datum) & (datum <= xinfo$domainmin)
+                    selmax <- !is.na(datum) & (datum >= xinfo$domainmax)
                     selmid <- !is.na(datum) &
-                        (datum < xinfo$censormax) & (datum > xinfo$censormin)
+                        (datum < xinfo$domainmax) & (datum > xinfo$domainmin)
                     datum[selna] <- 0L
-                    datum[selmin] <- xinfo$tcensormin - 0.125
-                    datum[selmax] <- xinfo$tcensormax + 0.125
+                    datum[selmin] <- xinfo$tdomainmin - 0.125
+                    datum[selmax] <- xinfo$tdomainmax + 0.125
                     datum[selmid] <- NA
 
                 } else if (Cout == 'left') {
                     ## used for MCMC
-                    sel <- is.na(datum) | (datum < xinfo$censormax)
+                    sel <- is.na(datum) | (datum < xinfo$domainmax)
                     datum[sel] <- -Inf
-                    datum[!sel] <- xinfo$tcensormax
+                    datum[!sel] <- xinfo$tdomainmax
 
                 } else if (Cout == 'right') {
                     ## used for MCMC
-                    sel <- is.na(datum) | (datum > xinfo$censormin)
+                    sel <- is.na(datum) | (datum > xinfo$domainmin)
                     datum[sel] <- +Inf
-                    datum[!sel] <- xinfo$tcensormin
+                    datum[!sel] <- xinfo$tdomainmin
 
                 } else if (Cout == 'lat') {
                     ## latent variable used for MCMC
-                    datum[(datum >= xinfo$censormax) |
-                          (datum <= xinfo$censormin)] <- NA
+                    ## Boundary values are not fixed, free to roam
+                    datum[(datum >= xinfo$domainmax) |
+                          (datum <= xinfo$domainmin)] <- NA
 
+                    ## Non-boundary values are fixed data
                     if (xinfo$transform == 'log') {
                         datum <- log(datum - xinfo$domainmin)
                     } else if (xinfo$transform == 'logminus') {
-                        datum <- log(xinfo$domainmax - datum)
+                        datum <- -log(xinfo$domainmax - datum)
                     } else if (xinfo$transform == 'Q') {
                         datum <- util_Q(0.5 +
                                     (datum -
                                      (xinfo$domainmin + xinfo$domainmax)/2) /
-                                    (xinfo$domainmax - xinfo$domainmin)
-                        )
+                                    (xinfo$domainmax - xinfo$domainmin))
                     }
                     ##
                     datum <- (datum - xinfo$tlocation) / xinfo$tscale
 
                 } else if (Cout == 'aux') {
-                    ## aux variable used for MCMC
+                    ## aux, indicator variable used for MCMC
                     sel <- is.na(datum)
                     datum[sel] <- NA
                     datum[!sel] <- 1L
 
                 } else if (Cout == 'boundisinf') {
                     ## used in sampling functions
-                    selmax <- (datum >= xinfo$censormax)
-                    selmin <- (datum <= xinfo$censormin)
+                    selmax <- (datum >= xinfo$domainmax)
+                    selmin <- (datum <= xinfo$domainmin)
                     ##
                     if (xinfo$transform == 'log') {
                         datum <- log(datum - xinfo$domainmin)
                     } else if (xinfo$transform == 'logminus') {
-                        datum <- log(xinfo$domainmax - datum)
+                        datum <- -log(xinfo$domainmax - datum)
                     } else if (xinfo$transform == 'Q') {
                         datum <- util_Q(0.5 +
                                     (datum -
                                      (xinfo$domainmin + xinfo$domainmax)/2) /
-                                    (xinfo$domainmax - xinfo$domainmin)
-                        )
+                                    (xinfo$domainmax - xinfo$domainmin))
                     }
                     ##
+                    datum <- (datum - xinfo$tlocation) / xinfo$tscale
                     datum[selmax] <- +Inf
                     datum[selmin] <- -Inf
-                    datum <- (datum - xinfo$tlocation) / xinfo$tscale
-
-                    ## } else if (Cout == 'sleft') {
-                    ##   ## used in sampling functions
-                    ##   datum[] <- xinfo$tcensormin
-                    ##
-                    ## } else if (Cout == 'sright') {
-                    ##   ## used in sampling functions
-                    ##   datum[] <- xinfo$tcensormax
 
                 } else if (Cout == 'mi') {
                     ## used in mutualinfo
-                    datum[datum >= xinfo$tcensormax] <- +Inf
-                    datum[datum <= xinfo$tcensormin] <- -Inf
+                    datum[datum >= xinfo$tdomainmax] <- +Inf
+                    datum[datum <= xinfo$tdomainmin] <- -Inf
 
                 } else if (Cout == 'original') {
                     ## transformation from MCMC representation
@@ -230,13 +214,14 @@ vtransform <- function(
                     if (xinfo$transform == 'log') {
                         datum <- exp(datum) + xinfo$domainmin
                     } else if (xinfo$transform == 'logminus') {
-                        datum <- xinfo$domainmax - exp(datum)
+                        datum <- xinfo$domainmax - exp(-datum)
                     } else if (xinfo$transform == 'Q') {
-                        datum <- (util_invQ(datum) - 0.5) * (xinfo$domainmax - xinfo$domainmin) +
-                            (xinfo$domainmin + xinfo$domainmax)/2
+                        datum <- (util_invQ(datum) - 0.5) *
+                            (xinfo$domainmax - xinfo$domainmin) +
+                            (xinfo$domainmin + xinfo$domainmax) / 2
                     }
-                    datum[datum <= xinfo$censormin] <- xinfo$censormin
-                    datum[datum >= xinfo$censormax] <- xinfo$censormax
+                    datum[datum <= xinfo$domainmin] <- xinfo$domainmin
+                    datum[datum >= xinfo$domainmax] <- xinfo$domainmax
 
                 } else {
                     stop('Unknown transformation for variate', v)
@@ -257,62 +242,26 @@ vtransform <- function(
                     ## for datapoints at boundaries
                     ## we set it slightly outside the boundaries.
                     selna <- is.na(datum)
-                    selmin <- !is.na(datum) & (datum <= xinfo$censormin)
-                    selmax <- !is.na(datum) & (datum >= xinfo$censormax)
-                    if (xinfo$transform == 'log') {
-                        datum <- log(datum - xinfo$domainmin)
-                    } else if (xinfo$transform == 'logminus') {
-                        datum <- log(xinfo$domainmax - datum)
-                    } else if (xinfo$transform == 'Q') {
-                        datum <- util_Q(0.5 +
-                                    (datum -
-                                     (xinfo$domainmin + xinfo$domainmax)/2) /
-                                    (xinfo$domainmax - xinfo$domainmin)
-                        )
-                    }
-                    ##
                     datum <- (datum - xinfo$tlocation) / xinfo$tscale
                     datum[selna] <- 0L
-                    datum[selmin] <- xinfo$tcensormin - 0.125
-                    datum[selmax] <- xinfo$tcensormax + 0.125
 
                 } else if (Dout == 'left') {
                     ## used for MCMC
-                    datum <- pmax(datum - xinfo$step, xinfo$domainmin, na.rm = T)
-                    datum[datum <= xinfo$censormin] <- xinfo$domainmin
-                    datum[datum >= xinfo$censormax] <- xinfo$censormax
-                    ##
-                    if (xinfo$transform == 'log') {
-                        datum <- log(datum - xinfo$domainmin)
-                    } else if (xinfo$transform == 'logminus') {
-                        datum <- log(xinfo$domainmax - datum)
-                    } else if (xinfo$transform == 'Q') {
-                        datum <- util_Q(0.5 +
-                                    (datum -
-                                     (xinfo$domainmin + xinfo$domainmax)/2) /
-                                    (xinfo$domainmax - xinfo$domainmin)
-                        )
-                    }
-                    datum <- (datum - xinfo$tlocation) / xinfo$tscale
+                    selmin <- is.na(datum) | (datum - xinfo$halfstep <= xinfo$domainmin)
+                    selmax <- is.na(datum) | (datum + xinfo$halfstep >= xinfo$domainmax)
+                    datum <- (datum - xinfo$halfstep - xinfo$tlocation) / xinfo$tscale
+                    datum[selmin] <- -Inf
+                    datum[selmax] <- (xinfo$domainmax - xinfo$halfstep -
+                                      xinfo$tlocation) / xinfo$tscale
 
                 } else if (Dout == 'right') {
                     ## used for MCMC
-                    datum <- pmin(datum + xinfo$step, xinfo$domainmax, na.rm = T)
-                    datum[datum <= xinfo$censormin] <- xinfo$censormin
-                    datum[datum >= xinfo$censormax] <- xinfo$domainmax
-                    ##
-                    if (xinfo$transform == 'log') {
-                        datum <- log(datum - xinfo$domainmin)
-                    } else if (xinfo$transform == 'logminus') {
-                        datum <- log(xinfo$domainmax - datum)
-                    } else if (xinfo$transform == 'Q') {
-                        datum <- util_Q(0.5 +
-                                    (datum -
-                                     (xinfo$domainmin + xinfo$domainmax)/2) /
-                                    (xinfo$domainmax - xinfo$domainmin)
-                        )
-                    }
-                    datum <- (datum - xinfo$tlocation) / xinfo$tscale
+                    selmin <- is.na(datum) | (datum - xinfo$halfstep <= xinfo$domainmin)
+                    selmax <- is.na(datum) | (datum + xinfo$halfstep >= xinfo$domainmax)
+                    datum <- (datum + xinfo$halfstep - xinfo$tlocation) / xinfo$tscale
+                    datum[selmin] <- (xinfo$domainmin + xinfo$halfstep -
+                                      xinfo$tlocation) / xinfo$tscale
+                    datum[selmax] <- +Inf
 
                 } else if (Dout == 'aux') {
                     ## aux variable used for MCMC
@@ -320,135 +269,22 @@ vtransform <- function(
                     datum[sel] <- NA
                     datum[!sel] <- 1L
 
-                } else if (Dout == 'boundisinf') {
+                } else if (Dout == 'normalized') {
                     ## used in sampling functions
-                    selmax <- (datum >= xinfo$censormax)
-                    selmin <- (datum <= xinfo$censormin)
-                    ##
-                    if (xinfo$transform == 'log') {
-                        datum <- log(datum - xinfo$domainmin)
-                    } else if (xinfo$transform == 'logminus') {
-                        datum <- log(xinfo$domainmax - datum)
-                    } else if (xinfo$transform == 'Q') {
-                        datum <- util_Q(0.5 +
-                                    (datum -
-                                     (xinfo$domainmin + xinfo$domainmax)/2) /
-                                    (xinfo$domainmax - xinfo$domainmin)
-                        )
-                    }
-                    ##
-                    datum[selmax] <- +Inf
-                    datum[selmin] <- -Inf
                     datum <- (datum - xinfo$tlocation) / xinfo$tscale
-
-                    ## } else if (Dout == 'sleft') {
-                    ##   ## in sampling functions
-                    ##   datum[] <- xinfo$tcensormin
-                    ##
-                    ## } else if (Dout == 'sright') {
-                    ##   ## in sampling functions
-                    ##   datum[] <- xinfo$tcensormax
 
                 } else if (Dout == 'mi') {
                     ## used in mutualinfo
-                    datum[datum >= xinfo$tcensormax] <- +Inf
-                    datum[datum <= xinfo$tcensormin] <- -Inf
+                    datum[datum <= xinfo$tdomainmin] <- xinfo$tdomainmin
+                    datum[datum >= xinfo$tdomainmax] <- xinfo$tdomainmax
 
                 } else if (Dout == 'original') {
                     ## transformation from MCMC representation
                     ## to original domain
-                    datum <- datum * xinfo$tscale + xinfo$tlocation
-                    if (xinfo$transform == 'log') {
-                        datum <- exp(datum) + xinfo$domainmin
-                    } else if (xinfo$transform == 'logminus') {
-                        datum <- xinfo$domainmax - exp(datum)
-                    } else if (xinfo$transform == 'Q') {
-                        datum <- (util_invQ(datum) - 0.5) * (xinfo$domainmax - xinfo$domainmin) +
-                            (xinfo$domainmin + xinfo$domainmax)/2
-                    }
-                    datum[datum <= xinfo$censormin] <- xinfo$censormin
-                    datum[datum >= xinfo$censormax] <- xinfo$censormax
-
-                } else {
-                    stop('Unknown transformation for variate', v)
-                }
-
-#### Latent *** NOT USED AT THE MOMENT***
-            } else if (xinfo$mcmctype == 'L') {
-
-                if (Lout == 'init') {
-                    ## init value used for MCMC
-                    olocation <- (xinfo$Nvalues * xinfo$domainmin -
-                                  xinfo$domainmax) / (xinfo$Nvalues - 1)
-                    oscale <- (xinfo$domainmax - xinfo$domainmin) /
-                        (xinfo$Nvalues - 1)
-                    ## output is in range 1 to Nvalues
-                    datum <- round((datum - olocation) / oscale)
-
-                    datum <- util_Q((datum - 0.5) / xinfo$Nvalues)
-                    datum[is.na(datum)] <- 0
-                    datum[datum == +Inf] <- 1e6
-                    datum[datum == -Inf] <- -1e6
-                    if (useLquantiles) {
-                        datum <- (datum - xinfo$tlocation) / xinfo$tscale
-                    }
-
-                } else if (Lout == 'left') { # as left for MCMC
-                    olocation <- (xinfo$Nvalues * xinfo$domainmin -
-                                  xinfo$domainmax) / (xinfo$Nvalues - 1)
-                    oscale <- (xinfo$domainmax - xinfo$domainmin) /
-                        (xinfo$Nvalues - 1)
-                    ## output is in range 1 to Nvalues
-                    datum <- round((datum - olocation) / oscale)
-
-                    datum <- util_Q(pmax(0, datum - 1L) / xinfo$Nvalues)
-                    if (useLquantiles) {
-                        datum <- (datum - xinfo$tlocation) / xinfo$tscale
-                    }
-                    datum[is.na(datum)] <- -Inf
-
-                } else if (Lout == 'right') { # as right for MCMC
-                    olocation <- (xinfo$Nvalues * xinfo$domainmin -
-                                  xinfo$domainmax) / (xinfo$Nvalues - 1)
-                    oscale <- (xinfo$domainmax - xinfo$domainmin) /
-                        (xinfo$Nvalues - 1)
-                    ## output is in range 1 to Nvalues
-                    datum <- round((datum - olocation) / oscale)
-
-                    datum <- util_Q(pmin(xinfo$Nvalues, datum) / xinfo$Nvalues)
-                    if (useLquantiles) {
-                        datum <- (datum - xinfo$tlocation) / xinfo$tscale
-                    }
-                    datum[is.na(datum)] <- +Inf
-
-                } else if (Lout == 'aux') { # aux variable in MCMC
-                    sel <- is.na(datum)
-                    datum[sel] <- NA
-                    datum[!sel] <- 1L
-
-                ## } else if (Lout == 'boundisinf') { # in output functions
-                ##     olocation <- (xinfo$Nvalues * xinfo$domainmin -
-                ##                   xinfo$domainmax) / (xinfo$Nvalues - 1)
-                ##     oscale <- (xinfo$domainmax - xinfo$domainmin) /
-                ##         (xinfo$Nvalues - 1)
-                ##     ## output is in range 1 to Nvalues
-                ##     datum <- round((datum - olocation) / oscale) - 1L
-
-                } else if (Lout == 'mi') { # in mutualinfo
-                    if (useLquantiles) {
-                        datum <- datum * xinfo$tscale + xinfo$tlocation
-                    }
-                    datum <- round(util_invQ(datum) * xinfo$Nvalues + 0.5)
-                    datum[datum < 1] <- 1L
-                    datum[datum > xinfo$Nvalues] <- xinfo$Nvalues
-
-                } else if (Lout == 'normalized') { # in sampling functions
-                    olocation <- (xinfo$Nvalues * xinfo$domainmin -
-                                  xinfo$domainmax) / (xinfo$Nvalues - 1)
-                    oscale <- (xinfo$domainmax - xinfo$domainmin) /
-                        (xinfo$Nvalues - 1)
-                    ## output is in range 1 to Nvalues
-                    datum <- round((datum - olocation) / oscale)
+                    datum <- xinfo$tlocation + 2 * xinfo$halfstep *
+                        round((datum * xinfo$tscale) / (2 * xinfo$halfstep))
+                    datum[datum <= xinfo$domainmin] <- xinfo$domainmin
+                    datum[datum >= xinfo$domainmax] <- xinfo$domainmax
 
                 } else {
                     stop('Unknown transformation for variate', v)

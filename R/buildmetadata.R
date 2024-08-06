@@ -123,7 +123,7 @@ buildmetadata <- function(
             multi <- 10^(-min(floor(log10(jumpsx))))
             ## jumps between unique values are integer multiples
             ## of 'jumpquantum'
-            jumpquantum <- gcd(round(jumpsx * multi)) / multi
+            jumpquantum <- gcd(jumpsx * multi) / multi
             datavalues <- NULL
         } else {
             datavalues <- as.character(sort(unique(x)))
@@ -214,7 +214,7 @@ buildmetadata <- function(
 
 #### Now we know that the variate is numeric
 
-        } else if (uniquex <= 10) {
+        } else if (uniquex <= 10 && all(x == round(x))) {
             ## Ordinal variate with few numeric values?
             type <- 'ordinal'
             Nvalues <- uniquex
@@ -229,6 +229,7 @@ buildmetadata <- function(
                 rounding <- NA
                 domainmin <- NA
                 domainmax <- NA
+                datavalues <- as.character(sort(unique(x)))
                 names(datavalues) <- paste0('V', 1:Nvalues)
             }
             minincluded <- NA
@@ -249,9 +250,8 @@ buildmetadata <- function(
                 }
                 cat('  Assuming variate to be ORDINAL.\n')
             }
-# (ess-set-style 'OWN)
-        } else if (jumpquantum >= 1 &&
-                   datamin <= 2) {
+
+        } else if (jumpquantum == round(jumpquantum)) {
             ## Ordinal variate with many numeric values?
             type <- 'ordinal'
             Nvalues <- uniquex
@@ -269,7 +269,7 @@ buildmetadata <- function(
             ##
             if(verbose){
                 cat(' - ', Nvalues, 'different numeric values detected\n')
-                cat('  distance between datapoints is a multiple of',
+                cat('  distance between datapoints is a multiple of integer',
                     jumpquantum, '\n')
                 cat('  Assuming variate to be ORDINAL.\n')
             }
@@ -324,8 +324,8 @@ buildmetadata <- function(
                 minincluded <- TRUE
                 ##
                 if(verbose){
-                    cat('  - Many datapoints have minimum value\n')
-                    cat('  Assuming "domainmin" to be the minimum observed value\n')
+                    cat('  - Many datapoints have minimum value', datamin, '\n')
+                    cat('  Assuming "domainmin" to be this minimum observed value\n')
                     cat('  and to be included in the domain',
                         '(singular probabilities there).\n')
                 }
@@ -348,8 +348,8 @@ buildmetadata <- function(
                 maxincluded <- TRUE
                 ##
                 if(verbose){
-                    cat('  - Many datapoints have maximum value\n')
-                    cat('  Assuming "domainmax" to be the maximum observed value\n')
+                    cat('  - Many datapoints have maximum value,', datamax, '\n')
+                    cat('  Assuming "domainmax" to be this maximum observed value\n')
                     cat('  and to be included in the domain',
                         '(singular probabilities there).\n')
                 }
@@ -382,8 +382,8 @@ buildmetadata <- function(
                 rounding <- jumpquantum
                 ##
                 if(verbose){
-                    cat('  - Distance between datapoints is a multiple of',
-                        jumpquantum, '\n')
+                    cat('  - Distance between datapoints',
+                        'is a multiple of non-integer', jumpquantum, '\n')
                     cat('  Assuming variate to be ROUNDED.\n')
                 }
                 if(jumpquantum >=1) {
