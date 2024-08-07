@@ -28,7 +28,7 @@ buildauxmetadata <- function(data, metadata, Dthreshold = 1) {
 
     Othreshold <- 10
 
-    idR <- idC <- idD <- idL <- idB <- idO <- idN <- 1L
+    idR <- idC <- idD <- idB <- idO <- idN <- 1L
 
     auxmetadata <- data.frame()
 
@@ -45,7 +45,11 @@ buildauxmetadata <- function(data, metadata, Dthreshold = 1) {
         nvaluelist <- sum(!is.na(datavalues))
         domainmin <- minfo$domainmin
         domainmax <- minfo$domainmax
-        halfstep <- minfo$rounding / 2
+        leftbound <- NA
+        tleftbound <- NA
+        rightbound <- NA
+        trightbound <- NA
+        halfstep <- minfo$gapwidth / 2
         Nvalues <- minfo$Nvalues
         plotmin <- minfo$plotmin
         plotmax <- minfo$plotmax
@@ -128,7 +132,7 @@ buildauxmetadata <- function(data, metadata, Dthreshold = 1) {
             if(nvaluelist == 0 && !is.na(Nvalues) && !is.na(halfstep) &&
                Nvalues != length(seq(domainmin, domainmax, by = halfstep))) {
                 message('WARNING variate "',name,
-                    '": discrepancy between "Nvalues" and "rounding".',
+                    '": discrepancy between "Nvalues" and "gapwidth".',
                     '\nCorrecting "Nvalues".')
                 Nvalues <- 1 + (domainmax - domainmin) / (2 * halfstep)
             }
@@ -172,7 +176,7 @@ buildauxmetadata <- function(data, metadata, Dthreshold = 1) {
                 idD <- idD + 1L
                 transf <- 'identity'
                 if(!is.null(data)) {
-                    ## set the location to the nearest centre of rounding interval
+                    ## set the location to the nearest centre of gapwidth interval
                     temptlocation <- quantile(x, 0.5, type = 6)
                     tlocation <- x[which.min(abs(x - temptlocation))]
                     tlocation <- tlocation +
@@ -183,29 +187,33 @@ buildauxmetadata <- function(data, metadata, Dthreshold = 1) {
                     tlocation <- mean(domainmin, domainmax)
                     tscale <- ((domainmax - domainmin) / sqrt(12)) / iqrfactor
                 }
-                domainmin <- domainmin
-                domainmax <- domainmax
                 tdomainmin <-(domainmin - tlocation) / tscale
                 tdomainmax <-(domainmax - tlocation) / tscale
+
+                leftbound <- domainmin + halfstep
+                rightbound <- domainmax - halfstep
+                tleftbound <- (leftbound - tlocation) / tscale
+                trightbound <- (rightbound - tlocation) / tscale
+
                 if(is.finite(minfo$plotmin)){
                     plotmin <- minfo$plotmin
                 } else {
-                    plotmin <- minfo$domainmin
+                    plotmin <- domainmin
                 }
                 if(is.finite(minfo$plotmax)){
                     plotmax <- minfo$plotmax
                 } else {
-                    plotmax <- minfo$domainmax
+                    plotmax <- domainmax
                 }
             }
 
         } else if (minfo$type == 'continuous') { # continuous variate (R,C,D)
             Nvalues <- +Inf
             ## Rounded variates
-            if (is.null(minfo$rounding) || is.na(minfo$rounding)) {
+            if (is.null(minfo$gapwidth) || is.na(minfo$gapwidth)) {
                 halfstep <- 0
             } else {
-                halfstep <- minfo$rounding / 2
+                halfstep <- minfo$gapwidth / 2
             }
             ## If the variate is rounded,
             ## we avoid a  latent-variable representation
@@ -225,7 +233,7 @@ buildauxmetadata <- function(data, metadata, Dthreshold = 1) {
                 ##
                 transf <- 'identity'
                 if(!is.null(data)) {
-                    ## set the location to the nearest centre of rounding interval
+                    ## set the location to the nearest centre of gapwidth interval
                     temptlocation <- quantile(x, 0.5, type = 6)
                     tlocation <- x[which.min(abs(x - temptlocation))]
                     tlocation <- tlocation +
@@ -236,20 +244,24 @@ buildauxmetadata <- function(data, metadata, Dthreshold = 1) {
                     tlocation <- 0
                     tscale <- 1 / iqrfactor
                 }
+                tdomainmin <-(domainmin - tlocation) / tscale
+                tdomainmax <-(domainmax - tlocation) / tscale
 
-                ## if the boundary are Inf they'll stay that way
-                if(minfo$minincluded){
-                    tdomainmin <- (domainmin - tlocation) / tscale
-                } else {
-                    domainmin <- domainmin + halfstep * 2
-                    tdomainmin <- (domainmin - tlocation) / tscale
-                }
-                if(minfo$maxincluded){
-                    tdomainmax <- (domainmax - tlocation) / tscale
-                } else {
-                    domainmax <- domainmax - halfstep * 2
-                    tdomainmax <- (domainmax - tlocation) / tscale
-                }
+                ## For a rounded variate it does not matter whether
+                ## a domain boundary is included or excluded
+                ## hence 'domainmin/max' are ignored
+                leftbound <- domainmin + halfstep
+                rightbound <- domainmax - halfstep
+                ## if(minfo$minincluded){
+                ## } else {
+                ##     leftbound <- domainmin + halfstep * 3
+                ## }
+                ## if(minfo$maxincluded){
+                ## } else {
+                ##     rightbound <- domainmin - halfstep * 3
+                ## }
+                tleftbound <- (leftbound - tlocation) / tscale
+                trightbound <- (rightbound - tlocation) / tscale
 
             } else {
 ### Non-rounded continuous cases
@@ -269,8 +281,10 @@ buildauxmetadata <- function(data, metadata, Dthreshold = 1) {
                         tlocation <- 0
                         tscale <- 1 / iqrfactor
                     }
-                    tdomainmin <- (-log(domainmax - domainmin) - tlocation) / tscale
+                    tdomainmin <- (-log(domainmax - domainmin) -
+                                                 tlocation) / tscale
                     tdomainmax <- +Inf
+
 
                 } else if (is.finite(minfo$domainmin) && is.finite(minfo$domainmax) &&
                            !minfo$minincluded && minfo$maxincluded) {
@@ -418,9 +432,36 @@ buildauxmetadata <- function(data, metadata, Dthreshold = 1) {
                     tdomainmax <- +Inf
                 }
 
+                leftbound <- domainmin
+                rightbound <- domainmax
+                tleftbound <- tdomainmin
+                trightbound <- tdomainmax
             }
-### end continuous case
+            ## end non-rounded case
 
+            if(is.finite(minfo$plotmin)){
+                plotmin <- minfo$plotmin
+            } else {
+                plotmin <- max(domainmin,
+                    if(!is.null(data)){
+                        min(x) - IQR(x, type = 6) / 2
+                    } else {
+                        -2 * iqrfactor
+                    })
+            }
+
+            if(is.finite(minfo$plotmax)){
+                plotmax <- minfo$plotmax
+            } else {
+                plotmax <- min(domainmax,
+                    if(!is.null(data)){
+                        max(x) + IQR(x, type = 6) / 2
+                    } else {
+                        2 * iqrfactor
+                    })
+            }
+
+### end continuous case
         } else {
             stop('ERROR: unknown variate type for "', name, '"')
         }
@@ -440,6 +481,8 @@ buildauxmetadata <- function(data, metadata, Dthreshold = 1) {
                     transform = transf, Nvalues = Nvalues, halfstep = halfstep,
                     domainmin = domainmin, domainmax = domainmax,
                     tdomainmin = tdomainmin, tdomainmax = tdomainmax,
+                    leftbound = leftbound, rightbound = rightbound,
+                    tleftbound = tleftbound, trightbound = trightbound,
                     tlocation = tlocation, tscale = tscale,
                     plotmin = plotmin, plotmax = plotmax
                     ## Q1 = Q1, Q2 = Q2, Q3 = Q3, # not used in other scripts, possibly remove

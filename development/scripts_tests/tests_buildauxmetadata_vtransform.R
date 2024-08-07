@@ -1,15 +1,29 @@
-testd <- data.frame(testvrt=c(-11,-10,(-10):(-2), 1:9, 9, 10, NA)*2.54)
+testd <- data.frame(testvrt=c(-7,NA,
+    -6,-6,NA,(-5):(-2),NA, 1:4, NA, 5, 5,
+    NA, 6)*2.54)
+quantile(testd, 0.5, type=6, na.rm=T)
+##   50%
+## -1.27
+summary(testd)
+ ##    testvrt
+ ## Min.   :-17.78
+ ## 1st Qu.:-12.06
+ ## Median : -1.27
+ ## Mean   : -1.27
+ ## 3rd Qu.:  9.53
+ ## Max.   : 15.24
+ ## NA's   :5
 
 #### discretized
 metadata <- data.frame(
     name='testvrt',
     type='continuous',
     Nvalues=Inf,
-    rounding=2.54,
-    domainmin=-10*2.54,
-    domainmax=9*2.54,
+    gapwidth=2.54,
+    domainmin= -6 * 2.54,
+    domainmax= 5 * 2.54,
     minincluded=F,
-    maxincluded=T,
+    maxincluded=F,
     plotmin=NA,
     plotmax=NA
 )
@@ -17,11 +31,13 @@ metadata <- data.frame(
 source('util_buildauxmetadata.R', local=T)
 auxmetadata <- buildauxmetadata(testd, metadata)
 auxmetadata
+
 ##
 source('util_vtransform.R', local=T)
 arglist <- c('init', 'left', 'right', 'aux', 'normalized')
 as.data.frame(c(testd,sapply(arglist, function(x)
-    vtransform(x=testd, auxmetadata=auxmetadata, Dout=x)
+    vtransform(x=testd, auxmetadata=auxmetadata,
+        Dout=x)
 )))
 ##
 testout <- vtransform(x=testd, auxmetadata=auxmetadata, Dout='normalized')
@@ -39,9 +55,9 @@ metadata <- data.frame(
     name='testvrt',
     type='ordinal',
     Nvalues=NA,
-    rounding=2.54,
-    domainmin=-10*2.54,
-    domainmax=9*2.54,
+    gapwidth=2.54,
+    domainmin= -7 * 2.54,
+    domainmax= 6 * 2.54,
     minincluded=T,
     maxincluded=T,
     plotmin=NA,
@@ -51,6 +67,7 @@ metadata <- data.frame(
 source('util_buildauxmetadata.R', local=T)
 auxmetadata <- buildauxmetadata(testd, metadata)
 auxmetadata
+
 ##
 source('util_vtransform.R', local=T)
 arglist <- c('init', 'left', 'right', 'aux', 'normalized')
@@ -72,11 +89,11 @@ metadata <- data.frame(
     name='testvrt',
     type='continuous',
     Nvalues=Inf,
-    rounding=0,
-    domainmin=-11*2.54,
-    domainmax=10*2.54,
+    gapwidth=0,
+    domainmin= -7 * 2.54,
+    domainmax= 6 * 2.54,
     minincluded=T,
-    maxincluded=T,
+    maxincluded=F,
     plotmin=NA,
     plotmax=NA
 )
@@ -84,6 +101,7 @@ metadata <- data.frame(
 source('util_buildauxmetadata.R', local=T)
 auxmetadata <- buildauxmetadata(testd, metadata)
 auxmetadata
+
 ##
 source('util_vtransform.R', local=T)
 arglist <- c('init', 'left', 'right', 'lat', 'aux', 'boundisinf')
@@ -107,18 +125,20 @@ metadata <- data.frame(
     name='testvrt',
     type='continuous',
     Nvalues=Inf,
-    rounding=0,
-    domainmin=-11*2.54,
-    domainmax=10*2.54,
+    gapwidth=0,
+    domainmin= -7 * 2.54,
+    domainmax= 6 * 2.54,
     minincluded=F,
     maxincluded=F,
     plotmin=NA,
     plotmax=NA
 )
 ##
+load('sysdata.rda')
 source('util_buildauxmetadata.R', local=T)
 auxmetadata <- buildauxmetadata(testd, metadata)
 auxmetadata
+
 ##
 source('util_vtransform.R', local=T)
 arglist <- c('normalized')
@@ -272,3 +292,24 @@ metadata$domainmax <- max(testd$testvrt, na.rm=T)
 metadata$minincluded <- T
 metadata$maxincluded <- F
 metadata
+
+
+
+
+
+
+
+
+
+testl <- list(a=1,b=2,c=3)
+testl2 <- list(a=100,b=2,c=3)
+##
+testfu <- function(x, testl){
+    with(testl, {
+        d <- a+x
+        c(a,b,d,x)
+    })
+}
+testfu(20, testl)
+testfu(20, testl2)
+

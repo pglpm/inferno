@@ -54,31 +54,32 @@ vtransform <- function(
     }
     as.data.frame(lapply(colnames(x), function(v) {
         datum <- x[[v]]
-        xinfo <- as.list(auxmetadata[auxmetadata$name == v, ])
+        with(data = as.list(auxmetadata[auxmetadata$name == v, ]),
+        {
 
         if (invjacobian) {
 #### Calculation of reciprocal Jacobian factors
-            if (xinfo$mcmctype %in% c('B', 'N', 'O', 'D')) {
+            if (mcmctype %in% c('B', 'N', 'O', 'D')) {
                 datum <- rep(1L, length(datum))
             } else {
-                if (xinfo$transform == 'log') {
-                    datum <- (datum - xinfo$domainmin) * xinfo$tscale
-                } else if (xinfo$transform == 'logminus') {
-                    datum <- (xinfo$domainmax - datum) * xinfo$tscale
-                } else if (xinfo$transform == 'Q') {
+                if (transform == 'log') {
+                    datum <- (datum - domainmin) * tscale
+                } else if (transform == 'logminus') {
+                    datum <- (domainmax - datum) * tscale
+                } else if (transform == 'Q') {
                     datum <- util_Q(0.5 +
-                                (datum - (xinfo$domainmin + xinfo$domainmax)/2) /
-                                (xinfo$domainmax - xinfo$domainmin)
+                                (datum - (domainmin + domainmax)/2) /
+                                (domainmax - domainmin)
                     )
-                    datum <- util_DQ(datum) * xinfo$tscale * (xinfo$domainmax - xinfo$domainmin)
-                } else if (xinfo$transform == 'identity') {
-                    datum[] <- xinfo$tscale
+                    datum <- util_DQ(datum) * tscale * (domainmax - domainmin)
+                } else if (transform == 'identity') {
+                    datum[] <- tscale
                 } else {
                     stop('Unknown transformation for variate', v)
                 }
                 xv <- data.matrix(x[, v, drop = FALSE])
-                if (xinfo$mcmctype %in% c('C', 'D')) {
-                    datum[(xv >= xinfo$domainmax) | (xv <= xinfo$domainmin)] <- 1L
+                if (mcmctype %in% c('C', 'D')) {
+                    datum[(xv >= domainmax) | (xv <= domainmin)] <- 1L
                 }
                 datum[is.na(xv)] <- 1L
             }
@@ -87,33 +88,33 @@ vtransform <- function(
 
 #### Continuous, open domain
 
-            if (xinfo$mcmctype == 'R') {
+            if (mcmctype == 'R') {
 
                 if (Rout == 'normalized') {
                     ## used for MCMC
-                    if (xinfo$transform == 'log') {
-                        datum <- log(datum - xinfo$domainmin)
-                    } else if (xinfo$transform == 'logminus') {
-                        datum <- -log(xinfo$domainmax - datum)
-                    } else if (xinfo$transform == 'Q') {
+                    if (transform == 'log') {
+                        datum <- log(datum - domainmin)
+                    } else if (transform == 'logminus') {
+                        datum <- -log(domainmax - datum)
+                    } else if (transform == 'Q') {
                         datum <- util_Q(0.5 +
-                                    (datum - (xinfo$domainmin + xinfo$domainmax)/2) /
-                                    (xinfo$domainmax - xinfo$domainmin)
+                                    (datum - (domainmin + domainmax)/2) /
+                                    (domainmax - domainmin)
                         )
                     }
-                    datum <- (datum - xinfo$tlocation) / xinfo$tscale
+                    datum <- (datum - tlocation) / tscale
 
                 } else if (Rout == 'original') {
                     ## transformation from MCMC representation
                     ## to original domain
-                    datum <- datum * xinfo$tscale + xinfo$tlocation
-                    if (xinfo$transform == 'log') {
-                        datum <- exp(datum) + xinfo$domainmin
-                    } else if (xinfo$transform == 'logminus') {
-                        datum <- xinfo$domainmax - exp(-datum)
-                    } else if (xinfo$transform == 'Q') {
-                        datum <- (util_invQ(datum) - 0.5) * (xinfo$domainmax - xinfo$domainmin) +
-                            (xinfo$domainmin + xinfo$domainmax)/2
+                    datum <- datum * tscale + tlocation
+                    if (transform == 'log') {
+                        datum <- exp(datum) + domainmin
+                    } else if (transform == 'logminus') {
+                        datum <- domainmax - exp(-datum)
+                    } else if (transform == 'Q') {
+                        datum <- (util_invQ(datum) - 0.5) * (domainmax - domainmin) +
+                            (domainmin + domainmax)/2
                     }
 
                 } else if (Rout != 'mi'){
@@ -122,7 +123,7 @@ vtransform <- function(
                 }
 
 #### Continuous, closed domain
-            } else if (xinfo$mcmctype == 'C') {
+            } else if (mcmctype == 'C') {
 
                 if (Cout == 'init') {
                     ## init value used for MCMC
@@ -135,46 +136,46 @@ vtransform <- function(
                     ## for datapoints at boundaries
                     ## we set it slightly outside the boundaries.
                     selna <- is.na(datum)
-                    selmin <- !is.na(datum) & (datum <= xinfo$domainmin)
-                    selmax <- !is.na(datum) & (datum >= xinfo$domainmax)
+                    selmin <- !is.na(datum) & (datum <= leftbound)
+                    selmax <- !is.na(datum) & (datum >= rightbound)
                     selmid <- !is.na(datum) &
-                        (datum < xinfo$domainmax) & (datum > xinfo$domainmin)
+                        (datum > leftbound) & (datum < rightbound)
                     datum[selna] <- 0L
-                    datum[selmin] <- xinfo$tdomainmin - 0.125
-                    datum[selmax] <- xinfo$tdomainmax + 0.125
+                    datum[selmin] <- tleftbound - 0.125
+                    datum[selmax] <- trightbound + 0.125
                     datum[selmid] <- NA
 
                 } else if (Cout == 'left') {
                     ## used for MCMC
-                    sel <- is.na(datum) | (datum < xinfo$domainmax)
+                    sel <- is.na(datum) | (datum < rightbound)
                     datum[sel] <- -Inf
-                    datum[!sel] <- xinfo$tdomainmax
+                    datum[!sel] <- trightbound
 
                 } else if (Cout == 'right') {
                     ## used for MCMC
-                    sel <- is.na(datum) | (datum > xinfo$domainmin)
+                    sel <- is.na(datum) | (datum > leftbound)
                     datum[sel] <- +Inf
-                    datum[!sel] <- xinfo$tdomainmin
+                    datum[!sel] <- tleftbound
 
                 } else if (Cout == 'lat') {
                     ## latent variable used for MCMC
                     ## Boundary values are not fixed, free to roam
-                    datum[(datum >= xinfo$domainmax) |
-                          (datum <= xinfo$domainmin)] <- NA
+                    datum[(datum >= rightbound) |
+                          (datum <= leftbound)] <- NA
 
                     ## Non-boundary values are fixed data
-                    if (xinfo$transform == 'log') {
-                        datum <- log(datum - xinfo$domainmin)
-                    } else if (xinfo$transform == 'logminus') {
-                        datum <- -log(xinfo$domainmax - datum)
-                    } else if (xinfo$transform == 'Q') {
+                    if (transform == 'log') {
+                        datum <- log(datum - domainmin)
+                    } else if (transform == 'logminus') {
+                        datum <- -log(domainmax - datum)
+                    } else if (transform == 'Q') {
                         datum <- util_Q(0.5 +
                                     (datum -
-                                     (xinfo$domainmin + xinfo$domainmax)/2) /
-                                    (xinfo$domainmax - xinfo$domainmin))
+                                     (domainmin + domainmax)/2) /
+                                    (domainmax - domainmin))
                     }
                     ##
-                    datum <- (datum - xinfo$tlocation) / xinfo$tscale
+                    datum <- (datum - tlocation) / tscale
 
                 } else if (Cout == 'aux') {
                     ## aux, indicator variable used for MCMC
@@ -184,44 +185,44 @@ vtransform <- function(
 
                 } else if (Cout == 'boundisinf') {
                     ## used in sampling functions
-                    selmax <- (datum >= xinfo$domainmax)
-                    selmin <- (datum <= xinfo$domainmin)
+                    selmax <- (datum >= rightbound)
+                    selmin <- (datum <= leftbound)
                     ##
-                    if (xinfo$transform == 'log') {
-                        datum <- log(datum - xinfo$domainmin)
-                    } else if (xinfo$transform == 'logminus') {
-                        datum <- -log(xinfo$domainmax - datum)
-                    } else if (xinfo$transform == 'Q') {
+                    if (transform == 'log') {
+                        datum <- log(datum - domainmin)
+                    } else if (transform == 'logminus') {
+                        datum <- -log(domainmax - datum)
+                    } else if (transform == 'Q') {
                         datum <- util_Q(0.5 +
                                     (datum -
-                                     (xinfo$domainmin + xinfo$domainmax)/2) /
-                                    (xinfo$domainmax - xinfo$domainmin))
+                                     (domainmin + domainmax)/2) /
+                                    (domainmax - domainmin))
                     }
                     ##
-                    datum <- (datum - xinfo$tlocation) / xinfo$tscale
+                    datum <- (datum - tlocation) / tscale
                     datum[selmax] <- +Inf
                     datum[selmin] <- -Inf
 
                 } else if (Cout == 'mi') {
                     ## used in mutualinfo
-                    datum[datum >= xinfo$tdomainmax] <- +Inf
-                    datum[datum <= xinfo$tdomainmin] <- -Inf
+                    datum[datum >= trightbound] <- +Inf
+                    datum[datum <= tleftbound] <- -Inf
 
                 } else if (Cout == 'original') {
                     ## transformation from MCMC representation
                     ## to original domain
-                    datum <- datum * xinfo$tscale + xinfo$tlocation
-                    if (xinfo$transform == 'log') {
-                        datum <- exp(datum) + xinfo$domainmin
-                    } else if (xinfo$transform == 'logminus') {
-                        datum <- xinfo$domainmax - exp(-datum)
-                    } else if (xinfo$transform == 'Q') {
+                    datum <- datum * tscale + tlocation
+                    if (transform == 'log') {
+                        datum <- exp(datum) + domainmin
+                    } else if (transform == 'logminus') {
+                        datum <- domainmax - exp(-datum)
+                    } else if (transform == 'Q') {
                         datum <- (util_invQ(datum) - 0.5) *
-                            (xinfo$domainmax - xinfo$domainmin) +
-                            (xinfo$domainmin + xinfo$domainmax) / 2
+                            (domainmax - domainmin) +
+                            (domainmin + domainmax) / 2
                     }
-                    datum[datum <= xinfo$domainmin] <- xinfo$domainmin
-                    datum[datum >= xinfo$domainmax] <- xinfo$domainmax
+                    datum[datum <= leftbound] <- leftbound
+                    datum[datum >= rightbound] <- rightbound
 
                 } else {
                     stop('Unknown transformation for variate', v)
@@ -230,7 +231,7 @@ vtransform <- function(
 
 
 #### Continuous rounded
-            } else if (xinfo$mcmctype == 'D') {
+            } else if (mcmctype == 'D') {
 
                 if (Dout == 'init') {
                     ## init value used for MCMC
@@ -242,25 +243,23 @@ vtransform <- function(
                     ## for datapoints at boundaries
                     ## we set it slightly outside the boundaries.
                     selna <- is.na(datum)
-                    datum <- (datum - xinfo$tlocation) / xinfo$tscale
+                    datum <- (datum - tlocation) / tscale
                     datum[selna] <- 0L
 
                 } else if (Dout == 'left') {
                     ## used for MCMC
-                    selmin <- is.na(datum) | (datum - xinfo$halfstep <= xinfo$domainmin)
-                    selmax <- is.na(datum) | (datum + xinfo$halfstep >= xinfo$domainmax)
-                    datum <- (datum - xinfo$halfstep - xinfo$tlocation) / xinfo$tscale
+                    selmin <- is.na(datum) | (datum <= leftbound)
+                    selmax <- (datum >= rightbound)
+                    datum <- (datum - halfstep - tlocation) / tscale
                     datum[selmin] <- -Inf
-                    datum[selmax] <- (xinfo$domainmax - xinfo$halfstep -
-                                      xinfo$tlocation) / xinfo$tscale
+                    datum[selmax] <- (rightbound - tlocation) / tscale
 
                 } else if (Dout == 'right') {
                     ## used for MCMC
-                    selmin <- is.na(datum) | (datum - xinfo$halfstep <= xinfo$domainmin)
-                    selmax <- is.na(datum) | (datum + xinfo$halfstep >= xinfo$domainmax)
-                    datum <- (datum + xinfo$halfstep - xinfo$tlocation) / xinfo$tscale
-                    datum[selmin] <- (xinfo$domainmin + xinfo$halfstep -
-                                      xinfo$tlocation) / xinfo$tscale
+                    selmin <- (datum <= leftbound)
+                    selmax <- is.na(datum) | (datum >= rightbound)
+                    datum <- (datum + halfstep - tlocation) / tscale
+                    datum[selmin] <- (leftbound - tlocation) / tscale
                     datum[selmax] <- +Inf
 
                 } else if (Dout == 'aux') {
@@ -271,38 +270,41 @@ vtransform <- function(
 
                 } else if (Dout == 'boundisinf') {
                     ## used in sampling functions
-                    selmax <- (datum + xinfo$halfstep >= xinfo$domainmax)
-                    selmin <- (datum - xinfo$halfstep <= xinfo$domainmin)
+                    selmin <- (datum - halfstep <= domainmin)
+                    selmax <- (datum + halfstep >= domainmax)
                     ##
-                    datum <- (datum - xinfo$tlocation) / xinfo$tscale
-                    datum[selmax] <- +Inf
+                    datum <- (datum - tlocation) / tscale
                     datum[selmin] <- -Inf
+                    datum[selmax] <- +Inf
 
                 } else if (Dout == 'normalized') {
                     ## used in sampling functions
-                    datum <- (datum - xinfo$tlocation) / xinfo$tscale
+                    datum[datum <= leftbound] <- domainmin
+                    datum[datum >= rightbound] <- domainmax
+                    datum <- (datum - tlocation) / tscale
 
                 } else if (Dout == 'mi') {
                     ## used in mutualinfo
-                    datum[datum <= xinfo$tdomainmin] <- xinfo$tdomainmin
-                    datum[datum >= xinfo$tdomainmax] <- xinfo$tdomainmax
+                    datum[datum <= tleftbound] <- tdomainmin
+                    datum[datum >= trightbound] <- tdomainmax
 
                 } else if (Dout == 'original') {
                     ## transformation from MCMC representation
                     ## to original domain
-                    datum <- xinfo$tlocation + 2 * xinfo$halfstep *
-                        round((datum * xinfo$tscale) / (2 * xinfo$halfstep))
-                    datum[datum <= xinfo$domainmin] <- xinfo$domainmin
-                    datum[datum >= xinfo$domainmax] <- xinfo$domainmax
+                    datum <- tlocation + 2 * halfstep *
+                        round((datum * tscale) / (2 * halfstep))
+                    datum[datum <= leftbound] <- domainmin
+                    datum[datum >= rightbound] <- domainmax
 
                 } else {
                     stop('Unknown transformation for variate', v)
                 }
 
                 ## Ordinal
-            } else if (xinfo$mcmctype == 'O') {
-                bvalues <- 1:xinfo$Nvalues
-                names(bvalues) <- unlist(xinfo[paste0('V', bvalues)])
+            } else if (mcmctype == 'O') {
+                bvalues <- 1:Nvalues
+                names(bvalues) <- sapply(bvalues, function(x)get(paste0('V',x)))
+                ## names(bvalues) <- unlist(xinfo[paste0('V', bvalues)])
 
                 if (Oout == 'numeric') {
                     datum <- bvalues[as.character(datum)]
@@ -315,9 +317,10 @@ vtransform <- function(
                 }
 
                 ## Nominal
-            } else if (xinfo$mcmctype == 'N') {
-                bvalues <- 1:xinfo$Nvalues
-                names(bvalues) <- unlist(xinfo[paste0('V', bvalues)])
+            } else if (mcmctype == 'N') {
+                bvalues <- 1:Nvalues
+                names(bvalues) <- sapply(bvalues, function(x)get(paste0('V',x)))
+                ## names(bvalues) <- unlist(xinfo[paste0('V', bvalues)])
 
                 if (Nout == 'numeric') {
                     datum <- bvalues[as.character(datum)]
@@ -330,9 +333,10 @@ vtransform <- function(
                 }
 
                 ## Binary
-            } else if (xinfo$mcmctype == 'B') {
+            } else if (mcmctype == 'B') {
                 bvalues <- 0:1
-                names(bvalues) <- unlist(xinfo[c('V1', 'V2')])
+                names(bvalues) <- sapply(bvalues+1, function(x)get(paste0('V',x)))
+                ## names(bvalues) <- unlist(xinfo[c('V1', 'V2')])
 
                 if (Bout == 'numeric') {
                     datum <- bvalues[as.character(datum)]
@@ -346,6 +350,7 @@ vtransform <- function(
             }
 
         }
-        datum
+            datum
+        })
     }), row.names = NULL,  col.names = colnames(x))
 }

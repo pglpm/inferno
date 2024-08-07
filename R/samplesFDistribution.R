@@ -262,8 +262,8 @@ samplesFDistribution <- function(
         mcoutput$Dvar <- sqrt(mcoutput$Dvar)
         Dsteps <- auxmetadata[match(vnames, auxmetadata$name), 'halfstep'] /
             auxmetadata[match(vnames, auxmetadata$name), 'tscale']
-        Drights <- auxmetadata[match(vnames, auxmetadata$name), 'tdomainmax']
-        Dlefts <- auxmetadata[match(vnames, auxmetadata$name), 'tdomainmin']
+        Dlefts <- auxmetadata[match(vnames, auxmetadata$name), 'tleftbound']
+        Drights <- auxmetadata[match(vnames, auxmetadata$name), 'trightbound']
     }
 
 #### Type O
@@ -307,7 +307,7 @@ samplesFDistribution <- function(
     Y2 <- as.matrix(vtransform(Y, auxmetadata = auxmetadata,
         Rout = 'normalized',
         Cout = 'boundisinf',
-        Dout = 'boundisinf',
+        Dout = 'normalized',
         Oout = 'numeric',
         Nout = 'numeric',
         Bout = 'numeric'))
@@ -316,7 +316,7 @@ samplesFDistribution <- function(
         X2 <- as.matrix(vtransform(X, auxmetadata = auxmetadata,
             Rout = 'normalized',
             Cout = 'boundisinf',
-            Dout = 'boundisinf',
+            Dout = 'normalized',
             Oout = 'numeric',
             Nout = 'numeric',
             Bout = 'numeric'))
@@ -398,18 +398,18 @@ samplesFDistribution <- function(
                         0
                     }) +
                     (if (XnD > 0) { # discretized
-                        ## vrights <- x[XiD, ] + Dsteps[XtD]
-                        ## vrights[vrights >= Drights[XtD]] <- +Inf
-                        ## vlefts <- x[XiD, ] - Dsteps[XtD]
-                        ## vlefts[vlefts <= Dlefts[XtD]] <- -Inf
+                        vrights <- pmax(x[XiD, ] + Dsteps[XtD], Dlefts[XtD])
+                        vrights[vrights >= Drights[XtD]] <- +Inf
+                        vlefts <- pmin(x[XiD, ] - Dsteps[XtD], Drights[XtD])
+                        vlefts[vlefts <= Dlefts[XtD]] <- -Inf
                         colSums(log(
                             pnorm(
-                                q = x[XiD, ] + Dsteps[XtD],
+                                q = vrights,
                                 mean = mcoutput$Dmean[XtD, , , drop = FALSE],
                                 sd = mcoutput$Dvar[XtD, , , drop = FALSE]
                             ) -
                             pnorm(
-                                q = x[XiD, ] - Dsteps[XtD],
+                                q = vlefts,
                                 mean = mcoutput$Dmean[XtD, , , drop = FALSE],
                                 sd = mcoutput$Dvar[XtD, , , drop = FALSE]
                             )
@@ -501,18 +501,18 @@ samplesFDistribution <- function(
                         0
                     }) +
                     (if (YnD > 0) { # discretized
-                        ## vrights <- y[YiD, ] + Dsteps[YtD]
-                        ## vrights[vrights >= Drights[YtD]] <- +Inf
-                        ## vlefts <- y[YiD, ] - Dsteps[YtD]
-                        ## vlefts[vlefts <= Dlefts[YtD]] <- -Inf
+                        vrights <- y[YiD, ] + Dsteps[YtD]
+                        vrights[vrights >= Drights[YtD]] <- +Inf
+                        vlefts <- y[YiD, ] - Dsteps[YtD]
+                        vlefts[vlefts <= Dlefts[YtD]] <- -Inf
                         colSums(log(
                             pnorm(
-                                q = y[YiD, ] + Dsteps[YtD],
+                                q = vrights,
                                 mean = mcoutput$Dmean[YtD, , , drop = FALSE],
                                 sd = mcoutput$Dvar[YtD, , , drop = FALSE]
                             ) -
                             pnorm(
-                                q = y[YiD, ] - Dsteps[YtD],
+                                q = vlefts,
                                 mean = mcoutput$Dmean[YtD, , , drop = FALSE],
                                 sd = mcoutput$Dvar[YtD, , , drop = FALSE]
                             )

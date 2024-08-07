@@ -52,7 +52,7 @@ buildmetadata <- function(
         c(list(name = NA,
             type = NA,
             Nvalues = NA,
-            rounding = NA,
+            gapwidth = NA,
             domainmin = NA,
             domainmax = NA,
             minincluded = NA,
@@ -135,7 +135,7 @@ buildmetadata <- function(
             ## Binary variate? (has only two unique values)
             type <- 'binary'
             Nvalues <- 2
-            rounding <- NA
+            gapwidth <- NA
             domainmin <- NA
             domainmax <- NA
             minincluded <- NA
@@ -161,7 +161,7 @@ buildmetadata <- function(
             ## Nominal variate? (non-numeric values)
             type <- 'nominal'
             Nvalues <- uniquex
-            rounding <- NA
+            gapwidth <- NA
             domainmin <- NA
             domainmax <- NA
             minincluded <- NA
@@ -186,7 +186,7 @@ buildmetadata <- function(
             ## Ordinal variate with few numeric values?
             type <- 'ordinal'
             Nvalues <- uniquex
-            rounding <- NA
+            gapwidth <- NA
             domainmin <- NA
             domainmax <- NA
             minincluded <- NA
@@ -221,12 +221,12 @@ buildmetadata <- function(
             ## if the values are spaced by an integer,
             ## no need to use the 'V' fields
             if(jumpquantum == round(jumpquantum)) {
-                rounding <- jumpquantum
+                gapwidth <- jumpquantum
                 domainmin <- datamin
                 domainmax <- datamax
                 datavalues <- NULL
             } else {
-                rounding <- NA
+                gapwidth <- NA
                 domainmin <- NA
                 domainmax <- NA
                 datavalues <- as.character(sort(unique(x)))
@@ -255,7 +255,7 @@ buildmetadata <- function(
             ## Ordinal variate with many numeric values?
             type <- 'ordinal'
             Nvalues <- uniquex
-            rounding <- jumpquantum
+            gapwidth <- jumpquantum
             domainmin <- datamin
             domainmax <- datamax
             minincluded <- NA
@@ -284,11 +284,11 @@ buildmetadata <- function(
             type <- 'continuous'
             Nvalues <- Inf
             ## preliminary values, possibly modified below
-            rounding <- NA
+            gapwidth <- NA
             domainmin <- -Inf # signif(datamax - 3 * rangex, 1)
             domainmax <- +Inf # signif(datamax + 3 * rangex, 1)
-            minincluded <- FALSE
-            maxincluded <- FALSE
+            minincluded <- NA
+            maxincluded <- NA
 
             Q1 <- quantile(x, probs = 0.25, type = 6)
             ## centralvalue <- quantile(x, probs = 0.5, type = 6)
@@ -317,7 +317,7 @@ buildmetadata <- function(
             }
 
 #### Consider subcases for openness of domain
-            if (sum(x == min(x)) > meanrep) {
+            if (sum(x == datamin) > meanrep) {
                 ## seems to have left-closed domain
                 domainmin <- datamin
                 plotmin <- datamin
@@ -355,7 +355,7 @@ buildmetadata <- function(
                 }
             }
 
-#### Consider subcases for rounding
+#### Consider subcases for gapwidth
             ## ## Variate has integer values, it's possibly ordinal
             ## if (jumpquantum >= 1) {
             ##     message('\nNOTE: variate ', name, ' might be ordinal,\n',
@@ -368,18 +368,20 @@ buildmetadata <- function(
                 (jumpquantum / rangex < 1e-3 &&
                  maxrep <= 100)  # visible gaps, but not many value repetitions
             )) {
-                ## The variate seems to have quantized differences between unique values
+                ## The variate seems to have quantized differences
+                ## between unique values
                 ## hence it might be rounded or integer/ordinal
 
-                ## if(rangex / rounding > 256) {
+                ## if(rangex / gapwidth > 256) {
                 ##   ## The variate seems rounded,
                 ##   ## but no latent-variable representation is needed
                 ##   message('\nNOTE: variate ', name, ' is probably rounded,\n',
                 ##           'but is treated as not rounded ',
                 ##           'owing to its large range of values.\n')
-                ##   rounding <- 0
+                ##   gapwidth <- 0
                 ## } else {
-                rounding <- jumpquantum
+                gapwidth <- jumpquantum
+                minincluded <- maxincluded <- NA
                 ##
                 if(verbose){
                     cat('  - Distance between datapoints',
@@ -404,7 +406,7 @@ buildmetadata <- function(
                 list(name = name,
                     type = type,
                     Nvalues = Nvalues,
-                    rounding = rounding,
+                    gapwidth = gapwidth,
                     domainmin = domainmin,
                     domainmax = domainmax,
                     minincluded = minincluded,

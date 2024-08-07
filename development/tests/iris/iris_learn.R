@@ -8,7 +8,7 @@ seed <- 1000
 outputdir <- inferpopulation(
     data = iris,
     metadata = 'iris_metadata.csv',
-    outputdir = '_newD_test_iris-1',
+    outputdir = '_newD2_test_iris-1',
     output = 'directory',
     appendtimestamp = F,
     appendinfo = TRUE,
