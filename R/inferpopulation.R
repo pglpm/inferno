@@ -294,6 +294,7 @@ inferpopulation <- function(
             }
         }
         data <- as.data.frame(data)
+        rownames(data) <- NULL
 
         ## Consistency checks for data
         ## They should be moved to an external function
@@ -1799,6 +1800,13 @@ inferpopulation <- function(
             tokeep <- seq(to = ncol(allmcsamples$W),
                 length.out = nsamplesperchain,
                 by = currentthinning)
+
+            if(any(tokeep <= 0)){
+                cat('\nWARNING: have to reduce thinning owing to time constraints\n')
+                tokeep <- round(seq(from = 1,
+                    to = ncol(allmcsamples$W),
+                length.out = nsamplesperchain))
+            }
 
             saveRDS(mcsubset(allmcsamples, tokeep),
                 file = file.path(dirname,

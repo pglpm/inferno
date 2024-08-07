@@ -581,6 +581,6 @@ samplesFDistribution <- function(
             na.rm = TRUE
         ))
     } else {
-        1L
+        1
     })
 }

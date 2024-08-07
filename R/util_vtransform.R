@@ -75,7 +75,7 @@ vtransform <- function(
                 } else if (transform == 'identity') {
                     datum[] <- tscale
                 } else {
-                    stop('Unknown transformation for variate', v)
+                    stop('Unknown transformation for variate ', v)
                 }
                 xv <- data.matrix(x[, v, drop = FALSE])
                 if (mcmctype %in% c('C', 'D')) {
@@ -203,6 +203,24 @@ vtransform <- function(
                     datum[selmax] <- +Inf
                     datum[selmin] <- -Inf
 
+                } else if (Cout == 'normalized') {
+                    ## used only for debugging
+                    datum[datum <= leftbound] <- domainmin
+                    datum[datum >= rightbound] <- domainmax
+                    ##
+                    if (transform == 'log') {
+                        datum <- log(datum - domainmin)
+                    } else if (transform == 'logminus') {
+                        datum <- -log(domainmax - datum)
+                    } else if (transform == 'Q') {
+                        datum <- util_Q(0.5 +
+                                    (datum -
+                                     (domainmin + domainmax)/2) /
+                                    (domainmax - domainmin))
+                    }
+                    ##
+                    datum <- (datum - tlocation) / tscale
+
                 } else if (Cout == 'mi') {
                     ## used in mutualinfo
                     datum[datum >= trightbound] <- +Inf
@@ -225,7 +243,7 @@ vtransform <- function(
                     datum[datum >= rightbound] <- rightbound
 
                 } else {
-                    stop('Unknown transformation for variate', v)
+                    stop('Unknown transformation for variate ', v)
                 }
 
 
@@ -297,7 +315,7 @@ vtransform <- function(
                     datum[datum >= rightbound] <- domainmax
 
                 } else {
-                    stop('Unknown transformation for variate', v)
+                    stop('Unknown transformation for variate ', v)
                 }
 
                 ## Ordinal
@@ -313,7 +331,7 @@ vtransform <- function(
                     datum <- names(bvalues[datum])
 
                 } else if (Oout != 'mi') {
-                    stop('Unknown transformation for variate', v)
+                    stop('Unknown transformation for variate ', v)
                 }
 
                 ## Nominal
@@ -345,7 +363,7 @@ vtransform <- function(
                     datum <- names(bvalues[datum + 1L])
 
                 } else if (Bout != 'mi') {
-                    stop('Unknown transformation for variate', v)
+                    stop('Unknown transformation for variate ', v)
                 }
             }
 

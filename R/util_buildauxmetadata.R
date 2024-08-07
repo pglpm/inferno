@@ -30,7 +30,19 @@ buildauxmetadata <- function(data, metadata, Dthreshold = 1) {
 
     idR <- idC <- idD <- idB <- idO <- idN <- 1L
 
-    auxmetadata <- data.frame()
+#### Prepare empty metadata frame
+    auxmetadata <- as.data.frame(
+                list(
+                    name = NA, mcmctype = NA, id = NA, # censored= NA,
+                    transform = NA, Nvalues = NA, halfstep = NA,
+                    domainmin = NA, domainmax = NA,
+                    tdomainmin = NA, tdomainmax = NA,
+                    leftbound = NA, rightbound = NA,
+                    tleftbound = NA, trightbound = NA,
+                    tlocation = NA, tscale = NA,
+                    plotmin = NA, plotmax = NA
+                )
+    )[-1,]
 
     for (name in metadata$name) {
         if(!is.null(data)) {
@@ -130,7 +142,7 @@ buildauxmetadata <- function(data, metadata, Dthreshold = 1) {
             }
 
             if(nvaluelist == 0 && !is.na(Nvalues) && !is.na(halfstep) &&
-               Nvalues != length(seq(domainmin, domainmax, by = halfstep))) {
+               Nvalues != 1 + (domainmax - domainmin) / (2 * halfstep)) {
                 message('WARNING variate "',name,
                     '": discrepancy between "Nvalues" and "gapwidth".',
                     '\nCorrecting "Nvalues".')
@@ -154,9 +166,9 @@ buildauxmetadata <- function(data, metadata, Dthreshold = 1) {
                 idO <- idO + 1L
                 ## convert domain specification to list
                 if(nvaluelist == 0) {
-                    datavalues <- as.character(
+                    datavalues <- as.list(as.character(
                         seq(domainmin, domainmax, length.out = Nvalues)
-                    )
+                    ))
                     names(datavalues) <- paste0('V', seq_len(Nvalues))
                 }
                 domainmin <- NA
@@ -177,7 +189,7 @@ buildauxmetadata <- function(data, metadata, Dthreshold = 1) {
                 transf <- 'identity'
                 if(!is.null(data)) {
                     ## set the location to the nearest centre of gapwidth interval
-                    temptlocation <- quantile(x, 0.5, type = 6)
+                    temptlocation <- unname(quantile(x, 0.5, type = 6))
                     tlocation <- x[which.min(abs(x - temptlocation))]
                     tlocation <- tlocation +
                         round((temptlocation - tlocation) / (2 * halfstep)) *
@@ -234,7 +246,7 @@ buildauxmetadata <- function(data, metadata, Dthreshold = 1) {
                 transf <- 'identity'
                 if(!is.null(data)) {
                     ## set the location to the nearest centre of gapwidth interval
-                    temptlocation <- quantile(x, 0.5, type = 6)
+                    temptlocation <- unname(quantile(x, 0.5, type = 6))
                     tlocation <- x[which.min(abs(x - temptlocation))]
                     tlocation <- tlocation +
                         round((temptlocation - tlocation) / (2 * halfstep)) *
@@ -275,7 +287,7 @@ buildauxmetadata <- function(data, metadata, Dthreshold = 1) {
                     ##
                     transf <- 'logminus'
                     if(!is.null(data)) {
-                        tlocation <- quantile(-log(domainmax - x), 0.5, type = 6)
+                        tlocation <- unname(quantile(-log(domainmax - x), 0.5, type = 6))
                         tscale <- mad(-log(domainmax - x)) / iqrfactor
                     } else {
                         tlocation <- 0
@@ -295,7 +307,7 @@ buildauxmetadata <- function(data, metadata, Dthreshold = 1) {
                     ##
                     transf <- 'log'
                     if(!is.null(data)) {
-                        tlocation <- quantile(log(x - domainmin), 0.5, type = 6)
+                        tlocation <- unname(quantile(log(x - domainmin), 0.5, type = 6))
                         tscale <- mad(log(x - domainmin)) / iqrfactor
                     } else {
                         tlocation <- 0
@@ -313,7 +325,7 @@ buildauxmetadata <- function(data, metadata, Dthreshold = 1) {
                     ##
                     transf <- 'identity'
                     if(!is.null(data)) {
-                        tlocation <- quantile(x, 0.5, type = 6)
+                        tlocation <- unname(quantile(x, 0.5, type = 6))
                         tscale <- mad(x) / iqrfactor
                     } else {
                         tlocation <- 0
@@ -330,7 +342,7 @@ buildauxmetadata <- function(data, metadata, Dthreshold = 1) {
                     ##
                     transf <- 'identity'
                     if(!is.null(data)) {
-                        tlocation <- quantile(x, 0.5, type = 6)
+                        tlocation <- unname(quantile(x, 0.5, type = 6))
                         tscale <- mad(x) / iqrfactor
                     } else {
                         tlocation <- 0
@@ -347,7 +359,7 @@ buildauxmetadata <- function(data, metadata, Dthreshold = 1) {
                     ##
                     transf <- 'identity'
                     if(!is.null(data)) {
-                        tlocation <- quantile(x, 0.5, type = 6)
+                        tlocation <- unname(quantile(x, 0.5, type = 6))
                         tscale <- mad(x) / iqrfactor
                     } else {
                         tlocation <- 0
@@ -388,7 +400,7 @@ buildauxmetadata <- function(data, metadata, Dthreshold = 1) {
                     ##
                     transf <- 'log'
                     if(!is.null(data)) {
-                        tlocation <- quantile(log(x - domainmin), 0.5, type = 6)
+                        tlocation <- unname(quantile(log(x - domainmin), 0.5, type = 6))
                         tscale <- mad(log(x - domainmin)) / iqrfactor
                     } else {
                         tlocation <- 0
@@ -405,7 +417,7 @@ buildauxmetadata <- function(data, metadata, Dthreshold = 1) {
                     ##
                     transf <- 'logminus'
                     if(!is.null(data)) {
-                        tlocation <- quantile(-log(domainmax - x), 0.5, type = 6)
+                        tlocation <- unname(quantile(-log(domainmax - x), 0.5, type = 6))
                         tscale <- mad(-log(domainmax - x)) / iqrfactor
                     } else {
                         tlocation <- 0
@@ -422,7 +434,7 @@ buildauxmetadata <- function(data, metadata, Dthreshold = 1) {
                     ##
                     transf <- 'identity'
                     if(!is.null(data)) {
-                        tlocation <- quantile(x, 0.5, type = 6)
+                        tlocation <- unname(quantile(x, 0.5, type = 6))
                         tscale <- mad(x) / iqrfactor
                     } else {
                         tlocation <- 0
@@ -474,7 +486,7 @@ buildauxmetadata <- function(data, metadata, Dthreshold = 1) {
         ## tscale=tscale, plotmin=plotmin, plotmax=plotmax, Q1=Q1, Q2=Q2, Q3=Q3),
         ## datavalues
         ## )))
-        auxmetadata <- rbind(auxmetadata,
+        auxmetadata <- merge(auxmetadata,
             c(
                 list(
                     name = name, mcmctype = mcmctype, id = id, # censored=cens,
@@ -488,11 +500,9 @@ buildauxmetadata <- function(data, metadata, Dthreshold = 1) {
                     ## Q1 = Q1, Q2 = Q2, Q3 = Q3, # not used in other scripts, possibly remove
                     ## mctest1 = mctest1, mctest2 = mctest2, mctest3 = mctest3
                 ),
-                datavalues
-            )
-            ## ## previously, with data.table:
-            ##      fill = FALSE
-        )
+                as.list(datavalues)
+            ),
+            sort = FALSE, all = TRUE)
     }
 
     ## print(auxmetadata) # for debugging

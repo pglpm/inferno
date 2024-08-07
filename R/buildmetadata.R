@@ -81,35 +81,49 @@ buildmetadata <- function(
         variatelist <- setdiff(variatelist, excludevrt)
     }
 
+    if(verbose){ cat('\nAnalyzing', length(variatelist), 'variates for',
+        nrow(data), 'datapoints.\n') }
 
     ## Loop over variates (columns) in data frame
     ## cat('\n')
     for (name in variatelist) {
-        if(verbose){ cat('\n* Variate', paste0('"', name, '"'), ':\n') }
+        if(verbose){ cat(paste0('\n* "', name, '" variate:\n')) }
         ## remove missing values
         x <- data[[name]]
         x <- x[!is.na(x)]
+
         ## check if it's a 'factor' object and transform
         if(is.factor(x)){
             x <- as.character(x)
-            testx <- suppressWarnings(as.numeric(x))
-            if(!any(is.na(testx))){
-                x <- testx
-            }
         }
-        uniquex <- length(unique(x))
+
+        unx <- sort(unique(x))
+        uniquex <- length(unx)
+
         ## if this variate has only one value, then it bears no information
         if (uniquex <= 1) {
+            if(verbose){
+                cat('  Only one value present.\n')
+            }
             warninglist <- c(warninglist,
-                paste0('* Variate "', name, '"',
+                paste0('\n* "', name, '" variate',
                     ' does not have at least two distinct values.',
-                    '\nDiscarded because non-informative'))
+                    '\nDiscarded because non-informative.',
+                    '\nPlease insert its characteristics by hand in the metadata file.'))
             next
+        }
+
+        ## If the values are strings,
+        ## check whether they can be reinterpreted as numeric
+        if(!is.numeric(unx) &&
+           !any(is.na(suppressWarnings(as.numeric(unx))))) {
+            x <- as.numeric(x)
+            unx <- sort(as.numeric(unx))
         }
 
         ## If the variate is numeric,
         ## calculate several characteristics used later
-        if (is.numeric(x) && uniquex > 2) {
+        if (is.numeric(unx) && uniquex > 2) {
             ## these two are used for diagnostic purposes
             datamin <- min(x)
             datamax <- max(x)
@@ -118,7 +132,7 @@ buildmetadata <- function(
             maxrep <- max(table(ix)) # max of repeated inner values
             meanrep <- mean(table(ix)) # average of repeated inner values
             ## differences between consecutive unique values
-            jumpsx <- unique(signif(diff(sort(unique(x))), 3))
+            jumpsx <- unique(signif(diff(unx), 3))
             rangex <- diff(range(x))
             multi <- 10^(-min(floor(log10(jumpsx))))
             ## jumps between unique values are integer multiples
@@ -126,7 +140,34 @@ buildmetadata <- function(
             jumpquantum <- gcd(jumpsx * multi) / multi
             datavalues <- NULL
         } else {
-            datavalues <- as.character(sort(unique(x)))
+            datavalues <- as.character(unx)
+        }
+
+### Check whether the variate has been first rounded
+### and then transformed to logarithmic scale.
+### This may lead to problems
+        if(is.numeric(unx) && datamin > 0 && uniquex > 2) {
+            for(base in c(2, exp(1), 10)) {
+                ljumpsx <- unique(signif(diff(log(unx, base)), 3))
+                lrangex <- diff(log(range(x), base))
+                lmulti <- 10^(-min(floor(log10(ljumpsx))))
+                ## jumps between unique values are integer multiples
+                ## of 'jumpquantum'
+                ljumpquantum <- gcd(ljumpsx * lmulti) / lmulti
+                if (!(
+                    ljumpquantum / lrangex < 1e-5 || # no visible gaps between values
+                    (ljumpquantum / lrangex < 1e-3 &&
+                     maxrep <= 100)  # visible gaps, but not many value repetitions
+                )) {
+                    warninglist <- c(warninglist,
+                        paste0('\n* "', name, '" variate',
+                            ' appears to have been rounded\n',
+                            'and then transformed to logarithmic scale.\n',
+                            'This may lead to problems in the inference.\n',
+                            'Preferably, transform it back to non-logarithmic scale.'))
+                    break
+                }
+            }
         }
 
 #### Now make educated guess for the type of variate
@@ -207,14 +248,15 @@ buildmetadata <- function(
                 cat('  Please appropriately reorder its values in metadata file.\n')
             }
             warninglist <- c(warninglist,
-                paste0('* Variate "', name, '"',
+                paste0('\n* "', name, '" variate',
                     ' appears to be ordinal.',
                     '\nPlease appropriately reorder its values in metadata file.'))
 
 
 #### Now we know that the variate is numeric
 
-        } else if (uniquex <= 10 && all(x == round(x))) {
+        } else if (uniquex <= 10 &&
+                   (all(x == round(x)) || jumpquantum == round(jumpquantum))) {
             ## Ordinal variate with few numeric values?
             type <- 'ordinal'
             Nvalues <- uniquex
@@ -229,7 +271,7 @@ buildmetadata <- function(
                 gapwidth <- NA
                 domainmin <- NA
                 domainmax <- NA
-                datavalues <- as.character(sort(unique(x)))
+                datavalues <- as.character(unx)
                 names(datavalues) <- paste0('V', 1:Nvalues)
             }
             minincluded <- NA
@@ -251,32 +293,32 @@ buildmetadata <- function(
                 cat('  Assuming variate to be ORDINAL.\n')
             }
 
-        } else if (jumpquantum == round(jumpquantum)) {
-            ## Ordinal variate with many numeric values?
-            type <- 'ordinal'
-            Nvalues <- uniquex
-            gapwidth <- jumpquantum
-            domainmin <- datamin
-            domainmax <- datamax
-            minincluded <- NA
-            maxincluded <- NA
-            ## lowvalue <- NA
-            ## centralvalue <- NA
-            ## highvalue <- NA
-            plotmin <- NA
-            plotmax <- NA
-            datavalues <- NULL
-            ##
-            if(verbose){
-                cat(' - ', Nvalues, 'different numeric values detected\n')
-                cat('  distance between datapoints is a multiple of integer',
-                    jumpquantum, '\n')
-                cat('  Assuming variate to be ORDINAL.\n')
-            }
-            warninglist <- c(warninglist,
-                paste0('* Variate "', name, '"',
-                    ' appears to be ordinal,',
-                    '\nbut it could also be a rounded continous variate'))
+            ## } else if (uniquex <= 10 && ) {
+            ##     ## Ordinal variate with many numeric values?
+            ##     type <- 'ordinal'
+            ##     Nvalues <- uniquex
+            ##     gapwidth <- jumpquantum
+            ##     domainmin <- datamin
+            ##     domainmax <- datamax
+            ##     minincluded <- NA
+            ##     maxincluded <- NA
+            ##     ## lowvalue <- NA
+            ##     ## centralvalue <- NA
+            ##     ## highvalue <- NA
+            ##     plotmin <- NA
+            ##     plotmax <- NA
+            ##     datavalues <- NULL
+            ##     ##
+            ##     if(verbose){
+            ##         cat(' - ', Nvalues, 'different numeric values detected\n')
+            ##         cat('  distance between datapoints is a multiple of integer',
+            ##             jumpquantum, '\n')
+            ##         cat('  Assuming variate to be ORDINAL.\n')
+            ##     }
+            ##     warninglist <- c(warninglist,
+            ##         paste0('* "', name, '" variate',
+            ##             ' appears to be ordinal,',
+            ##             '\nbut it could also be a rounded continous variate'))
 
 
         } else {
@@ -287,12 +329,10 @@ buildmetadata <- function(
             gapwidth <- NA
             domainmin <- -Inf # signif(datamax - 3 * rangex, 1)
             domainmax <- +Inf # signif(datamax + 3 * rangex, 1)
-            minincluded <- NA
-            maxincluded <- NA
 
-            Q1 <- quantile(x, probs = 0.25, type = 6)
+            ## Q1 <- quantile(x, probs = 0.25, type = 6)
             ## centralvalue <- quantile(x, probs = 0.5, type = 6)
-            Q3 <- quantile(x, probs = 0.75, type = 6)
+            ## Q3 <- quantile(x, probs = 0.75, type = 6)
             ## ## Borderline case if the first and second quartile have the same value
             ## if (lowvalue == highvalue) {
             ##   lowvalue <- if (sum(x < Q1) > 0) {
@@ -306,8 +346,8 @@ buildmetadata <- function(
             ##                  min(x[x >= Q3])
             ##                }
             ## }
-            plotmin <- datamin - (Q3 - Q1) / 2
-            plotmax <- datamax + (Q3 - Q1) / 2
+            plotmin <- datamin - IQR(x, type=6) / 2
+            plotmax <- datamax + IQR(x, type=6) / 2
             datavalues <- NULL
             ##
             if(verbose){
@@ -316,58 +356,16 @@ buildmetadata <- function(
                 cat('  Assuming variate to be CONTINUOUS.\n')
             }
 
-#### Consider subcases for openness of domain
-            if (sum(x == datamin) > meanrep) {
-                ## seems to have left-closed domain
-                domainmin <- datamin
-                plotmin <- datamin
-                minincluded <- TRUE
-                ##
-                if(verbose){
-                    cat('  - Many datapoints have minimum value', datamin, '\n')
-                    cat('  Assuming "domainmin" to be this minimum observed value\n')
-                    cat('  and to be included in the domain',
-                        '(singular probabilities there).\n')
-                }
-            } else if (all(x > 0)) {
-                ## seems to be strictly positive
-                domainmin <- 0
-                plotmin <- max((domainmin + datamin) / 2, plotmin)
-                ##
-                if(verbose){
-                    cat('  - All values are non-negative\n')
-                    cat('  Assuming "domainmin" to be 0,',
-                        'with 0 excluded from domain.\n')
-                }
-            }
-
-            if (sum(x == datamax) > meanrep) {
-                ## seems to right-closed domain
-                domainmax <- datamax
-                plotmax <- datamax
-                maxincluded <- TRUE
-                ##
-                if(verbose){
-                    cat('  - Many datapoints have maximum value,', datamax, '\n')
-                    cat('  Assuming "domainmax" to be this maximum observed value\n')
-                    cat('  and to be included in the domain',
-                        '(singular probabilities there).\n')
-                }
-            }
-
+            roundedflag <- FALSE
 #### Consider subcases for gapwidth
-            ## ## Variate has integer values, it's possibly ordinal
-            ## if (jumpquantum >= 1) {
-            ##     message('\nNOTE: variate ', name, ' might be ordinal,\n',
-            ##         'but is treated as continuous and rounded\n',
-            ##         'owing to its large range of values.\n')
-            ## }
-
+            ## for rounded variates it doesn't matter whether the boundaries
+            ## are included in the domain or not
             if (!(
                 jumpquantum / rangex < 1e-5 || # no visible gaps between values
                 (jumpquantum / rangex < 1e-3 &&
                  maxrep <= 100)  # visible gaps, but not many value repetitions
             )) {
+                roundedflag <- TRUE
                 ## The variate seems to have quantized differences
                 ## between unique values
                 ## hence it might be rounded or integer/ordinal
@@ -385,18 +383,91 @@ buildmetadata <- function(
                 ##
                 if(verbose){
                     cat('  - Distance between datapoints',
-                        'is a multiple of non-integer', jumpquantum, '\n')
+                        'is a multiple of', jumpquantum, '\n')
                     cat('  Assuming variate to be ROUNDED.\n')
                 }
                 if(jumpquantum >=1) {
                     warninglist <- c(warninglist,
-                        paste0('* Variate "', name, '"',
+                        paste0('\n* "', name, '" variate',
                             ' appears to be continuous and rounded,',
-                    '\nbut it could also be an ordinal variate'))
+                            '\nbut it could also be an ordinal variate'))
                 }
                 ## domainmin <- signif(datamin - 4 * rangex, 1)
                 ## domainmax <- signif(datamax + 4 * rangex, 1)
+
             } # End rounded case
+
+
+#### Consider subcases for closedness of domain
+            if(!roundedflag){
+                minincluded <- FALSE
+                maxincluded <- FALSE
+            }
+            if (sum(x == datamin) > 1) {
+                ## seems to have left-closed domain
+                domainmin <- datamin
+                plotmin <- datamin
+                if(!roundedflag){
+                    minincluded <- TRUE
+                }
+                ##
+                if(verbose){
+                    cat('  - Several datapoints have minimum value', datamin, '\n')
+                    cat('  Assuming "domainmin" to be this minimum observed value\n')
+                    if(!roundedflag){
+                        cat('  and to be included in the domain',
+                            '(singular probabilities there).\n')
+                    }
+                }
+            } else if (all(unx > 0)) {
+                ## seems to be strictly positive
+                domainmin <- 0
+                plotmin <- max((domainmin + datamin) / 2, plotmin)
+                if(!roundedflag){
+                    minincluded <- FALSE
+                }
+                ##
+                if(verbose){
+                    cat('  - All values are positive\n')
+                    cat('  Assuming "domainmin" to be 0\n')
+                    if(!roundedflag){
+                        cat('  with 0 excluded from domain.\n')
+                    }
+                }
+            } else if (all(unx >= 0)) {
+                ## seems to be non-negative
+                domainmin <- 0
+                plotmin <- max((domainmin + datamin) / 2, plotmin)
+                if(!roundedflag){
+                    minincluded <- TRUE
+                }
+                ##
+                if(verbose){
+                    cat('  - All values are non-negative\n')
+                    cat('  Assuming "domainmin" to be 0\n')
+                    if(!roundedflag){
+                        cat('  with 0 included in the domain.\n')
+                    }
+                }
+            }
+
+            if (sum(x == datamax) > meanrep) {
+                ## seems to right-closed domain
+                domainmax <- datamax
+                plotmax <- datamax
+                if(!roundedflag){
+                    maxincluded <- TRUE
+                }
+                ##
+                if(verbose){
+                    cat('  - Many datapoints have maximum value,', datamax, '\n')
+                    cat('  Assuming "domainmax" to be this maximum observed value\n')
+                    if(!roundedflag){
+                        cat('  and to be included in the domain',
+                            '(singular probabilities there).\n')
+                    }
+                }
+            }
 
         } # End continuous-variate case
 
@@ -430,10 +501,12 @@ buildmetadata <- function(
 
     ## Print warnings
     if(!is.null(warninglist)){
-        message('\nWARNINGS',
+        message(
+            '=========',
+            '\nWARNINGS',
             ' - please make sure to check these variates in the metadata file:')
         for(awarning in warninglist){message(awarning)}
-        cat('\n')
+        cat('=========\n')
     }
 
                                         # Save to file if the file parameter is set
