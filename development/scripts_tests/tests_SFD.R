@@ -367,7 +367,7 @@ mcoutput <- readRDS('/home/pglpm/repositories/bayes_nonparametric_inference/deve
 Y1s <- sample(colnames(mtcars),2)
 Y2s <- sample(setdiff(colnames(mtcars), Y1s),2)
 Xs <- sample(setdiff(colnames(mtcars), c(Y1s,Y2s)),2)
-mutualinfo(
+out <- mutualinfo(
     Y1names = Y1s,
     Y2names = Y2s,
     X = mtcars[1, Xs, drop=F],
@@ -375,3 +375,49 @@ mutualinfo(
     nsamples = 3600,
     parallel = 4
 )
+out[1:3]
+mcoutput$auxmetadata$mcmctype[mcoutput$auxmetadata$name %in% Y1s]
+mcoutput$auxmetadata$mcmctype[mcoutput$auxmetadata$name %in% Y2s]
+mcoutput$auxmetadata$mcmctype[mcoutput$auxmetadata$name %in% Xs]
+summary(c(out$lW))
+summary(out$lpY12)
+summary(out$lpY1)
+
+
+## ***lW
+##    Min. 1st Qu.  Median    Mean 3rd Qu.    Max.
+##    -Inf  -87.88  -41.56    -Inf  -15.89   -1.51
+##
+## ***lpY12
+##    Min. 1st Qu.  Median    Mean 3rd Qu.    Max.    NA's
+##  -34.36   -6.65   -5.47   -5.94   -4.93   -2.50      27
+##
+## ***lpY1
+##    Min. 1st Qu.  Median    Mean 3rd Qu.    Max.
+##  -32.29   -6.69   -5.59   -5.96   -4.69    0.36
+## > $MI
+## [1] NaN
+##
+## $error
+## [1] NA
+##
+## $unit
+## [1] "Sh"
+##
+## > Y1s
+## [1] "drat" "carb"
+## > Y2s
+## [1] "am" "hp"
+## > Xs
+## [1] "vs"  "cyl"
+## > str(out$lp1)
+##  NULL
+## > str(out$lpY12)
+##  num [1:4096] -5.97 -6.78 -5.42 -3.15 -5.14 ...
+## > summary(out$lpY12)
+##    Min. 1st Qu.  Median    Mean 3rd Qu.    Max.    NA's
+##  -34.36   -6.65   -5.47   -5.94   -4.93   -2.50      27
+## > which(is.na(out$lpY12))
+##  [1]   23  166  551  566  571 1078 1125 1483 1887 1913 2056 2062 2105 2123 2522 2614
+## [17] 2783 3003 3019 3183 3341 3366 3515 3623 3659 3693 4058
+

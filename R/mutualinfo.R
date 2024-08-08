@@ -34,12 +34,12 @@ mutualinfo <- function(
 #### conditional on X, data, prior information
 #### are calculated by Monte Carlo integration:
 #### 0. adjusted component weights are calculated for conditioning on X:
-####     all probabilities below are conditional on X &data & prior
+####     all probabilities below are conditional on X & data & prior
 #### 1. joint samples of Y1_i, Y2_i are drawn
 #### 2. probabilities p(Y1|Y2) are calculated for each sample
 ####    the conditional entropy is Monte-Carlo approximated by
 ####    H(Y1|Y2) = - sum_{i} log p(Y1_i | Y2_i)
-#### 3. probabilities p(Y1|Y2) are calculated for each sample
+#### 3. probabilities p(Y1) are calculated for each sample
 ####    the entropy is Monte-Carlo approximated by
 ####    H(Y1) = - sum_{i} log p(Y1_i)
 #### 4. the mutual info is Monte-Carlo approximated by
@@ -214,8 +214,8 @@ mutualinfo <- function(
     sseq <- seq_len(nMCsamples)
     ## source('vtransform.R')
 
-#### Combine Y1,Y2 into single Z for speed
-    Znames <- c(Y1names, Y2names)
+#### Combine Y1,Y2 into single Y for speed
+    Ynames <- c(Y1names, Y2names)
 
 #### Type R
     vnames <- auxmetadata[auxmetadata$mcmctype == 'R', 'name']
@@ -237,10 +237,10 @@ mutualinfo <- function(
         mcoutput$Rvar <- sqrt(mcoutput$Rvar)
     }
     ##
-    ZiR <- match(vnames, Znames)
-    ZtR <- which(!is.na(ZiR))
-    ZiR <- ZiR[ZtR]
-    ZnR <- length(ZiR)
+    YiR <- match(vnames, Ynames)
+    YtR <- which(!is.na(YiR))
+    YiR <- YiR[YtR]
+    YnR <- length(YiR)
 
 #### Type C
     vnames <- auxmetadata[auxmetadata$mcmctype == 'C', 'name']
@@ -264,10 +264,10 @@ mutualinfo <- function(
         Crights <- auxmetadata[match(vnames, auxmetadata$name), 'trightbound']
     }
     ##
-    ZiC <- match(vnames, Znames)
-    ZtC <- which(!is.na(ZiC))
-    ZiC <- ZiC[ZtC]
-    ZnC <- length(ZiC)
+    YiC <- match(vnames, Ynames)
+    YtC <- which(!is.na(YiC))
+    YiC <- YiC[YtC]
+    YnC <- length(YiC)
 
 #### Type D
     vnames <- auxmetadata[auxmetadata$mcmctype == 'D', 'name']
@@ -293,10 +293,10 @@ mutualinfo <- function(
         Drights <- auxmetadata[match(vnames, auxmetadata$name), 'trightbound']
     }
     ##
-    ZiD <- match(vnames, Znames)
-    ZtD <- which(!is.na(ZiD))
-    ZiD <- ZiD[ZtD]
-    ZnD <- length(ZiD)
+    YiD <- match(vnames, Ynames)
+    YtD <- which(!is.na(YiD))
+    YiD <- YiD[YtD]
+    YnD <- length(YiD)
 
 #### Type O
     vnames <- auxmetadata[auxmetadata$mcmctype == 'O', 'name']
@@ -315,10 +315,10 @@ mutualinfo <- function(
     XiO <- XiO[XtO]
     XnO <- length(XiO)
     ##
-    ZiO <- match(vnames, Znames)
-    ZtO <- which(!is.na(ZiO))
-    ZiO <- ZiO[ZtO]
-    ZnO <- length(ZiO)
+    YiO <- match(vnames, Ynames)
+    YtO <- which(!is.na(YiO))
+    YiO <- YiO[YtO]
+    YnO <- length(YiO)
 
 #### Type N
     vnames <- auxmetadata[auxmetadata$mcmctype == 'N', 'name']
@@ -337,10 +337,10 @@ mutualinfo <- function(
     XiN <- XiN[XtN]
     XnN <- length(XiN)
     ##
-    ZiN <- match(vnames, Znames)
-    ZtN <- which(!is.na(ZiN))
-    ZiN <- ZiN[ZtN]
-    ZnN <- length(ZiN)
+    YiN <- match(vnames, Ynames)
+    YtN <- which(!is.na(YiN))
+    YiN <- YiN[YtN]
+    YnN <- length(YiN)
 
 #### Type B
     vnames <- auxmetadata[auxmetadata$mcmctype == 'B', 'name']
@@ -359,15 +359,15 @@ mutualinfo <- function(
     XiB <- XiB[XtB]
     XnB <- length(XiB)
     ##
-    ZiB <- match(vnames, Znames)
-    ZtB <- which(!is.na(ZiB))
-    ZiB <- ZiB[ZtB]
-    ZnB <- length(ZiB)
+    YiB <- match(vnames, Ynames)
+    YtB <- which(!is.na(YiB))
+    YiB <- YiB[YtB]
+    YnB <- length(YiB)
 
 
 #### STEP 0. Adjust component weights W for conditioning on X
     if(is.null(X)){
-        W <- mcoutput$W
+        lW <- log(mcoutput$W)
     } else {
         x <- t(as.matrix(vtransform(X, auxmetadata = auxmetadata,
             Rout = 'normalized',
@@ -377,7 +377,7 @@ mutualinfo <- function(
             Nout = 'numeric',
             Bout = 'numeric')))
         ##
-        W <- log(mcoutput$W) +
+        lW <- log(mcoutput$W) +
             (if (XnR > 0) { # continuous
                 colSums(
                     dnorm(
@@ -476,65 +476,67 @@ mutualinfo <- function(
                 0
             })
         ##
-        W <- apply(W, 2, function(xx) {
-            xx <- exp(xx - max(xx[is.finite(xx)]))
-            xx/sum(xx)
-        })
-    } # end definition of W if non-null X
+    } # end definition of lW if non-null X
 
-#### STEP 1. Draw samples of Z (that is, Y1,Y2)
+#### STEP 1. Draw samples of Y (that is, Y1,Y2)
 
-    ## Z is drawn as follows, for each MC sample:
+    ## Y is drawn as follows, for each MC sample:
     ## 1. draw a component, according to its probability
     ## 2. draw from the appropriate kernel distributions
     ## using the parameters of that component
 
-    Ws <- extraDistr::rcat(n=n, prob=t(W))
-    Zout <- c(
-    (if(ZnR > 0){# continuous
-        totake <- cbind(rep(ZtR,each=n), Ws, sseq)
-        rnorm(n=n*ZnR,
+    Wtemp <- t(apply(lW, 2, function(xx) {
+        xx <- exp(xx - max(xx[is.finite(xx)]))
+        xx/sum(xx)
+    }))
+    Ws <- extraDistr::rcat(n=n, prob=Wtemp)
+    rm(Wtemp)
+
+    Yout <- c(
+    (if(YnR > 0){# continuous
+        totake <- cbind(rep(YtR,each=n), Ws, sseq)
+        rnorm(n=n*YnR,
             mean=mcoutput$Rmean[totake],
             sd=mcoutput$Rvar[totake]
         )
     }else{NULL}),
-    (if(ZnC > 0){# censored
-        totake <- cbind(rep(ZtC,each=n), Ws, sseq)
-        rnorm(n=n*ZnC,
-            mean=mcoutput$Rmean[totake],
-            sd=mcoutput$Rvar[totake]
+    (if(YnC > 0){# censored
+        totake <- cbind(rep(YtC,each=n), Ws, sseq)
+        rnorm(n=n*YnC,
+            mean=mcoutput$Cmean[totake],
+            sd=mcoutput$Cvar[totake]
         )
     }else{NULL}),
-    (if(ZnD > 0){# continuous discretized
-        totake <- cbind(rep(ZtD,each=n), Ws, sseq)
-        rnorm(n=n*ZnD,
-            mean=mcoutput$Rmean[totake],
-            sd=mcoutput$Rvar[totake]
+    (if(YnD > 0){# continuous discretized
+        totake <- cbind(rep(YtD,each=n), Ws, sseq)
+        rnorm(n=n*YnD,
+            mean=mcoutput$Dmean[totake],
+            sd=mcoutput$Dvar[totake]
         )
     }else{NULL}),
-    (if(ZnO > 0){# nominal
-        totake <- cbind(rep(ZtO,each=n), Ws, sseq)
-        extraDistr::rcat(n=n*ZnO,
+    (if(YnO > 0){# nominal
+        totake <- cbind(rep(YtO,each=n), Ws, sseq)
+        extraDistr::rcat(n=n*YnO,
             prob=apply(mcoutput$Oprob,3,`[`,totake))
     }else{NULL}),
-    (if(ZnN > 0){# nominal
-        totake <- cbind(rep(ZtN,each=n), Ws, sseq)
-        extraDistr::rcat(n=n*ZnN,
+    (if(YnN > 0){# nominal
+        totake <- cbind(rep(YtN,each=n), Ws, sseq)
+        extraDistr::rcat(n=n*YnN,
             prob=apply(mcoutput$Nprob,3,`[`,totake))
     }else{NULL}),
-    (if(ZnB > 0){# binary
-        totake <- cbind(rep(ZtB,each=n), Ws, sseq)
-        extraDistr::rbern(n=n*ZnB,
+    (if(YnB > 0){# binary
+        totake <- cbind(rep(YtB,each=n), Ws, sseq)
+        extraDistr::rbern(n=n*YnB,
             prob=mcoutput$Bprob[totake])
     }else{NULL})
     )
 
-    ## rows: n samples, cols: Z variates
-    dim(Zout) <- c(n, length(Znames))
-    ## Match to original order of Znames
-    Zout <- Zout[, match(Znames, Znames[c(ZiR, ZiC, ZiD, ZiO, ZiN, ZiB)])]
-    colnames(Zout) <- Znames
-    Zout <- as.matrix(vtransform(Zout,
+    ## rows: n samples, cols: Y variates
+    dim(Yout) <- c(n, length(Ynames))
+    ## Match to original order of Ynames
+    Yout <- Yout[, match(Ynames, Ynames[c(YiR, YiC, YiD, YiO, YiN, YiB)])]
+    colnames(Yout) <- Ynames
+    Yout <- as.matrix(vtransform(Yout,
         auxmetadata = auxmetadata,
         Rout = 'mi',
         Cout = 'mi',
@@ -543,21 +545,21 @@ mutualinfo <- function(
         Nout = 'mi',
         Bout = 'mi'))
 
-    Y1transf <- Zout[, Y1names]
-    Y2transf <- Zout[, Y2names]
-    rm(Zout)
+    Y1transf <- Yout[, Y1names]
+    Y2transf <- Yout[, Y2names]
+    rm(Yout)
     gc()
 
 #### STEP 2. Calculate sum_i log2_p(Y1|Y2) for all samples
 
     ## from samplesFDistribution.R with some modifications
-    lpYX <- log(foreach(y = t(Y1transf), x = t(Y2transf),
+    lpY12 <- log(foreach(y = t(Y1transf), x = t(Y2transf),
         .combine = c,
         .inorder = TRUE) %dochains% {
 #### the loop is over the columns of y and x
 #### each instance is a 1-column vector
             ## rows: components, cols: samples
-            probX <- log(W) +
+            probX <- lW +
                 (if (Y2nR > 0) { # continuous
                     colSums(
                         dnorm(
@@ -759,19 +761,25 @@ mutualinfo <- function(
                         0
                     })
             }
-            probX <- apply(probX, 2, function(xx) {
-                xx - max(xx[is.finite(xx)])
-            })
             ## Output: rows=components, columns=samples
             ## temp <- colSums(exp(probX + probY))/colSums(exp(probX))
             ## c(mean(temp), 1+sd(temp)/length(temp)/mean(temp))
+
+            probX <- apply(probX, 2, function(xx) {
+                xx - max(xx[is.finite(xx)])
+            })
             mean(colSums(exp(probX + probY))/colSums(exp(probX)))
         }, base = base)
+    ## End lpY12
 
 #### STEP 3. Calculate sum_i log2_p(Y1) for all samples
 
     ## from samplesFDistribution.R with some modifications
-    lpY <- log(foreach(y = t(Y1transf),
+    probX <- apply(lW, 2, function(xx) {
+        xx - max(xx[is.finite(xx)])
+    })
+    ##
+    lpY1 <- log(foreach(y = t(Y1transf),
         .combine = c,
         .inorder = TRUE) %dochains% {
 #### the loop is over the columns of y and x
@@ -879,14 +887,13 @@ mutualinfo <- function(
                         0
                     })
             }
-            probX <- apply(log(W), 2, function(xx) {
-                xx - max(xx[is.finite(xx)])
-            })
             ## Output: rows=components, columns=samples
             ## temp <- colSums(exp(probX + probY))/colSums(exp(probX))
             ## c(mean(temp), 1+sd(temp)/length(temp)/mean(temp))
+
             mean(colSums(exp(probX + probY))/colSums(exp(probX)))
         }, base = base)
+    ## End lpY1
 
     ## if (!silent && exists('cl')) {
     ##     cat('\nClosing connections to cores.\n')
@@ -894,8 +901,8 @@ mutualinfo <- function(
     ##     parallel::stopCluster(cl)
     ## }
 
-    ## error <- sd(lpYX[,1] - lpY[,1])/sqrt(nrow(lpYX))
-    ## error2 <- mean(lpYX[,2] + lpY[,2])
+    ## error <- sd(lpY12[,1] - lpY1[,1])/sqrt(nrow(lpY12))
+    ## error2 <- mean(lpY12[,2] + lpY1[,2])
 
     ## ## ***todo: transform variates to original space & calculate Jacobian***
     ## ljac <- -rowSums(
@@ -905,11 +912,14 @@ mutualinfo <- function(
 
 
     ## ## ***todo: also output H(Y1|Y2) and H(Y1); these needs the Jacobian***
-    ## list(MI = lpYX - lpY,
-    ##      condH = -lpYX,
-    ##      H = -lpY)
+    ## list(MI = lpY12 - lpY1,
+    ##      condH = -lpY12,
+    ##      H = -lpY1)
 
-    list(MI = mean(lpYX - lpY),
-        error = sd(lpYX - lpY)/sqrt(n),
-        unit = unit)
+    list(MI = mean(lpY12 - lpY1, na.rm = TRUE),
+        error = sd(lpY12 - lpY1, na.rm = TRUE)/sqrt(n),
+        unit = unit,
+        lW=lW,
+        lpY12=lpY12,
+        lpY1=lpY1)
 }

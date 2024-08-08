@@ -322,14 +322,17 @@ vtransform <- function(
 
                 ## Ordinal
             } else if (mcmctype == 'O') {
+
+                if (Oout == 'numeric') {
                 bvalues <- 1:Nvalues
                 names(bvalues) <- sapply(bvalues, function(x)get(paste0('V',x)))
                 ## names(bvalues) <- unlist(xinfo[paste0('V', bvalues)])
-
-                if (Oout == 'numeric') {
                     datum <- bvalues[as.character(datum)]
 
                 } else if (Oout == 'original') {
+                bvalues <- 1:Nvalues
+                names(bvalues) <- sapply(bvalues, function(x)get(paste0('V',x)))
+                ## names(bvalues) <- unlist(xinfo[paste0('V', bvalues)])
                     datum <- names(bvalues[datum])
 
                 } else if (Oout != 'mi') {
@@ -338,14 +341,17 @@ vtransform <- function(
 
                 ## Nominal
             } else if (mcmctype == 'N') {
+
+                if (Nout == 'numeric') {
                 bvalues <- 1:Nvalues
                 names(bvalues) <- sapply(bvalues, function(x)get(paste0('V',x)))
                 ## names(bvalues) <- unlist(xinfo[paste0('V', bvalues)])
-
-                if (Nout == 'numeric') {
                     datum <- bvalues[as.character(datum)]
 
                 } else if (Nout == 'original') {
+                bvalues <- 1:Nvalues
+                names(bvalues) <- sapply(bvalues, function(x)get(paste0('V',x)))
+                ## names(bvalues) <- unlist(xinfo[paste0('V', bvalues)])
                     datum <- names(bvalues[datum])
 
                 } else if (Nout != 'mi') {
@@ -354,14 +360,17 @@ vtransform <- function(
 
                 ## Binary
             } else if (mcmctype == 'B') {
+
+                if (Bout == 'numeric') {
                 bvalues <- 0:1
                 names(bvalues) <- sapply(bvalues+1, function(x)get(paste0('V',x)))
                 ## names(bvalues) <- unlist(xinfo[c('V1', 'V2')])
-
-                if (Bout == 'numeric') {
                     datum <- bvalues[as.character(datum)]
 
                 } else if (Bout == 'original') {
+                bvalues <- 0:1
+                names(bvalues) <- sapply(bvalues+1, function(x)get(paste0('V',x)))
+                ## names(bvalues) <- unlist(xinfo[c('V1', 'V2')])
                     datum <- names(bvalues[datum + 1L])
 
                 } else if (Bout != 'mi') {
