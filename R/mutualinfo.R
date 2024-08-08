@@ -93,7 +93,9 @@ mutualinfo <- function(
             }
             ncores <- parallel
             closecoresonexit <- function(){
-                cat('\nClosing connections to cores.\n')
+                if(!silent) {
+                    cat('\nClosing connections to cores.\n')
+                    }
                 foreach::registerDoSEQ()
                 parallel::stopCluster(cl)
                 env <- foreach:::.foreachGlobals
@@ -258,32 +260,8 @@ mutualinfo <- function(
     XnC <- length(XiC)
     if (Y1nC > 0 || Y2nC > 0 || XnC > 0) {
         mcoutput$Cvar <- sqrt(mcoutput$Cvar)
-        Cbounds <- cbind(
-            auxmetadata[match(vnames, auxmetadata$name), 'tleftbound'],
-            ## sign is important here:
-            ## for upper tail, take opposite mean and value
-            -auxmetadata[match(vnames, auxmetadata$name), 'trightbound']
-        )
-        ## Cbounds <- cbind(
-        ##   c(vtransform(
-        ##     x = matrix(NA,
-        ##                nrow = 1, ncol = length(vnames),
-        ##                dimnames = list(NULL, vnames)
-        ##                ),
-        ##     auxmetadata = auxmetadata,
-        ##     Cout = 'sleft'
-        ##   )),
-        ##   ## sign is important here:
-        ##   ## for upper tail, take opposite mean and value
-        ##   -c(vtransform(
-        ##      x = matrix(NA,
-        ##                 nrow = 1, ncol = length(vnames),
-        ##                 dimnames = list(NULL, vnames)
-        ##                 ),
-        ##      auxmetadata = auxmetadata,
-        ##      Cout = 'sright'
-        ##    ))
-        ## )
+        Clefts <- auxmetadata[match(vnames, auxmetadata$name), 'tleftbound']
+        Crights <- auxmetadata[match(vnames, auxmetadata$name), 'trightbound']
     }
     ##
     ZiC <- match(vnames, Znames)
@@ -386,6 +364,7 @@ mutualinfo <- function(
     ZiB <- ZiB[ZtB]
     ZnB <- length(ZiB)
 
+
 #### STEP 0. Adjust component weights W for conditioning on X
     if(is.null(X)){
         W <- mcoutput$W
@@ -426,14 +405,17 @@ mutualinfo <- function(
                     0
                 }) +
                     (if (length(indi) > 0) {
-                        v2 <- XtC[indi]
-                        v1 <- -sign(x[XiC[indi], ])
+                        vt <- XtC[indi]
+                        vx <- pmin(
+                            pmax(Clefts[vt], x[XiC[indi], ]),
+                            Crights[vt])
                         ## for upper tail, take opposite mean and value
                         colSums(
                             pnorm(
-                                q = Cbounds[cbind(v2, 1.5 - 0.5 * v1)],
-                                mean = v1 * mcoutput$Cmean[v2, , , drop = FALSE],
-                                sd = mcoutput$Cvar[v2, , , drop = FALSE],
+                                q = -abs(vx),
+                                mean = -sign(vx) *
+                                    mcoutput$Cmean[vt, , , drop = FALSE],
+                                sd = mcoutput$Cvar[vt, , , drop = FALSE],
                                 log.p = TRUE
                             ), na.rm = TRUE)
                     } else {
@@ -495,8 +477,8 @@ mutualinfo <- function(
             })
         ##
         W <- apply(W, 2, function(xx) {
-            xx <- xx - max(xx[is.finite(xx)])
-            exp(xx)/sum(exp(xx))
+            xx <- exp(xx - max(xx[is.finite(xx)]))
+            xx/sum(xx)
         })
     } # end definition of W if non-null X
 
@@ -603,14 +585,17 @@ mutualinfo <- function(
                         0
                     }) +
                         (if (length(indi) > 0) {
-                            v2 <- Y2tC[indi]
-                            v1 <- -sign(x[Y2iC[indi], ])
+                            vt <- Y2tC[indi]
+                            vx <- pmin(
+                                pmax(Clefts[vt], x[Y2iC[indi], ]),
+                                Crights[vt])
                             ## for upper tail, take opposite mean and value
                             colSums(
                                 pnorm(
-                                    q = Cbounds[cbind(v2, 1.5 - 0.5 * v1)],
-                                    mean = v1 * mcoutput$Cmean[v2, , , drop = FALSE],
-                                    sd = mcoutput$Cvar[v2, , , drop = FALSE],
+                                    q = -abs(vx),
+                                    mean = -sign(vx) *
+                                        mcoutput$Cmean[vt, , , drop = FALSE],
+                                    sd = mcoutput$Cvar[vt, , , drop = FALSE],
                                     log.p = TRUE
                                 ), na.rm = TRUE)
                         } else {
@@ -671,9 +656,6 @@ mutualinfo <- function(
                     0
                 })
             ## end probX
-            probX <- apply(probX, 2, function(xx) {
-                xx - max(xx[is.finite(xx)])
-            })
             ##
             ##
             if (all(is.na(y))) {
@@ -706,14 +688,17 @@ mutualinfo <- function(
                             0
                         }) +
                             (if (length(indi) > 0) {
-                                v2 <- Y1tC[indi]
-                                v1 <- -sign(y[Y1iC[indi], ])
+                                vt <- Y1tC[indi]
+                                vx <- pmin(
+                                    pmax(Clefts[vt], y[Y1iC[indi], ]),
+                                    Crights[vt])
                                 ## for upper tail, take opposite mean and value
                                 colSums(
                                     pnorm(
-                                        q = Cbounds[cbind(v2, 1.5 - 0.5 * v1)],
-                                        mean = v1 * mcoutput$Cmean[v2, , , drop = FALSE],
-                                        sd = mcoutput$Cvar[v2, , , drop = FALSE],
+                                        q = -abs(vx),
+                                        mean = -sign(vx) *
+                                            mcoutput$Cmean[vt, , , drop = FALSE],
+                                        sd = mcoutput$Cvar[vt, , , drop = FALSE],
                                         log.p = TRUE
                                     ), na.rm = TRUE)
                             } else {
@@ -774,6 +759,9 @@ mutualinfo <- function(
                         0
                     })
             }
+            probX <- apply(probX, 2, function(xx) {
+                xx - max(xx[is.finite(xx)])
+            })
             ## Output: rows=components, columns=samples
             ## temp <- colSums(exp(probX + probY))/colSums(exp(probX))
             ## c(mean(temp), 1+sd(temp)/length(temp)/mean(temp))
@@ -788,9 +776,6 @@ mutualinfo <- function(
         .inorder = TRUE) %dochains% {
 #### the loop is over the columns of y and x
 #### each instance is a 1-column vector
-            probX <- apply(log(W), 2, function(xx) {
-                xx - max(xx[is.finite(xx)])
-            })
             ##
             ##
             if (all(is.na(y))) {
@@ -823,14 +808,17 @@ mutualinfo <- function(
                             0
                         }) +
                             (if (length(indi) > 0) {
-                                v2 <- Y1tC[indi]
-                                v1 <- -sign(y[Y1iC[indi], ])
+                                vt <- Y1tC[indi]
+                                vx <- pmin(
+                                    pmax(Clefts[vt], y[Y1iC[indi], ]),
+                                    Crights[vt])
                                 ## for upper tail, take opposite mean and value
                                 colSums(
                                     pnorm(
-                                        q = Cbounds[cbind(v2, 1.5 - 0.5 * v1)],
-                                        mean = v1 * mcoutput$Cmean[v2, , , drop = FALSE],
-                                        sd = mcoutput$Cvar[v2, , , drop = FALSE],
+                                        q = -abs(vx),
+                                        mean = -sign(vx) *
+                                            mcoutput$Cmean[vt, , , drop = FALSE],
+                                        sd = mcoutput$Cvar[vt, , , drop = FALSE],
                                         log.p = TRUE
                                     ), na.rm = TRUE)
                             } else {
@@ -891,6 +879,9 @@ mutualinfo <- function(
                         0
                     })
             }
+            probX <- apply(log(W), 2, function(xx) {
+                xx - max(xx[is.finite(xx)])
+            })
             ## Output: rows=components, columns=samples
             ## temp <- colSums(exp(probX + probY))/colSums(exp(probX))
             ## c(mean(temp), 1+sd(temp)/length(temp)/mean(temp))

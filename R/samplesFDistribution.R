@@ -75,7 +75,9 @@ samplesFDistribution <- function(
             }
             ncores <- parallel
             closecoresonexit <- function(){
-                cat('\nClosing connections to cores.\n')
+                if(!silent) {
+                    cat('\nClosing connections to cores.\n')
+                }
                 foreach::registerDoSEQ()
                 parallel::stopCluster(cl)
                 env <- foreach:::.foreachGlobals
@@ -239,12 +241,8 @@ samplesFDistribution <- function(
     YnC <- length(YiC)
     if (YnC > 0 || XnC > 0) {
         mcoutput$Cvar <- sqrt(mcoutput$Cvar)
-        Cbounds <- cbind(
-            auxmetadata[match(vnames, auxmetadata$name), 'tleftbound'],
-            ## sign is important here:
-            ## for upper tail, take opposite mean and value
-            -auxmetadata[match(vnames, auxmetadata$name), 'trightbound']
-        )
+        Clefts <- auxmetadata[match(vnames, auxmetadata$name), 'tleftbound']
+        Crights <- auxmetadata[match(vnames, auxmetadata$name), 'trightbound']
     }
 
 #### Type D
@@ -381,14 +379,17 @@ samplesFDistribution <- function(
                             0
                         }) +
                             (if (length(indi) > 0) {
-                                v2 <- XtC[indi]
-                                v1 <- -sign(x[XiC[indi], ])
+                                vt <- XtC[indi]
+                                vx <- pmin(
+                                    pmax(Clefts[vt], x[XiC[indi], ]),
+                                    Crights[vt])
                                 ## for upper tail, take opposite mean and value
                                 colSums(
                                     pnorm(
-                                        q = Cbounds[cbind(v2, 1.5 - 0.5 * v1)],
-                                        mean = v1 * mcoutput$Cmean[v2, , , drop = FALSE],
-                                        sd = mcoutput$Cvar[v2, , , drop = FALSE],
+                                        q = -abs(vx),
+                                        mean = -sign(vx) *
+                                            mcoutput$Cmean[vt, , , drop = FALSE],
+                                        sd = mcoutput$Cvar[vt, , , drop = FALSE],
                                         log.p = TRUE
                                     ), na.rm = TRUE)
                             } else {
@@ -484,14 +485,17 @@ samplesFDistribution <- function(
                             0
                         }) +
                             (if (length(indi) > 0) {
-                                v2 <- YtC[indi]
-                                v1 <- -sign(y[YiC[indi], ])
+                                vt <- YtC[indi]
+                                vx <- pmin(
+                                    pmax(Clefts[vt], y[YiC[indi], ]),
+                                    Crights[vt])
                                 ## for upper tail, take opposite mean and value
                                 colSums(
                                     pnorm(
-                                        q = Cbounds[cbind(v2, 1.5 - 0.5 * v1)],
-                                        mean = v1 * mcoutput$Cmean[v2, , , drop = FALSE],
-                                        sd = mcoutput$Cvar[v2, , , drop = FALSE],
+                                        q = -abs(vx),
+                                        mean = -sign(vx) *
+                                            mcoutput$Cmean[vt, , , drop = FALSE],
+                                        sd = mcoutput$Cvar[vt, , , drop = FALSE],
                                         log.p = TRUE
                                     ), na.rm = TRUE)
                             } else {
