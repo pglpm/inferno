@@ -342,52 +342,52 @@ mutualinfo <- function(
     ZiD <- ZiD[ZtD]
     ZnD <- length(ZiD)
 
-#### Type L
-    vnames <- auxmetadata[auxmetadata$mcmctype == 'L', 'name']
-    Y2iL <- match(vnames, Y2names)
-    Y2tL <- which(!is.na(Y2iL))
-    Y2iL <- Y2iL[Y2tL]
-    Y2nL <- length(Y2iL)
-    ##
-    Y1iL <- match(vnames, Y1names)
-    Y1tL <- which(!is.na(Y1iL))
-    Y1iL <- Y1iL[Y1tL]
-    Y1nL <- length(Y1iL)
-    ##
-    XiL <- match(vnames, Xnames)
-    XtL <- which(!is.na(XiL))
-    XiL <- XiL[XtL]
-    XnL <- length(XiL)
-    if (Y1nL > 0 || Y2nL > 0 || XnL > 0) {
-        mcoutput$Lvar <- sqrt(mcoutput$Lvar)
-        ##
-        Lmaxn <- max(auxmetadata[auxmetadata$name %in% vnames, 'Nvalues'])
-        Lleft <- t(sapply(vnames, function(avar) {
-            nn <- auxmetadata[auxmetadata$name == avar, 'Nvalues']
-            seqs <- seq(auxmetadata[auxmetadata$name == avar, 'domainmin'],
-                auxmetadata[auxmetadata$name == avar, 'domainmax'],
-                length.out = nn)
-            c(as.matrix(vtransform(seqs, auxmetadata = auxmetadata,
-                Lout = 'left',
-                variates = avar)),
-                rep(NA, Lmaxn - nn))
-        }))
-        Lright <- t(sapply(vnames, function(avar) {
-            nn <- auxmetadata[auxmetadata$name == avar, 'Nvalues']
-            seqs <- seq(auxmetadata[auxmetadata$name == avar, 'domainmin'],
-                auxmetadata[auxmetadata$name == avar, 'domainmax'],
-                length.out = nn)
-            c(as.matrix(vtransform(seqs, auxmetadata = auxmetadata,
-                Lout = 'right',
-                variates = avar)),
-                rep(NA, Lmaxn - nn))
-        }))
-    }
-    ##
-    ZiL <- match(vnames, Znames)
-    ZtL <- which(!is.na(ZiL))
-    ZiL <- ZiL[ZtL]
-    ZnL <- length(ZiL)
+## #### Type L
+##     vnames <- auxmetadata[auxmetadata$mcmctype == 'L', 'name']
+##     Y2iL <- match(vnames, Y2names)
+##     Y2tL <- which(!is.na(Y2iL))
+##     Y2iL <- Y2iL[Y2tL]
+##     Y2nL <- length(Y2iL)
+##     ##
+##     Y1iL <- match(vnames, Y1names)
+##     Y1tL <- which(!is.na(Y1iL))
+##     Y1iL <- Y1iL[Y1tL]
+##     Y1nL <- length(Y1iL)
+##     ##
+##     XiL <- match(vnames, Xnames)
+##     XtL <- which(!is.na(XiL))
+##     XiL <- XiL[XtL]
+##     XnL <- length(XiL)
+##     if (Y1nL > 0 || Y2nL > 0 || XnL > 0) {
+##         mcoutput$Lvar <- sqrt(mcoutput$Lvar)
+##         ##
+##         Lmaxn <- max(auxmetadata[auxmetadata$name %in% vnames, 'Nvalues'])
+##         Lleft <- t(sapply(vnames, function(avar) {
+##             nn <- auxmetadata[auxmetadata$name == avar, 'Nvalues']
+##             seqs <- seq(auxmetadata[auxmetadata$name == avar, 'domainmin'],
+##                 auxmetadata[auxmetadata$name == avar, 'domainmax'],
+##                 length.out = nn)
+##             c(as.matrix(vtransform(seqs, auxmetadata = auxmetadata,
+##                 Lout = 'left',
+##                 variates = avar)),
+##                 rep(NA, Lmaxn - nn))
+##         }))
+##         Lright <- t(sapply(vnames, function(avar) {
+##             nn <- auxmetadata[auxmetadata$name == avar, 'Nvalues']
+##             seqs <- seq(auxmetadata[auxmetadata$name == avar, 'domainmin'],
+##                 auxmetadata[auxmetadata$name == avar, 'domainmax'],
+##                 length.out = nn)
+##             c(as.matrix(vtransform(seqs, auxmetadata = auxmetadata,
+##                 Lout = 'right',
+##                 variates = avar)),
+##                 rep(NA, Lmaxn - nn))
+##         }))
+##     }
+##     ##
+##     ZiL <- match(vnames, Znames)
+##     ZtL <- which(!is.na(ZiL))
+##     ZiL <- ZiL[ZtL]
+##     ZnL <- length(ZiL)
 
 
 #### Type O
@@ -464,7 +464,6 @@ mutualinfo <- function(
             Rout = 'normalized',
             Cout = 'boundisinf',
             Dout = 'boundisinf',
-            Lout = 'normalized',
             Oout = 'numeric',
             Nout = 'numeric',
             Bout = 'numeric')))
@@ -679,7 +678,6 @@ mutualinfo <- function(
         Rout = 'mi',
         Cout = 'mi',
         Dout = 'mi',
-        Lout = 'mi',
         Oout = 'mi',
         Nout = 'mi',
         Bout = 'mi'))

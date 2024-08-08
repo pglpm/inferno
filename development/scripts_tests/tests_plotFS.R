@@ -2,7 +2,7 @@ source('util_vtransform.R', local=T)
 
 data(mtcars)
 dataset <- mtcars
-mcoutput <- readRDS('/home/pglpm/repositories/bayes_nonparametric_inference/development/tests/mtcars/test_mtcars_Fdistribution.rds')
+mcoutput <- readRDS('/home/pglpm/repositories/bayes_nonparametric_inference/development/tests/mtcars/_newD_test_mtcars-2-vrt11_dat32_smp512/Fdistribution.rds')
 jac <- T
 
 library('foreach')

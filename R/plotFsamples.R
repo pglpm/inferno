@@ -109,7 +109,7 @@ plotFsamples <- function(
 
         ## save the possibly existing V-values for this variate
         datavalues <- as.list(auxmetadata[auxmetadata$name == name,
-            grep('^V[0-9]+$', colnames(auxmetadata))
+            grep('^V[0-9]+$', names(auxmetadata))
         ])
         nvaluelist <- sum(!is.na(datavalues))
 
@@ -419,6 +419,8 @@ plotFsamples <- function(
                 }
                 colnames(Xgrid) <- name
 
+                xlim <- if(is.numeric(Xgrid)){range(Xgrid)}else{c(NA, NA)}
+
                 plotsamples <- samplesFDistribution(Y = Xgrid, X = NULL,
                     mcoutput = mcoutput,
                     subsamples = mcsubsamples,
@@ -459,8 +461,7 @@ plotFsamples <- function(
                     tplot(
                         x = Xgrid,
                         y = plotsamples[, subsamples, drop = FALSE],
-                        xlim = if(is.numeric(Xgrid)){range(Xgrid)}else{c(NA,NA)},
-                        ylim = c(0, ymax),
+                        xlim = xlim, ylim = c(0, ymax),
                         type = 'l', lty = 1, lwd = 2,
                         col = 5, alpha = 7/8,
                         xlab = name,
@@ -478,7 +479,7 @@ plotFsamples <- function(
                         x = Xgrid,
                         y = marguncertainty[ , , drop = FALSE],
                         col = 5, alpha = 0.75,
-                        xlim = range(Xgrid), ylim = c(0, ymax),
+                        xlim = xlim, ylim = c(0, ymax),
                         xlab = name,
                         ylab = paste0('probability', addylab),
                         family = fontfamily,
@@ -493,7 +494,7 @@ plotFsamples <- function(
                         x = Xgrid,
                         y = rowMeans(plotsamples[ , , drop = FALSE],
                             na.rm = TRUE),
-                        xlim = range(Xgrid), ylim = c(0, ymax),
+                        xlim = xlim, ylim = c(0, ymax),
                         type = 'b', cex = 0.5, lty = 1, lwd = 4,
                         col = 1, alpha = 0.25,
                         xlab = name,
@@ -508,7 +509,7 @@ plotFsamples <- function(
                 if (datahistogram && theresdata) {
                     tplot(
                         x = Xgrid, y = histo,
-                        xlim = range(Xgrid), ylim = c(0, ymax),
+                        xlim = xlim, ylim = c(0, ymax),
                         type = 'b', col = 4, alpha = 0.5,
                         border = '#555555', border.alpha = 3 / 4,
                         xlab = name,

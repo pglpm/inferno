@@ -8,5 +8,5 @@ wt,continuous,Inf,,0,Inf,FALSE,FALSE,0.92,6,,
 qsec,continuous,Inf,,0,Inf,FALSE,FALSE,13,24,,
 vs,binary,2,,,,,,,,0,1
 am,binary,2,,,,,,,,0,1
-gear,ordinal,3,1,3,5,,,,,,
+gear,ordinal,,1,3,5,,,,,,
 carb,ordinal,,1,1,8,,,,,,

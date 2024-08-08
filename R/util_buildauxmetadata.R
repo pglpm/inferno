@@ -53,7 +53,7 @@ buildauxmetadata <- function(data, metadata, Dthreshold = 1) {
         ## make sure 'type' is lowercase
         minfo$type <- tolower(minfo$type)
         transf <- 'identity' # temporary
-        datavalues <- minfo[grep('^V[0-9]+$', colnames(minfo))]
+        datavalues <- minfo[grep('^V[0-9]+$', names(minfo))]
         nvaluelist <- sum(!is.na(datavalues))
         domainmin <- minfo$domainmin
         domainmax <- minfo$domainmax

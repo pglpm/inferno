@@ -598,7 +598,6 @@ inferpopulation <- function(
     RWtoslice <- FALSE
     changeSamplerOrder <- TRUE
     ##
-    ## plotmeans <- TRUE # plot frequency averages
     showsamples <- 100 # number of samples to show.
     plotDisplayedQuantiles <- c(1, 31) / 32 # quantiles to show
     ncomponentsamples <- 128 # number of samples of Alpha and K
@@ -727,25 +726,25 @@ inferpopulation <- function(
                     Dout = 'init'))
             )
         },
-        if (vn$L > 0) { # latent
-            list(
-                Ln = vn$L, # This indexing variable is needed internally
-                Lmean1 = rep(0, 1),
-                Lvarm1 = rep(Lvarm1, 1),
-                Lvar1 = rep(1, 1),
-                Lshapelo = rep(Lshapelo, 1),
-                Lshapehi = rep(Lshapehi, 1),
-                Lleft = as.matrix(vtransform(data[, vnames$L, drop = FALSE],
-                    auxmetadata = auxmetadata,
-                    Lout = 'left')),
-                Lright = as.matrix(vtransform(data[, vnames$L, drop = FALSE],
-                    auxmetadata = auxmetadata,
-                    Lout = 'right')),
-                Llatinit = as.matrix(vtransform(data[, vnames$L, drop = FALSE],
-                    auxmetadata,
-                    Lout = 'init'))
-            )
-        },
+        ## if (vn$L > 0) { # latent
+        ##     list(
+        ##         Ln = vn$L, # This indexing variable is needed internally
+        ##         Lmean1 = rep(0, 1),
+        ##         Lvarm1 = rep(Lvarm1, 1),
+        ##         Lvar1 = rep(1, 1),
+        ##         Lshapelo = rep(Lshapelo, 1),
+        ##         Lshapehi = rep(Lshapehi, 1),
+        ##         Lleft = as.matrix(vtransform(data[, vnames$L, drop = FALSE],
+        ##             auxmetadata = auxmetadata,
+        ##             Lout = 'left')),
+        ##         Lright = as.matrix(vtransform(data[, vnames$L, drop = FALSE],
+        ##             auxmetadata = auxmetadata,
+        ##             Lout = 'right')),
+        ##         Llatinit = as.matrix(vtransform(data[, vnames$L, drop = FALSE],
+        ##             auxmetadata,
+        ##             Lout = 'init'))
+        ##     )
+        ## },
         if (vn$O > 0) { # ordinal
             Omaxn <- max(auxmetadata[auxmetadata$mcmctype == 'O', 'Nvalues'])
             Oalpha0 <- matrix(1e-100, nrow = vn$O, ncol = Omaxn)
@@ -812,13 +811,13 @@ inferpopulation <- function(
                     Dout = 'aux'))
             )
         },
-        if (vn$L > 0) { # latent
-            list(
-                Laux = as.matrix(vtransform(data[, vnames$L, drop = FALSE],
-                    auxmetadata = auxmetadata,
-                    Lout = 'aux'))
-            )
-        },
+        ## if (vn$L > 0) { # latent
+        ##     list(
+        ##         Laux = as.matrix(vtransform(data[, vnames$L, drop = FALSE],
+        ##             auxmetadata = auxmetadata,
+        ##             Lout = 'aux'))
+        ##     )
+        ## },
         if (vn$O > 0) { # nominal
             list(
                 Odata = as.matrix(vtransform(data[, vnames$O, drop = FALSE],
@@ -945,13 +944,13 @@ inferpopulation <- function(
                         Dvar[v, k] ~ dinvgamma(shape = Dshapelo, rate = Drate[v, k])
                     }
                 }
-                if (vn$L > 0) { # latent
-                    for (v in 1:Ln) {
-                        Lmean[v, k] ~ dnorm(mean = Lmean1, var = Lvarm1)
-                        Lrate[v, k] ~ dinvgamma(shape = Lshapehi, rate = Lvar1)
-                        Lvar[v, k] ~ dinvgamma(shape = Lshapelo, rate = Lrate[v, k])
-                    }
-                }
+                ## if (vn$L > 0) { # latent
+                ##     for (v in 1:Ln) {
+                ##         Lmean[v, k] ~ dnorm(mean = Lmean1, var = Lvarm1)
+                ##         Lrate[v, k] ~ dinvgamma(shape = Lshapehi, rate = Lvar1)
+                ##         Lvar[v, k] ~ dinvgamma(shape = Lshapelo, rate = Lrate[v, k])
+                ##     }
+                ## }
                 if (vn$O > 0) { # ordinal
                     for (v in 1:On) {
                         Oprob[v, k, 1:Omaxn] ~ ddirch(alpha = Oalpha0[v, 1:Omaxn])
@@ -991,13 +990,13 @@ inferpopulation <- function(
                         Dlat[d, v] ~ dnorm(mean = Dmean[v, K[d]], var = Dvar[v, K[d]])
                     }
                 }
-                if (vn$L > 0) { # latent
-                    for (v in 1:Ln) {
-                        Laux[d, v] ~ dconstraint(Llat[d, v] >= Lleft[d, v] &
-                                                 Llat[d, v] < Lright[d, v])
-                        Llat[d, v] ~ dnorm(mean = Lmean[v, K[d]], var = Lvar[v, K[d]])
-                    }
-                }
+                ## if (vn$L > 0) { # latent
+                ##     for (v in 1:Ln) {
+                ##         Laux[d, v] ~ dconstraint(Llat[d, v] >= Lleft[d, v] &
+                ##                                  Llat[d, v] < Lright[d, v])
+                ##         Llat[d, v] ~ dnorm(mean = Lmean[v, K[d]], var = Lvar[v, K[d]])
+                ##     }
+                ## }
                 if (vn$O > 0) { # nominal
                     for (v in 1:On) {
                         Odata[d, v] ~ dcat(prob = Oprob[v, K[d], 1:Omaxn])
@@ -1055,17 +1054,17 @@ inferpopulation <- function(
                     colSums((t(constants$Dlatinit) - ameans)^2, na.rm = TRUE)
                 })
             }
-            if (vn$L > 0) { # continuous open domain
-                Lmeans <- matrix(rnorm(
-                    n = vn$L * ncomponents,
-                    mean = constants$Lmean1,
-                    sd = sqrt(constants$Lvarm1)
-                ), nrow = vn$L, ncol = ncomponents)
-                ## square distances from datapoints
-                distances <- distances + apply(Lmeans, 2, function(ameans){
-                    colSums((t(constants$Llatinit) - ameans)^2, na.rm = TRUE)
-                })
-            }
+            ## if (vn$L > 0) { # continuous open domain
+            ##     Lmeans <- matrix(rnorm(
+            ##         n = vn$L * ncomponents,
+            ##         mean = constants$Lmean1,
+            ##         sd = sqrt(constants$Lvarm1)
+            ##     ), nrow = vn$L, ncol = ncomponents)
+            ##     ## square distances from datapoints
+            ##     distances <- distances + apply(Lmeans, 2, function(ameans){
+            ##         colSums((t(constants$Llatinit) - ameans)^2, na.rm = TRUE)
+            ##     })
+            ## }
             ## if (vn$B > 0) {
             ##     Bprobs <- matrix(rbeta(
             ##         n = vn$B * ncomponents,
@@ -1104,13 +1103,13 @@ inferpopulation <- function(
                 })
                 Dmeans[, -occupied] <- 0
             }
-            if (vn$L > 0) { # continuous open domain
-                Lmeans[, occupied] <- sapply(occupied, function(acomponent){
-                    colMeans(constants$Llatinit[which(K == acomponent), , drop = FALSE],
-                        na.rm = TRUE)
-                })
-                Lmeans[, -occupied] <- 0
-            }
+            ## if (vn$L > 0) { # continuous open domain
+            ##     Lmeans[, occupied] <- sapply(occupied, function(acomponent){
+            ##         colMeans(constants$Llatinit[which(K == acomponent), , drop = FALSE],
+            ##             na.rm = TRUE)
+            ##     })
+            ##     Lmeans[, -occupied] <- 0
+            ## }
             ## if (vn$B > 0) {
             ##     Bprobs[, occupied] <- sapply(occupied, function(acomponent){
             ##         colMeans(datapoints$Bdata[which(K == acomponent), , drop = FALSE],
@@ -1207,26 +1206,26 @@ inferpopulation <- function(
                     )
                 )
             }
-            if (vn$L > 0) { # latent
-                outlist <- c(
-                    outlist,
-                    list(
-                        Lmean = Lmeans,
-                        Lrate = matrix(
-                            nimble::qinvgamma(p = 0.5,
-                                shape = constants$Lshapehi,
-                                rate = constants$Lvar1),
-                            nrow = vn$L, ncol = ncomponents
-                        ),
-                        Lvar = matrix(1,
-                            nrow = vn$L, ncol = ncomponents),
-                        ## for data with boundary values
-                        Llat = constants$Llatinit
-                        ## Llat = vtransform(data[, vnames$L, with = FALSE],
-                        ##   auxmetadata, Lout = 'init')
-                    )
-                )
-            }
+            ## if (vn$L > 0) { # latent
+            ##     outlist <- c(
+            ##         outlist,
+            ##         list(
+            ##             Lmean = Lmeans,
+            ##             Lrate = matrix(
+            ##                 nimble::qinvgamma(p = 0.5,
+            ##                     shape = constants$Lshapehi,
+            ##                     rate = constants$Lvar1),
+            ##                 nrow = vn$L, ncol = ncomponents
+            ##             ),
+            ##             Lvar = matrix(1,
+            ##                 nrow = vn$L, ncol = ncomponents),
+            ##             ## for data with boundary values
+            ##             Llat = constants$Llatinit
+            ##             ## Llat = vtransform(data[, vnames$L, with = FALSE],
+            ##             ##   auxmetadata, Lout = 'init')
+            ##         )
+            ##     )
+            ## }
             if (vn$O > 0) { # ordinal
                 outlist <- c(
                     outlist,
@@ -1296,9 +1295,9 @@ inferpopulation <- function(
                 if (vn$D > 0) {
                     c('Dmean', 'Dvar')
                 },
-                if (vn$L > 0) {
-                    c('Lmean', 'Lvar')
-                },
+                ## if (vn$L > 0) {
+                ##     c('Lmean', 'Lvar')
+                ## },
                 if (vn$O > 0) {
                     c('Oprob')
                 },
@@ -1381,9 +1380,9 @@ inferpopulation <- function(
                 if (vn$D > 0) {
                     c('Dmean', 'Drate', 'Dvar')
                 },
-                if (vn$L > 0) {
-                    c('Lmean', 'Lrate', 'Lvar')
-                },
+                ## if (vn$L > 0) {
+                ##     c('Lmean', 'Lrate', 'Lvar')
+                ## },
                 if (vn$O > 0) {
                     c('Oprob')
                 },
@@ -2184,7 +2183,7 @@ inferpopulation <- function(
         mcoutput = c(mcsamples, list(auxmetadata = auxmetadata)),
         data = data,
         plotvariability = 'samples',
-        nFsamples = showsamples, plotmeans = TRUE,
+        nFsamples = showsamples, plotprobability = TRUE,
         datahistogram = TRUE, datascatter = TRUE,
         parallel = TRUE, silent = TRUE
     )
@@ -2196,7 +2195,7 @@ inferpopulation <- function(
         mcoutput = c(mcsamples, list(auxmetadata = auxmetadata)),
         data = data,
         plotvariability = 'quantiles',
-        nFsamples = plotDisplayedQuantiles, plotmeans = TRUE,
+        nFsamples = plotDisplayedQuantiles, plotprobability = TRUE,
         datahistogram = TRUE, datascatter = TRUE,
         parallel = TRUE, silent = TRUE
     )
