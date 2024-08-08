@@ -259,10 +259,10 @@ mutualinfo <- function(
     if (Y1nC > 0 || Y2nC > 0 || XnC > 0) {
         mcoutput$Cvar <- sqrt(mcoutput$Cvar)
         Cbounds <- cbind(
-            auxmetadata[match(vnames, auxmetadata$name), 'tcensormin'],
+            auxmetadata[match(vnames, auxmetadata$name), 'tleftbound'],
             ## sign is important here:
             ## for upper tail, take opposite mean and value
-            -auxmetadata[match(vnames, auxmetadata$name), 'tcensormax']
+            -auxmetadata[match(vnames, auxmetadata$name), 'trightbound']
         )
         ## Cbounds <- cbind(
         ##   c(vtransform(
@@ -309,86 +309,16 @@ mutualinfo <- function(
     XnD <- length(XiD)
     if (Y1nD > 0 || Y2nD > 0 || XnD > 0) {
         mcoutput$Dvar <- sqrt(mcoutput$Dvar)
-        Dbounds <- cbind(
-            auxmetadata[match(vnames, auxmetadata$name), 'tcensormin'],
-            ## sign is important here:
-            ## for upper tail, take opposite mean and value
-            -auxmetadata[match(vnames, auxmetadata$name), 'tcensormax']
-        )
-        ## Dbounds <- cbind(
-        ##   c(vtransform(
-        ##     x = matrix(NA,
-        ##                nrow = 1, ncol = length(vnames),
-        ##                dimnames = list(NULL, vnames)
-        ##                ),
-        ##     auxmetadata = auxmetadata,
-        ##     Dout = 'sleft'
-        ##   )),
-        ##   ## sign is important here:
-        ##   ## for upper tail, take opposite mean and value
-        ##   -c(vtransform(
-        ##      x = matrix(NA,
-        ##                 nrow = 1, ncol = length(vnames),
-        ##                 dimnames = list(NULL, vnames)
-        ##                 ),
-        ##      auxmetadata = auxmetadata,
-        ##      Dout = 'sright'
-        ##    ))
-        ## )
+        Dsteps <- auxmetadata[match(vnames, auxmetadata$name), 'halfstep'] /
+            auxmetadata[match(vnames, auxmetadata$name), 'tscale']
+        Dlefts <- auxmetadata[match(vnames, auxmetadata$name), 'tleftbound']
+        Drights <- auxmetadata[match(vnames, auxmetadata$name), 'trightbound']
     }
     ##
     ZiD <- match(vnames, Znames)
     ZtD <- which(!is.na(ZiD))
     ZiD <- ZiD[ZtD]
     ZnD <- length(ZiD)
-
-## #### Type L
-##     vnames <- auxmetadata[auxmetadata$mcmctype == 'L', 'name']
-##     Y2iL <- match(vnames, Y2names)
-##     Y2tL <- which(!is.na(Y2iL))
-##     Y2iL <- Y2iL[Y2tL]
-##     Y2nL <- length(Y2iL)
-##     ##
-##     Y1iL <- match(vnames, Y1names)
-##     Y1tL <- which(!is.na(Y1iL))
-##     Y1iL <- Y1iL[Y1tL]
-##     Y1nL <- length(Y1iL)
-##     ##
-##     XiL <- match(vnames, Xnames)
-##     XtL <- which(!is.na(XiL))
-##     XiL <- XiL[XtL]
-##     XnL <- length(XiL)
-##     if (Y1nL > 0 || Y2nL > 0 || XnL > 0) {
-##         mcoutput$Lvar <- sqrt(mcoutput$Lvar)
-##         ##
-##         Lmaxn <- max(auxmetadata[auxmetadata$name %in% vnames, 'Nvalues'])
-##         Lleft <- t(sapply(vnames, function(avar) {
-##             nn <- auxmetadata[auxmetadata$name == avar, 'Nvalues']
-##             seqs <- seq(auxmetadata[auxmetadata$name == avar, 'domainmin'],
-##                 auxmetadata[auxmetadata$name == avar, 'domainmax'],
-##                 length.out = nn)
-##             c(as.matrix(vtransform(seqs, auxmetadata = auxmetadata,
-##                 Lout = 'left',
-##                 variates = avar)),
-##                 rep(NA, Lmaxn - nn))
-##         }))
-##         Lright <- t(sapply(vnames, function(avar) {
-##             nn <- auxmetadata[auxmetadata$name == avar, 'Nvalues']
-##             seqs <- seq(auxmetadata[auxmetadata$name == avar, 'domainmin'],
-##                 auxmetadata[auxmetadata$name == avar, 'domainmax'],
-##                 length.out = nn)
-##             c(as.matrix(vtransform(seqs, auxmetadata = auxmetadata,
-##                 Lout = 'right',
-##                 variates = avar)),
-##                 rep(NA, Lmaxn - nn))
-##         }))
-##     }
-##     ##
-##     ZiL <- match(vnames, Znames)
-##     ZtL <- which(!is.na(ZiL))
-##     ZiL <- ZiL[ZtL]
-##     ZnL <- length(ZiL)
-
 
 #### Type O
     vnames <- auxmetadata[auxmetadata$mcmctype == 'O', 'name']
@@ -460,153 +390,109 @@ mutualinfo <- function(
     if(is.null(X)){
         W <- mcoutput$W
     } else {
-        X <- t(as.matrix(vtransform(X, auxmetadata = auxmetadata,
+        x <- t(as.matrix(vtransform(X, auxmetadata = auxmetadata,
             Rout = 'normalized',
             Cout = 'boundisinf',
-            Dout = 'boundisinf',
+            Dout = 'normalized',
             Oout = 'numeric',
             Nout = 'numeric',
             Bout = 'numeric')))
         ##
         W <- log(mcoutput$W) +
             (if (XnR > 0) { # continuous
-                 colSums(
-                     dnorm(
-                         x = X[XiR, ],
-                         mean = mcoutput$Rmean[XtR, , , drop = FALSE],
-                         sd = mcoutput$Rvar[XtR, , , drop = FALSE],
-                         log = TRUE
-                     ),
-                     na.rm = TRUE
-                 )
-             } else {
-                 0
-             }) +
+                colSums(
+                    dnorm(
+                        x = x[XiR, ],
+                        mean = mcoutput$Rmean[XtR, , , drop = FALSE],
+                        sd = mcoutput$Rvar[XtR, , , drop = FALSE],
+                        log = TRUE
+                    ),na.rm = TRUE)
+            } else {
+                0
+            }) +
             (if (XnC > 0) { # censored
-                 indf <- which(is.finite(X[XiC, ]))
-                 indi <- which(!is.finite(X[XiC, ]))
-                 (if (length(indf) > 0) {
-                      colSums(
-                          dnorm(
-                              x = X[XiC[indf], ],
-                              mean = mcoutput$Cmean[XtC[indf], , , drop = FALSE],
-                              sd = mcoutput$Cvar[XtC[indf], , , drop = FALSE],
-                              log = TRUE
-                          ),
-                          na.rm = TRUE
-                      )
-                  } else {
-                      0
-                  }) +
-                     (if (length(indi) > 0) {
-                          v2 <- XtC[indi]
-                          v1 <- -sign(X[XiC[indi], ])
-                          ## for upper tail, take opposite mean and value
-                          colSums(
-                              pnorm(
-                                  q = Cbounds[cbind(v2, 1.5 - 0.5 * v1)],
-                                  mean = v1 * mcoutput$Cmean[v2, , , drop = FALSE],
-                                  sd = mcoutput$Cvar[v2, , , drop = FALSE],
-                                  log.p = TRUE
-                              ),
-                              na.rm = TRUE
-                          )
-                      } else {
-                          0
-                      })
-             } else {
-                 0
-             }) +
+                isfin <- is.finite(x[XiC, ])
+                indf <- which(isfin)
+                indi <- which(!isfin)
+                (if (length(indf) > 0) {
+                    colSums(
+                        dnorm(
+                            x = x[XiC[indf], ],
+                            mean = mcoutput$Cmean[XtC[indf], , , drop = FALSE],
+                            sd = mcoutput$Cvar[XtC[indf], , , drop = FALSE],
+                            log = TRUE
+                        ), na.rm = TRUE)
+                } else {
+                    0
+                }) +
+                    (if (length(indi) > 0) {
+                        v2 <- XtC[indi]
+                        v1 <- -sign(x[XiC[indi], ])
+                        ## for upper tail, take opposite mean and value
+                        colSums(
+                            pnorm(
+                                q = Cbounds[cbind(v2, 1.5 - 0.5 * v1)],
+                                mean = v1 * mcoutput$Cmean[v2, , , drop = FALSE],
+                                sd = mcoutput$Cvar[v2, , , drop = FALSE],
+                                log.p = TRUE
+                            ), na.rm = TRUE)
+                    } else {
+                        0
+                    })
+            } else {
+                0
+            }) +
             (if (XnD > 0) { # continuous discretized
-                 indf <- which(is.finite(X[XiD, ]))
-                 indi <- which(!is.finite(X[XiD, ]))
-                 (if (length(indf) > 0) {
-                      colSums(
-                          dnorm(
-                              x = X[XiD[indf], ],
-                              mean = mcoutput$Dmean[XtD[indf], , , drop = FALSE],
-                              sd = mcoutput$Dvar[XtD[indf], , , drop = FALSE],
-                              log = TRUE
-                          ),
-                          na.rm = TRUE
-                      )
-                  } else {
-                      0
-                  }) +
-                     (if (length(indi) > 0) {
-                          v2 <- XtD[indi]
-                          v1 <- -sign(X[XiD[indi], ])
-                          ## for upper tail, take opposite mean and value
-                          colSums(
-                              pnorm(
-                                  q = Dbounds[v2, 1.5 - 0.5 * v1],
-                                  mean = v1 * mcoutput$Dmean[v2, , , drop = FALSE],
-                                  sd = mcoutput$Dvar[v2, , , drop = FALSE],
-                                  log.p = TRUE
-                              ),
-                              na.rm = TRUE
-                          )
-                      } else {
-                          0
-                      })
-             } else {
-                 0
-             }) +
-            (if (XnL > 0) { # ordinal
-                 v2 <- cbind(XtL, X[XiL, ])
-                 colSums(
-                     log(
-                         pnorm(
-                             q = Lright[v2],
-                             mean = mcoutput$Lmean[XtL, , , drop = FALSE],
-                             sd = mcoutput$Lvar[XtL, , , drop = FALSE]
-                         ) -
-                         pnorm(
-                             q = Lleft[v2],
-                             mean = mcoutput$Lmean[XtL, , , drop = FALSE],
-                             sd = mcoutput$Lvar[XtL, , , drop = FALSE]
-                         )
-                     ),
-                     na.rm = TRUE
-                 )
-             } else {
-                 0
-             }) +
+                vrights <- pmax(x[XiD, ] + Dsteps[XtD], Dlefts[XtD])
+                vrights[vrights >= Drights[XtD]] <- +Inf
+                vlefts <- pmin(x[XiD, ] - Dsteps[XtD], Drights[XtD])
+                vlefts[vlefts <= Dlefts[XtD]] <- -Inf
+                colSums(log(
+                    pnorm(
+                        q = vrights,
+                        mean = mcoutput$Dmean[XtD, , , drop = FALSE],
+                        sd = mcoutput$Dvar[XtD, , , drop = FALSE]
+                    ) -
+                    pnorm(
+                        q = vlefts,
+                        mean = mcoutput$Dmean[XtD, , , drop = FALSE],
+                        sd = mcoutput$Dvar[XtD, , , drop = FALSE]
+                    )
+                ), na.rm = TRUE)
+            } else {
+                0
+            }) +
             (if (XnO > 0) { # nominal
-                 colSums(
-                     log(aperm(
-                         vapply(seq_len(XnO), function(v) {
-                             mcoutput$Oprob[XtO[v], , X[XiO[v], ], ]
-                         }, mcoutput$W),
-                         c(3, 1, 2)
-                     )),
-                     na.rm = TRUE
-                 )
-             } else {
-                 0
-             }) +
+                colSums(log(
+                    aperm(
+                        vapply(seq_len(XnO), function(v) {
+                            mcoutput$Oprob[XtO[v], , x[XiO[v], ], ]
+                        }, mcoutput$W),
+                        c(3, 1, 2))
+                ), na.rm = TRUE)
+            } else {
+                0
+            }) +
             (if (XnN > 0) { # nominal
-                 colSums(
-                     log(aperm(
-                         vapply(seq_len(XnN), function(v) {
-                             mcoutput$Nprob[XtN[v], , X[XiN[v], ], ]
-                         }, mcoutput$W),
-                         c(3, 1, 2)
-                     )),
-                     na.rm = TRUE
-                 )
-             } else {
-                 0
-             }) +
+                colSums(log(
+                    aperm(
+                        vapply(seq_len(XnN), function(v) {
+                            mcoutput$Nprob[XtN[v], , x[XiN[v], ], ]
+                        }, mcoutput$W),
+                        c(3, 1, 2))
+                ), na.rm = TRUE)
+            } else {
+                0
+            }) +
             (if (XnB > 0) { # binary
-                 colSums(
-                     log(X[XiB, ] * mcoutput$Bprob[XtB, , , drop = FALSE] +
-                         (1L - X[XiB, ]) * (1 - mcoutput$Bprob[XtB, , , drop = FALSE])),
-                     na.rm = TRUE
-                 )
-             } else {
-                 0
-             })
+                colSums(log(
+                    x[XiB, ] * mcoutput$Bprob[XtB, , , drop = FALSE] +
+                    (1L - x[XiB, ]) *
+                    (1 - mcoutput$Bprob[XtB, , , drop = FALSE])
+                ), na.rm = TRUE)
+            } else {
+                0
+            })
         ##
         W <- apply(W, 2, function(xx) {
             xx <- xx - max(xx[is.finite(xx)])
@@ -624,54 +510,47 @@ mutualinfo <- function(
     Ws <- extraDistr::rcat(n=n, prob=t(W))
     Zout <- c(
     (if(ZnR > 0){# continuous
-         totake <- cbind(rep(ZtR,each=n), Ws, sseq)
-         rnorm(n=n*ZnR,
-             mean=mcoutput$Rmean[totake],
-             sd=mcoutput$Rvar[totake]
-         )
-     }else{NULL}),
+        totake <- cbind(rep(ZtR,each=n), Ws, sseq)
+        rnorm(n=n*ZnR,
+            mean=mcoutput$Rmean[totake],
+            sd=mcoutput$Rvar[totake]
+        )
+    }else{NULL}),
     (if(ZnC > 0){# censored
-         totake <- cbind(rep(ZtC,each=n), Ws, sseq)
-         rnorm(n=n*ZnC,
-             mean=mcoutput$Rmean[totake],
-             sd=mcoutput$Rvar[totake]
-         )
-     }else{NULL}),
+        totake <- cbind(rep(ZtC,each=n), Ws, sseq)
+        rnorm(n=n*ZnC,
+            mean=mcoutput$Rmean[totake],
+            sd=mcoutput$Rvar[totake]
+        )
+    }else{NULL}),
     (if(ZnD > 0){# continuous discretized
-         totake <- cbind(rep(ZtD,each=n), Ws, sseq)
-         rnorm(n=n*ZnD,
-             mean=mcoutput$Rmean[totake],
-             sd=mcoutput$Rvar[totake]
-         )
-     }else{NULL}),
-    (if(ZnL > 0){# ordinal
-         totake <- cbind(rep(ZtL,each=n), Ws, sseq)
-         rnorm(n=n*ZnL,
-             mean=mcoutput$Rmean[totake],
-             sd=mcoutput$Rvar[totake]
-         )
-     }else{NULL}),
+        totake <- cbind(rep(ZtD,each=n), Ws, sseq)
+        rnorm(n=n*ZnD,
+            mean=mcoutput$Rmean[totake],
+            sd=mcoutput$Rvar[totake]
+        )
+    }else{NULL}),
     (if(ZnO > 0){# nominal
-         totake <- cbind(rep(ZtO,each=n), Ws, sseq)
-         extraDistr::rcat(n=n*ZnO,
-             prob=apply(mcoutput$Oprob,3,`[`,totake))
-     }else{NULL}),
+        totake <- cbind(rep(ZtO,each=n), Ws, sseq)
+        extraDistr::rcat(n=n*ZnO,
+            prob=apply(mcoutput$Oprob,3,`[`,totake))
+    }else{NULL}),
     (if(ZnN > 0){# nominal
-         totake <- cbind(rep(ZtN,each=n), Ws, sseq)
-         extraDistr::rcat(n=n*ZnN,
-             prob=apply(mcoutput$Nprob,3,`[`,totake))
-     }else{NULL}),
+        totake <- cbind(rep(ZtN,each=n), Ws, sseq)
+        extraDistr::rcat(n=n*ZnN,
+            prob=apply(mcoutput$Nprob,3,`[`,totake))
+    }else{NULL}),
     (if(ZnB > 0){# binary
-         totake <- cbind(rep(ZtB,each=n), Ws, sseq)
-         extraDistr::rbern(n=n*ZnB,
-             prob=mcoutput$Bprob[totake])
-     }else{NULL})
+        totake <- cbind(rep(ZtB,each=n), Ws, sseq)
+        extraDistr::rbern(n=n*ZnB,
+            prob=mcoutput$Bprob[totake])
+    }else{NULL})
     )
 
     ## rows: n samples, cols: Z variates
     dim(Zout) <- c(n, length(Znames))
     ## Match to original order of Znames
-    Zout <- Zout[, match(Znames, Znames[c(ZiR, ZiC, ZiD, ZiL, ZiO, ZiN, ZiB)])]
+    Zout <- Zout[, match(Znames, Znames[c(ZiR, ZiC, ZiD, ZiO, ZiN, ZiB)])]
     colnames(Zout) <- Znames
     Zout <- as.matrix(vtransform(Zout,
         auxmetadata = auxmetadata,
@@ -698,143 +577,99 @@ mutualinfo <- function(
             ## rows: components, cols: samples
             probX <- log(W) +
                 (if (Y2nR > 0) { # continuous
-                     colSums(
-                         dnorm(
-                             x = x[Y2iR, ],
-                             mean = mcoutput$Rmean[Y2tR, , , drop = FALSE],
-                             sd = mcoutput$Rvar[Y2tR, , , drop = FALSE],
-                             log = TRUE
-                         ),
-                         na.rm = TRUE
-                     )
-                 } else {
-                     0
-                 }) +
+                    colSums(
+                        dnorm(
+                            x = x[Y2iR, ],
+                            mean = mcoutput$Rmean[Y2tR, , , drop = FALSE],
+                            sd = mcoutput$Rvar[Y2tR, , , drop = FALSE],
+                            log = TRUE
+                        ), na.rm = TRUE)
+                } else {
+                    0
+                }) +
                 (if (Y2nC > 0) { # censored
-                     indf <- which(is.finite(x[Y2iC, ]))
-                     indi <- which(!is.finite(x[Y2iC, ]))
-                     (if (length(indf) > 0) {
-                          colSums(
-                              dnorm(
-                                  x = x[Y2iC[indf], ],
-                                  mean = mcoutput$Cmean[Y2tC[indf], , , drop = FALSE],
-                                  sd = mcoutput$Cvar[Y2tC[indf], , , drop = FALSE],
-                                  log = TRUE
-                              ),
-                              na.rm = TRUE
-                          )
-                      } else {
-                          0
-                      }) +
-                         (if (length(indi) > 0) {
-                              v2 <- Y2tC[indi]
-                              v1 <- -sign(x[Y2iC[indi], ])
-                              ## for upper tail, take opposite mean and value
-                              colSums(
-                                  pnorm(
-                                      q = Cbounds[cbind(v2, 1.5 - 0.5 * v1)],
-                                      mean = v1 * mcoutput$Cmean[v2, , , drop = FALSE],
-                                      sd = mcoutput$Cvar[v2, , , drop = FALSE],
-                                      log.p = TRUE
-                                  ),
-                                  na.rm = TRUE
-                              )
-                          } else {
-                              0
-                          })
-                 } else {
-                     0
-                 }) +
-                (if (Y2nD > 0) { # continuous discretized
-                     indf <- which(is.finite(x[Y2iD, ]))
-                     indi <- which(!is.finite(x[Y2iD, ]))
-                     (if (length(indf) > 0) {
-                          colSums(
-                              dnorm(
-                                  x = x[Y2iD[indf], ],
-                                  mean = mcoutput$Dmean[Y2tD[indf], , , drop = FALSE],
-                                  sd = mcoutput$Dvar[Y2tD[indf], , , drop = FALSE],
-                                  log = TRUE
-                              ),
-                              na.rm = TRUE
-                          )
-                      } else {
-                          0
-                      }) +
-                         (if (length(indi) > 0) {
-                              v2 <- Y2tD[indi]
-                              v1 <- -sign(x[Y2iD[indi], ])
-                              ## for upper tail, take opposite mean and value
-                              colSums(
-                                  pnorm(
-                                      q = Dbounds[v2, 1.5 - 0.5 * v1],
-                                      mean = v1 * mcoutput$Dmean[v2, , , drop = FALSE],
-                                      sd = mcoutput$Dvar[v2, , , drop = FALSE],
-                                      log.p = TRUE
-                                  ),
-                                  na.rm = TRUE
-                              )
-                          } else {
-                              0
-                          })
-                 } else {
-                     0
-                 }) +
-                (if (Y2nL > 0) { # ordinal
-                     v2 <- cbind(Y2tL, x[Y2iL, ])
-                     colSums(
-                         log(
-                             pnorm(
-                                 q = Lright[v2],
-                                 mean = mcoutput$Lmean[Y2tL, , , drop = FALSE],
-                                 sd = mcoutput$Lvar[Y2tL, , , drop = FALSE]
-                             ) -
-                             pnorm(
-                                 q = Lleft[v2],
-                                 mean = mcoutput$Lmean[Y2tL, , , drop = FALSE],
-                                 sd = mcoutput$Lvar[Y2tL, , , drop = FALSE]
-                             )
-                         ),
-                         na.rm = TRUE
-                     )
-                 } else {
-                     0
-                 }) +
+                    isfin <- is.finite(x[Y2iC, ])
+                    indf <- which(isfin)
+                    indi <- which(!isfin)
+                    (if (length(indf) > 0) {
+                        colSums(
+                            dnorm(
+                                x = x[Y2iC[indf], ],
+                                mean = mcoutput$Cmean[Y2tC[indf], , , drop = FALSE],
+                                sd = mcoutput$Cvar[Y2tC[indf], , , drop = FALSE],
+                                log = TRUE
+                            ), na.rm = TRUE)
+                    } else {
+                        0
+                    }) +
+                        (if (length(indi) > 0) {
+                            v2 <- Y2tC[indi]
+                            v1 <- -sign(x[Y2iC[indi], ])
+                            ## for upper tail, take opposite mean and value
+                            colSums(
+                                pnorm(
+                                    q = Cbounds[cbind(v2, 1.5 - 0.5 * v1)],
+                                    mean = v1 * mcoutput$Cmean[v2, , , drop = FALSE],
+                                    sd = mcoutput$Cvar[v2, , , drop = FALSE],
+                                    log.p = TRUE
+                                ), na.rm = TRUE)
+                        } else {
+                            0
+                        })
+                } else {
+                    0
+                }) +
+                (if (Y2nD > 0) { # discretized
+                    vrights <- pmax(x[Y2iD, ] + Dsteps[Y2tD], Dlefts[Y2tD])
+                    vrights[vrights >= Drights[Y2tD]] <- +Inf
+                    vlefts <- pmin(x[Y2iD, ] - Dsteps[Y2tD], Drights[Y2tD])
+                    vlefts[vlefts <= Dlefts[Y2tD]] <- -Inf
+                    colSums(log(
+                        pnorm(
+                            q = vrights,
+                            mean = mcoutput$Dmean[Y2tD, , , drop = FALSE],
+                            sd = mcoutput$Dvar[Y2tD, , , drop = FALSE]
+                        ) -
+                        pnorm(
+                            q = vlefts,
+                            mean = mcoutput$Dmean[Y2tD, , , drop = FALSE],
+                            sd = mcoutput$Dvar[Y2tD, , , drop = FALSE]
+                        )
+                    ), na.rm = TRUE)
+                } else {
+                    0
+                }) +
                 (if (Y2nO > 0) { # nominal
-                     colSums(
-                         log(aperm(
-                             vapply(seq_len(Y2nO), function(v) {
-                                 mcoutput$Oprob[Y2tO[v], , x[Y2iO[v], ], ]
-                             }, W),
-                             c(3, 1, 2)
-                         )),
-                         na.rm = TRUE
-                     )
-                 } else {
-                     0
-                 }) +
+                    colSums(log(
+                        aperm(
+                            vapply(seq_len(Y2nO), function(v) {
+                                mcoutput$Oprob[Y2tO[v], , x[Y2iO[v], ], ]
+                            }, mcoutput$W),
+                            c(3, 1, 2))
+                    ), na.rm = TRUE)
+                } else {
+                    0
+                }) +
                 (if (Y2nN > 0) { # nominal
-                     colSums(
-                         log(aperm(
-                             vapply(seq_len(Y2nN), function(v) {
-                                 mcoutput$Nprob[Y2tN[v], , x[Y2iN[v], ], ]
-                             }, W),
-                             c(3, 1, 2)
-                         )),
-                         na.rm = TRUE
-                     )
-                 } else {
-                     0
-                 }) +
+                    colSums(log(
+                        aperm(
+                            vapply(seq_len(Y2nN), function(v) {
+                                mcoutput$Nprob[Y2tN[v], , x[Y2iN[v], ], ]
+                            }, mcoutput$W),
+                            c(3, 1, 2))
+                    ), na.rm = TRUE)
+                } else {
+                    0
+                }) +
                 (if (Y2nB > 0) { # binary
-                     colSums(
-                         log(x[Y2iB, ] * mcoutput$Bprob[Y2tB, , , drop = FALSE] +
-                             (1L - x[Y2iB, ]) * (1 - mcoutput$Bprob[Y2tB, , , drop = FALSE])),
-                         na.rm = TRUE
-                     )
-                 } else {
-                     0
-                 })
+                    colSums(log(
+                        x[Y2iB, ] * mcoutput$Bprob[Y2tB, , , drop = FALSE] +
+                        (1L - x[Y2iB, ]) *
+                        (1 - mcoutput$Bprob[Y2tB, , , drop = FALSE])
+                    ), na.rm = TRUE)
+                } else {
+                    0
+                })
             ## end probX
             probX <- apply(probX, 2, function(xx) {
                 xx - max(xx[is.finite(xx)])
@@ -845,143 +680,99 @@ mutualinfo <- function(
                 probY <- array(NA, dim = dim(W))
             } else {
                 probY <- (if (Y1nR > 0) { # continuous
-                              colSums(
-                                  dnorm(
-                                      x = y[Y1iR, ],
-                                      mean = mcoutput$Rmean[Y1tR, , , drop = FALSE],
-                                      sd = mcoutput$Rvar[Y1tR, , , drop = FALSE],
-                                      log = TRUE
-                                  ),
-                                  na.rm = TRUE
-                              )
-                          } else {
-                              0
-                          }) +
+                    colSums(
+                        dnorm(
+                            x = y[Y1iR, ],
+                            mean = mcoutput$Rmean[Y1tR, , , drop = FALSE],
+                            sd = mcoutput$Rvar[Y1tR, , , drop = FALSE],
+                            log = TRUE
+                        ), na.rm = TRUE)
+                } else {
+                    0
+                }) +
                     (if (Y1nC > 0) { # censored
-                         indf <- which(is.finite(y[Y1iC, ]))
-                         indi <- which(!is.finite(y[Y1iC, ]))
-                         (if (length(indf) > 0) {
-                              colSums(
-                                  dnorm(
-                                      x = y[Y1iC[indf], ],
-                                      mean = mcoutput$Cmean[Y1tC[indf], , , drop = FALSE],
-                                      sd = mcoutput$Cvar[Y1tC[indf], , , drop = FALSE],
-                                      log = TRUE
-                                  ),
-                                  na.rm = TRUE
-                              )
-                          } else {
-                              0
-                          }) +
-                             (if (length(indi) > 0) {
-                                  v2 <- Y1tC[indi]
-                                  v1 <- -sign(y[Y1iC[indi], ])
-                                  ## for upper tail, take opposite mean and value
-                                  colSums(
-                                      pnorm(
-                                          q = Cbounds[cbind(v2, 1.5 - 0.5 * v1)],
-                                          mean = v1 * mcoutput$Cmean[v2, , , drop = FALSE],
-                                          sd = mcoutput$Cvar[v2, , , drop = FALSE],
-                                          log.p = TRUE
-                                      ),
-                                      na.rm = TRUE
-                                  )
-                              } else {
-                                  0
-                              })
-                     } else {
-                         0
-                     }) +
-                    (if (Y1nD > 0) { # continuous discretized
-                         indf <- which(is.finite(y[Y1iD, ]))
-                         indi <- which(!is.finite(y[Y1iD, ]))
-                         (if (length(indf) > 0) {
-                              colSums(
-                                  dnorm(
-                                      x = y[Y1iD[indf], ],
-                                      mean = mcoutput$Dmean[Y1tD[indf], , , drop = FALSE],
-                                      sd = mcoutput$Dvar[Y1tD[indf], , , drop = FALSE],
-                                      log = TRUE
-                                  ),
-                                  na.rm = TRUE
-                              )
-                          } else {
-                              0
-                          }) +
-                             (if (length(indi) > 0) {
-                                  v2 <- Y1tD[indi]
-                                  v1 <- -sign(y[Y1iD[indi], ])
-                                  ## for upper tail, take opposite mean and value
-                                  colSums(
-                                      pnorm(
-                                          q = Dbounds[v2, 1.5 - 0.5 * v1],
-                                          mean = v1 * mcoutput$Dmean[v2, , , drop = FALSE],
-                                          sd = mcoutput$Dvar[v2, , , drop = FALSE],
-                                          log.p = TRUE
-                                      ),
-                                      na.rm = TRUE
-                                  )
-                              } else {
-                                  0
-                              })
-                     } else {
-                         0
-                     }) +
-                    (if (Y1nL > 0) { # ordinal
-                         v2 <- cbind(Y1tL, y[Y1iL, ])
-                         colSums(
-                             log(
-                                 pnorm(
-                                     q = Lright[v2],
-                                     mean = mcoutput$Lmean[Y1tL, , , drop = FALSE],
-                                     sd = mcoutput$Lvar[Y1tL, , , drop = FALSE]
-                                 ) -
-                                 pnorm(
-                                     q = Lleft[v2],
-                                     mean = mcoutput$Lmean[Y1tL, , , drop = FALSE],
-                                     sd = mcoutput$Lvar[Y1tL, , , drop = FALSE]
-                                 )
-                             ),
-                             na.rm = TRUE
-                         )
-                     } else {
-                         0
-                     }) +
+                        isfin <- is.finite(y[Y1iC, ])
+                        indf <- which(isfin)
+                        indi <- which(!isfin)
+                        (if (length(indf) > 0) {
+                            colSums(
+                                dnorm(
+                                    x = y[Y1iC[indf], ],
+                                    mean = mcoutput$Cmean[Y1tC[indf], , , drop = FALSE],
+                                    sd = mcoutput$Cvar[Y1tC[indf], , , drop = FALSE],
+                                    log = TRUE
+                                ), na.rm = TRUE)
+                        } else {
+                            0
+                        }) +
+                            (if (length(indi) > 0) {
+                                v2 <- Y1tC[indi]
+                                v1 <- -sign(y[Y1iC[indi], ])
+                                ## for upper tail, take opposite mean and value
+                                colSums(
+                                    pnorm(
+                                        q = Cbounds[cbind(v2, 1.5 - 0.5 * v1)],
+                                        mean = v1 * mcoutput$Cmean[v2, , , drop = FALSE],
+                                        sd = mcoutput$Cvar[v2, , , drop = FALSE],
+                                        log.p = TRUE
+                                    ), na.rm = TRUE)
+                            } else {
+                                0
+                            })
+                    } else {
+                        0
+                    }) +
+                    (if (Y1nD > 0) { # discretized
+                        vrights <- y[Y1iD, ] + Dsteps[Y1tD]
+                        vrights[vrights >= Drights[Y1tD]] <- +Inf
+                        vlefts <- y[Y1iD, ] - Dsteps[Y1tD]
+                        vlefts[vlefts <= Dlefts[Y1tD]] <- -Inf
+                        colSums(log(
+                            pnorm(
+                                q = vrights,
+                                mean = mcoutput$Dmean[Y1tD, , , drop = FALSE],
+                                sd = mcoutput$Dvar[Y1tD, , , drop = FALSE]
+                            ) -
+                            pnorm(
+                                q = vlefts,
+                                mean = mcoutput$Dmean[Y1tD, , , drop = FALSE],
+                                sd = mcoutput$Dvar[Y1tD, , , drop = FALSE]
+                            )
+                        ), na.rm = TRUE)
+                    } else {
+                        0
+                    }) +
                     (if (Y1nO > 0) { # nominal
-                         colSums(
-                             log(aperm(
-                                 vapply(seq_len(Y1nO), function(v) {
-                                     mcoutput$Oprob[Y1tO[v], , y[Y1iO[v], ], ]
-                                 }, W),
-                                 c(3, 1, 2)
-                             )),
-                             na.rm = TRUE
-                         )
-                     } else {
-                         0
-                     }) +
+                        colSums(log(
+                            aperm(
+                                vapply(seq_len(Y1nO), function(v) {
+                                    mcoutput$Oprob[Y1tO[v], , y[Y1iO[v], ], ]
+                                }, mcoutput$W),
+                                c(3, 1, 2))
+                        ), na.rm = TRUE)
+                    } else {
+                        0
+                    }) +
                     (if (Y1nN > 0) { # nominal
-                         colSums(
-                             log(aperm(
-                                 vapply(seq_len(Y1nN), function(v) {
-                                     mcoutput$Nprob[Y1tN[v], , y[Y1iN[v], ], ]
-                                 }, W),
-                                 c(3, 1, 2)
-                             )),
-                             na.rm = TRUE
-                         )
-                     } else {
-                         0
-                     }) +
+                        colSums(log(
+                            aperm(
+                                vapply(seq_len(Y1nN), function(v) {
+                                    mcoutput$Nprob[Y1tN[v], , y[Y1iN[v], ], ]
+                                }, mcoutput$W),
+                                c(3, 1, 2))
+                        ), na.rm = TRUE)
+                    } else {
+                        0
+                    }) +
                     (if (Y1nB > 0) { # binary
-                         colSums(
-                             log((y[Y1iB, ] * mcoutput$Bprob[Y1tB, , , drop = FALSE]) +
-                                 ((1 - y[Y1iB, ]) * (1 - mcoutput$Bprob[Y1tB, , , drop = FALSE]))),
-                             na.rm = TRUE
-                         )
-                     } else {
-                         0
-                     })
+                        colSums(log(
+                        (y[Y1iB, ] * mcoutput$Bprob[Y1tB, , , drop = FALSE]) +
+                        ((1 - y[Y1iB, ]) *
+                         (1 - mcoutput$Bprob[Y1tB, , , drop = FALSE]))
+                        ), na.rm = TRUE)
+                    } else {
+                        0
+                    })
             }
             ## Output: rows=components, columns=samples
             ## temp <- colSums(exp(probX + probY))/colSums(exp(probX))
@@ -1006,143 +797,99 @@ mutualinfo <- function(
                 probY <- array(NA, dim = dim(W))
             } else {
                 probY <- (if (Y1nR > 0) { # continuous
-                              colSums(
-                                  dnorm(
-                                      x = y[Y1iR, ],
-                                      mean = mcoutput$Rmean[Y1tR, , , drop = FALSE],
-                                      sd = mcoutput$Rvar[Y1tR, , , drop = FALSE],
-                                      log = TRUE
-                                  ),
-                                  na.rm = TRUE
-                              )
-                          } else {
-                              0
-                          }) +
+                    colSums(
+                        dnorm(
+                            x = y[Y1iR, ],
+                            mean = mcoutput$Rmean[Y1tR, , , drop = FALSE],
+                            sd = mcoutput$Rvar[Y1tR, , , drop = FALSE],
+                            log = TRUE
+                        ), na.rm = TRUE)
+                } else {
+                    0
+                }) +
                     (if (Y1nC > 0) { # censored
-                         indf <- which(is.finite(y[Y1iC, ]))
-                         indi <- which(!is.finite(y[Y1iC, ]))
-                         (if (length(indf) > 0) {
-                              colSums(
-                                  dnorm(
-                                      x = y[Y1iC[indf], ],
-                                      mean = mcoutput$Cmean[Y1tC[indf], , , drop = FALSE],
-                                      sd = mcoutput$Cvar[Y1tC[indf], , , drop = FALSE],
-                                      log = TRUE
-                                  ),
-                                  na.rm = TRUE
-                              )
-                          } else {
-                              0
-                          }) +
-                             (if (length(indi) > 0) {
-                                  v2 <- Y1tC[indi]
-                                  v1 <- -sign(y[Y1iC[indi], ])
-                                  ## for upper tail, take opposite mean and value
-                                  colSums(
-                                      pnorm(
-                                          q = Cbounds[cbind(v2, 1.5 - 0.5 * v1)],
-                                          mean = v1 * mcoutput$Cmean[v2, , , drop = FALSE],
-                                          sd = mcoutput$Cvar[v2, , , drop = FALSE],
-                                          log.p = TRUE
-                                      ),
-                                      na.rm = TRUE
-                                  )
-                              } else {
-                                  0
-                              })
-                     } else {
-                         0
-                     }) +
-                    (if (Y1nD > 0) { # continuous discretized
-                         indf <- which(is.finite(y[Y1iD, ]))
-                         indi <- which(!is.finite(y[Y1iD, ]))
-                         (if (length(indf) > 0) {
-                              colSums(
-                                  dnorm(
-                                      x = y[Y1iD[indf], ],
-                                      mean = mcoutput$Dmean[Y1tD[indf], , , drop = FALSE],
-                                      sd = mcoutput$Dvar[Y1tD[indf], , , drop = FALSE],
-                                      log = TRUE
-                                  ),
-                                  na.rm = TRUE
-                              )
-                          } else {
-                              0
-                          }) +
-                             (if (length(indi) > 0) {
-                                  v2 <- Y1tD[indi]
-                                  v1 <- -sign(y[Y1iD[indi], ])
-                                  ## for upper tail, take opposite mean and value
-                                  colSums(
-                                      pnorm(
-                                          q = Dbounds[v2, 1.5 - 0.5 * v1],
-                                          mean = v1 * mcoutput$Dmean[v2, , , drop = FALSE],
-                                          sd = mcoutput$Dvar[v2, , , drop = FALSE],
-                                          log.p = TRUE
-                                      ),
-                                      na.rm = TRUE
-                                  )
-                              } else {
-                                  0
-                              })
-                     } else {
-                         0
-                     }) +
-                    (if (Y1nL > 0) { # ordinal
-                         v2 <- cbind(Y1tL, y[Y1iL, ])
-                         colSums(
-                             log(
-                                 pnorm(
-                                     q = Lright[v2],
-                                     mean = mcoutput$Lmean[Y1tL, , , drop = FALSE],
-                                     sd = mcoutput$Lvar[Y1tL, , , drop = FALSE]
-                                 ) -
-                                 pnorm(
-                                     q = Lleft[v2],
-                                     mean = mcoutput$Lmean[Y1tL, , , drop = FALSE],
-                                     sd = mcoutput$Lvar[Y1tL, , , drop = FALSE]
-                                 )
-                             ),
-                             na.rm = TRUE
-                         )
-                     } else {
-                         0
-                     }) +
+                        isfin <- is.finite(y[Y1iC, ])
+                        indf <- which(isfin)
+                        indi <- which(!isfin)
+                        (if (length(indf) > 0) {
+                            colSums(
+                                dnorm(
+                                    x = y[Y1iC[indf], ],
+                                    mean = mcoutput$Cmean[Y1tC[indf], , , drop = FALSE],
+                                    sd = mcoutput$Cvar[Y1tC[indf], , , drop = FALSE],
+                                    log = TRUE
+                                ), na.rm = TRUE)
+                        } else {
+                            0
+                        }) +
+                            (if (length(indi) > 0) {
+                                v2 <- Y1tC[indi]
+                                v1 <- -sign(y[Y1iC[indi], ])
+                                ## for upper tail, take opposite mean and value
+                                colSums(
+                                    pnorm(
+                                        q = Cbounds[cbind(v2, 1.5 - 0.5 * v1)],
+                                        mean = v1 * mcoutput$Cmean[v2, , , drop = FALSE],
+                                        sd = mcoutput$Cvar[v2, , , drop = FALSE],
+                                        log.p = TRUE
+                                    ), na.rm = TRUE)
+                            } else {
+                                0
+                            })
+                    } else {
+                        0
+                    }) +
+                    (if (Y1nD > 0) { # discretized
+                        vrights <- y[Y1iD, ] + Dsteps[Y1tD]
+                        vrights[vrights >= Drights[Y1tD]] <- +Inf
+                        vlefts <- y[Y1iD, ] - Dsteps[Y1tD]
+                        vlefts[vlefts <= Dlefts[Y1tD]] <- -Inf
+                        colSums(log(
+                            pnorm(
+                                q = vrights,
+                                mean = mcoutput$Dmean[Y1tD, , , drop = FALSE],
+                                sd = mcoutput$Dvar[Y1tD, , , drop = FALSE]
+                            ) -
+                            pnorm(
+                                q = vlefts,
+                                mean = mcoutput$Dmean[Y1tD, , , drop = FALSE],
+                                sd = mcoutput$Dvar[Y1tD, , , drop = FALSE]
+                            )
+                        ), na.rm = TRUE)
+                    } else {
+                        0
+                    }) +
                     (if (Y1nO > 0) { # nominal
-                         colSums(
-                             log(aperm(
-                                 vapply(seq_len(Y1nO), function(v) {
-                                     mcoutput$Oprob[Y1tO[v], , y[Y1iO[v], ], ]
-                                 }, W),
-                                 c(3, 1, 2)
-                             )),
-                             na.rm = TRUE
-                         )
-                     } else {
-                         0
-                     }) +
+                        colSums(log(
+                            aperm(
+                                vapply(seq_len(Y1nO), function(v) {
+                                    mcoutput$Oprob[Y1tO[v], , y[Y1iO[v], ], ]
+                                }, mcoutput$W),
+                                c(3, 1, 2))
+                        ), na.rm = TRUE)
+                    } else {
+                        0
+                    }) +
                     (if (Y1nN > 0) { # nominal
-                         colSums(
-                             log(aperm(
-                                 vapply(seq_len(Y1nN), function(v) {
-                                     mcoutput$Nprob[Y1tN[v], , y[Y1iN[v], ], ]
-                                 }, W),
-                                 c(3, 1, 2)
-                             )),
-                             na.rm = TRUE
-                         )
-                     } else {
-                         0
-                     }) +
+                        colSums(log(
+                            aperm(
+                                vapply(seq_len(Y1nN), function(v) {
+                                    mcoutput$Nprob[Y1tN[v], , y[Y1iN[v], ], ]
+                                }, mcoutput$W),
+                                c(3, 1, 2))
+                        ), na.rm = TRUE)
+                    } else {
+                        0
+                    }) +
                     (if (Y1nB > 0) { # binary
-                         colSums(
-                             log((y[Y1iB, ] * mcoutput$Bprob[Y1tB, , , drop = FALSE]) +
-                                 ((1 - y[Y1iB, ]) * (1 - mcoutput$Bprob[Y1tB, , , drop = FALSE]))),
-                             na.rm = TRUE
-                         )
-                     } else {
-                         0
-                     })
+                        colSums(log(
+                        (y[Y1iB, ] * mcoutput$Bprob[Y1tB, , , drop = FALSE]) +
+                        ((1 - y[Y1iB, ]) *
+                         (1 - mcoutput$Bprob[Y1tB, , , drop = FALSE]))
+                        ), na.rm = TRUE)
+                    } else {
+                        0
+                    })
             }
             ## Output: rows=components, columns=samples
             ## temp <- colSums(exp(probX + probY))/colSums(exp(probX))

@@ -240,10 +240,10 @@ samplesFDistribution <- function(
     if (YnC > 0 || XnC > 0) {
         mcoutput$Cvar <- sqrt(mcoutput$Cvar)
         Cbounds <- cbind(
-            auxmetadata[match(vnames, auxmetadata$name), 'tdomainmin'],
+            auxmetadata[match(vnames, auxmetadata$name), 'tleftbound'],
             ## sign is important here:
             ## for upper tail, take opposite mean and value
-            -auxmetadata[match(vnames, auxmetadata$name), 'tdomainmax']
+            -auxmetadata[match(vnames, auxmetadata$name), 'trightbound']
         )
     }
 
@@ -424,7 +424,7 @@ samplesFDistribution <- function(
                                     mcoutput$Oprob[XtO[v], , x[XiO[v], ], ]
                                 }, mcoutput$W),
                                 c(3, 1, 2))
-                            ), na.rm = TRUE)
+                        ), na.rm = TRUE)
                     } else {
                         0
                     }) +
@@ -435,7 +435,7 @@ samplesFDistribution <- function(
                                     mcoutput$Nprob[XtN[v], , x[XiN[v], ], ]
                                 }, mcoutput$W),
                                 c(3, 1, 2))
-                            ), na.rm = TRUE)
+                        ), na.rm = TRUE)
                     } else {
                         0
                     }) +
@@ -527,7 +527,7 @@ samplesFDistribution <- function(
                                     mcoutput$Oprob[YtO[v], , y[YiO[v], ], ]
                                 }, mcoutput$W),
                                 c(3, 1, 2))
-                            ), na.rm = TRUE)
+                        ), na.rm = TRUE)
                     } else {
                         0
                     }) +
@@ -538,7 +538,7 @@ samplesFDistribution <- function(
                                     mcoutput$Nprob[YtN[v], , y[YiN[v], ], ]
                                 }, mcoutput$W),
                                 c(3, 1, 2))
-                            ), na.rm = TRUE)
+                        ), na.rm = TRUE)
                     } else {
                         0
                     }) +
