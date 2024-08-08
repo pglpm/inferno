@@ -1,4 +1,4 @@
-devtools::install()
+## devtools::install()
 library('modelfreeinference')
 
 data(mtcars)
@@ -8,7 +8,7 @@ seed <- 1000
 outputdir <- inferpopulation(
     data = mtcars,
     metadata = 'mtcars_metadata.csv',
-    outputdir = '_newD_test_mtcars-2',
+    outputdir = '_newD_test_mtcars-3',
     output = 'directory',
     appendtimestamp = F,
     appendinfo = TRUE,

@@ -1,5 +1,7 @@
 source('util_vtransform.R', local=T)
 
+######################################################################
+#### mtcars
 data(mtcars)
 dataset <- mtcars
 mcoutput <- readRDS('/home/pglpm/repositories/bayes_nonparametric_inference/development/tests/mtcars/_newD_test_mtcars-2-vrt11_dat32_smp512/Fdistribution.rds')
@@ -21,6 +23,34 @@ plotFsamples(
     #datascatter = !(missing(data) || is.null(data)),
     parallel = 4,
     silent = FALSE)
+
+
+######################################################################
+#### mtcars
+data(mtcars)
+dataset <- read.csv('/home/pglpm/repositories/parkinsonbayes/data/nadpark/toydata.csv', na.strings='')
+mcoutput <- readRDS('/home/pglpm/repositories/parkinsonbayes/data/nadpark/_testtoy_analysis_2_3A4-1-vrt7_dat30_smp1024/Fdistribution.rds')
+jac <- T
+
+library('foreach')
+source('util_tplotfunctions.R', local=T)
+source('util_vtransform.R', local=T)
+source('samplesFDistribution.R', local=T)
+source('plotFsamples.R', local=T)
+for(pv in c('samples', 'quantiles')) {
+plotFsamples(
+    file= paste0('_justatest_', pv),
+    mcoutput = mcoutput,
+    data = dataset,
+    plotprobability = TRUE,
+    plotvariability = pv,
+    nFsamples = NULL,
+    #datahistogram = !(missing(data) || is.null(data)),
+    #datascatter = !(missing(data) || is.null(data)),
+    parallel = 4,
+    silent = FALSE)
+}
+
 
 
 

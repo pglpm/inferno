@@ -256,9 +256,11 @@ testSFD <- function(
 }
 
 
-
+#### nadpark
+source('util_vtransform.R', local=T)
+source('samplesFDistribution.R', local=T)
 dataset <- read.csv('/home/pglpm/repositories/parkinsonbayes/data/nadpark/toydata.csv', na.strings='')[,-1]
-mcoutput <- readRDS('/home/pglpm/repositories/parkinsonbayes/data/nadpark/_testtoy_analysis_3A4-1-vrt7_dat30_smp1024/Fdistribution.rds')
+mcoutput <- readRDS('/home/pglpm/repositories/parkinsonbayes/data/nadpark/_testtoy_analysis_2_3A4-1-vrt7_dat30_smp1024/Fdistribution.rds')
 out <- t(sapply(1:5, function(ipoint){
     sapply(1:ncol(dataset), function(i){
         v0 <- samplesFDistribution(Y=dataset[ipoint,i,drop=F], X=NULL, mcoutput = mcoutput, jacobian = T, silent=T)
@@ -268,6 +270,7 @@ out <- t(sapply(1:5, function(ipoint){
 }))
 colnames(out) <- mcoutput$auxmetadata$name
 out
+max(abs(out))
 
 
 
@@ -275,7 +278,7 @@ source('util_vtransform.R', local=T)
 source('samplesFDistribution.R', local=T)
 data(mtcars)
 dataset <- mtcars
-mcoutput <- readRDS('/home/pglpm/repositories/bayes_nonparametric_inference/development/tests/mtcars/test_mtcars_Fdistribution.rds')
+mcoutput <- readRDS('/home/pglpm/repositories/bayes_nonparametric_inference/development/tests/mtcars/_newD_test_mtcars-3-vrt11_dat32_smp512/Fdistribution.rds')
 jac <- T
 ##
 out <- t(sapply(1:32, function(ipoint){
@@ -287,4 +290,4 @@ out <- t(sapply(1:32, function(ipoint){
 }))
 colnames(out) <- mcoutput$auxmetadata$name
 out
-max(out)
+max(abs(out))

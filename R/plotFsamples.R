@@ -78,7 +78,7 @@ plotFsamples <- function(
         }
         quants <- sort(unique(round(c(nFsamples, 1 - nFsamples), 6)))
         mcsubsamples <- subsamples <- 1:nsamples
-        addylab <- paste0(' (', ceiling(diff(quants) * 100), '% unc.)')
+        addylab <- paste0(' &', ceiling(diff(quants) * 100), '% variability')
     } else {
         if(is.null(nFsamples)) {nFsamples <- 100}
 
@@ -412,21 +412,32 @@ plotFsamples <- function(
             } else if (mcmctype %in% c('D', 'O', 'N', 'B')) {
                 ## These variate types all have finite probabilities
                 if(nvaluelist > 0) {
-                    Xgrid <- cbind(unlist(datavalues[!is.na(datavalues)]))
-                } else {
-                    ## we must construct an X-grid
-                    Xgrid <- cbind(seq(plotmin, plotmax, by = halfstep * 2))
-                }
-                colnames(Xgrid) <- name
+                    Xgrid <- cbind(seq_len(nvaluelist))
+                    colnames(Xgrid) <- name
+                    rownames(Xgrid) <- cbind(unlist(datavalues[!is.na(datavalues)]))
+                    colnames(rownames(Xgrid)) <- name
+                    Xticks <- Xgrid
 
-                xlim <- if(is.numeric(Xgrid)){range(Xgrid)}else{c(NA, NA)}
-
-                plotsamples <- samplesFDistribution(Y = Xgrid, X = NULL,
+                    plotsamples <- samplesFDistribution(Y = rownames(Xgrid), X = NULL,
                     mcoutput = mcoutput,
                     subsamples = mcsubsamples,
                     jacobian = TRUE,
                     parallel = parallel,
                     silent = TRUE)
+                } else {
+                    ## we must construct an X-grid
+                    Xgrid <- cbind(seq(plotmin, plotmax, by = halfstep * 2))
+                    colnames(Xgrid) <- name
+                    rownames(Xgrid) <- NULL
+                    Xticks <- NULL
+
+                    plotsamples <- samplesFDistribution(Y = Xgrid, X = NULL,
+                    mcoutput = mcoutput,
+                    subsamples = mcsubsamples,
+                    jacobian = TRUE,
+                    parallel = parallel,
+                    silent = TRUE)
+                }
 
                 ## Find appropriate plot height across plots
                 if (plotvariability == 'samples') {
@@ -461,7 +472,8 @@ plotFsamples <- function(
                     tplot(
                         x = Xgrid,
                         y = plotsamples[, subsamples, drop = FALSE],
-                        xlim = xlim, ylim = c(0, ymax),
+                        xlim = range(Xgrid), ylim = c(0, ymax),
+                        xticks = Xticks, xlabels = rownames(Xgrid),
                         type = 'l', lty = 1, lwd = 2,
                         col = 5, alpha = 7/8,
                         xlab = name,
@@ -479,7 +491,8 @@ plotFsamples <- function(
                         x = Xgrid,
                         y = marguncertainty[ , , drop = FALSE],
                         col = 5, alpha = 0.75,
-                        xlim = xlim, ylim = c(0, ymax),
+                        xlim = range(Xgrid), ylim = c(0, ymax),
+                        xticks = Xticks, xlabels = rownames(Xgrid),
                         xlab = name,
                         ylab = paste0('probability', addylab),
                         family = fontfamily,
@@ -494,7 +507,8 @@ plotFsamples <- function(
                         x = Xgrid,
                         y = rowMeans(plotsamples[ , , drop = FALSE],
                             na.rm = TRUE),
-                        xlim = xlim, ylim = c(0, ymax),
+                        xlim = range(Xgrid), ylim = c(0, ymax),
+                        xticks = Xticks, xlabels = rownames(Xgrid),
                         type = 'b', cex = 0.5, lty = 1, lwd = 4,
                         col = 1, alpha = 0.25,
                         xlab = name,
@@ -509,7 +523,8 @@ plotFsamples <- function(
                 if (datahistogram && theresdata) {
                     tplot(
                         x = Xgrid, y = histo,
-                        xlim = xlim, ylim = c(0, ymax),
+                        xlim = range(Xgrid), ylim = c(0, ymax),
+                        xticks = Xticks, xlabels = rownames(Xgrid),
                         type = 'b', col = 4, alpha = 0.5,
                         border = '#555555', border.alpha = 3 / 4,
                         xlab = name,
