@@ -173,7 +173,7 @@ tplot <- function(x, y, xlim = c(NA, NA), ylim = c(NA, NA), asp = NA,
   xx <- unlist(x)
   yy <- unlist(y)
   if (!is.character(xx)) {
-    xlim0 <- range(xx[is.finite(xx)], na.rm = TRUE)
+    xlim0 <- range(0, xx[is.finite(xx)], na.rm = TRUE)
   } else {
     uxx <- unique(xx)
     if (is.character(xlabels) && all(uxx %in% xlabels)) {
@@ -186,7 +186,7 @@ tplot <- function(x, y, xlim = c(NA, NA), ylim = c(NA, NA), asp = NA,
     }
   }
   if (!is.character(yy)) {
-    ylim0 <- range(yy[is.finite(yy)], na.rm = TRUE)
+    ylim0 <- range(0, yy[is.finite(yy)], na.rm = TRUE)
   } else {
     uyy <- unique(yy)
     if (is.character(ylabels) && all(uyy %in% ylabels)) {
@@ -469,7 +469,7 @@ fivenumaxis <- function(side, x, col='#555555', type=8){
     matpoints(x=xp, y=yp, pch=18, cex=2, col=col)
 }
 
-plotquantiles <- function(x, y, col=7, alpha=0.75, border=NA){
+plotquantiles <- function(x, y, col=7, alpha=0.75, border=NA, xlim=range(x), ylim=range(y), ...){
     if(dim(y)[2]==2){y <- t(y)}
     ##
     ## col[!grepl('^#',col)] <- palette()[as.numeric(col[!grepl('^#',col)])]
@@ -479,6 +479,7 @@ plotquantiles <- function(x, y, col=7, alpha=0.75, border=NA){
     ## else if(!is.character(alpha)){alpha <- alpha2hex(alpha)}
     ## if(!(is.na(col) | nchar(col)>7)){col <- paste0(col, alpha)}
     ##
+    tplot(x=NA, y=NA, xlim=xlim, ylim=ylim, ...)
     polygon(x=c(x,rev(x)), y=c(y[1,], rev(y[2,])),
             col=col, border=border)
 }

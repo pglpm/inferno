@@ -271,14 +271,14 @@ out
 
 
 
-source('samplesFDistribution.R', local=T)
 source('util_vtransform.R', local=T)
+source('samplesFDistribution.R', local=T)
 data(mtcars)
 dataset <- mtcars
 mcoutput <- readRDS('/home/pglpm/repositories/bayes_nonparametric_inference/development/tests/mtcars/test_mtcars_Fdistribution.rds')
 jac <- T
 ##
-out <- t(sapply(1:10, function(ipoint){
+out <- t(sapply(1:32, function(ipoint){
     sapply(1:ncol(dataset), function(i){
         v0 <- samplesFDistribution(Y=dataset[ipoint,i,drop=F], X=NULL, mcoutput = mcoutput, jacobian = jac, silent=T)
         v1 <- testSFD(Y=dataset[ipoint,i,drop=F], X=NULL, mcoutput = mcoutput, jacobian = jac)
@@ -287,3 +287,4 @@ out <- t(sapply(1:10, function(ipoint){
 }))
 colnames(out) <- mcoutput$auxmetadata$name
 out
+max(out)

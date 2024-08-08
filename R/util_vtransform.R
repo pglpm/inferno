@@ -59,17 +59,18 @@ vtransform <- function(
 
         if (invjacobian) {
 #### Calculation of reciprocal Jacobian factors
-            if (mcmctype %in% c('B', 'N', 'O', 'D')) {
-                datum <- rep(1L, length(datum))
-            } else {
+            if (mcmctype %in% c('R', 'C')) {
+                if (mcmctype %in% c('C')) {
+                    selma <- datum <= leftbound | datum >= rightbound
+                }
                 if (transform == 'log') {
                     datum <- (datum - domainmin) * tscale
                 } else if (transform == 'logminus') {
                     datum <- (domainmax - datum) * tscale
                 } else if (transform == 'Q') {
                     datum <- util_Q(0.5 +
-                                (datum - (domainmin + domainmax)/2) /
-                                (domainmax - domainmin)
+                                    (datum - (domainmin + domainmax)/2) /
+                                    (domainmax - domainmin)
                     )
                     datum <- util_DQ(datum) * tscale * (domainmax - domainmin)
                 } else if (transform == 'identity') {
@@ -77,11 +78,12 @@ vtransform <- function(
                 } else {
                     stop('Unknown transformation for variate ', v)
                 }
-                xv <- data.matrix(x[, v, drop = FALSE])
-                if (mcmctype %in% c('C', 'D')) {
-                    datum[(xv >= domainmax) | (xv <= domainmin)] <- 1L
+                if (mcmctype %in% c('C')) {
+                    datum[selma] <- 1
                 }
-                datum[is.na(xv)] <- 1L
+                datum[is.na(datum)] <- 1
+            } else {
+                datum <- rep(1, length(datum))
             }
         } else {
 #### Transformation to internal value for MCMC

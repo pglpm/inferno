@@ -53,7 +53,7 @@ buildauxmetadata <- function(data, metadata, Dthreshold = 1) {
         ## make sure 'type' is lowercase
         minfo$type <- tolower(minfo$type)
         transf <- 'identity' # temporary
-        datavalues <- minfo[grep('^V[0-9]+$', names(minfo))]
+        datavalues <- minfo[grep('^V[0-9]+$', colnames(minfo))]
         nvaluelist <- sum(!is.na(datavalues))
         domainmin <- minfo$domainmin
         domainmax <- minfo$domainmax
@@ -189,10 +189,10 @@ buildauxmetadata <- function(data, metadata, Dthreshold = 1) {
                 transf <- 'identity'
                 if(!is.null(data)) {
                     ## set the location to the nearest centre of gapwidth interval
-                    temptlocation <- unname(quantile(x, 0.5, type = 6))
-                    tlocation <- x[which.min(abs(x - temptlocation))]
+                    tempvalue <- unname(quantile(x, 0.5, type = 6))
+                    tlocation <- x[which.min(abs(x - tempvalue))]
                     tlocation <- tlocation +
-                        round((temptlocation - tlocation) / (2 * halfstep)) *
+                        round((tempvalue - tlocation) / (2 * halfstep)) *
                         2 * halfstep
                     tscale <- mad(x) / iqrfactor
                 } else {
@@ -212,11 +212,25 @@ buildauxmetadata <- function(data, metadata, Dthreshold = 1) {
                 } else {
                     plotmin <- domainmin
                 }
+                ## centre plotmin on a rounding bin
+                tempvalue <- plotmin
+                plotmin <- x[which.min(abs(x - tempvalue))]
+                plotmin <- plotmin +
+                    round((tempvalue - plotmin) / (2 * halfstep)) *
+                    2 * halfstep
+
                 if(is.finite(minfo$plotmax)){
                     plotmax <- minfo$plotmax
                 } else {
                     plotmax <- domainmax
                 }
+                ## centre plotmax on a rounding bin
+                tempvalue <- plotmax
+                plotmax <- x[which.min(abs(x - tempvalue))]
+                plotmax <- plotmax +
+                    round((tempvalue - plotmax) / (2 * halfstep)) *
+                    2 * halfstep
+
             }
 
         } else if (minfo$type == 'continuous') { # continuous variate (R,C,D)
@@ -246,10 +260,10 @@ buildauxmetadata <- function(data, metadata, Dthreshold = 1) {
                 transf <- 'identity'
                 if(!is.null(data)) {
                     ## set the location to the nearest centre of gapwidth interval
-                    temptlocation <- unname(quantile(x, 0.5, type = 6))
-                    tlocation <- x[which.min(abs(x - temptlocation))]
+                    tempvalue <- unname(quantile(x, 0.5, type = 6))
+                    tlocation <- x[which.min(abs(x - tempvalue))]
                     tlocation <- tlocation +
-                        round((temptlocation - tlocation) / (2 * halfstep)) *
+                        round((tempvalue - tlocation) / (2 * halfstep)) *
                         2 * halfstep
                     tscale <- mad(x) / iqrfactor
                 } else {

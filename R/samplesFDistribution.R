@@ -135,7 +135,7 @@ samplesFDistribution <- function(
     ## Extract Monte Carlo output & auxmetadata
     ## If mcoutput is a string, check if it's a folder name or file name
     if (is.character(mcoutput)) {
-                                        # Check if 'mcoutput' is a folder containing Fdistribution.rds
+        ## Check if 'mcoutput' is a folder containing Fdistribution.rds
         if (file_test('-d', mcoutput) &&
             file.exists(file.path(mcoutput, 'Fdistribution.rds'))) {
             mcoutput <- readRDS(file.path(mcoutput, 'Fdistribution.rds'))
@@ -146,7 +146,7 @@ samplesFDistribution <- function(
             if (file.exists(mcoutput)) {
                 mcoutput <- readRDS(mcoutput)
             } else {
-                stop("The argument 'mcoutput' must be a folder containing Fdistribution.rds, or the path to an rds-file containing the output from 'inferpopulation'.")
+                stop('The argument "mcoutput" must be a folder containing Fdistribution.rds, or the path to an rds-file containing the output from "inferpopulation".')
             }
         }
     }
