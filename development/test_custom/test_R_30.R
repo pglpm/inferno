@@ -5,6 +5,15 @@ if(basename(startdir) != 'test_custom'){
     cat('\nAre you in the correct folder?\n')
 }
 
+cat('\nInstalling local package "modelfreeinference" in local library\n\n')
+
+if(!(Sys.getenv("R_LIBS_USER") %in% .libPaths())) {
+    stop('Make sure your local installation directory,\n',
+        Sys.getenv("R_LIBS_USER"),
+        '\nexists.\n')
+}
+
+devtools::install()
 library('modelfreeinference')
 
 seed <- 16
