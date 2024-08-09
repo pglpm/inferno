@@ -11,13 +11,6 @@ clus <- sample(1:2, ndata, prob=c(0.75, 0.25), replace=TRUE)
 Rdata <- rnorm(n=ndata, mean=means[clus], sd=sds[clus])
 thist(Rdata, plot=T, border.alpha=1, xlab='Rvrt', ylab=NA)
 
-## Closed-domain vvariate, [-1, 1]
-clus <- sample(1:2, ndata, prob=c(0.75, 0.25), replace=TRUE)
-Cdata <- rnorm(n=ndata, mean=means[clus], sd=sds[clus])
-Cdata[Cdata <= -1] <- -1
-Cdata[Cdata >= 4] <- 4
-thist(Cdata, plot=T, border.alpha=1, xlab='Cvrt', ylab=NA)
-
 ## Continuous, positive
 clus <- sample(2:1, ndata, prob=c(0.75, 0.25), replace=TRUE)
 Rpdata <- 2^(rnorm(n=ndata, mean=means[clus], sd=sds[clus]))
@@ -27,6 +20,24 @@ thist(Rpdata, plot=T, border.alpha=1, xlab='Rpvrt', ylab=NA)
 clus <- sample(1:2, ndata, prob=c(0.75, 0.25), replace=TRUE)
 Rudata <- plogis(rnorm(n=ndata, mean=means[clus], sd=sds[clus]))
 thist(Rudata, plot=T, border.alpha=1, xlab='Ruvrt', ylab=NA)
+
+## Closed-domain variate, [-1, 5]
+clus <- sample(1:2, ndata, prob=c(0.75, 0.25), replace=TRUE)
+Cdata <- rnorm(n=ndata, mean=means[clus], sd=sds[clus])+1
+Cdata[Cdata <= 0] <- 0
+Cdata[Cdata >= 5] <- 5
+thist(Cdata, plot=T, border.alpha=1, xlab='Cvrt', ylab=NA)
+
+## Discrete variate
+clus <- sample(1:2, ndata, prob=c(0.75, 0.25), replace=TRUE)
+Ddata <- round(rnorm(n=ndata, mean=means[clus], sd=sds[clus])*5)/5
+thist(Ddata, plot=T, border.alpha=1, xlab='Dvrt', ylab=NA)
+
+## Discrete bounded variate
+clus <- sample(1:2, ndata, prob=c(0.75, 0.25), replace=TRUE)
+## Dudata <- round(plogis(rnorm(n=ndata, mean=means[clus], sd=sds[clus]))*10)/10
+Dudata <- round(Cdata*5)/5
+thist(Dudata, plot=T, border.alpha=1, xlab='Duvrt', ylab=NA)
 
 ## Binary variate
 Bdata <- sample(c('no','yes'), ndata, replace=T, prob=c(0.25, 0.75))
@@ -38,13 +49,13 @@ Ndata <- sample(LETTERS[1:5], ndata, replace=T,
     prob=c(0.06, 0.11, 0.34, 0.19, 0.3))
 thist(Ndata, plot=T, border.alpha=1, xlab='Nvrt', ylab=NA)
 
-## Ordinal variate, 7 values 1--7
+## Ordinal variate, 5 values 1--5
 clus <- sample(1:2, ndata, prob=c(0.75, 0.25), replace=TRUE)
-probs <- round(((Rdata-(-3))/(4+3))*6 + 1)
-probs <- probs[probs >= 1 & probs <= 7]
+probs <- round(((Rdata-(-3))/(5))*4 + 1)
+probs <- probs[probs >= 1 & probs <= 5]
 probs <- as.vector(table(probs))
-Odata <- sample(1:7, ndata, replace=T, prob=probs)
-tplot(x=1:7, y=probs, type='b', ylim=c(0,1), xlab='Ovrt', ylab=NA)
+Odata <- paste0('O',letters[sample(1:5, ndata, replace=T, prob=probs)])
+thist(Odata, plot=T, xlab='Ovrt', ylab=NA)
 
 ## Nominal variate, 4 values 'a'-'d'
 ## the values are completely determined by Rdata and Bdata
@@ -58,9 +69,11 @@ dev.off()
 
 ##
 testdata <- data.frame(Rvrt=Rdata,
-    Cvrt=Cdata,
     Rpvrt=Rpdata,
     Ruvrt=Rudata,
+    Cvrt=Cdata,
+    Dvrt=Ddata,
+    Duvrt=Dudata,
     Bvrt=Bdata,
     Nvrt=Ndata,
     Ovrt=Odata,
@@ -71,7 +84,7 @@ for(i in 1:ncol(testdata)){testdata[nrow(testdata)+1-i,i] <- NA}
 
 for(ndata in c(30,150,500)){
     write.csv(testdata[1:ndata,,drop=F],
-        paste0('data_test_custom_', ndata, '.csv'),
+        paste0('datanew_test_custom_', ndata, '.csv'),
         row.names=FALSE, quote=FALSE, na='')
 }
 

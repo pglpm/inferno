@@ -92,42 +92,6 @@ samplesFDistribution <- function(
         ncores <- 1
     }
 
-#### Determine the status of parallel processing
-    ## if (!missing(parallel) && is.logical(parallel) && parallel) {
-    ##   if (foreach::getDoParRegistered()) {
-    ##     if (!silent) {
-    ##       cat('Using already registered', foreach::getDoParName(),
-    ##           'with', foreach::getDoParWorkers(), 'workers\n')
-    ##     }
-    ##     ncores <- foreach::getDoParWorkers()
-    ##   } else {
-    ##     if (!silent) {
-    ##       cat('No parallel backend registered.\n')
-    ##     }
-    ##     ncores <- 1
-    ##   }
-    ## } else if (!missing(parallel) && is.numeric(parallel) && parallel >= 2) {
-    ##   if (foreach::getDoParRegistered()) {
-    ##     ncores <- min(foreach::getDoParWorkers(), parallel)
-    ##     if (!silent) {
-    ##       cat('Using already registered', foreach::getDoParName(),
-    ##           'with', ncores, 'workers\n')
-    ##     }
-    ##   } else {
-    ##     cl <- parallel::makeCluster(parallel)
-    ##     doParallel::registerDoParallel(cl)
-    ##     if (!silent) {
-    ##       cat('Registered', foreach::getDoParName(), 'with',
-    ##           foreach::getDoParWorkers(), 'workers\n')
-    ##     }
-    ##   }
-    ## } else {
-    ##   if (!silent) {
-    ##     cat('No parallel backend registered.\n')
-    ##   }
-    ##   ncores <- 1
-    ## }
-
     if (ncores < 2) {
         `%dochains%` <- `%do%`
     } else {
@@ -341,7 +305,7 @@ samplesFDistribution <- function(
     }
     ## ndata <- nrow(Y2)
 
-    foreach(y = t(Y2), x = t(X2),
+    out0 <- foreach(y = t(Y2), x = t(X2),
         .combine = combine,
         .inorder = TRUE) %dochains% {
 
@@ -450,9 +414,6 @@ samplesFDistribution <- function(
                         0
                     })
             } # end probX
-            probX <- apply(probX, 2, function(xx) {
-                xx - max(xx[is.finite(xx)])
-            })
             ##
             ##
             if (all(is.na(y))) {
@@ -557,20 +518,10 @@ samplesFDistribution <- function(
                     })
             }
 #### Output: rows=components, columns=samples
-            ##
-            ## if(all(is.na(x))){
-            ##     out <- rowSums(exp(probX+probY))
-            ## }else{
-            ## str(probX)
-            ## print(any(is.na(probX)))
-            ## print(apply(probX, 1, max, na.rm=TRUE))
-            ## str(probX)
-            ## print(any(is.na(probX)))
-            ## str(probY)
-            ## print(any(is.na(probY)))
-            ## }
-            ## rbind(log(W),probX,probY)
-            ## using if + NULL condition is faster than using fn=identity
+
+            probX <- apply(probX, 2, function(xx) {
+                xx - max(xx[is.finite(xx)])
+            })
             if(is.null(fn)) {
                 colSums(exp(probX + probY)) / colSums(exp(probX))
             } else {
@@ -578,12 +529,12 @@ samplesFDistribution <- function(
             }
         } *
     (if (jacobian) {
-        exp(-rowSums(
+       exp(-rowSums(
             log(vtransform(Y,
                 auxmetadata = auxmetadata,
                 invjacobian = TRUE)),
             na.rm = TRUE
-        ))
+       ))
     } else {
         1
     })

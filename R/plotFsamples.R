@@ -115,6 +115,7 @@ plotFsamples <- function(
 
         with(as.list(auxmetadata[auxmetadata$name == name, ]),
         {
+
             if(mcmctype == 'R') {
                 Xgrid <- cbind(seq(plotmin, plotmax, length.out = 256))
                 colnames(Xgrid) <- name
@@ -131,13 +132,13 @@ plotFsamples <- function(
                     ymax <- quantile(apply(
                         plotsamples[, subsamples, drop = FALSE],
                         2, function(x) {
-                            quantile(x, 31 / 32, type = 6)
+                            quantile(x, 31 / 32, type = 6, na.rm = TRUE)
                         }
                     ), 31 / 32, type = 6, na.rm = TRUE)
                 } else {
                     ymax <- apply(plotsamples[, , drop = FALSE], 1,
                         function(x) {
-                            quantile(x, max(quants), type = 6)
+                            quantile(x, max(quants), type = 6, na.rm = TRUE)
                         }
                     )
                     ymax <- max(ymax[is.finite(ymax)])
@@ -245,13 +246,13 @@ plotFsamples <- function(
                     ymax <- quantile(apply(
                         plotsamples[xin, subsamples, drop = FALSE],
                         2, function(x) {
-                            quantile(x, 31 / 32, type = 6)
+                            quantile(x, 31 / 32, type = 6, na.rm = TRUE)
                         }
                     ), 31 / 32, type = 6, na.rm = TRUE)
                 } else {
                     ymax <- apply(plotsamples[xin, , drop = FALSE], 1,
                         function(x) {
-                            quantile(x, max(quants), type = 6)
+                            quantile(x, max(quants), type = 6, na.rm = TRUE)
                         }
                     )
                     ymax <- max(ymax[is.finite(ymax)])
@@ -336,7 +337,7 @@ plotFsamples <- function(
                             type = 'p', pch = 2, cex = 2,
                             col = 5, alpha = 0.75,
                             lty = 1, lwd = 16,
-                            add = applot
+                            add = addplot
                         )
                         addplot <- TRUE
                     }
@@ -444,13 +445,13 @@ plotFsamples <- function(
                     ymax <- quantile(apply(
                         plotsamples[, subsamples, drop = FALSE],
                         2, function(x) {
-                            quantile(x, 31 / 32, type = 6)
+                            quantile(x, 31 / 32, type = 6, na.rm = TRUE)
                         }
                     ), 31 / 32, type = 6, na.rm = TRUE)
                 } else {
                     ymax <- apply(plotsamples[, , drop = FALSE], 1,
                         function(x) {
-                            quantile(x, max(quants), type = 6)
+                            quantile(x, max(quants), type = 6, na.rm = TRUE)
                         }
                     )
                     ymax <- max(ymax[is.finite(ymax)])
@@ -461,8 +462,14 @@ plotFsamples <- function(
                     datum <- data[[name]]
                     datum <- datum[!is.na(datum)]
 
-                    histo <- as.vector(table(factor(datum, levels = Xgrid))) /
-                        length(datum)
+                    if(nvaluelist > 0) {
+                        histo <- as.vector(table(factor(datum,
+                            levels = rownames(Xgrid)))) / length(datum)
+                    } else {
+                    histo <- thist(datum,
+                        n = c(Xgrid - halfstep, max(Xgrid) + halfstep),
+                      extendbreaks = FALSE)$counts / length(datum)
+                    }
 
                     ymax <- max(ymax, histo)
                 }
@@ -570,7 +577,6 @@ plotFsamples <- function(
                 ##     lwd = 5, lty = 2)
                 ## }
             }
-
         }) # End with
     }
 
