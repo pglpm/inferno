@@ -1,5 +1,3 @@
-startdir <- getwd()
-
 library('modelfreeinference')
 
 seed <- 16
