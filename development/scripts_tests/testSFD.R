@@ -122,7 +122,7 @@ testSFD <- function(
         } # end loop through X columns
     } # end X calculation
 
-    jaco <- 1
+    ljaco <- 0
     probY <- 0
         for(i in 1:ncol(Y)){
             auxm <- auxmetadata[auxmetadata$name == colnames(Y)[i],]
@@ -138,9 +138,9 @@ testSFD <- function(
                             sd=sqrt(mcoutput$Rvar[id,,,drop=F]),
                             log=T))
 
-                jaco <- jaco *
-                    c(as.matrix(vtransform(Y[,i,drop=F], auxmetadata = auxm,
-                    invjacobian=T)))
+                ljaco <- ljaco +
+                    log(c(as.matrix(vtransform(Y[,i,drop=F], auxmetadata = auxm,
+                    invjacobian=TRUE))))
             }
 
             if(auxm$mcmctype == 'C') {
@@ -167,14 +167,14 @@ testSFD <- function(
                     )
                 )
 
-                jaco <- jaco *
+                ljaco <- ljaco + log(
                     (if(thisxo <= auxm$leftbound ||
                         thisxo >= auxm$rightbound) {
                         1
                     } else {
                     c(as.matrix(vtransform(Y[,i,drop=F], auxmetadata = auxm,
-                        invjacobian=T)))
-                    })
+                        invjacobian=TRUE)))
+                    }))
             }
 
             if(auxm$mcmctype == 'D') {
@@ -251,6 +251,5 @@ testSFD <- function(
             xx - max(xx[is.finite(xx)])
         })
     }
-    colSums(exp(probX + probY)) / colSums(exp(probX)) /
-        (if(jacobian) { jaco } else { 1 })
+    colSums(exp(probX + probY - (if(jacobian){ljaco}else{0}))) / colSums(exp(probX))
 }

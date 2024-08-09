@@ -305,7 +305,7 @@ samplesFDistribution <- function(
     }
     ## ndata <- nrow(Y2)
 
-    out0 <- foreach(y = t(Y2), x = t(X2),
+    foreach(y = t(Y2), x = t(X2),
         .combine = combine,
         .inorder = TRUE) %dochains% {
 
@@ -522,6 +522,7 @@ samplesFDistribution <- function(
             probX <- apply(probX, 2, function(xx) {
                 xx - max(xx[is.finite(xx)])
             })
+
             if(is.null(fn)) {
                 colSums(exp(probX + probY)) / colSums(exp(probX))
             } else {

@@ -57,8 +57,36 @@ vtransform <- function(
         with(data = as.list(auxmetadata[auxmetadata$name == v, ]),
         {
 
-        if (invjacobian) {
 #### Calculation of reciprocal Jacobian factors
+            ## if (is.na(invjacobian)) {
+            ## ## 'datum' are given in the transformed domain
+            ## ## output is log-inverse-jacobian
+            ## if (mcmctype %in% c('R', 'C')) {
+            ##     if (mcmctype %in% c('C')) {
+            ##         selma <- datum <= tleftbound | datum >= trightbound
+            ##     }
+            ##     datum <- tscale * datum + tlocation
+            ##     if (transform == 'log') {
+            ##         datum + log(tscale)
+            ##     } else if (transform == 'logminus') {
+            ##         -datum + log(tscale)
+            ##     } else if (transform == 'Q') {
+            ##         log(util_DQ(datum)) + log(tscale) + log(domainmax - domainmin)
+            ##     } else if (transform == 'identity') {
+            ##         datum <- rep(log(tscale), length(datum))
+            ##     } else {
+            ##         stop('Unknown transformation for variate ', v)
+            ##     }
+            ##     if (mcmctype %in% c('C')) {
+            ##         datum[selma] <- 0
+            ##     }
+            ##     datum[is.na(datum)] <- 0
+            ## } else {
+            ##     datum <- numeric(length(datum))
+            ## }
+            ## } else
+            if (invjacobian) {
+                ## 'datum' is given in the original domain
             if (mcmctype %in% c('R', 'C')) {
                 if (mcmctype %in% c('C')) {
                     selma <- datum <= leftbound | datum >= rightbound
@@ -74,7 +102,7 @@ vtransform <- function(
                     )
                     datum <- util_DQ(datum) * tscale * (domainmax - domainmin)
                 } else if (transform == 'identity') {
-                    datum[] <- tscale
+                    datum <- rep(tscale, length(datum))
                 } else {
                     stop('Unknown transformation for variate ', v)
                 }
@@ -85,6 +113,7 @@ vtransform <- function(
             } else {
                 datum <- rep(1, length(datum))
             }
+
         } else {
 #### Transformation to internal value for MCMC
 
