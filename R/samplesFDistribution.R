@@ -15,7 +15,7 @@
 #'   workers, or how many to create and use
 #' @param silent logical: give warnings or updates in the computation
 #'
-#' @return A list with the mutual information, its error, and its unit
+#' @return The frequencies F(Y|X) corresponding to the Monte Carlo samples
 #'
 #' @import parallel foreach doParallel
 #'

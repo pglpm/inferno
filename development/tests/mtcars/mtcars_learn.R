@@ -8,7 +8,7 @@ seed <- 1000
 outputdir <- inferpopulation(
     data = mtcars,
     metadata = 'mtcars_metadata.csv',
-    outputdir = '_newD_test_mtcars-3',
+    outputdir = '_newPcheck_test_mtcars-1',
     output = 'directory',
     appendtimestamp = F,
     appendinfo = TRUE,

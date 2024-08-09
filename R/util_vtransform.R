@@ -305,8 +305,8 @@ vtransform <- function(
 
                 } else if (Dout == 'mi') {
                     ## used in mutualinfo
-                    datum[datum <= tleftbound] <- tdomainmin
-                    datum[datum >= trightbound] <- tdomainmax
+                    datum[datum <= tleftbound] <- -Inf
+                    datum[datum >= trightbound] <- +Inf
 
                 } else if (Dout == 'original') {
                     ## transformation from MCMC representation

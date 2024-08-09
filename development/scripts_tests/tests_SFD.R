@@ -367,6 +367,9 @@ mcoutput <- readRDS('/home/pglpm/repositories/bayes_nonparametric_inference/deve
 Y1s <- sample(colnames(mtcars),2)
 Y2s <- sample(setdiff(colnames(mtcars), Y1s),2)
 Xs <- sample(setdiff(colnames(mtcars), c(Y1s,Y2s)),2)
+
+set.seed(16)
+##
 out <- mutualinfo(
     Y1names = Y1s,
     Y2names = Y2s,
@@ -382,6 +385,75 @@ mcoutput$auxmetadata$mcmctype[mcoutput$auxmetadata$name %in% Xs]
 summary(c(out$lW))
 summary(out$lpY12)
 summary(out$lpY1)
+out2 <- mutualinfo(
+    Y1names = Y2s,
+    Y2names = Y1s,
+    X = mtcars[1, Xs, drop=F],
+    mcoutput = mcoutput,
+    nsamples = 3600,
+    parallel = 4
+)
+out2[1:3]
+summary(c(out2$lW))
+summary(out2$lpY12)
+summary(out2$lpY1)
+
+Y1s
+Y2s
+Xs
+
+## > $MI
+## [1] 0.0879007
+##
+## $error
+## [1] 0.00961313
+##
+## $unit
+## [1] "Sh"
+##
+## > [1] "B" "O"
+## > [1] "R" "D"
+## > [1] "O" "O"
+## >    Min. 1st Qu.  Median    Mean 3rd Qu.    Max.
+##    -Inf  -89.27  -43.24    -Inf  -17.62   -1.87
+## >    Min. 1st Qu.  Median    Mean 3rd Qu.    Max.    NA's
+##   -6.30   -3.79   -2.95   -3.34   -2.55   -1.44       2
+## >    Min. 1st Qu.  Median    Mean 3rd Qu.    Max.
+##   -5.79   -3.59   -3.35   -3.43   -2.31   -2.29
+## > . + >
+## Using already registered doParallelSNOW with 4 workers
+## > $MI
+## [1] 0.259644
+##
+## $error
+## [1] 0.0107776
+##
+## $unit
+## [1] "Sh"
+##
+## > [1] "B" "O"
+## > [1] "R" "D"
+## > [1] "O" "O"
+## >    Min. 1st Qu.  Median    Mean 3rd Qu.    Max.
+##    -Inf  -89.27  -43.24    -Inf  -17.62   -1.87
+## >    Min. 1st Qu.  Median    Mean 3rd Qu.    Max.
+##  -25.83  -10.92   -9.22   -3.32   -1.10   42.87
+## >    Min. 1st Qu.  Median    Mean 3rd Qu.    Max.
+##  -28.09  -11.17   -9.42   -3.58   -1.60   41.71
+## > out2$MI-out2$error
+## [1] 0.248867
+## > out$MI+out$error
+## [1] 0.0975138
+## > Y1s
+## + Y2s
+## + Xs
+## [1] "carb" "am"
+## > [1] "hp"   "disp"
+## > [1] "cyl"  "gear"
+## > which(is.na(out$lpY12))
+## [1] 2917 3941
+
+
 
 
 ## ***lW
@@ -420,4 +492,9 @@ summary(out$lpY1)
 ## > which(is.na(out$lpY12))
 ##  [1]   23  166  551  566  571 1078 1125 1483 1887 1913 2056 2062 2105 2123 2522 2614
 ## [17] 2783 3003 3019 3183 3341 3366 3515 3623 3659 3693 4058
+
+
+
+
+
 

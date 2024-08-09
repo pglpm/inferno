@@ -453,25 +453,37 @@ inferpopulation <- function(
         stop('"ncheckpoints" must be > 0')
     }
 
+    ## if data is not empty, we use it to create data for likelihood
+    if(!is.null(data)) {
+        ## testdata is created and saved outside of the parallel processes
+        ## so that the dataset does not need to be exported to them
+        ## (using extra memory)
+        ## Each chain uses a different set of testdata
+        for(achain in 0:nchains) {
+            pointsid <- sort(sample(seq_len(npoints), min(ncheckpoints, npoints)))
+            testdata <- as.matrix(vtransform(
+                data[pointsid, , drop = FALSE],
+                auxmetadata = auxmetadata,
+                Rout = 'normalized',
+                Cout = 'boundisinf',
+                Dout = 'normalized',
+                Oout = 'numeric',
+                Nout = 'numeric',
+                Bout = 'numeric'))
+            rownames(testdata) <- pointsid
+            saveRDS(testdata,
+                file = file.path(dirname, paste0('_testdata_', achain, '.rds')))
+        }
+    }
+    rm(testdata)
+    rm(pointsid)
 
 #### Check if user wants to calculate prior
     if (prior) {
         message('CALCULATING PRIOR DISTRIBUTION')
-        ## if data is not empty, we use it to create data for likelihood
-        if(!is.null(data)) {
-            ## testdata is created and saved outside of the parallel processes
-            ## so that the dataset does not need to be exported to them
-            ## (using extra memory)
-            ## Each chain uses a different set of testdata
-            for(achain in 0:nchains) {
-                testdata <- data[sort(sample(npoints, min(ncheckpoints, npoints))), ,
-                    drop = FALSE]
-                saveRDS(testdata,
-                    file = file.path(dirname, paste0('_testdata_', achain, '.rds')))
-            }
-        } else {
+        if(is.null(data)) {
             ## no data available: construct one datapoint from the metadata info
-            testdata <- vtransform(
+            testdata <- as.matrix(
                 as.data.frame(
                     lapply(seq_len(nrow(auxmetadata)),
                         function(ii){
@@ -485,14 +497,8 @@ inferpopulation <- function(
                         }
                     ),
                     row.names = NULL,
-                    col.names = auxmetadata$name),
-                auxmetadata = auxmetadata,
-                Rout = 'original',
-                Cout = 'original',
-                Dout = 'original',
-                Nout = 'original',
-                Oout = 'original',
-                Bout = 'original')
+                    col.names = auxmetadata$name)
+               )
             ## ## original alternative way. Delete soon
             ## testdata <- data.frame(1:3)[,-1]
             ## for(xx in seq_len(nrow(auxmetadata))) {
@@ -514,18 +520,7 @@ inferpopulation <- function(
             matrix(NA, nrow = 1, ncol = nrow(metadata),
                 dimnames = list(NULL, metadata$name))
         )
-    } else {
-        ## create data for likelihood
-        ## if "testdata" is moved into the for-loop,
-        ## then each chain uses a different set of testdata
-        for(achain in 0:nchains) {
-            testdata <- data[sort(sample(npoints, min(ncheckpoints, npoints))), ,
-                drop = FALSE]
-            saveRDS(testdata,
-                file = file.path(dirname, paste0('_testdata_', achain, '.rds')))
-        }
     }
-    rm(testdata)
 
     ## #### Select and save data for loglikelihood
     ##   ## Find which datapoints have not all missing entries
@@ -1623,47 +1618,12 @@ inferpopulation <- function(
                 diagntime <- Sys.time()
                 ##
                 ll <- cbind(
-                    samplesFDistribution(
+                    Pcheckpoints(
                         Y = testdata,
-                        X = NULL,
-                        mcoutput = c(mcsamples,
-                            list(auxmetadata = auxmetadata)),
-                        jacobian = FALSE,
-                        parallel = FALSE,
-                        combine = `cbind`,
-                        silent = TRUE
+                        mcsamples = mcsamples,
+                        auxmetadata = auxmetadata
                     )
                 )
-                ## ll <- exp(cbind(
-                ##     rowSums(
-                ##         log(samplesFDistribution(
-                ##             Y = testdata, X = NULL,
-                ##             mcoutput = c(mcsamples, list(auxmetadata = auxmetadata)),
-                ##             jacobian = FALSE,
-                ##             parallel = FALSE,
-                ##             combine = `cbind`,
-                ##             silent = TRUE
-                ##         ))
-                ##     )/ncheckpoints
-                ## ))
-                ## colnames(ll) <- paste0('log-F_', seq_len(ncol(ll)))
-
-                ## if (is.numeric(loglikelihood)) {
-                ##   lltime <- Sys.time()
-                ##   cat('\nCalculating log-likelihood...')
-                ##   ll <- cbind(ll,
-                ##     'log-ll' = log(samplesFDistribution(
-                ##       Y = ncheckpoints, X = NULL,
-                ##       ## Y = data[llseq, ], X = NULL,
-                ##       mcoutput = c(mcsamples, list(auxmetadata = auxmetadata)),
-                ##       jacobian = FALSE,
-                ##       parallel = FALSE, silent = TRUE,
-                ##       combine = '+'
-                ##     )) / nrow(ncheckpoints)
-                ##   )
-                ##   cat('Done,\n', printtime(Sys.time() - lltime), '\n')
-                ## }
-                ##
                 traces <- rbind(traces, ll)
 
                 toRemove <- which(!is.finite(traces), arr.ind = TRUE)
@@ -2097,15 +2057,10 @@ inferpopulation <- function(
     cat('\nChecking test data\n(', paste0('#', rownames(testdata)), ')\n')
 
     traces <- cbind(
-        samplesFDistribution(
+        Pcheckpoints(
             Y = testdata,
-            X = NULL,
-            mcoutput = c(mcsamples,
-                list(auxmetadata = auxmetadata)),
-            jacobian = FALSE,
-            parallel = FALSE,
-            combine = `cbind`,
-            silent = TRUE
+            mcsamples = mcsamples,
+            auxmetadata = auxmetadata
         )
     )
     traces <- traces[apply(traces, 1, function(x) { all(is.finite(x)) }), ,
