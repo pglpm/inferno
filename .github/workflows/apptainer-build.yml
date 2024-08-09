@@ -2,7 +2,7 @@ name: Apptainer Build
 
 on:
   push:
-    branches: [main]
+    branches: [CI_testbranch]
 
 jobs:
   build-test-container:
