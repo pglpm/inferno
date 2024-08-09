@@ -8,7 +8,7 @@ plotFsamples(
   file,
   mcoutput,
   data,
-  plotmeans = TRUE,
+  plotprobability = TRUE,
   plotvariability = "samples",
   nFsamples = NULL,
   datahistogram = !(missing(data) || is.null(data)),
@@ -24,6 +24,8 @@ plotFsamples(
 path for a 'FDistribution.rds' object, or such an object itself}
 
 \item{data}{data.table object or filepath: datapoints}
+
+\item{plotprobability}{logical: plot the resulting probability curve}
 
 \item{plotvariability}{string, either 'samples' or 'quantiles':
 how to plot the variability of the probability distribution with new samples}

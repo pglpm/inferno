@@ -41,7 +41,7 @@ workers, or how many to create and use}
 \item{silent}{logical: give warnings or updates in the computation}
 }
 \value{
-A list with the mutual information, its error, and its unit
+The frequencies F(Y|X) corresponding to the Monte Carlo samples
 }
 \description{
 Calculate posterior probabilities

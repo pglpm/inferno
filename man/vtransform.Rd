@@ -10,7 +10,6 @@ vtransform(
   Rout = NULL,
   Cout = NULL,
   Dout = NULL,
-  Lout = NULL,
   Bout = NULL,
   Oout = NULL,
   Nout = NULL,
@@ -37,14 +36,6 @@ vtransform(
 'original': original representation}
 
 \item{Dout}{string, output of D-type variate, with possible values:
-'init': for internal MCMC use (init input)
-'left', 'right': for internal MCMC use
-'aux': for internal MCMC use
-'boundisinf': for sampling functions
-'mi': for use in mutualinfo()
-'original': original representation}
-
-\item{Lout}{string, output of L-type variate, with possible values:
 'init': for internal MCMC use (init input)
 'left', 'right': for internal MCMC use
 'aux': for internal MCMC use

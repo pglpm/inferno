@@ -1,4 +1,4 @@
-devtools::install()
+## devtools::install()
 library('modelfreeinference')
 
 data('iris')
@@ -8,15 +8,15 @@ seed <- 1000
 outputdir <- inferpopulation(
     data = iris,
     metadata = 'iris_metadata.csv',
-    outputdir = '_test_iris-1',
+    outputdir = '_newD2_test_iris-1',
     output = 'directory',
     appendtimestamp = F,
     appendinfo = TRUE,
-    nsamples = 3600,
-    nchains = 60,
+    nsamples = 1024,
+    nchains = 32,
     parallel = 4,
-    ## startupMCiterations = 1024,
-    ## maxhours = 2*1/60,
+    startupMCiterations = 1024,
+    maxhours = 2*1/60,
     ## relerror = 0.02,
     ncheckpoints = NULL,
     cleanup = FALSE,
