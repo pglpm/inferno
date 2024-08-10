@@ -18,7 +18,7 @@ mutualinfo(
 \arguments{
 \item{Y1names}{String vector: first group of joint variates}
 
-\item{Y2names}{String vector: second group of joint variates}
+\item{Y2names}{String vector or NULL: second group of joint variates}
 
 \item{X}{matrix or data.frame or NULL: values of some variates conditional on
 which we want the probabilities}

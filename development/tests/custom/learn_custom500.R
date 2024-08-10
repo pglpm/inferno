@@ -26,16 +26,16 @@ outputdirPrefix <- file.path('_newdeletepackagetest')
 ## registerDoParallel(mycluster)
 
 currenttestdir <- inferpopulation(
-    data = 'dataset_custom30.csv',
+    data = 'dataset_custom500.csv',
     metadata = 'metadata_custom.csv',
     outputdir = outputdirPrefix,
     output = 'directory',
-    appendtimestamp = F,
+    appendtimestamp = TRUE,
     appendinfo = TRUE,
-    nsamples = 120,
-    nchains = 12,
-    parallel = 4,
-    maxhours = 1/60,
+    nsamples = 3600,
+    nchains = 60,
+    parallel = 8,
+    maxhours = +Inf,
     ## relerror = 0.062,
     ncheckpoints = NULL,
     cleanup = FALSE,
