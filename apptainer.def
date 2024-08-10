@@ -1,0 +1,36 @@
+BootStrap: docker
+From: r-base
+
+# Image for running the tests in modelfreeinference
+
+%environment
+	export R_LIBS_USER=~/R-packages
+
+%post
+	# Install dependencies
+	apt-get update -y
+	apt-get install curl -y
+	Rscript -e "install.packages('iterators')"
+	Rscript -e "install.packages('numDeriv')"
+	Rscript -e "install.packages('pracma')"
+	Rscript -e "install.packages('coda')"
+	Rscript -e "install.packages('igraph')"
+	Rscript -e "install.packages('rngtools')"
+	Rscript -e "install.packages('foreach')"
+	Rscript -e "install.packages('nimble')"
+	Rscript -e "install.packages('khroma')"
+	Rscript -e "install.packages('extraDistr')"
+	Rscript -e "install.packages('doRNG')"
+	Rscript -e "install.packages('doParallel')"
+
+%runscript
+    mkdir ~/R-packages
+    echo $R_LIBS_USER
+	Rscript -e "install.packages(pkgs=Sys.getenv('GITHUB_WORKSPACE'), repos=NULL)"
+	Rscript -e "library("modelfreeinference")"
+	cd $GITHUB_WORKSPACE && \
+	cd development/tests/CI-example-test && \
+	Rscript test_custom_30.R
+
+
+
