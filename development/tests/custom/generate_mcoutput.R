@@ -46,6 +46,6 @@ testmcoutput <- list(
     Nprob = Nprob,
     W = W,
     auxmetadata = auxmetadata)
-
-saveRDS(testmcoutput, 'test_mcoutput.rds')
+##
+saveRDS(testmcoutput, '/home/pglpm/repositories/bayes_nonparametric_inference/development/tests/BN_functdependence/Fdistribution.rds')
 

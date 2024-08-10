@@ -1,7 +1,7 @@
 #' Calculate mutual information between groups of joint variates
 #'
 #' @param Y1names String vector: first group of joint variates
-#' @param Y2names String vector: second group of joint variates
+#' @param Y2names String vector or NULL: second group of joint variates
 #' @param X matrix or data.frame or NULL: values of some variates conditional on
 #'   which we want the probabilities
 #' @param mcoutput Either a string with the name of a directory or full path
@@ -56,10 +56,15 @@ mutualinfo <- function(
     ## Utility function to avoid finite-precision errors
     denorm <- function(lprob) {
         apply(lprob, 2, function(xx) {
-            xx <- exp(xx - max(xx[is.finite(xx)]))
-            xx/sum(xx)
+            xx - max(xx[is.finite(xx)])
         })
     }
+    ## denorm <- function(lprob) {
+    ##     apply(lprob, 2, function(xx) {
+    ##         xx <- exp(xx - max(xx[is.finite(xx)]))
+    ##         xx/sum(xx)
+    ##     })
+    ## }
 
 
 
@@ -106,7 +111,7 @@ mutualinfo <- function(
             closecoresonexit <- function(){
                 if(!silent) {
                     cat('\nClosing connections to cores.\n')
-                    }
+                }
                 foreach::registerDoSEQ()
                 parallel::stopCluster(cl)
                 env <- foreach:::.foreachGlobals
@@ -169,8 +174,8 @@ mutualinfo <- function(
     if(!is.character(Y1names) || any(is.na(Y1names))){
         stop('Y1names must be a vector of variate names')
     }
-    if(!is.character(Y2names) || any(is.na(Y2names))){
-        stop('Y2names must be a vector of variate names')
+    if(!is.null(Y2names) && (!is.character(Y2names) || any(is.na(Y2names)))){
+        stop('Y2names must be NULL or a vector of variate names')
     }
     if (!is.null(X) && length(dim(X)) != 2) {
         stop('X must be NULL or have two dimensions')
@@ -188,7 +193,7 @@ mutualinfo <- function(
         stop('duplicate Y1 variates\n')
     }
     ##
-    if(!all(Y2names %in% auxmetadata$name)){
+    if(!is.null(Y2names) && !all(Y2names %in% auxmetadata$name)){
         stop('unknown Y2 variates\n')
     }
     if(length(unique(Y2names)) != length(Y2names)) {
@@ -502,8 +507,11 @@ mutualinfo <- function(
     ## using the parameters of that component
 
     lWnorm <- denorm(lW)
-
-    Ws <- extraDistr::rcat(n=n, prob=t(lWnorm))
+    Ws <- extraDistr::rcat(n=n, prob=t(
+        apply(lWnorm, 2, function(xx){
+            xx <- exp(xx)
+            xx/sum(xx, na.rm = TRUE)})
+    ))
     Yout <- c(
     (if(YnR > 0){# continuous
         totake <- cbind(rep(YtR,each=n), Ws, sseq)
@@ -546,7 +554,8 @@ mutualinfo <- function(
     ## rows: n samples, cols: Y variates
     dim(Yout) <- c(n, length(Ynames))
     ## Match to original order of Ynames
-    Yout <- Yout[, match(Ynames, Ynames[c(YiR, YiC, YiD, YiO, YiN, YiB)])]
+    Yout <- Yout[, match(Ynames, Ynames[c(YiR, YiC, YiD, YiO, YiN, YiB)]),
+        drop = FALSE]
     colnames(Yout) <- Ynames
     Yout <- as.matrix(vtransform(Yout,
         auxmetadata = auxmetadata,
@@ -574,142 +583,40 @@ mutualinfo <- function(
 
 ### lprobY2
             ## rows: components, cols: samples
-            lprobY2 <- (
-                (if (Y2nR > 0) { # continuous
-                    colSums(
-                        dnorm(
-                            x = y2[Y2iR, ],
-                            mean = mcoutput$Rmean[Y2tR, , , drop = FALSE],
-                            sd = mcoutput$Rvar[Y2tR, , , drop = FALSE],
-                            log = TRUE
-                        ), na.rm = TRUE)
-                } else {
-                    0
-                }) +
-                (if (Y2nC > 0) { # censored
-                    isfin <- is.finite(y2[Y2iC, ])
-                    indf <- which(isfin)
-                    indi <- which(!isfin)
-                    (if (length(indf) > 0) {
+            if (all(is.na(y2))) {
+                lprobY2 <- array(0, dim = dim(lW))
+            } else {
+                lprobY2 <- (
+                    (if (Y2nR > 0) { # continuous
                         colSums(
                             dnorm(
-                                x = y2[Y2iC[indf], ],
-                                mean = mcoutput$Cmean[Y2tC[indf], , , drop = FALSE],
-                                sd = mcoutput$Cvar[Y2tC[indf], , , drop = FALSE],
+                                x = y2[Y2iR, ],
+                                mean = mcoutput$Rmean[Y2tR, , , drop = FALSE],
+                                sd = mcoutput$Rvar[Y2tR, , , drop = FALSE],
                                 log = TRUE
                             ), na.rm = TRUE)
                     } else {
                         0
                     }) +
-                        (if (length(indi) > 0) {
-                            vt <- Y2tC[indi]
-                            vx <- pmin(
-                                pmax(Clefts[vt], y2[Y2iC[indi], ]),
-                                Crights[vt])
-                            ## for upper tail, take opposite mean and value
-                            colSums(
-                                pnorm(
-                                    q = -abs(vx),
-                                    mean = -sign(vx) *
-                                        mcoutput$Cmean[vt, , , drop = FALSE],
-                                    sd = mcoutput$Cvar[vt, , , drop = FALSE],
-                                    log.p = TRUE
-                                ), na.rm = TRUE)
-                        } else {
-                            0
-                        })
-                } else {
-                    0
-                }) +
-                (if (Y2nD > 0) { # discretized
-                    vrights <- pmax(y2[Y2iD, ] + Dsteps[Y2tD], Dlefts[Y2tD])
-                    vrights[vrights >= Drights[Y2tD]] <- +Inf
-                    vlefts <- pmin(y2[Y2iD, ] - Dsteps[Y2tD], Drights[Y2tD])
-                    vlefts[vlefts <= Dlefts[Y2tD]] <- -Inf
-                    colSums(log(
-                        pnorm(
-                            q = vrights,
-                            mean = mcoutput$Dmean[Y2tD, , , drop = FALSE],
-                            sd = mcoutput$Dvar[Y2tD, , , drop = FALSE]
-                        ) -
-                        pnorm(
-                            q = vlefts,
-                            mean = mcoutput$Dmean[Y2tD, , , drop = FALSE],
-                            sd = mcoutput$Dvar[Y2tD, , , drop = FALSE]
-                        )
-                    ), na.rm = TRUE)
-                } else {
-                    0
-                }) +
-                (if (Y2nO > 0) { # nominal
-                    colSums(log(
-                        aperm(
-                            vapply(seq_len(Y2nO), function(v) {
-                                mcoutput$Oprob[Y2tO[v], , y2[Y2iO[v], ], ]
-                            }, mcoutput$W),
-                            c(3, 1, 2))
-                    ), na.rm = TRUE)
-                } else {
-                    0
-                }) +
-                (if (Y2nN > 0) { # nominal
-                    colSums(log(
-                        aperm(
-                            vapply(seq_len(Y2nN), function(v) {
-                                mcoutput$Nprob[Y2tN[v], , y2[Y2iN[v], ], ]
-                            }, mcoutput$W),
-                            c(3, 1, 2))
-                    ), na.rm = TRUE)
-                } else {
-                    0
-                }) +
-                (if (Y2nB > 0) { # binary
-                    colSums(log(
-                        y2[Y2iB, ] * mcoutput$Bprob[Y2tB, , , drop = FALSE] +
-                        (1L - y2[Y2iB, ]) *
-                        (1 - mcoutput$Bprob[Y2tB, , , drop = FALSE])
-                    ), na.rm = TRUE)
-                } else {
-                    0
-                })
-            ) # end lprobY2
-
-### lprobY1
-            ##
-            if (all(is.na(y1))) {
-                lprobY1 <- array(NA, dim = dim(W))
-            } else {
-                lprobY1 <- (
-                    (if (Y1nR > 0) { # continuous
-                    colSums(
-                        dnorm(
-                            x = y1[Y1iR, ],
-                            mean = mcoutput$Rmean[Y1tR, , , drop = FALSE],
-                            sd = mcoutput$Rvar[Y1tR, , , drop = FALSE],
-                            log = TRUE
-                        ), na.rm = TRUE)
-                } else {
-                    0
-                }) +
-                    (if (Y1nC > 0) { # censored
-                        isfin <- is.finite(y1[Y1iC, ])
+                    (if (Y2nC > 0) { # censored
+                        isfin <- is.finite(y2[Y2iC, ])
                         indf <- which(isfin)
                         indi <- which(!isfin)
                         (if (length(indf) > 0) {
                             colSums(
                                 dnorm(
-                                    x = y1[Y1iC[indf], ],
-                                    mean = mcoutput$Cmean[Y1tC[indf], , , drop = FALSE],
-                                    sd = mcoutput$Cvar[Y1tC[indf], , , drop = FALSE],
+                                    x = y2[Y2iC[indf], ],
+                                    mean = mcoutput$Cmean[Y2tC[indf], , , drop = FALSE],
+                                    sd = mcoutput$Cvar[Y2tC[indf], , , drop = FALSE],
                                     log = TRUE
                                 ), na.rm = TRUE)
                         } else {
                             0
                         }) +
                             (if (length(indi) > 0) {
-                                vt <- Y1tC[indi]
+                                vt <- Y2tC[indi]
                                 vx <- pmin(
-                                    pmax(Clefts[vt], y1[Y1iC[indi], ]),
+                                    pmax(Clefts[vt], y2[Y2iC[indi], ]),
                                     Crights[vt])
                                 ## for upper tail, take opposite mean and value
                                 colSums(
@@ -726,109 +633,205 @@ mutualinfo <- function(
                     } else {
                         0
                     }) +
-                    (if (Y1nD > 0) { # discretized
-                        vrights <- y1[Y1iD, ] + Dsteps[Y1tD]
-                        vrights[vrights >= Drights[Y1tD]] <- +Inf
-                        vlefts <- y1[Y1iD, ] - Dsteps[Y1tD]
-                        vlefts[vlefts <= Dlefts[Y1tD]] <- -Inf
+                    (if (Y2nD > 0) { # discretized
+                        vrights <- pmax(y2[Y2iD, ] + Dsteps[Y2tD], Dlefts[Y2tD])
+                        vrights[vrights >= Drights[Y2tD]] <- +Inf
+                        vlefts <- pmin(y2[Y2iD, ] - Dsteps[Y2tD], Drights[Y2tD])
+                        vlefts[vlefts <= Dlefts[Y2tD]] <- -Inf
                         colSums(log(
                             pnorm(
                                 q = vrights,
-                                mean = mcoutput$Dmean[Y1tD, , , drop = FALSE],
-                                sd = mcoutput$Dvar[Y1tD, , , drop = FALSE]
+                                mean = mcoutput$Dmean[Y2tD, , , drop = FALSE],
+                                sd = mcoutput$Dvar[Y2tD, , , drop = FALSE]
                             ) -
                             pnorm(
                                 q = vlefts,
-                                mean = mcoutput$Dmean[Y1tD, , , drop = FALSE],
-                                sd = mcoutput$Dvar[Y1tD, , , drop = FALSE]
+                                mean = mcoutput$Dmean[Y2tD, , , drop = FALSE],
+                                sd = mcoutput$Dvar[Y2tD, , , drop = FALSE]
                             )
                         ), na.rm = TRUE)
                     } else {
                         0
                     }) +
-                    (if (Y1nO > 0) { # nominal
+                    (if (Y2nO > 0) { # nominal
                         colSums(log(
                             aperm(
-                                vapply(seq_len(Y1nO), function(v) {
-                                    mcoutput$Oprob[Y1tO[v], , y1[Y1iO[v], ], ]
+                                vapply(seq_len(Y2nO), function(v) {
+                                    mcoutput$Oprob[Y2tO[v], , y2[Y2iO[v], ], ]
                                 }, mcoutput$W),
                                 c(3, 1, 2))
                         ), na.rm = TRUE)
                     } else {
                         0
                     }) +
-                    (if (Y1nN > 0) { # nominal
+                    (if (Y2nN > 0) { # nominal
                         colSums(log(
                             aperm(
-                                vapply(seq_len(Y1nN), function(v) {
-                                    mcoutput$Nprob[Y1tN[v], , y1[Y1iN[v], ], ]
+                                vapply(seq_len(Y2nN), function(v) {
+                                    mcoutput$Nprob[Y2tN[v], , y2[Y2iN[v], ], ]
                                 }, mcoutput$W),
                                 c(3, 1, 2))
                         ), na.rm = TRUE)
                     } else {
                         0
                     }) +
-                    (if (Y1nB > 0) { # binary
+                    (if (Y2nB > 0) { # binary
                         colSums(log(
-                        (y1[Y1iB, ] * mcoutput$Bprob[Y1tB, , , drop = FALSE]) +
-                        ((1 - y1[Y1iB, ]) *
-                         (1 - mcoutput$Bprob[Y1tB, , , drop = FALSE]))
+                            y2[Y2iB, ] * mcoutput$Bprob[Y2tB, , , drop = FALSE] +
+                            (1L - y2[Y2iB, ]) *
+                            (1 - mcoutput$Bprob[Y2tB, , , drop = FALSE])
                         ), na.rm = TRUE)
                     } else {
                         0
                     })
                 )
-            } # end lprobYY
+            }# end lprobY2
+
+### lprobY1
+            lprobY1 <- (
+                (if (Y1nR > 0) { # continuous
+                    colSums(
+                        dnorm(
+                            x = y1[Y1iR, ],
+                            mean = mcoutput$Rmean[Y1tR, , , drop = FALSE],
+                            sd = mcoutput$Rvar[Y1tR, , , drop = FALSE],
+                            log = TRUE
+                        ), na.rm = TRUE)
+                } else {
+                    0
+                }) +
+                (if (Y1nC > 0) { # censored
+                    isfin <- is.finite(y1[Y1iC, ])
+                    indf <- which(isfin)
+                    indi <- which(!isfin)
+                    (if (length(indf) > 0) {
+                        colSums(
+                            dnorm(
+                                x = y1[Y1iC[indf], ],
+                                mean = mcoutput$Cmean[Y1tC[indf], , , drop = FALSE],
+                                sd = mcoutput$Cvar[Y1tC[indf], , , drop = FALSE],
+                                log = TRUE
+                            ), na.rm = TRUE)
+                    } else {
+                        0
+                    }) +
+                        (if (length(indi) > 0) {
+                            vt <- Y1tC[indi]
+                            vx <- pmin(
+                                pmax(Clefts[vt], y1[Y1iC[indi], ]),
+                                Crights[vt])
+                            ## for upper tail, take opposite mean and value
+                            colSums(
+                                pnorm(
+                                    q = -abs(vx),
+                                    mean = -sign(vx) *
+                                        mcoutput$Cmean[vt, , , drop = FALSE],
+                                    sd = mcoutput$Cvar[vt, , , drop = FALSE],
+                                    log.p = TRUE
+                                ), na.rm = TRUE)
+                        } else {
+                            0
+                        })
+                } else {
+                    0
+                }) +
+                (if (Y1nD > 0) { # discretized
+                    vrights <- y1[Y1iD, ] + Dsteps[Y1tD]
+                    vrights[vrights >= Drights[Y1tD]] <- +Inf
+                    vlefts <- y1[Y1iD, ] - Dsteps[Y1tD]
+                    vlefts[vlefts <= Dlefts[Y1tD]] <- -Inf
+                    colSums(log(
+                        pnorm(
+                            q = vrights,
+                            mean = mcoutput$Dmean[Y1tD, , , drop = FALSE],
+                            sd = mcoutput$Dvar[Y1tD, , , drop = FALSE]
+                        ) -
+                        pnorm(
+                            q = vlefts,
+                            mean = mcoutput$Dmean[Y1tD, , , drop = FALSE],
+                            sd = mcoutput$Dvar[Y1tD, , , drop = FALSE]
+                        )
+                    ), na.rm = TRUE)
+                } else {
+                    0
+                }) +
+                (if (Y1nO > 0) { # nominal
+                    colSums(log(
+                        aperm(
+                            vapply(seq_len(Y1nO), function(v) {
+                                mcoutput$Oprob[Y1tO[v], , y1[Y1iO[v], ], ]
+                            }, mcoutput$W),
+                            c(3, 1, 2))
+                    ), na.rm = TRUE)
+                } else {
+                    0
+                }) +
+                (if (Y1nN > 0) { # nominal
+                    colSums(log(
+                        aperm(
+                            vapply(seq_len(Y1nN), function(v) {
+                                mcoutput$Nprob[Y1tN[v], , y1[Y1iN[v], ], ]
+                            }, mcoutput$W),
+                            c(3, 1, 2))
+                    ), na.rm = TRUE)
+                } else {
+                    0
+                }) +
+                (if (Y1nB > 0) { # binary
+                    colSums(log(
+                    (y1[Y1iB, ] * mcoutput$Bprob[Y1tB, , , drop = FALSE]) +
+                    ((1 - y1[Y1iB, ]) *
+                     (1 - mcoutput$Bprob[Y1tB, , , drop = FALSE]))
+                    ), na.rm = TRUE)
+                } else {
+                    0
+                })
+            ) # end lprobYY
             ## Output: rows=components, columns=samples
 
 
 ### Construct probabilities from lprobY1, lprobY2
-
-
             lpY1and2 <- log(mean(
                 colSums(exp(lprobY1 + lprobY2 + lWnorm)) /
-                colSums(exp(lWnorm))
-            ), base = base)
+                colSums(exp(lWnorm)), na.rm = TRUE), base = base)
 
             lpY1 <- log(mean(
                 colSums(exp(lprobY1 + lWnorm)) /
-                colSums(exp(lWnorm))
-            ), base = base)
+                colSums(exp(lWnorm)), na.rm = TRUE), base = base)
 
             lpY2 <- log(mean(
                 colSums(exp(lprobY2 + lWnorm)) /
-                colSums(exp(lWnorm))
-            ), base = base)
+                colSums(exp(lWnorm)), na.rm = TRUE), base = base)
 
             lprobnorm <- denorm(lprobY2 + lW)
             lpY1given2 <- log(mean(
                 colSums(exp(lprobY1 + lprobnorm)) /
-                colSums(exp(lprobnorm))
-            ), base = base)
+                colSums(exp(lprobnorm)), na.rm = TRUE), base = base)
 
             lprobnorm <- denorm(lprobY1 + lW)
             lpY2given1 <- log(mean(
                 colSums(exp(lprobY2 + lprobnorm)) /
-                colSums(exp(lprobnorm))
-            ), base = base)
+                colSums(exp(lprobnorm)), na.rm = TRUE), base = base)
+            ## str(lpY1and2)
+                                        #str(lpY1)
+            ## str(lpY2)
 
             c(
-                mi0 = lpY1and2 - lpY1 - lpY2,
-                mi1 = lpY1given2 - lpY1,
-                mi2 = lpY2given1 - lpY2,
-                ce12 = lpY1given2,
-                ce21 = lpY2given1,
-                cond12a = lpY1given2,
-                cond12b = lpY1and2 - lpY2
-                )
-        }
+                MI = lpY1and2 - lpY1 - lpY2,
+                ## mi1 = lpY1given2 - lpY1,
+                ## mi2 = lpY2given1 - lpY2,
+                CondEn12 = -lpY1given2,
+                CondEn21 = -lpY2given1,
+                En1 = -lpY1,
+                En2 = -lpY2
+            )
+        } # End loop through generated samples
 
-    str(out)
-
-    list(
-        MI = colMeans(out, na.rm = TRUE),
-        error = apply(out, 2, sd, na.rm = TRUE),
-        conds = exp(out[1,c('cond12a', 'cond12b')]),
-        unit = unit
+    c(
+        unlist(apply(rbind(
+            value = colMeans(out, na.rm = TRUE),
+            error = apply(out, 2, sd, na.rm = TRUE)/sqrt(n)
+        ), 2, list), recursive = FALSE),
+        list(Y1names = Y1names, Y2names = Y2names, unit = unit)
     )
 }

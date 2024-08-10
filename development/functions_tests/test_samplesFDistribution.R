@@ -61,16 +61,20 @@ source('util_vtransform.R', local=T)
 source('samplesFDistribution.R', local=T)
 source('../development/functions_tests/testSFD.R')
 ##
-samplesFDistribution(
+out <- samplesFDistribution(
         Y=dataset[,'B1',drop=F],
         X=NULL,
         mcoutput = mcoutput, jacobian = T, silent=T, parallel=4)
+out
+rowMeans(out)
 
 
-samplesFDistribution(
+out <- samplesFDistribution(
         Y=dataset[,'N1',drop=F],
         X=NULL,
         mcoutput = mcoutput, jacobian = T, silent=T, parallel=4)
+out
+rowMeans(out)
 
 samplesFDistribution(
         Y=dataset[,'N1',drop=F],
@@ -80,6 +84,21 @@ samplesFDistribution(
 samplesFDistribution(
         Y=dataset[,'B1',drop=F],
         X=dataset[,'N1',drop=F],
+        mcoutput = mcoutput, jacobian = T, silent=T, parallel=4)
+
+samplesFDistribution(
+        Y=cbind(B1='yes'),
+        X=cbind(N1=LETTERS[1:3]),
+        mcoutput = mcoutput, jacobian = T, silent=T, parallel=4)
+
+samplesFDistribution(
+        Y=cbind(N1=LETTERS[1:3]),
+        X=cbind(B1='yes'),
+        mcoutput = mcoutput, jacobian = T, silent=T, parallel=4)
+
+samplesFDistribution(
+        Y=cbind(N1=LETTERS[1:3]),
+        X=cbind(B1='no'),
         mcoutput = mcoutput, jacobian = T, silent=T, parallel=4)
 
 
