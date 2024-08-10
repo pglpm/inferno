@@ -1,5 +1,5 @@
 set.seed(16)
-pdff('probabilities_testdata')
+pdff('frequencies_dataset_custom')
 ndata <- 1e4
 ## Adding NAs in different places
 ## to check that missing data are handled correctly

@@ -170,8 +170,6 @@ samplesFDistribution <- function(
         mcoutput <- mcsubset(mcoutput, subsamples)
     }
 
-    nsamples <- ncol(mcoutput$W)
-    ncomponents <- nrow(mcoutput$W)
 
 ### Guide to indices:
     ## .i. = order in X/Y corresponding to appearance in vnames
@@ -312,10 +310,10 @@ samplesFDistribution <- function(
 #### the loop is over the columns of y and x
 #### each instance is a 1-column vector
             if (all(is.na(x))) {
-                probX <- log(mcoutput$W)
+                lprobX <- log(mcoutput$W)
             } else {
                 ## rows: components, cols: samples
-                probX <- log(mcoutput$W) +
+                lprobX <- log(mcoutput$W) +
                     (if (XnR > 0) { # continuous
                         colSums(
                             dnorm(
@@ -413,13 +411,13 @@ samplesFDistribution <- function(
                     } else {
                         0
                     })
-            } # end probX
+            } # end lprobX
             ##
             ##
             if (all(is.na(y))) {
-                probY <- array(NA, dim = dim(mcoutput$W))
+                lprobY <- array(NA, dim = dim(mcoutput$W))
             } else {
-                probY <- (if (YnR > 0) { # continuous
+                lprobY <- (if (YnR > 0) { # continuous
                     colSums(
                         dnorm(
                             x = y[YiR, ],
@@ -519,14 +517,14 @@ samplesFDistribution <- function(
             }
 #### Output: rows=components, columns=samples
 
-            probX <- apply(probX, 2, function(xx) {
+            lprobX <- apply(lprobX, 2, function(xx) {
                 xx - max(xx[is.finite(xx)])
             })
 
             if(is.null(fn)) {
-                colSums(exp(probX + probY)) / colSums(exp(probX))
+                colSums(exp(lprobX + lprobY)) / colSums(exp(lprobX))
             } else {
-                fn(colSums(exp(probX + probY)) / colSums(exp(probX)))
+                fn(colSums(exp(lprobX + lprobY)) / colSums(exp(lprobX)))
             }
         } *
     (if (jacobian) {

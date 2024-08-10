@@ -1,7 +1,7 @@
 startdir <- getwd()
 
 #### Check and change working directory if necessary
-if(basename(startdir) != 'test_custom'){
+if(basename(startdir) != 'custom'){
     cat('\nAre you in the correct folder?\n')
 }
 
@@ -26,8 +26,8 @@ outputdirPrefix <- file.path('_newdeletepackagetest')
 ## registerDoParallel(mycluster)
 
 currenttestdir <- inferpopulation(
-    data = 'datanew_test_custom_30.csv',
-    metadata = 'metadatanew_test_custom.csv',
+    data = 'dataset_custom30.csv',
+    metadata = 'metadata_custom.csv',
     outputdir = outputdirPrefix,
     output = 'directory',
     appendtimestamp = F,
@@ -35,7 +35,7 @@ currenttestdir <- inferpopulation(
     nsamples = 120,
     nchains = 12,
     parallel = 4,
-    maxhours = 0/60,
+    maxhours = 1/60,
     ## relerror = 0.062,
     ncheckpoints = NULL,
     cleanup = FALSE,
@@ -48,8 +48,8 @@ currenttestdir <- inferpopulation(
 
 warnings()
 
-cat('\nTest calculation of mutual information:\n')
 stop('OK')
+cat('\nTest calculation of mutual information:\n')
 mi <- mutualinfo(
     Y1names = c('N2vrt'),
     Y2names = c('Rvrt'),
