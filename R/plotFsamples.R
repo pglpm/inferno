@@ -41,7 +41,7 @@ plotFsamples <- function(
     if (is.character(mcoutput)) {
         ## Check if 'mcoutput' is a folder containing Fdistribution.rds
         if (file_test('-d', mcoutput) &&
-            file.exists(file.path(mcoutput, 'Fdistribution.rds'))) {
+                file.exists(file.path(mcoutput, 'Fdistribution.rds'))) {
             mcoutput <- readRDS(file.path(mcoutput, 'Fdistribution.rds'))
         } else {
             ## Assume 'mcoutput' the full path of Fdistributions.rds
@@ -420,11 +420,11 @@ plotFsamples <- function(
                     Xticks <- Xgrid
 
                     plotsamples <- samplesFDistribution(Y = rownames(Xgrid), X = NULL,
-                    mcoutput = mcoutput,
-                    subsamples = mcsubsamples,
-                    jacobian = TRUE,
-                    parallel = parallel,
-                    silent = TRUE)
+                        mcoutput = mcoutput,
+                        subsamples = mcsubsamples,
+                        jacobian = TRUE,
+                        parallel = parallel,
+                        silent = TRUE)
                 } else {
                     ## we must construct an X-grid
                     Xgrid <- cbind(seq(plotmin, plotmax, by = halfstep * 2))
@@ -433,11 +433,11 @@ plotFsamples <- function(
                     Xticks <- NULL
 
                     plotsamples <- samplesFDistribution(Y = Xgrid, X = NULL,
-                    mcoutput = mcoutput,
-                    subsamples = mcsubsamples,
-                    jacobian = TRUE,
-                    parallel = parallel,
-                    silent = TRUE)
+                        mcoutput = mcoutput,
+                        subsamples = mcsubsamples,
+                        jacobian = TRUE,
+                        parallel = parallel,
+                        silent = TRUE)
                 }
 
                 ## Find appropriate plot height across plots
@@ -466,9 +466,9 @@ plotFsamples <- function(
                         histo <- as.vector(table(factor(datum,
                             levels = rownames(Xgrid)))) / length(datum)
                     } else {
-                    histo <- thist(datum,
-                        n = c(Xgrid - halfstep, max(Xgrid) + halfstep),
-                      extendbreaks = FALSE)$counts / length(datum)
+                        histo <- thist(datum,
+                            n = c(Xgrid - halfstep, max(Xgrid) + halfstep),
+                            extendbreaks = FALSE)$counts / length(datum)
                     }
 
                     ymax <- max(ymax, histo)

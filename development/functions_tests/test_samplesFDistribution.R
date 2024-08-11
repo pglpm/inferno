@@ -2,6 +2,40 @@
 ## Run through elements
 #############################################################
 
+#### custom – test time use of util_lprob.R
+dataset <- read.csv('/home/pglpm/repositories/bayes_nonparametric_inference/development/tests/custom/dataset_custom30.csv', na.strings='')
+mcoutput <- readRDS('/home/pglpm/repositories/bayes_nonparametric_inference/development/tests/custom/_newdeletepackagetest-vrt10_dat30_smp120/Fdistribution.rds')
+##
+source('util_vtransform.R', local=T)
+source('samplesFDistribution.R', local=T)
+source('util_lprob.R', local=T)
+source('samplesFDistribution2.R', local=T)
+
+system.time(
+    out0 <- sapply(1:ncol(dataset), function(j){ sapply(1:nrow(dataset), function(i){
+        samplesFDistribution(
+            Y=dataset[i,j,drop=F],
+            X=NULL,
+            mcoutput = mcoutput, jacobian = T, silent=T, parallel=1)
+    })})
+)
+
+system.time(
+    out2 <- sapply(1:ncol(dataset), function(j){ sapply(1:nrow(dataset), function(i){
+        samplesFDistribution2(
+            Y=dataset[i,j,drop=F],
+            X=NULL,
+            mcoutput = mcoutput, jacobian = T, silent=T, parallel=1)
+    })})
+)
+
+max(abs(2*(out0-out2)/(out0+out2)))
+
+
+
+
+
+
 #### custom
 dataset <- read.csv('/home/pglpm/repositories/bayes_nonparametric_inference/development/tests/custom/dataset_custom30.csv', na.strings='')
 mcoutput <- readRDS('/home/pglpm/repositories/bayes_nonparametric_inference/development/tests/custom/_newdeletepackagetest-vrt10_dat30_smp120/Fdistribution.rds')
@@ -127,6 +161,47 @@ max(abs(out))
 ## Combinations YX
 #############################################################
 
+#### custom - test new samplesFDistribution
+dataset <- read.csv('/home/pglpm/repositories/bayes_nonparametric_inference/development/tests/custom/dataset_custom150.csv', na.strings='')
+mcoutput <- readRDS('/home/pglpm/repositories/bayes_nonparametric_inference/development/tests/custom/_newdeletepackagetest-vrt10_dat30_smp120/Fdistribution.rds')
+##
+
+library('modelfreeinference')
+
+nY <- sample(1:(ncol(dataset)-1), 1)
+Ys <- sample(colnames(dataset), nY)
+Xs <- sample(setdiff(colnames(dataset), Ys), ncol(dataset)-nY)
+npoints <- nrow(dataset)
+iY <- sample(1:nrow(dataset),npoints)
+iX <- sample(1:nrow(dataset),npoints)
+##
+Ys
+Xs
+
+system.time(
+out <- sapply(1:length(iY), function(i){
+    samplesFDistribution(
+        Y=dataset[iY[i],Ys,drop=F],
+        X=dataset[iX[i],Xs,drop=F],
+        mcoutput = mcoutput, jacobian = T, silent=T, parallel=1)
+})
+)
+
+system.time(
+out2 <- sapply(1:length(iY), function(i){
+    samplesFDistribution2(
+        Y=dataset[iY[i],Ys,drop=F],
+        X=dataset[iX[i],Xs,drop=F],
+        mcoutput = mcoutput, jacobian = T, silent=T, parallel=1)
+})
+)
+
+max(abs(2*(out-out2)/(out+out2)))
+
+
+
+
+
 #### custom
 dataset <- read.csv('/home/pglpm/repositories/bayes_nonparametric_inference/development/test_custom/datanew_test_custom_30.csv', na.strings='')
 mcoutput <- readRDS('/home/pglpm/repositories/bayes_nonparametric_inference/development/test_custom/_newdeletepackagetest-vrt10_dat30_smp120/Fdistribution.rds')
@@ -192,6 +267,46 @@ out <- sapply(1:length(iY), function(i){
 mcoutput$auxmetadata$mcmctype[mcoutput$auxmetadata$name %in% Ys]
 mcoutput$auxmetadata$mcmctype[mcoutput$auxmetadata$name %in% Xs]
 max(abs(out))
+
+
+dataset <- mtcars
+mcoutput <- readRDS('/home/pglpm/repositories/bayes_nonparametric_inference/development/tests/mtcars/_newD_test_mtcars-3-vrt11_dat32_smp512/Fdistribution.rds')
+
+
+library('modelfreeinference')
+
+nY <- sample(1:(ncol(dataset)-1), 1)
+Ys <- sample(colnames(dataset), nY)
+Xs <- sample(setdiff(colnames(dataset), Ys), ncol(dataset)-nY)
+npoints <- nrow(dataset)
+iY <- sample(1:nrow(dataset),npoints)
+iX <- sample(1:nrow(dataset),npoints)
+##
+Ys
+Xs
+
+system.time(
+out <- sapply(1:length(iY), function(i){
+    samplesFDistribution(
+        Y=dataset[iY[i],Ys,drop=F],
+        X=dataset[iX[i],Xs,drop=F],
+        mcoutput = mcoutput, jacobian = T, silent=T, parallel=1)
+})
+)
+
+system.time(
+out2 <- sapply(1:length(iY), function(i){
+    samplesFDistribution2(
+        Y=dataset[iY[i],Ys,drop=F],
+        X=dataset[iX[i],Xs,drop=F],
+        mcoutput = mcoutput, jacobian = T, silent=T, parallel=1)
+})
+)
+
+max(abs(2*(out-out2)/(out+out2)))
+
+
+
 
 #### nadpark
 dataset <- read.csv('/home/pglpm/repositories/parkinsonbayes/data/nadpark/toydata.csv', na.strings='')[,-1]

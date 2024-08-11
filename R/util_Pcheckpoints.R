@@ -87,109 +87,111 @@ Pcheckpoints <- function(
 
 #### the loop is over the columns of y
 #### each instance is a 1-column vector
-            if (all(is.na(y))) {
-                probY <- array(NA, dim = c(ncomponents, nsamples))
+        if (all(is.na(y))) {
+            lprobY <- array(NA, dim = c(ncomponents, nsamples))
+        } else {
+            lprobY <- (if (YnR > 0) { # continuous
+                colSums(
+                    dnorm(
+                        x = y[YiR, ],
+                        mean = mcsamples$Rmean[YtR, , , drop = FALSE],
+                        sd = mcsamples$Rvar[YtR, , , drop = FALSE],
+                        log = TRUE
+                    ), na.rm = TRUE)
             } else {
-                probY <- (if (YnR > 0) { # continuous
-                    colSums(
-                        dnorm(
-                            x = y[YiR, ],
-                            mean = mcsamples$Rmean[YtR, , , drop = FALSE],
-                            sd = mcsamples$Rvar[YtR, , , drop = FALSE],
-                            log = TRUE
-                        ), na.rm = TRUE)
-                } else {
-                    0
-                }) +
-                    (if (YnC > 0) { # censored
-                        isfin <- is.finite(y[YiC, ])
-                        indf <- which(isfin)
-                        indi <- which(!isfin)
-                        (if (length(indf) > 0) {
-                            colSums(
-                                dnorm(
-                                    x = y[YiC[indf], ],
-                                    mean = mcsamples$Cmean[YtC[indf], , , drop = FALSE],
-                                    sd = mcsamples$Cvar[YtC[indf], , , drop = FALSE],
-                                    log = TRUE
-                                ), na.rm = TRUE)
-                        } else {
-                            0
-                        }) +
-                            (if (length(indi) > 0) {
-                                vt <- YtC[indi]
-                                vx <- pmin(
-                                    pmax(Clefts[vt], y[YiC[indi], ]),
-                                    Crights[vt])
-                                ## for upper tail, take opposite mean and value
-                                colSums(
-                                    pnorm(
-                                        q = -abs(vx),
-                                        mean = -sign(vx) *
-                                            mcsamples$Cmean[vt, , , drop = FALSE],
-                                        sd = mcsamples$Cvar[vt, , , drop = FALSE],
-                                        log.p = TRUE
-                                    ), na.rm = TRUE)
-                            } else {
-                                0
-                            })
+                0
+            }) +
+                (if (YnC > 0) { # censored
+                    isfin <- is.finite(y[YiC, ])
+                    indf <- which(isfin)
+                    indi <- which(!isfin)
+                    (if (length(indf) > 0) {
+                        colSums(
+                            dnorm(
+                                x = y[YiC[indf], ],
+                                mean = mcsamples$Cmean[YtC[indf], , , drop = FALSE],
+                                sd = mcsamples$Cvar[YtC[indf], , , drop = FALSE],
+                                log = TRUE
+                            ), na.rm = TRUE)
                     } else {
                         0
                     }) +
-                    (if (YnD > 0) { # discretized
-                        vrights <- y[YiD, ] + Dsteps[YtD]
-                        vrights[vrights >= Drights[YtD]] <- +Inf
-                        vlefts <- y[YiD, ] - Dsteps[YtD]
-                        vlefts[vlefts <= Dlefts[YtD]] <- -Inf
-                        colSums(log(
-                            pnorm(
-                                q = vrights,
-                                mean = mcsamples$Dmean[YtD, , , drop = FALSE],
-                                sd = mcsamples$Dvar[YtD, , , drop = FALSE]
-                            ) -
+                        (if (length(indi) > 0) {
+                            vt <- YtC[indi]
+                            vx <- pmin(
+                                pmax(Clefts[vt], y[YiC[indi], ]),
+                                Crights[vt])
+                            ## for upper tail, take opposite mean and value
+                            colSums(
+                                pnorm(
+                                    q = -abs(vx),
+                                    mean = -sign(vx) *
+                                        mcsamples$Cmean[vt, , , drop = FALSE],
+                                    sd = mcsamples$Cvar[vt, , , drop = FALSE],
+                                    log.p = TRUE
+                                ), na.rm = TRUE)
+                        } else {
+                            0
+                        })
+                } else {
+                    0
+                }) +
+                (if (YnD > 0) { # discretized
+                    vrights <- y[YiD, ] + Dsteps[YtD]
+                    vrights[vrights >= Drights[YtD]] <- +Inf
+                    vlefts <- y[YiD, ] - Dsteps[YtD]
+                    vlefts[vlefts <= Dlefts[YtD]] <- -Inf
+                    colSums(log(
+                        pnorm(
+                            q = vrights,
+                            mean = mcsamples$Dmean[YtD, , , drop = FALSE],
+                            sd = mcsamples$Dvar[YtD, , , drop = FALSE]
+                        ) -
                             pnorm(
                                 q = vlefts,
                                 mean = mcsamples$Dmean[YtD, , , drop = FALSE],
                                 sd = mcsamples$Dvar[YtD, , , drop = FALSE]
                             )
-                        ), na.rm = TRUE)
-                    } else {
-                        0
-                    }) +
-                    (if (YnO > 0) { # nominal
-                        colSums(log(
-                            aperm(
-                                vapply(seq_len(YnO), function(v) {
-                                    mcsamples$Oprob[YtO[v], , y[YiO[v], ], ]
-                                }, mcsamples$W),
-                                c(3, 1, 2))
-                        ), na.rm = TRUE)
-                    } else {
-                        0
-                    }) +
-                    (if (YnN > 0) { # nominal
-                        colSums(log(
-                            aperm(
-                                vapply(seq_len(YnN), function(v) {
-                                    mcsamples$Nprob[YtN[v], , y[YiN[v], ], ]
-                                }, mcsamples$W),
-                                c(3, 1, 2))
-                        ), na.rm = TRUE)
-                    } else {
-                        0
-                    }) +
-                    (if (YnB > 0) { # binary
-                        colSums(log(
-                        (y[YiB, ] * mcsamples$Bprob[YtB, , , drop = FALSE]) +
+                    ), na.rm = TRUE)
+                } else {
+                    0
+                }) +
+                (if (YnO > 0) { # nominal
+                    colSums(log(
+                        aperm(
+                            vapply(seq_len(YnO), function(v) {
+                                mcsamples$Oprob[YtO[v], , y[YiO[v], ], ]
+                            }, mcsamples$W),
+                            c(3, 1, 2))
+                    ), na.rm = TRUE)
+                } else {
+                    0
+                }) +
+                (if (YnN > 0) { # nominal
+                    colSums(log(
+                        aperm(
+                            vapply(seq_len(YnN), function(v) {
+                                mcsamples$Nprob[YtN[v], , y[YiN[v], ], ]
+                            }, mcsamples$W),
+                            c(3, 1, 2))
+                    ), na.rm = TRUE)
+                } else {
+                    0
+                }) +
+                (if (YnB > 0) { # binary
+                    colSums(log(
+                    (y[YiB, ] * mcsamples$Bprob[YtB, , , drop = FALSE]) +
                         ((1 - y[YiB, ]) *
-                         (1 - mcsamples$Bprob[YtB, , , drop = FALSE]))
-                        ), na.rm = TRUE)
-                    } else {
-                        0
-                    })
-            }
-#### Output: rows=components, columns=samples
-            probX <- log(mcsamples$W)
-            colSums(exp(probX + probY)) / colSums(exp(probX))
+                             (1 - mcsamples$Bprob[YtB, , , drop = FALSE]))
+                    ), na.rm = TRUE)
+                } else {
+                    0
+                })
         }
+#### Output: rows=components, columns=samples
+        lprobX <- apply(log(mcsamples$W), 2, function(xx) {
+            xx - max(xx[is.finite(xx)])
+        })
+        colSums(exp(lprobX + lprobY)) / colSums(exp(lprobX))
+    }
 }
