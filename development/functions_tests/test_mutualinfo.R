@@ -52,7 +52,7 @@ system.time(
     X = dataset[1,Xs],
     mcoutput = mcoutput,
     nsamples = 3600,
-    parallel = 1
+    parallel = 4
     )
 )
 

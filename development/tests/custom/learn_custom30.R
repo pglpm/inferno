@@ -13,12 +13,12 @@ if(!(Sys.getenv("R_LIBS_USER") %in% .libPaths())) {
         '\nexists.\n')
 }
 
-devtools::install()
+# devtools::install()
 library('modelfreeinference')
 
 seed <- 16
 
-outputdirPrefix <- file.path('_newdeletepackagetest')
+outputdirPrefix <- file.path('_cdeletepackagetest')
 
 ## ncores <- 4
 ## library('doParallel')

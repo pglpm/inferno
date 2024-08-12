@@ -19,7 +19,7 @@
 #' @importFrom extraDistr rcat rbern
 #'
 #' @export
-mutualinfo2 <- function(
+mutualinfo <- function(
     Y1names,
     Y2names,
     X = NULL,

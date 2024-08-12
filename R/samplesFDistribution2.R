@@ -20,7 +20,7 @@
 #' @import parallel foreach doParallel
 #'
 #' @export
-samplesFDistribution2 <- function(
+samplesFDistribution <- function(
     Y,
     X,
     mcoutput,
