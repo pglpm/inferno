@@ -847,8 +847,8 @@ inferpopulation <- function(
         'Starting Monte Carlo sampling of', nsamples, 'samples by',
         nchains, 'chains'
     )
-    cat('\nin a space of', (
-        vn$R * 2 * ncomponents +
+
+    samplespacedims <- vn$R * 2 * ncomponents +
             vn$C * 2 * ncomponents +
             vn$D * 2 * ncomponents +
             sum(apply(Oalpha0, 1, function(x) sum(x > 2e-17) - 1)) * ncomponents +
@@ -856,18 +856,18 @@ inferpopulation <- function(
             sum(apply(Nalpha0, 1, function(x) sum(x > 2e-17) - 1)) +
             vn$B * ncomponents +
             ncomponents - 1
-    ),
-    ## '(effectively',
-    ## paste0(
-    ## (sum(as.numeric(vn) * c(
-    ##     3 + npoints, 3 + npoints, 3 + npoints,
-    ##     3 + npoints, 0, 0, 1 + npoints
-    ## )) +
-    ## sum(Nalpha0 > 2e-100) +
-    ## nrow(Nalpha0) * (npoints - 1) + 1 +
-    ## sum(Oalpha0 > 2e-100) +
-    ## nrow(Oalpha0) * (npoints - 1) + 1 ) * ncomponents - 1 + nalpha - 1,
-    ## ')' ),
+    samplespacexdims <- 1 + # Alpha
+        vn$R * ncomponents + # Rrate
+        vn$C * ncomponents + # Crate
+        vn$D * ncomponents + # Drate
+        1 + # K
+        vn$C * npoints * ncomponents + # latent C
+        vn$D * npoints * ncomponents + # latent D
+        sum(is.na(data)) # missing data
+
+
+    cat('\nin a space of', samplespacedims,
+    '(effectively', paste0(samplespacedims + samplespacexdims, ')'),
     'dimensions.\n')
 
     cat('Using', ncores, 'cores:',
@@ -1431,7 +1431,7 @@ inferpopulation <- function(
         ## Inform user that compilation is done, if core 1:
         if (acore == 1) {
             print2user(paste0('\rCompiled core ', acore, '. ',
-                'Effective dimensions of sampled space: ',
+                'Number of samplers: ',
                 length(confnimble$samplerExecutionOrder), '.\n',
                 'Estimating remaining time, please be patient...'),
                 outcon)

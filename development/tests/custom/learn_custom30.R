@@ -18,7 +18,7 @@ library('modelfreeinference')
 
 seed <- 16
 
-outputdirPrefix <- file.path('_cdeletepackagetest')
+outputdirPrefix <- file.path('test_custom')
 
 ## ncores <- 4
 ## library('doParallel')
