@@ -169,9 +169,9 @@ inferpopulation <- function(
     ## in an appropriate way
 
     if (!(missing(nsamples) && missing(nchains) &&
-          missing(nsamplesperchain)) &&
-        (!missing(nsamples) && !missing(nchains) &&
-         !missing(nsamplesperchain))) {
+              missing(nsamplesperchain)) &&
+            (!missing(nsamples) && !missing(nchains) &&
+                 !missing(nsamplesperchain))) {
         ## The user set all these three arguments or only one
         stop('Please specify exactly two among "nsamples", "nchains", "nsamplesperchain"')
     }
@@ -416,10 +416,10 @@ inferpopulation <- function(
             '-vrt', nrow(auxmetadata),
             '_dat',
             (if (npoints == 1 && all(is.na(data))) {
-                 0
-             } else {
-                 npoints
-             }),
+                0
+            } else {
+                npoints
+            }),
             ## '-K', ncomponents, # unimportant for user
             '_smp', nsamples)
     }
@@ -488,7 +488,7 @@ inferpopulation <- function(
                     lapply(seq_len(nrow(auxmetadata)),
                         function(ii){
                             if(auxmetadata[ii, 'mcmctype'] %in%
-                               c('R', 'C', 'D', 'L')) {
+                                   c('R', 'C', 'D', 'L')) {
                                 rnorm(n = ncheckpoints, mean = 0, sd = 2)
                             } else {
                                 sample(1:auxmetadata[ii, 'Nvalues'], ncheckpoints,
@@ -498,7 +498,7 @@ inferpopulation <- function(
                     ),
                     row.names = NULL,
                     col.names = auxmetadata$name)
-               )
+            )
             ## ## original alternative way. Delete soon
             ## testdata <- data.frame(1:3)[,-1]
             ## for(xx in seq_len(nrow(auxmetadata))) {
@@ -847,22 +847,28 @@ inferpopulation <- function(
         'Starting Monte Carlo sampling of', nsamples, 'samples by',
         nchains, 'chains'
     )
-    cat('\nin a space of',
-        (sum(as.numeric(vn) * c(2, 2, 2, 0, 0, 1)) +
-         sum(Nalpha0 > 2e-100) - nrow(Nalpha0) + 1 +
-         sum(Oalpha0 > 2e-100) - nrow(Oalpha0) + 1 ) * ncomponents - 1,
-        ## '(effectively',
-        ## paste0(
-        ## (sum(as.numeric(vn) * c(
-        ##     3 + npoints, 3 + npoints, 3 + npoints,
-        ##     3 + npoints, 0, 0, 1 + npoints
-        ## )) +
-        ## sum(Nalpha0 > 2e-100) +
-        ## nrow(Nalpha0) * (npoints - 1) + 1 +
-        ## sum(Oalpha0 > 2e-100) +
-        ## nrow(Oalpha0) * (npoints - 1) + 1 ) * ncomponents - 1 + nalpha - 1,
-        ## ')' ),
-        'dimensions.\n')
+    cat('\nin a space of', (
+        vn$R * 2 * ncomponents +
+            vn$C * 2 * ncomponents +
+            vn$D * 2 * ncomponents +
+            sum(apply(Oalpha0, 1, function(x) sum(x > 2e-17) - 1)) * ncomponents +
+            sum(apply(Nalpha0, 1, function(x) sum(x > 2e-17) - 1)) * ncomponents +
+            sum(apply(Nalpha0, 1, function(x) sum(x > 2e-17) - 1)) +
+            vn$B * ncomponents +
+            ncomponents - 1
+    ),
+    ## '(effectively',
+    ## paste0(
+    ## (sum(as.numeric(vn) * c(
+    ##     3 + npoints, 3 + npoints, 3 + npoints,
+    ##     3 + npoints, 0, 0, 1 + npoints
+    ## )) +
+    ## sum(Nalpha0 > 2e-100) +
+    ## nrow(Nalpha0) * (npoints - 1) + 1 +
+    ## sum(Oalpha0 > 2e-100) +
+    ## nrow(Oalpha0) * (npoints - 1) + 1 ) * ncomponents - 1 + nalpha - 1,
+    ## ')' ),
+    'dimensions.\n')
 
     cat('Using', ncores, 'cores:',
         nsamplesperchain, 'samples per chain,',
@@ -974,14 +980,14 @@ inferpopulation <- function(
                 if (vn$C > 0) { # continuous closed domain
                     for (v in 1:Cn) {
                         Caux[d, v] ~ dconstraint(Clat[d, v] >= Cleft[d, v] &
-                                                 Clat[d, v] <= Cright[d, v])
+                                                     Clat[d, v] <= Cright[d, v])
                         Clat[d, v] ~ dnorm(mean = Cmean[v, K[d]], var = Cvar[v, K[d]])
                     }
                 }
                 if (vn$D > 0) { # continuous rounded
                     for (v in 1:Dn) {
                         Daux[d, v] ~ dconstraint(Dlat[d, v] >= Dleft[d, v] &
-                                                 Dlat[d, v] < Dright[d, v])
+                                                     Dlat[d, v] < Dright[d, v])
                         Dlat[d, v] ~ dnorm(mean = Dmean[v, K[d]], var = Dvar[v, K[d]])
                     }
                 }
@@ -1321,7 +1327,7 @@ inferpopulation <- function(
 
         ## replace Alpha's cat-sampler with slice
         if (Alphatoslice &&
-            !('Alpha' %in% targetslist[nameslist == 'posterior_predictive'])) {
+                !('Alpha' %in% targetslist[nameslist == 'posterior_predictive'])) {
             confnimble$replaceSampler(target='Alpha', type='slice')
             ## ## Old replacement method, didn't work in previous Nimble
             ## confnimble$removeSamplers('Alpha')
@@ -1450,7 +1456,7 @@ inferpopulation <- function(
 
             ## calculate how the remaining time is allotted to remaining chains
             timeleft <- (maxhours -
-                         as.double(Sys.time() - timestart0, units = 'hours')) /
+                             as.double(Sys.time() - timestart0, units = 'hours')) /
                 (nchainspercore - achain + 1)
 
             showsamplertimes0 <- showsamplertimes && (achain == 1)
@@ -1503,10 +1509,10 @@ inferpopulation <- function(
                     niter = niter,
                     thin = 1,
                     thin2 = (if (showAlphatraces || showKtraces) {
-                                 max(1, round(niter / ncomponentsamples))
-                             } else {
-                                 max(2, floor(niter / 2))
-                             }),
+                        max(1, round(niter / ncomponentsamples))
+                    } else {
+                        max(2, floor(niter / 2))
+                    }),
                     nburnin = 0,
                     time = showsamplertimes0,
                     reset = reset,
@@ -1764,7 +1770,7 @@ inferpopulation <- function(
                 cat('\nWARNING: have to reduce thinning owing to time constraints\n')
                 tokeep <- round(seq(from = 1,
                     to = ncol(allmcsamples$W),
-                length.out = nsamplesperchain))
+                    length.out = nsamplesperchain))
             }
 
             saveRDS(mcsubset(allmcsamples, tokeep),
