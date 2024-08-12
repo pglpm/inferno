@@ -2,7 +2,7 @@
 % Please edit documentation in R/buildmetadata.R
 \name{buildmetadata}
 \alias{buildmetadata}
-\title{Build preliminary metadata flie}
+\title{Build a preliminary metadata file from a given dataset}
 \usage{
 buildmetadata(
   data,
@@ -15,25 +15,29 @@ buildmetadata(
 )
 }
 \arguments{
-\item{data}{data.frame object or filepath}
+\item{data}{A dataset, given as a \code{\link[base]{data.frame}}
+or as a file path to a csv file.}
 
-\item{file}{string: name of output metadata file;
-NULL: output metadata as data.frame}
+\item{file}{String: name of csv file where the metadata should be saved;
+if \code{NULL}: output metadata as \code{VALUE}.}
 
-\item{includevrt}{string or NULL: name variates in data to be included}
+\item{includevrt}{Character or \code{NULL}: name of variates in dataset to be included.}
 
-\item{excludevrt}{string or NULL: name variates in data to be excluded}
+\item{excludevrt}{Character or \code{NULL}: name of variates in dataset to be excluded.}
 
-\item{addsummary2metadata}{Bool: also output some diagnostic statistics
-in the metadata?}
+\item{addsummary2metadata}{Logical: also output some diagnostic statistics
+in the metadata? Default \code{FALSE}}
 
-\item{backupfiles}{Bool: rename previous metadata file if it exists?}
+\item{backupfiles}{Logical: rename previous metadata file if it exists?
+Default \code{TRUE}}
 
-\item{verbose}{Bool: output heuristics for each variate, default TRUE}
+\item{verbose}{Logical: output heuristics for each variate? Default \code{TRUE}.}
 }
 \value{
-nothing or data.table object
+If \code{file = NULL}, a preliminary metadata file is created
+and \code{VALUE} is \code{NULL};
+otherwise \code{VALUE} is a data.frame containing the metadata.
 }
 \description{
-Build preliminary metadata flie
+Build a preliminary metadata file from a given dataset
 }

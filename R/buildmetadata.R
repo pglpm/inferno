@@ -1,16 +1,20 @@
-#' Build preliminary metadata flie
+#' Build a preliminary metadata file from a given dataset
 #'
-#' @param data data.frame object or filepath
-#' @param file string: name of output metadata file;
-#'   NULL: output metadata as data.frame
-#' @param includevrt string or NULL: name variates in data to be included
-#' @param excludevrt string or NULL: name variates in data to be excluded
-#' @param addsummary2metadata Bool: also output some diagnostic statistics
-#'    in the metadata?
-#' @param backupfiles Bool: rename previous metadata file if it exists?
-#' @param verbose Bool: output heuristics for each variate, default TRUE
+#' @param data A dataset, given as a \code{\link[base]{data.frame}}
+#' or as a file path to a csv file.
+#' @param file String: name of csv file where the metadata should be saved;
+#'   if `NULL`: output metadata as `VALUE`.
+#' @param includevrt Character or `NULL`: name of variates in dataset to be included.
+#' @param excludevrt Character or `NULL`: name of variates in dataset to be excluded.
+#' @param addsummary2metadata Logical: also output some diagnostic statistics
+#'    in the metadata? Default `FALSE`
+#' @param backupfiles Logical: rename previous metadata file if it exists?
+#' Default `TRUE`
+#' @param verbose Logical: output heuristics for each variate? Default `TRUE`.
 #'
-#' @return nothing or data.table object
+#' @return If `file = NULL`, a preliminary metadata file is created
+#'   and `VALUE` is `NULL`;
+#'   otherwise `VALUE` is a data.frame containing the metadata.
 #'
 #' @export
 buildmetadata <- function(
@@ -116,7 +120,7 @@ buildmetadata <- function(
         ## If the values are strings,
         ## check whether they can be reinterpreted as numeric
         if(!is.numeric(unx) &&
-           !any(is.na(suppressWarnings(as.numeric(unx))))) {
+               !any(is.na(suppressWarnings(as.numeric(unx))))) {
             x <- as.numeric(x)
             unx <- sort(as.numeric(unx))
         }
@@ -156,8 +160,8 @@ buildmetadata <- function(
                 ljumpquantum <- gcd(ljumpsx * lmulti) / lmulti
                 if (!(
                     ljumpquantum / lrangex < 1e-5 || # no visible gaps between values
-                    (ljumpquantum / lrangex < 1e-3 &&
-                     maxrep <= 100)  # visible gaps, but not many value repetitions
+                        (ljumpquantum / lrangex < 1e-3 &&
+                             maxrep <= 100)  # visible gaps, but not many value repetitions
                 )) {
                     warninglist <- c(warninglist,
                         paste0('\n* "', name, '" variate',
@@ -196,9 +200,9 @@ buildmetadata <- function(
             }
 
         } else if (!is.numeric(x) &&
-                   !any(sapply(ordinalkeywords, function(keyw){
-                       grepl(keyw, datavalues, fixed = TRUE)
-                   }))) {
+                       !any(sapply(ordinalkeywords, function(keyw){
+                           grepl(keyw, datavalues, fixed = TRUE)
+                       }))) {
             ## Nominal variate? (non-numeric values)
             type <- 'nominal'
             Nvalues <- uniquex
@@ -256,7 +260,7 @@ buildmetadata <- function(
 #### Now we know that the variate is numeric
 
         } else if (uniquex <= 10 &&
-                   (all(x == round(x)) || jumpquantum == round(jumpquantum))) {
+                       (all(x == round(x)) || jumpquantum == round(jumpquantum))) {
             ## Ordinal variate with few numeric values?
             type <- 'ordinal'
             Nvalues <- uniquex
@@ -362,8 +366,8 @@ buildmetadata <- function(
             ## are included in the domain or not
             if (!(
                 jumpquantum / rangex < 1e-5 || # no visible gaps between values
-                (jumpquantum / rangex < 1e-3 &&
-                 maxrep <= 100)  # visible gaps, but not many value repetitions
+                    (jumpquantum / rangex < 1e-3 &&
+                         maxrep <= 100)  # visible gaps, but not many value repetitions
             )) {
                 roundedflag <- TRUE
                 ## The variate seems to have quantized differences

@@ -1,55 +1,61 @@
 #' Monte Carlo computation of posterior distribution of population frequencies
 #'
-#' @param data data.frame object or filepath: datapoints
-#' @param metadata Either the name of the csv file containing metadata
-#'   of the current dataset, or a data.frame with the metadata
-#' @param auxdata NULL or data.frame object or filepath: extra datapoints
-#'   which would be too many to use in the Monte Carlo sampling,
-#'   but can be used to calculate hyperparameters
-#' @param outputdir String, path to output file folder ## Rename to
-#'   outputPrefix, also addSuffix?
-#' @param nsamples Integer, nr of desired MC samples
-#' @param nchains Integer, nr of MC chains
-#' @param nsamplesperchain Integer, nr of MC samples per chain
-#' @param parallel, logical or numeric: whether to use pre-existing parallel
-#'   workers, or how many to create and use
-#' @param seed Integer: seed for random number generator. If left as default
-#'   NULL, a random seed based on the system clock is used in the
-#'   set.seed() function
-#' @param cleanup logical, default TRUE, removes files that can be used for
-#'   debugging
-#' @param appendtimestamp logical, default TRUE: add timestamp to name of
-#'   output directory
-#' @param appendinfo logical, default TRUE: add some simulation information
-#'   to name of output directory
-#' @param output if string 'directory', return the output directory name;
-#'   if string 'mcoutput', return the 'Fdistribution' object;
-#'   anything else, no output
-#' @param subsampledata Numeric: use only a subsample of the datapoints in 'data'
-#' @param startupMCiterations Number of initial (burn-in) MC iterations
-#' @param minMCiterations Minimum number of MC iterations to be done
-#' @param maxMCiterations Maximum number of MC iterations
-#' @param maxhours Maximum (approximately) time in hours for MC computation
-#' @param ncheckpoints NULL (default), positive integer, or Inf:
-#'   number of datapoints to use for stopping the sampling;
-#'   if NULL, equal to number of variates + 2; if Inf, use all datapoints
-#' @param relerror positive real: relative error of calculated probabilities
-#'   with respect to their variability with new data. It is only approximate
-#' @param prior logical: Calculate the prior distribution of F?
-#' @param thinning If NULL, let the diagnostics decide the MC thinning;
-#'   if positive, use this thinning value
-#' @param plottraces logical: plot MC traces of diagnostic values
-#' @param showKtraces logical, when true, it saves the K parameter during
-#'   sampling and plots its trace and histogram at the end. Keeping it to
-#'   FALSE (default) saves a little computation time.
-#' @param showAlphatraces logical, : when true, it saves the Alpha parameter
-#'   more frequently during sampling and plots its trace and histogram at
-#'   the end. Keeping it to FALSE (default) saves a little computation
-#'   time.
-#' @param hyperparams list of hyperparameters (used for debugging)
+#' @param data A dataset, given as a \code{\link[base]{data.frame}}
+#' or as a file path to a csv file.
+#' @param metadata A metadata object, given either as a data.frame object,
+#' or as a file pa to a csv file.
+#' @param auxdata A larger dataset, given as a data.frame
+#'   or as a file path to a csv file. Such a dataset
+#'   would be too many to use in the Monte Carlo sampling,
+#'   but can be used to calculate hyperparameters.
+#' @param outputdir Character: path to folder where the output should be saved.
+#' @param nsamples Integer: number of desired Monte Carlo samples. Default 3600.
+#' @param nchains Integer: number of Monte Carlo chains. Default 60.
+#' @param nsamplesperchain Integer: number of Monte Carlo samples per chain.
+#' @param parallel Logical: use pre-existing parallel workers from package
+#'   \code{\link[doParallel]{doParallel}}.
+#'   Or integer: create and use that many parallel workers.
+#' @param seed Integer: use this seed for the random number generator.
+#'   If missing or `NULL` (default), do not set the seed.
+#' @param cleanup Logical: remove diagnostic files at the end of the computation?
+#'   Default `TRUE`.
+#' @param appendtimestamp Logical: append a timestamp to the name of
+#'   the output directory `outputdir`? Default `TRUE`.
+#' @param appendinfo Logical: append information about dataset and Monte Carlo
+#'   parameters to the name of the output directory `outputdir`? Default `TRUE`.
+#' @param output Character: if `'directory'`, return the output directory name
+#'   as `VALUE`; if string `'mcoutput'`, return the `'Fdistribution'` object
+#'   containing the parameters obtained from the Monte Carlo computation.
+#'   Any other value: `VALUE` is `NULL`.
+#' @param subsampledata Integer: use only a subset of this many datapoints for
+#'   the Monte Carlo computation.
+#' @param startupMCiterations Integer: number of initial (burn-in)
+#'   Monte Carlo iterations. Default 3600.
+#' @param minMCiterations Integer: minimum number of Monte Carlo iterations
+#'   to be done. Default 0.
+#' @param maxMCiterations Integer: Do at most this many Monte Carlo iterations.
+#'   Default `Inf`.
+#' @param maxhours Numeric: approximate time limit, in hours, for the
+#'   Monte Carlo computation to last. Default `Inf`.
+#' @param ncheckpoints Integer: number of datapoints to use
+#'   for checking when the Monte Carlo computation should end.
+#'   If NULL (default), this is equal to number of variates + 2.
+#'   If Inf, use all datapoints.
+#' @param relerror Numeric: desired maximal relative error of calculated probabilities
+#'   with respect to their variability with new data.
+#' @param prior Logical: Calculate the prior distribution?
+#' @param thinning Integer: thin out the Monte Carlo samples by this value.
+#'   If NULL (default): let the diagnostics decide the thinning value.
+#' @param plottraces Logical: save plots of the Monte Carlo traces
+#'   of diagnostic values? Default `TRUE`.
+#' @param showKtraces Logical: save plots of the Monte Carlo traces
+#'   of the K parameter? Default `FALSE`.
+#' @param showAlphatraces Logical: save plots of the Monte Carlo traces
+#'   of the Alpha parameter? Default `FALSE`.
+#' @param hyperparams List: hyperparameters of the prior.
 #'
-#' @return name of directory containing output files, or Fdistribution object,
-#'   or empty
+#' @return Name of directory containing output files, or Fdistribution object,
+#'   or `NULL`, depending on argument `output`.
 #'
 #' @import parallel foreach doParallel doRNG nimble
 #'
@@ -109,7 +115,9 @@ inferpopulation <- function(
     cat('\n') # make sure possible error messages start on new line
 
     ## Set the RNG seed if given by user, or if no seed already exists
-    if (!missing(seed) || !exists('.Random.seed')) {set.seed(seed)}
+    if (!is.null(seed) || !missing(seed) || !exists('.Random.seed')) {
+        set.seed(seed)
+    }
     currentseed <- .Random.seed
 
 ##################################################
@@ -849,13 +857,13 @@ inferpopulation <- function(
     )
 
     samplespacedims <- vn$R * 2 * ncomponents +
-            vn$C * 2 * ncomponents +
-            vn$D * 2 * ncomponents +
-            sum(apply(Oalpha0, 1, function(x) sum(x > 2e-17) - 1)) * ncomponents +
-            sum(apply(Nalpha0, 1, function(x) sum(x > 2e-17) - 1)) * ncomponents +
-            sum(apply(Nalpha0, 1, function(x) sum(x > 2e-17) - 1)) +
-            vn$B * ncomponents +
-            ncomponents - 1
+        vn$C * 2 * ncomponents +
+        vn$D * 2 * ncomponents +
+        sum(apply(Oalpha0, 1, function(x) sum(x > 2e-17) - 1)) * ncomponents +
+        sum(apply(Nalpha0, 1, function(x) sum(x > 2e-17) - 1)) * ncomponents +
+        sum(apply(Nalpha0, 1, function(x) sum(x > 2e-17) - 1)) +
+        vn$B * ncomponents +
+        ncomponents - 1
     samplespacexdims <- 1 + # Alpha
         vn$R * ncomponents + # Rrate
         vn$C * ncomponents + # Crate
@@ -867,8 +875,8 @@ inferpopulation <- function(
 
 
     cat('\nin a space of', samplespacedims,
-    '(effectively', paste0(samplespacedims + samplespacexdims, ')'),
-    'dimensions.\n')
+        '(effectively', paste0(samplespacedims + samplespacexdims, ')'),
+        'dimensions.\n')
 
     cat('Using', ncores, 'cores:',
         nsamplesperchain, 'samples per chain,',
