@@ -640,7 +640,7 @@ inferpopulation <- function(
     ## N: nominal
     ## B: binary
     ## number and names of variates of each type
-    vn <- vnames <- list(R=NULL, C=NULL, D=NULL, L=NULL, O=NULL, N=NULL, B=NULL)
+    vn <- vnames <- list(R=NULL, C=NULL, D=NULL, O=NULL, N=NULL, B=NULL)
 
     for (atype in names(vn)) {
         vnames[[atype]] <- auxmetadata[auxmetadata$mcmctype == atype, 'name']
@@ -848,7 +848,7 @@ inferpopulation <- function(
         nchains, 'chains'
     )
     cat('\nin a space of',
-        (sum(as.numeric(vn) * c(2, 2, 2, 2, 0, 0, 1)) +
+        (sum(as.numeric(vn) * c(2, 2, 2, 0, 0, 1)) +
          sum(Nalpha0 > 2e-100) - nrow(Nalpha0) + 1 +
          sum(Oalpha0 > 2e-100) - nrow(Oalpha0) + 1 ) * ncomponents - 1,
         ## '(effectively',
