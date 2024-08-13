@@ -1017,7 +1017,7 @@ inferpopulation <- function(
                     }
                 }
                 if (vn$B > 0) { # binary
-                    for (v in 1:Bn) {
+                    for (v in 1:Bn) { # Bprob is the probability that Bdata=1
                         Bdata[d, v] ~ dbern(prob = Bprob[v, K[d]])
                     }
                 }

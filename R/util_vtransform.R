@@ -389,17 +389,19 @@ vtransform <- function(
 
                     ## Binary
                 } else if (mcmctype == 'B') {
-
+                    ## V1 corresponds to 0
+                    ## V2 corresponds to 1
+                    ## in the MC sampler, Bprob is the probability of V2
                     if (Bout == 'numeric') {
                         bvalues <- 0:1
-                        names(bvalues) <- sapply(bvalues+1, function(x)get(paste0('V',x)))
-                        ## names(bvalues) <- unlist(xinfo[c('V1', 'V2')])
+                        names(bvalues) <- sapply(bvalues + 1L,
+                            function(x)get(paste0('V', x)))
                         datum <- bvalues[as.character(datum)]
 
                     } else if (Bout == 'original') {
                         bvalues <- 0:1
-                        names(bvalues) <- sapply(bvalues+1, function(x)get(paste0('V',x)))
-                        ## names(bvalues) <- unlist(xinfo[c('V1', 'V2')])
+                        names(bvalues) <- sapply(bvalues + 1L,
+                            function(x)get(paste0('V', x)))
                         datum <- names(bvalues[datum + 1L])
 
                     } else if (Bout != 'mi') {

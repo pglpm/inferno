@@ -105,9 +105,10 @@ util_lprob <- function(
                 0
             }) +
             (if (nB > 0) { # binary
+                ## Bprob is the probability that x=1
                 colSums(log(
                     x[iB, ] * mcoutput$Bprob[tB, , , drop = FALSE] +
-                        (1L - x[iB, ]) *
+                        (1 - x[iB, ]) *
                         (1 - mcoutput$Bprob[tB, , , drop = FALSE])
                 ), na.rm = TRUE)
             } else {
