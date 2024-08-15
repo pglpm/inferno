@@ -28,8 +28,8 @@ From: r-base
     echo $R_LIBS_USER
 	Rscript -e "install.packages(pkgs=Sys.getenv('GITHUB_WORKSPACE'), repos=NULL)"
 	Rscript -e "library("modelfreeinference")"
-	cd $GITHUB_WORKSPACE && \
-	cd development/tests/&& \
+	cd $GITHUB_WORKSPACE
+	cd development/tests
 	. tests.sh
 
 
