@@ -30,6 +30,7 @@ From: r-base
 	Rscript -e "library("modelfreeinference")"
 	cd $GITHUB_WORKSPACE
 	cd development/tests
+	ls
 	. tests.sh
 
 
