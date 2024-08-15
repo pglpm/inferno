@@ -4,17 +4,18 @@ template:
   bootswatch: sandstone
 reference:
 - title: "Main functions"
-contents:
-- buildmetadata
-- inferpopulation
-- mutualinfo
-- samplesFDistribution
-- plotFsamples
+  contents:
+    - buildmetadata
+    - inferpopulation
+    - mutualinfo
+    - samplesFDistribution
+    - plotFsamples
 - title: "Utility functions"
   desc: "For advanced users."
   contents:
-  - vstransform
+  - vtransform
   - buildauxmetadata
   - Pcheckpoints
+  - alpha2hex2
   - starts with("util_")
 
