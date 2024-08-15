@@ -6,7 +6,8 @@ OptimalPredictorMachine
 predict
 forecast
 xpredict
-xforecast
+xforecast [though it may erroneously suggest time series]
 Software for Advanced Inference in Tasks and Applications with Model-free Assumptions (SAITAMA)
 bnpiForDummies
 xinfer
+XI [exchangeable inference]
