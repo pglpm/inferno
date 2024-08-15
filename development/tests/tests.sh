@@ -3,13 +3,13 @@
 function run_test()
 {   
     cd $folder
-    echo "\n Running test $test_name: \n"
+    echo "\n Running test $test_name:"
     Rscript $script
     if [ $? -eq 0 ]; then
-        echo "Test $test_name passed. \n"
+        echo "Test $test_name passed."
         results+=0
     else 
-        echo "Test $test_name failed. \n"
+        echo "Test $test_name failed."
         results+=1
     fi
     cd ..
@@ -36,9 +36,9 @@ for result in "${results[@]}";
 done
 
 if [ $failed -gt 0 ]; then
-    echo "$failed out of $n_test tests failed. \n"
+    echo "$failed out of $n_test tests failed."
     return 1
 else 
-    echo "All tests passed! \n"
+    echo "All tests passed!"
     return 0
 fi
