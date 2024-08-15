@@ -1,0 +1,20 @@
+url: https://pglpm.github.io/bayes_nonparametric_inference/
+template:
+  bootstrap: 5
+  bootswatch: sandstone
+reference:
+- title: "Main functions"
+contents:
+- buildmetadata
+- inferpopulation
+- mutualinfo
+- samplesFDistribution
+- plotFsamples
+- title: "Utility functions"
+  desc: "For advanced users."
+  contents:
+  - vstransform
+  - buildauxmetadata
+  - Pcheckpoints
+  - starts with("util_")
+
