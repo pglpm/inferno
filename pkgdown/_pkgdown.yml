@@ -17,5 +17,5 @@ reference:
   - buildauxmetadata
   - Pcheckpoints
   - alpha2hex2
-  - starts with("util_")
+  - starts_with("util_")
 
