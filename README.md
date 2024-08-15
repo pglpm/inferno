@@ -1,6 +1,6 @@
 <img src="development/manual/opm_symbol.png" alt="Ensemble of densities" width="100%"/>
 
-# Bayesian nonparametric population inference
+# Bayesian nonparametric inference
 This repository contains mathematical background and code for Bayesian nonparametric inference under exchangeability.
 
 The R functions depeloped here aspire to become an R package soon.
