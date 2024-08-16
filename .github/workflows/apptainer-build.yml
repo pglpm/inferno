@@ -1,8 +1,9 @@
-name: Apptainer Build
+name: Run tests
 
 on:
   push:
     branches: [CI_testbranch]
+  workflow_dispatch:
 
 jobs:
   build-test-container:

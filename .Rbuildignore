@@ -9,3 +9,6 @@
 ^_git-truncate\.sh$
 ^exclude$
 ^development$
+^_pkgdown\.yml$
+^docs$
+^pkgdown$

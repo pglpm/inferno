@@ -27,3 +27,5 @@ _region_.prv/
 auto/
 fontconfig/
 .backups/
+docs/
+!_pkgdown.yml

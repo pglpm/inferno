@@ -28,9 +28,7 @@ From: r-base
     echo $R_LIBS_USER
 	Rscript -e "install.packages(pkgs=Sys.getenv('GITHUB_WORKSPACE'), repos=NULL)"
 	Rscript -e "library("predict")"
-	cd $GITHUB_WORKSPACE && \
-	cd development/tests/CI-example-test && \
-	Rscript test_custom_30.R
-
-
+	cd $GITHUB_WORKSPACE
+	cd development/tests
+	source tests.sh
 
