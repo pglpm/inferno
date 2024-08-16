@@ -43,7 +43,19 @@ otherwise \code{VALUE} is a \code{\link[base]{data.frame}} containing the metada
 Details about metadata, metadata file and object, and utility function to build a metadata file or object.
 }
 \details{
-This is a first test
+In order to correctly learn from a dataset, the \code{\link{learn}} function needs information that is not contained in the data themeselves; that is, it needs \emph{meta}data. Metadata are provided either as a \code{csv} file or as a \code{\link[base]{data.frame}}.
+
+A metadata file must contain the following fields, even if some of them may be empty:
+
+\code{name}, \code{type}, \code{Nvalues}, \code{datastep}, \code{domainmin}, \code{domainmax}, \code{minincluded}, \code{maxinluded}, \code{plotmin}, \code{plotmax}, \code{V1}, \code{V2}, ...
+
+with possibly additional \code{V}-fields, sequentially numbered.
+
+The \code{type} field has four possible values:
+
+\code{binary}, \code{nominal}, \code{ordinal}, \code{continuous}
+
+Which fields cannot be empty depend on the \code{type} field. Here is a list of require
 }
 \section{Necessity of metadata}{
 

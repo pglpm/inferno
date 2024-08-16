@@ -54,28 +54,57 @@ buildauxmetadata <- function(data, metadata, Dthreshold = 1) {
         minfo$type <- tolower(minfo$type)
         transf <- 'identity' # temporary
         datavalues <- minfo[grep('^V[0-9]+$', names(minfo))]
-        nvaluelist <- sum(!is.na(datavalues))
+        ndatavalues <- sum(!is.na(datavalues))
         domainmin <- minfo$domainmin
         domainmax <- minfo$domainmax
         leftbound <- NA
         tleftbound <- NA
         rightbound <- NA
         trightbound <- NA
+        Nvalues <- +Inf
         halfstep <- minfo$datastep / 2
-        Nvalues <- minfo$Nvalues
+        ## Nvalues <- minfo$Nvalues
         plotmin <- minfo$plotmin
         plotmax <- minfo$plotmax
 
-        if (minfo$type == 'binary') {
+        ## Catch discrepancies in specification
+        if(ndatavalues > 0 && (
+            !is.na(domainmin) || !is.na(domainmax) || !is.na(halfstep)
+        )) {
+            stop('Variate "',
+                name, '": Please specify the domain either as a list of values',
+                '(fields "V1", "V2", ...)\nor as a combination of',
+                '"domainmin", "domainmax", "datastep";',
+                'not both.')
+        }
+        if(minfo$type %in% c('nominal', 'ordinal')) {
+            if(ndatavalues == 0 && (
+            is.na(domainmin) || is.na(domainmax) || is.na(halfstep)
+            )) {
+            stop('Variate "',
+                name, '": Insufficient domain information.\n',
+                'Please specify domain either as a list of values',
+                '(fields "V1", "V2", ...)\nor as a combination of',
+                '"domainmin", "domainmax", "datastep".')
+            }
+            if(ndatavalues > 0){
+                Nvalues <- ndatavalues
+            } else {
+                Nvalues <- length(seq(domainmin, domainmax, by = 2 * halfstep))
+            }
+        }
+
+        ## Identify binary variate
+        if(minfo$type %in% c('nominal', 'ordinal') && Nvalues == 2) {
             mcmctype <- 'B'
             id <- idB
             idB <- idB + 1L
-            if(is.numeric(Nvalues) && Nvalues != 2){
-                message('WARNING variate "', name,
-                    '": discrepancy between "Nvalues" and number of listed values.',
-                    '\nCorrecting "Nvalues".')
+            if(ndatavalues != 2) {
+                datavalues <- as.list(as.character(
+                    c(domainmin, domainmax)
+                ))
+                names(datavalues) <- paste0('V', seq_len(2))
             }
-            Nvalues <- 2
             halfstep <- NA
             domainmin <- NA
             domainmax <- NA
@@ -91,12 +120,6 @@ buildauxmetadata <- function(data, metadata, Dthreshold = 1) {
             mcmctype <- 'N'
             id <- idN
             idN <- idN + 1L
-            if(is.numeric(Nvalues) && Nvalues != nvaluelist){
-                message('WARNING variate "', name,
-                    '": discrepancy between "Nvalues" and number of listed values.',
-                    '\nCorrecting "Nvalues".')
-            }
-            Nvalues <- nvaluelist
             halfstep <- NA
             domainmin <- NA
             domainmax <- NA
@@ -111,48 +134,11 @@ buildauxmetadata <- function(data, metadata, Dthreshold = 1) {
             ## Ordinal variates can be specified in two different ways
 
 ### Consistency checks:
-            if(all(
-                is.na(datavalues),
-                is.na(domainmin), is.na(domainmax), is.na(halfstep)
-            )) {
-                stop('Missing domain of ordinal variate "', name, '".')
-            }
-
-            if(nvaluelist > Othreshold) {
+            if(ndatavalues > Othreshold) {
                 stop('Variate "',
                     name, '": we cannot handle lists of values larger than ',
                     Othreshold,'.',
                     '\nPlease specifies its values as a numeric range')
-            }
-
-            if(nvaluelist > 0 &&
-               !all(is.na(Nvalues), is.na(halfstep),
-                   is.na(domainmin), is.na(domainmax))) {
-                message('WARNING variate "', name,
-                    '": considering only listed values',
-                    ' and ignoring other domain information.')
-                Nvalues <- nvaluelist
-            }
-
-            if(nvaluelist == 0 &&
-               (is.na(domainmin) || is.na(domainmax)) &&
-               is.na(Nvalues) && is.na(halfstep)) {
-                stop('Variate "',
-                    name, '": insufficient domain information.')
-            }
-
-            if(nvaluelist == 0 && !is.na(Nvalues) && !is.na(halfstep) &&
-               Nvalues != 1 + (domainmax - domainmin) / (2 * halfstep)) {
-                message('WARNING variate "',name,
-                    '": discrepancy between "Nvalues" and "datastep".',
-                    '\nCorrecting "Nvalues".')
-                Nvalues <- 1 + (domainmax - domainmin) / (2 * halfstep)
-            }
-
-            if(is.na(Nvalues)) {
-                Nvalues <- 1 + (domainmax - domainmin) / (2 * halfstep)
-            } else {
-                halfstep <- (domainmax - domainmin) / (Nvalues - 1) / 2
             }
 
             ## Ordinal variates are internally handled in two different ways:
@@ -165,7 +151,7 @@ buildauxmetadata <- function(data, metadata, Dthreshold = 1) {
                 id <- idO
                 idO <- idO + 1L
                 ## convert domain specification to list
-                if(nvaluelist == 0) {
+                if(ndatavalues == 0) {
                     datavalues <- as.list(as.character(
                         seq(domainmin, domainmax, length.out = Nvalues)
                     ))

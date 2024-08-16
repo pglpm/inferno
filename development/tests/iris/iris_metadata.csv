@@ -1,6 +1,6 @@
-name,type,Nvalues,datastep,domainmin,domainmax,minincluded,maxincluded,plotmin,plotmax,V1,V2,V3
-Sepal.Length,continuous,Inf,0.1,0,Inf,FALSE,FALSE,3.6,8.6,,,
-Sepal.Width,continuous,Inf,0.1,0,Inf,FALSE,FALSE,1.7,4.7,,,
-Petal.Length,continuous,Inf,0.1,0,Inf,FALSE,FALSE,0.5,8.7,,,
-Petal.Width,continuous,Inf,0.1,0,Inf,FALSE,FALSE,0.05,3.2,,,
-Species,nominal,3,,,,,,,,setosa,versicolor,virginica
+name,type,datastep,domainmin,domainmax,minincluded,maxincluded,plotmin,plotmax,V1,V2,V3
+Sepal.Length,continuous,0.1,0,Inf,FALSE,FALSE,3.6,8.6,,,
+Sepal.Width,continuous,0.1,0,Inf,FALSE,FALSE,1.7,4.7,,,
+Petal.Length,continuous,0.1,0,Inf,FALSE,FALSE,0.5,8.7,,,
+Petal.Width,continuous,0.1,0,Inf,FALSE,FALSE,0.05,3.2,,,
+Species,nominal,,,,,,,,setosa,versicolor,virginica

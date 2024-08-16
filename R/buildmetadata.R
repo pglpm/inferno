@@ -2,7 +2,19 @@
 #'
 #' Details about metadata, metadata file and object, and utility function to build a metadata file or object.
 #'
-#' This is a first test
+#' In order to correctly learn from a dataset, the \code{\link{learn}} function needs information that is not contained in the data themeselves; that is, it needs *meta*data. Metadata are provided either as a `csv` file or as a \code{\link[base]{data.frame}}.
+#'
+#' A metadata file must contain the following fields, even if some of them may be empty:
+#'
+#' `name`, `type`, `Nvalues`, `datastep`, `domainmin`, `domainmax`, `minincluded`, `maxinluded`, `plotmin`, `plotmax`, `V1`, `V2`, ...
+#'
+#' with possibly additional `V`-fields, sequentially numbered.
+#'
+#' The `type` field has four possible values:
+#'
+#' `binary`, `nominal`, `ordinal`, `continuous`
+#'
+#' Which fields cannot be empty depend on the `type` field. Here is a list of require
 #'
 #' @section Necessity of metadata:
 #'
@@ -65,10 +77,9 @@ buildmetadata <- function(
     metadata <- as.data.frame(
         c(list(name = NA,
             type = NA,
-            Nvalues = NA,
-            datastep = NA,
             domainmin = NA,
             domainmax = NA,
+            datastep = NA,
             minincluded = NA,
             maxincluded = NA,
             ## lowvalue = NA,
@@ -186,39 +197,40 @@ buildmetadata <- function(
 
 #### Now make educated guess for the type of variate
 
-        if (uniquex == 2) {
-            ## Binary variate? (has only two unique values)
-            type <- 'binary'
-            Nvalues <- 2
-            datastep <- NA
-            domainmin <- NA
-            domainmax <- NA
-            minincluded <- NA
-            maxincluded <- NA
-            ## lowvalue <- NA
-            ## centralvalue <- NA
-            ## highvalue <- NA
-            plotmin <- NA
-            plotmax <- NA
-            names(datavalues) <- paste0('V', 1:2)
-            ##
-            if(verbose){
-                cat('  Two different values detected:\n',
-                    paste0('"', datavalues, '"', collapse=', '),
-                    '\n')
-                cat('  Assuming variate to be BINARY.\n')
-            }
-
-        } else if (!is.numeric(x) &&
+        ## if (uniquex == 2) {
+        ##     ## Binary variate? (has only two unique values)
+        ##     type <- 'binary'
+        ##     Nvalues <- 2
+        ##     datastep <- NA
+        ##     domainmin <- NA
+        ##     domainmax <- NA
+        ##     minincluded <- NA
+        ##     maxincluded <- NA
+        ##     ## lowvalue <- NA
+        ##     ## centralvalue <- NA
+        ##     ## highvalue <- NA
+        ##     plotmin <- NA
+        ##     plotmax <- NA
+        ##     names(datavalues) <- paste0('V', 1:2)
+        ##     ##
+        ##     if(verbose){
+        ##         cat('  Two different values detected:\n',
+        ##             paste0('"', datavalues, '"', collapse=', '),
+        ##             '\n')
+        ##         cat('  Assuming variate to be BINARY.\n')
+        ##     }
+        ##
+        ## } else
+            if (uniquex == 2 || (!is.numeric(x) &&
                        !any(sapply(ordinalkeywords, function(keyw){
                            grepl(keyw, datavalues, fixed = TRUE)
-                       }))) {
+                       })))) {
             ## Nominal variate? (non-numeric values)
             type <- 'nominal'
             Nvalues <- uniquex
-            datastep <- NA
             domainmin <- NA
             domainmax <- NA
+            datastep <- NA
             minincluded <- NA
             maxincluded <- NA
             ## lowvalue <- NA
@@ -229,7 +241,9 @@ buildmetadata <- function(
             names(datavalues) <- paste0('V', 1:Nvalues)
             ##
             if(verbose){
-                cat('  - ', Nvalues, 'different non-numeric values detected:\n',
+                cat('  - ', Nvalues, 'different',
+                    if(uniquex > 2){' non-numeric'},
+                    ' values detected:\n',
                     paste0('"', datavalues, '"', collapse=', '),
                     '\n')
                 cat('  which do not seem to refer to an ordered scale.\n')
@@ -241,9 +255,9 @@ buildmetadata <- function(
             ## Ordinal variate with few numeric values?
             type <- 'ordinal'
             Nvalues <- uniquex
-            datastep <- NA
             domainmin <- NA
             domainmax <- NA
+            datastep <- NA
             minincluded <- NA
             maxincluded <- NA
             ## lowvalue <- NA
@@ -282,9 +296,9 @@ buildmetadata <- function(
                 domainmax <- datamax
                 datavalues <- NULL
             } else {
-                datastep <- NA
                 domainmin <- NA
                 domainmax <- NA
+                datastep <- NA
                 datavalues <- as.character(unx)
                 names(datavalues) <- paste0('V', 1:Nvalues)
             }
@@ -490,10 +504,10 @@ buildmetadata <- function(
             c(
                 list(name = name,
                     type = type,
-                    Nvalues = Nvalues,
-                    datastep = datastep,
+                    ## Nvalues = Nvalues,
                     domainmin = domainmin,
                     domainmax = domainmax,
+                    datastep = datastep,
                     minincluded = minincluded,
                     maxincluded = maxincluded,
                     ## lowvalue = signif(lowvalue,3),
