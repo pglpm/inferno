@@ -1,6 +1,26 @@
 #' Metadata
 #'
-#' Details about metadata, metadata file and object, and utility function to build a metadata file or object.
+#' Metadata and utility function to build a template metadata file or object.
+#'
+#' The \code{\link{learn}} function needs metadata about the variates present in the data. Such metadata can be provided either as a `csv` file or as a \code{\link[base]{data.frame}}. The function `buildmetadata` creates a template metadata csv-file, or outputs a metadata data.frame, by trying to guess metadata information from the dataset. Tthe user can then modify and correct this template, using it as a starting point to prepare the correct metadata information.
+#'
+#' @param data A dataset, given as a \code{\link[base]{data.frame}}
+#' or as a file path to a csv file.
+#' @param file String: name of csv file where the metadata should be saved;
+#'   if `NULL`: output metadata as `VALUE`.
+#' @param includevrt Character or `NULL`: name of variates in dataset to be included.
+#' @param excludevrt Character or `NULL`: name of variates in dataset to be excluded.
+#' @param addsummary2metadata Logical: also output some diagnostic statistics
+#'    in the metadata? Default `FALSE`.
+#' @param backupfiles Logical: rename previous metadata file if it exists?
+#' Default `TRUE`.
+#' @param verbose Logical: output heuristics for each variate? Default `TRUE`.
+#'
+#' @return If `file = NULL`, a preliminary metadata file is created
+#'   and `VALUE` is `NULL`;
+#'   otherwise `VALUE` is a \code{\link[base]{data.frame}} containing the metadata.
+#'
+#' @section Metadata information and format:
 #'
 #' In order to correctly learn from a dataset, the \code{\link{learn}} function needs information that is not contained in the data themeselves; that is, it needs *meta*data. Metadata are provided either as a `csv` file or as a \code{\link[base]{data.frame}}.
 #'
@@ -14,7 +34,7 @@
 #'
 #' - **`nominal`** and **`ordinal`**: require *either* `V1`, `V2`, ... fields *or* `domainmin`, `domainmax`, `datastep` (all three) fields. No other fields are required, but `plotmin` and `plotmax` can optionally be specified.
 #'
-#' - **`continuous`**: requires `domainmin`, `domainmax`, `datastep`, `minincluded`, `maxincluded`.
+#' - **`continuous`**: requires `domainmin`, `domainmax`, `datastep`, `minincluded`, `maxincluded`, and optionally `plotmin` and `plotmax`.
 #'
 #' Here are the meanings and possible values of the fields:
 #'
@@ -34,30 +54,13 @@
 #'
 #' **`datastep`**: The minimum distance between the values of a variate (ordinal or continuous). Possible values are a positive real number, or `0`, or an empty value, which is then interpreted as `0`. For a numeric ordinal variate, `datastep` is the step between consecutive values. For a continuous *rounded* variate, `datastep` is the minimum distance between different values that occurs because of rounding; see the examples given above. The function `buildmetadata` has some heuristics to determine whether the variate is rounded or not. See further details under the section Rounding below.
 #'
-#' **`minincluded`**, **`maxincluded`**: Whether the minimum (`domainmin`) and maximum(`domainmax`) values of a *continuous* variate can really appear in the data or not. Possible values are `TRUE`, `FALSE`, or an empty value, which is then interpreted as `FALSE`. Here are some examples about the meaning of these fields. (a) A continuous *unrounded* variate such as temperature has 0 as a minimum possible value `domainmin`, but this value itself can never appear in data; in this case `minincluded` is set to `FALSE`.(b) A variate related to the *unrounded* length, in metres, of some objects may take on any positive real value; but suppose that all objects of length 5 or less are grouped together under the value `5 or less`. It is then possible for several datapoints to have value `5`: one such datapoint could originally have the value 3.782341...; another the value 4.929673..., and so on. In this case `domainmin` is set to `5`, and `minincluded` is set to `TRUE`. Similarly for the maximum value of a variate and `maxincluded`. Note that if `domainmin` is `-Inf`, then `minincluded` is automatically set to `FALSE`, and similarly if `domainmax` is `+Inf`.
+#' **`minincluded`**, **`maxincluded`**: Whether the minimum (`domainmin`) and maximum(`domainmax`) values of a *continuous* variate can really appear in the data or not. Possible values are `TRUE`, `FALSE`, or an empty value, which is then interpreted as `FALSE`. Here are some examples about the meaning of these fields. (a) A continuous *unrounded* variate such as temperature has 0 as a minimum possible value `domainmin`, but this value itself is physically impossible and can never appear in data; in this case `minincluded` is set to `FALSE`. (b) A variate related to the *unrounded* length, in metres, of some objects may take on any positive real value; but suppose that all objects of length 5 or less are grouped together under the value `5`. It is then possible for several datapoints to have value `5`: one such datapoint could originally have the value 3.782341...; another the value 4.929673..., and so on. In this case `domainmin` is set to `5`, and `minincluded` is set to `TRUE`. Similarly for the maximum value of a variate and `maxincluded`. Note that if `domainmin` is `-Inf`, then `minincluded` is automatically set to `FALSE`, and similarly for `maxincluded` if `domainmax` is `+Inf`.
 #'
-#' **`plotmin`**, **`plotmax`**: The software draws some probability plots for each variate, after learning from the data with the \code{\link{learn}} function. `plotmin` and `plotmax` give the plotting range in these plots. They might be necessary because, for instance, although the minimum variate value is 0 and the maximum is 90, the variability of the data and the range of interest in the inference problem is between 20 and 40; these would then be the values of `plotmin` and `plotmax`. Possible values are real numbers, with `plotmin` strictly less than `plotmax`; one or both may be empty values. In case of an empty value, the software internally tries to choose an optimal value, typically so as to included all data given in the plot.
+#' **`plotmin`**, **`plotmax`**: The software draws some probability plots for each variate, after learning from the data with the \code{\link{learn}} function. `plotmin` and `plotmax` give the plotting range in these plots. They might be necessary because, for instance, although the minimum variate value is 0 and the maximum is 90, the variability of the data and the range of interest in the inference problem is between 20 and 40; these would then be the values of `plotmin` and `plotmax`. Possible values are real numbers, with `plotmin` strictly less than `plotmax`; one or both may be empty values. In case of an empty value, the software internally tries to choose an optimal value, typically so as to include all data given in the plot.
 #'
-#'
-#' @section Necessity of metadata:
+#' @section Rounded continuous variates:
 #'
 #' To be written.
-#'
-#' @param data A dataset, given as a \code{\link[base]{data.frame}}
-#' or as a file path to a csv file.
-#' @param file String: name of csv file where the metadata should be saved;
-#'   if `NULL`: output metadata as `VALUE`.
-#' @param includevrt Character or `NULL`: name of variates in dataset to be included.
-#' @param excludevrt Character or `NULL`: name of variates in dataset to be excluded.
-#' @param addsummary2metadata Logical: also output some diagnostic statistics
-#'    in the metadata? Default `FALSE`.
-#' @param backupfiles Logical: rename previous metadata file if it exists?
-#' Default `TRUE`.
-#' @param verbose Logical: output heuristics for each variate? Default `TRUE`.
-#'
-#' @return If `file = NULL`, a preliminary metadata file is created
-#'   and `VALUE` is `NULL`;
-#'   otherwise `VALUE` is a \code{\link[base]{data.frame}} containing the metadata.
 #'
 #' @aliases metadata buildmetadata
 #'

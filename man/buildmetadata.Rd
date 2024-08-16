@@ -40,9 +40,14 @@ and \code{VALUE} is \code{NULL};
 otherwise \code{VALUE} is a \code{\link[base]{data.frame}} containing the metadata.
 }
 \description{
-Details about metadata, metadata file and object, and utility function to build a metadata file or object.
+Metadata and utility function to build a template metadata file or object.
 }
 \details{
+The \code{\link{learn}} function needs metadata about the variates present in the data. Such metadata can be provided either as a \code{csv} file or as a \code{\link[base]{data.frame}}. The function \code{buildmetadata} creates a template metadata csv-file, or outputs a metadata data.frame, by trying to guess metadata information from the dataset. Tthe user can then modify and correct this template, using it as a starting point to prepare the correct metadata information.
+}
+\section{Metadata information and format}{
+
+
 In order to correctly learn from a dataset, the \code{\link{learn}} function needs information that is not contained in the data themeselves; that is, it needs \emph{meta}data. Metadata are provided either as a \code{csv} file or as a \code{\link[base]{data.frame}}.
 
 A metadata file or data.frame must contain one row for each simple variate in the given inference problem, and the following fields (columns), even if some of them may be empty:
@@ -54,7 +59,7 @@ with possibly additional \code{V}-fields, sequentially numbered, and possibly th
 The \code{type} field has three possible values: \code{nominal}, \code{ordinal}, \code{continuous}. The remaining fields that must be filled in depend on the \code{type} field. Here is a list of requirements:
 \itemize{
 \item \strong{\code{nominal}} and \strong{\code{ordinal}}: require \emph{either} \code{V1}, \code{V2}, ... fields \emph{or} \code{domainmin}, \code{domainmax}, \code{datastep} (all three) fields. No other fields are required, but \code{plotmin} and \code{plotmax} can optionally be specified.
-\item \strong{\code{continuous}}: requires \code{domainmin}, \code{domainmax}, \code{datastep}, \code{minincluded}, \code{maxincluded}.
+\item \strong{\code{continuous}}: requires \code{domainmin}, \code{domainmax}, \code{datastep}, \code{minincluded}, \code{maxincluded}, and optionally \code{plotmin} and \code{plotmax}.
 }
 
 Here are the meanings and possible values of the fields:
@@ -74,11 +79,12 @@ Here are the meanings and possible values of the fields:
 
 \strong{\code{datastep}}: The minimum distance between the values of a variate (ordinal or continuous). Possible values are a positive real number, or \code{0}, or an empty value, which is then interpreted as \code{0}. For a numeric ordinal variate, \code{datastep} is the step between consecutive values. For a continuous \emph{rounded} variate, \code{datastep} is the minimum distance between different values that occurs because of rounding; see the examples given above. The function \code{buildmetadata} has some heuristics to determine whether the variate is rounded or not. See further details under the section Rounding below.
 
-\strong{\code{minincluded}}, **\verb{maxincluded**}: Whether the minimum (\code{domainmin}) and maximum(\code{domainmax}) values of a \emph{continuous} variate can really appear in the data or not. Possible values are \code{TRUE}, \code{FALSE}, or an empty value, which is then interpreted as \code{FALSE}. Here are some examples about the meaning of these fields. (a) A continuous \emph{unrounded} variate such as temperature has 0 as a minimum possible value \code{domainmin}, but this value itself can never appear in data; in this case \code{minincluded} is set to \code{FALSE}.(b) A variate related to the \emph{unrounded} length, in metres, of some objects may take on any positive real value; but suppose that all objects of length 5 or less are grouped together under the value \verb{5 or less}. It is then possible for several datapoints to have value \code{5}: one such datapoint could originally have the value 3.782341...; another the value 4.929673..., and so on. In this case \code{domainmin} is set to \code{5}, and \code{minincluded} is set to \code{TRUE}. Similarly for the maximum value of a variate and \code{maxincluded}. Note that if \code{domainmin} is \code{-Inf}, then \code{minincluded} is automatically set to \code{FALSE}, and similarly if \code{domainmax} is \code{+Inf}.
+\strong{\code{minincluded}}, \strong{\code{maxincluded}}: Whether the minimum (\code{domainmin}) and maximum(\code{domainmax}) values of a \emph{continuous} variate can really appear in the data or not. Possible values are \code{TRUE}, \code{FALSE}, or an empty value, which is then interpreted as \code{FALSE}. Here are some examples about the meaning of these fields. (a) A continuous \emph{unrounded} variate such as temperature has 0 as a minimum possible value \code{domainmin}, but this value itself is physically impossible and can never appear in data; in this case \code{minincluded} is set to \code{FALSE}. (b) A variate related to the \emph{unrounded} length, in metres, of some objects may take on any positive real value; but suppose that all objects of length 5 or less are grouped together under the value \code{5}. It is then possible for several datapoints to have value \code{5}: one such datapoint could originally have the value 3.782341...; another the value 4.929673..., and so on. In this case \code{domainmin} is set to \code{5}, and \code{minincluded} is set to \code{TRUE}. Similarly for the maximum value of a variate and \code{maxincluded}. Note that if \code{domainmin} is \code{-Inf}, then \code{minincluded} is automatically set to \code{FALSE}, and similarly for \code{maxincluded} if \code{domainmax} is \code{+Inf}.
 
-\strong{\code{plotmin}}, \strong{\code{plotmax}}: The software draws some probability plots for each variate, after learning from the data with the \code{\link{learn}} function. \code{plotmin} and \code{plotmax} give the plotting range in these plots. They might be necessary because, for instance, although the minimum variate value is 0 and the maximum is 90, the variability of the data and the range of interest in the inference problem is between 20 and 40; these would then be the values of \code{plotmin} and \code{plotmax}. Possible values are real numbers, with \code{plotmin} strictly less than \code{plotmax}; one or both may be empty values. In case of an empty value, the software internally tries to choose an optimal value, typically so as to included all data given in the plot.
+\strong{\code{plotmin}}, \strong{\code{plotmax}}: The software draws some probability plots for each variate, after learning from the data with the \code{\link{learn}} function. \code{plotmin} and \code{plotmax} give the plotting range in these plots. They might be necessary because, for instance, although the minimum variate value is 0 and the maximum is 90, the variability of the data and the range of interest in the inference problem is between 20 and 40; these would then be the values of \code{plotmin} and \code{plotmax}. Possible values are real numbers, with \code{plotmin} strictly less than \code{plotmax}; one or both may be empty values. In case of an empty value, the software internally tries to choose an optimal value, typically so as to include all data given in the plot.
 }
-\section{Necessity of metadata}{
+
+\section{Rounded continuous variates}{
 
 
 To be written.
