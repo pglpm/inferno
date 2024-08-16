@@ -45,21 +45,42 @@ Details about metadata, metadata file and object, and utility function to build 
 \details{
 In order to correctly learn from a dataset, the \code{\link{learn}} function needs information that is not contained in the data themeselves; that is, it needs \emph{meta}data. Metadata are provided either as a \code{csv} file or as a \code{\link[base]{data.frame}}.
 
-A metadata file must contain the following fields, even if some of them may be empty:
+A metadata file or data.frame must contain one row for each simple variate in the given inference problem, and the following fields (columns), even if some of them may be empty:
 
-\code{name}, \code{type}, \code{Nvalues}, \code{datastep}, \code{domainmin}, \code{domainmax}, \code{minincluded}, \code{maxinluded}, \code{plotmin}, \code{plotmax}, \code{V1}, \code{V2}, ...
+\code{name}, \code{type}, \code{domainmin}, \code{domainmax}, \code{datastep}, \code{minincluded}, \code{maxinluded}, \code{V1}, \code{V2}, ...
 
-with possibly additional \code{V}-fields, sequentially numbered.
+with possibly additional \code{V}-fields, sequentially numbered, and possibly the two fields \code{plotmin} and \code{plotmax}.
 
-The \code{type} field has four possible values:
+The \code{type} field has three possible values: \code{nominal}, \code{ordinal}, \code{continuous}. The remaining fields that must be filled in depend on the \code{type} field. Here is a list of requirements:
+\itemize{
+\item \strong{\code{nominal}} and \strong{\code{ordinal}}: require \emph{either} \code{V1}, \code{V2}, ... fields \emph{or} \code{domainmin}, \code{domainmax}, \code{datastep} (all three) fields. No other fields are required, but \code{plotmin} and \code{plotmax} can optionally be specified.
+\item \strong{\code{continuous}}: requires \code{domainmin}, \code{domainmax}, \code{datastep}, \code{minincluded}, \code{maxincluded}.
+}
 
-\code{binary}, \code{nominal}, \code{ordinal}, \code{continuous}
+Here are the meanings and possible values of the fields:
 
-Which fields cannot be empty depend on the \code{type} field. Here is a list of require
+\strong{\code{name}}: The name of the variate. This must be the same character string as it appears in the dataset (be careful about upper- and lower-case).
+
+\strong{\code{type}}: The data type of variate \code{name}. Possible values are \code{nominal}, \code{ordinal}, \code{continuous}.
+\itemize{
+\item A \emph{nominal} (also called \emph{categorical}) variate has a discrete, finite number of possible values which have no intrinsic ordering. Examples could be a variate related to colour, with values "red", "green", "blue", and so on; or a variate related to cat breeds, with values "Siamese", "Abyssinian", "Persian", and so on. The possible valuesof the variate must be given in the fields \code{V1}, \code{V2}, and so on. It is important to include values that are possible but are \emph{not} present in the dataset. A variate having only two possible values (binary variate), for example "yes" and "no", can be specified as nominal.
+\item An \emph{ordinal} variate has a discrete, finite number of possible values which do have an intrinsic ordering. Examples could be a Likert-scaled variate for the results of a survey, with values "very dissatisfied", "dissatisfied", "satisfied", "very satisfied"; or a variate related to the levels of some quantities, with values "low", "medium", "high"; or a variate having a numeric scale with values from 1 to 10. Whether a variate is nominal or ordinal often depends on the context. The possible values of the variate but be given in either one (but not both) or two ways: (1) in the fields \code{V1}, \code{V2}, ..., as for nominal variates; (2) as the fields \code{domainmin}, \code{domainmax}, \code{datastep}. Option (2) only works with numeric, equally spaced values: it assumes that the first value is \code{domainmin}, the second is \code{domainmin}+\code{datastep}, the third is \code{domainmin}+2*\code{datastep}, and so on up to the last value, \code{domainmax}.
+\item A \emph{continuous} variate has a continuum of values with an intrinsic ordering. Examples could be a variate related to the width of an object; or to the age of a person; or one coordinate of an object in a particular reference system. A continuous variate requires specification of the fields \code{domainmin}, \code{domainmax}, \code{datastep}, \code{minincluded}, \code{maxincluded}, \code{plotmin}, \code{plotmax}. Some naturally continuous variates are often rounded to a given precision; for instance, the age of a person might be reported as rounded to the nearest year (25 years, 26 years, and so on); or the length of an object might be reported to the nearest centimetre (1 m, 1.01 m, 1.02 m, and so on). The minimum distance between such rounded values \strong{must} be reported in the \code{datastep} field; this would be \code{1} in the age example and \code{0.01} in the length example above. See below for further explanation of why reporting such rounding is important.
+}
+
+\strong{\code{domainmin}}: The minimum value that the variate (ordinal or continuous) can take on. Possible values are a real number, or \code{-Inf}, or an empty value, which is then interpreted as \code{-Inf}. Some continuous variates, like age or distance or temperature, are naturally positive, and therefore have \code{domainmin} equal \code{0}. But in other contexts the minimum value could be different. For instance, if a given inference problem only involves people of age 18 or more, then \code{domainmin} would be set to \code{18}.
+
+\strong{\code{domainmax}}: The maximum value that the variate (ordinal or continuous) can take on. Possible values are a real number, or \code{+Inf}, or an empty value, which is then interpreted as \code{+Inf}. As with \code{domainmin}, the maximum value depends on the context. An age-related variate could theoretically have \code{domainmax} equal to \code{+Inf}; but if a given study categorizes some people as "90 years old or older", then \code{domainmax} should be set to \code{90}.
+
+\strong{\code{datastep}}: The minimum distance between the values of a variate (ordinal or continuous). Possible values are a positive real number, or \code{0}, or an empty value, which is then interpreted as \code{0}. For a numeric ordinal variate, \code{datastep} is the step between consecutive values. For a continuous \emph{rounded} variate, \code{datastep} is the minimum distance between different values that occurs because of rounding; see the examples given above. The function \code{buildmetadata} has some heuristics to determine whether the variate is rounded or not. See further details under the section Rounding below.
+
+\strong{\code{minincluded}}, **\verb{maxincluded**}: Whether the minimum (\code{domainmin}) and maximum(\code{domainmax}) values of a \emph{continuous} variate can really appear in the data or not. Possible values are \code{TRUE}, \code{FALSE}, or an empty value, which is then interpreted as \code{FALSE}. Here are some examples about the meaning of these fields. (a) A continuous \emph{unrounded} variate such as temperature has 0 as a minimum possible value \code{domainmin}, but this value itself can never appear in data; in this case \code{minincluded} is set to \code{FALSE}.(b) A variate related to the \emph{unrounded} length, in metres, of some objects may take on any positive real value; but suppose that all objects of length 5 or less are grouped together under the value \verb{5 or less}. It is then possible for several datapoints to have value \code{5}: one such datapoint could originally have the value 3.782341...; another the value 4.929673..., and so on. In this case \code{domainmin} is set to \code{5}, and \code{minincluded} is set to \code{TRUE}. Similarly for the maximum value of a variate and \code{maxincluded}. Note that if \code{domainmin} is \code{-Inf}, then \code{minincluded} is automatically set to \code{FALSE}, and similarly if \code{domainmax} is \code{+Inf}.
+
+\strong{\code{plotmin}}, \strong{\code{plotmax}}: The software draws some probability plots for each variate, after learning from the data with the \code{\link{learn}} function. \code{plotmin} and \code{plotmax} give the plotting range in these plots. They might be necessary because, for instance, although the minimum variate value is 0 and the maximum is 90, the variability of the data and the range of interest in the inference problem is between 20 and 40; these would then be the values of \code{plotmin} and \code{plotmax}. Possible values are real numbers, with \code{plotmin} strictly less than \code{plotmax}; one or both may be empty values. In case of an empty value, the software internally tries to choose an optimal value, typically so as to included all data given in the plot.
 }
 \section{Necessity of metadata}{
 
 
-This is a test
+To be written.
 }
 
