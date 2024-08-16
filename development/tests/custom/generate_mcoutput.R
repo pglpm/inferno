@@ -41,11 +41,11 @@ auxmetadata <- data.frame(
     V3 = c(NA, 'C')
 )
 ##
-testmcoutput <- list(
+testagent <- list(
     Bprob = Bprob,
     Nprob = Nprob,
     W = W,
     auxmetadata = auxmetadata)
 ##
-saveRDS(testmcoutput, '/home/pglpm/repositories/bayes_nonparametric_inference/development/tests/BN_functdependence/Fdistribution.rds')
+saveRDS(testagent, '/home/pglpm/repositories/bayes_nonparametric_inference/development/tests/BN_functdependence/agent.rds')
 

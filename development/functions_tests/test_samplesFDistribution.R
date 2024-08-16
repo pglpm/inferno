@@ -4,7 +4,7 @@
 
 #### custom – test time use of util_lprob.R
 dataset <- read.csv('/home/pglpm/repositories/bayes_nonparametric_inference/development/tests/custom/dataset_custom30.csv', na.strings='')
-mcoutput <- readRDS('/home/pglpm/repositories/bayes_nonparametric_inference/development/tests/custom/_newdeletepackagetest-vrt10_dat30_smp120/Fdistribution.rds')
+agent <- readRDS('/home/pglpm/repositories/bayes_nonparametric_inference/development/tests/custom/_newdeletepackagetest-vrt10_dat30_smp120/agent.rds')
 ##
 source('util_vtransform.R', local=T)
 source('samplesFDistribution.R', local=T)
@@ -16,7 +16,7 @@ system.time(
         samplesFDistribution(
             Y=dataset[i,j,drop=F],
             X=NULL,
-            mcoutput = mcoutput, jacobian = T, silent=T, parallel=1)
+            agent = agent, jacobian = T, silent=T, parallel=1)
     })})
 )
 
@@ -25,7 +25,7 @@ system.time(
         samplesFDistribution2(
             Y=dataset[i,j,drop=F],
             X=NULL,
-            mcoutput = mcoutput, jacobian = T, silent=T, parallel=1)
+            agent = agent, jacobian = T, silent=T, parallel=1)
     })})
 )
 
@@ -38,7 +38,7 @@ max(abs(2*(out0-out2)/(out0+out2)))
 
 #### custom
 dataset <- read.csv('/home/pglpm/repositories/bayes_nonparametric_inference/development/tests/custom/dataset_custom30.csv', na.strings='')
-mcoutput <- readRDS('/home/pglpm/repositories/bayes_nonparametric_inference/development/tests/custom/_newdeletepackagetest-vrt10_dat30_smp120/Fdistribution.rds')
+agent <- readRDS('/home/pglpm/repositories/bayes_nonparametric_inference/development/tests/custom/_newdeletepackagetest-vrt10_dat30_smp120/agent.rds')
 ##
 source('util_vtransform.R', local=T)
 source('samplesFDistribution.R', local=T)
@@ -48,17 +48,17 @@ out <- sapply(1:ncol(dataset), function(j){ sapply(1:nrow(dataset), function(i){
     v0 <- samplesFDistribution(
         Y=dataset[i,j,drop=F],
         X=NULL,
-        mcoutput = mcoutput, jacobian = T, silent=T, parallel=4)
+        agent = agent, jacobian = T, silent=T, parallel=4)
     ##
     v1 <- testSFD(
         Y=dataset[i,j,drop=F],
         X=NULL,
-        mcoutput = mcoutput, jacobian = T, reduceprobx = T)
+        agent = agent, jacobian = T, reduceprobx = T)
     ##
     max(abs((v1-v0)/(v1+v0)*2))
     })
 })
-colnames(out) <- mcoutput$auxmetadata$mcmctype
+colnames(out) <- agent$auxmetadata$mcmctype
 apply(abs(out),2,max)
 max(abs(out))
 
@@ -67,15 +67,15 @@ max(abs(out))
 source('util_vtransform.R', local=T)
 source('samplesFDistribution.R', local=T)
 dataset <- read.csv('/home/pglpm/repositories/parkinsonbayes/data/nadpark/toydata.csv', na.strings='')[,-1]
-mcoutput <- readRDS('/home/pglpm/repositories/parkinsonbayes/data/nadpark/_testtoy_analysis_2_3A4-1-vrt7_dat30_smp1024/Fdistribution.rds')
+agent <- readRDS('/home/pglpm/repositories/parkinsonbayes/data/nadpark/_testtoy_analysis_2_3A4-1-vrt7_dat30_smp1024/agent.rds')
 out <- t(sapply(1:5, function(ipoint){
     sapply(1:ncol(dataset), function(i){
-        v0 <- samplesFDistribution(Y=dataset[ipoint,i,drop=F], X=NULL, mcoutput = mcoutput, jacobian = T, silent=T)
-        v1 <- testSFD(Y=dataset[ipoint,i,drop=F], X=NULL, mcoutput = mcoutput)
+        v0 <- samplesFDistribution(Y=dataset[ipoint,i,drop=F], X=NULL, agent = agent, jacobian = T, silent=T)
+        v1 <- testSFD(Y=dataset[ipoint,i,drop=F], X=NULL, agent = agent)
         max(abs((v1-v0)/(v1+v0)*2))
     })
 }))
-colnames(out) <- mcoutput$auxmetadata$name
+colnames(out) <- agent$auxmetadata$name
 out
 max(abs(out))
 
@@ -89,7 +89,7 @@ dataset <- data.frame(
     B1 = c('yes','yes','no','no','yes'),
     N1 = c('A','C','A','C','B')
 )
-mcoutput <- readRDS('/home/pglpm/repositories/bayes_nonparametric_inference/development/tests/BN_functdependence/Fdistribution.rds')
+agent <- readRDS('/home/pglpm/repositories/bayes_nonparametric_inference/development/tests/BN_functdependence/agent.rds')
 ##
 source('util_vtransform.R', local=T)
 source('samplesFDistribution.R', local=T)
@@ -98,7 +98,7 @@ source('../development/functions_tests/testSFD.R')
 out <- samplesFDistribution(
         Y=dataset[,'B1',drop=F],
         X=NULL,
-        mcoutput = mcoutput, jacobian = T, silent=T, parallel=4)
+        agent = agent, jacobian = T, silent=T, parallel=4)
 out
 rowMeans(out)
 
@@ -106,34 +106,34 @@ rowMeans(out)
 out <- samplesFDistribution(
         Y=dataset[,'N1',drop=F],
         X=NULL,
-        mcoutput = mcoutput, jacobian = T, silent=T, parallel=4)
+        agent = agent, jacobian = T, silent=T, parallel=4)
 out
 rowMeans(out)
 
 samplesFDistribution(
         Y=dataset[,'N1',drop=F],
         X=dataset[,'B1',drop=F],
-        mcoutput = mcoutput, jacobian = T, silent=T, parallel=4)
+        agent = agent, jacobian = T, silent=T, parallel=4)
 
 samplesFDistribution(
         Y=dataset[,'B1',drop=F],
         X=dataset[,'N1',drop=F],
-        mcoutput = mcoutput, jacobian = T, silent=T, parallel=4)
+        agent = agent, jacobian = T, silent=T, parallel=4)
 
 samplesFDistribution(
         Y=cbind(B1='yes'),
         X=cbind(N1=LETTERS[1:3]),
-        mcoutput = mcoutput, jacobian = T, silent=T, parallel=4)
+        agent = agent, jacobian = T, silent=T, parallel=4)
 
 samplesFDistribution(
         Y=cbind(N1=LETTERS[1:3]),
         X=cbind(B1='yes'),
-        mcoutput = mcoutput, jacobian = T, silent=T, parallel=4)
+        agent = agent, jacobian = T, silent=T, parallel=4)
 
 samplesFDistribution(
         Y=cbind(N1=LETTERS[1:3]),
         X=cbind(B1='no'),
-        mcoutput = mcoutput, jacobian = T, silent=T, parallel=4)
+        agent = agent, jacobian = T, silent=T, parallel=4)
 
 
 
@@ -141,17 +141,17 @@ out <- sapply(1:ncol(dataset), function(j){ sapply(1:nrow(dataset), function(i){
     v0 <- samplesFDistribution(
         Y=dataset[i,j,drop=F],
         X=NULL,
-        mcoutput = mcoutput, jacobian = T, silent=T, parallel=4)
+        agent = agent, jacobian = T, silent=T, parallel=4)
     ##
     v1 <- testSFD(
         Y=dataset[i,j,drop=F],
         X=NULL,
-        mcoutput = mcoutput, jacobian = T, reduceprobx = T)
+        agent = agent, jacobian = T, reduceprobx = T)
     ##
     max(abs((v1-v0)/(v1+v0)*2))
     })
 })
-colnames(out) <- mcoutput$auxmetadata$mcmctype
+colnames(out) <- agent$auxmetadata$mcmctype
 apply(abs(out),2,max)
 max(abs(out))
 
@@ -163,10 +163,10 @@ max(abs(out))
 
 #### custom - test new samplesFDistribution
 dataset <- read.csv('/home/pglpm/repositories/bayes_nonparametric_inference/development/tests/custom/dataset_custom150.csv', na.strings='')
-mcoutput <- readRDS('/home/pglpm/repositories/bayes_nonparametric_inference/development/tests/custom/_newdeletepackagetest-vrt10_dat30_smp120/Fdistribution.rds')
+agent <- readRDS('/home/pglpm/repositories/bayes_nonparametric_inference/development/tests/custom/_newdeletepackagetest-vrt10_dat30_smp120/agent.rds')
 ##
 
-library('modelfreeinference')
+library('predict')
 
 nY <- sample(1:(ncol(dataset)-1), 1)
 Ys <- sample(colnames(dataset), nY)
@@ -183,7 +183,7 @@ out <- sapply(1:length(iY), function(i){
     samplesFDistribution(
         Y=dataset[iY[i],Ys,drop=F],
         X=dataset[iX[i],Xs,drop=F],
-        mcoutput = mcoutput, jacobian = T, silent=T, parallel=1)
+        agent = agent, jacobian = T, silent=T, parallel=1)
 })
 )
 
@@ -192,7 +192,7 @@ out2 <- sapply(1:length(iY), function(i){
     samplesFDistribution2(
         Y=dataset[iY[i],Ys,drop=F],
         X=dataset[iX[i],Xs,drop=F],
-        mcoutput = mcoutput, jacobian = T, silent=T, parallel=1)
+        agent = agent, jacobian = T, silent=T, parallel=1)
 })
 )
 
@@ -204,7 +204,7 @@ max(abs(2*(out-out2)/(out+out2)))
 
 #### custom
 dataset <- read.csv('/home/pglpm/repositories/bayes_nonparametric_inference/development/test_custom/datanew_test_custom_30.csv', na.strings='')
-mcoutput <- readRDS('/home/pglpm/repositories/bayes_nonparametric_inference/development/test_custom/_newdeletepackagetest-vrt10_dat30_smp120/Fdistribution.rds')
+agent <- readRDS('/home/pglpm/repositories/bayes_nonparametric_inference/development/test_custom/_newdeletepackagetest-vrt10_dat30_smp120/agent.rds')
 jac <- T
 ##
 nY <- sample(1:(ncol(dataset)-1), 1)
@@ -221,24 +221,24 @@ out <- sapply(1:length(iY), function(i){
     v0 <- samplesFDistribution(
         Y=dataset[iY[i],Ys,drop=F],
         X=dataset[iX[i],Xs,drop=F],
-        mcoutput = mcoutput, jacobian = T, silent=T, parallel=1)
+        agent = agent, jacobian = T, silent=T, parallel=1)
     ##
     v1 <- testSFD(
         Y=dataset[iY[i],Ys,drop=F],
         X=dataset[iX[i],Xs,drop=F],
-        mcoutput = mcoutput, jacobian = T)
+        agent = agent, jacobian = T)
     ##
     max(abs((v1-v0)/(v1+v0)*2))
 })
-mcoutput$auxmetadata$mcmctype[mcoutput$auxmetadata$name %in% Ys]
-mcoutput$auxmetadata$mcmctype[mcoutput$auxmetadata$name %in% Xs]
+agent$auxmetadata$mcmctype[agent$auxmetadata$name %in% Ys]
+agent$auxmetadata$mcmctype[agent$auxmetadata$name %in% Xs]
 max(abs(out))
 
 
 #### mtcars
 data(mtcars)
 dataset <- mtcars
-mcoutput <- readRDS('/home/pglpm/repositories/bayes_nonparametric_inference/development/tests/mtcars/_newD_test_mtcars-3-vrt11_dat32_smp512/Fdistribution.rds')
+agent <- readRDS('/home/pglpm/repositories/bayes_nonparametric_inference/development/tests/mtcars/_newD_test_mtcars-3-vrt11_dat32_smp512/agent.rds')
 jac <- T
 ##
 nY <- sample(1:(ncol(dataset)-1), 1)
@@ -255,25 +255,25 @@ out <- sapply(1:length(iY), function(i){
     v0 <- samplesFDistribution(
         Y=dataset[iY[i],Ys,drop=F],
         X=dataset[iX[i],Xs,drop=F],
-        mcoutput = mcoutput, jacobian = jac, silent=T, parallel=4)
+        agent = agent, jacobian = jac, silent=T, parallel=4)
     ##
     v1 <- testSFD(
         Y=dataset[iY[i],Ys,drop=F],
         X=dataset[iX[i],Xs,drop=F],
-        mcoutput = mcoutput, jacobian = jac)
+        agent = agent, jacobian = jac)
     ##
     max(abs((v1-v0)/(v1+v0)*2))
 })
-mcoutput$auxmetadata$mcmctype[mcoutput$auxmetadata$name %in% Ys]
-mcoutput$auxmetadata$mcmctype[mcoutput$auxmetadata$name %in% Xs]
+agent$auxmetadata$mcmctype[agent$auxmetadata$name %in% Ys]
+agent$auxmetadata$mcmctype[agent$auxmetadata$name %in% Xs]
 max(abs(out))
 
 
 dataset <- mtcars
-mcoutput <- readRDS('/home/pglpm/repositories/bayes_nonparametric_inference/development/tests/mtcars/_newD_test_mtcars-3-vrt11_dat32_smp512/Fdistribution.rds')
+agent <- readRDS('/home/pglpm/repositories/bayes_nonparametric_inference/development/tests/mtcars/_newD_test_mtcars-3-vrt11_dat32_smp512/agent.rds')
 
 
-library('modelfreeinference')
+library('predict')
 
 nY <- sample(1:(ncol(dataset)-1), 1)
 Ys <- sample(colnames(dataset), nY)
@@ -290,7 +290,7 @@ out <- sapply(1:length(iY), function(i){
     samplesFDistribution(
         Y=dataset[iY[i],Ys,drop=F],
         X=dataset[iX[i],Xs,drop=F],
-        mcoutput = mcoutput, jacobian = T, silent=T, parallel=1)
+        agent = agent, jacobian = T, silent=T, parallel=1)
 })
 )
 
@@ -299,7 +299,7 @@ out2 <- sapply(1:length(iY), function(i){
     samplesFDistribution2(
         Y=dataset[iY[i],Ys,drop=F],
         X=dataset[iX[i],Xs,drop=F],
-        mcoutput = mcoutput, jacobian = T, silent=T, parallel=1)
+        agent = agent, jacobian = T, silent=T, parallel=1)
 })
 )
 
@@ -310,7 +310,7 @@ max(abs(2*(out-out2)/(out+out2)))
 
 #### nadpark
 dataset <- read.csv('/home/pglpm/repositories/parkinsonbayes/data/nadpark/toydata.csv', na.strings='')[,-1]
-mcoutput <- readRDS('/home/pglpm/repositories/parkinsonbayes/data/nadpark/_testtoy_analysis_2_3A4-1-vrt7_dat30_smp1024/Fdistribution.rds')
+agent <- readRDS('/home/pglpm/repositories/parkinsonbayes/data/nadpark/_testtoy_analysis_2_3A4-1-vrt7_dat30_smp1024/agent.rds')
 jac <- T
 ##
 nY <- sample(1:(ncol(dataset)-1), 1)
@@ -327,17 +327,17 @@ out <- sapply(1:length(iY), function(i){
     v0 <- samplesFDistribution(
         Y=dataset[iY[i],Ys,drop=F],
         X=dataset[iX[i],Xs,drop=F],
-        mcoutput = mcoutput, jacobian = jac, silent=T, parallel=4)
+        agent = agent, jacobian = jac, silent=T, parallel=4)
     ##
     v1 <- testSFD(
         Y=dataset[iY[i],Ys,drop=F],
         X=dataset[iX[i],Xs,drop=F],
-        mcoutput = mcoutput, jacobian = jac)
+        agent = agent, jacobian = jac)
     ##
     max(abs((v1-v0)/(v1+v0)*2))
 })
-mcoutput$auxmetadata$mcmctype[mcoutput$auxmetadata$name %in% Ys]
-mcoutput$auxmetadata$mcmctype[mcoutput$auxmetadata$name %in% Xs]
+agent$auxmetadata$mcmctype[agent$auxmetadata$name %in% Ys]
+agent$auxmetadata$mcmctype[agent$auxmetadata$name %in% Xs]
 max(abs(out))
 
 

@@ -6,7 +6,7 @@
 \usage{
 plotFsamples(
   file,
-  mcoutput,
+  agent,
   data,
   plotprobability = TRUE,
   plotvariability = "samples",
@@ -20,7 +20,7 @@ plotFsamples(
 \arguments{
 \item{file}{string: name of plot output file}
 
-\item{mcoutput}{Either a string with the name of a directory or full
+\item{agent}{Either a string with the name of a directory or full
 path for a 'FDistribution.rds' object, or such an object itself}
 
 \item{data}{data.table object or filepath: datapoints}

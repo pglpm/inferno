@@ -1,6 +1,6 @@
-#### Eliminate samples from an mcoutput object
-mcsubset <- function(mcoutput, subsamples) {
-    lapply(mcoutput, function(xx) {
+#### Eliminate samples from an agent object
+mcsubset <- function(agent, subsamples) {
+    lapply(agent, function(xx) {
         do.call('[', c(
             list(xx),
             rep(TRUE, length(dim(xx)) - 1),

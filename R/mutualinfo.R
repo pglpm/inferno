@@ -4,7 +4,7 @@
 #' @param Y2names String vector or NULL: second group of joint variates
 #' @param X matrix or data.frame or NULL: values of some variates conditional on
 #'   which we want the probabilities
-#' @param mcoutput Either a string with the name of a directory or full path
+#' @param agent Either a string with the name of a directory or full path
 #'   for a 'FDistribution.rds' object, or such an object itself
 #' @param nsamples numeric: number of samples from which to approximately
 #'   calculate the mutual information. Default 3600
@@ -23,7 +23,7 @@ mutualinfo <- function(
     Y1names,
     Y2names,
     X = NULL,
-    mcoutput,
+    agent,
     nsamples = 3600,
     unit = 'Sh',
     parallel = TRUE,
@@ -133,30 +133,30 @@ mutualinfo <- function(
     }
 
     ## Extract Monte Carlo output & aux-metadata
-    ## If mcoutput is a string, check if it's a folder name or file name
-    if (is.character(mcoutput)) {
-        ## Check if 'mcoutput' is a folder containing Fdistribution.rds
-        if (file_test('-d', mcoutput) &&
-                file.exists(file.path(mcoutput, 'Fdistribution.rds'))) {
-            mcoutput <- readRDS(file.path(mcoutput, 'Fdistribution.rds'))
+    ## If agent is a string, check if it's a folder name or file name
+    if (is.character(agent)) {
+        ## Check if 'agent' is a folder containing agent.rds
+        if (file_test('-d', agent) &&
+                file.exists(file.path(agent, 'agent.rds'))) {
+            agent <- readRDS(file.path(agent, 'agent.rds'))
         } else {
-            ## Assume 'mcoutput' the full path of Fdistributions.rds
+            ## Assume 'agent' the full path of agent.rds
             ## possibly without the file extension '.rds'
-            mcoutput <- paste0(sub('.rds$', '', mcoutput), '.rds')
-            if (file.exists(mcoutput)) {
-                mcoutput <- readRDS(mcoutput)
+            agent <- paste0(sub('.rds$', '', agent), '.rds')
+            if (file.exists(agent)) {
+                agent <- readRDS(agent)
             } else {
-                stop("The argument 'mcoutput' must be a folder containing Fdistribution.rds, or the path to an rds-file containing the output from 'inferpopulation'.")
+                stop("The argument 'agent' must be a folder containing agent.rds, or the path to an rds-file containing the output from 'learn()'.")
             }
         }
     }
-    ## Add check to see that mcoutput is correct type of object?
-    auxmetadata <- mcoutput$auxmetadata
-    mcoutput$auxmetadata <- NULL
-    mcoutput$auxinfo <- NULL
+    ## Add check to see that agent is correct type of object?
+    auxmetadata <- agent$auxmetadata
+    agent$auxmetadata <- NULL
+    agent$auxinfo <- NULL
 
-    nMCsamples <- ncol(mcoutput$W)
-    ncomponents <- nrow(mcoutput$W)
+    nMCsamples <- ncol(agent$W)
+    ncomponents <- nrow(agent$W)
 
     ## Consistency checks
     if (unit == 'Sh') {
@@ -254,7 +254,7 @@ mutualinfo <- function(
     XiR <- XiR[XtR]
     XnR <- length(XiR)
     if (Y1nR > 0 || Y2nR > 0 || XnR > 0) {
-        mcoutput$Rvar <- sqrt(mcoutput$Rvar)
+        agent$Rvar <- sqrt(agent$Rvar)
     }
     ##
     YiR <- match(vnames, Ynames)
@@ -279,7 +279,7 @@ mutualinfo <- function(
     XiC <- XiC[XtC]
     XnC <- length(XiC)
     if (Y1nC > 0 || Y2nC > 0 || XnC > 0) {
-        mcoutput$Cvar <- sqrt(mcoutput$Cvar)
+        agent$Cvar <- sqrt(agent$Cvar)
         Clefts <- auxmetadata[match(vnames, auxmetadata$name), 'tleftbound']
         Crights <- auxmetadata[match(vnames, auxmetadata$name), 'trightbound']
     }
@@ -306,7 +306,7 @@ mutualinfo <- function(
     XiD <- XiD[XtD]
     XnD <- length(XiD)
     if (Y1nD > 0 || Y2nD > 0 || XnD > 0) {
-        mcoutput$Dvar <- sqrt(mcoutput$Dvar)
+        agent$Dvar <- sqrt(agent$Dvar)
         Dsteps <- auxmetadata[match(vnames, auxmetadata$name), 'halfstep'] /
             auxmetadata[match(vnames, auxmetadata$name), 'tscale']
         Dlefts <- auxmetadata[match(vnames, auxmetadata$name), 'tleftbound']
@@ -387,7 +387,7 @@ mutualinfo <- function(
 
 #### STEP 0. Adjust component weights W for conditioning on X
     if(is.null(X)){
-        lW <- log(mcoutput$W)
+        lW <- log(agent$W)
     } else {
         x <- t(as.matrix(vtransform(X, auxmetadata = auxmetadata,
             Rout = 'normalized',
@@ -397,10 +397,10 @@ mutualinfo <- function(
             Nout = 'numeric',
             Bout = 'numeric')))
         ##
-        lW <- log(mcoutput$W) +
+        lW <- log(agent$W) +
                     util_lprob(
                         x = x,
-                        mcoutput = mcoutput,
+                        agent = agent,
                         nR = XnR, iR = XiR, tR = XtR,
                         nC = XnC, iC = XiC, tC = XtC,
                         Clefts = Clefts, Crights = Crights,
@@ -430,38 +430,38 @@ mutualinfo <- function(
     (if(YnR > 0){# continuous
         totake <- cbind(rep(YtR,each=n), Ws, sseq)
         rnorm(n=n*YnR,
-            mean=mcoutput$Rmean[totake],
-            sd=mcoutput$Rvar[totake]
+            mean=agent$Rmean[totake],
+            sd=agent$Rvar[totake]
         )
     }else{NULL}),
     (if(YnC > 0){# censored
         totake <- cbind(rep(YtC,each=n), Ws, sseq)
         rnorm(n=n*YnC,
-            mean=mcoutput$Cmean[totake],
-            sd=mcoutput$Cvar[totake]
+            mean=agent$Cmean[totake],
+            sd=agent$Cvar[totake]
         )
     }else{NULL}),
     (if(YnD > 0){# continuous discretized
         totake <- cbind(rep(YtD,each=n), Ws, sseq)
         rnorm(n=n*YnD,
-            mean=mcoutput$Dmean[totake],
-            sd=mcoutput$Dvar[totake]
+            mean=agent$Dmean[totake],
+            sd=agent$Dvar[totake]
         )
     }else{NULL}),
     (if(YnO > 0){# nominal
         totake <- cbind(rep(YtO,each=n), Ws, sseq)
         extraDistr::rcat(n=n*YnO,
-            prob=apply(mcoutput$Oprob,3,`[`,totake))
+            prob=apply(agent$Oprob,3,`[`,totake))
     }else{NULL}),
     (if(YnN > 0){# nominal
         totake <- cbind(rep(YtN,each=n), Ws, sseq)
         extraDistr::rcat(n=n*YnN,
-            prob=apply(mcoutput$Nprob,3,`[`,totake))
+            prob=apply(agent$Nprob,3,`[`,totake))
     }else{NULL}),
     (if(YnB > 0){# binary
         totake <- cbind(rep(YtB,each=n), Ws, sseq)
         extraDistr::rbern(n=n*YnB,
-            prob=mcoutput$Bprob[totake])
+            prob=agent$Bprob[totake])
     }else{NULL})
     )
 
@@ -502,7 +502,7 @@ mutualinfo <- function(
             } else {
                 lprobY2 <- util_lprob(
                         x = y2,
-                        mcoutput = mcoutput,
+                        agent = agent,
                         nR = Y2nR, iR = Y2iR, tR = Y2tR,
                         nC = Y2nC, iC = Y2iC, tC = Y2tC,
                         Clefts = Clefts, Crights = Crights,
@@ -518,7 +518,7 @@ mutualinfo <- function(
 ### lprobY1
             lprobY1 <- util_lprob(
                         x = y1,
-                        mcoutput = mcoutput,
+                        agent = agent,
                         nR = Y1nR, iR = Y1iR, tR = Y1tR,
                         nC = Y1nC, iC = Y1iC, tC = Y1tC,
                         Clefts = Clefts, Crights = Crights,

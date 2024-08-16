@@ -1,4 +1,4 @@
-name,type,Nvalues,gapwidth,domainmin,domainmax,minincluded,maxincluded,plotmin,plotmax,V1,V2,V3
+name,type,Nvalues,datastep,domainmin,domainmax,minincluded,maxincluded,plotmin,plotmax,V1,V2,V3
 Sepal.Length,continuous,Inf,0.1,0,Inf,FALSE,FALSE,3.6,8.6,,,
 Sepal.Width,continuous,Inf,0.1,0,Inf,FALSE,FALSE,1.7,4.7,,,
 Petal.Length,continuous,Inf,0.1,0,Inf,FALSE,FALSE,0.5,8.7,,,

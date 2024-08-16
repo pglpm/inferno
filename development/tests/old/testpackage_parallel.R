@@ -5,7 +5,7 @@ if(basename(startdir) != 'tests'){
   cat('\nAre you in the correct folder?\n')
 }
 
-library('modelfreeinference')
+library('predict')
 
 refdir <- 'reference_seed16-vrt9_dat15_smp120'
 
@@ -31,11 +31,11 @@ currenttestdir <- inferpopulation(data = 'testdata_15.csv',
 stopCluster(mycluster)
 
 
-#### Test whether Fdistribution output is identical
-cat('\nVerifying equality of "Fdistribution.rds" (TRUE = passed):\n')
+#### Test whether agent output is identical
+cat('\nVerifying equality of "agent.rds" (TRUE = passed):\n')
 print(identical(
-  readRDS(file.path(currenttestdir,'Fdistribution.rds')),
-  readRDS(file.path(refdir,'Fdistribution.rds'))
+  readRDS(file.path(currenttestdir,'agent.rds')),
+  readRDS(file.path(refdir,'agent.rds'))
 ))
 
 #### Test whether MCtraces output is identical

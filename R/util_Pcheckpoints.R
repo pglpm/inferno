@@ -1,16 +1,16 @@
-#' Calculate joint frequencies for checkpoints in inferpopulation()
+#' Calculate joint frequencies for checkpoints in learn()
 #'
 #' @param Y matrix or data.table: values of some already-transformed
 #'   variates of which we want the joint probability; one variate per column
-#' @param mcsamples object internal to `inferpopulation()`,
+#' @param mcsamples object internal to `learn()`,
 #'   containing partial Monte Carlo draws
-#' @param auxmetadata object internal to `inferpopulation()`,
+#' @param auxmetadata object internal to `learn()`,
 #'   containing processed metadata information
 #'
 #' @return The joint frequencies of Y correspoinding to the Monte Carlo samples
 #'
 #' @import foreach
-Pcheckpoints <- function(
+util_Pcheckpoints <- function(
     Y,
     mcsamples,
     auxmetadata
@@ -92,7 +92,7 @@ Pcheckpoints <- function(
         } else {
                 lprobY <- util_lprob(
                         x = y,
-                        mcoutput = mcsamples,
+                        agent = mcsamples,
                         nR = YnR, iR = YiR, tR = YtR,
                         nC = YnC, iC = YiC, tC = YtC,
                         Clefts = Clefts, Crights = Crights,

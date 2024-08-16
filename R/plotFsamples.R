@@ -1,7 +1,7 @@
 #' Plot one-dimensional posterior probabilities
 #'
 #' @param file string: name of plot output file
-#' @param mcoutput Either a string with the name of a directory or full
+#' @param agent Either a string with the name of a directory or full
 #'   path for a 'FDistribution.rds' object, or such an object itself
 #' @param data data.table object or filepath: datapoints
 #' @param plotprobability logical: plot the resulting probability curve
@@ -23,7 +23,7 @@
 #' @export
 plotFsamples <- function(
     file,
-    mcoutput,
+    agent,
     data,
     plotprobability = TRUE,
     plotvariability = 'samples',
@@ -37,27 +37,27 @@ plotFsamples <- function(
     fontfamily <- 'Palatino'
 
     ## Extract Monte Carlo output & auxmetadata
-    ## If mcoutput is a string, check if it's a folder name or file name
-    if (is.character(mcoutput)) {
-        ## Check if 'mcoutput' is a folder containing Fdistribution.rds
-        if (file_test('-d', mcoutput) &&
-                file.exists(file.path(mcoutput, 'Fdistribution.rds'))) {
-            mcoutput <- readRDS(file.path(mcoutput, 'Fdistribution.rds'))
+    ## If agent is a string, check if it's a folder name or file name
+    if (is.character(agent)) {
+        ## Check if 'agent' is a folder containing agent.rds
+        if (file_test('-d', agent) &&
+                file.exists(file.path(agent, 'agent.rds'))) {
+            agent <- readRDS(file.path(agent, 'agent.rds'))
         } else {
-            ## Assume 'mcoutput' the full path of Fdistributions.rds
+            ## Assume 'agent' the full path of agent.rds
             ## possibly without the file extension '.rds'
-            mcoutput <- paste0(sub('.rds$', '', mcoutput), '.rds')
-            if (file.exists(mcoutput)) {
-                mcoutput <- readRDS(mcoutput)
+            agent <- paste0(sub('.rds$', '', agent), '.rds')
+            if (file.exists(agent)) {
+                agent <- readRDS(agent)
             } else {
-                stop('The argument "mcoutput" must be a folder containing Fdistribution.rds, or the path to an rds-file containing the output from "inferpopulation".')
+                stop('The argument "agent" must be a folder containing agent.rds, or the path to an rds-file containing the output from "learn".')
             }
         }
     }
 
-    auxmetadata <- mcoutput$auxmetadata
-    ## mcoutput$auxmetadata <- NULL
-    nsamples <- ncol(mcoutput$W)
+    auxmetadata <- agent$auxmetadata
+    ## agent$auxmetadata <- NULL
+    nsamples <- ncol(agent$W)
 
     nodata <- missing(data) || is.null(data) || (is.logical(data) && !data)
     if (datahistogram && nodata) {
@@ -121,7 +121,7 @@ plotFsamples <- function(
                 colnames(Xgrid) <- name
 
                 plotsamples <- samplesFDistribution(Y = Xgrid, X = NULL,
-                    mcoutput = mcoutput,
+                    agent = agent,
                     subsamples = mcsubsamples,
                     jacobian = TRUE,
                     parallel = parallel,
@@ -235,7 +235,7 @@ plotFsamples <- function(
                 xin <- Xgrid > leftbound & Xgrid < rightbound
 
                 plotsamples <- samplesFDistribution(Y = Xgrid, X = NULL,
-                    mcoutput = mcoutput,
+                    agent = agent,
                     subsamples = mcsubsamples,
                     jacobian = TRUE,
                     parallel = parallel,
@@ -420,7 +420,7 @@ plotFsamples <- function(
                     Xticks <- Xgrid
 
                     plotsamples <- samplesFDistribution(Y = rownames(Xgrid), X = NULL,
-                        mcoutput = mcoutput,
+                        agent = agent,
                         subsamples = mcsubsamples,
                         jacobian = TRUE,
                         parallel = parallel,
@@ -433,7 +433,7 @@ plotFsamples <- function(
                     Xticks <- NULL
 
                     plotsamples <- samplesFDistribution(Y = Xgrid, X = NULL,
-                        mcoutput = mcoutput,
+                        agent = agent,
                         subsamples = mcsubsamples,
                         jacobian = TRUE,
                         parallel = parallel,

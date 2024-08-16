@@ -80,7 +80,7 @@ testdata <- data.frame(Rvrt=Rdata,
     N2vrt=N2data)
 for(i in 1:ncol(testdata)){testdata[i+1,i] <- NA}
 
-## modelfreeinference::buildmetadata(testdata,file='metadata_test_custom.csv')
+## predict::buildmetadata(testdata,file='metadata_test_custom.csv')
 
 for(ndata in c(30,150,500)){
     write.csv(testdata[1:ndata,,drop=F],

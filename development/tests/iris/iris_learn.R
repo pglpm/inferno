@@ -1,11 +1,11 @@
 ## devtools::install()
-library('modelfreeinference')
+library('predict')
 
 data('iris')
 
 seed <- 1000
 
-outputdir <- inferpopulation(
+outputdir <- learn(
     data = iris,
     metadata = 'iris_metadata.csv',
     outputdir = '_newD2_test_iris-1',

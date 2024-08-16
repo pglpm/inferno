@@ -1,6 +1,6 @@
-Package: modelfreeinference
-Title: Bayesian non-parametric exchangeable inference
-Version: 0.0.1
+Package: predict
+Title: Bayesian nonparametric exchangeable inference - model-free uncertainty-quantified prediction
+Version: 0.2.1
 Authors@R: c(
   person("PierGianLuca", "Porta Mana", ,
   "pgl@portamana.org", role = c("aut", "cre"),
@@ -9,7 +9,7 @@ Authors@R: c(
   "Aurora.Singstad.Grefsrud@hvl.no", role = c("aut"),
   comment = c(ORCID = "0009-0005-9063-4131"))
   )
-Description: Offers several functions for Bayesian nonparametric density/population/exchangeable inference, including Monte Carlo calculation of posterior densities.
+Description: Offers several functions for Bayesian nonparametric density/population/exchangeable inference, including Monte Carlo calculation of posterior densities; from a machine-learning perspective, it offers a model-free, uncertainty-quantified predction algorithm.
 License: GPL (>= 3)
 Encoding: UTF-8
 Roxygen: list(markdown = TRUE)

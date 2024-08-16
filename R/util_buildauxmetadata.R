@@ -61,7 +61,7 @@ buildauxmetadata <- function(data, metadata, Dthreshold = 1) {
         tleftbound <- NA
         rightbound <- NA
         trightbound <- NA
-        halfstep <- minfo$gapwidth / 2
+        halfstep <- minfo$datastep / 2
         Nvalues <- minfo$Nvalues
         plotmin <- minfo$plotmin
         plotmax <- minfo$plotmax
@@ -144,7 +144,7 @@ buildauxmetadata <- function(data, metadata, Dthreshold = 1) {
             if(nvaluelist == 0 && !is.na(Nvalues) && !is.na(halfstep) &&
                Nvalues != 1 + (domainmax - domainmin) / (2 * halfstep)) {
                 message('WARNING variate "',name,
-                    '": discrepancy between "Nvalues" and "gapwidth".',
+                    '": discrepancy between "Nvalues" and "datastep".',
                     '\nCorrecting "Nvalues".')
                 Nvalues <- 1 + (domainmax - domainmin) / (2 * halfstep)
             }
@@ -188,7 +188,7 @@ buildauxmetadata <- function(data, metadata, Dthreshold = 1) {
                 idD <- idD + 1L
                 transf <- 'identity'
                 if(!is.null(data)) {
-                    ## set the location to the nearest centre of gapwidth interval
+                    ## set the location to the nearest centre of datastep interval
                     tempvalue <- unname(quantile(x, 0.5, type = 6))
                     tlocation <- x[which.min(abs(x - tempvalue))]
                     tlocation <- tlocation +
@@ -236,10 +236,10 @@ buildauxmetadata <- function(data, metadata, Dthreshold = 1) {
         } else if (minfo$type == 'continuous') { # continuous variate (R,C,D)
             Nvalues <- +Inf
             ## Rounded variates
-            if (is.null(minfo$gapwidth) || is.na(minfo$gapwidth)) {
+            if (is.null(minfo$datastep) || is.na(minfo$datastep)) {
                 halfstep <- 0
             } else {
-                halfstep <- minfo$gapwidth / 2
+                halfstep <- minfo$datastep / 2
             }
             ## If the variate is rounded,
             ## we avoid a  latent-variable representation
@@ -259,7 +259,7 @@ buildauxmetadata <- function(data, metadata, Dthreshold = 1) {
                 ##
                 transf <- 'identity'
                 if(!is.null(data)) {
-                    ## set the location to the nearest centre of gapwidth interval
+                    ## set the location to the nearest centre of datastep interval
                     tempvalue <- unname(quantile(x, 0.5, type = 6))
                     tlocation <- x[which.min(abs(x - tempvalue))]
                     tlocation <- tlocation +

@@ -1,7 +1,7 @@
 BootStrap: docker
 From: r-base
 
-# Image for running the tests in modelfreeinference
+# Image for running the tests in predict
 
 %environment
 	export R_LIBS_USER=~/R-packages
@@ -27,7 +27,7 @@ From: r-base
     mkdir ~/R-packages
     echo $R_LIBS_USER
 	Rscript -e "install.packages(pkgs=Sys.getenv('GITHUB_WORKSPACE'), repos=NULL)"
-	Rscript -e "library("modelfreeinference")"
+	Rscript -e "library("predict")"
 	cd $GITHUB_WORKSPACE && \
 	cd development/tests/CI-example-test && \
 	Rscript test_custom_30.R

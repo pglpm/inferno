@@ -8,7 +8,7 @@ mutualinfo(
   Y1names,
   Y2names,
   X = NULL,
-  mcoutput,
+  agent,
   nsamples = 3600,
   unit = "Sh",
   parallel = TRUE,
@@ -23,7 +23,7 @@ mutualinfo(
 \item{X}{matrix or data.frame or NULL: values of some variates conditional on
 which we want the probabilities}
 
-\item{mcoutput}{Either a string with the name of a directory or full path
+\item{agent}{Either a string with the name of a directory or full path
 for a 'FDistribution.rds' object, or such an object itself}
 
 \item{nsamples}{numeric: number of samples from which to approximately

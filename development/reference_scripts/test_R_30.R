@@ -5,7 +5,7 @@ if(basename(startdir) != 'test_custom'){
     cat('\nAre you in the correct folder?\n')
 }
 
-cat('\nInstalling local package "modelfreeinference" in local library\n\n')
+cat('\nInstalling local package "predict" in local library\n\n')
 
 if(!(Sys.getenv("R_LIBS_USER") %in% .libPaths())) {
     stop('Make sure your local installation directory,\n',
@@ -14,13 +14,13 @@ if(!(Sys.getenv("R_LIBS_USER") %in% .libPaths())) {
 }
 
 devtools::install()
-library('modelfreeinference')
+library('predict')
 
 seed <- 16
 
 outputdirPrefix <- file.path('_oneVpackagetest')
 
-currenttestdir <- inferpopulation(data = 'data_test_custom_30.csv',
+currenttestdir <- learn(data = 'data_test_custom_30.csv',
     metadata = 'metadata_test_R.csv',
     outputdir = outputdirPrefix,
     output = 'directory',

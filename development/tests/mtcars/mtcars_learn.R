@@ -1,16 +1,16 @@
 ## devtools::install()
-library('modelfreeinference')
+library('predict')
 
 data(mtcars)
 
 seed <- 1000
 
-outputdir <- inferpopulation(
+outputdir <- learn(
     data = mtcars,
     metadata = 'mtcars_metadata.csv',
-    outputdir = '_newPcheck_test_mtcars-1',
+    outputdir = 'mtcars_output',
     output = 'directory',
-    appendtimestamp = F,
+    appendtimestamp = TRUE,
     appendinfo = TRUE,
     nsamples = 512,
     nchains = 4,

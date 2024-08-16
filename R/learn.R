@@ -24,7 +24,7 @@
 #' @param appendinfo Logical: append information about dataset and Monte Carlo
 #'   parameters to the name of the output directory `outputdir`? Default `TRUE`.
 #' @param output Character: if `'directory'`, return the output directory name
-#'   as `VALUE`; if string `'mcoutput'`, return the `'Fdistribution'` object
+#'   as `VALUE`; if string `'agent'`, return the `'agent'` object
 #'   containing the parameters obtained from the Monte Carlo computation.
 #'   Any other value: `VALUE` is `NULL`.
 #' @param subsampledata Integer: use only a subset of this many datapoints for
@@ -54,13 +54,13 @@
 #'   of the Alpha parameter? Default `FALSE`.
 #' @param hyperparams List: hyperparameters of the prior.
 #'
-#' @return Name of directory containing output files, or Fdistribution object,
+#' @return Name of directory containing output files, or agent object,
 #'   or `NULL`, depending on argument `output`.
 #'
 #' @import parallel foreach doParallel doRNG nimble
 #'
 #' @export
-inferpopulation <- function(
+learn <- function(
     data,
     metadata,
     auxdata = NULL,
@@ -896,7 +896,7 @@ inferpopulation <- function(
     chaininfo <- foreach(acore = 1:ncores,
         .combine = rbind,
         .inorder = FALSE,
-        ##.packages = c('modelfreeinference'),
+        ##.packages = c('predict'),
         .noexport = c('data')
     ) %dochains% {
 
@@ -1632,7 +1632,7 @@ inferpopulation <- function(
                 diagntime <- Sys.time()
                 ##
                 ll <- cbind(
-                    Pcheckpoints(
+                    util_Pcheckpoints(
                         Y = testdata,
                         mcsamples = mcsamples,
                         auxmetadata = auxmetadata
@@ -2038,7 +2038,7 @@ inferpopulation <- function(
         list(auxmetadata = auxmetadata,
             auxinfo = list(nchains = nchains)) ),
         file = file.path(dirname,
-            paste0('Fdistribution', dashnameroot, '.rds')
+            paste0('agent', dashnameroot, '.rds')
         ))
 
     cat('\rFinished Monte Carlo sampling.                                 \n')
@@ -2071,7 +2071,7 @@ inferpopulation <- function(
     cat('\nChecking test data\n(', paste0('#', rownames(testdata)), ')\n')
 
     traces <- cbind(
-        Pcheckpoints(
+        util_Pcheckpoints(
             Y = testdata,
             mcsamples = mcsamples,
             auxmetadata = auxmetadata
@@ -2148,8 +2148,8 @@ inferpopulation <- function(
     ## cat('Plotting marginal samples.\n')
     plotFsamples(
         file = file.path(dirname,
-            paste0('plotsamples_Fdistribution', dashnameroot)),
-        mcoutput = c(mcsamples, list(auxmetadata = auxmetadata)),
+            paste0('plotsamples_agent', dashnameroot)),
+        agent = c(mcsamples, list(auxmetadata = auxmetadata)),
         data = data,
         plotvariability = 'samples',
         nFsamples = showsamples, plotprobability = TRUE,
@@ -2160,8 +2160,8 @@ inferpopulation <- function(
     ## cat('Plotting marginal samples with quantiles.\n')
     plotFsamples(
         file = file.path(dirname,
-            paste0('plotquantiles_Fdistribution', dashnameroot)),
-        mcoutput = c(mcsamples, list(auxmetadata = auxmetadata)),
+            paste0('plotquantiles_agent', dashnameroot)),
+        agent = c(mcsamples, list(auxmetadata = auxmetadata)),
         data = data,
         plotvariability = 'quantiles',
         nFsamples = plotDisplayedQuantiles, plotprobability = TRUE,
@@ -2202,9 +2202,9 @@ inferpopulation <- function(
     ## What should we output? how about the full name of the output dir?
     if (is.character(output) && output == 'directory') {
         dirname
-    } else if (is.character(output) && output == 'mcoutput') {
+    } else if (is.character(output) && output == 'agent') {
         readRDS(file.path(dirname,
-            paste0('Fdistribution', dashnameroot, '.rds')
+            paste0('agent', dashnameroot, '.rds')
         ))
     }
 }

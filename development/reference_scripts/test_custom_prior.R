@@ -5,7 +5,7 @@ if(basename(startdir) != 'test_custom'){
   cat('\nAre you in the correct folder?\n')
 }
 
-cat('\nInstalling local package "modelfreeinference" in local library\n\n')
+cat('\nInstalling local package "predict" in local library\n\n')
 
 if(!(Sys.getenv("R_LIBS_USER") %in% .libPaths())) {
   stop('Make sure your local installation directory,\n',
@@ -14,14 +14,14 @@ if(!(Sys.getenv("R_LIBS_USER") %in% .libPaths())) {
 }
 
 devtools::load_all()
-## library('modelfreeinference')
+## library('predict')
 
 
 seed <- 16
 
 outputdirPrefix <- file.path('__packagetest')
 
-currenttestdir <- inferpopulation(data = NULL,
+currenttestdir <- learn(data = NULL,
                         metadata = 'metadata_test_custom.csv',
                         outputdir = outputdirPrefix,
                         output = 'directory',
@@ -40,11 +40,11 @@ if(FALSE){
   ## so a comparison with old-version results are not meaningful
 refdir <- 'reference_seed16-vrt9_dat15_smp120'
 
-#### Test whether Fdistribution output is identical
-cat('\nVerifying equality of "Fdistribution.rds" (TRUE = passed):\n')
+#### Test whether agent output is identical
+cat('\nVerifying equality of "agent.rds" (TRUE = passed):\n')
 print(identical(
-  readRDS(file.path(currenttestdir,'Fdistribution.rds')),
-  readRDS(file.path(refdir,'Fdistribution.rds'))
+  readRDS(file.path(currenttestdir,'agent.rds')),
+  readRDS(file.path(refdir,'agent.rds'))
 ))
 
 #### Test whether MCtraces output is identical

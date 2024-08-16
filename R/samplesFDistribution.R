@@ -4,7 +4,7 @@
 #'   the joint probability one variate per column
 #' @param X matrix or data.table: values of some variates conditional on
 #'   which we want the joint probability one variate per column
-#' @param mcoutput Either a string with the name of a directory or full
+#' @param agent Either a string with the name of a directory or full
 #'   path for a 'FDistribution.rds' object, or such an object itself
 #' @param subsamples numeric: number of Monte Carlo samples to use
 #' @param jacobian include the Jacobian in the output probability
@@ -23,7 +23,7 @@
 samplesFDistribution <- function(
     Y,
     X,
-    mcoutput,
+    agent,
     subsamples,
     jacobian = TRUE,
     fn = NULL,
@@ -99,27 +99,27 @@ samplesFDistribution <- function(
     }
 
     ## Extract Monte Carlo output & auxmetadata
-    ## If mcoutput is a string, check if it's a folder name or file name
-    if (is.character(mcoutput)) {
-        ## Check if 'mcoutput' is a folder containing Fdistribution.rds
-        if (file_test('-d', mcoutput) &&
-                file.exists(file.path(mcoutput, 'Fdistribution.rds'))) {
-            mcoutput <- readRDS(file.path(mcoutput, 'Fdistribution.rds'))
+    ## If agent is a string, check if it's a folder name or file name
+    if (is.character(agent)) {
+        ## Check if 'agent' is a folder containing agent.rds
+        if (file_test('-d', agent) &&
+                file.exists(file.path(agent, 'agent.rds'))) {
+            agent <- readRDS(file.path(agent, 'agent.rds'))
         } else {
-            ## Assume 'mcoutput' the full path of Fdistributions.rds
+            ## Assume 'agent' the full path of agent.rds
             ## possibly without the file extension '.rds'
-            mcoutput <- paste0(sub('.rds$', '', mcoutput), '.rds')
-            if (file.exists(mcoutput)) {
-                mcoutput <- readRDS(mcoutput)
+            agent <- paste0(sub('.rds$', '', agent), '.rds')
+            if (file.exists(agent)) {
+                agent <- readRDS(agent)
             } else {
-                stop('The argument "mcoutput" must be a folder containing Fdistribution.rds, or the path to an rds-file containing the output from "inferpopulation".')
+                stop('The argument "agent" must be a folder containing agent.rds, or the path to an rds-file containing the output from "learn()".')
             }
         }
     }
-    ## Add check to see that mcoutput is correct type of object?
-    auxmetadata <- mcoutput$auxmetadata
-    mcoutput$auxmetadata <- NULL
-    mcoutput$auxinfo <- NULL
+    ## Add check to see that agent is correct type of object?
+    auxmetadata <- agent$auxmetadata
+    agent$auxmetadata <- NULL
+    agent$auxinfo <- NULL
 
     ## Consistency checks
     if (length(dim(Y)) != 2) {
@@ -163,11 +163,11 @@ samplesFDistribution <- function(
             (is.numeric(subsamples) || (is.character(subsamples)
                 && length(subsamples) == 1))) {
         if (is.character(subsamples)) {
-            subsamples <- round(seq(1, ncol(mcoutput$W),
+            subsamples <- round(seq(1, ncol(agent$W),
                 length.out = as.numeric(subsamples)
             ))
         }
-        mcoutput <- mcsubset(mcoutput, subsamples)
+        agent <- mcsubset(agent, subsamples)
     }
 
 
@@ -187,7 +187,7 @@ samplesFDistribution <- function(
     YiR <- YiR[YtR]
     YnR <- length(YiR)
     if (YnR > 0 || XnR > 0) {
-        mcoutput$Rvar <- sqrt(mcoutput$Rvar)
+        agent$Rvar <- sqrt(agent$Rvar)
     }
 
 #### Type C
@@ -202,7 +202,7 @@ samplesFDistribution <- function(
     YiC <- YiC[YtC]
     YnC <- length(YiC)
     if (YnC > 0 || XnC > 0) {
-        mcoutput$Cvar <- sqrt(mcoutput$Cvar)
+        agent$Cvar <- sqrt(agent$Cvar)
         Clefts <- auxmetadata[match(vnames, auxmetadata$name), 'tleftbound']
         Crights <- auxmetadata[match(vnames, auxmetadata$name), 'trightbound']
     }
@@ -219,7 +219,7 @@ samplesFDistribution <- function(
     YiD <- YiD[YtD]
     YnD <- length(YiD)
     if (YnD > 0 || XnD > 0) {
-        mcoutput$Dvar <- sqrt(mcoutput$Dvar)
+        agent$Dvar <- sqrt(agent$Dvar)
         Dsteps <- auxmetadata[match(vnames, auxmetadata$name), 'halfstep'] /
             auxmetadata[match(vnames, auxmetadata$name), 'tscale']
         Dlefts <- auxmetadata[match(vnames, auxmetadata$name), 'tleftbound']
@@ -310,13 +310,13 @@ samplesFDistribution <- function(
 #### the loop is over the columns of y and x
 #### each instance is a 1-column vector
             if (all(is.na(x))) {
-                lprobX <- log(mcoutput$W)
+                lprobX <- log(agent$W)
             } else {
                 ## rows: components, cols: samples
-                lprobX <- log(mcoutput$W) +
+                lprobX <- log(agent$W) +
                     util_lprob(
                         x = x,
-                        mcoutput = mcoutput,
+                        agent = agent,
                         nR = XnR, iR = XiR, tR = XtR,
                         nC = XnC, iC = XiC, tC = XtC,
                         Clefts = Clefts, Crights = Crights,
@@ -330,11 +330,11 @@ samplesFDistribution <- function(
             ##
             ##
             if (all(is.na(y))) {
-                lprobY <- array(NA, dim = dim(mcoutput$W))
+                lprobY <- array(NA, dim = dim(agent$W))
             } else {
                 lprobY <- util_lprob(
                         x = y,
-                        mcoutput = mcoutput,
+                        agent = agent,
                         nR = YnR, iR = YiR, tR = YtR,
                         nC = YnC, iC = YiC, tC = YtC,
                         Clefts = Clefts, Crights = Crights,

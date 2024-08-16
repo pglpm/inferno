@@ -1,5 +1,5 @@
 #### Unfinished
-generateVariates <- function(n=1, Yvrt, X=NULL, mcoutput, combine='rbind', useLquantiles=TRUE, parallel=TRUE, silent=FALSE){
+generateVariates <- function(n=1, Yvrt, X=NULL, agent, combine='rbind', useLquantiles=TRUE, parallel=TRUE, silent=FALSE){
 
   if (!silent) {
     cat('\n')
@@ -55,29 +55,29 @@ generateVariates <- function(n=1, Yvrt, X=NULL, mcoutput, combine='rbind', useLq
   }
 
   ## Extract Monte Carlo output & aux-metadata
-  ## If mcoutput is a string, check if it's a folder name or file name
-  if (is.character(mcoutput)) {
-                                        # Check if 'mcoutput' is a folder containing Fdistribution.rds
-    if (file_test('-d', mcoutput) &&
-        file.exists(file.path(mcoutput, 'Fdistribution.rds'))) {
-      mcoutput <- readRDS(file.path(mcoutput, 'Fdistribution.rds'))
+  ## If agent is a string, check if it's a folder name or file name
+  if (is.character(agent)) {
+                                        # Check if 'agent' is a folder containing agent.rds
+    if (file_test('-d', agent) &&
+        file.exists(file.path(agent, 'agent.rds'))) {
+      agent <- readRDS(file.path(agent, 'agent.rds'))
     } else {
-      ## Assume 'mcoutput' the full path of Fdistributions.rds
+      ## Assume 'agent' the full path of agent.rds
       ## possibly without the file extension '.rds'
-      mcoutput <- paste0(sub('.rds$', '', mcoutput), '.rds')
-      if (file.exists(mcoutput)) {
-        mcoutput <- readRDS(mcoutput)
+      agent <- paste0(sub('.rds$', '', agent), '.rds')
+      if (file.exists(agent)) {
+        agent <- readRDS(agent)
       } else {
-        stop("The argument 'mcoutput' must be a folder containing Fdistribution.rds, or the path to an rds-file containing the output from 'inferpopulation'.")
+        stop("The argument 'agent' must be a folder containing agent.rds, or the path to an rds-file containing the output from learn().")
       }
     }
   }
-  ## Add check to see that mcoutput is correct type of object?
-  auxmetadata <- mcoutput$auxmetadata
-  mcoutput$auxmetadata <- NULL
+  ## Add check to see that agent is correct type of object?
+  auxmetadata <- agent$auxmetadata
+  agent$auxmetadata <- NULL
 
-  nsamples <- ncol(mcoutput$W)
-  ncomponents <- nrow(mcoutput$W)
+  nsamples <- ncol(agent$W)
+  ncomponents <- nrow(agent$W)
 
   ## Consistency checks
   if(!is.character(Yvrt) || any(is.na(Yvrt))){
@@ -104,7 +104,7 @@ generateVariates <- function(n=1, Yvrt, X=NULL, mcoutput, combine='rbind', useLq
   }
   subsamples <- c(rep(1:nsamples, n %/% nsamples),
                   sort(sample(1:nsamples, n %% nsamples, replace=F)))
-  mcoutput <- mcsubset(mcoutput, subsamples)
+  agent <- mcsubset(agent, subsamples)
   sseq <- seq_len(n)
 
   ## source('vtransform.R')
@@ -121,7 +121,7 @@ generateVariates <- function(n=1, Yvrt, X=NULL, mcoutput, combine='rbind', useLq
   YiR <- YiR[YtR]
   YnR <- length(YiR)
   if(YnR > 0 || XnR > 0){
-    mcoutput$Rvar <- sqrt(mcoutput$Rvar)
+    agent$Rvar <- sqrt(agent$Rvar)
   }
 
 #### Type C
@@ -136,7 +136,7 @@ generateVariates <- function(n=1, Yvrt, X=NULL, mcoutput, combine='rbind', useLq
   YiC <- YiC[YtC]
   YnC <- length(YiC)
   if(YnC > 0 || XnC > 0){
-    mcoutput$Cvar <- sqrt(mcoutput$Cvar)
+    agent$Cvar <- sqrt(agent$Cvar)
     Cbounds <- cbind(
       c(vtransform(x=matrix(NA,nrow=1,ncol=length(vnames),
                             dimnames=list(NULL,vnames)),
@@ -161,7 +161,7 @@ generateVariates <- function(n=1, Yvrt, X=NULL, mcoutput, combine='rbind', useLq
   YiD <- YiD[YtD]
   YnD <- length(YiD)
   if(YnD > 0 || XnD > 0){
-    mcoutput$Dvar <- sqrt(mcoutput$Dvar)
+    agent$Dvar <- sqrt(agent$Dvar)
     Dbounds <- cbind(
       c(vtransform(x=matrix(NA,nrow=1,ncol=length(vnames),
                             dimnames=list(NULL,vnames)),
@@ -186,7 +186,7 @@ generateVariates <- function(n=1, Yvrt, X=NULL, mcoutput, combine='rbind', useLq
   YiO <- YiO[YtO]
   YnO <- length(YiO)
   if(YnO > 0 || XnO > 0){
-    mcoutput$Ovar <- sqrt(mcoutput$Ovar)
+    agent$Ovar <- sqrt(agent$Ovar)
     ##
     Omaxn <- max(auxmetadata[name %in% vnames, Nvalues])
     Oleft <- t(sapply(vnames, function(avar){
@@ -254,15 +254,15 @@ generateVariates <- function(n=1, Yvrt, X=NULL, mcoutput, combine='rbind', useLq
   out <- foreach(x=t(X2), .combine=rbind, .inorder=TRUE)%dochains%{
 
     if(all(is.na(x))){
-      probX <- mcoutput$W
+      probX <- agent$W
     }else{
       ## rows: components, cols: samples
-      probX <- log(mcoutput$W) +
+      probX <- log(agent$W) +
         (if(XnR > 0){# continuous
            colSums(
              dnorm(x=x[XiR,],
-                   mean=mcoutput$Rmean[XtR,,,drop=FALSE],
-                   sd=mcoutput$Rvar[XtR,,,drop=FALSE],
+                   mean=agent$Rmean[XtR,,,drop=FALSE],
+                   sd=agent$Rvar[XtR,,,drop=FALSE],
                    log=TRUE),
              na.rm=TRUE)
          }else{0}) +
@@ -272,8 +272,8 @@ generateVariates <- function(n=1, Yvrt, X=NULL, mcoutput, combine='rbind', useLq
            (if(length(indf) > 0){
               colSums(
                 dnorm(x=x[XiC[indf],],
-                      mean=mcoutput$Cmean[XtC[indf],,,drop=FALSE],
-                      sd=mcoutput$Cvar[XtC[indf],,,drop=FALSE],
+                      mean=agent$Cmean[XtC[indf],,,drop=FALSE],
+                      sd=agent$Cvar[XtC[indf],,,drop=FALSE],
                       log=TRUE),
                 na.rm=TRUE)
             }else{0}) +
@@ -283,8 +283,8 @@ generateVariates <- function(n=1, Yvrt, X=NULL, mcoutput, combine='rbind', useLq
                 ## for upper tail, take opposite mean and value
                 colSums(
                   pnorm(q=Cbounds[cbind(v2, 1.5-0.5*v1)],
-                        mean=v1*mcoutput$Cmean[v2,,,drop=FALSE],
-                        sd=mcoutput$Cvar[v2,,,drop=FALSE],
+                        mean=v1*agent$Cmean[v2,,,drop=FALSE],
+                        sd=agent$Cvar[v2,,,drop=FALSE],
                         log.p=TRUE),
                   na.rm=TRUE)
               }else{0})
@@ -295,8 +295,8 @@ generateVariates <- function(n=1, Yvrt, X=NULL, mcoutput, combine='rbind', useLq
            (if(length(indf) > 0){
               colSums(
                 dnorm(x=x[XiD[indf],],
-                      mean=mcoutput$Dmean[XtD[indf],,,drop=FALSE],
-                      sd=mcoutput$Dvar[XtD[indf],,,drop=FALSE],
+                      mean=agent$Dmean[XtD[indf],,,drop=FALSE],
+                      sd=agent$Dvar[XtD[indf],,,drop=FALSE],
                       log=TRUE),
                 na.rm=TRUE)
             }else{0}) +
@@ -306,8 +306,8 @@ generateVariates <- function(n=1, Yvrt, X=NULL, mcoutput, combine='rbind', useLq
                 ## for upper tail, take opposite mean and value
                 colSums(
                   pnorm(q=Dbounds[v2, 1.5-0.5*v1],
-                        mean=v1*mcoutput$Dmean[v2,,,drop=FALSE],
-                        sd=mcoutput$Dvar[v2,,,drop=FALSE],
+                        mean=v1*agent$Dmean[v2,,,drop=FALSE],
+                        sd=agent$Dvar[v2,,,drop=FALSE],
                         log.p=TRUE),
                   na.rm=TRUE)
               }else{0})
@@ -317,11 +317,11 @@ generateVariates <- function(n=1, Yvrt, X=NULL, mcoutput, combine='rbind', useLq
            colSums(
              log(
                pnorm(q=Oright[v2],
-                     mean=mcoutput$Omean[XtO,,,drop=FALSE],
-                     sd=mcoutput$Ovar[XtO,,,drop=FALSE]) -
+                     mean=agent$Omean[XtO,,,drop=FALSE],
+                     sd=agent$Ovar[XtO,,,drop=FALSE]) -
                pnorm(q=Oleft[v2],
-                     mean=mcoutput$Omean[XtO,,,drop=FALSE],
-                     sd=mcoutput$Ovar[XtO,,,drop=FALSE])
+                     mean=agent$Omean[XtO,,,drop=FALSE],
+                     sd=agent$Ovar[XtO,,,drop=FALSE])
              ),
              na.rm=TRUE)
          }else{0}) +
@@ -329,18 +329,18 @@ generateVariates <- function(n=1, Yvrt, X=NULL, mcoutput, combine='rbind', useLq
            colSums(
              log( aperm(
                vapply(seq_len(XnN), function(v){
-                 mcoutput$Nprob[XtN[v],,x[XiN[v],],]
-               }, mcoutput$W),
+                 agent$Nprob[XtN[v],,x[XiN[v],],]
+               }, agent$W),
                c(3,1,2)) ),
              na.rm=TRUE)
            ## colSums(
            ##      log(array(
            ##          t(sapply(seq_len(XnN), function(v){
-           ##              mcoutput$Nprob[XtN[v],,x[XiN[v],],]
+           ##              agent$Nprob[XtN[v],,x[XiN[v],],]
            ##          })),
            ##          dim=c(XnN, ncomponents, nsamples))),
            ##      na.rm=TRUE)
-           ## temp <- apply(mcoutput$Nprob, c(2,4), function(xx){
+           ## temp <- apply(agent$Nprob, c(2,4), function(xx){
            ##     xx[cbind(XtN, x[XiN,])]
            ## })
            ## dim(temp) <- c(XnN, ncomponents, nsamples)
@@ -349,8 +349,8 @@ generateVariates <- function(n=1, Yvrt, X=NULL, mcoutput, combine='rbind', useLq
          }else{0}) +
         (if(XnB > 0){# binary
            colSums(
-             log( x[XiB,]*mcoutput$Bprob[XtB,,,drop=FALSE] +
-                  (1L-x[XiB,])*(1-mcoutput$Bprob[XtB,,,drop=FALSE]) ),
+             log( x[XiB,]*agent$Bprob[XtB,,,drop=FALSE] +
+                  (1L-x[XiB,])*(1-agent$Bprob[XtB,,,drop=FALSE]) ),
              na.rm=TRUE)
          }else{0})
     } # end probX
@@ -368,40 +368,40 @@ generateVariates <- function(n=1, Yvrt, X=NULL, mcoutput, combine='rbind', useLq
     (if(YnR > 0){# continuous
        totake <- cbind(rep(YtR,each=n), Ws, sseq)
        rnorm(n=n*YnR,
-             mean=mcoutput$Rmean[totake],
-             sd=mcoutput$Rvar[totake]
+             mean=agent$Rmean[totake],
+             sd=agent$Rvar[totake]
              )
      }else{NULL}),
     (if(YnC > 0){# censored
        totake <- cbind(rep(YtC,each=n), Ws, sseq)
        rnorm(n=n*YnC,
-             mean=mcoutput$Rmean[totake],
-             sd=mcoutput$Rvar[totake]
+             mean=agent$Rmean[totake],
+             sd=agent$Rvar[totake]
              )
      }else{NULL}),
     (if(YnD > 0){# continuous discretized
        totake <- cbind(rep(YtD,each=n), Ws, sseq)
        rnorm(n=n*YnD,
-             mean=mcoutput$Rmean[totake],
-             sd=mcoutput$Rvar[totake]
+             mean=agent$Rmean[totake],
+             sd=agent$Rvar[totake]
              )
      }else{NULL}),
     (if(YnO > 0){# ordinal
        totake <- cbind(rep(YtO,each=n), Ws, sseq)
        rnorm(n=n*YnO,
-             mean=mcoutput$Rmean[totake],
-             sd=mcoutput$Rvar[totake]
+             mean=agent$Rmean[totake],
+             sd=agent$Rvar[totake]
              )
      }else{NULL}),
     (if(YnN > 0){# nominal
        totake <- cbind(rep(YtN,each=n), Ws, sseq)
        extraDistr::rcat(n=n*YnO,
-                        prob=apply(mcoutput$Nprob,3,`[`,totake))
+                        prob=apply(agent$Nprob,3,`[`,totake))
      }else{NULL}),
     (if(YnB > 0){# binary
        totake <- cbind(rep(YtB,each=n), Ws, sseq)
        extraDistr::rbern(n=n*YnO,
-                         prob=mcoutput$Bprob[totake])
+                         prob=agent$Bprob[totake])
      }else{NULL})
     )
     dim(Yout) <- c(n, Yn)

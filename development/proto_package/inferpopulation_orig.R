@@ -975,7 +975,7 @@ inferpopulation <- function(data, auxmetadata, outputdir, nsamples=4096, nsample
     ## attr(mcsamples, 'doRNG_version') <- NULL
     ## ## Remove extra chains
     ## mcsamples <- mcsamples[round(seq(1,nrow(mcsamples),length.out=nsamples)),-(1:3)]
-    saveRDS(mcsamples,file=paste0(dirname,'Fdistribution-',nameroot,'.rds'))
+    saveRDS(mcsamples,file=paste0(dirname,'agent-',nameroot,'.rds'))
 
     joinmc <- function(mc1, mc2){
         mapply(function(xx,yy){
@@ -990,7 +990,7 @@ inferpopulation <- function(data, auxmetadata, outputdir, nsamples=4096, nsample
         readRDS(file=paste0(dirname,'_mcsamplesl-',nameroot,'--',chainnumber,'.rds'))
     }
     
-    saveRDS(mcsamplesl,file=paste0(dirname,'Fdistributionl-',nameroot,'.rds'))
+    saveRDS(mcsamplesl,file=paste0(dirname,'agentl-',nameroot,'.rds'))
 
     ## traces <- mcsamples[round(seq(1,nrow(mcsamples),length.out=nsamples)),1:3]
     ## saveRDS(traces,file=paste0(dirname,'MCtraces-',nameroot,'.rds'))
@@ -1058,7 +1058,7 @@ inferpopulation <- function(data, auxmetadata, outputdir, nsamples=4096, nsample
     }
 
     cat('Plotting marginal samples.\n')
-    plotFsamples(file=paste0(dirname,'plotsamples_Fdistribution-',nameroot),
+    plotFsamples(file=paste0(dirname,'plotsamples_agent-',nameroot),
                  mcsamples=mcsamples, auxmetadata=auxmetadata,
                  data=data,
                  plotuncertainty='samples',
@@ -1069,7 +1069,7 @@ inferpopulation <- function(data, auxmetadata, outputdir, nsamples=4096, nsample
                  )
 
     cat('Plotting marginal samples with quantiles.\n')
-    plotFsamples(file=paste0(dirname,'plotquantiles_Fdistribution-',nameroot),
+    plotFsamples(file=paste0(dirname,'plotquantiles_agent-',nameroot),
                  mcsamples=mcsamples, auxmetadata=auxmetadata,
                  data=data,
                  plotuncertainty='quantiles',

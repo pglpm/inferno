@@ -890,7 +890,7 @@ inferpopulation <- function(data, auxmetadata, outputdir, nsamples=4096, nsample
     attr(mcsamples, 'doRNG_version') <- NULL
     traces <- mcsamples[round(seq(1,nrow(mcsamples),length.out=nsamples)),1:3]
     mcsamples <- mcsamples[round(seq(1,nrow(mcsamples),length.out=nsamples)),-(1:3)]
-    saveRDS(mcsamples,file=paste0(dirname,'Fdistribution-',nameroot,'.rds'))
+    saveRDS(mcsamples,file=paste0(dirname,'agent-',nameroot,'.rds'))
     saveRDS(traces,file=paste0(dirname,'MCtraces-',nameroot,'.rds'))
     cat('\nFinished Monte Carlo sampling.\n')
     gc()
@@ -950,7 +950,7 @@ inferpopulation <- function(data, auxmetadata, outputdir, nsamples=4096, nsample
     }
 
     cat('Plotting marginal samples.\n')
-    plotFsamples(file=paste0(dirname,'plotsamples_Fdistribution-',nameroot),
+    plotFsamples(file=paste0(dirname,'plotsamples_agent-',nameroot),
                  mcsamples=mcsamples, auxmetadata=auxmetadata,
                  data=data,
                  plotuncertainty='samples',
@@ -961,7 +961,7 @@ inferpopulation <- function(data, auxmetadata, outputdir, nsamples=4096, nsample
                  )
 
     cat('Plotting marginal samples with quantiles.\n')
-    plotFsamples(file=paste0(dirname,'plotquantiles_Fdistribution-',nameroot),
+    plotFsamples(file=paste0(dirname,'plotquantiles_agent-',nameroot),
                  mcsamples=mcsamples, auxmetadata=auxmetadata,
                  data=data,
                  plotuncertainty='quantiles',

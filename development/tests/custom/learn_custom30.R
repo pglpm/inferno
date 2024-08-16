@@ -5,7 +5,7 @@ if(basename(startdir) != 'custom'){
     cat('\nAre you in the correct folder?\n')
 }
 
-cat('\nInstalling local package "modelfreeinference" in local library\n\n')
+cat('\nLoading package "predict"\n\n')
 
 if(!(Sys.getenv("R_LIBS_USER") %in% .libPaths())) {
     stop('Make sure your local installation directory,\n',
@@ -14,7 +14,7 @@ if(!(Sys.getenv("R_LIBS_USER") %in% .libPaths())) {
 }
 
 # devtools::install()
-library('modelfreeinference')
+library('predict')
 
 seed <- 16
 
@@ -25,12 +25,12 @@ outputdirPrefix <- file.path('test_custom')
 ## mycluster <- makeCluster(ncores)
 ## registerDoParallel(mycluster)
 
-currenttestdir <- inferpopulation(
+currenttestdir <- learn(
     data = 'dataset_custom30.csv',
     metadata = 'metadata_custom.csv',
     outputdir = outputdirPrefix,
     output = 'directory',
-    appendtimestamp = F,
+    appendtimestamp = TRUE,
     appendinfo = TRUE,
     nsamples = 120,
     nchains = 12,
@@ -52,7 +52,7 @@ mi <- mutualinfo(
     Y1names = c('N2vrt'),
     Y2names = c('Rvrt'),
     X = cbind(Bvrt = 'no'),
-    mcoutput = currenttestdir,
+    agent = currenttestdir,
     nsamples = 3600,
     parallel = 4
 )

@@ -1,4 +1,12 @@
-#' Build a preliminary metadata file from a given dataset
+#' Metadata
+#'
+#' Details about metadata, metadata file and object, and utility function to build a metadata file or object.
+#'
+#' This is a first test
+#'
+#' @section Necessity of metadata:
+#'
+#' This is a test
 #'
 #' @param data A dataset, given as a \code{\link[base]{data.frame}}
 #' or as a file path to a csv file.
@@ -7,14 +15,16 @@
 #' @param includevrt Character or `NULL`: name of variates in dataset to be included.
 #' @param excludevrt Character or `NULL`: name of variates in dataset to be excluded.
 #' @param addsummary2metadata Logical: also output some diagnostic statistics
-#'    in the metadata? Default `FALSE`
+#'    in the metadata? Default `FALSE`.
 #' @param backupfiles Logical: rename previous metadata file if it exists?
-#' Default `TRUE`
+#' Default `TRUE`.
 #' @param verbose Logical: output heuristics for each variate? Default `TRUE`.
 #'
 #' @return If `file = NULL`, a preliminary metadata file is created
 #'   and `VALUE` is `NULL`;
-#'   otherwise `VALUE` is a data.frame containing the metadata.
+#'   otherwise `VALUE` is a \code{\link[base]{data.frame}} containing the metadata.
+#'
+#' @aliases metadata buildmetadata
 #'
 #' @export
 buildmetadata <- function(
@@ -56,7 +66,7 @@ buildmetadata <- function(
         c(list(name = NA,
             type = NA,
             Nvalues = NA,
-            gapwidth = NA,
+            datastep = NA,
             domainmin = NA,
             domainmax = NA,
             minincluded = NA,
@@ -180,7 +190,7 @@ buildmetadata <- function(
             ## Binary variate? (has only two unique values)
             type <- 'binary'
             Nvalues <- 2
-            gapwidth <- NA
+            datastep <- NA
             domainmin <- NA
             domainmax <- NA
             minincluded <- NA
@@ -206,7 +216,7 @@ buildmetadata <- function(
             ## Nominal variate? (non-numeric values)
             type <- 'nominal'
             Nvalues <- uniquex
-            gapwidth <- NA
+            datastep <- NA
             domainmin <- NA
             domainmax <- NA
             minincluded <- NA
@@ -231,7 +241,7 @@ buildmetadata <- function(
             ## Ordinal variate with few numeric values?
             type <- 'ordinal'
             Nvalues <- uniquex
-            gapwidth <- NA
+            datastep <- NA
             domainmin <- NA
             domainmax <- NA
             minincluded <- NA
@@ -267,12 +277,12 @@ buildmetadata <- function(
             ## if the values are spaced by an integer,
             ## no need to use the 'V' fields
             if(jumpquantum == round(jumpquantum)) {
-                gapwidth <- jumpquantum
+                datastep <- jumpquantum
                 domainmin <- datamin
                 domainmax <- datamax
                 datavalues <- NULL
             } else {
-                gapwidth <- NA
+                datastep <- NA
                 domainmin <- NA
                 domainmax <- NA
                 datavalues <- as.character(unx)
@@ -301,7 +311,7 @@ buildmetadata <- function(
             ##     ## Ordinal variate with many numeric values?
             ##     type <- 'ordinal'
             ##     Nvalues <- uniquex
-            ##     gapwidth <- jumpquantum
+            ##     datastep <- jumpquantum
             ##     domainmin <- datamin
             ##     domainmax <- datamax
             ##     minincluded <- NA
@@ -330,7 +340,7 @@ buildmetadata <- function(
             type <- 'continuous'
             Nvalues <- Inf
             ## preliminary values, possibly modified below
-            gapwidth <- NA
+            datastep <- NA
             domainmin <- -Inf # signif(datamax - 3 * rangex, 1)
             domainmax <- +Inf # signif(datamax + 3 * rangex, 1)
 
@@ -361,7 +371,7 @@ buildmetadata <- function(
             }
 
             roundedflag <- FALSE
-#### Consider subcases for gapwidth
+#### Consider subcases for datastep
             ## for rounded variates it doesn't matter whether the boundaries
             ## are included in the domain or not
             if (!(
@@ -374,15 +384,15 @@ buildmetadata <- function(
                 ## between unique values
                 ## hence it might be rounded or integer/ordinal
 
-                ## if(rangex / gapwidth > 256) {
+                ## if(rangex / datastep > 256) {
                 ##   ## The variate seems rounded,
                 ##   ## but no latent-variable representation is needed
                 ##   message('\nNOTE: variate ', name, ' is probably rounded,\n',
                 ##           'but is treated as not rounded ',
                 ##           'owing to its large range of values.\n')
-                ##   gapwidth <- 0
+                ##   datastep <- 0
                 ## } else {
-                gapwidth <- jumpquantum
+                datastep <- jumpquantum
                 minincluded <- maxincluded <- NA
                 ##
                 if(verbose){
@@ -481,7 +491,7 @@ buildmetadata <- function(
                 list(name = name,
                     type = type,
                     Nvalues = Nvalues,
-                    gapwidth = gapwidth,
+                    datastep = datastep,
                     domainmin = domainmin,
                     domainmax = domainmax,
                     minincluded = minincluded,

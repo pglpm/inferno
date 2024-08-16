@@ -3,14 +3,14 @@ source('util_vtransform.R', local=T)
 testSFD <- function(
     Y,
     X,
-    mcoutput,
+    agent,
     reduceprobx = TRUE,
     jacobian = TRUE
 ) {
 
-    auxmetadata <- mcoutput$auxmetadata
+    auxmetadata <- agent$auxmetadata
 
-    probX <- log(mcoutput$W)
+    probX <- log(agent$W)
     if(!all(is.na(X)) && !is.null(X)){
         for(i in 1:ncol(X)){
             auxm <- auxmetadata[auxmetadata$name == colnames(X)[i],]
@@ -22,8 +22,8 @@ testSFD <- function(
 
                 probX <- probX +
                         colSums(dnorm(x=thisx,
-                            mean=mcoutput$Rmean[id,,,drop=F],
-                            sd=sqrt(mcoutput$Rvar[id,,,drop=F]),
+                            mean=agent$Rmean[id,,,drop=F],
+                            sd=sqrt(agent$Rvar[id,,,drop=F]),
                             log=T))
             }
 
@@ -37,16 +37,16 @@ testSFD <- function(
                     (
                         if(thisxo <= auxm$leftbound){
                             pnorm(q=auxm$tleftbound,
-                            mean=mcoutput$Cmean[id,,,drop=F],
-                            sd=sqrt(mcoutput$Cvar[id,,,drop=F]), log.p=T)
+                            mean=agent$Cmean[id,,,drop=F],
+                            sd=sqrt(agent$Cvar[id,,,drop=F]), log.p=T)
                         } else if(thisxo >= auxm$rightbound){
                             pnorm(q= -auxm$trightbound,
-                            mean= -mcoutput$Cmean[id,,,drop=F],
-                            sd= -sqrt(mcoutput$Cvar[id,,,drop=F]), log.p=T)
+                            mean= -agent$Cmean[id,,,drop=F],
+                            sd= -sqrt(agent$Cvar[id,,,drop=F]), log.p=T)
                         } else {
                         dnorm(x=thisx,
-                            mean=mcoutput$Cmean[id,,,drop=F],
-                            sd=sqrt(mcoutput$Cvar[id,,,drop=F]), log=T)
+                            mean=agent$Cmean[id,,,drop=F],
+                            sd=sqrt(agent$Cvar[id,,,drop=F]), log=T)
                         }
                     )
                 )
@@ -63,27 +63,27 @@ testSFD <- function(
                     (
                         if(thisxo + hstep <= auxm$leftbound){
                             pnorm(q=auxm$tleftbound,
-                            mean=mcoutput$Dmean[id,,,drop=F],
-                            sd=sqrt(mcoutput$Dvar[id,,,drop=F]), log.p=T)
+                            mean=agent$Dmean[id,,,drop=F],
+                            sd=sqrt(agent$Dvar[id,,,drop=F]), log.p=T)
                         } else if(thisxo - hstep >= auxm$rightbound){
                             pnorm(q= -auxm$trightbound,
-                            mean= -mcoutput$Dmean[id,,,drop=F],
-                            sd= -sqrt(mcoutput$Dvar[id,,,drop=F]), log.p=T)
+                            mean= -agent$Dmean[id,,,drop=F],
+                            sd= -sqrt(agent$Dvar[id,,,drop=F]), log.p=T)
                         } else if(thisxo + hstep >= auxm$rightbound){
                         pnorm(q= -thisx-hstep/tscale,
-                            mean= -mcoutput$Dmean[id,,,drop=F],
-                            sd= -sqrt(mcoutput$Dvar[id,,,drop=F]), log.p=T)
+                            mean= -agent$Dmean[id,,,drop=F],
+                            sd= -sqrt(agent$Dvar[id,,,drop=F]), log.p=T)
                         } else if(thisxo - hstep <= auxm$leftbound){
                         pnorm(q=thisx+hstep/tscale,
-                            mean=mcoutput$Dmean[id,,,drop=F],
-                            sd=sqrt(mcoutput$Dvar[id,,,drop=F]), log.p=T)
+                            mean=agent$Dmean[id,,,drop=F],
+                            sd=sqrt(agent$Dvar[id,,,drop=F]), log.p=T)
                         } else {
                         log(pnorm(q=thisx+hstep/tscale,
-                            mean=mcoutput$Dmean[id,,,drop=F],
-                            sd=sqrt(mcoutput$Dvar[id,,,drop=F])) -
+                            mean=agent$Dmean[id,,,drop=F],
+                            sd=sqrt(agent$Dvar[id,,,drop=F])) -
                         pnorm(q=thisx-hstep/tscale,
-                            mean=mcoutput$Dmean[id,,,drop=F],
-                            sd=sqrt(mcoutput$Dvar[id,,,drop=F])))
+                            mean=agent$Dmean[id,,,drop=F],
+                            sd=sqrt(agent$Dvar[id,,,drop=F])))
                         }
                     )
                 )
@@ -94,7 +94,7 @@ testSFD <- function(
                     Nout='numeric')))
                 probX <- probX +
                     colSums(log(
-                        mcoutput$Nprob[id,,thisx,,drop=F]
+                        agent$Nprob[id,,thisx,,drop=F]
                     ))[,1,]
             }
 
@@ -103,7 +103,7 @@ testSFD <- function(
                     Oout='numeric')))
                 probX <- probX +
                     colSums(log(
-                        mcoutput$Oprob[id,,thisx,,drop=F]
+                        agent$Oprob[id,,thisx,,drop=F]
                     ))[,1,]
             }
 
@@ -113,7 +113,7 @@ testSFD <- function(
                 probX <- probX +
                     colSums(dbinom(
                         x=thisx,
-                        prob=mcoutput$Bprob[id,,,drop=F],
+                        prob=agent$Bprob[id,,,drop=F],
                         size=1, log=T
                     )
                     )
@@ -134,8 +134,8 @@ testSFD <- function(
 
                 probY <- probY +
                         colSums(dnorm(x=thisx,
-                            mean=mcoutput$Rmean[id,,,drop=F],
-                            sd=sqrt(mcoutput$Rvar[id,,,drop=F]),
+                            mean=agent$Rmean[id,,,drop=F],
+                            sd=sqrt(agent$Rvar[id,,,drop=F]),
                             log=T))
 
                 ljaco <- ljaco +
@@ -153,16 +153,16 @@ testSFD <- function(
                     (
                         if(thisxo <= auxm$leftbound){
                             pnorm(q=auxm$tleftbound,
-                            mean=mcoutput$Cmean[id,,,drop=F],
-                            sd=sqrt(mcoutput$Cvar[id,,,drop=F]), log.p=T)
+                            mean=agent$Cmean[id,,,drop=F],
+                            sd=sqrt(agent$Cvar[id,,,drop=F]), log.p=T)
                         } else if(thisxo >= auxm$rightbound){
                             pnorm(q= -auxm$trightbound,
-                            mean= -mcoutput$Cmean[id,,,drop=F],
-                            sd= -sqrt(mcoutput$Cvar[id,,,drop=F]), log.p=T)
+                            mean= -agent$Cmean[id,,,drop=F],
+                            sd= -sqrt(agent$Cvar[id,,,drop=F]), log.p=T)
                         } else {
                         dnorm(x=thisx,
-                            mean=mcoutput$Cmean[id,,,drop=F],
-                            sd=sqrt(mcoutput$Cvar[id,,,drop=F]), log=T)
+                            mean=agent$Cmean[id,,,drop=F],
+                            sd=sqrt(agent$Cvar[id,,,drop=F]), log=T)
                         }
                     )
                 )
@@ -188,27 +188,27 @@ testSFD <- function(
                     (
                         if(thisxo + hstep <= auxm$leftbound){
                             pnorm(q=auxm$tleftbound,
-                            mean=mcoutput$Dmean[id,,,drop=F],
-                            sd=sqrt(mcoutput$Dvar[id,,,drop=F]), log.p=T)
+                            mean=agent$Dmean[id,,,drop=F],
+                            sd=sqrt(agent$Dvar[id,,,drop=F]), log.p=T)
                         } else if(thisxo - hstep >= auxm$rightbound){
                             pnorm(q= -auxm$trightbound,
-                            mean= -mcoutput$Dmean[id,,,drop=F],
-                            sd= -sqrt(mcoutput$Dvar[id,,,drop=F]), log.p=T)
+                            mean= -agent$Dmean[id,,,drop=F],
+                            sd= -sqrt(agent$Dvar[id,,,drop=F]), log.p=T)
                         } else if(thisxo + hstep >= auxm$rightbound){
                         pnorm(q= -thisx-hstep/tscale,
-                            mean= -mcoutput$Dmean[id,,,drop=F],
-                            sd= -sqrt(mcoutput$Dvar[id,,,drop=F]), log.p=T)
+                            mean= -agent$Dmean[id,,,drop=F],
+                            sd= -sqrt(agent$Dvar[id,,,drop=F]), log.p=T)
                         } else if(thisxo - hstep <= auxm$leftbound){
                         pnorm(q=thisx+hstep/tscale,
-                            mean=mcoutput$Dmean[id,,,drop=F],
-                            sd=sqrt(mcoutput$Dvar[id,,,drop=F]), log.p=T)
+                            mean=agent$Dmean[id,,,drop=F],
+                            sd=sqrt(agent$Dvar[id,,,drop=F]), log.p=T)
                         } else {
                         log(pnorm(q=thisx+hstep/tscale,
-                            mean=mcoutput$Dmean[id,,,drop=F],
-                            sd=sqrt(mcoutput$Dvar[id,,,drop=F])) -
+                            mean=agent$Dmean[id,,,drop=F],
+                            sd=sqrt(agent$Dvar[id,,,drop=F])) -
                         pnorm(q=thisx-hstep/tscale,
-                            mean=mcoutput$Dmean[id,,,drop=F],
-                            sd=sqrt(mcoutput$Dvar[id,,,drop=F])))
+                            mean=agent$Dmean[id,,,drop=F],
+                            sd=sqrt(agent$Dvar[id,,,drop=F])))
                         }
                     )
                 )
@@ -219,7 +219,7 @@ testSFD <- function(
                     Nout='numeric')))
                 probY <- probY +
                     colSums(log(
-                        mcoutput$Nprob[id,,thisx,,drop=F]
+                        agent$Nprob[id,,thisx,,drop=F]
                     ))[,1,]
             }
 
@@ -228,7 +228,7 @@ testSFD <- function(
                     Oout='numeric')))
                 probY <- probY +
                     colSums(log(
-                        mcoutput$Oprob[id,,thisx,,drop=F]
+                        agent$Oprob[id,,thisx,,drop=F]
                     ))[,1,]
             }
 
@@ -238,7 +238,7 @@ testSFD <- function(
                 probY <- probY +
                     colSums(dbinom(
                         x=thisx,
-                        prob=mcoutput$Bprob[id,,,drop=F],
+                        prob=agent$Bprob[id,,,drop=F],
                         size=1, log=T
                     )
                     )

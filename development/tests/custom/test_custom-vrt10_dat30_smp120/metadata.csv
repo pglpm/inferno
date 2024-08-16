@@ -1,4 +1,4 @@
-name,type,Nvalues,gapwidth,domainmin,domainmax,minincluded,maxincluded,plotmin,plotmax,V1,V2,V3,V4,V5
+name,type,Nvalues,datastep,domainmin,domainmax,minincluded,maxincluded,plotmin,plotmax,V1,V2,V3,V4,V5
 Rvrt,continuous,Inf,,-Inf,Inf,FALSE,FALSE,-4.3,5.8,,,,,
 Rpvrt,continuous,Inf,,0,Inf,FALSE,FALSE,0,21,,,,,
 Ruvrt,continuous,Inf,,0,1,FALSE,FALSE,0,1,,,,,

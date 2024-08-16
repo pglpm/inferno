@@ -1,4 +1,4 @@
-library('modelfreeinference')
+library('predict')
 
 seed <- 16
 
@@ -9,7 +9,7 @@ outputdirPrefix <- file.path('_deletepackagetest')
 ## mycluster <- makeCluster(ncores)
 ## registerDoParallel(mycluster)
 
-currenttestdir <- inferpopulation(
+currenttestdir <- learn(
     data = 'data_test_custom_30.csv',
     metadata = 'metadata_test_custom.csv',
     outputdir = outputdirPrefix,
@@ -38,7 +38,7 @@ mi <- mutualinfo(
     Y1names = c('N2vrt'),
     Y2names = c('Rvrt'),
     X = cbind(Bvrt = 'no'),
-    mcoutput = currenttestdir,
+    agent = currenttestdir,
     nsamples = 3600,
     parallel = 4
 )

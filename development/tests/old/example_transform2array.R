@@ -71,7 +71,7 @@ trainpoints <- sort(sample(1:nrow(alldata), ntrain))
 ## We must also specify an output directory
 
 outputdir <- file.path('..', 'tests', '_testexampledata2')
-mcoutput <- inferpopulation(data = alldata[trainpoints],
+agent <- inferpopulation(data = alldata[trainpoints],
                            metadata = file.path('..', 'tests',
                                                 'meta-exampledata-modified.csv'),
                            outputdir = outputdir,
@@ -115,7 +115,7 @@ repY <- cbind(Truth = rep(0:5, each=ntest))
 
 condfreqs <- samplesFDistribution(Y = repY,
                                   X = alldata[testpoints, ..Xcols],
-                                  mcoutput = outputdir,
+                                  agent = outputdir,
                                   silent = TRUE, parallel = TRUE)
 
 ## condfreqs is a matrix having

@@ -828,7 +828,7 @@ inferpopulation <- function(
     chaininfo <- foreach(acore = 1:ncores,
         .combine = rbind,
         .inorder = FALSE,
-        ##.packages = c('modelfreeinference'),
+        ##.packages = c('predict'),
         .noexport = c('data')
     ) %dochains% {
         ## Create log file

@@ -2,7 +2,8 @@
 % Please edit documentation in R/buildmetadata.R
 \name{buildmetadata}
 \alias{buildmetadata}
-\title{Build a preliminary metadata file from a given dataset}
+\alias{metadata}
+\title{Metadata}
 \usage{
 buildmetadata(
   data,
@@ -26,18 +27,27 @@ if \code{NULL}: output metadata as \code{VALUE}.}
 \item{excludevrt}{Character or \code{NULL}: name of variates in dataset to be excluded.}
 
 \item{addsummary2metadata}{Logical: also output some diagnostic statistics
-in the metadata? Default \code{FALSE}}
+in the metadata? Default \code{FALSE}.}
 
 \item{backupfiles}{Logical: rename previous metadata file if it exists?
-Default \code{TRUE}}
+Default \code{TRUE}.}
 
 \item{verbose}{Logical: output heuristics for each variate? Default \code{TRUE}.}
 }
 \value{
 If \code{file = NULL}, a preliminary metadata file is created
 and \code{VALUE} is \code{NULL};
-otherwise \code{VALUE} is a data.frame containing the metadata.
+otherwise \code{VALUE} is a \code{\link[base]{data.frame}} containing the metadata.
 }
 \description{
-Build a preliminary metadata file from a given dataset
+Details about metadata, metadata file and object, and utility function to build a metadata file or object.
 }
+\details{
+This is a first test
+}
+\section{Necessity of metadata}{
+
+
+This is a test
+}
+
