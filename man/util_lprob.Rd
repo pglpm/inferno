@@ -6,7 +6,7 @@
 \usage{
 util_lprob(
   x,
-  agent,
+  learned,
   nR,
   iR,
   tR,
@@ -37,7 +37,7 @@ util_lprob(
 
 \item{X}{numerical matrix: transformed variates}
 
-\item{agent:}{Monte-Carlo-output object}
+\item{learned:}{Monte-Carlo-output object}
 }
 \value{
 Matrix with as many rows as components and as many cols as samples

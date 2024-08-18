@@ -3,8 +3,8 @@
 #############################################################
 
 #### custom – test time use of util_lprob.R
-dataset <- read.csv('/home/pglpm/repositories/bayes_nonparametric_inference/development/tests/custom/dataset_custom30.csv', na.strings='')
-agent <- readRDS('/home/pglpm/repositories/bayes_nonparametric_inference/development/tests/custom/_newdeletepackagetest-vrt10_dat30_smp120/agent.rds')
+dataset <- read.csv('/home/pglpm/repos/bayes_nonparametric_inference/development/tests/custom/dataset_custom30.csv', na.strings='')
+learned <- readRDS('/home/pglpm/repos/bayes_nonparametric_inference/development/tests/custom/test_custom-240816T094427-vrt10_dat30_smp120/learned.rds')
 ##
 source('util_vtransform.R', local=T)
 source('samplesFDistribution.R', local=T)
@@ -16,7 +16,7 @@ system.time(
         samplesFDistribution(
             Y=dataset[i,j,drop=F],
             X=NULL,
-            agent = agent, jacobian = T, silent=T, parallel=1)
+            learned = learned, jacobian = T, silent=T, parallel=1)
     })})
 )
 
@@ -25,7 +25,7 @@ system.time(
         samplesFDistribution2(
             Y=dataset[i,j,drop=F],
             X=NULL,
-            agent = agent, jacobian = T, silent=T, parallel=1)
+            learned = learned, jacobian = T, silent=T, parallel=1)
     })})
 )
 
@@ -38,7 +38,7 @@ max(abs(2*(out0-out2)/(out0+out2)))
 
 #### custom
 dataset <- read.csv('/home/pglpm/repositories/bayes_nonparametric_inference/development/tests/custom/dataset_custom30.csv', na.strings='')
-agent <- readRDS('/home/pglpm/repositories/bayes_nonparametric_inference/development/tests/custom/_newdeletepackagetest-vrt10_dat30_smp120/agent.rds')
+learned <- readRDS('/home/pglpm/repositories/bayes_nonparametric_inference/development/tests/custom/_newdeletepackagetest-vrt10_dat30_smp120/learned.rds')
 ##
 source('util_vtransform.R', local=T)
 source('samplesFDistribution.R', local=T)
@@ -48,17 +48,17 @@ out <- sapply(1:ncol(dataset), function(j){ sapply(1:nrow(dataset), function(i){
     v0 <- samplesFDistribution(
         Y=dataset[i,j,drop=F],
         X=NULL,
-        agent = agent, jacobian = T, silent=T, parallel=4)
+        learned = learned, jacobian = T, silent=T, parallel=4)
     ##
     v1 <- testSFD(
         Y=dataset[i,j,drop=F],
         X=NULL,
-        agent = agent, jacobian = T, reduceprobx = T)
+        learned = learned, jacobian = T, reduceprobx = T)
     ##
     max(abs((v1-v0)/(v1+v0)*2))
     })
 })
-colnames(out) <- agent$auxmetadata$mcmctype
+colnames(out) <- learned$auxmetadata$mcmctype
 apply(abs(out),2,max)
 max(abs(out))
 
@@ -67,15 +67,15 @@ max(abs(out))
 source('util_vtransform.R', local=T)
 source('samplesFDistribution.R', local=T)
 dataset <- read.csv('/home/pglpm/repositories/parkinsonbayes/data/nadpark/toydata.csv', na.strings='')[,-1]
-agent <- readRDS('/home/pglpm/repositories/parkinsonbayes/data/nadpark/_testtoy_analysis_2_3A4-1-vrt7_dat30_smp1024/agent.rds')
+learned <- readRDS('/home/pglpm/repositories/parkinsonbayes/data/nadpark/_testtoy_analysis_2_3A4-1-vrt7_dat30_smp1024/learned.rds')
 out <- t(sapply(1:5, function(ipoint){
     sapply(1:ncol(dataset), function(i){
-        v0 <- samplesFDistribution(Y=dataset[ipoint,i,drop=F], X=NULL, agent = agent, jacobian = T, silent=T)
-        v1 <- testSFD(Y=dataset[ipoint,i,drop=F], X=NULL, agent = agent)
+        v0 <- samplesFDistribution(Y=dataset[ipoint,i,drop=F], X=NULL, learned = learned, jacobian = T, silent=T)
+        v1 <- testSFD(Y=dataset[ipoint,i,drop=F], X=NULL, learned = learned)
         max(abs((v1-v0)/(v1+v0)*2))
     })
 }))
-colnames(out) <- agent$auxmetadata$name
+colnames(out) <- learned$auxmetadata$name
 out
 max(abs(out))
 
@@ -89,7 +89,7 @@ dataset <- data.frame(
     B1 = c('yes','yes','no','no','yes'),
     N1 = c('A','C','A','C','B')
 )
-agent <- readRDS('/home/pglpm/repositories/bayes_nonparametric_inference/development/tests/BN_functdependence/agent.rds')
+learned <- readRDS('/home/pglpm/repositories/bayes_nonparametric_inference/development/tests/BN_functdependence/learned.rds')
 ##
 source('util_vtransform.R', local=T)
 source('samplesFDistribution.R', local=T)
@@ -98,7 +98,7 @@ source('../development/functions_tests/testSFD.R')
 out <- samplesFDistribution(
         Y=dataset[,'B1',drop=F],
         X=NULL,
-        agent = agent, jacobian = T, silent=T, parallel=4)
+        learned = learned, jacobian = T, silent=T, parallel=4)
 out
 rowMeans(out)
 
@@ -106,34 +106,34 @@ rowMeans(out)
 out <- samplesFDistribution(
         Y=dataset[,'N1',drop=F],
         X=NULL,
-        agent = agent, jacobian = T, silent=T, parallel=4)
+        learned = learned, jacobian = T, silent=T, parallel=4)
 out
 rowMeans(out)
 
 samplesFDistribution(
         Y=dataset[,'N1',drop=F],
         X=dataset[,'B1',drop=F],
-        agent = agent, jacobian = T, silent=T, parallel=4)
+        learned = learned, jacobian = T, silent=T, parallel=4)
 
 samplesFDistribution(
         Y=dataset[,'B1',drop=F],
         X=dataset[,'N1',drop=F],
-        agent = agent, jacobian = T, silent=T, parallel=4)
+        learned = learned, jacobian = T, silent=T, parallel=4)
 
 samplesFDistribution(
         Y=cbind(B1='yes'),
         X=cbind(N1=LETTERS[1:3]),
-        agent = agent, jacobian = T, silent=T, parallel=4)
+        learned = learned, jacobian = T, silent=T, parallel=4)
 
 samplesFDistribution(
         Y=cbind(N1=LETTERS[1:3]),
         X=cbind(B1='yes'),
-        agent = agent, jacobian = T, silent=T, parallel=4)
+        learned = learned, jacobian = T, silent=T, parallel=4)
 
 samplesFDistribution(
         Y=cbind(N1=LETTERS[1:3]),
         X=cbind(B1='no'),
-        agent = agent, jacobian = T, silent=T, parallel=4)
+        learned = learned, jacobian = T, silent=T, parallel=4)
 
 
 
@@ -141,17 +141,17 @@ out <- sapply(1:ncol(dataset), function(j){ sapply(1:nrow(dataset), function(i){
     v0 <- samplesFDistribution(
         Y=dataset[i,j,drop=F],
         X=NULL,
-        agent = agent, jacobian = T, silent=T, parallel=4)
+        learned = learned, jacobian = T, silent=T, parallel=4)
     ##
     v1 <- testSFD(
         Y=dataset[i,j,drop=F],
         X=NULL,
-        agent = agent, jacobian = T, reduceprobx = T)
+        learned = learned, jacobian = T, reduceprobx = T)
     ##
     max(abs((v1-v0)/(v1+v0)*2))
     })
 })
-colnames(out) <- agent$auxmetadata$mcmctype
+colnames(out) <- learned$auxmetadata$mcmctype
 apply(abs(out),2,max)
 max(abs(out))
 
@@ -163,7 +163,7 @@ max(abs(out))
 
 #### custom - test new samplesFDistribution
 dataset <- read.csv('/home/pglpm/repositories/bayes_nonparametric_inference/development/tests/custom/dataset_custom150.csv', na.strings='')
-agent <- readRDS('/home/pglpm/repositories/bayes_nonparametric_inference/development/tests/custom/_newdeletepackagetest-vrt10_dat30_smp120/agent.rds')
+learned <- readRDS('/home/pglpm/repositories/bayes_nonparametric_inference/development/tests/custom/_newdeletepackagetest-vrt10_dat30_smp120/learned.rds')
 ##
 
 library('predict')
@@ -183,7 +183,7 @@ out <- sapply(1:length(iY), function(i){
     samplesFDistribution(
         Y=dataset[iY[i],Ys,drop=F],
         X=dataset[iX[i],Xs,drop=F],
-        agent = agent, jacobian = T, silent=T, parallel=1)
+        learned = learned, jacobian = T, silent=T, parallel=1)
 })
 )
 
@@ -192,7 +192,7 @@ out2 <- sapply(1:length(iY), function(i){
     samplesFDistribution2(
         Y=dataset[iY[i],Ys,drop=F],
         X=dataset[iX[i],Xs,drop=F],
-        agent = agent, jacobian = T, silent=T, parallel=1)
+        learned = learned, jacobian = T, silent=T, parallel=1)
 })
 )
 
@@ -204,7 +204,7 @@ max(abs(2*(out-out2)/(out+out2)))
 
 #### custom
 dataset <- read.csv('/home/pglpm/repositories/bayes_nonparametric_inference/development/test_custom/datanew_test_custom_30.csv', na.strings='')
-agent <- readRDS('/home/pglpm/repositories/bayes_nonparametric_inference/development/test_custom/_newdeletepackagetest-vrt10_dat30_smp120/agent.rds')
+learned <- readRDS('/home/pglpm/repositories/bayes_nonparametric_inference/development/test_custom/_newdeletepackagetest-vrt10_dat30_smp120/learned.rds')
 jac <- T
 ##
 nY <- sample(1:(ncol(dataset)-1), 1)
@@ -221,24 +221,24 @@ out <- sapply(1:length(iY), function(i){
     v0 <- samplesFDistribution(
         Y=dataset[iY[i],Ys,drop=F],
         X=dataset[iX[i],Xs,drop=F],
-        agent = agent, jacobian = T, silent=T, parallel=1)
+        learned = learned, jacobian = T, silent=T, parallel=1)
     ##
     v1 <- testSFD(
         Y=dataset[iY[i],Ys,drop=F],
         X=dataset[iX[i],Xs,drop=F],
-        agent = agent, jacobian = T)
+        learned = learned, jacobian = T)
     ##
     max(abs((v1-v0)/(v1+v0)*2))
 })
-agent$auxmetadata$mcmctype[agent$auxmetadata$name %in% Ys]
-agent$auxmetadata$mcmctype[agent$auxmetadata$name %in% Xs]
+learned$auxmetadata$mcmctype[learned$auxmetadata$name %in% Ys]
+learned$auxmetadata$mcmctype[learned$auxmetadata$name %in% Xs]
 max(abs(out))
 
 
 #### mtcars
 data(mtcars)
 dataset <- mtcars
-agent <- readRDS('/home/pglpm/repositories/bayes_nonparametric_inference/development/tests/mtcars/_newD_test_mtcars-3-vrt11_dat32_smp512/agent.rds')
+learned <- readRDS('/home/pglpm/repositories/bayes_nonparametric_inference/development/tests/mtcars/_newD_test_mtcars-3-vrt11_dat32_smp512/learned.rds')
 jac <- T
 ##
 nY <- sample(1:(ncol(dataset)-1), 1)
@@ -255,22 +255,22 @@ out <- sapply(1:length(iY), function(i){
     v0 <- samplesFDistribution(
         Y=dataset[iY[i],Ys,drop=F],
         X=dataset[iX[i],Xs,drop=F],
-        agent = agent, jacobian = jac, silent=T, parallel=4)
+        learned = learned, jacobian = jac, silent=T, parallel=4)
     ##
     v1 <- testSFD(
         Y=dataset[iY[i],Ys,drop=F],
         X=dataset[iX[i],Xs,drop=F],
-        agent = agent, jacobian = jac)
+        learned = learned, jacobian = jac)
     ##
     max(abs((v1-v0)/(v1+v0)*2))
 })
-agent$auxmetadata$mcmctype[agent$auxmetadata$name %in% Ys]
-agent$auxmetadata$mcmctype[agent$auxmetadata$name %in% Xs]
+learned$auxmetadata$mcmctype[learned$auxmetadata$name %in% Ys]
+learned$auxmetadata$mcmctype[learned$auxmetadata$name %in% Xs]
 max(abs(out))
 
 
 dataset <- mtcars
-agent <- readRDS('/home/pglpm/repositories/bayes_nonparametric_inference/development/tests/mtcars/_newD_test_mtcars-3-vrt11_dat32_smp512/agent.rds')
+learned <- readRDS('/home/pglpm/repositories/bayes_nonparametric_inference/development/tests/mtcars/_newD_test_mtcars-3-vrt11_dat32_smp512/learned.rds')
 
 
 library('predict')
@@ -290,7 +290,7 @@ out <- sapply(1:length(iY), function(i){
     samplesFDistribution(
         Y=dataset[iY[i],Ys,drop=F],
         X=dataset[iX[i],Xs,drop=F],
-        agent = agent, jacobian = T, silent=T, parallel=1)
+        learned = learned, jacobian = T, silent=T, parallel=1)
 })
 )
 
@@ -299,7 +299,7 @@ out2 <- sapply(1:length(iY), function(i){
     samplesFDistribution2(
         Y=dataset[iY[i],Ys,drop=F],
         X=dataset[iX[i],Xs,drop=F],
-        agent = agent, jacobian = T, silent=T, parallel=1)
+        learned = learned, jacobian = T, silent=T, parallel=1)
 })
 )
 
@@ -310,7 +310,7 @@ max(abs(2*(out-out2)/(out+out2)))
 
 #### nadpark
 dataset <- read.csv('/home/pglpm/repositories/parkinsonbayes/data/nadpark/toydata.csv', na.strings='')[,-1]
-agent <- readRDS('/home/pglpm/repositories/parkinsonbayes/data/nadpark/_testtoy_analysis_2_3A4-1-vrt7_dat30_smp1024/agent.rds')
+learned <- readRDS('/home/pglpm/repositories/parkinsonbayes/data/nadpark/_testtoy_analysis_2_3A4-1-vrt7_dat30_smp1024/learned.rds')
 jac <- T
 ##
 nY <- sample(1:(ncol(dataset)-1), 1)
@@ -327,17 +327,71 @@ out <- sapply(1:length(iY), function(i){
     v0 <- samplesFDistribution(
         Y=dataset[iY[i],Ys,drop=F],
         X=dataset[iX[i],Xs,drop=F],
-        agent = agent, jacobian = jac, silent=T, parallel=4)
+        learned = learned, jacobian = jac, silent=T, parallel=4)
     ##
     v1 <- testSFD(
         Y=dataset[iY[i],Ys,drop=F],
         X=dataset[iX[i],Xs,drop=F],
-        agent = agent, jacobian = jac)
+        learned = learned, jacobian = jac)
     ##
     max(abs((v1-v0)/(v1+v0)*2))
 })
-agent$auxmetadata$mcmctype[agent$auxmetadata$name %in% Ys]
-agent$auxmetadata$mcmctype[agent$auxmetadata$name %in% Xs]
+learned$auxmetadata$mcmctype[learned$auxmetadata$name %in% Ys]
+learned$auxmetadata$mcmctype[learned$auxmetadata$name %in% Xs]
 max(abs(out))
 
+
+#####################################################
+#### test Pr()
+#####################################################
+
+
+testrd <- function(x,y){2*max(abs((x-y)/(x+y)), na.rm=T)}
+#### custom – test time use of util_lprob.R
+dataset <- read.csv('/home/pglpm/repos/bayes_nonparametric_inference/development/tests/custom/dataset_custom30.csv', na.strings='')
+learned <- readRDS('/home/pglpm/repos/bayes_nonparametric_inference/development/tests/custom/test_custom-240816T094427-vrt10_dat30_smp120/learned.rds')
+
+nY <- sample(1:(ncol(dataset)-1), 1)
+Ys <- sample(colnames(dataset), nY)
+Xs <- sample(setdiff(colnames(dataset), Ys), ncol(dataset)-nY)
+##
+YY <- dataset[sample(1:nrow(dataset),2),Ys, drop=F]
+XX <- NULL#dataset[sample(1:nrow(dataset),20),Xs, drop=F]
+##
+## load('/home/pglpm/repos/bayes_nonparametric_inference/R/sysdata.rda')
+## source('/home/pglpm/repos/bayes_nonparametric_inference/R/util_lprob.R', local=T)
+## source('/home/pglpm/repos/bayes_nonparametric_inference/R/util_vtransform.R', local=T)
+## source('/home/pglpm/repos/bayes_nonparametric_inference/R/samplesFDistribution.R', local=T)
+
+test0 <- rbind(samplesFDistribution(
+    Y = YY,
+    X = XX,
+    learned = learned, parallel=2))
+
+##
+## rowMeans(test0, na.rm = T)
+## apply(test0, 1, quantile, prob=c(5,95)/100, type = 6, na.rm=T)
+##
+## source('/home/pglpm/repos/bayes_nonparametric_inference/R/util_vtransform.R', local=T)
+## source('/home/pglpm/repos/bayes_nonparametric_inference/R/util_lprob.R', local=T)
+## load('/home/pglpm/repos/bayes_nonparametric_inference/R/sysdata.rda')
+## source('/home/pglpm/repos/bayes_nonparametric_inference/R/Pr.R', local=T)
+test1 <- Pr(
+    Y = YY,
+    X = XX,
+    learned = learned, parallel=2)
+
+##
+testrd(diag(test1$values) , rowMeans(test0, na.rm=T))
+## test1$quantiles
+testrd(t(apply(test1$quantiles,3,diag)),
+    apply(test0, 1, quantile, prob=c(5,95)/100, type = 6, na.rm=T))
+
+test1$values
+rowMeans(test0, na.rm = T)
+
+## > Ys
+## [1] "Nvrt"  "N2vrt" "Rvrt"  "Cvrt"  "Ruvrt"
+## > Xs
+## [1] "Bvrt"  "Duvrt" "Ovrt"  "Dvrt"  "Rpvrt"
 

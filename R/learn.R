@@ -24,7 +24,7 @@
 #' @param appendinfo Logical: append information about dataset and Monte Carlo
 #'   parameters to the name of the output directory `outputdir`? Default `TRUE`.
 #' @param output Character: if `'directory'`, return the output directory name
-#'   as `VALUE`; if string `'agent'`, return the `'agent'` object
+#'   as `VALUE`; if string `'learned'`, return the `'learned'` object
 #'   containing the parameters obtained from the Monte Carlo computation.
 #'   Any other value: `VALUE` is `NULL`.
 #' @param subsampledata Integer: use only a subset of this many datapoints for
@@ -54,7 +54,7 @@
 #'   of the Alpha parameter? Default `FALSE`.
 #' @param hyperparams List: hyperparameters of the prior.
 #'
-#' @return Name of directory containing output files, or agent object,
+#' @return Name of directory containing output files, or learned object,
 #'   or `NULL`, depending on argument `output`.
 #'
 #' @import parallel foreach doParallel doRNG nimble
@@ -2038,7 +2038,7 @@ learn <- function(
         list(auxmetadata = auxmetadata,
             auxinfo = list(nchains = nchains)) ),
         file = file.path(dirname,
-            paste0('agent', dashnameroot, '.rds')
+            paste0('learned', dashnameroot, '.rds')
         ))
 
     cat('\rFinished Monte Carlo sampling.                                 \n')
@@ -2148,8 +2148,8 @@ learn <- function(
     ## cat('Plotting marginal samples.\n')
     plotFsamples(
         file = file.path(dirname,
-            paste0('plotsamples_agent', dashnameroot)),
-        agent = c(mcsamples, list(auxmetadata = auxmetadata)),
+            paste0('plotsamples_learned', dashnameroot)),
+        learned = c(mcsamples, list(auxmetadata = auxmetadata)),
         data = data,
         plotvariability = 'samples',
         nFsamples = showsamples, plotprobability = TRUE,
@@ -2160,8 +2160,8 @@ learn <- function(
     ## cat('Plotting marginal samples with quantiles.\n')
     plotFsamples(
         file = file.path(dirname,
-            paste0('plotquantiles_agent', dashnameroot)),
-        agent = c(mcsamples, list(auxmetadata = auxmetadata)),
+            paste0('plotquantiles_learned', dashnameroot)),
+        learned = c(mcsamples, list(auxmetadata = auxmetadata)),
         data = data,
         plotvariability = 'quantiles',
         nFsamples = plotDisplayedQuantiles, plotprobability = TRUE,
@@ -2202,9 +2202,9 @@ learn <- function(
     ## What should we output? how about the full name of the output dir?
     if (is.character(output) && output == 'directory') {
         dirname
-    } else if (is.character(output) && output == 'agent') {
+    } else if (is.character(output) && output == 'learned') {
         readRDS(file.path(dirname,
-            paste0('agent', dashnameroot, '.rds')
+            paste0('learned', dashnameroot, '.rds')
         ))
     }
 }

@@ -38,7 +38,7 @@ mi <- mutualinfo(
     Y1names = c('N2vrt'),
     Y2names = c('Rvrt'),
     X = cbind(Bvrt = 'no'),
-    agent = currenttestdir,
+    learned = currenttestdir,
     nsamples = 3600,
     parallel = 4
 )

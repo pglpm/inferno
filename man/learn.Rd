@@ -73,7 +73,7 @@ the output directory \code{outputdir}? Default \code{TRUE}.}
 parameters to the name of the output directory \code{outputdir}? Default \code{TRUE}.}
 
 \item{output}{Character: if \code{'directory'}, return the output directory name
-as \code{VALUE}; if string \code{'agent'}, return the \code{'agent'} object
+as \code{VALUE}; if string \code{'learned'}, return the \code{'learned'} object
 containing the parameters obtained from the Monte Carlo computation.
 Any other value: \code{VALUE} is \code{NULL}.}
 
@@ -117,7 +117,7 @@ of the Alpha parameter? Default \code{FALSE}.}
 \item{hyperparams}{List: hyperparameters of the prior.}
 }
 \value{
-Name of directory containing output files, or agent object,
+Name of directory containing output files, or learned object,
 or \code{NULL}, depending on argument \code{output}.
 }
 \description{
