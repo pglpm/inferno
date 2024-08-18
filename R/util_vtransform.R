@@ -102,7 +102,7 @@ vtransform <- function(
                         )
                         datum <- util_DQ(datum) * tscale * (domainmax - domainmin)
                     } else if (transform == 'identity') {
-                        datum <- rep(tscale, length(datum))
+                        datum[!is.na(datum)] <- tscale
                     } else {
                         stop('Unknown transformation for variate ', v)
                     }

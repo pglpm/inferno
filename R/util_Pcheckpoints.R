@@ -92,7 +92,7 @@ util_Pcheckpoints <- function(
         } else {
                 lprobY <- util_lprob(
                         x = y,
-                        agent = mcsamples,
+                        learned = mcsamples,
                         nR = YnR, iR = YiR, tR = YtR,
                         nC = YnC, iC = YiC, tC = YtC,
                         Clefts = Clefts, Crights = Crights,

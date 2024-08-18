@@ -40,11 +40,11 @@ if(FALSE){
   ## so a comparison with old-version results are not meaningful
 refdir <- 'reference_seed16-vrt9_dat15_smp120'
 
-#### Test whether agent output is identical
-cat('\nVerifying equality of "agent.rds" (TRUE = passed):\n')
+#### Test whether learned output is identical
+cat('\nVerifying equality of "learned.rds" (TRUE = passed):\n')
 print(identical(
-  readRDS(file.path(currenttestdir,'agent.rds')),
-  readRDS(file.path(refdir,'agent.rds'))
+  readRDS(file.path(currenttestdir,'learned.rds')),
+  readRDS(file.path(refdir,'learned.rds'))
 ))
 
 #### Test whether MCtraces output is identical

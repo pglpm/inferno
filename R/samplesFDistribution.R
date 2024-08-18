@@ -4,8 +4,8 @@
 #'   the joint probability one variate per column
 #' @param X matrix or data.table: values of some variates conditional on
 #'   which we want the joint probability one variate per column
-#' @param agent Either a string with the name of a directory or full
-#'   path for a 'FDistribution.rds' object, or such an object itself
+#' @param learned Either a string with the name of a directory or full
+#'   path for an 'learned.rds' object, or such an object itself
 #' @param subsamples numeric: number of Monte Carlo samples to use
 #' @param jacobian include the Jacobian in the output probability
 #' @param fn NULL or function to apply to the group of MCsamples,
@@ -23,7 +23,7 @@
 samplesFDistribution <- function(
     Y,
     X,
-    agent,
+    learned,
     subsamples,
     jacobian = TRUE,
     fn = NULL,
@@ -99,27 +99,27 @@ samplesFDistribution <- function(
     }
 
     ## Extract Monte Carlo output & auxmetadata
-    ## If agent is a string, check if it's a folder name or file name
-    if (is.character(agent)) {
-        ## Check if 'agent' is a folder containing agent.rds
-        if (file_test('-d', agent) &&
-                file.exists(file.path(agent, 'agent.rds'))) {
-            agent <- readRDS(file.path(agent, 'agent.rds'))
+    ## If learned is a string, check if it's a folder name or file name
+    if (is.character(learned)) {
+        ## Check if 'learned' is a folder containing learned.rds
+        if (file_test('-d', learned) &&
+                file.exists(file.path(learned, 'learned.rds'))) {
+            learned <- readRDS(file.path(learned, 'learned.rds'))
         } else {
-            ## Assume 'agent' the full path of agent.rds
+            ## Assume 'learned' the full path of learned.rds
             ## possibly without the file extension '.rds'
-            agent <- paste0(sub('.rds$', '', agent), '.rds')
-            if (file.exists(agent)) {
-                agent <- readRDS(agent)
+            learned <- paste0(sub('.rds$', '', learned), '.rds')
+            if (file.exists(learned)) {
+                learned <- readRDS(learned)
             } else {
-                stop('The argument "agent" must be a folder containing agent.rds, or the path to an rds-file containing the output from "learn()".')
+                stop('The argument "learned" must be a folder containing learned.rds, or the path to an rds-file containing the output from "learn()".')
             }
         }
     }
-    ## Add check to see that agent is correct type of object?
-    auxmetadata <- agent$auxmetadata
-    agent$auxmetadata <- NULL
-    agent$auxinfo <- NULL
+    ## Add check to see that learned is correct type of object?
+    auxmetadata <- learned$auxmetadata
+    learned$auxmetadata <- NULL
+    learned$auxinfo <- NULL
 
     ## Consistency checks
     if (length(dim(Y)) != 2) {
@@ -163,11 +163,11 @@ samplesFDistribution <- function(
             (is.numeric(subsamples) || (is.character(subsamples)
                 && length(subsamples) == 1))) {
         if (is.character(subsamples)) {
-            subsamples <- round(seq(1, ncol(agent$W),
+            subsamples <- round(seq(1, ncol(learned$W),
                 length.out = as.numeric(subsamples)
             ))
         }
-        agent <- mcsubset(agent, subsamples)
+        learned <- mcsubset(learned, subsamples)
     }
 
 
@@ -187,7 +187,7 @@ samplesFDistribution <- function(
     YiR <- YiR[YtR]
     YnR <- length(YiR)
     if (YnR > 0 || XnR > 0) {
-        agent$Rvar <- sqrt(agent$Rvar)
+        learned$Rvar <- sqrt(learned$Rvar)
     }
 
 #### Type C
@@ -202,7 +202,7 @@ samplesFDistribution <- function(
     YiC <- YiC[YtC]
     YnC <- length(YiC)
     if (YnC > 0 || XnC > 0) {
-        agent$Cvar <- sqrt(agent$Cvar)
+        learned$Cvar <- sqrt(learned$Cvar)
         Clefts <- auxmetadata[match(vnames, auxmetadata$name), 'tleftbound']
         Crights <- auxmetadata[match(vnames, auxmetadata$name), 'trightbound']
     }
@@ -219,7 +219,7 @@ samplesFDistribution <- function(
     YiD <- YiD[YtD]
     YnD <- length(YiD)
     if (YnD > 0 || XnD > 0) {
-        agent$Dvar <- sqrt(agent$Dvar)
+        learned$Dvar <- sqrt(learned$Dvar)
         Dsteps <- auxmetadata[match(vnames, auxmetadata$name), 'halfstep'] /
             auxmetadata[match(vnames, auxmetadata$name), 'tscale']
         Dlefts <- auxmetadata[match(vnames, auxmetadata$name), 'tleftbound']
@@ -310,13 +310,13 @@ samplesFDistribution <- function(
 #### the loop is over the columns of y and x
 #### each instance is a 1-column vector
             if (all(is.na(x))) {
-                lprobX <- log(agent$W)
+                lprobX <- log(learned$W)
             } else {
                 ## rows: components, cols: samples
-                lprobX <- log(agent$W) +
+                lprobX <- log(learned$W) +
                     util_lprob(
                         x = x,
-                        agent = agent,
+                        learned = learned,
                         nR = XnR, iR = XiR, tR = XtR,
                         nC = XnC, iC = XiC, tC = XtC,
                         Clefts = Clefts, Crights = Crights,
@@ -330,20 +330,20 @@ samplesFDistribution <- function(
             ##
             ##
             if (all(is.na(y))) {
-                lprobY <- array(NA, dim = dim(agent$W))
+                lprobY <- array(NA, dim = dim(learned$W))
             } else {
                 lprobY <- util_lprob(
-                        x = y,
-                        agent = agent,
-                        nR = YnR, iR = YiR, tR = YtR,
-                        nC = YnC, iC = YiC, tC = YtC,
-                        Clefts = Clefts, Crights = Crights,
-                        nD = YnD, iD = YiD, tD = YtD,
-                        Dsteps = Dsteps, Dlefts = Dlefts, Drights = Drights,
-                        nO = YnO, iO = YiO, tO = YtO,
-                        nN = YnN, iN = YiN, tN = YtN,
-                        nB = YnB, iB = YiB, tB = YtB
-                    )
+                    x = y,
+                    learned = learned,
+                    nR = YnR, iR = YiR, tR = YtR,
+                    nC = YnC, iC = YiC, tC = YtC,
+                    Clefts = Clefts, Crights = Crights,
+                    nD = YnD, iD = YiD, tD = YtD,
+                    Dsteps = Dsteps, Dlefts = Dlefts, Drights = Drights,
+                    nO = YnO, iO = YiO, tO = YtO,
+                    nN = YnN, iN = YiN, tN = YtN,
+                    nB = YnB, iB = YiB, tB = YtB
+                )
             }
 #### Output: rows=components, columns=samples
 
