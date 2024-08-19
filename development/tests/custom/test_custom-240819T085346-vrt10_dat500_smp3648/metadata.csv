@@ -1,0 +1,11 @@
+name,type,datastep,domainmin,domainmax,minincluded,maxincluded,plotmin,plotmax,V1,V2,V3,V4,V5
+Rvrt,continuous,,-Inf,Inf,FALSE,FALSE,-4.3,5.8,,,,,
+Rpvrt,continuous,,0,Inf,FALSE,FALSE,0,21,,,,,
+Ruvrt,continuous,,0,1,FALSE,FALSE,0,1,,,,,
+Cvrt,continuous,,0,5,TRUE,TRUE,0,5,,,,,
+Dvrt,continuous,0.2,-Inf,Inf,,,-4.5,5.3,,,,,
+Duvrt,continuous,0.2,0,5,,,0,5,,,,,
+Bvrt,nominal,,,,,,,,no,yes,,,
+Nvrt,nominal,,,,,,,,A,B,C,D,E
+Ovrt,nominal,,,,,,,,Oa,Ob,Oc,Od,Oe
+N2vrt,nominal,,,,,,,,a,b,c,d,
