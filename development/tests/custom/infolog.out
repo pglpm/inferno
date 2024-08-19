@@ -1,26 +1,0 @@
-
-Loading package "predict"
-
-Warning message:
-replacing previous import ‘nimble::rcat’ by ‘extraDistr::rcat’ when loading ‘predict’ 
-
-Registered doParallelSNOW with 8 workers
-Increasing number of chains to 64 for efficiency
-Increasing number of samples to 3648 for efficiency
-
-Using 500 datapoints
-Calculating auxiliary metadata
-
- ********************************************** 
- Saving output in directory
- test_custom-240819T085346-vrt10_dat500_smp3648 
- ********************************************** 
-Starting Monte Carlo sampling of 3648 samples by 64 chains
-in a space of 1610 (effectively 98006) dimensions.
-Using 8 cores: 57 samples per chain, 8 chains per core.
-Core logs are being saved in individual files.
-
-C-compiling samplers appropriate to the variates (package Nimble)
-this can take tens of minutes with many data or variates.
-Please wait...Compiled core 1. Number of samplers: 2978.
-Estimating remaining time, please be patient...Sampling. Core 2 estimated remaining time: 35 mins                      Sampling. Core 4 estimated remaining time: 35 mins                      Sampling. Core 1 estimated remaining time: 38 mins                      Sampling. Core 5 estimated remaining time: 43 mins                      Sampling. Core 8 estimated remaining time: 49 mins                      Sampling. Core 6 estimated remaining time: 51 mins                      Sampling. Core 3 estimated remaining time: 58 mins                      Sampling. Core 4 estimated remaining time: 36 mins                      Sampling. Core 7 estimated remaining time: 87 mins                      Sampling. Core 3 estimated remaining time: 40 mins                      Sampling. Core 2 estimated remaining time: 41 mins                      Sampling. Core 1 estimated remaining time: 47 mins                      Sampling. Core 5 estimated remaining time: 51 mins                      Sampling. Core 8 estimated remaining time: 55 mins                      Sampling. Core 2 estimated remaining time: 32 mins                      Sampling. Core 3 estimated remaining time: 32 mins                      Sampling. Core 7 estimated remaining time: 65 mins                      Sampling. Core 5 estimated remaining time: 38 mins                      Sampling. Core 8 estimated remaining time: 40 mins                      Sampling. Core 2 estimated remaining time: 26 mins                      Sampling. Core 3 estimated remaining time: 28 mins                      Sampling. Core 5 estimated remaining time: 29 mins                      Sampling. Core 2 estimated remaining time: 20 mins                      Sampling. Core 1 estimated remaining time: 51 mins                      Sampling. Core 3 estimated remaining time: 22 mins                      Sampling. Core 7 estimated remaining time: 57 mins                      Sampling. Core 5 estimated remaining time: 23 mins                      Sampling. Core 6 estimated remaining time: 100 mins                      Sampling. Core 2 estimated remaining time: 15 mins                      Sampling. Core 7 estimated remaining time: 41 mins                      Sampling. Core 5 estimated remaining time: 16 mins                      Sampling. Core 1 estimated remaining time: 42 mins                      Sampling. Core 3 estimated remaining time: 17 mins                      Sampling. Core 5 estimated remaining time: 11 mins                      Sampling. Core 8 estimated remaining time: 47 mins                      Sampling. Core 7 estimated remaining time: 30 mins                      Sampling. Core 3 estimated remaining time: 11 mins                      Sampling. Core 6 estimated remaining time: 79 mins                      Sampling. Core 5 estimated remaining time: 5.4 mins                      Sampling. Core 7 estimated remaining time: 22 mins                      Sampling. Core 6 estimated remaining time: 56 mins                      Sampling. Core 7 estimated remaining time: 14 mins                      Sampling. Core 3 estimated remaining time: 6 mins                      Sampling. Core 7 estimated remaining time: 6.5 mins                      Sampling. Core 1 estimated remaining time: 43 mins                      Sampling. Core 4 estimated remaining time: 2 hours                      Sampling. Core 2 estimated remaining time: 0.3 hours                      Sampling. Core 1 estimated remaining time: 0.53 hours                      Sampling. Core 4 estimated remaining time: 1.3 hours                      Sampling. Core 8 estimated remaining time: 0.88 hours                      Sampling. Core 6 estimated remaining time: 0.88 hours                      Sampling. Core 2 estimated remaining time: 0.14 hours                      
