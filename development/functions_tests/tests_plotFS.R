@@ -4,7 +4,7 @@ source('util_vtransform.R', local=T)
 #### mtcars
 data(mtcars)
 dataset <- mtcars
-learned <- readRDS('/home/pglpm/repositories/bayes_nonparametric_inference/development/tests/mtcars/_newD_test_mtcars-2-vrt11_dat32_smp512/learned.rds')
+learned <- readRDS('~/repositories/bayes_nonparametric_inference/development/tests/mtcars/_newD_test_mtcars-2-vrt11_dat32_smp512/learned.rds')
 jac <- T
 
 library('foreach')
@@ -27,8 +27,8 @@ plotFsamples(
 
 ######################################################################
 #### nadpark
-dataset <- read.csv('/home/pglpm/repositories/parkinsonbayes/data/nadpark/toydata.csv', na.strings='')
-learned <- readRDS('/home/pglpm/repositories/parkinsonbayes/data/nadpark/_testtoy_analysis_2_3A4-1-vrt7_dat30_smp1024/learned.rds')
+dataset <- read.csv('~/repositories/parkinsonbayes/data/nadpark/toydata.csv', na.strings='')
+learned <- readRDS('~/repositories/parkinsonbayes/data/nadpark/_testtoy_analysis_2_3A4-1-vrt7_dat30_smp1024/learned.rds')
 jac <- T
 
 library('foreach')
@@ -53,8 +53,8 @@ plotFsamples(
 
 ######################################################################
 #### custom
-dataset <- read.csv('/home/pglpm/repositories/bayes_nonparametric_inference/development/test_custom/datanew_test_custom_30.csv', na.strings='')
-learned <- readRDS('/home/pglpm/repositories/bayes_nonparametric_inference/development/test_custom/_newdeletepackagetest-vrt10_dat30_smp120/learned.rds')
+dataset <- read.csv('~/repositories/bayes_nonparametric_inference/development/test_custom/datanew_test_custom_30.csv', na.strings='')
+learned <- readRDS('~/repositories/bayes_nonparametric_inference/development/test_custom/_newdeletepackagetest-vrt10_dat30_smp120/learned.rds')
 jac <- T
 ##
 library('foreach')
@@ -79,8 +79,8 @@ plotFsamples(
 
 
 
-dataset <- read.csv('/home/pglpm/repositories/parkinsonbayes/data/nadpark/toydata.csv', na.strings='')[,-1]
-learned <- readRDS('/home/pglpm/repositories/parkinsonbayes/data/nadpark/_testtoy_analysis_3A4-1-vrt7_dat30_smp1024/learned.rds')
+dataset <- read.csv('~/repositories/parkinsonbayes/data/nadpark/toydata.csv', na.strings='')[,-1]
+learned <- readRDS('~/repositories/parkinsonbayes/data/nadpark/_testtoy_analysis_3A4-1-vrt7_dat30_smp1024/learned.rds')
 out <- t(sapply(1:5, function(ipoint){
     sapply(1:ncol(dataset), function(i){
         v0 <- samplesFDistribution(Y=dataset[ipoint,i,drop=F], X=NULL, learned = learned, jacobian = T, silent=T)
@@ -97,7 +97,7 @@ source('util_vtransform.R', local=T)
 source('samplesFDistribution.R', local=T)
 data(mtcars)
 dataset <- mtcars
-learned <- readRDS('/home/pglpm/repositories/bayes_nonparametric_inference/development/tests/mtcars/test_mtcars_learned.rds')
+learned <- readRDS('~/repositories/bayes_nonparametric_inference/development/tests/mtcars/test_mtcars_learned.rds')
 jac <- T
 ##
 out <- t(sapply(1:32, function(ipoint){

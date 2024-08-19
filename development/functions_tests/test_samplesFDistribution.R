@@ -3,8 +3,8 @@
 #############################################################
 
 #### custom – test time use of util_lprob.R
-dataset <- read.csv('/home/pglpm/repos/bayes_nonparametric_inference/development/tests/custom/dataset_custom30.csv', na.strings='')
-learned <- readRDS('/home/pglpm/repos/bayes_nonparametric_inference/development/tests/custom/test_custom-240816T094427-vrt10_dat30_smp120/learned.rds')
+dataset <- read.csv('~/repos/bayes_nonparametric_inference/development/tests/custom/dataset_custom30.csv', na.strings='')
+learned <- readRDS('~/repos/bayes_nonparametric_inference/development/tests/custom/test_custom-240816T094427-vrt10_dat30_smp120/learned.rds')
 ##
 source('util_vtransform.R', local=T)
 source('samplesFDistribution.R', local=T)
@@ -37,8 +37,8 @@ max(abs(2*(out0-out2)/(out0+out2)))
 
 
 #### custom
-dataset <- read.csv('/home/pglpm/repositories/bayes_nonparametric_inference/development/tests/custom/dataset_custom30.csv', na.strings='')
-learned <- readRDS('/home/pglpm/repositories/bayes_nonparametric_inference/development/tests/custom/_newdeletepackagetest-vrt10_dat30_smp120/learned.rds')
+dataset <- read.csv('~/repositories/bayes_nonparametric_inference/development/tests/custom/dataset_custom30.csv', na.strings='')
+learned <- readRDS('~/repositories/bayes_nonparametric_inference/development/tests/custom/_newdeletepackagetest-vrt10_dat30_smp120/learned.rds')
 ##
 source('util_vtransform.R', local=T)
 source('samplesFDistribution.R', local=T)
@@ -66,8 +66,8 @@ max(abs(out))
 #### nadpark
 source('util_vtransform.R', local=T)
 source('samplesFDistribution.R', local=T)
-dataset <- read.csv('/home/pglpm/repositories/parkinsonbayes/data/nadpark/toydata.csv', na.strings='')[,-1]
-learned <- readRDS('/home/pglpm/repositories/parkinsonbayes/data/nadpark/_testtoy_analysis_2_3A4-1-vrt7_dat30_smp1024/learned.rds')
+dataset <- read.csv('~/repositories/parkinsonbayes/data/nadpark/toydata.csv', na.strings='')[,-1]
+learned <- readRDS('~/repositories/parkinsonbayes/data/nadpark/_testtoy_analysis_2_3A4-1-vrt7_dat30_smp1024/learned.rds')
 out <- t(sapply(1:5, function(ipoint){
     sapply(1:ncol(dataset), function(i){
         v0 <- samplesFDistribution(Y=dataset[ipoint,i,drop=F], X=NULL, learned = learned, jacobian = T, silent=T)
@@ -89,7 +89,7 @@ dataset <- data.frame(
     B1 = c('yes','yes','no','no','yes'),
     N1 = c('A','C','A','C','B')
 )
-learned <- readRDS('/home/pglpm/repositories/bayes_nonparametric_inference/development/tests/BN_functdependence/learned.rds')
+learned <- readRDS('~/repositories/bayes_nonparametric_inference/development/tests/BN_functdependence/learned.rds')
 ##
 source('util_vtransform.R', local=T)
 source('samplesFDistribution.R', local=T)
@@ -162,8 +162,8 @@ max(abs(out))
 #############################################################
 
 #### custom - test new samplesFDistribution
-dataset <- read.csv('/home/pglpm/repositories/bayes_nonparametric_inference/development/tests/custom/dataset_custom150.csv', na.strings='')
-learned <- readRDS('/home/pglpm/repositories/bayes_nonparametric_inference/development/tests/custom/_newdeletepackagetest-vrt10_dat30_smp120/learned.rds')
+dataset <- read.csv('~/repositories/bayes_nonparametric_inference/development/tests/custom/dataset_custom150.csv', na.strings='')
+learned <- readRDS('~/repositories/bayes_nonparametric_inference/development/tests/custom/_newdeletepackagetest-vrt10_dat30_smp120/learned.rds')
 ##
 
 library('predict')
@@ -203,8 +203,8 @@ max(abs(2*(out-out2)/(out+out2)))
 
 
 #### custom
-dataset <- read.csv('/home/pglpm/repositories/bayes_nonparametric_inference/development/test_custom/datanew_test_custom_30.csv', na.strings='')
-learned <- readRDS('/home/pglpm/repositories/bayes_nonparametric_inference/development/test_custom/_newdeletepackagetest-vrt10_dat30_smp120/learned.rds')
+dataset <- read.csv('~/repositories/bayes_nonparametric_inference/development/test_custom/datanew_test_custom_30.csv', na.strings='')
+learned <- readRDS('~/repositories/bayes_nonparametric_inference/development/test_custom/_newdeletepackagetest-vrt10_dat30_smp120/learned.rds')
 jac <- T
 ##
 nY <- sample(1:(ncol(dataset)-1), 1)
@@ -216,7 +216,7 @@ iX <- sample(1:nrow(dataset),npoints)
 ##
 source('util_vtransform.R', local=T)
 source('samplesFDistribution.R', local=T)
-source('/home/pglpm/repositories/bayes_nonparametric_inference/development/scripts_tests/testSFD.R', local=T)
+source('~/repositories/bayes_nonparametric_inference/development/scripts_tests/testSFD.R', local=T)
 out <- sapply(1:length(iY), function(i){
     v0 <- samplesFDistribution(
         Y=dataset[iY[i],Ys,drop=F],
@@ -238,7 +238,7 @@ max(abs(out))
 #### mtcars
 data(mtcars)
 dataset <- mtcars
-learned <- readRDS('/home/pglpm/repositories/bayes_nonparametric_inference/development/tests/mtcars/_newD_test_mtcars-3-vrt11_dat32_smp512/learned.rds')
+learned <- readRDS('~/repositories/bayes_nonparametric_inference/development/tests/mtcars/_newD_test_mtcars-3-vrt11_dat32_smp512/learned.rds')
 jac <- T
 ##
 nY <- sample(1:(ncol(dataset)-1), 1)
@@ -250,7 +250,7 @@ iX <- sample(1:nrow(dataset),npoints)
 ##
 source('util_vtransform.R', local=T)
 source('samplesFDistribution.R', local=T)
-source('/home/pglpm/repositories/bayes_nonparametric_inference/development/scripts_tests/testSFD.R', local=T)
+source('~/repositories/bayes_nonparametric_inference/development/scripts_tests/testSFD.R', local=T)
 out <- sapply(1:length(iY), function(i){
     v0 <- samplesFDistribution(
         Y=dataset[iY[i],Ys,drop=F],
@@ -270,7 +270,7 @@ max(abs(out))
 
 
 dataset <- mtcars
-learned <- readRDS('/home/pglpm/repositories/bayes_nonparametric_inference/development/tests/mtcars/_newD_test_mtcars-3-vrt11_dat32_smp512/learned.rds')
+learned <- readRDS('~/repositories/bayes_nonparametric_inference/development/tests/mtcars/_newD_test_mtcars-3-vrt11_dat32_smp512/learned.rds')
 
 
 library('predict')
@@ -309,8 +309,8 @@ max(abs(2*(out-out2)/(out+out2)))
 
 
 #### nadpark
-dataset <- read.csv('/home/pglpm/repositories/parkinsonbayes/data/nadpark/toydata.csv', na.strings='')[,-1]
-learned <- readRDS('/home/pglpm/repositories/parkinsonbayes/data/nadpark/_testtoy_analysis_2_3A4-1-vrt7_dat30_smp1024/learned.rds')
+dataset <- read.csv('~/repositories/parkinsonbayes/data/nadpark/toydata.csv', na.strings='')[,-1]
+learned <- readRDS('~/repositories/parkinsonbayes/data/nadpark/_testtoy_analysis_2_3A4-1-vrt7_dat30_smp1024/learned.rds')
 jac <- T
 ##
 nY <- sample(1:(ncol(dataset)-1), 1)
@@ -322,7 +322,7 @@ iX <- sample(1:nrow(dataset),npoints)
 ##
 source('util_vtransform.R', local=T)
 source('samplesFDistribution.R', local=T)
-source('/home/pglpm/repositories/bayes_nonparametric_inference/development/scripts_tests/testSFD.R', local=T)
+source('~/repositories/bayes_nonparametric_inference/development/scripts_tests/testSFD.R', local=T)
 out <- sapply(1:length(iY), function(i){
     v0 <- samplesFDistribution(
         Y=dataset[iY[i],Ys,drop=F],
@@ -348,8 +348,8 @@ max(abs(out))
 
 testrd <- function(x,y){2*max(abs((x-y)/(x+y)), na.rm=T)}
 #### custom – test time use of util_lprob.R
-dataset <- read.csv('/home/pglpm/repos/bayes_nonparametric_inference/development/tests/custom/dataset_custom30.csv', na.strings='')
-learned <- readRDS('/home/pglpm/repos/bayes_nonparametric_inference/development/tests/custom/test_custom-240816T094427-vrt10_dat30_smp120/learned.rds')
+dataset <- read.csv('~/repos/bayes_nonparametric_inference/development/tests/custom/dataset_custom30.csv', na.strings='')
+learned <- readRDS('~/repos/bayes_nonparametric_inference/development/tests/custom/test_custom-240816T094427-vrt10_dat30_smp120/learned.rds')
 
 nY <- sample(1:(ncol(dataset)-1), 1)
 Ys <- sample(colnames(dataset), nY)
@@ -358,10 +358,10 @@ Xs <- sample(setdiff(colnames(dataset), Ys), ncol(dataset)-nY)
 YY <- dataset[sample(1:nrow(dataset),2),Ys, drop=F]
 XX <- NULL#dataset[sample(1:nrow(dataset),20),Xs, drop=F]
 ##
-## load('/home/pglpm/repos/bayes_nonparametric_inference/R/sysdata.rda')
-## source('/home/pglpm/repos/bayes_nonparametric_inference/R/util_lprob.R', local=T)
-## source('/home/pglpm/repos/bayes_nonparametric_inference/R/util_vtransform.R', local=T)
-## source('/home/pglpm/repos/bayes_nonparametric_inference/R/samplesFDistribution.R', local=T)
+## load('~/repos/bayes_nonparametric_inference/R/sysdata.rda')
+## source('~/repos/bayes_nonparametric_inference/R/util_lprob.R', local=T)
+## source('~/repos/bayes_nonparametric_inference/R/util_vtransform.R', local=T)
+## source('~/repos/bayes_nonparametric_inference/R/samplesFDistribution.R', local=T)
 
 test0 <- rbind(samplesFDistribution(
     Y = YY,
@@ -372,10 +372,10 @@ test0 <- rbind(samplesFDistribution(
 ## rowMeans(test0, na.rm = T)
 ## apply(test0, 1, quantile, prob=c(5,95)/100, type = 6, na.rm=T)
 ##
-## source('/home/pglpm/repos/bayes_nonparametric_inference/R/util_vtransform.R', local=T)
-## source('/home/pglpm/repos/bayes_nonparametric_inference/R/util_lprob.R', local=T)
-## load('/home/pglpm/repos/bayes_nonparametric_inference/R/sysdata.rda')
-## source('/home/pglpm/repos/bayes_nonparametric_inference/R/Pr.R', local=T)
+## source('~/repos/bayes_nonparametric_inference/R/util_vtransform.R', local=T)
+## source('~/repos/bayes_nonparametric_inference/R/util_lprob.R', local=T)
+## load('~/repos/bayes_nonparametric_inference/R/sysdata.rda')
+## source('~/repos/bayes_nonparametric_inference/R/Pr.R', local=T)
 test1 <- Pr(
     Y = YY,
     X = XX,

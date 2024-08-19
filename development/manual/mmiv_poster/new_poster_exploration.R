@@ -1,12 +1,10 @@
 ## Author: PGL  Porta Mana
 ## Created: 2021-03-20T10:07:17+0100
-## Last-Updated: 2021-12-06T15:17:01+0100
+## Last-Updated: 2024-08-19T06:21:55+0200
 ################
 ## Exploration for MMIV poster
 ################
-if(file.exists("/cluster/home/pglpm/R")){
-    .libPaths(c("/cluster/home/pglpm/R",.libPaths()))
-}
+
 #### Custom setup ####
 ## Colour-blind friendly palettes, from https://personal.sron.nl/~pault/
 ## library('khroma')
@@ -83,7 +81,7 @@ tplot(x=oalldata[group==0,x],
       xlim=range(oalldata$x)+c(0,0),
       ylim=c(0,2),
       xlab='X = % tumour-volume increase after 6 months',
-      yticks=-30, 
+      yticks=-30,
       mar=c(3.25, 12, 1, 1)+c(1,1,1,1)
       )
 ##
@@ -347,7 +345,7 @@ if(posterior){
         }
     }
 }else{
-    confmodel <- configureMCMC(Cmodel, 
+    confmodel <- configureMCMC(Cmodel,
                                monitors=c('q',
                                           if(nrcovs>0){c('meanR', 'tauR')},
                                           if(nicovs>0){c('probI', 'sizeI')},
@@ -421,7 +419,7 @@ for(stage in 0:nstages){
     badcols <- foreach(i=1:ncol(traces), .combine=c)%do%{if(all(is.na(traces[,i]))){i}else{NULL}}
     if(!is.null(badcols)){traces <- traces[,-badcols]}
     saveRDS(traces,file=paste0(dirname,'/_traces-R',version,'-V',length(covNames),'-D',ndata,'-K',nclusters,'-I',nrow(mcsamples),'.rds'))
-    
+
     ##
     if(nrow(traces)>=1000){
         funMCSE <- function(x){LaplacesDemon::MCSE(x, method='batch.means')$se}
@@ -775,7 +773,7 @@ dev.off()
 
 vdh <- thist(vardiffs,n=256*2)
 pdff('new_example_plot_2ndmeas_varsdiff')
-tplot(vdh$mid, vdh$density, col=4, lwd=5, xlab='(variance group A) - (variance group B)', ylab='probability', xlim=quant(vardiffs,c(1,99)/100))#, main='predicted difference between variances of groups A and B') 
+tplot(vdh$mid, vdh$density, col=4, lwd=5, xlab='(variance group A) - (variance group B)', ylab='probability', xlim=quant(vardiffs,c(1,99)/100))#, main='predicted difference between variances of groups A and B')
 legend(x=-280,y=0.013, legend=paste0(
                        'estimated difference between variances: ',signif(mean(vardiffs),2),'\u00b1',signif(sd(vardiffs),2),
                        ## signif(quant(meandiffs,c(1)/8)*2,2),' < difference < ',signif(quant(meandiffs,c(7)/8)*2,2),'\nwith 75% probability','\n\n',
@@ -1099,7 +1097,7 @@ dev.off()
 ##     badcols <- foreach(i=1:ncol(traces), .combine=c)%do%{if(all(is.na(traces[,i]))){i}else{NULL}}
 ##     if(!is.null(badcols)){traces <- traces[,-badcols]}
 ##     saveRDS(traces,file=paste0('_traces-R',version,'-V',length(covNames),'-D',ndata,'-K',nclusters,'-I',nrow(mcsamples),'.rds'))
-    
+
 ##     ##
 ##     if(nrow(traces)>=1000){
 ##         funMCSE <- function(x){LaplacesDemon::MCSE(x, method='batch.means')$se}

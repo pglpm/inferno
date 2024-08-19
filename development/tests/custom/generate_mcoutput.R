@@ -47,5 +47,5 @@ testlearned <- list(
     W = W,
     auxmetadata = auxmetadata)
 ##
-saveRDS(testlearned, '/home/pglpm/repositories/bayes_nonparametric_inference/development/tests/BN_functdependence/learned.rds')
+saveRDS(testlearned, 'learned.rds')
 
