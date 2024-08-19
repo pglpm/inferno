@@ -26,11 +26,11 @@ currenttestdir <- inferpopulation(data = NULL,
                         ## lldata = 12,
                         seed = seed)
 
-#### Test whether learned output is identical
-cat('\nVerifying equality of "learned.rds" (TRUE = passed):\n')
+#### Test whether learnt output is identical
+cat('\nVerifying equality of "learnt.rds" (TRUE = passed):\n')
 print(identical(
-  readRDS(file.path(currenttestdir,'learned.rds')),
-  readRDS(file.path(refdir,'learned.rds'))
+  readRDS(file.path(currenttestdir,'learnt.rds')),
+  readRDS(file.path(refdir,'learnt.rds'))
 ))
 
 #### Test whether MCtraces output is identical
