@@ -1,6 +1,6 @@
 #### custom
-dataset <- read.csv('/home/pglpm/repositories/bayes_nonparametric_inference/development/tests/custom/dataset_custom30.csv', na.strings='')
-learned <- readRDS('/home/pglpm/repositories/bayes_nonparametric_inference/development/tests/custom/_newdeletepackagetest-vrt10_dat30_smp120/learned.rds')
+dataset <- read.csv('~/repositories/bayes_nonparametric_inference/development/tests/custom/dataset_custom30.csv', na.strings='')
+learned <- readRDS('~/repositories/bayes_nonparametric_inference/development/tests/custom/_newdeletepackagetest-vrt10_dat30_smp120/learned.rds')
 ##
 Y1s <- sample(colnames(dataset),2)
 Y2s <- sample(setdiff(colnames(dataset), Y1s),2)
@@ -36,8 +36,8 @@ library('predict')
 
 
 
-dataset <- read.csv('/home/pglpm/repositories/bayes_nonparametric_inference/development/tests/custom/dataset_custom30.csv', na.strings='')
-learned <- readRDS('/home/pglpm/repositories/bayes_nonparametric_inference/development/tests/custom/_newdeletepackagetest-vrt10_dat30_smp120/learned.rds')
+dataset <- read.csv('~/repositories/bayes_nonparametric_inference/development/tests/custom/dataset_custom30.csv', na.strings='')
+learned <- readRDS('~/repositories/bayes_nonparametric_inference/development/tests/custom/_newdeletepackagetest-vrt10_dat30_smp120/learned.rds')
 ##
 Y1s <- sample(colnames(dataset),3)
 Y2s <- sample(setdiff(colnames(dataset), Y1s),3)
@@ -82,7 +82,7 @@ identical(out,out2)
 #### mtcars
 data(mtcars)
 dataset <- mtcars
-learned <- readRDS('/home/pglpm/repositories/bayes_nonparametric_inference/development/tests/mtcars/_newD_test_mtcars-3-vrt11_dat32_smp512/learned.rds')
+learned <- readRDS('~/repositories/bayes_nonparametric_inference/development/tests/mtcars/_newD_test_mtcars-3-vrt11_dat32_smp512/learned.rds')
 ##
 Y1s <- sample(colnames(mtcars),2)
 Y2s <- sample(setdiff(colnames(mtcars), Y1s),2)
@@ -107,7 +107,7 @@ out
 #### BN_functdependence
 ## B1='yes' is correlated with N1=c('A','B')
 ## B1='no' is correlated with N1=c('C')
-learned <- readRDS('/home/pglpm/repositories/bayes_nonparametric_inference/development/tests/BN_functdependence/learned.rds')
+learned <- readRDS('~/repositories/bayes_nonparametric_inference/development/tests/BN_functdependence/learned.rds')
 
 source('util_vtransform.R', local=T)
 source('samplesFDistribution.R', local=T)
