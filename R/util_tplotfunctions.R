@@ -1,6 +1,5 @@
 #' Various plotting and statistics functions
 #'
-#' @import khroma
 
 ## Colour-blind friendly palettes, from https://personal.sron.nl/~pault/
 ## palette(colour('bright')())
@@ -82,16 +81,6 @@
 ##                  width = width, units = 'in', res = res)
 ## }
 
-alpha2hex2 <- function(alpha, col = NULL) {
-    if (!is.character(alpha)) {
-        alpha <- sprintf('%02x', round((1 - alpha) * 255))
-    }
-    if (is.numeric(col)) {
-        col <- palette()[col]
-    }
-    paste0(col, alpha)
-}
-
 alpha2hex <- function(col, alpha = NULL) {
     if (is.null(alpha)) {
         alpha <- 0
@@ -101,6 +90,16 @@ alpha2hex <- function(col, alpha = NULL) {
     }
     do.call(rgb, c(as.list(col2rgb(col)),
         list((1 - alpha) * 255, maxColorValue = 255)))
+}
+
+alpha2hex2 <- function(alpha, col = NULL) {
+    if (!is.character(alpha)) {
+        alpha <- sprintf('%02x', round((1 - alpha) * 255))
+    }
+    if (is.numeric(col)) {
+        col <- palette()[col]
+    }
+    paste0(col, alpha)
 }
 
 tticks <- pretty

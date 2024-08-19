@@ -1,4 +1,4 @@
-#### Function for calculating MCMC standard error
+#' Function for calculating MCMC standard error
 funMCSE <- function(x) {
     N <- nrow(x)
     b <- floor(sqrt(N))
@@ -10,7 +10,7 @@ funMCSE <- function(x) {
     sqrt(b * rowSums((Ys - colMeans(x))^2) / ((a - 1) * N))
 }
 
-#### Function for calculating number of needed MCMC iterations
+#' Function for calculating the number of needed MCMC iterations
 mcmcstop <- function(
     traces,
     nsamples,
