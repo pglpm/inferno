@@ -5,7 +5,7 @@ if(basename(startdir) != 'custom'){
     cat('\nAre you in the correct folder?\n')
 }
 
-cat('\nInstalling local package "predict" in local library\n\n')
+cat('\nLoading package "predict"\n\n')
 
 if(!(Sys.getenv("R_LIBS_USER") %in% .libPaths())) {
     stop('Make sure your local installation directory,\n',
@@ -13,12 +13,12 @@ if(!(Sys.getenv("R_LIBS_USER") %in% .libPaths())) {
         '\nexists.\n')
 }
 
-devtools::install()
+# devtools::install()
 library('predict')
 
 seed <- 16
 
-outputdirPrefix <- file.path('_newdeletepackagetest')
+outputdirPrefix <- file.path('test_custom')
 
 ## ncores <- 4
 ## library('doParallel')
@@ -32,10 +32,10 @@ currenttestdir <- learn(
     output = 'directory',
     appendtimestamp = TRUE,
     appendinfo = TRUE,
-    nsamples = 3600,
-    nchains = 60,
+    ##nsamples = 120,
+    ##nchains = 12,
     parallel = 8,
-    maxhours = +Inf,
+    ## maxhours = 0,
     ## relerror = 0.062,
     ncheckpoints = NULL,
     cleanup = FALSE,
@@ -58,6 +58,21 @@ mi <- mutualinfo(
 )
 
 print(mi)
+
+warnings()
+
+dataset <- read.csv('dataset_custom500.csv', na.strings='')
+nv <- round(ncol(dataset)/2)
+probs <- Pr(
+    Y = dataset[1:20,1:nv,drop=F],
+    X = dataset[1:20,(nv+1):ncol(dataset), drop=F],
+    learnt = currenttestdir,
+    parallel = 4
+)
+
+print(probs$values)
+
+print(probs$quantiles)
 
 warnings()
 
