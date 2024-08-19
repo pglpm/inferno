@@ -1,6 +1,6 @@
-#### Eliminate samples from an learned object
-mcsubset <- function(learned, subsamples) {
-    lapply(learned, function(xx) {
+#### Eliminate samples from an learnt object
+mcsubset <- function(learnt, subsamples) {
+    lapply(learnt, function(xx) {
         do.call('[', c(
             list(xx),
             rep(TRUE, length(dim(xx)) - 1),

@@ -71,7 +71,7 @@ trainpoints <- sort(sample(1:nrow(alldata), ntrain))
 ## We must also specify an output directory
 
 outputdir <- file.path('..', 'tests', '_testexampledata2')
-learned <- inferpopulation(data = alldata[trainpoints],
+learnt <- inferpopulation(data = alldata[trainpoints],
                            metadata = file.path('..', 'tests',
                                                 'meta-exampledata-modified.csv'),
                            outputdir = outputdir,
@@ -83,14 +83,14 @@ learned <- inferpopulation(data = alldata[trainpoints],
 ## by reading the files '_log-1.log', '_log-2.log', etc in the output dir
 ##
 ## The final output to be used in subsequent analysis is stored in
-## [outputdir]/learned.rds
+## [outputdir]/learnt.rds
 ##
 ## Monte Carlo traces, to check convergence, are in
 ## [outputdir]/MCtraces.pdf
 ##
 ## Marginal distributions for each individual variate are in
-## [outputdir]/plotsamples_learned.pdf
-## [outputdir]/plotquantiles_learned.pdf
+## [outputdir]/plotsamples_learnt.pdf
+## [outputdir]/plotquantiles_learnt.pdf
 
 #### Example analysis using the updated probability distribution
 
@@ -123,7 +123,7 @@ X <- cbind(
 ## (don't worry about 'recycling' warnings)
 
 testposterior <- samplesFDistribution(Y = Y, X = X,
-                                      learned = learned,
+                                      learnt = learnt,
                                       parallel = TRUE)
 
 ## 'testposterior' has:
@@ -215,7 +215,7 @@ for (i in testpoints) {
   softmax <- exp(as.numeric(X))
   softmax <- softmax / sum(softmax)
   ## calculate posterior probability & samples
-  posterior <- samplesFDistribution(Y = Y, X = X, learned = outputdir, silent = TRUE, parallel = TRUE)
+  posterior <- samplesFDistribution(Y = Y, X = X, learnt = outputdir, silent = TRUE, parallel = TRUE)
   probdistr <- rowMeans(posterior)
   samplefreqs <- posterior[, postsamples]
   ##

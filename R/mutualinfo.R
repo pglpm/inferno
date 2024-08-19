@@ -4,8 +4,8 @@
 #' @param Y2names String vector or NULL: second group of joint variates
 #' @param X matrix or data.frame or NULL: values of some variates conditional on
 #'   which we want the probabilities
-#' @param learned Either a string with the name of a directory or full path
-#'   for an 'learned.rds' object, or such an object itself
+#' @param learnt Either a string with the name of a directory or full path
+#'   for an 'learnt.rds' object, or such an object itself
 #' @param nsamples numeric: number of samples from which to approximately
 #'   calculate the mutual information. Default 3600
 #' @param unit Either one of 'Sh' (default), 'Hart', 'nat', or a positive real
@@ -23,7 +23,7 @@ mutualinfo <- function(
     Y1names,
     Y2names,
     X = NULL,
-    learned,
+    learnt,
     nsamples = 3600,
     unit = 'Sh',
     parallel = TRUE,
@@ -133,30 +133,30 @@ mutualinfo <- function(
     }
 
     ## Extract Monte Carlo output & aux-metadata
-    ## If learned is a string, check if it's a folder name or file name
-    if (is.character(learned)) {
-        ## Check if 'learned' is a folder containing learned.rds
-        if (file_test('-d', learned) &&
-                file.exists(file.path(learned, 'learned.rds'))) {
-            learned <- readRDS(file.path(learned, 'learned.rds'))
+    ## If learnt is a string, check if it's a folder name or file name
+    if (is.character(learnt)) {
+        ## Check if 'learnt' is a folder containing learnt.rds
+        if (file_test('-d', learnt) &&
+                file.exists(file.path(learnt, 'learnt.rds'))) {
+            learnt <- readRDS(file.path(learnt, 'learnt.rds'))
         } else {
-            ## Assume 'learned' the full path of learned.rds
+            ## Assume 'learnt' the full path of learnt.rds
             ## possibly without the file extension '.rds'
-            learned <- paste0(sub('.rds$', '', learned), '.rds')
-            if (file.exists(learned)) {
-                learned <- readRDS(learned)
+            learnt <- paste0(sub('.rds$', '', learnt), '.rds')
+            if (file.exists(learnt)) {
+                learnt <- readRDS(learnt)
             } else {
-                stop("The argument 'learned' must be a folder containing learned.rds, or the path to an rds-file containing the output from 'learn()'.")
+                stop("The argument 'learnt' must be a folder containing learnt.rds, or the path to an rds-file containing the output from 'learn()'.")
             }
         }
     }
-    ## Add check to see that learned is correct type of object?
-    auxmetadata <- learned$auxmetadata
-    learned$auxmetadata <- NULL
-    learned$auxinfo <- NULL
+    ## Add check to see that learnt is correct type of object?
+    auxmetadata <- learnt$auxmetadata
+    learnt$auxmetadata <- NULL
+    learnt$auxinfo <- NULL
 
-    nMCsamples <- ncol(learned$W)
-    ncomponents <- nrow(learned$W)
+    nMCsamples <- ncol(learnt$W)
+    ncomponents <- nrow(learnt$W)
 
     ## Consistency checks
     if (unit == 'Sh') {
@@ -254,7 +254,7 @@ mutualinfo <- function(
     XiR <- XiR[XtR]
     XnR <- length(XiR)
     if (Y1nR > 0 || Y2nR > 0 || XnR > 0) {
-        learned$Rvar <- sqrt(learned$Rvar)
+        learnt$Rvar <- sqrt(learnt$Rvar)
     }
     ##
     YiR <- match(vnames, Ynames)
@@ -279,7 +279,7 @@ mutualinfo <- function(
     XiC <- XiC[XtC]
     XnC <- length(XiC)
     if (Y1nC > 0 || Y2nC > 0 || XnC > 0) {
-        learned$Cvar <- sqrt(learned$Cvar)
+        learnt$Cvar <- sqrt(learnt$Cvar)
         Clefts <- auxmetadata[match(vnames, auxmetadata$name), 'tleftbound']
         Crights <- auxmetadata[match(vnames, auxmetadata$name), 'trightbound']
     }
@@ -306,7 +306,7 @@ mutualinfo <- function(
     XiD <- XiD[XtD]
     XnD <- length(XiD)
     if (Y1nD > 0 || Y2nD > 0 || XnD > 0) {
-        learned$Dvar <- sqrt(learned$Dvar)
+        learnt$Dvar <- sqrt(learnt$Dvar)
         Dsteps <- auxmetadata[match(vnames, auxmetadata$name), 'halfstep'] /
             auxmetadata[match(vnames, auxmetadata$name), 'tscale']
         Dlefts <- auxmetadata[match(vnames, auxmetadata$name), 'tleftbound']
@@ -387,7 +387,7 @@ mutualinfo <- function(
 
 #### STEP 0. Adjust component weights W for conditioning on X
     if(is.null(X)){
-        lW <- log(learned$W)
+        lW <- log(learnt$W)
     } else {
         x <- t(as.matrix(vtransform(X, auxmetadata = auxmetadata,
             Rout = 'normalized',
@@ -397,10 +397,10 @@ mutualinfo <- function(
             Nout = 'numeric',
             Bout = 'numeric')))
         ##
-        lW <- log(learned$W) +
+        lW <- log(learnt$W) +
                     util_lprob(
                         x = x,
-                        learned = learned,
+                        learnt = learnt,
                         nR = XnR, iR = XiR, tR = XtR,
                         nC = XnC, iC = XiC, tC = XtC,
                         Clefts = Clefts, Crights = Crights,
@@ -430,38 +430,38 @@ mutualinfo <- function(
     (if(YnR > 0){# continuous
         totake <- cbind(rep(YtR,each=n), Ws, sseq)
         rnorm(n=n*YnR,
-            mean=learned$Rmean[totake],
-            sd=learned$Rvar[totake]
+            mean=learnt$Rmean[totake],
+            sd=learnt$Rvar[totake]
         )
     }else{NULL}),
     (if(YnC > 0){# censored
         totake <- cbind(rep(YtC,each=n), Ws, sseq)
         rnorm(n=n*YnC,
-            mean=learned$Cmean[totake],
-            sd=learned$Cvar[totake]
+            mean=learnt$Cmean[totake],
+            sd=learnt$Cvar[totake]
         )
     }else{NULL}),
     (if(YnD > 0){# continuous discretized
         totake <- cbind(rep(YtD,each=n), Ws, sseq)
         rnorm(n=n*YnD,
-            mean=learned$Dmean[totake],
-            sd=learned$Dvar[totake]
+            mean=learnt$Dmean[totake],
+            sd=learnt$Dvar[totake]
         )
     }else{NULL}),
     (if(YnO > 0){# nominal
         totake <- cbind(rep(YtO,each=n), Ws, sseq)
         extraDistr::rcat(n=n*YnO,
-            prob=apply(learned$Oprob,3,`[`,totake))
+            prob=apply(learnt$Oprob,3,`[`,totake))
     }else{NULL}),
     (if(YnN > 0){# nominal
         totake <- cbind(rep(YtN,each=n), Ws, sseq)
         extraDistr::rcat(n=n*YnN,
-            prob=apply(learned$Nprob,3,`[`,totake))
+            prob=apply(learnt$Nprob,3,`[`,totake))
     }else{NULL}),
     (if(YnB > 0){# binary
         totake <- cbind(rep(YtB,each=n), Ws, sseq)
         extraDistr::rbern(n=n*YnB,
-            prob=learned$Bprob[totake])
+            prob=learnt$Bprob[totake])
     }else{NULL})
     )
 
@@ -502,7 +502,7 @@ mutualinfo <- function(
             } else {
                 lprobY2 <- util_lprob(
                         x = y2,
-                        learned = learned,
+                        learnt = learnt,
                         nR = Y2nR, iR = Y2iR, tR = Y2tR,
                         nC = Y2nC, iC = Y2iC, tC = Y2tC,
                         Clefts = Clefts, Crights = Crights,
@@ -518,7 +518,7 @@ mutualinfo <- function(
 ### lprobY1
             lprobY1 <- util_lprob(
                         x = y1,
-                        learned = learned,
+                        learnt = learnt,
                         nR = Y1nR, iR = Y1iR, tR = Y1tR,
                         nC = Y1nC, iC = Y1iC, tC = Y1tC,
                         Clefts = Clefts, Crights = Crights,

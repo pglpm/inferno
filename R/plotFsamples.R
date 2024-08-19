@@ -2,7 +2,7 @@
 #'
 #' @param file string: name of plot output file
 #' @param learned Either a string with the name of a directory or full
-#'   path for an 'learned.rds' object, or such an object itself
+#'   path for an 'learnt.rds' object, or such an object itself
 #' @param data data.table object or filepath: datapoints
 #' @param plotprobability logical: plot the resulting probability curve
 #' @param plotvariability string, either 'samples' or 'quantiles':
@@ -23,7 +23,7 @@
 #' @export
 plotFsamples <- function(
     file,
-    learned,
+    learnt,
     data,
     plotprobability = TRUE,
     plotvariability = 'samples',
@@ -37,27 +37,27 @@ plotFsamples <- function(
     fontfamily <- 'Palatino'
 
     ## Extract Monte Carlo output & auxmetadata
-    ## If learned is a string, check if it's a folder name or file name
-    if (is.character(learned)) {
-        ## Check if 'learned' is a folder containing learned.rds
-        if (file_test('-d', learned) &&
-                file.exists(file.path(learned, 'learned.rds'))) {
-            learned <- readRDS(file.path(learned, 'learned.rds'))
+    ## If 'learnt' is a string, check if it's a folder name or file name
+    if (is.character(learnt)) {
+        ## Check if 'learnt' is a folder containing learnt.rds
+        if (file_test('-d', learnt) &&
+                file.exists(file.path(learnt, 'learnt.rds'))) {
+            learnt <- readRDS(file.path(learnt, 'learnt.rds'))
         } else {
-            ## Assume 'learned' the full path of learned.rds
+            ## Assume 'learnt' the full path of learnt.rds
             ## possibly without the file extension '.rds'
-            learned <- paste0(sub('.rds$', '', learned), '.rds')
-            if (file.exists(learned)) {
-                learned <- readRDS(learned)
+            learnt <- paste0(sub('.rds$', '', learnt), '.rds')
+            if (file.exists(learnt)) {
+                learnt <- readRDS(learnt)
             } else {
-                stop('The argument "learned" must be a folder containing learned.rds, or the path to an rds-file containing the output from "learn".')
+                stop('The argument "learnt" must be a folder containing learnt.rds, or the path to an rds-file containing the output from "learn".')
             }
         }
     }
 
-    auxmetadata <- learned$auxmetadata
-    ## learned$auxmetadata <- NULL
-    nsamples <- ncol(learned$W)
+    auxmetadata <- learnt$auxmetadata
+    ## learnt$auxmetadata <- NULL
+    nsamples <- ncol(learnt$W)
 
     nodata <- missing(data) || is.null(data) || (is.logical(data) && !data)
     if (datahistogram && nodata) {
@@ -121,7 +121,7 @@ plotFsamples <- function(
                 colnames(Xgrid) <- name
 
                 plotsamples <- samplesFDistribution(Y = Xgrid, X = NULL,
-                    learned = learned,
+                    learnt = learnt,
                     subsamples = mcsubsamples,
                     jacobian = TRUE,
                     parallel = parallel,
@@ -235,7 +235,7 @@ plotFsamples <- function(
                 xin <- Xgrid > leftbound & Xgrid < rightbound
 
                 plotsamples <- samplesFDistribution(Y = Xgrid, X = NULL,
-                    learned = learned,
+                    learnt = learnt,
                     subsamples = mcsubsamples,
                     jacobian = TRUE,
                     parallel = parallel,
@@ -420,7 +420,7 @@ plotFsamples <- function(
                     Xticks <- Xgrid
 
                     plotsamples <- samplesFDistribution(Y = rownames(Xgrid), X = NULL,
-                        learned = learned,
+                        learnt = learnt,
                         subsamples = mcsubsamples,
                         jacobian = TRUE,
                         parallel = parallel,
@@ -433,7 +433,7 @@ plotFsamples <- function(
                     Xticks <- NULL
 
                     plotsamples <- samplesFDistribution(Y = Xgrid, X = NULL,
-                        learned = learned,
+                        learnt = learnt,
                         subsamples = mcsubsamples,
                         jacobian = TRUE,
                         parallel = parallel,

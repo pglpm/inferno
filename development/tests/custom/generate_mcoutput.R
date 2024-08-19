@@ -41,11 +41,11 @@ auxmetadata <- data.frame(
     V3 = c(NA, 'C')
 )
 ##
-testlearned <- list(
+testlearnt <- list(
     Bprob = Bprob,
     Nprob = Nprob,
     W = W,
     auxmetadata = auxmetadata)
 ##
-saveRDS(testlearned, 'learned.rds')
+saveRDS(testlearnt, 'learnt.rds')
 

@@ -54,7 +54,7 @@ mi <- mutualinfo(
     Y1names = c('N2vrt'),
     Y2names = c('Rvrt'),
     X = cbind(Bvrt = 'no'),
-    learned = currenttestdir,
+    learnt = currenttestdir,
     nsamples = 3600,
     parallel = 4
 )
@@ -73,11 +73,11 @@ if(FALSE){
     ## so a comparison with old-version results are not meaningful
     refdir <- 'reference_seed16-vrt9_dat15_smp120'
 
-#### Test whether learned output is identical
-    cat('\nVerifying equality of "learned.rds" (TRUE = passed):\n')
+#### Test whether learnt output is identical
+    cat('\nVerifying equality of "learnt.rds" (TRUE = passed):\n')
     print(identical(
-        readRDS(file.path(currenttestdir,'learned.rds')),
-        readRDS(file.path(refdir,'learned.rds'))
+        readRDS(file.path(currenttestdir,'learnt.rds')),
+        readRDS(file.path(refdir,'learnt.rds'))
     ))
 
 #### Test whether MCtraces output is identical

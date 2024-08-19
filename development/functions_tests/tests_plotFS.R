@@ -4,7 +4,7 @@ source('util_vtransform.R', local=T)
 #### mtcars
 data(mtcars)
 dataset <- mtcars
-learned <- readRDS('~/repositories/bayes_nonparametric_inference/development/tests/mtcars/_newD_test_mtcars-2-vrt11_dat32_smp512/learned.rds')
+learnt <- readRDS('~/repositories/bayes_nonparametric_inference/development/tests/mtcars/_newD_test_mtcars-2-vrt11_dat32_smp512/learnt.rds')
 jac <- T
 
 library('foreach')
@@ -14,7 +14,7 @@ source('samplesFDistribution.R', local=T)
 source('plotFsamples.R', local=T)
 plotFsamples(
     file='_justatest',
-    learned = learned,
+    learnt = learnt,
     data = dataset,
     plotprobability = TRUE,
     plotvariability = 'samples',
@@ -28,7 +28,7 @@ plotFsamples(
 ######################################################################
 #### nadpark
 dataset <- read.csv('~/repositories/parkinsonbayes/data/nadpark/toydata.csv', na.strings='')
-learned <- readRDS('~/repositories/parkinsonbayes/data/nadpark/_testtoy_analysis_2_3A4-1-vrt7_dat30_smp1024/learned.rds')
+learnt <- readRDS('~/repositories/parkinsonbayes/data/nadpark/_testtoy_analysis_2_3A4-1-vrt7_dat30_smp1024/learnt.rds')
 jac <- T
 
 library('foreach')
@@ -39,7 +39,7 @@ source('plotFsamples.R', local=T)
 for(pv in c('samples', 'quantiles')) {
 plotFsamples(
     file= paste0('_justatest_', pv),
-    learned = learned,
+    learnt = learnt,
     data = dataset,
     plotprobability = TRUE,
     plotvariability = pv,
@@ -54,7 +54,7 @@ plotFsamples(
 ######################################################################
 #### custom
 dataset <- read.csv('~/repositories/bayes_nonparametric_inference/development/test_custom/datanew_test_custom_30.csv', na.strings='')
-learned <- readRDS('~/repositories/bayes_nonparametric_inference/development/test_custom/_newdeletepackagetest-vrt10_dat30_smp120/learned.rds')
+learnt <- readRDS('~/repositories/bayes_nonparametric_inference/development/test_custom/_newdeletepackagetest-vrt10_dat30_smp120/learnt.rds')
 jac <- T
 ##
 library('foreach')
@@ -65,7 +65,7 @@ source('plotFsamples.R', local=T)
 for(pv in c('samples', 'quantiles')) {
 plotFsamples(
     file= paste0('_justatest_', pv),
-    learned = learned,
+    learnt = learnt,
     data = dataset,
     plotprobability = TRUE,
     plotvariability = pv,
@@ -80,15 +80,15 @@ plotFsamples(
 
 
 dataset <- read.csv('~/repositories/parkinsonbayes/data/nadpark/toydata.csv', na.strings='')[,-1]
-learned <- readRDS('~/repositories/parkinsonbayes/data/nadpark/_testtoy_analysis_3A4-1-vrt7_dat30_smp1024/learned.rds')
+learnt <- readRDS('~/repositories/parkinsonbayes/data/nadpark/_testtoy_analysis_3A4-1-vrt7_dat30_smp1024/learnt.rds')
 out <- t(sapply(1:5, function(ipoint){
     sapply(1:ncol(dataset), function(i){
-        v0 <- samplesFDistribution(Y=dataset[ipoint,i,drop=F], X=NULL, learned = learned, jacobian = T, silent=T)
-        v1 <- testSFD(Y=dataset[ipoint,i,drop=F], X=NULL, learned = learned)
+        v0 <- samplesFDistribution(Y=dataset[ipoint,i,drop=F], X=NULL, learnt = learnt, jacobian = T, silent=T)
+        v1 <- testSFD(Y=dataset[ipoint,i,drop=F], X=NULL, learnt = learnt)
         max(abs((v1-v0)/(v1+v0)*2))
     })
 }))
-colnames(out) <- learned$auxmetadata$name
+colnames(out) <- learnt$auxmetadata$name
 out
 
 
@@ -97,16 +97,16 @@ source('util_vtransform.R', local=T)
 source('samplesFDistribution.R', local=T)
 data(mtcars)
 dataset <- mtcars
-learned <- readRDS('~/repositories/bayes_nonparametric_inference/development/tests/mtcars/test_mtcars_learned.rds')
+learnt <- readRDS('~/repositories/bayes_nonparametric_inference/development/tests/mtcars/test_mtcars_learnt.rds')
 jac <- T
 ##
 out <- t(sapply(1:32, function(ipoint){
     sapply(1:ncol(dataset), function(i){
-        v0 <- samplesFDistribution(Y=dataset[ipoint,i,drop=F], X=NULL, learned = learned, jacobian = jac, silent=T)
-        v1 <- testSFD(Y=dataset[ipoint,i,drop=F], X=NULL, learned = learned, jacobian = jac)
+        v0 <- samplesFDistribution(Y=dataset[ipoint,i,drop=F], X=NULL, learnt = learnt, jacobian = jac, silent=T)
+        v1 <- testSFD(Y=dataset[ipoint,i,drop=F], X=NULL, learnt = learnt, jacobian = jac)
         max(abs((v1-v0)/(v1+v0)*2))
     })
 }))
-colnames(out) <- learned$auxmetadata$name
+colnames(out) <- learnt$auxmetadata$name
 out
 max(out)

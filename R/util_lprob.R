@@ -1,13 +1,13 @@
 #' Calculate collection of log-probabilities for different components and samples
 #'
 #' @param X numerical matrix: transformed variates
-#' @param learned: Monte-Carlo-output object
+#' @param learnt: Monte-Carlo-output object
 #' @param nR etc: Parameters containing appropriate indices
 #'
 #' @return Matrix with as many rows as components and as many cols as samples
 util_lprob <- function(
     x,
-    learned,
+    learnt,
     nR, iR, tR,
     nC, iC, tC, Clefts, Crights,
     nD, iD, tD, Dsteps, Dlefts, Drights,
@@ -20,8 +20,8 @@ util_lprob <- function(
             colSums(
                 dnorm(
                     x = x[iR, ],
-                    mean = learned$Rmean[tR, , , drop = FALSE],
-                    sd = learned$Rvar[tR, , , drop = FALSE],
+                    mean = learnt$Rmean[tR, , , drop = FALSE],
+                    sd = learnt$Rvar[tR, , , drop = FALSE],
                     log = TRUE
                 ), na.rm = TRUE)
         } else {
@@ -35,8 +35,8 @@ util_lprob <- function(
                     colSums(
                         dnorm(
                             x = x[iC[indf], ],
-                            mean = learned$Cmean[tC[indf], , , drop = FALSE],
-                            sd = learned$Cvar[tC[indf], , , drop = FALSE],
+                            mean = learnt$Cmean[tC[indf], , , drop = FALSE],
+                            sd = learnt$Cvar[tC[indf], , , drop = FALSE],
                             log = TRUE
                         ), na.rm = TRUE)
                 } else {
@@ -52,8 +52,8 @@ util_lprob <- function(
                             pnorm(
                                 q = -abs(vx),
                                 mean = -sign(vx) *
-                                    learned$Cmean[vt, , , drop = FALSE],
-                                sd = learned$Cvar[vt, , , drop = FALSE],
+                                    learnt$Cmean[vt, , , drop = FALSE],
+                                sd = learnt$Cvar[vt, , , drop = FALSE],
                                 log.p = TRUE
                             ), na.rm = TRUE)
                     } else {
@@ -70,13 +70,13 @@ util_lprob <- function(
                 colSums(log(
                     pnorm(
                         q = vrights,
-                        mean = learned$Dmean[tD, , , drop = FALSE],
-                        sd = learned$Dvar[tD, , , drop = FALSE]
+                        mean = learnt$Dmean[tD, , , drop = FALSE],
+                        sd = learnt$Dvar[tD, , , drop = FALSE]
                     ) -
                         pnorm(
                             q = vlefts,
-                            mean = learned$Dmean[tD, , , drop = FALSE],
-                            sd = learned$Dvar[tD, , , drop = FALSE]
+                            mean = learnt$Dmean[tD, , , drop = FALSE],
+                            sd = learnt$Dvar[tD, , , drop = FALSE]
                         )
                 ), na.rm = TRUE)
             } else {
@@ -86,8 +86,8 @@ util_lprob <- function(
                 colSums(log(
                     aperm(
                         vapply(seq_len(nO), function(v) {
-                            learned$Oprob[tO[v], , x[iO[v], ], ]
-                        }, learned$W),
+                            learnt$Oprob[tO[v], , x[iO[v], ], ]
+                        }, learnt$W),
                         c(3, 1, 2))
                 ), na.rm = TRUE)
             } else {
@@ -97,8 +97,8 @@ util_lprob <- function(
                 colSums(log(
                     aperm(
                         vapply(seq_len(nN), function(v) {
-                            learned$Nprob[tN[v], , x[iN[v], ], ]
-                        }, learned$W),
+                            learnt$Nprob[tN[v], , x[iN[v], ], ]
+                        }, learnt$W),
                         c(3, 1, 2))
                 ), na.rm = TRUE)
             } else {
@@ -107,9 +107,9 @@ util_lprob <- function(
             (if (nB > 0) { # binary
                 ## Bprob is the probability that x=1
                 colSums(log(
-                    x[iB, ] * learned$Bprob[tB, , , drop = FALSE] +
+                    x[iB, ] * learnt$Bprob[tB, , , drop = FALSE] +
                         (1 - x[iB, ]) *
-                        (1 - learned$Bprob[tB, , , drop = FALSE])
+                        (1 - learnt$Bprob[tB, , , drop = FALSE])
                 ), na.rm = TRUE)
             } else {
                 0

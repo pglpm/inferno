@@ -4,8 +4,8 @@
 #'   the joint probability one variate per column
 #' @param X matrix or data.table: values of some variates conditional on
 #'   which we want the joint probability one variate per column
-#' @param learned Either a string with the name of a directory or full
-#'   path for an 'learned.rds' object, or such an object itself
+#' @param learnt Either a string with the name of a directory or full
+#'   path for an 'learnt.rds' object, or such an object itself
 #' @param subsamples numeric: number of Monte Carlo samples to use
 #' @param jacobian include the Jacobian in the output probability
 #' @param fn NULL or function to apply to the group of MCsamples,
@@ -23,7 +23,7 @@
 samplesFDistribution <- function(
     Y,
     X,
-    learned,
+    learnt,
     subsamples,
     jacobian = TRUE,
     fn = NULL,
@@ -99,27 +99,27 @@ samplesFDistribution <- function(
     }
 
     ## Extract Monte Carlo output & auxmetadata
-    ## If learned is a string, check if it's a folder name or file name
-    if (is.character(learned)) {
-        ## Check if 'learned' is a folder containing learned.rds
-        if (file_test('-d', learned) &&
-                file.exists(file.path(learned, 'learned.rds'))) {
-            learned <- readRDS(file.path(learned, 'learned.rds'))
+    ## If learnt is a string, check if it's a folder name or file name
+    if (is.character(learnt)) {
+        ## Check if 'learnt' is a folder containing learnt.rds
+        if (file_test('-d', learnt) &&
+                file.exists(file.path(learnt, 'learnt.rds'))) {
+            learnt <- readRDS(file.path(learnt, 'learnt.rds'))
         } else {
-            ## Assume 'learned' the full path of learned.rds
+            ## Assume 'learnt' the full path of learnt.rds
             ## possibly without the file extension '.rds'
-            learned <- paste0(sub('.rds$', '', learned), '.rds')
-            if (file.exists(learned)) {
-                learned <- readRDS(learned)
+            learnt <- paste0(sub('.rds$', '', learnt), '.rds')
+            if (file.exists(learnt)) {
+                learnt <- readRDS(learnt)
             } else {
-                stop('The argument "learned" must be a folder containing learned.rds, or the path to an rds-file containing the output from "learn()".')
+                stop('The argument "learnt" must be a folder containing learnt.rds, or the path to an rds-file containing the output from "learn()".')
             }
         }
     }
-    ## Add check to see that learned is correct type of object?
-    auxmetadata <- learned$auxmetadata
-    learned$auxmetadata <- NULL
-    learned$auxinfo <- NULL
+    ## Add check to see that learnt is correct type of object?
+    auxmetadata <- learnt$auxmetadata
+    learnt$auxmetadata <- NULL
+    learnt$auxinfo <- NULL
 
     ## Consistency checks
     if (length(dim(Y)) != 2) {
@@ -163,11 +163,11 @@ samplesFDistribution <- function(
             (is.numeric(subsamples) || (is.character(subsamples)
                 && length(subsamples) == 1))) {
         if (is.character(subsamples)) {
-            subsamples <- round(seq(1, ncol(learned$W),
+            subsamples <- round(seq(1, ncol(learnt$W),
                 length.out = as.numeric(subsamples)
             ))
         }
-        learned <- mcsubset(learned, subsamples)
+        learnt <- mcsubset(learnt, subsamples)
     }
 
 
@@ -187,7 +187,7 @@ samplesFDistribution <- function(
     YiR <- YiR[YtR]
     YnR <- length(YiR)
     if (YnR > 0 || XnR > 0) {
-        learned$Rvar <- sqrt(learned$Rvar)
+        learnt$Rvar <- sqrt(learnt$Rvar)
     }
 
 #### Type C
@@ -202,7 +202,7 @@ samplesFDistribution <- function(
     YiC <- YiC[YtC]
     YnC <- length(YiC)
     if (YnC > 0 || XnC > 0) {
-        learned$Cvar <- sqrt(learned$Cvar)
+        learnt$Cvar <- sqrt(learnt$Cvar)
         Clefts <- auxmetadata[match(vnames, auxmetadata$name), 'tleftbound']
         Crights <- auxmetadata[match(vnames, auxmetadata$name), 'trightbound']
     }
@@ -219,7 +219,7 @@ samplesFDistribution <- function(
     YiD <- YiD[YtD]
     YnD <- length(YiD)
     if (YnD > 0 || XnD > 0) {
-        learned$Dvar <- sqrt(learned$Dvar)
+        learnt$Dvar <- sqrt(learnt$Dvar)
         Dsteps <- auxmetadata[match(vnames, auxmetadata$name), 'halfstep'] /
             auxmetadata[match(vnames, auxmetadata$name), 'tscale']
         Dlefts <- auxmetadata[match(vnames, auxmetadata$name), 'tleftbound']
@@ -310,13 +310,13 @@ samplesFDistribution <- function(
 #### the loop is over the columns of y and x
 #### each instance is a 1-column vector
             if (all(is.na(x))) {
-                lprobX <- log(learned$W)
+                lprobX <- log(learnt$W)
             } else {
                 ## rows: components, cols: samples
-                lprobX <- log(learned$W) +
+                lprobX <- log(learnt$W) +
                     util_lprob(
                         x = x,
-                        learned = learned,
+                        learnt = learnt,
                         nR = XnR, iR = XiR, tR = XtR,
                         nC = XnC, iC = XiC, tC = XtC,
                         Clefts = Clefts, Crights = Crights,
@@ -330,11 +330,11 @@ samplesFDistribution <- function(
             ##
             ##
             if (all(is.na(y))) {
-                lprobY <- array(NA, dim = dim(learned$W))
+                lprobY <- array(NA, dim = dim(learnt$W))
             } else {
                 lprobY <- util_lprob(
                     x = y,
-                    learned = learned,
+                    learnt = learnt,
                     nR = YnR, iR = YiR, tR = YtR,
                     nC = YnC, iC = YiC, tC = YtC,
                     Clefts = Clefts, Crights = Crights,

@@ -1,6 +1,6 @@
 #### custom
 dataset <- read.csv('~/repositories/bayes_nonparametric_inference/development/tests/custom/dataset_custom30.csv', na.strings='')
-learned <- readRDS('~/repositories/bayes_nonparametric_inference/development/tests/custom/_newdeletepackagetest-vrt10_dat30_smp120/learned.rds')
+learnt <- readRDS('~/repositories/bayes_nonparametric_inference/development/tests/custom/_newdeletepackagetest-vrt10_dat30_smp120/learnt.rds')
 ##
 Y1s <- sample(colnames(dataset),2)
 Y2s <- sample(setdiff(colnames(dataset), Y1s),2)
@@ -15,7 +15,7 @@ out <- mutualinfo(
     Y1names = Y1s,
     Y2names = Y2s,
     X = NULL,#mtcars[1, Xs, drop=F],
-    learned = learned,
+    learnt = learnt,
     nsamples = 3600,
     parallel = 4
 )
@@ -25,7 +25,7 @@ out <- mutualinfo(
     Y1names = 'N2vrt',
     Y2names = c('Rvrt', 'Bvrt'),
     X = NULL,
-    learned = learned,
+    learnt = learnt,
     nsamples = 3600,
     parallel = 4
 )
@@ -37,7 +37,7 @@ library('predict')
 
 
 dataset <- read.csv('~/repositories/bayes_nonparametric_inference/development/tests/custom/dataset_custom30.csv', na.strings='')
-learned <- readRDS('~/repositories/bayes_nonparametric_inference/development/tests/custom/_newdeletepackagetest-vrt10_dat30_smp120/learned.rds')
+learnt <- readRDS('~/repositories/bayes_nonparametric_inference/development/tests/custom/_newdeletepackagetest-vrt10_dat30_smp120/learnt.rds')
 ##
 Y1s <- sample(colnames(dataset),3)
 Y2s <- sample(setdiff(colnames(dataset), Y1s),3)
@@ -50,7 +50,7 @@ system.time(
     Y1names = Y1s,
     Y2names = Y2s,
     X = dataset[1,Xs],
-    learned = learned,
+    learnt = learnt,
     nsamples = 3600,
     parallel = 4
     )
@@ -64,7 +64,7 @@ out2 <- mutualinfo2(
     Y1names = Y1s,
     Y2names = Y2s,
     X = dataset[1,Xs],
-    learned = learned,
+    learnt = learnt,
     nsamples = 3600,
     parallel = 1
 )
@@ -82,7 +82,7 @@ identical(out,out2)
 #### mtcars
 data(mtcars)
 dataset <- mtcars
-learned <- readRDS('~/repositories/bayes_nonparametric_inference/development/tests/mtcars/_newD_test_mtcars-3-vrt11_dat32_smp512/learned.rds')
+learnt <- readRDS('~/repositories/bayes_nonparametric_inference/development/tests/mtcars/_newD_test_mtcars-3-vrt11_dat32_smp512/learnt.rds')
 ##
 Y1s <- sample(colnames(mtcars),2)
 Y2s <- sample(setdiff(colnames(mtcars), Y1s),2)
@@ -97,7 +97,7 @@ out <- mutualinfo(
     Y1names = Y1s,
     Y2names = Y2s,
     X = NULL,#mtcars[1, Xs, drop=F],
-    learned = learned,
+    learnt = learnt,
     nsamples = 3600,
     parallel = 4
 )
@@ -107,7 +107,7 @@ out
 #### BN_functdependence
 ## B1='yes' is correlated with N1=c('A','B')
 ## B1='no' is correlated with N1=c('C')
-learned <- readRDS('~/repositories/bayes_nonparametric_inference/development/tests/BN_functdependence/learned.rds')
+learnt <- readRDS('~/repositories/bayes_nonparametric_inference/development/tests/BN_functdependence/learnt.rds')
 
 source('util_vtransform.R', local=T)
 source('samplesFDistribution.R', local=T)
@@ -117,7 +117,7 @@ out <- mutualinfo(
     Y1names = 'B1',
     Y2names = 'N1',
     X = NULL,
-    learned = learned,
+    learnt = learnt,
     nsamples = 3600,
     parallel = 4
 )
@@ -128,7 +128,7 @@ out <- mutualinfo(
     Y1names = 'N1',
     Y2names = NULL,
     X = cbind(B1='no'),
-    learned = learned,
+    learnt = learnt,
     nsamples = 3600,
     parallel = 4
 )
@@ -139,7 +139,7 @@ out <- mutualinfo(
     Y1names = 'B1',
     Y2names = NULL,
     X = cbind(N1='C'),
-    learned = learned,
+    learnt = learnt,
     nsamples = 3600,
     parallel = 4
 )
@@ -150,7 +150,7 @@ out <- mutualinfo(
     Y1names = 'N1',
     Y2names = 'B1',
     X = NULL,
-    learned = learned,
+    learnt = learnt,
     nsamples = 3600,
     parallel = 4
 )
@@ -163,7 +163,7 @@ out <- mutualinfo(
     Y1names = 'N1',
     Y2names = 'B1',
     X = NULL,
-    learned = learned,
+    learnt = learnt,
     nsamples = 3600,
     parallel = 1
 )
@@ -175,7 +175,7 @@ out2 <- mutualinfo2(
     Y1names = 'N1',
     Y2names = 'B1',
     X = NULL,
-    learned = learned,
+    learnt = learnt,
     nsamples = 3600,
     parallel = 1
 )
