@@ -7,7 +7,7 @@
 samplesFDistribution(
   Y,
   X,
-  learned,
+  learnt,
   subsamples,
   jacobian = TRUE,
   fn = NULL,
@@ -23,8 +23,8 @@ the joint probability one variate per column}
 \item{X}{matrix or data.table: values of some variates conditional on
 which we want the joint probability one variate per column}
 
-\item{learned}{Either a string with the name of a directory or full
-path for an 'learned.rds' object, or such an object itself}
+\item{learnt}{Either a string with the name of a directory or full
+path for an 'learnt.rds' object, or such an object itself}
 
 \item{subsamples}{numeric: number of Monte Carlo samples to use}
 
