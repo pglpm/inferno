@@ -30,5 +30,5 @@ From: r-base
 	Rscript -e "library("predict")"
 	cd $GITHUB_WORKSPACE
 	cd development/tests
-	source tests.sh
+	. ./tests.sh
 
