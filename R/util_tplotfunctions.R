@@ -173,7 +173,14 @@ tplot <- function(x, y, xlim = c(NA, NA), ylim = c(NA, NA), asp = NA,
     xx <- unlist(x)
     yy <- unlist(y)
     if (!is.character(xx)) {
-        xlim0 <- range(0, xx[is.finite(xx)], na.rm = TRUE)
+        temp <- unique(xx[is.finite(xx)])
+        if(length(temp) > 1) {
+            xlim0 <- range(temp)
+        } else if(length(temp) == 1){
+            xlim0 <- range(temp) + c(-1, 1)
+        } else {
+            xlim0 <- c(0, 1)
+        }
     } else {
         uxx <- unique(xx)
         if (is.character(xlabels) && all(uxx %in% xlabels)) {
@@ -186,7 +193,14 @@ tplot <- function(x, y, xlim = c(NA, NA), ylim = c(NA, NA), asp = NA,
         }
     }
     if (!is.character(yy)) {
-        ylim0 <- range(0, yy[is.finite(yy)], na.rm = TRUE)
+        temp <- unique(yy[is.finite(yy)])
+        if(length(temp) > 1) {
+            ylim0 <- range(temp)
+        } else if(length(temp) == 1){
+            ylim0 <- range(temp) + c(-1, 1)
+        } else {
+            ylim0 <- c(0, 1)
+        }
     } else {
         uyy <- unique(yy)
         if (is.character(ylabels) && all(uyy %in% ylabels)) {
