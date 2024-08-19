@@ -6,7 +6,7 @@
 \usage{
 plotFsamples(
   file,
-  learned,
+  learnt,
   data,
   plotprobability = TRUE,
   plotvariability = "samples",
@@ -19,9 +19,6 @@ plotFsamples(
 }
 \arguments{
 \item{file}{string: name of plot output file}
-
-\item{learned}{Either a string with the name of a directory or full
-path for an 'learned.rds' object, or such an object itself}
 
 \item{data}{data.table object or filepath: datapoints}
 
@@ -44,6 +41,9 @@ the quantiles (in range 0 to 0.5) to show}
 workers, or how many to create and use}
 
 \item{silent}{logical: give warnings or updates in the computation}
+
+\item{learned}{Either a string with the name of a directory or full
+path for an 'learnt.rds' object, or such an object itself}
 }
 \value{
 A list with the mutual information, its error, and its unit

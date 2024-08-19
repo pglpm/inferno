@@ -7,7 +7,7 @@
 Pr(
   Y,
   X = NULL,
-  learned,
+  learnt,
   quantiles = c(5, 95)/100,
   nsamples = 100L,
   parallel = TRUE,
@@ -21,8 +21,8 @@ the joint probability of. One variate per column, one set of values per row.}
 
 \item{X}{matrix or data.table or \code{NULL}: set of values of variates on which we want to condition the joint probability of \code{Y}. If \code{NULL} (default), no conditioning is made (except for conditioning on the learning dataset and prior assumptions). One variate per column, one set of values per row.}
 
-\item{learned}{Either a string with the name of a directory or full
-path for an 'learned.rds' object, or such an object itself}
+\item{learnt}{Either a string with the name of a directory or full
+path for an 'learnt.rds' object, or such an object itself}
 
 \item{quantiles}{numeric vector, between 0 and 1, or \code{NULL}: desired quantiles of the variability of the probability for \code{Y}. Default \code{c(0.05, 0.95)} or the 5\% and 95\% quantiles.}
 
