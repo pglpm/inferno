@@ -34,7 +34,7 @@ myTestY <- function(y) {
 }
 
 myResultX <- 3
-myResultY <- 1
+myResultY <- 3
 
 myTestResults <- c(myTestX(myResultX), myTestY(myResultY))
 checkTestResults(myTestResults)

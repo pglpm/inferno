@@ -1,20 +1,16 @@
+# devtools::install()
 library('predict')
 
 seed <- 16
 
-outputdirPrefix <- file.path('_deletepackagetest')
-
-## ncores <- 4
-## library('doParallel')
-## mycluster <- makeCluster(ncores)
-## registerDoParallel(mycluster)
+outputdirPrefix <- file.path('_test_custom')
 
 currenttestdir <- learn(
-    data = 'data_test_custom_30.csv',
-    metadata = 'metadata_test_custom.csv',
+    data = 'dataset_custom30.csv',
+    metadata = 'metadata_custom.csv',
     outputdir = outputdirPrefix,
     output = 'directory',
-    appendtimestamp = F,
+    appendtimestamp = TRUE,
     appendinfo = TRUE,
     nsamples = 120,
     nchains = 12,
@@ -32,8 +28,6 @@ currenttestdir <- learn(
 
 warnings()
 
-cat('\nTest calculation of mutual information:\n')
-
 mi <- mutualinfo(
     Y1names = c('N2vrt'),
     Y2names = c('Rvrt'),
@@ -46,5 +40,21 @@ mi <- mutualinfo(
 print(mi)
 
 warnings()
+
+dataset <- read.csv('dataset_custom30.csv', na.strings='')
+nv <- round(ncol(dataset)/2)
+probs <- Pr(
+    Y = dataset[1:20,1:nv,drop=F],
+    X = dataset[1:20,(nv+1):ncol(dataset), drop=F],
+    learnt = currenttestdir,
+    parallel = 4
+)
+
+print(probs$values)
+
+print(probs$quantiles)
+
+warnings()
+
 
 cat('\nEnd\n')

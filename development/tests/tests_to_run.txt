@@ -1,1 +1,2 @@
-CI-example-test/test_custom_30.R
+CI-example-test/fail_test.R
+CI-example-test/pass_test.R
