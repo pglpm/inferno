@@ -57,8 +57,6 @@
 #' @return Name of directory containing output files, or learnt object,
 #'   or `NULL`, depending on argument `output`.
 #'
-#' @import parallel foreach doParallel doRNG nimble
-#'
 #' @export
 learn <- function(
     data,

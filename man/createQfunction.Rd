@@ -20,3 +20,4 @@ createQfunction(
 \description{
 Calculate and save transformation function for ordinal variates
 }
+\keyword{internal}

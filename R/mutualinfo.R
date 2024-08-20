@@ -15,9 +15,6 @@
 #'
 #' @return A list with the mutual information, its error, and its unit
 #'
-#' @import parallel foreach doParallel
-#' @importFrom extraDistr rcat rbern
-#'
 #' @export
 mutualinfo <- function(
     Y1names,

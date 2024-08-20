@@ -22,3 +22,4 @@ The joint frequencies of Y correspoinding to the Monte Carlo samples
 \description{
 Calculate joint frequencies for checkpoints in learn()
 }
+\keyword{internal}

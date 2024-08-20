@@ -9,3 +9,4 @@ funMCSE(x)
 \description{
 Function for calculating MCMC standard error
 }
+\keyword{internal}

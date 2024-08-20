@@ -9,3 +9,4 @@ mcsubset(learnt, subsamples)
 \description{
 Eliminate samples from a learnt object
 }
+\keyword{internal}

@@ -21,3 +21,4 @@ an auxmetadata data.frame object
 \description{
 Build preliminary metadata flie
 }
+\keyword{internal}

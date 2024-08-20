@@ -9,3 +9,4 @@ alpha2hex(col, alpha = NULL)
 \description{
 Various plotting and statistics functions
 }
+\keyword{internal}

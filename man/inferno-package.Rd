@@ -11,8 +11,8 @@ Offers several functions for Bayesian nonparametric density/population/exchangea
 \seealso{
 Useful links:
 \itemize{
-  \item \url{https://github.com/pglpm/bayes_nonparametric_inference/}
-  \item \url{https://pglpm.github.io/bayes_nonparametric_inference/}
+  \item \url{https://github.com/pglpm/inferno/}
+  \item \url{https://pglpm.github.io/inferno/}
 }
 
 }
@@ -21,7 +21,7 @@ Useful links:
 
 Authors:
 \itemize{
-  \item Aurora S. Grefsrud \email{Aurora.Singstad.Grefsrud@hvl.no} (\href{https://orcid.org/0009-0005-9063-4131}{ORCID})
+  \item Aurora Grefsrud \email{agre@hvl.no} (\href{https://orcid.org/0009-0005-9063-4131}{ORCID})
 }
 
 }

@@ -45,3 +45,4 @@ Matrix with as many rows as components and as many cols as samples
 \description{
 Calculate collection of log-probabilities for different components and samples
 }
+\keyword{internal}

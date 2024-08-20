@@ -9,7 +9,6 @@
 #'
 #' @return The joint frequencies of Y correspoinding to the Monte Carlo samples
 #'
-#' @import foreach
 util_Pcheckpoints <- function(
     Y,
     mcsamples,
