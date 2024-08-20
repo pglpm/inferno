@@ -1,4 +1,4 @@
-Package: predict
+Package: inferno
 Title: Bayesian nonparametric exchangeable inference - model-free uncertainty-quantified prediction
 Version: 0.2.1
 Authors@R: c(
