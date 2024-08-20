@@ -24,11 +24,12 @@ From: r-base
 	Rscript -e "install.packages('doParallel')"
 
 %runscript
-    mkdir ~/R-packages
+    #!/bin/bash
+	mkdir ~/R-packages
     echo $R_LIBS_USER
 	Rscript -e "install.packages(pkgs=Sys.getenv('GITHUB_WORKSPACE'), repos=NULL)"
 	Rscript -e "library("predict")"
 	cd $GITHUB_WORKSPACE
 	cd development/tests
-	. ./tests.sh
+	source ./tests.sh
 
