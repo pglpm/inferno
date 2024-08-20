@@ -3,7 +3,7 @@
 \name{buildmetadata}
 \alias{buildmetadata}
 \alias{metadata}
-\title{Metadata}
+\title{Metadata and helper function for metadata}
 \usage{
 buildmetadata(
   data,
@@ -40,10 +40,10 @@ and \code{VALUE} is \code{NULL};
 otherwise \code{VALUE} is a \code{\link[base]{data.frame}} containing the metadata.
 }
 \description{
-Metadata and utility function to build a template metadata file or object.
+Metadata and helper function to build a template metadata file or object.
 }
 \details{
-The \code{\link{learn}} function needs metadata about the variates present in the data. Such metadata can be provided either as a \code{csv} file or as a \code{\link[base]{data.frame}}. The function \code{buildmetadata} creates a template metadata csv-file, or outputs a metadata data.frame, by trying to guess metadata information from the dataset. Tthe user can then modify and correct this template, using it as a starting point to prepare the correct metadata information.
+The \code{\link{learn}} function needs metadata about the variates present in the data. Such metadata can be provided either as a \code{csv} file or as a \code{\link[base]{data.frame}}. The function \code{buildmetadata} creates a template metadata csv-file, or outputs a metadata data.frame, by trying to guess metadata information from the dataset. The user \emph{must} then modify and correct this template, using it as a starting point to prepare the correct metadata information.
 }
 \section{Metadata information and format}{
 
@@ -85,6 +85,12 @@ Here are the meanings and possible values of the fields:
 }
 
 \section{Rounded continuous variates}{
+
+
+To be written.
+}
+
+\section{Necessity of metadata}{
 
 
 To be written.
