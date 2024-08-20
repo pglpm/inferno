@@ -78,7 +78,7 @@ plotFsamples <- function(
         }
         quants <- sort(unique(round(c(nFsamples, 1 - nFsamples), 6)))
         nmcsamples <- NULL
-        addylab <- paste0(' &', ceiling(diff(quants) * 100), '% variability')
+        addylab <- paste0(' & ', ceiling(diff(quants) * 100), '% variability')
     } else {
         if(is.null(nFsamples)) {nFsamples <- 100}
         if (nFsamples == 'all') {

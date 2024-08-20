@@ -1,8 +1,8 @@
-#' Metadata
+#' Metadata and helper function for metadata
 #'
-#' Metadata and utility function to build a template metadata file or object.
+#' Metadata and helper function to build a template metadata file or object.
 #'
-#' The \code{\link{learn}} function needs metadata about the variates present in the data. Such metadata can be provided either as a `csv` file or as a \code{\link[base]{data.frame}}. The function `buildmetadata` creates a template metadata csv-file, or outputs a metadata data.frame, by trying to guess metadata information from the dataset. Tthe user can then modify and correct this template, using it as a starting point to prepare the correct metadata information.
+#' The \code{\link{learn}} function needs metadata about the variates present in the data. Such metadata can be provided either as a `csv` file or as a \code{\link[base]{data.frame}}. The function `buildmetadata` creates a template metadata csv-file, or outputs a metadata data.frame, by trying to guess metadata information from the dataset. The user *must* then modify and correct this template, using it as a starting point to prepare the correct metadata information.
 #'
 #' @param data A dataset, given as a \code{\link[base]{data.frame}}
 #' or as a file path to a csv file.
@@ -59,6 +59,10 @@
 #' **`plotmin`**, **`plotmax`**: The software draws some probability plots for each variate, after learning from the data with the \code{\link{learn}} function. `plotmin` and `plotmax` give the plotting range in these plots. They might be necessary because, for instance, although the minimum variate value is 0 and the maximum is 90, the variability of the data and the range of interest in the inference problem is between 20 and 40; these would then be the values of `plotmin` and `plotmax`. Possible values are real numbers, with `plotmin` strictly less than `plotmax`; one or both may be empty values. In case of an empty value, the software internally tries to choose an optimal value, typically so as to include all data given in the plot.
 #'
 #' @section Rounded continuous variates:
+#'
+#' To be written.
+#'
+#' @section Necessity of metadata:
 #'
 #' To be written.
 #'
