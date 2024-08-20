@@ -2,14 +2,14 @@
 
 # Bayesian nonparametric inference
 
-[![Documentation](https://img.shields.io/badge/Documentation-blue)](https://twiki.cern.ch/twiki/bin/viewauth/AtlasProtected/SusyFitter)
+[![Documentation](https://img.shields.io/badge/Documentation-blue)](https://pglpm.github.io/bayes_nonparametric_inference/index.html)
 
 This repository provides an R package and some theoretical background for Bayesian nonparametric inference under exchangeability, or "inference about populations".
-The package itself is under rapid development, and has not reached a stable phase yet. However, the core functionalities are working, and the package can be used as is. While the code is still in it's '0.X' phase, we recommend that you contact the developers if you want to start using the package for a research project.
+The package is under rapid development and has not reached a stable phase. This means that function names and arguments may still change. The package name is also still under consideration. However, the core functionalities and probability calculations work. While the code is still in its '0.X' phase, we recommend contacting the developers if you want to start using the package for a research project. We would love more "beta-testers"!
 
 ## Contact
 
-Please report bugs, request features and ask for specific documentation on [GitHub Issues](https://github.com/pglpm/bayes_nonparametric_inference/issues).
+Please report bugs and request features or specific documentation on [GitHub Issues](https://github.com/pglpm/bayes_nonparametric_inference/issues).
 If you have other questions feel free to contact the developers:
 * For application/theory: PierGianLuca Porta Mana <pgl@portemana.org>
 * For technical implementation: Aurora Grefsrud <agre@hvl.no>
@@ -23,7 +23,19 @@ Install the package with R by using the `remotes` package:
 ```
 remotes::install_github('pglpm/bayes_nonparametric_inference')
 ```
-
+To install a tagged version:
+```
+remotes::install_github('pglpm/bayes_nonparametric_inference@vx.y.z')
+```
+Install from source, first clone the repo:
+```
+git clone https://github.com/pglpm/bayes_nonparametric_inference.git
+```
+Then install the package in R:
+```
+install.packages(pkgs='path/to/bayes_nonparametric_inference', repos=NULL)
+```
+The installation will automatically also install all required R-dependencies.
 
 ## Further reading
 For a low-level course on Bayesian nonparametric population inference see [Foundations of data science](https://pglpm.github.io/ADA511/).
