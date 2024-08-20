@@ -9,7 +9,6 @@ reference:
     - learn
     - Pr
     - mutualinfo
-    - samplesFDistribution
     - plotFsamples
 - title: "Internal functions"
   desc: "For developers."
