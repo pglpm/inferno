@@ -32,7 +32,7 @@ out <- mutualinfo(
 out
 
 
-library('predict')
+library('inferno')
 
 
 

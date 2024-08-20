@@ -7,7 +7,7 @@ if(basename(startdir) != 'tests'){
 
 ## library('devtools')
 ## load_all()
-library('predict')
+library('inferno')
 
 refdir <- 'reference_seed16-vrt9_dat0_smp120'
 

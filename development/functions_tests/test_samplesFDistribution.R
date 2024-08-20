@@ -166,7 +166,7 @@ dataset <- read.csv('~/repositories/bayes_nonparametric_inference/development/te
 learnt <- readRDS('~/repositories/bayes_nonparametric_inference/development/tests/custom/_newdeletepackagetest-vrt10_dat30_smp120/learnt.rds')
 ##
 
-library('predict')
+library('inferno')
 
 nY <- sample(1:(ncol(dataset)-1), 1)
 Ys <- sample(colnames(dataset), nY)
@@ -273,7 +273,7 @@ dataset <- mtcars
 learnt <- readRDS('~/repositories/bayes_nonparametric_inference/development/tests/mtcars/_newD_test_mtcars-3-vrt11_dat32_smp512/learnt.rds')
 
 
-library('predict')
+library('inferno')
 
 nY <- sample(1:(ncol(dataset)-1), 1)
 Ys <- sample(colnames(dataset), nY)

@@ -1,5 +1,5 @@
 ## devtools::install()
-library('predict')
+library('inferno')
 
 data(mtcars)
 

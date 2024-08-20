@@ -5,7 +5,7 @@ if(basename(startdir) != 'tests'){
   cat('\nAre you in the correct folder?\n')
 }
 
-library('predict')
+library('inferno')
 
 refdir <- 'reference_seed16-vrt9_dat150_smp120'
 

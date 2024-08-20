@@ -5,7 +5,7 @@ if(basename(startdir) != 'custom'){
     cat('\nAre you in the correct folder?\n')
 }
 
-cat('\nLoading package "predict"\n\n')
+cat('\nLoading package "inferno"\n\n')
 
 if(!(Sys.getenv("R_LIBS_USER") %in% .libPaths())) {
     stop('Make sure your local installation directory,\n',
@@ -14,7 +14,7 @@ if(!(Sys.getenv("R_LIBS_USER") %in% .libPaths())) {
 }
 
 # devtools::install()
-library('predict')
+library('inferno')
 
 seed <- 16
 

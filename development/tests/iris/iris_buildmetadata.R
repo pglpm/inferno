@@ -1,6 +1,6 @@
 data('iris')
 
 devtools::install()
-library('predict')
+library('inferno')
 
 buildmetadata(data = iris, file = '_test_iris_metadata.csv')
