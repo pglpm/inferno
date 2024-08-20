@@ -2,22 +2,17 @@ url: https://pglpm.github.io/bayes_nonparametric_inference/
 template:
   bootstrap: 5
   bootswatch: sandstone
-# reference:
-# - title: "Main functions"
-#   contents:
-#     - buildmetadata
-#     - learn
-#     - Pr
-#     - mutualinfo
-#     - samplesFDistribution
-#     - plotFsamples
-#     - predict-package
-# - title: "Utility functions"
-#   desc: "For advanced users."
-#   contents:
-#   - vtransform
-#   - buildauxmetadata
-#   - Pcheckpoints
-#   - alpha2hex2
-#   - starts_with("util_")
+reference:
+- title: "Main functions"
+  contents:
+    - buildmetadata
+    - learn
+    - Pr
+    - mutualinfo
+    - samplesFDistribution
+    - plotFsamples
+- title: "Internal functions"
+  desc: "For developers."
+  contents:
+  - has_keyword("internal")
 

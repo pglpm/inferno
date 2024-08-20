@@ -1,5 +1,5 @@
 #' Various plotting and statistics functions
-#'
+#' @keywords internal
 
 ## Colour-blind friendly palettes, from https://personal.sron.nl/~pault/
 ## palette(colour('bright')())

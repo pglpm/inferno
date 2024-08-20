@@ -1,4 +1,5 @@
 #' Function for calculating MCMC standard error
+#' @keywords internal
 funMCSE <- function(x) {
     N <- nrow(x)
     b <- floor(sqrt(N))

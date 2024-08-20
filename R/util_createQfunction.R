@@ -1,4 +1,5 @@
 #' Calculate and save transformation function for ordinal variates
+#' @keywords internal
 ## NB: the functional form of this function does not depend on
 ##   the number of components, minalpha, and maxalpha parameters
 createQfunction <- function(
