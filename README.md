@@ -1,4 +1,4 @@
-<img src="https://pglpm.github.io/inferno/development/manual/opm_symbol.png" alt="Ensemble of densities" width="100%"/>
+<img src="https://github.com/pglpm/inferno/raw/main/development/manual/opm_symbol.png" alt="Ensemble of densities" width="100%"/>
 
 # Bayesian nonparametric inference
 
