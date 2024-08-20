@@ -1,5 +1,5 @@
 #' Calculate collection of log-probabilities for different components and samples
-#'
+#' @keywords internal
 #' @param X numerical matrix: transformed variates
 #' @param learnt: Monte-Carlo-output object
 #' @param nR etc: Parameters containing appropriate indices

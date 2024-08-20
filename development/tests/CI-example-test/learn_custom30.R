@@ -1,5 +1,5 @@
 # devtools::install()
-library('predict')
+library('inferno')
 
 seed <- 16
 
@@ -12,9 +12,9 @@ currenttestdir <- learn(
     output = 'directory',
     appendtimestamp = TRUE,
     appendinfo = TRUE,
-    nsamples = 120,
-    nchains = 12,
-    parallel = 4,
+    nsamples = 12,
+    nchains = 2,
+    parallel = 2,
     maxhours = 1/60,
     ## relerror = 0.062,
     ncheckpoints = NULL,

@@ -1,5 +1,5 @@
 #' Calculate joint frequencies for checkpoints in learn()
-#'
+#' @keywords internal
 #' @param Y matrix or data.table: values of some already-transformed
 #'   variates of which we want the joint probability; one variate per column
 #' @param mcsamples object internal to `learn()`,
@@ -9,7 +9,6 @@
 #'
 #' @return The joint frequencies of Y correspoinding to the Monte Carlo samples
 #'
-#' @import foreach
 util_Pcheckpoints <- function(
     Y,
     mcsamples,

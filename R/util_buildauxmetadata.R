@@ -1,5 +1,5 @@
 #' Build preliminary metadata flie
-#'
+#' @keywords internal
 #' @param data data.frame object
 #' @param metadata data.frame object
 #' @param Dthreshold positive number: threshold of fraction

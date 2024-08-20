@@ -1,9 +1,8 @@
 #' Various plotting and statistics functions
-#'
-#' @import khroma
+#' @keywords internal
 
 ## Colour-blind friendly palettes, from https://personal.sron.nl/~pault/
-## palette(colour('bright')())
+## palette(khroma::colour('bright')())
 ## cc <- khroma::colour('bright')()
 ## cc[8] <- '#000000'
 ## names(cc)[8] <- 'black'
@@ -82,16 +81,6 @@
 ##                  width = width, units = 'in', res = res)
 ## }
 
-alpha2hex2 <- function(alpha, col = NULL) {
-    if (!is.character(alpha)) {
-        alpha <- sprintf('%02x', round((1 - alpha) * 255))
-    }
-    if (is.numeric(col)) {
-        col <- palette()[col]
-    }
-    paste0(col, alpha)
-}
-
 alpha2hex <- function(col, alpha = NULL) {
     if (is.null(alpha)) {
         alpha <- 0
@@ -101,6 +90,16 @@ alpha2hex <- function(col, alpha = NULL) {
     }
     do.call(rgb, c(as.list(col2rgb(col)),
         list((1 - alpha) * 255, maxColorValue = 255)))
+}
+
+alpha2hex2 <- function(alpha, col = NULL) {
+    if (!is.character(alpha)) {
+        alpha <- sprintf('%02x', round((1 - alpha) * 255))
+    }
+    if (is.numeric(col)) {
+        col <- palette()[col]
+    }
+    paste0(col, alpha)
 }
 
 tticks <- pretty
@@ -137,7 +136,7 @@ tplot <- function(x, y, xlim = c(NA, NA), ylim = c(NA, NA), asp = NA,
     pch = c(1, 0, 2, 5, 6, 3, 4), lty = 1:4, lwd = 2, alpha = NA,
     border = palette(), border.alpha = NA, xtransf = NULL,
     ytransf = NULL, add = FALSE) {
-    palette(colour('bright')())
+    palette(khroma::colour('bright')())
     scale_colour_discrete <- khroma::scale_colour_bright
     ## if (missing(x)) {
     ##     if (missing(y))

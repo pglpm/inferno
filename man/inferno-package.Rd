@@ -8,12 +8,22 @@
 \description{
 Offers several functions for Bayesian nonparametric density/population/exchangeable inference, including Monte Carlo calculation of posterior densities; from a machine-learning perspective, it offers a model-free, uncertainty-quantified predction algorithm.
 }
+
+\seealso{
+Useful links:
+\itemize{
+  \item \url{https://github.com/pglpm/inferno/}
+  \item \url{https://pglpm.github.io/inferno/}
+}
+
+}
+
 \author{
 \strong{Maintainer}: PierGianLuca Porta Mana \email{pgl@portamana.org} (\href{https://orcid.org/0000-0002-6070-0784}{ORCID})
 
 Authors:
 \itemize{
-  \item Aurora S. Grefsrud \email{Aurora.Singstad.Grefsrud@hvl.no} (\href{https://orcid.org/0009-0005-9063-4131}{ORCID})
+  \item Aurora Grefsrud \email{agre@hvl.no} (\href{https://orcid.org/0009-0005-9063-4131}{ORCID})
 }
 
 }

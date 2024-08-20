@@ -17,8 +17,6 @@
 #'
 #' @return The frequencies F(Y|X) corresponding to the Monte Carlo samples
 #'
-#' @import parallel foreach doParallel
-#'
 #' @export
 samplesFDistribution <- function(
     Y,

@@ -66,3 +66,4 @@ data frame of transformed variates
 \description{
 Transforms variates to different representations
 }
+\keyword{internal}
