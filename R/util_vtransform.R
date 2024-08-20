@@ -1,5 +1,5 @@
 #' Transforms variates to different representations
-#' @keywords internal
+#'
 #' @param x data.table object containing data to be transformed
 #' @param auxmetadata auxmetadata object
 #' @param Rout string, output of R-type variate, with possible values:
@@ -34,6 +34,7 @@
 #' @param invjacobian logical: calculate Jacobian factor?
 #'
 #' @return data frame of transformed variates
+#' @keywords internal
 vtransform <- function(
     x,
     auxmetadata,

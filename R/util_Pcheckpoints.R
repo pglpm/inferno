@@ -8,7 +8,6 @@
 #'   containing processed metadata information
 #'
 #' @return The joint frequencies of Y correspoinding to the Monte Carlo samples
-#'
 util_Pcheckpoints <- function(
     Y,
     mcsamples,

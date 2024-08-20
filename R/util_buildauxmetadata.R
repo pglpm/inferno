@@ -1,5 +1,5 @@
 #' Build preliminary metadata flie
-#' @keywords internal
+#'
 #' @param data data.frame object
 #' @param metadata data.frame object
 #' @param Dthreshold positive number: threshold of fraction
@@ -7,6 +7,7 @@
 #'   whether to treat a rounded variate as continuous
 #'
 #' @return an auxmetadata data.frame object
+#' @keywords internal
 buildauxmetadata <- function(data, metadata, Dthreshold = 1) {
 
     ## In the internal, rescaled representation,

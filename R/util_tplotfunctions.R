@@ -1,6 +1,4 @@
 #' Various plotting and statistics functions
-#'
-#' @import khroma
 
 ## Colour-blind friendly palettes, from https://personal.sron.nl/~pault/
 ## palette(colour('bright')())
@@ -82,6 +80,7 @@
 ##                  width = width, units = 'in', res = res)
 ## }
 
+#' @keywords internal
 alpha2hex2 <- function(alpha, col = NULL) {
     if (!is.character(alpha)) {
         alpha <- sprintf('%02x', round((1 - alpha) * 255))
@@ -92,6 +91,7 @@ alpha2hex2 <- function(alpha, col = NULL) {
     paste0(col, alpha)
 }
 
+#' @keywords internal
 alpha2hex <- function(col, alpha = NULL) {
     if (is.null(alpha)) {
         alpha <- 0
@@ -103,7 +103,6 @@ alpha2hex <- function(col, alpha = NULL) {
         list((1 - alpha) * 255, maxColorValue = 255)))
 }
 
-tticks <- pretty
 ## tticks <- function(x, n=10){
 ##     x <- x[!is.na(x) && is.finite(x)]
 ##     if(length(x)==0){x <- c(0,1)}
@@ -126,6 +125,7 @@ tticks <- pretty
 ##     ((rg[1]%/%delta):((rg[2]%/%delta) + (rg[2]%%delta > 0)))*delta
 ## }
 
+#' @keywords internal
 tplot <- function(x, y, xlim = c(NA, NA), ylim = c(NA, NA), asp = NA,
     n = 10, family = '', xticks = NULL, xlabels = TRUE,
     yticks = NULL, ylabels = TRUE, cex = 1.5, ly = NULL,
@@ -445,11 +445,13 @@ tplot <- function(x, y, xlim = c(NA, NA), ylim = c(NA, NA), asp = NA,
     }
 }
 
+#' @keywords internal
 tlegend <- function(x, y=NULL, legend, col=palette(), pch=c(1,0,2,5,6,3,4), lty=1:4, lwd=2, alpha=0, cex=1.5, ...){
     suppressWarnings(col <- mapply(function(i,j)alpha2hex(i,j),col,alpha))
     legend(x=x, y=y, legend=legend, col=col, pch=pch, lty=lty, lwd=lwd, bty='n', cex=cex, ...)
 }
 
+#' @keywords internal
 fivenumaxis <- function(side, x, col='#555555', type=8){
     x <- x[!is.na(x) && is.finite(x)]
     if(length(x)==0){x <- c(0,1)}
@@ -483,6 +485,7 @@ fivenumaxis <- function(side, x, col='#555555', type=8){
     matpoints(x=xp, y=yp, pch=18, cex=2, col=col)
 }
 
+#' @keywords internal
 plotquantiles <- function(x, y, col=7, alpha=0.75, border=NA,
     xlim=range(x[is.finite(x)]),
     ylim=range(y[is.finite(y)]), ...){
@@ -503,6 +506,7 @@ plotquantiles <- function(x, y, col=7, alpha=0.75, border=NA,
         col=col, border=border)
 }
 
+#' @keywords internal
 scatteraxis <- function(x, side=1, n=128, col='#555555', alpha=0.5, ext=5, pos=NULL, exts=NULL, lwd=0.1, ...){
     x <- x[!is.na(x) & is.finite(x)]
     if(is.na(n)|| missing(n)){n <- length(x)}
@@ -531,6 +535,7 @@ scatteraxis <- function(x, side=1, n=128, col='#555555', alpha=0.5, ext=5, pos=N
     matlines(x=xl, y=yl, lty=1, lwd=lwd, col=col, ...)
 }
 
+#' @keywords internal
 thist <- function(x, n=NULL, type=8, pretty=FALSE, plot=FALSE, extendbreaks=FALSE, ...){
     if(!is.list(x)){x <- list(x)}
     if(!is.list(n)){n <- list(n)}
@@ -584,43 +589,43 @@ thist <- function(x, n=NULL, type=8, pretty=FALSE, plot=FALSE, extendbreaks=FALS
     }
 }
 
-tquant <- function(x, probs=c(1:3)/4, na.rm=TRUE, names=TRUE, type=6, ...){
-    quantile(x=x, probs=probs, na.rm=na.rm, names=names, type=type, ...)
-}
+## tquant <- function(x, probs=c(1:3)/4, na.rm=TRUE, names=TRUE, type=6, ...){
+##     quantile(x=x, probs=probs, na.rm=na.rm, names=names, type=type, ...)
+## }
+##
+## tmad <- function(x){mad(x, constant=1, na.rm=TRUE)}
 
-tmad <- function(x){mad(x, constant=1, na.rm=TRUE)}
-
-tsummary <- function(x){
-    x <- cbind(x)
-    apply(x, 2, function(xx){
-        c(tquant(xx, c(2.5/100,1/8,2/8,4/8,6/8,7/8,97.5/100)), MAD=mad(xx,constant=1,na.rm=T), IQR=IQR(xx,na.rm=T), mean=mean(xx,na.rm=T), sd=sd(xx,na.rm=T), hr=diff(range(xx,na.rm=T))/2, min=min(xx,na.rm=T), max=max(xx,na.rm=T), NAs=sum(is.na(xx)))
-    })
-}
+## tsummary <- function(x){
+##     x <- cbind(x)
+##     apply(x, 2, function(xx){
+##         c(tquant(xx, c(2.5/100,1/8,2/8,4/8,6/8,7/8,97.5/100)), MAD=mad(xx,constant=1,na.rm=T), IQR=IQR(xx,na.rm=T), mean=mean(xx,na.rm=T), sd=sd(xx,na.rm=T), hr=diff(range(xx,na.rm=T))/2, min=min(xx,na.rm=T), max=max(xx,na.rm=T), NAs=sum(is.na(xx)))
+##     })
+## }
 
 ## Function to build powerset
-powerset <<- function(set){
-    n <- length(set)
-    masks <- 2^(1:n-1)
-    lapply( 1:2^n-1, function(u) set[ bitwAnd(u, masks) != 0 ] )
-}
+## powerset <<- function(set){
+##     n <- length(set)
+##     masks <- 2^(1:n-1)
+##     lapply( 1:2^n-1, function(u) set[ bitwAnd(u, masks) != 0 ] )
+## }
 
 ## Greatest common denominator
-gcd <<- function(...){Reduce(function(a, b){if (b == 0) a else Recall(b, a %% b)}, c(...))}
+## gcd <<- function(...){Reduce(function(a, b){if (b == 0) a else Recall(b, a %% b)}, c(...))}
 
 ## Normalize according to row
-tnormalize <- function(x){
-    if(is.null(dim(x)) || is.table(x)){
-        x/sum(x,na.rm=T)
-    }else{
-        aperm(aperm(x)/c(aperm(cbind(colSums(x,na.rm=T)))))
-    }
-}
-
-## Table with list of values
-tablev <- function(x, values=NULL, norm=FALSE){
-    if(norm){
-        tnormalize(table(c(x,values))-!(is.null(values)))
-    }else{
-        table(c(x,values))-!(is.null(values))
-    }
-}
+## tnormalize <- function(x){
+##     if(is.null(dim(x)) || is.table(x)){
+##         x/sum(x,na.rm=T)
+##     }else{
+##         aperm(aperm(x)/c(aperm(cbind(colSums(x,na.rm=T)))))
+##     }
+## }
+##
+## ## Table with list of values
+## tablev <- function(x, values=NULL, norm=FALSE){
+##     if(norm){
+##         tnormalize(table(c(x,values))-!(is.null(values)))
+##     }else{
+##         table(c(x,values))-!(is.null(values))
+##     }
+## }

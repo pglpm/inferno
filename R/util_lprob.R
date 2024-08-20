@@ -1,10 +1,11 @@
 #' Calculate collection of log-probabilities for different components and samples
-#' @keywords internal
+#'
 #' @param X numerical matrix: transformed variates
 #' @param learnt: Monte-Carlo-output object
 #' @param nR etc: Parameters containing appropriate indices
 #'
 #' @return Matrix with as many rows as components and as many cols as samples
+#' @keywords internal
 util_lprob <- function(
     x,
     learnt,
