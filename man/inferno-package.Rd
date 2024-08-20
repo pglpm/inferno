@@ -8,7 +8,6 @@
 \description{
 Offers several functions for Bayesian nonparametric density/population/exchangeable inference, including Monte Carlo calculation of posterior densities; from a machine-learning perspective, it offers a model-free, uncertainty-quantified predction algorithm.
 }
-
 \seealso{
 Useful links:
 \itemize{
@@ -17,7 +16,6 @@ Useful links:
 }
 
 }
-
 \author{
 \strong{Maintainer}: PierGianLuca Porta Mana \email{pgl@portamana.org} (\href{https://orcid.org/0000-0002-6070-0784}{ORCID})
 

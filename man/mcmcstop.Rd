@@ -9,3 +9,4 @@ mcmcstop(traces, nsamples, availiter, relerror, thinning)
 \description{
 Function for calculating the number of needed MCMC iterations
 }
+\keyword{internal}

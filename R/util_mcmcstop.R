@@ -12,6 +12,7 @@ funMCSE <- function(x) {
 }
 
 #' Function for calculating the number of needed MCMC iterations
+#' @keywords internal
 mcmcstop <- function(
     traces,
     nsamples,
