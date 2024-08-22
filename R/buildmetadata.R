@@ -26,9 +26,7 @@
 #'
 #' A metadata file or data.frame must contain one row for each simple variate in the given inference problem, and the following fields (columns), even if some of them may be empty:
 #'
-#' `name`, `type`, `domainmin`, `domainmax`, `datastep`, `minincluded`, `maxinluded`, `V1`, `V2`, ...
-#'
-#' with possibly additional `V`-fields, sequentially numbered.
+#' `name`, `type`, `domainmin`, `domainmax`, `datastep`, `minincluded`, `maxincluded`, `V1`, `V2`, [possibly additional `V`-fields, sequentially numbered]
 #'
 #' The `type` field has three possible values: `nominal`, `ordinal`, `continuous`. The remaining fields that must be filled in depend on the `type` field. Here is a list of requirements:
 #'
@@ -42,7 +40,7 @@
 #'
 #' **`type`**: The data type of variate `name`. Possible values are `nominal`, `ordinal`, `continuous`.
 #'
-#' - A *nominal* (also called *categorical*) variate has a discrete, finite number of possible values which have no intrinsic ordering. Examples could be a variate related to colour, with values "red", "green", "blue", and so on; or a variate related to cat breeds, with values "Siamese", "Abyssinian", "Persian", and so on. The possible valuesof the variate must be given in the fields `V1`, `V2`, and so on. It is important to include values that are possible but are *not* present in the dataset. A variate having only two possible values (binary variate), for example "yes" and "no", can be specified as nominal.
+#' - A *nominal* (also called *categorical*) variate has a discrete, finite number of possible values which have no intrinsic ordering. Examples could be a variate related to colour, with values "red", "green", "blue", and so on; or a variate related to cat breeds, with values "Siamese", "Abyssinian", "Persian", and so on. The possible values of the variate must be given in the fields `V1`, `V2`, and so on. It is important to include values that are possible but are *not* present in the dataset. A variate having only two possible values (binary variate), for example "yes" and "no", can be specified as nominal.
 #'
 #' - An *ordinal* variate has a discrete, finite number of possible values which do have an intrinsic ordering. Examples could be a Likert-scaled variate for the results of a survey, with values "very dissatisfied", "dissatisfied", "satisfied", "very satisfied"; or a variate related to the levels of some quantities, with values "low", "medium", "high"; or a variate having a numeric scale with values from 1 to 10. Whether a variate is nominal or ordinal often depends on the context. The possible values of the variate but be given in either one (but not both) or two ways: (1) in the fields `V1`, `V2`, ..., as for nominal variates; (2) as the fields `domainmin`, `domainmax`, `datastep`. Option (2) only works with numeric, equally spaced values: it assumes that the first value is `domainmin`, the second is `domainmin`+`datastep`, the third is `domainmin`+2*`datastep`, and so on up to the last value, `domainmax`.
 #'
