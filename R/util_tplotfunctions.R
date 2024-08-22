@@ -486,9 +486,7 @@ fivenumaxis <- function(side, x, col='#555555', type=8){
 }
 
 #' @keywords internal
-plotquantiles <- function(x, y, col=7, alpha=0.75, border=NA,
-    xlim=range(x[is.finite(x)]),
-    ylim=range(y[is.finite(y)]), ...){
+plotquantiles <- function(x, y, col=7, alpha=0.75, border=NA, ...){
     y <- t(y)
     isfin <- is.finite(x) & apply(y, 2, function(xx){all(is.finite(xx))})
     x <- x[isfin]
@@ -501,7 +499,7 @@ plotquantiles <- function(x, y, col=7, alpha=0.75, border=NA,
     ## else if(!is.character(alpha)){alpha <- alpha2hex(alpha)}
     ## if(!(is.na(col) | nchar(col)>7)){col <- paste0(col, alpha)}
     ##
-    tplot(x=NA, y=NA, xlim=xlim, ylim=ylim, ...)
+    tplot(x=x, y=t(y), type = 'p', pch = NA, ...)
     polygon(x=c(x,rev(x)), y=c(y[1,], rev(y[2,])),
         col=col, border=border)
 }

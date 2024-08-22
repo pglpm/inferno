@@ -116,15 +116,19 @@ max(out)
 
 
 data <- read.csv('/home/pglpm/repos/inferno/development/tests/custom/dataset_custom30.csv', na.strings='')
-learnt <- readRDS('/home/pglpm/repos/inferno/development/tests/custom/test_custom-240822T111036-vrt10_dat30_smp120/learnt.rds')
+learnt <- readRDS('/home/pglpm/repos/inferno/development/tests/custom/test_custom-240822T190544-vrt10_dat30_smp120/learnt.rds')
 
 unloadNamespace('inferno')
 library('inferno')
-
+##
 plotFsamples(file='justatest',learnt=learnt,data=data,plotvariability = 'quantiles',nFsamples = c(5,95)/100,plotprobability = T,datahistogram = T,datascatter = T,parallel=4)
 
 
 plotFsamples(file='justatest',learnt=learnt,data=data,plotvariability = 'samples',nFsamples = 100,plotprobability = T,datahistogram = T,datascatter = T,parallel=4)
+
+Y <- data.frame(Rvrt=seq(-1,1,length.out=10))
+X <- NULL
+Pr(Y=Y, X=X, learnt=learnt,nsamples=3)
 
 
 
