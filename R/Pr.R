@@ -357,9 +357,9 @@ Pr <- function(
         keys)}
     ## combfnc <- function(...){setNames(do.call(mapply, c(FUN=cbind, lapply(list(...), `[`, keys))), keys)}
 
-    out <- foreach(y = t(Y2),
+    out <- foreach(jj = seq_len(nX),
         .combine = `combfnr`, .inorder = TRUE) %:%
-        foreach(jj = seq_len(nX),
+        foreach(y = t(Y2),
             .combine = `combfnr`, .inorder = TRUE) %doy% {
                 if (all(is.na(y))) {
                     lprobY <- array(NA, dim = c(ncomponents, nmcsamples))
@@ -388,23 +388,19 @@ Pr <- function(
                 FF <- FF[!is.na(FF)]
 
                 list(
-                    values = rbind(mean(FF, na.rm = TRUE)),
+                    values = mean(FF, na.rm = TRUE),
                     ##
-                    quantiles = rbind(if(!is.null(quantiles)) {
+                    quantiles = (if(!is.null(quantiles)) {
                         quantile(FF, probs = quantiles, na.rm = TRUE, type = 6)
                     }),
                     ##
-                    samples = rbind(if(!is.null(nsamples)) {
+                    samples = (if(!is.null(nsamples)) {
                         FF[sampleseq]
                     })
                     ##
                     ## error = sd(FF, na.rm = TRUE)/sqrt(nmcsamples)
                 )
             }
-    ## in the output-list elements the Y & X values are the rows
-    if(!is.null(nsamples)){
-        colnames(out$samples) <- sampleseq
-    }
 
     jacobians <- exp(-rowSums(
         log(as.matrix(vtransform(Y,
@@ -413,17 +409,28 @@ Pr <- function(
         na.rm = TRUE
     ))
 
-    ## cat('\nnext\n')
-    ## transform each element into a Y-X grid
-    lapply(out, function(xx){
-        temp <- colnames(xx)
-        if(!is.null(temp)){
-            dim(xx) <- c(nY, nX, ncol(xx))
-            dimnames(xx) <- list( Y = NULL, X = NULL, temp)
-        } else {
-            dim(xx) <- c(nY, nX)
-            dimnames(xx) <- list( Y = NULL, X = NULL)
-        }
-        jacobians * xx
-    })
+    ## multiply by jacobian factors
+    out$values <- out$values * jacobians
+
+    ## transform to grid
+    ## in the output-list elements the Y & X values are the rows
+    dim(out$values) <- c(nY, nX)
+    dimnames(out$values) <- list(Y = NULL, X = NULL)
+
+    if(!is.null(quantiles)){
+        out$quantiles <- out$quantiles * jacobians
+        temp <- names(quantile(1, quantiles))
+        ## transform to grid
+        dim(out$quantiles) <- c(nY, nX, length(quantiles))
+        dimnames(out$quantiles) <- list(Y = NULL, X = NULL, temp)
+    }
+
+    if(!is.null(nsamples)){
+    ## transform to grid
+        out$samples <- out$samples * jacobians
+        dim(out$samples) <- c(nY, nX, nsamples)
+        dimnames(out$samples) <- list(Y = NULL, X = NULL, sampleseq)
+    }
+
+    out
 }

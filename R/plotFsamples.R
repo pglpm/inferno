@@ -114,28 +114,28 @@ plotFsamples <- function(
                 Xgrid <- cbind(seq(plotmin, plotmax, length.out = 256))
                 colnames(Xgrid) <- name
 
-                plotsamples <- Pr(Y = Xgrid, X = NULL,
+                probabilities <- Pr(Y = Xgrid, X = NULL,
                     learnt = learnt,
                     quantiles = quants,
                     nsamples = nmcsamples,
                     parallel = parallel,
                     silent = TRUE)
 
-                dim(plotsamples$values) <- NULL
-                dim(plotsamples$quantiles) <- dim(plotsamples$quantiles)[-2]
-                dim(plotsamples$samples) <- dim(plotsamples$samples)[-2]
+                dim(probabilities$values) <- NULL
 
                 ## Find appropriate plot height across plots
                 if (plotvariability == 'samples') {
-                    ymax <- quantile(apply(plotsamples$samples, 2,
+                    dim(probabilities$samples) <- dim(probabilities$samples)[-2]
+                    ymax <- quantile(apply(probabilities$samples, 2,
                         function(x) {
                             quantile(c(x), 31 / 32, type = 6, na.rm = TRUE)
                         }
                     ), 31 / 32, type = 6, na.rm = TRUE)
                 } else {
-                    ymax <- max(plotsamples$quantiles[
-                        is.finite(plotsamples$quantiles)])
-                    ##     apply(plotsamples[, , drop = FALSE], 1,
+                    dim(probabilities$quantiles) <- dim(probabilities$quantiles)[-2]
+                    ymax <- max(probabilities$quantiles[
+                        is.finite(probabilities$quantiles)])
+                    ##     apply(probabilities[, , drop = FALSE], 1,
                     ##     function(x) {
                     ##         quantile(x, max(quants), type = 6, na.rm = TRUE)
                     ##     }
@@ -163,7 +163,7 @@ plotFsamples <- function(
                 ## If required, plot frequency samples
                 if (plotvariability == 'samples') {
                     tplot(
-                        x = Xgrid, y = plotsamples$samples,
+                        x = Xgrid, y = probabilities$samples,
                         xlim = range(Xgrid), ylim = c(0, ymax),
                         type = 'l', lty = 1, lwd = 2,
                         col = 5, alpha = 7/8,
@@ -173,13 +173,13 @@ plotFsamples <- function(
                     )
                     addplot <- TRUE # new plots must keep this one
                 } else if (plotvariability == 'quantiles') {
-                    ## marguncertainty <- t(apply(plotsamples, 1, function(x) {
+                    ## marguncertainty <- t(apply(probabilities, 1, function(x) {
                     ##     quantile(x, quants, type = 6, na.rm = TRUE)
                     ## }))
 
                     plotquantiles(
                         x = Xgrid,
-                        y = plotsamples$quantiles,
+                        y = probabilities$quantiles,
                         ## y = marguncertainty[, , drop = FALSE],
                         col = 5, alpha = 0.75,
                         xlim = range(Xgrid), ylim = c(0, ymax),
@@ -195,8 +195,8 @@ plotFsamples <- function(
                 if (plotprobability) {
                     tplot(
                         x = Xgrid,
-                        y = plotsamples$values,
-                        ## y = rowMeans(plotsamples[, , drop = FALSE], na.rm = TRUE),
+                        y = probabilities$values,
+                        ## y = rowMeans(probabilities[, , drop = FALSE], na.rm = TRUE),
                         xlim = range(Xgrid), ylim = c(0, ymax),
                         type = 'l', cex = 0.5, lty = 1, lwd = 4,
                         col = 1, alpha = 0.25,
@@ -235,36 +235,35 @@ plotFsamples <- function(
 
                 xin <- Xgrid > leftbound & Xgrid < rightbound
 
-                plotsamples <- Pr(Y = Xgrid, X = NULL,
+                probabilities <- Pr(Y = Xgrid, X = NULL,
                     learnt = learnt,
                     quantiles = quants,
                     nsamples = nmcsamples,
                     parallel = parallel,
                     silent = TRUE)
 
-                dim(plotsamples$values) <- NULL
-                dim(plotsamples$quantiles) <- dim(plotsamples$quantiles)[-2]
-                dim(plotsamples$samples) <- dim(plotsamples$samples)[-2]
-
+                dim(probabilities$values) <- NULL
 
                 ## Find appropriate plot height across plots
                 if (plotvariability == 'samples') {
+                    dim(probabilities$samples) <- dim(probabilities$samples)[-2]
                     ymax <- quantile(apply(
-                        plotsamples$samples[xin, , drop = FALSE], 2,
+                        probabilities$samples[xin, , drop = FALSE], 2,
                         function(x) {
                             quantile(c(x), 31 / 32, type = 6, na.rm = TRUE)
                         }
                     ), 31 / 32, type = 6, na.rm = TRUE)
                     ## ymax <- quantile(apply(
-                    ##     plotsamples[xin, subsamples, drop = FALSE],
+                    ##     probabilities[xin, subsamples, drop = FALSE],
                     ##     2, function(x) {
                     ##         quantile(x, 31 / 32, type = 6, na.rm = TRUE)
                     ##     }
                     ## ), 31 / 32, type = 6, na.rm = TRUE)
                 } else {
-                    temp <- plotsamples$quantiles[xin,]
+                    dim(probabilities$quantiles) <- dim(probabilities$quantiles)[-2]
+                    temp <- probabilities$quantiles[xin,]
                     ymax <- max(temp[is.finite(temp)])
-                    ## ymax <- apply(plotsamples[xin, , drop = FALSE], 1,
+                    ## ymax <- apply(probabilities[xin, , drop = FALSE], 1,
                     ##     function(x) {
                     ##         quantile(x, max(quants), type = 6, na.rm = TRUE)
                     ##     }
@@ -299,7 +298,7 @@ plotFsamples <- function(
                     if (any(xin)) {
                         tplot(
                             x = Xgrid[xin],
-                            y = plotsamples$samples[xin, , drop = FALSE],
+                            y = probabilities$samples[xin, , drop = FALSE],
                             xlim = range(Xgrid), ylim = c(0, ymax),
                             type = 'l', lty = 1, lwd = 2,
                             col = 5, alpha = 7/8,
@@ -314,7 +313,7 @@ plotFsamples <- function(
                     if (any(!xin)) {
                         tplot(
                             x = Xgrid[!xin],
-                            y = plotsamples$values[!xin] * ymax,
+                            y = probabilities$values[!xin] * ymax,
                             type = 'p', pch = 2, cex = 2,
                             col = 5, alpha = 7 / 8,
                             family = fontfamily,
@@ -324,14 +323,14 @@ plotFsamples <- function(
                     }
 
                 } else if (plotvariability == 'quantiles') {
-                    ## marguncertainty <- t(apply(plotsamples, 1, function(x) {
+                    ## marguncertainty <- t(apply(probabilities, 1, function(x) {
                     ##     quantile(x, quants, type = 6, na.rm = TRUE)
                     ## }))
 
                     if (any(xin)) {
                         plotquantiles(
                             x = Xgrid[xin],
-                            y = plotsamples$quantiles[xin, , drop = FALSE],
+                            y = probabilities$quantiles[xin, , drop = FALSE],
                             col = 5, alpha = 0.75,
                             xlim = range(Xgrid), ylim = c(0, ymax),
                             xlab = name,
@@ -347,7 +346,7 @@ plotFsamples <- function(
                         tplot(
                             x = matrix(Xgrid[!xin],
                                 nrow = 2, ncol = sum(!xin), byrow = TRUE),
-                            y = t(plotsamples$quantiles[!xin, , drop = FALSE]) * ymax,
+                            y = t(probabilities$quantiles[!xin, , drop = FALSE]) * ymax,
                             type = 'l', pch = 2, cex = 2,
                             col = 5, alpha = 0.75,
                             lty = 1, lwd = 16,
@@ -362,7 +361,7 @@ plotFsamples <- function(
                     if (any(xin)) {
                         tplot(
                             x = Xgrid[xin],
-                            y = plotsamples$values[xin],
+                            y = probabilities$values[xin],
                             xlim = range(Xgrid), ylim = c(0, ymax),
                             type = 'l', cex = 0.5, lty = 1, lwd = 4,
                             col = 1, alpha = 0.25,
@@ -378,7 +377,7 @@ plotFsamples <- function(
                     if (any(!xin)) {
                         tplot(
                             x = Xgrid[!xin],
-                            y = plotsamples$values[!xin] * ymax,
+                            y = probabilities$values[!xin] * ymax,
                             type = 'p', pch = 2, cex = 2,
                             col = 1, alpha = 0.25,
                             lty = 1, lwd = 3,
@@ -430,17 +429,7 @@ plotFsamples <- function(
                     rownames(Xgrid) <- cbind(unlist(datavalues[!is.na(datavalues)]))
                     colnames(rownames(Xgrid)) <- name
                     Xticks <- Xgrid
-
-                    plotsamples <- Pr(Y = rownames(Xgrid), X = NULL,
-                        learnt = learnt,
-                        quantiles = quants,
-                        nsamples = nmcsamples,
-                        parallel = parallel,
-                        silent = TRUE)
-
-                    dim(plotsamples$values) <- NULL
-                    dim(plotsamples$quantiles) <- dim(plotsamples$quantiles)[-2]
-                    dim(plotsamples$samples) <- dim(plotsamples$samples)[-2]
+                    YY <- rownames(Xgrid)
 
                 } else {
                     ## we must construct an X-grid
@@ -448,37 +437,38 @@ plotFsamples <- function(
                     colnames(Xgrid) <- name
                     rownames(Xgrid) <- NULL
                     Xticks <- NULL
-
-                    plotsamples <- Pr(Y = Xgrid, X = NULL,
-                        learnt = learnt,
-                        quantiles = quants,
-                        nsamples = nmcsamples,
-                        parallel = parallel,
-                        silent = TRUE)
-
-                    dim(plotsamples$values) <- NULL
-                    dim(plotsamples$quantiles) <- dim(plotsamples$quantiles)[-2]
-                    dim(plotsamples$samples) <- dim(plotsamples$samples)[-2]
-
+                    YY <- Xgrid
                 }
+
+                probabilities <- Pr(Y = YY, X = NULL,
+                    learnt = learnt,
+                    quantiles = quants,
+                    nsamples = nmcsamples,
+                    parallel = parallel,
+                    silent = TRUE)
+
+                dim(probabilities$values) <- NULL
+
 
                 ## Find appropriate plot height across plots
                 if (plotvariability == 'samples') {
-                    ymax <- quantile(apply(plotsamples$samples, 2,
+                    dim(probabilities$samples) <- dim(probabilities$samples)[-2]
+                    ymax <- quantile(apply(probabilities$samples, 2,
                         function(x) {
                             quantile(x, 31 / 32, type = 6, na.rm = TRUE)
                         }
                     ), 31 / 32, type = 6, na.rm = TRUE)
                     ## ymax <- quantile(apply(
-                    ##     plotsamples[, subsamples, drop = FALSE],
+                    ##     probabilities[, subsamples, drop = FALSE],
                     ##     2, function(x) {
                     ##         quantile(x, 31 / 32, type = 6, na.rm = TRUE)
                     ##     }
                     ## ), 31 / 32, type = 6, na.rm = TRUE)
                 } else {
-                    temp <- plotsamples$quantiles
+                    dim(probabilities$quantiles) <- dim(probabilities$quantiles)[-2]
+                    temp <- probabilities$quantiles
                     ymax <- max(temp[is.finite(temp)])
-                    ## ymax <- apply(plotsamples[, , drop = FALSE], 1,
+                    ## ymax <- apply(probabilities[, , drop = FALSE], 1,
                     ##     function(x) {
                     ##         quantile(x, max(quants), type = 6, na.rm = TRUE)
                     ##     }
@@ -507,7 +497,7 @@ plotFsamples <- function(
                 if (plotvariability == 'samples') {
                     tplot(
                         x = Xgrid,
-                        y = plotsamples$samples,
+                        y = probabilities$samples,
                         xlim = range(Xgrid), ylim = c(0, ymax),
                         xticks = Xticks, xlabels = rownames(Xgrid),
                         type = 'l', lty = 1, lwd = 2,
@@ -519,13 +509,13 @@ plotFsamples <- function(
                     addplot <- TRUE
 
                 } else if (plotvariability == 'quantiles') {
-                    ## marguncertainty <- t(apply(plotsamples, 1, function(x) {
+                    ## marguncertainty <- t(apply(probabilities, 1, function(x) {
                     ##     quantile(x, quants, type = 6, na.rm = TRUE)
                     ## }))
 
                     plotquantiles(
                         x = Xgrid,
-                        y = plotsamples$quantiles,
+                        y = probabilities$quantiles,
                         col = 5, alpha = 0.75,
                         xlim = range(Xgrid), ylim = c(0, ymax),
                         xticks = Xticks, xlabels = rownames(Xgrid),
@@ -541,7 +531,7 @@ plotFsamples <- function(
                 if (plotprobability) {
                     tplot(
                         x = Xgrid,
-                        y = plotsamples$values,
+                        y = probabilities$values,
                         xlim = range(Xgrid), ylim = c(0, ymax),
                         xticks = Xticks, xlabels = rownames(Xgrid),
                         type = 'b', cex = 0.5, lty = 1, lwd = 4,
