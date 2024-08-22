@@ -110,3 +110,67 @@ out <- t(sapply(1:32, function(ipoint){
 colnames(out) <- learnt$auxmetadata$name
 out
 max(out)
+
+
+
+
+
+data <- read.csv('/home/pglpm/repos/inferno/development/tests/custom/dataset_custom30.csv', na.strings='')
+learnt <- readRDS('/home/pglpm/repos/inferno/development/tests/custom/test_custom-240822T111036-vrt10_dat30_smp120/learnt.rds')
+
+unloadNamespace('inferno')
+library('inferno')
+
+plotFsamples(file='justatest',learnt=learnt,data=data,plotvariability = 'quantiles',nFsamples = c(5,95)/100,plotprobability = T,datahistogram = T,datascatter = T,parallel=4)
+
+
+plotFsamples(file='justatest',learnt=learnt,data=data,plotvariability = 'samples',nFsamples = 100,plotprobability = T,datahistogram = T,datascatter = T,parallel=4)
+
+
+
+
+Y <- cbind(Age=65)
+
+X <- NULL
+
+learnt <- readRDS('/home/pglpm/repos/parkinsonbayes/data/nadpark/_output_learn_toydata-1-240810T161910-vrt7_dat30_smp3600/learnt.rds')
+
+
+prediction <- Pr(Y=Y, X=X, learnt=learnt)
+
+prediction$value
+
+Y <- cbind(diff.MDS.UPRS.III = (-10):10)
+X <- cbind(Sex='Male', TreatmentGroup='NR')
+predictionM <- Pr(Y=Y, X=X, learnt=learnt)
+predictionM$value
+
+tplot(x=(-10):10, y=predictionM$values)
+
+
+Y <- cbind(diff.MDS.UPRS.III = (-10):10)
+X <- cbind(Sex='Female', TreatmentGroup='NR')
+predictionF <- Pr(Y=Y, X=X, learnt='/home/pglpm/repos/parkinsonbayes/data/nadpark/_output_learn_toydata-1-240810T161910-vrt7_dat30_smp3600')
+predictionF$value
+
+plot(x=(-10):10, y=predictionF$value, type='l',col='blue')
+
+plotquantiles(x=(-10):10, y=predictionM$quantiles[,1,],col=1)
+tplot(x=(-10):10, y=predictionM$value, add=T,col=1)
+plotquantiles(x=(-10):10, y=predictionF$quantiles[,1,],add=T,col=2)
+tplot(x=(-10):10, y=predictionF$value, add=T,col=2)
+
+
+Y <- cbind(diff.MDS.UPRS.III = (-132):132)
+X <- cbind(Sex='Male', TreatmentGroup='NR')
+predictionM <- Pr(Y=Y, X=X, learnt=learnt)
+predictionM$value
+
+Y <- cbind(diff.MDS.UPRS.III = (-132):132)
+X <- cbind(Sex='Female', TreatmentGroup='NR')
+predictionF <- Pr(Y=Y, X=X, learnt=learnt)
+predictionF$value
+
+
+sum(predictionM$values * ((-132):132))
+sum(predictionF$values * ((-132):132))

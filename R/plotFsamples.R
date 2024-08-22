@@ -176,9 +176,7 @@ plotFsamples <- function(
                     ## marguncertainty <- t(apply(plotsamples, 1, function(x) {
                     ##     quantile(x, quants, type = 6, na.rm = TRUE)
                     ## }))
-str('here')
-                    str(Xgrid)
-                    str(plotsamples$quantiles)
+
                     plotquantiles(
                         x = Xgrid,
                         y = plotsamples$quantiles,

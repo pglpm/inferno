@@ -28,13 +28,13 @@
 #'
 #' `name`, `type`, `domainmin`, `domainmax`, `datastep`, `minincluded`, `maxinluded`, `V1`, `V2`, ...
 #'
-#' with possibly additional `V`-fields, sequentially numbered, and possibly the two fields `plotmin` and `plotmax`.
+#' with possibly additional `V`-fields, sequentially numbered.
 #'
 #' The `type` field has three possible values: `nominal`, `ordinal`, `continuous`. The remaining fields that must be filled in depend on the `type` field. Here is a list of requirements:
 #'
-#' - **`nominal`** and **`ordinal`**: require *either* `V1`, `V2`, ... fields *or* `domainmin`, `domainmax`, `datastep` (all three) fields. No other fields are required, but `plotmin` and `plotmax` can optionally be specified.
+#' - **`nominal`** and **`ordinal`**: require *either* `V1`, `V2`, ... fields *or* `domainmin`, `domainmax`, `datastep` (all three) fields. No other fields are required.
 #'
-#' - **`continuous`**: requires `domainmin`, `domainmax`, `datastep`, `minincluded`, `maxincluded`, and optionally `plotmin` and `plotmax`.
+#' - **`continuous`**: requires `domainmin`, `domainmax`, `datastep`, `minincluded`, `maxincluded`.
 #'
 #' Here are the meanings and possible values of the fields:
 #'
@@ -46,7 +46,7 @@
 #'
 #' - An *ordinal* variate has a discrete, finite number of possible values which do have an intrinsic ordering. Examples could be a Likert-scaled variate for the results of a survey, with values "very dissatisfied", "dissatisfied", "satisfied", "very satisfied"; or a variate related to the levels of some quantities, with values "low", "medium", "high"; or a variate having a numeric scale with values from 1 to 10. Whether a variate is nominal or ordinal often depends on the context. The possible values of the variate but be given in either one (but not both) or two ways: (1) in the fields `V1`, `V2`, ..., as for nominal variates; (2) as the fields `domainmin`, `domainmax`, `datastep`. Option (2) only works with numeric, equally spaced values: it assumes that the first value is `domainmin`, the second is `domainmin`+`datastep`, the third is `domainmin`+2*`datastep`, and so on up to the last value, `domainmax`.
 #'
-#' - A *continuous* variate has a continuum of values with an intrinsic ordering. Examples could be a variate related to the width of an object; or to the age of a person; or one coordinate of an object in a particular reference system. A continuous variate requires specification of the fields `domainmin`, `domainmax`, `datastep`, `minincluded`, `maxincluded`, `plotmin`, `plotmax`. Some naturally continuous variates are often rounded to a given precision; for instance, the age of a person might be reported as rounded to the nearest year (25 years, 26 years, and so on); or the length of an object might be reported to the nearest centimetre (1 m, 1.01 m, 1.02 m, and so on). The minimum distance between such rounded values **must** be reported in the `datastep` field; this would be `1` in the age example and `0.01` in the length example above. See below for further explanation of why reporting such rounding is important.
+#' - A *continuous* variate has a continuum of values with an intrinsic ordering. Examples could be a variate related to the width of an object; or to the age of a person; or one coordinate of an object in a particular reference system. A continuous variate requires specification of the fields `domainmin`, `domainmax`, `datastep`, `minincluded`, `maxincluded`. Some naturally continuous variates are often rounded to a given precision; for instance, the age of a person might be reported as rounded to the nearest year (25 years, 26 years, and so on); or the length of an object might be reported to the nearest centimetre (1 m, 1.01 m, 1.02 m, and so on). The minimum distance between such rounded values **must** be reported in the `datastep` field; this would be `1` in the age example and `0.01` in the length example above. See below for further explanation of why reporting such rounding is important.
 #'
 #' **`domainmin`**: The minimum value that the variate (ordinal or continuous) can take on. Possible values are a real number, or `-Inf`, or an empty value, which is then interpreted as `-Inf`. Some continuous variates, like age or distance or temperature, are naturally positive, and therefore have `domainmin` equal `0`. But in other contexts the minimum value could be different. For instance, if a given inference problem only involves people of age 18 or more, then `domainmin` would be set to `18`.
 #'
@@ -55,8 +55,6 @@
 #' **`datastep`**: The minimum distance between the values of a variate (ordinal or continuous). Possible values are a positive real number, or `0`, or an empty value, which is then interpreted as `0`. For a numeric ordinal variate, `datastep` is the step between consecutive values. For a continuous *rounded* variate, `datastep` is the minimum distance between different values that occurs because of rounding; see the examples given above. The function `buildmetadata` has some heuristics to determine whether the variate is rounded or not. See further details under the section Rounding below.
 #'
 #' **`minincluded`**, **`maxincluded`**: Whether the minimum (`domainmin`) and maximum(`domainmax`) values of a *continuous* variate can really appear in the data or not. Possible values are `TRUE`, `FALSE`, or an empty value, which is then interpreted as `FALSE`. Here are some examples about the meaning of these fields. (a) A continuous *unrounded* variate such as temperature has 0 as a minimum possible value `domainmin`, but this value itself is physically impossible and can never appear in data; in this case `minincluded` is set to `FALSE`. (b) A variate related to the *unrounded* length, in metres, of some objects may take on any positive real value; but suppose that all objects of length 5 or less are grouped together under the value `5`. It is then possible for several datapoints to have value `5`: one such datapoint could originally have the value 3.782341...; another the value 4.929673..., and so on. In this case `domainmin` is set to `5`, and `minincluded` is set to `TRUE`. Similarly for the maximum value of a variate and `maxincluded`. Note that if `domainmin` is `-Inf`, then `minincluded` is automatically set to `FALSE`, and similarly for `maxincluded` if `domainmax` is `+Inf`.
-#'
-#' **`plotmin`**, **`plotmax`**: The software draws some probability plots for each variate, after learning from the data with the \code{\link{learn}} function. `plotmin` and `plotmax` give the plotting range in these plots. They might be necessary because, for instance, although the minimum variate value is 0 and the maximum is 90, the variability of the data and the range of interest in the inference problem is between 20 and 40; these would then be the values of `plotmin` and `plotmax`. Possible values are real numbers, with `plotmin` strictly less than `plotmax`; one or both may be empty values. In case of an empty value, the software internally tries to choose an optimal value, typically so as to include all data given in the plot.
 #'
 #' @section Rounded continuous variates:
 #'
@@ -111,12 +109,13 @@ buildmetadata <- function(
             domainmax = NA,
             datastep = NA,
             minincluded = NA,
-            maxincluded = NA,
+            maxincluded = NA
             ## lowvalue = NA,
             ## centralvalue = NA,
             ## highvalue = NA,
-            plotmin = NA,
-            plotmax = NA),
+            ## plotmin = NA,
+            ## plotmax = NA
+        ),
             if (addsummary2metadata) {
                 list(datamin = NA,
                     datamax = NA,
@@ -266,8 +265,8 @@ buildmetadata <- function(
             ## lowvalue <- NA
             ## centralvalue <- NA
             ## highvalue <- NA
-            plotmin <- NA
-            plotmax <- NA
+            ## plotmin <- NA
+            ## plotmax <- NA
             names(datavalues) <- paste0('V', 1:Nvalues)
             ##
             if(verbose){
@@ -293,8 +292,8 @@ buildmetadata <- function(
             ## lowvalue <- NA
             ## centralvalue <- NA
             ## highvalue <- NA
-            plotmin <- NA
-            plotmax <- NA
+            ## plotmin <- NA
+            ## plotmax <- NA
             names(datavalues) <- paste0('V', 1:Nvalues)
             ##
             if(verbose){
@@ -337,8 +336,8 @@ buildmetadata <- function(
             ## lowvalue <- NA
             ## centralvalue <- NA
             ## highvalue <- NA
-            plotmin <- NA
-            plotmax <- NA
+            ## plotmin <- NA
+            ## plotmax <- NA
             ##
             if(verbose){
                 cat('  - Only', Nvalues, 'different numeric values detected:\n')
@@ -404,8 +403,8 @@ buildmetadata <- function(
             ##                  min(x[x >= Q3])
             ##                }
             ## }
-            plotmin <- datamin - IQR(x, type=6) / 2
-            plotmax <- datamax + IQR(x, type=6) / 2
+            ## plotmin <- datamin - IQR(x, type=6) / 2
+            ## plotmax <- datamax + IQR(x, type=6) / 2
             datavalues <- NULL
             ##
             if(verbose){
@@ -464,7 +463,7 @@ buildmetadata <- function(
             if (sum(x == datamin) > 1) {
                 ## seems to have left-closed domain
                 domainmin <- datamin
-                plotmin <- datamin
+                ## plotmin <- datamin
                 if(!roundedflag){
                     minincluded <- TRUE
                 }
@@ -480,7 +479,7 @@ buildmetadata <- function(
             } else if (all(unx > 0)) {
                 ## seems to be strictly positive
                 domainmin <- 0
-                plotmin <- max((domainmin + datamin) / 2, plotmin)
+                ## plotmin <- max((domainmin + datamin) / 2, plotmin)
                 if(!roundedflag){
                     minincluded <- FALSE
                 }
@@ -495,7 +494,7 @@ buildmetadata <- function(
             } else if (all(unx >= 0)) {
                 ## seems to be non-negative
                 domainmin <- 0
-                plotmin <- max((domainmin + datamin) / 2, plotmin)
+                ## plotmin <- max((domainmin + datamin) / 2, plotmin)
                 if(!roundedflag){
                     minincluded <- TRUE
                 }
@@ -512,7 +511,7 @@ buildmetadata <- function(
             if (sum(x == datamax) > meanrep) {
                 ## seems to right-closed domain
                 domainmax <- datamax
-                plotmax <- datamax
+                ## plotmax <- datamax
                 if(!roundedflag){
                     maxincluded <- TRUE
                 }
@@ -539,12 +538,13 @@ buildmetadata <- function(
                     domainmax = domainmax,
                     datastep = datastep,
                     minincluded = minincluded,
-                    maxincluded = maxincluded,
+                    maxincluded = maxincluded
                     ## lowvalue = signif(lowvalue,3),
                     ## centralvalue = signif(centralvalue,3),
                     ## highvalue = signif(highvalue,3),
-                    plotmin = signif(plotmin,2),
-                    plotmax = signif(plotmax,2)),
+                    ## plotmin = signif(plotmin,2),
+                    ## plotmax = signif(plotmax,2)
+                ),
                 if (addsummary2metadata) {
                     list(datamin = datamin,
                         datamax = datamax,

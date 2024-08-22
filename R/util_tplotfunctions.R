@@ -137,7 +137,7 @@ tplot <- function(x, y, xlim = c(NA, NA), ylim = c(NA, NA), asp = NA,
     pch = c(1, 0, 2, 5, 6, 3, 4), lty = 1:4, lwd = 2, alpha = NA,
     border = palette(), border.alpha = NA, xtransf = NULL,
     ytransf = NULL, add = FALSE) {
-    palette(colour('bright')())
+    palette(khroma::colour('bright')())
     scale_colour_discrete <- khroma::scale_colour_bright
     ## if (missing(x)) {
     ##     if (missing(y))

@@ -49,6 +49,10 @@ buildauxmetadata <- function(data, metadata, Dthreshold = 1) {
         if(!is.null(data)) {
             x <- data[[name]]
             x <- x[!is.na(x)]
+            if(is.numeric(x)) {
+                plotmin <- min(x[is.finite(x)]) - IQR(x, type=6) / 2
+                plotmax <- max(x[is.finite(x)]) + IQR(x, type=6) / 2
+            }
         }
         minfo <- as.list(metadata[metadata$name == name, ])
         ## make sure 'type' is lowercase
@@ -65,8 +69,8 @@ buildauxmetadata <- function(data, metadata, Dthreshold = 1) {
         Nvalues <- +Inf
         halfstep <- minfo$datastep / 2
         ## Nvalues <- minfo$Nvalues
-        plotmin <- minfo$plotmin
-        plotmax <- minfo$plotmax
+        ## plotmin <- minfo$plotmin
+        ## plotmax <- minfo$plotmax
 
         ## Catch discrepancies in specification
         if(ndatavalues > 0 && (
@@ -194,9 +198,7 @@ buildauxmetadata <- function(data, metadata, Dthreshold = 1) {
                 tleftbound <- (leftbound - tlocation) / tscale
                 trightbound <- (rightbound - tlocation) / tscale
 
-                if(is.finite(minfo$plotmin)){
-                    plotmin <- minfo$plotmin
-                } else {
+                if(!is.finite(plotmin)){
                     plotmin <- domainmin
                 }
                 ## centre plotmin on a rounding bin
@@ -206,9 +208,7 @@ buildauxmetadata <- function(data, metadata, Dthreshold = 1) {
                     round((tempvalue - plotmin) / (2 * halfstep)) *
                     2 * halfstep
 
-                if(is.finite(minfo$plotmax)){
-                    plotmax <- minfo$plotmax
-                } else {
+                if(!is.finite(plotmax)){
                     plotmax <- domainmax
                 }
                 ## centre plotmax on a rounding bin
@@ -452,27 +452,19 @@ buildauxmetadata <- function(data, metadata, Dthreshold = 1) {
             }
             ## end non-rounded case
 
-            if(is.finite(minfo$plotmin)){
-                plotmin <- minfo$plotmin
-            } else {
                 plotmin <- max(domainmin,
                     if(!is.null(data)){
-                        min(x) - IQR(x, type = 6) / 2
+                        plotmin
                     } else {
                         -2 * iqrfactor
                     })
-            }
 
-            if(is.finite(minfo$plotmax)){
-                plotmax <- minfo$plotmax
-            } else {
                 plotmax <- min(domainmax,
                     if(!is.null(data)){
-                        max(x) + IQR(x, type = 6) / 2
+                        plotmax
                     } else {
                         2 * iqrfactor
                     })
-            }
 
 ### end continuous case
         } else {
