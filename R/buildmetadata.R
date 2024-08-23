@@ -26,7 +26,7 @@
 #'
 #' A metadata file or data.frame must contain one row for each simple variate in the given inference problem, and the following fields (columns), even if some of them may be empty:
 #'
-#' `name`, `type`, `domainmin`, `domainmax`, `datastep`, `minincluded`, `maxincluded`, `V1`, `V2`, [possibly additional `V`-fields, sequentially numbered]
+#' `name`, `type`, `domainmin`, `domainmax`, `datastep`, `minincluded`, `maxincluded`, `V1`, `V2`, (possibly additional `V`-fields, sequentially numbered)
 #'
 #' The `type` field has three possible values: `nominal`, `ordinal`, `continuous`. The remaining fields that must be filled in depend on the `type` field. Here is a list of requirements:
 #'
