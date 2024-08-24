@@ -293,7 +293,8 @@ Pr <- function(
             Dout = 'normalized',
             Oout = 'numeric',
             Nout = 'numeric',
-            Bout = 'numeric'))
+            Bout = 'numeric',
+            logjacobian = FALSE))
 
         temporarydir <- tempdir() # where to save X objects
         ##
@@ -334,7 +335,8 @@ Pr <- function(
         Dout = 'normalized',
         Oout = 'numeric',
         Nout = 'numeric',
-        Bout = 'numeric'))
+        Bout = 'numeric',
+        logjacobian = FALSE))
 
     ## jacobians <- exp(-rowSums(
     ##     log(vtransform(Y,
@@ -391,7 +393,8 @@ Pr <- function(
                     values = mean(FF, na.rm = TRUE),
                     ##
                     quantiles = (if(!is.null(quantiles)) {
-                        quantile(FF, probs = quantiles, na.rm = TRUE, type = 6)
+                        quantile(FF, probs = quantiles, type = 6,
+                            na.rm = TRUE, names = FALSE)
                     }),
                     ##
                     samples = (if(!is.null(nsamples)) {
@@ -402,10 +405,10 @@ Pr <- function(
                 )
             }
 
-    jacobians <- exp(-rowSums(
-        log(as.matrix(vtransform(Y,
+    jacobians <- exp(rowSums(
+        as.matrix(vtransform(Y,
             auxmetadata = auxmetadata,
-            invjacobian = TRUE))),
+            logjacobian = TRUE)),
         na.rm = TRUE
     ))
 
@@ -419,7 +422,7 @@ Pr <- function(
 
     if(!is.null(quantiles)){
         out$quantiles <- out$quantiles * jacobians
-        temp <- names(quantile(1, quantiles))
+        temp <- names(quantile(1, probs = quantiles, names = TRUE))
         ## transform to grid
         dim(out$quantiles) <- c(nY, nX, length(quantiles))
         dimnames(out$quantiles) <- list(Y = NULL, X = NULL, temp)

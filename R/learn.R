@@ -477,7 +477,8 @@ learn <- function(
                 Dout = 'normalized',
                 Oout = 'numeric',
                 Nout = 'numeric',
-                Bout = 'numeric'))
+                Bout = 'numeric',
+                logjacobian = FALSE))
             rownames(testdata) <- pointsid
             saveRDS(testdata,
                 file = file.path(dirname, paste0('_testdata_', achain, '.rds')))
@@ -698,13 +699,13 @@ learn <- function(
                 Cshapehi = rep(Cshapehi, 1),
                 Cleft = as.matrix(vtransform(data[, vnames$C, drop = FALSE],
                     auxmetadata = auxmetadata,
-                    Cout = 'left')),
+                    Cout = 'left', logjacobian = FALSE)),
                 Cright = as.matrix(vtransform(data[, vnames$C, drop = FALSE],
                     auxmetadata = auxmetadata,
-                    Cout = 'right')),
+                    Cout = 'right', logjacobian = FALSE)),
                 Clatinit = as.matrix(vtransform(data[, vnames$C, drop = FALSE],
                     auxmetadata,
-                    Cout = 'init'))
+                    Cout = 'init', logjacobian = FALSE))
             )
             ## Cleft & Cright are as many as the datapoints
             ## so we do not create copies outside of Nimble
@@ -720,13 +721,13 @@ learn <- function(
                 Dshapehi = rep(Dshapehi, 1),
                 Dleft = as.matrix(vtransform(data[, vnames$D, drop = FALSE],
                     auxmetadata = auxmetadata,
-                    Dout = 'left')),
+                    Dout = 'left', logjacobian = FALSE)),
                 Dright = as.matrix(vtransform(data[, vnames$D, drop = FALSE],
                     auxmetadata = auxmetadata,
-                    Dout = 'right')),
+                    Dout = 'right', logjacobian = FALSE)),
                 Dlatinit = as.matrix(vtransform(data[, vnames$D, drop = FALSE],
                     auxmetadata,
-                    Dout = 'init'))
+                    Dout = 'init', logjacobian = FALSE))
             )
         },
         ## if (vn$L > 0) { # latent
@@ -794,24 +795,24 @@ learn <- function(
             list(
                 Rdata = as.matrix(vtransform(data[, vnames$R, drop = FALSE],
                     auxmetadata = auxmetadata,
-                    Rout = 'normalized'))
+                    Rout = 'normalized', logjacobian = FALSE))
             )
         },
         if (vn$C > 0) { # continuous closed domain
             list(
                 Caux = as.matrix(vtransform(data[, vnames$C, drop = FALSE],
                     auxmetadata = auxmetadata,
-                    Cout = 'aux')),
+                    Cout = 'aux', logjacobian = FALSE)),
                 Clat = as.matrix(vtransform(data[, vnames$C, drop = FALSE],
                     auxmetadata = auxmetadata,
-                    Cout = 'lat'))
+                    Cout = 'lat', logjacobian = FALSE))
             )
         },
         if (vn$D > 0) { # continuous rounded
             list(
                 Daux = as.matrix(vtransform(data[, vnames$D, drop = FALSE],
                     auxmetadata = auxmetadata,
-                    Dout = 'aux'))
+                    Dout = 'aux', logjacobian = FALSE))
             )
         },
         ## if (vn$L > 0) { # latent
@@ -825,21 +826,21 @@ learn <- function(
             list(
                 Odata = as.matrix(vtransform(data[, vnames$O, drop = FALSE],
                     auxmetadata = auxmetadata,
-                    Oout = 'numeric'))
+                    Oout = 'numeric', logjacobian = FALSE))
             )
         },
         if (vn$N > 0) { # nominal
             list(
                 Ndata = as.matrix(vtransform(data[, vnames$N, drop = FALSE],
                     auxmetadata = auxmetadata,
-                    Nout = 'numeric'))
+                    Nout = 'numeric', logjacobian = FALSE))
             )
         },
         if (vn$B > 0) { # binary
             list(
                 Bdata = as.matrix(vtransform(data[, vnames$B, drop = FALSE],
                     auxmetadata = auxmetadata,
-                    Bout = 'numeric'))
+                    Bout = 'numeric', logjacobian = FALSE))
             )
         }
     ) # End datapoints

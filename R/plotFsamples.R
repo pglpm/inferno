@@ -128,9 +128,10 @@ plotFsamples <- function(
                     dim(probabilities$samples) <- dim(probabilities$samples)[-2]
                     ymax <- quantile(apply(probabilities$samples, 2,
                         function(x) {
-                            quantile(c(x), 31 / 32, type = 6, na.rm = TRUE)
+                            quantile(c(x), probs = 31 / 32, type = 6,
+                                na.rm = TRUE, names = FALSE)
                         }
-                    ), 31 / 32, type = 6, na.rm = TRUE)
+                    ), probs = 31 / 32, type = 6, na.rm = TRUE, names = FALSE)
                 } else {
                     dim(probabilities$quantiles) <- dim(probabilities$quantiles)[-2]
                     ymax <- max(probabilities$quantiles[
@@ -250,9 +251,10 @@ plotFsamples <- function(
                     ymax <- quantile(apply(
                         probabilities$samples[xin, , drop = FALSE], 2,
                         function(x) {
-                            quantile(c(x), 31 / 32, type = 6, na.rm = TRUE)
+                            quantile(c(x), probs = 31 / 32, type = 6,
+                                na.rm = TRUE, names = FALSE)
                         }
-                    ), 31 / 32, type = 6, na.rm = TRUE)
+                    ), probs = 31 / 32, type = 6, na.rm = TRUE, names = FALSE)
                     ## ymax <- quantile(apply(
                     ##     probabilities[xin, subsamples, drop = FALSE],
                     ##     2, function(x) {
@@ -455,9 +457,10 @@ plotFsamples <- function(
                     dim(probabilities$samples) <- dim(probabilities$samples)[-2]
                     ymax <- quantile(apply(probabilities$samples, 2,
                         function(x) {
-                            quantile(x, 31 / 32, type = 6, na.rm = TRUE)
+                            quantile(x, probs = 31 / 32, type = 6,
+                                na.rm = TRUE, names = FALSE)
                         }
-                    ), 31 / 32, type = 6, na.rm = TRUE)
+                    ), probs = 31 / 32, type = 6, na.rm = TRUE, names = FALSE)
                     ## ymax <- quantile(apply(
                     ##     probabilities[, subsamples, drop = FALSE],
                     ##     2, function(x) {
@@ -575,7 +578,8 @@ plotFsamples <- function(
                             auxmetadata = auxmetadata,
                             Oout = 'numeric',
                             Nout = 'numeric',
-                            Bout = 'numeric'
+                            Bout = 'numeric',
+                            logjacobian = FALSE
                         ))
                 }
                 scatteraxis(

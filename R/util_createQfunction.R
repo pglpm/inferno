@@ -30,7 +30,8 @@ createQfunction <- function(
     thismad <- mad(xsamples, constant = 1)
     oquants <- c(
         NULL,
-        quantile(x = xsamples, probs = seqnint, na.rm = T, type = 6),
+        quantile(x = xsamples, probs = seqnint, na.rm = TRUE,
+            type = 6, names = FALSE),
         NULL
     )
     rm(xsamples)
@@ -50,9 +51,9 @@ createQfunction <- function(
     oquants <- (oquants + rev(oquants)) / 2
     ##
     ##
-    util_DQ <- approxfun(x = xsamples, y = oquants, yleft = 0, yright = 0)
+    util_invDQ <- approxfun(x = xsamples, y = oquants, yleft = 0, yright = 0)
     if (is.character(file)) {
-        saveRDS(util_DQ, paste0('D', file, '.rds'))
+        saveRDS(util_invDQ, paste0('D', file, '.rds'))
     }
     if (is.character(plot)) {
         ##
@@ -74,9 +75,9 @@ createQfunction <- function(
     }
 
     if(save){
-        usethis::use_data(util_Q, util_invQ, util_DQ,
+        usethis::use_data(util_Q, util_invQ, util_invDQ,
             internal = TRUE, overwrite = TRUE)
     }
 
-    list(util_Q = util_Q, util_invQ = util_invQ, util_DQ = util_DQ)
+    list(util_Q = util_Q, util_invQ = util_invQ, util_invDQ = util_invDQ)
 }

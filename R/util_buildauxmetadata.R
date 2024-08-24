@@ -180,7 +180,7 @@ buildauxmetadata <- function(data, metadata, Dthreshold = 1) {
                 transf <- 'identity'
                 if(!is.null(data)) {
                     ## set the location to the nearest centre of datastep interval
-                    tempvalue <- unname(quantile(x, 0.5, type = 6))
+                    tempvalue <- quantile(x, probs = 0.5, type = 6, names = FALSE)
                     tlocation <- x[which.min(abs(x - tempvalue))]
                     tlocation <- tlocation +
                         round((tempvalue - tlocation) / (2 * halfstep)) *
@@ -247,7 +247,7 @@ buildauxmetadata <- function(data, metadata, Dthreshold = 1) {
                 transf <- 'identity'
                 if(!is.null(data)) {
                     ## set the location to the nearest centre of datastep interval
-                    tempvalue <- unname(quantile(x, 0.5, type = 6))
+                    tempvalue <- quantile(x, probs = 0.5, type = 6, names = FALSE)
                     tlocation <- x[which.min(abs(x - tempvalue))]
                     tlocation <- tlocation +
                         round((tempvalue - tlocation) / (2 * halfstep)) *
@@ -288,7 +288,8 @@ buildauxmetadata <- function(data, metadata, Dthreshold = 1) {
                     ##
                     transf <- 'logminus'
                     if(!is.null(data)) {
-                        tlocation <- unname(quantile(-log(domainmax - x), 0.5, type = 6))
+                        tlocation <- quantile(-log(domainmax - x), probs = 0.5,
+                            type = 6, names = FALSE)
                         tscale <- mad(-log(domainmax - x)) / iqrfactor
                     } else {
                         tlocation <- 0
@@ -308,7 +309,8 @@ buildauxmetadata <- function(data, metadata, Dthreshold = 1) {
                     ##
                     transf <- 'log'
                     if(!is.null(data)) {
-                        tlocation <- unname(quantile(log(x - domainmin), 0.5, type = 6))
+                        tlocation <- quantile(log(x - domainmin), probs = 0.5,
+                            type = 6, names = FALSE)
                         tscale <- mad(log(x - domainmin)) / iqrfactor
                     } else {
                         tlocation <- 0
@@ -326,7 +328,8 @@ buildauxmetadata <- function(data, metadata, Dthreshold = 1) {
                     ##
                     transf <- 'identity'
                     if(!is.null(data)) {
-                        tlocation <- unname(quantile(x, 0.5, type = 6))
+                        tlocation <- quantile(x, probs = 0.5,
+                            type = 6, names = FALSE)
                         tscale <- mad(x) / iqrfactor
                     } else {
                         tlocation <- 0
@@ -343,7 +346,8 @@ buildauxmetadata <- function(data, metadata, Dthreshold = 1) {
                     ##
                     transf <- 'identity'
                     if(!is.null(data)) {
-                        tlocation <- unname(quantile(x, 0.5, type = 6))
+                        tlocation <- quantile(x, probs = 0.5,
+                            type = 6, names = FALSE)
                         tscale <- mad(x) / iqrfactor
                     } else {
                         tlocation <- 0
@@ -360,7 +364,8 @@ buildauxmetadata <- function(data, metadata, Dthreshold = 1) {
                     ##
                     transf <- 'identity'
                     if(!is.null(data)) {
-                        tlocation <- unname(quantile(x, 0.5, type = 6))
+                        tlocation <- quantile(x, probs = 0.5,
+                            type = 6, names = FALSE)
                         tscale <- mad(x) / iqrfactor
                     } else {
                         tlocation <- 0
@@ -401,7 +406,8 @@ buildauxmetadata <- function(data, metadata, Dthreshold = 1) {
                     ##
                     transf <- 'log'
                     if(!is.null(data)) {
-                        tlocation <- unname(quantile(log(x - domainmin), 0.5, type = 6))
+                        tlocation <- quantile(log(x - domainmin), probs = 0.5,
+                            type = 6, names = FALSE)
                         tscale <- mad(log(x - domainmin)) / iqrfactor
                     } else {
                         tlocation <- 0
@@ -418,7 +424,8 @@ buildauxmetadata <- function(data, metadata, Dthreshold = 1) {
                     ##
                     transf <- 'logminus'
                     if(!is.null(data)) {
-                        tlocation <- unname(quantile(-log(domainmax - x), 0.5, type = 6))
+                        tlocation <- quantile(-log(domainmax - x), probs = 0.5,
+                            type = 6, names = FALSE)
                         tscale <- mad(-log(domainmax - x)) / iqrfactor
                     } else {
                         tlocation <- 0
@@ -435,7 +442,8 @@ buildauxmetadata <- function(data, metadata, Dthreshold = 1) {
                     ##
                     transf <- 'identity'
                     if(!is.null(data)) {
-                        tlocation <- unname(quantile(x, 0.5, type = 6))
+                        tlocation <- quantile(x, probs = 0.5,
+                            type = 6, names = FALSE)
                         tscale <- mad(x) / iqrfactor
                     } else {
                         tlocation <- 0
