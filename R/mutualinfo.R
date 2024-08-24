@@ -395,18 +395,18 @@ mutualinfo <- function(
             Bout = 'numeric')))
         ##
         lW <- log(learnt$W) +
-                    util_lprob(
-                        x = x,
-                        learnt = learnt,
-                        nR = XnR, iR = XiR, tR = XtR,
-                        nC = XnC, iC = XiC, tC = XtC,
-                        Clefts = Clefts, Crights = Crights,
-                        nD = XnD, iD = XiD, tD = XtD,
-                        Dsteps = Dsteps, Dlefts = Dlefts, Drights = Drights,
-                        nO = XnO, iO = XiO, tO = XtO,
-                        nN = XnN, iN = XiN, tN = XtN,
-                        nB = XnB, iB = XiB, tB = XtB
-                    )
+            util_lprob(
+                x = x,
+                learnt = learnt,
+                nR = XnR, iR = XiR, tR = XtR,
+                nC = XnC, iC = XiC, tC = XtC,
+                Clefts = Clefts, Crights = Crights,
+                nD = XnD, iD = XiD, tD = XtD,
+                Dsteps = Dsteps, Dlefts = Dlefts, Drights = Drights,
+                nO = XnO, iO = XiO, tO = XtO,
+                nN = XnN, iN = XiN, tN = XtN,
+                nB = XnB, iB = XiB, tB = XtB
+            )
     } # end definition of lW if non-null X
 
 
@@ -498,58 +498,59 @@ mutualinfo <- function(
                 lprobY2 <- array(0, dim = dim(lW))
             } else {
                 lprobY2 <- util_lprob(
-                        x = y2,
-                        learnt = learnt,
-                        nR = Y2nR, iR = Y2iR, tR = Y2tR,
-                        nC = Y2nC, iC = Y2iC, tC = Y2tC,
-                        Clefts = Clefts, Crights = Crights,
-                        nD = Y2nD, iD = Y2iD, tD = Y2tD,
-                        Dsteps = Dsteps, Dlefts = Dlefts, Drights = Drights,
-                        nO = Y2nO, iO = Y2iO, tO = Y2tO,
-                        nN = Y2nN, iN = Y2iN, tN = Y2tN,
-                        nB = Y2nB, iB = Y2iB, tB = Y2tB
-                    )
+                    x = y2,
+                    learnt = learnt,
+                    nR = Y2nR, iR = Y2iR, tR = Y2tR,
+                    nC = Y2nC, iC = Y2iC, tC = Y2tC,
+                    Clefts = Clefts, Crights = Crights,
+                    nD = Y2nD, iD = Y2iD, tD = Y2tD,
+                    Dsteps = Dsteps, Dlefts = Dlefts, Drights = Drights,
+                    nO = Y2nO, iO = Y2iO, tO = Y2tO,
+                    nN = Y2nN, iN = Y2iN, tN = Y2tN,
+                    nB = Y2nB, iB = Y2iB, tB = Y2tB
+                )
 
             }# end lprobY2
 
 ### lprobY1
             lprobY1 <- util_lprob(
-                        x = y1,
-                        learnt = learnt,
-                        nR = Y1nR, iR = Y1iR, tR = Y1tR,
-                        nC = Y1nC, iC = Y1iC, tC = Y1tC,
-                        Clefts = Clefts, Crights = Crights,
-                        nD = Y1nD, iD = Y1iD, tD = Y1tD,
-                        Dsteps = Dsteps, Dlefts = Dlefts, Drights = Drights,
-                        nO = Y1nO, iO = Y1iO, tO = Y1tO,
-                        nN = Y1nN, iN = Y1iN, tN = Y1tN,
-                        nB = Y1nB, iB = Y1iB, tB = Y1tB
-                    )
+                x = y1,
+                learnt = learnt,
+                nR = Y1nR, iR = Y1iR, tR = Y1tR,
+                nC = Y1nC, iC = Y1iC, tC = Y1tC,
+                Clefts = Clefts, Crights = Crights,
+                nD = Y1nD, iD = Y1iD, tD = Y1tD,
+                Dsteps = Dsteps, Dlefts = Dlefts, Drights = Drights,
+                nO = Y1nO, iO = Y1iO, tO = Y1tO,
+                nN = Y1nN, iN = Y1iN, tN = Y1tN,
+                nB = Y1nB, iB = Y1iB, tB = Y1tB
+            )
             ## Output: rows=components, columns=samples
 
+            celWnorm <- colSums(exp(lWnorm))
 
 ### Construct probabilities from lprobY1, lprobY2
             lpY1and2 <- log(mean(
-                colSums(exp(lprobY1 + lprobY2 + lWnorm)) /
-                    colSums(exp(lWnorm)), na.rm = TRUE), base = base)
+                colSums(exp(lprobY1 + lprobY2 + lWnorm)) / celWnorm,
+                na.rm = TRUE), base = base)
 
             lpY1 <- log(mean(
-                colSums(exp(lprobY1 + lWnorm)) /
-                    colSums(exp(lWnorm)), na.rm = TRUE), base = base)
+                colSums(exp(lprobY1 + lWnorm)) / celWnorm,
+                na.rm = TRUE), base = base)
 
             lpY2 <- log(mean(
-                colSums(exp(lprobY2 + lWnorm)) /
-                    colSums(exp(lWnorm)), na.rm = TRUE), base = base)
+                colSums(exp(lprobY2 + lWnorm)) / celWnorm,
+                na.rm = TRUE), base = base)
 
             lprobnorm <- denorm(lprobY2 + lW)
             lpY1given2 <- log(mean(
-                colSums(exp(lprobY1 + lprobnorm)) /
-                    colSums(exp(lprobnorm)), na.rm = TRUE), base = base)
+                colSums(exp(lprobY1 + lprobnorm)) / colSums(exp(lprobnorm)),
+                na.rm = TRUE), base = base)
 
             lprobnorm <- denorm(lprobY1 + lW)
             lpY2given1 <- log(mean(
-                colSums(exp(lprobY2 + lprobnorm)) /
-                    colSums(exp(lprobnorm)), na.rm = TRUE), base = base)
+                colSums(exp(lprobY2 + lprobnorm)) / colSums(exp(lprobnorm)),
+                na.rm = TRUE), base = base)
             ## str(lpY1and2)
                                         #str(lpY1)
             ## str(lpY2)
