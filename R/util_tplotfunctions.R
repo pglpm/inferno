@@ -125,7 +125,13 @@ alpha2hex <- function(col, alpha = NULL) {
 ##     ((rg[1]%/%delta):((rg[2]%/%delta) + (rg[2]%%delta > 0)))*delta
 ## }
 
-## #' @keywords internal
+#' Plot probabilities
+#'
+#' Utility function to plot probabilities obtained with \code{\link{Pr}}. The advantage of this function over \code{\link[base]{plot}} is that its `x` argument can be a vector of character values, as typically the case for nominal or ordinal variates (see \code{\link{metadata}}). The plot will have these characters as labels of the x-axis.
+#'
+#' @param x Numeric or character: Set of values that were used as `Y` argument to \code{\link{Pr}} (typically they make sense if `Y` only was a single variate rather than aconjunction of several).
+#' @param y Numeric: a vector of same length as `x`, or a matrix having as many rows as `x`. Typically this is a vector of probabilities obtained with \code{\link{Pr}}, as its `$values` value, on as its `$samples` value.
+#'
 #' @export
 tplot <- function(x, y, xlim = c(NA, NA), ylim = c(NA, NA), asp = NA,
     n = 10, family = '', xticks = NULL, xlabels = TRUE,
@@ -486,7 +492,13 @@ fivenumaxis <- function(side, x, col='#555555', type=6){
     matpoints(x=xp, y=yp, pch=18, cex=2, col=col)
 }
 
-## #' @keywords internal
+#' Plot pairs of quantiles
+#'
+#' Utility function to plot pair of quantiles obtained with \code{\link{Pr}}.
+#'
+#' @param x Numeric or character: Set of values that were used as `Y` argument to \code{\link{Pr}} (typically they make sense if `Y` only was a single variate rather than aconjunction of several).
+#' @param y Numeric: a matrix having as many rows as `x` and two columns, one column per quantile. Typically these two sets of quantiles have been obtained with \code{\link{Pr}}, as its `$quantiles` value. This value is a three-dimensional array, and one of its columns (2nd dimension, corresponding to the possible values of the `X` argument of \code{\link{Pr}}) should be selected before being used as `y` input.
+#'
 #' @export
 plotquantiles <- function(x, y, col=7, alpha=0.75, border=NA, ...){
     y <- t(y)
