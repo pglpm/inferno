@@ -125,7 +125,8 @@ alpha2hex <- function(col, alpha = NULL) {
 ##     ((rg[1]%/%delta):((rg[2]%/%delta) + (rg[2]%%delta > 0)))*delta
 ## }
 
-#' @keywords internal
+## #' @keywords internal
+#' @export
 tplot <- function(x, y, xlim = c(NA, NA), ylim = c(NA, NA), asp = NA,
     n = 10, family = '', xticks = NULL, xlabels = TRUE,
     yticks = NULL, ylabels = TRUE, cex = 1.5, ly = NULL,
@@ -452,7 +453,7 @@ tlegend <- function(x, y=NULL, legend, col=palette(), pch=c(1,0,2,5,6,3,4), lty=
 }
 
 #' @keywords internal
-fivenumaxis <- function(side, x, col='#555555', type=8){
+fivenumaxis <- function(side, x, col='#555555', type=6){
     x <- x[!is.na(x) && is.finite(x)]
     if(length(x)==0){x <- c(0,1)}
     if(diff(range(x))==0){x <- range(x) + c(-1,1)}
@@ -485,7 +486,8 @@ fivenumaxis <- function(side, x, col='#555555', type=8){
     matpoints(x=xp, y=yp, pch=18, cex=2, col=col)
 }
 
-#' @keywords internal
+## #' @keywords internal
+#' @export
 plotquantiles <- function(x, y, col=7, alpha=0.75, border=NA, ...){
     y <- t(y)
     isfin <- is.finite(x) & apply(y, 2, function(xx){all(is.finite(xx))})
@@ -534,7 +536,7 @@ scatteraxis <- function(x, side=1, n=128, col='#555555', alpha=0.5, ext=5, pos=N
 }
 
 #' @keywords internal
-thist <- function(x, n=NULL, type=8, pretty=FALSE, plot=FALSE, extendbreaks=FALSE, ...){
+thist <- function(x, n=NULL, type=6, pretty=FALSE, plot=FALSE, extendbreaks=FALSE, ...){
     if(!is.list(x)){x <- list(x)}
     if(!is.list(n)){n <- list(n)}
     out <- list()

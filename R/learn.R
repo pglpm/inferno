@@ -1,4 +1,4 @@
-#' Monte Carlo computation of posterior distribution of population frequencies
+#' Monte Carlo computation of posterior probability distribution conditional on given data
 #'
 #' @param data A dataset, given as a \code{\link[base]{data.frame}}
 #' or as a file path to a csv file.

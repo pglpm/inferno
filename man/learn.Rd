@@ -2,7 +2,7 @@
 % Please edit documentation in R/learn.R
 \name{learn}
 \alias{learn}
-\title{Monte Carlo computation of posterior distribution of population frequencies}
+\title{Monte Carlo computation of posterior probability distribution conditional on given data}
 \usage{
 learn(
   data,
@@ -121,5 +121,5 @@ Name of directory containing output files, or learnt object,
 or \code{NULL}, depending on argument \code{output}.
 }
 \description{
-Monte Carlo computation of posterior distribution of population frequencies
+Monte Carlo computation of posterior probability distribution conditional on given data
 }
