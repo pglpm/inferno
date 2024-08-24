@@ -9,7 +9,7 @@ Authors@R: c(
   "agre@hvl.no", role = c("aut"),
   comment = c(ORCID = "0009-0005-9063-4131"))
   )
-Description: Offers several functions for Bayesian nonparametric density/population/exchangeable inference, including Monte Carlo calculation of posterior densities; from a machine-learning perspective, it offers a model-free, uncertainty-quantified predction algorithm.
+Description: Offers several functions for Bayesian nonparametric exchangeable inference (also called "density" or "population" inference), including Monte Carlo calculation of posterior densities. From a machine-learning perspective, it offers a model-free, uncertainty-quantified predction algorithm.
 License: GPL (>= 3)
 URL: https://github.com/pglpm/inferno/, https://pglpm.github.io/inferno/
 Encoding: UTF-8

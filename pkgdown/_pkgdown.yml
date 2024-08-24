@@ -9,6 +9,8 @@ reference:
     - learn
     - Pr
     - mutualinfo
+    - tplot
+    - plotquantiles
     - plotFsamples
 - title: "Internal functions"
   desc: "For developers."
