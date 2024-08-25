@@ -48,7 +48,7 @@
 <span>  Oout <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  Nout <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  variates <span class="op">=</span> <span class="cn">NULL</span>,</span>
-<span>  invjacobian <span class="op">=</span> <span class="cn">FALSE</span></span>
+<span>  logjacobianOr <span class="op">=</span> <span class="cn">NULL</span></span>
 <span><span class="op">)</span></span></code></pre></div>
     </div>
 
@@ -114,13 +114,13 @@
 corresponding to columns of x (in case x misses column names)</p></dd>
 
 
-<dt id="arg-invjacobian">invjacobian<a class="anchor" aria-label="anchor" href="#arg-invjacobian"></a></dt>
-<dd><p>logical: calculate Jacobian factor?</p></dd>
+<dt id="arg-logjacobianor">logjacobianOr<a class="anchor" aria-label="anchor" href="#arg-logjacobianor"></a></dt>
+<dd><p>logical or <code>NULL</code>: output is the log-Jacobian in orginal or transformed domain? <code>NULL</code> (default) means do not calculate the log-Jacobians</p></dd>
 
 </dl></div>
     <div class="section level2">
     <h2 id="value">Value<a class="anchor" aria-label="anchor" href="#value"></a></h2>
-    <p>data frame of transformed variates</p>
+    <p>data frame of transformed variates, or their log-Jacobians</p>
     </div>
 
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>
