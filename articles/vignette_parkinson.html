@@ -384,7 +384,81 @@ fields:</p>
 <div class="section level2">
 <h2 id="learning">Learning<a class="anchor" aria-label="anchor" href="#learning"></a>
 </h2>
-<p>Our inferences will be based on the data already observed.</p>
+<p>Our inferences will be based on the data already observed, and will
+mainly take the form of <em>probabilities</em> about the unkonwn values
+various quantities
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>Y</mi><annotation encoding="application/x-tex">Y</annotation></semantics></math>,
+given the observed values of other quantities
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>X</mi><annotation encoding="application/x-tex">X</annotation></semantics></math>:
+<math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mrow><mi mathvariant="normal">P</mi><mi mathvariant="normal">r</mi></mrow><mrow><mo stretchy="true" form="prefix">(</mo><mi>Y</mi><mo>=</mo><mi>y</mi><mspace width="0.222em"></mspace><mo stretchy="false" form="postfix">|</mo><mspace width="0.222em"></mspace><mi>X</mi><mo>=</mo><mi>x</mi><mo>,</mo><mrow><mi mathvariant="normal">d</mi><mi mathvariant="normal">a</mi><mi mathvariant="normal">t</mi><mi mathvariant="normal">a</mi></mrow><mo stretchy="true" form="postfix">)</mo></mrow></mrow><annotation encoding="application/x-tex">
+\mathrm{Pr}(Y = y \:\vert\: X = x, \mathrm{data})
+</annotation></semantics></math> As the notation above indicates,
+<em>these probabilities also depend on the
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi mathvariant="normal">d</mi><mi mathvariant="normal">a</mi><mi mathvariant="normal">t</mi><mi mathvariant="normal">a</mi></mrow><annotation encoding="application/x-tex">\mathrm{data}</annotation></semantics></math>
+already observed</em>. They are usually called “posterior
+probabilities”.</p>
+<p>We need to prepare the software to perform calculations of posterior
+probabilities given the observed data. In machine learning an analogous
+process is called “learning”. For this reason the function that achieves
+this is called <code><a href="../reference/learn.html">learn()</a></code>. It requires at least three
+arguments:</p>
+<ul>
+<li>
+<code>data</code>, which can be given as a path to the
+<code>csv</code> file containing the data</li>
+<li>
+<code>metadata</code>, which can also be given as a path to the
+metadata file</li>
+<li>
+<code>outputdir</code>: the name of the directory where the output
+should be saved.</li>
+</ul>
+<p>It may be useful to specify two more arguments:</p>
+<ul>
+<li>
+<code>seed</code>: the seed for the random-number generator, to
+ensure reproducibility</li>
+<li>
+<code>parallel</code>: the number of CPUs to use for the
+computation</li>
+</ul>
+<p>Alternatively you can set the seed with <code><a href="https://rdrr.io/r/base/Random.html" class="external-link">set.seed()</a></code>, and
+start a set of parallel workers with the
+<code><a href="https://rdrr.io/r/parallel/makeCluster.html" class="external-link">parallel::makeCluster()</a></code> and
+<code><a href="https://rdrr.io/pkg/doParallel/man/registerDoParallel.html" class="external-link">doParallel::registerDoParallel</a></code> commands.</p>
+<p>The “learning” computation can take tens of minutes, or hours, or
+even days depending on the number of variates and data in your inference
+problem. The <code><a href="../reference/learn.html">learn()</a></code> function outputs various messages on
+how the computation is proceeding. As an example:</p>
+<div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">learnt</span> <span class="op">&lt;-</span> <span class="fu">leant</span><span class="op">(</span></span>
+<span>    data <span class="op">=</span> <span class="va">datafile</span>,</span>
+<span>    metadata <span class="op">=</span> <span class="va">metadatafile</span>,</span>
+<span>    outputdir <span class="op">=</span> <span class="st">'parkinson_computations'</span>,</span>
+<span>    seed <span class="op">=</span> <span class="fl">16</span>,</span>
+<span>    parallel <span class="op">=</span> <span class="fl">12</span><span class="op">)</span></span>
+<span></span>
+<span><span class="co">## Registered doParallelSNOW with 12 workers</span></span>
+<span><span class="co">##</span></span>
+<span><span class="co">## Using 30 datapoints</span></span>
+<span><span class="co">## Calculating auxiliary metadata</span></span>
+<span><span class="co">##</span></span>
+<span><span class="co">## ************************** </span></span>
+<span><span class="co">## Saving output in directory</span></span>
+<span><span class="co">## parkinson_computations</span></span>
+<span><span class="co">## ************************** </span></span>
+<span><span class="co">## Starting Monte Carlo sampling of 3600 samples by 60 chains</span></span>
+<span><span class="co">## in a space of 703 (effectively 6657) dimensions.</span></span>
+<span><span class="co">## Using 12 cores: 60 samples per chain, 5 chains per core.</span></span>
+<span><span class="co">## Core logs are being saved in individual files.</span></span>
+<span><span class="co">##</span></span>
+<span><span class="co">## C-compiling samplers appropriate to the variates (package Nimble)</span></span>
+<span><span class="co">## this can take tens of minutes with many data or variates.</span></span>
+<span><span class="co">## Please wait...</span></span></code></pre></div>
+<p>At the end of the computation the <code><a href="../reference/learn.html">learn()</a></code> function
+returns the name of the directory in which the results are saved. In the
+code snipped above, this name is saved in the variable
+<code>learnt</code>.</p>
 </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>
     </nav></aside>
