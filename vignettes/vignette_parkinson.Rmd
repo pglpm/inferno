@@ -1,0 +1,96 @@
+---
+title: "Example of use: inferences for Parkinson's Disease"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Example of use: inferences for Parkinson's Disease}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+## Purpose
+
+Here is a toy example showing some kinds of results that can be obtained with Bayesian nonparametric exchangeable inference. The example involves inferences about some investigations on Parkinson's Disease described in the paper by [Brakedal & al. (2022)](https://doi.org/10.1016/j.cmet.2022.02.001), which generously and professionally shares its [data](https://www.cell.com/cms/10.1016/j.cmet.2022.02.001/attachment/82e51142-50b8-4f84-a3e0-7c08d641a47b/mmc2.xlsx).
+
+The investigations in the cited paper involve 30 subjects, for each of which various data are collected. Fifteen of these subjects belong to a control group, the other 15 to the treatment group, denoted `NR`. In this toy example we do not follow or reproduce the paper's investigations, nor do we use all the variates observed. We limit ourselves to 7 variates for each subject. Here is a list with a brief description of each:
+
+#### Treatment group
+
+*Binary* variate with values `Placebo` and `NR`.
+
+#### Sex
+
+*Binary* variate with values `Female` and `Male`.
+
+#### Age
+
+*Integer* variate.
+
+#### Anamnestic loss of smell
+
+*Binary* variate with values `No` and `Yes`.
+
+#### History of REM sleep behaviour disorder
+
+*Binary* variate with values `No` and `Yes`.
+
+#### MDS-UPDRS-III score at the first subject visit
+
+The [MDS-UPDRS-III](https://www.movementdisorders.org/MDS-Files1/PDFs/Rating-Scales/MDS-UPDRS_English_FINAL.pdf) (Movement Disorder Society's Unified Parkinson's Disease Rating Scale) is one of a set of *ordinal* scales to assess a subject's degree of disability and monitor it over time. The scale III ranges from `0` (no disability) to `132` (highest degree of disability). Given that operations such as sum or average are performed on these scales in the literature, the scales should be considered on an *interval* kind rather than simply ordinal.
+
+#### Difference in MDS-UPDRS-III scores between second and first visit
+
+*Ordinal* variate, the difference of the previous one between the subject's second and first visit. Its range is therefore from `-132` to `+132`, *negative* values representing an *improvement*.
+
+\
+
+We store the name of the datafile:example:
+```{r}
+datafile <- 'toydata.csv'
+```
+Here are the values for two subjects:
+```{r echo = FALSE}
+knitr::kable(read.csv(datafile, na.strings='')[1:2,])
+```
+
+## Metadata
+
+Let's load the package:
+```{r setup}
+library(inferno)
+```
+
+
+In order to draw inferences we need metadata information, that is, information about the variates that is *not* present in the data. Such information mainly regard the kind and domain of each variate.
+
+As an example of why metadata is necessary, suppose you are given the data `3`, `7`, `9`. Can you say whether the value `5` could be observed in a new instance? and what about `4.7`, or `-10`? Knowing whether these values are at all possible, or not, greatly affects the precision of the inferences we draw. Obviously a researcher must know such basic information about the data being collected -- otherwise they wouldn't know what they're doing.
+
+The software requires specification of metadata either as a `data.frame` object or as a `.csv` file. To help you prepare this file, the software offers the function `buildmetadata()`, which writes a template that you thereafter modify. The template is filled with **tentative** values; these are wild guesses from the data, so they are often wrong. The function explains the heuristic it is using in order to pre-fill the fields of the metadata file, and gives warnings about guessed values that are especially dubious. You should examine and correct all fields:
+```{r}
+buildmetadata(data = datafile, file = 'temp_metadata')
+```
+
+We can open the temporary metadata file `temp_metadata.csv` and edit it with any software of our choice. Let's save the corrected version as `meta_toydata.csv`:
+```{r}
+metadatafile <- 'meta_toydata.csv'
+```
+The metadata are as follows; `NA` indicate empty fields:
+```{r echo = FALSE}
+knitr::kable(read.csv(metadatafile, na.strings = ''))
+```
+For a description of the metadata fields, see the help for `metadata` with `?inferno::metadata`.
+
+*(More to be written here!)*
+
+
+## Learning
+
+Our inferences will be based on the data already observed.
+
+

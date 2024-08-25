@@ -24,3 +24,7 @@ Imports:
     foreach,
     khroma,
     nimble
+Suggests: 
+    knitr,
+    rmarkdown
+VignetteBuilder: knitr

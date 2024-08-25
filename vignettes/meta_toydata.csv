@@ -1,0 +1,8 @@
+name,type,datastep,domainmin,domainmax,minincluded,maxincluded,V1,V2
+TreatmentGroup,nominal,,,,,,NR,Placebo
+Sex,nominal,,,,,,Female,Male
+Age,continuous,1,0,Inf,FALSE,FALSE,,
+Anamnestic.Loss.of.smell,nominal,,,,,,No,Yes
+History.of.REM.Sleep.Behaviour.Disorder,nominal,,,,,,No,Yes
+MDS.UPDRS..Subsection.III.V1,ordinal,1,0,132,,,,
+diff.MDS.UPRS.III,ordinal,1,-132,132,,,,

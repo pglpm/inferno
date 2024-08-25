@@ -29,3 +29,4 @@ fontconfig/
 .backups/
 docs/
 !_pkgdown.yml
+inst/doc
