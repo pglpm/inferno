@@ -174,6 +174,37 @@ representing an <em>improvement</em>.</p>
 </tbody>
 </table>
 </div>
+<div class="section level3">
+<h3 id="natural-vs-controlled-or-biased-variates">“Natural” vs controlled or “biased” variates<a class="anchor" aria-label="anchor" href="#natural-vs-controlled-or-biased-variates"></a>
+</h3>
+<p>For the purpose of drawing scientific inferences, it is extremely
+important to be mindful of which variates in the dataset have “natural”
+statistics, and which instead have statistics controlled by the observer
+– and are therefore “biased”. This distinction is important because the
+dataset statistics of the controlled variates may then <em>not</em> be
+representative of the naturally-occurring ones, and therefore cannot be
+used for inference purposes.</p>
+<p>In the present dataset, for instance, the numbers of
+<code>Placebo</code> and <code>NR</code> subjects were decided by the
+investigators to be in a 50%/50% proportion. Obviously this is not a
+naturally occurring proportion; in fact, it does not even make sense of
+speaking of a naturally occurring statistics for this
+<code>TreatmentGroup</code> variate.</p>
+<p>For the <code>Sex</code> variate, the dataset has a proportion of
+around 17% <code>Female</code> and 83% <code>Male</code> subjects. This
+proportion also partly stems from the selection procedure of the
+investigators, so we cannot infer that roughly 16% of Parkinson patients
+in the national population are females. It is also possible that the
+proportions in the <code>Age</code> variate may depend on the selection
+procedure.</p>
+<p>On the other hand, the investigators did <em>not</em> choose the
+statistics of the two <code>MDS.UPDRS</code> variates, within the groups
+having particular values of the other variates. This
+<em>conditional</em> or <em>subpopulation</em> statistics can be taken
+as representatives of naturally-occurring ones (see <a href="https://doi.org/10.1214/aos/1176345331" class="external-link">Lindley &amp; Novick
+(1980)</a> for a brilliant discussion of this point).</p>
+<p><em>(add short explanation of exchangeability)</em></p>
+</div>
 </div>
 <div class="section level2">
 <h2 id="metadata">Metadata<a class="anchor" aria-label="anchor" href="#metadata"></a>
@@ -181,7 +212,7 @@ representing an <em>improvement</em>.</p>
 <p>Let’s load the package:</p>
 <div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/pglpm/inferno/" class="external-link">inferno</a></span><span class="op">)</span></span></code></pre></div>
-<p>In order to draw inferences we need metadata information, that is,
+<p>In order to draw inferences, we need metadata information, that is,
 information about the variates that is <em>not</em> present in the data.
 Such information mainly regard the kind and domain of each variate.</p>
 <p>As an example of why metadata is necessary, suppose you are given the
@@ -425,7 +456,7 @@ computation</li>
 <p>Alternatively you can set the seed with <code><a href="https://rdrr.io/r/base/Random.html" class="external-link">set.seed()</a></code>, and
 start a set of parallel workers with the
 <code><a href="https://rdrr.io/r/parallel/makeCluster.html" class="external-link">parallel::makeCluster()</a></code> and
-<code><a href="https://rdrr.io/pkg/doParallel/man/registerDoParallel.html" class="external-link">doParallel::registerDoParallel</a></code> commands.</p>
+<code><a href="https://rdrr.io/pkg/doParallel/man/registerDoParallel.html" class="external-link">doParallel::registerDoParallel()</a></code> commands.</p>
 <p>The “learning” computation can take tens of minutes, or hours, or
 even days depending on the number of variates and data in your inference
 problem. The <code><a href="../reference/learn.html">learn()</a></code> function outputs various messages on
@@ -438,23 +469,23 @@ how the computation is proceeding. As an example:</p>
 <span>    seed <span class="op">=</span> <span class="fl">16</span>,</span>
 <span>    parallel <span class="op">=</span> <span class="fl">12</span><span class="op">)</span></span>
 <span></span>
-<span><span class="co">## Registered doParallelSNOW with 12 workers</span></span>
-<span><span class="co">##</span></span>
-<span><span class="co">## Using 30 datapoints</span></span>
-<span><span class="co">## Calculating auxiliary metadata</span></span>
-<span><span class="co">##</span></span>
-<span><span class="co">## ************************** </span></span>
-<span><span class="co">## Saving output in directory</span></span>
-<span><span class="co">## parkinson_computations</span></span>
-<span><span class="co">## ************************** </span></span>
-<span><span class="co">## Starting Monte Carlo sampling of 3600 samples by 60 chains</span></span>
-<span><span class="co">## in a space of 703 (effectively 6657) dimensions.</span></span>
-<span><span class="co">## Using 12 cores: 60 samples per chain, 5 chains per core.</span></span>
-<span><span class="co">## Core logs are being saved in individual files.</span></span>
-<span><span class="co">##</span></span>
-<span><span class="co">## C-compiling samplers appropriate to the variates (package Nimble)</span></span>
-<span><span class="co">## this can take tens of minutes with many data or variates.</span></span>
-<span><span class="co">## Please wait...</span></span></code></pre></div>
+<span><span class="co">#&gt; Registered doParallelSNOW with 12 workers</span></span>
+<span><span class="co">#&gt;</span></span>
+<span><span class="co">#&gt; Using 30 datapoints</span></span>
+<span><span class="co">#&gt; Calculating auxiliary metadata</span></span>
+<span><span class="co">#&gt;</span></span>
+<span><span class="co">#&gt; ************************** </span></span>
+<span><span class="co">#&gt; Saving output in directory</span></span>
+<span><span class="co">#&gt; parkinson_computations</span></span>
+<span><span class="co">#&gt; ************************** </span></span>
+<span><span class="co">#&gt; Starting Monte Carlo sampling of 3600 samples by 60 chains</span></span>
+<span><span class="co">#&gt; in a space of 703 (effectively 6657) dimensions.</span></span>
+<span><span class="co">#&gt; Using 12 cores: 60 samples per chain, 5 chains per core.</span></span>
+<span><span class="co">#&gt; Core logs are being saved in individual files.</span></span>
+<span><span class="co">#&gt;</span></span>
+<span><span class="co">#&gt; C-compiling samplers appropriate to the variates (package Nimble)</span></span>
+<span><span class="co">#&gt; this can take tens of minutes with many data or variates.</span></span>
+<span><span class="co">#&gt; Please wait...</span></span></code></pre></div>
 <p>At the end of the computation the <code><a href="../reference/learn.html">learn()</a></code> function
 returns the name of the directory in which the results are saved. In the
 code snipped above, this name is saved in the variable
