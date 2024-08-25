@@ -59,6 +59,18 @@ Here are the values for two subjects:
 knitr::kable(read.csv(datafile, na.strings='')[1:2,])
 ```
 
+### "Natural" vs controlled or "biased" variates
+
+For the purpose of drawing scientific inferences, it is extremely important to be mindful of which variates in the dataset have "natural" statistics, and which instead have statistics controlled by the observer -- and are therefore "biased". This distinction is important because the dataset statistics of the controlled variates may then *not* be representative of the naturally-occurring ones, and therefore cannot be used for inference purposes.
+
+In the present dataset, for instance, the numbers of `Placebo` and `NR` subjects were decided by the investigators to be in a 50%/50% proportion. Obviously this is not a naturally occurring proportion; in fact, it does not even make sense of speaking of a naturally occurring statistics for this `TreatmentGroup` variate.
+
+For the `Sex` variate, the dataset has a proportion of around 17% `Female` and 83% `Male` subjects. This proportion also partly stems from the selection procedure of the investigators, so we cannot infer that roughly 16% of Parkinson patients in the national population are females. It is also possible that the proportions in the `Age` variate may depend on the selection procedure.
+
+On the other hand, the investigators did *not* choose the statistics of the two `MDS.UPDRS` variates, within the groups having particular values of the other variates. This *conditional* or *subpopulation* statistics can be taken as representatives of naturally-occurring ones (see [Lindley & Novick (1980)](https://doi.org/10.1214/aos/1176345331) for a brilliant discussion of this point).
+
+*(add short explanation of exchangeability)*
+
 ## Metadata
 
 Let's load the package:
@@ -67,7 +79,7 @@ library(inferno)
 ```
 
 
-In order to draw inferences we need metadata information, that is, information about the variates that is *not* present in the data. Such information mainly regard the kind and domain of each variate.
+In order to draw inferences, we need metadata information, that is, information about the variates that is *not* present in the data. Such information mainly regard the kind and domain of each variate.
 
 As an example of why metadata is necessary, suppose you are given the data `3`, `7`, `9`. Can you say whether the value `5` could be observed in a new instance? and what about `4.7`, or `-10`? Knowing whether these values are at all possible, or not, greatly affects the precision of the inferences we draw. Obviously a researcher must know such basic information about the data being collected -- otherwise they wouldn't know what they're doing.
 
@@ -108,7 +120,7 @@ It may be useful to specify two more arguments:
 - `seed`: the seed for the random-number generator, to ensure reproducibility
 - `parallel`: the number of CPUs to use for the computation
 
-Alternatively you can set the seed with `set.seed()`, and start a set of parallel workers with the `parallel::makeCluster()` and `doParallel::registerDoParallel` commands.
+Alternatively you can set the seed with `set.seed()`, and start a set of parallel workers with the `parallel::makeCluster()` and `doParallel::registerDoParallel()` commands.
 
 The "learning" computation can take tens of minutes, or hours, or even days depending on the number of variates and data in your inference problem. The `learn()` function outputs various messages on how the computation is proceeding. As an example:
 
@@ -120,23 +132,23 @@ learnt <- learn(
     seed = 16,
     parallel = 12)
 
-## Registered doParallelSNOW with 12 workers
-##
-## Using 30 datapoints
-## Calculating auxiliary metadata
-##
-## ************************** 
-## Saving output in directory
-## parkinson_computations
-## ************************** 
-## Starting Monte Carlo sampling of 3600 samples by 60 chains
-## in a space of 703 (effectively 6657) dimensions.
-## Using 12 cores: 60 samples per chain, 5 chains per core.
-## Core logs are being saved in individual files.
-##
-## C-compiling samplers appropriate to the variates (package Nimble)
-## this can take tens of minutes with many data or variates.
-## Please wait...
+#> Registered doParallelSNOW with 12 workers
+#>
+#> Using 30 datapoints
+#> Calculating auxiliary metadata
+#>
+#> ************************** 
+#> Saving output in directory
+#> parkinson_computations
+#> ************************** 
+#> Starting Monte Carlo sampling of 3600 samples by 60 chains
+#> in a space of 703 (effectively 6657) dimensions.
+#> Using 12 cores: 60 samples per chain, 5 chains per core.
+#> Core logs are being saved in individual files.
+#>
+#> C-compiling samplers appropriate to the variates (package Nimble)
+#> this can take tens of minutes with many data or variates.
+#> Please wait...
 ```
 
 At the end of the computation the `learn()` function returns the name of the directory in which the results are saved. In the code snipped above, this name is saved in the variable `learnt`.
