@@ -113,7 +113,7 @@ Alternatively you can set the seed with `set.seed()`, and start a set of paralle
 The "learning" computation can take tens of minutes, or hours, or even days depending on the number of variates and data in your inference problem. The `learn()` function outputs various messages on how the computation is proceeding. As an example:
 
 ```{r eval = FALSE}
-learnt <- leant(
+learnt <- learn(
     data = datafile,
     metadata = metadatafile,
     outputdir = 'parkinson_computations',
@@ -142,3 +142,4 @@ learnt <- leant(
 At the end of the computation the `learn()` function returns the name of the directory in which the results are saved. In the code snipped above, this name is saved in the variable `learnt`.
 
 
+*(TO BE CONTINUED)*
