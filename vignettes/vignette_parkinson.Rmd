@@ -91,6 +91,54 @@ For a description of the metadata fields, see the help for `metadata` with `?inf
 
 ## Learning
 
-Our inferences will be based on the data already observed.
+Our inferences will be based on the data already observed, and will mainly take the form of *probabilities* about the unkonwn values various quantities $Y$, given the observed values of other quantities $X$:
+$$
+\mathrm{Pr}(Y = y \:\vert\: X = x, \mathrm{data})
+$$
+As the notation above indicates, *these probabilities also depend on the $\mathrm{data}$ already observed*. They are usually called "posterior probabilities".
+
+We need to prepare the software to perform calculations of posterior probabilities given the observed data. In machine learning an analogous process is called "learning". For this reason the function that achieves this is called `learn()`. It requires at least three arguments:
+
+- `data`, which can be given as a path to the `csv` file containing the data
+- `metadata`, which can also be given as a path to the metadata file
+- `outputdir`: the name of the directory where the output should be saved.
+
+It may be useful to specify two more arguments:
+
+- `seed`: the seed for the random-number generator, to ensure reproducibility
+- `parallel`: the number of CPUs to use for the computation
+
+Alternatively you can set the seed with `set.seed()`, and start a set of parallel workers with the `parallel::makeCluster()` and `doParallel::registerDoParallel` commands.
+
+The "learning" computation can take tens of minutes, or hours, or even days depending on the number of variates and data in your inference problem. The `learn()` function outputs various messages on how the computation is proceeding. As an example:
+
+```{r eval = FALSE}
+learnt <- leant(
+    data = datafile,
+    metadata = metadatafile,
+    outputdir = 'parkinson_computations',
+    seed = 16,
+    parallel = 12)
+
+## Registered doParallelSNOW with 12 workers
+##
+## Using 30 datapoints
+## Calculating auxiliary metadata
+##
+## ************************** 
+## Saving output in directory
+## parkinson_computations
+## ************************** 
+## Starting Monte Carlo sampling of 3600 samples by 60 chains
+## in a space of 703 (effectively 6657) dimensions.
+## Using 12 cores: 60 samples per chain, 5 chains per core.
+## Core logs are being saved in individual files.
+##
+## C-compiling samplers appropriate to the variates (package Nimble)
+## this can take tens of minutes with many data or variates.
+## Please wait...
+```
+
+At the end of the computation the `learn()` function returns the name of the directory in which the results are saved. In the code snipped above, this name is saved in the variable `learnt`.
 
 

@@ -539,7 +539,8 @@ correct all fields:</p>
 choice. Let’s save the corrected version as
 <code>meta_toydata.csv</code>:</p>
 <div class="sourceCode" id="cb4"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" tabindex="-1"></a>metadatafile <span class="ot">&lt;-</span> <span class="st">&#39;meta_toydata.csv&#39;</span></span></code></pre></div>
-<p>The metadata are as follows:</p>
+<p>The metadata are as follows; <code>NA</code> indicate empty
+fields:</p>
 <table>
 <colgroup>
 <col width="33%" />
@@ -647,6 +648,74 @@ choice. Let’s save the corrected version as
 </table>
 <p>For a description of the metadata fields, see the help for
 <code>metadata</code> with <code>?inferno::metadata</code>.</p>
+<p><em>(More to be written here!)</em></p>
+</div>
+<div id="learning" class="section level2">
+<h2>Learning</h2>
+<p>Our inferences will be based on the data already observed, and will
+mainly take the form of <em>probabilities</em> about the unkonwn values
+various quantities <span class="math inline">\(Y\)</span>, given the
+observed values of other quantities <span class="math inline">\(X\)</span>: <span class="math display">\[
+\mathrm{Pr}(Y = y \:\vert\: X = x, \mathrm{data})
+\]</span> As the notation above indicates, <em>these probabilities also
+depend on the <span class="math inline">\(\mathrm{data}\)</span> already
+observed</em>. They are usually called “posterior probabilities”.</p>
+<p>We need to prepare the software to perform calculations of posterior
+probabilities given the observed data. In machine learning an analogous
+process is called “learning”. For this reason the function that achieves
+this is called <code>learn()</code>. It requires at least three
+arguments:</p>
+<ul>
+<li><code>data</code>, which can be given as a path to the
+<code>csv</code> file containing the data</li>
+<li><code>metadata</code>, which can also be given as a path to the
+metadata file</li>
+<li><code>outputdir</code>: the name of the directory where the output
+should be saved.</li>
+</ul>
+<p>It may be useful to specify two more arguments:</p>
+<ul>
+<li><code>seed</code>: the seed for the random-number generator, to
+ensure reproducibility</li>
+<li><code>parallel</code>: the number of CPUs to use for the
+computation</li>
+</ul>
+<p>Alternatively you can set the seed with <code>set.seed()</code>, and
+start a set of parallel workers with the
+<code>parallel::makeCluster()</code> and
+<code>doParallel::registerDoParallel</code> commands.</p>
+<p>The “learning” computation can take tens of minutes, or hours, or
+even days depending on the number of variates and data in your inference
+problem. The <code>learn()</code> function outputs various messages on
+how the computation is proceeding. As an example:</p>
+<div class="sourceCode" id="cb5"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" tabindex="-1"></a>learnt <span class="ot">&lt;-</span> <span class="fu">leant</span>(</span>
+<span id="cb5-2"><a href="#cb5-2" tabindex="-1"></a>    <span class="at">data =</span> datafile,</span>
+<span id="cb5-3"><a href="#cb5-3" tabindex="-1"></a>    <span class="at">metadata =</span> metadatafile,</span>
+<span id="cb5-4"><a href="#cb5-4" tabindex="-1"></a>    <span class="at">outputdir =</span> <span class="st">&#39;parkinson_computations&#39;</span>,</span>
+<span id="cb5-5"><a href="#cb5-5" tabindex="-1"></a>    <span class="at">seed =</span> <span class="dv">16</span>,</span>
+<span id="cb5-6"><a href="#cb5-6" tabindex="-1"></a>    <span class="at">parallel =</span> <span class="dv">12</span>)</span>
+<span id="cb5-7"><a href="#cb5-7" tabindex="-1"></a></span>
+<span id="cb5-8"><a href="#cb5-8" tabindex="-1"></a><span class="do">## Registered doParallelSNOW with 12 workers</span></span>
+<span id="cb5-9"><a href="#cb5-9" tabindex="-1"></a><span class="do">##</span></span>
+<span id="cb5-10"><a href="#cb5-10" tabindex="-1"></a><span class="do">## Using 30 datapoints</span></span>
+<span id="cb5-11"><a href="#cb5-11" tabindex="-1"></a><span class="do">## Calculating auxiliary metadata</span></span>
+<span id="cb5-12"><a href="#cb5-12" tabindex="-1"></a><span class="do">##</span></span>
+<span id="cb5-13"><a href="#cb5-13" tabindex="-1"></a><span class="do">## ************************** </span></span>
+<span id="cb5-14"><a href="#cb5-14" tabindex="-1"></a><span class="do">## Saving output in directory</span></span>
+<span id="cb5-15"><a href="#cb5-15" tabindex="-1"></a><span class="do">## parkinson_computations</span></span>
+<span id="cb5-16"><a href="#cb5-16" tabindex="-1"></a><span class="do">## ************************** </span></span>
+<span id="cb5-17"><a href="#cb5-17" tabindex="-1"></a><span class="do">## Starting Monte Carlo sampling of 3600 samples by 60 chains</span></span>
+<span id="cb5-18"><a href="#cb5-18" tabindex="-1"></a><span class="do">## in a space of 703 (effectively 6657) dimensions.</span></span>
+<span id="cb5-19"><a href="#cb5-19" tabindex="-1"></a><span class="do">## Using 12 cores: 60 samples per chain, 5 chains per core.</span></span>
+<span id="cb5-20"><a href="#cb5-20" tabindex="-1"></a><span class="do">## Core logs are being saved in individual files.</span></span>
+<span id="cb5-21"><a href="#cb5-21" tabindex="-1"></a><span class="do">##</span></span>
+<span id="cb5-22"><a href="#cb5-22" tabindex="-1"></a><span class="do">## C-compiling samplers appropriate to the variates (package Nimble)</span></span>
+<span id="cb5-23"><a href="#cb5-23" tabindex="-1"></a><span class="do">## this can take tens of minutes with many data or variates.</span></span>
+<span id="cb5-24"><a href="#cb5-24" tabindex="-1"></a><span class="do">## Please wait...</span></span></code></pre></div>
+<p>At the end of the computation the <code>learn()</code> function
+returns the name of the directory in which the results are saved. In the
+code snipped above, this name is saved in the variable
+<code>learnt</code>.</p>
 </div>
 
 
