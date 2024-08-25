@@ -393,7 +393,7 @@ mutualinfo <- function(
             Oout = 'numeric',
             Nout = 'numeric',
             Bout = 'numeric',
-            logjacobian = FALSE)))
+            logjacobianOr = NULL)))
         ##
         lW <- log(learnt$W) +
             util_lprob(
@@ -477,10 +477,10 @@ mutualinfo <- function(
         Oout = 'mi',
         Nout = 'mi',
         Bout = 'mi',
-        logjacobian = FALSE))
+        logjacobianOr = NULL))
 
-    Y1transf <- Yout[, Y1names]
-    Y2transf <- Yout[, Y2names]
+    Y1transf <- Yout[, Y1names, drop = FALSE]
+    Y2transf <- Yout[, Y2names, drop = FALSE]
     rm(Yout)
     gc()
 
@@ -553,9 +553,6 @@ mutualinfo <- function(
             lpY2given1 <- log(mean(
                 colSums(exp(lprobY2 + lprobnorm)) / colSums(exp(lprobnorm)),
                 na.rm = TRUE), base = base)
-            ## str(lpY1and2)
-                                        #str(lpY1)
-            ## str(lpY2)
 
             c(
                 MI = lpY1and2 - lpY1 - lpY2,
@@ -572,32 +569,22 @@ mutualinfo <- function(
     logjacobians1 <- rowSums(
         as.matrix(vtransform(Y1transf,
             auxmetadata = auxmetadata,
-            logjacobian = NA)),
-        na.rm = TRUE
-    ) / log(base)
+            logjacobianOr = FALSE)),
+        na.rm = TRUE)
 
     logjacobians2 <- rowSums(
         as.matrix(vtransform(Y2transf,
             auxmetadata = auxmetadata,
-            logjacobian = NA)),
-        na.rm = TRUE
-    ) / log(base)
-    str(logjacobians1)
-    str(logjacobians2)
-    str(out)
+            logjacobianOr = FALSE)),
+        na.rm = TRUE)
 
-    value <- colMeans(out, na.rm = TRUE)
-    value[c(2,4)] <- value[c(2, 4)] + mean(logjacobians1, na.rm = TRUE)
-    value[c(3,5)] <- value[c(3, 5)] + mean(logjacobians2, na.rm = TRUE)
-    error <- apply(out, 2, var, na.rm = TRUE)
+    out[, -1] <- out[, -1] - c(logjacobians1, logjacobians2)/log(base)
 
-    out <- c(
+    c(
         unlist(apply(rbind(
-            value = value,
+            value = colMeans(out, na.rm = TRUE),
             error = apply(out, 2, sd, na.rm = TRUE)/sqrt(n)
         ), 2, list), recursive = FALSE),
         list(Y1names = Y1names, Y2names = Y2names, unit = unit)
     )
-
-    out
 }

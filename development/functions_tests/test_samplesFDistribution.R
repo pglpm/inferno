@@ -37,8 +37,8 @@ max(abs(2*(out0-out2)/(out0+out2)))
 
 
 #### custom
-dataset <- read.csv('~/repositories/bayes_nonparametric_inference/development/tests/custom/dataset_custom30.csv', na.strings='')
-learnt <- readRDS('~/repositories/bayes_nonparametric_inference/development/tests/custom/_newdeletepackagetest-vrt10_dat30_smp120/learnt.rds')
+dataset <- read.csv('~/repos/inferno/development/tests/custom/dataset_custom30.csv', na.strings='')
+learnt <- readRDS('~/repos/inferno/development/tests/custom/_newdeletepackagetest-vrt10_dat30_smp120/learnt.rds')
 ##
 source('util_vtransform.R', local=T)
 source('samplesFDistribution.R', local=T)
@@ -89,7 +89,7 @@ dataset <- data.frame(
     B1 = c('yes','yes','no','no','yes'),
     N1 = c('A','C','A','C','B')
 )
-learnt <- readRDS('~/repositories/bayes_nonparametric_inference/development/tests/BN_functdependence/learnt.rds')
+learnt <- readRDS('~/repos/inferno/development/tests/BN_functdependence/learnt.rds')
 ##
 source('util_vtransform.R', local=T)
 source('samplesFDistribution.R', local=T)
@@ -162,8 +162,8 @@ max(abs(out))
 #############################################################
 
 #### custom - test new samplesFDistribution
-dataset <- read.csv('~/repositories/bayes_nonparametric_inference/development/tests/custom/dataset_custom150.csv', na.strings='')
-learnt <- readRDS('~/repositories/bayes_nonparametric_inference/development/tests/custom/_newdeletepackagetest-vrt10_dat30_smp120/learnt.rds')
+dataset <- read.csv('~/repos/inferno/development/tests/custom/dataset_custom150.csv', na.strings='')
+learnt <- readRDS('~/repos/inferno/development/tests/custom/_newdeletepackagetest-vrt10_dat30_smp120/learnt.rds')
 ##
 
 library('inferno')
@@ -203,8 +203,8 @@ max(abs(2*(out-out2)/(out+out2)))
 
 
 #### custom
-dataset <- read.csv('~/repositories/bayes_nonparametric_inference/development/test_custom/datanew_test_custom_30.csv', na.strings='')
-learnt <- readRDS('~/repositories/bayes_nonparametric_inference/development/test_custom/_newdeletepackagetest-vrt10_dat30_smp120/learnt.rds')
+dataset <- read.csv('~/repos/inferno/development/test_custom/datanew_test_custom_30.csv', na.strings='')
+learnt <- readRDS('~/repos/inferno/development/test_custom/_newdeletepackagetest-vrt10_dat30_smp120/learnt.rds')
 jac <- T
 ##
 nY <- sample(1:(ncol(dataset)-1), 1)
@@ -216,7 +216,7 @@ iX <- sample(1:nrow(dataset),npoints)
 ##
 source('util_vtransform.R', local=T)
 source('samplesFDistribution.R', local=T)
-source('~/repositories/bayes_nonparametric_inference/development/scripts_tests/testSFD.R', local=T)
+source('~/repos/inferno/development/scripts_tests/testSFD.R', local=T)
 out <- sapply(1:length(iY), function(i){
     v0 <- samplesFDistribution(
         Y=dataset[iY[i],Ys,drop=F],
@@ -238,7 +238,7 @@ max(abs(out))
 #### mtcars
 data(mtcars)
 dataset <- mtcars
-learnt <- readRDS('~/repositories/bayes_nonparametric_inference/development/tests/mtcars/_newD_test_mtcars-3-vrt11_dat32_smp512/learnt.rds')
+learnt <- readRDS('~/repos/inferno/development/tests/mtcars/_newD_test_mtcars-3-vrt11_dat32_smp512/learnt.rds')
 jac <- T
 ##
 nY <- sample(1:(ncol(dataset)-1), 1)
@@ -250,7 +250,7 @@ iX <- sample(1:nrow(dataset),npoints)
 ##
 source('util_vtransform.R', local=T)
 source('samplesFDistribution.R', local=T)
-source('~/repositories/bayes_nonparametric_inference/development/scripts_tests/testSFD.R', local=T)
+source('~/repos/inferno/development/scripts_tests/testSFD.R', local=T)
 out <- sapply(1:length(iY), function(i){
     v0 <- samplesFDistribution(
         Y=dataset[iY[i],Ys,drop=F],
@@ -270,7 +270,7 @@ max(abs(out))
 
 
 dataset <- mtcars
-learnt <- readRDS('~/repositories/bayes_nonparametric_inference/development/tests/mtcars/_newD_test_mtcars-3-vrt11_dat32_smp512/learnt.rds')
+learnt <- readRDS('~/repos/inferno/development/tests/mtcars/_newD_test_mtcars-3-vrt11_dat32_smp512/learnt.rds')
 
 
 library('inferno')
@@ -322,7 +322,7 @@ iX <- sample(1:nrow(dataset),npoints)
 ##
 source('util_vtransform.R', local=T)
 source('samplesFDistribution.R', local=T)
-source('~/repositories/bayes_nonparametric_inference/development/scripts_tests/testSFD.R', local=T)
+source('~/repos/inferno/development/scripts_tests/testSFD.R', local=T)
 out <- sapply(1:length(iY), function(i){
     v0 <- samplesFDistribution(
         Y=dataset[iY[i],Ys,drop=F],

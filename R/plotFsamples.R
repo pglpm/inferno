@@ -579,7 +579,7 @@ plotFsamples <- function(
                             Oout = 'numeric',
                             Nout = 'numeric',
                             Bout = 'numeric',
-                            logjacobian = FALSE
+                            logjacobianOr = FALSE
                         ))
                 }
                 scatteraxis(

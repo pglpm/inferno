@@ -4,7 +4,7 @@ source('util_vtransform.R', local=T)
 #### mtcars
 data(mtcars)
 dataset <- mtcars
-learnt <- readRDS('~/repositories/bayes_nonparametric_inference/development/tests/mtcars/_newD_test_mtcars-2-vrt11_dat32_smp512/learnt.rds')
+learnt <- readRDS('~/repos/inferno/development/tests/mtcars/_newD_test_mtcars-2-vrt11_dat32_smp512/learnt.rds')
 jac <- T
 
 library('foreach')
@@ -53,8 +53,8 @@ plotFsamples(
 
 ######################################################################
 #### custom
-dataset <- read.csv('~/repositories/bayes_nonparametric_inference/development/test_custom/datanew_test_custom_30.csv', na.strings='')
-learnt <- readRDS('~/repositories/bayes_nonparametric_inference/development/test_custom/_newdeletepackagetest-vrt10_dat30_smp120/learnt.rds')
+dataset <- read.csv('~/repos/inferno/development/test_custom/datanew_test_custom_30.csv', na.strings='')
+learnt <- readRDS('~/repos/inferno/development/test_custom/_newdeletepackagetest-vrt10_dat30_smp120/learnt.rds')
 jac <- T
 ##
 library('foreach')
@@ -97,7 +97,7 @@ source('util_vtransform.R', local=T)
 source('samplesFDistribution.R', local=T)
 data(mtcars)
 dataset <- mtcars
-learnt <- readRDS('~/repositories/bayes_nonparametric_inference/development/tests/mtcars/test_mtcars_learnt.rds')
+learnt <- readRDS('~/repos/inferno/development/tests/mtcars/test_mtcars_learnt.rds')
 jac <- T
 ##
 out <- t(sapply(1:32, function(ipoint){

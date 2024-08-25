@@ -31,7 +31,7 @@
 #'  'original': original representation
 #' @param variates string vector, names of variates
 #'   corresponding to columns of x (in case x misses column names)
-#' @param logjacobian logical: output is the log-Jacobian?
+#' @param logjacobianOr logical or `NULL`: output is the log-Jacobian in orginal or transformed domain? `NULL` (default) means do not calculate the log-Jacobians
 #'
 #' @return data frame of transformed variates, or their log-Jacobians
 #' @keywords internal
@@ -45,7 +45,7 @@ vtransform <- function(
     Oout = NULL,
     Nout = NULL,
     variates = NULL,
-    logjacobian = FALSE
+    logjacobianOr = NULL
 ) {
     useLquantiles <- TRUE
 
@@ -58,68 +58,10 @@ vtransform <- function(
         with(data = as.list(auxmetadata[auxmetadata$name == v, ]),
         {
 
-#### Calculation of reciprocal Jacobian factors
-            if (is.na(logjacobian)) {
-                ## 'datum' is given in the transformeddomain
-                if (mcmctype %in% c('R', 'C')) {
-                    if (mcmctype %in% c('C')) {
-                        selma <- datum <= tleftbound | datum >= trightbound
-                    }
-                    if (transform == 'log') {
-                        datum <- tscale * datum + tlocation - log(tscale)
-                    } else if (transform == 'logminus') {
-                        datum <- -tscale * datum - tlocation - log(tscale)
-                    } else if (transform == 'Q') {
-                        datum <- -log(util_invDQ(tscale * datum + tlocation)) -
-                            log(tscale) - log(domainmax - domainmin)
-                    } else if (transform == 'identity') {
-                        datum[!is.na(datum)] <- -log(tscale)
-                    } else {
-                        stop('Unknown transformation for variate ', v)
-                    }
-                    if (mcmctype %in% c('C')) {
-                        datum[selma] <- 0
-                    }
-                    datum[is.na(datum)] <- 0
-                } else {
-                    datum <- numeric(length(datum))
-                }
-
-            } else if (logjacobian) {
-                ## 'datum' is given in the original domain
-                if (mcmctype %in% c('R', 'C')) {
-                    if (mcmctype %in% c('C')) {
-                        selma <- datum <= leftbound | datum >= rightbound
-                    }
-                    if (transform == 'log') {
-                        datum <- -log(datum - domainmin) - log(tscale)
-                    } else if (transform == 'logminus') {
-                        datum <- -log(domainmax - datum) - log(tscale)
-                    } else if (transform == 'Q') {
-                        datum <- util_Q(0.5 +
-                                            (datum - (domainmin + domainmax)/2) /
-                                            (domainmax - domainmin)
-                        )
-                        datum <- -log(util_invDQ(datum)) -
-                            log(tscale) - log(domainmax - domainmin)
-                    } else if (transform == 'identity') {
-                        datum[!is.na(datum)] <- -log(tscale)
-                    } else {
-                        stop('Unknown transformation for variate ', v)
-                    }
-                    if (mcmctype %in% c('C')) {
-                        datum[selma] <- 0
-                    }
-                    datum[is.na(datum)] <- 0
-                } else {
-                    datum <- numeric(length(datum))
-                }
-
-            } else {
+            if (is.null(logjacobianOr)) {
 #### Transformation to internal value for MCMC
 
 #### Continuous, open domain
-
                 if (mcmctype == 'R') {
 
                     if (Rout == 'normalized') {
@@ -278,8 +220,6 @@ vtransform <- function(
                         stop('Unknown transformation for variate ', v)
                     }
 
-
-
 #### Continuous rounded
                 } else if (mcmctype == 'D') {
 
@@ -410,7 +350,70 @@ vtransform <- function(
                     }
                 }
 
+#### Calculation of reciprocal log-Jacobian factors
+            } else if (logjacobianOr) {
+                ## 'datum' is given in the original domain
+
+                if (mcmctype %in% c('R', 'C')) {
+                    if (mcmctype %in% c('C')) {
+                        selma <- datum <= leftbound | datum >= rightbound
+                    }
+                    if (transform == 'log') {
+                        datum <- -log(datum - domainmin) - log(tscale)
+                    } else if (transform == 'logminus') {
+                        datum <- -log(domainmax - datum) - log(tscale)
+                    } else if (transform == 'Q') {
+                        datum <- util_Q(0.5 +
+                                            (datum - (domainmin + domainmax)/2) /
+                                            (domainmax - domainmin)
+                        )
+                        datum <- -log(util_invDQ(datum)) -
+                            log(tscale) - log(domainmax - domainmin)
+                    } else if (transform == 'identity') {
+                        datum[!is.na(datum)] <- -log(tscale)
+                    } else {
+                        stop('Unknown transformation for variate ', v)
+                    }
+                    if (mcmctype %in% c('C')) {
+                        datum[selma] <- 0
+                    }
+                    datum[is.na(datum)] <- 0
+                } else {
+                    datum <- numeric(length(datum))
+                }
+
+            } else if (!logjacobianOr) {
+
+                ## 'datum' is given in the transformed domain
+
+                if (mcmctype %in% c('R', 'C')) {
+                    if (mcmctype %in% c('C')) {
+                        selma <- datum <= tleftbound | datum >= trightbound
+                    }
+                    if (transform == 'log') {
+                        datum <- tscale * datum + tlocation - log(tscale)
+                    } else if (transform == 'logminus') {
+                        datum <- -tscale * datum - tlocation - log(tscale)
+                    } else if (transform == 'Q') {
+                        datum <- -log(util_invDQ(tscale * datum + tlocation)) -
+                            log(tscale) - log(domainmax - domainmin)
+                    } else if (transform == 'identity') {
+                        datum[!is.na(datum)] <- -log(tscale)
+                    } else {
+                        stop('Unknown transformation for variate ', v)
+                    }
+                    if (mcmctype %in% c('C')) {
+                        datum[selma] <- 0
+                    }
+                    datum[is.na(datum)] <- 0
+                } else {
+                    datum <- numeric(length(datum))
+                }
+                
+            } else {
+                stop('Unknown "logjacobianOr" value')
             }
+
             datum
         })
     }), row.names = NULL,  col.names = colnames(x))

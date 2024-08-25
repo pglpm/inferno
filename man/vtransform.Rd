@@ -14,7 +14,7 @@ vtransform(
   Oout = NULL,
   Nout = NULL,
   variates = NULL,
-  invjacobian = FALSE
+  logjacobianOr = NULL
 )
 }
 \arguments{
@@ -58,10 +58,10 @@ vtransform(
 \item{variates}{string vector, names of variates
 corresponding to columns of x (in case x misses column names)}
 
-\item{invjacobian}{logical: calculate Jacobian factor?}
+\item{logjacobianOr}{logical or \code{NULL}: output is the log-Jacobian in orginal or transformed domain? \code{NULL} (default) means do not calculate the log-Jacobians}
 }
 \value{
-data frame of transformed variates
+data frame of transformed variates, or their log-Jacobians
 }
 \description{
 Transforms variates to different representations

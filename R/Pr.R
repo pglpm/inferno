@@ -294,7 +294,7 @@ Pr <- function(
             Oout = 'numeric',
             Nout = 'numeric',
             Bout = 'numeric',
-            logjacobian = FALSE))
+            logjacobianOr = NULL))
 
         temporarydir <- tempdir() # where to save X objects
         ##
@@ -336,7 +336,7 @@ Pr <- function(
         Oout = 'numeric',
         Nout = 'numeric',
         Bout = 'numeric',
-        logjacobian = FALSE))
+        logjacobianOr = NULL))
 
     ## jacobians <- exp(-rowSums(
     ##     log(vtransform(Y,
@@ -408,7 +408,7 @@ Pr <- function(
     jacobians <- exp(rowSums(
         as.matrix(vtransform(Y,
             auxmetadata = auxmetadata,
-            logjacobian = TRUE)),
+            logjacobianOr = TRUE)),
         na.rm = TRUE
     ))
 
