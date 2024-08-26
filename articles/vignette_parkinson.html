@@ -81,55 +81,33 @@ a control group, the other 15 to the treatment group, denoted
 investigations, nor do we use all the variates observed. We limit
 ourselves to 7 variates for each subject. Here is a list with a brief
 description of each:</p>
-<div class="section level4">
-<h4 id="treatment-group">Treatment group<a class="anchor" aria-label="anchor" href="#treatment-group"></a>
-</h4>
-<p><em>Binary</em> variate with values <code>Placebo</code> and
-<code>NR</code>.</p>
-</div>
-<div class="section level4">
-<h4 id="sex">Sex<a class="anchor" aria-label="anchor" href="#sex"></a>
-</h4>
-<p><em>Binary</em> variate with values <code>Female</code> and
-<code>Male</code>.</p>
-</div>
-<div class="section level4">
-<h4 id="age">Age<a class="anchor" aria-label="anchor" href="#age"></a>
-</h4>
-<p><em>Integer</em> variate.</p>
-</div>
-<div class="section level4">
-<h4 id="anamnestic-loss-of-smell">Anamnestic loss of smell<a class="anchor" aria-label="anchor" href="#anamnestic-loss-of-smell"></a>
-</h4>
-<p><em>Binary</em> variate with values <code>No</code> and
-<code>Yes</code>.</p>
-</div>
-<div class="section level4">
-<h4 id="history-of-rem-sleep-behaviour-disorder">History of REM sleep behaviour disorder<a class="anchor" aria-label="anchor" href="#history-of-rem-sleep-behaviour-disorder"></a>
-</h4>
-<p><em>Binary</em> variate with values <code>No</code> and
-<code>Yes</code>.</p>
-</div>
-<div class="section level4">
-<h4 id="mds-updrs-iii-score-at-the-first-subject-visit">MDS-UPDRS-III score at the first subject visit<a class="anchor" aria-label="anchor" href="#mds-updrs-iii-score-at-the-first-subject-visit"></a>
-</h4>
-<p>The <a href="https://www.movementdisorders.org/MDS-Files1/PDFs/Rating-Scales/MDS-UPDRS_English_FINAL.pdf" class="external-link">MDS-UPDRS-III</a>
+<ul>
+<li><p><strong>Treatment group</strong>: <em>Binary</em> variate with
+values <code>Placebo</code> and <code>NR</code>.</p></li>
+<li><p><strong>Sex</strong>: <em>Binary</em> variate with values
+<code>Female</code> and <code>Male</code>.</p></li>
+<li><p><strong>Age</strong>: <em>Integer</em> variate, or continuous but
+<em>rounded</em> variate.</p></li>
+<li><p><strong>Anamnestic loss of smell</strong>: <em>Binary</em>
+variate with values <code>No</code> and <code>Yes</code>.</p></li>
+<li><p><strong>History of REM sleep behaviour disorder</strong>:
+<em>Binary</em> variate with values <code>No</code> and
+<code>Yes</code>.</p></li>
+<li><p><strong>MDS-UPDRS-III score at the first subject visit</strong>:
+The <a href="https://www.movementdisorders.org/MDS-Files1/PDFs/Rating-Scales/MDS-UPDRS_English_FINAL.pdf" class="external-link">MDS-UPDRS-III</a>
 (Movement Disorder Society’s Unified Parkinson’s Disease Rating Scale)
 is one of a set of <em>ordinal</em> scales to assess a subject’s degree
 of disability and monitor it over time. The scale III ranges from
 <code>0</code> (no disability) to <code>132</code> (highest degree of
 disability). Given that operations such as sum or average are performed
 on these scales in the literature, the scales should be considered on an
-<em>interval</em> kind rather than simply ordinal.</p>
-</div>
-<div class="section level4">
-<h4 id="difference-in-mds-updrs-iii-scores-between-second-and-first-visit">Difference in MDS-UPDRS-III scores between second and first
-visit<a class="anchor" aria-label="anchor" href="#difference-in-mds-updrs-iii-scores-between-second-and-first-visit"></a>
-</h4>
-<p><em>Ordinal</em> variate, the difference of the previous one between
-the subject’s second and first visit. Its range is therefore from
-<code>-132</code> to <code>+132</code>, <em>negative</em> values
-representing an <em>improvement</em>.</p>
+<em>interval</em> kind rather than simply ordinal.</p></li>
+<li><p><strong>Difference in MDS-UPDRS-III scores between second and
+first visit</strong>: <em>Ordinal</em> variate, the difference of the
+previous one between the subject’s second and first visit. Its range is
+therefore from <code>-132</code> to <code>+132</code>, <em>negative</em>
+values representing an <em>improvement</em>.</p></li>
+</ul>
 <p><br></p>
 <p>We store the name of the datafile:example:</p>
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
@@ -175,7 +153,6 @@ representing an <em>improvement</em>.</p>
 </tr>
 </tbody>
 </table>
-</div>
 <div class="section level3">
 <h3 id="natural-vs-controlled-or-biased-variates">“Natural” vs controlled or “biased” variates<a class="anchor" aria-label="anchor" href="#natural-vs-controlled-or-biased-variates"></a>
 </h3>
@@ -548,7 +525,7 @@ probability</li>
 <p>Let us first ask this for a specific value of the MDS-UPDRS-III
 difference, let’s say <code>0</code>:</p>
 <div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">probability</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/Pr.html">Pr</a></span><span class="op">(</span></span>
+<code class="sourceCode R"><span><span class="va">probability0</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/Pr.html">Pr</a></span><span class="op">(</span></span>
 <span>    Y <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span>diff.MDS.UPRS.III <span class="op">=</span> <span class="fl">0</span><span class="op">)</span>,</span>
 <span>    X <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span>Sex <span class="op">=</span> <span class="st">'Female'</span>, TreatmentGroup <span class="op">=</span> <span class="st">'NR'</span><span class="op">)</span>,</span>
 <span>    learnt <span class="op">=</span> <span class="va">learnt</span></span>
@@ -563,7 +540,7 @@ objects, of which we discuss only two for the moment:</p>
 probability we wanted to know. In this case it is</li>
 </ul>
 <div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">probability</span><span class="op">$</span><span class="va">value</span></span>
+<code class="sourceCode R"><span><span class="va">probability0</span><span class="op">$</span><span class="va">value</span></span>
 <span><span class="co">#&gt;       X</span></span>
 <span><span class="co">#&gt; Y            [,1]</span></span>
 <span><span class="co">#&gt;   [1,] 0.06420201</span></span></code></pre></div>
@@ -580,7 +557,7 @@ probability of lying between the two quantile values. In this case they
 are</li>
 </ul>
 <div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">probability</span><span class="op">$</span><span class="va">quantiles</span></span>
+<code class="sourceCode R"><span><span class="va">probability0</span><span class="op">$</span><span class="va">quantiles</span></span>
 <span><span class="co">#&gt; , ,  = 5%</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt;       X</span></span>
@@ -594,6 +571,35 @@ are</li>
 <span><span class="co">#&gt;   [1,] 0.1139172</span></span></code></pre></div>
 <p>that is, if we had many more clinical trials, the probability above
 could change to a value within around 3% and 10%.</p>
+<p><br></p>
+<p>We can obviously also ask for the probabilities of all possible
+values that the MDS-UPDRS-III difference could have in the next treated
+female patient:</p>
+<div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">probabilities</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/Pr.html">Pr</a></span><span class="op">(</span></span>
+<span>    Y <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span>diff.MDS.UPRS.III <span class="op">=</span> <span class="op">(</span><span class="op">-</span><span class="fl">30</span><span class="op">)</span><span class="op">:</span><span class="fl">30</span><span class="op">)</span>,</span>
+<span>    X <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span>Sex <span class="op">=</span> <span class="st">'Female'</span>, TreatmentGroup <span class="op">=</span> <span class="st">'NR'</span><span class="op">)</span>,</span>
+<span>    learnt <span class="op">=</span> <span class="va">learnt</span></span>
+<span><span class="op">)</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; No parallel backend registered.</span></span></code></pre></div>
+<p>Each probability thus obtained has two accompanying quantiles and
+related uncertainty. Let us plot both:</p>
+<div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="../reference/plotquantiles.html">plotquantiles</a></span><span class="op">(</span>x <span class="op">=</span> <span class="op">(</span><span class="op">-</span><span class="fl">30</span><span class="op">)</span><span class="op">:</span><span class="fl">30</span>, y <span class="op">=</span> <span class="va">probabilities</span><span class="op">$</span><span class="va">quantiles</span><span class="op">[</span>,<span class="fl">1</span>,<span class="op">]</span>,</span>
+<span>    ylim <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0</span>, <span class="cn">NA</span><span class="op">)</span>,</span>
+<span>    xlab <span class="op">=</span> <span class="st">'MDS-UPDRS-III difference'</span>, ylab <span class="op">=</span> <span class="st">'probability'</span><span class="op">)</span></span>
+<span><span class="fu"><a href="../reference/tplot.html">tplot</a></span><span class="op">(</span>x <span class="op">=</span> <span class="op">(</span><span class="op">-</span><span class="fl">30</span><span class="op">)</span><span class="op">:</span><span class="fl">30</span>, y <span class="op">=</span> <span class="va">probabilities</span><span class="op">$</span><span class="va">values</span><span class="op">[</span>,<span class="fl">1</span><span class="op">]</span>, add <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></code></pre></div>
+<p><img src="vignette_parkinson_files/figure-html/unnamed-chunk-13-1.png" width="100%">
+Two aspects of this plot are relevant for our investigation:</p>
+<ul>
+<li><p>There seems to be slightly more probability mass towards negative
+MDS-UPDRS-III differences – which means an improvement in the degree of
+disability. We shall quantify this further in a moment.</p></li>
+<li><p>However, it is also clear that further clinical trials could lead
+to a quite different probability distribution. This is clear from the
+breadth of the quantile range.</p></li>
+</ul>
 <p><em>(TO BE CONTINUED)</em></p>
 </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>

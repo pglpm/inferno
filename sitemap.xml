@@ -5,11 +5,13 @@
 <url><loc>https://pglpm.github.io/inferno/articles/vignette_parkinson.html</loc></url>
 <url><loc>https://pglpm.github.io/inferno/authors.html</loc></url>
 <url><loc>https://pglpm.github.io/inferno/index.html</loc></url>
+<url><loc>https://pglpm.github.io/inferno/reference/E.html</loc></url>
 <url><loc>https://pglpm.github.io/inferno/reference/Pr.html</loc></url>
 <url><loc>https://pglpm.github.io/inferno/reference/alpha2hex2.html</loc></url>
 <url><loc>https://pglpm.github.io/inferno/reference/buildauxmetadata.html</loc></url>
 <url><loc>https://pglpm.github.io/inferno/reference/buildmetadata.html</loc></url>
 <url><loc>https://pglpm.github.io/inferno/reference/createQfunction.html</loc></url>
+<url><loc>https://pglpm.github.io/inferno/reference/cumPr.html</loc></url>
 <url><loc>https://pglpm.github.io/inferno/reference/index.html</loc></url>
 <url><loc>https://pglpm.github.io/inferno/reference/inferno-package.html</loc></url>
 <url><loc>https://pglpm.github.io/inferno/reference/learn.html</loc></url>
@@ -18,6 +20,7 @@
 <url><loc>https://pglpm.github.io/inferno/reference/plotquantiles.html</loc></url>
 <url><loc>https://pglpm.github.io/inferno/reference/tplot.html</loc></url>
 <url><loc>https://pglpm.github.io/inferno/reference/util_Pcheckpoints.html</loc></url>
+<url><loc>https://pglpm.github.io/inferno/reference/util_lcumprob.html</loc></url>
 <url><loc>https://pglpm.github.io/inferno/reference/util_lprob.html</loc></url>
 <url><loc>https://pglpm.github.io/inferno/reference/vtransform.html</loc></url>
 </urlset>
