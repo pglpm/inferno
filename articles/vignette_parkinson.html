@@ -75,10 +75,12 @@ al. (2022)</a>, which generously and professionally shares its <a href="https:/
 <p>The investigations in the cited paper involve 30 subjects, for each
 of which various data are collected. Fifteen of these subjects belong to
 a control group, the other 15 to the treatment group, denoted
-<code>NR</code>. In this toy example we do not follow or reproduce the
-paper’s investigations, nor do we use all the variates observed. We
-limit ourselves to 7 variates for each subject. Here is a list with a
-brief description of each:</p>
+<code>NR</code>. This group received a nicotinamide adenine dinucleotide
+(NAD) replenishment therapy, via oral intake of nicotinamide riboside
+(NR). In this toy example we do not follow or reproduce the paper’s
+investigations, nor do we use all the variates observed. We limit
+ourselves to 7 variates for each subject. Here is a list with a brief
+description of each:</p>
 <div class="section level4">
 <h4 id="treatment-group">Treatment group<a class="anchor" aria-label="anchor" href="#treatment-group"></a>
 </h4>
@@ -489,7 +491,109 @@ how the computation is proceeding. As an example:</p>
 <p>At the end of the computation the <code><a href="../reference/learn.html">learn()</a></code> function
 returns the name of the directory in which the results are saved. In the
 code snipped above, this name is saved in the variable
-<code>learnt</code>.</p>
+<code>learnt</code>. The object containing the information needed to
+make inferences is the <code>learnt.rds</code> file within this
+directory.</p>
+</div>
+<div class="section level2">
+<h2 id="drawing-inferences">Drawing inferences<a class="anchor" aria-label="anchor" href="#drawing-inferences"></a>
+</h2>
+<p>We are finally ready to use the software for drawing inferences,
+testing hypotheses, and similar scientific investigations. From the
+observed data, the software allows us to find the probability of any
+question or hypothesis of interest. It is important, though, that the
+hypothesis be stated in an unambiguous, quantitative form.</p>
+<p>For example, we might want to ask: “Does the NAD-replenishment
+therapy have an effect on females?”. At first this may sound like a
+valid scientific hypothesis. But if we carefully examine the statement
+we realize that it is too vague. First, what does “having an effect”
+mean exactly? how can this be quantified? Second, can we really say that
+the therapy either has or has not an effect? are there no degrees of
+efficacy involved? Third, whom are we asking this question about? the
+next patient that we may see? or the population of all the remaining
+patients? Let us make our initial question quantitatively clear.</p>
+<p>First, let us translate “effect” into the difference in MDS-UPDRS-III
+scores between the first and second visits of a subject
+(visit 2 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mo>−</mo><annotation encoding="application/x-tex">-</annotation></semantics></math>
+visit 1), represented by the variate <code>diff.MDS.UPRS.III</code>.
+Note that other choices could be made, such as the difference in another
+MDS-UPDRS score (I–IV), or in the total of these scores, or as the ratio
+rather than the difference – or as some other variate altogether.</p>
+<p>Second, instead of asking the unrealistic dichotomous question “has
+or has not?”, we ask how strong the effect is, as quantified by the
+value of the MDS-UPDRS-III decrease.</p>
+<p>Third, let us ask this question about a possible next patient. We
+shall see that this question is also related to the population as a
+whole.</p>
+<p>We can calculate the probability that, in the next patient, we shall
+observe any particular value
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>y</mi><annotation encoding="application/x-tex">y</annotation></semantics></math>
+of the MDS-UPDRS-III difference, given that the patient is Female, and
+given what has been observed in the clinical trials:
+<math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mrow><mi mathvariant="normal">P</mi><mi mathvariant="normal">r</mi></mrow><mrow><mo stretchy="true" form="prefix">(</mo><mtext mathvariant="normal">MDS-UPDRS-III difference</mtext><mo>=</mo><mi>y</mi><mspace width="0.222em"></mspace><mo stretchy="false" form="postfix">|</mo><mspace width="0.222em"></mspace><mtext mathvariant="normal">Sex</mtext><mo>=</mo><mtext mathvariant="normal">Female</mtext><mo>,</mo><mtext mathvariant="normal">Treatment group</mtext><mo>=</mo><mtext mathvariant="normal">NR</mtext><mo>,</mo><mrow><mi mathvariant="normal">d</mi><mi mathvariant="normal">a</mi><mi mathvariant="normal">t</mi><mi mathvariant="normal">a</mi></mrow><mo stretchy="true" form="postfix">)</mo></mrow></mrow><annotation encoding="application/x-tex">
+\mathrm{Pr}(\text{MDS-UPDRS-III difference} = y \:\vert\:
+\text{Sex} = \text{Female}, \text{Treatment group} = \text{NR}, \mathrm{data})
+</annotation></semantics></math></p>
+<p>The function for this is <code>Pr(X, Y, learnt)</code>, which accepts
+three arguments:</p>
+<ul>
+<li>
+<code>Y</code>: the variates and values of which we want the
+probability</li>
+<li>
+<code>X</code>: the variates and values which are known</li>
+<li>
+<code>learnt</code>: the knowledge acquired from the dataset</li>
+</ul>
+<p>Let us first ask this for a specific value of the MDS-UPDRS-III
+difference, let’s say <code>0</code>:</p>
+<div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">probability</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/Pr.html">Pr</a></span><span class="op">(</span></span>
+<span>    Y <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span>diff.MDS.UPRS.III <span class="op">=</span> <span class="fl">0</span><span class="op">)</span>,</span>
+<span>    X <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span>Sex <span class="op">=</span> <span class="st">'Female'</span>, TreatmentGroup <span class="op">=</span> <span class="st">'NR'</span><span class="op">)</span>,</span>
+<span>    learnt <span class="op">=</span> <span class="va">learnt</span></span>
+<span><span class="op">)</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; No parallel backend registered.</span></span></code></pre></div>
+<p>The output of the <code><a href="../reference/Pr.html">Pr()</a></code> function is a list of three
+objects, of which we discuss only two for the moment:</p>
+<ul>
+<li>
+<strong><code>value</code></strong>: this is the value of the
+probability we wanted to know. In this case it is</li>
+</ul>
+<div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">probability</span><span class="op">$</span><span class="va">value</span></span>
+<span><span class="co">#&gt;       X</span></span>
+<span><span class="co">#&gt; Y            [,1]</span></span>
+<span><span class="co">#&gt;   [1,] 0.06420201</span></span></code></pre></div>
+<p>that is, there is approximately a 6% probability that the next
+treated female patient will have a MDS-UPDRS-III difference of exactly
+0.</p>
+<ul>
+<li>
+<strong><code>quantiles</code></strong>: these two values tell us
+how much the probability could change, if your knowledge were updated by
+more clinical trials. They thus quantify the uncertainty of our present
+probabilistic conclusions. An future, updated probability has a 90%
+probability of lying between the two quantile values. In this case they
+are</li>
+</ul>
+<div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">probability</span><span class="op">$</span><span class="va">quantiles</span></span>
+<span><span class="co">#&gt; , ,  = 5%</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt;       X</span></span>
+<span><span class="co">#&gt; Y            [,1]</span></span>
+<span><span class="co">#&gt;   [1,] 0.02825972</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; , ,  = 95%</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt;       X</span></span>
+<span><span class="co">#&gt; Y           [,1]</span></span>
+<span><span class="co">#&gt;   [1,] 0.1139172</span></span></code></pre></div>
+<p>that is, if we had many more clinical trials, the probability above
+could change to a value within around 3% and 10%.</p>
 <p><em>(TO BE CONTINUED)</em></p>
 </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>
