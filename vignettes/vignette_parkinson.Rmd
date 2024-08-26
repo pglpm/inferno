@@ -18,7 +18,7 @@ knitr::opts_chunk$set(
 
 Here is a toy example showing some kinds of results that can be obtained with Bayesian nonparametric exchangeable inference. The example involves inferences about some investigations on Parkinson's Disease described in the paper by [Brakedal & al. (2022)](https://doi.org/10.1016/j.cmet.2022.02.001), which generously and professionally shares its [data](https://www.cell.com/cms/10.1016/j.cmet.2022.02.001/attachment/82e51142-50b8-4f84-a3e0-7c08d641a47b/mmc2.xlsx).
 
-The investigations in the cited paper involve 30 subjects, for each of which various data are collected. Fifteen of these subjects belong to a control group, the other 15 to the treatment group, denoted `NR`. In this toy example we do not follow or reproduce the paper's investigations, nor do we use all the variates observed. We limit ourselves to 7 variates for each subject. Here is a list with a brief description of each:
+The investigations in the cited paper involve 30 subjects, for each of which various data are collected. Fifteen of these subjects belong to a control group, the other 15 to the treatment group, denoted `NR`. This group received a nicotinamide adenine dinucleotide (NAD) replenishment therapy, via oral intake of nicotinamide riboside (NR). In this toy example we do not follow or reproduce the paper's investigations, nor do we use all the variates observed. We limit ourselves to 7 variates for each subject. Here is a list with a brief description of each:
 
 #### Treatment group
 
@@ -151,7 +151,61 @@ learnt <- learn(
 #> Please wait...
 ```
 
-At the end of the computation the `learn()` function returns the name of the directory in which the results are saved. In the code snipped above, this name is saved in the variable `learnt`.
+```{r, include = FALSE}
+learnt <- 'learnt.rds'
+```
+
+
+At the end of the computation the `learn()` function returns the name of the directory in which the results are saved. In the code snipped above, this name is saved in the variable `learnt`. The object containing the information needed to make inferences is the `learnt.rds` file within this directory.
+
+
+## Drawing inferences
+
+We are finally ready to use the software for drawing inferences, testing hypotheses, and similar scientific investigations. From the observed data, the software allows us to find the probability of any question or hypothesis of interest. It is important, though, that the hypothesis be stated in an unambiguous, quantitative form.
+
+For example, we might want to ask: "Does the NAD-replenishment therapy have an effect on females?". At first this may sound like a valid scientific hypothesis. But if we carefully examine the statement we realize that it is too vague. First, what does "having an effect" mean exactly? how can this be quantified? Second, can we really say that the therapy either has or has not an effect? are there no degrees of efficacy involved? Third, whom are we asking this question about? the next patient that we may see? or the population of all the remaining patients? Let us make our initial question quantitatively clear.
+
+First, let us translate "effect" into the difference in MDS-UPDRS-III scores between the first and second visits of a subject (visit 2 $-$ visit 1), represented by the variate `diff.MDS.UPRS.III`. Note that other choices could be made, such as the difference in another MDS-UPDRS score (I--IV), or in the total of these scores, or as the ratio rather than the difference -- or as some other variate altogether.
+
+Second, instead of asking the unrealistic dichotomous question "has or has not?", we ask how strong the effect is, as quantified by the value of the MDS-UPDRS-III decrease.
+
+Third, let us ask this question about a possible next patient. We shall see that this question is also related to the population as a whole.
+
+We can calculate the probability that, in the next patient, we shall observe any particular value $y$ of the MDS-UPDRS-III difference, given that the patient is Female, and given what has been observed in the clinical trials:
+$$
+\mathrm{Pr}(\text{MDS-UPDRS-III difference} = y \:\vert\:
+\text{Sex} = \text{Female}, \text{Treatment group} = \text{NR}, \mathrm{data})
+$$
+
+The function for this is `Pr(X, Y, learnt)`, which accepts three arguments:
+
+- `Y`: the variates and values of which we want the probability
+- `X`: the variates and values which are known
+- `learnt`: the knowledge acquired from the dataset
+
+Let us first ask this for a specific value of the MDS-UPDRS-III difference, let's say `0`:
+```{r}
+probability <- Pr(
+    Y = data.frame(diff.MDS.UPRS.III = 0),
+    X = data.frame(Sex = 'Female', TreatmentGroup = 'NR'),
+    learnt = learnt
+)
+```
+
+The output of the `Pr()` function is a list of three objects, of which we discuss only two for the moment:
+
+- **`value`**: this is the value of the probability we wanted to know. In this case it is
+```{r}
+probability$value
+```
+that is, there is approximately a `r signif(probability$value *100, 1)`% probability that the next treated female patient will have a MDS-UPDRS-III difference of exactly 0.
+
+- **`quantiles`**: these two values tell us how much the probability could change, if your knowledge were updated by more clinical trials. They thus quantify the uncertainty of our present probabilistic conclusions. An future, updated probability has a 90% probability of lying between the two quantile values. In this case they are
+```{r}
+probability$quantiles
+```
+that is, if we had many more clinical trials, the probability above could change to a value within around `r signif(probability$quantiles[,,1] * 100, 1)`% and `r signif(probability$quantiles[,,2] * 100, 1)`%.
+
 
 
 *(TO BE CONTINUED)*

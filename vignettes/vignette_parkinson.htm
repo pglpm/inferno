@@ -351,10 +351,12 @@ al. (2022)</a>, which generously and professionally shares its <a href="https:/
 <p>The investigations in the cited paper involve 30 subjects, for each
 of which various data are collected. Fifteen of these subjects belong to
 a control group, the other 15 to the treatment group, denoted
-<code>NR</code>. In this toy example we do not follow or reproduce the
-paper’s investigations, nor do we use all the variates observed. We
-limit ourselves to 7 variates for each subject. Here is a list with a
-brief description of each:</p>
+<code>NR</code>. This group received a nicotinamide adenine dinucleotide
+(NAD) replenishment therapy, via oral intake of nicotinamide riboside
+(NR). In this toy example we do not follow or reproduce the paper’s
+investigations, nor do we use all the variates observed. We limit
+ourselves to 7 variates for each subject. Here is a list with a brief
+description of each:</p>
 <div id="treatment-group" class="section level4">
 <h4>Treatment group</h4>
 <p><em>Binary</em> variate with values <code>Placebo</code> and
@@ -445,12 +447,42 @@ representing an <em>improvement</em>.</p>
 </tbody>
 </table>
 </div>
+<div id="natural-vs-controlled-or-biased-variates" class="section level3">
+<h3>“Natural” vs controlled or “biased” variates</h3>
+<p>For the purpose of drawing scientific inferences, it is extremely
+important to be mindful of which variates in the dataset have “natural”
+statistics, and which instead have statistics controlled by the observer
+– and are therefore “biased”. This distinction is important because the
+dataset statistics of the controlled variates may then <em>not</em> be
+representative of the naturally-occurring ones, and therefore cannot be
+used for inference purposes.</p>
+<p>In the present dataset, for instance, the numbers of
+<code>Placebo</code> and <code>NR</code> subjects were decided by the
+investigators to be in a 50%/50% proportion. Obviously this is not a
+naturally occurring proportion; in fact, it does not even make sense of
+speaking of a naturally occurring statistics for this
+<code>TreatmentGroup</code> variate.</p>
+<p>For the <code>Sex</code> variate, the dataset has a proportion of
+around 17% <code>Female</code> and 83% <code>Male</code> subjects. This
+proportion also partly stems from the selection procedure of the
+investigators, so we cannot infer that roughly 16% of Parkinson patients
+in the national population are females. It is also possible that the
+proportions in the <code>Age</code> variate may depend on the selection
+procedure.</p>
+<p>On the other hand, the investigators did <em>not</em> choose the
+statistics of the two <code>MDS.UPDRS</code> variates, within the groups
+having particular values of the other variates. This
+<em>conditional</em> or <em>subpopulation</em> statistics can be taken
+as representatives of naturally-occurring ones (see <a href="https://doi.org/10.1214/aos/1176345331">Lindley &amp; Novick
+(1980)</a> for a brilliant discussion of this point).</p>
+<p><em>(add short explanation of exchangeability)</em></p>
+</div>
 </div>
 <div id="metadata" class="section level2">
 <h2>Metadata</h2>
 <p>Let’s load the package:</p>
 <div class="sourceCode" id="cb2"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" tabindex="-1"></a><span class="fu">library</span>(inferno)</span></code></pre></div>
-<p>In order to draw inferences we need metadata information, that is,
+<p>In order to draw inferences, we need metadata information, that is,
 information about the variates that is <em>not</em> present in the data.
 Such information mainly regard the kind and domain of each variate.</p>
 <p>As an example of why metadata is necessary, suppose you are given the
@@ -683,7 +715,7 @@ computation</li>
 <p>Alternatively you can set the seed with <code>set.seed()</code>, and
 start a set of parallel workers with the
 <code>parallel::makeCluster()</code> and
-<code>doParallel::registerDoParallel</code> commands.</p>
+<code>doParallel::registerDoParallel()</code> commands.</p>
 <p>The “learning” computation can take tens of minutes, or hours, or
 even days depending on the number of variates and data in your inference
 problem. The <code>learn()</code> function outputs various messages on
@@ -695,27 +727,118 @@ how the computation is proceeding. As an example:</p>
 <span id="cb5-5"><a href="#cb5-5" tabindex="-1"></a>    <span class="at">seed =</span> <span class="dv">16</span>,</span>
 <span id="cb5-6"><a href="#cb5-6" tabindex="-1"></a>    <span class="at">parallel =</span> <span class="dv">12</span>)</span>
 <span id="cb5-7"><a href="#cb5-7" tabindex="-1"></a></span>
-<span id="cb5-8"><a href="#cb5-8" tabindex="-1"></a><span class="do">## Registered doParallelSNOW with 12 workers</span></span>
-<span id="cb5-9"><a href="#cb5-9" tabindex="-1"></a><span class="do">##</span></span>
-<span id="cb5-10"><a href="#cb5-10" tabindex="-1"></a><span class="do">## Using 30 datapoints</span></span>
-<span id="cb5-11"><a href="#cb5-11" tabindex="-1"></a><span class="do">## Calculating auxiliary metadata</span></span>
-<span id="cb5-12"><a href="#cb5-12" tabindex="-1"></a><span class="do">##</span></span>
-<span id="cb5-13"><a href="#cb5-13" tabindex="-1"></a><span class="do">## ************************** </span></span>
-<span id="cb5-14"><a href="#cb5-14" tabindex="-1"></a><span class="do">## Saving output in directory</span></span>
-<span id="cb5-15"><a href="#cb5-15" tabindex="-1"></a><span class="do">## parkinson_computations</span></span>
-<span id="cb5-16"><a href="#cb5-16" tabindex="-1"></a><span class="do">## ************************** </span></span>
-<span id="cb5-17"><a href="#cb5-17" tabindex="-1"></a><span class="do">## Starting Monte Carlo sampling of 3600 samples by 60 chains</span></span>
-<span id="cb5-18"><a href="#cb5-18" tabindex="-1"></a><span class="do">## in a space of 703 (effectively 6657) dimensions.</span></span>
-<span id="cb5-19"><a href="#cb5-19" tabindex="-1"></a><span class="do">## Using 12 cores: 60 samples per chain, 5 chains per core.</span></span>
-<span id="cb5-20"><a href="#cb5-20" tabindex="-1"></a><span class="do">## Core logs are being saved in individual files.</span></span>
-<span id="cb5-21"><a href="#cb5-21" tabindex="-1"></a><span class="do">##</span></span>
-<span id="cb5-22"><a href="#cb5-22" tabindex="-1"></a><span class="do">## C-compiling samplers appropriate to the variates (package Nimble)</span></span>
-<span id="cb5-23"><a href="#cb5-23" tabindex="-1"></a><span class="do">## this can take tens of minutes with many data or variates.</span></span>
-<span id="cb5-24"><a href="#cb5-24" tabindex="-1"></a><span class="do">## Please wait...</span></span></code></pre></div>
+<span id="cb5-8"><a href="#cb5-8" tabindex="-1"></a><span class="co">#&gt; Registered doParallelSNOW with 12 workers</span></span>
+<span id="cb5-9"><a href="#cb5-9" tabindex="-1"></a><span class="co">#&gt;</span></span>
+<span id="cb5-10"><a href="#cb5-10" tabindex="-1"></a><span class="co">#&gt; Using 30 datapoints</span></span>
+<span id="cb5-11"><a href="#cb5-11" tabindex="-1"></a><span class="co">#&gt; Calculating auxiliary metadata</span></span>
+<span id="cb5-12"><a href="#cb5-12" tabindex="-1"></a><span class="co">#&gt;</span></span>
+<span id="cb5-13"><a href="#cb5-13" tabindex="-1"></a><span class="co">#&gt; ************************** </span></span>
+<span id="cb5-14"><a href="#cb5-14" tabindex="-1"></a><span class="co">#&gt; Saving output in directory</span></span>
+<span id="cb5-15"><a href="#cb5-15" tabindex="-1"></a><span class="co">#&gt; parkinson_computations</span></span>
+<span id="cb5-16"><a href="#cb5-16" tabindex="-1"></a><span class="co">#&gt; ************************** </span></span>
+<span id="cb5-17"><a href="#cb5-17" tabindex="-1"></a><span class="co">#&gt; Starting Monte Carlo sampling of 3600 samples by 60 chains</span></span>
+<span id="cb5-18"><a href="#cb5-18" tabindex="-1"></a><span class="co">#&gt; in a space of 703 (effectively 6657) dimensions.</span></span>
+<span id="cb5-19"><a href="#cb5-19" tabindex="-1"></a><span class="co">#&gt; Using 12 cores: 60 samples per chain, 5 chains per core.</span></span>
+<span id="cb5-20"><a href="#cb5-20" tabindex="-1"></a><span class="co">#&gt; Core logs are being saved in individual files.</span></span>
+<span id="cb5-21"><a href="#cb5-21" tabindex="-1"></a><span class="co">#&gt;</span></span>
+<span id="cb5-22"><a href="#cb5-22" tabindex="-1"></a><span class="co">#&gt; C-compiling samplers appropriate to the variates (package Nimble)</span></span>
+<span id="cb5-23"><a href="#cb5-23" tabindex="-1"></a><span class="co">#&gt; this can take tens of minutes with many data or variates.</span></span>
+<span id="cb5-24"><a href="#cb5-24" tabindex="-1"></a><span class="co">#&gt; Please wait...</span></span></code></pre></div>
 <p>At the end of the computation the <code>learn()</code> function
 returns the name of the directory in which the results are saved. In the
 code snipped above, this name is saved in the variable
-<code>learnt</code>.</p>
+<code>learnt</code>. The object containing the information needed to
+make inferences is the <code>learnt.rds</code> file within this
+directory.</p>
+</div>
+<div id="drawing-inferences" class="section level2">
+<h2>Drawing inferences</h2>
+<p>We are finally ready to use the software for drawing inferences,
+testing hypotheses, and similar scientific investigations. From the
+observed data, the software allows us to find the probability of any
+question or hypothesis of interest. It is important, though, that the
+hypothesis be stated in an unambiguous, quantitative form.</p>
+<p>For example, we might want to ask: “Does the NAD-replenishment
+therapy have an effect on females?”. At first this may sound like a
+valid scientific hypothesis. But if we carefully examine the statement
+we realize that it is too vague. First, what does “having an effect”
+mean exactly? how can this be quantified? Second, can we really say that
+the therapy either has or has not an effect? are there no degrees of
+efficacy involved? Third, whom are we asking this question about? the
+next patient that we may see? or the population of all the remaining
+patients? Let us make our initial question quantitatively clear.</p>
+<p>First, let us translate “effect” into the difference in MDS-UPDRS-III
+scores between the first and second visits of a subject (visit 2 <span class="math inline">\(-\)</span> visit 1), represented by the variate
+<code>diff.MDS.UPRS.III</code>. Note that other choices could be made,
+such as the difference in another MDS-UPDRS score (I–IV), or in the
+total of these scores, or as the ratio rather than the difference – or
+as some other variate altogether.</p>
+<p>Second, instead of asking the unrealistic dichotomous question “has
+or has not?”, we ask how strong the effect is, as quantified by the
+value of the MDS-UPDRS-III decrease.</p>
+<p>Third, let us ask this question about a possible next patient. We
+shall see that this question is also related to the population as a
+whole.</p>
+<p>We can calculate the probability that, in the next patient, we shall
+observe any particular value <span class="math inline">\(y\)</span> of
+the MDS-UPDRS-III difference, given that the patient is Female, and
+given what has been observed in the clinical trials: <span class="math display">\[
+\mathrm{Pr}(\text{MDS-UPDRS-III difference} = y \:\vert\:
+\text{Sex} = \text{Female}, \text{Treatment group} = \text{NR},
+\mathrm{data})
+\]</span></p>
+<p>The function for this is <code>Pr(X, Y, learnt)</code>, which accepts
+three arguments:</p>
+<ul>
+<li><code>Y</code>: the variates and values of which we want the
+probability</li>
+<li><code>X</code>: the variates and values which are known</li>
+<li><code>learnt</code>: the knowledge acquired from the dataset</li>
+</ul>
+<p>Let us first ask this for a specific value of the MDS-UPDRS-III
+difference, let’s say <code>0</code>:</p>
+<div class="sourceCode" id="cb6"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" tabindex="-1"></a>probability <span class="ot">&lt;-</span> <span class="fu">Pr</span>(</span>
+<span id="cb6-2"><a href="#cb6-2" tabindex="-1"></a>    <span class="at">Y =</span> <span class="fu">data.frame</span>(<span class="at">diff.MDS.UPRS.III =</span> <span class="dv">0</span>),</span>
+<span id="cb6-3"><a href="#cb6-3" tabindex="-1"></a>    <span class="at">X =</span> <span class="fu">data.frame</span>(<span class="at">Sex =</span> <span class="st">&#39;Female&#39;</span>, <span class="at">TreatmentGroup =</span> <span class="st">&#39;NR&#39;</span>),</span>
+<span id="cb6-4"><a href="#cb6-4" tabindex="-1"></a>    <span class="at">learnt =</span> learnt</span>
+<span id="cb6-5"><a href="#cb6-5" tabindex="-1"></a>)</span>
+<span id="cb6-6"><a href="#cb6-6" tabindex="-1"></a><span class="co">#&gt; </span></span>
+<span id="cb6-7"><a href="#cb6-7" tabindex="-1"></a><span class="co">#&gt; No parallel backend registered.</span></span></code></pre></div>
+<p>The output of the <code>Pr()</code> function is a list of three
+objects, of which we discuss only two for the moment:</p>
+<ul>
+<li><strong><code>value</code></strong>: this is the value of the
+probability we wanted to know. In this case it is</li>
+</ul>
+<div class="sourceCode" id="cb7"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" tabindex="-1"></a>probability<span class="sc">$</span>value</span>
+<span id="cb7-2"><a href="#cb7-2" tabindex="-1"></a><span class="co">#&gt;       X</span></span>
+<span id="cb7-3"><a href="#cb7-3" tabindex="-1"></a><span class="co">#&gt; Y          [,1]</span></span>
+<span id="cb7-4"><a href="#cb7-4" tabindex="-1"></a><span class="co">#&gt;   [1,] 0.064202</span></span></code></pre></div>
+<p>that is, there is approximately a 6% probability that the next
+treated female patient will have a MDS-UPDRS-III difference of exactly
+0.</p>
+<ul>
+<li><strong><code>quantiles</code></strong>: these two values tell us
+how much the probability could change, if your knowledge were updated by
+more clinical trials. They thus quantify the uncertainty of our present
+probabilistic conclusions. An future, updated probability has a 90%
+probability of lying between the two quantile values. In this case they
+are</li>
+</ul>
+<div class="sourceCode" id="cb8"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" tabindex="-1"></a>probability<span class="sc">$</span>quantiles</span>
+<span id="cb8-2"><a href="#cb8-2" tabindex="-1"></a><span class="co">#&gt; , ,  = 5%</span></span>
+<span id="cb8-3"><a href="#cb8-3" tabindex="-1"></a><span class="co">#&gt; </span></span>
+<span id="cb8-4"><a href="#cb8-4" tabindex="-1"></a><span class="co">#&gt;       X</span></span>
+<span id="cb8-5"><a href="#cb8-5" tabindex="-1"></a><span class="co">#&gt; Y           [,1]</span></span>
+<span id="cb8-6"><a href="#cb8-6" tabindex="-1"></a><span class="co">#&gt;   [1,] 0.0282597</span></span>
+<span id="cb8-7"><a href="#cb8-7" tabindex="-1"></a><span class="co">#&gt; </span></span>
+<span id="cb8-8"><a href="#cb8-8" tabindex="-1"></a><span class="co">#&gt; , ,  = 95%</span></span>
+<span id="cb8-9"><a href="#cb8-9" tabindex="-1"></a><span class="co">#&gt; </span></span>
+<span id="cb8-10"><a href="#cb8-10" tabindex="-1"></a><span class="co">#&gt;       X</span></span>
+<span id="cb8-11"><a href="#cb8-11" tabindex="-1"></a><span class="co">#&gt; Y          [,1]</span></span>
+<span id="cb8-12"><a href="#cb8-12" tabindex="-1"></a><span class="co">#&gt;   [1,] 0.113917</span></span></code></pre></div>
+<p>that is, if we had many more clinical trials, the probability above
+could change to a value within around 3% and 10%.</p>
 <p><em>(TO BE CONTINUED)</em></p>
 </div>
 
