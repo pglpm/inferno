@@ -511,7 +511,7 @@ given what has been observed in the clinical trials:
 \mathrm{Pr}(\text{MDS-UPDRS-III difference} = y \:\vert\:
 \text{Sex} = \text{Female}, \text{Treatment group} = \text{NR}, \mathrm{data})
 </annotation></semantics></math></p>
-<p>The function for this is <code>Pr(X, Y, learnt)</code>, which accepts
+<p>The function for this is <code>Pr(Y, X, learnt)</code>, which accepts
 three arguments:</p>
 <ul>
 <li>
@@ -597,9 +597,52 @@ Two aspects of this plot are relevant for our investigation:</p>
 MDS-UPDRS-III differences – which means an improvement in the degree of
 disability. We shall quantify this further in a moment.</p></li>
 <li><p>However, it is also clear that further clinical trials could lead
-to a quite different probability distribution. This is clear from the
+to a quite different probability distribution. This is shown by the
 breadth of the quantile range.</p></li>
 </ul>
+<p><br></p>
+<p>Let as therefore ask a more interesting question, which can be a
+quantitative counterpart of our initial question “Does the
+NAD-replenishment therapy have an effect on females?”. We ask: <em>will
+the next treated female patient experience a MDS-UPDRS-III difference
+equal to
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo>−</mo><mn>1</mn></mrow><annotation encoding="application/x-tex">-1</annotation></semantics></math>
+or less?“</em>. We therefore want the probability
+<math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mrow><mi mathvariant="normal">P</mi><mi mathvariant="normal">r</mi></mrow><mrow><mo stretchy="true" form="prefix">(</mo><mtext mathvariant="normal">MDS-UPDRS-III difference</mtext><mo>≤</mo><mo>−</mo><mn>1</mn><mspace width="0.222em"></mspace><mo stretchy="false" form="postfix">|</mo><mspace width="0.222em"></mspace><mtext mathvariant="normal">Sex</mtext><mo>=</mo><mtext mathvariant="normal">Female</mtext><mo>,</mo><mtext mathvariant="normal">Treatment group</mtext><mo>=</mo><mtext mathvariant="normal">NR</mtext><mo>,</mo><mrow><mi mathvariant="normal">d</mi><mi mathvariant="normal">a</mi><mi mathvariant="normal">t</mi><mi mathvariant="normal">a</mi></mrow><mo stretchy="true" form="postfix">)</mo></mrow></mrow><annotation encoding="application/x-tex">
+\mathrm{Pr}(\text{MDS-UPDRS-III difference} \le -1 \:\vert\:
+\text{Sex} = \text{Female}, \text{Treatment group} = \text{NR}, \mathrm{data})
+</annotation></semantics></math></p>
+<p>This probability can be calculated with the function
+<code>tailPr(Y, X, learnt)</code>, which is analogous to the
+<code><a href="../reference/Pr.html">Pr()</a></code> function, but calculates the probability of
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>Y</mi><mo>≤</mo><mi>y</mi></mrow><annotation encoding="application/x-tex">Y\le y</annotation></semantics></math>
+rather than of
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>Y</mi><mo>=</mo><mi>y</mi></mrow><annotation encoding="application/x-tex">Y = y</annotation></semantics></math>.</p>
+<div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">probDecrease</span><span class="op">&lt;-</span> <span class="fu"><a href="../reference/tailPr.html">tailPr</a></span><span class="op">(</span></span>
+<span>    Y <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span>diff.MDS.UPRS.III <span class="op">=</span> <span class="fl">0</span><span class="op">)</span>,</span>
+<span>    X <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span>Sex <span class="op">=</span> <span class="st">'Female'</span>, TreatmentGroup <span class="op">=</span> <span class="st">'NR'</span><span class="op">)</span>,</span>
+<span>    learnt <span class="op">=</span> <span class="va">learnt</span></span>
+<span><span class="op">)</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; No parallel backend registered.</span></span></code></pre></div>
+<p>The answer is that the probability of a decrease in this disability
+score is</p>
+<div class="sourceCode" id="cb12"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">probDecrease</span><span class="op">$</span><span class="va">value</span></span>
+<span><span class="co">#&gt;       X</span></span>
+<span><span class="co">#&gt; Y           [,1]</span></span>
+<span><span class="co">#&gt;   [1,] 0.6139707</span></span></code></pre></div>
+<p>or approximately 60%; note that it is clearly higher than 50%.</p>
+<p>Further clinical trials, however could update this probability to a
+new value between 40% and 80%:</p>
+<div class="sourceCode" id="cb13"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">probDecrease</span><span class="op">$</span><span class="va">quantiles</span><span class="op">[</span><span class="fl">1</span>,<span class="fl">1</span>,<span class="op">]</span></span>
+<span><span class="co">#&gt;        5%       95% </span></span>
+<span><span class="co">#&gt; 0.3999601 0.8052588</span></span></code></pre></div>
+<div class="sourceCode" id="cb14"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/graphics/hist.html" class="external-link">hist</a></span><span class="op">(</span><span class="va">probDecrease</span><span class="op">$</span><span class="va">samples</span><span class="op">[</span><span class="fl">1</span>,<span class="fl">1</span>,<span class="op">]</span>, plot <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></code></pre></div>
+<p><img src="vignette_parkinson_files/figure-html/unnamed-chunk-17-1.png" width="700"></p>
 <p><em>(TO BE CONTINUED)</em></p>
 </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>
