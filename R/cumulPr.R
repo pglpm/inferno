@@ -11,6 +11,7 @@
 #' @param nsamples integer or `NULL`: desired number of samples of the variability of the probability for `Y`. Default `100`.
 #' @param parallel logical or integer: whether to use pre-existing parallel
 #'   workers, or how many to create and use. Default `TRUE`.
+#' @param lower.tail logical: calculate P(Y <= y)? (`TRUE`, default) Or P(Y > y)? (`FALSE`).
 #' @param silent logical: give warnings or updates in the computation?
 #'   Default `FALSE`.
 #' @param usememory logical: save partial results to disc, to avoid crashes?
@@ -21,13 +22,14 @@
 #' @import parallel foreach doParallel
 #'
 #' @export
-Pr <- function(
+cPr <- function(
     Y,
     X = NULL,
     learnt,
     quantiles = c(5, 95)/100,
     nsamples = 100L,
     parallel = TRUE,
+    lower.tail = TRUE,
     silent = FALSE,
     usememory = TRUE
 ) {
@@ -221,8 +223,8 @@ Pr <- function(
     YnC <- length(YiC)
     if (YnC > 0 || XnC > 0) {
         learnt$Cvar <- sqrt(learnt$Cvar)
-        Clefts <- auxmetadata[match(vnames, auxmetadata$name), 'tdomainmin']
-        Crights <- auxmetadata[match(vnames, auxmetadata$name), 'tdomainmax']
+        Clefts <- auxmetadata[match(vnames, auxmetadata$name), 'tdomainminplushs']
+        Crights <- auxmetadata[match(vnames, auxmetadata$name), 'tdomainmaxminushs']
     }
 
 #### Type D
@@ -263,10 +265,9 @@ Pr <- function(
     XiN <- XiN[XtN]
     XnN <- length(XiN)
     ##
-    YiN <- match(vnames, Yv)
-    YtN <- which(!is.na(YiN))
-    YiN <- YiN[YtN]
-    YnN <- length(YiN)
+    if(any(Yv %in% vnames)) {
+        stop('It does not make sense to ask for the cumulative probability of a nominal variate.')
+    }
 
 #### Type B
     vnames <- auxmetadata[auxmetadata$mcmctype == 'B', 'name']
@@ -275,11 +276,9 @@ Pr <- function(
     XiB <- XiB[XtB]
     XnB <- length(XiB)
     ##
-    YiB <- match(vnames, Yv)
-    YtB <- which(!is.na(YiB))
-    YiB <- YiB[YtB]
-    YnB <- length(YiB)
-
+    if(any(Yv %in% vnames)) {
+        stop('It does not make sense to ask for the cumulative probability of a two-valued variate.')
+    }
 
 
 #### First calculate and save arrays for X values:
@@ -366,7 +365,7 @@ Pr <- function(
                 if (all(is.na(y))) {
                     lprobY <- array(NA, dim = c(ncomponents, nmcsamples))
                 } else {
-                    lprobY <- util_lprob(
+                    lprobY <- util_lcumprob(
                         x = y,
                         learnt = learnt,
                         nR = YnR, iR = YiR, tR = YtR,
@@ -375,8 +374,9 @@ Pr <- function(
                         nD = YnD, iD = YiD, tD = YtD,
                         Dsteps = Dsteps, Dlefts = Dlefts, Drights = Drights,
                         nO = YnO, iO = YiO, tO = YtO,
-                        nN = YnN, iN = YiN, tN = YtN,
-                        nB = YnB, iB = YiB, tB = YtB
+                        ## nN = YnN, iN = YiN, tN = YtN,
+                        ## nB = YnB, iB = YiB, tB = YtB,
+                        lower.tail = lower.tail
                     )
                 }
 
@@ -405,23 +405,13 @@ Pr <- function(
                 )
             } # End foreach over Y and X
 
-    jacobians <- exp(rowSums(
-        as.matrix(vtransform(Y,
-            auxmetadata = auxmetadata,
-            logjacobianOr = TRUE)),
-        na.rm = TRUE
-    ))
-
-    ## multiply by jacobian factors
-    out$values <- out$values * jacobians
-
     ## transform to grid
     ## in the output-list elements the Y & X values are the rows
     dim(out$values) <- c(nY, nX)
     dimnames(out$values) <- list(Y = NULL, X = NULL)
 
     if(!is.null(quantiles)){
-        out$quantiles <- out$quantiles * jacobians
+        out$quantiles <- out$quantiles
         temp <- names(quantile(1, probs = quantiles, names = TRUE))
         ## transform to grid
         dim(out$quantiles) <- c(nY, nX, length(quantiles))
@@ -430,7 +420,7 @@ Pr <- function(
 
     if(!is.null(nsamples)){
     ## transform to grid
-        out$samples <- out$samples * jacobians
+        out$samples <- out$samples
         dim(out$samples) <- c(nY, nX, nsamples)
         dimnames(out$samples) <- list(Y = NULL, X = NULL, sampleseq)
     }

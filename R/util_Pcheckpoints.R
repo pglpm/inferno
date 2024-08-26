@@ -41,8 +41,8 @@ util_Pcheckpoints <- function(
     YnC <- length(YiC)
     if (YnC > 0) {
         mcsamples$Cvar <- sqrt(mcsamples$Cvar)
-        Clefts <- auxmetadata[match(vnames, auxmetadata$name), 'tleftbound']
-        Crights <- auxmetadata[match(vnames, auxmetadata$name), 'trightbound']
+        Clefts <- auxmetadata[match(vnames, auxmetadata$name), 'tdomainminplushs']
+        Crights <- auxmetadata[match(vnames, auxmetadata$name), 'tdomainmaxminushs']
     }
 
 #### Type D
@@ -55,8 +55,8 @@ util_Pcheckpoints <- function(
         mcsamples$Dvar <- sqrt(mcsamples$Dvar)
         Dsteps <- auxmetadata[match(vnames, auxmetadata$name), 'halfstep'] /
             auxmetadata[match(vnames, auxmetadata$name), 'tscale']
-        Dlefts <- auxmetadata[match(vnames, auxmetadata$name), 'tleftbound']
-        Drights <- auxmetadata[match(vnames, auxmetadata$name), 'trightbound']
+        Dlefts <- auxmetadata[match(vnames, auxmetadata$name), 'tdomainminplushs']
+        Drights <- auxmetadata[match(vnames, auxmetadata$name), 'tdomainmaxminushs']
     }
 
 #### Type O

@@ -234,7 +234,7 @@ plotFsamples <- function(
                 ## }
                 colnames(Xgrid) <- name
 
-                xin <- Xgrid > leftbound & Xgrid < rightbound
+                xin <- Xgrid > domainminplushs & Xgrid < domainmaxminushs
 
                 probabilities <- Pr(Y = Xgrid, X = NULL,
                     learnt = learnt,
@@ -278,15 +278,15 @@ plotFsamples <- function(
                     datum <- data[[name]]
                     datum <- datum[!is.na(datum)]
 
-                    din <- datum > leftbound & datum < rightbound
+                    din <- datum > domainminplushs & datum < domainmaxminushs
                     ## try to guess optimal bin size
                     nh <- max(32, round(length(datum[din]) / 64))
 
                     histo <- thist(datum[din], n = nh, extendbreaks = FALSE)
                     hmax <- max(histo$density)
 
-                    hleft <- sum(datum <= leftbound)/length(datum)
-                    hright <- sum(datum >= rightbound)/length(datum)
+                    hleft <- sum(datum <= domainminplushs)/length(datum)
+                    hright <- sum(datum >= domainmaxminushs)/length(datum)
 
                     if(ymax/hmax < 0.3 | ymax/hmax > 3) {
                         histo$density <- histo$density/max(histo$density) * ymax
@@ -408,8 +408,8 @@ plotFsamples <- function(
                     ## Boundary points
                     if (hleft + hright > 0) {
                         tplot(
-                            x = c(if(hleft > 0){leftbound},
-                                if(hright > 0){rightbound}),
+                            x = c(if(hleft > 0){domainminplushs},
+                                if(hright > 0){domainmaxminushs}),
                             y = c(if(hleft > 0){hleft},
                                 if(hright > 0){hright}) * ymax,
                             type = 'p', pch = 0, cex = 2,

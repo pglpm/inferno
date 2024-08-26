@@ -107,31 +107,31 @@ transf <- function(x, varinfo, Iout='init', Oout='data', Dout='data', Bout='data
         } else if(info$type == 'D'){ # censored
             if (info$transform == 'log'){
                 datum <- log(datum-info$min)
-                rightbound <- log(info$tmax-info$min)
-                leftbound <- log(info$tmin-info$min)
+                domainmaxminushs <- log(info$tmax-info$min)
+                domainminplushs <- log(info$tmin-info$min)
             }else if (info$transform == 'probit'){
                 datum <- qnorm((datum-info$min)/(info$max-info$min))
-                rightbound <- qnorm((info$tmax-info$min)/(info$max-info$min))
-                leftbound <- qnorm((info$tmin-info$min)/(info$max-info$min))
+                domainmaxminushs <- qnorm((info$tmax-info$min)/(info$max-info$min))
+                domainminplushs <- qnorm((info$tmin-info$min)/(info$max-info$min))
             }
             datum <- (datum-info$location)/info$scale
-            rightbound <- (rightbound-info$location)/info$scale
-            leftbound <- (leftbound-info$location)/info$scale
+            domainmaxminushs <- (domainmaxminushs-info$location)/info$scale
+            domainminplushs <- (domainminplushs-info$location)/info$scale
             if(Dout == 'left'){ # in MCMC
                 sel <- is.na(datum) | (x[,v] < info$tmax)
                 datum[sel] <- -Inf
-                datum[!sel] <- rightbound
+                datum[!sel] <- domainmaxminushs
             } else if(Dout == 'right'){ # in MCMC
                 sel <- is.na(datum) | (x[,v] > info$tmin)
                 datum[sel] <- +Inf
-                datum[!sel] <- leftbound
+                datum[!sel] <- domainminplushs
             } else if(Dout == 'data'){ # data in MCMC
                 sel <- is.na(datum) | (x[,v] >= info$tmax) | (x[,v] <= info$tmin)
                 datum[sel] <- NA
             } else if(Dout == 'init'){ #init in MCMC
                 datum[is.na(datum)] <- 0L
-                datum[x[,v] >= info$tmax] <- rightbound + 0.125
-                datum[x[,v] <= info$tmin] <- leftbound - 0.125
+                datum[x[,v] >= info$tmax] <- domainmaxminushs + 0.125
+                datum[x[,v] <= info$tmin] <- domainminplushs - 0.125
             } else if(Dout == 'index'){ #in sampling functions
                 datum[x[,v] >= info$tmax] <- +Inf
                 datum[x[,v] <= info$tmin] <- -Inf
@@ -140,23 +140,23 @@ transf <- function(x, varinfo, Iout='init', Oout='data', Dout='data', Bout='data
         ## } else if(info$type == 'O'){ # one-censored
         ##     if (info$transform == 'log'){
         ##         datum <- log(datum-info$min)
-        ##         rightbound <- log(info$tmax-info$min)
+        ##         domainmaxminushs <- log(info$tmax-info$min)
         ##     }else if (info$transform == 'probit'){
         ##         datum <- qnorm((datum-info$min)/(info$max-info$min))
-        ##         rightbound <- qnorm((info$tmax-info$min)/(info$max-info$min))
+        ##         domainmaxminushs <- qnorm((info$tmax-info$min)/(info$max-info$min))
         ##     }
         ##     datum <- (datum-info$location)/info$scale
-        ##     rightbound <- (rightbound-info$location)/info$scale
+        ##     domainmaxminushs <- (domainmaxminushs-info$location)/info$scale
         ##     if(Oout == 'left'){ # in MCMC
         ##         sel <- is.na(datum) | (x[,v] < info$tmax)
         ##         datum[sel] <- -Inf
-        ##         datum[!sel] <- rightbound
+        ##         datum[!sel] <- domainmaxminushs
         ##     } else if(Oout == 'data'){ # data in MCMC
         ##         sel <- is.na(datum) | (x[,v] >= info$tmax)
         ##         datum[sel] <- NA
         ##     } else if(Oout == 'init'){ #init in MCMC
         ##         datum[is.na(datum)] <- 0L
-        ##         datum[x[,v] >= info$tmax] <- rightbound+0.125
+        ##         datum[x[,v] >= info$tmax] <- domainmaxminushs+0.125
         ##     } else if(Oout == 'index'){ #in sampling functions
         ##         datum[x[,v] >= info$tmax] <- +Inf
         ##     }

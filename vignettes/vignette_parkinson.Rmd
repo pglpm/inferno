@@ -20,33 +20,19 @@ Here is a toy example showing some kinds of results that can be obtained with Ba
 
 The investigations in the cited paper involve 30 subjects, for each of which various data are collected. Fifteen of these subjects belong to a control group, the other 15 to the treatment group, denoted `NR`. This group received a nicotinamide adenine dinucleotide (NAD) replenishment therapy, via oral intake of nicotinamide riboside (NR). In this toy example we do not follow or reproduce the paper's investigations, nor do we use all the variates observed. We limit ourselves to 7 variates for each subject. Here is a list with a brief description of each:
 
-#### Treatment group
+- **Treatment group**: *Binary* variate with values `Placebo` and `NR`.
 
-*Binary* variate with values `Placebo` and `NR`.
+- **Sex**: *Binary* variate with values `Female` and `Male`.
 
-#### Sex
+-**Age**: *Integer* variate, or continuous but *rounded* variate.
 
-*Binary* variate with values `Female` and `Male`.
+- **Anamnestic loss of smell**: *Binary* variate with values `No` and `Yes`.
 
-#### Age
+- **History of REM sleep behaviour disorder**: *Binary* variate with values `No` and `Yes`.
 
-*Integer* variate.
+- **MDS-UPDRS-III score at the first subject visit**: The [MDS-UPDRS-III](https://www.movementdisorders.org/MDS-Files1/PDFs/Rating-Scales/MDS-UPDRS_English_FINAL.pdf) (Movement Disorder Society's Unified Parkinson's Disease Rating Scale) is one of a set of *ordinal* scales to assess a subject's degree of disability and monitor it over time. The scale III ranges from `0` (no disability) to `132` (highest degree of disability). Given that operations such as sum or average are performed on these scales in the literature, the scales should be considered on an *interval* kind rather than simply ordinal.
 
-#### Anamnestic loss of smell
-
-*Binary* variate with values `No` and `Yes`.
-
-#### History of REM sleep behaviour disorder
-
-*Binary* variate with values `No` and `Yes`.
-
-#### MDS-UPDRS-III score at the first subject visit
-
-The [MDS-UPDRS-III](https://www.movementdisorders.org/MDS-Files1/PDFs/Rating-Scales/MDS-UPDRS_English_FINAL.pdf) (Movement Disorder Society's Unified Parkinson's Disease Rating Scale) is one of a set of *ordinal* scales to assess a subject's degree of disability and monitor it over time. The scale III ranges from `0` (no disability) to `132` (highest degree of disability). Given that operations such as sum or average are performed on these scales in the literature, the scales should be considered on an *interval* kind rather than simply ordinal.
-
-#### Difference in MDS-UPDRS-III scores between second and first visit
-
-*Ordinal* variate, the difference of the previous one between the subject's second and first visit. Its range is therefore from `-132` to `+132`, *negative* values representing an *improvement*.
+- **Difference in MDS-UPDRS-III scores between second and first visit**: *Ordinal* variate, the difference of the previous one between the subject's second and first visit. Its range is therefore from `-132` to `+132`, *negative* values representing an *improvement*.
 
 \
 

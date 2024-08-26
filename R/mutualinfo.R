@@ -123,6 +123,7 @@ mutualinfo <- function(
         ncores <- 1
     }
 
+    ## determine if parallel computation is possible and needed
     if (ncores < 2) {
         `%dochains%` <- `%do%`
     } else {
@@ -277,8 +278,8 @@ mutualinfo <- function(
     XnC <- length(XiC)
     if (Y1nC > 0 || Y2nC > 0 || XnC > 0) {
         learnt$Cvar <- sqrt(learnt$Cvar)
-        Clefts <- auxmetadata[match(vnames, auxmetadata$name), 'tleftbound']
-        Crights <- auxmetadata[match(vnames, auxmetadata$name), 'trightbound']
+        Clefts <- auxmetadata[match(vnames, auxmetadata$name), 'tdomainminplushs']
+        Crights <- auxmetadata[match(vnames, auxmetadata$name), 'tdomainmaxminushs']
     }
     ##
     YiC <- match(vnames, Ynames)
@@ -306,8 +307,8 @@ mutualinfo <- function(
         learnt$Dvar <- sqrt(learnt$Dvar)
         Dsteps <- auxmetadata[match(vnames, auxmetadata$name), 'halfstep'] /
             auxmetadata[match(vnames, auxmetadata$name), 'tscale']
-        Dlefts <- auxmetadata[match(vnames, auxmetadata$name), 'tleftbound']
-        Drights <- auxmetadata[match(vnames, auxmetadata$name), 'trightbound']
+        Dlefts <- auxmetadata[match(vnames, auxmetadata$name), 'tdomainminplushs']
+        Drights <- auxmetadata[match(vnames, auxmetadata$name), 'tdomainmaxminushs']
     }
     ##
     YiD <- match(vnames, Ynames)

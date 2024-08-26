@@ -67,40 +67,40 @@ info <- as.list(auxmetadata[name == v])
                 xv <- data.matrix(x[,..v])
                 censmin <- info$censormin
                 censmax <- info$censormax
-                leftbound <- pmax(datum - info$step, info$domainmin, na.rm=T)
-                leftbound[leftbound <= censmin] <- info$domainmin
-                leftbound[leftbound >= censmax] <- censmax
-                rightbound <- pmin(datum + info$step, info$domainmax, na.rm=T)
-                rightbound[rightbound >= censmax] <- info$domainmax
-                rightbound[rightbound <= censmin] <- censmin
+                domainminplushs <- pmax(datum - info$step, info$domainmin, na.rm=T)
+                domainminplushs[domainminplushs <= censmin] <- info$domainmin
+                domainminplushs[domainminplushs >= censmax] <- censmax
+                domainmaxminushs <- pmin(datum + info$step, info$domainmax, na.rm=T)
+                domainmaxminushs[domainmaxminushs >= censmax] <- info$domainmax
+                domainmaxminushs[domainmaxminushs <= censmin] <- censmin
                 if (info$transform == 'log'){
                     datum <- log(datum-info$domainmin)
-                    leftbound <- log(leftbound-info$domainmin)
-                    rightbound <- log(rightbound-info$domainmin)
+                    domainminplushs <- log(domainminplushs-info$domainmin)
+                    domainmaxminushs <- log(domainmaxminushs-info$domainmin)
                     censmin <- log(censmin-info$domainmin)
                     censmax <- log(censmax-info$domainmin)
                 } else if (info$transform == 'logminus'){
                     datum <- log(info$domainmax-datum)
-                    leftbound <- log(info$domainmax-leftbound)
-                    rightbound <- log(info$domainmax-rightbound)
+                    domainminplushs <- log(info$domainmax-domainminplushs)
+                    domainmaxminushs <- log(info$domainmax-domainmaxminushs)
                     censmin <- log(info$domainmax-censmin)
                     censmax <- log(info$domainmax-censmax)
                 } else if (info$transform == 'Q'){
                     datum <- Qf((datum-info$domainmin)/(info$domainmax-info$domainmin))
-                    leftbound <- Qf((leftbound-info$domainmin)/(info$domainmax-info$domainmin))
-                    rightbound <- Qf((rightbound-info$domainmin)/(info$domainmax-info$domainmin))
+                    domainminplushs <- Qf((domainminplushs-info$domainmin)/(info$domainmax-info$domainmin))
+                    domainmaxminushs <- Qf((domainmaxminushs-info$domainmin)/(info$domainmax-info$domainmin))
                     censmin <- Qf((censmin-info$domainmin)/(info$domainmax-info$domainmin))
                     censmax <- Qf((censmax-info$domainmin)/(info$domainmax-info$domainmin))
                 }
                 ## datum <- (datum-info$tlocation)/info$tscale
-                ## rightbound <- (rightbound-info$tlocation)/info$tscale
-                ## leftbound <- (leftbound-info$tlocation)/info$tscale
+                ## domainmaxminushs <- (domainmaxminushs-info$tlocation)/info$tscale
+                ## domainminplushs <- (domainminplushs-info$tlocation)/info$tscale
                 ## censmax <- (censmax-info$tlocation)/info$tscale
                 ## censmin <- (censmin-info$tlocation)/info$tscale
                 if(Dout == 'left'){
-                    datum <- leftbound
+                    datum <- domainminplushs
                 } else if(Dout == 'right'){
-                    datum <- rightbound
+                    datum <- domainmaxminushs
                 } else if(Dout == 'init'){ #init in MCMC
                     datum[is.na(xv)] <- 0L
                     datum[!is.na(xv) & (xv <= info$censormin)] <- censmin - 0.125*info$tscale

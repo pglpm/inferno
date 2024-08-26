@@ -35,12 +35,12 @@ testSFD <- function(
                 tscale <- auxm$tscale
                 probX <- probX + colSums(
                     (
-                        if(thisxo <= auxm$leftbound){
-                            pnorm(q=auxm$tleftbound,
+                        if(thisxo <= auxm$domainminplushs){
+                            pnorm(q=auxm$tdomainminplushs,
                             mean=learnt$Cmean[id,,,drop=F],
                             sd=sqrt(learnt$Cvar[id,,,drop=F]), log.p=T)
-                        } else if(thisxo >= auxm$rightbound){
-                            pnorm(q= -auxm$trightbound,
+                        } else if(thisxo >= auxm$domainmaxminushs){
+                            pnorm(q= -auxm$tdomainmaxminushs,
                             mean= -learnt$Cmean[id,,,drop=F],
                             sd= -sqrt(learnt$Cvar[id,,,drop=F]), log.p=T)
                         } else {
@@ -61,19 +61,19 @@ testSFD <- function(
                 tscale <- auxm$tscale
                 probX <- probX + colSums(
                     (
-                        if(thisxo + hstep <= auxm$leftbound){
-                            pnorm(q=auxm$tleftbound,
+                        if(thisxo + hstep <= auxm$domainminplushs){
+                            pnorm(q=auxm$tdomainminplushs,
                             mean=learnt$Dmean[id,,,drop=F],
                             sd=sqrt(learnt$Dvar[id,,,drop=F]), log.p=T)
-                        } else if(thisxo - hstep >= auxm$rightbound){
-                            pnorm(q= -auxm$trightbound,
+                        } else if(thisxo - hstep >= auxm$domainmaxminushs){
+                            pnorm(q= -auxm$tdomainmaxminushs,
                             mean= -learnt$Dmean[id,,,drop=F],
                             sd= -sqrt(learnt$Dvar[id,,,drop=F]), log.p=T)
-                        } else if(thisxo + hstep >= auxm$rightbound){
+                        } else if(thisxo + hstep >= auxm$domainmaxminushs){
                         pnorm(q= -thisx-hstep/tscale,
                             mean= -learnt$Dmean[id,,,drop=F],
                             sd= -sqrt(learnt$Dvar[id,,,drop=F]), log.p=T)
-                        } else if(thisxo - hstep <= auxm$leftbound){
+                        } else if(thisxo - hstep <= auxm$domainminplushs){
                         pnorm(q=thisx+hstep/tscale,
                             mean=learnt$Dmean[id,,,drop=F],
                             sd=sqrt(learnt$Dvar[id,,,drop=F]), log.p=T)
@@ -151,12 +151,12 @@ testSFD <- function(
                 tscale <- auxm$tscale
                 probY <- probY + colSums(
                     (
-                        if(thisxo <= auxm$leftbound){
-                            pnorm(q=auxm$tleftbound,
+                        if(thisxo <= auxm$domainminplushs){
+                            pnorm(q=auxm$tdomainminplushs,
                             mean=learnt$Cmean[id,,,drop=F],
                             sd=sqrt(learnt$Cvar[id,,,drop=F]), log.p=T)
-                        } else if(thisxo >= auxm$rightbound){
-                            pnorm(q= -auxm$trightbound,
+                        } else if(thisxo >= auxm$domainmaxminushs){
+                            pnorm(q= -auxm$tdomainmaxminushs,
                             mean= -learnt$Cmean[id,,,drop=F],
                             sd= -sqrt(learnt$Cvar[id,,,drop=F]), log.p=T)
                         } else {
@@ -168,8 +168,8 @@ testSFD <- function(
                 )
 
                 ljaco <- ljaco + log(
-                    (if(thisxo <= auxm$leftbound ||
-                        thisxo >= auxm$rightbound) {
+                    (if(thisxo <= auxm$domainminplushs ||
+                        thisxo >= auxm$domainmaxminushs) {
                         1
                     } else {
                     c(as.matrix(vtransform(Y[,i,drop=F], auxmetadata = auxm,
@@ -186,19 +186,19 @@ testSFD <- function(
                 tscale <- auxm$tscale
                 probY <- probY + colSums(
                     (
-                        if(thisxo + hstep <= auxm$leftbound){
-                            pnorm(q=auxm$tleftbound,
+                        if(thisxo + hstep <= auxm$domainminplushs){
+                            pnorm(q=auxm$tdomainminplushs,
                             mean=learnt$Dmean[id,,,drop=F],
                             sd=sqrt(learnt$Dvar[id,,,drop=F]), log.p=T)
-                        } else if(thisxo - hstep >= auxm$rightbound){
-                            pnorm(q= -auxm$trightbound,
+                        } else if(thisxo - hstep >= auxm$domainmaxminushs){
+                            pnorm(q= -auxm$tdomainmaxminushs,
                             mean= -learnt$Dmean[id,,,drop=F],
                             sd= -sqrt(learnt$Dvar[id,,,drop=F]), log.p=T)
-                        } else if(thisxo + hstep >= auxm$rightbound){
+                        } else if(thisxo + hstep >= auxm$domainmaxminushs){
                         pnorm(q= -thisx-hstep/tscale,
                             mean= -learnt$Dmean[id,,,drop=F],
                             sd= -sqrt(learnt$Dvar[id,,,drop=F]), log.p=T)
-                        } else if(thisxo - hstep <= auxm$leftbound){
+                        } else if(thisxo - hstep <= auxm$domainminplushs){
                         pnorm(q=thisx+hstep/tscale,
                             mean=learnt$Dmean[id,,,drop=F],
                             sd=sqrt(learnt$Dvar[id,,,drop=F]), log.p=T)

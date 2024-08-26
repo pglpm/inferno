@@ -2,7 +2,7 @@
 #'
 #' This function calculates the probability P(Y | X, data), where Y and X are two (non overlapping) sets of joint variates. The function also gives quantiles about the possible variability of the probability P(Y | X, newdata, data) that we could have if more learning data were provided, as well as a number of samples of the possible values of such probabilities. If several joint values are given for Y or X, the function will create a 2D grid of results for all possible compbinations of the given Y and X values.
 #'
-#' @param Y matrix or data.table: set of values of variates of which we want
+#' @param Y1names String vector: joint variates
 #'   the joint probability of. One variate per column, one set of values per row.
 #' @param X matrix or data.table or `NULL`: set of values of variates on which we want to condition the joint probability of `Y`. If `NULL` (default), no conditioning is made (except for conditioning on the learning dataset and prior assumptions). One variate per column, one set of values per row.
 #' @param learnt Either a string with the name of a directory or full
@@ -21,8 +21,8 @@
 #' @import parallel foreach doParallel
 #'
 #' @export
-Pr <- function(
-    Y,
+E <- function(
+    Ynames,
     X = NULL,
     learnt,
     quantiles = c(5, 95)/100,
@@ -118,8 +118,8 @@ Pr <- function(
     nmcsamples <- ncol(learnt$W)
 
     ## Consistency checks
-    if (length(dim(Y)) != 2) {
-        stop('Y must have two dimensions')
+    if(!is.character(Ynames) || any(is.na(Ynames))){
+        stop('Ynames must be a vector of variate names')
     }
     if (!is.null(X) && length(dim(X)) != 2) {
         stop('X must be NULL or have two dimensions')
@@ -130,23 +130,22 @@ Pr <- function(
     }
 
     ## More consistency checks
-    Yv <- colnames(Y)
-    if (!all(Yv %in% auxmetadata$name)) {
+    if(!all(Ynames %in% auxmetadata$name)) {
         stop('unknown Y variates\n')
     }
-    if (length(unique(Yv)) != length(Yv)) {
+    if(length(unique(Ynames)) != length(Ynames)) {
         stop('duplicate Y variates\n')
     }
     ##
-    Xv <- colnames(X)
-    if (!all(Xv %in% auxmetadata$name)) {
+    Xnames <- colnames(X)
+    if (!all(Xnames %in% auxmetadata$name)) {
         stop('unknown X variates\n')
     }
-    if (length(unique(Xv)) != length(Xv)) {
+    if (length(unique(Xnames)) != length(Xnames)) {
         stop('duplicate X variates\n')
     }
     ##
-    if (length(intersect(Yv, Xv)) > 0) {
+    if (length(intersect(Ynames, Xnames)) > 0) {
         stop('overlap in Y and X variates\n')
     }
 
@@ -195,12 +194,12 @@ Pr <- function(
 
 #### Type R
     vnames <- auxmetadata[auxmetadata$mcmctype == 'R', 'name']
-    XiR <- match(vnames, Xv)
+    XiR <- match(vnames, Xnames)
     XtR <- which(!is.na(XiR))
     XiR <- XiR[XtR]
     XnR <- length(XiR)
     ##
-    YiR <- match(vnames, Yv)
+    YiR <- match(vnames, Ynames)
     YtR <- which(!is.na(YiR))
     YiR <- YiR[YtR]
     YnR <- length(YiR)
@@ -210,29 +209,29 @@ Pr <- function(
 
 #### Type C
     vnames <- auxmetadata[auxmetadata$mcmctype == 'C', 'name']
-    XiC <- match(vnames, Xv)
+    XiC <- match(vnames, Xnames)
     XtC <- which(!is.na(XiC))
     XiC <- XiC[XtC]
     XnC <- length(XiC)
     ##
-    YiC <- match(vnames, Yv)
+    YiC <- match(vnames, Ynames)
     YtC <- which(!is.na(YiC))
     YiC <- YiC[YtC]
     YnC <- length(YiC)
     if (YnC > 0 || XnC > 0) {
         learnt$Cvar <- sqrt(learnt$Cvar)
-        Clefts <- auxmetadata[match(vnames, auxmetadata$name), 'tdomainmin']
-        Crights <- auxmetadata[match(vnames, auxmetadata$name), 'tdomainmax']
+        Clefts <- auxmetadata[match(vnames, auxmetadata$name), 'tdomainminplushs']
+        Crights <- auxmetadata[match(vnames, auxmetadata$name), 'tdomainmaxminushs']
     }
 
 #### Type D
     vnames <- auxmetadata[auxmetadata$mcmctype == 'D', 'name']
-    XiD <- match(vnames, Xv)
+    XiD <- match(vnames, Xnames)
     XtD <- which(!is.na(XiD))
     XiD <- XiD[XtD]
     XnD <- length(XiD)
     ##
-    YiD <- match(vnames, Yv)
+    YiD <- match(vnames, Ynames)
     YtD <- which(!is.na(YiD))
     YiD <- YiD[YtD]
     YnD <- length(YiD)
@@ -246,36 +245,36 @@ Pr <- function(
 
 #### Type O
     vnames <- auxmetadata[auxmetadata$mcmctype == 'O', 'name']
-    XiO <- match(vnames, Xv)
+    XiO <- match(vnames, Xnames)
     XtO <- which(!is.na(XiO))
     XiO <- XiO[XtO]
     XnO <- length(XiO)
     ##
-    YiO <- match(vnames, Yv)
+    YiO <- match(vnames, Ynames)
     YtO <- which(!is.na(YiO))
     YiO <- YiO[YtO]
     YnO <- length(YiO)
 
 #### Type N
     vnames <- auxmetadata[auxmetadata$mcmctype == 'N', 'name']
-    XiN <- match(vnames, Xv)
+    XiN <- match(vnames, Xnames)
     XtN <- which(!is.na(XiN))
     XiN <- XiN[XtN]
     XnN <- length(XiN)
     ##
-    YiN <- match(vnames, Yv)
+    YiN <- match(vnames, Ynames)
     YtN <- which(!is.na(YiN))
     YiN <- YiN[YtN]
     YnN <- length(YiN)
 
 #### Type B
     vnames <- auxmetadata[auxmetadata$mcmctype == 'B', 'name']
-    XiB <- match(vnames, Xv)
+    XiB <- match(vnames, Xnames)
     XtB <- which(!is.na(XiB))
     XiB <- XiB[XtB]
     XnB <- length(XiB)
     ##
-    YiB <- match(vnames, Yv)
+    YiB <- match(vnames, Ynames)
     YtB <- which(!is.na(YiB))
     YiB <- YiB[YtB]
     YnB <- length(YiB)

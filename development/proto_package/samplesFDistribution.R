@@ -201,8 +201,8 @@ samplesFDistribution <- function(
     YnC <- length(YiC)
     if (YnC > 0 || XnC > 0) {
         learnt$Cvar <- sqrt(learnt$Cvar)
-        Clefts <- auxmetadata[match(vnames, auxmetadata$name), 'tleftbound']
-        Crights <- auxmetadata[match(vnames, auxmetadata$name), 'trightbound']
+        Clefts <- auxmetadata[match(vnames, auxmetadata$name), 'tdomainminplushs']
+        Crights <- auxmetadata[match(vnames, auxmetadata$name), 'tdomainmaxminushs']
     }
 
 #### Type D
@@ -220,8 +220,8 @@ samplesFDistribution <- function(
         learnt$Dvar <- sqrt(learnt$Dvar)
         Dsteps <- auxmetadata[match(vnames, auxmetadata$name), 'halfstep'] /
             auxmetadata[match(vnames, auxmetadata$name), 'tscale']
-        Dlefts <- auxmetadata[match(vnames, auxmetadata$name), 'tleftbound']
-        Drights <- auxmetadata[match(vnames, auxmetadata$name), 'trightbound']
+        Dlefts <- auxmetadata[match(vnames, auxmetadata$name), 'tdomainminplushs']
+        Drights <- auxmetadata[match(vnames, auxmetadata$name), 'tdomainmaxminushs']
     }
 
 #### Type O

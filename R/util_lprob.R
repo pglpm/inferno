@@ -65,9 +65,9 @@ util_lprob <- function(
             }) +
             (if (nD > 0) { # discretized
                 vrights <- pmax(x[iD, ] + Dsteps[tD], Dlefts[tD])
-                vrights[vrights >= Drights[tD]] <- +Inf
+                vrights[vrights - Dsteps[tD] >= Drights[tD]] <- +Inf
                 vlefts <- pmin(x[iD, ] - Dsteps[tD], Drights[tD])
-                vlefts[vlefts <= Dlefts[tD]] <- -Inf
+                vlefts[vlefts + Dsteps[tD] <= Dlefts[tD]] <- -Inf
                 colSums(log(
                     pnorm(
                         q = vrights,
@@ -86,9 +86,9 @@ util_lprob <- function(
             (if (nO > 0) { # nominal
                 colSums(log(
                     aperm(
-                        vapply(seq_len(nO), function(v) {
+                        vapply(X = seq_len(nO), FUN = function(v) {
                             learnt$Oprob[tO[v], , x[iO[v], ], ]
-                        }, learnt$W),
+                        }, FUN.VALUE = learnt$W),
                         c(3, 1, 2))
                 ), na.rm = TRUE)
             } else {
@@ -97,9 +97,9 @@ util_lprob <- function(
             (if (nN > 0) { # nominal
                 colSums(log(
                     aperm(
-                        vapply(seq_len(nN), function(v) {
+                        vapply(X = seq_len(nN), FUN = function(v) {
                             learnt$Nprob[tN[v], , x[iN[v], ], ]
-                        }, learnt$W),
+                        }, FUN.VALUE = learnt$W),
                         c(3, 1, 2))
                 ), na.rm = TRUE)
             } else {

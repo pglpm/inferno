@@ -38,8 +38,8 @@ buildauxmetadata <- function(data, metadata, Dthreshold = 1) {
                     transform = NA, Nvalues = NA, halfstep = NA,
                     domainmin = NA, domainmax = NA,
                     tdomainmin = NA, tdomainmax = NA,
-                    leftbound = NA, rightbound = NA,
-                    tleftbound = NA, trightbound = NA,
+                    domainminplushs = NA, domainmaxminushs = NA,
+                    tdomainminplushs = NA, tdomainmaxminushs = NA,
                     tlocation = NA, tscale = NA,
                     plotmin = NA, plotmax = NA
                 )
@@ -62,10 +62,10 @@ buildauxmetadata <- function(data, metadata, Dthreshold = 1) {
         ndatavalues <- sum(!is.na(datavalues))
         domainmin <- minfo$domainmin
         domainmax <- minfo$domainmax
-        leftbound <- NA
-        tleftbound <- NA
-        rightbound <- NA
-        trightbound <- NA
+        domainminplushs <- NA
+        tdomainminplushs <- NA
+        domainmaxminushs <- NA
+        tdomainmaxminushs <- NA
         Nvalues <- +Inf
         halfstep <- minfo$datastep / 2
         ## Nvalues <- minfo$Nvalues
@@ -193,10 +193,10 @@ buildauxmetadata <- function(data, metadata, Dthreshold = 1) {
                 tdomainmin <-(domainmin - tlocation) / tscale
                 tdomainmax <-(domainmax - tlocation) / tscale
 
-                leftbound <- domainmin + halfstep
-                rightbound <- domainmax - halfstep
-                tleftbound <- (leftbound - tlocation) / tscale
-                trightbound <- (rightbound - tlocation) / tscale
+                domainminplushs <- domainmin + halfstep
+                domainmaxminushs <- domainmax - halfstep
+                tdomainminplushs <- (domainminplushs - tlocation) / tscale
+                tdomainmaxminushs <- (domainmaxminushs - tlocation) / tscale
 
                 if(!is.finite(plotmin)){
                     plotmin <- domainmin
@@ -263,18 +263,18 @@ buildauxmetadata <- function(data, metadata, Dthreshold = 1) {
                 ## For a rounded variate it does not matter whether
                 ## a domain boundary is included or excluded
                 ## hence 'domainmin/max' are ignored
-                leftbound <- domainmin + halfstep
-                rightbound <- domainmax - halfstep
+                domainminplushs <- domainmin + halfstep
+                domainmaxminushs <- domainmax - halfstep
                 ## if(minfo$minincluded){
                 ## } else {
-                ##     leftbound <- domainmin + halfstep * 3
+                ##     domainminplushs <- domainmin + halfstep * 3
                 ## }
                 ## if(minfo$maxincluded){
                 ## } else {
-                ##     rightbound <- domainmin - halfstep * 3
+                ##     domainmaxminushs <- domainmin - halfstep * 3
                 ## }
-                tleftbound <- (leftbound - tlocation) / tscale
-                trightbound <- (rightbound - tlocation) / tscale
+                tdomainminplushs <- (domainminplushs - tlocation) / tscale
+                tdomainmaxminushs <- (domainmaxminushs - tlocation) / tscale
 
             } else {
 ### Non-rounded continuous cases
@@ -453,10 +453,10 @@ buildauxmetadata <- function(data, metadata, Dthreshold = 1) {
                     tdomainmax <- +Inf
                 }
 
-                leftbound <- domainmin
-                rightbound <- domainmax
-                tleftbound <- tdomainmin
-                trightbound <- tdomainmax
+                domainminplushs <- domainmin
+                domainmaxminushs <- domainmax
+                tdomainminplushs <- tdomainmin
+                tdomainmaxminushs <- tdomainmax
             }
             ## end non-rounded case
 
@@ -494,8 +494,10 @@ buildauxmetadata <- function(data, metadata, Dthreshold = 1) {
                     transform = transf, Nvalues = Nvalues, halfstep = halfstep,
                     domainmin = domainmin, domainmax = domainmax,
                     tdomainmin = tdomainmin, tdomainmax = tdomainmax,
-                    leftbound = leftbound, rightbound = rightbound,
-                    tleftbound = tleftbound, trightbound = trightbound,
+                    domainminplushs = domainminplushs,
+                    domainmaxminushs = domainmaxminushs,
+                    tdomainminplushs = tdomainminplushs,
+                    tdomainmaxminushs = tdomainmaxminushs,
                     tlocation = tlocation, tscale = tscale,
                     plotmin = plotmin, plotmax = plotmax
                     ## Q1 = Q1, Q2 = Q2, Q3 = Q3, # not used in other scripts, possibly remove
