@@ -22,7 +22,7 @@
 #' @import parallel foreach doParallel
 #'
 #' @export
-cumPr <- function(
+tailPr <- function(
     Y,
     X = NULL,
     learnt,
@@ -365,7 +365,7 @@ cumPr <- function(
                 if (all(is.na(y))) {
                     lprobY <- array(NA, dim = c(ncomponents, nmcsamples))
                 } else {
-                    lprobY <- util_lcumprob(
+                    lprobY <- util_ltailprob(
                         x = y,
                         learnt = learnt,
                         nR = YnR, iR = YiR, tR = YtR,

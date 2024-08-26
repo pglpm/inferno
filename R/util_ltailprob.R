@@ -6,7 +6,7 @@
 #'
 #' @return Matrix with as many rows as components and as many cols as samples
 #' @keywords internal
-util_lcumprob <- function(
+util_ltailprob <- function(
     x,
     learnt,
     nR, iR, tR,
