@@ -3,7 +3,7 @@
 export(E)
 export(Pr)
 export(buildmetadata)
-export(cPr)
+export(cumPr)
 export(learn)
 export(mutualinfo)
 export(plotFsamples)
