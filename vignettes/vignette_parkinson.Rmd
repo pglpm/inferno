@@ -24,7 +24,7 @@ The investigations in the cited paper involve 30 subjects, for each of which var
 
 - **Sex**: *Binary* variate with values `Female` and `Male`.
 
--**Age**: *Integer* variate, or continuous but *rounded* variate.
+- **Age**: *Integer* variate, or continuous but *rounded* variate.
 
 - **Anamnestic loss of smell**: *Binary* variate with values `No` and `Yes`.
 
@@ -171,7 +171,7 @@ The function for this is `Pr(X, Y, learnt)`, which accepts three arguments:
 
 Let us first ask this for a specific value of the MDS-UPDRS-III difference, let's say `0`:
 ```{r}
-probability <- Pr(
+probability0 <- Pr(
     Y = data.frame(diff.MDS.UPRS.III = 0),
     X = data.frame(Sex = 'Female', TreatmentGroup = 'NR'),
     learnt = learnt
@@ -182,15 +182,38 @@ The output of the `Pr()` function is a list of three objects, of which we discus
 
 - **`value`**: this is the value of the probability we wanted to know. In this case it is
 ```{r}
-probability$value
+probability0$value
 ```
-that is, there is approximately a `r signif(probability$value *100, 1)`% probability that the next treated female patient will have a MDS-UPDRS-III difference of exactly 0.
+that is, there is approximately a `r signif(probability0$value *100, 1)`% probability that the next treated female patient will have a MDS-UPDRS-III difference of exactly 0.
 
 - **`quantiles`**: these two values tell us how much the probability could change, if your knowledge were updated by more clinical trials. They thus quantify the uncertainty of our present probabilistic conclusions. An future, updated probability has a 90% probability of lying between the two quantile values. In this case they are
 ```{r}
-probability$quantiles
+probability0$quantiles
 ```
-that is, if we had many more clinical trials, the probability above could change to a value within around `r signif(probability$quantiles[,,1] * 100, 1)`% and `r signif(probability$quantiles[,,2] * 100, 1)`%.
+that is, if we had many more clinical trials, the probability above could change to a value within around `r signif(probability0$quantiles[,,1] * 100, 1)`% and `r signif(probability0$quantiles[,,2] * 100, 1)`%.
+
+\
+
+We can obviously also ask for the probabilities of all possible values that the MDS-UPDRS-III difference could have in the next treated female patient:
+```{r}
+probabilities <- Pr(
+    Y = data.frame(diff.MDS.UPRS.III = (-30):30),
+    X = data.frame(Sex = 'Female', TreatmentGroup = 'NR'),
+    learnt = learnt
+)
+```
+Each probability thus obtained has two accompanying quantiles and related uncertainty.  Let us plot both:
+```{r fig.dim = c(6, 4), out.width='100%'}
+plotquantiles(x = (-30):30, y = probabilities$quantiles[,1,],
+    ylim = c(0, NA),
+    xlab = 'MDS-UPDRS-III difference', ylab = 'probability')
+tplot(x = (-30):30, y = probabilities$values[,1], add = TRUE)
+```
+Two aspects of this plot are relevant for our investigation:
+
+- There seems to be slightly more probability mass towards negative MDS-UPDRS-III differences -- which means an improvement in the degree of disability. We shall quantify this further in a moment.
+
+- However, it is also clear that further clinical trials could lead to a quite different probability distribution. This is clear from the breadth of the quantile range.
 
 
 
