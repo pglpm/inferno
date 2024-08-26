@@ -8,6 +8,7 @@ reference:
     - buildmetadata
     - learn
     - Pr
+    - cumPr
     - mutualinfo
     - tplot
     - plotquantiles
