@@ -163,7 +163,7 @@ $$
 \text{Sex} = \text{Female}, \text{Treatment group} = \text{NR}, \mathrm{data})
 $$
 
-The function for this is `Pr(X, Y, learnt)`, which accepts three arguments:
+The function for this is `Pr(Y, X, learnt)`, which accepts three arguments:
 
 - `Y`: the variates and values of which we want the probability
 - `X`: the variates and values which are known
@@ -213,7 +213,39 @@ Two aspects of this plot are relevant for our investigation:
 
 - There seems to be slightly more probability mass towards negative MDS-UPDRS-III differences -- which means an improvement in the degree of disability. We shall quantify this further in a moment.
 
-- However, it is also clear that further clinical trials could lead to a quite different probability distribution. This is clear from the breadth of the quantile range.
+- However, it is also clear that further clinical trials could lead to a quite different probability distribution. This is shown by the breadth of the quantile range.
+
+\
+
+Let as therefore ask a more interesting question, which can be a quantitative counterpart of our initial question "Does the NAD-replenishment therapy have an effect on females?". We ask: *will the next treated female patient experience a MDS-UPDRS-III difference equal to $-1$ or less?"*. We therefore want the probability
+$$
+\mathrm{Pr}(\text{MDS-UPDRS-III difference} \le -1 \:\vert\:
+\text{Sex} = \text{Female}, \text{Treatment group} = \text{NR}, \mathrm{data})
+$$
+
+This probability can be calculated with the function `tailPr(Y, X, learnt)`, which is analogous to the `Pr()` function, but calculates the probability of $Y\le y$ rather than of $Y = y$.
+```{r}
+probDecrease<- tailPr(
+    Y = data.frame(diff.MDS.UPRS.III = 0),
+    X = data.frame(Sex = 'Female', TreatmentGroup = 'NR'),
+    learnt = learnt
+)
+```
+
+The answer is that the probability of a decrease in this disability score is
+```{r}
+probDecrease$value
+```
+or approximately `r signif(probDecrease$value * 100, 1)`%; note that it is clearly higher than 50%.
+
+Further clinical trials, however could update this probability to a new value between `r signif(probDecrease$quantiles[1,1,1] * 100, 1)`% and `r signif(probDecrease$quantiles[1,1,2] * 100, 1)`%:
+```{r}
+probDecrease$quantiles[1,1,]
+```
+
+```{r}
+hist(probDecrease$samples[1,1,], plot = TRUE)
+```
 
 
 
