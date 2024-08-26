@@ -1,6 +1,6 @@
-#' Calculate posterior probabilities
+#' Calculate cumulative posterior probabilities
 #'
-#' This function calculates the probability P(Y | X, data), where Y and X are two (non overlapping) sets of joint variates. The function also gives quantiles about the possible variability of the probability P(Y | X, newdata, data) that we could have if more learning data were provided, as well as a number of samples of the possible values of such probabilities. If several joint values are given for Y or X, the function will create a 2D grid of results for all possible compbinations of the given Y and X values.
+#' This function calculates the probability `P(Y <= y | X, data)`, where Y and X are two (non overlapping) sets of joint variates (if the `lower.tail` argument is `FALSE`, then `P(Y > y | X, data)` is calculated). The function also gives quantiles about the possible variability of the probability `P(Y <= y | X, newdata, data)` that we could have if more learning data were provided, as well as a number of samples of the possible values of such probabilities. If several joint values are given for Y or X, the function will create a 2D grid of results for all possible compbinations of the given Y and X values.
 #'
 #' @param Y matrix or data.table: set of values of variates of which we want
 #'   the joint probability of. One variate per column, one set of values per row.
@@ -11,7 +11,7 @@
 #' @param nsamples integer or `NULL`: desired number of samples of the variability of the probability for `Y`. Default `100`.
 #' @param parallel logical or integer: whether to use pre-existing parallel
 #'   workers, or how many to create and use. Default `TRUE`.
-#' @param lower.tail logical: calculate P(Y <= y)? (`TRUE`, default) Or P(Y > y)? (`FALSE`).
+#' @param lower.tail logical: calculate `P(Y <= y)`? (`TRUE`, default) Or `P(Y > y)`? (`FALSE`).
 #' @param silent logical: give warnings or updates in the computation?
 #'   Default `FALSE`.
 #' @param usememory logical: save partial results to disc, to avoid crashes?
@@ -22,7 +22,7 @@
 #' @import parallel foreach doParallel
 #'
 #' @export
-cPr <- function(
+cumPr <- function(
     Y,
     X = NULL,
     learnt,
