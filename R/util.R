@@ -53,7 +53,7 @@ checkParallel <- function(parallel, silent) {
                 foreach::registerDoSEQ()
                 parallel::stopCluster(cl)
                 env <- foreach:::.foreachGlobals
-                rm(list=ls(name=env), pos=env)
+                rm(list = ls(name = env), pos = env)
             }
             on.exit(closecoresonexit())
         }
