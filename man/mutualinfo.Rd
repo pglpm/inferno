@@ -12,7 +12,7 @@ mutualinfo(
   nsamples = 3600,
   unit = "Sh",
   parallel = TRUE,
-  silent = FALSE
+  silent = TRUE
 )
 }
 \arguments{

@@ -30,7 +30,7 @@ tailPr <- function(
     nsamples = 100L,
     parallel = TRUE,
     lower.tail = TRUE,
-    silent = FALSE,
+    silent = TRUE,
     usememory = TRUE
 ) {
     if (!silent) {

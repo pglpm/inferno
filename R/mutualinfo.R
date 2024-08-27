@@ -24,7 +24,7 @@ mutualinfo <- function(
     nsamples = 3600,
     unit = 'Sh',
     parallel = TRUE,
-    silent = FALSE
+    silent = TRUE
 ){
 
 #### Mutual information and conditional entropy between Y2 and Y1

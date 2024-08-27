@@ -221,8 +221,8 @@ Two aspects of this plot are relevant for our investigation:
 
 Let as therefore ask a more interesting question, which can be a quantitative counterpart of our initial question "Does the NAD-replenishment therapy have an effect on females?". We ask: *will the next treated female patient experience a MDS-UPDRS-III difference equal to $-1$ or less?"*. We therefore want the probability
 $$
-\mathrm{Pr}(\text{MDS-UPDRS-III difference} \le -1 \:\vert\:
-\text{Sex} = \text{Female}, \text{Treatment group} = \text{NR}, \mathrm{data})
+\mathrm{Pr}(\text{MDS-UPDRS-III diff.} \le -1 \:\vert\:
+\text{Sex} = \text{Female}, \text{Treatment} = \text{NR}, \mathrm{data})
 $$
 
 This probability can be calculated with the function `tailPr(Y, X, learnt)`, which is analogous to the `Pr()` function, but calculates the probability of $Y\le y$ rather than of $Y = y$.
@@ -277,7 +277,8 @@ tplot(x = (-30):30, y = probabilities$values[,1], col = 1, add = TRUE)
 tplot(x = (-30):30, y = probabilitiesPlacebo$values[,1],
     col = 2, lty = 2, add = TRUE)
 
-legend('topright', legend = c('NR', 'Placebo'), bty='n', lty=1:2, col=1:2)
+legend('topright', legend = c('NR, Female', 'Placebo, Female'),
+    bty = 'n', lty = 1:2, col = 1:2)
 ```
 
 There does not seem to be any difference that stands out between the treated and non-treated case.
@@ -306,9 +307,64 @@ Some preliminary conclusions and possible questions for future research:
 
 - There does not seem to be a difference between treated and non-treated female patients, regarding MDS-UPDRS-III decrease.
 
-- However, there *is* a slightly likely decrease for both. What could this decrease be correlated with?
+- However, there *is* a slightly likely decrease for both. **What could this decrease be correlated with?**
 
 
+
+## Third example: considering age
+
+Our results so far indicate practically no difference in the probabilities of MDS-UPDRS-III decrease of a treated vs a non-treated female patient. These probabilities, however, disregard the patient's age. Is it possible that there are larger differences in different age groups?
+
+We can answer this question by calculating the probabilities conditional on any particular `Age` value, that is,
+$$
+\mathrm{Pr}(\text{MDS-UPDRS-III diff.} \le -1 \:\vert\:
+\text{Sex} = \text{Female}, \text{Treatment} = \text{NR}, 
+\text{Age} = a, \mathrm{data})
+$$
+for meaningful values $a$ of the age, let's say between 25 and 80. Again we can find them with the function `tailPr()`. This time our conditioning argument `X` will include a grid of `Age` values. First we do the calculation for a treated female patient, then for a non-treated one:
+
+```{r}
+probDecreaseAge <- tailPr(
+    Y = data.frame(diff.MDS.UPRS.III = -1),
+    X = data.frame(Sex = 'Female', Age = 25:80, TreatmentGroup = 'NR'),
+    learnt = learnt
+)
+
+probDecreaseAgePlacebo <- tailPr(
+    Y = data.frame(diff.MDS.UPRS.III = -1),
+    X = data.frame(Sex = 'Female', Age = 25:80, TreatmentGroup = 'Placebo'),
+    learnt = learnt
+)
+```
+
+We can plot the probabilities of an MDS-UPDRS-III decrease against that patient's age, with one plot for each treatment group:
+```{r fig.dim = c(6, 4), out.width='100%'}
+plotquantiles(x = 25:80, y = probDecreaseAge$quantiles[1,,],
+    ylim = c(0, NA),
+    xlab = 'age', ylab = 'probability of MDS-UPDRS-III decr.', col = 1)
+
+plotquantiles(x = 25:80, y = probDecreaseAgePlacebo$quantiles[1,,],
+    col = 2, add = TRUE)
+
+tplot(x = 25:80, y = probDecreaseAge$values[1,], col = 1, add = TRUE)
+
+tplot(x = 25:80, y = probDecreaseAgePlacebo$values[1,],
+    col = 2, lty = 2, add = TRUE)
+
+## add 50% line
+abline(h = 0.5, lwd = 1, col = 'yellow')
+
+legend('topright', legend = c('NR, Female', 'Placebo, Female'),
+    bty = 'n', lty = 1:2, col = 1:2)
+```
+
+This plot shows some interesting aspects:
+
+- There does not seem to be a large difference, between treated and non-treated females, in the probability of a MDS-UPDRS-III decrease.
+
+- In the 60--65 age group, an *increase* in MDS-UPDRS-III is more likely than a decrease, for both a treated and a non-treated female patient. **What could be the reason for the increase in this narrow age group?**
+
+Again notice that these probabilities could be updated to very different values, if more clinical trials were available.
 
 
 *(TO BE CONTINUED)*

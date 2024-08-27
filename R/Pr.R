@@ -28,7 +28,7 @@ Pr <- function(
     quantiles = c(5, 95)/100,
     nsamples = 100L,
     parallel = TRUE,
-    silent = FALSE,
+    silent = TRUE,
     usememory = TRUE
 ) {
     if (!silent) {
