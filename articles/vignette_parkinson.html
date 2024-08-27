@@ -480,6 +480,9 @@ testing hypotheses, and similar scientific investigations. From the
 observed data, the software allows us to find the probability of any
 question or hypothesis of interest. It is important, though, that the
 hypothesis be stated in an unambiguous, quantitative form.</p>
+<div class="section level3">
+<h3 id="first-example-effect-on-treated-patient-of-female-sex">First example: effect on treated patient of female sex<a class="anchor" aria-label="anchor" href="#first-example-effect-on-treated-patient-of-female-sex"></a>
+</h3>
 <p>For example, we might want to ask: “Does the NAD-replenishment
 therapy have an effect on females?”. At first this may sound like a
 valid scientific hypothesis. But if we carefully examine the statement
@@ -544,7 +547,7 @@ probability we wanted to know. In this case it is</li>
 <span><span class="co">#&gt;       X</span></span>
 <span><span class="co">#&gt; Y            [,1]</span></span>
 <span><span class="co">#&gt;   [1,] 0.06420201</span></span></code></pre></div>
-<p>that is, there is approximately a 6% probability that the next
+<p>that is, there is approximately a 6.4% probability that the next
 treated female patient will have a MDS-UPDRS-III difference of exactly
 0.</p>
 <ul>
@@ -570,7 +573,7 @@ are</li>
 <span><span class="co">#&gt; Y           [,1]</span></span>
 <span><span class="co">#&gt;   [1,] 0.1139172</span></span></code></pre></div>
 <p>that is, if we had many more clinical trials, the probability above
-could change to a value within around 3% and 10%.</p>
+could change to a value within around 2.8% and 11%.</p>
 <p><br></p>
 <p>We can obviously also ask for the probabilities of all possible
 values that the MDS-UPDRS-III difference could have in the next treated
@@ -619,7 +622,7 @@ or less?“</em>. We therefore want the probability
 rather than of
 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>Y</mi><mo>=</mo><mi>y</mi></mrow><annotation encoding="application/x-tex">Y = y</annotation></semantics></math>.</p>
 <div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">probDecrease</span><span class="op">&lt;-</span> <span class="fu"><a href="../reference/tailPr.html">tailPr</a></span><span class="op">(</span></span>
+<code class="sourceCode R"><span><span class="va">probDecrease</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/tailPr.html">tailPr</a></span><span class="op">(</span></span>
 <span>    Y <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span>diff.MDS.UPRS.III <span class="op">=</span> <span class="fl">0</span><span class="op">)</span>,</span>
 <span>    X <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span>Sex <span class="op">=</span> <span class="st">'Female'</span>, TreatmentGroup <span class="op">=</span> <span class="st">'NR'</span><span class="op">)</span>,</span>
 <span>    learnt <span class="op">=</span> <span class="va">learnt</span></span>
@@ -633,17 +636,52 @@ score is</p>
 <span><span class="co">#&gt;       X</span></span>
 <span><span class="co">#&gt; Y           [,1]</span></span>
 <span><span class="co">#&gt;   [1,] 0.6139707</span></span></code></pre></div>
-<p>or approximately 60%; note that it is clearly higher than 50%.</p>
+<p>or approximately 61%; note that it is clearly higher than 50%.</p>
 <p>Further clinical trials, however could update this probability to a
-new value between 40% and 80%:</p>
+new value between 40% and 81%:</p>
 <div class="sourceCode" id="cb13"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">probDecrease</span><span class="op">$</span><span class="va">quantiles</span><span class="op">[</span><span class="fl">1</span>,<span class="fl">1</span>,<span class="op">]</span></span>
 <span><span class="co">#&gt;        5%       95% </span></span>
 <span><span class="co">#&gt; 0.3999601 0.8052588</span></span></code></pre></div>
+</div>
+<div class="section level3">
+<h3 id="second-example-comparison-with-non-treated-patient-of-female-sex">Second example: comparison with non-treated patient of female
+sex<a class="anchor" aria-label="anchor" href="#second-example-comparison-with-non-treated-patient-of-female-sex"></a>
+</h3>
+<p>In the previous example we found that there is a 61% probability that
+a treated female patient will experience a decrease in MDS-UPDRS-III
+after the therapy. But can this decrease really be correlated with the
+therapy?</p>
+<p>To preliminarily answer this question, we can find the analogous
+probability for a female patient that has not received the treatment.
+Again we use <code><a href="../reference/tailPr.html">tailPr()</a></code>, but our <code>X</code> argument will
+specify a <code>Placebo</code> value for the Treatment group:</p>
 <div class="sourceCode" id="cb14"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/graphics/hist.html" class="external-link">hist</a></span><span class="op">(</span><span class="va">probDecrease</span><span class="op">$</span><span class="va">samples</span><span class="op">[</span><span class="fl">1</span>,<span class="fl">1</span>,<span class="op">]</span>, plot <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></code></pre></div>
-<p><img src="vignette_parkinson_files/figure-html/unnamed-chunk-17-1.png" width="700"></p>
+<code class="sourceCode R"><span><span class="va">probDecreasePlacebo</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/tailPr.html">tailPr</a></span><span class="op">(</span></span>
+<span>    Y <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span>diff.MDS.UPRS.III <span class="op">=</span> <span class="fl">0</span><span class="op">)</span>,</span>
+<span>    X <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span>Sex <span class="op">=</span> <span class="st">'Female'</span>, TreatmentGroup <span class="op">=</span> <span class="st">'Placebo'</span><span class="op">)</span>,</span>
+<span>    learnt <span class="op">=</span> <span class="va">learnt</span></span>
+<span><span class="op">)</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; No parallel backend registered.</span></span>
+<span><span class="va">probDecreasePlacebo</span><span class="op">$</span><span class="va">value</span></span>
+<span><span class="co">#&gt;       X</span></span>
+<span><span class="co">#&gt; Y           [,1]</span></span>
+<span><span class="co">#&gt;   [1,] 0.6016209</span></span>
+<span><span class="va">probDecreasePlacebo</span><span class="op">$</span><span class="va">quantiles</span></span>
+<span><span class="co">#&gt; , ,  = 5%</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt;       X</span></span>
+<span><span class="co">#&gt; Y          [,1]</span></span>
+<span><span class="co">#&gt;   [1,] 0.378633</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; , ,  = 95%</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt;       X</span></span>
+<span><span class="co">#&gt; Y           [,1]</span></span>
+<span><span class="co">#&gt;   [1,] 0.7995431</span></span></code></pre></div>
 <p><em>(TO BE CONTINUED)</em></p>
+</div>
 </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>
     </nav></aside>
