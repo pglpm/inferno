@@ -208,8 +208,8 @@ Each probability thus obtained has two accompanying quantiles and related uncert
 ```{r fig.dim = c(6, 4), out.width='100%'}
 plotquantiles(x = (-30):30, y = probabilities$quantiles[,1,],
     ylim = c(0, NA),
-    xlab = 'MDS-UPDRS-III difference', ylab = 'probability')
-tplot(x = (-30):30, y = probabilities$values[,1], add = TRUE)
+    xlab = 'MDS-UPDRS-III difference', ylab = 'probability', col = 1)
+tplot(x = (-30):30, y = probabilities$values[,1], col = 1, add = TRUE)
 ```
 Two aspects of this plot are relevant for our investigation:
 
@@ -228,7 +228,7 @@ $$
 This probability can be calculated with the function `tailPr(Y, X, learnt)`, which is analogous to the `Pr()` function, but calculates the probability of $Y\le y$ rather than of $Y = y$.
 ```{r}
 probDecrease <- tailPr(
-    Y = data.frame(diff.MDS.UPRS.III = 0),
+    Y = data.frame(diff.MDS.UPRS.III = -1),
     X = data.frame(Sex = 'Female', TreatmentGroup = 'NR'),
     learnt = learnt
 )
@@ -254,16 +254,61 @@ probDecrease$quantiles[1,1,]
 
 In the previous example we found that there is a `r probFNR`% probability that a treated female patient will experience a decrease in MDS-UPDRS-III after the therapy. But can this decrease really be correlated with the therapy?
 
-To preliminarily answer this question, we can find the analogous probability for a female patient that has not received the treatment. Again we use `tailPr()`, but our `X` argument will specify a `Placebo` value for the Treatment group:
+To preliminarily answer this question, we can find the analogous probabilities for a female patient that has not received the treatment. Again we use `Pr()`, but our `X` argument will specify a `Placebo` value for the Treatment group:
 ```{r}
-probDecreasePlacebo <- tailPr(
-    Y = data.frame(diff.MDS.UPRS.III = 0),
+probabilitiesPlacebo <- Pr(
+    Y = data.frame(diff.MDS.UPRS.III = (-30):30),
     X = data.frame(Sex = 'Female', TreatmentGroup = 'Placebo'),
     learnt = learnt
 )
-probDecreasePlacebo$value
-probDecreasePlacebo$quantiles
 ```
+
+Let's plot these probabilities, together with their variability, on top of the ones previously obtained for the treated case:
+```{r fig.dim = c(6, 4), out.width='100%'}
+plotquantiles(x = (-30):30, y = probabilities$quantiles[,1,],
+    ylim = c(0, NA),
+    xlab = 'MDS-UPDRS-III difference', ylab = 'probability', col = 1)
+
+plotquantiles(x = (-30):30, y = probabilitiesPlacebo$quantiles[,1,],
+    col = 2, add = TRUE)
+
+tplot(x = (-30):30, y = probabilities$values[,1], col = 1, add = TRUE)
+
+tplot(x = (-30):30, y = probabilitiesPlacebo$values[,1],
+    col = 2, lty = 2, add = TRUE)
+
+legend('topright', legend = c('NR', 'Placebo'), bty='n', lty=1:2, col=1:2)
+```
+
+There does not seem to be any difference that stands out between the treated and non-treated case.
+
+As before, we can calculate the probability of a decrease in MDS-UPDRS-III:
+```{r}
+probDecreasePlacebo <- tailPr(
+    Y = data.frame(diff.MDS.UPRS.III = -1),
+    X = data.frame(Sex = 'Female', TreatmentGroup = 'Placebo'),
+    learnt = learnt
+)
+```
+
+We find that the probability of a decrease in the disability score for a non-treated female patient is
+```{r}
+probDecreasePlacebo$value
+```
+or approximately `r signif(probDecreasePlacebo$value * 100, 2)`%. Further clinical trials, however could update this probability to a value between `r signif(probDecreasePlacebo$quantiles[1,1,1] * 100, 2)`% and `r signif(probDecreasePlacebo$quantiles[1,1,2] * 100, 2)`%:
+```{r}
+probDecreasePlacebo$quantiles[1,1,]
+```
+
+Therefore we see a similarly probable decrease in a non-treated as well as a non-treated female patient. There is a very small difference in these two probabilities, in favour of the treated case; but this difference is too small compared with how the probabilities could change if more trials were available.
+
+Some preliminary conclusions and possible questions for future research:
+
+- There does not seem to be a difference between treated and non-treated female patients, regarding MDS-UPDRS-III decrease.
+
+- However, there *is* a slightly likely decrease for both. What could this decrease be correlated with?
+
+
 
 
 *(TO BE CONTINUED)*
