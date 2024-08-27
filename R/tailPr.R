@@ -38,7 +38,12 @@ tailPr <- function(
     }
 
 #### Determine the status of parallel processing
-    ncores <- checkParallel(parallel, silent)
+    workers <- checkParallel(parallel, silent)
+    ncores <- workers$ncores
+    
+    if (!is.logical(workers$cluster)) {
+        on.exit(closecoresonexit(workers$cluster, silent))
+    }
 
     ## Extract Monte Carlo output & auxmetadata
     ## If learnt is a string, check if it's a folder name or file name

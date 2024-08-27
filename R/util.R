@@ -8,6 +8,8 @@
 #' @return number of cores
 checkParallel <- function(parallel, silent) {
 
+    cluster <- FALSE
+
     if (is.logical(parallel) && parallel) {
         if (foreach::getDoParRegistered()) {
             if (!silent) {
@@ -37,25 +39,15 @@ checkParallel <- function(parallel, silent) {
             ## ## Alternative way to register cores;
             ## ## might need to be used for portability to Windows?
             ## registerDoSEQ()
-            ## cl <- makePSOCKcluster(ncores)
+            ## cluster <- makePSOCKcluster(ncores)
             ## ##
-            cl <- parallel::makeCluster(parallel)
-            doParallel::registerDoParallel(cl)
+            cluster <- parallel::makeCluster(parallel)
+            doParallel::registerDoParallel(cluster)
             if (!silent) {
                 cat('Registered', foreach::getDoParName(),
                     'with', foreach::getDoParWorkers(), 'workers\n')
             }
             ncores <- parallel
-            closecoresonexit <- function(){
-                if(!silent) {
-                    cat('\nClosing connections to cores.\n')
-                }
-                foreach::registerDoSEQ()
-                parallel::stopCluster(cl)
-                env <- foreach:::.foreachGlobals
-                rm(list = ls(name = env), pos = env)
-            }
-            on.exit(closecoresonexit())
         }
     } else {
         if (!silent) {
@@ -63,5 +55,16 @@ checkParallel <- function(parallel, silent) {
         }
         ncores <- 1
     }
-    return(ncores)
+    workers <- list("ncores" = ncores, "cluster" = cluster)
+    return(workers)
+}
+
+closecoresonexit <- function(cluster, silent) {
+    if(!silent) {
+        cat('\nClosing connections to cores.\n')
+    }
+    foreach::registerDoSEQ()
+    parallel::stopCluster(cluster)
+    env <- foreach:::.foreachGlobals
+    rm(list = ls(name = env), pos = env)
 }
