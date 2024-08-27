@@ -123,10 +123,10 @@ learnt <- learn(
 #> Using 30 datapoints
 #> Calculating auxiliary metadata
 #>
-#> ************************** 
+#> **************************
 #> Saving output in directory
 #> parkinson_computations
-#> ************************** 
+#> **************************
 #> Starting Monte Carlo sampling of 3600 samples by 60 chains
 #> in a space of 703 (effectively 6657) dimensions.
 #> Using 12 cores: 60 samples per chain, 5 chains per core.
@@ -259,6 +259,7 @@ probDecrease$quantiles[1,1,]
 In the previous example we found that there is a `r probFNR`% probability that a treated female patient will experience a decrease in MDS-UPDRS-III after the therapy. But can this decrease really be correlated with the therapy?
 
 To preliminarily answer this question, we can find the analogous probabilities for a female patient that has not received the treatment. Again we use `Pr()`, but our `X` argument will specify a `Placebo` value for the Treatment group:
+
 ```{r}
 probabilitiesPlacebo <- Pr(
     Y = data.frame(diff.MDS.UPRS.III = (-30):30),
@@ -318,14 +319,14 @@ Some preliminary conclusions and possible questions for future research:
 
 
 
-## Third example: considering age
+### Third example: considering age
 
 Our results so far indicate practically no difference in the probabilities of MDS-UPDRS-III decrease of a treated vs a non-treated female patient. These probabilities, however, disregard the patient's age. Is it possible that there are larger differences in different age groups?
 
 We can answer this question by calculating the probabilities conditional on any particular `Age` value, that is,
 $$
 \mathrm{Pr}(\text{MDS-UPDRS-III diff.} \le -1 \:\vert\:
-\text{Sex} = \text{Female}, \text{Treatment} = \text{NR}, 
+\text{Sex} = \text{Female}, \text{Treatment} = \text{NR},
 \text{Age} = a, \mathrm{data})
 $$
 for meaningful values $a$ of the age, let's say between 25 and 80. Again we can find them with the function `tailPr()`. This time our conditioning argument `X` will include a grid of `Age` values. First we do the calculation for a treated female patient, then for a non-treated one:
@@ -372,6 +373,95 @@ This plot shows some interesting aspects:
 - In the 60--65 age group, an *increase* in MDS-UPDRS-III is more likely than a decrease, for both a treated and a non-treated female patient. **What could be the reason for the increase in this narrow age group?**
 
 Again notice that these probabilities could be updated to very different values, if more clinical trials were available.
+
+
+### Fourth example: male patient
+
+We can perform an analysis analogous to the previous examples, but for a male patient. Here are the corresponding function calls and plots.
+
+```{r fig.dim = c(6, 4), out.width='100%'}
+probabilitiesMale <- Pr(
+    Y = data.frame(diff.MDS.UPRS.III = (-30):30),
+    X = data.frame(Sex = 'Male', TreatmentGroup = c('NR', 'Placebo')),
+    learnt = learnt
+)
+
+plotquantiles(x = (-30):30, y = probabilitiesMale$quantiles[,1,],
+    ylim = c(0, NA),
+    xlab = 'MDS-UPDRS-III difference', ylab = 'probability', col = 5)
+
+plotquantiles(x = (-30):30, y = probabilitiesMale$quantiles[,2,],
+    col = 6, add = TRUE)
+
+tplot(x = (-30):30, y = probabilitiesMale$values[,1], col = 5, add = TRUE)
+
+tplot(x = (-30):30, y = probabilitiesMale$values[,2],
+    col = 6, lty = 2, add = TRUE)
+
+## add 0-change line
+abline(v = 0, lwd = 1, col = 'yellow')
+
+legend('topright', legend = c('NR, Male', 'Placebo, Male'),
+    bty = 'n', lty = 1:2, col = 5:6)
+```
+
+
+And considering all ages separately:
+
+```{r fig.dim = c(6, 4), out.width='100%'}
+probMaleDecreaseAge <- tailPr(
+    Y = data.frame(diff.MDS.UPRS.III = -1),
+    X = data.frame(Sex = 'Male', Age = 25:80, TreatmentGroup = 'NR'),
+    learnt = learnt
+)
+
+probMaleDecreaseAgePlacebo <- tailPr(
+    Y = data.frame(diff.MDS.UPRS.III = -1),
+    X = data.frame(Sex = 'Male', Age = 25:80, TreatmentGroup = 'Placebo'),
+    learnt = learnt
+)
+
+
+plotquantiles(x = 25:80, y = probMaleDecreaseAge$quantiles[1,,],
+    ylim = c(0, NA),
+    xlab = 'age', ylab = 'probability of MDS-UPDRS-III decr.', col = 5)
+
+plotquantiles(x = 25:80, y = probMaleDecreaseAgePlacebo$quantiles[1,,],
+    col = 6, add = TRUE)
+
+tplot(x = 25:80, y = probMaleDecreaseAge$values[1,], col = 5, add = TRUE)
+
+tplot(x = 25:80, y = probMaleDecreaseAgePlacebo$values[1,],
+    col = 6, lty = 2, add = TRUE)
+
+## add 50%-probability line
+abline(h = 0.5, lwd = 1, col = 'yellow')
+
+legend('topright', legend = c('NR, Male', 'Placebo, Male'),
+    bty = 'n', lty = 1:2, col = 5:6)
+```
+
+Finally let's compare treated female vs male patients, per age:
+
+```{r fig.dim = c(6, 4), out.width='100%'}
+plotquantiles(x = 25:80, y = probDecreaseAge$quantiles[1,,],
+    ylim = c(0, NA),
+    xlab = 'age', ylab = 'probability of MDS-UPDRS-III decr.', col = 1)
+
+plotquantiles(x = 25:80, y = probMaleDecreaseAge$quantiles[1,,],
+    col = 5, add = TRUE)
+
+tplot(x = 25:80, y = probDecreaseAge$values[1,], col = 1, add = TRUE)
+
+tplot(x = 25:80, y = probMaleDecreaseAge$values[1,],
+    col = 5, lty = 2, add = TRUE)
+
+## add 50%-probability line
+abline(h = 0.5, lwd = 1, col = 'yellow')
+
+legend('topright', legend = c('NR, Female', 'NR, Male'),
+    bty = 'n', lty = 1:2, col = c(1, 5))
+```
 
 
 *(TO BE CONTINUED)*
