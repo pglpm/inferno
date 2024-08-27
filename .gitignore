@@ -30,3 +30,4 @@ fontconfig/
 docs/
 !_pkgdown.yml
 inst/doc
+.lintr
