@@ -209,7 +209,11 @@ Each probability thus obtained has two accompanying quantiles and related uncert
 plotquantiles(x = (-30):30, y = probabilities$quantiles[,1,],
     ylim = c(0, NA),
     xlab = 'MDS-UPDRS-III difference', ylab = 'probability', col = 1)
+
 tplot(x = (-30):30, y = probabilities$values[,1], col = 1, add = TRUE)
+
+## add 0-change line
+abline(v = 0, lwd = 1, col = 'yellow')
 ```
 Two aspects of this plot are relevant for our investigation:
 
@@ -276,6 +280,9 @@ tplot(x = (-30):30, y = probabilities$values[,1], col = 1, add = TRUE)
 
 tplot(x = (-30):30, y = probabilitiesPlacebo$values[,1],
     col = 2, lty = 2, add = TRUE)
+
+## add 0-change line
+abline(v = 0, lwd = 1, col = 'yellow')
 
 legend('topright', legend = c('NR, Female', 'Placebo, Female'),
     bty = 'n', lty = 1:2, col = 1:2)
@@ -351,7 +358,7 @@ tplot(x = 25:80, y = probDecreaseAge$values[1,], col = 1, add = TRUE)
 tplot(x = 25:80, y = probDecreaseAgePlacebo$values[1,],
     col = 2, lty = 2, add = TRUE)
 
-## add 50% line
+## add 50%-probability line
 abline(h = 0.5, lwd = 1, col = 'yellow')
 
 legend('topright', legend = c('NR, Female', 'Placebo, Female'),
