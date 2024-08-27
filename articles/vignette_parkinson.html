@@ -453,10 +453,10 @@ how the computation is proceeding. As an example:</p>
 <span><span class="co">#&gt; Using 30 datapoints</span></span>
 <span><span class="co">#&gt; Calculating auxiliary metadata</span></span>
 <span><span class="co">#&gt;</span></span>
-<span><span class="co">#&gt; ************************** </span></span>
+<span><span class="co">#&gt; **************************</span></span>
 <span><span class="co">#&gt; Saving output in directory</span></span>
 <span><span class="co">#&gt; parkinson_computations</span></span>
-<span><span class="co">#&gt; ************************** </span></span>
+<span><span class="co">#&gt; **************************</span></span>
 <span><span class="co">#&gt; Starting Monte Carlo sampling of 3600 samples by 60 chains</span></span>
 <span><span class="co">#&gt; in a space of 703 (effectively 6657) dimensions.</span></span>
 <span><span class="co">#&gt; Using 12 cores: 60 samples per chain, 5 chains per core.</span></span>
@@ -718,10 +718,9 @@ non-treated female patients, regarding MDS-UPDRS-III decrease.</p></li>
 <strong>What could this decrease be correlated with?</strong></p></li>
 </ul>
 </div>
-</div>
-<div class="section level2">
-<h2 id="third-example-considering-age">Third example: considering age<a class="anchor" aria-label="anchor" href="#third-example-considering-age"></a>
-</h2>
+<div class="section level3">
+<h3 id="third-example-considering-age">Third example: considering age<a class="anchor" aria-label="anchor" href="#third-example-considering-age"></a>
+</h3>
 <p>Our results so far indicate practically no difference in the
 probabilities of MDS-UPDRS-III decrease of a treated vs a non-treated
 female patient. These probabilities, however, disregard the patient’s
@@ -731,7 +730,7 @@ groups?</p>
 conditional on any particular <code>Age</code> value, that is,
 <math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mrow><mi mathvariant="normal">P</mi><mi mathvariant="normal">r</mi></mrow><mrow><mo stretchy="true" form="prefix">(</mo><mtext mathvariant="normal">MDS-UPDRS-III diff.</mtext><mo>≤</mo><mo>−</mo><mn>1</mn><mspace width="0.222em"></mspace><mo stretchy="false" form="postfix">|</mo><mspace width="0.222em"></mspace><mtext mathvariant="normal">Sex</mtext><mo>=</mo><mtext mathvariant="normal">Female</mtext><mo>,</mo><mtext mathvariant="normal">Treatment</mtext><mo>=</mo><mtext mathvariant="normal">NR</mtext><mo>,</mo><mtext mathvariant="normal">Age</mtext><mo>=</mo><mi>a</mi><mo>,</mo><mrow><mi mathvariant="normal">d</mi><mi mathvariant="normal">a</mi><mi mathvariant="normal">t</mi><mi mathvariant="normal">a</mi></mrow><mo stretchy="true" form="postfix">)</mo></mrow></mrow><annotation encoding="application/x-tex">
 \mathrm{Pr}(\text{MDS-UPDRS-III diff.} \le -1 \:\vert\:
-\text{Sex} = \text{Female}, \text{Treatment} = \text{NR}, 
+\text{Sex} = \text{Female}, \text{Treatment} = \text{NR},
 \text{Age} = a, \mathrm{data})
 </annotation></semantics></math> for meaningful values
 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>a</mi><annotation encoding="application/x-tex">a</annotation></semantics></math>
@@ -785,7 +784,93 @@ narrow age group?</strong></p></li>
 </ul>
 <p>Again notice that these probabilities could be updated to very
 different values, if more clinical trials were available.</p>
+</div>
+<div class="section level3">
+<h3 id="fourth-example-male-patient">Fourth example: male patient<a class="anchor" aria-label="anchor" href="#fourth-example-male-patient"></a>
+</h3>
+<p>We can perform an analysis analogous to the previous examples, but
+for a male patient. Here are the corresponding function calls and
+plots.</p>
+<div class="sourceCode" id="cb21"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">probabilitiesMale</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/Pr.html">Pr</a></span><span class="op">(</span></span>
+<span>    Y <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span>diff.MDS.UPRS.III <span class="op">=</span> <span class="op">(</span><span class="op">-</span><span class="fl">30</span><span class="op">)</span><span class="op">:</span><span class="fl">30</span><span class="op">)</span>,</span>
+<span>    X <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span>Sex <span class="op">=</span> <span class="st">'Male'</span>, TreatmentGroup <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">'NR'</span>, <span class="st">'Placebo'</span><span class="op">)</span><span class="op">)</span>,</span>
+<span>    learnt <span class="op">=</span> <span class="va">learnt</span></span>
+<span><span class="op">)</span></span>
+<span></span>
+<span><span class="fu"><a href="../reference/plotquantiles.html">plotquantiles</a></span><span class="op">(</span>x <span class="op">=</span> <span class="op">(</span><span class="op">-</span><span class="fl">30</span><span class="op">)</span><span class="op">:</span><span class="fl">30</span>, y <span class="op">=</span> <span class="va">probabilitiesMale</span><span class="op">$</span><span class="va">quantiles</span><span class="op">[</span>,<span class="fl">1</span>,<span class="op">]</span>,</span>
+<span>    ylim <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0</span>, <span class="cn">NA</span><span class="op">)</span>,</span>
+<span>    xlab <span class="op">=</span> <span class="st">'MDS-UPDRS-III difference'</span>, ylab <span class="op">=</span> <span class="st">'probability'</span>, col <span class="op">=</span> <span class="fl">5</span><span class="op">)</span></span>
+<span></span>
+<span><span class="fu"><a href="../reference/plotquantiles.html">plotquantiles</a></span><span class="op">(</span>x <span class="op">=</span> <span class="op">(</span><span class="op">-</span><span class="fl">30</span><span class="op">)</span><span class="op">:</span><span class="fl">30</span>, y <span class="op">=</span> <span class="va">probabilitiesMale</span><span class="op">$</span><span class="va">quantiles</span><span class="op">[</span>,<span class="fl">2</span>,<span class="op">]</span>,</span>
+<span>    col <span class="op">=</span> <span class="fl">6</span>, add <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
+<span></span>
+<span><span class="fu"><a href="../reference/tplot.html">tplot</a></span><span class="op">(</span>x <span class="op">=</span> <span class="op">(</span><span class="op">-</span><span class="fl">30</span><span class="op">)</span><span class="op">:</span><span class="fl">30</span>, y <span class="op">=</span> <span class="va">probabilitiesMale</span><span class="op">$</span><span class="va">values</span><span class="op">[</span>,<span class="fl">1</span><span class="op">]</span>, col <span class="op">=</span> <span class="fl">5</span>, add <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
+<span></span>
+<span><span class="fu"><a href="../reference/tplot.html">tplot</a></span><span class="op">(</span>x <span class="op">=</span> <span class="op">(</span><span class="op">-</span><span class="fl">30</span><span class="op">)</span><span class="op">:</span><span class="fl">30</span>, y <span class="op">=</span> <span class="va">probabilitiesMale</span><span class="op">$</span><span class="va">values</span><span class="op">[</span>,<span class="fl">2</span><span class="op">]</span>,</span>
+<span>    col <span class="op">=</span> <span class="fl">6</span>, lty <span class="op">=</span> <span class="fl">2</span>, add <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
+<span></span>
+<span><span class="co">## add 0-change line</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/graphics/abline.html" class="external-link">abline</a></span><span class="op">(</span>v <span class="op">=</span> <span class="fl">0</span>, lwd <span class="op">=</span> <span class="fl">1</span>, col <span class="op">=</span> <span class="st">'yellow'</span><span class="op">)</span></span>
+<span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/graphics/legend.html" class="external-link">legend</a></span><span class="op">(</span><span class="st">'topright'</span>, legend <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">'NR, Male'</span>, <span class="st">'Placebo, Male'</span><span class="op">)</span>,</span>
+<span>    bty <span class="op">=</span> <span class="st">'n'</span>, lty <span class="op">=</span> <span class="fl">1</span><span class="op">:</span><span class="fl">2</span>, col <span class="op">=</span> <span class="fl">5</span><span class="op">:</span><span class="fl">6</span><span class="op">)</span></span></code></pre></div>
+<p><img src="vignette_parkinson_files/figure-html/unnamed-chunk-25-1.png" width="100%"></p>
+<p>And considering all ages separately:</p>
+<div class="sourceCode" id="cb22"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">probMaleDecreaseAge</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/tailPr.html">tailPr</a></span><span class="op">(</span></span>
+<span>    Y <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span>diff.MDS.UPRS.III <span class="op">=</span> <span class="op">-</span><span class="fl">1</span><span class="op">)</span>,</span>
+<span>    X <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span>Sex <span class="op">=</span> <span class="st">'Male'</span>, Age <span class="op">=</span> <span class="fl">25</span><span class="op">:</span><span class="fl">80</span>, TreatmentGroup <span class="op">=</span> <span class="st">'NR'</span><span class="op">)</span>,</span>
+<span>    learnt <span class="op">=</span> <span class="va">learnt</span></span>
+<span><span class="op">)</span></span>
+<span></span>
+<span><span class="va">probMaleDecreaseAgePlacebo</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/tailPr.html">tailPr</a></span><span class="op">(</span></span>
+<span>    Y <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span>diff.MDS.UPRS.III <span class="op">=</span> <span class="op">-</span><span class="fl">1</span><span class="op">)</span>,</span>
+<span>    X <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span>Sex <span class="op">=</span> <span class="st">'Male'</span>, Age <span class="op">=</span> <span class="fl">25</span><span class="op">:</span><span class="fl">80</span>, TreatmentGroup <span class="op">=</span> <span class="st">'Placebo'</span><span class="op">)</span>,</span>
+<span>    learnt <span class="op">=</span> <span class="va">learnt</span></span>
+<span><span class="op">)</span></span>
+<span></span>
+<span></span>
+<span><span class="fu"><a href="../reference/plotquantiles.html">plotquantiles</a></span><span class="op">(</span>x <span class="op">=</span> <span class="fl">25</span><span class="op">:</span><span class="fl">80</span>, y <span class="op">=</span> <span class="va">probMaleDecreaseAge</span><span class="op">$</span><span class="va">quantiles</span><span class="op">[</span><span class="fl">1</span>,,<span class="op">]</span>,</span>
+<span>    ylim <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0</span>, <span class="cn">NA</span><span class="op">)</span>,</span>
+<span>    xlab <span class="op">=</span> <span class="st">'age'</span>, ylab <span class="op">=</span> <span class="st">'probability of MDS-UPDRS-III decr.'</span>, col <span class="op">=</span> <span class="fl">5</span><span class="op">)</span></span>
+<span></span>
+<span><span class="fu"><a href="../reference/plotquantiles.html">plotquantiles</a></span><span class="op">(</span>x <span class="op">=</span> <span class="fl">25</span><span class="op">:</span><span class="fl">80</span>, y <span class="op">=</span> <span class="va">probMaleDecreaseAgePlacebo</span><span class="op">$</span><span class="va">quantiles</span><span class="op">[</span><span class="fl">1</span>,,<span class="op">]</span>,</span>
+<span>    col <span class="op">=</span> <span class="fl">6</span>, add <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
+<span></span>
+<span><span class="fu"><a href="../reference/tplot.html">tplot</a></span><span class="op">(</span>x <span class="op">=</span> <span class="fl">25</span><span class="op">:</span><span class="fl">80</span>, y <span class="op">=</span> <span class="va">probMaleDecreaseAge</span><span class="op">$</span><span class="va">values</span><span class="op">[</span><span class="fl">1</span>,<span class="op">]</span>, col <span class="op">=</span> <span class="fl">5</span>, add <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
+<span></span>
+<span><span class="fu"><a href="../reference/tplot.html">tplot</a></span><span class="op">(</span>x <span class="op">=</span> <span class="fl">25</span><span class="op">:</span><span class="fl">80</span>, y <span class="op">=</span> <span class="va">probMaleDecreaseAgePlacebo</span><span class="op">$</span><span class="va">values</span><span class="op">[</span><span class="fl">1</span>,<span class="op">]</span>,</span>
+<span>    col <span class="op">=</span> <span class="fl">6</span>, lty <span class="op">=</span> <span class="fl">2</span>, add <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
+<span></span>
+<span><span class="co">## add 50%-probability line</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/graphics/abline.html" class="external-link">abline</a></span><span class="op">(</span>h <span class="op">=</span> <span class="fl">0.5</span>, lwd <span class="op">=</span> <span class="fl">1</span>, col <span class="op">=</span> <span class="st">'yellow'</span><span class="op">)</span></span>
+<span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/graphics/legend.html" class="external-link">legend</a></span><span class="op">(</span><span class="st">'topright'</span>, legend <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">'NR, Male'</span>, <span class="st">'Placebo, Male'</span><span class="op">)</span>,</span>
+<span>    bty <span class="op">=</span> <span class="st">'n'</span>, lty <span class="op">=</span> <span class="fl">1</span><span class="op">:</span><span class="fl">2</span>, col <span class="op">=</span> <span class="fl">5</span><span class="op">:</span><span class="fl">6</span><span class="op">)</span></span></code></pre></div>
+<p><img src="vignette_parkinson_files/figure-html/unnamed-chunk-26-1.png" width="100%"></p>
+<p>Finally let’s compare treated female vs male patients, per age:</p>
+<div class="sourceCode" id="cb23"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="../reference/plotquantiles.html">plotquantiles</a></span><span class="op">(</span>x <span class="op">=</span> <span class="fl">25</span><span class="op">:</span><span class="fl">80</span>, y <span class="op">=</span> <span class="va">probDecreaseAge</span><span class="op">$</span><span class="va">quantiles</span><span class="op">[</span><span class="fl">1</span>,,<span class="op">]</span>,</span>
+<span>    ylim <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0</span>, <span class="cn">NA</span><span class="op">)</span>,</span>
+<span>    xlab <span class="op">=</span> <span class="st">'age'</span>, ylab <span class="op">=</span> <span class="st">'probability of MDS-UPDRS-III decr.'</span>, col <span class="op">=</span> <span class="fl">1</span><span class="op">)</span></span>
+<span></span>
+<span><span class="fu"><a href="../reference/plotquantiles.html">plotquantiles</a></span><span class="op">(</span>x <span class="op">=</span> <span class="fl">25</span><span class="op">:</span><span class="fl">80</span>, y <span class="op">=</span> <span class="va">probMaleDecreaseAge</span><span class="op">$</span><span class="va">quantiles</span><span class="op">[</span><span class="fl">1</span>,,<span class="op">]</span>,</span>
+<span>    col <span class="op">=</span> <span class="fl">5</span>, add <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
+<span></span>
+<span><span class="fu"><a href="../reference/tplot.html">tplot</a></span><span class="op">(</span>x <span class="op">=</span> <span class="fl">25</span><span class="op">:</span><span class="fl">80</span>, y <span class="op">=</span> <span class="va">probDecreaseAge</span><span class="op">$</span><span class="va">values</span><span class="op">[</span><span class="fl">1</span>,<span class="op">]</span>, col <span class="op">=</span> <span class="fl">1</span>, add <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
+<span></span>
+<span><span class="fu"><a href="../reference/tplot.html">tplot</a></span><span class="op">(</span>x <span class="op">=</span> <span class="fl">25</span><span class="op">:</span><span class="fl">80</span>, y <span class="op">=</span> <span class="va">probMaleDecreaseAge</span><span class="op">$</span><span class="va">values</span><span class="op">[</span><span class="fl">1</span>,<span class="op">]</span>,</span>
+<span>    col <span class="op">=</span> <span class="fl">5</span>, lty <span class="op">=</span> <span class="fl">2</span>, add <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
+<span></span>
+<span><span class="co">## add 50%-probability line</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/graphics/abline.html" class="external-link">abline</a></span><span class="op">(</span>h <span class="op">=</span> <span class="fl">0.5</span>, lwd <span class="op">=</span> <span class="fl">1</span>, col <span class="op">=</span> <span class="st">'yellow'</span><span class="op">)</span></span>
+<span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/graphics/legend.html" class="external-link">legend</a></span><span class="op">(</span><span class="st">'topright'</span>, legend <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">'NR, Female'</span>, <span class="st">'NR, Male'</span><span class="op">)</span>,</span>
+<span>    bty <span class="op">=</span> <span class="st">'n'</span>, lty <span class="op">=</span> <span class="fl">1</span><span class="op">:</span><span class="fl">2</span>, col <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1</span>, <span class="fl">5</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
+<p><img src="vignette_parkinson_files/figure-html/unnamed-chunk-27-1.png" width="100%"></p>
 <p><em>(TO BE CONTINUED)</em></p>
+</div>
 </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>
     </nav></aside>
