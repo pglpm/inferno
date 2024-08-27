@@ -532,9 +532,7 @@ difference, let’s say <code>0</code>:</p>
 <span>    Y <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span>diff.MDS.UPRS.III <span class="op">=</span> <span class="fl">0</span><span class="op">)</span>,</span>
 <span>    X <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span>Sex <span class="op">=</span> <span class="st">'Female'</span>, TreatmentGroup <span class="op">=</span> <span class="st">'NR'</span><span class="op">)</span>,</span>
 <span>    learnt <span class="op">=</span> <span class="va">learnt</span></span>
-<span><span class="op">)</span></span>
-<span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; No parallel backend registered.</span></span></code></pre></div>
+<span><span class="op">)</span></span></code></pre></div>
 <p>The output of the <code><a href="../reference/Pr.html">Pr()</a></code> function is a list of three
 objects, of which we discuss only two for the moment:</p>
 <ul>
@@ -583,16 +581,14 @@ female patient:</p>
 <span>    Y <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span>diff.MDS.UPRS.III <span class="op">=</span> <span class="op">(</span><span class="op">-</span><span class="fl">30</span><span class="op">)</span><span class="op">:</span><span class="fl">30</span><span class="op">)</span>,</span>
 <span>    X <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span>Sex <span class="op">=</span> <span class="st">'Female'</span>, TreatmentGroup <span class="op">=</span> <span class="st">'NR'</span><span class="op">)</span>,</span>
 <span>    learnt <span class="op">=</span> <span class="va">learnt</span></span>
-<span><span class="op">)</span></span>
-<span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; No parallel backend registered.</span></span></code></pre></div>
+<span><span class="op">)</span></span></code></pre></div>
 <p>Each probability thus obtained has two accompanying quantiles and
 related uncertainty. Let us plot both:</p>
 <div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/plotquantiles.html">plotquantiles</a></span><span class="op">(</span>x <span class="op">=</span> <span class="op">(</span><span class="op">-</span><span class="fl">30</span><span class="op">)</span><span class="op">:</span><span class="fl">30</span>, y <span class="op">=</span> <span class="va">probabilities</span><span class="op">$</span><span class="va">quantiles</span><span class="op">[</span>,<span class="fl">1</span>,<span class="op">]</span>,</span>
 <span>    ylim <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0</span>, <span class="cn">NA</span><span class="op">)</span>,</span>
-<span>    xlab <span class="op">=</span> <span class="st">'MDS-UPDRS-III difference'</span>, ylab <span class="op">=</span> <span class="st">'probability'</span><span class="op">)</span></span>
-<span><span class="fu"><a href="../reference/tplot.html">tplot</a></span><span class="op">(</span>x <span class="op">=</span> <span class="op">(</span><span class="op">-</span><span class="fl">30</span><span class="op">)</span><span class="op">:</span><span class="fl">30</span>, y <span class="op">=</span> <span class="va">probabilities</span><span class="op">$</span><span class="va">values</span><span class="op">[</span>,<span class="fl">1</span><span class="op">]</span>, add <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></code></pre></div>
+<span>    xlab <span class="op">=</span> <span class="st">'MDS-UPDRS-III difference'</span>, ylab <span class="op">=</span> <span class="st">'probability'</span>, col <span class="op">=</span> <span class="fl">1</span><span class="op">)</span></span>
+<span><span class="fu"><a href="../reference/tplot.html">tplot</a></span><span class="op">(</span>x <span class="op">=</span> <span class="op">(</span><span class="op">-</span><span class="fl">30</span><span class="op">)</span><span class="op">:</span><span class="fl">30</span>, y <span class="op">=</span> <span class="va">probabilities</span><span class="op">$</span><span class="va">values</span><span class="op">[</span>,<span class="fl">1</span><span class="op">]</span>, col <span class="op">=</span> <span class="fl">1</span>, add <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></code></pre></div>
 <p><img src="vignette_parkinson_files/figure-html/unnamed-chunk-13-1.png" width="100%">
 Two aspects of this plot are relevant for our investigation:</p>
 <ul>
@@ -611,9 +607,9 @@ the next treated female patient experience a MDS-UPDRS-III difference
 equal to
 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo>−</mo><mn>1</mn></mrow><annotation encoding="application/x-tex">-1</annotation></semantics></math>
 or less?“</em>. We therefore want the probability
-<math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mrow><mi mathvariant="normal">P</mi><mi mathvariant="normal">r</mi></mrow><mrow><mo stretchy="true" form="prefix">(</mo><mtext mathvariant="normal">MDS-UPDRS-III difference</mtext><mo>≤</mo><mo>−</mo><mn>1</mn><mspace width="0.222em"></mspace><mo stretchy="false" form="postfix">|</mo><mspace width="0.222em"></mspace><mtext mathvariant="normal">Sex</mtext><mo>=</mo><mtext mathvariant="normal">Female</mtext><mo>,</mo><mtext mathvariant="normal">Treatment group</mtext><mo>=</mo><mtext mathvariant="normal">NR</mtext><mo>,</mo><mrow><mi mathvariant="normal">d</mi><mi mathvariant="normal">a</mi><mi mathvariant="normal">t</mi><mi mathvariant="normal">a</mi></mrow><mo stretchy="true" form="postfix">)</mo></mrow></mrow><annotation encoding="application/x-tex">
-\mathrm{Pr}(\text{MDS-UPDRS-III difference} \le -1 \:\vert\:
-\text{Sex} = \text{Female}, \text{Treatment group} = \text{NR}, \mathrm{data})
+<math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mrow><mi mathvariant="normal">P</mi><mi mathvariant="normal">r</mi></mrow><mrow><mo stretchy="true" form="prefix">(</mo><mtext mathvariant="normal">MDS-UPDRS-III diff.</mtext><mo>≤</mo><mo>−</mo><mn>1</mn><mspace width="0.222em"></mspace><mo stretchy="false" form="postfix">|</mo><mspace width="0.222em"></mspace><mtext mathvariant="normal">Sex</mtext><mo>=</mo><mtext mathvariant="normal">Female</mtext><mo>,</mo><mtext mathvariant="normal">Treatment</mtext><mo>=</mo><mtext mathvariant="normal">NR</mtext><mo>,</mo><mrow><mi mathvariant="normal">d</mi><mi mathvariant="normal">a</mi><mi mathvariant="normal">t</mi><mi mathvariant="normal">a</mi></mrow><mo stretchy="true" form="postfix">)</mo></mrow></mrow><annotation encoding="application/x-tex">
+\mathrm{Pr}(\text{MDS-UPDRS-III diff.} \le -1 \:\vert\:
+\text{Sex} = \text{Female}, \text{Treatment} = \text{NR}, \mathrm{data})
 </annotation></semantics></math></p>
 <p>This probability can be calculated with the function
 <code>tailPr(Y, X, learnt)</code>, which is analogous to the
@@ -623,65 +619,166 @@ rather than of
 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>Y</mi><mo>=</mo><mi>y</mi></mrow><annotation encoding="application/x-tex">Y = y</annotation></semantics></math>.</p>
 <div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">probDecrease</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/tailPr.html">tailPr</a></span><span class="op">(</span></span>
-<span>    Y <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span>diff.MDS.UPRS.III <span class="op">=</span> <span class="fl">0</span><span class="op">)</span>,</span>
+<span>    Y <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span>diff.MDS.UPRS.III <span class="op">=</span> <span class="op">-</span><span class="fl">1</span><span class="op">)</span>,</span>
 <span>    X <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span>Sex <span class="op">=</span> <span class="st">'Female'</span>, TreatmentGroup <span class="op">=</span> <span class="st">'NR'</span><span class="op">)</span>,</span>
 <span>    learnt <span class="op">=</span> <span class="va">learnt</span></span>
-<span><span class="op">)</span></span>
-<span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; No parallel backend registered.</span></span></code></pre></div>
+<span><span class="op">)</span></span></code></pre></div>
 <p>The answer is that the probability of a decrease in this disability
 score is</p>
 <div class="sourceCode" id="cb12"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">probDecrease</span><span class="op">$</span><span class="va">value</span></span>
 <span><span class="co">#&gt;       X</span></span>
 <span><span class="co">#&gt; Y           [,1]</span></span>
-<span><span class="co">#&gt;   [1,] 0.6139707</span></span></code></pre></div>
-<p>or approximately 61%; note that it is clearly higher than 50%.</p>
+<span><span class="co">#&gt;   [1,] 0.5497687</span></span></code></pre></div>
+<p>or approximately 55%; note that it is clearly higher than 50%.</p>
 <p>Further clinical trials, however could update this probability to a
-new value between 40% and 81%:</p>
+new value between 34% and 75%:</p>
 <div class="sourceCode" id="cb13"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">probDecrease</span><span class="op">$</span><span class="va">quantiles</span><span class="op">[</span><span class="fl">1</span>,<span class="fl">1</span>,<span class="op">]</span></span>
 <span><span class="co">#&gt;        5%       95% </span></span>
-<span><span class="co">#&gt; 0.3999601 0.8052588</span></span></code></pre></div>
+<span><span class="co">#&gt; 0.3405906 0.7511566</span></span></code></pre></div>
 </div>
 <div class="section level3">
 <h3 id="second-example-comparison-with-non-treated-patient-of-female-sex">Second example: comparison with non-treated patient of female
 sex<a class="anchor" aria-label="anchor" href="#second-example-comparison-with-non-treated-patient-of-female-sex"></a>
 </h3>
-<p>In the previous example we found that there is a 61% probability that
+<p>In the previous example we found that there is a 55% probability that
 a treated female patient will experience a decrease in MDS-UPDRS-III
 after the therapy. But can this decrease really be correlated with the
 therapy?</p>
 <p>To preliminarily answer this question, we can find the analogous
-probability for a female patient that has not received the treatment.
-Again we use <code><a href="../reference/tailPr.html">tailPr()</a></code>, but our <code>X</code> argument will
+probabilities for a female patient that has not received the treatment.
+Again we use <code><a href="../reference/Pr.html">Pr()</a></code>, but our <code>X</code> argument will
 specify a <code>Placebo</code> value for the Treatment group:</p>
 <div class="sourceCode" id="cb14"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">probDecreasePlacebo</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/tailPr.html">tailPr</a></span><span class="op">(</span></span>
-<span>    Y <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span>diff.MDS.UPRS.III <span class="op">=</span> <span class="fl">0</span><span class="op">)</span>,</span>
+<code class="sourceCode R"><span><span class="va">probabilitiesPlacebo</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/Pr.html">Pr</a></span><span class="op">(</span></span>
+<span>    Y <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span>diff.MDS.UPRS.III <span class="op">=</span> <span class="op">(</span><span class="op">-</span><span class="fl">30</span><span class="op">)</span><span class="op">:</span><span class="fl">30</span><span class="op">)</span>,</span>
 <span>    X <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span>Sex <span class="op">=</span> <span class="st">'Female'</span>, TreatmentGroup <span class="op">=</span> <span class="st">'Placebo'</span><span class="op">)</span>,</span>
 <span>    learnt <span class="op">=</span> <span class="va">learnt</span></span>
-<span><span class="op">)</span></span>
-<span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; No parallel backend registered.</span></span>
-<span><span class="va">probDecreasePlacebo</span><span class="op">$</span><span class="va">value</span></span>
+<span><span class="op">)</span></span></code></pre></div>
+<p>Let’s plot these probabilities, together with their variability, on
+top of the ones previously obtained for the treated case:</p>
+<div class="sourceCode" id="cb15"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="../reference/plotquantiles.html">plotquantiles</a></span><span class="op">(</span>x <span class="op">=</span> <span class="op">(</span><span class="op">-</span><span class="fl">30</span><span class="op">)</span><span class="op">:</span><span class="fl">30</span>, y <span class="op">=</span> <span class="va">probabilities</span><span class="op">$</span><span class="va">quantiles</span><span class="op">[</span>,<span class="fl">1</span>,<span class="op">]</span>,</span>
+<span>    ylim <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0</span>, <span class="cn">NA</span><span class="op">)</span>,</span>
+<span>    xlab <span class="op">=</span> <span class="st">'MDS-UPDRS-III difference'</span>, ylab <span class="op">=</span> <span class="st">'probability'</span>, col <span class="op">=</span> <span class="fl">1</span><span class="op">)</span></span>
+<span></span>
+<span><span class="fu"><a href="../reference/plotquantiles.html">plotquantiles</a></span><span class="op">(</span>x <span class="op">=</span> <span class="op">(</span><span class="op">-</span><span class="fl">30</span><span class="op">)</span><span class="op">:</span><span class="fl">30</span>, y <span class="op">=</span> <span class="va">probabilitiesPlacebo</span><span class="op">$</span><span class="va">quantiles</span><span class="op">[</span>,<span class="fl">1</span>,<span class="op">]</span>,</span>
+<span>    col <span class="op">=</span> <span class="fl">2</span>, add <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
+<span></span>
+<span><span class="fu"><a href="../reference/tplot.html">tplot</a></span><span class="op">(</span>x <span class="op">=</span> <span class="op">(</span><span class="op">-</span><span class="fl">30</span><span class="op">)</span><span class="op">:</span><span class="fl">30</span>, y <span class="op">=</span> <span class="va">probabilities</span><span class="op">$</span><span class="va">values</span><span class="op">[</span>,<span class="fl">1</span><span class="op">]</span>, col <span class="op">=</span> <span class="fl">1</span>, add <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
+<span></span>
+<span><span class="fu"><a href="../reference/tplot.html">tplot</a></span><span class="op">(</span>x <span class="op">=</span> <span class="op">(</span><span class="op">-</span><span class="fl">30</span><span class="op">)</span><span class="op">:</span><span class="fl">30</span>, y <span class="op">=</span> <span class="va">probabilitiesPlacebo</span><span class="op">$</span><span class="va">values</span><span class="op">[</span>,<span class="fl">1</span><span class="op">]</span>,</span>
+<span>    col <span class="op">=</span> <span class="fl">2</span>, lty <span class="op">=</span> <span class="fl">2</span>, add <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
+<span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/graphics/legend.html" class="external-link">legend</a></span><span class="op">(</span><span class="st">'topright'</span>, legend <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">'NR, Female'</span>, <span class="st">'Placebo, Female'</span><span class="op">)</span>,</span>
+<span>    bty <span class="op">=</span> <span class="st">'n'</span>, lty <span class="op">=</span> <span class="fl">1</span><span class="op">:</span><span class="fl">2</span>, col <span class="op">=</span> <span class="fl">1</span><span class="op">:</span><span class="fl">2</span><span class="op">)</span></span></code></pre></div>
+<p><img src="vignette_parkinson_files/figure-html/unnamed-chunk-19-1.png" width="100%"></p>
+<p>There does not seem to be any difference that stands out between the
+treated and non-treated case.</p>
+<p>As before, we can calculate the probability of a decrease in
+MDS-UPDRS-III:</p>
+<div class="sourceCode" id="cb16"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">probDecreasePlacebo</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/tailPr.html">tailPr</a></span><span class="op">(</span></span>
+<span>    Y <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span>diff.MDS.UPRS.III <span class="op">=</span> <span class="op">-</span><span class="fl">1</span><span class="op">)</span>,</span>
+<span>    X <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span>Sex <span class="op">=</span> <span class="st">'Female'</span>, TreatmentGroup <span class="op">=</span> <span class="st">'Placebo'</span><span class="op">)</span>,</span>
+<span>    learnt <span class="op">=</span> <span class="va">learnt</span></span>
+<span><span class="op">)</span></span></code></pre></div>
+<p>We find that the probability of a decrease in the disability score
+for a non-treated female patient is</p>
+<div class="sourceCode" id="cb17"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">probDecreasePlacebo</span><span class="op">$</span><span class="va">value</span></span>
 <span><span class="co">#&gt;       X</span></span>
 <span><span class="co">#&gt; Y           [,1]</span></span>
-<span><span class="co">#&gt;   [1,] 0.6016209</span></span>
-<span><span class="va">probDecreasePlacebo</span><span class="op">$</span><span class="va">quantiles</span></span>
-<span><span class="co">#&gt; , ,  = 5%</span></span>
-<span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt;       X</span></span>
-<span><span class="co">#&gt; Y          [,1]</span></span>
-<span><span class="co">#&gt;   [1,] 0.378633</span></span>
-<span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; , ,  = 95%</span></span>
-<span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt;       X</span></span>
-<span><span class="co">#&gt; Y           [,1]</span></span>
-<span><span class="co">#&gt;   [1,] 0.7995431</span></span></code></pre></div>
-<p><em>(TO BE CONTINUED)</em></p>
+<span><span class="co">#&gt;   [1,] 0.5432515</span></span></code></pre></div>
+<p>or approximately 54%. Further clinical trials, however could update
+this probability to a value between 33% and 75%:</p>
+<div class="sourceCode" id="cb18"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">probDecreasePlacebo</span><span class="op">$</span><span class="va">quantiles</span><span class="op">[</span><span class="fl">1</span>,<span class="fl">1</span>,<span class="op">]</span></span>
+<span><span class="co">#&gt;        5%       95% </span></span>
+<span><span class="co">#&gt; 0.3290967 0.7504931</span></span></code></pre></div>
+<p>Therefore we see a similarly probable decrease in a non-treated as
+well as a non-treated female patient. There is a very small difference
+in these two probabilities, in favour of the treated case; but this
+difference is too small compared with how the probabilities could change
+if more trials were available.</p>
+<p>Some preliminary conclusions and possible questions for future
+research:</p>
+<ul>
+<li><p>There does not seem to be a difference between treated and
+non-treated female patients, regarding MDS-UPDRS-III decrease.</p></li>
+<li><p>However, there <em>is</em> a slightly likely decrease for both.
+<strong>What could this decrease be correlated with?</strong></p></li>
+</ul>
 </div>
+</div>
+<div class="section level2">
+<h2 id="third-example-considering-age">Third example: considering age<a class="anchor" aria-label="anchor" href="#third-example-considering-age"></a>
+</h2>
+<p>Our results so far indicate practically no difference in the
+probabilities of MDS-UPDRS-III decrease of a treated vs a non-treated
+female patient. These probabilities, however, disregard the patient’s
+age. Is it possible that there are larger differences in different age
+groups?</p>
+<p>We can answer this question by calculating the probabilities
+conditional on any particular <code>Age</code> value, that is,
+<math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mrow><mi mathvariant="normal">P</mi><mi mathvariant="normal">r</mi></mrow><mrow><mo stretchy="true" form="prefix">(</mo><mtext mathvariant="normal">MDS-UPDRS-III diff.</mtext><mo>≤</mo><mo>−</mo><mn>1</mn><mspace width="0.222em"></mspace><mo stretchy="false" form="postfix">|</mo><mspace width="0.222em"></mspace><mtext mathvariant="normal">Sex</mtext><mo>=</mo><mtext mathvariant="normal">Female</mtext><mo>,</mo><mtext mathvariant="normal">Treatment</mtext><mo>=</mo><mtext mathvariant="normal">NR</mtext><mo>,</mo><mtext mathvariant="normal">Age</mtext><mo>=</mo><mi>a</mi><mo>,</mo><mrow><mi mathvariant="normal">d</mi><mi mathvariant="normal">a</mi><mi mathvariant="normal">t</mi><mi mathvariant="normal">a</mi></mrow><mo stretchy="true" form="postfix">)</mo></mrow></mrow><annotation encoding="application/x-tex">
+\mathrm{Pr}(\text{MDS-UPDRS-III diff.} \le -1 \:\vert\:
+\text{Sex} = \text{Female}, \text{Treatment} = \text{NR}, 
+\text{Age} = a, \mathrm{data})
+</annotation></semantics></math> for meaningful values
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>a</mi><annotation encoding="application/x-tex">a</annotation></semantics></math>
+of the age, let’s say between 25 and 80. Again we can find them with the
+function <code><a href="../reference/tailPr.html">tailPr()</a></code>. This time our conditioning argument
+<code>X</code> will include a grid of <code>Age</code> values. First we
+do the calculation for a treated female patient, then for a non-treated
+one:</p>
+<div class="sourceCode" id="cb19"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">probDecreaseAge</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/tailPr.html">tailPr</a></span><span class="op">(</span></span>
+<span>    Y <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span>diff.MDS.UPRS.III <span class="op">=</span> <span class="op">-</span><span class="fl">1</span><span class="op">)</span>,</span>
+<span>    X <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span>Sex <span class="op">=</span> <span class="st">'Female'</span>, Age <span class="op">=</span> <span class="fl">25</span><span class="op">:</span><span class="fl">80</span>, TreatmentGroup <span class="op">=</span> <span class="st">'NR'</span><span class="op">)</span>,</span>
+<span>    learnt <span class="op">=</span> <span class="va">learnt</span></span>
+<span><span class="op">)</span></span>
+<span></span>
+<span><span class="va">probDecreaseAgePlacebo</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/tailPr.html">tailPr</a></span><span class="op">(</span></span>
+<span>    Y <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span>diff.MDS.UPRS.III <span class="op">=</span> <span class="op">-</span><span class="fl">1</span><span class="op">)</span>,</span>
+<span>    X <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span>Sex <span class="op">=</span> <span class="st">'Female'</span>, Age <span class="op">=</span> <span class="fl">25</span><span class="op">:</span><span class="fl">80</span>, TreatmentGroup <span class="op">=</span> <span class="st">'Placebo'</span><span class="op">)</span>,</span>
+<span>    learnt <span class="op">=</span> <span class="va">learnt</span></span>
+<span><span class="op">)</span></span></code></pre></div>
+<p>We can plot the probabilities of an MDS-UPDRS-III decrease against
+that patient’s age, with one plot for each treatment group:</p>
+<div class="sourceCode" id="cb20"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="../reference/plotquantiles.html">plotquantiles</a></span><span class="op">(</span>x <span class="op">=</span> <span class="fl">25</span><span class="op">:</span><span class="fl">80</span>, y <span class="op">=</span> <span class="va">probDecreaseAge</span><span class="op">$</span><span class="va">quantiles</span><span class="op">[</span><span class="fl">1</span>,,<span class="op">]</span>,</span>
+<span>    ylim <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0</span>, <span class="cn">NA</span><span class="op">)</span>,</span>
+<span>    xlab <span class="op">=</span> <span class="st">'age'</span>, ylab <span class="op">=</span> <span class="st">'probability of MDS-UPDRS-III decr.'</span>, col <span class="op">=</span> <span class="fl">1</span><span class="op">)</span></span>
+<span></span>
+<span><span class="fu"><a href="../reference/plotquantiles.html">plotquantiles</a></span><span class="op">(</span>x <span class="op">=</span> <span class="fl">25</span><span class="op">:</span><span class="fl">80</span>, y <span class="op">=</span> <span class="va">probDecreaseAgePlacebo</span><span class="op">$</span><span class="va">quantiles</span><span class="op">[</span><span class="fl">1</span>,,<span class="op">]</span>,</span>
+<span>    col <span class="op">=</span> <span class="fl">2</span>, add <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
+<span></span>
+<span><span class="fu"><a href="../reference/tplot.html">tplot</a></span><span class="op">(</span>x <span class="op">=</span> <span class="fl">25</span><span class="op">:</span><span class="fl">80</span>, y <span class="op">=</span> <span class="va">probDecreaseAge</span><span class="op">$</span><span class="va">values</span><span class="op">[</span><span class="fl">1</span>,<span class="op">]</span>, col <span class="op">=</span> <span class="fl">1</span>, add <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
+<span></span>
+<span><span class="fu"><a href="../reference/tplot.html">tplot</a></span><span class="op">(</span>x <span class="op">=</span> <span class="fl">25</span><span class="op">:</span><span class="fl">80</span>, y <span class="op">=</span> <span class="va">probDecreaseAgePlacebo</span><span class="op">$</span><span class="va">values</span><span class="op">[</span><span class="fl">1</span>,<span class="op">]</span>,</span>
+<span>    col <span class="op">=</span> <span class="fl">2</span>, lty <span class="op">=</span> <span class="fl">2</span>, add <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
+<span></span>
+<span><span class="co">## add 50% line</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/graphics/abline.html" class="external-link">abline</a></span><span class="op">(</span>h <span class="op">=</span> <span class="fl">0.5</span>, lwd <span class="op">=</span> <span class="fl">1</span>, col <span class="op">=</span> <span class="st">'yellow'</span><span class="op">)</span></span>
+<span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/graphics/legend.html" class="external-link">legend</a></span><span class="op">(</span><span class="st">'topright'</span>, legend <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">'NR, Female'</span>, <span class="st">'Placebo, Female'</span><span class="op">)</span>,</span>
+<span>    bty <span class="op">=</span> <span class="st">'n'</span>, lty <span class="op">=</span> <span class="fl">1</span><span class="op">:</span><span class="fl">2</span>, col <span class="op">=</span> <span class="fl">1</span><span class="op">:</span><span class="fl">2</span><span class="op">)</span></span></code></pre></div>
+<p><img src="vignette_parkinson_files/figure-html/unnamed-chunk-24-1.png" width="100%"></p>
+<p>This plot shows some interesting aspects:</p>
+<ul>
+<li><p>There does not seem to be a large difference, between treated and
+non-treated females, in the probability of a MDS-UPDRS-III
+decrease.</p></li>
+<li><p>In the 60–65 age group, an <em>increase</em> in MDS-UPDRS-III is
+more likely than a decrease, for both a treated and a non-treated female
+patient. <strong>What could be the reason for the increase in this
+narrow age group?</strong></p></li>
+</ul>
+<p>Again notice that these probabilities could be updated to very
+different values, if more clinical trials were available.</p>
+<p><em>(TO BE CONTINUED)</em></p>
 </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>
     </nav></aside>
