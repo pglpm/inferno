@@ -547,7 +547,17 @@ scatteraxis <- function(x, side=1, n=128, col='#555555', alpha=0.5, ext=5, pos=N
     matlines(x=xl, y=yl, lty=1, lwd=lwd, col=col, ...)
 }
 
-#' @keywords internal
+#' Construct and plot histograms
+#'
+#' Utility function to construct and plot histograms, from samples obtained with \code{\link{Pr}}. The advantage of this function over \code{\link[base]{hist}} is that its `x` argument can be a vector of character values, as typically the case for nominal or ordinal variates (see \code{\link{metadata}}). The plot will have these characters as labels of the x-axis.
+#'
+#' @param x Numeric or character: a collection of data or simulated values.
+#' @param n integer or vector: number of bins to use, or boundaries of bins.
+#' @param plot logical: plot the results? Default `FALSE`.
+#'
+#' @return A list of several elements. Most important: `counts`: the value count in each bin (frequency). `density`: the value count dividen by the bin width (frequency density). `mids`: the values of the bins' centres. `breaks`: the boundaries of the bins.
+#'
+#' @export
 thist <- function(x, n=NULL, type=6, pretty=FALSE, plot=FALSE, extendbreaks=FALSE, ...){
     if(!is.list(x)){x <- list(x)}
     if(!is.list(n)){n <- list(n)}

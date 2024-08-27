@@ -14,6 +14,7 @@ reference:
     - tplot
     - plotquantiles
     - plotFsamples
+    - thist
 - title: "Internal functions"
   desc: "For developers."
   contents:
