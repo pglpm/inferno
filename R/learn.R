@@ -125,7 +125,12 @@ learn <- function(
 ##################################################
 
 #### Determine the status of parallel processing
-    ncores <- checkParallel(parallel, FALSE)
+    workers <- checkParallel(parallel, silent)
+    ncores <- workers$ncores
+    
+    if (!is.logical(workers$cluster)) {
+        on.exit(closecoresonexit(workers$cluster, silent))
+    }
 
 #### Consistency checks for numbers of samples, chains, cores
     ## The defaults are 1200 samples from 120 chains, so 10 samples per chain
