@@ -149,6 +149,8 @@ At the end of the computation the `learn()` function returns the name of the dir
 
 We are finally ready to use the software for drawing inferences, testing hypotheses, and similar scientific investigations. From the observed data, the software allows us to find the probability of any question or hypothesis of interest. It is important, though, that the hypothesis be stated in an unambiguous, quantitative form.
 
+### First example: effect on treated patient of female sex
+
 For example, we might want to ask: "Does the NAD-replenishment therapy have an effect on females?". At first this may sound like a valid scientific hypothesis. But if we carefully examine the statement we realize that it is too vague. First, what does "having an effect" mean exactly? how can this be quantified? Second, can we really say that the therapy either has or has not an effect? are there no degrees of efficacy involved? Third, whom are we asking this question about? the next patient that we may see? or the population of all the remaining patients? Let us make our initial question quantitatively clear.
 
 First, let us translate "effect" into the difference in MDS-UPDRS-III scores between the first and second visits of a subject (visit 2 $-$ visit 1), represented by the variate `diff.MDS.UPRS.III`. Note that other choices could be made, such as the difference in another MDS-UPDRS score (I--IV), or in the total of these scores, or as the ratio rather than the difference -- or as some other variate altogether.
@@ -184,13 +186,13 @@ The output of the `Pr()` function is a list of three objects, of which we discus
 ```{r}
 probability0$value
 ```
-that is, there is approximately a `r signif(probability0$value *100, 1)`% probability that the next treated female patient will have a MDS-UPDRS-III difference of exactly 0.
+that is, there is approximately a `r signif(probability0$value *100, 2)`% probability that the next treated female patient will have a MDS-UPDRS-III difference of exactly 0.
 
 - **`quantiles`**: these two values tell us how much the probability could change, if your knowledge were updated by more clinical trials. They thus quantify the uncertainty of our present probabilistic conclusions. An future, updated probability has a 90% probability of lying between the two quantile values. In this case they are
 ```{r}
 probability0$quantiles
 ```
-that is, if we had many more clinical trials, the probability above could change to a value within around `r signif(probability0$quantiles[,,1] * 100, 1)`% and `r signif(probability0$quantiles[,,2] * 100, 1)`%.
+that is, if we had many more clinical trials, the probability above could change to a value within around `r signif(probability0$quantiles[,,1] * 100, 2)`% and `r signif(probability0$quantiles[,,2] * 100, 2)`%.
 
 \
 
@@ -225,7 +227,7 @@ $$
 
 This probability can be calculated with the function `tailPr(Y, X, learnt)`, which is analogous to the `Pr()` function, but calculates the probability of $Y\le y$ rather than of $Y = y$.
 ```{r}
-probDecrease<- tailPr(
+probDecrease <- tailPr(
     Y = data.frame(diff.MDS.UPRS.III = 0),
     X = data.frame(Sex = 'Female', TreatmentGroup = 'NR'),
     learnt = learnt
@@ -236,17 +238,32 @@ The answer is that the probability of a decrease in this disability score is
 ```{r}
 probDecrease$value
 ```
-or approximately `r signif(probDecrease$value * 100, 1)`%; note that it is clearly higher than 50%.
+or approximately `r signif(probDecrease$value * 100, 2)`%; note that it is clearly higher than 50%.
 
-Further clinical trials, however could update this probability to a new value between `r signif(probDecrease$quantiles[1,1,1] * 100, 1)`% and `r signif(probDecrease$quantiles[1,1,2] * 100, 1)`%:
+```{r, include = FALSE}
+probFNR <- signif(probDecrease$value[1,1] * 100, 2)
+```
+
+
+Further clinical trials, however could update this probability to a new value between `r signif(probDecrease$quantiles[1,1,1] * 100, 2)`% and `r signif(probDecrease$quantiles[1,1,2] * 100, 2)`%:
 ```{r}
 probDecrease$quantiles[1,1,]
 ```
 
-```{r}
-hist(probDecrease$samples[1,1,], plot = TRUE)
-```
+### Second example: comparison with non-treated patient of female sex
 
+In the previous example we found that there is a `r probFNR`% probability that a treated female patient will experience a decrease in MDS-UPDRS-III after the therapy. But can this decrease really be correlated with the therapy?
+
+To preliminarily answer this question, we can find the analogous probability for a female patient that has not received the treatment. Again we use `tailPr()`, but our `X` argument will specify a `Placebo` value for the Treatment group:
+```{r}
+probDecreasePlacebo <- tailPr(
+    Y = data.frame(diff.MDS.UPRS.III = 0),
+    X = data.frame(Sex = 'Female', TreatmentGroup = 'Placebo'),
+    learnt = learnt
+)
+probDecreasePlacebo$value
+probDecreasePlacebo$quantiles
+```
 
 
 *(TO BE CONTINUED)*
