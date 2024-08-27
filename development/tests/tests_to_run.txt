@@ -1,2 +1,1 @@
-CI-example-test/pass_test.R
 CI-example-test/learn_custom30.R

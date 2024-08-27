@@ -1,4 +1,3 @@
-# devtools::install()
 library('inferno')
 
 seed <- 16
