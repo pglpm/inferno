@@ -9,7 +9,7 @@ vignette: >
 
 ```{r, setup, include = FALSE}
 knitr::opts_chunk$set(
-    dev='svg',
+    dev='png',
     fig.asp = 1/sqrt(2),
     fig.width = 8,
     out.width='100%',
