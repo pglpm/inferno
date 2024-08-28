@@ -7,11 +7,16 @@ vignette: >
   %\VignetteEncoding{UTF-8}
 ---
 
-```{r, include = FALSE}
+```{r, setup, include = FALSE}
 knitr::opts_chunk$set(
-  collapse = TRUE,
-  comment = "#>"
+    dev='svg',
+    fig.asp = 1/sqrt(2),
+    fig.width = 8,
+    out.width='100%',
+    collapse = TRUE,
+    comment = "#>"
 )
+library(inferno)
 ```
 
 ## Purpose
@@ -36,7 +41,7 @@ The investigations in the cited paper involve 30 subjects, for each of which var
 
 \
 
-We store the name of the datafile:example:
+We store the name of the datafile
 ```{r}
 datafile <- 'toydata.csv'
 ```
@@ -60,7 +65,7 @@ On the other hand, the investigators did *not* choose the statistics of the two 
 ## Metadata
 
 Let's load the package:
-```{r setup}
+```{r eval = FALSE}
 library(inferno)
 ```
 
@@ -70,7 +75,7 @@ In order to draw inferences, we need metadata information, that is, information 
 As an example of why metadata is necessary, suppose you are given the data `3`, `7`, `9`. Can you say whether the value `5` could be observed in a new instance? and what about `4.7`, or `-10`? Knowing whether these values are at all possible, or not, greatly affects the precision of the inferences we draw. Obviously a researcher must know such basic information about the data being collected -- otherwise they wouldn't know what they're doing.
 
 The software requires specification of metadata either as a `data.frame` object or as a `.csv` file. To help you prepare this file, the software offers the function `buildmetadata()`, which writes a template that you thereafter modify. The template is filled with **tentative** values; these are wild guesses from the data, so they are often wrong. The function explains the heuristic it is using in order to pre-fill the fields of the metadata file, and gives warnings about guessed values that are especially dubious. You should examine and correct all fields:
-```{r}
+```{r class.source = 'fold-hide'}
 buildmetadata(data = datafile, file = 'temp_metadata')
 ```
 
@@ -205,7 +210,7 @@ probabilities <- Pr(
 )
 ```
 Each probability thus obtained has two accompanying quantiles and related uncertainty.  Let us plot both:
-```{r fig.dim = c(6, 4), out.width='100%'}
+```{r}
 plotquantiles(x = (-30):30, y = probabilities$quantiles[,1,],
     ylim = c(0, NA),
     xlab = 'MDS-UPDRS-III difference', ylab = 'probability', col = 1)
@@ -269,7 +274,7 @@ probabilitiesPlacebo <- Pr(
 ```
 
 Let's plot these probabilities, together with their variability, on top of the ones previously obtained for the treated case:
-```{r fig.dim = c(6, 4), out.width='100%'}
+```{r}
 plotquantiles(x = (-30):30, y = probabilities$quantiles[,1,],
     ylim = c(0, NA),
     xlab = 'MDS-UPDRS-III difference', ylab = 'probability', col = 1)
@@ -346,7 +351,7 @@ probDecreaseAgePlacebo <- tailPr(
 ```
 
 We can plot the probabilities of an MDS-UPDRS-III decrease against that patient's age, with one plot for each treatment group:
-```{r fig.dim = c(6, 4), out.width='100%'}
+```{r}
 plotquantiles(x = 25:80, y = probDecreaseAge$quantiles[1,,],
     ylim = c(0, NA),
     xlab = 'age', ylab = 'probability of MDS-UPDRS-III decr.', col = 1)
@@ -379,7 +384,7 @@ Again notice that these probabilities could be updated to very different values,
 
 We can perform an analysis analogous to the previous examples, but for a male patient. Here are the corresponding function calls and plots.
 
-```{r fig.dim = c(6, 4), out.width='100%'}
+```{r}
 probabilitiesMale <- Pr(
     Y = data.frame(diff.MDS.UPRS.III = (-30):30),
     X = data.frame(Sex = 'Male', TreatmentGroup = c('NR', 'Placebo')),
@@ -408,7 +413,7 @@ legend('topright', legend = c('NR, Male', 'Placebo, Male'),
 
 And considering all ages separately:
 
-```{r fig.dim = c(6, 4), out.width='100%'}
+```{r}
 probMaleDecreaseAge <- tailPr(
     Y = data.frame(diff.MDS.UPRS.III = -1),
     X = data.frame(Sex = 'Male', Age = 25:80, TreatmentGroup = 'NR'),
@@ -443,7 +448,7 @@ legend('topright', legend = c('NR, Male', 'Placebo, Male'),
 
 Finally let's compare treated female vs male patients, per age:
 
-```{r fig.dim = c(6, 4), out.width='100%'}
+```{r}
 plotquantiles(x = 25:80, y = probDecreaseAge$quantiles[1,,],
     ylim = c(0, NA),
     xlab = 'age', ylab = 'probability of MDS-UPDRS-III decr.', col = 1)
