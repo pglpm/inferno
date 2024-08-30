@@ -2109,7 +2109,7 @@ learn <- function(
     }
 
     ## cat('Plotting marginal samples.\n')
-    plotFsamples(
+    #plotFsamples(
         file = file.path(dirname,
             paste0('plotsamples_learnt', dashnameroot)),
         learnt = c(mcsamples, list(auxmetadata = auxmetadata)),

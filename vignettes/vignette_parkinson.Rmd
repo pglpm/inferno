@@ -7,11 +7,16 @@ vignette: >
   %\VignetteEncoding{UTF-8}
 ---
 
-```{r, include = FALSE}
+```{r, setup, include = FALSE}
 knitr::opts_chunk$set(
-  collapse = TRUE,
-  comment = "#>"
+    dev='png',
+    fig.asp = 1/sqrt(2),
+    fig.width = 8,
+    out.width='100%',
+    collapse = TRUE,
+    comment = "#>"
 )
+library(inferno)
 ```
 
 ## Purpose
@@ -36,7 +41,7 @@ The investigations in the cited paper involve 30 subjects, for each of which var
 
 \
 
-We store the name of the datafile:example:
+We store the name of the datafile
 ```{r}
 datafile <- 'toydata.csv'
 ```
@@ -60,7 +65,7 @@ On the other hand, the investigators did *not* choose the statistics of the two 
 ## Metadata
 
 Let's load the package:
-```{r setup}
+```{r eval = FALSE}
 library(inferno)
 ```
 
@@ -70,7 +75,7 @@ In order to draw inferences, we need metadata information, that is, information 
 As an example of why metadata is necessary, suppose you are given the data `3`, `7`, `9`. Can you say whether the value `5` could be observed in a new instance? and what about `4.7`, or `-10`? Knowing whether these values are at all possible, or not, greatly affects the precision of the inferences we draw. Obviously a researcher must know such basic information about the data being collected -- otherwise they wouldn't know what they're doing.
 
 The software requires specification of metadata either as a `data.frame` object or as a `.csv` file. To help you prepare this file, the software offers the function `buildmetadata()`, which writes a template that you thereafter modify. The template is filled with **tentative** values; these are wild guesses from the data, so they are often wrong. The function explains the heuristic it is using in order to pre-fill the fields of the metadata file, and gives warnings about guessed values that are especially dubious. You should examine and correct all fields:
-```{r}
+```{r class.source = 'fold-hide'}
 buildmetadata(data = datafile, file = 'temp_metadata')
 ```
 
@@ -123,10 +128,10 @@ learnt <- learn(
 #> Using 30 datapoints
 #> Calculating auxiliary metadata
 #>
-#> ************************** 
+#> **************************
 #> Saving output in directory
 #> parkinson_computations
-#> ************************** 
+#> **************************
 #> Starting Monte Carlo sampling of 3600 samples by 60 chains
 #> in a space of 703 (effectively 6657) dimensions.
 #> Using 12 cores: 60 samples per chain, 5 chains per core.
@@ -205,7 +210,7 @@ probabilities <- Pr(
 )
 ```
 Each probability thus obtained has two accompanying quantiles and related uncertainty.  Let us plot both:
-```{r fig.dim = c(6, 4), out.width='100%'}
+```{r}
 plotquantiles(x = (-30):30, y = probabilities$quantiles[,1,],
     ylim = c(0, NA),
     xlab = 'MDS-UPDRS-III difference', ylab = 'probability', col = 1)
@@ -259,6 +264,7 @@ probDecrease$quantiles[1,1,]
 In the previous example we found that there is a `r probFNR`% probability that a treated female patient will experience a decrease in MDS-UPDRS-III after the therapy. But can this decrease really be correlated with the therapy?
 
 To preliminarily answer this question, we can find the analogous probabilities for a female patient that has not received the treatment. Again we use `Pr()`, but our `X` argument will specify a `Placebo` value for the Treatment group:
+
 ```{r}
 probabilitiesPlacebo <- Pr(
     Y = data.frame(diff.MDS.UPRS.III = (-30):30),
@@ -268,7 +274,7 @@ probabilitiesPlacebo <- Pr(
 ```
 
 Let's plot these probabilities, together with their variability, on top of the ones previously obtained for the treated case:
-```{r fig.dim = c(6, 4), out.width='100%'}
+```{r}
 plotquantiles(x = (-30):30, y = probabilities$quantiles[,1,],
     ylim = c(0, NA),
     xlab = 'MDS-UPDRS-III difference', ylab = 'probability', col = 1)
@@ -318,14 +324,14 @@ Some preliminary conclusions and possible questions for future research:
 
 
 
-## Third example: considering age
+### Third example: considering age
 
 Our results so far indicate practically no difference in the probabilities of MDS-UPDRS-III decrease of a treated vs a non-treated female patient. These probabilities, however, disregard the patient's age. Is it possible that there are larger differences in different age groups?
 
 We can answer this question by calculating the probabilities conditional on any particular `Age` value, that is,
 $$
 \mathrm{Pr}(\text{MDS-UPDRS-III diff.} \le -1 \:\vert\:
-\text{Sex} = \text{Female}, \text{Treatment} = \text{NR}, 
+\text{Sex} = \text{Female}, \text{Treatment} = \text{NR},
 \text{Age} = a, \mathrm{data})
 $$
 for meaningful values $a$ of the age, let's say between 25 and 80. Again we can find them with the function `tailPr()`. This time our conditioning argument `X` will include a grid of `Age` values. First we do the calculation for a treated female patient, then for a non-treated one:
@@ -345,7 +351,7 @@ probDecreaseAgePlacebo <- tailPr(
 ```
 
 We can plot the probabilities of an MDS-UPDRS-III decrease against that patient's age, with one plot for each treatment group:
-```{r fig.dim = c(6, 4), out.width='100%'}
+```{r}
 plotquantiles(x = 25:80, y = probDecreaseAge$quantiles[1,,],
     ylim = c(0, NA),
     xlab = 'age', ylab = 'probability of MDS-UPDRS-III decr.', col = 1)
@@ -372,6 +378,95 @@ This plot shows some interesting aspects:
 - In the 60--65 age group, an *increase* in MDS-UPDRS-III is more likely than a decrease, for both a treated and a non-treated female patient. **What could be the reason for the increase in this narrow age group?**
 
 Again notice that these probabilities could be updated to very different values, if more clinical trials were available.
+
+
+### Fourth example: male patient
+
+We can perform an analysis analogous to the previous examples, but for a male patient. Here are the corresponding function calls and plots.
+
+```{r}
+probabilitiesMale <- Pr(
+    Y = data.frame(diff.MDS.UPRS.III = (-30):30),
+    X = data.frame(Sex = 'Male', TreatmentGroup = c('NR', 'Placebo')),
+    learnt = learnt
+)
+
+plotquantiles(x = (-30):30, y = probabilitiesMale$quantiles[,1,],
+    ylim = c(0, NA),
+    xlab = 'MDS-UPDRS-III difference', ylab = 'probability', col = 5)
+
+plotquantiles(x = (-30):30, y = probabilitiesMale$quantiles[,2,],
+    col = 6, add = TRUE)
+
+tplot(x = (-30):30, y = probabilitiesMale$values[,1], col = 5, add = TRUE)
+
+tplot(x = (-30):30, y = probabilitiesMale$values[,2],
+    col = 6, lty = 2, add = TRUE)
+
+## add 0-change line
+abline(v = 0, lwd = 1, col = 'yellow')
+
+legend('topright', legend = c('NR, Male', 'Placebo, Male'),
+    bty = 'n', lty = 1:2, col = 5:6)
+```
+
+
+And considering all ages separately:
+
+```{r}
+probMaleDecreaseAge <- tailPr(
+    Y = data.frame(diff.MDS.UPRS.III = -1),
+    X = data.frame(Sex = 'Male', Age = 25:80, TreatmentGroup = 'NR'),
+    learnt = learnt
+)
+
+probMaleDecreaseAgePlacebo <- tailPr(
+    Y = data.frame(diff.MDS.UPRS.III = -1),
+    X = data.frame(Sex = 'Male', Age = 25:80, TreatmentGroup = 'Placebo'),
+    learnt = learnt
+)
+
+
+plotquantiles(x = 25:80, y = probMaleDecreaseAge$quantiles[1,,],
+    ylim = c(0, NA),
+    xlab = 'age', ylab = 'probability of MDS-UPDRS-III decr.', col = 5)
+
+plotquantiles(x = 25:80, y = probMaleDecreaseAgePlacebo$quantiles[1,,],
+    col = 6, add = TRUE)
+
+tplot(x = 25:80, y = probMaleDecreaseAge$values[1,], col = 5, add = TRUE)
+
+tplot(x = 25:80, y = probMaleDecreaseAgePlacebo$values[1,],
+    col = 6, lty = 2, add = TRUE)
+
+## add 50%-probability line
+abline(h = 0.5, lwd = 1, col = 'yellow')
+
+legend('topright', legend = c('NR, Male', 'Placebo, Male'),
+    bty = 'n', lty = 1:2, col = 5:6)
+```
+
+Finally let's compare treated female vs male patients, per age:
+
+```{r}
+plotquantiles(x = 25:80, y = probDecreaseAge$quantiles[1,,],
+    ylim = c(0, NA),
+    xlab = 'age', ylab = 'probability of MDS-UPDRS-III decr.', col = 1)
+
+plotquantiles(x = 25:80, y = probMaleDecreaseAge$quantiles[1,,],
+    col = 5, add = TRUE)
+
+tplot(x = 25:80, y = probDecreaseAge$values[1,], col = 1, add = TRUE)
+
+tplot(x = 25:80, y = probMaleDecreaseAge$values[1,],
+    col = 5, lty = 2, add = TRUE)
+
+## add 50%-probability line
+abline(h = 0.5, lwd = 1, col = 'yellow')
+
+legend('topright', legend = c('NR, Female', 'NR, Male'),
+    bty = 'n', lty = 1:2, col = c(1, 5))
+```
 
 
 *(TO BE CONTINUED)*
