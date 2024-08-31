@@ -68,8 +68,10 @@ buildauxmetadata <- function(data, metadata, Dthreshold = 1) {
         tdomainmaxminushs <- NA
         Nvalues <- +Inf
         halfstep <- as.numeric(minfo$datastep) / 2
-        minincluded <- as.logical(minfo$minincluded)
-        maxincluded <- as.logical(minfo$maxincluded)
+        minincluded <- (tolower(minfo$minincluded) %in%
+                            c('true', 't', 'yes', 'y', '1'))
+        maxincluded <- (tolower(minfo$maxincluded) %in%
+                            c('true', 't', 'yes', 'y', '1'))
         ## Nvalues <- minfo$Nvalues
         ## plotmin <- minfo$plotmin
         ## plotmax <- minfo$plotmax

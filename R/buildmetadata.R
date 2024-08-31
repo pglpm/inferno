@@ -1,6 +1,6 @@
 #' Metadata and helper function for metadata
 #'
-#' Metadata and helper function to build a template metadata file or object.
+#' Metadata and helper function to create a template metadata file or object.
 #'
 #' The \code{\link{learn}} function needs metadata about the variates present in the data. Such metadata can be provided either as a `csv` file or as a \code{\link[base]{data.frame}}. The function `buildmetadata` creates a template metadata csv-file, or outputs a metadata data.frame, by trying to *guess* metadata information from the dataset.The guesses may be very incorrect (as already said, metadata is information not contained in the data, so no algorithm can exist that extracts it from the data). **The user *must* modify and correct this template, using it as a starting point to prepare the correct metadata information.**
 #'
@@ -52,7 +52,7 @@
 #'
 #' **`datastep`**: The minimum distance between the values of a variate (ordinal or continuous). Possible values are a positive real number or an empty value, which is then interpreted as 0 (the explicit value `0` is also accepted). For a numeric ordinal variate, `datastep` is the step between consecutive values. For a continuous *rounded* variate, `datastep` is the minimum distance between different values that occurs because of rounding; see the examples given above. The function `buildmetadata` has some heuristics to determine whether the variate is rounded or not. See further details under the section Rounding below.
 #'
-#' **`minincluded`**, **`maxincluded`**: Whether the minimum (`domainmin`) and maximum(`domainmax`) values of a *continuous* variate can really appear in the data or not. Possible values are `TRUE`, `FALSE`, or an empty value, which is then interpreted as `FALSE`. Here are some examples about the meaning of these fields. (a) A continuous *unrounded* variate such as temperature has 0 as a minimum possible value `domainmin`, but this value itself is physically impossible and can never appear in data; in this case `minincluded` is set to `FALSE`. (b) A variate related to the *unrounded* length, in metres, of some objects may take on any positive real value; but suppose that all objects of length 5 or less are grouped together under the value `5`. It is then possible for several datapoints to have value `5`: one such datapoint could originally have the value 3.782341...; another the value 4.929673..., and so on. In this case `domainmin` is set to `5`, and `minincluded` is set to `TRUE`. Similarly for the maximum value of a variate and `maxincluded`. Note that if `domainmin` is minus-infinity (empty value in the metadata file), then `minincluded` is automatically set to `FALSE`, and similarly for `maxincluded` if `domainmax` is infinity.
+#' **`minincluded`**, **`maxincluded`**: Whether the minimum (`domainmin`) and maximum(`domainmax`) values of a *continuous* variate can really appear in the data or not. Possible values are `true` (or `t` or `yes`) or `false` (or `f`, `no`, or an empty field); upper- or lower-case is irrelevant. Here are some examples about the meaning of these fields. (a) A continuous *unrounded* variate such as temperature has 0 as a minimum possible value `domainmin`, but this value itself is physically impossible and can never appear in data; in this case `minincluded` is set to `FALSE`. (b) A variate related to the *unrounded* length, in metres, of some objects may take on any positive real value; but suppose that all objects of length 5 or less are grouped together under the value `5`. It is then possible for several datapoints to have value `5`: one such datapoint could originally have the value 3.782341...; another the value 4.929673..., and so on. In this case `domainmin` is set to `5`, and `minincluded` is set to `TRUE`. Similarly for the maximum value of a variate and `maxincluded`. Note that if `domainmin` is minus-infinity (empty value in the metadata file), then `minincluded` is automatically set to `FALSE`, and similarly for `maxincluded` if `domainmax` is infinity.
 #'
 #' @section Rounded continuous variates:
 #'
@@ -62,10 +62,10 @@
 #'
 #' To be written.
 #'
-#' @aliases metadata buildmetadata
+#' @aliases metadata metadatatemplate
 #'
 #' @export
-buildmetadata <- function(
+metadatatemplate <- function(
     data,
     file = NULL,
     includevrt = NULL,
