@@ -1,8 +1,8 @@
-name,type,domainmin,domainmax,datastep,minincluded,maxincluded,V1,V2
-TreatmentGroup,nominal,,,,,,NR,Placebo
-Sex,nominal,,,,,,Female,Male
-Age,continuous,0,Inf,1,,,,
-Anamnestic.Loss.of.smell,nominal,,,,,,No,Yes
-History.of.REM.Sleep.Behaviour.Disorder,nominal,,,,,,No,Yes
-MDS.UPDRS..Subsection.III.V1,continuous,0,Inf,1,,,,
-diff.MDS.UPRS.III,continuous,-Inf,Inf,1,,,,
+name,type,domainmin,domainmax,datastep,minincluded,maxincluded,V1,V2,V3,V4,V5,V6,V7,V8,V9,V10,V11
+TreatmentGroup,nominal,,,,,,NR,Placebo,,,,,,,,,
+Sex,nominal,,,,,,Female,Male,,,,,,,,,
+Age,continuous,0,,1,,,,,,,,,,,,,
+Anamnestic.Loss.of.smell,nominal,,,,,,No,Yes,,,,,,,,,
+History.of.REM.Sleep.Behaviour.Disorder,nominal,,,,,,No,Yes,,,,,,,,,
+MDS.UPDRS..Subsection.III.V1,continuous,0,,1,,,,,,,,,,,,,
+diff.MDS.UPRS.III,continuous,,,1,,,,,,,,,,,,,

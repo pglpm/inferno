@@ -74,9 +74,9 @@ In order to draw inferences, we need metadata information, that is, information 
 
 As an example of why metadata is necessary, suppose you are given the data `3`, `7`, `9`. Can you say whether the value `5` could be observed in a new instance? and what about `4.7`, or `-10`? Knowing whether these values are at all possible, or not, greatly affects the precision of the inferences we draw. Obviously a researcher must know such basic information about the data being collected -- otherwise they wouldn't know what they're doing.
 
-The software requires specification of metadata either as a `data.frame` object or as a `.csv` file. To help you prepare this file, the software offers the function `buildmetadata()`, which writes a template that you thereafter modify. The template is filled with **tentative** values; these are wild guesses from the data, so they are often wrong. The function explains the heuristic it is using in order to pre-fill the fields of the metadata file, and gives warnings about guessed values that are especially dubious. You should examine and correct all fields:
+The software requires specification of metadata either as a `data.frame` object or as a `.csv` file. To help you prepare this file, the software offers the function `metadatatemplate()`, which writes a template that you thereafter modify. The template is filled with **tentative** values; these are wild guesses from the data, so they are often wrong. The function explains the heuristic it is using in order to pre-fill the fields of the metadata file, and gives warnings about guessed values that are especially dubious. You should examine and correct all fields:
 ```{r class.source = 'fold-hide'}
-buildmetadata(data = datafile, file = 'temp_metadata')
+metadatatemplate(data = datafile, file = 'temp_metadata')
 ```
 
 We can open the temporary metadata file `temp_metadata.csv` and edit it with any software of our choice. Let's save the corrected version as `meta_toydata.csv`:
