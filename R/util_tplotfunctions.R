@@ -497,14 +497,17 @@ fivenumaxis <- function(side, x, col='#555555', type=6){
 #' Utility function to plot pair of quantiles obtained with \code{\link{Pr}}.
 #'
 #' @param x Numeric or character: Set of values that were used as `Y` argument to \code{\link{Pr}} (typically they make sense if `Y` only was a single variate rather than aconjunction of several).
-#' @param y Numeric: a matrix having as many rows as `x` and two columns, one column per quantile. Typically these two sets of quantiles have been obtained with \code{\link{Pr}}, as its `$quantiles` value. This value is a three-dimensional array, and one of its columns (2nd dimension, corresponding to the possible values of the `X` argument of \code{\link{Pr}}) should be selected before being used as `y` input.
+#' @param y Numeric: a matrix having as many rows as `x` and an even number of columns, with one column per quantile. Typically these quantiles have been obtained with \code{\link{Pr}}, as its `$quantiles` value. This value is a three-dimensional array, and one of its columns (2nd dimension, corresponding to the possible values of the `X` argument of \code{\link{Pr}}) should be selected before being used as `y` input.
 #'
 #' @export
-plotquantiles <- function(x, y, col=7, alpha=0.75, border=NA, ...){
-    y <- t(y)
-    isfin <- is.finite(x) & apply(y, 2, function(xx){all(is.finite(xx))})
-    x <- x[isfin]
-    y <- y[, isfin]
+plotquantiles <- function(x, y, alpha=0.75, border=NA, col=palette()[1], ...){
+    if(!is.matrix(y) || ncol(y) %% 2 != 0) {
+        stop('"y" must be a matrix with an even number of columns.')
+    }
+    nquant <- ncol(y)
+    isfin <- is.finite(x) & apply(y, 1, function(xx){all(is.finite(xx))})
+    x <- unname(x[isfin])
+    y <- unname(y[isfin, , drop = FALSE])
     ##
     ## col[!grepl('^#',col)] <- palette()[as.numeric(col[!grepl('^#',col)])]
     if(is.na(alpha)){alpha <- 0}
@@ -513,9 +516,11 @@ plotquantiles <- function(x, y, col=7, alpha=0.75, border=NA, ...){
     ## else if(!is.character(alpha)){alpha <- alpha2hex(alpha)}
     ## if(!(is.na(col) | nchar(col)>7)){col <- paste0(col, alpha)}
     ##
-    tplot(x=x, y=t(y), type = 'p', pch = NA, ...)
-    polygon(x=c(x,rev(x)), y=c(y[1,], rev(y[2,])),
-        col=col, border=border)
+    tplot(x=x, y=y, type = 'p', pch = NA, ...)
+    for(ii in seq_len(nquant/2)) {
+        polygon(x=c(x,rev(x)), y=c(y[,ii], rev(y[, nquant + 1 - ii])),
+            col=col, border=border)
+    }
 }
 
 #' @keywords internal

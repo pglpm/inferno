@@ -7,7 +7,7 @@
 #' @param X matrix or data.table or `NULL`: set of values of variates on which we want to condition the joint probability of `Y`. If `NULL` (default), no conditioning is made (except for conditioning on the learning dataset and prior assumptions). One variate per column, one set of values per row.
 #' @param learnt Either a string with the name of a directory or full
 #'   path for an 'learnt.rds' object, or such an object itself
-#' @param quantiles numeric vector, between 0 and 1, or `NULL`: desired quantiles of the variability of the probability for `Y`. Default `c(0.05, 0.95)` or the 5% and 95% quantiles.
+#' @param quantiles numeric vector, between 0 and 1, or `NULL`: desired quantiles of the variability of the tail probability for `Y`. Default `c(0.05, 0.25, 0.75, 0.95)`, that is, the 5%, 25%, 75%, 95% quantiles.
 #' @param nsamples integer or `NULL`: desired number of samples of the variability of the probability for `Y`. Default `100`.
 #' @param parallel logical or integer: whether to use pre-existing parallel
 #'   workers, or how many to create and use. Default `TRUE`.
@@ -26,7 +26,7 @@ tailPr <- function(
     Y,
     X = NULL,
     learnt,
-    quantiles = c(5, 95)/100,
+    quantiles = c(0.05, 0.25, 0.75, 0.95),
     nsamples = 100L,
     parallel = TRUE,
     lower.tail = TRUE,
