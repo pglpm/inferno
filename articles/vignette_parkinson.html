@@ -205,7 +205,7 @@ know what they’re doing.</p>
 <p>The software requires specification of metadata either as a
 <code>data.frame</code> object or as a <code>.csv</code> file. To help
 you prepare this file, the software offers the function
-<code><a href="../reference/buildmetadata.html">buildmetadata()</a></code>, which writes a template that you
+<code><a href="../reference/metadatatemplate.html">metadatatemplate()</a></code>, which writes a template that you
 thereafter modify. The template is filled with
 <strong>tentative</strong> values; these are wild guesses from the data,
 so they are often wrong. The function explains the heuristic it is using
@@ -213,7 +213,7 @@ in order to pre-fill the fields of the metadata file, and gives warnings
 about guessed values that are especially dubious. You should examine and
 correct all fields:</p>
 <div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="../reference/buildmetadata.html">buildmetadata</a></span><span class="op">(</span>data <span class="op">=</span> <span class="va">datafile</span>, file <span class="op">=</span> <span class="st">'temp_metadata'</span><span class="op">)</span></span>
+<code class="sourceCode R"><span><span class="fu"><a href="../reference/metadatatemplate.html">metadatatemplate</a></span><span class="op">(</span>data <span class="op">=</span> <span class="va">datafile</span>, file <span class="op">=</span> <span class="st">'temp_metadata'</span><span class="op">)</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; Analyzing 7 variates for 30 datapoints.</span></span>
 <span><span class="co">#&gt; </span></span>
@@ -335,9 +335,9 @@ fields:</p>
 <td align="left">continuous</td>
 <td align="right">1</td>
 <td align="right">0</td>
-<td align="right">Inf</td>
-<td align="left">FALSE</td>
-<td align="left">FALSE</td>
+<td align="right">NA</td>
+<td align="left">NA</td>
+<td align="left">NA</td>
 <td align="left">NA</td>
 <td align="left">NA</td>
 </tr>
@@ -369,8 +369,8 @@ fields:</p>
 <td align="right">1</td>
 <td align="right">0</td>
 <td align="right">132</td>
-<td align="left">NA</td>
-<td align="left">NA</td>
+<td align="left">true</td>
+<td align="left">true</td>
 <td align="left">NA</td>
 <td align="left">NA</td>
 </tr>
@@ -380,15 +380,15 @@ fields:</p>
 <td align="right">1</td>
 <td align="right">-132</td>
 <td align="right">132</td>
-<td align="left">NA</td>
-<td align="left">NA</td>
+<td align="left">true</td>
+<td align="left">true</td>
 <td align="left">NA</td>
 <td align="left">NA</td>
 </tr>
 </tbody>
 </table>
 <p>For a description of the metadata fields, see the help for
-<code>metadata</code> with <code><a href="../reference/buildmetadata.html">?inferno::metadata</a></code>.</p>
+<code>metadata</code> with <code><a href="../reference/metadatatemplate.html">?inferno::metadata</a></code>.</p>
 <p><em>(More to be written here!)</em></p>
 </div>
 <div class="section level2">
