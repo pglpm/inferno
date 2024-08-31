@@ -2,8 +2,8 @@
 
 export(E)
 export(Pr)
-export(buildmetadata)
 export(learn)
+export(metadatatemplate)
 export(mutualinfo)
 export(plotFsamples)
 export(plotquantiles)

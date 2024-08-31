@@ -289,8 +289,8 @@ learn <- function(
                 domainmin = 'numeric',
                 domainmax = 'numeric',
                 datastep = 'numeric',
-                minincluded = 'logical',
-                maxincluded = 'logical'
+                minincluded = 'character',
+                maxincluded = 'character'
                 ))
     }
     metadata <- as.data.frame(metadata)
