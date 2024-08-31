@@ -2,7 +2,7 @@
 #'
 #' Metadata and helper function to build a template metadata file or object.
 #'
-#' The \code{\link{learn}} function needs metadata about the variates present in the data. Such metadata can be provided either as a `csv` file or as a \code{\link[base]{data.frame}}. The function `buildmetadata` creates a template metadata csv-file, or outputs a metadata data.frame, by trying to guess metadata information from the dataset. The user *must* then modify and correct this template, using it as a starting point to prepare the correct metadata information.
+#' The \code{\link{learn}} function needs metadata about the variates present in the data. Such metadata can be provided either as a `csv` file or as a \code{\link[base]{data.frame}}. The function `buildmetadata` creates a template metadata csv-file, or outputs a metadata data.frame, by trying to *guess* metadata information from the dataset.The guesses may be very incorrect (as already said, metadata is information not contained in the data, so no algorithm can exist that extracts it from the data). **The user *must* modify and correct this template, using it as a starting point to prepare the correct metadata information.**
 #'
 #' @param data A dataset, given as a \code{\link[base]{data.frame}}
 #' or as a file path to a csv file.
@@ -46,13 +46,13 @@
 #'
 #' - A *continuous* variate has a continuum of values with an intrinsic ordering. Examples could be a variate related to the width of an object; or to the age of a person; or one coordinate of an object in a particular reference system. A continuous variate requires specification of the fields `domainmin`, `domainmax`, `datastep`, `minincluded`, `maxincluded`. Some naturally continuous variates are often rounded to a given precision; for instance, the age of a person might be reported as rounded to the nearest year (25 years, 26 years, and so on); or the length of an object might be reported to the nearest centimetre (1 m, 1.01 m, 1.02 m, and so on). The minimum distance between such rounded values **must** be reported in the `datastep` field; this would be `1` in the age example and `0.01` in the length example above. See below for further explanation of why reporting such rounding is important.
 #'
-#' **`domainmin`**: The minimum value that the variate (ordinal or continuous) can take on. Possible values are a real number, or `-Inf`, or an empty value, which is then interpreted as `-Inf`. Some continuous variates, like age or distance or temperature, are naturally positive, and therefore have `domainmin` equal `0`. But in other contexts the minimum value could be different. For instance, if a given inference problem only involves people of age 18 or more, then `domainmin` would be set to `18`.
+#' **`domainmin`**: The minimum value that the variate (ordinal or continuous) can take on. Possible values are a real number or an empty value, which is then interpreted as `-Inf` (explicit values like `-Inf`, `-inf`, `-infinity` should also work). Some continuous variates, like age or distance or temperature, are naturally positive, and therefore have `domainmin` equal `0`. But in other contexts the minimum value could be different. For instance, if a given inference problem only involves people of age 18 or more, then `domainmin` would be set to `18`.
 #'
-#' **`domainmax`**: The maximum value that the variate (ordinal or continuous) can take on. Possible values are a real number, or `+Inf`, or an empty value, which is then interpreted as `+Inf`. As with `domainmin`, the maximum value depends on the context. An age-related variate could theoretically have `domainmax` equal to `+Inf`; but if a given study categorizes some people as "90 years old or older", then `domainmax` should be set to `90`.
+#' **`domainmax`**: The maximum value that the variate (ordinal or continuous) can take on. Possible values are a real number, or an empty value, which is then interpreted as `+Inf` (explicit values like `Inf`, `inf`, `infinity` should also work). As with `domainmin`, the maximum value depends on the context. An age-related variate could theoretically have `domainmax` equal to infinity (empty value in the metadata file); but if a given study categorizes some people as "90 years old or older", then `domainmax` should be set to `90`.
 #'
-#' **`datastep`**: The minimum distance between the values of a variate (ordinal or continuous). Possible values are a positive real number, or `0`, or an empty value, which is then interpreted as `0`. For a numeric ordinal variate, `datastep` is the step between consecutive values. For a continuous *rounded* variate, `datastep` is the minimum distance between different values that occurs because of rounding; see the examples given above. The function `buildmetadata` has some heuristics to determine whether the variate is rounded or not. See further details under the section Rounding below.
+#' **`datastep`**: The minimum distance between the values of a variate (ordinal or continuous). Possible values are a positive real number or an empty value, which is then interpreted as 0 (the explicit value `0` is also accepted). For a numeric ordinal variate, `datastep` is the step between consecutive values. For a continuous *rounded* variate, `datastep` is the minimum distance between different values that occurs because of rounding; see the examples given above. The function `buildmetadata` has some heuristics to determine whether the variate is rounded or not. See further details under the section Rounding below.
 #'
-#' **`minincluded`**, **`maxincluded`**: Whether the minimum (`domainmin`) and maximum(`domainmax`) values of a *continuous* variate can really appear in the data or not. Possible values are `TRUE`, `FALSE`, or an empty value, which is then interpreted as `FALSE`. Here are some examples about the meaning of these fields. (a) A continuous *unrounded* variate such as temperature has 0 as a minimum possible value `domainmin`, but this value itself is physically impossible and can never appear in data; in this case `minincluded` is set to `FALSE`. (b) A variate related to the *unrounded* length, in metres, of some objects may take on any positive real value; but suppose that all objects of length 5 or less are grouped together under the value `5`. It is then possible for several datapoints to have value `5`: one such datapoint could originally have the value 3.782341...; another the value 4.929673..., and so on. In this case `domainmin` is set to `5`, and `minincluded` is set to `TRUE`. Similarly for the maximum value of a variate and `maxincluded`. Note that if `domainmin` is `-Inf`, then `minincluded` is automatically set to `FALSE`, and similarly for `maxincluded` if `domainmax` is `+Inf`.
+#' **`minincluded`**, **`maxincluded`**: Whether the minimum (`domainmin`) and maximum(`domainmax`) values of a *continuous* variate can really appear in the data or not. Possible values are `TRUE`, `FALSE`, or an empty value, which is then interpreted as `FALSE`. Here are some examples about the meaning of these fields. (a) A continuous *unrounded* variate such as temperature has 0 as a minimum possible value `domainmin`, but this value itself is physically impossible and can never appear in data; in this case `minincluded` is set to `FALSE`. (b) A variate related to the *unrounded* length, in metres, of some objects may take on any positive real value; but suppose that all objects of length 5 or less are grouped together under the value `5`. It is then possible for several datapoints to have value `5`: one such datapoint could originally have the value 3.782341...; another the value 4.929673..., and so on. In this case `domainmin` is set to `5`, and `minincluded` is set to `TRUE`. Similarly for the maximum value of a variate and `maxincluded`. Note that if `domainmin` is minus-infinity (empty value in the metadata file), then `minincluded` is automatically set to `FALSE`, and similarly for `maxincluded` if `domainmax` is infinity.
 #'
 #' @section Rounded continuous variates:
 #'
@@ -114,6 +114,7 @@ buildmetadata <- function(
             ## plotmin = NA,
             ## plotmax = NA
         ),
+        setNames(as.list(rep(NA, 11)), paste0('V', 1:11)),
             if (addsummary2metadata) {
                 list(datamin = NA,
                     datamax = NA,
@@ -382,8 +383,8 @@ buildmetadata <- function(
             Nvalues <- Inf
             ## preliminary values, possibly modified below
             datastep <- NA
-            domainmin <- -Inf # signif(datamax - 3 * rangex, 1)
-            domainmax <- +Inf # signif(datamax + 3 * rangex, 1)
+            domainmin <- NA # signif(datamax - 3 * rangex, 1)
+            domainmax <- NA # signif(datamax + 3 * rangex, 1)
 
             ## Q1 <- quantile(x, probs = 0.25, type = 6)
             ## centralvalue <- quantile(x, probs = 0.5, type = 6)

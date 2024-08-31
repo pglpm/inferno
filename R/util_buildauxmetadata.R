@@ -60,14 +60,16 @@ buildauxmetadata <- function(data, metadata, Dthreshold = 1) {
         transf <- 'identity' # temporary
         datavalues <- minfo[grep('^V[0-9]+$', names(minfo))]
         ndatavalues <- sum(!is.na(datavalues))
-        domainmin <- minfo$domainmin
-        domainmax <- minfo$domainmax
+        domainmin <- as.numeric(minfo$domainmin)
+        domainmax <- as.numeric(minfo$domainmax)
         domainminplushs <- NA
         tdomainminplushs <- NA
         domainmaxminushs <- NA
         tdomainmaxminushs <- NA
         Nvalues <- +Inf
-        halfstep <- minfo$datastep / 2
+        halfstep <- as.numeric(minfo$datastep) / 2
+        minincluded <- as.logical(minfo$minincluded)
+        maxincluded <- as.logical(minfo$maxincluded)
         ## Nvalues <- minfo$Nvalues
         ## plotmin <- minfo$plotmin
         ## plotmax <- minfo$plotmax
@@ -220,13 +222,20 @@ buildauxmetadata <- function(data, metadata, Dthreshold = 1) {
 
             }
 
-        } else if (minfo$type == 'continuous') { # continuous variate (R,C,D)
+#### Continuous variate (R,C,D)
+        } else if (minfo$type == 'continuous') {
             Nvalues <- +Inf
             ## Rounded variates
-            if (is.null(minfo$datastep) || is.na(minfo$datastep)) {
+            ## Empty datastep means 0
+            if (is.null(halfstep) || is.na(halfstep)) {
                 halfstep <- 0
-            } else {
-                halfstep <- minfo$datastep / 2
+            }
+            ## Empty domainmin/max values mean -+Inf
+            if(is.null(domainmin) || is.na(domainmin)) {
+                domainmin <- -Inf
+            }
+            if(is.null(domainmax) || is.na(domainmax)) {
+                domainmax <- +Inf
             }
             ## If the variate is rounded,
             ## we avoid a  latent-variable representation
@@ -279,8 +288,8 @@ buildauxmetadata <- function(data, metadata, Dthreshold = 1) {
             } else {
 ### Non-rounded continuous cases
                 ## variate transformation to real-line domain
-                if (is.finite(minfo$domainmin) && is.finite(minfo$domainmax) &&
-                    minfo$minincluded && !minfo$maxincluded) {
+                if (is.finite(domainmin) && is.finite(domainmax) &&
+                    minincluded && !maxincluded) {
                     ## doubly-bounded left-closed domain
                     mcmctype <- 'C'
                     id <- idC
@@ -300,8 +309,8 @@ buildauxmetadata <- function(data, metadata, Dthreshold = 1) {
                     tdomainmax <- +Inf
 
 
-                } else if (is.finite(minfo$domainmin) && is.finite(minfo$domainmax) &&
-                           !minfo$minincluded && minfo$maxincluded) {
+                } else if (is.finite(domainmin) && is.finite(domainmax) &&
+                           !minincluded && maxincluded) {
                     ## doubly-bounded right-closed domain
                     mcmctype <- 'C'
                     id <- idC
@@ -319,8 +328,8 @@ buildauxmetadata <- function(data, metadata, Dthreshold = 1) {
                     tdomainmin <- -Inf
                     tdomainmax <- (log(domainmax - domainmin) - tlocation) / tscale
 
-                } else if (is.finite(minfo$domainmin) && is.finite(minfo$domainmax) &&
-                           minfo$minincluded && minfo$maxincluded) {
+                } else if (is.finite(domainmin) && is.finite(domainmax) &&
+                           minincluded && maxincluded) {
                     ## doubly-bounded closed domain
                     mcmctype <- 'C'
                     id <- idC
@@ -338,7 +347,7 @@ buildauxmetadata <- function(data, metadata, Dthreshold = 1) {
                     tdomainmin <- (domainmin - tlocation) / tscale
                     tdomainmax <- (domainmax - tlocation) / tscale
 
-                } else if (is.finite(minfo$domainmin) && minfo$minincluded) {
+                } else if (is.finite(domainmin) && minincluded) {
                     ## left-bounded left-closed domain
                     mcmctype <- 'C'
                     id <- idC
@@ -356,7 +365,7 @@ buildauxmetadata <- function(data, metadata, Dthreshold = 1) {
                     tdomainmin <- (domainmin - tlocation) / tscale
                     tdomainmax <- +Inf
 
-                } else if (is.finite(minfo$domainmax) && minfo$maxincluded) {
+                } else if (is.finite(domainmax) && maxincluded) {
                     ## right-bounded right-closed domain
                     mcmctype <- 'C'
                     id <- idC
@@ -374,8 +383,8 @@ buildauxmetadata <- function(data, metadata, Dthreshold = 1) {
                     tdomainmin <- -Inf
                     tdomainmax <- (domainmax - tlocation) / tscale
 
-                } else if (is.finite(minfo$domainmin) && is.finite(minfo$domainmax) &&
-                           !minfo$minincluded && !minfo$maxincluded) {
+                } else if (is.finite(domainmin) && is.finite(domainmax) &&
+                           !minincluded && !maxincluded) {
                     ## doubly-bounded open domain
                     mcmctype <- 'R'
                     id <- idR
@@ -398,7 +407,7 @@ buildauxmetadata <- function(data, metadata, Dthreshold = 1) {
                     tdomainmin <- -Inf
                     tdomainmax <- +Inf
 
-                } else if (is.finite(minfo$domainmin) && !minfo$minincluded) {
+                } else if (is.finite(domainmin) && !minincluded) {
                     ## left-bounded left-open domain
                     mcmctype <- 'R'
                     id <- idR
@@ -416,7 +425,7 @@ buildauxmetadata <- function(data, metadata, Dthreshold = 1) {
                     tdomainmin <- -Inf
                     tdomainmax <- +Inf
 
-                } else if (is.finite(minfo$domainmax) && !minfo$maxincluded) {
+                } else if (is.finite(domainmax) && !maxincluded) {
                     ## right-bounded right-open domain
                     mcmctype <- 'R'
                     id <- idR
