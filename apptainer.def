@@ -28,7 +28,7 @@ From: r-base
 	mkdir ~/R-packages
     echo $R_LIBS_USER
 	Rscript -e "install.packages(pkgs=Sys.getenv('GITHUB_WORKSPACE'), repos=NULL)"
-	Rscript -e "library("predict")"
+	Rscript -e "library("inferno")"
 	cd $GITHUB_WORKSPACE
 	cd development/tests
 	source ./tests.sh
