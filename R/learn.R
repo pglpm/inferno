@@ -244,7 +244,16 @@ learn <- function(
     ## Check whether argument 'metadata' is a string for a file name
     ## otherwise we assume it's a data.frame or similar object
     if (is.character(metadata) && file.exists(metadata)) {
-        metadata <- read.csv(metadata, na.strings = '')
+        metadata <- read.csv(metadata, na.strings = '',
+            colClasses=c(
+                name = 'character',
+                type = 'character',
+                domainmin = 'numeric',
+                domainmax = 'numeric',
+                datastep = 'numeric',
+                minincluded = 'logical',
+                maxincluded = 'logical'
+                ))
     }
     metadata <- as.data.frame(metadata)
 
