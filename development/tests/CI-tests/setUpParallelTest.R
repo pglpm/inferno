@@ -26,7 +26,7 @@ testNcores <- function(args, check, silent) {
         if (!(ncores == correctNcores)) {
             message <- paste0('WARNING: ', ncores, ' cores were set up, but ',
                               correctNcores, ' were requested.')
-            print_pretty(message, silent)
+            print_pretty(message, silent = FALSE)
         }
     }
 }
@@ -35,20 +35,31 @@ testNcores <- function(args, check, silent) {
 testOpenWorkers <- function(silent) {
     # Open 2 workers
     workers <- setup_parallel(2, silent)
+    # Find workers again
+    workers <- setup_parallel(TRUE, silent)
     # Open 2 more workers
-    workers <- setup_parallel(2, silent)
+    workers <- setup_parallel(4, silent)
     # Check if there are 4 workers
     ncores <- workers$ncores
-    if (!(workers$ncores) != 4) {
+    if ((workers$ncores) != 2) {
         message <- paste0('WARNING: ', ncores, ' cores were set up, but 
-                          4 were requested.')
-        print_pretty(message, silent)
+                          2 were expected.')
+        print_pretty(message, silent = FALSE)
     }
-    stopCores()
+    stopCores(workers, silent)
 
 }
 
-argList <- c(0, 1, 2, 4, TRUE, FALSE)
-ncoresCheck <- c(1, 1, 2, 4, 1, 1)
-silent <- TRUE
+silent <- FALSE
+print_pretty('', silent)
+# Test integer input
+argList <- c(1, 2, 4)
+ncoresCheck <- c(1, 2, 4)
 testNcores(argList, ncoresCheck, silent)
+# Test boolean input
+argList <- c(FALSE)
+ncoresCheck <- c(1)
+testNcores(argList, ncoresCheck, silent)
+# Test opening nodes sequentially
+testOpenWorkers(silent)
+#

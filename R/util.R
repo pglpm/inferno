@@ -5,15 +5,18 @@
 #' @param silent logical: give warnings or updates in the computation?
 #'   Default `FALSE`.
 #' @keywords internal
-#' @return number of cores
+#' @return list (ncores, cluster) ncores is the number of cores and
+#'   cluster object is a parallel::makeCluster(parallel) object or FALSE
+#'   if there is no cluster.
 setup_parallel <- function(parallel, silent = FALSE) {
     # Set cluster object to false to start
     cluster <- FALSE
     # Check if 'parallel' argument is either logical or numeric
-    if (!is.logical(parallel) && !(parallel %% 1 == 0)) {
-        stop('Argument parallel must be TRUE, FALSE or an integer.')
+    if (!(is.logical(parallel) || (is.numeric(parallel) &&
+        parallel > 0 && (round(parallel) == parallel)))) {
+        stop('Argument parallel must be TRUE, FALSE or a positive integer.')
     }
-    if (parallel == 0) {parallel <- FALSE}
+
     ## ## Alternative way to register cores;
     ## ## might need to be used for portability to Windows?
     ## registerDoSEQ()
@@ -21,8 +24,8 @@ setup_parallel <- function(parallel, silent = FALSE) {
 
     if (isTRUE(parallel)) {
         if (foreach::getDoParRegistered()) {
-            print_pretty(c('Using already registered', foreach::getDoParName(),
-                           'with', foreach::getDoParWorkers(), 'workers'), silent)
+            print_pretty(paste0('Using already registered ', foreach::getDoParName(),
+                           ' with ', foreach::getDoParWorkers(), ' workers'), silent)
             ncores <- foreach::getDoParWorkers()
         } else {
             print_pretty('No parallel backend registered.', silent)
@@ -31,17 +34,19 @@ setup_parallel <- function(parallel, silent = FALSE) {
     } else if (parallel >= 2) {
         if (foreach::getDoParRegistered()) {
             ncores <- min(foreach::getDoParWorkers(), parallel)
-            print_pretty(c('Using already registered', foreach::getDoParName(),
-                        'with', foreach::getDoParWorkers(), 'workers'), silent)
+            print_pretty(paste0('Using already registered ', foreach::getDoParName(),
+                        ' with ', foreach::getDoParWorkers(), ' workers'), silent)
             if (parallel > ncores) {
-                print_pretty(c('NOTE: fewer pre-registered cores',
-                            'than requested in the "parallel" argument.'), silent)
+                message <- paste0('NOTE: there are pre-registered cores,
+                    but less than requested in the "parallel" argument. 
+                    Running with ', ncores, ' cores')
+                print_pretty(message, silent)
             }
         } else {
             cluster <- parallel::makeCluster(parallel)
             doParallel::registerDoParallel(cluster)
-            print_pretty(c('Registered', foreach::getDoParName(),
-                    'with', foreach::getDoParWorkers(), 'workers'), silent)
+            print_pretty(paste0('Registered ', foreach::getDoParName(),
+                    ' with ', foreach::getDoParWorkers(), ' workers'), silent)
             ncores <- parallel
         }
     } else {
@@ -60,10 +65,14 @@ closecoresonexit <- function(cluster, silent = FALSE) {
     rm(list = ls(name = env), pos = env)
 }
 
-print_pretty <- function(message, silent = FALSE) {
+# Print a either a string/value on one line after removing leading or
+# trailing whitespace.
+# Possible to add automatic formatting of maximum amount of characters per line
+# This function can be modified to enable optional logging of console output
+print_pretty <- function(message, silent = FALSE, addNewline = TRUE) {
+    # Trim whitespace
+    trim <- function (x) gsub('^\\s+|\\s+$', '', strsplit(x, '\n')[[1]])
     if (!silent) {
-        if (is.list(message)) {
-            for (item in list) cat(item, '\n')
-        } else {cat(message, '\n')}
+        cat(trim(message), '\n')
     }
 }
