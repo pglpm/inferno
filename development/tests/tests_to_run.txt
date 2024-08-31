@@ -1,1 +1,1 @@
-CI-example-test/learn_custom30.R
+CI-tests/setUpParallelTest.R

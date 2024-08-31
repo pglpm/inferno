@@ -6,65 +6,64 @@
 #'   Default `FALSE`.
 #' @keywords internal
 #' @return number of cores
-checkParallel <- function(parallel, silent) {
-
+setup_parallel <- function(parallel, silent = FALSE) {
+    # Set cluster object to false to start
     cluster <- FALSE
+    # Check if 'parallel' argument is either logical or numeric
+    if (!is.logical(parallel) && !(parallel %% 1 == 0)) {
+        stop('Argument parallel must be TRUE, FALSE or an integer.')
+    }
+    if (parallel == 0) {parallel <- FALSE}
+    ## ## Alternative way to register cores;
+    ## ## might need to be used for portability to Windows?
+    ## registerDoSEQ()
+    ## cluster <- makePSOCKcluster(ncores)
 
-    if (is.logical(parallel) && parallel) {
+    if (isTRUE(parallel)) {
         if (foreach::getDoParRegistered()) {
-            if (!silent) {
-                cat('Using already registered', foreach::getDoParName(),
-                    'with', foreach::getDoParWorkers(), 'workers\n')
-            }
+            print_pretty(c('Using already registered', foreach::getDoParName(),
+                           'with', foreach::getDoParWorkers(), 'workers'), silent)
             ncores <- foreach::getDoParWorkers()
         } else {
-            if (!silent) {
-                cat('No parallel backend registered.\n')
-            }
+            print_pretty('No parallel backend registered.', silent)
             ncores <- 1
         }
-    } else if (is.numeric(parallel) && parallel >= 2) {
+    } else if (parallel >= 2) {
         if (foreach::getDoParRegistered()) {
             ncores <- min(foreach::getDoParWorkers(), parallel)
-            if (!silent) {
-                cat('Using already registered', foreach::getDoParName(),
-                    'with', foreach::getDoParWorkers(), 'workers\n')
-                if(parallel > ncores) {
-                    cat('NOTE: fewer pre-registered cores',
-                        'than requested in the "parallel" argument.\n')
-                }
+            print_pretty(c('Using already registered', foreach::getDoParName(),
+                        'with', foreach::getDoParWorkers(), 'workers'), silent)
+            if (parallel > ncores) {
+                print_pretty(c('NOTE: fewer pre-registered cores',
+                            'than requested in the "parallel" argument.'), silent)
             }
         } else {
-            ## ##
-            ## ## Alternative way to register cores;
-            ## ## might need to be used for portability to Windows?
-            ## registerDoSEQ()
-            ## cluster <- makePSOCKcluster(ncores)
-            ## ##
             cluster <- parallel::makeCluster(parallel)
             doParallel::registerDoParallel(cluster)
-            if (!silent) {
-                cat('Registered', foreach::getDoParName(),
-                    'with', foreach::getDoParWorkers(), 'workers\n')
-            }
+            print_pretty(c('Registered', foreach::getDoParName(),
+                    'with', foreach::getDoParWorkers(), 'workers'), silent)
             ncores <- parallel
         }
     } else {
-        if (!silent) {
-            cat('No parallel backend registered.\n')
-        }
+        print_pretty('No parallel backend registered.', silent)
         ncores <- 1
     }
-    workers <- list("ncores" = ncores, "cluster" = cluster)
+    workers <- list('ncores' = ncores, 'cluster' = cluster)
     return(workers)
 }
 
-closecoresonexit <- function(cluster, silent) {
-    if(!silent) {
-        cat('\nClosing connections to cores.\n')
-    }
+closecoresonexit <- function(cluster, silent = FALSE) {
+    print_pretty('Closing connections to cores.', silent)
     foreach::registerDoSEQ()
     parallel::stopCluster(cluster)
     env <- foreach:::.foreachGlobals
     rm(list = ls(name = env), pos = env)
+}
+
+print_pretty <- function(message, silent = FALSE) {
+    if (!silent) {
+        if (is.list(message)) {
+            for (item in list) cat(item, '\n')
+        } else {cat(message, '\n')}
+    }
 }

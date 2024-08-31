@@ -125,11 +125,11 @@ learn <- function(
 ##################################################
 
 #### Determine the status of parallel processing
-    workers <- checkParallel(parallel, silent)
+    workers <- setup_parallel(parallel)
     ncores <- workers$ncores
     
     if (!is.logical(workers$cluster)) {
-        on.exit(closecoresonexit(workers$cluster, silent))
+        on.exit(closecoresonexit(workers$cluster))
     }
 
 #### Consistency checks for numbers of samples, chains, cores
@@ -2118,7 +2118,7 @@ learn <- function(
     }
 
     ## cat('Plotting marginal samples.\n')
-    #plotFsamples(
+    plotFsamples(
         file = file.path(dirname,
             paste0('plotsamples_learnt', dashnameroot)),
         learnt = c(mcsamples, list(auxmetadata = auxmetadata)),
