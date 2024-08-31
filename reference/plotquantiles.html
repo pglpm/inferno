@@ -42,7 +42,7 @@
 
     <div class="section level2">
     <h2 id="ref-usage">Usage<a class="anchor" aria-label="anchor" href="#ref-usage"></a></h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">plotquantiles</span><span class="op">(</span><span class="va">x</span>, <span class="va">y</span>, col <span class="op">=</span> <span class="fl">7</span>, alpha <span class="op">=</span> <span class="fl">0.75</span>, border <span class="op">=</span> <span class="cn">NA</span>, <span class="va">...</span><span class="op">)</span></span></code></pre></div>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">plotquantiles</span><span class="op">(</span><span class="va">x</span>, <span class="va">y</span>, alpha <span class="op">=</span> <span class="fl">0.75</span>, border <span class="op">=</span> <span class="cn">NA</span>, col <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/grDevices/palette.html" class="external-link">palette</a></span><span class="op">(</span><span class="op">)</span><span class="op">[</span><span class="fl">1</span><span class="op">]</span>, <span class="va">...</span><span class="op">)</span></span></code></pre></div>
     </div>
 
     <div class="section level2">
@@ -54,7 +54,7 @@
 
 
 <dt id="arg-y">y<a class="anchor" aria-label="anchor" href="#arg-y"></a></dt>
-<dd><p>Numeric: a matrix having as many rows as <code>x</code> and two columns, one column per quantile. Typically these two sets of quantiles have been obtained with <code><a href="Pr.html">Pr</a></code>, as its <code>$quantiles</code> value. This value is a three-dimensional array, and one of its columns (2nd dimension, corresponding to the possible values of the <code>X</code> argument of <code><a href="Pr.html">Pr</a></code>) should be selected before being used as <code>y</code> input.</p></dd>
+<dd><p>Numeric: a matrix having as many rows as <code>x</code> and an even number of columns, with one column per quantile. Typically these quantiles have been obtained with <code><a href="Pr.html">Pr</a></code>, as its <code>$quantiles</code> value. This value is a three-dimensional array, and one of its columns (2nd dimension, corresponding to the possible values of the <code>X</code> argument of <code><a href="Pr.html">Pr</a></code>) should be selected before being used as <code>y</code> input.</p></dd>
 
 </dl></div>
 
