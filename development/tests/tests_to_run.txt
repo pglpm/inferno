@@ -1,4 +1,4 @@
 CI-tests/setUpParallelTest.R
-CI-tests/learn_custom30Test.R
+CI-tests/learn_custom30.R
 CI-tests/mutualinfoTest.R
 CI-tests/PrTest.R
