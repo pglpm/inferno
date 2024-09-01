@@ -53,7 +53,7 @@ while read line || [[ -n $line ]]; do
         fi
     fi
     
-done < $filename
+done < "$filename"
 
 for result in "${results[@]}"; do
     if [ ! $result -eq 0 ]; then
