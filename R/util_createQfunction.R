@@ -64,7 +64,7 @@ createQfunction <- function(
             x = xgrid, y = list(
                 util_Q(xgrid), qnorm(xgrid, sd = thismad / qnorm(3 / 4)), qcauchy(xgrid, scale = thismad) # ,qlogis(xgrid,scale=1/qlogis(3/4))
             ),
-            lwd = c(3, 2, 2, 5), lty = c(1, 2, 4, 3), alpha = c(0, rep(0.25, 3)),
+            lwd = c(3, 2, 2, 5), lty = c(1, 2, 4, 3), alpha = c(1, rep(0.75, 3)),
             ylim = range(util_Q(xgrid)),
             ## xticks=c(0,0.25,0.5,0.75,1),xlabels=c(0,expression(italic(m)/4),expression(italic(m)/2),expression(3*italic(m)/4),expression(italic(m))),
             xlab = expression(italic(x)), ylab = expression(italic(Q)(italic(x))),

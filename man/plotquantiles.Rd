@@ -4,7 +4,7 @@
 \alias{plotquantiles}
 \title{Plot pairs of quantiles}
 \usage{
-plotquantiles(x, y, alpha = 0.75, border = NA, col = palette()[1], ...)
+plotquantiles(x, y, alpha.f = 0.25, border = NA, col = palette()[1], ...)
 }
 \arguments{
 \item{x}{Numeric or character: Set of values that were used as \code{Y} argument to \code{\link{Pr}} (typically they make sense if \code{Y} only was a single variate rather than aconjunction of several).}

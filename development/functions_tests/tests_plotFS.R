@@ -53,15 +53,10 @@ plotFsamples(
 
 ######################################################################
 #### custom
-dataset <- read.csv('~/repos/inferno/development/test_custom/datanew_test_custom_30.csv', na.strings='')
-learnt <- readRDS('~/repos/inferno/development/test_custom/_newdeletepackagetest-vrt10_dat30_smp120/learnt.rds')
-jac <- T
+dataset <- read.csv('~/repos/inferno/development/tests/custom/dataset_custom30.csv', na.strings='')
+learnt <- readRDS('~/repos/inferno/development/tests/custom/test_custom-vrt10_dat30_smp120/learnt.rds')
 ##
-library('foreach')
-source('util_tplotfunctions.R', local=T)
-source('util_vtransform.R', local=T)
-source('samplesFDistribution.R', local=T)
-source('plotFsamples.R', local=T)
+unloadNamespace('inferno'); library('inferno')
 for(pv in c('samples', 'quantiles')) {
 plotFsamples(
     file= paste0('_justatest_', pv),
@@ -80,7 +75,7 @@ plotFsamples(
 
 
 dataset <- read.csv('~/repositories/parkinsonbayes/data/nadpark/toydata.csv', na.strings='')[,-1]
-learnt <- readRDS('~/repositories/parkinsonbayes/data/nadpark/_testtoy_analysis_3A4-1-vrt7_dat30_smp1024/learnt.rds')
+learnt <- readRDS('~/repos/inferno/development/tests/custom/test_custom-240901T130028-vrt10_dat30_smp120/learnt.rds')
 out <- t(sapply(1:5, function(ipoint){
     sapply(1:ncol(dataset), function(i){
         v0 <- samplesFDistribution(Y=dataset[ipoint,i,drop=F], X=NULL, learnt = learnt, jacobian = T, silent=T)
@@ -115,8 +110,8 @@ max(out)
 
 
 
-data <- read.csv('/home/pglpm/repos/inferno/development/tests/custom/dataset_custom30.csv', na.strings='')
-learnt <- readRDS('/home/pglpm/repos/inferno/development/tests/custom/test_custom-240822T190544-vrt10_dat30_smp120/learnt.rds')
+data <- read.csv('~/repos/inferno/development/tests/custom/dataset_custom30.csv', na.strings='')
+learnt <- readRDS('~/repos/inferno/development/tests/custom/test_custom-240822T190544-vrt10_dat30_smp120/learnt.rds')
 
 unloadNamespace('inferno')
 library('inferno')
@@ -137,7 +132,7 @@ Y <- cbind(Age=65)
 
 X <- NULL
 
-learnt <- readRDS('/home/pglpm/repos/parkinsonbayes/data/nadpark/_output_learn_toydata-1-240810T161910-vrt7_dat30_smp3600/learnt.rds')
+learnt <- readRDS('~/repos/parkinsonbayes/data/nadpark/_output_learn_toydata-1-240810T161910-vrt7_dat30_smp3600/learnt.rds')
 
 
 prediction <- Pr(Y=Y, X=X, learnt=learnt)
@@ -154,7 +149,7 @@ tplot(x=(-10):10, y=predictionM$values)
 
 Y <- cbind(diff.MDS.UPRS.III = (-10):10)
 X <- cbind(Sex='Female', TreatmentGroup='NR')
-predictionF <- Pr(Y=Y, X=X, learnt='/home/pglpm/repos/parkinsonbayes/data/nadpark/_output_learn_toydata-1-240810T161910-vrt7_dat30_smp3600')
+predictionF <- Pr(Y=Y, X=X, learnt='~/repos/parkinsonbayes/data/nadpark/_output_learn_toydata-1-240810T161910-vrt7_dat30_smp3600')
 predictionF$value
 
 plot(x=(-10):10, y=predictionF$value, type='l',col='blue')

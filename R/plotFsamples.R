@@ -105,7 +105,8 @@ plotFsamples <- function(
         datavalues <- as.list(auxmetadata[auxmetadata$name == name,
             grep('^V[0-9]+$', names(auxmetadata))
         ])
-        nvaluelist <- sum(!is.na(datavalues))
+        datavalues <- unlist(datavalues[!is.na(datavalues)])
+        nvaluelist <- length(datavalues)
 
         with(as.list(auxmetadata[auxmetadata$name == name, ]),
         {
@@ -167,7 +168,7 @@ plotFsamples <- function(
                         x = Xgrid, y = probabilities$samples,
                         xlim = range(Xgrid), ylim = c(0, ymax),
                         type = 'l', lty = 1, lwd = 2,
-                        col = 5, alpha = 7/8,
+                        col = 5, alpha = 1/8,
                         xlab = name,
                         ylab = paste0('probability density', addylab),
                         family = fontfamily
@@ -182,7 +183,7 @@ plotFsamples <- function(
                         x = Xgrid,
                         y = probabilities$quantiles,
                         ## y = marguncertainty[, , drop = FALSE],
-                        col = 5, alpha = 0.75,
+                        col = 5, alpha = 0.25,
                         xlim = range(Xgrid), ylim = c(0, ymax),
                         xlab = name,
                         ylab = paste0('probability density', addylab),
@@ -200,7 +201,7 @@ plotFsamples <- function(
                         ## y = rowMeans(probabilities[, , drop = FALSE], na.rm = TRUE),
                         xlim = range(Xgrid), ylim = c(0, ymax),
                         type = 'l', cex = 0.5, lty = 1, lwd = 4,
-                        col = 1, alpha = 0.25,
+                        col = 1, alpha = 0.75,
                         xlab = name,
                         ylab = paste0('probability density', addylab),
                         family = fontfamily,
@@ -215,7 +216,7 @@ plotFsamples <- function(
                         xlim = range(Xgrid), ylim = c(0, ymax),
                         type = 'l', cex = 0.5, lty = 1, lwd = 2,
                         col = 4, alpha = 0.5,
-                        border = '#555555', border.alpha = 3 / 4,
+                        border = '#555555', border.alpha = 1 / 4,
                         xlab = name,
                         ylab = paste0('probability density', addylab),
                         family = fontfamily,
@@ -303,7 +304,7 @@ plotFsamples <- function(
                             y = probabilities$samples[xin, , drop = FALSE],
                             xlim = range(Xgrid), ylim = c(0, ymax),
                             type = 'l', lty = 1, lwd = 2,
-                            col = 5, alpha = 7/8,
+                            col = 5, alpha = 1/8,
                             xlab = name,
                             ylab = paste0('probability density', addylab),
                             family = fontfamily
@@ -317,7 +318,7 @@ plotFsamples <- function(
                             x = Xgrid[!xin],
                             y = probabilities$values[!xin] * ymax,
                             type = 'p', pch = 2, cex = 2,
-                            col = 5, alpha = 7 / 8,
+                            col = 5, alpha = 1/8,
                             family = fontfamily,
                             add = addplot
                         )
@@ -333,7 +334,7 @@ plotFsamples <- function(
                         plotquantiles(
                             x = Xgrid[xin],
                             y = probabilities$quantiles[xin, , drop = FALSE],
-                            col = 5, alpha = 0.75,
+                            col = 5, alpha = 0.25,
                             xlim = range(Xgrid), ylim = c(0, ymax),
                             xlab = name,
                             ylab = paste0('probability density', addylab),
@@ -350,7 +351,7 @@ plotFsamples <- function(
                                 nrow = 2, ncol = sum(!xin), byrow = TRUE),
                             y = t(probabilities$quantiles[!xin, , drop = FALSE]) * ymax,
                             type = 'l', pch = 2, cex = 2,
-                            col = 5, alpha = 0.75,
+                            col = 5, alpha = 0.25,
                             lty = 1, lwd = 16,
                             add = addplot
                         )
@@ -366,7 +367,7 @@ plotFsamples <- function(
                             y = probabilities$values[xin],
                             xlim = range(Xgrid), ylim = c(0, ymax),
                             type = 'l', cex = 0.5, lty = 1, lwd = 4,
-                            col = 1, alpha = 0.25,
+                            col = 1, alpha = 0.75,
                             xlab = name,
                             ylab = paste0('probability density', addylab),
                             family = fontfamily,
@@ -381,7 +382,7 @@ plotFsamples <- function(
                             x = Xgrid[!xin],
                             y = probabilities$values[!xin] * ymax,
                             type = 'p', pch = 2, cex = 2,
-                            col = 1, alpha = 0.25,
+                            col = 1, alpha = 0.75,
                             lty = 1, lwd = 3,
                             add = addplot
                         )
@@ -396,7 +397,7 @@ plotFsamples <- function(
                             x = histo$mids, y = histo$density,
                             xlim = range(Xgrid), ylim = c(0, ymax),
                             type = 'l', col = 4, alpha = 0.5,
-                            border = '#555555', border.alpha = 3 / 4,
+                            border = '#555555', border.alpha = 1/4,
                             xlab = name,
                             ylab = paste0('probability density', addylab),
                             family = fontfamily,
@@ -426,12 +427,19 @@ plotFsamples <- function(
             } else if (mcmctype %in% c('D', 'O', 'N', 'B')) {
                 ## These variate types all have finite probabilities
                 if(nvaluelist > 0) {
-                    Xgrid <- cbind(seq_len(nvaluelist))
-                    colnames(Xgrid) <- name
-                    rownames(Xgrid) <- cbind(unlist(datavalues[!is.na(datavalues)]))
-                    colnames(rownames(Xgrid)) <- name
+                    Xgrid <-  as.matrix(
+                        vtransform(x = datavalues,
+                            variates = name,
+                            auxmetadata = auxmetadata,
+                            Oout = 'numeric',
+                            Nout = 'numeric',
+                            Bout = 'numeric',
+                            logjacobianOr = NULL
+                        ))
+                    rownames(Xgrid) <- datavalues
                     Xticks <- Xgrid
-                    YY <- rownames(Xgrid)
+                    YY <- cbind(datavalues)
+                    colnames(YY) <- name
 
                 } else {
                     ## we must construct an X-grid
@@ -504,7 +512,7 @@ plotFsamples <- function(
                         xlim = range(Xgrid), ylim = c(0, ymax),
                         xticks = Xticks, xlabels = rownames(Xgrid),
                         type = 'l', lty = 1, lwd = 2,
-                        col = 5, alpha = 7/8,
+                        col = 5, alpha = 1/8,
                         xlab = name,
                         ylab = paste0('probability', addylab),
                         family = fontfamily
@@ -519,7 +527,7 @@ plotFsamples <- function(
                     plotquantiles(
                         x = Xgrid,
                         y = probabilities$quantiles,
-                        col = 5, alpha = 0.75,
+                        col = 5, alpha = 0.25,
                         xlim = range(Xgrid), ylim = c(0, ymax),
                         xticks = Xticks, xlabels = rownames(Xgrid),
                         xlab = name,
@@ -538,7 +546,7 @@ plotFsamples <- function(
                         xlim = range(Xgrid), ylim = c(0, ymax),
                         xticks = Xticks, xlabels = rownames(Xgrid),
                         type = 'b', cex = 0.5, lty = 1, lwd = 4,
-                        col = 1, alpha = 0.25,
+                        col = 1, alpha = 0.75,
                         xlab = name,
                         ylab = paste0('probability', addylab),
                         family = fontfamily,
@@ -554,7 +562,7 @@ plotFsamples <- function(
                         xlim = range(Xgrid), ylim = c(0, ymax),
                         xticks = Xticks, xlabels = rownames(Xgrid),
                         type = 'b', col = 4, alpha = 0.5,
-                        border = '#555555', border.alpha = 3 / 4,
+                        border = '#555555', border.alpha = 1/4,
                         xlab = name,
                         ylab = paste0('probability', addylab),
                         family = fontfamily,
@@ -579,19 +587,21 @@ plotFsamples <- function(
                             Oout = 'numeric',
                             Nout = 'numeric',
                             Bout = 'numeric',
-                            logjacobianOr = FALSE
+                            logjacobianOr = NULL
                         ))
                 }
-                scatteraxis(
-                    side = 1, n = NA, alpha = 0.75, ext = 5,
-                    x = datum + runif(length(datum),
-                        min = -min(diff(sort(c(par('usr')[1:2],
-                            unique(datum))))) / 1.5,
-                        max = min(diff(sort(c(par('usr')[1:2],
-                            unique(datum))))) / 1.5
-                    ),
-                    col = 4
-                )
+                rug(x = jitter(datum, amount = 0), side = 1,
+                    col = adjustcolor(4, alpha.f = exp((-length(datum) + 1)/128)))
+                ## scatteraxis(
+                ##     side = 1, n = NA, alpha = 0.75, ext = 5,
+                ##     x = datum + runif(length(datum),
+                ##         min = -min(diff(sort(c(par('usr')[1:2],
+                ##             unique(datum))))) / 1.5,
+                ##         max = min(diff(sort(c(par('usr')[1:2],
+                ##             unique(datum))))) / 1.5
+                ##     ),
+                ##     col = 4
+                ## )
                 ## ## These lines plot quartiles
                 ## if (vtype %in% c('R', 'D', 'C', 'L')) {
                 ## fiven <- fivenum(datum)
