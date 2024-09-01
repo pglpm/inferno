@@ -80,51 +80,6 @@
 ##                  width = width, units = 'in', res = res)
 ## }
 
-#' @keywords internal
-alpha2hex2 <- function(alpha, col = NULL) {
-    if (!is.character(alpha)) {
-        alpha <- sprintf('%02x', round((1 - alpha) * 255))
-    }
-    if (is.numeric(col)) {
-        col <- palette()[col]
-    }
-    paste0(col, alpha)
-}
-
-#' @keywords internal
-alpha2hex <- function(col, alpha = NULL) {
-    if (is.null(alpha)) {
-        alpha <- 0
-    }
-    if (!is.character(col)) {
-        col <- palette()[col]
-    }
-    do.call(rgb, c(as.list(col2rgb(col)),
-        list((1 - alpha) * 255, maxColorValue = 255)))
-}
-
-## tticks <- function(x, n=10){
-##     x <- x[!is.na(x) && is.finite(x)]
-##     if(length(x)==0){x <- c(0,1)}
-##     rg <- range(x, na.rm=T)
-##     if(diff(rg)==0){rg <- rg + c(-1,1)}
-##     ext <- diff(rg)
-##     deltas <- sort(c(c(1,2,5) * 10^ceiling(log10(ext/(n*c(1,2,5)))),
-##                 c(1,2,5) * 10^floor(log10(ext/(n*c(1,2,5))))))
-##     ## print(deltas)
-##     ## print(abs(sapply(deltas, function(d){
-##     ##     length((rg[1]%/%d):((rg[2]%/%d) + (rg[2]%%d > 0)))}) -n
-##     ## ))
-##     ##deltas <- c(0.1, 0.2, 0.5, 1) * n^floor(log(ext,base=n))
-##     delta <- deltas[which.min(abs(sapply(deltas, function(d){
-##         diff(rg%/%d) + (rg[2]%%d > 0)}) + 1 - n
-##     ))]
-##     ## delta <- deltas[which.min(abs(sapply(deltas, function(d){
-##     ##     length((rg[1]%/%d):((rg[2]%/%d) + (rg[2]%%d > 0)))}) -n
-##     ## ))]
-##     ((rg[1]%/%delta):((rg[2]%/%delta) + (rg[2]%%delta > 0)))*delta
-## }
-
 #' Plot probabilities
 #'
 #' Utility function to plot probabilities obtained with \code{\link{Pr}}. The advantage of this function over \code{\link[base]{plot}} is that its `x` argument can be a vector of character values, as typically the case for nominal or ordinal variates (see \code{\link{metadata}}). The plot will have these characters as labels of the x-axis.
@@ -371,9 +326,9 @@ tplot <- function(x, y, xlim = c(NA, NA), ylim = c(NA, NA), asp = NA,
                       length(xx) == length(yy) + 1 ||
                       length(yy) == length(xx) + 1)) { # not a histogram
                 if (is.na(ialpha)) {
-                    ialpha <- 0
+                    ialpha <- 1
                 }
-                icol <- alpha2hex(icol, ialpha)
+                icol <- adjustcolor(icol, alpha.f = ialpha)
                 ## else if(!is.character(ialpha)){ialpha <- alpha2hex(ialpha)}
                 ## if(!(is.na(icol) | nchar(icol)>7)){icol <- paste0(icol, ialpha)}
                 ##
@@ -392,12 +347,12 @@ tplot <- function(x, y, xlim = c(NA, NA), ylim = c(NA, NA), asp = NA,
                 if (is.na(ialpha)) {
                     ialpha <- 0.5
                 }
-                icol <- alpha2hex(icol, ialpha)
+                icol <- adjustcolor(icol, alpha.f = ialpha)
                 ##
                 if (is.na(iborder.alpha)) {
                     iborder.alpha <- 0.5
                 }
-                iborder <- alpha2hex(iborder, iborder.alpha)
+                iborder <- adjustcolor(iborder, alpha.f = iborder.alpha)
                 ##
                 if (length(yy) == length(xx)) {
                     xx <- c(
@@ -453,8 +408,8 @@ tplot <- function(x, y, xlim = c(NA, NA), ylim = c(NA, NA), asp = NA,
 }
 
 #' @keywords internal
-tlegend <- function(x, y=NULL, legend, col=palette(), pch=c(1,0,2,5,6,3,4), lty=1:4, lwd=2, alpha=0, cex=1.5, ...){
-    suppressWarnings(col <- mapply(function(i,j)alpha2hex(i,j),col,alpha))
+tlegend <- function(x, y=NULL, legend, col=palette(), pch=c(1,0,2,5,6,3,4), lty=1:4, lwd=2, alpha=1, cex=1.5, ...){
+    suppressWarnings(col <- mapply(function(i,j)adjustcolor(i,j),col,alpha))
     legend(x=x, y=y, legend=legend, col=col, pch=pch, lty=lty, lwd=lwd, bty='n', cex=cex, ...)
 }
 
@@ -500,7 +455,7 @@ fivenumaxis <- function(side, x, col='#555555', type=6){
 #' @param y Numeric: a matrix having as many rows as `x` and an even number of columns, with one column per quantile. Typically these quantiles have been obtained with \code{\link{Pr}}, as its `$quantiles` value. This value is a three-dimensional array, and one of its columns (2nd dimension, corresponding to the possible values of the `X` argument of \code{\link{Pr}}) should be selected before being used as `y` input.
 #'
 #' @export
-plotquantiles <- function(x, y, alpha=0.75, border=NA, col=palette()[1], ...){
+plotquantiles <- function(x, y, alpha.f=0.25, border=NA, col=palette()[1], ...){
     if(!is.matrix(y) || ncol(y) %% 2 != 0) {
         stop('"y" must be a matrix with an even number of columns.')
     }
@@ -510,8 +465,8 @@ plotquantiles <- function(x, y, alpha=0.75, border=NA, col=palette()[1], ...){
     y <- unname(y[isfin, , drop = FALSE])
     ##
     ## col[!grepl('^#',col)] <- palette()[as.numeric(col[!grepl('^#',col)])]
-    if(is.na(alpha)){alpha <- 0}
-    col <- alpha2hex(col, alpha)
+    if(is.na(alpha.f)){alpha.f <- 0}
+    col <- adjustcolor(col, alpha.f = alpha.f)
     ## if(is.na(alpha)){alpha <- ''}
     ## else if(!is.character(alpha)){alpha <- alpha2hex(alpha)}
     ## if(!(is.na(col) | nchar(col)>7)){col <- paste0(col, alpha)}
@@ -521,35 +476,6 @@ plotquantiles <- function(x, y, alpha=0.75, border=NA, col=palette()[1], ...){
         polygon(x=c(x,rev(x)), y=c(y[,ii], rev(y[, nquant + 1 - ii])),
             col=col, border=border)
     }
-}
-
-#' @keywords internal
-scatteraxis <- function(x, side=1, n=128, col='#555555', alpha=0.5, ext=5, pos=NULL, exts=NULL, lwd=0.1, ...){
-    x <- x[!is.na(x) & is.finite(x)]
-    if(is.na(n)|| missing(n)){n <- length(x)}
-    x <- x[round(seq(1, length(x), length.out=n))]
-    if(is.null(pos)){ pos <- par('usr') }
-    if(is.null(exts)){ exts <- diff(pos)[-2]/100}
-    ##
-    if(side==1){
-        xl <- rbind(x, x)
-        yl <- rbind(rep(pos[3],length(x))+2*exts[2],rep(pos[3],length(x))+ext*exts[2])
-    }else if(side==2){
-        yl <- rbind(x, x)
-        xl <- rbind(rep(pos[1],length(x))+2*exts[1],rep(pos[1],length(x))+ext*exts[1])
-    }else if(side==3){
-        xl <- rbind(x, x)
-        yl <- rbind(rep(pos[4],length(x))-2*exts[2],rep(pos[4],length(x))-ext*exts[2])
-    }else if(side==4){
-        yl <- rbind(x, x)
-        xl <- rbind(rep(pos[2],length(x))-2*exts[1],rep(pos[2],length(x))-ext*exts[1])
-    }
-    ##
-    if(sum(!is.na(col))>0 && !grepl('^#', col[!is.na(col)])){col[!is.na(col)] <- palette()[col[!is.na(col)]]}
-    col[!is.na(col)] <- alpha2hex(col[!is.na(col)], alpha)
-    ## if(!is.null(alpha) && !is.character(alpha)){alpha <- alpha2hex2(alpha)}
-    ## col[!is.na(col)] <- paste0(col[!is.na(col)], alpha)
-    matlines(x=xl, y=yl, lty=1, lwd=lwd, col=col, ...)
 }
 
 #' Construct and plot histograms

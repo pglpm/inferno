@@ -2,7 +2,8 @@
 % Please edit documentation in R/util_tplotfunctions.R
 \name{tplot}
 \alias{tplot}
-\title{Plot probabilities}
+\title{Various plotting and statistics functions
+Plot probabilities}
 \usage{
 tplot(
   x,

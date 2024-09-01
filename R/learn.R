@@ -8,7 +8,7 @@
 #'   or as a file path to a csv file. Such a dataset
 #'   would be too many to use in the Monte Carlo sampling,
 #'   but can be used to calculate hyperparameters.
-#' @param outputdir Character: path to folder where the output should be saved.
+#' @param outputdir Character: path to folder where the output should be saved. If omitted, a directory is created that has the same name as the data file but with suffix "`_output_`".
 #' @param nsamples Integer: number of desired Monte Carlo samples. Default 3600.
 #' @param nchains Integer: number of Monte Carlo chains. Default 60.
 #' @param nsamplesperchain Integer: number of Monte Carlo samples per chain.
@@ -64,7 +64,7 @@ learn <- function(
     data,
     metadata,
     auxdata = NULL,
-    outputdir,
+    outputdir = NULL,
     nsamples = 3600,
     nchains = 60,
     nsamplesperchain = 60,
@@ -125,12 +125,12 @@ learn <- function(
 ##################################################
 
 #### Determine the status of parallel processing
+  
     workers <- setupParallel(parallel)
     ncores <- workers$ncores
     
     if (!is.logical(workers$cluster)) {
         on.exit(closeCoresOnExit(workers$cluster))
-    }
 
 #### Consistency checks for numbers of samples, chains, cores
     ## The defaults are 1200 samples from 120 chains, so 10 samples per chain
@@ -380,7 +380,7 @@ learn <- function(
     ## print(auxmetadata) # for debugging
 
 #### Output-folder setup
-    if (missing(outputdir) || (is.logical(outputdir) && outputdir)) {
+    if (is.null(outputdir)) {
         outputdir <- paste0('_output_', sub('.csv$', '', datafile))
     }
 
