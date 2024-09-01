@@ -59,7 +59,7 @@ plotFsamples <- function(
     ## learnt$auxmetadata <- NULL
     nsamples <- ncol(learnt$W)
 
-    nodata <- missing(data) || is.null(data) || (is.logical(data) && !data)
+    nodata <- missing(data) || is.null(data) || isFALSE(data)
     if (datahistogram && nodata) {
         datahistogram <- FALSE
         cat('\nNOTE: "datahistogram" is TRUE but there is no data\n')

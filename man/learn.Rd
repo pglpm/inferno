@@ -8,7 +8,7 @@ learn(
   data,
   metadata,
   auxdata = NULL,
-  outputdir,
+  outputdir = NULL,
   nsamples = 3600,
   nchains = 60,
   nsamplesperchain = 60,
@@ -48,7 +48,7 @@ or as a file path to a csv file. Such a dataset
 would be too many to use in the Monte Carlo sampling,
 but can be used to calculate hyperparameters.}
 
-\item{outputdir}{Character: path to folder where the output should be saved.}
+\item{outputdir}{Character: path to folder where the output should be saved. If omitted, a directory is created that has the same name as the data file but with suffix "\verb{_output_}".}
 
 \item{nsamples}{Integer: number of desired Monte Carlo samples. Default 3600.}
 
