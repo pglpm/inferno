@@ -46,7 +46,7 @@
 <span>  <span class="va">data</span>,</span>
 <span>  <span class="va">metadata</span>,</span>
 <span>  auxdata <span class="op">=</span> <span class="cn">NULL</span>,</span>
-<span>  <span class="va">outputdir</span>,</span>
+<span>  outputdir <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  nsamples <span class="op">=</span> <span class="fl">3600</span>,</span>
 <span>  nchains <span class="op">=</span> <span class="fl">60</span>,</span>
 <span>  nsamplesperchain <span class="op">=</span> <span class="fl">60</span>,</span>
@@ -97,7 +97,7 @@ but can be used to calculate hyperparameters.</p></dd>
 
 
 <dt id="arg-outputdir">outputdir<a class="anchor" aria-label="anchor" href="#arg-outputdir"></a></dt>
-<dd><p>Character: path to folder where the output should be saved.</p></dd>
+<dd><p>Character: path to folder where the output should be saved. If omitted, a directory is created that has the same name as the data file but with suffix "<code>_output_</code>".</p></dd>
 
 
 <dt id="arg-nsamples">nsamples<a class="anchor" aria-label="anchor" href="#arg-nsamples"></a></dt>
