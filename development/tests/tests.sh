@@ -24,7 +24,7 @@ failed=0
 filename=$1
 
 # Read input argument
-if [ -f $filename ] ; then
+if [[ -f $filename ]] ; then
     echo "Running tests in $filename."
     else
         echo "Please input a valid text file containing a list of tests to run."
@@ -42,8 +42,8 @@ while read line || [[ -n $line ]]; do
         test_name=$(basename "$line" .R)
 
         # Check if folder and file exists
-        if [ -d $folder ] ; then
-            if [ -f $line ] && [ "$line" != "" ]; then
+        if [[ -d $folder ]] ; then
+            if [[ -f $line ]] && [ "$line" != "" ]; then
                 run_test
             else
                 echo "$line is not a file, skipping line.";
