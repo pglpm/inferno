@@ -37,23 +37,6 @@ mi <- mutualinfo(
 )
 
 print(mi)
-
 warnings()
-
-dataset <- read.csv('dataset_custom30.csv', na.strings='')
-nv <- round(ncol(dataset)/2)
-probs <- Pr(
-    Y = dataset[1:20,1:nv,drop=F],
-    X = dataset[1:20,(nv+1):ncol(dataset), drop=F],
-    learnt = currenttestdir,
-    parallel = 4
-)
-
-print(probs$values)
-
-print(probs$quantiles)
-
-warnings()
-
 
 cat('\nEnd\n')

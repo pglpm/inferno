@@ -68,7 +68,7 @@ mutualinfo <- function(
     ncores <- workers$ncores
     
     if (!is.logical(workers$cluster)) {
-        on.exit(closecoresonexit(workers$cluster, silent))
+        on.exit(closeCoresOnExit(workers$cluster, silent))
     }
     
     ## determine if parallel computation is possible and needed

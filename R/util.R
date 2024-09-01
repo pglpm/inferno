@@ -76,3 +76,7 @@ printPretty <- function(message, silent = FALSE, addNewline = TRUE) {
         cat(trim(message), '\n')
     }
 }
+
+#funStart <- function(fun = TRUE) {
+#
+#}

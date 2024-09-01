@@ -20,18 +20,40 @@ function run_test()
 
 results=()
 n_test=0
+failed=0
+filename=$1
+
+# Read input argument
+if [ -f $filename ] ; then
+    echo "Running tests in $filename."
+    else
+        echo "Please input a valid text file containing a list of tests to run."
+    fi
 
 # Read the input file line by line
 while read line || [[ -n $line ]]; do
-    # Extract the folder and file names using basename command
-    folder=$(basename "$(dirname "$line")")
-    script=$(basename "$line")
-    test_name=$(basename "$line" .R)
-    # Run each test
-    run_test
-done < tests_to_run.txt
+    # Silently skip commented or empty lines 
+    if [[ ${line:0:1} != "#" ]] && [[ ${line:0:1} != "" ]] ; then
+    
+        # Extract the folder and file names using basename command
+        echo "Parsing line $line."
+        folder=$(basename "$(dirname "$line")")
+        script=$(basename "$line")
+        test_name=$(basename "$line" .R)
 
-failed=0
+        # Check if folder and file exists
+        if [ -d $folder ] ; then
+            if [ -f $line ] && [ "$line" != "" ]; then
+                run_test
+            else
+                echo "$line is not a file, skipping line.";
+            fi
+        else
+            echo "$folder is not a directory, skipping line.";
+        fi
+    fi
+    
+done < $filename
 
 for result in "${results[@]}"; do
     if [ ! $result -eq 0 ]; then
@@ -39,11 +61,15 @@ for result in "${results[@]}"; do
     fi
 done
 
-
-if [ $failed -gt 0 ]; then
-    echo "$failed out of $n_test tests failed."
-    return 1
-else 
-    echo "All tests passed!"
+if [ $n_test -gt 0 ]; then
+    if [ $failed -gt 0 ]; then
+        echo "$failed out of $n_test tests failed."
+        return 1
+    else 
+        echo "All tests passed!"
+        return 0
+    fi
+else
+    echo "No tests were run."
     return 0
 fi
