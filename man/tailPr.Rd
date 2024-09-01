@@ -8,7 +8,7 @@ tailPr(
   Y,
   X = NULL,
   learnt,
-  quantiles = c(5, 95)/100,
+  quantiles = c(0.05, 0.25, 0.75, 0.95),
   nsamples = 100L,
   parallel = TRUE,
   lower.tail = TRUE,
@@ -25,7 +25,7 @@ the joint probability of. One variate per column, one set of values per row.}
 \item{learnt}{Either a string with the name of a directory or full
 path for an 'learnt.rds' object, or such an object itself}
 
-\item{quantiles}{numeric vector, between 0 and 1, or \code{NULL}: desired quantiles of the variability of the probability for \code{Y}. Default \code{c(0.05, 0.95)} or the 5\% and 95\% quantiles.}
+\item{quantiles}{numeric vector, between 0 and 1, or \code{NULL}: desired quantiles of the variability of the tail probability for \code{Y}. Default \code{c(0.05, 0.25, 0.75, 0.95)}, that is, the 5\%, 25\%, 75\%, 95\% quantiles.}
 
 \item{nsamples}{integer or \code{NULL}: desired number of samples of the variability of the probability for \code{Y}. Default \code{100}.}
 

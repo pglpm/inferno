@@ -74,9 +74,9 @@ In order to draw inferences, we need metadata information, that is, information 
 
 As an example of why metadata is necessary, suppose you are given the data `3`, `7`, `9`. Can you say whether the value `5` could be observed in a new instance? and what about `4.7`, or `-10`? Knowing whether these values are at all possible, or not, greatly affects the precision of the inferences we draw. Obviously a researcher must know such basic information about the data being collected -- otherwise they wouldn't know what they're doing.
 
-The software requires specification of metadata either as a `data.frame` object or as a `.csv` file. To help you prepare this file, the software offers the function `buildmetadata()`, which writes a template that you thereafter modify. The template is filled with **tentative** values; these are wild guesses from the data, so they are often wrong. The function explains the heuristic it is using in order to pre-fill the fields of the metadata file, and gives warnings about guessed values that are especially dubious. You should examine and correct all fields:
+The software requires specification of metadata either as a `data.frame` object or as a `.csv` file. To help you prepare this file, the software offers the function `metadatatemplate()`, which writes a template that you thereafter modify. The template is filled with **tentative** values; these are wild guesses from the data, so they are often wrong. The function explains the heuristic it is using in order to pre-fill the fields of the metadata file, and gives warnings about guessed values that are especially dubious. You should examine and correct all fields:
 ```{r class.source = 'fold-hide'}
-buildmetadata(data = datafile, file = 'temp_metadata')
+metadatatemplate(data = datafile, file = 'temp_metadata')
 ```
 
 We can open the temporary metadata file `temp_metadata.csv` and edit it with any software of our choice. Let's save the corrected version as `meta_toydata.csv`:
@@ -193,11 +193,11 @@ probability0$value
 ```
 that is, there is approximately a `r signif(probability0$value *100, 2)`% probability that the next treated female patient will have a MDS-UPDRS-III difference of exactly 0.
 
-- **`quantiles`**: these two values tell us how much the probability could change, if your knowledge were updated by more clinical trials. They thus quantify the uncertainty of our present probabilistic conclusions. An future, updated probability has a 90% probability of lying between the two quantile values. In this case they are
+- **`quantiles`**: these values tell us how much the probability could change, if your knowledge were updated by more clinical trials. They thus quantify the uncertainty of our present probabilistic conclusions. A future, updated probability has a 90% probability of lying between the two extreme (5% and 95%) quantile values, and a 50% probability of lying between the middle (25% and 75%) ones. In this case they are
 ```{r}
 probability0$quantiles
 ```
-that is, if we had many more clinical trials, the probability above could change to a value within around `r signif(probability0$quantiles[,,1] * 100, 2)`% and `r signif(probability0$quantiles[,,2] * 100, 2)`%.
+that is, if we had many more clinical trials, the probability above could change to a value within around `r signif(probability0$quantiles[,,'5%'] * 100, 2)`% and `r signif(probability0$quantiles[,,'95%'] * 100, 2)`%.
 
 \
 
@@ -254,7 +254,7 @@ probFNR <- signif(probDecrease$value[1,1] * 100, 2)
 ```
 
 
-Further clinical trials, however could update this probability to a new value between `r signif(probDecrease$quantiles[1,1,1] * 100, 2)`% and `r signif(probDecrease$quantiles[1,1,2] * 100, 2)`%:
+Further clinical trials, however could update this probability to a new value between `r signif(probDecrease$quantiles[1,1,'5%'] * 100, 2)`% and `r signif(probDecrease$quantiles[1,1,'95%'] * 100, 2)`%:
 ```{r}
 probDecrease$quantiles[1,1,]
 ```
@@ -273,13 +273,13 @@ probabilitiesPlacebo <- Pr(
 )
 ```
 
-Let's plot these probabilities, together with their variability, on top of the ones previously obtained for the treated case:
+Let's plot these probabilities, together with their variability (only the most extreme case), on top of the ones previously obtained for the treated case:
 ```{r}
-plotquantiles(x = (-30):30, y = probabilities$quantiles[,1,],
+plotquantiles(x = (-30):30, y = probabilities$quantiles[,1, c('5%', '95%')],
     ylim = c(0, NA),
     xlab = 'MDS-UPDRS-III difference', ylab = 'probability', col = 1)
 
-plotquantiles(x = (-30):30, y = probabilitiesPlacebo$quantiles[,1,],
+plotquantiles(x = (-30):30, y = probabilitiesPlacebo$quantiles[,1, c('5%', '95%')],
     col = 2, add = TRUE)
 
 tplot(x = (-30):30, y = probabilities$values[,1], col = 1, add = TRUE)
@@ -309,7 +309,7 @@ We find that the probability of a decrease in the disability score for a non-tre
 ```{r}
 probDecreasePlacebo$value
 ```
-or approximately `r signif(probDecreasePlacebo$value * 100, 2)`%. Further clinical trials, however could update this probability to a value between `r signif(probDecreasePlacebo$quantiles[1,1,1] * 100, 2)`% and `r signif(probDecreasePlacebo$quantiles[1,1,2] * 100, 2)`%:
+or approximately `r signif(probDecreasePlacebo$value * 100, 2)`%. Further clinical trials, however could update this probability to a value between `r signif(probDecreasePlacebo$quantiles[1,1,'5%'] * 100, 2)`% and `r signif(probDecreasePlacebo$quantiles[1,1,'95%'] * 100, 2)`%:
 ```{r}
 probDecreasePlacebo$quantiles[1,1,]
 ```
@@ -352,11 +352,11 @@ probDecreaseAgePlacebo <- tailPr(
 
 We can plot the probabilities of an MDS-UPDRS-III decrease against that patient's age, with one plot for each treatment group:
 ```{r}
-plotquantiles(x = 25:80, y = probDecreaseAge$quantiles[1,,],
+plotquantiles(x = 25:80, y = probDecreaseAge$quantiles[1,, c('5%', '95%')],
     ylim = c(0, NA),
     xlab = 'age', ylab = 'probability of MDS-UPDRS-III decr.', col = 1)
 
-plotquantiles(x = 25:80, y = probDecreaseAgePlacebo$quantiles[1,,],
+plotquantiles(x = 25:80, y = probDecreaseAgePlacebo$quantiles[1,, c('5%', '95%')],
     col = 2, add = TRUE)
 
 tplot(x = 25:80, y = probDecreaseAge$values[1,], col = 1, add = TRUE)
@@ -391,11 +391,11 @@ probabilitiesMale <- Pr(
     learnt = learnt
 )
 
-plotquantiles(x = (-30):30, y = probabilitiesMale$quantiles[,1,],
+plotquantiles(x = (-30):30, y = probabilitiesMale$quantiles[,1, c('5%', '95%')],
     ylim = c(0, NA),
     xlab = 'MDS-UPDRS-III difference', ylab = 'probability', col = 5)
 
-plotquantiles(x = (-30):30, y = probabilitiesMale$quantiles[,2,],
+plotquantiles(x = (-30):30, y = probabilitiesMale$quantiles[,2, c('5%', '95%')],
     col = 6, add = TRUE)
 
 tplot(x = (-30):30, y = probabilitiesMale$values[,1], col = 5, add = TRUE)
@@ -427,11 +427,11 @@ probMaleDecreaseAgePlacebo <- tailPr(
 )
 
 
-plotquantiles(x = 25:80, y = probMaleDecreaseAge$quantiles[1,,],
+plotquantiles(x = 25:80, y = probMaleDecreaseAge$quantiles[1,, c('5%', '95%')],
     ylim = c(0, NA),
     xlab = 'age', ylab = 'probability of MDS-UPDRS-III decr.', col = 5)
 
-plotquantiles(x = 25:80, y = probMaleDecreaseAgePlacebo$quantiles[1,,],
+plotquantiles(x = 25:80, y = probMaleDecreaseAgePlacebo$quantiles[1,, c('5%', '95%')],
     col = 6, add = TRUE)
 
 tplot(x = 25:80, y = probMaleDecreaseAge$values[1,], col = 5, add = TRUE)
@@ -449,11 +449,11 @@ legend('topright', legend = c('NR, Male', 'Placebo, Male'),
 Finally let's compare treated female vs male patients, per age:
 
 ```{r}
-plotquantiles(x = 25:80, y = probDecreaseAge$quantiles[1,,],
+plotquantiles(x = 25:80, y = probDecreaseAge$quantiles[1,, c('5%', '95%')],
     ylim = c(0, NA),
     xlab = 'age', ylab = 'probability of MDS-UPDRS-III decr.', col = 1)
 
-plotquantiles(x = 25:80, y = probMaleDecreaseAge$quantiles[1,,],
+plotquantiles(x = 25:80, y = probMaleDecreaseAge$quantiles[1,, c('5%', '95%')],
     col = 5, add = TRUE)
 
 tplot(x = 25:80, y = probDecreaseAge$values[1,], col = 1, add = TRUE)
