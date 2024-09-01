@@ -131,6 +131,7 @@ learn <- function(
     
     if (!is.logical(workers$cluster)) {
         on.exit(closeCoresOnExit(workers$cluster))
+    }
 
 #### Consistency checks for numbers of samples, chains, cores
     ## The defaults are 1200 samples from 120 chains, so 10 samples per chain
