@@ -31,5 +31,5 @@ From: r-base
 	Rscript -e "library("inferno")"
 	cd $GITHUB_WORKSPACE
 	cd development/tests
-	source ./tests.sh
+	source ./tests.sh CI_tests.txt
 
