@@ -64,7 +64,7 @@ mutualinfo <- function(
     ## }
 
 #### Determine the status of parallel processing
-    workers <- setup_parallel(parallel, silent)
+    workers <- setupParallel(parallel, silent)
     ncores <- workers$ncores
     
     if (!is.logical(workers$cluster)) {

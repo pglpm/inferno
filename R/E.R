@@ -36,11 +36,11 @@ E <- function(
     }
 
 #### Determine the status of parallel processing
-    workers <- checkParallel(parallel, silent)
+    workers <- setupParallel(parallel, silent)
     ncores <- workers$ncores
     
     if (!is.logical(workers$cluster)) {
-        on.exit(closecoresonexit(workers$cluster, silent))
+        on.exit(closeCoresOnExit(workers$cluster, silent))
     }
 
     ## Extract Monte Carlo output & auxmetadata

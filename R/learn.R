@@ -125,11 +125,11 @@ learn <- function(
 ##################################################
 
 #### Determine the status of parallel processing
-    workers <- setup_parallel(parallel)
+    workers <- setupParallel(parallel)
     ncores <- workers$ncores
     
     if (!is.logical(workers$cluster)) {
-        on.exit(closecoresonexit(workers$cluster))
+        on.exit(closeCoresOnExit(workers$cluster))
     }
 
 #### Consistency checks for numbers of samples, chains, cores
