@@ -435,5 +435,6 @@ Pr <- function(
         dimnames(out$samples) <- list(Y = NULL, X = NULL, sampleseq)
     }
 
+    class(out) <- 'probability'
     out
 }

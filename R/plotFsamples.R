@@ -591,7 +591,8 @@ plotFsamples <- function(
                         ))
                 }
                 rug(x = jitter(datum, amount = 0), side = 1,
-                    col = adjustcolor(4, alpha.f = exp((-length(datum) + 1)/128)))
+                    col = adjustcolor(4, alpha.f = exp((-length(datum) + 1)/128)),
+                    quiet = TRUE)
                 ## scatteraxis(
                 ##     side = 1, n = NA, alpha = 0.75, ext = 5,
                 ##     x = datum + runif(length(datum),
