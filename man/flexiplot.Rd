@@ -2,8 +2,7 @@
 % Please edit documentation in R/util_tplotfunctions.R
 \name{flexiplot}
 \alias{flexiplot}
-\title{Various plotting and statistics functions
-Plot numeric or character values}
+\title{Plot numeric or character values}
 \usage{
 flexiplot(
   x,
@@ -30,6 +29,8 @@ flexiplot(
 Set of values that were used as \code{Y} argument to \code{\link{Pr}} (typically they make sense if \code{Y} only was a single variate rather than aconjunction of several).}
 
 \item{grid}{Logical: whether to plot a light grid. Default \code{TRUE}.}
+
+\item{...}{Other parameters to be passed to \code{\link[base]{plot}}}
 }
 \value{
 A plot as per the base \code{\link[base]{plot.default}} function.

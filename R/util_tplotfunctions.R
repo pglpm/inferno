@@ -1,5 +1,3 @@
-#' Various plotting and statistics functions
-
 #' Plot numeric or character values
 #'
 #' Plot function that modifies and expands the base \code{\link[base]{plot.default}} in several ways: First, either or both `x` and `y` arguments can be of class \code{\link[base]{plot.default}}. In this case, axes labels corresponding to the unique values are used (see arguments `xdomain` and 'ydomain'). Second, it allows for the specification of only a lower or upper limit in `xlim` and `ylim`. Third, it uses a cleaner plotting style, and uses a default argument `type = 'l'` (line plot) rather than `'p'` (point plot).
@@ -17,6 +15,7 @@
 #' Set of values that were used as `Y` argument to \code{\link{Pr}} (typically they make sense if `Y` only was a single variate rather than aconjunction of several).
 #'
 #' @param grid Logical: whether to plot a light grid. Default `TRUE`.
+#' @param ... Other parameters to be passed to \code{\link[base]{plot}}
 #'
 #' @return A plot as per the base \code{\link[base]{plot.default}} function.
 #'
