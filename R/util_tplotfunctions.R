@@ -1,84 +1,76 @@
 #' Various plotting and statistics functions
 
-## Colour-blind friendly palettes, from https://personal.sron.nl/~pault/
-## palette(colour('bright')())
-## cc <- khroma::colour('bright')()
-## cc[8] <- '#000000'
-## names(cc)[8] <- 'black'
-## cc[9] <- '#777777'
-## names(cc)[9] <- 'midgrey'
-## palette(cc)
-## rm(cc)
-## bluepurple <- palette()[1]
-## red <- palette()[2]
-## green <- palette()[3]
-## yellow <- palette()[4]
-## blue <- palette()[5]
-## redpurple <- palette()[6]
-## grey <- palette()[7]
-## midgrey <- palette()[9]
-## darkgrey <- '#555555'
-## black <- '#000000'
-## scale_colour_discrete <- khroma::scale_colour_bright
+#' Plot numeric or character values
+#'
+#' Plot function that modifies and expands the base \code{\link[base]{plot.default}} in several ways: First, either or both `x` and `y` arguments can be of class \code{\link[base]{plot.default}}. In this case, axes labels corresponding to the unique values are used (see arguments `xdomain` and 'ydomain'). Second, it allows for the specification of only a lower or upper limit in `xlim` and `ylim`. Third, it uses a cleaner plotting style, and uses a default argument `type = 'l'` (line plot) rather than `'p'` (point plot).
+#'
+#' @param x Numeric or character: vector of x-coordinates. Note that it cannot be a list as in base \code{\link[base]{plot.default}}.
+#'
+#' @param x Numeric or character: vector of y coordinates. Note that it cannot be `NULL as in base \code{\link[base]{plot.default}}.
+#' @param xlim `NULL` (default) or a vector of two values. In the latter case, if any of the two values is not finite (including `NA` or `NULL`), then the `min` or `max` x-coordinate of the plotted points is used.
+#' @param ylim `NULL` (default) or a vector of two values. Like argument `xlim`, but for the y-coordinates.
+#' @param xdomain Character or numeric or `NULL` (default): vector of possible values of the variable represented in the x-axis, if the `x` argument is a character vector. The ordering of the values is respected. If `NULL`, then `unique(x)` is used.
+#' @param ydomain Character or numeric or `NULL` (default): like `xdomain` but for the y-coordinate.
+#'
+#' vector of possible values of the variable represented in the x-axis, if the `x` argument is a character vector. The ordering of the values is respected. If `NULL`, then `unique(x)` is used.
+#' @param ydomain Character or numeric: vector of possible values of the variable represented in the x-axis. The ordering of the values is respected.
+#' Set of values that were used as `Y` argument to \code{\link{Pr}} (typically they make sense if `Y` only was a single variate rather than aconjunction of several).
+#'
+#' @param grid Logical: whether to plot a light grid. Default `TRUE`.
+#'
+#' @return A plot as per the base \code{\link[base]{plot.default}} function.
+#'
+#' @export
+flexiplot <- function(
+    x, y,
+    xlim = NULL, ylim = NULL,
+    xdomain = NULL, ydomain = NULL,
+    type = 'l',
+    grid = TRUE,
+    ...
+){
+    xat <- yat <- NULL
+    xlabels <- ylabels <- TRUE
 
-## to output in pdf format
-## pdff <- function(file = 'Rplot', apaper = 5, portrait = FALSE,
-##                  height = 148 / 25.4, width = 210 / 25.4, asp = NA, ...) {
-##   if (is.numeric(apaper)) {
-##     if (portrait) {
-##       height <- floor(841 / sqrt(2)^(apaper - 1)) / 25.4
-##       width <- floor(841 / sqrt(2)^(apaper)) / 25.4
-##     } else {
-##       width <- floor(841 / sqrt(2)^(apaper - 1)) / 25.4
-##       height <- floor(841 / sqrt(2)^(apaper)) / 25.4
-##     }
-##   }
-##   if (!is.na(asp)) {
-##     width <- height * asp
-##   }
-##   pdf(file = paste0(file, '.pdf'), paper = 'special',
-##       height = height, width = width, ...)
-## }
-##
-## ## to output in svg format
-## svgf <- function(filename = 'Rplot', apaper = 5, portrait = FALSE,
-##                  height = 148 / 25.4, width = 210 / 25.4, asp = NA, ...) {
-##   if (is.numeric(apaper)) {
-##     if (portrait) {
-##       height <- floor(841 / sqrt(2)^(apaper - 1)) / 25.4
-##       width <- floor(841 / sqrt(2)^(apaper)) / 25.4
-##     } else {
-##       width <- floor(841 / sqrt(2)^(apaper - 1)) / 25.4
-##       height <- floor(841 / sqrt(2)^(apaper)) / 25.4
-##     }
-##   }
-##   if (!is.na(asp)) {
-##     width <- height * asp
-##   }
-##   svg(file = paste0(filename, '.svg'), height = height,
-##                  width = width)
-## }
-##
-##
-## ## to output in png format
-## pngf <- function(filename = 'Rplot', res = 300, apaper = 5, portrait = FALSE,
-##                  height = 148 / 25.4, width = 210 / 25.4, asp = NA, ...) {
-##   if (is.numeric(apaper)) {
-##     if (portrait) {
-##       height <- floor(841 / sqrt(2)^(apaper - 1)) / 25.4
-##       width <- floor(841 / sqrt(2)^(apaper)) / 25.4
-##     } else {
-##       width <- floor(841 / sqrt(2)^(apaper - 1)) / 25.4
-##       height <- floor(841 / sqrt(2)^(apaper)) / 25.4
-##     }
-##   }
-##   if (!is.na(asp)) {
-##     ## width <- height*asp
-##     height <- width / asp
-##   }
-##   png(file = paste0(filename, '.png'), height = height,
-##                  width = width, units = 'in', res = res)
-## }
+    ## if x is character, convert to numeric
+    if(is.character(x)){
+        if(is.null(xdomain)){ xdomain <- unique(x) }
+        ## we assume the user has sorted the vaules in a meaningful order
+        ## because the lexical order may not be correct
+        ## (think of values like 'low', 'medium', 'high')
+        x <- as.numeric(factor(x, levels = xdomain))
+        xat <- seq_along(xdomain)
+    }
+
+    ## if y is character, convert to numeric
+    if(is.character(y)){
+        if(is.null(ydomain)){ ydomain <- unique(y) }
+        ## we assume the user has sorted the vaules in a meaningful order
+        ## because the lexical order may not be correct
+        ## (think of values like 'low', 'medium', 'high')
+        y <- as.numeric(factor(y, levels = ydomain))
+        yat <- seq_along(ydomain)
+    }
+
+    ## Syntax of xlim and ylim that allows
+    ## for the specification of only upper- or lower-bond
+    if(length(xlim) == 2){
+        if(is.null(xlim[1]) || !is.finite(xlim[1])){ xlim[1] <- min(x[is.finite(x)]) }
+        if(is.null(xlim[2]) || !is.finite(xlim[2])){ xlim[2] <- max(x[is.finite(x)]) }
+    }
+    if(length(ylim) == 2){
+        if(is.null(ylim[1]) || !is.finite(ylim[1])){ ylim[1] <- min(y[is.finite(y)]) }
+        if(is.null(ylim[2]) || !is.finite(ylim[2])){ ylim[2] <- max(y[is.finite(y)]) }
+    }
+
+    plot(x, y, xlim = xlim, ylim = ylim, axes = F, ...)
+    axis(1, at = xat, labels = xdomain, lwd = 0)
+    axis(2, at = yat, labels = ydomain, lwd = 0)
+    if(grid){
+        graphics::grid(nx = NULL, ny = NULL, lty = 1, col = '#BBBBBB80')
+    }
+}
+
 
 #' Plot probabilities
 #'

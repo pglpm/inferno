@@ -12,7 +12,8 @@ Pr(
   nsamples = 100L,
   parallel = TRUE,
   silent = TRUE,
-  usememory = TRUE
+  usememory = TRUE,
+  keepYX = TRUE
 )
 }
 \arguments{
@@ -36,6 +37,8 @@ Default \code{FALSE}.}
 
 \item{usememory}{logical: save partial results to disc, to avoid crashes?
 Default \code{TRUE}.}
+
+\item{keepYX}{logical, default \code{TRUE}: keep a copy of the \code{Y} and \code{X} arguments in the output? This is used for the plot method.}
 }
 \value{
 A list of: (1) a matrix with the probabilities P(Y|X,data,assumptions), for all combinations of values of \code{Y} (rows) and \code{X} (columns); (2) an array with the variability quantiles (3rd dimension of the array) for such probabilities; (3) an array with the variability samples (3rd dimension of the array) for such probabilities.

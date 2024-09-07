@@ -15,6 +15,7 @@
 #'   Default `FALSE`.
 #' @param usememory logical: save partial results to disc, to avoid crashes?
 #'   Default `TRUE`.
+#' @param keepYX logical, default `TRUE`: keep a copy of the `Y` and `X` arguments in the output? This is used for the plot method.
 #'
 #' @return A list of: (1) a matrix with the probabilities P(Y|X,data,assumptions), for all combinations of values of `Y` (rows) and `X` (columns); (2) an array with the variability quantiles (3rd dimension of the array) for such probabilities; (3) an array with the variability samples (3rd dimension of the array) for such probabilities.
 #'
@@ -29,7 +30,8 @@ Pr <- function(
     nsamples = 100L,
     parallel = TRUE,
     silent = TRUE,
-    usememory = TRUE
+    usememory = TRUE,
+    keepYX = TRUE
 ) {
     if (!silent) {
         cat('\n')
@@ -433,6 +435,12 @@ Pr <- function(
         out$samples <- out$samples * jacobians
         dim(out$samples) <- c(nY, nX, nsamples)
         dimnames(out$samples) <- list(Y = NULL, X = NULL, sampleseq)
+    }
+
+    if(isTRUE(keepYX)){
+    ## save Y and X values in the output; useful for plotting methods
+        out$Y <- Y
+        out$X <- X
     }
 
     class(out) <- 'probability'

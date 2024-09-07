@@ -2,6 +2,7 @@
 
 export(E)
 export(Pr)
+export(flexiplot)
 export(learn)
 export(metadatatemplate)
 export(mutualinfo)
