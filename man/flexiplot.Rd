@@ -7,10 +7,10 @@
 flexiplot(
   x,
   y,
-  xlim = NULL,
-  ylim = NULL,
   xdomain = NULL,
   ydomain = NULL,
+  xlim = NULL,
+  ylim = NULL,
   type = "l",
   pch = c(1, 0, 2, 5, 6, 3, 4),
   grid = TRUE,
@@ -18,24 +18,25 @@ flexiplot(
 )
 }
 \arguments{
-\item{x}{Numeric or character: vector of y coordinates. Note that it cannot be `NULL as in base \code{\link[base]{plot.default}}.}
+\item{x}{Numeric or character: vector of x-coordinates. If missing, a numeric vector \code{1:...} is created having as many values as the rows of \code{y}.}
+
+\item{y}{Numeric or character: vector of y coordinates. If missing, a numeric vector \code{1:...} is created having as many values as the rows of \code{x}.}
+
+\item{xdomain}{Character or numeric or \code{NULL} (default): vector of possible values of the variable represented in the x-axis, if the \code{x} argument is a character vector. The ordering of the values is respected. If \code{NULL}, then \code{unique(x)} is used.}
+
+\item{ydomain}{Character or numeric or \code{NULL} (default): like \code{xdomain} but for the y-coordinate.}
 
 \item{xlim}{\code{NULL} (default) or a vector of two values. In the latter case, if any of the two values is not finite (including \code{NA} or \code{NULL}), then the \code{min} or \code{max} x-coordinate of the plotted points is used.}
 
 \item{ylim}{\code{NULL} (default) or a vector of two values. Like argument \code{xlim}, but for the y-coordinates.}
 
-\item{xdomain}{Character or numeric or \code{NULL} (default): vector of possible values of the variable represented in the x-axis, if the \code{x} argument is a character vector. The ordering of the values is respected. If \code{NULL}, then \code{unique(x)} is used.}
-
-\item{ydomain}{Character or numeric: vector of possible values of the variable represented in the x-axis. The ordering of the values is respected.
-Set of values that were used as \code{Y} argument to \code{\link{Pr}} (typically they make sense if \code{Y} only was a single variate rather than aconjunction of several).}
-
 \item{grid}{Logical: whether to plot a light grid. Default \code{TRUE}.}
 
-\item{...}{Other parameters to be passed to \code{\link[base]{plot}}}
+\item{...}{Other parameters to be passed to \code{\link[base]{plot}}.}
 }
 \value{
 A plot as per the base \code{\link[base]{plot.default}} function.
 }
 \description{
-Plot function that modifies and expands the base \code{\link[base]{plot.default}} in several ways: First, either or both \code{x} and \code{y} arguments can be of class \code{\link[base]{plot.default}}. In this case, axes labels corresponding to the unique values are used (see arguments \code{xdomain} and 'ydomain'). Second, it allows for the specification of only a lower or upper limit in \code{xlim} and \code{ylim}. Third, it uses a cleaner plotting style, and uses a default argument \code{type = 'l'} (line plot) rather than \code{'p'} (point plot).
+Plot function that modifies and expands the \code{graphics} \code{\link[graphics]{matplot}} in several ways: First, either or both \code{x} and \code{y} arguments can be of class \code{\link[base]{character}}. In this case, axes labels corresponding to the unique values are used (see arguments \code{xdomain} and 'ydomain'). Second, it allows for the specification of only a lower or upper limit in \code{xlim} and \code{ylim}. Third, it uses a cleaner plotting style and a default argument \code{type = 'l'} (line plot) rather than \code{type = 'p'} (point plot).
 }

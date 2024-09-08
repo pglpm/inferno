@@ -4,22 +4,21 @@
 \alias{plotquantiles}
 \title{Plot pairs of quantiles}
 \usage{
-plotquantiles(
-  x,
-  y,
-  xdomain = NULL,
-  ydomain = NULL,
-  alpha.f = 0.25,
-  border = NA,
-  col = palette()[1],
-  ...
-)
+plotquantiles(x, y, xdomain = NULL, alpha.f = 0.25, col = 7, border = NA, ...)
 }
 \arguments{
-\item{x}{Numeric or character: Set of values that were used as \code{Y} argument to \code{\link{Pr}} (typically they make sense if \code{Y} only was a single variate rather than aconjunction of several).}
+\item{x}{Numeric or character: vector of x-coordinates. See \code{\link{flexiplot}}.}
 
-\item{y}{Numeric: a matrix having as many rows as \code{x} and an even number of columns, with one column per quantile. Typically these quantiles have been obtained with \code{\link{Pr}}, as its \verb{$quantiles} value. This value is a three-dimensional array, and one of its columns (2nd dimension, corresponding to the possible values of the \code{X} argument of \code{\link{Pr}}) should be selected before being used as \code{y} input.}
+\item{y}{Numeric: a matrix having as many rows as \code{x} and an even number of columns, with one column per quantile. Typically these quantiles have been obtained with \code{\link{Pr}} or \code{\link{tailPr}}, as their \verb{$quantiles} value. This value is a three-dimensional array, and one of its columns (corresponding to the possible values of the \code{X} argument of \code{\link{Pr}}) or one of its rows (corresponding to the possible values of the \code{Y} argument of \code{\link{Pr}}) should be selected before being used as \code{y} input.}
+
+\item{xdomain}{Character or numeric or \code{NULL} (default): vector of possible values of the variable represented in the x-axis, if the \code{x} argument is a character vector. The ordering of the values is respected. If \code{NULL}, then \code{unique(x)} is used.}
+
+\item{alpha.f}{Numeric, default 0.25: opacity of the quantile bands, \code{0} being completely invisible and \code{1} completely opaque.}
+
+\item{col}{Fill colour of the quantile bands. Can be specified in any of the usual ways, see for instance \code{\link[grDevices]{col2rgb}}. Default \code{9}.}
+
+\item{border}{Fill colour of the quantile bands. Can be specified in any of the usual ways, see for instance \code{\link[grDevices]{col2rgb}}. If \code{NA} (default), no border is drawn.}
 }
 \description{
-Utility function to plot pair of quantiles obtained with \code{\link{Pr}}.
+Utility function to plot pair of quantiles obtained with \code{\link{Pr}} or \code{\link{tailPr}}.
 }

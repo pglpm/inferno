@@ -1,36 +1,30 @@
 #' Plot numeric or character values
 #'
-#' Plot function that modifies and expands the base \code{\link[base]{plot.default}} in several ways: First, either or both `x` and `y` arguments can be of class \code{\link[base]{plot.default}}. In this case, axes labels corresponding to the unique values are used (see arguments `xdomain` and 'ydomain'). Second, it allows for the specification of only a lower or upper limit in `xlim` and `ylim`. Third, it uses a cleaner plotting style, and uses a default argument `type = 'l'` (line plot) rather than `'p'` (point plot).
+#' Plot function that modifies and expands the `graphics` \code{\link[graphics]{matplot}} in several ways: First, either or both `x` and `y` arguments can be of class \code{\link[base]{character}}. In this case, axes labels corresponding to the unique values are used (see arguments `xdomain` and 'ydomain'). Second, it allows for the specification of only a lower or upper limit in `xlim` and `ylim`. Third, it uses a cleaner plotting style and a default argument `type = 'l'` (line plot) rather than `type = 'p'` (point plot).
 #'
-#' @param x Numeric or character: vector of x-coordinates. Note that it cannot be a list as in base \code{\link[base]{plot.default}}.
-#'
-#' @param x Numeric or character: vector of y coordinates. Note that it cannot be `NULL as in base \code{\link[base]{plot.default}}.
-#' @param xlim `NULL` (default) or a vector of two values. In the latter case, if any of the two values is not finite (including `NA` or `NULL`), then the `min` or `max` x-coordinate of the plotted points is used.
-#' @param ylim `NULL` (default) or a vector of two values. Like argument `xlim`, but for the y-coordinates.
+#' @param x Numeric or character: vector of x-coordinates. If missing, a numeric vector `1:...` is created having as many values as the rows of `y`.
+#' @param y Numeric or character: vector of y coordinates. If missing, a numeric vector `1:...` is created having as many values as the rows of `x`.
 #' @param xdomain Character or numeric or `NULL` (default): vector of possible values of the variable represented in the x-axis, if the `x` argument is a character vector. The ordering of the values is respected. If `NULL`, then `unique(x)` is used.
 #' @param ydomain Character or numeric or `NULL` (default): like `xdomain` but for the y-coordinate.
-#'
-#' vector of possible values of the variable represented in the x-axis, if the `x` argument is a character vector. The ordering of the values is respected. If `NULL`, then `unique(x)` is used.
-#' @param ydomain Character or numeric: vector of possible values of the variable represented in the x-axis. The ordering of the values is respected.
-#' Set of values that were used as `Y` argument to \code{\link{Pr}} (typically they make sense if `Y` only was a single variate rather than aconjunction of several).
-#'
+#' @param xlim `NULL` (default) or a vector of two values. In the latter case, if any of the two values is not finite (including `NA` or `NULL`), then the `min` or `max` x-coordinate of the plotted points is used.
+#' @param ylim `NULL` (default) or a vector of two values. Like argument `xlim`, but for the y-coordinates.
 #' @param grid Logical: whether to plot a light grid. Default `TRUE`.
-#' @param ... Other parameters to be passed to \code{\link[base]{plot}}
+#' @param ... Other parameters to be passed to \code{\link[base]{plot}}.
 #'
 #' @return A plot as per the base \code{\link[base]{plot.default}} function.
 #'
 #' @export
 flexiplot <- function(
     x, y,
-    xlim = NULL, ylim = NULL,
     xdomain = NULL, ydomain = NULL,
+    xlim = NULL, ylim = NULL,
     type = 'l',
     pch = c(1, 0, 2, 5, 6, 3, 4),
     grid = TRUE,
     ...
 ){
     xat <- yat <- NULL
-    
+
     if(missing('x') && !missing('y')){
         x <- seq_len(NROW(y))
     } else if(!missing('x') && missing('y')){
@@ -80,17 +74,22 @@ flexiplot <- function(
 
 #' Plot pairs of quantiles
 #'
-#' Utility function to plot pair of quantiles obtained with \code{\link{Pr}}.
+#' Utility function to plot pair of quantiles obtained with \code{\link{Pr}} or \code{\link{tailPr}}.
 #'
-#' @param x Numeric or character: Set of values that were used as `Y` argument to \code{\link{Pr}} (typically they make sense if `Y` only was a single variate rather than aconjunction of several).
-#' @param y Numeric: a matrix having as many rows as `x` and an even number of columns, with one column per quantile. Typically these quantiles have been obtained with \code{\link{Pr}}, as its `$quantiles` value. This value is a three-dimensional array, and one of its columns (2nd dimension, corresponding to the possible values of the `X` argument of \code{\link{Pr}}) should be selected before being used as `y` input.
+#' @param x Numeric or character: vector of x-coordinates. See \code{\link{flexiplot}}.
+#' @param y Numeric: a matrix having as many rows as `x` and an even number of columns, with one column per quantile. Typically these quantiles have been obtained with \code{\link{Pr}} or \code{\link{tailPr}}, as their `$quantiles` value. This value is a three-dimensional array, and one of its columns (corresponding to the possible values of the `X` argument of \code{\link{Pr}}) or one of its rows (corresponding to the possible values of the `Y` argument of \code{\link{Pr}}) should be selected before being used as `y` input.
+#' @param xdomain Character or numeric or `NULL` (default): vector of possible values of the variable represented in the x-axis, if the `x` argument is a character vector. The ordering of the values is respected. If `NULL`, then `unique(x)` is used.
+#' @param alpha.f Numeric, default 0.25: opacity of the quantile bands, `0` being completely invisible and `1` completely opaque.
+#' @param col Fill colour of the quantile bands. Can be specified in any of the usual ways, see for instance \code{\link[grDevices]{col2rgb}}. Default `9`.
+#' @param border Fill colour of the quantile bands. Can be specified in any of the usual ways, see for instance \code{\link[grDevices]{col2rgb}}. If `NA` (default), no border is drawn.
 #'
 #' @export
 plotquantiles <- function(
     x, y,
-    xdomain = NULL, ydomain = NULL,
-    alpha.f=0.25, border=NA,
-    col=palette()[1],
+    xdomain = NULL,
+    alpha.f=0.25,
+    col = 7,
+    border=NA,
     ...
 ){
     if(!is.matrix(y) || ncol(y) %% 2 != 0) {
@@ -111,7 +110,7 @@ plotquantiles <- function(
     ## else if(!is.character(alpha)){alpha <- alpha2hex(alpha)}
     ## if(!(is.na(col) | nchar(col)>7)){col <- paste0(col, alpha)}
     ##
-    flexiplot(x = x, y = y, xdomain = xdomain, ydomain = ydomain,
+    flexiplot(x = x, y = y, xdomain = xdomain,
         type = 'n', ...)
 
     ## if x is character, convert to numeric
@@ -121,15 +120,6 @@ plotquantiles <- function(
         ## because the lexical order may not be correct
         ## (think of values like 'low', 'medium', 'high')
         x <- as.numeric(factor(x, levels = xdomain))
-    }
-
-    ## if y is character, convert to numeric
-    if(is.character(y)){
-        if(is.null(ydomain)){ ydomain <- unique(y) }
-        ## we assume the user has sorted the vaules in a meaningful order
-        ## because the lexical order may not be correct
-        ## (think of values like 'low', 'medium', 'high')
-        y <- as.numeric(factor(y, levels = ydomain))
     }
 
     for(ii in seq_len(nquant/2)) {
@@ -474,7 +464,7 @@ plotquantiles <- function(
 ##     suppressWarnings(col <- mapply(function(i,j)adjustcolor(i,j),col,alpha))
 ##     legend(x=x, y=y, legend=legend, col=col, pch=pch, lty=lty, lwd=lwd, bty='n', cex=cex, ...)
 ## }
-## 
+##
 ## #' @keywords internal
 ## fivenumaxis <- function(side, x, col='#555555', type=6){
 ##     x <- x[!is.na(x) && is.finite(x)]
