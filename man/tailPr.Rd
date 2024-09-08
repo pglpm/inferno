@@ -13,7 +13,8 @@ tailPr(
   parallel = TRUE,
   lower.tail = TRUE,
   silent = TRUE,
-  usememory = TRUE
+  usememory = TRUE,
+  keepYX = TRUE
 )
 }
 \arguments{

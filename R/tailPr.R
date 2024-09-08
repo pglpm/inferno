@@ -32,7 +32,8 @@ tailPr <- function(
     parallel = TRUE,
     lower.tail = TRUE,
     silent = TRUE,
-    usememory = TRUE
+    usememory = TRUE,
+    keepYX = TRUE
 ) {
     if (!silent) {
         cat('\n')

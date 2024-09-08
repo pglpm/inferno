@@ -55,8 +55,10 @@ plotFsamples(
 #### custom
 dataset <- read.csv('~/repos/inferno/development/tests/custom/dataset_custom30.csv', na.strings='')
 learnt <- readRDS('~/repos/inferno/development/tests/custom/test_custom-vrt10_dat30_smp120/learnt.rds')
+
+unloadNamespace('inferno')
+library('inferno')
 ##
-unloadNamespace('inferno'); library('inferno')
 for(pv in c('samples', 'quantiles')) {
 plotFsamples(
     file= paste0('_justatest_', pv),
@@ -67,7 +69,7 @@ plotFsamples(
     nFsamples = NULL,
     #datahistogram = !(missing(data) || is.null(data)),
     #datascatter = !(missing(data) || is.null(data)),
-    parallel = 4,
+    parallel = 1,
     silent = FALSE)
 }
 

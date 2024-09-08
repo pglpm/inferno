@@ -1892,7 +1892,7 @@ learn <- function(
                 ## Traces of likelihood and cond. probabilities
                 par(mfrow = c(1, 1))
                 for (avar in 1:ncol(traces)) {
-                    tplot(
+                    flexiplot(
                         y = 10*log10(traces[is.finite(traces[, avar]), avar]),
                         type = 'l', lty = 1, col = 1,
                         main = paste0('#', colnames(traces)[avar], ': ',
@@ -1908,7 +1908,8 @@ learn <- function(
                             colnames(traces)[avar],
                             ')/dHart'),
                         xlab = 'Monte Carlo sample',
-                        family = family, mar = c(NA, 6, NA, NA)
+                        family = family
+                        ## mar = c(NA, 6, NA, NA)
                     )
                 }
                 dev.off()
@@ -1926,23 +1927,22 @@ learn <- function(
                     cat('\nSTATS USED COMPONENTS:\n')
                     print(summary(allmcsamplesKA$K))
                     ##
-                    tplot(y = allmcsamplesKA$K, ylab = 'used components',
+                    flexiplot(y = allmcsamplesKA$K, ylab = 'used components',
                         xlab = 'iteration', ylim = c(0, ncomponents))
-                    tplot(x = ((-1):ncomponents) + 0.5,
+                    flexiplot(x = 0:ncomponents,
                         y = tabulate(allmcsamplesKA$K + 1, nbins = ncomponents + 1),
-                        type = 'h', xlab = 'used components', ylab = NA,
+                        type = 'l', xlab = 'used components', ylab = NA,
                         ylim = c(0, NA))
                 }
                 if (showAlphatraces) {
                     cat('\nSTATS alpha:\n')
                     print(summary(allmcsamplesKA$Alpha, na.rm = TRUE))
-                    tplot(y = allmcsamplesKA$Alpha,
+                    flexiplot(y = allmcsamplesKA$Alpha,
                         ylab = bquote(alpha), xlab = 'iteration',
                         ylim = c(1, nalpha))
-                    tplot(x = seq(minalpha, maxalpha + byalpha, by = byalpha) -
-                              byalpha/2,
-                        y = tabulate(allmcsamplesKA$Alpha, nbin = nalpha),
-                        type = 'h', xlab = bquote(alpha), ylab = '',
+                    flexiplot(x = seq(minalpha, maxalpha, by = byalpha),
+                        y = tabulate(allmcsamplesKA$Alpha, nbins = nalpha),
+                        type = 'l', xlab = bquote(alpha), ylab = '',
                         ylim = c(0, NA))
                 }
                 dev.off()
@@ -2132,7 +2132,7 @@ learn <- function(
     for (avar in 1:ncol(traces)) {
         ## Do not join separate chains in the plot
         division <- (if(nrow(traces) > nchains) nchains else 1)
-        tplot(
+        flexiplot(
             y = 10*log10(traces[is.finite(traces[, avar]), avar]),
             ## x = matrix(seq_len(nsamples), ncol = division),
             ## y = matrix(10*log10(traces[, avar]), ncol = division),
@@ -2150,8 +2150,8 @@ learn <- function(
             ylab = paste0('log_F(#',
                 colnames(traces)[avar],
                 ')/dHart'),
-            xlab = 'sample', family = family,
-            mar = c(NA, 6, NA, NA)
+            xlab = 'sample', family = family
+            ## mar = c(NA, 6, NA, NA)
         )
     }
 

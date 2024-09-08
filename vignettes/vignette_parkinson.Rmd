@@ -18,6 +18,16 @@ knitr::opts_chunk$set(
 )
 options(knitr.kable.NA = '')
 library(inferno)
+## Tol colour-blind-friendly palette
+palette(c(black='black',
+        red='#EE6677',
+        blue='#4477AA',
+        green='#228833',
+        yellow='#CCBB44',
+        purple='#AA3377',
+        cyan='#66CCEE',
+        grey='#BBBBBB',
+        midgrey='#888888'))
 ```
 
 ## Purpose
@@ -214,12 +224,12 @@ Each probability thus obtained has two accompanying quantiles and related uncert
 ```{r}
 plotquantiles(x = (-30):30, y = probabilities$quantiles[,1,],
     ylim = c(0, NA),
-    xlab = 'MDS-UPDRS-III difference', ylab = 'probability', col = 1)
+    xlab = 'MDS-UPDRS-III difference', ylab = 'probability', col = 3)
 
-tplot(x = (-30):30, y = probabilities$values[,1], col = 1, add = TRUE)
+flexiplot(x = (-30):30, y = probabilities$values[,1], col = 3, add = TRUE)
 
 ## add 0-change line
-abline(v = 0, lwd = 1, col = 'yellow')
+abline(v = 0, lwd = 1, col = 5)
 ```
 Two aspects of this plot are relevant for our investigation:
 
@@ -278,21 +288,21 @@ Let's plot these probabilities, together with their variability (only the most e
 ```{r}
 plotquantiles(x = (-30):30, y = probabilities$quantiles[,1, c('5%', '95%')],
     ylim = c(0, NA),
-    xlab = 'MDS-UPDRS-III difference', ylab = 'probability', col = 1)
+    xlab = 'MDS-UPDRS-III difference', ylab = 'probability', col = 3)
 
 plotquantiles(x = (-30):30, y = probabilitiesPlacebo$quantiles[,1, c('5%', '95%')],
     col = 2, add = TRUE)
 
-tplot(x = (-30):30, y = probabilities$values[,1], col = 1, add = TRUE)
+flexiplot(x = (-30):30, y = probabilities$values[,1], col = 3, add = TRUE)
 
-tplot(x = (-30):30, y = probabilitiesPlacebo$values[,1],
+flexiplot(x = (-30):30, y = probabilitiesPlacebo$values[,1],
     col = 2, lty = 2, add = TRUE)
 
 ## add 0-change line
-abline(v = 0, lwd = 1, col = 'yellow')
+abline(v = 0, lwd = 1, col = 5)
 
 legend('topright', legend = c('NR, Female', 'Placebo, Female'),
-    bty = 'n', lty = 1:2, col = 1:2)
+    bty = 'n', lty = 1:2, col = 3:2)
 ```
 
 There does not seem to be any difference that stands out between the treated and non-treated case.
@@ -355,21 +365,21 @@ We can plot the probabilities of an MDS-UPDRS-III decrease against that patient'
 ```{r}
 plotquantiles(x = 25:80, y = probDecreaseAge$quantiles[1,, c('5%', '95%')],
     ylim = c(0, NA),
-    xlab = 'age', ylab = 'probability of MDS-UPDRS-III decr.', col = 1)
+    xlab = 'age', ylab = 'probability of MDS-UPDRS-III decr.', col = 3)
 
 plotquantiles(x = 25:80, y = probDecreaseAgePlacebo$quantiles[1,, c('5%', '95%')],
     col = 2, add = TRUE)
 
-tplot(x = 25:80, y = probDecreaseAge$values[1,], col = 1, add = TRUE)
+flexiplot(x = 25:80, y = probDecreaseAge$values[1,], col = 3, add = TRUE)
 
-tplot(x = 25:80, y = probDecreaseAgePlacebo$values[1,],
+flexiplot(x = 25:80, y = probDecreaseAgePlacebo$values[1,],
     col = 2, lty = 2, add = TRUE)
 
 ## add 50%-probability line
-abline(h = 0.5, lwd = 1, col = 'yellow')
+abline(h = 0.5, lwd = 1, col = 5)
 
 legend('topright', legend = c('NR, Female', 'Placebo, Female'),
-    bty = 'n', lty = 1:2, col = 1:2)
+    bty = 'n', lty = 1:2, col = 3:2)
 ```
 
 This plot shows some interesting aspects:
@@ -394,21 +404,21 @@ probabilitiesMale <- Pr(
 
 plotquantiles(x = (-30):30, y = probabilitiesMale$quantiles[,1, c('5%', '95%')],
     ylim = c(0, NA),
-    xlab = 'MDS-UPDRS-III difference', ylab = 'probability', col = 5)
+    xlab = 'MDS-UPDRS-III difference', ylab = 'probability', col = 7)
 
 plotquantiles(x = (-30):30, y = probabilitiesMale$quantiles[,2, c('5%', '95%')],
     col = 6, add = TRUE)
 
-tplot(x = (-30):30, y = probabilitiesMale$values[,1], col = 5, add = TRUE)
+flexiplot(x = (-30):30, y = probabilitiesMale$values[,1], col = 7, add = TRUE)
 
-tplot(x = (-30):30, y = probabilitiesMale$values[,2],
+flexiplot(x = (-30):30, y = probabilitiesMale$values[,2],
     col = 6, lty = 2, add = TRUE)
 
 ## add 0-change line
 abline(v = 0, lwd = 1, col = 'yellow')
 
 legend('topright', legend = c('NR, Male', 'Placebo, Male'),
-    bty = 'n', lty = 1:2, col = 5:6)
+    bty = 'n', lty = 1:2, col = 7:6)
 ```
 
 
@@ -430,21 +440,21 @@ probMaleDecreaseAgePlacebo <- tailPr(
 
 plotquantiles(x = 25:80, y = probMaleDecreaseAge$quantiles[1,, c('5%', '95%')],
     ylim = c(0, NA),
-    xlab = 'age', ylab = 'probability of MDS-UPDRS-III decr.', col = 5)
+    xlab = 'age', ylab = 'probability of MDS-UPDRS-III decr.', col = 7)
 
 plotquantiles(x = 25:80, y = probMaleDecreaseAgePlacebo$quantiles[1,, c('5%', '95%')],
     col = 6, add = TRUE)
 
-tplot(x = 25:80, y = probMaleDecreaseAge$values[1,], col = 5, add = TRUE)
+flexiplot(x = 25:80, y = probMaleDecreaseAge$values[1,], col = 7, add = TRUE)
 
-tplot(x = 25:80, y = probMaleDecreaseAgePlacebo$values[1,],
+flexiplot(x = 25:80, y = probMaleDecreaseAgePlacebo$values[1,],
     col = 6, lty = 2, add = TRUE)
 
 ## add 50%-probability line
 abline(h = 0.5, lwd = 1, col = 'yellow')
 
 legend('topright', legend = c('NR, Male', 'Placebo, Male'),
-    bty = 'n', lty = 1:2, col = 5:6)
+    bty = 'n', lty = 1:2, col = 7:6)
 ```
 
 Finally let's compare treated female vs male patients, per age:
@@ -452,21 +462,21 @@ Finally let's compare treated female vs male patients, per age:
 ```{r}
 plotquantiles(x = 25:80, y = probDecreaseAge$quantiles[1,, c('5%', '95%')],
     ylim = c(0, NA),
-    xlab = 'age', ylab = 'probability of MDS-UPDRS-III decr.', col = 1)
+    xlab = 'age', ylab = 'probability of MDS-UPDRS-III decr.', col = 3)
 
 plotquantiles(x = 25:80, y = probMaleDecreaseAge$quantiles[1,, c('5%', '95%')],
-    col = 5, add = TRUE)
+    col = 7, add = TRUE)
 
-tplot(x = 25:80, y = probDecreaseAge$values[1,], col = 1, add = TRUE)
+flexiplot(x = 25:80, y = probDecreaseAge$values[1,], col = 3, add = TRUE)
 
-tplot(x = 25:80, y = probMaleDecreaseAge$values[1,],
-    col = 5, lty = 2, add = TRUE)
+flexiplot(x = 25:80, y = probMaleDecreaseAge$values[1,],
+    col = 7, lty = 2, add = TRUE)
 
 ## add 50%-probability line
 abline(h = 0.5, lwd = 1, col = 'yellow')
 
 legend('topright', legend = c('NR, Female', 'NR, Male'),
-    bty = 'n', lty = 1:2, col = c(1, 5))
+    bty = 'n', lty = 1:2, col = c(3, 7))
 ```
 
 

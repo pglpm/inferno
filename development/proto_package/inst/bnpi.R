@@ -4,7 +4,7 @@ library('data.table')
 library('foreach')
 library('doParallel')
 library('doRNG')
-library('khroma')
+# library('khroma')
 loadNamespace('LaplacesDemon')
 loadNamespace('nimble')
 

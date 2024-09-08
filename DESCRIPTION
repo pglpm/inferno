@@ -22,7 +22,6 @@ Imports:
     doRNG,
     extraDistr,
     foreach,
-    khroma,
     nimble
 Suggests: 
     knitr,
