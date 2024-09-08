@@ -612,7 +612,7 @@ learn <- function(
     changeSamplerOrder <- TRUE
     ##
     showsamples <- 100 # number of samples to show.
-    plotDisplayedQuantiles <- c(5, 95)/100 # c(1, 31) / 32 # quantiles to show
+    plotDisplayedQuantiles <- c(5.5, 94.5)/100 # c(1, 31) / 32 # quantiles to show
     ncomponentsamples <- 128 # number of samples of Alpha and K
     showsamplertimes <- FALSE ##
     family <- 'Palatino' # font family in plots

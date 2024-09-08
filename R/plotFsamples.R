@@ -81,10 +81,10 @@ plotFsamples <- function(
 
     addylab <- ''
     if (plotvariability == 'quantiles') {
-        if(is.null(nFsamples)) {nFsamples <- c(5, 95)/100}
+        if(is.null(nFsamples)) {nFsamples <- c(5.5, 94.5)/100}
         ## plotprobability <- TRUE
         if (any(nFsamples <= 0 | nFsamples >= 1)) {
-            nFsamples <- c(5, 95)/100
+            nFsamples <- c(5.5, 94.5)/100
         }
         quants <- sort(unique(round(c(nFsamples, 1 - nFsamples), 6)))
         nmcsamples <- NULL

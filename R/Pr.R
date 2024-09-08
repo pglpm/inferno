@@ -7,7 +7,7 @@
 #' @param X matrix or data.table or `NULL`: set of values of variates on which we want to condition the joint probability of `Y`. If `NULL` (default), no conditioning is made (except for conditioning on the learning dataset and prior assumptions). One variate per column, one set of values per row.
 #' @param learnt Either a string with the name of a directory or full
 #'   path for an 'learnt.rds' object, or such an object itself
-#' @param quantiles numeric vector, between 0 and 1, or `NULL`: desired quantiles of the variability of the probability for `Y`. Default `c(0.05, 0.25, 0.75, 0.95)`, that is, the 5%, 25%, 75%, 95% quantiles. If `NULL`, no quantiles are calculated.
+#' @param quantiles numeric vector, between 0 and 1, or `NULL`: desired quantiles of the variability of the probability for `Y`. Default `c(0.055, 0.25, 0.75, 0.945)`, that is, the 5.5%, 25%, 75%, 94.5% quantiles (these are typical quantile values in the Bayesian literature: they give 50% and 89% credibility intervals, which correspond to 1 shannons and 0.5 shannons of uncertainty). If `NULL`, no quantiles are calculated.
 #' @param nsamples integer or `NULL` or `"all"`: desired number of samples of the variability of the probability for `Y`. If `NULL`, no samples are reported. If `"all"` (or `Inf`), all samples obtained by the \code{\link{learn}} function are used. Default `100`.
 #' @param parallel logical or integer: whether to use pre-existing parallel
 #'   workers, or how many to create and use. Default `TRUE`.
@@ -26,7 +26,7 @@ Pr <- function(
     Y,
     X = NULL,
     learnt,
-    quantiles = c(0.05, 0.25, 0.75, 0.95),
+    quantiles = c(0.055, 0.25, 0.75, 0.945),
     nsamples = 100L,
     parallel = TRUE,
     silent = TRUE,

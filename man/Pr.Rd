@@ -8,7 +8,7 @@ Pr(
   Y,
   X = NULL,
   learnt,
-  quantiles = c(0.05, 0.25, 0.75, 0.95),
+  quantiles = c(0.055, 0.25, 0.75, 0.945),
   nsamples = 100L,
   parallel = TRUE,
   silent = TRUE,
@@ -25,7 +25,7 @@ the joint probability of. One variate per column, one set of values per row.}
 \item{learnt}{Either a string with the name of a directory or full
 path for an 'learnt.rds' object, or such an object itself}
 
-\item{quantiles}{numeric vector, between 0 and 1, or \code{NULL}: desired quantiles of the variability of the probability for \code{Y}. Default \code{c(0.05, 0.25, 0.75, 0.95)}, that is, the 5\%, 25\%, 75\%, 95\% quantiles. If \code{NULL}, no quantiles are calculated.}
+\item{quantiles}{numeric vector, between 0 and 1, or \code{NULL}: desired quantiles of the variability of the probability for \code{Y}. Default \code{c(0.055, 0.25, 0.75, 0.945)}, that is, the 5.5\%, 25\%, 75\%, 94.5\% quantiles (these are typical quantile values in the Bayesian literature: they give 50\% and 89\% credibility intervals, which correspond to 1 shannons and 0.5 shannons of uncertainty). If \code{NULL}, no quantiles are calculated.}
 
 \item{nsamples}{integer or \code{NULL} or \code{"all"}: desired number of samples of the variability of the probability for \code{Y}. If \code{NULL}, no samples are reported. If \code{"all"} (or \code{Inf}), all samples obtained by the \code{\link{learn}} function are used. Default \code{100}.}
 
