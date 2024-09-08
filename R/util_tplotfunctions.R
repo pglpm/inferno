@@ -21,6 +21,7 @@ flexiplot <- function(
     type = 'l',
     pch = c(1, 0, 2, 5, 6, 3, 4),
     grid = TRUE,
+    add = FALSE,
     ...
 ){
     xat <- yat <- NULL
@@ -64,11 +65,13 @@ flexiplot <- function(
         if(is.null(ylim[2]) || !is.finite(ylim[2])){ ylim[2] <- max(y[is.finite(y)]) }
     }
 
-    matplot(x, y, xlim = xlim, ylim = ylim, type = type, pch = pch, axes = F, ...)
-    axis(1, at = xat, labels = xdomain, lwd = 0)
-    axis(2, at = yat, labels = ydomain, lwd = 0)
-    if(grid){
-        graphics::grid(nx = NULL, ny = NULL, lty = 1, col = '#BBBBBB80')
+    matplot(x, y, xlim = xlim, ylim = ylim, type = type, pch = pch, axes = F, add = add, ...)
+    if(!add){
+        axis(1, at = xat, labels = xdomain, lwd = 0)
+        axis(2, at = yat, labels = ydomain, lwd = 0)
+        if(grid){
+            graphics::grid(nx = NULL, ny = NULL, lty = 1, col = '#BBBBBB80')
+        }
     }
 }
 
