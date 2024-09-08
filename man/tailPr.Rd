@@ -26,9 +26,9 @@ the joint probability of. One variate per column, one set of values per row.}
 \item{learnt}{Either a string with the name of a directory or full
 path for an 'learnt.rds' object, or such an object itself}
 
-\item{quantiles}{numeric vector, between 0 and 1, or \code{NULL}: desired quantiles of the variability of the tail probability for \code{Y}. Default \code{c(0.05, 0.25, 0.75, 0.95)}, that is, the 5\%, 25\%, 75\%, 95\% quantiles.}
+\item{quantiles}{numeric vector, between 0 and 1, or \code{NULL}: desired quantiles of the variability of the probability for \code{Y}. Default \code{c(0.05, 0.25, 0.75, 0.95)}, that is, the 5\%, 25\%, 75\%, 95\% quantiles. If \code{NULL}, no quantiles are calculated.}
 
-\item{nsamples}{integer or \code{NULL}: desired number of samples of the variability of the probability for \code{Y}. Default \code{100}.}
+\item{nsamples}{integer or \code{NULL} or \code{"all"}: desired number of samples of the variability of the probability for \code{Y}. If \code{NULL}, no samples are reported. If \code{"all"} (or \code{Inf}), all samples obtained by the \code{\link{learn}} function are used. Default \code{100}.}
 
 \item{parallel}{logical or integer: whether to use pre-existing parallel
 workers, or how many to create and use. Default \code{TRUE}.}
@@ -44,7 +44,7 @@ Default \code{TRUE}.}
 \item{keepYX}{logical, default \code{TRUE}: keep a copy of the \code{Y} and \code{X} arguments in the output? This is used for the plot method.}
 }
 \value{
-A list of: (1) a matrix with the probabilities P(Y|X,data,assumptions), for all combinations of values of \code{Y} (rows) and \code{X} (columns); (2) an array with the variability quantiles (3rd dimension of the array) for such probabilities; (3) an array with the variability samples (3rd dimension of the array) for such probabilities.
+A list of class \code{probability}, consisting of the elements \code{values}, and possibly the elements \code{quantiles} (if non-\code{NULL} argument \code{quantiles}), \code{samples} (if non-\code{NULL} argument \code{nsample}), \code{Y}, \code{X}. Element \code{values}: a matrix with the probabilities P(Y <= y |X,data,assumptions), for all combinations of values of \code{Y} (rows) and \code{X} (columns). Element \code{quantiles}: an array with the variability quantiles (3rd dimension of the array) for such probabilities. Element \code{samples}: an array with the variability samples (3rd dimension of the array) for such probabilities. Elements \code{Y}, \code{X}: copies of the \code{Y} and \code{X} arguments.
 }
 \description{
 This function calculates the probability \code{P(Y <= y | X, data)}, where Y and X are two (non overlapping) sets of joint variates (if the \code{lower.tail} argument is \code{FALSE}, then \code{P(Y > y | X, data)} is calculated). The function also gives quantiles about the possible variability of the probability \code{P(Y <= y | X, newdata, data)} that we could have if more learning data were provided, as well as a number of samples of the possible values of such probabilities. If several joint values are given for Y or X, the function will create a 2D grid of results for all possible compbinations of the given Y and X values.

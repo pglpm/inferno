@@ -89,9 +89,9 @@ flexiplot <- function(
 plotquantiles <- function(
     x, y,
     xdomain = NULL,
-    alpha.f=0.25,
-    col = 7,
-    border=NA,
+    alpha.f = 0.25,
+    col = 9,
+    border = NA,
     ...
 ){
     if(!is.matrix(y) || ncol(y) %% 2 != 0) {

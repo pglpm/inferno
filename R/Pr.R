@@ -7,8 +7,8 @@
 #' @param X matrix or data.table or `NULL`: set of values of variates on which we want to condition the joint probability of `Y`. If `NULL` (default), no conditioning is made (except for conditioning on the learning dataset and prior assumptions). One variate per column, one set of values per row.
 #' @param learnt Either a string with the name of a directory or full
 #'   path for an 'learnt.rds' object, or such an object itself
-#' @param quantiles numeric vector, between 0 and 1, or `NULL`: desired quantiles of the variability of the probability for `Y`. Default `c(0.05, 0.25, 0.75, 0.95)`, that is, the 5%, 25%, 75%, 95% quantiles.
-#' @param nsamples integer or `NULL`: desired number of samples of the variability of the probability for `Y`. Default `100`.
+#' @param quantiles numeric vector, between 0 and 1, or `NULL`: desired quantiles of the variability of the probability for `Y`. Default `c(0.05, 0.25, 0.75, 0.95)`, that is, the 5%, 25%, 75%, 95% quantiles. If `NULL`, no quantiles are calculated.
+#' @param nsamples integer or `NULL` or `"all"`: desired number of samples of the variability of the probability for `Y`. If `NULL`, no samples are reported. If `"all"` (or `Inf`), all samples obtained by the \code{\link{learn}} function are used. Default `100`.
 #' @param parallel logical or integer: whether to use pre-existing parallel
 #'   workers, or how many to create and use. Default `TRUE`.
 #' @param silent logical: give warnings or updates in the computation?
@@ -17,7 +17,7 @@
 #'   Default `TRUE`.
 #' @param keepYX logical, default `TRUE`: keep a copy of the `Y` and `X` arguments in the output? This is used for the plot method.
 #'
-#' @return A list of: (1) a matrix with the probabilities P(Y|X,data,assumptions), for all combinations of values of `Y` (rows) and `X` (columns); (2) an array with the variability quantiles (3rd dimension of the array) for such probabilities; (3) an array with the variability samples (3rd dimension of the array) for such probabilities.
+#' @return A list of class `probability`, consisting of the elements `values`, and possibly the elements `quantiles` (if non-`NULL` argument `quantiles`), `samples` (if non-`NULL` argument `nsample`), `Y`, `X`. Element `values`: a matrix with the probabilities P(Y|X,data,assumptions), for all combinations of values of `Y` (rows) and `X` (columns). Element `quantiles`: an array with the variability quantiles (3rd dimension of the array) for such probabilities. Element `samples`: an array with the variability samples (3rd dimension of the array) for such probabilities. Elements `Y`, `X`: copies of the `Y` and `X` arguments.
 #'
 #' @import parallel foreach doParallel
 #'
@@ -346,6 +346,16 @@ Pr <- function(
     ##         invjacobian = TRUE)),
     ##     na.rm = TRUE
     ## ))
+
+    if(is.numeric(nsamples)){
+        if(is.na(nsamples) || nsamples < 1) {
+            nsamples <- NULL
+        } else if(!is.finite(nsamples)) {
+            nsamples <- nmcsamples
+        }
+    } else if (is.character(nsamples) && nsamples == 'all'){
+        nsamples <- nmcsamples
+    }
 
     if(!is.null(nsamples)){
         sampleseq <- round(seq(1, nmcsamples, length.out = nsamples))

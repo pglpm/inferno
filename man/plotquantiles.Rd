@@ -4,7 +4,7 @@
 \alias{plotquantiles}
 \title{Plot pairs of quantiles}
 \usage{
-plotquantiles(x, y, xdomain = NULL, alpha.f = 0.25, col = 7, border = NA, ...)
+plotquantiles(x, y, xdomain = NULL, alpha.f = 0.25, col = 9, border = NA, ...)
 }
 \arguments{
 \item{x}{Numeric or character: vector of x-coordinates. See \code{\link{flexiplot}}.}
