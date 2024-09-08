@@ -204,7 +204,7 @@ probability0$value
 ```
 that is, there is approximately a `r signif(probability0$value *100, 2)`% probability that the next treated female patient will have a MDS-UPDRS-III difference of exactly 0.
 
-- **`quantiles`**: these values tell us how much the probability could change, if our knowledge were updated by more clinical trials. They thus quantify the uncertainty of our present probabilistic conclusions. A future, updated probability has a 89% probability of lying between the two extreme (5.5% and 94.5%) quantile values, and a 50% probability of lying between the middle (25% and 75%) ones (these are typical intervals used in the Bayesian literature, see for instance [Makowski et al.](https://doi.org/10.21105/joss.01541)). In this case they are
+- **`quantiles`**: these values tell us how much the probability could change, if our knowledge were updated by more clinical trials. They thus quantify the uncertainty of our present probabilistic conclusions. A future, updated probability has a 89% probability of lying between the two extreme (5.5% and 94.5%) quantile values, and a 50% probability of lying between the middle (25% and 75%) ones q(these are typical intervals used in the Bayesian literature, see for instance [Makowski et al.](https://doi.org/10.21105/joss.01541)). In this case they are
 ```{r}
 probability0$quantiles
 ```
