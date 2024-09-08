@@ -9,9 +9,7 @@
 #' @param xlim `NULL` (default) or a vector of two values. In the latter case, if any of the two values is not finite (including `NA` or `NULL`), then the `min` or `max` x-coordinate of the plotted points is used.
 #' @param ylim `NULL` (default) or a vector of two values. Like argument `xlim`, but for the y-coordinates.
 #' @param grid Logical: whether to plot a light grid. Default `TRUE`.
-#' @param ... Other parameters to be passed to \code{\link[base]{plot}}.
-#'
-#' @return A plot as per the base \code{\link[base]{plot.default}} function.
+#' @param ... Other parameters to be passed to \code{\link[base]{matplot}}.
 #'
 #' @export
 flexiplot <- function(
@@ -85,6 +83,7 @@ flexiplot <- function(
 #' @param alpha.f Numeric, default 0.25: opacity of the quantile bands, `0` being completely invisible and `1` completely opaque.
 #' @param col Fill colour of the quantile bands. Can be specified in any of the usual ways, see for instance \code{\link[grDevices]{col2rgb}}. Default `9`.
 #' @param border Fill colour of the quantile bands. Can be specified in any of the usual ways, see for instance \code{\link[grDevices]{col2rgb}}. If `NA` (default), no border is drawn.
+#' @param ... Other parameters to be passed to \code{\link{flexiplot}}.
 #'
 #' @export
 plotquantiles <- function(
@@ -113,8 +112,7 @@ plotquantiles <- function(
     ## else if(!is.character(alpha)){alpha <- alpha2hex(alpha)}
     ## if(!(is.na(col) | nchar(col)>7)){col <- paste0(col, alpha)}
     ##
-    flexiplot(x = x, y = y, xdomain = xdomain,
-        type = 'n', ...)
+    flexiplot(x = x, y = y, xdomain = xdomain, type = 'n', ...)
 
     ## if x is character, convert to numeric
     if(is.character(x)){

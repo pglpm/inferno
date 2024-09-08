@@ -18,6 +18,8 @@ plotquantiles(x, y, xdomain = NULL, alpha.f = 0.25, col = 7, border = NA, ...)
 \item{col}{Fill colour of the quantile bands. Can be specified in any of the usual ways, see for instance \code{\link[grDevices]{col2rgb}}. Default \code{9}.}
 
 \item{border}{Fill colour of the quantile bands. Can be specified in any of the usual ways, see for instance \code{\link[grDevices]{col2rgb}}. If \code{NA} (default), no border is drawn.}
+
+\item{...}{Other parameters to be passed to \code{\link{flexiplot}}.}
 }
 \description{
 Utility function to plot pair of quantiles obtained with \code{\link{Pr}} or \code{\link{tailPr}}.

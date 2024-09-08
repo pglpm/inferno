@@ -33,10 +33,7 @@ flexiplot(
 
 \item{grid}{Logical: whether to plot a light grid. Default \code{TRUE}.}
 
-\item{...}{Other parameters to be passed to \code{\link[base]{plot}}.}
-}
-\value{
-A plot as per the base \code{\link[base]{plot.default}} function.
+\item{...}{Other parameters to be passed to \code{\link[base]{matplot}}.}
 }
 \description{
 Plot function that modifies and expands the \code{graphics} \code{\link[graphics]{matplot}} in several ways: First, either or both \code{x} and \code{y} arguments can be of class \code{\link[base]{character}}. In this case, axes labels corresponding to the unique values are used (see arguments \code{xdomain} and 'ydomain'). Second, it allows for the specification of only a lower or upper limit in \code{xlim} and \code{ylim}. Third, it uses a cleaner plotting style and a default argument \code{type = 'l'} (line plot) rather than \code{type = 'p'} (point plot).
