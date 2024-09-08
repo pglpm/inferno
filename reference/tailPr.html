@@ -75,11 +75,11 @@ path for an 'learnt.rds' object, or such an object itself</p></dd>
 
 
 <dt id="arg-quantiles">quantiles<a class="anchor" aria-label="anchor" href="#arg-quantiles"></a></dt>
-<dd><p>numeric vector, between 0 and 1, or <code>NULL</code>: desired quantiles of the variability of the tail probability for <code>Y</code>. Default <code>c(0.05, 0.25, 0.75, 0.95)</code>, that is, the 5%, 25%, 75%, 95% quantiles.</p></dd>
+<dd><p>numeric vector, between 0 and 1, or <code>NULL</code>: desired quantiles of the variability of the probability for <code>Y</code>. Default <code>c(0.05, 0.25, 0.75, 0.95)</code>, that is, the 5%, 25%, 75%, 95% quantiles. If <code>NULL</code>, no quantiles are calculated.</p></dd>
 
 
 <dt id="arg-nsamples">nsamples<a class="anchor" aria-label="anchor" href="#arg-nsamples"></a></dt>
-<dd><p>integer or <code>NULL</code>: desired number of samples of the variability of the probability for <code>Y</code>. Default <code>100</code>.</p></dd>
+<dd><p>integer or <code>NULL</code> or <code>"all"</code>: desired number of samples of the variability of the probability for <code>Y</code>. If <code>NULL</code>, no samples are reported. If <code>"all"</code> (or <code>Inf</code>), all samples obtained by the <code><a href="learn.html">learn</a></code> function are used. Default <code>100</code>.</p></dd>
 
 
 <dt id="arg-parallel">parallel<a class="anchor" aria-label="anchor" href="#arg-parallel"></a></dt>
@@ -107,7 +107,7 @@ Default <code>TRUE</code>.</p></dd>
 </dl></div>
     <div class="section level2">
     <h2 id="value">Value<a class="anchor" aria-label="anchor" href="#value"></a></h2>
-    <p>A list of: (1) a matrix with the probabilities P(Y|X,data,assumptions), for all combinations of values of <code>Y</code> (rows) and <code>X</code> (columns); (2) an array with the variability quantiles (3rd dimension of the array) for such probabilities; (3) an array with the variability samples (3rd dimension of the array) for such probabilities.</p>
+    <p>A list of class <code>probability</code>, consisting of the elements <code>values</code>, and possibly the elements <code>quantiles</code> (if non-<code>NULL</code> argument <code>quantiles</code>), <code>samples</code> (if non-<code>NULL</code> argument <code>nsample</code>), <code>Y</code>, <code>X</code>. Element <code>values</code>: a matrix with the probabilities P(Y &lt;= y |X,data,assumptions), for all combinations of values of <code>Y</code> (rows) and <code>X</code> (columns). Element <code>quantiles</code>: an array with the variability quantiles (3rd dimension of the array) for such probabilities. Element <code>samples</code>: an array with the variability samples (3rd dimension of the array) for such probabilities. Elements <code>Y</code>, <code>X</code>: copies of the <code>Y</code> and <code>X</code> arguments.</p>
     </div>
 
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>
