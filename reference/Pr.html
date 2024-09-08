@@ -46,7 +46,7 @@
 <span>  <span class="va">Y</span>,</span>
 <span>  X <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  <span class="va">learnt</span>,</span>
-<span>  quantiles <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0.05</span>, <span class="fl">0.25</span>, <span class="fl">0.75</span>, <span class="fl">0.95</span><span class="op">)</span>,</span>
+<span>  quantiles <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0.055</span>, <span class="fl">0.25</span>, <span class="fl">0.75</span>, <span class="fl">0.945</span><span class="op">)</span>,</span>
 <span>  nsamples <span class="op">=</span> <span class="fl">100L</span>,</span>
 <span>  parallel <span class="op">=</span> <span class="cn">TRUE</span>,</span>
 <span>  silent <span class="op">=</span> <span class="cn">TRUE</span>,</span>
@@ -74,7 +74,7 @@ path for an 'learnt.rds' object, or such an object itself</p></dd>
 
 
 <dt id="arg-quantiles">quantiles<a class="anchor" aria-label="anchor" href="#arg-quantiles"></a></dt>
-<dd><p>numeric vector, between 0 and 1, or <code>NULL</code>: desired quantiles of the variability of the probability for <code>Y</code>. Default <code>c(0.05, 0.25, 0.75, 0.95)</code>, that is, the 5%, 25%, 75%, 95% quantiles. If <code>NULL</code>, no quantiles are calculated.</p></dd>
+<dd><p>numeric vector, between 0 and 1, or <code>NULL</code>: desired quantiles of the variability of the probability for <code>Y</code>. Default <code>c(0.055, 0.25, 0.75, 0.945)</code>, that is, the 5.5%, 25%, 75%, 94.5% quantiles (these are typical quantile values in the Bayesian literature: they give 50% and 89% credibility intervals, which correspond to 1 shannons and 0.5 shannons of uncertainty). If <code>NULL</code>, no quantiles are calculated.</p></dd>
 
 
 <dt id="arg-nsamples">nsamples<a class="anchor" aria-label="anchor" href="#arg-nsamples"></a></dt>
