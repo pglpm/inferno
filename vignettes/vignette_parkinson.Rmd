@@ -431,7 +431,7 @@ flexiplot(x = (-30):30, y = probabilitiesMale$values[,2],
     col = 6, lwd = 2, lty = 2, add = TRUE)
 
 ## add 0-change line
-abline(v = 0, lwd = 1, col = 'yellow')
+abline(v = 0, lwd = 1, col = 5)
 
 legend('topright', legend = c('NR, Male', 'Placebo, Male'),
     bty = 'n', lty = 1:2, col = 7:6)
@@ -468,7 +468,7 @@ flexiplot(x = 25:80, y = probMaleDecreaseAgePlacebo$values[1,],
     col = 6, lwd = 2, lty = 2, add = TRUE)
 
 ## add 50%-probability line
-abline(h = 0.5, lwd = 1, col = 'yellow')
+abline(h = 0.5, lwd = 1, col = 5)
 
 legend('topright', legend = c('NR, Male', 'Placebo, Male'),
     bty = 'n', lty = 1:2, col = 7:6)
@@ -491,7 +491,7 @@ flexiplot(x = 25:80, y = probMaleDecreaseAge$values[1,],
     col = 7, lwd = 2, lty = 2, add = TRUE)
 
 ## add 50%-probability line
-abline(h = 0.5, lwd = 1, col = 'yellow')
+abline(h = 0.5, lwd = 1, col = 5)
 
 legend('topright', legend = c('NR, Female', 'NR, Male'),
     bty = 'n', lty = 1:2, col = c(3, 7))
