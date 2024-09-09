@@ -226,7 +226,7 @@ plotquantiles(x = (-30):30, y = probabilities$quantiles[,1,],
     ylim = c(0, NA),
     xlab = 'MDS-UPDRS-III difference', ylab = 'probability', col = 3)
 
-flexiplot(x = (-30):30, y = probabilities$values[,1], col = 3, add = TRUE)
+flexiplot(x = (-30):30, y = probabilities$values[,1], col = 3, lwd = 2, add = TRUE)
 
 ## add 0-change line
 abline(v = 0, lwd = 1, col = 5)
@@ -237,9 +237,24 @@ Two aspects of this plot are relevant for our investigation:
 
 - However, it is also clear that further clinical trials could lead to a quite different probability distribution. This is shown by the breadth of the quantile range.
 
+Another way to graphically represent and see potential variability of the result if more trials were available, is to plot some examples -- say 100 -- of how the results could differ. Such examples are stored in the third object, `samples` given by the `Pr()` function:
+```{r}
+flexiplot(x = (-30):30, y = probabilities$samples[,1,],
+    ylim = c(0, max(probabilities$quantiles)), # keep same y-range as before
+    xlab = 'MDS-UPDRS-III difference', ylab = 'probability',
+    col = adjustcolor(3,0.25), lty = 1)
+
+flexiplot(x = (-30):30, y = probabilities$values[,1], col = 3, lwd = 2,
+    add = TRUE)
+
+## add 0-change line
+abline(v = 0, lwd = 1, col = 5)
+```
+
+
 \
 
-Let as therefore ask a more interesting question, which can be a quantitative counterpart of our initial question "Does the NAD-replenishment therapy have an effect on females?". We ask: *will the next treated female patient experience a MDS-UPDRS-III difference equal to $-1$ or less?"*. We therefore want the probability
+Let us ask a more interesting question, which can be a quantitative counterpart of our initial question "Does the NAD-replenishment therapy have an effect on females?". We ask: *will the next treated female patient experience a MDS-UPDRS-III difference equal to $-1$ or less?"*. We therefore want the probability
 $$
 \mathrm{Pr}(\text{MDS-UPDRS-III diff.} \le -1 \:\vert\:
 \text{Sex} = \text{Female}, \text{Treatment} = \text{NR}, \mathrm{data})
@@ -293,7 +308,7 @@ plotquantiles(x = (-30):30, y = probabilities$quantiles[,1, c('5.5%', '94.5%')],
 plotquantiles(x = (-30):30, y = probabilitiesPlacebo$quantiles[,1, c('5.5%', '94.5%')],
     col = 2, add = TRUE)
 
-flexiplot(x = (-30):30, y = probabilities$values[,1], col = 3, add = TRUE)
+flexiplot(x = (-30):30, y = probabilities$values[,1], col = 3, lwd = 2, add = TRUE)
 
 flexiplot(x = (-30):30, y = probabilitiesPlacebo$values[,1],
     col = 2, lty = 2, add = TRUE)
@@ -370,10 +385,10 @@ plotquantiles(x = 25:80, y = probDecreaseAge$quantiles[1,, c('5.5%', '94.5%')],
 plotquantiles(x = 25:80, y = probDecreaseAgePlacebo$quantiles[1,, c('5.5%', '94.5%')],
     col = 2, add = TRUE)
 
-flexiplot(x = 25:80, y = probDecreaseAge$values[1,], col = 3, add = TRUE)
+flexiplot(x = 25:80, y = probDecreaseAge$values[1,], col = 3, lwd = 2, add = TRUE)
 
 flexiplot(x = 25:80, y = probDecreaseAgePlacebo$values[1,],
-    col = 2, lty = 2, add = TRUE)
+    col = 2, lwd = 2, lty = 2, add = TRUE)
 
 ## add 50%-probability line
 abline(h = 0.5, lwd = 1, col = 5)
@@ -409,10 +424,11 @@ plotquantiles(x = (-30):30, y = probabilitiesMale$quantiles[,1, c('5.5%', '94.5%
 plotquantiles(x = (-30):30, y = probabilitiesMale$quantiles[,2, c('5.5%', '94.5%')],
     col = 6, add = TRUE)
 
-flexiplot(x = (-30):30, y = probabilitiesMale$values[,1], col = 7, add = TRUE)
+flexiplot(x = (-30):30, y = probabilitiesMale$values[,1],
+    col = 7, lwd = 2, add = TRUE)
 
 flexiplot(x = (-30):30, y = probabilitiesMale$values[,2],
-    col = 6, lty = 2, add = TRUE)
+    col = 6, lwd = 2, lty = 2, add = TRUE)
 
 ## add 0-change line
 abline(v = 0, lwd = 1, col = 'yellow')
@@ -445,10 +461,11 @@ plotquantiles(x = 25:80, y = probMaleDecreaseAge$quantiles[1,, c('5.5%', '94.5%'
 plotquantiles(x = 25:80, y = probMaleDecreaseAgePlacebo$quantiles[1,, c('5.5%', '94.5%')],
     col = 6, add = TRUE)
 
-flexiplot(x = 25:80, y = probMaleDecreaseAge$values[1,], col = 7, add = TRUE)
+flexiplot(x = 25:80, y = probMaleDecreaseAge$values[1,],
+    col = 7, lwd = 2, add = TRUE)
 
 flexiplot(x = 25:80, y = probMaleDecreaseAgePlacebo$values[1,],
-    col = 6, lty = 2, add = TRUE)
+    col = 6, lwd = 2, lty = 2, add = TRUE)
 
 ## add 50%-probability line
 abline(h = 0.5, lwd = 1, col = 'yellow')
@@ -467,10 +484,11 @@ plotquantiles(x = 25:80, y = probDecreaseAge$quantiles[1,, c('5.5%', '94.5%')],
 plotquantiles(x = 25:80, y = probMaleDecreaseAge$quantiles[1,, c('5.5%', '94.5%')],
     col = 7, add = TRUE)
 
-flexiplot(x = 25:80, y = probDecreaseAge$values[1,], col = 3, add = TRUE)
+flexiplot(x = 25:80, y = probDecreaseAge$values[1,],
+    col = 3, lwd = 2, add = TRUE)
 
 flexiplot(x = 25:80, y = probMaleDecreaseAge$values[1,],
-    col = 7, lty = 2, add = TRUE)
+    col = 7, lwd = 2, lty = 2, add = TRUE)
 
 ## add 50%-probability line
 abline(h = 0.5, lwd = 1, col = 'yellow')
