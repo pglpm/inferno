@@ -65,8 +65,8 @@ flexiplot <- function(
 
     matplot(x, y, xlim = xlim, ylim = ylim, type = type, pch = pch, axes = F, add = add, ...)
     if(!add){
-        axis(1, at = xat, labels = xdomain, lwd = 0)
-        axis(2, at = yat, labels = ydomain, lwd = 0)
+        axis(1, at = xat, labels = xdomain, lwd = 0, ...)
+        axis(2, at = yat, labels = ydomain, lwd = 0, ...)
         if(grid){
             graphics::grid(nx = NULL, ny = NULL, lty = 1, col = '#BBBBBB80')
         }

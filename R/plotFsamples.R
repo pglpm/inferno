@@ -685,7 +685,7 @@ plotFsamples <- function(
                         y = probabilities$values,
                         xlim = range(Xgrid), ylim = c(0, ymax),
                         ## xticks = Xticks, xlabels = rownames(Xgrid),
-                        type = 'b', pch = 1, cex = 0.5, lty = 1, lwd = 4,
+                        type = 'b', pch = 16, cex = 0.5, lty = 1, lwd = 4,
                         col = adjustcolor(blue, 0.75),
                         xlab = name,
                         ylab = paste0('probability', addylab),
