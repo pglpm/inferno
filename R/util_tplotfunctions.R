@@ -64,10 +64,10 @@ flexiplot <- function(
         if(is.null(ylim[2]) || !is.finite(ylim[2])){ ylim[2] <- max(y[is.finite(y)]) }
     }
 
-    matplot(x, y, xlim = xlim, ylim = ylim, type = type, pch = pch, axes = F, add = add, lwd = lwd, ...)
+    graphics::matplot(x, y, xlim = xlim, ylim = ylim, type = type, pch = pch, axes = F, add = add, lwd = lwd, ...)
     if(!add){
-        axis(1, at = xat, labels = xdomain, lwd = 0, ...)
-        axis(2, at = yat, labels = ydomain, lwd = 0, ...)
+        graphics::axis(1, at = xat, labels = xdomain, lwd = 0, ...)
+        graphics::axis(2, at = yat, labels = ydomain, lwd = 0, ...)
         if(grid){
             graphics::grid(nx = NULL, ny = NULL, lty = 1, col = '#BBBBBB80')
         }
@@ -95,6 +95,7 @@ plotquantiles <- function(
     border = NA,
     ...
 ){
+    ## ## TODO: modify so that a vertical plot is also possible
     if(!is.matrix(y) || ncol(y) %% 2 != 0) {
         stop('"y" must be a matrix with an even number of columns.')
     }
@@ -125,7 +126,7 @@ plotquantiles <- function(
     }
 
     for(ii in seq_len(nquant/2)) {
-        polygon(x=c(x,rev(x)), y=c(y[,ii], rev(y[, nquant + 1 - ii])),
+        graphics::polygon(x=c(x, rev(x)), y=c(y[,ii], rev(y[, nquant + 1 - ii])),
             col = col, border = border)
     }
 }
