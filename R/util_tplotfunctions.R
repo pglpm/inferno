@@ -20,6 +20,7 @@ flexiplot <- function(
     pch = c(1, 0, 2, 5, 6, 3, 4),
     grid = TRUE,
     add = FALSE,
+    lwd = 1,
     ...
 ){
     xat <- yat <- NULL
@@ -63,7 +64,7 @@ flexiplot <- function(
         if(is.null(ylim[2]) || !is.finite(ylim[2])){ ylim[2] <- max(y[is.finite(y)]) }
     }
 
-    matplot(x, y, xlim = xlim, ylim = ylim, type = type, pch = pch, axes = F, add = add, ...)
+    matplot(x, y, xlim = xlim, ylim = ylim, type = type, pch = pch, axes = F, add = add, lwd = lwd, ...)
     if(!add){
         axis(1, at = xat, labels = xdomain, lwd = 0, ...)
         axis(2, at = yat, labels = ydomain, lwd = 0, ...)
