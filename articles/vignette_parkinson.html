@@ -598,18 +598,12 @@ female patient:</p>
 <span>    learnt <span class="op">=</span> <span class="va">learnt</span></span>
 <span><span class="op">)</span></span></code></pre></div>
 <p>Each probability thus obtained has two accompanying quantiles and
-related uncertainty. Let us plot both:</p>
+related uncertainty. Both can be visualized with the <code><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot()</a></code>
+function:</p>
 <div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="../reference/plotquantiles.html">plotquantiles</a></span><span class="op">(</span>x <span class="op">=</span> <span class="op">(</span><span class="op">-</span><span class="fl">30</span><span class="op">)</span><span class="op">:</span><span class="fl">30</span>, y <span class="op">=</span> <span class="va">probabilities</span><span class="op">$</span><span class="va">quantiles</span><span class="op">[</span>,<span class="fl">1</span>,<span class="op">]</span>,</span>
-<span>    ylim <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0</span>, <span class="cn">NA</span><span class="op">)</span>,</span>
-<span>    xlab <span class="op">=</span> <span class="st">'MDS-UPDRS-III difference'</span>, ylab <span class="op">=</span> <span class="st">'probability'</span>, col <span class="op">=</span> <span class="fl">3</span><span class="op">)</span></span>
-<span></span>
-<span><span class="fu"><a href="../reference/flexiplot.html">flexiplot</a></span><span class="op">(</span>x <span class="op">=</span> <span class="op">(</span><span class="op">-</span><span class="fl">30</span><span class="op">)</span><span class="op">:</span><span class="fl">30</span>, y <span class="op">=</span> <span class="va">probabilities</span><span class="op">$</span><span class="va">values</span><span class="op">[</span>,<span class="fl">1</span><span class="op">]</span>, col <span class="op">=</span> <span class="fl">3</span>, lwd <span class="op">=</span> <span class="fl">2</span>, add <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
-<span></span>
-<span><span class="co">## add 0-change line</span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/graphics/abline.html" class="external-link">abline</a></span><span class="op">(</span>v <span class="op">=</span> <span class="fl">0</span>, lwd <span class="op">=</span> <span class="fl">1</span>, col <span class="op">=</span> <span class="fl">5</span><span class="op">)</span></span></code></pre></div>
-<p><img src="vignette_parkinson_files/figure-html/unnamed-chunk-13-1.png" width="100%">
-Two aspects of this plot are relevant for our investigation:</p>
+<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">probabilities</span><span class="op">)</span></span></code></pre></div>
+<p><img src="vignette_parkinson_files/figure-html/unnamed-chunk-13-1.png" width="100%"></p>
+<p>Two aspects of this plot are relevant for our investigation:</p>
 <ul>
 <li><p>There seems to be slightly more probability mass towards negative
 MDS-UPDRS-III differences – which means an improvement in the degree of
@@ -624,16 +618,9 @@ the result if more trials were available, is to plot some examples – say
 third object, <code>samples</code> given by the <code><a href="../reference/Pr.html">Pr()</a></code>
 function:</p>
 <div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="../reference/flexiplot.html">flexiplot</a></span><span class="op">(</span>x <span class="op">=</span> <span class="op">(</span><span class="op">-</span><span class="fl">30</span><span class="op">)</span><span class="op">:</span><span class="fl">30</span>, y <span class="op">=</span> <span class="va">probabilities</span><span class="op">$</span><span class="va">samples</span><span class="op">[</span>,<span class="fl">1</span>,<span class="op">]</span>,</span>
-<span>    ylim <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0</span>, <span class="fu"><a href="https://rdrr.io/r/base/Extremes.html" class="external-link">max</a></span><span class="op">(</span><span class="va">probabilities</span><span class="op">$</span><span class="va">quantiles</span><span class="op">)</span><span class="op">)</span>, <span class="co"># keep same y-range as before</span></span>
-<span>    xlab <span class="op">=</span> <span class="st">'MDS-UPDRS-III difference'</span>, ylab <span class="op">=</span> <span class="st">'probability'</span>,</span>
-<span>    col <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/grDevices/adjustcolor.html" class="external-link">adjustcolor</a></span><span class="op">(</span><span class="fl">3</span>,<span class="fl">0.25</span><span class="op">)</span>, lty <span class="op">=</span> <span class="fl">1</span><span class="op">)</span></span>
-<span></span>
-<span><span class="fu"><a href="../reference/flexiplot.html">flexiplot</a></span><span class="op">(</span>x <span class="op">=</span> <span class="op">(</span><span class="op">-</span><span class="fl">30</span><span class="op">)</span><span class="op">:</span><span class="fl">30</span>, y <span class="op">=</span> <span class="va">probabilities</span><span class="op">$</span><span class="va">values</span><span class="op">[</span>,<span class="fl">1</span><span class="op">]</span>, col <span class="op">=</span> <span class="fl">3</span>, lwd <span class="op">=</span> <span class="fl">2</span>,</span>
-<span>    add <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
-<span></span>
-<span><span class="co">## add 0-change line</span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/graphics/abline.html" class="external-link">abline</a></span><span class="op">(</span>v <span class="op">=</span> <span class="fl">0</span>, lwd <span class="op">=</span> <span class="fl">1</span>, col <span class="op">=</span> <span class="fl">5</span><span class="op">)</span></span></code></pre></div>
+<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">probabilities</span>, variability <span class="op">=</span> <span class="st">'samples'</span>,</span>
+<span>    ylim <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0</span>, <span class="fu"><a href="https://rdrr.io/r/base/Extremes.html" class="external-link">max</a></span><span class="op">(</span><span class="va">probabilities</span><span class="op">$</span><span class="va">quantiles</span><span class="op">)</span><span class="op">)</span> <span class="co"># keep same y-range as before</span></span>
+<span>    <span class="op">)</span></span></code></pre></div>
 <p><img src="vignette_parkinson_files/figure-html/unnamed-chunk-14-1.png" width="100%"></p>
 <p><br></p>
 <p>Let us ask a more interesting question, which can be a quantitative
