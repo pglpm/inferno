@@ -131,6 +131,172 @@ plotquantiles <- function(
     }
 }
 
+#' Plot an object of class "probability"
+#'
+#' This plot method is a utility to plot probabilities obtained with \code{\link{Pr}} or \code{\link{tailPr}}, as well as their uncertainties. The probabilities are plotted either against `Y`, with one curve for each value of `X`, or vice versa.
+#'
+#' @param p Object of class "probability", obtained with \code{\link{Pr}} or \code{\link{tailPr}}.
+#' @param variability One of the values `"quantiles"`, `"samples"`, `"none"` (equivalent to `NA` or `FALSE`), or `NULL` (default), in which case the variability available in `p` is used. This argument chooses how to represent the variability of the probability; see \code{\link{Pr}}. If the requested variability is not available in the object `p`, then a warning is issued and no variability is plotted.
+#' @param PvsY Logical or `NULL`: should probabilities be plotted against their `Y` argument? If `NULL`, the argument between `Y` and `X` having larger number of values is chosen. As many probability curves will be plotted as the number of values of the other argument.
+#' @param legend Logical: plot a legend of the different curves?
+#' @param ... Other parameters to be passed to \code{\link[base]{matplot}}.
+#'
+#' @export
+plot.probability <- function(
+    p,
+    variability = NULL,
+    PvsY = NULL,
+    legend = TRUE,
+    lwd = 3,
+    lty = 1:5,
+    col = palette(),
+    xlab = NULL,
+    ylab = 'probability',
+    ylim = c(0, NA),
+    add = FALSE,
+    ...
+){
+    ## Check how we should represent the variability
+    ## The user can choose among three options
+    ## provided that option is available in argument 'p'
+
+    if(is.null(variability)) { # User is not choosing
+        ## We choose 'quantiles' or what's available
+        if(!is.null(p$quantiles)) {
+            variability <- 'quantiles'
+        } else if(!is.null(p$samples)){
+            variability <- 'samples'
+        } else {
+            variability <- 'none'
+        }
+    } else { # User is choosing
+        if(is.na(variability) || isFALSE(variability)){ variability <- 'none'}
+
+        ## handle shortenings
+        variability <- match.arg(variability, c('quantiles', 'samples', 'none'))
+
+        ## handle impossible requests
+        if(
+        (variability == 'quantiles' && is.null(p$quantiles)) ||
+            (variability == 'samples' && is.null(p$samples))
+        ) {
+            warning('Requested variability not available. Omitting its plot.')
+            variability <- 'none'
+        }
+    }
+
+    ## We rename the variability object so as to avoid if-else in some operations
+    if(variability == 'quantiles'){
+        pvar <- p$quantiles
+    } else if(variability == 'samples'){
+        pvar <- p$samples
+    } else {
+        pvar <- NULL
+    }
+
+    Ylen <- nrow(p$values)
+    Xlen <- ncol(p$values)
+
+    ## Handle the case of missing Y and X items in 'p'
+    if(is.null(p$Y)){
+        p$Y <- data.frame(Y = paste0('Y', seq_len(Ylen)))
+        if(Xlen > 1){
+            p$X <- data.frame(X = paste0('X', seq_len(Xlen)))
+        }
+    }
+
+    ## If there's only one probability it doesn't make sense to plot anything
+    if(length(p) == 1){
+        print(sort(Pr = p$values, pvar))
+    }
+
+    ## If 'PvsY' is NULL, then we guess that the longest between Y and X
+    ## is meant to be abscissa
+    if(is.null(PvsY)){ PvsY <- (Ylen >= Xlen) }
+
+    if(isTRUE(PvsY)){
+        x <- p$Y
+        leg <- p$X
+        tempxlab <- 'Y'
+    } else {
+        x <- p$X
+        leg <- p$Y
+        tempxlab <- 'X'
+        p$values <- t(p$values)
+        pvar <- aperm(pvar, c(2, 1, 3))
+    }
+
+    ## If the abscissa has more than one variate,
+    ## then it becomes tricky to understand which of these we must plot against
+    ## Heuristic: if there's one variate with as many unique elements as x,
+    ## then use that one. Otherwise use a generic 'Y...'
+    if(ncol(x) == 1){
+        tempxlab <- colnames(x)
+        x <- unlist(x)
+    } else {
+        uniquevrts <- apply(x, 2, function(xx){length(unique(xx))})
+        toselect <- which(uniquevrts == nrow(x))[1]
+        if(is.na(toselect)){
+            x <- seq_len(nrow(x))
+        } else {
+            tempxlab <- colnames(x)[toselect]
+            x <- x[, toselect]
+        }
+    }
+
+    if(is.null(xlab)){xlab <- tempxlab}
+
+    ## Plot the variability first
+    if(variability == 'quantiles'){
+        for(i in seq_len(dim(pvar)[2])){
+            plotquantiles(x = unlist(x), y = pvar[, i, ],
+                col = col[(i-1)%%length(col) + 1],
+                lty =  lty[(i-1)%%length(lty) + 1],
+                xlab = xlab,
+                ylab = ylab,
+                ylim = ylim,
+                add = (add || i > 1),
+                ...)
+            add <- TRUE
+        }
+
+    } else if(variability == 'samples'){
+        nx <- dim(pvar)[2]
+        dim(pvar) <- c(dim(pvar)[1], prod(dim(pvar)[-1]))
+        flexiplot(x = x, y = pvar,
+            col = adjustcolor(col[(seq_len(nx)-1)%%length(col) + 1], alpha.f = 0.25),
+            lty =  lty[(seq_len(nx)-1)%%length(lty) + 1],
+            lwd = lwd[(seq_len(nx)-1)%%length(lwd) + 1]/4,
+            xlab = xlab,
+            ylab = ylab,
+            ylim = ylim,
+            add = add,
+            ...)
+        add <- TRUE
+    }
+
+    ## Plot the probabilities
+    flexiplot(x = x, y = p$values,
+        col = col,
+        lty = lty,
+        lwd = lwd,
+        xlab = xlab,
+        ylab = ylab,
+        ylim = ylim,
+        add = add,
+        ...)
+
+    ## Plot legends
+    if(!is.null(leg) && legend){
+        graphics::legend(x = 'topright',
+            legend = apply(leg, 1, paste0, collapse = ', '),
+            bty = 'n',
+            col = col,
+            lty = lty,
+            ...)
+    }
+}
+
 
 #### Old functions below, deleting them soon
 

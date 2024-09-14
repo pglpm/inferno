@@ -220,17 +220,11 @@ probabilities <- Pr(
     learnt = learnt
 )
 ```
-Each probability thus obtained has two accompanying quantiles and related uncertainty.  Let us plot both:
+Each probability thus obtained has two accompanying quantiles and related uncertainty. Both can be visualized with the `plot()` function:
 ```{r}
-plotquantiles(x = (-30):30, y = probabilities$quantiles[,1,],
-    ylim = c(0, NA),
-    xlab = 'MDS-UPDRS-III difference', ylab = 'probability', col = 3)
-
-flexiplot(x = (-30):30, y = probabilities$values[,1], col = 3, lwd = 2, add = TRUE)
-
-## add 0-change line
-abline(v = 0, lwd = 1, col = 5)
+plot(probabilities)
 ```
+
 Two aspects of this plot are relevant for our investigation:
 
 - There seems to be slightly more probability mass towards negative MDS-UPDRS-III differences -- which means an improvement in the degree of disability. We shall quantify this further in a moment.
@@ -239,18 +233,10 @@ Two aspects of this plot are relevant for our investigation:
 
 Another way to graphically represent and see potential variability of the result if more trials were available, is to plot some examples -- say 100 -- of how the results could differ. Such examples are stored in the third object, `samples` given by the `Pr()` function:
 ```{r}
-flexiplot(x = (-30):30, y = probabilities$samples[,1,],
-    ylim = c(0, max(probabilities$quantiles)), # keep same y-range as before
-    xlab = 'MDS-UPDRS-III difference', ylab = 'probability',
-    col = adjustcolor(3,0.25), lty = 1)
-
-flexiplot(x = (-30):30, y = probabilities$values[,1], col = 3, lwd = 2,
-    add = TRUE)
-
-## add 0-change line
-abline(v = 0, lwd = 1, col = 5)
+plot(probabilities, variability = 'samples',
+    ylim = c(0, max(probabilities$quantiles)) # keep same y-range as before
+    )
 ```
-
 
 \
 

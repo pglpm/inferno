@@ -13,6 +13,7 @@ reference:
     - mutualinfo
     - flexiplot
     - plotquantiles
+    - plot.probability
     - plotFsamples
 - title: "Internal functions"
   desc: "For developers."
