@@ -151,7 +151,7 @@ plot.probability <- function(
     lty = 1:5,
     col = palette(),
     xlab = NULL,
-    ylab = 'probability',
+    ylab = NULL,
     ylim = c(0, NA),
     add = FALSE,
     ...
@@ -190,14 +190,17 @@ plot.probability <- function(
 
     ## We rename the variability object so as to avoid if-else below
     if(variability == 'quantiles'){
+        mainpercentiles <- c(5.5, 94.5) # By default we choose an 89% band
         pvar <- p$quantiles
         ## if we are only plotting more than one curve, just keep the 89% band
         if(Xlen > 1 && Ylen > 1){
             qnames <- as.numeric(sub('%', '', dimnames(pvar)[[3]]))
-            choosequantiles <- sapply(c(11, 89),
+            choosepercentiles <- sapply(mainpercentiles,
                 function(xx){which.min(abs(qnames - xx))})
-            pvar <- pvar[, , choosequantiles, drop = FALSE]
+            pvar <- pvar[, , choosepercentiles, drop = FALSE]
+            qnames <- as.numeric(sub('%', '', dimnames(pvar)[[3]]))
         }
+        qnames <- as.numeric(sub('%', '', dimnames(pvar)[[3]]))
     } else if(variability == 'samples'){
         pvar <- p$samples
     } else {
@@ -252,6 +255,14 @@ plot.probability <- function(
     }
 
     if(is.null(xlab)){xlab <- tempxlab}
+    if(is.null(ylab)){
+        ylab <- 'probability'
+        if(variability == 'quantiles'){
+            ylab <- paste0(ylab, ' (variab. ',
+                paste0(round(qnames, 1), '%', collapse = ', '),
+                ')')
+        }
+    }
 
     ## Plot the variability first
     if(variability == 'quantiles' && length(p$values) > 1){
