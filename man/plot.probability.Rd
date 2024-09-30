@@ -13,7 +13,7 @@
   lty = 1:5,
   col = palette(),
   xlab = NULL,
-  ylab = "probability",
+  ylab = NULL,
   ylim = c(0, NA),
   add = FALSE,
   ...
