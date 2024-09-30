@@ -16,7 +16,7 @@ If you have other questions feel free to contact the developers:
 
 ## Documentation
 View the documentation at [pglpm.github.io/inferno](https://pglpm.github.io/inferno/). As the code is still very much in the development phase the documentation is also a work in progress.
-Tutorials will be posted as soon as possible. Feel free to take a look at the [draft on the theoretical foundation](https://github.com/pglpm/inferno/development/manual/optimal_predictor_machine.pdf). A concrete example application in medicine is given in [this paper](https://doi.org/10.31219/osf.io/8nr56); example applications in machine learning are [this paper](https://doi.org/10.31219/osf.io/7rz8t) and [this paper](https://doi.org/10.31219/osf.io/vct9y).
+Tutorials will be posted as soon as possible. Feel free to take a look at the [draft on the theoretical foundation](https://github.com/pglpm/inferno/raw/main/development/manual/optimal_predictor_machine.pdf). A concrete example application in medicine is given in [this paper](https://doi.org/10.31219/osf.io/8nr56); example applications in machine learning are [this paper](https://doi.org/10.31219/osf.io/7rz8t) and [this paper](https://doi.org/10.31219/osf.io/vct9y).
 
 ## Installation
 Install the package with R by using the `remotes` package:
