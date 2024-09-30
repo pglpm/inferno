@@ -443,6 +443,8 @@ tailPr <- function(
         out$X <- X
     }
 
+    out$lowertail <- lower.tail
+
     class(out) <- 'probability'
     out
 }

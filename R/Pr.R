@@ -453,6 +453,8 @@ Pr <- function(
         out$X <- X
     }
 
+    out$lowertail = NA
+
     class(out) <- 'probability'
     out
 }

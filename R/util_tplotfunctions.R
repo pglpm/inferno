@@ -185,17 +185,24 @@ plot.probability <- function(
         }
     }
 
-    ## We rename the variability object so as to avoid if-else in some operations
+    Ylen <- nrow(p$values)
+    Xlen <- ncol(p$values)
+
+    ## We rename the variability object so as to avoid if-else below
     if(variability == 'quantiles'){
         pvar <- p$quantiles
+        ## if we are only plotting more than one curve, just keep the 89% band
+        if(Xlen > 1 && Ylen > 1){
+            qnames <- as.numeric(sub('%', '', dimnames(pvar)[[3]]))
+            choosequantiles <- sapply(c(11, 89),
+                function(xx){which.min(abs(qnames - xx))})
+            pvar <- pvar[, , choosequantiles, drop = FALSE]
+        }
     } else if(variability == 'samples'){
         pvar <- p$samples
     } else {
         pvar <- NULL
     }
-
-    Ylen <- nrow(p$values)
-    Xlen <- ncol(p$values)
 
     ## Handle the case of missing Y and X items in 'p'
     if(is.null(p$Y)){
@@ -206,8 +213,8 @@ plot.probability <- function(
     }
 
     ## If there's only one probability it doesn't make sense to plot anything
-    if(length(p) == 1){
-        print(sort(Pr = p$values, pvar))
+    if(length(p$values) == 1){
+        print(sort(c(Pr = p$values, pvar[1, 1, ])))
     }
 
     ## If 'PvsY' is NULL, then we guess that the longest between Y and X
@@ -247,11 +254,11 @@ plot.probability <- function(
     if(is.null(xlab)){xlab <- tempxlab}
 
     ## Plot the variability first
-    if(variability == 'quantiles'){
+    if(variability == 'quantiles' && length(p$values) > 1){
         for(i in seq_len(dim(pvar)[2])){
             plotquantiles(x = unlist(x), y = pvar[, i, ],
-                col = col[(i-1)%%length(col) + 1],
-                lty =  lty[(i-1)%%length(lty) + 1],
+                col = col[(i - 1) %% length(col) + 1],
+                lty =  lty[(i - 1) %% length(lty) + 1],
                 xlab = xlab,
                 ylab = ylab,
                 ylim = ylim,
@@ -260,13 +267,14 @@ plot.probability <- function(
             add <- TRUE
         }
 
-    } else if(variability == 'samples'){
+    } else if(variability == 'samples' && length(p$values) > 1){
         nx <- dim(pvar)[2]
         dim(pvar) <- c(dim(pvar)[1], prod(dim(pvar)[-1]))
         flexiplot(x = x, y = pvar,
-            col = adjustcolor(col[(seq_len(nx)-1)%%length(col) + 1], alpha.f = 0.25),
-            lty =  lty[(seq_len(nx)-1)%%length(lty) + 1],
-            lwd = lwd[(seq_len(nx)-1)%%length(lwd) + 1]/4,
+            col = adjustcolor(col[(seq_len(nx) - 1) %% length(col) + 1],
+                alpha.f = 0.25),
+            lty =  lty[(seq_len(nx) - 1) %% length(lty) + 1],
+            lwd = lwd[(seq_len(nx) - 1) %% length(lwd) + 1] / 4,
             xlab = xlab,
             ylab = ylab,
             ylim = ylim,
@@ -276,24 +284,26 @@ plot.probability <- function(
     }
 
     ## Plot the probabilities
-    flexiplot(x = x, y = p$values,
-        col = col,
-        lty = lty,
-        lwd = lwd,
-        xlab = xlab,
-        ylab = ylab,
-        ylim = ylim,
-        add = add,
-        ...)
-
-    ## Plot legends
-    if(!is.null(leg) && legend){
-        graphics::legend(x = 'topright',
-            legend = apply(leg, 1, paste0, collapse = ', '),
-            bty = 'n',
+    if(length(p$values) > 1){
+        flexiplot(x = x, y = p$values,
             col = col,
             lty = lty,
+            lwd = lwd,
+            xlab = xlab,
+            ylab = ylab,
+            ylim = ylim,
+            add = add,
             ...)
+
+        ## Plot legends
+        if(!is.null(leg) && legend){
+            graphics::legend(x = 'topright',
+                legend = apply(leg, 1, paste0, collapse = ', '),
+                bty = 'n',
+                col = col,
+                lty = lty,
+                ...)
+        }
     }
 }
 
