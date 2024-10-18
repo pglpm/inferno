@@ -265,6 +265,13 @@ plot.probability <- function(
     }
 
     ## Plot the variability first
+    ## find maximum and minimum y-value first, if needed
+    if(is.na(ylim[2])){
+        ylim[2] <- max(pvar)
+    }
+    if(is.na(ylim[1])){
+        ylim[1] <- min(pvar)
+    }
     if(variability == 'quantiles' && length(p$values) > 1){
         for(i in seq_len(dim(pvar)[2])){
             plotquantiles(x = unlist(x), y = pvar[, i, ],
@@ -313,6 +320,7 @@ plot.probability <- function(
                 bty = 'n',
                 col = col,
                 lty = lty,
+                lwd = lwd,
                 ...)
         }
     }
