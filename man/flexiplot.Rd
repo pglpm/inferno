@@ -24,7 +24,7 @@ flexiplot(
 
 \item{y}{Numeric or character: vector of y coordinates. If missing, a numeric vector \code{1:...} is created having as many values as the rows of \code{x}.}
 
-\item{xdomain}{Character or numeric or \code{NULL} (default): vector of possible values of the variable represented in the x-axis, if the \code{x} argument is a character vector. The ordering of the values is respected. If \code{NULL}, then \code{unique(x)} is used.}
+\item{xdomain}{Character or numeric or \code{NULL} (default): vector of possible values of the variable represented in the x-axis, in case the \code{x} argument is a character vector. The ordering of the values is respected. If \code{NULL}, then \code{unique(x)} is used.}
 
 \item{ydomain}{Character or numeric or \code{NULL} (default): like \code{xdomain} but for the y-coordinate.}
 
@@ -37,5 +37,5 @@ flexiplot(
 \item{...}{Other parameters to be passed to \code{\link[base]{matplot}}.}
 }
 \description{
-Plot function that modifies and expands the \code{graphics} \code{\link[graphics]{matplot}} in several ways: First, either or both \code{x} and \code{y} arguments can be of class \code{\link[base]{character}}. In this case, axes labels corresponding to the unique values are used (see arguments \code{xdomain} and 'ydomain'). Second, it allows for the specification of only a lower or upper limit in \code{xlim} and \code{ylim}. Third, it uses a cleaner plotting style and a default argument \code{type = 'l'} (line plot) rather than \code{type = 'p'} (point plot).
+Plot function that modifies and expands the \code{graphics} package's \code{\link[graphics]{matplot}} function in several ways. First, either or both \code{x} and \code{y} arguments can be of class \code{\link[base]{character}}. In this case, axes labels corresponding to the unique values are used (see arguments \code{xdomain} and \code{ydomain}). Second, it allows for the specification of only a lower or upper limit in the \code{xlim} and \code{ylim} arguments. Third, it uses a cleaner plotting style and a default argument \code{type = 'l'} (line plot) rather than \code{type = 'p'} (point plot).
 }
