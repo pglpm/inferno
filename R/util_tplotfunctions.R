@@ -1,10 +1,10 @@
 #' Plot numeric or character values
 #'
-#' Plot function that modifies and expands the `graphics` \code{\link[graphics]{matplot}} in several ways: First, either or both `x` and `y` arguments can be of class \code{\link[base]{character}}. In this case, axes labels corresponding to the unique values are used (see arguments `xdomain` and 'ydomain'). Second, it allows for the specification of only a lower or upper limit in `xlim` and `ylim`. Third, it uses a cleaner plotting style and a default argument `type = 'l'` (line plot) rather than `type = 'p'` (point plot).
+#' Plot function that modifies and expands the `graphics` package's \code{\link[graphics]{matplot}} function in several ways. First, either or both `x` and `y` arguments can be of class \code{\link[base]{character}}. In this case, axes labels corresponding to the unique values are used (see arguments `xdomain` and `ydomain`). Second, it allows for the specification of only a lower or upper limit in the `xlim` and `ylim` arguments. Third, it uses a cleaner plotting style and a default argument `type = 'l'` (line plot) rather than `type = 'p'` (point plot).
 #'
 #' @param x Numeric or character: vector of x-coordinates. If missing, a numeric vector `1:...` is created having as many values as the rows of `y`.
 #' @param y Numeric or character: vector of y coordinates. If missing, a numeric vector `1:...` is created having as many values as the rows of `x`.
-#' @param xdomain Character or numeric or `NULL` (default): vector of possible values of the variable represented in the x-axis, if the `x` argument is a character vector. The ordering of the values is respected. If `NULL`, then `unique(x)` is used.
+#' @param xdomain Character or numeric or `NULL` (default): vector of possible values of the variable represented in the x-axis, in case the `x` argument is a character vector. The ordering of the values is respected. If `NULL`, then `unique(x)` is used.
 #' @param ydomain Character or numeric or `NULL` (default): like `xdomain` but for the y-coordinate.
 #' @param xlim `NULL` (default) or a vector of two values. In the latter case, if any of the two values is not finite (including `NA` or `NULL`), then the `min` or `max` x-coordinate of the plotted points is used.
 #' @param ylim `NULL` (default) or a vector of two values. Like argument `xlim`, but for the y-coordinates.
