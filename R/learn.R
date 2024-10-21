@@ -282,7 +282,8 @@ learn <- function(
     ## Check whether argument 'metadata' is a string for a file name
     ## otherwise we assume it's a data.frame or similar object
     if (is.character(metadata) && file.exists(metadata)) {
-        metadata <- read.csv(metadata, na.strings = '',
+        metadata <- read.csv(metadata,
+            na.strings = '', stringsAsFactors = FALSE,
             colClasses=c(
                 name = 'character',
                 type = 'character',
@@ -305,7 +306,8 @@ learn <- function(
             ## add '.csv' if missing
             datafile <- paste0(sub('.csv$', '', data), '.csv')
             if (file.exists(data)) {
-                data <- read.csv(datafile, na.strings = '')
+                data <- read.csv(datafile,
+                    na.strings = '', stringsAsFactors = FALSE, tryLogical = FALSE)
             } else {
                 stop('Cannot find data file')
             }
@@ -370,7 +372,8 @@ learn <- function(
             ## add '.csv' if missing
             auxdatafile <- paste0(sub('.csv$', '', auxdata), '.csv')
             if (file.exists(auxdata)) {
-                auxdata <- read.csv(auxdatafile, na.strings = '')
+                auxdata <- read.csv(auxdatafile,
+                    na.strings = '', stringsAsFactors = FALSE, tryLogical = FALSE)
             } else {
                 stop('Cannot find auxdata file')
             }
@@ -453,9 +456,11 @@ learn <- function(
     ## all 'dashnameroot' can be deleted in a final version
     dashnameroot <- NULL
 
-    ## Save copy of metadata in directory
+    ## Save copy of metadata and auxmetadata in directory
     write.csv(metadata, file = file.path(dirname, 'metadata.csv'),
         row.names = FALSE, quote = FALSE, na = '')
+    saveRDS(auxmetadata,
+        file = file.path(dirname, paste0('_auxmetadata', dashnameroot, '.rds')))
 
     ## Save initial RNG seed in case needed by user
     saveRDS(currentseed,
@@ -1287,9 +1292,11 @@ learn <- function(
         ## Timer
         timecount <- Sys.time()
 
-##################################################
+
+#################################################
 #### NIMBLE SETUP
 ##################################################
+
         finitemixnimble <- nimbleModel(
             code = finitemix,
             name = 'finitemixnimble1',
@@ -1297,6 +1304,7 @@ learn <- function(
             data = datapoints,
             inits = initsfn()
         )
+
         Cfinitemixnimble <- compileNimble(finitemixnimble,
             showCompilerOutput = FALSE)
         gc() #garbage collection

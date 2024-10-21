@@ -95,7 +95,8 @@ metadatatemplate <- function(
     datafile <- NULL
     if (is.character(data) && file.exists(data)) {
         datafile <- data
-        data <- read.csv(datafile, na.strings = '')
+        data <- read.csv(datafile,
+            na.strings = '', stringsAsFactors = FALSE, tryLogical = FALSE)
     }
     data <- as.data.frame(data)
 
