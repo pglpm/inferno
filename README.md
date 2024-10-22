@@ -11,7 +11,7 @@ The package is under rapid development and has not reached a stable phase. This 
 
 Please report bugs and request features or specific documentation on [GitHub Issues](https://github.com/pglpm/inferno/issues).
 If you have other questions feel free to contact the developers:
-* For application/theory: PierGianLuca Porta Mana <pgl@portamana.org>
+* For application, theory, technical implementation: PierGianLuca Porta Mana <pgl@portamana.org>
 * For technical implementation: Aurora Grefsrud <agre@hvl.no>
 
 ## Documentation
