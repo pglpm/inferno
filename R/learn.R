@@ -1302,6 +1302,45 @@ learn <- function(
             name = 'finitemixnimble1',
             constants = constants,
             data = datapoints,
+            ## dimensions = c(
+            ##     if (vn$R > 0) {
+            ##         list(
+            ##             Rdata = c(npoints, vn$R)
+            ##             )
+            ##     },
+            ##     if (vn$C > 0) {
+            ##         list(
+            ##             Caux = c(npoints, vn$C),
+            ##             Clat = c(npoints, vn$C),
+            ##             Cleft = c(npoints, vn$C),
+            ##             Cright = c(npoints, vn$C),
+            ##             Clatinit = c(npoints, vn$C)
+            ##             )
+            ##     },
+            ##     if (vn$D > 0) {
+            ##         list(
+            ##             Daux = c(npoints, vn$D),
+            ##             Dleft = c(npoints, vn$D),
+            ##             Dright = c(npoints, vn$D),
+            ##             Dlatinit = c(npoints, vn$D)
+            ##             )
+            ##     },
+            ##     if (vn$O > 0) {
+            ##         list(
+            ##             Odata = c(npoints, vn$O)
+            ##             )
+            ##     },
+            ##     if (vn$N > 0) {
+            ##         list(
+            ##             Ndata = c(npoints, vn$N)
+            ##             )
+            ##     },
+            ##     if (vn$B > 0) {
+            ##         list(
+            ##             Bdata = c(npoints, vn$B)
+            ##             )
+            ##     }
+            ## ),
             inits = initsfn()
         )
 
