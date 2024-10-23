@@ -9,8 +9,8 @@ Authors@R: c(
   "agre@hvl.no", role = c("aut"),
   comment = c(ORCID = "0009-0005-9063-4131")),
   person("Håkon", "Midland", ,
-  "", role = c("aut"),
-  comment = c(ORCID = ""))
+  "haakon.mydland@gmail.com", role = c("aut"),
+  comment = c(ORCID = "0009-0004-9558-8894"))
   )
 Description: Offers several functions for Bayesian nonparametric exchangeable inference (also called "density" or "population" inference), including Monte Carlo calculation of posterior densities. From a machine-learning perspective, it offers a model-free, uncertainty-quantified prediction algorithm.
 License: GPL (>= 3)
