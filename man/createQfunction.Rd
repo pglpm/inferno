@@ -14,7 +14,7 @@ createQfunction(
   rate = 1,
   file = paste0("__Qfunction", nint, "_", sd),
   save = TRUE,
-  plot = F
+  plot = FALSE
 )
 }
 \description{

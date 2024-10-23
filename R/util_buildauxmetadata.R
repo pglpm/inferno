@@ -17,13 +17,15 @@ buildauxmetadata <- function(data, metadata, Dthreshold = 1) {
     ## and its mean is 2.55, while
     ## the median of the IQR is 3.35
     ## and its mean is 5.10.
+    ## The MAD of the prior for the next unit is 3.67
+    ## The IQR of the prior for the next unit is 4.96
     ## So we could set the scale to
     ## ([(Q3-Q2)+(Q2-Q1)]/2) /2
     ## = (Q3-Q1)/4
     ## this way the transformed Q3 is at approx 2
     ## the factor "4" is instead "1" at the moment.
     ## This need to be studied some more
-    iqrfactor <- 2
+    iqrfactor <- 5
     ##  iqrfactorLog <- 2 * 6
     ##  iqrfactorQ <- 2 * 0.3
 
@@ -189,7 +191,7 @@ buildauxmetadata <- function(data, metadata, Dthreshold = 1) {
                     tlocation <- tlocation +
                         round((tempvalue - tlocation) / (2 * halfstep)) *
                         2 * halfstep
-                    tscale <- mad(x) / iqrfactor
+                    tscale <- IQR(x) / iqrfactor
                     if(tscale == 0){tscale <- 1 / iqrfactor}
                 } else {
                     tlocation <- mean(domainmin, domainmax)
@@ -264,7 +266,7 @@ buildauxmetadata <- function(data, metadata, Dthreshold = 1) {
                     tlocation <- tlocation +
                         round((tempvalue - tlocation) / (2 * halfstep)) *
                         2 * halfstep
-                    tscale <- mad(x) / iqrfactor
+                    tscale <- IQR(x) / iqrfactor
                     if(tscale == 0){tscale <- 1 / iqrfactor}
                 } else {
                     tlocation <- 0
@@ -303,7 +305,7 @@ buildauxmetadata <- function(data, metadata, Dthreshold = 1) {
                     if(!is.null(data)) {
                         tlocation <- quantile(-log(domainmax - x), probs = 0.5,
                             type = 6, names = FALSE)
-                        tscale <- mad(-log(domainmax - x)) / iqrfactor
+                        tscale <- IQR(-log(domainmax - x)) / iqrfactor
                         if(tscale == 0){tscale <- 1 / iqrfactor}
                     } else {
                         tlocation <- 0
@@ -325,7 +327,7 @@ buildauxmetadata <- function(data, metadata, Dthreshold = 1) {
                     if(!is.null(data)) {
                         tlocation <- quantile(log(x - domainmin), probs = 0.5,
                             type = 6, names = FALSE)
-                        tscale <- mad(log(x - domainmin)) / iqrfactor
+                        tscale <- IQR(log(x - domainmin)) / iqrfactor
                         if(tscale == 0){tscale <- 1 / iqrfactor}
                     } else {
                         tlocation <- 0
@@ -345,7 +347,7 @@ buildauxmetadata <- function(data, metadata, Dthreshold = 1) {
                     if(!is.null(data)) {
                         tlocation <- quantile(x, probs = 0.5,
                             type = 6, names = FALSE)
-                        tscale <- mad(x) / iqrfactor
+                        tscale <- IQR(x) / iqrfactor
                         if(tscale == 0){tscale <- 1 / iqrfactor}
                     } else {
                         tlocation <- 0
@@ -364,7 +366,7 @@ buildauxmetadata <- function(data, metadata, Dthreshold = 1) {
                     if(!is.null(data)) {
                         tlocation <- quantile(x, probs = 0.5,
                             type = 6, names = FALSE)
-                        tscale <- mad(x) / iqrfactor
+                        tscale <- IQR(x) / iqrfactor
                         if(tscale == 0){tscale <- 1 / iqrfactor}
                     } else {
                         tlocation <- 0
@@ -383,7 +385,7 @@ buildauxmetadata <- function(data, metadata, Dthreshold = 1) {
                     if(!is.null(data)) {
                         tlocation <- quantile(x, probs = 0.5,
                             type = 6, names = FALSE)
-                        tscale <- mad(x) / iqrfactor
+                        tscale <- IQR(x) / iqrfactor
                         if(tscale == 0){tscale <- 1 / iqrfactor}
                     } else {
                         tlocation <- 0
@@ -406,7 +408,7 @@ buildauxmetadata <- function(data, metadata, Dthreshold = 1) {
                                        (x - (domainmax + domainmin) / 2) /
                                        (domainmax - domainmin)
                             ))
-                        tscale <- mad(
+                        tscale <- IQR(
                             util_Q(0.5 +
                                        (x - (domainmax + domainmin) / 2) /
                                        (domainmax - domainmin)
@@ -429,7 +431,7 @@ buildauxmetadata <- function(data, metadata, Dthreshold = 1) {
                     if(!is.null(data)) {
                         tlocation <- quantile(log(x - domainmin), probs = 0.5,
                             type = 6, names = FALSE)
-                        tscale <- mad(log(x - domainmin)) / iqrfactor
+                        tscale <- IQR(log(x - domainmin)) / iqrfactor
                         if(tscale == 0){tscale <- 1 / iqrfactor}
                     } else {
                         tlocation <- 0
@@ -448,7 +450,7 @@ buildauxmetadata <- function(data, metadata, Dthreshold = 1) {
                     if(!is.null(data)) {
                         tlocation <- quantile(-log(domainmax - x), probs = 0.5,
                             type = 6, names = FALSE)
-                        tscale <- mad(-log(domainmax - x)) / iqrfactor
+                        tscale <- IQR(-log(domainmax - x)) / iqrfactor
                         if(tscale == 0){tscale <- 1 / iqrfactor}
                     } else {
                         tlocation <- 0
@@ -467,7 +469,7 @@ buildauxmetadata <- function(data, metadata, Dthreshold = 1) {
                     if(!is.null(data)) {
                         tlocation <- quantile(x, probs = 0.5,
                             type = 6, names = FALSE)
-                        tscale <- mad(x) / iqrfactor
+                        tscale <- IQR(x) / iqrfactor
                         if(tscale == 0){tscale <- 1 / iqrfactor}
                     } else {
                         tlocation <- 0

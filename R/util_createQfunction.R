@@ -13,7 +13,7 @@ createQfunction <- function(
     rate = 1,
     file = paste0('__Qfunction', nint, '_', sd),
     save = TRUE, # save using usethis::use_data()
-    plot = F
+    plot = FALSE
 ) {
     ##
     seqnint <- (1:(nint - 1)) / nint
