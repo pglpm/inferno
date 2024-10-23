@@ -105,7 +105,8 @@ learn <- function(
         Lvarm1 = 3^2,
         Bshapelo = 1,
         Bshapehi = 1,
-        Dthreshold = 1
+        Dthreshold = 1,
+        tscalefactor = 2
     )
 ) {
 
@@ -417,7 +418,9 @@ learn <- function(
     auxmetadata <- buildauxmetadata(
         data = (if (is.null(auxdata)) {data} else {auxdata}),
         metadata = metadata,
-        Dthreshold = hyperparams$Dthreshold)
+        Dthreshold = hyperparams$Dthreshold,
+        tscalefactor = hyperparams$tscalefactor
+        )
     ## print(auxmetadata) # for debugging
 
 #### Output-folder setup

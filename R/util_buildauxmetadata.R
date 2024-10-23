@@ -5,10 +5,11 @@
 #' @param Dthreshold positive number: threshold of fraction
 #'   of unique datapoints to total datapoints, to decide
 #'   whether to treat a rounded variate as continuous
+#' @param tscalefactor positive number: scaling factor for variate conversion
 #'
 #' @return an auxmetadata data.frame object
 #' @keywords internal
-buildauxmetadata <- function(data, metadata, Dthreshold = 1) {
+buildauxmetadata <- function(data, metadata, Dthreshold = 1, tscalefactor = 1.5) {
 
     ## In the internal, rescaled representation,
     ## with the SD of the means equal to 3 and
@@ -25,9 +26,9 @@ buildauxmetadata <- function(data, metadata, Dthreshold = 1) {
     ## this way the transformed Q3 is at approx 2
     ## the factor "4" is instead "1" at the moment.
     ## This need to be studied some more
-    iqrfactor <- 1
-    ##  iqrfactorLog <- 2 * 6
-    ##  iqrfactorQ <- 2 * 0.3
+    ## tscalefactor <- 1
+    ##  tscalefactorLog <- 2 * 6
+    ##  tscalefactorQ <- 2 * 0.3
 
     Othreshold <- 10
 
@@ -191,11 +192,11 @@ buildauxmetadata <- function(data, metadata, Dthreshold = 1) {
                     tlocation <- tlocation +
                         round((tempvalue - tlocation) / (2 * halfstep)) *
                         2 * halfstep
-                    tscale <- mad(x) / iqrfactor
-                    if(tscale == 0){tscale <- 1 / iqrfactor}
+                    tscale <- mad(x) / tscalefactor
+                    if(tscale == 0){tscale <- 1 / tscalefactor}
                 } else {
                     tlocation <- mean(domainmin, domainmax)
-                    tscale <- ((domainmax - domainmin) / sqrt(12)) / iqrfactor
+                    tscale <- ((domainmax - domainmin) / sqrt(12)) / tscalefactor
                 }
                 tdomainmin <- (domainmin - tlocation) / tscale
                 tdomainmax <- (domainmax - tlocation) / tscale
@@ -266,11 +267,11 @@ buildauxmetadata <- function(data, metadata, Dthreshold = 1) {
                     tlocation <- tlocation +
                         round((tempvalue - tlocation) / (2 * halfstep)) *
                         2 * halfstep
-                    tscale <- mad(x) / iqrfactor
-                    if(tscale == 0){tscale <- 1 / iqrfactor}
+                    tscale <- mad(x) / tscalefactor
+                    if(tscale == 0){tscale <- 1 / tscalefactor}
                 } else {
                     tlocation <- 0
-                    tscale <- 1 / iqrfactor
+                    tscale <- 1 / tscalefactor
                 }
                 tdomainmin <- (domainmin - tlocation) / tscale
                 tdomainmax <- (domainmax - tlocation) / tscale
@@ -305,11 +306,11 @@ buildauxmetadata <- function(data, metadata, Dthreshold = 1) {
                     if(!is.null(data)) {
                         tlocation <- quantile(-log(domainmax - x), probs = 0.5,
                             type = 6, names = FALSE)
-                        tscale <- mad(-log(domainmax - x)) / iqrfactor
-                        if(tscale == 0){tscale <- 1 / iqrfactor}
+                        tscale <- mad(-log(domainmax - x)) / tscalefactor
+                        if(tscale == 0){tscale <- 1 / tscalefactor}
                     } else {
                         tlocation <- 0
-                        tscale <- 1 / iqrfactor
+                        tscale <- 1 / tscalefactor
                     }
                     tdomainmin <- (-log(domainmax - domainmin) -
                                                  tlocation) / tscale
@@ -327,11 +328,11 @@ buildauxmetadata <- function(data, metadata, Dthreshold = 1) {
                     if(!is.null(data)) {
                         tlocation <- quantile(log(x - domainmin), probs = 0.5,
                             type = 6, names = FALSE)
-                        tscale <- mad(log(x - domainmin)) / iqrfactor
-                        if(tscale == 0){tscale <- 1 / iqrfactor}
+                        tscale <- mad(log(x - domainmin)) / tscalefactor
+                        if(tscale == 0){tscale <- 1 / tscalefactor}
                     } else {
                         tlocation <- 0
-                        tscale <- 1 / iqrfactor
+                        tscale <- 1 / tscalefactor
                     }
                     tdomainmin <- -Inf
                     tdomainmax <- (log(domainmax - domainmin) - tlocation) / tscale
@@ -347,11 +348,11 @@ buildauxmetadata <- function(data, metadata, Dthreshold = 1) {
                     if(!is.null(data)) {
                         tlocation <- quantile(x, probs = 0.5,
                             type = 6, names = FALSE)
-                        tscale <- mad(x) / iqrfactor
-                        if(tscale == 0){tscale <- 1 / iqrfactor}
+                        tscale <- mad(x) / tscalefactor
+                        if(tscale == 0){tscale <- 1 / tscalefactor}
                     } else {
                         tlocation <- 0
-                        tscale <- 1 / iqrfactor
+                        tscale <- 1 / tscalefactor
                     }
                     tdomainmin <- (domainmin - tlocation) / tscale
                     tdomainmax <- (domainmax - tlocation) / tscale
@@ -366,11 +367,11 @@ buildauxmetadata <- function(data, metadata, Dthreshold = 1) {
                     if(!is.null(data)) {
                         tlocation <- quantile(x, probs = 0.5,
                             type = 6, names = FALSE)
-                        tscale <- mad(x) / iqrfactor
-                        if(tscale == 0){tscale <- 1 / iqrfactor}
+                        tscale <- mad(x) / tscalefactor
+                        if(tscale == 0){tscale <- 1 / tscalefactor}
                     } else {
                         tlocation <- 0
-                        tscale <- 1 / iqrfactor
+                        tscale <- 1 / tscalefactor
                     }
                     tdomainmin <- (domainmin - tlocation) / tscale
                     tdomainmax <- +Inf
@@ -385,11 +386,11 @@ buildauxmetadata <- function(data, metadata, Dthreshold = 1) {
                     if(!is.null(data)) {
                         tlocation <- quantile(x, probs = 0.5,
                             type = 6, names = FALSE)
-                        tscale <- mad(x) / iqrfactor
-                        if(tscale == 0){tscale <- 1 / iqrfactor}
+                        tscale <- mad(x) / tscalefactor
+                        if(tscale == 0){tscale <- 1 / tscalefactor}
                     } else {
                         tlocation <- 0
-                        tscale <- 1 / iqrfactor
+                        tscale <- 1 / tscalefactor
                     }
                     tdomainmin <- -Inf
                     tdomainmax <- (domainmax - tlocation) / tscale
@@ -412,11 +413,11 @@ buildauxmetadata <- function(data, metadata, Dthreshold = 1) {
                             util_Q(0.5 +
                                        (x - (domainmax + domainmin) / 2) /
                                        (domainmax - domainmin)
-                            )) / iqrfactor
-                        if(tscale == 0){tscale <- 1 / iqrfactor}
+                            )) / tscalefactor
+                        if(tscale == 0){tscale <- 1 / tscalefactor}
                     } else {
                         tlocation <- 0
-                        tscale <- 1 / iqrfactor
+                        tscale <- 1 / tscalefactor
                     }
                     tdomainmin <- -Inf
                     tdomainmax <- +Inf
@@ -431,11 +432,11 @@ buildauxmetadata <- function(data, metadata, Dthreshold = 1) {
                     if(!is.null(data)) {
                         tlocation <- quantile(log(x - domainmin), probs = 0.5,
                             type = 6, names = FALSE)
-                        tscale <- mad(log(x - domainmin)) / iqrfactor
-                        if(tscale == 0){tscale <- 1 / iqrfactor}
+                        tscale <- mad(log(x - domainmin)) / tscalefactor
+                        if(tscale == 0){tscale <- 1 / tscalefactor}
                     } else {
                         tlocation <- 0
-                        tscale <- 1 / iqrfactor
+                        tscale <- 1 / tscalefactor
                     }
                     tdomainmin <- -Inf
                     tdomainmax <- +Inf
@@ -450,11 +451,11 @@ buildauxmetadata <- function(data, metadata, Dthreshold = 1) {
                     if(!is.null(data)) {
                         tlocation <- quantile(-log(domainmax - x), probs = 0.5,
                             type = 6, names = FALSE)
-                        tscale <- mad(-log(domainmax - x)) / iqrfactor
-                        if(tscale == 0){tscale <- 1 / iqrfactor}
+                        tscale <- mad(-log(domainmax - x)) / tscalefactor
+                        if(tscale == 0){tscale <- 1 / tscalefactor}
                     } else {
                         tlocation <- 0
-                        tscale <- 1 / iqrfactor
+                        tscale <- 1 / tscalefactor
                     }
                     tdomainmin <- -Inf
                     tdomainmax <- +Inf
@@ -469,11 +470,11 @@ buildauxmetadata <- function(data, metadata, Dthreshold = 1) {
                     if(!is.null(data)) {
                         tlocation <- quantile(x, probs = 0.5,
                             type = 6, names = FALSE)
-                        tscale <- mad(x) / iqrfactor
-                        if(tscale == 0){tscale <- 1 / iqrfactor}
+                        tscale <- mad(x) / tscalefactor
+                        if(tscale == 0){tscale <- 1 / tscalefactor}
                     } else {
                         tlocation <- 0
-                        tscale <- 1 / iqrfactor
+                        tscale <- 1 / tscalefactor
                     }
                     tdomainmin <- -Inf
                     tdomainmax <- +Inf
@@ -490,14 +491,14 @@ buildauxmetadata <- function(data, metadata, Dthreshold = 1) {
                     if(!is.null(data)){
                         plotmin
                     } else {
-                        -2 * iqrfactor
+                        -2 * tscalefactor
                     })
 
                 plotmax <- min(domainmax,
                     if(!is.null(data)){
                         plotmax
                     } else {
-                        2 * iqrfactor
+                        2 * tscalefactor
                     })
 
 ### end continuous case
