@@ -106,7 +106,7 @@ learn <- function(
         Bshapelo = 1,
         Bshapehi = 1,
         Dthreshold = 1,
-        tscalefactor = 1.25
+        tscalefactor = 2
     )
 ) {
 
