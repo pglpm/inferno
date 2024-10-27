@@ -522,7 +522,7 @@ learn <- function(
                             }
                         }
                     ),
-                    row.names = NULL,
+                    row.names = seq_len(ncheckpoints),
                     col.names = auxmetadata$name)
             )
             ## ## original alternative way. Delete soon
@@ -1047,7 +1047,6 @@ learn <- function(
         initsfn <- function() {
             ## Create components centres
             distances <- matrix(0, nrow = npoints, ncol = ncomponents)
-
             if (vn$R > 0) { # continuous open domain
                 Rmeans <- matrix(rnorm(
                     n = vn$R * ncomponents,
@@ -1055,7 +1054,7 @@ learn <- function(
                     sd = sqrt(constants$Rvarm1)
                 ), nrow = vn$R, ncol = ncomponents)
                 ## square distances from datapoints
-                distances <- apply(Rmeans, 2, function(ameans){
+                distances <- distances + apply(Rmeans, 2, function(ameans){
                     colSums((t(datapoints$Rdata) - ameans)^2, na.rm = TRUE)
                 })
             }
@@ -1300,7 +1299,6 @@ learn <- function(
 #################################################
 #### NIMBLE SETUP
 ##################################################
-
         finitemixnimble <- nimbleModel(
             code = finitemix,
             name = 'finitemixnimble1',
@@ -2097,7 +2095,9 @@ learn <- function(
 #### Save all final parameters together with the aux-metadata in one file
     saveRDS(c(mcsamples,
         list(auxmetadata = auxmetadata,
-            auxinfo = list(nchains = nchains)) ),
+            auxinfo = list(nchains = nchains,
+                hyperparams = hyperparams))
+    ),
         file = file.path(dirname,
             paste0('learnt', dashnameroot, '.rds')
         ))

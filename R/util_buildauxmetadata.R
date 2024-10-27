@@ -206,9 +206,7 @@ buildauxmetadata <- function(data, metadata, Dthreshold = 1, tscalefactor = 1.25
                 tdomainminplushs <- (domainminplushs - tlocation) / tscale
                 tdomainmaxminushs <- (domainmaxminushs - tlocation) / tscale
 
-                if(!is.finite(plotmin)){
-                    plotmin <- domainmin
-                }
+                plotmin <- max(domainmin, plotmin)
                 ## centre plotmin on a rounding bin
                 tempvalue <- plotmin
                 plotmin <- x[which.min(abs(x - tempvalue))]
@@ -216,9 +214,7 @@ buildauxmetadata <- function(data, metadata, Dthreshold = 1, tscalefactor = 1.25
                     round((tempvalue - plotmin) / (2 * halfstep)) *
                     2 * halfstep
 
-                if(!is.finite(plotmax)){
-                    plotmax <- domainmax
-                }
+                plotmax <- min(domainmax, plotmax)
                 ## centre plotmax on a rounding bin
                 tempvalue <- plotmax
                 plotmax <- x[which.min(abs(x - tempvalue))]
@@ -292,9 +288,7 @@ buildauxmetadata <- function(data, metadata, Dthreshold = 1, tscalefactor = 1.25
                 tdomainminplushs <- (domainminplushs - tlocation) / tscale
                 tdomainmaxminushs <- (domainmaxminushs - tlocation) / tscale
 
-                if(!is.finite(plotmin)){
-                    plotmin <- domainmin
-                }
+                plotmin <- max(domainmin, plotmin)
                 ## centre plotmin on a rounding bin
                 tempvalue <- plotmin
                 plotmin <- x[which.min(abs(x - tempvalue))]
@@ -302,9 +296,7 @@ buildauxmetadata <- function(data, metadata, Dthreshold = 1, tscalefactor = 1.25
                     round((tempvalue - plotmin) / (2 * halfstep)) *
                     2 * halfstep
 
-                if(!is.finite(plotmax)){
-                    plotmax <- domainmax
-                }
+                plotmax <- min(domainmax, plotmax)
                 ## centre plotmax on a rounding bin
                 tempvalue <- plotmax
                 plotmax <- x[which.min(abs(x - tempvalue))]

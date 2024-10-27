@@ -18,7 +18,7 @@ library('inferno')
 
 seed <- 16
 
-outputdirPrefix <- file.path('__test_custom30')
+outputdirPrefix <- file.path('__test_prior')
 
 ## ncores <- 4
 ## library('doParallel')
@@ -27,11 +27,11 @@ outputdirPrefix <- file.path('__test_custom30')
 
 currenttestdir <- learn(
     data = 'dataset_custom30.csv',
-    metadata = 'metadata_custom.csv',
+    metadata = 'metadata_custom_prior.csv',
     outputdir = outputdirPrefix,
     output = 'directory',
-    appendtimestamp = TRUE,
-    appendinfo = TRUE,
+    appendtimestamp = FALSE,
+    appendinfo = FALSE,
     nsamples = 120,
     nchains = 8,
     parallel = FALSE,
@@ -40,7 +40,7 @@ currenttestdir <- learn(
     ncheckpoints = NULL,
     cleanup = FALSE,
     startupMCiterations = 1200,
-    prior = FALSE,
+    prior = TRUE,
     showKtraces = TRUE,
     showAlphatraces = TRUE,
     seed = seed
