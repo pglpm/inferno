@@ -22,7 +22,7 @@ Useful links:
 Authors:
 \itemize{
   \item Aurora Grefsrud \email{agre@hvl.no} (\href{https://orcid.org/0009-0005-9063-4131}{ORCID})
-  \item Håkon Midland \email{haakon.mydland@gmail.com} (\href{https://orcid.org/0009-0004-9558-8894}{ORCID})
+  \item Håkon Mydland \email{haakon.mydland@gmail.com} (\href{https://orcid.org/0009-0004-9558-8894}{ORCID})
 }
 
 }

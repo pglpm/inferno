@@ -123,7 +123,7 @@ metadatatemplate <- function(
                     dataNvalues = NA)
             }
         )
-    )[-1,]
+    )[-1, ]
 
     ## build list of variates, including only those in 'includevrt'
     ## and excluding those in 'excludevrt'
@@ -273,7 +273,7 @@ metadatatemplate <- function(
                 cat('  - ', Nvalues, 'different',
                     if(uniquex > 2){' non-numeric'},
                     ' values detected:\n',
-                    paste0('"', datavalues, '"', collapse=', '),
+                    paste0('"', datavalues, '"', collapse = ', '),
                     '\n')
                 cat('  which do not seem to refer to an ordered scale.\n')
                 cat('  Assuming variate to be NOMINAL.\n')
@@ -298,7 +298,7 @@ metadatatemplate <- function(
             ##
             if(verbose){
                 cat('  - ', Nvalues, 'different non-numeric values detected:\n',
-                    paste0('"', datavalues, '"', collapse=', '),
+                    paste0('"', datavalues, '"', collapse = ', '),
                     '\n')
                 cat('  which seem to refer to an ordered scale.\n')
                 cat('  Assuming variate to be ORDINAL.\n')
@@ -345,7 +345,7 @@ metadatatemplate <- function(
                     cat('from', domainmin, 'to', domainmax,
                         'in steps of', jumpquantum, '\n')
                 } else {
-                    cat(paste0('"', datavalues, '"', collapse=', '), '\n')
+                    cat(paste0('"', datavalues, '"', collapse = ', '), '\n')
                 }
                 cat('  Assuming variate to be ORDINAL.\n')
             }
@@ -582,7 +582,7 @@ metadatatemplate <- function(
                                         # and name this metadata file as intended
         if (backupfiles) {
             if (file.exists(file)) {
-                file.rename(from = file, to = paste0(sub('.csv$', '', file), '_bak', format(Sys.time(), '%y%m%dT%H%M%S'),'.csv'))
+                file.rename(from = file, to = paste0(sub('.csv$', '', file), '_bak', format(Sys.time(), '%y%m%dT%H%M%S'), '.csv'))
             }
         }
                                         # Save the file

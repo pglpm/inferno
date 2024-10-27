@@ -81,10 +81,10 @@ plotFsamples <- function(
 
     addylab <- ''
     if (plotvariability == 'quantiles') {
-        if(is.null(nFsamples)) {nFsamples <- c(5.5, 94.5)/100}
+        if(is.null(nFsamples)) {nFsamples <- c(5.5, 94.5) / 100}
         ## plotprobability <- TRUE
         if (any(nFsamples <= 0 | nFsamples >= 1)) {
-            nFsamples <- c(5.5, 94.5)/100
+            nFsamples <- c(5.5, 94.5) / 100
         }
         quants <- sort(unique(round(c(nFsamples, 1 - nFsamples), 6)))
         nmcsamples <- NULL
@@ -167,8 +167,8 @@ plotFsamples <- function(
                     histo <- hist(datum, breaks = nh, plot = FALSE)
                     hmax <- max(histo$density)
 
-                    if(ymax/hmax < 0.3 | ymax/hmax > 3) {
-                        histo$density <- histo$density/max(histo$density) * ymax
+                    if(ymax / hmax < 0.3 | ymax / hmax > 3) {
+                        histo$density <- histo$density / max(histo$density) * ymax
                     } else {
                         ymax <- max(ymax, histo$density)
                     }
@@ -189,7 +189,7 @@ plotFsamples <- function(
                         x = Xgrid, y = probabilities$samples,
                         xlim = range(Xgrid), ylim = c(0, ymax),
                         type = 'l', lty = 1, lwd = 2,
-                        col = adjustcolor(cyan, 1/8),
+                        col = adjustcolor(cyan, 1 / 8),
                         xlab = name,
                         ylab = paste0('probability density', addylab),
                         family = fontfamily
@@ -308,7 +308,7 @@ plotFsamples <- function(
                     ## ), 31 / 32, type = 6, na.rm = TRUE)
                 } else {
                     dim(probabilities$quantiles) <- dim(probabilities$quantiles)[-2]
-                    temp <- probabilities$quantiles[xin,]
+                    temp <- probabilities$quantiles[xin, ]
                     ymax <- max(temp[is.finite(temp)])
                     ## ymax <- apply(probabilities[xin, , drop = FALSE], 1,
                     ##     function(x) {
@@ -331,11 +331,11 @@ plotFsamples <- function(
                     histo <- hist(datum, breaks = nh, plot = FALSE)
                     hmax <- max(histo$density)
 
-                    hleft <- sum(datum <= domainminplushs)/length(datum)
-                    hright <- sum(datum >= domainmaxminushs)/length(datum)
+                    hleft <- sum(datum <= domainminplushs) / length(datum)
+                    hright <- sum(datum >= domainmaxminushs) / length(datum)
 
-                    if(ymax/hmax < 0.3 | ymax/hmax > 3) {
-                        histo$density <- histo$density/max(histo$density) * ymax
+                    if(ymax / hmax < 0.3 | ymax / hmax > 3) {
+                        histo$density <- histo$density / max(histo$density) * ymax
                     } else {
                         ymax <- max(ymax, histo$density)
                     }
@@ -359,7 +359,7 @@ plotFsamples <- function(
                             y = probabilities$samples[xin, , drop = FALSE],
                             xlim = range(Xgrid), ylim = c(0, ymax),
                             type = 'l', lty = 1, lwd = 2,
-                            col = adjustcolor(cyan, 1/8),
+                            col = adjustcolor(cyan, 1 / 8),
                             xlab = name,
                             ylab = paste0('probability density', addylab),
                             family = fontfamily
@@ -381,7 +381,7 @@ plotFsamples <- function(
                             x = Xgrid[!xin],
                             y = probabilities$values[!xin] * ymax,
                             type = 'p', pch = 2, cex = 2,
-                            col = adjustcolor(cyan, 1/8),
+                            col = adjustcolor(cyan, 1 / 8),
                             family = fontfamily,
                             add = addplot
                         )
@@ -640,7 +640,7 @@ plotFsamples <- function(
                         ylim = c(0, ymax),
                         ## xticks = Xticks, xlabels = rownames(Xgrid),
                         type = 'l', lty = 1, lwd = 2,
-                        col = adjustcolor(cyan, 1/8),
+                        col = adjustcolor(cyan, 1 / 8),
                         xlab = name,
                         ylab = paste0('probability', addylab),
                         family = fontfamily
@@ -744,7 +744,7 @@ plotFsamples <- function(
                 }
                 rug(x = jitter(datum, amount = 0), side = 1,
                     col = adjustcolor(yellow,
-                        alpha.f = exp((-length(datum) + 1)/128)),
+                        alpha.f = exp((-length(datum) + 1) / 128)),
                     quiet = TRUE)
                 ## scatteraxis(
                 ##     side = 1, n = NA, alpha = 0.75, ext = 5,

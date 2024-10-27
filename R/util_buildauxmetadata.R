@@ -37,7 +37,7 @@ buildauxmetadata <- function(data, metadata, Dthreshold = 1, tscalefactor = 1.25
 #### Prepare empty metadata frame
     auxmetadata <- as.data.frame(
                 list(
-                    name = NA, mcmctype = NA, id = NA, # censored= NA,
+                    name = NA, type = NA, mcmctype = NA, id = NA, # censored= NA,
                     transform = NA, Nvalues = NA, halfstep = NA,
                     domainmin = NA, domainmax = NA,
                     tdomainmin = NA, tdomainmax = NA,
@@ -292,6 +292,26 @@ buildauxmetadata <- function(data, metadata, Dthreshold = 1, tscalefactor = 1.25
                 tdomainminplushs <- (domainminplushs - tlocation) / tscale
                 tdomainmaxminushs <- (domainmaxminushs - tlocation) / tscale
 
+                if(!is.finite(plotmin)){
+                    plotmin <- domainmin
+                }
+                ## centre plotmin on a rounding bin
+                tempvalue <- plotmin
+                plotmin <- x[which.min(abs(x - tempvalue))]
+                plotmin <- plotmin +
+                    round((tempvalue - plotmin) / (2 * halfstep)) *
+                    2 * halfstep
+
+                if(!is.finite(plotmax)){
+                    plotmax <- domainmax
+                }
+                ## centre plotmax on a rounding bin
+                tempvalue <- plotmax
+                plotmax <- x[which.min(abs(x - tempvalue))]
+                plotmax <- plotmax +
+                    round((tempvalue - plotmax) / (2 * halfstep)) *
+                    2 * halfstep
+
             } else {
 ### Non-rounded continuous cases
                 ## variate transformation to real-line domain
@@ -484,8 +504,6 @@ buildauxmetadata <- function(data, metadata, Dthreshold = 1, tscalefactor = 1.25
                 domainmaxminushs <- domainmax
                 tdomainminplushs <- tdomainmin
                 tdomainmaxminushs <- tdomainmax
-            }
-            ## end non-rounded case
 
                 plotmin <- max(domainmin,
                     if(!is.null(data)){
@@ -500,6 +518,9 @@ buildauxmetadata <- function(data, metadata, Dthreshold = 1, tscalefactor = 1.25
                     } else {
                         2 * tscalefactor
                     })
+            }
+            ## end non-rounded case
+
 
 ### end continuous case
         } else {
@@ -517,7 +538,8 @@ buildauxmetadata <- function(data, metadata, Dthreshold = 1, tscalefactor = 1.25
         auxmetadata <- merge(auxmetadata,
             c(
                 list(
-                    name = name, mcmctype = mcmctype, id = id, # censored=cens,
+                    name = name, type = minfo$type, mcmctype = mcmctype,
+                    id = id, # censored=cens,
                     transform = transf, Nvalues = Nvalues, halfstep = halfstep,
                     domainmin = domainmin, domainmax = domainmax,
                     tdomainmin = tdomainmin, tdomainmax = tdomainmax,

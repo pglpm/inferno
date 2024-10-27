@@ -1151,9 +1151,11 @@ learn <- function(
             outlist <- list(
                 Alpha = round(nalpha/2),
                 W = rep(1/ncomponents, ncomponents),
-                ## ## A. assign all points to an unsystematically chosen component
+                ## ## Assign every point to the closest component centre
                 K = K
-                ## ## or:
+                ## ## Other assignment methods:
+                ## ## A. assign all points to an unsystematically chosen component
+                ## K = rep(sample(rep(which(W > 0), 2), 1), nepoints)
                 ## ## B. distribute points unsystematically among components
                 ## K = sample(rep(which(W > 0), 2), npoints, replace = TRUE)
                 ## ## or:
@@ -1166,11 +1168,10 @@ learn <- function(
                 ## ## E. distribute points unsystematically among M=2 components
                 ## K = sample(sample(rep(which(W > 0), 2), 2, replace = TRUE),
                 ##           npoints, replace = TRUE)
-                ## ## or:
                 ## ## F. mix methods A. and B.
                 ## K = (if(achain %% 2 == Ksample) {
                 ##        ## ## assign all points to an unsystematically chosen component
-                ##        rep(sample(rep(which(W > 0), 2), 1, replace = TRUE), npoints)
+                ##        rep(sample(rep(which(W > 0), 2), 1), npoints)
                 ##      } else {
                 ##        ## distribute points unsystematically among components
                 ##        sample(rep(which(W > 0), 2), npoints, replace = TRUE)
