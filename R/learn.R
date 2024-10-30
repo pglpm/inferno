@@ -14,7 +14,7 @@
 #' @param nsamplesperchain Integer: number of Monte Carlo samples per chain.
 #' @param parallel Logical: use pre-existing parallel workers from package
 #'   \code{\link[doParallel]{doParallel}}.
-#'   Or integer: create and use that many parallel workers.
+#'   Or integer: create and use that many parallel workers. Default `TRUE`.
 #' @param seed Integer: use this seed for the random number generator.
 #'   If missing or `NULL` (default), do not set the seed.
 #' @param cleanup Logical: remove diagnostic files at the end of the computation?
@@ -135,7 +135,7 @@ learn <- function(
             cat('No parallel backend registered.\n')
             ncores <- 1
         }
-    } else if (is.numeric(parallel) && parallel >= 2) {
+    } else if (is.numeric(parallel) && parallel >= 1) {
         if (foreach::getDoParRegistered()) {
             ncores <- min(foreach::getDoParWorkers(), parallel)
             cat('Using already registered', foreach::getDoParName(),
@@ -263,9 +263,10 @@ learn <- function(
         stop('Invalid "thinning" argument.')
     }
 
-    ## Parallellisation if more than one core
+    ## Parallellisation is done in any case,
+    ## so that objects from the Monte Carlo simulation are not left in memory.
     ## Done now in case ncores was reduced because of nchains argument
-    if (ncores < 2) {
+    if (ncores < 1) {
         `%dochains%` <- `%do%`
     } else {
         `%dochains%` <- `%dorng%`
