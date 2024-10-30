@@ -58,7 +58,7 @@ but can be used to calculate hyperparameters.}
 
 \item{parallel}{Logical: use pre-existing parallel workers from package
 \code{\link[doParallel]{doParallel}}.
-Or integer: create and use that many parallel workers.}
+Or integer: create and use that many parallel workers. Default \code{TRUE}.}
 
 \item{seed}{Integer: use this seed for the random number generator.
 If missing or \code{NULL} (default), do not set the seed.}
