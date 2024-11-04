@@ -49,6 +49,7 @@
 <span>  quantiles <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0.055</span>, <span class="fl">0.25</span>, <span class="fl">0.75</span>, <span class="fl">0.945</span><span class="op">)</span>,</span>
 <span>  nsamples <span class="op">=</span> <span class="fl">100L</span>,</span>
 <span>  parallel <span class="op">=</span> <span class="cn">TRUE</span>,</span>
+<span>  eq <span class="op">=</span> <span class="cn">TRUE</span>,</span>
 <span>  lower.tail <span class="op">=</span> <span class="cn">TRUE</span>,</span>
 <span>  silent <span class="op">=</span> <span class="cn">TRUE</span>,</span>
 <span>  usememory <span class="op">=</span> <span class="cn">TRUE</span>,</span>
@@ -86,8 +87,12 @@ the joint probability of. One variate per column, one set of values per row.</p>
 workers, or how many to create and use. Default <code>TRUE</code>.</p></dd>
 
 
+<dt id="arg-eq">eq<a class="anchor" aria-label="anchor" href="#arg-eq"></a></dt>
+<dd><p>logical: include <code>Y = y</code> in the cumulative probability? Default <code>TRUE</code>.</p></dd>
+
+
 <dt id="arg-lower-tail">lower.tail<a class="anchor" aria-label="anchor" href="#arg-lower-tail"></a></dt>
-<dd><p>logical: calculate <code>P(Y &lt;= y)</code>? (<code>TRUE</code>, default) Or <code>P(Y &gt; y)</code>? (<code>FALSE</code>).</p></dd>
+<dd><p>logical: calculate <code>P(Y &lt; y)</code>? (<code>TRUE</code>, default) Or <code>P(Y &gt; y)</code>? (<code>FALSE</code>).</p></dd>
 
 
 <dt id="arg-silent">silent<a class="anchor" aria-label="anchor" href="#arg-silent"></a></dt>
