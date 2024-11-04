@@ -10,7 +10,8 @@
 #' @param nsamples integer or `NULL` or `"all"`: desired number of samples of the variability of the probability for `Y`. If `NULL`, no samples are reported. If `"all"` (or `Inf`), all samples obtained by the \code{\link{learn}} function are used. Default `100`.
 #' @param parallel logical or integer: whether to use pre-existing parallel
 #'   workers, or how many to create and use. Default `TRUE`.
-#' @param lower.tail logical: calculate `P(Y <= y)`? (`TRUE`, default) Or `P(Y > y)`? (`FALSE`).
+#' @param eq logical: include `Y = y` in the cumulative probability? Default `TRUE`.
+#' @param lower.tail logical: calculate `P(Y < y)`? (`TRUE`, default) Or `P(Y > y)`? (`FALSE`).
 #' @param silent logical: give warnings or updates in the computation?
 #'   Default `FALSE`.
 #' @param usememory logical: save partial results to disc, to avoid crashes?
@@ -29,6 +30,7 @@ tailPr <- function(
     quantiles = c(0.055, 0.25, 0.75, 0.945),
     nsamples = 100L,
     parallel = TRUE,
+    eq = TRUE,
     lower.tail = TRUE,
     silent = TRUE,
     usememory = TRUE,
@@ -224,8 +226,8 @@ tailPr <- function(
     YnC <- length(YiC)
     if (YnC > 0 || XnC > 0) {
         learnt$Cvar <- sqrt(learnt$Cvar)
-        Clefts <- auxmetadata[match(vnames, auxmetadata$name), 'tdomainminplushs']
-        Crights <- auxmetadata[match(vnames, auxmetadata$name), 'tdomainmaxminushs']
+        Clefts <- auxmetadata[match(vnames, auxmetadata$name), 'tdomainmin']
+        Crights <- auxmetadata[match(vnames, auxmetadata$name), 'tdomainmax']
     }
 
 #### Type D
@@ -243,8 +245,8 @@ tailPr <- function(
         learnt$Dvar <- sqrt(learnt$Dvar)
         Dsteps <- auxmetadata[match(vnames, auxmetadata$name), 'halfstep'] /
             auxmetadata[match(vnames, auxmetadata$name), 'tscale']
-        Dlefts <- auxmetadata[match(vnames, auxmetadata$name), 'tdomainminplushs']
-        Drights <- auxmetadata[match(vnames, auxmetadata$name), 'tdomainmaxminushs']
+        Dlefts <- auxmetadata[match(vnames, auxmetadata$name), 'tdomainmin']
+        Drights <- auxmetadata[match(vnames, auxmetadata$name), 'tdomainmax']
     }
 
 #### Type O
@@ -329,15 +331,28 @@ tailPr <- function(
 
 #### Now calculate for each Y value, combining with each X value
     ## transformation of inputs
+    if(eq){Cout <- 'boundisinf'}else{Cout <- 'normalized'}
     Y2 <- as.matrix(vtransform(Y, auxmetadata = auxmetadata,
         Rout = 'normalized',
-        Cout = 'boundisinf',
+        Cout = Cout,
         Dout = 'normalized',
         Oout = 'numeric',
         Nout = 'numeric',
         Bout = 'numeric',
         logjacobianOr = NULL))
 
+    if((eq && lower.tail) || (!eq && !lower.tail)){
+        if(YnD > 0){
+            Y2[ , YiD] <- Y2[ , YiD] + Dsteps[YtD]
+        }
+    } else {
+        if(YnO > 0){
+            Y2[ , YiO] <- Y2[ , YiO] - 1
+        }
+        if(YnD > 0){
+            Y2[ , YiD] <- Y2[ , YiD] - Dsteps[YtD]
+        }
+    }
     ## jacobians <- exp(-rowSums(
     ##     log(vtransform(Y,
     ##         auxmetadata = auxmetadata,

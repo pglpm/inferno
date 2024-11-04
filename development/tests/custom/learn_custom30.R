@@ -34,7 +34,7 @@ currenttestdir <- learn(
     appendinfo = TRUE,
     nsamples = 120,
     nchains = 8,
-    parallel = FALSE,
+    parallel = 4,
     maxhours = 1/60,
     ## relerror = 0.062,
     ncheckpoints = NULL,

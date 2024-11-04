@@ -11,6 +11,7 @@ tailPr(
   quantiles = c(0.055, 0.25, 0.75, 0.945),
   nsamples = 100L,
   parallel = TRUE,
+  eq = TRUE,
   lower.tail = TRUE,
   silent = TRUE,
   usememory = TRUE,
@@ -32,7 +33,9 @@ the joint probability of. One variate per column, one set of values per row.}
 \item{parallel}{logical or integer: whether to use pre-existing parallel
 workers, or how many to create and use. Default \code{TRUE}.}
 
-\item{lower.tail}{logical: calculate \code{P(Y <= y)}? (\code{TRUE}, default) Or \code{P(Y > y)}? (\code{FALSE}).}
+\item{eq}{logical: include \code{Y = y} in the cumulative probability? Default \code{TRUE}.}
+
+\item{lower.tail}{logical: calculate \code{P(Y < y)}? (\code{TRUE}, default) Or \code{P(Y > y)}? (\code{FALSE}).}
 
 \item{silent}{logical: give warnings or updates in the computation?
 Default \code{FALSE}.}
