@@ -40,6 +40,7 @@ buildauxmetadata <- function(data, metadata, Dthreshold = 1, tscalefactor = 1.25
                     name = NA, type = NA, mcmctype = NA, id = NA, # censored= NA,
                     transform = NA, Nvalues = NA, halfstep = NA,
                     domainmin = NA, domainmax = NA,
+                    minincluded = NA, maxincluded = NA,
                     tdomainmin = NA, tdomainmax = NA,
                     domainminplushs = NA, domainmaxminushs = NA,
                     tdomainminplushs = NA, tdomainmaxminushs = NA,
@@ -49,14 +50,6 @@ buildauxmetadata <- function(data, metadata, Dthreshold = 1, tscalefactor = 1.25
     )[-1, ]
 
     for (name in metadata$name) {
-        if(!is.null(data)) {
-            x <- data[[name]]
-            x <- x[!is.na(x)]
-            if(is.numeric(x)) {
-                plotmin <- min(x[is.finite(x)]) - IQR(x, type = 6) / 2
-                plotmax <- max(x[is.finite(x)]) + IQR(x, type = 6) / 2
-            }
-        }
         minfo <- as.list(metadata[metadata$name == name, ])
         ## make sure 'type' is lowercase
         minfo$type <- tolower(minfo$type)
@@ -71,10 +64,10 @@ buildauxmetadata <- function(data, metadata, Dthreshold = 1, tscalefactor = 1.25
         tdomainmaxminushs <- NA
         Nvalues <- +Inf
         halfstep <- as.numeric(minfo$datastep) / 2
-        minincluded <- (tolower(minfo$minincluded) %in%
-                            c('true', 't', 'yes', 'y', '1'))
-        maxincluded <- (tolower(minfo$maxincluded) %in%
-                            c('true', 't', 'yes', 'y', '1'))
+        if(!is.null(data)) {
+            x <- data[[name]]
+            x <- x[!is.na(x)]
+        }
         ## Nvalues <- minfo$Nvalues
         ## plotmin <- minfo$plotmin
         ## plotmax <- minfo$plotmax
@@ -126,6 +119,8 @@ buildauxmetadata <- function(data, metadata, Dthreshold = 1, tscalefactor = 1.25
             tscale <- 1
             plotmin <- NA
             plotmax <- NA
+            minincluded <- NA
+            maxincluded <- NA
 
         } else if (minfo$type == 'nominal') {
             ## nominal variate
@@ -141,6 +136,8 @@ buildauxmetadata <- function(data, metadata, Dthreshold = 1, tscalefactor = 1.25
             tscale <- 1
             plotmin <- NA
             plotmax <- NA
+            minincluded <- NA
+            maxincluded <- NA
 
         } else if (minfo$type == 'ordinal') {
             ## Ordinal variates can be specified in two different ways
@@ -178,6 +175,8 @@ buildauxmetadata <- function(data, metadata, Dthreshold = 1, tscalefactor = 1.25
                 tscale <- 1
                 plotmin <- NA
                 plotmax <- NA
+                minincluded <- TRUE
+                maxincluded <- TRUE
 
 ### ordinal type 'D'
             } else {
@@ -194,9 +193,17 @@ buildauxmetadata <- function(data, metadata, Dthreshold = 1, tscalefactor = 1.25
                         2 * halfstep
                     tscale <- IQR(type = 6, na.rm = TRUE, x = x) / tscalefactor
                     if(tscale == 0){tscale <- 1 / tscalefactor}
+                    plotmin <- min(x[is.finite(x)])
+                    plotmin <- max(plotmin - IQR(x, type = 6) / 2,
+                    (plotmin + domainmin) / 2, na.rm = TRUE)
+                    plotmax <- max(x[is.finite(x)])
+                    plotmax <- min(plotmax + IQR(x, type = 6) / 2,
+                    (plotmax + domainmax) / 2, na.rm = TRUE)
                 } else {
                     tlocation <- mean(domainmin, domainmax)
                     tscale <- ((domainmax - domainmin) / sqrt(12)) / tscalefactor
+                    plotmin <- (31 * domainmin + domainmax) / 32
+                    plotmax <- (31 * domainmax + domainmin) / 32
                 }
                 tdomainmin <- (domainmin - tlocation) / tscale
                 tdomainmax <- (domainmax - tlocation) / tscale
@@ -206,7 +213,7 @@ buildauxmetadata <- function(data, metadata, Dthreshold = 1, tscalefactor = 1.25
                 tdomainminplushs <- (domainminplushs - tlocation) / tscale
                 tdomainmaxminushs <- (domainmaxminushs - tlocation) / tscale
 
-                plotmin <- max(domainmin, plotmin)
+                ## plotmin <- max(domainmin, plotmin)
                 ## centre plotmin on a rounding bin
                 tempvalue <- plotmin
                 plotmin <- x[which.min(abs(x - tempvalue))]
@@ -214,7 +221,7 @@ buildauxmetadata <- function(data, metadata, Dthreshold = 1, tscalefactor = 1.25
                     round((tempvalue - plotmin) / (2 * halfstep)) *
                     2 * halfstep
 
-                plotmax <- min(domainmax, plotmax)
+                ## plotmax <- min(domainmax, plotmax)
                 ## centre plotmax on a rounding bin
                 tempvalue <- plotmax
                 plotmax <- x[which.min(abs(x - tempvalue))]
@@ -222,6 +229,8 @@ buildauxmetadata <- function(data, metadata, Dthreshold = 1, tscalefactor = 1.25
                     round((tempvalue - plotmax) / (2 * halfstep)) *
                     2 * halfstep
 
+                minincluded <- TRUE
+                maxincluded <- TRUE
             }
 
 #### Continuous variate (R,C,D)
@@ -239,6 +248,10 @@ buildauxmetadata <- function(data, metadata, Dthreshold = 1, tscalefactor = 1.25
             if(is.null(domainmax) || is.na(domainmax)) {
                 domainmax <- +Inf
             }
+            minincluded <- (tolower(minfo$minincluded) %in%
+                                c('true', 't', 'yes', 'y', '1'))
+            maxincluded <- (tolower(minfo$maxincluded) %in%
+                                c('true', 't', 'yes', 'y', '1'))
             ## If the variate is rounded,
             ## we avoid a  latent-variable representation
             ## if the datapoints are "enough distinct" in higher dimension
@@ -247,6 +260,18 @@ buildauxmetadata <- function(data, metadata, Dthreshold = 1, tscalefactor = 1.25
                 nrow(unique(data)) / nrow(data) > Dthreshold)) {
                 halfstep <- 0
             }
+
+            if(!is.null(data)) {
+                plotmin <- min(x[is.finite(x)])
+                plotmax <- max(x[is.finite(x)])
+            }
+
+            ## Right now, some algorithms to set particular values
+            ## are the same for all cases below,
+            ## so they could be collected here
+            ## But they are left in the individual cases
+            ## in the event that they need a case-by-case tretment
+            ## in the future
 
 ### Rounded continuous case
             if (halfstep > 0) {
@@ -265,9 +290,19 @@ buildauxmetadata <- function(data, metadata, Dthreshold = 1, tscalefactor = 1.25
                         2 * halfstep
                     tscale <- IQR(type = 6, na.rm = TRUE, x = x) / tscalefactor
                     if(tscale == 0){tscale <- 1 / tscalefactor}
+
+                    plotmin <- max(plotmin - IQR(x, type = 6) / 2,
+                    (plotmin + domainmin) / 2, na.rm = TRUE)
+                    plotmax <- min(plotmax + IQR(x, type = 6) / 2,
+                    (plotmax + domainmax) / 2, na.rm = TRUE)
+                    
                 } else {
                     tlocation <- 0
                     tscale <- 1 / tscalefactor
+                    plotmin <- max((31 * domainmin + domainmax) / 32,
+                        -3 * tscale)
+                    plotmax <- min((31 * domainmax + domainmin) / 32,
+                        3 * tscale)
                 }
                 tdomainmin <- (domainmin - tlocation) / tscale
                 tdomainmax <- (domainmax - tlocation) / tscale
@@ -288,7 +323,7 @@ buildauxmetadata <- function(data, metadata, Dthreshold = 1, tscalefactor = 1.25
                 tdomainminplushs <- (domainminplushs - tlocation) / tscale
                 tdomainmaxminushs <- (domainmaxminushs - tlocation) / tscale
 
-                plotmin <- max(domainmin, plotmin)
+                ## plotmin <- max(domainmin, plotmin)
                 ## centre plotmin on a rounding bin
                 tempvalue <- plotmin
                 plotmin <- x[which.min(abs(x - tempvalue))]
@@ -296,7 +331,7 @@ buildauxmetadata <- function(data, metadata, Dthreshold = 1, tscalefactor = 1.25
                     round((tempvalue - plotmin) / (2 * halfstep)) *
                     2 * halfstep
 
-                plotmax <- min(domainmax, plotmax)
+                ## plotmax <- min(domainmax, plotmax)
                 ## centre plotmax on a rounding bin
                 tempvalue <- plotmax
                 plotmax <- x[which.min(abs(x - tempvalue))]
@@ -318,11 +353,20 @@ buildauxmetadata <- function(data, metadata, Dthreshold = 1, tscalefactor = 1.25
                     if(!is.null(data)) {
                         tlocation <- quantile(-log(domainmax - x), probs = 0.5,
                             type = 6, names = FALSE)
-                        tscale <- IQR(type = 6, na.rm = TRUE, x = -log(domainmax - x)) / tscalefactor
+                        tscale <- IQR(type = 6, na.rm = TRUE,
+                            x = -log(domainmax - x)) / tscalefactor
                         if(tscale == 0){tscale <- 1 / tscalefactor}
+
+                        plotmin <- max(plotmin - IQR(x, type = 6) / 2,
+                            domainmin, na.rm = TRUE)
+                        plotmax <- min(plotmax + IQR(x, type = 6) / 2,
+                        (plotmax + domainmax) / 2, na.rm = TRUE)
+
                     } else {
                         tlocation <- 0
                         tscale <- 1 / tscalefactor
+                        plotmin <- domainmin
+                        plotmax <- (31 * domainmax + domainmin) / 32
                     }
                     tdomainmin <- (-log(domainmax - domainmin) -
                                                  tlocation) / tscale
@@ -342,9 +386,17 @@ buildauxmetadata <- function(data, metadata, Dthreshold = 1, tscalefactor = 1.25
                             type = 6, names = FALSE)
                         tscale <- IQR(type = 6, na.rm = TRUE, x = log(x - domainmin)) / tscalefactor
                         if(tscale == 0){tscale <- 1 / tscalefactor}
+
+                        plotmin <- max(plotmin - IQR(x, type = 6) / 2,
+                            (plotmin + domainmin) / 2, na.rm = TRUE)
+                        plotmax <- min(plotmax + IQR(x, type = 6) / 2,
+                            domainmax, na.rm = TRUE)
+
                     } else {
                         tlocation <- 0
                         tscale <- 1 / tscalefactor
+                        plotmin <- (31 * domainmin + domainmax) / 32
+                        plotmax <- domainmax
                     }
                     tdomainmin <- -Inf
                     tdomainmax <- (log(domainmax - domainmin) - tlocation) / tscale
@@ -362,9 +414,17 @@ buildauxmetadata <- function(data, metadata, Dthreshold = 1, tscalefactor = 1.25
                             type = 6, names = FALSE)
                         tscale <- IQR(type = 6, na.rm = TRUE, x = x) / tscalefactor
                         if(tscale == 0){tscale <- 1 / tscalefactor}
+
+                        plotmin <- max(plotmin - IQR(x, type = 6) / 2,
+                            domainmin, na.rm = TRUE)
+                        plotmax <- min(plotmax + IQR(x, type = 6) / 2,
+                            domainmax, na.rm = TRUE)
+
                     } else {
                         tlocation <- 0
                         tscale <- 1 / tscalefactor
+                        plotmin <- domainmin
+                        plotmax <- domainmax
                     }
                     tdomainmin <- (domainmin - tlocation) / tscale
                     tdomainmax <- (domainmax - tlocation) / tscale
@@ -381,9 +441,16 @@ buildauxmetadata <- function(data, metadata, Dthreshold = 1, tscalefactor = 1.25
                             type = 6, names = FALSE)
                         tscale <- IQR(type = 6, na.rm = TRUE, x = x) / tscalefactor
                         if(tscale == 0){tscale <- 1 / tscalefactor}
+
+                        plotmin <- max(plotmin - IQR(x, type = 6) / 2,
+                            domainmin, na.rm = TRUE)
+                        plotmax <- plotmax + IQR(x, type = 6) / 2
+
                     } else {
                         tlocation <- 0
                         tscale <- 1 / tscalefactor
+                        plotmin <- domainmin
+                        plotmax <- domainmin + 6
                     }
                     tdomainmin <- (domainmin - tlocation) / tscale
                     tdomainmax <- +Inf
@@ -400,9 +467,16 @@ buildauxmetadata <- function(data, metadata, Dthreshold = 1, tscalefactor = 1.25
                             type = 6, names = FALSE)
                         tscale <- IQR(type = 6, na.rm = TRUE, x = x) / tscalefactor
                         if(tscale == 0){tscale <- 1 / tscalefactor}
+
+                        plotmin <- plotmin - IQR(x, type = 6) / 2
+                        plotmax <- min(plotmax + IQR(x, type = 6) / 2,
+                            domainmax, na.rm = TRUE)
+
                     } else {
                         tlocation <- 0
                         tscale <- 1 / tscalefactor
+                        plotmin <- domainmax - 6
+                        plotmax <- domainmax
                     }
                     tdomainmin <- -Inf
                     tdomainmax <- (domainmax - tlocation) / tscale
@@ -421,15 +495,24 @@ buildauxmetadata <- function(data, metadata, Dthreshold = 1, tscalefactor = 1.25
                                        (x - (domainmax + domainmin) / 2) /
                                        (domainmax - domainmin)
                             ))
-                        tscale <- IQR(type = 6, na.rm = TRUE, x = 
+                        tscale <- IQR(type = 6, na.rm = TRUE, x =
                             util_Q(0.5 +
                                        (x - (domainmax + domainmin) / 2) /
                                        (domainmax - domainmin)
                             )) / tscalefactor
                         if(tscale == 0){tscale <- 1 / tscalefactor}
+
+                        plotmin <- max(plotmin - IQR(x, type = 6) / 2,
+                        (plotmin + domainmin) / 2, na.rm = TRUE)
+                        plotmax <- min(plotmax + IQR(x, type = 6) / 2,
+                        (plotmax + domainmax) / 2, na.rm = TRUE)
+
                     } else {
                         tlocation <- 0
                         tscale <- 1 / tscalefactor
+                        plotmin <- (31 * domainmin + domainmax) / 32
+                        plotmax <- (31 * domainmax + domainmin) / 32
+
                     }
                     tdomainmin <- -Inf
                     tdomainmax <- +Inf
@@ -446,9 +529,16 @@ buildauxmetadata <- function(data, metadata, Dthreshold = 1, tscalefactor = 1.25
                             type = 6, names = FALSE)
                         tscale <- IQR(type = 6, na.rm = TRUE, x = log(x - domainmin)) / tscalefactor
                         if(tscale == 0){tscale <- 1 / tscalefactor}
+
+                        plotmin <- max(plotmin - IQR(x, type = 6) / 2,
+                        (plotmin + domainmin) / 2, na.rm = TRUE)
+                        plotmax <- plotmax + IQR(x, type = 6) / 2
+
                     } else {
                         tlocation <- 0
                         tscale <- 1 / tscalefactor
+                        plotmin <- domainmin + 1
+                        plotmax <- domainmin + 7
                     }
                     tdomainmin <- -Inf
                     tdomainmax <- +Inf
@@ -465,9 +555,16 @@ buildauxmetadata <- function(data, metadata, Dthreshold = 1, tscalefactor = 1.25
                             type = 6, names = FALSE)
                         tscale <- IQR(type = 6, na.rm = TRUE, x = -log(domainmax - x)) / tscalefactor
                         if(tscale == 0){tscale <- 1 / tscalefactor}
+
+                        plotmin <- plotmin - IQR(x, type = 6) / 2
+                        plotmax <- min(plotmax + IQR(x, type = 6) / 2,
+                        (plotmax + domainmax) / 2, na.rm = TRUE)
+
                     } else {
                         tlocation <- 0
                         tscale <- 1 / tscalefactor
+                        plotmin <- domainmax - 7
+                        plotmax <- domainmax - 1
                     }
                     tdomainmin <- -Inf
                     tdomainmax <- +Inf
@@ -484,9 +581,15 @@ buildauxmetadata <- function(data, metadata, Dthreshold = 1, tscalefactor = 1.25
                             type = 6, names = FALSE)
                         tscale <- IQR(type = 6, na.rm = TRUE, x = x) / tscalefactor
                         if(tscale == 0){tscale <- 1 / tscalefactor}
+
+                        plotmin <- plotmin - IQR(x, type = 6) / 2
+                        plotmax <- plotmax + IQR(x, type = 6) / 2
+
                     } else {
                         tlocation <- 0
                         tscale <- 1 / tscalefactor
+                        plotmin <- -3
+                        plotmax <- 3
                     }
                     tdomainmin <- -Inf
                     tdomainmax <- +Inf
@@ -497,19 +600,6 @@ buildauxmetadata <- function(data, metadata, Dthreshold = 1, tscalefactor = 1.25
                 tdomainminplushs <- tdomainmin
                 tdomainmaxminushs <- tdomainmax
 
-                plotmin <- max(domainmin,
-                    if(!is.null(data)){
-                        plotmin
-                    } else {
-                        -2 * tscalefactor
-                    })
-
-                plotmax <- min(domainmax,
-                    if(!is.null(data)){
-                        plotmax
-                    } else {
-                        2 * tscalefactor
-                    })
             }
             ## end non-rounded case
 
@@ -534,6 +624,7 @@ buildauxmetadata <- function(data, metadata, Dthreshold = 1, tscalefactor = 1.25
                     id = id, # censored=cens,
                     transform = transf, Nvalues = Nvalues, halfstep = halfstep,
                     domainmin = domainmin, domainmax = domainmax,
+                    minincluded = minincluded, maxincluded = maxincluded,
                     tdomainmin = tdomainmin, tdomainmax = tdomainmax,
                     domainminplushs = domainminplushs,
                     domainmaxminushs = domainmaxminushs,
