@@ -15,6 +15,7 @@ reference:
     - plotquantiles
     - plot.probability
     - plotFsamples
+    - vrtgrid
 - title: "Internal functions"
   desc: "For developers."
   contents:
