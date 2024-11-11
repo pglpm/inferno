@@ -48,7 +48,14 @@ vrtgrid <- function(
             out <- seq(adata$plotmin, adata$plotmax, length.out = length.out)
         } else if(adata$mcmctype == 'D'){
             ## out <- seq(adata$plotmin, adata$plotmax, by = 2 * adata$halfstep)
-            out <- seq(adata$plotmin, adata$plotmax, length.out = 1 + round((adata$plotmax - adata$plotmin)/(2 * adata$halfstep)))
+            step <- as.integer(ceiling((adata$plotmax - adata$plotmin) /
+                                           (2 * adata$halfstep)))
+            seqstep <- seq_len(step)
+            factors <- seqstep[!(step %% seqstep)]
+            step <- factors[which.min(abs(factors - length.out + 1))] *
+                2 * adata$halfstep
+            out <- seq(adata$plotmin, adata$plotmax,
+                length.out = 1 + round((adata$plotmax - adata$plotmin)/step))
         } else if(adata$mcmctype %in% c('B', 'O', 'N')){
             out <- unname(unlist(adata[paste0('V', seq_len(adata$Nvalues))]))
         } else {
