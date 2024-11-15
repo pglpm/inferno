@@ -910,7 +910,7 @@ learn <- function(
 #####################################################
 #### BEGINNING OF FOREACH LOOP OVER CORES
 #####################################################
-    ## Iterate over cores, using 'acore' variable as iterator
+    ## Parallel execution over cores
 
     chaininfo <- foreach(acore = 1:ncores,
         .combine = rbind,
@@ -938,6 +938,7 @@ learn <- function(
         ##library('nimble')
 
 #### COMPONENT REPRESENTATION OF FREQUENCY SPACE
+#### Dirichlet-process mixture of product-kernels
 
         ## hierarchical probability structure
         finitemix <- nimbleCode({
@@ -947,7 +948,6 @@ learn <- function(
             W[1:ncomponents] ~ ddirch(alpha = alphas[1:ncomponents])
 
             ## Probability density for the parameters of the components
-                                        # Loop over components
             for (k in 1:ncomponents) {
                 ## Probability distributions of parameters
                 ## of the different variate types
@@ -1059,7 +1059,7 @@ learn <- function(
                     colSums((t(datapoints$Rdata) - ameans)^2, na.rm = TRUE)
                 })
             }
-            if (vn$C > 0) { # continuous open domain
+            if (vn$C > 0) { # continuous closed domain
                 Cmeans <- matrix(rnorm(
                     n = vn$C * ncomponents,
                     mean = constants$Cmean1,
@@ -1070,7 +1070,7 @@ learn <- function(
                     colSums((t(datapoints$Clat) - ameans)^2, na.rm = TRUE)
                 })
             }
-            if (vn$D > 0) { # continuous open domain
+            if (vn$D > 0) { # discrete
                 Dmeans <- matrix(rnorm(
                     n = vn$D * ncomponents,
                     mean = constants$Dmean1,
@@ -1081,7 +1081,7 @@ learn <- function(
                     colSums((t(constants$Dlatinit) - ameans)^2, na.rm = TRUE)
                 })
             }
-            ## if (vn$L > 0) { # continuous open domain
+            ## if (vn$L > 0) { # 
             ##     Lmeans <- matrix(rnorm(
             ##         n = vn$L * ncomponents,
             ##         mean = constants$Lmean1,
@@ -1109,21 +1109,21 @@ learn <- function(
             occupied <- unique(K)
 
             ## recalculate components centres according to their points
-            if (vn$R > 0) { # continuous open domain
+            if (vn$R > 0) {
                 Rmeans[, occupied] <- sapply(occupied, function(acomponent){
                     colMeans(datapoints$Rdata[which(K == acomponent), , drop = FALSE],
                         na.rm = TRUE)
                 })
                 Rmeans[, -occupied] <- 0
             }
-            if (vn$C > 0) { # continuous open domain
+            if (vn$C > 0) {
                 Cmeans[, occupied] <- sapply(occupied, function(acomponent){
                     colMeans(datapoints$Clat[which(K == acomponent), , drop = FALSE],
                         na.rm = TRUE)
                 })
                 Cmeans[, -occupied] <- 0
             }
-            if (vn$D > 0) { # continuous open domain
+            if (vn$D > 0) {
                 Dmeans[, occupied] <- sapply(occupied, function(acomponent){
                     colMeans(constants$Dlatinit[which(K == acomponent), , drop = FALSE],
                         na.rm = TRUE)
@@ -1194,7 +1194,7 @@ learn <- function(
                     )
                 )
             }
-            if (vn$C > 0) { # ccontinuous closed domain
+            if (vn$C > 0) { # continuous closed domain
                 outlist <- c(
                     outlist,
                     list(
@@ -1378,8 +1378,8 @@ learn <- function(
                 }
             ),
             ## It is necessary to monitor K to see if all components were used
-            ## if 'showAlphatraces' is true then
-            ## the Alpha-parameter trace is also recorded and shown
+            ## if 'showAlphatraces' is true,
+            ## then the Alpha-parameter trace is also recorded and shown
             monitors2 = c(if (showAlphatraces) { 'Alpha' },
                 'K')
         )
@@ -1419,8 +1419,9 @@ learn <- function(
         ## testreptime <- Sys.time()
         if (RWtoslice) {
             for (asampler in targetslist[nameslist == 'RW']) {
+                ## ## New replacement method, didn't work in previous Nimble
                 confnimble$replaceSampler(target=asampler, type='slice')
-                ## ## Old replacement method, didn't work in previous Nimble
+                ## ## Old replacement method:
                 ## confnimble$removeSamplers(asampler)
                 ## confnimble$addSampler(target = asampler, type = 'slice')
             }
@@ -1434,6 +1435,7 @@ learn <- function(
 #### change execution order for some variates
         if (changeSamplerOrder) {
             ## call this to do a first reordering of the samplers
+            ## it places posterior-predictive nodes last
             mcsampler <- buildMCMC(confnimble)
 
             samplerorder <- c(
@@ -2041,7 +2043,7 @@ learn <- function(
         )
     }
 ############################################################
-#### END OF FOREACH-LOOP OVER CORES
+#### END OF PARALLEL FOREACH OVER CORES
 ############################################################
     ## Close output to log files
     suppressWarnings(sink())

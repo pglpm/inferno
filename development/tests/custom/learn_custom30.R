@@ -18,7 +18,7 @@ library('inferno')
 
 seed <- 16
 
-outputdirPrefix <- file.path('__test_custom30')
+outputdirPrefix <- file.path('__test_custom30_nobuild')
 
 ## ncores <- 4
 ## library('doParallel')
