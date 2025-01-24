@@ -30,7 +30,9 @@ palette(c(black='black',
         midgrey='#888888'))
 ```
 
-## Association and Mutual Information
+## Brief overview of the theory behind Mutual Information
+
+### Association and traditional measures for it
 
 A probability quantifies our degree of belief in the *values* of some variates, given that we know the *values* of some other variates. This belief also reflect our uncertainty: maximal for a belief of 50%, minimal for a belief of 0% or 100%.
 
@@ -47,14 +49,33 @@ Similar limitations of the Pearson correlation coefficient are demonstrated by t
 
 In the case of two variates, the limitations and possibly misleading value of the Pearson correlation coefficient may not be a serious problem, because we can visually inspect the relation and association between the variates. But in dealing with multi-dimensional variates, visualization is not possible and we must rely on the numerical values of the measure we use to quantify "association". In such cases the Pearson correlation coefficient can be highly misleading, and let us conclude that there's no association when actually there's a very strong one. Considering that our world is highly non-linear, this possibility is far from remote.
 
-\
+### Mutual Information
 
 But there is a measure of association that does not suffer from the limitations discussed above: the **mutual information** between $X$ and $Y$. It has in fact the following important properties:
 
-- If there is no association whatever between $X$ and $Y$, in the sense that knowledge of one never changes our probabilities about the other, then the mutual information between them is zero.
+- If there is no association whatever between $X$ and $Y$, in the sense that knowledge of one never changes our probabilities about the other, then the mutual information between them is zero. Vice versa, if the mutual information is zero, then there is no association whatever between $X$ and $Y$.
 
-- If $X$ and $Y$ have a perfect association, that is, if knowing $X$ gives us perfect knowledge about $Y$ or vice versa, then the mutual information between them takes on its maximal possible value.
+- If $X$ and $Y$ have a perfect association, that is, if knowing $X$ gives us perfect knowledge about $Y$ or vice versa, or in yet other words if $Y$ is a function of $X$ or vice versa, then the mutual information between them takes on its maximal possible value. Vice versa, if the mutual information takes on its maximal value, then one variate is a function of the other.
 
+Regarding the last feature, note that the functional dependence between $X$ and $Y$ can be *of any kind*, not just linear. This means that in the case of the semicircle plot above, the mutual information between $X$ and $Y$ has its maximal value.
+
+There's also a special case in which the *maximal* value of the mutual information is zero, which indicates that $Y$ is, technically speaking, a function of $X$, yet knowledge of $X$ doesn't give us any knowledge about $Y$. It's the case where $Y$ has just one value, independently of $X$:
+
+```{r, echo = FALSE}
+X <- seq(-1, 1, length.out = 200)
+Y <- rep(1, length(X))
+plot(x = X, y = Y, type = 'p', main = 'max mutual information = min mutual information = 0')
+```
+
+\
+
+Mutual information is measured in *shannons* (symbol $\mathrm{Sh}$), or *hartleys* (symbol $\mathrm{1}$), or *natural units* (symbol $\mathrm{1}$). These units and other properties of the mutual information are [standardized by the International Organization for Standardization (ISO) and the International Electrotechnical Commission (IEC)](https://archive.org/details/iso-standards-collection/BS%20EN%2080000-13-2008%20-%201%20Quantities%20and%20units). The minimum possible value of the mutual information is always zero. The maximum possible value depends instead on the variates $X$ and $Y$.
+
+### Interpretation of the values of mutual information
+
+The value of the mutual information between two variates has an operational meaning and interpretation. To understand it we must first summarize the meaning of the *Shannon information* as a measure of uncertainty or of acquired information.
+
+A value of $s$ shannons represents the uncertainty equivalent to not knowing which among $2^s$ possible alternatives is the true one. For instance, $3\,\mathrm{Sh}$ represent being uncertain among 8 equally possible alternatives; $1.58\,\mathrm{Sh}$ represent being uncertain among 3 equally possible alternatives. If a clinician is uncertain about which disease, among four equally possible ones, affects a patient, then the clinician's uncertainty is $2\,\mathrm{Sh}$.
 
 
 *(TO BE CONTINUED)*
