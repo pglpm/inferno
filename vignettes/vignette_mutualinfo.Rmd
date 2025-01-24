@@ -1,0 +1,50 @@
+---
+title: "Associations of variates with mutual information"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Associations of variates with mutual information}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, setup, include = FALSE}
+knitr::opts_chunk$set(
+    dev='png',
+    fig.asp = 1/sqrt(2),
+    fig.width = 8,
+    out.width='100%',
+    collapse = TRUE,
+    comment = "#>"
+)
+options(knitr.kable.NA = '')
+library(inferno)
+## Tol colour-blind-friendly palette
+palette(c(black='black',
+        red='#EE6677',
+        blue='#4477AA',
+        green='#228833',
+        yellow='#CCBB44',
+        purple='#AA3377',
+        cyan='#66CCEE',
+        grey='#BBBBBB',
+        midgrey='#888888'))
+```
+
+## Association and Mutual Information
+
+A probability quantifies our degree of belief in the *values* of some variates, given that we know the *values* of some other variates. This belief also reflect our uncertainty: maximal for a belief of 50%, minimal for a belief of 0% or 100%.
+
+In some cases we wish to quantify our uncertainty *in an average sense*, rather than about specific values, or given knowledge of specific values. In other words, we ask: on average, how uncertain are we about a set of variates, given that we have knowledge of another set? If this average uncertainty is low, then we say that the two sets of variates are highly *correlated* or *associated*; otherwise, that the are *uncorrelated*. Here we are using the word 'correlation' in its general sense, not in the specific sense of "linear correlation" or similar.
+
+Traditionally the [Pearson correlation coefficient "$r$"](https://mathworld.wolfram.com/CorrelationCoefficient.html) is used to quantify association. It is extremely limited, however. It is essentially [based on the assumption that all variates involved have a joint Gaussian distribution](https://doi.org/10.1080/01621459.1954.10501231). As a consequence, it is a measure of *linear* association, rather than general association. For instance, if the graph of two continuous variates $X$ and $Y$ is a semicircle, then it means that $Y$ is a function of $X$, and is therefore perfectly associated with $X$: if we know $X$, then we can perfectly predict the value of $Y$. Yet the Pearson correlation coefficient between the two variates is $0$ in this case, simply because the functional dependence of $Y$ on $X$ is not linear:
+```{r}
+X <- seq(-1, 1, length.out = 200)
+Y <- sqrt(1 - X^2)
+r <- cor(X, Y, method = 'pearson')
+plot(x = X, y = Y, type = 'p', main = paste0('Pearson correlation: ', signif(r, 2)))
+```
+Similar limitations of the Pearson correlation coefficient are demonstrated by the ["Anscombe quartet"](https://doi.org/10.2307/2682899) of datasets.
+
+
+
+*(TO BE CONTINUED)*
