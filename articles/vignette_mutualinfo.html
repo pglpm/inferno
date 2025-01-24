@@ -66,8 +66,11 @@
     
     
 <div class="section level2">
-<h2 id="association-and-mutual-information">Association and Mutual Information<a class="anchor" aria-label="anchor" href="#association-and-mutual-information"></a>
+<h2 id="brief-overview-of-the-theory-behind-mutual-information">Brief overview of the theory behind Mutual Information<a class="anchor" aria-label="anchor" href="#brief-overview-of-the-theory-behind-mutual-information"></a>
 </h2>
+<div class="section level3">
+<h3 id="association-and-traditional-measures-for-it">Association and traditional measures for it<a class="anchor" aria-label="anchor" href="#association-and-traditional-measures-for-it"></a>
+</h3>
 <p>A probability quantifies our degree of belief in the <em>values</em>
 of some variates, given that we know the <em>values</em> of some other
 variates. This belief also reflect our uncertainty: maximal for a belief
@@ -129,7 +132,10 @@ Pearson correlation coefficient can be highly misleading, and let us
 conclude that there’s no association when actually there’s a very strong
 one. Considering that our world is highly non-linear, this possibility
 is far from remote.</p>
-<p><br></p>
+</div>
+<div class="section level3">
+<h3 id="mutual-information">Mutual Information<a class="anchor" aria-label="anchor" href="#mutual-information"></a>
+</h3>
 <p>But there is a measure of association that does not suffer from the
 limitations discussed above: the <strong>mutual information</strong>
 between
@@ -143,7 +149,12 @@ It has in fact the following important properties:</p>
 and
 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>Y</mi><annotation encoding="application/x-tex">Y</annotation></semantics></math>,
 in the sense that knowledge of one never changes our probabilities about
-the other, then the mutual information between them is zero.</p></li>
+the other, then the mutual information between them is zero. Vice versa,
+if the mutual information is zero, then there is no association whatever
+between
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>X</mi><annotation encoding="application/x-tex">X</annotation></semantics></math>
+and
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>Y</mi><annotation encoding="application/x-tex">Y</annotation></semantics></math>.</p></li>
 <li><p>If
 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>X</mi><annotation encoding="application/x-tex">X</annotation></semantics></math>
 and
@@ -152,12 +163,80 @@ have a perfect association, that is, if knowing
 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>X</mi><annotation encoding="application/x-tex">X</annotation></semantics></math>
 gives us perfect knowledge about
 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>Y</mi><annotation encoding="application/x-tex">Y</annotation></semantics></math>
+or vice versa, or in yet other words if
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>Y</mi><annotation encoding="application/x-tex">Y</annotation></semantics></math>
+is a function of
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>X</mi><annotation encoding="application/x-tex">X</annotation></semantics></math>
 or vice versa, then the mutual information between them takes on its
-maximal possible value.</p></li>
+maximal possible value. Vice versa, if the mutual information takes on
+its maximal value, then one variate is a function of the other.</p></li>
 </ul>
+<p>Regarding the last feature, note that the functional dependence
+between
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>X</mi><annotation encoding="application/x-tex">X</annotation></semantics></math>
+and
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>Y</mi><annotation encoding="application/x-tex">Y</annotation></semantics></math>
+can be <em>of any kind</em>, not just linear. This means that in the
+case of the semicircle plot above, the mutual information between
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>X</mi><annotation encoding="application/x-tex">X</annotation></semantics></math>
+and
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>Y</mi><annotation encoding="application/x-tex">Y</annotation></semantics></math>
+has its maximal value.</p>
+<p>There’s also a special case in which the <em>maximal</em> value of
+the mutual information is zero, which indicates that
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>Y</mi><annotation encoding="application/x-tex">Y</annotation></semantics></math>
+is, technically speaking, a function of
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>X</mi><annotation encoding="application/x-tex">X</annotation></semantics></math>,
+yet knowledge of
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>X</mi><annotation encoding="application/x-tex">X</annotation></semantics></math>
+doesn’t give us any knowledge about
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>Y</mi><annotation encoding="application/x-tex">Y</annotation></semantics></math>.
+It’s the case where
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>Y</mi><annotation encoding="application/x-tex">Y</annotation></semantics></math>
+has just one value, independently of
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>X</mi><annotation encoding="application/x-tex">X</annotation></semantics></math>:</p>
+<p><img src="vignette_mutualinfo_files/figure-html/unnamed-chunk-2-1.png" width="100%"></p>
+<p><br></p>
+<p>Mutual information is measured in <em>shannons</em> (symbol
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi mathvariant="normal">S</mi><mi mathvariant="normal">h</mi></mrow><annotation encoding="application/x-tex">\mathrm{Sh}</annotation></semantics></math>),
+or <em>hartleys</em> (symbol
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mn mathvariant="normal">1</mn><annotation encoding="application/x-tex">\mathrm{1}</annotation></semantics></math>),
+or <em>natural units</em> (symbol
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mn mathvariant="normal">1</mn><annotation encoding="application/x-tex">\mathrm{1}</annotation></semantics></math>).
+These units and other properties of the mutual information are <a href="https://archive.org/details/iso-standards-collection/BS%20EN%2080000-13-2008%20-%201%20Quantities%20and%20units" class="external-link">standardized
+by the International Organization for Standardization (ISO) and the
+International Electrotechnical Commission (IEC)</a>. The minimum
+possible value of the mutual information is always zero. The maximum
+possible value depends instead on the variates
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>X</mi><annotation encoding="application/x-tex">X</annotation></semantics></math>
+and
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>Y</mi><annotation encoding="application/x-tex">Y</annotation></semantics></math>.</p>
+</div>
+<div class="section level3">
+<h3 id="interpretation-of-the-values-of-mutual-information">Interpretation of the values of mutual information<a class="anchor" aria-label="anchor" href="#interpretation-of-the-values-of-mutual-information"></a>
+</h3>
+<p>The value of the mutual information between two variates has an
+operational meaning and interpretation. To understand it we must first
+summarize the meaning of the <em>Shannon information</em> as a measure
+of uncertainty or of acquired information.</p>
+<p>A value of
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>s</mi><annotation encoding="application/x-tex">s</annotation></semantics></math>
+shannons represents the uncertainty equivalent to not knowing which
+among
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msup><mn>2</mn><mi>s</mi></msup><annotation encoding="application/x-tex">2^s</annotation></semantics></math>
+possible alternatives is the true one. For instance,
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mn>3</mn><mspace width="0.167em"></mspace><mrow><mi mathvariant="normal">S</mi><mi mathvariant="normal">h</mi></mrow></mrow><annotation encoding="application/x-tex">3\,\mathrm{Sh}</annotation></semantics></math>
+represent being uncertain among 8 equally possible alternatives;
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mn>1.58</mn><mspace width="0.167em"></mspace><mrow><mi mathvariant="normal">S</mi><mi mathvariant="normal">h</mi></mrow></mrow><annotation encoding="application/x-tex">1.58\,\mathrm{Sh}</annotation></semantics></math>
+represent being uncertain among 3 equally possible alternatives. If a
+clinician is uncertain about which disease, among four equally possible
+ones, affects a patient, then the clinician’s uncertainty is
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mn>2</mn><mspace width="0.167em"></mspace><mrow><mi mathvariant="normal">S</mi><mi mathvariant="normal">h</mi></mrow></mrow><annotation encoding="application/x-tex">2\,\mathrm{Sh}</annotation></semantics></math>.</p>
 <p><em>(TO BE CONTINUED)</em></p>
 </div>
-  </main>
+</div>
+  </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>
+    </nav></aside>
 </div>
 
 
