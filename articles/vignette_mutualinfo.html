@@ -221,10 +221,13 @@ summarize the meaning of the <em>Shannon information</em> as a measure
 of uncertainty or of acquired information.</p>
 <p>A value of
 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>s</mi><annotation encoding="application/x-tex">s</annotation></semantics></math>
-shannons represents the uncertainty equivalent to not knowing which
-among
+shannons represents the uncertainty <em>equivalent</em> to not knowing
+which among
 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msup><mn>2</mn><mi>s</mi></msup><annotation encoding="application/x-tex">2^s</annotation></semantics></math>
-possible alternatives is the true one. For instance,
+possible alternatives is the true one. So
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mn>1</mn><mspace width="0.167em"></mspace><mrow><mi mathvariant="normal">S</mi><mi mathvariant="normal">h</mi></mrow></mrow><annotation encoding="application/x-tex">1\,\mathrm{Sh}</annotation></semantics></math>
+represents the uncertainty between two equally possible cases, like the
+outcome of a coin toss. Other examples:
 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mn>3</mn><mspace width="0.167em"></mspace><mrow><mi mathvariant="normal">S</mi><mi mathvariant="normal">h</mi></mrow></mrow><annotation encoding="application/x-tex">3\,\mathrm{Sh}</annotation></semantics></math>
 represent being uncertain among 8 equally possible alternatives;
 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mn>1.58</mn><mspace width="0.167em"></mspace><mrow><mi mathvariant="normal">S</mi><mi mathvariant="normal">h</mi></mrow></mrow><annotation encoding="application/x-tex">1.58\,\mathrm{Sh}</annotation></semantics></math>
@@ -232,6 +235,166 @@ represent being uncertain among 3 equally possible alternatives. If a
 clinician is uncertain about which disease, among four equally possible
 ones, affects a patient, then the clinician’s uncertainty is
 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mn>2</mn><mspace width="0.167em"></mspace><mrow><mi mathvariant="normal">S</mi><mi mathvariant="normal">h</mi></mrow></mrow><annotation encoding="application/x-tex">2\,\mathrm{Sh}</annotation></semantics></math>.</p>
+<p>The “equivalence” in the definition above reflects the fact that some
+possibilities may have higher probabilities than others. For instance,
+if there are three alternatives but one of them has 0% probability, then
+our uncertainty is
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mn>1</mn><mspace width="0.167em"></mspace><mrow><mi mathvariant="normal">S</mi><mi mathvariant="normal">h</mi></mrow></mrow><annotation encoding="application/x-tex">1\,\mathrm{Sh}</annotation></semantics></math>,
+the same as for <em>two</em> equally possible alternatives. If there are
+three possibilities with probabilities 11.4%, 11.4%, and 77.2%, then the
+uncertainty is approximately
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mn>1</mn><mspace width="0.167em"></mspace><mrow><mi mathvariant="normal">S</mi><mi mathvariant="normal">h</mi></mrow></mrow><annotation encoding="application/x-tex">1\,\mathrm{Sh}</annotation></semantics></math>:
+as if there were only two alternatives; this is because one alternative
+has much higher probability than the other two.</p>
+<p><br></p>
+<p>Back to mutual information: If the mutual information between
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>X</mi><annotation encoding="application/x-tex">X</annotation></semantics></math>
+and
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>Y</mi><annotation encoding="application/x-tex">Y</annotation></semantics></math>
+amounts to
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>h</mi><mspace width="0.167em"></mspace><mrow><mi mathvariant="normal">S</mi><mi mathvariant="normal">h</mi></mrow></mrow><annotation encoding="application/x-tex">h\,\mathrm{Sh}</annotation></semantics></math>,
+then knowledge of
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>X</mi><annotation encoding="application/x-tex">X</annotation></semantics></math>
+reduces, on average,
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msup><mn>2</mn><mi>h</mi></msup><annotation encoding="application/x-tex">2^h</annotation></semantics></math>
+times the number of uncertain possibilities of
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>Y</mi><annotation encoding="application/x-tex">Y</annotation></semantics></math>.
+For example, suppose that a clinician is uncertain about four possible
+diseases in a diagnosis (uncertainty of
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mn>2</mn><mspace width="0.167em"></mspace><mrow><mi mathvariant="normal">S</mi><mi mathvariant="normal">h</mi></mrow></mrow><annotation encoding="application/x-tex">2\,\mathrm{Sh}</annotation></semantics></math>),
+but there is a particular clinical indicator that associated with the
+disease. If the mutual information between the indicator and the disease
+is
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mn>1</mn><mspace width="0.167em"></mspace><mrow><mi mathvariant="normal">S</mi><mi mathvariant="normal">h</mi></mrow></mrow><annotation encoding="application/x-tex">1\,\mathrm{Sh}</annotation></semantics></math>,
+then the clinician will be roughly uncertain about two possible
+diseases, rather than four, upon testing the clinical indicator. If the
+mutual information were
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mn>2</mn><mspace width="0.167em"></mspace><mrow><mi mathvariant="normal">S</mi><mi mathvariant="normal">h</mi></mrow></mrow><annotation encoding="application/x-tex">2\,\mathrm{Sh}</annotation></semantics></math>
+instead, then the indicator would tell the disease with certainty.</p>
+<p><br></p>
+<p>You might think: “the value of mutual information is difficult to
+interpret”. But this is only a matter of getting familiar with it, by
+using it. Remember how difficult it was to get a feeling of what a
+particular value of the Pearson correlation
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>r</mi><annotation encoding="application/x-tex">r</annotation></semantics></math>
+really meant, when you first learned it. You developed an intuitive
+understanding of its range of values simply by using it. The same holds
+for mutual information.</p>
+<p><br></p>
+<p>For further discussion about mutual information and entropic measures
+of association, take a look at <a href="https://pglpm.github.io/ADA511/information.html" class="external-link"><em>Information,
+relevance, independence, association</em></a> and the references given
+there.</p>
+</div>
+</div>
+<div class="section level2">
+<h2 id="function-for-the-calculation-of-mutual-information-between-variates">Function for the calculation of mutual information between
+variates<a class="anchor" aria-label="anchor" href="#function-for-the-calculation-of-mutual-information-between-variates"></a>
+</h2>
+<p>The software offers the function <code><a href="../reference/mutualinfo.html">mutualinfo()</a></code> to
+calculate the mutual information between a set of joint variates
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>Y</mi><mn>1</mn></msub><annotation encoding="application/x-tex">Y_1</annotation></semantics></math>
+and another set
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>Y</mi><mn>2</mn></msub><annotation encoding="application/x-tex">Y_2</annotation></semantics></math>.
+It requires at least three arguments:</p>
+<ul>
+<li>
+<code>Y1names</code>: a vector the names (strings) of the variates
+in the first set;</li>
+<li>
+<code>Y2names</code>: a vector the names of the variates in the
+second set;</li>
+<li>
+<code>learnt</code>: the knowledge acquired from the dataset,
+calculated with the <code><a href="../reference/learn.html">learn()</a></code> function.</li>
+</ul>
+<p>It may be useful to specify two more arguments:</p>
+<ul>
+<li>
+<code>parallel</code>: the number of CPUs to use for the
+computation;</li>
+<li>
+<code>nsamples</code>: the number of samples to use for the
+computation of the mutual information (default 3600).</li>
+</ul>
+<p>The output of this function is a list of several entropic measures
+and other information. For this example we can focus on two outputs:</p>
+<ul>
+<li>
+<code>$MI</code>: a vector of two numbers: <code>value</code> is the
+value of the mutual information in shannons; <code>error</code> is its
+numerical error (coming from the Monte Carlo calculation);</li>
+<li>
+<code>$MImax</code>: a vector of two numbers: <code>value</code> is
+the value of the maximal possible value of the mutual information, in
+shannons; <code>error</code> is its numerical error.</li>
+</ul>
+<div class="section level3">
+<h3 id="example">Example<a class="anchor" aria-label="anchor" href="#example"></a>
+</h3>
+<p>As an example, let’s take the dataset and inference problem discussed
+in the vignette <a href="vignette_parkinson.html"><em>Example of use:
+inferences for Parkinson’s Disease</em></a>.</p>
+<p>Suppose we want to quantify the association between the treatment
+group of a patient and the effect of the treatment. The treatment group
+is given by the <code>TreatmentGroup</code> binary variate, and the
+effect is quantified by the difference in MDS-UPDRS-III scores between
+the first and second visits, in the variate
+<code>diff.MDS.UPRS.III</code>. We use the knowledge calculated and
+saved in the <code>learnt.rds</code> file.</p>
+<p>The mutual information between <code>TreatmentGroup</code> and
+<code>diff.MDS.UPRS.III</code> is</p>
+<div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">mutualinfoGroupEffect</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/mutualinfo.html">mutualinfo</a></span><span class="op">(</span></span>
+<span>    Y1names <span class="op">=</span> <span class="st">'diff.MDS.UPRS.III'</span>,</span>
+<span>    Y2names <span class="op">=</span> <span class="st">'TreatmentGroup'</span>,</span>
+<span>    learnt <span class="op">=</span> <span class="st">'learnt.rds'</span>,</span>
+<span>    parallel <span class="op">=</span> <span class="fl">12</span></span>
+<span><span class="op">)</span></span>
+<span></span>
+<span><span class="va">mutualinfoGroupEffect</span><span class="op">$</span><span class="va">MI</span></span>
+<span><span class="co">#&gt;       value       error </span></span>
+<span><span class="co">#&gt; 0.002816052 0.001065887</span></span>
+<span></span>
+<span><span class="va">mutualinfoGroupEffect</span><span class="op">$</span><span class="va">MImax</span></span>
+<span><span class="co">#&gt;        value        error </span></span>
+<span><span class="co">#&gt; 9.998692e-01 9.717656e-05</span></span></code></pre></div>
+<p>The result is
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mn>0</mn><mspace width="0.167em"></mspace><mrow><mi mathvariant="normal">S</mi><mi mathvariant="normal">h</mi></mrow></mrow><annotation encoding="application/x-tex">0\,\mathrm{Sh}</annotation></semantics></math>
+within the numerical error, out of a possible maximal value of around
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mn>1</mn><mspace width="0.167em"></mspace><mrow><mi mathvariant="normal">S</mi><mi mathvariant="normal">h</mi></mrow></mrow><annotation encoding="application/x-tex">1\,\mathrm{Sh}</annotation></semantics></math>,
+shows that there is essentially no association between the treatment
+group and the effect. Note that further data could change this
+conclusion, though (<em>the calculation of this uncertainty will be
+later implemented in the package</em>).</p>
+<p><br></p>
+<p>We can also quantify the association between two sets of variates
+<em>within a subpopulation</em> defined by a specific value of an
+additional variate <code>X</code> (which may be a joint variate). This
+subpopulation is specified by an additional argument <code>X</code> to
+the <code><a href="../reference/mutualinfo.html">mutualinfo()</a></code> function. For instance, let’s quantify the
+association between treatment group and effect within the subpopulation
+of female patients only:</p>
+<div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">mutualinfoGroupEffectFemales</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/mutualinfo.html">mutualinfo</a></span><span class="op">(</span></span>
+<span>    Y1names <span class="op">=</span> <span class="st">'diff.MDS.UPRS.III'</span>,</span>
+<span>    Y2names <span class="op">=</span> <span class="st">'TreatmentGroup'</span>,</span>
+<span>    X <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span>Sex <span class="op">=</span> <span class="st">'Female'</span><span class="op">)</span>,</span>
+<span>    learnt <span class="op">=</span> <span class="st">'learnt.rds'</span>,</span>
+<span>    parallel <span class="op">=</span> <span class="fl">12</span></span>
+<span><span class="op">)</span></span>
+<span></span>
+<span><span class="va">mutualinfoGroupEffectFemales</span><span class="op">$</span><span class="va">MI</span></span>
+<span><span class="co">#&gt;       value       error </span></span>
+<span><span class="co">#&gt; 0.002208982 0.001186844</span></span>
+<span></span>
+<span><span class="va">mutualinfoGroupEffectFemales</span><span class="op">$</span><span class="va">MImax</span></span>
+<span><span class="co">#&gt;        value        error </span></span>
+<span><span class="co">#&gt; 1.0000029105 0.0001987814</span></span></code></pre></div>
+<p>The resulting mutual information is above zero, within twice the
+numerical error. So there’s a slightly larger – though still extremely
+weak – association between the treatment group and effect within the
+female subpopulation.</p>
 <p><em>(TO BE CONTINUED)</em></p>
 </div>
 </div>
