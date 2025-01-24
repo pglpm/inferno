@@ -584,9 +584,7 @@ mutualinfo <- function(
 
     out <- unlist(apply(rbind(
         value = colMeans(out, na.rm = TRUE),
-        ## error = apply(out, 2, sd, na.rm = TRUE)/sqrt(n)
-        error = apply(out, 2, quantile,
-            probs = c(0.055, 0.945), type = 6, na.rm = TRUE)
+        error = apply(out, 2, sd, na.rm = TRUE)/sqrt(n)
     ), 2, list), recursive = FALSE)
 
     mmax <- paste0('En', which.min(c(out$En1['value'], out$En2['value'])) )

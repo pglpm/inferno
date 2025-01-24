@@ -499,6 +499,23 @@ second set;</li>
 <li><code>learnt</code>: the knowledge acquired from the dataset,
 calculated with the <code>learn()</code> function.</li>
 </ul>
+<p>It may be useful to specify two more arguments:</p>
+<ul>
+<li><code>parallel</code>: the number of CPUs to use for the
+computation;</li>
+<li><code>nsamples</code>: the number of samples to use for the
+computation of the mutual information (default 3600).</li>
+</ul>
+<p>The output of this function is a list of several entropic measures
+and other information. For this example we can focus on two outputs:</p>
+<ul>
+<li><code>$MI</code>: a vector of two numbers: <code>value</code> is the
+value of the mutual information in shannons; <code>error</code> is its
+numerical error (coming from the Monte Carlo calculation);</li>
+<li><code>$MImax</code>: a vector of two numbers: <code>value</code> is
+the value of the maximal possible value of the mutual information, in
+shannons; <code>error</code> is its numerical error.</li>
+</ul>
 <div id="example" class="section level3">
 <h3>Example</h3>
 <p>As an example, let’s take the dataset and inference problem discussed
@@ -516,10 +533,48 @@ saved in the <code>learnt.rds</code> file.</p>
 <div class="sourceCode" id="cb2"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" tabindex="-1"></a>mutualinfoGroupEffect <span class="ot">&lt;-</span> <span class="fu">mutualinfo</span>(</span>
 <span id="cb2-2"><a href="#cb2-2" tabindex="-1"></a>    <span class="at">Y1names =</span> <span class="st">&#39;diff.MDS.UPRS.III&#39;</span>,</span>
 <span id="cb2-3"><a href="#cb2-3" tabindex="-1"></a>    <span class="at">Y2names =</span> <span class="st">&#39;TreatmentGroup&#39;</span>,</span>
-<span id="cb2-4"><a href="#cb2-4" tabindex="-1"></a>    <span class="at">learnt =</span> <span class="st">&#39;learnt.rds&#39;</span></span>
-<span id="cb2-5"><a href="#cb2-5" tabindex="-1"></a>)</span>
-<span id="cb2-6"><a href="#cb2-6" tabindex="-1"></a><span class="co">#&gt; Warning in max(xx[is.finite(xx)]): no non-missing arguments to max; returning -Inf</span></span>
-<span id="cb2-7"><a href="#cb2-7" tabindex="-1"></a><span class="co">#&gt; Warning in max(xx[is.finite(xx)]): no non-missing arguments to max; returning -Inf</span></span></code></pre></div>
+<span id="cb2-4"><a href="#cb2-4" tabindex="-1"></a>    <span class="at">learnt =</span> <span class="st">&#39;learnt.rds&#39;</span>,</span>
+<span id="cb2-5"><a href="#cb2-5" tabindex="-1"></a>    <span class="at">parallel =</span> <span class="dv">12</span></span>
+<span id="cb2-6"><a href="#cb2-6" tabindex="-1"></a>)</span>
+<span id="cb2-7"><a href="#cb2-7" tabindex="-1"></a></span>
+<span id="cb2-8"><a href="#cb2-8" tabindex="-1"></a>mutualinfoGroupEffect<span class="sc">$</span>MI</span>
+<span id="cb2-9"><a href="#cb2-9" tabindex="-1"></a><span class="co">#&gt;         value         error </span></span>
+<span id="cb2-10"><a href="#cb2-10" tabindex="-1"></a><span class="co">#&gt; -0.0000518368  0.0010573920</span></span>
+<span id="cb2-11"><a href="#cb2-11" tabindex="-1"></a></span>
+<span id="cb2-12"><a href="#cb2-12" tabindex="-1"></a>mutualinfoGroupEffect<span class="sc">$</span>MImax</span>
+<span id="cb2-13"><a href="#cb2-13" tabindex="-1"></a><span class="co">#&gt;        value        error </span></span>
+<span id="cb2-14"><a href="#cb2-14" tabindex="-1"></a><span class="co">#&gt; 0.9999502308 0.0000972002</span></span></code></pre></div>
+<p>The result is <span class="math inline">\(0\,\mathrm{Sh}\)</span>
+within the numerical error, out of a possible maximal value of around
+<span class="math inline">\(1\,\mathrm{Sh}\)</span>, shows that there is
+essentially no association between the treatment group and the effect.
+Note that further data could change this conclusion, though (<em>the
+calculation of this uncertainty will be later implemented in the
+package</em>).</p>
+<p><br />
+</p>
+<p>We can also quantify the association between two sets of variates
+<em>within a subpopulation</em> defined by a specific value of an
+additional variate <code>X</code> (which may be a joint variate). This
+subpopulation is specified by an additional argument <code>X</code> to
+the <code>mutualinfo()</code> function. For instance, let’s quantify the
+association between treatment group and effect within the subpopulation
+of female patients only:</p>
+<div class="sourceCode" id="cb3"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" tabindex="-1"></a>mutualinfoGroupEffectFemales <span class="ot">&lt;-</span> <span class="fu">mutualinfo</span>(</span>
+<span id="cb3-2"><a href="#cb3-2" tabindex="-1"></a>    <span class="at">Y1names =</span> <span class="st">&#39;diff.MDS.UPRS.III&#39;</span>,</span>
+<span id="cb3-3"><a href="#cb3-3" tabindex="-1"></a>    <span class="at">Y2names =</span> <span class="st">&#39;TreatmentGroup&#39;</span>,</span>
+<span id="cb3-4"><a href="#cb3-4" tabindex="-1"></a>    <span class="at">X =</span> <span class="fu">data.frame</span>(<span class="at">Sex =</span> <span class="st">&#39;Female&#39;</span>),</span>
+<span id="cb3-5"><a href="#cb3-5" tabindex="-1"></a>    <span class="at">learnt =</span> <span class="st">&#39;learnt.rds&#39;</span>,</span>
+<span id="cb3-6"><a href="#cb3-6" tabindex="-1"></a>    <span class="at">parallel =</span> <span class="dv">12</span></span>
+<span id="cb3-7"><a href="#cb3-7" tabindex="-1"></a>)</span>
+<span id="cb3-8"><a href="#cb3-8" tabindex="-1"></a></span>
+<span id="cb3-9"><a href="#cb3-9" tabindex="-1"></a>mutualinfoGroupEffectFemales<span class="sc">$</span>MI</span>
+<span id="cb3-10"><a href="#cb3-10" tabindex="-1"></a><span class="co">#&gt;      value      error </span></span>
+<span id="cb3-11"><a href="#cb3-11" tabindex="-1"></a><span class="co">#&gt; 0.00296204 0.00118934</span></span>
+<span id="cb3-12"><a href="#cb3-12" tabindex="-1"></a></span>
+<span id="cb3-13"><a href="#cb3-13" tabindex="-1"></a>mutualinfoGroupEffectFemales<span class="sc">$</span>MImax</span>
+<span id="cb3-14"><a href="#cb3-14" tabindex="-1"></a><span class="co">#&gt;       value       error </span></span>
+<span id="cb3-15"><a href="#cb3-15" tabindex="-1"></a><span class="co">#&gt; 1.000049287 0.000198783</span></span></code></pre></div>
 <p><em>(TO BE CONTINUED)</em></p>
 </div>
 </div>

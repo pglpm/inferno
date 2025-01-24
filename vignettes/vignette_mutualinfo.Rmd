@@ -107,8 +107,8 @@ It may be useful to specify two more arguments:
 
 The output of this function is a list of several entropic measures and other information. For this example we can focus on two outputs:
 
-- `$MI`: a vector of two numbers: `value` is the value of the mutual information in shannons; `error` is the numerical error in this value (coming from the Monte Carlo calculation).
-- 
+- `$MI`: a vector of two numbers: `value` is the value of the mutual information in shannons; `error` is its numerical error (coming from the Monte Carlo calculation);
+- `$MImax`: a vector of two numbers: `value` is the value of the maximal possible value of the mutual information, in shannons; `error` is its numerical error.
 
 
 
@@ -129,7 +129,28 @@ mutualinfoGroupEffect <- mutualinfo(
 )
 
 mutualinfoGroupEffect$MI
+
+mutualinfoGroupEffect$MImax
 ```
+The result is $0\,\mathrm{Sh}$ within the numerical error, out of a possible maximal value of around $1\,\mathrm{Sh}$, shows that there is essentially no association between the treatment group and the effect. Note that further data could change this conclusion, though (*the calculation of this uncertainty will be later implemented in the package*).
+
+\
+
+We can also quantify the association between two sets of variates *within a subpopulation* defined by a specific value of an additional variate `X` (which may be a joint variate). This subpopulation is specified by an additional argument `X` to the `mutualinfo()` function. For instance, let's quantify the association between treatment group and effect within the subpopulation of female patients only:
+```{r}
+mutualinfoGroupEffectFemales <- mutualinfo(
+    Y1names = 'diff.MDS.UPRS.III',
+    Y2names = 'TreatmentGroup',
+    X = data.frame(Sex = 'Female'),
+    learnt = 'learnt.rds',
+    parallel = 12
+)
+
+mutualinfoGroupEffectFemales$MI
+
+mutualinfoGroupEffectFemales$MImax
+```
+The resulting mutual information is above zero, within twice the numerical error. So there's a slightly larger -- though still extremely weak -- association between the treatment group and effect within the female subpopulation.
 
 
 *(TO BE CONTINUED)*
