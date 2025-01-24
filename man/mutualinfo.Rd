@@ -20,25 +20,24 @@ mutualinfo(
 
 \item{Y2names}{String vector or NULL: second group of joint variates}
 
-\item{X}{matrix or data.frame or NULL: values of some variates conditional on
-which we want the probabilities}
+\item{X}{matrix or data.frame or NULL: values of some variates conditional on which we want the probabilities.}
 
 \item{learnt}{Either a string with the name of a directory or full path
-for an 'learnt.rds' object, or such an object itself}
+for an 'learnt.rds' object, or such an object itself.}
 
 \item{nsamples}{numeric: number of samples from which to approximately
 calculate the mutual information. Default 3600}
 
-\item{unit}{Either one of 'Sh' (default), 'Hart', 'nat', or a positive real}
+\item{unit}{Either one of 'Sh' for \emph{shannon} (default), 'Hart' for \emph{hartley}, 'nat' for \emph{natural unit}, or a positive real indicating the base of the logarithms to be used.}
 
 \item{parallel, }{logical or numeric: whether to use pre-existing parallel
-workers, or how many to create and use}
+workers, or how many to create and use.}
 
-\item{silent}{logical: give warnings or updates in the computation}
+\item{silent}{logical: give warnings or updates in the computation?}
 }
 \value{
-A list with the mutual information, its error, and its unit
+A list consisting of the elements \code{MI}, \code{CondEn12}, \code{CondEn21}, \code{En1}, \code{En2}, \code{MImax}, \code{unit}, \code{Y1names}, \code{Y1names}. All elements except \code{unit}, \code{Y1names}, \code{Y2names} are a vector of \code{value} and \code{error}. Element \code{MI} is the mutual information between (joint) variates \code{Y1names} and (joint) variates \code{Y2names}. Element\code{CondEn12} is the conditional entropy of the first variate given the second, and vice versa for \code{CondEn21}. Elements \code{En1} and \code{En1} are the (differential) entropies of the first and second variates. Element \code{MImax} is the maximum possible value of the mutual information. Elements \code{unit}, \code{Y1names}, \code{Y2names} are identical to the same inputs.
 }
 \description{
-Calculate mutual information between groups of joint variates
+This function calculates various entropic information measures of two variates (each variate may consist of joint variates): the mutual information, the conditional entropies, and the entropies.
 }

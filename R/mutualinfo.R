@@ -1,19 +1,20 @@
 #' Calculate mutual information between groups of joint variates
 #'
+#' This function calculates various entropic information measures of two variates (each variate may consist of joint variates): the mutual information, the conditional entropies, and the entropies.
+#'
 #' @param Y1names String vector: first group of joint variates
 #' @param Y2names String vector or NULL: second group of joint variates
-#' @param X matrix or data.frame or NULL: values of some variates conditional on
-#'   which we want the probabilities
+#' @param X matrix or data.frame or NULL: values of some variates conditional on which we want the probabilities.
 #' @param learnt Either a string with the name of a directory or full path
-#'   for an 'learnt.rds' object, or such an object itself
+#'   for an 'learnt.rds' object, or such an object itself.
 #' @param nsamples numeric: number of samples from which to approximately
 #'   calculate the mutual information. Default 3600
-#' @param unit Either one of 'Sh' (default), 'Hart', 'nat', or a positive real
+#' @param unit Either one of 'Sh' for *shannon* (default), 'Hart' for *hartley*, 'nat' for *natural unit*, or a positive real indicating the base of the logarithms to be used.
 #' @param parallel, logical or numeric: whether to use pre-existing parallel
-#'   workers, or how many to create and use
-#' @param silent logical: give warnings or updates in the computation
+#'   workers, or how many to create and use.
+#' @param silent logical: give warnings or updates in the computation?
 #'
-#' @return A list with the mutual information, its error, and its unit
+#' @return A list consisting of the elements `MI`, `CondEn12`, `CondEn21`, `En1`, `En2`, `MImax`, `unit`, `Y1names`, `Y1names`. All elements except `unit`, `Y1names`, `Y2names` are a vector of `value` and `error`. Element `MI` is the mutual information between (joint) variates `Y1names` and (joint) variates `Y2names`. Element`CondEn12` is the conditional entropy of the first variate given the second, and vice versa for `CondEn21`. Elements `En1` and `En1` are the (differential) entropies of the first and second variates. Element `MImax` is the maximum possible value of the mutual information. Elements `unit`, `Y1names`, `Y2names` are identical to the same inputs.
 #'
 #' @export
 mutualinfo <- function(
@@ -581,11 +582,15 @@ mutualinfo <- function(
 
     out[, -1] <- out[, -1] - c(logjacobians1, logjacobians2)/log(base)
 
+    out <- unlist(apply(rbind(
+        value = colMeans(out, na.rm = TRUE),
+        error = apply(out, 2, sd, na.rm = TRUE)/sqrt(n)
+    ), 2, list), recursive = FALSE)
+
+    mmax <- paste0('En', which.min(c(out$En1['value'], out$En2['value'])) )
+
     c(
-        unlist(apply(rbind(
-            value = colMeans(out, na.rm = TRUE),
-            error = apply(out, 2, sd, na.rm = TRUE)/sqrt(n)
-        ), 2, list), recursive = FALSE),
-        list(Y1names = Y1names, Y2names = Y2names, unit = unit)
+        out,
+        list(MImax = out[[mmax]], unit = unit, Y1names = Y1names, Y2names = Y2names)
     )
 }
