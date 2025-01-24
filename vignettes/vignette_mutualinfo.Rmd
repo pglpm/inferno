@@ -75,7 +75,61 @@ Mutual information is measured in *shannons* (symbol $\mathrm{Sh}$), or *hartley
 
 The value of the mutual information between two variates has an operational meaning and interpretation. To understand it we must first summarize the meaning of the *Shannon information* as a measure of uncertainty or of acquired information.
 
-A value of $s$ shannons represents the uncertainty equivalent to not knowing which among $2^s$ possible alternatives is the true one. For instance, $3\,\mathrm{Sh}$ represent being uncertain among 8 equally possible alternatives; $1.58\,\mathrm{Sh}$ represent being uncertain among 3 equally possible alternatives. If a clinician is uncertain about which disease, among four equally possible ones, affects a patient, then the clinician's uncertainty is $2\,\mathrm{Sh}$.
+A value of $s$ shannons represents the uncertainty *equivalent* to not knowing which among $2^s$ possible alternatives is the true one. So $1\,\mathrm{Sh}$ represents the uncertainty between two equally possible cases, like the outcome of a coin toss. Other examples: $3\,\mathrm{Sh}$ represent being uncertain among 8 equally possible alternatives; $1.58\,\mathrm{Sh}$ represent being uncertain among 3 equally possible alternatives. If a clinician is uncertain about which disease, among four equally possible ones, affects a patient, then the clinician's uncertainty is $2\,\mathrm{Sh}$.
+
+The "equivalence" in the definition above reflects the fact that some possibilities may have higher probabilities than others. For instance, if there are three alternatives but one of them has 0% probability, then our uncertainty is $1\,\mathrm{Sh}$, the same as for *two* equally possible alternatives. If there are three possibilities with probabilities 11.4%, 11.4%, and 77.2%, then the uncertainty is approximately $1\,\mathrm{Sh}$: as if there were only two alternatives; this is because one alternative has much higher probability than the other two.
+
+\
+
+Back to mutual information: If the mutual information between $X$ and $Y$ amounts to $h\,\mathrm{Sh}$, then knowledge of $X$  reduces, on average, $2^h$ times the number of uncertain possibilities of $Y$. For example, suppose that a clinician is uncertain about four possible diseases in a diagnosis (uncertainty of $2\,\mathrm{Sh}$), but there is a particular clinical indicator that associated with the disease. If the mutual information between the indicator and the disease  is $1\,\mathrm{Sh}$, then the clinician will be roughly uncertain about two possible diseases, rather than four, upon testing the clinical indicator. If the mutual information were $2\,\mathrm{Sh}$ instead, then the indicator would tell the disease with certainty.
+
+\
+
+You might think: "the value of mutual information is difficult to interpret". But this is only a matter of getting familiar with it, by using it. Remember how difficult it was to get a feeling of what a particular value of the Pearson correlation $r$ really meant, when you first learned it. You developed an intuitive understanding of its range of values simply by using it. The same holds for mutual information.
+
+\
+
+For further discussion about mutual information and entropic measures of association, take a look at [*Information, relevance, independence, association*](https://pglpm.github.io/ADA511/information.html) and the references given there.
+
+
+## Function for the calculation of mutual information between variates
+
+The software offers the function `mutualinfo()` to calculate the mutual information between a set of joint variates $Y_1$ and another set $Y_2$. It requires at least three arguments:
+
+- `Y1names`: a vector the names (strings) of the variates in the first set;
+- `Y2names`: a vector the names of the variates in the second set;
+- `learnt`: the knowledge acquired from the dataset, calculated with the `learn()` function.
+
+It may be useful to specify two more arguments:
+
+- `parallel`: the number of CPUs to use for the computation;
+- `nsamples`: the number of samples to use for the computation of the mutual information (default 3600).
+
+The output of this function is a list of several entropic measures and other information. For this example we can focus on two outputs:
+
+- `$MI`: a vector of two numbers: `value` is the value of the mutual information in shannons; `error` is the numerical error in this value (coming from the Monte Carlo calculation).
+- 
+
+
+
+
+### Example
+
+As an example, let's take the dataset and inference problem discussed in the vignette [*Example of use: inferences for Parkinson's Disease*](vignette_parkinson.html).
+
+Suppose we want to quantify the association between the treatment group of a patient and the effect of the treatment. The treatment group is given by the `TreatmentGroup` binary variate, and the effect is quantified by the difference in MDS-UPDRS-III scores between the first and second visits, in the variate `diff.MDS.UPRS.III`. We use the knowledge calculated and saved in the `learnt.rds` file.
+
+The mutual information between `TreatmentGroup` and `diff.MDS.UPRS.III` is
+```{r}
+mutualinfoGroupEffect <- mutualinfo(
+    Y1names = 'diff.MDS.UPRS.III',
+    Y2names = 'TreatmentGroup',
+    learnt = 'learnt.rds',
+    parallel = 12
+)
+
+mutualinfoGroupEffect$MI
+```
 
 
 *(TO BE CONTINUED)*
