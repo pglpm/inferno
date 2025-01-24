@@ -119,6 +119,42 @@ is not linear:</p>
 Similar limitations of the Pearson correlation coefficient are
 demonstrated by the <a href="https://doi.org/10.2307/2682899" class="external-link">“Anscombe
 quartet”</a> of datasets.</p>
+<p>In the case of two variates, the limitations and possibly misleading
+value of the Pearson correlation coefficient may not be a serious
+problem, because we can visually inspect the relation and association
+between the variates. But in dealing with multi-dimensional variates,
+visualization is not possible and we must rely on the numerical values
+of the measure we use to quantify “association”. In such cases the
+Pearson correlation coefficient can be highly misleading, and let us
+conclude that there’s no association when actually there’s a very strong
+one. Considering that our world is highly non-linear, this possibility
+is far from remote.</p>
+<p><br></p>
+<p>But there is a measure of association that does not suffer from the
+limitations discussed above: the <strong>mutual information</strong>
+between
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>X</mi><annotation encoding="application/x-tex">X</annotation></semantics></math>
+and
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>Y</mi><annotation encoding="application/x-tex">Y</annotation></semantics></math>.
+It has in fact the following important properties:</p>
+<ul>
+<li><p>If there is no association whatever between
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>X</mi><annotation encoding="application/x-tex">X</annotation></semantics></math>
+and
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>Y</mi><annotation encoding="application/x-tex">Y</annotation></semantics></math>,
+in the sense that knowledge of one never changes our probabilities about
+the other, then the mutual information between them is zero.</p></li>
+<li><p>If
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>X</mi><annotation encoding="application/x-tex">X</annotation></semantics></math>
+and
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>Y</mi><annotation encoding="application/x-tex">Y</annotation></semantics></math>
+have a perfect association, that is, if knowing
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>X</mi><annotation encoding="application/x-tex">X</annotation></semantics></math>
+gives us perfect knowledge about
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>Y</mi><annotation encoding="application/x-tex">Y</annotation></semantics></math>
+or vice versa, then the mutual information between them takes on its
+maximal possible value.</p></li>
+</ul>
 <p><em>(TO BE CONTINUED)</em></p>
 </div>
   </main>
