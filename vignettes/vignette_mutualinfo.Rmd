@@ -45,6 +45,16 @@ plot(x = X, y = Y, type = 'p', main = paste0('Pearson correlation: ', signif(r, 
 ```
 Similar limitations of the Pearson correlation coefficient are demonstrated by the ["Anscombe quartet"](https://doi.org/10.2307/2682899) of datasets.
 
+In the case of two variates, the limitations and possibly misleading value of the Pearson correlation coefficient may not be a serious problem, because we can visually inspect the relation and association between the variates. But in dealing with multi-dimensional variates, visualization is not possible and we must rely on the numerical values of the measure we use to quantify "association". In such cases the Pearson correlation coefficient can be highly misleading, and let us conclude that there's no association when actually there's a very strong one. Considering that our world is highly non-linear, this possibility is far from remote.
+
+\
+
+But there is a measure of association that does not suffer from the limitations discussed above: the **mutual information** between $X$ and $Y$. It has in fact the following important properties:
+
+- If there is no association whatever between $X$ and $Y$, in the sense that knowledge of one never changes our probabilities about the other, then the mutual information between them is zero.
+
+- If $X$ and $Y$ have a perfect association, that is, if knowing $X$ gives us perfect knowledge about $Y$ or vice versa, then the mutual information between them takes on its maximal possible value.
+
 
 
 *(TO BE CONTINUED)*
