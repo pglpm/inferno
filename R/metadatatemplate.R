@@ -586,7 +586,7 @@ metadatatemplate <- function(
             }
         }
                                         # Save the file
-        write.csv(metadata, file, row.names = FALSE, quote = FALSE, na = '')
+        write.csv(metadata, file, row.names = FALSE, quote = TRUE, na = '')
         cat('\nSaved proposal metadata file as', paste0('"', file, '"'), '\n')
 
     } else {
