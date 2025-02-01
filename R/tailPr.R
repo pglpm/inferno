@@ -437,7 +437,8 @@ tailPr <- function(
     ## transform to grid
         out$samples <- out$samples
         dim(out$samples) <- c(nY, nX, nsamples)
-        dimnames(out$samples) <- list(Y = NULL, X = NULL, sampleseq)
+        dimnames(out$samples) <- list(Y = NULL, X = NULL,
+            round(seq(1, nmcsamples, length.out = nsamples)))
     }
 
     if(!is.null(quantiles)){
