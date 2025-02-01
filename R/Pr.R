@@ -155,11 +155,11 @@ Pr <- function(
 
         doquantiles <- FALSE
         if(!is.null(quantiles)) {
-            message('For the moment, ',
-                'computation of quantiles is affected by a larger error',
-                'if "priorY" is specified.')
+            ## message('For the moment, ',
+            ##     'computation of quantiles is affected by a larger error',
+            ##     'if "priorY" is specified.')
             nsamples0 <- nsamples
-            nsamples <- max(nsamples0, 360)
+            nsamples <- max(nsamples0, 1200L)
         }
 
         ## if priorY is TRUE, the user wants a uniform prior distribution
