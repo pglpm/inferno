@@ -180,7 +180,7 @@ plot.probability <- function(
         (variability == 'quantiles' && is.null(p$quantiles)) ||
             (variability == 'samples' && is.null(p$samples))
         ) {
-            warning('Requested variability not available. Omitting its plot.')
+            message('Requested variability not available. Omitting its plot.')
             variability <- 'none'
         }
     }
@@ -228,12 +228,14 @@ plot.probability <- function(
         x <- p$Y
         leg <- p$X
         tempxlab <- 'Y'
+        prlab <- ' of '
     } else {
         x <- p$X
         leg <- p$Y
         tempxlab <- 'X'
         p$values <- t(p$values)
-        pvar <- aperm(pvar, c(2, 1, 3))
+        if(!is.null(pvar)){ pvar <- aperm(pvar, c(2, 1, 3)) }
+        prlab <- ' given '
     }
 
     ## If the abscissa has more than one variate,
@@ -256,9 +258,9 @@ plot.probability <- function(
 
     if(is.null(xlab)){xlab <- tempxlab}
     if(is.null(ylab)){
-        ylab <- 'probability'
+        ylab <- paste0('Pr', prlab, xlab)
         if(variability == 'quantiles'){
-            ylab <- paste0(ylab, ' (variab. ',
+            ylab <- paste0(ylab, '  (variab. ',
                 paste0(round(qnames, 1), '%', collapse = ', '),
                 ')')
         }
@@ -267,10 +269,10 @@ plot.probability <- function(
     ## Plot the variability first
     ## find maximum and minimum y-value first, if needed
     if(is.na(ylim[2])){
-        ylim[2] <- max(pvar)
+        ylim[2] <- max(pvar, p$values)
     }
     if(is.na(ylim[1])){
-        ylim[1] <- min(pvar)
+        ylim[1] <- min(pvar, p$values)
     }
     if(variability == 'quantiles' && length(p$values) > 1){
         for(i in seq_len(dim(pvar)[2])){
