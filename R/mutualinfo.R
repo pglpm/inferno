@@ -416,7 +416,7 @@ mutualinfo <- function(
 #### STEP 1. Draw samples of Y (that is, Y1,Y2)
 
     ## Y is drawn as follows, for each MC sample:
-    ## 1. draw a component, according to its probability
+    ## 1. draw a mixture component, according to its probability
     ## 2. draw from the appropriate kernel distributions
     ## using the parameters of that component
 

@@ -1,13 +1,14 @@
 #' Calculate posterior probabilities
 #'
-#' This function calculates the probability P(Y | X, data), where Y and X are two (non overlapping) sets of joint variates. The function also gives quantiles about the possible variability of the probability P(Y | X, newdata, data) that we could have if more learning data were provided, as well as a number of samples of the possible values of such probabilities. If several joint values are given for Y or X, the function will create a 2D grid of results for all possible compbinations of the given Y and X values.
+#' This function calculates the probability P(Y | X, data), where Y and X are two (non overlapping) sets of joint variates. The function also gives quantiles about the possible variability of the probability P(Y | X, newdata, data) that we could have if more learning data were provided, as well as a number of samples of the possible values of such probabilities. If several joint values are given for Y or X, the function will create a 2D grid of results for all possible compbinations of the given Y and X values. This function also allows for base-rate or other prior-probability corrections: If a prior (for instance, a base rate) for Y is given, the function will calculate the P(Y | X, data, prior) from P(X | Y, data) and the prior by means of Bayes's theorem.
 #'
 #' @param Y matrix or data.table: set of values of variates of which we want
 #'   the joint probability of. One variate per column, one set of values per row.
 #' @param X matrix or data.table or `NULL`: set of values of variates on which we want to condition the joint probability of `Y`. If `NULL` (default), no conditioning is made (except for conditioning on the learning dataset and prior assumptions). One variate per column, one set of values per row.
 #' @param learnt Either a string with the name of a directory or full path for a 'learnt.rds' object, produced by the \code{\link{learn}} function, or such an object itself.
-#' @param quantiles numeric vector, between 0 and 1, or `NULL`: desired quantiles of the variability of the probability for `Y`. Default `c(0.055, 0.25, 0.75, 0.945)`, that is, the 5.5%, 25%, 75%, 94.5% quantiles (these are typical quantile values in the Bayesian literature: they give 50% and 89% credibility intervals, which correspond to 1 shannons and 0.5 shannons of uncertainty). If `NULL`, no quantiles are calculated.
+#' @param priorY numeric vector with the same length as the rows of `Y`, or `TRUE`, or `NULL` (default): prior probabilities or base rates for the `Y` values. If `TRUE`, the prior probabilities are assumed to be all equal.
 #' @param nsamples integer or `NULL` or `"all"`: desired number of samples of the variability of the probability for `Y`. If `NULL`, no samples are reported. If `"all"` (or `Inf`), all samples obtained by the \code{\link{learn}} function are used. Default `100`.
+#' @param quantiles numeric vector, between 0 and 1, or `NULL`: desired quantiles of the variability of the probability for `Y`. Default `c(0.055, 0.25, 0.75, 0.945)`, that is, the 5.5%, 25%, 75%, 94.5% quantiles (these are typical quantile values in the Bayesian literature: they give 50% and 89% credibility intervals, which correspond to 1 shannons and 0.5 shannons of uncertainty). If `NULL`, no quantiles are calculated.
 #' @param parallel logical or integer: whether to use pre-existing parallel
 #'   workers, or how many to create and use. Default `TRUE`.
 #' @param silent logical: give warnings or updates in the computation?
@@ -25,8 +26,9 @@ Pr <- function(
     Y,
     X = NULL,
     learnt,
-    quantiles = c(0.055, 0.25, 0.75, 0.945),
+    priorY = NULL,
     nsamples = 100L,
+    quantiles = c(0.055, 0.25, 0.75, 0.945),
     parallel = TRUE,
     silent = TRUE,
     usememory = TRUE,
@@ -130,6 +132,57 @@ Pr <- function(
         stop('X must be NULL or have two dimensions')
     }
 
+    if(is.numeric(nsamples)){
+        if(is.na(nsamples) || nsamples < 1) {
+            nsamples <- NULL
+        } else if(!is.finite(nsamples)) {
+            nsamples <- nmcsamples
+        }
+    } else if (is.character(nsamples) && nsamples == 'all'){
+        nsamples <- nmcsamples
+    }
+
+    ## if(!is.null(nsamples)){
+    ##     sampleseq <- round(seq(1, nmcsamples, length.out = nsamples))
+    ## }
+
+    ## Check if a prior for Y is given, in that case Y and X will be swapped
+    if (isFALSE(priorY) || is.null(priorY)) {
+        priorY <- NULL
+        doquantiles <- !is.null(quantiles)
+    } else {
+        if(is.null(X)){ stop('X must be non-null if priorY is given') }
+
+        if(!isTRUE(priorY) && length(priorY) != nrow(Y)) {
+            stop('priorY must have as many elements a the rows of Y')
+        }
+
+        doquantiles <- FALSE
+        if(!is.null(quantiles)) {
+            message('For the moment, ',
+                'computation of quantiles is affected by a larger error',
+                'if "priorY" is specified.')
+            nsamples0 <- nsamples
+            nsamples <- max(nsamples0, 360)
+        }
+
+        ## if priorY is TRUE, the user wants a uniform prior distribution
+        if(isTRUE(priorY)){
+            priorY <- 1 + numeric(nrow(Y))
+        } else {
+            ## Check for invalid probabilities
+            if (!is.numeric(priorY) || any(priorY < 0)) {
+                stop('priorY contains invalid probabilities')
+            }
+        }
+
+        ## Swap X and Y, to use Bayes's theorem
+        . <- Y
+        Y <- X
+        X <- .
+        rm(.)
+    }
+
     ## More consistency checks
     Yv <- colnames(Y)
     if (!all(Yv %in% auxmetadata$name)) {
@@ -150,6 +203,7 @@ Pr <- function(
     if (length(intersect(Yv, Xv)) > 0) {
         stop('overlap in Y and X variates\n')
     }
+
 
     nY <- nrow(Y)
     nX <- max(nrow(X), 1L)
@@ -346,23 +400,9 @@ Pr <- function(
     ##     na.rm = TRUE
     ## ))
 
-    if(is.numeric(nsamples)){
-        if(is.na(nsamples) || nsamples < 1) {
-            nsamples <- NULL
-        } else if(!is.finite(nsamples)) {
-            nsamples <- nmcsamples
-        }
-    } else if (is.character(nsamples) && nsamples == 'all'){
-        nsamples <- nmcsamples
-    }
-
-    if(!is.null(nsamples)){
-        sampleseq <- round(seq(1, nmcsamples, length.out = nsamples))
-    }
-
     keys <- c('values',
-        if(!is.null(quantiles)){'quantiles'},
-        if(!is.null(nsamples)) {'samples'}
+        if(!is.null(nsamples)) {'samples'},
+        if(doquantiles){'quantiles'}
     )
     ##
     combfnr <- function(...){setNames(do.call(mapply,
@@ -397,59 +437,104 @@ Pr <- function(
                     ))
                 }
 
-                FF <- colSums(exp(lprobX + lprobY)) / colSums(exp(lprobX))
-                FF <- FF[!is.na(FF)]
+                FF <- colSums(exp(lprobX + lprobY), na.rm = TRUE) /
+                    colSums(exp(lprobX), na.rm = TRUE)
 
                 list(
                     values = mean(FF, na.rm = TRUE),
                     ##
-                    quantiles = (if(!is.null(quantiles)) {
-                        quantile(FF, probs = quantiles, type = 6,
-                            na.rm = TRUE, names = FALSE)
+                    samples = (if(!is.null(nsamples)) {
+                        FF <- FF[!is.na(FF)]
+                        FF[round(seq(1, length(FF), length.out = nsamples))]
                     }),
                     ##
-                    samples = (if(!is.null(nsamples)) {
-                        FF[sampleseq]
+                    quantiles = (if(doquantiles) {
+                        quantile(FF, probs = quantiles, type = 6,
+                            na.rm = TRUE, names = FALSE)
                     })
                     ##
                     ## error = sd(FF, na.rm = TRUE)/sqrt(nmcsamples)
                 )
             } # End foreach over Y and X
 
-    jacobians <- exp(rowSums(
-        as.matrix(vtransform(Y,
-            auxmetadata = auxmetadata,
-            logjacobianOr = TRUE)),
-        na.rm = TRUE
-    ))
-
-    ## multiply by jacobian factors
-    out$values <- out$values * jacobians
+    if(is.null(priorY)){
+        jacobians <- exp(rowSums(
+            as.matrix(vtransform(Y,
+                auxmetadata = auxmetadata,
+                logjacobianOr = TRUE)),
+            na.rm = TRUE
+        ))
+    }
 
     ## transform to grid
     ## in the output-list elements the Y & X values are the rows
     dim(out$values) <- c(nY, nX)
+
+    if(is.null(priorY)){
+        ## multiply by jacobian factors
+        out$values <- out$values * jacobians
+    } else {
+        ## Bayes's theorem
+        out$values <- t(priorY * t(out$values))
+        normf <- rowSums(out$values, na.rm = TRUE)
+        out$values <- t(out$values/normf)
+    }
     dimnames(out$values) <- list(Y = NULL, X = NULL)
 
-    if(!is.null(quantiles)){
-        out$quantiles <- out$quantiles * jacobians
-        temp <- names(quantile(1, probs = quantiles, names = TRUE))
+    if(!is.null(nsamples)){
         ## transform to grid
-        dim(out$quantiles) <- c(nY, nX, length(quantiles))
+        dim(out$samples) <- c(nY, nX, nsamples)
+
+        if(is.null(priorY)){
+            ## multiply by jacobian factors
+            out$samples <- out$samples * jacobians
+        } else {
+            ## Bayes's theorem
+            out$samples <- priorY * aperm(out$samples, c(2,1,3))
+            normf <- c(t(colSums(out$samples, na.rm = TRUE)))
+            out$samples <- aperm(aperm(out$samples)/normf)
+        }
+
+        dimnames(out$samples) <- list(Y = NULL, X = NULL,
+            round(seq(1, nmcsamples, length.out = nsamples)))
+    }
+
+    if(!is.null(quantiles)){
+        if(is.null(priorY)){
+            ## transform to grid
+            dim(out$quantiles) <- c(nY, nX, length(quantiles))
+            ## multiply by jacobian factors
+            out$quantiles <- out$quantiles * jacobians
+        } else {
+            ## calculate quantiles from samples
+            out$quantiles <- aperm(
+                apply(out$samples, c(1, 2), quantile,
+                    probs = quantiles, type = 6,
+                    na.rm = TRUE, names = FALSE),
+                c(2,3,1) )
+
+            ## adjust number of samples as originally requested
+            if(is.null(nsamples0)) {
+                out$samples <- NULL
+            } else if(nsamples0 < nsamples) {
+                out$samples <-out$samples[ , ,
+                    round(seq(1, nsamples, length.out = nsamples0))]
+            }
+        }
+
+        temp <- names(quantile(1, probs = quantiles, names = TRUE))
         dimnames(out$quantiles) <- list(Y = NULL, X = NULL, temp)
     }
 
-    if(!is.null(nsamples)){
-    ## transform to grid
-        out$samples <- out$samples * jacobians
-        dim(out$samples) <- c(nY, nX, nsamples)
-        dimnames(out$samples) <- list(Y = NULL, X = NULL, sampleseq)
-    }
-
     if(isTRUE(keepYX)){
-    ## save Y and X values in the output; useful for plotting methods
-        out$Y <- Y
-        out$X <- X
+        ## save Y and X values in the output; useful for plotting methods
+        if(is.null(priorY)){
+            out$Y <- Y
+            out$X <- X
+        } else {
+            out$Y <- X
+            out$X <- Y
+            }
     }
 
     out$lowertail = NA
