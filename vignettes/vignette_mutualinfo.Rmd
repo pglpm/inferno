@@ -69,7 +69,7 @@ plot(x = X, y = Y, type = 'p', main = 'max mutual information = min mutual infor
 
 \
 
-Mutual information is measured in *shannons* (symbol $\mathrm{Sh}$), or *hartleys* (symbol $\mathrm{1}$), or *natural units* (symbol $\mathrm{1}$). These units and other properties of the mutual information are [standardized by the International Organization for Standardization (ISO) and the International Electrotechnical Commission (IEC)](https://archive.org/details/iso-standards-collection/BS%20EN%2080000-13-2008%20-%201%20Quantities%20and%20units). The minimum possible value of the mutual information is always zero. The maximum possible value depends instead on the variates $X$ and $Y$.
+Mutual information is measured in *shannons* (symbol $\mathrm{Sh}$), or *hartleys* (symbol $\mathrm{Hart}$), or *natural units* (symbol $\mathrm{nat}$). These units and other properties of the mutual information are [standardized by the International Organization for Standardization (ISO) and the International Electrotechnical Commission (IEC)](https://archive.org/details/iso-standards-collection/BS%20EN%2080000-13-2008%20-%201%20Quantities%20and%20units). The minimum possible value of the mutual information is always zero. The maximum possible value depends instead on the variates $X$ and $Y$.
 
 ### Interpretation of the values of mutual information
 
