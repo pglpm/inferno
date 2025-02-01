@@ -120,6 +120,16 @@ Pr <- function(
     ncomponents <- nrow(learnt$W)
     nmcsamples <- ncol(learnt$W)
 
+    if(is.numeric(nsamples)){
+        if(is.na(nsamples) || nsamples < 1) {
+            nsamples <- NULL
+        } else if(!is.finite(nsamples)) {
+            nsamples <- nmcsamples
+        }
+    } else if (is.character(nsamples) && nsamples == 'all'){
+        nsamples <- nmcsamples
+    }
+
     ## Consistency checks
     if (length(dim(Y)) != 2) {
         stop('Y must have two dimensions')
@@ -131,20 +141,6 @@ Pr <- function(
     if (!is.null(X) && ncol(X) == 0) {
         stop('X must be NULL or have two dimensions')
     }
-
-    if(is.numeric(nsamples)){
-        if(is.na(nsamples) || nsamples < 1) {
-            nsamples <- NULL
-        } else if(!is.finite(nsamples)) {
-            nsamples <- nmcsamples
-        }
-    } else if (is.character(nsamples) && nsamples == 'all'){
-        nsamples <- nmcsamples
-    }
-
-    ## if(!is.null(nsamples)){
-    ##     sampleseq <- round(seq(1, nmcsamples, length.out = nsamples))
-    ## }
 
     ## Check if a prior for Y is given, in that case Y and X will be swapped
     if (isFALSE(priorY) || is.null(priorY)) {
