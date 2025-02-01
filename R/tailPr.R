@@ -6,8 +6,8 @@
 #'   the joint probability of. One variate per column, one set of values per row.
 #' @param X matrix or data.table or `NULL`: set of values of variates on which we want to condition the joint probability of `Y`. If `NULL` (default), no conditioning is made (except for conditioning on the learning dataset and prior assumptions). One variate per column, one set of values per row.
 #' @param learnt Either a string with the name of a directory or full path for a 'learnt.rds' object, produced by the \code{\link{learn}} function, or such an object itself.
-#' @param quantiles numeric vector, between 0 and 1, or `NULL`: desired quantiles of the variability of the probability for `Y`. Default `c(0.055, 0.25, 0.75, 0.945)`, that is, the 5.5%, 25%, 75%, 94.5% quantiles (these are typical quantile values in the Bayesian literature: they give 50% and 89% credibility intervals, which correspond to 1 shannons and 0.5 shannons of uncertainty). If `NULL`, no quantiles are calculated.
 #' @param nsamples integer or `NULL` or `"all"`: desired number of samples of the variability of the probability for `Y`. If `NULL`, no samples are reported. If `"all"` (or `Inf`), all samples obtained by the \code{\link{learn}} function are used. Default `100`.
+#' @param quantiles numeric vector, between 0 and 1, or `NULL`: desired quantiles of the variability of the probability for `Y`. Default `c(0.055, 0.25, 0.75, 0.945)`, that is, the 5.5%, 25%, 75%, 94.5% quantiles (these are typical quantile values in the Bayesian literature: they give 50% and 89% credibility intervals, which correspond to 1 shannons and 0.5 shannons of uncertainty). If `NULL`, no quantiles are calculated.
 #' @param parallel logical or integer: whether to use pre-existing parallel
 #'   workers, or how many to create and use. Default `TRUE`.
 #' @param eq logical: include `Y = y` in the cumulative probability? Default `TRUE`.
@@ -27,8 +27,8 @@ tailPr <- function(
     Y,
     X = NULL,
     learnt,
-    quantiles = c(0.055, 0.25, 0.75, 0.945),
     nsamples = 100L,
+    quantiles = c(0.055, 0.25, 0.75, 0.945),
     parallel = TRUE,
     eq = TRUE,
     lower.tail = TRUE,
@@ -121,6 +121,16 @@ tailPr <- function(
     learnt$auxinfo <- NULL
     ncomponents <- nrow(learnt$W)
     nmcsamples <- ncol(learnt$W)
+
+    if(is.numeric(nsamples)){
+        if(is.na(nsamples) || nsamples < 1) {
+            nsamples <- NULL
+        } else if(!is.finite(nsamples)) {
+            nsamples <- nmcsamples
+        }
+    } else if (is.character(nsamples) && nsamples == 'all'){
+        nsamples <- nmcsamples
+    }
 
     ## Consistency checks
     if (length(dim(Y)) != 2) {
@@ -360,23 +370,9 @@ tailPr <- function(
     ##     na.rm = TRUE
     ## ))
 
-    if(is.numeric(nsamples)){
-        if(is.na(nsamples) || nsamples < 1) {
-            nsamples <- NULL
-        } else if(!is.finite(nsamples)) {
-            nsamples <- nmcsamples
-        }
-    } else if (is.character(nsamples) && nsamples == 'all'){
-        nsamples <- nmcsamples
-    }
-
-    if(!is.null(nsamples)){
-        sampleseq <- round(seq(1, nmcsamples, length.out = nsamples))
-    }
-
     keys <- c('values',
-        if(!is.null(quantiles)){'quantiles'},
-        if(!is.null(nsamples)) {'samples'}
+        if(!is.null(nsamples)) {'samples'},
+        if(!is.null(quantiles)){'quantiles'}
     )
     ##
     combfnr <- function(...){setNames(do.call(mapply,
@@ -412,19 +408,20 @@ tailPr <- function(
                     ))
                 }
 
-                FF <- colSums(exp(lprobX + lprobY)) / colSums(exp(lprobX))
-                FF <- FF[!is.na(FF)]
+                FF <- colSums(exp(lprobX + lprobY), na.rm = TRUE) /
+                    colSums(exp(lprobX), na.rm = TRUE)
 
                 list(
                     values = mean(FF, na.rm = TRUE),
                     ##
+                    samples = (if(!is.null(nsamples)) {
+                        FF <- FF[!is.na(FF)]
+                        FF[round(seq(1, length(FF), length.out = nsamples))]
+                    }),
+                    ##
                     quantiles = (if(!is.null(quantiles)) {
                         quantile(FF, probs = quantiles, type = 6,
                             na.rm = TRUE, names = FALSE)
-                    }),
-                    ##
-                    samples = (if(!is.null(nsamples)) {
-                        FF[sampleseq]
                     })
                     ##
                     ## error = sd(FF, na.rm = TRUE)/sqrt(nmcsamples)
@@ -436,19 +433,19 @@ tailPr <- function(
     dim(out$values) <- c(nY, nX)
     dimnames(out$values) <- list(Y = NULL, X = NULL)
 
+    if(!is.null(nsamples)){
+    ## transform to grid
+        out$samples <- out$samples
+        dim(out$samples) <- c(nY, nX, nsamples)
+        dimnames(out$samples) <- list(Y = NULL, X = NULL, sampleseq)
+    }
+
     if(!is.null(quantiles)){
         out$quantiles <- out$quantiles
         temp <- names(quantile(1, probs = quantiles, names = TRUE))
         ## transform to grid
         dim(out$quantiles) <- c(nY, nX, length(quantiles))
         dimnames(out$quantiles) <- list(Y = NULL, X = NULL, temp)
-    }
-
-    if(!is.null(nsamples)){
-    ## transform to grid
-        out$samples <- out$samples
-        dim(out$samples) <- c(nY, nX, nsamples)
-        dimnames(out$samples) <- list(Y = NULL, X = NULL, sampleseq)
     }
 
     if(isTRUE(keepYX)){
