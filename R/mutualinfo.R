@@ -409,7 +409,7 @@ mutualinfo <- function(
                 nO = XnO, iO = XiO, tO = XtO,
                 nN = XnN, iN = XiN, tN = XtN,
                 nB = XnB, iB = XiB, tB = XtB
-            )
+            ) # rows=components, columns=samples
     } # end definition of lW if non-null X
 
 

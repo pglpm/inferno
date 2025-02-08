@@ -130,6 +130,9 @@ Pr <- function(
         nsamples <- nmcsamples
     }
 
+    Y <- as.data.frame(Y)
+    if(!is.null(X)){X <- as.data.frame(X)}
+
     ## Consistency checks
     if (length(dim(Y)) != 2) {
         stop('Y must have two dimensions')
