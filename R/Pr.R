@@ -227,6 +227,7 @@ Pr <- function(
         }
     }
 
+    dosamples <- !is.null(nsamples)
 
 
     ## #### Subsample and get ncomponents and nsamples
@@ -400,7 +401,7 @@ Pr <- function(
     ## ))
 
     keys <- c('values',
-        if(!is.null(nsamples)) {'samples'},
+        if(dosamples) {'samples'},
         if(doquantiles){'quantiles'}
     )
     ##
@@ -442,7 +443,7 @@ Pr <- function(
                 list(
                     values = mean(FF, na.rm = TRUE),
                     ##
-                    samples = (if(!is.null(nsamples)) {
+                    samples = (if(dosamples) {
                         FF <- FF[!is.na(FF)]
                         FF[round(seq(1, length(FF), length.out = nsamples))]
                     }),
@@ -480,7 +481,7 @@ Pr <- function(
     }
     dimnames(out$values) <- list(Y = NULL, X = NULL)
 
-    if(!is.null(nsamples)){
+    if(dosamples){
         ## transform to grid
         dim(out$samples) <- c(nY, nX, nsamples)
 
@@ -498,7 +499,7 @@ Pr <- function(
             round(seq(1, nmcsamples, length.out = nsamples)))
     }
 
-    if(!is.null(quantiles)){
+    if(doquantiles){
         if(is.null(priorY)){
             ## transform to grid
             dim(out$quantiles) <- c(nY, nX, length(quantiles))

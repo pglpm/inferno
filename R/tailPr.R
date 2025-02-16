@@ -191,7 +191,8 @@ tailPr <- function(
         }
     }
 
-
+    doquantiles <- !is.null(quantiles)
+    dosamples <- !is.null(nsamples)
 
     ## #### Subsample and get ncomponents and nsamples
     ##     ## source('mcsubset.R')
@@ -374,8 +375,8 @@ tailPr <- function(
     ## ))
 
     keys <- c('values',
-        if(!is.null(nsamples)) {'samples'},
-        if(!is.null(quantiles)){'quantiles'}
+        if(dosamples) {'samples'},
+        if(doquantiles){'quantiles'}
     )
     ##
     combfnr <- function(...){setNames(do.call(mapply,
@@ -417,12 +418,12 @@ tailPr <- function(
                 list(
                     values = mean(FF, na.rm = TRUE),
                     ##
-                    samples = (if(!is.null(nsamples)) {
+                    samples = (if(dosamples) {
                         FF <- FF[!is.na(FF)]
                         FF[round(seq(1, length(FF), length.out = nsamples))]
                     }),
                     ##
-                    quantiles = (if(!is.null(quantiles)) {
+                    quantiles = (if(doquantiles) {
                         quantile(FF, probs = quantiles, type = 6,
                             na.rm = TRUE, names = FALSE)
                     })
@@ -436,15 +437,14 @@ tailPr <- function(
     dim(out$values) <- c(nY, nX)
     dimnames(out$values) <- list(Y = NULL, X = NULL)
 
-    if(!is.null(nsamples)){
+    if(dosamples){
     ## transform to grid
-        out$samples <- out$samples
         dim(out$samples) <- c(nY, nX, nsamples)
         dimnames(out$samples) <- list(Y = NULL, X = NULL,
             round(seq(1, nmcsamples, length.out = nsamples)))
     }
 
-    if(!is.null(quantiles)){
+    if(doquantiles){
         out$quantiles <- out$quantiles
         temp <- names(quantile(1, probs = quantiles, names = TRUE))
         ## transform to grid
