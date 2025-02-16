@@ -153,6 +153,7 @@ plot.probability <- function(
     xlab = NULL,
     ylab = NULL,
     ylim = c(0, NA),
+    grid = TRUE,
     add = FALSE,
     ...
 ){
@@ -282,6 +283,7 @@ plot.probability <- function(
                 xlab = xlab,
                 ylab = ylab,
                 ylim = ylim,
+                grid = grid,
                 add = (add || i > 1),
                 ...)
             add <- TRUE
@@ -298,6 +300,7 @@ plot.probability <- function(
             xlab = xlab,
             ylab = ylab,
             ylim = ylim,
+            grid = grid,
             add = add,
             ...)
         add <- TRUE
@@ -312,6 +315,7 @@ plot.probability <- function(
             xlab = xlab,
             ylab = ylab,
             ylim = ylim,
+            grid = grid,
             add = add,
             ...)
 

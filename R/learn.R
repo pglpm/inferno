@@ -81,7 +81,7 @@ learn <- function(
     maxhours = +Inf,
     ncheckpoints = NULL,
     relerror = 0.05,
-    prior = missing(data),
+    prior = missing(data) || is.null(data),
     thinning = NULL,
     plottraces = TRUE,
     showKtraces = FALSE,

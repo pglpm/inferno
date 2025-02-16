@@ -15,6 +15,7 @@
   xlab = NULL,
   ylab = NULL,
   ylim = c(0, NA),
+  grid = TRUE,
   add = FALSE,
   ...
 )
