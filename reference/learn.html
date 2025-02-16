@@ -64,7 +64,7 @@
 <span>  maxhours <span class="op">=</span> <span class="op">+</span><span class="cn">Inf</span>,</span>
 <span>  ncheckpoints <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  relerror <span class="op">=</span> <span class="fl">0.05</span>,</span>
-<span>  prior <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/missing.html" class="external-link">missing</a></span><span class="op">(</span><span class="va">data</span><span class="op">)</span>,</span>
+<span>  prior <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/missing.html" class="external-link">missing</a></span><span class="op">(</span><span class="va">data</span><span class="op">)</span> <span class="op">||</span> <span class="fu"><a href="https://rdrr.io/r/base/NULL.html" class="external-link">is.null</a></span><span class="op">(</span><span class="va">data</span><span class="op">)</span>,</span>
 <span>  thinning <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  plottraces <span class="op">=</span> <span class="cn">TRUE</span>,</span>
 <span>  showKtraces <span class="op">=</span> <span class="cn">FALSE</span>,</span>
