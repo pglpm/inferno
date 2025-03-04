@@ -1,6 +1,6 @@
 <img src="https://github.com/pglpm/inferno/raw/main/development/manual/inferno_symbol.png" alt="Ensemble of densities" width="100%"/>
 
-# *Infe*rence in *R* with Bayesian *no*nparametrics
+# ***Infe***rence in ***R*** with Bayesian ***no***nparametrics
 
 [![Documentation](https://img.shields.io/badge/Documentation-blue)](https://pglpm.github.io/inferno/)
 
