@@ -27,7 +27,7 @@
 
 \item{PvsY}{Logical or \code{NULL}: should probabilities be plotted against their \code{Y} argument? If \code{NULL}, the argument between \code{Y} and \code{X} having larger number of values is chosen. As many probability curves will be plotted as the number of values of the other argument.}
 
-\item{legend}{Logical: plot a legend of the different curves?}
+\item{legend}{String or logical: plot a legend of the different curves at position \code{legend}? If \code{TRUE}, position is 'top'.}
 
 \item{...}{Other parameters to be passed to \code{\link[base]{matplot}}.}
 }

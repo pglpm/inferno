@@ -138,7 +138,7 @@ plotquantiles <- function(
 #' @param p Object of class "probability", obtained with \code{\link{Pr}} or \code{\link{tailPr}}.
 #' @param variability One of the values `"quantiles"`, `"samples"`, `"none"` (equivalent to `NA` or `FALSE`), or `NULL` (default), in which case the variability available in `p` is used. This argument chooses how to represent the variability of the probability; see \code{\link{Pr}}. If the requested variability is not available in the object `p`, then a warning is issued and no variability is plotted.
 #' @param PvsY Logical or `NULL`: should probabilities be plotted against their `Y` argument? If `NULL`, the argument between `Y` and `X` having larger number of values is chosen. As many probability curves will be plotted as the number of values of the other argument.
-#' @param legend Logical: plot a legend of the different curves?
+#' @param legend String or logical: plot a legend of the different curves at position `legend`? If `TRUE`, position is 'top'.
 #' @param ... Other parameters to be passed to \code{\link[base]{matplot}}.
 #'
 #' @export
@@ -320,8 +320,9 @@ plot.probability <- function(
             ...)
 
         ## Plot legends
-        if(!is.null(leg) && legend){
-            graphics::legend(x = 'topright',
+        if(!is.null(leg) && !isFALSE(legend)){
+            if(isTRUE(legend)){legend <- 'top'}
+            graphics::legend(x = legend,
                 legend = apply(leg, 1, paste0, collapse = ', '),
                 bty = 'n',
                 col = col,
