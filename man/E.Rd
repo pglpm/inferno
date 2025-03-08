@@ -2,7 +2,7 @@
 % Please edit documentation in R/E.R
 \name{E}
 \alias{E}
-\title{Calculate posterior probabilities}
+\title{Calculate means and standard deviations}
 \usage{
 E(
   Ynames,
@@ -41,5 +41,5 @@ the joint probability of. One variate per column, one set of values per row.}
 A list of: (1) a matrix with the probabilities P(Y|X,data,assumptions), for all combinations of values of \code{Y} (rows) and \code{X} (columns); (2) an array with the variability quantiles (3rd dimension of the array) for such probabilities; (3) an array with the variability samples (3rd dimension of the array) for such probabilities.
 }
 \description{
-This function calculates the probability P(Y | X, data), where Y and X are two (non overlapping) sets of joint variates. The function also gives quantiles about the possible variability of the probability P(Y | X, newdata, data) that we could have if more learning data were provided, as well as a number of samples of the possible values of such probabilities. If several joint values are given for Y or X, the function will create a 2D grid of results for all possible compbinations of the given Y and X values.
+Under construction: this function is not working yet
 }

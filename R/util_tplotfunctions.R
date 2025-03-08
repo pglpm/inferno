@@ -135,11 +135,11 @@ plotquantiles <- function(
 #'
 #' This plot method is a utility to plot probabilities obtained with \code{\link{Pr}} or \code{\link{tailPr}}, as well as their uncertainties. The probabilities are plotted either against `Y`, with one curve for each value of `X`, or vice versa.
 #'
-#' @param p Object of class "probability", obtained with \code{\link{Pr}} or \code{\link{tailPr}}.
-#' @param variability One of the values `"quantiles"`, `"samples"`, `"none"` (equivalent to `NA` or `FALSE`), or `NULL` (default), in which case the variability available in `p` is used. This argument chooses how to represent the variability of the probability; see \code{\link{Pr}}. If the requested variability is not available in the object `p`, then a warning is issued and no variability is plotted.
-#' @param PvsY Logical or `NULL`: should probabilities be plotted against their `Y` argument? If `NULL`, the argument between `Y` and `X` having larger number of values is chosen. As many probability curves will be plotted as the number of values of the other argument.
-#' @param legend String or logical: plot a legend of the different curves at position `legend`? If `TRUE`, position is 'top'.
-#' @param ... Other parameters to be passed to \code{\link[base]{matplot}}.
+#' @param p object of class "probability", obtained with \code{\link{Pr}} or \code{\link{tailPr}}.
+#' @param variability one of the values `"quantiles"`, `"samples"`, `"none"` (equivalent to `NA` or `FALSE`), or `NULL` (default), in which case the variability available in `p` is used. This argument chooses how to represent the variability of the probability; see \code{\link{Pr}}. If the requested variability is not available in the object `p`, then a warning is issued and no variability is plotted.
+#' @param PvsY logical or `NULL`: should probabilities be plotted against their `Y` argument? If `NULL`, the argument between `Y` and `X` having larger number of values is chosen. As many probability curves will be plotted as the number of values of the other argument.
+#' @param legend string or logical: plot a legend of the different curves at position `legend`? If `TRUE`, position is 'top'.
+#' @param ... other parameters to be passed to \code{\link[base]{matplot}}.
 #'
 #' @export
 plot.probability <- function(

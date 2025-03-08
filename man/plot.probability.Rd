@@ -21,15 +21,15 @@
 )
 }
 \arguments{
-\item{p}{Object of class "probability", obtained with \code{\link{Pr}} or \code{\link{tailPr}}.}
+\item{p}{object of class "probability", obtained with \code{\link{Pr}} or \code{\link{tailPr}}.}
 
-\item{variability}{One of the values \code{"quantiles"}, \code{"samples"}, \code{"none"} (equivalent to \code{NA} or \code{FALSE}), or \code{NULL} (default), in which case the variability available in \code{p} is used. This argument chooses how to represent the variability of the probability; see \code{\link{Pr}}. If the requested variability is not available in the object \code{p}, then a warning is issued and no variability is plotted.}
+\item{variability}{one of the values \code{"quantiles"}, \code{"samples"}, \code{"none"} (equivalent to \code{NA} or \code{FALSE}), or \code{NULL} (default), in which case the variability available in \code{p} is used. This argument chooses how to represent the variability of the probability; see \code{\link{Pr}}. If the requested variability is not available in the object \code{p}, then a warning is issued and no variability is plotted.}
 
-\item{PvsY}{Logical or \code{NULL}: should probabilities be plotted against their \code{Y} argument? If \code{NULL}, the argument between \code{Y} and \code{X} having larger number of values is chosen. As many probability curves will be plotted as the number of values of the other argument.}
+\item{PvsY}{logical or \code{NULL}: should probabilities be plotted against their \code{Y} argument? If \code{NULL}, the argument between \code{Y} and \code{X} having larger number of values is chosen. As many probability curves will be plotted as the number of values of the other argument.}
 
-\item{legend}{String or logical: plot a legend of the different curves at position \code{legend}? If \code{TRUE}, position is 'top'.}
+\item{legend}{string or logical: plot a legend of the different curves at position \code{legend}? If \code{TRUE}, position is 'top'.}
 
-\item{...}{Other parameters to be passed to \code{\link[base]{matplot}}.}
+\item{...}{other parameters to be passed to \code{\link[base]{matplot}}.}
 }
 \description{
 This plot method is a utility to plot probabilities obtained with \code{\link{Pr}} or \code{\link{tailPr}}, as well as their uncertainties. The probabilities are plotted either against \code{Y}, with one curve for each value of \code{X}, or vice versa.
