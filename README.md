@@ -41,8 +41,8 @@ For a low-level course on Bayesian nonparametric population inference see [Found
 ## Inferno App
 An application has been built upon the Inferno software. This app can be used for testing out the features of the Inferno software with just a few button clicks, without having to write any code in R yourself. 
 
-### Windows Desktop Application
-* Download and install the desktop application for Windows by following this guide: [Inferno App Windows Release](https://github.com/h587916/Inferno-App/releases/tag/1.0.0).
+### Desktop Application
+* Currently available for Windows and MacOS. Download and install the desktop application by following this: [Installation Guide](https://github.com/h587916/Inferno-App/releases/tag/1.0.0).
 
 ### Cross-Platform Open Source Version
-* For Windows, macOS, and Linux, you can run the PySide6 app locally using Python by following this guide: [Inferno App GitHub Repository](https://github.com/h587916/Inferno-App?tab=readme-ov-file#inferno-app).
+* For Windows, macOS, and Linux, you can run the PySide6 app locally using Python by following this: [Setup Guide](https://github.com/h587916/Inferno-App?tab=readme-ov-file#inferno-app).
