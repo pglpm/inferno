@@ -172,16 +172,27 @@ learn <- function(
     }
 
 #### Consistency checks for numbers of samples, chains, cores
-    ## The defaults are 1200 samples from 120 chains, so 10 samples per chain
-    ## If the user changes any of these three,
-    ## the user must also take responsibility of changing one of the other two
-    ## in an appropriate way
+    ## The defaults are 3600 samples from 60 chains, so 60 samples per chain
+    ## The user can choose any two
+    ## nsamples = nchains * nsamplesperchain
 
-    if (!(missing(nsamples) && missing(nchains) &&
-              missing(nsamplesperchain)) &&
-            (!missing(nsamples) && !missing(nchains) &&
-                 !missing(nsamplesperchain))) {
-        ## The user set all these three arguments or only one
+    if(!missing(nchains) && !missing(nsamplesperchain) &&
+           missing(nsamples)){
+        nsamples <- nchains * nsamplesperchain
+    } else if (missing(nchains) && !missing(nsamplesperchain) &&
+                   !missing(nsamples)){
+        nchains <- ceiling(nsamples / nsamplesperchain)
+        nsamples <- nchains * nsamplesperchain
+        cat('Increasing number of samples to', nsamples,
+            'to comply with given "nsamplesperchain"\n')
+    } else if (!missing(nchains) && missing(nsamplesperchain) &&
+                   !missing(nsamples)){
+        nsamplesperchain <- ceiling(nsamples / nchains)
+        nsamples <- nchains * nsamplesperchain
+        cat('Increasing number of samples to', nsamples,
+            'to comply with given "nchains"\n')
+    } else if (!(missing(nchains) && missing(nsamplesperchain) &&
+                    missing(nsamples))){
         stop('Please specify exactly two among "nsamples", "nchains", "nsamplesperchain"')
     }
 
@@ -189,19 +200,8 @@ learn <- function(
     if(nchains < ncores) {
         ncores <- nchains
     }
-    ## Ineffective if some cores have fewer chains than others
-    nchainspercore <- ceiling(nchains / ncores)
-    if (nchainspercore * ncores > nchains) {
-        nchains <- nchainspercore * ncores
-        cat('Increasing number of chains to', nchains, 'for efficiency\n')
-    }
-    ## Ineffective to have chains with different required samples
-    nsamplesperchain <- ceiling(nsamples / nchains)
-    if(nsamplesperchain * nchains > nsamples) {
-        nsamples <- nchains * nsamplesperchain
-        cat('Increasing number of samples to', nsamples, 'for efficiency\n')
-    }
 
+    nchainspercore <- ceiling(nchains / ncores)
 
     ## ## nsamples & nchains
     ##   ## Doesn't make sense to have more cores than chains
@@ -901,7 +901,7 @@ learn <- function(
         'dimensions.\n')
 
     cat('Using', ncores, 'cores:',
-        nsamplesperchain, 'samples per chain,',
+        nsamplesperchain, 'samples per chain, max',
         nchainspercore, 'chains per core.\n')
     cat('Core logs are being saved in individual files.\n')
     cat('\nC-compiling samplers appropriate to the variates (package Nimble)\n')
@@ -1525,12 +1525,18 @@ learn <- function(
         stoppedchains <- 0L
         gc() # garbage collection
 #### LOOP OVER CHAINS IN CORE
-        for (achain in 1:nchainspercore) {
+        ## last core may have to run fewer chains
+        if(nchains < acore * nchainspercore){
+            nchainsperthiscore <- nchains - (acore - 1) * nchainspercore
+        } else {
+            nchainsperthiscore <- nchainspercore
+        }
+        for (achain in 1:nchainsperthiscore) {
 
             ## calculate how the remaining time is allotted to remaining chains
             timeleft <- (maxhours -
                              as.double(Sys.time() - timestart0, units = 'hours')) /
-                (nchainspercore - achain + 1)
+                (nchainsperthiscore - achain + 1)
 
             showsamplertimes0 <- showsamplertimes && (achain == 1)
             ## showAlphatraces0 <- showAlphatraces && (achain==1)
@@ -2011,14 +2017,14 @@ learn <- function(
                 '\n')
 
 #### Print estimated remaining time
-            remainingTime <- difftime(Sys.time(), starttime, units = 'auto') /
-                achain * (nchainspercore - achain + 1)
+            remainingTime <- (nchainspercore - achain + 1) *
+                difftime(Sys.time(), starttime, units = 'auto') / achain
             if (is.finite(remainingTime) && remainingTime > 0) {
                 print2user(
                     paste0(
                         '\rSampling. Core ', acore, ' estimated end time: ',
                         printtimeend(remainingTime),
-                        '  '
+                        '   '
                     ),
                     outcon
                 )
@@ -2088,7 +2094,7 @@ learn <- function(
             SIMPLIFY = FALSE
         )
     }
-    mcsamples <- foreach(chainnumber = 1:(ncores * nchainspercore),
+    mcsamples <- foreach(chainnumber = 1:nchains,
         .combine = joinmc, .multicombine = FALSE) %do% {
             padchainnumber <- sprintf(paste0('%0', nchar(nchains), 'i'), chainnumber)
 
