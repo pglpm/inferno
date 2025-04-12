@@ -642,8 +642,11 @@ learn <- function(
     ## source('mcsubset.R')
 
     ## function printtime to format printing of time
-    printtime <- function(tim) {
+    printtimediff <- function(tim) {
         paste0(signif(tim, 2), ' ', attr(tim, 'units'))
+    }
+    printtimeend <- function(tim) {
+        format(Sys.time() + tim, format='%Y-%m-%d %H:%M')
     }
     ## We need to send some messages to the log files, others to the user.
     ## This is done by changing output sink:
@@ -1495,7 +1498,7 @@ learn <- function(
         Cmcsampler <- compileNimble(mcsampler, resetFunctions = TRUE)
 
         cat('\nSetup time',
-            printtime(difftime(Sys.time(), timecount, units = 'auto')),
+            printtimediff(difftime(Sys.time(), timecount, units = 'auto')),
             '\n')
 
         ## Inform user that compilation is done, if core 1:
@@ -1608,7 +1611,7 @@ learn <- function(
                 cat('\nCurrent time:',
                     strftime(as.POSIXlt(Sys.time()), '%Y-%m-%d %H:%M:%S'))
                 cat('\nMCMC time',
-                    printtime(difftime(Sys.time(), starttime, units = 'auto')),
+                    printtimediff(difftime(Sys.time(), starttime, units = 'auto')),
                     '\n')
 
                 ## #### Remove iterations with non-finite values
@@ -1731,7 +1734,7 @@ learn <- function(
                 rm(cleantraces)
 
                 cat('\nDiagnostics time',
-                    printtime(difftime(Sys.time(), diagntime, units = 'auto')),
+                    printtimediff(difftime(Sys.time(), diagntime, units = 'auto')),
                     '\n')
 
                 if (is.null(allmcsamples)) {
@@ -2004,7 +2007,7 @@ learn <- function(
             cat('\nCurrent time:', strftime(as.POSIXlt(Sys.time()),
                 '%Y-%m-%d %H:%M:%S'))
             cat('\nMCMC + diagnostics time',
-                printtime(difftime(Sys.time(), starttime, units = 'auto')),
+                printtimediff(difftime(Sys.time(), starttime, units = 'auto')),
                 '\n')
 
 #### Print estimated remaining time
@@ -2013,9 +2016,9 @@ learn <- function(
             if (is.finite(remainingTime) && remainingTime > 0) {
                 print2user(
                     paste0(
-                        '\rSampling. Core ', acore, ' estimated remaining time: ',
-                        printtime(remainingTime),
-                        '                      '
+                        '\rSampling. Core ', acore, ' estimated end time: ',
+                        printtimeend(remainingTime),
+                        '  '
                     ),
                     outcon
                 )
@@ -2030,7 +2033,7 @@ learn <- function(
         cat('\nCurrent time:',
             strftime(as.POSIXlt(Sys.time()), '%Y-%m-%d %H:%M:%S'))
         cat('\nTotal time',
-            printtime(difftime(Sys.time(), starttime, units = 'auto')),
+            printtimediff(difftime(Sys.time(), starttime, units = 'auto')),
             '\n')
 
         ## output information from a core,
@@ -2234,8 +2237,8 @@ learn <- function(
     )
 
     totalfinaltime <- difftime(Sys.time(), timestart0, units = 'auto')
-    cat('\nTotal computation time:', printtime(totalfinaltime), '\n')
-    cat('Average total time per chain:', printtime(totalfinaltime/nchains), '\n')
+    cat('\nTotal computation time:', printtimediff(totalfinaltime), '\n')
+    cat('Average total time per chain:', printtimediff(totalfinaltime/nchains), '\n')
 
     ## if (exists('cl')) {
     ##     cat('\nClosing connections to cores.\n')
