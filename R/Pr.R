@@ -62,7 +62,7 @@ Pr <- function(
         }
         on.exit(closecoresonexit())
     } else {
-        future::plan()
+        # future::plan()
         ncores <- future::nbrOfWorkers()
     }
 
@@ -382,12 +382,13 @@ Pr <- function(
     ## combfnc <- function(...){setNames(do.call(mapply, c(FUN=cbind, lapply(list(...), `[`, keys))), keys)}
 
     out <- foreach(jj = seq_len(nX),
-        .combine = `combfnr`, .inorder = TRUE) %:%
-        foreach(y = t(Y2),
-            .combine = `combfnr`, .inorder = TRUE) %doy% {
-                if (all(is.na(y))) {
-                    lprobY <- array(NA, dim = c(ncomponents, nmcsamples))
-                } else {
+        .combine = `combfnr`, .inorder = TRUE,
+        .options.future = list(globals = structure(TRUE, add = 'lprobX'))
+    ) %:% foreach(y = t(Y2),
+        .combine = `combfnr`, .inorder = TRUE) %doy% {
+            if (all(is.na(y))) {
+                lprobY <- array(NA, dim = c(ncomponents, nmcsamples))
+            } else {
                     lprobY <- util_lprob(
                         x = y,
                         learnt = learnt,
