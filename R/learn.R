@@ -151,20 +151,29 @@ learn <- function(
             ## registerDoSEQ()
             ## cl <- parallel::makePSOCKcluster(ncores)
             ## ##
-            cl <- parallel::makeCluster(parallel)
-            doParallel::registerDoParallel(cl)
+            require('doFuture')
+            future::plan(multisession, workers = parallel)
             cat('Registered', foreach::getDoParName(),
                 'with', foreach::getDoParWorkers(), 'workers\n')
             ncores <- parallel
             closecoresonexit <- function(){
                 cat('\nClosing connections to cores.\n')
-                foreach::registerDoSEQ()
-                parallel::stopCluster(cl)
-                env <- foreach:::.foreachGlobals
-                rm(list=ls(name=env), pos=env)
+                future::plan(sequential)
             }
             on.exit(closecoresonexit())
-
+            ## cl <- parallel::makeCluster(parallel)
+            ## doParallel::registerDoParallel(cl)
+            ## cat('Registered', foreach::getDoParName(),
+            ##     'with', foreach::getDoParWorkers(), 'workers\n')
+            ## ncores <- parallel
+            ## closecoresonexit <- function(){
+            ##     cat('\nClosing connections to cores.\n')
+            ##     foreach::registerDoSEQ()
+            ##     parallel::stopCluster(cl)
+            ##     env <- foreach:::.foreachGlobals
+            ##     rm(list=ls(name=env), pos=env)
+            ## }
+            ## on.exit(closecoresonexit())
         }
     } else {
         cat('No parallel backend registered.\n')
@@ -269,7 +278,7 @@ learn <- function(
     if (ncores < 1) {
         `%dochains%` <- `%do%`
     } else {
-        `%dochains%` <- `%dorng%`
+        `%dochains%` <- `%dofuture%`
     }
 
     ## Make sure 'startupMCiterations' is at least 2
@@ -914,10 +923,14 @@ learn <- function(
 #### BEGINNING OF FOREACH LOOP OVER CORES
 #####################################################
     ## Parallel execution over cores
-## test switch
+
     chaininfo <- foreach(acore = 1:ncores,
         .combine = rbind,
         .inorder = FALSE,
+        .options.future = list(
+            globals = structure(TRUE, ignore = "data"),
+            seed = TRUE
+        )
         ##.packages = c('predict'),
         .noexport = c('data')
     ) %dochains% {
