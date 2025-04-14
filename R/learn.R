@@ -914,7 +914,7 @@ learn <- function(
 #### BEGINNING OF FOREACH LOOP OVER CORES
 #####################################################
     ## Parallel execution over cores
-
+## test switch
     chaininfo <- foreach(acore = 1:ncores,
         .combine = rbind,
         .inorder = FALSE,
