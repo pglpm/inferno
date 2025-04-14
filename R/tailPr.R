@@ -41,60 +41,31 @@ tailPr <- function(
     }
 
 #### Determine the status of parallel processing
-    if (is.logical(parallel) && parallel) {
-        if (foreach::getDoParRegistered()) {
-            if (!silent) {
-                cat('Using already registered', foreach::getDoParName(),
-                    'with', foreach::getDoParWorkers(), 'workers\n')
-            }
-            ncores <- foreach::getDoParWorkers()
-        } else {
-            if (!silent) {
-                cat('No parallel backend registered.\n')
-            }
-            ncores <- 1
-        }
-    } else if (is.numeric(parallel) && parallel >= 2) {
-        if (foreach::getDoParRegistered()) {
-            ncores <- min(foreach::getDoParWorkers(), parallel)
-            if (!silent) {
-                cat('Using already registered', foreach::getDoParName(),
-                    'with', foreach::getDoParWorkers(), 'workers\n')
-                if(parallel > ncores) {
-                    cat('NOTE: fewer pre-registered cores',
-                        'than requested in the "parallel" argument.\n')
-                }
-            }
-        } else {
-            ## ##
-            ## ## Alternative way to register cores;
-            ## ## might need to be used for portability to Windows?
-            ## registerDoSEQ()
-            ## cl <- makePSOCKcluster(ncores)
-            ## ##
-            cl <- parallel::makeCluster(parallel)
-            doParallel::registerDoParallel(cl)
-            if (!silent) {
-                cat('Registered', foreach::getDoParName(),
-                    'with', foreach::getDoParWorkers(), 'workers\n')
-            }
-            ncores <- parallel
+    require('doFuture')
+    if (isTRUE(parallel)) {
+        parallel <- max(1, floor(future::availableCores() / 2))
+        ncores <- parallel
+        if (parallel > 1){
+            future::plan('multisession', workers = parallel)
             closecoresonexit <- function(){
-                if(!silent) {
-                    cat('\nClosing connections to cores.\n')
-                }
-                foreach::registerDoSEQ()
-                parallel::stopCluster(cl)
-                env <- foreach:::.foreachGlobals
-                rm(list=ls(name=env), pos=env)
+                cat('\nClosing connections to cores.\n')
+                future::plan('sequential')
             }
             on.exit(closecoresonexit())
+        } else {
+            future::plan('sequential')
         }
+    } else if (is.numeric(parallel) && parallel >= 1) {
+        future::plan('multisession', workers = parallel)
+        ncores <- parallel
+        closecoresonexit <- function(){
+            cat('\nClosing connections to cores.\n')
+            future::plan('sequential')
+        }
+        on.exit(closecoresonexit())
     } else {
-        if (!silent) {
-            cat('No parallel backend registered.\n')
-        }
-        ncores <- 1
+        future::plan()
+        ncores <- future::nbrOfWorkers()
     }
 
     ## Extract Monte Carlo output & auxmetadata
@@ -177,14 +148,14 @@ tailPr <- function(
         `%doy%` <- `%do%`
     } else {
         if(nX >= 2 * ncores) {
-            `%dox%` <- `%dopar%`
+            `%dox%` <- `%dofuture%`
         } else {
             ## no point using more parallel cores than X values
             `%dox%` <- `%do%`
         }
         ##
         if(nY * nX >= 2 * ncores) {
-            `%doy%` <- `%dopar%`
+            `%doy%` <- `%dofuture%`
         } else {
             ## no point using more parallel cores than Y values
             `%doy%` <- `%do%`

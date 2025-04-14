@@ -126,58 +126,31 @@ learn <- function(
 ##################################################
 
 #### Determine the status of parallel processing
+    require('doFuture')
     if (isTRUE(parallel)) {
-        if (foreach::getDoParRegistered()) {
-            cat('Using already registered', foreach::getDoParName(),
-                'with', foreach::getDoParWorkers(), 'workers\n')
-            ncores <- foreach::getDoParWorkers()
-        } else {
-            cat('No parallel backend registered.\n')
-            ncores <- 1
-        }
-    } else if (is.numeric(parallel) && parallel >= 1) {
-        if (foreach::getDoParRegistered()) {
-            ncores <- min(foreach::getDoParWorkers(), parallel)
-            cat('Using already registered', foreach::getDoParName(),
-                'with', foreach::getDoParWorkers(), 'workers\n')
-            if(parallel > ncores) {
-                cat('NOTE: fewer pre-registered cores',
-                    'than requested in the "parallel" argument.\n')
-            }
-        } else {
-            ## ##
-            ## ## Alternative way to register cores;
-            ## ## might need to be used for portability to Windows?
-            ## registerDoSEQ()
-            ## cl <- parallel::makePSOCKcluster(ncores)
-            ## ##
-            require('doFuture')
-            future::plan(multisession, workers = parallel)
-            cat('Registered', foreach::getDoParName(),
-                'with', foreach::getDoParWorkers(), 'workers\n')
-            ncores <- parallel
+        parallel <- max(1, floor(future::availableCores() / 2))
+        ncores <- parallel
+        if (parallel > 1){
+            future::plan('multisession', workers = parallel)
             closecoresonexit <- function(){
                 cat('\nClosing connections to cores.\n')
-                future::plan(sequential)
+                future::plan('sequential')
             }
             on.exit(closecoresonexit())
-            ## cl <- parallel::makeCluster(parallel)
-            ## doParallel::registerDoParallel(cl)
-            ## cat('Registered', foreach::getDoParName(),
-            ##     'with', foreach::getDoParWorkers(), 'workers\n')
-            ## ncores <- parallel
-            ## closecoresonexit <- function(){
-            ##     cat('\nClosing connections to cores.\n')
-            ##     foreach::registerDoSEQ()
-            ##     parallel::stopCluster(cl)
-            ##     env <- foreach:::.foreachGlobals
-            ##     rm(list=ls(name=env), pos=env)
-            ## }
-            ## on.exit(closecoresonexit())
+        } else {
+            future::plan('sequential')
         }
+    } else if (is.numeric(parallel) && parallel >= 1) {
+        future::plan('multisession', workers = parallel)
+        ncores <- parallel
+        closecoresonexit <- function(){
+            cat('\nClosing connections to cores.\n')
+            future::plan('sequential')
+        }
+        on.exit(closecoresonexit())
     } else {
-        cat('No parallel backend registered.\n')
-        ncores <- 1
+        future::plan()
+        ncores <- future::nbrOfWorkers()
     }
 
 
@@ -663,11 +636,11 @@ learn <- function(
     }
     ## We need to send some messages to the log files, others to the user.
     ## This is done by changing output sink:
-    print2user <- function(msg, outcon) {
+    print2user <- function(msg, outconnect) {
         sink(NULL, type = 'message')
         message(msg, appendLF = FALSE)
         flush.console()
-        sink(outcon, type = 'message')
+        sink(outconnect, type = 'message')
     }
 
 
@@ -2247,7 +2220,7 @@ learn <- function(
         plotvariability = 'samples',
         nFsamples = showsamples, plotprobability = TRUE,
         datahistogram = TRUE, datascatter = TRUE,
-        parallel = TRUE, silent = TRUE
+        parallel = FALSE, silent = TRUE
     )
 
     ## cat('Plotting marginal samples with quantiles.\n')
@@ -2259,7 +2232,7 @@ learn <- function(
         plotvariability = 'quantiles',
         nFsamples = plotDisplayedQuantiles, plotprobability = TRUE,
         datahistogram = TRUE, datascatter = TRUE,
-        parallel = TRUE, silent = TRUE
+        parallel = FALSE, silent = TRUE
     )
 
     totalfinaltime <- difftime(Sys.time(), timestart0, units = 'auto')
