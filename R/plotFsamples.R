@@ -124,7 +124,6 @@ plotFsamples <- function(
             if(mcmctype == 'R') {
                 Xgrid <- cbind(seq(plotmin, plotmax, length.out = 256))
                 colnames(Xgrid) <- name
-
                 probabilities <- Pr(Y = Xgrid, X = NULL,
                     learnt = learnt,
                     quantiles = quants,
