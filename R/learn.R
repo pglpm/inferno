@@ -918,7 +918,7 @@ learn <- function(
             paste0('log', dashnameroot,
                 '-', acore, '.log')
         ), open = 'w')
-        sink(outcon)
+        sink(outcon, type = 'output')
         sink(outcon, type = 'message')
 
         cat('Log core', acore)
@@ -927,6 +927,7 @@ learn <- function(
         cat('\n')
 
         suppressPackageStartupMessages(require('nimble'))
+        nimbleOptions(verbose = FALSE)
         ## requireNamespace("nimble", quietly = TRUE)
         ##library('nimble')
 
@@ -2033,8 +2034,8 @@ learn <- function(
             '\n')
 
         ## Close output to log files
-        sink()
-        sink(type = 'message')
+        sink(NULL, type = 'output')
+        sink(NULL, type = 'message')
         close(outcon)
 
 
