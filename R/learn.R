@@ -180,26 +180,31 @@ learn <- function(
         ncores <- 1
     }
 
+
+***
 #### Consistency checks for numbers of samples, chains, cores
     ## The defaults are 3600 samples from 60 chains, so 60 samples per chain
     ## The user can choose any two
     ## nsamples = nchains * nsamplesperchain
-
     if(!missing(nchains) && !missing(nsamplesperchain) &&
            missing(nsamples)){
         nsamples <- nchains * nsamplesperchain
     } else if (missing(nchains) && !missing(nsamplesperchain) &&
                    !missing(nsamples)){
         nchains <- ceiling(nsamples / nsamplesperchain)
-        nsamples <- nchains * nsamplesperchain
-        cat('Increasing number of samples to', nsamples,
-            'to comply with given "nsamplesperchain"\n')
+        if(nsamples != nchains * nsamplesperchain){
+            nsamples <- nchains * nsamplesperchain
+            cat('Increasing number of samples to', nsamples,
+                'to comply with given "nsamplesperchain"\n')
+        }
     } else if (!missing(nchains) && missing(nsamplesperchain) &&
                    !missing(nsamples)){
         nsamplesperchain <- ceiling(nsamples / nchains)
-        nsamples <- nchains * nsamplesperchain
-        cat('Increasing number of samples to', nsamples,
-            'to comply with given "nchains"\n')
+        if(nsamples != nchains * nsamplesperchain){
+            nsamples <- nchains * nsamplesperchain
+            cat('Increasing number of samples to', nsamples,
+                'to comply with given "nchains"\n')
+        }
     } else if (!(missing(nchains) && missing(nsamplesperchain) &&
                     missing(nsamples))){
         stop('Please specify exactly two among "nsamples", "nchains", "nsamplesperchain"')
@@ -2055,6 +2060,12 @@ learn <- function(
             printtimediff(difftime(Sys.time(), starttime, units = 'auto')),
             '\n')
 
+        ## Close output to log files
+        sink()
+        sink(type = 'message')
+        close(outcon)
+
+
         ## output information from a core,
         ## passed to the originally calling process
         cbind(
@@ -2067,9 +2078,6 @@ learn <- function(
 ############################################################
 #### END OF PARALLEL FOREACH OVER CORES
 ############################################################
-    ## Close output to log files
-    suppressWarnings(sink())
-    suppressWarnings(sink(NULL, type = 'message'))
 
     maxusedcomponents <- max(chaininfo[, 'maxusedcomponents'])
     maxiterations <- max(chaininfo[, 'maxiterations'])
