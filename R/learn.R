@@ -932,7 +932,7 @@ learn <- function(
             seed = TRUE
         )
         ##.packages = c('predict'),
-        .noexport = c('data')
+        ## .noexport = c('data')
     ) %dochains% {
 
         ## Create log file
