@@ -181,7 +181,6 @@ learn <- function(
     }
 
 
-***
 #### Consistency checks for numbers of samples, chains, cores
     ## The defaults are 3600 samples from 60 chains, so 60 samples per chain
     ## The user can choose any two
