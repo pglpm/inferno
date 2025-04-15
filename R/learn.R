@@ -637,11 +637,10 @@ learn <- function(
     ## We need to send some messages to the log files, others to the user.
     ## This is done by changing output sink:
     print2user <- function(msg, outconnect) {
-        flush(outconnect)
         sink(file = NULL, type = 'message')
         message(msg, appendLF = FALSE)
         flush.console()
-        sink(file = outconnect, append = TRUE, type = 'message')
+        sink(file = outconnect, type = 'message')
     }
 
 
@@ -918,16 +917,8 @@ learn <- function(
         outcon <- file(file.path(dirname,
             paste0('log', dashnameroot, '-', acore, '.log')),
             open = 'w')
-        ## open(outcon)
-        sink(file = outcon)
-        ## sink(outcon, type = 'output')
-        ## sink(outcon, type = 'message')
-        ## outcon <- file(file.path(dirname,
-        ##     paste0('log', dashnameroot,
-        ##         '-', acore, '.log')
-        ## ), open = 'w')
-        ## sink(outcon, type = 'output')
-        ## sink(outcon, type = 'message')
+        sink(file = outcon, type = 'output')
+        sink(file = outcon, type = 'message')
 
         cat('Log core', acore)
         cat(' - Current time:',
@@ -2042,11 +2033,9 @@ learn <- function(
             '\n')
 
         ## Close output to log files
-        sink(file = NULL)
-        ## sink(NULL, type = 'output')
-        ## sink(NULL, type = 'message')
-        ## close(outcon)
-
+        sink(file = NULL, type = 'output')
+        sink(file = NULL, type = 'message')
+        close(outcon)
 
         ## output information from a core,
         ## passed to the originally calling process
