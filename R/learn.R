@@ -1058,7 +1058,7 @@ learn <- function(
                 ), nrow = vn$R, ncol = ncomponents)
                 ## square distances from datapoints
                 distances <- distances + apply(Rmeans, 2, function(ameans){
-                    colSums((t(datapoints$Rdata) - ameans)^2, na.rm = TRUE)
+                    colSums(sqrt(abs(t(datapoints$Rdata) - ameans)), na.rm = TRUE)
                 })
             }
             if (vn$C > 0) { # continuous closed domain
@@ -1069,7 +1069,7 @@ learn <- function(
                 ), nrow = vn$C, ncol = ncomponents)
                 ## square distances from datapoints
                 distances <- distances + apply(Cmeans, 2, function(ameans){
-                    colSums((t(datapoints$Clat) - ameans)^2, na.rm = TRUE)
+                    colSums(sqrt(abs(t(datapoints$Clat) - ameans)), na.rm = TRUE)
                 })
             }
             if (vn$D > 0) { # discrete
@@ -1080,7 +1080,7 @@ learn <- function(
                 ), nrow = vn$D, ncol = ncomponents)
                 ## square distances from datapoints
                 distances <- distances + apply(Dmeans, 2, function(ameans){
-                    colSums((t(constants$Dlatinit) - ameans)^2, na.rm = TRUE)
+                    colSums(sqrt(abs(t(constants$Dlatinit) - ameans)), na.rm = TRUE)
                 })
             }
             ## if (vn$L > 0) { # 
