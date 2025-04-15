@@ -10,10 +10,10 @@ tailPr(
   learnt,
   nsamples = 100L,
   quantiles = c(0.055, 0.25, 0.75, 0.945),
-  parallel = TRUE,
+  parallel = NULL,
   eq = TRUE,
   lower.tail = TRUE,
-  silent = TRUE,
+  silent = FALSE,
   usememory = TRUE,
   keepYX = TRUE
 )
@@ -30,8 +30,7 @@ the joint probability of. One variate per column, one set of values per row.}
 
 \item{quantiles}{numeric vector, between 0 and 1, or \code{NULL}: desired quantiles of the variability of the probability for \code{Y}. Default \code{c(0.055, 0.25, 0.75, 0.945)}, that is, the 5.5\%, 25\%, 75\%, 94.5\% quantiles (these are typical quantile values in the Bayesian literature: they give 50\% and 89\% credibility intervals, which correspond to 1 shannons and 0.5 shannons of uncertainty). If \code{NULL}, no quantiles are calculated.}
 
-\item{parallel}{logical or integer: whether to use pre-existing parallel
-workers, or how many to create and use. Default \code{TRUE}.}
+\item{parallel}{Logical or \code{NULL} or positive integer: \code{TRUE}: use roughly half of available cores; \code{FALSE}: use serial computation; \code{NULL}: don't do anything (use pre-registered condition); integer: use this many cores. Default \code{NULL}}
 
 \item{eq}{logical: include \code{Y = y} in the cumulative probability? Default \code{TRUE}.}
 

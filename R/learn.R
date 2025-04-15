@@ -12,9 +12,7 @@
 #' @param nsamples Integer: number of desired Monte Carlo samples. Default 3600.
 #' @param nchains Integer: number of Monte Carlo chains. Default 60.
 #' @param nsamplesperchain Integer: number of Monte Carlo samples per chain.
-#' @param parallel Logical: use pre-existing parallel workers from package
-#'   \code{\link[doParallel]{doParallel}}.
-#'   Or integer: create and use that many parallel workers. Default `TRUE`.
+#' @param parallel Logical or `NULL` or positive integer: `TRUE`: use roughly half of available cores; `FALSE`: use serial computation; `NULL`: don't do anything (use pre-registered condition); integer: use this many cores. Default `NULL`
 #' @param seed Integer: use this seed for the random number generator.
 #'   If missing or `NULL` (default), do not set the seed.
 #' @param cleanup Logical: remove diagnostic files at the end of the computation?
@@ -68,7 +66,7 @@ learn <- function(
     nsamples = 3600,
     nchains = 60,
     nsamplesperchain = 60,
-    parallel = TRUE,
+    parallel = NULL,
     seed = NULL,
     cleanup = TRUE,
     appendtimestamp = TRUE,
@@ -125,52 +123,6 @@ learn <- function(
 #### Argument-consistency checks
 ##################################################
 
-#### Determine the status of parallel processing
-    if (isTRUE(parallel)) {
-        if (foreach::getDoParRegistered()) {
-            cat('Using already registered', foreach::getDoParName(),
-                'with', foreach::getDoParWorkers(), 'workers\n')
-            ncores <- foreach::getDoParWorkers()
-        } else {
-            cat('No parallel backend registered.\n')
-            ncores <- 1
-        }
-    } else if (is.numeric(parallel) && parallel >= 1) {
-        if (foreach::getDoParRegistered()) {
-            ncores <- min(foreach::getDoParWorkers(), parallel)
-            cat('Using already registered', foreach::getDoParName(),
-                'with', foreach::getDoParWorkers(), 'workers\n')
-            if(parallel > ncores) {
-                cat('NOTE: fewer pre-registered cores',
-                    'than requested in the "parallel" argument.\n')
-            }
-        } else {
-            ## ##
-            ## ## Alternative way to register cores;
-            ## ## might need to be used for portability to Windows?
-            ## registerDoSEQ()
-            ## cl <- parallel::makePSOCKcluster(ncores)
-            ## ##
-            cl <- parallel::makeCluster(parallel)
-            doParallel::registerDoParallel(cl)
-            cat('Registered', foreach::getDoParName(),
-                'with', foreach::getDoParWorkers(), 'workers\n')
-            ncores <- parallel
-            closecoresonexit <- function(){
-                cat('\nClosing connections to cores.\n')
-                foreach::registerDoSEQ()
-                parallel::stopCluster(cl)
-                env <- foreach:::.foreachGlobals
-                rm(list=ls(name=env), pos=env)
-            }
-            on.exit(closecoresonexit())
-
-        }
-    } else {
-        cat('No parallel backend registered.\n')
-        ncores <- 1
-    }
-
 #### Consistency checks for numbers of samples, chains, cores
     ## The defaults are 3600 samples from 60 chains, so 60 samples per chain
     ## The user can choose any two
@@ -196,70 +148,58 @@ learn <- function(
                 'to comply with given "nchains"\n')
         }
     } else if (!(missing(nchains) && missing(nsamplesperchain) &&
-                    missing(nsamples))){
+                     missing(nsamples))){
         stop('Please specify exactly two among "nsamples", "nchains", "nsamplesperchain"')
     }
 
-    ## Doesn't make sense to have more cores than chains
-    if(nchains < ncores) {
-        ncores <- nchains
+
+#### Requested parallel processing
+    ## NB: doesn't make sense to have more cores than chains
+    closeexit <- FALSE
+    if (isTRUE(parallel)) {
+        ## user wants us to register a parallel backend
+        ## and to choose number of cores
+        ncores <- max(1,
+            min(nchains, floor(parallel::detectCores() / 2)))
+        cl <- parallel::makeCluster(ncores)
+        doParallel::registerDoParallel(cl)
+        closeexit <- TRUE
+        cat('Registered', foreach::getDoParName(),
+            'with', foreach::getDoParWorkers(), 'workers\n')
+    } else if (isFALSE(parallel)) {
+        ## user wants us not to use parallel cores
+        ncores <- 1
+        doParallel::registerDoSEQ()
+    } else if (is.null(parallel)) {
+        ## user wants us not to do anything
+        ncores <- foreach::getDoParWorkers()
+    } else if (is.finite(parallel) && parallel >= 1) {
+        ## user wants us to register 'parallal' # of cores
+        ncores <- min(nchains, parallel)
+        cl <- parallel::makeCluster(ncores)
+        doParallel::registerDoParallel(cl)
+        closeexit <- TRUE
+        cat('Registered', foreach::getDoParName(),
+            'with', foreach::getDoParWorkers(), 'workers\n')
+    } else {
+        stop("Unknown value of argument 'parallel'")
     }
 
-    nchainspercore <- ceiling(nchains / ncores)
+    ## Close parallel connections if any were opened
+    if(closeexit) {
+        closecoresonexit <- function(){
+            cat('\nClosing connections to cores.\n')
+            foreach::registerDoSEQ()
+            parallel::stopCluster(cl)
+            ## parallel::setDefaultCluster(NULL)
+            env <- foreach:::.foreachGlobals
+            rm(list=ls(name=env), pos=env)
+        }
+        on.exit(closecoresonexit())
+    }
 
-    ## ## nsamples & nchains
-    ##   ## Doesn't make sense to have more cores than chains
-    ##   if(nchains < ncores) {
-    ##     ncores <- nchains
-    ##   }
-    ##   ## Ineffective is some core has fewer chains than others
-    ##   nchainspercore <- ceiling(nchains / ncores)
-    ##   if (nchainspercore * ncores > nchains) {
-    ##     nchains <- nchainspercore * ncores
-    ##     cat('Increasing number of chains to', nchains, '\n')
-    ##   }
-    ##   ## Ineffective to have chains with different required samples
-    ##   nsamplesperchain <- ceiling(nsamples / nchains)
-    ##   if(nsamplesperchain * nchains > nsamples) {
-    ##     nsamples <- nchains * nsamplesperchain
-    ##     cat('Increasing number of samples to', nsamples, '\n')
-    ##   }
-    ##
-    ##   ## nsamples & nsamplesperchain
-    ## } else if (!missing(nsamples) && missing(nchains) &&
-    ##            !missing(nsamplesperchain)) {
-    ##   nchains <- ceiling(nsamples / nsamplesperchain)
-    ##   if(nchains < ncores) {
-    ##     ncores <- nchains
-    ##   }
-    ##   nchainspercore <- ceiling(nchains / ncores)
-    ##   if(nchainspercore * ncores > nchains) {
-    ##     nchains <- nchainspercore*ncores
-    ##   }
-    ##   if(nsamplesperchain * nchains > nsamples) {
-    ##     nsamples <- nchains * nsamplesperchain
-    ##     cat('Increasing number of samples to', nsamples, '\n')
-    ##   }
-    ##
-    ##   ## nchains & nsamplesperchain
-    ## } else if (missing(nsamples) && !missing(nchains) &&
-    ##            !missing(nsamplesperchain)) {
-    ##   if(nchains < ncores){
-    ##     ncores <- nchains
-    ##   }
-    ##   nchainspercore <- ceiling(nchains / ncores)
-    ##   if(nchainspercore * ncores > nchains){
-    ##     nchains <- nchainspercore * ncores
-    ##     cat('Increasing number of chains to',nchains,'\n')
-    ##   }
-    ##   nsamples <- nchains * nsamplesperchain
-    ##
-    ##   ## The user set all these three arguments or only one
-    ## } else if (!(missing(nsamples) && missing(nchains) &&
-    ##            missing(nsamplesperchain))) {
-    ##   stop('Please specify exactly two among "nsamples", "nchains", "nsamplesperchain"')
-    ## }
-
+    coreswithextrachain <- nchains %% ncores
+    maxchainspercore <- (nchains %/% ncores) + (coreswithextrachain > 0)
 
     if (is.numeric(thinning) && thinning > 0) {
         thinning <- ceiling(thinning)
@@ -906,7 +846,7 @@ learn <- function(
 
     cat('Using', ncores, 'cores:',
         nsamplesperchain, 'samples per chain, max',
-        nchainspercore, 'chains per core.\n')
+        maxchainspercore, 'chains per core.\n')
     cat('Core logs are being saved in individual files.\n')
     cat('\nC-compiling samplers appropriate to the variates (package Nimble)\n')
     cat('this can take tens of minutes with many data or variates.\nPlease wait...\r')
@@ -1529,13 +1469,15 @@ learn <- function(
         stoppedchains <- 0L
         gc() # garbage collection
 #### LOOP OVER CHAINS IN CORE
-        ## last core may have to run fewer chains
-        if(nchains < acore * nchainspercore){
-            nchainsperthiscore <- nchains - (acore - 1) * nchainspercore
-        } else {
-            nchainsperthiscore <- nchainspercore
-        }
+        nchainsperthiscore <- maxchainspercore - (acore > coreswithextrachain)
+        ## print2user(paste0('\ncore ',acore,': ',nchainsperthiscore,'\n'), outcon)
+
         for (achain in 1:nchainsperthiscore) {
+
+            chainnumber <- achain +
+                (maxchainspercore - 1) * (acore - 1) +
+                min(coreswithextrachain, acore - 1)
+            padchainnumber <- sprintf(paste0('%0', nchar(nchains), 'i'), chainnumber)
 
             ## calculate how the remaining time is allotted to remaining chains
             timeleft <- (maxhours -
@@ -1558,11 +1500,9 @@ learn <- function(
             allmcsamplesKA <- list(Alpha = NULL, K = NULL)
             flagll <- FALSE
             flagnonfinite <- FALSE
-            chainnumber <- (acore - 1L) * nchainspercore + achain
-            padchainnumber <- sprintf(paste0('%0', nchar(nchains), 'i'), chainnumber)
             cat(
                 '\nChain #', chainnumber,
-                '(chain', achain, 'of', nchainspercore, 'for this core)\n'
+                '(chain', achain, 'of', maxchainspercore, 'for this core)\n'
             )
             ## Read data to be used in log-likelihood
             testdata <- readRDS(file = file.path(dirname,
@@ -1823,7 +1763,7 @@ learn <- function(
                     subiter <- subiter + 1L
                     cat(
                         '\nChain #', chainnumber, '- chunk', subiter,
-                        '(chain', achain, 'of', nchainspercore,
+                        '(chain', achain, 'of', maxchainspercore,
                         'for this core): increasing by', niter, '\n'
                     )
                 }
@@ -2021,7 +1961,7 @@ learn <- function(
                 '\n')
 
 #### Print estimated remaining time
-            remainingTime <- (nchainspercore - achain + 1) *
+            remainingTime <- (maxchainspercore - achain + 1) *
                 difftime(Sys.time(), starttime, units = 'auto') / achain
             if (is.finite(remainingTime) && remainingTime > 0) {
                 print2user(
@@ -2224,29 +2164,35 @@ learn <- function(
         )
     }
 
+    ## outcon <- file(file.path(dirname, 'log-1.log'), open = 'a')
+    ## sink(file = outcon, type = 'output')
+    ## sink(file = outcon, type = 'message')
     ## cat('Plotting marginal samples.\n')
     plotFsamples(
-        file = file.path(dirname,
+        filename = file.path(dirname,
             paste0('plotsamples_learnt', dashnameroot)),
         learnt = c(mcsamples, list(auxmetadata = auxmetadata)),
         data = data,
         plotvariability = 'samples',
         nFsamples = showsamples, plotprobability = TRUE,
         datahistogram = TRUE, datascatter = TRUE,
-        parallel = TRUE, silent = TRUE
+        parallel = NULL, silent = TRUE
     )
 
     ## cat('Plotting marginal samples with quantiles.\n')
     plotFsamples(
-        file = file.path(dirname,
+        filename = file.path(dirname,
             paste0('plotquantiles_learnt', dashnameroot)),
         learnt = c(mcsamples, list(auxmetadata = auxmetadata)),
         data = data,
         plotvariability = 'quantiles',
         nFsamples = plotDisplayedQuantiles, plotprobability = TRUE,
         datahistogram = TRUE, datascatter = TRUE,
-        parallel = TRUE, silent = TRUE
+        parallel = NULL, silent = TRUE
     )
+    ## sink(file = NULL, type = 'output')
+    ## sink(file = NULL, type = 'message')
+    ## close(outcon)
 
     totalfinaltime <- difftime(Sys.time(), timestart0, units = 'auto')
     cat('\nTotal computation time:', printtimediff(totalfinaltime), '\n')
