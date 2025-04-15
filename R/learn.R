@@ -637,10 +637,11 @@ learn <- function(
     ## We need to send some messages to the log files, others to the user.
     ## This is done by changing output sink:
     print2user <- function(msg, outconnect) {
-        sink(NULL, type = 'message')
+        flush(outconnect)
+        sink(file = NULL, type = 'message')
         message(msg, appendLF = FALSE)
         flush.console()
-        sink(outconnect, type = 'message')
+        sink(file = outconnect, append = TRUE, type = 'message')
     }
 
 
@@ -915,11 +916,18 @@ learn <- function(
         ## Create log file
         ## Redirect diagnostics and service messages there
         outcon <- file(file.path(dirname,
-            paste0('log', dashnameroot,
-                '-', acore, '.log')
-        ), open = 'w')
-        sink(outcon, type = 'output')
-        sink(outcon, type = 'message')
+            paste0('log', dashnameroot, '-', acore, '.log')),
+            open = 'w')
+        ## open(outcon)
+        sink(file = outcon)
+        ## sink(outcon, type = 'output')
+        ## sink(outcon, type = 'message')
+        ## outcon <- file(file.path(dirname,
+        ##     paste0('log', dashnameroot,
+        ##         '-', acore, '.log')
+        ## ), open = 'w')
+        ## sink(outcon, type = 'output')
+        ## sink(outcon, type = 'message')
 
         cat('Log core', acore)
         cat(' - Current time:',
@@ -1050,7 +1058,7 @@ learn <- function(
                 ), nrow = vn$R, ncol = ncomponents)
                 ## square distances from datapoints
                 distances <- distances + apply(Rmeans, 2, function(ameans){
-                    colSums((t(datapoints$Rdata) - ameans)^2, na.rm = TRUE)
+                    colSums(sqrt(abs(t(datapoints$Rdata) - ameans)), na.rm = TRUE)
                 })
             }
             if (vn$C > 0) { # continuous closed domain
@@ -1061,7 +1069,7 @@ learn <- function(
                 ), nrow = vn$C, ncol = ncomponents)
                 ## square distances from datapoints
                 distances <- distances + apply(Cmeans, 2, function(ameans){
-                    colSums((t(datapoints$Clat) - ameans)^2, na.rm = TRUE)
+                    colSums(sqrt(abs(t(datapoints$Clat) - ameans)), na.rm = TRUE)
                 })
             }
             if (vn$D > 0) { # discrete
@@ -1072,7 +1080,7 @@ learn <- function(
                 ), nrow = vn$D, ncol = ncomponents)
                 ## square distances from datapoints
                 distances <- distances + apply(Dmeans, 2, function(ameans){
-                    colSums((t(constants$Dlatinit) - ameans)^2, na.rm = TRUE)
+                    colSums(sqrt(abs(t(constants$Dlatinit) - ameans)), na.rm = TRUE)
                 })
             }
             ## if (vn$L > 0) { # 
@@ -2034,9 +2042,10 @@ learn <- function(
             '\n')
 
         ## Close output to log files
-        sink(NULL, type = 'output')
-        sink(NULL, type = 'message')
-        close(outcon)
+        sink(file = NULL)
+        ## sink(NULL, type = 'output')
+        ## sink(NULL, type = 'message')
+        ## close(outcon)
 
 
         ## output information from a core,
