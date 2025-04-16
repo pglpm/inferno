@@ -1485,7 +1485,7 @@ learn <- function(
         for (achain in 1:nchainsperthiscore) {
 
             chainnumber <- achain +
-                (maxchainspercore - 1) * (acore - 1) +
+                (maxchainspercore - (coreswithextrachain > 0)) * (acore - 1) +
                 min(coreswithextrachain, acore - 1)
             padchainnumber <- sprintf(paste0('%0', nchar(nchains), 'i'), chainnumber)
 

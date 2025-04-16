@@ -2,12 +2,12 @@ unloadNamespace('inferno')
 library('inferno')
 
 
-metadatatemplate(penguins, file='meta_penguins')
+## metadatatemplate(penguins, file='meta_penguins')
 
 seed <- 16
 parallel <- 6
 
-outputdir <- 'learn_penguins'
+outputdir <- '__learn_penguins'
 learntdir <- learn(
     data = penguins,
     prior = FALSE,
@@ -21,7 +21,7 @@ learntdir <- learn(
     subsampledata = 10,
     maxhours = 0,
     nsamplesperchain = 60,
-    nchains = parallel + 1,
+    nchains = parallel,
     ##
     seed = seed
 )
