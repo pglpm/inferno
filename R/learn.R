@@ -1003,7 +1003,7 @@ learn <- function(
 #### INITIAL-VALUE FUNCTION
         initsfn <- function() {
             ## Create components centres
-            lpnorm <- function(xx){xx^2}
+            lpnorm <- function(xx){abs(xx)^2}
             distances <- matrix(0, nrow = npoints, ncol = ncomponents)
             if (vn$R > 0) { # continuous open domain
                 Rmeans <- matrix(rnorm(
@@ -1946,19 +1946,18 @@ learn <- function(
                 printtimediff(difftime(Sys.time(), starttime, units = 'auto')),
                 '\n')
 
-#### Print estimated remaining time
-            remainingTime <- (minchainspercore + (coreswithextrachain > 0)) *
-                difftime(Sys.time(), starttime, units = 'auto') / achain
-            if (is.finite(remainingTime) && remainingTime > 0) {
-                print2user(
-                    paste0(
-                        '\rSampling. Core ', acore, ' estimated end time: ',
-                        printtimeend(remainingTime),
-                        '   '
-                    ),
-                    outcon
-                )
-            }
+#### Print estimated end time
+            endTime <- Sys.time() +
+                ( (minchainspercore + (coreswithextrachain > 0)) *
+                difftime(Sys.time(), starttime) / achain )
+            print2user(
+                paste0(
+                    '\rSampling. Core ', acore, ' estimated end time: ',
+                    format(endTime, format='%Y-%m-%d %H:%M'),
+                    '   '
+                ),
+                outcon
+            )
 
             maxusedcomponents <- max(maxusedcomponents, usedcomponents)
             maxiterations <- max(maxiterations, nitertot)
