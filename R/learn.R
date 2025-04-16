@@ -874,6 +874,15 @@ learn <- function(
         ), open = 'w')
         sink(file = outcon, type = 'output')
         sink(file = outcon, type = 'message')
+        if(acore < 0){
+            closecons <- function(){
+                ## Close output to log files
+                sink(file = NULL, type = 'output')
+                sink(file = NULL, type = 'message')
+                close(outcon)
+            }
+            on.exit(closecons())
+        }
 
         cat('Log core', acore)
         cat(' - Current time:',
@@ -994,6 +1003,7 @@ learn <- function(
 #### INITIAL-VALUE FUNCTION
         initsfn <- function() {
             ## Create components centres
+            lpnorm <- function(xx){sqrt(abs(xx))}
             distances <- matrix(0, nrow = npoints, ncol = ncomponents)
             if (vn$R > 0) { # continuous open domain
                 Rmeans <- matrix(rnorm(
@@ -1003,7 +1013,7 @@ learn <- function(
                 ), nrow = vn$R, ncol = ncomponents)
                 ## square distances from datapoints
                 distances <- distances + apply(Rmeans, 2, function(ameans){
-                    colSums((t(datapoints$Rdata) - ameans)^2, na.rm = TRUE)
+                    colSums(lpnorm(t(datapoints$Rdata) - ameans), na.rm = TRUE)
                 })
             }
             if (vn$C > 0) { # continuous closed domain
@@ -1014,7 +1024,7 @@ learn <- function(
                 ), nrow = vn$C, ncol = ncomponents)
                 ## square distances from datapoints
                 distances <- distances + apply(Cmeans, 2, function(ameans){
-                    colSums((t(datapoints$Clat) - ameans)^2, na.rm = TRUE)
+                    colSums(lpnorm(t(datapoints$Clat) - ameans), na.rm = TRUE)
                 })
             }
             if (vn$D > 0) { # discrete
@@ -1025,7 +1035,7 @@ learn <- function(
                 ), nrow = vn$D, ncol = ncomponents)
                 ## square distances from datapoints
                 distances <- distances + apply(Dmeans, 2, function(ameans){
-                    colSums((t(constants$Dlatinit) - ameans)^2, na.rm = TRUE)
+                    colSums(lpnorm(t(constants$Dlatinit) - ameans), na.rm = TRUE)
                 })
             }
             ## if (vn$L > 0) { # 
@@ -1036,7 +1046,7 @@ learn <- function(
             ##     ), nrow = vn$L, ncol = ncomponents)
             ##     ## square distances from datapoints
             ##     distances <- distances + apply(Lmeans, 2, function(ameans){
-            ##         colSums((t(constants$Llatinit) - ameans)^2, na.rm = TRUE)
+            ##         colSums(lpnorm(t(constants$Llatinit) - ameans), na.rm = TRUE)
             ##     })
             ## }
             ## if (vn$B > 0) {
@@ -1047,7 +1057,7 @@ learn <- function(
             ##         ), nrow = vn$B, ncol = ncomponents)
             ##     ## square distances from datapoints
             ##     distances <- distances + apply(Bprobs, 2, function(ameans){
-            ##         colSums((t(datapoints$Bdata) - ameans)^2, na.rm = TRUE)
+            ##         colSums(lpnorm(t(datapoints$Bdata) - ameans), na.rm = TRUE)
             ##     })
             ## }
 
@@ -1564,26 +1574,6 @@ learn <- function(
                     printtimediff(difftime(Sys.time(), starttime, units = 'auto')),
                     '\n')
 
-                ## #### Remove iterations with non-finite values
-                ## ## old version
-                ##                 toRemove <- which(!is.finite(mcsamples), arr.ind=TRUE)
-                ##                 ##
-                ##                 if(length(toRemove) > 0){
-                ##                     print2user('\nWARNING: SOME NON-FINITE OUTPUTS\n', outcon)
-                ##                     ##
-                ##                     flagnonfinite <- TRUE
-                ##                     nonfinitechains <- TRUE
-                ##                     if(length(unique(toRemove[,1])) == nrow(mcsamples)){
-                ##                         suppressWarnings(sink())
-                ##                         suppressWarnings(sink(NULL,type='message'))
-                ##                         registerDoSEQ()
-                ##                         if(ncores > 1){ parallel::stopCluster(cl) }
-                ##                         stop('...TOO MANY NON-FINITE OUTPUTS. ABORTING')
-                ##                     }else{
-                ##                         mcsamples <- mcsamples[-unique(toRemove[,1]),,drop=FALSE]
-                ##                     }
-                ##                 }
-
 #### Remove iterations with non-finite values
                 if(any(!is.finite(unlist(mcsamples)))) {
                     toRemove <- sort(unique(unlist(lapply(mcsamples, function(xx) {
@@ -1603,9 +1593,6 @@ learn <- function(
                     ))
                     if (length(toRemove) == ncol(mcsamples$W)) {
                         cat('\n...TOO MANY NON-FINITE OUTPUTS!\n')
-                        ## print2user('\n...TOO MANY NON-FINITE OUTPUTS!\n', outcon)
-                        ## suppressWarnings(sink())
-                        ## suppressWarnings(sink(NULL,type='message'))
                         ## ## registerDoSEQ()
                         ## if(exists('cl')){ parallel::stopCluster(cl) }
                         ## stop('...TOO MANY NON-FINITE OUTPUTS. ABORTING')
@@ -1985,11 +1972,6 @@ learn <- function(
         cat('\nTotal time',
             printtimediff(difftime(Sys.time(), starttime, units = 'auto')),
             '\n')
-
-        ## Close output to log files
-        sink(file = NULL, type = 'output')
-        sink(file = NULL, type = 'message')
-        close(outcon)
 
         ## output information from a core,
         ## passed to the originally calling process
