@@ -1,8 +1,7 @@
 unloadNamespace('inferno')
 library('inferno')
 
-
-metadatatemplate(penguins, file='meta_penguins')
+## metadatatemplate(penguins, file='meta_penguins')
 
 seed <- 16
 parallel <- 15
