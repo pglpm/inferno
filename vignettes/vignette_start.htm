@@ -343,6 +343,8 @@ code > span.er { color: #a61717; background-color: #e3d2d2; }
 
 <div id="a-crash-course-in-population-inference" class="section level2">
 <h2>A crash course in population inference</h2>
+<div id="population-inferences" class="section level3">
+<h3>Population inferences</h3>
 <p>A very common type of inference is the following. We have a large or
 potentially infinite group of entities, each having a set of
 characteristics. Having checked the characteristics of several entities
@@ -377,12 +379,32 @@ of two possible diseases.</li>
 <ul>
 <li><em>Characteristics</em>: age; sex; weight; presence or absence of a
 particular genetic factor; symptoms from a specific set of possible
-ones; kind of disease.</li>
+ones; results from clinical tests taken at different times; kind of
+disease.</li>
 </ul>
 <p>We observed as many as possible of these characteristics in a sample
 of people from this group. Now a new person from the same group appears
 in front of us. We check this person’s age, sex, weight, symptoms. We
 need to guess which of the two diseases affects this person.</p>
+<p><br />
+The kind of inference summarily described above has one important
+aspect. Suppose you have collected a sample from your group of interest,
+and you want to use this sample to make guesses about new entities from
+the same group. If someone exchanged one entity in your sample with
+another one <em>unsystematically</em> chosen from the group, then you
+wouldn’t protest. After all, you still have the same number of samples
+from the same group. This aspect is called
+<strong>exchangeability</strong>: we say that this kind of inference is
+exchangeable. There are kinds of inference for which this aspect is not
+true. For example, suppose you’re given some stock data from four
+consecutive days, and you want to make guesses about the next day. If
+someone replaced any of your four datapoints with a datapoint an
+unsystematically chosen other day of the year, then you would protest:
+the time order of the datapoints matter. This is an example of
+non-exchangeable inference.</p>
+<p>The inferences for which <em>inferno</em> is designed are
+exchangeable ones. We shall also call them <strong>population
+inferences</strong>.</p>
 <p><br />
 Having discussed these simple examples, let’s agree on some more
 standard terminology. Let’s call:</p>
@@ -392,6 +414,20 @@ standard terminology. Let’s call:</p>
 person, animal, etc.</li>
 <li><strong>Variate</strong>: what we’ve called ‘characteristic’.</li>
 </ul>
+<p><br />
+</p>
+</div>
+<div id="probability-and-population-frequencies" class="section level3">
+<h3>Probability and population frequencies</h3>
+<p>We have been speaking about “making guesses”; but what does this
+mean?</p>
+<p>When a unit is chosen unsystematically from a group, it’s only in
+rare situations that we may be sure about the characteristics of this
+unit before checking them. Suppose for instance that the group of
+interest is ‘all adults from a given country’; and the characteristics
+of interest are <em>sex</em>, <em>weight</em>, <em>height</em>. If a
+person is chosen from this group, we can’t be sure beforehand of how
+tall this person will be. We can exclude values like 4~m</p>
 <p><a href="https://doi.org/10.1016/j.cmet.2022.02.001">Brakedal &amp;
 al. (2022)</a>, which generously and professionally shares its <a href="https://www.cell.com/cms/10.1016/j.cmet.2022.02.001/attachment/82e51142-50b8-4f84-a3e0-7c08d641a47b/mmc2.xlsx">data</a>.</p>
 <ul>
@@ -479,6 +515,7 @@ values <code>Placebo</code> and <code>NR</code>.</p></li>
 </tr>
 </tbody>
 </table>
+</div>
 <div id="natural-vs-controlled-or-biased-variates" class="section level3">
 <h3>“Natural” vs controlled or “biased” variates</h3>
 </div>

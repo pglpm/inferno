@@ -53,7 +53,7 @@ Pr <- function(
     } else if (isFALSE(parallel)) {
         ## user wants us not to use parallel cores
         ncores <- 1
-        doParallel::registerDoSEQ()
+        foreach::registerDoSEQ()
     } else if (is.null(parallel)) {
         ## user wants us not to do anything
         ncores <- foreach::getDoParWorkers()
