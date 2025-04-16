@@ -12,7 +12,7 @@ learn(
   nsamples = 3600,
   nchains = 60,
   nsamplesperchain = 60,
-  parallel = TRUE,
+  parallel = NULL,
   seed = NULL,
   cleanup = TRUE,
   appendtimestamp = TRUE,
@@ -56,9 +56,7 @@ but can be used to calculate hyperparameters.}
 
 \item{nsamplesperchain}{Integer: number of Monte Carlo samples per chain.}
 
-\item{parallel}{Logical: use pre-existing parallel workers from package
-\code{\link[doParallel]{doParallel}}.
-Or integer: create and use that many parallel workers. Default \code{TRUE}.}
+\item{parallel}{Logical or \code{NULL} or positive integer: \code{TRUE}: use roughly half of available cores; \code{FALSE}: use serial computation; \code{NULL}: don't do anything (use pre-registered condition); integer: use this many cores. Default \code{NULL}}
 
 \item{seed}{Integer: use this seed for the random number generator.
 If missing or \code{NULL} (default), do not set the seed.}

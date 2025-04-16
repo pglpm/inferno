@@ -5,7 +5,7 @@
 \title{Plot one-dimensional posterior probabilities}
 \usage{
 plotFsamples(
-  file,
+  filename,
   learnt,
   data,
   plotprobability = TRUE,
@@ -18,7 +18,7 @@ plotFsamples(
 )
 }
 \arguments{
-\item{file}{string: name of plot output file}
+\item{filename}{string: name of plot output file}
 
 \item{data}{data.table object or filepath: datapoints}
 

@@ -9,8 +9,7 @@
 #' @param priorY numeric vector with the same length as the rows of `Y`, or `TRUE`, or `NULL` (default): prior probabilities or base rates for the `Y` values. If `TRUE`, the prior probabilities are assumed to be all equal.
 #' @param nsamples integer or `NULL` or `"all"`: desired number of samples of the variability of the probability for `Y`. If `NULL`, no samples are reported. If `"all"` (or `Inf`), all samples obtained by the \code{\link{learn}} function are used. Default `100`.
 #' @param quantiles numeric vector, between 0 and 1, or `NULL`: desired quantiles of the variability of the probability for `Y`. Default `c(0.055, 0.25, 0.75, 0.945)`, that is, the 5.5%, 25%, 75%, 94.5% quantiles (these are typical quantile values in the Bayesian literature: they give 50% and 89% credibility intervals, which correspond to 1 shannons and 0.5 shannons of uncertainty). If `NULL`, no quantiles are calculated.
-#' @param parallel logical or integer: whether to use pre-existing parallel
-#'   workers, or how many to create and use. Default `TRUE`.
+#' @param parallel Logical or `NULL` or positive integer: `TRUE`: use roughly half of available cores; `FALSE`: use serial computation; `NULL`: don't do anything (use pre-registered condition); integer: use this many cores. Default `NULL`
 #' @param silent logical: give warnings or updates in the computation?
 #'   Default `FALSE`.
 #' @param usememory logical: save partial results to disc, to avoid crashes?
@@ -29,8 +28,8 @@ Pr <- function(
     priorY = NULL,
     nsamples = 100L,
     quantiles = c(0.055, 0.25, 0.75, 0.945),
-    parallel = TRUE,
-    silent = TRUE,
+    parallel = NULL,
+    silent = FALSE,
     usememory = TRUE,
     keepYX = TRUE
 ) {
@@ -38,61 +37,49 @@ Pr <- function(
         cat('\n')
     }
 
-#### Determine the status of parallel processing
-    if (is.logical(parallel) && parallel) {
-        if (foreach::getDoParRegistered()) {
-            if (!silent) {
-                cat('Using already registered', foreach::getDoParName(),
-                    'with', foreach::getDoParWorkers(), 'workers\n')
-            }
-            ncores <- foreach::getDoParWorkers()
-        } else {
-            if (!silent) {
-                cat('No parallel backend registered.\n')
-            }
-            ncores <- 1
-        }
-    } else if (is.numeric(parallel) && parallel >= 2) {
-        if (foreach::getDoParRegistered()) {
-            ncores <- min(foreach::getDoParWorkers(), parallel)
-            if (!silent) {
-                cat('Using already registered', foreach::getDoParName(),
-                    'with', foreach::getDoParWorkers(), 'workers\n')
-                if(parallel > ncores) {
-                    cat('NOTE: fewer pre-registered cores',
-                        'than requested in the "parallel" argument.\n')
-                }
-            }
-        } else {
-            ## ##
-            ## ## Alternative way to register cores;
-            ## ## might need to be used for portability to Windows?
-            ## registerDoSEQ()
-            ## cl <- makePSOCKcluster(ncores)
-            ## ##
-            cl <- parallel::makeCluster(parallel)
-            doParallel::registerDoParallel(cl)
-            if (!silent) {
-                cat('Registered', foreach::getDoParName(),
-                    'with', foreach::getDoParWorkers(), 'workers\n')
-            }
-            ncores <- parallel
-            closecoresonexit <- function(){
-                if(!silent) {
-                    cat('\nClosing connections to cores.\n')
-                }
-                foreach::registerDoSEQ()
-                parallel::stopCluster(cl)
-                env <- foreach:::.foreachGlobals
-                rm(list=ls(name=env), pos=env)
-            }
-            on.exit(closecoresonexit())
-        }
-    } else {
-        if (!silent) {
-            cat('No parallel backend registered.\n')
-        }
+#### Requested parallel processing
+    ## NB: doesn't make sense to have more cores than chains
+    closeexit <- FALSE
+    if (isTRUE(parallel)) {
+        ## user wants us to register a parallel backend
+        ## and to choose number of cores
+        ncores <- max(1,
+            min(nchains, floor(parallel::detectCores() / 2)))
+        cl <- parallel::makeCluster(ncores)
+        doParallel::registerDoParallel(cl)
+        closeexit <- TRUE
+        if(!silent){cat('Registered', foreach::getDoParName(),
+            'with', foreach::getDoParWorkers(), 'workers\n')}
+    } else if (isFALSE(parallel)) {
+        ## user wants us not to use parallel cores
         ncores <- 1
+        doParallel::registerDoSEQ()
+    } else if (is.null(parallel)) {
+        ## user wants us not to do anything
+        ncores <- foreach::getDoParWorkers()
+    } else if (is.finite(parallel) && parallel >= 1) {
+        ## user wants us to register 'parallal' # of cores
+        ncores <- min(nchains, parallel)
+        cl <- parallel::makeCluster(ncores)
+        doParallel::registerDoParallel(cl)
+        closeexit <- TRUE
+        if(!silent){cat('Registered', foreach::getDoParName(),
+            'with', foreach::getDoParWorkers(), 'workers\n')}
+    } else {
+        stop("Unknown value of argument 'parallel'")
+    }
+
+    ## Close parallel connections if any were opened
+    if(closeexit) {
+        closecoresonexit <- function(){
+            cat('\nClosing connections to cores.\n')
+            foreach::registerDoSEQ()
+            parallel::stopCluster(cl)
+            ## parallel::setDefaultCluster(NULL)
+            env <- foreach:::.foreachGlobals
+            rm(list=ls(name=env), pos=env)
+        }
+        on.exit(closecoresonexit())
     }
 
     ## Extract Monte Carlo output & auxmetadata

@@ -1,6 +1,6 @@
 #' Plot one-dimensional posterior probabilities
 #'
-#' @param file string: name of plot output file
+#' @param filename string: name of plot output file
 #' @param learned Either a string with the name of a directory or full
 #'   path for an 'learnt.rds' object, or such an object itself
 #' @param data data.table object or filepath: datapoints
@@ -22,7 +22,7 @@
 #'
 #' @export
 plotFsamples <- function(
-    file,
+    filename,
     learnt,
     data,
     plotprobability = TRUE,
@@ -33,7 +33,6 @@ plotFsamples <- function(
     parallel = TRUE,
     silent = FALSE
 ) {
-
     fontfamily <- 'Palatino'
     ## Tol colour-blind-friendly palette
     black <- 'black'
@@ -101,7 +100,7 @@ plotFsamples <- function(
     addplot <- FALSE
 
     graphics.off()
-    pdf(file = paste0(file, '.pdf'), family = fontfamily,
+    pdf(file = paste0(filename, '.pdf'), family = fontfamily,
         height = 8.27, width = 11.69)
     par(mfrow = c(1, 1))
 
@@ -124,7 +123,6 @@ plotFsamples <- function(
             if(mcmctype == 'R') {
                 Xgrid <- cbind(seq(plotmin, plotmax, length.out = 256))
                 colnames(Xgrid) <- name
-
                 probabilities <- Pr(Y = Xgrid, X = NULL,
                     learnt = learnt,
                     quantiles = quants,

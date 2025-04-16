@@ -34,6 +34,7 @@ mcmcstop <- function(
     ess <- 1/relmcse^2
     maxrelmcse <- max(relmcse)
     autothinning <- ceiling(1.5 * nrow(traces)/ess)
+    avg <- apply(traces, 2, mean)
 
     if(is.null(thinning)) {
         thinning <- max(autothinning)
@@ -59,7 +60,8 @@ mcmcstop <- function(
         toprint = list(
             'rel. MC standard error' = relmcse,
             'eff. sample size' = ess,
-            'needed thinning' = autothinning
+            'needed thinning' = autothinning,
+            'average' = avg
         )
     )
 }
