@@ -1949,7 +1949,7 @@ learn <- function(
 
 #### Print estimated end time
             endTime <- Sys.time() +
-                ( (nchainsperthiscore + (acore > coreswithextrachain)) *
+                ( (nchainsperthiscore + (acore > coreswithextrachain) - achain) *
                 difftime(Sys.time(), starttime) / achain )
             print2user(
                 paste0(
