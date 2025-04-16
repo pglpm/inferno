@@ -5,11 +5,11 @@ library('inferno')
 seed <- 16
 parallel <- 15
 
-outputdir <- '__learn_penguins'
+outputdir <- '__learn_lungs'
 learntdir <- learn(
-    data = penguins,
+    data = 'calibration_train_cleaned.csv',
     prior = FALSE,
-    metadata = 'meta_penguins.csv',
+    metadata = 'meta_calibration_train.csv',
     outputdir = outputdir,
     appendtimestamp = TRUE,
     appendinfo = TRUE,

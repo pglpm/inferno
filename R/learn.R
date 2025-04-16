@@ -849,7 +849,7 @@ learn <- function(
         maxchainspercore, 'chains per core.\n')
     cat('Core logs are being saved in individual files.\n')
     cat('\nC-compiling samplers appropriate to the variates (package Nimble)\n')
-    cat('this can take tens of minutes with many data or variates.\nPlease wait...\r')
+    cat('this can take tens of minutes. Please wait...\r')
 
     ## ## Needed if method F. for K initialization is used
     ## Ksample <- sample(0:1, 1)
@@ -1459,11 +1459,12 @@ learn <- function(
         if (acore == 1) {
             print2user(paste0('\rCompiled core ', acore, '. ',
                 'Number of samplers: ',
-                length(confnimble$samplerExecutionOrder), '.\n',
+                length(confnimble$samplerExecutionOrder), '.       \n',
                 'Estimating remaining time, please be patient...'),
                 outcon)
         }
-
+this can take tens of minutes. Please wait...
+Compiled core 1. Number of samplers: 2757.
         ## cat('Loop over chains')
 ##################################################
 #### LOOP OVER CHAINS (WITHIN ONE CORE)
