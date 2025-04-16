@@ -28,6 +28,7 @@ palette(c(black='black',
         cyan='#66CCEE',
         grey='#BBBBBB',
         midgrey='#888888'))
+set.seed(16)
 ```
 
 ## A crash course in population inference
@@ -72,25 +73,99 @@ Having discussed these simple examples, let's agree on some more standard termin
 
 We have been speaking about "making guesses"; but what does this mean?
 
-When a unit is chosen unsystematically from a population, it's only in rare situations that we may be sure about the characteristics of this unit before checking them. Suppose for instance that the population of interest is 'all adults from a given country'; and the characteristics of interest are *sex*, *weight*, *height*. If a person is chosen from this population, we can't be sure beforehand of how tall this person will be. We can exclude values like 4 m or 20 cm, but we'll be uncertain about many other possible values. Even if someone tells us the sex and weight of this person, we'll still be in doubt, but maybe we can consider some values more probable than others.
+When a unit is chosen unsystematically from a population, it's only in rare situations that we may be sure about the variates of this unit before checking them. Suppose for instance that the population of interest is 'all adults from a given country'; and the variates of interest are `sex`, `weight`, `height`. If a person is chosen from this population, we can't be sure beforehand of how tall this person will be. We can exclude values like 4 m or 20 cm, but we'll be uncertain about many other possible values. Even if someone tells us the sex and weight of this person, we'll still be in doubt, but maybe we can consider some values more probable than others.
 
-That's the keyword: **probability**. Although we are unsure about a characteristic of a unit, we can still find some values more probable than others: we may consider it more probable that the person is 160 cm tall than 180 cm tall; or in a clinical inference we may consider it more probable that the patient has a particular virus than not.
+That's the keyword: **probability**. Although we are unsure about a variate of a unit, we can still find some values more probable than others: we may consider it more probable that the person is 160 cm tall than 180 cm tall; or in a clinical inference we may consider it more probable that the patient has a particular virus than not.
 
-Probability is our *degree of belief* about the value of the unknown characteristic.
+Probability is our *degree of belief* about the value of the unknown variate.
 
-Note that probability is not a physical property of the unit. For instance, the person in question may be exactly 158 cm tall; the probability of being 180 cm tall is not something we can "measure" from the person. Also, if we found out some other characteristic of the person -- say we knew the weight, and now we know also the sex -- then the probability we assign to 180 cm may increase or decrease; but the person is exactly the same as before. Probability is not a property of the population either. For instance, for one person from a population we may think 150 cm to be the most probable height, but for another person from the same population we may think 180 cm to be the most probable height instead.
+Note that probability is not a physical property of the unit. For instance, the person in question may be exactly 158 cm tall; the probability of being 180 cm tall is not something we can "measure" from the person. Also, if we found out some other variate of the person -- say we knew the weight, and now we know also the sex -- then the probability we assign to 180 cm may increase or decrease; but the person is exactly the same as before. Probability is not a property of the population either. For instance, for one person from a population we may think 150 cm to be the most probable height, but for another person from the same population we may think 180 cm to be the most probable height instead.
 
-Probability expresses the *information* we have about the characteristic of a unit. This is why another researcher may have a different probability about the same unit: because they may have different information about that unit.
+Probability expresses the *information* we have about the variate of a unit. This is why another researcher may have a different probability about the same unit: because they may have different information about that unit.
 
 \
-There is a situation in which we would all agree about the probability about a characteristic of a unit: when we know the *frequencies* for that characteristic in the population. Suppose for instance that the population of interest is that of penguins who lived in particular locations in some particular years (penguins from other locations or other times are not part of this population). The characteristics are the penguin's *species* and 
+There is a situation in which we would all agree about the probability about a variate of a unit: when we know the *frequencies* for that variate in the population. Suppose for instance that the population of interest is that of penguins who lived in particular locations in some particular years (penguins from other locations or other times are not part of this population). The variates are the penguins' `species` and the `island` they lived in.
+
+You're told that, as a matter of fact, 43.7% of penguins from the *whole* population are of species *Adelie*, 20.0% of species *Chinstrap*, and 36.3% of species *Gentoo*. Now a penguin from that population is brought in front of you, but you can't see any of its characteristics. What's your degree of belief that this penguin is of species *Adelie*, or *Chinstrap*, or *Gentoo*? We'd all agree, given the frequency information about this population, to assign the probabilities of 43.7%, 20.0%, and 36.3% to the three possibilities, for this penguin. We write this as follows:
+$$
+\begin{aligned}
+&\mathrm{Pr}(\texttt{species}\!=\!\mathit{Adelie} \mid 
+\textsf{population frequency}) = 0.437
+\\
+&\mathrm{Pr}(\texttt{species}\!=\!\mathit{Chinstrap} \mid 
+\textsf{population frequency}) = 0.200
+\\
+&\mathrm{Pr}(\texttt{species}\!=\!\mathit{Gentoo} \mid 
+\textsf{population frequency}) = 0.363
+\end{aligned}
+$$
+On the left side of the '$\mid$' bar we write what we're guessing or are unsure about. On the right side, we write the information that led to our probability assignment; in this case, the information about the full population. When the information behind a probability is understood, the '$\mid$' bar and the right side are usually omitted.
+
+In this case, the highest probability is for the *Adelie* species, but the other two possibilities cannot be excluded. The numerical values of these probabilities are extremely important, because they determine any kind of **decision** we may have to make about our unit. This is especially true in medical decision-making, where probabilities, combined with **utilities**, determine which is the best choice that a clinician can make. Medical and clinical decision-making, and the role of probabilities in them, are discussed for instance in the texts by Sox & al.: [*Medical Decision Making* (2024)](https://doi.org/10.1002/9781119627876), by Hunink & al.: [*Decision Making in Health and Medicine* (2014)](https://doi.org/10.1017/CBO9781139506779), or by Weinstein & Fineberg [*Clinical Decision Analysis* (1980)](https://archive.org/details/clinicaldecision0000unse_e3n8).
+
+The example with the penguin population can be analysed further. The penguins in this population come from three possible `island`s: *Biscoe*, *Dream*, and *Torgersen*. Therefore a penguin can be of one of three species and from one of three islands, for a total of 3 × 3 = 9 possibilities. You're told that, as a matter of fact, the frequencies of these nine combinations in the whole population are as follows:
+
+|             |          |             |          |
+|:-----------:|:--------:|:-----------:|:--------:|
+|             | *Adelie* | *Chinstrap* | *Gentoo* |
+| *Biscoe*    | 12.6%    | 1.8%        | 34.0%    |
+| *Dream*     | 17.4%    | 16.5%       | 1.4%     |
+| *Torgersen* | 13.8%    | 1.6%        | 0.9%     |
+
+Then we'd all agree that the probability that the penguin brought to us is of `species` *Gentoo* and from `island` *Biscoe* would be 34.0%:
+$$
+\mathrm{Pr}(
+\texttt{species}\!=\!\mathit{Gentoo} ,
+\texttt{island}\!=\!\mathit{Biscoe} 
+\mid 
+\textsf{population frequency}) = 0.340
+$$
+
+\
+
+But there's even more interesting information in the population frequencies above. Let's focus on *Biscoe* island. With a quick sum we see that 48.4% of the whole population comes from *Biscoe* island (thus we'd assign a probability of 0.484 that our penguin comes from that island). Dividing the frequencies above, row-wise, by the frequencies of the respective islands (the sums of each row), we can find the frequency of each species *for each particular island*:
+
+|                  |          |             |          |
+|:----------------:|:--------:|:-----------:|:--------:|
+|                  | *Adelie* | *Chinstrap* | *Gentoo* |
+| from *Biscoe*    | 26.03%   | 3.72%       | 70.25%   |
+| from *Dream*     | 49.29%   | 46.74%      | 3.97%    |
+| from *Torgersen* | 84.66%   | 9.82%       | 5.52%    |
+
+ We call these **conditional frequencies**, and we call the group of penguins that come from `island` *Biscoe*a **subpopulation** of the whole population. The table above reports the frequencies of the three `species` in each subpopulation.
+
+Thus we also know, for instance, that 70.25% of penguins in the subpopulation from `island` *Biscoe* are of `species` *Gentoo*. This species is the majority in that subpopulation -- contrast this with the majority in the whole population, which we saw was *Adelie*. Indeed, your most probable guess about the `species` of the penguin in front of you was *Adelie*, with 0.437 probability. 
+
+But suppose now someone tells you that this penguin comes from `island` *Biscoe* (so this variate is now known to you). Given this new piece of information, which probabilities do you assign to the `species` of this penguin? Obviously 0.2603 for *Adelie*, 0.0372 for *Chinstrap*, and 0.7025 for *Gentoo*. We write this as follows:
+$$
+\begin{aligned}
+&\mathrm{Pr}(\texttt{species}\!=\!\mathit{Adelie} \mid 
+\texttt{island}\!=\!\mathit{Biscoe} ,
+\textsf{population frequency}) = 0.2603
+\\
+&\mathrm{Pr}(\texttt{species}\!=\!\mathit{Chinstrap} \mid 
+\texttt{island}\!=\!\mathit{Biscoe} ,
+\textsf{population frequency}) = 0.0372
+\\
+&\mathrm{Pr}(\texttt{species}\!=\!\mathit{Gentoo} \mid 
+\texttt{island}\!=\!\mathit{Biscoe} ,
+\textsf{population frequency}) = 0.7025
+\end{aligned}
+$$
+The right side of the '$\mid$' bar now reports the extra information that the penguin comes from `island` *Biscoe*.
 
 
-[Brakedal & al. (2022)](https://doi.org/10.1016/j.cmet.2022.02.001), which generously and professionally shares its [data](https://www.cell.com/cms/10.1016/j.cmet.2022.02.001/attachment/82e51142-50b8-4f84-a3e0-7c08d641a47b/mmc2.xlsx).
 
-- **Treatment group**: *Binary* variate with values `Placebo` and `NR`.
+*(TO BE CONTINUED)*
 
-- **Sex**: *Binary* variate with values `Female` and `Male`.
+----
+
+----
+
+----
+
+(OLD TEXT)
+
 
 
 We store the name of the datafile
@@ -99,7 +174,7 @@ dataset <- penguins
 ```
 Here are the values for two subjects:
 ```{r echo = FALSE}
-knitr::kable(penguins[1:5,])
+knitr::kable(penguins[sample(1:nrow(penguins),5),])
 ```
 
 ### "Natural" vs controlled or "biased" variates
