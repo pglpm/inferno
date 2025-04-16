@@ -154,70 +154,227 @@ person, animal, etc.</li>
 <p>We have been speaking about “making guesses”; but what does this
 mean?</p>
 <p>When a unit is chosen unsystematically from a population, it’s only
-in rare situations that we may be sure about the characteristics of this
-unit before checking them. Suppose for instance that the population of
-interest is ‘all adults from a given country’; and the characteristics
-of interest are <em>sex</em>, <em>weight</em>, <em>height</em>. If a
-person is chosen from this population, we can’t be sure beforehand of
-how tall this person will be. We can exclude values like 4 m or 20 cm,
-but we’ll be uncertain about many other possible values. Even if someone
-tells us the sex and weight of this person, we’ll still be in doubt, but
-maybe we can consider some values more probable than others.</p>
+in rare situations that we may be sure about the variates of this unit
+before checking them. Suppose for instance that the population of
+interest is ‘all adults from a given country’; and the variates of
+interest are <code>sex</code>, <code>weight</code>, <code>height</code>.
+If a person is chosen from this population, we can’t be sure beforehand
+of how tall this person will be. We can exclude values like 4 m or
+20 cm, but we’ll be uncertain about many other possible values. Even if
+someone tells us the sex and weight of this person, we’ll still be in
+doubt, but maybe we can consider some values more probable than
+others.</p>
 <p>That’s the keyword: <strong>probability</strong>. Although we are
-unsure about a characteristic of a unit, we can still find some values
-more probable than others: we may consider it more probable that the
-person is 160 cm tall than 180 cm tall; or in a clinical inference we
-may consider it more probable that the patient has a particular virus
-than not.</p>
+unsure about a variate of a unit, we can still find some values more
+probable than others: we may consider it more probable that the person
+is 160 cm tall than 180 cm tall; or in a clinical inference we may
+consider it more probable that the patient has a particular virus than
+not.</p>
 <p>Probability is our <em>degree of belief</em> about the value of the
-unknown characteristic.</p>
+unknown variate.</p>
 <p>Note that probability is not a physical property of the unit. For
 instance, the person in question may be exactly 158 cm tall; the
 probability of being 180 cm tall is not something we can “measure” from
-the person. Also, if we found out some other characteristic of the
-person – say we knew the weight, and now we know also the sex – then the
-probability we assign to 180 cm may increase or decrease; but the person
-is exactly the same as before. Probability is not a property of the
-population either. For instance, for one person from a population we may
-think 150 cm to be the most probable height, but for another person from
-the same population we may think 180 cm to be the most probable height
+the person. Also, if we found out some other variate of the person – say
+we knew the weight, and now we know also the sex – then the probability
+we assign to 180 cm may increase or decrease; but the person is exactly
+the same as before. Probability is not a property of the population
+either. For instance, for one person from a population we may think
+150 cm to be the most probable height, but for another person from the
+same population we may think 180 cm to be the most probable height
 instead.</p>
 <p>Probability expresses the <em>information</em> we have about the
-characteristic of a unit. This is why another researcher may have a
-different probability about the same unit: because they may have
-different information about that unit.</p>
+variate of a unit. This is why another researcher may have a different
+probability about the same unit: because they may have different
+information about that unit.</p>
 <p><br>
 There is a situation in which we would all agree about the probability
-about a characteristic of a unit: when we know the <em>frequencies</em>
-for that characteristic in the population. Suppose for instance that the
-population of interest is that of penguins who lived in particular
-locations in some particular years (penguins from other locations or
-other times are not part of this population). The characteristics are
-the penguin’s <em>species</em> and</p>
-<p><a href="https://doi.org/10.1016/j.cmet.2022.02.001" class="external-link">Brakedal &amp;
-al. (2022)</a>, which generously and professionally shares its <a href="https://www.cell.com/cms/10.1016/j.cmet.2022.02.001/attachment/82e51142-50b8-4f84-a3e0-7c08d641a47b/mmc2.xlsx" class="external-link">data</a>.</p>
-<ul>
-<li><p><strong>Treatment group</strong>: <em>Binary</em> variate with
-values <code>Placebo</code> and <code>NR</code>.</p></li>
-<li><p><strong>Sex</strong>: <em>Binary</em> variate with values
-<code>Female</code> and <code>Male</code>.</p></li>
-</ul>
+about a variate of a unit: when we know the <em>frequencies</em> for
+that variate in the population. Suppose for instance that the population
+of interest is that of penguins who lived in particular locations in
+some particular years (penguins from other locations or other times are
+not part of this population). The variates are the penguins’
+<code>species</code> and the <code>island</code> they lived in.</p>
+<p>You’re told that, as a matter of fact, 43.7% of penguins from the
+<em>whole</em> population are of species <em>Adelie</em>, 20.0% of
+species <em>Chinstrap</em>, and 36.3% of species <em>Gentoo</em>. Now a
+penguin from that population is brought in front of you, but you can’t
+see any of its characteristics. What’s your degree of belief that this
+penguin is of species <em>Adelie</em>, or <em>Chinstrap</em>, or
+<em>Gentoo</em>? We’d all agree, given the frequency information about
+this population, to assign the probabilities of 43.7%, 20.0%, and 36.3%
+to the three possibilities, for this penguin. We write this as follows:
+<math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mtable><mtr><mtd columnalign="right" style="text-align: right"></mtd><mtd columnalign="left" style="text-align: left"><mrow><mi mathvariant="normal">P</mi><mi mathvariant="normal">r</mi></mrow><mrow><mo stretchy="true" form="prefix">(</mo><mtext mathvariant="monospace">𝚜𝚙𝚎𝚌𝚒𝚎𝚜</mtext><mspace width="-0.167em"></mspace><mo>=</mo><mspace width="-0.167em"></mspace><mrow><mi>𝐴</mi><mi>𝑑</mi><mi>𝑒</mi><mi>𝑙</mi><mi>𝑖</mi><mi>𝑒</mi></mrow><mo>∣</mo><mtext mathvariant="sans-serif">𝗉𝗈𝗉𝗎𝗅𝖺𝗍𝗂𝗈𝗇 𝖿𝗋𝖾𝗊𝗎𝖾𝗇𝖼𝗒</mtext><mo stretchy="true" form="postfix">)</mo></mrow><mo>=</mo><mn>0.437</mn></mtd></mtr><mtr><mtd columnalign="right" style="text-align: right"></mtd><mtd columnalign="left" style="text-align: left"><mrow><mi mathvariant="normal">P</mi><mi mathvariant="normal">r</mi></mrow><mrow><mo stretchy="true" form="prefix">(</mo><mtext mathvariant="monospace">𝚜𝚙𝚎𝚌𝚒𝚎𝚜</mtext><mspace width="-0.167em"></mspace><mo>=</mo><mspace width="-0.167em"></mspace><mrow><mi>𝐶</mi><mi mathvariant="italic">h</mi><mi>𝑖</mi><mi>𝑛</mi><mi>𝑠</mi><mi>𝑡</mi><mi>𝑟</mi><mi>𝑎</mi><mi>𝑝</mi></mrow><mo>∣</mo><mtext mathvariant="sans-serif">𝗉𝗈𝗉𝗎𝗅𝖺𝗍𝗂𝗈𝗇 𝖿𝗋𝖾𝗊𝗎𝖾𝗇𝖼𝗒</mtext><mo stretchy="true" form="postfix">)</mo></mrow><mo>=</mo><mn>0.200</mn></mtd></mtr><mtr><mtd columnalign="right" style="text-align: right"></mtd><mtd columnalign="left" style="text-align: left"><mrow><mi mathvariant="normal">P</mi><mi mathvariant="normal">r</mi></mrow><mrow><mo stretchy="true" form="prefix">(</mo><mtext mathvariant="monospace">𝚜𝚙𝚎𝚌𝚒𝚎𝚜</mtext><mspace width="-0.167em"></mspace><mo>=</mo><mspace width="-0.167em"></mspace><mrow><mi>𝐺</mi><mi>𝑒</mi><mi>𝑛</mi><mi>𝑡</mi><mi>𝑜</mi><mi>𝑜</mi></mrow><mo>∣</mo><mtext mathvariant="sans-serif">𝗉𝗈𝗉𝗎𝗅𝖺𝗍𝗂𝗈𝗇 𝖿𝗋𝖾𝗊𝗎𝖾𝗇𝖼𝗒</mtext><mo stretchy="true" form="postfix">)</mo></mrow><mo>=</mo><mn>0.363</mn></mtd></mtr></mtable><annotation encoding="application/x-tex">
+\begin{aligned}
+&amp;\mathrm{Pr}(\texttt{species}\!=\!\mathit{Adelie} \mid 
+\textsf{population frequency}) = 0.437
+\\
+&amp;\mathrm{Pr}(\texttt{species}\!=\!\mathit{Chinstrap} \mid 
+\textsf{population frequency}) = 0.200
+\\
+&amp;\mathrm{Pr}(\texttt{species}\!=\!\mathit{Gentoo} \mid 
+\textsf{population frequency}) = 0.363
+\end{aligned}
+</annotation></semantics></math> On the left side of the
+‘<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mo>∣</mo><annotation encoding="application/x-tex">\mid</annotation></semantics></math>’
+bar we write what we’re guessing or are unsure about. On the right side,
+we write the information that led to our probability assignment; in this
+case, the information about the full population. When the information
+behind a probability is understood, the
+‘<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mo>∣</mo><annotation encoding="application/x-tex">\mid</annotation></semantics></math>’
+bar and the right side are usually omitted.</p>
+<p>In this case, the highest probability is for the <em>Adelie</em>
+species, but the other two possibilities cannot be excluded. The
+numerical values of these probabilities are extremely important, because
+they determine any kind of <strong>decision</strong> we may have to make
+about our unit. This is especially true in medical decision-making,
+where probabilities, combined with <strong>utilities</strong>, determine
+which is the best choice that a clinician can make. Medical and clinical
+decision-making, and the role of probabilities in them, are discussed
+for instance in the texts by Sox &amp; al.: <a href="https://doi.org/10.1002/9781119627876" class="external-link"><em>Medical Decision
+Making</em> (2024)</a>, by Hunink &amp; al.: <a href="https://doi.org/10.1017/CBO9781139506779" class="external-link"><em>Decision Making in
+Health and Medicine</em> (2014)</a>, or by Weinstein &amp; Fineberg <a href="https://archive.org/details/clinicaldecision0000unse_e3n8" class="external-link"><em>Clinical
+Decision Analysis</em> (1980)</a>.</p>
+<p>The example with the penguin population can be analysed further. The
+penguins in this population come from three possible
+<code>island</code>s: <em>Biscoe</em>, <em>Dream</em>, and
+<em>Torgersen</em>. Therefore a penguin can be of one of three species
+and from one of three islands, for a total of 3 × 3 = 9 possibilities.
+You’re told that, as a matter of fact, the frequencies of these nine
+combinations in the whole population are as follows:</p>
+<table class="table"><tbody>
+<tr class="odd">
+<td align="center"></td>
+<td align="center"><em>Adelie</em></td>
+<td align="center"><em>Chinstrap</em></td>
+<td align="center"><em>Gentoo</em></td>
+</tr>
+<tr class="even">
+<td align="center"><em>Biscoe</em></td>
+<td align="center">12.6%</td>
+<td align="center">1.8%</td>
+<td align="center">34.0%</td>
+</tr>
+<tr class="odd">
+<td align="center"><em>Dream</em></td>
+<td align="center">17.4%</td>
+<td align="center">16.5%</td>
+<td align="center">1.4%</td>
+</tr>
+<tr class="even">
+<td align="center"><em>Torgersen</em></td>
+<td align="center">13.8%</td>
+<td align="center">1.6%</td>
+<td align="center">0.9%</td>
+</tr>
+</tbody></table>
+<p>Then we’d all agree that the probability that the penguin brought to
+us is of <code>species</code> <em>Gentoo</em> and from
+<code>island</code> <em>Biscoe</em> would be 34.0%:
+<math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mrow><mi mathvariant="normal">P</mi><mi mathvariant="normal">r</mi></mrow><mrow><mo stretchy="true" form="prefix">(</mo><mtext mathvariant="monospace">𝚜𝚙𝚎𝚌𝚒𝚎𝚜</mtext><mspace width="-0.167em"></mspace><mo>=</mo><mspace width="-0.167em"></mspace><mrow><mi>𝐺</mi><mi>𝑒</mi><mi>𝑛</mi><mi>𝑡</mi><mi>𝑜</mi><mi>𝑜</mi></mrow><mo>,</mo><mtext mathvariant="monospace">𝚒𝚜𝚕𝚊𝚗𝚍</mtext><mspace width="-0.167em"></mspace><mo>=</mo><mspace width="-0.167em"></mspace><mrow><mi>𝐵</mi><mi>𝑖</mi><mi>𝑠</mi><mi>𝑐</mi><mi>𝑜</mi><mi>𝑒</mi></mrow><mo>∣</mo><mtext mathvariant="sans-serif">𝗉𝗈𝗉𝗎𝗅𝖺𝗍𝗂𝗈𝗇 𝖿𝗋𝖾𝗊𝗎𝖾𝗇𝖼𝗒</mtext><mo stretchy="true" form="postfix">)</mo></mrow><mo>=</mo><mn>0.340</mn></mrow><annotation encoding="application/x-tex">
+\mathrm{Pr}(
+\texttt{species}\!=\!\mathit{Gentoo} ,
+\texttt{island}\!=\!\mathit{Biscoe} 
+\mid 
+\textsf{population frequency}) = 0.340
+</annotation></semantics></math></p>
+<p><br></p>
+<p>But there’s even more interesting information in the population
+frequencies above. Let’s focus on <em>Biscoe</em> island. With a quick
+sum we see that 48.4% of the whole population comes from <em>Biscoe</em>
+island (thus we’d assign a probability of 0.484 that our penguin comes
+from that island). Dividing the frequencies above, row-wise, by the
+frequencies of the respective islands (the sums of each row), we can
+find the frequency of each species <em>for each particular
+island</em>:</p>
+<table class="table"><tbody>
+<tr class="odd">
+<td align="center"></td>
+<td align="center"><em>Adelie</em></td>
+<td align="center"><em>Chinstrap</em></td>
+<td align="center"><em>Gentoo</em></td>
+</tr>
+<tr class="even">
+<td align="center">from <em>Biscoe</em>
+</td>
+<td align="center">26.03%</td>
+<td align="center">3.72%</td>
+<td align="center">70.25%</td>
+</tr>
+<tr class="odd">
+<td align="center">from <em>Dream</em>
+</td>
+<td align="center">49.29%</td>
+<td align="center">46.74%</td>
+<td align="center">3.97%</td>
+</tr>
+<tr class="even">
+<td align="center">from <em>Torgersen</em>
+</td>
+<td align="center">84.66%</td>
+<td align="center">9.82%</td>
+<td align="center">5.52%</td>
+</tr>
+</tbody></table>
+<p>We call these <strong>conditional frequencies</strong>, and we call
+the group of penguins that come from <code>island</code>
+<em>Biscoe</em>a <strong>subpopulation</strong> of the whole population.
+The table above reports the frequencies of the three
+<code>species</code> in each subpopulation.</p>
+<p>Thus we also know, for instance, that 70.25% of penguins in the
+subpopulation from <code>island</code> <em>Biscoe</em> are of
+<code>species</code> <em>Gentoo</em>. This species is the majority in
+that subpopulation – contrast this with the majority in the whole
+population, which we saw was <em>Adelie</em>. Indeed, your most probable
+guess about the <code>species</code> of the penguin in front of you was
+<em>Adelie</em>, with 0.437 probability.</p>
+<p>But suppose now someone tells you that this penguin comes from
+<code>island</code> <em>Biscoe</em> (so this variate is now known to
+you). Given this new piece of information, which probabilities do you
+assign to the <code>species</code> of this penguin? Obviously 0.2603 for
+<em>Adelie</em>, 0.0372 for <em>Chinstrap</em>, and 0.7025 for
+<em>Gentoo</em>. We write this as follows:
+<math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mtable><mtr><mtd columnalign="right" style="text-align: right"></mtd><mtd columnalign="left" style="text-align: left"><mrow><mi mathvariant="normal">P</mi><mi mathvariant="normal">r</mi></mrow><mrow><mo stretchy="true" form="prefix">(</mo><mtext mathvariant="monospace">𝚜𝚙𝚎𝚌𝚒𝚎𝚜</mtext><mspace width="-0.167em"></mspace><mo>=</mo><mspace width="-0.167em"></mspace><mrow><mi>𝐴</mi><mi>𝑑</mi><mi>𝑒</mi><mi>𝑙</mi><mi>𝑖</mi><mi>𝑒</mi></mrow><mo>∣</mo><mtext mathvariant="monospace">𝚒𝚜𝚕𝚊𝚗𝚍</mtext><mspace width="-0.167em"></mspace><mo>=</mo><mspace width="-0.167em"></mspace><mrow><mi>𝐵</mi><mi>𝑖</mi><mi>𝑠</mi><mi>𝑐</mi><mi>𝑜</mi><mi>𝑒</mi></mrow><mo>,</mo><mtext mathvariant="sans-serif">𝗉𝗈𝗉𝗎𝗅𝖺𝗍𝗂𝗈𝗇 𝖿𝗋𝖾𝗊𝗎𝖾𝗇𝖼𝗒</mtext><mo stretchy="true" form="postfix">)</mo></mrow><mo>=</mo><mn>0.2603</mn></mtd></mtr><mtr><mtd columnalign="right" style="text-align: right"></mtd><mtd columnalign="left" style="text-align: left"><mrow><mi mathvariant="normal">P</mi><mi mathvariant="normal">r</mi></mrow><mrow><mo stretchy="true" form="prefix">(</mo><mtext mathvariant="monospace">𝚜𝚙𝚎𝚌𝚒𝚎𝚜</mtext><mspace width="-0.167em"></mspace><mo>=</mo><mspace width="-0.167em"></mspace><mrow><mi>𝐶</mi><mi mathvariant="italic">h</mi><mi>𝑖</mi><mi>𝑛</mi><mi>𝑠</mi><mi>𝑡</mi><mi>𝑟</mi><mi>𝑎</mi><mi>𝑝</mi></mrow><mo>∣</mo><mtext mathvariant="monospace">𝚒𝚜𝚕𝚊𝚗𝚍</mtext><mspace width="-0.167em"></mspace><mo>=</mo><mspace width="-0.167em"></mspace><mrow><mi>𝐵</mi><mi>𝑖</mi><mi>𝑠</mi><mi>𝑐</mi><mi>𝑜</mi><mi>𝑒</mi></mrow><mo>,</mo><mtext mathvariant="sans-serif">𝗉𝗈𝗉𝗎𝗅𝖺𝗍𝗂𝗈𝗇 𝖿𝗋𝖾𝗊𝗎𝖾𝗇𝖼𝗒</mtext><mo stretchy="true" form="postfix">)</mo></mrow><mo>=</mo><mn>0.0372</mn></mtd></mtr><mtr><mtd columnalign="right" style="text-align: right"></mtd><mtd columnalign="left" style="text-align: left"><mrow><mi mathvariant="normal">P</mi><mi mathvariant="normal">r</mi></mrow><mrow><mo stretchy="true" form="prefix">(</mo><mtext mathvariant="monospace">𝚜𝚙𝚎𝚌𝚒𝚎𝚜</mtext><mspace width="-0.167em"></mspace><mo>=</mo><mspace width="-0.167em"></mspace><mrow><mi>𝐺</mi><mi>𝑒</mi><mi>𝑛</mi><mi>𝑡</mi><mi>𝑜</mi><mi>𝑜</mi></mrow><mo>∣</mo><mtext mathvariant="monospace">𝚒𝚜𝚕𝚊𝚗𝚍</mtext><mspace width="-0.167em"></mspace><mo>=</mo><mspace width="-0.167em"></mspace><mrow><mi>𝐵</mi><mi>𝑖</mi><mi>𝑠</mi><mi>𝑐</mi><mi>𝑜</mi><mi>𝑒</mi></mrow><mo>,</mo><mtext mathvariant="sans-serif">𝗉𝗈𝗉𝗎𝗅𝖺𝗍𝗂𝗈𝗇 𝖿𝗋𝖾𝗊𝗎𝖾𝗇𝖼𝗒</mtext><mo stretchy="true" form="postfix">)</mo></mrow><mo>=</mo><mn>0.7025</mn></mtd></mtr></mtable><annotation encoding="application/x-tex">
+\begin{aligned}
+&amp;\mathrm{Pr}(\texttt{species}\!=\!\mathit{Adelie} \mid 
+\texttt{island}\!=\!\mathit{Biscoe} ,
+\textsf{population frequency}) = 0.2603
+\\
+&amp;\mathrm{Pr}(\texttt{species}\!=\!\mathit{Chinstrap} \mid 
+\texttt{island}\!=\!\mathit{Biscoe} ,
+\textsf{population frequency}) = 0.0372
+\\
+&amp;\mathrm{Pr}(\texttt{species}\!=\!\mathit{Gentoo} \mid 
+\texttt{island}\!=\!\mathit{Biscoe} ,
+\textsf{population frequency}) = 0.7025
+\end{aligned}
+</annotation></semantics></math> The right side of the
+‘<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mo>∣</mo><annotation encoding="application/x-tex">\mid</annotation></semantics></math>’
+bar now reports the extra information that the penguin comes from
+<code>island</code> <em>Biscoe</em>.</p>
+<p><em>(TO BE CONTINUED)</em></p>
+<hr>
+<hr>
+<hr>
+<p>(OLD TEXT)</p>
 <p>We store the name of the datafile</p>
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">dataset</span> <span class="op">&lt;-</span> <span class="va">penguins</span></span></code></pre></div>
 <p>Here are the values for two subjects:</p>
 <table style="width:100%;" class="table">
 <colgroup>
+<col width="5%">
+<col width="13%">
+<col width="13%">
 <col width="11%">
-<col width="14%">
-<col width="12%">
-<col width="12%">
-<col width="17%">
-<col width="14%">
-<col width="10%">
-<col width="7%">
+<col width="11%">
+<col width="15%">
+<col width="13%">
+<col width="9%">
+<col width="6%">
 </colgroup>
 <thead><tr class="header">
+<th align="left"></th>
 <th align="left">species</th>
 <th align="left">island</th>
 <th align="right">bill_len</th>
@@ -229,54 +386,59 @@ values <code>Placebo</code> and <code>NR</code>.</p></li>
 </tr></thead>
 <tbody>
 <tr class="odd">
-<td align="left">Adelie</td>
-<td align="left">Torgersen</td>
-<td align="right">39.1</td>
-<td align="right">18.7</td>
-<td align="right">181</td>
-<td align="right">3750</td>
+<td align="left">225</td>
+<td align="left">Gentoo</td>
+<td align="left">Biscoe</td>
+<td align="right">48.2</td>
+<td align="right">15.6</td>
+<td align="right">221</td>
+<td align="right">5100</td>
 <td align="left">male</td>
-<td align="right">2007</td>
+<td align="right">2008</td>
 </tr>
 <tr class="even">
+<td align="left">127</td>
 <td align="left">Adelie</td>
 <td align="left">Torgersen</td>
-<td align="right">39.5</td>
-<td align="right">17.4</td>
-<td align="right">186</td>
-<td align="right">3800</td>
+<td align="right">38.8</td>
+<td align="right">17.6</td>
+<td align="right">191</td>
+<td align="right">3275</td>
 <td align="left">female</td>
-<td align="right">2007</td>
+<td align="right">2009</td>
 </tr>
 <tr class="odd">
-<td align="left">Adelie</td>
-<td align="left">Torgersen</td>
-<td align="right">40.3</td>
-<td align="right">18.0</td>
-<td align="right">195</td>
-<td align="right">3250</td>
+<td align="left">315</td>
+<td align="left">Chinstrap</td>
+<td align="left">Dream</td>
+<td align="right">46.9</td>
+<td align="right">16.6</td>
+<td align="right">192</td>
+<td align="right">2700</td>
 <td align="left">female</td>
-<td align="right">2007</td>
+<td align="right">2008</td>
 </tr>
 <tr class="even">
-<td align="left">Adelie</td>
-<td align="left">Torgersen</td>
-<td align="right"></td>
-<td align="right"></td>
-<td align="right"></td>
-<td align="right"></td>
-<td align="left"></td>
-<td align="right">2007</td>
+<td align="left">189</td>
+<td align="left">Gentoo</td>
+<td align="left">Biscoe</td>
+<td align="right">42.6</td>
+<td align="right">13.7</td>
+<td align="right">213</td>
+<td align="right">4950</td>
+<td align="left">female</td>
+<td align="right">2008</td>
 </tr>
 <tr class="odd">
-<td align="left">Adelie</td>
-<td align="left">Torgersen</td>
-<td align="right">36.7</td>
-<td align="right">19.3</td>
-<td align="right">193</td>
-<td align="right">3450</td>
+<td align="left">271</td>
+<td align="left">Gentoo</td>
+<td align="left">Biscoe</td>
+<td align="right">47.2</td>
+<td align="right">13.7</td>
+<td align="right">214</td>
+<td align="right">4925</td>
 <td align="left">female</td>
-<td align="right">2007</td>
+<td align="right">2009</td>
 </tr>
 </tbody>
 </table>
