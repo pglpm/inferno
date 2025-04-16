@@ -69,6 +69,9 @@
 <div class="section level2">
 <h2 id="a-crash-course-in-population-inference">A crash course in population inference<a class="anchor" aria-label="anchor" href="#a-crash-course-in-population-inference"></a>
 </h2>
+<div class="section level3">
+<h3 id="population-inferences">Population inferences<a class="anchor" aria-label="anchor" href="#population-inferences"></a>
+</h3>
 <p>A very common type of inference is the following. We have a large or
 potentially infinite group of entities, each having a set of
 characteristics. Having checked the characteristics of several entities
@@ -105,12 +108,32 @@ of two possible diseases.</li>
 <li>
 <em>Characteristics</em>: age; sex; weight; presence or absence of a
 particular genetic factor; symptoms from a specific set of possible
-ones; kind of disease.</li>
+ones; results from clinical tests taken at different times; kind of
+disease.</li>
 </ul>
 <p>We observed as many as possible of these characteristics in a sample
 of people from this group. Now a new person from the same group appears
 in front of us. We check this person’s age, sex, weight, symptoms. We
 need to guess which of the two diseases affects this person.</p>
+<p><br>
+The kind of inference summarily described above has one important
+aspect. Suppose you have collected a sample from your group of interest,
+and you want to use this sample to make guesses about new entities from
+the same group. If someone exchanged one entity in your sample with
+another one <em>unsystematically</em> chosen from the group, then you
+wouldn’t protest. After all, you still have the same number of samples
+from the same group. This aspect is called
+<strong>exchangeability</strong>: we say that this kind of inference is
+exchangeable. There are kinds of inference for which this aspect is not
+true. For example, suppose you’re given some stock data from four
+consecutive days, and you want to make guesses about the next day. If
+someone replaced any of your four datapoints with a datapoint an
+unsystematically chosen other day of the year, then you would protest:
+the time order of the datapoints matter. This is an example of
+non-exchangeable inference.</p>
+<p>The inferences for which <em>inferno</em> is designed are
+exchangeable ones. We shall also call them <strong>population
+inferences</strong>.</p>
 <p><br>
 Having discussed these simple examples, let’s agree on some more
 standard terminology. Let’s call:</p>
@@ -124,6 +147,53 @@ person, animal, etc.</li>
 <strong>Variate</strong>: what we’ve called ‘characteristic’.</li>
 </ul>
 <p><br></p>
+</div>
+<div class="section level3">
+<h3 id="probability-and-population-frequencies">Probability and population frequencies<a class="anchor" aria-label="anchor" href="#probability-and-population-frequencies"></a>
+</h3>
+<p>We have been speaking about “making guesses”; but what does this
+mean?</p>
+<p>When a unit is chosen unsystematically from a population, it’s only
+in rare situations that we may be sure about the characteristics of this
+unit before checking them. Suppose for instance that the population of
+interest is ‘all adults from a given country’; and the characteristics
+of interest are <em>sex</em>, <em>weight</em>, <em>height</em>. If a
+person is chosen from this population, we can’t be sure beforehand of
+how tall this person will be. We can exclude values like 4 m or 20 cm,
+but we’ll be uncertain about many other possible values. Even if someone
+tells us the sex and weight of this person, we’ll still be in doubt, but
+maybe we can consider some values more probable than others.</p>
+<p>That’s the keyword: <strong>probability</strong>. Although we are
+unsure about a characteristic of a unit, we can still find some values
+more probable than others: we may consider it more probable that the
+person is 160 cm tall than 180 cm tall; or in a clinical inference we
+may consider it more probable that the patient has a particular virus
+than not.</p>
+<p>Probability is our <em>degree of belief</em> about the value of the
+unknown characteristic.</p>
+<p>Note that probability is not a physical property of the unit. For
+instance, the person in question may be exactly 158 cm tall; the
+probability of being 180 cm tall is not something we can “measure” from
+the person. Also, if we found out some other characteristic of the
+person – say we knew the weight, and now we know also the sex – then the
+probability we assign to 180 cm may increase or decrease; but the person
+is exactly the same as before. Probability is not a property of the
+population either. For instance, for one person from a population we may
+think 150 cm to be the most probable height, but for another person from
+the same population we may think 180 cm to be the most probable height
+instead.</p>
+<p>Probability expresses the <em>information</em> we have about the
+characteristic of a unit. This is why another researcher may have a
+different probability about the same unit: because they may have
+different information about that unit.</p>
+<p><br>
+There is a situation in which we would all agree about the probability
+about a characteristic of a unit: when we know the <em>frequencies</em>
+for that characteristic in the population. Suppose for instance that the
+population of interest is that of penguins who lived in particular
+locations in some particular years (penguins from other locations or
+other times are not part of this population). The characteristics are
+the penguin’s <em>species</em> and</p>
 <p><a href="https://doi.org/10.1016/j.cmet.2022.02.001" class="external-link">Brakedal &amp;
 al. (2022)</a>, which generously and professionally shares its <a href="https://www.cell.com/cms/10.1016/j.cmet.2022.02.001/attachment/82e51142-50b8-4f84-a3e0-7c08d641a47b/mmc2.xlsx" class="external-link">data</a>.</p>
 <ul>
@@ -210,6 +280,7 @@ values <code>Placebo</code> and <code>NR</code>.</p></li>
 </tr>
 </tbody>
 </table>
+</div>
 <div class="section level3">
 <h3 id="natural-vs-controlled-or-biased-variates">“Natural” vs controlled or “biased” variates<a class="anchor" aria-label="anchor" href="#natural-vs-controlled-or-biased-variates"></a>
 </h3>
