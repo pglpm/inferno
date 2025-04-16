@@ -1463,8 +1463,7 @@ learn <- function(
                 'Estimating remaining time, please be patient...'),
                 outcon)
         }
-this can take tens of minutes. Please wait...
-Compiled core 1. Number of samplers: 2757.
+
         ## cat('Loop over chains')
 ##################################################
 #### LOOP OVER CHAINS (WITHIN ONE CORE)
