@@ -2,7 +2,7 @@ unloadNamespace('inferno')
 library('inferno')
 
 seed <- 16
-parallel <- 6
+parallel <- 7
 
 outputdir <- '__learn_lungs'
 learntdir <- learn(
@@ -18,7 +18,7 @@ learntdir <- learn(
     subsampledata = 10,
     maxhours = 0,
     nsamplesperchain = 60,
-    nchains = parallel,
+    nchains = parallel + 2,
     ##
     seed = seed
 )

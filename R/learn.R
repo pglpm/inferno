@@ -198,8 +198,8 @@ learn <- function(
         on.exit(closecoresonexit())
     }
 
+    minchainspercore <- nchains %/% ncores
     coreswithextrachain <- nchains %% ncores
-    maxchainspercore <- (nchains %/% ncores) + (coreswithextrachain > 0)
 
     if (is.numeric(thinning) && thinning > 0) {
         thinning <- ceiling(thinning)
@@ -846,7 +846,7 @@ learn <- function(
 
     cat('Using', ncores, 'cores:',
         nsamplesperchain, 'samples per chain, max',
-        maxchainspercore, 'chains per core.\n')
+        minchainspercore + (coreswithextrachain > 0), 'chains per core.\n')
     cat('Core logs are being saved in individual files.\n')
     cat('\nC-compiling samplers appropriate to the variates (package Nimble)\n')
     cat('this can take tens of minutes. Please wait...\r')
@@ -1479,13 +1479,12 @@ learn <- function(
         stoppedchains <- 0L
         gc() # garbage collection
 #### LOOP OVER CHAINS IN CORE
-        nchainsperthiscore <- maxchainspercore - (acore > coreswithextrachain)
+        nchainsperthiscore <- minchainspercore + (acore <= coreswithextrachain)
         ## print2user(paste0('\ncore ',acore,': ',nchainsperthiscore,'\n'), outcon)
 
         for (achain in 1:nchainsperthiscore) {
 
-            chainnumber <- achain +
-                (maxchainspercore - (coreswithextrachain > 0)) * (acore - 1) +
+            chainnumber <- achain + minchainspercore * (acore - 1) +
                 min(coreswithextrachain, acore - 1)
             padchainnumber <- sprintf(paste0('%0', nchar(nchains), 'i'), chainnumber)
 
@@ -1512,7 +1511,7 @@ learn <- function(
             flagnonfinite <- FALSE
             cat(
                 '\nChain #', chainnumber,
-                '(chain', achain, 'of', maxchainspercore, 'for this core)\n'
+                '(chain', achain, 'of', nchainsperthiscore, 'for this core)\n'
             )
             ## Read data to be used in log-likelihood
             testdata <- readRDS(file = file.path(dirname,
@@ -1750,7 +1749,7 @@ learn <- function(
                     subiter <- subiter + 1L
                     cat(
                         '\nChain #', chainnumber, '- chunk', subiter,
-                        '(chain', achain, 'of', maxchainspercore,
+                        '(chain', achain, 'of', nchainsperthiscore,
                         'for this core): increasing by', niter, '\n'
                     )
                 }
@@ -1948,7 +1947,7 @@ learn <- function(
                 '\n')
 
 #### Print estimated remaining time
-            remainingTime <- (maxchainspercore - achain + 1) *
+            remainingTime <- (minchainspercore + (coreswithextrachain > 0)) *
                 difftime(Sys.time(), starttime, units = 'auto') / achain
             if (is.finite(remainingTime) && remainingTime > 0) {
                 print2user(
