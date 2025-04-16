@@ -1003,7 +1003,7 @@ learn <- function(
 #### INITIAL-VALUE FUNCTION
         initsfn <- function() {
             ## Create components centres
-            lpnorm <- function(xx){sqrt(abs(xx))}
+            lpnorm <- function(xx){xx^2}
             distances <- matrix(0, nrow = npoints, ncol = ncomponents)
             if (vn$R > 0) { # continuous open domain
                 Rmeans <- matrix(rnorm(
