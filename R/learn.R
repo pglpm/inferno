@@ -1004,7 +1004,8 @@ learn <- function(
         initsfn <- function() {
             ## Create components centres
             ## distance function
-            lpnorm <- function(xx){sqrt(abs(xx))}
+            ## NB: all variances will be initialized to 1
+            lpnorm <- function(xx){abs(xx)}
             distances <- matrix(0, nrow = npoints, ncol = ncomponents)
             if (vn$R > 0) { # continuous open domain
                 Rmeans <- matrix(rnorm(
