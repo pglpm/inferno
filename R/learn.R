@@ -1003,7 +1003,8 @@ learn <- function(
 #### INITIAL-VALUE FUNCTION
         initsfn <- function() {
             ## Create components centres
-            lpnorm <- function(xx){abs(xx)^2}
+            ## distance function
+            lpnorm <- function(xx){sqrt(abs(xx))}
             distances <- matrix(0, nrow = npoints, ncol = ncomponents)
             if (vn$R > 0) { # continuous open domain
                 Rmeans <- matrix(rnorm(
@@ -1011,7 +1012,7 @@ learn <- function(
                     mean = constants$Rmean1,
                     sd = sqrt(constants$Rvarm1)
                 ), nrow = vn$R, ncol = ncomponents)
-                ## square distances from datapoints
+                ## distances from datapoints
                 distances <- distances + apply(Rmeans, 2, function(ameans){
                     colSums(lpnorm(t(datapoints$Rdata) - ameans), na.rm = TRUE)
                 })
@@ -1022,7 +1023,7 @@ learn <- function(
                     mean = constants$Cmean1,
                     sd = sqrt(constants$Cvarm1)
                 ), nrow = vn$C, ncol = ncomponents)
-                ## square distances from datapoints
+                ## distances from datapoints
                 distances <- distances + apply(Cmeans, 2, function(ameans){
                     colSums(lpnorm(t(datapoints$Clat) - ameans), na.rm = TRUE)
                 })
@@ -1033,7 +1034,7 @@ learn <- function(
                     mean = constants$Dmean1,
                     sd = sqrt(constants$Dvarm1)
                 ), nrow = vn$D, ncol = ncomponents)
-                ## square distances from datapoints
+                ## distances from datapoints
                 distances <- distances + apply(Dmeans, 2, function(ameans){
                     colSums(lpnorm(t(constants$Dlatinit) - ameans), na.rm = TRUE)
                 })
@@ -1044,7 +1045,7 @@ learn <- function(
             ##         mean = constants$Lmean1,
             ##         sd = sqrt(constants$Lvarm1)
             ##     ), nrow = vn$L, ncol = ncomponents)
-            ##     ## square distances from datapoints
+            ##     ## distances from datapoints
             ##     distances <- distances + apply(Lmeans, 2, function(ameans){
             ##         colSums(lpnorm(t(constants$Llatinit) - ameans), na.rm = TRUE)
             ##     })
@@ -1055,7 +1056,7 @@ learn <- function(
             ##         shape1 = Bshapelo,
             ##         shape2 = Bshapehi,
             ##         ), nrow = vn$B, ncol = ncomponents)
-            ##     ## square distances from datapoints
+            ##     ## distances from datapoints
             ##     distances <- distances + apply(Bprobs, 2, function(ameans){
             ##         colSums(lpnorm(t(datapoints$Bdata) - ameans), na.rm = TRUE)
             ##     })
@@ -1948,7 +1949,7 @@ learn <- function(
 
 #### Print estimated end time
             endTime <- Sys.time() +
-                ( (minchainspercore + (coreswithextrachain > 0)) *
+                ( (nchainsperthiscore + (acore > coreswithextrachain)) *
                 difftime(Sys.time(), starttime) / achain )
             print2user(
                 paste0(

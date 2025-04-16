@@ -21,7 +21,7 @@ learntdir <- learn(
     subsampledata = 10,
     maxhours = 0,
     nsamplesperchain = 60,
-    nchains = parallel,
+    nchains = parallel * 2,
     ##
     seed = seed
 )
