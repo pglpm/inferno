@@ -1,0 +1,166 @@
+---
+title: "Example of use: inferno for penguins"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Example of use: inferno for penguins}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, setup, include = FALSE}
+knitr::opts_chunk$set(
+    dev='png',
+    fig.asp = 1/sqrt(2),
+    fig.width = 8,
+    out.width='100%',
+    collapse = TRUE,
+    comment = "#>"
+)
+options(knitr.kable.NA = '')
+library(inferno)
+## Tol colour-blind-friendly palette
+palette(c(black='black',
+        red='#EE6677',
+        blue='#4477AA',
+        green='#228833',
+        yellow='#CCBB44',
+        purple='#AA3377',
+        cyan='#66CCEE',
+        grey='#BBBBBB',
+        midgrey='#888888'))
+```
+
+## A crash course in population inference
+
+A very common type of inference is the following. We have a large or potentially infinite group of entities, each having a set of characteristics. Having checked the characteristics of several entities from this group, we want to make guesses about the characteristics of new entities from the same group.
+
+The description just given is very generic or even vague. Indeed it can be applied to a huge variety of situations.
+
+- The 'entities' could be: objects, like electronic components; or people, or animals, or plants, or events of some kind.
+- The characteristics could be: the material the object is made of, and the result of some test made on it; or the age, blood-test results, and disease condition of the person; or the species and body mass of the animal; or the length of the petals of the flower.
+- The group could be: electronic components coming out of a particular production line; or people of a given nationality and with given symptoms; or animals from a particular island; or flowers of a specific genus or family.
+
+The possibilities are endless.
+
+Also the kinds of guesses that we want to make can be very diverse. We might want to guess all characteristics of a new entity; or, having checked *some* characteristics of a new entity, we want to guess the ones that we haven't or can't check. Important examples of this kind of inference appear in medicine. For example we may have a group defined as follows:
+
+- *Group*: people from a given nationality, suffering from one of two possible diseases.
+
+And we may consider these characteristics:
+
+- *Characteristics*: age; sex; weight; presence or absence of a particular genetic factor; symptoms from a specific set of possible ones; kind of disease.
+
+We observed as many as possible of these characteristics in a sample of people from this group. Now a new person from the same group appears in front of us. We check this person's age, sex, weight, symptoms. We need to guess which of the two diseases affects this person.
+
+\
+Having discussed these simple examples, let's agree on some more standard terminology. Let's call:
+
+- **Population**: what we've called 'group'.
+- **Unit**: what we've called 'entity' -- the object, person, animal, etc.
+- **Variate**: what we've called 'characteristic'.
+
+\
+
+
+
+
+[Brakedal & al. (2022)](https://doi.org/10.1016/j.cmet.2022.02.001), which generously and professionally shares its [data](https://www.cell.com/cms/10.1016/j.cmet.2022.02.001/attachment/82e51142-50b8-4f84-a3e0-7c08d641a47b/mmc2.xlsx).
+
+- **Treatment group**: *Binary* variate with values `Placebo` and `NR`.
+
+- **Sex**: *Binary* variate with values `Female` and `Male`.
+
+
+We store the name of the datafile
+```{r}
+dataset <- penguins
+```
+Here are the values for two subjects:
+```{r echo = FALSE}
+knitr::kable(penguins[1:5,])
+```
+
+### "Natural" vs controlled or "biased" variates
+
+## Metadata
+
+Let's load the package:
+```{r eval = FALSE}
+library(inferno)
+```
+
+```{r class.source = 'fold-hide'}
+## metadatatemplate(data = datafile, file = 'temp_metadata')
+```
+
+```{r}
+metadatafile <- 'meta_toydata.csv'
+```
+The metadata are as follows; `NA` indicate empty fields:
+```{r echo = FALSE}
+knitr::kable(read.csv(metadatafile, na.strings = ''))
+```
+
+*(More to be written here!)*
+
+
+## Learning
+
+$$
+\mathrm{Pr}(Y = y \:\vert\: X = x, \mathrm{data})
+$$
+As the notation above indicates, *these probabilities also depend on the $\mathrm{data}$ already observed*. They are usually called "posterior probabilities".
+
+We need to prepare the software to perform calculations of posterior probabilities given the observed data. In machine learning an analogous process is called "learning". For this reason the function that achieves this is called `learn()`. It requires at least three arguments:
+
+- `data`, which can be given as a path to the `csv` file containing the data
+- `metadata`, which can also be given as a path to the metadata file
+- `outputdir`: the name of the directory where the output should be saved.
+
+It may be useful to specify two more arguments:
+
+- `seed`: the seed for the random-number generator, to ensure reproducibility
+- `parallel`: the number of CPUs to use for the computation
+
+Alternatively you can set the seed with `set.seed()`, and start a set of parallel workers with the `parallel::makeCluster()` and `doParallel::registerDoParallel()` commands.
+
+The "learning" computation can take tens of minutes, or hours, or even days depending on the number of variates and data in your inference problem. The `learn()` function outputs various messages on how the computation is proceeding. As an example:
+
+```{r eval = FALSE}
+learnt <- learn(
+    data = datafile,
+    metadata = metadatafile,
+    outputdir = 'parkinson_computations',
+    seed = 16,
+    parallel = 12)
+
+#> Registered doParallelSNOW with 12 workers
+#>
+#> Using 30 datapoints
+#> Calculating auxiliary metadata
+#>
+#> **************************
+#> Saving output in directory
+#> parkinson_computations
+#> **************************
+#> Starting Monte Carlo sampling of 3600 samples by 60 chains
+#> in a space of 703 (effectively 6657) dimensions.
+#> Using 12 cores: 60 samples per chain, 5 chains per core.
+#> Core logs are being saved in individual files.
+#>
+#> C-compiling samplers appropriate to the variates (package Nimble)
+#> this can take tens of minutes with many data or variates.
+#> Please wait...
+```
+
+```{r, include = FALSE}
+## learnt <- 'learnt.rds'
+```
+
+
+
+## Drawing inferences
+
+
+
+*(TO BE CONTINUED)*
