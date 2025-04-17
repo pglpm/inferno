@@ -1,8 +1,8 @@
 ---
-title: "Example of use: inferno for penguins"
+title: "A crash course in population inference"
 output: rmarkdown::html_vignette
 vignette: >
-  %\VignetteIndexEntry{Example of use: inferno for penguins}
+  %\VignetteIndexEntry{A crash course in population inference}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 ---
@@ -31,9 +31,12 @@ palette(c(black='black',
 set.seed(16)
 ```
 
-## A crash course in population inference
+This vignette gives a summary of what ***Inferno*** is about, and the kind of inferences it allows you to do; a sort of crash course in population inference, also called exchangeable inference. Its main purpose is to clarify, by means of examples, the terminology used in this package.
 
-### Population inferences
+It is of course impossible to summarize this branch of probability theory and of statistics in a couple of sections; you're invited to learn more for instance from the [ADA 511](https://pglpm.github.io/ADA511) course, or from texts such as Bernardo & Smith's [*Bayesian Theory* (2000)](https://doi.org/10.1002/9780470316870) (especially §§ 4.3, 4.4, 4.6), or Jaynes's [*Probability Theory* (2003)](https://doi.org/10.1017/CBO9780511790423) (esp. ch. 9); take also a look at Lindley & Novick [*The role of exchangeability in inference* (1981)](https://doi.org/10.1214/aos/1176345331).
+
+
+## Population inferences
 
 A very common type of inference is the following. We have a large or potentially infinite group of entities, each having a set of characteristics. Having checked the characteristics of several entities from this group, we want to make guesses about the characteristics of new entities from the same group.
 
@@ -67,9 +70,8 @@ Having discussed these simple examples, let's agree on some more standard termin
 - **Unit**: what we've called 'entity' -- the object, person, animal, etc.
 - **Variate**: what we've called 'characteristic'.
 
-\
 
-### Probability and population frequencies
+## Probability and population frequencies
 
 We have been speaking about "making guesses"; but what does this mean?
 
@@ -122,6 +124,9 @@ $$
 $$
 
 \
+***Inferno*** allows you to calculate probabilities of this kind, for any set of variates of your choice.
+
+## Learning from known variates
 
 But there's even more interesting information in the population frequencies above. Let's focus on *Biscoe* island. With a quick sum we see that 48.4% of the whole population comes from *Biscoe* island (thus we'd assign a probability of 0.484 that our penguin comes from that island). Dividing the frequencies above, row-wise, by the frequencies of the respective islands (the sums of each row), we can find the frequency of each species *for each particular island*:
 
@@ -152,23 +157,37 @@ $$
 \textsf{population frequency}) = 0.7025
 \end{aligned}
 $$
-The right side of the '$\mid$' bar now reports the extra information that the penguin comes from `island` *Biscoe*.
+The right side of the '$\mid$' bar now reports the extra information that the penguin comes from `island` *Biscoe*. We say that our probability has been *updated*, and we call it a **conditional probability**.
 
 Learning about the penguin's `island` not only made you change the highest probability assignment from *Aelie* to *Gentoo*, but it also increased the value of the highest probability. Without knowing the penguin's `island`, *Adelie* had slightly less than 50% probability; it was as likely as not. After learning the `island` variate, *Gentoo* gets more than 70% probability.
 
 This is exactly the kind of learning situation that happens in medicine and clinical inferences. A clinician searches for symptoms because they may change and increase the probabilities of different diseases or health conditions. The reason why clinicians research particular *subgroups* -- particular demographics, or genetic factors, etc. -- is that within these subgroups the probability that a medical condition exist or will occur can be drastically higher. In turn, this leads the clinicians to understand better what can be the biological relationships between the health condition and those factors.
 
+\
+***Inferno*** allows you to calculate the updated probabilities of any set of variates, conditional on any other set.
 
-### Population samples and uncertainty
 
-Inferences are therefore quite clear if we know the frequencies of the variates in a whole population. Our main problem is that we usually *don't know those population frequencies*. For example, do you know the *exact* number of people, among those born in your country at any time and are alive today, who are exactly between 165 cm and 170 cm tall today? And it's often impractical or impossible to measure those frequencies.
+## Population samples and uncertainty
 
+Inferences are therefore quite clear if we know the frequencies of the variates in a whole population. Our main problem is that we usually *don't know those population frequencies*. For example, do you know the *exact* number of people, among those born in your country at any time and are alive today, who are exactly between 165 cm and 170 cm tall today? And it's often impractical or impossible to measure those frequencies. We must therefore *guess* them.
+
+In order to guess them, we usually examine a **sample** from the population of interest. This sample is chosen in an unsystematic way, so that its statistics and its **sample frequencies** are not affected by peculiar choices, in which case we have a *biased* sample. Imagine for instance choosing a sample of *male* penguins only, whereas the penguin population we're interested in has both males and females.
+
+There are situations in which it is not possible to choose the sample in an unsystematic way. Yet such a biased sample can still be used for population inference, as long as we know what its bias may be. ***Inferno*** allows you to make this kind of bias corrections as well.
+
+But the frequencies of variates in a sample from a population are typically different from those in the whole population. The difference is typically the larger, the smaller the sample. There are even extreme situations in which some statistics from a sample, like the mean, can be way off those of the whole population, even if the sample is large (the statistics become reliable only when the sample is almost as large as the full population). The plot below shows an example. The variate is a real number that can take on positive or negative values, in a population of 100 000 000 units; the mean value of the variate in the whole population is $-1.14$. The plot shows the values of the mean obtained from unsystematically chosen samples of various sizes. Even in a sample of 30 000 000 units we may observe a mean of $-3$. The *median* of a sample is much more reliable.
+```{r img-with-knitr, echo=FALSE, fig.align='center', out.width='75%'}
+knitr::include_graphics("sample_mean.jpg")
+```
+The point of this example is only to make clear that although a sample from a population gives us some information about the whole population, we still are uncertain about the whole-population frequencies.
+
+
+<!-- ![](sample_mean.jpg){#id .class width=50%} -->
 
 *(TO BE CONTINUED)*
 
-----
 
-----
+<!-- 
 
 ----
 
@@ -269,3 +288,5 @@ learnt <- learn(
 
 
 *(TO BE CONTINUED)*
+
+ -->
