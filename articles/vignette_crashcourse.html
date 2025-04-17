@@ -5,12 +5,12 @@
 <meta charset="utf-8">
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-<title>Example of use: inferno for penguins • inferno</title>
+<title>A crash course in population inference • inferno</title>
 <script src="../deps/jquery-3.6.0/jquery-3.6.0.min.js"></script><meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 <link href="../deps/bootstrap-5.3.1/bootstrap.min.css" rel="stylesheet">
 <script src="../deps/bootstrap-5.3.1/bootstrap.bundle.min.js"></script><link href="../deps/font-awesome-6.5.2/css/all.min.css" rel="stylesheet">
 <link href="../deps/font-awesome-6.5.2/css/v4-shims.min.css" rel="stylesheet">
-<script src="../deps/headroom-0.11.0/headroom.min.js"></script><script src="../deps/headroom-0.11.0/jQuery.headroom.min.js"></script><script src="../deps/bootstrap-toc-1.0.1/bootstrap-toc.min.js"></script><script src="../deps/clipboard.js-2.0.11/clipboard.min.js"></script><script src="../deps/search-1.0.0/autocomplete.jquery.min.js"></script><script src="../deps/search-1.0.0/fuse.min.js"></script><script src="../deps/search-1.0.0/mark.min.js"></script><!-- pkgdown --><script src="../pkgdown.js"></script><meta property="og:title" content="Example of use: inferno for penguins">
+<script src="../deps/headroom-0.11.0/headroom.min.js"></script><script src="../deps/headroom-0.11.0/jQuery.headroom.min.js"></script><script src="../deps/bootstrap-toc-1.0.1/bootstrap-toc.min.js"></script><script src="../deps/clipboard.js-2.0.11/clipboard.min.js"></script><script src="../deps/search-1.0.0/autocomplete.jquery.min.js"></script><script src="../deps/search-1.0.0/fuse.min.js"></script><script src="../deps/search-1.0.0/mark.min.js"></script><!-- pkgdown --><script src="../pkgdown.js"></script><meta property="og:title" content="A crash course in population inference">
 </head>
 <body>
     <a href="#main" class="visually-hidden-focusable">Skip to contents</a>
@@ -58,21 +58,31 @@
 <div class="row">
   <main id="main" class="col-md-9"><div class="page-header">
 
-      <h1>Example of use: inferno for penguins</h1>
+      <h1>A crash course in population inference</h1>
             
       
-      <small class="dont-index">Source: <a href="https://github.com/pglpm/inferno/blob/main/vignettes/vignette_start.Rmd" class="external-link"><code>vignettes/vignette_start.Rmd</code></a></small>
-      <div class="d-none name"><code>vignette_start.Rmd</code></div>
+      <small class="dont-index">Source: <a href="https://github.com/pglpm/inferno/blob/main/vignettes/vignette_crashcourse.Rmd" class="external-link"><code>vignettes/vignette_crashcourse.Rmd</code></a></small>
+      <div class="d-none name"><code>vignette_crashcourse.Rmd</code></div>
     </div>
 
     
     
+<p>This vignette gives a summary of what
+<strong><em>Inferno</em></strong> is about, and the kind of inferences
+it allows you to do; a sort of crash course in population inference,
+also called exchangeable inference. Its main purpose is to clarify, by
+means of examples, the terminology used in this package.</p>
+<p>It is of course impossible to summarize this branch of probability
+theory and of statistics in a couple of sections; you’re invited to
+learn more for instance from the <a href="https://pglpm.github.io/ADA511" class="external-link">ADA 511</a> course, or from texts
+such as Bernardo &amp; Smith’s <a href="https://doi.org/10.1002/9780470316870" class="external-link"><em>Bayesian Theory</em>
+(2000)</a> (especially §§ 4.3, 4.4, 4.6), or Jaynes’s <a href="https://doi.org/10.1017/CBO9780511790423" class="external-link"><em>Probability
+Theory</em> (2003)</a> (esp. ch. 9); take also a look at Lindley &amp;
+Novick <a href="https://doi.org/10.1214/aos/1176345331" class="external-link"><em>The role of
+exchangeability in inference</em> (1981)</a>.</p>
 <div class="section level2">
-<h2 id="a-crash-course-in-population-inference">A crash course in population inference<a class="anchor" aria-label="anchor" href="#a-crash-course-in-population-inference"></a>
+<h2 id="population-inferences">Population inferences<a class="anchor" aria-label="anchor" href="#population-inferences"></a>
 </h2>
-<div class="section level3">
-<h3 id="population-inferences">Population inferences<a class="anchor" aria-label="anchor" href="#population-inferences"></a>
-</h3>
 <p>A very common type of inference is the following. We have a large or
 potentially infinite group of entities, each having a set of
 characteristics. Having checked the characteristics of several entities
@@ -147,11 +157,10 @@ person, animal, etc.</li>
 <li>
 <strong>Variate</strong>: what we’ve called ‘characteristic’.</li>
 </ul>
-<p><br></p>
 </div>
-<div class="section level3">
-<h3 id="probability-and-population-frequencies">Probability and population frequencies<a class="anchor" aria-label="anchor" href="#probability-and-population-frequencies"></a>
-</h3>
+<div class="section level2">
+<h2 id="probability-and-population-frequencies">Probability and population frequencies<a class="anchor" aria-label="anchor" href="#probability-and-population-frequencies"></a>
+</h2>
 <p>We have been speaking about “making guesses”; but what does this
 mean?</p>
 <p>When a unit is chosen unsystematically from a population, it’s only
@@ -280,7 +289,12 @@ us is of <code>species</code> <em>Gentoo</em> and from
 \mid 
 \textsf{population frequency}) = 0.340
 </annotation></semantics></math></p>
-<p><br></p>
+<p><br><strong><em>Inferno</em></strong> allows you to calculate probabilities
+of this kind, for any set of variates of your choice.</p>
+</div>
+<div class="section level2">
+<h2 id="learning-from-known-variates">Learning from known variates<a class="anchor" aria-label="anchor" href="#learning-from-known-variates"></a>
+</h2>
 <p>But there’s even more interesting information in the population
 frequencies above. Let’s focus on <em>Biscoe</em> island. With a quick
 sum we see that 48.4% of the whole population comes from <em>Biscoe</em>
@@ -353,7 +367,9 @@ assign to the <code>species</code> of this penguin? Obviously 0.2603 for
 </annotation></semantics></math> The right side of the
 ‘<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mo>∣</mo><annotation encoding="application/x-tex">\mid</annotation></semantics></math>’
 bar now reports the extra information that the penguin comes from
-<code>island</code> <em>Biscoe</em>.</p>
+<code>island</code> <em>Biscoe</em>. We say that our probability has
+been <em>updated</em>, and we call it a <strong>conditional
+probability</strong>.</p>
 <p>Learning about the penguin’s <code>island</code> not only made you
 change the highest probability assignment from <em>Aelie</em> to
 <em>Gentoo</em>, but it also increased the value of the highest
@@ -371,303 +387,177 @@ medical condition exist or will occur can be drastically higher. In
 turn, this leads the clinicians to understand better what can be the
 biological relationships between the health condition and those
 factors.</p>
+<p><br><strong><em>Inferno</em></strong> allows you to calculate the updated
+probabilities of any set of variates, conditional on any other set.</p>
 </div>
-<div class="section level3">
-<h3 id="population-samples-and-uncertainty">Population samples and uncertainty<a class="anchor" aria-label="anchor" href="#population-samples-and-uncertainty"></a>
-</h3>
+<div class="section level2">
+<h2 id="population-samples-and-uncertainty">Population samples and uncertainty<a class="anchor" aria-label="anchor" href="#population-samples-and-uncertainty"></a>
+</h2>
 <p>Inferences are therefore quite clear if we know the frequencies of
 the variates in a whole population. Our main problem is that we usually
 <em>don’t know those population frequencies</em>. For example, do you
 know the <em>exact</em> number of people, among those born in your
 country at any time and are alive today, who are exactly between 165 cm
 and 170 cm tall today? And it’s often impractical or impossible to
-measure those frequencies.</p>
+measure those frequencies. We must therefore <em>guess</em> them.</p>
+<p>In order to guess them, we usually examine a <strong>sample</strong>
+from the population of interest. This sample is chosen in an
+unsystematic way, so that its statistics and its <strong>sample
+frequencies</strong> are not affected by peculiar choices, in which case
+we have a <em>biased</em> sample. Imagine for instance choosing a sample
+of <em>male</em> penguins only, whereas the penguin population we’re
+interested in has both males and females.</p>
+<p>There are situations in which it is not possible to choose the sample
+in an unsystematic way. Yet such a biased sample can still be used for
+population inference, as long as we know what its bias may be.
+<strong><em>Inferno</em></strong> allows you to make this kind of bias
+corrections as well.</p>
+<p>But the frequencies of variates in a sample from a population are
+typically different from those in the whole population. The difference
+is typically the larger, the smaller the sample. There are even extreme
+situations in which some statistics from a sample, like the mean, can be
+way off those of the whole population, even if the sample is large (the
+statistics become reliable only when the sample is almost as large as
+the full population). The plot below shows an example. The variate is a
+real number that can take on positive or negative values, in a
+population of 100 000 000 units; the mean value of the variate in the
+whole population is
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo>−</mo><mn>1.14</mn></mrow><annotation encoding="application/x-tex">-1.14</annotation></semantics></math>.
+The plot shows the values of the mean obtained from unsystematically
+chosen samples of various sizes. Even in a sample of 30 000 000 units we
+may observe a mean of
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo>−</mo><mn>3</mn></mrow><annotation encoding="application/x-tex">-3</annotation></semantics></math>.
+The <em>median</em> of a sample is much more reliable.
+<img src="sample_mean.jpg" width="75%" style="display: block; margin: auto;">
+The point of this example is only to make clear that although a sample
+from a population gives us some information about the whole population,
+we still are uncertain about the whole-population frequencies.</p>
+<!-- ![](sample_mean.jpg){#id .class width=50%} -->
 <p><em>(TO BE CONTINUED)</em></p>
-<hr>
-<hr>
-<hr>
-<p>(OLD TEXT)</p>
-<p>We store the name of the datafile</p>
-<div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">dataset</span> <span class="op">&lt;-</span> <span class="va">penguins</span></span></code></pre></div>
-<p>Here are the values for two subjects:</p>
-<table style="width:100%;" class="table">
-<colgroup>
-<col width="5%">
-<col width="13%">
-<col width="13%">
-<col width="11%">
-<col width="11%">
-<col width="15%">
-<col width="13%">
-<col width="9%">
-<col width="6%">
-</colgroup>
-<thead><tr class="header">
-<th align="left"></th>
-<th align="left">species</th>
-<th align="left">island</th>
-<th align="right">bill_len</th>
-<th align="right">bill_dep</th>
-<th align="right">flipper_len</th>
-<th align="right">body_mass</th>
-<th align="left">sex</th>
-<th align="right">year</th>
-</tr></thead>
-<tbody>
-<tr class="odd">
-<td align="left">225</td>
-<td align="left">Gentoo</td>
-<td align="left">Biscoe</td>
-<td align="right">48.2</td>
-<td align="right">15.6</td>
-<td align="right">221</td>
-<td align="right">5100</td>
-<td align="left">male</td>
-<td align="right">2008</td>
-</tr>
-<tr class="even">
-<td align="left">127</td>
-<td align="left">Adelie</td>
-<td align="left">Torgersen</td>
-<td align="right">38.8</td>
-<td align="right">17.6</td>
-<td align="right">191</td>
-<td align="right">3275</td>
-<td align="left">female</td>
-<td align="right">2009</td>
-</tr>
-<tr class="odd">
-<td align="left">315</td>
-<td align="left">Chinstrap</td>
-<td align="left">Dream</td>
-<td align="right">46.9</td>
-<td align="right">16.6</td>
-<td align="right">192</td>
-<td align="right">2700</td>
-<td align="left">female</td>
-<td align="right">2008</td>
-</tr>
-<tr class="even">
-<td align="left">189</td>
-<td align="left">Gentoo</td>
-<td align="left">Biscoe</td>
-<td align="right">42.6</td>
-<td align="right">13.7</td>
-<td align="right">213</td>
-<td align="right">4950</td>
-<td align="left">female</td>
-<td align="right">2008</td>
-</tr>
-<tr class="odd">
-<td align="left">271</td>
-<td align="left">Gentoo</td>
-<td align="left">Biscoe</td>
-<td align="right">47.2</td>
-<td align="right">13.7</td>
-<td align="right">214</td>
-<td align="right">4925</td>
-<td align="left">female</td>
-<td align="right">2009</td>
-</tr>
-</tbody>
-</table>
-</div>
-<div class="section level3">
-<h3 id="natural-vs-controlled-or-biased-variates">“Natural” vs controlled or “biased” variates<a class="anchor" aria-label="anchor" href="#natural-vs-controlled-or-biased-variates"></a>
-</h3>
-</div>
-</div>
-<div class="section level2">
-<h2 id="metadata">Metadata<a class="anchor" aria-label="anchor" href="#metadata"></a>
-</h2>
-<p>Let’s load the package:</p>
-<div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/pglpm/inferno/" class="external-link">inferno</a></span><span class="op">)</span></span></code></pre></div>
-<div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="co">## metadatatemplate(data = datafile, file = 'temp_metadata')</span></span></code></pre></div>
-<div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">metadatafile</span> <span class="op">&lt;-</span> <span class="st">'meta_toydata.csv'</span></span></code></pre></div>
-<p>The metadata are as follows; <code>NA</code> indicate empty
-fields:</p>
-<table class="table">
-<colgroup>
-<col width="33%">
-<col width="9%">
-<col width="7%">
-<col width="8%">
-<col width="8%">
-<col width="10%">
-<col width="10%">
-<col width="5%">
-<col width="6%">
-</colgroup>
-<thead><tr class="header">
-<th align="left">name</th>
-<th align="left">type</th>
-<th align="right">datastep</th>
-<th align="right">domainmin</th>
-<th align="right">domainmax</th>
-<th align="left">minincluded</th>
-<th align="left">maxincluded</th>
-<th align="left">V1</th>
-<th align="left">V2</th>
-</tr></thead>
-<tbody>
-<tr class="odd">
-<td align="left">TreatmentGroup</td>
-<td align="left">nominal</td>
-<td align="right"></td>
-<td align="right"></td>
-<td align="right"></td>
-<td align="left"></td>
-<td align="left"></td>
-<td align="left">NR</td>
-<td align="left">Placebo</td>
-</tr>
-<tr class="even">
-<td align="left">Sex</td>
-<td align="left">nominal</td>
-<td align="right"></td>
-<td align="right"></td>
-<td align="right"></td>
-<td align="left"></td>
-<td align="left"></td>
-<td align="left">Female</td>
-<td align="left">Male</td>
-</tr>
-<tr class="odd">
-<td align="left">Age</td>
-<td align="left">continuous</td>
-<td align="right">1</td>
-<td align="right">0</td>
-<td align="right"></td>
-<td align="left"></td>
-<td align="left"></td>
-<td align="left"></td>
-<td align="left"></td>
-</tr>
-<tr class="even">
-<td align="left">Anamnestic.Loss.of.smell</td>
-<td align="left">nominal</td>
-<td align="right"></td>
-<td align="right"></td>
-<td align="right"></td>
-<td align="left"></td>
-<td align="left"></td>
-<td align="left">No</td>
-<td align="left">Yes</td>
-</tr>
-<tr class="odd">
-<td align="left">History.of.REM.Sleep.Behaviour.Disorder</td>
-<td align="left">nominal</td>
-<td align="right"></td>
-<td align="right"></td>
-<td align="right"></td>
-<td align="left"></td>
-<td align="left"></td>
-<td align="left">No</td>
-<td align="left">Yes</td>
-</tr>
-<tr class="even">
-<td align="left">MDS.UPDRS..Subsection.III.V1</td>
-<td align="left">ordinal</td>
-<td align="right">1</td>
-<td align="right">0</td>
-<td align="right">132</td>
-<td align="left">yes</td>
-<td align="left">yes</td>
-<td align="left"></td>
-<td align="left"></td>
-</tr>
-<tr class="odd">
-<td align="left">diff.MDS.UPRS.III</td>
-<td align="left">ordinal</td>
-<td align="right">1</td>
-<td align="right">-132</td>
-<td align="right">132</td>
-<td align="left">yes</td>
-<td align="left">yes</td>
-<td align="left"></td>
-<td align="left"></td>
-</tr>
-</tbody>
-</table>
-<p><em>(More to be written here!)</em></p>
-</div>
-<div class="section level2">
-<h2 id="learning">Learning<a class="anchor" aria-label="anchor" href="#learning"></a>
-</h2>
-<p><math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mrow><mi mathvariant="normal">P</mi><mi mathvariant="normal">r</mi></mrow><mrow><mo stretchy="true" form="prefix">(</mo><mi>Y</mi><mo>=</mo><mi>y</mi><mspace width="0.222em"></mspace><mo stretchy="false" form="postfix">|</mo><mspace width="0.222em"></mspace><mi>X</mi><mo>=</mo><mi>x</mi><mo>,</mo><mrow><mi mathvariant="normal">d</mi><mi mathvariant="normal">a</mi><mi mathvariant="normal">t</mi><mi mathvariant="normal">a</mi></mrow><mo stretchy="true" form="postfix">)</mo></mrow></mrow><annotation encoding="application/x-tex">
+<!-- 
+
+----
+
+(OLD TEXT)
+
+
+
+We store the name of the datafile
+
+``` r
+dataset <- penguins
+```
+Here are the values for two subjects:
+
+
+|    |species   |island    | bill_len| bill_dep| flipper_len| body_mass|sex    | year|
+|:---|:---------|:---------|--------:|--------:|-----------:|---------:|:------|----:|
+|225 |Gentoo    |Biscoe    |     48.2|     15.6|         221|      5100|male   | 2008|
+|127 |Adelie    |Torgersen |     38.8|     17.6|         191|      3275|female | 2009|
+|315 |Chinstrap |Dream     |     46.9|     16.6|         192|      2700|female | 2008|
+|189 |Gentoo    |Biscoe    |     42.6|     13.7|         213|      4950|female | 2008|
+|271 |Gentoo    |Biscoe    |     47.2|     13.7|         214|      4925|female | 2009|
+
+
+
+### "Natural" vs controlled or "biased" variates
+
+## Metadata
+
+Let's load the package:
+
+``` r
+library(inferno)
+```
+
+
+```{.r .fold-hide}
+## metadatatemplate(data = datafile, file = 'temp_metadata')
+```
+
+
+``` r
+metadatafile <- 'meta_toydata.csv'
+```
+The metadata are as follows; `NA` indicate empty fields:
+
+
+|name                                    |type       | datastep| domainmin| domainmax|minincluded |maxincluded |V1     |V2      |
+|:---------------------------------------|:----------|--------:|---------:|---------:|:-----------|:-----------|:------|:-------|
+|TreatmentGroup                          |nominal    |         |          |          |            |            |NR     |Placebo |
+|Sex                                     |nominal    |         |          |          |            |            |Female |Male    |
+|Age                                     |continuous |        1|         0|          |            |            |       |        |
+|Anamnestic.Loss.of.smell                |nominal    |         |          |          |            |            |No     |Yes     |
+|History.of.REM.Sleep.Behaviour.Disorder |nominal    |         |          |          |            |            |No     |Yes     |
+|MDS.UPDRS..Subsection.III.V1            |ordinal    |        1|         0|       132|yes         |yes         |       |        |
+|diff.MDS.UPRS.III                       |ordinal    |        1|      -132|       132|yes         |yes         |       |        |
+
+
+
+*(More to be written here!)*
+
+
+## Learning
+
+$$
 \mathrm{Pr}(Y = y \:\vert\: X = x, \mathrm{data})
-</annotation></semantics></math> As the notation above indicates,
-<em>these probabilities also depend on the
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi mathvariant="normal">d</mi><mi mathvariant="normal">a</mi><mi mathvariant="normal">t</mi><mi mathvariant="normal">a</mi></mrow><annotation encoding="application/x-tex">\mathrm{data}</annotation></semantics></math>
-already observed</em>. They are usually called “posterior
-probabilities”.</p>
-<p>We need to prepare the software to perform calculations of posterior
-probabilities given the observed data. In machine learning an analogous
-process is called “learning”. For this reason the function that achieves
-this is called <code><a href="../reference/learn.html">learn()</a></code>. It requires at least three
-arguments:</p>
-<ul>
-<li>
-<code>data</code>, which can be given as a path to the
-<code>csv</code> file containing the data</li>
-<li>
-<code>metadata</code>, which can also be given as a path to the
-metadata file</li>
-<li>
-<code>outputdir</code>: the name of the directory where the output
-should be saved.</li>
-</ul>
-<p>It may be useful to specify two more arguments:</p>
-<ul>
-<li>
-<code>seed</code>: the seed for the random-number generator, to
-ensure reproducibility</li>
-<li>
-<code>parallel</code>: the number of CPUs to use for the
-computation</li>
-</ul>
-<p>Alternatively you can set the seed with <code><a href="https://rdrr.io/r/base/Random.html" class="external-link">set.seed()</a></code>, and
-start a set of parallel workers with the
-<code><a href="https://rdrr.io/r/parallel/makeCluster.html" class="external-link">parallel::makeCluster()</a></code> and
-<code><a href="https://rdrr.io/pkg/doParallel/man/registerDoParallel.html" class="external-link">doParallel::registerDoParallel()</a></code> commands.</p>
-<p>The “learning” computation can take tens of minutes, or hours, or
-even days depending on the number of variates and data in your inference
-problem. The <code><a href="../reference/learn.html">learn()</a></code> function outputs various messages on
-how the computation is proceeding. As an example:</p>
-<div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">learnt</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/learn.html">learn</a></span><span class="op">(</span></span>
-<span>    data <span class="op">=</span> <span class="va">datafile</span>,</span>
-<span>    metadata <span class="op">=</span> <span class="va">metadatafile</span>,</span>
-<span>    outputdir <span class="op">=</span> <span class="st">'parkinson_computations'</span>,</span>
-<span>    seed <span class="op">=</span> <span class="fl">16</span>,</span>
-<span>    parallel <span class="op">=</span> <span class="fl">12</span><span class="op">)</span></span>
-<span></span>
-<span><span class="co">#&gt; Registered doParallelSNOW with 12 workers</span></span>
-<span><span class="co">#&gt;</span></span>
-<span><span class="co">#&gt; Using 30 datapoints</span></span>
-<span><span class="co">#&gt; Calculating auxiliary metadata</span></span>
-<span><span class="co">#&gt;</span></span>
-<span><span class="co">#&gt; **************************</span></span>
-<span><span class="co">#&gt; Saving output in directory</span></span>
-<span><span class="co">#&gt; parkinson_computations</span></span>
-<span><span class="co">#&gt; **************************</span></span>
-<span><span class="co">#&gt; Starting Monte Carlo sampling of 3600 samples by 60 chains</span></span>
-<span><span class="co">#&gt; in a space of 703 (effectively 6657) dimensions.</span></span>
-<span><span class="co">#&gt; Using 12 cores: 60 samples per chain, 5 chains per core.</span></span>
-<span><span class="co">#&gt; Core logs are being saved in individual files.</span></span>
-<span><span class="co">#&gt;</span></span>
-<span><span class="co">#&gt; C-compiling samplers appropriate to the variates (package Nimble)</span></span>
-<span><span class="co">#&gt; this can take tens of minutes with many data or variates.</span></span>
-<span><span class="co">#&gt; Please wait...</span></span></code></pre></div>
-</div>
-<div class="section level2">
-<h2 id="drawing-inferences">Drawing inferences<a class="anchor" aria-label="anchor" href="#drawing-inferences"></a>
-</h2>
-<p><em>(TO BE CONTINUED)</em></p>
+$$
+As the notation above indicates, *these probabilities also depend on the $\mathrm{data}$ already observed*. They are usually called "posterior probabilities".
+
+We need to prepare the software to perform calculations of posterior probabilities given the observed data. In machine learning an analogous process is called "learning". For this reason the function that achieves this is called `learn()`. It requires at least three arguments:
+
+- `data`, which can be given as a path to the `csv` file containing the data
+- `metadata`, which can also be given as a path to the metadata file
+- `outputdir`: the name of the directory where the output should be saved.
+
+It may be useful to specify two more arguments:
+
+- `seed`: the seed for the random-number generator, to ensure reproducibility
+- `parallel`: the number of CPUs to use for the computation
+
+Alternatively you can set the seed with `set.seed()`, and start a set of parallel workers with the `parallel::makeCluster()` and `doParallel::registerDoParallel()` commands.
+
+The "learning" computation can take tens of minutes, or hours, or even days depending on the number of variates and data in your inference problem. The `learn()` function outputs various messages on how the computation is proceeding. As an example:
+
+
+``` r
+learnt <- learn(
+    data = datafile,
+    metadata = metadatafile,
+    outputdir = 'parkinson_computations',
+    seed = 16,
+    parallel = 12)
+
+#> Registered doParallelSNOW with 12 workers
+#>
+#> Using 30 datapoints
+#> Calculating auxiliary metadata
+#>
+#> **************************
+#> Saving output in directory
+#> parkinson_computations
+#> **************************
+#> Starting Monte Carlo sampling of 3600 samples by 60 chains
+#> in a space of 703 (effectively 6657) dimensions.
+#> Using 12 cores: 60 samples per chain, 5 chains per core.
+#> Core logs are being saved in individual files.
+#>
+#> C-compiling samplers appropriate to the variates (package Nimble)
+#> this can take tens of minutes with many data or variates.
+#> Please wait...
+```
+
+
+
+
+
+## Drawing inferences
+
+
+
+*(TO BE CONTINUED)*
+
+ -->
 </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>
     </nav></aside>
