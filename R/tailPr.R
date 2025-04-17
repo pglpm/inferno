@@ -46,7 +46,7 @@ tailPr <- function(
         ## user wants us to register a parallel backend
         ## and to choose number of cores
         ncores <- max(1,
-            min(nchains, floor(parallel::detectCores() / 2)))
+            floor(parallel::detectCores() / 2))
         cl <- parallel::makeCluster(ncores)
         doParallel::registerDoParallel(cl)
         closeexit <- TRUE
@@ -61,7 +61,7 @@ tailPr <- function(
         ncores <- foreach::getDoParWorkers()
     } else if (is.finite(parallel) && parallel >= 1) {
         ## user wants us to register 'parallal' # of cores
-        ncores <- min(nchains, parallel)
+        ncores <- parallel
         cl <- parallel::makeCluster(ncores)
         doParallel::registerDoParallel(cl)
         closeexit <- TRUE
