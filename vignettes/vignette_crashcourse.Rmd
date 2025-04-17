@@ -176,10 +176,12 @@ In order to guess them, we usually examine a **sample** from the population of i
 There are situations in which it is not possible to choose the sample in an unsystematic way. Yet such a biased sample can still be used for population inference, as long as we know what its bias may be. ***Inferno*** allows you to make this kind of bias corrections as well.
 
 But the frequencies of variates in a sample from a population are typically different from those in the whole population. The difference is typically the larger, the smaller the sample. There are even extreme situations in which some statistics from a sample, like the mean, can be way off those of the whole population, even if the sample is large (the statistics become reliable only when the sample is almost as large as the full population). The plot below shows an example. The variate is a real number that can take on positive or negative values, in a population of 100 000 000 units; the mean value of the variate in the whole population is $-1.14$. The plot shows the values of the mean obtained from unsystematically chosen samples of various sizes. Even in a sample of 30 000 000 units we may observe a mean of $-3$. The *median* of a sample is much more reliable.
-```{r img-with-knitr, echo=FALSE, fig.align='center', out.width='75%'}
+
+```{r img-with-knitr, echo=FALSE, fig.align='center', out.width='67%'}
 knitr::include_graphics("sample_mean.jpg")
 ```
-The point of this example is only to make clear that although a sample from a population gives us some information about the whole population, we still are uncertain about the whole-population frequencies.
+
+The point of this example is only to make clear that although a sample from a population gives us some information about the whole population, we are still uncertain about the whole-population frequencies.
 
 
 <!-- ![](sample_mean.jpg){#id .class width=50%} -->

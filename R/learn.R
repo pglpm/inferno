@@ -251,7 +251,7 @@ learn <- function(
         if (is.character(data)) {
             ## add '.csv' if missing
             datafile <- paste0(sub('.csv$', '', data), '.csv')
-            if (file.exists(data)) {
+            if (file.exists(datafile)) {
                 data <- read.csv(datafile,
                     na.strings = '', stringsAsFactors = FALSE, tryLogical = FALSE)
             } else {
@@ -1949,7 +1949,7 @@ learn <- function(
                 '\n')
 
 #### Print estimated end time
-            endTime <- Sys.time() +
+            endTime <- Sys.time() + 60 +
                 ( (nchainsperthiscore + (acore > coreswithextrachain) - achain) *
                 difftime(Sys.time(), starttime) / achain )
             print2user(
