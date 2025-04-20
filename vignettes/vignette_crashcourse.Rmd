@@ -161,7 +161,25 @@ The right side of the '$\mid$' bar now reports the extra information that the pe
 
 Learning about the penguin's `island` not only made you change the highest probability assignment from *Aelie* to *Gentoo*, but it also increased the value of the highest probability. Without knowing the penguin's `island`, *Adelie* had slightly less than 50% probability; it was as likely as not. After learning the `island` variate, *Gentoo* gets more than 70% probability.
 
-This is exactly the kind of learning situation that happens in medicine and clinical inferences. A clinician searches for symptoms because they may change and increase the probabilities of different diseases or health conditions. The reason why clinicians research particular *subgroups* -- particular demographics, or genetic factors, etc. -- is that within these subgroups the probability that a medical condition exist or will occur can be drastically higher. In turn, this leads the clinicians to understand better what can be the biological relationships between the health condition and those factors.
+An analogous discussion can be made for a continuous variate. Let's for instance take the `body_mass` of the penguins, discretized in steps of 0.025 kg. Suppose we knew that the histogram of body masses in the whole population were as follows:
+
+```{r echo=FALSE, fig.align='center', out.width='67%'}
+knitr::include_graphics("prob-body_mass.jpg")
+```
+
+Then, if you had to guess the body mass of the penguin brought to you, you'd give the value 4 kg (plus or minus 0.0125 kg) a probability of around 1%, and so on for other possible values; the most probable value being 3.6 kg at 1.4% probability.
+
+Suppose you're now given also the histograms for the subpopulations from the three islands:
+
+```{r echo=FALSE, fig.align='center', out.width='67%'}
+knitr::include_graphics("prob-body_mass-given_island.jpg")
+```
+
+Upon learning that your penguin is from *Biscoe*, your degree of belief would change: the most probable value would be 4.8 kg at 1.3% probability. Note how the histograms for `body_mass` are different in the subpopulations of the three islands.
+
+\medskip
+
+This is exactly the kind of learning situation that happens in medicine and clinical inferences. A clinician searches for symptoms because they may change and increase the probabilities of different diseases or health conditions. The reason why clinicians research particular *subpopulations* -- particular demographics, or genetic factors, etc. -- is that within these subgroups the probability that a medical condition exist or will occur can be drastically higher. In turn, this leads the clinicians to understand better what can be the biological relationships between the health condition and those factors.
 
 \
 ***Inferno*** allows you to calculate the updated probabilities of any set of variates, conditional on any other set.
@@ -169,13 +187,20 @@ This is exactly the kind of learning situation that happens in medicine and clin
 
 ## Population samples and uncertainty
 
-Inferences are therefore quite clear if we know the frequencies of the variates in a whole population. Our main problem is that we usually *don't know those population frequencies*. For example, do you know the *exact* number of people, among those born in your country at any time and are alive today, who are exactly between 165 cm and 170 cm tall today? And it's often impractical or impossible to measure those frequencies. We must therefore *guess* them.
+Inferences are therefore quite clear if we know the frequencies of the variates for the *whole* population. Our main problem is that we usually *don't know those population frequencies*. For example, do you know the *exact* number of people, among those born in your country at any time and are alive today, who are exactly between 165 cm and 170 cm tall today?
+
+For our penguin example, let's consider
+
+
+
+
+And it's often impractical or impossible to measure those frequencies. We must therefore *guess* them.
 
 In order to guess them, we usually examine a **sample** from the population of interest. This sample is chosen in an unsystematic way, so that its statistics and its **sample frequencies** are not affected by peculiar choices, in which case we have a *biased* sample. Imagine for instance choosing a sample of *male* penguins only, whereas the penguin population we're interested in has both males and females.
 
 There are situations in which it is not possible to choose the sample in an unsystematic way. Yet such a biased sample can still be used for population inference, as long as we know what its bias may be. ***Inferno*** allows you to make this kind of bias corrections as well.
 
-But the frequencies of variates in a sample from a population are typically different from those in the whole population. The difference is typically the larger, the smaller the sample. There are even extreme situations in which some statistics from a sample, like the mean, can be way off those of the whole population, even if the sample is large (the statistics become reliable only when the sample is almost as large as the full population). The plot below shows an example. The variate is a real number that can take on positive or negative values, in a population of 100 000 000 units; the mean value of the variate in the whole population is $-1.14$. The plot shows the values of the mean obtained from unsystematically chosen samples of various sizes. Even in a sample of 30 000 000 units we may observe a mean of $-3$. The *median* of a sample is much more reliable.
+But the frequencies of variates in a sample from a population are typically different from those in the whole population. The difference is the larger, the smaller the sample. There are even extreme situations in which some statistics from a sample, like the mean, can be way off those of the whole population, even if the sample is large (the statistics become reliable only when the sample is almost as large as the full population). The plot below shows an example. The variate is a real number that can take on positive or negative values, in a population of 100 000 000 units; the mean value of the variate in the whole population is $-1.14$. The plot shows the values of the mean obtained from unsystematically chosen samples of various sizes. Even in a sample of 30 000 000 units we may observe a mean of $-3$. The *median* of a sample is much more reliable.
 
 ```{r img-with-knitr, echo=FALSE, fig.align='center', out.width='67%'}
 knitr::include_graphics("sample_mean.jpg")
