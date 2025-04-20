@@ -18,9 +18,19 @@ flexiplot <- function(
     xlim = NULL, ylim = NULL,
     type = 'l',
     pch = c(1, 0, 2, 5, 6, 3, 4),
+    lty = c(1, 2, 4, 3, 6, 5),
+    lwd = 2,
+    col = c( ## Tol's colour-blind-safe scheme
+        '#4477AA',
+        '#EE6677',
+        '#228833',
+        '#CCBB44',
+        '#66CCEE',
+        '#AA3377',
+        '#BBBBBB'),
     grid = TRUE,
     add = FALSE,
-    lwd = 1,
+    ## lwd = 1,
     ...
 ){
     xat <- yat <- NULL
@@ -64,10 +74,13 @@ flexiplot <- function(
         if(is.null(ylim[2]) || !is.finite(ylim[2])){ ylim[2] <- max(y[is.finite(y)]) }
     }
 
-    graphics::matplot(x, y, xlim = xlim, ylim = ylim, type = type, pch = pch, axes = F, add = add, lwd = lwd, ...)
+    graphics::matplot(x, y, xlim = xlim, ylim = ylim, type = type, axes = F,
+        col = col, lty = lty, lwd = lwd, pch = pch, add = add, ...)
     if(!add){
-        graphics::axis(1, at = xat, labels = xdomain, lwd = 0, ...)
-        graphics::axis(2, at = yat, labels = ydomain, lwd = 0, ...)
+        graphics::axis(1, at = xat, labels = xdomain, tick = !grid,
+            col = 'black', lwd = 1, lty = 1, ...)
+        graphics::axis(2, at = yat, labels = ydomain, tick = !grid,
+            col = 'black', lwd = 1, lty = 1, ...)
         if(grid){
             graphics::grid(nx = NULL, ny = NULL, lty = 1, col = '#BBBBBB80')
         }
