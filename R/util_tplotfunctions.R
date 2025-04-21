@@ -17,7 +17,7 @@ flexiplot <- function(
     xdomain = NULL, ydomain = NULL,
     xlim = NULL, ylim = NULL,
     type = 'l',
-    pch = c(1, 0, 2, 5, 6, 3, 4),
+    pch = c(1, 0, 2, 5, 6, 3), #, 4,
     lty = c(1, 2, 4, 3, 6, 5),
     lwd = 2,
     col = c( ## Tol's colour-blind-safe scheme
@@ -26,11 +26,10 @@ flexiplot <- function(
         '#228833',
         '#CCBB44',
         '#66CCEE',
-        '#AA3377',
-        '#BBBBBB'),
+        '#AA3377' #, '#BBBBBB'
+    ),
     grid = TRUE,
     add = FALSE,
-    ## lwd = 1,
     ...
 ){
     xat <- yat <- NULL
@@ -95,7 +94,7 @@ flexiplot <- function(
 #' @param y Numeric: a matrix having as many rows as `x` and an even number of columns, with one column per quantile. Typically these quantiles have been obtained with \code{\link{Pr}} or \code{\link{tailPr}}, as their `$quantiles` value. This value is a three-dimensional array, and one of its columns (corresponding to the possible values of the `X` argument of \code{\link{Pr}}) or one of its rows (corresponding to the possible values of the `Y` argument of \code{\link{Pr}}) should be selected before being used as `y` input.
 #' @param xdomain Character or numeric or `NULL` (default): vector of possible values of the variable represented in the x-axis, if the `x` argument is a character vector. The ordering of the values is respected. If `NULL`, then `unique(x)` is used.
 #' @param alpha.f Numeric, default 0.25: opacity of the quantile bands, `0` being completely invisible and `1` completely opaque.
-#' @param col Fill colour of the quantile bands. Can be specified in any of the usual ways, see for instance \code{\link[grDevices]{col2rgb}}. Default `9`.
+#' @param col Fill colour of the quantile bands. Can be specified in any of the usual ways, see for instance \code{\link[grDevices]{col2rgb}}. Default `#4477AA`.
 #' @param border Fill colour of the quantile bands. Can be specified in any of the usual ways, see for instance \code{\link[grDevices]{col2rgb}}. If `NA` (default), no border is drawn.
 #' @param ... Other parameters to be passed to \code{\link{flexiplot}}.
 #'
@@ -104,7 +103,14 @@ plotquantiles <- function(
     x, y,
     xdomain = NULL,
     alpha.f = 0.25,
-    col = 9,
+    col = c( ## Tol's colour-blind-safe scheme
+        '#4477AA',
+        '#EE6677',
+        '#228833',
+        '#CCBB44',
+        '#66CCEE',
+        '#AA3377' #, '#BBBBBB'
+    ),
     border = NA,
     ...
 ){
@@ -160,9 +166,16 @@ plot.probability <- function(
     variability = NULL,
     PvsY = NULL,
     legend = TRUE,
-    lwd = 3,
-    lty = 1:5,
-    col = palette(),
+    lty = c(1, 2, 4, 3, 6, 5),
+    lwd = 2,
+    col = c( ## Tol's colour-blind-safe scheme, or palette()
+        '#4477AA',
+        '#EE6677',
+        '#228833',
+        '#CCBB44',
+        '#66CCEE',
+        '#AA3377' #, '#BBBBBB'
+    ),
     xlab = NULL,
     ylab = NULL,
     ylim = c(0, NA),

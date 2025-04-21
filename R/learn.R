@@ -305,8 +305,6 @@ learn <- function(
         npoints <- 0
     }
 
-    cat('\nUsing', npoints, 'datapoints\n')
-
 #### Auxiliary dataset
     ## used to extract information about hyperparameters
     ## Check if 'auxdata' is given
@@ -368,6 +366,9 @@ learn <- function(
         )
     ## print(auxmetadata) # for debugging
 
+    cat('\nLearning: ', npoints, 'datapoints, ',
+        nrow(auxmetadata), 'variates\n')
+
 #### Output-folder setup
     if (is.null(outputdir)) {
         outputdir <- paste0('_output_', sub('.csv$', '', datafile))
@@ -393,9 +394,9 @@ learn <- function(
     }
     dirname <- paste0(outputdir, suffix)
     ##
-                                        # Create output directory if it does not exist
+                                        ## Create output directory if it does not exist
     dir.create(dirname, showWarnings = FALSE)
-                                        # Print information
+                                        ## Print information
     cat('\n', paste0(rep('*', max(nchar(dirname), 26)), collapse = ''),
         '\n Saving output in directory\n', dirname, '\n',
         paste0(rep('*', max(nchar(dirname), 26)), collapse = ''), '\n')

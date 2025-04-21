@@ -4,7 +4,15 @@
 \alias{plotquantiles}
 \title{Plot pairs of quantiles}
 \usage{
-plotquantiles(x, y, xdomain = NULL, alpha.f = 0.25, col = 9, border = NA, ...)
+plotquantiles(
+  x,
+  y,
+  xdomain = NULL,
+  alpha.f = 0.25,
+  col = c("#4477AA", "#EE6677", "#228833", "#CCBB44", "#66CCEE", "#AA3377"),
+  border = NA,
+  ...
+)
 }
 \arguments{
 \item{x}{Numeric or character: vector of x-coordinates. See \code{\link{flexiplot}}.}
@@ -15,7 +23,7 @@ plotquantiles(x, y, xdomain = NULL, alpha.f = 0.25, col = 9, border = NA, ...)
 
 \item{alpha.f}{Numeric, default 0.25: opacity of the quantile bands, \code{0} being completely invisible and \code{1} completely opaque.}
 
-\item{col}{Fill colour of the quantile bands. Can be specified in any of the usual ways, see for instance \code{\link[grDevices]{col2rgb}}. Default \code{9}.}
+\item{col}{Fill colour of the quantile bands. Can be specified in any of the usual ways, see for instance \code{\link[grDevices]{col2rgb}}. Default \verb{#4477AA}.}
 
 \item{border}{Fill colour of the quantile bands. Can be specified in any of the usual ways, see for instance \code{\link[grDevices]{col2rgb}}. If \code{NA} (default), no border is drawn.}
 
