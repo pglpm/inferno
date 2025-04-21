@@ -175,11 +175,11 @@ Suppose you're now given also the histograms for the subpopulations from the thr
 knitr::include_graphics("prob-body_mass-given_island.jpg")
 ```
 
-Upon learning that your penguin is from *Biscoe*, your degree of belief would change: the most probable value would be 4.8 kg at 1.3% probability. Note how the histograms for `body_mass` are different in the subpopulations of the three islands.
+Upon learning that your penguin is from *Biscoe*, your degree of belief would change: the most probable value would be 4.8 kg at 1.3% probability. Note how the histograms for `body_mass` are different in the subpopulations of the three islands. In *Torgersen*, for instance, it's more probable to find penguins between 3 kg and 4 kg than between 5 kg and 6 kg; whereas in *Biscoe* the opposite is true.
 
 \medskip
 
-This is exactly the kind of learning situation that happens in medicine and clinical inferences. A clinician searches for symptoms because they may change and increase the probabilities of different diseases or health conditions. The reason why clinicians research particular *subpopulations* -- particular demographics, or genetic factors, etc. -- is that within these subgroups the probability that a medical condition exist or will occur can be drastically higher. In turn, this leads the clinicians to understand better what can be the biological relationships between the health condition and those factors.
+This is exactly the kind of learning situation that takes place in medicine and in clinical inferences. A clinician searches for symptoms because they may change and increase the probabilities of different diseases or health conditions. The reason why clinicians research particular *subpopulations* -- particular demographics, or genetic factors, etc. -- is that within these subgroups the probability that a medical condition exist or will occur can be drastically higher. In turn, this leads the clinicians to understand better what can be the biological relationships between the health condition and those factors.
 
 \
 ***Inferno*** allows you to calculate the updated probabilities of any set of variates, conditional on any other set.
@@ -195,6 +195,7 @@ For our penguin example, let's consider again the `body_mass` variate. We actual
 knitr::include_graphics("penguin_priors.jpg")
 ```
 
+\
 It's often impractical or impossible to measure the frequencies of a variate in a whole population. We must therefore *guess* them.
 
 In order to guess them, we usually examine a **sample** from the population of interest. This sample is chosen in an unsystematic way, so that its statistics and its **sample frequencies** are not affected by peculiar choices, otherwise we would have a *biased* sample (imagine for instance choosing a sample of *male* penguins only, whereas the penguin population we're interested in has both males and females).
@@ -204,7 +205,7 @@ But the frequencies of variates in a sample from a population are typically diff
 - the numbers of variates considered;
 - the possible values of each variate.
 
-Therefore, to guess the frequencies in the whole population we can examine a sample from it, but we cannot rely fully on the sample.
+Therefore, to guess the frequencies in the whole population we can examine a sample from it -- but we cannot fully rely on the sample.
 
 \medskip
 
@@ -234,13 +235,12 @@ An example of unnatural or strange probability distribution, for our `body_mass`
 knitr::include_graphics("penguin_prior_strange.jpg")
 ```
 
-It seems quite unnatural based on our experience with histograms over large natural populations. If a sample from a penguin population showed this frequency distribution of `body_mass` values, you would probably check if any errors were made during the sampling.
+It seems quite unnatural based on our experience with histograms over large natural populations. If a sample from a penguin population showed this frequency distribution of `body_mass` values, you would probably check whether any errors were made during the sampling.
 
-The calculation of such probabilities and of the most probable frequency distributions for the whole population is the core of the ***inferno*** package, realized by the `learn()` function.
+The core of the ***inferno*** package is the calculation of the probabilities for the possible frequencies of the whole population, and the selection of a large sample of the most probable ones. This calculation and sampling are realized by the `learn()` function.
 
-## Bayesian nonparametric population inference
+## Back to guessing about the next unit
 
-The traditional way of facing
 
 
 
