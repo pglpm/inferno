@@ -15,7 +15,7 @@ flexiplot(
   pch = c(1, 0, 2, 5, 6, 3),
   lty = c(1, 2, 4, 3, 6, 5),
   lwd = 2,
-  col = c("#4477AA", "#EE6677", "#228833", "#CCBB44", "#66CCEE", "#AA3377"),
+  col = palette(),
   grid = TRUE,
   add = FALSE,
   ...

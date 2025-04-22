@@ -185,9 +185,9 @@ This is exactly the kind of learning situation that takes place in medicine and 
 ***Inferno*** allows you to calculate the updated probabilities of any set of variates, conditional on any other set.
 
 
-## Uncertainty about whole populations, and population samples
+## Uncertainty about whole populations. Population samples
 
-Inferences are therefore quite clear if we know the frequencies of the variates for the *whole* population. Our main problem is that we usually *don't know those population frequencies*. For example, do you know the *exact* number of people, among those born in your country at any time and are alive today, who are exactly between 165 cm and 170 cm tall today?
+Inferences are therefore quite clear if we know the frequencies of the variates for the *whole* population. Our main problem is that we usually *don't know those whole-population frequencies*. For example, do you know the *exact* number of people, among those born in your country at any time and are alive today, who are exactly between 165 cm and 170 cm tall today?
 
 For our penguin example, let's consider again the `body_mass` variate. We actually don't know what the histogram of this variate over the whole population looks like. It could have one or several peaks, a symmetric or non-symmetric shape, shoulders, an so on. Here are seven possibilities:
 

@@ -387,13 +387,10 @@ Pr <- function(
     ##     na.rm = TRUE
     ## ))
 
-    keys <- c('values',
-        if(dosamples) {'samples'},
-        if(doquantiles){'quantiles'}
-    )
+    keys <- c('values', 'samples', 'quantiles')
     ##
     combfnr <- function(...){setNames(do.call(mapply,
-        c(FUN = `rbind`, lapply(list(...), `[`, keys))),
+        c(FUN = `rbind`, lapply(list(...), `[`, keys, drop = FALSE))),
         keys)}
     ## combfnc <- function(...){setNames(do.call(mapply, c(FUN=cbind, lapply(list(...), `[`, keys))), keys)}
 

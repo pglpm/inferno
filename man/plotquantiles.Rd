@@ -9,7 +9,7 @@ plotquantiles(
   y,
   xdomain = NULL,
   alpha.f = 0.25,
-  col = c("#4477AA", "#EE6677", "#228833", "#CCBB44", "#66CCEE", "#AA3377"),
+  col = palette(),
   border = NA,
   ...
 )

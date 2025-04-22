@@ -20,14 +20,15 @@ flexiplot <- function(
     pch = c(1, 0, 2, 5, 6, 3), #, 4,
     lty = c(1, 2, 4, 3, 6, 5),
     lwd = 2,
-    col = c( ## Tol's colour-blind-safe scheme
-        '#4477AA',
-        '#EE6677',
-        '#228833',
-        '#CCBB44',
-        '#66CCEE',
-        '#AA3377' #, '#BBBBBB'
-    ),
+    col = palette(),
+    ## c( ## Tol's colour-blind-safe scheme
+    ##     '#4477AA',
+    ##     '#EE6677',
+    ##     '#228833',
+    ##     '#CCBB44',
+    ##     '#66CCEE',
+    ##     '#AA3377' #, '#BBBBBB'
+    ## ),
     grid = TRUE,
     add = FALSE,
     ...
@@ -103,14 +104,15 @@ plotquantiles <- function(
     x, y,
     xdomain = NULL,
     alpha.f = 0.25,
-    col = c( ## Tol's colour-blind-safe scheme
-        '#4477AA',
-        '#EE6677',
-        '#228833',
-        '#CCBB44',
-        '#66CCEE',
-        '#AA3377' #, '#BBBBBB'
-    ),
+    col = palette(),
+    ##     c( ## Tol's colour-blind-safe scheme
+    ##     '#4477AA',
+    ##     '#EE6677',
+    ##     '#228833',
+    ##     '#CCBB44',
+    ##     '#66CCEE',
+    ##     '#AA3377' #, '#BBBBBB'
+    ## ),
     border = NA,
     ...
 ){
@@ -168,14 +170,15 @@ plot.probability <- function(
     legend = TRUE,
     lty = c(1, 2, 4, 3, 6, 5),
     lwd = 2,
-    col = c( ## Tol's colour-blind-safe scheme, or palette()
-        '#4477AA',
-        '#EE6677',
-        '#228833',
-        '#CCBB44',
-        '#66CCEE',
-        '#AA3377' #, '#BBBBBB'
-    ),
+    col = palette(),
+    ##     c( ## Tol's colour-blind-safe scheme, or palette()
+    ##     '#4477AA',
+    ##     '#EE6677',
+    ##     '#228833',
+    ##     '#CCBB44',
+    ##     '#66CCEE',
+    ##     '#AA3377' #, '#BBBBBB'
+    ## ),
     xlab = NULL,
     ylab = NULL,
     ylim = c(0, NA),
