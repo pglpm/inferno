@@ -377,11 +377,30 @@ probability. Without knowing the penguin’s <code>island</code>,
 <em>Adelie</em> had slightly less than 50% probability; it was as likely
 as not. After learning the <code>island</code> variate, <em>Gentoo</em>
 gets more than 70% probability.</p>
-<p>This is exactly the kind of learning situation that happens in
-medicine and clinical inferences. A clinician searches for symptoms
+<p>An analogous discussion can be made for a continuous variate. Let’s
+for instance take the <code>body_mass</code> of the penguins,
+discretized in steps of 0.025 kg. Suppose we knew that the histogram of
+body masses in the whole population were as follows:</p>
+<p><img src="prob-body_mass.jpg" width="75%" style="display: block; margin: auto;"></p>
+<p>Then, if you had to guess the body mass of the penguin brought to
+you, you’d give the value 4 kg (plus or minus 0.0125 kg) a probability
+of around 1%, and so on for other possible values; the most probable
+value being 3.6 kg at 1.4% probability.</p>
+<p>Suppose you’re now given also the histograms for the subpopulations
+from the three islands:</p>
+<p><img src="prob-body_mass-given_island.jpg" width="75%" style="display: block; margin: auto;"></p>
+<p>Upon learning that your penguin is from <em>Biscoe</em>, your degree
+of belief would change: the most probable value would be 4.8 kg at 1.3%
+probability. Note how the histograms for <code>body_mass</code> are
+different in the subpopulations of the three islands. In
+<em>Torgersen</em>, for instance, it’s more probable to find penguins
+between 3 kg and 4 kg than between 5 kg and 6 kg; whereas in
+<em>Biscoe</em> the opposite is true.</p>
+<p>This is exactly the kind of learning situation that takes place in
+medicine and in clinical inferences. A clinician searches for symptoms
 because they may change and increase the probabilities of different
 diseases or health conditions. The reason why clinicians research
-particular <em>subgroups</em> – particular demographics, or genetic
+particular <em>subpopulations</em> – particular demographics, or genetic
 factors, etc. – is that within these subgroups the probability that a
 medical condition exist or will occur can be drastically higher. In
 turn, this leads the clinicians to understand better what can be the
@@ -391,22 +410,113 @@ factors.</p>
 probabilities of any set of variates, conditional on any other set.</p>
 </div>
 <div class="section level2">
-<h2 id="population-samples-and-uncertainty">Population samples and uncertainty<a class="anchor" aria-label="anchor" href="#population-samples-and-uncertainty"></a>
+<h2 id="uncertainty-about-whole-populations--population-samples">Uncertainty about whole populations. Population samples<a class="anchor" aria-label="anchor" href="#uncertainty-about-whole-populations--population-samples"></a>
 </h2>
 <p>Inferences are therefore quite clear if we know the frequencies of
-the variates in a whole population. Our main problem is that we usually
-<em>don’t know those population frequencies</em>. For example, do you
-know the <em>exact</em> number of people, among those born in your
-country at any time and are alive today, who are exactly between 165 cm
-and 170 cm tall today? And it’s often impractical or impossible to
-measure those frequencies. We must therefore <em>guess</em> them.</p>
+the variates for the <em>whole</em> population. Our main problem is that
+we usually <em>don’t know those whole-population frequencies</em>. For
+example, do you know the <em>exact</em> number of people, among those
+born in your country at any time and are alive today, who are exactly
+between 165 cm and 170 cm tall today?</p>
+<p>For our penguin example, let’s consider again the
+<code>body_mass</code> variate. We actually don’t know what the
+histogram of this variate over the whole population looks like. It could
+have one or several peaks, a symmetric or non-symmetric shape,
+shoulders, an so on. Here are seven possibilities:</p>
+<p><img src="penguin_priors.jpg" width="75%" style="display: block; margin: auto;"></p>
+<p><br>
+It’s often impractical or impossible to measure the frequencies of a
+variate in a whole population. We must therefore <em>guess</em>
+them.</p>
 <p>In order to guess them, we usually examine a <strong>sample</strong>
 from the population of interest. This sample is chosen in an
 unsystematic way, so that its statistics and its <strong>sample
-frequencies</strong> are not affected by peculiar choices, in which case
-we have a <em>biased</em> sample. Imagine for instance choosing a sample
-of <em>male</em> penguins only, whereas the penguin population we’re
-interested in has both males and females.</p>
+frequencies</strong> are not affected by peculiar choices, otherwise we
+would have a <em>biased</em> sample (imagine for instance choosing a
+sample of <em>male</em> penguins only, whereas the penguin population
+we’re interested in has both males and females).</p>
+<p>But the frequencies of variates in a sample from a population are
+typically different from those in the whole population. The difference
+is the larger, the smaller the sample. For example, if we chose five
+penguins from our penguin population in an unsystematic way, it could
+happen that we got five penguins all of species <em>Gentoo</em>. Then
+the variate <code>species</code> would have frequencies of 100% for
+<em>Gentoo</em> and 0% for <em>Adelie</em> and <em>Chinstrap</em>. But
+of course this would not mean that only the species <em>Gentoo</em>
+occurs in the whole population. In order to reflect the frequencies in
+the whole population, the size of a sample needs to be larger, the
+larger are:</p>
+<ul>
+<li>the numbers of variates considered;</li>
+<li>the possible values of each variate.</li>
+</ul>
+<p>Therefore, to guess the frequencies in the whole population we can
+examine a sample from it – but we cannot fully rely on the sample.</p>
+<p>The traditional way of facing this uncertainty was to <em>assume</em>
+that the whole population has frequencies with particular features; most
+commonly, they were assumed to be <em>Gaussian</em>. The variate values
+observed in the sample were used to fit the free parameters of the
+particular assumed distribution, like the means, variances, covariances
+of the Gaussian.</p>
+<p>Consider how drastic such an approach is. It can also be misleading,
+if one is not aware of what is being done. For instance, errors can be
+reported about the fit of the free parameters, and if they are small
+they can give a false sense of precise inference. But the very
+<em>assumption</em> has errors, which may be quite large; and such
+errors are rarely reported.</p>
+<p>One could object that the assumption, say of gaussianity, behind such
+methods is not completely arbitrary: one can get the idea of whether
+it’s correct or not by looking at the sample. But this objection is
+self-contradictory: as discussed, our problem is that the frequencies in
+the sample are not a faithful reflection of those in the whole
+population. We’re making assumption because the sample is not reliable,
+so how can we rely on the sample to judge those assumptions?</p>
+<p>It must be pointed out that even methods or measures that do not
+explicitly refer to peculiar assumptions about frequencies, <em>do</em>
+actually rely on such hidden assumptions. Pearson’s measure of
+correlation, for instance, actually relies on the assumption that the
+joint frequency distribution for the whole population is Gaussian.
+<!-- add ref --></p>
+</div>
+<div class="section level2">
+<h2 id="bayesian-nonparametric-population-inference">Bayesian nonparametric population inference<a class="anchor" aria-label="anchor" href="#bayesian-nonparametric-population-inference"></a>
+</h2>
+<p>The method based on the assumption of peculiar frequency distribution
+was a necessity in the past, because there was no other computationally
+feasible way of facing the uncertainty about the whole population. But
+today the situation is different.</p>
+<p>Instead of making peculiar assumptions out of computational
+desperation, today we can explicitly recognize our uncertainty about the
+frequencies in the whole population, and therefore account for the
+errors that can come from this uncertainty. This is what Bayesian
+nonparametric population inference does. The term ‘nonparametric’ means
+that no peculiar assumptions are made about frequency distribution
+having simple shapes (and therefore expressible with few
+parameters).</p>
+<p>Since we must <em>guess</em> what the frequencies are in the whole
+population, we proceed by assigning <em>probabilities</em> to all
+possible such frequency distributions. Intuitively, a candidate
+frequency distribution is more probable:</p>
+<ul>
+<li>the more it fits the frequencies measured in the sample;</li>
+<li>the more it looks “natural”.</li>
+</ul>
+<p>An example of unnatural or strange probability distribution, for our
+<code>body_mass</code> variate, could be the following:</p>
+<p><img src="penguin_prior_strange.jpg" width="75%" style="display: block; margin: auto;"></p>
+<p>It seems quite unnatural based on our experience with histograms over
+large natural populations. If a sample from a penguin population showed
+this frequency distribution of <code>body_mass</code> values, you would
+probably check whether any errors were made during the sampling.</p>
+<p>The core of the <strong><em>inferno</em></strong> package is the
+calculation of the probabilities for the possible frequencies of the
+whole population, and the selection of a large sample of the most
+probable ones. This calculation and sampling are realized by the
+<code><a href="../reference/learn.html">learn()</a></code> function.</p>
+</div>
+<div class="section level2">
+<h2 id="back-to-guessing-about-the-next-unit">Back to guessing about the next unit<a class="anchor" aria-label="anchor" href="#back-to-guessing-about-the-next-unit"></a>
+</h2>
 <p>There are situations in which it is not possible to choose the sample
 in an unsystematic way. Yet such a biased sample can still be used for
 population inference, as long as we know what its bias may be.
@@ -414,9 +524,9 @@ population inference, as long as we know what its bias may be.
 corrections as well.</p>
 <p>But the frequencies of variates in a sample from a population are
 typically different from those in the whole population. The difference
-is typically the larger, the smaller the sample. There are even extreme
-situations in which some statistics from a sample, like the mean, can be
-way off those of the whole population, even if the sample is large (the
+is the larger, the smaller the sample. There are even extreme situations
+in which some statistics from a sample, like the mean, can be way off
+those of the whole population, even if the sample is large (the
 statistics become reliable only when the sample is almost as large as
 the full population). The plot below shows an example. The variate is a
 real number that can take on positive or negative values, in a
