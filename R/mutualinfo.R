@@ -10,8 +10,7 @@
 #' @param nsamples numeric: number of samples from which to approximately
 #'   calculate the mutual information. Default 3600
 #' @param unit Either one of 'Sh' for *shannon* (default), 'Hart' for *hartley*, 'nat' for *natural unit*, or a positive real indicating the base of the logarithms to be used.
-#' @param parallel, logical or numeric: whether to use pre-existing parallel
-#'   workers, or how many to create and use.
+#' @param parallel Logical or `NULL` or positive integer: `TRUE`: use roughly half of available cores; `FALSE`: use serial computation; `NULL`: don't do anything (use pre-registered condition); integer: use this many cores. Default `NULL`
 #' @param silent logical: give warnings or updates in the computation?
 #'
 #' @return A list consisting of the elements `MI`, `CondEn12`, `CondEn21`, `En1`, `En2`, `MImax`, `unit`, `Y1names`, `Y1names`. All elements except `unit`, `Y1names`, `Y2names` are a vector of `value` and `error`. Element `MI` is the mutual information between (joint) variates `Y1names` and (joint) variates `Y2names`. Element`CondEn12` is the conditional entropy of the first variate given the second, and vice versa for `CondEn21`. Elements `En1` and `En1` are the (differential) entropies of the first and second variates. Element `MImax` is the maximum possible value of the mutual information. Elements `unit`, `Y1names`, `Y2names` are identical to the same inputs.
@@ -24,8 +23,8 @@ mutualinfo <- function(
     learnt,
     nsamples = 3600,
     unit = 'Sh',
-    parallel = TRUE,
-    silent = TRUE
+    parallel = NULL,
+    silent = FALSE
 ){
 
 #### Mutual information and conditional entropy between Y2 and Y1
@@ -66,62 +65,49 @@ mutualinfo <- function(
 
 
 
-
-#### Determine the status of parallel processing
-    if (is.logical(parallel) && parallel) {
-        if (foreach::getDoParRegistered()) {
-            if (!silent) {
-                cat('Using already registered', foreach::getDoParName(),
-                    'with', foreach::getDoParWorkers(), 'workers\n')
-            }
-            ncores <- foreach::getDoParWorkers()
-        } else {
-            if (!silent) {
-                cat('No parallel backend registered.\n')
-            }
-            ncores <- 1
-        }
-    } else if (is.numeric(parallel) && parallel >= 2) {
-        if (foreach::getDoParRegistered()) {
-            ncores <- min(foreach::getDoParWorkers(), parallel)
-            if (!silent) {
-                cat('Using already registered', foreach::getDoParName(),
-                    'with', foreach::getDoParWorkers(), 'workers\n')
-                if(parallel > ncores) {
-                    cat('NOTE: fewer pre-registered cores',
-                        'than requested in the "parallel" argument.\n')
-                }
-            }
-        } else {
-            ## ##
-            ## ## Alternative way to register cores;
-            ## ## might need to be used for portability to Windows?
-            ## registerDoSEQ()
-            ## cl <- makePSOCKcluster(ncores)
-            ## ##
-            cl <- parallel::makeCluster(parallel)
-            doParallel::registerDoParallel(cl)
-            if (!silent) {
-                cat('Registered', foreach::getDoParName(),
-                    'with', foreach::getDoParWorkers(), 'workers\n')
-            }
-            ncores <- parallel
-            closecoresonexit <- function(){
-                if(!silent) {
-                    cat('\nClosing connections to cores.\n')
-                }
-                foreach::registerDoSEQ()
-                parallel::stopCluster(cl)
-                env <- foreach:::.foreachGlobals
-                rm(list=ls(name=env), pos=env)
-            }
-            on.exit(closecoresonexit())
-        }
-    } else {
-        if (!silent) {
-            cat('No parallel backend registered.\n')
-        }
+#### Requested parallel processing
+    ## NB: doesn't make sense to have more cores than chains
+    closeexit <- FALSE
+    if (isTRUE(parallel)) {
+        ## user wants us to register a parallel backend
+        ## and to choose number of cores
+        ncores <- max(1,
+            floor(parallel::detectCores() / 2))
+        cl <- parallel::makeCluster(ncores)
+        doParallel::registerDoParallel(cl)
+        closeexit <- TRUE
+        if(!silent){cat('Registered', foreach::getDoParName(),
+            'with', foreach::getDoParWorkers(), 'workers\n')}
+    } else if (isFALSE(parallel)) {
+        ## user wants us not to use parallel cores
         ncores <- 1
+        foreach::registerDoSEQ()
+    } else if (is.null(parallel)) {
+        ## user wants us not to do anything
+        ncores <- foreach::getDoParWorkers()
+    } else if (is.finite(parallel) && parallel >= 1) {
+        ## user wants us to register 'parallal' # of cores
+        ncores <- parallel
+        cl <- parallel::makeCluster(ncores)
+        doParallel::registerDoParallel(cl)
+        closeexit <- TRUE
+        if(!silent){cat('Registered', foreach::getDoParName(),
+            'with', foreach::getDoParWorkers(), 'workers\n')}
+    } else {
+        stop("Unknown value of argument 'parallel'")
+    }
+
+    ## Close parallel connections if any were opened
+    if(closeexit) {
+        closecoresonexit <- function(){
+            if(!silent){cat('\nClosing connections to cores.\n')}
+            foreach::registerDoSEQ()
+            parallel::stopCluster(cl)
+            ## parallel::setDefaultCluster(NULL)
+            env <- foreach:::.foreachGlobals
+            rm(list=ls(name=env), pos=env)
+        }
+        on.exit(closecoresonexit())
     }
 
     ## determine if parallel computation is possible and needed

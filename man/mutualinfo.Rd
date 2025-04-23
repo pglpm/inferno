@@ -11,8 +11,8 @@ mutualinfo(
   learnt,
   nsamples = 3600,
   unit = "Sh",
-  parallel = TRUE,
-  silent = TRUE
+  parallel = NULL,
+  silent = FALSE
 )
 }
 \arguments{
@@ -30,8 +30,7 @@ calculate the mutual information. Default 3600}
 
 \item{unit}{Either one of 'Sh' for \emph{shannon} (default), 'Hart' for \emph{hartley}, 'nat' for \emph{natural unit}, or a positive real indicating the base of the logarithms to be used.}
 
-\item{parallel, }{logical or numeric: whether to use pre-existing parallel
-workers, or how many to create and use.}
+\item{parallel}{Logical or \code{NULL} or positive integer: \code{TRUE}: use roughly half of available cores; \code{FALSE}: use serial computation; \code{NULL}: don't do anything (use pre-registered condition); integer: use this many cores. Default \code{NULL}}
 
 \item{silent}{logical: give warnings or updates in the computation?}
 }

@@ -72,7 +72,7 @@ Pr <- function(
     ## Close parallel connections if any were opened
     if(closeexit) {
         closecoresonexit <- function(){
-            cat('\nClosing connections to cores.\n')
+            if(!silent){cat('\nClosing connections to cores.\n')}
             foreach::registerDoSEQ()
             parallel::stopCluster(cl)
             ## parallel::setDefaultCluster(NULL)
