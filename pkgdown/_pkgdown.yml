@@ -17,6 +17,7 @@ reference:
     - plotFsamples
     - subset.probability
     - vrtgrid
+    - Pr2
 - title: "Internal functions"
   desc: "For developers."
   contents:
