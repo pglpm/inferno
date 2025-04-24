@@ -11,6 +11,9 @@ Authors@R: c(
   person("Håkon", "Mydland", ,
   "haakon.mydland@gmail.com", role = c("aut"),
   comment = c(ORCID = "0009-0004-9558-8894")),
+  person("Maksim", "Ohvrill", ,
+  "maksimohvrill@hotmail.com", role = c("aut"),
+  comment = c(ORCID = "")),
   person("Simen", "Hesthamar Hauge", ,
   "585090@stud.hvl.no", role = c("aut"),
   comment = c(ORCID = "0009-0005-6158-2846"))

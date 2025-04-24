@@ -26,7 +26,7 @@ util_lprobs <- function(
     ##
     nO, iO, tO,
     nLO, iLO, tLO,
-    nUO, iUO, tUO
+    nUO, iUO, tUO,
     ##
     nN, iN, tN,
     nB, iB, tB
