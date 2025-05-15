@@ -23,7 +23,7 @@ A concrete example application in medicine is given in [this paper](https://doi.
 
 Projects using ***inferno***:
 
-- [InfernoCalibNet](https://github.com/m4siko/InfernoCalibNet)
+- [InfernoCalibNet](https://m4siko.github.io/InfernoCalibNet)
 - [parkinsonbayes](https://github.com/pglpm/parkinsonbayes)
 
 ## Installation
