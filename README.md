@@ -49,7 +49,7 @@ the installation will automatically also install all required R-dependencies.
 An application has been built upon the Inferno software. This app can be used for testing out the features of the Inferno software with just a few button clicks, without having to write any code in R yourself. 
 
 ### Desktop Application
-* Currently available for Windows and MacOS. Download and install the desktop application by following this: [Installation Guide](https://github.com/h587916/Inferno-App/releases/tag/1.0.0).
+* Currently available for Windows and MacOS. Download and install the desktop application by following this: [Installation Guide](https://github.com/h587916/Inferno-App/releases/tag/1.0.2).
 
 ### Cross-Platform Open Source Version
-* For Windows, macOS, and Linux, you can run the PySide6 app locally using Python by following this: [Setup Guide](https://github.com/h587916/Inferno-App?tab=readme-ov-file#inferno-app).
+* For Windows, macOS, and Linux, you can run the PySide6 app locally in Python by following this: [Setup Guide](https://github.com/h587916/Inferno-App?tab=readme-ov-file#inferno-app).
