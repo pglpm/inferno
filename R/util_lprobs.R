@@ -138,49 +138,31 @@ util_lprobs <- function(
                     mean = learnt$Rmean[tLR, , , drop = FALSE],
                     sd = learnt$Rvar[tLR, , , drop = FALSE],
                     log.p = TRUE,
-                    lower.tail= TRUE
+                    lower.tail = TRUE
                 ), na.rm = TRUE)
         } else {
             0
         }) +
             (if (nLC > 0) { # censored
-                if(lower.tail) {
-                    vx <- pmax(Clefts[tLC], x[iLC, ])
-                } else {
-                    vx <- pmin(Crights[tLC], x[iLC, ])
-                }
                 colSums(
                     pnorm(
-                        q = vx,
+                        q = x[iLC, ],
                         mean = learnt$Cmean[tLC, , , drop = FALSE],
                         sd = learnt$Cvar[tLC, , , drop = FALSE],
                         log.p = TRUE,
-                        lower.tail= TRUE
+                        lower.tail = TRUE
                     ), na.rm = TRUE)
             } else {
                 0
             }) +
             (if (nLD > 0) { # discretized
-                ## if(lower.tail) {
-                ##     vx <- pmax(x[iLD, ] + Dsteps[tLD], Dlefts[tLD])
-                ##     vx[vx - Dsteps[tLD] >= Drights[tLD]] <- +Inf
-                ## } else {
-                ##     vx <- pmin(x[iLD, ] + Dsteps[tLD], Drights[tLD])
-                ##     vx[vx + Dsteps[tLD] <= Dlefts[tLD]] <- -Inf
-                ## }
-                ## ## Old, before 'eq' argument
-                ## vx <- pmax(x[iLD, ] + Dsteps[tLD], Dlefts[tLD])
-                ## vx[vx - Dsteps[tLD] >= Drights[tLD]] <- +Inf
-                vx <- x[iLD, ]
-                vx[vx <= Dlefts[tLD]] <- -Inf
-                vx[vx >= Drights[tLD]] <- +Inf
                 colSums(
                     pnorm(
-                        q = vx,
+                        q = x[iLD, ],
                         mean = learnt$Dmean[tLD, , , drop = FALSE],
                         sd = learnt$Dvar[tLD, , , drop = FALSE],
                         log.p = TRUE,
-                        lower.tail= TRUE
+                        lower.tail = TRUE
                     ), na.rm = TRUE)
             } else {
                 0
@@ -190,13 +172,7 @@ util_lprobs <- function(
                 colSums(log(
                     aperm(
                         vapply(seq_len(nLO), function(v) {
-                            if(lower.tail) {
-                                ## vx <- seq_len(x[iLO[v], ])
-                                vx <- (seqO <= x[iLO[v], ])
-                            } else {
-                                ## vx <- seq(1+x[iLO[v], ], 20)
-                                vx <- (seqO > x[iLO[v], ])
-                            }
+                            vx <- (seqO <= x[iLO[v], ])
                             apply(X = learnt$Oprob[tLO[v], , vx, , drop = F],
                                 MARGIN = -3, FUN = sum, na.rm = TRUE)
                         }, learnt$W),
@@ -213,49 +189,31 @@ util_lprobs <- function(
                     mean = learnt$Rmean[tUR, , , drop = FALSE],
                     sd = learnt$Rvar[tUR, , , drop = FALSE],
                     log.p = TRUE,
-                    lower.tail= FALSE
+                    lower.tail = FALSE
                 ), na.rm = TRUE)
         } else {
             0
         }) +
             (if (nUC > 0) { # censored
-                if(lower.tail) {
-                    vx <- pmax(Clefts[tUC], x[iUC, ])
-                } else {
-                    vx <- pmin(Crights[tUC], x[iUC, ])
-                }
                 colSums(
                     pnorm(
-                        q = vx,
+                        q = x[iUC, ],
                         mean = learnt$Cmean[tUC, , , drop = FALSE],
                         sd = learnt$Cvar[tUC, , , drop = FALSE],
                         log.p = TRUE,
-                        lower.tail= FALSE
+                        lower.tail = FALSE
                     ), na.rm = TRUE)
             } else {
                 0
             }) +
             (if (nUD > 0) { # discretized
-                ## if(lower.tail) {
-                ##     vx <- pmax(x[iUD, ] + Dsteps[tUD], Dlefts[tUD])
-                ##     vx[vx - Dsteps[tUD] >= Drights[tUD]] <- +Inf
-                ## } else {
-                ##     vx <- pmin(x[iUD, ] + Dsteps[tUD], Drights[tUD])
-                ##     vx[vx + Dsteps[tUD] <= Dlefts[tUD]] <- -Inf
-                ## }
-                ## ## Old, before 'eq' argument
-                ## vx <- pmax(x[iUD, ] + Dsteps[tUD], Dlefts[tUD])
-                ## vx[vx - Dsteps[tUD] >= Drights[tUD]] <- +Inf
-                vx <- x[iUD, ]
-                vx[vx <= Dlefts[tUD]] <- -Inf
-                vx[vx >= Drights[tUD]] <- +Inf
                 colSums(
                     pnorm(
-                        q = vx,
+                        q = x[iUD, ],
                         mean = learnt$Dmean[tUD, , , drop = FALSE],
                         sd = learnt$Dvar[tUD, , , drop = FALSE],
                         log.p = TRUE,
-                        lower.tail= FALSE
+                        lower.tail = FALSE
                     ), na.rm = TRUE)
             } else {
                 0
@@ -265,13 +223,7 @@ util_lprobs <- function(
                 colSums(log(
                     aperm(
                         vapply(seq_len(nUO), function(v) {
-                            if(lower.tail) {
-                                ## vx <- seq_len(x[iUO[v], ])
-                                vx <- (seqO <= x[iUO[v], ])
-                            } else {
-                                ## vx <- seq(1+x[iUO[v], ], 20)
-                                vx <- (seqO > x[iUO[v], ])
-                            }
+                            vx <- (seqO > x[iUO[v], ])
                             apply(X = learnt$Oprob[tUO[v], , vx, , drop = F],
                                 MARGIN = -3, FUN = sum, na.rm = TRUE)
                         }, learnt$W),

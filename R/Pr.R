@@ -118,6 +118,7 @@ Pr <- function(
     }
 
     Y <- as.data.frame(Y)
+    if(all(is.na(X))){X <- NULL}
     if(!is.null(X)){X <- as.data.frame(X)}
 
     ## Consistency checks
@@ -130,6 +131,27 @@ Pr <- function(
     ##
     if (!is.null(X) && ncol(X) == 0) {
         stop('X must be NULL or have two dimensions')
+    }
+
+    ## More consistency checks
+    Yv <- colnames(Y)
+    if (!all(Yv %in% auxmetadata$name)) {
+        stop('unknown Y variates\n')
+    }
+    if (length(unique(Yv)) != length(Yv)) {
+        stop('duplicate Y variates\n')
+    }
+    ##
+    Xv <- colnames(X)
+    if (!all(Xv %in% auxmetadata$name)) {
+        stop('unknown X variates\n')
+    }
+    if (length(unique(Xv)) != length(Xv)) {
+        stop('duplicate X variates\n')
+    }
+    ##
+    if (length(intersect(Yv, Xv)) > 0) {
+        stop('overlap in Y and X variates\n')
     }
 
     ## Check if a prior for Y is given, in that case Y and X will be swapped
@@ -167,29 +189,11 @@ Pr <- function(
         Y <- X
         X <- .
         rm(.)
+        . <- Yv
+        Yv <- Xv
+        Xv <- .
+        rm(.)
     }
-
-    ## More consistency checks
-    Yv <- colnames(Y)
-    if (!all(Yv %in% auxmetadata$name)) {
-        stop('unknown Y variates\n')
-    }
-    if (length(unique(Yv)) != length(Yv)) {
-        stop('duplicate Y variates\n')
-    }
-    ##
-    Xv <- colnames(X)
-    if (!all(Xv %in% auxmetadata$name)) {
-        stop('unknown X variates\n')
-    }
-    if (length(unique(Xv)) != length(Xv)) {
-        stop('duplicate X variates\n')
-    }
-    ##
-    if (length(intersect(Yv, Xv)) > 0) {
-        stop('overlap in Y and X variates\n')
-    }
-
 
     nY <- nrow(Y)
     nX <- max(nrow(X), 1L)

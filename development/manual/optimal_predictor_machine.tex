@@ -1,7 +1,7 @@
 \pdfoutput=1
 %% Author: PGL  Porta Mana
 %% Created: 2015-05-01T20:53:34+0200
-%% Last-Updated: 2023-10-07T08:55:48+0200
+%% Last-Updated: 2025-06-05T23:54:40+0200
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \newif\ifarxiv
 \arxivfalse
@@ -9,8 +9,9 @@
 \newif\ifafour
 \afourfalse% true = A4, false = A5
 \newif\iftypodisclaim % typographical disclaim on the side
-\typodisclaimtrue
-\newcommand*{\memfontfamily}{zplr}
+\typodisclaimfalse
+\newcommand*{\memfontfamily}{zpl}
+%\newcommand*{\memfontenc}{T1}
 \newcommand*{\memfontpack}{newpx}
 \documentclass[\ifafour a4paper,12pt,\else a5paper,10pt,\fi%extrafontsizes,%
 onecolumn,oneside,article,%french,italian,german,swedish,latin,
@@ -25,7 +26,6 @@ british%
 \newcommand*{\pdftitle}{\propertitle}
 \newcommand*{\headtitle}{Optimal predictor machine}
 \newcommand*{\pdfauthor}{P.G.L.  Porta Mana}
-% \newcommand*{\pdfauthor}{M. Koci\'nski, A. Lundervold\, A. J. Lundervold, A. S. Lundervold, P.G.L.  Porta Mana, I. Rye, A.~Vik}
 \newcommand*{\headauthor}{Porta Mana}
 \newcommand*{\reporthead}{\ifarxiv\else Open Science Framework \href{https://doi.org/10.31219/osf.io/***}{\textsc{doi}:10.31219/osf.io/***}\fi}% Report number
 
@@ -64,7 +64,8 @@ british%
 % \newunicodechar{Ȳ}{\=Y}
 % \newunicodechar{ȳ}{\=y}
 
-\newcommand*{\bmmax}{0} % reduce number of bold fonts, before font packages
+% note: with \newcommand*{\bmmax}{0} commands like \bm{\left(} won't work
+\newcommand*{\bmmax}{3} % reduce number of bold fonts, before font packages
 \newcommand*{\hmmax}{0} % reduce number of heavy fonts, before font packages
 
 \usepackage{textcomp}
@@ -122,14 +123,14 @@ british%
 \def\@endtheorem{\endtrivlist}
 \makeatother
 
-\newcommand*{\QED}{\textsc{q.e.d.}}
-\renewcommand*{\qedsymbol}{\QED}
-\theoremstyle{remark}
-\newtheorem{note}{Note}
-\newtheorem*{remark}{Note}
-\newtheoremstyle{innote}{\parsep}{\parsep}{\footnotesize}{}{}{}{0pt}{}
-\theoremstyle{innote}
-\newtheorem*{innote}{}
+% \newcommand*{\QED}{\textsc{q.e.d.}}
+% \renewcommand*{\qedsymbol}{\QED}
+% \theoremstyle{remark}
+% \newtheorem{note}{Note}
+% \newtheorem*{remark}{Note}
+% \newtheoremstyle{innote}{\parsep}{\parsep}{\footnotesize}{}{}{}{0pt}{}
+% \theoremstyle{innote}
+% \newtheorem*{innote}{}
 
 \usepackage[shortlabels,inline]{enumitem}
 \SetEnumitemKey{para}{itemindent=\parindent,leftmargin=0pt,listparindent=\parindent,parsep=0pt,itemsep=\topsep}
@@ -335,8 +336,9 @@ british%
 % \let\varkappaup\kappaup
 % \DeclareMathSymbol{\varphiup}{\mathalpha}{egreekr}{"27}
 
-%\usepackage%[scaled=0.9]%
-%{classico}%  Optima as sans-serif font
+
+% \usepackage%[scaled=0.9]%
+% {classico}%  Optima as sans-serif font
 \renewcommand\sfdefault{uop}
 \DeclareMathAlphabet{\mathsf}  {T1}{\sfdefault}{m}{sl}
 \SetMathAlphabet{\mathsf}{bold}{T1}{\sfdefault}{b}{sl}
@@ -346,30 +348,22 @@ british%
 % \SetMathAlphabet{\mathsu}{bold}{T1}{\sfdefault}{b}{n}
 
 % DejaVu Mono as typewriter text
-\usepackage[scaled=0.84]{DejaVuSansMono}
+\usepackage[scaled=0.83]{DejaVuSansMono}% was 0.84
 
 \usepackage{mathdots}
 
 \usepackage[usenames]{xcolor}
 % Tol (2012) colour-blind-, print-, screen-friendly colours, alternative scheme; Munsell terminology
-\definecolor{bluepurple}{RGB}{68,119,170}
-\definecolor{blue}{RGB}{102,204,238}
-\definecolor{green}{RGB}{34,136,51}
-\definecolor{yellow}{RGB}{204,187,68}
-\definecolor{red}{RGB}{238,102,119}
-\definecolor{redpurple}{RGB}{170,51,119}
-\definecolor{grey}{RGB}{187,187,187}
-% Tol (2012) colour-blind-, print-, screen-friendly colours; Munsell terminology
-% \definecolor{lbpurple}{RGB}{51,34,136}
-% \definecolor{lblue}{RGB}{136,204,238}
-% \definecolor{lbgreen}{RGB}{68,170,153}
-% \definecolor{lgreen}{RGB}{17,119,51}
-% \definecolor{lgyellow}{RGB}{153,153,51}
-% \definecolor{lyellow}{RGB}{221,204,119}
-% \definecolor{lred}{RGB}{204,102,119}
-% \definecolor{lpred}{RGB}{136,34,85}
-% \definecolor{lrpurple}{RGB}{170,68,153}
-\definecolor{lgrey}{RGB}{221,221,221}
+\definecolor{blue}{HTML}{4477AA}
+\definecolor{cyan}{HTML}{66CCEE}
+\definecolor{green}{HTML}{228833}
+\definecolor{yellow}{HTML}{CCBB44}
+\definecolor{red}{HTML}{EE6677}
+\definecolor{purple}{HTML}{AA3377}
+\definecolor{grey}{HTML}{BBBBBB}
+\definecolor{midgrey}{HTML}{888888}
+\definecolor{darkgrey}{HTML}{555555}
+\definecolor{lgrey}{HTML}{DDDDDD}
 %\newcommand*\mycolourbox[1]{%
 %\colorbox{grey}{\hspace{1em}#1\hspace{1em}}}
 \colorlet{shadecolor}{lgrey}
@@ -379,7 +373,7 @@ british%
 \usepackage{microtype}
 
 \usepackage[backend=biber,mcite,%subentry,
-citestyle=authoryear-comp,bibstyle=pglpm-authoryear,autopunct=false,sorting=ny,sortcites=false,natbib=false,maxcitenames=2,maxbibnames=8,minbibnames=8,giveninits=true,uniquename=false,uniquelist=false,maxalphanames=1,block=space,hyperref=true,defernumbers=false,useprefix=true,sortupper=false,language=british,parentracker=false,autocite=footnote]{biblatex}
+citestyle=authoryear-comp,bibstyle=pglpm_latex/pglpm-authoryear,autopunct=false,sorting=ny,sortcites=false,natbib=false,maxcitenames=2,maxbibnames=8,minbibnames=8,giveninits=true,uniquename=false,uniquelist=false,maxalphanames=1,block=space,hyperref=true,defernumbers=false,useprefix=true,sortupper=false,language=british,parentracker=false,autocite=footnote,dashed=false]{biblatex}
 \DeclareSortingTemplate{ny}{\sort{\field{sortname}\field{author}\field{editor}}\sort{\field{year}}}
 \DeclareFieldFormat{postnote}{#1}
 \iffalse\makeatletter%%% replace parenthesis with brackets
@@ -398,16 +392,15 @@ citestyle=authoryear-comp,bibstyle=pglpm-authoryear,autopunct=false,sorting=ny,s
 \renewcommand*{\finalnamedelim}{\addspace\amp\space}
 % \renewcommand*{\finalnamedelim}{\addcomma\space}
 \renewcommand*{\textcitedelim}{\addcomma\space}
-% \setcounter{biburlnumpenalty}{1} % to allow url breaks anywhere
-% \setcounter{biburlucpenalty}{0}
-% \setcounter{biburllcpenalty}{1}
-\setcounter{biburlucpenalty}{1}  %break URL after uppercase character
-\setcounter{biburlnumpenalty}{1} %break URL after number
-\setcounter{biburllcpenalty}{1}  %break URL after lowercase character
+% % Not needed with xurl loaded
+% \setcounter{biburlucpenalty}{1}  %break URL after uppercase character
+% \setcounter{biburlnumpenalty}{1} %break URL after number
+% \setcounter{biburllcpenalty}{1}  %break URL after lowercase character
 \DeclareDelimFormat{multicitedelim}{\addsemicolon\addspace\space}
 \DeclareDelimFormat{compcitedelim}{\addsemicolon\addspace\space}
 \DeclareDelimFormat{postnotedelim}{\addspace}
 \ifarxiv\else\addbibresource{portamanabib.bib}\fi
+\renewcommand{\nameyeardelim}{~}% avoid linebreak between name and year
 \renewcommand{\bibfont}{\footnotesize}
 %\appto{\citesetup}{\footnotesize}% smaller font for citations
 \defbibheading{bibliography}[\bibname]{\section*{#1}\addcontentsline{toc}{section}{#1}%\markboth{#1}{#1}
@@ -428,7 +421,10 @@ citestyle=authoryear-comp,bibstyle=pglpm-authoryear,autopunct=false,sorting=ny,s
 }
 \newcommand*{\subtitleproc}[1]{}
 \newcommand*{\chapb}{ch.}
-%
+
+\usepackage{xurl}
+\PassOptionsToPackage{hyphens}{url}\usepackage[hypertexnames=false,pdfencoding=unicode,psdextra]{hyperref}
+% % Not needed with xurl
 %\def\UrlOrds{\do\*\do\-\do\~\do\'\do\"\do\-}%
 % \def\myUrlOrds{\do\0\do\1\do\2\do\3\do\4\do\5\do\6\do\7\do\8\do\9\do\a\do\b\do\c\do\d\do\e\do\f\do\g\do\h\do\i\do\j\do\k\do\l\do\m\do\n\do\o\do\p\do\q\do\r\do\s\do\t\do\u\do\v\do\w\do\x\do\y\do\z\do\A\do\B\do\C\do\D\do\E\do\F\do\G\do\H\do\I\do\J\do\K\do\L\do\M\do\N\do\O\do\P\do\Q\do\R\do\S\do\T\do\U\do\V\do\W\do\X\do\Y\do\Z}%
 \makeatletter
@@ -436,9 +432,10 @@ citestyle=authoryear-comp,bibstyle=pglpm-authoryear,autopunct=false,sorting=ny,s
 \g@addto@macro{\UrlBreaks}{%
 \do\0\do\1\do\2\do\3\do\4\do\5\do\6\do\7\do\8\do\9\do\a\do\b\do\c\do\d\do\e\do\f\do\g\do\h\do\i\do\j\do\k\do\l\do\m\do\n\do\o\do\p\do\q\do\r\do\s\do\t\do\u\do\v\do\w\do\x\do\y\do\z\do\A\do\B\do\C\do\D\do\E\do\F\do\G\do\H\do\I\do\J\do\K\do\L\do\M\do\N\do\O\do\P\do\Q\do\R\do\S\do\T\do\U\do\V\do\W\do\X\do\Y\do\Z%
 }
-\g@addto@macro\UrlSpecials{%
-\do\/{\mbox{\UrlFont/}\hskip 0pt plus 10pt}%
-}
+% % The command below add spurious space to urls
+% \g@addto@macro\UrlSpecials{%
+% \do\/{\mbox{\UrlFont/}\hskip 0pt plus 10pt}%
+% }
 \makeatother
 \newcommand*{\arxiveprint}[1]{%
 arXiv \doi{10.48550/arXiv.#1}%
@@ -466,17 +463,25 @@ Open Science Framework \doi{10.17605/osf.io/#1}%
 }
 
 \usepackage{graphicx}
-
+%\usepackage{graphbox}% to align includegraphics vertically
 %\usepackage{wrapfig}
 
 %\usepackage{tikz-cd}
 
-\PassOptionsToPackage{hyphens}{url}\usepackage[hypertexnames=false,pdfencoding=unicode,psdextra]{hyperref}
+\usepackage{pdfrender}
+\newcommand*{\textxbf}[1]{\textpdfrender{TextRenderingMode=2,LineWidth=0.3pt}{\textbf{#1}}}
+\renewcommand*{\bm}[1]{\textpdfrender{TextRenderingMode=2,LineWidth=0.3pt}{\boldsymbol{#1}}}
 
 \usepackage[depth=4]{bookmark}
-\hypersetup{colorlinks=true,bookmarksnumbered,pdfborder={0 0 0.25},citebordercolor={0.2667 0.4667 0.6667},citecolor=bluepurple,linkbordercolor={0.6667 0.2 0.4667},linkcolor=redpurple,urlbordercolor={0.1333 0.5333 0.2},urlcolor=green,breaklinks=true,pdftitle={\pdftitle},pdfauthor={\pdfauthor}}
+\hypersetup{%
+colorlinks=true,
+%pdfborderstyle={/S/U/W 0.5},
+bookmarksnumbered,pdfborder={0 0 0.25},
+citebordercolor=blue,citecolor=blue,linkbordercolor=blue,linkcolor=blue,urlbordercolor=blue,urlcolor=blue,breaklinks=true,pdftitle={\pdftitle},pdfauthor={\pdfauthor}}
 % \usepackage[vertfit=local]{breakurl}% only for arXiv
 \providecommand*{\urlalt}{\href}
+
+%\usepackage{tensor}
 
 \usepackage[british]{datetime2}
 \DTMnewdatestyle{mydate}%
@@ -536,16 +541,13 @@ Open Science Framework \doi{10.17605/osf.io/#1}%
   \gdef\@chapapp{\appendixname}%
   \gdef\thesection{\@Alph\c@section}%
   \anappendixtrue}\makeatother
-\chapterstyle{section}
 \counterwithout{section}{chapter}
-\renewcommand{\chapnumfont}{\bfseries\sffamily\LARGE}
-\renewcommand{\chaptitlefont}{\chapnumfont}
-\renewcommand{\thechapter}{\Roman{chapter}}
-\renewcommand{\afterchapternum}{\quad}
 \setsecnumformat{\upshape\csname the#1\endcsname\quad}
-\setsecheadstyle{\large\bfseries\sffamily%
+\setsecheadstyle{\Large\bfseries\sffamily%
 \centering}
-\setsubsecheadstyle{\bfseries\sffamily%
+\setsubsecheadstyle{\large\bfseries\sffamily%
+\raggedright}
+\setsubsubsecheadstyle{\bfseries\sffamily%
 \raggedright}
 %\setbeforesecskip{-1.5ex plus 1ex minus .2ex}% plus 1ex minus .2ex}
 %\setaftersecskip{1.3ex plus .2ex }% plus 1ex minus .2ex}
@@ -604,7 +606,7 @@ Open Science Framework \doi{10.17605/osf.io/#1}%
 \bfseries}
 \posttitle{\bigskip\end{center}}
 
-\makeatletter\newcommand*{\atf}{\includegraphics[totalheight=\heightof{@}]{atblack.png}}\makeatother
+\makeatletter\newcommand*{\atf}{\includegraphics[totalheight=\heightof{@}]{pglpm_latex/atblack.png}}\makeatother
 \providecommand{\affiliation}[1]{\textsl{\textsf{\footnotesize #1}}}
 \providecommand{\epost}[1]{\texttt{\footnotesize\textless#1\textgreater}}
 \providecommand{\email}[2]{\href{mailto:#1ZZ@#2 ((remove ZZ))}{#1\protect\atf#2}}
@@ -648,7 +650,7 @@ Open Science Framework \doi{10.17605/osf.io/#1}%
 
 \selectlanguage{british}\frenchspacing
 
-\definecolor{notecolour}{RGB}{68,170,153}
+\colorlet{notecolour}{green}
 %\newcommand*{\puzzle}{\maltese}
 \newcommand*{\puzzle}{{\fontencoding{U}\fontfamily{fontawesometwo}\selectfont\symbol{225}}}
 \newcommand*{\wrench}{{\fontencoding{U}\fontfamily{fontawesomethree}\selectfont\symbol{114}}}
@@ -669,10 +671,11 @@ Open Science Framework \doi{10.17605/osf.io/#1}%
 % \footnotesize\epost{\email{***}{***}}}%
 % \hspace*{\stretch{1}}%
 \parbox{1\linewidth}%\makebox[0pt][c]%
-{\protect\centering P.G.L.  Porta Mana  \href{https://orcid.org/0000-0002-6070-0784}{\protect\includegraphics[scale=0.16]{orcid_32x32.png}}\\\footnotesize
+{\protect\centering P.G.L.  Porta Mana  \href{https://orcid.org/0000-0002-6070-0784}{\protect\includegraphics[scale=0.16]{pglpm_latex/orcid_32x32.png}}%
+\\\footnotesize
 Western Norway University of Applied Sciences%
-\quad\epost{\email{pgl}{portamana.org}}}%
-% Mohn Medical Imaging and Visualization Centre, Dept of Computer science, Electrical Engineering and Mathematical Sciences, Western Norway University of Applied Sciences, Bergen, Norway
+\quad\epost{\email{pgl}{portamana.org}}%
+}%
 %% uncomment if additional authors present
 % \hspace*{\stretch{1}}%
 % \parbox{0.5\linewidth}%\makebox[0pt][c]%
@@ -680,58 +683,6 @@ Western Norway University of Applied Sciences%
 % \footnotesize\epost{\email{***}{***}}}%
 \hspace*{\stretch{1}}%
 }
-% \author{%
-% \iffalse\hspace*{\stretch{1}}%
-% \parbox{0.33\linewidth}%\makebox[0pt][c]%
-% {\protect\centering M. Koci\'nski %\href{https://orcid.org/0000-0002-6070-0784}{\protect\includegraphics[scale=0.16]{orcid_32x32.png}}
-% \\\footnotesize
-% %Western Norway University of Applied Sciences\quad%
-% \epost{\email{***}{***}}}%
-% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% \hspace*{\stretch{1}}%
-% \parbox{0.33\linewidth}%\makebox[0pt][c]%
-% {\protect\centering A. Lundervold %\href{https://orcid.org/0000-0002-6070-0784}{\protect\includegraphics[scale=0.16]{orcid_32x32.png}}
-% \\\footnotesize
-% %Western Norway University of Applied Sciences\quad%
-% \epost{\email{***}{***}}}%
-% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% \hspace*{\stretch{1}}%
-% \parbox{0.33\linewidth}%\makebox[0pt][c]%
-% {\protect\centering A. J. Lundervold %\href{https://orcid.org/0000-0002-6070-0784}{\protect\includegraphics[scale=0.16]{orcid_32x32.png}}
-% \\\footnotesize
-% %Western Norway University of Applied Sciences\quad%
-% \epost{\email{***}{***}}}%
-% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% \\\hspace*{\stretch{1}}%
-% \parbox{0.33\linewidth}%\makebox[0pt][c]%
-% {\protect\centering A. S. Lundervold %\href{https://orcid.org/0000-0002-6070-0784}{\protect\includegraphics[scale=0.16]{orcid_32x32.png}}
-% \\\footnotesize
-% %Western Norway University of Applied Sciences\quad%
-% \epost{\email{***}{***}}}%
-% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% \fi\hspace*{\stretch{1}}%
-% \parbox{0.33\linewidth}%\makebox[0pt][c]%
-% {\protect\centering P.G.L.  Porta Mana  \href{https://orcid.org/0000-0002-6070-0784}{\protect\includegraphics[scale=0.16]{orcid_32x32.png}}\\\footnotesize
-% %Western Norway University of Applied Sciences\quad%
-% \epost{\email{pgl}{portamana.org}}}%
-% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% \hspace*{\stretch{1}}%
-% \iffalse\parbox{0.33\linewidth}%\makebox[0pt][c]%
-% {\protect\centering I. Rye %\href{https://orcid.org/0000-0002-6070-0784}{\protect\includegraphics[scale=0.16]{orcid_32x32.png}}
-% \\\footnotesize
-% %Western Norway University of Applied Sciences\quad%
-% \epost{\email{***}{***}}}%
-% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% \\\hspace*{\stretch{1}}%
-% \parbox{0.33\linewidth}%\makebox[0pt][c]%
-% {\protect\centering A. Vik %\href{https://orcid.org/0000-0002-6070-0784}{\protect\includegraphics[scale=0.16]{orcid_32x32.png}}
-% \\\footnotesize
-% %Western Norway University of Applied Sciences\quad%
-% \epost{\email{***}{***}}}%
-% % Mohn Medical Imaging and Visualization Centre, Dept of Computer science, Electrical Engineering and Mathematical Sciences, Western Norway University of Applied Sciences, Bergen, Norway
-% \hspace*{\stretch{1}}%
-% \medskip\par{\scriptsize(listed alphabetically)}%
-% \fi}
 
 %\date{Draft of \today\ (first drafted \firstdraft)}
 \date{\firstpublished; updated \updated}
@@ -745,7 +696,8 @@ Western Norway University of Applied Sciences%
 %\providecommand{\coloneqq}{\mathrel{\mathop:}=}
 %\providecommand{\eqqcolon}{=\mathrel{\mathop:}}
 %\providecommand{\varprod}{\prod}
-\newcommand*{\de}{\uppartial}%partial diff
+% See https://tex.stackexchange.com/a/84308/97039
+\newcommand*{\de}{\mathop{}\!\uppartial}%partial diff
 \newcommand*{\pu}{\piup}%constant pi
 \newcommand*{\delt}{\deltaup}%Kronecker, Dirac
 %\newcommand*{\eps}{\varepsilonup}%Levi-Civita, Heaviside
@@ -757,8 +709,10 @@ Western Norway University of Applied Sciences%
 \newcommand*{\I}{\ensuremath{\mathrm{i}}}
 % \newcommand*{\e}{\mathrm{e}}%Neper
 \newcommand*{\e}{\ensuremath{\mathrm{e}}}
-\newcommand*{\di}{\mathrm{d}}%differential
-%% From TUGboat 18 (1997) 1
+% See https://tex.stackexchange.com/a/84308/97039
+\newcommand*{\di}{\mathop{}\!\mathrm{d}}%differential
+% \newcommand*{\dii}{\ensuremath{\mathrm{d}}}
+% %% From TUGboat 18 (1997) 1 - leads to very strange spacing
 % \makeatletter
 % \providecommand*{\di}%
 % {\@ifnextchar^{\DIfF}{\DIfF^{}}}
@@ -780,8 +734,9 @@ Western Norway University of Applied Sciences%
 % \fi\fi\fi\DiffSpace}
 % \makeatother
 
-% \newcommand*{\Di}{\mathrm{D}}%capital differential
-%\newcommand*{\Li}{\mathrm{L}}%Lie derivative
+% % See https://tex.stackexchange.com/a/84308/97039
+%\newcommand*{\Di}{\mathop{}\!\mathrm{D}}%capital differential
+%\newcommand*{\Li}{\mathop{}\!\mathrm{L}}%Lie derivative
 %\newcommand*{\planckc}{\hslash}
 %\newcommand*{\avogn}{N_{\textrm{A}}}
 %\newcommand*{\NN}{\bm{\mathrm{N}}}
@@ -793,13 +748,17 @@ Western Norway University of Applied Sciences%
 %\DeclareMathOperator{\lb}{lb}%base 2 log
 %\DeclareMathOperator{\tr}{tr}%trace
 %\DeclareMathOperator{\card}{card}%cardinality
-%\DeclareMathOperator{\im}{Im}%im part
-%\DeclareMathOperator{\re}{Re}%re part
+%% From TUGboat 18 (1997) 1
+% \renewoperator{\Re}{\mathrm{Re}}{\nolimits}
+% \renewoperator{\Im}{\mathrm{Im}}{\nolimits}
+% \DeclareMathOperator{\im}{Im}%im part
+% \DeclareMathOperator{\re}{Re}%re part
 %\DeclareMathOperator{\sgn}{sgn}%signum
 %\DeclareMathOperator{\ent}{ent}%integer less or equal to
 %\DeclareMathOperator{\Ord}{O}%same order as
 %\DeclareMathOperator{\ord}{o}%lower order than
-%\newcommand*{\incr}{\triangle}%finite increment
+% \newcommand*{\incr}{\triangle}%finite increment
+\newcommand*{\incr}{\Delta}%finite increment
 \newcommand*{\defd}{\coloneqq}
 \newcommand*{\defs}{\eqqcolon}
 %\newcommand*{\Land}{\bigwedge}
@@ -811,18 +770,18 @@ Western Norway University of Applied Sciences%
 %\newcommand*{\with}{\colon}%with (list of indices)
 %\newcommand*{\mul}{\times}%multiplication
 %\newcommand*{\inn}{\cdot}%inner product
-\newcommand*{\dotv}{\mathord{\,\cdot\,}}%variable place
+%\newcommand*{\dotv}{\mathord{\,\cdot\,}}%variable place
 %\newcommand*{\comp}{\circ}%composition of functions
 %\newcommand*{\con}{\mathbin{:}}%scal prod of tensors
 %\newcommand*{\equi}{\sim}%equivalent to 
 \renewcommand*{\asymp}{\simeq}%equivalent to 
 \newcommand*{\corr}{\mathrel{\hat{=}}}%corresponds to
 %\providecommand{\varparallel}{\ensuremath{\mathbin{/\mkern-7mu/}}}%parallel (tentative symbol)
-\renewcommand*{\le}{\leqslant}%less or equal
-\renewcommand*{\ge}{\geqslant}%greater or equal
+% \renewcommand*{\le}{\leqslant}%less or equal
+% \renewcommand*{\ge}{\geqslant}%greater or equal
 \DeclarePairedDelimiter\clcl{[}{]}
 \DeclarePairedDelimiter\clop{[}{[}
-\DeclarePairedDelimiter\opcl{]}{]}
+%\DeclarePairedDelimiter\opcl{]}{]}
 \DeclarePairedDelimiter\opop{]}{[}%}
 \DeclarePairedDelimiter\abs{\lvert}{\rvert}
 %\DeclarePairedDelimiter\norm{\lVert}{\rVert}
@@ -844,7 +803,7 @@ Western Norway University of Applied Sciences%
 % \let\texteq\=
 % \renewcommand*{\=}{\TextOrMath\texteq\eq}
 % \newcommand*{\eq}[1][=]{\mathrel{\!#1\!}}
-\newcommand*{\mo}[1][=]{\mathord{\nonscript\mkern1mu#1\nonscript\mkern1mu}\mathopen{}}
+\newcommand*{\mo}[1][=]{\mathclose{}\mathord{\nonscript\mkern0.5mu#1\nonscript\mkern0.5mu}\mathopen{}}
 %%
 \newcommand*{\sect}{\S}% Sect.~
 \newcommand*{\sects}{\S\S}% Sect.~
@@ -877,7 +836,7 @@ Western Norway University of Applied Sciences%
 %\def\hy{-\penalty0\hskip0pt\relax}
 %\newcommand*{\labelbis}[1]{\tag*{(\ref{#1})$_\text{r}$}}
 %\newcommand*{\mathbox}[2][.8]{\parbox[t]{#1\columnwidth}{#2}}
-%\newcommand*{\zerob}[1]{\makebox[0pt][l]{#1}}
+\newcommand*{\zerob}[1]{\makebox[0pt][c]{#1}}
 \newcommand*{\tprod}{\mathop{\textstyle\prod}\nolimits}
 \newcommand*{\tsum}{\mathop{\textstyle\sum}\nolimits}
 %\newcommand*{\tint}{\begingroup\textstyle\int\endgroup\nolimits}
@@ -893,7 +852,7 @@ Western Norway University of Applied Sciences%
 %\newcommand*{\qem}{\leavevmode\unskip\penalty9999 \hbox{}\nobreak\hfill
 %\quad\hbox{\QEM}}
 %% from TUGboat 18 (1997) 1:
-\providecommand*{\unit}[1]{\ensuremath{\mathrm{\,#1}}}
+%\providecommand*{\unit}[1]{\ensuremath{\mathrm{\,#1}}}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%% Custom macros for this file @@@
@@ -904,7 +863,7 @@ Western Norway University of Applied Sciences%
 % \newcommand{\explanation}[4][t]{%\setlength{\tabcolsep}{-1ex}
 % %\smash{
 % \begin{tabular}[#1]{c}#2\\[0.5\jot]\rule{1pt}{#3}\\#4\end{tabular}}%}
-\newcommand*{\prop}[1]{\enquote{\textsf{#1}}}% for propositions
+\newcommand*{\ptext}[1]{\text{\small #1}}% for propositions
 %\DeclareMathOperator*{\argsup}{arg\,sup}
 \newcommand*{\dob}{degree of belief}
 \newcommand*{\dobs}{degrees of belief}
@@ -927,6 +886,10 @@ Western Norway University of Applied Sciences%
 \newcommand*{\shapeh}{\alpha}
 \newcommand*{\shapel}{\beta}
 %%% Custom macros end @@@
+
+% \usepackage[retain-explicit-plus,quantity-product=\:]{siunitx}
+% %\sisetup{input-digits = 0123456789\piup}
+
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%% Beginning of document
@@ -979,19 +942,19 @@ Western Norway University of Applied Sciences%
 %%% BEGINNING OF MAIN TEXT
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-\chapter{Derivation of the general inference formulae}
+\section{Derivation of the general inference formulae}
 \label{cha:derivation}
 
 
-\setcounter{section}{-1}
-\section{A warning on notation}
+\setcounter{subsection}{-1}
+\subsection{A warning on notation}
 \label{sec:intro}
 
-The probability calculus, being a generalization of the propositional truth-calculus, concerns propositions or statements. In the expression \enquote{$\P(A \| B)$}, $A$ and $B$ thus stand for statements or compositions of statements. In scientific applications most statements of interest are of the form \prop{Measurement of the quantity $X$ yields outcome $x$} or \prop{The quantity $X$ is set to the value $x$}, implicitly or explicitly accompanied by other statements expressing contextual information, for instance \prop{The measurement is made at time~\textellipsis\ in laboratory~\textellipsis\ under conditions~\textellipsis}.
+The probability calculus, being a generalization of the propositional truth-calculus, concerns propositions or statements. In the expression \enquote{$\P(A \| B)$}, $A$ and $B$ thus stand for statements or compositions of statements. In scientific applications most statements of interest are of the form \ptext{Measurement of the quantity $X$ yields outcome $x$} or \ptext{The quantity $X$ is set to the value $x$}, implicitly or explicitly accompanied by other statements expressing contextual information, for instance \ptext{The measurement is made at time~\textellipsis\ in laboratory~\textellipsis\ under conditions~\textellipsis}.
 
-Writing full statements such as these within probability formulae would take an impractical amount of space. This impracticality is solved by an abuse of notation: outside a probability formula, a symbol like $X$ may denote a quantity; but within a probability formula, say $\p(X \| \dotso)$, it instead denotes a full statement such as \prop{Measurement of the quantity $X$ yields outcome $x$}; sometimes the latter is written \prop{$X\mo x$} when the value $x$ is not generic or needs to be explicit.
+Writing full statements such as these within probability formulae would take an impractical amount of space. This impracticality is solved by an abuse of notation: outside a probability formula, a symbol like $X$ may denote a quantity; but within a probability formula, say $\p(X \| \dotso)$, it instead denotes a full statement such as \ptext{Measurement of the quantity $X$ yields outcome $x$}; sometimes the latter is written \ptext{$X\mo x$} when the value $x$ is not generic or needs to be explicit.
 
-To limit the confusion that can arise from this notation abuse, I use a convention similar to Jaynes's \parencites*[\sect\,2.5 p.~43]{jaynes1994_r2003}: the probability symbol \enquote{$\P$} is only used when the symbols in its arguments univocally denote statements; the symbol \enquote{$\p$} is used instead to warn that some of the symbols in its arguments are abused. For example, if the quantity $N$ denotes the number of people satisfying some condition, $A\defd{}$\prop{Measurement of $N$ yields $101$ people}, and $B$ denotes some contextual statement, then these three expressions have the same meaning:
+To limit the confusion that can arise from this notation abuse, I use a convention similar to Jaynes's \parencites*[\sect\,2.5 p.~43]{jaynes1994_r2003}: the probability symbol \enquote{$\P$} is only used when the symbols in its arguments univocally denote statements; the symbol \enquote{$\p$} is used instead to warn that some of the symbols in its arguments are abused. For example, if the quantity $N$ denotes the number of people satisfying some condition, $A\defd{}$\ptext{Measurement of $N$ yields $101$ people}, and $B$ denotes some contextual statement, then these three expressions have the same meaning:
 \begin{equation*}
   \P(A\|B) = 0.3 \ , \qquad
   \p(N \| B) = 0.3 \ ,\qquad
@@ -1048,7 +1011,7 @@ The rules ca be used in different guises, for example
 \end{equation*}
 Compare with the inference rules for sequent calculi.\autocites[\eg][\chap~1]{huthetal2000_r2004}[App.~A]{prawitz1965}[see also][]{boricic2020}
 
-\section{Inference problem}
+\subsection{Inference problem}
 \label{sec:inference}
 
 The general context of our inference problem is the following. There is a collection of \enquote{units}, each of which has an associated set of measurable quantities $X_{1},X_{2},\dotsc,Y_{1},Y_{2},\dotsc$, which we call \enquote{variates} according to statistics terminology. The collection of variates $X_{1},X_{2},\dotsc$ is denoted $X$, and similarly for $Y$. % For one or more units we would like to infer the value of some of these variates, say $Y_{1},Y_{2},\dotsc$, given:
@@ -1071,11 +1034,11 @@ Thus in mathematical notation we want to determine the distribution of probabili
   \label{eq:general_prob}
   \p(Y^{0} \| X^{0},\: Y^{1},X^{1},Y^{2},X^{2},\dotsc,\: I^{0},I)
 \end{equation}
-over the possible values of $Y^{0}$ (more precisely, over statements such as \prop{Measurement of $Y$ for unit $0$ yields $y$}).
+over the possible values of $Y^{0}$ (more precisely, over statements such as \ptext{Measurement of $Y$ for unit $0$ yields $y$}).
 
 Variations of this specific inference are also of interest. For instance, some of the $X$ or $Y$ variate values maybe be unknown for some units; or we want to infer about more than one unit; and similar variations. In the following we show the steps to specifically calculate the probabilities~\eqref{eq:general_prob}; variations of this calculation will be discussed later.
 
-\section{Initial probabilities}
+\subsection{Initial probabilities}
 \label{sec:initial_probs}
 
 The propositional truth-calculus allows us to calculate the truth-values of non-tautological statements only if we give the truth-values of some other, related, non-tautological statements, usually called \enquote{premises}. Likewise, the probability calculus allows us to calculate probability-values of non-tautological statements only if we give the probability-values of some other, related, non-tautological statements. These are usually called \enquote{prior} or \enquote{initial} probabilities (these adjectives do \emph{not} imply that these probabilities concern statements about chronologically earlier events).
@@ -1142,14 +1105,14 @@ Once the joint probability distribution~\eqref{eq:deFinetti_integral} has been n
 \end{subequations}
 
 
-\section{Inferences about unit $0$}
+\subsection{Inferences about unit $0$}
 \label{sec:unit0}
 
 Any inferences about any variates of any units for which the joint probability distribution~\eqref{eq:deFinetti_integral} is defined can now be probabilistically answered.
 
 Let us consider inferences about a unit, with index $u=0$, about which we have some additional information $I^{0}$.
 
-\subsection{Full symmetry}
+\subsubsection{Full symmetry}
 \label{sec:unit0_full}
 
 If $\Iyx^{0}$ amounts to saying that the symmetry underlying the probabilities~\eqref{eq:deFinetti_integral} also includes unit $0$, then any probabilities are uniquely determined, as in the examples~\eqref{eq:further_infs}. For instance, our main probability~\eqref{eq:general_prob} is given by
@@ -1166,7 +1129,7 @@ If $\Iyx^{0}$ amounts to saying that the symmetry underlying the probabilities~\
   } \ .
 \end{multline}
 
-\subsection{Symmetry conditional on $X$ variates}
+\subsubsection{Symmetry conditional on $X$ variates}
 \label{sec:unit0_condX}
 
 A more interesting kind of additional information $\Ix^{0}$  amounts to saying that there is an informational symmetry involving unit~$0$ and the other units, but only with regard to the $Y$ variates, and only with units sharing the same values $x^{*}$ of the $X$ variates. Using a different terminology, this would be a symmetry restricted to a subpopulation of units which is defined by particular $X$ values. Mathematically,
@@ -1229,7 +1192,7 @@ Under this kind of auxiliary information $\Ix^{0}$, our main probability~\eqref{
   } \ .
 \end{multline}
 
-\subsection{Symmetry conditional on $Y$ variates}
+\subsubsection{Symmetry conditional on $Y$ variates}
 \label{sec:unit0_condY}
 
 Yet another kind of auxiliary information, $\Iy^{0}$, is the one similar to $\Ix^{0}$ but with the variates $X$ and $Y$ swapped; that is, symmetry under permutation of $X$ values for a subpopulation sharing the same $Y$ values. The discussion proceeds analogously to the previous section up to the representation
@@ -1271,12 +1234,12 @@ The probability in the second row, $\p(Y^{0}\mo y^{0} \| Y^{1}\mo y^{1},X^{1}\mo
 \end{equation}
 and $\p(Y^{0}\mo y^{0} \| \Iy^{0},I)$ is taken to be equal to a \emph{base rate}\autocites{barhillel1980,jennyetal2018,sprengeretal2021,matthews1996}, through exchangeability arguments analogous to those of \sect\,\ref{sec:unit0} but without $X$ variates and referred to a \emph{different} sets of units having $Y$ variates.
 
-\subsection{Other symmetries}
+\subsubsection{Other symmetries}
 \label{sec:other_symm}
 
 It is possible to consider also symmetries for only some of the $X$ variates or some of the $Y$ variates or both, with analyses similar to those of the previous subsections. Finally, it is also possible to consider situations with no symmetries; then the theorems based on exchangeability are not available and one have to assign initial probabilities by different arguments.
 
-\subsection{Common mathematical term}
+\subsubsection{Common mathematical term}
 \label{sec:common_term}
 
 In all examples of additional information $I^{0}$ considered above, the resulting expression for our main probability, \eqns~\eqref{eq:general_prob_fullexch}, \eqref{eq:general_prob_partialexch}, \eqref{eq:relation_exchY}, involve an integral containing a common term: the density
@@ -1289,21 +1252,21 @@ In all examples of additional information $I^{0}$ considered above, the resultin
    \int F(x^{1},y^{1})\,F(x^{2},y^{2})\,\dotsm\  \p(\di F \|I)
   } \ ,
 \end{equation}
-where $D$ is the conjunction of all statements \prop{$Y^{u}\mo y^{u}$}, \prop{$X^{u}\mo x^{u}$} for $u=1,2,\dotsc$. Indeed this probability density can be considered as the updated probability for $\di F$, given the information about all units, $D$.
+where $D$ is the conjunction of all statements \ptext{$Y^{u}\mo y^{u}$}, \ptext{$X^{u}\mo x^{u}$} for $u=1,2,\dotsc$. Indeed this probability density can be considered as the updated probability for $\di F$, given the information about all units, $D$.
 
 Our next task is to calculate this term.
 
 
-\chapter{Specific representation of $F$ and its density}
+\section{Specific representation of $F$ and its density}
 \label{cha:repres_F}
 
-\section{Mathematical representation of $F$}
+\subsection{Mathematical representation of $F$}
 \label{sec:repr_F_convexsum}
 
 
-In order to specify the probability densities $\p(\di F \| I)$ and $\p(\di F \| D, I)$ we need a mathematical representation of the possible joint distributions $F(y,x)$ and of their space; from a differential-geometric point of view \autocites[III.A, VII.A]{choquetbruhatetal1977_r1996}, we want a coordinate system on the manifold of distributions $\set{F}$. It would be an advantage if this mathematical representation would also let us easily compute conditional and marginal distributions such as $F(y\| x)$ and $F(x)$, as we need these to calculate our main probability from formulae~\eqref{eq:general_prob_partialexch} or \eqref{eq:indepYfromdata}.
+In order to specify the probability densities $\p(\di F \| I)$ and $\p(\di F \| D, I)$ we need a mathematical representation of the possible joint distributions $F(y,x)$ and of their space. From a differential-geometric point of view \autocites[III.A, VII.A]{choquetbruhatetal1977_r1996}, we want a coordinate system on the manifold of distributions $\set{F}$. It would be an advantage if this mathematical representation also let us easily compute conditional and marginal distributions such as $F(y\| x)$ and $F(x)$, because we need these to calculate our main probabilities from formulae~\eqref{eq:general_prob_partialexch} or \eqref{eq:indepYfromdata}.
 
-A very clever representation is discussed by \textcites{dunsonetal2011}\autocites[see also][]{bhattacharyaetal2012,rossi2014}; it is an evolution of representations based on Dirichlet-process mixtures \autocites[\eg][]{antoniak1974,ferguson1983,escobaretal1995,muelleretal1996,rasmussen1999}. It expresses a particular $F(y,x)$ as an in-principle infinite convex mixture of products of parametric distributions $K(\dotso \| \dotso)$:
+A very clever representation is discussed by \cites{dunsonetal2011}\autocites[see also][]{bhattacharyaetal2012,rossi2014}. It is an evolution of representations based on Dirichlet-process mixtures \autocites[\eg][]{antoniak1974,ferguson1983,escobaretal1995,muelleretal1996,rasmussen1999}. It expresses a particular $F(y,x)$ as an in-principle infinite convex mixture of products of parametric distributions $K(\dotso \| \dotso)$:
 \begin{multline}
   \label{eq:F_repres}
   F(y_{1},y_{2}, \dotsc,\ x_{1}, x_{2}, \dotsc) ={}\\
@@ -1334,7 +1297,7 @@ The representation~\eqref{eq:F_repres} is extremely convenient because it leads 
   \sum_{c} w^{c}\ K(y_{1} \| \upsilon^{c}_{1}) \ .
 \end{gather}
 
-Although the sum in the representation~\eqref{eq:F_repres} is in principle infinite, a particular choice of density for the $(w,\upsilon,\xi)$ variables allows us to approximate it with a finite number of terms, as shown by \textcites{ishwaranetal2002b}. This possibility is essential for computational purposes.
+Although the sum in the representation~\eqref{eq:F_repres} is in principle infinite, a particular choice of density for the $(w,\upsilon,\xi)$ variables allows us to approximate it with a finite number of terms, as shown by \cites{ishwaranetal2002b}. This possibility is essential for computational purposes.
 
 % \medskip
 
@@ -1376,7 +1339,7 @@ A probability density $\p(\di F)$ is finally specified by specifying a density $
 
 These densities can be calculated by a variety of Monte Carlo methods. We discuss the computation in detail in \sect***.
 
-\section{Choice of parametric distributions $K$}
+\subsection{Choice of parametric distributions $K$}
 \label{sec:choice_K}
 
 The choice of parametric distribution $K$ for each variate depends on the mathematical type of variate, on the kind of long-run distribution we expect for it, and on computational convenience. Here are some specific choices. What is said about a variate $x$ and parameters $\xi$ also holds for any variate $y$ and parameters $\upsilon$. In the following, $\Phi$ is the function
@@ -1384,7 +1347,7 @@ The choice of parametric distribution $K$ for each variate depends on the mathem
   \label{eq:Phi}
   \Phi \colon  \set{-\infty}\cup\RR\cup\set{+\infty}\to\clcl{0,1},
   \qquad
-  \Phi(z) \defd \frac{1}{\sqrt{2\pu}}\, \int_{-\infty}^{z} \exp\biggl(-\frac{t^{2}}{2}\biggr)\, \di t \ ,
+  \Phi(z) \defd \frac{1}{\sqrt{2\pu}}\, \int_{-\infty}^{z} \exp\biggl(-\frac{t^{2}}{2}\biggr) \di t \ ,
   \\\shortintertext{its derivative is the standard Gaussian density function:}
   \Phi'(z) =  \frac{1}{\sqrt{2\pu}}\,\exp\biggl(-\frac{z^{2}}{2}\biggr) \ ,
 \end{gather}
@@ -1392,7 +1355,104 @@ and the inverse $\Phi^{-1}\colon \clcl{0,1}\to\set{-\infty}\cup\RR\cup\set{+\inf
 
 
 
-\subsection{Binary variates}
+
+
+\subsubsection{Continuous real variates}
+\label{sec:variates_real}
+
+For a continuous real variate $x \in \RR$ we choose a Gaussian distribution with mean and variance as the parameters $\xi=(\mur, \sigmar^{2})$:
+\begin{equation}
+  \label{eq:K_unb_cont}
+  \begin{split}
+    &x \in \RR:
+    \\
+  &K(\di x \| \mur,\sigmar^{2}) \defd \Phi'\biggl(\frac{x-\mur}{\sigmar}\biggr) \di x
+  \equiv \frac{1}{\sqrt{2\pu\,\sigmar^{2}}}\,
+  \exp\biggl[-\frac{(x-\mur)^{2}}{2\,\sigmar^{2}}\biggr] \di x \ .
+\end{split}
+\end{equation}
+
+\subsubsection{Continuous variates with boundary singularities or censoring}
+\label{sec:variates_censored}
+
+By \enquote{variate with boundary singularity} we mean a continuous variate with values in a \emph{closed} or semi-closed bounded set, for example $x \in \clcl{a,b}$ or $x \in \clop{a,+\infty}$. Owing to the topology of its domain, such variate cannot be mapped onto a continuous unbounded one, discussed in \sect\,\ref{sec:variates_real}.
+
+The boundary value or values that the present kind of variate can take on often have a singular probability mass (delta distribution). This singular probability mass may arise from the fact that $x$ is censored, that is, it could in principle assume continuous values outside the boundaries, but such values are truncated to the boundary ones.
+
+For such a variate we can use a Gaussian distribution with mean and variance parameters $(\mud,\sigmad^{2})$, where the $x \le a$ and $x \ge b$ tails represent the probability mass given to the boundary points:
+\begin{equation}
+  \begin{split}
+    \label{eq:K_cens}
+    &x \in \clcl{a,b}:
+    \\
+    &K(\di x \| \mud, \sigmad^{2}) \defd
+    \begin{dcases}
+        \Phi\Bigl(
+  \frac{a - \mud}{\sigmad}
+  \Bigr)
+  &\text{if $x=a$}
+      \\[2\jot]
+        \Phi'\Bigl(
+  \frac{x - \mud}{\sigmad}
+  \Bigr)
+   \di x
+  &\text{if $a < x < b$}
+      \\[2\jot]
+        \Phi\Bigl(
+  -\frac{b - \mud}{\sigmad}
+  \Bigr)
+  &\text{if $x=b$}
+    \end{dcases}
+  \end{split}
+\end{equation}
+The semi-bounded case $x \in \clop{a,+\infty}$ can be obtained with obvious adjustments. The continuous non-bounded case previously discussed can be seen as a limit case of the present one for $a\to -\infty$, $b\to +\infty$.
+
+\subsubsection{Other continuous variates}
+\label{sec:variates_other}
+
+Other continuous variates with open or semi-open connected domains in the real line can be transformed into the continuous real or censored ones discussed last. For example a variate $z \in \opop{0, +\infty}$ can be transformed into $x=\ln z$, a variate $z \in \opop{a,b}$ into $x=\Phi^{-1}\bigl(\frac{z-a}{b-a}\bigr)$, and a variate $z \in \clop{0, +\infty}$ into $x=\ln(z+q)$ for some $q > 0$ to be treated as a censoring value. These kinds of transformation are often suggested by the nature of the original variate.
+
+\subsubsection{Interval-discrete or rounded-continuous variates}
+\label{sec:variates_rounded}
+
+A variate that is naturally continuous can nevertheless be measured and recorded with a given rounding. This is common with a variate such as \enquote*{age}, for instance, which is often reported rounded to integer years. Many \enquote*{length} variates are also often rounded to some precision. Owing to the rounding, several units can end up having the same rounded values, and the variate appears discrete.
+
+This kind of variates is mathematically treated as a \enquote{discretized-Gaussian} distribution with mean and variance parameters $(\mui,\sigmai^{2})$. We first introduce the monotonically increasing function
+\begin{gather}
+    \label{eq:Q_function_integer}
+    Q\colon \clcl{0,1} \to \set{-\infty}\cup\RR\cup\set{+\infty}
+    \\ \shortintertext{satisfying}
+    Q(0)=-\infty\ ,\quad Q(1)=+\infty \ ,
+    \quad 
+    Q(1-x)=-Q(x) \ ,
+\end{gather}
+which is shown in the lower panel of \fig~\ref{fig:gaussmix} (\textcolor{blue}{solid blue} curve) and will be described in more detail in \sect~\ref{sec:params_gaussian}. Mapping first the values $\set{a_{1}, \dotsc, a_{m}}$ into integers $\set{1, \dotsc, m}$, the distribution for $x$ is then given by
+\begin{equation}
+  \label{eq:K_int}
+  \begin{split}
+    &x \in \set{1, \dotsc, m}
+    \\
+    &\!\begin{aligned}
+  K(x \| \mui, \sigmai^{2}) &\defd
+  \Phi\biggl[
+  \frac{Q\bigl(\frac{x}{m}\bigr) - \mui}{\sigmai}
+  \biggr]
+  -
+  \Phi\biggl[
+  \frac{Q\bigl(\frac{x-1}{m}\bigr) - \mui}{\sigmai}
+  \biggr]
+  \\[\jot]&\equiv
+  \frac{1}{\sqrt{2\pu\,\sigmai^{2}}}\,
+  \int_{Q(\frac{x-1}{m})}^{Q(\frac{x}{m})}
+  \exp\biggl[-\frac{(z-\mui)^{2}}{2\,\sigmai^{2}}\biggr] \di z \ .
+\end{aligned}
+\end{split}
+\end{equation}
+% The discretization points are chosen so that for $\mui=0$, $\sigmai=1$ the distribution $K$ is uniform with constant value $1/m$.
+
+% Discrete ordinal variates with other domains can be mapped onto $\set{1,\dotsc,m}$.
+
+\subsubsection{Binary variates}
 \label{sec:variates_binary}
 
 For a binary variate $x \in \set{0,1}$ we choose a Bernoulli distribution with weight parameter $r$:
@@ -1410,7 +1470,7 @@ For a binary variate $x \in \set{0,1}$ we choose a Bernoulli distribution with w
 
 Obviously any other binary values $\set{a,b}$ can be mapped into $\set{0,1}$.
 
-\subsection{Nominal variates}
+\subsubsection{Nominal variates}
 \label{sec:variates_nominal}
 
 For a nominal variate with $n$ possible values, $x \in \set{a_{1}, \dotsc, a_{n}}$, we choose a categorical distribution with normalized weight parameters $q \defd (q_{a_1}, \dotsc, q_{a_n})$:
@@ -1429,102 +1489,19 @@ For a nominal variate with $n$ possible values, $x \in \set{a_{1}, \dotsc, a_{n}
 
 Obviously the values $\set{a_{1}, \dotsc, a_{n}}$ can be set in one-one correspondence with $\set{1, \dotsc, n}$.
 
-\subsection{Ordinal variates}
+\subsubsection{Ordinal variates}
 \label{sec:variates_ordinal}
 
-By \enquote{ordinal} variate we mean a variate $x$ assuming a discrete number $m$ of values, $x \in \set{a_{1}, \dotsc, a_{m}}$, which have a natural ordering, although there is no notion of distance among them, for example denominations $x \in \set{\text{\enquote*{none}}, \text{\enquote*{low}}, \text{\enquote*{medium}}, \text{\enquote*{high}}, \text{\enquote*{maximum}}}$. The fact that they have a natural ordering has implications for smoothness, in a loose sense of this word: we expect the probabilities for two consecutive values not to have excessive jumps. This is the difference between an ordinal variate and the nominal one discussed above \autocites[\cf]{stevens1946}.
+By \enquote{ordinal} variate we mean a variate $x$ assuming a discrete number $m$ of values, $x \in \set{a_{1}, \dotsc, a_{m}}$, which have a natural ordering, although there is no notion of distance among them. An example are denominations $x \in \set{\text{\enquote*{none}}, \text{\enquote*{low}}, \text{\enquote*{medium}}, \text{\enquote*{high}}, \text{\enquote*{maximum}}}$. The fact that the values have a natural ordering has implications for smoothness, in a loose sense of this word: we expect the probabilities for two consecutive values not to have excessive jumps with respect to the probabilities of values further apart in the ordering. This is the difference between an ordinal variate and the nominal one discussed above \autocites[\cf][]{stevens1946}.
 
-For such a variate we can use a \enquote{discretized-Gaussian} distribution with mean and variance parameters $(\mui,\sigmai^{2})$. We first introduce the monotonically increasing function
-\begin{gather}
-    \label{eq:Q_function_integer}
-    Q\colon \clcl{0,1} \to \set{-\infty}\cup\RR\cup\set{+\infty}
-    \\ \shortintertext{satisfying}
-    Q(0)=-\infty\ ,\quad Q(1)=+\infty \ ,
-    \quad 
-    Q(1-x)=-Q(x) \ ,
-\end{gather}
-which is shown in the lower panel of \fig~\ref{fig:gaussmix} (\textcolor{bluepurple}{solid blue} curve) and will be described in more detail in \sect~\ref{sec:params_gaussian}. Mapping first the values $\set{a_{1}, \dotsc, a_{m}}$ into integers $\set{1, \dotsc, m}$, the distribution for $x$ is then given by
-\begin{equation}
-  \label{eq:K_int}
-  \begin{split}
-    &x \in \set{1, \dotsc, m}
-    \\
-    &\!\begin{aligned}
-  K(x \| \mui, \sigmai^{2}) &\defd
-  \Phi\biggl[
-  \frac{Q\bigl(\frac{x}{m}\bigr) - \mui}{\sigmai}
-  \biggr]
-  -
-  \Phi\biggl[
-  \frac{Q\bigl(\frac{x-1}{m}\bigr) - \mui}{\sigmai}
-  \biggr]
-  \\[\jot]&\equiv
-  \frac{1}{\sqrt{2\pu\,\sigmai^{2}}}\,
-  \int_{Q(\frac{x-1}{m})}^{Q(\frac{x}{m})}
-  \exp\biggl[-\frac{(z-\mui)^{2}}{2\,\sigmai^{2}}\biggr]\, \di z \ .
-\end{aligned}
-\end{split}
-\end{equation}
-% The discretization points are chosen so that for $\mui=0$, $\sigmai=1$ the distribution $K$ is uniform with constant value $1/m$.
+Ordinal variates are represented in two different ways:
+\begin{itemize}[para]
+\item If the number of values is less than or equal to 10, then the variate is mathematically represented like a nominal one (\sect~\ref{sec:variates_nominal}). This is because for such small value set we can still expect jumps between the probabilities of consecutive values, and the categorical distribution is quite flexible in representing such jumps.
+\item If the number of values is larger than 10, then the ordinal variate is mathematically treated as an interval-discrete one (\sect~\ref{sec:variates_rounded}).
+\end{itemize}
 
-% Discrete ordinal variates with other domains can be mapped onto $\set{1,\dotsc,m}$.
 
-\subsection{Continuous real variates}
-\label{sec:variates_real}
-
-For a continuous real variate $x \in \RR$ we choose a Gaussian distribution with mean and variance as the parameters $\xi=(\mur, \sigmar^{2})$:
-\begin{equation}
-  \label{eq:K_unb_cont}
-  \begin{split}
-    &x \in \RR:
-    \\
-  &K(\di x \| \mur,\sigmar^{2}) \defd \Phi'\biggl(\frac{x-\mur}{\sigmar}\biggr)\, \di x
-  \equiv \frac{1}{\sqrt{2\pu\,\sigmar^{2}}}\,
-  \exp\biggl[-\frac{(x-\mur)^{2}}{2\,\sigmar^{2}}\biggr]\, \di x \ .
-\end{split}
-\end{equation}
-
-\subsection{Continuous variates with boundary singularities or censoring}
-\label{sec:variates_censored}
-
-By \enquote{variate with boundary singularity} we mean a continuous variate with values in a \emph{closed} or semi-closed bounded set, for example $x \in \clcl{a,b}$ or $x \in \clop{a,+\infty}$. Owing to the topology of its domain, such variate cannot be mapped onto a continuous unbounded one discussed in \sect\,\ref{sec:variates_real}.
-
-The boundary value or values that such a variate can take often have a singular probability mass (delta distribution), which may arise from the fact that $x$ is censored, that is, it could in principle assume continuous values outside the boundaries, but such values are truncated to the boundary ones.
-
-For such a variate we can use a Gaussian distribution with mean and variance parameters $(\mud,\sigmad^{2})$, where the $x \le a$ and $x \ge b$ tails represent the probability mass given to the boundary points:
-\begin{equation}
-  \begin{split}
-    \label{eq:K_cens}
-    &x \in \clcl{a,b}:
-    \\
-    &K(\di x \| \mud, \sigmad^{2}) \defd
-    \begin{dcases}
-        \Phi\Bigl(
-  \frac{a - \mud}{\sigmad}
-  \Bigr)
-  &\text{if $x=a$}
-      \\[2\jot]
-        \Phi'\Bigl(
-  \frac{x - \mud}{\sigmad}
-  \Bigr)
-  \, \di x
-  &\text{if $a < x < b$}
-      \\[2\jot]
-        \Phi\Bigl(
-  -\frac{b - \mud}{\sigmad}
-  \Bigr)
-  &\text{if $x=b$}
-    \end{dcases}
-  \end{split}
-\end{equation}
-The semi-bounded case $x \in \clop{a,+\infty}$ can be obtained with obvious adjustments. The continuous non-bounded case previously discussed can be seen as a limit case of the present one for $a\to -\infty$, $b\to +\infty$.
-
-\subsection{Other continuous variates}
-\label{sec:variates_other}
-
-Other continuous variates with open or semi-open connected domains in the real line can be transformed into the continuous real or censored ones discussed last. For example a variate $z \in \opop{0, +\infty}$ can be transformed into $x=\ln z$, a variate $z \in \opop{a,b}$ into $x=\Phi^{-1}\bigl(\frac{z-a}{b-a}\bigr)$, and a variate $z \in \clop{0, +\infty}$ into $x=\ln(z+q)$ for some $q > 0$ to be treated as a censoring value. These kinds of transformation are often suggested by the nature of the original variate.
-
-\section{Density for $F$}
+\subsection{Density for $F$}
 \label{sec:density_F}
 
 Once the density $F$ is represented by the variables $(w, \upsilon, \xi)$ through \eqn~\eqref{eq:F_repres}, any density $\p(\di w, \di\upsilon, \di\xi \|I)$ for the latter variables also determines (possibly by pull-back) a density $\p(\di F \| I)$ for $F$.
@@ -1555,7 +1532,7 @@ and likewise for $\p(\di\upsilon^{c}_{j} \|I)$.
 
 In the following the specific factor densities are described. The generic parameter $\xi$ is used to include both $\upsilon$ and $\xi$.
 
-\subsection{Density for $w$}
+\subsubsection{Density for $w$}
 \label{sec:params_w}
 
 The density for the weights $w$ is a discrete mixture of Dirichlet distributions with different concentration parameters $\alpha$:
@@ -1574,10 +1551,10 @@ with $\alpha$ running through the values $\set*{2^{-3},2^{-2},2^{-1},1,2^{1},2^{
 This density is a discretized version of a mixture of Dirichlet distributions with a continuous range of concentration parameters \autocites[\eg][\sect\,2.5]{rossi2014}[\sect\,2.1]{rasmussen1999}. The discretized version seems to lead to the same general predictive properties as the continuous one, but is computationally more convenient.
 
 
-\subsection{Density for parameters of Gaussian components}
+\subsubsection{Density for parameters of Gaussian components}
 \label{sec:params_gaussian}
 
-We use a common density for the mean and variance parameters of components based on a Gaussian density, discussed in \sects~\ref{sec:variates_ordinal}, \ref{sec:variates_real}, \ref{sec:variates_censored}. We denote them $(\mu, \sigma^{2})$ in the present section.
+We use a common density for the mean and variance parameters of components based on a Gaussian density (discussed in \sects~\ref{sec:variates_real}, \ref{sec:variates_censored}, \ref{sec:variates_other}, \ref{sec:variates_rounded}). We denote them $(\mu, \sigma^{2})$ in the present section.
 
 In the following, $\muo$ and $\sigmao$ are location and scale hyperparameters for the variate of interest. Their values are problem-dependent, determined by the nature of the variate. They can approximately -- although slightly inconsistently -- be determined by the data, if the latter are numerous. For instance, $\muo$ can be taken to be the median of the data, and $\sigmao$ the median absolute deviation or half the interquartile range of the data. In this way the interval $\clcl{-\sigmao, \sigmao}$ is expected to contain roughly 50\% of the data.%, multiplied by $1/\Phi^{-1}(3/4)$ (the ratio between the standard deviation and the median absolute deviation of a Gaussian).
 These hyperparameters can also be set to unity if we shift and rescale our data according to them, $x \mapsto (x-\muo)/\sigmao$.
@@ -1586,7 +1563,7 @@ These hyperparameters can also be set to unity if we shift and rescale our data 
 The density for the mean $\mu$ is a Gaussian distribution:
 \begin{equation}
   \label{eq:density_mu}
-  \p(\di \mu\|I) = \Phi'\biggl(\frac{\mu-\muo}{\sigmao}\biggr)\, \di\mu \ .
+  \p(\di \mu\|I) = \Phi'\biggl(\frac{\mu-\muo}{\sigmao}\biggr) \di\mu \ .
 \end{equation}
 % where $\zeta \defd 1/\Phi^{-1}(3/4)$ is twice the standard deviation of a Gaussian having unit interquartile range.
 
@@ -1618,7 +1595,7 @@ The density for the variance $\sigma^{2}$ is a discrete mixture of beta-prime di
   %   \p(\di\sigma^{2}\|I) &=
   %   \frac{1}{5}\sum_{l=2^{-2}}^{2^{2}}
   %   (l\,\sigmao)^{-2}\,\biggl[1+\Bigl(\frac{\sigma}{l\,\sigmao}\Bigr)^{2}\biggr]^{-2}
-  %   \,\di\sigma^{2}
+  %    \di\sigma^{2}
   % \\[2\jot]
   % &\equiv
   %   \di\sigma^{2}\ 
@@ -1629,7 +1606,7 @@ The density for the variance $\sigma^{2}$ is a discrete mixture of beta-prime di
   % }\,
   %   \frac{\e^{-\frac{1}{(l\,\sigmao)^{2}\,t}}}{
   %   (l\,\sigmao)^{2}\,t^{2}
-  % }\,\di t \ .
+  % } \di t \ .
 \end{split}
 \end{equation}
 The expression in terms of inverse-gammas is useful for conditionally conjugate Gibbs sampling.
@@ -1647,7 +1624,7 @@ The beta-prime distribution has the appealing property of having more symmetric 
 %     2\,\Bigl(
 %     \e^{\ln\frac{\sigma}{l\,\sigmao}}
 % +    \e^{-\ln\frac{\sigma}{l\,\sigmao}}
-%     \Bigr)^{-2}\, \di\ln\sigma
+%     \Bigr)^{-2} \di\ln\sigma
 \end{equation}
 This density function is shown in \fig~\ref{fig:betaprime}, together with the density function of an inverse gamma having the same median and interquartile range.
 %%\setlength{\intextsep}{0ex}% with wrapfigure
@@ -1663,9 +1640,9 @@ This density function is shown in \fig~\ref{fig:betaprime}, together with the de
 The density obtained by mixing Gaussians with parameters $(\mu, \sigma^{2})$ according to the densities~\eqref{eq:density_mu}, \eqref{eq:density_sigma},
 \begin{equation}
   \label{eq:gaussian_mixture}
-  \iint K(\di x \| \mu, \sigma^{2})\, \p(\di\mu \|I)\, \p(\di\sigma^{2} \|I)\,\di\mu\,\di\sigma^{2} \ ,
+  \iint K(\di x \| \mu, \sigma^{2})\, \p(\di\mu \|I)\, \p(\di\sigma^{2} \|I) \di\mu \di\sigma^{2} \ ,
 \end{equation}
-cannot be written in closed form. This density is shown in \fig~\ref{fig:gaussmix} (\textcolor{bluepurple}{solid blue}), upper panel, together with the densities of a Gaussian (\textcolor{redpurple}{dashed red}), a Cauchy (\textcolor{green}{dot-dashed green}), and a logistic (\textcolor{yellow}{dotted yellow}) distribution having the same median absolute deviation.
+cannot be written in closed form. This density is shown in \fig~\ref{fig:gaussmix} (\textcolor{blue}{solid blue}), upper panel, together with the densities of a Gaussian (\textcolor{purple}{dashed red}), a Cauchy (\textcolor{green}{dot-dashed green}), and a logistic (\textcolor{yellow}{dotted yellow}) distribution having the same median absolute deviation.
 
 The quantile function of this Gaussian mixture is also shown in \fig~\ref{fig:gaussmix}, lower panel. It is the function $Q(x)$ introduced in \sect~\ref{sec:variates_ordinal}.
 
@@ -1676,8 +1653,8 @@ The quantile function of this Gaussian mixture is also shown in \fig~\ref{fig:ga
 \centering\includegraphics[width=0.875\linewidth]{Gaussmix.pdf}\\%\hfill%
 \includegraphics[width=0.875\linewidth]{Qfunction2.pdf}%
 \\
-\caption{Upper panel, \textcolor{bluepurple}{solid blue}: density of the Gaussian mixture of \eqn~\eqref{eq:gaussian_mixture}. For comparison, Gaussian (\textcolor{redpurple}{dashed red}) and  Cauchy (\textcolor{green}{dot-dashed green})% , logistic (\textcolor{yellow}{dotted yellow})
-  densities with the same interquartile range (\textcolor{grey}{thicker grey} vertical lines) are also shown. Lower panel: corresponding quantile functions; the \textcolor{bluepurple}{solid blue} curve is the function $Q(x)$ introduced in \sect\,\ref{sec:variates_ordinal}.}\label{fig:gaussmix}
+\caption{Upper panel, \textcolor{blue}{solid blue}: density of the Gaussian mixture of \eqn~\eqref{eq:gaussian_mixture}. For comparison, Gaussian (\textcolor{purple}{dashed red}) and  Cauchy (\textcolor{green}{dot-dashed green})% , logistic (\textcolor{yellow}{dotted yellow})
+  densities with the same interquartile range (\textcolor{grey}{thicker grey} vertical lines) are also shown. Lower panel: corresponding quantile functions; the \textcolor{blue}{solid blue} curve is the function $Q(x)$ introduced in \sect\,\ref{sec:variates_ordinal}.}\label{fig:gaussmix}
 \end{figure}
 
 \medskip
@@ -1708,7 +1685,7 @@ The combination of prior densities~\eqref{eq:density_w}, \eqref{eq:density_mu}, 
 \caption{399 samples from the density $\p[\di F \| I]$ for the marginal density $F(\di x)$ of a continuous variate with boundary singularities. The vertical grey lines mark $\pm 2\sigmao$; the boundaries are assumed to be at $\pm 3\sigmao$. The finite probabilities assigned to the boundary values are depicted as small disks; the unit value correspond to the dashed red horizontal line. The thicker green density at the bottom-right corner is the expected marginal density $\E[F\| I](\di x)$.}\label{fig:marginal_real}
 \end{figure}
 
-\subsection{Density for the parameter of Bernoulli components}
+\subsubsection{Density for the parameter of Bernoulli components}
 \label{sec:density_bernoulli}
 
 The component distributions for a binary variate, \sect\,\ref{sec:variates_binary}, is a Bernoulli distribution with weight parameter $r \in\clcl{0,1}$. For the density of this parameter we take a uniform distribution on $\clcl{0,1}$, equivalent to a beta distribution with unit shape parameters:
@@ -1719,24 +1696,24 @@ The component distributions for a binary variate, \sect\,\ref{sec:variates_binar
 This is also the resulting uniform density $\p[\di F(X \mo 1) \|I]$ for the probability of any one of the binary values.
 
 
-\subsection{Density for the parameters of the nominal components}
+\subsubsection{Density for the parameters of the nominal components}
 \label{sec:density_nominal}
 
 Components with nominal variates have a categorical distribution with normalized weights $q \defd (q_{1},\dotsc,q_{n})$, as discussed in \sect\,\ref{sec:variates_nominal}. The density for these weights is a Dirichlet distribution with unit concentration parameter, or equivalently a constant density on the simplex $\set{q}$:
 \begin{equation}
   \label{eq:density_q_nominal}
-  \p(\di q\|I) = \delt\bigl(\tsum_{i}q_{i}-1\bigr)\,\di q \ .
+  \p(\di q\|I) = \delt\bigl(\tsum_{i}q_{i}-1\bigr) \di q \ .
 \end{equation}
 
 
 
 \medskip
 
-\section{Conditionally conjugate relationships}
+\subsection{Conditionally conjugate relationships}
 \label{sec:condition_conj}
 
 
-\section{Explicit form of the density $\p(\di F\|D,I)$}
+\subsection{Explicit form of the density $\p(\di F\|D,I)$}
 \label{sec:explicit_posterion_F}
 
 We can now rewrite the density $\p(\di F \| D,I)$ for $F$ conditional on the known units $D$, \eqn~\eqref{eq:common_density}, in terms of the densities specified in \sect\,\ref{cha:repres_F}. Its resulting expression is not immediately intelligible if written in full generality. We therefore introduce some simplifications that still allow us to understand the more general form. First, the variates $Y$ are omitted because they play the same mathematical role as the $X$ variates. Second, we consider the $X$ variates to be five: $X_{\vb},X_{\vc},X_{\vi},X_{\vr},X_{\vd}$, one for each kind discussed in \sects~\ref{sec:variates_binary}--\ref{sec:variates_censored}. Third, we consider all location hyperparameters $\muo$ to be $0$ and all scale hyperparameters $\sigmao$ to be $1$.
@@ -1768,7 +1745,7 @@ and the density $\p(\di F \| D,I)$ takes on the more explicit expression shown i
       &q^{c^u}_{x^{u}_{\vc}} \times{}\\
       &\frac{1}{\sqrt{2\pu\,{\sigmai^{c^u}}^{2}}}\,
       \int_{Q\bigl(\frac{x_{\vi}^{u}-1}{m}\bigr)}^{Q\bigl(\frac{x_{\vi}^{u}}{m}\bigr)}
-      \exp\biggl[-\frac{(z^{u}-\mui^{c^u})^{2}}{2\,{\sigmai^{c^u}}^{2}}\biggr]\, \di z^{u}
+      \exp\biggl[-\frac{(z^{u}-\mui^{c^u})^{2}}{2\,{\sigmai^{c^u}}^{2}}\biggr] \di z^{u}
       \times{}\\
       &\Phi'\biggl(\frac{x^{u}-\mur^{c^u}}{\sigmar^{c^u}}\biggr) \times{}\\
       &\Phi'\biggl(
@@ -1789,7 +1766,7 @@ and the density $\p(\di F \| D,I)$ takes on the more explicit expression shown i
       \prod_{c=1}^{M}\Biggl[&\di r^{c}
       \times{}\\
       &
-      \delt\bigl(\tsum_{i}q^{c}_{i}-1\bigr)\,\di q^{c}
+      \delt\bigl(\tsum_{i}q^{c}_{i}-1\bigr) \di q^{c}
       \times{}\\
       & 
       \Phi'\bigl(\mui^{c}\bigr)\ 
@@ -1800,8 +1777,8 @@ and the density $\p(\di F \| D,I)$ takes on the more explicit expression shown i
       }\,
       \frac{\e^{-\frac{1}{{l_{\vi}^{c}}^{2}\,t_{\vi}^{c}}}}{
         {l_{\vi}^{c}}^{2}\,{t_{\vi}^{c}}^{2}
-      }\,\di t_{\vi}^{c}
-      \enspace \di\mu^{c}\,\di{\sigmai^{c}}^{2}
+      } \di t_{\vi}^{c}
+      \enspace \di\mu^{c} \di{\sigmai^{c}}^{2}
       \times{}\\
       &
       \Phi'\bigl(\mur^{c}\bigr)\ 
@@ -1812,8 +1789,8 @@ and the density $\p(\di F \| D,I)$ takes on the more explicit expression shown i
       }\,
       \frac{\e^{-\frac{1}{{l_{\vr}^{c}}^{2}\,t_{\vr}^{c}}}}{
         {l_{\vr}^{c}}^{2}\,{t_{\vr}^{c}}^{2}
-      }\,\di t_{\vr} ^{c}
-      \enspace \di\mu^{c}\,\di{\sigmar^{c}}^{2}
+      } \di t_{\vr} ^{c}
+      \enspace \di\mu^{c} \di{\sigmar^{c}}^{2}
       \times{}\\
       &
       \Phi'\bigl(\mud^{c}\bigr)\ 
@@ -1824,8 +1801,8 @@ and the density $\p(\di F \| D,I)$ takes on the more explicit expression shown i
       }\,
       \frac{\e^{-\frac{1}{{l_{\vd}^{c}}^{2}\,t_{\vd}^{c}}}}{
         {l_{\vd}^{c}}^{2}\,{t_{\vd}^{c}}^{2}
-      }\,\di t_{\vd} ^{c}
-      \enspace \di\mu^{c}\,\di{\sigmad^{c}}^{2}
+      } \di t_{\vd} ^{c}
+      \enspace \di\mu^{c} \di{\sigmad^{c}}^{2}
       \Biggr] \ .
     \end{aligned}
   \end{multline}
@@ -1833,7 +1810,7 @@ and the density $\p(\di F \| D,I)$ takes on the more explicit expression shown i
 
  
 
-% \[ \color{bluepurple}\bm{a} \color{redpurple}\mathbin{\bm{\land}}\color{bluepurple} \bm{b} \]
+% \[ \color{blue}\bm{a} \color{purple}\mathbin{\bm{\land}}\color{blue} \bm{b} \]
 
 
 %%%% examples use empheq
@@ -1897,12 +1874,7 @@ and the density $\p(\di F \| D,I)$ takes on the more explicit expression shown i
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% 
 \iffalse
 \begin{acknowledgements}
-  \ldots to Mari \amp\ Miri for continuous encouragement and affection, and
-  to Buster Keaton and Saitama for filling life with awe and inspiration.
-  To the developers and maintainers of \LaTeX, Emacs, AUC\TeX, Open Science
-  Framework, R, Python, Inkscape, Sci-Hub for making a free and impartial
-  scientific exchange possible.
-  % Our work was supported by the Trond Mohn Research Foundation, grant number BFS2018TMT07
+  \ldots to Mari \amp\ Miri for continuous encouragement and affection, and to Buster Keaton and Saitama for filling life with awe and inspiration. To the developers and maintainers of \LaTeX, Emacs, AUC\TeX, Open Science Framework, R, Octave, Python, Inkscape, LibreOffice, Sci-Hub, Libgen for making a free and impartial scientific exchange possible.
 %\rotatebox{15}{P}\rotatebox{5}{I}\rotatebox{-10}{P}\rotatebox{10}{\reflectbox{P}}\rotatebox{-5}{O}.
 %\sourceatright{\autanet}
 \mbox{}\hfill\autanet

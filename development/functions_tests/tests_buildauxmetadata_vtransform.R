@@ -104,7 +104,7 @@ auxmetadata
 
 ##
 source('util_vtransform.R', local=T)
-arglist <- c('init', 'left', 'right', 'lat', 'aux', 'boundisinf')
+arglist <- c('init', 'left', 'right', 'lat', 'aux', 'boundisinf', 'infnormalized')
 as.data.frame(c(testd,sapply(arglist, function(x)
     vtransform(x=testd, auxmetadata=auxmetadata,
         Cout=x)

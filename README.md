@@ -13,7 +13,7 @@ Please report bugs and request features or specific documentation on [GitHub Iss
 If you have other questions about application, theory, technical implementation, feel free to contact Luca <pgl@ZZportamana.orgZZ> (remove 'ZZ', for anti-spam purposes).
 
 ## Documentation
-View the documentation at [pglpm.github.io/inferno](https://pglpm.github.io/inferno/). As the code is still very much in the development phase the documentation is also a work in progress.
+View the documentation at [pglpm.github.io/inferno](https://pglpm.github.io/inferno). As the code is still very much in the development phase the documentation is also a work in progress.
 Tutorials will be posted as soon as possible. Feel free to take a look at the [draft on the theoretical foundation](https://github.com/pglpm/inferno/raw/main/development/manual/optimal_predictor_machine.pdf).
 
 For a low-level course on Bayesian nonparametric population inference see [Foundations of data science](https://pglpm.github.io/ADA511).
@@ -21,9 +21,9 @@ For a low-level course on Bayesian nonparametric population inference see [Found
 
 A concrete example application in medicine is given in [this paper](https://doi.org/10.31219/osf.io/8nr56); example applications in machine learning are [this paper](https://doi.org/10.31219/osf.io/7rz8t) and [this paper](https://doi.org/10.31219/osf.io/vct9y).
 
-Projects using ***inferno***:
+Projects using ***Inferno***:
 
-- [InfernoCalibNet](https://github.com/m4siko/InfernoCalibNet)
+- [InfernoCalibNet](https://m4siko.github.io/InfernoCalibNet)
 - [parkinsonbayes](https://github.com/pglpm/parkinsonbayes)
 
 ## Installation
@@ -46,7 +46,7 @@ install.packages(pkgs='path/to/inferno', repos=NULL)
 the installation will automatically also install all required R-dependencies.
 
 ## Inferno App
-An application has been built upon the Inferno software. This app can be used for testing out the features of the Inferno software with just a few button clicks, without having to write any code in R yourself. 
+An application has been built upon ***Inferno***. This app can be used for testing out the features of ***Inferno*** with just a few button clicks, without having to write any code in R yourself. 
 
 ### Desktop Application
 * Currently available for Windows and MacOS. Download and install the desktop application by following this: [Installation Guide](https://github.com/h587916/Inferno-App/releases/tag/1.0.0).

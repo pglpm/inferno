@@ -8,7 +8,8 @@ Pr2(
   Y,
   X = NULL,
   learnt,
-  lower.tail = NA,
+  less = NULL,
+  greater = NULL,
   priorY = NULL,
   nsamples = 100L,
   quantiles = c(0.055, 0.25, 0.75, 0.945),
@@ -25,6 +26,10 @@ the joint probability of. One variate per column, one set of values per row.}
 \item{X}{matrix or data.table or \code{NULL}: set of values of variates on which we want to condition the joint probability of \code{Y}. If \code{NULL} (default), no conditioning is made (except for conditioning on the learning dataset and prior assumptions). One variate per column, one set of values per row.}
 
 \item{learnt}{either a string with the name of a directory or full path for a 'learnt.rds' object, produced by the \code{\link{learn}} function, or such an object itself.}
+
+\item{less}{to be documented}
+
+\item{greater}{to be documented}
 
 \item{priorY}{numeric vector with the same length as the rows of \code{Y}, or \code{TRUE}, or \code{NULL} (default): prior probabilities or base rates for the \code{Y} values. If \code{TRUE}, the prior probabilities are assumed to be all equal.}
 

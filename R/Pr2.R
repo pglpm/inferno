@@ -6,6 +6,8 @@
 #'   the joint probability of. One variate per column, one set of values per row.
 #' @param X matrix or data.table or `NULL`: set of values of variates on which we want to condition the joint probability of `Y`. If `NULL` (default), no conditioning is made (except for conditioning on the learning dataset and prior assumptions). One variate per column, one set of values per row.
 #' @param learnt either a string with the name of a directory or full path for a 'learnt.rds' object, produced by the \code{\link{learn}} function, or such an object itself.
+#' @param less to be documented
+#' @param greater to be documented
 #' @param priorY numeric vector with the same length as the rows of `Y`, or `TRUE`, or `NULL` (default): prior probabilities or base rates for the `Y` values. If `TRUE`, the prior probabilities are assumed to be all equal.
 #' @param nsamples integer or `NULL` or `"all"`: desired number of samples of the variability of the probability for `Y`. If `NULL`, no samples are reported. If `"all"` (or `Inf`), all samples obtained by the \code{\link{learn}} function are used. Default `100`.
 #' @param quantiles numeric vector, between 0 and 1, or `NULL`: desired quantiles of the variability of the probability for `Y`. Default `c(0.055, 0.25, 0.75, 0.945)`, that is, the 5.5%, 25%, 75%, 94.5% quantiles (these are typical quantile values in the Bayesian literature: they give 50% and 89% credibility intervals, which correspond to 1 shannons and 0.5 shannons of uncertainty). If `NULL`, no quantiles are calculated.
@@ -25,7 +27,8 @@ Pr2 <- function(
     Y,
     X = NULL,
     learnt,
-    lower.tail = NA,
+    less = NULL,
+    greater = NULL,
     priorY = NULL,
     nsamples = 100L,
     quantiles = c(0.055, 0.25, 0.75, 0.945),
@@ -119,6 +122,7 @@ Pr2 <- function(
     }
 
     Y <- as.data.frame(Y)
+    if(all(is.na(X))){X <- NULL}
     if(!is.null(X)){X <- as.data.frame(X)}
 
     ## Consistency checks
@@ -126,11 +130,63 @@ Pr2 <- function(
         stop('Y must have two dimensions')
     }
     if (!is.null(X) && length(dim(X)) != 2) {
-        stop('X must be NULL or have two dimensions')
+        stop('X must be NULL or NA or have two dimensions')
     }
     ##
     if (!is.null(X) && ncol(X) == 0) {
-        stop('X must be NULL or have two dimensions')
+        stop('X must be NULL or NA or have two dimensions')
+    }
+
+    ## More consistency checks
+    Yv0 <- colnames(Y)
+    if (!all(Yv0 %in% auxmetadata$name)) {
+        stop('unknown Y variates\n')
+    }
+    if (length(unique(Yv0)) != length(Yv0)) {
+        stop('duplicate Y variates\n')
+    }
+    ##
+    Xv0 <- colnames(X)
+    if (!all(Xv0 %in% auxmetadata$name)) {
+        stop('unknown X variates\n')
+    }
+    if (length(unique(Xv0)) != length(Xv0)) {
+        stop('duplicate X variates\n')
+    }
+    ##
+    if (length(intersect(Yv0, Xv0)) > 0) {
+        stop('overlap in Y and X variates\n')
+    }
+
+
+    ## Consistency checks for 'less' and 'greater' args
+    if (all(is.na(less))){less <- NULL}
+    if (all(is.na(greater))){greater <- NULL}
+
+    if ((isTRUE(less) && !is.null(greater)) ||
+           (isTRUE(greater) && !is.null(less))){
+        stop("if either 'less' or 'greater' is true, the other must be NULL\n")
+    }
+
+    ## meaningless to require < or > for nominal and binary variates
+    cumulvnames <- auxmetadata[
+        auxmetadata$mcmctype %in% c('R', 'C', 'D', 'O'),
+        'name']
+    if (isTRUE(less)){
+        less <- cumulvnames
+    }
+    if (isTRUE(greater)){
+        greater <- cumulvnames
+    }
+
+    if (!is.null(less) && !all(less %in% cumulvnames)) {
+        stop("unknown or impossible variates in 'less'\n")
+    }
+    if (!is.null(greater) && !all(greater %in% cumulvnames)) {
+        stop("unknown or impossible variates in 'greater'\n")
+    }
+    if (length(intersect(less, greater)) > 0){
+        stop("overlap in 'less' and 'greater' variates\n")
     }
 
     ## Check if a prior for Y is given, in that case Y and X will be swapped
@@ -168,27 +224,10 @@ Pr2 <- function(
         Y <- X
         X <- .
         rm(.)
-    }
-
-    ## More consistency checks
-    Yv <- colnames(Y)
-    if (!all(Yv %in% auxmetadata$name)) {
-        stop('unknown Y variates\n')
-    }
-    if (length(unique(Yv)) != length(Yv)) {
-        stop('duplicate Y variates\n')
-    }
-    ##
-    Xv <- colnames(X)
-    if (!all(Xv %in% auxmetadata$name)) {
-        stop('unknown X variates\n')
-    }
-    if (length(unique(Xv)) != length(Xv)) {
-        stop('duplicate X variates\n')
-    }
-    ##
-    if (length(intersect(Yv, Xv)) > 0) {
-        stop('overlap in Y and X variates\n')
+        . <- Yv0
+        Yv0 <- Xv0
+        Xv0 <- .
+        rm(.)
     }
 
 
@@ -216,6 +255,14 @@ Pr2 <- function(
     }
 
     dosamples <- !is.null(nsamples)
+
+    ## division into 'less' and 'greater' groups
+    XvL <- Xv0[Xv0 %in% less]
+    XvU <- Xv0[Xv0 %in% greater]
+    Xv <- setdiff(Xv0, c(XvL, XvU))
+    YvL <- Yv0[Yv0 %in% less]
+    YvU <- Yv0[Yv0 %in% greater]
+    Yv <- setdiff(Yv0, c(YvL, YvU))
 
 
     ## #### Subsample and get ncomponents and nsamples
@@ -422,6 +469,30 @@ Pr2 <- function(
             Bout = 'numeric',
             logjacobianOr = NULL))
 
+        ## adjust for cumulative-probability requests
+        if (XnLC > 0) {
+            tochoose <- X2[ , XiLC] == -Inf
+            X2[tochoose, XiLC] <- Clefts[XtLC]
+        }
+        if(XnLD > 0){
+            X2[ , XiLD] <- X2[ , XiLD] + Dsteps[XtLD]
+            tochoose <- X2[ , XiLC] > Drights[XtLD]
+            X2[tochoose, XiLD] <- +Inf
+        }
+        ##
+        if (XnUC > 0) {
+            tochoose <- X2[ , XiUC] == Inf
+            X2[tochoose, XiUC] <- Crights[XtUC]
+        }
+        if(XnUD > 0){
+            X2[ , XiUD] <- X2[ , XiUD] - Dsteps[XtUD]
+            tochoose <- X2[ , XiUC] < Dlefts[XtUD]
+            X2[tochoose, XiUD] <- -Inf
+        }
+        if(XnUO > 0){
+            X2[ , XiUO] <- X2[ , XiUO] - 1
+        }
+
         temporarydir <- tempdir() # where to save X objects
         ##
         todelete <- foreach(jj = seq_len(nX), x = t(X2),
@@ -475,6 +546,30 @@ Pr2 <- function(
         Nout = 'numeric',
         Bout = 'numeric',
         logjacobianOr = NULL))
+
+    ## adjust for cumulative-probability requests
+        if (YnLC > 0) {
+            tochoose <- Y2[ , YiLC] == -Inf
+            Y2[tochoose, YiLC] <- Clefts[YtLC]
+        }
+        if(YnLD > 0){
+            Y2[ , YiLD] <- Y2[ , YiLD] + Dsteps[YtLD]
+            tochoose <- Y2[ , YiLC] > Drights[YtLD]
+            Y2[tochoose, YiLD] <- +Inf
+        }
+        ##
+        if (YnUC > 0) {
+            tochoose <- Y2[ , YiUC] == Inf
+            Y2[tochoose, YiUC] <- Crights[YtUC]
+        }
+        if(YnUD > 0){
+            Y2[ , YiUD] <- Y2[ , YiUD] - Dsteps[YtUD]
+            tochoose <- Y2[ , YiUC] < Dlefts[YtUD]
+            Y2[tochoose, YiUD] <- -Inf
+        }
+        if(YnUO > 0){
+            Y2[ , YiUO] <- Y2[ , YiUO] - 1
+        }
 
     ## jacobians <- exp(-rowSums(
     ##     log(vtransform(Y,

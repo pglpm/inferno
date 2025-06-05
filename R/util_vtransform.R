@@ -10,6 +10,7 @@
 #'  'init': for internal MCMC use (init input)
 #'  'left', 'right': for internal MCMC use
 #'  'aux', 'lat': for internal MCMC use
+#'  'infnormalized': for sampling functions
 #'  'boundisinf': for sampling functions
 #'  'mi': for use in mutualinfo()
 #'  'original': original representation
@@ -18,6 +19,7 @@
 #'  'left', 'right': for internal MCMC use
 #'  'aux': for internal MCMC use
 #'  'boundisinf': for sampling functions
+#'  'normalized': for sampling functions
 #'  'mi': for use in mutualinfo()
 #'  'original': original representation
 #' @param Oout string, output of O-type variate, with possible values:
@@ -159,6 +161,7 @@ vtransform <- function(
 
                     } else if (Cout == 'boundisinf') {
                         ## used in sampling functions
+                        ## points outside or on boundaries are moved to infinity
                         selmax <- (datum >= domainmax)
                         selmin <- (datum <= domainmin)
                         ##
@@ -177,8 +180,9 @@ vtransform <- function(
                         datum[selmax] <- +Inf
                         datum[selmin] <- -Inf
 
-                    } else if (Cout == 'normalized') {
-                        ## used only for debugging
+                    } else if (Cout == 'infnormalized') {
+                        ## used in calculation of range probabilities
+                        ## points outside boundaries are moved to boundaries
                         datum <- pmin(pmax(datum, domainmin), domainmax)
                         ## datum[datum <= domainminplushs] <- domainmin
                         ## datum[datum >= domainmaxminushs] <- domainmax
