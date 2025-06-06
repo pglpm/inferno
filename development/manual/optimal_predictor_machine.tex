@@ -1,7 +1,7 @@
 \pdfoutput=1
 %% Author: PGL  Porta Mana
 %% Created: 2015-05-01T20:53:34+0200
-%% Last-Updated: 2025-06-06T08:10:48+0200
+%% Last-Updated: 2025-06-06T11:34:37+0200
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \newif\ifarxiv
 \arxivfalse
@@ -1716,17 +1716,28 @@ Components with nominal variates have a categorical distribution with normalized
 \subsection{Explicit form of the density $\p(F \|D,I) \di F$}
 \label{sec:explicit_posterion_F}
 
-We can now rewrite the density $\p(F  \| D,I) \di F$ for $F$ conditional on the known units $D$, \eqn~\eqref{eq:common_density}, in terms of the densities specified in \sect\,\ref{cha:repres_F}. Its resulting expression is not immediately intelligible if written in full generality. We therefore introduce some simplifications that still allow us to understand the more general form. First, the variates $Y$ are omitted because they play the same mathematical role as the $X$ variates. Second, we consider the $X$ variates to be five: $X_{\vb},X_{\vc},X_{\vi},X_{\vr},X_{\vd}$, one for each kind discussed in \sects~\ref{sec:variates_binary}--\ref{sec:variates_censored}. Third, we consider all location hyperparameters $\muo$ to be $0$ and all scale hyperparameters $\sigmao$ to be $1$.
+We can now write a final, more explicit expression for the density $\p(F \| D,I) \di F$, for $F$ conditional on the known units $D$, given in its most general form in \eqn~\eqref{eq:common_density}. The resulting final expression is not immediately intelligible if written in full generality. We therefore introduce some simplifications that still allow us to understand the general structure of the final expression. First, the variates $Y$ are omitted because they play the same mathematical role as the $X$ variates. Second, we consider the $X$ variates to be five: $X_{\vb},X_{\vc},X_{\vi},X_{\vr},X_{\vd}$, one for each kind discussed in \sects~\ref{sec:variates_binary}--\ref{sec:variates_censored}. Third, we consider all location hyperparameters $\muo$ to be $0$ and all scale hyperparameters $\sigmao$ to be $1$.
 
-In this simplified case, the density $F$ is thus represented by
-\begin{equation}
-  \label{eq:simple_F_repres}
-F \corr (w^{c},\, r^{c},\, q^{c},\,
+This final expression is the product of several copies of the densities discussed in \sect\,\ref{cha:repres_F}:
+\begin{equation*}
+  F(x \| I ) =
+  p(x \| w, \xi, I ) =
+  \sum_{c} w^{c}\ K(x \| \xi^{c}) \ ,
+\end{equation*}
+each copy being evaluated at a training datapoint; and of the prior density discussed in \sect~\ref{sec:density_nominal}:
+\begin{equation*}
+  \p(w, \xi \|I)
+  \di w \di\xi =
+  \p(w \|I)\,
+  \prod_{c,j}\bigl[ \p(\xi^{c}_{j} \|I) \di\xi^{c}_{j}\bigr]
+  \di w \ .
+\end{equation*}
+In the expressions above, $\xi$ stands for the hyperparameters $(r^{c},\, q^{c},\,
   \lambda^{c}, \rho^{c},\,
   \mu^{c}, \sigma^{c},\,
-  \nu^{c}, \tau^{c}) \ ,
-\end{equation}
-and the density $\p(F  \| D,I) \di F$ takes on the more explicit expression shown in \eqn~\eqref{eq:posterior_F_explicit}.
+  \nu^{c}, \tau^{c})$.
+
+The density $\p(F  \| D,I) \di F$ thus takes on the more explicit expression shown in \eqn~\eqref{eq:posterior_F_explicit}.
 
 \begin{table}\label{tab:posterior_F}
   \mynotew{to be re-checked}
@@ -1747,7 +1758,7 @@ and the density $\p(F  \| D,I) \di F$ takes on the more explicit expression show
     }
     \\
     \begin{aligned}
-      \prod_{u}\Biggl[
+      \prod_{u \in \text{datapoints}}\Biggl[
       \sum_{c^u}&
       w^{c^u}\times{}\\
       &x^{u}_{\vr}\, r^{c^u} + (1-x^{u}_{\vr})\,(1-r^{c^u}) \times{}\\
