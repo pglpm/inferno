@@ -1,7 +1,7 @@
 \pdfoutput=1
 %% Author: PGL  Porta Mana
 %% Created: 2015-05-01T20:53:34+0200
-%% Last-Updated: 2025-06-05T23:54:40+0200
+%% Last-Updated: 2025-06-06T08:10:48+0200
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \newif\ifarxiv
 \arxivfalse
@@ -655,9 +655,9 @@ citebordercolor=blue,citecolor=blue,linkbordercolor=blue,linkcolor=blue,urlborde
 \newcommand*{\puzzle}{{\fontencoding{U}\fontfamily{fontawesometwo}\selectfont\symbol{225}}}
 \newcommand*{\wrench}{{\fontencoding{U}\fontfamily{fontawesomethree}\selectfont\symbol{114}}}
 \newcommand*{\pencil}{{\fontencoding{U}\fontfamily{fontawesometwo}\selectfont\symbol{210}}}
-\newcommand{\mynotew}[1]{{\footnotesize\color{notecolour}\wrench\ #1}}
-\newcommand{\mynotep}[1]{{\footnotesize\color{notecolour}\pencil\ #1}}
-\newcommand{\mynotez}[1]{{\footnotesize\color{notecolour}\puzzle\ #1}}
+\newcommand{\mynotew}[1]{{\footnotesize\color{notecolour}\wrench~#1}}
+\newcommand{\mynotep}[1]{{\footnotesize\color{notecolour}\pencil~#1}}
+\newcommand{\mynotez}[1]{{\footnotesize\color{notecolour}\puzzle~#1}}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%% Paper's details
@@ -1075,31 +1075,31 @@ If the number of units is large enough, de~Finetti's theorem\ibid\ proves that s
   {}\\
   \int
   F(y^{1},x^{1})\, F(y^{2},x^{2})\,\dotsm
-\ \p(\di F \|I)
+\ \p(F  \|I) \di F
 \end{multline}
-the integral being over all normalized, positive weight distributions $F(y,x)$ over the variables $y,x$. The term $\p(\di F \|I)$ is a positive measure over such distributions.
+the integral being over all normalized, positive weight distributions $F(y,x)$ over the variables $y,x$. The term $\p(F  \|I) \di F$ is a positive measure over such distributions.
 
 
-This mathematical representation has an intuitive interpretation. The weight distribution $F(y,x)$ can be interpreted as the frequency distribution of the values $y,x$ among all units. If we knew this frequency distribution, then by symmetry we would assign the probability $F(y,x)$ to measuring $y,x$ on an unsystematically chosen unit, exactly as in sampling from an urn \autocites[\chap~3]{jaynes1994_r2003}. Observations on further units would have probabilities according to \enquote{sampling without replacement}; however, if the total number of units is large and the observed units are few, these probabilities would approximately equal those for \enquote{sampling with replacement} \autocites{heathetal1976}[for error bounds see][]{diaconisetal1980}. These probabilities correspond to the term $F(y^{1},x^{1})\, F(y^{2},x^{2})\,\dotsm$ in the integral. If the frequency distribution $F$ is unknown and we assign a probability density $\p(\di F\|I)$ to it, then the resulting probability for the observations is a convex mixture of the sampling-with-replacement probabilities, weighted by this probability density. This last step follows from the law of total probability, a consequence of the rules~\eqref{eq:Prules}. The integral above corresponds to this convex mixture.
+This mathematical representation has an intuitive interpretation. The weight distribution $F(y,x)$ can be interpreted as the frequency distribution of the values $y,x$ among all units. If we knew this frequency distribution, then by symmetry we would assign the probability $F(y,x)$ to measuring $y,x$ on an unsystematically chosen unit, exactly as in sampling from an urn \autocites[\chap~3]{jaynes1994_r2003}. Observations on further units would have probabilities according to \enquote{sampling without replacement}; however, if the total number of units is large and the observed units are few, these probabilities would approximately equal those for \enquote{sampling with replacement} \autocites{heathetal1976}[for error bounds see][]{diaconisetal1980}. These probabilities correspond to the term $F(y^{1},x^{1})\, F(y^{2},x^{2})\,\dotsm$ in the integral. If the frequency distribution $F$ is unknown and we assign a probability density $\p(F \|I) \di F$ to it, then the resulting probability for the observations is a convex mixture of the sampling-with-replacement probabilities, weighted by this probability density. This last step follows from the law of total probability, a consequence of the rules~\eqref{eq:Prules}. The integral above corresponds to this convex mixture.
 
-The symmetry or \enquote{exchangeability} requirement does not determine specific numeric values for the joint probability~\eqref{eq:deFinetti_integral}, but greatly restrict our freedom in assigning such values. The only freedom we have left is in the specification of the density $\p(\di F \|I)$. This specification will depend on the particular inference problem and on the nature of the units and variates. The intuitive interpretation of $\p(\di F \|I)$ as our uncertainty about the \enquote{long-run frequencies} can greatly help in this specification. De~Finetti's theorem has moreover an important consequence in this respect: as the values of more and more units become available, the initial numerical choice of density $\p(\di F \|I)$ affects further inferences less and less. Let us discuss these further inferences.
+The symmetry or \enquote{exchangeability} requirement does not determine specific numeric values for the joint probability~\eqref{eq:deFinetti_integral}, but greatly restrict our freedom in assigning such values. The only freedom we have left is in the specification of the density $\p(F  \|I) \di F$. This specification will depend on the particular inference problem and on the nature of the units and variates. The intuitive interpretation of $\p(F  \|I) \di F$ as our uncertainty about the \enquote{long-run frequencies} can greatly help in this specification. De~Finetti's theorem has moreover an important consequence in this respect: as the values of more and more units become available, the initial numerical choice of density $\p(F  \|I) \di F$ affects further inferences less and less. Let us discuss these further inferences.
 
-Once the joint probability distribution~\eqref{eq:deFinetti_integral} has been numerically assigned, through specification of $\p(\di F \|I)$, all other marginal and conditional distributions concerning units and variates are also numerically fully determined by repeated application of the rules~\eqref{eq:Prules}. Some examples:
+Once the joint probability distribution~\eqref{eq:deFinetti_integral} has been numerically assigned, through specification of $\p(F  \|I) \di F$, all other marginal and conditional distributions concerning units and variates are also numerically fully determined by repeated application of the rules~\eqref{eq:Prules}. Some examples:
 \begin{subequations}
     \label{eq:further_infs}
   \begin{align}
     \p(Y^{2}\mo y^{2} \|I) &=
     \int
-    \sum_{x}F(y^{2},x)\,\p(\di F \|I) \ ,
+    \sum_{x}F(y^{2},x)\,\p(F  \|I) \di F \ ,
     \\[\jot]
     \p(Y^{2}\mo y^{2} \| X^{2}\mo x^{2}, I) &=
-    \frac{\int F(y^{2},x^{2})\ \p(\di F \|I)}{
-      \int \sum_{x}F(y^{2},x)\ \p(\di F \|I)
+    \frac{\int F(y^{2},x^{2})\ \p(F  \|I) \di F}{
+      \int \sum_{x}F(y^{2},x)\ \p(F  \|I) \di F
     } \ ,
     \\[\jot]
     \p(Y^{2}\mo y^{2} \| X^{1}\mo x^{1}, I) &=
-    \frac{\int \sum_{x}F(y^{2},x)\, \sum_{y}F(y,x^{1})\  \p(\di F \|I)}{
-      \int \sum_{y}F(y,x^{1})\  \p(\di F \|I)
+    \frac{\int \sum_{x}F(y^{2},x)\, \sum_{y}F(y,x^{1})\  \p(F  \|I) \di F}{
+      \int \sum_{y}F(y,x^{1})\  \p(F  \|I) \di F
     } \ .
   \end{align}
 \end{subequations}
@@ -1123,9 +1123,9 @@ If $\Iyx^{0}$ amounts to saying that the symmetry underlying the probabilities~\
   =
 {}\\[\jot]
   \frac{
-    \int F(y^{0},x^{0})\, F(y^{1},x^{1})\, F(y^{2},x^{2})\,\dotsm\  \p(\di F \|I)
+    \int F(y^{0},x^{0})\, F(y^{1},x^{1})\, F(y^{2},x^{2})\,\dotsm\  \p(F  \|I) \di F
   }{
-    \int \sum_{y}F(y,x^{0})\, F(y^{1},x^{1})\, F(y^{2},x^{2})\,\dotsm\  \p(\di F \|I)
+    \int \sum_{y}F(y,x^{0})\, F(y^{1},x^{1})\, F(y^{2},x^{2})\,\dotsm\  \p(F  \|I) \di F
   } \ .
 \end{multline}
 
@@ -1161,7 +1161,7 @@ If the number of units is large enough, a variant of de~Finetti's theorem \autoc
     \frac{F(y^{0},x^{*})}{\sum_{y}F(y,x^{*})}\,
     \frac{F(y^{1},x^{*})}{\sum_{y}F(y,x^{*})}\,
     \frac{F(y^{2},x^{*})}{\sum_{y}F(y,x^{*})}
-    \,\dotsm\ \p(\di F \|I) \ .
+    \,\dotsm\ \p(F  \|I) \di F \ .
   \end{multline}
 
   This representation has an intuitive interpretation similar to~\eqref{eq:deFinetti_integral}; the difference is that a term like $\frac{F(y^{0},x^{*})}{\sum_{y}F(y,x^{*})}$ now corresponds to the long-run \emph{conditional} frequency $F(y^{0} \| x^{*})$. Our conditional probabilities would be equal to these conditional frequencies if they were known. The uncertainty about the latter leads again to a convex mixture of these conditional probabilities, from the rules~\eqref{eq:Prules}. With a change of variables we could represent the joint frequency $F(y,x)$ as the pair of conditional and marginal frequencies $\bigl(F_{Y\|X}(y\|x), F_{X}(x)\bigr)$. The formula above then simplifies, by marginalization over $\di F_{X}$, to
@@ -1174,7 +1174,7 @@ If the number of units is large enough, a variant of de~Finetti's theorem \autoc
     {}\\
     \int 
     F(y^{0} \|x^{*})\,   F(y^{1} \|x^{*})\,  F(y^{2} \|x^{*})
-    \,\dotsm\ \p(\di F_{Y\|X} \|I) \ .
+    \,\dotsm\ \p(F _{Y\|X} \|I) \di F \ .
   \end{multline}
 \end{subequations}
 
@@ -1186,9 +1186,9 @@ Under this kind of auxiliary information $\Ix^{0}$, our main probability~\eqref{
   =
 {}\\[\jot]
   \frac{
-    \int \frac{F(y^{0},x^{0})}{\sum_{y}F(y,x^{0})}\, F(y^{1},x^{1})\, F(y^{2},x^{2})\,\dotsm\  \p(\di F \|I)
+    \int \frac{F(y^{0},x^{0})}{\sum_{y}F(y,x^{0})}\, F(y^{1},x^{1})\, F(y^{2},x^{2})\,\dotsm\  \p(F  \|I) \di F
   }{
-    \int F(y^{1},x^{1})\, F(y^{2},x^{2})\,\dotsm\  \p(\di F \|I)
+    \int F(y^{1},x^{1})\, F(y^{2},x^{2})\,\dotsm\  \p(F  \|I) \di F
   } \ .
 \end{multline}
 
@@ -1207,10 +1207,10 @@ Yet another kind of auxiliary information, $\Iy^{0}$, is the one similar to $\Ix
     \frac{F(x^{0},y^{*})}{\sum_{x}F(x,y^{*})}\,
     \frac{F(x^{1},y^{*})}{\sum_{x}F(x,y^{*})}\,
     \frac{F(x^{2},y^{*})}{\sum_{x}F(x,y^{*})}
-    \,\dotsm\ \p(\di F \|I) \ .
+    \,\dotsm\ \p(F  \|I) \di F \ .
   \end{multline}
 
-  In this case, however, the main probability~\eqref{eq:general_prob} is \emph{not} determined by the probability rules once $\p(\di F\|I)$ has been assigned. We arrive at the following relation, where the proportionality constant can be found by normalizing over $Y^{0}$:
+  In this case, however, the main probability~\eqref{eq:general_prob} is \emph{not} determined by the probability rules once $\p(F \|I) \di F$ has been assigned. We arrive at the following relation, where the proportionality constant can be found by normalizing over $Y^{0}$:
 \begin{multline}
   \label{eq:relation_exchY}
   \p(Y^{0}\mo y^{0} \|
@@ -1220,9 +1220,9 @@ Yet another kind of auxiliary information, $\Iy^{0}$, is the one similar to $\Ix
   \p(Y^{0}\mo y^{0} \|
   Y^{1}\mo y^{1},X^{1}\mo x^{1},\dotsc,\: \Iy^{0},I) \times{}\\
   \frac{
-    \int \frac{F(x^{0},y^{0})}{\sum_{x}F(x,y^{0})}\, F(x^{1},y^{1})\,\dotsm\  \p(\di F \|I)
+    \int \frac{F(x^{0},y^{0})}{\sum_{x}F(x,y^{0})}\, F(x^{1},y^{1})\,\dotsm\  \p(F  \|I) \di F
   }{
-    \int F(x^{1},y^{1})\,\dotsm\  \p(\di F \|I)
+    \int F(x^{1},y^{1})\,\dotsm\  \p(F  \|I) \di F
   } \ .
 \end{multline}
 The probability in the second row, $\p(Y^{0}\mo y^{0} \| Y^{1}\mo y^{1},X^{1}\mo x^{1},\dotsc,\: \Iy^{0},I)$, must still be assigned \autocites{lindleyetal1981}. This assignment depends strongly on the circumstances. In clinical applications, for example, it is typically further assumed that the units $u=1,2,\dotsc$ are irrelevant for this probability:
@@ -1245,11 +1245,11 @@ It is possible to consider also symmetries for only some of the $X$ variates or 
 In all examples of additional information $I^{0}$ considered above, the resulting expression for our main probability, \eqns~\eqref{eq:general_prob_fullexch}, \eqref{eq:general_prob_partialexch}, \eqref{eq:relation_exchY}, involve an integral containing a common term: the density
 \begin{equation}
   \label{eq:common_density}
-  \p(\di F \|D,I) \defd
+  \p(F  \|D,I) \di F \defd
     \frac{
-    F(x^{1},y^{1})\,F(x^{2},y^{2})\,\dotsm\  \p(\di F\| I)
+    F(x^{1},y^{1})\,F(x^{2},y^{2})\,\dotsm\  \p(F \| I) \di F
   }{
-   \int F(x^{1},y^{1})\,F(x^{2},y^{2})\,\dotsm\  \p(\di F \|I)
+   \int F(x^{1},y^{1})\,F(x^{2},y^{2})\,\dotsm\  \p(F  \|I) \di F
   } \ ,
 \end{equation}
 where $D$ is the conjunction of all statements \ptext{$Y^{u}\mo y^{u}$}, \ptext{$X^{u}\mo x^{u}$} for $u=1,2,\dotsc$. Indeed this probability density can be considered as the updated probability for $\di F$, given the information about all units, $D$.
@@ -1264,7 +1264,7 @@ Our next task is to calculate this term.
 \label{sec:repr_F_convexsum}
 
 
-In order to specify the probability densities $\p(\di F \| I)$ and $\p(\di F \| D, I)$ we need a mathematical representation of the possible joint distributions $F(y,x)$ and of their space. From a differential-geometric point of view \autocites[III.A, VII.A]{choquetbruhatetal1977_r1996}, we want a coordinate system on the manifold of distributions $\set{F}$. It would be an advantage if this mathematical representation also let us easily compute conditional and marginal distributions such as $F(y\| x)$ and $F(x)$, because we need these to calculate our main probabilities from formulae~\eqref{eq:general_prob_partialexch} or \eqref{eq:indepYfromdata}.
+In order to specify the probability densities $\p(F  \| I) \di F$ and $\p(F  \| D, I) \di F$ we need a mathematical representation of the possible joint distributions $F(y,x)$ and of their space. From a differential-geometric point of view \autocites[III.A, VII.A]{choquetbruhatetal1977_r1996}, we want a coordinate system on the manifold of distributions $\set{F}$. It would be an advantage if this mathematical representation also let us easily compute conditional and marginal distributions such as $F(y\| x)$ and $F(x)$, because we need these to calculate our main probabilities from formulae~\eqref{eq:general_prob_partialexch} or \eqref{eq:indepYfromdata}.
 
 A very clever representation is discussed by \cites{dunsonetal2011}\autocites[see also][]{bhattacharyaetal2012,rossi2014}. It is an evolution of representations based on Dirichlet-process mixtures \autocites[\eg][]{antoniak1974,ferguson1983,escobaretal1995,muelleretal1996,rasmussen1999}. It expresses a particular $F(y,x)$ as an in-principle infinite convex mixture of products of parametric distributions $K(\dotso \| \dotso)$:
 \begin{multline}
@@ -1301,7 +1301,7 @@ Although the sum in the representation~\eqref{eq:F_repres} is in principle infin
 
 % \medskip
 
-% The representation~\eqref{eq:F_repres} can in turn be embedded in a larger space; this may be convenient for computing the posterior density $\p(\di F \| D,I)$ of \eqn~\eqref{eq:common_density}. The sum over the running index $c$ in the representation~\eqref{eq:F_repres} can be interpreted as the marginalization over the integer variable $c$ of a new distribution $G$ defined as
+% The representation~\eqref{eq:F_repres} can in turn be embedded in a larger space; this may be convenient for computing the posterior density $\p(F  \| D,I) \di F$ of \eqn~\eqref{eq:common_density}. The sum over the running index $c$ in the representation~\eqref{eq:F_repres} can be interpreted as the marginalization over the integer variable $c$ of a new distribution $G$ defined as
 % \begin{equation}
 %   \label{eq:distr_with_c}
 %   G(c,y,x\| w,\upsilon,\xi) \defd
@@ -1334,7 +1334,7 @@ Although the sum in the representation~\eqref{eq:F_repres} is in principle infin
 % In the last term we have as many sums and running indices $c^{u}$ as units $u=1,2,\dotsc$, and corresponding terms within the product. This last expression can be interpreted as the marginalization over variables $c^{1}, c^{2}, \dotsc$ of a product of distributions $G$ defined as
 
 
-A probability density $\p(\di F)$ is finally specified by specifying a density $\p(\di w, \di\upsilon, \di\xi)$. This specification is determined partly by the information underlying the density, partly by computational demands.
+A probability density $\p(F ) \di F$ is finally specified by specifying a density $\p(\di w, \di\upsilon, \di\xi)$. This specification is determined partly by the information underlying the density, partly by computational demands.
 
 
 These densities can be calculated by a variety of Monte Carlo methods. We discuss the computation in detail in \sect***.
@@ -1366,7 +1366,7 @@ For a continuous real variate $x \in \RR$ we choose a Gaussian distribution with
   \begin{split}
     &x \in \RR:
     \\
-  &K(\di x \| \mur,\sigmar^{2}) \defd \Phi'\biggl(\frac{x-\mur}{\sigmar}\biggr) \di x
+  &K(x \| \mur,\sigmar^{2})\di x \defd \Phi'\biggl(\frac{x-\mur}{\sigmar}\biggr) \di x
   \equiv \frac{1}{\sqrt{2\pu\,\sigmar^{2}}}\,
   \exp\biggl[-\frac{(x-\mur)^{2}}{2\,\sigmar^{2}}\biggr] \di x \ .
 \end{split}
@@ -1380,31 +1380,26 @@ By \enquote{variate with boundary singularity} we mean a continuous variate with
 The boundary value or values that the present kind of variate can take on often have a singular probability mass (delta distribution). This singular probability mass may arise from the fact that $x$ is censored, that is, it could in principle assume continuous values outside the boundaries, but such values are truncated to the boundary ones.
 
 For such a variate we can use a Gaussian distribution with mean and variance parameters $(\mud,\sigmad^{2})$, where the $x \le a$ and $x \ge b$ tails represent the probability mass given to the boundary points:
-\begin{equation}
-  \begin{split}
-    \label{eq:K_cens}
-    &x \in \clcl{a,b}:
-    \\
-    &K(\di x \| \mud, \sigmad^{2}) \defd
-    \begin{dcases}
-        \Phi\Bigl(
+\begin{multline}
+  \label{eq:K_cens}
+  x \in \clcl{a,b}:
+  \\
+  \shoveleft{K(x \| \mud, \sigmad^{2})\di x \defd {}}
+  \\
+  \Bigl[
+  \Phi\Bigl(
   \frac{a - \mud}{\sigmad}
-  \Bigr)
-  &\text{if $x=a$}
-      \\[2\jot]
-        \Phi'\Bigl(
+  \Bigr)\,\delt(x-a)
+  +
+  \Phi'\Bigl(
   \frac{x - \mud}{\sigmad}
   \Bigr)
-   \di x
-  &\text{if $a < x < b$}
-      \\[2\jot]
-        \Phi\Bigl(
+  +
+  \Phi\Bigl(
   -\frac{b - \mud}{\sigmad}
-  \Bigr)
-  &\text{if $x=b$}
-    \end{dcases}
-  \end{split}
-\end{equation}
+  \Bigr)\,\delt(x-b)
+  \Bigr]\di x
+\end{multline}
 The semi-bounded case $x \in \clop{a,+\infty}$ can be obtained with obvious adjustments. The continuous non-bounded case previously discussed can be seen as a limit case of the present one for $a\to -\infty$, $b\to +\infty$.
 
 \subsubsection{Other continuous variates}
@@ -1497,38 +1492,41 @@ By \enquote{ordinal} variate we mean a variate $x$ assuming a discrete number $m
 Ordinal variates are represented in two different ways:
 \begin{itemize}[para]
 \item If the number of values is less than or equal to 10, then the variate is mathematically represented like a nominal one (\sect~\ref{sec:variates_nominal}). This is because for such small value set we can still expect jumps between the probabilities of consecutive values, and the categorical distribution is quite flexible in representing such jumps.
-\item If the number of values is larger than 10, then the ordinal variate is mathematically treated as an interval-discrete one (\sect~\ref{sec:variates_rounded}).
+\item If the number of values is larger than 10, then the ordinal variate is mathematically represented in the same way as an interval-discrete one (\sect~\ref{sec:variates_rounded}).
 \end{itemize}
 
 
 \subsection{Density for $F$}
 \label{sec:density_F}
 
-Once the density $F$ is represented by the variables $(w, \upsilon, \xi)$ through \eqn~\eqref{eq:F_repres}, any density $\p(\di w, \di\upsilon, \di\xi \|I)$ for the latter variables also determines (possibly by pull-back) a density $\p(\di F \| I)$ for $F$.
+Once the density $F$ is represented by the variables $(w, \upsilon, \xi)$ through \eqn~\eqref{eq:F_repres}, any density $\p(w, \upsilon, \xi \|I)\di w \di\upsilon \di\xi$ for the latter variables also determines (possibly by pull-back) a density $\p(F  \| I) \di F$ for $F$.
 
 The choice of this density is equivalent, by de~Finetti's theorem~\eqref{eq:deFinetti_integral}, to a choice of exchangeable joint distribution $\p(Y, X \|I)$. This choice is thus essentially dependent on the meaning of the variates $Y,X$ and on the specific inference context.
 
-A general-purpose specific mathematical choice is presented here. It can be useful as a starting point, and it can be reasonable as a definitive choice if we have a large number of units with known $X,Y$. %***explain why
+A general-purpose specific mathematical choice is presented here. It can be useful as a starting point, and it can be reasonable as a definitive choice if we have an enough large number of units with known $X,Y$ \mynotew{explain why}.
 This choice has two main motivations:
 \begin{itemize}
-\item represent a state of uncertainty that is \enquote{diffuse} but still realistic,
-\item possibility of allowing fast Markov-chain Monte Carlo computations using Gibbs sampling with conditionally conjugate distributions \autocites[\cf][]{goerueretal2010}.
+\item it represents a state of uncertainty that is \enquote{diffuse} but still realistic,
+\item it allows for fast Markov-chain Monte Carlo computations using Gibbs sampling with conditionally conjugate distributions \autocites[\cf][]{goerueretal2010}.
 \end{itemize}
 
 We consider a density that factorizes as follows:
 \begin{equation}
   \label{eq:density_factorizes}
-  \p(\di w, \di\upsilon, \di\xi \|I) =
-  \p(\di w \|I)\,
-  \prod_{c,j}\bigl[\p(\di\upsilon^{c}_{j} \|I)\,
-  \p(\di\xi^{c}_{j} \|I) \bigr] \ .
+  \p(w, \upsilon, \xi \|I)
+  \di w \di\upsilon \di\xi =
+  \p(w \|I)\,
+  \prod_{c,j}\bigl[\p(\upsilon^{c}_{j} \|I)\,
+  \p(\xi^{c}_{j} \|I) \di\upsilon^{c}_{j} \di\xi^{c}_{j}\bigr]
+  \di w 
+  \ .
 \end{equation}
-The densities $\p(\di\xi^{c}_{j} \|I)$ are furthermore taken to be identical for each component $c$, but potentially different for different variates $j$:
+The densities $\p(\xi^{c}_{j} \|I)\di\xi^{c}_{j}$ are furthermore taken to be identical for each component $c$, but potentially different for different variates $j$:
 \begin{equation}
   \label{eq:density_same_c}
-  \p(\di\xi^{c}_{j} \|I) = \p(\di\xi^{1}_{j} \|I) \ ,\quad\forall c \ ;
+  \p(\xi^{c}_{j} \|I) = \p(\xi^{1}_{j} \|I) \ ,\quad\forall c \ ;
 \end{equation}
-and likewise for $\p(\di\upsilon^{c}_{j} \|I)$.
+likewise for $\p(\upsilon^{c}_{j} \|I)\di\upsilon^{c}_{j}$.
 
 In the following the specific factor densities are described. The generic parameter $\xi$ is used to include both $\upsilon$ and $\xi$.
 
@@ -1538,7 +1536,7 @@ In the following the specific factor densities are described. The generic parame
 The density for the weights $w$ is a discrete mixture of Dirichlet distributions with different concentration parameters $\alpha$:
 \begin{equation}
   \label{eq:density_w}
-  \p(\di w\|I) =
+  \p(w\|I)\di w =
   \frac{1}{7}
   \sum_{\alpha=2^{-3}}^{2^{3}}
   (\alpha - 1)! \Biggl[\prod_{c=1}^{M}
@@ -1548,7 +1546,7 @@ The density for the weights $w$ is a discrete mixture of Dirichlet distributions
 \end{equation}
 with $\alpha$ running through the values $\set*{2^{-3},2^{-2},2^{-1},1,2^{1},2^{2},2^{3}}$, and where $M$ is the number of components in the convex mixture~\eqref{eq:F_repres}. The possible $\alpha$ values are given equal weights.
 
-This density is a discretized version of a mixture of Dirichlet distributions with a continuous range of concentration parameters \autocites[\eg][\sect\,2.5]{rossi2014}[\sect\,2.1]{rasmussen1999}. The discretized version seems to lead to the same general predictive properties as the continuous one, but is computationally more convenient.
+This density is a discretized version of a continuous mixture of Dirichlet distributions, with a continuous range of concentration parameters \autocites[\eg][\sect\,2.5]{rossi2014}[\sect\,2.1]{rasmussen1999}. The discretized version seems to lead to the same general predictive properties as the continuous one, but is computationally more convenient.
 
 
 \subsubsection{Density for parameters of Gaussian components}
@@ -1563,17 +1561,17 @@ These hyperparameters can also be set to unity if we shift and rescale our data 
 The density for the mean $\mu$ is a Gaussian distribution:
 \begin{equation}
   \label{eq:density_mu}
-  \p(\di \mu\|I) = \Phi'\biggl(\frac{\mu-\muo}{\sigmao}\biggr) \di\mu \ .
+  \p(\mu\|I)\di \mu = \Phi'\biggl(\frac{\mu-\muo}{\sigmao}\biggr) \di\mu \ .
 \end{equation}
 % where $\zeta \defd 1/\Phi^{-1}(3/4)$ is twice the standard deviation of a Gaussian having unit interquartile range.
 
 \medskip
 
-The density for the variance $\sigma^{2}$ is a discrete mixture of beta-prime distributions (or beta distributions of the second kind) \autocites[\sect\,25.7, 27.2]{johnsonetal1970b_r1995}{mcdonald1984} having shape hyperparameters $\shapeh=3/2$, $\shapel=5/2$ and scale hyperparameter $\sigmao^{2}$. The beta-prime can in turn be written as a continuous mixture of inverse-gamma distributions \autocites{dubey1970} having different rate parameters $t$, the mixture weights also having an inverse-gamma distribution:
+The density for the variance $\sigma^{2}$ is a discrete mixture of beta-prime distributions (or beta distributions of the second kind) \autocites[\sect\,25.7, 27.2]{johnsonetal1970b_r1995}{mcdonald1984} having shape hyperparameters $\shapeh=1/2$, $\shapel=1/2$ and scale hyperparameter $\sigmao^{2}$. The beta-prime can in turn be written as a continuous mixture of inverse-gamma distributions \autocites{dubey1970} having different rate parameters $t$, the mixture weights also having an inverse-gamma distribution:
 \begin{equation}
   \label{eq:density_sigma}
   \begin{split}
-    \p(\di\sigma^{2}\|I)
+    \p(\sigma^{2}\|I)\di\sigma^{2}
     &=
     \frac{\shapeh\,\shapel\, (\shapeh+\shapel)!}{\shapeh!\,\shapel!\,(\shapeh+\shapel)}
     \,\frac{(\sigma/\sigmao)^{2\shapeh}}
@@ -1614,7 +1612,7 @@ The expression in terms of inverse-gammas is useful for conditionally conjugate 
 The beta-prime distribution has the appealing property of having more symmetric tails for the distribution of the log-scale variable $\ln(\sigma/\sigmao)$. We can in fact rewrite the density above as
 \begin{equation}
   \label{eq:density_log-sigma}
-    \p\bigl(\di \ln\tfrac{\sigma}{\sigmao}\|I\bigr) =
+    \p\bigl(\ln\tfrac{\sigma}{\sigmao}\|I\bigr)\di \ln\tfrac{\sigma}{\sigmao} =
     2\frac{\shapeh\,\shapel\, (\shapeh+\shapel)!}{\shapeh!\,\shapel!\,(\shapeh+\shapel)}
     \,\Bigl(
     \e^{-2\shapeh\ln\frac{\sigma}{\sigmao}}
@@ -1637,10 +1635,10 @@ This density function is shown in \fig~\ref{fig:betaprime}, together with the de
 
 \medskip
 
-The density obtained by mixing Gaussians with parameters $(\mu, \sigma^{2})$ according to the densities~\eqref{eq:density_mu}, \eqref{eq:density_sigma},
+The density obtained by mixing Gaussians with parameters $(\mu, \sigma^{2})$ according to the densities~\eqref{eq:density_mu} and \eqref{eq:density_sigma}:
 \begin{equation}
   \label{eq:gaussian_mixture}
-  \iint K(\di x \| \mu, \sigma^{2})\, \p(\di\mu \|I)\, \p(\di\sigma^{2} \|I) \di\mu \di\sigma^{2} \ ,
+  \iint K(x \| \mu, \sigma^{2})\, \p(\mu \|I)\, \p(\sigma^{2} \|I) \di\mu \di\sigma^{2} \ ,
 \end{equation}
 cannot be written in closed form. This density is shown in \fig~\ref{fig:gaussmix} (\textcolor{blue}{solid blue}), upper panel, together with the densities of a Gaussian (\textcolor{purple}{dashed red}), a Cauchy (\textcolor{green}{dot-dashed green}), and a logistic (\textcolor{yellow}{dotted yellow}) distribution having the same median absolute deviation.
 
@@ -1659,7 +1657,7 @@ The quantile function of this Gaussian mixture is also shown in \fig~\ref{fig:ga
 
 \medskip
 
-The combination of prior densities~\eqref{eq:density_w}, \eqref{eq:density_mu}, \eqref{eq:density_sigma} leads to a distribution $\p(\di F\|I)$ of marginal densities $F(\di x)$ for the ordinal and continuous variates discussed in \sects~\ref{sec:variates_ordinal}, \ref{sec:variates_real}, \ref{sec:variates_censored}. These densities are illustrated in \figs~\ref{fig:marginal_integer}, \ref{fig:marginal_real}, \ref{fig:marginal_censored} in the form of 625 samples drawn from them, each sample being a possible distribution $F$.
+The combination of prior densities~\eqref{eq:density_w}, \eqref{eq:density_mu}, \eqref{eq:density_sigma} leads to a distribution $\p(F \|I) \di F$ of marginal density functions $F(x)$ for the ordinal and continuous variates discussed in \sects~\ref{sec:variates_ordinal}, \ref{sec:variates_real}, \ref{sec:variates_censored}. These densities are illustrated in \figs~\ref{fig:marginal_integer}, \ref{fig:marginal_real}, \ref{fig:marginal_censored} in the form of 625 samples drawn from them, each sample being a possible distribution $F$.
 
 %%\setlength{\intextsep}{0ex}% with wrapfigure
 %%\setlength{\columnsep}{0ex}% with wrapfigure
@@ -1691,9 +1689,9 @@ The combination of prior densities~\eqref{eq:density_w}, \eqref{eq:density_mu}, 
 The component distributions for a binary variate, \sect\,\ref{sec:variates_binary}, is a Bernoulli distribution with weight parameter $r \in\clcl{0,1}$. For the density of this parameter we take a uniform distribution on $\clcl{0,1}$, equivalent to a beta distribution with unit shape parameters:
 \begin{equation}
   \label{eq:density_q_bernoulli}
-  \p(\di r\|I) = \di r \ .
+  \p(r\|I)\di r = \di r \ .
 \end{equation}
-This is also the resulting uniform density $\p[\di F(X \mo 1) \|I]$ for the probability of any one of the binary values.
+This also corresponds to a uniform density for the probability of any one of the binary values.
 
 
 \subsubsection{Density for the parameters of the nominal components}
@@ -1702,7 +1700,7 @@ This is also the resulting uniform density $\p[\di F(X \mo 1) \|I]$ for the prob
 Components with nominal variates have a categorical distribution with normalized weights $q \defd (q_{1},\dotsc,q_{n})$, as discussed in \sect\,\ref{sec:variates_nominal}. The density for these weights is a Dirichlet distribution with unit concentration parameter, or equivalently a constant density on the simplex $\set{q}$:
 \begin{equation}
   \label{eq:density_q_nominal}
-  \p(\di q\|I) = \delt\bigl(\tsum_{i}q_{i}-1\bigr) \di q \ .
+  \p(q\|I)\di q\ = \delt\bigl(\tsum_{i}q_{i}-1\bigr) \di q \ .
 \end{equation}
 
 
@@ -1712,11 +1710,13 @@ Components with nominal variates have a categorical distribution with normalized
 \subsection{Conditionally conjugate relationships}
 \label{sec:condition_conj}
 
+\mynotew{To be written}
 
-\subsection{Explicit form of the density $\p(\di F\|D,I)$}
+
+\subsection{Explicit form of the density $\p(F \|D,I) \di F$}
 \label{sec:explicit_posterion_F}
 
-We can now rewrite the density $\p(\di F \| D,I)$ for $F$ conditional on the known units $D$, \eqn~\eqref{eq:common_density}, in terms of the densities specified in \sect\,\ref{cha:repres_F}. Its resulting expression is not immediately intelligible if written in full generality. We therefore introduce some simplifications that still allow us to understand the more general form. First, the variates $Y$ are omitted because they play the same mathematical role as the $X$ variates. Second, we consider the $X$ variates to be five: $X_{\vb},X_{\vc},X_{\vi},X_{\vr},X_{\vd}$, one for each kind discussed in \sects~\ref{sec:variates_binary}--\ref{sec:variates_censored}. Third, we consider all location hyperparameters $\muo$ to be $0$ and all scale hyperparameters $\sigmao$ to be $1$.
+We can now rewrite the density $\p(F  \| D,I) \di F$ for $F$ conditional on the known units $D$, \eqn~\eqref{eq:common_density}, in terms of the densities specified in \sect\,\ref{cha:repres_F}. Its resulting expression is not immediately intelligible if written in full generality. We therefore introduce some simplifications that still allow us to understand the more general form. First, the variates $Y$ are omitted because they play the same mathematical role as the $X$ variates. Second, we consider the $X$ variates to be five: $X_{\vb},X_{\vc},X_{\vi},X_{\vr},X_{\vd}$, one for each kind discussed in \sects~\ref{sec:variates_binary}--\ref{sec:variates_censored}. Third, we consider all location hyperparameters $\muo$ to be $0$ and all scale hyperparameters $\sigmao$ to be $1$.
 
 In this simplified case, the density $F$ is thus represented by
 \begin{equation}
@@ -1726,17 +1726,26 @@ F \corr (w^{c},\, r^{c},\, q^{c},\,
   \mu^{c}, \sigma^{c},\,
   \nu^{c}, \tau^{c}) \ ,
 \end{equation}
-and the density $\p(\di F \| D,I)$ takes on the more explicit expression shown in \eqn~\eqref{eq:posterior_F_explicit}.
+and the density $\p(F  \| D,I) \di F$ takes on the more explicit expression shown in \eqn~\eqref{eq:posterior_F_explicit}.
 
 \begin{table}\label{tab:posterior_F}
+  \mynotew{to be re-checked}
   \begin{multline}
     \label{eq:posterior_F_explicit}
-    \p(\di F \| D, I) \corr
-    \p(\di w, \di r, \di q,
-    \di \lambda, \di \rho,
-    \di \mu, \di \sigma,
-    \di \nu, \di \tau
-    \| D, I) \propto{}\\
+    \p(F  \| D, I) \di F \corr{}
+    \\
+    \shoveleft{
+    \p( w,  r,  q,
+     \lambda,  \rho,
+     \mu,  \sigma,
+     \nu,  \tau
+     \| D, I)
+     \di w \di r \di q
+    \di \lambda \di \rho
+    \di \mu \di \sigma
+    \di \nu \di \tau \propto{}
+    }
+    \\
     \begin{aligned}
       \prod_{u}\Biggl[
       \sum_{c^u}&
@@ -1884,8 +1893,7 @@ and the density $\p(\di F \| D,I)$ takes on the more explicit expression shown i
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%% Appendices
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% 
-%\clearpage
-\bigskip
+\clearpage
 % %\renewcommand*{\appendixpagename}{Appendix}
 % %\renewcommand*{\appendixname}{Appendix}
 % %\appendixpage
