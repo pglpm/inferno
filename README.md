@@ -5,26 +5,36 @@
 [![Documentation](https://img.shields.io/badge/Documentation-blue)](https://pglpm.github.io/inferno/)
 
 This repository provides an R package and some theoretical background for Bayesian nonparametric inference under exchangeability, or "inference about populations".
-The package is under rapid development and has not reached a stable phase. This means that function names and arguments may still change. The package name is also still under consideration. However, the core functionalities and probability calculations work. While the code is still in its '0.X' phase, we recommend contacting the developers if you want to start using the package for a research project. We would love more "beta-testers"!
+The package is under rapid development and has not reached a stable phase. This means that function names and arguments may still change. More tutorials will be added. The package name is also still under consideration.
+
+The core functionalities do work, however, and have been tested on concrete research questions; see references below. If you want to test the package, he developer would be very happy to help in resolving possible issues and in better understanding the functionalities.
 
 ## Contact
 
 Please report bugs and request features or specific documentation on [GitHub Issues](https://github.com/pglpm/inferno/issues).
-If you have other questions about application, theory, technical implementation, feel free to contact Luca <pgl@ZZportamana.orgZZ> (remove 'ZZ', for anti-spam purposes).
+If you have other questions about application, theory, technical implementation, feel free to contact Luca <pglXYZ@portamanaXYZ.org> (remove 'XYZ' for anti-spam purposes).
 
 ## Documentation
-View the documentation at [pglpm.github.io/inferno](https://pglpm.github.io/inferno). As the code is still very much in the development phase the documentation is also a work in progress.
-Tutorials will be posted as soon as possible. Feel free to take a look at the [draft on the theoretical foundation](https://github.com/pglpm/inferno/raw/main/development/manual/optimal_predictor_machine.pdf).
+Documentation and some tutorials are available at [pglpm.github.io/inferno](https://pglpm.github.io/inferno). These are also work in progress.
 
-For a low-level course on Bayesian nonparametric population inference see [Foundations of data science](https://pglpm.github.io/ADA511).
+A summary of the theoretical foundations, including further references, is available in [this draft](https://github.com/pglpm/inferno/raw/main/development/manual/optimal_predictor_machine.pdf). The main idea for the internal mathematical representation comes from Dunson & Bhattacharya: [*Nonparametric Bayes regression and classification through mixtures of product kernels*](https://doi.org/10.1093/acprof:oso/9780199694587.003.0005).
+
+For a low-level course on Bayesian nonparametric inference see [Foundations of data science](https://pglpm.github.io/ADA511).
 
 
-A concrete example application in medicine is given in [this paper](https://doi.org/10.31219/osf.io/8nr56); example applications in machine learning are [this paper](https://doi.org/10.31219/osf.io/7rz8t) and [this paper](https://doi.org/10.31219/osf.io/vct9y).
+## Example applications
+
+- [*Personalized prognosis & treatment using an optimal predictor machine: An example study on conversion from Mild Cognitive Impairment to Alzheimer's Disease*](https://doi.org/10.31219/osf.io/8nr56).
+
+- [*Don't guess what's true: choose what's optimal. A probability transducer for machine-learning classifiers*](https://doi.org/10.31219/osf.io/vct9y)
+
+- [*Does the evaluation stand up to evaluation? A first-principle approach to the evaluation of classifiers*](https://doi.org/10.31219/osf.io/7rz8t)
+
 
 Projects using ***Inferno***:
 
-- [InfernoCalibNet](https://m4siko.github.io/InfernoCalibNet)
-- [parkinsonbayes](https://github.com/pglpm/parkinsonbayes)
+- [InfernoCalibNet](https://m4siko.github.io/InfernoCalibNet).
+- [parkinsonbayes](https://github.com/pglpm/parkinsonbayes).
 
 ## Installation
 Install the package with R by using the `remotes` package:
