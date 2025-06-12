@@ -2,17 +2,11 @@
 
 # Inferno: ***Infer***ence in ***R*** with Bayesian ***no***nparametrics
 
-[![Documentation](https://img.shields.io/badge/Documentation-blue)](https://pglpm.github.io/inferno/)
 
 This repository provides an R package and some theoretical background for Bayesian nonparametric inference under exchangeability, or "inference about populations".
 The package is under rapid development and has not reached a stable phase. This means that function names and arguments may still change. More tutorials will be added. The package name is also still under consideration.
 
 The core functionalities do work, however, and have been tested on concrete research questions; see references below. If you want to test the package, he developer would be very happy to help in resolving possible issues and in better understanding the functionalities.
-
-## Contact
-
-Please report bugs and request features or specific documentation on [GitHub Issues](https://github.com/pglpm/inferno/issues).
-If you have other questions about application, theory, technical implementation, feel free to contact Luca <pglXYZ@portamanaXYZ.org> (remove 'XYZ' for anti-spam purposes).
 
 ## Documentation
 Documentation and some tutorials are available at [pglpm.github.io/inferno](https://pglpm.github.io/inferno). These are also work in progress.
@@ -63,3 +57,10 @@ An application has been built upon ***Inferno***. This app can be used for testi
 
 ### Cross-Platform Open Source Version
 * For Windows, macOS, and Linux, you can run the PySide6 app locally using Python by following this: [Setup Guide](https://github.com/h587916/Inferno-App?tab=readme-ov-file#inferno-app).
+
+
+## Contact
+
+Please report bugs and request features or specific documentation on [GitHub Issues](https://github.com/pglpm/inferno/issues).
+If you have other questions about application, theory, technical implementation, feel free to contact Luca <pglXYZ@portamanaXYZ.org> (remove 'XYZ' for anti-spam purposes).
+
