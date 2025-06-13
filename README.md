@@ -6,7 +6,7 @@
 This repository provides an R package and some theoretical background for Bayesian nonparametric inference under exchangeability, or "inference about populations".
 The package is under rapid development and has not reached a stable phase. This means that function names and arguments may still change. More tutorials will be added. The package name is also still under consideration.
 
-The core functionalities do work, however, and have been tested on concrete research questions; see references below. If you want to test the package, he developer would be very happy to help in resolving possible issues and in better understanding the functionalities.
+The core functionalities do work, however, and have been tested on concrete research questions; see references below. If you want to test the package, we would be very happy to help in resolving possible issues and in understanding the functionalities.
 
 ## Documentation
 Documentation and some tutorials are available at [pglpm.github.io/inferno](https://pglpm.github.io/inferno). These are also work in progress.
@@ -50,7 +50,7 @@ install.packages(pkgs='path/to/inferno', repos=NULL)
 the installation will automatically also install all required R-dependencies.
 
 ## Inferno App
-An application has been built upon ***Inferno***. This app can be used for testing out the features of ***Inferno*** with just a few button clicks, without having to write any code in R yourself. 
+An application has been built upon ***Inferno***. This app can be used for testing out the features of ***Inferno*** with just a few button clicks, without having to write any code in R yourself.
 
 ### Desktop Application
 * Currently available for Windows and MacOS. Download and install the desktop application by following this: [Installation Guide](https://github.com/h587916/Inferno-App/releases/tag/1.0.0).
