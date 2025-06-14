@@ -3,6 +3,6 @@
 "island","nominal",,,,,,"Biscoe","Dream","Torgersen",,,,,,,,
 "bill_len","continuous",0,,0.1,,,,,,,,,,,,,
 "bill_dep","continuous",0,,0.1,,,,,,,,,,,,,
-"flipper_len","continuous",0,,1,,,,,,,,,,,,,
-"body_mass","continuous",0,,25,,,,,,,,,,,,,
+"flipper_len","ordinal",190,222,1,,,,,,,,,,,,,
+"body_mass","ordinal",3650,5650,25,,,,,,,,,,,,,
 "sex","nominal",,,,,,"female","male",,,,,,,,,
