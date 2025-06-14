@@ -12,6 +12,8 @@
   lty = c(1, 2, 4, 3, 6, 5),
   lwd = 2,
   col = palette(),
+  alpha.f = 1,
+  var.alpha.f = 0.25,
   xlab = NULL,
   ylab = NULL,
   ylim = c(0, NA),
@@ -28,6 +30,10 @@
 \item{PvsY}{logical or \code{NULL}: should probabilities be plotted against their \code{Y} argument? If \code{NULL}, the argument between \code{Y} and \code{X} having larger number of values is chosen. As many probability curves will be plotted as the number of values of the other argument.}
 
 \item{legend}{string or logical: plot a legend of the different curves at position \code{legend}? If \code{TRUE}, position is 'top'.}
+
+\item{alpha.f}{Numeric, default 0.25: opacity of the colours, \code{0} being completely invisible and \code{1} completely opaque.}
+
+\item{var.alpha.f}{Numeric, default 0.25: opacity of the quantile bands or of the samples, \code{0} being completely invisible and \code{1} completely opaque.}
 
 \item{...}{other parameters to be passed to \code{\link[base]{matplot}}.}
 }

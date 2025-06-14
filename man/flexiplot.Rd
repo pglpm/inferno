@@ -16,6 +16,7 @@ flexiplot(
   lty = c(1, 2, 4, 3, 6, 5),
   lwd = 2,
   col = palette(),
+  alpha.f = 1,
   grid = TRUE,
   add = FALSE,
   ...
@@ -33,6 +34,8 @@ flexiplot(
 \item{xlim}{\code{NULL} (default) or a vector of two values. In the latter case, if any of the two values is not finite (including \code{NA} or \code{NULL}), then the \code{min} or \code{max} x-coordinate of the plotted points is used.}
 
 \item{ylim}{\code{NULL} (default) or a vector of two values. Like argument \code{xlim}, but for the y-coordinates.}
+
+\item{alpha.f}{Numeric, default 1: opacity of the colours, \code{0} being completely invisible and \code{1} completely opaque.}
 
 \item{grid}{Logical: whether to plot a light grid. Default \code{TRUE}.}
 

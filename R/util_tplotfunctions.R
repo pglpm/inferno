@@ -9,6 +9,7 @@
 #' @param xlim `NULL` (default) or a vector of two values. In the latter case, if any of the two values is not finite (including `NA` or `NULL`), then the `min` or `max` x-coordinate of the plotted points is used.
 #' @param ylim `NULL` (default) or a vector of two values. Like argument `xlim`, but for the y-coordinates.
 #' @param grid Logical: whether to plot a light grid. Default `TRUE`.
+#' @param alpha.f Numeric, default 1: opacity of the colours, `0` being completely invisible and `1` completely opaque.
 #' @param ... Other parameters to be passed to \code{\link[base]{matplot}}.
 #'
 #' @export
@@ -21,6 +22,7 @@ flexiplot <- function(
     lty = c(1, 2, 4, 3, 6, 5),
     lwd = 2,
     col = palette(),
+    alpha.f = 1,
     ## c( ## Tol's colour-blind-safe scheme
     ##     '#4477AA',
     ##     '#EE6677',
@@ -73,6 +75,9 @@ flexiplot <- function(
         if(is.null(ylim[1]) || !is.finite(ylim[1])){ ylim[1] <- min(y[is.finite(y)]) }
         if(is.null(ylim[2]) || !is.finite(ylim[2])){ ylim[2] <- max(y[is.finite(y)]) }
     }
+
+    if(is.na(alpha.f)){alpha.f <- 1}
+    col <- adjustcolor(col, alpha.f = alpha.f)
 
     graphics::matplot(x, y, xlim = xlim, ylim = ylim, type = type, axes = F,
         col = col, lty = lty, lwd = lwd, pch = pch, add = add, ...)
@@ -129,8 +134,8 @@ plotquantiles <- function(
 
     ##
     ## col[!grepl('^#',col)] <- palette()[as.numeric(col[!grepl('^#',col)])]
-    if(is.na(alpha.f)){alpha.f <- 1}
-    col <- adjustcolor(col, alpha.f = alpha.f)
+    ## if(is.na(alpha.f)){alpha.f <- 1}
+    ## col <- adjustcolor(col, alpha.f = alpha.f)
     ## if(is.na(alpha)){alpha <- ''}
     ## else if(!is.character(alpha)){alpha <- alpha2hex(alpha)}
     ## if(!(is.na(col) | nchar(col)>7)){col <- paste0(col, alpha)}
@@ -145,7 +150,8 @@ plotquantiles <- function(
         ## (think of values like 'low', 'medium', 'high')
         x <- as.numeric(factor(x, levels = xdomain))
     }
-
+    if(is.na(alpha.f)){alpha.f <- 1}
+    col <- adjustcolor(col, alpha.f = alpha.f)
     for(ii in seq_len(nquant/2)) {
         graphics::polygon(x=c(x, rev(x)), y=c(y[,ii], rev(y[, nquant + 1 - ii])),
             col = col, border = border)
@@ -160,6 +166,8 @@ plotquantiles <- function(
 #' @param variability one of the values `"quantiles"`, `"samples"`, `"none"` (equivalent to `NA` or `FALSE`), or `NULL` (default), in which case the variability available in `p` is used. This argument chooses how to represent the variability of the probability; see \code{\link{Pr}}. If the requested variability is not available in the object `p`, then a warning is issued and no variability is plotted.
 #' @param PvsY logical or `NULL`: should probabilities be plotted against their `Y` argument? If `NULL`, the argument between `Y` and `X` having larger number of values is chosen. As many probability curves will be plotted as the number of values of the other argument.
 #' @param legend string or logical: plot a legend of the different curves at position `legend`? If `TRUE`, position is 'top'.
+#' @param alpha.f Numeric, default 0.25: opacity of the colours, `0` being completely invisible and `1` completely opaque.
+#' @param var.alpha.f Numeric, default 0.25: opacity of the quantile bands or of the samples, `0` being completely invisible and `1` completely opaque.
 #' @param ... other parameters to be passed to \code{\link[base]{matplot}}.
 #'
 #' @export
@@ -179,6 +187,8 @@ plot.probability <- function(
     ##     '#66CCEE',
     ##     '#AA3377' #, '#BBBBBB'
     ## ),
+    alpha.f = 1,
+    var.alpha.f = 0.25,
     xlab = NULL,
     ylab = NULL,
     ylim = c(0, NA),
@@ -308,6 +318,7 @@ plot.probability <- function(
         for(i in seq_len(dim(pvar)[2])){
             plotquantiles(x = unlist(x), y = pvar[, i, ],
                 col = col[(i - 1) %% length(col) + 1],
+                alpha.f = var.alpha.f,
                 lty =  lty[(i - 1) %% length(lty) + 1],
                 xlab = xlab,
                 ylab = ylab,
@@ -322,8 +333,8 @@ plot.probability <- function(
         nx <- dim(pvar)[2]
         dim(pvar) <- c(dim(pvar)[1], prod(dim(pvar)[-1]))
         flexiplot(x = x, y = pvar,
-            col = adjustcolor(col[(seq_len(nx) - 1) %% length(col) + 1],
-                alpha.f = 0.25),
+            col = col[(seq_len(nx) - 1) %% length(col) + 1],
+            alpha.f = var.alpha.f,
             lty =  lty[(seq_len(nx) - 1) %% length(lty) + 1],
             lwd = lwd[(seq_len(nx) - 1) %% length(lwd) + 1] / 4,
             xlab = xlab,
@@ -339,6 +350,7 @@ plot.probability <- function(
     if(length(p$values) > 1){
         flexiplot(x = x, y = p$values,
             col = col,
+            alpha.f = alpha.f,
             lty = lty,
             lwd = lwd,
             xlab = xlab,
