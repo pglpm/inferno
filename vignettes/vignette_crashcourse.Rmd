@@ -71,7 +71,7 @@ Later on we shall include an additional variate:
 
 because there could be time trends in the values we observe. For instance, a particular species might have more females than males during one year, and vice versa during another year.
 
-#### "Population"?
+### "Population"?
 
 The question of time-trends leads us to more general considerations and questions about statistical research, which unfortunately are often forgotten.
 
@@ -83,7 +83,7 @@ It is practically impossible to specify an exact criterion for membership in a p
 
 The intrinsic and unavoidable problem in the specification of a population has important consequences for the way we observe and measure the population and its variates. We now turn to this problem.
 
-#### Sampling
+### Sampling
 
 Our questions **Q1** and **Q2** could have *exact statistical answers* if we had a *complete census* of the penguin population; that is, if we went and "measured" the values of the variates in each and every penguin of the population.
 
@@ -125,7 +125,7 @@ There are two preliminary steps that we usually must follow to perform an analys
 1. Determine and prepare the **metadata** about the variates of interest.
 2. Perform the general inference about the whole population from the sampled data; we shall call this **learning** from the sample data.
 
-#### Metadata preparation
+### Metadata preparation
 
 Metadata are "data about the data". They are provided in a CSV file respecting the [formatting rules](#format) and consist of around eight pieces of information about the variates of our population. Specifically:
 
@@ -193,15 +193,98 @@ knitr::kable(dat, row.names = FALSE)
 Later on we shall add the variate `year` to the metadata file.
 
 
-#### Learning and extrapolating from the sample data
+### "Learning" and extrapolating from the sample data
 
-Now comes the essential part of our analysis: from the sample data and the metadata information,***inferno*** will draw inferences about the *whole* population of penguin that we have specified. 
+Now comes the essential part of our analysis: from the sample data and the metadata information,***inferno*** will draw inferences about the *whole* population of penguins, including new penguins (from the same population) that we shall observe in the future. Subsequent analyses are based on this main inference. The general theory behind this kind of inference, based on the property of *exchangeability* and related mathematical theorems, is explained in the [references](#references).
+
+This inference is performed by calling the `learn()` function. Its minimal arguments are three: the sample `data`, the `metadata`, and the name `outputdir` of a directory where the inference results should be saved; some additional information will be suffixed to this directory name. We can also give a numeric `seed` argument if we want to reproduce the same output in another run.
+
+This function does Monte Carlo sampling and is computationally expensive. It may take minutes, hours, or days to run, depending on the amount of sample data and the number of variates. In order to speed up its computations, it tries to use any multi-cores capabilities of the machine it runs in. The output shown below was obtained from running it on 15 cores:
+
+```{r eval = FALSE}
+learnt <- learn(
+    data = datafile,
+    metadata = metadatafile,
+    outputdir = 'penguin_inference',
+    seed = 16,
+    parallel = 15)
+#> 
+#> Registered doParallelSNOW with 15 workers
+#> Warning: data have additional variates. Dropping them.
+#> Calculating auxiliary metadata
+#> 
+#> Learning:  10 datapoints,  7 variates
+#> 
+#>  ********************************************************* 
+#>  Saving output in directory
+#>  penguin_inference-251231T130101-vrt7_dat10_smp3600 
+#>  ********************************************************* 
+#> Starting Monte Carlo sampling of 3600 samples by 60 chains
+#> in a space of 899 (effectively 3717) dimensions.
+#> Using 15 cores: 60 samples per chain, max 4 chains per core.
+#> Core logs are being saved in individual files.
+#> 
+#> C-compiling samplers appropriate to the variates (package Nimble)
+#> this can take tens of minutes. Please wait...
+#> Compiled core 1. Number of samplers: 1012.
+#> Estimating remaining time, please be patient...
+#> Sampling. Core 12 estimated end time: 2025-31-12 13:04
+#> Finished Monte Carlo sampling.
+#> 
+#> Max number of Monte Carlo iterations across chains: 5033
+#> Max number of used mixture components: 8
+#> 
+#> Checking test data
+#> ( #1 #3 #4 #6 #7 #8 #9 #10 )
+#> 
+#> rel. MC standard error: min: 0.019  max: 0.034  mean: 0.026
+#> eff. sample size: min: 860  max: 2700  mean: 1700
+#> needed thinning: min: 2  max: 7  mean: 4.5
+#> average: min: 6.5e-08  max: 3.2e-07  mean: 1.7e-07
+#> 
+#> Plotting final Monte Carlo traces and marginal samples...
+#> 
+#> Total computation time: 2.2 mins
+#> Average total time per chain: 0.037 mins
+#> 
+#> Removing temporary output files.
+#> Finished.
+#> 
+#> 
+#> Closing connections to cores.
+```
+
+The initial output gives a summary of the sample size, number of variates, saving directory, and other computational details. The "`estimated end time`" line updates from time to time with a better estimate of the computation's end time. Once the computation is finished, some final information about the underlying Monte Carlo computation is provided.^[For the Monte Carlo expert will notice that the effective sample size is around 900 or more. The Monte Carlo sampling is designed to stop when 3600 samples have been obtained with an effective sample size of at least 400, or equivalently a relative Monte Carlo standard error under 0.05. This is enough, considering that the statistical uncertainty in the results can be tens or hundreds of times larger than this. The desired number of samples and maximal Monte Carlo standard error can be specified with the `nsamples` and `relerror` arguments.] Note that the inference above, with 10 sample data and 7 variates, took a couple of minutes to complete on 15 cores.
+
+The results of this main inference are now stored in the compressed file '`learn.rds`' (around 30 MB) within the specified output directory. The name of this directory is also saved as the final value of the `learnt()` function, which we saved in the `learnt` variable in the code above.
+
 
 
 \
+
+*(TO BE CONTINUED)*
+
 \
 
-----
+## References {#references}
+
+Bernardo, Smith: [*Bayesian Theory*](https://doi.org/10.1002/9780470316870) (repr. 2000). See especially §§ 4.2--4.3, 4.6.
+
+Dawid: [*Exchangeability and its ramifications*](https://doi.org/10.1093/acprof:oso/9780199695607.003.0002) (2013).
+
+de Finetti: [*La prévision: ses lois logiques, ses sources subjectives*](https://www.numdam.org/item/AIHP_1937__7_1_1_0) (1937).
+
+Heath, Sudderth: [*De Finetti's theorem on exchangeable variables*](https://doi.org/10.1080/00031305.1976.10479175) (1976).
+
+Hewitt, Savage: [*Symmetric measures on Cartesian products*](https://doi.org/10.1090/S0002-9947-1955-0076206-8) (1955).
+
+Lindley, Novick: [*The role of exchangeability in inference*](https://doi.org/10.1214/aos/1176345331) (1981).
+
+
+\
+***inferno*** accompanying manual: [*Foundations of inference under symmetry*](https://github.com/pglpm/inferno/raw/main/development/manual/optimal_predictor_machine.pdf) (draft).
+
+\
 
 ## Format for data and metadata files and their contents {#format}
 
@@ -214,8 +297,9 @@ The functions of the ***inferno*** package accept CSV files formatted as follows
 
 Names of variates and character variate values should be strings conforming to [R's rules](https://cran.r-project.org/doc/FAQ/R-FAQ.html#What-are-valid-names_003f).
 
-*(TO BE CONTINUED)*
+\
 
+### Footnotes
 
 <!-- 
 
