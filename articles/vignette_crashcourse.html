@@ -5,12 +5,12 @@
 <meta charset="utf-8">
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-<title>A crash course in population inference • inferno</title>
+<title>A crash course in Bayesian nonparametric inference with inferno • inferno</title>
 <script src="../deps/jquery-3.6.0/jquery-3.6.0.min.js"></script><meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 <link href="../deps/bootstrap-5.3.1/bootstrap.min.css" rel="stylesheet">
 <script src="../deps/bootstrap-5.3.1/bootstrap.bundle.min.js"></script><link href="../deps/font-awesome-6.5.2/css/all.min.css" rel="stylesheet">
 <link href="../deps/font-awesome-6.5.2/css/v4-shims.min.css" rel="stylesheet">
-<script src="../deps/headroom-0.11.0/headroom.min.js"></script><script src="../deps/headroom-0.11.0/jQuery.headroom.min.js"></script><script src="../deps/bootstrap-toc-1.0.1/bootstrap-toc.min.js"></script><script src="../deps/clipboard.js-2.0.11/clipboard.min.js"></script><script src="../deps/search-1.0.0/autocomplete.jquery.min.js"></script><script src="../deps/search-1.0.0/fuse.min.js"></script><script src="../deps/search-1.0.0/mark.min.js"></script><!-- pkgdown --><script src="../pkgdown.js"></script><meta property="og:title" content="A crash course in population inference">
+<script src="../deps/headroom-0.11.0/headroom.min.js"></script><script src="../deps/headroom-0.11.0/jQuery.headroom.min.js"></script><script src="../deps/bootstrap-toc-1.0.1/bootstrap-toc.min.js"></script><script src="../deps/clipboard.js-2.0.11/clipboard.min.js"></script><script src="../deps/search-1.0.0/autocomplete.jquery.min.js"></script><script src="../deps/search-1.0.0/fuse.min.js"></script><script src="../deps/search-1.0.0/mark.min.js"></script><!-- pkgdown --><script src="../pkgdown.js"></script><meta property="og:title" content="A crash course in Bayesian nonparametric inference with inferno">
 </head>
 <body>
     <a href="#main" class="visually-hidden-focusable">Skip to contents</a>
@@ -33,7 +33,7 @@
 <li class="active nav-item dropdown">
   <button class="nav-link dropdown-toggle" type="button" id="dropdown-articles" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Articles</button>
   <ul class="dropdown-menu" aria-labelledby="dropdown-articles">
-<li><a class="dropdown-item" href="../articles/vignette_crashcourse.html">A crash course in population inference</a></li>
+<li><a class="dropdown-item" href="../articles/vignette_crashcourse.html">A crash course in Bayesian nonparametric inference with inferno</a></li>
     <li><a class="dropdown-item" href="../articles/vignette_mutualinfo.html">Associations of variates with mutual information</a></li>
     <li><a class="dropdown-item" href="../articles/vignette_parkinson.html">Example of use: inferences for Parkinson's Disease</a></li>
     <li><a class="dropdown-item" href="../articles/vignette_start.html">Example of use: inferno for penguins</a></li>
@@ -58,7 +58,7 @@
 <div class="row">
   <main id="main" class="col-md-9"><div class="page-header">
 
-      <h1>A crash course in population inference</h1>
+      <h1>A crash course in Bayesian nonparametric inference with inferno</h1>
             
       
       <small class="dont-index">Source: <a href="https://github.com/pglpm/inferno/blob/main/vignettes/vignette_crashcourse.Rmd" class="external-link"><code>vignettes/vignette_crashcourse.Rmd</code></a></small>
@@ -72,9 +72,9 @@
 </h2>
 <p>This vignette gives an introduction and guide to the kinds of
 <em>Bayesian nonparametric inference</em> that can be done with
-<strong><em>Inferno</em></strong>, by means of a concrete example. It
+<strong><em>inferno</em></strong>, by means of a concrete example. It
 also has the purpose to clarify, by means of examples, the terminology
-used in the <strong><em>Inferno</em></strong> package.</p>
+used in the <strong><em>inferno</em></strong> package.</p>
 <p>It is of course impossible to summarize this branch of probability
 theory and of statistics in a couple of sections; you’re invited to
 learn more for instance from the <a href="https://pglpm.github.io/ADA511" class="external-link">ADA 511</a> course, or from texts
@@ -260,7 +260,9 @@ truth.</p>
 <div class="section level2">
 <h2 id="first-analysis">First analysis<a class="anchor" aria-label="anchor" href="#first-analysis"></a>
 </h2>
-<p>We receive the first 10 datapoints. Here they are:</p>
+<p>We receive the first 10 datapoints. They are stored in the file
+<code>'penguindata2007_10.csv'</code>, respecting the <a href="#format">formatting rules required by
+<strong><em>inferno</em></strong></a>. Here they are:</p>
 <table style="width:100%;" class="table">
 <colgroup>
 <col width="4%">
@@ -385,30 +387,31 @@ truth.</p>
 </tr>
 </tbody>
 </table>
-<p>And with these datapoints we start our Bayesian nonparametric
-analysis using <strong><em>inferno</em></strong>! There are two
-preliminary steps that we usually must follow to perform an
-analysis:</p>
+<p>With these datapoints we start our Bayesian nonparametric analysis
+using <strong><em>inferno</em></strong>! Let’s load the package:</p>
+<div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/pglpm/inferno/" class="external-link">inferno</a></span><span class="op">)</span></span></code></pre></div>
+<p>There are two preliminary steps that we usually must follow to
+perform an analysis:</p>
 <ol style="list-style-type: decimal">
 <li>Determine and prepare the <strong>metadata</strong> about the
 variates of interest.</li>
 <li>Perform the general inference about the whole population from the
-sampled data; we shall call this <strong>learning</strong>from the
+sampled data; we shall call this <strong>learning</strong> from the
 sample data.</li>
 </ol>
 <div class="section level4">
-<h4 id="metadata">Metadata<a class="anchor" aria-label="anchor" href="#metadata"></a>
+<h4 id="metadata-preparation">Metadata preparation<a class="anchor" aria-label="anchor" href="#metadata-preparation"></a>
 </h4>
-<p>Metadata are “data about the data”. They consist of around eight
-pieces of information about the variates of our population.
+<p>Metadata are “data about the data”. They are provided in a CSV file
+respecting the <a href="#format">formatting rules</a> and consist of
+around eight pieces of information about the variates of our population.
 Specifically:</p>
 <dl>
 <dt>Variate name (<code>name</code>)</dt>
 <dd>
 This is a character or string: name of a variate. Different variates
-should obviously have different names. It’s advisable to choose names
-conforming to <a href="https://cran.r-project.org/doc/FAQ/R-FAQ.html#What-are-valid-names_003f" class="external-link">R’s
-rules</a>.
+should obviously have different names.
 </dd>
 <dt>Variate type (<code>type</code>)</dt>
 <dd>
@@ -479,17 +482,521 @@ or more”; in such case we must make sure to state that
 </dd>
 <dt>Values (<code>V1</code>, <code>V2</code>, …)</dt>
 <dd>
-These are characters or strings, conforming to <a href="https://cran.r-project.org/doc/FAQ/R-FAQ.html#What-are-valid-names_003f" class="external-link">R’s
-rules</a>, and only defined for nominal or non-numeric ordinal variates.
-They are the values that a nominal or ordinal variate can <em>in
-principle</em> take on in the population of interest. Note that they are
-include not only the values that are observed in a sample, but also
-those that could be observed in the rest of the population. A nominal or
-ordinal variate must have at least two distinct values; it wouldn’t make
-much sense to draw inferences about it otherwise.
+These are characters or strings, only defined for nominal or non-numeric
+ordinal variates. They are the values that a nominal or ordinal variate
+can <em>in principle</em> take on in the population of interest. Note
+that they are include not only the values that are observed in a sample,
+but also those that could be observed in the rest of the population. A
+nominal or ordinal variate must have at least two distinct values; it
+wouldn’t make much sense to draw inferences about it otherwise.
 </dd>
 </dl>
+<p>Why does <strong><em>inferno</em></strong> need metadata? Because it
+performs <em>nonparametric</em> inference. In other words, it does not
+assume the frequency distribution of the variates in the whole
+population to have any specific class of shapes, such as a Gaussians. It
+tries to extrapolate the frequency distribution of the whole population
+from the sample data provided. We must therefore provide to it the same
+general information that we have about the variates, and about any
+artificial modifications performed on their values, such as rounding or
+pooling.</p>
+<p>In order to prepare the metadata file we can use the
+<code><a href="../reference/metadatatemplate.html">metadatatemplate()</a></code> helper function. This function reads the
+sample data and prepares a preliminary file containing heuristic
+<em>guesses</em> about the metadata, which we’ll have to check and
+correct. The function motivates its guesses and warns about especially
+uncertain ones:</p>
+<div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">datafile</span> <span class="op">&lt;-</span> <span class="st">'penguindata2007_10.csv'</span></span>
+<span><span class="va">metadatafile</span> <span class="op">&lt;-</span> <span class="st">'penguinmetadata.csv'</span></span>
+<span><span class="fu"><a href="../reference/metadatatemplate.html">metadatatemplate</a></span><span class="op">(</span>data <span class="op">=</span> <span class="va">datafile</span>, file <span class="op">=</span> <span class="va">metadatafile</span><span class="op">)</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; Analyzing 8 variates for 10 datapoints.</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; * "species" variate:</span></span>
+<span><span class="co">#&gt;   -  3 different  non-numeric  values detected:</span></span>
+<span><span class="co">#&gt;  "Adelie", "Chinstrap", "Gentoo" </span></span>
+<span><span class="co">#&gt;   which do not seem to refer to an ordered scale.</span></span>
+<span><span class="co">#&gt;   Assuming variate to be NOMINAL.</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; * "island" variate:</span></span>
+<span><span class="co">#&gt;   -  3 different  non-numeric  values detected:</span></span>
+<span><span class="co">#&gt;  "Biscoe", "Dream", "Torgersen" </span></span>
+<span><span class="co">#&gt;   which do not seem to refer to an ordered scale.</span></span>
+<span><span class="co">#&gt;   Assuming variate to be NOMINAL.</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; * "bill_len" variate:</span></span>
+<span><span class="co">#&gt;   - Numeric values between 38.6 and 52 </span></span>
+<span><span class="co">#&gt;   Assuming variate to be CONTINUOUS.</span></span>
+<span><span class="co">#&gt;   - Distance between datapoints is a multiple of 0.1 </span></span>
+<span><span class="co">#&gt;   Assuming variate to be ROUNDED.</span></span>
+<span><span class="co">#&gt;   - All values are positive</span></span>
+<span><span class="co">#&gt;   Assuming "domainmin" to be 0</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; * "bill_dep" variate:</span></span>
+<span><span class="co">#&gt;   - Numeric values between 13.1 and 21.2 </span></span>
+<span><span class="co">#&gt;   Assuming variate to be CONTINUOUS.</span></span>
+<span><span class="co">#&gt;   - Distance between datapoints is a multiple of 0.1 </span></span>
+<span><span class="co">#&gt;   Assuming variate to be ROUNDED.</span></span>
+<span><span class="co">#&gt;   - All values are positive</span></span>
+<span><span class="co">#&gt;   Assuming "domainmin" to be 0</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; * "flipper_len" variate:</span></span>
+<span><span class="co">#&gt;   - Only 9 different numeric values detected:</span></span>
+<span><span class="co">#&gt; from 190 to 222 in steps of 1 </span></span>
+<span><span class="co">#&gt;   Assuming variate to be ORDINAL.</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; * "body_mass" variate:</span></span>
+<span><span class="co">#&gt;   - Only 9 different numeric values detected:</span></span>
+<span><span class="co">#&gt; from 3650 to 5650 in steps of 25 </span></span>
+<span><span class="co">#&gt;   Assuming variate to be ORDINAL.</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; * "sex" variate:</span></span>
+<span><span class="co">#&gt;   -  2 different  values detected:</span></span>
+<span><span class="co">#&gt;  "female", "male" </span></span>
+<span><span class="co">#&gt;   which do not seem to refer to an ordered scale.</span></span>
+<span><span class="co">#&gt;   Assuming variate to be NOMINAL.</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; * "year" variate:</span></span>
+<span><span class="co">#&gt;   Only one value present.</span></span>
+<span><span class="co">#&gt; =========</span></span>
+<span><span class="co">#&gt; WARNINGS - please make sure to check these variates in the metadata file:</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; * "year" variate does not have at least two distinct values.</span></span>
+<span><span class="co">#&gt; Discarded because non-informative.</span></span>
+<span><span class="co">#&gt; Please insert its characteristics by hand in the metadata file.</span></span>
+<span><span class="co">#&gt; =========</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; Saved proposal metadata file as "penguinmetadata.csv"</span></span></code></pre></div>
+<p>Here is the preliminary metadata file created by this helper
+function:</p>
+<table style="width:100%;" class="table">
+<colgroup>
+<col width="9%">
+<col width="8%">
+<col width="7%">
+<col width="7%">
+<col width="6%">
+<col width="9%">
+<col width="9%">
+<col width="5%">
+<col width="7%">
+<col width="7%">
+<col width="2%">
+<col width="2%">
+<col width="2%">
+<col width="2%">
+<col width="2%">
+<col width="2%">
+<col width="3%">
+<col width="3%">
+</colgroup>
+<thead><tr class="header">
+<th align="left">name</th>
+<th align="left">type</th>
+<th align="right">domainmin</th>
+<th align="right">domainmax</th>
+<th align="right">datastep</th>
+<th align="right">minincluded</th>
+<th align="right">maxincluded</th>
+<th align="left">V1</th>
+<th align="left">V2</th>
+<th align="left">V3</th>
+<th align="right">V4</th>
+<th align="right">V5</th>
+<th align="right">V6</th>
+<th align="right">V7</th>
+<th align="right">V8</th>
+<th align="right">V9</th>
+<th align="right">V10</th>
+<th align="right">V11</th>
+</tr></thead>
+<tbody>
+<tr class="odd">
+<td align="left">species</td>
+<td align="left">nominal</td>
+<td align="right"></td>
+<td align="right"></td>
+<td align="right"></td>
+<td align="right"></td>
+<td align="right"></td>
+<td align="left">Adelie</td>
+<td align="left">Chinstrap</td>
+<td align="left">Gentoo</td>
+<td align="right"></td>
+<td align="right"></td>
+<td align="right"></td>
+<td align="right"></td>
+<td align="right"></td>
+<td align="right"></td>
+<td align="right"></td>
+<td align="right"></td>
+</tr>
+<tr class="even">
+<td align="left">island</td>
+<td align="left">nominal</td>
+<td align="right"></td>
+<td align="right"></td>
+<td align="right"></td>
+<td align="right"></td>
+<td align="right"></td>
+<td align="left">Biscoe</td>
+<td align="left">Dream</td>
+<td align="left">Torgersen</td>
+<td align="right"></td>
+<td align="right"></td>
+<td align="right"></td>
+<td align="right"></td>
+<td align="right"></td>
+<td align="right"></td>
+<td align="right"></td>
+<td align="right"></td>
+</tr>
+<tr class="odd">
+<td align="left">bill_len</td>
+<td align="left">continuous</td>
+<td align="right">0</td>
+<td align="right"></td>
+<td align="right">0.1</td>
+<td align="right"></td>
+<td align="right"></td>
+<td align="left"></td>
+<td align="left"></td>
+<td align="left"></td>
+<td align="right"></td>
+<td align="right"></td>
+<td align="right"></td>
+<td align="right"></td>
+<td align="right"></td>
+<td align="right"></td>
+<td align="right"></td>
+<td align="right"></td>
+</tr>
+<tr class="even">
+<td align="left">bill_dep</td>
+<td align="left">continuous</td>
+<td align="right">0</td>
+<td align="right"></td>
+<td align="right">0.1</td>
+<td align="right"></td>
+<td align="right"></td>
+<td align="left"></td>
+<td align="left"></td>
+<td align="left"></td>
+<td align="right"></td>
+<td align="right"></td>
+<td align="right"></td>
+<td align="right"></td>
+<td align="right"></td>
+<td align="right"></td>
+<td align="right"></td>
+<td align="right"></td>
+</tr>
+<tr class="odd">
+<td align="left">flipper_len</td>
+<td align="left">ordinal</td>
+<td align="right">190</td>
+<td align="right">222</td>
+<td align="right">1.0</td>
+<td align="right"></td>
+<td align="right"></td>
+<td align="left"></td>
+<td align="left"></td>
+<td align="left"></td>
+<td align="right"></td>
+<td align="right"></td>
+<td align="right"></td>
+<td align="right"></td>
+<td align="right"></td>
+<td align="right"></td>
+<td align="right"></td>
+<td align="right"></td>
+</tr>
+<tr class="even">
+<td align="left">body_mass</td>
+<td align="left">ordinal</td>
+<td align="right">3650</td>
+<td align="right">5650</td>
+<td align="right">25.0</td>
+<td align="right"></td>
+<td align="right"></td>
+<td align="left"></td>
+<td align="left"></td>
+<td align="left"></td>
+<td align="right"></td>
+<td align="right"></td>
+<td align="right"></td>
+<td align="right"></td>
+<td align="right"></td>
+<td align="right"></td>
+<td align="right"></td>
+<td align="right"></td>
+</tr>
+<tr class="odd">
+<td align="left">sex</td>
+<td align="left">nominal</td>
+<td align="right"></td>
+<td align="right"></td>
+<td align="right"></td>
+<td align="right"></td>
+<td align="right"></td>
+<td align="left">female</td>
+<td align="left">male</td>
+<td align="left"></td>
+<td align="right"></td>
+<td align="right"></td>
+<td align="right"></td>
+<td align="right"></td>
+<td align="right"></td>
+<td align="right"></td>
+<td align="right"></td>
+<td align="right"></td>
+</tr>
+</tbody>
+</table>
+<p>We see that <code><a href="../reference/metadatatemplate.html">metadatatemplate()</a></code> guessed correctly about
+the <code>species</code>, <code>island</code>, and <code>sex</code>
+variates, assigning them a <code>nominal</code> type and listing all
+possible values that can occur in the whole population. Note that if we
+knew of an additional species present in the whole population but absent
+from the sample, we ought to add it under the <strong>V3</strong>
+column.</p>
+<p>The guesses about the <code>bill_len</code> and <code>bill_dep</code>
+variates are also correct: they are continuous, rounded to the nearest
+tenth of millimetre, and cannot be less than zero. The absence of
+<strong>domainmax</strong> values means that the theoretical maximum is
+plus infinity. We could replace this maximum with something more
+realistic, for instance <code>1000</code> mm or less, but typically
+these changes do not lead to relevant differences in our inferences. The
+absence of <strong>minincluded</strong> means that the minimum,
+<code>0</code>, is not a possible value; similarly for
+<strong>maxincluded</strong>.</p>
+<p>The guess about the <code>flipper_len</code> variate is not correct.
+This variate is similar to <code>bill_len</code> but rounded to the
+nearest integer. Similarly for the wrongly guessed
+<code>body_mass</code> variate, which is rounded in steps of
+<code>25</code>.</p>
+<p>We must open and edit the metadata file
+<code>'penguindata2007_10.csv'</code> with our favourite editor and
+correct and complete the guesses of the helper function. In this case we
+end up with the following corrected metadata file:</p>
+<table style="width:100%;" class="table">
+<colgroup>
+<col width="9%">
+<col width="8%">
+<col width="7%">
+<col width="7%">
+<col width="6%">
+<col width="9%">
+<col width="9%">
+<col width="5%">
+<col width="7%">
+<col width="7%">
+<col width="2%">
+<col width="2%">
+<col width="2%">
+<col width="2%">
+<col width="2%">
+<col width="2%">
+<col width="3%">
+<col width="3%">
+</colgroup>
+<thead><tr class="header">
+<th align="left">name</th>
+<th align="left">type</th>
+<th align="right">domainmin</th>
+<th align="right">domainmax</th>
+<th align="right">datastep</th>
+<th align="right">minincluded</th>
+<th align="right">maxincluded</th>
+<th align="left">V1</th>
+<th align="left">V2</th>
+<th align="left">V3</th>
+<th align="right">V4</th>
+<th align="right">V5</th>
+<th align="right">V6</th>
+<th align="right">V7</th>
+<th align="right">V8</th>
+<th align="right">V9</th>
+<th align="right">V10</th>
+<th align="right">V11</th>
+</tr></thead>
+<tbody>
+<tr class="odd">
+<td align="left">species</td>
+<td align="left">nominal</td>
+<td align="right"></td>
+<td align="right"></td>
+<td align="right"></td>
+<td align="right"></td>
+<td align="right"></td>
+<td align="left">Adelie</td>
+<td align="left">Chinstrap</td>
+<td align="left">Gentoo</td>
+<td align="right"></td>
+<td align="right"></td>
+<td align="right"></td>
+<td align="right"></td>
+<td align="right"></td>
+<td align="right"></td>
+<td align="right"></td>
+<td align="right"></td>
+</tr>
+<tr class="even">
+<td align="left">island</td>
+<td align="left">nominal</td>
+<td align="right"></td>
+<td align="right"></td>
+<td align="right"></td>
+<td align="right"></td>
+<td align="right"></td>
+<td align="left">Biscoe</td>
+<td align="left">Dream</td>
+<td align="left">Torgersen</td>
+<td align="right"></td>
+<td align="right"></td>
+<td align="right"></td>
+<td align="right"></td>
+<td align="right"></td>
+<td align="right"></td>
+<td align="right"></td>
+<td align="right"></td>
+</tr>
+<tr class="odd">
+<td align="left">bill_len</td>
+<td align="left">continuous</td>
+<td align="right">0</td>
+<td align="right"></td>
+<td align="right">0.1</td>
+<td align="right"></td>
+<td align="right"></td>
+<td align="left"></td>
+<td align="left"></td>
+<td align="left"></td>
+<td align="right"></td>
+<td align="right"></td>
+<td align="right"></td>
+<td align="right"></td>
+<td align="right"></td>
+<td align="right"></td>
+<td align="right"></td>
+<td align="right"></td>
+</tr>
+<tr class="even">
+<td align="left">bill_dep</td>
+<td align="left">continuous</td>
+<td align="right">0</td>
+<td align="right"></td>
+<td align="right">0.1</td>
+<td align="right"></td>
+<td align="right"></td>
+<td align="left"></td>
+<td align="left"></td>
+<td align="left"></td>
+<td align="right"></td>
+<td align="right"></td>
+<td align="right"></td>
+<td align="right"></td>
+<td align="right"></td>
+<td align="right"></td>
+<td align="right"></td>
+<td align="right"></td>
+</tr>
+<tr class="odd">
+<td align="left">flipper_len</td>
+<td align="left">continuous</td>
+<td align="right">0</td>
+<td align="right"></td>
+<td align="right">1.0</td>
+<td align="right"></td>
+<td align="right"></td>
+<td align="left"></td>
+<td align="left"></td>
+<td align="left"></td>
+<td align="right"></td>
+<td align="right"></td>
+<td align="right"></td>
+<td align="right"></td>
+<td align="right"></td>
+<td align="right"></td>
+<td align="right"></td>
+<td align="right"></td>
+</tr>
+<tr class="even">
+<td align="left">body_mass</td>
+<td align="left">continuous</td>
+<td align="right">0</td>
+<td align="right"></td>
+<td align="right">25.0</td>
+<td align="right"></td>
+<td align="right"></td>
+<td align="left"></td>
+<td align="left"></td>
+<td align="left"></td>
+<td align="right"></td>
+<td align="right"></td>
+<td align="right"></td>
+<td align="right"></td>
+<td align="right"></td>
+<td align="right"></td>
+<td align="right"></td>
+<td align="right"></td>
+</tr>
+<tr class="odd">
+<td align="left">sex</td>
+<td align="left">nominal</td>
+<td align="right"></td>
+<td align="right"></td>
+<td align="right"></td>
+<td align="right"></td>
+<td align="right"></td>
+<td align="left">female</td>
+<td align="left">male</td>
+<td align="left"></td>
+<td align="right"></td>
+<td align="right"></td>
+<td align="right"></td>
+<td align="right"></td>
+<td align="right"></td>
+<td align="right"></td>
+<td align="right"></td>
+<td align="right"></td>
+</tr>
+</tbody>
+</table>
+<p>Later on we shall add the variate <code>year</code> to the metadata
+file.</p>
+</div>
+<div class="section level4">
+<h4 id="learning-and-extrapolating-from-the-sample-data">Learning and extrapolating from the sample data<a class="anchor" aria-label="anchor" href="#learning-and-extrapolating-from-the-sample-data"></a>
+</h4>
+<p>Now comes the essential part of our analysis: from the sample data
+and the metadata information,<strong><em>inferno</em></strong> will draw
+inferences about the <em>whole</em> population of penguin that we have
+specified.</p>
 <p><br><br></p>
+<hr>
+</div>
+</div>
+<div class="section level2">
+<h2 id="format">Format for data and metadata files and their contents<a class="anchor" aria-label="anchor" href="#format"></a>
+</h2>
+<p>The functions of the <strong><em>inferno</em></strong> package accept
+CSV files formatted as follows:</p>
+<ul>
+<li>Decimal values should be separated by a <em>dot</em>; no comma
+should be used to separate thousands etc. Example:
+<code>86342.75</code> .</li>
+<li>Character and names should be quoted in single or double quotes.
+Example: <code>"female"</code>.</li>
+<li>Values should be separated by <em>commas</em>, not by tabs or
+semicolons.</li>
+<li>Missing values should be simply <em>empty</em>, not denoted by “NA”,
+“missing”, “-”, or similar.</li>
+</ul>
+<p>Names of variates and character variate values should be strings
+conforming to <a href="https://cran.r-project.org/doc/FAQ/R-FAQ.html#What-are-valid-names_003f" class="external-link">R’s
+rules</a>.</p>
 <p><em>(TO BE CONTINUED)</em></p>
 <!-- 
 
@@ -581,7 +1088,7 @@ $$
 $$
 
 \
-***Inferno*** allows you to calculate probabilities of this kind, for any set of variates of your choice.
+***inferno*** allows you to calculate probabilities of this kind, for any set of variates of your choice.
 
 ## Learning from known variates
 
@@ -635,7 +1142,7 @@ Upon learning that your penguin is from *Biscoe*, your degree of belief would ch
 This is exactly the kind of learning situation that takes place in medicine and in clinical inferences. A clinician searches for symptoms because they may change and increase the probabilities of different diseases or health conditions. The reason why clinicians research particular *subpopulations* -- particular demographics, or genetic factors, etc. -- is that within these subgroups the probability that a medical condition exist or will occur can be drastically higher. In turn, this leads the clinicians to understand better what can be the biological relationships between the health condition and those factors.
 
 \
-***Inferno*** allows you to calculate the updated probabilities of any set of variates, conditional on any other set.
+***inferno*** allows you to calculate the updated probabilities of any set of variates, conditional on any other set.
 
 
 ## Uncertainty about whole populations. Population samples
@@ -695,7 +1202,7 @@ The core of the ***inferno*** package is the calculation of the probabilities fo
 
 
 
-There are situations in which it is not possible to choose the sample in an unsystematic way. Yet such a biased sample can still be used for population inference, as long as we know what its bias may be. ***Inferno*** allows you to make this kind of bias corrections as well.
+There are situations in which it is not possible to choose the sample in an unsystematic way. Yet such a biased sample can still be used for population inference, as long as we know what its bias may be. ***inferno*** allows you to make this kind of bias corrections as well.
 
 But the frequencies of variates in a sample from a population are typically different from those in the whole population. The difference is the larger, the smaller the sample. There are even extreme situations in which some statistics from a sample, like the mean, can be way off those of the whole population, even if the sample is large (the statistics become reliable only when the sample is almost as large as the full population). The plot below shows an example. The variate is a real number that can take on positive or negative values, in a population of 100 000 000 units; the mean value of the variate in the whole population is $-1.14$. The plot shows the values of the mean obtained from unsystematically chosen samples of various sizes. Even in a sample of 30 000 000 units we may observe a mean of $-3$. The *median* of a sample is much more reliable.
 
@@ -831,7 +1338,6 @@ learnt <- learn(
 *(TO BE CONTINUED)*
 
  -->
-</div>
 </div>
 
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>
