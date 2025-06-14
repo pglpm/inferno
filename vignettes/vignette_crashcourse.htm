@@ -438,8 +438,8 @@ measured</li>
 <p>because there could be time trends in the values we observe. For
 instance, a particular species might have more females than males during
 one year, and vice versa during another year.</p>
-<div id="population" class="section level4">
-<h4>“Population”?</h4>
+<div id="population" class="section level3">
+<h3>“Population”?</h3>
 <p>The question of time-trends leads us to more general considerations
 and questions about statistical research, which unfortunately are often
 forgotten.</p>
@@ -469,8 +469,8 @@ acquire new ones.</p>
 population has important consequences for the way we observe and measure
 the population and its variates. We now turn to this problem.</p>
 </div>
-<div id="sampling" class="section level4">
-<h4>Sampling</h4>
+<div id="sampling" class="section level3">
+<h3>Sampling</h3>
 <p>Our questions <strong>Q1</strong> and <strong>Q2</strong> could have
 <em>exact statistical answers</em> if we had a <em>complete census</em>
 of the penguin population; that is, if we went and “measured” the values
@@ -663,8 +663,8 @@ variates of interest.</li>
 sampled data; we shall call this <strong>learning</strong> from the
 sample data.</li>
 </ol>
-<div id="metadata-preparation" class="section level4">
-<h4>Metadata preparation</h4>
+<div id="metadata-preparation" class="section level3">
+<h3>Metadata preparation</h3>
 <p>Metadata are “data about the data”. They are provided in a CSV file
 respecting the <a href="#format">formatting rules</a> and consist of
 around eight pieces of information about the variates of our population.
@@ -1229,17 +1229,117 @@ end up with the following corrected metadata file:</p>
 <p>Later on we shall add the variate <code>year</code> to the metadata
 file.</p>
 </div>
-<div id="learning-and-extrapolating-from-the-sample-data" class="section level4">
-<h4>Learning and extrapolating from the sample data</h4>
+<div id="learning-and-extrapolating-from-the-sample-data" class="section level3">
+<h3>“Learning” and extrapolating from the sample data</h3>
 <p>Now comes the essential part of our analysis: from the sample data
 and the metadata information,<strong><em>inferno</em></strong> will draw
-inferences about the <em>whole</em> population of penguin that we have
-specified.</p>
+inferences about the <em>whole</em> population of penguins, including
+new penguins (from the same population) that we shall observe in the
+future. Subsequent analyses are based on this main inference. The
+general theory behind this kind of inference, based on the property of
+<em>exchangeability</em> and related mathematical theorems, is explained
+in the <a href="#references">references</a>.</p>
+<p>This inference is performed by calling the <code>learn()</code>
+function. Its minimal arguments are three: the sample <code>data</code>,
+the <code>metadata</code>, and the name <code>outputdir</code> of a
+directory where the inference results should be saved. We can also give
+a numeric <code>seed</code> argument if we want to reproduce the same
+output in another run.</p>
+<p>This function does Monte Carlo sampling and is computationally
+expensive. It may take minutes, hours, or days to run, depending on the
+amount of sample data and the number of variates. In order to speed up
+its computations, it tries to use any multi-cores capabilities of the
+machine it runs in. The output shown below was obtained from running it
+on 15 cores:</p>
+<div class="sourceCode" id="cb3"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" tabindex="-1"></a>learnt <span class="ot">&lt;-</span> <span class="fu">learn</span>(</span>
+<span id="cb3-2"><a href="#cb3-2" tabindex="-1"></a>    <span class="at">data =</span> datafile,</span>
+<span id="cb3-3"><a href="#cb3-3" tabindex="-1"></a>    <span class="at">metadata =</span> metadatafile,</span>
+<span id="cb3-4"><a href="#cb3-4" tabindex="-1"></a>    <span class="at">outputdir =</span> <span class="st">&#39;penguin_inference&#39;</span>,</span>
+<span id="cb3-5"><a href="#cb3-5" tabindex="-1"></a>    <span class="at">seed =</span> <span class="dv">16</span>,</span>
+<span id="cb3-6"><a href="#cb3-6" tabindex="-1"></a>    <span class="at">parallel =</span> <span class="dv">15</span>)</span>
+<span id="cb3-7"><a href="#cb3-7" tabindex="-1"></a><span class="co">#&gt; </span></span>
+<span id="cb3-8"><a href="#cb3-8" tabindex="-1"></a><span class="co">#&gt; Registered doParallelSNOW with 15 workers</span></span>
+<span id="cb3-9"><a href="#cb3-9" tabindex="-1"></a><span class="co">#&gt; Warning: data have additional variates. Dropping them.</span></span>
+<span id="cb3-10"><a href="#cb3-10" tabindex="-1"></a><span class="co">#&gt; Calculating auxiliary metadata</span></span>
+<span id="cb3-11"><a href="#cb3-11" tabindex="-1"></a><span class="co">#&gt; </span></span>
+<span id="cb3-12"><a href="#cb3-12" tabindex="-1"></a><span class="co">#&gt; Learning:  10 datapoints,  7 variates</span></span>
+<span id="cb3-13"><a href="#cb3-13" tabindex="-1"></a><span class="co">#&gt; </span></span>
+<span id="cb3-14"><a href="#cb3-14" tabindex="-1"></a><span class="co">#&gt;  ********************************************************* </span></span>
+<span id="cb3-15"><a href="#cb3-15" tabindex="-1"></a><span class="co">#&gt;  Saving output in directory</span></span>
+<span id="cb3-16"><a href="#cb3-16" tabindex="-1"></a><span class="co">#&gt;  penguin_inference-251231T130101-vrt7_dat10_smp3600 </span></span>
+<span id="cb3-17"><a href="#cb3-17" tabindex="-1"></a><span class="co">#&gt;  ********************************************************* </span></span>
+<span id="cb3-18"><a href="#cb3-18" tabindex="-1"></a><span class="co">#&gt; Starting Monte Carlo sampling of 3600 samples by 60 chains</span></span>
+<span id="cb3-19"><a href="#cb3-19" tabindex="-1"></a><span class="co">#&gt; in a space of 899 (effectively 3717) dimensions.</span></span>
+<span id="cb3-20"><a href="#cb3-20" tabindex="-1"></a><span class="co">#&gt; Using 15 cores: 60 samples per chain, max 4 chains per core.</span></span>
+<span id="cb3-21"><a href="#cb3-21" tabindex="-1"></a><span class="co">#&gt; Core logs are being saved in individual files.</span></span>
+<span id="cb3-22"><a href="#cb3-22" tabindex="-1"></a><span class="co">#&gt; </span></span>
+<span id="cb3-23"><a href="#cb3-23" tabindex="-1"></a><span class="co">#&gt; C-compiling samplers appropriate to the variates (package Nimble)</span></span>
+<span id="cb3-24"><a href="#cb3-24" tabindex="-1"></a><span class="co">#&gt; this can take tens of minutes. Please wait...</span></span>
+<span id="cb3-25"><a href="#cb3-25" tabindex="-1"></a><span class="co">#&gt; Compiled core 1. Number of samplers: 1012.</span></span>
+<span id="cb3-26"><a href="#cb3-26" tabindex="-1"></a><span class="co">#&gt; Estimating remaining time, please be patient...</span></span>
+<span id="cb3-27"><a href="#cb3-27" tabindex="-1"></a><span class="co">#&gt; Sampling. Core 12 estimated end time: 2025-31-12 13:04</span></span>
+<span id="cb3-28"><a href="#cb3-28" tabindex="-1"></a><span class="co">#&gt; Finished Monte Carlo sampling.</span></span>
+<span id="cb3-29"><a href="#cb3-29" tabindex="-1"></a><span class="co">#&gt; </span></span>
+<span id="cb3-30"><a href="#cb3-30" tabindex="-1"></a><span class="co">#&gt; Max number of Monte Carlo iterations across chains: 5033</span></span>
+<span id="cb3-31"><a href="#cb3-31" tabindex="-1"></a><span class="co">#&gt; Max number of used mixture components: 8</span></span>
+<span id="cb3-32"><a href="#cb3-32" tabindex="-1"></a><span class="co">#&gt; </span></span>
+<span id="cb3-33"><a href="#cb3-33" tabindex="-1"></a><span class="co">#&gt; Checking test data</span></span>
+<span id="cb3-34"><a href="#cb3-34" tabindex="-1"></a><span class="co">#&gt; ( #1 #3 #4 #6 #7 #8 #9 #10 )</span></span>
+<span id="cb3-35"><a href="#cb3-35" tabindex="-1"></a><span class="co">#&gt; </span></span>
+<span id="cb3-36"><a href="#cb3-36" tabindex="-1"></a><span class="co">#&gt; rel. MC standard error: min: 0.019  max: 0.034  mean: 0.026</span></span>
+<span id="cb3-37"><a href="#cb3-37" tabindex="-1"></a><span class="co">#&gt; eff. sample size: min: 860  max: 2700  mean: 1700</span></span>
+<span id="cb3-38"><a href="#cb3-38" tabindex="-1"></a><span class="co">#&gt; needed thinning: min: 2  max: 7  mean: 4.5</span></span>
+<span id="cb3-39"><a href="#cb3-39" tabindex="-1"></a><span class="co">#&gt; average: min: 6.5e-08  max: 3.2e-07  mean: 1.7e-07</span></span>
+<span id="cb3-40"><a href="#cb3-40" tabindex="-1"></a><span class="co">#&gt; </span></span>
+<span id="cb3-41"><a href="#cb3-41" tabindex="-1"></a><span class="co">#&gt; Plotting final Monte Carlo traces and marginal samples...</span></span>
+<span id="cb3-42"><a href="#cb3-42" tabindex="-1"></a><span class="co">#&gt; </span></span>
+<span id="cb3-43"><a href="#cb3-43" tabindex="-1"></a><span class="co">#&gt; Total computation time: 2.2 mins</span></span>
+<span id="cb3-44"><a href="#cb3-44" tabindex="-1"></a><span class="co">#&gt; Average total time per chain: 0.037 mins</span></span>
+<span id="cb3-45"><a href="#cb3-45" tabindex="-1"></a><span class="co">#&gt; </span></span>
+<span id="cb3-46"><a href="#cb3-46" tabindex="-1"></a><span class="co">#&gt; Removing temporary output files.</span></span>
+<span id="cb3-47"><a href="#cb3-47" tabindex="-1"></a><span class="co">#&gt; Finished.</span></span>
+<span id="cb3-48"><a href="#cb3-48" tabindex="-1"></a><span class="co">#&gt; </span></span>
+<span id="cb3-49"><a href="#cb3-49" tabindex="-1"></a><span class="co">#&gt; </span></span>
+<span id="cb3-50"><a href="#cb3-50" tabindex="-1"></a><span class="co">#&gt; Closing connections to cores.</span></span></code></pre></div>
+<p>The initial output gives a summary of the sample size, number of
+variates, saving directory, and other computational details. The
+“<code>estimated end time</code>” line updates from time to time with a
+better estimate of the computation’s end time. Once the computation is
+finished, some final information about the underlying Monte Carlo
+computation is provided.<a href="#fn2" class="footnote-ref" id="fnref2"><sup>2</sup></a> Note that the inference above, with
+10 sample data and 7 variates, took a couple of minutes to complete on
+15 cores.</p>
+<p>The results of this main inference are now stored in the compressed
+file ‘<code>learn.rds</code>’ (around 30 MB) within the specified output
+directory. The name of this directory is also saved as the final value
+of the <code>learnt()</code> function, which we saved in the
+<code>learnt</code> variable in the code above.</p>
 <p><br />
-<br />
 </p>
-<hr />
+<p><em>(TO BE CONTINUED)</em></p>
+<p><br />
+</p>
 </div>
+</div>
+<div id="references" class="section level2">
+<h2>References</h2>
+<p>Bernardo, Smith: <a href="https://doi.org/10.1002/9780470316870"><em>Bayesian
+Theory</em></a> (repr. 2000). See especially §§ 4.2–4.3, 4.6.</p>
+<p>Dawid: <a href="https://doi.org/10.1093/acprof:oso/9780199695607.003.0002"><em>Exchangeability
+and its ramifications</em></a> (2013).</p>
+<p>de Finetti: <a href="https://www.numdam.org/item/AIHP_1937__7_1_1_0"><em>La prévision:
+ses lois logiques, ses sources subjectives</em></a> (1937).</p>
+<p>Heath, Sudderth: <a href="https://doi.org/10.1080/00031305.1976.10479175"><em>De Finetti’s
+theorem on exchangeable variables</em></a> (1976).</p>
+<p>Hewitt, Savage: <a href="https://doi.org/10.1090/S0002-9947-1955-0076206-8"><em>Symmetric
+measures on Cartesian products</em></a> (1955).</p>
+<p>Lindley, Novick: <a href="https://doi.org/10.1214/aos/1176345331"><em>The role of
+exchangeability in inference</em></a> (1981).</p>
+<p><br />
+<strong><em>inferno</em></strong> accompanying manual: <a href="https://github.com/pglpm/inferno/raw/main/development/manual/optimal_predictor_machine.pdf"><em>Foundations
+of inference under symmetry</em></a> (draft).</p>
+<p><br />
+</p>
 </div>
 <div id="format" class="section level2">
 <h2>Format for data and metadata files and their contents</h2>
@@ -1259,7 +1359,10 @@ semicolons.</li>
 <p>Names of variates and character variate values should be strings
 conforming to <a href="https://cran.r-project.org/doc/FAQ/R-FAQ.html#What-are-valid-names_003f">R’s
 rules</a>.</p>
-<p><em>(TO BE CONTINUED)</em></p>
+<p><br />
+</p>
+<div id="footnotes" class="section level3">
+<h3>Footnotes</h3>
 <!-- 
 
 ## Population inferences
@@ -1601,6 +1704,7 @@ learnt <- learn(
 
  -->
 </div>
+</div>
 <div class="footnotes footnotes-end-of-document">
 <hr />
 <ol>
@@ -1611,6 +1715,15 @@ then our <em>probability</em> that this specific penguin is female would
 get higher than 50%. If we observe the penguin and see that it’s female,
 our probability for female would become 100%. Yet the <em>frequency</em>
 of females in the population is still 35.3%.<a href="#fnref1" class="footnote-back">↩︎</a></p></li>
+<li id="fn2"><p>For the Monte Carlo expert will notice that the
+effective sample size is around 900 or more. The Monte Carlo sampling is
+designed to stop when 3600 samples have been obtained with an effective
+sample size of at least 400, or equivalently a Monte Carlo standard
+error below 0.05. This is enough, considering that the statistical
+uncertainty in the results can be tens or hundreds of times larger than
+this. The desired number of samples and maximal Monte Carlo standard
+error can be specified with the <code>nsamples</code> and
+<code>relerror</code> arguments.<a href="#fnref2" class="footnote-back">↩︎</a></p></li>
 </ol>
 </div>
 
