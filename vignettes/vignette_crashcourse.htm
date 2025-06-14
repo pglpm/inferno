@@ -287,9 +287,10 @@ methodology.</p></li>
 <strong>population</strong> living in the Antarctic islands
 <em>Biscoe</em>, <em>Dream</em>, <em>Torgersen</em>. Our research
 questions are not yet precisely defined, but some initial questions of
-interest are the following. The penguins can be of three species:
-<em>Adelie</em>, <em>Chinstrap</em>, <em>Gentoo</em>; we’d like to
-know:</p>
+interest are the following. The penguins can be of three species: <a href="https://www.bas.ac.uk/about/antarctica/wildlife/penguins/adelie-penguin/"><em>Adélie</em></a>,
+<a href="https://www.bas.ac.uk/about/antarctica/wildlife/penguins/chinstrap-penguin/"><em>Chinstrap</em></a>,
+<a href="https://www.bas.ac.uk/about/antarctica/wildlife/penguins/gentoo-penguin/"><em>Gentoo</em></a>;
+we’d like to know:</p>
 <dl>
 <dt>Q1</dt>
 <dd>
@@ -395,10 +396,29 @@ not just a matter of “I don’t know” versus “I know”:</p>
 it becomes almost a certainty.</li>
 </ul>
 <p>Some trusted colleagues thus go to the three islands, and examine
-samples of penguins there, sending back the values they observe.</p>
+samples of penguins there, sending back the values they observe. The way
+they do the sampling would require a deep analysis and discussion, but
+for the moment we put these aside.</p>
+<p>How many samples should our colleagues collect? The short answer is:
+as many as they can. The more samples we have, the more certain our
+conclusions will be – all kinds of conclusions: for instance those that
+may reveal the presence, as well as those that may reveal the absence,
+of important associations.</p>
+<p>One important feature of Bayesian inference is that <em>we don’t need
+to choose beforehand when to stop sampling</em>. We can monitor the
+results as more and more samples arrive, and stop as soon as the level
+of certainty about the results is satisfactory. This is possible because
+in Bayesian inference the <em>sample size affects only the
+uncertainty</em> we have of the ground truth – association, effect, or
+other hypothesis – but <em>it cannot affect the ground truth
+itself</em>. If the truth is that “there is no effect”, then this truth
+will come to light with more and more certainty as we increase the
+sample size, and no amount of sampling will be able to change this
+truth.</p>
 </div>
-<div id="first-analysis" class="section level4">
-<h4>First analysis</h4>
+</div>
+<div id="first-analysis" class="section level2">
+<h2>First analysis</h2>
 <p>We receive the first 10 datapoints. Here they are:</p>
 <table style="width:100%;">
 <colgroup>
@@ -527,7 +547,105 @@ samples of penguins there, sending back the values they observe.</p>
 </tbody>
 </table>
 <p>And with these datapoints we start our Bayesian nonparametric
-analysis with <strong><em>inferno</em></strong>.</p>
+analysis using <strong><em>inferno</em></strong>! There are two
+preliminary steps that we usually must follow to perform an
+analysis:</p>
+<ol style="list-style-type: decimal">
+<li>Determine and prepare the <strong>metadata</strong> about the
+variates of interest.</li>
+<li>Perform the general inference about the whole population from the
+sampled data; we shall call this <strong>learning</strong>from the
+sample data.</li>
+</ol>
+<div id="metadata" class="section level4">
+<h4>Metadata</h4>
+<p>Metadata are “data about the data”. They consist of around eight
+pieces of information about the variates of our population.
+Specifically:</p>
+<dl>
+<dt>Variate name (<code>name</code>)</dt>
+<dd>
+This is a character or string: name of a variate. Different variates
+should obviously have different names. It’s advisable to choose names
+conforming to <a href="https://cran.r-project.org/doc/FAQ/R-FAQ.html#What-are-valid-names_003f">R’s
+rules</a>.
+</dd>
+<dt>Variate type (<code>type</code>)</dt>
+<dd>
+<p><strong><em>inferno</em></strong> can handle three kinds of
+variates:</p>
+<ul>
+<li><code>nominal</code>: it can take on a finite number of discrete
+values, which do not have any natural ordering. Examples could be sex or
+geographical location.</li>
+<li><code>ordinal</code>: it can take on a finite number of discrete
+values, which do have a natural ordering. They can be qualitative or
+numeric. Examples could be the degree of satisfaction of a customer, or
+the severity of a disease, or a <a href="https://www.britannica.com/topic/Likert-Scale">Likert
+scale</a>.</li>
+<li><code>continuous</code>: it can in principle take on an infinite
+number of continuous values, although they can be discretized or
+rounded. Examples could be age or weight.</li>
+</ul>
+<p>Many other types of variates exist. For example images and audio are
+also types of variates; but <strong><em>inferno</em></strong> cannot
+handle these complex types. A simple type of variate that
+<strong><em>inferno</em></strong> cannot properly handle is the
+<em>cyclic</em> one, such as time of day. There are no clear-cut
+separations between different types of variates; thus it’s sometimes
+difficult to assess the type.</p>
+</dd>
+<dt>Domain minimum and maximum (<code>domainmin</code>,
+<code>domainmax</code>)</dt>
+<dd>
+<p>These are numbers, only defined for numeric-ordinal and continuous
+variates. These metadata are the minimum and maximum value a variate can
+take on in a given study. For example, in a study about health or
+employment of adults, a variate <em>age</em> might have a minimum of
+18 years. In a more general study involving people of all ages, the
+minimum would be 0. In a health study where people of 90 years or more
+are pooled together, the maximum would be 90 years. A minimum could also
+be minus-infinity, and a maximum plus-infinity. Obviously the minimum
+should be lower than the maximum.</p>
+<p>Sometimes the minimum or maximum is not clear-cut. For instance,
+there is no theoretical maximum on a person’s age, although we can
+consider an age of 300 impossible to reach today. In such cases the
+maximum or minimum can be taken to be plus or minus infinity.</p>
+</dd>
+<dt>Interval between values (<code>datastep</code>)</dt>
+<dd>
+This is a positive number, only defined for numeric-ordinal and
+continuous variates. It is the separation between consecutive values.
+For example, in a 1–5 Likert-scale variate, the interval is 1. For an
+<em>age</em> variate expressed in and rounded to years, the interval
+is 1. For a <em>length</em> variate expressed in centimetres and rounded
+to millimetres, the interval is 0.1.
+</dd>
+<dt>Inclusion of inimum and maximum (<code>minincluded</code>,
+<code>maxincluded</code>)</dt>
+<dd>
+These are logical or <code>yes</code>/<code>no</code>, only defined for
+continuous variates. They tell whether the minimum and maximum of a
+continuous variate are themselves possible values or not. Often such
+extreme values have a special meaning, and this information is important
+with censored or pooled data. For example, a <em>length</em> continuous
+variate might be expressed in decimetres and reported without rounding,
+but all lengths above 1 dm might be pooled together into the value “1 dm
+or more”; in such case we must make sure to state that
+<code>maxincluded</code> is <code>True</code> or <code>&quot;yes&quot;</code>.
+</dd>
+<dt>Values (<code>V1</code>, <code>V2</code>, …)</dt>
+<dd>
+These are characters or strings, conforming to <a href="https://cran.r-project.org/doc/FAQ/R-FAQ.html#What-are-valid-names_003f">R’s
+rules</a>, and only defined for nominal or non-numeric ordinal variates.
+They are the values that a nominal or ordinal variate can <em>in
+principle</em> take on in the population of interest. Note that they are
+include not only the values that are observed in a sample, but also
+those that could be observed in the rest of the population. A nominal or
+ordinal variate must have at least two distinct values; it wouldn’t make
+much sense to draw inferences about it otherwise.
+</dd>
+</dl>
 <p><br />
 <br />
 </p>
