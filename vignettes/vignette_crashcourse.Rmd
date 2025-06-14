@@ -254,9 +254,9 @@ learnt <- learn(
 #> Closing connections to cores.
 ```
 
-The initial output gives a summary of the sample size, number of variates, saving directory, and other computational details. The "`estimated end time`" line updates from time to time with a better estimate of the computation's end time. Once the computation is finished, some final information about the underlying Monte Carlo computation is provided.^[For the Monte Carlo expert will notice that the effective sample size is around 900 or more. The Monte Carlo sampling is designed to stop when 3600 samples have been obtained with an effective sample size of at least 400, or equivalently a relative Monte Carlo standard error under 0.05. This is enough, considering that the statistical uncertainty in the results can be tens or hundreds of times larger than this. The desired number of samples and maximal Monte Carlo standard error can be specified with the `nsamples` and `relerror` arguments.] Note that the inference above, with 10 sample data and 7 variates, took a couple of minutes to complete on 15 cores.
+The initial output gives a summary of the sample size, number of variates, saving directory, and other computational details. The "`estimated end time`" line updates from time to time with a better estimate of the computation's end time. Once the computation is finished, some final information about the underlying Monte Carlo computation is provided.^[The Monte Carlo expert will notice that the effective sample size is around 900 or more. The Monte Carlo sampling is designed to stop when 3600 samples have been obtained with an effective sample size of at least 400, or equivalently a relative Monte Carlo standard error under 0.05. This is enough, considering that the statistical uncertainty in the results can be tens or hundreds of times larger than this. The desired number of samples and maximal Monte Carlo standard error can be specified with the `nsamples` and `relerror` arguments.] Note that the inference above, with 10 sample data and 7 variates, took a couple of minutes to complete on 15 cores.
 
-The results of this main inference are now stored in the compressed file '`learn.rds`' (around 30 MB) within the specified output directory. The name of this directory is also saved as the final value of the `learnt()` function, which we saved in the `learnt` variable in the code above.
+The results of this main inference are now stored in the compressed file '`learn.rds`' (around 30 MB) within the specified output directory. The name of this directory is also saved as the final value of the `learn()` function, which we saved in the `learnt` variable in the code above.
 
 
 
@@ -296,10 +296,6 @@ The functions of the ***inferno*** package accept CSV files formatted as follows
 - Missing values should be simply *empty*, not denoted by "NA", "missing", "-", or similar.
 
 Names of variates and character variate values should be strings conforming to [R's rules](https://cran.r-project.org/doc/FAQ/R-FAQ.html#What-are-valid-names_003f).
-
-\
-
-### Footnotes
 
 <!-- 
 
