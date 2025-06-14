@@ -54,6 +54,8 @@
 <span>  lty <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1</span>, <span class="fl">2</span>, <span class="fl">4</span>, <span class="fl">3</span>, <span class="fl">6</span>, <span class="fl">5</span><span class="op">)</span>,</span>
 <span>  lwd <span class="op">=</span> <span class="fl">2</span>,</span>
 <span>  col <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/grDevices/palette.html" class="external-link">palette</a></span><span class="op">(</span><span class="op">)</span>,</span>
+<span>  alpha.f <span class="op">=</span> <span class="fl">1</span>,</span>
+<span>  var.alpha.f <span class="op">=</span> <span class="fl">0.25</span>,</span>
 <span>  xlab <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  ylab <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  ylim <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0</span>, <span class="cn">NA</span><span class="op">)</span>,</span>
@@ -81,6 +83,14 @@
 
 <dt id="arg-legend">legend<a class="anchor" aria-label="anchor" href="#arg-legend"></a></dt>
 <dd><p>string or logical: plot a legend of the different curves at position <code>legend</code>? If <code>TRUE</code>, position is 'top'.</p></dd>
+
+
+<dt id="arg-alpha-f">alpha.f<a class="anchor" aria-label="anchor" href="#arg-alpha-f"></a></dt>
+<dd><p>Numeric, default 0.25: opacity of the colours, <code>0</code> being completely invisible and <code>1</code> completely opaque.</p></dd>
+
+
+<dt id="arg-var-alpha-f">var.alpha.f<a class="anchor" aria-label="anchor" href="#arg-var-alpha-f"></a></dt>
+<dd><p>Numeric, default 0.25: opacity of the quantile bands or of the samples, <code>0</code> being completely invisible and <code>1</code> completely opaque.</p></dd>
 
 
 <dt id="arg--">...<a class="anchor" aria-label="anchor" href="#arg--"></a></dt>
