@@ -318,20 +318,22 @@ the following variates, each denoted by a short
 <li>Species (<code>species</code>)</li>
 <li>Island (<code>island</code>)</li>
 <li>Bill (<code>bill_len</code>): <a href="https://allisonhorst.github.io/palmerpenguins/reference/figures/culmen_depth.png">the
-length of a penguin’s “beak”</a></li>
+length of a penguin’s “beak”</a> in millimetres</li>
 <li>Bill depth (<code>bill_dep</code>): <a href="https://allisonhorst.github.io/palmerpenguins/reference/figures/culmen_depth.png">the
-depth of a penguin’s “beak”</a></li>
+depth of a penguin’s “beak”</a> in millimetres</li>
 <li>Flipper length (<code>flipper_len</code>): the length of a penguin’s
-“wing”</li>
-<li>Body mass (<code>body_mass</code>)</li>
+“wing” in millimetres</li>
+<li>Body mass (<code>body_mass</code>) in grammes</li>
 <li>Sex (<code>sex</code>)</li>
-<li>Year (<code>year</code>): the year a penguin was observed and
+</ul>
+<p>Later on we shall include an additional variate:</p>
+<ul>
+<li>Study year (<code>year</code>): the year a penguin was observed and
 measured</li>
 </ul>
-<p>The year variate is included because there could be time trends in
-the value we observe. For instance, a particular species might have more
-females than males during one year, and vice versa during another
-year.</p>
+<p>because there could be time trends in the values we observe. For
+instance, a particular species might have more females than males during
+one year, and vice versa during another year.</p>
 <div id="population" class="section level4">
 <h4>“Population”?</h4>
 <p>The question of time-trends leads us to more general considerations
@@ -392,7 +394,140 @@ not just a matter of “I don’t know” versus “I know”:</p>
 <li>we can <em>reduce</em> our uncertainty, sometimes to the point where
 it becomes almost a certainty.</li>
 </ul>
-<p>So some trusted colleagues</p>
+<p>Some trusted colleagues thus go to the three islands, and examine
+samples of penguins there, sending back the values they observe.</p>
+</div>
+<div id="first-analysis" class="section level4">
+<h4>First analysis</h4>
+<p>We receive the first 10 datapoints. Here they are:</p>
+<table style="width:100%;">
+<colgroup>
+<col width="4%" />
+<col width="14%" />
+<col width="14%" />
+<col width="12%" />
+<col width="12%" />
+<col width="17%" />
+<col width="14%" />
+<col width="10%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th align="left"></th>
+<th align="left">species</th>
+<th align="left">island</th>
+<th align="right">bill_len</th>
+<th align="right">bill_dep</th>
+<th align="right">flipper_len</th>
+<th align="right">body_mass</th>
+<th align="left">sex</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="left">1</td>
+<td align="left">Gentoo</td>
+<td align="left">Biscoe</td>
+<td align="right">47.8</td>
+<td align="right">15.0</td>
+<td align="right">215</td>
+<td align="right">5650</td>
+<td align="left">male</td>
+</tr>
+<tr class="even">
+<td align="left">2</td>
+<td align="left">Gentoo</td>
+<td align="left">Biscoe</td>
+<td align="right">45.4</td>
+<td align="right">14.6</td>
+<td align="right">211</td>
+<td align="right">4800</td>
+<td align="left">female</td>
+</tr>
+<tr class="odd">
+<td align="left">3</td>
+<td align="left">Chinstrap</td>
+<td align="left">Dream</td>
+<td align="right">52.0</td>
+<td align="right">18.1</td>
+<td align="right">201</td>
+<td align="right">4050</td>
+<td align="left">male</td>
+</tr>
+<tr class="even">
+<td align="left">4</td>
+<td align="left">Chinstrap</td>
+<td align="left">Dream</td>
+<td align="right">51.3</td>
+<td align="right">18.2</td>
+<td align="right">197</td>
+<td align="right">3750</td>
+<td align="left">male</td>
+</tr>
+<tr class="odd">
+<td align="left">5</td>
+<td align="left">Gentoo</td>
+<td align="left">Biscoe</td>
+<td align="right">42.9</td>
+<td align="right">13.1</td>
+<td align="right">215</td>
+<td align="right">5000</td>
+<td align="left">female</td>
+</tr>
+<tr class="even">
+<td align="left">6</td>
+<td align="left">Chinstrap</td>
+<td align="left">Dream</td>
+<td align="right">46.6</td>
+<td align="right">17.8</td>
+<td align="right">193</td>
+<td align="right">3800</td>
+<td align="left">female</td>
+</tr>
+<tr class="odd">
+<td align="left">7</td>
+<td align="left">Adelie</td>
+<td align="left">Torgersen</td>
+<td align="right">39.3</td>
+<td align="right">20.6</td>
+<td align="right">190</td>
+<td align="right">3650</td>
+<td align="left">male</td>
+</tr>
+<tr class="even">
+<td align="left">8</td>
+<td align="left">Adelie</td>
+<td align="left">Torgersen</td>
+<td align="right">38.6</td>
+<td align="right">21.2</td>
+<td align="right">191</td>
+<td align="right">3800</td>
+<td align="left">male</td>
+</tr>
+<tr class="odd">
+<td align="left">9</td>
+<td align="left">Chinstrap</td>
+<td align="left">Dream</td>
+<td align="right">51.7</td>
+<td align="right">20.3</td>
+<td align="right">194</td>
+<td align="right">3775</td>
+<td align="left">male</td>
+</tr>
+<tr class="even">
+<td align="left">10</td>
+<td align="left">Gentoo</td>
+<td align="left">Biscoe</td>
+<td align="right">48.7</td>
+<td align="right">15.1</td>
+<td align="right">222</td>
+<td align="right">5350</td>
+<td align="left">male</td>
+</tr>
+</tbody>
+</table>
+<p>And with these datapoints we start our Bayesian nonparametric
+analysis with <strong><em>inferno</em></strong>.</p>
 <p><br />
 <br />
 </p>

@@ -59,15 +59,15 @@ In order to approach these and other future questions, we decide which set of pe
 
 - Species (`species`)
 - Island (`island`)
-- Bill (`bill_len`): [the length of a penguin's "beak"](https://allisonhorst.github.io/palmerpenguins/reference/figures/culmen_depth.png)
-- Bill depth (`bill_dep`): [the depth of a penguin's "beak"](https://allisonhorst.github.io/palmerpenguins/reference/figures/culmen_depth.png)
-- Flipper length (`flipper_len`): the length of a penguin's "wing"
-- Body mass (`body_mass`)
+- Bill (`bill_len`): [the length of a penguin's "beak"](https://allisonhorst.github.io/palmerpenguins/reference/figures/culmen_depth.png) in millimetres
+- Bill depth (`bill_dep`): [the depth of a penguin's "beak"](https://allisonhorst.github.io/palmerpenguins/reference/figures/culmen_depth.png) in millimetres
+- Flipper length (`flipper_len`): the length of a penguin's "wing" in millimetres
+- Body mass (`body_mass`) in grammes
 - Sex (`sex`)
 
 Later on we shall include an additional variate:
 
-- Year (`year`): the year a penguin was observed and measured
+- Study year (`year`): the year a penguin was observed and measured
 
 because there could be time trends in the values we observe. For instance, a particular species might have more females than males during one year, and vice versa during another year.
 
@@ -94,8 +94,20 @@ But it is often impractical or impossible to take a complete census. Think of th
 - we can *quantify* our uncertainty;
 - we can *reduce* our uncertainty, sometimes to the point where it becomes almost a certainty.
 
+Some trusted colleagues thus go to the three islands, and examine samples of penguins there, sending back the values they observe. The way sampling is done would require a deep analysis and discussion, but for the moment we put these aside.
 
-Some trusted colleagues thus go to the three islands, and examine samples of penguins there, sending back the values they observe.
+#### First analysis
+
+We receive the first 10 datapoints. Here they are:
+
+```{r echo = FALSE}
+datafile <- 'penguindata2007_10.csv'
+dat <- read.csv(datafile, na.strings = '', stringsAsFactors = FALSE, tryLogical = FALSE)
+
+knitr::kable(dat[,-ncol(dat)], row.names = TRUE)
+```
+
+And with these datapoints we start our Bayesian nonparametric analysis using ***inferno***!
 
 
 
