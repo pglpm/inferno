@@ -1047,21 +1047,21 @@ variates, saving directory, and other computational details. The
 “<code>estimated end time</code>” line updates from time to time with a
 better estimate of the computation’s end time. Once the computation is
 finished, some final information about the underlying Monte Carlo
-computation is provided.<a class="footnote-ref" tabindex="0" data-bs-toggle="popover" data-bs-content="&lt;p&gt;For the Monte Carlo expert will notice that the
-effective sample size is around 900 or more. The Monte Carlo sampling is
-designed to stop when 3600 samples have been obtained with an effective
-sample size of at least 400, or equivalently a relative Monte Carlo
-standard error under 0.05. This is enough, considering that the
-statistical uncertainty in the results can be tens or hundreds of times
-larger than this. The desired number of samples and maximal Monte Carlo
-standard error can be specified with the &lt;code&gt;nsamples&lt;/code&gt; and
+computation is provided.<a class="footnote-ref" tabindex="0" data-bs-toggle="popover" data-bs-content="&lt;p&gt;The Monte Carlo expert will notice that the effective
+sample size is around 900 or more. The Monte Carlo sampling is designed
+to stop when 3600 samples have been obtained with an effective sample
+size of at least 400, or equivalently a relative Monte Carlo standard
+error under 0.05. This is enough, considering that the statistical
+uncertainty in the results can be tens or hundreds of times larger than
+this. The desired number of samples and maximal Monte Carlo standard
+error can be specified with the &lt;code&gt;nsamples&lt;/code&gt; and
 &lt;code&gt;relerror&lt;/code&gt; arguments.&lt;/p&gt;"><sup>2</sup></a> Note that the inference above, with
 10 sample data and 7 variates, took a couple of minutes to complete on
 15 cores.</p>
 <p>The results of this main inference are now stored in the compressed
 file ‘<code>learn.rds</code>’ (around 30 MB) within the specified output
 directory. The name of this directory is also saved as the final value
-of the <code>learnt()</code> function, which we saved in the
+of the <code><a href="../reference/learn.html">learn()</a></code> function, which we saved in the
 <code>learnt</code> variable in the code above.</p>
 <p><br></p>
 <p><em>(TO BE CONTINUED)</em></p>
@@ -1106,10 +1106,6 @@ semicolons.</li>
 <p>Names of variates and character variate values should be strings
 conforming to <a href="https://cran.r-project.org/doc/FAQ/R-FAQ.html#What-are-valid-names_003f" class="external-link">R’s
 rules</a>.</p>
-<p><br></p>
-<div class="section level3">
-<h3 id="footnotes">Footnotes<a class="anchor" aria-label="anchor" href="#footnotes"></a>
-</h3>
 <!-- 
 
 ## Population inferences
@@ -1450,7 +1446,6 @@ learnt <- learn(
 *(TO BE CONTINUED)*
 
  -->
-</div>
 </div>
 
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>
