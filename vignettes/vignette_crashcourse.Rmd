@@ -31,10 +31,131 @@ palette(c(black='black',
 set.seed(16)
 ```
 
-This vignette gives a summary of what ***Inferno*** is about, and the kind of inferences it allows you to do; a sort of crash course in population inference, also called exchangeable inference. Its main purpose is to clarify, by means of examples, the terminology used in this package.
+## Before we start
+
+This vignette gives an introduction and guide to the kinds of *Bayesian nonparametric inference* that can be done with ***Inferno***, by means of a concrete example. It also has the purpose to clarify, by means of examples, the terminology used in the ***Inferno*** package.
 
 It is of course impossible to summarize this branch of probability theory and of statistics in a couple of sections; you're invited to learn more for instance from the [ADA 511](https://pglpm.github.io/ADA511) course, or from texts such as Bernardo & Smith's [*Bayesian Theory* (2000)](https://doi.org/10.1002/9780470316870) (especially §§ 4.3, 4.4, 4.6), or Jaynes's [*Probability Theory* (2003)](https://doi.org/10.1017/CBO9780511790423) (esp. ch. 9); take also a look at Lindley & Novick [*The role of exchangeability in inference* (1981)](https://doi.org/10.1214/aos/1176345331).
 
+Two extremely important warnings before you follow the example:
+
+- Some terms may sound familiar to you, but keep in mind that they may have quite different meanings from what you're used to. This is especially true of the terms in *italics*. When you see a term in **boldface**, try to understand its meaning from the way it's used, rather than assuming the meaning familiar to you. Unfortunately, different methods and different disciplines use the same terms in different ways.
+  
+  In particular keep in mind that the term **probability** does *not* mean **frequency**. 'Probability' means 'plausibility' or 'degree of belief'; it is a quantification of a researcher's uncertainty about some possible fact. There is a connection between probability and frequency, but they are not the same. The distinction is important, because one of the main problems in statistical inference is that *we are uncertain about the frequency of something* -- the occurrence of a disease, symptom, or other characteristics -- and our goal is to quantify and reduce that uncertainty as much as possible.
+
+- The example that follows is, like every example, very specific. But try to see the more general, abstract picture behind it, and to see how its general methodology could be applied to research that is more interesting to you. From time to time we shall draw analogies with other examples that may look very different and yet use essentially the same methodology.
+
+## Penguins
+
+We are researchers interested in penguins; specifically the **population** living in the Antarctic islands *Biscoe*, *Dream*, *Torgersen*. Our research questions are not yet precisely defined, but some initial questions of interest are the following. The penguins can be of three species: [*Adélie*](https://www.bas.ac.uk/about/antarctica/wildlife/penguins/adelie-penguin/), [*Chinstrap*](https://www.bas.ac.uk/about/antarctica/wildlife/penguins/chinstrap-penguin/), [*Gentoo*](https://www.bas.ac.uk/about/antarctica/wildlife/penguins/gentoo-penguin/); we'd like to know:
+
+Q1
+: Do the three species differ, *statistically*, in some physical or geographical characteristic such as sex or island of origin? We say "statistically" because, for instance, there surely are females and males of every species, but it's possible that for one of the species the ratio of females to males is higher than for another species.
+
+Q2
+: Is there a physical or geographical characteristic that allows us to make a good guess about a penguin's species? We say "guess" because, for instance, from knowing which island a penguin comes from we can't be 100% sure about that penguin's species.
+
+In order to approach these and other future questions, we decide which set of penguin characteristics we should consider and observe. These characteristics are called the **variates** of the population. This set can be extended or reduced later on. Guided by previous studies, or by some hypotheses we are entertaining, we choose the following variates, each denoted by a short `codeword`:
+
+- Species (`species`)
+- Island (`island`)
+- Bill (`bill_len`): [the length of a penguin's "beak"](https://allisonhorst.github.io/palmerpenguins/reference/figures/culmen_depth.png) in millimetres
+- Bill depth (`bill_dep`): [the depth of a penguin's "beak"](https://allisonhorst.github.io/palmerpenguins/reference/figures/culmen_depth.png) in millimetres
+- Flipper length (`flipper_len`): the length of a penguin's "wing" in millimetres
+- Body mass (`body_mass`) in grammes
+- Sex (`sex`)
+
+Later on we shall include an additional variate:
+
+- Study year (`year`): the year a penguin was observed and measured
+
+because there could be time trends in the values we observe. For instance, a particular species might have more females than males during one year, and vice versa during another year.
+
+#### "Population"?
+
+The question of time-trends leads us to more general considerations and questions about statistical research, which unfortunately are often forgotten.
+
+To start with: this "population" which we want to study, how is it defined exactly? What counts as a member of the population, and what doesn't? For example, a seal clearly doesn't count, because it isn't a penguin. A penguin from the Galápagos island doesn't count either, because it isn't from one of the three Antarctic islands we specified. But does a penguin who was alive in the year 1830 count? what about one who will live in those islands in the year 2100? Does a penguin with some kind of notable physical impairment count? Does a penguin who only lived 1 year count? Does a penguin born in the Galápagos island but subsequently transported to the Antarctic islands count?
+
+No matter which research field you work in, you realize that analogous questions appear when you try to define the "population" in some study.
+
+It is practically impossible to specify an exact criterion for membership in a population under study. We may try to cover and delimit as many factors as possible, but there may always appear a new one we didn't think of. There's no "objective" specification of a population: the specification depends on our research purpose -- which often is not precisely specified either. We must therefore always be prepared to further specify the population of our study. In some cases we may even need to modify our previous specification, and thus discard some data or acquire new ones.
+
+The intrinsic and unavoidable problem in the specification of a population has important consequences for the way we observe and measure the population and its variates. We now turn to this problem.
+
+#### Sampling
+
+Our questions **Q1** and **Q2** could have *exact statistical answers* if we had a *complete census* of the penguin population; that is, if we went and "measured" the values of the variates in each and every penguin of the population.
+
+To make this point clearer, imagine a slightly different population. Suppose we were interested only in all the penguins alive today on a specific, very small island. The island turns out to have 17 penguins. We check all of them. We find that 6 of these are females, and 11 are males. It's then a fact that 6/17${}\approx{}$35.3% of penguins in this specific population are females, and 64.7% are males. And if someone picked a penguin from this population and asked us to guess its sex, we would give a 35.3% probability to that penguin's being female, and 64.7% to its being male.^[Note the difference between probability and frequency. If an expert colleague tells us "I was able to take a quick look at that penguin, and it looks female to me, though I'm not completely sure", then our *probability* that this specific penguin is female would get higher than 50%. If we observe the penguin and see that it's female, our probability for female would become 100%.  Yet the *frequency* of females in the population is still 35.3%.]
+
+But it is often impractical or impossible to take a complete census. Think of the case were the whole population includes members or variates that will only exist in the future. For this reason we proceed as follows: we observe a **sample** of the whole population, and from the study of this sample we try to infer the statistical properties of the whole population. Our inferences are perforce uncertain: we can't be fully sure about the exact statistical properties of the whole population. The essential point is that our uncertainty is not just a matter of "I don't know" versus "I know":
+
+- we can *quantify* our uncertainty;
+- we can *reduce* our uncertainty, sometimes to the point where it becomes almost a certainty.
+
+Some trusted colleagues thus go to the three islands, and examine samples of penguins there, sending back the values they observe. The way they do the sampling would require a deep analysis and discussion, but for the moment we put these aside.
+
+How many samples should our colleagues collect? The short answer is: as many as they can. The more samples we have, the more certain our conclusions will be -- all kinds of conclusions: for instance those that may reveal the presence, as well as those that may reveal the absence, of important associations.
+
+One important feature of Bayesian inference is that *we don't need to choose beforehand when to stop sampling*. We can monitor the results as more and more samples arrive, and stop as soon as the level of certainty about the results is satisfactory. This is possible because in Bayesian inference the *sample size affects only the uncertainty* we have of the ground truth -- association, effect, or other hypothesis -- but *it cannot affect the ground truth itself*. If the truth is that "there is no effect", then this truth will come to light with more and more certainty as we increase the sample size, and no amount of sampling will be able to change this truth.
+
+## First analysis
+
+We receive the first 10 datapoints. Here they are:
+
+```{r echo = FALSE}
+datafile <- 'penguindata2007_10.csv'
+dat <- read.csv(datafile, na.strings = '', stringsAsFactors = FALSE, tryLogical = FALSE)
+
+knitr::kable(dat[,-ncol(dat)], row.names = TRUE)
+```
+
+And with these datapoints we start our Bayesian nonparametric analysis using ***inferno***! There are two preliminary steps that we usually must follow to perform an analysis:
+
+1. Determine and prepare the **metadata** about the variates of interest.
+2. Perform the general inference about the whole population from the sampled data; we shall call this **learning**from the sample data.
+
+#### Metadata
+
+Metadata are "data about the data". They consist of around eight pieces of information about the variates of our population. Specifically:
+
+Variate name (`name`)
+: This is a character or string: name of a variate. Different variates should obviously have different names. It's advisable to choose names conforming to [R's rules](https://cran.r-project.org/doc/FAQ/R-FAQ.html#What-are-valid-names_003f).
+
+
+Variate type (`type`)
+: ***inferno*** can handle three kinds of variates:
+    
+    - `nominal`: it can take on a finite number of discrete values, which do not have any natural ordering. Examples could be sex or geographical location.
+    - `ordinal`: it can take on a finite number of discrete values, which do have a natural ordering. They can be qualitative or numeric. Examples could be the degree of satisfaction of a customer, or the severity of a disease, or a [Likert scale](https://www.britannica.com/topic/Likert-Scale).
+    - `continuous`: it can in principle take on an infinite number of continuous values, although they can be discretized or rounded. Examples could be age or weight.
+    
+    Many other types of variates exist. For example images and audio are also types of variates; but ***inferno*** cannot handle these complex types. A simple type of variate that ***inferno*** cannot properly handle is the *cyclic* one, such as time of day. There are no clear-cut separations between different types of variates; thus it's sometimes difficult to assess the type.
+
+
+Domain minimum and maximum (`domainmin`, `domainmax`)
+: These are numbers, only defined for numeric-ordinal and continuous variates. These metadata are the minimum and maximum value a variate can take on in a given study. For example, in a study about health or employment of adults, a variate *age* might have a minimum of 18 years. In a more general study involving people of all ages, the minimum would be 0. In a health study where people of 90 years or more are pooled together, the maximum would be 90 years. A minimum could also be minus-infinity, and a maximum plus-infinity. Obviously the minimum should be lower than the maximum.
+    
+    Sometimes the minimum or maximum is not clear-cut. For instance, there is no theoretical maximum on a person's age, although we can consider an age of 300 impossible to reach today. In such cases the maximum or minimum can be taken to be plus or minus infinity.
+
+Interval between values (`datastep`)
+: This is a positive number, only defined for numeric-ordinal and continuous variates. It is the separation between consecutive values. For example, in a 1--5 Likert-scale variate, the interval is 1. For an *age* variate expressed in and rounded to years, the interval is 1. For a *length* variate expressed in centimetres and rounded to millimetres, the interval is 0.1.
+
+Inclusion of inimum and maximum (`minincluded`, `maxincluded`)
+: These are logical or `yes`/`no`, only defined for continuous variates. They tell whether the minimum and maximum of a continuous variate are themselves possible values or not. Often such extreme values have a special meaning, and this information is important with censored or pooled data. For example, a *length* continuous variate might be expressed in decimetres and reported without rounding, but all lengths above 1 dm might be pooled together into the value "1 dm or more"; in such case we must make sure to state that `maxincluded` is `True` or `"yes"`.
+
+Values (`V1`, `V2`, ...)
+: These are characters or strings, conforming to [R's rules](https://cran.r-project.org/doc/FAQ/R-FAQ.html#What-are-valid-names_003f), and only defined for nominal or non-numeric ordinal variates. They are the values that a nominal or ordinal variate can *in principle* take on in the population of interest. Note that they are include not only the values that are observed in a sample, but also those that could be observed in the rest of the population. A nominal or ordinal variate must have at least two distinct values; it wouldn't make much sense to draw inferences about it otherwise.
+
+
+\
+\
+
+*(TO BE CONTINUED)*
+
+
+<!-- 
 
 ## Population inferences
 
@@ -216,7 +337,7 @@ Consider how drastic such an approach is. It can also be misleading, if one is n
 One could object that the assumption, say of gaussianity, behind such methods is not completely arbitrary: one can get the idea of whether it's correct or not by looking at the sample. But this objection is self-contradictory: as discussed, our problem is that the frequencies in the sample are not a faithful reflection of those in the whole population. We're making assumption because the sample is not reliable, so how can we rely on the sample to judge those assumptions?
 
 It must be pointed out that even methods or measures that do not explicitly refer to peculiar assumptions about frequencies, *do* actually rely on such hidden assumptions. Pearson's measure of correlation, for instance, actually relies on the assumption that the joint frequency distribution for the whole population is Gaussian.
-<!-- add ref -->
+ add ref 
 
 ## Bayesian nonparametric population inference
 
@@ -257,12 +378,10 @@ knitr::include_graphics("sample_mean.jpg")
 The point of this example is only to make clear that although a sample from a population gives us some information about the whole population, we are still uncertain about the whole-population frequencies.
 
 
-<!-- ![](sample_mean.jpg){#id .class width=50%} -->
+<!-- ![](sample_mean.jpg){#id .class width=50%}
 
 *(TO BE CONTINUED)*
 
-
-<!-- 
 
 ----
 

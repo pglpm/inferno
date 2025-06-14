@@ -31,6 +31,7 @@ vtransform(
 'init': for internal MCMC use (init input)
 'left', 'right': for internal MCMC use
 'aux', 'lat': for internal MCMC use
+'infnormalized': for sampling functions
 'boundisinf': for sampling functions
 'mi': for use in mutualinfo()
 'original': original representation}
@@ -40,6 +41,7 @@ vtransform(
 'left', 'right': for internal MCMC use
 'aux': for internal MCMC use
 'boundisinf': for sampling functions
+'normalized': for sampling functions
 'mi': for use in mutualinfo()
 'original': original representation}
 

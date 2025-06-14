@@ -6,4 +6,3 @@
 "flipper_len","continuous",0,,1,,,,,,,,,,,,,
 "body_mass","continuous",0,,25,,,,,,,,,,,,,
 "sex","nominal",,,,,,"female","male",,,,,,,,,
-"year","ordinal",2007,2009,1,,,,,,,,,,,,,
