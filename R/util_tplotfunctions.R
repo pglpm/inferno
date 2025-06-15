@@ -413,6 +413,7 @@ plot.probability <- function(
 #'
 #' @param p object of class "probability", obtained with \code{\link{Pr}} or \code{\link{tailPr}}.
 #' @param breaks `NULL` or as in function \code{\link[graphics]{hist}}. If `NULL` (default), an optimal number of breaks for each probability distribution is computed.
+#' @param alpha.f Numeric, default 0.125: opacity of the histogram filling. `0` means no filling.
 #' @param legend string or logical: plot a legend of the different curves at position `legend`? If `TRUE`, position is 'top'.
 #' @param ... other parameters to be passed to \code{\link{flexiplot}}.
 #'
@@ -424,6 +425,7 @@ hist.probability <- function(
     lty = c(1, 2, 4, 3, 6, 5),
     lwd = 2,
     col = palette(),
+    alpha.f = 0.125,
     ##     c( ## Tol's colour-blind-safe scheme, or palette()
     ##     '#4477AA',
     ##     '#EE6677',
@@ -467,6 +469,7 @@ hist.probability <- function(
 
     if(is.null(xlab)){xlab <- 'rel. frequency'}
     if(is.null(ylab)){ylab <- 'probability dens.'}
+    if(isFALSE(alpha.f) || !is.numeric(alpha.f)){alpha.f <- 0}
 
     if(missing(xlim)){xlim <- range(unlist(midslist))}
     if(is.na(ylim)[2]){ylim[2] <- max(unlist(densitylist))}
@@ -474,13 +477,27 @@ hist.probability <- function(
     i <- 0L
     for(xx in seq_len(Xlen)){ for(yy in seq_len(Ylen)){
         i <- i + 1L
+        x <- midslist[[i]]
+        y <- densitylist[[i]]
+        if(alpha.f > 0){
+            plotquantiles(x = x, y = cbind(rep(0, length(y)), y),
+                col = col[(i - 1) %% length(col) + 1],
+                alpha.f = alpha.f,
+                xlab = xlab, ylab = ylab,
+                xlim = xlim, ylim = ylim,
+                grid = grid,
+                lty = 0,
+                add = (add || i > 1),
+                ...)
+        }
+
         flexiplot(x = midslist[[i]], y = densitylist[[i]],
             xlab = xlab, ylab = ylab,
             xlim = xlim, ylim = ylim,
             col = col[(i - 1) %% length(col) + 1],
             lty =  lty[(i - 1) %% length(lty) + 1],
             grid = grid,
-            add = (add || i > 1),
+            add = (add || alpha.f >0 || i > 1),
             ...
             )
     } }
