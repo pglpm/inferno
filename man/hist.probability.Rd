@@ -11,6 +11,7 @@
   lty = c(1, 2, 4, 3, 6, 5),
   lwd = 2,
   col = palette(),
+  alpha.f = 0.125,
   xlab = NULL,
   ylab = NULL,
   xlim = NULL,
@@ -26,6 +27,8 @@
 \item{breaks}{\code{NULL} or as in function \code{\link[graphics]{hist}}. If \code{NULL} (default), an optimal number of breaks for each probability distribution is computed.}
 
 \item{legend}{string or logical: plot a legend of the different curves at position \code{legend}? If \code{TRUE}, position is 'top'.}
+
+\item{alpha.f}{Numeric, default 0.125: opacity of the histogram filling. \code{0} means no filling.}
 
 \item{...}{other parameters to be passed to \code{\link{flexiplot}}.}
 }
