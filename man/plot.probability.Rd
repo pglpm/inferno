@@ -8,7 +8,7 @@
   p,
   variability = NULL,
   PvsY = NULL,
-  legend = TRUE,
+  legend = "top",
   lty = c(1, 2, 4, 3, 6, 5),
   lwd = 2,
   col = palette(),
@@ -31,7 +31,7 @@
 
 \item{PvsY}{logical or \code{NULL}: should probabilities be plotted against their \code{Y} argument? If \code{NULL}, the argument between \code{Y} and \code{X} having larger number of values is chosen. As many probability curves will be plotted as the number of values of the other argument.}
 
-\item{legend}{string or logical: plot a legend of the different curves at position \code{legend}? If \code{TRUE}, position is 'top'.}
+\item{legend}{one of the values \code{"bottomright"}, \code{"bottom"}, \code{"bottomleft"}, \code{"left"}, \code{"topleft"}, \code{"top"}, \code{"topright"}, \code{"right"}, \code{"center"} (see \code{\link[graphics]{legend}}): plot a legend at that position. A value \code{FALSE} or any other does not plot any legend. Default \code{"top"}.}
 
 \item{alpha.f}{Numeric, default 0.25: opacity of the colours, \code{0} being completely invisible and \code{1} completely opaque.}
 
