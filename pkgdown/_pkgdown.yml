@@ -5,17 +5,18 @@ template:
 reference:
 - title: "Main functions"
   contents:
-    - metadatatemplate
-    - learn
-    - Pr
-    - tailPr
     - E
-    - mutualinfo
     - flexiplot
-    - plotquantiles
+    - hist.probability
+    - learn
+    - metadatatemplate
+    - mutualinfo
     - plot.probability
     - plotFsamples
+    - plotquantiles
+    - Pr
     - subset.probability
+    - tailPr
     - vrtgrid
     - Pr2
 - title: "Internal functions"
