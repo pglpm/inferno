@@ -460,7 +460,7 @@ hist.probability <- function(
         rg <- range(ff)
         if(diff(rg)==0){rg <- c(0, 1)}
         if(!is.null(n)){ breaks <- seq(rg[1], rg[2], length.out=n+1) }
-        hd <- hist(x = ff, breaks = breaks, plot = FALSE)
+        hd <- graphics::hist(x = ff, breaks = breaks, plot = FALSE)
         midslist[[i]] <- hd$mids
         densitylist[[i]] <- hd$density
     } }
