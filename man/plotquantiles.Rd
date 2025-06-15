@@ -11,6 +11,7 @@ plotquantiles(
   alpha.f = 0.25,
   col = palette(),
   border = NA,
+  type = "n",
   ...
 )
 }

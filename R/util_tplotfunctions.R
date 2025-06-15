@@ -32,6 +32,7 @@ flexiplot <- function(
     ##     '#AA3377' #, '#BBBBBB'
     ## ),
     grid = TRUE,
+    cex.main = 1,
     add = FALSE,
     ...
 ){
@@ -80,7 +81,8 @@ flexiplot <- function(
     col <- adjustcolor(col, alpha.f = alpha.f)
 
     graphics::matplot(x, y, xlim = xlim, ylim = ylim, type = type, axes = F,
-        col = col, lty = lty, lwd = lwd, pch = pch, add = add, ...)
+        col = col, lty = lty, lwd = lwd, pch = pch, cex.main = cex.main, add = add,
+        ...)
     if(!add){
         graphics::axis(1, at = xat, labels = xdomain, tick = !grid,
             col = 'black', lwd = 1, lty = 1, ...)
@@ -119,6 +121,7 @@ plotquantiles <- function(
     ##     '#AA3377' #, '#BBBBBB'
     ## ),
     border = NA,
+    type = 'n',
     ...
 ){
     ## ## TODO: modify so that a vertical plot is also possible
@@ -160,15 +163,15 @@ plotquantiles <- function(
 
 #' Plot an object of class "probability"
 #'
-#' This plot method is a utility to plot probabilities obtained with \code{\link{Pr}} or \code{\link{tailPr}}, as well as their uncertainties. The probabilities are plotted either against `Y`, with one curve for each value of `X`, or vice versa.
+#' This \code{\link[base]{plot}} method is a utility to plot probabilities obtained with \code{\link{Pr}} or \code{\link{tailPr}}, as well as their variabilities. The probabilities are plotted either against `Y`, with one curve for each value of `X`, or vice versa.
 #'
 #' @param p object of class "probability", obtained with \code{\link{Pr}} or \code{\link{tailPr}}.
 #' @param variability one of the values `"quantiles"`, `"samples"`, `"none"` (equivalent to `NA` or `FALSE`), or `NULL` (default), in which case the variability available in `p` is used. This argument chooses how to represent the variability of the probability; see \code{\link{Pr}}. If the requested variability is not available in the object `p`, then a warning is issued and no variability is plotted.
 #' @param PvsY logical or `NULL`: should probabilities be plotted against their `Y` argument? If `NULL`, the argument between `Y` and `X` having larger number of values is chosen. As many probability curves will be plotted as the number of values of the other argument.
 #' @param legend string or logical: plot a legend of the different curves at position `legend`? If `TRUE`, position is 'top'.
 #' @param alpha.f Numeric, default 0.25: opacity of the colours, `0` being completely invisible and `1` completely opaque.
-#' @param var.alpha.f Numeric, default 0.25: opacity of the quantile bands or of the samples, `0` being completely invisible and `1` completely opaque.
-#' @param ... other parameters to be passed to \code{\link[base]{matplot}}.
+#' @param var.alpha.f Numeric: opacity of the quantile bands or of the samples, `0` being completely invisible and `1` completely opaque.
+#' @param ... other parameters to be passed to \code{\link{flexiplot}}.
 #'
 #' @export
 plot.probability <- function(
@@ -179,6 +182,7 @@ plot.probability <- function(
     lty = c(1, 2, 4, 3, 6, 5),
     lwd = 2,
     col = palette(),
+    type = NULL,
     ##     c( ## Tol's colour-blind-safe scheme, or palette()
     ##     '#4477AA',
     ##     '#EE6677',
@@ -188,9 +192,10 @@ plot.probability <- function(
     ##     '#AA3377' #, '#BBBBBB'
     ## ),
     alpha.f = 1,
-    var.alpha.f = 0.25,
+    var.alpha.f = NULL,
     xlab = NULL,
     ylab = NULL,
+    main = NULL,
     ylim = c(0, NA),
     grid = TRUE,
     add = FALSE,
@@ -241,8 +246,10 @@ plot.probability <- function(
             qnames <- as.numeric(sub('%', '', dimnames(pvar)[[3]]))
         }
         qnames <- as.numeric(sub('%', '', dimnames(pvar)[[3]]))
+        if(is.null(var.alpha.f)){var.alpha.f <- 0.25}
     } else if(variability == 'samples'){
         pvar <- p$samples
+        if(is.null(var.alpha.f)){var.alpha.f <- 1/ceiling(sqrt(dim(pvar)[3]))}
     } else {
         pvar <- NULL
     }
@@ -297,13 +304,28 @@ plot.probability <- function(
     }
 
     if(is.null(xlab)){xlab <- tempxlab}
+    if(missing(main)){
+        main <- paste0('P(',
+            paste0(names(p$Y), collapse = ', '),
+            if(!is.null(p$X)){paste0(' | ', paste0(names(p$X), collapse = ', '))},
+            ')')
+        ## if(variability == 'quantiles'){
+        ##     main <- paste0(main, '  [',
+        ##         paste0(round(qnames, 1), '%', collapse = ', '),
+        ##         ']')
+        ## }
+    }
     if(is.null(ylab)){
-        ylab <- paste0('Pr', prlab, xlab)
+        ylab <- 'probability'
         if(variability == 'quantiles'){
-            ylab <- paste0(ylab, '  (variab. ',
+            ylab <- paste0(ylab, '  [',
                 paste0(round(qnames, 1), '%', collapse = ', '),
-                ')')
+                ']')
         }
+    }
+
+    if(is.null(type)){
+        if(is.character(x)){type <- 'b'} else {type <- 'l'}
     }
 
     ## Plot the variability first
@@ -323,6 +345,7 @@ plot.probability <- function(
                 xlab = xlab,
                 ylab = ylab,
                 ylim = ylim,
+                main = main,
                 grid = grid,
                 add = (add || i > 1),
                 ...)
@@ -330,16 +353,21 @@ plot.probability <- function(
         }
 
     } else if(variability == 'samples' && length(p$values) > 1){
+        ## the samples are plotted alternating between the different subgroups,
+        ## rather than one group at a time, in order to avoid that
+        ## the samples of the last subgroup cover the previous ones
         nx <- dim(pvar)[2]
         dim(pvar) <- c(dim(pvar)[1], prod(dim(pvar)[-1]))
         flexiplot(x = x, y = pvar,
+            type = type,
             col = col[(seq_len(nx) - 1) %% length(col) + 1],
             alpha.f = var.alpha.f,
-            lty =  lty[(seq_len(nx) - 1) %% length(lty) + 1],
-            lwd = lwd[(seq_len(nx) - 1) %% length(lwd) + 1] / 4,
+            lty =  1, #lty[(seq_len(nx) - 1) %% length(lty) + 1],
+            lwd = 0.5, #lwd[(seq_len(nx) - 1) %% length(lwd) + 1] / 4,
             xlab = xlab,
             ylab = ylab,
             ylim = ylim,
+            main = main,
             grid = grid,
             add = add,
             ...)
@@ -349,6 +377,7 @@ plot.probability <- function(
     ## Plot the probabilities
     if(length(p$values) > 1){
         flexiplot(x = x, y = p$values,
+            type = type,
             col = col,
             alpha.f = alpha.f,
             lty = lty,
@@ -356,6 +385,7 @@ plot.probability <- function(
             xlab = xlab,
             ylab = ylab,
             ylim = ylim,
+            main = main,
             grid = grid,
             add = add,
             ...)
@@ -364,7 +394,9 @@ plot.probability <- function(
         if(!is.null(leg) && !isFALSE(legend)){
             if(isTRUE(legend)){legend <- 'top'}
             graphics::legend(x = legend,
-                legend = apply(leg, 1, paste0, collapse = ', '),
+                legend = apply(leg, 1, function(xxx){
+                    paste0(paste0(names(xxx), ' = ', xxx), collapse = ', ')
+                }),
                 bty = 'n',
                 col = col,
                 lty = lty,
@@ -373,6 +405,109 @@ plot.probability <- function(
         }
     }
 }
+
+
+#' Plot the variability of an object of class "probability" as a histogram
+#'
+#' This \code{\link[graphics]{hist}}ogram method is a utility to visualize the variability of the probabilities obtained with \code{\link{Pr}} or \code{\link{tailPr}}, which can also be interpreted as the probability density for the whole-population frequencies.
+#'
+#' @param p object of class "probability", obtained with \code{\link{Pr}} or \code{\link{tailPr}}.
+#' @param breaks `NULL` or as in function \code{\link[graphics]{hist}}. If `NULL` (default), an optimal number of breaks for each probability distribution is computed.
+#' @param legend string or logical: plot a legend of the different curves at position `legend`? If `TRUE`, position is 'top'.
+#' @param ... other parameters to be passed to \code{\link{flexiplot}}.
+#'
+#' @export
+hist.probability <- function(
+    p,
+    breaks = NULL,
+    legend = TRUE,
+    lty = c(1, 2, 4, 3, 6, 5),
+    lwd = 2,
+    col = palette(),
+    ##     c( ## Tol's colour-blind-safe scheme, or palette()
+    ##     '#4477AA',
+    ##     '#EE6677',
+    ##     '#228833',
+    ##     '#CCBB44',
+    ##     '#66CCEE',
+    ##     '#AA3377' #, '#BBBBBB'
+    ## ),
+    xlab = NULL,
+    ylab = NULL,
+    xlim = NULL,
+    ylim = c(0, NA),
+    grid = TRUE,
+    add = FALSE,
+    ...
+){
+    ## Check that samples are available in the probability object
+
+    if(is.null(p$samples)) {
+        stop('The probability object does not contain any frequency samples')
+        }
+    pvar <- p$samples
+    Ylen <- nrow(p$values)
+    Xlen <- ncol(p$values)
+
+    if(is.null(breaks)){n <- ceiling(sqrt(dim(pvar)[3])/2)} else {n <- NULL}
+
+    ## Precompute histograms, to determine maximum y-value
+    midslist <- densitylist <- list()
+    i <- 0L
+    for(xx in seq_len(Xlen)){ for(yy in seq_len(Ylen)){
+        i <- i + 1L
+        ff <- pvar[yy, xx, ]
+        rg <- range(ff)
+        if(diff(rg)==0){rg <- c(0, 1)}
+        if(!is.null(n)){ breaks <- seq(rg[1], rg[2], length.out=n+1) }
+        hd <- hist(x = ff, breaks = breaks, plot = FALSE)
+        midslist[[i]] <- hd$mids
+        densitylist[[i]] <- hd$density
+    } }
+
+    if(is.null(xlab)){xlab <- 'rel. frequency'}
+    if(is.null(ylab)){ylab <- 'probability dens.'}
+
+    if(missing(xlim)){xlim <- range(unlist(midslist))}
+    if(is.na(ylim)[2]){ylim[2] <- max(unlist(densitylist))}
+
+    i <- 0L
+    for(xx in seq_len(Xlen)){ for(yy in seq_len(Ylen)){
+        i <- i + 1L
+        flexiplot(x = midslist[[i]], y = densitylist[[i]],
+            xlab = xlab, ylab = ylab,
+            xlim = xlim, ylim = ylim,
+            col = col[(i - 1) %% length(col) + 1],
+            lty =  lty[(i - 1) %% length(lty) + 1],
+            grid = grid,
+            add = (add || i > 1),
+            ...
+            )
+    } }
+
+    ## Plot legends
+        if(!isFALSE(legend)){
+            if(isTRUE(legend)){legend <- 'top'}
+            legs <- c(outer(
+                paste0(apply(p$Y, 1, function(xxx){
+                    paste0(paste0(names(xxx), ' = ', xxx), collapse = ', ')
+                }), ' | '),
+                apply(p$X, 1, function(xxx){
+                    paste0(paste0(names(xxx), ' = ', xxx), collapse = ', ')
+                }),
+                paste0))
+
+            graphics::legend(x = legend,
+                legend = legs,
+                bty = 'n',
+                col = col,
+                lty = lty,
+                lwd = lwd,
+                ...)
+        }
+
+}
+
 
 
 #### Old functions below, deleting them soon
