@@ -18,6 +18,7 @@ flexiplot(
   col = palette(),
   alpha.f = 1,
   grid = TRUE,
+  cex.main = 1,
   add = FALSE,
   ...
 )

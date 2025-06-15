@@ -12,10 +12,12 @@
   lty = c(1, 2, 4, 3, 6, 5),
   lwd = 2,
   col = palette(),
+  type = NULL,
   alpha.f = 1,
-  var.alpha.f = 0.25,
+  var.alpha.f = NULL,
   xlab = NULL,
   ylab = NULL,
+  main = NULL,
   ylim = c(0, NA),
   grid = TRUE,
   add = FALSE,
@@ -33,10 +35,10 @@
 
 \item{alpha.f}{Numeric, default 0.25: opacity of the colours, \code{0} being completely invisible and \code{1} completely opaque.}
 
-\item{var.alpha.f}{Numeric, default 0.25: opacity of the quantile bands or of the samples, \code{0} being completely invisible and \code{1} completely opaque.}
+\item{var.alpha.f}{Numeric: opacity of the quantile bands or of the samples, \code{0} being completely invisible and \code{1} completely opaque.}
 
-\item{...}{other parameters to be passed to \code{\link[base]{matplot}}.}
+\item{...}{other parameters to be passed to \code{\link{flexiplot}}.}
 }
 \description{
-This plot method is a utility to plot probabilities obtained with \code{\link{Pr}} or \code{\link{tailPr}}, as well as their uncertainties. The probabilities are plotted either against \code{Y}, with one curve for each value of \code{X}, or vice versa.
+This \code{\link[base]{plot}} method is a utility to plot probabilities obtained with \code{\link{Pr}} or \code{\link{tailPr}}, as well as their variabilities. The probabilities are plotted either against \code{Y}, with one curve for each value of \code{X}, or vice versa.
 }

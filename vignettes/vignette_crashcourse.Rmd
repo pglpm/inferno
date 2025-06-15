@@ -259,6 +259,7 @@ The initial output gives a summary of the sample size, number of variates, savin
 The results of this main inference are now stored in the compressed file '`learn.rds`' (around 30 MB) within the specified output directory. The name of this directory is also saved as the final value of the `learn()` function, which we saved in the `learnt` variable in the code above.
 
 
+## Examples of analysis
 
 \
 
