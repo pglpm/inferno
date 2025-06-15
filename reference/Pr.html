@@ -50,7 +50,7 @@
 <span>  X <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  <span class="va">learnt</span>,</span>
 <span>  priorY <span class="op">=</span> <span class="cn">NULL</span>,</span>
-<span>  nsamples <span class="op">=</span> <span class="fl">100L</span>,</span>
+<span>  nsamples <span class="op">=</span> <span class="st">"all"</span>,</span>
 <span>  quantiles <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0.055</span>, <span class="fl">0.25</span>, <span class="fl">0.75</span>, <span class="fl">0.945</span><span class="op">)</span>,</span>
 <span>  parallel <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  silent <span class="op">=</span> <span class="cn">FALSE</span>,</span>
@@ -81,7 +81,7 @@ the joint probability of. One variate per column, one set of values per row.</p>
 
 
 <dt id="arg-nsamples">nsamples<a class="anchor" aria-label="anchor" href="#arg-nsamples"></a></dt>
-<dd><p>integer or <code>NULL</code> or <code>"all"</code>: desired number of samples of the variability of the probability for <code>Y</code>. If <code>NULL</code>, no samples are reported. If <code>"all"</code> (or <code>Inf</code>), all samples obtained by the <code><a href="learn.html">learn</a></code> function are used. Default <code>100</code>.</p></dd>
+<dd><p>integer or <code>NULL</code> or <code>"all"</code>: desired number of samples of the variability of the probability for <code>Y</code>. If <code>NULL</code>, no samples are reported. If <code>"all"</code> (or <code>Inf</code>), all samples obtained by the <code><a href="learn.html">learn</a></code> function are used. Default <code>"all"</code>.</p></dd>
 
 
 <dt id="arg-quantiles">quantiles<a class="anchor" aria-label="anchor" href="#arg-quantiles"></a></dt>
