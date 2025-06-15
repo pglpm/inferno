@@ -168,7 +168,7 @@ plotquantiles <- function(
 #' @param p object of class "probability", obtained with \code{\link{Pr}} or \code{\link{tailPr}}.
 #' @param variability one of the values `"quantiles"`, `"samples"`, `"none"` (equivalent to `NA` or `FALSE`), or `NULL` (default), in which case the variability available in `p` is used. This argument chooses how to represent the variability of the probability; see \code{\link{Pr}}. If the requested variability is not available in the object `p`, then a warning is issued and no variability is plotted.
 #' @param PvsY logical or `NULL`: should probabilities be plotted against their `Y` argument? If `NULL`, the argument between `Y` and `X` having larger number of values is chosen. As many probability curves will be plotted as the number of values of the other argument.
-#' @param legend string or logical: plot a legend of the different curves at position `legend`? If `TRUE`, position is 'top'.
+#' @param legend one of the values `"bottomright"`, `"bottom"`, `"bottomleft"`, `"left"`, `"topleft"`, `"top"`, `"topright"`, `"right"`, `"center"` (see \code{\link[graphics]{legend}}): plot a legend at that position. A value `FALSE` or any other does not plot any legend. Default `"top"`.
 #' @param alpha.f Numeric, default 0.25: opacity of the colours, `0` being completely invisible and `1` completely opaque.
 #' @param var.alpha.f Numeric: opacity of the quantile bands or of the samples, `0` being completely invisible and `1` completely opaque.
 #' @param ... other parameters to be passed to \code{\link{flexiplot}}.
@@ -178,7 +178,7 @@ plot.probability <- function(
     p,
     variability = NULL,
     PvsY = NULL,
-    legend = TRUE,
+    legend = 'top',
     lty = c(1, 2, 4, 3, 6, 5),
     lwd = 2,
     col = palette(),
@@ -391,18 +391,20 @@ plot.probability <- function(
             ...)
 
         ## Plot legends
-        if(!is.null(leg) && !isFALSE(legend)){
-            if(isTRUE(legend)){legend <- 'top'}
-            graphics::legend(x = legend,
-                legend = apply(leg, 1, function(xxx){
-                    paste0(paste0(names(xxx), ' = ', xxx), collapse = ', ')
-                }),
-                bty = 'n',
-                col = col,
-                lty = lty,
-                lwd = lwd,
-                ...)
-        }
+    if(!is.null(leg) && is.character(legend) &&
+           (legend %in%
+                c("bottomright", "bottom", "bottomleft", "left", "topleft",
+                    "top", "topright", "right", "center"))){
+        graphics::legend(x = legend,
+            legend = apply(leg, 1, function(xxx){
+                paste0(paste0(names(xxx), ' = ', xxx), collapse = ', ')
+            }),
+            bty = 'n',
+            col = col,
+            lty = lty,
+            lwd = lwd,
+            ...)
+    }
     }
 }
 
@@ -413,19 +415,22 @@ plot.probability <- function(
 #'
 #' @param p object of class "probability", obtained with \code{\link{Pr}} or \code{\link{tailPr}}.
 #' @param breaks `NULL` or as in function \code{\link[graphics]{hist}}. If `NULL` (default), an optimal number of breaks for each probability distribution is computed.
-#' @param alpha.f Numeric, default 0.125: opacity of the histogram filling. `0` means no filling.
-#' @param legend string or logical: plot a legend of the different curves at position `legend`? If `TRUE`, position is 'top'.
+#' @param fill.alpha.f Numeric, default 0.125: opacity of the histogram filling. `0` means no filling.
+#' @param legend one of the values `"bottomright"`, `"bottom"`, `"bottomleft"`, `"left"`, `"topleft"`, `"top"`, `"topright"`, `"right"`, `"center"` (see \code{\link[graphics]{legend}}): plot a legend at that position. A value `FALSE` or any other does not plot any legend. Default `"top"`.
+#' @param showmean logical: show the means of the probability distributions? The means correspond to the probabilities about the next observed unit.
 #' @param ... other parameters to be passed to \code{\link{flexiplot}}.
 #'
 #' @export
 hist.probability <- function(
     p,
     breaks = NULL,
-    legend = TRUE,
+    legend = 'top',
     lty = c(1, 2, 4, 3, 6, 5),
     lwd = 2,
     col = palette(),
-    alpha.f = 0.125,
+    alpha.f = 1,
+    fill.alpha.f = 0.125,
+    showmean = TRUE,
     ##     c( ## Tol's colour-blind-safe scheme, or palette()
     ##     '#4477AA',
     ##     '#EE6677',
@@ -467,9 +472,9 @@ hist.probability <- function(
         densitylist[[i]] <- hd$density
     } }
 
-    if(is.null(xlab)){xlab <- 'rel. frequency'}
-    if(is.null(ylab)){ylab <- 'probability dens.'}
-    if(isFALSE(alpha.f) || !is.numeric(alpha.f)){alpha.f <- 0}
+    if(is.null(xlab)){xlab <- 'relative frequency'}
+    if(is.null(ylab)){ylab <- 'probability density'}
+    if(isFALSE(fill.alpha.f) || !is.numeric(fill.alpha.f)){fill.alpha.f <- 0}
 
     if(missing(xlim)){xlim <- range(unlist(midslist))}
     if(is.na(ylim)[2]){ylim[2] <- max(unlist(densitylist))}
@@ -479,10 +484,12 @@ hist.probability <- function(
         i <- i + 1L
         x <- midslist[[i]]
         y <- densitylist[[i]]
+        thiscol <- col[(i - 1) %% length(col) + 1]
+        thislty <- lty[(i - 1) %% length(lty) + 1]
         if(alpha.f > 0){
             plotquantiles(x = x, y = cbind(rep(0, length(y)), y),
-                col = col[(i - 1) %% length(col) + 1],
-                alpha.f = alpha.f,
+                col = thiscol,
+                alpha.f = fill.alpha.f,
                 xlab = xlab, ylab = ylab,
                 xlim = xlim, ylim = ylim,
                 grid = grid,
@@ -494,34 +501,44 @@ hist.probability <- function(
         flexiplot(x = midslist[[i]], y = densitylist[[i]],
             xlab = xlab, ylab = ylab,
             xlim = xlim, ylim = ylim,
-            col = col[(i - 1) %% length(col) + 1],
-            lty =  lty[(i - 1) %% length(lty) + 1],
+            col = thiscol,
+            alpha.f = alpha.f,
+            lty = thislty,
+            lwd = lwd,
             grid = grid,
             add = (add || alpha.f >0 || i > 1),
             ...
-            )
+        )
+        if(isTRUE(showmean)){
+            graphics::abline(v = p$values[yy, xx],
+                col = adjustcolor(thiscol, alpha.f * 0.75),
+                lty = thislty,
+                lwd = lwd * 0.75)
+        }
     } }
 
     ## Plot legends
-        if(!isFALSE(legend)){
-            if(isTRUE(legend)){legend <- 'top'}
-            legs <- c(outer(
-                paste0(apply(p$Y, 1, function(xxx){
-                    paste0(paste0(names(xxx), ' = ', xxx), collapse = ', ')
-                }), ' | '),
-                apply(p$X, 1, function(xxx){
-                    paste0(paste0(names(xxx), ' = ', xxx), collapse = ', ')
-                }),
-                paste0))
+    if(is.character(legend) &&
+           (legend %in%
+                 c("bottomright", "bottom", "bottomleft", "left", "topleft",
+                     "top", "topright", "right", "center"))){
+        legs <- c(outer(
+            paste0(apply(p$Y, 1, function(xxx){
+                paste0(paste0(names(xxx), ' = ', xxx), collapse = ', ')
+            }), ' | '),
+            apply(p$X, 1, function(xxx){
+                paste0(paste0(names(xxx), ' = ', xxx), collapse = ', ')
+            }),
+            paste0))
 
-            graphics::legend(x = legend,
-                legend = legs,
-                bty = 'n',
-                col = col,
-                lty = lty,
-                lwd = lwd,
-                ...)
-        }
+        graphics::legend(x = legend,
+            legend = legs,
+            bty = 'n',
+            col = col,
+            lty = lty,
+            lwd = lwd,
+            ...)
+    }
 
 }
 

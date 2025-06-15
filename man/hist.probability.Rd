@@ -7,11 +7,13 @@
 \method{hist}{probability}(
   p,
   breaks = NULL,
-  legend = TRUE,
+  legend = "top",
   lty = c(1, 2, 4, 3, 6, 5),
   lwd = 2,
   col = palette(),
-  alpha.f = 0.125,
+  alpha.f = 1,
+  fill.alpha.f = 0.125,
+  showmean = TRUE,
   xlab = NULL,
   ylab = NULL,
   xlim = NULL,
@@ -26,9 +28,11 @@
 
 \item{breaks}{\code{NULL} or as in function \code{\link[graphics]{hist}}. If \code{NULL} (default), an optimal number of breaks for each probability distribution is computed.}
 
-\item{legend}{string or logical: plot a legend of the different curves at position \code{legend}? If \code{TRUE}, position is 'top'.}
+\item{legend}{one of the values \code{"bottomright"}, \code{"bottom"}, \code{"bottomleft"}, \code{"left"}, \code{"topleft"}, \code{"top"}, \code{"topright"}, \code{"right"}, \code{"center"} (see \code{\link[graphics]{legend}}): plot a legend at that position. A value \code{FALSE} or any other does not plot any legend. Default \code{"top"}.}
 
-\item{alpha.f}{Numeric, default 0.125: opacity of the histogram filling. \code{0} means no filling.}
+\item{fill.alpha.f}{Numeric, default 0.125: opacity of the histogram filling. \code{0} means no filling.}
+
+\item{showmean}{logical: show the means of the probability distributions? The means correspond to the probabilities about the next observed unit.}
 
 \item{...}{other parameters to be passed to \code{\link{flexiplot}}.}
 }
