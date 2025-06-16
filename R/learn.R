@@ -261,6 +261,13 @@ learn <- function(
         data <- as.data.frame(data)
         rownames(data) <- NULL
 
+        ## convert factors to strings if necessary
+        if(any(sapply(data, is.factor))){
+            cat('Converting factors to characters\n')
+            . <- sapply(data, is.factor)
+            data[, .] <- lapply(data[, ., drop = FALSE], as.character)
+        }
+
         ## Consistency checks for data
         ## They should be moved to an external function
 

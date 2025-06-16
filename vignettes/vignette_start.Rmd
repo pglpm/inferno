@@ -1,8 +1,8 @@
 ---
-title: "Example of use: inferno for penguins"
+title: "Bayesian nonparametric inference with inferno"
 output: rmarkdown::html_vignette
 vignette: >
-  %\VignetteIndexEntry{Example of use: inferno for penguins}
+  %\VignetteIndexEntry{Bayesian nonparametric inference with inferno}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 ---
@@ -31,9 +31,284 @@ palette(c(black='black',
 set.seed(16)
 ```
 
-## A crash course in population inference
+This vignette gives an introduction and guide to the kinds of *Bayesian nonparametric inference* that can be done with ***inferno***, by means of a concrete example. It also has the purpose to clarify the terminology used in the ***inferno*** package.
 
-### Population inferences
+## Before we start
+
+It is of course impossible to summarize this branch of probability theory and of statistics in a couple of sections; you're invited to learn more for instance from the texts given in the [references](#references).
+
+Two extremely important warnings before you follow the example:
+
+- Some terms may sound familiar to you, but keep in mind that they may have quite different meanings from what you're used to. This is especially true of the terms in *italics*. When you see a term in **boldface**, try to understand its meaning from the way it's used, rather than assuming the meaning familiar to you. Unfortunately, different methods and different disciplines use the same terms in different ways.
+  
+  In particular keep in mind that the term **probability** does *not* mean **frequency**. 'Probability' means 'plausibility' or 'degree of belief': it is a quantification of a researcher's uncertainty about some possible fact. There is a connection between probability and frequency, but they are not the same. The distinction is important, because one of the main problems in statistical inference is that *we are uncertain about the frequency of something* -- the occurrence of a disease, symptom, or other characteristics -- and our goal is to quantify and reduce that uncertainty as much as possible.
+
+- The example that follows is, like every example, very specific. But try to see the more general, abstract picture behind it, and to see how its general methodology could be applied to research that is more interesting to you. From time to time we shall draw analogies with other examples that may look very different and yet use essentially the same methodology.
+
+\
+You're now welcome to open R in your favourite integrated development environment and test yourself the code that follows. In our example we shall use data from the `penguins` dataset, included in R version 4.5.0 and above.
+
+
+## Penguins
+
+We are researchers interested in penguins; specifically the **population** living in the Antarctic islands *Biscoe*, *Dream*, *Torgersen*. Our research questions are not yet precisely defined, but some initial questions of interest are the following. The penguins can be of three species: [*Adélie*](https://www.bas.ac.uk/about/antarctica/wildlife/penguins/adelie-penguin/), [*Chinstrap*](https://www.bas.ac.uk/about/antarctica/wildlife/penguins/chinstrap-penguin/), [*Gentoo*](https://www.bas.ac.uk/about/antarctica/wildlife/penguins/gentoo-penguin/); we'd like to know:
+
+Q1
+: Do the three species differ, *statistically*, in some physical or geographical characteristic such as sex or island of origin? We say "statistically" because, for instance, there surely are females and males of every species, but it's possible that for one of the species the ratio of females to males is higher than for another species.
+
+Q2
+: Is there a physical or geographical characteristic that allows us to make a good guess about a penguin's species? We say "guess" because, for instance, from knowing which island a penguin comes from we can't be 100% sure about that penguin's species.
+
+In order to approach these and other future questions, we decide which set of penguin characteristics we should consider and observe. These characteristics are called the **variates** of the population. This set can be extended or reduced later on. Guided by previous studies, or by some hypotheses we are entertaining, we choose the following variates, each denoted by a short `codeword`:
+
+- Species (`species`)
+- Island (`island`)
+- Bill (`bill_len`): [the length of a penguin's "beak"](https://allisonhorst.github.io/palmerpenguins/reference/figures/culmen_depth.png) in millimetres
+- Bill depth (`bill_dep`): [the depth of a penguin's "beak"](https://allisonhorst.github.io/palmerpenguins/reference/figures/culmen_depth.png) in millimetres
+- Flipper length (`flipper_len`): the length of a penguin's "wing" in millimetres
+- Body mass (`body_mass`) in grammes
+- Sex (`sex`)
+
+Later on we shall include an additional variate:
+
+- Study year (`year`): the year a penguin was observed and measured
+
+because there could be time trends in the values we observe. For instance, a particular species might have more females than males during one year, and vice versa during another year.
+
+### "Population"?
+
+The question of time-trends leads us to more general considerations and questions about statistical research, which unfortunately are often forgotten.
+
+To start with: this "population" which we want to study, how is it defined exactly? What counts as a member of the population, and what doesn't? For example, a seal clearly doesn't count, because it isn't a penguin. A penguin from the Galápagos island doesn't count either, because it isn't from one of the three Antarctic islands we specified. But does a penguin who was alive in the year 1830 count? what about one who will live in those islands in the year 2100? Does a penguin with some kind of notable physical impairment count? Does a penguin who only lived 1 year count? Does a penguin born in the Galápagos island but subsequently transported to the Antarctic islands count?
+
+No matter which research field you work in, you realize that analogous questions appear when you try to define the "population" in some study.
+
+It is practically impossible to specify an exact criterion for membership in a population under study. We may try to cover and delimit as many factors as possible, but there may always appear a new one we didn't think of. There's no "objective" specification of a population: the specification depends on our research purpose -- which often is not precisely specified either. We must therefore always be prepared to further specify the population of our study. In some cases we may even need to modify our previous specification, and thus discard some data or acquire new ones.
+
+The intrinsic and unavoidable problem in the specification of a population has important consequences for the way we observe and measure the population and its variates. We now turn to this problem.
+
+### Sampling
+
+Our questions **Q1** and **Q2** could have *exact statistical answers* if we had a *complete census* of the penguin population; that is, if we went and "measured" the values of the variates in each and every penguin of the population.
+
+To make this point clearer, imagine a slightly different population. Suppose we were interested only in all the penguins alive today on a specific, very small island. The island turns out to have 17 penguins. We check all of them. We find that 6 of these are females, and 11 are males. It's then a fact that 6/17${}\approx{}$35.3% of penguins in this specific population are females, and 64.7% are males. And if someone picked a penguin from this population and asked us to guess its sex, we would give a 35.3% probability to that penguin's being female, and 64.7% to its being male.^[Note the difference between probability and frequency. If an expert colleague tells us "I was able to take a quick look at that penguin, and it looks female to me, though I'm not completely sure", then our *probability* that this specific penguin is female would get higher than 50%. If we observe the penguin and see that it's female, our probability for female would become 100%.  Yet the *frequency* of females in the population is still 35.3%.]
+
+But it is often impractical or impossible to take a complete census. Think of the case were the whole population includes members or variates that will only exist in the future. For this reason we proceed as follows: we observe a **sample** of the whole population, and from the study of this sample we try to infer the statistical properties of the whole population. Our inferences are perforce uncertain: we can't be fully sure about the exact statistical properties of the whole population. The essential point is that our uncertainty is not just a matter of "I don't know" versus "I know":
+
+- we can *quantify* our uncertainty;
+- we can *reduce* our uncertainty, sometimes to the point where it becomes almost a certainty.
+
+Some trusted colleagues thus go to the three islands, and examine samples of penguins there, sending back the values they observe. The way they do the sampling would require a deep analysis and discussion, but for the moment we put these aside.
+
+How many samples should our colleagues collect? The short answer is: as many as they can. The more samples we have, the more certain our conclusions will be -- all kinds of conclusions: for instance those that may reveal the presence, as well as those that may reveal the absence, of important associations.
+
+One important feature of Bayesian inference is that *we don't need to choose beforehand when to stop sampling*. We can monitor the results as more and more samples arrive, and stop as soon as the level of certainty about the results is satisfactory. This is possible because in Bayesian inference the *sample size affects only the uncertainty* we have of the ground truth -- association, effect, or other hypothesis -- but *it cannot affect the ground truth itself*. If the truth is that "there is no effect", then this truth will come to light with more and more certainty as we increase the sample size, and no amount of sampling will be able to change this truth.
+
+## First analysis
+
+We receive the first 10 datapoints. They are stored in the file `'penguindata2007_10.csv'`, respecting the [formatting rules required by ***inferno***](#format). Here they are:
+
+```{r echo = FALSE}
+datafile <- 'penguindata2007_10.csv'
+dat <- read.csv(datafile,
+    na.strings = '', stringsAsFactors = FALSE, tryLogical = FALSE)
+
+knitr::kable(dat[,-ncol(dat)], row.names = TRUE)
+```
+
+
+
+With these datapoints we start our Bayesian nonparametric analysis using ***inferno***! Let's load the package:
+
+```{r eval = FALSE}
+library(inferno)
+```
+
+There are two preliminary steps that we usually must follow to perform an analysis:
+
+1. Determine and prepare the **metadata** about the variates of interest.
+2. Perform the general inference about the whole population from the sampled data; we shall call this **learning** from the sample data.
+
+### Metadata preparation
+
+Metadata are "data about the data". They are provided in a CSV file respecting the [formatting rules](#format) and consist of around eight pieces of information about the variates of our population. Specifically:
+
+Variate name (`name`)
+: This is a character or string: name of a variate. Different variates should obviously have different names.
+
+
+Variate type (`type`)
+: ***inferno*** can handle three kinds of variates:
+    
+    - `nominal`: it can take on a finite number of discrete values, which do not have any natural ordering. Examples could be sex or geographical location.
+    - `ordinal`: it can take on a finite number of discrete values, which do have a natural ordering. They can be qualitative or numeric. Examples could be the degree of satisfaction of a customer, or the severity of a disease, or a [Likert scale](https://www.britannica.com/topic/Likert-Scale).
+    - `continuous`: it can in principle take on an infinite number of continuous values, although they can be discretized or rounded. Examples could be age or weight.
+    
+    Many other types of variates exist. For example images and audio are also types of variates; but ***inferno*** cannot handle these complex types. A simple type of variate that ***inferno*** cannot properly handle is the *cyclic* one, such as time of day. There are no clear-cut separations between different types of variates; thus it's sometimes difficult to assess the type.
+
+
+Domain minimum and maximum (`domainmin`, `domainmax`)
+: These are numbers, only defined for numeric-ordinal and continuous variates. These metadata are the minimum and maximum value a variate can take on in a given study. For example, in a study about health or employment of adults, a variate *age* might have a minimum of 18 years. In a more general study involving people of all ages, the minimum would be 0. In a health study where people of 90 years or more are pooled together, the maximum would be 90 years. A minimum could also be minus-infinity, and a maximum plus-infinity. Obviously the minimum should be lower than the maximum.
+    
+    Sometimes the minimum or maximum is not clear-cut. For instance, there is no theoretical maximum on a person's age, although we can consider an age of 300 impossible to reach today. In such cases the maximum or minimum can be taken to be plus or minus infinity.
+
+Interval between values (`datastep`)
+: This is a positive number, only defined for numeric-ordinal and continuous variates. It is the separation between consecutive values. For example, in a 1--5 Likert-scale variate, the interval is 1. For an *age* variate expressed in and rounded to years, the interval is 1. For a *length* variate expressed in centimetres and rounded to millimetres, the interval is 0.1.
+
+Inclusion of inimum and maximum (`minincluded`, `maxincluded`)
+: These are logical or `yes`/`no`, only defined for continuous variates. They tell whether the minimum and maximum of a continuous variate are themselves possible values or not. Often such extreme values have a special meaning, and this information is important with censored or pooled data. For example, a *length* continuous variate might be expressed in decimetres and reported without rounding, but all lengths above 1 dm might be pooled together into the value "1 dm or more"; in such case we must make sure to state that `maxincluded` is `True` or `"yes"`.
+
+Values (`V1`, `V2`, ...)
+: These are characters or strings, only defined for nominal or non-numeric ordinal variates. They are the values that a nominal or ordinal variate can *in principle* take on in the population of interest. Note that they are include not only the values that are observed in a sample, but also those that could be observed in the rest of the population. A nominal or ordinal variate must have at least two distinct values; it wouldn't make much sense to draw inferences about it otherwise.
+
+Why does ***inferno*** need metadata? Because it performs *nonparametric* inference. In other words, it does not assume the frequency distribution of the variates in the whole population to have any specific class of shapes, such as a Gaussians. It tries to extrapolate the frequency distribution of the whole population from the sample data provided. We must therefore provide to it the same general information that we have about the variates, and about any artificial modifications performed on their values, such as rounding or pooling.
+
+In order to prepare the metadata file we can use the `metadatatemplate()` helper function. This function reads the sample data and prepares a preliminary file containing heuristic *guesses* about the metadata, which we'll have to check and correct. The function motivates its guesses and warns about especially uncertain ones:
+
+```{r}
+datafile <- 'penguindata2007_10.csv'
+metadatafile <- 'penguinmetadata.csv'
+metadatatemplate(data = datafile, file = metadatafile)
+```
+
+Here is the preliminary metadata file created by this helper function:
+
+```{r echo = FALSE}
+dat <- read.csv(metadatafile,
+    na.strings = '', stringsAsFactors = FALSE, tryLogical = FALSE)
+knitr::kable(dat, row.names = FALSE)
+```
+
+We see that `metadatatemplate()` guessed correctly about the `species`, `island`, and `sex` variates, assigning them a `nominal` type and listing all possible values that can occur in the whole population. Note that if we knew of an additional species present in the whole population but absent from the sample, we ought to add it under the **V3** column.
+
+The guesses about the `bill_len` and `bill_dep` variates are also correct: they are continuous, rounded to the nearest tenth of millimetre, and cannot be less than zero. The absence of **domainmax** values means that the theoretical maximum is plus infinity. We could replace this maximum with something more realistic, for instance `1000` mm or less, but typically these changes do not lead to relevant differences in our inferences. The absence of **minincluded** means that the minimum, `0`, is not a possible value; similarly for **maxincluded**.
+
+The guess about the `flipper_len` variate is not correct. This variate is similar to `bill_len` but rounded to the nearest integer. Similarly for the wrongly guessed `body_mass` variate, which is rounded in steps of `25`.
+
+We must open and edit the metadata file `'`r datafile`'` with our favourite editor and correct and complete the guesses of the helper function. In this case we end up with the following corrected metadata file:
+
+```{r echo = FALSE}
+metadatafile <- 'metadata_penguins.csv'
+dat <- read.csv(metadatafile,
+    na.strings = '', stringsAsFactors = FALSE, tryLogical = FALSE)
+knitr::kable(dat, row.names = FALSE)
+```
+
+Later on we shall add the variate `year` to the metadata file.
+
+
+### "Learning" and extrapolating from the sample data
+
+Now comes the essential part of our analysis: from the sample data and the metadata information,***inferno*** will draw inferences about the *whole* population of penguins, including new penguins (from the same population) that we shall observe in the future. Subsequent analyses are based on this main inference. The general theory behind this kind of inference, based on the property of *exchangeability* and related mathematical theorems, is explained in the [references](#references).
+
+This inference is performed by calling the `learn()` function. Its minimal arguments are three: the sample `data`, the `metadata`, and the name `outputdir` of a directory where the inference results should be saved; some additional information will be suffixed to this directory name. We can also give a numeric `seed` argument if we want to reproduce the same output in another run.
+
+This function does Monte Carlo sampling and is computationally expensive. It may take minutes, hours, or days to run, depending on the amount of sample data and the number of variates. In order to speed up its computations, it tries to use any multi-cores capabilities of the machine it runs in. The output shown below was obtained from running it on 15 cores:
+
+```{r eval = FALSE}
+learnt <- learn(
+    data = datafile,
+    metadata = metadatafile,
+    outputdir = 'penguin_inference',
+    seed = 16,
+    parallel = 15)
+#> 
+#> Registered doParallelSNOW with 15 workers
+#> Warning: data have additional variates. Dropping them.
+#> Calculating auxiliary metadata
+#> 
+#> Learning:  10 datapoints,  7 variates
+#> 
+#>  ********************************************************* 
+#>  Saving output in directory
+#>  penguin_inference-251231T130101-vrt7_dat10_smp3600 
+#>  ********************************************************* 
+#> Starting Monte Carlo sampling of 3600 samples by 60 chains
+#> in a space of 899 (effectively 3717) dimensions.
+#> Using 15 cores: 60 samples per chain, max 4 chains per core.
+#> Core logs are being saved in individual files.
+#> 
+#> C-compiling samplers appropriate to the variates (package Nimble)
+#> this can take tens of minutes. Please wait...
+#> Compiled core 1. Number of samplers: 1012.
+#> Estimating remaining time, please be patient...
+#> Sampling. Core 12 estimated end time: 2025-31-12 13:04
+#> Finished Monte Carlo sampling.
+#> 
+#> Max number of Monte Carlo iterations across chains: 5033
+#> Max number of used mixture components: 8
+#> 
+#> Checking test data
+#> ( #1 #3 #4 #6 #7 #8 #9 #10 )
+#> 
+#> rel. MC standard error: min: 0.019  max: 0.034  mean: 0.026
+#> eff. sample size: min: 860  max: 2700  mean: 1700
+#> needed thinning: min: 2  max: 7  mean: 4.5
+#> average: min: 6.5e-08  max: 3.2e-07  mean: 1.7e-07
+#> 
+#> Plotting final Monte Carlo traces and marginal samples...
+#> 
+#> Total computation time: 2.2 mins
+#> Average total time per chain: 0.037 mins
+#> 
+#> Removing temporary output files.
+#> Finished.
+#> 
+#> 
+#> Closing connections to cores.
+```
+
+The initial output gives a summary of the sample size, number of variates, saving directory, and other computational details. The "`estimated end time`" line updates from time to time with a better estimate of the computation's end time. Once the computation is finished, some final information about the underlying Monte Carlo computation is provided.^[The Monte Carlo expert will notice that the effective sample size is around 900 or more. The Monte Carlo sampling is designed to stop when 3600 samples have been obtained with an effective sample size of at least 400, or equivalently a relative Monte Carlo standard error under 0.05. This is enough, considering that the statistical uncertainty in the results can be tens or hundreds of times larger than this. The desired number of samples and maximal Monte Carlo standard error can be specified with the `nsamples` and `relerror` arguments.] Note that the inference above, with 10 sample data and 7 variates, took a couple of minutes to complete on 15 cores.
+
+The results of this main inference are now stored in the compressed file '`learn.rds`' (around 30 MB) within the specified output directory. The name of this directory is also saved as the final value of the `learn()` function, which we saved in the `learnt` variable in the code above.
+
+
+## Examples of analysis
+
+\
+
+*(TO BE CONTINUED)*
+
+\
+
+## References {#references}
+
+On *exchangeability*:
+
+- Bernardo, Smith: [*Bayesian Theory*](https://doi.org/10.1002/9780470316870) (repr. 2000). See especially §§ 4.2--4.3, 4.6.
+
+- Dawid: [*Exchangeability and its ramifications*](https://doi.org/10.1093/acprof:oso/9780199695607.003.0002) (2013).
+
+- de Finetti: [*La prévision: ses lois logiques, ses sources subjectives*](https://www.numdam.org/item/AIHP_1937__7_1_1_0) (1937).
+
+- Heath, Sudderth: [*De Finetti's theorem on exchangeable variables*](https://doi.org/10.1080/00031305.1976.10479175) (1976).
+
+- Hewitt, Savage: [*Symmetric measures on Cartesian products*](https://doi.org/10.1090/S0002-9947-1955-0076206-8) (1955).
+
+- Lindley, Novick: [*The role of exchangeability in inference*](https://doi.org/10.1214/aos/1176345331) (1981).
+
+- ***inferno*** accompanying manual: [*Foundations of inference under symmetry*](https://github.com/pglpm/inferno/raw/main/development/manual/optimal_predictor_machine.pdf) (draft).
+
+On Bayesian theory in general:
+
+- [*ADA 511: Foundations of data science](https://pglpm.github.io/ADA511)
+
+- Jaynes: [*Probability Theory*](https://doi.org/10.1017/CBO9780511790423) (2003)
+
+## Format for data and metadata files and their contents {#format}
+
+The functions of the ***inferno*** package accept CSV files formatted as follows:
+
+- Decimal values should be separated by a *dot*; no comma should be used to separate thousands etc. Example: `86342.75` .
+- Character and names should be quoted in single or double quotes. Example: `"female"`.
+- Values should be separated by *commas*, not by tabs or semicolons.
+- Missing values should be simply *empty*, not denoted by "NA", "missing", "-", or similar.
+
+Names of variates and character variate values should be strings conforming to [R's rules](https://cran.r-project.org/doc/FAQ/R-FAQ.html#What-are-valid-names_003f).
+
+<!-- 
+
+## Population inferences
 
 A very common type of inference is the following. We have a large or potentially infinite group of entities, each having a set of characteristics. Having checked the characteristics of several entities from this group, we want to make guesses about the characteristics of new entities from the same group.
 
@@ -67,9 +342,8 @@ Having discussed these simple examples, let's agree on some more standard termin
 - **Unit**: what we've called 'entity' -- the object, person, animal, etc.
 - **Variate**: what we've called 'characteristic'.
 
-\
 
-### Probability and population frequencies
+## Probability and population frequencies
 
 We have been speaking about "making guesses"; but what does this mean?
 
@@ -122,6 +396,9 @@ $$
 $$
 
 \
+***inferno*** allows you to calculate probabilities of this kind, for any set of variates of your choice.
+
+## Learning from known variates
 
 But there's even more interesting information in the population frequencies above. Let's focus on *Biscoe* island. With a quick sum we see that 48.4% of the whole population comes from *Biscoe* island (thus we'd assign a probability of 0.484 that our penguin comes from that island). Dividing the frequencies above, row-wise, by the frequencies of the respective islands (the sums of each row), we can find the frequency of each species *for each particular island*:
 
@@ -152,23 +429,110 @@ $$
 \textsf{population frequency}) = 0.7025
 \end{aligned}
 $$
-The right side of the '$\mid$' bar now reports the extra information that the penguin comes from `island` *Biscoe*.
+The right side of the '$\mid$' bar now reports the extra information that the penguin comes from `island` *Biscoe*. We say that our probability has been *updated*, and we call it a **conditional probability**.
 
 Learning about the penguin's `island` not only made you change the highest probability assignment from *Aelie* to *Gentoo*, but it also increased the value of the highest probability. Without knowing the penguin's `island`, *Adelie* had slightly less than 50% probability; it was as likely as not. After learning the `island` variate, *Gentoo* gets more than 70% probability.
 
-This is exactly the kind of learning situation that happens in medicine and clinical inferences. A clinician searches for symptoms because they may change and increase the probabilities of different diseases or health conditions. The reason why clinicians research particular *subgroups* -- particular demographics, or genetic factors, etc. -- is that within these subgroups the probability that a medical condition exist or will occur can be drastically higher. In turn, this leads the clinicians to understand better what can be the biological relationships between the health condition and those factors.
+An analogous discussion can be made for a continuous variate. Let's for instance take the `body_mass` of the penguins, discretized in steps of 0.025 kg. Suppose we knew that the histogram of body masses in the whole population were as follows:
+
+```{r echo=FALSE, fig.align='center', out.width='75%'}
+knitr::include_graphics("prob-body_mass.jpg")
+```
+
+Then, if you had to guess the body mass of the penguin brought to you, you'd give the value 4 kg (plus or minus 0.0125 kg) a probability of around 1%, and so on for other possible values; the most probable value being 3.6 kg at 1.4% probability.
+
+Suppose you're now given also the histograms for the subpopulations from the three islands:
+
+```{r echo=FALSE, fig.align='center', out.width='75%'}
+knitr::include_graphics("prob-body_mass-given_island.jpg")
+```
+
+Upon learning that your penguin is from *Biscoe*, your degree of belief would change: the most probable value would be 4.8 kg at 1.3% probability. Note how the histograms for `body_mass` are different in the subpopulations of the three islands. In *Torgersen*, for instance, it's more probable to find penguins between 3 kg and 4 kg than between 5 kg and 6 kg; whereas in *Biscoe* the opposite is true.
+
+\medskip
+
+This is exactly the kind of learning situation that takes place in medicine and in clinical inferences. A clinician searches for symptoms because they may change and increase the probabilities of different diseases or health conditions. The reason why clinicians research particular *subpopulations* -- particular demographics, or genetic factors, etc. -- is that within these subgroups the probability that a medical condition exist or will occur can be drastically higher. In turn, this leads the clinicians to understand better what can be the biological relationships between the health condition and those factors.
+
+\
+***inferno*** allows you to calculate the updated probabilities of any set of variates, conditional on any other set.
 
 
-### Population samples and uncertainty
+## Uncertainty about whole populations. Population samples
 
-Inferences are therefore quite clear if we know the frequencies of the variates in a whole population. Our main problem is that we usually *don't know those population frequencies*. For example, do you know the *exact* number of people, among those born in your country at any time and are alive today, who are exactly between 165 cm and 170 cm tall today? And it's often impractical or impossible to measure those frequencies.
+Inferences are therefore quite clear if we know the frequencies of the variates for the *whole* population. Our main problem is that we usually *don't know those whole-population frequencies*. For example, do you know the *exact* number of people, among those born in your country at any time and are alive today, who are exactly between 165 cm and 170 cm tall today?
 
+For our penguin example, let's consider again the `body_mass` variate. We actually don't know what the histogram of this variate over the whole population looks like. It could have one or several peaks, a symmetric or non-symmetric shape, shoulders, an so on. Here are seven possibilities:
+
+```{r echo=FALSE, fig.align='center', out.width='75%'}
+knitr::include_graphics("penguin_priors.jpg")
+```
+
+\
+It's often impractical or impossible to measure the frequencies of a variate in a whole population. We must therefore *guess* them.
+
+In order to guess them, we usually examine a **sample** from the population of interest. This sample is chosen in an unsystematic way, so that its statistics and its **sample frequencies** are not affected by peculiar choices, otherwise we would have a *biased* sample (imagine for instance choosing a sample of *male* penguins only, whereas the penguin population we're interested in has both males and females).
+
+But the frequencies of variates in a sample from a population are typically different from those in the whole population. The difference is the larger, the smaller the sample. For example, if we chose five penguins from our penguin population in an unsystematic way, it could happen that we got five penguins all of species *Gentoo*. Then the variate `species` would have frequencies of 100% for *Gentoo* and 0% for *Adelie* and *Chinstrap*. But of course this would not mean that only the species *Gentoo* occurs in the whole population. In order to reflect the frequencies in the whole population, the size of a sample needs to be larger, the larger are:
+
+- the numbers of variates considered;
+- the possible values of each variate.
+
+Therefore, to guess the frequencies in the whole population we can examine a sample from it -- but we cannot fully rely on the sample.
+
+\medskip
+
+The traditional way of facing this uncertainty was to *assume* that the whole population has frequencies with particular features; most commonly, they were assumed to be *Gaussian*. The variate values observed in the sample were used to fit the free parameters of the particular assumed distribution, like the means, variances, covariances of the Gaussian.
+
+Consider how drastic such an approach is. It can also be misleading, if one is not aware of what is being done. For instance, errors can be reported about the fit of the free parameters, and if they are small they can give a false sense of precise inference. But the very *assumption* has errors, which may be quite large; and such errors are rarely reported.
+
+One could object that the assumption, say of gaussianity, behind such methods is not completely arbitrary: one can get the idea of whether it's correct or not by looking at the sample. But this objection is self-contradictory: as discussed, our problem is that the frequencies in the sample are not a faithful reflection of those in the whole population. We're making assumption because the sample is not reliable, so how can we rely on the sample to judge those assumptions?
+
+It must be pointed out that even methods or measures that do not explicitly refer to peculiar assumptions about frequencies, *do* actually rely on such hidden assumptions. Pearson's measure of correlation, for instance, actually relies on the assumption that the joint frequency distribution for the whole population is Gaussian.
+ add ref 
+
+## Bayesian nonparametric population inference
+
+The method based on the assumption of peculiar frequency distribution was a necessity in the past, because there was no other computationally feasible way of facing the uncertainty about the whole population. But today the situation is different.
+
+Instead of making peculiar assumptions out of computational desperation, today we can explicitly recognize our uncertainty about the frequencies in the whole population, and therefore account for the errors that can come from this uncertainty. This is what Bayesian nonparametric population inference does. The term 'nonparametric' means that no peculiar assumptions are made about frequency distribution having simple shapes (and therefore expressible with few parameters).
+
+Since we must *guess* what the frequencies are in the whole population, we proceed by assigning *probabilities* to all possible such frequency distributions. Intuitively, a candidate frequency distribution is more probable:
+
+- the more it fits the frequencies measured in the sample;
+- the more it looks "natural".
+
+An example of unnatural or strange probability distribution, for our `body_mass` variate, could be the following:
+
+```{r echo=FALSE, fig.align='center', out.width='75%'}
+knitr::include_graphics("penguin_prior_strange.jpg")
+```
+
+It seems quite unnatural based on our experience with histograms over large natural populations. If a sample from a penguin population showed this frequency distribution of `body_mass` values, you would probably check whether any errors were made during the sampling.
+
+The core of the ***inferno*** package is the calculation of the probabilities for the possible frequencies of the whole population, and the selection of a large sample of the most probable ones. This calculation and sampling are realized by the `learn()` function.
+
+## Back to guessing about the next unit
+
+
+
+
+
+
+There are situations in which it is not possible to choose the sample in an unsystematic way. Yet such a biased sample can still be used for population inference, as long as we know what its bias may be. ***inferno*** allows you to make this kind of bias corrections as well.
+
+But the frequencies of variates in a sample from a population are typically different from those in the whole population. The difference is the larger, the smaller the sample. There are even extreme situations in which some statistics from a sample, like the mean, can be way off those of the whole population, even if the sample is large (the statistics become reliable only when the sample is almost as large as the full population). The plot below shows an example. The variate is a real number that can take on positive or negative values, in a population of 100 000 000 units; the mean value of the variate in the whole population is $-1.14$. The plot shows the values of the mean obtained from unsystematically chosen samples of various sizes. Even in a sample of 30 000 000 units we may observe a mean of $-3$. The *median* of a sample is much more reliable.
+
+```{r img-with-knitr, echo=FALSE, fig.align='center', out.width='67%'}
+knitr::include_graphics("sample_mean.jpg")
+```
+
+The point of this example is only to make clear that although a sample from a population gives us some information about the whole population, we are still uncertain about the whole-population frequencies.
+
+
+<!-- ![](sample_mean.jpg){#id .class width=50%}
 
 *(TO BE CONTINUED)*
 
-----
-
-----
 
 ----
 
@@ -269,3 +633,5 @@ learnt <- learn(
 
 
 *(TO BE CONTINUED)*
+
+ -->
