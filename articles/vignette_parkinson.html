@@ -33,10 +33,9 @@
 <li class="active nav-item dropdown">
   <button class="nav-link dropdown-toggle" type="button" id="dropdown-articles" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Articles</button>
   <ul class="dropdown-menu" aria-labelledby="dropdown-articles">
-<li><a class="dropdown-item" href="../articles/vignette_crashcourse.html">A crash course in Bayesian nonparametric inference with inferno</a></li>
-    <li><a class="dropdown-item" href="../articles/vignette_mutualinfo.html">Associations of variates with mutual information</a></li>
+<li><a class="dropdown-item" href="../articles/vignette_mutualinfo.html">Associations of variates with mutual information</a></li>
     <li><a class="dropdown-item" href="../articles/vignette_parkinson.html">Example of use: inferences for Parkinson's Disease</a></li>
-    <li><a class="dropdown-item" href="../articles/vignette_start.html">Example of use: inferno for penguins</a></li>
+    <li><a class="dropdown-item" href="../articles/vignette_start.html">Bayesian nonparametric inference with inferno</a></li>
   </ul>
 </li>
       </ul>
@@ -545,9 +544,9 @@ probability we wanted to know. In this case it is</li>
 </ul>
 <div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">probability0</span><span class="op">$</span><span class="va">value</span></span>
-<span><span class="co">#&gt;       X</span></span>
-<span><span class="co">#&gt; Y            [,1]</span></span>
-<span><span class="co">#&gt;   [1,] 0.06420201</span></span></code></pre></div>
+<span><span class="co">#&gt;    X</span></span>
+<span><span class="co">#&gt; Y         [,1]</span></span>
+<span><span class="co">#&gt;   0 0.06420201</span></span></code></pre></div>
 <p>that is, there is approximately a 6.4% probability that the next
 treated female patient will have a MDS-UPDRS-III difference of exactly
 0.</p>
@@ -567,27 +566,27 @@ al.</a>). In this case they are</li>
 <code class="sourceCode R"><span><span class="va">probability0</span><span class="op">$</span><span class="va">quantiles</span></span>
 <span><span class="co">#&gt; , ,  = 5.5%</span></span>
 <span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt;       X</span></span>
-<span><span class="co">#&gt; Y            [,1]</span></span>
-<span><span class="co">#&gt;   [1,] 0.02893608</span></span>
+<span><span class="co">#&gt;    X</span></span>
+<span><span class="co">#&gt; Y         [,1]</span></span>
+<span><span class="co">#&gt;   0 0.02893608</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; , ,  = 25%</span></span>
 <span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt;       X</span></span>
-<span><span class="co">#&gt; Y            [,1]</span></span>
-<span><span class="co">#&gt;   [1,] 0.04481232</span></span>
+<span><span class="co">#&gt;    X</span></span>
+<span><span class="co">#&gt; Y         [,1]</span></span>
+<span><span class="co">#&gt;   0 0.04481232</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; , ,  = 75%</span></span>
 <span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt;       X</span></span>
-<span><span class="co">#&gt; Y            [,1]</span></span>
-<span><span class="co">#&gt;   [1,] 0.07756895</span></span>
+<span><span class="co">#&gt;    X</span></span>
+<span><span class="co">#&gt; Y         [,1]</span></span>
+<span><span class="co">#&gt;   0 0.07756895</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; , ,  = 94.5%</span></span>
 <span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt;       X</span></span>
-<span><span class="co">#&gt; Y           [,1]</span></span>
-<span><span class="co">#&gt;   [1,] 0.1119128</span></span></code></pre></div>
+<span><span class="co">#&gt;    X</span></span>
+<span><span class="co">#&gt; Y        [,1]</span></span>
+<span><span class="co">#&gt;   0 0.1119128</span></span></code></pre></div>
 <p>that is, if we had many more clinical trials, the probability above
 could change to a value within around 2.9% and 11%.</p>
 <p><br></p>
@@ -652,9 +651,9 @@ rather than of
 score is</p>
 <div class="sourceCode" id="cb13"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">probDecrease</span><span class="op">$</span><span class="va">value</span></span>
-<span><span class="co">#&gt;       X</span></span>
-<span><span class="co">#&gt; Y           [,1]</span></span>
-<span><span class="co">#&gt;   [1,] 0.5497687</span></span></code></pre></div>
+<span><span class="co">#&gt;     X</span></span>
+<span><span class="co">#&gt; Y         [,1]</span></span>
+<span><span class="co">#&gt;   -1 0.5497687</span></span></code></pre></div>
 <p>or approximately 55%; note that it is clearly higher than 50%.</p>
 <p>Further clinical trials, however could update this probability to a
 new value between 34% and 75%:</p>
@@ -717,9 +716,9 @@ MDS-UPDRS-III:</p>
 for a non-treated female patient is</p>
 <div class="sourceCode" id="cb18"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">probDecreasePlacebo</span><span class="op">$</span><span class="va">value</span></span>
-<span><span class="co">#&gt;       X</span></span>
-<span><span class="co">#&gt; Y           [,1]</span></span>
-<span><span class="co">#&gt;   [1,] 0.5432515</span></span></code></pre></div>
+<span><span class="co">#&gt;     X</span></span>
+<span><span class="co">#&gt; Y         [,1]</span></span>
+<span><span class="co">#&gt;   -1 0.5432515</span></span></code></pre></div>
 <p>or approximately 54%. Further clinical trials, however could update
 this probability to a value between 33% and 74%:</p>
 <div class="sourceCode" id="cb19"><pre class="downlit sourceCode r">
