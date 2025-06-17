@@ -7,29 +7,7 @@ vignette: >
   %\VignetteEncoding{UTF-8}
 ---
 
-```{r, setup, include = FALSE}
-knitr::opts_chunk$set(
-    dev='png',
-    fig.asp = 1/sqrt(2),
-    fig.width = 8,
-    out.width='100%',
-    collapse = TRUE,
-    comment = "#>"
-)
-options(knitr.kable.NA = '')
-library(inferno)
-## Tol colour-blind-friendly palette
-palette(c(black='black',
-        red='#EE6677',
-        blue='#4477AA',
-        green='#228833',
-        yellow='#CCBB44',
-        purple='#AA3377',
-        cyan='#66CCEE',
-        grey='#BBBBBB',
-        midgrey='#888888'))
-set.seed(16)
-```
+
 
 This vignette gives an introduction and guide to the kinds of *Bayesian nonparametric inference* that can be done with ***inferno***, by means of a concrete example. It also has the purpose to clarify the terminology used in the ***inferno*** package.
 
@@ -40,13 +18,32 @@ It is of course impossible to summarize this branch of probability theory and of
 Two extremely important warnings before you follow the example:
 
 - Some terms may sound familiar to you, but keep in mind that they may have quite different meanings from what you're used to. This is especially true of the terms in *italics*. When you see a term in **boldface**, try to understand its meaning from the way it's used, rather than assuming the meaning familiar to you. Unfortunately, different methods and different disciplines use the same terms in different ways.
-  
+
   In particular keep in mind that the term **probability** does *not* mean **frequency**. 'Probability' means 'plausibility' or 'degree of belief': it is a quantification of a researcher's uncertainty about some possible fact. There is a connection between probability and frequency, but they are not the same. The distinction is important, because one of the main problems in statistical inference is that *we are uncertain about the frequency of something* -- the occurrence of a disease, symptom, or other characteristics -- and our goal is to quantify and reduce that uncertainty as much as possible.
 
 - The example that follows is, like every example, very specific. But try to see the more general, abstract picture behind it, and to see how its general methodology could be applied to research that is more interesting to you. From time to time we shall draw analogies with other examples that may look very different and yet use essentially the same methodology.
 
 \
-You're now welcome to open R in your favourite integrated development environment and test yourself the code that follows. In our example we shall use data from the `penguins` dataset, included in R version 4.5.0 and above.
+You're now welcome to open R in your favourite integrated development environment, choose a directory to work in, and test yourself the code that follows. Let's start by loading the ***inferno*** package:
+
+
+``` r
+library(inferno)
+```
+
+In our example we shall use data from the `penguins` dataset, included in R version 4.5.0 and above. We shuffle this dataset to erase any particular ordering of its data, and call the new dataset `penguin` (without the final 's'). For your convenience you can download the shuffled dataset as the CSV file [`'penguin_data.csv'`](https://github.com/pglpm/inferno/raw/main/development/downloads/penguin_data.csv). Otherwise you can create such file from R 4.5.0 or above as follows:
+
+
+``` r
+set.seed(50) # replace with your favourite seed number
+penguin <- penguins[sample(1:nrow(penguins)), ] # shuffle
+
+write.csvi(penguin, file = 'penguin_data.csv')
+```
+
+The utility function `write.csvi()` saves the dataset as a CSV file that respects the [formatting rules required by ***inferno***](#format).
+
+We assume that you now have the `'penguin_data.csv'` file.
 
 
 ## Penguins
@@ -54,9 +51,12 @@ You're now welcome to open R in your favourite integrated development environmen
 We are researchers interested in penguins; specifically the **population** living in the Antarctic islands *Biscoe*, *Dream*, *Torgersen*. Our research questions are not yet precisely defined, but some initial questions of interest are the following. The penguins can be of three species: [*Adélie*](https://www.bas.ac.uk/about/antarctica/wildlife/penguins/adelie-penguin/), [*Chinstrap*](https://www.bas.ac.uk/about/antarctica/wildlife/penguins/chinstrap-penguin/), [*Gentoo*](https://www.bas.ac.uk/about/antarctica/wildlife/penguins/gentoo-penguin/); we'd like to know:
 
 Q1
-: Do the three species differ, *statistically*, in some physical or geographical characteristic such as sex or island of origin? We say "statistically" because, for instance, there surely are females and males of every species, but it's possible that for one of the species the ratio of females to males is higher than for another species.
+: What's the overall statistical occurrence of the three species, independently of location or other details? In other words, what is the relative frequency of each species in the population?
 
 Q2
+: Do the three species differ, *statistically*, in some physical or geographical characteristic such as sex or island of origin? We say "statistically" because, for instance, there surely are females and males of every species, but it's possible that for one of the species the ratio of females to males is higher than for another species.
+
+Q3
 : Is there a physical or geographical characteristic that allows us to make a good guess about a penguin's species? We say "guess" because, for instance, from knowing which island a penguin comes from we can't be 100% sure about that penguin's species.
 
 In order to approach these and other future questions, we decide which set of penguin characteristics we should consider and observe. These characteristics are called the **variates** of the population. This set can be extended or reduced later on. Guided by previous studies, or by some hypotheses we are entertaining, we choose the following variates, each denoted by a short `codeword`:
@@ -66,14 +66,12 @@ In order to approach these and other future questions, we decide which set of pe
 - Bill (`bill_len`): [the length of a penguin's "beak"](https://allisonhorst.github.io/palmerpenguins/reference/figures/culmen_depth.png) in millimetres
 - Bill depth (`bill_dep`): [the depth of a penguin's "beak"](https://allisonhorst.github.io/palmerpenguins/reference/figures/culmen_depth.png) in millimetres
 - Flipper length (`flipper_len`): the length of a penguin's "wing" in millimetres
-- Body mass (`body_mass`) in grammes
+- Body mass (`body_mass`) in grams
 - Sex (`sex`)
-
-Later on we shall include an additional variate:
-
 - Study year (`year`): the year a penguin was observed and measured
 
-because there could be time trends in the values we observe. For instance, a particular species might have more females than males during one year, and vice versa during another year.
+We include the last variate because there could be time trends in the values we observe. For instance, a particular species might have more females than males during one year, and vice versa during another year.
+
 
 ### "Population"?
 
@@ -89,7 +87,7 @@ The intrinsic and unavoidable problem in the specification of a population has i
 
 ### Sampling
 
-Our questions **Q1** and **Q2** could have *exact statistical answers* if we had a *complete census* of the penguin population; that is, if we went and "measured" the values of the variates in each and every penguin of the population.
+Our questions **Q1**, **Q2**, **Q3** could have *exact statistical answers* if we had a *complete census* of the penguin population; that is, if we went and "measured" the values of the variates in each and every penguin of the population.
 
 To make this point clearer, imagine a slightly different population. Suppose we were interested only in all the penguins alive today on a specific, very small island. The island turns out to have 17 penguins. We check all of them. We find that 6 of these are females, and 11 are males. It's then a fact that 6/17${}\approx{}$35.3% of penguins in this specific population are females, and 64.7% are males. And if someone picked a penguin from this population and asked us to guess its sex, we would give a 35.3% probability to that penguin's being female, and 64.7% to its being male.^[Note the difference between probability and frequency. If an expert colleague tells us "I was able to take a quick look at that penguin, and it looks female to me, though I'm not completely sure", then our *probability* that this specific penguin is female would get higher than 50%. If we observe the penguin and see that it's female, our probability for female would become 100%.  Yet the *frequency* of females in the population is still 35.3%.]
 
@@ -106,32 +104,48 @@ One important feature of Bayesian inference is that *we don't need to choose bef
 
 ## First analysis
 
-We receive the first 10 datapoints. They are stored in the file `'penguindata2007_10.csv'`, respecting the [formatting rules required by ***inferno***](#format). Here they are:
+Imagine that, a while after the sampling begun, our colleagues start sending the collected sample data to us, a little batch at a time. For the moment we assume that the batches are chosen without any systematic order; in particular, their order is unrelated to the time of sampling. We make this assumption in order to avoid trends, which we'll discuss in another vignette.
 
-```{r echo = FALSE}
-datafile <- 'penguindata2007_10.csv'
-dat <- read.csv(datafile,
-    na.strings = '', stringsAsFactors = FALSE, tryLogical = FALSE)
+We receive the first 10 samples from our sampling survey and store them in the file `'penguin_data10.csv'`, respecting the [formatting rules required by ***inferno***](#format):
 
-knitr::kable(dat[,-ncol(dat)], row.names = TRUE)
+
+``` r
+datafile <- 'penguin_data10.csv'
+write.csvi(penguin[1:10, ], datafile) # write the first 10 samples
 ```
 
+Here they are:
 
 
-With these datapoints we start our Bayesian nonparametric analysis using ***inferno***! Let's load the package:
+|   |species   |island    | bill_len| bill_dep| flipper_len| body_mass|sex    | year|
+|:--|:---------|:---------|--------:|--------:|-----------:|---------:|:------|----:|
+|1  |Adelie    |Torgersen |     37.8|     17.1|         186|      3300|       | 2007|
+|2  |Chinstrap |Dream     |     54.2|     20.8|         201|      4300|male   | 2008|
+|3  |Adelie    |Dream     |     36.2|     17.3|         187|      3300|female | 2008|
+|4  |Chinstrap |Dream     |     52.0|     19.0|         197|      4150|male   | 2007|
+|5  |Gentoo    |Biscoe    |     45.3|     13.7|         210|      4300|female | 2008|
+|6  |Gentoo    |Biscoe    |         |         |            |          |       | 2009|
+|7  |Adelie    |Torgersen |     42.5|     20.7|         197|      4500|male   | 2007|
+|8  |Gentoo    |Biscoe    |     48.5|     15.0|         219|      4850|female | 2009|
+|9  |Chinstrap |Dream     |     46.5|     17.9|         192|      3500|female | 2007|
+|10 |Gentoo    |Biscoe    |     46.9|     14.6|         222|      4875|female | 2009|
 
-```{r eval = FALSE}
-library(inferno)
-```
 
-There are two preliminary steps that we usually must follow to perform an analysis:
+
+If you generated the `penguin` dataset yourself, then your first 10 samples may be different.
+
+In the data above, samples #1 and #6 have one or more missing variates. But incomplete data are not a problem: inferences can still be performed from them, because Bayesian methods and ***inferno*** automatically perform *imputation* of missing data, and they do so in a principled way (via the marginalization rule of probability theory).
+
+With these datapoints we start our Bayesian nonparametric analysis using ***inferno***! 
+
+There are now two preliminary steps, which we must usually follow to perform an analysis:
 
 1. Determine and prepare the **metadata** about the variates of interest.
 2. Perform the general inference about the whole population from the sampled data; we shall call this **learning** from the sample data.
 
 ### Metadata preparation
 
-Metadata are "data about the data". They are provided in a CSV file respecting the [formatting rules](#format) and consist of around eight pieces of information about the variates of our population. Specifically:
+Metadata are "data about the data". They must be provided in a CSV file respecting the [formatting rules](#format), or as a `data.frame`, and consist of around eight pieces of information about the variates of our population:
 
 Variate name (`name`)
 : This is a character or string: name of a variate. Different variates should obviously have different names.
@@ -156,114 +170,398 @@ Interval between values (`datastep`)
 : This is a positive number, only defined for numeric-ordinal and continuous variates. It is the separation between consecutive values. For example, in a 1--5 Likert-scale variate, the interval is 1. For an *age* variate expressed in and rounded to years, the interval is 1. For a *length* variate expressed in centimetres and rounded to millimetres, the interval is 0.1.
 
 Inclusion of inimum and maximum (`minincluded`, `maxincluded`)
-: These are logical or `yes`/`no`, only defined for continuous variates. They tell whether the minimum and maximum of a continuous variate are themselves possible values or not. Often such extreme values have a special meaning, and this information is important with censored or pooled data. For example, a *length* continuous variate might be expressed in decimetres and reported without rounding, but all lengths above 1 dm might be pooled together into the value "1 dm or more"; in such case we must make sure to state that `maxincluded` is `True` or `"yes"`.
+: These are logical or `yes`/`no`, only defined for continuous variates. They tell whether the minimum and maximum of a continuous variate are themselves possible values or not. Often such extreme values have a special meaning, and this information is important with censored or pooled data. For example, a *length* continuous variate might be expressed in decimetres and reported without rounding, but all lengths above 1 dm might be pooled together into the value "1 dm or more"; in such case we must make sure to state that `maxincluded` is `TRUE` or `"yes"`.
 
 Values (`V1`, `V2`, ...)
-: These are characters or strings, only defined for nominal or non-numeric ordinal variates. They are the values that a nominal or ordinal variate can *in principle* take on in the population of interest. Note that they are include not only the values that are observed in a sample, but also those that could be observed in the rest of the population. A nominal or ordinal variate must have at least two distinct values; it wouldn't make much sense to draw inferences about it otherwise.
+: These are characters or strings, only defined for nominal or non-numeric ordinal variates. They are the values that a nominal or ordinal variate can *in principle* take on in the population of interest. Note that they are include not only the values that are observed in a sample, but also those that could be observed in the rest of the population. A nominal or ordinal variate must have at least two distinct values; it wouldn't make much sense to draw inferences about it otherwise. The metadata file can contain further empty **V...** columns.
 
 Why does ***inferno*** need metadata? Because it performs *nonparametric* inference. In other words, it does not assume the frequency distribution of the variates in the whole population to have any specific class of shapes, such as a Gaussians. It tries to extrapolate the frequency distribution of the whole population from the sample data provided. We must therefore provide to it the same general information that we have about the variates, and about any artificial modifications performed on their values, such as rounding or pooling.
 
-In order to prepare the metadata file we can use the `metadatatemplate()` helper function. This function reads the sample data and prepares a preliminary file containing heuristic *guesses* about the metadata, which we'll have to check and correct. The function motivates its guesses and warns about especially uncertain ones:
+In order to prepare the metadata file we can use ***inferno***'s `metadatatemplate()` helper function. This function reads the sample data and prepares a preliminary file containing heuristic *guesses* about the metadata. We must then check and correct this file. The function motivates its guesses and warns about especially uncertain ones. Here is the code to generate a `'penguin_metadata.csv'` file, and the output and warnings of the helper function:
 
-```{r}
-datafile <- 'penguindata2007_10.csv'
-metadatafile <- 'penguinmetadata.csv'
+
+``` r
+metadatafile <- 'penguin_metadata.csv'
 metadatatemplate(data = datafile, file = metadatafile)
+## Analyzing 8 variates for 10 datapoints.
+## 
+## * "species" variate:
+##   -  3 different  values detected:
+##  "Adelie", "Chinstrap", "Gentoo" 
+##   which do not seem to refer to an ordered scale.
+##   Assuming variate to be NOMINAL.
+## 
+## * "island" variate:
+##   -  3 different  values detected:
+##  "Biscoe", "Dream", "Torgersen" 
+##   which do not seem to refer to an ordered scale.
+##   Assuming variate to be NOMINAL.
+## 
+## * "bill_len" variate:
+##   - Numeric values between 36.2 and 54.2 
+##   Assuming variate to be CONTINUOUS.
+##   - Distance between datapoints is a multiple of 0.1 
+##   Assuming variate to be ROUNDED.
+##   - All values are positive
+##   Assuming "domainmin" to be 0
+## 
+## * "bill_dep" variate:
+##   - Numeric values between 13.7 and 20.8 
+##   Assuming variate to be CONTINUOUS.
+##   - Distance between datapoints is a multiple of 0.1 
+##   Assuming variate to be ROUNDED.
+##   - All values are positive
+##   Assuming "domainmin" to be 0
+## 
+## * "flipper_len" variate:
+##   - Only 8 different numeric values detected:
+## from 186 to 222 in steps of 1 
+##   Assuming variate to be ORDINAL.
+## 
+## * "body_mass" variate:
+##   - Only 7 different numeric values detected:
+## from 3300 to 4875 in steps of 25 
+##   Assuming variate to be ORDINAL.
+## 
+## * "sex" variate:
+##   -  2 different  values detected:
+##  "female", "male" 
+##   which do not seem to refer to an ordered scale.
+##   Assuming variate to be NOMINAL.
+## 
+## * "year" variate:
+##   - Only 3 different numeric values detected:
+## from 2007 to 2009 in steps of 1 
+##   Assuming variate to be ORDINAL.
+## 
+## =========
+## WARNINGS - please make sure to check these variates in the metadata file:
+## 
+## * "year" variate appears to have been rounded
+## and then transformed to logarithmic scale.
+## This may lead to problems in the inference.
+## Preferably, transform it back to non-logarithmic scale.
+## =========
+## 
+## Saved proposal metadata file as "penguin_metadata.csv" 
 ```
 
-Here is the preliminary metadata file created by this helper function:
+The preliminary metadata file created by `metadatatemplate()` looks like this:
 
-```{r echo = FALSE}
-dat <- read.csv(metadatafile,
-    na.strings = '', stringsAsFactors = FALSE, tryLogical = FALSE)
-knitr::kable(dat, row.names = FALSE)
-```
 
-We see that `metadatatemplate()` guessed correctly about the `species`, `island`, and `sex` variates, assigning them a `nominal` type and listing all possible values that can occur in the whole population. Note that if we knew of an additional species present in the whole population but absent from the sample, we ought to add it under the **V3** column.
 
-The guesses about the `bill_len` and `bill_dep` variates are also correct: they are continuous, rounded to the nearest tenth of millimetre, and cannot be less than zero. The absence of **domainmax** values means that the theoretical maximum is plus infinity. We could replace this maximum with something more realistic, for instance `1000` mm or less, but typically these changes do not lead to relevant differences in our inferences. The absence of **minincluded** means that the minimum, `0`, is not a possible value; similarly for **maxincluded**.
+|name        |type       | domainmin| domainmax| datastep| minincluded| maxincluded|V1     |V2        |V3        | V4| V5| V6| V7| V8| V9| V10| V11|
+|:-----------|:----------|---------:|---------:|--------:|-----------:|-----------:|:------|:---------|:---------|--:|--:|--:|--:|--:|--:|---:|---:|
+|species     |nominal    |          |          |         |            |            |Adelie |Chinstrap |Gentoo    |   |   |   |   |   |   |    |    |
+|island      |nominal    |          |          |         |            |            |Biscoe |Dream     |Torgersen |   |   |   |   |   |   |    |    |
+|bill_len    |continuous |         0|          |      0.1|            |            |       |          |          |   |   |   |   |   |   |    |    |
+|bill_dep    |continuous |         0|          |      0.1|            |            |       |          |          |   |   |   |   |   |   |    |    |
+|flipper_len |ordinal    |       186|       222|      1.0|            |            |       |          |          |   |   |   |   |   |   |    |    |
+|body_mass   |ordinal    |      3300|      4875|     25.0|            |            |       |          |          |   |   |   |   |   |   |    |    |
+|sex         |nominal    |          |          |         |            |            |female |male      |          |   |   |   |   |   |   |    |    |
+|year        |ordinal    |      2007|      2009|      1.0|            |            |       |          |          |   |   |   |   |   |   |    |    |
 
-The guess about the `flipper_len` variate is not correct. This variate is similar to `bill_len` but rounded to the nearest integer. Similarly for the wrongly guessed `body_mass` variate, which is rounded in steps of `25`.
 
-We must open and edit the metadata file `'`r datafile`'` with our favourite editor and correct and complete the guesses of the helper function. In this case we end up with the following corrected metadata file:
 
-```{r echo = FALSE}
-metadatafile <- 'metadata_penguins.csv'
-dat <- read.csv(metadatafile,
-    na.strings = '', stringsAsFactors = FALSE, tryLogical = FALSE)
-knitr::kable(dat, row.names = FALSE)
-```
+If you generated the `penguin` dataset yourself, then you might obtain different guesses. Try to follow the following guidelines for the present example.
 
-Later on we shall add the variate `year` to the metadata file.
+We see that `metadatatemplate()` guessed correctly about the `species`, `island`, `sex` variates: they are of `'nominal'` type, and all their possible values are correctly listed. If any of the possible values are missing from the sample, and therefore missing in the preliminary metadata, then we should add them under the  additional **V...** columns. Note that we can sort the nominal values in any order we please.
+
+Also the `bill_len` and `bill_dep` variates are correct: they are continuous, rounded to the nearest tenth of millimetre, and cannot be less than zero. The absence of **domainmax** values means that the theoretical maximum is plus infinity. We could replace this maximum with something more realistic, for instance `1000` mm or less, but typically this kind of changes do not lead to relevant differences in our inferences. The absence of **minincluded** means that the minimum, `0`, is not a possible value; similarly for **maxincluded**.
+
+The `year` variate is correctly classified as ordinal, with values between 2007 and 2009. If the sampling had a later end date, we would correct the 2009 value. The `year` variate could alternatively be considered continuous and rounded; in the present case this alternative classification wouldn't affect our inferences: ***inferno*** treats this kind of ambiguous cases in the same way.
+
+Also the `sex` variate is correctly guessed: `nominal` type with possible values `'female'` and `'male'`.
+
+\
+The guesses about the `flipper_len` and `body_mass` variates are not correct, however: these variates are continuous, with a minimal value of `0` and no maximal value. They are rounded to `1` mm and `25` g (this was correctly guessed).
+
+We must open the preliminary metadata file `'penguin_metadata.csv'` with our favourite editor, and correct and complete the guesses of the helper function. In this case we end up with the following corrected metadata file:
+
+
+
+|name        |type       | domainmin| domainmax| datastep| minincluded| maxincluded|V1     |V2        |V3        |
+|:-----------|:----------|---------:|---------:|--------:|-----------:|-----------:|:------|:---------|:---------|
+|species     |nominal    |          |          |         |            |            |Adelie |Chinstrap |Gentoo    |
+|island      |nominal    |          |          |         |            |            |Biscoe |Dream     |Torgersen |
+|bill_len    |continuous |         0|          |      0.1|            |            |       |          |          |
+|bill_dep    |continuous |         0|          |      0.1|            |            |       |          |          |
+|flipper_len |continuous |         0|          |      1.0|            |            |       |          |          |
+|body_mass   |continuous |         0|          |     25.0|            |            |       |          |          |
+|sex         |nominal    |          |          |         |            |            |female |male      |          |
+|year        |ordinal    |      2007|      2009|      1.0|            |            |       |          |          |
+
+
 
 
 ### "Learning" and extrapolating from the sample data
 
 Now comes the essential part of our analysis: from the sample data and the metadata information,***inferno*** will draw inferences about the *whole* population of penguins, including new penguins (from the same population) that we shall observe in the future. Subsequent analyses are based on this main inference. The general theory behind this kind of inference, based on the property of *exchangeability* and related mathematical theorems, is explained in the [references](#references).
 
-This inference is performed by calling the `learn()` function. Its minimal arguments are three: the sample `data`, the `metadata`, and the name `outputdir` of a directory where the inference results should be saved; some additional information will be suffixed to this directory name. We can also give a numeric `seed` argument if we want to reproduce the same output in another run.
+This inference is performed by calling the `learn()` function. Its minimal arguments are three: the sample `data`, the `metadata`, and the name `outputdir` of a directory where the inference results should be saved; some additional information will be suffixed to this directory name. We can also give a numeric `seed` argument if we want to reproduce the same output in another run, and a `parallel` argument specifying the number of cores to be used for parallel computation.
 
-This function does Monte Carlo sampling and is computationally expensive. It may take minutes, hours, or days to run, depending on the amount of sample data and the number of variates. In order to speed up its computations, it tries to use any multi-cores capabilities of the machine it runs in. The output shown below was obtained from running it on 15 cores:
+This function in fact does Monte Carlo sampling and is computationally expensive. It may take minutes, hours, or days to run, depending on the amount of sample data and the number of variates. In order to speed up its computations, it tries to use any multi-cores capabilities of the machine it runs in, or the number of cores specified in the `parallel` argument (which shouldn't be larger than the number of cores you actually have!).
 
-```{r eval = FALSE}
-learnt <- learn(
+The output below was obtained from running `learn()`on 15 cores -- *please wait before running this code*, it might take longer time on your computer:
+
+
+``` r
+learnt10 <- learn(
     data = datafile,
     metadata = metadatafile,
     outputdir = 'penguin_inference',
     seed = 16,
-    parallel = 15)
-#> 
-#> Registered doParallelSNOW with 15 workers
-#> Warning: data have additional variates. Dropping them.
-#> Calculating auxiliary metadata
-#> 
-#> Learning:  10 datapoints,  7 variates
-#> 
-#>  ********************************************************* 
-#>  Saving output in directory
-#>  penguin_inference-251231T130101-vrt7_dat10_smp3600 
-#>  ********************************************************* 
-#> Starting Monte Carlo sampling of 3600 samples by 60 chains
-#> in a space of 899 (effectively 3717) dimensions.
-#> Using 15 cores: 60 samples per chain, max 4 chains per core.
-#> Core logs are being saved in individual files.
-#> 
-#> C-compiling samplers appropriate to the variates (package Nimble)
-#> this can take tens of minutes. Please wait...
-#> Compiled core 1. Number of samplers: 1012.
-#> Estimating remaining time, please be patient...
-#> Sampling. Core 12 estimated end time: 2025-31-12 13:04
-#> Finished Monte Carlo sampling.
-#> 
-#> Max number of Monte Carlo iterations across chains: 5033
-#> Max number of used mixture components: 8
-#> 
-#> Checking test data
-#> ( #1 #3 #4 #6 #7 #8 #9 #10 )
-#> 
-#> rel. MC standard error: min: 0.019  max: 0.034  mean: 0.026
-#> eff. sample size: min: 860  max: 2700  mean: 1700
-#> needed thinning: min: 2  max: 7  mean: 4.5
-#> average: min: 6.5e-08  max: 3.2e-07  mean: 1.7e-07
-#> 
-#> Plotting final Monte Carlo traces and marginal samples...
-#> 
-#> Total computation time: 2.2 mins
-#> Average total time per chain: 0.037 mins
-#> 
-#> Removing temporary output files.
-#> Finished.
-#> 
-#> 
-#> Closing connections to cores.
+    parallel = 15 # number of cores to be used for the computation
+    )
+## 
+## Registered doParallelSNOW with 15 workers
+## Calculating auxiliary metadata
+## 
+## Learning:  10 datapoints,  8 variates
+## 
+##  **************************************************** 
+##  Saving output in directory
+##  penguin_inference-251231T135959-vrt8_dat10_smp3600 
+##  **************************************************** 
+## Starting Monte Carlo sampling of 3600 samples by 60 chains
+## in a space of 1027 (effectively 3851) dimensions.
+## Using 15 cores: 60 samples per chain, max 4 chains per core.
+## Core logs are being saved in individual files.
+## 
+## C-compiling samplers appropriate to the variates (package Nimble)
+## this can take tens of minutes. Please wait...
+## Compiled core 1. Number of samplers: 1078.       
+## Estimating remaining time, please be patient...
+## Sampling. Core 15 estimated end time: 2025-12-31 14:02   
+## Finished Monte Carlo sampling.                                 
+## 
+## Highest number of Monte Carlo iterations across chains: 3600 
+## Highest number of used mixture components: 9 
+## 
+## Checking test data
+## ( #1 #3 #4 #5 #6 #7 #8 #9 #10 )
+## 
+## rel. MC standard error: min: 0.017  max: 0.043  mean: 0.024 
+## eff. sample size: min: 530  max: 3500  mean: 2100 
+## needed thinning: min: 2  max: 11  mean: 3.8 
+## average: min: 2.3e-08  max: 0.12  mean: 0.014 
+## 
+## Plotting final Monte Carlo traces and marginal samples...
+## 
+## Total computation time: 2.5 mins 
+## Average total time per chain: 0.042 mins 
+## 
+## Removing temporary output files.
+## Finished.
+## 
+## 
+## Closing connections to cores.
 ```
 
-The initial output gives a summary of the sample size, number of variates, saving directory, and other computational details. The "`estimated end time`" line updates from time to time with a better estimate of the computation's end time. Once the computation is finished, some final information about the underlying Monte Carlo computation is provided.^[The Monte Carlo expert will notice that the effective sample size is around 900 or more. The Monte Carlo sampling is designed to stop when 3600 samples have been obtained with an effective sample size of at least 400, or equivalently a relative Monte Carlo standard error under 0.05. This is enough, considering that the statistical uncertainty in the results can be tens or hundreds of times larger than this. The desired number of samples and maximal Monte Carlo standard error can be specified with the `nsamples` and `relerror` arguments.] Note that the inference above, with 10 sample data and 7 variates, took a couple of minutes to complete on 15 cores.
+The initial output gives a summary of the sample size, number of variates, saving directory, and other computational details. The "`estimated end time`" line is updated from time to time with a better estimate of the computation's end time. Once the computation is finished, some final information about the underlying Monte Carlo computation is provided.^[The Monte Carlo expert will notice that the effective sample size is around 900 or more. The Monte Carlo sampling is designed to stop when 3600 samples have been obtained with an effective sample size of at least 400, or equivalently a relative Monte Carlo standard error under 0.05. This is enough, considering that the statistical uncertainty in the results can be tens or hundreds of times larger than this. The desired number of samples and maximal Monte Carlo standard error can be specified with the `nsamples` and `relerror` arguments.] Note that the inference above, with 10 sample data and 8 variates, took a couple of minutes to complete on 15 cores.
 
-The results of this main inference are now stored in the compressed file '`learn.rds`' (around 30 MB) within the specified output directory. The name of this directory is also saved as the final value of the `learn()` function, which we saved in the `learnt` variable in the code above.
+The results of this main inference are now stored in the compressed file `'learn.rds'` (around 30 MB) within the specified output directory. The name of this directory is also saved as the final value of the `learn()` function. We saved this directory name in the `learnt10` variable in the code above, by invoking `learnt10 <- learn(...)`.
+
+For your convenience the object produced by the computation above can be downloaded as the file [`'learnt10.rds'`](https://github.com/pglpm/inferno/raw/main/development/downloads/learnt10.rds). Once you have downloaded it in your working directory you can just invoke
+
+
+``` r
+learnt10 <- 'learnt10.rds'
+```
+which produces an object `learnt10` (just a string, in this case) which can be used in the following analysis.
 
 
 ## Examples of analysis
+
+### Estimating the relative frequencies of the three species
+
+Consider our first research question **Q1**: what's the overall statistical occurrence of the three species in the whole population? The relative frequencies of the three species in the whole population are unknown to us, so we cannot give a simple answer such as "Adélie: 0.10, Chinstrap: 0.34, Gentoo: 0.56".
+
+Bayesian nonparametrics and ***inferno*** give a first answer to this question in the form of:
+
+- an *estimate* of the whole-population frequency distribution,
+- the *uncertainty* of this estimate.
+
+We discuss both in a moment. First let's compute them using the `Pr()` function. For the present question, this function requires three arguments:
+
+- `Y`: a `data.frame` listing the values of the variate we are interested in. In the present case the variate is `species` and the values are 'Adelie', 'Chinstrap', 'Gentoo'.
+- `learnt`: the object that points to the computation made with the `learn()` function, discussed in the previous section. In the present case it's `learnt10`.
+- Optionally, `parallel` specifies how many cores we should use for the computation.
+
+Here is a way to call the function; the computation should take at most a couple of seconds:
+
+
+``` r
+# # data frame with the variate and values we want to know the frequencies of
+Y <- data.frame(species = c('Adelie', 'Chinstrap', 'Gentoo'))
+
+Fspecies10 <- Pr(
+    Y =  Y,
+    learnt = learnt10,
+    parallel = 8 # let's use 8 cores
+)
+## 
+## Registered doParallelSNOW with 8 workers
+## 
+## Closing connections to cores.
+```
+
+The answer to our question is now contained in the `Fspecies10` object (we chose this name for "`F`requency distribution of `species`, estimated from `10` samples"). The estimate and its uncertainty can be immediately visualized by calling `plot()` with this object:
+
+
+``` r
+plot(Fspecies10)
+```
+
+<div class="figure">
+<img src="figure/vis10-1.png" alt="plot of chunk vis10" width="100%" />
+<p class="caption">plot of chunk vis10</p>
+</div>
+
+The x-axis of this plot shows the three possible values of the `species` variate. The y-axis reports fractions which may be read as *frequencies* or *probabilities*.
+
+The estimated frequency distribution for the species is the central, solid red curve with small circles. (You may be used to frequency distributions as histograms, rather than as a broken line like in the plot above. The present visualization is more advantageous when we want to compare several frequency distributions, as we'll do later.)
+
+The three estimated frequencies are Adélie: 0.32, Chinstrap: 0.31, Gentoo: 0.37, and can be read from the `values` element of the `Fspecies10` object:
+
+
+``` r
+Fspecies10$values
+##       X
+## Y          [,1]
+##   [1,] 0.315265
+##   [2,] 0.310161
+##   [3,] 0.374574
+```
+
+What about the uncertainty of these estimates? In Bayesian theory, a compact way of expressing the uncertainty in a quantity is by means of a **credibility interval** with a given probability. For instance, if we say that a particular quantity has a 80%-credibility interval equal to $(0.41, 0.69)$, what we mean is that there's an 80% probability that the true value of that quantity is between $0.41$ and $0.69$ -- pretty straightforward! (*Please be careful not to confuse the Bayesian credibility interval with a "confidence interval"*: the latter has a much more involved and less straightforward meaning.)
+
+The `Pr()` function by default calculates two credibility intervals for each frequency estimate: a 50% one, and an 89% one. In our present inference, the 50%-credibility intervals are shown in the plot above as the darker grey band, and the 89%-credibility interval as the lighter grey band. Note that this interval contains the 50% one.
+
+For instance, the plot indicates that there's a 50% probability that the relative frequency of all Adélie penguins is roughly between 0.25 and 0.4; and an 89% probability that their relative frequency is roughly between 0.3 and 0.45.
+
+For the Gentoo species, there's a 50% probability that its relative frequency is roughly between 0.3 and 0.45; and an 89% probability that their relative frequency is roughly between 0.2 and 0.6.
+
+The credibility intervals can be read from the `quantiles` element of the `Fspecies10` object:
+
+
+``` r
+Fspecies10$quantiles
+## , ,  = 5.5%
+## 
+##       X
+## Y          [,1]
+##   [1,] 0.134878
+##   [2,] 0.132087
+##   [3,] 0.180867
+## 
+## , ,  = 25%
+## 
+##       X
+## Y          [,1]
+##   [1,] 0.227634
+##   [2,] 0.219339
+##   [3,] 0.284369
+## 
+## , ,  = 75%
+## 
+##       X
+## Y          [,1]
+##   [1,] 0.395804
+##   [2,] 0.391340
+##   [3,] 0.457973
+## 
+## , ,  = 94.5%
+## 
+##       X
+## Y          [,1]
+##   [1,] 0.525858
+##   [2,] 0.521080
+##   [3,] 0.587441
+```
+
+As the name tells, this element actually report the *quantiles* of the probability. For example, look at the `= 25%` output: among other things it says `Adelie 0.227634`. This means that there's a 25% probability that the frequency of Adélie penguins is below $0.227634$, and thus a 75% probability that it's above $0.227634$.
+
+
+``` r
+onlyAdelie <- subset(Fspecies10, list(species = 'Adelie'))
+hist(onlyAdelie, legend = 'topright')
+```
+
+<div class="figure">
+<img src="figure/hist10-1.png" alt="plot of chunk hist10" width="100%" />
+<p class="caption">plot of chunk hist10</p>
+</div>
+
+
+by giving the probabilities of all possible relative-frequency distributions.
+
+
+
+
+``` r
+prQ1 <- Pr(
+    Y = data.frame(species = c('Adelie', 'Chinstrap', 'Gentoo')),
+    X = NULL,
+    learnt = learnt10,
+    parallel = parallel
+)
+## 
+## Registered doParallelSNOW with 8 workers
+## 
+## Closing connections to cores.
+
+plot(prQ1, ylim = c(0, 1))
+```
+
+<div class="figure">
+<img src="figure/freqs10-1.png" alt="plot of chunk freqs10" width="100%" />
+<p class="caption">plot of chunk freqs10</p>
+</div>
+
+``` r
+
+hist(prQ1, xlim = c(0, 1))
+```
+
+<div class="figure">
+<img src="figure/freqs10-2.png" alt="plot of chunk freqs10" width="100%" />
+<p class="caption">plot of chunk freqs10</p>
+</div>
+
+
+``` r
+prQ1 <- Pr(
+    Y = data.frame(species = c('Adelie', 'Chinstrap', 'Gentoo')),
+    X = NULL,
+    learnt = 'learnt_all.rds',
+    parallel = parallel
+)
+## 
+## Registered doParallelSNOW with 8 workers
+## 
+## Closing connections to cores.
+
+plot(prQ1, ylim = c(0, 1))
+```
+
+<div class="figure">
+<img src="figure/freqsall-1.png" alt="plot of chunk freqsall" width="100%" />
+<p class="caption">plot of chunk freqsall</p>
+</div>
+
+``` r
+
+hist(prQ1, xlim = c(0, 1))
+```
+
+<div class="figure">
+<img src="figure/freqsall-2.png" alt="plot of chunk freqsall" width="100%" />
+<p class="caption">plot of chunk freqsall</p>
+</div>
+
+
+
 
 \
 
@@ -291,9 +589,9 @@ On *exchangeability*:
 
 On Bayesian theory in general:
 
-- [*ADA 511: Foundations of data science](https://pglpm.github.io/ADA511)
-
 - Jaynes: [*Probability Theory*](https://doi.org/10.1017/CBO9780511790423) (2003)
+
+- [*ADA 511: Foundations of data science](https://pglpm.github.io/ADA511)
 
 ## Format for data and metadata files and their contents {#format}
 
@@ -435,17 +733,19 @@ Learning about the penguin's `island` not only made you change the highest proba
 
 An analogous discussion can be made for a continuous variate. Let's for instance take the `body_mass` of the penguins, discretized in steps of 0.025 kg. Suppose we knew that the histogram of body masses in the whole population were as follows:
 
-```{r echo=FALSE, fig.align='center', out.width='75%'}
-knitr::include_graphics("prob-body_mass.jpg")
-```
+<div class="figure" style="text-align: center">
+<img src="prob-body_mass.jpg" alt="plot of chunk unnamed-chunk-6" width="75%" />
+<p class="caption">plot of chunk unnamed-chunk-6</p>
+</div>
 
 Then, if you had to guess the body mass of the penguin brought to you, you'd give the value 4 kg (plus or minus 0.0125 kg) a probability of around 1%, and so on for other possible values; the most probable value being 3.6 kg at 1.4% probability.
 
 Suppose you're now given also the histograms for the subpopulations from the three islands:
 
-```{r echo=FALSE, fig.align='center', out.width='75%'}
-knitr::include_graphics("prob-body_mass-given_island.jpg")
-```
+<div class="figure" style="text-align: center">
+<img src="prob-body_mass-given_island.jpg" alt="plot of chunk unnamed-chunk-7" width="75%" />
+<p class="caption">plot of chunk unnamed-chunk-7</p>
+</div>
 
 Upon learning that your penguin is from *Biscoe*, your degree of belief would change: the most probable value would be 4.8 kg at 1.3% probability. Note how the histograms for `body_mass` are different in the subpopulations of the three islands. In *Torgersen*, for instance, it's more probable to find penguins between 3 kg and 4 kg than between 5 kg and 6 kg; whereas in *Biscoe* the opposite is true.
 
@@ -463,9 +763,10 @@ Inferences are therefore quite clear if we know the frequencies of the variates 
 
 For our penguin example, let's consider again the `body_mass` variate. We actually don't know what the histogram of this variate over the whole population looks like. It could have one or several peaks, a symmetric or non-symmetric shape, shoulders, an so on. Here are seven possibilities:
 
-```{r echo=FALSE, fig.align='center', out.width='75%'}
-knitr::include_graphics("penguin_priors.jpg")
-```
+<div class="figure" style="text-align: center">
+<img src="penguin_priors.jpg" alt="plot of chunk unnamed-chunk-8" width="75%" />
+<p class="caption">plot of chunk unnamed-chunk-8</p>
+</div>
 
 \
 It's often impractical or impossible to measure the frequencies of a variate in a whole population. We must therefore *guess* them.
@@ -503,9 +804,10 @@ Since we must *guess* what the frequencies are in the whole population, we proce
 
 An example of unnatural or strange probability distribution, for our `body_mass` variate, could be the following:
 
-```{r echo=FALSE, fig.align='center', out.width='75%'}
-knitr::include_graphics("penguin_prior_strange.jpg")
-```
+<div class="figure" style="text-align: center">
+<img src="penguin_prior_strange.jpg" alt="plot of chunk unnamed-chunk-9" width="75%" />
+<p class="caption">plot of chunk unnamed-chunk-9</p>
+</div>
 
 It seems quite unnatural based on our experience with histograms over large natural populations. If a sample from a penguin population showed this frequency distribution of `body_mass` values, you would probably check whether any errors were made during the sampling.
 
@@ -522,9 +824,10 @@ There are situations in which it is not possible to choose the sample in an unsy
 
 But the frequencies of variates in a sample from a population are typically different from those in the whole population. The difference is the larger, the smaller the sample. There are even extreme situations in which some statistics from a sample, like the mean, can be way off those of the whole population, even if the sample is large (the statistics become reliable only when the sample is almost as large as the full population). The plot below shows an example. The variate is a real number that can take on positive or negative values, in a population of 100 000 000 units; the mean value of the variate in the whole population is $-1.14$. The plot shows the values of the mean obtained from unsystematically chosen samples of various sizes. Even in a sample of 30 000 000 units we may observe a mean of $-3$. The *median* of a sample is much more reliable.
 
-```{r img-with-knitr, echo=FALSE, fig.align='center', out.width='67%'}
-knitr::include_graphics("sample_mean.jpg")
-```
+<div class="figure" style="text-align: center">
+<img src="sample_mean.jpg" alt="plot of chunk img-with-knitr" width="67%" />
+<p class="caption">plot of chunk img-with-knitr</p>
+</div>
 
 The point of this example is only to make clear that although a sample from a population gives us some information about the whole population, we are still uncertain about the whole-population frequencies.
 
@@ -541,34 +844,56 @@ The point of this example is only to make clear that although a sample from a po
 
 
 We store the name of the datafile
-```{r}
+
+``` r
 dataset <- penguins
 ```
 Here are the values for two subjects:
-```{r echo = FALSE}
-knitr::kable(penguins[sample(1:nrow(penguins),5),])
-```
+
+
+|    |species |island | bill_len| bill_dep| flipper_len| body_mass|sex    | year|
+|:---|:-------|:------|--------:|--------:|-----------:|---------:|:------|----:|
+|166 |Gentoo  |Biscoe |     48.4|     14.6|         213|      5850|male   | 2007|
+|214 |Gentoo  |Biscoe |     46.2|     14.9|         221|      5300|male   | 2008|
+|85  |Adelie  |Dream  |     37.3|     17.8|         191|      3350|female | 2008|
+|206 |Gentoo  |Biscoe |     50.1|     15.0|         225|      5000|male   | 2008|
+|256 |Gentoo  |Biscoe |     49.1|     15.0|         228|      5500|male   | 2009|
+
+
 
 ### "Natural" vs controlled or "biased" variates
 
 ## Metadata
 
 Let's load the package:
-```{r eval = FALSE}
+
+``` r
 library(inferno)
 ```
 
-```{r class.source = 'fold-hide'}
+
+```{.r .fold-hide}
 ## metadatatemplate(data = datafile, file = 'temp_metadata')
 ```
 
-```{r}
+
+``` r
 metadatafile <- 'meta_toydata.csv'
 ```
 The metadata are as follows; `NA` indicate empty fields:
-```{r echo = FALSE}
-knitr::kable(read.csv(metadatafile, na.strings = ''))
-```
+
+
+|name                                    |type       | datastep| domainmin| domainmax|minincluded |maxincluded |V1     |V2      |
+|:---------------------------------------|:----------|--------:|---------:|---------:|:-----------|:-----------|:------|:-------|
+|TreatmentGroup                          |nominal    |         |          |          |            |            |NR     |Placebo |
+|Sex                                     |nominal    |         |          |          |            |            |Female |Male    |
+|Age                                     |continuous |        1|         0|          |            |            |       |        |
+|Anamnestic.Loss.of.smell                |nominal    |         |          |          |            |            |No     |Yes     |
+|History.of.REM.Sleep.Behaviour.Disorder |nominal    |         |          |          |            |            |No     |Yes     |
+|MDS.UPDRS..Subsection.III.V1            |ordinal    |        1|         0|       132|yes         |yes         |       |        |
+|diff.MDS.UPRS.III                       |ordinal    |        1|      -132|       132|yes         |yes         |       |        |
+
+
 
 *(More to be written here!)*
 
@@ -595,7 +920,8 @@ Alternatively you can set the seed with `set.seed()`, and start a set of paralle
 
 The "learning" computation can take tens of minutes, or hours, or even days depending on the number of variates and data in your inference problem. The `learn()` function outputs various messages on how the computation is proceeding. As an example:
 
-```{r eval = FALSE}
+
+``` r
 learnt <- learn(
     data = datafile,
     metadata = metadatafile,
@@ -603,28 +929,26 @@ learnt <- learn(
     seed = 16,
     parallel = 12)
 
-#> Registered doParallelSNOW with 12 workers
-#>
-#> Using 30 datapoints
-#> Calculating auxiliary metadata
-#>
-#> **************************
-#> Saving output in directory
-#> parkinson_computations
-#> **************************
-#> Starting Monte Carlo sampling of 3600 samples by 60 chains
-#> in a space of 703 (effectively 6657) dimensions.
-#> Using 12 cores: 60 samples per chain, 5 chains per core.
-#> Core logs are being saved in individual files.
-#>
-#> C-compiling samplers appropriate to the variates (package Nimble)
-#> this can take tens of minutes with many data or variates.
-#> Please wait...
+## Registered doParallelSNOW with 12 workers
+##
+## Using 30 datapoints
+## Calculating auxiliary metadata
+##
+## **************************
+## Saving output in directory
+## parkinson_computations
+## **************************
+## Starting Monte Carlo sampling of 3600 samples by 60 chains
+## in a space of 703 (effectively 6657) dimensions.
+## Using 12 cores: 60 samples per chain, 5 chains per core.
+## Core logs are being saved in individual files.
+##
+## C-compiling samplers appropriate to the variates (package Nimble)
+## this can take tens of minutes with many data or variates.
+## Please wait...
 ```
 
-```{r, include = FALSE}
-## learnt <- 'learnt.rds'
-```
+
 
 
 
