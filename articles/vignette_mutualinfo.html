@@ -119,8 +119,12 @@ is not linear:</p>
 <span><span class="va">Y</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/MathFun.html" class="external-link">sqrt</a></span><span class="op">(</span><span class="fl">1</span> <span class="op">-</span> <span class="va">X</span><span class="op">^</span><span class="fl">2</span><span class="op">)</span></span>
 <span><span class="va">r</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/stats/cor.html" class="external-link">cor</a></span><span class="op">(</span><span class="va">X</span>, <span class="va">Y</span>, method <span class="op">=</span> <span class="st">'pearson'</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span>x <span class="op">=</span> <span class="va">X</span>, y <span class="op">=</span> <span class="va">Y</span>, type <span class="op">=</span> <span class="st">'p'</span>, main <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/paste.html" class="external-link">paste0</a></span><span class="op">(</span><span class="st">'Pearson correlation: '</span>, <span class="fu"><a href="https://rdrr.io/r/base/Round.html" class="external-link">signif</a></span><span class="op">(</span><span class="va">r</span>, <span class="fl">2</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
-<p><img src="vignette_mutualinfo_files/figure-html/unnamed-chunk-1-1.png" width="100%">
-Similar limitations of the Pearson correlation coefficient are
+<div class="figure">
+<img src="figure/unnamed-chunk-1-1.png" alt="plot of chunk unnamed-chunk-1" width="100%"><p class="caption">
+plot of chunk unnamed-chunk-1
+</p>
+</div>
+<p>Similar limitations of the Pearson correlation coefficient are
 demonstrated by the <a href="https://doi.org/10.2307/2682899" class="external-link">“Anscombe
 quartet”</a> of datasets.</p>
 <p>In the case of two variates, the limitations and possibly misleading
@@ -196,7 +200,11 @@ It’s the case where
 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>Y</mi><annotation encoding="application/x-tex">Y</annotation></semantics></math>
 has just one value, independently of
 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>X</mi><annotation encoding="application/x-tex">X</annotation></semantics></math>:</p>
-<p><img src="vignette_mutualinfo_files/figure-html/unnamed-chunk-2-1.png" width="100%"></p>
+<div class="figure">
+<img src="figure/unnamed-chunk-2-1.png" alt="plot of chunk unnamed-chunk-2" width="100%"><p class="caption">
+plot of chunk unnamed-chunk-2
+</p>
+</div>
 <p><br></p>
 <p>Mutual information is measured in <em>shannons</em> (symbol
 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi mathvariant="normal">S</mi><mi mathvariant="normal">h</mi></mrow><annotation encoding="application/x-tex">\mathrm{Sh}</annotation></semantics></math>),
@@ -358,12 +366,12 @@ saved in the <code>learnt.rds</code> file.</p>
 <span><span class="co">#&gt; Closing connections to cores.</span></span>
 <span></span>
 <span><span class="va">mutualinfoGroupEffect</span><span class="op">$</span><span class="va">MI</span></span>
-<span><span class="co">#&gt;       value       error </span></span>
-<span><span class="co">#&gt; 0.002816052 0.001065887</span></span>
+<span><span class="co">#&gt;      value      error </span></span>
+<span><span class="co">#&gt; 0.00182770 0.00105656</span></span>
 <span></span>
 <span><span class="va">mutualinfoGroupEffect</span><span class="op">$</span><span class="va">MImax</span></span>
 <span><span class="co">#&gt;        value        error </span></span>
-<span><span class="co">#&gt; 9.998692e-01 9.717656e-05</span></span></code></pre></div>
+<span><span class="co">#&gt; 1.0001446150 0.0000971804</span></span></code></pre></div>
 <p>The result is
 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mn>0</mn><mspace width="0.167em"></mspace><mrow><mi mathvariant="normal">S</mi><mi mathvariant="normal">h</mi></mrow></mrow><annotation encoding="application/x-tex">0\,\mathrm{Sh}</annotation></semantics></math>
 within the numerical error, out of a possible maximal value of around
@@ -394,12 +402,12 @@ of female patients only:</p>
 <span><span class="co">#&gt; Closing connections to cores.</span></span>
 <span></span>
 <span><span class="va">mutualinfoGroupEffectFemales</span><span class="op">$</span><span class="va">MI</span></span>
-<span><span class="co">#&gt;       value       error </span></span>
-<span><span class="co">#&gt; 0.002208982 0.001186844</span></span>
+<span><span class="co">#&gt;      value      error </span></span>
+<span><span class="co">#&gt; 0.00194501 0.00118147</span></span>
 <span></span>
 <span><span class="va">mutualinfoGroupEffectFemales</span><span class="op">$</span><span class="va">MImax</span></span>
-<span><span class="co">#&gt;        value        error </span></span>
-<span><span class="co">#&gt; 1.0000029105 0.0001987814</span></span></code></pre></div>
+<span><span class="co">#&gt;       value       error </span></span>
+<span><span class="co">#&gt; 0.999625276 0.000198657</span></span></code></pre></div>
 <p>The resulting mutual information is above zero, within twice the
 numerical error. So there’s a slightly larger – though still extremely
 weak – association between the treatment group and effect within the
