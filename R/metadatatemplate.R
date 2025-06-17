@@ -100,6 +100,13 @@ metadatatemplate <- function(
     }
     data <- as.data.frame(data)
 
+    ## convert factors to strings if necessary
+    if(any(sapply(data, is.factor))){
+    if(verbose){ cat('\nConverting factors to characters') }
+        . <- sapply(data, is.factor)
+        data[, .] <- lapply(data[, ., drop = FALSE], as.character)
+    }
+
 #### Prepare empty metadata frame
     metadata <- as.data.frame(
         c(list(name = NA,
@@ -146,25 +153,26 @@ metadatatemplate <- function(
         x <- data[[name]]
         x <- x[!is.na(x)]
 
-        ## check if it's a 'factor' object and transform
-        if(is.factor(x)){
-            x <- as.character(x)
-        }
+        ## ## Factors are now dealt with at the beginning
+        ## ## check if it's a 'factor' object and transform
+        ## if(is.factor(x)){
+        ##     x <- as.character(x)
+        ## }
 
         unx <- sort(unique(x))
         uniquex <- length(unx)
 
-        ## if this variate has only one value, then it bears no information
-        if (uniquex <= 1) {
-            if(verbose){
-                cat('  Only one value present.\n')
-            }
+        ## if this variate has only one value, give a special warning
+        if (uniquex < 2) {
+            ## if(verbose){
+            ##     cat('  Only one value present.\n')
+            ## }
             warninglist <- c(warninglist,
                 paste0('\n* "', name, '" variate',
                     ' does not have at least two distinct values.',
-                    '\nDiscarded because non-informative.',
+                    ## '\nDiscarded because non-informative.',
                     '\nPlease insert its characteristics by hand in the metadata file.'))
-            next
+            ## next
         }
 
         ## If the values are strings,
@@ -175,7 +183,7 @@ metadatatemplate <- function(
             unx <- sort(as.numeric(unx))
         }
 
-        ## If the variate is numeric,
+        ## If the variate is numeric and has more than two values,
         ## calculate several characteristics used later
         if (is.numeric(unx) && uniquex > 2) {
             ## these two are used for diagnostic purposes
@@ -250,7 +258,7 @@ metadatatemplate <- function(
         ##     }
         ##
         ## } else
-            if (uniquex == 2 || (!is.numeric(x) &&
+            if (uniquex <= 2 || (!is.numeric(x) &&
                        !any(sapply(ordinalkeywords, function(keyw){
                            grepl(keyw, datavalues, fixed = TRUE)
                        })))) {
@@ -271,7 +279,7 @@ metadatatemplate <- function(
             ##
             if(verbose){
                 cat('  - ', Nvalues, 'different',
-                    if(uniquex > 2){' non-numeric'},
+                    ## if(uniquex > 2){' non-numeric'},
                     ' values detected:\n',
                     paste0('"', datavalues, '"', collapse = ', '),
                     '\n')

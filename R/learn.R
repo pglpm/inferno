@@ -261,6 +261,13 @@ learn <- function(
         data <- as.data.frame(data)
         rownames(data) <- NULL
 
+        ## convert factors to strings if necessary
+        if(any(sapply(data, is.factor))){
+            cat('Converting factors to characters\n')
+            . <- sapply(data, is.factor)
+            data[, .] <- lapply(data[, ., drop = FALSE], as.character)
+        }
+
         ## Consistency checks for data
         ## They should be moved to an external function
 
@@ -2045,8 +2052,8 @@ learn <- function(
 
     cat('\rFinished Monte Carlo sampling.                                 \n')
 
-    cat('\nMax number of Monte Carlo iterations across chains:', maxiterations, '\n')
-    cat('Max number of used mixture components:', maxusedcomponents, '\n')
+    cat('\nHighest number of Monte Carlo iterations across chains:', maxiterations, '\n')
+    cat('Highest number of used mixture components:', maxusedcomponents, '\n')
     if (maxusedcomponents > ncomponents - 5) {
         cat('TOO MANY MIXTURE COMPONENTS USED!\nConsider',
             're-running with increased "ncomponents" parameter\n')

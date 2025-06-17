@@ -7,9 +7,9 @@ parallel <- 15
 
 outputdir <- '__learn_penguins_30'
 learntdir <- learn(
-    data = 'penguindata_30.csv',
+    data = 'penguins_data30.csv',
     prior = FALSE,
-    metadata = 'metadata_penguins_years.csv',
+    metadata = 'penguin_metadata.csv',
     outputdir = outputdir,
     appendtimestamp = TRUE,
     appendinfo = TRUE,

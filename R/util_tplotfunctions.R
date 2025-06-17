@@ -466,7 +466,7 @@ hist.probability <- function(
         ff <- pvar[yy, xx, ]
         rg <- range(ff)
         if(diff(rg)==0){rg <- c(0, 1)}
-        if(!is.null(n)){ breaks <- seq(rg[1], rg[2], length.out=n+1) }
+        if(!is.null(n)){ breaks <- seq(rg[1], rg[2], length.out = n + 1) }
         hd <- graphics::hist(x = ff, breaks = breaks, plot = FALSE)
         midslist[[i]] <- hd$mids
         densitylist[[i]] <- hd$density
@@ -522,14 +522,18 @@ hist.probability <- function(
            (legend %in%
                  c("bottomright", "bottom", "bottomleft", "left", "topleft",
                      "top", "topright", "right", "center"))){
-        legs <- c(outer(
-            paste0(apply(p$Y, 1, function(xxx){
+        legs <- paste0(apply(p$Y, 1, function(xxx){
                 paste0(paste0(names(xxx), ' = ', xxx), collapse = ', ')
-            }), ' | '),
-            apply(p$X, 1, function(xxx){
-                paste0(paste0(names(xxx), ' = ', xxx), collapse = ', ')
-            }),
-            paste0))
+        }))
+        if(!is.null(p$X)){
+            legs <- c(outer( legs,
+                paste0(' | ',
+                    apply(p$X, 1, function(xxx){
+                        paste0(paste0(names(xxx), ' = ', xxx), collapse = ', ')
+                    })
+                ),
+                paste0))
+        }
 
         graphics::legend(x = legend,
             legend = legs,
