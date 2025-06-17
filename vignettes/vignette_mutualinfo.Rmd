@@ -7,28 +7,7 @@ vignette: >
   %\VignetteEncoding{UTF-8}
 ---
 
-```{r, setup, include = FALSE}
-knitr::opts_chunk$set(
-    dev='png',
-    fig.asp = 1/sqrt(2),
-    fig.width = 8,
-    out.width='100%',
-    collapse = TRUE,
-    comment = "#>"
-)
-options(knitr.kable.NA = '')
-library(inferno)
-## Tol colour-blind-friendly palette
-palette(c(black='black',
-        red='#EE6677',
-        blue='#4477AA',
-        green='#228833',
-        yellow='#CCBB44',
-        purple='#AA3377',
-        cyan='#66CCEE',
-        grey='#BBBBBB',
-        midgrey='#888888'))
-```
+
 
 ## Brief overview of the theory behind Mutual Information
 
@@ -39,12 +18,18 @@ A probability quantifies our degree of belief in the *values* of some variates, 
 In some cases we wish to quantify our uncertainty *in an average sense*, rather than about specific values, or given knowledge of specific values. In other words, we ask: on average, how uncertain are we about a set of variates, given that we have knowledge of another set? If this average uncertainty is low, then we say that the two sets of variates are highly *correlated* or *associated*; otherwise, that the are *uncorrelated*. Here we are using the word 'correlation' in its general sense, not in the specific sense of "linear correlation" or similar.
 
 Traditionally the [Pearson correlation coefficient "$r$"](https://mathworld.wolfram.com/CorrelationCoefficient.html) is used to quantify association. It is extremely limited, however. It is essentially [based on the assumption that all variates involved have a joint Gaussian distribution](https://doi.org/10.1080/01621459.1954.10501231). As a consequence, it is a measure of *linear* association, rather than general association. For instance, if the graph of two continuous variates $X$ and $Y$ is a semicircle, then it means that $Y$ is a function of $X$, and is therefore perfectly associated with $X$: if we know $X$, then we can perfectly predict the value of $Y$. Yet the Pearson correlation coefficient between the two variates is $0$ in this case, simply because the functional dependence of $Y$ on $X$ is not linear:
-```{r}
+
+``` r
 X <- seq(-1, 1, length.out = 200)
 Y <- sqrt(1 - X^2)
 r <- cor(X, Y, method = 'pearson')
 plot(x = X, y = Y, type = 'p', main = paste0('Pearson correlation: ', signif(r, 2)))
 ```
+
+<div class="figure">
+<img src="figure/unnamed-chunk-1-1.png" alt="plot of chunk unnamed-chunk-1" width="100%" />
+<p class="caption">plot of chunk unnamed-chunk-1</p>
+</div>
 Similar limitations of the Pearson correlation coefficient are demonstrated by the ["Anscombe quartet"](https://doi.org/10.2307/2682899) of datasets.
 
 In the case of two variates, the limitations and possibly misleading value of the Pearson correlation coefficient may not be a serious problem, because we can visually inspect the relation and association between the variates. But in dealing with multi-dimensional variates, visualization is not possible and we must rely on the numerical values of the measure we use to quantify "association". In such cases the Pearson correlation coefficient can be highly misleading, and let us conclude that there's no association when actually there's a very strong one. Considering that our world is highly non-linear, this possibility is far from remote.
@@ -61,11 +46,10 @@ Regarding the last feature, note that the functional dependence between $X$ and 
 
 There's also a special case in which the *maximal* value of the mutual information is zero, which indicates that $Y$ is, technically speaking, a function of $X$, yet knowledge of $X$ doesn't give us any knowledge about $Y$. It's the case where $Y$ has just one value, independently of $X$:
 
-```{r, echo = FALSE}
-X <- seq(-1, 1, length.out = 200)
-Y <- rep(1, length(X))
-plot(x = X, y = Y, type = 'p', main = 'max mutual information = min mutual information = 0')
-```
+<div class="figure">
+<img src="figure/unnamed-chunk-2-1.png" alt="plot of chunk unnamed-chunk-2" width="100%" />
+<p class="caption">plot of chunk unnamed-chunk-2</p>
+</div>
 
 \
 
@@ -120,24 +104,34 @@ As an example, let's take the dataset and inference problem discussed in the vig
 Suppose we want to quantify the association between the treatment group of a patient and the effect of the treatment. The treatment group is given by the `TreatmentGroup` binary variate, and the effect is quantified by the difference in MDS-UPDRS-III scores between the first and second visits, in the variate `diff.MDS.UPRS.III`. We use the knowledge calculated and saved in the `learnt.rds` file.
 
 The mutual information between `TreatmentGroup` and `diff.MDS.UPRS.III` is
-```{r}
+
+``` r
 mutualinfoGroupEffect <- mutualinfo(
     Y1names = 'diff.MDS.UPRS.III',
     Y2names = 'TreatmentGroup',
     learnt = 'learnt.rds',
     parallel = 12
 )
+#> 
+#> Registered doParallelSNOW with 12 workers
+#> 
+#> Closing connections to cores.
 
 mutualinfoGroupEffect$MI
+#>      value      error 
+#> 0.00182770 0.00105656
 
 mutualinfoGroupEffect$MImax
+#>        value        error 
+#> 1.0001446150 0.0000971804
 ```
 The result is $0\,\mathrm{Sh}$ within the numerical error, out of a possible maximal value of around $1\,\mathrm{Sh}$, shows that there is essentially no association between the treatment group and the effect. Note that further data could change this conclusion, though (*the calculation of this uncertainty will be later implemented in the package*).
 
 \
 
 We can also quantify the association between two sets of variates *within a subpopulation* defined by a specific value of an additional variate `X` (which may be a joint variate). This subpopulation is specified by an additional argument `X` to the `mutualinfo()` function. For instance, let's quantify the association between treatment group and effect within the subpopulation of female patients only:
-```{r}
+
+``` r
 mutualinfoGroupEffectFemales <- mutualinfo(
     Y1names = 'diff.MDS.UPRS.III',
     Y2names = 'TreatmentGroup',
@@ -145,10 +139,18 @@ mutualinfoGroupEffectFemales <- mutualinfo(
     learnt = 'learnt.rds',
     parallel = 12
 )
+#> 
+#> Registered doParallelSNOW with 12 workers
+#> 
+#> Closing connections to cores.
 
 mutualinfoGroupEffectFemales$MI
+#>      value      error 
+#> 0.00194501 0.00118147
 
 mutualinfoGroupEffectFemales$MImax
+#>       value       error 
+#> 0.999625276 0.000198657
 ```
 The resulting mutual information is above zero, within twice the numerical error. So there's a slightly larger -- though still extremely weak -- association between the treatment group and effect within the female subpopulation.
 

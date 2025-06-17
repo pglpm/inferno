@@ -845,13 +845,13 @@ dataset <- penguins
 Here are the values for two subjects:
 
 
-|    |species   |island | bill_len| bill_dep| flipper_len| body_mass|sex  | year|
-|:---|:---------|:------|--------:|--------:|-----------:|---------:|:----|----:|
-|25  |Adelie    |Biscoe |     38.8|     17.2|         180|      3800|male | 2007|
-|42  |Adelie    |Dream  |     40.8|     18.4|         195|      3900|male | 2007|
-|316 |Chinstrap |Dream  |     53.5|     19.9|         205|      4500|male | 2008|
-|30  |Adelie    |Biscoe |     40.5|     18.9|         180|      3950|male | 2007|
-|332 |Chinstrap |Dream  |     52.2|     18.8|         197|      3450|male | 2009|
+|    |species |island | bill_len| bill_dep| flipper_len| body_mass|sex    | year|
+|:---|:-------|:------|--------:|--------:|-----------:|---------:|:------|----:|
+|173 |Gentoo  |Biscoe |     50.2|     14.3|         218|      5700|male   | 2007|
+|210 |Gentoo  |Biscoe |     45.5|     15.0|         220|      5000|male   | 2008|
+|45  |Adelie  |Dream  |     37.0|     16.9|         185|      3000|female | 2007|
+|52  |Adelie  |Biscoe |     40.1|     18.9|         188|      4300|male   | 2008|
+|247 |Gentoo  |Biscoe |     44.5|     14.7|         214|      4850|female | 2009|
 
 
 
