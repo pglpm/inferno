@@ -2052,8 +2052,8 @@ learn <- function(
 
     cat('\rFinished Monte Carlo sampling.                                 \n')
 
-    cat('\nMax number of Monte Carlo iterations across chains:', maxiterations, '\n')
-    cat('Max number of used mixture components:', maxusedcomponents, '\n')
+    cat('\nHighest number of Monte Carlo iterations across chains:', maxiterations, '\n')
+    cat('Highest number of used mixture components:', maxusedcomponents, '\n')
     if (maxusedcomponents > ncomponents - 5) {
         cat('TOO MANY MIXTURE COMPONENTS USED!\nConsider',
             're-running with increased "ncomponents" parameter\n')

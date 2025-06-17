@@ -418,13 +418,17 @@ tailPr <- function(
 
     ## transform to grid
     ## in the output-list elements the Y & X values are the rows
+
     dim(out$values) <- c(nY, nX)
-    dimnames(out$values) <- list(Y = NULL, X = NULL)
+
+    if(ncol(Y) == 1){Ynames <- Y[, 1]} else {Ynames <- NULL}
+    if(isTRUE(ncol(X) == 1)){Xnames <- X[, 1]} else {Xnames <- NULL}
+    dimnames(out$values) <- list(Y = Ynames, X = Xnames)
 
     if(dosamples){
     ## transform to grid
         dim(out$samples) <- c(nY, nX, nsamples)
-        dimnames(out$samples) <- list(Y = NULL, X = NULL,
+        dimnames(out$samples) <- list(Y = Ynames, X = Xnames,
             round(seq(1, nmcsamples, length.out = nsamples)))
     }
 
@@ -433,7 +437,7 @@ tailPr <- function(
         temp <- names(quantile(1, probs = quantiles, names = TRUE))
         ## transform to grid
         dim(out$quantiles) <- c(nY, nX, length(quantiles))
-        dimnames(out$quantiles) <- list(Y = NULL, X = NULL, temp)
+        dimnames(out$quantiles) <- list(Y = Ynames, X = Xnames, temp)
     }
 
     if(isTRUE(keepYX)){

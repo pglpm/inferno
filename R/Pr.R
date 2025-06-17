@@ -461,13 +461,19 @@ Pr <- function(
     if(is.null(priorY)){
         ## multiply by jacobian factors
         out$values <- out$values * jacobians
+
+        if(ncol(Y) == 1){Ynames <- Y[, 1]} else {Ynames <- NULL}
+        if(isTRUE(ncol(X) == 1)){Xnames <- X[, 1]} else {Xnames <- NULL}
     } else {
         ## Bayes's theorem
         out$values <- t(priorY * t(out$values))
         normf <- rowSums(out$values, na.rm = TRUE)
         out$values <- t(out$values/normf)
+
+        if(ncol(X) == 1){Ynames <- X[, 1]} else {Ynames <- NULL}
+        if(isTRUE(ncol(Y) == 1)){Xnames <- Y[, 1]} else {Xnames <- NULL}
     }
-    dimnames(out$values) <- list(Y = NULL, X = NULL)
+    dimnames(out$values) <- list(Y = Ynames, X = Xnames)
 
     if(dosamples){
         ## transform to grid
@@ -483,7 +489,7 @@ Pr <- function(
             out$samples <- aperm(aperm(out$samples)/normf)
         }
 
-        dimnames(out$samples) <- list(Y = NULL, X = NULL,
+        dimnames(out$samples) <- list(Y = Ynames, X = Xnames,
             round(seq(1, nmcsamples, length.out = nsamples)))
     }
 
@@ -511,7 +517,7 @@ Pr <- function(
         }
 
         temp <- names(quantile(1, probs = quantiles, names = TRUE))
-        dimnames(out$quantiles) <- list(Y = NULL, X = NULL, temp)
+        dimnames(out$quantiles) <- list(Y = Ynames, X = Xnames, temp)
     }
 
     if(isTRUE(keepYX)){
