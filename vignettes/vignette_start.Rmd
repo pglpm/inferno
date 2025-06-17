@@ -413,10 +413,7 @@ The answer to our question is now contained in the `Fspecies10` object (we chose
 plot(Fspecies10)
 ```
 
-<div class="figure">
-<img src="figure/vis10-1.png" alt="plot of chunk vis10" width="100%" />
-<p class="caption">plot of chunk vis10</p>
-</div>
+<img src="figure/vis10-1.png" width="100%" />
 
 The x-axis of this plot shows the three possible values of the `species` variate. The y-axis reports fractions which may be read as *frequencies* or *probabilities*.
 
@@ -488,10 +485,7 @@ onlyAdelie <- subset(Fspecies10, list(species = 'Adelie'))
 hist(onlyAdelie, legend = 'topright')
 ```
 
-<div class="figure">
-<img src="figure/hist10-1.png" alt="plot of chunk hist10" width="100%" />
-<p class="caption">plot of chunk hist10</p>
-</div>
+<img src="figure/hist10-1.png" width="100%" />
 
 
 by giving the probabilities of all possible relative-frequency distributions.
@@ -851,13 +845,13 @@ dataset <- penguins
 Here are the values for two subjects:
 
 
-|    |species |island | bill_len| bill_dep| flipper_len| body_mass|sex    | year|
-|:---|:-------|:------|--------:|--------:|-----------:|---------:|:------|----:|
-|166 |Gentoo  |Biscoe |     48.4|     14.6|         213|      5850|male   | 2007|
-|214 |Gentoo  |Biscoe |     46.2|     14.9|         221|      5300|male   | 2008|
-|85  |Adelie  |Dream  |     37.3|     17.8|         191|      3350|female | 2008|
-|206 |Gentoo  |Biscoe |     50.1|     15.0|         225|      5000|male   | 2008|
-|256 |Gentoo  |Biscoe |     49.1|     15.0|         228|      5500|male   | 2009|
+|    |species   |island | bill_len| bill_dep| flipper_len| body_mass|sex  | year|
+|:---|:---------|:------|--------:|--------:|-----------:|---------:|:----|----:|
+|25  |Adelie    |Biscoe |     38.8|     17.2|         180|      3800|male | 2007|
+|42  |Adelie    |Dream  |     40.8|     18.4|         195|      3900|male | 2007|
+|316 |Chinstrap |Dream  |     53.5|     19.9|         205|      4500|male | 2008|
+|30  |Adelie    |Biscoe |     40.5|     18.9|         180|      3950|male | 2007|
+|332 |Chinstrap |Dream  |     52.2|     18.8|         197|      3450|male | 2009|
 
 
 
