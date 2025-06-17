@@ -7,28 +7,7 @@ vignette: >
   %\VignetteEncoding{UTF-8}
 ---
 
-```{r, setup, include = FALSE}
-knitr::opts_chunk$set(
-    dev='png',
-    fig.asp = 1/sqrt(2),
-    fig.width = 8,
-    out.width='100%',
-    collapse = TRUE,
-    comment = "#>"
-)
-options(knitr.kable.NA = '')
-library(inferno)
-## Tol colour-blind-friendly palette
-palette(c(black='black',
-        red='#EE6677',
-        blue='#4477AA',
-        green='#228833',
-        yellow='#CCBB44',
-        purple='#AA3377',
-        cyan='#66CCEE',
-        grey='#BBBBBB',
-        midgrey='#888888'))
-```
+
 
 ## Purpose
 
@@ -53,13 +32,19 @@ The investigations in the cited paper involve 30 subjects, for each of which var
 \
 
 We store the name of the datafile
-```{r}
+
+``` r
 datafile <- 'toydata.csv'
 ```
 Here are the values for two subjects:
-```{r echo = FALSE}
-knitr::kable(read.csv(datafile, na.strings='')[1:2,])
-```
+
+
+|TreatmentGroup |Sex    | Age|Anamnestic.Loss.of.smell |History.of.REM.Sleep.Behaviour.Disorder | MDS.UPDRS..Subsection.III.V1| diff.MDS.UPRS.III|
+|:--------------|:------|---:|:------------------------|:---------------------------------------|----------------------------:|-----------------:|
+|Placebo        |Male   |  66|No                       |No                                      |                           44|                -2|
+|NR             |Female |  65|Yes                      |No                                      |                           32|                10|
+
+
 
 ### "Natural" vs controlled or "biased" variates
 
@@ -76,7 +61,8 @@ On the other hand, the investigators did *not* choose the statistics of the two 
 ## Metadata
 
 Let's load the package:
-```{r eval = FALSE}
+
+``` r
 library(inferno)
 ```
 
@@ -86,18 +72,92 @@ In order to draw inferences, we need metadata information, that is, information 
 As an example of why metadata is necessary, suppose you are given the data `3`, `7`, `9`. Can you say whether the value `5` could be observed in a new instance? and what about `4.7`, or `-10`? Knowing whether these values are at all possible, or not, greatly affects the precision of the inferences we draw. Obviously a researcher must know such basic information about the data being collected -- otherwise they wouldn't know what they're doing.
 
 The software requires specification of metadata either as a `data.frame` object or as a `.csv` file. To help you prepare this file, the software offers the function `metadatatemplate()`, which writes a template that you thereafter modify. The template is filled with **tentative** values; these are wild guesses from the data, so they are often wrong. The function explains the heuristic it is using in order to pre-fill the fields of the metadata file, and gives warnings about guessed values that are especially dubious. You should examine and correct all fields:
-```{r class.source = 'fold-hide'}
+
+```{.r .fold-hide}
 metadatatemplate(data = datafile, file = 'temp_metadata')
+#> 
+#> Analyzing 7 variates for 30 datapoints.
+#> 
+#> * "TreatmentGroup" variate:
+#>   -  2 different  values detected:
+#>  "NR", "Placebo" 
+#>   which do not seem to refer to an ordered scale.
+#>   Assuming variate to be NOMINAL.
+#> 
+#> * "Sex" variate:
+#>   -  2 different  values detected:
+#>  "Female", "Male" 
+#>   which do not seem to refer to an ordered scale.
+#>   Assuming variate to be NOMINAL.
+#> 
+#> * "Age" variate:
+#>   - Numeric values between 29 and 75 
+#>   Assuming variate to be CONTINUOUS.
+#>   - Distance between datapoints is a multiple of 1 
+#>   Assuming variate to be ROUNDED.
+#>   - All values are positive
+#>   Assuming "domainmin" to be 0
+#> 
+#> * "Anamnestic.Loss.of.smell" variate:
+#>   -  2 different  values detected:
+#>  "No", "Yes" 
+#>   which do not seem to refer to an ordered scale.
+#>   Assuming variate to be NOMINAL.
+#> 
+#> * "History.of.REM.Sleep.Behaviour.Disorder" variate:
+#>   -  2 different  values detected:
+#>  "No", "Yes" 
+#>   which do not seem to refer to an ordered scale.
+#>   Assuming variate to be NOMINAL.
+#> 
+#> * "MDS.UPDRS..Subsection.III.V1" variate:
+#>   - Numeric values between 15 and 50 
+#>   Assuming variate to be CONTINUOUS.
+#>   - Distance between datapoints is a multiple of 1 
+#>   Assuming variate to be ROUNDED.
+#>   - All values are positive
+#>   Assuming "domainmin" to be 0
+#> 
+#> * "diff.MDS.UPRS.III" variate:
+#>   - Numeric values between -9 and 10 
+#>   Assuming variate to be CONTINUOUS.
+#>   - Distance between datapoints is a multiple of 1 
+#>   Assuming variate to be ROUNDED.
+#> =========
+#> WARNINGS - please make sure to check these variates in the metadata file:
+#> 
+#> * "Age" variate appears to be continuous and rounded,
+#> but it could also be an ordinal variate
+#> 
+#> * "MDS.UPDRS..Subsection.III.V1" variate appears to be continuous and rounded,
+#> but it could also be an ordinal variate
+#> 
+#> * "diff.MDS.UPRS.III" variate appears to be continuous and rounded,
+#> but it could also be an ordinal variate
+#> =========
+#> 
+#> Saved proposal metadata file as "temp_metadata.csv"
 ```
 
 We can open the temporary metadata file `temp_metadata.csv` and edit it with any software of our choice. Let's save the corrected version as `meta_toydata.csv`:
-```{r}
+
+``` r
 metadatafile <- 'meta_toydata.csv'
 ```
 The metadata are as follows; `NA` indicate empty fields:
-```{r echo = FALSE}
-knitr::kable(read.csv(metadatafile, na.strings = ''))
-```
+
+
+|name                                    |type       | datastep| domainmin| domainmax|minincluded |maxincluded |V1     |V2      |
+|:---------------------------------------|:----------|--------:|---------:|---------:|:-----------|:-----------|:------|:-------|
+|TreatmentGroup                          |nominal    |         |          |          |            |            |NR     |Placebo |
+|Sex                                     |nominal    |         |          |          |            |            |Female |Male    |
+|Age                                     |continuous |        1|         0|          |            |            |       |        |
+|Anamnestic.Loss.of.smell                |nominal    |         |          |          |            |            |No     |Yes     |
+|History.of.REM.Sleep.Behaviour.Disorder |nominal    |         |          |          |            |            |No     |Yes     |
+|MDS.UPDRS..Subsection.III.V1            |ordinal    |        1|         0|       132|yes         |yes         |       |        |
+|diff.MDS.UPRS.III                       |ordinal    |        1|      -132|       132|yes         |yes         |       |        |
+
+
 For a description of the metadata fields, see the help for `metadata` with `?inferno::metadata`.
 
 *(More to be written here!)*
@@ -126,7 +186,8 @@ Alternatively you can set the seed with `set.seed()`, and start a set of paralle
 
 The "learning" computation can take tens of minutes, or hours, or even days depending on the number of variates and data in your inference problem. The `learn()` function outputs various messages on how the computation is proceeding. As an example:
 
-```{r eval = FALSE}
+
+``` r
 learnt <- learn(
     data = datafile,
     metadata = metadatafile,
@@ -153,9 +214,7 @@ learnt <- learn(
 #> Please wait...
 ```
 
-```{r, include = FALSE}
-learnt <- 'learnt.rds'
-```
+
 
 
 At the end of the computation the `learn()` function returns the name of the directory in which the results are saved. In the code snipped above, this name is saved in the variable `learnt`. The object containing the information needed to make inferences is the `learnt.rds` file within this directory.
@@ -188,7 +247,8 @@ The function for this is `Pr(Y, X, learnt)`, which accepts three arguments:
 - `learnt`: the knowledge acquired from the dataset
 
 Let us first ask this for a specific value of the MDS-UPDRS-III difference, let's say `0`:
-```{r}
+
+``` r
 probability0 <- Pr(
     Y = data.frame(diff.MDS.UPRS.III = 0),
     X = data.frame(Sex = 'Female', TreatmentGroup = 'NR'),
@@ -199,21 +259,50 @@ probability0 <- Pr(
 The output of the `Pr()` function is a list of several objects, of which we discuss only two for the moment:
 
 - **`value`**: this is the value of the probability we wanted to know. In this case it is
-```{r}
+
+``` r
 probability0$value
+#>       X
+#> Y          [,1]
+#>   [1,] 0.064202
 ```
-that is, there is approximately a `r signif(probability0$value *100, 2)`% probability that the next treated female patient will have a MDS-UPDRS-III difference of exactly 0.
+that is, there is approximately a 6.4% probability that the next treated female patient will have a MDS-UPDRS-III difference of exactly 0.
 
 - **`quantiles`**: these values tell us how much the probability could change, if our knowledge were updated by more clinical trials. They thus quantify the uncertainty of our present probabilistic conclusions. A future, updated probability has a 89% probability of lying between the two extreme (5.5% and 94.5%) quantile values, and a 50% probability of lying between the middle (25% and 75%) ones q(these are typical intervals used in the Bayesian literature, see for instance [Makowski et al.](https://doi.org/10.21105/joss.01541)). In this case they are
-```{r}
+
+``` r
 probability0$quantiles
+#> , ,  = 5.5%
+#> 
+#>       X
+#> Y           [,1]
+#>   [1,] 0.0289361
+#> 
+#> , ,  = 25%
+#> 
+#>       X
+#> Y           [,1]
+#>   [1,] 0.0448123
+#> 
+#> , ,  = 75%
+#> 
+#>       X
+#> Y          [,1]
+#>   [1,] 0.077569
+#> 
+#> , ,  = 94.5%
+#> 
+#>       X
+#> Y          [,1]
+#>   [1,] 0.111913
 ```
-that is, if we had many more clinical trials, the probability above could change to a value within around `r signif(probability0$quantiles[,,'5.5%'] * 100, 2)`% and `r signif(probability0$quantiles[,,'94.5%'] * 100, 2)`%.
+that is, if we had many more clinical trials, the probability above could change to a value within around 2.9% and 11%.
 
 \
 
 We can obviously also ask for the probabilities of all possible values that the MDS-UPDRS-III difference could have in the next treated female patient:
-```{r}
+
+``` r
 probabilities <- Pr(
     Y = data.frame(diff.MDS.UPRS.III = (-30):30),
     X = data.frame(Sex = 'Female', TreatmentGroup = 'NR'),
@@ -221,9 +310,15 @@ probabilities <- Pr(
 )
 ```
 Each probability thus obtained has two accompanying quantiles and related uncertainty. Both can be visualized with the `plot()` function:
-```{r}
+
+``` r
 plot(probabilities)
 ```
+
+<div class="figure">
+<img src="figure/unnamed-chunk-13-1.png" alt="plot of chunk unnamed-chunk-13" width="100%" />
+<p class="caption">plot of chunk unnamed-chunk-13</p>
+</div>
 
 Two aspects of this plot are relevant for our investigation:
 
@@ -232,11 +327,17 @@ Two aspects of this plot are relevant for our investigation:
 - However, it is also clear that further clinical trials could lead to a quite different probability distribution. This is shown by the breadth of the quantile range.
 
 Another way to graphically represent and see potential variability of the result if more trials were available, is to plot some examples -- say 100 -- of how the results could differ. Such examples are stored in the third object, `samples` given by the `Pr()` function:
-```{r}
+
+``` r
 plot(probabilities, variability = 'samples',
     ylim = c(0, max(probabilities$quantiles)) # keep same y-range as before
     )
 ```
+
+<div class="figure">
+<img src="figure/unnamed-chunk-14-1.png" alt="plot of chunk unnamed-chunk-14" width="100%" />
+<p class="caption">plot of chunk unnamed-chunk-14</p>
+</div>
 
 \
 
@@ -247,7 +348,8 @@ $$
 $$
 
 This probability can be calculated with the function `tailPr(Y, X, learnt)`, which is analogous to the `Pr()` function, but calculates the probability of $Y\le y$ rather than of $Y = y$.
-```{r}
+
+``` r
 probDecrease <- tailPr(
     Y = data.frame(diff.MDS.UPRS.III = -1),
     X = data.frame(Sex = 'Female', TreatmentGroup = 'NR'),
@@ -256,28 +358,34 @@ probDecrease <- tailPr(
 ```
 
 The answer is that the probability of a decrease in this disability score is
-```{r}
+
+``` r
 probDecrease$value
+#>       X
+#> Y          [,1]
+#>   [1,] 0.549769
 ```
-or approximately `r signif(probDecrease$value * 100, 2)`%; note that it is clearly higher than 50%.
-
-```{r, include = FALSE}
-probFNR <- signif(probDecrease$value[1,1] * 100, 2)
-```
+or approximately 55%; note that it is clearly higher than 50%.
 
 
-Further clinical trials, however could update this probability to a new value between `r signif(probDecrease$quantiles[1,1,'5.5%'] * 100, 2)`% and `r signif(probDecrease$quantiles[1,1,'94.5%'] * 100, 2)`%:
-```{r}
+
+
+Further clinical trials, however could update this probability to a new value between 34% and 75%:
+
+``` r
 probDecrease$quantiles[1,1,]
+#>     5.5%      25%      75%    94.5% 
+#> 0.342894 0.463976 0.641548 0.747442
 ```
 
 ### Second example: comparison with non-treated patient of female sex
 
-In the previous example we found that there is a `r probFNR`% probability that a treated female patient will experience a decrease in MDS-UPDRS-III after the therapy. But can this decrease really be correlated with the therapy?
+In the previous example we found that there is a 55% probability that a treated female patient will experience a decrease in MDS-UPDRS-III after the therapy. But can this decrease really be correlated with the therapy?
 
 To preliminarily answer this question, we can find the analogous probabilities for a female patient that has not received the treatment. Again we use `Pr()`, but our `X` argument will specify a `Placebo` value for the Treatment group:
 
-```{r}
+
+``` r
 probabilitiesPlacebo <- Pr(
     Y = data.frame(diff.MDS.UPRS.III = (-30):30),
     X = data.frame(Sex = 'Female', TreatmentGroup = 'Placebo'),
@@ -286,7 +394,8 @@ probabilitiesPlacebo <- Pr(
 ```
 
 Let's plot these probabilities, together with their variability (only the most extreme case), on top of the ones previously obtained for the treated case:
-```{r}
+
+``` r
 plotquantiles(x = (-30):30, y = probabilities$quantiles[,1, c('5.5%', '94.5%')],
     ylim = c(0, NA),
     xlab = 'MDS-UPDRS-III difference', ylab = 'probability', col = 3)
@@ -306,10 +415,16 @@ legend('topright', legend = c('NR, Female', 'Placebo, Female'),
     bty = 'n', lty = 1:2, col = 3:2)
 ```
 
+<div class="figure">
+<img src="figure/unnamed-chunk-20-1.png" alt="plot of chunk unnamed-chunk-20" width="100%" />
+<p class="caption">plot of chunk unnamed-chunk-20</p>
+</div>
+
 There does not seem to be any difference that stands out between the treated and non-treated case.
 
 As before, we can calculate the probability of a decrease in MDS-UPDRS-III:
-```{r}
+
+``` r
 probDecreasePlacebo <- tailPr(
     Y = data.frame(diff.MDS.UPRS.III = -1),
     X = data.frame(Sex = 'Female', TreatmentGroup = 'Placebo'),
@@ -318,12 +433,19 @@ probDecreasePlacebo <- tailPr(
 ```
 
 We find that the probability of a decrease in the disability score for a non-treated female patient is
-```{r}
+
+``` r
 probDecreasePlacebo$value
+#>       X
+#> Y          [,1]
+#>   [1,] 0.543251
 ```
-or approximately `r signif(probDecreasePlacebo$value * 100, 2)`%. Further clinical trials, however could update this probability to a value between `r signif(probDecreasePlacebo$quantiles[1,1,'5.5%'] * 100, 2)`% and `r signif(probDecreasePlacebo$quantiles[1,1,'94.5%'] * 100, 2)`%:
-```{r}
+or approximately 54%. Further clinical trials, however could update this probability to a value between 33% and 74%:
+
+``` r
 probDecreasePlacebo$quantiles[1,1,]
+#>     5.5%      25%      75%    94.5% 
+#> 0.333219 0.453890 0.632558 0.743401
 ```
 
 Therefore we see a similarly probable decrease in a non-treated as well as a non-treated female patient. There is a very small difference in these two probabilities, in favour of the treated case; but this difference is too small compared with how the probabilities could change if more trials were available.
@@ -348,7 +470,8 @@ $$
 $$
 for meaningful values $a$ of the age, let's say between 25 and 80. Again we can find them with the function `tailPr()`. This time our conditioning argument `X` will include a grid of `Age` values. First we do the calculation for a treated female patient, then for a non-treated one:
 
-```{r}
+
+``` r
 probDecreaseAge <- tailPr(
     Y = data.frame(diff.MDS.UPRS.III = -1),
     X = data.frame(Sex = 'Female', Age = 25:80, TreatmentGroup = 'NR'),
@@ -363,7 +486,8 @@ probDecreaseAgePlacebo <- tailPr(
 ```
 
 We can plot the probabilities of an MDS-UPDRS-III decrease against that patient's age, with one plot for each treatment group:
-```{r}
+
+``` r
 plotquantiles(x = 25:80, y = probDecreaseAge$quantiles[1,, c('5.5%', '94.5%')],
     ylim = c(0, NA),
     xlab = 'age', ylab = 'probability of MDS-UPDRS-III decr.', col = 3)
@@ -383,6 +507,11 @@ legend('topright', legend = c('NR, Female', 'Placebo, Female'),
     bty = 'n', lty = 1:2, col = 3:2)
 ```
 
+<div class="figure">
+<img src="figure/unnamed-chunk-25-1.png" alt="plot of chunk unnamed-chunk-25" width="100%" />
+<p class="caption">plot of chunk unnamed-chunk-25</p>
+</div>
+
 This plot shows some interesting aspects:
 
 - There does not seem to be a large difference, between treated and non-treated females, in the probability of a MDS-UPDRS-III decrease.
@@ -396,7 +525,8 @@ Again notice that these probabilities could be updated to very different values,
 
 We can perform an analysis analogous to the previous examples, but for a male patient. Here are the corresponding function calls and plots.
 
-```{r}
+
+``` r
 probabilitiesMale <- Pr(
     Y = data.frame(diff.MDS.UPRS.III = (-30):30),
     X = data.frame(Sex = 'Male', TreatmentGroup = c('NR', 'Placebo')),
@@ -423,10 +553,16 @@ legend('topright', legend = c('NR, Male', 'Placebo, Male'),
     bty = 'n', lty = 1:2, col = 7:6)
 ```
 
+<div class="figure">
+<img src="figure/unnamed-chunk-26-1.png" alt="plot of chunk unnamed-chunk-26" width="100%" />
+<p class="caption">plot of chunk unnamed-chunk-26</p>
+</div>
+
 
 And considering all ages separately:
 
-```{r}
+
+``` r
 probMaleDecreaseAge <- tailPr(
     Y = data.frame(diff.MDS.UPRS.III = -1),
     X = data.frame(Sex = 'Male', Age = 25:80, TreatmentGroup = 'NR'),
@@ -460,9 +596,15 @@ legend('topright', legend = c('NR, Male', 'Placebo, Male'),
     bty = 'n', lty = 1:2, col = 7:6)
 ```
 
+<div class="figure">
+<img src="figure/unnamed-chunk-27-1.png" alt="plot of chunk unnamed-chunk-27" width="100%" />
+<p class="caption">plot of chunk unnamed-chunk-27</p>
+</div>
+
 Finally let's compare treated female vs male patients, per age:
 
-```{r}
+
+``` r
 plotquantiles(x = 25:80, y = probDecreaseAge$quantiles[1,, c('5.5%', '94.5%')],
     ylim = c(0, NA),
     xlab = 'age', ylab = 'probability of MDS-UPDRS-III decr.', col = 3)
@@ -482,6 +624,11 @@ abline(h = 0.5, lwd = 1, col = 5)
 legend('topright', legend = c('NR, Female', 'NR, Male'),
     bty = 'n', lty = 1:2, col = c(3, 7))
 ```
+
+<div class="figure">
+<img src="figure/unnamed-chunk-28-1.png" alt="plot of chunk unnamed-chunk-28" width="100%" />
+<p class="caption">plot of chunk unnamed-chunk-28</p>
+</div>
 
 
 *(TO BE CONTINUED)*
