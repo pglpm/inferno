@@ -1111,11 +1111,12 @@ this case) which can be used in the following analysis.</p>
 <h2 id="examples-of-analysis">Examples of analysis<a class="anchor" aria-label="anchor" href="#examples-of-analysis"></a>
 </h2>
 <div class="section level3">
-<h3 id="estimating-the-relative-frequencies-of-the-three-species">Estimating the relative frequencies of the three species<a class="anchor" aria-label="anchor" href="#estimating-the-relative-frequencies-of-the-three-species"></a>
+<h3 id="estimating-the-relative-frequencies-of-the-three-penguin-species">Estimating the relative frequencies of the three penguin
+species<a class="anchor" aria-label="anchor" href="#estimating-the-relative-frequencies-of-the-three-penguin-species"></a>
 </h3>
-<p>Consider our first research question <strong>Q1</strong>: what’s the
+<p>Consider our first research question <strong>Q1</strong>: “what’s the
 overall statistical occurrence of the three species in the whole
-population? The relative frequencies of the three species in the whole
+population?” The relative frequencies of the three species in the whole
 population are unknown to us, so we cannot give a simple answer such as
 “Adélie: 0.10, Chinstrap: 0.34, Gentoo: 0.56”.</p>
 <p>Bayesian nonparametrics and <strong><em>inferno</em></strong> give a
@@ -1164,7 +1165,12 @@ immediately visualized by calling <code><a href="https://rdrr.io/r/graphics/plot
 object:</p>
 <div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">Fspecies10</span><span class="op">)</span></span></code></pre></div>
-<p><img src="figure/vis10-1.png" width="100%"></p>
+<div class="figure">
+<img src="figure/vis10-1.png" alt="**Estimates and uncertainty of relative frequencies of the three penguin species**" width="100%"><p class="caption">
+<strong>Estimates and uncertainty of relative frequencies of the three
+penguin species</strong>
+</p>
+</div>
 <p>The x-axis of this plot shows the three possible values of the
 <code>species</code> variate. The y-axis reports fractions which may be
 read as <em>frequencies</em> or <em>probabilities</em>.</p>
@@ -1178,16 +1184,21 @@ Gentoo: 0.37, and can be read from the <code>values</code> element of
 the <code>Fspecies10</code> object:</p>
 <div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">Fspecies10</span><span class="op">$</span><span class="va">values</span></span>
-<span><span class="co">##       X</span></span>
-<span><span class="co">## Y          [,1]</span></span>
-<span><span class="co">##   [1,] 0.315265</span></span>
-<span><span class="co">##   [2,] 0.310161</span></span>
-<span><span class="co">##   [3,] 0.374574</span></span></code></pre></div>
-<p>What about the uncertainty of these estimates? In Bayesian theory, a
-compact way of expressing the uncertainty in a quantity is by means of a
-<strong>credibility interval</strong> with a given probability. For
-instance, if we say that a particular quantity has a 80%-credibility
-interval equal to
+<span><span class="co">##            X</span></span>
+<span><span class="co">## Y               [,1]</span></span>
+<span><span class="co">##   Adelie    0.315265</span></span>
+<span><span class="co">##   Chinstrap 0.310161</span></span>
+<span><span class="co">##   Gentoo    0.374574</span></span></code></pre></div>
+<p>What about the uncertainty of these estimates?</p>
+</div>
+<div class="section level3">
+<h3 id="uncertainty-of-the-estimates-credibility-intervals-and-probabilities">Uncertainty of the estimates: credibility intervals and
+probabilities<a class="anchor" aria-label="anchor" href="#uncertainty-of-the-estimates-credibility-intervals-and-probabilities"></a>
+</h3>
+<p>In Bayesian theory, a compact way of expressing the uncertainty in a
+quantity is by means of a <strong>credibility interval</strong> with a
+given probability. For instance, if we say that a particular quantity
+has a 80%-credibility interval equal to
 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo stretchy="true" form="prefix">(</mo><mn>0.41</mn><mo>,</mo><mn>0.69</mn><mo stretchy="true" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">(0.41, 0.69)</annotation></semantics></math>,
 what we mean is that there’s an 80% probability that the true value of
 that quantity is between
@@ -1200,116 +1211,107 @@ latter has a much more involved and less straightforward meaning.)</p>
 <p>The <code><a href="../reference/Pr.html">Pr()</a></code> function by default calculates two credibility
 intervals for each frequency estimate: a 50% one, and an 89% one. In our
 present inference, the 50%-credibility intervals are shown in the plot
-above as the darker grey band, and the 89%-credibility interval as the
-lighter grey band. Note that this interval contains the 50% one.</p>
+above as the darker grey band, and the 89%-credibility intervals as the
+lighter grey band. Note that these intervals contain the 50% ones.</p>
 <p>For instance, the plot indicates that there’s a 50% probability that
-the relative frequency of all Adélie penguins is roughly between 0.25
-and 0.4; and an 89% probability that their relative frequency is roughly
-between 0.3 and 0.45.</p>
-<p>For the Gentoo species, there’s a 50% probability that its relative
-frequency is roughly between 0.3 and 0.45; and an 89% probability that
-their relative frequency is roughly between 0.2 and 0.6.</p>
-<p>The credibility intervals can be read from the <code>quantiles</code>
-element of the <code>Fspecies10</code> object:</p>
+the relative frequency of all <code>Adelie</code> penguins is roughly
+between 0.25 and 0.4; and an 89% probability that their relative
+frequency is roughly between 0.3 and 0.45.</p>
+<p>For the <code>Gentoo</code> species, there’s a 50% probability that
+its relative frequency is roughly between 0.3 and 0.45; and an 89%
+probability that their relative frequency is roughly between 0.2 and
+0.6.</p>
+<p>We can Actually do more: we can plot the probabilities of all
+possible frequencies. To understand this idea, let’s ask: what is the
+relative frequency of Adélie penguins in the whole population? Possible
+values could be anything between 0 and 1. But some of these values may
+be more probable than others. If we look at our 10 samples, we see that
+3 out of 10 are <code>Adelie</code>. So a relative frequency around 0.3
+is a little more probable, although there’s still a lot of uncertainty
+because this is just a small sample.</p>
+<p>The <code><a href="../reference/Pr.html">Pr()</a></code> function has actually calculated, in an
+approximate way, the probabilities for all possible frequencies of each
+species. We can plot the probabilities of the frequencies of the
+<code>Adelie</code> species as follows:</p>
 <div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">Fspecies10</span><span class="op">$</span><span class="va">quantiles</span></span>
-<span><span class="co">## , ,  = 5.5%</span></span>
-<span><span class="co">## </span></span>
-<span><span class="co">##       X</span></span>
-<span><span class="co">## Y          [,1]</span></span>
-<span><span class="co">##   [1,] 0.134878</span></span>
-<span><span class="co">##   [2,] 0.132087</span></span>
-<span><span class="co">##   [3,] 0.180867</span></span>
-<span><span class="co">## </span></span>
-<span><span class="co">## , ,  = 25%</span></span>
-<span><span class="co">## </span></span>
-<span><span class="co">##       X</span></span>
-<span><span class="co">## Y          [,1]</span></span>
-<span><span class="co">##   [1,] 0.227634</span></span>
-<span><span class="co">##   [2,] 0.219339</span></span>
-<span><span class="co">##   [3,] 0.284369</span></span>
-<span><span class="co">## </span></span>
-<span><span class="co">## , ,  = 75%</span></span>
-<span><span class="co">## </span></span>
-<span><span class="co">##       X</span></span>
-<span><span class="co">## Y          [,1]</span></span>
-<span><span class="co">##   [1,] 0.395804</span></span>
-<span><span class="co">##   [2,] 0.391340</span></span>
-<span><span class="co">##   [3,] 0.457973</span></span>
-<span><span class="co">## </span></span>
-<span><span class="co">## , ,  = 94.5%</span></span>
-<span><span class="co">## </span></span>
-<span><span class="co">##       X</span></span>
-<span><span class="co">## Y          [,1]</span></span>
-<span><span class="co">##   [1,] 0.525858</span></span>
-<span><span class="co">##   [2,] 0.521080</span></span>
-<span><span class="co">##   [3,] 0.587441</span></span></code></pre></div>
-<p>As the name tells, this element actually report the
-<em>quantiles</em> of the probability. For example, look at the
-<code>= 25%</code> output: among other things it says
-<code>Adelie 0.227634</code>. This means that there’s a 25% probability
-that the frequency of Adélie penguins is below
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mn>0.227634</mn><annotation encoding="application/x-tex">0.227634</annotation></semantics></math>,
-and thus a 75% probability that it’s above
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mn>0.227634</mn><annotation encoding="application/x-tex">0.227634</annotation></semantics></math>.</p>
+<code class="sourceCode R"><span><span class="co"># # select only Adelie</span></span>
+<span><span class="va">onlyAdelie</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/subset.html" class="external-link">subset</a></span><span class="op">(</span><span class="va">Fspecies10</span>, <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>species <span class="op">=</span> <span class="st">'Adelie'</span><span class="op">)</span><span class="op">)</span></span>
+<span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/graphics/hist.html" class="external-link">hist</a></span><span class="op">(</span><span class="va">onlyAdelie</span>, xlim <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0</span>, <span class="fl">1</span><span class="op">)</span>, legend <span class="op">=</span> <span class="st">'topright'</span>, col <span class="op">=</span> <span class="fl">2</span><span class="op">)</span></span></code></pre></div>
+<div class="figure">
+<img src="figure/hist10adelie-1.png" alt="**Probability distribution for the frequency of Adelie penguins**" width="100%"><p class="caption">
+<strong>Probability distribution for the frequency of Adelie
+penguins</strong>
+</p>
+</div>
+<p>With the <code><a href="https://rdrr.io/r/base/subset.html" class="external-link">subset()</a></code> function we first extract from the
+<code>Fspecies10</code> object only the information pertaining to the
+<code>Adelie</code> species, saving it into the <code>onlyAdelie</code>
+object. Then the <code><a href="https://rdrr.io/r/graphics/hist.html" class="external-link">hist()</a></code> function plots the probability
+distribution for all the frequency values. We see that frequencies
+between 0.2 and 0.4 have highest probability. But the probability
+distribution is quite wide; even a frequency of 0.6 has some
+probability. The vertical line indicates the mean of this probability
+distribution, which we take as our frequency estimate.</p>
+<p>The width of this probability distribution reflects our large
+uncertainty, which in turn comes from the fact that we have only seen a
+small sample of penguins. We shall see that this uncertainty decreases
+and we gather more samples.</p>
+<p><br>
+The credibility intervals are calculated from the probability
+distribution above. They can be quickly obtained from the
+<code>quantiles</code> element of the <code>Fspecies10</code> object.
+For instance, we can read the 89%-credibility intervals as follows:</p>
 <div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">onlyAdelie</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/subset.html" class="external-link">subset</a></span><span class="op">(</span><span class="va">Fspecies10</span>, <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>species <span class="op">=</span> <span class="st">'Adelie'</span><span class="op">)</span><span class="op">)</span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/graphics/hist.html" class="external-link">hist</a></span><span class="op">(</span><span class="va">onlyAdelie</span>, legend <span class="op">=</span> <span class="st">'topright'</span><span class="op">)</span></span></code></pre></div>
-<p><img src="figure/hist10-1.png" width="100%"></p>
-<p>by giving the probabilities of all possible relative-frequency
-distributions.</p>
+<code class="sourceCode R"><span><span class="va">Fspecies10</span><span class="op">$</span><span class="va">quantiles</span><span class="op">[</span>, , <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">'5.5%'</span>, <span class="st">'94.5%'</span><span class="op">)</span><span class="op">]</span></span>
+<span><span class="co">##            </span></span>
+<span><span class="co">## Y               5.5%    94.5%</span></span>
+<span><span class="co">##   Adelie    0.134878 0.525858</span></span>
+<span><span class="co">##   Chinstrap 0.132087 0.521080</span></span>
+<span><span class="co">##   Gentoo    0.180867 0.587441</span></span></code></pre></div>
+<!-- As the name tells, this element actually report the *quantiles* of the probability. For example, look at the `= 25%` output: among other things it says `Adelie 0.227634`. This means that there's a 25% probability that the frequency of Adélie penguins is below $0.227634$, and thus a 75% probability that it's above $0.227634$.
+ -->
+</div>
+<div class="section level3">
+<h3 id="a-preliminary-report">A preliminary report<a class="anchor" aria-label="anchor" href="#a-preliminary-report"></a>
+</h3>
+<p>We can now give a preliminary answer to our question
+<strong>Q1</strong>, “what’s the overall statistical occurrence of the
+three species in the whole population?”.</p>
+<p>A summary answer could be as follows:</p>
+<blockquote>
+<p>From a sample of 10 penguins, the inference about the relative
+frequencies of the three species in the full population is as
+follows:</p>
+<dl>
+<dt>Adélie</dt>
+<dd>
+rel. frequency between 0.143 and 0.53, with 89% probability
+</dd>
+<dt>Chinstrap</dt>
+<dd>
+rel. frequency between 0.13 and 0.52, with 89% probability
+</dd>
+<dt>Gentoo</dt>
+<dd>
+rel. frequency between 0.18 and 0.59, with 89% probability
+</dd>
+</dl>
+</blockquote>
+<p>But we can also give a fuller answer by displaying the probability
+distributions for all three frequencies:</p>
 <div class="sourceCode" id="cb12"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">prQ1</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/Pr.html">Pr</a></span><span class="op">(</span></span>
-<span>    Y <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span>species <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">'Adelie'</span>, <span class="st">'Chinstrap'</span>, <span class="st">'Gentoo'</span><span class="op">)</span><span class="op">)</span>,</span>
-<span>    X <span class="op">=</span> <span class="cn">NULL</span>,</span>
-<span>    learnt <span class="op">=</span> <span class="va">learnt10</span>,</span>
-<span>    parallel <span class="op">=</span> <span class="va">parallel</span></span>
-<span><span class="op">)</span></span>
-<span><span class="co">## </span></span>
-<span><span class="co">## Registered doParallelSNOW with 8 workers</span></span>
-<span><span class="co">## </span></span>
-<span><span class="co">## Closing connections to cores.</span></span>
-<span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">prQ1</span>, ylim <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0</span>, <span class="fl">1</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
+<code class="sourceCode R"><span><span class="co"># # select only Adelie</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/graphics/hist.html" class="external-link">hist</a></span><span class="op">(</span><span class="va">Fspecies10</span>, legend <span class="op">=</span> <span class="st">'topright'</span>, col <span class="op">=</span> <span class="fl">2</span><span class="op">:</span><span class="fl">4</span><span class="op">)</span></span></code></pre></div>
 <div class="figure">
-<img src="figure/freqs10-1.png" alt="plot of chunk freqs10" width="100%"><p class="caption">
-plot of chunk freqs10
+<img src="figure/hist10-1.png" alt="**Probability distribution for the rel. requencies of the three species**" width="100%"><p class="caption">
+<strong>Probability distribution for the rel. requencies of the three
+species</strong>
 </p>
 </div>
-<div class="sourceCode" id="cb13"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/graphics/hist.html" class="external-link">hist</a></span><span class="op">(</span><span class="va">prQ1</span>, xlim <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0</span>, <span class="fl">1</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
-<div class="figure">
-<img src="figure/freqs10-2.png" alt="plot of chunk freqs10" width="100%"><p class="caption">
-plot of chunk freqs10
-</p>
-</div>
-<div class="sourceCode" id="cb14"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">prQ1</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/Pr.html">Pr</a></span><span class="op">(</span></span>
-<span>    Y <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span>species <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">'Adelie'</span>, <span class="st">'Chinstrap'</span>, <span class="st">'Gentoo'</span><span class="op">)</span><span class="op">)</span>,</span>
-<span>    X <span class="op">=</span> <span class="cn">NULL</span>,</span>
-<span>    learnt <span class="op">=</span> <span class="st">'learnt_all.rds'</span>,</span>
-<span>    parallel <span class="op">=</span> <span class="va">parallel</span></span>
-<span><span class="op">)</span></span>
-<span><span class="co">## </span></span>
-<span><span class="co">## Registered doParallelSNOW with 8 workers</span></span>
-<span><span class="co">## </span></span>
-<span><span class="co">## Closing connections to cores.</span></span>
-<span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">prQ1</span>, ylim <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0</span>, <span class="fl">1</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
-<div class="figure">
-<img src="figure/freqsall-1.png" alt="plot of chunk freqsall" width="100%"><p class="caption">
-plot of chunk freqsall
-</p>
-</div>
-<div class="sourceCode" id="cb15"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/graphics/hist.html" class="external-link">hist</a></span><span class="op">(</span><span class="va">prQ1</span>, xlim <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0</span>, <span class="fl">1</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
-<div class="figure">
-<img src="figure/freqsall-2.png" alt="plot of chunk freqsall" width="100%"><p class="caption">
-plot of chunk freqsall
-</p>
-</div>
+<p>It’s important to keep in mind that the three frequencies must add up
+to 1, so if our future estimates of some of them increase, then the
+estimate of some others must decrease.</p>
 <p><br></p>
 <p><em>(TO BE CONTINUED)</em></p>
 <p><br></p>
@@ -1609,13 +1611,13 @@ dataset <- penguins
 Here are the values for two subjects:
 
 
-|    |species |island | bill_len| bill_dep| flipper_len| body_mass|sex    | year|
-|:---|:-------|:------|--------:|--------:|-----------:|---------:|:------|----:|
-|173 |Gentoo  |Biscoe |     50.2|     14.3|         218|      5700|male   | 2007|
-|210 |Gentoo  |Biscoe |     45.5|     15.0|         220|      5000|male   | 2008|
-|45  |Adelie  |Dream  |     37.0|     16.9|         185|      3000|female | 2007|
-|52  |Adelie  |Biscoe |     40.1|     18.9|         188|      4300|male   | 2008|
-|247 |Gentoo  |Biscoe |     44.5|     14.7|         214|      4850|female | 2009|
+|    |species |island    | bill_len| bill_dep| flipper_len| body_mass|sex    | year|
+|:---|:-------|:---------|--------:|--------:|-----------:|---------:|:------|----:|
+|30  |Adelie  |Biscoe    |     40.5|     18.9|         180|      3950|male   | 2007|
+|81  |Adelie  |Torgersen |     34.6|     17.2|         189|      3200|female | 2008|
+|108 |Adelie  |Biscoe    |     38.2|     20.0|         190|      3900|male   | 2009|
+|28  |Adelie  |Biscoe    |     40.5|     17.9|         187|      3200|female | 2007|
+|107 |Adelie  |Biscoe    |     38.6|     17.2|         199|      3750|female | 2009|
 
 
 
