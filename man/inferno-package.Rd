@@ -6,7 +6,7 @@
 \alias{inferno-package}
 \title{inferno: Bayesian nonparametric exchangeable inference - model-free uncertainty-quantified prediction}
 \description{
-Offers several functions for Bayesian nonparametric exchangeable inference (also called "density" or "population" inference), including Monte Carlo calculation of posterior densities. From a machine-learning perspective, it offers a model-free, uncertainty-quantified prediction algorithm.
+Functions for Bayesian nonparametric population (or exchangeable or density) inference. From a machine-learning perspective, it offers a model-free, uncertainty-quantified prediction algorithm.
 }
 \seealso{
 Useful links:

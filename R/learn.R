@@ -893,9 +893,12 @@ learn <- function(
         }
         usedmem <- sum(gc()[,6])
 
+        ## Timer
+        headertimestart <- Sys.time()
+
         cat('Log core', acore)
         cat(' - Current time:',
-            strftime(as.POSIXlt(Sys.time()), '%Y-%m-%d %H:%M:%S'))
+            strftime(as.POSIXlt(headertimestart), '%Y-%m-%d %H:%M:%S'))
         cat('\n')
 
         suppressPackageStartupMessages(require('nimble'))
@@ -1261,9 +1264,6 @@ learn <- function(
             outlist
         } #End initsfns
 
-        ## Timer
-        timecount <- Sys.time()
-
 
 #################################################
 #### NIMBLE SETUP
@@ -1463,8 +1463,10 @@ learn <- function(
         Cmcsampler <- compileNimble(mcsampler, resetFunctions = TRUE)
 
         cat('\nSetup time',
-            printtimediff(difftime(Sys.time(), timecount, units = 'auto')),
+            printtimediff(difftime(Sys.time(), headertimestart, units = 'auto')),
             '\n')
+        headertime <- difftime(Sys.time(), headertimestart, units = 'secs')
+
 
         ## Inform user that compilation is done, if core 1:
         if (acore == 1) {
@@ -1480,7 +1482,7 @@ learn <- function(
 #### LOOP OVER CHAINS (WITHIN ONE CORE)
 ##################################################
         ## Start timer
-        starttime <- Sys.time()
+        MCtimestart <- Sys.time()
 
         maxusedcomponents <- 0
         maxiterations <- 0
@@ -1581,7 +1583,7 @@ learn <- function(
                 cat('\nCurrent time:',
                     strftime(as.POSIXlt(Sys.time()), '%Y-%m-%d %H:%M:%S'))
                 cat('\nMCMC time',
-                    printtimediff(difftime(Sys.time(), starttime, units = 'auto')),
+                    printtimediff(difftime(Sys.time(), MCtimestart, units = 'auto')),
                     '\n')
 
 #### Remove iterations with non-finite values
@@ -1954,13 +1956,13 @@ learn <- function(
             cat('\nCurrent time:', strftime(as.POSIXlt(Sys.time()),
                 '%Y-%m-%d %H:%M:%S'))
             cat('\nMCMC + diagnostics time',
-                printtimediff(difftime(Sys.time(), starttime, units = 'auto')),
+                printtimediff(difftime(Sys.time(), MCtimestart, units = 'auto')),
                 '\n')
 
 #### Print estimated end time
             endTime <- Sys.time() + 180 +
                 ( (nchainsperthiscore + (acore > coreswithextrachain) - achain) *
-                difftime(Sys.time(), starttime) / achain )
+                difftime(Sys.time(), MCtimestart) / achain )
             print2user(
                 paste0(
                     '\rSampling. Core ', acore, ' estimated end time: ',
@@ -1978,8 +1980,9 @@ learn <- function(
         ##
         cat('\nCurrent time:',
             strftime(as.POSIXlt(Sys.time()), '%Y-%m-%d %H:%M:%S'))
+
         cat('\nTotal time',
-            printtimediff(difftime(Sys.time(), starttime, units = 'auto')),
+            printtimediff(difftime(Sys.time(), headertimestart, units = 'auto')),
             '\n')
 
         ## output information from a core,
@@ -1989,6 +1992,8 @@ learn <- function(
             maxiterations = maxiterations,
             nonfinitechains = nonfinitechains,
             stoppedchains = stoppedchains,
+            headertime = headertime,
+            MCtime = difftime(Sys.time(), MCtimestart, units = 'secs'),
             usedmem = max(usedmem, sum(gc()[,6]))
         )
     }
@@ -2000,6 +2005,8 @@ learn <- function(
     maxiterations <- max(chaininfo[, 'maxiterations'])
     nonfinitechains <- sum(chaininfo[, 'nonfinitechains'])
     stoppedchains <- sum(chaininfo[, 'stoppedchains'])
+    headertime <- as.difftime(mean(chaininfo[, 'headertime']), units = 'secs')
+    MCtime <- as.difftime(sum(chaininfo[, 'MCtime'])/nchains, units = 'secs')
     maxusedmem <- max(chaininfo[, 'usedmem'])
     totusedmem <- sum(chaininfo[, 'usedmem'])
 ############################################################
@@ -2011,6 +2018,7 @@ learn <- function(
 #### Join chains
 ############################################################
 
+    headertimestart <- Sys.time()
     ## Save random seeds used in the parallel processing
     if (!is.null(attr(chaininfo, 'rng'))) { # parallel processing
         saveRDS(attr(chaininfo, 'rng'),
@@ -2189,7 +2197,14 @@ learn <- function(
 
     totalfinaltime <- difftime(Sys.time(), timestart0, units = 'auto')
     cat('\nTotal computation time:', printtimediff(totalfinaltime), '\n')
-    cat('Average total time per chain:', printtimediff(totalfinaltime/nchains), '\n')
+    cat('Average preparation & finalization time:',
+        printtimediff(
+            difftime(Sys.time() + headertime, headertimestart, units = 'auto')
+        ), '\n')
+    cat('Average Monte Carlo time per chain:',
+        printtimediff(
+            difftime(headertimestart + MCtime, headertimestart, units = 'auto')
+        ), '\n')
     cat('Max total memory used: approx', signif(totusedmem, 2), 'MB\n')
     cat('Max memory used per core: approx', signif(maxusedmem, 2), 'MB\n')
 

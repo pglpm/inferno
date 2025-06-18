@@ -116,10 +116,21 @@ write.csvi(penguin[1:10, ], datafile) # write the first 10 samples
 
 Here they are:
 
-```
-## Error: lazy-load database '/home/pglpm/R/x86_64-pc-linux-gnu-library/4.5/inferno/R/inferno.rdb' is corrupt
-## Error: object 'penguin' not found
-```
+
+|   |species   |island    | bill_len| bill_dep| flipper_len| body_mass|sex    | year|
+|:--|:---------|:---------|--------:|--------:|-----------:|---------:|:------|----:|
+|1  |Adelie    |Torgersen |     37.8|     17.1|         186|      3300|       | 2007|
+|2  |Chinstrap |Dream     |     54.2|     20.8|         201|      4300|male   | 2008|
+|3  |Adelie    |Dream     |     36.2|     17.3|         187|      3300|female | 2008|
+|4  |Chinstrap |Dream     |     52.0|     19.0|         197|      4150|male   | 2007|
+|5  |Gentoo    |Biscoe    |     45.3|     13.7|         210|      4300|female | 2008|
+|6  |Gentoo    |Biscoe    |         |         |            |          |       | 2009|
+|7  |Adelie    |Torgersen |     42.5|     20.7|         197|      4500|male   | 2007|
+|8  |Gentoo    |Biscoe    |     48.5|     15.0|         219|      4850|female | 2009|
+|9  |Chinstrap |Dream     |     46.5|     17.9|         192|      3500|female | 2007|
+|10 |Gentoo    |Biscoe    |     46.9|     14.6|         222|      4875|female | 2009|
+
+
 
 If you generated the `penguin` dataset yourself, then your first 10 samples may be different.
 
@@ -238,10 +249,19 @@ metadatatemplate(data = datafile, file = metadatafile)
 The preliminary metadata file created by `metadatatemplate()` looks like this:
 
 
-```
-## Error: lazy-load database '/home/pglpm/R/x86_64-pc-linux-gnu-library/4.5/inferno/R/inferno.rdb' is corrupt
-## Error: object 'dat' not found
-```
+
+|name        |type       | domainmin| domainmax| datastep| minincluded| maxincluded|V1     |V2        |V3        | V4| V5| V6| V7| V8| V9| V10| V11|
+|:-----------|:----------|---------:|---------:|--------:|-----------:|-----------:|:------|:---------|:---------|--:|--:|--:|--:|--:|--:|---:|---:|
+|species     |nominal    |          |          |         |            |            |Adelie |Chinstrap |Gentoo    |   |   |   |   |   |   |    |    |
+|island      |nominal    |          |          |         |            |            |Biscoe |Dream     |Torgersen |   |   |   |   |   |   |    |    |
+|bill_len    |continuous |         0|          |      0.1|            |            |       |          |          |   |   |   |   |   |   |    |    |
+|bill_dep    |continuous |         0|          |      0.1|            |            |       |          |          |   |   |   |   |   |   |    |    |
+|flipper_len |ordinal    |       186|       222|      1.0|            |            |       |          |          |   |   |   |   |   |   |    |    |
+|body_mass   |ordinal    |      3300|      4875|     25.0|            |            |       |          |          |   |   |   |   |   |   |    |    |
+|sex         |nominal    |          |          |         |            |            |female |male      |          |   |   |   |   |   |   |    |    |
+|year        |ordinal    |      2007|      2009|      1.0|            |            |       |          |          |   |   |   |   |   |   |    |    |
+
+
 
 If you generated the `penguin` dataset yourself, then you might obtain different guesses. Try to follow the following guidelines for the present example.
 
@@ -259,10 +279,19 @@ The guesses about the `flipper_len` and `body_mass` variates are not correct, ho
 We must open the preliminary metadata file `'penguin_metadata.csv'` with our favourite editor, and correct and complete the guesses of the helper function. In this case we end up with the following corrected metadata file:
 
 
-```
-## Error: lazy-load database '/home/pglpm/R/x86_64-pc-linux-gnu-library/4.5/inferno/R/inferno.rdb' is corrupt
-## Error: object 'dat' not found
-```
+
+|name        |type       | domainmin| domainmax| datastep| minincluded| maxincluded|V1     |V2        |V3        |
+|:-----------|:----------|---------:|---------:|--------:|-----------:|-----------:|:------|:---------|:---------|
+|species     |nominal    |          |          |         |            |            |Adelie |Chinstrap |Gentoo    |
+|island      |nominal    |          |          |         |            |            |Biscoe |Dream     |Torgersen |
+|bill_len    |continuous |         0|          |      0.1|            |            |       |          |          |
+|bill_dep    |continuous |         0|          |      0.1|            |            |       |          |          |
+|flipper_len |continuous |         0|          |      1.0|            |            |       |          |          |
+|body_mass   |continuous |         0|          |     25.0|            |            |       |          |          |
+|sex         |nominal    |          |          |         |            |            |female |male      |          |
+|year        |ordinal    |      2007|      2009|      1.0|            |            |       |          |          |
+
+
 
 
 ### "Learning" and extrapolating from the sample data {#learningfirst}
@@ -369,11 +398,12 @@ Y <- data.frame(species = c('Adelie', 'Chinstrap', 'Gentoo'))
 Fspecies10 <- Pr(
     Y = Y,
     learnt = learnt10,
-    parallel = 8 # let's use 8 cores
+    parallel = 4 # let's use 4 cores
 )
 ## 
-## Registered doParallelSNOW with 8 workers
-## Error in as.matrix(vtransform(Y, auxmetadata = auxmetadata, Rout = "normalized", : lazy-load database '/home/pglpm/R/x86_64-pc-linux-gnu-library/4.5/inferno/R/inferno.rdb' is corrupt
+## Registered doParallelSNOW with 4 workers
+## 
+## Closing connections to cores.
 ```
 
 The answer to our question is now contained in the `Fspecies10` object (we chose this name for "`F`requency distribution of `species`, estimated from `10` samples"). The estimate and its uncertainty can be immediately visualized by calling `plot()` with this object:
@@ -381,32 +411,40 @@ The answer to our question is now contained in the `Fspecies10` object (we chose
 
 ``` r
 plot(Fspecies10)
-## Error: object 'Fspecies10' not found
 ```
+
+<div class="figure">
+<img src="figure/vis10-1.png" alt="**Estimates and uncertainty of relative frequencies of the three penguin species**" width="100%" />
+<p class="caption">**Estimates and uncertainty of relative frequencies of the three penguin species**</p>
+</div>
 
 The x-axis of this plot shows the three possible values of the `species` variate. The y-axis reports fractions which may be read as *frequencies* or *probabilities*.
 
 The estimated frequency distribution for the species is the central, solid red curve with small circles. (You may be used to frequency distributions as histograms, rather than as a broken line like in the plot above. The present visualization is more advantageous when we want to compare several frequency distributions, as we'll do later.)
 
-The three estimated frequencies are Adélie: 0.32, Chinstrap: 0.31, Gentoo: 0.37, and can be read from the `values` element of the `Fspecies10` object:
+The three estimated frequencies are: Adélie: 0.32, Chinstrap: 0.30, Gentoo: 0.38, and can be read from the `values` element of the `Fspecies10` object:
 
 
 ``` r
 Fspecies10$values
-## Error: object 'Fspecies10' not found
+##            X
+## Y               [,1]
+##   Adelie    0.319061
+##   Chinstrap 0.303017
+##   Gentoo    0.377922
 ```
 
 What about the uncertainty of these estimates?
 
 ### Uncertainty of the estimates: credibility intervals and probabilities
 
-In Bayesian theory, a compact way of expressing the uncertainty in a quantity is by means of a **credibility interval** with a given probability. For instance, if we say that a particular quantity has a 80%-credibility interval equal to $(0.41, 0.69)$, what we mean is that there's an 80% probability that the true value of that quantity is between $0.41$ and $0.69$ -- pretty straightforward! (*Please be careful not to confuse the Bayesian credibility interval with a "confidence interval"*: the latter has a much more involved and less straightforward meaning.)
+In Bayesian theory, a compact way of expressing the uncertainty in a quantity is by means of a **credibility interval** with a given probability. For instance, if we say that a particular quantity has a 70%-credibility interval equal to $(0.41, 0.69)$, what we mean is that there's an 70% probability that the true value of that quantity is between $0.41$ and $0.69$ -- pretty straightforward! (*Please be careful not to confuse the Bayesian credibility interval with a "confidence interval"*: the latter has a much more involved and less straightforward meaning.)
 
 The `Pr()` function by default calculates two credibility intervals for each frequency estimate: a 50% one, and an 89% one. In our present inference, the 50%-credibility intervals are shown in the plot above as the darker grey band, and the 89%-credibility intervals as the lighter grey band. Note that these intervals contain the 50% ones.
 
-For instance, the plot indicates that there's a 50% probability that the relative frequency of all `Adelie` penguins is roughly between 0.25 and 0.4; and an 89% probability that their relative frequency is roughly between 0.3 and 0.45.
+For instance, the plot indicates that there's a 50% probability that the relative frequency of all `Adelie` penguins is roughly between 0.23 and 0.40; and an 89% probability that their relative frequency is roughly between 0.14 and 0.53.
 
-For the `Gentoo` species, there's a 50% probability that its relative frequency is roughly between 0.3 and 0.45; and an 89% probability that their relative frequency is roughly between 0.2 and 0.6.
+For the `Gentoo` species, there's a 50% probability that its relative frequency is roughly between 0.28 and 0.47; and an 89% probability that their relative frequency is roughly between 0.18 and 0.59.
 
 We can Actually do more: we can plot the probabilities of all possible frequencies. To understand this idea, let's ask: what is the relative frequency of Adélie penguins in the whole population? Possible values could be anything between 0 and 1. But some of these values may be more probable than others. If we look at our 10 samples, we see that 3 out of 10 are `Adelie`. So a relative frequency around 0.3 is a little more probable, although there's still a lot of uncertainty because this is just a small sample.
 
@@ -416,11 +454,14 @@ The `Pr()` function has actually calculated, in an approximate way, the probabil
 ``` r
 # # select only Adelie
 onlyAdelie <- subset(Fspecies10, list(species = 'Adelie'))
-## Error: object 'Fspecies10' not found
 
 hist(onlyAdelie, xlim = c(0, 1), legend = 'topright', col = 2)
-## Error: object 'onlyAdelie' not found
 ```
+
+<div class="figure">
+<img src="figure/hist10adelie-1.png" alt="**Probability distribution for the frequency of Adelie penguins**" width="100%" />
+<p class="caption">**Probability distribution for the frequency of Adelie penguins**</p>
+</div>
 
 With the `subset()` function we first extract from the `Fspecies10` object only the information pertaining to the `Adelie` species, saving it into the `onlyAdelie` object. Then the `hist()` function plots the probability distribution for all the frequency values. We see that frequencies between 0.2 and 0.4 have highest probability. But the probability distribution is quite wide; even a frequency of 0.6 has some probability. The vertical line indicates the mean of this probability distribution, which we take as our frequency estimate.
 
@@ -432,7 +473,11 @@ The credibility intervals are calculated from the probability distribution above
 
 ``` r
 Fspecies10$quantiles[, , c('5.5%', '94.5%')]
-## Error: object 'Fspecies10' not found
+##            
+## Y               5.5%    94.5%
+##   Adelie    0.140158 0.531920
+##   Chinstrap 0.133997 0.512746
+##   Gentoo    0.183184 0.591518
 ```
 
 <!-- As the name tells, this element actually report the *quantiles* of the probability. For example, look at the `= 25%` output: among other things it says `Adelie 0.227634`. This means that there's a 25% probability that the frequency of Adélie penguins is below $0.227634$, and thus a 75% probability that it's above $0.227634$.
@@ -447,10 +492,10 @@ A summary answer could be as follows:
 > From a sample of 10 penguins, the inference about the relative frequencies of the three species in the full population is as follows:
 > 
 > Adélie
-> : rel. frequency between 0.13 and 0.53, with 89% probability
+> : rel. frequency between 0.14 and 0.53, with 89% probability
 > 
 > Chinstrap
-> : rel. frequency between 0.13 and 0.52, with 89% probability
+> : rel. frequency between 0.13 and 0.51, with 89% probability
 > 
 > Gentoo
 > : rel. frequency between 0.18 and 0.59, with 89% probability
@@ -460,8 +505,12 @@ But we can also give a fuller answer by displaying the probability distributions
 
 ``` r
 hist(Fspecies10, legend = 'topright', col = 2:4)
-## Error: object 'Fspecies10' not found
 ```
+
+<div class="figure">
+<img src="figure/hist10-1.png" alt="**Probability distribution for the rel. requencies of the three species**" width="100%" />
+<p class="caption">**Probability distribution for the rel. requencies of the three species**</p>
+</div>
 
 It's important to keep in mind that the three frequencies must add up to 1, so if our future estimates of some of them increase, then the estimate of some others must decrease.
 
@@ -487,11 +536,12 @@ Fspecies10I <- Pr(
     Y = Y,
     X = X, # argument for conditional inferences
     learnt = learnt10,
-    parallel = 8 # let's use 8 cores
+    parallel = 4 # let's use 4 cores
 )
 ## 
-## Registered doParallelSNOW with 8 workers
-## Error in as.matrix(vtransform(X, auxmetadata = auxmetadata, Rout = "normalized", : lazy-load database '/home/pglpm/R/x86_64-pc-linux-gnu-library/4.5/inferno/R/inferno.rdb' is corrupt
+## Registered doParallelSNOW with 4 workers
+## 
+## Closing connections to cores.
 ```
 
 The answer to our question is now contained in the `Fspecies10I` object (we add `I` for "island" to the previous name). The estimates of the frequencies and their uncertainties can again be visualized by calling `plot()`:
@@ -499,15 +549,23 @@ The answer to our question is now contained in the `Fspecies10I` object (we add 
 
 ``` r
 plot(Fspecies10I, col = 5:6)
-## Error: object 'Fspecies10I' not found
 ```
+
+<div class="figure">
+<img src="figure/vis10I-1.png" alt="**Estimates and uncertainty of conditional frequencies**" width="100%" />
+<p class="caption">**Estimates and uncertainty of conditional frequencies**</p>
+</div>
 
 The estimated frequencies for the `Biscoe` subpopulation are shown by the solid yellow curve with small circles; those for the `Dream` subpopulation by the dashed purple curve with small squares. More precise values are contained in the `values` element of the `Fspecies10I` object:
 
 
 ``` r
 Fspecies10I$values
-## Error: object 'Fspecies10I' not found
+##            X
+## Y             Biscoe    Dream
+##   Adelie    0.206050 0.335998
+##   Chinstrap 0.214225 0.423482
+##   Gentoo    0.579725 0.240520
 ```
 
 According to these estimates, on Biscoe there should be a predominance of Gentoo penguins, with lower, roughly equal numbers of Adélie and Chinstrap. On Dream, on the other hand, Gentoo should be the minority, and Chinstrap should be the majority. But how sure are we about these estimates? We see that the 89%-credibility intervals of each frequency are quite wide. Also in this case we can get a better picture by displaying the probability distribution of each frequency, by means of the `hist()` function, and see how much they overlap.
@@ -518,13 +576,16 @@ For Biscoe island we find
 ``` r
 # # select only Biscoe
 onlyBiscoe <- subset(Fspecies10I, list(island = 'Biscoe'))
-## Error: object 'Fspecies10I' not found
 
 hist(onlyBiscoe, xlim = c(0, 1), legend = 'topright', col = 2:4)
-## Error: object 'onlyBiscoe' not found
 ```
 
-Note how, according to these preliminary estimates, the frequencies of Adélie and Chinstrap are very close, around 0.2, and quite different from the frequency of Gentoo, around 0.6. Yet, the probability distributions are wide; each distribution gives a non-zero probability to all three estimates.
+<div class="figure">
+<img src="figure/hist10biscoe-1.png" alt="**Probability distribution for species frequencies on Biscoe**" width="100%" />
+<p class="caption">**Probability distribution for species frequencies on Biscoe**</p>
+</div>
+
+Note how, according to these preliminary estimates, the frequencies of Adélie and Chinstrap are very close, around 0.2, and quite different from the frequency of Gentoo, around 0.58. Yet, the probability distributions are wide; each distribution gives a non-zero probability to all three estimates.
 
 **For later, keep in mind the following question: *On Biscoe, are the frequencies of Adélie and Chinstrap different?*** The present estimates show almost no difference, but we are warned about a large uncertainty. Will more sampling data confirm "no difference"?
 
@@ -535,13 +596,16 @@ For Dream island we find
 ``` r
 # # select only Dream
 onlyDream <- subset(Fspecies10I, list(island = 'Dream'))
-## Error: object 'Fspecies10I' not found
 
 hist(onlyDream, xlim = c(0, 1), legend = 'topright', col = 2:4)
-## Error: object 'onlyDream' not found
 ```
 
-Among other things we see here a larger difference in the estimated frequencies of Adélie, around 0.3, and Chinstrap, around 0.45. Still, the probability distributions are wide.
+<div class="figure">
+<img src="figure/hist10dream-1.png" alt="**Probability distribution for species frequencies on Biscoe**" width="100%" />
+<p class="caption">**Probability distribution for species frequencies on Biscoe**</p>
+</div>
+
+Among other things we see here a larger difference in the estimated frequencies of Adélie, around 0.34, and Chinstrap, around 0.42. Still, the probability distributions are wide.
 
 **For later, keep in mind the following question: *On Dream, are the frequencies of Adélie and Chinstrap different?*** The present estimates show a difference, but with large uncertainty. Will more sampling data confirm "difference"?
 
@@ -557,7 +621,21 @@ A more compact summary can again be given with credibility intervals. We can pro
 aperm(
     Fspecies10I$quantiles[, , c('5.5%', '94.5%')],
     c(1, 3, 2)) # change order for better display
-## Error: object 'Fspecies10I' not found
+## , , X = Biscoe
+## 
+##            
+## Y                5.5%    94.5%
+##   Adelie    0.0376968 0.466033
+##   Chinstrap 0.0384570 0.469123
+##   Gentoo    0.2798207 0.854380
+## 
+## , , X = Dream
+## 
+##            
+## Y                5.5%    94.5%
+##   Adelie    0.1033126 0.623346
+##   Chinstrap 0.1654065 0.716321
+##   Gentoo    0.0556945 0.506120
 ```
 
 ### Differences from "null-hypothesis testing" and *p*-value methods {#nht}
@@ -678,23 +756,23 @@ We can calculate the answers -- frequency estimates, their credible intervals, a
 Fspecies60 <- Pr(
     Y = Y,
     learnt = learnt60, # updated inference
-    parallel = 8 # let's use 8 cores
+    parallel = 4 # let's use 4 cores
 )
 ## 
-## Registered doParallelSNOW with 8 workers
-## Error in as.matrix(vtransform(Y, auxmetadata = auxmetadata, Rout = "normalized", : lazy-load database '/home/pglpm/R/x86_64-pc-linux-gnu-library/4.5/inferno/R/inferno.rdb' is corrupt
+## Registered doParallelSNOW with 4 workers
+## 
+## Closing connections to cores.
 
 Fspecies60I <- Pr(
     Y = Y,
     X = X, # argument for conditional inferences
     learnt = learnt60, # updated inference
-    parallel = 8 # let's use 8 cores
+    parallel = 4 # let's use 4 cores
 )
 ## 
-## Closing connections to cores.
+## Registered doParallelSNOW with 4 workers
 ## 
-## Registered doParallelSNOW with 8 workers
-## Error in as.matrix(vtransform(X, auxmetadata = auxmetadata, Rout = "normalized", : lazy-load database '/home/pglpm/R/x86_64-pc-linux-gnu-library/4.5/inferno/R/inferno.rdb' is corrupt
+## Closing connections to cores.
 ```
 
 Just like in the preliminary analysis we can use the `plot()` and `hist()` functions to visualize estimates, credibility intervals, and probability distributions.
@@ -704,8 +782,12 @@ Consider the first question: overall statistical occurrence of the three species
 
 ``` r
 plot(Fspecies60)
-## Error: object 'Fspecies60' not found
 ```
+
+<div class="figure">
+<img src="figure/vis60-1.png" alt="**Updated frequency estimates of penguin species**" width="100%" />
+<p class="caption">**Updated frequency estimates of penguin species**</p>
+</div>
 
 You may notice that the credibility intervals are now narrower, compared to the initial estimate. Let's actually overlap the plots of the initial and updated inferences, to better see how they updated:
 
@@ -713,16 +795,14 @@ You may notice that the credibility intervals are now narrower, compared to the 
 ``` r
 # # find common y-maximum for correct visual comparison
 ymax <- max(Fspecies10$quantiles, Fspecies60$quantiles)
-## Error: object 'Fspecies10' not found
 
 plot(Fspecies10, ylim = c(0, ymax), col = 2, lty = 2, lwd = 3, pch = 2)
-## Error: object 'Fspecies10' not found
 plot(Fspecies60, ylim = c(0, ymax), add = TRUE)
-## Error: object 'Fspecies60' not found
 legend('top', c('10 samples', '60 samples'),
     col = 2:1, lty = 2:1, pch = 2:1, bty = 'n')
-## Error in (function (s, units = "user", cex = NULL, font = NULL, vfont = NULL, : plot.new has not been called yet
 ```
+
+<img src="figure/vis60compare-1.png" width="100%" />
 
 We notice the following differences, among others:
 
@@ -740,12 +820,17 @@ We can also plot the updated probability distributions for the relative frequenc
 ``` r
 hist(Fspecies60, legend = 'topright', xlim = c(0, 1),
     col = 2:4, main = '60 samples')
-## Error: object 'Fspecies60' not found
+```
+
+<img src="figure/hist60-1.png" width="100%" />
+
+``` r
 
 hist(Fspecies10, legend = 'topright', xlim = c(0, 1),
     col = 2:4, main = '10 samples')
-## Error: object 'Fspecies10' not found
 ```
+
+<img src="figure/hist60-2.png" width="100%" />
 
 We see that in our initial inference (bottom plot) all three probability distributions largely overlapped, indicating our uncertainty on whether any of these frequencies might be very different from the others.
 
@@ -756,7 +841,11 @@ Our updated quantitative answer to the question "*What's the overall statistical
 
 ``` r
 Fspecies60$quantiles[, , c('5.5%', '94.5%')]
-## Error: object 'Fspecies60' not found
+##            
+## Y               5.5%    94.5%
+##   Adelie    0.296274 0.483736
+##   Chinstrap 0.138085 0.297815
+##   Gentoo    0.304430 0.499396
 ```
 
 > Adélie
@@ -780,18 +869,21 @@ For `Biscoe` island:
 ``` r
 # # select only Biscoe
 onlyBiscoe10 <- subset(Fspecies10I, list(island = 'Biscoe'))
-## Error: object 'Fspecies10I' not found
 onlyBiscoe60 <- subset(Fspecies60I, list(island = 'Biscoe'))
-## Error: object 'Fspecies60I' not found
 
 hist(onlyBiscoe60, legend = 'topright', xlim = c(0, 1),
     col = 2:4, main = '60 samples, Biscoe island')
-## Error: object 'onlyBiscoe60' not found
+```
+
+<img src="figure/hist60Biscoe-1.png" width="100%" />
+
+``` r
 
 hist(onlyBiscoe10, legend = 'topright', xlim = c(0, 1),
     col = 2:4, main = '10 samples, Biscoe island')
-## Error: object 'onlyBiscoe10' not found
 ```
+
+<img src="figure/hist60Biscoe-2.png" width="100%" />
 
 Notably, we can say that there's an increased probability for a positive answer to our question "*Is there any difference between Adélies and Chinstrap frequencies on Biscoe island?*".
 
@@ -802,18 +894,21 @@ For `Dream` island:
 ``` r
 # # select only Dream
 onlyDream10 <- subset(Fspecies10I, list(island = 'Dream'))
-## Error: object 'Fspecies10I' not found
 onlyDream60 <- subset(Fspecies60I, list(island = 'Dream'))
-## Error: object 'Fspecies60I' not found
 
 hist(onlyDream60, legend = 'topright', xlim = c(0, 1),
     col = 2:4, main = '60 samples, Dream island')
-## Error: object 'onlyDream60' not found
+```
+
+<img src="figure/hist60Dream-1.png" width="100%" />
+
+``` r
 
 hist(onlyDream10, legend = 'topright', xlim = c(0, 1),
     col = 2:4, main = '10 samples, Dream island')
-## Error: object 'onlyDream10' not found
 ```
+
+<img src="figure/hist60Dream-2.png" width="100%" />
 
 Notably, we can say that there's a *decreased* probability for a positive answer to our question "*Is there any difference between Adélies and Chinstrap frequencies on Dream island?*". The two estimates are now closer together.
 
@@ -834,32 +929,39 @@ FspeciesI <- Pr(
     Y = Y,
     X = X, # argument for conditional inferences
     learnt = learnta,
-    parallel = 8 # let's use 8 cores
+    parallel = 4 # let's use 4 cores
 )
 ## 
-## Registered doParallelSNOW with 8 workers
-## Error in as.matrix(vtransform(X, auxmetadata = auxmetadata, Rout = "normalized", : lazy-load database '/home/pglpm/R/x86_64-pc-linux-gnu-library/4.5/inferno/R/inferno.rdb' is corrupt
+## Registered doParallelSNOW with 4 workers
+## 
+## Closing connections to cores.
 ```
 
 
 ``` r
 # # select only Biscoe
 onlyBiscoe <- subset(FspeciesI, list(island = 'Biscoe'))
-## Error: object 'FspeciesI' not found
 
 hist(onlyBiscoe, xlim = c(0, 1), legend = 'topright', col = 2:4)
-## Error: object 'onlyBiscoe' not found
 ```
+
+<div class="figure">
+<img src="figure/histbiscoe-1.png" alt="**Probability distribution for species frequencies on Biscoe**" width="100%" />
+<p class="caption">**Probability distribution for species frequencies on Biscoe**</p>
+</div>
 
 
 ``` r
 # # select only Dream
 onlyDream <- subset(FspeciesI, list(island = 'Dream'))
-## Error: object 'FspeciesI' not found
 
 hist(onlyDream, xlim = c(0, 1), legend = 'topright', col = 2:4)
-## Error: object 'onlyDream' not found
 ```
+
+<div class="figure">
+<img src="figure/histdream-1.png" alt="**Probability distribution for species frequencies on Biscoe**" width="100%" />
+<p class="caption">**Probability distribution for species frequencies on Biscoe**</p>
+</div>
 
 
 

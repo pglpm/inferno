@@ -1,6 +1,6 @@
 Package: inferno
 Title: Bayesian nonparametric exchangeable inference - model-free uncertainty-quantified prediction
-Version: 0.2.1
+Version: 0.2.2
 Authors@R: c(
   person("PierGianLuca", "Porta Mana", ,
   "pgl@portamana.org", role = c("aut", "cre"),
@@ -18,7 +18,7 @@ Authors@R: c(
   "585090@stud.hvl.no", role = c("aut"),
   comment = c(ORCID = "0009-0005-6158-2846"))
   )
-Description: Offers several functions for Bayesian nonparametric exchangeable inference (also called "density" or "population" inference), including Monte Carlo calculation of posterior densities. From a machine-learning perspective, it offers a model-free, uncertainty-quantified prediction algorithm.
+Description: Functions for Bayesian nonparametric population (or exchangeable or density) inference. From a machine-learning perspective, it offers a model-free, uncertainty-quantified prediction algorithm.
 License: GPL (>= 3)
 URL: https://github.com/pglpm/inferno/, https://pglpm.github.io/inferno/
 Encoding: UTF-8
