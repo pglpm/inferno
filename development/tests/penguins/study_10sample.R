@@ -3,7 +3,7 @@ library('inferno')
 ## metadatatemplate(penguins, file='meta_penguins')
 
 seed <- 16
-parallel <- 15
+parallel <- 4
 
 outputdir <- '__learn_penguin_10'
 learntdir <- learn(
