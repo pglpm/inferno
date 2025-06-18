@@ -891,6 +891,7 @@ learn <- function(
             }
             on.exit(closecons())
         }
+        usedmem <- sum(gc()[,6])
 
         cat('Log core', acore)
         cat(' - Current time:',
@@ -1316,7 +1317,7 @@ learn <- function(
 
         Cfinitemixnimble <- compileNimble(finitemixnimble,
             showCompilerOutput = FALSE)
-        gc() #garbage collection
+        usedmem <- max(usedmem, sum(gc()[,6])) #garbage collection
 
         confnimble <- configureMCMC(
             Cfinitemixnimble, # nodes = NULL
@@ -1487,7 +1488,7 @@ learn <- function(
         nonfinitechains <- 0L
         ## keep count of chains stopped before convergence
         stoppedchains <- 0L
-        gc() # garbage collection
+        usedmem <- max(usedmem, sum(gc()[,6])) #garbage collection
 #### LOOP OVER CHAINS IN CORE
         nchainsperthiscore <- minchainspercore + (acore <= coreswithextrachain)
         ## print2user(paste0('\ncore ',acore,': ',nchainsperthiscore,'\n'), outcon)
@@ -1987,7 +1988,8 @@ learn <- function(
             maxusedcomponents = maxusedcomponents,
             maxiterations = maxiterations,
             nonfinitechains = nonfinitechains,
-            stoppedchains = stoppedchains
+            stoppedchains = stoppedchains,
+            usedmem = max(usedmem, sum(gc()[,6]))
         )
     }
 ############################################################
@@ -1998,7 +2000,8 @@ learn <- function(
     maxiterations <- max(chaininfo[, 'maxiterations'])
     nonfinitechains <- sum(chaininfo[, 'nonfinitechains'])
     stoppedchains <- sum(chaininfo[, 'stoppedchains'])
-    gc() # garbage collection
+    maxusedmem <- max(chaininfo[, 'usedmem'])
+    totusedmem <- sum(chaininfo[, 'usedmem'])
 ############################################################
 #### End of all MCMC
 ############################################################
@@ -2052,7 +2055,7 @@ learn <- function(
 
     cat('\rFinished Monte Carlo sampling.                                 \n')
 
-    cat('\nHighest number of Monte Carlo iterations across chains:', maxiterations, '\n')
+    cat('Highest number of Monte Carlo iterations across chains:', maxiterations, '\n')
     cat('Highest number of used mixture components:', maxusedcomponents, '\n')
     if (maxusedcomponents > ncomponents - 5) {
         cat('TOO MANY MIXTURE COMPONENTS USED!\nConsider',
@@ -2187,6 +2190,8 @@ learn <- function(
     totalfinaltime <- difftime(Sys.time(), timestart0, units = 'auto')
     cat('\nTotal computation time:', printtimediff(totalfinaltime), '\n')
     cat('Average total time per chain:', printtimediff(totalfinaltime/nchains), '\n')
+    cat('Max total memory used: approx', signif(totusedmem, 2), 'MB\n')
+    cat('Max memory used per core: approx', signif(maxusedmem, 2), 'MB\n')
 
     ## if (exists('cl')) {
     ##     cat('\nClosing connections to cores.\n')
