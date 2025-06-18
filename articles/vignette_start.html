@@ -20,7 +20,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">inferno</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.2.1</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.2.2</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -295,8 +295,142 @@ them in the file <code>'penguin_data10.csv'</code>, respecting the <a href="#for
 <code class="sourceCode R"><span><span class="va">datafile</span> <span class="op">&lt;-</span> <span class="st">'penguin_data10.csv'</span></span>
 <span><span class="fu"><a href="../reference/inferno.data.html">write.csvi</a></span><span class="op">(</span><span class="va">penguin</span><span class="op">[</span><span class="fl">1</span><span class="op">:</span><span class="fl">10</span>, <span class="op">]</span>, <span class="va">datafile</span><span class="op">)</span> <span class="co"># write the first 10 samples</span></span></code></pre></div>
 <p>Here they are:</p>
-<pre><code><span><span class="co">## Error: lazy-load database '/home/pglpm/R/x86_64-pc-linux-gnu-library/4.5/inferno/R/inferno.rdb' is corrupt</span></span>
-<span><span class="co">## Error: object 'penguin' not found</span></span></code></pre>
+<table class="table">
+<colgroup>
+<col width="4%">
+<col width="13%">
+<col width="13%">
+<col width="12%">
+<col width="12%">
+<col width="16%">
+<col width="13%">
+<col width="9%">
+<col width="6%">
+</colgroup>
+<thead><tr class="header">
+<th align="left"></th>
+<th align="left">species</th>
+<th align="left">island</th>
+<th align="right">bill_len</th>
+<th align="right">bill_dep</th>
+<th align="right">flipper_len</th>
+<th align="right">body_mass</th>
+<th align="left">sex</th>
+<th align="right">year</th>
+</tr></thead>
+<tbody>
+<tr class="odd">
+<td align="left">1</td>
+<td align="left">Adelie</td>
+<td align="left">Torgersen</td>
+<td align="right">37.8</td>
+<td align="right">17.1</td>
+<td align="right">186</td>
+<td align="right">3300</td>
+<td align="left"></td>
+<td align="right">2007</td>
+</tr>
+<tr class="even">
+<td align="left">2</td>
+<td align="left">Chinstrap</td>
+<td align="left">Dream</td>
+<td align="right">54.2</td>
+<td align="right">20.8</td>
+<td align="right">201</td>
+<td align="right">4300</td>
+<td align="left">male</td>
+<td align="right">2008</td>
+</tr>
+<tr class="odd">
+<td align="left">3</td>
+<td align="left">Adelie</td>
+<td align="left">Dream</td>
+<td align="right">36.2</td>
+<td align="right">17.3</td>
+<td align="right">187</td>
+<td align="right">3300</td>
+<td align="left">female</td>
+<td align="right">2008</td>
+</tr>
+<tr class="even">
+<td align="left">4</td>
+<td align="left">Chinstrap</td>
+<td align="left">Dream</td>
+<td align="right">52.0</td>
+<td align="right">19.0</td>
+<td align="right">197</td>
+<td align="right">4150</td>
+<td align="left">male</td>
+<td align="right">2007</td>
+</tr>
+<tr class="odd">
+<td align="left">5</td>
+<td align="left">Gentoo</td>
+<td align="left">Biscoe</td>
+<td align="right">45.3</td>
+<td align="right">13.7</td>
+<td align="right">210</td>
+<td align="right">4300</td>
+<td align="left">female</td>
+<td align="right">2008</td>
+</tr>
+<tr class="even">
+<td align="left">6</td>
+<td align="left">Gentoo</td>
+<td align="left">Biscoe</td>
+<td align="right"></td>
+<td align="right"></td>
+<td align="right"></td>
+<td align="right"></td>
+<td align="left"></td>
+<td align="right">2009</td>
+</tr>
+<tr class="odd">
+<td align="left">7</td>
+<td align="left">Adelie</td>
+<td align="left">Torgersen</td>
+<td align="right">42.5</td>
+<td align="right">20.7</td>
+<td align="right">197</td>
+<td align="right">4500</td>
+<td align="left">male</td>
+<td align="right">2007</td>
+</tr>
+<tr class="even">
+<td align="left">8</td>
+<td align="left">Gentoo</td>
+<td align="left">Biscoe</td>
+<td align="right">48.5</td>
+<td align="right">15.0</td>
+<td align="right">219</td>
+<td align="right">4850</td>
+<td align="left">female</td>
+<td align="right">2009</td>
+</tr>
+<tr class="odd">
+<td align="left">9</td>
+<td align="left">Chinstrap</td>
+<td align="left">Dream</td>
+<td align="right">46.5</td>
+<td align="right">17.9</td>
+<td align="right">192</td>
+<td align="right">3500</td>
+<td align="left">female</td>
+<td align="right">2007</td>
+</tr>
+<tr class="even">
+<td align="left">10</td>
+<td align="left">Gentoo</td>
+<td align="left">Biscoe</td>
+<td align="right">46.9</td>
+<td align="right">14.6</td>
+<td align="right">222</td>
+<td align="right">4875</td>
+<td align="left">female</td>
+<td align="right">2009</td>
+</tr>
+</tbody>
+</table>
 <p>If you generated the <code>penguin</code> dataset yourself, then your
 first 10 samples may be different.</p>
 <p>In the data above, samples #1 and #6 have one or more missing
@@ -425,7 +559,7 @@ metadata. We must then check and correct this file. The function
 motivates its guesses and warns about especially uncertain ones. Here is
 the code to generate a <code>'penguin_metadata.csv'</code> file, and the
 output and warnings of the helper function:</p>
-<div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">metadatafile</span> <span class="op">&lt;-</span> <span class="st">'penguin_metadata.csv'</span></span>
 <span><span class="fu"><a href="../reference/metadatatemplate.html">metadatatemplate</a></span><span class="op">(</span>data <span class="op">=</span> <span class="va">datafile</span>, file <span class="op">=</span> <span class="va">metadatafile</span><span class="op">)</span></span>
 <span><span class="co">## Analyzing 8 variates for 10 datapoints.</span></span>
@@ -491,8 +625,210 @@ output and warnings of the helper function:</p>
 <span><span class="co">## Saved proposal metadata file as "penguin_metadata.csv" </span></span></code></pre></div>
 <p>The preliminary metadata file created by
 <code><a href="../reference/metadatatemplate.html">metadatatemplate()</a></code> looks like this:</p>
-<pre><code><span><span class="co">## Error: lazy-load database '/home/pglpm/R/x86_64-pc-linux-gnu-library/4.5/inferno/R/inferno.rdb' is corrupt</span></span>
-<span><span class="co">## Error: object 'dat' not found</span></span></code></pre>
+<table style="width:100%;" class="table">
+<colgroup>
+<col width="9%">
+<col width="8%">
+<col width="7%">
+<col width="7%">
+<col width="6%">
+<col width="9%">
+<col width="9%">
+<col width="5%">
+<col width="7%">
+<col width="7%">
+<col width="2%">
+<col width="2%">
+<col width="2%">
+<col width="2%">
+<col width="2%">
+<col width="2%">
+<col width="3%">
+<col width="3%">
+</colgroup>
+<thead><tr class="header">
+<th align="left">name</th>
+<th align="left">type</th>
+<th align="right">domainmin</th>
+<th align="right">domainmax</th>
+<th align="right">datastep</th>
+<th align="right">minincluded</th>
+<th align="right">maxincluded</th>
+<th align="left">V1</th>
+<th align="left">V2</th>
+<th align="left">V3</th>
+<th align="right">V4</th>
+<th align="right">V5</th>
+<th align="right">V6</th>
+<th align="right">V7</th>
+<th align="right">V8</th>
+<th align="right">V9</th>
+<th align="right">V10</th>
+<th align="right">V11</th>
+</tr></thead>
+<tbody>
+<tr class="odd">
+<td align="left">species</td>
+<td align="left">nominal</td>
+<td align="right"></td>
+<td align="right"></td>
+<td align="right"></td>
+<td align="right"></td>
+<td align="right"></td>
+<td align="left">Adelie</td>
+<td align="left">Chinstrap</td>
+<td align="left">Gentoo</td>
+<td align="right"></td>
+<td align="right"></td>
+<td align="right"></td>
+<td align="right"></td>
+<td align="right"></td>
+<td align="right"></td>
+<td align="right"></td>
+<td align="right"></td>
+</tr>
+<tr class="even">
+<td align="left">island</td>
+<td align="left">nominal</td>
+<td align="right"></td>
+<td align="right"></td>
+<td align="right"></td>
+<td align="right"></td>
+<td align="right"></td>
+<td align="left">Biscoe</td>
+<td align="left">Dream</td>
+<td align="left">Torgersen</td>
+<td align="right"></td>
+<td align="right"></td>
+<td align="right"></td>
+<td align="right"></td>
+<td align="right"></td>
+<td align="right"></td>
+<td align="right"></td>
+<td align="right"></td>
+</tr>
+<tr class="odd">
+<td align="left">bill_len</td>
+<td align="left">continuous</td>
+<td align="right">0</td>
+<td align="right"></td>
+<td align="right">0.1</td>
+<td align="right"></td>
+<td align="right"></td>
+<td align="left"></td>
+<td align="left"></td>
+<td align="left"></td>
+<td align="right"></td>
+<td align="right"></td>
+<td align="right"></td>
+<td align="right"></td>
+<td align="right"></td>
+<td align="right"></td>
+<td align="right"></td>
+<td align="right"></td>
+</tr>
+<tr class="even">
+<td align="left">bill_dep</td>
+<td align="left">continuous</td>
+<td align="right">0</td>
+<td align="right"></td>
+<td align="right">0.1</td>
+<td align="right"></td>
+<td align="right"></td>
+<td align="left"></td>
+<td align="left"></td>
+<td align="left"></td>
+<td align="right"></td>
+<td align="right"></td>
+<td align="right"></td>
+<td align="right"></td>
+<td align="right"></td>
+<td align="right"></td>
+<td align="right"></td>
+<td align="right"></td>
+</tr>
+<tr class="odd">
+<td align="left">flipper_len</td>
+<td align="left">ordinal</td>
+<td align="right">186</td>
+<td align="right">222</td>
+<td align="right">1.0</td>
+<td align="right"></td>
+<td align="right"></td>
+<td align="left"></td>
+<td align="left"></td>
+<td align="left"></td>
+<td align="right"></td>
+<td align="right"></td>
+<td align="right"></td>
+<td align="right"></td>
+<td align="right"></td>
+<td align="right"></td>
+<td align="right"></td>
+<td align="right"></td>
+</tr>
+<tr class="even">
+<td align="left">body_mass</td>
+<td align="left">ordinal</td>
+<td align="right">3300</td>
+<td align="right">4875</td>
+<td align="right">25.0</td>
+<td align="right"></td>
+<td align="right"></td>
+<td align="left"></td>
+<td align="left"></td>
+<td align="left"></td>
+<td align="right"></td>
+<td align="right"></td>
+<td align="right"></td>
+<td align="right"></td>
+<td align="right"></td>
+<td align="right"></td>
+<td align="right"></td>
+<td align="right"></td>
+</tr>
+<tr class="odd">
+<td align="left">sex</td>
+<td align="left">nominal</td>
+<td align="right"></td>
+<td align="right"></td>
+<td align="right"></td>
+<td align="right"></td>
+<td align="right"></td>
+<td align="left">female</td>
+<td align="left">male</td>
+<td align="left"></td>
+<td align="right"></td>
+<td align="right"></td>
+<td align="right"></td>
+<td align="right"></td>
+<td align="right"></td>
+<td align="right"></td>
+<td align="right"></td>
+<td align="right"></td>
+</tr>
+<tr class="even">
+<td align="left">year</td>
+<td align="left">ordinal</td>
+<td align="right">2007</td>
+<td align="right">2009</td>
+<td align="right">1.0</td>
+<td align="right"></td>
+<td align="right"></td>
+<td align="left"></td>
+<td align="left"></td>
+<td align="left"></td>
+<td align="right"></td>
+<td align="right"></td>
+<td align="right"></td>
+<td align="right"></td>
+<td align="right"></td>
+<td align="right"></td>
+<td align="right"></td>
+<td align="right"></td>
+</tr>
+</tbody>
+</table>
 <p>If you generated the <code>penguin</code> dataset yourself, then you
 might obtain different guesses. Try to follow the following guidelines
 for the present example.</p>
@@ -534,8 +870,130 @@ was correctly guessed).</p>
 <code>'penguin_metadata.csv'</code> with our favourite editor, and
 correct and complete the guesses of the helper function. In this case we
 end up with the following corrected metadata file:</p>
-<pre><code><span><span class="co">## Error: lazy-load database '/home/pglpm/R/x86_64-pc-linux-gnu-library/4.5/inferno/R/inferno.rdb' is corrupt</span></span>
-<span><span class="co">## Error: object 'dat' not found</span></span></code></pre>
+<table style="width:100%;" class="table">
+<colgroup>
+<col width="11%">
+<col width="10%">
+<col width="9%">
+<col width="9%">
+<col width="8%">
+<col width="11%">
+<col width="11%">
+<col width="6%">
+<col width="9%">
+<col width="9%">
+</colgroup>
+<thead><tr class="header">
+<th align="left">name</th>
+<th align="left">type</th>
+<th align="right">domainmin</th>
+<th align="right">domainmax</th>
+<th align="right">datastep</th>
+<th align="right">minincluded</th>
+<th align="right">maxincluded</th>
+<th align="left">V1</th>
+<th align="left">V2</th>
+<th align="left">V3</th>
+</tr></thead>
+<tbody>
+<tr class="odd">
+<td align="left">species</td>
+<td align="left">nominal</td>
+<td align="right"></td>
+<td align="right"></td>
+<td align="right"></td>
+<td align="right"></td>
+<td align="right"></td>
+<td align="left">Adelie</td>
+<td align="left">Chinstrap</td>
+<td align="left">Gentoo</td>
+</tr>
+<tr class="even">
+<td align="left">island</td>
+<td align="left">nominal</td>
+<td align="right"></td>
+<td align="right"></td>
+<td align="right"></td>
+<td align="right"></td>
+<td align="right"></td>
+<td align="left">Biscoe</td>
+<td align="left">Dream</td>
+<td align="left">Torgersen</td>
+</tr>
+<tr class="odd">
+<td align="left">bill_len</td>
+<td align="left">continuous</td>
+<td align="right">0</td>
+<td align="right"></td>
+<td align="right">0.1</td>
+<td align="right"></td>
+<td align="right"></td>
+<td align="left"></td>
+<td align="left"></td>
+<td align="left"></td>
+</tr>
+<tr class="even">
+<td align="left">bill_dep</td>
+<td align="left">continuous</td>
+<td align="right">0</td>
+<td align="right"></td>
+<td align="right">0.1</td>
+<td align="right"></td>
+<td align="right"></td>
+<td align="left"></td>
+<td align="left"></td>
+<td align="left"></td>
+</tr>
+<tr class="odd">
+<td align="left">flipper_len</td>
+<td align="left">continuous</td>
+<td align="right">0</td>
+<td align="right"></td>
+<td align="right">1.0</td>
+<td align="right"></td>
+<td align="right"></td>
+<td align="left"></td>
+<td align="left"></td>
+<td align="left"></td>
+</tr>
+<tr class="even">
+<td align="left">body_mass</td>
+<td align="left">continuous</td>
+<td align="right">0</td>
+<td align="right"></td>
+<td align="right">25.0</td>
+<td align="right"></td>
+<td align="right"></td>
+<td align="left"></td>
+<td align="left"></td>
+<td align="left"></td>
+</tr>
+<tr class="odd">
+<td align="left">sex</td>
+<td align="left">nominal</td>
+<td align="right"></td>
+<td align="right"></td>
+<td align="right"></td>
+<td align="right"></td>
+<td align="right"></td>
+<td align="left">female</td>
+<td align="left">male</td>
+<td align="left"></td>
+</tr>
+<tr class="even">
+<td align="left">year</td>
+<td align="left">ordinal</td>
+<td align="right">2007</td>
+<td align="right">2009</td>
+<td align="right">1.0</td>
+<td align="right"></td>
+<td align="right"></td>
+<td align="left"></td>
+<td align="left"></td>
+<td align="left"></td>
+</tr>
+</tbody>
+</table>
 </div>
 <div class="section level3">
 <h3 id="learningfirst">“Learning” and extrapolating from the sample data<a class="anchor" aria-label="anchor" href="#learningfirst"></a>
@@ -566,7 +1024,7 @@ the number of cores you actually have!).</p>
 <p>The output below was obtained from running <code><a href="../reference/learn.html">learn()</a></code> on 4
 cores – <em>please wait before running this code</em>, it might take
 longer time on your computer:</p>
-<div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">learnt10</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/learn.html">learn</a></span><span class="op">(</span></span>
 <span>    data <span class="op">=</span> <span class="va">datafile</span>,</span>
 <span>    metadata <span class="op">=</span> <span class="va">metadatafile</span>,</span>
@@ -643,7 +1101,7 @@ the <code>learnt10</code> variable in the code above, by invoking
 be downloaded as the file <a href="https://github.com/pglpm/inferno/raw/main/development/downloads/learnt10.rds" class="external-link"><code>'learnt10.rds'</code></a>.
 Once you have downloaded it in your working directory you can just
 invoke</p>
-<div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">learnt10</span> <span class="op">&lt;-</span> <span class="st">'learnt10.rds'</span></span></code></pre></div>
 <p>which produces an object <code>learnt10</code> (just a string, in
 this case) which can be used in the following analysis.</p>
@@ -685,27 +1143,33 @@ use for the computation.</li>
 </ul>
 <p>Here is a way to call the function; the computation should take at
 most a couple of seconds:</p>
-<div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># # data frame with the variate and values we want to know the frequencies of</span></span>
 <span><span class="va">Y</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span>species <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">'Adelie'</span>, <span class="st">'Chinstrap'</span>, <span class="st">'Gentoo'</span><span class="op">)</span><span class="op">)</span></span>
 <span></span>
 <span><span class="va">Fspecies10</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/Pr.html">Pr</a></span><span class="op">(</span></span>
 <span>    Y <span class="op">=</span> <span class="va">Y</span>,</span>
 <span>    learnt <span class="op">=</span> <span class="va">learnt10</span>,</span>
-<span>    parallel <span class="op">=</span> <span class="fl">8</span> <span class="co"># let's use 8 cores</span></span>
+<span>    parallel <span class="op">=</span> <span class="fl">4</span> <span class="co"># let's use 4 cores</span></span>
 <span><span class="op">)</span></span>
 <span><span class="co">## </span></span>
-<span><span class="co">## Registered doParallelSNOW with 8 workers</span></span>
-<span><span class="co">## Error in as.matrix(vtransform(Y, auxmetadata = auxmetadata, Rout = "normalized", : lazy-load database '/home/pglpm/R/x86_64-pc-linux-gnu-library/4.5/inferno/R/inferno.rdb' is corrupt</span></span></code></pre></div>
+<span><span class="co">## Registered doParallelSNOW with 4 workers</span></span>
+<span><span class="co">## </span></span>
+<span><span class="co">## Closing connections to cores.</span></span></code></pre></div>
 <p>The answer to our question is now contained in the
 <code>Fspecies10</code> object (we chose this name for
 “<code>F</code>requency distribution of <code>species</code>, estimated
 from <code>10</code> samples”). The estimate and its uncertainty can be
 immediately visualized by calling <code><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot()</a></code> with this
 object:</p>
-<div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">Fspecies10</span><span class="op">)</span></span>
-<span><span class="co">## Error: object 'Fspecies10' not found</span></span></code></pre></div>
+<div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">Fspecies10</span><span class="op">)</span></span></code></pre></div>
+<div class="figure">
+<img src="figure/vis10-1.png" alt="**Estimates and uncertainty of relative frequencies of the three penguin species**" width="100%"><p class="caption">
+<strong>Estimates and uncertainty of relative frequencies of the three
+penguin species</strong>
+</p>
+</div>
 <p>The x-axis of this plot shows the three possible values of the
 <code>species</code> variate. The y-axis reports fractions which may be
 read as <em>frequencies</em> or <em>probabilities</em>.</p>
@@ -714,12 +1178,16 @@ solid red curve with small circles. (You may be used to frequency
 distributions as histograms, rather than as a broken line like in the
 plot above. The present visualization is more advantageous when we want
 to compare several frequency distributions, as we’ll do later.)</p>
-<p>The three estimated frequencies are Adélie: 0.32, Chinstrap: 0.31,
-Gentoo: 0.37, and can be read from the <code>values</code> element of
+<p>The three estimated frequencies are: Adélie: 0.32, Chinstrap: 0.30,
+Gentoo: 0.38, and can be read from the <code>values</code> element of
 the <code>Fspecies10</code> object:</p>
-<div class="sourceCode" id="cb12"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">Fspecies10</span><span class="op">$</span><span class="va">values</span></span>
-<span><span class="co">## Error: object 'Fspecies10' not found</span></span></code></pre></div>
+<span><span class="co">##            X</span></span>
+<span><span class="co">## Y               [,1]</span></span>
+<span><span class="co">##   Adelie    0.319061</span></span>
+<span><span class="co">##   Chinstrap 0.303017</span></span>
+<span><span class="co">##   Gentoo    0.377922</span></span></code></pre></div>
 <p>What about the uncertainty of these estimates?</p>
 </div>
 <div class="section level3">
@@ -729,9 +1197,9 @@ probabilities<a class="anchor" aria-label="anchor" href="#uncertainty-of-the-est
 <p>In Bayesian theory, a compact way of expressing the uncertainty in a
 quantity is by means of a <strong>credibility interval</strong> with a
 given probability. For instance, if we say that a particular quantity
-has a 80%-credibility interval equal to
+has a 70%-credibility interval equal to
 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo stretchy="true" form="prefix">(</mo><mn>0.41</mn><mo>,</mo><mn>0.69</mn><mo stretchy="true" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">(0.41, 0.69)</annotation></semantics></math>,
-what we mean is that there’s an 80% probability that the true value of
+what we mean is that there’s an 70% probability that the true value of
 that quantity is between
 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mn>0.41</mn><annotation encoding="application/x-tex">0.41</annotation></semantics></math>
 and
@@ -746,12 +1214,12 @@ above as the darker grey band, and the 89%-credibility intervals as the
 lighter grey band. Note that these intervals contain the 50% ones.</p>
 <p>For instance, the plot indicates that there’s a 50% probability that
 the relative frequency of all <code>Adelie</code> penguins is roughly
-between 0.25 and 0.4; and an 89% probability that their relative
-frequency is roughly between 0.3 and 0.45.</p>
+between 0.23 and 0.40; and an 89% probability that their relative
+frequency is roughly between 0.14 and 0.53.</p>
 <p>For the <code>Gentoo</code> species, there’s a 50% probability that
-its relative frequency is roughly between 0.3 and 0.45; and an 89%
-probability that their relative frequency is roughly between 0.2 and
-0.6.</p>
+its relative frequency is roughly between 0.28 and 0.47; and an 89%
+probability that their relative frequency is roughly between 0.18 and
+0.59.</p>
 <p>We can Actually do more: we can plot the probabilities of all
 possible frequencies. To understand this idea, let’s ask: what is the
 relative frequency of Adélie penguins in the whole population? Possible
@@ -764,13 +1232,17 @@ because this is just a small sample.</p>
 approximate way, the probabilities for all possible frequencies of each
 species. We can plot the probabilities of the frequencies of the
 <code>Adelie</code> species as follows:</p>
-<div class="sourceCode" id="cb13"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># # select only Adelie</span></span>
 <span><span class="va">onlyAdelie</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/subset.html" class="external-link">subset</a></span><span class="op">(</span><span class="va">Fspecies10</span>, <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>species <span class="op">=</span> <span class="st">'Adelie'</span><span class="op">)</span><span class="op">)</span></span>
-<span><span class="co">## Error: object 'Fspecies10' not found</span></span>
 <span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/graphics/hist.html" class="external-link">hist</a></span><span class="op">(</span><span class="va">onlyAdelie</span>, xlim <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0</span>, <span class="fl">1</span><span class="op">)</span>, legend <span class="op">=</span> <span class="st">'topright'</span>, col <span class="op">=</span> <span class="fl">2</span><span class="op">)</span></span>
-<span><span class="co">## Error: object 'onlyAdelie' not found</span></span></code></pre></div>
+<span><span class="fu"><a href="https://rdrr.io/r/graphics/hist.html" class="external-link">hist</a></span><span class="op">(</span><span class="va">onlyAdelie</span>, xlim <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0</span>, <span class="fl">1</span><span class="op">)</span>, legend <span class="op">=</span> <span class="st">'topright'</span>, col <span class="op">=</span> <span class="fl">2</span><span class="op">)</span></span></code></pre></div>
+<div class="figure">
+<img src="figure/hist10adelie-1.png" alt="**Probability distribution for the frequency of Adelie penguins**" width="100%"><p class="caption">
+<strong>Probability distribution for the frequency of Adelie
+penguins</strong>
+</p>
+</div>
 <p>With the <code><a href="https://rdrr.io/r/base/subset.html" class="external-link">subset()</a></code> function we first extract from the
 <code>Fspecies10</code> object only the information pertaining to the
 <code>Adelie</code> species, saving it into the <code>onlyAdelie</code>
@@ -789,9 +1261,13 @@ The credibility intervals are calculated from the probability
 distribution above. They can be quickly obtained from the
 <code>quantiles</code> element of the <code>Fspecies10</code> object.
 For instance, we can read the 89%-credibility intervals as follows:</p>
-<div class="sourceCode" id="cb14"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">Fspecies10</span><span class="op">$</span><span class="va">quantiles</span><span class="op">[</span>, , <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">'5.5%'</span>, <span class="st">'94.5%'</span><span class="op">)</span><span class="op">]</span></span>
-<span><span class="co">## Error: object 'Fspecies10' not found</span></span></code></pre></div>
+<span><span class="co">##            </span></span>
+<span><span class="co">## Y               5.5%    94.5%</span></span>
+<span><span class="co">##   Adelie    0.140158 0.531920</span></span>
+<span><span class="co">##   Chinstrap 0.133997 0.512746</span></span>
+<span><span class="co">##   Gentoo    0.183184 0.591518</span></span></code></pre></div>
 <!-- As the name tells, this element actually report the *quantiles* of the probability. For example, look at the `= 25%` output: among other things it says `Adelie 0.227634`. This means that there's a 25% probability that the frequency of Adélie penguins is below $0.227634$, and thus a 75% probability that it's above $0.227634$.
  -->
 </div>
@@ -809,11 +1285,11 @@ follows:</p>
 <dl>
 <dt>Adélie</dt>
 <dd>
-rel. frequency between 0.13 and 0.53, with 89% probability
+rel. frequency between 0.14 and 0.53, with 89% probability
 </dd>
 <dt>Chinstrap</dt>
 <dd>
-rel. frequency between 0.13 and 0.52, with 89% probability
+rel. frequency between 0.13 and 0.51, with 89% probability
 </dd>
 <dt>Gentoo</dt>
 <dd>
@@ -823,9 +1299,14 @@ rel. frequency between 0.18 and 0.59, with 89% probability
 </blockquote>
 <p>But we can also give a fuller answer by displaying the probability
 distributions for all three frequencies:</p>
-<div class="sourceCode" id="cb15"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/graphics/hist.html" class="external-link">hist</a></span><span class="op">(</span><span class="va">Fspecies10</span>, legend <span class="op">=</span> <span class="st">'topright'</span>, col <span class="op">=</span> <span class="fl">2</span><span class="op">:</span><span class="fl">4</span><span class="op">)</span></span>
-<span><span class="co">## Error: object 'Fspecies10' not found</span></span></code></pre></div>
+<div class="sourceCode" id="cb12"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/graphics/hist.html" class="external-link">hist</a></span><span class="op">(</span><span class="va">Fspecies10</span>, legend <span class="op">=</span> <span class="st">'topright'</span>, col <span class="op">=</span> <span class="fl">2</span><span class="op">:</span><span class="fl">4</span><span class="op">)</span></span></code></pre></div>
+<div class="figure">
+<img src="figure/hist10-1.png" alt="**Probability distribution for the rel. requencies of the three species**" width="100%"><p class="caption">
+<strong>Probability distribution for the rel. requencies of the three
+species</strong>
+</p>
+</div>
 <p>It’s important to keep in mind that the three frequencies must add up
 to 1, so if our future estimates of some of them increase, then the
 estimate of some others must decrease.</p>
@@ -865,7 +1346,7 @@ let’s say that we want to focus on penguins living on Biscoe or Dream,
 that is, those whose <code>island</code> variate has the values
 <code>'Biscoe</code> or <code>'Dream'</code>. The code is as
 follows:</p>
-<div class="sourceCode" id="cb16"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb13"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># # data frame with the variate and values of the subpopulations of interest</span></span>
 <span><span class="va">X</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span>island <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">'Biscoe'</span>, <span class="st">'Dream'</span><span class="op">)</span><span class="op">)</span></span>
 <span></span>
@@ -873,27 +1354,36 @@ follows:</p>
 <span>    Y <span class="op">=</span> <span class="va">Y</span>,</span>
 <span>    X <span class="op">=</span> <span class="va">X</span>, <span class="co"># argument for conditional inferences</span></span>
 <span>    learnt <span class="op">=</span> <span class="va">learnt10</span>,</span>
-<span>    parallel <span class="op">=</span> <span class="fl">8</span> <span class="co"># let's use 8 cores</span></span>
+<span>    parallel <span class="op">=</span> <span class="fl">4</span> <span class="co"># let's use 4 cores</span></span>
 <span><span class="op">)</span></span>
 <span><span class="co">## </span></span>
-<span><span class="co">## Registered doParallelSNOW with 8 workers</span></span>
-<span><span class="co">## Error in as.matrix(vtransform(X, auxmetadata = auxmetadata, Rout = "normalized", : lazy-load database '/home/pglpm/R/x86_64-pc-linux-gnu-library/4.5/inferno/R/inferno.rdb' is corrupt</span></span></code></pre></div>
+<span><span class="co">## Registered doParallelSNOW with 4 workers</span></span>
+<span><span class="co">## </span></span>
+<span><span class="co">## Closing connections to cores.</span></span></code></pre></div>
 <p>The answer to our question is now contained in the
 <code>Fspecies10I</code> object (we add <code>I</code> for “island” to
 the previous name). The estimates of the frequencies and their
 uncertainties can again be visualized by calling
 <code><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot()</a></code>:</p>
-<div class="sourceCode" id="cb17"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">Fspecies10I</span>, col <span class="op">=</span> <span class="fl">5</span><span class="op">:</span><span class="fl">6</span><span class="op">)</span></span>
-<span><span class="co">## Error: object 'Fspecies10I' not found</span></span></code></pre></div>
+<div class="sourceCode" id="cb14"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">Fspecies10I</span>, col <span class="op">=</span> <span class="fl">5</span><span class="op">:</span><span class="fl">6</span><span class="op">)</span></span></code></pre></div>
+<div class="figure">
+<img src="figure/vis10I-1.png" alt="**Estimates and uncertainty of conditional frequencies**" width="100%"><p class="caption">
+<strong>Estimates and uncertainty of conditional frequencies</strong>
+</p>
+</div>
 <p>The estimated frequencies for the <code>Biscoe</code> subpopulation
 are shown by the solid yellow curve with small circles; those for the
 <code>Dream</code> subpopulation by the dashed purple curve with small
 squares. More precise values are contained in the <code>values</code>
 element of the <code>Fspecies10I</code> object:</p>
-<div class="sourceCode" id="cb18"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb15"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">Fspecies10I</span><span class="op">$</span><span class="va">values</span></span>
-<span><span class="co">## Error: object 'Fspecies10I' not found</span></span></code></pre></div>
+<span><span class="co">##            X</span></span>
+<span><span class="co">## Y             Biscoe    Dream</span></span>
+<span><span class="co">##   Adelie    0.206050 0.335998</span></span>
+<span><span class="co">##   Chinstrap 0.214225 0.423482</span></span>
+<span><span class="co">##   Gentoo    0.579725 0.240520</span></span></code></pre></div>
 <p>According to these estimates, on Biscoe there should be a
 predominance of Gentoo penguins, with lower, roughly equal numbers of
 Adélie and Chinstrap. On Dream, on the other hand, Gentoo should be the
@@ -903,16 +1393,20 @@ frequency are quite wide. Also in this case we can get a better picture
 by displaying the probability distribution of each frequency, by means
 of the <code><a href="https://rdrr.io/r/graphics/hist.html" class="external-link">hist()</a></code> function, and see how much they overlap.</p>
 <p>For Biscoe island we find</p>
-<div class="sourceCode" id="cb19"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb16"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># # select only Biscoe</span></span>
 <span><span class="va">onlyBiscoe</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/subset.html" class="external-link">subset</a></span><span class="op">(</span><span class="va">Fspecies10I</span>, <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>island <span class="op">=</span> <span class="st">'Biscoe'</span><span class="op">)</span><span class="op">)</span></span>
-<span><span class="co">## Error: object 'Fspecies10I' not found</span></span>
 <span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/graphics/hist.html" class="external-link">hist</a></span><span class="op">(</span><span class="va">onlyBiscoe</span>, xlim <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0</span>, <span class="fl">1</span><span class="op">)</span>, legend <span class="op">=</span> <span class="st">'topright'</span>, col <span class="op">=</span> <span class="fl">2</span><span class="op">:</span><span class="fl">4</span><span class="op">)</span></span>
-<span><span class="co">## Error: object 'onlyBiscoe' not found</span></span></code></pre></div>
+<span><span class="fu"><a href="https://rdrr.io/r/graphics/hist.html" class="external-link">hist</a></span><span class="op">(</span><span class="va">onlyBiscoe</span>, xlim <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0</span>, <span class="fl">1</span><span class="op">)</span>, legend <span class="op">=</span> <span class="st">'topright'</span>, col <span class="op">=</span> <span class="fl">2</span><span class="op">:</span><span class="fl">4</span><span class="op">)</span></span></code></pre></div>
+<div class="figure">
+<img src="figure/hist10biscoe-1.png" alt="**Probability distribution for species frequencies on Biscoe**" width="100%"><p class="caption">
+<strong>Probability distribution for species frequencies on
+Biscoe</strong>
+</p>
+</div>
 <p>Note how, according to these preliminary estimates, the frequencies
 of Adélie and Chinstrap are very close, around 0.2, and quite different
-from the frequency of Gentoo, around 0.6. Yet, the probability
+from the frequency of Gentoo, around 0.58. Yet, the probability
 distributions are wide; each distribution gives a non-zero probability
 to all three estimates.</p>
 <p><strong>For later, keep in mind the following question: <em>On
@@ -922,15 +1416,19 @@ difference, but we are warned about a large uncertainty. Will more
 sampling data confirm “no difference”?</p>
 <p><br>
 For Dream island we find</p>
-<div class="sourceCode" id="cb20"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb17"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># # select only Dream</span></span>
 <span><span class="va">onlyDream</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/subset.html" class="external-link">subset</a></span><span class="op">(</span><span class="va">Fspecies10I</span>, <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>island <span class="op">=</span> <span class="st">'Dream'</span><span class="op">)</span><span class="op">)</span></span>
-<span><span class="co">## Error: object 'Fspecies10I' not found</span></span>
 <span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/graphics/hist.html" class="external-link">hist</a></span><span class="op">(</span><span class="va">onlyDream</span>, xlim <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0</span>, <span class="fl">1</span><span class="op">)</span>, legend <span class="op">=</span> <span class="st">'topright'</span>, col <span class="op">=</span> <span class="fl">2</span><span class="op">:</span><span class="fl">4</span><span class="op">)</span></span>
-<span><span class="co">## Error: object 'onlyDream' not found</span></span></code></pre></div>
+<span><span class="fu"><a href="https://rdrr.io/r/graphics/hist.html" class="external-link">hist</a></span><span class="op">(</span><span class="va">onlyDream</span>, xlim <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0</span>, <span class="fl">1</span><span class="op">)</span>, legend <span class="op">=</span> <span class="st">'topright'</span>, col <span class="op">=</span> <span class="fl">2</span><span class="op">:</span><span class="fl">4</span><span class="op">)</span></span></code></pre></div>
+<div class="figure">
+<img src="figure/hist10dream-1.png" alt="**Probability distribution for species frequencies on Biscoe**" width="100%"><p class="caption">
+<strong>Probability distribution for species frequencies on
+Biscoe</strong>
+</p>
+</div>
 <p>Among other things we see here a larger difference in the estimated
-frequencies of Adélie, around 0.3, and Chinstrap, around 0.45. Still,
+frequencies of Adélie, around 0.34, and Chinstrap, around 0.42. Still,
 the probability distributions are wide.</p>
 <p><strong>For later, keep in mind the following question: <em>On Dream,
 are the frequencies of Adélie and Chinstrap different?</em></strong> The
@@ -947,11 +1445,25 @@ estimates, but full probability distributions showing their
 uncertainties.</p>
 <p>A more compact summary can again be given with credibility intervals.
 We can produce it as follows:</p>
-<div class="sourceCode" id="cb21"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb18"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/aperm.html" class="external-link">aperm</a></span><span class="op">(</span></span>
 <span>    <span class="va">Fspecies10I</span><span class="op">$</span><span class="va">quantiles</span><span class="op">[</span>, , <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">'5.5%'</span>, <span class="st">'94.5%'</span><span class="op">)</span><span class="op">]</span>,</span>
 <span>    <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1</span>, <span class="fl">3</span>, <span class="fl">2</span><span class="op">)</span><span class="op">)</span> <span class="co"># change order for better display</span></span>
-<span><span class="co">## Error: object 'Fspecies10I' not found</span></span></code></pre></div>
+<span><span class="co">## , , X = Biscoe</span></span>
+<span><span class="co">## </span></span>
+<span><span class="co">##            </span></span>
+<span><span class="co">## Y                5.5%    94.5%</span></span>
+<span><span class="co">##   Adelie    0.0376968 0.466033</span></span>
+<span><span class="co">##   Chinstrap 0.0384570 0.469123</span></span>
+<span><span class="co">##   Gentoo    0.2798207 0.854380</span></span>
+<span><span class="co">## </span></span>
+<span><span class="co">## , , X = Dream</span></span>
+<span><span class="co">## </span></span>
+<span><span class="co">##            </span></span>
+<span><span class="co">## Y                5.5%    94.5%</span></span>
+<span><span class="co">##   Adelie    0.1033126 0.623346</span></span>
+<span><span class="co">##   Chinstrap 0.1654065 0.716321</span></span>
+<span><span class="co">##   Gentoo    0.0556945 0.506120</span></span></code></pre></div>
 </div>
 <div class="section level3">
 <h3 id="nht">Differences from “null-hypothesis testing” and <em>p</em>-value
@@ -1011,7 +1523,7 @@ analysis and hypotheses had very large uncertainties.</p>
 <p>Now imagine that our sampling colleagues send us 50 more datapoints,
 which we add to the 10 we already have. Let’s store the 60 datapoints in
 the file <code>'penguin_data60.csv'</code>:</p>
-<div class="sourceCode" id="cb22"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb19"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">datafile</span> <span class="op">&lt;-</span> <span class="st">'penguin_data60.csv'</span></span>
 <span><span class="fu"><a href="../reference/inferno.data.html">write.csvi</a></span><span class="op">(</span><span class="va">penguin</span><span class="op">[</span><span class="fl">1</span><span class="op">:</span><span class="fl">60</span>, <span class="op">]</span>, <span class="va">datafile</span><span class="op">)</span> <span class="co"># write the first 60 samples</span></span></code></pre></div>
 <p>Feel free to take a look at your extended sample data. There may be
@@ -1021,7 +1533,7 @@ a problem for Bayesian theory and <strong><em>inferno</em></strong>.</p>
 done again with the <code><a href="../reference/learn.html">learn()</a></code> function. <em>Please wait
 before running this code</em>, it might take longer time on your
 computer:</p>
-<div class="sourceCode" id="cb23"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb20"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">learnt60</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/learn.html">learn</a></span><span class="op">(</span></span>
 <span>    data <span class="op">=</span> <span class="va">datafile</span>,</span>
 <span>    metadata <span class="op">=</span> <span class="va">metadatafile</span>,</span>
@@ -1079,7 +1591,7 @@ compressed file <code>'learn.rds'</code> within the new output
 directory. For your convenience the object produced by the computation
 above can be downloaded as the file <a href="https://github.com/pglpm/inferno/raw/main/development/downloads/learnt60.rds" class="external-link"><code>'learnt60.rds'</code></a>.
 Once you have downloaded it in your working directory, invoke</p>
-<div class="sourceCode" id="cb24"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb21"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">learnt60</span> <span class="op">&lt;-</span> <span class="st">'learnt60.rds'</span></span></code></pre></div>
 <p>which we now use to update our analysis.</p>
 </div>
@@ -1101,7 +1613,7 @@ sample, using the <code><a href="../reference/Pr.html">Pr()</a></code> function 
 before</a>; note that in the <code>learnt =</code> argument we must use
 the new <code>learnt60</code> object, which points to the updated
 inference. Here is the calculation for all three questions:</p>
-<div class="sourceCode" id="cb25"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb22"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># # 'Y' and 'X' were previously defined with:</span></span>
 <span><span class="co"># # Y &lt;- data.frame(species = c('Adelie', 'Chinstrap', 'Gentoo'))</span></span>
 <span><span class="co"># # X &lt;- data.frame(island = c('Biscoe', 'Dream'))</span></span>
@@ -1109,47 +1621,48 @@ inference. Here is the calculation for all three questions:</p>
 <span><span class="va">Fspecies60</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/Pr.html">Pr</a></span><span class="op">(</span></span>
 <span>    Y <span class="op">=</span> <span class="va">Y</span>,</span>
 <span>    learnt <span class="op">=</span> <span class="va">learnt60</span>, <span class="co"># updated inference</span></span>
-<span>    parallel <span class="op">=</span> <span class="fl">8</span> <span class="co"># let's use 8 cores</span></span>
+<span>    parallel <span class="op">=</span> <span class="fl">4</span> <span class="co"># let's use 4 cores</span></span>
 <span><span class="op">)</span></span>
 <span><span class="co">## </span></span>
-<span><span class="co">## Registered doParallelSNOW with 8 workers</span></span>
-<span><span class="co">## Error in as.matrix(vtransform(Y, auxmetadata = auxmetadata, Rout = "normalized", : lazy-load database '/home/pglpm/R/x86_64-pc-linux-gnu-library/4.5/inferno/R/inferno.rdb' is corrupt</span></span>
+<span><span class="co">## Registered doParallelSNOW with 4 workers</span></span>
+<span><span class="co">## </span></span>
+<span><span class="co">## Closing connections to cores.</span></span>
 <span></span>
 <span><span class="va">Fspecies60I</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/Pr.html">Pr</a></span><span class="op">(</span></span>
 <span>    Y <span class="op">=</span> <span class="va">Y</span>,</span>
 <span>    X <span class="op">=</span> <span class="va">X</span>, <span class="co"># argument for conditional inferences</span></span>
 <span>    learnt <span class="op">=</span> <span class="va">learnt60</span>, <span class="co"># updated inference</span></span>
-<span>    parallel <span class="op">=</span> <span class="fl">8</span> <span class="co"># let's use 8 cores</span></span>
+<span>    parallel <span class="op">=</span> <span class="fl">4</span> <span class="co"># let's use 4 cores</span></span>
 <span><span class="op">)</span></span>
 <span><span class="co">## </span></span>
-<span><span class="co">## Closing connections to cores.</span></span>
+<span><span class="co">## Registered doParallelSNOW with 4 workers</span></span>
 <span><span class="co">## </span></span>
-<span><span class="co">## Registered doParallelSNOW with 8 workers</span></span>
-<span><span class="co">## Error in as.matrix(vtransform(X, auxmetadata = auxmetadata, Rout = "normalized", : lazy-load database '/home/pglpm/R/x86_64-pc-linux-gnu-library/4.5/inferno/R/inferno.rdb' is corrupt</span></span></code></pre></div>
+<span><span class="co">## Closing connections to cores.</span></span></code></pre></div>
 <p>Just like in the preliminary analysis we can use the
 <code><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot()</a></code> and <code><a href="https://rdrr.io/r/graphics/hist.html" class="external-link">hist()</a></code> functions to visualize
 estimates, credibility intervals, and probability distributions.</p>
 <p>Consider the first question: overall statistical occurrence of the
 three species. Let’s plot the new estimates and their credibility
 intervals:</p>
-<div class="sourceCode" id="cb26"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">Fspecies60</span><span class="op">)</span></span>
-<span><span class="co">## Error: object 'Fspecies60' not found</span></span></code></pre></div>
+<div class="sourceCode" id="cb23"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">Fspecies60</span><span class="op">)</span></span></code></pre></div>
+<div class="figure">
+<img src="figure/vis60-1.png" alt="**Updated frequency estimates of penguin species**" width="100%"><p class="caption">
+<strong>Updated frequency estimates of penguin species</strong>
+</p>
+</div>
 <p>You may notice that the credibility intervals are now narrower,
 compared to the initial estimate. Let’s actually overlap the plots of
 the initial and updated inferences, to better see how they updated:</p>
-<div class="sourceCode" id="cb27"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb24"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># # find common y-maximum for correct visual comparison</span></span>
 <span><span class="va">ymax</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/Extremes.html" class="external-link">max</a></span><span class="op">(</span><span class="va">Fspecies10</span><span class="op">$</span><span class="va">quantiles</span>, <span class="va">Fspecies60</span><span class="op">$</span><span class="va">quantiles</span><span class="op">)</span></span>
-<span><span class="co">## Error: object 'Fspecies10' not found</span></span>
 <span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">Fspecies10</span>, ylim <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0</span>, <span class="va">ymax</span><span class="op">)</span>, col <span class="op">=</span> <span class="fl">2</span>, lty <span class="op">=</span> <span class="fl">2</span>, lwd <span class="op">=</span> <span class="fl">3</span>, pch <span class="op">=</span> <span class="fl">2</span><span class="op">)</span></span>
-<span><span class="co">## Error: object 'Fspecies10' not found</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">Fspecies60</span>, ylim <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0</span>, <span class="va">ymax</span><span class="op">)</span>, add <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
-<span><span class="co">## Error: object 'Fspecies60' not found</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/graphics/legend.html" class="external-link">legend</a></span><span class="op">(</span><span class="st">'top'</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">'10 samples'</span>, <span class="st">'60 samples'</span><span class="op">)</span>,</span>
-<span>    col <span class="op">=</span> <span class="fl">2</span><span class="op">:</span><span class="fl">1</span>, lty <span class="op">=</span> <span class="fl">2</span><span class="op">:</span><span class="fl">1</span>, pch <span class="op">=</span> <span class="fl">2</span><span class="op">:</span><span class="fl">1</span>, bty <span class="op">=</span> <span class="st">'n'</span><span class="op">)</span></span>
-<span><span class="co">## Error in (function (s, units = "user", cex = NULL, font = NULL, vfont = NULL, : plot.new has not been called yet</span></span></code></pre></div>
+<span>    col <span class="op">=</span> <span class="fl">2</span><span class="op">:</span><span class="fl">1</span>, lty <span class="op">=</span> <span class="fl">2</span><span class="op">:</span><span class="fl">1</span>, pch <span class="op">=</span> <span class="fl">2</span><span class="op">:</span><span class="fl">1</span>, bty <span class="op">=</span> <span class="st">'n'</span><span class="op">)</span></span></code></pre></div>
+<p><img src="figure/vis60compare-1.png" width="100%"></p>
 <p>We notice the following differences, among others:</p>
 <ul>
 <li><p>The new frequency estimates (circles) for <code>Adelie</code> and
@@ -1168,14 +1681,15 @@ but without leading to spurious “effects”.</p>
 <p>We can also plot the updated probability distributions for the
 relative frequencies of the three species. Let’s plot them together with
 the previous ones, to highlight the changes:</p>
-<div class="sourceCode" id="cb28"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb25"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/graphics/hist.html" class="external-link">hist</a></span><span class="op">(</span><span class="va">Fspecies60</span>, legend <span class="op">=</span> <span class="st">'topright'</span>, xlim <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0</span>, <span class="fl">1</span><span class="op">)</span>,</span>
-<span>    col <span class="op">=</span> <span class="fl">2</span><span class="op">:</span><span class="fl">4</span>, main <span class="op">=</span> <span class="st">'60 samples'</span><span class="op">)</span></span>
-<span><span class="co">## Error: object 'Fspecies60' not found</span></span>
-<span></span>
+<span>    col <span class="op">=</span> <span class="fl">2</span><span class="op">:</span><span class="fl">4</span>, main <span class="op">=</span> <span class="st">'60 samples'</span><span class="op">)</span></span></code></pre></div>
+<p><img src="figure/hist60-1.png" width="100%"></p>
+<div class="sourceCode" id="cb26"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/graphics/hist.html" class="external-link">hist</a></span><span class="op">(</span><span class="va">Fspecies10</span>, legend <span class="op">=</span> <span class="st">'topright'</span>, xlim <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0</span>, <span class="fl">1</span><span class="op">)</span>,</span>
-<span>    col <span class="op">=</span> <span class="fl">2</span><span class="op">:</span><span class="fl">4</span>, main <span class="op">=</span> <span class="st">'10 samples'</span><span class="op">)</span></span>
-<span><span class="co">## Error: object 'Fspecies10' not found</span></span></code></pre></div>
+<span>    col <span class="op">=</span> <span class="fl">2</span><span class="op">:</span><span class="fl">4</span>, main <span class="op">=</span> <span class="st">'10 samples'</span><span class="op">)</span></span></code></pre></div>
+<p><img src="figure/hist60-2.png" width="100%"></p>
 <p>We see that in our initial inference (bottom plot) all three
 probability distributions largely overlapped, indicating our uncertainty
 on whether any of these frequencies might be very different from the
@@ -1191,9 +1705,13 @@ is more different from at least one of the other two.</p>
 <p>Our updated quantitative answer to the question “<em>What’s the
 overall statistical occurrence of the three species in the whole
 population?</em>” is as follows:</p>
-<div class="sourceCode" id="cb29"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb27"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">Fspecies60</span><span class="op">$</span><span class="va">quantiles</span><span class="op">[</span>, , <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">'5.5%'</span>, <span class="st">'94.5%'</span><span class="op">)</span><span class="op">]</span></span>
-<span><span class="co">## Error: object 'Fspecies60' not found</span></span></code></pre></div>
+<span><span class="co">##            </span></span>
+<span><span class="co">## Y               5.5%    94.5%</span></span>
+<span><span class="co">##   Adelie    0.296274 0.483736</span></span>
+<span><span class="co">##   Chinstrap 0.138085 0.297815</span></span>
+<span><span class="co">##   Gentoo    0.304430 0.499396</span></span></code></pre></div>
 <blockquote>
 <dl>
 <dt>Adélie</dt>
@@ -1220,39 +1738,37 @@ that is, the frequencies for those subpopulations of penguins. Let’s
 plot directly the probability distributions, again together with those
 of the previous inference.</p>
 <p>For <code>Biscoe</code> island:</p>
-<div class="sourceCode" id="cb30"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb28"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># # select only Biscoe</span></span>
 <span><span class="va">onlyBiscoe10</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/subset.html" class="external-link">subset</a></span><span class="op">(</span><span class="va">Fspecies10I</span>, <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>island <span class="op">=</span> <span class="st">'Biscoe'</span><span class="op">)</span><span class="op">)</span></span>
-<span><span class="co">## Error: object 'Fspecies10I' not found</span></span>
 <span><span class="va">onlyBiscoe60</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/subset.html" class="external-link">subset</a></span><span class="op">(</span><span class="va">Fspecies60I</span>, <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>island <span class="op">=</span> <span class="st">'Biscoe'</span><span class="op">)</span><span class="op">)</span></span>
-<span><span class="co">## Error: object 'Fspecies60I' not found</span></span>
 <span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/graphics/hist.html" class="external-link">hist</a></span><span class="op">(</span><span class="va">onlyBiscoe60</span>, legend <span class="op">=</span> <span class="st">'topright'</span>, xlim <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0</span>, <span class="fl">1</span><span class="op">)</span>,</span>
-<span>    col <span class="op">=</span> <span class="fl">2</span><span class="op">:</span><span class="fl">4</span>, main <span class="op">=</span> <span class="st">'60 samples, Biscoe island'</span><span class="op">)</span></span>
-<span><span class="co">## Error: object 'onlyBiscoe60' not found</span></span>
-<span></span>
+<span>    col <span class="op">=</span> <span class="fl">2</span><span class="op">:</span><span class="fl">4</span>, main <span class="op">=</span> <span class="st">'60 samples, Biscoe island'</span><span class="op">)</span></span></code></pre></div>
+<p><img src="figure/hist60Biscoe-1.png" width="100%"></p>
+<div class="sourceCode" id="cb29"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/graphics/hist.html" class="external-link">hist</a></span><span class="op">(</span><span class="va">onlyBiscoe10</span>, legend <span class="op">=</span> <span class="st">'topright'</span>, xlim <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0</span>, <span class="fl">1</span><span class="op">)</span>,</span>
-<span>    col <span class="op">=</span> <span class="fl">2</span><span class="op">:</span><span class="fl">4</span>, main <span class="op">=</span> <span class="st">'10 samples, Biscoe island'</span><span class="op">)</span></span>
-<span><span class="co">## Error: object 'onlyBiscoe10' not found</span></span></code></pre></div>
+<span>    col <span class="op">=</span> <span class="fl">2</span><span class="op">:</span><span class="fl">4</span>, main <span class="op">=</span> <span class="st">'10 samples, Biscoe island'</span><span class="op">)</span></span></code></pre></div>
+<p><img src="figure/hist60Biscoe-2.png" width="100%"></p>
 <p>Notably, we can say that there’s an increased probability for a
 positive answer to our question “<em>Is there any difference between
 Adélies and Chinstrap frequencies on Biscoe island?</em>”.</p>
 <p><br>
 For <code>Dream</code> island:</p>
-<div class="sourceCode" id="cb31"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb30"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># # select only Dream</span></span>
 <span><span class="va">onlyDream10</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/subset.html" class="external-link">subset</a></span><span class="op">(</span><span class="va">Fspecies10I</span>, <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>island <span class="op">=</span> <span class="st">'Dream'</span><span class="op">)</span><span class="op">)</span></span>
-<span><span class="co">## Error: object 'Fspecies10I' not found</span></span>
 <span><span class="va">onlyDream60</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/subset.html" class="external-link">subset</a></span><span class="op">(</span><span class="va">Fspecies60I</span>, <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>island <span class="op">=</span> <span class="st">'Dream'</span><span class="op">)</span><span class="op">)</span></span>
-<span><span class="co">## Error: object 'Fspecies60I' not found</span></span>
 <span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/graphics/hist.html" class="external-link">hist</a></span><span class="op">(</span><span class="va">onlyDream60</span>, legend <span class="op">=</span> <span class="st">'topright'</span>, xlim <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0</span>, <span class="fl">1</span><span class="op">)</span>,</span>
-<span>    col <span class="op">=</span> <span class="fl">2</span><span class="op">:</span><span class="fl">4</span>, main <span class="op">=</span> <span class="st">'60 samples, Dream island'</span><span class="op">)</span></span>
-<span><span class="co">## Error: object 'onlyDream60' not found</span></span>
-<span></span>
+<span>    col <span class="op">=</span> <span class="fl">2</span><span class="op">:</span><span class="fl">4</span>, main <span class="op">=</span> <span class="st">'60 samples, Dream island'</span><span class="op">)</span></span></code></pre></div>
+<p><img src="figure/hist60Dream-1.png" width="100%"></p>
+<div class="sourceCode" id="cb31"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/graphics/hist.html" class="external-link">hist</a></span><span class="op">(</span><span class="va">onlyDream10</span>, legend <span class="op">=</span> <span class="st">'topright'</span>, xlim <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0</span>, <span class="fl">1</span><span class="op">)</span>,</span>
-<span>    col <span class="op">=</span> <span class="fl">2</span><span class="op">:</span><span class="fl">4</span>, main <span class="op">=</span> <span class="st">'10 samples, Dream island'</span><span class="op">)</span></span>
-<span><span class="co">## Error: object 'onlyDream10' not found</span></span></code></pre></div>
+<span>    col <span class="op">=</span> <span class="fl">2</span><span class="op">:</span><span class="fl">4</span>, main <span class="op">=</span> <span class="st">'10 samples, Dream island'</span><span class="op">)</span></span></code></pre></div>
+<p><img src="figure/hist60Dream-2.png" width="100%"></p>
 <p>Notably, we can say that there’s a <em>decreased</em> probability for
 a positive answer to our question “<em>Is there any difference between
 Adélies and Chinstrap frequencies on Dream island?</em>”. The two
@@ -1271,25 +1787,34 @@ estimates are now closer together.</p>
 <span>    Y <span class="op">=</span> <span class="va">Y</span>,</span>
 <span>    X <span class="op">=</span> <span class="va">X</span>, <span class="co"># argument for conditional inferences</span></span>
 <span>    learnt <span class="op">=</span> <span class="va">learnta</span>,</span>
-<span>    parallel <span class="op">=</span> <span class="fl">8</span> <span class="co"># let's use 8 cores</span></span>
+<span>    parallel <span class="op">=</span> <span class="fl">4</span> <span class="co"># let's use 4 cores</span></span>
 <span><span class="op">)</span></span>
 <span><span class="co">## </span></span>
-<span><span class="co">## Registered doParallelSNOW with 8 workers</span></span>
-<span><span class="co">## Error in as.matrix(vtransform(X, auxmetadata = auxmetadata, Rout = "normalized", : lazy-load database '/home/pglpm/R/x86_64-pc-linux-gnu-library/4.5/inferno/R/inferno.rdb' is corrupt</span></span></code></pre></div>
+<span><span class="co">## Registered doParallelSNOW with 4 workers</span></span>
+<span><span class="co">## </span></span>
+<span><span class="co">## Closing connections to cores.</span></span></code></pre></div>
 <div class="sourceCode" id="cb33"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># # select only Biscoe</span></span>
 <span><span class="va">onlyBiscoe</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/subset.html" class="external-link">subset</a></span><span class="op">(</span><span class="va">FspeciesI</span>, <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>island <span class="op">=</span> <span class="st">'Biscoe'</span><span class="op">)</span><span class="op">)</span></span>
-<span><span class="co">## Error: object 'FspeciesI' not found</span></span>
 <span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/graphics/hist.html" class="external-link">hist</a></span><span class="op">(</span><span class="va">onlyBiscoe</span>, xlim <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0</span>, <span class="fl">1</span><span class="op">)</span>, legend <span class="op">=</span> <span class="st">'topright'</span>, col <span class="op">=</span> <span class="fl">2</span><span class="op">:</span><span class="fl">4</span><span class="op">)</span></span>
-<span><span class="co">## Error: object 'onlyBiscoe' not found</span></span></code></pre></div>
+<span><span class="fu"><a href="https://rdrr.io/r/graphics/hist.html" class="external-link">hist</a></span><span class="op">(</span><span class="va">onlyBiscoe</span>, xlim <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0</span>, <span class="fl">1</span><span class="op">)</span>, legend <span class="op">=</span> <span class="st">'topright'</span>, col <span class="op">=</span> <span class="fl">2</span><span class="op">:</span><span class="fl">4</span><span class="op">)</span></span></code></pre></div>
+<div class="figure">
+<img src="figure/histbiscoe-1.png" alt="**Probability distribution for species frequencies on Biscoe**" width="100%"><p class="caption">
+<strong>Probability distribution for species frequencies on
+Biscoe</strong>
+</p>
+</div>
 <div class="sourceCode" id="cb34"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># # select only Dream</span></span>
 <span><span class="va">onlyDream</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/subset.html" class="external-link">subset</a></span><span class="op">(</span><span class="va">FspeciesI</span>, <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>island <span class="op">=</span> <span class="st">'Dream'</span><span class="op">)</span><span class="op">)</span></span>
-<span><span class="co">## Error: object 'FspeciesI' not found</span></span>
 <span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/graphics/hist.html" class="external-link">hist</a></span><span class="op">(</span><span class="va">onlyDream</span>, xlim <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0</span>, <span class="fl">1</span><span class="op">)</span>, legend <span class="op">=</span> <span class="st">'topright'</span>, col <span class="op">=</span> <span class="fl">2</span><span class="op">:</span><span class="fl">4</span><span class="op">)</span></span>
-<span><span class="co">## Error: object 'onlyDream' not found</span></span></code></pre></div>
+<span><span class="fu"><a href="https://rdrr.io/r/graphics/hist.html" class="external-link">hist</a></span><span class="op">(</span><span class="va">onlyDream</span>, xlim <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0</span>, <span class="fl">1</span><span class="op">)</span>, legend <span class="op">=</span> <span class="st">'topright'</span>, col <span class="op">=</span> <span class="fl">2</span><span class="op">:</span><span class="fl">4</span><span class="op">)</span></span></code></pre></div>
+<div class="figure">
+<img src="figure/histdream-1.png" alt="**Probability distribution for species frequencies on Biscoe**" width="100%"><p class="caption">
+<strong>Probability distribution for species frequencies on
+Biscoe</strong>
+</p>
+</div>
 <p><br></p>
 <p><em>(TO BE CONTINUED)</em></p>
 <p><br></p>
