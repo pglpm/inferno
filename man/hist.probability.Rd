@@ -18,6 +18,7 @@
   ylab = NULL,
   xlim = NULL,
   ylim = c(0, NA),
+  main = NULL,
   grid = TRUE,
   add = FALSE,
   ...

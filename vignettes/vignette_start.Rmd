@@ -294,7 +294,7 @@ We must open the preliminary metadata file `'penguin_metadata.csv'` with our fav
 
 
 
-### "Learning" and extrapolating from the sample data
+### "Learning" and extrapolating from the sample data {#learningfirst}
 
 Now comes the essential part of our analysis: from the sample data and the metadata information,***inferno*** will draw inferences about the *whole* population of penguins, including new penguins (from the same population) that we shall observe in the future. Subsequent analyses are based on this main inference. The general theory behind this kind of inference, based on the property of *exchangeability* and related mathematical theorems, is explained in the [references](#references).
 
@@ -302,7 +302,7 @@ This inference is performed by calling the `learn()` function. Its minimal argum
 
 This function in fact does Monte Carlo sampling and is computationally expensive. It may take minutes, hours, or days to run, depending on the amount of sample data and the number of variates. In order to speed up its computations, it tries to use any multi-cores capabilities of the machine it runs in, or the number of cores specified in the `parallel` argument (which shouldn't be larger than the number of cores you actually have!).
 
-The output below was obtained from running `learn()`on 15 cores -- *please wait before running this code*, it might take longer time on your computer:
+The output below was obtained from running `learn()` on 15 cores -- *please wait before running this code*, it might take longer time on your computer:
 
 
 ``` r
@@ -492,7 +492,7 @@ A summary answer could be as follows:
 > From a sample of 10 penguins, the inference about the relative frequencies of the three species in the full population is as follows:
 > 
 > Adélie
-> : rel. frequency between 0.143 and 0.53, with 89% probability
+> : rel. frequency between 0.13 and 0.53, with 89% probability
 > 
 > Chinstrap
 > : rel. frequency between 0.13 and 0.52, with 89% probability
@@ -638,14 +638,15 @@ aperm(
 ##   Gentoo    0.0553519 0.500199
 ```
 
-### Interlude: differences from "null-hypothesis testing" and *p*-value-based methods
+### Differences from "null-hypothesis testing" and *p*-value methods {#nht}
 
 The reason I asked you to keep in mind the two "frequencies different?" questions is that they will demonstrate important differences between Bayesian nonparametrics and methods based on "null-hypothesis testing" and on *p*-values.
 
-Null-hypothesis testing focuses on trying to answer whether a hypothesis of "equality" is false. An important problem of this approach is that "equality" or "difference" are fuzzy notions. Are the two frequencies 0.35 and 0.40 equal or different? What about 0.39 and 0.40? And what about 0.3999 and 0.4000? Whether two numbers can be considered equal or different depends on a choice of tolerance level, which in turn depends on the context and application. In some cases, frequencies of 0.3 and 0.4 might be considered practically equal; in others, frequencies of 0.39 and 0.40 might be considered very different. The ambiguity about the intended tolerance in null-hypothesis testing is one of the aspects that make "p-hacking" possible: frequencies of 0.3999 and 0.4000 will lead to some difference, in large enough samples.
+Null-hypothesis testing focuses on trying to answer whether a hypothesis of "equality" is false. An important problem of this approach is that "equality" or "difference" are fuzzy notions. Are the two frequencies 0.35 and 0.40 equal or different? What about 0.39 and 0.40? And what about 0.3999 and 0.4000? Whether two numbers can be considered equal or different depends on a choice of tolerance level, which in turn depends on the context and application. In some cases, frequencies of 0.3 and 0.4 might be considered practically equal; in others, frequencies of 0.39 and 0.40 might be considered very different. The ambiguity about the intended tolerance in null-hypothesis testing is one of the aspects that make "p-hacking" possible: frequencies of 0.3999 and 0.4000 will lead to some difference, in enough large samples.
 
 The Bayesian approach resists this context-dependent and even subjective simplification. Instead it focuses on giving *numerical values* and their uncertainties. One frequency is with 90% probability between 0.38 and 0.39; the other is with 90% probability between 0.40 and 0.43. You can then decide whether this is enough for you, or whether you want to get more stringent bounds by collecting more samples.
 
+\
 
 One problem with *p*-values is that if you re-calculate them anew as new samples arrive, sooner or later you can reach as low a *p*-value as you desire. This procedure is called "optional stopping", and is a form of "*p*-hacking". This is why in using methods based on *p*-values you must declare *beforehand* your sample size, or at least a precise stopping rule.
 
@@ -654,19 +655,117 @@ Bayesian estimates don't suffer from this problem. You can calculate anew the es
 
 ## More samples
 
+### Updating what we've learnt
 
+The preliminary analysis based on only 10 samples of penguins revealed possible interesting hypotheses -- for example that the relative frequencies of Adélie and Chinstrap penguins are very similar on Biscoe island but somewhat different on Dream island. But at the same time the analysis and hypotheses had very large uncertainties.
 
-**30**
+Now imagine that our sampling colleagues send us 50 more datapoints, which we add to the 10 we already have. Let's store the 60 datapoints in the file `'penguin_data60.csv'`:
 
 
 ``` r
-# # data frame with the variate and values of the subpopulations of interest
-X <- data.frame(island = c('Biscoe', 'Dream'))
+datafile <- 'penguin_data60.csv'
+write.csvi(penguin[1:60, ], datafile) # write the first 60 samples
+```
 
-Fspecies30I <- Pr(
+Feel free to take a look at your extended sample data. There may be new datapoints with missing values, but as already discussed this isn't a problem for Bayesian theory and ***inferno***.
+
+Let's now update our inferences with the new sampled data. This is done again with the `learn()` function. *Please wait before running this code*, it might take longer time on your computer:
+
+
+``` r
+learnt60 <- learn(
+    data = datafile,
+    metadata = metadatafile,
+    outputdir = 'penguin_inference',
+    seed = 16,
+    parallel = 15 # number of cores to be used for the computation
+    )
+## Registered doParallelSNOW with 15 workers
+## Calculating auxiliary metadata
+## 
+## Learning:  60 datapoints,  8 variates
+## 
+##  *************************************************** 
+##  Saving output in directory
+##  penguin_inference-251231T145959-vrt8_dat60_smp3600 
+##  *************************************************** 
+## Starting Monte Carlo sampling of 3600 samples by 60 chains
+## in a space of 1027 (effectively 16651) dimensions.
+## Using 15 cores: 60 samples per chain, max 4 chains per core.
+## Core logs are being saved in individual files.
+## 
+## C-compiling samplers appropriate to the variates (package Nimble)
+## this can take tens of minutes. Please wait...
+## Compiled core 1. Number of samplers: 1328.       
+## Estimating remaining time, please be patient...
+## Sampling. Core 1 estimated end time: 2025-12-31 15:09   
+## Finished Monte Carlo sampling.                                 
+## 
+## Highest number of Monte Carlo iterations across chains: 13146 
+## Highest number of used mixture components: 19 
+## 
+## Checking test data
+## ( #8 #15 #20 #27 #30 #33 #43 #46 #59 )
+## 
+## rel. MC standard error: min: 0.024  max: 0.057  mean: 0.034 
+## eff. sample size: min: 310  max: 1800  mean: 1100 
+## needed thinning: min: 4  max: 18  mean: 7 
+## average: min: 4.5e-09  max: 1.1e-07  mean: 2.9e-08 
+## 
+## Plotting final Monte Carlo traces and marginal samples...
+## 
+## Total computation time: 6.4 mins 
+## Average total time per chain: 0.11 mins 
+## 
+## Removing temporary output files.
+## Finished.
+## 
+## 
+## Closing connections to cores.
+```
+
+The calculation, with 60 sample data, took between 5 and 10 minutes to completeon 15 cores.
+
+The results of this updated inference are now stored in the compressed file `'learn.rds'` within the new output directory. For your convenience the object produced by the computation above can be downloaded as the file [`'learnt60.rds'`](https://github.com/pglpm/inferno/raw/main/development/downloads/learnt60.rds). Once you have downloaded it in your working directory, invoke
+
+
+``` r
+learnt60 <- 'learnt60.rds'
+```
+
+which we now use to update our analysis.
+
+
+### Updates in our analysis and hypotheses
+
+In our preliminary analysis we focused on three questions:
+
+- *What's the overall statistical occurrence of the three species in the whole population?*
+- *Is there any difference between Adélies and Chinstrap frequencies on Biscoe island?*
+- *Is there any difference between Adélies and Chinstrap frequencies on Dream island?*
+
+We can calculate the answers -- frequency estimates, their credible intervals, and their probability distributions -- for the increased sample, using the `Pr()` function [as before](#learningfirst); note that in the `learnt =` argument we must use the new `learnt60` object, which points to the updated inference. Here is the calculation for all three questions:
+
+
+``` r
+# # 'Y' and 'X' were previously defined with:
+# # Y <- data.frame(species = c('Adelie', 'Chinstrap', 'Gentoo'))
+# # X <- data.frame(island = c('Biscoe', 'Dream'))
+
+Fspecies60 <- Pr(
+    Y = Y,
+    learnt = learnt60, # updated inference
+    parallel = 8 # let's use 8 cores
+)
+## 
+## Registered doParallelSNOW with 8 workers
+## 
+## Closing connections to cores.
+
+Fspecies60I <- Pr(
     Y = Y,
     X = X, # argument for conditional inferences
-    learnt = learnt30,
+    learnt = learnt60, # updated inference
     parallel = 8 # let's use 8 cores
 )
 ## 
@@ -675,78 +774,147 @@ Fspecies30I <- Pr(
 ## Closing connections to cores.
 ```
 
+Just like in the preliminary analysis we can use the `plot()` and `hist()` functions to visualize estimates, credibility intervals, and probability distributions.
+
+Consider the first question: overall statistical occurrence of the three species. Let's plot the new estimates and their credibility intervals:
+
 
 ``` r
-# # select only Biscoe
-onlyBiscoe <- subset(Fspecies30I, list(island = 'Biscoe'))
-
-hist(onlyBiscoe, xlim = c(0, 1), legend = 'topright', col = 2:4)
+plot(Fspecies60)
 ```
 
 <div class="figure">
-<img src="figure/hist30biscoe-1.png" alt="**Probability distribution for species frequencies on Biscoe**" width="100%" />
-<p class="caption">**Probability distribution for species frequencies on Biscoe**</p>
+<img src="figure/vis60-1.png" alt="**Updated frequency estimates of penguin species**" width="100%" />
+<p class="caption">**Updated frequency estimates of penguin species**</p>
 </div>
+
+You may notice that the credibility intervals are now narrower, compared to the initial estimate. Let's actually overlap the plots of the initial and updated inferences, to better see how they updated:
+
+
+``` r
+# # find common y-maximum for correct visual comparison
+ymax <- max(Fspecies10$quantiles, Fspecies60$quantiles)
+
+plot(Fspecies10, ylim = c(0, ymax), col = 2, lty = 2, lwd = 3, pch = 2)
+plot(Fspecies60, ylim = c(0, ymax), add = TRUE)
+legend('top', c('10 samples', '60 samples'),
+    col = 2:1, lty = 2:1, pch = 2:1, bty = 'n')
+```
+
+<img src="figure/vis60compare-1.png" width="100%" />
+
+We notice the following differences, among others:
+
+- The new frequency estimates (circles) for `Adelie` and `Chinstrap` differ by almost 10% from the previous ones (triangles); the estimate for `Gentoo` is almost the same.
+
+- All new estimates are almost or fully within the 50%-credibility intervals of the previous estimates. All of them are fully within the previous 89%-credibility intervals.
+
+- The new credibility intervals are narrower than the previous ones.
+
+These observations demonstrate the [features previously discussed](#nht): as the sample size increases, the uncertainty decreases, but without leading to spurious "effects".
+
+We can also plot the updated probability distributions for the relative frequencies of the three species. Let's plot them together with the previous ones, to highlight the changes:
+
+
+``` r
+hist(Fspecies60, legend = 'topright', xlim = c(0, 1),
+    col = 2:4, main = '60 samples')
+```
+
+<img src="figure/hist60-1.png" width="100%" />
+
+``` r
+
+hist(Fspecies10, legend = 'topright', xlim = c(0, 1),
+    col = 2:4, main = '10 samples')
+```
+
+<img src="figure/hist60-2.png" width="100%" />
+
+We see that in our initial inference (bottom plot) all three probability distributions largely overlapped, indicating our uncertainty on whether any of these frequencies might be very different from the others.
+
+In our updated inference (top plot) there is still a large overlap for the probabilities of `Adelie` and `Gentoo` frequencies, indicating that we're still very uncertain on whether these frequencies might be very different or not -- we need more sample to resolve this. But the probability distribution for the `Chinstrap` frequency has now a smaller overlap with the other two. This indicates an increased probability that this frequency is more different from at least one of the other two.
+
+Our updated quantitative answer to the question "*What's the overall statistical occurrence of the three species in the whole population?*" is as follows:
+
+
+``` r
+Fspecies60$quantiles[, , c('5.5%', '94.5%')]
+##            
+## Y               5.5%    94.5%
+##   Adelie    0.294324 0.489339
+##   Chinstrap 0.138787 0.300202
+##   Gentoo    0.297726 0.495261
+```
+
+> Adélie
+> : rel. frequency between 0.29 and 0.49, with 89% probability
+> 
+> Chinstrap
+> : rel. frequency between 0.14 and 0.30, with 89% probability
+> 
+> Gentoo
+> : rel. frequency between 0.30 and 0.50, with 89% probability
+
+
+
+### Updates in conditional frequencies
+
+We can quickly repeat the analysis above for the *conditional* frequencies of the `Biscoe` and `Dream` islands, that is, the frequencies for those subpopulations of penguins. Let's plot directly the probability distributions, again together with those of the previous inference.
+
+For `Biscoe` island:
+
+
+``` r
+# # select only Biscoe
+onlyBiscoe10 <- subset(Fspecies10I, list(island = 'Biscoe'))
+onlyBiscoe60 <- subset(Fspecies60I, list(island = 'Biscoe'))
+
+hist(onlyBiscoe60, legend = 'topright', xlim = c(0, 1),
+    col = 2:4, main = '60 samples')
+```
+
+<img src="figure/hist60Biscoe-1.png" width="100%" />
+
+``` r
+
+hist(onlyBiscoe10, legend = 'topright', xlim = c(0, 1),
+    col = 2:4, main = '10 samples')
+```
+
+<img src="figure/hist60Biscoe-2.png" width="100%" />
+
+Notably, we can say that there's an increased probability for a positive answer to our question "*Is there any difference between Adélies and Chinstrap frequencies on Biscoe island?*".
+
+\
+For `Dream` island:
 
 
 ``` r
 # # select only Dream
-onlyDream <- subset(Fspecies30I, list(island = 'Dream'))
+onlyDream10 <- subset(Fspecies10I, list(island = 'Dream'))
+onlyDream60 <- subset(Fspecies60I, list(island = 'Dream'))
 
-hist(onlyDream, xlim = c(0, 1), legend = 'topright', col = 2:4)
+hist(onlyDream60, legend = 'topright', xlim = c(0, 1),
+    col = 2:4, main = '60 samples')
 ```
 
-<div class="figure">
-<img src="figure/hist30dream-1.png" alt="**Probability distribution for species frequencies on Biscoe**" width="100%" />
-<p class="caption">**Probability distribution for species frequencies on Biscoe**</p>
-</div>
-
-
-**100**
-
-
+<img src="figure/hist60Dream-1.png" width="100%" />
 
 ``` r
-# # data frame with the variate and values of the subpopulations of interest
-X <- data.frame(island = c('Biscoe', 'Dream'))
 
-Fspecies100I <- Pr(
-    Y = Y,
-    X = X, # argument for conditional inferences
-    learnt = learnt100,
-    parallel = 8 # let's use 8 cores
-)
-## 
-## Registered doParallelSNOW with 8 workers
-## 
-## Closing connections to cores.
+hist(onlyDream10, legend = 'topright', xlim = c(0, 1),
+    col = 2:4, main = '10 samples')
 ```
 
+<img src="figure/hist60Dream-2.png" width="100%" />
 
-``` r
-# # select only Biscoe
-onlyBiscoe <- subset(Fspecies100I, list(island = 'Biscoe'))
-
-hist(onlyBiscoe, xlim = c(0, 1), legend = 'topright', col = 2:4)
-```
-
-<div class="figure">
-<img src="figure/hist100biscoe-1.png" alt="**Probability distribution for species frequencies on Biscoe**" width="100%" />
-<p class="caption">**Probability distribution for species frequencies on Biscoe**</p>
-</div>
+Notably, we can say that there's a *decreased* probability for a positive answer to our question "*Is there any difference between Adélies and Chinstrap frequencies on Dream island?*". The two estimates are now closer together.
 
 
-``` r
-# # select only Dream
-onlyDream <- subset(Fspecies100I, list(island = 'Dream'))
+## Final inferences
 
-hist(onlyDream, xlim = c(0, 1), legend = 'topright', col = 2:4)
-```
 
-<div class="figure">
-<img src="figure/hist100dream-1.png" alt="**Probability distribution for species frequencies on Biscoe**" width="100%" />
-<p class="caption">**Probability distribution for species frequencies on Biscoe**</p>
-</div>
 
 **all**
 
@@ -826,7 +994,7 @@ On Bayesian theory in general:
 
 - Jaynes: [*Probability Theory*](https://doi.org/10.1017/CBO9780511790423) (2003)
 
-- [*ADA 511: Foundations of data science](https://pglpm.github.io/ADA511)
+- [*ADA 511: Foundations of data science*](https://pglpm.github.io/ADA511)
 
 ## Format for data and metadata files and their contents {#format}
 

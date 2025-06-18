@@ -443,6 +443,7 @@ hist.probability <- function(
     ylab = NULL,
     xlim = NULL,
     ylim = c(0, NA),
+    main = NULL,
     grid = TRUE,
     add = FALSE,
     ...
@@ -492,6 +493,7 @@ hist.probability <- function(
                 alpha.f = fill.alpha.f,
                 xlab = xlab, ylab = ylab,
                 xlim = xlim, ylim = ylim,
+                main = main,
                 grid = grid,
                 lty = 0,
                 add = (add || i > 1),
@@ -501,6 +503,7 @@ hist.probability <- function(
         flexiplot(x = midslist[[i]], y = densitylist[[i]],
             xlab = xlab, ylab = ylab,
             xlim = xlim, ylim = ylim,
+            main = main,
             col = thiscol,
             alpha.f = alpha.f,
             lty = thislty,
