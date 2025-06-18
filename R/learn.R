@@ -2217,7 +2217,7 @@ learn <- function(
     ## a histogram over number of components over all chains
     ## (for the moment there's one plot per chain)
 
-    cat('Finished.\n\n')
+    cat('Finished.\n')
 
     ## What should we output? how about the full name of the output dir?
     if (is.character(output) && output == 'directory') {
