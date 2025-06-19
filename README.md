@@ -7,7 +7,7 @@ This repository provides an R package and some theoretical background for Bayesi
 
 The package is under development and has not yet reached a stable phase: function names and arguments may still change, new functions will be added. More tutorials will be prepared. Also the package name is still under consideration.
 
-But the core functionalities do work, and have been tested in concrete research questions; see [example applications](#applications) below.
+But the core functionalities do work, and have been tested in concrete research questions; see [example applications](#-example-applications) below.
 
 If you want to test the package we'd be very happy to help in resolving possible issues and in understanding the functionalities.
 
@@ -51,7 +51,7 @@ An application has been built upon ***Inferno***. This app can be used for testi
 ### Cross-Platform Open Source Version
 * For Windows, macOS, and Linux, you can run the PySide6 app locally using Python by following this: [Setup Guide](https://github.com/h587916/Inferno-App?tab=readme-ov-file#inferno-app).
 
-## Example applications {#applications}
+## Example applications
 
 - [*Personalized prognosis & treatment using an optimal predictor machine: An example study on conversion from Mild Cognitive Impairment to Alzheimer's Disease*](https://doi.org/10.31219/osf.io/8nr56).
 
