@@ -37,7 +37,7 @@
   <ul class="dropdown-menu" aria-labelledby="dropdown-articles">
 <li><a class="dropdown-item" href="articles/vignette_mutualinfo.html">Associations of variates with mutual information</a></li>
     <li><a class="dropdown-item" href="articles/vignette_parkinson.html">Example of use: inferences for Parkinson's Disease</a></li>
-    <li><a class="dropdown-item" href="articles/vignette_start.html">Bayesian nonparametric inference with inferno</a></li>
+    <li><a class="dropdown-item" href="articles/vignette_start.html">Bayesian nonparametric inference with **inferno**</a></li>
   </ul>
 </li>
       </ul>
@@ -57,31 +57,10 @@
 <div class="section level1">
 <div class="page-header"><h1 id="inferno-inference-in-r-with-bayesian-nonparametrics">Inferno: <strong><em>Infer</em></strong>ence in <strong><em>R</em></strong> with Bayesian <strong><em>no</em></strong>nparametrics<a class="anchor" aria-label="anchor" href="#inferno-inference-in-r-with-bayesian-nonparametrics"></a>
 </h1></div>
-<p>This repository provides an R package and some theoretical background for Bayesian nonparametric inference under exchangeability, or “inference about populations”. The package is under rapid development and has not reached a stable phase. This means that function names and arguments may still change. More tutorials will be added. The package name is also still under consideration.</p>
-<p>The core functionalities do work, however, and have been tested on concrete research questions; see references below. If you want to test the package, we would be very happy to help in resolving possible issues and in understanding the functionalities.</p>
-<div class="section level2">
-<h2 id="documentation">Documentation<a class="anchor" aria-label="anchor" href="#documentation"></a>
-</h2>
-<p>Documentation and some tutorials are available at <a href="https://pglpm.github.io/inferno">pglpm.github.io/inferno</a>. These are also work in progress.</p>
-<p>A summary of the theoretical foundations, including further references, is available in <a href="https://github.com/pglpm/inferno/raw/main/development/manual/optimal_predictor_machine.pdf" class="external-link">this draft</a>. The main idea for the internal mathematical representation comes from Dunson &amp; Bhattacharya: <a href="https://doi.org/10.1093/acprof:oso/9780199694587.003.0005" class="external-link"><em>Nonparametric Bayes regression and classification through mixtures of product kernels</em></a>.</p>
-<p>For a low-level course on Bayesian nonparametric inference see <a href="https://pglpm.github.io/ADA511" class="external-link">Foundations of data science</a>.</p>
-</div>
-<div class="section level2">
-<h2 id="example-applications">Example applications<a class="anchor" aria-label="anchor" href="#example-applications"></a>
-</h2>
-<ul>
-<li><p><a href="https://doi.org/10.31219/osf.io/8nr56" class="external-link"><em>Personalized prognosis &amp; treatment using an optimal predictor machine: An example study on conversion from Mild Cognitive Impairment to Alzheimer’s Disease</em></a>.</p></li>
-<li><p><a href="https://doi.org/10.31219/osf.io/vct9y" class="external-link"><em>Don’t guess what’s true: choose what’s optimal. A probability transducer for machine-learning classifiers</em></a></p></li>
-<li><p><a href="https://doi.org/10.31219/osf.io/7rz8t" class="external-link"><em>Does the evaluation stand up to evaluation? A first-principle approach to the evaluation of classifiers</em></a></p></li>
-</ul>
-<p>Projects using <strong><em>Inferno</em></strong>:</p>
-<ul>
-<li>
-<a href="https://m4siko.github.io/InfernoCalibNet" class="external-link">InfernoCalibNet</a>.</li>
-<li>
-<a href="https://github.com/pglpm/parkinsonbayes" class="external-link">parkinsonbayes</a>.</li>
-</ul>
-</div>
+<p>This repository provides an R package and some theoretical background for Bayesian nonparametric inference under exchangeability, which can also be called “population inference” or “density inference”.</p>
+<p>The package is under development and has not yet reached a stable phase: function names and arguments may still change, new functions will be added. More tutorials will be prepared. Also the package name is still under consideration.</p>
+<p>But the core functionalities do work, and have been tested in concrete research questions; see <a href="#applications">example applications</a> below.</p>
+<p>If you want to test the package we’d be very happy to help in resolving possible issues and in understanding the functionalities.</p>
 <div class="section level2">
 <h2 id="installation">Installation<a class="anchor" aria-label="anchor" href="#installation"></a>
 </h2>
@@ -93,7 +72,15 @@
 <pre><code>git clone https://github.com/pglpm/inferno.git</code></pre>
 <p>then install the package in R:</p>
 <pre><code><span><span class="fu"><a href="https://rdrr.io/r/utils/install.packages.html" class="external-link">install.packages</a></span><span class="op">(</span>pkgs<span class="op">=</span><span class="st">'path/to/inferno'</span>, repos<span class="op">=</span><span class="cn">NULL</span><span class="op">)</span></span></code></pre>
-<p>the installation will automatically also install all required R-dependencies.</p>
+<p>the installation will also automatically install all required R-dependencies.</p>
+</div>
+<div class="section level2">
+<h2 id="documentation">Documentation<a class="anchor" aria-label="anchor" href="#documentation"></a>
+</h2>
+<p>The vignette <a href="https://pglpm.github.io/inferno/articles/vignette_start.html"><em>Bayesian nonparametric inference with <strong>inferno</strong></em></a> is a step-by-step introduction to <strong>inferno</strong> and also to Bayesian nonparametrics. It guides you through a concrete example with various kinds of inferences. You may also try to follow it using a dataset of your own.</p>
+<p>Other tutorials, still drafts, are available at <a href="https://pglpm.github.io/inferno">pglpm.github.io/inferno</a></p>
+<p>A summary of the theoretical foundations, including further references, is available in <a href="https://github.com/pglpm/inferno/raw/main/development/manual/optimal_predictor_machine.pdf" class="external-link">this draft</a>. The main idea for the internal mathematical representation comes from <a href="https://doi.org/10.1093/acprof:oso/9780199694587.003.0005" class="external-link">Dunson &amp; Bhattacharya</a> and <a href="https://doi.org/10.2307/3315951" class="external-link">Ishwaran &amp; Zarepour</a>.</p>
+<p>For a low-level course on Bayesian nonparametric inference and Decision Theory see <a href="https://pglpm.github.io/ADA511" class="external-link">Foundations of data science</a>.</p>
 </div>
 <div class="section level2">
 <h2 id="inferno-app">Inferno App<a class="anchor" aria-label="anchor" href="#inferno-app"></a>
@@ -113,6 +100,22 @@
 <li>For Windows, macOS, and Linux, you can run the PySide6 app locally using Python by following this: <a href="https://github.com/h587916/Inferno-App?tab=readme-ov-file#inferno-app" class="external-link">Setup Guide</a>.</li>
 </ul>
 </div>
+</div>
+<div class="section level2">
+<h2 id="applications">Example applications<a class="anchor" aria-label="anchor" href="#applications"></a>
+</h2>
+<ul>
+<li><p><a href="https://doi.org/10.31219/osf.io/8nr56" class="external-link"><em>Personalized prognosis &amp; treatment using an optimal predictor machine: An example study on conversion from Mild Cognitive Impairment to Alzheimer’s Disease</em></a>.</p></li>
+<li><p><a href="https://doi.org/10.31219/osf.io/vct9y" class="external-link"><em>Don’t guess what’s true: choose what’s optimal. A probability transducer for machine-learning classifiers</em></a></p></li>
+<li><p><a href="https://doi.org/10.31219/osf.io/7rz8t" class="external-link"><em>Does the evaluation stand up to evaluation? A first-principle approach to the evaluation of classifiers</em></a></p></li>
+</ul>
+<p>Projects using <strong><em>Inferno</em></strong>:</p>
+<ul>
+<li>
+<a href="https://m4siko.github.io/InfernoCalibNet" class="external-link">InfernoCalibNet</a>.</li>
+<li>
+<a href="https://github.com/pglpm/parkinsonbayes" class="external-link">parkinsonbayes</a>.</li>
+</ul>
 </div>
 <div class="section level2">
 <h2 id="contact">Contact<a class="anchor" aria-label="anchor" href="#contact"></a>
