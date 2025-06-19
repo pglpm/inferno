@@ -1,10 +1,10 @@
 ---
-title: "Bayesian nonparametric inference with **inferno**"
+title: "Bayesian nonparametric inference with inferno"
 output:
   rmarkdown::html_vignette:
     number_sections: true
 vignette: >
-  %\VignetteIndexEntry{Bayesian nonparametric inference with **inferno**}
+  %\VignetteIndexEntry{Bayesian nonparametric inference with inferno}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 ---
