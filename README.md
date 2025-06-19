@@ -3,32 +3,13 @@
 # Inferno: ***Infer***ence in ***R*** with Bayesian ***no***nparametrics
 
 
-This repository provides an R package and some theoretical background for Bayesian nonparametric inference under exchangeability, or "inference about populations".
-The package is under rapid development and has not reached a stable phase. This means that function names and arguments may still change. More tutorials will be added. The package name is also still under consideration.
+This repository provides an R package and some theoretical background for Bayesian nonparametric inference under exchangeability, which can also be called "population inference" or "density inference".
 
-The core functionalities do work, however, and have been tested on concrete research questions; see references below. If you want to test the package, we would be very happy to help in resolving possible issues and in understanding the functionalities.
+The package is under development and has not yet reached a stable phase: function names and arguments may still change, new functions will be added. More tutorials will be prepared. Also the package name is still under consideration.
 
-## Documentation
-Documentation and some tutorials are available at [pglpm.github.io/inferno](https://pglpm.github.io/inferno). These are also work in progress.
+But the core functionalities do work, and have been tested in concrete research questions; see [example applications](#applications) below.
 
-A summary of the theoretical foundations, including further references, is available in [this draft](https://github.com/pglpm/inferno/raw/main/development/manual/optimal_predictor_machine.pdf). The main idea for the internal mathematical representation comes from Dunson & Bhattacharya: [*Nonparametric Bayes regression and classification through mixtures of product kernels*](https://doi.org/10.1093/acprof:oso/9780199694587.003.0005).
-
-For a low-level course on Bayesian nonparametric inference see [Foundations of data science](https://pglpm.github.io/ADA511).
-
-
-## Example applications
-
-- [*Personalized prognosis & treatment using an optimal predictor machine: An example study on conversion from Mild Cognitive Impairment to Alzheimer's Disease*](https://doi.org/10.31219/osf.io/8nr56).
-
-- [*Don't guess what's true: choose what's optimal. A probability transducer for machine-learning classifiers*](https://doi.org/10.31219/osf.io/vct9y)
-
-- [*Does the evaluation stand up to evaluation? A first-principle approach to the evaluation of classifiers*](https://doi.org/10.31219/osf.io/7rz8t)
-
-
-Projects using ***Inferno***:
-
-- [InfernoCalibNet](https://m4siko.github.io/InfernoCalibNet).
-- [parkinsonbayes](https://github.com/pglpm/parkinsonbayes).
+If you want to test the package we'd be very happy to help in resolving possible issues and in understanding the functionalities.
 
 ## Installation
 Install the package with R by using the `remotes` package:
@@ -47,7 +28,19 @@ then install the package in R:
 ```
 install.packages(pkgs='path/to/inferno', repos=NULL)
 ```
-the installation will automatically also install all required R-dependencies.
+the installation will also automatically install all required R-dependencies.
+
+
+## Documentation
+
+The vignette [*Bayesian nonparametric inference with **inferno***](https://pglpm.github.io/inferno/articles/vignette_start.html) is a step-by-step introduction to **inferno** and also to Bayesian nonparametrics. It guides you through a concrete example with various kinds of inferences. You may also try to follow it using a dataset of your own.
+
+Other tutorials, still drafts, are available at [pglpm.github.io/inferno](https://pglpm.github.io/inferno)
+
+A summary of the theoretical foundations, including further references, is available in [this draft](https://github.com/pglpm/inferno/raw/main/development/manual/optimal_predictor_machine.pdf). The main idea for the internal mathematical representation comes from [Dunson & Bhattacharya](https://doi.org/10.1093/acprof:oso/9780199694587.003.0005) and [Ishwaran & Zarepour](https://doi.org/10.2307/3315951).
+
+For a low-level course on Bayesian nonparametric inference and Decision Theory see [Foundations of data science](https://pglpm.github.io/ADA511).
+
 
 ## Inferno App
 An application has been built upon ***Inferno***. This app can be used for testing out the features of ***Inferno*** with just a few button clicks, without having to write any code in R yourself.
@@ -57,6 +50,21 @@ An application has been built upon ***Inferno***. This app can be used for testi
 
 ### Cross-Platform Open Source Version
 * For Windows, macOS, and Linux, you can run the PySide6 app locally using Python by following this: [Setup Guide](https://github.com/h587916/Inferno-App?tab=readme-ov-file#inferno-app).
+
+## Example applications {#applications}
+
+- [*Personalized prognosis & treatment using an optimal predictor machine: An example study on conversion from Mild Cognitive Impairment to Alzheimer's Disease*](https://doi.org/10.31219/osf.io/8nr56).
+
+- [*Don't guess what's true: choose what's optimal. A probability transducer for machine-learning classifiers*](https://doi.org/10.31219/osf.io/vct9y)
+
+- [*Does the evaluation stand up to evaluation? A first-principle approach to the evaluation of classifiers*](https://doi.org/10.31219/osf.io/7rz8t)
+
+
+Projects using ***Inferno***:
+
+- [InfernoCalibNet](https://m4siko.github.io/InfernoCalibNet).
+- [parkinsonbayes](https://github.com/pglpm/parkinsonbayes).
+
 
 
 ## Contact
