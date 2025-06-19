@@ -7,7 +7,7 @@ This repository provides an R package and some theoretical background for Bayesi
 
 The package is under development and has not yet reached a stable phase: function names and arguments may still change, new functions will be added. More tutorials will be prepared. Also the package name is still under consideration.
 
-But the core functionalities do work, and have been tested in concrete research questions; see [example applications](#-example-applications) below.
+But the core functionalities do work, and have been tested in concrete research questions; see [example applications](#example-applications) below.
 
 If you want to test the package we'd be very happy to help in resolving possible issues and in understanding the functionalities.
 
