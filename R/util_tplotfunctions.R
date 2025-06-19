@@ -275,14 +275,12 @@ plot.probability <- function(
         x <- p$Y
         leg <- p$X
         tempxlab <- 'Y'
-        prlab <- ' of '
     } else {
         x <- p$X
         leg <- p$Y
         tempxlab <- 'X'
         p$values <- t(p$values)
         if(!is.null(pvar)){ pvar <- aperm(pvar, c(2, 1, 3)) }
-        prlab <- ' given '
     }
 
     ## If the abscissa has more than one variate,
@@ -305,23 +303,18 @@ plot.probability <- function(
 
     if(is.null(xlab)){xlab <- tempxlab}
     if(missing(main)){
-        main <- paste0('P(',
+        main <- paste0('prob. & freq.  ',
             paste0(names(p$Y), collapse = ', '),
-            if(!is.null(p$X)){paste0(' | ', paste0(names(p$X), collapse = ', '))},
-            ')')
-        ## if(variability == 'quantiles'){
-        ##     main <- paste0(main, '  [',
-        ##         paste0(round(qnames, 1), '%', collapse = ', '),
-        ##         ']')
-        ## }
-    }
-    if(is.null(ylab)){
-        ylab <- 'probability'
+            if(!is.null(p$X)){paste0(' | ', paste0(names(p$X), collapse = ', '))}
+            )
         if(variability == 'quantiles'){
-            ylab <- paste0(ylab, '  [',
+            main <- paste0(main, '  [',
                 paste0(round(qnames, 1), '%', collapse = ', '),
                 ']')
         }
+    }
+    if(is.null(ylab)){
+        ylab <- 'probability & rel.frequency'
     }
 
     if(is.null(type)){
