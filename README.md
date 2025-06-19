@@ -3,7 +3,7 @@
 # Inferno: ***Infer***ence in ***R*** with Bayesian ***no***nparametrics
 
 
-This repository provides an R package and some theoretical background for Bayesian nonparametric inference under exchangeability, which can also be called "population inference" or "density inference".
+This repository provides an R package and some theoretical background for *Bayesian nonparametric population inference*, which can also be called "inference under exchangeability" or "density inference". The package is especially apt for the study of statistics and associations of subpopulations or subgroups.
 
 The package is under development and has not yet reached a stable phase: function names and arguments may still change, new functions will be added. More tutorials will be prepared. Also the package name is still under consideration.
 
