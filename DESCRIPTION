@@ -1,5 +1,5 @@
 Package: inferno
-Title: Bayesian nonparametric exchangeable inference - model-free uncertainty-quantified prediction
+Title: Bayesian nonparametric population inference
 Version: 0.2.2
 Authors@R: c(
   person("PierGianLuca", "Porta Mana", ,
