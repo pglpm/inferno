@@ -4,13 +4,13 @@
 \alias{util_Pcheckpoints}
 \title{Calculate joint frequencies for checkpoints in learn()}
 \usage{
-util_Pcheckpoints(Y, mcsamples, auxmetadata)
+util_Pcheckpoints(Y, learnt, auxmetadata)
 }
 \arguments{
 \item{Y}{matrix or data.table: values of some already-transformed
 variates of which we want the joint probability; one variate per column}
 
-\item{mcsamples}{object internal to \code{learn()},
+\item{learnt}{object internal to \code{learn()},
 containing partial Monte Carlo draws}
 
 \item{auxmetadata}{object internal to \code{learn()},

@@ -2,7 +2,7 @@
 #' @keywords internal
 #' @param Y matrix or data.table: values of some already-transformed
 #'   variates of which we want the joint probability; one variate per column
-#' @param mcsamples object internal to `learn()`,
+#' @param learnt object internal to `learn()`,
 #'   containing partial Monte Carlo draws
 #' @param auxmetadata object internal to `learn()`,
 #'   containing processed metadata information
@@ -10,12 +10,12 @@
 #' @return The joint frequencies of Y correspoinding to the Monte Carlo samples
 util_Pcheckpoints <- function(
     Y,
-    mcsamples,
+    learnt,
     auxmetadata
 ) {
 
-    nsamples <- ncol(mcsamples$W)
-    ncomponents <- nrow(mcsamples$W)
+    nsamples <- ncol(learnt$W)
+    ncomponents <- nrow(learnt$W)
 
 ### Guide to indices:
     ## .i. = order in Y corresponding to appearance in vnames
@@ -30,7 +30,7 @@ util_Pcheckpoints <- function(
     YiR <- YiR[YtR]
     YnR <- length(YiR)
     if (YnR > 0) {
-        mcsamples$Rvar <- sqrt(mcsamples$Rvar)
+        learnt$Rvar <- sqrt(learnt$Rvar)
     }
 
 #### Type C
@@ -39,10 +39,10 @@ util_Pcheckpoints <- function(
     YtC <- which(!is.na(YiC))
     YiC <- YiC[YtC]
     YnC <- length(YiC)
-    if (YnC > 0) {
-        mcsamples$Cvar <- sqrt(mcsamples$Cvar)
-        Clefts <- auxmetadata[match(vnames, auxmetadata$name), 'tdomainminplushs']
-        Crights <- auxmetadata[match(vnames, auxmetadata$name), 'tdomainmaxminushs']
+    if (YnC > 0 || XnC > 0) {
+        learnt$Cvar <- sqrt(learnt$Cvar)
+        Clefts <- auxmetadata[match(vnames, auxmetadata$name), 'tdomainmin']
+        Crights <- auxmetadata[match(vnames, auxmetadata$name), 'tdomainmax']
     }
 
 #### Type D
@@ -51,8 +51,8 @@ util_Pcheckpoints <- function(
     YtD <- which(!is.na(YiD))
     YiD <- YiD[YtD]
     YnD <- length(YiD)
-    if (YnD > 0) {
-        mcsamples$Dvar <- sqrt(mcsamples$Dvar)
+    if (YnD > 0 || XnD > 0) {
+        learnt$Dvar <- sqrt(learnt$Dvar)
         Dsteps <- auxmetadata[match(vnames, auxmetadata$name), 'halfstep'] /
             auxmetadata[match(vnames, auxmetadata$name), 'tscale']
         Dlefts <- auxmetadata[match(vnames, auxmetadata$name), 'tdomainminplushs']
@@ -90,7 +90,7 @@ util_Pcheckpoints <- function(
         } else {
                 lprobY <- util_lprob(
                         x = y,
-                        learnt = mcsamples,
+                        learnt = learnt,
                         nR = YnR, iR = YiR, tR = YtR,
                         nC = YnC, iC = YiC, tC = YtC,
                         Clefts = Clefts, Crights = Crights,
@@ -102,9 +102,10 @@ util_Pcheckpoints <- function(
                     )
         }
 #### Output: rows=components, columns=samples
-        lprobX <- apply(log(mcsamples$W), 2, function(xx) {
-            xx - max(xx[is.finite(xx)])
-        })
+        ## ## seems to lead to garbage for extreme values
+        ## lprobX <- apply(log(learnt$W), 2, function(xx) {
+        ##     xx - max(xx[is.finite(xx)])
+        ## })
         colSums(exp(lprobX + lprobY)) / colSums(exp(lprobX))
     }
 }

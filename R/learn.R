@@ -1648,7 +1648,7 @@ learn <- function(
                 ll <- cbind(
                     util_Pcheckpoints(
                         Y = testdata,
-                        mcsamples = mcsamples,
+                        learnt = mcsamples,
                         auxmetadata = auxmetadata
                     )
                 )
@@ -2054,8 +2054,11 @@ learn <- function(
 #### Save all final parameters together with the aux-metadata in one file
     saveRDS(c(mcsamples,
         list(auxmetadata = auxmetadata,
-            auxinfo = list(nchains = nchains,
-                hyperparams = hyperparams))
+            auxinfo = list(
+                nchains = nchains,
+                npoints = npoints,
+                hyperparams = hyperparams
+            ))
     ),
         file = file.path(dirname,
             paste0('learnt', dashnameroot, '.rds')
@@ -2093,7 +2096,7 @@ learn <- function(
     traces <- cbind(
         util_Pcheckpoints(
             Y = testdata,
-            mcsamples = mcsamples,
+            learnt = mcsamples,
             auxmetadata = auxmetadata
         )
     )
