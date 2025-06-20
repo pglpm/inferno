@@ -1865,14 +1865,14 @@ difference:</p>
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/stats/median.html" class="external-link">median</a></span><span class="op">(</span><span class="va">freqdiff</span><span class="op">)</span></span>
 <span><span class="co"># [1] 0.592298</span></span>
 <span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/stats/quantile.html" class="external-link">quantile</a></span><span class="op">(</span><span class="va">freqdiff</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0.5</span>, <span class="fl">0.95</span><span class="op">)</span><span class="op">)</span></span>
-<span><span class="co">#      50%      95% </span></span>
-<span><span class="co"># 0.592298 0.755933</span></span></code></pre></div>
+<span><span class="fu"><a href="https://rdrr.io/r/stats/quantile.html" class="external-link">quantile</a></span><span class="op">(</span><span class="va">freqdiff</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0.05</span>, <span class="fl">0.95</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="co">#       5%      95% </span></span>
+<span><span class="co"># 0.387664 0.755933</span></span></code></pre></div>
 <blockquote>
 <p>From a sample of 60 penguins, the difference between the frequencies
 of <code>Gentoo</code> species and <code>Chinstrap</code> species, on
 <code>Biscoe</code> island, is estimated with a median of 0.59, and it
-is between 0.59 and 0.76 with 90% probability.</p>
+is between 0.39 and 0.76 with 90% probability.</p>
 </blockquote>
 <p>Maybe you prefer a ratio between the two frequencies:</p>
 <div class="sourceCode" id="cb34"><pre class="downlit sourceCode r">
