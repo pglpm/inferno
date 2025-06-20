@@ -106,6 +106,6 @@ util_Pcheckpoints <- function(
         ## lprobX <- apply(log(learnt$W), 2, function(xx) {
         ##     xx - max(xx[is.finite(xx)])
         ## })
-        colSums(exp(lprobX + lprobY)) / colSums(exp(lprobX))
+        colSums(exp(lprobW + lprobY)) / colSums(exp(lprobW))
     }
 }
