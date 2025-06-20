@@ -28,8 +28,8 @@ write.csvi <- function(x, file, ...){
     write.csv(x = x, file = file,
         row.names = FALSE,
         quote = TRUE,
-        sep = ",",
-        dec = ".",
+        ## sep = ",",
+        ## dec = ".",
         na = '',
         ...)
 }

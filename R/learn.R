@@ -242,6 +242,13 @@ learn <- function(
     }
     metadata <- as.data.frame(metadata)
 
+    ## eliminate possible empty V-columns
+    for(i in intersect(paste0('V', 11:3), colnames(metadata))){
+        if(all(is.na(metadata[, i]))){
+            metadata <- metadata[, -which(colnames(metadata) == i), drop=FALSE]
+        }
+    }
+
 #### Dataset
     ## Check if 'data' is given
     if(!(missing(data) || is.null(data))) {
