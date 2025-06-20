@@ -318,9 +318,10 @@ tailPr <- function(
                         nB = XnB, iB = XiB, tB = XtB
                     ) # rows=components, columns=samples
 
-                lprobX <- apply(lprobX, 2, function(xx) {
-                    xx - max(xx[is.finite(xx)])
-                })
+                ## ## seems to lead to garbage for extreme values
+                ## lprobX <- apply(lprobX, 2, function(xx) {
+                ##     xx - max(xx[is.finite(xx)])
+                ## })
 
                 saveRDS(lprobX,
                     file.path(temporarydir,
