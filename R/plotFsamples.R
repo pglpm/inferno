@@ -740,6 +740,7 @@ plotFsamples <- function(
                             logjacobianOr = NULL
                         ))
                 }
+                if(mcmctype == 'B'){datum <- datum + 1}
                 rug(x = jitter(datum, amount = 0), side = 1,
                     col = adjustcolor(yellow,
                         alpha.f = exp((-length(datum) + 1) / 128)),
