@@ -983,12 +983,12 @@ Clearly there's a high probability that `Gentoo` frequency is larger than `Chins
 median(freqdiff)
 # [1] 0.592298
 
-quantile(freqdiff, c(0.5, 0.95))
-#      50%      95% 
-# 0.592298 0.755933
+quantile(freqdiff, c(0.05, 0.95))
+#       5%      95% 
+# 0.387664 0.755933
 ```
 
-> From a sample of 60 penguins, the difference between the frequencies of `Gentoo` species and `Chinstrap` species, on `Biscoe` island, is estimated with a median of 0.59, and it is between 0.59 and 0.76 with 90% probability.
+> From a sample of 60 penguins, the difference between the frequencies of `Gentoo` species and `Chinstrap` species, on `Biscoe` island, is estimated with a median of 0.59, and it is between 0.39 and 0.76 with 90% probability.
 
 
 Maybe you prefer a ratio between the two frequencies:
