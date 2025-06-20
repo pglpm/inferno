@@ -39,7 +39,7 @@ util_Pcheckpoints <- function(
     YtC <- which(!is.na(YiC))
     YiC <- YiC[YtC]
     YnC <- length(YiC)
-    if (YnC > 0 || XnC > 0) {
+    if (YnC > 0) {
         learnt$Cvar <- sqrt(learnt$Cvar)
         Clefts <- auxmetadata[match(vnames, auxmetadata$name), 'tdomainmin']
         Crights <- auxmetadata[match(vnames, auxmetadata$name), 'tdomainmax']
@@ -51,7 +51,7 @@ util_Pcheckpoints <- function(
     YtD <- which(!is.na(YiD))
     YiD <- YiD[YtD]
     YnD <- length(YiD)
-    if (YnD > 0 || XnD > 0) {
+    if (YnD > 0) {
         learnt$Dvar <- sqrt(learnt$Dvar)
         Dsteps <- auxmetadata[match(vnames, auxmetadata$name), 'halfstep'] /
             auxmetadata[match(vnames, auxmetadata$name), 'tscale']
