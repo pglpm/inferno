@@ -32,7 +32,7 @@ You're now welcome to open R in your favourite integrated development environmen
 
 
 ``` r
-library(inferno)
+library('inferno')
 ```
 
 In our example we shall use data from the `penguins` dataset, included in R version 4.5.0 and above. We shuffle this dataset to erase any particular ordering of its data, and call the new dataset `penguin` (without the final 's'). For your convenience you can download the shuffled dataset as the CSV file [`'penguin_data.csv'`](https://github.com/pglpm/inferno/raw/main/development/downloads/penguin_data.csv). Otherwise you can create such file from R 4.5.0 or above as follows:
@@ -40,6 +40,7 @@ In our example we shall use data from the `penguins` dataset, included in R vers
 
 ``` r
 set.seed(50) ## replace with your favourite seed number
+
 penguin <- penguins[sample(1:nrow(penguins)), ] ## shuffle
 
 write.csvi(penguin, file = 'penguin_data.csv')
@@ -184,7 +185,9 @@ Inclusion of inimum and maximum (`minincluded`, `maxincluded`)
 Values (`V1`, `V2`, ...)
 : These are characters or strings, only defined for nominal or non-numeric ordinal variates. They are the values that a nominal or ordinal variate can *in principle* take on in the population of interest. Note that they are include not only the values that are observed in a sample, but also those that could be observed in the rest of the population. A nominal or ordinal variate must have at least two distinct values; it wouldn't make much sense to draw inferences about it otherwise. The metadata file can contain further empty **V...** columns.
 
-Why does ***inferno*** need metadata? Because it performs *nonparametric* inference. In other words, it does not assume the frequency distribution of the variates in the whole population to have any specific class of shapes, such as a Gaussians. It tries to extrapolate the frequency distribution of the whole population from the sample data provided. We must therefore provide to it the same general information that we have about the variates, and about any artificial modifications performed on their values, such as rounding or pooling.
+### Why does ***inferno*** need metadata?
+
+Because it performs *nonparametric* inference. In other words, it does not assume the frequency distribution of the variates in the whole population to have any specific class of shapes, such as a Gaussians; nor does it assume any functional relation at all, as instead is the case for, say, linear regression. Bayesian nonparametric population inference and ***inferno*** try to extrapolate the frequency distribution of the whole population from the sample data provided. We must therefore provide to ***inferno*** the same general information that we ourselves have about the variates, and about any artificial modifications performed on their values, such as rounding or pooling.
 
 In order to prepare the metadata file we can use ***inferno***'s `metadatatemplate()` helper function. This function reads the sample data and prepares a preliminary file containing heuristic *guesses* about the metadata. We must then check and correct this file. The function motivates its guesses and warns about especially uncertain ones. Here is the code to generate a `'penguin_metadata.csv'` file, and the output and warnings of the helper function:
 
