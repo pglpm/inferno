@@ -115,7 +115,7 @@ environment, choose a directory to work in, and test yourself the code
 that follows. Let’s start by loading the
 <strong><em>inferno</em></strong> package:</p>
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/pglpm/inferno/" class="external-link">inferno</a></span><span class="op">)</span></span></code></pre></div>
+<code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="st"><a href="https://github.com/pglpm/inferno/" class="external-link">'inferno'</a></span><span class="op">)</span></span></code></pre></div>
 <p>In our example we shall use data from the <code>penguins</code>
 dataset, included in R version 4.5.0 and above. We shuffle this dataset
 to erase any particular ordering of its data, and call the new dataset
@@ -124,6 +124,7 @@ can download the shuffled dataset as the CSV file <a href="https://github.com/pg
 Otherwise you can create such file from R 4.5.0 or above as follows:</p>
 <div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/Random.html" class="external-link">set.seed</a></span><span class="op">(</span><span class="fl">50</span><span class="op">)</span> <span class="co">## replace with your favourite seed number</span></span>
+<span></span>
 <span><span class="va">penguin</span> <span class="op">&lt;-</span> <span class="va">penguins</span><span class="op">[</span><span class="fu"><a href="https://rdrr.io/r/base/sample.html" class="external-link">sample</a></span><span class="op">(</span><span class="fl">1</span><span class="op">:</span><span class="fu"><a href="https://rdrr.io/r/base/nrow.html" class="external-link">nrow</a></span><span class="op">(</span><span class="va">penguins</span><span class="op">)</span><span class="op">)</span>, <span class="op">]</span> <span class="co">## shuffle</span></span>
 <span></span>
 <span><span class="fu"><a href="../reference/inferno.data.html">write.csvi</a></span><span class="op">(</span><span class="va">penguin</span>, file <span class="op">=</span> <span class="st">'penguin_data.csv'</span><span class="op">)</span></span></code></pre></div>
@@ -552,14 +553,20 @@ wouldn’t make much sense to draw inferences about it otherwise. The
 metadata file can contain further empty <strong>V…</strong> columns.
 </dd>
 </dl>
-<p>Why does <strong><em>inferno</em></strong> need metadata? Because it
-performs <em>nonparametric</em> inference. In other words, it does not
-assume the frequency distribution of the variates in the whole
-population to have any specific class of shapes, such as a Gaussians. It
-tries to extrapolate the frequency distribution of the whole population
-from the sample data provided. We must therefore provide to it the same
-general information that we have about the variates, and about any
-artificial modifications performed on their values, such as rounding or
+<div class="section level4">
+<h4 id="why-does-inferno-need-metadata">Why does <strong><em>inferno</em></strong> need metadata?<a class="anchor" aria-label="anchor" href="#why-does-inferno-need-metadata"></a>
+</h4>
+<p>Because it performs <em>nonparametric</em> inference. In other words,
+it does not assume the frequency distribution of the variates in the
+whole population to have any specific class of shapes, such as a
+Gaussians; nor does it assume any functional relation at all, as instead
+is the case for, say, linear regression. Bayesian nonparametric
+population inference and <strong><em>inferno</em></strong> try to
+extrapolate the frequency distribution of the whole population from the
+sample data provided. We must therefore provide to
+<strong><em>inferno</em></strong> the same general information that we
+ourselves have about the variates, and about any artificial
+modifications performed on their values, such as rounding or
 pooling.</p>
 <p>In order to prepare the metadata file we can use
 <strong><em>inferno</em></strong>’s <code><a href="../reference/metadatatemplate.html">metadatatemplate()</a></code>
@@ -1006,6 +1013,7 @@ download as <a href="https://github.com/pglpm/inferno/raw/main/development/downl
 </tr>
 </tbody>
 </table>
+</div>
 </div>
 <div class="section level3">
 <h3 id="learningfirst">“Learning” and extrapolating from the sample data<a class="anchor" aria-label="anchor" href="#learningfirst"></a>
