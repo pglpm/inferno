@@ -2,12 +2,13 @@
 
 # Inferno: ***Infer***ence in ***R*** with Bayesian ***no***nparametrics
 
-
 This repository provides an R package and some theoretical background for *Bayesian nonparametric population inference*, which can also be called "inference under exchangeability" or "density inference". The package is especially apt for the study of statistics and associations of subpopulations or subgroups.
 
 The package is under development and has not yet reached a stable phase: function names and arguments may still change, new functions will be added. More tutorials will be prepared. Also the package name is still under consideration.
 
 But the core functionalities do work, and have been tested in concrete research questions; see [example applications](#example-applications) below.
+
+The package internally does the computations necessary for Bayesian inference by means of Monte Carlo methods, thanks to the R package [*Nimble*](https://r-nimble.org/). Users unfamiliar with Monte Carlo methods don't have to worry, because the computations are handled automatically. Users familiar with Monte Carlo methods can easily have access to computational details and can even change some of the computation hyperparameters.
 
 If you want to test the package we'd be very happy to help in resolving possible issues and in understanding the functionalities.
 
