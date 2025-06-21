@@ -422,8 +422,14 @@ tailPr <- function(
 
     dim(out$values) <- c(nY, nX)
 
-    if(ncol(Y) == 1){Ynames <- Y[, 1]} else {Ynames <- NULL}
-    if(isTRUE(ncol(X) == 1)){Xnames <- X[, 1]} else {Xnames <- NULL}
+    ## if(ncol(Y) == 1){Ynames <- Y[, 1]} else {Ynames <- NULL}
+    Ynames <- apply(Y, 1, paste0, collapse=',')
+    ## if(isTRUE(ncol(X) == 1)){Xnames <- X[, 1]} else {Xnames <- NULL}
+    if(!is.null(X)){
+        Xnames <- apply(X, 1, paste0, collapse=',')
+    } else {
+        Xnames <- NULL
+    }
     dimnames(out$values) <- list(Y = Ynames, X = Xnames)
 
     if(dosamples){

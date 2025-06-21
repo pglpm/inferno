@@ -463,16 +463,28 @@ Pr <- function(
         ## multiply by jacobian factors
         out$values <- out$values * jacobians
 
-        if(ncol(Y) == 1){Ynames <- Y[, 1]} else {Ynames <- NULL}
-        if(isTRUE(ncol(X) == 1)){Xnames <- X[, 1]} else {Xnames <- NULL}
+        ## if(ncol(Y) == 1){Ynames <- Y[, 1]} else {Ynames <- NULL}
+        Ynames <- apply(Y, 1, paste0, collapse=',')
+
+        if(!is.null(X)){
+        Xnames <- apply(X, 1, paste0, collapse=',')
+        } else {
+            Xnames <- NULL
+        }
     } else {
         ## Bayes's theorem
         out$values <- t(priorY * t(out$values))
         normf <- rowSums(out$values, na.rm = TRUE)
         out$values <- t(out$values/normf)
 
-        if(ncol(X) == 1){Ynames <- X[, 1]} else {Ynames <- NULL}
-        if(isTRUE(ncol(Y) == 1)){Xnames <- Y[, 1]} else {Xnames <- NULL}
+        ## if(ncol(X) == 1){Ynames <- X[, 1]} else {Ynames <- NULL}
+        Ynames <- apply(X, 1, paste0, collapse=',')
+
+        if(!is.null(Y)){
+            Xnames <- apply(Y, 1, paste0, collapse=',')
+        } else {
+            Xnames <- NULL
+        }
     }
     dimnames(out$values) <- list(Y = Ynames, X = Xnames)
 

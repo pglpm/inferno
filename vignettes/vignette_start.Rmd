@@ -541,6 +541,49 @@ hist(Fspecies10, legend = 'topright', col = 2:4)
 
 It's important to keep in mind that the three frequencies must add up to 1, so if our future estimates of some of them increase, then the estimate of some others must decrease.
 
+## What if I'm interested in more than one variate? {#twovariates}
+
+Our first example inference, just discussed, focused on the specific 'species' variate. It should be obvious how a similar analysis and code could be made for a another variate. We shall see more example later on.
+
+But what if we're interested in *two or more* variates at the same time? For example, we could be interested in `species` (three values) and `sex` (two values) jointly, and wonder what the relative frequencies of all six possibilities -- `Adelie` and `female`, `Adelie` and `male`, `Chinstrap` and `female`, and so on -- could be. This can also be done with ***inferno***, with any number of variates. For the moment we only show the example code for such an analysis:
+
+
+``` r
+## data frame with all combination of values from 'species' and 'sex'
+## use base-R function 'expand.grid()'
+Y2 <- expand.grid(
+    species = c('Adelie', 'Chinstrap', 'Gentoo'),
+    sex = c('female', 'male'),
+    stringsAsFactors = FALSE ## important! inferno doesn't use factors
+)
+
+Fspeciessex10 <- Pr(
+    Y = Y2,
+    learnt = learnt10,
+    parallel = 4 ## let's use 4 cores
+)
+# 
+# Registered doParallelSNOW with 4 workers
+# 
+# Closing connections to cores.
+
+## Display the estimated frequencies of all six combinations,
+## as well as their 89%-credibility intervals
+cbind(
+    Fspeciessex10$values,
+    Fspeciessex10$quantiles[, , c('5.5%', '94.5%')]
+)
+#                                5.5%    94.5%
+# Adelie,female    0.176239 0.0593006 0.339410
+# Chinstrap,female 0.147595 0.0482432 0.281854
+# Gentoo,female    0.238757 0.0955143 0.425647
+# Adelie,male      0.142822 0.0448611 0.283103
+# Chinstrap,male   0.155422 0.0520681 0.307136
+# Gentoo,male      0.139166 0.0449683 0.274096
+```
+
+Now let's continue with our simpler plan.
+
 \
 
 # Analysis example: frequencies on different islands  {#prelimQ2}
@@ -681,6 +724,50 @@ The Bayesian approach resists this context-dependent and even subjective simplif
 One problem with *p*-values is that if you re-calculate them anew, as new samples arrive, sooner or later you can reach as low a *p*-value as desired. This procedure is called "optional stopping" and is a form of "*p*-hacking". This is why in using methods based on *p*-values you must *beforehand* declare your sample size or at least a precise stopping rule.
 
 Bayesian estimates don't suffer from this problem. You can update the estimates and their uncertainties as new samples arrive. What happens is that the uncertainties decrease, and the estimates converge to their true values. This feature keeps you safe and gives you greater flexibility in designing your experiments and in changing strategies along the way. We demonstrate this in the next section.
+
+
+## What if I'm interested in combinations of subpopulations? {#twosubgroups}
+
+We may be interested in the frequencies of the three species in more complex subpopulations, for example the subpopulation of female penguins living on Biscoe island; in other words, penguin with `island` variate equal to `'Biscoe'`, and `sex` variate equal to `'female'`. These cases are also easily handled by ***inferno***, for any combination of subpopulations. The procedure is analogous to the one we [previously discussed](#twovariates) very briefly.
+
+Also in this case we only show the example code for the moment:
+
+
+``` r
+## data frame with all combination of values from 'island' and 'sex'
+## use base-R function 'expand.grid()'
+X2 <- expand.grid(
+    island = c('Biscoe', 'Dream', 'Torgersen'),
+    sex = c('female', 'male'),
+    stringsAsFactors = FALSE ## important! inferno doesn't use factors
+)
+
+Fspecies10IS <- Pr(
+    Y = Y,
+    X = X2,
+    learnt = learnt10,
+    parallel = 4 ## let's use 4 cores
+)
+# 
+# Registered doParallelSNOW with 4 workers
+# 
+# Closing connections to cores.
+
+## Display the estimated frequencies of species
+## within all six combinations of subpopulations
+Fspecies10IS$values
+#            X
+# Y           Biscoe,female Dream,female Torgersen,female Biscoe,male Dream,male
+#   Adelie         0.195044     0.360856         0.456286    0.235758   0.308027
+#   Chinstrap      0.192633     0.378828         0.250120    0.258943   0.466158
+#   Gentoo         0.612323     0.260316         0.293593    0.505299   0.225814
+#            X
+# Y           Torgersen,male
+#   Adelie          0.453062
+#   Chinstrap       0.291547
+#   Gentoo          0.255392
+```
+
 
 \
 
@@ -1192,7 +1279,7 @@ Y <- data.frame(Yvls)
 colnames(Y) <- Yvrt
 
 Xvrt <- 'island' ## subpopulation variate
-Xvls <- 'Biscoe' ## subpopulation value
+Xvls <- 'Biscoe' ## subpopulation value or values
 ## build X object
 X <- data.frame(Xvls)
 colnames(X) <- Xvrt
@@ -1256,13 +1343,13 @@ In this case, `Adelie` penguins are our subpopulation:
 
 ``` r
 Yvrt <- 'island' ## variate of interest
-Yvls <- sort(unique(penguin[, Yvrt])) ## values from dataset
+Yvls <- c('Biscoe', 'Dream', 'Torgersen') ## values of interest
 ## build Y object
 Y <- data.frame(Yvls)
 colnames(Y) <- Yvrt
 
 Xvrt <- 'species' ## subpopulation variate
-Xvls <- 'Adelie' ## subpopulation value
+Xvls <- 'Adelie' ## subpopulation value or values
 ## build X object
 X <- data.frame(Xvls)
 colnames(X) <- Xvrt
@@ -1326,15 +1413,14 @@ In this case we are interested in the (continuous) distribution of body mass in 
 
 ``` r
 Yvrt <- 'body_mass' ## variate of interest
-## continuous variate, values require a different approach
-Yrange <- extendrange(range(penguin$body_mass, na.rm = TRUE))
+Yrange <- c('3000', '5000') ## range of interest
 Yvls <- seq(Yrange[1], Yrange[2], by = 25)
 ## build Y object
 Y <- data.frame(Yvls)
 colnames(Y) <- Yvrt
 
 Xvrt <- 'species' ## subpopulation variate
-Xvls <- sort(unique(penguin[, Xvrt])) ## subpopulation values
+Xvls <- c('Adelie', 'Chinstrap', 'Gentoo') ## subpopulation values
 ## build X object
 X <- data.frame(Xvls)
 colnames(X) <- Xvrt
