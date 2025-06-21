@@ -323,7 +323,7 @@ learnt10 <- learn(
     data = datafile,
     metadata = metadatafile,
     outputdir = 'penguin_inference',
-    seed = 16,
+    seed = 16, ## for reproducibility
     parallel = 4 ## how many cores to use for the computation
 )
 # Registered doParallelSNOW with 4 workers
@@ -364,7 +364,7 @@ learnt10 <- learn(
 # Average Monte Carlo time per chain: 13 secs 
 # Max total memory used: approx 3500 MB
 # Max memory used per core: approx 860 MB
-# ## 
+#
 # Removing temporary output files.
 # Finished.
 # 
