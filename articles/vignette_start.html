@@ -1794,8 +1794,7 @@ rel. frequency between 0.30 and 0.50, with 89% probability
 </blockquote>
 </div>
 <div class="section level3">
-<h3 id="updates-in-island-wise-conditional-frequencies-a-surprising-result">Updates in island-wise conditional frequencies: a surprising
-result<a class="anchor" aria-label="anchor" href="#updates-in-island-wise-conditional-frequencies-a-surprising-result"></a>
+<h3 id="updates-in-island-wise-conditional-frequencies">Updates in island-wise conditional frequencies<a class="anchor" aria-label="anchor" href="#updates-in-island-wise-conditional-frequencies"></a>
 </h3>
 <p>We can quickly repeat the analysis above for the <em>conditional</em>
 frequencies on the <code>Biscoe</code> and <code>Dream</code> islands,
@@ -1803,8 +1802,9 @@ that is, the frequencies for the two subpopulations of penguins living
 on those two islands. Let’s directly plot the probability distributions
 for the two subpopulation frequencies, together with those from the
 previous inference.</p>
-<p><br>
-For <code>Dream</code> island:</p>
+<div class="section level4">
+<h4 id="for-dream-island">For <code>Dream</code> island<a class="anchor" aria-label="anchor" href="#for-dream-island"></a>
+</h4>
 <div class="sourceCode" id="cb28"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co">## select only Dream</span></span>
 <span><span class="va">onlyDream10</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/subset.html" class="external-link">subset</a></span><span class="op">(</span><span class="va">Fspecies10I</span>, <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>island <span class="op">=</span> <span class="st">'Dream'</span><span class="op">)</span><span class="op">)</span></span>
@@ -1825,8 +1825,10 @@ apart, whereas the previous estimates had them 20% apart. But this
 change is not unexpected: these new estimates are well within the
 previous credibility intervals; we were correctly warned about their
 possible change.</p>
-<p><br>
-For <code>Biscoe</code> island:</p>
+</div>
+<div class="section level4">
+<h4 id="surprise">For <code>Biscoe</code> island: a surprising result<a class="anchor" aria-label="anchor" href="#surprise"></a>
+</h4>
 <div class="sourceCode" id="cb30"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co">## select only Biscoe</span></span>
 <span><span class="va">onlyBiscoe10</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/subset.html" class="external-link">subset</a></span><span class="op">(</span><span class="va">Fspecies10I</span>, <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>island <span class="op">=</span> <span class="st">'Biscoe'</span><span class="op">)</span><span class="op">)</span></span>
@@ -1912,6 +1914,7 @@ if you had planned beforehand to examine 300 penguins, you could not
 state such results before all 300 penguins were collected. And your
 results would be less clearly interpretable than the ones above.</p>
 <p><br></p>
+</div>
 </div>
 </div>
 <div class="section level2">
@@ -2127,11 +2130,28 @@ the frequency about, and an object <code>X</code> for the
 <span><span class="co"># Registered doParallelSNOW with 4 workers</span></span>
 <span><span class="co"># </span></span>
 <span><span class="co"># Closing connections to cores.</span></span></code></pre></div>
-<p>Here are the probability distributions for the three frequencies:</p>
+<p>Here are the probability distributions and the credibility intervals
+for the three frequencies:</p>
 <div class="sourceCode" id="cb43"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/graphics/hist.html" class="external-link">hist</a></span><span class="op">(</span><span class="va">Fanalysis</span>, xlim <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0</span>, <span class="fl">1</span><span class="op">)</span>, col <span class="op">=</span> <span class="fl">2</span><span class="op">:</span><span class="fl">4</span>, <span class="co">## same colours as before!</span></span>
 <span>    legend <span class="op">=</span> <span class="st">'topright'</span><span class="op">)</span></span></code></pre></div>
 <p><img src="figure/unnamed-chunk-8-1.png" width="100%"></p>
+<div class="sourceCode" id="cb44"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span></span>
+<span><span class="va">Fanalysis</span><span class="op">$</span><span class="va">values</span></span>
+<span><span class="co">#            X</span></span>
+<span><span class="co"># Y              Biscoe</span></span>
+<span><span class="co">#   Adelie    0.2601481</span></span>
+<span><span class="co">#   Chinstrap 0.0362443</span></span>
+<span><span class="co">#   Gentoo    0.7036076</span></span>
+<span></span>
+<span><span class="va">Fanalysis</span><span class="op">$</span><span class="va">quantiles</span><span class="op">[</span>, , <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">'5.5%'</span>, <span class="st">'94.5%'</span><span class="op">)</span><span class="op">]</span></span>
+<span><span class="co">#            </span></span>
+<span><span class="co"># Y                5.5%     94.5%</span></span>
+<span><span class="co">#   Adelie    0.2078777 0.3144158</span></span>
+<span><span class="co">#   Chinstrap 0.0162262 0.0606095</span></span>
+<span><span class="co">#   Gentoo    0.6453513 0.7577983</span></span></code></pre></div>
+<p>Conclusion:</p>
 <blockquote>
 <p>From a sample of 344 penguins, the relative frequencies of the three
 species <strong>on Biscoe island</strong> are estimated as follows:</p>
@@ -2153,15 +2173,15 @@ probability
 </dd>
 </dl>
 </blockquote>
-<p>Note how our previous estimates from 60 samples were already quite on
-the spot.</p>
+<p>Note how our <a href="#surprise">previous estimates from
+60 samples</a> were already quite on the spot.</p>
 </div>
 <div class="section level4">
 <h4 id="q2b-adélie-on-three-islands">
 <strong>Q2b</strong>: Adélie on three islands<a class="anchor" aria-label="anchor" href="#q2b-ad%C3%A9lie-on-three-islands"></a>
 </h4>
 <p>In this case, <code>Adelie</code> penguins are our subpopulation:</p>
-<div class="sourceCode" id="cb44"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb45"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">Yvrt</span> <span class="op">&lt;-</span> <span class="st">'island'</span> <span class="co">## variate of interest</span></span>
 <span><span class="va">Yvls</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/sort.html" class="external-link">sort</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/unique.html" class="external-link">unique</a></span><span class="op">(</span><span class="va">penguin</span><span class="op">[</span>, <span class="va">Yvrt</span><span class="op">]</span><span class="op">)</span><span class="op">)</span> <span class="co">## values from dataset</span></span>
 <span><span class="co">## build Y object</span></span>
@@ -2174,16 +2194,34 @@ the spot.</p>
 <span><span class="va">X</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span><span class="va">Xvls</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/colnames.html" class="external-link">colnames</a></span><span class="op">(</span><span class="va">X</span><span class="op">)</span> <span class="op">&lt;-</span> <span class="va">Xvrt</span></span>
 <span></span>
+<span><span class="co">## NB: rewriting the previous 'Fanalysis' object</span></span>
 <span><span class="va">Fanalysis</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/Pr.html">Pr</a></span><span class="op">(</span>Y <span class="op">=</span> <span class="va">Y</span>, X <span class="op">=</span> <span class="va">X</span>, learnt <span class="op">=</span> <span class="va">learntall</span>, parallel <span class="op">=</span> <span class="fl">4</span><span class="op">)</span></span>
 <span><span class="co"># </span></span>
 <span><span class="co"># Registered doParallelSNOW with 4 workers</span></span>
 <span><span class="co"># </span></span>
 <span><span class="co"># Closing connections to cores.</span></span></code></pre></div>
-<p>Here are the probability distributions for the three frequencies:</p>
-<div class="sourceCode" id="cb45"><pre class="downlit sourceCode r">
+<p>Here are the probability distributions and confidence intervals for
+the three frequencies:</p>
+<div class="sourceCode" id="cb46"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/graphics/hist.html" class="external-link">hist</a></span><span class="op">(</span><span class="va">Fanalysis</span>, xlim <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0</span>, <span class="fl">1</span><span class="op">)</span>, col <span class="op">=</span> <span class="fl">5</span><span class="op">:</span><span class="fl">7</span>,</span>
 <span>    legend <span class="op">=</span> <span class="st">'topright'</span><span class="op">)</span></span></code></pre></div>
 <p><img src="figure/unnamed-chunk-9-1.png" width="100%"></p>
+<div class="sourceCode" id="cb47"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span></span>
+<span><span class="va">Fanalysis</span><span class="op">$</span><span class="va">values</span></span>
+<span><span class="co">#            X</span></span>
+<span><span class="co"># Y             Adelie</span></span>
+<span><span class="co">#   Biscoe    0.289930</span></span>
+<span><span class="co">#   Dream     0.388796</span></span>
+<span><span class="co">#   Torgersen 0.321274</span></span>
+<span></span>
+<span><span class="va">Fanalysis</span><span class="op">$</span><span class="va">quantiles</span><span class="op">[</span>, , <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">'5.5%'</span>, <span class="st">'94.5%'</span><span class="op">)</span><span class="op">]</span></span>
+<span><span class="co">#            </span></span>
+<span><span class="co"># Y               5.5%    94.5%</span></span>
+<span><span class="co">#   Biscoe    0.232984 0.347477</span></span>
+<span><span class="co">#   Dream     0.324777 0.452447</span></span>
+<span><span class="co">#   Torgersen 0.264392 0.382129</span></span></code></pre></div>
+<p>Conclusions:</p>
 <blockquote>
 <p>From a sample of 344 penguins, the distribution of the
 <strong>Adélies</strong> species on the three islands is estimated as
@@ -2217,7 +2255,7 @@ distributed on the three islands.</p>
 <p>In this case we are interested in the (continuous) distribution of
 body mass in three separate subpopulations: <code>Adelie</code>,
 <code>Chinstrap</code>, and <code>Gentoo</code> penguins:</p>
-<div class="sourceCode" id="cb46"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb48"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">Yvrt</span> <span class="op">&lt;-</span> <span class="st">'body_mass'</span> <span class="co">## variate of interest</span></span>
 <span><span class="co">## continuous variate, values require a different approach</span></span>
 <span><span class="va">Yrange</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/grDevices/extendrange.html" class="external-link">extendrange</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/range.html" class="external-link">range</a></span><span class="op">(</span><span class="va">penguin</span><span class="op">$</span><span class="va">body_mass</span>, na.rm <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span><span class="op">)</span></span>
@@ -2232,6 +2270,7 @@ body mass in three separate subpopulations: <code>Adelie</code>,
 <span><span class="va">X</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span><span class="va">Xvls</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/colnames.html" class="external-link">colnames</a></span><span class="op">(</span><span class="va">X</span><span class="op">)</span> <span class="op">&lt;-</span> <span class="va">Xvrt</span></span>
 <span></span>
+<span><span class="co">## NB: rewriting the previous 'Fanalysis' object</span></span>
 <span><span class="va">Fanalysis</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/Pr.html">Pr</a></span><span class="op">(</span>Y <span class="op">=</span> <span class="va">Y</span>, X <span class="op">=</span> <span class="va">X</span>, learnt <span class="op">=</span> <span class="va">learntall</span>, parallel <span class="op">=</span> <span class="fl">4</span><span class="op">)</span></span>
 <span><span class="co"># </span></span>
 <span><span class="co"># Registered doParallelSNOW with 4 workers</span></span>
@@ -2239,7 +2278,7 @@ body mass in three separate subpopulations: <code>Adelie</code>,
 <span><span class="co"># Closing connections to cores.</span></span></code></pre></div>
 <p>Here is the estimated frequency distribution of body mass within each
 species</p>
-<div class="sourceCode" id="cb47"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb49"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">Fanalysis</span>, col <span class="op">=</span> <span class="fl">2</span><span class="op">:</span><span class="fl">4</span>, legend <span class="op">=</span> <span class="st">'topright'</span><span class="op">)</span></span></code></pre></div>
 <p><img src="figure/unnamed-chunk-10-1.png" width="100%"></p>
 <p>Note how the plots above give us much more information than just a
