@@ -1202,9 +1202,9 @@ plot above. The present visualization is more advantageous when we want
 to compare several frequency distributions, as we’ll do later.)</p>
 <p>The three estimated frequencies are:</p>
 <ul>
-<li>Adélie: 0.32</li>
-<li>Chinstrap: 0.30</li>
-<li>Gentoo: 0.38</li>
+<li>Adélie: 0.31</li>
+<li>Chinstrap: 0.32</li>
+<li>Gentoo: 0.37</li>
 </ul>
 <p>and can be read from the <code>values</code> element of the
 <code>Fspecies10</code> object:</p>
@@ -1212,9 +1212,9 @@ to compare several frequency distributions, as we’ll do later.)</p>
 <code class="sourceCode R"><span><span class="va">Fspecies10</span><span class="op">$</span><span class="va">values</span></span>
 <span><span class="co">#            X</span></span>
 <span><span class="co"># Y               [,1]</span></span>
-<span><span class="co">#   Adelie    0.319061</span></span>
-<span><span class="co">#   Chinstrap 0.303017</span></span>
-<span><span class="co">#   Gentoo    0.377922</span></span></code></pre></div>
+<span><span class="co">#   Adelie    0.313805</span></span>
+<span><span class="co">#   Chinstrap 0.317970</span></span>
+<span><span class="co">#   Gentoo    0.368225</span></span></code></pre></div>
 <p>These frequency estimates have also another important meaning: they
 are the <em>probabilities for the species of the next penguin we’ll
 observe</em>. More generally, they are the probabilities for the next
@@ -1252,12 +1252,12 @@ above as the darker grey band, and the 89%-credibility intervals as the
 lighter grey band. Note that these intervals contain the 50% ones.</p>
 <p>For instance, the plot indicates that there’s a 50% probability that
 the relative frequency of all <code>Adelie</code> penguins is roughly
-between 0.23 and 0.40; and an 89% probability that their relative
-frequency is roughly between 0.14 and 0.53.</p>
+between 0.23 and 0.39; and an 89% probability that their relative
+frequency is roughly between 0.14 and 0.51.</p>
 <p>For the <code>Gentoo</code> species, there’s a 50% probability that
-its relative frequency is roughly between 0.28 and 0.47; and an 89%
-probability that their relative frequency is roughly between 0.18 and
-0.59.</p>
+its relative frequency is roughly between 0.28 and 0.45; and an 89%
+probability that their relative frequency is roughly between 0.19 and
+0.57.</p>
 <p>We can Actually do more: we can plot the probabilities of all
 possible frequencies. To understand this idea, let’s ask: what is the
 relative frequency of Adélie penguins in the whole population? Possible
@@ -1306,9 +1306,9 @@ For instance, we can read the 89%-credibility intervals as follows:</p>
 <code class="sourceCode R"><span><span class="va">Fspecies10</span><span class="op">$</span><span class="va">quantiles</span><span class="op">[</span>, , <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">'5.5%'</span>, <span class="st">'94.5%'</span><span class="op">)</span><span class="op">]</span></span>
 <span><span class="co">#            </span></span>
 <span><span class="co"># Y               5.5%    94.5%</span></span>
-<span><span class="co">#   Adelie    0.140158 0.531920</span></span>
-<span><span class="co">#   Chinstrap 0.133997 0.512746</span></span>
-<span><span class="co">#   Gentoo    0.183184 0.591518</span></span></code></pre></div>
+<span><span class="co">#   Adelie    0.142272 0.511279</span></span>
+<span><span class="co">#   Chinstrap 0.144655 0.521440</span></span>
+<span><span class="co">#   Gentoo    0.185321 0.572147</span></span></code></pre></div>
 <!-- As the name tells, this element actually report the *quantiles* of the probability. For example, look at the `= 25%` output: among other things it says `Adelie 0.227634`. This means that there's a 25% probability that the frequency of Adélie penguins is below $0.227634$, and thus a 75% probability that it's above $0.227634$.
  -->
 </div>
@@ -1326,15 +1326,15 @@ follows:</p>
 <dl>
 <dt>Adélie</dt>
 <dd>
-rel. frequency between 0.14 and 0.53, with 89% probability
+rel. frequency between 0.14 and 0.51, with 89% probability
 </dd>
 <dt>Chinstrap</dt>
 <dd>
-rel. frequency between 0.13 and 0.51, with 89% probability
+rel. frequency between 0.14 and 0.52, with 89% probability
 </dd>
 <dt>Gentoo</dt>
 <dd>
-rel. frequency between 0.18 and 0.59, with 89% probability
+rel. frequency between 0.19 and 0.57, with 89% probability
 </dd>
 </dl>
 </blockquote>
@@ -1395,12 +1395,12 @@ moment we only show the example code for such an analysis:</p>
 <span>    <span class="va">Fspeciessex10</span><span class="op">$</span><span class="va">quantiles</span><span class="op">[</span>, , <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">'5.5%'</span>, <span class="st">'94.5%'</span><span class="op">)</span><span class="op">]</span></span>
 <span><span class="op">)</span></span>
 <span><span class="co">#                                5.5%    94.5%</span></span>
-<span><span class="co"># Adelie,female    0.176239 0.0593006 0.339410</span></span>
-<span><span class="co"># Chinstrap,female 0.147595 0.0482432 0.281854</span></span>
-<span><span class="co"># Gentoo,female    0.238757 0.0955143 0.425647</span></span>
-<span><span class="co"># Adelie,male      0.142822 0.0448611 0.283103</span></span>
-<span><span class="co"># Chinstrap,male   0.155422 0.0520681 0.307136</span></span>
-<span><span class="co"># Gentoo,male      0.139166 0.0449683 0.274096</span></span></code></pre></div>
+<span><span class="co"># Adelie,female    0.163338 0.0584870 0.303654</span></span>
+<span><span class="co"># Chinstrap,female 0.159690 0.0556444 0.296948</span></span>
+<span><span class="co"># Gentoo,female    0.218971 0.0897543 0.384241</span></span>
+<span><span class="co"># Adelie,male      0.150467 0.0520682 0.289968</span></span>
+<span><span class="co"># Chinstrap,male   0.158280 0.0562104 0.304420</span></span>
+<span><span class="co"># Gentoo,male      0.149254 0.0540717 0.282635</span></span></code></pre></div>
 <p>Now let’s continue with our simpler plan.</p>
 <p><br></p>
 </div>
@@ -1474,10 +1474,10 @@ element of the <code>Fspecies10I</code> object:</p>
 <div class="sourceCode" id="cb16"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">Fspecies10I</span><span class="op">$</span><span class="va">values</span></span>
 <span><span class="co">#            X</span></span>
-<span><span class="co"># Y             Biscoe    Dream</span></span>
-<span><span class="co">#   Adelie    0.206050 0.335998</span></span>
-<span><span class="co">#   Chinstrap 0.214225 0.423482</span></span>
-<span><span class="co">#   Gentoo    0.579725 0.240520</span></span></code></pre></div>
+<span><span class="co"># Y             Biscoe   Dream</span></span>
+<span><span class="co">#   Adelie    0.237242 0.30507</span></span>
+<span><span class="co">#   Chinstrap 0.242497 0.42591</span></span>
+<span><span class="co">#   Gentoo    0.520262 0.26902</span></span></code></pre></div>
 <p>According to these estimates, on Biscoe there should be a
 predominance of Gentoo penguins, with lower, roughly equal numbers of
 Adélie and Chinstrap. On Dream, on the other hand, Gentoo should be the
@@ -1500,7 +1500,7 @@ Biscoe</strong>
 </div>
 <p>Note how, according to these preliminary estimates, the frequencies
 of Adélie and Chinstrap are very close, around 0.2, and quite different
-from the frequency of Gentoo, around 0.58. Yet, the probability
+from the frequency of Gentoo, around 0.52. Yet, the probability
 distributions are wide; each distribution gives a non-zero probability
 to all three estimates.</p>
 <p><strong>For later, keep in mind the following question: <em>On
@@ -1523,7 +1523,7 @@ Biscoe</strong>
 </div>
 <p><br></p>
 <p>Among other things we see here a larger difference in the estimated
-frequencies of Adélie, around 0.34, and Chinstrap, around 0.42. Still,
+frequencies of Adélie, around 0.31, and Chinstrap, around 0.43. Still,
 the probability distributions are wide.</p>
 <p><strong>For later, keep in mind the following question: <em>On Dream,
 are the frequencies of Adélie and Chinstrap different?</em></strong> The
@@ -1548,17 +1548,17 @@ We can produce it as follows:</p>
 <span><span class="co"># </span></span>
 <span><span class="co">#            </span></span>
 <span><span class="co"># Y                5.5%    94.5%</span></span>
-<span><span class="co">#   Adelie    0.0376968 0.466033</span></span>
-<span><span class="co">#   Chinstrap 0.0384570 0.469123</span></span>
-<span><span class="co">#   Gentoo    0.2798207 0.854380</span></span>
+<span><span class="co">#   Adelie    0.0583302 0.492409</span></span>
+<span><span class="co">#   Chinstrap 0.0603621 0.499097</span></span>
+<span><span class="co">#   Gentoo    0.2481256 0.792270</span></span>
 <span><span class="co"># </span></span>
 <span><span class="co"># , , X = Dream</span></span>
 <span><span class="co"># </span></span>
 <span><span class="co">#            </span></span>
 <span><span class="co"># Y                5.5%    94.5%</span></span>
-<span><span class="co">#   Adelie    0.1033126 0.623346</span></span>
-<span><span class="co">#   Chinstrap 0.1654065 0.716321</span></span>
-<span><span class="co">#   Gentoo    0.0556945 0.506120</span></span></code></pre></div>
+<span><span class="co">#   Adelie    0.0893090 0.573754</span></span>
+<span><span class="co">#   Chinstrap 0.1732206 0.717375</span></span>
+<span><span class="co">#   Gentoo    0.0739769 0.528283</span></span></code></pre></div>
 </div>
 <div class="section level3">
 <h3 id="nht">Differences from “null-hypothesis testing” and <em>p</em>-value
@@ -1607,7 +1607,7 @@ along the way. We demonstrate this in the next section.</p>
 </h3>
 <p>We may be interested in the frequencies of the three species in more
 complex subpopulations, for example the subpopulation of female penguins
-living on Biscoe island; in other words, penguin with
+living on Biscoe island; in other words, penguins with
 <code>island</code> variate equal to <code>'Biscoe'</code>, and
 <code>sex</code> variate equal to <code>'female'</code>. These cases are
 also easily handled by <strong><em>inferno</em></strong>, for any
@@ -1639,14 +1639,14 @@ combination of subpopulations. The procedure is analogous to the one we
 <span><span class="va">Fspecies10IS</span><span class="op">$</span><span class="va">values</span></span>
 <span><span class="co">#            X</span></span>
 <span><span class="co"># Y           Biscoe,female Dream,female Torgersen,female Biscoe,male Dream,male</span></span>
-<span><span class="co">#   Adelie         0.195044     0.360856         0.456286    0.235758   0.308027</span></span>
-<span><span class="co">#   Chinstrap      0.192633     0.378828         0.250120    0.258943   0.466158</span></span>
-<span><span class="co">#   Gentoo         0.612323     0.260316         0.293593    0.505299   0.225814</span></span>
+<span><span class="co">#   Adelie         0.228338     0.314738         0.413602    0.255356   0.296034</span></span>
+<span><span class="co">#   Chinstrap      0.228334     0.395861         0.267919    0.268323   0.453861</span></span>
+<span><span class="co">#   Gentoo         0.543328     0.289401         0.318479    0.476321   0.250105</span></span>
 <span><span class="co">#            X</span></span>
 <span><span class="co"># Y           Torgersen,male</span></span>
-<span><span class="co">#   Adelie          0.453062</span></span>
-<span><span class="co">#   Chinstrap       0.291547</span></span>
-<span><span class="co">#   Gentoo          0.255392</span></span></code></pre></div>
+<span><span class="co">#   Adelie          0.452683</span></span>
+<span><span class="co">#   Chinstrap       0.280456</span></span>
+<span><span class="co">#   Gentoo          0.266861</span></span></code></pre></div>
 <p><br></p>
 </div>
 </div>
@@ -1866,9 +1866,9 @@ population?</em>” is as follows:</p>
 <code class="sourceCode R"><span><span class="va">Fspecies60</span><span class="op">$</span><span class="va">quantiles</span><span class="op">[</span>, , <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">'5.5%'</span>, <span class="st">'94.5%'</span><span class="op">)</span><span class="op">]</span></span>
 <span><span class="co">#            </span></span>
 <span><span class="co"># Y               5.5%    94.5%</span></span>
-<span><span class="co">#   Adelie    0.296274 0.483736</span></span>
-<span><span class="co">#   Chinstrap 0.138085 0.297815</span></span>
-<span><span class="co">#   Gentoo    0.304430 0.499396</span></span></code></pre></div>
+<span><span class="co">#   Adelie    0.296141 0.481542</span></span>
+<span><span class="co">#   Chinstrap 0.161755 0.318017</span></span>
+<span><span class="co">#   Gentoo    0.285550 0.470229</span></span></code></pre></div>
 <blockquote>
 <p>From a sample of 10 penguins, the inference about the relative
 frequencies of the three species in the full population is as
@@ -1969,16 +1969,16 @@ island. We can report an estimate and uncertainty about this
 difference:</p>
 <div class="sourceCode" id="cb35"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/stats/median.html" class="external-link">median</a></span><span class="op">(</span><span class="va">freqdiff</span><span class="op">)</span></span>
-<span><span class="co"># [1] 0.592298</span></span>
+<span><span class="co"># [1] 0.455307</span></span>
 <span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/stats/quantile.html" class="external-link">quantile</a></span><span class="op">(</span><span class="va">freqdiff</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0.05</span>, <span class="fl">0.95</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="co">#       5%      95% </span></span>
-<span><span class="co"># 0.387664 0.755933</span></span></code></pre></div>
+<span><span class="co"># 0.250119 0.638229</span></span></code></pre></div>
 <blockquote>
 <p>From a sample of 60 penguins, the difference between the frequencies
 of <code>Gentoo</code> species and <code>Chinstrap</code> species, on
-<code>Biscoe</code> island, is estimated with a median of 0.59, and it
-is between 0.39 and 0.76 with 90% probability.</p>
+<code>Biscoe</code> island, is estimated with a median of 0.46, and it
+is between 0.25 and 0.64 with 90% probability.</p>
 </blockquote>
 <p>Maybe you prefer a ratio between the two frequencies:</p>
 <div class="sourceCode" id="cb36"><pre class="downlit sourceCode r">
@@ -1986,20 +1986,20 @@ is between 0.39 and 0.76 with 90% probability.</p>
 <span>    <span class="va">Fspecies60I</span><span class="op">$</span><span class="va">samples</span><span class="op">[</span><span class="st">'Chinstrap'</span>, <span class="st">'Biscoe'</span>,<span class="op">]</span></span>
 <span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/stats/median.html" class="external-link">median</a></span><span class="op">(</span><span class="va">freqratio</span><span class="op">)</span></span>
-<span><span class="co"># [1] 7.66448</span></span>
+<span><span class="co"># [1] 4.27492</span></span>
 <span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/stats/quantile.html" class="external-link">quantile</a></span><span class="op">(</span><span class="va">freqratio</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0.05</span>, <span class="fl">0.95</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="co">#      5%     95% </span></span>
-<span><span class="co">#  3.2617 22.8390</span></span></code></pre></div>
+<span><span class="co"># 2.09686 9.64345</span></span></code></pre></div>
 <blockquote>
 <p>From a sample of 60 penguins, the ratio between the frequencies of
 <code>Gentoo</code> species on <code>Chinstrap</code> species, on
-<code>Biscoe</code> island, is estimated with a median of 7.7, and it is
-between 3.26 and 22.84 with 90% probability.</p>
+<code>Biscoe</code> island, is estimated with a median of 4.3, and it is
+between 2.10 and 9.64 with 90% probability.</p>
 </blockquote>
 <p>It is remarkable that with only 60 penguins (and not all of them from
 Biscoe island) we can conclude with a high probability (95%) that there
-are at least 3 times more Gentoo than Chinstrap penguins on Biscoe
+are at least 2 times more Gentoo than Chinstrap penguins on Biscoe
 island!</p>
 <p><br><strong>If your only research question had been to check whether the
 Gentoo population is at least twice as large as Chinstrap’s on Biscoe
@@ -2136,16 +2136,16 @@ population?</em>”. A quantitative summary can be extracted from the
 <code class="sourceCode R"><span><span class="va">Fspeciesall</span><span class="op">$</span><span class="va">values</span></span>
 <span><span class="co">#            X</span></span>
 <span><span class="co"># Y               [,1]</span></span>
-<span><span class="co">#   Adelie    0.435596</span></span>
-<span><span class="co">#   Chinstrap 0.199464</span></span>
-<span><span class="co">#   Gentoo    0.364940</span></span>
+<span><span class="co">#   Adelie    0.437669</span></span>
+<span><span class="co">#   Chinstrap 0.210793</span></span>
+<span><span class="co">#   Gentoo    0.351538</span></span>
 <span></span>
 <span><span class="va">Fspeciesall</span><span class="op">$</span><span class="va">quantiles</span><span class="op">[</span>, , <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">'5.5%'</span>, <span class="st">'94.5%'</span><span class="op">)</span><span class="op">]</span></span>
 <span><span class="co">#            </span></span>
 <span><span class="co"># Y               5.5%    94.5%</span></span>
-<span><span class="co">#   Adelie    0.395305 0.477901</span></span>
-<span><span class="co">#   Chinstrap 0.166135 0.234447</span></span>
-<span><span class="co">#   Gentoo    0.324735 0.406359</span></span></code></pre></div>
+<span><span class="co">#   Adelie    0.395676 0.479860</span></span>
+<span><span class="co">#   Chinstrap 0.176545 0.245848</span></span>
+<span><span class="co">#   Gentoo    0.311122 0.392778</span></span></code></pre></div>
 <blockquote>
 <p>From a sample of 344 penguins [add a more thorough specification of
 population and sampling procedure here], the relative frequencies of the
@@ -2160,12 +2160,12 @@ probability
 </dd>
 <dt>Chinstrap</dt>
 <dd>
-estimate 0.20 <br>true rel. frequency between 0.17 and 0.23 with 89%
+estimate 0.21 <br>true rel. frequency between 0.18 and 0.25 with 89%
 probability
 </dd>
 <dt>Gentoo</dt>
 <dd>
-estimate 0.36 <br>true rel. frequency between 0.32 and 0.41 with 89%
+estimate 0.35 <br>true rel. frequency between 0.31 and 0.39 with 89%
 probability
 </dd>
 </dl>
@@ -2237,16 +2237,16 @@ for the three frequencies:</p>
 <span><span class="va">Fanalysis</span><span class="op">$</span><span class="va">values</span></span>
 <span><span class="co">#            X</span></span>
 <span><span class="co"># Y              Biscoe</span></span>
-<span><span class="co">#   Adelie    0.2601481</span></span>
-<span><span class="co">#   Chinstrap 0.0362443</span></span>
-<span><span class="co">#   Gentoo    0.7036076</span></span>
+<span><span class="co">#   Adelie    0.2643710</span></span>
+<span><span class="co">#   Chinstrap 0.0781806</span></span>
+<span><span class="co">#   Gentoo    0.6574484</span></span>
 <span></span>
 <span><span class="va">Fanalysis</span><span class="op">$</span><span class="va">quantiles</span><span class="op">[</span>, , <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">'5.5%'</span>, <span class="st">'94.5%'</span><span class="op">)</span><span class="op">]</span></span>
 <span><span class="co">#            </span></span>
-<span><span class="co"># Y                5.5%     94.5%</span></span>
-<span><span class="co">#   Adelie    0.2078777 0.3144158</span></span>
-<span><span class="co">#   Chinstrap 0.0162262 0.0606095</span></span>
-<span><span class="co">#   Gentoo    0.6453513 0.7577983</span></span></code></pre></div>
+<span><span class="co"># Y                5.5%    94.5%</span></span>
+<span><span class="co">#   Adelie    0.2120122 0.317935</span></span>
+<span><span class="co">#   Chinstrap 0.0499459 0.110916</span></span>
+<span><span class="co">#   Gentoo    0.5995547 0.713646</span></span></code></pre></div>
 <p>Conclusion:</p>
 <blockquote>
 <p>From a sample of 344 penguins, the relative frequencies of the three
@@ -2254,17 +2254,17 @@ species <strong>on Biscoe island</strong> are estimated as follows:</p>
 <dl>
 <dt>Adélie</dt>
 <dd>
-estimate 0.26 <br>true rel. frequency between 0.21 and 0.31 with 89%
+estimate 0.26 <br>true rel. frequency between 0.21 and 0.32 with 89%
 probability
 </dd>
 <dt>Chinstrap</dt>
 <dd>
-estimate 0.04 <br>true rel. frequency between 0.02 and 0.06 with 89%
+estimate 0.08 <br>true rel. frequency between 0.05 and 0.11 with 89%
 probability
 </dd>
 <dt>Gentoo</dt>
 <dd>
-estimate 0.70 <br>true rel. frequency between 0.65 and 0.76 with 89%
+estimate 0.66 <br>true rel. frequency between 0.60 and 0.71 with 89%
 probability
 </dd>
 </dl>
@@ -2307,16 +2307,16 @@ the three frequencies:</p>
 <span><span class="va">Fanalysis</span><span class="op">$</span><span class="va">values</span></span>
 <span><span class="co">#            X</span></span>
 <span><span class="co"># Y             Adelie</span></span>
-<span><span class="co">#   Biscoe    0.289930</span></span>
-<span><span class="co">#   Dream     0.388796</span></span>
-<span><span class="co">#   Torgersen 0.321274</span></span>
+<span><span class="co">#   Biscoe    0.282757</span></span>
+<span><span class="co">#   Dream     0.425517</span></span>
+<span><span class="co">#   Torgersen 0.291726</span></span>
 <span></span>
 <span><span class="va">Fanalysis</span><span class="op">$</span><span class="va">quantiles</span><span class="op">[</span>, , <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">'5.5%'</span>, <span class="st">'94.5%'</span><span class="op">)</span><span class="op">]</span></span>
 <span><span class="co">#            </span></span>
 <span><span class="co"># Y               5.5%    94.5%</span></span>
-<span><span class="co">#   Biscoe    0.232984 0.347477</span></span>
-<span><span class="co">#   Dream     0.324777 0.452447</span></span>
-<span><span class="co">#   Torgersen 0.264392 0.382129</span></span></code></pre></div>
+<span><span class="co">#   Biscoe    0.227718 0.337391</span></span>
+<span><span class="co">#   Dream     0.360946 0.492150</span></span>
+<span><span class="co">#   Torgersen 0.236469 0.348194</span></span></code></pre></div>
 <p>Conclusions:</p>
 <blockquote>
 <p>From a sample of 344 penguins, the distribution of the
@@ -2325,17 +2325,17 @@ follows:</p>
 <dl>
 <dt>Biscoe</dt>
 <dd>
-estimate 0.29 <br>true rel. frequency between 0.23 and 0.35 with 89%
+estimate 0.28 <br>true rel. frequency between 0.23 and 0.34 with 89%
 probability
 </dd>
 <dt>Dream</dt>
 <dd>
-estimate 0.39 <br>true rel. frequency between 0.32 and 0.45 with 89%
+estimate 0.43 <br>true rel. frequency between 0.36 and 0.49 with 89%
 probability
 </dd>
 <dt>Torgersen</dt>
 <dd>
-estimate 0.32 <br>true rel. frequency between 0.26 and 0.38 with 89%
+estimate 0.29 <br>true rel. frequency between 0.24 and 0.35 with 89%
 probability
 </dd>
 </dl>
