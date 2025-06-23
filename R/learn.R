@@ -923,7 +923,7 @@ learn <- function(
             Alpha ~ dcat(prob = probalpha0[1:nalpha])
             alphas[1:ncomponents] <- dirchalphas[1:ncomponents] * alphabase^Alpha
             W[1:ncomponents] ~ ddirch(alpha = alphas[1:ncomponents])
-            W0[1:ncomponents] <- W[1:ncomponents] + 1e-100
+            ## W0[1:ncomponents] <- W[1:ncomponents] + 1e-100
 
             ## Probability density for the parameters of the components
             for (k in 1:ncomponents) {
@@ -975,7 +975,7 @@ learn <- function(
             }
             ## Probability of data
             for (d in 1:npoints) {
-                K[d] ~ dcat(prob = W0[1:ncomponents])
+                K[d] ~ dcat(prob = W[1:ncomponents])
                 ##
                 if (vn$R > 0) { # continuous open domain
                     for (v in 1:Rn) {
