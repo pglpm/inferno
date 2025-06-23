@@ -923,7 +923,7 @@ learn <- function(
             Alpha ~ dcat(prob = probalpha0[1:nalpha])
             alphas[1:ncomponents] <- dirchalphas[1:ncomponents] * alphabase^Alpha
             W[1:ncomponents] ~ ddirch(alpha = alphas[1:ncomponents])
-            ## W0[1:ncomponents] <- W[1:ncomponents] + 1e-100
+            W0[1:ncomponents] <- W[1:ncomponents] + 1e-100
 
             ## Probability density for the parameters of the components
             for (k in 1:ncomponents) {
@@ -975,7 +975,8 @@ learn <- function(
             }
             ## Probability of data
             for (d in 1:npoints) {
-                K[d] ~ dcat(prob = W[1:ncomponents])
+                ## K[d] ~ dcat(prob = W[1:ncomponents])
+                K[d] ~ dcat(prob = W0[1:ncomponents])
                 ##
                 if (vn$R > 0) { # continuous open domain
                     for (v in 1:Rn) {
@@ -1412,6 +1413,7 @@ learn <- function(
         } else { # 'allcentre'
             ## all components equal, all points to first component
             initsfn <- function() {
+                initvar <- 6
                 outlist <- list(
                     Alpha = round(nalpha/2),
                     W = rep(1/ncomponents, ncomponents),
@@ -1430,7 +1432,7 @@ learn <- function(
                                     rate = constants$Rvar1),
                                 nrow = vn$R, ncol = ncomponents
                             ),
-                            Rvar = matrix(1, nrow = vn$R, ncol = ncomponents)
+                            Rvar = matrix(initvar, nrow = vn$R, ncol = ncomponents)
                         )
                     )
                 }
@@ -1445,8 +1447,7 @@ learn <- function(
                                     rate = constants$Cvar1),
                                 nrow = vn$C, ncol = ncomponents
                             ),
-                            Cvar = matrix(1,
-                                nrow = vn$C, ncol = ncomponents),
+                            Cvar = matrix(initvar, nrow = vn$C, ncol = ncomponents),
                             ## for data with boundary values
                             Clat = constants$Clatinit
                         )
@@ -1463,8 +1464,7 @@ learn <- function(
                                     rate = constants$Dvar1),
                                 nrow = vn$D, ncol = ncomponents
                             ),
-                            Dvar = matrix(1,
-                                nrow = vn$D, ncol = ncomponents),
+                            Dvar = matrix(initvar, nrow = vn$D, ncol = ncomponents),
                             ## for data with boundary values
                             Dlat = constants$Dlatinit
                         )
