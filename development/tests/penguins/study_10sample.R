@@ -15,6 +15,7 @@ learntdir <- learn(
     appendinfo = TRUE,
     output = 'directory',
     parallel = parallel,
+    relerror = 0.038,
     ## parameters for short test run:
     ## subsampledata = 10,
     ## maxhours = 0,

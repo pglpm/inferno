@@ -78,7 +78,7 @@ learn <- function(
     maxMCiterations = +Inf,
     maxhours = +Inf,
     ncheckpoints = NULL,
-    relerror = 0.05,
+    relerror = 0.05, ## Gong-Flegal: 0.038, Z=1000: 0.076, Z=400: 0.12
     prior = missing(data) || is.null(data),
     thinning = NULL,
     plottraces = TRUE,
@@ -105,6 +105,7 @@ learn <- function(
         Bshapehi = 1,
         Dthreshold = 1,
         tscalefactor = 2,
+        avoidzeroW = FALSE,
         initmethod = 'allcentre'
         ## precluster, prior, allcentre
     )
@@ -923,8 +924,9 @@ learn <- function(
             Alpha ~ dcat(prob = probalpha0[1:nalpha])
             alphas[1:ncomponents] <- dirchalphas[1:ncomponents] * alphabase^Alpha
             W[1:ncomponents] ~ ddirch(alpha = alphas[1:ncomponents])
-            W0[1:ncomponents] <- W[1:ncomponents] + 1e-100
-
+            if(avoidzeroW){
+                W0[1:ncomponents] <- W[1:ncomponents] + 1e-100
+            }
             ## Probability density for the parameters of the components
             for (k in 1:ncomponents) {
                 ## Probability distributions of parameters
@@ -975,8 +977,11 @@ learn <- function(
             }
             ## Probability of data
             for (d in 1:npoints) {
-                ## K[d] ~ dcat(prob = W[1:ncomponents])
-                K[d] ~ dcat(prob = W0[1:ncomponents])
+                if(avoidzeroW){
+                    K[d] ~ dcat(prob = W0[1:ncomponents])
+                } else {
+                    K[d] ~ dcat(prob = W[1:ncomponents])
+                }
                 ##
                 if (vn$R > 0) { # continuous open domain
                     for (v in 1:Rn) {
@@ -1757,6 +1762,9 @@ learn <- function(
             ## }else{
             ##  niter <- max(min(startupMCiterations,requirediter*2), 128)
             ##  }
+
+            ## ## nitertot: total number of MC samples from chain start
+            ## ## availiter: number of MC samples kept in memory
             nitertot <- availiter <- 0L
             requirediter <- +Inf
             reset <- TRUE
