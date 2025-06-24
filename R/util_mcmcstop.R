@@ -34,7 +34,7 @@ funESS <- function(x){
     spec <- list(spec=v0, order=order)
     spec <- spec$spec
     Y <- x - matrix(colMeans(x), N, M, byrow = TRUE)
-    temp <- N * N * colMeans(Y * Y) / ((N - 1) * spec)
+    temp <- N * (N * colMeans(Y * Y) / (N - 1)) / spec
     out <- spec
     out[which(spec != 0)] <- temp[which(spec != 0)]
     out[which(out < .Machine$double.eps)] <- .Machine$double.eps
