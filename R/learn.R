@@ -106,7 +106,7 @@ learn <- function(
         Dthreshold = 1,
         tscalefactor = 2,
         avoidzeroW = FALSE,
-        initmethod = 'allcentre'
+        initmethod = 'allinone'
         ## precluster, prior, allcentre
     )
 ) {
@@ -1415,7 +1415,7 @@ learn <- function(
                 ##
                 outlist
             } #End initsfns
-        } else { # 'allcentre'
+        } else if(initmethod == 'allcentre'){
             ## all components equal, all points to first component
             initsfn <- function() {
                 initvar <- 6
@@ -1510,7 +1510,138 @@ learn <- function(
                 ##
                 outlist
             } #End initsfns
-        }
+        } else if(initmethod == 'allinone'){
+            ## Components from prior, data all in one
+            initsfn <- function() {
+                outlist <- list(
+                    Alpha = round(nalpha/2),
+                    W = rep(1/ncomponents, ncomponents),
+                    ## ## Assign every point to first component
+                    K = rep(1, npoints)
+                )
+                ##
+                if (vn$R > 0) { # continuous open domain
+                    Rrate <- matrix(
+                        nimble::rinvgamma(
+                            n = vn$R,
+                            shape = constants$Rshapehi,
+                            rate = constants$Rvar1),
+                        nrow = vn$R, ncol = ncomponents
+                    )
+                    outlist <- c(
+                        outlist,
+                        list(
+                            Rmean = matrix(rnorm(
+                                n = vn$R,
+                                mean = constants$Rmean1,
+                                sd = sqrt(constants$Rvarm1)
+                            ), nrow = vn$R, ncol = ncomponents),
+                            Rrate = Rrate,
+                            Rvar = matrix(
+                                nimble::rinvgamma(
+                                    n = vn$R,
+                                    shape = constants$Rshapelo,
+                                    rate = Rrate),
+                                nrow = vn$R, ncol = ncomponents
+                            )
+                        )
+                    )
+                }
+                if (vn$C > 0) { # continuous closed domain
+                    Crate <- matrix(
+                        nimble::rinvgamma(
+                            n = vn$C,
+                            shape = constants$Cshapehi,
+                            rate = constants$Cvar1),
+                        nrow = vn$C, ncol = ncomponents
+                    )
+                    outlist <- c(
+                        outlist,
+                        list(
+                            Cmean = matrix(rnorm(
+                                n = vn$C,
+                                mean = constants$Cmean1,
+                                sd = sqrt(constants$Cvarm1)
+                            ), nrow = vn$C, ncol = ncomponents),
+                            Crate = Crate,
+                            Cvar = matrix(
+                                nimble::rinvgamma(
+                                    n = vn$C,
+                                    shape = constants$Cshapelo,
+                                    rate = Crate),
+                                nrow = vn$C, ncol = ncomponents
+                            ),
+                            Clat = constants$Clatinit
+                        )
+                    )
+                }
+                if (vn$D > 0) { # continuous rounded
+                    Drate <- matrix(
+                        nimble::rinvgamma(
+                            n = vn$D,
+                            shape = constants$Dshapehi,
+                            rate = constants$Dvar1),
+                        nrow = vn$D, ncol = ncomponents
+                    )
+                    outlist <- c(
+                        outlist,
+                        list(
+                            Dmean = matrix(rnorm(
+                                n = vn$D,
+                                mean = constants$Dmean1,
+                                sd = sqrt(constants$Dvarm1)
+                            ), nrow = vn$D, ncol = ncomponents),
+                            Drate = Drate,
+                            Dvar = matrix(
+                                nimble::rinvgamma(
+                                    n = vn$D,
+                                    shape = constants$Dshapelo,
+                                    rate = Drate),
+                                nrow = vn$D, ncol = ncomponents
+                            ),
+                            Dlat = constants$Dlatinit
+                        )
+                    )
+                }
+                if (vn$O > 0) { # ordinal
+                    outlist <- c(
+                        outlist,
+                        list(
+                            Oprob = aperm(array(sapply(1:vn$O, function(avar) {
+                                ## sapply(1:ncomponents, function(aclus) {
+                                    nimble::rdirch(n = 1, alpha = Oalpha0[avar, ])
+                                ## })
+                            }), dim = c(Omaxn, vn$O, ncomponents)), c(2, 3, 1))
+                        )
+                    )
+                }
+                if (vn$N > 0) { # nominal
+                    outlist <- c(
+                        outlist,
+                        list(
+                            Nprob = aperm(array(sapply(1:vn$N, function(avar) {
+                                ## sapply(1:ncomponents, function(aclus) {
+                                    nimble::rdirch(n = 1, alpha = Nalpha0[avar, ])
+                                ## })
+                            }), dim = c(Nmaxn, vn$N, ncomponents)), c(2, 3, 1))
+                        )
+                    )
+                }
+                if (vn$B > 0) { # nominal
+                    outlist <- c(
+                        outlist,
+                        list(
+                            Bprob = matrix(
+                                rbeta(n = vn$B,
+                                    shape1 = Bshapelo, shape2 = Bshapehi),
+                                nrow = vn$B, ncol = ncomponents)
+                        )
+                    )
+                }
+                ##
+                outlist
+            } #End initsfns
+        } else {stop('Unknown "initmethod"')}
 
 #################################################
 #### NIMBLE SETUP
@@ -1902,6 +2033,7 @@ learn <- function(
                         auxmetadata = auxmetadata
                     )
                 )
+
                 traces <- rbind(traces, ll)
 
                 toRemove <- which(!is.finite(traces), arr.ind = TRUE)
