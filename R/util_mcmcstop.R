@@ -26,20 +26,22 @@ funESS <- function(x){
     z <- 1:N
     for (i in 1:M) {
         lm.out <- lm(x[, i] ~ z)
-        if(!identical(all.equal(sd(residuals(lm.out)), 0), TRUE)) {
+        ## if(!isTRUE(all.equal(sd(residuals(lm.out)), 0))) {
             ar.out <- try(ar(x[,i], aic=TRUE), silent=TRUE)
             if(!inherits(ar.out, "try-error")) {
                 v0[i] <- ar.out$var.pred / {1 - sum(ar.out$ar)}^2
-                order[i] <- ar.out$order}}}
-    spec <- list(spec=v0, order=order)
-    spec <- spec$spec
+                ## order[i] <- ar.out$order
+            }
+        ## }
+    }
+    ## spec <- list(spec=v0, order=order)
+    ## spec <- spec$spec
     Y <- x - matrix(colMeans(x), N, M, byrow = TRUE)
-    temp <- N * (N * colMeans(Y * Y) / (N - 1)) / spec
-    out <- spec
-    out[which(spec != 0)] <- temp[which(spec != 0)]
-    out[which(out < .Machine$double.eps)] <- .Machine$double.eps
-    out[which(out > N)] <- N
-    out
+    temp <- N * (N * colMeans(Y * Y) / (N - 1)) / v0
+    v0[which(v0 != 0)] <- temp[which(v0 != 0)]
+    v0[which(v0 < .Machine$double.eps)] <- .Machine$double.eps
+    v0[which(v0 > N)] <- N
+    v0
 }
 
 #### Function for calculating number of needed MCMC iterations

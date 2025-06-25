@@ -2044,6 +2044,20 @@ learn <- function(
                     cleantraces <- traces
                 }
 
+                ## ## for debugging
+                ## saveRDS(traces,
+                ##     file = file.path(dirname,
+                ##         paste0('___traces',
+                ##             dashnameroot, '--',
+                ##             padchainnumber,'-',subiter, '.rds')
+                ##     ))
+                ## saveRDS(cleantraces,
+                ##     file = file.path(dirname,
+                ##         paste0('___cleantraces',
+                ##             dashnameroot, '--',
+                ##             padchainnumber,'-',subiter, '.rds')
+                ##     ))
+
                 diagn <- mcmcstop(traces = cleantraces,
                     nsamples = nsamplesperchain,
                     availiter = availiter,
