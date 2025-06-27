@@ -101,9 +101,9 @@ learn <- function(
         Bshapelo = 1,
         Bshapehi = 1,
         Dthreshold = 1,
-        tscalefactor = 3.35,
+        tscalefactor = 1.35,
         avoidzeroW = FALSE,
-        initmethod = 'allinone'
+        initmethod = 'precluster'
         ## precluster, prior, allcentre
     )
 ) {
@@ -130,9 +130,9 @@ learn <- function(
         Bshapelo = 1,
         Bshapehi = 1,
         Dthreshold = 1,
-        tscalefactor = 3.35,
+        tscalefactor = 1.35,
         avoidzeroW = FALSE,
-        initmethod = 'allinone'
+        initmethod = 'precluster'
         ## precluster, prior, allcentre
     )
 
@@ -882,9 +882,6 @@ learn <- function(
     cat('\nC-compiling samplers appropriate to the variates (package Nimble)\n')
     cat('this can take tens of minutes. Please wait...\r')
 
-    ## ## Needed if method F. for K initialization is used
-    ## Ksample <- sample(0:1, 1)
-
 #####################################################
 #### BEGINNING OF FOREACH LOOP OVER CORES
 #####################################################
@@ -895,7 +892,6 @@ learn <- function(
         ##.packages = c('predict'),
         .noexport = c('data')
     ) %dochains% {
-
         ## Create log file
         ## Redirect diagnostics and service messages there
         outcon <- file(file.path(dirname,

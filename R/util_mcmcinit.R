@@ -494,6 +494,7 @@ initsfnAllcentre<- function() {
 #### MCMC initialization function
 #' @keywords internal
 initsfnAllinone <- function() {
+    initsfn <<- function(){
     outlist <- list(
         Alpha = round(constants$nalpha/2),
         W = rep(1/constants$ncomponents, constants$ncomponents),
@@ -621,7 +622,7 @@ initsfnAllinone <- function() {
     }
     ##
     outlist
-}
+}}
 
 
 #### Calculate the log-probability of a MCMC sample (produced by initsfn)

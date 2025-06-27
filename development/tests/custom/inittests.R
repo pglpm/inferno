@@ -1,6 +1,37 @@
 source('/home/pglpm/repos/inferno/R/util_buildauxmetadata.R')
 source('/home/pglpm/repos/inferno/R/util_vtransform.R')
 logprob <- function(data, metadata, initmethod, hyperparams = NULL){
+    #### hyperparams
+    if(is.null(hyperparams)){
+        hyperparams <- list(
+            ncomponents = 64,
+            minalpha = -4,
+            maxalpha = 4,
+            byalpha = 1,
+            Rshapelo = 0.5,
+            Rshapehi = 0.5,
+            Rvarm1 = 8^2,
+            Cshapelo = 0.5,
+            Cshapehi = 0.5,
+            Cvarm1 = 8^2,
+            Dshapelo = 0.5,
+            Dshapehi = 0.5,
+            Dvarm1 = 8^2,
+            Bshapelo = 1,
+            Bshapehi = 1,
+            Dthreshold = 1,
+            tscalefactor = 1.35,
+            avoidzeroW = FALSE,
+            initmethod = initmethod
+            ## precluster, prior, allcentre
+        )
+    }
+
+    for(aname in names(hyperparams)){
+        assign(aname, hyperparams[[aname]])
+    }
+
+
 #### Metadata
     if (is.character(metadata) && file.exists(metadata)) {
         metadata <- read.csv(metadata,
@@ -84,39 +115,6 @@ logprob <- function(data, metadata, initmethod, hyperparams = NULL){
         message('Missing data')
         prior <- TRUE
         npoints <- 0
-    }
-
-#### hyperparams
-    if(is.null(hyperparams)){
-        hyperparams <- list(
-            ncomponents = 64,
-            minalpha = -4,
-            maxalpha = 4,
-            byalpha = 1,
-            Rshapelo = 0.5,
-            Rshapehi = 0.5,
-            Rvarm1 = 3^2,
-            Cshapelo = 0.5,
-            Cshapehi = 0.5,
-            Cvarm1 = 3^2,
-            Dshapelo = 0.5,
-            Dshapehi = 0.5,
-            Dvarm1 = 3^2,
-            Lshapelo = 0.5,
-            Lshapehi = 0.5,
-            Lvarm1 = 3^2,
-            Bshapelo = 1,
-            Bshapehi = 1,
-            Dthreshold = 1,
-            tscalefactor = 2,
-            avoidzeroW = FALSE,
-            initmethod = 'allinone'
-            ## precluster, prior, allcentre
-        )
-    }
-
-    for(aname in names(hyperparams)){
-        assign(aname, hyperparams[[aname]])
     }
 
 
@@ -318,621 +316,771 @@ logprob <- function(data, metadata, initmethod, hyperparams = NULL){
         }
     ) # End datapoints
 
+####
 #### INITIAL-VALUE FUNCTION
-    if(initmethod == 'precluster'){
-        ## pre-clustering, k-mean style
-        initsfn <- function() {
-            ## Create components centres
-            ## distance function
-            ## NB: all variances will be initialized to 1
-            lpnorm <- function(xx){abs(xx)}
-            distances <- matrix(0, nrow = npoints, ncol = ncomponents)
-            if (vn$R > 0) { # continuous open domain
-                Rmeans <- matrix(rnorm(
-                    n = vn$R * ncomponents,
-                    mean = constants$Rmean1,
-                    sd = sqrt(constants$Rvarm1)
-                ), nrow = vn$R, ncol = ncomponents)
-                ## distances from datapoints
-                distances <- distances + apply(Rmeans, 2, function(ameans){
-                    colSums(lpnorm(t(datapoints$Rdata) - ameans), na.rm = TRUE)
-                })
-            }
-            if (vn$C > 0) { # continuous closed domain
-                Cmeans <- matrix(rnorm(
-                    n = vn$C * ncomponents,
-                    mean = constants$Cmean1,
-                    sd = sqrt(constants$Cvarm1)
-                ), nrow = vn$C, ncol = ncomponents)
-                ## distances from datapoints
-                distances <- distances + apply(Cmeans, 2, function(ameans){
-                    colSums(lpnorm(t(datapoints$Clat) - ameans), na.rm = TRUE)
-                })
-            }
-            if (vn$D > 0) { # discrete
-                Dmeans <- matrix(rnorm(
-                    n = vn$D * ncomponents,
-                    mean = constants$Dmean1,
-                    sd = sqrt(constants$Dvarm1)
-                ), nrow = vn$D, ncol = ncomponents)
-                ## distances from datapoints
-                distances <- distances + apply(Dmeans, 2, function(ameans){
-                    colSums(lpnorm(t(constants$Dlatinit) - ameans), na.rm = TRUE)
-                })
-            }
-            ## if (vn$L > 0) { # 
-            ##     Lmeans <- matrix(rnorm(
-            ##         n = vn$L * ncomponents,
-            ##         mean = constants$Lmean1,
-            ##         sd = sqrt(constants$Lvarm1)
-            ##     ), nrow = vn$L, ncol = ncomponents)
-            ##     ## distances from datapoints
-            ##     distances <- distances + apply(Lmeans, 2, function(ameans){
-            ##         colSums(lpnorm(t(constants$Llatinit) - ameans), na.rm = TRUE)
-            ##     })
-            ## }
-            ## if (vn$B > 0) {
-            ##     Bprobs <- matrix(rbeta(
-            ##         n = vn$B * ncomponents,
-            ##         shape1 = Bshapelo,
-            ##         shape2 = Bshapehi,
-            ##         ), nrow = vn$B, ncol = ncomponents)
-            ##     ## distances from datapoints
-            ##     distances <- distances + apply(Bprobs, 2, function(ameans){
-            ##         colSums(lpnorm(t(datapoints$Bdata) - ameans), na.rm = TRUE)
-            ##     })
-            ## }
+        ## init functions defined in 'util_mcmcinit.R'
+        if(initmethod == 'precluster'){
+            ## pre-clustering, k-mean style
+            initsfn <- function() {
+                ## Create components centres
+                ## distance function
+                ## NB: all variances will be initialized to 1
+                lpnorm <- function(xx){abs(xx)}
+                distances <- matrix(0, nrow = constants$npoints,
+                    ncol = constants$ncomponents)
+                if (vn$R > 0) { # continuous open domain
+                    Rmeans <- matrix(rnorm(
+                        n = vn$R * constants$ncomponents,
+                        mean = constants$Rmean1,
+                        sd = sqrt(constants$Rvarm1)
+                    ), nrow = vn$R, ncol = constants$ncomponents)
+                    ## distances from datapoints
+                    distances <- distances + apply(Rmeans, 2, function(ameans){
+                        colSums(lpnorm(t(datapoints$Rdata) - ameans), na.rm = TRUE)
+                    })
+                }
+                if (vn$C > 0) { # continuous closed domain
+                    Cmeans <- matrix(rnorm(
+                        n = vn$C * constants$ncomponents,
+                        mean = constants$Cmean1,
+                        sd = sqrt(constants$Cvarm1)
+                    ), nrow = vn$C, ncol = constants$ncomponents)
+                    ## distances from datapoints
+                    distances <- distances + apply(Cmeans, 2, function(ameans){
+                        colSums(lpnorm(t(datapoints$Clat) - ameans), na.rm = TRUE)
+                    })
+                }
+                if (vn$D > 0) { # discrete
+                    Dmeans <- matrix(rnorm(
+                        n = vn$D * constants$ncomponents,
+                        mean = constants$Dmean1,
+                        sd = sqrt(constants$Dvarm1)
+                    ), nrow = vn$D, ncol = constants$ncomponents)
+                    ## distances from datapoints
+                    distances <- distances + apply(Dmeans, 2, function(ameans){
+                        colSums(lpnorm(t(constants$Dlatinit) - ameans), na.rm = TRUE)
+                    })
+                }
+                ## if (vn$L > 0) { # 
+                ##     Lmeans <- matrix(rnorm(
+                ##         n = vn$L * constants$ncomponents,
+                ##         mean = constants$Lmean1,
+                ##         sd = sqrt(constants$Lvarm1)
+                ##     ), nrow = vn$L, ncol = constants$ncomponents)
+                ##     ## distances from datapoints
+                ##     distances <- distances + apply(Lmeans, 2, function(ameans){
+                ##         colSums(lpnorm(t(constants$Llatinit) - ameans), na.rm = TRUE)
+                ##     })
+                ## }
+                ## if (vn$B > 0) {
+                ##     Bprobs <- matrix(rbeta(
+                ##         n = vn$B * constants$ncomponents,
+                ##         shape1 = Bshapelo,
+                ##         shape2 = Bshapehi,
+                ##         ), nrow = vn$B, ncol = constants$ncomponents)
+                ##     ## distances from datapoints
+                ##     distances <- distances + apply(Bprobs, 2, function(ameans){
+                ##         colSums(lpnorm(t(datapoints$Bdata) - ameans), na.rm = TRUE)
+                ##     })
+                ## }
 
-            ## assign datapoints to component with closest centre
-            K <- apply(distances, 1, which.min)
-            occupied <- unique(K)
+                ## assign datapoints to component with closest centre
+                K <- apply(distances, 1, which.min)
+                occupied <- unique(K)
 
-            ## recalculate components centres according to their points
-            if (vn$R > 0) {
-                Rmeans[, occupied] <- sapply(occupied, function(acomponent){
-                    colMeans(datapoints$Rdata[which(K == acomponent), , drop = FALSE],
-                        na.rm = TRUE)
-                })
-                Rmeans[, -occupied] <- 0
-            }
-            if (vn$C > 0) {
-                Cmeans[, occupied] <- sapply(occupied, function(acomponent){
-                    colMeans(datapoints$Clat[which(K == acomponent), , drop = FALSE],
-                        na.rm = TRUE)
-                })
-                Cmeans[, -occupied] <- 0
-            }
-            if (vn$D > 0) {
-                Dmeans[, occupied] <- sapply(occupied, function(acomponent){
-                    colMeans(constants$Dlatinit[which(K == acomponent), , drop = FALSE],
-                        na.rm = TRUE)
-                })
-                Dmeans[, -occupied] <- 0
-            }
-            ## if (vn$L > 0) { # continuous open domain
-            ##     Lmeans[, occupied] <- sapply(occupied, function(acomponent){
-            ##         colMeans(constants$Llatinit[which(K == acomponent), , drop = FALSE],
-            ##             na.rm = TRUE)
-            ##     })
-            ##     Lmeans[, -occupied] <- 0
-            ## }
-            ## if (vn$B > 0) {
-            ##     Bprobs[, occupied] <- sapply(occupied, function(acomponent){
-            ##         colMeans(datapoints$Bdata[which(K == acomponent), , drop = FALSE],
-            ##             na.rm = TRUE)
-            ##     })
-            ##     Bprobs[, -occupied] <- 0.5
-            ## }
-            ## Alpha <- sample(1:nalpha, 1, prob = constants$probalpha0, replace = TRUE)
-            ## W <- c(rep(rempoints, minpoints), rep(1, ncomponents - minpoints))
-            ## W <- W/sum(W)
+                ## recalculate components centres according to their points
+                if (vn$R > 0) {
+                    Rmeans[, occupied] <- sapply(occupied, function(acomponent){
+                        colMeans(datapoints$Rdata[which(K == acomponent), , drop = FALSE],
+                            na.rm = TRUE)
+                    })
+                    Rmeans[, -occupied] <- 0
+                }
+                if (vn$C > 0) {
+                    Cmeans[, occupied] <- sapply(occupied, function(acomponent){
+                        colMeans(datapoints$Clat[which(K == acomponent), , drop = FALSE],
+                            na.rm = TRUE)
+                    })
+                    Cmeans[, -occupied] <- 0
+                }
+                if (vn$D > 0) {
+                    Dmeans[, occupied] <- sapply(occupied, function(acomponent){
+                        colMeans(constants$Dlatinit[which(K == acomponent), , drop = FALSE],
+                            na.rm = TRUE)
+                    })
+                    Dmeans[, -occupied] <- 0
+                }
+                ## if (vn$L > 0) { # continuous open domain
+                ##     Lmeans[, occupied] <- sapply(occupied, function(acomponent){
+                ##         colMeans(constants$Llatinit[which(K == acomponent), , drop = FALSE],
+                ##             na.rm = TRUE)
+                ##     })
+                ##     Lmeans[, -occupied] <- 0
+                ## }
+                ## if (vn$B > 0) {
+                ##     Bprobs[, occupied] <- sapply(occupied, function(acomponent){
+                ##         colMeans(datapoints$Bdata[which(K == acomponent), , drop = FALSE],
+                ##             na.rm = TRUE)
+                ##     })
+                ##     Bprobs[, -occupied] <- 0.5
+                ## }
+                ## Alpha <- sample(1:constants$nalpha, 1, prob = constants$probalpha0, replace = TRUE)
+                ## W <- c(rep(rempoints, miconstants$npoints), rep(1, constants$ncomponents - miconstants$npoints))
+                ## W <- W/sum(W)
 
-            outlist <- list(
-                Alpha = round(nalpha/2),
-                W = rep(1/ncomponents, ncomponents),
-                ## ## Assign every point to the closest component centre
-                K = K
-                ## ## Other assignment methods:
-                ## ## A. assign all points to an unsystematically chosen component
-                ## K = rep(sample(rep(which(W > 0), 2), 1), nepoints)
-                ## ## B. distribute points unsystematically among components
-                ## K = sample(rep(which(W > 0), 2), npoints, replace = TRUE)
-                ## ## or:
-                ## ## C. assign all points to the most probable component
-                ## K = rep(which.max(W), npoints)
-                ## ## or:
-                ## ## D. assign all points to the least probable component
-                ## K = rep(which(W == min(W[W > 0]))[1], npoints)
-                ## ## or:
-                ## ## E. distribute points unsystematically among M=2 components
-                ## K = sample(sample(rep(which(W > 0), 2), 2, replace = TRUE),
-                ##           npoints, replace = TRUE)
-                ## ## F. mix methods A. and B.
-                ## K = (if(achain %% 2 == Ksample) {
-                ##        ## ## assign all points to an unsystematically chosen component
-                ##        rep(sample(rep(which(W > 0), 2), 1), npoints)
-                ##      } else {
-                ##        ## distribute points unsystematically among components
-                ##        sample(rep(which(W > 0), 2), npoints, replace = TRUE)
-                ##      })
-            )
-            ##
-            if (vn$R > 0) { # continuous open domain
-                outlist <- c(
-                    outlist,
-                    list(
-                        Rmean = Rmeans,
-                        Rrate = matrix(
-                            nimble::qinvgamma(p = 0.5,
-                                shape = constants$Rshapehi,
-                                rate = constants$Rvar1),
-                            nrow = vn$R, ncol = ncomponents
-                        ),
-                        Rvar = matrix(1,
-                            nrow = vn$R, ncol = ncomponents)
-                    )
+                outlist <- list(
+                    Alpha = round(constants$nalpha/2),
+                    W = rep(1/constants$ncomponents, constants$ncomponents),
+                    ## ## Assign every point to the closest component centre
+                    K = K
+                    ## ## Other assignment methods:
+                    ## ## A. assign all points to an unsystematically chosen component
+                    ## K = rep(sample(rep(which(W > 0), 2), 1), nepoints)
+                    ## ## B. distribute points unsystematically among components
+                    ## K = sample(rep(which(W > 0), 2), constants$npoints, replace = TRUE)
+                    ## ## or:
+                    ## ## C. assign all points to the most probable component
+                    ## K = rep(which.max(W), constants$npoints)
+                    ## ## or:
+                    ## ## D. assign all points to the least probable component
+                    ## K = rep(which(W == min(W[W > 0]))[1], constants$npoints)
+                    ## ## or:
+                    ## ## E. distribute points unsystematically among M=2 components
+                    ## K = sample(sample(rep(which(W > 0), 2), 2, replace = TRUE),
+                    ##           constants$npoints, replace = TRUE)
+                    ## ## F. mix methods A. and B.
+                    ## K = (if(achain %% 2 == Ksample) {
+                    ##        ## ## assign all points to an unsystematically chosen component
+                    ##        rep(sample(rep(which(W > 0), 2), 1), constants$npoints)
+                    ##      } else {
+                    ##        ## distribute points unsystematically among components
+                    ##        sample(rep(which(W > 0), 2), constants$npoints, replace = TRUE)
+                    ##      })
                 )
-            }
-            if (vn$C > 0) { # continuous closed domain
-                outlist <- c(
-                    outlist,
-                    list(
-                        Cmean = Cmeans,
-                        Crate = matrix(
-                            nimble::qinvgamma(p = 0.5,
-                                shape = constants$Cshapehi,
-                                rate = constants$Cvar1),
-                            nrow = vn$C, ncol = ncomponents
-                        ),
-                        Cvar = matrix(1,
-                            nrow = vn$C, ncol = ncomponents),
-                        ## for data with boundary values
-                        Clat = constants$Clatinit
-                        ## Clat = vtransform(data[, vnames$C, with = FALSE],
-                        ##   auxmetadata, Cout = 'init')
-                    )
-                )
-            }
-            if (vn$D > 0) { # continuous rounded
-                outlist <- c(
-                    outlist,
-                    list(
-                        Dmean = Dmeans,
-                        Drate = matrix(
-                            nimble::qinvgamma(p = 0.5,
-                                shape = constants$Dshapehi,
-                                rate = constants$Dvar1),
-                            nrow = vn$D, ncol = ncomponents
-                        ),
-                        Dvar = matrix(1,
-                            nrow = vn$D, ncol = ncomponents),
-                        ## for data with boundary values
-                        Dlat = constants$Dlatinit
-                        ## Dlat = vtransform(data[, vnames$D, with = FALSE],
-                        ##   auxmetadata, Dout = 'init')
-                    )
-                )
-            }
-            ## if (vn$L > 0) { # latent
-            ##     outlist <- c(
-            ##         outlist,
-            ##         list(
-            ##             Lmean = Lmeans,
-            ##             Lrate = matrix(
-            ##                 nimble::qinvgamma(p = 0.5,
-            ##                     shape = constants$Lshapehi,
-            ##                     rate = constants$Lvar1),
-            ##                 nrow = vn$L, ncol = ncomponents
-            ##             ),
-            ##             Lvar = matrix(1,
-            ##                 nrow = vn$L, ncol = ncomponents),
-            ##             ## for data with boundary values
-            ##             Llat = constants$Llatinit
-            ##             ## Llat = vtransform(data[, vnames$L, with = FALSE],
-            ##             ##   auxmetadata, Lout = 'init')
-            ##         )
-            ##     )
-            ## }
-            if (vn$O > 0) { # ordinal
-                outlist <- c(
-                    outlist,
-                    list(
-                        Oprob = aperm(array(sapply(1:vn$O, function(avar) {
-                            sapply(1:ncomponents, function(aclus) {
-                                Oalpha0[avar, ]/sum(Oalpha0[avar, ])
-                                ## nimble::rdirch(n = 1, alpha = Oalpha0[avar, ])
-                            })
-                        }), dim = c(Omaxn, ncomponents, vn$O)))
-                    )
-                )
-            }
-            if (vn$N > 0) { # nominal
-                outlist <- c(
-                    outlist,
-                    list(
-                        Nprob = aperm(array(sapply(1:vn$N, function(avar) {
-                            sapply(1:ncomponents, function(aclus) {
-                                Nalpha0[avar, ]/sum(Nalpha0[avar, ])
-                                ## nimble::rdirch(n = 1, alpha = Nalpha0[avar, ])
-                            })
-                        }), dim = c(Nmaxn, ncomponents, vn$N)))
-                    )
-                )
-            }
-            if (vn$B > 0) { # binary
-                outlist <- c(
-                    outlist,
-                    list(
-                        ## Bprob = Bprobs
-                        Bprob = matrix(0.5, nrow = vn$B, ncol = ncomponents)
-                    )
-                )
-            }
-            ##
-            outlist
-        } #End initsfns
-    } else if(initmethod == 'prior'){
-        ## values chosen from prior
-        initsfn <- function() {
-            Alpha <- sample(1:nalpha, 1, prob = probalpha0[1:nalpha])
-            W <- nimble::rdirch(n = 1,
-                alpha = constants$dirchalphas[1:ncomponents] *
-                    constants$alphabase^Alpha)
-            outlist <- list(
-                Alpha = Alpha,
-                W = W,
-                K = sample(rep(which(W > 0), 2), npoints, replace = TRUE)
-            )
-            ##
-            if (vn$R > 0) { # continuous open domain
-                Rrate <- matrix(
-                    nimble::rinvgamma(
-                        n = vn$R * ncomponents,
-                        shape = constants$Rshapehi,
-                        rate = constants$Rvar1),
-                    nrow = vn$R, ncol = ncomponents
-                )
-                outlist <- c(
-                    outlist,
-                    list(
-                        Rmean = matrix(rnorm(
-                            n = vn$R * ncomponents,
-                            mean = constants$Rmean1,
-                            sd = sqrt(constants$Rvarm1)
-                        ), nrow = vn$R, ncol = ncomponents),
-                        Rrate = Rrate,
-                        Rvar = matrix(
-                            nimble::rinvgamma(
-                                n = vn$R * ncomponents,
-                                shape = constants$Rshapelo,
-                                rate = Rrate),
-                            nrow = vn$R, ncol = ncomponents
+                ##
+                if (vn$R > 0) { # continuous open domain
+                    outlist <- c(
+                        outlist,
+                        list(
+                            Rmean = Rmeans,
+                            Rrate = matrix(
+                                nimble::qinvgamma(p = 0.5,
+                                    shape = constants$Rshapehi,
+                                    rate = constants$Rvar1),
+                                nrow = vn$R, ncol = constants$ncomponents
+                            ),
+                            Rvar = matrix(1,
+                                nrow = vn$R, ncol = constants$ncomponents)
                         )
                     )
-                )
-            }
-            if (vn$C > 0) { # continuous closed domain
-                Crate <- matrix(
-                    nimble::rinvgamma(
-                        n = vn$C * ncomponents,
-                        shape = constants$Cshapehi,
-                        rate = constants$Cvar1),
-                    nrow = vn$C, ncol = ncomponents
-                )
-                outlist <- c(
-                    outlist,
-                    list(
-                        Cmean = matrix(rnorm(
-                            n = vn$C * ncomponents,
-                            mean = constants$Cmean1,
-                            sd = sqrt(constants$Cvarm1)
-                        ), nrow = vn$C, ncol = ncomponents),
-                        Crate = Crate,
-                        Cvar = matrix(
-                            nimble::rinvgamma(
-                                n = vn$C * ncomponents,
-                                shape = constants$Cshapelo,
-                                rate = Crate),
-                            nrow = vn$C, ncol = ncomponents
-                        ),
-                        Clat = constants$Clatinit
+                }
+                if (vn$C > 0) { # continuous closed domain
+                    outlist <- c(
+                        outlist,
+                        list(
+                            Cmean = Cmeans,
+                            Crate = matrix(
+                                nimble::qinvgamma(p = 0.5,
+                                    shape = constants$Cshapehi,
+                                    rate = constants$Cvar1),
+                                nrow = vn$C, ncol = constants$ncomponents
+                            ),
+                            Cvar = matrix(1,
+                                nrow = vn$C, ncol = constants$ncomponents),
+                            ## for data with boundary values
+                            Clat = constants$Clatinit
+                            ## Clat = vtransform(data[, vnames$C, with = FALSE],
+                            ##   auxmetadata, Cout = 'init')
+                        )
                     )
-                )
-            }
-            if (vn$D > 0) { # continuous rounded
-                Drate <- matrix(
-                    nimble::rinvgamma(
-                        n = vn$D * ncomponents,
-                        shape = constants$Dshapehi,
-                        rate = constants$Dvar1),
-                    nrow = vn$D, ncol = ncomponents
-                )
-                outlist <- c(
-                    outlist,
-                    list(
-                        Dmean = matrix(rnorm(
-                            n = vn$D * ncomponents,
-                            mean = constants$Dmean1,
-                            sd = sqrt(constants$Dvarm1)
-                        ), nrow = vn$D, ncol = ncomponents),
-                        Drate = Drate,
-                        Dvar = matrix(
-                            nimble::rinvgamma(
-                                n = vn$D * ncomponents,
-                                shape = constants$Dshapelo,
-                                rate = Drate),
-                            nrow = vn$D, ncol = ncomponents
-                        ),
-                        Dlat = constants$Dlatinit
+                }
+                if (vn$D > 0) { # continuous rounded
+                    outlist <- c(
+                        outlist,
+                        list(
+                            Dmean = Dmeans,
+                            Drate = matrix(
+                                nimble::qinvgamma(p = 0.5,
+                                    shape = constants$Dshapehi,
+                                    rate = constants$Dvar1),
+                                nrow = vn$D, ncol = constants$ncomponents
+                            ),
+                            Dvar = matrix(1,
+                                nrow = vn$D, ncol = constants$ncomponents),
+                            ## for data with boundary values
+                            Dlat = constants$Dlatinit
+                            ## Dlat = vtransform(data[, vnames$D, with = FALSE],
+                            ##   auxmetadata, Dout = 'init')
+                        )
                     )
-                )
-            }
-            if (vn$O > 0) { # ordinal
-                outlist <- c(
-                    outlist,
-                    list(
-                        Oprob = aperm(array(sapply(1:vn$O, function(avar) {
-                            sapply(1:ncomponents, function(aclus) {
-                                nimble::rdirch(n = 1, alpha = Oalpha0[avar, ])
-                            })
-                        }), dim = c(Omaxn, ncomponents, vn$O)))
+                }
+                ## if (vn$L > 0) { # latent
+                ##     outlist <- c(
+                ##         outlist,
+                ##         list(
+                ##             Lmean = Lmeans,
+                ##             Lrate = matrix(
+                ##                 nimble::qinvgamma(p = 0.5,
+                ##                     shape = constants$Lshapehi,
+                ##                     rate = constants$Lvar1),
+                ##                 nrow = vn$L, ncol = constants$ncomponents
+                ##             ),
+                ##             Lvar = matrix(1,
+                ##                 nrow = vn$L, ncol = constants$ncomponents),
+                ##             ## for data with boundary values
+                ##             Llat = constants$Llatinit
+                ##             ## Llat = vtransform(data[, vnames$L, with = FALSE],
+                ##             ##   auxmetadata, Lout = 'init')
+                ##         )
+                ##     )
+                ## }
+                if (vn$O > 0) { # ordinal
+                    outlist <- c(
+                        outlist,
+                        list(
+                            Oprob = aperm(array(sapply(1:vn$O, function(avar) {
+                                sapply(1:constants$ncomponents, function(aclus) {
+                                    Oalpha0[avar, ]/sum(Oalpha0[avar, ])
+                                    ## nimble::rdirch(n = 1, alpha = Oalpha0[avar, ])
+                                })
+                            }), dim = c(Omaxn, constants$ncomponents, vn$O)))
+                        )
                     )
-                )
-            }
-            if (vn$N > 0) { # nominal
-                outlist <- c(
-                    outlist,
-                    list(
-                        Nprob = aperm(array(sapply(1:vn$N, function(avar) {
-                            sapply(1:ncomponents, function(aclus) {
-                                nimble::rdirch(n = 1, alpha = Nalpha0[avar, ])
-                            })
-                        }), dim = c(Nmaxn, ncomponents, vn$N)))
+                }
+                if (vn$N > 0) { # nominal
+                    outlist <- c(
+                        outlist,
+                        list(
+                            Nprob = aperm(array(sapply(1:vn$N, function(avar) {
+                                sapply(1:constants$ncomponents, function(aclus) {
+                                    constants$Nalpha0[avar, ]/sum(constants$Nalpha0[avar, ])
+                                    ## nimble::rdirch(n = 1, alpha = constants$Nalpha0[avar, ])
+                                })
+                            }), dim = c(Nmaxn, constants$ncomponents, vn$N)))
+                        )
                     )
-                )
-            }
-            if (vn$B > 0) { # nominal
-                outlist <- c(
-                    outlist,
-                    list(
-                        Bprob = matrix(
-                            rbeta(n = vn$B * ncomponents,
-                                shape1 = Bshapelo, shape2 = Bshapehi),
-                            nrow = vn$B, ncol = ncomponents)
+                }
+                if (vn$B > 0) { # binary
+                    outlist <- c(
+                        outlist,
+                        list(
+                            ## Bprob = Bprobs
+                            Bprob = matrix(0.5, nrow = vn$B, ncol = constants$ncomponents)
+                        )
                     )
+                }
+                ##
+                outlist
+            } # end precluster
+
+
+        } else if(initmethod == 'prior'){
+            ## values chosen from prior
+            initsfn <- function() {
+                Alpha <- sample(1:constants$nalpha, 1, prob = probalpha0[1:constants$nalpha])
+                W <- nimble::rdirch(n = 1,
+                    alpha = constants$dirchalphas[1:constants$ncomponents] *
+                        constants$alphabase^Alpha)
+                outlist <- list(
+                    Alpha = Alpha,
+                    W = W,
+                    K = sample(rep(which(W > 0), 2), constants$npoints, replace = TRUE)
                 )
-            }
-            ##
-            outlist
-        } #End initsfns
-    } else if(initmethod == 'allcentre'){
-        ## all components equal, all points to first component
-        initsfn <- function() {
-            initvar <- 1
-            outlist <- list(
-                Alpha = round(nalpha/2),
-                W = rep(1/ncomponents, ncomponents),
-                ## ## Assign every point to first component
-                K = rep(1, npoints)
-            )
-            ##
-            if (vn$R > 0) { # continuous open domain
-                outlist <- c(
-                    outlist,
-                    list(
-                        Rmean =  matrix(0, nrow = vn$R, ncol = ncomponents),
-                        Rrate = matrix(
-                            nimble::qinvgamma(p = 0.5,
-                                shape = constants$Rshapehi,
-                                rate = constants$Rvar1),
-                            nrow = vn$R, ncol = ncomponents
-                        ),
-                        Rvar = matrix(initvar, nrow = vn$R, ncol = ncomponents)
+                ##
+                if (vn$R > 0) { # continuous open domain
+                    Rrate <- matrix(
+                        nimble::rinvgamma(
+                            n = vn$R * constants$ncomponents,
+                            shape = constants$Rshapehi,
+                            rate = constants$Rvar1),
+                        nrow = vn$R, ncol = constants$ncomponents
                     )
-                )
-            }
-            if (vn$C > 0) { # continuous closed domain
-                outlist <- c(
-                    outlist,
-                    list(
-                        Cmean = matrix(0, nrow = vn$C, ncol = ncomponents),
-                        Crate = matrix(
-                            nimble::qinvgamma(p = 0.5,
-                                shape = constants$Cshapehi,
-                                rate = constants$Cvar1),
-                            nrow = vn$C, ncol = ncomponents
-                        ),
-                        Cvar = matrix(initvar, nrow = vn$C, ncol = ncomponents),
-                        ## for data with boundary values
-                        Clat = constants$Clatinit
+                    outlist <- c(
+                        outlist,
+                        list(
+                            Rmean = matrix(rnorm(
+                                n = vn$R * constants$ncomponents,
+                                mean = constants$Rmean1,
+                                sd = sqrt(constants$Rvarm1)
+                            ), nrow = vn$R, ncol = constants$ncomponents),
+                            Rrate = Rrate,
+                            Rvar = matrix(
+                                nimble::rinvgamma(
+                                    n = vn$R * constants$ncomponents,
+                                    shape = constants$Rshapelo,
+                                    rate = Rrate),
+                                nrow = vn$R, ncol = constants$ncomponents
+                            )
+                        )
                     )
-                )
-            }
-            if (vn$D > 0) { # continuous rounded
-                outlist <- c(
-                    outlist,
-                    list(
-                        Dmean = matrix(0, nrow = vn$D, ncol = ncomponents),
-                        Drate = matrix(
-                            nimble::qinvgamma(p = 0.5,
-                                shape = constants$Dshapehi,
-                                rate = constants$Dvar1),
-                            nrow = vn$D, ncol = ncomponents
-                        ),
-                        Dvar = matrix(initvar, nrow = vn$D, ncol = ncomponents),
-                        ## for data with boundary values
-                        Dlat = constants$Dlatinit
+                }
+                if (vn$C > 0) { # continuous closed domain
+                    Crate <- matrix(
+                        nimble::rinvgamma(
+                            n = vn$C * constants$ncomponents,
+                            shape = constants$Cshapehi,
+                            rate = constants$Cvar1),
+                        nrow = vn$C, ncol = constants$ncomponents
                     )
-                )
-            }
-            if (vn$O > 0) { # ordinal
-                outlist <- c(
-                    outlist,
-                    list(
-                        Oprob = aperm(array(sapply(1:vn$O, function(avar) {
-                            sapply(1:ncomponents, function(aclus) {
-                                Oalpha0[avar, ]/sum(Oalpha0[avar, ])
-                            })
-                        }), dim = c(Omaxn, ncomponents, vn$O)))
+                    outlist <- c(
+                        outlist,
+                        list(
+                            Cmean = matrix(rnorm(
+                                n = vn$C * constants$ncomponents,
+                                mean = constants$Cmean1,
+                                sd = sqrt(constants$Cvarm1)
+                            ), nrow = vn$C, ncol = constants$ncomponents),
+                            Crate = Crate,
+                            Cvar = matrix(
+                                nimble::rinvgamma(
+                                    n = vn$C * constants$ncomponents,
+                                    shape = constants$Cshapelo,
+                                    rate = Crate),
+                                nrow = vn$C, ncol = constants$ncomponents
+                            ),
+                            Clat = constants$Clatinit
+                        )
                     )
-                )
-            }
-            if (vn$N > 0) { # nominal
-                outlist <- c(
-                    outlist,
-                    list(
-                        Nprob = aperm(array(sapply(1:vn$N, function(avar) {
-                            sapply(1:ncomponents, function(aclus) {
-                                Nalpha0[avar, ]/sum(Nalpha0[avar, ])
-                            })
-                        }), dim = c(Nmaxn, ncomponents, vn$N)))
+                }
+                if (vn$D > 0) { # continuous rounded
+                    Drate <- matrix(
+                        nimble::rinvgamma(
+                            n = vn$D * constants$ncomponents,
+                            shape = constants$Dshapehi,
+                            rate = constants$Dvar1),
+                        nrow = vn$D, ncol = constants$ncomponents
                     )
-                )
-            }
-            if (vn$B > 0) { # binary
-                outlist <- c(
-                    outlist,
-                    list(
-                        Bprob = matrix(0.5, nrow = vn$B, ncol = ncomponents)
+                    outlist <- c(
+                        outlist,
+                        list(
+                            Dmean = matrix(rnorm(
+                                n = vn$D * constants$ncomponents,
+                                mean = constants$Dmean1,
+                                sd = sqrt(constants$Dvarm1)
+                            ), nrow = vn$D, ncol = constants$ncomponents),
+                            Drate = Drate,
+                            Dvar = matrix(
+                                nimble::rinvgamma(
+                                    n = vn$D * constants$ncomponents,
+                                    shape = constants$Dshapelo,
+                                    rate = Drate),
+                                nrow = vn$D, ncol = constants$ncomponents
+                            ),
+                            Dlat = constants$Dlatinit
+                        )
                     )
+                }
+                if (vn$O > 0) { # ordinal
+                    outlist <- c(
+                        outlist,
+                        list(
+                            Oprob = aperm(array(sapply(1:vn$O, function(avar) {
+                                sapply(1:constants$ncomponents, function(aclus) {
+                                    nimble::rdirch(n = 1, alpha = Oalpha0[avar, ])
+                                })
+                            }), dim = c(Omaxn, constants$ncomponents, vn$O)))
+                        )
+                    )
+                }
+                if (vn$N > 0) { # nominal
+                    outlist <- c(
+                        outlist,
+                        list(
+                            Nprob = aperm(array(sapply(1:vn$N, function(avar) {
+                                sapply(1:constants$ncomponents, function(aclus) {
+                                    nimble::rdirch(n = 1, alpha = constants$Nalpha0[avar, ])
+                                })
+                            }), dim = c(Nmaxn, constants$ncomponents, vn$N)))
+                        )
+                    )
+                }
+                if (vn$B > 0) { # nominal
+                    outlist <- c(
+                        outlist,
+                        list(
+                            Bprob = matrix(
+                                rbeta(n = vn$B * constants$ncomponents,
+                                    shape1 = Bshapelo, shape2 = Bshapehi),
+                                nrow = vn$B, ncol = constants$ncomponents)
+                        )
+                    )
+                }
+                ##
+                outlist
+            } # end prior
+
+        } else if(initmethod == 'priorbutfirst'){
+            ## values chosen from prior
+            ## except first, fit to data
+            initsfn <- function() {
+                Alpha <- sample(1:constants$nalpha, 1, prob = probalpha0[1:constants$nalpha])
+                W <- nimble::rdirch(n = 1,
+                    alpha = constants$dirchalphas[1:constants$ncomponents] *
+                        constants$alphabase^Alpha)
+                outlist <- list(
+                    Alpha = Alpha,
+                    W = W,
+                    K = rep(1, constants$npoints)
                 )
-            }
-            ##
-            outlist
-        } #End initsfns
-    } else if(initmethod == 'allinone'){
-        ## Components from prior, data all in one
-        initsfn <- function() {
-            outlist <- list(
-                Alpha = round(nalpha/2),
-                W = rep(1/ncomponents, ncomponents),
-                ## ## Assign every point to first component
-                K = rep(1, npoints)
-            )
-            ##
-            if (vn$R > 0) { # continuous open domain
-                Rrate <- matrix(
-                    nimble::rinvgamma(
-                        n = vn$R,
-                        shape = constants$Rshapehi,
-                        rate = constants$Rvar1),
-                    nrow = vn$R, ncol = ncomponents
+                ##
+                if (vn$R > 0) { # continuous open domain
+                    Rrate <- matrix(
+                        nimble::rinvgamma(
+                            n = vn$R * constants$ncomponents,
+                            shape = constants$Rshapehi,
+                            rate = constants$Rvar1),
+                        nrow = vn$R, ncol = constants$ncomponents
+                    )
+                    outlist <- c(
+                        outlist,
+                        list(
+                            Rmean = matrix(
+                                c(rep(0, vn$R), rnorm(
+                                n = vn$R * (constants$ncomponents -1),
+                                mean = constants$Rmean1,
+                                sd = sqrt(constants$Rvarm1)
+                            )), nrow = vn$R, ncol = constants$ncomponents),
+                            Rrate = Rrate,
+                            Rvar = matrix(
+                                c(rep(1, vn$R), nimble::rinvgamma(
+                                    n = vn$R * (constants$ncomponents - 1),
+                                    shape = constants$Rshapelo,
+                                    rate = Rrate[-1, ])),
+                                nrow = vn$R, ncol = constants$ncomponents
+                            )
+                        )
+                    )
+                }
+                if (vn$C > 0) { # continuous closed domain
+                    Crate <- matrix(
+                        nimble::rinvgamma(
+                            n = vn$C * constants$ncomponents,
+                            shape = constants$Cshapehi,
+                            rate = constants$Cvar1),
+                        nrow = vn$C, ncol = constants$ncomponents
+                    )
+                    outlist <- c(
+                        outlist,
+                        list(
+                            Cmean = matrix(
+                                c(rep(0, vn$C), rnorm(
+                                n = vn$C * (constants$ncomponents - 1),
+                                mean = constants$Cmean1,
+                                sd = sqrt(constants$Cvarm1)
+                            )), nrow = vn$C, ncol = constants$ncomponents),
+                            Crate = Crate,
+                            Cvar = matrix(
+                                c(rep(1, vn$C), nimble::rinvgamma(
+                                    n = vn$C * (constants$ncomponents - 1),
+                                    shape = constants$Cshapelo,
+                                    rate = Crate[-1, ])),
+                                nrow = vn$C, ncol = constants$ncomponents
+                            ),
+                            Clat = constants$Clatinit
+                        )
+                    )
+                }
+                if (vn$D > 0) { # continuous rounded
+                    Drate <- matrix(
+                        nimble::rinvgamma(
+                            n = vn$D * constants$ncomponents,
+                            shape = constants$Dshapehi,
+                            rate = constants$Dvar1),
+                        nrow = vn$D, ncol = constants$ncomponents
+                    )
+                    outlist <- c(
+                        outlist,
+                        list(
+                            Dmean = matrix(
+                                c(rep(0, vn$D), rnorm(
+                                n = vn$D * (constants$ncomponents - 1),
+                                mean = constants$Dmean1,
+                                sd = sqrt(constants$Dvarm1)
+                            )), nrow = vn$D, ncol = constants$ncomponents),
+                            Drate = Drate,
+                            Dvar = matrix(
+                                c(rep(1, vn$D), nimble::rinvgamma(
+                                    n = vn$D * (constants$ncomponents - 1),
+                                    shape = constants$Dshapelo,
+                                    rate = Drate[-1, ])),
+                                nrow = vn$D, ncol = constants$ncomponents
+                            ),
+                            Dlat = constants$Dlatinit
+                        )
+                    )
+                }
+                if (vn$O > 0) { # ordinal
+                    outlist <- c(
+                        outlist,
+                        list(
+                            Oprob = aperm(array(sapply(1:vn$O, function(avar) {
+                                sapply(1:constants$ncomponents, function(aclus) {
+                                    nimble::rdirch(n = 1, alpha = Oalpha0[avar, ])
+                                })
+                            }), dim = c(Omaxn, constants$ncomponents, vn$O)))
+                        )
+                    )
+                }
+                if (vn$N > 0) { # nominal
+                    outlist <- c(
+                        outlist,
+                        list(
+                            Nprob = aperm(array(sapply(1:vn$N, function(avar) {
+                                sapply(1:constants$ncomponents, function(aclus) {
+                                    nimble::rdirch(n = 1, alpha = constants$Nalpha0[avar, ])
+                                })
+                            }), dim = c(Nmaxn, constants$ncomponents, vn$N)))
+                        )
+                    )
+                }
+                if (vn$B > 0) { # nominal
+                    outlist <- c(
+                        outlist,
+                        list(
+                            Bprob = matrix(
+                                rbeta(n = vn$B * constants$ncomponents,
+                                    shape1 = Bshapelo, shape2 = Bshapehi),
+                                nrow = vn$B, ncol = constants$ncomponents)
+                        )
+                    )
+                }
+                ##
+                outlist
+            } # end priorbutfirst
+
+
+        } else if(initmethod == 'allcentre'){
+            ## all components equal, all points to first component
+            initsfn <- function() {
+                initvar <- 6
+                outlist <- list(
+                    Alpha = round(constants$nalpha/2),
+                    W = rep(1/constants$ncomponents, constants$ncomponents),
+                    ## ## Assign every point to first component
+                    K = rep(1, constants$npoints)
                 )
-                outlist <- c(
-                    outlist,
-                    list(
-                        Rmean = matrix(rnorm(
+                ##
+                if (vn$R > 0) { # continuous open domain
+                    outlist <- c(
+                        outlist,
+                        list(
+                            Rmean =  matrix(0, nrow = vn$R, ncol = constants$ncomponents),
+                            Rrate = matrix(
+                                nimble::qinvgamma(p = 0.5,
+                                    shape = constants$Rshapehi,
+                                    rate = constants$Rvar1),
+                                nrow = vn$R, ncol = constants$ncomponents
+                            ),
+                            Rvar = matrix(initvar, nrow = vn$R, ncol = constants$ncomponents)
+                        )
+                    )
+                }
+                if (vn$C > 0) { # continuous closed domain
+                    outlist <- c(
+                        outlist,
+                        list(
+                            Cmean = matrix(0, nrow = vn$C, ncol = constants$ncomponents),
+                            Crate = matrix(
+                                nimble::qinvgamma(p = 0.5,
+                                    shape = constants$Cshapehi,
+                                    rate = constants$Cvar1),
+                                nrow = vn$C, ncol = constants$ncomponents
+                            ),
+                            Cvar = matrix(initvar, nrow = vn$C, ncol = constants$ncomponents),
+                            ## for data with boundary values
+                            Clat = constants$Clatinit
+                        )
+                    )
+                }
+                if (vn$D > 0) { # continuous rounded
+                    outlist <- c(
+                        outlist,
+                        list(
+                            Dmean = matrix(0, nrow = vn$D, ncol = constants$ncomponents),
+                            Drate = matrix(
+                                nimble::qinvgamma(p = 0.5,
+                                    shape = constants$Dshapehi,
+                                    rate = constants$Dvar1),
+                                nrow = vn$D, ncol = constants$ncomponents
+                            ),
+                            Dvar = matrix(initvar, nrow = vn$D, ncol = constants$ncomponents),
+                            ## for data with boundary values
+                            Dlat = constants$Dlatinit
+                        )
+                    )
+                }
+                if (vn$O > 0) { # ordinal
+                    outlist <- c(
+                        outlist,
+                        list(
+                            Oprob = aperm(array(sapply(1:vn$O, function(avar) {
+                                sapply(1:constants$ncomponents, function(aclus) {
+                                    Oalpha0[avar, ]/sum(Oalpha0[avar, ])
+                                })
+                            }), dim = c(Omaxn, constants$ncomponents, vn$O)))
+                        )
+                    )
+                }
+                if (vn$N > 0) { # nominal
+                    outlist <- c(
+                        outlist,
+                        list(
+                            Nprob = aperm(array(sapply(1:vn$N, function(avar) {
+                                sapply(1:constants$ncomponents, function(aclus) {
+                                    constants$Nalpha0[avar, ]/sum(constants$Nalpha0[avar, ])
+                                })
+                            }), dim = c(Nmaxn, constants$ncomponents, vn$N)))
+                        )
+                    )
+                }
+                if (vn$B > 0) { # binary
+                    outlist <- c(
+                        outlist,
+                        list(
+                            Bprob = matrix(0.5, nrow = vn$B, ncol = constants$ncomponents)
+                        )
+                    )
+                }
+                ##
+                outlist
+            } # end allcentre
+
+        } else if(initmethod == 'allinone'){
+            ## Components from prior, data all in one
+            initsfn <- function() {
+                outlist <- list(
+                    Alpha = round(constants$nalpha/2),
+                    W = rep(1/constants$ncomponents, constants$ncomponents),
+                    ## ## Assign every point to first component
+                    K = rep(1, constants$npoints)
+                )
+                ##
+                if (vn$R > 0) { # continuous open domain
+                    Rrate <- matrix(
+                        nimble::rinvgamma(
                             n = vn$R,
-                            mean = constants$Rmean1,
-                            sd = sqrt(constants$Rvarm1)
-                        ), nrow = vn$R, ncol = ncomponents),
-                        Rrate = Rrate,
-                        Rvar = matrix(
-                            nimble::rinvgamma(
+                            shape = constants$Rshapehi,
+                            rate = constants$Rvar1),
+                        nrow = vn$R, ncol = constants$ncomponents
+                    )
+                    outlist <- c(
+                        outlist,
+                        list(
+                            Rmean = matrix(rnorm(
                                 n = vn$R,
-                                shape = constants$Rshapelo,
-                                rate = Rrate),
-                            nrow = vn$R, ncol = ncomponents
+                                mean = constants$Rmean1,
+                                sd = sqrt(constants$Rvarm1)
+                            ), nrow = vn$R, ncol = constants$ncomponents),
+                            Rrate = Rrate,
+                            Rvar = matrix(
+                                nimble::rinvgamma(
+                                    n = vn$R,
+                                    shape = constants$Rshapelo,
+                                    rate = Rrate),
+                                nrow = vn$R, ncol = constants$ncomponents
+                            )
                         )
                     )
-                )
-            }
-            if (vn$C > 0) { # continuous closed domain
-                Crate <- matrix(
-                    nimble::rinvgamma(
-                        n = vn$C,
-                        shape = constants$Cshapehi,
-                        rate = constants$Cvar1),
-                    nrow = vn$C, ncol = ncomponents
-                )
-                outlist <- c(
-                    outlist,
-                    list(
-                        Cmean = matrix(rnorm(
+                }
+                if (vn$C > 0) { # continuous closed domain
+                    Crate <- matrix(
+                        nimble::rinvgamma(
                             n = vn$C,
-                            mean = constants$Cmean1,
-                            sd = sqrt(constants$Cvarm1)
-                        ), nrow = vn$C, ncol = ncomponents),
-                        Crate = Crate,
-                        Cvar = matrix(
-                            nimble::rinvgamma(
+                            shape = constants$Cshapehi,
+                            rate = constants$Cvar1),
+                        nrow = vn$C, ncol = constants$ncomponents
+                    )
+                    outlist <- c(
+                        outlist,
+                        list(
+                            Cmean = matrix(rnorm(
                                 n = vn$C,
-                                shape = constants$Cshapelo,
-                                rate = Crate),
-                            nrow = vn$C, ncol = ncomponents
-                        ),
-                        Clat = constants$Clatinit
+                                mean = constants$Cmean1,
+                                sd = sqrt(constants$Cvarm1)
+                            ), nrow = vn$C, ncol = constants$ncomponents),
+                            Crate = Crate,
+                            Cvar = matrix(
+                                nimble::rinvgamma(
+                                    n = vn$C,
+                                    shape = constants$Cshapelo,
+                                    rate = Crate),
+                                nrow = vn$C, ncol = constants$ncomponents
+                            ),
+                            Clat = constants$Clatinit
+                        )
                     )
-                )
-            }
-            if (vn$D > 0) { # continuous rounded
-                Drate <- matrix(
-                    nimble::rinvgamma(
-                        n = vn$D,
-                        shape = constants$Dshapehi,
-                        rate = constants$Dvar1),
-                    nrow = vn$D, ncol = ncomponents
-                )
-                outlist <- c(
-                    outlist,
-                    list(
-                        Dmean = matrix(rnorm(
+                }
+                if (vn$D > 0) { # continuous rounded
+                    Drate <- matrix(
+                        nimble::rinvgamma(
                             n = vn$D,
-                            mean = constants$Dmean1,
-                            sd = sqrt(constants$Dvarm1)
-                        ), nrow = vn$D, ncol = ncomponents),
-                        Drate = Drate,
-                        Dvar = matrix(
-                            nimble::rinvgamma(
+                            shape = constants$Dshapehi,
+                            rate = constants$Dvar1),
+                        nrow = vn$D, ncol = constants$ncomponents
+                    )
+                    outlist <- c(
+                        outlist,
+                        list(
+                            Dmean = matrix(rnorm(
                                 n = vn$D,
-                                shape = constants$Dshapelo,
-                                rate = Drate),
-                            nrow = vn$D, ncol = ncomponents
-                        ),
-                        Dlat = constants$Dlatinit
+                                mean = constants$Dmean1,
+                                sd = sqrt(constants$Dvarm1)
+                            ), nrow = vn$D, ncol = constants$ncomponents),
+                            Drate = Drate,
+                            Dvar = matrix(
+                                nimble::rinvgamma(
+                                    n = vn$D,
+                                    shape = constants$Dshapelo,
+                                    rate = Drate),
+                                nrow = vn$D, ncol = constants$ncomponents
+                            ),
+                            Dlat = constants$Dlatinit
+                        )
                     )
-                )
-            }
-            if (vn$O > 0) { # ordinal
-                outlist <- c(
-                    outlist,
-                    list(
-                        Oprob = aperm(array(sapply(1:vn$O, function(avar) {
-                            ## sapply(1:ncomponents, function(aclus) {
-                            nimble::rdirch(n = 1, alpha = Oalpha0[avar, ])
-                            ## })
-                        }), dim = c(Omaxn, vn$O, ncomponents)), c(2, 3, 1))
+                }
+                if (vn$O > 0) { # ordinal
+                    outlist <- c(
+                        outlist,
+                        list(
+                            Oprob = aperm(array(sapply(1:vn$O, function(avar) {
+                                ## sapply(1:constants$ncomponents, function(aclus) {
+                                nimble::rdirch(n = 1, alpha = Oalpha0[avar, ])
+                                ## })
+                            }), dim = c(Omaxn, vn$O, constants$ncomponents)), c(2, 3, 1))
+                        )
                     )
-                )
-            }
-            if (vn$N > 0) { # nominal
-                outlist <- c(
-                    outlist,
-                    list(
-                        Nprob = aperm(array(sapply(1:vn$N, function(avar) {
-                            ## sapply(1:ncomponents, function(aclus) {
-                            nimble::rdirch(n = 1, alpha = Nalpha0[avar, ])
-                            ## })
-                        }), dim = c(Nmaxn, vn$N, ncomponents)), c(2, 3, 1))
+                }
+                if (vn$N > 0) { # nominal
+                    outlist <- c(
+                        outlist,
+                        list(
+                            Nprob = aperm(array(sapply(1:vn$N, function(avar) {
+                                ## sapply(1:constants$ncomponents, function(aclus) {
+                                nimble::rdirch(n = 1, alpha = constants$Nalpha0[avar, ])
+                                ## })
+                            }), dim = c(Nmaxn, vn$N, constants$ncomponents)), c(2, 3, 1))
+                        )
                     )
-                )
-            }
-            if (vn$B > 0) { # nominal
-                outlist <- c(
-                    outlist,
-                    list(
-                        Bprob = matrix(
-                            rbeta(n = vn$B,
-                                shape1 = Bshapelo, shape2 = Bshapehi),
-                            nrow = vn$B, ncol = ncomponents)
+                }
+                if (vn$B > 0) { # nominal
+                    outlist <- c(
+                        outlist,
+                        list(
+                            Bprob = matrix(
+                                rbeta(n = vn$B,
+                                    shape1 = Bshapelo, shape2 = Bshapehi),
+                                nrow = vn$B, ncol = constants$ncomponents)
+                        )
                     )
-                )
-            }
-            ##
-            outlist
-        } #End initsfns
-    } else {stop('Unknown "initmethod"')}
+                }
+                ##
+                outlist
+            } # end allinone
 
+        } else {stop('Unknown "initmethod"')}
+
+####
+    
     vals <- with(c(hyperparams, constants), {
         initsfn()
     })
@@ -1086,3 +1234,40 @@ logprob <- function(data, metadata, initmethod, hyperparams = NULL){
 ##    Min. 1st Qu.  Median    Mean 3rd Qu.    Max. 
 ##  -27662  -12021  -10733  -11432   -9826   -8139 
 ## > 
+
+
+
+
+#### varm 8, tsf 1
+
+## > inim <- 'prior' ; . <- (foreach(ii=1:360, .combine=c, .inorder = F)%dorng%{max(sapply(1:10,function(i)logprob(data='/home/pglpm/repos/inferno/development/downloads/penguin_data.csv', metadata='/home/pglpm/repos/inferno/development/downloads/penguin_metadata.csv', initmethod=inim)))}) ; summary(.) ; summary(.[is.finite(.)])
+##     Min.  1st Qu.   Median     Mean  3rd Qu.     Max. 
+## -5406854      Inf      Inf      Inf      Inf      Inf 
+##     Min.  1st Qu.   Median     Mean  3rd Qu.     Max. 
+## -5406854 -1768044 -1566540 -1882457 -1017649  -580003 
+## > sum(!is.finite(.))
+## [1] 349
+
+## > inim <- 'precluster' ; summary(foreach(ii=1:360, .combine=c, .inorder = F)%dorng%{max(sapply(1:10,function(i)logprob(data='/home/pglpm/repos/inferno/development/downloads/penguin_data.csv', metadata='/home/pglpm/repos/inferno/development/downloads/penguin_metadata.csv', initmethod=inim)))})
+##    Min. 1st Qu.  Median    Mean 3rd Qu.    Max. 
+##   -6460   -6356   -6346   -6349   -6337   -6306 
+
+## > inim <- 'allinone' ; summary(foreach(ii=1:360, .combine=c, .inorder = F)%dorng%{max(sapply(1:10,function(i)logprob(data='/home/pglpm/repos/inferno/development/downloads/penguin_data.csv', metadata='/home/pglpm/repos/inferno/development/downloads/penguin_metadata.csv', initmethod=inim)))})
+##    Min. 1st Qu.  Median    Mean 3rd Qu.    Max. 
+## -108175  -22705  -16265  -19936  -12584   -8280 
+
+## > inim <- 'allcentre' ; summary(foreach(ii=1:360, .combine=c, .inorder = F)%dorng%{max(sapply(1:10,function(i)logprob(data='/home/pglpm/repos/inferno/development/downloads/penguin_data.csv', metadata='/home/pglpm/repos/inferno/development/downloads/penguin_metadata.csv', initmethod=inim)))})
+##    Min. 1st Qu.  Median    Mean 3rd Qu.    Max. 
+##   -8157   -8157   -8157   -8157   -8157   -8157 
+
+## > inim <- 'priorbutfirst' ; . <- (foreach(ii=1:360, .combine=c, .inorder = F)%dorng%{max(sapply(1:10,function(i)logprob(data='/home/pglpm/repos/inferno/development/downloads/penguin_data.csv', metadata='/home/pglpm/repos/inferno/development/downloads/penguin_metadata.csv', initmethod=inim)))}) ; summary(.) ; summary(.[is.finite(.)])
+##    Min. 1st Qu.  Median    Mean 3rd Qu.    Max.    NA's 
+##  -28022     Inf     Inf     Inf     Inf     Inf      89 
+##    Min. 1st Qu.  Median    Mean 3rd Qu.    Max. 
+##  -28022  -21096  -15041  -16497  -12619   -8079 
+
+
+#### varm 8, tsf 1.35
+## > inim <- 'precluster' ; summary(foreach(ii=1:360, .combine=c, .inorder = F)%dorng%{max(sapply(1:10,function(i)logprob(data='/home/pglpm/repos/inferno/development/downloads/penguin_data.csv', metadata='/home/pglpm/repos/inferno/development/downloads/penguin_metadata.csv', initmethod=inim)))})
+##    Min. 1st Qu.  Median    Mean 3rd Qu.    Max. 
+##   -6590   -6435   -6414   -6417   -6394   -6340 

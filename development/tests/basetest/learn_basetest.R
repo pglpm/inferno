@@ -1,7 +1,7 @@
 library('inferno')
 
 seed <- 16
-parallel <- 6
+parallel <- 4
 
 outputdir <- '__base-tsf1-varm8'
 learntdir <- learn(
@@ -36,7 +36,7 @@ learntdir <- learn(
         ## Bshapelo = 1,
         ## Bshapehi = 1,
         ## Dthreshold = 1,
-        tscalefactor = 1,
+        ## tscalefactor = 1,
         ## initmethod = 'allinone',
         avoidzeroW = FALSE
         ## precluster, prior
