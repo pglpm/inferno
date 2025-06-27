@@ -295,7 +295,7 @@ buildauxmetadata <- function(data, metadata, Dthreshold = 1, tscalefactor = 1.25
                     (plotmin + domainmin) / 2, na.rm = TRUE)
                     plotmax <- min(plotmax + IQR(x, type = 6) / 2,
                     (plotmax + domainmax) / 2, na.rm = TRUE)
-                    
+
                 } else {
                     tlocation <- 0
                     tscale <- 1 / tscalefactor

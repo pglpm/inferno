@@ -98,18 +98,73 @@ learn <- function(
         Dshapelo = 0.5,
         Dshapehi = 0.5,
         Dvarm1 = 3^2,
-        Lshapelo = 0.5,
-        Lshapehi = 0.5,
-        Lvarm1 = 3^2,
         Bshapelo = 1,
         Bshapehi = 1,
         Dthreshold = 1,
-        tscalefactor = 2,
+        tscalefactor = 3.35,
         avoidzeroW = FALSE,
         initmethod = 'allinone'
         ## precluster, prior, allcentre
     )
 ) {
+
+##################################################
+#### Various internal parameters
+##################################################
+
+#### Hyperparameters and other internal parameters
+    hyperparamsDefaults <- list(
+        ncomponents = 64,
+        minalpha = -4,
+        maxalpha = 4,
+        byalpha = 1,
+        Rshapelo = 0.5,
+        Rshapehi = 0.5,
+        Rvarm1 = 3^2,
+        Cshapelo = 0.5,
+        Cshapehi = 0.5,
+        Cvarm1 = 3^2,
+        Dshapelo = 0.5,
+        Dshapehi = 0.5,
+        Dvarm1 = 3^2,
+        Bshapelo = 1,
+        Bshapehi = 1,
+        Dthreshold = 1,
+        tscalefactor = 3.35,
+        avoidzeroW = FALSE,
+        initmethod = 'allinone'
+        ## precluster, prior, allcentre
+    )
+
+    ## Allow user to specify hyperparameters only partially:
+    ## missing ones are given default values above
+    ## Check for unknown names first
+    temp <- setdiff(names(hyperparamsDefaults), names(hyperparamsDefaults))
+    if(length(temp) > 0){
+        stop('Unknown hyperparameters:', temp)
+    }
+
+    for(aname in names(hyperparamsDefaults)){
+        if(is.null(hyperparams[[aname]])){
+            hyperparams[[aname]] <- hyperparamsDefaults[[aname]]
+        }
+        assign(aname, hyperparams[[aname]])
+    }
+
+    nalpha <- length(seq(minalpha, maxalpha, by = byalpha))
+
+#### Other options
+    Alphatoslice <- FALSE # FALSE typically leads to underflow
+    Ktoslice <- FALSE # FALSE typically leads to underflow
+    RWtoslice <- FALSE
+    changeSamplerOrder <- TRUE
+    ##
+    showsamples <- 100 # number of samples to show.
+    plotDisplayedQuantiles <- c(5.5, 94.5)/100 # c(1, 31) / 32 # quantiles to show
+    ncomponentsamples <- 128 # number of samples of Alpha and K
+    showsamplertimes <- FALSE ##
+    family <- 'Palatino' # font family in plots
+
 
 #### Start timer
     timestart0 <- Sys.time()
@@ -168,7 +223,7 @@ learn <- function(
         doParallel::registerDoParallel(cl)
         closeexit <- TRUE
         cat('Registered', foreach::getDoParName(),
-            'with', foreach::getDoParWorkers(), 'workers\n')
+            'with', foreach::getDoParWorkers(), 'workers\n\n')
     } else if (isFALSE(parallel)) {
         ## user wants us not to use parallel cores
         ncores <- 1
@@ -177,13 +232,13 @@ learn <- function(
         ## user wants us not to do anything
         ncores <- foreach::getDoParWorkers()
     } else if (is.finite(parallel) && parallel >= 1) {
-        ## user wants us to register 'parallal' # of cores
+        ## user wants us to register 'parallel' # of cores
         ncores <- min(nchains, parallel)
         cl <- parallel::makeCluster(ncores)
         doParallel::registerDoParallel(cl)
         closeexit <- TRUE
         cat('Registered', foreach::getDoParName(),
-            'with', foreach::getDoParWorkers(), 'workers\n')
+            'with', foreach::getDoParWorkers(), 'workers\n\n')
     } else {
         stop("Unknown value of argument 'parallel'")
     }
@@ -241,7 +296,7 @@ learn <- function(
                 datastep = 'numeric',
                 minincluded = 'character',
                 maxincluded = 'character'
-                ))
+            ))
     }
     metadata <- as.data.frame(metadata)
 
@@ -378,9 +433,9 @@ learn <- function(
     auxmetadata <- buildauxmetadata(
         data = (if (is.null(auxdata)) {data} else {auxdata}),
         metadata = metadata,
-        Dthreshold = hyperparams$Dthreshold,
-        tscalefactor = hyperparams$tscalefactor
-        )
+        Dthreshold = Dthreshold,
+        tscalefactor = tscalefactor
+    )
     ## print(auxmetadata) # for debugging
 
     cat('\nLearning: ', npoints, 'datapoints, ',
@@ -411,9 +466,9 @@ learn <- function(
     }
     dirname <- paste0(outputdir, suffix)
     ##
-                                        ## Create output directory if it does not exist
+    ## Create output directory if it does not exist
     dir.create(dirname, showWarnings = FALSE)
-                                        ## Print information
+    ## Print information
     cat('\n', paste0(rep('*', max(nchar(dirname), 26)), collapse = ''),
         '\n Saving output in directory\n', dirname, '\n',
         paste0(rep('*', max(nchar(dirname), 26)), collapse = ''), '\n')
@@ -463,9 +518,9 @@ learn <- function(
             saveRDS(testdata,
                 file = file.path(dirname, paste0('_testdata_', achain, '.rds')))
         }
+        rm(testdata)
+        rm(pointsid)
     }
-    rm(testdata)
-    rm(pointsid)
 
 #### Check if user wants to calculate prior
     if (prior) {
@@ -503,6 +558,7 @@ learn <- function(
                 saveRDS(testdata,
                     file = file.path(dirname, paste0('_testdata_', achain, '.rds')))
             }
+            rm(testdata)
         }
         ## create empty dataset: Monte Carlo sampling is non-Markov
         data <- as.data.frame(
@@ -544,49 +600,6 @@ learn <- function(
     ##     }
 
 
-
-##################################################
-#### Various internal parameters
-##################################################
-
-#### Hyperparameters and other internal parameters
-    ## assign the hyperparameter values to corresponding objects
-    ## ncomponents <- hyperparams$ncomponents
-    ## minalpha <- hyperparams$minalpha
-    ## maxalpha <- hyperparams$maxalpha
-    ## byalpha <- hyperparams$byalpha
-    ## Rshapelo <- hyperparams$Rshapelo
-    ## Rshapehi <- hyperparams$Rshapehi
-    ## Rvarm1 <- hyperparams$Rvarm1
-    ## Cshapelo <- hyperparams$Cshapelo
-    ## Cshapehi <- hyperparams$Cshapehi
-    ## Cvarm1 <- hyperparams$Cvarm1
-    ## Dshapelo <- hyperparams$Dshapelo
-    ## Dshapehi <- hyperparams$Dshapehi
-    ## Dvarm1 <- hyperparams$Dvarm1
-    ## Lshapelo <- hyperparams$Lshapelo
-    ## Lshapehi <- hyperparams$Lshapehi
-    ## Lvarm1 <- hyperparams$Lvarm1
-    ## Bshapelo <- hyperparams$Bshapelo
-    ## Bshapehi <- hyperparams$Bshapehi
-    for(aname in names(hyperparams)){
-        assign(aname, hyperparams[[aname]])
-    }
-
-    nalpha <- length(seq(minalpha, maxalpha, by = byalpha))
-    npoints <- nrow(data)
-
-#### Other options
-    Alphatoslice <- FALSE # FALSE typically leads to underflow
-    Ktoslice <- FALSE # FALSE typically leads to underflow
-    RWtoslice <- FALSE
-    changeSamplerOrder <- TRUE
-    ##
-    showsamples <- 100 # number of samples to show.
-    plotDisplayedQuantiles <- c(5.5, 94.5)/100 # c(1, 31) / 32 # quantiles to show
-    ncomponentsamples <- 128 # number of samples of Alpha and K
-    showsamplertimes <- FALSE ##
-    family <- 'Palatino' # font family in plots
 
 
 ##################################################
@@ -876,7 +889,6 @@ learn <- function(
 #### BEGINNING OF FOREACH LOOP OVER CORES
 #####################################################
     ## Parallel execution over cores
-
     chaininfo <- foreach(acore = 1:ncores,
         .combine = rbind,
         .inorder = FALSE,
@@ -1029,6 +1041,7 @@ learn <- function(
 
 
 #### INITIAL-VALUE FUNCTION
+        ## init functions defined in 'util_mcmcinit.R'
         if(initmethod == 'precluster'){
             ## pre-clustering, k-mean style
             initsfn <- function() {
@@ -1036,13 +1049,14 @@ learn <- function(
                 ## distance function
                 ## NB: all variances will be initialized to 1
                 lpnorm <- function(xx){abs(xx)}
-                distances <- matrix(0, nrow = npoints, ncol = ncomponents)
+                distances <- matrix(0, nrow = constants$npoints,
+                    ncol = constants$ncomponents)
                 if (vn$R > 0) { # continuous open domain
                     Rmeans <- matrix(rnorm(
-                        n = vn$R * ncomponents,
+                        n = vn$R * constants$ncomponents,
                         mean = constants$Rmean1,
                         sd = sqrt(constants$Rvarm1)
-                    ), nrow = vn$R, ncol = ncomponents)
+                    ), nrow = vn$R, ncol = constants$ncomponents)
                     ## distances from datapoints
                     distances <- distances + apply(Rmeans, 2, function(ameans){
                         colSums(lpnorm(t(datapoints$Rdata) - ameans), na.rm = TRUE)
@@ -1050,10 +1064,10 @@ learn <- function(
                 }
                 if (vn$C > 0) { # continuous closed domain
                     Cmeans <- matrix(rnorm(
-                        n = vn$C * ncomponents,
+                        n = vn$C * constants$ncomponents,
                         mean = constants$Cmean1,
                         sd = sqrt(constants$Cvarm1)
-                    ), nrow = vn$C, ncol = ncomponents)
+                    ), nrow = vn$C, ncol = constants$ncomponents)
                     ## distances from datapoints
                     distances <- distances + apply(Cmeans, 2, function(ameans){
                         colSums(lpnorm(t(datapoints$Clat) - ameans), na.rm = TRUE)
@@ -1061,10 +1075,10 @@ learn <- function(
                 }
                 if (vn$D > 0) { # discrete
                     Dmeans <- matrix(rnorm(
-                        n = vn$D * ncomponents,
+                        n = vn$D * constants$ncomponents,
                         mean = constants$Dmean1,
                         sd = sqrt(constants$Dvarm1)
-                    ), nrow = vn$D, ncol = ncomponents)
+                    ), nrow = vn$D, ncol = constants$ncomponents)
                     ## distances from datapoints
                     distances <- distances + apply(Dmeans, 2, function(ameans){
                         colSums(lpnorm(t(constants$Dlatinit) - ameans), na.rm = TRUE)
@@ -1072,10 +1086,10 @@ learn <- function(
                 }
                 ## if (vn$L > 0) { # 
                 ##     Lmeans <- matrix(rnorm(
-                ##         n = vn$L * ncomponents,
+                ##         n = vn$L * constants$ncomponents,
                 ##         mean = constants$Lmean1,
                 ##         sd = sqrt(constants$Lvarm1)
-                ##     ), nrow = vn$L, ncol = ncomponents)
+                ##     ), nrow = vn$L, ncol = constants$ncomponents)
                 ##     ## distances from datapoints
                 ##     distances <- distances + apply(Lmeans, 2, function(ameans){
                 ##         colSums(lpnorm(t(constants$Llatinit) - ameans), na.rm = TRUE)
@@ -1083,10 +1097,10 @@ learn <- function(
                 ## }
                 ## if (vn$B > 0) {
                 ##     Bprobs <- matrix(rbeta(
-                ##         n = vn$B * ncomponents,
+                ##         n = vn$B * constants$ncomponents,
                 ##         shape1 = Bshapelo,
                 ##         shape2 = Bshapehi,
-                ##         ), nrow = vn$B, ncol = ncomponents)
+                ##         ), nrow = vn$B, ncol = constants$ncomponents)
                 ##     ## distances from datapoints
                 ##     distances <- distances + apply(Bprobs, 2, function(ameans){
                 ##         colSums(lpnorm(t(datapoints$Bdata) - ameans), na.rm = TRUE)
@@ -1133,37 +1147,37 @@ learn <- function(
                 ##     })
                 ##     Bprobs[, -occupied] <- 0.5
                 ## }
-                ## Alpha <- sample(1:nalpha, 1, prob = constants$probalpha0, replace = TRUE)
-                ## W <- c(rep(rempoints, minpoints), rep(1, ncomponents - minpoints))
+                ## Alpha <- sample(1:constants$nalpha, 1, prob = constants$probalpha0, replace = TRUE)
+                ## W <- c(rep(rempoints, miconstants$npoints), rep(1, constants$ncomponents - miconstants$npoints))
                 ## W <- W/sum(W)
 
                 outlist <- list(
-                    Alpha = round(nalpha/2),
-                    W = rep(1/ncomponents, ncomponents),
+                    Alpha = round(constants$nalpha/2),
+                    W = rep(1/constants$ncomponents, constants$ncomponents),
                     ## ## Assign every point to the closest component centre
                     K = K
                     ## ## Other assignment methods:
                     ## ## A. assign all points to an unsystematically chosen component
                     ## K = rep(sample(rep(which(W > 0), 2), 1), nepoints)
                     ## ## B. distribute points unsystematically among components
-                    ## K = sample(rep(which(W > 0), 2), npoints, replace = TRUE)
+                    ## K = sample(rep(which(W > 0), 2), constants$npoints, replace = TRUE)
                     ## ## or:
                     ## ## C. assign all points to the most probable component
-                    ## K = rep(which.max(W), npoints)
+                    ## K = rep(which.max(W), constants$npoints)
                     ## ## or:
                     ## ## D. assign all points to the least probable component
-                    ## K = rep(which(W == min(W[W > 0]))[1], npoints)
+                    ## K = rep(which(W == min(W[W > 0]))[1], constants$npoints)
                     ## ## or:
                     ## ## E. distribute points unsystematically among M=2 components
                     ## K = sample(sample(rep(which(W > 0), 2), 2, replace = TRUE),
-                    ##           npoints, replace = TRUE)
+                    ##           constants$npoints, replace = TRUE)
                     ## ## F. mix methods A. and B.
                     ## K = (if(achain %% 2 == Ksample) {
                     ##        ## ## assign all points to an unsystematically chosen component
-                    ##        rep(sample(rep(which(W > 0), 2), 1), npoints)
+                    ##        rep(sample(rep(which(W > 0), 2), 1), constants$npoints)
                     ##      } else {
                     ##        ## distribute points unsystematically among components
-                    ##        sample(rep(which(W > 0), 2), npoints, replace = TRUE)
+                    ##        sample(rep(which(W > 0), 2), constants$npoints, replace = TRUE)
                     ##      })
                 )
                 ##
@@ -1176,10 +1190,10 @@ learn <- function(
                                 nimble::qinvgamma(p = 0.5,
                                     shape = constants$Rshapehi,
                                     rate = constants$Rvar1),
-                                nrow = vn$R, ncol = ncomponents
+                                nrow = vn$R, ncol = constants$ncomponents
                             ),
                             Rvar = matrix(1,
-                                nrow = vn$R, ncol = ncomponents)
+                                nrow = vn$R, ncol = constants$ncomponents)
                         )
                     )
                 }
@@ -1192,10 +1206,10 @@ learn <- function(
                                 nimble::qinvgamma(p = 0.5,
                                     shape = constants$Cshapehi,
                                     rate = constants$Cvar1),
-                                nrow = vn$C, ncol = ncomponents
+                                nrow = vn$C, ncol = constants$ncomponents
                             ),
                             Cvar = matrix(1,
-                                nrow = vn$C, ncol = ncomponents),
+                                nrow = vn$C, ncol = constants$ncomponents),
                             ## for data with boundary values
                             Clat = constants$Clatinit
                             ## Clat = vtransform(data[, vnames$C, with = FALSE],
@@ -1212,10 +1226,10 @@ learn <- function(
                                 nimble::qinvgamma(p = 0.5,
                                     shape = constants$Dshapehi,
                                     rate = constants$Dvar1),
-                                nrow = vn$D, ncol = ncomponents
+                                nrow = vn$D, ncol = constants$ncomponents
                             ),
                             Dvar = matrix(1,
-                                nrow = vn$D, ncol = ncomponents),
+                                nrow = vn$D, ncol = constants$ncomponents),
                             ## for data with boundary values
                             Dlat = constants$Dlatinit
                             ## Dlat = vtransform(data[, vnames$D, with = FALSE],
@@ -1232,10 +1246,10 @@ learn <- function(
                 ##                 nimble::qinvgamma(p = 0.5,
                 ##                     shape = constants$Lshapehi,
                 ##                     rate = constants$Lvar1),
-                ##                 nrow = vn$L, ncol = ncomponents
+                ##                 nrow = vn$L, ncol = constants$ncomponents
                 ##             ),
                 ##             Lvar = matrix(1,
-                ##                 nrow = vn$L, ncol = ncomponents),
+                ##                 nrow = vn$L, ncol = constants$ncomponents),
                 ##             ## for data with boundary values
                 ##             Llat = constants$Llatinit
                 ##             ## Llat = vtransform(data[, vnames$L, with = FALSE],
@@ -1248,11 +1262,11 @@ learn <- function(
                         outlist,
                         list(
                             Oprob = aperm(array(sapply(1:vn$O, function(avar) {
-                                sapply(1:ncomponents, function(aclus) {
+                                sapply(1:constants$ncomponents, function(aclus) {
                                     Oalpha0[avar, ]/sum(Oalpha0[avar, ])
                                     ## nimble::rdirch(n = 1, alpha = Oalpha0[avar, ])
                                 })
-                            }), dim = c(Omaxn, ncomponents, vn$O)))
+                            }), dim = c(Omaxn, constants$ncomponents, vn$O)))
                         )
                     )
                 }
@@ -1261,11 +1275,11 @@ learn <- function(
                         outlist,
                         list(
                             Nprob = aperm(array(sapply(1:vn$N, function(avar) {
-                                sapply(1:ncomponents, function(aclus) {
-                                    Nalpha0[avar, ]/sum(Nalpha0[avar, ])
-                                    ## nimble::rdirch(n = 1, alpha = Nalpha0[avar, ])
+                                sapply(1:constants$ncomponents, function(aclus) {
+                                    constants$Nalpha0[avar, ]/sum(constants$Nalpha0[avar, ])
+                                    ## nimble::rdirch(n = 1, alpha = constants$Nalpha0[avar, ])
                                 })
-                            }), dim = c(Nmaxn, ncomponents, vn$N)))
+                            }), dim = c(Nmaxn, constants$ncomponents, vn$N)))
                         )
                     )
                 }
@@ -1274,49 +1288,51 @@ learn <- function(
                         outlist,
                         list(
                             ## Bprob = Bprobs
-                            Bprob = matrix(0.5, nrow = vn$B, ncol = ncomponents)
+                            Bprob = matrix(0.5, nrow = vn$B, ncol = constants$ncomponents)
                         )
                     )
                 }
                 ##
                 outlist
-            } #End initsfns
+            } # end precluster
+
+
         } else if(initmethod == 'prior'){
             ## values chosen from prior
             initsfn <- function() {
-                Alpha <- sample(1:nalpha, 1, prob = probalpha0[1:nalpha])
+                Alpha <- sample(1:constants$nalpha, 1, prob = probalpha0[1:constants$nalpha])
                 W <- nimble::rdirch(n = 1,
-                    alpha = constants$dirchalphas[1:ncomponents] *
+                    alpha = constants$dirchalphas[1:constants$ncomponents] *
                         constants$alphabase^Alpha)
                 outlist <- list(
                     Alpha = Alpha,
                     W = W,
-                    K = sample(rep(which(W > 0), 2), npoints, replace = TRUE)
+                    K = sample(rep(which(W > 0), 2), constants$npoints, replace = TRUE)
                 )
                 ##
                 if (vn$R > 0) { # continuous open domain
                     Rrate <- matrix(
                         nimble::rinvgamma(
-                            n = vn$R * ncomponents,
+                            n = vn$R * constants$ncomponents,
                             shape = constants$Rshapehi,
                             rate = constants$Rvar1),
-                        nrow = vn$R, ncol = ncomponents
+                        nrow = vn$R, ncol = constants$ncomponents
                     )
                     outlist <- c(
                         outlist,
                         list(
                             Rmean = matrix(rnorm(
-                                n = vn$R * ncomponents,
+                                n = vn$R * constants$ncomponents,
                                 mean = constants$Rmean1,
                                 sd = sqrt(constants$Rvarm1)
-                            ), nrow = vn$R, ncol = ncomponents),
+                            ), nrow = vn$R, ncol = constants$ncomponents),
                             Rrate = Rrate,
                             Rvar = matrix(
                                 nimble::rinvgamma(
-                                    n = vn$R * ncomponents,
+                                    n = vn$R * constants$ncomponents,
                                     shape = constants$Rshapelo,
                                     rate = Rrate),
-                                nrow = vn$R, ncol = ncomponents
+                                nrow = vn$R, ncol = constants$ncomponents
                             )
                         )
                     )
@@ -1324,26 +1340,26 @@ learn <- function(
                 if (vn$C > 0) { # continuous closed domain
                     Crate <- matrix(
                         nimble::rinvgamma(
-                            n = vn$C * ncomponents,
+                            n = vn$C * constants$ncomponents,
                             shape = constants$Cshapehi,
                             rate = constants$Cvar1),
-                        nrow = vn$C, ncol = ncomponents
+                        nrow = vn$C, ncol = constants$ncomponents
                     )
                     outlist <- c(
                         outlist,
                         list(
                             Cmean = matrix(rnorm(
-                                n = vn$C * ncomponents,
+                                n = vn$C * constants$ncomponents,
                                 mean = constants$Cmean1,
                                 sd = sqrt(constants$Cvarm1)
-                            ), nrow = vn$C, ncol = ncomponents),
+                            ), nrow = vn$C, ncol = constants$ncomponents),
                             Crate = Crate,
                             Cvar = matrix(
                                 nimble::rinvgamma(
-                                    n = vn$C * ncomponents,
+                                    n = vn$C * constants$ncomponents,
                                     shape = constants$Cshapelo,
                                     rate = Crate),
-                                nrow = vn$C, ncol = ncomponents
+                                nrow = vn$C, ncol = constants$ncomponents
                             ),
                             Clat = constants$Clatinit
                         )
@@ -1352,26 +1368,26 @@ learn <- function(
                 if (vn$D > 0) { # continuous rounded
                     Drate <- matrix(
                         nimble::rinvgamma(
-                            n = vn$D * ncomponents,
+                            n = vn$D * constants$ncomponents,
                             shape = constants$Dshapehi,
                             rate = constants$Dvar1),
-                        nrow = vn$D, ncol = ncomponents
+                        nrow = vn$D, ncol = constants$ncomponents
                     )
                     outlist <- c(
                         outlist,
                         list(
                             Dmean = matrix(rnorm(
-                                n = vn$D * ncomponents,
+                                n = vn$D * constants$ncomponents,
                                 mean = constants$Dmean1,
                                 sd = sqrt(constants$Dvarm1)
-                            ), nrow = vn$D, ncol = ncomponents),
+                            ), nrow = vn$D, ncol = constants$ncomponents),
                             Drate = Drate,
                             Dvar = matrix(
                                 nimble::rinvgamma(
-                                    n = vn$D * ncomponents,
+                                    n = vn$D * constants$ncomponents,
                                     shape = constants$Dshapelo,
                                     rate = Drate),
-                                nrow = vn$D, ncol = ncomponents
+                                nrow = vn$D, ncol = constants$ncomponents
                             ),
                             Dlat = constants$Dlatinit
                         )
@@ -1382,10 +1398,10 @@ learn <- function(
                         outlist,
                         list(
                             Oprob = aperm(array(sapply(1:vn$O, function(avar) {
-                                sapply(1:ncomponents, function(aclus) {
+                                sapply(1:constants$ncomponents, function(aclus) {
                                     nimble::rdirch(n = 1, alpha = Oalpha0[avar, ])
                                 })
-                            }), dim = c(Omaxn, ncomponents, vn$O)))
+                            }), dim = c(Omaxn, constants$ncomponents, vn$O)))
                         )
                     )
                 }
@@ -1394,10 +1410,10 @@ learn <- function(
                         outlist,
                         list(
                             Nprob = aperm(array(sapply(1:vn$N, function(avar) {
-                                sapply(1:ncomponents, function(aclus) {
-                                    nimble::rdirch(n = 1, alpha = Nalpha0[avar, ])
+                                sapply(1:constants$ncomponents, function(aclus) {
+                                    nimble::rdirch(n = 1, alpha = constants$Nalpha0[avar, ])
                                 })
-                            }), dim = c(Nmaxn, ncomponents, vn$N)))
+                            }), dim = c(Nmaxn, constants$ncomponents, vn$N)))
                         )
                     )
                 }
@@ -1406,38 +1422,40 @@ learn <- function(
                         outlist,
                         list(
                             Bprob = matrix(
-                                rbeta(n = vn$B * ncomponents,
+                                rbeta(n = vn$B * constants$ncomponents,
                                     shape1 = Bshapelo, shape2 = Bshapehi),
-                                nrow = vn$B, ncol = ncomponents)
+                                nrow = vn$B, ncol = constants$ncomponents)
                         )
                     )
                 }
                 ##
                 outlist
-            } #End initsfns
+            } # end prior
+
+
         } else if(initmethod == 'allcentre'){
             ## all components equal, all points to first component
             initsfn <- function() {
                 initvar <- 6
                 outlist <- list(
-                    Alpha = round(nalpha/2),
-                    W = rep(1/ncomponents, ncomponents),
+                    Alpha = round(constants$nalpha/2),
+                    W = rep(1/constants$ncomponents, constants$ncomponents),
                     ## ## Assign every point to first component
-                    K = rep(1, npoints)
+                    K = rep(1, constants$npoints)
                 )
                 ##
                 if (vn$R > 0) { # continuous open domain
                     outlist <- c(
                         outlist,
                         list(
-                            Rmean =  matrix(0, nrow = vn$R, ncol = ncomponents),
+                            Rmean =  matrix(0, nrow = vn$R, ncol = constants$ncomponents),
                             Rrate = matrix(
                                 nimble::qinvgamma(p = 0.5,
                                     shape = constants$Rshapehi,
                                     rate = constants$Rvar1),
-                                nrow = vn$R, ncol = ncomponents
+                                nrow = vn$R, ncol = constants$ncomponents
                             ),
-                            Rvar = matrix(initvar, nrow = vn$R, ncol = ncomponents)
+                            Rvar = matrix(initvar, nrow = vn$R, ncol = constants$ncomponents)
                         )
                     )
                 }
@@ -1445,14 +1463,14 @@ learn <- function(
                     outlist <- c(
                         outlist,
                         list(
-                            Cmean = matrix(0, nrow = vn$C, ncol = ncomponents),
+                            Cmean = matrix(0, nrow = vn$C, ncol = constants$ncomponents),
                             Crate = matrix(
                                 nimble::qinvgamma(p = 0.5,
                                     shape = constants$Cshapehi,
                                     rate = constants$Cvar1),
-                                nrow = vn$C, ncol = ncomponents
+                                nrow = vn$C, ncol = constants$ncomponents
                             ),
-                            Cvar = matrix(initvar, nrow = vn$C, ncol = ncomponents),
+                            Cvar = matrix(initvar, nrow = vn$C, ncol = constants$ncomponents),
                             ## for data with boundary values
                             Clat = constants$Clatinit
                         )
@@ -1462,14 +1480,14 @@ learn <- function(
                     outlist <- c(
                         outlist,
                         list(
-                            Dmean = matrix(0, nrow = vn$D, ncol = ncomponents),
+                            Dmean = matrix(0, nrow = vn$D, ncol = constants$ncomponents),
                             Drate = matrix(
                                 nimble::qinvgamma(p = 0.5,
                                     shape = constants$Dshapehi,
                                     rate = constants$Dvar1),
-                                nrow = vn$D, ncol = ncomponents
+                                nrow = vn$D, ncol = constants$ncomponents
                             ),
-                            Dvar = matrix(initvar, nrow = vn$D, ncol = ncomponents),
+                            Dvar = matrix(initvar, nrow = vn$D, ncol = constants$ncomponents),
                             ## for data with boundary values
                             Dlat = constants$Dlatinit
                         )
@@ -1480,10 +1498,10 @@ learn <- function(
                         outlist,
                         list(
                             Oprob = aperm(array(sapply(1:vn$O, function(avar) {
-                                sapply(1:ncomponents, function(aclus) {
+                                sapply(1:constants$ncomponents, function(aclus) {
                                     Oalpha0[avar, ]/sum(Oalpha0[avar, ])
                                 })
-                            }), dim = c(Omaxn, ncomponents, vn$O)))
+                            }), dim = c(Omaxn, constants$ncomponents, vn$O)))
                         )
                     )
                 }
@@ -1492,10 +1510,10 @@ learn <- function(
                         outlist,
                         list(
                             Nprob = aperm(array(sapply(1:vn$N, function(avar) {
-                                sapply(1:ncomponents, function(aclus) {
-                                    Nalpha0[avar, ]/sum(Nalpha0[avar, ])
+                                sapply(1:constants$ncomponents, function(aclus) {
+                                    constants$Nalpha0[avar, ]/sum(constants$Nalpha0[avar, ])
                                 })
-                            }), dim = c(Nmaxn, ncomponents, vn$N)))
+                            }), dim = c(Nmaxn, constants$ncomponents, vn$N)))
                         )
                     )
                 }
@@ -1503,21 +1521,22 @@ learn <- function(
                     outlist <- c(
                         outlist,
                         list(
-                            Bprob = matrix(0.5, nrow = vn$B, ncol = ncomponents)
+                            Bprob = matrix(0.5, nrow = vn$B, ncol = constants$ncomponents)
                         )
                     )
                 }
                 ##
                 outlist
-            } #End initsfns
+            } # end allcentre
+
         } else if(initmethod == 'allinone'){
             ## Components from prior, data all in one
             initsfn <- function() {
                 outlist <- list(
-                    Alpha = round(nalpha/2),
-                    W = rep(1/ncomponents, ncomponents),
+                    Alpha = round(constants$nalpha/2),
+                    W = rep(1/constants$ncomponents, constants$ncomponents),
                     ## ## Assign every point to first component
-                    K = rep(1, npoints)
+                    K = rep(1, constants$npoints)
                 )
                 ##
                 if (vn$R > 0) { # continuous open domain
@@ -1526,7 +1545,7 @@ learn <- function(
                             n = vn$R,
                             shape = constants$Rshapehi,
                             rate = constants$Rvar1),
-                        nrow = vn$R, ncol = ncomponents
+                        nrow = vn$R, ncol = constants$ncomponents
                     )
                     outlist <- c(
                         outlist,
@@ -1535,14 +1554,14 @@ learn <- function(
                                 n = vn$R,
                                 mean = constants$Rmean1,
                                 sd = sqrt(constants$Rvarm1)
-                            ), nrow = vn$R, ncol = ncomponents),
+                            ), nrow = vn$R, ncol = constants$ncomponents),
                             Rrate = Rrate,
                             Rvar = matrix(
                                 nimble::rinvgamma(
                                     n = vn$R,
                                     shape = constants$Rshapelo,
                                     rate = Rrate),
-                                nrow = vn$R, ncol = ncomponents
+                                nrow = vn$R, ncol = constants$ncomponents
                             )
                         )
                     )
@@ -1553,7 +1572,7 @@ learn <- function(
                             n = vn$C,
                             shape = constants$Cshapehi,
                             rate = constants$Cvar1),
-                        nrow = vn$C, ncol = ncomponents
+                        nrow = vn$C, ncol = constants$ncomponents
                     )
                     outlist <- c(
                         outlist,
@@ -1562,14 +1581,14 @@ learn <- function(
                                 n = vn$C,
                                 mean = constants$Cmean1,
                                 sd = sqrt(constants$Cvarm1)
-                            ), nrow = vn$C, ncol = ncomponents),
+                            ), nrow = vn$C, ncol = constants$ncomponents),
                             Crate = Crate,
                             Cvar = matrix(
                                 nimble::rinvgamma(
                                     n = vn$C,
                                     shape = constants$Cshapelo,
                                     rate = Crate),
-                                nrow = vn$C, ncol = ncomponents
+                                nrow = vn$C, ncol = constants$ncomponents
                             ),
                             Clat = constants$Clatinit
                         )
@@ -1581,7 +1600,7 @@ learn <- function(
                             n = vn$D,
                             shape = constants$Dshapehi,
                             rate = constants$Dvar1),
-                        nrow = vn$D, ncol = ncomponents
+                        nrow = vn$D, ncol = constants$ncomponents
                     )
                     outlist <- c(
                         outlist,
@@ -1590,14 +1609,14 @@ learn <- function(
                                 n = vn$D,
                                 mean = constants$Dmean1,
                                 sd = sqrt(constants$Dvarm1)
-                            ), nrow = vn$D, ncol = ncomponents),
+                            ), nrow = vn$D, ncol = constants$ncomponents),
                             Drate = Drate,
                             Dvar = matrix(
                                 nimble::rinvgamma(
                                     n = vn$D,
                                     shape = constants$Dshapelo,
                                     rate = Drate),
-                                nrow = vn$D, ncol = ncomponents
+                                nrow = vn$D, ncol = constants$ncomponents
                             ),
                             Dlat = constants$Dlatinit
                         )
@@ -1608,10 +1627,10 @@ learn <- function(
                         outlist,
                         list(
                             Oprob = aperm(array(sapply(1:vn$O, function(avar) {
-                                ## sapply(1:ncomponents, function(aclus) {
-                                    nimble::rdirch(n = 1, alpha = Oalpha0[avar, ])
+                                ## sapply(1:constants$ncomponents, function(aclus) {
+                                nimble::rdirch(n = 1, alpha = Oalpha0[avar, ])
                                 ## })
-                            }), dim = c(Omaxn, vn$O, ncomponents)), c(2, 3, 1))
+                            }), dim = c(Omaxn, vn$O, constants$ncomponents)), c(2, 3, 1))
                         )
                     )
                 }
@@ -1620,10 +1639,10 @@ learn <- function(
                         outlist,
                         list(
                             Nprob = aperm(array(sapply(1:vn$N, function(avar) {
-                                ## sapply(1:ncomponents, function(aclus) {
-                                    nimble::rdirch(n = 1, alpha = Nalpha0[avar, ])
+                                ## sapply(1:constants$ncomponents, function(aclus) {
+                                nimble::rdirch(n = 1, alpha = constants$Nalpha0[avar, ])
                                 ## })
-                            }), dim = c(Nmaxn, vn$N, ncomponents)), c(2, 3, 1))
+                            }), dim = c(Nmaxn, vn$N, constants$ncomponents)), c(2, 3, 1))
                         )
                     )
                 }
@@ -1634,13 +1653,14 @@ learn <- function(
                             Bprob = matrix(
                                 rbeta(n = vn$B,
                                     shape1 = Bshapelo, shape2 = Bshapehi),
-                                nrow = vn$B, ncol = ncomponents)
+                                nrow = vn$B, ncol = constants$ncomponents)
                         )
                     )
                 }
                 ##
                 outlist
-            } #End initsfns
+            } # end allinone
+
         } else {stop('Unknown "initmethod"')}
 
 #################################################
@@ -2358,7 +2378,7 @@ learn <- function(
 #### Print estimated end time
             endTime <- Sys.time() + 180 +
                 ( (nchainsperthiscore + (acore > coreswithextrachain) - achain) *
-                difftime(Sys.time(), MCtimestart) / achain )
+                      difftime(Sys.time(), MCtimestart) / achain )
             print2user(
                 paste0(
                     '\rSampling. Core ', acore, ' estimated end time: ',
@@ -2456,9 +2476,9 @@ learn <- function(
                 hyperparams = hyperparams
             ))
     ),
-        file = file.path(dirname,
-            paste0('learnt', dashnameroot, '.rds')
-        ))
+    file = file.path(dirname,
+        paste0('learnt', dashnameroot, '.rds')
+    ))
 
     cat('\rFinished Monte Carlo sampling.                                 \n')
 
