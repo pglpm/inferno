@@ -3,7 +3,7 @@ library('inferno')
 seed <- 16
 parallel <- 4
 
-outputdir <- '__base-tsf1-varm8'
+outputdir <- '__base-'
 learntdir <- learn(
     data = 'data_basetest.csv',
     metadata = 'metadata_basetest.csv',
@@ -26,19 +26,19 @@ learntdir <- learn(
         ## byalpha = 1,
         ## Rshapelo = 0.5,
         ## Rshapehi = 0.5,
-        Rvarm1 = 8^2,
+        ## Rvarm1 = 8^2,
         ## Cshapelo = 0.5,
         ## Cshapehi = 0.5,
-        Cvarm1 = 8^2,
+        ## Cvarm1 = 8^2,
         ## Dshapelo = 0.5,
         ## Dshapehi = 0.5,
-        Dvarm1 = 8^2,
+        ## Dvarm1 = 8^2,
         ## Bshapelo = 1,
         ## Bshapehi = 1,
         ## Dthreshold = 1,
         ## tscalefactor = 1,
         ## initmethod = 'allinone',
-        avoidzeroW = FALSE
+        ## avoidzeroW = FALSE
         ## precluster, prior
     ),
     seed = seed

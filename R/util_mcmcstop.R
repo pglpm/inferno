@@ -44,69 +44,7 @@ funESS <- function(x){
     v0
 }
 
-#### Function for calculating number of needed MCMC iterations
-#' @keywords internal
-mcmcstop <- function(
-    traces,
-    nsamples,
-    availiter,
-    relerror,
-    ## diagnESS,
-    ## diagnIAT,
-    ## diagnBMK,
-    ## diagnMCSE,
-    ## diagnStat,
-    ## diagnBurn,
-    ## diagnBurn2,
-    ## diagnThin,
-    thinning
-) {
-    ## Based on doi.org/10.1080/10618600.2015.1044092
-
-    ## ## 'mcse' is 'w' or 'sigma/sqrt(n)' in doi.org/10.1080/10618600.2015.1044092
-    ## mcse <- funMCSE(traces)
-    ## N <- nrow(traces)
-    ## ## 'sds' is 'lambda' in doi.org/10.1080/10618600.2015.1044092
-    ## sds <- apply(traces, 2, sd)
-    ## avg <- apply(traces, 2, mean)
-
-    relmcse <- funMCSE(traces) / apply(traces, 2, sd)
-    ## relmcse2 <- (mcse + 1/N) / sds
-
-    ess <- funESS(traces)
-
-    ## autothinning <- ceiling(1.5 * nrow(traces)/ess)
-    autothinning <- ceiling(nrow(traces)/ess)
-
-    if(is.null(thinning)) {
-        thinning <- max(autothinning)
-    }
-
-    missingsamples <- thinning * (nsamples - 1) - availiter
-
-    if(max(relmcse) <= relerror) {
-        ## sampling could be stopped,
-        ## unless we still lack the required number of samples
-        reqiter <- max(0, missingsamples)
-    } else {
-        ## sampling should continue
-        reqiter <- max(ceiling(thinning * sqrt(nsamples)),
-            missingsamples)
-    }
-
-    list(
-        reqiter = reqiter,
-        proposed.thinning = thinning,
-        toprint = list(
-            'rel. MC standard error' = relmcse,
-            'eff. sample size' = ess,
-            'needed thinning' = autothinning,
-            'average' = apply(traces, 2, mean)
-        )
-    )
-}
-
-## ## ## Old version
+## #### Function for calculating number of needed MCMC iterations
 ## #' @keywords internal
 ## mcmcstop <- function(
 ##     traces,
@@ -154,6 +92,68 @@ mcmcstop <- function(
 ##         ## sampling should continue
 ##         reqiter <- max(ceiling(thinning * sqrt(nsamples)),
 ##             missingsamples)
+##     }
+## 
+##     list(
+##         reqiter = reqiter,
+##         proposed.thinning = thinning,
+##         toprint = list(
+##             'rel. MC standard error' = relmcse,
+##             'eff. sample size' = ess,
+##             'needed thinning' = autothinning,
+##             'average' = apply(traces, 2, mean)
+##         )
+##     )
+## }
+
+## #### Function for calculating number of needed MCMC iterations
+## #' @keywords internal
+## mcmcstopess <- function(
+##     traces,
+##     nsamples,
+##     availiter,
+##     reqess,
+##     ## diagnESS,
+##     ## diagnIAT,
+##     ## diagnBMK,
+##     ## diagnMCSE,
+##     ## diagnStat,
+##     ## diagnBurn,
+##     ## diagnBurn2,
+##     ## diagnThin,
+##     thinning
+## ) {
+##     ## Based on doi.org/10.1080/10618600.2015.1044092
+## 
+##     ## ## 'mcse' is 'w' or 'sigma/sqrt(n)' in doi.org/10.1080/10618600.2015.1044092
+##     ## mcse <- funMCSE(traces)
+##     ## N <- nrow(traces)
+##     ## ## 'sds' is 'lambda' in doi.org/10.1080/10618600.2015.1044092
+##     ## sds <- apply(traces, 2, sd)
+##     ## avg <- apply(traces, 2, mean)
+## 
+##     relmcse <- funMCSE(traces) / apply(traces, 2, sd)
+##     ## relmcse2 <- (mcse + 1/N) / sds
+## 
+##     ess <- funESS(traces)
+## 
+##     ## autothinning <- ceiling(1.5 * nrow(traces)/ess)
+##     autothinning <- ceiling(nrow(traces)/ess)
+## 
+##     if(is.null(thinning)) {
+##         thinning <- max(autothinning)
+##     }
+## 
+##     missingsamples <- thinning * (nsamples - 1) - availiter
+##     reqsamples <- thinning * (reqess + 2) - availiter
+## 
+##     if(min(ess) >= reqess + 2) {
+##         ## sampling could be stopped,
+##         ## unless we still lack the required number of samples
+##         reqiter <- max(0, missingsamples)
+##     } else {
+##         ## sampling should continue
+##         reqiter <- max(reqsamples, missingsamples)
 ##     }
 ## 
 ##     list(

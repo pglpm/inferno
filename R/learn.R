@@ -1907,13 +1907,13 @@ learn <- function(
             ## if(achain == 1){
             ##   niter <- startupMCiterations
             ## }else{
-            ##  niter <- max(min(startupMCiterations,requirediter*2), 128)
+            ##  niter <- max(min(startupMCiterations,remainiter*2), 128)
             ##  }
 
             ## ## nitertot: total number of MC samples from chain start
             ## ## availiter: number of MC samples kept in memory
             nitertot <- availiter <- 0L
-            requirediter <- +Inf
+            remainiter <- +Inf
             reset <- TRUE
             allmcsamples <- NULL
             allmcsamplesKA <- list(Alpha = NULL, K = NULL)
@@ -1940,7 +1940,7 @@ learn <- function(
 
             subiter <- 1L
 #### WHILE-LOOP CONTINUING UNTIL CONVERGENCE
-            while (requirediter > 0) {
+            while (remainiter > 0) {
                 cat('\nIterations:', niter, '\n')
 
                 ## MONTE-CARLO CALL
@@ -2038,7 +2038,8 @@ learn <- function(
                 ## usedcomponents <- mcsamplesKA$K[length(mcsamplesKA$K)]
                 usedcomponents <- max(mcsamplesKA$K)
                 cat('\nUSED COMPONENTS:', usedcomponents, 'OF', ncomponents, '\n')
-#### Diagnostics
+
+#### Update traces
                 ## Log-likelihood
                 diagntime <- Sys.time()
                 ##
@@ -2074,15 +2075,38 @@ learn <- function(
                 ##             padchainnumber,'-',subiter, '.rds')
                 ##     ))
 
-                diagn <- mcmcstop(traces = cleantraces,
-                    nsamples = nsamplesperchain,
-                    availiter = availiter,
-                    relerror = relerror,
-                    thinning = thinning)
+
+#### MCSE, ESS, thinning
+                ## diagn <- mcmcstop(traces = cleantraces,
+                ##     nsamples = nsamplesperchain,
+                ##     availiter = availiter,
+                ##     relerror = relerror,
+                ##     thinning = thinning)
+
+                relmcse <- funMCSE(cleantraces) / apply(cleantraces, 2, sd)
+                ## relmcse2 <- (mcse + 1/N) / sds
+
+                ess <- funESS(cleantraces)
+
+                ## autothinning <- ceiling(1.5 * nrow(cleantraces)/ess)
+                autothinning <- ceiling(nrow(cleantraces)/ess)
+
+                if(is.null(thinning)) {
+                    chainthinning <- max(autothinning)
+                } else {
+                    chainthinning <- thinning
+                }
 
                 ## Output available diagnostics
-                for(i in names(diagn$toprint)) {
-                    thisdiagn <- diagn$toprint[[i]]
+                toprint <- list(
+                    'rel. MC standard error' = relmcse,
+                    'eff. sample size' = ess,
+                    'needed thinning' = autothinning,
+                    'average' = apply(cleantraces, 2, mean)
+                )
+####
+                for(i in names(toprint)) {
+                    thisdiagn <- toprint[[i]]
                     cat(paste0('\n', i, ':'),
                         if(length(thisdiagn) > 1){
                             paste(signif(range(thisdiagn), 3), collapse = ' to ')
@@ -2128,9 +2152,9 @@ learn <- function(
                 }
 
                 ## to save memory, only keep enough last iterations
-                currentthinning <- diagn$proposed.thinning
+                ## chainthinning <- diagn$proposed.thinning
 
-                enoughiter <- currentthinning * (nsamplesperchain + 1L)
+                enoughiter <- chainthinning * (nsamplesperchain + 1L)
 
                 if(availiter > enoughiter) {
                     allmcsamples <- mcsubset(
@@ -2144,33 +2168,40 @@ learn <- function(
                 ## ## CHECK IF CHAIN MUST BE CONTINUED ##
                 ## ######################################
 
-                ## calcIterThinning <- mcmcstop(
-                ##     relerror = relerror,
-                ##     nsamplesperchain = nsamplesperchain,
-                ##     nitertot = nitertot,
-                ##     thinning=thinning,
-                ##     diagnESS=diagnESS, diagnIAT=diagnIAT,
-                ##     diagnBMK=diagnBMK, diagnMCSE=diagnMCSE,
-                ##     diagnStat=diagnStat, diagnBurn=diagnBurn,
-                ##     diagnBurn2=diagnBurn2, diagnThin=diagnThin)
-
-                requirediter <- max(minMCiterations - nitertot,
-                    min(maxMCiterations - nitertot, diagn$reqiter) )
+                missingsamples <- chainthinning * (nsamplesperchain - 1) - availiter
+                if(max(relmcse) <= relerror) {
+                    ## sampling could be stopped,
+                    ## unless we still lack the required number of samples
+                    reqiter <- max(0, missingsamples)
+                } else {
+                    ## sampling should continue
+                    reqiter <- max(
+                        ceiling(chainthinning * sqrt(nsamplesperchain)),
+                        missingsamples
+                    )
+                }
+                remainiter <- max(
+                    minMCiterations - nitertot,
+                    min(
+                        maxMCiterations - nitertot,
+                        reqiter
+                    )
+                )
 
                 cat('\nTotal number of iterations', nitertot,
-                    '- required further', requirediter, '\n')
+                    '- required further', remainiter, '\n')
 
-                if(requirediter > 0 && as.double(
+                if(remainiter > 0 && as.double(
                     Sys.time() - timestart0, units = 'hours'
                 ) >= timeleft) {
                     cat('but stopping chain owing to lack of time\n')
                     stoppedchains <- stoppedchains + 1L
-                    requirediter <- 0
+                    remainiter <- 0
                 }
 
-                if (requirediter > 0) {
+                if (remainiter > 0) {
                     ## limit number of iterations per loop, to save memory
-                    niter <- min(requirediter + 1L, startupMCiterations)
+                    niter <- min(remainiter + 1L, startupMCiterations)
                     subiter <- subiter + 1L
                     cat(
                         '\nChain #', chainnumber, '- chunk', subiter,
@@ -2194,11 +2225,11 @@ learn <- function(
             ## ## rm(allmcsamples)
 
             cat('\nKeeping last', nsamplesperchain, 'samples with thinning',
-                currentthinning, '\n')
+                chainthinning, '\n')
 
             tokeep <- seq(to = ncol(allmcsamples$W),
                 length.out = nsamplesperchain,
-                by = currentthinning)
+                by = chainthinning)
 
             if(any(tokeep <= 0)){
                 cat('\nWARNING: have to reduce thinning owing to time constraints\n')
@@ -2313,8 +2344,8 @@ learn <- function(
                         type = 'l', lty = 1, col = 1,
                         main = paste0('#', colnames(traces)[avar], ': ',
                             paste(
-                                names(diagn$toprint),
-                                sapply(diagn$toprint, function(xx){
+                                names(toprint),
+                                sapply(toprint, function(xx){
                                     signif(xx[avar], 3)
                                 }),
                                 collapse = ' | ', sep = ': '
@@ -2520,15 +2551,32 @@ learn <- function(
         paste0('MCtraces', dashnameroot, '.rds')
     ))
 
-    diagn <- mcmcstop(traces = traces,
-        nsamples = nsamples,
-        availiter = 0,
-        relerror = relerror,
-        thinning = thinning)
+#### MCSE, ESS, thinning
+    ## diagn <- mcmcstop(traces = traces,
+    ##     nsamples = nsamples,
+    ##     availiter = 0,
+    ##     relerror = relerror,
+    ##     thinning = thinning)
+    relmcse <- funMCSE(traces) / apply(traces, 2, sd)
+    ## relmcse2 <- (mcse + 1/N) / sds
+
+    ess <- funESS(traces)
+
+    ## autothinning <- ceiling(1.5 * nrow(traces)/ess)
+    autothinning <- ceiling(nrow(traces)/ess)
+
+    ## Output available diagnostics
+    toprint <- list(
+        'rel. MC standard error' = relmcse,
+        'eff. sample size' = ess,
+        'needed thinning' = autothinning,
+        'average' = apply(traces, 2, mean)
+    )
+####
 
     cat('\n')
-    for(i in names(diagn$toprint)) {
-        thisdiagn <- diagn$toprint[[i]]
+    for(i in names(toprint)) {
+        thisdiagn <- toprint[[i]]
         cat(paste0(i, ':'),
             if(length(thisdiagn) > 1){
                 paste0(
@@ -2565,8 +2613,8 @@ learn <- function(
             ## col = 1:6, # to evidence consecutive chains
             main = paste0('#', colnames(traces)[avar], ': ',
                 paste(
-                    names(diagn$toprint),
-                    sapply(diagn$toprint, function(xx){
+                    names(toprint),
+                    sapply(toprint, function(xx){
                         signif(xx[avar], 3)
                     }),
                     collapse = ' | ', sep = ': '
