@@ -151,8 +151,6 @@ learn <- function(
         assign(aname, hyperparams[[aname]])
     }
 
-    nalpha <- length(seq(minalpha, maxalpha, by = byalpha))
-
 #### Other options
     Alphatoslice <- FALSE # FALSE typically leads to underflow
     Ktoslice <- FALSE # FALSE typically leads to underflow
@@ -664,6 +662,7 @@ learn <- function(
     ## These constants are available in the Nimble environment
     ## They don't have to be accessed by constants$varname
     ## vn$R + vn$C + vn$D + vn$L
+    nalpha <- length(seq(minalpha, maxalpha, by = byalpha))
     probalpha0 <- (1:nalpha)^2.25
     probalpha0 <- probalpha0/sum(probalpha0)
     constants <- c(
@@ -677,7 +676,7 @@ learn <- function(
         ),
         if (vn$R > 0) { # continuous open domain
             list(
-                Rn = vn$R, # This indexing variable is needed internally
+                Rn = vn$R,
                 Rmean1 = rep(0, 1),
                 Rvarm1 = rep(Rvarm1, 1),
                 Rvar1 = rep(1, 1),
@@ -687,7 +686,7 @@ learn <- function(
         },
         if (vn$C > 0) { # continuous closed domain
             list(
-                Cn = vn$C, # This indexing variable is needed internally
+                Cn = vn$C,
                 Cmean1 = rep(0, 1),
                 Cvarm1 = rep(Cvarm1, 1),
                 Cvar1 = rep(1, 1),
@@ -709,7 +708,7 @@ learn <- function(
         },
         if (vn$D > 0) { # continuous rounded
             list(
-                Dn = vn$D, # This indexing variable is needed internally
+                Dn = vn$D,
                 Dmean1 = rep(0, 1),
                 Dvarm1 = rep(Dvarm1, 1),
                 Dvar1 = rep(1, 1),
@@ -728,7 +727,7 @@ learn <- function(
         },
         ## if (vn$L > 0) { # latent
         ##     list(
-        ##         Ln = vn$L, # This indexing variable is needed internally
+        ##         Ln = vn$L,
         ##         Lmean1 = rep(0, 1),
         ##         Lvarm1 = rep(Lvarm1, 1),
         ##         Lvar1 = rep(1, 1),
@@ -756,7 +755,7 @@ learn <- function(
             }
             ##
             list(
-                On = vn$O, # This indexing variable is needed internally
+                On = vn$O,
                 Omaxn = Omaxn,
                 Oalpha0 = Oalpha0
             )
@@ -771,19 +770,22 @@ learn <- function(
             }
             ##
             list(
-                Nn = vn$N, # This indexing variable is needed internally
+                Nn = vn$N,
                 Nmaxn = Nmaxn,
                 Nalpha0 = Nalpha0
             )
         },
         if (vn$B > 0) { # binary
             list(
-                Bn = vn$B, # This indexing variable is needed internally
+                Bn = vn$B,
                 Bshapelo = rep(Bshapelo, 1),
                 Bshapehi = rep(Bshapehi, 1)
             )
         }
     ) # End constants
+
+    saveRDS(constants,
+        file = file.path(dirname, paste0('_constants', dashnameroot, '.rds')))
 
 #### DATAPOINTS
     datapoints <- c(
@@ -841,6 +843,9 @@ learn <- function(
         }
     ) # End datapoints
 
+    saveRDS(datapoints,
+        file = file.path(dirname, paste0('_datapoints', dashnameroot, '.rds')))
+
 #### Output information to user
     if (!exists('Nalpha0')) {
         Nalpha0 <- cbind(1)
@@ -853,21 +858,16 @@ learn <- function(
         nchains, 'chains'
     )
 
-    samplespacedims <- vn$R * 2 * ncomponents +
-        vn$C * 2 * ncomponents +
-        vn$D * 2 * ncomponents +
-        sum(apply(Oalpha0, 1, function(x) sum(x > 2e-17) - 1)) * ncomponents +
-        sum(apply(Nalpha0, 1, function(x) sum(x > 2e-17) - 1)) * ncomponents +
-        sum(apply(Nalpha0, 1, function(x) sum(x > 2e-17) - 1)) +
-        vn$B * ncomponents +
-        ncomponents - 1
+    samplespacedims <- (vn$R * 2 + vn$C * 2 + vn$D * 2 + # means, vars
+                            sum(apply(Oalpha0, 1, function(x) sum(x > 2e-17) - 1)) +
+                            sum(apply(Nalpha0, 1, function(x) sum(x > 2e-17) - 1)) +
+                            vn$B + # independent probs
+                            1) * ncomponents - 1 # component weights
+
     samplespacexdims <- 1 + # Alpha
-        vn$R * ncomponents + # Rrate
-        vn$C * ncomponents + # Crate
-        vn$D * ncomponents + # Drate
-        1 + # K
-        vn$C * npoints * ncomponents + # latent C
-        vn$D * npoints * ncomponents + # latent D
+        (vn$R + vn$C + vn$D) * ncomponents + # rates
+        npoints + # K
+        (vn$C + vn$D) * npoints * ncomponents + # latents
         sum(is.na(data)) # missing data
 
 
