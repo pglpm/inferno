@@ -15,6 +15,7 @@ funMCSE <- function(x) {
 
 
 #### Function for calculating effective sample size
+#### Modified from
 #### from https://github.com/LaplacesDemonR/LaplacesDemon/blob/master/R/ESS.R
 #' @keywords internal
 funESS <- function(x){
