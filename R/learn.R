@@ -101,7 +101,7 @@ learn <- function(
         Bshapelo = 1,
         Bshapehi = 1,
         Dthreshold = 1,
-        tscalefactor = 1.35,
+        tscalefactor = 4.266,
         avoidzeroW = FALSE,
         initmethod = 'precluster'
         ## precluster, prior, allcentre
@@ -130,7 +130,7 @@ learn <- function(
         Bshapelo = 1,
         Bshapehi = 1,
         Dthreshold = 1,
-        tscalefactor = 1.35,
+        tscalefactor = 4.266,
         avoidzeroW = FALSE,
         initmethod = 'precluster'
         ## precluster, prior, allcentre
@@ -139,9 +139,12 @@ learn <- function(
     ## Allow user to specify hyperparameters only partially:
     ## missing ones are given default values above
     ## Check for unknown names first
-    temp <- setdiff(names(hyperparamsDefaults), names(hyperparamsDefaults))
-    if(length(temp) > 0){
-        stop('Unknown hyperparameters:', temp)
+    if(length(
+        setdiff(names(hyperparams), names(hyperparamsDefaults))
+    ) > 0){
+        stop('Unknown hyperparameters:',
+            setdiff(names(hyperparams), names(hyperparamsDefaults))
+        )
     }
 
     for(aname in names(hyperparamsDefaults)){
@@ -170,7 +173,7 @@ learn <- function(
     cat('\n') # make sure possible error messages start on new line
 
     ## Set the RNG seed if given by user, or if no seed already exists
-    if (!is.null(seed) || !missing(seed) || !exists('.Random.seed')) {
+    if (!is.null(seed) || !exists('.Random.seed')) {
         set.seed(seed)
     }
     currentseed <- .Random.seed
@@ -1053,6 +1056,7 @@ learn <- function(
                         mean = constants$Rmean1,
                         sd = sqrt(constants$Rvarm1)
                     ), nrow = vn$R, ncol = constants$ncomponents)
+                    Rvars <- matrix(1, nrow = vn$R, ncol = constants$ncomponents)
                     ## distances from datapoints
                     distances <- distances + apply(Rmeans, 2, function(ameans){
                         colSums(lpnorm(t(datapoints$Rdata) - ameans), na.rm = TRUE)
@@ -1064,6 +1068,7 @@ learn <- function(
                         mean = constants$Cmean1,
                         sd = sqrt(constants$Cvarm1)
                     ), nrow = vn$C, ncol = constants$ncomponents)
+                    Cvars <- matrix(1, nrow = vn$C, ncol = constants$ncomponents)
                     ## distances from datapoints
                     distances <- distances + apply(Cmeans, 2, function(ameans){
                         colSums(lpnorm(t(datapoints$Clat) - ameans), na.rm = TRUE)
@@ -1075,6 +1080,7 @@ learn <- function(
                         mean = constants$Dmean1,
                         sd = sqrt(constants$Dvarm1)
                     ), nrow = vn$D, ncol = constants$ncomponents)
+                    Dvars <- matrix(1, nrow = vn$D, ncol = constants$ncomponents)
                     ## distances from datapoints
                     distances <- distances + apply(Dmeans, 2, function(ameans){
                         colSums(lpnorm(t(constants$Dlatinit) - ameans), na.rm = TRUE)
@@ -1114,6 +1120,10 @@ learn <- function(
                             na.rm = TRUE)
                     })
                     Rmeans[, -occupied] <- 0
+                    Rvars[, occupied] <- sapply(occupied, function(acomponent){
+                        apply(datapoints$Rdata[which(K == acomponent), , drop = FALSE],
+                            2, sd, na.rm = TRUE)^2
+                    })
                 }
                 if (vn$C > 0) {
                     Cmeans[, occupied] <- sapply(occupied, function(acomponent){
@@ -1121,6 +1131,10 @@ learn <- function(
                             na.rm = TRUE)
                     })
                     Cmeans[, -occupied] <- 0
+                    Cvars[, occupied] <- sapply(occupied, function(acomponent){
+                        apply(datapoints$Cdata[which(K == acomponent), , drop = FALSE],
+                            2, sd, na.rm = TRUE)^2
+                    })
                 }
                 if (vn$D > 0) {
                     Dmeans[, occupied] <- sapply(occupied, function(acomponent){
@@ -1128,6 +1142,10 @@ learn <- function(
                             na.rm = TRUE)
                     })
                     Dmeans[, -occupied] <- 0
+                    Dvars[, occupied] <- sapply(occupied, function(acomponent){
+                        apply(datapoints$Ddata[which(K == acomponent), , drop = FALSE],
+                            2, sd, na.rm = TRUE)^2
+                    })
                 }
                 ## if (vn$L > 0) { # continuous open domain
                 ##     Lmeans[, occupied] <- sapply(occupied, function(acomponent){
@@ -1188,8 +1206,7 @@ learn <- function(
                                     rate = constants$Rvar1),
                                 nrow = vn$R, ncol = constants$ncomponents
                             ),
-                            Rvar = matrix(1,
-                                nrow = vn$R, ncol = constants$ncomponents)
+                            Rvar = Rvars
                         )
                     )
                 }
@@ -1204,8 +1221,7 @@ learn <- function(
                                     rate = constants$Cvar1),
                                 nrow = vn$C, ncol = constants$ncomponents
                             ),
-                            Cvar = matrix(1,
-                                nrow = vn$C, ncol = constants$ncomponents),
+                            Cvar = Cvars,
                             ## for data with boundary values
                             Clat = constants$Clatinit
                             ## Clat = vtransform(data[, vnames$C, with = FALSE],
@@ -1224,8 +1240,7 @@ learn <- function(
                                     rate = constants$Dvar1),
                                 nrow = vn$D, ncol = constants$ncomponents
                             ),
-                            Dvar = matrix(1,
-                                nrow = vn$D, ncol = constants$ncomponents),
+                            Dvar = Dvars,
                             ## for data with boundary values
                             Dlat = constants$Dlatinit
                             ## Dlat = vtransform(data[, vnames$D, with = FALSE],

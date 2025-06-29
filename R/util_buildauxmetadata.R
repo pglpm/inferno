@@ -20,15 +20,11 @@ buildauxmetadata <- function(data, metadata, Dthreshold = 1, tscalefactor = 1.25
     ## and its mean is 5.10.
     ## The MAD of the prior for the next unit is 3.67
     ## The IQR of the prior for the next unit is 4.96
-    ## So we could set the scale to
-    ## ([(Q3-Q2)+(Q2-Q1)]/2) /2
-    ## = (Q3-Q1)/4
-    ## this way the transformed Q3 is at approx 2
-    ## the factor "4" is instead "1" at the moment.
-    ## This need to be studied some more
-    ## tscalefactor <- 1
-    ##  tscalefactorLog <- 2 * 6
-    ##  tscalefactorQ <- 2 * 0.3
+    ## The prior median of the IQRs of the components is 1.349
+    ## The prior quartiles of the IQRs of the components are 0.559 & 3.25
+    ## The prior 0.89-quantile of the IQRs of the components is 7.72
+    ## half-order of magnitude smaller than the IQR-median is 4.26585
+    ## which is approx 80.5%-quantile of the component-IQR distribution
 
     Othreshold <- 10
 
