@@ -1,0 +1,4 @@
+name,type,domainmin,domainmax,datastep,minincluded,maxincluded,V1,V2
+R1,continuous,,,,,,,
+R2,continuous,,,,,,,
+R3,continuous,,,,,,,

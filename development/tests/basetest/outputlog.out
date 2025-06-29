@@ -1,17 +1,19 @@
 
+Registered doParallelSNOW with 6 workers
+
 Calculating auxiliary metadata
 
-Learning:  3 datapoints,  9 variates
+Learning:  100 datapoints,  3 variates
 
- *************************************** 
+ ****************************************************** 
  Saving output in directory
- __base--250629T135039-vrt9_dat3_smp3600 
- *************************************** 
+ __gaussians2B_tsf135-250629T225126-vrt3_dat100_smp3600 
+ ****************************************************** 
 Starting Monte Carlo sampling of 3600 samples by 60 chains
-in a space of 1343 (effectively 2316) dimensions.
-Using 1 cores: 60 samples per chain, max 60 chains per core.
+in a space of 447 (effectively 740) dimensions.
+Using 6 cores: 60 samples per chain, max 10 chains per core.
 Core logs are being saved in individual files.
 
 C-compiling samplers appropriate to the variates (package Nimble)
-this can take tens of minutes. Please wait...Loading required package: foreach
-Loading required package: rngtools
+this can take tens of minutes. Please wait...Compiled core 1. Number of samplers: 678.       
+Estimating remaining time, please be patient...Sampling. Core 1 estimated end time: 2025-06-29 23:01   Sampling. Core 5 estimated end time: 2025-06-29 23:04   Sampling. Core 2 estimated end time: 2025-06-29 23:07   Sampling. Core 5 estimated end time: 2025-06-29 23:04   Sampling. Core 5 estimated end time: 2025-06-29 23:03   Sampling. Core 1 estimated end time: 2025-06-29 23:08   Sampling. Core 4 estimated end time: 2025-06-29 23:30   Sampling. Core 1 estimated end time: 2025-06-29 23:08   Sampling. Core 3 estimated end time: 2025-06-29 23:34   Sampling. Core 2 estimated end time: 2025-06-29 23:17   Sampling. Core 4 estimated end time: 2025-06-29 23:18   Sampling. Core 1 estimated end time: 2025-06-29 23:06   Sampling. Core 6 estimated end time: 2025-06-29 23:41   Sampling. Core 1 estimated end time: 2025-06-29 23:05   Sampling. Core 4 estimated end time: 2025-06-29 23:14   Sampling. Core 2 estimated end time: 2025-06-29 23:16   Sampling. Core 6 estimated end time: 2025-06-29 23:28   Sampling. Core 3 estimated end time: 2025-06-29 23:29   Sampling. Core 1 estimated end time: 2025-06-29 23:06   Sampling. Core 5 estimated end time: 2025-06-29 23:15   Sampling. Core 3 estimated end time: 2025-06-29 23:22   Sampling. Core 1 estimated end time: 2025-06-29 23:07   Sampling. Core 2 estimated end time: 2025-06-29 23:17   Sampling. Core 6 estimated end time: 2025-06-29 23:25   Sampling. Core 5 estimated end time: 2025-06-29 23:13   Sampling. Core 6 estimated end time: 2025-06-29 23:19   Sampling. Core 5 estimated end time: 2025-06-29 23:11   Sampling. Core 3 estimated end time: 2025-06-29 23:20   Sampling. Core 6 estimated end time: 2025-06-29 23:15   Sampling. Core 1 estimated end time: 2025-06-29 23:08   Sampling. Core 5 estimated end time: 2025-06-29 23:10   Sampling. Core 2 estimated end time: 2025-06-29 23:17   Sampling. Core 1 estimated end time: 2025-06-29 23:07   Sampling. Core 4 estimated end time: 2025-06-29 23:27   Sampling. Core 1 estimated end time: 2025-06-29 23:08   Sampling. Core 5 estimated end time: 2025-06-29 23:12   Sampling. Core 6 estimated end time: 2025-06-29 23:19   Sampling. Core 5 estimated end time: 2025-06-29 23:11   Sampling. Core 6 estimated end time: 2025-06-29 23:16   Sampling. Core 2 estimated end time: 2025-06-29 23:21   Sampling. Core 6 estimated end time: 2025-06-29 23:15   Sampling. Core 3 estimated end time: 2025-06-29 23:27   Sampling. Core 4 estimated end time: 2025-06-29 23:27   Sampling. Core 3 estimated end time: 2025-06-29 23:23   Sampling. Core 4 estimated end time: 2025-06-29 23:23   Sampling. Core 5 estimated end time: 2025-06-29 23:12   Sampling. Core 3 estimated end time: 2025-06-29 23:19   Sampling. Core 4 estimated end time: 2025-06-29 23:20   
