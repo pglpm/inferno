@@ -1,0 +1,17 @@
+
+Calculating auxiliary metadata
+
+Learning:  3 datapoints,  9 variates
+
+ *************************************** 
+ Saving output in directory
+ __base--250629T135039-vrt9_dat3_smp3600 
+ *************************************** 
+Starting Monte Carlo sampling of 3600 samples by 60 chains
+in a space of 1343 (effectively 2316) dimensions.
+Using 1 cores: 60 samples per chain, max 60 chains per core.
+Core logs are being saved in individual files.
+
+C-compiling samplers appropriate to the variates (package Nimble)
+this can take tens of minutes. Please wait...Loading required package: foreach
+Loading required package: rngtools

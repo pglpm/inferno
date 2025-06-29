@@ -1116,36 +1116,44 @@ learn <- function(
                 ## recalculate components centres according to their points
                 if (vn$R > 0) {
                     Rmeans[, occupied] <- sapply(occupied, function(acomponent){
-                        colMeans(datapoints$Rdata[which(K == acomponent), , drop = FALSE],
+                        colMeans(
+                            datapoints$Rdata[which(K == acomponent), , drop = FALSE],
                             na.rm = TRUE)
                     })
                     Rmeans[, -occupied] <- 0
-                    Rvars[, occupied] <- sapply(occupied, function(acomponent){
-                        apply(datapoints$Rdata[which(K == acomponent), , drop = FALSE],
-                            2, sd, na.rm = TRUE)^2
-                    })
+                    ## Rvars[, occupied] <- sapply(occupied, function(acomponent){
+                    ##     apply(
+                    ##         datapoints$Rdata[which(K == acomponent), , drop = FALSE],
+                    ##         2, sd, na.rm = TRUE)
+                    ## })^2
+                    ## Rvars[is.na(Rvars)] <- 1
                 }
                 if (vn$C > 0) {
                     Cmeans[, occupied] <- sapply(occupied, function(acomponent){
-                        colMeans(datapoints$Clat[which(K == acomponent), , drop = FALSE],
+                        colMeans(
+                            datapoints$Clat[which(K == acomponent), , drop = FALSE],
                             na.rm = TRUE)
                     })
                     Cmeans[, -occupied] <- 0
-                    Cvars[, occupied] <- sapply(occupied, function(acomponent){
-                        apply(datapoints$Cdata[which(K == acomponent), , drop = FALSE],
-                            2, sd, na.rm = TRUE)^2
-                    })
+                    ## Cvars[, occupied] <- sapply(occupied, function(acomponent){
+                    ##     apply(
+                    ##         datapoints$Clat[which(K == acomponent), , drop = FALSE],
+                    ##         2, sd, na.rm = TRUE)
+                    ## })^2
+                    ## Cvars[is.na(Cvars)] <- 1
                 }
                 if (vn$D > 0) {
                     Dmeans[, occupied] <- sapply(occupied, function(acomponent){
-                        colMeans(constants$Dlatinit[which(K == acomponent), , drop = FALSE],
+                        colMeans(
+                            constants$Dlatinit[which(K == acomponent), , drop = FALSE],
                             na.rm = TRUE)
                     })
                     Dmeans[, -occupied] <- 0
-                    Dvars[, occupied] <- sapply(occupied, function(acomponent){
-                        apply(datapoints$Ddata[which(K == acomponent), , drop = FALSE],
-                            2, sd, na.rm = TRUE)^2
-                    })
+                    ## Dvars[, occupied] <- sapply(occupied, function(acomponent){
+                    ##     apply(constants$Dlatinit[which(K == acomponent), , drop = FALSE],
+                    ##         2, sd, na.rm = TRUE)
+                    ## })^2
+                    ## Dvars[is.na(Dvars)] <- 1
                 }
                 ## if (vn$L > 0) { # continuous open domain
                 ##     Lmeans[, occupied] <- sapply(occupied, function(acomponent){
