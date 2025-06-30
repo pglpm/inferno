@@ -299,9 +299,8 @@ tailPr <- function(
             Bout = 'numeric',
             logjacobianOr = NULL))
 
-        temporarydir <- tempdir() # where to save X objects
-        ## Save current time as identifier for temporary files
-        saveid <- format(Sys.time(), '%y%m%d%H%M%OS1')
+        ## create unique dir where to save X objects
+        temporarydir <- tempdir()
         ##
         todelete <- foreach(jj = seq_len(nX), x = t(X2),
             .combine = `c`,
@@ -327,7 +326,7 @@ tailPr <- function(
 
                 saveRDS(lprobX,
                     file.path(temporarydir,
-                        paste0('__X', jj, '__', saveid, '.rds'))
+                        paste0('__X', jj, '__.rds'))
                 )
                 NULL
             }
@@ -395,7 +394,7 @@ tailPr <- function(
 
                 if(usememory) {
                     lprobX <- readRDS(file.path(temporarydir,
-                        paste0('__X', jj, '__', saveid, '.rds')
+                        paste0('__X', jj, '__.rds')
                     ))
                 }
 

@@ -1,6 +1,6 @@
 library('inferno')
 
-seed <- 16
+set.seed(16)
 parallel <- 4
 
 outputdir <- '__base-'
@@ -11,6 +11,7 @@ learntdir <- learn(
     outputdir = outputdir,
     appendtimestamp = TRUE,
     appendinfo = TRUE,
+    cleanup = FALSE,
     output = 'directory',
     parallel = parallel,
     ## parameters for short test run:
@@ -40,6 +41,5 @@ learntdir <- learn(
         ## initmethod = 'allinone',
         ## avoidzeroW = FALSE
         ## precluster, prior
-    ),
-    seed = seed
+    )
 )
