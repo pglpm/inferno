@@ -1,4 +1,9 @@
-#### Function for calculating MCMC standard error
+#' Function for calculating MC standard error.
+#' 
+#' @param x: a matrix, rows being MC samples and columns being quantities whose MCSE is to be estimated.
+#'
+#' @return Estimates of the MC standard error for each trace. Division by sqrt(N) is already performed.
+#'
 #' @keywords internal
 funMCSE <- function(x) {
     x <- as.matrix(x)
@@ -14,9 +19,15 @@ funMCSE <- function(x) {
 }
 
 
-#### Function for calculating effective sample size
-#### Modified from
-#### from https://github.com/LaplacesDemonR/LaplacesDemon/blob/master/R/ESS.R
+#' Function for calculating MC effective sample size.
+#'
+#' Modified from
+#' from https://github.com/LaplacesDemonR/LaplacesDemon/blob/master/R/ESS.R
+#'
+#' @param x: a matrix, rows being MC samples and columns being quantities whose MCSE is to be estimated.
+#'
+#' @return Estimates of the effective sample size for each trace.
+#'
 #' @keywords internal
 funESS <- function(x){
     x <- as.matrix(x)
