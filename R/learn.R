@@ -791,6 +791,7 @@ learn <- function(
         file = file.path(dirname, paste0('_constants', dashnameroot, '.rds')))
 
 #### DATAPOINTS
+    ## for each list element: rows: data; cols: variates of that element
     datapoints <- c(
         if (vn$R > 0) { # continuous open domain
             list(
@@ -2106,13 +2107,20 @@ learn <- function(
                 ##     relerror = relerror,
                 ##     thinning = thinning)
 
-                relmcse <- funMCSE(cleantraces) / apply(cleantraces, 2, sd)
+                N <- nrow(cleantraces)
+                relmcse <- apply(cleantraces, 2, function(atrace){
+                    sqrt(mcmc::initseq(atrace)$var.con / N) / sd(atrace)
+                    })
+                ## relmcse <- funMCSE2(cleantraces) / apply(cleantraces, 2, sd)
                 ## relmcse2 <- (mcse + 1/N) / sds
 
-                ess <- funESS(cleantraces)
+                ## ess <- funESS(cleantraces)
+                ess <- (1 / relmcse)^2
+                ess[ess < 1] <- 1
+                ess[ess > N] <- N
 
                 ## autothinning <- ceiling(1.5 * nrow(cleantraces)/ess)
-                autothinning <- ceiling(nrow(cleantraces)/ess)
+                autothinning <- ceiling(N/ess)
 
                 if(is.null(thinning)) {
                     chainthinning <- max(autothinning)
@@ -2125,7 +2133,7 @@ learn <- function(
                     'rel. MC standard error' = relmcse,
                     'eff. sample size' = ess,
                     'needed thinning' = autothinning,
-                    'average' = apply(cleantraces, 2, mean)
+                    'average' = colMeans(cleantraces)
                 )
 ####
                 for(i in names(toprint)) {
@@ -2580,20 +2588,27 @@ learn <- function(
     ##     availiter = 0,
     ##     relerror = relerror,
     ##     thinning = thinning)
-    relmcse <- funMCSE(traces) / apply(traces, 2, sd)
+    N <- nrow(traces)
+    relmcse <- apply(traces, 2, function(atrace){
+        sqrt(mcmc::initseq(atrace)$var.con / N) / sd(atrace)
+    })
+    ## relmcse <- funMCSE2(traces) / apply(traces, 2, sd)
     ## relmcse2 <- (mcse + 1/N) / sds
 
-    ess <- funESS(traces)
+    ## ess <- funESS(traces)
+    ess <- (1 / relmcse)^2
+    ess[ess < 1] <- 1
+    ess[ess > N] <- N
 
     ## autothinning <- ceiling(1.5 * nrow(traces)/ess)
-    autothinning <- ceiling(nrow(traces)/ess)
+    autothinning <- ceiling(N/ess)
 
     ## Output available diagnostics
     toprint <- list(
         'rel. MC standard error' = relmcse,
         'eff. sample size' = ess,
         'needed thinning' = autothinning,
-        'average' = apply(traces, 2, mean)
+        'average' = colMeans(traces)
     )
 ####
 
@@ -2627,7 +2642,7 @@ learn <- function(
     ## Traces of likelihood and cond. probabilities
     for (avar in 1:ncol(traces)) {
         ## Do not join separate chains in the plot
-        division <- (if(nrow(traces) > nchains) nchains else 1)
+        division <- (if(N > nchains) nchains else 1)
         flexiplot(
             y = 10*log10(traces[is.finite(traces[, avar]), avar]),
             ## x = matrix(seq_len(nsamples), ncol = division),

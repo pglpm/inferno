@@ -3,7 +3,7 @@ library('inferno')
 set.seed(16)
 parallel <- 4
 
-outputdir <- '__gaussian-'
+outputdir <- '__gaussian'
 learntdir <- learn(
     data = 'data_gaussian.csv',
     metadata = 'metadata_gaussian.csv',

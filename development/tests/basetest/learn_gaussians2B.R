@@ -3,7 +3,7 @@ library('inferno')
 set.seed(16)
 parallel <- 6
 
-outputdir <- '__gaussians2B_tsf135'
+outputdir <- '__gaussians2B'
 learntdir <- learn(
     data = 'data_gaussians2B.csv',
     metadata = 'metadata_gaussians2B.csv',
@@ -37,7 +37,7 @@ learntdir <- learn(
         ## Bshapelo = 1,
         ## Bshapehi = 1,
         ## Dthreshold = 1,
-        tscalefactor = 1.35
+        ## tscalefactor = 1.35,
         ## avoidzeroW = FALSE,
         ## initmethod = 'precluster'
     )

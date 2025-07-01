@@ -1,5 +1,5 @@
 #' Function for calculating MC standard error.
-#' 
+#'
 #' @param x: a matrix, rows being MC samples and columns being quantities whose MCSE is to be estimated.
 #'
 #' @return Estimates of the MC standard error for each trace. Division by sqrt(N) is already performed.
@@ -54,6 +54,33 @@ funESS <- function(x){
     v0[which(v0 < .Machine$double.eps)] <- .Machine$double.eps
     v0[which(v0 > N)] <- N
     v0
+}
+
+#' Function for calculating MC standard error, from Geyer's mcmc package
+#'
+#' @param x: a matrix, rows being MC samples and columns being quantities whose MCSE is to be estimated.
+#'
+#' @return Estimates of the MC standard error for each trace. Division by sqrt(N) is already performed.
+#'
+#' @keywords internal
+funMCSE2 <- function(x){
+    x <- as.matrix(x)
+    N <- nrow(x)
+    apply(x, 2, function(atrace){
+        sqrt(mcmc::initseq(atrace)$var.con / N)
+    })
+}
+
+#' Function for calculating MC standard error, from Geyer's mcmc package
+#'
+#' @param x: a matrix, rows being MC samples and columns being quantities whose ESS is to be estimated.
+#'
+#' @return Estimates of ESS for each trace.
+#'
+#' @keywords internal
+funESS2 <- function(x){
+    x <- as.matrix(x)
+    (apply(x, 2, sd) / funMCSE2(x))^2
 }
 
 ## #### Function for calculating number of needed MCMC iterations
