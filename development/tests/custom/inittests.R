@@ -118,7 +118,7 @@ logprob <- function(data, metadata, initmethod, hyperparams = NULL){
     }
 
 
-    auxmetadata <- buildauxmetadata(
+    auxmetadata <- inferno:::buildauxmetadata(
         data = data,
         metadata = metadata,
         Dthreshold = hyperparams$Dthreshold,
@@ -168,13 +168,13 @@ logprob <- function(data, metadata, initmethod, hyperparams = NULL){
                 Cvar1 = rep(1, 1),
                 Cshapelo = rep(Cshapelo, 1),
                 Cshapehi = rep(Cshapehi, 1),
-                Cleft = as.matrix(vtransform(data[, vnames$C, drop = FALSE],
+                Cleft = as.matrix(inferno:::vtransform(data[, vnames$C, drop = FALSE],
                     auxmetadata = auxmetadata,
                     Cout = 'left', logjacobianOr = NULL)),
-                Cright = as.matrix(vtransform(data[, vnames$C, drop = FALSE],
+                Cright = as.matrix(inferno:::vtransform(data[, vnames$C, drop = FALSE],
                     auxmetadata = auxmetadata,
                     Cout = 'right', logjacobianOr = NULL)),
-                Clatinit = as.matrix(vtransform(data[, vnames$C, drop = FALSE],
+                Clatinit = as.matrix(inferno:::vtransform(data[, vnames$C, drop = FALSE],
                     auxmetadata,
                     Cout = 'init', logjacobianOr = NULL))
             )
@@ -190,13 +190,13 @@ logprob <- function(data, metadata, initmethod, hyperparams = NULL){
                 Dvar1 = rep(1, 1),
                 Dshapelo = rep(Dshapelo, 1),
                 Dshapehi = rep(Dshapehi, 1),
-                Dleft = as.matrix(vtransform(data[, vnames$D, drop = FALSE],
+                Dleft = as.matrix(inferno:::vtransform(data[, vnames$D, drop = FALSE],
                     auxmetadata = auxmetadata,
                     Dout = 'left', logjacobianOr = NULL)),
-                Dright = as.matrix(vtransform(data[, vnames$D, drop = FALSE],
+                Dright = as.matrix(inferno:::vtransform(data[, vnames$D, drop = FALSE],
                     auxmetadata = auxmetadata,
                     Dout = 'right', logjacobianOr = NULL)),
-                Dlatinit = as.matrix(vtransform(data[, vnames$D, drop = FALSE],
+                Dlatinit = as.matrix(inferno:::vtransform(data[, vnames$D, drop = FALSE],
                     auxmetadata,
                     Dout = 'init', logjacobianOr = NULL))
             )
@@ -209,13 +209,13 @@ logprob <- function(data, metadata, initmethod, hyperparams = NULL){
         ##         Lvar1 = rep(1, 1),
         ##         Lshapelo = rep(Lshapelo, 1),
         ##         Lshapehi = rep(Lshapehi, 1),
-        ##         Lleft = as.matrix(vtransform(data[, vnames$L, drop = FALSE],
+        ##         Lleft = as.matrix(inferno:::vtransform(data[, vnames$L, drop = FALSE],
         ##             auxmetadata = auxmetadata,
         ##             Lout = 'left')),
-        ##         Lright = as.matrix(vtransform(data[, vnames$L, drop = FALSE],
+        ##         Lright = as.matrix(inferno:::vtransform(data[, vnames$L, drop = FALSE],
         ##             auxmetadata = auxmetadata,
         ##             Lout = 'right')),
-        ##         Llatinit = as.matrix(vtransform(data[, vnames$L, drop = FALSE],
+        ##         Llatinit = as.matrix(inferno:::vtransform(data[, vnames$L, drop = FALSE],
         ##             auxmetadata,
         ##             Lout = 'init'))
         ##     )
@@ -264,52 +264,52 @@ logprob <- function(data, metadata, initmethod, hyperparams = NULL){
     datapoints <- c(
         if (vn$R > 0) { # continuous open domain
             list(
-                Rdata = as.matrix(vtransform(data[, vnames$R, drop = FALSE],
+                Rdata = as.matrix(inferno:::vtransform(data[, vnames$R, drop = FALSE],
                     auxmetadata = auxmetadata,
                     Rout = 'normalized', logjacobianOr = NULL))
             )
         },
         if (vn$C > 0) { # continuous closed domain
             list(
-                Caux = as.matrix(vtransform(data[, vnames$C, drop = FALSE],
+                Caux = as.matrix(inferno:::vtransform(data[, vnames$C, drop = FALSE],
                     auxmetadata = auxmetadata,
                     Cout = 'aux', logjacobianOr = NULL)),
-                Clat = as.matrix(vtransform(data[, vnames$C, drop = FALSE],
+                Clat = as.matrix(inferno:::vtransform(data[, vnames$C, drop = FALSE],
                     auxmetadata = auxmetadata,
                     Cout = 'lat', logjacobianOr = NULL))
             )
         },
         if (vn$D > 0) { # continuous rounded
             list(
-                Daux = as.matrix(vtransform(data[, vnames$D, drop = FALSE],
+                Daux = as.matrix(inferno:::vtransform(data[, vnames$D, drop = FALSE],
                     auxmetadata = auxmetadata,
                     Dout = 'aux', logjacobianOr = NULL))
             )
         },
         ## if (vn$L > 0) { # latent
         ##     list(
-        ##         Laux = as.matrix(vtransform(data[, vnames$L, drop = FALSE],
+        ##         Laux = as.matrix(inferno:::vtransform(data[, vnames$L, drop = FALSE],
         ##             auxmetadata = auxmetadata,
         ##             Lout = 'aux'))
         ##     )
         ## },
         if (vn$O > 0) { # nominal
             list(
-                Odata = as.matrix(vtransform(data[, vnames$O, drop = FALSE],
+                Odata = as.matrix(inferno:::vtransform(data[, vnames$O, drop = FALSE],
                     auxmetadata = auxmetadata,
                     Oout = 'numeric', logjacobianOr = NULL))
             )
         },
         if (vn$N > 0) { # nominal
             list(
-                Ndata = as.matrix(vtransform(data[, vnames$N, drop = FALSE],
+                Ndata = as.matrix(inferno:::vtransform(data[, vnames$N, drop = FALSE],
                     auxmetadata = auxmetadata,
                     Nout = 'numeric', logjacobianOr = NULL))
             )
         },
         if (vn$B > 0) { # binary
             list(
-                Bdata = as.matrix(vtransform(data[, vnames$B, drop = FALSE],
+                Bdata = as.matrix(inferno:::vtransform(data[, vnames$B, drop = FALSE],
                     auxmetadata = auxmetadata,
                     Bout = 'numeric', logjacobianOr = NULL))
             )
@@ -489,7 +489,7 @@ logprob <- function(data, metadata, initmethod, hyperparams = NULL){
                                 nrow = vn$C, ncol = constants$ncomponents),
                             ## for data with boundary values
                             Clat = constants$Clatinit
-                            ## Clat = vtransform(data[, vnames$C, with = FALSE],
+                            ## Clat = inferno:::vtransform(data[, vnames$C, with = FALSE],
                             ##   auxmetadata, Cout = 'init')
                         )
                     )
@@ -509,7 +509,7 @@ logprob <- function(data, metadata, initmethod, hyperparams = NULL){
                                 nrow = vn$D, ncol = constants$ncomponents),
                             ## for data with boundary values
                             Dlat = constants$Dlatinit
-                            ## Dlat = vtransform(data[, vnames$D, with = FALSE],
+                            ## Dlat = inferno:::vtransform(data[, vnames$D, with = FALSE],
                             ##   auxmetadata, Dout = 'init')
                         )
                     )
@@ -529,7 +529,7 @@ logprob <- function(data, metadata, initmethod, hyperparams = NULL){
                 ##                 nrow = vn$L, ncol = constants$ncomponents),
                 ##             ## for data with boundary values
                 ##             Llat = constants$Llatinit
-                ##             ## Llat = vtransform(data[, vnames$L, with = FALSE],
+                ##             ## Llat = inferno:::vtransform(data[, vnames$L, with = FALSE],
                 ##             ##   auxmetadata, Lout = 'init')
                 ##         )
                 ##     )
@@ -587,21 +587,21 @@ logprob <- function(data, metadata, initmethod, hyperparams = NULL){
                 distances <- matrix(0, nrow = constants$npoints,
                     ncol = constants$ncomponents)
                 if (vn$R > 0) { # continuous open domain
-                    Rmeans <- t(datapoints$Rdata[iK, ])
+                    Rmeans <- t(datapoints$Rdata[iK, , drop = FALSE, drop = FALSE])
                     ## distances from datapoints
                     distances <- distances + apply(Rmeans, 2, function(ameans){
                         colSums(lpnorm(t(datapoints$Rdata) - ameans), na.rm = TRUE)
                     })
                 }
                 if (vn$C > 0) { # continuous closed domain
-                    Cmeans <- t(datapoints$Clat[iK, ])
+                    Cmeans <- t(datapoints$Clat[iK, , drop = FALSE])
                     ## distances from datapoints
                     distances <- distances + apply(Cmeans, 2, function(ameans){
                         colSums(lpnorm(t(datapoints$Clat) - ameans), na.rm = TRUE)
                     })
                 }
                 if (vn$D > 0) { # discrete
-                    Dmeans <- t(datapoints$Dlatinit[iK, ])
+                    Dmeans <- t(constants$Dlatinit[iK, , drop = FALSE])
                     ## distances from datapoints
                     distances <- distances + apply(Dmeans, 2, function(ameans){
                         colSums(lpnorm(t(constants$Dlatinit) - ameans), na.rm = TRUE)
@@ -735,7 +735,7 @@ logprob <- function(data, metadata, initmethod, hyperparams = NULL){
                                 nrow = vn$C, ncol = constants$ncomponents),
                             ## for data with boundary values
                             Clat = constants$Clatinit
-                            ## Clat = vtransform(data[, vnames$C, with = FALSE],
+                            ## Clat = inferno:::vtransform(data[, vnames$C, with = FALSE],
                             ##   auxmetadata, Cout = 'init')
                         )
                     )
@@ -755,7 +755,7 @@ logprob <- function(data, metadata, initmethod, hyperparams = NULL){
                                 nrow = vn$D, ncol = constants$ncomponents),
                             ## for data with boundary values
                             Dlat = constants$Dlatinit
-                            ## Dlat = vtransform(data[, vnames$D, with = FALSE],
+                            ## Dlat = inferno:::vtransform(data[, vnames$D, with = FALSE],
                             ##   auxmetadata, Dout = 'init')
                         )
                     )
@@ -775,7 +775,7 @@ logprob <- function(data, metadata, initmethod, hyperparams = NULL){
                 ##                 nrow = vn$L, ncol = constants$ncomponents),
                 ##             ## for data with boundary values
                 ##             Llat = constants$Llatinit
-                ##             ## Llat = vtransform(data[, vnames$L, with = FALSE],
+                ##             ## Llat = inferno:::vtransform(data[, vnames$L, with = FALSE],
                 ##             ##   auxmetadata, Lout = 'init')
                 ##         )
                 ##     )
@@ -1440,6 +1440,27 @@ logprob <- function(data, metadata, initmethod, hyperparams = NULL){
             }))
     })
     return(out)
+}
+
+
+compareinitm <- function(
+    data,
+    metadata,
+    n = 1000,
+    initmethods = c('datacentre', 'precluster', 'prior', 'allinone', 'allcentre', 'priorbutfirst')
+){
+    out <- foreach(initm = initmethods, .combine = cbind, .inorder = TRUE,
+        .export = c('logprob')) %dorng% {
+        sapply(seq_len(n), function(i){
+            logprob(data = data,
+                metadata = metadata,
+                initmethod = initm)
+        })
+        }
+    colnames(out) <- initmethods
+    attr(out, 'rng') <- NULL
+    attr(out, 'doRNG_version') <- NULL
+    out
 }
 
 

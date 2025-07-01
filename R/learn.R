@@ -103,7 +103,7 @@ learn <- function(
         Dthreshold = 1,
         tscalefactor = 4.266,
         avoidzeroW = FALSE,
-        initmethod = 'precluster'
+        initmethod = 'datacentre'
         ## precluster, prior, allcentre
     )
 ) {
@@ -132,7 +132,7 @@ learn <- function(
         Dthreshold = 1,
         tscalefactor = 4.266,
         avoidzeroW = FALSE,
-        initmethod = 'precluster'
+        initmethod = 'datacentre'
         ## precluster, prior, allcentre
     )
 
@@ -488,7 +488,7 @@ learn <- function(
     saveRDS(currentseed,
         file = file.path(dirname, paste0('rng_seed', dashnameroot, '.rds')))
 
-#### number ofcheckpoints for Monte Carlo stopping rule
+#### number of checkpoints for Monte Carlo stopping rule
     if(is.null(ncheckpoints)) {
         ncheckpoints <- nrow(auxmetadata) + 1
     }
@@ -1316,6 +1316,251 @@ learn <- function(
                 outlist
             } # end precluster
 
+        } else if(initmethod == 'datacentre'){
+            ## pre-clustering, centering on data
+            initsfn <- function() {
+                ## assign each cluster to a datapoint
+                iK <- sample(seq_len(constants$npoints), constants$ncomponents,
+                    replace = (constants$npoints < constants$ncomponents))
+
+                ## Create components centres
+                ## distance function
+                ## NB: all variances will be initialized to 1
+                lpnorm <- function(xx){abs(xx)}
+                distances <- matrix(0, nrow = constants$npoints,
+                    ncol = constants$ncomponents)
+                if (vn$R > 0) { # continuous open domain
+                    Rmeans <- t(datapoints$Rdata[iK, , drop = FALSE])
+                    ## distances from datapoints
+                    distances <- distances + apply(Rmeans, 2, function(ameans){
+                        colSums(lpnorm(t(datapoints$Rdata) - ameans), na.rm = TRUE)
+                    })
+                }
+                if (vn$C > 0) { # continuous closed domain
+                    Cmeans <- t(datapoints$Clat[iK, , drop = FALSE])
+                    ## distances from datapoints
+                    distances <- distances + apply(Cmeans, 2, function(ameans){
+                        colSums(lpnorm(t(datapoints$Clat) - ameans), na.rm = TRUE)
+                    })
+                }
+                if (vn$D > 0) { # discrete
+                    Dmeans <- t(constants$Dlatinit[iK, , drop = FALSE])
+                    ## distances from datapoints
+                    distances <- distances + apply(Dmeans, 2, function(ameans){
+                        colSums(lpnorm(t(constants$Dlatinit) - ameans), na.rm = TRUE)
+                    })
+                }
+                ## if (vn$L > 0) { # 
+                ##     Lmeans <- matrix(rnorm(
+                ##         n = vn$L * constants$ncomponents,
+                ##         mean = constants$Lmean1,
+                ##         sd = sqrt(constants$Lvarm1)
+                ##     ), nrow = vn$L, ncol = constants$ncomponents)
+                ##     ## distances from datapoints
+                ##     distances <- distances + apply(Lmeans, 2, function(ameans){
+                ##         colSums(lpnorm(t(constants$Llatinit) - ameans), na.rm = TRUE)
+                ##     })
+                ## }
+                ## if (vn$B > 0) {
+                ##     Bprobs <- matrix(rbeta(
+                ##         n = vn$B * constants$ncomponents,
+                ##         shape1 = Bshapelo,
+                ##         shape2 = Bshapehi,
+                ##         ), nrow = vn$B, ncol = constants$ncomponents)
+                ##     ## distances from datapoints
+                ##     distances <- distances + apply(Bprobs, 2, function(ameans){
+                ##         colSums(lpnorm(t(datapoints$Bdata) - ameans), na.rm = TRUE)
+                ##     })
+                ## }
+
+                ## assign datapoints to component with closest centre
+                K <- apply(distances, 1, which.min)
+                occupied <- unique(K)
+
+                ## recalculate components centres according to their points
+                if (vn$R > 0) {
+                    Rmeans[, occupied] <- sapply(occupied, function(acomponent){
+                        colMeans(datapoints$Rdata[which(K == acomponent), , drop = FALSE],
+                            na.rm = TRUE)
+                    })
+                    Rmeans[, -occupied] <- 0
+                }
+                if (vn$C > 0) {
+                    Cmeans[, occupied] <- sapply(occupied, function(acomponent){
+                        colMeans(datapoints$Clat[which(K == acomponent), , drop = FALSE],
+                            na.rm = TRUE)
+                    })
+                    Cmeans[, -occupied] <- 0
+                }
+                if (vn$D > 0) {
+                    Dmeans[, occupied] <- sapply(occupied, function(acomponent){
+                        colMeans(constants$Dlatinit[which(K == acomponent), , drop = FALSE],
+                            na.rm = TRUE)
+                    })
+                    Dmeans[, -occupied] <- 0
+                }
+                ## if (vn$L > 0) { # continuous open domain
+                ##     Lmeans[, occupied] <- sapply(occupied, function(acomponent){
+                ##         colMeans(constants$Llatinit[which(K == acomponent), , drop = FALSE],
+                ##             na.rm = TRUE)
+                ##     })
+                ##     Lmeans[, -occupied] <- 0
+                ## }
+                ## if (vn$B > 0) {
+                ##     Bprobs[, occupied] <- sapply(occupied, function(acomponent){
+                ##         colMeans(datapoints$Bdata[which(K == acomponent), , drop = FALSE],
+                ##             na.rm = TRUE)
+                ##     })
+                ##     Bprobs[, -occupied] <- 0.5
+                ## }
+                ## Alpha <- sample(1:constants$nalpha, 1, prob = constants$probalpha0, replace = TRUE)
+                ## W <- c(rep(rempoints, miconstants$npoints), rep(1, constants$ncomponents - miconstants$npoints))
+                ## W <- W/sum(W)
+
+                outlist <- list(
+                    Alpha = round(constants$nalpha/2),
+                    W = rep(1/constants$ncomponents, constants$ncomponents),
+                    ## ## Assign every point to the closest component centre
+                    K = K
+                    ## ## Other assignment methods:
+                    ## ## A. assign all points to an unsystematically chosen component
+                    ## K = rep(sample(rep(which(W > 0), 2), 1), nepoints)
+                    ## ## B. distribute points unsystematically among components
+                    ## K = sample(rep(which(W > 0), 2), constants$npoints, replace = TRUE)
+                    ## ## or:
+                    ## ## C. assign all points to the most probable component
+                    ## K = rep(which.max(W), constants$npoints)
+                    ## ## or:
+                    ## ## D. assign all points to the least probable component
+                    ## K = rep(which(W == min(W[W > 0]))[1], constants$npoints)
+                    ## ## or:
+                    ## ## E. distribute points unsystematically among M=2 components
+                    ## K = sample(sample(rep(which(W > 0), 2), 2, replace = TRUE),
+                    ##           constants$npoints, replace = TRUE)
+                    ## ## F. mix methods A. and B.
+                    ## K = (if(achain %% 2 == Ksample) {
+                    ##        ## ## assign all points to an unsystematically chosen component
+                    ##        rep(sample(rep(which(W > 0), 2), 1), constants$npoints)
+                    ##      } else {
+                    ##        ## distribute points unsystematically among components
+                    ##        sample(rep(which(W > 0), 2), constants$npoints, replace = TRUE)
+                    ##      })
+                )
+                ##
+                if (vn$R > 0) { # continuous open domain
+                    outlist <- c(
+                        outlist,
+                        list(
+                            Rmean = Rmeans,
+                            Rrate = matrix(
+                                nimble::qinvgamma(p = 0.5,
+                                    shape = constants$Rshapehi,
+                                    rate = constants$Rvar1),
+                                nrow = vn$R, ncol = constants$ncomponents
+                            ),
+                            Rvar = matrix(1,
+                                nrow = vn$R, ncol = constants$ncomponents)
+                        )
+                    )
+                }
+                if (vn$C > 0) { # continuous closed domain
+                    outlist <- c(
+                        outlist,
+                        list(
+                            Cmean = Cmeans,
+                            Crate = matrix(
+                                nimble::qinvgamma(p = 0.5,
+                                    shape = constants$Cshapehi,
+                                    rate = constants$Cvar1),
+                                nrow = vn$C, ncol = constants$ncomponents
+                            ),
+                            Cvar = matrix(1,
+                                nrow = vn$C, ncol = constants$ncomponents),
+                            ## for data with boundary values
+                            Clat = constants$Clatinit
+                            ## Clat = inferno:::vtransform(data[, vnames$C, with = FALSE],
+                            ##   auxmetadata, Cout = 'init')
+                        )
+                    )
+                }
+                if (vn$D > 0) { # continuous rounded
+                    outlist <- c(
+                        outlist,
+                        list(
+                            Dmean = Dmeans,
+                            Drate = matrix(
+                                nimble::qinvgamma(p = 0.5,
+                                    shape = constants$Dshapehi,
+                                    rate = constants$Dvar1),
+                                nrow = vn$D, ncol = constants$ncomponents
+                            ),
+                            Dvar = matrix(1,
+                                nrow = vn$D, ncol = constants$ncomponents),
+                            ## for data with boundary values
+                            Dlat = constants$Dlatinit
+                            ## Dlat = inferno:::vtransform(data[, vnames$D, with = FALSE],
+                            ##   auxmetadata, Dout = 'init')
+                        )
+                    )
+                }
+                ## if (vn$L > 0) { # latent
+                ##     outlist <- c(
+                ##         outlist,
+                ##         list(
+                ##             Lmean = Lmeans,
+                ##             Lrate = matrix(
+                ##                 nimble::qinvgamma(p = 0.5,
+                ##                     shape = constants$Lshapehi,
+                ##                     rate = constants$Lvar1),
+                ##                 nrow = vn$L, ncol = constants$ncomponents
+                ##             ),
+                ##             Lvar = matrix(1,
+                ##                 nrow = vn$L, ncol = constants$ncomponents),
+                ##             ## for data with boundary values
+                ##             Llat = constants$Llatinit
+                ##             ## Llat = inferno:::vtransform(data[, vnames$L, with = FALSE],
+                ##             ##   auxmetadata, Lout = 'init')
+                ##         )
+                ##     )
+                ## }
+                if (vn$O > 0) { # ordinal
+                    outlist <- c(
+                        outlist,
+                        list(
+                            Oprob = aperm(array(sapply(1:vn$O, function(avar) {
+                                sapply(1:constants$ncomponents, function(aclus) {
+                                    Oalpha0[avar, ]/sum(Oalpha0[avar, ])
+                                    ## nimble::rdirch(n = 1, alpha = Oalpha0[avar, ])
+                                })
+                            }), dim = c(Omaxn, constants$ncomponents, vn$O)))
+                        )
+                    )
+                }
+                if (vn$N > 0) { # nominal
+                    outlist <- c(
+                        outlist,
+                        list(
+                            Nprob = aperm(array(sapply(1:vn$N, function(avar) {
+                                sapply(1:constants$ncomponents, function(aclus) {
+                                    constants$Nalpha0[avar, ]/sum(constants$Nalpha0[avar, ])
+                                    ## nimble::rdirch(n = 1, alpha = constants$Nalpha0[avar, ])
+                                })
+                            }), dim = c(Nmaxn, constants$ncomponents, vn$N)))
+                        )
+                    )
+                }
+                if (vn$B > 0) { # binary
+                    outlist <- c(
+                        outlist,
+                        list(
+                            ## Bprob = Bprobs
+                            Bprob = matrix(0.5, nrow = vn$B, ncol = constants$ncomponents)
+                        )
+                    )
+                }
+                ##
+                outlist
+            } # end datacentre
 
         } else if(initmethod == 'prior'){
             ## values chosen from prior
@@ -1935,12 +2180,12 @@ learn <- function(
             ##  }
 
             ## ## nitertot: total number of MC samples from chain start
-            ## ## availiter: number of MC samples kept in memory
-            nitertot <- availiter <- 0L
+            nitertot <- 0L
             remainiter <- +Inf
             reset <- TRUE
             allmcsamples <- NULL
-            allmcsamplesKA <- list(Alpha = NULL, K = NULL)
+            ## allmcsamplesKA <- list(Alpha = NULL, K = NULL)
+            allmcsamplesKA <- NULL
             flagll <- FALSE
             flagnonfinite <- FALSE
             cat(
@@ -1963,6 +2208,7 @@ learn <- function(
             Cfinitemixnimble$setInits(initsfn())
 
             subiter <- 1L
+            savedchunks <- 0L
 #### WHILE-LOOP CONTINUING UNTIL CONVERGENCE
             while (remainiter > 0) {
                 cat('\nIterations:', niter, '\n')
@@ -2038,7 +2284,6 @@ learn <- function(
                 }
 
                 nitertot <- nitertot + niter
-                availiter <- availiter + niter
 
                 ##
                 if (showsamplertimes0) {
@@ -2135,6 +2380,7 @@ learn <- function(
                     'needed thinning' = autothinning,
                     'average' = colMeans(cleantraces)
                 )
+
 ####
                 for(i in names(toprint)) {
                     thisdiagn <- toprint[[i]]
@@ -2153,74 +2399,63 @@ learn <- function(
                     printtimediff(difftime(Sys.time(), diagntime, units = 'auto')),
                     '\n')
 
+#### concatenate samples with those of previous chunk, if existing
+                ## add overall iteration index `MCindex` to mcsamples
+                mcsamples$MCindex <- seq(to = nitertot,
+                    length.out = ncol(mcsamples$W))
+                ## need to add 1D to behave well with mcsubset()
+                dim(mcsamples$MCindex) <- ncol(mcsamples$W)
+
                 if (is.null(allmcsamples)) {
-                    ## chain just started
+                    ## chain just started, or previous samples saved
                     allmcsamples <- mcsamples
-                    allmcsamplesKA <- mcsamplesKA
                 } else {
                     ## continue chain, concat samples
-                    allmcsamples <- mapply(
+                    allmcsamples <- mcjoin(allmcsamples, mcsamples)
+                }
+
+                if (is.null(allmcsamplesKA)) {
+                    ## chain just started
+                    allmcsamplesKA <- mcsamplesKA
+                } else {
+                    ## Concatenate samples of K and Alpha
+                    ## if (showAlphatraces || showKtraces) {
+                    allmcsamplesKA <- mapply(
                         function(xx, yy) {
-                            temp <- c(xx, yy)
-                            dx <- dim(xx)[-length(dim(xx))]
-                            dim(temp) <- c(dx, length(temp) / prod(dx))
-                            temp
+                            c(xx, yy)
                         },
-                        allmcsamples, mcsamples,
+                        allmcsamplesKA, mcsamplesKA,
                         SIMPLIFY = FALSE
                     )
-
-                    if (showAlphatraces || showKtraces) {
-                        ## Concatenate samples of K and Alpha
-                        allmcsamplesKA <- mapply(
-                            function(xx, yy) {
-                                c(xx, yy)
-                            },
-                            allmcsamplesKA, mcsamplesKA,
-                            SIMPLIFY = FALSE
-                        )
-                    }
+                    ## }
                 }
-
-                ## to save memory, only keep enough last iterations
-                ## chainthinning <- diagn$proposed.thinning
-
-                enoughiter <- chainthinning * (nsamplesperchain + 1L)
-
-                if(availiter > enoughiter) {
-                    allmcsamples <- mcsubset(
-                        allmcsamples, -seq_len(availiter - enoughiter)
-                    )
-                    availiter <- enoughiter
-                }
-
 
                 ## ######################################
                 ## ## CHECK IF CHAIN MUST BE CONTINUED ##
                 ## ######################################
 
-                missingsamples <- chainthinning * (nsamplesperchain - 1) - availiter
-                if(max(relmcse) <= relerror) {
-                    ## sampling could be stopped,
-                    ## unless we still lack the required number of samples
-                    reqiter <- max(0, missingsamples)
-                } else {
-                    ## sampling should continue
-                    reqiter <- max(
-                        ceiling(chainthinning * sqrt(nsamplesperchain)),
-                        missingsamples
-                    )
-                }
-                remainiter <- max(
-                    minMCiterations - nitertot,
-                    min(
-                        maxMCiterations - nitertot,
-                        reqiter
-                    )
-                )
+                relmcse <- max(relmcse)
+                autothinning <- max(autothinning)
+                neededsamples <- autothinning * (nsamplesperchain + 2L)
 
-                cat('\nTotal number of iterations', nitertot,
-                    '- required further', remainiter, '\n')
+                if(neededsamples > nitertot) {
+                    ## too small ESS
+                    reqiter <- neededsamples - nitertot
+                } else if(relmcse > relerror) {
+                    ## too large MCSE, enough ESS
+                    reqiter <- ceiling(autothinning * sqrt(nsamplesperchain + 2L))
+                } else {
+                    ## OK MCSE, enough ESS
+                    reqiter <- 0
+                }
+
+                ## respect min and max iterations chosen by user
+                remainiter <- max(minMCiterations - nitertot, reqiter)
+                remainiter <- min(maxMCiterations - nitertot, remainiter)
+
+                cat('\nTotal iterations', nitertot,
+                    '- require further', reqiter,
+                    '- continue for', remainiter, '\n')
 
                 if(remainiter > 0 && as.double(
                     Sys.time() - timestart0, units = 'hours'
@@ -2230,7 +2465,30 @@ learn <- function(
                     remainiter <- 0
                 }
 
-                if (remainiter > 0) {
+                if (remainiter > 0) { # This chain is going to continue
+
+                    ## Save cumulated mcsamples to save memory
+                    if(niter >= startupMCiterations){
+                        savedchunks <- savedchunks + 1L
+                        saveRDS(
+                            mcsubset(allmcsamples, seq_len(startupMCiterations)),
+                            file = file.path(dirname,
+                                paste0('__tempmcsamples-',
+                                    padchainnumber, '-',
+                                    savedchunks, '.rds'))
+                        )
+
+                        if(ncol(allmcsamples$W) < startupMCiterations){
+                            ## discard saved samples
+                            allmcsamples <- mcsubset(allmcsamples,
+                                -seq_len(startupMCiterations))
+                        } else {
+                            ## all samples saved
+                            allmcsamples <- NULL
+                        }
+                    }
+                    gc()
+
                     ## limit number of iterations per loop, to save memory
                     niter <- min(remainiter + 1L, startupMCiterations)
                     subiter <- subiter + 1L
@@ -2245,31 +2503,44 @@ learn <- function(
 #### END WHILE-LOOP OVER CHUNKS OF ONE CHAIN
 
 
-            ## ################
-            ## ## SAVE CHAIN ##
-            ## ################
+            ## #####################################
+            ## ## BUILD AND SAVE CHAIN QUANTITIES ##
+            ## #####################################
 
-            ## tokeep <- seq(to=nrow(allmcsamples), length.out=nsamplesperchain, by=max(thinning,multcorr*ceiling(max(diagnIAT,diagnThin)), na.rm=TRUE))
-            ## allmcsamples <- allmcsamples[tokeep,,drop=FALSE]
-            ## ##
-            ## saveRDS(allmcsamples, file=paste0(dirname,'_mcsamples',dashnameroot,'--', padchainnumber,'.rds'))
-            ## ## rm(allmcsamples)
+#### Determine which MC samples should be saved
+            cat('\nKeeping ', nsamplesperchain, '\n')
 
-            cat('\nKeeping last', nsamplesperchain, 'samples with thinning',
-                chainthinning, '\n')
-
-            tokeep <- seq(to = ncol(allmcsamples$W),
-                length.out = nsamplesperchain,
-                by = chainthinning)
-
-            if(any(tokeep <= 0)){
+            tokeep <- round(seq(from = autothinning * 2L,
+                to = nitertot,
+                length.out = nsamplesperchain
+            ))
+            if(length(tokeep) > length(unique(tokeep))){
                 cat('\nWARNING: have to reduce thinning owing to time constraints\n')
-                tokeep <- round(seq(from = 1,
-                    to = ncol(allmcsamples$W),
+                tokeep <- round(seq(from = max(1, nitertot - nsamplesperchain + 1L),
+                    to = nitertot,
                     length.out = nsamplesperchain))
             }
 
-            saveRDS(mcsubset(allmcsamples, tokeep),
+            allmcsamples <- mcsubset(allmcsamples,
+                which(allmcsamples$MCindex %in% tokeep)
+            )
+
+            for(chunk in rev(seq_len(savedchunks))){
+                tempmcsamples <- readRDS(file = file.path(
+                    dirname,
+                    paste0('__tempmcsamples-',
+                        padchainnumber, '-',
+                        chunk, '.rds')
+                ))
+                tempmcsamples <- mcsubset(tempmcsamples,
+                        which(tempmcsamples$MCindex %in% tokeep)
+                    )
+
+                allmcsamples <- mcjoin(tempmcsamples, allmcsamples)
+            }
+
+            ## Save thinned total chain
+            saveRDS(allmcsamples,
                 file = file.path(dirname,
                     paste0('_mcsamples',
                         dashnameroot, '--',
@@ -2283,8 +2554,7 @@ learn <- function(
                         padchainnumber, '.rds'))
             )
 
-
-            ## put 'tokeep' in first slot to save only the last nsamplesperchain
+            ## put 'tokeep' in first slot if saving only nsamplesperchain
             saveRDS(traces[ , , drop = FALSE],
                 file = file.path(dirname,
                     paste0('_mcpartialtraces',

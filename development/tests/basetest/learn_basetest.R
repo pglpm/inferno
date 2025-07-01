@@ -3,7 +3,7 @@ library('inferno')
 set.seed(16)
 parallel <- 4
 
-outputdir <- '__base'
+outputdir <- '__base_newstop'
 learntdir <- learn(
     data = 'data_basetest.csv',
     metadata = 'metadata_basetest.csv',
