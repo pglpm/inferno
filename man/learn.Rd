@@ -24,8 +24,9 @@ learn(
   maxMCiterations = +Inf,
   maxhours = +Inf,
   ncheckpoints = NULL,
-  relerror = 0.05,
   prior = missing(data) || is.null(data),
+  maxrelMCSE = 0.05,
+  minESS = NULL,
   thinning = NULL,
   plottraces = TRUE,
   showKtraces = FALSE,
@@ -37,16 +38,11 @@ learn(
 )
 }
 \arguments{
-\item{data}{A dataset, given as a \code{\link[base]{data.frame}}
-or as a file path to a csv file.}
+\item{data}{A dataset, given as a \code{\link[base]{data.frame}} or as a file path to a csv file.}
 
-\item{metadata}{A metadata object, given either as a data.frame object,
-or as a file pa to a csv file.}
+\item{metadata}{A metadata object, given either as a data.frame object, or as a file pa to a csv file.}
 
-\item{auxdata}{A larger dataset, given as a data.frame
-or as a file path to a csv file. Such a dataset
-would be too many to use in the Monte Carlo sampling,
-but can be used to calculate hyperparameters.}
+\item{auxdata}{A larger dataset, given as a data.frame or as a file path to a csv file. Such a dataset would be too many to use in the Monte Carlo sampling, but can be used to calculate hyperparameters.}
 
 \item{outputdir}{Character: path to folder where the output should be saved. If omitted, a directory is created that has the same name as the data file but with suffix "\verb{_output_}".}
 
@@ -58,65 +54,46 @@ but can be used to calculate hyperparameters.}
 
 \item{parallel}{Logical or \code{NULL} or positive integer: \code{TRUE}: use roughly half of available cores; \code{FALSE}: use serial computation; \code{NULL}: don't do anything (use pre-registered condition); integer: use this many cores. Default \code{NULL}}
 
-\item{seed}{Integer: use this seed for the random number generator.
-If missing or \code{NULL} (default), do not set the seed.}
+\item{seed}{Integer: use this seed for the random number generator. If missing or \code{NULL} (default), do not set the seed.}
 
-\item{cleanup}{Logical: remove diagnostic files at the end of the computation?
-Default \code{TRUE}.}
+\item{cleanup}{Logical: remove diagnostic files at the end of the computation? Default \code{TRUE}.}
 
-\item{appendtimestamp}{Logical: append a timestamp to the name of
-the output directory \code{outputdir}? Default \code{TRUE}.}
+\item{appendtimestamp}{Logical: append a timestamp to the name of the output directory \code{outputdir}? Default \code{TRUE}.}
 
-\item{appendinfo}{Logical: append information about dataset and Monte Carlo
-parameters to the name of the output directory \code{outputdir}? Default \code{TRUE}.}
+\item{appendinfo}{Logical: append information about dataset and Monte Carlo parameters to the name of the output directory \code{outputdir}? Default \code{TRUE}.}
 
-\item{output}{Character: if \code{'directory'}, return the output directory name
-as \code{VALUE}; if string \code{'learnt'}, return the \code{'learnt'} object
-containing the parameters obtained from the Monte Carlo computation.
-Any other value: \code{VALUE} is \code{NULL}.}
+\item{output}{Character: if \code{'directory'}, return the output directory name as \code{VALUE}; if string \code{'learnt'}, return the \code{'learnt'} object containing the parameters obtained from the Monte Carlo computation. Any other value: \code{VALUE} is \code{NULL}.}
 
-\item{subsampledata}{Integer: use only a subset of this many datapoints for
-the Monte Carlo computation.}
+\item{subsampledata}{Integer: use only a subset of this many datapoints for the Monte Carlo computation.}
 
-\item{startupMCiterations}{Integer: number of initial (burn-in)
-Monte Carlo iterations. Default 3600.}
+\item{startupMCiterations}{Integer: number of initial (burn-in) Monte Carlo iterations. Default 3600.}
 
-\item{minMCiterations}{Integer: minimum number of Monte Carlo iterations
-to be done. Default 0.}
+\item{minMCiterations}{Integer: minimum number of Monte Carlo iterations to be done. Default 0.}
 
-\item{maxMCiterations}{Integer: Do at most this many Monte Carlo iterations.
-Default \code{Inf}.}
+\item{maxMCiterations}{Integer: Do at most this many Monte Carlo iterations. Default \code{Inf}.}
 
-\item{maxhours}{Numeric: approximate time limit, in hours, for the
-Monte Carlo computation to last. Default \code{Inf}.}
+\item{maxhours}{Numeric: approximate time limit, in hours, for the Monte Carlo computation to last. Default \code{Inf}.}
 
-\item{ncheckpoints}{Integer: number of datapoints to use
-for checking when the Monte Carlo computation should end.
-If NULL (default), this is equal to number of variates + 2.
-If Inf, use all datapoints.}
-
-\item{relerror}{Numeric: desired maximal relative error of calculated probabilities
-with respect to their variability with new data.}
+\item{ncheckpoints}{Integer: number of datapoints to use for checking when the Monte Carlo computation should end. If NULL (default), this is equal to number of variates + 2. If Inf, use all datapoints.}
 
 \item{prior}{Logical: Calculate the prior distribution?}
 
-\item{thinning}{Integer: thin out the Monte Carlo samples by this value.
-If NULL (default): let the diagnostics decide the thinning value.}
+\item{maxrelMCSE}{Numeric positive: desired maximal \emph{relative Monte Carlo Standard Error} of calculated probabilities with respect to their variability with new data.}
 
-\item{plottraces}{Logical: save plots of the Monte Carlo traces
-of diagnostic values? Default \code{TRUE}.}
+\item{minESS}{Numeric positive: desired minimal Monte Carlo \emph{Expected Sample Size}.}
 
-\item{showKtraces}{Logical: save plots of the Monte Carlo traces
-of the K parameter? Default \code{FALSE}.}
+\item{thinning}{Integer: thin out the Monte Carlo samples by this value. If NULL (default): let the diagnostics decide the thinning value.}
 
-\item{showAlphatraces}{Logical: save plots of the Monte Carlo traces
-of the Alpha parameter? Default \code{FALSE}.}
+\item{plottraces}{Logical: save plots of the Monte Carlo traces of diagnostic values? Default \code{TRUE}.}
+
+\item{showKtraces}{Logical: save plots of the Monte Carlo traces of the K parameter? Default \code{FALSE}.}
+
+\item{showAlphatraces}{Logical: save plots of the Monte Carlo traces of the Alpha parameter? Default \code{FALSE}.}
 
 \item{hyperparams}{List: hyperparameters of the prior.}
 }
 \value{
-Name of directory containing output files, or learnt object,
-or \code{NULL}, depending on argument \code{output}.
+Name of directory containing output files, or learnt object, or \code{NULL}, depending on argument \code{output}.
 }
 \description{
 Monte Carlo computation of posterior probability distribution conditional on given data

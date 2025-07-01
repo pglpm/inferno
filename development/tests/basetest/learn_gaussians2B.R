@@ -3,11 +3,13 @@ library('inferno')
 set.seed(16)
 parallel <- 6
 
-outputdir <- '__gaussians2B_dc'
+outputdir <- '__gaussians2B_NOrmcse_essS'
 learntdir <- learn(
     data = 'data_gaussians2B.csv',
     metadata = 'metadata_gaussians2B.csv',
     prior = FALSE,
+    maxrelMCSE = NULL,
+    minESS = NULL,
     outputdir = outputdir,
     appendtimestamp = TRUE,
     appendinfo = TRUE,
@@ -42,3 +44,7 @@ learntdir <- learn(
         ## initmethod = 'precluster'
     )
 )
+
+
+file.copy('../../../R/learn.R', learntdir)
+

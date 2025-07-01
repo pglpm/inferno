@@ -1,59 +1,34 @@
 #' Monte Carlo computation of posterior probability distribution conditional on given data
 #'
-#' @param data A dataset, given as a \code{\link[base]{data.frame}}
-#' or as a file path to a csv file.
-#' @param metadata A metadata object, given either as a data.frame object,
-#' or as a file pa to a csv file.
-#' @param auxdata A larger dataset, given as a data.frame
-#'   or as a file path to a csv file. Such a dataset
-#'   would be too many to use in the Monte Carlo sampling,
-#'   but can be used to calculate hyperparameters.
+#' @param data A dataset, given as a \code{\link[base]{data.frame}} or as a file path to a csv file.
+#' @param metadata A metadata object, given either as a data.frame object, or as a file pa to a csv file.
+#' @param auxdata A larger dataset, given as a data.frame or as a file path to a csv file. Such a dataset would be too many to use in the Monte Carlo sampling, but can be used to calculate hyperparameters.
 #' @param outputdir Character: path to folder where the output should be saved. If omitted, a directory is created that has the same name as the data file but with suffix "`_output_`".
 #' @param nsamples Integer: number of desired Monte Carlo samples. Default 3600.
 #' @param nchains Integer: number of Monte Carlo chains. Default 60.
 #' @param nsamplesperchain Integer: number of Monte Carlo samples per chain.
 #' @param parallel Logical or `NULL` or positive integer: `TRUE`: use roughly half of available cores; `FALSE`: use serial computation; `NULL`: don't do anything (use pre-registered condition); integer: use this many cores. Default `NULL`
-#' @param seed Integer: use this seed for the random number generator.
-#'   If missing or `NULL` (default), do not set the seed.
-#' @param cleanup Logical: remove diagnostic files at the end of the computation?
-#'   Default `TRUE`.
-#' @param appendtimestamp Logical: append a timestamp to the name of
-#'   the output directory `outputdir`? Default `TRUE`.
-#' @param appendinfo Logical: append information about dataset and Monte Carlo
-#'   parameters to the name of the output directory `outputdir`? Default `TRUE`.
-#' @param output Character: if `'directory'`, return the output directory name
-#'   as `VALUE`; if string `'learnt'`, return the `'learnt'` object
-#'   containing the parameters obtained from the Monte Carlo computation.
-#'   Any other value: `VALUE` is `NULL`.
-#' @param subsampledata Integer: use only a subset of this many datapoints for
-#'   the Monte Carlo computation.
-#' @param startupMCiterations Integer: number of initial (burn-in)
-#'   Monte Carlo iterations. Default 3600.
-#' @param minMCiterations Integer: minimum number of Monte Carlo iterations
-#'   to be done. Default 0.
-#' @param maxMCiterations Integer: Do at most this many Monte Carlo iterations.
-#'   Default `Inf`.
-#' @param maxhours Numeric: approximate time limit, in hours, for the
-#'   Monte Carlo computation to last. Default `Inf`.
-#' @param ncheckpoints Integer: number of datapoints to use
-#'   for checking when the Monte Carlo computation should end.
-#'   If NULL (default), this is equal to number of variates + 2.
-#'   If Inf, use all datapoints.
-#' @param relerror Numeric: desired maximal relative error of calculated probabilities
-#'   with respect to their variability with new data.
+#' @param seed Integer: use this seed for the random number generator. If missing or `NULL` (default), do not set the seed.
+#' @param cleanup Logical: remove diagnostic files at the end of the computation? Default `TRUE`.
+#' @param appendtimestamp Logical: append a timestamp to the name of the output directory `outputdir`? Default `TRUE`.
+#' @param appendinfo Logical: append information about dataset and Monte Carlo parameters to the name of the output directory `outputdir`? Default `TRUE`.
+#' @param output Character: if `'directory'`, return the output directory name as `VALUE`; if string `'learnt'`, return the `'learnt'` object containing the parameters obtained from the Monte Carlo computation. Any other value: `VALUE` is `NULL`.
+#' @param subsampledata Integer: use only a subset of this many datapoints for the Monte Carlo computation.
+#' @param startupMCiterations Integer: number of initial (burn-in) Monte Carlo iterations. Default 3600.
+#' @param minMCiterations Integer: minimum number of Monte Carlo iterations to be done. Default 0.
+#' @param maxMCiterations Integer: Do at most this many Monte Carlo iterations. Default `Inf`.
+#' @param maxhours Numeric: approximate time limit, in hours, for the Monte Carlo computation to last. Default `Inf`.
+#' @param ncheckpoints Integer: number of datapoints to use for checking when the Monte Carlo computation should end. If NULL (default), this is equal to number of variates + 2. If Inf, use all datapoints.
+#' @param maxrelMCSE Numeric positive: desired maximal *relative Monte Carlo Standard Error* of calculated probabilities with respect to their variability with new data.
+#' @param minESS Numeric positive: desired minimal Monte Carlo *Expected Sample Size*.
 #' @param prior Logical: Calculate the prior distribution?
-#' @param thinning Integer: thin out the Monte Carlo samples by this value.
-#'   If NULL (default): let the diagnostics decide the thinning value.
-#' @param plottraces Logical: save plots of the Monte Carlo traces
-#'   of diagnostic values? Default `TRUE`.
-#' @param showKtraces Logical: save plots of the Monte Carlo traces
-#'   of the K parameter? Default `FALSE`.
-#' @param showAlphatraces Logical: save plots of the Monte Carlo traces
-#'   of the Alpha parameter? Default `FALSE`.
+#' @param thinning Integer: thin out the Monte Carlo samples by this value. If NULL (default): let the diagnostics decide the thinning value.
+#' @param plottraces Logical: save plots of the Monte Carlo traces of diagnostic values? Default `TRUE`.
+#' @param showKtraces Logical: save plots of the Monte Carlo traces of the K parameter? Default `FALSE`.
+#' @param showAlphatraces Logical: save plots of the Monte Carlo traces of the Alpha parameter? Default `FALSE`.
 #' @param hyperparams List: hyperparameters of the prior.
 #'
-#' @return Name of directory containing output files, or learnt object,
-#'   or `NULL`, depending on argument `output`.
+#' @return Name of directory containing output files, or learnt object, or `NULL`, depending on argument `output`.
 #'
 #' @import parallel foreach doParallel doRNG nimble
 #'
@@ -78,8 +53,9 @@ learn <- function(
     maxMCiterations = +Inf,
     maxhours = +Inf,
     ncheckpoints = NULL,
-    relerror = 0.05, ## Gong-Flegal: 0.038, Z=1000: 0.076, Z=400: 0.12
     prior = missing(data) || is.null(data),
+    maxrelMCSE = 0.05, ## Gong-Flegal: 0.038, Z=1000: 0.076, Z=400: 0.12
+    minESS = NULL, ## Gong-Flegal: 0.038, Z=1000: 0.076, Z=400: 0.12
     thinning = NULL,
     plottraces = TRUE,
     showKtraces = FALSE,
@@ -277,6 +253,22 @@ learn <- function(
 
     ## Make sure 'startupMCiterations' is at least 2
     startupMCiterations <- max(2, startupMCiterations)
+
+    ## maxrelMCSE and minESS
+    if(is.null(maxrelMCSE) && is.null(minESS)){
+        ## 0.05: corresponds to ESS of 400
+        ## 0.0627: LaplacesDemon, ESS of 254
+        ## 0.127: ESS of 62
+        ## 0.1: ESS of 100
+        ## 0.091: ESS around 121
+        ## maxrelMCSE <- sqrt(1/(nsamplesperchain + 2))
+        minESS <- nsamplesperchain
+    }
+    if(is.null(maxrelMCSE)){
+        maxrelMCSE <- +Inf
+    } else if(is.null(minESS)){
+        minESS <- nsamplesperchain
+    }
 
 ##################################################
 #### Read and process data and metadata
@@ -2349,29 +2341,31 @@ learn <- function(
                 ## diagn <- mcmcstop(traces = cleantraces,
                 ##     nsamples = nsamplesperchain,
                 ##     availiter = availiter,
-                ##     relerror = relerror,
+                ##     relerror = maxrelMCSE,
                 ##     thinning = thinning)
 
                 N <- nrow(cleantraces)
                 relmcse <- apply(cleantraces, 2, function(atrace){
                     sqrt(mcmc::initseq(atrace)$var.con / N) / sd(atrace)
-                    })
+                })
+                relmcse[relmcse > 1] <- 1
+                relmcse[relmcse < (1/N)^2] <- (1/N)^2
                 ## relmcse <- funMCSE2(cleantraces) / apply(cleantraces, 2, sd)
                 ## relmcse2 <- (mcse + 1/N) / sds
 
                 ## ess <- funESS(cleantraces)
                 ess <- (1 / relmcse)^2
-                ess[ess < 1] <- 1
-                ess[ess > N] <- N
+                ## ess[ess < 1] <- 1
+                ## ess[ess > N] <- N
 
                 ## autothinning <- ceiling(1.5 * nrow(cleantraces)/ess)
                 autothinning <- ceiling(N/ess)
 
-                if(is.null(thinning)) {
-                    chainthinning <- max(autothinning)
-                } else {
-                    chainthinning <- thinning
-                }
+                ## if(is.null(thinning)) {
+                ##     chainthinning <- max(autothinning)
+                ## } else {
+                ##     chainthinning <- thinning
+                ## }
 
                 ## Output available diagnostics
                 toprint <- list(
@@ -2436,14 +2430,17 @@ learn <- function(
 
                 relmcse <- max(relmcse)
                 autothinning <- max(autothinning)
-                neededsamples <- autothinning * (nsamplesperchain + 2L)
+                ## neededsamples <- autothinning * (nsamplesperchain + 2L)
+                neededsamples <- max(autothinning * (minESS + 2L),
+                    nsamplesperchain + 2L)
 
                 if(neededsamples > nitertot) {
                     ## too small ESS
                     reqiter <- neededsamples - nitertot
-                } else if(relmcse > relerror) {
+                } else if(relmcse > maxrelMCSE) {
                     ## too large MCSE, enough ESS
-                    reqiter <- ceiling(autothinning * sqrt(nsamplesperchain + 2L))
+                    ## reqiter <- autothinning * 2L
+                    reqiter <- autothinning * ceiling((1/maxrelMCSE)^2 - min(ess))
                 } else {
                     ## OK MCSE, enough ESS
                     reqiter <- 0
@@ -2856,7 +2853,7 @@ learn <- function(
     ## diagn <- mcmcstop(traces = traces,
     ##     nsamples = nsamples,
     ##     availiter = 0,
-    ##     relerror = relerror,
+    ##     relerror = maxrelMCSE,
     ##     thinning = thinning)
     N <- nrow(traces)
     relmcse <- apply(traces, 2, function(atrace){

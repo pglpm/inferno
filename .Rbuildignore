@@ -1,3 +1,5 @@
+^[.].*$
+^.*/[.].*$
 ^\.auctex-auto$
 ^\.git$
 ^\.backups$
@@ -8,7 +10,7 @@
 ^robots\.txt$
 ^_git-truncate\.sh$
 ^exclude$
-^development
+^development.*$
 ^_pkgdown\.yml$
 ^docs$
 ^pkgdown$
