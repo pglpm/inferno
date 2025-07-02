@@ -3,7 +3,7 @@ library('inferno')
 set.seed(16)
 parallel <- 4
 
-outputdir <- '__base_newstop'
+outputdir <- '__base_nDF'
 learntdir <- learn(
     data = 'data_basetest.csv',
     metadata = 'metadata_basetest.csv',
@@ -41,7 +41,7 @@ learntdir <- learn(
         ## Dthreshold = 1,
         ## tscalefactor = 1,
         ## initmethod = 'allinone',
-        ## avoidzeroW = FALSE
+        avoidzeroW = FALSE
         ## precluster, prior
     )
 )
