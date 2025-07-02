@@ -454,7 +454,7 @@ learn <- function(
     suffix <- NULL
     if (appendtimestamp) {
         suffix <- paste0(suffix, '-',
-            strftime(as.POSIXlt(Sys.time()), '%y%m%dT%H%M%S') )
+            format(Sys.time(), '%y%m%dT%H%M%S') )
     }
     if (appendinfo) {
         suffix <- paste0(suffix,
@@ -2253,7 +2253,7 @@ learn <- function(
                 }
 
                 cat('\nCurrent time:',
-                    strftime(as.POSIXlt(Sys.time()), '%Y-%m-%d %H:%M:%S'))
+                    format(Sys.time(), '%Y-%m-%d %H:%M:%S'))
                 cat('\nMCMC time',
                     printtimediff(difftime(Sys.time(), MCtimestart, units = 'auto')),
                     '\n')
@@ -2705,8 +2705,7 @@ learn <- function(
             }
 
 
-            cat('\nCurrent time:', strftime(as.POSIXlt(Sys.time()),
-                '%Y-%m-%d %H:%M:%S'))
+            cat('\nCurrent time:', format(Sys.time(), '%Y-%m-%d %H:%M:%S'))
             cat('\nMCMC + diagnostics time',
                 printtimediff(difftime(Sys.time(), MCtimestart, units = 'auto')),
                 '\n')
@@ -2731,7 +2730,7 @@ learn <- function(
 
         ##
         cat('\nCurrent time:',
-            strftime(as.POSIXlt(Sys.time()), '%Y-%m-%d %H:%M:%S'))
+            format(Sys.time(), '%Y-%m-%d %H:%M:%S'))
 
         cat('\nTotal time',
             printtimediff(difftime(Sys.time(), headertimestart, units = 'auto')),
