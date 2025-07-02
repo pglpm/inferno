@@ -14,6 +14,7 @@
 #' @param appendinfo Logical: append information about dataset and Monte Carlo parameters to the name of the output directory `outputdir`? Default `TRUE`.
 #' @param output Character: if `'directory'`, return the output directory name as `VALUE`; if string `'learnt'`, return the `'learnt'` object containing the parameters obtained from the Monte Carlo computation. Any other value: `VALUE` is `NULL`.
 #' @param subsampledata Integer: use only a subset of this many datapoints for the Monte Carlo computation.
+#' @param prior Logical: Calculate the prior distribution?
 #' @param startupMCiterations Integer: number of initial (burn-in) Monte Carlo iterations. Default 3600.
 #' @param minMCiterations Integer: minimum number of Monte Carlo iterations to be done. Default 0.
 #' @param maxMCiterations Integer: Do at most this many Monte Carlo iterations. Default `Inf`.
@@ -21,7 +22,7 @@
 #' @param ncheckpoints Integer: number of datapoints to use for checking when the Monte Carlo computation should end. If NULL (default), this is equal to number of variates + 2. If Inf, use all datapoints.
 #' @param maxrelMCSE Numeric positive: desired maximal *relative Monte Carlo Standard Error* of calculated probabilities with respect to their variability with new data.
 #' @param minESS Numeric positive: desired minimal Monte Carlo *Expected Sample Size*.
-#' @param prior Logical: Calculate the prior distribution?
+#' @param initES Numeric positive: number of initial  *Expected Samples* to discard.
 #' @param thinning Integer: thin out the Monte Carlo samples by this value. If NULL (default): let the diagnostics decide the thinning value.
 #' @param plottraces Logical: save plots of the Monte Carlo traces of diagnostic values? Default `TRUE`.
 #' @param showKtraces Logical: save plots of the Monte Carlo traces of the K parameter? Default `FALSE`.
@@ -48,14 +49,15 @@ learn <- function(
     appendinfo = TRUE,
     output = 'directory',
     subsampledata = NULL,
+    prior = missing(data) || is.null(data),
     startupMCiterations = 3600,
     minMCiterations = 0,
     maxMCiterations = +Inf,
     maxhours = +Inf,
     ncheckpoints = NULL,
-    prior = missing(data) || is.null(data),
-    maxrelMCSE = 0.05, ## Gong-Flegal: 0.038, Z=1000: 0.076, Z=400: 0.12
+    maxrelMCSE = 0.0627, ## Gong-Flegal: 0.038, Z=1000: 0.076, Z=400: 0.12
     minESS = NULL, ## Gong-Flegal: 0.038, Z=1000: 0.076, Z=400: 0.12
+    initES = 2,
     thinning = NULL,
     plottraces = TRUE,
     showKtraces = FALSE,
@@ -251,23 +253,32 @@ learn <- function(
         `%dochains%` <- `%dorng%`
     }
 
-    ## Make sure 'startupMCiterations' is at least 2
+    ## Make sure 'startupMCiterations' is at least equal to 2
     startupMCiterations <- max(2, startupMCiterations)
 
     ## maxrelMCSE and minESS
-    if(is.null(maxrelMCSE) && is.null(minESS)){
-        ## 0.05: corresponds to ESS of 400
-        ## 0.0627: LaplacesDemon, ESS of 254
-        ## 0.127: ESS of 62
-        ## 0.1: ESS of 100
-        ## 0.091: ESS around 121
-        ## maxrelMCSE <- sqrt(1/(nsamplesperchain + 2))
+    if(is.null(minESS)){
         minESS <- nsamplesperchain
     }
     if(is.null(maxrelMCSE)){
-        maxrelMCSE <- +Inf
-    } else if(is.null(minESS)){
-        minESS <- nsamplesperchain
+        ## maxrelMCSE = 1/sqrt(minESS+initES)
+        ## minESS = (1/maxrelMCSE)^2 - initES
+        ##
+        ## 0.05: corresponds to ESS+initES of 400
+        ## 0.0627: LaplacesDemon, ESS+initES of 254
+        ## 0.127: ESS+initES of 62
+        ## 0.1: ESS+initES of 100
+        ## 0.091: ESS+initES around 121
+        maxrelMCSE <- 0.0627
+    }
+
+    ## maxrelMCSE <- min(maxrelMCSE,
+    ##     1 / sqrt(minESS + initES),
+    ##     1 / sqrt(nsamplesperchain))
+    minESS <- max(minESS, (1 / maxrelMCSE)^2 - initES)
+
+    if(!is.finite(minESS)){
+        stop('Impossible stopping rule')
     }
 
 ##################################################
@@ -874,6 +885,8 @@ learn <- function(
     cat('Using', ncores, 'cores:',
         nsamplesperchain, 'samples per chain, max',
         minchainspercore + (coreswithextrachain > 0), 'chains per core.\n')
+    cat('Requested: ESS', round(minESS),
+        '  MCSE', signif(1/sqrt(minESS+initES),3), '\n')
     cat('Core logs are being saved in individual files.\n')
     cat('\nC-compiling samplers appropriate to the variates (package Nimble)\n')
     cat('this can take tens of minutes. Please wait...\r')
@@ -2359,7 +2372,7 @@ learn <- function(
                 ## ess[ess > N] <- N
 
                 ## autothinning <- ceiling(1.5 * nrow(cleantraces)/ess)
-                autothinning <- ceiling(N/ess)
+                autothinning <- N / ess
 
                 ## if(is.null(thinning)) {
                 ##     chainthinning <- max(autothinning)
@@ -2430,19 +2443,17 @@ learn <- function(
 
                 relmcse <- max(relmcse)
                 autothinning <- max(autothinning)
+                ess <- min(ess)
                 ## neededsamples <- autothinning * (nsamplesperchain + 2L)
-                neededsamples <- max(autothinning * (minESS + 2L),
-                    nsamplesperchain + 2L)
+                neededsamples <- max(ceiling(autothinning * (minESS + initES)),
+                    nsamplesperchain)
 
-                if(neededsamples > nitertot) {
+                ## if(relmcse > minrelMCSE){
+                ##     }
+                if(ess < minESS + initES) {
                     ## too small ESS
                     reqiter <- neededsamples - nitertot
-                } else if(relmcse > maxrelMCSE) {
-                    ## too large MCSE, enough ESS
-                    ## reqiter <- autothinning * 2L
-                    reqiter <- autothinning * ceiling((1/maxrelMCSE)^2 - min(ess))
                 } else {
-                    ## OK MCSE, enough ESS
                     reqiter <- 0
                 }
 
@@ -2454,9 +2465,9 @@ learn <- function(
                     '- require further', reqiter,
                     '- continue for', remainiter, '\n')
 
-                if(remainiter > 0 && as.double(
-                    Sys.time() - timestart0, units = 'hours'
-                ) >= timeleft) {
+                if(as.double(Sys.time() - timestart0, units = 'hours') >= timeleft &&
+                       remainiter > 0 && nitertot >= nsamplesperchain
+                ) {
                     cat('but stopping chain owing to lack of time\n')
                     stoppedchains <- stoppedchains + 1L
                     remainiter <- 0

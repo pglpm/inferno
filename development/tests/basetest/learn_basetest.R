@@ -14,6 +14,8 @@ learntdir <- learn(
     cleanup = FALSE,
     output = 'directory',
     parallel = parallel,
+    maxrelMCSE = +Inf,
+    minESS = NULL,
     ## parameters for short test run:
     ## subsampledata = 10,
     ## maxhours = 0,

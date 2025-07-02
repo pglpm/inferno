@@ -19,14 +19,15 @@ learn(
   appendinfo = TRUE,
   output = "directory",
   subsampledata = NULL,
+  prior = missing(data) || is.null(data),
   startupMCiterations = 3600,
   minMCiterations = 0,
   maxMCiterations = +Inf,
   maxhours = +Inf,
   ncheckpoints = NULL,
-  prior = missing(data) || is.null(data),
-  maxrelMCSE = 0.05,
+  maxrelMCSE = 0.0627,
   minESS = NULL,
+  initES = 2,
   thinning = NULL,
   plottraces = TRUE,
   showKtraces = FALSE,
@@ -66,6 +67,8 @@ learn(
 
 \item{subsampledata}{Integer: use only a subset of this many datapoints for the Monte Carlo computation.}
 
+\item{prior}{Logical: Calculate the prior distribution?}
+
 \item{startupMCiterations}{Integer: number of initial (burn-in) Monte Carlo iterations. Default 3600.}
 
 \item{minMCiterations}{Integer: minimum number of Monte Carlo iterations to be done. Default 0.}
@@ -76,11 +79,11 @@ learn(
 
 \item{ncheckpoints}{Integer: number of datapoints to use for checking when the Monte Carlo computation should end. If NULL (default), this is equal to number of variates + 2. If Inf, use all datapoints.}
 
-\item{prior}{Logical: Calculate the prior distribution?}
-
 \item{maxrelMCSE}{Numeric positive: desired maximal \emph{relative Monte Carlo Standard Error} of calculated probabilities with respect to their variability with new data.}
 
 \item{minESS}{Numeric positive: desired minimal Monte Carlo \emph{Expected Sample Size}.}
+
+\item{initES}{Numeric positive: number of initial  \emph{Expected Samples} to discard.}
 
 \item{thinning}{Integer: thin out the Monte Carlo samples by this value. If NULL (default): let the diagnostics decide the thinning value.}
 
