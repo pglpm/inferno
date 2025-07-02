@@ -35,7 +35,7 @@ learn(
   hyperparams = list(ncomponents = 64, minalpha = -4, maxalpha = 4, byalpha = 1, Rshapelo
     = 0.5, Rshapehi = 0.5, Rvarm1 = 3^2, Cshapelo = 0.5, Cshapehi = 0.5, Cvarm1 = 3^2,
     Dshapelo = 0.5, Dshapehi = 0.5, Dvarm1 = 3^2, Bshapelo = 1, Bshapehi = 1, Dthreshold
-    = 1, tscalefactor = 4.266, avoidzeroW = FALSE, initmethod = "datacentre")
+    = 1, tscalefactor = 4.266, avoidzeroW = NULL, initmethod = "datacentre")
 )
 }
 \arguments{

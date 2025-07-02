@@ -80,7 +80,7 @@ learn <- function(
         Bshapehi = 1,
         Dthreshold = 1,
         tscalefactor = 4.266,
-        avoidzeroW = FALSE,
+        avoidzeroW = NULL, # NULL: Turek's, TRUE: 1e-100 non-conj., FALSE: conj.
         initmethod = 'datacentre'
         ## precluster, prior, allcentre
     )
@@ -109,7 +109,7 @@ learn <- function(
         Bshapehi = 1,
         Dthreshold = 1,
         tscalefactor = 4.266,
-        avoidzeroW = FALSE,
+        avoidzeroW = NULL,
         initmethod = 'datacentre'
         ## precluster, prior, allcentre
     )
@@ -932,6 +932,46 @@ learn <- function(
         ## requireNamespace("nimble", quietly = TRUE)
         ##library('nimble')
 
+
+#### Alternative Dirichlet sampler, to deal with zero-W preserving conjugacy
+#### from Daniel Turek 2025-06-29, nimble-users group
+        if(is.null(avoidzeroW)) {
+            conjugate_dirch_plus_eps <- nimbleFunction(
+                contains = sampler_BASE,
+                setup = function(model, mvSaved, target, control) {
+                    ## control list extraction
+                    eps <- extractControlElement(control, 'eps', 1e-100)
+                    ## node list generation
+                    target <- model$expandNodeNames(target)
+                    calcNodes <- model$getDependencies(target)
+                    depNodes <- model$getDependencies(target, self = FALSE)
+                    ## numeric value generation
+                    d <- length(model[[target]])
+                    Ndeps <- length(depNodes)
+                    ## checks
+                    if(length(target) > 1) stop('conjugate_dirch_plus_eps only operates on a single node')
+                    if(model$getDistribution(target) != 'ddirch') stop('conjugate_dirch_plus_eps target node must have ddirch distribution')
+                    depDists <- sapply(depNodes, function(x) model$getDistribution(x))
+                    if(!all(depDists == 'dcat')) stop('conjugate_dirch_plus_eps all dependencies should have dcat distributions')
+                },
+                run = function() {
+                    posterior_alpha <- model$getParam(target, 'alpha')
+                    for(i in 1:Ndeps) {
+                        depValue <- model$getParam(depNodes[i], 'value')
+                        posterior_alpha[depValue] <- posterior_alpha[depValue] + 1
+                    }
+                    newTargetValue <- rdirch(1, posterior_alpha)
+                    newTargetValue <- newTargetValue + eps
+                    model[[target]] <<- newTargetValue
+                    model$calculate(calcNodes)
+                    nimCopy(from = model, to = mvSaved, row = 1, nodes = calcNodes, logProb = TRUE)
+                },
+                methods = list(
+                    reset = function() {}
+                )
+            )
+        }
+
 #### COMPONENT REPRESENTATION OF FREQUENCY SPACE
 #### Dirichlet-process mixture of product-kernels
 
@@ -941,7 +981,7 @@ learn <- function(
             Alpha ~ dcat(prob = probalpha0[1:nalpha])
             alphas[1:ncomponents] <- dirchalphas[1:ncomponents] * alphabase^Alpha
             W[1:ncomponents] ~ ddirch(alpha = alphas[1:ncomponents])
-            if(avoidzeroW){
+            if(isTRUE(avoidzeroW)){
                 W0[1:ncomponents] <- W[1:ncomponents] + 1e-100
             }
             ## Probability density for the parameters of the components
@@ -994,7 +1034,7 @@ learn <- function(
             }
             ## Probability of data
             for (d in 1:npoints) {
-                if(avoidzeroW){
+                if(isTRUE(avoidzeroW)){
                     K[d] ~ dcat(prob = W0[1:ncomponents])
                 } else {
                     K[d] ~ dcat(prob = W[1:ncomponents])
@@ -2029,6 +2069,11 @@ learn <- function(
         nameslist <- sapply(confnimble$getSamplers(), function(xx) xx$name)
         ## cat('\nNAMESLIST', nameslist, '\n')
 
+        ## replace W's sampler with the one from Daniel Turek
+        if(is.null(avoidzeroW)) {
+            confnimble$replaceSampler('W', conjugate_dirch_plus_eps)
+        }
+
         ## replace Alpha's cat-sampler with slice
         if (Alphatoslice &&
                 !('Alpha' %in% targetslist[nameslist == 'posterior_predictive'])) {
@@ -2500,7 +2545,7 @@ learn <- function(
                     ## limit number of iterations per loop, to save memory
                     niter <- min(remainiter + 1L, startupMCiterations)
                     subiter <- subiter + 1L
-                    cat(
+                    cat('\n###########################################################',
                         '\nChain #', chainnumber, '- chunk', subiter,
                         '(chain', achain, 'of', nchainsperthiscore,
                         'for this core): increasing by', niter, '\n'
