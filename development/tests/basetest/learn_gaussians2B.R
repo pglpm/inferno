@@ -1,12 +1,14 @@
 library('inferno')
 
 set.seed(16)
-parallel <- 6
+parallel <- 2
 
-outputdir <- '__gauss2B_nDN_cp12'
+outputdir <- '__testtestgauss2B_nDN_cp12'
 learntdir <- learn(
     data = 'data_gaussians2B.csv',
     metadata = 'metadata_gaussians2B.csv',
+    nchains = 2,
+    nsamplesperchain = 600,
     prior = FALSE,
     maxrelMCSE = +Inf,
     minESS = NULL,
@@ -14,7 +16,7 @@ learntdir <- learn(
     appendtimestamp = TRUE,
     appendinfo = TRUE,
     output = 'directory',
-    cleanup = TRUE,
+    cleanup = FALSE,
     parallel = parallel,
     ## subsampledata = 30,
     ncheckpoints = 12,

@@ -2563,6 +2563,21 @@ learn <- function(
                         '(chain', achain, 'of', nchainsperthiscore,
                         'for this core): increasing by', niter, '\n'
                     )
+
+#### Print estimated end time
+                    fracchain <- achain - remainiter / (remainiter + nitertot)
+                    endTime <- Sys.time() + 180 +
+                        ( (nchainsperthiscore + (acore > coreswithextrachain) - fracchain) *
+                              difftime(Sys.time(), MCtimestart) / fracchain )
+                    print2user(
+                        paste0(
+                            '\rSampling. Core ', acore, ' estimated end time: ',
+                            format(endTime, format='%Y-%m-%d %H:%M'),
+                            '   '
+                        ),
+                        outcon
+                    )
+
                 }
                 reset <- FALSE
             }
