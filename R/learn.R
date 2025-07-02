@@ -885,7 +885,7 @@ learn <- function(
     cat('Using', ncores, 'cores:',
         nsamplesperchain, 'samples per chain, max',
         minchainspercore + (coreswithextrachain > 0), 'chains per core.\n')
-    cat('Requested: ESS', round(minESS),
+    cat('Requested:   ESS', round(minESS),
         '  rel.MCSE', signif(1/sqrt(minESS+initES),3), '\n')
     cat('Core logs are being saved in individual files.\n')
     cat('\nC-compiling samplers appropriate to the variates (package Nimble)\n')
