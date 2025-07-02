@@ -485,7 +485,7 @@ learn <- function(
     write.csv(metadata, file = file.path(dirname, 'metadata.csv'),
         row.names = FALSE, quote = FALSE, na = '')
     saveRDS(auxmetadata,
-        file = file.path(dirname, paste0('_auxmetadata', dashnameroot, '.rds')))
+        file = file.path(dirname, paste0('___auxmetadata', dashnameroot, '.rds')))
 
     ## Save initial RNG seed in case needed by user
     saveRDS(currentseed,
@@ -520,7 +520,7 @@ learn <- function(
                 logjacobianOr = NULL))
             rownames(testdata) <- pointsid
             saveRDS(testdata,
-                file = file.path(dirname, paste0('_testdata_', achain, '.rds')))
+                file = file.path(dirname, paste0('___testdata_', achain, '.rds')))
         }
         rm(testdata)
         rm(pointsid)
@@ -560,7 +560,7 @@ learn <- function(
             ## colnames(testdata) <- auxmetadata[['name']]
             for(achain in 0:nchains) {
                 saveRDS(testdata,
-                    file = file.path(dirname, paste0('_testdata_', achain, '.rds')))
+                    file = file.path(dirname, paste0('___testdata_', achain, '.rds')))
             }
             rm(testdata)
         }
@@ -582,7 +582,7 @@ learn <- function(
     ##     for(achain in seq_len(nchains)) {
     ##       testdata <- data[sort(sample(dataNoNa, min(ncheckpoints, ndataNoNa))),]
     ##       saveRDS(testdata,
-    ##               file = file.path(dirname, paste0('_testdata_', achain, '.rds')))
+    ##               file = file.path(dirname, paste0('___testdata_', achain, '.rds')))
     ##     }
     ##   } else {
     ##       ## no data available: construct one datapoint from the metadata info
@@ -598,7 +598,7 @@ learn <- function(
     ##     colnames(testdata) <- auxmetadata[['name']]
     ##     for(achain in seq_len(nchains)) {
     ##       saveRDS(testdata,
-    ##           file = file.path(dirname, paste0('_testdata_', achain, '.rds')))
+    ##           file = file.path(dirname, paste0('___testdata_', achain, '.rds')))
     ##     }
     ##     rm(testdata)
     ##     }
@@ -791,7 +791,7 @@ learn <- function(
     ) # End constants
 
     saveRDS(constants,
-        file = file.path(dirname, paste0('_constants', dashnameroot, '.rds')))
+        file = file.path(dirname, paste0('___constants', dashnameroot, '.rds')))
 
 #### DATAPOINTS
     ## for each list element: rows: data; cols: variates of that element
@@ -851,7 +851,7 @@ learn <- function(
     ) # End datapoints
 
     saveRDS(datapoints,
-        file = file.path(dirname, paste0('_datapoints', dashnameroot, '.rds')))
+        file = file.path(dirname, paste0('___datapoints', dashnameroot, '.rds')))
 
 #### Output information to user
     if (!exists('Nalpha0')) {
@@ -2244,7 +2244,7 @@ learn <- function(
             )
             ## Read data to be used in log-likelihood
             testdata <- readRDS(file = file.path(dirname,
-                paste0('_testdata_', chainnumber, '.rds')))
+                paste0('___testdata_', chainnumber, '.rds')))
             cat('\nDatapoints for testing convergence:\n',
                 paste0('#', rownames(testdata)), '\n')
 
@@ -2540,7 +2540,7 @@ learn <- function(
                         saveRDS(
                             mcsubset(allmcsamples, seq_len(startupMCiterations)),
                             file = file.path(dirname,
-                                paste0('__tempmcsamples-',
+                                paste0('____tempmcsamples-',
                                     padchainnumber, '-',
                                     savedchunks, '.rds'))
                         )
@@ -2594,7 +2594,7 @@ learn <- function(
             for(chunk in rev(seq_len(savedchunks))){
                 tempmcsamples <- readRDS(file = file.path(
                     dirname,
-                    paste0('__tempmcsamples-',
+                    paste0('____tempmcsamples-',
                         padchainnumber, '-',
                         chunk, '.rds')
                 ))
@@ -2608,14 +2608,14 @@ learn <- function(
             ## Save thinned total chain
             saveRDS(allmcsamples,
                 file = file.path(dirname,
-                    paste0('_mcsamples',
+                    paste0('___mcsamples',
                         dashnameroot, '--',
                         padchainnumber, '.rds'))
             )
 
             saveRDS(allmcsamplesKA,
                 file = file.path(dirname,
-                    paste0('_hyperparams_traces',
+                    paste0('___hyperparams_traces',
                         dashnameroot, '--',
                         padchainnumber, '.rds'))
             )
@@ -2623,7 +2623,7 @@ learn <- function(
             ## put 'tokeep' in first slot if saving only nsamplesperchain
             saveRDS(traces[ , , drop = FALSE],
                 file = file.path(dirname,
-                    paste0('_mcpartialtraces',
+                    paste0('___mcpartialtraces',
                         dashnameroot, '--',
                         padchainnumber, '.rds')
                 ))
@@ -2666,7 +2666,7 @@ learn <- function(
                 ## names(colpalette) <- colnames(traces)[1:min(6, ncol(traces))]
                 graphics.off()
                 pdf(file.path(dirname,
-                    paste0('_mcpartialtraces', dashnameroot, '--',
+                    paste0('___mcpartialtraces', dashnameroot, '--',
                         padchainnumber, '_', achain, '-', acore, '.pdf')
                 ), height = 8.27, width = 11.69)
 
@@ -2681,7 +2681,7 @@ learn <- function(
                 ##         legend = grouplegends[[alegend]]
                 ##     )
                 ## }
-                legend(x = 'left', bty = 'n', cex = 1,
+                legend(x = 'left', bty = 'n', cex = 0.75,
                     legend = c(
                         paste0('Chain ', chainnumber, ' - ',
                             achain, ' of core ', acore),
@@ -2855,7 +2855,7 @@ learn <- function(
             padchainnumber <- sprintf(paste0('%0', nchar(nchains), 'i'), chainnumber)
 
             readRDS(file = file.path(dirname,
-                paste0('_mcsamples', dashnameroot, '--',
+                paste0('___mcsamples', dashnameroot, '--',
                     padchainnumber, '.rds')
             ))
         }
@@ -2899,7 +2899,7 @@ learn <- function(
 ############################################################
 
     testdata <- readRDS(file = file.path(dirname,
-        paste0('_testdata_', 0, '.rds')))
+        paste0('___testdata_', 0, '.rds')))
     cat('\nChecking test data\n(', paste0('#', rownames(testdata)), ')\n')
 
     cleantraces <- cbind(
@@ -3059,13 +3059,13 @@ learn <- function(
 
 
 #### Remove partial files if required
-    ## Partial files are identified by an initial underscore "_"
+    ## Partial files are identified by at last three initial underscores "___"
     ## Should we leave the plots of partial traces?
     ## maybe create an additional argument to let the user decide?
     if (cleanup) {
         cat('\nRemoving temporary output files.\n')
         file.remove(dir(dirname,
-            pattern = paste0('^_.*\\..*$'),
+            pattern = paste0('^___.*\\..*$'),
             full.names = TRUE
         ))
     }

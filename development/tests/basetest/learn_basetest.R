@@ -11,11 +11,12 @@ learntdir <- learn(
     outputdir = outputdir,
     appendtimestamp = TRUE,
     appendinfo = TRUE,
-    cleanup = FALSE,
+    cleanup = TRUE,
     output = 'directory',
     parallel = parallel,
     maxrelMCSE = +Inf,
     minESS = NULL,
+    ncheckpoints = 12,
     ## parameters for short test run:
     ## subsampledata = 10,
     ## maxhours = 0,
