@@ -7,7 +7,7 @@
 #' @param nsamples Integer: number of desired Monte Carlo samples. Default 3600.
 #' @param nchains Integer: number of Monte Carlo chains. Default 60.
 #' @param nsamplesperchain Integer: number of Monte Carlo samples per chain.
-#' @param parallel Logical or `NULL` or positive integer: `TRUE`: use roughly half of available cores; `FALSE`: use serial computation; `NULL`: don't do anything (use pre-registered condition); integer: use this many cores. Default `NULL`
+#' @param parallel Logical or `NULL` or positive integer: `TRUE`: use roughly half of available cores; `FALSE`: use serial computation; `NULL` (default): don't do anything (use pre-registered condition); integer: use this many cores.
 #' @param seed Integer: use this seed for the random number generator. If missing or `NULL` (default), do not set the seed.
 #' @param cleanup Logical: remove diagnostic files at the end of the computation? Default `TRUE`.
 #' @param appendtimestamp Logical: append a timestamp to the name of the output directory `outputdir`? Default `TRUE`.
@@ -19,11 +19,11 @@
 #' @param minMCiterations Integer: minimum number of Monte Carlo iterations to be done. Default 0.
 #' @param maxMCiterations Integer: Do at most this many Monte Carlo iterations. Default `Inf`.
 #' @param maxhours Numeric: approximate time limit, in hours, for the Monte Carlo computation to last. Default `Inf`.
-#' @param ncheckpoints Integer: number of datapoints to use for checking when the Monte Carlo computation should end. If NULL (default), this is equal to number of variates + 2. If Inf, use all datapoints.
+#' @param ncheckpoints Integer: number of datapoints to use for checking when the Monte Carlo computation should end. If `NULL` (default), this is equal to number of variates + 2. If Inf, use all datapoints.
 #' @param maxrelMCSE Numeric positive: desired maximal *relative Monte Carlo Standard Error* of calculated probabilities with respect to their variability with new data.
 #' @param minESS Numeric positive: desired minimal Monte Carlo *Expected Sample Size*.
 #' @param initES Numeric positive: number of initial  *Expected Samples* to discard.
-#' @param thinning Integer: thin out the Monte Carlo samples by this value. If NULL (default): let the diagnostics decide the thinning value.
+#' @param thinning Integer: thin out the Monte Carlo samples by this value. If `NULL` (default): let the diagnostics decide the thinning value.
 #' @param plottraces Logical: save plots of the Monte Carlo traces of diagnostic values? Default `TRUE`.
 #' @param showKtraces Logical: save plots of the Monte Carlo traces of the K parameter? Default `FALSE`.
 #' @param showAlphatraces Logical: save plots of the Monte Carlo traces of the Alpha parameter? Default `FALSE`.
@@ -2458,16 +2458,14 @@ learn <- function(
                 ## need to add 1D to behave well with mcsubset()
                 dim(mcsamples$MCindex) <- ncol(mcsamples$W)
 
+                ## concatenate samples
                 if (is.null(allmcsamples)) {
-                    ## chain just started, or previous samples saved
                     allmcsamples <- mcsamples
                 } else {
-                    ## continue chain, concat samples
                     allmcsamples <- mcjoin(allmcsamples, mcsamples)
                 }
 
                 if (is.null(allmcsamplesKA)) {
-                    ## chain just started
                     allmcsamplesKA <- mcsamplesKA
                 } else {
                     ## Concatenate samples of K and Alpha
