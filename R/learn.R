@@ -2238,8 +2238,8 @@ learn <- function(
             allmcsamplesKA <- NULL
             flagll <- FALSE
             flagnonfinite <- FALSE
-            cat(
-                '\nChain #', chainnumber,
+            cat('\n###########################################################\nChain #',
+                chainnumber,
                 '(chain', achain, 'of', nchainsperthiscore, 'for this core)\n'
             )
             ## Read data to be used in log-likelihood
@@ -2249,8 +2249,8 @@ learn <- function(
                 paste0('#', rownames(testdata)), '\n')
 
             ## will contain the MC traces of the test points
-            traces <- matrix(NA, nrow = 0, ncol = nrow(testdata),
-                dimnames = list(NULL, rownames(testdata)))
+            traces <- matrix(NA, nrow = 0, ncol = 1 + nrow(testdata),
+                dimnames = list(NULL, c('gmean', rownames(testdata))))
 
 
             ## Initial values for this chain
@@ -2370,15 +2370,28 @@ learn <- function(
                     )
                 )
 
+                ll <- cbind(
+                    exp(rowMeans(log(ll), na.rm = TRUE)), # geometric mean
+                    ll
+                )
+
                 traces <- rbind(traces, ll)
 
-                toRemove <- which(!is.finite(traces), arr.ind = TRUE)
+                toRemove <- which(!is.finite(traces[, 1]))
                 if (length(toRemove) > 0) {
                     flagll <- TRUE
-                    cleantraces <- traces[-unique(toRemove[, 1]), , drop = FALSE]
+                    cleantraces <- traces[-unique(toRemove), , drop = FALSE]
                 } else {
                     cleantraces <- traces
                 }
+                ## ## version before geom.mean
+                ## toRemove <- which(!is.finite(traces), arr.ind = TRUE)
+                ## if (length(toRemove) > 0) {
+                ##     flagll <- TRUE
+                ##     cleantraces <- traces[-unique(toRemove[, 1]), , drop = FALSE]
+                ## } else {
+                ##     cleantraces <- traces
+                ## }
 
                 ## ## for debugging
                 ## saveRDS(traces,
@@ -2403,9 +2416,12 @@ learn <- function(
                 ##     thinning = thinning)
 
                 N <- nrow(cleantraces)
-                relmcse <- apply(cleantraces, 2, function(atrace){
-                    sqrt(mcmc::initseq(atrace)$var.con / N) / sd(atrace)
-                })
+                ## ## version before geom.mean
+                ## relmcse <- apply(cleantraces, 2, function(atrace){
+                ##     sqrt(mcmc::initseq(atrace)$var.con / N) / sd(atrace)
+                ## })
+                relmcse <- sqrt(mcmc::initseq(cleantraces[, 1])$var.con / N) /
+                    sd(cleantraces[, 1])
                 relmcse[relmcse > 1] <- 1
                 relmcse[relmcse < (1/N)^2] <- (1/N)^2
                 ## relmcse <- funMCSE2(cleantraces) / apply(cleantraces, 2, sd)
@@ -2543,8 +2559,7 @@ learn <- function(
                     ## limit number of iterations per loop, to save memory
                     niter <- min(remainiter + 1L, startupMCiterations)
                     subiter <- subiter + 1L
-                    cat('\n###########################################################',
-                        '\nChain #', chainnumber, '- chunk', subiter,
+                    cat('\nChain #', chainnumber, '- chunk', subiter,
                         '(chain', achain, 'of', nchainsperthiscore,
                         'for this core): increasing by', niter, '\n'
                     )
@@ -2887,40 +2902,47 @@ learn <- function(
         paste0('_testdata_', 0, '.rds')))
     cat('\nChecking test data\n(', paste0('#', rownames(testdata)), ')\n')
 
-    traces <- cbind(
+    cleantraces <- cbind(
         util_Pcheckpoints(
             Y = testdata,
             learnt = mcsamples,
             auxmetadata = auxmetadata
         )
     )
-    traces <- traces[apply(traces, 1, function(x) { all(is.finite(x)) }), ,
-        drop = FALSE]
-    colnames(traces) <- rownames(testdata)
 
-    saveRDS(traces, file = file.path(dirname,
+    cleantraces <- cbind(
+        exp(rowMeans(log(cleantraces), na.rm = TRUE)), # geometric mean
+        cleantraces
+    )
+
+    cleantraces <- cleantraces[apply(cleantraces, 1, function(x) { all(is.finite(x)) }), ,
+        drop = FALSE]
+
+    colnames(cleantraces) <- c('gmean', rownames(testdata))
+
+    saveRDS(cleantraces, file = file.path(dirname,
         paste0('MCtraces', dashnameroot, '.rds')
     ))
 
 #### MCSE, ESS, thinning
-    ## diagn <- mcmcstop(traces = traces,
+    ## diagn <- mcmcstop(traces = cleantraces,
     ##     nsamples = nsamples,
     ##     availiter = 0,
     ##     relerror = maxrelMCSE,
     ##     thinning = thinning)
-    N <- nrow(traces)
-    relmcse <- apply(traces, 2, function(atrace){
+    N <- nrow(cleantraces)
+    relmcse <- apply(cleantraces, 2, function(atrace){
         sqrt(mcmc::initseq(atrace)$var.con / N) / sd(atrace)
     })
-    ## relmcse <- funMCSE2(traces) / apply(traces, 2, sd)
+    ## relmcse <- funMCSE2(cleantraces) / apply(cleantraces, 2, sd)
     ## relmcse2 <- (mcse + 1/N) / sds
 
-    ## ess <- funESS(traces)
+    ## ess <- funESS(cleantraces)
     ess <- (1 / relmcse)^2
     ess[ess < 1] <- 1
     ess[ess > N] <- N
 
-    ## autothinning <- ceiling(1.5 * nrow(traces)/ess)
+    ## autothinning <- ceiling(1.5 * nrow(cleantraces)/ess)
     autothinning <- ceiling(N/ess)
 
     ## Output available diagnostics
@@ -2928,7 +2950,7 @@ learn <- function(
         'rel. MC standard error' = relmcse,
         'eff. sample size' = ess,
         'needed thinning' = autothinning,
-        'average' = colMeans(traces)
+        'average' = colMeans(cleantraces)
     )
 ####
 
@@ -2953,23 +2975,23 @@ learn <- function(
     cat('\nPlotting final Monte Carlo traces and marginal samples...\n')
 
     ##
-    ## colpalette <- seq_len(ncol(traces))
-    ## names(colpalette) <- colnames(traces)
+    ## colpalette <- seq_len(ncol(cleantraces))
+    ## names(colpalette) <- colnames(cleantraces)
     graphics.off()
     pdf(file.path(dirname,
         paste0('MCtraces', dashnameroot, '.pdf')
     ), height = 8.27, width = 11.69)
     ## Traces of likelihood and cond. probabilities
-    for (avar in 1:ncol(traces)) {
+    for (avar in 1:ncol(cleantraces)) {
         ## Do not join separate chains in the plot
         division <- (if(N > nchains) nchains else 1)
         flexiplot(
-            y = 10*log10(traces[is.finite(traces[, avar]), avar]),
+            y = 10*log10(cleantraces[is.finite(cleantraces[, avar]), avar]),
             ## x = matrix(seq_len(nsamples), ncol = division),
-            ## y = matrix(10*log10(traces[, avar]), ncol = division),
+            ## y = matrix(10*log10(cleantraces[, avar]), ncol = division),
             type = 'l', lty = 1, col = 1,
             ## col = 1:6, # to evidence consecutive chains
-            main = paste0('#', colnames(traces)[avar], ': ',
+            main = paste0('#', colnames(cleantraces)[avar], ': ',
                 paste(
                     names(toprint),
                     sapply(toprint, function(xx){
@@ -2979,7 +3001,7 @@ learn <- function(
                 )),
             cex.main = 1.25,
             ylab = paste0('log_F(#',
-                colnames(traces)[avar],
+                colnames(cleantraces)[avar],
                 ')/dHart'),
             xlab = 'sample', family = family
             ## mar = c(NA, 6, NA, NA)

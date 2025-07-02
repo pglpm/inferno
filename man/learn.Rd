@@ -53,7 +53,7 @@ learn(
 
 \item{nsamplesperchain}{Integer: number of Monte Carlo samples per chain.}
 
-\item{parallel}{Logical or \code{NULL} or positive integer: \code{TRUE}: use roughly half of available cores; \code{FALSE}: use serial computation; \code{NULL}: don't do anything (use pre-registered condition); integer: use this many cores. Default \code{NULL}}
+\item{parallel}{Logical or \code{NULL} or positive integer: \code{TRUE}: use roughly half of available cores; \code{FALSE}: use serial computation; \code{NULL} (default): don't do anything (use pre-registered condition); integer: use this many cores.}
 
 \item{seed}{Integer: use this seed for the random number generator. If missing or \code{NULL} (default), do not set the seed.}
 
@@ -77,7 +77,7 @@ learn(
 
 \item{maxhours}{Numeric: approximate time limit, in hours, for the Monte Carlo computation to last. Default \code{Inf}.}
 
-\item{ncheckpoints}{Integer: number of datapoints to use for checking when the Monte Carlo computation should end. If NULL (default), this is equal to number of variates + 2. If Inf, use all datapoints.}
+\item{ncheckpoints}{Integer: number of datapoints to use for checking when the Monte Carlo computation should end. If \code{NULL} (default), this is equal to number of variates + 2. If Inf, use all datapoints.}
 
 \item{maxrelMCSE}{Numeric positive: desired maximal \emph{relative Monte Carlo Standard Error} of calculated probabilities with respect to their variability with new data.}
 
@@ -85,7 +85,7 @@ learn(
 
 \item{initES}{Numeric positive: number of initial  \emph{Expected Samples} to discard.}
 
-\item{thinning}{Integer: thin out the Monte Carlo samples by this value. If NULL (default): let the diagnostics decide the thinning value.}
+\item{thinning}{Integer: thin out the Monte Carlo samples by this value. If \code{NULL} (default): let the diagnostics decide the thinning value.}
 
 \item{plottraces}{Logical: save plots of the Monte Carlo traces of diagnostic values? Default \code{TRUE}.}
 
