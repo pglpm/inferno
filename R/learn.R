@@ -2185,7 +2185,7 @@ learn <- function(
         if (acore == 1) {
             print2user(paste0('\rCompiled core ', acore, '. ',
                 'Number of samplers: ',
-                length(confnimble$samplerExecutionOrder), '.       \n',
+                length(confnimble$samplerExecutionOrder), '.             \n',
                 'Estimating remaining time, please be patient...'),
                 outcon)
         }
