@@ -1,25 +1,27 @@
 library('inferno')
 
 set.seed(16)
-parallel <- 2
+parallel <- 1
 
 outputdir <- '__base_gmeanstop'
 learntdir <- learn(
     data = 'data_basetest.csv',
     metadata = 'metadata_basetest.csv',
     nsamples = 3600,
-    nchains = 2,
+    nchains = 4,
+    minMCiterations = 3600 * 3,
     prior = FALSE,
     outputdir = outputdir,
     appendtimestamp = TRUE,
     appendinfo = TRUE,
-    cleanup = TRUE,
+    cleanup = FALSE,
     output = 'directory',
     parallel = parallel,
-    maxrelMCSE = +Inf,
-    minESS = 400,
-    ncheckpoints = 12,
-    ## parameters for short test run:
+    ## maxrelMCSE = +Inf,
+    ## minESS = 400,
+    ## ncheckpoints = 12,
+    ##
+    ## ## parameters for short test run:
     ## subsampledata = 10,
     ## maxhours = 0,
     ## nsamplesperchain = 60,

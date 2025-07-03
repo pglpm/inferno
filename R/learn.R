@@ -5,7 +5,7 @@
 #' @param auxdata A larger dataset, given as a data.frame or as a file path to a csv file. Such a dataset would be too many to use in the Monte Carlo sampling, but can be used to calculate hyperparameters.
 #' @param outputdir Character: path to folder where the output should be saved. If omitted, a directory is created that has the same name as the data file but with suffix "`_output_`".
 #' @param nsamples Integer: number of desired Monte Carlo samples. Default 3600.
-#' @param nchains Integer: number of Monte Carlo chains. Default 60.
+#' @param nchains Integer: number of Monte Carlo chains. Default 4.
 #' @param nsamplesperchain Integer: number of Monte Carlo samples per chain.
 #' @param parallel Logical or `NULL` or positive integer: `TRUE`: use roughly half of available cores; `FALSE`: use serial computation; `NULL` (default): don't do anything (use pre-registered condition); integer: use this many cores.
 #' @param seed Integer: use this seed for the random number generator. If missing or `NULL` (default), do not set the seed.
@@ -16,12 +16,12 @@
 #' @param subsampledata Integer: use only a subset of this many datapoints for the Monte Carlo computation.
 #' @param prior Logical: Calculate the prior distribution?
 #' @param startupMCiterations Integer: number of initial Monte Carlo iterations. Default 3600.
-#' @param minMCiterations Integer: minimum number of Monte Carlo iterations to be done. Default 0.
-#' @param maxMCiterations Integer: Do at most this many Monte Carlo iterations. Default `Inf`.
+#' @param minMCiterations Integer: minimum number of Monte Carlo iterations to be doneby a chain. Default 0.
+#' @param maxMCiterations Integer: Do at most this many Monte Carlo iterations per chain. Default `Inf`.
 #' @param maxhours Numeric: approximate time limit, in hours, for the Monte Carlo computation to last. Default `Inf`.
 #' @param ncheckpoints Integer: number of datapoints to use for checking when the Monte Carlo computation should end. If `NULL`, this is equal to number of variates + 2. If Inf, use all datapoints. Default 12.
-#' @param maxrelMCSE Numeric positive: desired maximal *relative Monte Carlo Standard Error* of calculated probabilities with respect to their variability with new data. `maxrelMCSE` is related to `minESS` by `maxrelMCSE = 1/sqrt(minESS + initES)`.
-#' @param minESS Numeric positive: desired minimal Monte Carlo *Expected Sample Size*.if `NULL` (default), it is equal to the final `nsamplesperchain`. `minESS` is related to `maxrelMCSE` by `minESS = 1/maxrelMCSE^2 - initES`.
+#' @param maxrelMCSE Numeric positive: desired maximal *relative Monte Carlo Standard Error* of calculated probabilities with respect to their variability with new data. Default `+Inf`, so that `minESS` is used instead. `maxrelMCSE` is related to `minESS` by `maxrelMCSE = 1/sqrt(minESS + initES)`.
+#' @param minESS Numeric positive: desired minimal Monte Carlo *Expected Sample Size*. If `NULL`, it is equal to the final `nsamplesperchain`. Default 400. `minESS` is related to `maxrelMCSE` by `minESS = 1/maxrelMCSE^2 - initES`.
 #' @param initES Numeric positive: number of initial  *Expected Samples* to discard.
 #' @param thinning Integer: thin out the Monte Carlo samples by this value. If `NULL` (default): let the diagnostics decide the thinning value.
 #' @param plottraces Logical: save plots of the Monte Carlo traces of diagnostic values? Default `TRUE`.
@@ -40,8 +40,8 @@ learn <- function(
     auxdata = NULL,
     outputdir = NULL,
     nsamples = 3600,
-    nchains = 60,
-    nsamplesperchain = 60,
+    nchains = 4,
+    nsamplesperchain = 900,
     parallel = NULL,
     seed = NULL,
     cleanup = TRUE,
@@ -56,10 +56,10 @@ learn <- function(
     maxhours = +Inf,
     ncheckpoints = 12,
     maxrelMCSE = +Inf, ## Gong-Flegal: 0.038, Z=1000: 0.076, Z=400: 0.12
-    minESS = NULL, ## Gong-Flegal: 0.038, Z=1000: 0.076, Z=400: 0.12
+    minESS = 400, ## Gong-Flegal: 0.038, Z=1000: 0.076, Z=400: 0.12
     initES = 2,
     thinning = NULL,
-    plottraces = TRUE,
+    plottraces = !cleanup,
     showKtraces = FALSE,
     showAlphatraces = FALSE,
     hyperparams = list(
@@ -82,7 +82,6 @@ learn <- function(
         tscalefactor = 4.266,
         avoidzeroW = NULL, # NULL: Turek's, TRUE: 1e-100 non-conj., FALSE: conj.
         initmethod = 'datacentre'
-        ## precluster, prior, allcentre
     )
 ) {
 
@@ -167,9 +166,11 @@ learn <- function(
 
     if(!missing(nchains) && !missing(nsamplesperchain) &&
            missing(nsamples)){
+        ## given: nchains, nsamplesperchain
         nsamples <- nchains * nsamplesperchain
     } else if (missing(nchains) && !missing(nsamplesperchain) &&
                    !missing(nsamples)){
+        ## given: nsamples, nsamplesperchain
         nchains <- ceiling(nsamples / nsamplesperchain)
         if(nsamples != nchains * nsamplesperchain){
             nsamples <- nchains * nsamplesperchain
@@ -178,6 +179,7 @@ learn <- function(
         }
     } else if (!missing(nchains) && missing(nsamplesperchain) &&
                    !missing(nsamples)){
+        ## given: nsamples, nchains
         nsamplesperchain <- ceiling(nsamples / nchains)
         if(nsamples != nchains * nsamplesperchain){
             nsamples <- nchains * nsamplesperchain
@@ -2201,7 +2203,7 @@ learn <- function(
         maxiterations <- 0
         ## keep count of chains having non-finite outputs
         nonfinitechains <- 0L
-        ## keep count of chains stopped before convergence
+        ## keep count of chains stopped prematurely
         stoppedchains <- 0L
         usedmem <- max(usedmem, sum(gc()[,6])) #garbage collection
 #### LOOP OVER CHAINS IN CORE
@@ -2245,7 +2247,7 @@ learn <- function(
             ## Read data to be used in log-likelihood
             testdata <- readRDS(file = file.path(dirname,
                 paste0('___testdata_', chainnumber, '.rds')))
-            cat('\nDatapoints for testing convergence:\n',
+            cat('\nDatapoints for testing chain behaviour:\n',
                 paste0('#', rownames(testdata)), '\n')
 
             ## will contain the MC traces of the test points
@@ -2259,7 +2261,7 @@ learn <- function(
 
             subiter <- 1L
             savedchunks <- 0L
-#### WHILE-LOOP CONTINUING UNTIL CONVERGENCE
+#### WHILE-LOOP CONTINUING UNTIL STOP CRITERION MET
             while (remainiter > 0) {
                 cat('\nIterations:', niter, '\n')
 
@@ -2563,22 +2565,139 @@ learn <- function(
                         '(chain', achain, 'of', nchainsperthiscore,
                         'for this core): increasing by', niter, '\n'
                     )
+                }
+
+                ## ###########
+                ## ## PLOTS ##
+                ## ###########
+
+#### Plot diagnostic traces of current chain
+                if (plottraces) {
+                    cat('\nPlotting traces and samples.\n')
+
+                    ## Plot various info and traces
+                    ## colpalette <- 1:6 #seq_len(ncol(traces))
+                    ## names(colpalette) <- colnames(traces)[1:min(6, ncol(traces))]
+                    graphics.off()
+                    pdf(file.path(dirname,
+                        paste0('___mcpartialtraces', dashnameroot, '--',
+                            padchainnumber, '_', achain, '-', acore, '.pdf')
+                    ), height = 8.27, width = 11.69)
+
+                    ## Summary stats
+                    matplot(1:2, type = 'l', col = 'white',
+                        main = paste0('Stats chain ', achain),
+                        axes = FALSE, ann = FALSE)
+                    ## Legends
+                    ## legendpositions <- c('topleft', 'topright', 'bottomleft', 'bottomright')
+                    ## for (alegend in seq_along(grouplegends)) {
+                    ##     legend(x = legendpositions[alegend], bty = 'n', cex = 1.5,
+                    ##         legend = grouplegends[[alegend]]
+                    ##     )
+                    ## }
+                    legend(x = 'left', bty = 'n', cex = 0.75,
+                        legend = c(
+                            paste0('Chain ', chainnumber, ' - ',
+                                achain, ' of core ', acore),
+                            ##
+                            paste0('Test points ',
+                                paste0('#', rownames(testdata), collapse=' ')
+                            ),
+                            ##
+                            paste0('Iterations: ', nitertot),
+                            ##
+                            paste0('Used components: ', usedcomponents,
+                                ' of ', ncomponents),
+                            ##
+                            'NOTES:',
+                            if (flagnonfinite) {
+                                'some non-finite MC outputs'
+                            },
+                            if (usedcomponents > ncomponents - 5) {
+                                'too many components used'
+                            },
+                            if (flagll) {
+                                'non-finite values in diagnostics'
+                            }
+                        )
+                    )
+                    ## Traces of likelihood and cond. probabilities
+                    par(mfrow = c(1, 1))
+                    for (avar in 1:ncol(traces)) {
+                        flexiplot(
+                            y = 10*log10(traces[is.finite(traces[, avar]), avar]),
+                            type = 'l', lty = 1, col = 1,
+                            main = paste0('#', colnames(traces)[avar], ': ',
+                                paste(
+                                    names(toprint),
+                                    sapply(toprint, function(xx){
+                                        signif(xx[avar], 3)
+                                    }),
+                                    collapse = ' | ', sep = ': '
+                                )),
+                            cex.main = 1.25,
+                            ylab = paste0('log_F(#',
+                                colnames(traces)[avar],
+                                ')/dHart'),
+                            xlab = 'Monte Carlo sample',
+                            family = family
+                            ## mar = c(NA, 6, NA, NA)
+                        )
+                    }
+                    dev.off()
+                }
+
+#### Plot Alpha and component occupation, if required
+                if (showAlphatraces || showKtraces) {
+                    cat('Plotting component and Alpha information.\n')
+                    pdf(file = file.path(dirname,
+                        paste0('hyperparams_traces', dashnameroot, '--',
+                            padchainnumber, '_', achain, '-', acore, '.pdf')),
+                        height = 8.27, width = 11.69)
+
+                    if (showKtraces) {
+                        cat('\nSTATS USED COMPONENTS:\n')
+                        print(summary(allmcsamplesKA$K))
+                        ##
+                        flexiplot(y = allmcsamplesKA$K, ylab = 'used components',
+                            xlab = 'iteration', ylim = c(0, ncomponents))
+                        flexiplot(x = 0:ncomponents,
+                            y = tabulate(allmcsamplesKA$K + 1, nbins = ncomponents + 1),
+                            type = 'l', xlab = 'used components', ylab = NA,
+                            ylim = c(0, NA))
+                    }
+                    if (showAlphatraces) {
+                        cat('\nSTATS alpha:\n')
+                        print(summary(allmcsamplesKA$Alpha, na.rm = TRUE))
+                        flexiplot(y = allmcsamplesKA$Alpha,
+                            ylab = bquote(alpha), xlab = 'iteration',
+                            ylim = c(1, nalpha))
+                        flexiplot(x = seq(minalpha, maxalpha, by = byalpha),
+                            y = tabulate(allmcsamplesKA$Alpha, nbins = nalpha),
+                            type = 'l', xlab = bquote(alpha), ylab = '',
+                            ylim = c(0, NA))
+                    }
+                    dev.off()
+                }
+
+                ## ###############
+                ## ## END PLOTS ##
+                ## ###############
 
 #### Print estimated end time
-                    fracchain <- achain - remainiter / (remainiter + nitertot)
-                    endTime <- Sys.time() + 180 +
-                        ( (nchainsperthiscore + (acore > coreswithextrachain) - fracchain) *
-                              difftime(Sys.time(), MCtimestart) / fracchain )
-                    print2user(
-                        paste0(
-                            '\rSampling. Core ', acore, ' estimated end time: ',
-                            format(endTime, format='%Y-%m-%d %H:%M'),
-                            '   '
-                        ),
-                        outcon
-                    )
+                fracchain <- achain - remainiter / (remainiter + nitertot)
+                endTime <- Sys.time() + 180 +
+                    ( (nchainsperthiscore + (acore > coreswithextrachain) - fracchain) *
+                          difftime(Sys.time(), MCtimestart) / fracchain )
+                print2user(
+                    paste0(
+                        '\rSampling. Core ', acore, ' estimated end time: ',
+                        format(endTime, format='%Y-%m-%d %H:%M'),
+                        '   '
+                    ),
+                    outcon
+                )
 
-                }
                 reset <- FALSE
             }
 #### END WHILE-LOOP OVER CHUNKS OF ONE CHAIN
@@ -2646,155 +2765,10 @@ learn <- function(
             ## possibly increase the count of chains with non-finite outputs
             nonfinitechains <- nonfinitechains + flagnonfinite
 
-            ## ###########
-            ## ## PLOTS ##
-            ## ###########
-
-#### Plot diagnostic traces of current chain
-            if (plottraces) {
-                cat('\nPlotting traces and samples.\n')
-
-                ## tracegroups <- as.list(seq_len(min(4, ncol(traces))))
-                ## names(tracegroups) <- colnames(traces)[1:min(4, ncol(traces))]
-                ## grouplegends <- foreach(agroup = seq_along(tracegroups)) %do% {
-                ##     c(
-                ##         paste0('-- STATS ', names(tracegroups)[agroup], ' --'),
-                ##         paste0('min ESS = ',
-                ##             signif(min(diagnESS[tracegroups[[agroup]]]), 6)),
-                ##         paste0('max IAT = ',
-                ##             signif(max(diagnIAT[tracegroups[[agroup]]]), 6)),
-                ##         paste0('max BMK = ',
-                ##             signif(max(diagnBMK[tracegroups[[agroup]]]), 6)),
-                ##         paste0('max MCSE = ',
-                ##             signif(max(diagnMCSE[tracegroups[[agroup]]]), 6)),
-                ##         paste0('stationary: ',
-                ##             sum(diagnStat[tracegroups[[agroup]]]), '/',
-                ##             length(diagnStat[tracegroups[[agroup]]])),
-                ##         paste0('burn: ', signif(diagnBurn2, 6)),
-                ##         paste0('max thin = ',
-                ##             signif(max(diagnThin[tracegroups[[agroup]]]), 6))
-                ##     )
-                ## }
-
-                ## Plot various info and traces
-                ## colpalette <- 1:6 #seq_len(ncol(traces))
-                ## names(colpalette) <- colnames(traces)[1:min(6, ncol(traces))]
-                graphics.off()
-                pdf(file.path(dirname,
-                    paste0('___mcpartialtraces', dashnameroot, '--',
-                        padchainnumber, '_', achain, '-', acore, '.pdf')
-                ), height = 8.27, width = 11.69)
-
-                ## Summary stats
-                matplot(1:2, type = 'l', col = 'white',
-                    main = paste0('Stats chain ', achain),
-                    axes = FALSE, ann = FALSE)
-                ## Legends
-                ## legendpositions <- c('topleft', 'topright', 'bottomleft', 'bottomright')
-                ## for (alegend in seq_along(grouplegends)) {
-                ##     legend(x = legendpositions[alegend], bty = 'n', cex = 1.5,
-                ##         legend = grouplegends[[alegend]]
-                ##     )
-                ## }
-                legend(x = 'left', bty = 'n', cex = 0.75,
-                    legend = c(
-                        paste0('Chain ', chainnumber, ' - ',
-                            achain, ' of core ', acore),
-                        paste0('Test points ',
-                            paste0('#', rownames(testdata), collapse=' ')
-                        ),
-                        paste0('Used components: ', usedcomponents, ' of ', ncomponents),
-                        ## paste0('LL:  ( ', signif(mean(traces[, 1]), 3), ' +- ',
-                        ##     signif(sd(traces[, 1]), 3), ' ) dHart'),
-                        'NOTES:',
-                        if (flagnonfinite) {
-                            'some non-finite MC outputs'
-                        },
-                        if (usedcomponents > ncomponents - 5) {
-                            'too many components used'
-                        },
-                        if (flagll) {
-                            'non-finite values in diagnostics'
-                        }
-                    )
-                )
-                ## Traces of likelihood and cond. probabilities
-                par(mfrow = c(1, 1))
-                for (avar in 1:ncol(traces)) {
-                    flexiplot(
-                        y = 10*log10(traces[is.finite(traces[, avar]), avar]),
-                        type = 'l', lty = 1, col = 1,
-                        main = paste0('#', colnames(traces)[avar], ': ',
-                            paste(
-                                names(toprint),
-                                sapply(toprint, function(xx){
-                                    signif(xx[avar], 3)
-                                }),
-                                collapse = ' | ', sep = ': '
-                            )),
-                        cex.main = 1.25,
-                        ylab = paste0('log_F(#',
-                            colnames(traces)[avar],
-                            ')/dHart'),
-                        xlab = 'Monte Carlo sample',
-                        family = family
-                        ## mar = c(NA, 6, NA, NA)
-                    )
-                }
-                dev.off()
-            }
-
-#### Plot Alpha and component occupation, if required
-            if (showAlphatraces || showKtraces) {
-                cat('Plotting component and Alpha information.\n')
-                pdf(file = file.path(dirname,
-                    paste0('hyperparams_traces', dashnameroot, '--',
-                        padchainnumber, '_', achain, '-', acore, '.pdf')),
-                    height = 8.27, width = 11.69)
-
-                if (showKtraces) {
-                    cat('\nSTATS USED COMPONENTS:\n')
-                    print(summary(allmcsamplesKA$K))
-                    ##
-                    flexiplot(y = allmcsamplesKA$K, ylab = 'used components',
-                        xlab = 'iteration', ylim = c(0, ncomponents))
-                    flexiplot(x = 0:ncomponents,
-                        y = tabulate(allmcsamplesKA$K + 1, nbins = ncomponents + 1),
-                        type = 'l', xlab = 'used components', ylab = NA,
-                        ylim = c(0, NA))
-                }
-                if (showAlphatraces) {
-                    cat('\nSTATS alpha:\n')
-                    print(summary(allmcsamplesKA$Alpha, na.rm = TRUE))
-                    flexiplot(y = allmcsamplesKA$Alpha,
-                        ylab = bquote(alpha), xlab = 'iteration',
-                        ylim = c(1, nalpha))
-                    flexiplot(x = seq(minalpha, maxalpha, by = byalpha),
-                        y = tabulate(allmcsamplesKA$Alpha, nbins = nalpha),
-                        type = 'l', xlab = bquote(alpha), ylab = '',
-                        ylim = c(0, NA))
-                }
-                dev.off()
-            }
-
-
             cat('\nCurrent time:', format(Sys.time(), '%Y-%m-%d %H:%M:%S'))
             cat('\nMCMC + diagnostics time',
                 printtimediff(difftime(Sys.time(), MCtimestart, units = 'auto')),
                 '\n')
-
-#### Print estimated end time
-            endTime <- Sys.time() + 180 +
-                ( (nchainsperthiscore + (acore > coreswithextrachain) - achain) *
-                      difftime(Sys.time(), MCtimestart) / achain )
-            print2user(
-                paste0(
-                    '\rSampling. Core ', acore, ' estimated end time: ',
-                    format(endTime, format='%Y-%m-%d %H:%M'),
-                    '   '
-                ),
-                outcon
-            )
 
             maxusedcomponents <- max(maxusedcomponents, usedcomponents)
             maxiterations <- max(maxiterations, nitertot)
@@ -2808,6 +2782,13 @@ learn <- function(
         cat('\nTotal time',
             printtimediff(difftime(Sys.time(), headertimestart, units = 'auto')),
             '\n')
+
+#### Inform user that this core has finished
+        ## ## timing text, for white spaces:
+        ## ## "Sampling. Core 2 estimated end time: xxxx-xx-xx xx:xx   "
+        print2user(paste0('\rCore ', acore,
+            ' finished.                                        \n'),
+            outcon)
 
         ## output information from a core,
         ## passed to the originally calling process
@@ -3022,7 +3003,7 @@ learn <- function(
             ## mar = c(NA, 6, NA, NA)
         )
         abline(v = seq(from = 1, to = nsamples, by = nsamplesperchain)[-1] - 0.5,
-            lty = 1, col = 2, lwd = 0.5)
+            lty = 2, col = 2, lwd = 1)
     }
 
     ## outcon <- file(file.path(dirname, 'log-1.log'), open = 'a')

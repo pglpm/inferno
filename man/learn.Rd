@@ -10,8 +10,8 @@ learn(
   auxdata = NULL,
   outputdir = NULL,
   nsamples = 3600,
-  nchains = 60,
-  nsamplesperchain = 60,
+  nchains = 4,
+  nsamplesperchain = 900,
   parallel = NULL,
   seed = NULL,
   cleanup = TRUE,
@@ -26,10 +26,10 @@ learn(
   maxhours = +Inf,
   ncheckpoints = 12,
   maxrelMCSE = +Inf,
-  minESS = NULL,
+  minESS = 400,
   initES = 2,
   thinning = NULL,
-  plottraces = TRUE,
+  plottraces = !cleanup,
   showKtraces = FALSE,
   showAlphatraces = FALSE,
   hyperparams = list(ncomponents = 64, minalpha = -4, maxalpha = 4, byalpha = 1, Rshapelo
@@ -49,7 +49,7 @@ learn(
 
 \item{nsamples}{Integer: number of desired Monte Carlo samples. Default 3600.}
 
-\item{nchains}{Integer: number of Monte Carlo chains. Default 60.}
+\item{nchains}{Integer: number of Monte Carlo chains. Default 4.}
 
 \item{nsamplesperchain}{Integer: number of Monte Carlo samples per chain.}
 
@@ -79,9 +79,9 @@ learn(
 
 \item{ncheckpoints}{Integer: number of datapoints to use for checking when the Monte Carlo computation should end. If \code{NULL}, this is equal to number of variates + 2. If Inf, use all datapoints. Default 12.}
 
-\item{maxrelMCSE}{Numeric positive: desired maximal \emph{relative Monte Carlo Standard Error} of calculated probabilities with respect to their variability with new data. \code{maxrelMCSE} is related to \code{minESS} by \code{maxrelMCSE = 1/sqrt(minESS + initES)}.}
+\item{maxrelMCSE}{Numeric positive: desired maximal \emph{relative Monte Carlo Standard Error} of calculated probabilities with respect to their variability with new data. Default \code{+Inf}, so that \code{minESS} is used instead. \code{maxrelMCSE} is related to \code{minESS} by \code{maxrelMCSE = 1/sqrt(minESS + initES)}.}
 
-\item{minESS}{Numeric positive: desired minimal Monte Carlo \emph{Expected Sample Size}.if \code{NULL} (default), it is equal to the final \code{nsamplesperchain}. \code{minESS} is related to \code{maxrelMCSE} by \code{minESS = 1/maxrelMCSE^2 - initES}.}
+\item{minESS}{Numeric positive: desired minimal Monte Carlo \emph{Expected Sample Size}. If \code{NULL}, it is equal to the final \code{nsamplesperchain}. Default 400. \code{minESS} is related to \code{maxrelMCSE} by \code{minESS = 1/maxrelMCSE^2 - initES}.}
 
 \item{initES}{Numeric positive: number of initial  \emph{Expected Samples} to discard.}
 
