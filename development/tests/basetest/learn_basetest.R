@@ -3,7 +3,7 @@ library('inferno')
 set.seed(16)
 parallel <- 1
 
-outputdir <- '__base_gmeanstop'
+outputdir <- '__testbase_traces'
 learntdir <- learn(
     data = 'data_basetest.csv',
     metadata = 'metadata_basetest.csv',

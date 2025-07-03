@@ -71,9 +71,9 @@ learn(
 
 \item{startupMCiterations}{Integer: number of initial Monte Carlo iterations. Default 3600.}
 
-\item{minMCiterations}{Integer: minimum number of Monte Carlo iterations to be done. Default 0.}
+\item{minMCiterations}{Integer: minimum number of Monte Carlo iterations to be doneby a chain. Default 0.}
 
-\item{maxMCiterations}{Integer: Do at most this many Monte Carlo iterations. Default \code{Inf}.}
+\item{maxMCiterations}{Integer: Do at most this many Monte Carlo iterations per chain. Default \code{Inf}.}
 
 \item{maxhours}{Numeric: approximate time limit, in hours, for the Monte Carlo computation to last. Default \code{Inf}.}
 

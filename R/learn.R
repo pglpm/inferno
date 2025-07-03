@@ -2251,8 +2251,8 @@ learn <- function(
                 paste0('#', rownames(testdata)), '\n')
 
             ## will contain the MC traces of the test points
-            traces <- matrix(NA, nrow = 0, ncol = 1 + nrow(testdata),
-                dimnames = list(NULL, c('gmean', rownames(testdata))))
+            traces <- matrix(NA_real_, nrow = 0, ncol = 1,
+                dimnames = list(NULL, 'gmean'))
 
 
             ## Initial values for this chain
@@ -2376,10 +2376,20 @@ learn <- function(
                     exp(rowMeans(log(ll), na.rm = TRUE)), # geometric mean
                     ll
                 )
+                colnames(ll) <- c('gmean', rownames(testdata))
 
-                traces <- rbind(traces, ll)
+                if(plottraces){
+                    saveRDS(ll,
+                        file = file.path(dirname,
+                            paste0('____tempPtraces-',
+                                padchainnumber, '-',
+                                subiter, '.rds'))
+                    )
+                }
 
-                toRemove <- which(!is.finite(traces[, 1]))
+                traces <- rbind(traces, ll[, 1, drop = FALSE])
+
+                toRemove <- which(!is.finite(traces))
                 if (length(toRemove) > 0) {
                     flagll <- TRUE
                     cleantraces <- traces[-unique(toRemove), , drop = FALSE]
@@ -2422,10 +2432,14 @@ learn <- function(
                 ## relmcse <- apply(cleantraces, 2, function(atrace){
                 ##     sqrt(mcmc::initseq(atrace)$var.con / N) / sd(atrace)
                 ## })
-                relmcse <- sqrt(mcmc::initseq(cleantraces[, 1])$var.con / N) /
-                    sd(cleantraces[, 1])
-                relmcse[relmcse > 1] <- 1
-                relmcse[relmcse < (1/N)^2] <- (1/N)^2
+                width <- sd(cleantraces)
+                ## width <- diff(quantile(cleantraces, c(0.055, 0.945),
+                ##     na.rm = FALSE, names = FALSE, type = 6))
+                relmcse <- sqrt(mcmc::initseq(cleantraces)$var.con / N) / width
+                ## relmcse <- sqrt(mcmc::initseq(cleantraces[, 1])$var.con / N) /
+                ##     sd(cleantraces[, 1])
+                ## relmcse[relmcse > 1] <- 1
+                ## relmcse[relmcse < (1/N)^2] <- (1/N)^2
                 ## relmcse <- funMCSE2(cleantraces) / apply(cleantraces, 2, sd)
                 ## relmcse2 <- (mcse + 1/N) / sds
 
@@ -2445,10 +2459,11 @@ learn <- function(
 
                 ## Output available diagnostics
                 toprint <- list(
-                    'rel. MC Standard Error' = relmcse,
-                    'Eff. Sample Size' = ess,
+                    'rel. MCSE' = relmcse,
+                    'ESS' = ess,
                     'needed thinning' = autothinning,
-                    'average' = colMeans(cleantraces)
+                    'average' = colMeans(cleantraces),
+                    'width' = width
                 )
 
 ####
@@ -2927,26 +2942,32 @@ learn <- function(
     ##     relerror = maxrelMCSE,
     ##     thinning = thinning)
     N <- nrow(cleantraces)
+    width <- apply(cleantraces, 2, sd)
+    ## width <- apply(cleantraces, 2, function(atrace){
+    ##     diff(quantile(atrace, c(0.055, 0.945),
+    ##         na.rm = FALSE, names = FALSE, type = 6))
+    ## })
     relmcse <- apply(cleantraces, 2, function(atrace){
-        sqrt(mcmc::initseq(atrace)$var.con / N) / sd(atrace)
-    })
+        sqrt(mcmc::initseq(atrace)$var.con / N)
+    }) / width
     ## relmcse <- funMCSE2(cleantraces) / apply(cleantraces, 2, sd)
     ## relmcse2 <- (mcse + 1/N) / sds
 
     ## ess <- funESS(cleantraces)
     ess <- (1 / relmcse)^2
-    ess[ess < 1] <- 1
-    ess[ess > N] <- N
+    ## ess[ess < 1] <- 1
+    ## ess[ess > N] <- N
 
     ## autothinning <- ceiling(1.5 * nrow(cleantraces)/ess)
     autothinning <- ceiling(N/ess)
 
     ## Output available diagnostics
     toprint <- list(
-        'rel. MC Standard Error' = relmcse,
-        'Eff. Sample Size' = ess,
+        'rel. MCSE' = relmcse,
+        'ESS' = ess,
         'needed thinning' = autothinning,
-        'average' = colMeans(cleantraces)
+        'average' = colMeans(cleantraces),
+        'width' = width
     )
 ####
 
