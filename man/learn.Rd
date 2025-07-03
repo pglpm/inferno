@@ -24,8 +24,8 @@ learn(
   minMCiterations = 0,
   maxMCiterations = +Inf,
   maxhours = +Inf,
-  ncheckpoints = NULL,
-  maxrelMCSE = 0.0627,
+  ncheckpoints = 12,
+  maxrelMCSE = +Inf,
   minESS = NULL,
   initES = 2,
   thinning = NULL,
@@ -69,7 +69,7 @@ learn(
 
 \item{prior}{Logical: Calculate the prior distribution?}
 
-\item{startupMCiterations}{Integer: number of initial (burn-in) Monte Carlo iterations. Default 3600.}
+\item{startupMCiterations}{Integer: number of initial Monte Carlo iterations. Default 3600.}
 
 \item{minMCiterations}{Integer: minimum number of Monte Carlo iterations to be done. Default 0.}
 
@@ -77,11 +77,11 @@ learn(
 
 \item{maxhours}{Numeric: approximate time limit, in hours, for the Monte Carlo computation to last. Default \code{Inf}.}
 
-\item{ncheckpoints}{Integer: number of datapoints to use for checking when the Monte Carlo computation should end. If \code{NULL} (default), this is equal to number of variates + 2. If Inf, use all datapoints.}
+\item{ncheckpoints}{Integer: number of datapoints to use for checking when the Monte Carlo computation should end. If \code{NULL}, this is equal to number of variates + 2. If Inf, use all datapoints. Default 12.}
 
-\item{maxrelMCSE}{Numeric positive: desired maximal \emph{relative Monte Carlo Standard Error} of calculated probabilities with respect to their variability with new data.}
+\item{maxrelMCSE}{Numeric positive: desired maximal \emph{relative Monte Carlo Standard Error} of calculated probabilities with respect to their variability with new data. \code{maxrelMCSE} is related to \code{minESS} by \code{maxrelMCSE = 1/sqrt(minESS + initES)}.}
 
-\item{minESS}{Numeric positive: desired minimal Monte Carlo \emph{Expected Sample Size}.}
+\item{minESS}{Numeric positive: desired minimal Monte Carlo \emph{Expected Sample Size}.if \code{NULL} (default), it is equal to the final \code{nsamplesperchain}. \code{minESS} is related to \code{maxrelMCSE} by \code{minESS = 1/maxrelMCSE^2 - initES}.}
 
 \item{initES}{Numeric positive: number of initial  \emph{Expected Samples} to discard.}
 

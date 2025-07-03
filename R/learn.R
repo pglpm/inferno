@@ -15,13 +15,13 @@
 #' @param output Character: if `'directory'`, return the output directory name as `VALUE`; if string `'learnt'`, return the `'learnt'` object containing the parameters obtained from the Monte Carlo computation. Any other value: `VALUE` is `NULL`.
 #' @param subsampledata Integer: use only a subset of this many datapoints for the Monte Carlo computation.
 #' @param prior Logical: Calculate the prior distribution?
-#' @param startupMCiterations Integer: number of initial (burn-in) Monte Carlo iterations. Default 3600.
+#' @param startupMCiterations Integer: number of initial Monte Carlo iterations. Default 3600.
 #' @param minMCiterations Integer: minimum number of Monte Carlo iterations to be done. Default 0.
 #' @param maxMCiterations Integer: Do at most this many Monte Carlo iterations. Default `Inf`.
 #' @param maxhours Numeric: approximate time limit, in hours, for the Monte Carlo computation to last. Default `Inf`.
-#' @param ncheckpoints Integer: number of datapoints to use for checking when the Monte Carlo computation should end. If `NULL` (default), this is equal to number of variates + 2. If Inf, use all datapoints.
-#' @param maxrelMCSE Numeric positive: desired maximal *relative Monte Carlo Standard Error* of calculated probabilities with respect to their variability with new data.
-#' @param minESS Numeric positive: desired minimal Monte Carlo *Expected Sample Size*.
+#' @param ncheckpoints Integer: number of datapoints to use for checking when the Monte Carlo computation should end. If `NULL`, this is equal to number of variates + 2. If Inf, use all datapoints. Default 12.
+#' @param maxrelMCSE Numeric positive: desired maximal *relative Monte Carlo Standard Error* of calculated probabilities with respect to their variability with new data. `maxrelMCSE` is related to `minESS` by `maxrelMCSE = 1/sqrt(minESS + initES)`.
+#' @param minESS Numeric positive: desired minimal Monte Carlo *Expected Sample Size*.if `NULL` (default), it is equal to the final `nsamplesperchain`. `minESS` is related to `maxrelMCSE` by `minESS = 1/maxrelMCSE^2 - initES`.
 #' @param initES Numeric positive: number of initial  *Expected Samples* to discard.
 #' @param thinning Integer: thin out the Monte Carlo samples by this value. If `NULL` (default): let the diagnostics decide the thinning value.
 #' @param plottraces Logical: save plots of the Monte Carlo traces of diagnostic values? Default `TRUE`.
@@ -54,8 +54,8 @@ learn <- function(
     minMCiterations = 0,
     maxMCiterations = +Inf,
     maxhours = +Inf,
-    ncheckpoints = NULL,
-    maxrelMCSE = 0.0627, ## Gong-Flegal: 0.038, Z=1000: 0.076, Z=400: 0.12
+    ncheckpoints = 12,
+    maxrelMCSE = +Inf, ## Gong-Flegal: 0.038, Z=1000: 0.076, Z=400: 0.12
     minESS = NULL, ## Gong-Flegal: 0.038, Z=1000: 0.076, Z=400: 0.12
     initES = 2,
     thinning = NULL,
@@ -2443,8 +2443,8 @@ learn <- function(
 
                 ## Output available diagnostics
                 toprint <- list(
-                    'rel. MC standard error' = relmcse,
-                    'eff. sample size' = ess,
+                    'rel. MC Standard Error' = relmcse,
+                    'Eff. Sample Size' = ess,
                     'needed thinning' = autothinning,
                     'average' = colMeans(cleantraces)
                 )
@@ -2962,8 +2962,8 @@ learn <- function(
 
     ## Output available diagnostics
     toprint <- list(
-        'rel. MC standard error' = relmcse,
-        'eff. sample size' = ess,
+        'rel. MC Standard Error' = relmcse,
+        'Eff. Sample Size' = ess,
         'needed thinning' = autothinning,
         'average' = colMeans(cleantraces)
     )
@@ -2975,9 +2975,9 @@ learn <- function(
         cat(paste0(i, ':'),
             if(length(thisdiagn) > 1){
                 paste0(
-                    'min: ', signif(min(thisdiagn), 2),
-                    '  max: ', signif(max(thisdiagn), 2),
-                    '  mean: ', signif(mean(thisdiagn), 2)
+                    'min: ', signif(min(thisdiagn[-1]), 2),
+                    '  max: ', signif(max(thisdiagn[-1]), 2),
+                    '  mean: ', signif(thisdiagn[1], 2)
                 )
                 ## paste(signif(range(thisdiagn), 3), collapse = ' to ')
             } else {
@@ -3021,6 +3021,8 @@ learn <- function(
             xlab = 'sample', family = family
             ## mar = c(NA, 6, NA, NA)
         )
+        abline(v = seq(from = 1, to = nsamples, by = nsamplesperchain)[-1] - 0.5,
+            lty = 1, col = 2, lwd = 0.5)
     }
 
     ## outcon <- file(file.path(dirname, 'log-1.log'), open = 'a')
