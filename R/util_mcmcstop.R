@@ -1,11 +1,14 @@
-#' Function for calculating MC standard error.
+#' Calculate MC standard error.
+#'
+#' Modified from
+#' from https://github.com/LaplacesDemonR/LaplacesDemon/blob/master/R/ESS.R
 #'
 #' @param x: a matrix, rows being MC samples and columns being quantities whose MCSE is to be estimated.
 #'
 #' @return Estimates of the MC standard error for each trace. Division by sqrt(N) is already performed.
 #'
 #' @keywords internal
-funMCSE <- function(x) {
+funMCSELD <- function(x) {
     x <- as.matrix(x)
     N <- nrow(x)
     b <- floor(sqrt(N))
@@ -19,7 +22,7 @@ funMCSE <- function(x) {
 }
 
 
-#' Function for calculating MC effective sample size.
+#' Calculate MC effective sample size.
 #'
 #' Modified from
 #' from https://github.com/LaplacesDemonR/LaplacesDemon/blob/master/R/ESS.R
@@ -29,7 +32,7 @@ funMCSE <- function(x) {
 #' @return Estimates of the effective sample size for each trace.
 #'
 #' @keywords internal
-funESS <- function(x){
+funESSLD <- function(x){
     x <- as.matrix(x)
     N <- nrow(x)
     M <- ncol(x)
@@ -56,32 +59,142 @@ funESS <- function(x){
     v0
 }
 
-#' Function for calculating MC standard error, from Geyer's mcmc package
+## #' Calculate MC standard error, from Geyer's mcmc package
+## #'
+## #' @param x: a matrix, rows being MC samples and columns being quantities whose MCSE is to be estimated.
+## #'
+## #' @return Estimates of the MC standard error for each trace. Division by sqrt(N) is already performed.
+## #'
+## #' @keywords internal
+## funMCSEGeyer <- function(x){
+##     x <- as.matrix(x)
+##     N <- nrow(x)
+##     apply(x, 2, function(atrace){
+##         sqrt(mcmc::initseq(atrace)$var.con / N)
+##     })
+## }
+
+## #' Function for calculating MC standard error, from Geyer's mcmc package
+## #'
+## #' @param x: a matrix, rows being MC samples and columns being quantities whose ESS is to be estimated.
+## #'
+## #' @return Estimates of ESS for each trace.
+## #'
+## #' @keywords internal
+## funESSGeyer <- function(x){
+##     x <- as.matrix(x)
+##     (apply(x, 2, sd) / funMCSE2(x))^2
+## }
+
+
+#' Find optimal FFT size
 #'
-#' @param x: a matrix, rows being MC samples and columns being quantities whose MCSE is to be estimated.
+#' From **rstan** <https://github.com/stan-dev/rstan/blob/develop/rstan/rstan/R/monitor.R>
 #'
-#' @return Estimates of the MC standard error for each trace. Division by sqrt(N) is already performed.
+#' @param N: integer.
+#'
+#' @return Optimal FFT size
 #'
 #' @keywords internal
-funMCSE2 <- function(x){
-    x <- as.matrix(x)
-    N <- nrow(x)
-    apply(x, 2, function(atrace){
-        sqrt(mcmc::initseq(atrace)$var.con / N)
-    })
+fftNGS <- function(N) {
+  # Find the optimal next size for the FFT so that
+  # a minimum number of zeros are padded.
+  if (N <= 2)
+    return(2)
+  while (TRUE) {
+    m <- N
+    while ((m %% 2) == 0) m <- m / 2
+    while ((m %% 3) == 0) m <- m / 3
+    while ((m %% 5) == 0) m <- m / 5
+    if (m <= 1)
+      return(N)
+    N <- N + 1
+  }
 }
 
-#' Function for calculating MC standard error, from Geyer's mcmc package
+#' Compute autocovariance
 #'
-#' @param x: a matrix, rows being MC samples and columns being quantities whose ESS is to be estimated.
+#' From **rstan** <https://github.com/stan-dev/rstan/blob/develop/rstan/rstan/R/monitor.R>
 #'
-#' @return Estimates of ESS for each trace.
+#' @param y: time series
+#'
+#' @return Autocovariances at different lags
 #'
 #' @keywords internal
-funESS2 <- function(x){
-    x <- as.matrix(x)
-    (apply(x, 2, sd) / funMCSE2(x))^2
+funAC <- function(y) {
+  N <- length(y)
+  Mt2 <- 2 * fftNGS(N)
+  yc <- y - mean(y)
+  yc <- c(yc, rep.int(0, Mt2 - N))
+  transform <- fft(yc)
+  ac <- fft(Conj(transform) * transform, inverse = TRUE)
+  # use "biased" estimate as recommended by Geyer (1992)
+  ac <- Re(ac)[1:N] / (N^2 * 2)
+  ac
 }
+
+
+#' Compute ESS
+#'
+#' From **rstan** <https://github.com/stan-dev/rstan/blob/develop/rstan/rstan/R/monitor.R>
+#'
+#' @param x: vector of Monte Carlo samples
+#'
+#' @return Effective Sample Size
+#'
+#' @keywords internal
+funESS3 <- function(x){
+  N <- length(x)
+  if (N < 3L || any(!is.finite(x))) {
+    return(NA_real_)
+  }
+  acov <- funAC(x)
+  chain_mean <- mean(x)
+  var_plus <- acov[1]
+  mean_var <- var_plus * N / (N - 1)
+  ##
+  ## Geyer's initial positive sequence
+  rho_hat_t <- rep.int(0, N)
+  t <- 0
+  rho_hat_even <- 1
+  rho_hat_t[t + 1] <- rho_hat_even
+  rho_hat_odd <- 1 - (mean_var - acov[t + 2]) / var_plus
+  rho_hat_t[t + 2] <- rho_hat_odd
+  while (t < length(acov) - 5 &&
+             !is.nan(rho_hat_even + rho_hat_odd) &&
+             (rho_hat_even + rho_hat_odd > 0)) {
+                 t <- t + 2
+                 rho_hat_even = 1 - (mean_var - acov[t + 1]) / var_plus
+                 rho_hat_odd = 1 - (mean_var - acov[t + 2]) / var_plus
+                 if ((rho_hat_even + rho_hat_odd) >= 0) {
+                     rho_hat_t[t + 1] <- rho_hat_even
+                     rho_hat_t[t + 2] <- rho_hat_odd
+                 }
+             }
+  max_t <- t
+  ## this is used in the improved estimate
+  if (rho_hat_even>0){rho_hat_t[max_t + 1] <- rho_hat_even}
+  ##
+  ## Geyer's initial monotone sequence
+  t <- 0
+  while (t <= max_t - 4) {
+    t <- t + 2
+    if (rho_hat_t[t + 1] + rho_hat_t[t + 2] > rho_hat_t[t - 1] + rho_hat_t[t]) {
+      rho_hat_t[t + 1] = (rho_hat_t[t - 1] + rho_hat_t[t]) / 2
+      rho_hat_t[t + 2] = rho_hat_t[t + 1]
+    }
+  }
+  ess <- N
+  # Geyer's truncated estimate
+  # tau_hat <- -1 + 2 * sum(rho_hat_t[1:max_t])
+  # Improved estimate reduces variance in antithetic case
+  tau_hat <- -1 + 2 * sum(rho_hat_t[1:max_t]) + rho_hat_t[max_t+1]
+  # Safety check for negative values and with max ess equal to ess*log10(ess)
+  tau_hat <- max(tau_hat, 1/log10(ess))
+  ess <- ess / tau_hat
+  ess
+}
+
 
 ## #### Function for calculating number of needed MCMC iterations
 ## #' @keywords internal

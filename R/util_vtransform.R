@@ -51,8 +51,13 @@ vtransform <- function(
 ) {
     useLquantiles <- TRUE
 
-    x <- as.data.frame(cbind(x))
-    if (!(missing(variates) || is.null(variates))) {
+    if(!is.data.frame(x)){
+        if(is.vector(x)){
+            dim(x) <- c(length(x), 1)
+        }
+        x <- as.data.frame(x)
+    }
+    if (!is.null(variates)) {
         colnames(x) <- variates
     }
     as.data.frame(lapply(colnames(x), function(v) {

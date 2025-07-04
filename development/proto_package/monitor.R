@@ -216,7 +216,7 @@ ess_rfun <- function(sims) {
   }
   chains <- ncol(sims)
   n_samples <- nrow(sims)
-  if (n_samples < 3L || should_return_NA(sims)) {
+  if (n_samples < 3L || any(!is.finite(sims))) {
     return(NA_real_)
   }
   acov <- lapply(seq_len(chains), function(i) autocovariance(sims[, i]))

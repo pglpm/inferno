@@ -2199,6 +2199,10 @@ learn <- function(
         ## Start timer
         MCtimestart <- Sys.time()
 
+        ## For calculating MC error intervals of quantiles
+        ## these mimick the with of a standard Gaussian
+        ebounds <- pnorm(c(-1, 1)) #  c(0.055, 0.945)
+
         maxusedcomponents <- 0
         maxiterations <- 0
         ## keep count of chains having non-finite outputs
@@ -2396,6 +2400,7 @@ learn <- function(
                 } else {
                     cleantraces <- traces
                 }
+                
                 ## ## version before geom.mean
                 ## toRemove <- which(!is.finite(traces), arr.ind = TRUE)
                 ## if (length(toRemove) > 0) {
@@ -2428,14 +2433,61 @@ learn <- function(
                 ##     thinning = thinning)
 
                 N <- nrow(cleantraces)
+
+                ## Empirical quantiles
+                sortct<- sort(cleantraces)
+                
+                Qlo <- quantile(cleantraces, 0.055,
+                    na.rm = FALSE, names = FALSE, type = 6)
+                ##
+                essQlo <- funESS3(cleantraces <= Qlo)
+                ##
+                temp <- qbeta(ebounds,
+                    essQlo * 0.055 + 1, essQlo * 0.945 + 1)
+                ##
+                wQlo <- diff(sortct[c(
+                    min(round(temp[2] * N), N),
+                    max(round(temp[1] * N), 1)
+                )]) / 2
+
+
+                Qhi <- quantile(cleantraces, 0.945,
+                    na.rm = FALSE, names = FALSE, type = 6)
+                ##
+                essQhi <- funESS3(cleantraces <= Qhi)
+                ##
+                temp <- qbeta(ebounds,
+                    essQhi * 0.055 + 1, essQhi * 0.945 + 1)
+                ##
+                wQhi <- diff(sortct[c(
+                    min(round(temp[2] * N), N),
+                    max(round(temp[1] * N), 1)
+                )]) / 2
+
+                ## width <- sd(cleantraces)
+                width <- Qhi - Qlo
+
+                ## Ilo <- funESS3(cleantraces <= Qlo)
+                ## Ihi <- funESS3(cleantraces <= Qhi)
+
+                ## Transform to normalized rank, as in Vehtari et al. 2021
+                essmean <- funESS3(cleantraces)
+                essdiag <- cbind(
+                    funESS3(qnorm(
+                    (rank(cleantraces, na.last = NA, ties.method = 'average') -
+                         0.5) / N
+                    )),
+                    funESS3(cleantraces <= Qlo),
+                    funESS3(cleantraces <= Qhi)
+                )
+
                 ## ## version before geom.mean
                 ## relmcse <- apply(cleantraces, 2, function(atrace){
                 ##     sqrt(mcmc::initseq(atrace)$var.con / N) / sd(atrace)
                 ## })
-                width <- sd(cleantraces)
                 ## width <- diff(quantile(cleantraces, c(0.055, 0.945),
                 ##     na.rm = FALSE, names = FALSE, type = 6))
-                relmcse <- sqrt(mcmc::initseq(cleantraces)$var.con / N) / width
+                ## relmcse <- sqrt(mcmc::initseq(cleantraces)$var.con / N) / width
                 ## relmcse <- sqrt(mcmc::initseq(cleantraces[, 1])$var.con / N) /
                 ##     sd(cleantraces[, 1])
                 ## relmcse[relmcse > 1] <- 1
@@ -2444,7 +2496,7 @@ learn <- function(
                 ## relmcse2 <- (mcse + 1/N) / sds
 
                 ## ess <- funESS(cleantraces)
-                ess <- (1 / relmcse)^2
+                ## ess <- (1 / relmcse)^2
                 ## ess[ess < 1] <- 1
                 ## ess[ess > N] <- N
 
