@@ -110,8 +110,8 @@ learn <- function(
         Dthreshold = 1,
         tscalefactor = 4.266,
         avoidzeroW = NULL,
-        initmethod = 'datacentre'
-        ## precluster, prior, allcentre
+        initmethod = 'datacentre',
+        Qerror = c(0.055, 0.945) # pnorm(c(-1, 1))
     )
 
     ## Allow user to specify hyperparameters only partially:
