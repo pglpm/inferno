@@ -2426,8 +2426,8 @@ learn <- function(
                 essQlo <- funESS3(oktraces <= Qlo)
                 ##
                 a <- qbeta(ebounds, essQlo * 0.055 + 1, essQlo * 0.945 + 1)
-                wQlo <- (straces[min(round(a[2] * N), N)] -
-                    straces[max(round(a[1] * N), 1)]) / 2
+                wQlo <- straces[min(round(a[2] * N), N)] -
+                    straces[max(round(a[1] * N), 1)]
 
                 ## upper quantile
                 Qhi <- quantile(oktraces, 0.945,
@@ -2436,8 +2436,8 @@ learn <- function(
                 essQhi <- funESS3(oktraces <= Qhi)
                 ##
                 a <- qbeta(ebounds, essQhi * 0.945 + 1, essQhi * 0.055 + 1)
-                wQhi <- (straces[min(round(a[2] * N), N)] -
-                    straces[max(round(a[1] * N), 1)]) / 2
+                wQhi <- straces[min(round(a[2] * N), N)] -
+                    straces[max(round(a[1] * N), 1)]
 
                 ## 89%-CI width
                 width <- Qhi - Qlo
@@ -2947,8 +2947,8 @@ learn <- function(
     essQlo <- funESS3(atrace <= Qlo)
     ##
     a <- qbeta(ebounds, essQlo * 0.055 + 1, essQlo * 0.945 + 1)
-    wQlo <- (straces[min(round(a[2] * N), N)] -
-        straces[max(round(a[1] * N), 1)] ) / 2
+    wQlo <- straces[min(round(a[2] * N), N)] -
+        straces[max(round(a[1] * N), 1)]
 
     ## upper quantile
     Qhi <- quantile(atrace, 0.945,
@@ -2957,8 +2957,8 @@ learn <- function(
     essQhi <- funESS3(atrace <= Qhi)
     ##
     a <- qbeta(ebounds, essQhi * 0.945 + 1, essQhi * 0.055 + 1)
-    wQhi <- (straces[min(round(a[2] * N), N)] -
-        straces[max(round(a[1] * N), 1)]) / 2
+    wQhi <- straces[min(round(a[2] * N), N)] -
+        straces[max(round(a[1] * N), 1)]
 
     ## 89%-CI width
     width <- Qhi - Qlo
