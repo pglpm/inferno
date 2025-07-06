@@ -81,7 +81,8 @@ learn <- function(
         Dthreshold = 1,
         tscalefactor = 4.266,
         avoidzeroW = NULL, # NULL: Turek's, TRUE: 1e-100 non-conj., FALSE: conj.
-        initmethod = 'datacentre'
+        initmethod = 'datacentre',
+        Qerror = c(0.055, 0.945) # pnorm(c(-1, 1))
     )
 ) {
 
@@ -875,11 +876,6 @@ learn <- function(
     cat('Core logs are being saved in individual files.\n')
     cat('\nC-compiling samplers appropriate to the variates (package Nimble)\n')
     cat('this can take tens of minutes. Please wait...\r')
-
-    ## For calculating MC error intervals of quantiles
-    ## these mimick the with of a standard Gaussian
-    ## ebounds <- c(0.055, 0.945)
-    ebounds <- pnorm(c(-1, 1)) # c(0.055, 0.945)
 
 
 #####################################################
@@ -2425,7 +2421,7 @@ learn <- function(
                 ##
                 essQlo <- funESS3(oktraces <= Qlo)
                 ##
-                a <- qbeta(ebounds, essQlo * 0.055 + 1, essQlo * 0.945 + 1)
+                a <- qbeta(Qerror, essQlo * 0.055 + 1, essQlo * 0.945 + 1)
                 wQlo <- straces[min(round(a[2] * N), N)] -
                     straces[max(round(a[1] * N), 1)]
 
@@ -2435,7 +2431,7 @@ learn <- function(
                 ##
                 essQhi <- funESS3(oktraces <= Qhi)
                 ##
-                a <- qbeta(ebounds, essQhi * 0.945 + 1, essQhi * 0.055 + 1)
+                a <- qbeta(Qerror, essQhi * 0.945 + 1, essQhi * 0.055 + 1)
                 wQhi <- straces[min(round(a[2] * N), N)] -
                     straces[max(round(a[1] * N), 1)]
 
@@ -2945,7 +2941,7 @@ learn <- function(
     ##
     essQlo <- funESS3(atrace <= Qlo)
     ##
-    a <- qbeta(ebounds, essQlo * 0.055 + 1, essQlo * 0.945 + 1)
+    a <- qbeta(Qerror, essQlo * 0.055 + 1, essQlo * 0.945 + 1)
     wQlo <- straces[min(round(a[2] * N), N)] -
         straces[max(round(a[1] * N), 1)]
 
@@ -2955,7 +2951,7 @@ learn <- function(
     ##
     essQhi <- funESS3(atrace <= Qhi)
     ##
-    a <- qbeta(ebounds, essQhi * 0.945 + 1, essQhi * 0.055 + 1)
+    a <- qbeta(Qerror, essQhi * 0.945 + 1, essQhi * 0.055 + 1)
     wQhi <- straces[min(round(a[2] * N), N)] -
         straces[max(round(a[1] * N), 1)]
 
