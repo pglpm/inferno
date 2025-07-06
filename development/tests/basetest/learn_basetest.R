@@ -1,15 +1,15 @@
 library('inferno')
 
 set.seed(16)
-parallel <- 1
+parallel <- 4
 
-outputdir <- '__testbase_traces'
+outputdir <- '__testbase'
 learntdir <- learn(
     data = 'data_basetest.csv',
     metadata = 'metadata_basetest.csv',
     nsamples = 3600,
-    nchains = 4,
-    minMCiterations = 3600 * 3,
+    nchains = parallel,
+    ## minMCiterations = 3600 * 3,
     prior = FALSE,
     outputdir = outputdir,
     appendtimestamp = TRUE,

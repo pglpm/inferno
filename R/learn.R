@@ -259,27 +259,10 @@ learn <- function(
     startupMCiterations <- max(2, startupMCiterations)
 
     ## maxrelMCSE and minESS
-    if(is.null(minESS)){
-        minESS <- nsamplesperchain
-    }
-    if(is.null(maxrelMCSE)){
-        ## maxrelMCSE = 1/sqrt(minESS+initES)
-        ## minESS = (1/maxrelMCSE)^2 - initES
-        ##
-        ## 0.05: corresponds to ESS+initES of 400
-        ## 0.0627: LaplacesDemon, ESS+initES of 254
-        ## 0.127: ESS+initES of 62
-        ## 0.1: ESS+initES of 100
-        ## 0.091: ESS+initES around 121
-        maxrelMCSE <- 0.0627
-    }
+    maxrelMCSE <- min(maxrelMCSE, 1 / sqrt(minESS + initES))
+    minESS <- (1 / maxrelMCSE)^2 - initES
 
-    ## maxrelMCSE <- min(maxrelMCSE,
-    ##     1 / sqrt(minESS + initES),
-    ##     1 / sqrt(nsamplesperchain))
-    minESS <- max(minESS, (1 / maxrelMCSE)^2 - initES)
-
-    if(!is.finite(minESS)){
+    if(all(!is.finite(c(maxrelMCSE, maxMCiterations)))) {
         stop('Impossible stopping rule')
     }
 
@@ -888,10 +871,16 @@ learn <- function(
         nsamplesperchain, 'samples per chain, max',
         minchainspercore + (coreswithextrachain > 0), 'chains per core.\n')
     cat('Requested:   ESS', round(minESS),
-        '  rel.MCSE', signif(1/sqrt(minESS+initES),3), '\n')
+        '  rel.MCSE', signif(maxrelMCSE, 3), '\n')
     cat('Core logs are being saved in individual files.\n')
     cat('\nC-compiling samplers appropriate to the variates (package Nimble)\n')
     cat('this can take tens of minutes. Please wait...\r')
+
+    ## For calculating MC error intervals of quantiles
+    ## these mimick the with of a standard Gaussian
+    ## ebounds <- c(0.055, 0.945)
+    ebounds <- pnorm(c(-1, 1)) # c(0.055, 0.945)
+
 
 #####################################################
 #### BEGINNING OF FOREACH LOOP OVER CORES
@@ -1134,7 +1123,7 @@ learn <- function(
                         colSums(lpnorm(t(constants$Dlatinit) - ameans), na.rm = TRUE)
                     })
                 }
-                ## if (vn$L > 0) { # 
+                ## if (vn$L > 0) { #
                 ##     Lmeans <- matrix(rnorm(
                 ##         n = vn$L * constants$ncomponents,
                 ##         mean = constants$Lmean1,
@@ -1397,7 +1386,7 @@ learn <- function(
                         colSums(lpnorm(t(constants$Dlatinit) - ameans), na.rm = TRUE)
                     })
                 }
-                ## if (vn$L > 0) { # 
+                ## if (vn$L > 0) { #
                 ##     Lmeans <- matrix(rnorm(
                 ##         n = vn$L * constants$ncomponents,
                 ##         mean = constants$Lmean1,
@@ -2199,10 +2188,6 @@ learn <- function(
         ## Start timer
         MCtimestart <- Sys.time()
 
-        ## For calculating MC error intervals of quantiles
-        ## these mimick the with of a standard Gaussian
-        ebounds <- pnorm(c(-1, 1)) #  c(0.055, 0.945)
-
         maxusedcomponents <- 0
         maxiterations <- 0
         ## keep count of chains having non-finite outputs
@@ -2396,18 +2381,18 @@ learn <- function(
                 toRemove <- which(!is.finite(traces))
                 if (length(toRemove) > 0) {
                     flagll <- TRUE
-                    cleantraces <- traces[-unique(toRemove), , drop = FALSE]
+                    oktraces <- traces[-unique(toRemove), , drop = FALSE]
                 } else {
-                    cleantraces <- traces
+                    oktraces <- traces
                 }
-                
+
                 ## ## version before geom.mean
                 ## toRemove <- which(!is.finite(traces), arr.ind = TRUE)
                 ## if (length(toRemove) > 0) {
                 ##     flagll <- TRUE
-                ##     cleantraces <- traces[-unique(toRemove[, 1]), , drop = FALSE]
+                ##     oktraces <- traces[-unique(toRemove[, 1]), , drop = FALSE]
                 ## } else {
-                ##     cleantraces <- traces
+                ##     oktraces <- traces
                 ## }
 
                 ## ## for debugging
@@ -2417,104 +2402,65 @@ learn <- function(
                 ##             dashnameroot, '--',
                 ##             padchainnumber,'-',subiter, '.rds')
                 ##     ))
-                ## saveRDS(cleantraces,
+                ## saveRDS(oktraces,
                 ##     file = file.path(dirname,
-                ##         paste0('___cleantraces',
+                ##         paste0('___oktraces',
                 ##             dashnameroot, '--',
                 ##             padchainnumber,'-',subiter, '.rds')
                 ##     ))
 
 
-#### MCSE, ESS, thinning
-                ## diagn <- mcmcstop(traces = cleantraces,
-                ##     nsamples = nsamplesperchain,
-                ##     availiter = availiter,
-                ##     relerror = maxrelMCSE,
-                ##     thinning = thinning)
+                ## ##############################
+                ## ## MCSE, ESS, THINNING, ETC ##
+                ## ##############################
 
-                N <- nrow(cleantraces)
+                N <- nrow(oktraces)
 
                 ## Empirical quantiles
-                sortct<- sort(cleantraces)
-                
-                Qlo <- quantile(cleantraces, 0.055,
+                straces <- sort(oktraces)
+
+                ## lower quantile
+                Qlo <- quantile(oktraces, 0.055,
                     na.rm = FALSE, names = FALSE, type = 6)
                 ##
-                essQlo <- funESS3(cleantraces <= Qlo)
+                essQlo <- funESS3(oktraces <= Qlo)
                 ##
-                temp <- qbeta(ebounds,
-                    essQlo * 0.055 + 1, essQlo * 0.945 + 1)
-                ##
-                wQlo <- diff(sortct[c(
-                    min(round(temp[2] * N), N),
-                    max(round(temp[1] * N), 1)
-                )]) / 2
+                a <- qbeta(ebounds, essQlo * 0.055 + 1, essQlo * 0.945 + 1)
+                wQlo <- (straces[min(round(a[2] * N), N)] -
+                    straces[max(round(a[1] * N), 1)]) / 2
 
-
-                Qhi <- quantile(cleantraces, 0.945,
+                ## upper quantile
+                Qhi <- quantile(oktraces, 0.945,
                     na.rm = FALSE, names = FALSE, type = 6)
                 ##
-                essQhi <- funESS3(cleantraces <= Qhi)
+                essQhi <- funESS3(oktraces <= Qhi)
                 ##
-                temp <- qbeta(ebounds,
-                    essQhi * 0.055 + 1, essQhi * 0.945 + 1)
-                ##
-                wQhi <- diff(sortct[c(
-                    min(round(temp[2] * N), N),
-                    max(round(temp[1] * N), 1)
-                )]) / 2
+                a <- qbeta(ebounds, essQhi * 0.945 + 1, essQhi * 0.055 + 1)
+                wQhi <- (straces[min(round(a[2] * N), N)] -
+                    straces[max(round(a[1] * N), 1)]) / 2
 
-                ## width <- sd(cleantraces)
+                ## 89%-CI width
                 width <- Qhi - Qlo
 
-                ## Ilo <- funESS3(cleantraces <= Qlo)
-                ## Ihi <- funESS3(cleantraces <= Qhi)
 
-                ## Transform to normalized rank, as in Vehtari et al. 2021
-                essmean <- funESS3(cleantraces)
-                essdiag <- cbind(
-                    funESS3(qnorm(
-                    (rank(cleantraces, na.last = NA, ties.method = 'average') -
+                ## Transform samples to normalized ranks, as in Vehtari et al. 2021
+                essnrmean <- funESS3(qnorm(
+                    (rank(oktraces, na.last = NA, ties.method = 'average') -
                          0.5) / N
-                    )),
-                    funESS3(cleantraces <= Qlo),
-                    funESS3(cleantraces <= Qhi)
-                )
+                ))
 
-                ## ## version before geom.mean
-                ## relmcse <- apply(cleantraces, 2, function(atrace){
-                ##     sqrt(mcmc::initseq(atrace)$var.con / N) / sd(atrace)
-                ## })
-                ## width <- diff(quantile(cleantraces, c(0.055, 0.945),
-                ##     na.rm = FALSE, names = FALSE, type = 6))
-                ## relmcse <- sqrt(mcmc::initseq(cleantraces)$var.con / N) / width
-                ## relmcse <- sqrt(mcmc::initseq(cleantraces[, 1])$var.con / N) /
-                ##     sd(cleantraces[, 1])
-                ## relmcse[relmcse > 1] <- 1
-                ## relmcse[relmcse < (1/N)^2] <- (1/N)^2
-                ## relmcse <- funMCSE2(cleantraces) / apply(cleantraces, 2, sd)
-                ## relmcse2 <- (mcse + 1/N) / sds
-
-                ## ess <- funESS(cleantraces)
-                ## ess <- (1 / relmcse)^2
-                ## ess[ess < 1] <- 1
-                ## ess[ess > N] <- N
-
-                ## autothinning <- ceiling(1.5 * nrow(cleantraces)/ess)
-                autothinning <- N / ess
-
-                ## if(is.null(thinning)) {
-                ##     chainthinning <- max(autothinning)
-                ## } else {
-                ##     chainthinning <- thinning
-                ## }
+                ## We check: relative error of quantiles and ess of norm-rank-mean
+                relmcse <- c(1 / sqrt(essnrmean), wQlo / width, wQhi / width)
+                print('***debug***')
+                print(relmcse)
+                autothinning <- N * max(relmcse)^2
 
                 ## Output available diagnostics
                 toprint <- list(
-                    'rel. MCSE' = relmcse,
-                    'ESS' = ess,
+                    'rel. CI error' = max(relmcse[-1]),
+                    'ESS' = essnrmean,
                     'needed thinning' = autothinning,
-                    'average' = colMeans(cleantraces),
+                    'average' = mean(oktraces),
                     'width' = width
                 )
 
@@ -2530,7 +2476,7 @@ learn <- function(
                     )
                 }
 
-                rm(cleantraces)
+                rm(oktraces)
 
                 cat('\nDiagnostics time',
                     printtimediff(difftime(Sys.time(), diagntime, units = 'auto')),
@@ -2569,16 +2515,13 @@ learn <- function(
                 ## ## CHECK IF CHAIN MUST BE CONTINUED ##
                 ## ######################################
 
-                relmcse <- max(relmcse)
-                autothinning <- max(autothinning)
-                ess <- min(ess)
-                ## neededsamples <- autothinning * (nsamplesperchain + 2L)
+                lowess <- (1 / max(relmcse))^2
+
                 neededsamples <- max(ceiling(autothinning * (minESS + initES)),
                     nsamplesperchain)
 
-                ## if(relmcse > minrelMCSE){
-                ##     }
-                if(ess < minESS + initES) {
+                ## if(relmcse > minrelMCSE)
+                if(lowess < minESS + initES) {
                     ## too small ESS
                     reqiter <- neededsamples - nitertot
                 } else {
@@ -2965,7 +2908,7 @@ learn <- function(
         paste0('___testdata_', 0, '.rds')))
     cat('\nChecking test data\n(', paste0('#', rownames(testdata)), ')\n')
 
-    cleantraces <- cbind(
+    oktraces <- cbind(
         util_Pcheckpoints(
             Y = testdata,
             learnt = mcsamples,
@@ -2973,94 +2916,112 @@ learn <- function(
         )
     )
 
-    cleantraces <- cbind(
-        exp(rowMeans(log(cleantraces), na.rm = TRUE)), # geometric mean
-        cleantraces
+    oktraces <- cbind(
+        exp(rowMeans(log(oktraces), na.rm = TRUE)), # geometric mean
+        oktraces
     )
 
-    cleantraces <- cleantraces[apply(cleantraces, 1, function(x) { all(is.finite(x)) }), ,
+    oktraces <- oktraces[apply(oktraces, 1, function(x) { all(is.finite(x)) }), ,
         drop = FALSE]
 
-    colnames(cleantraces) <- c('gmean', rownames(testdata))
+    colnames(oktraces) <- c('gmean', rownames(testdata))
 
-    saveRDS(cleantraces, file = file.path(dirname,
+    saveRDS(oktraces, file = file.path(dirname,
         paste0('MCtraces', dashnameroot, '.rds')
     ))
 
-#### MCSE, ESS, thinning
-    ## diagn <- mcmcstop(traces = cleantraces,
-    ##     nsamples = nsamples,
-    ##     availiter = 0,
-    ##     relerror = maxrelMCSE,
-    ##     thinning = thinning)
-    N <- nrow(cleantraces)
-    width <- apply(cleantraces, 2, sd)
-    ## width <- apply(cleantraces, 2, function(atrace){
-    ##     diff(quantile(atrace, c(0.055, 0.945),
-    ##         na.rm = FALSE, names = FALSE, type = 6))
-    ## })
-    relmcse <- apply(cleantraces, 2, function(atrace){
-        sqrt(mcmc::initseq(atrace)$var.con / N)
-    }) / width
-    ## relmcse <- funMCSE2(cleantraces) / apply(cleantraces, 2, sd)
-    ## relmcse2 <- (mcse + 1/N) / sds
+    ## ##############################
+    ## ## MCSE, ESS, THINNING, ETC ##
+    ## ##############################
 
-    ## ess <- funESS(cleantraces)
-    ess <- (1 / relmcse)^2
-    ## ess[ess < 1] <- 1
-    ## ess[ess > N] <- N
+    N <- nrow(oktraces)
 
-    ## autothinning <- ceiling(1.5 * nrow(cleantraces)/ess)
-    autothinning <- ceiling(N/ess)
+    jointdiagn <- apply(oktraces, 2, function(atrace) {
+    ## Empirical quantiles
+    straces <- sort(atrace)
+
+    ## lower quantile
+    Qlo <- quantile(atrace, 0.055,
+        na.rm = FALSE, names = FALSE, type = 6)
+    ##
+    essQlo <- funESS3(atrace <= Qlo)
+    ##
+    a <- qbeta(ebounds, essQlo * 0.055 + 1, essQlo * 0.945 + 1)
+    wQlo <- (straces[min(round(a[2] * N), N)] -
+        straces[max(round(a[1] * N), 1)] ) / 2
+
+    ## upper quantile
+    Qhi <- quantile(atrace, 0.945,
+        na.rm = FALSE, names = FALSE, type = 6)
+    ##
+    essQhi <- funESS3(atrace <= Qhi)
+    ##
+    a <- qbeta(ebounds, essQhi * 0.945 + 1, essQhi * 0.055 + 1)
+    wQhi <- (straces[min(round(a[2] * N), N)] -
+        straces[max(round(a[1] * N), 1)]) / 2
+
+    ## 89%-CI width
+    width <- Qhi - Qlo
+
+
+    ## Transform samples to normalized ranks, as in Vehtari et al. 2021
+    essnrmean <- funESS3(qnorm(
+    (rank(atrace, na.last = NA, ties.method = 'average') -
+         0.5) / N
+    ))
+
+    ## We check: relative error of quantiles and ess of norm-rank-mean
+    relmcse <- c(1 / sqrt(essnrmean), wQlo / width, wQhi / width)
+
+        autothinning <- N * max(relmcse)^2
+
+        c(max(relmcse[-1]), essnrmean, autothinning, width)
+    })
 
     ## Output available diagnostics
     toprint <- list(
-        'rel. MCSE' = relmcse,
-        'ESS' = ess,
-        'needed thinning' = autothinning,
-        'average' = colMeans(cleantraces),
-        'width' = width
+        'rel. CI error' = jointdiagn[1, ],
+        'ESS' = jointdiagn[2, ],
+        'needed thinning' = jointdiagn[3, ],
+        'average' = colMeans(oktraces),
+        'width' = jointdiagn[4, ]
     )
-####
 
+####
     cat('\n')
     for(i in names(toprint)) {
         thisdiagn <- toprint[[i]]
-        cat(paste0(i, ':'),
+        cat(paste0('\n', i, ':'),
             if(length(thisdiagn) > 1){
-                paste0(
-                    'min: ', signif(min(thisdiagn[-1]), 2),
-                    '  max: ', signif(max(thisdiagn[-1]), 2),
-                    '  mean: ', signif(thisdiagn[1], 2)
-                )
-                ## paste(signif(range(thisdiagn), 3), collapse = ' to ')
+                paste(signif(range(thisdiagn), 3), collapse = ' to ')
             } else {
                 signif(thisdiagn, 3)
-            },
-            '\n')
+            }
+        )
     }
+
 
     ## Plot various info and traces
     cat('\nPlotting final Monte Carlo traces and marginal samples...\n')
 
     ##
-    ## colpalette <- seq_len(ncol(cleantraces))
-    ## names(colpalette) <- colnames(cleantraces)
+    ## colpalette <- seq_len(ncol(oktraces))
+    ## names(colpalette) <- colnames(oktraces)
     graphics.off()
     pdf(file.path(dirname,
         paste0('MCtraces', dashnameroot, '.pdf')
     ), height = 8.27, width = 11.69)
     ## Traces of likelihood and cond. probabilities
-    for (avar in 1:ncol(cleantraces)) {
+    for (avar in 1:ncol(oktraces)) {
         ## Do not join separate chains in the plot
         division <- (if(N > nchains) nchains else 1)
         flexiplot(
-            y = 10*log10(cleantraces[is.finite(cleantraces[, avar]), avar]),
+            y = 10*log10(oktraces[is.finite(oktraces[, avar]), avar]),
             ## x = matrix(seq_len(nsamples), ncol = division),
-            ## y = matrix(10*log10(cleantraces[, avar]), ncol = division),
+            ## y = matrix(10*log10(oktraces[, avar]), ncol = division),
             type = 'l', lty = 1, col = 1,
             ## col = 1:6, # to evidence consecutive chains
-            main = paste0('#', colnames(cleantraces)[avar], ': ',
+            main = paste0('#', colnames(oktraces)[avar], ': ',
                 paste(
                     names(toprint),
                     sapply(toprint, function(xx){
@@ -3070,7 +3031,7 @@ learn <- function(
                 )),
             cex.main = 1.25,
             ylab = paste0('log_F(#',
-                colnames(cleantraces)[avar],
+                colnames(oktraces)[avar],
                 ')/dHart'),
             xlab = 'sample', family = family
             ## mar = c(NA, 6, NA, NA)
