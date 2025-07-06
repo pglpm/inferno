@@ -2451,8 +2451,7 @@ learn <- function(
 
                 ## We check: relative error of quantiles and ess of norm-rank-mean
                 relmcse <- c(1 / sqrt(essnrmean), wQlo / width, wQhi / width)
-                print('***debug***')
-                print(relmcse)
+
                 autothinning <- N * max(relmcse)^2
 
                 ## Output available diagnostics
