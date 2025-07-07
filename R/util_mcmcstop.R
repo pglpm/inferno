@@ -1,4 +1,26 @@
-#' Calculate MC standard error.
+#' Calculate quantile width through batches
+#'
+#' Modified from
+#' from https://github.com/LaplacesDemonR/LaplacesDemon/blob/master/R/ESS.R
+#'
+#' @param x: a matrix, rows being MC samples and columns being quantities whose MCSE is to be estimated.
+#'
+#' @return Estimates of the MC standard error for each trace. Division by sqrt(N) is already performed.
+#'
+#' @keywords internal
+funMCEI <- function(x, fn, p = c(0.055, 0.945), ...) {
+    N <- length(x)
+    a <- floor(sqrt(N))
+    b <- N %/% a
+    y <- x[rep(seq_len(a), each = b) +
+               round(seq(from = 0, to = N-a, length.out = b))]
+    dim(y) <- c(b, a)
+    quantile(apply(y, 2, FUN = fn, ...),
+        probs = p, na.rm = FALSE, names = FALSE, type = 6)
+}
+
+
+#' Calculate MC standard error using LaplacesDemon's batch means
 #'
 #' Modified from
 #' from https://github.com/LaplacesDemonR/LaplacesDemon/blob/master/R/ESS.R
@@ -22,7 +44,7 @@ funMCSELD <- function(x) {
 }
 
 
-#' Calculate MC effective sample size.
+#' Calculate MC effective sample size using LaplacesDemon's algorithm
 #'
 #' Modified from
 #' from https://github.com/LaplacesDemonR/LaplacesDemon/blob/master/R/ESS.R

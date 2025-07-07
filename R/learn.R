@@ -82,7 +82,8 @@ learn <- function(
         tscalefactor = 4.266,
         avoidzeroW = NULL, # NULL: Turek's, TRUE: 1e-100 non-conj., FALSE: conj.
         initmethod = 'datacentre',
-        Qerror = c(0.055, 0.945) # pnorm(c(-1, 1))
+        Qerror = pnorm(c(-1, 1))
+        ## Qerror = c(0.055, 0.945) # pnorm(c(-1, 1))
     )
 ) {
 
@@ -111,8 +112,11 @@ learn <- function(
         tscalefactor = 4.266,
         avoidzeroW = NULL,
         initmethod = 'datacentre',
-        Qerror = c(0.055, 0.945) # pnorm(c(-1, 1))
+        Qerror = pnorm(c(-1, 1))
+        ## Qerror = c(0.055, 0.945) # pnorm(c(-1, 1))
     )
+    Qlo <- 0.055
+    Qhi <- 0.954
 
     ## Allow user to specify hyperparameters only partially:
     ## missing ones are given default values above
@@ -2412,31 +2416,22 @@ learn <- function(
 
                 N <- nrow(oktraces)
 
-                ## Empirical quantiles
-                straces <- sort(oktraces)
-
                 ## lower quantile
-                Qlo <- quantile(oktraces, 0.055,
+                Xlo <- quantile(oktraces, Qlo,
                     na.rm = FALSE, names = FALSE, type = 6)
                 ##
-                essQlo <- funESS3(oktraces <= Qlo)
-                ##
-                a <- qbeta(Qerror, essQlo * 0.055 + 1, essQlo * 0.945 + 1)
-                wQlo <- straces[min(round(a[2] * N), N)] -
-                    straces[max(round(a[1] * N), 1)]
+                wXlo <- diff(funMCEI(oktraces, p = Qerror, fn = quantile,
+                    probs = Qlo, na.rm = FALSE, type = 6, names = FALSE))
 
                 ## upper quantile
-                Qhi <- quantile(oktraces, 0.945,
+                Xhi <- quantile(oktraces, Qhi,
                     na.rm = FALSE, names = FALSE, type = 6)
                 ##
-                essQhi <- funESS3(oktraces <= Qhi)
-                ##
-                a <- qbeta(Qerror, essQhi * 0.945 + 1, essQhi * 0.055 + 1)
-                wQhi <- straces[min(round(a[2] * N), N)] -
-                    straces[max(round(a[1] * N), 1)]
+                wXhi <- diff(funMCEI(oktraces, p = Qerror, fn = quantile,
+                    probs = Qhi, na.rm = FALSE, type = 6, names = FALSE))
 
                 ## 89%-CI width
-                width <- Qhi - Qlo
+                width <- Xhi - Xlo
 
 
                 ## Transform samples to normalized ranks, as in Vehtari et al. 2021
@@ -2446,7 +2441,7 @@ learn <- function(
                 ))
 
                 ## We check: relative error of quantiles and ess of norm-rank-mean
-                relmcse <- c(1 / sqrt(essnrmean), wQlo / width, wQhi / width)
+                relmcse <- c(1 / sqrt(essnrmean), wXlo / width, wXhi / width)
 
                 autothinning <- N * max(relmcse)^2
 
@@ -2932,43 +2927,36 @@ learn <- function(
     N <- nrow(oktraces)
 
     jointdiagn <- apply(oktraces, 2, function(atrace) {
-    ## Empirical quantiles
-    straces <- sort(atrace)
+### same as within cores
+        ## lower quantile
+        Xlo <- quantile(atrace, Qlo,
+            na.rm = FALSE, names = FALSE, type = 6)
+        ##
+        wXlo <- diff(funMCEI(atrace, p = Qerror, fn = quantile,
+            probs = Qlo, na.rm = FALSE, type = 6, names = FALSE))
 
-    ## lower quantile
-    Qlo <- quantile(atrace, 0.055,
-        na.rm = FALSE, names = FALSE, type = 6)
-    ##
-    essQlo <- funESS3(atrace <= Qlo)
-    ##
-    a <- qbeta(Qerror, essQlo * 0.055 + 1, essQlo * 0.945 + 1)
-    wQlo <- straces[min(round(a[2] * N), N)] -
-        straces[max(round(a[1] * N), 1)]
+        ## upper quantile
+        Xhi <- quantile(atrace, Qhi,
+            na.rm = FALSE, names = FALSE, type = 6)
+        ##
+        wXhi <- diff(funMCEI(atrace, p = Qerror, fn = quantile,
+            probs = Qhi, na.rm = FALSE, type = 6, names = FALSE))
 
-    ## upper quantile
-    Qhi <- quantile(atrace, 0.945,
-        na.rm = FALSE, names = FALSE, type = 6)
-    ##
-    essQhi <- funESS3(atrace <= Qhi)
-    ##
-    a <- qbeta(Qerror, essQhi * 0.945 + 1, essQhi * 0.055 + 1)
-    wQhi <- straces[min(round(a[2] * N), N)] -
-        straces[max(round(a[1] * N), 1)]
-
-    ## 89%-CI width
-    width <- Qhi - Qlo
+        ## 89%-CI width
+        width <- Xhi - Xlo
 
 
-    ## Transform samples to normalized ranks, as in Vehtari et al. 2021
-    essnrmean <- funESS3(qnorm(
-    (rank(atrace, na.last = NA, ties.method = 'average') -
-         0.5) / N
-    ))
+        ## Transform samples to normalized ranks, as in Vehtari et al. 2021
+        essnrmean <- funESS3(qnorm(
+        (rank(atrace, na.last = NA, ties.method = 'average') -
+             0.5) / N
+        ))
 
-    ## We check: relative error of quantiles and ess of norm-rank-mean
-    relmcse <- c(1 / sqrt(essnrmean), wQlo / width, wQhi / width)
+        ## We check: relative error of quantiles and ess of norm-rank-mean
+        relmcse <- c(1 / sqrt(essnrmean), wXlo / width, wXhi / width)
 
         autothinning <- N * max(relmcse)^2
+### same as within cores
 
         c(max(relmcse[-1]), essnrmean, autothinning, width)
     })
