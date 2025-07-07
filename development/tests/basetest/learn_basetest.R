@@ -3,7 +3,7 @@ library('inferno')
 set.seed(16)
 parallel <- 4
 
-outputdir <- '__testbase'
+outputdir <- '__testbase_ess100'
 learntdir <- learn(
     data = 'data_basetest.csv',
     metadata = 'metadata_basetest.csv',
@@ -18,7 +18,7 @@ learntdir <- learn(
     output = 'directory',
     parallel = parallel,
     ## maxrelMCSE = +Inf,
-    ## minESS = 400,
+    minESS = 100,
     ## ncheckpoints = 12,
     ##
     ## ## parameters for short test run:

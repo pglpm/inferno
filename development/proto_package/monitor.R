@@ -433,16 +433,16 @@ conv_quantile <- function(sims, prob) {
     dim(sims) <- c(length(sims), 1)
   }
   ess <- ess_quantile(sims, prob)
-  p <- c(0.1586553, 0.8413447, 0.05, 0.95)
+  p <- c(0.1586553, 0.8413447, 0.055, 0.945)
   a <- qbeta(p, ess * prob + 1, ess * (1 - prob) + 1)
   ssims <- sort(sims)
   S <- length(ssims)
   th1 <- ssims[max(round(a[1] * S), 1)]
   th2 <- ssims[min(round(a[2] * S), S)]
   mcse <- (th2 - th1) / 2
-  th1 <- ssims[max(round(a[3] * S), 1)]
-  th2 <- ssims[min(round(a[4] * S), S)]
-  data.frame(mcse = mcse, Q05 = th1, Q95 = th2, ess = ess)
+  th1b <- ssims[max(round(a[3] * S), 1)]
+  th2b <- ssims[min(round(a[4] * S), S)]
+  data.frame(mcse = mcse, QN1 = th1, QN2 = th2, Q05 = th1b, Q95 = th2b, ess = ess)
 }
 
 #' Monte Carlo standard error for a quantile

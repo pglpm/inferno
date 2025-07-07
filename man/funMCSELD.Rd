@@ -2,7 +2,7 @@
 % Please edit documentation in R/util_mcmcstop.R
 \name{funMCSELD}
 \alias{funMCSELD}
-\title{Calculate MC standard error.}
+\title{Calculate MC standard error using LaplacesDemon's batch means}
 \usage{
 funMCSELD(x)
 }
