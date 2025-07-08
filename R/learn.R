@@ -40,8 +40,8 @@ learn <- function(
     auxdata = NULL,
     outputdir = NULL,
     nsamples = 3600,
-    nchains = 4,
-    nsamplesperchain = 900,
+    nchains = 8,
+    nsamplesperchain = 450,
     parallel = NULL,
     seed = NULL,
     cleanup = TRUE,
@@ -56,7 +56,7 @@ learn <- function(
     maxhours = +Inf,
     ncheckpoints = 12,
     maxrelMCSE = +Inf, ## Gong-Flegal: 0.038, Z=1000: 0.076, Z=400: 0.12
-    minESS = 400, ## Gong-Flegal: 0.038, Z=1000: 0.076, Z=400: 0.12
+    minESS = 450, ## Gong-Flegal: 0.038, Z=1000: 0.076, Z=400: 0.12
     initES = 2,
     thinning = NULL,
     plottraces = !cleanup,
@@ -82,7 +82,8 @@ learn <- function(
         tscalefactor = 4.266,
         avoidzeroW = NULL, # NULL: Turek's, TRUE: 1e-100 non-conj., FALSE: conj.
         initmethod = 'datacentre',
-        Qerror = c(0.055, 0.945) # pnorm(c(-1, 1))
+        Qerror = pnorm(c(-1, 1))
+        ## Qerror = c(0.055, 0.945) # pnorm(c(-1, 1))
     )
 ) {
 
@@ -111,7 +112,8 @@ learn <- function(
         tscalefactor = 4.266,
         avoidzeroW = NULL,
         initmethod = 'datacentre',
-        Qerror = c(0.055, 0.945) # pnorm(c(-1, 1))
+        Qerror = pnorm(c(-1, 1))
+        ## Qerror = c(0.055, 0.945) # pnorm(c(-1, 1))
     )
     Qlo <- 0.055
     Qhi <- 0.954
@@ -2414,32 +2416,18 @@ learn <- function(
 
                 N <- nrow(oktraces)
 
-                ## Empirical quantiles
-                straces <- sort(oktraces)
-
-                ## lower quantile
+                ## quantiles to monitor
                 Xlo <- quantile(oktraces, Qlo,
                     na.rm = FALSE, names = FALSE, type = 6)
-                ##
-                essXlo <- funESS3(oktraces <= Xlo)
-                ##
-                a <- qbeta(Qerror, essXlo * Qlo + 1, essXlo * Qhi + 1)
-                wXlo <- straces[min(round(a[2] * N), N)] -
-                    straces[max(round(a[1] * N), 1)]
-
-                ## upper quantile
                 Xhi <- quantile(oktraces, Qhi,
                     na.rm = FALSE, names = FALSE, type = 6)
-                ##
-                essXhi <- funESS3(oktraces <= Xhi)
-                ##
-                a <- qbeta(Qerror, essXhi * Qhi + 1, essXhi * Qlo + 1)
-                wXhi <- straces[min(round(a[2] * N), N)] -
-                    straces[max(round(a[1] * N), 1)]
-
-                ## 89%-CI width
+                ## quantile width
                 width <- Xhi - Xlo
 
+                ## CIs for lower and upper quantiles
+                temp <- funMCEQ(oktraces, prob = c(Qlo, Qhi), Qpair = Qerror)
+                wXlo <- temp[2, 1] - temp[1, 1]
+                wXhi <- temp[2, 2] - temp[1, 2]
 
                 ## Transform samples to normalized ranks, as in Vehtari et al. 2021
                 essnrmean <- funESS3(qnorm(
@@ -2936,31 +2924,18 @@ learn <- function(
     jointdiagn <- apply(oktraces, 2, function(atrace) {
 ### same as within cores
 
-        ## Empirical quantiles
-        straces <- sort(atrace)
-
-        ## lower quantile
+        ## quantiles to monitor
         Xlo <- quantile(atrace, Qlo,
             na.rm = FALSE, names = FALSE, type = 6)
-        ##
-        essXlo <- funESS3(atrace <= Xlo)
-        ##
-        a <- qbeta(Qerror, essXlo * Qlo + 1, essXlo * Qhi + 1)
-        wXlo <- straces[min(round(a[2] * N), N)] -
-            straces[max(round(a[1] * N), 1)]
-
-        ## upper quantile
         Xhi <- quantile(atrace, Qhi,
             na.rm = FALSE, names = FALSE, type = 6)
-        ##
-        essXhi <- funESS3(atrace <= Xhi)
-        ##
-        a <- qbeta(Qerror, essXhi * Qhi + 1, essXhi * Qlo + 1)
-        wXhi <- straces[min(round(a[2] * N), N)] -
-            straces[max(round(a[1] * N), 1)]
-
-        ## 89%-CI width
+        ## quantile width
         width <- Xhi - Xlo
+
+        ## CIs for lower and upper quantiles
+        temp <- funMCEQ(atrace, prob = c(Qlo, Qhi), Qpair = Qerror)
+        wXlo <- temp[2, 1] - temp[1, 1]
+        wXhi <- temp[2, 2] - temp[1, 2]
 
         ## Transform samples to normalized ranks, as in Vehtari et al. 2021
         essnrmean <- funESS3(qnorm(

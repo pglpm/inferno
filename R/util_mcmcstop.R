@@ -1,12 +1,12 @@
-#' Notes on the MCSE and ESS functions below
-#'
-#' `funMCSELD()` gives a good approximation of the "true" standard deviation in the case of independent samples. Multiply by `qnorm(x)` to obtain the `x`-quantile.
-#'
-#' `sd() / sqrt(funESS3()` gives essentially identical results to `funMCSELD()`, but it's 20 times slower.
-#'
-#' `funMCEQ()` gives a very good approximation of the "true" credibility quantiles in the case of independent samples.
-#'
-#' All above tested on t-distributions with df=1.1 and Pareto with a=1.5 (mean exists, variance infinite).
+## #' Notes on the MCSE and ESS functions below
+## #'
+## #' `funMCSELD()` gives a good approximation of the "true" standard deviation in the case of independent samples. Multiply by `qnorm(x)` to obtain the `x`-quantile.
+## #'
+## #' `sd() / sqrt(funESS3()` gives essentially identical results to `funMCSELD()`, but it's 20 times slower.
+## #'
+## #' `funMCEQ()` gives a very good approximation of the "true" credibility quantiles in the case of independent samples.
+## #'
+## #' All above tested on t-distributions with df=1.1 and Pareto with a=1.5 (mean exists, variance infinite).
 
 
 #' Calculate quantile width through batches
@@ -44,13 +44,26 @@ funMCEI <- function(x, fn, p = c(0.055, 0.945), ...) {
 funMCEQ <- function(x, prob, Qpair){
     N <- length(x)
     straces <- sort(x)
-    Xlo <- quantile(x, prob, na.rm = FALSE, names = FALSE, type = 6)
-    ##
-    essXlo <- funESS3(x <= Xlo)
-    ##
-    a <- qbeta(Qpair, essXlo * prob + 1, essXlo * (1 - prob) + 1)
-    c(straces[max(round(a[1] * N), 1)], straces[min(round(a[2] * N), N)])
+    sapply(prob, function(aprob) {
+        Xlo <- quantile(x, aprob, na.rm = FALSE, names = FALSE, type = 6)
+        ##
+        essXlo <- funESS3(x <= Xlo)
+        ##
+        a <- qbeta(Qpair, essXlo * aprob + 1, essXlo * (1 - aprob) + 1)
+        c(straces[max(round(a[1] * N), 1)], straces[min(round(a[2] * N), N)])
+    })
 }
+## funMCEQ0 <- function(x, prob, Qpair){
+##     N <- length(x)
+##     straces <- sort(x)
+##         Xlo <- quantile(x, prob, na.rm = FALSE, names = FALSE, type = 6)
+##         ##
+##         essXlo <- funESS3(x <= Xlo)
+##         ##
+##         a <- qbeta(Qpair, essXlo * prob + 1, essXlo * (1 - prob) + 1)
+##         c(straces[max(round(a[1] * N), 1)], straces[min(round(a[2] * N), N)])
+## }
+
 
 #' Calculate MC standard error using LaplacesDemon's batch means
 #'

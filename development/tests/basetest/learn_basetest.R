@@ -1,7 +1,7 @@
 library('inferno')
 
 set.seed(16)
-parallel <- 4
+parallel <- 2
 
 outputdir <- '__testbase_ess100'
 learntdir <- learn(
@@ -17,7 +17,7 @@ learntdir <- learn(
     cleanup = FALSE,
     output = 'directory',
     parallel = parallel,
-    ## maxrelMCSE = +Inf,
+    maxrelMCSE = +Inf,
     minESS = 100,
     ## ncheckpoints = 12,
     ##
