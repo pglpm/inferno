@@ -1053,66 +1053,69 @@ longer time on your computer:</p>
 <span>    parallel <span class="op">=</span> <span class="fl">4</span> <span class="co">## how many cores to use for the computation</span></span>
 <span><span class="op">)</span></span>
 <span><span class="co"># Registered doParallelSNOW with 4 workers</span></span>
+<span><span class="co"># </span></span>
 <span><span class="co"># Calculating auxiliary metadata</span></span>
 <span><span class="co"># </span></span>
 <span><span class="co"># Learning:  10 datapoints,  8 variates</span></span>
 <span><span class="co"># </span></span>
-<span><span class="co">#  *************************************************** </span></span>
+<span><span class="co">#  ************************************************** </span></span>
 <span><span class="co">#  Saving output in directory</span></span>
-<span><span class="co">#  penguin_inference-261031T122336-vrt8_dat10_smp3600 </span></span>
-<span><span class="co">#  *************************************************** </span></span>
-<span><span class="co"># Starting Monte Carlo sampling of 3600 samples by 60 chains</span></span>
-<span><span class="co"># in a space of 1027 (effectively 3851) dimensions.</span></span>
-<span><span class="co"># Using 4 cores: 60 samples per chain, max 15 chains per core.</span></span>
+<span><span class="co">#  penguin_inference-261231T135959-vrt8_dat10_smp3600 </span></span>
+<span><span class="co">#  ************************************************** </span></span>
+<span><span class="co"># Starting Monte Carlo sampling of 3600 samples by 4 chains</span></span>
+<span><span class="co"># in a space of 1023 (effectively 3856) dimensions.</span></span>
+<span><span class="co"># Using 4 cores: 900 samples per chain, max 1 chains per core.</span></span>
+<span><span class="co"># Requested:   ESS 450   rel.MCSE 0.047 </span></span>
 <span><span class="co"># Core logs are being saved in individual files.</span></span>
 <span><span class="co"># </span></span>
 <span><span class="co"># C-compiling samplers appropriate to the variates (package Nimble)</span></span>
-<span><span class="co"># this can take tens of minutes. Please wait...</span></span>
-<span><span class="co"># Compiled core 1. Number of samplers: 1078.       </span></span>
-<span><span class="co"># Estimating remaining time, please be patient...</span></span>
-<span><span class="co"># Sampling. Core 4 estimated end time: 2026-10-31 12:31</span></span>
+<span><span class="co"># Compiled core 1. Number of samplers: 1078.             </span></span>
+<span><span class="co"># Core 3 finished.                                        </span></span>
+<span><span class="co"># Core 2 finished.                                        </span></span>
+<span><span class="co"># Core 1 finished.                                        </span></span>
+<span><span class="co"># Core 4 finished.                                        </span></span>
 <span><span class="co"># Finished Monte Carlo sampling.                                 </span></span>
-<span><span class="co"># Highest number of Monte Carlo iterations across chains: 3600 </span></span>
-<span><span class="co"># Highest number of used mixture components: 10 </span></span>
+<span><span class="co"># Highest number of Monte Carlo iterations across chains: 104400 </span></span>
+<span><span class="co"># Highest number of used mixture components: 5 </span></span>
 <span><span class="co"># </span></span>
 <span><span class="co"># Checking test data</span></span>
-<span><span class="co"># ( #1 #3 #4 #5 #6 #7 #8 #9 #10 )</span></span>
+<span><span class="co"># ( #1 #2 #3 #4 #5 #6 #7 #8 #9 #10 )</span></span>
 <span><span class="co"># </span></span>
-<span><span class="co"># rel. MC standard error: min: 0.017  max: 0.048  mean: 0.025 </span></span>
-<span><span class="co"># eff. sample size: min: 430  max: 3500  mean: 2200 </span></span>
-<span><span class="co"># needed thinning: min: 2  max: 13  mean: 4.1 </span></span>
-<span><span class="co"># average: min: 1.6e-08  max: 0.12  mean: 0.014 </span></span>
 <span><span class="co"># </span></span>
+<span><span class="co"># rel. CI error: 0.0339 to 0.271</span></span>
+<span><span class="co"># ESS: 2770 to 3650</span></span>
+<span><span class="co"># needed thinning: 4.11 to 262</span></span>
+<span><span class="co"># average: 2.15e-08 to 0.183</span></span>
+<span><span class="co"># width: 4.96e-08 to 0.329</span></span>
 <span><span class="co"># Plotting final Monte Carlo traces and marginal samples...</span></span>
 <span><span class="co"># </span></span>
-<span><span class="co"># Total computation time: 4.7 mins </span></span>
-<span><span class="co"># Average preparation &amp; finalization time: 1 mins </span></span>
-<span><span class="co"># Average Monte Carlo time per chain: 13 secs </span></span>
-<span><span class="co"># Max total memory used: approx 3500 MB</span></span>
-<span><span class="co"># Max memory used per core: approx 860 MB</span></span>
-<span><span class="co">#</span></span>
-<span><span class="co"># Removing temporary output files.</span></span>
+<span><span class="co"># Total computation time: 7.4 mins </span></span>
+<span><span class="co"># Average preparation &amp; finalization time: 1.1 mins </span></span>
+<span><span class="co"># Average Monte Carlo time per chain: 5.9 mins </span></span>
+<span><span class="co"># Max total memory used: approx 3200 MB</span></span>
+<span><span class="co"># Max memory used per core: approx 790 MB</span></span>
 <span><span class="co"># Finished.</span></span>
 <span><span class="co"># </span></span>
 <span><span class="co"># Closing connections to cores.</span></span></code></pre></div>
 <p>The initial output gives a summary of the sample size, number of
-variates, saving directory, and other computational details. The
-“<code>estimated end time</code>” line is updated from time to time with
-a better estimate of the computation’s end time. Once the computation is
-finished, some final information about the underlying Monte Carlo
-computation and time and memory use is provided.<a class="footnote-ref" tabindex="0" data-bs-toggle="popover" data-bs-content="&lt;p&gt;The Monte Carlo expert will notice that the effective
+variates, saving directory, and other computational details. An
+“<code>estimated end time</code>” line (not appearing in the output
+above) is updated from time to time with a better estimate of the
+computation’s end time. Once the computation is finished, some final
+information about the underlying Monte Carlo computation and time and
+memory use is provided.<a class="footnote-ref" tabindex="0" data-bs-toggle="popover" data-bs-content="&lt;p&gt;The Monte Carlo expert will notice that the effective
 sample size is around 900 or more. The Monte Carlo sampling is designed
 to stop when 3600 samples have been obtained with an effective sample
-size of at least 400, or equivalently a relative Monte Carlo standard
+size of at least 450, or equivalently a relative Monte Carlo standard
 error under 0.05. This is enough, considering that the statistical
 uncertainty in the results can be tens or hundreds of times larger than
 this. The desired number of samples and maximal Monte Carlo standard
 error can be specified with the &lt;code&gt;nsamples&lt;/code&gt; and
-&lt;code&gt;relerror&lt;/code&gt; arguments.&lt;/p&gt;"><sup>2</sup></a> Note that the
-inference above, with 10 sample data and 8 variates, took around 4 GB
-and 5 minutes to complete on 4 cores.</p>
+&lt;code&gt;maxrelMCSE&lt;/code&gt; arguments.&lt;/p&gt;"><sup>2</sup></a> Note that the inference above, with
+10 sample data and 8 variates, took around 3 GB and 7 minutes to
+complete on 4 cores.</p>
 <p>The results of this main inference are now stored in the compressed
-file <code>'learnt.rds'</code> (around 30 MB) within the specified
+file <code>'learnt.rds'</code> (around 32 MB) within the specified
 output directory. The name of this directory is also saved as the final
 value of the <code><a href="../reference/learn.html">learn()</a></code> function. We saved this directory name
 in the <code>learnt10</code> variable in the code above, by invoking
@@ -1137,8 +1140,8 @@ this case) which can be used in the following analysis.</p>
 <p>Consider our first research question <strong>Q1</strong>: what’s the
 overall statistical occurrence of the three species in the whole
 population? The relative frequencies of the three species in the whole
-population are unknown to us, so we cannot give a simple answer such as
-“Adélie: 0.10, Chinstrap: 0.34, Gentoo: 0.56”.</p>
+population are unknown to us, so we cannot give a simple answer such as,
+hypothetically, “Adélie: 0.10, Chinstrap: 0.34, Gentoo: 0.56”.</p>
 <p>Bayesian nonparametrics and <strong><em>inferno</em></strong> give a
 first answer to this question in the form of:</p>
 <ul>
@@ -1202,9 +1205,9 @@ plot above. The present visualization is more advantageous when we want
 to compare several frequency distributions, as we’ll do later.)</p>
 <p>The three estimated frequencies are:</p>
 <ul>
-<li>Adélie: 0.32</li>
-<li>Chinstrap: 0.30</li>
-<li>Gentoo: 0.38</li>
+<li>Adélie: 0.30</li>
+<li>Chinstrap: 0.31</li>
+<li>Gentoo: 0.40</li>
 </ul>
 <p>and can be read from the <code>values</code> element of the
 <code>Fspecies10</code> object:</p>
@@ -1212,19 +1215,19 @@ to compare several frequency distributions, as we’ll do later.)</p>
 <code class="sourceCode R"><span><span class="va">Fspecies10</span><span class="op">$</span><span class="va">values</span></span>
 <span><span class="co">#            X</span></span>
 <span><span class="co"># Y               [,1]</span></span>
-<span><span class="co">#   Adelie    0.319061</span></span>
-<span><span class="co">#   Chinstrap 0.303017</span></span>
-<span><span class="co">#   Gentoo    0.377922</span></span></code></pre></div>
+<span><span class="co">#   Adelie    0.297586</span></span>
+<span><span class="co">#   Chinstrap 0.305186</span></span>
+<span><span class="co">#   Gentoo    0.397228</span></span></code></pre></div>
 <p>These frequency estimates have also another important meaning: they
-are the <em>probabilities for the species of the next penguin we’ll
-observe</em>. More generally, they are the probabilities for the next
-observation. In the present context they are maybe not so relevant –
-unless you’re placing bets on which data will arrive next with your
-colleagues – but in other inference contexts they may be very important.
-In a clinical setting, for example, where we try to infer some condition
-about the next patient, these probabilities are used for clinical
-decision-making; see the textbooks by Sox &amp; al. and by Hunink &amp;
-al., and the paper by Lindley &amp; Novick in the <span id="referencesmedical">references</span>.</p>
+are the <em>probabilities for the species of the <strong>next</strong>
+penguin we’ll observe</em>. More generally, they are the probabilities
+for the next observation. In the present context they are maybe not so
+relevant – unless you’re placing bets on which data will arrive next
+with your colleagues – but in other inference contexts they may be very
+important. In a clinical setting, for example, where we try to infer
+some condition about the next patient, these probabilities are used for
+clinical decision-making; see the textbooks by Sox &amp; al. and by
+Hunink &amp; al., and the paper by Lindley &amp; Novick in the <span id="referencesmedical">references</span>.</p>
 <p>For the moment we focus on the “frequency estimate” meaning.</p>
 <p>What about the uncertainty of these estimates?</p>
 </div>
@@ -1252,12 +1255,12 @@ above as the darker grey band, and the 89%-credibility intervals as the
 lighter grey band. Note that these intervals contain the 50% ones.</p>
 <p>For instance, the plot indicates that there’s a 50% probability that
 the relative frequency of all <code>Adelie</code> penguins is roughly
-between 0.23 and 0.40; and an 89% probability that their relative
-frequency is roughly between 0.14 and 0.53.</p>
+between 0.21 and 0.38; and an 89% probability that their relative
+frequency is roughly between 0.12 and 0.51.</p>
 <p>For the <code>Gentoo</code> species, there’s a 50% probability that
-its relative frequency is roughly between 0.28 and 0.47; and an 89%
-probability that their relative frequency is roughly between 0.18 and
-0.59.</p>
+its relative frequency is roughly between 0.30 and 0.49; and an 89%
+probability that their relative frequency is roughly between 0.20 and
+0.61.</p>
 <p>We can Actually do more: we can plot the probabilities of all
 possible frequencies. To understand this idea, let’s ask: what is the
 relative frequency of Adélie penguins in the whole population? Possible
@@ -1283,7 +1286,7 @@ penguins</strong>
 </div>
 <p><br></p>
 <p>With the <code><a href="https://rdrr.io/r/base/subset.html" class="external-link">subset()</a></code> function we first extract from the
-<code>Fspecies10</code> object only the information pertaining to the
+<code>Fspecies10</code> object the information pertaining only to the
 <code>Adelie</code> species, saving it into the <code>onlyAdelie</code>
 object. Then the <code><a href="https://rdrr.io/r/graphics/hist.html" class="external-link">hist()</a></code> function plots the probability
 distribution for all the frequency values. We see that frequencies
@@ -1306,9 +1309,9 @@ For instance, we can read the 89%-credibility intervals as follows:</p>
 <code class="sourceCode R"><span><span class="va">Fspecies10</span><span class="op">$</span><span class="va">quantiles</span><span class="op">[</span>, , <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">'5.5%'</span>, <span class="st">'94.5%'</span><span class="op">)</span><span class="op">]</span></span>
 <span><span class="co">#            </span></span>
 <span><span class="co"># Y               5.5%    94.5%</span></span>
-<span><span class="co">#   Adelie    0.140158 0.531920</span></span>
-<span><span class="co">#   Chinstrap 0.133997 0.512746</span></span>
-<span><span class="co">#   Gentoo    0.183184 0.591518</span></span></code></pre></div>
+<span><span class="co">#   Adelie    0.121211 0.505162</span></span>
+<span><span class="co">#   Chinstrap 0.130026 0.512442</span></span>
+<span><span class="co">#   Gentoo    0.197827 0.614831</span></span></code></pre></div>
 <!-- As the name tells, this element actually report the *quantiles* of the probability. For example, look at the `= 25%` output: among other things it says `Adelie 0.227634`. This means that there's a 25% probability that the frequency of Adélie penguins is below $0.227634$, and thus a 75% probability that it's above $0.227634$.
  -->
 </div>
@@ -1326,15 +1329,15 @@ follows:</p>
 <dl>
 <dt>Adélie</dt>
 <dd>
-rel. frequency between 0.14 and 0.53, with 89% probability
+rel. frequency between 0.12 and 0.51, with 89% probability.
 </dd>
 <dt>Chinstrap</dt>
 <dd>
-rel. frequency between 0.13 and 0.51, with 89% probability
+rel. frequency between 0.13 and 0.51, with 89% probability.
 </dd>
 <dt>Gentoo</dt>
 <dd>
-rel. frequency between 0.18 and 0.59, with 89% probability
+rel. frequency between 0.20 and 0.61, with 89% probability.
 </dd>
 </dl>
 </blockquote>
@@ -1390,17 +1393,19 @@ moment we only show the example code for such an analysis:</p>
 <span></span>
 <span><span class="co">## Display the estimated frequencies of all six combinations,</span></span>
 <span><span class="co">## as well as their 89%-credibility intervals</span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/base/cbind.html" class="external-link">cbind</a></span><span class="op">(</span></span>
-<span>    <span class="va">Fspeciessex10</span><span class="op">$</span><span class="va">values</span>,</span>
-<span>    <span class="va">Fspeciessex10</span><span class="op">$</span><span class="va">quantiles</span><span class="op">[</span>, , <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">'5.5%'</span>, <span class="st">'94.5%'</span><span class="op">)</span><span class="op">]</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/Round.html" class="external-link">signif</a></span><span class="op">(</span>digits <span class="op">=</span> <span class="fl">2</span>, <span class="co">## round to two significant digits</span></span>
+<span>    <span class="fu"><a href="https://rdrr.io/r/base/cbind.html" class="external-link">cbind</a></span><span class="op">(</span></span>
+<span>        <span class="va">Fspeciessex10</span><span class="op">$</span><span class="va">values</span>,</span>
+<span>        <span class="va">Fspeciessex10</span><span class="op">$</span><span class="va">quantiles</span><span class="op">[</span>, , <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">'5.5%'</span>, <span class="st">'94.5%'</span><span class="op">)</span><span class="op">]</span></span>
+<span>    <span class="op">)</span></span>
 <span><span class="op">)</span></span>
-<span><span class="co">#                                5.5%    94.5%</span></span>
-<span><span class="co"># Adelie,female    0.176239 0.0593006 0.339410</span></span>
-<span><span class="co"># Chinstrap,female 0.147595 0.0482432 0.281854</span></span>
-<span><span class="co"># Gentoo,female    0.238757 0.0955143 0.425647</span></span>
-<span><span class="co"># Adelie,male      0.142822 0.0448611 0.283103</span></span>
-<span><span class="co"># Chinstrap,male   0.155422 0.0520681 0.307136</span></span>
-<span><span class="co"># Gentoo,male      0.139166 0.0449683 0.274096</span></span></code></pre></div>
+<span><span class="co">#                        5.5% 94.5%</span></span>
+<span><span class="co"># Adelie,female    0.16 0.050  0.32</span></span>
+<span><span class="co"># Chinstrap,female 0.13 0.037  0.28</span></span>
+<span><span class="co"># Gentoo,female    0.29 0.120  0.49</span></span>
+<span><span class="co"># Adelie,male      0.13 0.037  0.28</span></span>
+<span><span class="co"># Chinstrap,male   0.17 0.058  0.34</span></span>
+<span><span class="co"># Gentoo,male      0.11 0.023  0.24</span></span></code></pre></div>
 <p>Now let’s continue with our simpler plan.</p>
 <p><br></p>
 </div>
@@ -1475,9 +1480,9 @@ element of the <code>Fspecies10I</code> object:</p>
 <code class="sourceCode R"><span><span class="va">Fspecies10I</span><span class="op">$</span><span class="va">values</span></span>
 <span><span class="co">#            X</span></span>
 <span><span class="co"># Y             Biscoe    Dream</span></span>
-<span><span class="co">#   Adelie    0.206050 0.335998</span></span>
-<span><span class="co">#   Chinstrap 0.214225 0.423482</span></span>
-<span><span class="co">#   Gentoo    0.579725 0.240520</span></span></code></pre></div>
+<span><span class="co">#   Adelie    0.147855 0.356819</span></span>
+<span><span class="co">#   Chinstrap 0.141276 0.474088</span></span>
+<span><span class="co">#   Gentoo    0.710869 0.169093</span></span></code></pre></div>
 <p>According to these estimates, on Biscoe there should be a
 predominance of Gentoo penguins, with lower, roughly equal numbers of
 Adélie and Chinstrap. On Dream, on the other hand, Gentoo should be the
@@ -1499,8 +1504,8 @@ Biscoe</strong>
 </p>
 </div>
 <p>Note how, according to these preliminary estimates, the frequencies
-of Adélie and Chinstrap are very close, around 0.2, and quite different
-from the frequency of Gentoo, around 0.58. Yet, the probability
+of Adélie and Chinstrap are very close, around 0.1, and quite different
+from the frequency of Gentoo, around 0.7. Yet, the probability
 distributions are wide; each distribution gives a non-zero probability
 to all three estimates.</p>
 <p><strong>For later, keep in mind the following question: <em>On
@@ -1523,7 +1528,7 @@ Biscoe</strong>
 </div>
 <p><br></p>
 <p>Among other things we see here a larger difference in the estimated
-frequencies of Adélie, around 0.34, and Chinstrap, around 0.42. Still,
+frequencies of Adélie, around 0.36, and Chinstrap, around 0.47. Still,
 the probability distributions are wide.</p>
 <p><strong>For later, keep in mind the following question: <em>On Dream,
 are the frequencies of Adélie and Chinstrap different?</em></strong> The
@@ -1541,24 +1546,26 @@ uncertainties.</p>
 <p>A more compact summary can again be given with credibility intervals.
 We can produce it as follows:</p>
 <div class="sourceCode" id="cb19"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/aperm.html" class="external-link">aperm</a></span><span class="op">(</span></span>
-<span>    <span class="va">Fspecies10I</span><span class="op">$</span><span class="va">quantiles</span><span class="op">[</span>, , <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">'5.5%'</span>, <span class="st">'94.5%'</span><span class="op">)</span><span class="op">]</span>,</span>
-<span>    <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1</span>, <span class="fl">3</span>, <span class="fl">2</span><span class="op">)</span><span class="op">)</span> <span class="co">## change order for better display</span></span>
+<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/Round.html" class="external-link">signif</a></span><span class="op">(</span>digits <span class="op">=</span> <span class="fl">2</span>, <span class="co">## round to two digits</span></span>
+<span>    <span class="fu"><a href="https://rdrr.io/r/base/aperm.html" class="external-link">aperm</a></span><span class="op">(</span>perm <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1</span>, <span class="fl">3</span>, <span class="fl">2</span><span class="op">)</span>, <span class="co">## change order for better display</span></span>
+<span>        <span class="va">Fspecies10I</span><span class="op">$</span><span class="va">quantiles</span><span class="op">[</span>, , <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">'5.5%'</span>, <span class="st">'94.5%'</span><span class="op">)</span><span class="op">]</span></span>
+<span>    <span class="op">)</span></span>
+<span><span class="op">)</span></span>
 <span><span class="co"># , , X = Biscoe</span></span>
 <span><span class="co"># </span></span>
 <span><span class="co">#            </span></span>
-<span><span class="co"># Y                5.5%    94.5%</span></span>
-<span><span class="co">#   Adelie    0.0376968 0.466033</span></span>
-<span><span class="co">#   Chinstrap 0.0384570 0.469123</span></span>
-<span><span class="co">#   Gentoo    0.2798207 0.854380</span></span>
+<span><span class="co"># Y            5.5% 94.5%</span></span>
+<span><span class="co">#   Adelie    0.016  0.38</span></span>
+<span><span class="co">#   Chinstrap 0.016  0.37</span></span>
+<span><span class="co">#   Gentoo    0.410  0.94</span></span>
 <span><span class="co"># </span></span>
 <span><span class="co"># , , X = Dream</span></span>
 <span><span class="co"># </span></span>
 <span><span class="co">#            </span></span>
-<span><span class="co"># Y                5.5%    94.5%</span></span>
-<span><span class="co">#   Adelie    0.1033126 0.623346</span></span>
-<span><span class="co">#   Chinstrap 0.1654065 0.716321</span></span>
-<span><span class="co">#   Gentoo    0.0556945 0.506120</span></span></code></pre></div>
+<span><span class="co"># Y            5.5% 94.5%</span></span>
+<span><span class="co">#   Adelie    0.110  0.65</span></span>
+<span><span class="co">#   Chinstrap 0.190  0.78</span></span>
+<span><span class="co">#   Gentoo    0.021  0.41</span></span></code></pre></div>
 </div>
 <div class="section level3">
 <h3 id="nht">Differences from “null-hypothesis testing” and <em>p</em>-value
@@ -1636,17 +1643,19 @@ combination of subpopulations. The procedure is analogous to the one we
 <span></span>
 <span><span class="co">## Display the estimated frequencies of species</span></span>
 <span><span class="co">## within all six combinations of subpopulations</span></span>
-<span><span class="va">Fspecies10IS</span><span class="op">$</span><span class="va">values</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/Round.html" class="external-link">signif</a></span><span class="op">(</span>digits <span class="op">=</span> <span class="fl">2</span>, <span class="co">## round</span></span>
+<span>    <span class="va">Fspecies10IS</span><span class="op">$</span><span class="va">values</span></span>
+<span><span class="op">)</span></span>
 <span><span class="co">#            X</span></span>
 <span><span class="co"># Y           Biscoe,female Dream,female Torgersen,female Biscoe,male Dream,male</span></span>
-<span><span class="co">#   Adelie         0.195044     0.360856         0.456286    0.235758   0.308027</span></span>
-<span><span class="co">#   Chinstrap      0.192633     0.378828         0.250120    0.258943   0.466158</span></span>
-<span><span class="co">#   Gentoo         0.612323     0.260316         0.293593    0.505299   0.225814</span></span>
+<span><span class="co">#   Adelie             0.13         0.40             0.48        0.21       0.32</span></span>
+<span><span class="co">#   Chinstrap          0.12         0.40             0.27        0.22       0.54</span></span>
+<span><span class="co">#   Gentoo             0.75         0.21             0.25        0.57       0.14</span></span>
 <span><span class="co">#            X</span></span>
 <span><span class="co"># Y           Torgersen,male</span></span>
-<span><span class="co">#   Adelie          0.453062</span></span>
-<span><span class="co">#   Chinstrap       0.291547</span></span>
-<span><span class="co">#   Gentoo          0.255392</span></span></code></pre></div>
+<span><span class="co">#   Adelie              0.44</span></span>
+<span><span class="co">#   Chinstrap           0.38</span></span>
+<span><span class="co">#   Gentoo              0.18</span></span></code></pre></div>
 <p><br></p>
 </div>
 </div>
@@ -1683,49 +1692,51 @@ computer:</p>
 <span>    parallel <span class="op">=</span> <span class="fl">4</span> <span class="co">## how many cores to use for the computation</span></span>
 <span><span class="op">)</span></span>
 <span><span class="co"># Registered doParallelSNOW with 4 workers</span></span>
+<span><span class="co"># </span></span>
 <span><span class="co"># Calculating auxiliary metadata</span></span>
 <span><span class="co"># </span></span>
 <span><span class="co"># Learning:  60 datapoints,  8 variates</span></span>
 <span><span class="co"># </span></span>
-<span><span class="co">#  *************************************************** </span></span>
+<span><span class="co">#  ************************************************** </span></span>
 <span><span class="co">#  Saving output in directory</span></span>
-<span><span class="co">#  penguin_inference-261031T122341-vrt8_dat60_smp3600 </span></span>
-<span><span class="co">#  *************************************************** </span></span>
-<span><span class="co"># Starting Monte Carlo sampling of 3600 samples by 60 chains</span></span>
-<span><span class="co"># in a space of 1027 (effectively 16651) dimensions.</span></span>
-<span><span class="co"># Using 4 cores: 60 samples per chain, max 15 chains per core.</span></span>
+<span><span class="co">#  penguin_inference-261231T235959-vrt8_dat60_smp3600 </span></span>
+<span><span class="co">#  ************************************************** </span></span>
+<span><span class="co"># Starting Monte Carlo sampling of 3600 samples by 4 chains</span></span>
+<span><span class="co"># in a space of 1023 (effectively 16706) dimensions.</span></span>
+<span><span class="co"># Using 4 cores: 900 samples per chain, max 1 chains per core.</span></span>
+<span><span class="co"># Requested:   ESS 450   rel.MCSE 0.047 </span></span>
 <span><span class="co"># Core logs are being saved in individual files.</span></span>
 <span><span class="co"># </span></span>
 <span><span class="co"># C-compiling samplers appropriate to the variates (package Nimble)</span></span>
-<span><span class="co"># this can take tens of minutes. Please wait...</span></span>
-<span><span class="co"># Compiled core 1. Number of samplers: 1328.       </span></span>
-<span><span class="co"># Estimating remaining time, please be patient...</span></span>
-<span><span class="co"># Sampling. Core 1 estimated end time: 2026-10-31 12:39</span></span>
+<span><span class="co"># Compiled core 1. Number of samplers: 1328.             </span></span>
+<span><span class="co"># Core 3 finished.                                        </span></span>
+<span><span class="co"># Core 2 finished.                                        </span></span>
+<span><span class="co"># Core 1 finished.                                        </span></span>
+<span><span class="co"># Core 4 finished.                                        </span></span>
 <span><span class="co"># Finished Monte Carlo sampling.                                 </span></span>
-<span><span class="co"># Highest number of Monte Carlo iterations across chains: 14235 </span></span>
-<span><span class="co"># Highest number of used mixture components: 19 </span></span>
+<span><span class="co"># Highest number of Monte Carlo iterations across chains: 44407 </span></span>
+<span><span class="co"># Highest number of used mixture components: 6 </span></span>
 <span><span class="co"># </span></span>
 <span><span class="co"># Checking test data</span></span>
-<span><span class="co"># ( #8 #15 #20 #27 #30 #33 #43 #46 #59 )</span></span>
+<span><span class="co"># ( #8 #15 #17 #20 #27 #30 #33 #42 #43 #46 #55 #59 )</span></span>
 <span><span class="co"># </span></span>
-<span><span class="co"># rel. MC standard error: min: 0.03  max: 0.064  mean: 0.045 </span></span>
-<span><span class="co"># eff. sample size: min: 250  max: 1100  mean: 580 </span></span>
-<span><span class="co"># needed thinning: min: 5  max: 22  mean: 12 </span></span>
-<span><span class="co"># average: min: 4.9e-09  max: 3.8e-08  mean: 1.6e-08 </span></span>
 <span><span class="co"># </span></span>
+<span><span class="co"># rel. CI error: 0.0343 to 0.273</span></span>
+<span><span class="co"># ESS: 1620 to 3510</span></span>
+<span><span class="co"># needed thinning: 4.18 to 265</span></span>
+<span><span class="co"># average: 2.21e-09 to 5.4e-08</span></span>
+<span><span class="co"># width: 1.85e-09 to 1.02e-07</span></span>
 <span><span class="co"># Plotting final Monte Carlo traces and marginal samples...</span></span>
 <span><span class="co"># </span></span>
-<span><span class="co"># Total computation time: 12 mins </span></span>
-<span><span class="co"># Average preparation &amp; finalization time: 1.2 mins </span></span>
-<span><span class="co"># Average Monte Carlo time per chain: 40 secs </span></span>
-<span><span class="co"># Max total memory used: approx 3600 MB</span></span>
-<span><span class="co"># Max memory used per core: approx 950 MB</span></span>
-<span><span class="co"># </span></span>
-<span><span class="co"># Removing temporary output files.</span></span>
+<span><span class="co"># Total computation time: 9.6 mins </span></span>
+<span><span class="co"># Average preparation &amp; finalization time: 1.3 mins </span></span>
+<span><span class="co"># Average Monte Carlo time per chain: 3.8 mins </span></span>
+<span><span class="co"># Max total memory used: approx 3200 MB</span></span>
+<span><span class="co"># Max memory used per core: approx 810 MB</span></span>
 <span><span class="co"># Finished.</span></span>
 <span><span class="co"># </span></span>
 <span><span class="co"># Closing connections to cores.</span></span></code></pre></div>
-<p>The calculation with 60 sample data took around 4 GB and 12 minutes
+<p>The calculation with 60 sample data took around 3 GB and 10 minutes
 on 4 cores.</p>
 <p>The results of this updated inference are now stored in the
 compressed file <code>'learnt.rds'</code> within the new output
@@ -1794,9 +1805,9 @@ intervals:</p>
 </p>
 </div>
 <p><br></p>
-<p>You may notice that the credibility intervals are now narrower,
-compared to those of the previous estimates. Let’s actually overlap the
-plots of the initial and updated inferences, to better see how they got
+<p>You notice that the credibility intervals are now narrower, compared
+to those of the previous estimates. Let’s actually overlap the plots of
+the initial and updated inferences, to better see how they got
 updated:</p>
 <div class="sourceCode" id="cb26"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co">## find common y-maximum for correct visual comparison</span></span>
@@ -1814,61 +1825,61 @@ updated:</p>
 <p>We notice the following differences, among others:</p>
 <ul>
 <li><p>The new frequency estimates (circles) for <code>Adelie</code> and
-<code>Chinstrap</code> differ by almost 10% from the previous ones
-(triangles). The estimate for <code>Gentoo</code> is almost the
+<code>Chinstrap</code> differ by around 10% from the previous ones
+(triangles). The estimate for <code>Gentoo</code> is around the
 same.</p></li>
 <li><p>The new credibility intervals (grey bands) are narrower than the
 previous ones (red bands).</p></li>
-<li>
-<p>All new estimates (circles) are almost or fully within the
+<li><p>All new estimates (circles) are almost or fully within the
 50%-credibility intervals of the previous estimates (darker-red bands).
 All new estimates are fully within the previous 89%-credibility
-intervals (lighter-red bands).</p>
-<p>These changes are consistent with the meaning of the credibility
-intervals: one every two estimates can end outside the 50%-credibility
-interval, and 1 out of 10 can end outside the 89%-credibility
-interval.</p>
-</li>
+intervals (lighter-red bands). These changes are consistent with the
+meaning of the credibility intervals: one every two estimates can end
+outside the 50%-credibility interval, and 1 out of 10 can end outside
+the 89%-credibility interval.</p></li>
 </ul>
 <!-- These observations demonstrate the [features previously discussed](#nht): as the sample size increases, the uncertainty decreases, but without leading to spurious "effects". --><p>We can also plot the updated probability distributions for the
-relative frequencies of the three species. Let’s plot them together with
-the previous ones to highlight the changes:</p>
+relative frequencies of the three species. Let’s plot them below the
+previous ones to highlight the changes:</p>
 <div class="sourceCode" id="cb27"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/graphics/hist.html" class="external-link">hist</a></span><span class="op">(</span><span class="va">Fspecies60</span>, legend <span class="op">=</span> <span class="st">'topright'</span>, xlim <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0</span>, <span class="fl">1</span><span class="op">)</span>,</span>
-<span>    col <span class="op">=</span> <span class="fl">2</span><span class="op">:</span><span class="fl">4</span>, main <span class="op">=</span> <span class="st">'60 samples'</span><span class="op">)</span></span></code></pre></div>
+<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/graphics/hist.html" class="external-link">hist</a></span><span class="op">(</span><span class="va">Fspecies10</span>, legend <span class="op">=</span> <span class="st">'topright'</span>, xlim <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0</span>, <span class="fl">1</span><span class="op">)</span>,</span>
+<span>    ylim <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0</span>, <span class="fl">10</span><span class="op">)</span>, <span class="co">## y-range same for both plots</span></span>
+<span>    col <span class="op">=</span> <span class="fl">2</span><span class="op">:</span><span class="fl">4</span>, main <span class="op">=</span> <span class="st">'10 samples'</span><span class="op">)</span></span></code></pre></div>
 <p><img src="figure/hist60-1.png" width="100%"></p>
 <div class="sourceCode" id="cb28"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/graphics/hist.html" class="external-link">hist</a></span><span class="op">(</span><span class="va">Fspecies10</span>, legend <span class="op">=</span> <span class="st">'topright'</span>, xlim <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0</span>, <span class="fl">1</span><span class="op">)</span>,</span>
-<span>    ylim <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0</span>, <span class="fu"><a href="https://rdrr.io/r/graphics/par.html" class="external-link">par</a></span><span class="op">(</span><span class="st">'usr'</span><span class="op">)</span><span class="op">[</span><span class="fl">4</span><span class="op">]</span><span class="op">)</span>, <span class="co">## y-range from previous plot</span></span>
-<span>    col <span class="op">=</span> <span class="fl">2</span><span class="op">:</span><span class="fl">4</span>, main <span class="op">=</span> <span class="st">'10 samples'</span><span class="op">)</span></span></code></pre></div>
+<span><span class="fu"><a href="https://rdrr.io/r/graphics/hist.html" class="external-link">hist</a></span><span class="op">(</span><span class="va">Fspecies60</span>, legend <span class="op">=</span> <span class="st">'topright'</span>, xlim <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0</span>, <span class="fl">1</span><span class="op">)</span>,</span>
+<span>    ylim <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0</span>, <span class="fl">10</span><span class="op">)</span>, <span class="co">## y-range same for both plots</span></span>
+<span>    col <span class="op">=</span> <span class="fl">2</span><span class="op">:</span><span class="fl">4</span>, main <span class="op">=</span> <span class="st">'60 samples'</span><span class="op">)</span></span></code></pre></div>
 <p><img src="figure/hist60-2.png" width="100%"></p>
-<p>We see that in our initial inference (bottom plot) all three
-probability distributions largely overlapped, indicating our uncertainty
-on whether any of these frequencies might be very different from the
-others.</p>
-<p>In our updated inference (top plot) there is still a large overlap
+<p>We see that in our initial inference (top plot) all three probability
+distributions largely overlapped, indicating our uncertainty on whether
+any of these frequencies might be very different from the others.</p>
+<p>In our updated inference (bottom plot) there is still a large overlap
 for the probabilities of <code>Adelie</code> (solid red curve) and
 <code>Gentoo</code> (dot-dashed green curve) frequencies, indicating
 that we’re still very uncertain on whether these frequencies might be
 very different or not – we need more sample to resolve this. But we can
 already conclude, with high probability, that their difference won’t be
-larger than around 30% (the width of their distributions).</p>
+larger than around 0.2 (the approximate width of their
+distributions).</p>
 <p>But the probability distribution for the <code>Chinstrap</code>
 frequency (dashed blue curve) has now a smaller overlap with the other
-two: there’s an increased probability that this frequency is around 20%
-different from at least one of the other two. Later on we shall see how
-to calculate these probabilities exactly.</p>
+two: there’s an increased probability that this frequency is different
+by around 0.2 from at least one of the other two. Later on we shall see
+how to calculate these probabilities exactly.</p>
 <p>Our updated quantitative answer to the question “<em>What’s the
 overall statistical occurrence of the three species in the whole
 population?</em>” is as follows:</p>
 <div class="sourceCode" id="cb29"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">Fspecies60</span><span class="op">$</span><span class="va">quantiles</span><span class="op">[</span>, , <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">'5.5%'</span>, <span class="st">'94.5%'</span><span class="op">)</span><span class="op">]</span></span>
+<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/Round.html" class="external-link">signif</a></span><span class="op">(</span>digits <span class="op">=</span> <span class="fl">2</span>,</span>
+<span>    <span class="va">Fspecies60</span><span class="op">$</span><span class="va">quantiles</span><span class="op">[</span>, , <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">'5.5%'</span>, <span class="st">'94.5%'</span><span class="op">)</span><span class="op">]</span></span>
+<span><span class="op">)</span></span>
 <span><span class="co">#            </span></span>
-<span><span class="co"># Y               5.5%    94.5%</span></span>
-<span><span class="co">#   Adelie    0.296274 0.483736</span></span>
-<span><span class="co">#   Chinstrap 0.138085 0.297815</span></span>
-<span><span class="co">#   Gentoo    0.304430 0.499396</span></span></code></pre></div>
+<span><span class="co"># Y           5.5% 94.5%</span></span>
+<span><span class="co">#   Adelie    0.30  0.49</span></span>
+<span><span class="co">#   Chinstrap 0.13  0.30</span></span>
+<span><span class="co">#   Gentoo    0.30  0.49</span></span></code></pre></div>
 <blockquote>
 <p>From a sample of 10 penguins, the inference about the relative
 frequencies of the three species in the full population is as
@@ -1876,15 +1887,15 @@ follows:</p>
 <dl>
 <dt>Adélie</dt>
 <dd>
-rel. frequency between 0.29 and 0.49, with 89% probability
+rel. frequency between 0.30 and 0.49, with 89% probability.
 </dd>
 <dt>Chinstrap</dt>
 <dd>
-rel. frequency between 0.14 and 0.30, with 89% probability
+rel. frequency between 0.13 and 0.30, with 89% probability.
 </dd>
 <dt>Gentoo</dt>
 <dd>
-rel. frequency between 0.30 and 0.50, with 89% probability
+rel. frequency between 0.30 and 0.49, with 89% probability.
 </dd>
 </dl>
 </blockquote>
@@ -1906,21 +1917,21 @@ previous inference.</p>
 <span><span class="va">onlyDream10</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/subset.html" class="external-link">subset</a></span><span class="op">(</span><span class="va">Fspecies10I</span>, <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>island <span class="op">=</span> <span class="st">'Dream'</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="va">onlyDream60</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/subset.html" class="external-link">subset</a></span><span class="op">(</span><span class="va">Fspecies60I</span>, <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>island <span class="op">=</span> <span class="st">'Dream'</span><span class="op">)</span><span class="op">)</span></span>
 <span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/graphics/hist.html" class="external-link">hist</a></span><span class="op">(</span><span class="va">onlyDream60</span>, legend <span class="op">=</span> <span class="st">'topright'</span>, xlim <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0</span>, <span class="fl">1</span><span class="op">)</span>,</span>
-<span>    col <span class="op">=</span> <span class="fl">2</span><span class="op">:</span><span class="fl">4</span>, main <span class="op">=</span> <span class="st">'60 samples, Dream island'</span><span class="op">)</span></span></code></pre></div>
+<span><span class="fu"><a href="https://rdrr.io/r/graphics/hist.html" class="external-link">hist</a></span><span class="op">(</span><span class="va">onlyDream10</span>, legend <span class="op">=</span> <span class="st">'topright'</span>, xlim <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0</span>, <span class="fl">1</span><span class="op">)</span>,</span>
+<span>    ylim <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0</span>, <span class="fl">13</span><span class="op">)</span>, <span class="co">## same y-range</span></span>
+<span>    col <span class="op">=</span> <span class="fl">2</span><span class="op">:</span><span class="fl">4</span>, main <span class="op">=</span> <span class="st">'10 samples, Dream island'</span><span class="op">)</span></span></code></pre></div>
 <p><img src="figure/hist60Dream-1.png" width="100%"></p>
 <div class="sourceCode" id="cb31"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/graphics/hist.html" class="external-link">hist</a></span><span class="op">(</span><span class="va">onlyDream10</span>, legend <span class="op">=</span> <span class="st">'topright'</span>, xlim <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0</span>, <span class="fl">1</span><span class="op">)</span>,</span>
-<span>    ylim <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0</span>, <span class="fu"><a href="https://rdrr.io/r/graphics/par.html" class="external-link">par</a></span><span class="op">(</span><span class="st">'usr'</span><span class="op">)</span><span class="op">[</span><span class="fl">4</span><span class="op">]</span><span class="op">)</span>, <span class="co">## y-range from previous plot</span></span>
-<span>    col <span class="op">=</span> <span class="fl">2</span><span class="op">:</span><span class="fl">4</span>, main <span class="op">=</span> <span class="st">'10 samples, Dream island'</span><span class="op">)</span></span></code></pre></div>
+<span><span class="fu"><a href="https://rdrr.io/r/graphics/hist.html" class="external-link">hist</a></span><span class="op">(</span><span class="va">onlyDream60</span>, legend <span class="op">=</span> <span class="st">'topright'</span>, xlim <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0</span>, <span class="fl">1</span><span class="op">)</span>,</span>
+<span>    ylim <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0</span>, <span class="fl">13</span><span class="op">)</span>, <span class="co">## same y-range</span></span>
+<span>    col <span class="op">=</span> <span class="fl">2</span><span class="op">:</span><span class="fl">4</span>, main <span class="op">=</span> <span class="st">'60 samples, Dream island'</span><span class="op">)</span></span></code></pre></div>
 <p><img src="figure/hist60Dream-2.png" width="100%"></p>
 <p>The new frequency estimates for <code>Adelies</code> (solid red line)
-and <code>Chinstrap</code> (dashed blue line) are now less than 10%
-apart, whereas the previous estimates had them 20% apart. But this
-change is not unexpected: these new estimates are well within the
-previous credibility intervals; we were correctly warned about their
-possible change.</p>
+and <code>Chinstrap</code> (dashed blue line) are now around 0.2 apart;
+the previous estimates had them around 0.1 apart. This change is not
+unexpected: the new estimates are well within the previous credibility
+intervals; we were correctly warned about their possible change.</p>
 </div>
 <div class="section level4">
 <h4 id="surprise">For <code>Biscoe</code> island: a surprising result<a class="anchor" aria-label="anchor" href="#surprise"></a>
@@ -1930,26 +1941,28 @@ possible change.</p>
 <span><span class="va">onlyBiscoe10</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/subset.html" class="external-link">subset</a></span><span class="op">(</span><span class="va">Fspecies10I</span>, <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>island <span class="op">=</span> <span class="st">'Biscoe'</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="va">onlyBiscoe60</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/subset.html" class="external-link">subset</a></span><span class="op">(</span><span class="va">Fspecies60I</span>, <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>island <span class="op">=</span> <span class="st">'Biscoe'</span><span class="op">)</span><span class="op">)</span></span>
 <span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/graphics/hist.html" class="external-link">hist</a></span><span class="op">(</span><span class="va">onlyBiscoe60</span>, legend <span class="op">=</span> <span class="st">'topright'</span>, xlim <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0</span>, <span class="fl">1</span><span class="op">)</span>,</span>
-<span>    col <span class="op">=</span> <span class="fl">2</span><span class="op">:</span><span class="fl">4</span>, main <span class="op">=</span> <span class="st">'60 samples, Biscoe island'</span><span class="op">)</span></span></code></pre></div>
+<span><span class="fu"><a href="https://rdrr.io/r/graphics/hist.html" class="external-link">hist</a></span><span class="op">(</span><span class="va">onlyBiscoe10</span>, legend <span class="op">=</span> <span class="st">'topright'</span>, xlim <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0</span>, <span class="fl">1</span><span class="op">)</span>,</span>
+<span>    ylim <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0</span>, <span class="fl">17</span><span class="op">)</span>, <span class="co">## same y-range from previous plot</span></span>
+<span>    col <span class="op">=</span> <span class="fl">2</span><span class="op">:</span><span class="fl">4</span>, main <span class="op">=</span> <span class="st">'10 samples, Biscoe island'</span><span class="op">)</span></span></code></pre></div>
 <p><img src="figure/hist60Biscoe-1.png" width="100%"></p>
 <div class="sourceCode" id="cb33"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/graphics/hist.html" class="external-link">hist</a></span><span class="op">(</span><span class="va">onlyBiscoe10</span>, legend <span class="op">=</span> <span class="st">'topright'</span>, xlim <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0</span>, <span class="fl">1</span><span class="op">)</span>,</span>
-<span>    ylim <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0</span>, <span class="fu"><a href="https://rdrr.io/r/graphics/par.html" class="external-link">par</a></span><span class="op">(</span><span class="st">'usr'</span><span class="op">)</span><span class="op">[</span><span class="fl">4</span><span class="op">]</span><span class="op">)</span>, <span class="co">## y-range from previous plot</span></span>
-<span>    col <span class="op">=</span> <span class="fl">2</span><span class="op">:</span><span class="fl">4</span>, main <span class="op">=</span> <span class="st">'10 samples, Biscoe island'</span><span class="op">)</span></span></code></pre></div>
+<span><span class="fu"><a href="https://rdrr.io/r/graphics/hist.html" class="external-link">hist</a></span><span class="op">(</span><span class="va">onlyBiscoe60</span>, legend <span class="op">=</span> <span class="st">'topright'</span>, xlim <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0</span>, <span class="fl">1</span><span class="op">)</span>,</span>
+<span>    ylim <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0</span>, <span class="fl">17</span><span class="op">)</span>, <span class="co">## same y-range from previous plot</span></span>
+<span>    col <span class="op">=</span> <span class="fl">2</span><span class="op">:</span><span class="fl">4</span>, main <span class="op">=</span> <span class="st">'60 samples, Biscoe island'</span><span class="op">)</span></span></code></pre></div>
 <p><img src="figure/hist60Biscoe-2.png" width="100%"></p>
 <p>The new frequency estimates for <code>Adelies</code> (solid red line)
-and <code>Chinstrap</code> (dashed blue line) are now 10% apart, whereas
-the previous estimates were almost equal. Again this is not unexpected,
-and these changes are well within the previous credibility
+and <code>Chinstrap</code> (dashed blue line) are now around 0.2 apart,
+whereas the previous estimates were almost equal. Again this is not
+unexpected, and these changes are well within the previous credibility
 intervals.</p>
 <p>Notably, we see now a clear separation between the probability
 distribution for the frequency of <code>Gentoo</code> (dot-dashed
 green), and that for <code>Chinstrap</code> (dashed blue). This means
 that these two frequencies must be clearly different. Can we quantify
 how different, and with which uncertainty?</p>
-<p>Yes, this can be calculated and visualized as follows:</p>
+<p>Yes, the probability of their difference can be calculated and
+visualized as follows:</p>
 <div class="sourceCode" id="cb34"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">freqdiff</span> <span class="op">&lt;-</span> <span class="va">Fspecies60I</span><span class="op">$</span><span class="va">samples</span><span class="op">[</span><span class="st">'Gentoo'</span>, <span class="st">'Biscoe'</span>,<span class="op">]</span> <span class="op">-</span></span>
 <span>    <span class="va">Fspecies60I</span><span class="op">$</span><span class="va">samples</span><span class="op">[</span><span class="st">'Chinstrap'</span>, <span class="st">'Biscoe'</span>,<span class="op">]</span></span>
@@ -1963,22 +1976,22 @@ how different, and with which uncertainty?</p>
 Chinstrap</strong>
 </p>
 </div>
-<p>Clearly there’s a high probability that <code>Gentoo</code> frequency
+<p>There’s clearly a high probability that <code>Gentoo</code> frequency
 is larger than <code>Chinstrap</code> frequency, on <code>Biscoe</code>
-island. We can report an estimate and uncertainty about this
-difference:</p>
+island. We can report an estimate (median) and an 89%-credibility
+interval about this difference:</p>
 <div class="sourceCode" id="cb35"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/stats/median.html" class="external-link">median</a></span><span class="op">(</span><span class="va">freqdiff</span><span class="op">)</span></span>
-<span><span class="co"># [1] 0.592298</span></span>
+<span><span class="co"># [1] 0.705886</span></span>
 <span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/stats/quantile.html" class="external-link">quantile</a></span><span class="op">(</span><span class="va">freqdiff</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0.05</span>, <span class="fl">0.95</span><span class="op">)</span><span class="op">)</span></span>
-<span><span class="co">#       5%      95% </span></span>
-<span><span class="co"># 0.387664 0.755933</span></span></code></pre></div>
+<span><span class="fu"><a href="https://rdrr.io/r/stats/quantile.html" class="external-link">quantile</a></span><span class="op">(</span><span class="va">freqdiff</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0.055</span>, <span class="fl">0.945</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="co">#     5.5%    94.5% </span></span>
+<span><span class="co"># 0.537264 0.828643</span></span></code></pre></div>
 <blockquote>
 <p>From a sample of 60 penguins, the difference between the frequencies
 of <code>Gentoo</code> species and <code>Chinstrap</code> species, on
-<code>Biscoe</code> island, is estimated with a median of 0.59, and it
-is between 0.39 and 0.76 with 90% probability.</p>
+<code>Biscoe</code> island, is estimated with a median of 0.71, and it
+is between 0.54 and 0.83 with 89% probability.</p>
 </blockquote>
 <p>Maybe you prefer a ratio between the two frequencies:</p>
 <div class="sourceCode" id="cb36"><pre class="downlit sourceCode r">
@@ -1986,29 +1999,30 @@ is between 0.39 and 0.76 with 90% probability.</p>
 <span>    <span class="va">Fspecies60I</span><span class="op">$</span><span class="va">samples</span><span class="op">[</span><span class="st">'Chinstrap'</span>, <span class="st">'Biscoe'</span>,<span class="op">]</span></span>
 <span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/stats/median.html" class="external-link">median</a></span><span class="op">(</span><span class="va">freqratio</span><span class="op">)</span></span>
-<span><span class="co"># [1] 7.66448</span></span>
+<span><span class="co"># [1] 20.8621</span></span>
 <span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/stats/quantile.html" class="external-link">quantile</a></span><span class="op">(</span><span class="va">freqratio</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0.05</span>, <span class="fl">0.95</span><span class="op">)</span><span class="op">)</span></span>
-<span><span class="co">#      5%     95% </span></span>
-<span><span class="co">#  3.2617 22.8390</span></span></code></pre></div>
+<span><span class="fu"><a href="https://rdrr.io/r/stats/quantile.html" class="external-link">quantile</a></span><span class="op">(</span><span class="va">freqratio</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0.055</span>, <span class="fl">0.945</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="co">#     5.5%    94.5% </span></span>
+<span><span class="co">#  6.76216 93.72724</span></span></code></pre></div>
 <blockquote>
 <p>From a sample of 60 penguins, the ratio between the frequencies of
 <code>Gentoo</code> species on <code>Chinstrap</code> species, on
-<code>Biscoe</code> island, is estimated with a median of 7.7, and it is
-between 3.26 and 22.84 with 90% probability.</p>
+<code>Biscoe</code> island, is estimated with a median of 21, and it is
+between 6.76 and 93.73 with 89% probability.</p>
 </blockquote>
-<p>It is remarkable that with only 60 penguins (and not all of them from
-Biscoe island) we can conclude with a high probability (95%) that there
-are at least 3 times more Gentoo than Chinstrap penguins on Biscoe
-island!</p>
-<p><br><strong>If your only research question had been to check whether the
+<p>It is remarkable that with only 60 penguins – and not all of them
+from Biscoe island – we can conclude with a high probability (95%) that
+there are at least 7 times more Gentoo penguins than Chinstrap penguins
+on Biscoe island! Note an important consequence from the point of view
+of hypothesis testing:</p>
+<p><strong>If your research question had only been to check whether the
 Gentoo population is at least twice as large as Chinstrap’s on Biscoe
 island, you could have stopped sampling now and report your
 results.</strong></p>
 <p>By contrast, with a null-hypothesis test based on <em>p</em>-values,
 if you had planned beforehand to examine 300 penguins, you could not
-state such results before all 300 penguins were collected. And your
-results would be less clearly interpretable than the ones above.</p>
+state such results before all 300 penguins were collected (and your
+results would be less clearly interpretable than the ones above).</p>
 <p><br></p>
 </div>
 </div>
@@ -2020,10 +2034,10 @@ results would be less clearly interpretable than the ones above.</p>
 <h3 id="when-the-sampling-is-finished">When the sampling is finished<a class="anchor" aria-label="anchor" href="#when-the-sampling-is-finished"></a>
 </h3>
 <p>Let’s emphasize again an important feature of Bayesian inference: you
-can monitor your estimates and their uncertainty while the data samples
-arrive. And if you reach uncertainties about your hypotheses that you
-deem low enough, you can stop sampling and report your findings and
-their probabilities.</p>
+can <em>monitor</em> your estimates and their uncertainty while the data
+samples arrive. And if you reach uncertainties about your hypotheses
+that you deem low enough, you can stop sampling and report your findings
+and their probabilities.</p>
 <p>With 60 data samples, we consider our uncertainties about our
 research questions <strong>Q1</strong> and <strong>Q2</strong> still too
 large – except for an important result about Gentoo and Chinstrap
@@ -2049,49 +2063,51 @@ the code below):</p>
 <span>    parallel <span class="op">=</span> <span class="fl">4</span> <span class="co">## how many cores to use for the computation</span></span>
 <span><span class="op">)</span></span>
 <span><span class="co"># Registered doParallelSNOW with 4 workers</span></span>
+<span><span class="co"># </span></span>
 <span><span class="co"># Calculating auxiliary metadata</span></span>
 <span><span class="co"># </span></span>
 <span><span class="co"># Learning:  344 datapoints,  8 variates</span></span>
 <span><span class="co"># </span></span>
-<span><span class="co">#  ****************************************************** </span></span>
+<span><span class="co">#  ******************************************************* </span></span>
 <span><span class="co">#  Saving output in directory</span></span>
-<span><span class="co">#  penguin_inference-261031T122345-vrt8_dat344_smp3600 </span></span>
-<span><span class="co">#  ****************************************************** </span></span>
-<span><span class="co"># Starting Monte Carlo sampling of 3600 samples by 60 chains</span></span>
-<span><span class="co"># in a space of 1027 (effectively 89368) dimensions.</span></span>
-<span><span class="co"># Using 4 cores: 60 samples per chain, max 15 chains per core.</span></span>
+<span><span class="co">#  penguin_inference_def-261231T135959-vrt8_dat344_smp3600 </span></span>
+<span><span class="co">#  ******************************************************* </span></span>
+<span><span class="co"># Starting Monte Carlo sampling of 3600 samples by 4 chains</span></span>
+<span><span class="co"># in a space of 1023 (effectively 89707) dimensions.</span></span>
+<span><span class="co"># Using 4 cores: 900 samples per chain, max 1 chains per core.</span></span>
+<span><span class="co"># Requested:   ESS 450   rel.MCSE 0.047 </span></span>
 <span><span class="co"># Core logs are being saved in individual files.</span></span>
 <span><span class="co"># </span></span>
 <span><span class="co"># C-compiling samplers appropriate to the variates (package Nimble)</span></span>
-<span><span class="co"># this can take tens of minutes. Please wait...</span></span>
-<span><span class="co"># Compiled core 1. Number of samplers: 2757.       </span></span>
-<span><span class="co"># Estimating remaining time, please be patient...</span></span>
-<span><span class="co"># Sampling. Core 2 estimated end time: 2026-10-31 12:14</span></span>
+<span><span class="co"># Compiled core 1. Number of samplers: 2757.             </span></span>
+<span><span class="co"># Core 3 finished.                                        </span></span>
+<span><span class="co"># Core 4 finished.                                        </span></span>
+<span><span class="co"># Core 2 finished.                                        </span></span>
+<span><span class="co"># Core 1 finished.                                        </span></span>
 <span><span class="co"># Finished Monte Carlo sampling.                                 </span></span>
-<span><span class="co"># Highest number of Monte Carlo iterations across chains: 22364 </span></span>
-<span><span class="co"># Highest number of used mixture components: 33 </span></span>
+<span><span class="co"># Highest number of Monte Carlo iterations across chains: 16994 </span></span>
+<span><span class="co"># Highest number of used mixture components: 8 </span></span>
 <span><span class="co"># </span></span>
 <span><span class="co"># Checking test data</span></span>
-<span><span class="co"># ( #64 #125 #127 #189 #225 #264 #271 #276 #315 )</span></span>
+<span><span class="co"># ( #62 #64 #67 #125 #127 #189 #225 #234 #264 #271 #276 #315 )</span></span>
 <span><span class="co"># </span></span>
-<span><span class="co"># rel. MC standard error: min: 0.065  max: 0.11  mean: 0.089 </span></span>
-<span><span class="co"># eff. sample size: min: 88  max: 240  mean: 130 </span></span>
-<span><span class="co"># needed thinning: min: 23  max: 62  mean: 44 </span></span>
-<span><span class="co"># average: min: 3.8e-09  max: 1.2e-07  mean: 3.1e-08 </span></span>
 <span><span class="co"># </span></span>
+<span><span class="co"># rel. CI error: 0.0278 to 0.242</span></span>
+<span><span class="co"># ESS: 67.6 to 3480</span></span>
+<span><span class="co"># needed thinning: 2.78 to 211</span></span>
+<span><span class="co"># average: 9.51e-11 to 1.76e-07</span></span>
+<span><span class="co"># width: 1.92e-10 to 1.97e-07</span></span>
 <span><span class="co"># Plotting final Monte Carlo traces and marginal samples...</span></span>
 <span><span class="co"># </span></span>
-<span><span class="co"># Total computation time: 46 mins </span></span>
-<span><span class="co"># Average preparation &amp; finalization time: 3.2 mins </span></span>
-<span><span class="co"># Average Monte Carlo time per chain: 2.7 mins </span></span>
-<span><span class="co"># Max total memory used: approx 3800 MB</span></span>
-<span><span class="co"># Max memory used per core: approx 990 MB</span></span>
-<span><span class="co"># </span></span>
-<span><span class="co"># Removing temporary output files.</span></span>
+<span><span class="co"># Total computation time: 15 mins </span></span>
+<span><span class="co"># Average preparation &amp; finalization time: 2.6 mins </span></span>
+<span><span class="co"># Average Monte Carlo time per chain: 7.6 mins </span></span>
+<span><span class="co"># Max total memory used: approx 3400 MB</span></span>
+<span><span class="co"># Max memory used per core: approx 850 MB</span></span>
 <span><span class="co"># Finished.</span></span>
 <span><span class="co"># </span></span>
 <span><span class="co"># Closing connections to cores.</span></span></code></pre></div>
-<p>The calculation with 344 sample data took around 4 GB and 46 minutes
+<p>The calculation with 344 sample data took around 3 GB and 15 minutes
 on 4 cores.</p>
 <p>The results of this final inference are stored in the compressed file
 <code>'learnt.rds'</code> within the new output directory. The object
@@ -2136,16 +2152,16 @@ population?</em>”. A quantitative summary can be extracted from the
 <code class="sourceCode R"><span><span class="va">Fspeciesall</span><span class="op">$</span><span class="va">values</span></span>
 <span><span class="co">#            X</span></span>
 <span><span class="co"># Y               [,1]</span></span>
-<span><span class="co">#   Adelie    0.437669</span></span>
-<span><span class="co">#   Chinstrap 0.210793</span></span>
-<span><span class="co">#   Gentoo    0.351538</span></span>
+<span><span class="co">#   Adelie    0.442585</span></span>
+<span><span class="co">#   Chinstrap 0.197805</span></span>
+<span><span class="co">#   Gentoo    0.359610</span></span>
 <span></span>
 <span><span class="va">Fspeciesall</span><span class="op">$</span><span class="va">quantiles</span><span class="op">[</span>, , <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">'5.5%'</span>, <span class="st">'94.5%'</span><span class="op">)</span><span class="op">]</span></span>
 <span><span class="co">#            </span></span>
 <span><span class="co"># Y               5.5%    94.5%</span></span>
-<span><span class="co">#   Adelie    0.395676 0.479860</span></span>
-<span><span class="co">#   Chinstrap 0.176545 0.245848</span></span>
-<span><span class="co">#   Gentoo    0.311122 0.392778</span></span></code></pre></div>
+<span><span class="co">#   Adelie    0.399997 0.485637</span></span>
+<span><span class="co">#   Chinstrap 0.164577 0.233579</span></span>
+<span><span class="co">#   Gentoo    0.318540 0.401157</span></span></code></pre></div>
 <blockquote>
 <p>From a sample of 344 penguins [add a more thorough specification of
 population and sampling procedure here], the relative frequencies of the
@@ -2155,18 +2171,18 @@ frequencies must add up to 1):</p>
 <dl>
 <dt>Adélie</dt>
 <dd>
-estimate 0.44 <br>true rel. frequency between 0.40 and 0.48 with 89%
-probability
+estimate 0.44 <br>true rel. frequency between 0.40 and 0.49 with 89%
+probability.
 </dd>
 <dt>Chinstrap</dt>
 <dd>
-estimate 0.21 <br>true rel. frequency between 0.18 and 0.25 with 89%
-probability
+estimate 0.20 <br>true rel. frequency between 0.16 and 0.23 with 89%
+probability.
 </dd>
 <dt>Gentoo</dt>
 <dd>
-estimate 0.35 <br>true rel. frequency between 0.31 and 0.39 with 89%
-probability
+estimate 0.36 <br>true rel. frequency between 0.32 and 0.40 with 89%
+probability.
 </dd>
 </dl>
 </blockquote>
@@ -2237,16 +2253,16 @@ for the three frequencies:</p>
 <span><span class="va">Fanalysis</span><span class="op">$</span><span class="va">values</span></span>
 <span><span class="co">#            X</span></span>
 <span><span class="co"># Y              Biscoe</span></span>
-<span><span class="co">#   Adelie    0.2643710</span></span>
-<span><span class="co">#   Chinstrap 0.0781806</span></span>
-<span><span class="co">#   Gentoo    0.6574484</span></span>
+<span><span class="co">#   Adelie    0.2669816</span></span>
+<span><span class="co">#   Chinstrap 0.0122273</span></span>
+<span><span class="co">#   Gentoo    0.7207912</span></span>
 <span></span>
 <span><span class="va">Fanalysis</span><span class="op">$</span><span class="va">quantiles</span><span class="op">[</span>, , <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">'5.5%'</span>, <span class="st">'94.5%'</span><span class="op">)</span><span class="op">]</span></span>
 <span><span class="co">#            </span></span>
-<span><span class="co"># Y                5.5%    94.5%</span></span>
-<span><span class="co">#   Adelie    0.2120122 0.317935</span></span>
-<span><span class="co">#   Chinstrap 0.0499459 0.110916</span></span>
-<span><span class="co">#   Gentoo    0.5995547 0.713646</span></span></code></pre></div>
+<span><span class="co"># Y                 5.5%     94.5%</span></span>
+<span><span class="co">#   Adelie    0.21290516 0.3215401</span></span>
+<span><span class="co">#   Chinstrap 0.00284543 0.0271474</span></span>
+<span><span class="co">#   Gentoo    0.66560378 0.7751243</span></span></code></pre></div>
 <p>Conclusion:</p>
 <blockquote>
 <p>From a sample of 344 penguins, the relative frequencies of the three
@@ -2254,18 +2270,18 @@ species <strong>on Biscoe island</strong> are estimated as follows:</p>
 <dl>
 <dt>Adélie</dt>
 <dd>
-estimate 0.26 <br>true rel. frequency between 0.21 and 0.32 with 89%
-probability
+estimate 0.27 <br>true rel. frequency between 0.21 and 0.32 with 89%
+probability.
 </dd>
 <dt>Chinstrap</dt>
 <dd>
-estimate 0.08 <br>true rel. frequency between 0.05 and 0.11 with 89%
-probability
+estimate 0.01 <br>true rel. frequency between 0.00 and 0.03 with 89%
+probability.
 </dd>
 <dt>Gentoo</dt>
 <dd>
-estimate 0.66 <br>true rel. frequency between 0.60 and 0.71 with 89%
-probability
+estimate 0.72 <br>true rel. frequency between 0.67 and 0.78 with 89%
+probability.
 </dd>
 </dl>
 </blockquote>
@@ -2307,16 +2323,16 @@ the three frequencies:</p>
 <span><span class="va">Fanalysis</span><span class="op">$</span><span class="va">values</span></span>
 <span><span class="co">#            X</span></span>
 <span><span class="co"># Y             Adelie</span></span>
-<span><span class="co">#   Biscoe    0.282757</span></span>
-<span><span class="co">#   Dream     0.425517</span></span>
-<span><span class="co">#   Torgersen 0.291726</span></span>
+<span><span class="co">#   Biscoe    0.292549</span></span>
+<span><span class="co">#   Dream     0.369088</span></span>
+<span><span class="co">#   Torgersen 0.338363</span></span>
 <span></span>
 <span><span class="va">Fanalysis</span><span class="op">$</span><span class="va">quantiles</span><span class="op">[</span>, , <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">'5.5%'</span>, <span class="st">'94.5%'</span><span class="op">)</span><span class="op">]</span></span>
 <span><span class="co">#            </span></span>
 <span><span class="co"># Y               5.5%    94.5%</span></span>
-<span><span class="co">#   Biscoe    0.227718 0.337391</span></span>
-<span><span class="co">#   Dream     0.360946 0.492150</span></span>
-<span><span class="co">#   Torgersen 0.236469 0.348194</span></span></code></pre></div>
+<span><span class="co">#   Biscoe    0.235413 0.354091</span></span>
+<span><span class="co">#   Dream     0.308993 0.431398</span></span>
+<span><span class="co">#   Torgersen 0.278241 0.400475</span></span></code></pre></div>
 <p>Conclusions:</p>
 <blockquote>
 <p>From a sample of 344 penguins, the distribution of the
@@ -2325,18 +2341,18 @@ follows:</p>
 <dl>
 <dt>Biscoe</dt>
 <dd>
-estimate 0.28 <br>true rel. frequency between 0.23 and 0.34 with 89%
-probability
+estimate 0.29 <br>true rel. frequency between 0.24 and 0.35 with 89%
+probability.
 </dd>
 <dt>Dream</dt>
 <dd>
-estimate 0.43 <br>true rel. frequency between 0.36 and 0.49 with 89%
-probability
+estimate 0.37 <br>true rel. frequency between 0.31 and 0.43 with 89%
+probability.
 </dd>
 <dt>Torgersen</dt>
 <dd>
-estimate 0.29 <br>true rel. frequency between 0.24 and 0.35 with 89%
-probability
+estimate 0.34 <br>true rel. frequency between 0.28 and 0.40 with 89%
+probability.
 </dd>
 </dl>
 </blockquote>
@@ -2396,8 +2412,11 @@ outside each other’s 89%-credibility interval.</p>
 </div>
 </div>
 <div class="section level2">
-<h2 id="references">References<a class="anchor" aria-label="anchor" href="#references"></a>
+<h2 id="appendix">Appendices<a class="anchor" aria-label="anchor" href="#appendix"></a>
 </h2>
+<div class="section level3">
+<h3 id="references">References<a class="anchor" aria-label="anchor" href="#references"></a>
+</h3>
 <div class="section level4">
 <h4 id="referencesexchang">On <em>exchangeability</em>:<a class="anchor" aria-label="anchor" href="#referencesexchang"></a>
 </h4>
@@ -2442,9 +2461,9 @@ ed. 2014).</p></li>
 <p><br></p>
 </div>
 </div>
-<div class="section level2">
-<h2 id="format">Format for data and metadata files and their contents<a class="anchor" aria-label="anchor" href="#format"></a>
-</h2>
+<div class="section level3">
+<h3 id="format">Format for data and metadata files and their contents<a class="anchor" aria-label="anchor" href="#format"></a>
+</h3>
 <p>The functions of the <strong><em>inferno</em></strong> package accept
 CSV files formatted as follows:</p>
 <ul>
@@ -2461,6 +2480,7 @@ semicolons.</li>
 <p>Names of variates and character variate values should be strings
 conforming to <a href="https://cran.r-project.org/doc/FAQ/R-FAQ.html#What-are-valid-names_003f" class="external-link">R’s
 rules</a>.</p>
+</div>
 </div>
 
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>

@@ -50,8 +50,8 @@
 <span>  auxdata <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  outputdir <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  nsamples <span class="op">=</span> <span class="fl">3600</span>,</span>
-<span>  nchains <span class="op">=</span> <span class="fl">60</span>,</span>
-<span>  nsamplesperchain <span class="op">=</span> <span class="fl">60</span>,</span>
+<span>  nchains <span class="op">=</span> <span class="fl">8</span>,</span>
+<span>  nsamplesperchain <span class="op">=</span> <span class="fl">450</span>,</span>
 <span>  parallel <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  seed <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  cleanup <span class="op">=</span> <span class="cn">TRUE</span>,</span>
@@ -59,21 +59,24 @@
 <span>  appendinfo <span class="op">=</span> <span class="cn">TRUE</span>,</span>
 <span>  output <span class="op">=</span> <span class="st">"directory"</span>,</span>
 <span>  subsampledata <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  prior <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/missing.html" class="external-link">missing</a></span><span class="op">(</span><span class="va">data</span><span class="op">)</span> <span class="op">||</span> <span class="fu"><a href="https://rdrr.io/r/base/NULL.html" class="external-link">is.null</a></span><span class="op">(</span><span class="va">data</span><span class="op">)</span>,</span>
 <span>  startupMCiterations <span class="op">=</span> <span class="fl">3600</span>,</span>
 <span>  minMCiterations <span class="op">=</span> <span class="fl">0</span>,</span>
 <span>  maxMCiterations <span class="op">=</span> <span class="op">+</span><span class="cn">Inf</span>,</span>
 <span>  maxhours <span class="op">=</span> <span class="op">+</span><span class="cn">Inf</span>,</span>
-<span>  ncheckpoints <span class="op">=</span> <span class="cn">NULL</span>,</span>
-<span>  relerror <span class="op">=</span> <span class="fl">0.05</span>,</span>
-<span>  prior <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/missing.html" class="external-link">missing</a></span><span class="op">(</span><span class="va">data</span><span class="op">)</span> <span class="op">||</span> <span class="fu"><a href="https://rdrr.io/r/base/NULL.html" class="external-link">is.null</a></span><span class="op">(</span><span class="va">data</span><span class="op">)</span>,</span>
+<span>  ncheckpoints <span class="op">=</span> <span class="fl">12</span>,</span>
+<span>  maxrelMCSE <span class="op">=</span> <span class="op">+</span><span class="cn">Inf</span>,</span>
+<span>  minESS <span class="op">=</span> <span class="fl">450</span>,</span>
+<span>  initES <span class="op">=</span> <span class="fl">2</span>,</span>
 <span>  thinning <span class="op">=</span> <span class="cn">NULL</span>,</span>
-<span>  plottraces <span class="op">=</span> <span class="cn">TRUE</span>,</span>
+<span>  plottraces <span class="op">=</span> <span class="op">!</span><span class="va">cleanup</span>,</span>
 <span>  showKtraces <span class="op">=</span> <span class="cn">FALSE</span>,</span>
 <span>  showAlphatraces <span class="op">=</span> <span class="cn">FALSE</span>,</span>
 <span>  hyperparams <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>ncomponents <span class="op">=</span> <span class="fl">64</span>, minalpha <span class="op">=</span> <span class="op">-</span><span class="fl">4</span>, maxalpha <span class="op">=</span> <span class="fl">4</span>, byalpha <span class="op">=</span> <span class="fl">1</span>, Rshapelo</span>
 <span>    <span class="op">=</span> <span class="fl">0.5</span>, Rshapehi <span class="op">=</span> <span class="fl">0.5</span>, Rvarm1 <span class="op">=</span> <span class="fl">3</span><span class="op">^</span><span class="fl">2</span>, Cshapelo <span class="op">=</span> <span class="fl">0.5</span>, Cshapehi <span class="op">=</span> <span class="fl">0.5</span>, Cvarm1 <span class="op">=</span> <span class="fl">3</span><span class="op">^</span><span class="fl">2</span>,</span>
 <span>    Dshapelo <span class="op">=</span> <span class="fl">0.5</span>, Dshapehi <span class="op">=</span> <span class="fl">0.5</span>, Dvarm1 <span class="op">=</span> <span class="fl">3</span><span class="op">^</span><span class="fl">2</span>, Bshapelo <span class="op">=</span> <span class="fl">1</span>, Bshapehi <span class="op">=</span> <span class="fl">1</span>, Dthreshold</span>
-<span>    <span class="op">=</span> <span class="fl">1</span>, tscalefactor <span class="op">=</span> <span class="fl">4.266</span>, avoidzeroW <span class="op">=</span> <span class="cn">FALSE</span>, initmethod <span class="op">=</span> <span class="st">"precluster"</span><span class="op">)</span></span>
+<span>    <span class="op">=</span> <span class="fl">1</span>, tscalefactor <span class="op">=</span> <span class="fl">4.266</span>, avoidzeroW <span class="op">=</span> <span class="cn">NULL</span>, initmethod <span class="op">=</span> <span class="st">"datacentre"</span>, Qerror <span class="op">=</span></span>
+<span>    <span class="fu"><a href="https://rdrr.io/r/stats/Normal.html" class="external-link">pnorm</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="op">-</span><span class="fl">1</span>, <span class="fl">1</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="op">)</span></span></code></pre></div>
     </div>
 
@@ -82,20 +85,15 @@
 
 
 <dl><dt id="arg-data">data<a class="anchor" aria-label="anchor" href="#arg-data"></a></dt>
-<dd><p>A dataset, given as a <code><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></code>
-or as a file path to a csv file.</p></dd>
+<dd><p>A dataset, given as a <code><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></code> or as a file path to a csv file.</p></dd>
 
 
 <dt id="arg-metadata">metadata<a class="anchor" aria-label="anchor" href="#arg-metadata"></a></dt>
-<dd><p>A metadata object, given either as a data.frame object,
-or as a file pa to a csv file.</p></dd>
+<dd><p>A metadata object, given either as a data.frame object, or as a file pa to a csv file.</p></dd>
 
 
 <dt id="arg-auxdata">auxdata<a class="anchor" aria-label="anchor" href="#arg-auxdata"></a></dt>
-<dd><p>A larger dataset, given as a data.frame
-or as a file path to a csv file. Such a dataset
-would be too many to use in the Monte Carlo sampling,
-but can be used to calculate hyperparameters.</p></dd>
+<dd><p>A larger dataset, given as a data.frame or as a file path to a csv file. Such a dataset would be too many to use in the Monte Carlo sampling, but can be used to calculate hyperparameters.</p></dd>
 
 
 <dt id="arg-outputdir">outputdir<a class="anchor" aria-label="anchor" href="#arg-outputdir"></a></dt>
@@ -107,7 +105,7 @@ but can be used to calculate hyperparameters.</p></dd>
 
 
 <dt id="arg-nchains">nchains<a class="anchor" aria-label="anchor" href="#arg-nchains"></a></dt>
-<dd><p>Integer: number of Monte Carlo chains. Default 60.</p></dd>
+<dd><p>Integer: number of Monte Carlo chains. Default 4.</p></dd>
 
 
 <dt id="arg-nsamplesperchain">nsamplesperchain<a class="anchor" aria-label="anchor" href="#arg-nsamplesperchain"></a></dt>
@@ -115,95 +113,83 @@ but can be used to calculate hyperparameters.</p></dd>
 
 
 <dt id="arg-parallel">parallel<a class="anchor" aria-label="anchor" href="#arg-parallel"></a></dt>
-<dd><p>Logical or <code>NULL</code> or positive integer: <code>TRUE</code>: use roughly half of available cores; <code>FALSE</code>: use serial computation; <code>NULL</code>: don't do anything (use pre-registered condition); integer: use this many cores. Default <code>NULL</code></p></dd>
+<dd><p>Logical or <code>NULL</code> or positive integer: <code>TRUE</code>: use roughly half of available cores; <code>FALSE</code>: use serial computation; <code>NULL</code> (default): don't do anything (use pre-registered condition); integer: use this many cores.</p></dd>
 
 
 <dt id="arg-seed">seed<a class="anchor" aria-label="anchor" href="#arg-seed"></a></dt>
-<dd><p>Integer: use this seed for the random number generator.
-If missing or <code>NULL</code> (default), do not set the seed.</p></dd>
+<dd><p>Integer: use this seed for the random number generator. If missing or <code>NULL</code> (default), do not set the seed.</p></dd>
 
 
 <dt id="arg-cleanup">cleanup<a class="anchor" aria-label="anchor" href="#arg-cleanup"></a></dt>
-<dd><p>Logical: remove diagnostic files at the end of the computation?
-Default <code>TRUE</code>.</p></dd>
+<dd><p>Logical: remove diagnostic files at the end of the computation? Default <code>TRUE</code>.</p></dd>
 
 
 <dt id="arg-appendtimestamp">appendtimestamp<a class="anchor" aria-label="anchor" href="#arg-appendtimestamp"></a></dt>
-<dd><p>Logical: append a timestamp to the name of
-the output directory <code>outputdir</code>? Default <code>TRUE</code>.</p></dd>
+<dd><p>Logical: append a timestamp to the name of the output directory <code>outputdir</code>? Default <code>TRUE</code>.</p></dd>
 
 
 <dt id="arg-appendinfo">appendinfo<a class="anchor" aria-label="anchor" href="#arg-appendinfo"></a></dt>
-<dd><p>Logical: append information about dataset and Monte Carlo
-parameters to the name of the output directory <code>outputdir</code>? Default <code>TRUE</code>.</p></dd>
+<dd><p>Logical: append information about dataset and Monte Carlo parameters to the name of the output directory <code>outputdir</code>? Default <code>TRUE</code>.</p></dd>
 
 
 <dt id="arg-output">output<a class="anchor" aria-label="anchor" href="#arg-output"></a></dt>
-<dd><p>Character: if <code>'directory'</code>, return the output directory name
-as <code>VALUE</code>; if string <code>'learnt'</code>, return the <code>'learnt'</code> object
-containing the parameters obtained from the Monte Carlo computation.
-Any other value: <code>VALUE</code> is <code>NULL</code>.</p></dd>
+<dd><p>Character: if <code>'directory'</code>, return the output directory name as <code>VALUE</code>; if string <code>'learnt'</code>, return the <code>'learnt'</code> object containing the parameters obtained from the Monte Carlo computation. Any other value: <code>VALUE</code> is <code>NULL</code>.</p></dd>
 
 
 <dt id="arg-subsampledata">subsampledata<a class="anchor" aria-label="anchor" href="#arg-subsampledata"></a></dt>
-<dd><p>Integer: use only a subset of this many datapoints for
-the Monte Carlo computation.</p></dd>
-
-
-<dt id="arg-startupmciterations">startupMCiterations<a class="anchor" aria-label="anchor" href="#arg-startupmciterations"></a></dt>
-<dd><p>Integer: number of initial (burn-in)
-Monte Carlo iterations. Default 3600.</p></dd>
-
-
-<dt id="arg-minmciterations">minMCiterations<a class="anchor" aria-label="anchor" href="#arg-minmciterations"></a></dt>
-<dd><p>Integer: minimum number of Monte Carlo iterations
-to be done. Default 0.</p></dd>
-
-
-<dt id="arg-maxmciterations">maxMCiterations<a class="anchor" aria-label="anchor" href="#arg-maxmciterations"></a></dt>
-<dd><p>Integer: Do at most this many Monte Carlo iterations.
-Default <code>Inf</code>.</p></dd>
-
-
-<dt id="arg-maxhours">maxhours<a class="anchor" aria-label="anchor" href="#arg-maxhours"></a></dt>
-<dd><p>Numeric: approximate time limit, in hours, for the
-Monte Carlo computation to last. Default <code>Inf</code>.</p></dd>
-
-
-<dt id="arg-ncheckpoints">ncheckpoints<a class="anchor" aria-label="anchor" href="#arg-ncheckpoints"></a></dt>
-<dd><p>Integer: number of datapoints to use
-for checking when the Monte Carlo computation should end.
-If NULL (default), this is equal to number of variates + 2.
-If Inf, use all datapoints.</p></dd>
-
-
-<dt id="arg-relerror">relerror<a class="anchor" aria-label="anchor" href="#arg-relerror"></a></dt>
-<dd><p>Numeric: desired maximal relative error of calculated probabilities
-with respect to their variability with new data.</p></dd>
+<dd><p>Integer: use only a subset of this many datapoints for the Monte Carlo computation.</p></dd>
 
 
 <dt id="arg-prior">prior<a class="anchor" aria-label="anchor" href="#arg-prior"></a></dt>
 <dd><p>Logical: Calculate the prior distribution?</p></dd>
 
 
+<dt id="arg-startupmciterations">startupMCiterations<a class="anchor" aria-label="anchor" href="#arg-startupmciterations"></a></dt>
+<dd><p>Integer: number of initial Monte Carlo iterations. Default 3600.</p></dd>
+
+
+<dt id="arg-minmciterations">minMCiterations<a class="anchor" aria-label="anchor" href="#arg-minmciterations"></a></dt>
+<dd><p>Integer: minimum number of Monte Carlo iterations to be doneby a chain. Default 0.</p></dd>
+
+
+<dt id="arg-maxmciterations">maxMCiterations<a class="anchor" aria-label="anchor" href="#arg-maxmciterations"></a></dt>
+<dd><p>Integer: Do at most this many Monte Carlo iterations per chain. Default <code>Inf</code>.</p></dd>
+
+
+<dt id="arg-maxhours">maxhours<a class="anchor" aria-label="anchor" href="#arg-maxhours"></a></dt>
+<dd><p>Numeric: approximate time limit, in hours, for the Monte Carlo computation to last. Default <code>Inf</code>.</p></dd>
+
+
+<dt id="arg-ncheckpoints">ncheckpoints<a class="anchor" aria-label="anchor" href="#arg-ncheckpoints"></a></dt>
+<dd><p>Integer: number of datapoints to use for checking when the Monte Carlo computation should end. If <code>NULL</code>, this is equal to number of variates + 2. If Inf, use all datapoints. Default 12.</p></dd>
+
+
+<dt id="arg-maxrelmcse">maxrelMCSE<a class="anchor" aria-label="anchor" href="#arg-maxrelmcse"></a></dt>
+<dd><p>Numeric positive: desired maximal <em>relative Monte Carlo Standard Error</em> of calculated probabilities with respect to their variability with new data. Default <code>+Inf</code>, so that <code>minESS</code> is used instead. <code>maxrelMCSE</code> is related to <code>minESS</code> by <code>maxrelMCSE = 1/sqrt(minESS + initES)</code>.</p></dd>
+
+
+<dt id="arg-miness">minESS<a class="anchor" aria-label="anchor" href="#arg-miness"></a></dt>
+<dd><p>Numeric positive: desired minimal Monte Carlo <em>Expected Sample Size</em>. If <code>NULL</code>, it is equal to the final <code>nsamplesperchain</code>. Default 400. <code>minESS</code> is related to <code>maxrelMCSE</code> by <code>minESS = 1/maxrelMCSE^2 - initES</code>.</p></dd>
+
+
+<dt id="arg-inites">initES<a class="anchor" aria-label="anchor" href="#arg-inites"></a></dt>
+<dd><p>Numeric positive: number of initial  <em>Expected Samples</em> to discard.</p></dd>
+
+
 <dt id="arg-thinning">thinning<a class="anchor" aria-label="anchor" href="#arg-thinning"></a></dt>
-<dd><p>Integer: thin out the Monte Carlo samples by this value.
-If NULL (default): let the diagnostics decide the thinning value.</p></dd>
+<dd><p>Integer: thin out the Monte Carlo samples by this value. If <code>NULL</code> (default): let the diagnostics decide the thinning value.</p></dd>
 
 
 <dt id="arg-plottraces">plottraces<a class="anchor" aria-label="anchor" href="#arg-plottraces"></a></dt>
-<dd><p>Logical: save plots of the Monte Carlo traces
-of diagnostic values? Default <code>TRUE</code>.</p></dd>
+<dd><p>Logical: save plots of the Monte Carlo traces of diagnostic values? Default <code>TRUE</code>.</p></dd>
 
 
 <dt id="arg-showktraces">showKtraces<a class="anchor" aria-label="anchor" href="#arg-showktraces"></a></dt>
-<dd><p>Logical: save plots of the Monte Carlo traces
-of the K parameter? Default <code>FALSE</code>.</p></dd>
+<dd><p>Logical: save plots of the Monte Carlo traces of the K parameter? Default <code>FALSE</code>.</p></dd>
 
 
 <dt id="arg-showalphatraces">showAlphatraces<a class="anchor" aria-label="anchor" href="#arg-showalphatraces"></a></dt>
-<dd><p>Logical: save plots of the Monte Carlo traces
-of the Alpha parameter? Default <code>FALSE</code>.</p></dd>
+<dd><p>Logical: save plots of the Monte Carlo traces of the Alpha parameter? Default <code>FALSE</code>.</p></dd>
 
 
 <dt id="arg-hyperparams">hyperparams<a class="anchor" aria-label="anchor" href="#arg-hyperparams"></a></dt>
@@ -212,8 +198,7 @@ of the Alpha parameter? Default <code>FALSE</code>.</p></dd>
 </dl></div>
     <div class="section level2">
     <h2 id="value">Value<a class="anchor" aria-label="anchor" href="#value"></a></h2>
-    <p>Name of directory containing output files, or learnt object,
-or <code>NULL</code>, depending on argument <code>output</code>.</p>
+    <p>Name of directory containing output files, or learnt object, or <code>NULL</code>, depending on argument <code>output</code>.</p>
     </div>
 
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>
