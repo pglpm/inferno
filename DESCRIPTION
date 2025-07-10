@@ -31,7 +31,6 @@ Imports:
     doRNG,
     extraDistr,
     foreach,
-    mcmc,
     nimble
 Suggests:
     knitr,
