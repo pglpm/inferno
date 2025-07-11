@@ -34,7 +34,9 @@ buildauxmetadata <- function(data, metadata, Dthreshold = 1, tscalefactor = 1.25
     auxmetadata <- as.data.frame(
                 list(
                     name = NA, type = NA, mcmctype = NA, id = NA, # censored= NA,
-                    transform = NA, Nvalues = NA, halfstep = NA,
+                    transform = NA,
+                    Nvalues = NA_integer_, # keep this as integer
+                    halfstep = NA,
                     domainmin = NA, domainmax = NA,
                     minincluded = NA, maxincluded = NA,
                     tdomainmin = NA, tdomainmax = NA,
@@ -58,7 +60,7 @@ buildauxmetadata <- function(data, metadata, Dthreshold = 1, tscalefactor = 1.25
         tdomainminplushs <- NA
         domainmaxminushs <- NA
         tdomainmaxminushs <- NA
-        Nvalues <- +Inf
+        Nvalues <- NA_integer_
         halfstep <- as.numeric(minfo$datastep) / 2
         if(!is.null(data)) {
             x <- data[[name]]
@@ -231,7 +233,7 @@ buildauxmetadata <- function(data, metadata, Dthreshold = 1, tscalefactor = 1.25
 
 #### Continuous variate (R,C,D)
         } else if (minfo$type == 'continuous') {
-            Nvalues <- +Inf
+            Nvalues <- NA_integer_
             ## Rounded variates
             ## Empty datastep means 0
             if (is.null(halfstep) || is.na(halfstep)) {

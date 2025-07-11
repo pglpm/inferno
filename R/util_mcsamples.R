@@ -1,4 +1,4 @@
-#### Eliminate samples from an learnt object
+#### Eliminate samples from a 'learnt' object
 #' @keywords internal
 mcsubset <- function(learnt, subsamples) {
     lapply(learnt, function(xx) {

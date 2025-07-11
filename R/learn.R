@@ -741,33 +741,40 @@ learn <- function(
         ##     )
         ## },
         if (vn$O > 0) { # ordinal
-            Omaxn <- max(auxmetadata[auxmetadata$mcmctype == 'O', 'Nvalues'])
-            Oalpha0 <- matrix(1e-100, nrow = vn$O, ncol = Omaxn)
-            for (avar in seq_along(vnames$O)) {
-                nvalues <- auxmetadata[auxmetadata$name == vnames$O[avar], 'Nvalues']
-                ## ## we choose a flatter hyperprior for ordinal variates
-                ## we choose a Hadamard-like hyperprior for nominal variates
-                Oalpha0[avar, 1:nvalues] <- 1/nvalues
-            }
+            Ocards <- auxmetadata[auxmetadata$name %in% vnames$O, 'Nvalues']
+            Omaxn <- sum(Ocards)
+            Of <- cumsum(Ocards)
+            Oi <- Of - Ocards + 1L
+            ## ## we choose a flatter hyperprior for ordinal variates
+            ## we choose a Hadamard-like hyperprior for nominal variates
+            Oalpha0 <- as.vector(unlist(sapply(Ocards, function(acard){
+                rep(1 / acard, acard)
+            })))
             ##
             list(
                 On = vn$O,
-                Omaxn = Omaxn,
+                Ocards = Ocards,
+                Oi = Oi,
+                Of = Of,
                 Oalpha0 = Oalpha0
             )
         },
         if (vn$N > 0) { # nominal
-            Nmaxn <- max(auxmetadata[auxmetadata$mcmctype == 'N', 'Nvalues'])
-            Nalpha0 <- matrix(1e-100, nrow = vn$N, ncol = Nmaxn)
-            for (avar in seq_along(vnames$N)) {
-                nvalues <- auxmetadata[auxmetadata$name == vnames$N[avar], 'Nvalues']
-                ## we choose a Hadamard-like hyperprior for nominal variates
-                Nalpha0[avar, 1:nvalues] <- 1 / nvalues
-            }
+            Ncards <- auxmetadata[auxmetadata$name %in% vnames$N, 'Nvalues']
+            Nmaxn <- sum(Ncards)
+            Nf <- cumsum(Ncards)
+            Ni <- Nf - Ncards + 1L
+            ## ## we choose a flatter hyperprior for ordinal variates
+            ## we choose a Hadamard-like hyperprior for nominal variates
+            Nalpha0 <- as.vector(unlist(sapply(Ncards, function(acard){
+                rep(1 / acard, acard)
+            })))
             ##
             list(
                 Nn = vn$N,
-                Nmaxn = Nmaxn,
+                Ncards = Ncards,
+                Ni = Ni,
+                Nf = Nf,
                 Nalpha0 = Nalpha0
             )
         },
@@ -844,20 +851,14 @@ learn <- function(
         file = file.path(dirname, paste0('___datapoints', dashnameroot, '.rds')))
 
 #### Output information to user
-    if (!exists('Nalpha0')) {
-        Nalpha0 <- cbind(1)
-    }
-    if (!exists('Oalpha0')) {
-        Oalpha0 <- cbind(1)
-    }
     cat(
         'Starting Monte Carlo sampling of', nsamples, 'samples by',
         nchains, 'chains'
     )
 
     samplespacedims <- (vn$R * 2 + vn$C * 2 + vn$D * 2 + # means, vars
-                            sum(apply(Oalpha0, 1, function(x) sum(x > 2e-17) - 1)) +
-                            sum(apply(Nalpha0, 1, function(x) sum(x > 2e-17) - 1)) +
+                            (if(vn$O > 0){Omaxn - vn$O}else{0}) +
+                            (if(vn$N > 0){Nmaxn - vn$N}else{0}) +
                             vn$B + # independent probs
                             1) * ncomponents - 1 # component weights
 
@@ -1009,12 +1010,12 @@ learn <- function(
                 ## }
                 if (vn$O > 0) { # ordinal
                     for (v in 1:On) {
-                        Oprob[v, k, 1:Omaxn] ~ ddirch(alpha = Oalpha0[v, 1:Omaxn])
+                        Oprob[Oi[v]:Of[v], k] ~ ddirch(alpha = Oalpha0[Oi[v]:Of[v]])
                     }
                 }
                 if (vn$N > 0) { # nominal
                     for (v in 1:Nn) {
-                        Nprob[v, k, 1:Nmaxn] ~ ddirch(alpha = Nalpha0[v, 1:Nmaxn])
+                        Nprob[Ni[v]:Nf[v], k] ~ ddirch(alpha = Nalpha0[Ni[v]:Nf[v]])
                     }
                 }
                 if (vn$B > 0) { # binary
@@ -1027,7 +1028,7 @@ learn <- function(
             for (d in 1:npoints) {
                 if(isTRUE(avoidzeroW)){
                     K[d] ~ dcat(prob = W0[1:ncomponents])
-                } else {
+ g               } else {
                     K[d] ~ dcat(prob = W[1:ncomponents])
                 }
                 ##
@@ -1059,12 +1060,12 @@ learn <- function(
                 ## }
                 if (vn$O > 0) { # nominal
                     for (v in 1:On) {
-                        Odata[d, v] ~ dcat(prob = Oprob[v, K[d], 1:Omaxn])
+                        Odata[d, v] ~ dcat(prob = Oprob[Oi[v]:Of[v], K[d]])
                     }
                 }
                 if (vn$N > 0) { # nominal
                     for (v in 1:Nn) {
-                        Ndata[d, v] ~ dcat(prob = Nprob[v, K[d], 1:Nmaxn])
+                        Ndata[d, v] ~ dcat(prob = Nprob[Oi[v]:Of[v], K[d]])
                     }
                 }
                 if (vn$B > 0) { # binary
@@ -1317,12 +1318,9 @@ learn <- function(
                     outlist <- c(
                         outlist,
                         list(
-                            Oprob = aperm(array(sapply(1:vn$O, function(avar) {
-                                sapply(1:constants$ncomponents, function(aclus) {
-                                    Oalpha0[avar, ]/sum(Oalpha0[avar, ])
-                                    ## nimble::rdirch(n = 1, alpha = Oalpha0[avar, ])
-                                })
-                            }), dim = c(Omaxn, constants$ncomponents, vn$O)))
+                            Oprob = matrix(unlist(sapply(Ocards, function(acard){
+                                rep(1 / acard, acard)
+                            })), nrow = sum(Ocards), ncol = ncomponents)
                         )
                     )
                 }
@@ -1330,12 +1328,9 @@ learn <- function(
                     outlist <- c(
                         outlist,
                         list(
-                            Nprob = aperm(array(sapply(1:vn$N, function(avar) {
-                                sapply(1:constants$ncomponents, function(aclus) {
-                                    constants$Nalpha0[avar, ]/sum(constants$Nalpha0[avar, ])
-                                    ## nimble::rdirch(n = 1, alpha = constants$Nalpha0[avar, ])
-                                })
-                            }), dim = c(Nmaxn, constants$ncomponents, vn$N)))
+                            Nprob = matrix(unlist(sapply(Ncards, function(acard){
+                                rep(1 / acard, acard)
+                            })), nrow = sum(Ncards), ncol = ncomponents)
                         )
                     )
                 }
@@ -1563,12 +1558,9 @@ learn <- function(
                     outlist <- c(
                         outlist,
                         list(
-                            Oprob = aperm(array(sapply(1:vn$O, function(avar) {
-                                sapply(1:constants$ncomponents, function(aclus) {
-                                    Oalpha0[avar, ]/sum(Oalpha0[avar, ])
-                                    ## nimble::rdirch(n = 1, alpha = Oalpha0[avar, ])
-                                })
-                            }), dim = c(Omaxn, constants$ncomponents, vn$O)))
+                            Oprob = matrix(unlist(sapply(Ocards, function(acard){
+                                rep(1 / acard, acard)
+                            })), nrow = sum(Ocards), ncol = ncomponents)
                         )
                     )
                 }
@@ -1576,12 +1568,9 @@ learn <- function(
                     outlist <- c(
                         outlist,
                         list(
-                            Nprob = aperm(array(sapply(1:vn$N, function(avar) {
-                                sapply(1:constants$ncomponents, function(aclus) {
-                                    constants$Nalpha0[avar, ]/sum(constants$Nalpha0[avar, ])
-                                    ## nimble::rdirch(n = 1, alpha = constants$Nalpha0[avar, ])
-                                })
-                            }), dim = c(Nmaxn, constants$ncomponents, vn$N)))
+                            Nprob = matrix(unlist(sapply(Ncards, function(acard){
+                                rep(1 / acard, acard)
+                            })), nrow = sum(Ncards), ncol = ncomponents)
                         )
                     )
                 }
@@ -1698,11 +1687,9 @@ learn <- function(
                     outlist <- c(
                         outlist,
                         list(
-                            Oprob = aperm(array(sapply(1:vn$O, function(avar) {
-                                sapply(1:constants$ncomponents, function(aclus) {
-                                    nimble::rdirch(n = 1, alpha = Oalpha0[avar, ])
-                                })
-                            }), dim = c(Omaxn, constants$ncomponents, vn$O)))
+                            Oprob = matrix(unlist(sapply(Ocards, function(acard){
+                                rep(1 / acard, acard)
+                            })), nrow = sum(Ocards), ncol = ncomponents)
                         )
                     )
                 }
@@ -1712,7 +1699,8 @@ learn <- function(
                         list(
                             Nprob = aperm(array(sapply(1:vn$N, function(avar) {
                                 sapply(1:constants$ncomponents, function(aclus) {
-                                    nimble::rdirch(n = 1, alpha = constants$Nalpha0[avar, ])
+                                    constants$Nalpha0[avar, ]/sum(constants$Nalpha0[avar, ])
+                                    ## nimble::rdirch(n = 1, alpha = constants$Nalpha0[avar, ])
                                 })
                             }), dim = c(Nmaxn, constants$ncomponents, vn$N)))
                         )
@@ -1798,11 +1786,9 @@ learn <- function(
                     outlist <- c(
                         outlist,
                         list(
-                            Oprob = aperm(array(sapply(1:vn$O, function(avar) {
-                                sapply(1:constants$ncomponents, function(aclus) {
-                                    Oalpha0[avar, ]/sum(Oalpha0[avar, ])
-                                })
-                            }), dim = c(Omaxn, constants$ncomponents, vn$O)))
+                            Oprob = matrix(unlist(sapply(Ocards, function(acard){
+                                rep(1 / acard, acard)
+                            })), nrow = sum(Ocards), ncol = ncomponents)
                         )
                     )
                 }
@@ -1810,11 +1796,9 @@ learn <- function(
                     outlist <- c(
                         outlist,
                         list(
-                            Nprob = aperm(array(sapply(1:vn$N, function(avar) {
-                                sapply(1:constants$ncomponents, function(aclus) {
-                                    constants$Nalpha0[avar, ]/sum(constants$Nalpha0[avar, ])
-                                })
-                            }), dim = c(Nmaxn, constants$ncomponents, vn$N)))
+                            Nprob = matrix(unlist(sapply(Ncards, function(acard){
+                                rep(1 / acard, acard)
+                            })), nrow = sum(Ncards), ncol = ncomponents)
                         )
                     )
                 }
@@ -1927,11 +1911,10 @@ learn <- function(
                     outlist <- c(
                         outlist,
                         list(
-                            Oprob = aperm(array(sapply(1:vn$O, function(avar) {
-                                ## sapply(1:constants$ncomponents, function(aclus) {
-                                nimble::rdirch(n = 1, alpha = Oalpha0[avar, ])
-                                ## })
-                            }), dim = c(Omaxn, vn$O, constants$ncomponents)), c(2, 3, 1))
+                            Oprob = matrix(unlist(sapply(seq_along(Ocards),
+                                function(v){nimble::rdirch(n = 1,
+                                    alpha = Oalpha0[Oi[v]:Of[v]])
+                            })), nrow = sum(Ocards), ncol = ncomponents)
                         )
                     )
                 }
@@ -1939,11 +1922,10 @@ learn <- function(
                     outlist <- c(
                         outlist,
                         list(
-                            Nprob = aperm(array(sapply(1:vn$N, function(avar) {
-                                ## sapply(1:constants$ncomponents, function(aclus) {
-                                nimble::rdirch(n = 1, alpha = constants$Nalpha0[avar, ])
-                                ## })
-                            }), dim = c(Nmaxn, vn$N, constants$ncomponents)), c(2, 3, 1))
+                            Nprob = matrix(unlist(sapply(seq_along(Ncards),
+                                function(v){nimble::rdirch(n = 1,
+                                    alpha = Nalpha0[Ni[v]:Nf[v]])
+                            })), nrow = sum(Ncards), ncol = ncomponents)
                         )
                     )
                 }
