@@ -46,7 +46,7 @@ learntdir <- learn(
         ## Dthreshold = 1,
         ## tscalefactor = 1,
         ## initmethod = 'allinone',
-        avoidzeroW = TRUE
+        ## avoidzeroW = TRUE
         ## precluster, prior
     )
 )
