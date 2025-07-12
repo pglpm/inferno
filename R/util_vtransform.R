@@ -316,10 +316,10 @@ vtransform <- function(
                         datum <- bvalues[as.character(datum)]
 
                     } else if (Oout == 'index') {
-                        bvalues <- seq_len(Nvalues) + indexpos
+                        bvalues <- seq_len(Nvalues)
                         names(bvalues) <- sapply(bvalues, function(x)get(paste0('V', x)))
                         ## names(bvalues) <- unlist(xinfo[paste0('V', bvalues)])
-                        datum <- bvalues[as.character(datum)]
+                        datum <- bvalues[as.character(datum)] + indexpos
 
                     } else if (Oout == 'original') {
                         bvalues <- seq_len(Nvalues)
@@ -341,10 +341,10 @@ vtransform <- function(
                         datum <- bvalues[as.character(datum)]
 
                     } else if (Nout == 'index') {
-                        bvalues <- seq_len(Nvalues) + indexpos
+                        bvalues <- seq_len(Nvalues)
                         names(bvalues) <- sapply(bvalues, function(x)get(paste0('V', x)))
                         ## names(bvalues) <- unlist(xinfo[paste0('V', bvalues)])
-                        datum <- bvalues[as.character(datum)]
+                        datum <- bvalues[as.character(datum)] + indexpos
 
                     } else if (Nout == 'original') {
                         bvalues <- seq_len(Nvalues)
