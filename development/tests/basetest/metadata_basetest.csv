@@ -6,5 +6,5 @@ Cvrt,continuous,,0,1,yes,yes,,,,,
 Dvrt,continuous,0.2,,,,,,,,,
 DPvrt,continuous,0.2,0,,,,,,,,
 Bvrt,nominal,,,,,,no,yes,,,
-Nvrt,nominal,,,,,,Na,Nb,Nc,Nd
+Nvrt,nominal,,,,,,Na,Nb,Nc,Nd,
 Ovrt,ordinal,,,,,,A,B,C,D,E

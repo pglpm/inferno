@@ -337,8 +337,8 @@ Pr <- function(
             Rout = 'normalized',
             Cout = 'boundisinf',
             Dout = 'normalized',
-            Oout = 'numeric',
-            Nout = 'numeric',
+            Oout = 'index',
+            Nout = 'index',
             Bout = 'numeric',
             logjacobianOr = NULL))
 
@@ -382,8 +382,8 @@ Pr <- function(
         Rout = 'normalized',
         Cout = 'boundisinf',
         Dout = 'normalized',
-        Oout = 'numeric',
-        Nout = 'numeric',
+        Oout = 'index',
+        Nout = 'index',
         Bout = 'numeric',
         logjacobianOr = NULL))
 

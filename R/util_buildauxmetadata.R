@@ -29,6 +29,7 @@ buildauxmetadata <- function(data, metadata, Dthreshold = 1, tscalefactor = 1.25
     Othreshold <- 10
 
     idR <- idC <- idD <- idB <- idO <- idN <- 1L
+    posN <- posO <- 0L
 
 #### Prepare empty metadata frame
     auxmetadata <- as.data.frame(
@@ -36,6 +37,7 @@ buildauxmetadata <- function(data, metadata, Dthreshold = 1, tscalefactor = 1.25
                     name = NA, type = NA, mcmctype = NA, id = NA, # censored= NA,
                     transform = NA,
                     Nvalues = NA_integer_, # keep this as integer
+                    indexpos = NA_integer_, # keep this as integer
                     halfstep = NA,
                     domainmin = NA, domainmax = NA,
                     minincluded = NA, maxincluded = NA,
@@ -61,6 +63,7 @@ buildauxmetadata <- function(data, metadata, Dthreshold = 1, tscalefactor = 1.25
         domainmaxminushs <- NA
         tdomainmaxminushs <- NA
         Nvalues <- NA_integer_
+        indexpos <- NA_integer_
         halfstep <- as.numeric(minfo$datastep) / 2
         if(!is.null(data)) {
             x <- data[[name]]
@@ -125,6 +128,8 @@ buildauxmetadata <- function(data, metadata, Dthreshold = 1, tscalefactor = 1.25
             mcmctype <- 'N'
             id <- idN
             idN <- idN + 1L
+            indexpos <- posN
+            posN <- posN + Nvalues
             halfstep <- NA
             domainmin <- NA
             domainmax <- NA
@@ -157,6 +162,8 @@ buildauxmetadata <- function(data, metadata, Dthreshold = 1, tscalefactor = 1.25
                 mcmctype <- 'O'
                 id <- idO
                 idO <- idO + 1L
+                indexpos <- posO
+                posO <- posO + Nvalues
                 ## convert domain specification to list
                 if(ndatavalues == 0) {
                     datavalues <- as.list(as.character(
@@ -620,7 +627,9 @@ buildauxmetadata <- function(data, metadata, Dthreshold = 1, tscalefactor = 1.25
                 list(
                     name = name, type = minfo$type, mcmctype = mcmctype,
                     id = id, # censored=cens,
-                    transform = transf, Nvalues = Nvalues, halfstep = halfstep,
+                    transform = transf,
+                    Nvalues = Nvalues, indexpos = indexpos,
+                    halfstep = halfstep,
                     domainmin = domainmin, domainmax = domainmax,
                     minincluded = minincluded, maxincluded = maxincluded,
                     tdomainmin = tdomainmin, tdomainmax = tdomainmax,

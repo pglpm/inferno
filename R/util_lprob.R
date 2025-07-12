@@ -85,32 +85,23 @@ util_lprob <- function(
             }) +
             (if (nO > 0) { # nominal
                 colSums(log(
-                    aperm(
-                        vapply(X = seq_len(nO), FUN = function(v) {
-                            learnt$Oprob[tO[v], , x[iO[v], ], ]
-                        }, FUN.VALUE = learnt$W),
-                        c(3, 1, 2))
+                    learnt$Oprob[x[iO], , , drop = FALSE]
                 ), na.rm = TRUE)
             } else {
                 0
             }) +
             (if (nN > 0) { # nominal
                 colSums(log(
-                    aperm(
-                        vapply(X = seq_len(nN), FUN = function(v) {
-                            learnt$Nprob[tN[v], , x[iN[v], ], ]
-                        }, FUN.VALUE = learnt$W),
-                        c(3, 1, 2))
+                    learnt$Nprob[x[iN], , , drop = FALSE]
                 ), na.rm = TRUE)
             } else {
                 0
             }) +
             (if (nB > 0) { # binary
                 ## Bprob is the probability that x=1
+                pv <- learnt$Bprob[tB, , , drop = FALSE]
                 colSums(log(
-                    x[iB, ] * learnt$Bprob[tB, , , drop = FALSE] +
-                        (1 - x[iB, ]) *
-                        (1 - learnt$Bprob[tB, , , drop = FALSE])
+                    x[iB, ] * pv + (1 - x[iB, ]) * (1 - pv)
                 ), na.rm = TRUE)
             } else {
                 0

@@ -310,14 +310,20 @@ vtransform <- function(
                 } else if (mcmctype == 'O') {
 
                     if (Oout == 'numeric') {
-                        bvalues <- 1:Nvalues
-                        names(bvalues) <- sapply(bvalues, function(x)get(paste0('V',x)))
+                        bvalues <- seq_len(Nvalues)
+                        names(bvalues) <- sapply(bvalues, function(x)get(paste0('V', x)))
+                        ## names(bvalues) <- unlist(xinfo[paste0('V', bvalues)])
+                        datum <- bvalues[as.character(datum)]
+
+                    } else if (Oout == 'index') {
+                        bvalues <- seq_len(Nvalues) + indexpos
+                        names(bvalues) <- sapply(bvalues, function(x)get(paste0('V', x)))
                         ## names(bvalues) <- unlist(xinfo[paste0('V', bvalues)])
                         datum <- bvalues[as.character(datum)]
 
                     } else if (Oout == 'original') {
-                        bvalues <- 1:Nvalues
-                        names(bvalues) <- sapply(bvalues, function(x)get(paste0('V',x)))
+                        bvalues <- seq_len(Nvalues)
+                        names(bvalues) <- sapply(bvalues, function(x)get(paste0('V', x)))
                         ## names(bvalues) <- unlist(xinfo[paste0('V', bvalues)])
                         datum <- names(bvalues[datum])
 
@@ -329,14 +335,20 @@ vtransform <- function(
                 } else if (mcmctype == 'N') {
 
                     if (Nout == 'numeric') {
-                        bvalues <- 1:Nvalues
-                        names(bvalues) <- sapply(bvalues, function(x)get(paste0('V',x)))
+                        bvalues <- seq_len(Nvalues)
+                        names(bvalues) <- sapply(bvalues, function(x)get(paste0('V', x)))
+                        ## names(bvalues) <- unlist(xinfo[paste0('V', bvalues)])
+                        datum <- bvalues[as.character(datum)]
+
+                    } else if (Nout == 'index') {
+                        bvalues <- seq_len(Nvalues) + indexpos
+                        names(bvalues) <- sapply(bvalues, function(x)get(paste0('V', x)))
                         ## names(bvalues) <- unlist(xinfo[paste0('V', bvalues)])
                         datum <- bvalues[as.character(datum)]
 
                     } else if (Nout == 'original') {
-                        bvalues <- 1:Nvalues
-                        names(bvalues) <- sapply(bvalues, function(x)get(paste0('V',x)))
+                        bvalues <- seq_len(Nvalues)
+                        names(bvalues) <- sapply(bvalues, function(x)get(paste0('V', x)))
                         ## names(bvalues) <- unlist(xinfo[paste0('V', bvalues)])
                         datum <- names(bvalues[datum])
 

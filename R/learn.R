@@ -504,8 +504,8 @@ learn <- function(
                 Rout = 'normalized',
                 Cout = 'boundisinf',
                 Dout = 'normalized',
-                Oout = 'numeric',
-                Nout = 'numeric',
+                Oout = 'index',
+                Nout = 'index',
                 Bout = 'numeric',
                 logjacobianOr = NULL))
             rownames(testdata) <- pointsid
@@ -529,8 +529,10 @@ learn <- function(
                                    c('R', 'C', 'D', 'L')) {
                                 rnorm(n = ncheckpoints, mean = 0, sd = 2)
                             } else {
-                                sample(1:auxmetadata[ii, 'Nvalues'], ncheckpoints,
-                                    replace = TRUE)
+                                sample(seq_len(auxmetadata[ii, 'Nvalues']),
+                                    ncheckpoints,
+                                    replace = TRUE) +
+                                    auxmetadata[ii, 'indexpos']
                             }
                         }
                     ),
@@ -743,8 +745,9 @@ learn <- function(
         if (vn$O > 0) { # ordinal
             Ocards <- auxmetadata[auxmetadata$name %in% vnames$O, 'Nvalues']
             Omaxn <- sum(Ocards)
-            Of <- cumsum(Ocards)
-            Oi <- Of - Ocards + 1L
+            Oi <- auxmetadata[auxmetadata$name %in% vnames$O, 'indexpos'] + 1L
+            if(vn$O == 1){Oi <- c(Oi, NA_integer_)}
+            Of <- Oi + Ocards - 1L
             ## ## we choose a flatter hyperprior for ordinal variates
             ## we choose a Hadamard-like hyperprior for nominal variates
             Oalpha0 <- as.vector(unlist(sapply(Ocards, function(acard){
@@ -753,7 +756,7 @@ learn <- function(
             ##
             list(
                 On = vn$O,
-                Ocards = Ocards,
+                ## Ocards = Ocards,
                 Oi = Oi,
                 Of = Of,
                 Oalpha0 = Oalpha0
@@ -762,8 +765,9 @@ learn <- function(
         if (vn$N > 0) { # nominal
             Ncards <- auxmetadata[auxmetadata$name %in% vnames$N, 'Nvalues']
             Nmaxn <- sum(Ncards)
-            Nf <- cumsum(Ncards)
-            Ni <- Nf - Ncards + 1L
+            Ni <- auxmetadata[auxmetadata$name %in% vnames$N, 'indexpos'] + 1L
+            if(vn$N == 1){Ni <- c(Ni, NA_integer_)}
+            Nf <- Ni + Ncards - 1L
             ## ## we choose a flatter hyperprior for ordinal variates
             ## we choose a Hadamard-like hyperprior for nominal variates
             Nalpha0 <- as.vector(unlist(sapply(Ncards, function(acard){
@@ -772,7 +776,7 @@ learn <- function(
             ##
             list(
                 Nn = vn$N,
-                Ncards = Ncards,
+                ## Ncards = Ncards,
                 Ni = Ni,
                 Nf = Nf,
                 Nalpha0 = Nalpha0
@@ -1065,7 +1069,7 @@ learn <- function(
                 }
                 if (vn$N > 0) { # nominal
                     for (v in 1:Nn) {
-                        Ndata[d, v] ~ dcat(prob = Nprob[Oi[v]:Of[v], K[d]])
+                        Ndata[d, v] ~ dcat(prob = Nprob[Ni[v]:Nf[v], K[d]])
                     }
                 }
                 if (vn$B > 0) { # binary
@@ -1579,7 +1583,8 @@ learn <- function(
                         outlist,
                         list(
                             ## Bprob = Bprobs
-                            Bprob = matrix(0.5, nrow = vn$B, ncol = constants$ncomponents)
+                            Bprob = matrix(0.5,
+                                nrow = vn$B, ncol = constants$ncomponents)
                         )
                     )
                 }
@@ -1949,49 +1954,54 @@ learn <- function(
 #################################################
 #### NIMBLE SETUP
 ##################################################
+
         finitemixnimble <- nimbleModel(
             code = finitemix,
             name = 'finitemixnimble1',
             constants = constants,
             data = datapoints,
             ## dimensions = c(
-            ##     if (vn$R > 0) {
-            ##         list(
-            ##             Rdata = c(npoints, vn$R)
-            ##             )
-            ##     },
-            ##     if (vn$C > 0) {
-            ##         list(
-            ##             Caux = c(npoints, vn$C),
-            ##             Clat = c(npoints, vn$C),
-            ##             Cleft = c(npoints, vn$C),
-            ##             Cright = c(npoints, vn$C),
-            ##             Clatinit = c(npoints, vn$C)
-            ##             )
-            ##     },
-            ##     if (vn$D > 0) {
-            ##         list(
-            ##             Daux = c(npoints, vn$D),
-            ##             Dleft = c(npoints, vn$D),
-            ##             Dright = c(npoints, vn$D),
-            ##             Dlatinit = c(npoints, vn$D)
-            ##             )
-            ##     },
-            ##     if (vn$O > 0) {
-            ##         list(
-            ##             Odata = c(npoints, vn$O)
-            ##             )
-            ##     },
-            ##     if (vn$N > 0) {
-            ##         list(
-            ##             Ndata = c(npoints, vn$N)
-            ##             )
-            ##     },
-            ##     if (vn$B > 0) {
-            ##         list(
-            ##             Bdata = c(npoints, vn$B)
-            ##             )
-            ##     }
+            ##     ##     if (vn$R > 0) {
+            ##     ##         list(
+            ##     ##             Rdata = c(npoints, vn$R)
+            ##     ##             )
+            ##     ##     },
+            ##     ##     if (vn$C > 0) {
+            ##     ##         list(
+            ##     ##             Caux = c(npoints, vn$C),
+            ##     ##             Clat = c(npoints, vn$C),
+            ##     ##             Cleft = c(npoints, vn$C),
+            ##     ##             Cright = c(npoints, vn$C),
+            ##     ##             Clatinit = c(npoints, vn$C)
+            ##     ##             )
+            ##     ##     },
+            ##     ##     if (vn$D > 0) {
+            ##     ##         list(
+            ##     ##             Daux = c(npoints, vn$D),
+            ##     ##             Dleft = c(npoints, vn$D),
+            ##     ##             Dright = c(npoints, vn$D),
+            ##     ##             Dlatinit = c(npoints, vn$D)
+            ##     ##             )
+            ##     ##     },
+            ##     ## if (vn$O > 0) {
+            ##     ##     list(
+            ##     ##         Oi = length(Oi),
+            ##     ##         Of = length(Of)
+            ##     ##         ##             Odata = c(npoints, vn$O)
+            ##     ##     )
+            ##     ## },
+            ##     ## if (vn$N > 0) {
+            ##     ##     list(
+            ##     ##         Ni = length(Ni),
+            ##     ##         Nf = length(Nf)
+            ##     ##         ##             Ndata = c(npoints, vn$N)
+            ##     ##     )
+            ##     ## }
+            ##     ##     if (vn$B > 0) {
+            ##     ##         list(
+            ##     ##             Bdata = c(npoints, vn$B)
+            ##     ##             )
+            ##     ##     }
             ## ),
             inits = initsfn()
         )
