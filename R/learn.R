@@ -788,6 +788,9 @@ learn <- function(
                 Bshapelo = rep(Bshapelo, 1),
                 Bshapehi = rep(Bshapehi, 1)
             )
+        },
+        if(isTRUE(avoidzeroW)){
+            list(epsd = .Machine$double.xmin)
         }
     ) # End constants
 
@@ -936,7 +939,8 @@ learn <- function(
                 contains = sampler_BASE,
                 setup = function(model, mvSaved, target, control) {
                     ## control list extraction
-                    eps <- extractControlElement(control, 'eps', 1e-100)
+                    eps <- extractControlElement(control,
+                        'eps', .Machine$double.xmin)
                     ## node list generation
                     target <- model$expandNodeNames(target)
                     calcNodes <- model$getDependencies(target)
@@ -978,7 +982,7 @@ learn <- function(
             alphas[1:ncomponents] <- dirchalphas[1:ncomponents] * alphabase^Alpha
             W[1:ncomponents] ~ ddirch(alpha = alphas[1:ncomponents])
             if(isTRUE(avoidzeroW)){
-                W0[1:ncomponents] <- W[1:ncomponents] + 1e-100
+                W0[1:ncomponents] <- W[1:ncomponents] + epsd
             }
             ## Probability density for the parameters of the components
             for (k in 1:ncomponents) {
@@ -1032,7 +1036,7 @@ learn <- function(
             for (d in 1:npoints) {
                 if(isTRUE(avoidzeroW)){
                     K[d] ~ dcat(prob = W0[1:ncomponents])
- g               } else {
+                } else {
                     K[d] ~ dcat(prob = W[1:ncomponents])
                 }
                 ##
