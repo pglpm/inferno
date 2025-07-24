@@ -7,231 +7,50 @@
 #' @return Matrix with as many rows as components and as many cols as samples
 #' @keywords internal
 util_lprobs <- function(
-    x,
-    learnt,
-    ##
-    nR, iR, tR,
-    nLR, iLR, tLR,
-    nUR, iUR, tUR,
-    ##
-    nC, iC, tC,
-    nLC, iLC, tLC,
-    nUC, iUC, tUC,
-    Clefts, Crights,
-    ##
-    nD, iD, tD,
-    nLD, iLD, tLD,
-    nUD, iUD, tUD,
-    Dsteps, Dlefts, Drights,
-    ##
-    nO, iO, tO,
-    nLO, iLO, tLO,
-    nUO, iUO, tUO,
-    ##
-    nN, iN, tN,
-    nB, iB, tB
+    nV0, xV0, V0mean, V0sd,
+    nV1, xV1, V1mean, V1sd,
+    nV2, xV2, V2mean, V2sd, V2steps,
+    nO, Oprobs, xO,
+    nB, Bprobs, xB
 ) {
-    (
-        (if (nR > 0) { # continuous
+    sum(
+        ## point probability density
+        if(nV0) {
             colSums(
-                dnorm(
-                    x = x[iR, ],
-                    mean = learnt$Rmean[tR, , , drop = FALSE],
-                    sd = learnt$Rvar[tR, , , drop = FALSE],
-                    log = TRUE
-                ), na.rm = TRUE)
-        } else {
-            0
-        }) +
-            (if (nC > 0) { # censored
-                isfin <- is.finite(x[iC, ])
-                indf <- which(isfin)
-                indi <- which(!isfin)
-                (if (length(indf) > 0) {
-                    colSums(
-                        dnorm(
-                            x = x[iC[indf], ],
-                            mean = learnt$Cmean[tC[indf], , , drop = FALSE],
-                            sd = learnt$Cvar[tC[indf], , , drop = FALSE],
-                            log = TRUE
-                        ), na.rm = TRUE)
-                } else {
-                    0
-                }) +
-                    (if (length(indi) > 0) {
-                        vt <- tC[indi]
-                        vx <- pmin(
-                            pmax(Clefts[vt], x[iC[indi], ]),
-                            Crights[vt])
-                        ## for upper tail, take opposite mean and value
-                        colSums(
-                            pnorm(
-                                q = -abs(vx),
-                                mean = -sign(vx) *
-                                    learnt$Cmean[vt, , , drop = FALSE],
-                                sd = learnt$Cvar[vt, , , drop = FALSE],
-                                log.p = TRUE
-                            ), na.rm = TRUE)
-                    } else {
-                        0
-                    })
-            } else {
-                0
-            }) +
-            (if (nD > 0) { # discretized
-                vrights <- pmax(x[iD, ] + Dsteps[tD], Dlefts[tD])
-                vrights[vrights - Dsteps[tD] >= Drights[tD]] <- +Inf
-                vlefts <- pmin(x[iD, ] - Dsteps[tD], Drights[tD])
-                vlefts[vlefts + Dsteps[tD] <= Dlefts[tD]] <- -Inf
-                colSums(log(
-                    pnorm(
-                        q = vrights,
-                        mean = learnt$Dmean[tD, , , drop = FALSE],
-                        sd = learnt$Dvar[tD, , , drop = FALSE]
-                    ) -
-                        pnorm(
-                            q = vlefts,
-                            mean = learnt$Dmean[tD, , , drop = FALSE],
-                            sd = learnt$Dvar[tD, , , drop = FALSE]
-                        )
-                ), na.rm = TRUE)
-            } else {
-                0
-            }) +
-            (if (nO > 0) { # nominal
-                colSums(log(
-                    aperm(
-                        vapply(X = seq_len(nO), FUN = function(v) {
-                            learnt$Oprob[tO[v], , x[iO[v], ], ]
-                        }, FUN.VALUE = learnt$W),
-                        c(3, 1, 2))
-                ), na.rm = TRUE)
-            } else {
-                0
-            }) +
-            (if (nN > 0) { # nominal
-                colSums(log(
-                    aperm(
-                        vapply(X = seq_len(nN), FUN = function(v) {
-                            learnt$Nprob[tN[v], , x[iN[v], ], ]
-                        }, FUN.VALUE = learnt$W),
-                        c(3, 1, 2))
-                ), na.rm = TRUE)
-            } else {
-                0
-            }) +
-            (if (nB > 0) { # binary
-                ## Bprob is the probability that x=1
-                colSums(log(
-                    x[iB, ] * learnt$Bprob[tB, , , drop = FALSE] +
-                        (1 - x[iB, ]) *
-                        (1 - learnt$Bprob[tB, , , drop = FALSE])
-                ), na.rm = TRUE)
-            } else {
-                0
-            }) +
-    ## lower-tails
-        (if (nLR > 0) { # continuous
+                x = dnorm(x = xV0, mean = V0mean, sd = V0sd, log = TRUE),
+                na.rm = TRUE, dims = 1)
+        },
+        ## tail probability
+        if(nV1) {
             colSums(
-                pnorm(
-                    q = x[iLR, ],
-                    mean = learnt$Rmean[tLR, , , drop = FALSE],
-                    sd = learnt$Rvar[tLR, , , drop = FALSE],
-                    log.p = TRUE,
-                    lower.tail = TRUE
-                ), na.rm = TRUE)
-        } else {
-            0
-        }) +
-            (if (nLC > 0) { # censored
-                colSums(
-                    pnorm(
-                        q = x[iLC, ],
-                        mean = learnt$Cmean[tLC, , , drop = FALSE],
-                        sd = learnt$Cvar[tLC, , , drop = FALSE],
-                        log.p = TRUE,
-                        lower.tail = TRUE
-                    ), na.rm = TRUE)
-            } else {
-                0
-            }) +
-            (if (nLD > 0) { # discretized
-                colSums(
-                    pnorm(
-                        q = x[iLD, ],
-                        mean = learnt$Dmean[tLD, , , drop = FALSE],
-                        sd = learnt$Dvar[tLD, , , drop = FALSE],
-                        log.p = TRUE,
-                        lower.tail = TRUE
-                    ), na.rm = TRUE)
-            } else {
-                0
-            }) +
-            (if (nLO > 0) { # nominal
-                seqO <- seq_len(dim(learnt$Oprob)[3])
-                colSums(log(
-                    aperm(
-                        vapply(seq_len(nLO), function(v) {
-                            vx <- (seqO <= x[iLO[v], ])
-                            apply(X = learnt$Oprob[tLO[v], , vx, , drop = F],
-                                MARGIN = -3, FUN = sum, na.rm = TRUE)
-                        }, learnt$W),
-                        c(3, 1, 2))
-                ), na.rm = TRUE)
-            } else {
-                0
-            }) +
-    ## upper-tails
-        (if (nUR > 0) { # continuous
+                x = pnorm(q = xV1, mean = V1mean, sd = V1sd,
+                    log.p = TRUE, lower.tail = TRUE),
+                na.rm = TRUE, dims = 1)
+        },
+        ## interval probability
+        if(nV2) {
+            out <- pnorm(q = xV2 - V2steps, mean = V2mean, sd = V2sd,
+                log.p = TRUE, lower.tail = TRUE)
+            ##
             colSums(
-                pnorm(
-                    q = x[iUR, ],
-                    mean = learnt$Rmean[tUR, , , drop = FALSE],
-                    sd = learnt$Rvar[tUR, , , drop = FALSE],
-                    log.p = TRUE,
-                    lower.tail = FALSE
-                ), na.rm = TRUE)
-        } else {
-            0
-        }) +
-            (if (nUC > 0) { # censored
-                colSums(
-                    pnorm(
-                        q = x[iUC, ],
-                        mean = learnt$Cmean[tUC, , , drop = FALSE],
-                        sd = learnt$Cvar[tUC, , , drop = FALSE],
-                        log.p = TRUE,
-                        lower.tail = FALSE
-                    ), na.rm = TRUE)
-            } else {
-                0
-            }) +
-            (if (nUD > 0) { # discretized
-                colSums(
-                    pnorm(
-                        q = x[iUD, ],
-                        mean = learnt$Dmean[tUD, , , drop = FALSE],
-                        sd = learnt$Dvar[tUD, , , drop = FALSE],
-                        log.p = TRUE,
-                        lower.tail = FALSE
-                    ), na.rm = TRUE)
-            } else {
-                0
-            }) +
-            (if (nUO > 0) { # nominal
-                seqO <- seq_len(dim(learnt$Oprob)[3])
-                colSums(log(
-                    aperm(
-                        vapply(seq_len(nUO), function(v) {
-                            vx <- (seqO > x[iUO[v], ])
-                            apply(X = learnt$Oprob[tUO[v], , vx, , drop = F],
-                                MARGIN = -3, FUN = sum, na.rm = TRUE)
-                        }, learnt$W),
-                        c(3, 1, 2))
-                ), na.rm = TRUE)
-            } else {
-                0
-            })
+                x = out + log(expm1(
+                    pnorm(q = xV2 + V2steps, mean = V2mean, sd = V2sd,
+                        log.p = TRUE, lower.tail = TRUE) - out
+                )),
+                na.rm = TRUE, dims = 1)
+        },
+        ##
+        if(nO) {
+            colSums(
+                x = log(Oprobs[xO, , , drop = FALSE]),
+                na.rm = TRUE, dims = 1)
+        }
+        ##
+        if(nB) {
+            ## Bprob is the probability that x=1
+            colSums(
+                x = log(1 - xB - Bprobs + 2 * xB * Bprobs),
+                na.rm = TRUE, dims = 1)
+        }
     )
 }
-

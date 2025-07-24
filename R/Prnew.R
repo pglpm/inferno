@@ -6,10 +6,8 @@
 #'   the joint probability of. One variate per column, one set of values per row.
 #' @param X matrix or data.table or `NULL`: set of values of variates on which we want to condition the joint probability of `Y`. If `NULL` (default), no conditioning is made (except for conditioning on the learning dataset and prior assumptions). One variate per column, one set of values per row.
 #' @param learnt either a string with the name of a directory or full path for a 'learnt.rds' object, produced by the \code{\link{learn}} function, or such an object itself.
-#' @param less to be documented
-#' @param greater to be documented
 #' @param priorY numeric vector with the same length as the rows of `Y`, or `TRUE`, or `NULL` (default): prior probabilities or base rates for the `Y` values. If `TRUE`, the prior probabilities are assumed to be all equal.
-#' @param nsamples integer or `NULL` or `"all"`: desired number of samples of the variability of the probability for `Y`. If `NULL`, no samples are reported. If `"all"` (or `Inf`), all samples obtained by the \code{\link{learn}} function are used. Default `100`.
+#' @param nsamples integer or `NULL` or `"all"`: desired number of samples of the variability of the probability for `Y`. If `NULL`, no samples are reported. If `"all"` (or `Inf`), all samples obtained by the \code{\link{learn}} function are used. Default `"all"`.
 #' @param quantiles numeric vector, between 0 and 1, or `NULL`: desired quantiles of the variability of the probability for `Y`. Default `c(0.055, 0.25, 0.75, 0.945)`, that is, the 5.5%, 25%, 75%, 94.5% quantiles (these are typical quantile values in the Bayesian literature: they give 50% and 89% credibility intervals, which correspond to 1 shannons and 0.5 shannons of uncertainty). If `NULL`, no quantiles are calculated.
 #' @param parallel Logical or `NULL` or positive integer: `TRUE`: use roughly half of available cores; `FALSE`: use serial computation; `NULL`: don't do anything (use pre-registered condition); integer: use this many cores. Default `NULL`
 #' @param silent logical: give warnings or updates in the computation?
@@ -21,14 +19,14 @@
 #' @return A list of class `probability`, consisting of the elements `values`,  `quantiles` (possibly `NULL`), `samples` (possibly `NULL`), `Y`, `X`. Element `values`: a matrix with the probabilities P(Y|X,data,assumptions), for all combinations of values of `Y` (rows) and `X` (columns). Element `quantiles`: an array with the variability quantiles (3rd dimension of the array) for such probabilities. Element `samples`: an array with the variability samples (3rd dimension of the array) for such probabilities. Elements `Y`, `X`: copies of the `Y` and `X` arguments.
 #'
 #' @import parallel foreach doParallel
+#'
+#' @export
 Pr2 <- function(
     Y,
     X = NULL,
     learnt,
-    less = NULL,
-    greater = NULL,
     priorY = NULL,
-    nsamples = 100L,
+    nsamples = 'all',
     quantiles = c(0.055, 0.25, 0.75, 0.945),
     parallel = NULL,
     silent = FALSE,
@@ -128,63 +126,32 @@ Pr2 <- function(
         stop('Y must have two dimensions')
     }
     if (!is.null(X) && length(dim(X)) != 2) {
-        stop('X must be NULL or NA or have two dimensions')
+        stop('X must be NULL or have two dimensions')
     }
     ##
     if (!is.null(X) && ncol(X) == 0) {
-        stop('X must be NULL or NA or have two dimensions')
+        stop('X must be NULL or have two dimensions')
     }
 
     ## More consistency checks
-    Yv0 <- colnames(Y)
-    if (!all(Yv0 %in% auxmetadata$name)) {
+    Yv <- colnames(Y)
+    if (!all(Yv %in% auxmetadata$name)) {
         stop('unknown Y variates\n')
     }
-    if (length(unique(Yv0)) != length(Yv0)) {
+    if (length(unique(Yv)) != length(Yv)) {
         stop('duplicate Y variates\n')
     }
     ##
-    Xv0 <- colnames(X)
-    if (!all(Xv0 %in% auxmetadata$name)) {
+    Xv <- colnames(X)
+    if (!all(Xv %in% auxmetadata$name)) {
         stop('unknown X variates\n')
     }
-    if (length(unique(Xv0)) != length(Xv0)) {
+    if (length(unique(Xv)) != length(Xv)) {
         stop('duplicate X variates\n')
     }
     ##
-    if (length(intersect(Yv0, Xv0)) > 0) {
+    if (length(intersect(Yv, Xv)) > 0) {
         stop('overlap in Y and X variates\n')
-    }
-
-
-    ## Consistency checks for 'less' and 'greater' args
-    if (all(is.na(less))){less <- NULL}
-    if (all(is.na(greater))){greater <- NULL}
-
-    if ((isTRUE(less) && !is.null(greater)) ||
-           (isTRUE(greater) && !is.null(less))){
-        stop("if either 'less' or 'greater' is true, the other must be NULL\n")
-    }
-
-    ## meaningless to require < or > for nominal and binary variates
-    cumulvnames <- auxmetadata[
-        auxmetadata$mcmctype %in% c('R', 'C', 'D', 'O'),
-        'name']
-    if (isTRUE(less)){
-        less <- cumulvnames
-    }
-    if (isTRUE(greater)){
-        greater <- cumulvnames
-    }
-
-    if (!is.null(less) && !all(less %in% cumulvnames)) {
-        stop("unknown or impossible variates in 'less'\n")
-    }
-    if (!is.null(greater) && !all(greater %in% cumulvnames)) {
-        stop("unknown or impossible variates in 'greater'\n")
-    }
-    if (length(intersect(less, greater)) > 0){
-        stop("overlap in 'less' and 'greater' variates\n")
     }
 
     ## Check if a prior for Y is given, in that case Y and X will be swapped
@@ -222,12 +189,11 @@ Pr2 <- function(
         Y <- X
         X <- .
         rm(.)
-        . <- Yv0
-        Yv0 <- Xv0
-        Xv0 <- .
+        . <- Yv
+        Yv <- Xv
+        Xv <- .
         rm(.)
     }
-
 
     nY <- nrow(Y)
     nX <- max(nrow(X), 1L)
@@ -253,14 +219,6 @@ Pr2 <- function(
     }
 
     dosamples <- !is.null(nsamples)
-
-    ## division into 'less' and 'greater' groups
-    XvL <- Xv0[Xv0 %in% less]
-    XvU <- Xv0[Xv0 %in% greater]
-    Xv <- setdiff(Xv0, c(XvL, XvU))
-    YvL <- Yv0[Yv0 %in% less]
-    YvU <- Yv0[Yv0 %in% greater]
-    Yv <- setdiff(Yv0, c(YvL, YvU))
 
 
     ## #### Subsample and get ncomponents and nsamples
@@ -288,32 +246,11 @@ Pr2 <- function(
     XiR <- XiR[XtR]
     XnR <- length(XiR)
     ##
-    XiLR <- match(vnames, XvL)
-    XtLR <- which(!is.na(XiLR))
-    XiLR <- XiLR[XtLR]
-    XnLR <- length(XiLR)
-    ##
-    XiUR <- match(vnames, XvU)
-    XtUR <- which(!is.na(XiUR))
-    XiUR <- XiUR[XtUR]
-    XnUR <- length(XiUR)
-    ##
     YiR <- match(vnames, Yv)
     YtR <- which(!is.na(YiR))
     YiR <- YiR[YtR]
     YnR <- length(YiR)
-    ##
-    YiLR <- match(vnames, YvL)
-    YtLR <- which(!is.na(YiLR))
-    YiLR <- YiLR[YtLR]
-    YnLR <- length(YiLR)
-    ##
-    YiUR <- match(vnames, YvU)
-    YtUR <- which(!is.na(YiUR))
-    YiUR <- YiUR[YtUR]
-    YnUR <- length(YiUR)
-    if (YnR > 0 || YnLR > 0 || YnUR > 0 ||
-            XnR > 0 || XnLR > 0 || XnUR > 0) {
+    if (YnR > 0 || XnR > 0) {
         learnt$Rvar <- sqrt(learnt$Rvar)
     }
 
@@ -324,32 +261,11 @@ Pr2 <- function(
     XiC <- XiC[XtC]
     XnC <- length(XiC)
     ##
-    XiLC <- match(vnames, XvL)
-    XtLC <- which(!is.na(XiLC))
-    XiLC <- XiLC[XtLC]
-    XnLC <- length(XiLC)
-    ##
-    XiUC <- match(vnames, XvU)
-    XtUC <- which(!is.na(XiUC))
-    XiUC <- XiUC[XtUC]
-    XnUC <- length(XiUC)
-    ##
     YiC <- match(vnames, Yv)
     YtC <- which(!is.na(YiC))
     YiC <- YiC[YtC]
     YnC <- length(YiC)
-    ##
-    YiLC <- match(vnames, YvL)
-    YtLC <- which(!is.na(YiLC))
-    YiLC <- YiLC[YtLC]
-    YnLC <- length(YiLC)
-    ##
-    YiUC <- match(vnames, YvU)
-    YtUC <- which(!is.na(YiUC))
-    YiUC <- YiUC[YtUC]
-    YnUC <- length(YiUC)
-    if (YnC > 0 || YnLC > 0 || YnUC > 0 ||
-            XnC > 0 || XnLC > 0 || XnUC > 0) {
+    if (YnC > 0 || XnC > 0) {
         learnt$Cvar <- sqrt(learnt$Cvar)
         Clefts <- auxmetadata[match(vnames, auxmetadata$name), 'tdomainmin']
         Crights <- auxmetadata[match(vnames, auxmetadata$name), 'tdomainmax']
@@ -362,32 +278,11 @@ Pr2 <- function(
     XiD <- XiD[XtD]
     XnD <- length(XiD)
     ##
-    XiLD <- match(vnames, XvL)
-    XtLD <- which(!is.na(XiLD))
-    XiLD <- XiLD[XtLD]
-    XnLD <- length(XiLD)
-    ##
-    XiUD <- match(vnames, XvU)
-    XtUD <- which(!is.na(XiUD))
-    XiUD <- XiUD[XtUD]
-    XnUD <- length(XiUD)
-    ##
     YiD <- match(vnames, Yv)
     YtD <- which(!is.na(YiD))
     YiD <- YiD[YtD]
     YnD <- length(YiD)
-    ##
-    YiLD <- match(vnames, YvL)
-    YtLD <- which(!is.na(YiLD))
-    YiLD <- YiLD[YtLD]
-    YnLD <- length(YiLD)
-    ##
-    YiUD <- match(vnames, YvU)
-    YtUD <- which(!is.na(YiUD))
-    YiUD <- YiUD[YtUD]
-    YnUD <- length(YiUD)
-    if (YnD > 0 || YnLD > 0 || YnUD > 0 ||
-            XnD > 0 || XnLD > 0 || XnUD > 0) {
+    if (YnD > 0 || XnD > 0) {
         learnt$Dvar <- sqrt(learnt$Dvar)
         Dsteps <- auxmetadata[match(vnames, auxmetadata$name), 'halfstep'] /
             auxmetadata[match(vnames, auxmetadata$name), 'tscale']
@@ -402,30 +297,10 @@ Pr2 <- function(
     XiO <- XiO[XtO]
     XnO <- length(XiO)
     ##
-    XiLO <- match(vnames, XvL)
-    XtLO <- which(!is.na(XiLO))
-    XiLO <- XiLO[XtLO]
-    XnLO <- length(XiLO)
-    ##
-    XiUO <- match(vnames, XvU)
-    XtUO <- which(!is.na(XiUO))
-    XiUO <- XiUO[XtUO]
-    XnUO <- length(XiUO)
-    ##
     YiO <- match(vnames, Yv)
     YtO <- which(!is.na(YiO))
     YiO <- YiO[YtO]
     YnO <- length(YiO)
-    ##
-    YiLO <- match(vnames, YvL)
-    YtLO <- which(!is.na(YiLO))
-    YiLO <- YiLO[YtLO]
-    YnLO <- length(YiLO)
-    ##
-    YiUO <- match(vnames, YvU)
-    YtUO <- which(!is.na(YiUO))
-    YiUO <- YiUO[YtUO]
-    YnUO <- length(YiUO)
 
 #### Type N
     vnames <- auxmetadata[auxmetadata$mcmctype == 'N', 'name']
@@ -462,69 +337,36 @@ Pr2 <- function(
             Rout = 'normalized',
             Cout = 'boundisinf',
             Dout = 'normalized',
-            Oout = 'numeric',
-            Nout = 'numeric',
+            Oout = 'index',
+            Nout = 'index',
             Bout = 'numeric',
             logjacobianOr = NULL))
 
-        ## adjust for cumulative-probability requests
-        if (XnLC > 0) {
-            tochoose <- X2[ , XiLC] == -Inf
-            X2[tochoose, XiLC] <- Clefts[XtLC]
-        }
-        if(XnLD > 0){
-            X2[ , XiLD] <- X2[ , XiLD] + Dsteps[XtLD]
-            tochoose <- X2[ , XiLC] > Drights[XtLD]
-            X2[tochoose, XiLD] <- +Inf
-        }
-        ##
-        if (XnUC > 0) {
-            tochoose <- X2[ , XiUC] == Inf
-            X2[tochoose, XiUC] <- Crights[XtUC]
-        }
-        if(XnUD > 0){
-            X2[ , XiUD] <- X2[ , XiUD] - Dsteps[XtUD]
-            tochoose <- X2[ , XiUC] < Dlefts[XtUD]
-            X2[tochoose, XiUD] <- -Inf
-        }
-        if(XnUO > 0){
-            X2[ , XiUO] <- X2[ , XiUO] - 1
-        }
+        ## create unique dir where to save X objects
+        temporarydir <- tempdir()
 
-        temporarydir <- tempdir() # where to save X objects
         ##
         todelete <- foreach(jj = seq_len(nX), x = t(X2),
             .combine = `c`,
             .inorder = TRUE) %dox% {
                 lprobX <- c(log(learnt$W)) +
-                    util_lprobs(
+                    util_lprob(
                         x = x,
                         learnt = learnt,
                         nR = XnR, iR = XiR, tR = XtR,
-                        nLR = XnLR, iLR = XiLR, tLR = XtLR,
-                        nUR = XnUR, iUR = XiUR, tUR = XtUR,
-                        ##
                         nC = XnC, iC = XiC, tC = XtC,
-                        nLC = XnLC, iLC = XiLC, tLC = XtLC,
-                        nUC = XnUC, iUC = XiUC, tUC = XtUC,
                         Clefts = Clefts, Crights = Crights,
-                        ##
                         nD = XnD, iD = XiD, tD = XtD,
-                        nLD = XnLD, iLD = XiLD, tLD = XtLD,
-                        nUD = XnUD, iUD = XiUD, tUD = XtUD,
                         Dsteps = Dsteps, Dlefts = Dlefts, Drights = Drights,
-                        ##
                         nO = XnO, iO = XiO, tO = XtO,
-                        nLO = XnLO, iLO = XiLO, tLO = XtLO,
-                        nUO = XnUO, iUO = XiUO, tUO = XtUO,
-                        ##
                         nN = XnN, iN = XiN, tN = XtN,
                         nB = XnB, iB = XiB, tB = XtB
                     ) # rows=components, columns=samples
 
-                lprobX <- apply(lprobX, 2, function(xx) {
-                    xx - max(xx[is.finite(xx)])
-                })
+                ## ## seems to lead to garbage for extreme values
+                ## lprobX <- apply(lprobX, 2, function(xx) {
+                ##     xx - max(xx[is.finite(xx)])
+                ## })
 
                 saveRDS(lprobX,
                     file.path(temporarydir,
@@ -540,34 +382,10 @@ Pr2 <- function(
         Rout = 'normalized',
         Cout = 'boundisinf',
         Dout = 'normalized',
-        Oout = 'numeric',
-        Nout = 'numeric',
+        Oout = 'index',
+        Nout = 'index',
         Bout = 'numeric',
         logjacobianOr = NULL))
-
-    ## adjust for cumulative-probability requests
-        if (YnLC > 0) {
-            tochoose <- Y2[ , YiLC] == -Inf
-            Y2[tochoose, YiLC] <- Clefts[YtLC]
-        }
-        if(YnLD > 0){
-            Y2[ , YiLD] <- Y2[ , YiLD] + Dsteps[YtLD]
-            tochoose <- Y2[ , YiLC] > Drights[YtLD]
-            Y2[tochoose, YiLD] <- +Inf
-        }
-        ##
-        if (YnUC > 0) {
-            tochoose <- Y2[ , YiUC] == Inf
-            Y2[tochoose, YiUC] <- Crights[YtUC]
-        }
-        if(YnUD > 0){
-            Y2[ , YiUD] <- Y2[ , YiUD] - Dsteps[YtUD]
-            tochoose <- Y2[ , YiUC] < Dlefts[YtUD]
-            Y2[tochoose, YiUD] <- -Inf
-        }
-        if(YnUO > 0){
-            Y2[ , YiUO] <- Y2[ , YiUO] - 1
-        }
 
     ## jacobians <- exp(-rowSums(
     ##     log(vtransform(Y,
@@ -590,27 +408,15 @@ Pr2 <- function(
                 if (all(is.na(y))) {
                     lprobY <- array(NA, dim = c(ncomponents, nmcsamples))
                 } else {
-                    lprobY <- util_lprobs(
+                    lprobY <- util_lprob(
                         x = y,
                         learnt = learnt,
                         nR = YnR, iR = YiR, tR = YtR,
-                        nLR = YnLR, iLR = YiLR, tLR = YtLR,
-                        nUR = YnUR, iUR = YiUR, tUR = YtUR,
-                        ##
                         nC = YnC, iC = YiC, tC = YtC,
-                        nLC = YnLC, iLC = YiLC, tLC = YtLC,
-                        nUC = YnUC, iUC = YiUC, tUC = YtUC,
                         Clefts = Clefts, Crights = Crights,
-                        ##
                         nD = YnD, iD = YiD, tD = YtD,
-                        nLD = YnLD, iLD = YiLD, tLD = YtLD,
-                        nUD = YnUD, iUD = YiUD, tUD = YtUD,
                         Dsteps = Dsteps, Dlefts = Dlefts, Drights = Drights,
-                        ##
                         nO = YnO, iO = YiO, tO = YtO,
-                        nLO = YnLO, iLO = YiLO, tLO = YtLO,
-                        nUO = YnUO, iUO = YiUO, tUO = YtUO,
-                        ##
                         nN = YnN, iN = YiN, tN = YtN,
                         nB = YnB, iB = YiB, tB = YtB
                     )
@@ -658,13 +464,31 @@ Pr2 <- function(
     if(is.null(priorY)){
         ## multiply by jacobian factors
         out$values <- out$values * jacobians
+
+        ## if(ncol(Y) == 1){Ynames <- Y[, 1]} else {Ynames <- NULL}
+        Ynames <- apply(Y, 1, paste0, collapse=',')
+
+        if(!is.null(X)){
+        Xnames <- apply(X, 1, paste0, collapse=',')
+        } else {
+            Xnames <- NULL
+        }
     } else {
         ## Bayes's theorem
         out$values <- t(priorY * t(out$values))
         normf <- rowSums(out$values, na.rm = TRUE)
         out$values <- t(out$values/normf)
+
+        ## if(ncol(X) == 1){Ynames <- X[, 1]} else {Ynames <- NULL}
+        Ynames <- apply(X, 1, paste0, collapse=',')
+
+        if(!is.null(Y)){
+            Xnames <- apply(Y, 1, paste0, collapse=',')
+        } else {
+            Xnames <- NULL
+        }
     }
-    dimnames(out$values) <- list(Y = NULL, X = NULL)
+    dimnames(out$values) <- list(Y = Ynames, X = Xnames)
 
     if(dosamples){
         ## transform to grid
@@ -680,7 +504,7 @@ Pr2 <- function(
             out$samples <- aperm(aperm(out$samples)/normf)
         }
 
-        dimnames(out$samples) <- list(Y = NULL, X = NULL,
+        dimnames(out$samples) <- list(Y = Ynames, X = Xnames,
             round(seq(1, nmcsamples, length.out = nsamples)))
     }
 
@@ -708,7 +532,7 @@ Pr2 <- function(
         }
 
         temp <- names(quantile(1, probs = quantiles, names = TRUE))
-        dimnames(out$quantiles) <- list(Y = NULL, X = NULL, temp)
+        dimnames(out$quantiles) <- list(Y = Ynames, X = Xnames, temp)
     }
 
     if(isTRUE(keepYX)){

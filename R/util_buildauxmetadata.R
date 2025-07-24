@@ -9,7 +9,7 @@
 #'
 #' @return an auxmetadata data.frame object
 #' @keywords internal
-buildauxmetadata <- function(data, metadata, Dthreshold = 1, tscalefactor = 1.25) {
+buildauxmetadata <- function(data, metadata, Dthreshold = 1, tscalefactor = 4.266) {
 
     ## In the internal, rescaled representation,
     ## with the SD of the means equal to 3 and
