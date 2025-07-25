@@ -6,6 +6,7 @@
 #'   the joint probability of. One variate per column, one set of values per row.
 #' @param X matrix or data.table or `NULL`: set of values of variates on which we want to condition the joint probability of `Y`. If `NULL` (default), no conditioning is made (except for conditioning on the learning dataset and prior assumptions). One variate per column, one set of values per row.
 #' @param learnt either a string with the name of a directory or full path for a 'learnt.rds' object, produced by the \code{\link{learn}} function, or such an object itself.
+#' @param cumul named vector or list, or `NULL` (default). The names must match some or all of the variates in arguments `Y` and `X`. The values can be one of `'<='` or `'>='` or `'=='` or `NULL`.
 #' @param priorY numeric vector with the same length as the rows of `Y`, or `TRUE`, or `NULL` (default): prior probabilities or base rates for the `Y` values. If `TRUE`, the prior probabilities are assumed to be all equal.
 #' @param nsamples integer or `NULL` or `"all"`: desired number of samples of the variability of the probability for `Y`. If `NULL`, no samples are reported. If `"all"` (or `Inf`), all samples obtained by the \code{\link{learn}} function are used. Default `"all"`.
 #' @param quantiles numeric vector, between 0 and 1, or `NULL`: desired quantiles of the variability of the probability for `Y`. Default `c(0.055, 0.25, 0.75, 0.945)`, that is, the 5.5%, 25%, 75%, 94.5% quantiles (these are typical quantile values in the Bayesian literature: they give 50% and 89% credibility intervals, which correspond to 1 shannons and 0.5 shannons of uncertainty). If `NULL`, no quantiles are calculated.
@@ -25,6 +26,7 @@ Pr2 <- function(
     Y,
     X = NULL,
     learnt,
+    cumul = NULL,
     priorY = NULL,
     nsamples = 'all',
     quantiles = c(0.055, 0.25, 0.75, 0.945),
@@ -117,41 +119,45 @@ Pr2 <- function(
         nsamples <- nmcsamples
     }
 
+
     Y <- as.data.frame(Y)
+
     if(all(is.na(X))){X <- NULL}
     if(!is.null(X)){X <- as.data.frame(X)}
 
-    ## Consistency checks
-    if (length(dim(Y)) != 2) {
-        stop('Y must have two dimensions')
-    }
-    if (!is.null(X) && length(dim(X)) != 2) {
-        stop('X must be NULL or have two dimensions')
-    }
-    ##
-    if (!is.null(X) && ncol(X) == 0) {
-        stop('X must be NULL or have two dimensions')
-    }
+    if(!is.null(cumul)){cumul <- as.list(cumul)}
 
-    ## More consistency checks
+    ## Consistency checks
     Yv <- colnames(Y)
+    Xv <- colnames(X)
+    cumulv <- colnames(cumul)
+
     if (!all(Yv %in% auxmetadata$name)) {
-        stop('unknown Y variates\n')
+        stop('unknown Y variate ',
+            paste0(Yv[!(Yv %in% auxmetadata$name)], collapse = ' '),
+            '\n')
     }
     if (length(unique(Yv)) != length(Yv)) {
         stop('duplicate Y variates\n')
     }
-    ##
-    Xv <- colnames(X)
+
     if (!all(Xv %in% auxmetadata$name)) {
-        stop('unknown X variates\n')
+        stop('unknown X variate ',
+            paste0(Xv[!(Xv %in% auxmetadata$name)], collapse = ' '),
+            '\n')
     }
     if (length(unique(Xv)) != length(Xv)) {
         stop('duplicate X variates\n')
     }
-    ##
-    if (length(intersect(Yv, Xv)) > 0) {
+
+    if (any(Yv %in% Xv)) {
         stop('overlap in Y and X variates\n')
+    }
+
+    if (!all(cumulv %in% c(Yv, Xv))) {
+        warning('variate ',
+            paste0(cumulv[!(cumulv %in% c(Yv, Xv))], collapse = ' '),
+            ' not among Y and X\n')
     }
 
     ## Check if a prior for Y is given, in that case Y and X will be swapped
@@ -219,6 +225,46 @@ Pr2 <- function(
     }
 
     dosamples <- !is.null(nsamples)
+
+
+
+#### Construction of the arguments for util_lprobs, X argument
+
+    ## point probability density
+    nV0 <- FALSE
+    V0mean <- V0sd <- NULL
+
+    toselect <- (auxmetadata$mcmctype == 'R') & (auxmetadata$name %in% Xv) &
+        !(auxmetadata$name %in% cumulv)
+    if(any(toselect)){
+        nV0 <- TRUE
+        V0mean <- cbind(V0mean,
+            learnt$Rmean[auxmetadata$id[toselect], , , drop = FALSE])
+        V0sd <- cbind(V0sd,
+            sqrt(learnt$Rvar[auxmetadata$id[toselect], , , drop = FALSE]))
+    }
+
+    toselect <- (auxmetadata$mcmctype == 'C') & (auxmetadata$name %in% Xv) &
+        !(auxmetadata$name %in% cumulv)
+    toselect <- sapply(seq_along(toselect), function(xx) {
+        toselect[xx] &&
+            any(X[, auxmetadata$name[xx]] > auxmetadata$domainmin[xx] &
+                    X[, auxmetadata$name[xx]] < auxmetadata$domainmax[xx],
+                na.rm = TRUE)
+        })
+    if(any(toselect)){
+        nV0 <- TRUE
+        V0mean <- cbind(V0mean,
+            learnt$Cmean[auxmetadata$id[toselect], , , drop = FALSE])
+        V0sd <- cbind(V0sd,
+            sqrt(learnt$Cvar[auxmetadata$id[toselect], , , drop = FALSE]))
+    }
+
+    
+    ## tail probability
+    nV0 <- FALSE
+    V0mean <- V0sd <- NULL
+
 
 
     ## #### Subsample and get ncomponents and nsamples
