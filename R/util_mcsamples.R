@@ -25,3 +25,29 @@ mcjoin <- function(x, y){
         SIMPLIFY = FALSE
     )
 }
+
+#### Bind 3D arrays by first dimension
+#' @keywords internal
+learnbind <- function(x, y) {
+    out <- c(aperm(x), aperm(y))
+    dim(out) <- c(dim(x)[-1], dim(x)[1] + dim(y)[1])
+    aperm(out)
+}
+
+#### Cumulative sum along first dimension
+#' @keywords internal
+rowcumsum <- function(x){
+    for(i in 2:(dim(x)[1])){
+        x[i,,] <- x[i,,] + x[i-1,,]
+    }
+    x
+}
+
+#### Inverseumulative sum along first dimension
+#' @keywords internal
+rowinvcumsum <- function(x){
+    for(i in (dim(x)[1] - 1):1){
+        x[i,,] <- x[i,,] + x[i+1,,]
+    }
+    x
+}

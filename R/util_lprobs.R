@@ -10,7 +10,7 @@ util_lprobs <- function(
     nV0, xV0, V0mean, V0sd,
     nV1, xV1, V1mean, V1sd,
     nV2, xV2, V2mean, V2sd, V2steps,
-    nVO, VOprobs, xVO,
+    nVN, VNprobs, xVN,
     nVB, VBprobs, xVB
 ) {
     out <- 0
@@ -40,14 +40,14 @@ util_lprobs <- function(
             na.rm = TRUE, dims = 1)
     },
     ##
-    if(nVO) {
+    if(nVN) {
         out <- out + colSums(
-            x = log(VOprobs[xVO, , , drop = FALSE]),
+            x = log(VNprobs[xVN, , , drop = FALSE]),
             na.rm = TRUE, dims = 1)
     }
     ##
     if(nVB) {
-        ## VBprob is the probability that x=1
+        ## VBprob is the probability that x = 1
         out <- out + colSums(
             x = log(1 - xVB - VBprobs + 2 * xVB * VBprobs),
             na.rm = TRUE, dims = 1)

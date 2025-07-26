@@ -38,7 +38,7 @@ Pr2 <- function(
     cumulcentre <- list('==', 0, NULL)
     cumulleft <- list('<=', -1, 'left')
     cumulright <- list('>=', +1, 'right')
-    
+
     cumulvalues <- c(cumulcentre, cumulleft, cumulright)
 
     if (!silent) {
@@ -183,7 +183,7 @@ Pr2 <- function(
     ##     pnorm(-x, -mean, sd, lower.tail = TRUE)
     cumul[cumul %in% cumulleft] <- +1
     cumul[cumul %in% cumulright] <- -1
-    cumul[cumul %in% cumulcentre] <- NA
+    cumul[cumul %in% cumulcentre] <- NULL
 
     ## Check if a prior for Y is given, in that case Y and X will be swapped
     if (isFALSE(priorY) || is.null(priorY)) {
@@ -255,24 +255,24 @@ Pr2 <- function(
 
 #### Construction of the arguments for util_lprobs, X argument
 
-    ##
-    ## point probability density
-    ##
+###
+### point probability density
+###
     nV0 <- FALSE
-    V0mean <- V0sd <- xV0 <- NULL
+    V0mean <- V0sd <- xv0 <- NULL
 
-    ## R-variates not in 'cumul'
+### R-variates not in 'cumul'
     toselect <- which((auxmetadata$name %in% Xv) &
                           !(auxmetadata$name %in% cumulv) &
                           (auxmetadata$mcmctype == 'R'))
     if(length(toselect) > 0){
         aux <- auxmetadata[toselect, ]
         nV0 <- TRUE
-        V0mean <- cbind(V0mean,
+        V0mean <- learnbind(V0mean,
             learnt$Rmean[aux$id, , , drop = FALSE])
-        V0sd <- cbind(V0sd,
+        V0sd <- learnbind(V0sd,
             sqrt(learnt$Rvar[aux$id, , , drop = FALSE]))
-        xV0 <- rbind(xV0,
+        xv0 <- rbind(xv0,
             t(as.matrix(vtransform(
                 X[, aux$name],
                 auxmetadata = auxmetadata,
@@ -282,7 +282,7 @@ Pr2 <- function(
         )
     }
 
-    ## C-variates not in 'cumul' and with some non-boundary value
+### C-variates not in 'cumul' and with some non-boundary value
     toselect <- which((auxmetadata$name %in% Xv) &
                           !(auxmetadata$name %in% cumulv) &
                           (auxmetadata$mcmctype == 'C'))
@@ -293,11 +293,11 @@ Pr2 <- function(
     if(any(toselect)){
         aux <- auxmetadata[toselect, ]
         nV0 <- TRUE
-        V0mean <- cbind(V0mean,
+        V0mean <- learnbind(V0mean,
             learnt$Cmean[aux$id, , , drop = FALSE])
-        V0sd <- cbind(V0sd,
+        V0sd <- learnbind(V0sd,
             sqrt(learnt$Cvar[aux$id, , , drop = FALSE]))
-        xV0 <- rbind(xV0,
+        xv0 <- rbind(xv0,
             t(as.matrix(vtransform(
                 X[, aux$name],
                 auxmetadata = auxmetadata,
@@ -307,31 +307,75 @@ Pr2 <- function(
         )
     }
 
-    ##
-    ## tail probability
-    ##
+###
+### tail probability
+###
     nV1 <- FALSE
-    V1mean <- V1sd <- xV1 <- NULL
+    V1mean <- V1sd <- xv1 <- NULL
 
-    ## R-, C-, D-variates in 'cumul'
+### R-variates in 'cumul'
     toselect <- which((auxmetadata$name %in% Xv) &
                           (auxmetadata$name %in% cumulv) &
-                          (auxmetadata$mcmctype %in% c('R', 'C', 'D')))
+                          (auxmetadata$mcmctype == 'R'))
     if(length(toselect) > 0){
         aux <- auxmetadata[toselect, ]
         nV1 <- TRUE
         V1mean <- cumul[aux$name] *
-            cbind(V1mean,
+            learnbind(V1mean,
                 learnt$Rmean[aux$id, , , drop = FALSE])
-        V1sd <- cbind(V1sd,
+        V1sd <- learnbind(V1sd,
             sqrt(learnt$Rvar[aux$id, , , drop = FALSE]))
-        xV1 <- rbind(xV1,
+        xv1 <- rbind(xv1,
             cumul[aux$name] *
                 t(as.matrix(vtransform(
                     X[, aux$name],
                     auxmetadata = auxmetadata,
                     Rout = 'normalized',
+                    logjacobianOr = NULL
+                )))
+        )
+    }
+
+### C-variates in 'cumul'
+    toselect <- which((auxmetadata$name %in% Xv) &
+                          (auxmetadata$name %in% cumulv) &
+                          (auxmetadata$mcmctype == 'C'))
+    if(length(toselect) > 0){
+        aux <- auxmetadata[toselect, ]
+        nV1 <- TRUE
+        V1mean <- cumul[aux$name] *
+            learnbind(V1mean,
+                learnt$Cmean[aux$id, , , drop = FALSE])
+        V1sd <- learnbind(V1sd,
+            sqrt(learnt$Cvar[aux$id, , , drop = FALSE]))
+        xv1 <- rbind(xv1,
+            cumul[aux$name] *
+                t(as.matrix(vtransform(
+                    X[, aux$name],
+                    auxmetadata = auxmetadata,
                     Cout = 'infnormalized',
+                    logjacobianOr = NULL
+                )))
+        )
+    }
+
+### D-variates in 'cumul'
+    toselect <- which((auxmetadata$name %in% Xv) &
+                          (auxmetadata$name %in% cumulv) &
+                          (auxmetadata$mcmctype == 'D'))
+    if(length(toselect) > 0){
+        aux <- auxmetadata[toselect, ]
+        nV1 <- TRUE
+        V1mean <- cumul[aux$name] *
+            learnbind(V1mean,
+                learnt$Dmean[aux$id, , , drop = FALSE])
+        V1sd <- learnbind(V1sd,
+            sqrt(learnt$Dvar[aux$id, , , drop = FALSE]))
+        xv1 <- rbind(xv1,
+            cumul[aux$name] *
+                t(as.matrix(vtransform(
+                    X[, aux$name],
+                    auxmetadata = auxmetadata,
                     Dout = 'normalized',
                     logjacobianOr = NULL
                 ))) +
@@ -339,10 +383,10 @@ Pr2 <- function(
         )
     }
 
-    ## C-variates not in 'cumul' and with some boundary values
+### C-variates not in 'cumul' and with some boundary values
     toselect <- which((auxmetadata$name %in% Xv) &
                           !(auxmetadata$name %in% cumulv) &
-                          (auxmetadata$mcmctype %in% c('C', 'D')))
+                          (auxmetadata$mcmctype == 'C'))
     toselect <- toselect[sapply(toselect, function(i){
         any(X[,auxmetadata$name[i]] < auxmetadata$domainmin[i]) ||
             any(X[,auxmetadata$name[i]] > auxmetadata$domainmax[i])
@@ -351,11 +395,38 @@ Pr2 <- function(
         aux <- auxmetadata[toselect, ]
         nV1 <- TRUE
         V1mean <- cumul[aux$name] *
-            cbind(V1mean,
+            learnbind(V1mean,
                 learnt$Cmean[aux$id, , , drop = FALSE])
-        V1sd <- cbind(V1sd,
+        V1sd <- learnbind(V1sd,
             sqrt(learnt$Cvar[aux$id, , , drop = FALSE]))
-        xV1 <- rbind(xV1,
+        xv1 <- rbind(xv1,
+            cumul[aux$name] *
+                t(as.matrix(vtransform(
+                    X[, aux$name],
+                    auxmetadata = auxmetadata,
+                    Cout = 'midisna',
+                    logjacobianOr = NULL
+                )))
+        )
+    }
+
+### D-variates not in 'cumul' and with some boundary values
+    toselect <- which((auxmetadata$name %in% Xv) &
+                          !(auxmetadata$name %in% cumulv) &
+                          (auxmetadata$mcmctype == 'D'))
+    toselect <- toselect[sapply(toselect, function(i){
+        any(X[,auxmetadata$name[i]] < auxmetadata$domainminplushs[i]) ||
+            any(X[,auxmetadata$name[i]] > auxmetadata$domainmaxminushs[i])
+    })]
+    if(any(toselect)){
+        aux <- auxmetadata[toselect, ]
+        nV1 <- TRUE
+        V1mean <- cumul[aux$name] *
+            learnbind(V1mean,
+                learnt$Dmean[aux$id, , , drop = FALSE])
+        V1sd <- learnbind(V1sd,
+            sqrt(learnt$Dvar[aux$id, , , drop = FALSE]))
+        xv1 <- rbind(xv1,
             cumul[aux$name] *
                 t(as.matrix(vtransform(
                     X[, aux$name],
@@ -368,13 +439,13 @@ Pr2 <- function(
         )
     }
 
-    ##
-    ## interval probability
-    ##
+###
+### interval probability
+###
     nV2 <- FALSE
-    V2mean <- V2sd <- xV2 <- V2steps <- NULL
+    V2mean <- V2sd <- xv2 <- V2steps <- NULL
 
-    ## D-variates not in 'cumul'
+### D-variates not in 'cumul'
     toselect <- which((auxmetadata$name %in% Xv) &
                           !(auxmetadata$name %in% cumulv) &
                           (auxmetadata$mcmctype == 'D'))
@@ -382,11 +453,11 @@ Pr2 <- function(
         aux <- auxmetadata[toselect, ]
         nV2 <- TRUE
         V2mean <- cumul[aux$name] *
-            cbind(V2mean,
-                learnt$Rmean[aux$id, , , drop = FALSE])
-        V2sd <- cbind(V2sd,
-            sqrt(learnt$Rvar[aux$id, , , drop = FALSE]))
-        xV2 <- rbind(xV2,
+            learnbind(V2mean,
+                learnt$Dmean[aux$id, , , drop = FALSE])
+        V2sd <- learnbind(V2sd,
+            sqrt(learnt$Dvar[aux$id, , , drop = FALSE]))
+        xv2 <- rbind(xv2,
             cumul[aux$name] *
                 t(as.matrix(vtransform(
                     X[, aux$name],
@@ -398,111 +469,115 @@ Pr2 <- function(
         )
     }
 
-
-    ## #### Subsample and get ncomponents and nsamples
-    ##     ## source('mcsubset.R')
-    ##     if (!missing(subsamples) &&
-    ##             (is.numeric(subsamples) || (is.character(subsamples)
-    ##                 && length(subsamples) == 1))) {
-    ##         if (is.character(subsamples)) {
-    ##             subsamples <- round(seq(1, ncol(learnt$W),
-    ##                 length.out = as.numeric(subsamples)
-    ##             ))
-    ##         }
-    ##         learnt <- mcsubset(learnt, subsamples)
-    ##     }
-
-
-### Guide to indices:
-    ## .i. = order in X/Y corresponding to appearance in vnames
-    ## .t. = vnames present in X/Y, kept in their vnames-order
-
-#### Type R
-    vnames <- auxmetadata[auxmetadata$mcmctype == 'R', 'name']
-    XiR <- match(vnames, Xv)
-    XtR <- which(!is.na(XiR))
-    XiR <- XiR[XtR]
-    XnR <- length(XiR)
-    ##
-    YiR <- match(vnames, Yv)
-    YtR <- which(!is.na(YiR))
-    YiR <- YiR[YtR]
-    YnR <- length(YiR)
-    if (YnR > 0 || XnR > 0) {
-        learnt$Rvar <- sqrt(learnt$Rvar)
+###
+### discrete case
+###
+    nVN <- FALSE
+    VNprobs <- xvN <- NULL
+### O-variates not in 'cumul'
+    toselect <- which((auxmetadata$name %in% Xv) &
+                          !(auxmetadata$name %in% cumulv) &
+                          (auxmetadata$mcmctype == 'O'))
+    if(length(toselect) > 0){
+        aux <- auxmetadata[toselect, ]
+        nVN <- TRUE
+        ## indices <- unlist(lapply(seq_len(nrow(aux)), function(i) {
+        ##     aux$indexpos[i] + seq_len(aux$Nvalues[i])
+        ## }))
+        indices <- unlist(mapply(FUN = function(i, n) {i + seq_len(n)},
+            aux$indexpos, aux$Nvalues,
+            SIMPLIFY = FALSE))
+        VNprobs <- learnbind(VNprobs,
+            learnt$Oprob[indices, , , drop = FALSE])
+        xvN <- rbind(xvN,
+                t(as.matrix(vtransform(
+                    X[, aux$name],
+                    auxmetadata = auxmetadata,
+                    Oout = 'numeric',
+                    logjacobianOr = NULL
+                ))) +
+                    c(0, cumsum(aux$Nvalues[-1]))
+        )
+    }
+### N-variates not in 'cumul'
+    toselect <- which((auxmetadata$name %in% Xv) &
+                          (auxmetadata$mcmctype == 'N'))
+    if(length(toselect) > 0){
+        aux <- auxmetadata[toselect, ]
+        nVN <- TRUE
+        ## indices <- unlist(lapply(seq_len(nrow(aux)), function(i) {
+        ##     aux$indexpos[i] + seq_len(aux$Nvalues[i])
+        ## }))
+        indices <- unlist(mapply(FUN = function(i, n) {i + seq_len(n)},
+            aux$indexpos, aux$Nvalues,
+            SIMPLIFY = FALSE))
+        VNprobs <- learnbind(VNprobs,
+            learnt$Nprob[indices, , , drop = FALSE])
+        xvN <- rbind(xvN,
+                t(as.matrix(vtransform(
+                    X[, aux$name],
+                    auxmetadata = auxmetadata,
+                    Nout = 'numeric',
+                    logjacobianOr = NULL
+                ))) +
+                    c(0, cumsum(aux$Nvalues[-1]))
+        )
     }
 
-#### Type C
-    vnames <- auxmetadata[auxmetadata$mcmctype == 'C', 'name']
-    XiC <- match(vnames, Xv)
-    XtC <- which(!is.na(XiC))
-    XiC <- XiC[XtC]
-    XnC <- length(XiC)
-    ##
-    YiC <- match(vnames, Yv)
-    YtC <- which(!is.na(YiC))
-    YiC <- YiC[YtC]
-    YnC <- length(YiC)
-    if (YnC > 0 || XnC > 0) {
-        learnt$Cvar <- sqrt(learnt$Cvar)
-        Clefts <- auxmetadata[match(vnames, auxmetadata$name), 'tdomainmin']
-        Crights <- auxmetadata[match(vnames, auxmetadata$name), 'tdomainmax']
+### O-variates in 'cumul'
+    toselect <- which((auxmetadata$name %in% Xv) &
+                          (auxmetadata$name %in% cumulv) &
+                          (auxmetadata$mcmctype == 'O'))
+    if(length(toselect) > 0){
+        aux <- auxmetadata[toselect, ]
+        nVN <- TRUE
+        for(i in seq_len(nrow(aux))) {
+            VNprobs <- learnbind(VNprobs,
+                if(cumul[aux$name[i]] < 0) {
+                    rowcumsum(learnt$Oprob[
+                        aux$indexpos[i] + seq_len(aux$Nvalues[i]), , , drop = FALSE
+                    ])
+                } else {
+                    rowinvcumsum(learnt$Oprob[
+                        aux$indexpos[i] + seq_len(aux$Nvalues[i]), , , drop = FALSE
+                    ])
+                }
+            )
+        }
+        xvN <- rbind(xvN,
+            t(as.matrix(vtransform(
+                X[, aux$name],
+                auxmetadata = auxmetadata,
+                Oout = 'numeric',
+                logjacobianOr = NULL
+            ))) +
+                c(0, cumsum(aux$Nvalues[-1]))
+        )
     }
 
-#### Type D
-    vnames <- auxmetadata[auxmetadata$mcmctype == 'D', 'name']
-    XiD <- match(vnames, Xv)
-    XtD <- which(!is.na(XiD))
-    XiD <- XiD[XtD]
-    XnD <- length(XiD)
-    ##
-    YiD <- match(vnames, Yv)
-    YtD <- which(!is.na(YiD))
-    YiD <- YiD[YtD]
-    YnD <- length(YiD)
-    if (YnD > 0 || XnD > 0) {
-        learnt$Dvar <- sqrt(learnt$Dvar)
-        Dsteps <- auxmetadata[match(vnames, auxmetadata$name), 'halfstep'] /
-            auxmetadata[match(vnames, auxmetadata$name), 'tscale']
-        Dlefts <- auxmetadata[match(vnames, auxmetadata$name), 'tdomainminplushs']
-        Drights <- auxmetadata[match(vnames, auxmetadata$name), 'tdomainmaxminushs']
+###
+### binary case
+###
+    nVB <- FALSE
+    VBprobs <- xvB <- NULL
+### B-variates
+    toselect <- which((auxmetadata$name %in% Xv) &
+                          (auxmetadata$mcmctype == 'B'))
+    if(length(toselect) > 0){
+        aux <- auxmetadata[toselect, ]
+        nVB <- TRUE
+        for(i in seq_len(nrow(aux))) {
+        VBprobs <- learnbind(VBprobs,
+            learnt$Bprob[indices, , , drop = FALSE])
+        xvB <- rbind(xvB,
+                t(as.matrix(vtransform(
+                    X[, aux$name],
+                    auxmetadata = auxmetadata,
+                    Bout = 'numeric',
+                    logjacobianOr = NULL
+                )))
+        )
     }
-
-#### Type O
-    vnames <- auxmetadata[auxmetadata$mcmctype == 'O', 'name']
-    XiO <- match(vnames, Xv)
-    XtO <- which(!is.na(XiO))
-    XiO <- XiO[XtO]
-    XnO <- length(XiO)
-    ##
-    YiO <- match(vnames, Yv)
-    YtO <- which(!is.na(YiO))
-    YiO <- YiO[YtO]
-    YnO <- length(YiO)
-
-#### Type N
-    vnames <- auxmetadata[auxmetadata$mcmctype == 'N', 'name']
-    XiN <- match(vnames, Xv)
-    XtN <- which(!is.na(XiN))
-    XiN <- XiN[XtN]
-    XnN <- length(XiN)
-    ##
-    YiN <- match(vnames, Yv)
-    YtN <- which(!is.na(YiN))
-    YiN <- YiN[YtN]
-    YnN <- length(YiN)
-
-#### Type B
-    vnames <- auxmetadata[auxmetadata$mcmctype == 'B', 'name']
-    XiB <- match(vnames, Xv)
-    XtB <- which(!is.na(XiB))
-    XiB <- XiB[XtB]
-    XnB <- length(XiB)
-    ##
-    YiB <- match(vnames, Yv)
-    YtB <- which(!is.na(YiB))
-    YiB <- YiB[YtB]
-    YnB <- length(YiB)
 
 
 
@@ -524,21 +599,18 @@ Pr2 <- function(
         temporarydir <- tempdir()
 
         ##
-        todelete <- foreach(jj = seq_len(nX), x = t(X2),
+        invisible(foreach(jj = seq_len(nX),
+            xV0 = xv0, xV1 = xv1, xV2 = xv2, xVN = xvN, xVB = xvB,
             .combine = `c`,
             .inorder = TRUE) %dox% {
                 lprobX <- c(log(learnt$W)) +
-                    util_lprob(
-                        x = x,
-                        learnt = learnt,
-                        nR = XnR, iR = XiR, tR = XtR,
-                        nC = XnC, iC = XiC, tC = XtC,
-                        Clefts = Clefts, Crights = Crights,
-                        nD = XnD, iD = XiD, tD = XtD,
-                        Dsteps = Dsteps, Dlefts = Dlefts, Drights = Drights,
-                        nO = XnO, iO = XiO, tO = XtO,
-                        nN = XnN, iN = XiN, tN = XtN,
-                        nB = XnB, iB = XiB, tB = XtB
+                    util_lprobs(
+                        nV0 = nV0, xV0 = xV0, V0mean = V0mean, V0sd = V0sd,
+                        nV1 = nV1, xV1 = xV1, V1mean = V1mean, V1sd = V1sd,
+                        nV2 = nV2, xV2 = xV2, V2mean = V2mean, V2sd = V2sd,
+                        V2steps = V2steps,
+                        nVN = nVN, VNprobs = VNprobs, xVN = xVN,
+                        nVB = nVB, VBprobs = VBprobs, xVB = xVB
                     ) # rows=components, columns=samples
 
                 ## ## seems to lead to garbage for extreme values
@@ -551,7 +623,7 @@ Pr2 <- function(
                         paste0('__X', jj, '__.rds'))
                 )
                 NULL
-            }
+            })
     }
 
 #### Now calculate for each Y value, combining with each X value
