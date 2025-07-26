@@ -35,6 +35,12 @@ Pr2 <- function(
     usememory = TRUE,
     keepYX = TRUE
 ) {
+    cumulcentre <- list('==', 0, NULL)
+    cumulleft <- list('<=', -1, 'left')
+    cumulright <- list('>=', +1, 'right')
+    
+    cumulvalues <- c(cumulcentre, cumulleft, cumulright)
+
     if (!silent) {
         cat('\n')
     }
@@ -128,6 +134,7 @@ Pr2 <- function(
     if(!is.null(cumul)){cumul <- as.list(cumul)}
 
     ## Consistency checks
+
     Yv <- colnames(Y)
     Xv <- colnames(X)
     cumulv <- colnames(cumul)
@@ -157,8 +164,26 @@ Pr2 <- function(
     if (!all(cumulv %in% c(Yv, Xv))) {
         warning('variate ',
             paste0(cumulv[!(cumulv %in% c(Yv, Xv))], collapse = ' '),
-            ' not among Y and X\n')
+            ' not among Y and X; ignored\n')
     }
+    if (length(unique(cumulv)) != length(cumulv)) {
+        stop('duplicate "cumul" variates\n')
+    }
+    if(!all(cumul %in% cumulvalues)) {
+        stop('"cumul" values must be ',
+            paste0(cumulvalues, collapse = ' '), '\n')
+    }
+
+    ## transform 'cumul' to -1, +1
+    ## +1: '<',    -1: '>'
+    ## this is opposite of the argument convention because
+    ## interval probabilities are calculated with `lower.tail = TRUE`
+    ## eg:
+    ## pnorm(x, mean, sd, lower.tail = FALSE) ==
+    ##     pnorm(-x, -mean, sd, lower.tail = TRUE)
+    cumul[cumul %in% cumulleft] <- +1
+    cumul[cumul %in% cumulright] <- -1
+    cumul[cumul %in% cumulcentre] <- NA
 
     ## Check if a prior for Y is given, in that case Y and X will be swapped
     if (isFALSE(priorY) || is.null(priorY)) {
@@ -230,40 +255,109 @@ Pr2 <- function(
 
 #### Construction of the arguments for util_lprobs, X argument
 
+    ##
     ## point probability density
     nV0 <- FALSE
-    V0mean <- V0sd <- NULL
+    V0mean <- V0sd <- xV0 <- NULL
 
-    toselect <- (auxmetadata$mcmctype == 'R') & (auxmetadata$name %in% Xv) &
-        !(auxmetadata$name %in% cumulv)
-    if(any(toselect)){
+    ## R-variates not in 'cumul'
+    toselect <- which((auxmetadata$mcmctype == 'R') & (auxmetadata$name %in% Xv) &
+                          !(auxmetadata$name %in% cumulv))
+    if(length(toselect) > 0){
+        aux <- auxmetadata[toselect, ]
         nV0 <- TRUE
         V0mean <- cbind(V0mean,
-            learnt$Rmean[auxmetadata$id[toselect], , , drop = FALSE])
+            learnt$Rmean[aux$id, , , drop = FALSE])
         V0sd <- cbind(V0sd,
-            sqrt(learnt$Rvar[auxmetadata$id[toselect], , , drop = FALSE]))
+            sqrt(learnt$Rvar[aux$id, , , drop = FALSE]))
+        xV0 <- rbind(xV0,
+            t(as.matrix(vtransform(
+                X[, aux$name],
+                auxmetadata = auxmetadata,
+                Rout = 'normalized',
+                logjacobianOr = NULL
+            )))
+        )
     }
 
-    toselect <- (auxmetadata$mcmctype == 'C') & (auxmetadata$name %in% Xv) &
-        !(auxmetadata$name %in% cumulv)
-    toselect <- sapply(seq_along(toselect), function(xx) {
-        toselect[xx] &&
-            any(X[, auxmetadata$name[xx]] > auxmetadata$domainmin[xx] &
-                    X[, auxmetadata$name[xx]] < auxmetadata$domainmax[xx],
-                na.rm = TRUE)
-        })
+    ## C-variates not in 'cumul' and with some non-boundary value
+    toselect <- which((auxmetadata$mcmctype == 'C') & (auxmetadata$name %in% Xv) &
+                          !(auxmetadata$name %in% cumulv))
+    toselect <- toselect[sapply(toselect, function(i){
+        any(X[,auxmetadata$name[i]] > auxmetadata$domainmin[i] &
+            X[,auxmetadata$name[i]] < auxmetadata$domainmax[i])
+    })]
     if(any(toselect)){
+        aux <- auxmetadata[toselect, ]
         nV0 <- TRUE
         V0mean <- cbind(V0mean,
-            learnt$Cmean[auxmetadata$id[toselect], , , drop = FALSE])
+            learnt$Cmean[aux$id, , , drop = FALSE])
         V0sd <- cbind(V0sd,
-            sqrt(learnt$Cvar[auxmetadata$id[toselect], , , drop = FALSE]))
+            sqrt(learnt$Cvar[aux$id, , , drop = FALSE]))
+        xV0 <- rbind(xV0,
+            t(as.matrix(vtransform(
+                X[, aux$name],
+                auxmetadata = auxmetadata,
+                Cout = 'boundisna',
+                logjacobianOr = NULL
+            )))
+        )
     }
 
-    
+    ##
     ## tail probability
-    nV0 <- FALSE
-    V0mean <- V0sd <- NULL
+    nV1 <- FALSE
+    V1mean <- V1sd <- xV1 <- NULL
+
+    ## R- and C-variates in 'cumul'
+    toselect <- which((auxmetadata$mcmctype %in% c('R', 'C', 'D')) &
+                          (auxmetadata$name %in% Xv) &
+                          (auxmetadata$name %in% cumulv))
+    if(length(toselect) > 0){
+        aux <- auxmetadata[toselect, ]
+        nV1 <- TRUE
+        V1mean <- cumul[aux$name] *
+            cbind(V1mean,
+                learnt$Rmean[aux$id, , , drop = FALSE])
+        V1sd <- cbind(V1sd,
+            sqrt(learnt$Rvar[aux$id, , , drop = FALSE]))
+        xV1 <- rbind(xV1,
+            cumul[aux$name] *
+                t(as.matrix(vtransform(
+                    X[, aux$name],
+                    auxmetadata = auxmetadata,
+                    Rout = 'normalized',
+                    Cout = 'midisna',
+                    logjacobianOr = NULL
+                )))
+        )
+    }
+
+    ## C-variates not in 'cumul' and with some boundary value
+    toselect <- which((auxmetadata$mcmctype == 'C') & (auxmetadata$name %in% Xv) &
+                          !(auxmetadata$name %in% cumulv))
+    toselect <- toselect[sapply(toselect, function(i){
+        any(X[,auxmetadata$name[i]] < auxmetadata$domainmin[i]) ||
+            any(X[,auxmetadata$name[i]] > auxmetadata$domainmax[i])
+    })]
+    if(any(toselect)){
+        aux <- auxmetadata[toselect, ]
+        nV1 <- TRUE
+        V1mean <- cumul[aux$name] *
+            cbind(V1mean,
+                learnt$Cmean[aux$id, , , drop = FALSE])
+        V1sd <- cbind(V1sd,
+            sqrt(learnt$Cvar[aux$id, , , drop = FALSE]))
+        xV1 <- rbind(xV1,
+            cumul[aux$name] *
+                t(as.matrix(vtransform(
+                    X[, aux$name],
+                    auxmetadata = auxmetadata,
+                    Cout = 'midisna',
+                    logjacobianOr = NULL
+                )))
+        )
+    }
 
 
 

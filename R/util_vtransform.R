@@ -164,6 +164,44 @@ vtransform <- function(
                         datum[sel] <- NA
                         datum[!sel] <- 1L
 
+                    } else if (Cout == 'boundisna') {
+                        ## used in sampling functions
+                        ## points outside or on boundaries are moved to infinity
+                        datum[(datum <= domainmin) | (datum >= domainmax)] <- NA
+                        ##
+                        if (transform == 'log') {
+                            datum <- log(datum - domainmin)
+                        } else if (transform == 'logminus') {
+                            datum <- -log(domainmax - datum)
+                        } else if (transform == 'Q') {
+                            datum <- util_Q(0.5 +
+                                                (datum -
+                                                     (domainmin + domainmax)/2) /
+                                                (domainmax - domainmin))
+                        }
+                        ##
+                        datum <- (datum - tlocation) / tscale
+
+                    } else if (Cout == 'midisna') {
+                        ## used in sampling functions
+                        ## points outside or on boundaries are moved to infinity
+                        datum[(datum > domainmin) & (datum < domainmax)] <- NA
+                        datum[datum <= domainmin] <- domainmin
+                        datum[datum >= domainmax] <- domainmax
+                        ##
+                        if (transform == 'log') {
+                            datum <- log(datum - domainmin)
+                        } else if (transform == 'logminus') {
+                            datum <- -log(domainmax - datum)
+                        } else if (transform == 'Q') {
+                            datum <- util_Q(0.5 +
+                                                (datum -
+                                                     (domainmin + domainmax)/2) /
+                                                (domainmax - domainmin))
+                        }
+                        ##
+                        datum <- (datum - tlocation) / tscale
+
                     } else if (Cout == 'boundisinf') {
                         ## used in sampling functions
                         ## points outside or on boundaries are moved to infinity
