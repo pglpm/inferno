@@ -257,12 +257,14 @@ Pr2 <- function(
 
     ##
     ## point probability density
+    ##
     nV0 <- FALSE
     V0mean <- V0sd <- xV0 <- NULL
 
     ## R-variates not in 'cumul'
-    toselect <- which((auxmetadata$mcmctype == 'R') & (auxmetadata$name %in% Xv) &
-                          !(auxmetadata$name %in% cumulv))
+    toselect <- which((auxmetadata$name %in% Xv) &
+                          !(auxmetadata$name %in% cumulv) &
+                          (auxmetadata$mcmctype == 'R'))
     if(length(toselect) > 0){
         aux <- auxmetadata[toselect, ]
         nV0 <- TRUE
@@ -281,8 +283,9 @@ Pr2 <- function(
     }
 
     ## C-variates not in 'cumul' and with some non-boundary value
-    toselect <- which((auxmetadata$mcmctype == 'C') & (auxmetadata$name %in% Xv) &
-                          !(auxmetadata$name %in% cumulv))
+    toselect <- which((auxmetadata$name %in% Xv) &
+                          !(auxmetadata$name %in% cumulv) &
+                          (auxmetadata$mcmctype == 'C'))
     toselect <- toselect[sapply(toselect, function(i){
         any(X[,auxmetadata$name[i]] > auxmetadata$domainmin[i] &
             X[,auxmetadata$name[i]] < auxmetadata$domainmax[i])
@@ -306,13 +309,14 @@ Pr2 <- function(
 
     ##
     ## tail probability
+    ##
     nV1 <- FALSE
     V1mean <- V1sd <- xV1 <- NULL
 
-    ## R- and C-variates in 'cumul'
-    toselect <- which((auxmetadata$mcmctype %in% c('R', 'C', 'D')) &
-                          (auxmetadata$name %in% Xv) &
-                          (auxmetadata$name %in% cumulv))
+    ## R-, C-, D-variates in 'cumul'
+    toselect <- which((auxmetadata$name %in% Xv) &
+                          (auxmetadata$name %in% cumulv) &
+                          (auxmetadata$mcmctype %in% c('R', 'C', 'D')))
     if(length(toselect) > 0){
         aux <- auxmetadata[toselect, ]
         nV1 <- TRUE
@@ -327,15 +331,18 @@ Pr2 <- function(
                     X[, aux$name],
                     auxmetadata = auxmetadata,
                     Rout = 'normalized',
-                    Cout = 'midisna',
+                    Cout = 'infnormalized',
+                    Dout = 'normalized',
                     logjacobianOr = NULL
-                )))
+                ))) +
+                aux$halfstep / aux$tscale
         )
     }
 
-    ## C-variates not in 'cumul' and with some boundary value
-    toselect <- which((auxmetadata$mcmctype == 'C') & (auxmetadata$name %in% Xv) &
-                          !(auxmetadata$name %in% cumulv))
+    ## C-variates not in 'cumul' and with some boundary values
+    toselect <- which((auxmetadata$name %in% Xv) &
+                          !(auxmetadata$name %in% cumulv) &
+                          (auxmetadata$mcmctype %in% c('C', 'D')))
     toselect <- toselect[sapply(toselect, function(i){
         any(X[,auxmetadata$name[i]] < auxmetadata$domainmin[i]) ||
             any(X[,auxmetadata$name[i]] > auxmetadata$domainmax[i])
@@ -354,11 +361,42 @@ Pr2 <- function(
                     X[, aux$name],
                     auxmetadata = auxmetadata,
                     Cout = 'midisna',
+                    Dout = 'midisna',
                     logjacobianOr = NULL
-                )))
+                ))) +
+                aux$halfstep / aux$tscale
         )
     }
 
+    ##
+    ## interval probability
+    ##
+    nV2 <- FALSE
+    V2mean <- V2sd <- xV2 <- V2steps <- NULL
+
+    ## D-variates not in 'cumul'
+    toselect <- which((auxmetadata$name %in% Xv) &
+                          !(auxmetadata$name %in% cumulv) &
+                          (auxmetadata$mcmctype == 'D'))
+    if(length(toselect) > 0){
+        aux <- auxmetadata[toselect, ]
+        nV2 <- TRUE
+        V2mean <- cumul[aux$name] *
+            cbind(V2mean,
+                learnt$Rmean[aux$id, , , drop = FALSE])
+        V2sd <- cbind(V2sd,
+            sqrt(learnt$Rvar[aux$id, , , drop = FALSE]))
+        xV2 <- rbind(xV2,
+            cumul[aux$name] *
+                t(as.matrix(vtransform(
+                    X[, aux$name],
+                    auxmetadata = auxmetadata,
+                    Dout = 'normalized',
+                    logjacobianOr = NULL
+                ))) +
+                aux$halfstep / aux$tscale
+        )
+    }
 
 
     ## #### Subsample and get ncomponents and nsamples

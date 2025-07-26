@@ -183,8 +183,9 @@ vtransform <- function(
                         datum <- (datum - tlocation) / tscale
 
                     } else if (Cout == 'midisna') {
-                        ## used in sampling functions
-                        ## points outside or on boundaries are moved to infinity
+                        ## used in Pr()
+                        ## non-boundary points are st to NA
+                        ## boundaries are enforced
                         datum[(datum > domainmin) & (datum < domainmax)] <- NA
                         datum[datum <= domainmin] <- domainmin
                         datum[datum >= domainmax] <- domainmax
@@ -224,7 +225,7 @@ vtransform <- function(
                         datum[selmin] <- -Inf
 
                     } else if (Cout == 'infnormalized') {
-                        ## used in calculation of range probabilities
+                        ## used in Pr()
                         ## points outside boundaries are moved to boundaries
                         datum <- pmin(pmax(datum, domainmin), domainmax)
                         ## datum[datum <= domainminplushs] <- domainmin
@@ -321,6 +322,15 @@ vtransform <- function(
 
                     } else if (Dout == 'normalized') {
                         ## used in sampling functions
+                        datum <- pmin(pmax(datum, domainmin), domainmax)
+                        ## datum[datum <= domainmin] <- domainmin
+                        ## datum[datum >= domainmax] <- domainmax
+                        datum <- (datum - tlocation) / tscale
+
+                    } else if (Dout == 'midisna') {
+                        ## used in sampling functions
+                        datum[(datum > domainminplushs) &
+                                  (datum < domainmaxminushs)] <- NA
                         datum <- pmin(pmax(datum, domainmin), domainmax)
                         ## datum[datum <= domainmin] <- domainmin
                         ## datum[datum >= domainmax] <- domainmax
