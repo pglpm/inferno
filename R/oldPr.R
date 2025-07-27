@@ -6,7 +6,6 @@
 #'   the joint probability of. One variate per column, one set of values per row.
 #' @param X matrix or data.table or `NULL`: set of values of variates on which we want to condition the joint probability of `Y`. If `NULL` (default), no conditioning is made (except for conditioning on the learning dataset and prior assumptions). One variate per column, one set of values per row.
 #' @param learnt either a string with the name of a directory or full path for a 'learnt.rds' object, produced by the \code{\link{learn}} function, or such an object itself.
-#' @param cumul named vector or list, or `NULL` (default). The names must match some or all of the variates in arguments `Y` and `X`. The values can be one of `'<='` or `'>='` or `'=='` or `NULL`.
 #' @param priorY numeric vector with the same length as the rows of `Y`, or `TRUE`, or `NULL` (default): prior probabilities or base rates for the `Y` values. If `TRUE`, the prior probabilities are assumed to be all equal.
 #' @param nsamples integer or `NULL` or `"all"`: desired number of samples of the variability of the probability for `Y`. If `NULL`, no samples are reported. If `"all"` (or `Inf`), all samples obtained by the \code{\link{learn}} function are used. Default `"all"`.
 #' @param quantiles numeric vector, between 0 and 1, or `NULL`: desired quantiles of the variability of the probability for `Y`. Default `c(0.055, 0.25, 0.75, 0.945)`, that is, the 5.5%, 25%, 75%, 94.5% quantiles (these are typical quantile values in the Bayesian literature: they give 50% and 89% credibility intervals, which correspond to 1 shannons and 0.5 shannons of uncertainty). If `NULL`, no quantiles are calculated.
@@ -22,11 +21,10 @@
 #' @import parallel foreach doParallel
 #'
 #' @export
-Pr2 <- function(
+oldPr <- function(
     Y,
     X = NULL,
     learnt,
-    cumul = NULL,
     priorY = NULL,
     nsamples = 'all',
     quantiles = c(0.055, 0.25, 0.75, 0.945),
@@ -35,12 +33,6 @@ Pr2 <- function(
     usememory = TRUE,
     keepYX = TRUE
 ) {
-    cumulcentre <- list('==', 0, NULL)
-    cumulleft <- list('<=', -1, 'left')
-    cumulright <- list('>=', +1, 'right')
-
-    cumulvalues <- c(cumulcentre, cumulleft, cumulright)
-
     if (!silent) {
         cat('\n')
     }
@@ -125,68 +117,42 @@ Pr2 <- function(
         nsamples <- nmcsamples
     }
 
-
     Y <- as.data.frame(Y)
-    Yv <- colnames(Y)
-
     if(all(is.na(X))){X <- NULL}
     if(!is.null(X)){X <- as.data.frame(X)}
-    Xv <- colnames(X)
-
-    if(!is.null(cumul)){cumul <- as.list(cumul)}
-    cumulv <- names(cumul)
-
 
     ## Consistency checks
+    if (length(dim(Y)) != 2) {
+        stop('Y must have two dimensions')
+    }
+    if (!is.null(X) && length(dim(X)) != 2) {
+        stop('X must be NULL or have two dimensions')
+    }
+    ##
+    if (!is.null(X) && ncol(X) == 0) {
+        stop('X must be NULL or have two dimensions')
+    }
 
+    ## More consistency checks
+    Yv <- colnames(Y)
     if (!all(Yv %in% auxmetadata$name)) {
-        stop('unknown Y variate ',
-            paste0(Yv[!(Yv %in% auxmetadata$name)], collapse = ' '),
-            '\n')
+        stop('unknown Y variates\n')
     }
     if (length(unique(Yv)) != length(Yv)) {
         stop('duplicate Y variates\n')
     }
-
+    ##
+    Xv <- colnames(X)
     if (!all(Xv %in% auxmetadata$name)) {
-        stop('unknown X variate ',
-            paste0(Xv[!(Xv %in% auxmetadata$name)], collapse = ' '),
-            '\n')
+        stop('unknown X variates\n')
     }
     if (length(unique(Xv)) != length(Xv)) {
         stop('duplicate X variates\n')
     }
-
-    if (any(Yv %in% Xv)) {
+    ##
+    if (length(intersect(Yv, Xv)) > 0) {
         stop('overlap in Y and X variates\n')
     }
-
-    if (!all(cumulv %in% c(Yv, Xv))) {
-        warning('variate ',
-            paste0(cumulv[!(cumulv %in% c(Yv, Xv))], collapse = ' '),
-            ' not among Y and X; ignored\n')
-    }
-    if (length(unique(cumulv)) != length(cumulv)) {
-        stop('duplicate "cumul" variates\n')
-    }
-    if(!all(cumul %in% cumulvalues)) {
-        stop('"cumul" values must be ',
-            paste0(cumulvalues, collapse = ' '), '\n')
-    }
-
-    ## transform 'cumul' to -1, +1
-    ## +1: '<',    -1: '>'
-    ## this is opposite of the argument convention because
-    ## interval probabilities are calculated with `lower.tail = TRUE`
-    ## eg:
-    ## pnorm(x, mean, sd, lower.tail = FALSE) ==
-    ##     pnorm(-x, -mean, sd, lower.tail = TRUE)
-    cumul[cumul %in% cumulcentre] <- NULL
-    cleft <- cumul %in% cumulleft
-    cright <- cumul %in% cumulright
-    cumul[cleft] <- +1
-    cumul[cright] <- -1
-    cumul <- unlist(cumul)
 
     ## Check if a prior for Y is given, in that case Y and X will be swapped
     if (isFALSE(priorY) || is.null(priorY)) {
@@ -255,53 +221,146 @@ Pr2 <- function(
     dosamples <- !is.null(nsamples)
 
 
+    ## #### Subsample and get ncomponents and nsamples
+    ##     ## source('mcsubset.R')
+    ##     if (!missing(subsamples) &&
+    ##             (is.numeric(subsamples) || (is.character(subsamples)
+    ##                 && length(subsamples) == 1))) {
+    ##         if (is.character(subsamples)) {
+    ##             subsamples <- round(seq(1, ncol(learnt$W),
+    ##                 length.out = as.numeric(subsamples)
+    ##             ))
+    ##         }
+    ##         learnt <- mcsubset(learnt, subsamples)
+    ##     }
 
-#### Construction of the arguments for util_lprobs, X argument
 
-    lprobsargs <- util_lprobsargs(
-        x = X,
-        cumul = cumul,
-        auxmetadata = auxmetadata,
-        learnt = learnt
-    )
+### Guide to indices:
+    ## .i. = order in X/Y corresponding to appearance in vnames
+    ## .t. = vnames present in X/Y, kept in their vnames-order
+
+#### Type R
+    vnames <- auxmetadata[auxmetadata$mcmctype == 'R', 'name']
+    XiR <- match(vnames, Xv)
+    XtR <- which(!is.na(XiR))
+    XiR <- XiR[XtR]
+    XnR <- length(XiR)
+    ##
+    YiR <- match(vnames, Yv)
+    YtR <- which(!is.na(YiR))
+    YiR <- YiR[YtR]
+    YnR <- length(YiR)
+    if (YnR > 0 || XnR > 0) {
+        learnt$Rvar <- sqrt(learnt$Rvar)
+    }
+
+#### Type C
+    vnames <- auxmetadata[auxmetadata$mcmctype == 'C', 'name']
+    XiC <- match(vnames, Xv)
+    XtC <- which(!is.na(XiC))
+    XiC <- XiC[XtC]
+    XnC <- length(XiC)
+    ##
+    YiC <- match(vnames, Yv)
+    YtC <- which(!is.na(YiC))
+    YiC <- YiC[YtC]
+    YnC <- length(YiC)
+    if (YnC > 0 || XnC > 0) {
+        learnt$Cvar <- sqrt(learnt$Cvar)
+        Clefts <- auxmetadata[match(vnames, auxmetadata$name), 'tdomainmin']
+        Crights <- auxmetadata[match(vnames, auxmetadata$name), 'tdomainmax']
+    }
+
+#### Type D
+    vnames <- auxmetadata[auxmetadata$mcmctype == 'D', 'name']
+    XiD <- match(vnames, Xv)
+    XtD <- which(!is.na(XiD))
+    XiD <- XiD[XtD]
+    XnD <- length(XiD)
+    ##
+    YiD <- match(vnames, Yv)
+    YtD <- which(!is.na(YiD))
+    YiD <- YiD[YtD]
+    YnD <- length(YiD)
+    if (YnD > 0 || XnD > 0) {
+        learnt$Dvar <- sqrt(learnt$Dvar)
+        Dsteps <- auxmetadata[match(vnames, auxmetadata$name), 'halfstep'] /
+            auxmetadata[match(vnames, auxmetadata$name), 'tscale']
+        Dlefts <- auxmetadata[match(vnames, auxmetadata$name), 'tdomainminplushs']
+        Drights <- auxmetadata[match(vnames, auxmetadata$name), 'tdomainmaxminushs']
+    }
+
+#### Type O
+    vnames <- auxmetadata[auxmetadata$mcmctype == 'O', 'name']
+    XiO <- match(vnames, Xv)
+    XtO <- which(!is.na(XiO))
+    XiO <- XiO[XtO]
+    XnO <- length(XiO)
+    ##
+    YiO <- match(vnames, Yv)
+    YtO <- which(!is.na(YiO))
+    YiO <- YiO[YtO]
+    YnO <- length(YiO)
+
+#### Type N
+    vnames <- auxmetadata[auxmetadata$mcmctype == 'N', 'name']
+    XiN <- match(vnames, Xv)
+    XtN <- which(!is.na(XiN))
+    XiN <- XiN[XtN]
+    XnN <- length(XiN)
+    ##
+    YiN <- match(vnames, Yv)
+    YtN <- which(!is.na(YiN))
+    YiN <- YiN[YtN]
+    YnN <- length(YiN)
+
+#### Type B
+    vnames <- auxmetadata[auxmetadata$mcmctype == 'B', 'name']
+    XiB <- match(vnames, Xv)
+    XtB <- which(!is.na(XiB))
+    XiB <- XiB[XtB]
+    XnB <- length(XiB)
+    ##
+    YiB <- match(vnames, Yv)
+    YtB <- which(!is.na(YiB))
+    YiB <- YiB[YtB]
+    YnB <- length(YiB)
+
+
 
 #### First calculate and save arrays for X values:
     if (is.null(X)) {
         lprobX <- log(learnt$W)
         usememory <- FALSE
     } else {
+        X2 <- as.matrix(vtransform(X, auxmetadata = auxmetadata,
+            Rout = 'normalized',
+            Cout = 'boundisinf',
+            Dout = 'normalized',
+            Oout = 'index',
+            Nout = 'index',
+            Bout = 'numeric',
+            logjacobianOr = NULL))
+
         ## create unique dir where to save X objects
         temporarydir <- tempdir()
 
-        invisible(foreach(jj = seq_len(nX),
-            xV0 = lprobsargs$xV0,
-            xV1 = lprobsargs$xV1,
-            xV2 = lprobsargs$xV2,
-            xVN = lprobsargs$xVn,
-            xVB = lprobsargs$xVb,
+        ##
+        todelete <- foreach(jj = seq_len(nX), x = t(X2),
             .combine = `c`,
             .inorder = TRUE) %dox% {
                 lprobX <- c(log(learnt$W)) +
-                   util_lprobs(
-                       nV0 = lprobsargs$nV0,
-                       V0mean = lprobsargs$V0mean,
-                       V0sd = lprobsargs$V0sd,
-                       xV0 = xV0,
-                       nV1 = lprobsargs$nV1,
-                       V1mean = lprobsargs$V1mean,
-                       V1sd = lprobsargs$V1sd,
-                       xV1 = xV1,
-                       nV2 = lprobsargs$nV2,
-                       V2mean = lprobsargs$V2mean,
-                       V2sd = lprobsargs$V2sd,
-                       V2steps = lprobsargs$V2steps,
-                       xV2 = xV2,
-                       nVN = lprobsargs$nVN,
-                       VNprobs = lprobsargs$VNprobs,
-                       xVN = xVN,
-                       nVB = lprobsargs$nVB,
-                       VBprobs = lprobsargs$VBprobs,
-                       xVB = c(xVB)
+                    util_lprob(
+                        x = x,
+                        learnt = learnt,
+                        nR = XnR, iR = XiR, tR = XtR,
+                        nC = XnC, iC = XiC, tC = XtC,
+                        Clefts = Clefts, Crights = Crights,
+                        nD = XnD, iD = XiD, tD = XtD,
+                        Dsteps = Dsteps, Dlefts = Dlefts, Drights = Drights,
+                        nO = XnO, iO = XiO, tO = XtO,
+                        nN = XnN, iN = XiN, tN = XtN,
+                        nB = XnB, iB = XiB, tB = XtB
                     ) # rows=components, columns=samples
 
                 ## ## seems to lead to garbage for extreme values
@@ -314,7 +373,7 @@ Pr2 <- function(
                         paste0('__X', jj, '__.rds'))
                 )
                 NULL
-            })
+            }
     }
 
 #### Now calculate for each Y value, combining with each X value

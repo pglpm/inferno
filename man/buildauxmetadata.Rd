@@ -4,7 +4,7 @@
 \alias{buildauxmetadata}
 \title{Build preliminary metadata flie}
 \usage{
-buildauxmetadata(data, metadata, Dthreshold = 1, tscalefactor = 1.25)
+buildauxmetadata(data, metadata, Dthreshold = 1, tscalefactor = 4.266)
 }
 \arguments{
 \item{data}{data.frame object}

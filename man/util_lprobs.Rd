@@ -5,63 +5,33 @@
 \title{Calculate collection of log-probabilities for different components and samples}
 \usage{
 util_lprobs(
-  x,
-  learnt,
-  nR,
-  iR,
-  tR,
-  nLR,
-  iLR,
-  tLR,
-  nUR,
-  iUR,
-  tUR,
-  nC,
-  iC,
-  tC,
-  nLC,
-  iLC,
-  tLC,
-  nUC,
-  iUC,
-  tUC,
-  Clefts,
-  Crights,
-  nD,
-  iD,
-  tD,
-  nLD,
-  iLD,
-  tLD,
-  nUD,
-  iUD,
-  tUD,
-  Dsteps,
-  Dlefts,
-  Drights,
-  nO,
-  iO,
-  tO,
-  nLO,
-  iLO,
-  tLO,
-  nUO,
-  iUO,
-  tUO,
-  nN,
-  iN,
-  tN,
-  nB,
-  iB,
-  tB
+  nV0,
+  V0mean,
+  V0sd,
+  xV0,
+  nV1,
+  V1mean,
+  V1sd,
+  xV1,
+  nV2,
+  V2mean,
+  V2sd,
+  V2steps,
+  xV2,
+  nVN,
+  VNprobs,
+  xVN,
+  nVB,
+  VBprobs,
+  xVB
 )
 }
 \arguments{
-\item{nR}{etc: Parameters containing appropriate indices}
-
 \item{X}{numerical matrix: transformed variates}
 
 \item{learnt:}{Monte-Carlo-output object}
+
+\item{nR}{etc: Parameters containing appropriate indices}
 }
 \value{
 Matrix with as many rows as components and as many cols as samples
