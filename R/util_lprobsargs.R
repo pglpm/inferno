@@ -390,7 +390,7 @@ util_lprobsargs <- function(
         )
     }
 
-    . <- list(
+    list(
         nV0 = nV0, xV0 = xV0, V0mean = V0mean, V0sd = V0sd,
         nV1 = nV1, xV1 = xV1, V1mean = V1mean, V1sd = V1sd,
         nV2 = nV2, xV2 = xV2, V2mean = V2mean, V2sd = V2sd,
@@ -398,5 +398,4 @@ util_lprobsargs <- function(
         nVN = nVN, VNprobs = VNprobs, xVN = xVN,
         nVB = nVB, VBprobs = VBprobs, xVB = xVB
     )
-    .
 }

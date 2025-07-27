@@ -374,14 +374,12 @@ Pr <- function(
             VBprobs = lpargs$VBprobs,
             xVB = c(xVB)
         ) # rows=components, columns=samples
-        saveRDS(lprobY, 'YfromPr.rds')
 
         if(usememory) {
             lprobX <- readRDS(file.path(temporarydir,
                 paste0('__X', jj, '__.rds')
             ))
         }
-        saveRDS(lprobX, 'XfromPr.rds')
 
         FF <- colSums(exp(lprobX + lprobY), na.rm = TRUE) /
             colSums(exp(lprobX), na.rm = TRUE)

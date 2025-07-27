@@ -62,5 +62,6 @@ util_lprobs <- function(
             x = log(1 - xVB - VBprobs + 2 * xVB * VBprobs),
             na.rm = TRUE, dims = 1)
     }
+
     out
 }
