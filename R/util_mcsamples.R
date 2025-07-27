@@ -29,10 +29,25 @@ mcjoin <- function(x, y){
 #### Bind 3D arrays by first dimension
 #' @keywords internal
 learnbind <- function(x, y) {
-    out <- c(aperm(x), aperm(y))
-    dim(out) <- c(dim(x)[-1], dim(x)[1] + dim(y)[1])
-    aperm(out)
+    if(is.null(x)) {
+        y
+    } else {
+        nrx <- dim(x)[1]
+        nry <- dim(y)[1]
+        out <- array(data = NA, dim = c(nrx + nry, dim(x)[-1]),
+            dimnames = NULL)
+        out[seq_len(nrx), ,] <- x
+        out[nrx + seq_len(nry), ,] <- y
+        out
+    }
 }
+## ## old, slower variant
+## learnbind2 <- function(x, y) {
+##     out <- c(aperm(x), aperm(y))
+##     dim(out) <- c(rev(dim(x)[-1]), dim(x)[1] + dim(y)[1])
+##     aperm(out)
+## }
+
 
 #### Cumulative sum along first dimension
 #' @keywords internal

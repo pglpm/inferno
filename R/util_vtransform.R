@@ -182,12 +182,31 @@ vtransform <- function(
                         ##
                         datum <- (datum - tlocation) / tscale
 
-                    } else if (Cout == 'midisna') {
+                    } else if (Cout == 'leftbound') {
                         ## used in Pr()
                         ## non-boundary points are st to NA
                         ## boundaries are enforced
-                        datum[(datum > domainmin) & (datum < domainmax)] <- NA
+                        datum[datum > domainmin] <- NA
                         datum[datum <= domainmin] <- domainmin
+                        ##
+                        if (transform == 'log') {
+                            datum <- log(datum - domainmin)
+                        } else if (transform == 'logminus') {
+                            datum <- -log(domainmax - datum)
+                        } else if (transform == 'Q') {
+                            datum <- util_Q(0.5 +
+                                                (datum -
+                                                     (domainmin + domainmax)/2) /
+                                                (domainmax - domainmin))
+                        }
+                        ##
+                        datum <- (datum - tlocation) / tscale
+
+                    } else if (Cout == 'rightbound') {
+                        ## used in Pr()
+                        ## non-boundary points are st to NA
+                        ## boundaries are enforced
+                        datum[datum < domainmax] <- NA
                         datum[datum >= domainmax] <- domainmax
                         ##
                         if (transform == 'log') {
@@ -327,13 +346,22 @@ vtransform <- function(
                         ## datum[datum >= domainmax] <- domainmax
                         datum <- (datum - tlocation) / tscale
 
-                    } else if (Dout == 'midisna') {
-                        ## used in sampling functions
-                        datum[(datum > domainminplushs) &
-                                  (datum < domainmaxminushs)] <- NA
-                        datum <- pmin(pmax(datum, domainmin), domainmax)
-                        ## datum[datum <= domainmin] <- domainmin
-                        ## datum[datum >= domainmax] <- domainmax
+                    } else if (Dout == 'boundisna') {
+                        ## used in Pr()
+                        datum[datum <= domainminplushs |
+                                  datum >= domainmaxminushs] <- NA
+                        datum <- (datum - tlocation) / tscale
+
+                    } else if (Dout == 'leftbound') {
+                        ## used in Pr()
+                        datum[datum > domainminplushs] <- NA
+                        datum[datum <= domainmin] <- domainmin
+                        datum <- (datum - tlocation) / tscale
+
+                    } else if (Dout == 'rightbound') {
+                        ## used in Pr()
+                        datum[datum < domainmaxminushs] <- NA
+                        datum[datum >= domainmax] <- domainmax
                         datum <- (datum - tlocation) / tscale
 
                     } else if (Dout == 'mi') {

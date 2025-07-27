@@ -127,17 +127,17 @@ Pr2 <- function(
 
 
     Y <- as.data.frame(Y)
+    Yv <- colnames(Y)
 
     if(all(is.na(X))){X <- NULL}
     if(!is.null(X)){X <- as.data.frame(X)}
+    Xv <- colnames(X)
 
     if(!is.null(cumul)){cumul <- as.list(cumul)}
+    cumulv <- names(cumul)
+
 
     ## Consistency checks
-
-    Yv <- colnames(Y)
-    Xv <- colnames(X)
-    cumulv <- colnames(cumul)
 
     if (!all(Yv %in% auxmetadata$name)) {
         stop('unknown Y variate ',
@@ -181,9 +181,12 @@ Pr2 <- function(
     ## eg:
     ## pnorm(x, mean, sd, lower.tail = FALSE) ==
     ##     pnorm(-x, -mean, sd, lower.tail = TRUE)
-    cumul[cumul %in% cumulleft] <- +1
-    cumul[cumul %in% cumulright] <- -1
     cumul[cumul %in% cumulcentre] <- NULL
+    cleft <- cumul %in% cumulleft
+    cright <- cumul %in% cumulright
+    cumul[cleft] <- +1
+    cumul[cright] <- -1
+    cumul <- unlist(cumul)
 
     ## Check if a prior for Y is given, in that case Y and X will be swapped
     if (isFALSE(priorY) || is.null(priorY)) {
@@ -255,362 +258,50 @@ Pr2 <- function(
 
 #### Construction of the arguments for util_lprobs, X argument
 
-###
-### point probability density
-###
-    nV0 <- FALSE
-    V0mean <- V0sd <- xv0 <- NULL
-
-### R-variates not in 'cumul'
-    toselect <- which((auxmetadata$name %in% Xv) &
-                          !(auxmetadata$name %in% cumulv) &
-                          (auxmetadata$mcmctype == 'R'))
-    if(length(toselect) > 0){
-        aux <- auxmetadata[toselect, ]
-        nV0 <- TRUE
-        V0mean <- learnbind(V0mean,
-            learnt$Rmean[aux$id, , , drop = FALSE])
-        V0sd <- learnbind(V0sd,
-            sqrt(learnt$Rvar[aux$id, , , drop = FALSE]))
-        xv0 <- rbind(xv0,
-            t(as.matrix(vtransform(
-                X[, aux$name],
-                auxmetadata = auxmetadata,
-                Rout = 'normalized',
-                logjacobianOr = NULL
-            )))
-        )
-    }
-
-### C-variates not in 'cumul' and with some non-boundary value
-    toselect <- which((auxmetadata$name %in% Xv) &
-                          !(auxmetadata$name %in% cumulv) &
-                          (auxmetadata$mcmctype == 'C'))
-    toselect <- toselect[sapply(toselect, function(i){
-        any(X[,auxmetadata$name[i]] > auxmetadata$domainmin[i] &
-            X[,auxmetadata$name[i]] < auxmetadata$domainmax[i])
-    })]
-    if(any(toselect)){
-        aux <- auxmetadata[toselect, ]
-        nV0 <- TRUE
-        V0mean <- learnbind(V0mean,
-            learnt$Cmean[aux$id, , , drop = FALSE])
-        V0sd <- learnbind(V0sd,
-            sqrt(learnt$Cvar[aux$id, , , drop = FALSE]))
-        xv0 <- rbind(xv0,
-            t(as.matrix(vtransform(
-                X[, aux$name],
-                auxmetadata = auxmetadata,
-                Cout = 'boundisna',
-                logjacobianOr = NULL
-            )))
-        )
-    }
-
-###
-### tail probability
-###
-    nV1 <- FALSE
-    V1mean <- V1sd <- xv1 <- NULL
-
-### R-variates in 'cumul'
-    toselect <- which((auxmetadata$name %in% Xv) &
-                          (auxmetadata$name %in% cumulv) &
-                          (auxmetadata$mcmctype == 'R'))
-    if(length(toselect) > 0){
-        aux <- auxmetadata[toselect, ]
-        nV1 <- TRUE
-        V1mean <- cumul[aux$name] *
-            learnbind(V1mean,
-                learnt$Rmean[aux$id, , , drop = FALSE])
-        V1sd <- learnbind(V1sd,
-            sqrt(learnt$Rvar[aux$id, , , drop = FALSE]))
-        xv1 <- rbind(xv1,
-            cumul[aux$name] *
-                t(as.matrix(vtransform(
-                    X[, aux$name],
-                    auxmetadata = auxmetadata,
-                    Rout = 'normalized',
-                    logjacobianOr = NULL
-                )))
-        )
-    }
-
-### C-variates in 'cumul'
-    toselect <- which((auxmetadata$name %in% Xv) &
-                          (auxmetadata$name %in% cumulv) &
-                          (auxmetadata$mcmctype == 'C'))
-    if(length(toselect) > 0){
-        aux <- auxmetadata[toselect, ]
-        nV1 <- TRUE
-        V1mean <- cumul[aux$name] *
-            learnbind(V1mean,
-                learnt$Cmean[aux$id, , , drop = FALSE])
-        V1sd <- learnbind(V1sd,
-            sqrt(learnt$Cvar[aux$id, , , drop = FALSE]))
-        xv1 <- rbind(xv1,
-            cumul[aux$name] *
-                t(as.matrix(vtransform(
-                    X[, aux$name],
-                    auxmetadata = auxmetadata,
-                    Cout = 'infnormalized',
-                    logjacobianOr = NULL
-                )))
-        )
-    }
-
-### D-variates in 'cumul'
-    toselect <- which((auxmetadata$name %in% Xv) &
-                          (auxmetadata$name %in% cumulv) &
-                          (auxmetadata$mcmctype == 'D'))
-    if(length(toselect) > 0){
-        aux <- auxmetadata[toselect, ]
-        nV1 <- TRUE
-        V1mean <- cumul[aux$name] *
-            learnbind(V1mean,
-                learnt$Dmean[aux$id, , , drop = FALSE])
-        V1sd <- learnbind(V1sd,
-            sqrt(learnt$Dvar[aux$id, , , drop = FALSE]))
-        xv1 <- rbind(xv1,
-            cumul[aux$name] *
-                t(as.matrix(vtransform(
-                    X[, aux$name],
-                    auxmetadata = auxmetadata,
-                    Dout = 'normalized',
-                    logjacobianOr = NULL
-                ))) +
-                aux$halfstep / aux$tscale
-        )
-    }
-
-### C-variates not in 'cumul' and with some boundary values
-    toselect <- which((auxmetadata$name %in% Xv) &
-                          !(auxmetadata$name %in% cumulv) &
-                          (auxmetadata$mcmctype == 'C'))
-    toselect <- toselect[sapply(toselect, function(i){
-        any(X[,auxmetadata$name[i]] < auxmetadata$domainmin[i]) ||
-            any(X[,auxmetadata$name[i]] > auxmetadata$domainmax[i])
-    })]
-    if(any(toselect)){
-        aux <- auxmetadata[toselect, ]
-        nV1 <- TRUE
-        V1mean <- cumul[aux$name] *
-            learnbind(V1mean,
-                learnt$Cmean[aux$id, , , drop = FALSE])
-        V1sd <- learnbind(V1sd,
-            sqrt(learnt$Cvar[aux$id, , , drop = FALSE]))
-        xv1 <- rbind(xv1,
-            cumul[aux$name] *
-                t(as.matrix(vtransform(
-                    X[, aux$name],
-                    auxmetadata = auxmetadata,
-                    Cout = 'midisna',
-                    logjacobianOr = NULL
-                )))
-        )
-    }
-
-### D-variates not in 'cumul' and with some boundary values
-    toselect <- which((auxmetadata$name %in% Xv) &
-                          !(auxmetadata$name %in% cumulv) &
-                          (auxmetadata$mcmctype == 'D'))
-    toselect <- toselect[sapply(toselect, function(i){
-        any(X[,auxmetadata$name[i]] < auxmetadata$domainminplushs[i]) ||
-            any(X[,auxmetadata$name[i]] > auxmetadata$domainmaxminushs[i])
-    })]
-    if(any(toselect)){
-        aux <- auxmetadata[toselect, ]
-        nV1 <- TRUE
-        V1mean <- cumul[aux$name] *
-            learnbind(V1mean,
-                learnt$Dmean[aux$id, , , drop = FALSE])
-        V1sd <- learnbind(V1sd,
-            sqrt(learnt$Dvar[aux$id, , , drop = FALSE]))
-        xv1 <- rbind(xv1,
-            cumul[aux$name] *
-                t(as.matrix(vtransform(
-                    X[, aux$name],
-                    auxmetadata = auxmetadata,
-                    Cout = 'midisna',
-                    Dout = 'midisna',
-                    logjacobianOr = NULL
-                ))) +
-                aux$halfstep / aux$tscale
-        )
-    }
-
-###
-### interval probability
-###
-    nV2 <- FALSE
-    V2mean <- V2sd <- xv2 <- V2steps <- NULL
-
-### D-variates not in 'cumul'
-    toselect <- which((auxmetadata$name %in% Xv) &
-                          !(auxmetadata$name %in% cumulv) &
-                          (auxmetadata$mcmctype == 'D'))
-    if(length(toselect) > 0){
-        aux <- auxmetadata[toselect, ]
-        nV2 <- TRUE
-        V2mean <- cumul[aux$name] *
-            learnbind(V2mean,
-                learnt$Dmean[aux$id, , , drop = FALSE])
-        V2sd <- learnbind(V2sd,
-            sqrt(learnt$Dvar[aux$id, , , drop = FALSE]))
-        xv2 <- rbind(xv2,
-            cumul[aux$name] *
-                t(as.matrix(vtransform(
-                    X[, aux$name],
-                    auxmetadata = auxmetadata,
-                    Dout = 'normalized',
-                    logjacobianOr = NULL
-                ))) +
-                aux$halfstep / aux$tscale
-        )
-    }
-
-###
-### discrete case
-###
-    nVN <- FALSE
-    VNprobs <- xvN <- NULL
-### O-variates not in 'cumul'
-    toselect <- which((auxmetadata$name %in% Xv) &
-                          !(auxmetadata$name %in% cumulv) &
-                          (auxmetadata$mcmctype == 'O'))
-    if(length(toselect) > 0){
-        aux <- auxmetadata[toselect, ]
-        nVN <- TRUE
-        ## indices <- unlist(lapply(seq_len(nrow(aux)), function(i) {
-        ##     aux$indexpos[i] + seq_len(aux$Nvalues[i])
-        ## }))
-        indices <- unlist(mapply(FUN = function(i, n) {i + seq_len(n)},
-            aux$indexpos, aux$Nvalues,
-            SIMPLIFY = FALSE))
-        VNprobs <- learnbind(VNprobs,
-            learnt$Oprob[indices, , , drop = FALSE])
-        xvN <- rbind(xvN,
-                t(as.matrix(vtransform(
-                    X[, aux$name],
-                    auxmetadata = auxmetadata,
-                    Oout = 'numeric',
-                    logjacobianOr = NULL
-                ))) +
-                    c(0, cumsum(aux$Nvalues[-1]))
-        )
-    }
-### N-variates not in 'cumul'
-    toselect <- which((auxmetadata$name %in% Xv) &
-                          (auxmetadata$mcmctype == 'N'))
-    if(length(toselect) > 0){
-        aux <- auxmetadata[toselect, ]
-        nVN <- TRUE
-        ## indices <- unlist(lapply(seq_len(nrow(aux)), function(i) {
-        ##     aux$indexpos[i] + seq_len(aux$Nvalues[i])
-        ## }))
-        indices <- unlist(mapply(FUN = function(i, n) {i + seq_len(n)},
-            aux$indexpos, aux$Nvalues,
-            SIMPLIFY = FALSE))
-        VNprobs <- learnbind(VNprobs,
-            learnt$Nprob[indices, , , drop = FALSE])
-        xvN <- rbind(xvN,
-                t(as.matrix(vtransform(
-                    X[, aux$name],
-                    auxmetadata = auxmetadata,
-                    Nout = 'numeric',
-                    logjacobianOr = NULL
-                ))) +
-                    c(0, cumsum(aux$Nvalues[-1]))
-        )
-    }
-
-### O-variates in 'cumul'
-    toselect <- which((auxmetadata$name %in% Xv) &
-                          (auxmetadata$name %in% cumulv) &
-                          (auxmetadata$mcmctype == 'O'))
-    if(length(toselect) > 0){
-        aux <- auxmetadata[toselect, ]
-        nVN <- TRUE
-        for(i in seq_len(nrow(aux))) {
-            VNprobs <- learnbind(VNprobs,
-                if(cumul[aux$name[i]] < 0) {
-                    rowcumsum(learnt$Oprob[
-                        aux$indexpos[i] + seq_len(aux$Nvalues[i]), , , drop = FALSE
-                    ])
-                } else {
-                    rowinvcumsum(learnt$Oprob[
-                        aux$indexpos[i] + seq_len(aux$Nvalues[i]), , , drop = FALSE
-                    ])
-                }
-            )
-        }
-        xvN <- rbind(xvN,
-            t(as.matrix(vtransform(
-                X[, aux$name],
-                auxmetadata = auxmetadata,
-                Oout = 'numeric',
-                logjacobianOr = NULL
-            ))) +
-                c(0, cumsum(aux$Nvalues[-1]))
-        )
-    }
-
-###
-### binary case
-###
-    nVB <- FALSE
-    VBprobs <- xvB <- NULL
-### B-variates
-    toselect <- which((auxmetadata$name %in% Xv) &
-                          (auxmetadata$mcmctype == 'B'))
-    if(length(toselect) > 0){
-        aux <- auxmetadata[toselect, ]
-        nVB <- TRUE
-        for(i in seq_len(nrow(aux))) {
-        VBprobs <- learnbind(VBprobs,
-            learnt$Bprob[indices, , , drop = FALSE])
-        xvB <- rbind(xvB,
-                t(as.matrix(vtransform(
-                    X[, aux$name],
-                    auxmetadata = auxmetadata,
-                    Bout = 'numeric',
-                    logjacobianOr = NULL
-                )))
-        )
-    }
-
-
+    lprobsargs <- util_lprobsargs(
+        x = X,
+        cumul = cumul,
+        auxmetadata = auxmetadata,
+        learnt = learnt
+    )
 
 #### First calculate and save arrays for X values:
     if (is.null(X)) {
         lprobX <- log(learnt$W)
         usememory <- FALSE
     } else {
-        X2 <- as.matrix(vtransform(X, auxmetadata = auxmetadata,
-            Rout = 'normalized',
-            Cout = 'boundisinf',
-            Dout = 'normalized',
-            Oout = 'index',
-            Nout = 'index',
-            Bout = 'numeric',
-            logjacobianOr = NULL))
-
         ## create unique dir where to save X objects
         temporarydir <- tempdir()
 
-        ##
         invisible(foreach(jj = seq_len(nX),
-            xV0 = xv0, xV1 = xv1, xV2 = xv2, xVN = xvN, xVB = xvB,
+            xV0 = lprobsargs$xV0,
+            xV1 = lprobsargs$xV1,
+            xV2 = lprobsargs$xV2,
+            xVN = lprobsargs$xVn,
+            xVB = lprobsargs$xVb,
             .combine = `c`,
             .inorder = TRUE) %dox% {
                 lprobX <- c(log(learnt$W)) +
-                    util_lprobs(
-                        nV0 = nV0, xV0 = xV0, V0mean = V0mean, V0sd = V0sd,
-                        nV1 = nV1, xV1 = xV1, V1mean = V1mean, V1sd = V1sd,
-                        nV2 = nV2, xV2 = xV2, V2mean = V2mean, V2sd = V2sd,
-                        V2steps = V2steps,
-                        nVN = nVN, VNprobs = VNprobs, xVN = xVN,
-                        nVB = nVB, VBprobs = VBprobs, xVB = xVB
+                   util_lprobs(
+                       nV0 = lprobsargs$nV0,
+                       V0mean = lprobsargs$V0mean,
+                       V0sd = lprobsargs$V0sd,
+                       xV0 = xV0,
+                       nV1 = lprobsargs$nV1,
+                       V1mean = lprobsargs$V1mean,
+                       V1sd = lprobsargs$V1sd,
+                       xV1 = xV1,
+                       nV2 = lprobsargs$nV2,
+                       V2mean = lprobsargs$V2mean,
+                       V2sd = lprobsargs$V2sd,
+                       V2steps = lprobsargs$V2steps,
+                       xV2 = xV2,
+                       nVN = lprobsargs$nVN,
+                       VNprobs = lprobsargs$VNprobs,
+                       xVN = xVN,
+                       nVB = lprobsargs$nVB,
+                       VBprobs = lprobsargs$VBprobs,
+                       xVB = c(xVB)
                     ) # rows=components, columns=samples
 
                 ## ## seems to lead to garbage for extreme values
