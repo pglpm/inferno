@@ -261,12 +261,12 @@ Pr <- function(
         usememory <- FALSE
     } else {
         ## Construction of the arguments for util_lprobs, X argument
-        
+
         lpargs <- util_lprobsargs(
             x = X,
-            cumul = cumul,
             auxmetadata = auxmetadata,
-            learnt = learnt
+            learnt = learnt,
+            cumul = cumul
         )
 
         ## create unique dir where to save X objects
@@ -323,9 +323,9 @@ Pr <- function(
 
     lpargs <- util_lprobsargs(
         x = Y,
-        cumul = cumul,
         auxmetadata = auxmetadata,
-        learnt = learnt
+        learnt = learnt,
+        cumul = cumul
     )
     ## jacobians <- exp(-rowSums(
     ##     log(vtransform(Y,

@@ -4,7 +4,7 @@
 \alias{util_lprobsargs}
 \title{Prepare arguments for util_lprobs from data}
 \usage{
-util_lprobsargs(x, cumul, auxmetadata, learnt)
+util_lprobsargs(x, auxmetadata, learnt, cumul = NULL)
 }
 \description{
 Prepare arguments for util_lprobs from data

@@ -2,7 +2,7 @@
 #'
 #' @keywords internal
 util_lprobsargs <- function(
-    x, cumul, auxmetadata, learnt
+    x, auxmetadata, learnt, cumul = NULL
 ) {
     Xv <- colnames(x)
     nX <- nrow(x)
@@ -151,7 +151,6 @@ util_lprobsargs <- function(
     if(length(toselect) > 0){
         aux <- auxmetadata[toselect, ]
         nV1 <- TRUE
-        csign <- x[, aux$name, drop = FALSE] <= aux$domainmin
         V1mean <- learnbind(V1mean,
                 learnt$Cmean[aux$id, , , drop = FALSE])
         V1sd <- learnbind(V1sd,
@@ -179,7 +178,6 @@ util_lprobsargs <- function(
     if(length(toselect) > 0){
         aux <- auxmetadata[toselect, ]
         nV1 <- TRUE
-        csign <- x[, aux$name, drop = FALSE] <= aux$domainmin
         V1mean <- learnbind(V1mean,
                 - learnt$Cmean[aux$id, , , drop = FALSE]) # minus sign
         V1sd <- learnbind(V1sd,
@@ -207,7 +205,6 @@ util_lprobsargs <- function(
     if(length(toselect) > 0){
         aux <- auxmetadata[toselect, ]
         nV1 <- TRUE
-        csign <- x[, aux$name, drop = FALSE] <= aux$domainmin
         V1mean <- learnbind(V1mean,
                 learnt$Dmean[aux$id, , , drop = FALSE])
         V1sd <- learnbind(V1sd,
@@ -235,7 +232,6 @@ util_lprobsargs <- function(
     if(length(toselect) > 0){
         aux <- auxmetadata[toselect, ]
         nV1 <- TRUE
-        csign <- x[, aux$name, drop = FALSE] <= aux$domainmin
         V1mean <- learnbind(V1mean,
                 - learnt$Dmean[aux$id, , , drop = FALSE]) # minus sign
         V1sd <- learnbind(V1sd,
@@ -260,6 +256,13 @@ util_lprobsargs <- function(
     toselect <- which((auxmetadata$name %in% Xv) &
                           !(auxmetadata$name %in% cumulv) &
                           (auxmetadata$mcmctype == 'D'))
+    if(length(toselect) > 0) {
+        toselect <- toselect[sapply(toselect, function(i){
+            any(x[,auxmetadata$name[i]] > auxmetadata$domainminplushs[i] &
+                    x[,auxmetadata$name[i]] < auxmetadata$domainmaxminushs[i],
+                na.rm = TRUE)
+        })]
+    }
     if(length(toselect) > 0){
         aux <- auxmetadata[toselect, ]
         nV2 <- TRUE
@@ -267,7 +270,7 @@ util_lprobsargs <- function(
                 learnt$Dmean[aux$id, , , drop = FALSE])
         V2sd <- learnbind(V2sd,
             sqrt(learnt$Dvar[aux$id, , , drop = FALSE]))
-        V2steps <- c(V2steps, aux$halfstep / aux$tscale)
+        V2steps <- aux$halfstep / aux$tscale
         xV2 <- rbind(xV2,
                 t(as.matrix(vtransform(
                     x[, aux$name, drop = FALSE],
@@ -291,14 +294,14 @@ util_lprobsargs <- function(
     if(length(toselect) > 0){
         aux <- auxmetadata[toselect, ]
         nVN <- TRUE
-        ## indices <- unlist(lapply(seq_len(nrow(aux)), function(i) {
+        ## Nindices <- unlist(lapply(seq_len(nrow(aux)), function(i) {
         ##     aux$indexpos[i] + seq_len(aux$Nvalues[i])
         ## }))
-        indices <- unlist(mapply(FUN = function(i, n) {i + seq_len(n)},
+        Nindices <- unlist(mapply(FUN = function(i, n) {i + seq_len(n)},
             aux$indexpos, aux$Nvalues,
             SIMPLIFY = FALSE))
         VNprobs <- learnbind(VNprobs,
-            learnt$Oprob[indices, , , drop = FALSE])
+            learnt$Oprob[Nindices, , , drop = FALSE])
         xVN <- rbind(xVN,
                 t(as.matrix(vtransform(
                     x[, aux$name, drop = FALSE],
@@ -308,7 +311,7 @@ util_lprobsargs <- function(
                 ))) +
                     Nshift + c(0, cumsum(aux$Nvalues[-1]))
         )
-        Nshift <- Nshift + length(indices)
+        Nshift <- Nshift + length(Nindices)
     }
 ### N-variates
     toselect <- which((auxmetadata$name %in% Xv) &
@@ -316,14 +319,14 @@ util_lprobsargs <- function(
     if(length(toselect) > 0){
         aux <- auxmetadata[toselect, ]
         nVN <- TRUE
-        ## indices <- unlist(lapply(seq_len(nrow(aux)), function(i) {
+        ## Nindices <- unlist(lapply(seq_len(nrow(aux)), function(i) {
         ##     aux$indexpos[i] + seq_len(aux$Nvalues[i])
         ## }))
-        indices <- unlist(mapply(FUN = function(i, n) {i + seq_len(n)},
+        Nindices <- unlist(mapply(FUN = function(i, n) {i + seq_len(n)},
             aux$indexpos, aux$Nvalues,
             SIMPLIFY = FALSE))
         VNprobs <- learnbind(VNprobs,
-            learnt$Nprob[indices, , , drop = FALSE])
+            learnt$Nprob[Nindices, , , drop = FALSE])
         xVN <- rbind(xVN,
                 t(as.matrix(vtransform(
                     x[, aux$name, drop = FALSE],
@@ -333,7 +336,7 @@ util_lprobsargs <- function(
                 ))) +
                     Nshift + c(0, cumsum(aux$Nvalues[-1]))
         )
-        Nshift <- Nshift + length(indices)
+        Nshift <- Nshift + length(Nindices)
     }
 
 ### O-variates in 'cumul'

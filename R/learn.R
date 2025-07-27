@@ -498,17 +498,11 @@ learn <- function(
         ## Each chain uses a different set of testdata
         for(achain in 0:nchains) {
             pointsid <- sort(sample(seq_len(npoints), min(ncheckpoints, npoints)))
-            testdata <- as.matrix(vtransform(
-                data[pointsid, , drop = FALSE],
+            testdata <- util_prepPcheckpoints(
+                x = data[pointsid, , drop = FALSE],
                 auxmetadata = auxmetadata,
-                Rout = 'normalized',
-                Cout = 'boundisinf',
-                Dout = 'normalized',
-                Oout = 'index',
-                Nout = 'index',
-                Bout = 'numeric',
-                logjacobianOr = NULL))
-            rownames(testdata) <- pointsid
+                pointsid = pointsid
+                )
             saveRDS(testdata,
                 file = file.path(dirname, paste0('___testdata_', achain, '.rds')))
         }
@@ -2233,7 +2227,7 @@ learn <- function(
             testdata <- readRDS(file = file.path(dirname,
                 paste0('___testdata_', chainnumber, '.rds')))
             cat('\nDatapoints for testing chain behaviour:\n',
-                paste0('#', rownames(testdata)), '\n')
+                paste0('#', testdata$pointsid), '\n')
 
             ## will contain the MC traces of the test points
             traces <- matrix(NA_real_, nrow = 0, ncol = 1,
@@ -2349,19 +2343,16 @@ learn <- function(
                 ## Log-likelihood
                 diagntime <- Sys.time()
                 ##
-                ll <- cbind(
-                    util_Pcheckpoints(
-                        Y = testdata,
-                        learnt = mcsamples,
-                        auxmetadata = auxmetadata
-                    )
+                ll <- util_Pcheckpoints(
+                        testdata = testdata,
+                        learnt = mcsamples
                 )
 
                 ll <- cbind(
                     exp(rowMeans(log(ll), na.rm = TRUE)), # geometric mean
                     ll
                 )
-                colnames(ll) <- c('gmean', rownames(testdata))
+                colnames(ll) <- c('gmean', testdata$pointsid)
 
                 if(plottraces){
                     saveRDS(ll,
@@ -2592,7 +2583,7 @@ learn <- function(
                                 achain, ' of core ', acore),
                             ##
                             paste0('Test points ',
-                                paste0('#', rownames(testdata), collapse=' ')
+                                paste0('#', testdata$pointsid, collapse=' ')
                             ),
                             ##
                             paste0('Iterations: ', nitertot),
@@ -2887,14 +2878,13 @@ learn <- function(
 
     testdata <- readRDS(file = file.path(dirname,
         paste0('___testdata_', 0, '.rds')))
-    cat('\nChecking test data\n(', paste0('#', rownames(testdata)), ')\n')
+    cat('\nChecking test data\n(', paste0('#', testdata$pointsid), ')\n')
 
     oktraces <- cbind(
         util_Pcheckpoints(
-            Y = testdata,
-            learnt = mcsamples,
-            auxmetadata = auxmetadata
-        )
+            testdata = testdata,
+            learnt = mcsamples
+            )
     )
 
     oktraces <- cbind(
@@ -2905,7 +2895,7 @@ learn <- function(
     oktraces <- oktraces[apply(oktraces, 1, function(x) { all(is.finite(x)) }), ,
         drop = FALSE]
 
-    colnames(oktraces) <- c('gmean', rownames(testdata))
+    colnames(oktraces) <- c('gmean', testdata$pointsid)
 
     saveRDS(oktraces, file = file.path(dirname,
         paste0('MCtraces', dashnameroot, '.rds')
