@@ -25,8 +25,14 @@ subset.probability <- function(
     for(vrt in vrtnames[vrtnames %in% Ynames]){
         selvals <- x$Y[[vrt]] %in% subset[[vrt]]
         x$values <- x$values[selvals, , drop = FALSE]
+        if(!is.null(x$values.MCerror)){
+            x$values.MCerror <- x$values.MCerror[selvals, , drop = FALSE]
+        }
         if(!is.null(x$quantiles)){
             x$quantiles <- x$quantiles[selvals, , , drop = FALSE]
+        }
+        if(!is.null(x$quantiles.MCerror)){
+            x$quantiles.MCerror <- x$quantiles.MCerror[selvals, , , drop = FALSE]
         }
         if(!is.null(x$samples)){
             x$samples <- x$samples[selvals, , , drop = FALSE]
@@ -38,8 +44,14 @@ subset.probability <- function(
     for(vrt in vrtnames[vrtnames %in% Xnames]){
         selvals <- x$X[[vrt]] %in% subset[[vrt]]
         x$values <- x$values[, selvals, drop = FALSE]
+        if(!is.null(x$values.MCerror)){
+            x$values.MCerror <- x$values.MCerror[, selvals, drop = FALSE]
+        }
         if(!is.null(x$quantiles)){
             x$quantiles <- x$quantiles[, selvals, , drop = FALSE]
+        }
+        if(!is.null(x$quantiles.MCerror)){
+            x$quantiles.MCerror <- x$quantiles.MCerror[, selvals, , drop = FALSE]
         }
         if(!is.null(x$samples)){
             x$samples <- x$samples[, selvals, , drop = FALSE]

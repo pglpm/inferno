@@ -429,7 +429,7 @@ Pr <- function(
 
     ## transform to grid
     ## in the output-list elements the Y & X values are the rows
-    dim(out$values) <- c(nY, nX)
+    dim(out$values.MCerror) <- dim(out$values) <- c(nY, nX)
 
     if(is.null(priorY)){
         ## multiply by jacobian factors
@@ -446,6 +446,8 @@ Pr <- function(
         } else {
             Xnames <- NULL
         }
+        str(out$values)
+        str(out$values.MCerror)
         dimnames(out$values) <- list(Y = Ynames, X = Xnames)
         dimnames(out$values.MCerror) <- dimnames(out$values)
     } else {
