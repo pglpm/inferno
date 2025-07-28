@@ -8,7 +8,7 @@ Pr(
   Y,
   X = NULL,
   learnt,
-  cumul = NULL,
+  tails = NULL,
   priorY = NULL,
   nsamples = "all",
   quantiles = c(0.055, 0.25, 0.75, 0.945),
@@ -26,7 +26,7 @@ the joint probability of. One variate per column, one set of values per row.}
 
 \item{learnt}{either a string with the name of a directory or full path for a 'learnt.rds' object, produced by the \code{\link{learn}} function, or such an object itself.}
 
-\item{cumul}{named vector or list, or \code{NULL} (default). The names must match some or all of the variates in arguments \code{Y} and \code{X}. The values can be one of \code{'<='} or \code{'>='} or \code{'=='} or \code{NULL}.}
+\item{tails}{named vector or list, or \code{NULL} (default). The names must match some or all of the variates in arguments \code{Y} and \code{X}. For variates in this list, the probability arguments are understood in an semi-open interval sense: \verb{Y ≤ y} or \verb{Y ≥ y}, an so on. This is true for variates on the left and on the right of the conditional sign \verb{\\|}. A left-open interval \verb{Y ≤ y} is indicated by the values \code{'<='} or \code{'left'} or \code{-1}; a right-open interval \verb{Y ≥ y} is indicated by the values \code{'>='} or \code{'right'} or \code{+1}. Values \code{NULL}, \code{'=='}, \code{0} indicate that a point value \code{Y = y} (not an interval) should be calculated. NB: the semi-open intervals \emph{always} include the given value; this is important for ordinal or rounded variates. Therefore, if \code{Y} is for instance an integer variate, then to calculate  \code{P(Y < 3)} you should require \code{P(Y <= 2)}.}
 
 \item{priorY}{numeric vector with the same length as the rows of \code{Y}, or \code{TRUE}, or \code{NULL} (default): prior probabilities or base rates for the \code{Y} values. If \code{TRUE}, the prior probabilities are assumed to be all equal.}
 
@@ -48,5 +48,5 @@ Default \code{TRUE}.}
 A list of class \code{probability}, consisting of the elements \code{values},  \code{quantiles} (possibly \code{NULL}), \code{samples} (possibly \code{NULL}), \code{Y}, \code{X}. Element \code{values}: a matrix with the probabilities P(Y|X,data,assumptions), for all combinations of values of \code{Y} (rows) and \code{X} (columns). Element \code{quantiles}: an array with the variability quantiles (3rd dimension of the array) for such probabilities. Element \code{samples}: an array with the variability samples (3rd dimension of the array) for such probabilities. Elements \code{Y}, \code{X}: copies of the \code{Y} and \code{X} arguments.
 }
 \description{
-This function calculates the probability P(Y | X, data), where Y and X are two (non overlapping) sets of joint variates. The function also gives quantiles about the possible variability of the probability P(Y | X, newdata, data) that we could have if more learning data were provided, as well as a number of samples of the possible values of such probabilities. If several joint values are given for Y or X, the function will create a 2D grid of results for all possible compbinations of the given Y and X values. This function also allows for base-rate or other prior-probability corrections: If a prior (for instance, a base rate) for Y is given, the function will calculate the P(Y | X, data, prior) from P(X | Y, data) and the prior by means of Bayes's theorem.
+This function calculates the probability P(Y | X, data), where Y and X are two (non overlapping) sets of joint variates. If \code{X} is omitted or \code{NULL}, then the probability P(Y | data) is calculated. The function also gives quantiles about the possible variability of the probability P(Y | X, newdata, data) that we could have if more learning data were provided, as well as a number of samples of the possible values of such probabilities. If several joint values are given for Y or X, the function will create a 2D grid of results for all possible compbinations of the given Y and X values. This function also allows for base-rate or other prior-probability corrections: If a prior (for instance, a base rate) for Y is given, the function will calculate the P(Y | X, data, prior) from P(X | Y, data) and the prior by means of Bayes's theorem. Each variate in each argument \code{Y}, \code{X} can be specified either as a point-value \code{Y = y} or as a left-open interval \verb{Y ≤ y} or as a right-open interval \verb{Y ≥ y}", through the argument \code{tails}.
 }

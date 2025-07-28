@@ -1,7 +1,7 @@
 url: https://pglpm.github.io/inferno/
 template:
   bootstrap: 5
-  bootswatch: sandstone
+  bootswatch: journal
 reference:
 - title: "Main functions"
   contents:
@@ -17,9 +17,9 @@ reference:
     - plotquantiles
     - Pr
     - subset.probability
-    - tailPr
+    - oldtailPr
+    - oldPr
     - vrtgrid
-    - Pr2
 - title: "Internal functions"
   desc: "For developers."
   contents:

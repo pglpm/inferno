@@ -1,6 +1,6 @@
 Package: inferno
 Title: Bayesian nonparametric population inference
-Version: 0.2.2
+Version: 0.3.0
 Authors@R: c(
   person("PierGianLuca", "Porta Mana", ,
   "pgl@portamana.org", role = c("aut", "cre"),
@@ -15,7 +15,7 @@ Authors@R: c(
   "maksimohvrill@hotmail.com", role = c("aut"),
   comment = c(ORCID = "")),
   person("Simen", "Hesthamar Hauge", ,
-  "585090@stud.hvl.no", role = c("aut"),
+  "simen@hhnet.no", role = c("aut"),
   comment = c(ORCID = "0009-0005-6158-2846"))
   )
 Description: Functions for Bayesian nonparametric population (or exchangeable, or density) inference. From a machine-learning perspective, it offers a model-free, uncertainty-quantified prediction algorithm.

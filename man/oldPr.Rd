@@ -2,7 +2,7 @@
 % Please edit documentation in R/oldPr.R
 \name{oldPr}
 \alias{oldPr}
-\title{Calculate posterior probabilities}
+\title{(Obsolete) Calculate posterior probabilities}
 \usage{
 oldPr(
   Y,

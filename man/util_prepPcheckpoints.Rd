@@ -2,14 +2,21 @@
 % Please edit documentation in R/util_checkpoints.R
 \name{util_prepPcheckpoints}
 \alias{util_prepPcheckpoints}
-\title{Calculate joint frequencies for checkpoints in learn()}
+\title{Format datapoints for testing of MCMC progress}
 \usage{
 util_prepPcheckpoints(x, auxmetadata, pointsid = NULL)
+}
+\arguments{
+\item{x}{datapoints to be used for checking MCMC progress}
+
+\item{auxmetadata}{auxmetadata object}
+
+\item{pointsid}{id of datapoints}
 }
 \value{
 some arguments to be repeatedly used in util_Pcheckpoints
 }
 \description{
-Calculate joint frequencies for checkpoints in learn()
+Format datapoints for testing of MCMC progress
 }
 \keyword{internal}
