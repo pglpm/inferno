@@ -371,7 +371,7 @@ util_Pcheckpoints <- function(
             VBprobs <- learnt$Bprob
         }
 
-        foreach(
+        do.call(cbind, foreach(
             xV0 = xV0,
             xV1 = xV1,
             xV2 = xV2,
@@ -402,6 +402,6 @@ util_Pcheckpoints <- function(
 #### Output: rows=components, columns=samples
             lprobX <- log(learnt$W)
             colSums(exp(lprobX + lprobY)) / colSums(exp(lprobX))
-        }
+        })
     })
 }
