@@ -4,7 +4,7 @@
 \alias{funMCEQ}
 \title{Calculate credibility quantiles on estimated quantile}
 \usage{
-funMCEQ(x, prob, Qpair)
+funMCEQ(x, prob = c(0.055, 0.945), Qpair = pnorm(c(-1, 1)))
 }
 \arguments{
 \item{x:}{a vector of MC samples}
