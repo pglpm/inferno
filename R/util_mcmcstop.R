@@ -41,7 +41,7 @@ funMCEI <- function(x, fn, p = c(0.055, 0.945), ...) {
 #' @return Estimates lower and higher credibility-quantiles on estimated quantile
 #'
 #' @keywords internal
-funMCEQ <- function(x, prob, Qpair){
+funMCEQ <- function(x, prob = c(0.055, 0.945), Qpair = pnorm(c(-1, 1))){
     N <- length(x)
     straces <- sort(x)
     sapply(prob, function(aprob) {

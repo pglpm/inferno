@@ -119,8 +119,8 @@ learn <- function(
         Qerror = pnorm(c(-1, 1))
         ## Qerror = c(0.055, 0.945) # pnorm(c(-1, 1))
     )
-    Qlo <- 0.055
-    Qhi <- 0.954
+    Qlo <- (100 - 89) / 200 # 0.055
+    Qhi <- (100 + 89) / 200 # 0.945
 
     ## Allow user to specify hyperparameters only partially:
     ## missing ones are given default values above
@@ -2420,15 +2420,15 @@ learn <- function(
                 N <- nrow(oktraces)
 
                 ## quantiles to monitor
-                Xlo <- quantile(oktraces, Qlo,
+                Xlo <- quantile(x = oktraces, probs = Qlo,
                     na.rm = FALSE, names = FALSE, type = 6)
-                Xhi <- quantile(oktraces, Qhi,
+                Xhi <- quantile(x = oktraces, probs = Qhi,
                     na.rm = FALSE, names = FALSE, type = 6)
                 ## quantile width
                 width <- Xhi - Xlo
 
                 ## CIs for lower and upper quantiles
-                temp <- funMCEQ(oktraces, prob = c(Qlo, Qhi), Qpair = Qerror)
+                temp <- funMCEQ(x = oktraces, prob = c(Qlo, Qhi), Qpair = Qerror)
                 wXlo <- temp[2, 1] - temp[1, 1]
                 wXhi <- temp[2, 2] - temp[1, 2]
 
@@ -2925,15 +2925,15 @@ learn <- function(
 ### same as within cores
 
         ## quantiles to monitor
-        Xlo <- quantile(atrace, Qlo,
+        Xlo <- quantile(x = atrace, probs = Qlo,
             na.rm = FALSE, names = FALSE, type = 6)
-        Xhi <- quantile(atrace, Qhi,
+        Xhi <- quantile(x = atrace, probs = Qhi,
             na.rm = FALSE, names = FALSE, type = 6)
         ## quantile width
         width <- Xhi - Xlo
 
         ## CIs for lower and upper quantiles
-        temp <- funMCEQ(atrace, prob = c(Qlo, Qhi), Qpair = Qerror)
+        temp <- funMCEQ(x = atrace, prob = c(Qlo, Qhi), Qpair = Qerror)
         wXlo <- temp[2, 1] - temp[1, 1]
         wXhi <- temp[2, 2] - temp[1, 2]
 
