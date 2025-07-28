@@ -41,6 +41,8 @@ Pr <- function(
 
     tailsvalues <- c(tailscentre, tailsleft, tailsright)
 
+    Qerror <- pnorm(c(-1, 1))
+
     ## if (!silent) {
     ##     cat('\n')
     ## }
@@ -339,7 +341,7 @@ Pr <- function(
     ##     na.rm = TRUE
     ## ))
 
-    keys <- c('values', 'samples', 'quantiles')
+    keys <- c('values', 'samples', 'quantiles', 'quantiles.MCerror', 'values.MCerror')
     ##
     combfnr <- function(...){setNames(do.call(mapply,
         c(FUN = `rbind`, lapply(X = list(...), FUN = `[`, keys, drop = FALSE))),
@@ -386,21 +388,28 @@ Pr <- function(
             ))
         }
 
-        FF <- colSums(exp(lprobX + lprobY), na.rm = TRUE) /
-            colSums(exp(lprobX), na.rm = TRUE)
+        FF <- colSums(x = exp(lprobX + lprobY), na.rm = TRUE) /
+            colSums(x = exp(lprobX), na.rm = TRUE)
 
         list(
-            values = mean(FF, na.rm = TRUE),
+            values = mean(x = FF, na.rm = TRUE),
             ##
-            samples = (if(dosamples) {
+            samples = if(dosamples) {
                 FF <- FF[!is.na(FF)]
                 FF[round(seq(1, length(FF), length.out = nsamples))]
-            }),
+            },
             ##
-            quantiles = (if(doquantiles) {
-                quantile(FF, probs = quantiles, type = 6,
+            quantiles = if(doquantiles) {
+                quantile(x = FF, probs = quantiles, type = 6,
                     na.rm = TRUE, names = FALSE)
-            })
+            },
+            ##
+            values.MCerror = funMCSELD(x = FF),
+            ##
+            quantiles.MCerror = if(doquantiles) {
+                temp <- funMCEQ(x = FF, prob = quantiles, Qpair = Qerror)
+                (temp[2, ] - temp[1, ]) / 2
+            }
             ##
             ## error = sd(FF, na.rm = TRUE)/sqrt(nmcsamples)
         )
@@ -425,6 +434,7 @@ Pr <- function(
     if(is.null(priorY)){
         ## multiply by jacobian factors
         out$values <- out$values * jacobians
+        out$values.MCerror <- signif(x = out$values.MCerror * jacobians, digits = 2)
 
         ## if(ncol(Y) == 1){Ynames <- Y[, 1]} else {Ynames <- NULL}
         Ynames <- apply(X = Y, MARGIN = 1, FUN = paste0, collapse=',',
@@ -436,9 +446,12 @@ Pr <- function(
         } else {
             Xnames <- NULL
         }
+        dimnames(out$values) <- list(Y = Ynames, X = Xnames)
+        dimnames(out$values.MCerror) <- dimnames(out$values)
     } else {
         ## Bayes's theorem
         out$values <- t(priorY * t(out$values))
+        out$values.MCerror <- NULL
         normf <- rowSums(out$values, na.rm = TRUE)
         out$values <- t(out$values/normf)
 
@@ -452,8 +465,8 @@ Pr <- function(
         } else {
             Xnames <- NULL
         }
+        dimnames(out$values) <- list(Y = Ynames, X = Xnames)
     }
-    dimnames(out$values) <- list(Y = Ynames, X = Xnames)
 
     if(dosamples){
         ## transform to grid
@@ -480,8 +493,11 @@ Pr <- function(
         if(is.null(priorY)){
             ## transform to grid
             dim(out$quantiles) <- c(nY, nX, length(quantiles))
+            dim(out$quantiles.MCerror) <- c(nY, nX, length(quantiles))
             ## multiply by jacobian factors
             out$quantiles <- out$quantiles * jacobians
+            out$quantiles.MCerror <- signif(x = out$quantiles.MCerror * jacobians,
+                digits = 2)
         } else {
             ## calculate quantiles from samples
             out$quantiles <- aperm(
@@ -502,6 +518,7 @@ Pr <- function(
 
         temp <- names(quantile(1, probs = quantiles, names = TRUE))
         dimnames(out$quantiles) <- list(Y = Ynames, X = Xnames, temp)
+        dimnames(out$quantiles.MCerror) <- dimnames(out$quantiles)
     }
 
     if(isTRUE(keepYX)){
