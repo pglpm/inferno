@@ -80,6 +80,8 @@ learn <- function(
         Bshapehi = 1,
         Dthreshold = 1,
         tscalefactor = 4.266,
+        Oprior = 'Hadamard',
+        Nprior = 'Hadamard',
         avoidzeroW = NULL, # NULL: Turek's, TRUE: 1e-100 non-conj., FALSE: conj.
         initmethod = 'datacentre',
         Qerror = pnorm(c(-1, 1))
@@ -110,6 +112,8 @@ learn <- function(
         Bshapehi = 1,
         Dthreshold = 1,
         tscalefactor = 4.266,
+        Oprior = 'Hadamard',
+        Nprior = 'Hadamard',
         avoidzeroW = NULL,
         initmethod = 'datacentre',
         Qerror = pnorm(c(-1, 1))
@@ -502,7 +506,7 @@ learn <- function(
                 x = data[pointsid, , drop = FALSE],
                 auxmetadata = auxmetadata,
                 pointsid = pointsid
-                )
+            )
             saveRDS(testdata,
                 file = file.path(dirname, paste0('___testdata_', achain, '.rds')))
         }
@@ -744,9 +748,15 @@ learn <- function(
             Of <- Oi + Ocards - 1L
             ## ## we choose a flatter hyperprior for ordinal variates
             ## we choose a Hadamard-like hyperprior for nominal variates
-            Oalpha0 <- as.vector(unlist(sapply(Ocards, function(acard){
-                rep(1 / acard, acard)
-            })))
+            Oalpha0 <- if(Oprior == 'Hadamard') {
+                as.vector(unlist(sapply(Ocards, function(acard){
+                    rep(1 / acard, acard)
+                })))
+            } else {
+                as.vector(unlist(sapply(Ocards, function(acard){
+                    rep(1, acard)
+                })))
+            }
             ##
             list(
                 On = vn$O,
@@ -764,9 +774,15 @@ learn <- function(
             Nf <- Ni + Ncards - 1L
             ## ## we choose a flatter hyperprior for ordinal variates
             ## we choose a Hadamard-like hyperprior for nominal variates
-            Nalpha0 <- as.vector(unlist(sapply(Ncards, function(acard){
-                rep(1 / acard, acard)
-            })))
+            Nalpha0 <- if(Nprior == 'Hadamard') {
+                as.vector(unlist(sapply(Ncards, function(acard){
+                    rep(1 / acard, acard)
+                })))
+            } else {
+                as.vector(unlist(sapply(Ncards, function(acard){
+                    rep(1, acard)
+                })))
+            }
             ##
             list(
                 Nn = vn$N,
@@ -1917,7 +1933,7 @@ learn <- function(
                             Oprob = matrix(unlist(sapply(seq_along(Ocards),
                                 function(v){nimble::rdirch(n = 1,
                                     alpha = Oalpha0[Oi[v]:Of[v]])
-                            })), nrow = sum(Ocards), ncol = ncomponents)
+                                })), nrow = sum(Ocards), ncol = ncomponents)
                         )
                     )
                 }
@@ -1928,7 +1944,7 @@ learn <- function(
                             Nprob = matrix(unlist(sapply(seq_along(Ncards),
                                 function(v){nimble::rdirch(n = 1,
                                     alpha = Nalpha0[Ni[v]:Nf[v]])
-                            })), nrow = sum(Ncards), ncol = ncomponents)
+                                })), nrow = sum(Ncards), ncol = ncomponents)
                         )
                     )
                 }
@@ -2344,8 +2360,8 @@ learn <- function(
                 diagntime <- Sys.time()
                 ##
                 ll <- util_Pcheckpoints(
-                        testdata = testdata,
-                        learnt = mcsamples
+                    testdata = testdata,
+                    learnt = mcsamples
                 )
 
                 ll <- cbind(
@@ -2418,8 +2434,8 @@ learn <- function(
 
                 ## Transform samples to normalized ranks, as in Vehtari et al. 2021
                 essnrmean <- funESS3(qnorm(
-                    (rank(oktraces, na.last = NA, ties.method = 'average') -
-                         0.5) / N
+                (rank(oktraces, na.last = NA, ties.method = 'average') -
+                     0.5) / N
                 ))
 
                 ## We check: relative error of quantiles and ess of norm-rank-mean
@@ -2715,8 +2731,8 @@ learn <- function(
                         chunk, '.rds')
                 ))
                 tempmcsamples <- mcsubset(tempmcsamples,
-                        which(tempmcsamples$MCindex %in% tokeep)
-                    )
+                    which(tempmcsamples$MCindex %in% tokeep)
+                )
 
                 allmcsamples <- mcjoin(tempmcsamples, allmcsamples)
             }
@@ -2881,9 +2897,9 @@ learn <- function(
     cat('\nChecking test data\n(', paste0('#', testdata$pointsid), ')\n')
 
     oktraces <- util_Pcheckpoints(
-            testdata = testdata,
-            learnt = mcsamples
-            )
+        testdata = testdata,
+        learnt = mcsamples
+    )
 
     oktraces <- cbind(
         exp(rowMeans(log(oktraces), na.rm = TRUE)), # geometric mean
