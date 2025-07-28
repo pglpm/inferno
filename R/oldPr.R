@@ -1,4 +1,4 @@
-#' Calculate posterior probabilities
+#' (Obsolete) Calculate posterior probabilities
 #'
 #' This function calculates the probability P(Y | X, data), where Y and X are two (non overlapping) sets of joint variates. The function also gives quantiles about the possible variability of the probability P(Y | X, newdata, data) that we could have if more learning data were provided, as well as a number of samples of the possible values of such probabilities. If several joint values are given for Y or X, the function will create a 2D grid of results for all possible compbinations of the given Y and X values. This function also allows for base-rate or other prior-probability corrections: If a prior (for instance, a base rate) for Y is given, the function will calculate the P(Y | X, data, prior) from P(X | Y, data) and the prior by means of Bayes's theorem.
 #'

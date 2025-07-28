@@ -22,7 +22,7 @@
 #' @import parallel foreach doParallel
 #'
 #' @export
-tailPr <- function(
+oldtailPr <- function(
     Y,
     X = NULL,
     learnt,
