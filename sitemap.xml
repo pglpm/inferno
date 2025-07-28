@@ -9,7 +9,6 @@
 <url><loc>https://pglpm.github.io/inferno/index.html</loc></url>
 <url><loc>https://pglpm.github.io/inferno/reference/E.html</loc></url>
 <url><loc>https://pglpm.github.io/inferno/reference/Pr.html</loc></url>
-<url><loc>https://pglpm.github.io/inferno/reference/Pr2.html</loc></url>
 <url><loc>https://pglpm.github.io/inferno/reference/buildauxmetadata.html</loc></url>
 <url><loc>https://pglpm.github.io/inferno/reference/createQfunction.html</loc></url>
 <url><loc>https://pglpm.github.io/inferno/reference/fftNGS.html</loc></url>
@@ -27,15 +26,18 @@
 <url><loc>https://pglpm.github.io/inferno/reference/learn.html</loc></url>
 <url><loc>https://pglpm.github.io/inferno/reference/metadatatemplate.html</loc></url>
 <url><loc>https://pglpm.github.io/inferno/reference/mutualinfo.html</loc></url>
+<url><loc>https://pglpm.github.io/inferno/reference/oldPr.html</loc></url>
+<url><loc>https://pglpm.github.io/inferno/reference/oldtailPr.html</loc></url>
 <url><loc>https://pglpm.github.io/inferno/reference/plot.probability.html</loc></url>
 <url><loc>https://pglpm.github.io/inferno/reference/plotFsamples.html</loc></url>
 <url><loc>https://pglpm.github.io/inferno/reference/plotquantiles.html</loc></url>
 <url><loc>https://pglpm.github.io/inferno/reference/subset.probability.html</loc></url>
-<url><loc>https://pglpm.github.io/inferno/reference/tailPr.html</loc></url>
 <url><loc>https://pglpm.github.io/inferno/reference/util_Pcheckpoints.html</loc></url>
 <url><loc>https://pglpm.github.io/inferno/reference/util_lprob.html</loc></url>
 <url><loc>https://pglpm.github.io/inferno/reference/util_lprobs.html</loc></url>
+<url><loc>https://pglpm.github.io/inferno/reference/util_lprobsargs.html</loc></url>
 <url><loc>https://pglpm.github.io/inferno/reference/util_ltailprob.html</loc></url>
+<url><loc>https://pglpm.github.io/inferno/reference/util_prepPcheckpoints.html</loc></url>
 <url><loc>https://pglpm.github.io/inferno/reference/vrtgrid.html</loc></url>
 <url><loc>https://pglpm.github.io/inferno/reference/vtransform.html</loc></url>
 </urlset>

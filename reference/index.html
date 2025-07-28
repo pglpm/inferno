@@ -3,11 +3,11 @@
     <a href="#main" class="visually-hidden-focusable">Skip to contents</a>
 
 
-    <nav class="navbar navbar-expand-lg fixed-top bg-primary" data-bs-theme="dark" aria-label="Site navigation"><div class="container">
+    <nav class="navbar navbar-expand-lg fixed-top bg-light" data-bs-theme="light" aria-label="Site navigation"><div class="container">
 
     <a class="navbar-brand me-2" href="../index.html">inferno</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.2.2</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.3.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -76,7 +76,7 @@
           <code><a href="learn.html">learn()</a></code>
 
         </dt>
-        <dd>Monte Carlo computation of posterior probability distribution conditional on given data</dd>
+        <dd>(Obsolete) Monte Carlo computation of posterior probability distribution conditional on given data</dd>
       </dl><dl><dt>
 
           <code><a href="metadatatemplate.html">metadatatemplate()</a></code>
@@ -121,22 +121,22 @@
         <dd>Subset variates of an object of class <code>probability</code></dd>
       </dl><dl><dt>
 
-          <code><a href="tailPr.html">tailPr()</a></code>
-
-        </dt>
-        <dd>Calculate cumulative posterior probabilities</dd>
-      </dl><dl><dt>
-
           <code><a href="vrtgrid.html">vrtgrid()</a></code>
 
         </dt>
         <dd>Create a grid of values for a variate</dd>
       </dl><dl><dt>
 
-          <code><a href="Pr2.html">Pr2()</a></code>
+          <code><a href="oldtailPr.html">oldtailPr()</a></code>
 
         </dt>
-        <dd>Calculate posterior probabilities</dd>
+        <dd>Calculate cumulative posterior probabilities</dd>
+      </dl><dl><dt>
+
+          <code><a href="oldPr.html">oldPr()</a></code>
+
+        </dt>
+        <dd>(Obsolete) Calculate posterior probabilities</dd>
       </dl></div><div class="section level2">
       <h2 id="internal-functions">Internal functions<a class="anchor" aria-label="anchor" href="#internal-functions"></a></h2>
 
@@ -228,10 +228,22 @@
         <dd>Calculate collection of log-probabilities for different components and samples</dd>
       </dl><dl><dt>
 
+          <code><a href="util_lprobsargs.html">util_lprobsargs()</a></code>
+
+        </dt>
+        <dd>Prepare arguments for util_lprobs from data</dd>
+      </dl><dl><dt>
+
           <code><a href="util_ltailprob.html">util_ltailprob()</a></code>
 
         </dt>
         <dd>Calculate collection of log-probabilities for different components and samples</dd>
+      </dl><dl><dt>
+
+          <code><a href="util_prepPcheckpoints.html">util_prepPcheckpoints()</a></code>
+
+        </dt>
+        <dd>Format datapoints for testing of MCMC progress</dd>
       </dl><dl><dt>
 
           <code><a href="vtransform.html">vtransform()</a></code>

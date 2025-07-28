@@ -16,11 +16,11 @@
     <a href="#main" class="visually-hidden-focusable">Skip to contents</a>
 
 
-    <nav class="navbar navbar-expand-lg fixed-top bg-primary" data-bs-theme="dark" aria-label="Site navigation"><div class="container">
+    <nav class="navbar navbar-expand-lg fixed-top bg-light" data-bs-theme="light" aria-label="Site navigation"><div class="container">
 
     <a class="navbar-brand me-2" href="../index.html">inferno</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.2.2</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.3.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -650,7 +650,7 @@ or less?“</em>. We therefore want the probability
 rather than of
 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>Y</mi><mo>=</mo><mi>y</mi></mrow><annotation encoding="application/x-tex">Y = y</annotation></semantics></math>.</p>
 <div class="sourceCode" id="cb12"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">probDecrease</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/tailPr.html">tailPr</a></span><span class="op">(</span></span>
+<code class="sourceCode R"><span><span class="va">probDecrease</span> <span class="op">&lt;-</span> <span class="fu">tailPr</span><span class="op">(</span></span>
 <span>    Y <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span>diff.MDS.UPRS.III <span class="op">=</span> <span class="op">-</span><span class="fl">1</span><span class="op">)</span>,</span>
 <span>    X <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span>Sex <span class="op">=</span> <span class="st">'Female'</span>, TreatmentGroup <span class="op">=</span> <span class="st">'NR'</span><span class="op">)</span>,</span>
 <span>    learnt <span class="op">=</span> <span class="va">learnt</span></span>
@@ -719,7 +719,7 @@ treated and non-treated case.</p>
 <p>As before, we can calculate the probability of a decrease in
 MDS-UPDRS-III:</p>
 <div class="sourceCode" id="cb17"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">probDecreasePlacebo</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/tailPr.html">tailPr</a></span><span class="op">(</span></span>
+<code class="sourceCode R"><span><span class="va">probDecreasePlacebo</span> <span class="op">&lt;-</span> <span class="fu">tailPr</span><span class="op">(</span></span>
 <span>    Y <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span>diff.MDS.UPRS.III <span class="op">=</span> <span class="op">-</span><span class="fl">1</span><span class="op">)</span>,</span>
 <span>    X <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span>Sex <span class="op">=</span> <span class="st">'Female'</span>, TreatmentGroup <span class="op">=</span> <span class="st">'Placebo'</span><span class="op">)</span>,</span>
 <span>    learnt <span class="op">=</span> <span class="va">learnt</span></span>
@@ -768,18 +768,18 @@ conditional on any particular <code>Age</code> value, that is,
 </annotation></semantics></math> for meaningful values
 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>a</mi><annotation encoding="application/x-tex">a</annotation></semantics></math>
 of the age, let’s say between 25 and 80. Again we can find them with the
-function <code><a href="../reference/tailPr.html">tailPr()</a></code>. This time our conditioning argument
+function <code>tailPr()</code>. This time our conditioning argument
 <code>X</code> will include a grid of <code>Age</code> values. First we
 do the calculation for a treated female patient, then for a non-treated
 one:</p>
 <div class="sourceCode" id="cb20"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">probDecreaseAge</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/tailPr.html">tailPr</a></span><span class="op">(</span></span>
+<code class="sourceCode R"><span><span class="va">probDecreaseAge</span> <span class="op">&lt;-</span> <span class="fu">tailPr</span><span class="op">(</span></span>
 <span>    Y <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span>diff.MDS.UPRS.III <span class="op">=</span> <span class="op">-</span><span class="fl">1</span><span class="op">)</span>,</span>
 <span>    X <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span>Sex <span class="op">=</span> <span class="st">'Female'</span>, Age <span class="op">=</span> <span class="fl">25</span><span class="op">:</span><span class="fl">80</span>, TreatmentGroup <span class="op">=</span> <span class="st">'NR'</span><span class="op">)</span>,</span>
 <span>    learnt <span class="op">=</span> <span class="va">learnt</span></span>
 <span><span class="op">)</span></span>
 <span></span>
-<span><span class="va">probDecreaseAgePlacebo</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/tailPr.html">tailPr</a></span><span class="op">(</span></span>
+<span><span class="va">probDecreaseAgePlacebo</span> <span class="op">&lt;-</span> <span class="fu">tailPr</span><span class="op">(</span></span>
 <span>    Y <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span>diff.MDS.UPRS.III <span class="op">=</span> <span class="op">-</span><span class="fl">1</span><span class="op">)</span>,</span>
 <span>    X <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span>Sex <span class="op">=</span> <span class="st">'Female'</span>, Age <span class="op">=</span> <span class="fl">25</span><span class="op">:</span><span class="fl">80</span>, TreatmentGroup <span class="op">=</span> <span class="st">'Placebo'</span><span class="op">)</span>,</span>
 <span>    learnt <span class="op">=</span> <span class="va">learnt</span></span>
@@ -860,13 +860,13 @@ plot of chunk unnamed-chunk-26
 </div>
 <p>And considering all ages separately:</p>
 <div class="sourceCode" id="cb23"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">probMaleDecreaseAge</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/tailPr.html">tailPr</a></span><span class="op">(</span></span>
+<code class="sourceCode R"><span><span class="va">probMaleDecreaseAge</span> <span class="op">&lt;-</span> <span class="fu">tailPr</span><span class="op">(</span></span>
 <span>    Y <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span>diff.MDS.UPRS.III <span class="op">=</span> <span class="op">-</span><span class="fl">1</span><span class="op">)</span>,</span>
 <span>    X <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span>Sex <span class="op">=</span> <span class="st">'Male'</span>, Age <span class="op">=</span> <span class="fl">25</span><span class="op">:</span><span class="fl">80</span>, TreatmentGroup <span class="op">=</span> <span class="st">'NR'</span><span class="op">)</span>,</span>
 <span>    learnt <span class="op">=</span> <span class="va">learnt</span></span>
 <span><span class="op">)</span></span>
 <span></span>
-<span><span class="va">probMaleDecreaseAgePlacebo</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/tailPr.html">tailPr</a></span><span class="op">(</span></span>
+<span><span class="va">probMaleDecreaseAgePlacebo</span> <span class="op">&lt;-</span> <span class="fu">tailPr</span><span class="op">(</span></span>
 <span>    Y <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span>diff.MDS.UPRS.III <span class="op">=</span> <span class="op">-</span><span class="fl">1</span><span class="op">)</span>,</span>
 <span>    X <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span>Sex <span class="op">=</span> <span class="st">'Male'</span>, Age <span class="op">=</span> <span class="fl">25</span><span class="op">:</span><span class="fl">80</span>, TreatmentGroup <span class="op">=</span> <span class="st">'Placebo'</span><span class="op">)</span>,</span>
 <span>    learnt <span class="op">=</span> <span class="va">learnt</span></span>

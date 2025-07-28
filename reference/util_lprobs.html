@@ -3,11 +3,11 @@
     <a href="#main" class="visually-hidden-focusable">Skip to contents</a>
 
 
-    <nav class="navbar navbar-expand-lg fixed-top bg-primary" data-bs-theme="dark" aria-label="Site navigation"><div class="container">
+    <nav class="navbar navbar-expand-lg fixed-top bg-light" data-bs-theme="light" aria-label="Site navigation"><div class="container">
 
     <a class="navbar-brand me-2" href="../index.html">inferno</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.2.2</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.3.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -45,55 +45,25 @@
     <div class="section level2">
     <h2 id="ref-usage">Usage<a class="anchor" aria-label="anchor" href="#ref-usage"></a></h2>
     <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">util_lprobs</span><span class="op">(</span></span>
-<span>  <span class="va">x</span>,</span>
-<span>  <span class="va">learnt</span>,</span>
-<span>  <span class="va">nR</span>,</span>
-<span>  <span class="va">iR</span>,</span>
-<span>  <span class="va">tR</span>,</span>
-<span>  <span class="va">nLR</span>,</span>
-<span>  <span class="va">iLR</span>,</span>
-<span>  <span class="va">tLR</span>,</span>
-<span>  <span class="va">nUR</span>,</span>
-<span>  <span class="va">iUR</span>,</span>
-<span>  <span class="va">tUR</span>,</span>
-<span>  <span class="va">nC</span>,</span>
-<span>  <span class="va">iC</span>,</span>
-<span>  <span class="va">tC</span>,</span>
-<span>  <span class="va">nLC</span>,</span>
-<span>  <span class="va">iLC</span>,</span>
-<span>  <span class="va">tLC</span>,</span>
-<span>  <span class="va">nUC</span>,</span>
-<span>  <span class="va">iUC</span>,</span>
-<span>  <span class="va">tUC</span>,</span>
-<span>  <span class="va">Clefts</span>,</span>
-<span>  <span class="va">Crights</span>,</span>
-<span>  <span class="va">nD</span>,</span>
-<span>  <span class="va">iD</span>,</span>
-<span>  <span class="va">tD</span>,</span>
-<span>  <span class="va">nLD</span>,</span>
-<span>  <span class="va">iLD</span>,</span>
-<span>  <span class="va">tLD</span>,</span>
-<span>  <span class="va">nUD</span>,</span>
-<span>  <span class="va">iUD</span>,</span>
-<span>  <span class="va">tUD</span>,</span>
-<span>  <span class="va">Dsteps</span>,</span>
-<span>  <span class="va">Dlefts</span>,</span>
-<span>  <span class="va">Drights</span>,</span>
-<span>  <span class="va">nO</span>,</span>
-<span>  <span class="va">iO</span>,</span>
-<span>  <span class="va">tO</span>,</span>
-<span>  <span class="va">nLO</span>,</span>
-<span>  <span class="va">iLO</span>,</span>
-<span>  <span class="va">tLO</span>,</span>
-<span>  <span class="va">nUO</span>,</span>
-<span>  <span class="va">iUO</span>,</span>
-<span>  <span class="va">tUO</span>,</span>
-<span>  <span class="va">nN</span>,</span>
-<span>  <span class="va">iN</span>,</span>
-<span>  <span class="va">tN</span>,</span>
-<span>  <span class="va">nB</span>,</span>
-<span>  <span class="va">iB</span>,</span>
-<span>  <span class="va">tB</span></span>
+<span>  <span class="va">nV0</span>,</span>
+<span>  <span class="va">V0mean</span>,</span>
+<span>  <span class="va">V0sd</span>,</span>
+<span>  <span class="va">xV0</span>,</span>
+<span>  <span class="va">nV1</span>,</span>
+<span>  <span class="va">V1mean</span>,</span>
+<span>  <span class="va">V1sd</span>,</span>
+<span>  <span class="va">xV1</span>,</span>
+<span>  <span class="va">nV2</span>,</span>
+<span>  <span class="va">V2mean</span>,</span>
+<span>  <span class="va">V2sd</span>,</span>
+<span>  <span class="va">V2steps</span>,</span>
+<span>  <span class="va">xV2</span>,</span>
+<span>  <span class="va">nVN</span>,</span>
+<span>  <span class="va">VNprobs</span>,</span>
+<span>  <span class="va">xVN</span>,</span>
+<span>  <span class="va">nVB</span>,</span>
+<span>  <span class="va">VBprobs</span>,</span>
+<span>  <span class="va">xVB</span></span>
 <span><span class="op">)</span></span></code></pre></div>
     </div>
 
@@ -101,16 +71,16 @@
     <h2 id="arguments">Arguments<a class="anchor" aria-label="anchor" href="#arguments"></a></h2>
 
 
-<dl><dt id="arg-nr">nR<a class="anchor" aria-label="anchor" href="#arg-nr"></a></dt>
-<dd><p>etc: Parameters containing appropriate indices</p></dd>
-
-
-<dt id="arg-x">X<a class="anchor" aria-label="anchor" href="#arg-x"></a></dt>
+<dl><dt id="arg-x">X<a class="anchor" aria-label="anchor" href="#arg-x"></a></dt>
 <dd><p>numerical matrix: transformed variates</p></dd>
 
 
 <dt id="arg-learnt-">learnt:<a class="anchor" aria-label="anchor" href="#arg-learnt-"></a></dt>
 <dd><p>Monte-Carlo-output object</p></dd>
+
+
+<dt id="arg-nr">nR<a class="anchor" aria-label="anchor" href="#arg-nr"></a></dt>
+<dd><p>etc: Parameters containing appropriate indices</p></dd>
 
 </dl></div>
     <div class="section level2">
