@@ -1,7 +1,7 @@
 url: https://pglpm.github.io/inferno/
 template:
   bootstrap: 5
-  bootswatch: united
+  bootswatch: quartz
 reference:
 - title: "Main functions"
   contents:
