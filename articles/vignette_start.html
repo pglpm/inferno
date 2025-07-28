@@ -1030,10 +1030,11 @@ in the <a href="#references">references</a>.</p>
 function. Its minimal arguments are three: the sample <code>data</code>,
 the <code>metadata</code>, and the name <code>outputdir</code> of a
 directory where the inference results should be saved; some additional
-information will be suffixed to this directory name. We can also give a
-numeric <code>seed</code> argument if we want to reproduce the same
-output in another run, and a <code>parallel</code> argument specifying
-the number of cores to be used for parallel computation.</p>
+information will be suffixed to this directory name. We can give a
+<code>parallel</code> argument specifying the number of cores to be used
+for parallel computation. A <code>seed</code> argument can also be given
+if we want to reproduce the same output in another run; or alternatively
+we can first call <code><a href="https://rdrr.io/r/base/Random.html" class="external-link">set.seed()</a></code> in the usual R-way.</p>
 <p>This function in fact does Monte Carlo sampling and is
 computationally expensive. It may take minutes, hours, or days to run,
 depending on the amount of sample data and the number of variates. In
@@ -1681,11 +1682,12 @@ done again with the <code><a href="../reference/learn.html">learn()</a></code> f
 before running this code</em>, it might take longer time on your
 computer:</p>
 <div class="sourceCode" id="cb22"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">learnt60</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/learn.html">learn</a></span><span class="op">(</span></span>
+<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/Random.html" class="external-link">set.seed</a></span><span class="op">(</span><span class="fl">16</span><span class="op">)</span>  <span class="co">## for reproducibility</span></span>
+<span></span>
+<span><span class="va">learnt60</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/learn.html">learn</a></span><span class="op">(</span></span>
 <span>    data <span class="op">=</span> <span class="va">datafile</span>,</span>
 <span>    metadata <span class="op">=</span> <span class="va">metadatafile</span>,</span>
 <span>    outputdir <span class="op">=</span> <span class="st">'penguin_inference'</span>,</span>
-<span>    seed <span class="op">=</span> <span class="fl">16</span>,</span>
 <span>    parallel <span class="op">=</span> <span class="fl">4</span> <span class="co">## how many cores to use for the computation</span></span>
 <span><span class="op">)</span></span>
 <span><span class="co"># Registered doParallelSNOW with 4 workers</span></span>
@@ -2050,11 +2052,12 @@ findings and their uncertainty.</p>
 <code><a href="../reference/learn.html">learn()</a></code> function (and as usual please wait before running
 the code below):</p>
 <div class="sourceCode" id="cb38"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">learntall</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/learn.html">learn</a></span><span class="op">(</span></span>
+<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/Random.html" class="external-link">set.seed</a></span><span class="op">(</span><span class="fl">16</span><span class="op">)</span>  <span class="co">## for reproducibility</span></span>
+<span></span>
+<span><span class="va">learntall</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/learn.html">learn</a></span><span class="op">(</span></span>
 <span>    data <span class="op">=</span> <span class="va">datafile</span>,</span>
 <span>    metadata <span class="op">=</span> <span class="va">metadatafile</span>,</span>
 <span>    outputdir <span class="op">=</span> <span class="st">'penguin_inference'</span>,</span>
-<span>    seed <span class="op">=</span> <span class="fl">16</span>,</span>
 <span>    parallel <span class="op">=</span> <span class="fl">4</span> <span class="co">## how many cores to use for the computation</span></span>
 <span><span class="op">)</span></span>
 <span><span class="co"># Registered doParallelSNOW with 4 workers</span></span>
