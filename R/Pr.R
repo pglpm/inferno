@@ -342,7 +342,7 @@ Pr <- function(
     keys <- c('values', 'samples', 'quantiles')
     ##
     combfnr <- function(...){setNames(do.call(mapply,
-        c(FUN = `rbind`, lapply(list(...), `[`, keys, drop = FALSE))),
+        c(FUN = `rbind`, lapply(X = list(...), FUN = `[`, keys, drop = FALSE))),
         keys)}
     ## combfnc <- function(...){setNames(do.call(mapply, c(FUN=cbind, lapply(list(...), `[`, keys))), keys)}
     out <- foreach(
@@ -427,10 +427,12 @@ Pr <- function(
         out$values <- out$values * jacobians
 
         ## if(ncol(Y) == 1){Ynames <- Y[, 1]} else {Ynames <- NULL}
-        Ynames <- apply(Y, 1, paste0, collapse=',')
+        Ynames <- apply(X = Y, MARGIN = 1, FUN = paste0, collapse=',',
+            simplify = TRUE)
 
         if(!is.null(X)){
-        Xnames <- apply(X, 1, paste0, collapse=',')
+            Xnames <- apply(X = X, MARGIN = 1, FUN = paste0, collapse=',',
+                simplify = TRUE)
         } else {
             Xnames <- NULL
         }
@@ -441,10 +443,12 @@ Pr <- function(
         out$values <- t(out$values/normf)
 
         ## if(ncol(X) == 1){Ynames <- X[, 1]} else {Ynames <- NULL}
-        Ynames <- apply(X, 1, paste0, collapse=',')
+        Ynames <- apply(X = X, MARGIN = 1, FUN = paste0, collapse=',',
+            simplify = TRUE)
 
         if(!is.null(Y)){
-            Xnames <- apply(Y, 1, paste0, collapse=',')
+            Xnames <- apply(X = Y, MARGIN = 1, FUN = paste0, collapse=',',
+                simplify = TRUE)
         } else {
             Xnames <- NULL
         }
@@ -460,9 +464,12 @@ Pr <- function(
             out$samples <- out$samples * jacobians
         } else {
             ## Bayes's theorem
-            out$samples <- priorY * aperm(out$samples, c(2,1,3))
+            out$samples <- priorY * aperm(a = out$samples, perm = c(2, 1, 3),
+                resize = FALSE)
             normf <- c(t(colSums(out$samples, na.rm = TRUE)))
-            out$samples <- aperm(aperm(out$samples)/normf)
+            out$samples <- aperm(a = aperm(a = out$samples, perm = NULL,
+                resize = FALSE) / normf, perm = NULL,
+                resize = FALSE)
         }
 
         dimnames(out$samples) <- list(Y = Ynames, X = Xnames,
@@ -478,10 +485,11 @@ Pr <- function(
         } else {
             ## calculate quantiles from samples
             out$quantiles <- aperm(
-                apply(out$samples, c(1, 2), quantile,
+                a = apply(X = out$samples, MARGIN = c(1, 2), FUN = quantile,
                     probs = quantiles, type = 6,
-                    na.rm = TRUE, names = FALSE),
-                c(2,3,1) )
+                    na.rm = TRUE, names = FALSE,
+                    simplify = TRUE),
+                perm = c(2, 3, 1), resize = FALSE)
 
             ## adjust number of samples as originally requested
             if(is.null(nsamples0)) {
