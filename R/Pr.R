@@ -446,8 +446,6 @@ Pr <- function(
         } else {
             Xnames <- NULL
         }
-        str(out$values)
-        str(out$values.MCerror)
         dimnames(out$values) <- list(Y = Ynames, X = Xnames)
         dimnames(out$values.MCerror) <- dimnames(out$values)
     } else {
