@@ -139,9 +139,8 @@ mutualinfo <- function(
     auxmetadata <- learnt$auxmetadata
     learnt$auxmetadata <- NULL
     learnt$auxinfo <- NULL
-
-    nMCsamples <- ncol(learnt$W)
     ncomponents <- nrow(learnt$W)
+    nmcsamples <- ncol(learnt$W)
 
     ## Consistency checks
     if (unit == 'Sh') {
@@ -205,14 +204,14 @@ mutualinfo <- function(
 
 
 #### Calculate how many samples per MC sample
-    ## ***todo: account for the case where nsamples < nMCsamples
+    ## ***todo: account for the case where nsamples < nmcsamples
     if(nsamples < 0) {
-        nsamples <- -nsamples * nMCsamples
+        nsamples <- -nsamples * nmcsamples
     } else if (nsamples == 0 || !is.finite(nsamples)) {
         stop("'nsamples' cannot be zero")
     }
-    n <- ceiling(nsamples/nMCsamples)*nMCsamples
-    sseq <- seq_len(nMCsamples)
+    n <- ceiling(nsamples/nmcsamples)*nmcsamples
+    sseq <- seq_len(nmcsamples)
     ## source('vtransform.R')
 
 #### Combine Y1,Y2 into single Y for speed
@@ -374,27 +373,34 @@ mutualinfo <- function(
     if(is.null(X)){
         lW <- log(learnt$W)
     } else {
-        x <- t(as.matrix(vtransform(X, auxmetadata = auxmetadata,
-            Rout = 'normalized',
-            Cout = 'boundisinf',
-            Dout = 'boundnormalized',
-            Oout = 'numeric',
-            Nout = 'numeric',
-            Bout = 'numeric',
-            logjacobianOr = NULL)))
-        ##
+        lpargs <- util_lprobsargs(
+            x = X,
+            auxmetadata = auxmetadata,
+            learnt = learnt,
+            tails = NULL
+        )
+
         lW <- log(learnt$W) +
-            util_lprob(
-                x = x,
-                learnt = learnt,
-                nR = XnR, iR = XiR, tR = XtR,
-                nC = XnC, iC = XiC, tC = XtC,
-                Clefts = Clefts, Crights = Crights,
-                nD = XnD, iD = XiD, tD = XtD,
-                Dsteps = Dsteps, Dlefts = Dlefts, Drights = Drights,
-                nO = XnO, iO = XiO, tO = XtO,
-                nN = XnN, iN = XiN, tN = XtN,
-                nB = XnB, iB = XiB, tB = XtB
+            util_lprobs(
+                nV0 = lpargs$nV0,
+                V0mean = lpargs$V0mean,
+                V0sd = lpargs$V0sd,
+                xV0 = lpargs$xV0,
+                nV1 = lpargs$nV1,
+                V1mean = lpargs$V1mean,
+                V1sd = lpargs$V1sd,
+                xV1 = lpargs$xV1,
+                nV2 = lpargs$nV2,
+                V2mean = lpargs$V2mean,
+                V2sd = lpargs$V2sd,
+                V2steps = lpargs$V2steps,
+                xV2 = lpargs$xV2,
+                nVN = lpargs$nVN,
+                VNprobs = lpargs$VNprobs,
+                xVN = lpargs$xVN,
+                nVB = lpargs$nVB,
+                VBprobs = lpargs$VBprobs,
+                xVB = c(lpargs$xVB)
             ) # rows=components, columns=samples
     } # end definition of lW if non-null X
 
@@ -407,48 +413,48 @@ mutualinfo <- function(
     ## using the parameters of that component
 
     lWnorm <- denorm(lW)
-    Ws <- extraDistr::rcat(n=n, prob=t(
+    Ws <- extraDistr::rcat(n = n, prob = t(
         apply(lWnorm, 2, function(xx){
             xx <- exp(xx)
             xx/sum(xx, na.rm = TRUE)})
     ))
     Yout <- c(
-    (if(YnR > 0){# continuous
-        totake <- cbind(rep(YtR,each=n), Ws, sseq)
-        rnorm(n=n*YnR,
-            mean=learnt$Rmean[totake],
-            sd=learnt$Rvar[totake]
+    if(YnR > 0){# continuous
+        totake <- cbind(rep(YtR, each = n), Ws, sseq)
+        rnorm(n = n * YnR,
+            mean = learnt$Rmean[totake],
+            sd = sqrt(learnt$Rvar[totake])
         )
-    }else{NULL}),
-    (if(YnC > 0){# censored
-        totake <- cbind(rep(YtC,each=n), Ws, sseq)
-        rnorm(n=n*YnC,
-            mean=learnt$Cmean[totake],
-            sd=learnt$Cvar[totake]
+    },
+    if(YnC > 0){# censored
+        totake <- cbind(rep(YtC, each = n), Ws, sseq)
+        rnorm(n = n * YnC,
+            mean = learnt$Cmean[totake],
+            sd = sqrt(learnt$Cvar[totake])
         )
-    }else{NULL}),
-    (if(YnD > 0){# continuous discretized
-        totake <- cbind(rep(YtD,each=n), Ws, sseq)
-        rnorm(n=n*YnD,
-            mean=learnt$Dmean[totake],
-            sd=learnt$Dvar[totake]
+    },
+    if(YnD > 0){# continuous discretized
+        totake <- cbind(rep(YtD, each = n), Ws, sseq)
+        rnorm(n = n * YnD,
+            mean = learnt$Dmean[totake],
+            sd = sqrt(learnt$Dvar[totake])
         )
-    }else{NULL}),
-    (if(YnO > 0){# nominal
-        totake <- cbind(rep(YtO,each=n), Ws, sseq)
-        extraDistr::rcat(n=n*YnO,
-            prob=apply(learnt$Oprob,3,`[`,totake))
-    }else{NULL}),
-    (if(YnN > 0){# nominal
-        totake <- cbind(rep(YtN,each=n), Ws, sseq)
-        extraDistr::rcat(n=n*YnN,
-            prob=apply(learnt$Nprob,3,`[`,totake))
-    }else{NULL}),
-    (if(YnB > 0){# binary
-        totake <- cbind(rep(YtB,each=n), Ws, sseq)
-        extraDistr::rbern(n=n*YnB,
-            prob=learnt$Bprob[totake])
-    }else{NULL})
+    },
+    if(YnO > 0){# nominal
+        totake <- cbind(rep(YtO, each = n), Ws, sseq)
+        extraDistr::rcat(n = n * YnO,
+            prob = apply(learnt$Oprob, 3, `[`, totake))
+    },
+    if(YnN > 0){# nominal
+        totake <- cbind(rep(YtN, each = n), Ws, sseq)
+        extraDistr::rcat(n = n * YnN,
+            prob = apply(learnt$Nprob, 3, `[`, totake))
+    }
+    if(YnB > 0){# binary
+        totake <- cbind(rep(YtB, each = n), Ws, sseq)
+        extraDistr::rbern(n = n * YnB,
+            prob = learnt$Bprob[totake])
+    }
     )
 
     ## rows: n samples, cols: Y variates

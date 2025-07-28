@@ -167,7 +167,8 @@ vtransform <- function(
                     } else if (Cout == 'boundisna') {
                         ## used in sampling functions
                         ## points outside or on boundaries are moved to infinity
-                        datum[(datum <= domainmin) | (datum >= domainmax)] <- NA
+                        datum[datum <= domainmin] <- NA
+                        datum[datum >= domainmax] <- NA
                         ##
                         if (transform == 'log') {
                             datum <- log(datum - domainmin)
@@ -262,10 +263,20 @@ vtransform <- function(
                         ##
                         datum <- (datum - tlocation) / tscale
 
-                    } else if (Cout == 'mi') {
+                    } else if (Cout == 'miboundisna') {
                         ## used in mutualinfo
-                        datum[datum >= tdomainmax] <- +Inf
-                        datum[datum <= tdomainmin] <- -Inf
+                        datum[datum >= tdomainmax] <- NA
+                        datum[datum <= tdomainmin] <- NA
+
+                    } else if (Cout == 'mileftbound') {
+                        ## used in mutualinfo
+                        datum[datum > tdomainmin] <- NA
+                        datum[datum < tdomainmin] <- tdomainmin
+
+                    } else if (Cout == 'mirightbound') {
+                        ## used in mutualinfo
+                        datum[datum < tdomainmax] <- NA
+                        datum[datum > tdomainmax] <- tdomainmax
 
                     } else if (Cout == 'original') {
                         ## transformation from MCMC representation
@@ -347,8 +358,8 @@ vtransform <- function(
 
                     } else if (Dout == 'boundisna') {
                         ## used in Pr()
-                        datum[datum <= domainminplushs |
-                                  datum >= domainmaxminushs] <- NA
+                        datum[datum <= domainminplushs] <- NA
+                        datum[datum >= domainmaxminushs] <- NA
                         datum <- (datum - tlocation) / tscale
 
                     } else if (Dout == 'leftbound') {
@@ -363,10 +374,20 @@ vtransform <- function(
                         datum[datum > domainmax] <- domainmax
                         datum <- (datum - tlocation) / tscale
 
-                    } else if (Dout == 'mi') {
+                    } else if (Dout == 'miboundisna') {
                         ## used in mutualinfo
-                        datum[datum <= tdomainminplushs] <- -Inf
-                        datum[datum >= tdomainmaxminushs] <- +Inf
+                        datum[datum <= tdomainminplushs] <- NA
+                        datum[datum >= tdomainmaxminushs] <- NA
+
+                    } else if (Dout == 'mileftbound') {
+                        ## used in mutualinfo
+                        datum[datum > tdomainminplushs] <- NA
+                        datum[datum < tdomainmin] <- tdomainmin
+
+                    } else if (Dout == 'mirightbound') {
+                        ## used in mutualinfo
+                        datum[datum < tdomainmaxminushs] <- NA
+                        datum[datum > tdomainmax] <- tdomainmax
 
                     } else if (Dout == 'original') {
                         ## transformation from MCMC representation
