@@ -2,7 +2,7 @@
 % Please edit documentation in R/oldtailPr.R
 \name{oldtailPr}
 \alias{oldtailPr}
-\title{Calculate cumulative posterior probabilities}
+\title{(Obsolete) Calculate cumulative posterior probabilities}
 \usage{
 oldtailPr(
   Y,

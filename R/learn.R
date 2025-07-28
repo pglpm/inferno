@@ -1,4 +1,4 @@
-#' (Obsolete) Monte Carlo computation of posterior probability distribution conditional on given data
+#' Monte Carlo computation of posterior probability distribution conditional on given data
 #'
 #' @param data A dataset, given as a \code{\link[base]{data.frame}} or as a file path to a csv file.
 #' @param metadata A metadata object, given either as a data.frame object, or as a file pa to a csv file.

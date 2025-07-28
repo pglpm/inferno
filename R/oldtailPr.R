@@ -1,4 +1,4 @@
-#' Calculate cumulative posterior probabilities
+#' (Obsolete) Calculate cumulative posterior probabilities
 #'
 #' This function calculates the probability `P(Y <= y | X, data)`, where Y and X are two (non overlapping) sets of joint variates (if the `lower.tail` argument is `FALSE`, then `P(Y > y | X, data)` is calculated). The function also gives quantiles about the possible variability of the probability `P(Y <= y | X, newdata, data)` that we could have if more learning data were provided, as well as a number of samples of the possible values of such probabilities. If several joint values are given for Y or X, the function will create a 2D grid of results for all possible compbinations of the given Y and X values.
 #'
