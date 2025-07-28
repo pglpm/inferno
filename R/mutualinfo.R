@@ -377,7 +377,7 @@ mutualinfo <- function(
         x <- t(as.matrix(vtransform(X, auxmetadata = auxmetadata,
             Rout = 'normalized',
             Cout = 'boundisinf',
-            Dout = 'normalized',
+            Dout = 'boundnormalized',
             Oout = 'numeric',
             Nout = 'numeric',
             Bout = 'numeric',

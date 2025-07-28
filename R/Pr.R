@@ -6,7 +6,7 @@
 #'   the joint probability of. One variate per column, one set of values per row.
 #' @param X matrix or data.table or `NULL`: set of values of variates on which we want to condition the joint probability of `Y`. If `NULL` (default), no conditioning is made (except for conditioning on the learning dataset and prior assumptions). One variate per column, one set of values per row.
 #' @param learnt either a string with the name of a directory or full path for a 'learnt.rds' object, produced by the \code{\link{learn}} function, or such an object itself.
-#' @param cumul named vector or list, or `NULL` (default). The names must match some or all of the variates in arguments `Y` and `X`. The values can be one of `'<='` or `'>='` or `'=='` or `NULL`.
+#' @param tails named vector or list, or `NULL` (default). The names must match some or all of the variates in arguments `Y` and `X`. The values can be one of `'<='` or `'>='` or `'=='` or `NULL`.
 #' @param priorY numeric vector with the same length as the rows of `Y`, or `TRUE`, or `NULL` (default): prior probabilities or base rates for the `Y` values. If `TRUE`, the prior probabilities are assumed to be all equal.
 #' @param nsamples integer or `NULL` or `"all"`: desired number of samples of the variability of the probability for `Y`. If `NULL`, no samples are reported. If `"all"` (or `Inf`), all samples obtained by the \code{\link{learn}} function are used. Default `"all"`.
 #' @param quantiles numeric vector, between 0 and 1, or `NULL`: desired quantiles of the variability of the probability for `Y`. Default `c(0.055, 0.25, 0.75, 0.945)`, that is, the 5.5%, 25%, 75%, 94.5% quantiles (these are typical quantile values in the Bayesian literature: they give 50% and 89% credibility intervals, which correspond to 1 shannons and 0.5 shannons of uncertainty). If `NULL`, no quantiles are calculated.
@@ -26,7 +26,7 @@ Pr <- function(
     Y,
     X = NULL,
     learnt,
-    cumul = NULL,
+    tails = NULL,
     priorY = NULL,
     nsamples = 'all',
     quantiles = c(0.055, 0.25, 0.75, 0.945),
@@ -35,11 +35,11 @@ Pr <- function(
     usememory = TRUE,
     keepYX = TRUE
 ) {
-    cumulcentre <- list('==', 0, '0', NULL)
-    cumulleft <- list('<=', -1, '-1', 'left')
-    cumulright <- list('>=', 1, '+1', 'right')
+    tailscentre <- list('==', 0, '0', NULL)
+    tailsleft <- list('<=', -1, '-1', 'left')
+    tailsright <- list('>=', 1, '+1', 'right')
 
-    cumulvalues <- c(cumulcentre, cumulleft, cumulright)
+    tailsvalues <- c(tailscentre, tailsleft, tailsright)
 
     ## if (!silent) {
     ##     cat('\n')
@@ -133,8 +133,13 @@ Pr <- function(
     if(!is.null(X)){X <- as.data.frame(X)}
     Xv <- colnames(X)
 
-    if(!is.null(cumul)){cumul <- as.list(cumul)}
-    cumulv <- names(cumul)
+    if(!is.null(tails)){
+        tails <- as.list(tails)
+        if(is.null(names(tails))) {
+            stop('Missing variate names in "tails"')
+        }
+    }
+    tailsv <- names(tails)
 
 
     ## Consistency checks
@@ -161,32 +166,32 @@ Pr <- function(
         stop('overlap in Y and X variates\n')
     }
 
-    if (!all(cumulv %in% c(Yv, Xv))) {
+    if (!all(tailsv %in% c(Yv, Xv))) {
         warning('variate ',
-            paste0(cumulv[!(cumulv %in% c(Yv, Xv))], collapse = ' '),
+            paste0(tailsv[!(tailsv %in% c(Yv, Xv))], collapse = ' '),
             ' not among Y and X; ignored\n')
     }
-    if (length(unique(cumulv)) != length(cumulv)) {
-        stop('duplicate "cumul" variates\n')
+    if (length(unique(tailsv)) != length(tailsv)) {
+        stop('duplicate "tails" variates\n')
     }
-    if(!all(cumul %in% cumulvalues)) {
-        stop('"cumul" values must be ',
-            paste0(cumulvalues, collapse = ' '), '\n')
+    if(!all(tails %in% tailsvalues)) {
+        stop('"tails" values must be ',
+            paste0(tailsvalues, collapse = ' '), '\n')
     }
 
-    ## transform 'cumul' to -1, +1
+    ## transform 'tails' to -1, +1
     ## +1: '<=',    -1: '>='
     ## this is opposite of the argument convention because
     ## interval probabilities are calculated with `lower.tail = TRUE`
     ## eg:
     ## pnorm(x, mean, sd, lower.tail = FALSE) ==
     ##     pnorm(-x, -mean, sd, lower.tail = TRUE)
-    cumul[cumul %in% cumulcentre] <- NULL
-    cleft <- cumul %in% cumulleft
-    cright <- cumul %in% cumulright
-    cumul[cleft] <- +1
-    cumul[cright] <- -1
-    cumul <- unlist(cumul)
+    tails[tails %in% tailscentre] <- NULL
+    cleft <- tails %in% tailsleft
+    cright <- tails %in% tailsright
+    tails[cleft] <- +1
+    tails[cright] <- -1
+    tails <- unlist(tails)
 
     ## Check if a prior for Y is given, in that case Y and X will be swapped
     if (isFALSE(priorY) || is.null(priorY)) {
@@ -266,7 +271,7 @@ Pr <- function(
             x = X,
             auxmetadata = auxmetadata,
             learnt = learnt,
-            cumul = cumul
+            tails = tails
         )
 
         ## create unique dir where to save X objects
@@ -325,7 +330,7 @@ Pr <- function(
         x = Y,
         auxmetadata = auxmetadata,
         learnt = learnt,
-        cumul = cumul
+        tails = tails
     )
     ## jacobians <- exp(-rowSums(
     ##     log(vtransform(Y,
@@ -402,12 +407,15 @@ Pr <- function(
     } # End foreach over Y and X
 
     if(is.null(priorY)){
+        y <- Y
+        y[, colnames(Y) %in% tailsv] <- NA
         jacobians <- exp(rowSums(
-            as.matrix(vtransform(Y,
+            as.matrix(vtransform(y,
                 auxmetadata = auxmetadata,
                 logjacobianOr = TRUE)),
             na.rm = TRUE
         ))
+        rm(y)
     }
 
     ## transform to grid

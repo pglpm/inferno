@@ -10,7 +10,7 @@
 #'  'init': for internal MCMC use (init input)
 #'  'left', 'right': for internal MCMC use
 #'  'aux', 'lat': for internal MCMC use
-#'  'infnormalized': for sampling functions
+#'  'boundnormalized': for sampling functions
 #'  'boundisinf': for sampling functions
 #'  'mi': for use in mutualinfo()
 #'  'original': original representation
@@ -187,7 +187,7 @@ vtransform <- function(
                         ## non-boundary points are st to NA
                         ## boundaries are enforced
                         datum[datum > domainmin] <- NA
-                        datum[datum <= domainmin] <- domainmin
+                        datum[datum < domainmin] <- domainmin
                         ##
                         if (transform == 'log') {
                             datum <- log(datum - domainmin)
@@ -207,7 +207,7 @@ vtransform <- function(
                         ## non-boundary points are st to NA
                         ## boundaries are enforced
                         datum[datum < domainmax] <- NA
-                        datum[datum >= domainmax] <- domainmax
+                        datum[datum > domainmax] <- domainmax
                         ##
                         if (transform == 'log') {
                             datum <- log(datum - domainmin)
@@ -243,12 +243,11 @@ vtransform <- function(
                         datum[selmax] <- +Inf
                         datum[selmin] <- -Inf
 
-                    } else if (Cout == 'infnormalized') {
+                    } else if (Cout == 'boundnormalized') {
                         ## used in Pr()
                         ## points outside boundaries are moved to boundaries
-                        datum <- pmin(pmax(datum, domainmin), domainmax)
-                        ## datum[datum <= domainminplushs] <- domainmin
-                        ## datum[datum >= domainmaxminushs] <- domainmax
+                        datum[datum < domainmin] <- domainmin
+                        datum[datum > domainmax] <- domainmax
                         ##
                         if (transform == 'log') {
                             datum <- log(datum - domainmin)
@@ -339,11 +338,11 @@ vtransform <- function(
                         ##     datum[selmin] <- -Inf
                         ##     datum[selmax] <- +Inf
 
-                    } else if (Dout == 'normalized') {
+                    } else if (Dout == 'boundnormalized') {
                         ## used in sampling functions
-                        datum <- pmin(pmax(datum, domainmin), domainmax)
-                        ## datum[datum <= domainmin] <- domainmin
-                        ## datum[datum >= domainmax] <- domainmax
+                        datum[datum < domainmin] <- domainmin
+                        datum[datum > domainmax] <- domainmax
+                        ##
                         datum <- (datum - tlocation) / tscale
 
                     } else if (Dout == 'boundisna') {
@@ -355,13 +354,13 @@ vtransform <- function(
                     } else if (Dout == 'leftbound') {
                         ## used in Pr()
                         datum[datum > domainminplushs] <- NA
-                        datum[datum <= domainmin] <- domainmin
+                        datum[datum < domainmin] <- domainmin
                         datum <- (datum - tlocation) / tscale
 
                     } else if (Dout == 'rightbound') {
                         ## used in Pr()
                         datum[datum < domainmaxminushs] <- NA
-                        datum[datum >= domainmax] <- domainmax
+                        datum[datum > domainmax] <- domainmax
                         datum <- (datum - tlocation) / tscale
 
                     } else if (Dout == 'mi') {

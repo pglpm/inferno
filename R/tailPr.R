@@ -293,7 +293,7 @@ tailPr <- function(
         X2 <- as.matrix(vtransform(X, auxmetadata = auxmetadata,
             Rout = 'normalized',
             Cout = 'boundisinf',
-            Dout = 'normalized',
+            Dout = 'boundnormalized',
             Oout = 'index',
             Nout = 'index',
             Bout = 'numeric',
@@ -334,11 +334,11 @@ tailPr <- function(
 
 #### Now calculate for each Y value, combining with each X value
     ## transformation of inputs
-    if(eq){Cout <- 'boundisinf'}else{Cout <- 'infnormalized'}
+    if(eq){Cout <- 'boundisinf'}else{Cout <- 'boundnormalized'}
     Y2 <- as.matrix(vtransform(Y, auxmetadata = auxmetadata,
         Rout = 'normalized',
         Cout = Cout,
-        Dout = 'normalized',
+        Dout = 'boundnormalized',
         Oout = 'index',
         Nout = 'index',
         Bout = 'numeric',
