@@ -17,9 +17,9 @@ reference:
     - plotquantiles
     - Pr
     - subset.probability
+    - vrtgrid
     - oldtailPr
     - oldPr
-    - vrtgrid
 - title: "Internal functions"
   desc: "For developers."
   contents:
