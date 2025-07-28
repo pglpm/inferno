@@ -2880,12 +2880,10 @@ learn <- function(
         paste0('___testdata_', 0, '.rds')))
     cat('\nChecking test data\n(', paste0('#', testdata$pointsid), ')\n')
 
-    oktraces <- cbind(
-        util_Pcheckpoints(
+    oktraces <- util_Pcheckpoints(
             testdata = testdata,
             learnt = mcsamples
             )
-    )
 
     oktraces <- cbind(
         exp(rowMeans(log(oktraces), na.rm = TRUE)), # geometric mean
