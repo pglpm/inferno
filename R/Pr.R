@@ -17,7 +17,7 @@
 #'   Default `TRUE`.
 #' @param keepYX logical, default `TRUE`: keep a copy of the `Y` and `X` arguments in the output? This is used for the plot method.
 #'
-#' @return A list of class `probability`, consisting of the elements `values`,  `quantiles` (possibly `NULL`), `samples` (possibly `NULL`), `Y`, `X`. Element `values`: a matrix with the probabilities P(Y|X,data,assumptions), for all combinations of values of `Y` (rows) and `X` (columns). Element `quantiles`: an array with the variability quantiles (3rd dimension of the array) for such probabilities. Element `samples`: an array with the variability samples (3rd dimension of the array) for such probabilities. Elements `Y`, `X`: copies of the `Y` and `X` arguments.
+#' @return A list of class `probability`, consisting of the elements `values`,  `quantiles` (possibly `NULL`), `samples` (possibly `NULL`), `values.MCerror`, `quantiles.MCerror` (possibly `NULL`), `Y`, `X`. Element `values`: a matrix with the probabilities P(Y|X,data,assumptions), for all combinations of values of `Y` (rows) and `X` (columns). Element `quantiles`: an array with the variability quantiles (3rd dimension of the array) for such probabilities. Element `samples`: an array with the variability samples (3rd dimension of the array) for such probabilities. Elements `values.MCerror` and `quantiles.MCerror`: arrays with the numerical accuracies (roughly speaking a standard deviation) of the Monte Carlo calculations for the `values` and `quantiles` elements. Elements `Y`, `X`: copies of the `Y` and `X` arguments.
 #'
 #' @import parallel foreach doParallel
 #'
@@ -341,7 +341,7 @@ Pr <- function(
     ##     na.rm = TRUE
     ## ))
 
-    keys <- c('values', 'samples', 'quantiles', 'quantiles.MCerror', 'values.MCerror')
+    keys <- c('values', 'quantiles', 'samples', 'values.MCerror', 'quantiles.MCerror')
     ##
     combfnr <- function(...){setNames(do.call(mapply,
         c(FUN = `rbind`, lapply(X = list(...), FUN = `[`, keys, drop = FALSE))),
@@ -394,14 +394,14 @@ Pr <- function(
         list(
             values = mean(x = FF, na.rm = TRUE),
             ##
-            samples = if(dosamples) {
-                FF <- FF[!is.na(FF)]
-                FF[round(seq(1, length(FF), length.out = nsamples))]
-            },
-            ##
             quantiles = if(doquantiles) {
                 quantile(x = FF, probs = quantiles, type = 6,
                     na.rm = TRUE, names = FALSE)
+            },
+            ##
+            samples = if(dosamples) {
+                FF <- FF[!is.na(FF)]
+                FF[round(seq(1, length(FF), length.out = nsamples))]
             },
             ##
             values.MCerror = funMCSELD(x = FF),
@@ -531,8 +531,6 @@ Pr <- function(
             out$X <- Y
             }
     }
-
-    out$lowertail = NA
 
     class(out) <- 'probability'
     out

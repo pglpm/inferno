@@ -119,8 +119,8 @@ learn <- function(
         Qerror = pnorm(c(-1, 1))
         ## Qerror = c(0.055, 0.945) # pnorm(c(-1, 1))
     )
-    Qlo <- (100 - 89) / 200 # 0.055
-    Qhi <- (100 + 89) / 200 # 0.945
+    Qlo <- 0.055 # (100 - 89) / 200 # 0.055
+    Qhi <- 0.945 # (100 + 89) / 200 # 0.945
 
     ## Allow user to specify hyperparameters only partially:
     ## missing ones are given default values above
@@ -2434,8 +2434,7 @@ learn <- function(
 
                 ## Transform samples to normalized ranks, as in Vehtari et al. 2021
                 essnrmean <- funESS3(qnorm(
-                (rank(oktraces, na.last = NA, ties.method = 'average') -
-                     0.5) / N
+                (rank(oktraces, na.last = NA, ties.method = 'average') - 0.5) / N
                 ))
 
                 ## We check: relative error of quantiles and ess of norm-rank-mean
