@@ -5,14 +5,14 @@
 <meta charset="utf-8">
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-<title>Bayesian nonparametric population inference • inferno</title>
+<title>Inference in R with Bayesian nonparametrics • inferno</title>
 <script src="deps/jquery-3.6.0/jquery-3.6.0.min.js"></script><meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 <link href="deps/bootstrap-5.3.1/bootstrap.min.css" rel="stylesheet">
 <script src="deps/bootstrap-5.3.1/bootstrap.bundle.min.js"></script><link href="deps/font-awesome-6.5.2/css/all.min.css" rel="stylesheet">
 <link href="deps/font-awesome-6.5.2/css/v4-shims.min.css" rel="stylesheet">
-<script src="deps/headroom-0.11.0/headroom.min.js"></script><script src="deps/headroom-0.11.0/jQuery.headroom.min.js"></script><script src="deps/bootstrap-toc-1.0.1/bootstrap-toc.min.js"></script><script src="deps/clipboard.js-2.0.11/clipboard.min.js"></script><script src="deps/search-1.0.0/autocomplete.jquery.min.js"></script><script src="deps/search-1.0.0/fuse.min.js"></script><script src="deps/search-1.0.0/mark.min.js"></script><!-- pkgdown --><script src="pkgdown.js"></script><meta property="og:title" content="Bayesian nonparametric population inference">
-<meta name="description" content="Functions for Bayesian nonparametric population (or exchangeable, or density) inference. From a machine-learning perspective, it offers a model-free, uncertainty-quantified prediction algorithm.">
-<meta property="og:description" content="Functions for Bayesian nonparametric population (or exchangeable, or density) inference. From a machine-learning perspective, it offers a model-free, uncertainty-quantified prediction algorithm.">
+<script src="deps/headroom-0.11.0/headroom.min.js"></script><script src="deps/headroom-0.11.0/jQuery.headroom.min.js"></script><script src="deps/bootstrap-toc-1.0.1/bootstrap-toc.min.js"></script><script src="deps/clipboard.js-2.0.11/clipboard.min.js"></script><script src="deps/search-1.0.0/autocomplete.jquery.min.js"></script><script src="deps/search-1.0.0/fuse.min.js"></script><script src="deps/search-1.0.0/mark.min.js"></script><!-- pkgdown --><script src="pkgdown.js"></script><meta property="og:title" content="Inference in R with Bayesian nonparametrics">
+<meta name="description" content="Functions for Bayesian nonparametric population inference (also called exchangeable inference, or density inference). From a machine-learning perspective, they offer a model-free, uncertainty-quantified prediction algorithm.">
+<meta property="og:description" content="Functions for Bayesian nonparametric population inference (also called exchangeable inference, or density inference). From a machine-learning perspective, they offer a model-free, uncertainty-quantified prediction algorithm.">
 </head>
 <body>
     <a href="#main" class="visually-hidden-focusable">Skip to contents</a>
@@ -55,7 +55,7 @@
 <div class="row">
   <main id="main" class="col-md-9"><p><img src="https://github.com/pglpm/inferno/raw/main/development/manual/inferno_symbol.png" alt="Ensemble of densities" width="100%"></p>
 <div class="section level1">
-<div class="page-header"><h1 id="inferno-inference-in-r-with-bayesian-nonparametrics">Inferno: <strong><em>Infer</em></strong>ence in <strong><em>R</em></strong> with Bayesian <strong><em>no</em></strong>nparametrics<a class="anchor" aria-label="anchor" href="#inferno-inference-in-r-with-bayesian-nonparametrics"></a>
+<div class="page-header"><h1 id="inferno-inference-in-r-with-bayesian-nonparametrics">inferno: <strong><em>Infer</em></strong>ence in <strong><em>R</em></strong> with Bayesian <strong><em>no</em></strong>nparametrics<a class="anchor" aria-label="anchor" href="#inferno-inference-in-r-with-bayesian-nonparametrics"></a>
 </h1></div>
 <p>This repository provides an R package and some theoretical background for <em>Bayesian nonparametric population inference</em>, which can also be called “inference under exchangeability” or “density inference”. The package is especially apt for the study of statistics and associations of subpopulations or subgroups.</p>
 <p>The package is under development and has not yet reached a stable phase: function names and arguments may still change, new functions will be added. More tutorials will be prepared. Also the package name is still under consideration.</p>
@@ -84,9 +84,10 @@
 <p>For a low-level course on Bayesian nonparametric inference and Decision Theory see <a href="https://pglpm.github.io/ADA511" class="external-link">Foundations of data science</a>.</p>
 </div>
 <div class="section level2">
-<h2 id="inferno-app">Inferno App<a class="anchor" aria-label="anchor" href="#inferno-app"></a>
+<h2 id="inferno-app">
+<em>inferno</em> App<a class="anchor" aria-label="anchor" href="#inferno-app"></a>
 </h2>
-<p>An application has been built upon <strong><em>Inferno</em></strong>. This app can be used for testing out the features of <strong><em>Inferno</em></strong> with just a few button clicks, without having to write any code in R yourself.</p>
+<p>An application has been built upon <strong><em>inferno</em></strong>. This app can be used for testing out the features of <strong><em>inferno</em></strong> with just a few button clicks, without having to write any code in R yourself.</p>
 <div class="section level3">
 <h3 id="desktop-application">Desktop Application<a class="anchor" aria-label="anchor" href="#desktop-application"></a>
 </h3>
@@ -110,7 +111,7 @@
 <li><p><a href="https://doi.org/10.31219/osf.io/vct9y" class="external-link"><em>Don’t guess what’s true: choose what’s optimal. A probability transducer for machine-learning classifiers</em></a></p></li>
 <li><p><a href="https://doi.org/10.31219/osf.io/7rz8t" class="external-link"><em>Does the evaluation stand up to evaluation? A first-principle approach to the evaluation of classifiers</em></a></p></li>
 </ul>
-<p>Projects using <strong><em>Inferno</em></strong>:</p>
+<p>Projects using <strong><em>inferno</em></strong>:</p>
 <ul>
 <li>
 <a href="https://m4siko.github.io/InfernoCalibNet" class="external-link">InfernoCalibNet</a>.</li>
