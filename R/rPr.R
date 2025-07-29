@@ -11,8 +11,6 @@
 #'
 #' @return A data frame of joint draws of the variates `Ynames` from the posterior distribution, conditional on `X`. The row names of the data frame report the Monte Carlo sample (from \code{\link{learn()}}) used for that draw, and the total number of draws from that sample so far.
 #'
-#' @import extraDistr
-#'
 #' @export
 rPr <- function(
     n,

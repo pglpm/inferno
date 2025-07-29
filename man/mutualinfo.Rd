@@ -9,7 +9,8 @@ mutualinfo(
   Y2names,
   X = NULL,
   learnt,
-  nsamples = 3600,
+  tails = NULL,
+  n = NULL,
   unit = "Sh",
   parallel = NULL,
   silent = FALSE
@@ -25,8 +26,9 @@ mutualinfo(
 \item{learnt}{Either a string with the name of a directory or full path
 for an 'learnt.rds' object, or such an object itself.}
 
-\item{nsamples}{numeric: number of samples from which to approximately
-calculate the mutual information. Default 3600}
+\item{tails}{named vector or list, or \code{NULL} (default). The names must match some or all of the variates in arguments \code{X}. For variates in this list, the probability conditional is understood in an semi-open interval sense: \verb{X ≤ x} or \verb{X ≥ x}, an so on. See analogous argument in \code{\link{Pr()}}.}
+
+\item{n}{integer or \code{NULL} (default): number of samples from which to approximately calculate the mutual information. Default as many as Monte Carlo samples in \code{learnt}.}
 
 \item{unit}{Either one of 'Sh' for \emph{shannon} (default), 'Hart' for \emph{hartley}, 'nat' for \emph{natural unit}, or a positive real indicating the base of the logarithms to be used.}
 
