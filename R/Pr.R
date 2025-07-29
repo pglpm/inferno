@@ -17,7 +17,7 @@
 #'   Default `TRUE`.
 #' @param keepYX logical, default `TRUE`: keep a copy of the `Y` and `X` arguments in the output? This is used for the plot method.
 #'
-#' @return A list of class `probability`, consisting of the elements `values`,  `quantiles` (possibly `NULL`), `samples` (possibly `NULL`), `values.MCerror`, `quantiles.MCerror` (possibly `NULL`), `Y`, `X`. Element `values`: a matrix with the probabilities P(Y|X,data,assumptions), for all combinations of values of `Y` (rows) and `X` (columns). Element `quantiles`: an array with the variability quantiles (3rd dimension of the array) for such probabilities. Element `samples`: an array with the variability samples (3rd dimension of the array) for such probabilities. Elements `values.MCerror` and `quantiles.MCerror`: arrays with the numerical accuracies (roughly speaking a standard deviation) of the Monte Carlo calculations for the `values` and `quantiles` elements. Elements `Y`, `X`: copies of the `Y` and `X` arguments.
+#' @return A list of class `probability`, consisting of the elements `values`,  `quantiles` (possibly `NULL`), `samples` (possibly `NULL`), `values.MCaccuracy`, `quantiles.MCaccuracy` (possibly `NULL`), `Y`, `X`. Element `values`: a matrix with the probabilities P(Y|X,data,assumptions), for all combinations of values of `Y` (rows) and `X` (columns). Element `quantiles`: an array with the variability quantiles (3rd dimension of the array) for such probabilities. Element `samples`: an array with the variability samples (3rd dimension of the array) for such probabilities. Elements `values.MCaccuracy` and `quantiles.MCaccuracy`: arrays with the numerical accuracies (roughly speaking a standard deviation) of the Monte Carlo calculations for the `values` and `quantiles` elements. Elements `Y`, `X`: copies of the `Y` and `X` arguments.
 #'
 #' @import parallel foreach doParallel
 #'
@@ -338,7 +338,7 @@ Pr <- function(
     ##     na.rm = TRUE
     ## ))
 
-    keys <- c('values', 'quantiles', 'samples', 'values.MCerror', 'quantiles.MCerror')
+    keys <- c('values', 'quantiles', 'samples', 'values.MCaccuracy', 'quantiles.MCaccuracy')
     ##
     combfnr <- function(...){setNames(do.call(mapply,
         c(FUN = `rbind`, lapply(X = list(...), FUN = `[`, keys, drop = FALSE))),
@@ -401,9 +401,9 @@ Pr <- function(
                 FF[round(seq(1, length(FF), length.out = nsamples))]
             },
             ##
-            values.MCerror = funMCSELD(x = FF),
+            values.MCaccuracy = funMCSELD(x = FF),
             ##
-            quantiles.MCerror = if(doquantiles) {
+            quantiles.MCaccuracy = if(doquantiles) {
                 temp <- funMCEQ(x = FF, prob = quantiles, Qpair = Qerror)
                 (temp[2, ] - temp[1, ]) / 2
             }
@@ -426,12 +426,12 @@ Pr <- function(
 
     ## transform to grid
     ## in the output-list elements the Y & X values are the rows
-    dim(out$values.MCerror) <- dim(out$values) <- c(nY, nX)
+    dim(out$values.MCaccuracy) <- dim(out$values) <- c(nY, nX)
 
     if(is.null(priorY)){
         ## multiply by jacobian factors
         out$values <- out$values * jacobians
-        out$values.MCerror <- signif(x = out$values.MCerror * jacobians, digits = 2)
+        out$values.MCaccuracy <- signif(x = out$values.MCaccuracy * jacobians, digits = 2)
 
         ## if(ncol(Y) == 1){Ynames <- Y[, 1]} else {Ynames <- NULL}
         Ynames <- apply(X = Y, MARGIN = 1, FUN = paste0, collapse=',',
@@ -444,11 +444,11 @@ Pr <- function(
             Xnames <- NULL
         }
         dimnames(out$values) <- list(Y = Ynames, X = Xnames)
-        dimnames(out$values.MCerror) <- dimnames(out$values)
+        dimnames(out$values.MCaccuracy) <- dimnames(out$values)
     } else {
         ## Bayes's theorem
         out$values <- t(priorY * t(out$values))
-        out$values.MCerror <- NULL
+        out$values.MCaccuracy <- NULL
         normf <- rowSums(out$values, na.rm = TRUE)
         out$values <- t(out$values/normf)
 
@@ -490,10 +490,10 @@ Pr <- function(
         if(is.null(priorY)){
             ## transform to grid
             dim(out$quantiles) <- c(nY, nX, length(quantiles))
-            dim(out$quantiles.MCerror) <- c(nY, nX, length(quantiles))
+            dim(out$quantiles.MCaccuracy) <- c(nY, nX, length(quantiles))
             ## multiply by jacobian factors
             out$quantiles <- out$quantiles * jacobians
-            out$quantiles.MCerror <- signif(x = out$quantiles.MCerror * jacobians,
+            out$quantiles.MCaccuracy <- signif(x = out$quantiles.MCaccuracy * jacobians,
                 digits = 2)
         } else {
             ## calculate quantiles from samples
@@ -515,7 +515,7 @@ Pr <- function(
 
         temp <- names(quantile(1, probs = quantiles, names = TRUE))
         dimnames(out$quantiles) <- list(Y = Ynames, X = Xnames, temp)
-        dimnames(out$quantiles.MCerror) <- dimnames(out$quantiles)
+        dimnames(out$quantiles.MCaccuracy) <- dimnames(out$quantiles)
     }
 
     if(isTRUE(keepYX)){
