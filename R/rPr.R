@@ -1,6 +1,6 @@
 #' Generate datapoints
 #'
-#' This function generate datapoints according to the posterior probability `Pr(Y | X, data)` calculated with \code{\link{learn()}}, for the variates specified in the argument `Y`, and conditional on the variate values specified in the argument `X`. If `X` is omitted or `NULL`, then the posterior probability `Pr(Y | data)` is used. Each variate in the argument `X` can be specified either as a point-value `X = x` or as a left-open interval `X ≤ x` or as a right-open interval `X ≥ x`", through the argument `tails`.
+#' This function generate datapoints according to the posterior probability `Pr(Y | X, data)` calculated with \code{\link{learn()}}, for the variates specified in the argument `Y`, and conditional on the variate values specified in the argument `X`. If `X` is omitted or `NULL`, then the posterior probability `Pr(Y | data)` is used. Each variate in the argument `X` can be specified either as a point-value `X = x` or as a left-open interval `X ≤ x` or as a right-open interval `X ≥ x`, through the argument `tails`.
 #'
 #' @param n positive integer: number of samples to draw.
 #' @param Ynames character vector: names of variates to draw jointly
