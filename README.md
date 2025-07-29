@@ -1,6 +1,6 @@
 <img src="https://github.com/pglpm/inferno/raw/main/development/manual/inferno_symbol.png" alt="Ensemble of densities" width="100%"/>
 
-# inferno: ***Infer***ence in ***R*** with Bayesian ***no***nparametrics
+# inferno: ***infer***ence in ***R*** with Bayesian ***no***nparametrics
 
 This repository provides an R package and some theoretical background for *Bayesian nonparametric population inference*, which can also be called "inference under exchangeability" or "density inference". The package is especially apt for the study of statistics and associations of subpopulations or subgroups.
 

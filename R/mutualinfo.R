@@ -13,7 +13,7 @@
 #' @param parallel Logical or `NULL` or positive integer: `TRUE`: use roughly half of available cores; `FALSE`: use serial computation; `NULL`: don't do anything (use pre-registered condition); integer: use this many cores. Default `NULL`
 #' @param silent logical: give warnings or updates in the computation?
 #'
-#' @return A list consisting of the elements `MI`, `CondEn12`, `CondEn21`, `En1`, `En2`, `MImax`, `unit`, `Y1names`, `Y1names`. All elements except `unit`, `Y1names`, `Y2names` are a vector of `value` and `error`. Element `MI` is the mutual information between (joint) variates `Y1names` and (joint) variates `Y2names`. Element`CondEn12` is the conditional entropy of the first variate given the second, and vice versa for `CondEn21`. Elements `En1` and `En1` are the (differential) entropies of the first and second variates. Element `MImax` is the maximum possible value of the mutual information. Elements `unit`, `Y1names`, `Y2names` are identical to the same inputs.
+#' @return A list consisting of the elements `MI`, `CondEn12`, `CondEn21`, `En1`, `En2`, `MImax`, `unit`, `Y1names`, `Y1names`. All elements except `unit`, `Y1names`, `Y2names` are a vector of `value` and `accuracy`. Element `MI` is the mutual information between (joint) variates `Y1names` and (joint) variates `Y2names`. Element`CondEn12` is the conditional entropy of the first variate given the second, and vice versa for `CondEn21`. Elements `En1` and `En1` are the (differential) entropies of the first and second variates. Element `MImax` is the maximum possible value of the mutual information. Elements `unit`, `Y1names`, `Y2names` are identical to the same inputs.
 #'
 #' @import parallel foreach doParallel
 #'
@@ -278,7 +278,7 @@ mutualinfo <- function(
     } # end definition of lW if non-null X
 
 
-    ## Utility function to avoid finite-precision errors
+    ## Utility function to avoid finite-precision accuracys
     denorm <- function(lprob) {
         apply(X = lprob, MARGIN = 2, FUN = function(xx) {
             xx - max(xx[is.finite(xx)])
@@ -548,7 +548,7 @@ mutualinfo <- function(
 
     out <- unlist(apply(X = rbind(
         value = colMeans(out, na.rm = TRUE),
-        error = signif(x = apply(
+        accuracy = signif(x = apply(
             X = out, MARGIN = 2, FUN = sd, na.rm = TRUE, simplify = TRUE
         )/sqrt(n), digits = 2)
     ), MARGIN = 2, FUN = list, simplify = TRUE), recursive = FALSE)
