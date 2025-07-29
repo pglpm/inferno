@@ -1,6 +1,6 @@
 <img src="https://github.com/pglpm/inferno/raw/main/development/manual/inferno_symbol.png" alt="Ensemble of densities" width="100%"/>
 
-# Inferno: ***Infer***ence in ***R*** with Bayesian ***no***nparametrics
+# inferno: ***Infer***ence in ***R*** with Bayesian ***no***nparametrics
 
 This repository provides an R package and some theoretical background for *Bayesian nonparametric population inference*, which can also be called "inference under exchangeability" or "density inference". The package is especially apt for the study of statistics and associations of subpopulations or subgroups.
 
@@ -43,8 +43,8 @@ A summary of the theoretical foundations, including further references, is avail
 For a low-level course on Bayesian nonparametric inference and Decision Theory see [Foundations of data science](https://pglpm.github.io/ADA511).
 
 
-## Inferno App
-An application has been built upon ***Inferno***. This app can be used for testing out the features of ***Inferno*** with just a few button clicks, without having to write any code in R yourself.
+## *inferno* App
+An application has been built upon ***inferno***. This app can be used for testing out the features of ***inferno*** with just a few button clicks, without having to write any code in R yourself.
 
 ### Desktop Application
 * Currently available for Windows and MacOS. Download and install the desktop application by following this: [Installation Guide](https://github.com/h587916/Inferno-App/releases/tag/1.0.2).
@@ -61,7 +61,7 @@ An application has been built upon ***Inferno***. This app can be used for testi
 - [*Does the evaluation stand up to evaluation? A first-principle approach to the evaluation of classifiers*](https://doi.org/10.31219/osf.io/7rz8t)
 
 
-Projects using ***Inferno***:
+Projects using ***inferno***:
 
 - [InfernoCalibNet](https://m4siko.github.io/InfernoCalibNet).
 - [parkinsonbayes](https://github.com/pglpm/parkinsonbayes).

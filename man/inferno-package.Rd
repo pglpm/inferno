@@ -4,9 +4,9 @@
 \name{inferno-package}
 \alias{inferno}
 \alias{inferno-package}
-\title{inferno: Bayesian nonparametric population inference}
+\title{inferno: Inference in R with Bayesian nonparametrics}
 \description{
-Functions for Bayesian nonparametric population (or exchangeable, or density) inference. From a machine-learning perspective, it offers a model-free, uncertainty-quantified prediction algorithm.
+Functions for Bayesian nonparametric population inference (also called exchangeable inference, or density inference). From a machine-learning perspective, they offer a model-free, uncertainty-quantified prediction algorithm.
 }
 \seealso{
 Useful links:

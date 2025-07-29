@@ -1,5 +1,5 @@
 Package: inferno
-Title: Bayesian nonparametric population inference
+Title: Inference in R with Bayesian nonparametrics
 Version: 0.3.1
 Authors@R: c(
   person("PierGianLuca", "Porta Mana", ,
@@ -18,7 +18,7 @@ Authors@R: c(
   "simen@hhnet.no", role = c("aut"),
   comment = c(ORCID = "0009-0005-6158-2846"))
   )
-Description: Functions for Bayesian nonparametric population (or exchangeable, or density) inference. From a machine-learning perspective, it offers a model-free, uncertainty-quantified prediction algorithm.
+Description: Functions for Bayesian nonparametric population inference (also called exchangeable inference, or density inference). From a machine-learning perspective, they offer a model-free, uncertainty-quantified prediction algorithm.
 License: GPL (>= 3)
 URL: https://github.com/pglpm/inferno/, https://pglpm.github.io/inferno/
 Encoding: UTF-8
