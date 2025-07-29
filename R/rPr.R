@@ -305,7 +305,7 @@ rPr <- function(
         logjacobianOr = NULL)
 
     ## row-name scheme: 'mcsample.draw'
-    rownames(Yout) <- paste0(sseq, '.', ((seq_len(n) - 1L) %/% nmcs) + 1L)
+    rownames(Yout) <- paste0(sseq, '_', ((seq_len(n) - 1L) %/% nmcs) + 1L)
 
     Yout
 }
