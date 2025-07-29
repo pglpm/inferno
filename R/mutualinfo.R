@@ -7,13 +7,15 @@
 #' @param X matrix or data.frame or NULL: values of some variates conditional on which we want the probabilities.
 #' @param learnt Either a string with the name of a directory or full path
 #'   for an 'learnt.rds' object, or such an object itself.
-#' @param nsamples numeric: number of samples from which to approximately
-#'   calculate the mutual information. Default 3600
+#' @param tails named vector or list, or `NULL` (default). The names must match some or all of the variates in arguments `X`. For variates in this list, the probability conditional is understood in an semi-open interval sense: `X ≤ x` or `X ≥ x`, an so on. See analogous argument in \code{\link{Pr()}}.
+#' @param n integer or `NULL` (default): number of samples from which to approximately calculate the mutual information. Default as many as Monte Carlo samples in `learnt`.
 #' @param unit Either one of 'Sh' for *shannon* (default), 'Hart' for *hartley*, 'nat' for *natural unit*, or a positive real indicating the base of the logarithms to be used.
 #' @param parallel Logical or `NULL` or positive integer: `TRUE`: use roughly half of available cores; `FALSE`: use serial computation; `NULL`: don't do anything (use pre-registered condition); integer: use this many cores. Default `NULL`
 #' @param silent logical: give warnings or updates in the computation?
 #'
 #' @return A list consisting of the elements `MI`, `CondEn12`, `CondEn21`, `En1`, `En2`, `MImax`, `unit`, `Y1names`, `Y1names`. All elements except `unit`, `Y1names`, `Y2names` are a vector of `value` and `error`. Element `MI` is the mutual information between (joint) variates `Y1names` and (joint) variates `Y2names`. Element`CondEn12` is the conditional entropy of the first variate given the second, and vice versa for `CondEn21`. Elements `En1` and `En1` are the (differential) entropies of the first and second variates. Element `MImax` is the maximum possible value of the mutual information. Elements `unit`, `Y1names`, `Y2names` are identical to the same inputs.
+#'
+#' @import parallel foreach doParallel extraDistr
 #'
 #' @export
 mutualinfo <- function(
@@ -21,7 +23,8 @@ mutualinfo <- function(
     Y2names,
     X = NULL,
     learnt,
-    nsamples = 3600,
+    tails = NULL,
+    n = NULL,
     unit = 'Sh',
     parallel = NULL,
     silent = FALSE
@@ -45,21 +48,6 @@ mutualinfo <- function(
 ####
 #### For these computations it is not necessary to transform the Y1,Y2 variates
 #### from the internal Monte Carlo representation to the original one
-
-    ## Utility function to avoid finite-precision errors
-    denorm <- function(lprob) {
-        apply(lprob, 2, function(xx) {
-            xx - max(xx[is.finite(xx)])
-        })
-    }
-    ## denorm <- function(lprob) {
-    ##     apply(lprob, 2, function(xx) {
-    ##         xx <- exp(xx - max(xx[is.finite(xx)]))
-    ##         xx/sum(xx)
-    ##     })
-    ## }
-
-
 
 #### Requested parallel processing
     ## NB: doesn't make sense to have more cores than chains
@@ -136,7 +124,43 @@ mutualinfo <- function(
     learnt$auxmetadata <- NULL
     learnt$auxinfo <- NULL
     ncomponents <- nrow(learnt$W)
-    nmcsamples <- ncol(learnt$W)
+    nmcs <- ncol(learnt$W)
+
+    if(is.null(n) || n == 0) {n <- 1}
+    if(n > 0){
+        n <- n * nmcs
+    } else if(n < 0) {
+        n <- -n
+    }
+
+    if(n <= nmcs) {
+        sseq <- sort(sample.int(nmcs, n))
+    } else {
+        sseq <- c(rep(x = seq_len(nmcs), times = n %/% nmcs),
+            mcsamples[sort.int(sample.int(nmcs, n %% nmcs))])
+    }
+
+    if(all(is.na(X))){X <- NULL}
+    if(!is.null(X)){
+        X <- as.data.frame(X)
+        if (nrow(X) > 1) {
+            message('Only the first row of X is considered')
+            X <- X[1, , drop = FALSE]
+        }
+    }
+    Xv <- colnames(X)
+
+    if(!is.null(tails)){
+        tails <- as.list(tails)
+        if(is.null(names(tails))) {
+            stop('Missing variate names in "tails"')
+        }
+    }
+    tailsv <- names(tails)
+    tailscentre <- list('==', 0, '0', NULL)
+    tailsleft <- list('<=', -1, '-1', 'left')
+    tailsright <- list('>=', 1, '+1', 'right')
+    tailsvalues <- c(tailscentre, tailsleft, tailsright)
 
     ## Consistency checks
     if (unit == 'Sh') {
@@ -157,13 +181,6 @@ mutualinfo <- function(
     if(!is.null(Y2names) && (!is.character(Y2names) || any(is.na(Y2names)))){
         stop('Y2names must be NULL or a vector of variate names')
     }
-    if (!is.null(X) && length(dim(X)) != 2) {
-        stop('X must be NULL or have two dimensions')
-    }
-    if (!is.null(X) && dim(X)[1] > 1) {
-        message('Only the first row of X is considered')
-        X <- X[1, , drop = FALSE]
-    }
 
     ## More consistency checks
     if(!all(Y1names %in% auxmetadata$name)) {
@@ -179,193 +196,54 @@ mutualinfo <- function(
     if(length(unique(Y2names)) != length(Y2names)) {
         stop('duplicate Y2 variates\n')
     }
-    ##
-    Xnames <- colnames(X)
-    if (!all(Xnames %in% auxmetadata$name)) {
+
+
+    if (!all(Xv %in% auxmetadata$name)) {
         stop('unknown X variates\n')
     }
-    if (length(unique(Xnames)) != length(Xnames)) {
+    if (length(unique(Xv)) != length(Xv)) {
         stop('duplicate X variates\n')
     }
     ##
-    if(length(intersect(Y1names, Y2names)) > 0) {
+    if(any(Y1names %in% Y2names)) {
         stop('overlap in Y1 and Y2 variates\n')
     }
-    if(length(intersect(Y1names, Xnames)) > 0) {
+    if(any(Y1names %in% Xv)) {
         stop('overlap in Y1 and X variates\n')
     }
-    if(length(intersect(Y2names, Xnames)) > 0) {
+    if(any(Y2names %in% Xv)) {
         stop('overlap in Y2 and X variates\n')
     }
 
-
-#### Calculate how many samples per MC sample
-    ## ***todo: account for the case where nsamples < nmcsamples
-    if(nsamples < 0) {
-        nsamples <- -nsamples * nmcsamples
-    } else if (nsamples == 0 || !is.finite(nsamples)) {
-        stop("'nsamples' cannot be zero")
+    if (!all(tailsv %in% Xv)) {
+        warning('variate ',
+            paste0(tailsv[!(tailsv %in% Xv)], collapse = ' '),
+            ' not among X; ignored\n')
     }
-    n <- ceiling(nsamples/nmcsamples)*nmcsamples
-    sseq <- seq_len(nmcsamples)
-    ## source('vtransform.R')
-
-#### Combine Y1,Y2 into single Y for speed
-    Ynames <- c(Y1names, Y2names)
-
-### Guide to indices:
-    ## .i. = order in X/Y corresponding to appearance in vnames
-    ## .t. = vnames present in X/Y, kept in their vnames-order
-
-#### Type R
-    vnames <- auxmetadata[auxmetadata$mcmctype == 'R', 'name']
-    Y2iR <- match(vnames, Y2names)
-    Y2tR <- which(!is.na(Y2iR))
-    Y2iR <- Y2iR[Y2tR]
-    Y2nR <- length(Y2iR)
-    ##
-    Y1iR <- match(vnames, Y1names)
-    Y1tR <- which(!is.na(Y1iR))
-    Y1iR <- Y1iR[Y1tR]
-    Y1nR <- length(Y1iR)
-    ##
-    XiR <- match(vnames, Xnames)
-    XtR <- which(!is.na(XiR))
-    XiR <- XiR[XtR]
-    XnR <- length(XiR)
-    if (Y1nR > 0 || Y2nR > 0 || XnR > 0) {
-        learnt$Rvar <- sqrt(learnt$Rvar)
+    if (length(unique(tailsv)) != length(tailsv)) {
+        stop('duplicate "tails" variates\n')
     }
-    ##
-    YiR <- match(vnames, Ynames)
-    YtR <- which(!is.na(YiR))
-    YiR <- YiR[YtR]
-    YnR <- length(YiR)
-
-#### Type C
-    vnames <- auxmetadata[auxmetadata$mcmctype == 'C', 'name']
-    Y2iC <- match(vnames, Y2names)
-    Y2tC <- which(!is.na(Y2iC))
-    Y2iC <- Y2iC[Y2tC]
-    Y2nC <- length(Y2iC)
-    ##
-    Y1iC <- match(vnames, Y1names)
-    Y1tC <- which(!is.na(Y1iC))
-    Y1iC <- Y1iC[Y1tC]
-    Y1nC <- length(Y1iC)
-    ##
-    XiC <- match(vnames, Xnames)
-    XtC <- which(!is.na(XiC))
-    XiC <- XiC[XtC]
-    XnC <- length(XiC)
-    if (Y1nC > 0 || Y2nC > 0 || XnC > 0) {
-        learnt$Cvar <- sqrt(learnt$Cvar)
-        Clefts <- auxmetadata[match(vnames, auxmetadata$name), 'tdomainminplushs']
-        Crights <- auxmetadata[match(vnames, auxmetadata$name), 'tdomainmaxminushs']
+    if(!all(tails %in% tailsvalues)) {
+        stop('"tails" values must be ',
+            paste0(tailsvalues, collapse = ' '), '\n')
     }
-    ##
-    YiC <- match(vnames, Ynames)
-    YtC <- which(!is.na(YiC))
-    YiC <- YiC[YtC]
-    YnC <- length(YiC)
 
-#### Type D
-    vnames <- auxmetadata[auxmetadata$mcmctype == 'D', 'name']
-    Y2iD <- match(vnames, Y2names)
-    Y2tD <- which(!is.na(Y2iD))
-    Y2iD <- Y2iD[Y2tD]
-    Y2nD <- length(Y2iD)
-    ##
-    Y1iD <- match(vnames, Y1names)
-    Y1tD <- which(!is.na(Y1iD))
-    Y1iD <- Y1iD[Y1tD]
-    Y1nD <- length(Y1iD)
-    ##
-    XiD <- match(vnames, Xnames)
-    XtD <- which(!is.na(XiD))
-    XiD <- XiD[XtD]
-    XnD <- length(XiD)
-    if (Y1nD > 0 || Y2nD > 0 || XnD > 0) {
-        learnt$Dvar <- sqrt(learnt$Dvar)
-        Dsteps <- auxmetadata[match(vnames, auxmetadata$name), 'halfstep'] /
-            auxmetadata[match(vnames, auxmetadata$name), 'tscale']
-        Dlefts <- auxmetadata[match(vnames, auxmetadata$name), 'tdomainminplushs']
-        Drights <- auxmetadata[match(vnames, auxmetadata$name), 'tdomainmaxminushs']
-    }
-    ##
-    YiD <- match(vnames, Ynames)
-    YtD <- which(!is.na(YiD))
-    YiD <- YiD[YtD]
-    YnD <- length(YiD)
-
-#### Type O
-    vnames <- auxmetadata[auxmetadata$mcmctype == 'O', 'name']
-    Y2iO <- match(vnames, Y2names)
-    Y2tO <- which(!is.na(Y2iO))
-    Y2iO <- Y2iO[Y2tO]
-    Y2nO <- length(Y2iO)
-    ##
-    Y1iO <- match(vnames, Y1names)
-    Y1tO <- which(!is.na(Y1iO))
-    Y1iO <- Y1iO[Y1tO]
-    Y1nO <- length(Y1iO)
-    ##
-    XiO <- match(vnames, Xnames)
-    XtO <- which(!is.na(XiO))
-    XiO <- XiO[XtO]
-    XnO <- length(XiO)
-    ##
-    YiO <- match(vnames, Ynames)
-    YtO <- which(!is.na(YiO))
-    YiO <- YiO[YtO]
-    YnO <- length(YiO)
-
-#### Type N
-    vnames <- auxmetadata[auxmetadata$mcmctype == 'N', 'name']
-    Y2iN <- match(vnames, Y2names)
-    Y2tN <- which(!is.na(Y2iN))
-    Y2iN <- Y2iN[Y2tN]
-    Y2nN <- length(Y2iN)
-    ##
-    Y1iN <- match(vnames, Y1names)
-    Y1tN <- which(!is.na(Y1iN))
-    Y1iN <- Y1iN[Y1tN]
-    Y1nN <- length(Y1iN)
-    ##
-    XiN <- match(vnames, Xnames)
-    XtN <- which(!is.na(XiN))
-    XiN <- XiN[XtN]
-    XnN <- length(XiN)
-    ##
-    YiN <- match(vnames, Ynames)
-    YtN <- which(!is.na(YiN))
-    YiN <- YiN[YtN]
-    YnN <- length(YiN)
-
-#### Type B
-    vnames <- auxmetadata[auxmetadata$mcmctype == 'B', 'name']
-    Y2iB <- match(vnames, Y2names)
-    Y2tB <- which(!is.na(Y2iB))
-    Y2iB <- Y2iB[Y2tB]
-    Y2nB <- length(Y2iB)
-    ##
-    Y1iB <- match(vnames, Y1names)
-    Y1tB <- which(!is.na(Y1iB))
-    Y1iB <- Y1iB[Y1tB]
-    Y1nB <- length(Y1iB)
-    ##
-    XiB <- match(vnames, Xnames)
-    XtB <- which(!is.na(XiB))
-    XiB <- XiB[XtB]
-    XnB <- length(XiB)
-    ##
-    YiB <- match(vnames, Ynames)
-    YtB <- which(!is.na(YiB))
-    YiB <- YiB[YtB]
-    YnB <- length(YiB)
+    ## transform 'tails' to -1, +1
+    ## +1: '<=',    -1: '>='
+    ## this is opposite of the argument convention because
+    ## interval probabilities are calculated with `lower.tail = TRUE`
+    ## eg:
+    ## pnorm(x, mean, sd, lower.tail = FALSE) ==
+    ##     pnorm(-x, -mean, sd, lower.tail = TRUE)
+    tails[tails %in% tailscentre] <- NULL
+    cleft <- tails %in% tailsleft
+    cright <- tails %in% tailsright
+    tails[cleft] <- +1
+    tails[cright] <- -1
+    tails <- unlist(tails)
 
 
-#### STEP 0. Adjust component weights W for conditioning on X
+#### Step 0. Adjust component weights W for conditioning on X
     if(is.null(X)){
         lW <- log(learnt$W)
     } else {
@@ -373,7 +251,7 @@ mutualinfo <- function(
             x = X,
             auxmetadata = auxmetadata,
             learnt = learnt,
-            tails = NULL
+            tails = tails
         )
 
         lW <- log(learnt$W) +
@@ -401,80 +279,140 @@ mutualinfo <- function(
     } # end definition of lW if non-null X
 
 
-#### STEP 1. Draw samples of Y (that is, Y1,Y2)
+    ## Utility function to avoid finite-precision errors
+    denorm <- function(lprob) {
+        apply(X = lprob, MARGIN = 2, FUN = function(xx) {
+            xx - max(xx[is.finite(xx)])
+        }, simplify = TRUE)
+    }
 
-    ## Y is drawn as follows, for each MC sample:
-    ## 1. draw a mixture component, according to its probability
-    ## 2. draw from the appropriate kernel distributions
-    ## using the parameters of that component
+
+#### Combine Y1,Y2 into single Y for speed
+    Ynames <- c(Y1names, Y2names)
+
+#### STEP 1. Draw samples of Ynames (that is, Y1names,Y2names)
 
     lWnorm <- denorm(lW)
     Ws <- extraDistr::rcat(n = n, prob = t(
-        apply(lWnorm, 2, function(xx){
+        apply(X = lWnorm[, sseq, drop = FALSE], MARGIN = 2, FUN = function(xx){
             xx <- exp(xx)
-            xx/sum(xx, na.rm = TRUE)})
+            xx / sum(xx, na.rm = TRUE)
+        }, simplify = TRUE)
     ))
 
     Yout <- NULL
+    vYout <- NULL
 
+    ## R
     toselect <- which((auxmetadata$name %in% Ynames) &
                           (auxmetadata$mcmctype == 'R'))
-    ltoselect <- length(toselect)
-    if(ltoselect > 0){
+    nvrt <- length(toselect)
+    if(nvrt > 0){
         aux <- auxmetadata[toselect, ]
-        totake <- cbind(rep.int(x = aux$id, times = rep(n, ltoselect)), Ws, sseq)
-        rnorm(n = n * toselect,
-            mean = learnt$Rmean[totake],
-            sd = sqrt(learnt$Rvar[totake])
+        vYout <- c(vYout, aux$name)
+        totake <- cbind(rep.int(x = aux$id, times = rep(n, nvrt)), Ws, sseq)
+        Yout <- c(Yout,
+            rnorm(n = n * nvrt,
+                mean = learnt$Rmean[totake],
+                sd = sqrt(learnt$Rvar[totake]) )
         )
     }
-    c(
-    if(YnC > 0){# censored
-        totake <- cbind(rep(YtC, each = n), Ws, sseq)
-        rnorm(n = n * YnC,
-            mean = learnt$Cmean[totake],
-            sd = sqrt(learnt$Cvar[totake])
-        )
-    },
-    if(YnD > 0){# continuous discretized
-        totake <- cbind(rep(YtD, each = n), Ws, sseq)
-        rnorm(n = n * YnD,
-            mean = learnt$Dmean[totake],
-            sd = sqrt(learnt$Dvar[totake])
-        )
-    },
-    if(YnO > 0){# nominal
-        totake <- cbind(rep(YtO, each = n), Ws, sseq)
-        extraDistr::rcat(n = n * YnO,
-            prob = apply(learnt$Oprob, 3, `[`, totake))
-    },
-    if(YnN > 0){# nominal
-        totake <- cbind(rep(YtN, each = n), Ws, sseq)
-        extraDistr::rcat(n = n * YnN,
-            prob = apply(learnt$Nprob, 3, `[`, totake))
-    },
-    if(YnB > 0){# binary
-        totake <- cbind(rep(YtB, each = n), Ws, sseq)
-        extraDistr::rbern(n = n * YnB,
-            prob = learnt$Bprob[totake])
-    }
-    )
 
-    ## rows: n samples, cols: Y variates
+    ## C
+    toselect <- which((auxmetadata$name %in% Ynames) &
+                          (auxmetadata$mcmctype == 'C'))
+    nvrt <- length(toselect)
+    if(nvrt > 0){
+        aux <- auxmetadata[toselect, ]
+        vYout <- c(vYout, aux$name)
+        totake <- cbind(rep.int(x = aux$id, times = rep(n, nvrt)), Ws, sseq)
+        Yout <- c(Yout,
+            rnorm(n = n * nvrt,
+                mean = learnt$Cmean[totake],
+                sd = sqrt(learnt$Cvar[totake]) )
+        )
+    }
+
+    ## D
+    toselect <- which((auxmetadata$name %in% Ynames) &
+                          (auxmetadata$mcmctype == 'D'))
+    nvrt <- length(toselect)
+    if(nvrt > 0){
+        aux <- auxmetadata[toselect, ]
+        vYout <- c(vYout, aux$name)
+        totake <- cbind(rep.int(x = aux$id, times = rep(n, nvrt)), Ws, sseq)
+        Yout <- c(Yout,
+            rnorm(n = n * nvrt,
+                mean = learnt$Dmean[totake],
+                sd = sqrt(learnt$Dvar[totake]) )
+        )
+    }
+
+    ## O
+    toselect <- which((auxmetadata$name %in% Ynames) &
+                          (auxmetadata$mcmctype == 'O'))
+    nvrt <- length(toselect)
+    if(nvrt > 0){
+        vYout <- c(vYout, auxmetadata$name[toselect])
+        for(i in toselect) {
+            aux <- auxmetadata[i, ]
+            totake <- cbind(Ws, sseq)
+            Yout <- c(Yout,
+                extraDistr::rcat(n = n,
+                    prob = apply(
+                        X = learnt$Oprob[aux$indexpos + seq_len(aux$Nvalues), ,],
+                        MARGIN = 1, FUN = `[`, totake,
+                        simplify = TRUE) )
+            )
+        }
+    }
+
+    ## N
+    toselect <- which((auxmetadata$name %in% Ynames) &
+                          (auxmetadata$mcmctype == 'N'))
+    nvrt <- length(toselect)
+    if(nvrt > 0){
+        vYout <- c(vYout, auxmetadata$name[toselect])
+        for(i in toselect) {
+            aux <- auxmetadata[i, ]
+            totake <- cbind(Ws, sseq)
+            Yout <- c(Yout,
+                extraDistr::rcat(n = n,
+                    prob = apply(
+                        X = learnt$Nprob[aux$indexpos + seq_len(aux$Nvalues), ,],
+                        MARGIN = 1, FUN = `[`, totake,
+                        simplify = TRUE) )
+            )
+        }
+    }
+
+    ## B
+    toselect <- which((auxmetadata$name %in% Ynames) &
+                          (auxmetadata$mcmctype == 'B'))
+    nvrt <- length(toselect)
+    if(nvrt > 0){
+        aux <- auxmetadata[toselect, ]
+        vYout <- c(vYout, aux$name)
+        totake <- cbind(rep.int(x = aux$id, times = rep(n, nvrt)), Ws, sseq)
+        Yout <- c(Yout,
+            extraDistr::rbern(n = n * nvrt,
+                prob = learnt$Bprob[totake])
+        )
+    }
+
     dim(Yout) <- c(n, length(Ynames))
-    ## Match to original order of Ynames
-    Yout <- Yout[, match(Ynames, Ynames[c(YiR, YiC, YiD, YiO, YiN, YiB)]),
-        drop = FALSE]
+    Yout <- Yout[, match(Ynames, vYout), drop = FALSE]
     colnames(Yout) <- Ynames
-    Yout <- as.matrix(vtransform(Yout,
+
+    Yout <- vtransform(Yout,
         auxmetadata = auxmetadata,
-        Rout = 'mi',
-        Cout = 'mi',
-        Dout = 'mi',
-        Oout = 'mi',
-        Nout = 'mi',
-        Bout = 'mi',
-        logjacobianOr = NULL))
+        Rout = 'original',
+        Cout = 'original',
+        Dout = 'original',
+        Oout = 'original',
+        Nout = 'original',
+        Bout = 'original',
+        logjacobianOr = NULL)
 
     Y1transf <- Yout[, Y1names, drop = FALSE]
     Y2transf <- Yout[, Y2names, drop = FALSE]
@@ -483,48 +421,80 @@ mutualinfo <- function(
 
 
 #### STEP 2. Calculate sum_i log2_p(Y1|Y2) for all samples
+    lpargs1 <- util_lprobsargs(
+        x = Y1transf,
+        auxmetadata = auxmetadata,
+        learnt = learnt,
+        tails = NULL
+    )
 
-    ## from samplesFDistribution.R with some modifications
-    out <- foreach(y1 = t(Y1transf), y2 = t(Y2transf),
-        .combine = `rbind`,
-        .inorder = TRUE) %dochains% {
-#### the loop is over the columns of y1 and y2
-#### each instance is a 1-column vector
+    lpargs2 <- util_lprobsargs(
+        x = Y2transf,
+        auxmetadata = auxmetadata,
+        learnt = learnt,
+        tails = NULL
+    )
 
+    out <- foreach(
+            x1V0 = lpargs1$xV0,
+            x1V1 = lpargs1$xV1,
+            x1V2 = lpargs1$xV2,
+            x1VN = lpargs1$xVN,
+            x1VB = lpargs1$xVB,
+            ##
+            x2V0 = lpargs2$xV0,
+            x2V1 = lpargs2$xV1,
+            x2V2 = lpargs2$xV2,
+            x2VN = lpargs2$xVN,
+            x2VB = lpargs2$xVB,
+            .combine = rbind,
+            .inorder = TRUE
+        ) %dochains% {
 ### lprobY2
-            ## rows: components, cols: samples
-            if (all(is.na(y2))) {
-                lprobY2 <- array(0, dim = dim(lW))
-            } else {
-                lprobY2 <- util_lprob(
-                    x = y2,
-                    learnt = learnt,
-                    nR = Y2nR, iR = Y2iR, tR = Y2tR,
-                    nC = Y2nC, iC = Y2iC, tC = Y2tC,
-                    Clefts = Clefts, Crights = Crights,
-                    nD = Y2nD, iD = Y2iD, tD = Y2tD,
-                    Dsteps = Dsteps, Dlefts = Dlefts, Drights = Drights,
-                    nO = Y2nO, iO = Y2iO, tO = Y2tO,
-                    nN = Y2nN, iN = Y2iN, tN = Y2tN,
-                    nB = Y2nB, iB = Y2iB, tB = Y2tB
-                )
-
-            }# end lprobY2
+            lprobY2 <- util_lprobs(
+                    nV0 = lpargs2$nV0,
+                    V0mean = lpargs2$V0mean,
+                    V0sd = lpargs2$V0sd,
+                    xV0 = x2V0,
+                    nV1 = lpargs2$nV1,
+                    V1mean = lpargs2$V1mean,
+                    V1sd = lpargs2$V1sd,
+                    xV1 = x2V1,
+                    nV2 = lpargs2$nV2,
+                    V2mean = lpargs2$V2mean,
+                    V2sd = lpargs2$V2sd,
+                    V2steps = lpargs2$V2steps,
+                    xV2 = x2V2,
+                    nVN = lpargs2$nVN,
+                    VNprobs = lpargs2$VNprobs,
+                    xVN = x2VN,
+                    nVB = lpargs2$nVB,
+                    VBprobs = lpargs2$VBprobs,
+                    xVB = c(x2VB)
+            ) # rows=components, columns=samples
 
 ### lprobY1
-            lprobY1 <- util_lprob(
-                x = y1,
-                learnt = learnt,
-                nR = Y1nR, iR = Y1iR, tR = Y1tR,
-                nC = Y1nC, iC = Y1iC, tC = Y1tC,
-                Clefts = Clefts, Crights = Crights,
-                nD = Y1nD, iD = Y1iD, tD = Y1tD,
-                Dsteps = Dsteps, Dlefts = Dlefts, Drights = Drights,
-                nO = Y1nO, iO = Y1iO, tO = Y1tO,
-                nN = Y1nN, iN = Y1iN, tN = Y1tN,
-                nB = Y1nB, iB = Y1iB, tB = Y1tB
-            )
-            ## Output: rows=components, columns=samples
+            lprobY1 <- util_lprobs(
+                    nV0 = lpargs1$nV0,
+                    V0mean = lpargs1$V0mean,
+                    V0sd = lpargs1$V0sd,
+                    xV0 = x1V0,
+                    nV1 = lpargs1$nV1,
+                    V1mean = lpargs1$V1mean,
+                    V1sd = lpargs1$V1sd,
+                    xV1 = x1V1,
+                    nV2 = lpargs1$nV2,
+                    V2mean = lpargs1$V2mean,
+                    V2sd = lpargs1$V2sd,
+                    V2steps = lpargs1$V2steps,
+                    xV2 = x1V2,
+                    nVN = lpargs1$nVN,
+                    VNprobs = lpargs1$VNprobs,
+                    xVN = x1VN,
+                    nVB = lpargs1$nVB,
+                    VBprobs = lpargs1$VBprobs,
+                    xVB = c(x1VB)
+                ) # rows=components, columns=samples
 
             celWnorm <- colSums(exp(lWnorm))
 
@@ -560,9 +530,9 @@ mutualinfo <- function(
                 En1 = -lpY1,
                 En2 = -lpY2
             )
-        } # End loop through generated samples
+        } # End foreach loop
 
-    ## Jacobian factors
+        ## Jacobian factors
     logjacobians1 <- rowSums(
         as.matrix(vtransform(Y1transf,
             auxmetadata = auxmetadata,
@@ -582,10 +552,12 @@ mutualinfo <- function(
         error = apply(out, 2, sd, na.rm = TRUE)/sqrt(n)
     ), 2, list), recursive = FALSE)
 
-    mmax <- paste0('En', which.min(c(out$En1['value'], out$En2['value'])) )
+    ## ## generally there's no MI maximum for continous variates
+    ## mmax <- paste0('En', which.min(c(out$En1['value'], out$En2['value'])) )
 
-    c(
-        out,
-        list(MImax = out[[mmax]], unit = unit, Y1names = Y1names, Y2names = Y2names)
+    c(out,
+        list(#MImax = out[[mmax]],
+            unit = unit, Y1names = Y1names, Y2names = Y2names
+        )
     )
 }

@@ -23,7 +23,7 @@ funMCEI <- function(x, fn, p = c(0.055, 0.945), ...) {
     N <- length(x)
     a <- floor(sqrt(N))
     b <- N %/% a
-    y <- x[rep(seq_len(a), each = b) +
+    y <- x[rep(x = seq_len(a), each = b) +
                round(seq(from = 0, to = N-a, length.out = b))]
     dim(y) <- c(b, a)
     quantile(apply(y, 2, FUN = fn, ...),

@@ -62,7 +62,7 @@ rPr <- function(
     if(n <= nmcs) {
         sseq <- mcsamples[sort.int(sample.int(nmcs, n))]
     } else {
-        sseq <- c(rep.int(x = mcsamples, times = n %/% nmcs),
+        sseq <- c(rep(x = mcsamples, times = n %/% nmcs),
             mcsamples[sort.int(sample.int(nmcs, n %% nmcs))])
     }
 
@@ -122,7 +122,7 @@ rPr <- function(
             paste0(tailsvalues, collapse = ' '), '\n')
     }
 
-        ## transform 'tails' to -1, +1
+    ## transform 'tails' to -1, +1
     ## +1: '<=',    -1: '>='
     ## this is opposite of the argument convention because
     ## interval probabilities are calculated with `lower.tail = TRUE`
