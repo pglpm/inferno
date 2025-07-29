@@ -547,10 +547,12 @@ mutualinfo <- function(
 
     out[, -1] <- out[, -1] - c(logjacobians1, logjacobians2)/log(base)
 
-    out <- unlist(apply(rbind(
+    out <- unlist(apply(X = rbind(
         value = colMeans(out, na.rm = TRUE),
-        error = apply(out, 2, sd, na.rm = TRUE)/sqrt(n)
-    ), 2, list), recursive = FALSE)
+        error = signif(x = apply(
+            X = out, MARGIN = 2, FUN = sd, na.rm = TRUE, simplify = TRUE
+        )/sqrt(n), digits = 2)
+    ), MARGIN = 2, FUN = list, simplify = TRUE), recursive = FALSE)
 
     ## ## generally there's no MI maximum for continous variates
     ## mmax <- paste0('En', which.min(c(out$En1['value'], out$En2['value'])) )
