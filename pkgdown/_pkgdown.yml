@@ -16,6 +16,7 @@ reference:
     - plotFsamples
     - plotquantiles
     - Pr
+    - rPr
     - subset.probability
     - vrtgrid
     - oldtailPr

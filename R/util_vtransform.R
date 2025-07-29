@@ -291,9 +291,8 @@ vtransform <- function(
                                 (domainmax - domainmin) +
                                 (domainmin + domainmax) / 2
                         }
-                        datum <- pmin(pmax(datum, domainmin), domainmax)
-                        ## datum[datum <= domainminplushs] <- domainminplushs
-                        ## datum[datum >= domainmaxminushs] <- domainmaxminushs
+                        datum[datum < domainmin] <- domainmin
+                        datum[datum > domainmax] <- domainmax
 
                     } else {
                         stop('Unknown transformation for variate ', v)
@@ -301,6 +300,9 @@ vtransform <- function(
 
 #### Continuous rounded
                 } else if (mcmctype == 'D') {
+                    ## NOTA BENE:
+                    ## except for the 'original' (inverse-transformation) case,
+                    ## we expect D-data to be given with correctly rounded values
 
                     if (Dout == 'init') {
                         ## init value used for MCMC
@@ -378,23 +380,30 @@ vtransform <- function(
                         ## used in mutualinfo
                         datum[datum <= tdomainminplushs] <- NA
                         datum[datum >= tdomainmaxminushs] <- NA
+                        datum <- round((datum * tscale) / (2 * halfstep)) *
+                            2 * halfstep / tscale
 
                     } else if (Dout == 'mileftbound') {
                         ## used in mutualinfo
                         datum[datum > tdomainminplushs] <- NA
                         datum[datum < tdomainmin] <- tdomainmin
+                        datum <- round((datum * tscale) / (2 * halfstep)) *
+                            2 * halfstep / tscale
 
                     } else if (Dout == 'mirightbound') {
                         ## used in mutualinfo
                         datum[datum < tdomainmaxminushs] <- NA
                         datum[datum > tdomainmax] <- tdomainmax
+                        datum <- round((datum * tscale) / (2 * halfstep)) *
+                            2 * halfstep / tscale
 
                     } else if (Dout == 'original') {
                         ## transformation from MCMC representation
                         ## to original domain
-                        datum <- tlocation + 2 * halfstep *
-                            round((datum * tscale) / (2 * halfstep))
-                        datum <- pmin(pmax(datum, domainmin), domainmax)
+                        datum <- round((datum * tscale) / (2 * halfstep)) *
+                            2 * halfstep + tlocation
+                        datum[datum < domainmin] <- domainmin
+                        datum[datum > domainmax] <- domainmax
                         ## datum[datum <= domainmin] <- domainmin
                         ## datum[datum >= domainmax] <- domainmax
 

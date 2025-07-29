@@ -46,10 +46,6 @@ mutualinfo <- function(
 #### For these computations it is not necessary to transform the Y1,Y2 variates
 #### from the internal Monte Carlo representation to the original one
 
-    if (!silent) {
-        cat('\n')
-    }
-
     ## Utility function to avoid finite-precision errors
     denorm <- function(lprob) {
         apply(lprob, 2, function(xx) {
@@ -418,14 +414,21 @@ mutualinfo <- function(
             xx <- exp(xx)
             xx/sum(xx, na.rm = TRUE)})
     ))
-    Yout <- c(
-    if(YnR > 0){# continuous
-        totake <- cbind(rep(YtR, each = n), Ws, sseq)
-        rnorm(n = n * YnR,
+
+    Yout <- NULL
+
+    toselect <- which((auxmetadata$name %in% Ynames) &
+                          (auxmetadata$mcmctype == 'R'))
+    ltoselect <- length(toselect)
+    if(ltoselect > 0){
+        aux <- auxmetadata[toselect, ]
+        totake <- cbind(rep.int(x = aux$id, times = rep(n, ltoselect)), Ws, sseq)
+        rnorm(n = n * toselect,
             mean = learnt$Rmean[totake],
             sd = sqrt(learnt$Rvar[totake])
         )
-    },
+    }
+    c(
     if(YnC > 0){# censored
         totake <- cbind(rep(YtC, each = n), Ws, sseq)
         rnorm(n = n * YnC,
@@ -449,7 +452,7 @@ mutualinfo <- function(
         totake <- cbind(rep(YtN, each = n), Ws, sseq)
         extraDistr::rcat(n = n * YnN,
             prob = apply(learnt$Nprob, 3, `[`, totake))
-    }
+    },
     if(YnB > 0){# binary
         totake <- cbind(rep(YtB, each = n), Ws, sseq)
         extraDistr::rbern(n = n * YnB,

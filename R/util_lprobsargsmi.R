@@ -21,6 +21,11 @@ util_lprobsargsmi <- function(
     if(length(toselect) > 0){
         aux <- auxmetadata[toselect, ]
         nV0 <- TRUE
+        totake <- cbind(rep(aux$id, each = n), Ws, sseq)
+        xV0 <- rnorm(n = n * length(toselect),
+            mean = learnt$Rmean[totake],
+            sd = sqrt(learnt$Rvar[totake])
+        )
         V0mean <- learnbind(V0mean,
             learnt$Rmean[aux$id, , , drop = FALSE])
         V0sd <- learnbind(V0sd,

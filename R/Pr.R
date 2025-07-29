@@ -1,6 +1,6 @@
 #' Calculate posterior probabilities
 #'
-#' This function calculates the probability P(Y | X, data), where Y and X are two (non overlapping) sets of joint variates. If `X` is omitted or `NULL`, then the probability P(Y | data) is calculated. The function also gives quantiles about the possible variability of the probability P(Y | X, newdata, data) that we could have if more learning data were provided, as well as a number of samples of the possible values of such probabilities. If several joint values are given for Y or X, the function will create a 2D grid of results for all possible compbinations of the given Y and X values. This function also allows for base-rate or other prior-probability corrections: If a prior (for instance, a base rate) for Y is given, the function will calculate the P(Y | X, data, prior) from P(X | Y, data) and the prior by means of Bayes's theorem. Each variate in each argument `Y`, `X` can be specified either as a point-value `Y = y` or as a left-open interval `Y ≤ y` or as a right-open interval `Y ≥ y`", through the argument `tails`.
+#' This function calculates the posteior probability `Pr(Y | X, data)`, where `Y` and `X` are two (non overlapping) sets of joint variate values. If `X` is omitted or `NULL`, then the posterior probability `Pr(Y | data)` is calculated. The function also gives quantiles about the possible variability of the probability `Pr(Y | X, newdata, data)` that we could have if more learning data were provided, as well as a number of samples of the possible values of such probabilities. If several joint values are given for `Y` or `X`, the function will create a 2D grid of results for all possible compbinations of the given `Y` and `X` values. This function also allows for base-rate or other prior-probability corrections: If a prior (for instance, a base rate) for `Y` is given, the function will calculate the `Pr(Y | X, data, prior)` from `Pr(X | Y, data)` and the prior by means of Bayes's theorem. Each variate in each argument `Y`, `X` can be specified either as a point-value `Y = y` or as a left-open interval `Y ≤ y` or as a right-open interval `Y ≥ y`", through the argument `tails`.
 #'
 #' @param Y matrix or data.table: set of values of variates of which we want
 #'   the joint probability of. One variate per column, one set of values per row.
@@ -35,12 +35,6 @@ Pr <- function(
     usememory = TRUE,
     keepYX = TRUE
 ) {
-    tailscentre <- list('==', 0, '0', NULL)
-    tailsleft <- list('<=', -1, '-1', 'left')
-    tailsright <- list('>=', 1, '+1', 'right')
-
-    tailsvalues <- c(tailscentre, tailsleft, tailsright)
-
     Qerror <- pnorm(c(-1, 1))
 
     ## if (!silent) {
@@ -142,7 +136,10 @@ Pr <- function(
         }
     }
     tailsv <- names(tails)
-
+    tailscentre <- list('==', 0, '0', NULL)
+    tailsleft <- list('<=', -1, '-1', 'left')
+    tailsright <- list('>=', 1, '+1', 'right')
+    tailsvalues <- c(tailscentre, tailsleft, tailsright)
 
     ## Consistency checks
 
