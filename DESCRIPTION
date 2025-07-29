@@ -1,6 +1,6 @@
 Package: inferno
 Title: Bayesian nonparametric population inference
-Version: 0.3.0
+Version: 0.3.1
 Authors@R: c(
   person("PierGianLuca", "Porta Mana", ,
   "pgl@portamana.org", role = c("aut", "cre"),

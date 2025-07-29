@@ -126,11 +126,10 @@ mutualinfo <- function(
     ncomponents <- nrow(learnt$W)
     nmcs <- ncol(learnt$W)
 
-    if(is.null(n) || n == 0) {n <- 1}
-    if(n > 0){
-        n <- n * nmcs
+    if(is.null(n) || n == 0) {
+        n <- 1 * nmcs
     } else if(n < 0) {
-        n <- -n
+        n <- -n * nmcs
     }
 
     if(n <= nmcs) {
