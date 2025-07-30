@@ -60,7 +60,7 @@
 
 
 <dl><dt id="arg-data">data<a class="anchor" aria-label="anchor" href="#arg-data"></a></dt>
-<dd><p>A dataset, given as a <code><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></code>
+<dd><p>A dataset, given as a <code><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">base::data.frame()</a></code>
 or as a file path to a csv file.</p></dd>
 
 
@@ -95,18 +95,18 @@ Default <code>TRUE</code>.</p></dd>
     <h2 id="value">Value<a class="anchor" aria-label="anchor" href="#value"></a></h2>
     <p>If <code>file = NULL</code>, a preliminary metadata file is created
 and <code>VALUE</code> is <code>NULL</code>;
-otherwise <code>VALUE</code> is a <code><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></code> containing the metadata.</p>
+otherwise <code>VALUE</code> is a <code><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">base::data.frame()</a></code> containing the metadata.</p>
     </div>
     <div class="section level2">
     <h2 id="details">Details<a class="anchor" aria-label="anchor" href="#details"></a></h2>
-    <p>The <code><a href="learn.html">learn</a></code> function needs metadata about the variates present in the data. Such metadata can be provided either as a <code>csv</code> file or as a <code><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></code>. The function <code>buildmetadata</code> creates a template metadata csv-file, or outputs a metadata data.frame, by trying to <em>guess</em> metadata information from the dataset.The guesses may be very incorrect (as already said, metadata is information not contained in the data, so no algorithm can exist that extracts it from the data). <strong>The user <em>must</em> modify and correct this template, using it as a starting point to prepare the correct metadata information.</strong></p>
+    <p>The <code><a href="learn.html">learn()</a></code> function needs metadata about the variates present in the data. Such metadata can be provided either as a <code>csv</code> file or as a <code><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">base::data.frame()</a></code>. The function <code>buildmetadata</code> creates a template metadata csv-file, or outputs a metadata data.frame, by trying to <em>guess</em> metadata information from the dataset.The guesses may be very incorrect (as already said, metadata is information not contained in the data, so no algorithm can exist that extracts it from the data). <strong>The user <em>must</em> modify and correct this template, using it as a starting point to prepare the correct metadata information.</strong></p>
     </div>
     <div class="section level2">
     <h2 id="metadata-information-and-format">Metadata information and format<a class="anchor" aria-label="anchor" href="#metadata-information-and-format"></a></h2>
 
 
 
-<p>In order to correctly learn from a dataset, the <code><a href="learn.html">learn</a></code> function needs information that is not contained in the data themeselves; that is, it needs <em>meta</em>data. Metadata are provided either as a <code>csv</code> file or as a <code><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></code>.</p>
+<p>In order to correctly learn from a dataset, the <code><a href="learn.html">learn()</a></code> function needs information that is not contained in the data themeselves; that is, it needs <em>meta</em>data. Metadata are provided either as a <code>csv</code> file or as a <code><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">base::data.frame()</a></code>.</p>
 <p>A metadata file or data.frame must contain one row for each simple variate in the given inference problem, and the following fields (columns), even if some of them may be empty:</p>
 <p><code>name</code>, <code>type</code>, <code>domainmin</code>, <code>domainmax</code>, <code>datastep</code>, <code>minincluded</code>, <code>maxincluded</code>, <code>V1</code>, <code>V2</code>, (possibly additional <code>V</code>-fields, sequentially numbered)</p>
 <p>The <code>type</code> field has three possible values: <code>nominal</code>, <code>ordinal</code>, <code>continuous</code>. The remaining fields that must be filled in depend on the <code>type</code> field. Here is a list of requirements:</p><ul><li><p><strong><code>nominal</code></strong> and <strong><code>ordinal</code></strong>: require <em>either</em> <code>V1</code>, <code>V2</code>, ... fields <em>or</em> <code>domainmin</code>, <code>domainmax</code>, <code>datastep</code> (all three) fields. No other fields are required.</p></li>

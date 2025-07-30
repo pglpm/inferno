@@ -54,15 +54,15 @@
 
 
 <dl><dt id="arg-x">x<a class="anchor" aria-label="anchor" href="#arg-x"></a></dt>
-<dd><p>the object to be written, preferably a matrix or data frame. If not, it is attempted to coerce <code>x</code> to a data frame. See <code><a href="https://rdrr.io/r/utils/write.table.html" class="external-link">write.table</a></code>.</p></dd>
+<dd><p>the object to be written, preferably a matrix or data frame. If not, it is attempted to coerce <code>x</code> to a data frame. See <code><a href="https://rdrr.io/r/utils/write.table.html" class="external-link">utils::write.table()</a></code>.</p></dd>
 
 
 <dt id="arg-file">file<a class="anchor" aria-label="anchor" href="#arg-file"></a></dt>
-<dd><p>either a character string naming a file or a connection open for writing or reading. See <code><a href="https://rdrr.io/r/utils/write.table.html" class="external-link">write.table</a></code> and <code><a href="https://rdrr.io/r/utils/read.table.html" class="external-link">read.table</a></code>.</p></dd>
+<dd><p>either a character string naming a file or a connection open for writing or reading. See <code><a href="https://rdrr.io/r/utils/write.table.html" class="external-link">utils::write.table()</a></code> and <code><a href="https://rdrr.io/r/utils/read.table.html" class="external-link">utils::read.table()</a></code>.</p></dd>
 
 
 <dt id="arg--">...<a class="anchor" aria-label="anchor" href="#arg--"></a></dt>
-<dd><p>Other parameters to be passed to <code><a href="https://rdrr.io/r/utils/write.table.html" class="external-link">write.table</a></code> or <code><a href="https://rdrr.io/r/utils/read.table.html" class="external-link">read.table</a></code>.</p></dd>
+<dd><p>Other parameters to be passed to <code><a href="https://rdrr.io/r/utils/write.table.html" class="external-link">utils::write.table()</a></code> or <code><a href="https://rdrr.io/r/utils/read.table.html" class="external-link">utils::read.table()</a></code>.</p></dd>
 
 </dl></div>
     <div class="section level2">
@@ -71,8 +71,8 @@
 <li><p>Character and names should be quoted in single or double quotes. Example: <code>"female"</code>.</p></li>
 <li><p>Values should be separated by <em>commas</em>, not by tabs or semicolons.</p></li>
 <li><p>Missing values should be simply <em>empty</em>, not denoted by "NA", "missing", "-", or similar.</p></li>
-<li><p>Preferably there should not be <code><a href="https://rdrr.io/r/base/factor.html" class="external-link">factor</a></code>s; use character names instead.</p></li>
-</ul><p>The utility functions <code>write.csvi()</code> and <code>read.csvi()</code> are wrappers to <code><a href="https://rdrr.io/r/utils/write.table.html" class="external-link">write.table</a></code> or <code><a href="https://rdrr.io/r/utils/read.table.html" class="external-link">read.table</a></code> that sets appropriate default parameters</p>
+<li><p>Preferably there should not be <code><a href="https://rdrr.io/r/base/factor.html" class="external-link">base::factor</a></code>s; use character names instead.</p></li>
+</ul><p>The utility functions <code>write.csvi()</code> and <code>read.csvi()</code> are wrappers to <code><a href="https://rdrr.io/r/utils/write.table.html" class="external-link">utils::write.table()</a></code> or <code><a href="https://rdrr.io/r/utils/read.table.html" class="external-link">utils::read.table()</a></code> that sets appropriate default parameters</p>
     </div>
 
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>
