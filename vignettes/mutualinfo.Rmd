@@ -17,11 +17,139 @@ See the `vignette('inferno_start')` for an introduction to the package. The pres
 
 \
 
-# Context: penguins
+# Probabilities and associations
 
-The `vignette('inferno_start')` focuses on the [`datasets::penguins`] dataset, and shows how to calculate probabilities of single and joint variates from that dataset; also probabilities conditional on given variates. The probabilities 
+The `vignette('inferno_start')` focuses on the [`datasets::penguins`] dataset, and shows how to calculate probabilities of single and joint variates from that dataset; also probabilities conditional on given variates. These probabilities refers to a *new unit*; for example:
 
-shows examples of calculations of probabilities and conditional probabilities 
+- If we find that $\operatorname{Pr}(\text{species}\mathrel{\!=\!} \text{Adelie}) = 44\%$, then there's a 44% probability that the next penguin we sample (from the same population) is of the *Adélie* species.
+- If we find that $\operatorname{Pr}(\text{species}\mathrel{\!=\!} \text{Gentoo} \,\vert\, \text{island} \mathrel{\!=\!} \text{Biscoe}) = 1\%$, then if we have a new penguin, and we know it is from Biscoe island, there's a 1% probability that it is of the *Gentoo* species.
 
+And these probabilities can also be interpreted as "estimates" of the corresponding *whole-population* frequencies.
+
+\
+Joint probabilities and conditional probabilities already give a quantitative measure of the "association", "correlation", or "link" between several variates. They tell us for instance that it can be rare or very common to observe particular pairs of values together; or that it is rare or very common to observe values of some variates in cases where other variates have particular values. In the example above, it's rare to observe the value `'Gentoo'` of the variate `species` in penguins that have value `'Biscoe'` for the variate `island`. These associations are extremely important in fields like medicine, where we may want to diagnose or prognose a disease from possible symptoms, or we try to understand which clinical conditions are associated with the disease, possibly because of underlying biological reasons.
+
+We shall now explore first some visual ways to examine associations with ***inferno***, and then some more precise quantitative ways, which also apply when visualization becomes impossible.
+
+\
+
+# Drawing and plotting *new* samples
+
+## Setup
+
+Let's load the ***inferno*** package, if we haven't already done so, and set a random seed to ensure reproducibility:
+
+
+``` r
+library('inferno')
+
+set.seed(30)
+```
+
+As in the `vignette('inferno_start')`, we work with a specific population of penguins, of which we have 344 sample data stored in the [`datasets::penguins`] dataset, included in R version 4.5.0 and above. For your convenience you can download the shuffled dataset as the CSV file [`penguin_data.csv`](https://github.com/pglpm/inferno/raw/main/development/downloads/penguin_data.csv), then load it with the `read.csvi()` function as follows:
+
+
+
+We assume that we have already learned all predictive information from this dataset by means of the ***inferno*** function `learn()`. This information is stored in an object stored in the compressed file `learnt.rds` within the output directory that was specified in the `learn()` function. For your convenience the object produced by the computation above can be downloaded as the file [`learntall.rds`](https://github.com/pglpm/inferno/raw/main/development/downloads/learntall.rds). Once you have downloaded it in your working directory you can just invoke
+
+
+``` r
+learnt <- 'learntall.rds'
+```
+which produces an object `learnt` (just a character string, in this case) which shall be used in the following analysis.
+
+## Drawing new samples
+
+Let's focus on the `island` and `species` variates. Each variate has three possible values; ***inferno***'s utility function `vrtgrid()` allows us to create a vector of all possible values of each variate, which are stored in the metadata of the `learnt` object:
+
+
+``` r
+islandvalues <- vrtgrid(vrt = 'island', learnt = learnt)
+# [1] "Biscoe"    "Dream"     "Torgersen"
+
+speciesvalues <- vrtgrid(vrt = 'species', learnt = learnt)
+# [1] "Adelie"    "Chinstrap" "Gentoo"
+```
+
+The `flexiplot()` function allows us to display the `island` and `species` variates against each other, for all *sample* data, as a scatter plot:
+
+
+``` r
+flexiplot(x = penguin[, 'island'], y = penguin[, 'species'],
+    type = 'p', xlab = 'island', ylab = 'species',
+    xdomain = islandvalues, ydomain = speciesvalues)
+```
+
+<div class="figure">
+<img src="figure/vissample-1.png" alt="**Scatter plot of sample data**" width="100%" />
+<p class="caption">**Scatter plot of sample data**</p>
+</div>
+
+We immediately see some basic features of these variates in this sample. For example:
+
+- the most common occurrence is the pair `island = 'Biscoe'` and `species = 'Gentoo'`;
+- the pair `island = 'Torgersen'` and `species = 'Chinstrap'` does *not* occur at all.
+
+These are only features of this specific data sample, however. Can we generalize them to the *whole* population? Intuitively it seems probable that the `'Biscoe'`-`'Gentoo'` pair can indeed be the commonest occurrence in the whole population as well. But we can't say for sure that the `'Torgersen'`-`'Chinstrap'` pair never occurs in the whole population: our sample included only 344 penguins, so what we can say is that this pair roughly occurs less frequently than once every 344 penguins. In fact, a calculation with the `Pr()` function shows that its probability is around 0.3%:
+
+
+``` r
+prob <- Pr(Y = data.frame(island = 'Torgersen', species = 'Chinstrap'),
+    learnt = learnt)
+
+signif(prob$values, digits = 2)
+#                      X
+# Y                      [,1]
+#   Torgersen,Chinstrap 0.003
+```
+
+\
+This example shows the limitations of using sample data for visualizing features of the *whole* population. How would a scatter plot analogous to the one above look like, for the *whole* population of for a much larger sample?
+
+The ***inferno*** package offers the function `rPr()` to generate fictitious samples from the estimated frequencies of the whole population. These samples are collected in a data frame. They samples can be used for different purposes, for instance to produce a scatter plot. The main arguments of `rPr()` are:
+
+- `n`: a positive integer, the number of samples to generate.
+- `Ynames`: vector of variate names; samples are generates for these variates jointly.
+- `X`: data frame of variate values to restrict the sampling to specific subpopulations.
+- `learnt`: the object that points to the computation made with the `learn()` function.
+
+Let's first generate 5 samples from the estimated whole population of penguins, as an example:
+
+
+``` r
+rPr(
+    n = 5,
+    Ynames = c('island', 'species'),
+    learnt = learnt
+)
+#           island   species
+# 255_1  Torgersen    Adelie
+# 826_1      Dream Chinstrap
+# 1418_1 Torgersen    Adelie
+# 2394_1     Dream    Adelie
+# 2855_1 Torgersen    Adelie
+```
+
+The rows of the resulting data frame are named according to the Monte Carlo samples used from the `learnt` object; they can be useful for peculiar studies but we can completely ignore them in the present case.
+
+Now let's generate 2000 samples, and then plot them in a scatter plot:
+
+
+``` r
+samples <- rPr(n = 2000, Ynames = c('island', 'species'), learnt = learnt)
+
+flexiplot(x = samples[, 'island'], y = samples[, 'species'],
+    type = 'p', xlab = 'island', ylab = 'species',
+    xdomain = islandvalues, ydomain = speciesvalues)
+```
+
+<div class="figure">
+<img src="figure/gensamplesplot-1.png" alt="**Scatter plot for whole population**" width="100%" />
+<p class="caption">**Scatter plot for whole population**</p>
+</div>
+
+The scatter plot above correctly reflects the *estimated* features of the *whole* population
+
+\
 
 *(TO BE CONTINUED)*
