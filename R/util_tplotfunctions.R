@@ -21,7 +21,7 @@ flexiplot <- function(
     xdomain = NULL, ydomain = NULL,
     xlim = NULL, ylim = NULL,
     type = 'l',
-    pch = c(1, 0, 2, 5, 6, 3), #, 4,
+    pch = c(1, 2, 0, 5, 6, 3), #, 4,
     lty = c(1, 2, 4, 3, 6, 5),
     lwd = 2,
     col = palette(),

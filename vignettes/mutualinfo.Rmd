@@ -152,48 +152,106 @@ flexiplot(x = samples$island, y = samples$species,
 
 The scatter plot above correctly reflects the *estimated* features of the *whole* population.
 
-## Examples with other variates
+## Example with a continuous and a discrete variate
 
 The sampling and plotting from the previous example is easily extended to any other pair or variates, or even to pairs of sets of variates. Let us visualize for instance the joint probability of `body_mass` and `species` with another scatter plot.
 
-We generate 2000 whole-population samples of the two variates with `rPr()`, and then scatter-plot them with `flexiplot()`:
+We generate 2000 whole-population samples of the two variates with `rPr()`, and then scatter-plot them with `flexiplot()`. First we select an appropriate plot range for the continuous variate `body_mass` by means of ***inferno***'s utility function `vrtgrid()`: this function chooses an optimal value based on, and including, the range of data previously observed:
 
 
 ``` r
+body_massrange <- range(vrtgrid(vrt = 'body_mass', learnt = learnt))
+
 samples <- rPr(n = 2000, Ynames = c('body_mass', 'species'), learnt = learnt)
 
 flexiplot(x = samples$body_mass, y = samples$species,
     type = 'p', xlab = 'body_mass / g', ylab = 'species',
-    ydomain = speciesvalues)
+    xlim = body_massrange, ydomain = speciesvalues)
 ```
 
 <div class="figure">
-<img src="figure/gensamplesplotbodymassspecies-1.png" alt="**Scatter plot for whole population**" width="100%" />
-<p class="caption">**Scatter plot for whole population**</p>
+<img src="figure/gensamplesplotbodymassspecies-1.png" alt="**Scatter plot for body mass and species**" width="100%" />
+<p class="caption">**Scatter plot for body mass and species**</p>
 </div>
 
 Note again how `flexiplot()` automatically add a jitter to the discrete variate `species`, but not to the continuous `body_mass`.
 
 From the plot we see that there is an association between the Adélie and Chinstrap species and lighter body mass, around 3500 g; and between the Gentoo species and heavier body mass, around 5000 g. Incidentally, this reflects the probability plot at the end of the `vignette('inferno_start')`.
 
-\
+## Samples and plots for different subpopulations
+
 In a completely analogous way we can visually assess the association of two continuous variates, such as body mass and bill length (`bill_len`):
 
 
 ``` r
+bill_lenrange <- range(vrtgrid(vrt = 'bill_len', learnt = learnt))
+
 samples <- rPr(n = 2000, Ynames = c('body_mass', 'bill_len'), learnt = learnt)
 
 flexiplot(x = samples$body_mass, y = samples$bill_len,
-    type = 'p', xlab = 'body_mass / g', ylab = 'bill_len / mm')
+    type = 'p', xlab = 'body_mass / g', ylab = 'bill_len / mm',
+    xlim = body_massrange, ylim = bill_lenrange)
 ```
 
 <div class="figure">
-<img src="figure/gensamplesplotbodybilllen-1.png" alt="**Scatter plot for whole population**" width="100%" />
-<p class="caption">**Scatter plot for whole population**</p>
+<img src="figure/gensamplesplotbodybilllen-1.png" alt="**Scatter plot of body mass and bill length**" width="100%" />
+<p class="caption">**Scatter plot of body mass and bill length**</p>
 </div>
 
+The scatter plot shows that there is a partly linear relationship between body mass and bill length; but there's a sort of additional cluster around 4000 g for body mass and 45 mm for bill length.
+
+This observation leads to another interesting question: is the association between `body_mass` and `bill_len` different for different species? Perhaps the additional cluster is characteristic of one species only. We are therefore interested in studying this association for different **subpopulations**.
+
+Subpopulation sampling and plots can also be easily done with the `rPr()` and `flexiplot()` functions. In the `rPr()` function we can specify the requested subpopulation via the `X` argument, analogously to the `Pr()` function.
+
+Let's generate sets of samples separately for the species `'Adelie'`, `'Chinstrap'`, `'Gentoo'`:
 
 
+``` r
+samplesAdelie <- rPr(
+    n = 1000,
+    Ynames = c('body_mass', 'bill_len'),
+    X = data.frame(species = 'Adelie'),
+    learnt = learnt)
+
+samplesChinstrap <- rPr(
+    n = 1000,
+    Ynames = c('body_mass', 'bill_len'),
+    X = data.frame(species = 'Chinstrap'),
+    learnt = learnt)
+
+samplesGentoo <- rPr(
+    n = 1000,
+    Ynames = c('body_mass', 'bill_len'),
+    X = data.frame(species = 'Gentoo'),
+    learnt = learnt)
+```
+
+Now we plot these samples together with `flexiplot()`, choosing different colours and shapes for the three subpopulations. We also use the `alpha.f` argument to make sure that the plot points don't completely cover one another:
+
+
+``` r
+flexiplot(
+    x = cbind(samplesAdelie$body_mass,
+        samplesChinstrap$body_mass,
+        samplesGentoo$body_mass),
+    y = cbind(samplesAdelie$bill_len,
+        samplesChinstrap$bill_len,
+        samplesGentoo$bill_len),
+    type = 'p', xlab = 'body_mass / g', ylab = 'bill_len / mm',
+    xlim = body_massrange, ylim = bill_lenrange,
+    pch = c(0, 2, 5), col = 2:4, alpha.f = 0.2)
+
+legend('top', speciesvalues, pch = c(0, 2, 5), col = 2:4,
+    horiz = TRUE, bty = 'n')
+```
+
+<div class="figure">
+<img src="figure/plotbodybilllen3-1.png" alt="**Scatter plot for species subpopulations**" width="100%" />
+<p class="caption">**Scatter plot for species subpopulations**</p>
+</div>
+
+The plot above shows quite clearly that the `body_mass`-`bill_len` association is indeed different for each species. The roughly linear relationship that we thought we saw earlier was partially spurious, coming from the combination of associations for Adélie and Gentoo penguins.
 
 \
 
