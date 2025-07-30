@@ -440,7 +440,7 @@ values of each variate, which are stored in the metadata of the
 <p>The <code>flexiplot()</code> function allows us to display the
 <code>island</code> and <code>species</code> variates against each
 other, for all <em>sample</em> data, as a scatter plot:</p>
-<div class="sourceCode" id="cb4"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" tabindex="-1"></a><span class="fu">flexiplot</span>(<span class="at">x =</span> penguin[, <span class="st">&#39;island&#39;</span>], <span class="at">y =</span> penguin[, <span class="st">&#39;species&#39;</span>],</span>
+<div class="sourceCode" id="cb4"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" tabindex="-1"></a><span class="fu">flexiplot</span>(<span class="at">x =</span> penguin<span class="sc">$</span>island, <span class="at">y =</span> penguin<span class="sc">$</span>species,</span>
 <span id="cb4-2"><a href="#cb4-2" tabindex="-1"></a>    <span class="at">type =</span> <span class="st">&#39;p&#39;</span>, <span class="at">xlab =</span> <span class="st">&#39;island&#39;</span>, <span class="at">ylab =</span> <span class="st">&#39;species&#39;</span>,</span>
 <span id="cb4-3"><a href="#cb4-3" tabindex="-1"></a>    <span class="at">xdomain =</span> islandvalues, <span class="at">ydomain =</span> speciesvalues)</span></code></pre></div>
 <div class="figure">
@@ -516,7 +516,7 @@ present case.</p>
 plot:</p>
 <div class="sourceCode" id="cb7"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" tabindex="-1"></a>samples <span class="ot">&lt;-</span> <span class="fu">rPr</span>(<span class="at">n =</span> <span class="dv">2000</span>, <span class="at">Ynames =</span> <span class="fu">c</span>(<span class="st">&#39;island&#39;</span>, <span class="st">&#39;species&#39;</span>), <span class="at">learnt =</span> learnt)</span>
 <span id="cb7-2"><a href="#cb7-2" tabindex="-1"></a></span>
-<span id="cb7-3"><a href="#cb7-3" tabindex="-1"></a><span class="fu">flexiplot</span>(<span class="at">x =</span> samples[, <span class="st">&#39;island&#39;</span>], <span class="at">y =</span> samples[, <span class="st">&#39;species&#39;</span>],</span>
+<span id="cb7-3"><a href="#cb7-3" tabindex="-1"></a><span class="fu">flexiplot</span>(<span class="at">x =</span> samples<span class="sc">$</span>island, <span class="at">y =</span> samples<span class="sc">$</span>species,</span>
 <span id="cb7-4"><a href="#cb7-4" tabindex="-1"></a>    <span class="at">type =</span> <span class="st">&#39;p&#39;</span>, <span class="at">xlab =</span> <span class="st">&#39;island&#39;</span>, <span class="at">ylab =</span> <span class="st">&#39;species&#39;</span>,</span>
 <span id="cb7-5"><a href="#cb7-5" tabindex="-1"></a>    <span class="at">xdomain =</span> islandvalues, <span class="at">ydomain =</span> speciesvalues)</span></code></pre></div>
 <div class="figure">
@@ -526,7 +526,7 @@ plot:</p>
 </p>
 </div>
 <p>The scatter plot above correctly reflects the <em>estimated</em>
-features of the <em>whole</em> population</p>
+features of the <em>whole</em> population.</p>
 <p><br />
 </p>
 <p><em>(TO BE CONTINUED)</em></p>

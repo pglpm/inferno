@@ -75,7 +75,7 @@ The `flexiplot()` function allows us to display the `island` and `species` varia
 
 
 ``` r
-flexiplot(x = penguin[, 'island'], y = penguin[, 'species'],
+flexiplot(x = penguin$island, y = penguin$species,
     type = 'p', xlab = 'island', ylab = 'species',
     xdomain = islandvalues, ydomain = speciesvalues)
 ```
@@ -138,7 +138,7 @@ Now let's generate 2000 samples, and then plot them in a scatter plot:
 ``` r
 samples <- rPr(n = 2000, Ynames = c('island', 'species'), learnt = learnt)
 
-flexiplot(x = samples[, 'island'], y = samples[, 'species'],
+flexiplot(x = samples$island, y = samples$species,
     type = 'p', xlab = 'island', ylab = 'species',
     xdomain = islandvalues, ydomain = speciesvalues)
 ```
@@ -148,7 +148,7 @@ flexiplot(x = samples[, 'island'], y = samples[, 'species'],
 <p class="caption">**Scatter plot for whole population**</p>
 </div>
 
-The scatter plot above correctly reflects the *estimated* features of the *whole* population
+The scatter plot above correctly reflects the *estimated* features of the *whole* population.
 
 \
 

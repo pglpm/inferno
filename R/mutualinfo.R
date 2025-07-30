@@ -13,7 +13,7 @@
 #' @param parallel Logical or `NULL` or positive integer: `TRUE`: use roughly half of available cores; `FALSE`: use serial computation; `NULL`: don't do anything (use pre-registered condition); integer: use this many cores. Default `NULL`
 #' @param silent Logical: give warnings or updates in the computation?
 #'
-#' @return A list consisting of the elements `MI`, `CondEn12`, `CondEn21`, `En1`, `En2`, `rGauss`, `unit`, `Y1names`, `Y1names`. All elements except `unit`, `Y1names`, `Y2names` are a vector of `value` and `accuracy`. Element `MI` is the mutual information between (joint) variates `Y1names` and (joint) variates `Y2names`. Element`CondEn12` is the conditional entropy of the first variate given the second, and vice versa for `CondEn21`. Elements `En1` and `En1` are the (differential) entropies of the first and second variates. Elements `unit`, `Y1names`, `Y2names` are identical to the same inputs. Element `rGauss` is the absolute value of the Pearson correlation coefficient of a *multivariate Gaussian distribution* having mutual information `MI` (the two are related by `MI = -log(1 - rGauss^2)/2`); it may provide a vague intuition for the `MI` value for people more familiar with Pearson's correlation, but should be taken with a grain of salt.
+#' @return A list consisting of the elements `MI`, `CondEn12`, `CondEn21`, `En1`, `En2`, `MI.rGauss`, `unit`, `Y1names`, `Y1names`. All elements except `unit`, `Y1names`, `Y2names` are a vector of `value` and `accuracy`. Element `MI` is the mutual information between (joint) variates `Y1names` and (joint) variates `Y2names`. Element`CondEn12` is the conditional entropy of the first variate given the second, and vice versa for `CondEn21`. Elements `En1` and `En1` are the (differential) entropies of the first and second variates. Elements `unit`, `Y1names`, `Y2names` are identical to the same inputs. Element `MI.rGauss` is the absolute value of the Pearson correlation coefficient of a *multivariate Gaussian distribution* having mutual information `MI` (the two are related by `MI = -log(1 - MI.rGauss^2)/2`); it may provide a vague intuition for the `MI` value for people more familiar with Pearson's correlation, but should be taken with a grain of salt.
 #'
 #' @import parallel foreach doParallel
 #'
@@ -528,7 +528,7 @@ mutualinfo <- function(
                 CondEn21 = -lpY2given1,
                 En1 = -lpY1,
                 En2 = -lpY2,
-                rGauss = sqrt(1 - exp(- 2 * mi * log(base)))
+                MI.rGauss = sqrt(1 - exp(- 2 * mi * log(base)))
             )
         } # End foreach loop
 

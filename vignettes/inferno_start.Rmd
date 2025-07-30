@@ -35,7 +35,7 @@ You're now welcome to open R in your favourite integrated development environmen
 library('inferno')
 ```
 
-In our example we shall use data from the `penguins` dataset, included in R version 4.5.0 and above. We shuffle this dataset to erase any particular ordering of its data, and call the new dataset `penguin` (without the final 's'). For your convenience you can download the shuffled dataset as the CSV file [`penguin_data.csv`](https://github.com/pglpm/inferno/raw/main/development/downloads/penguin_data.csv). Otherwise you can create such file from R 4.5.0 or above as follows:
+In our example we shall use data from the `datasets::penguins` dataset, included in R version 4.5.0 and above. We shuffle this dataset to erase any particular ordering of its data, and call the new dataset `penguin` (without the final 's'). For your convenience you can download the shuffled dataset as the CSV file [`penguin_data.csv`](https://github.com/pglpm/inferno/raw/main/development/downloads/penguin_data.csv). Otherwise you can create such file from R 4.5.0 or above as follows:
 
 
 ``` r
@@ -384,7 +384,7 @@ For your convenience the object produced by the computation above can be downloa
 ``` r
 learnt10 <- 'learnt10.rds'
 ```
-which produces an object `learnt10` (just a string, in this case) which can be used in the following analysis.
+which produces an object `learnt10` (just a character string, in this case) which can be used in the following analysis.
 
 \
 

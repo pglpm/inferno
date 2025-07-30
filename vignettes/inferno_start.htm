@@ -389,11 +389,12 @@ environment, choose a directory to work in, and test yourself the code
 that follows. Let’s start by loading the
 <strong><em>inferno</em></strong> package:</p>
 <div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" tabindex="-1"></a><span class="fu">library</span>(<span class="st">&#39;inferno&#39;</span>)</span></code></pre></div>
-<p>In our example we shall use data from the <code>penguins</code>
-dataset, included in R version 4.5.0 and above. We shuffle this dataset
-to erase any particular ordering of its data, and call the new dataset
-<code>penguin</code> (without the final ‘s’). For your convenience you
-can download the shuffled dataset as the CSV file <a href="https://github.com/pglpm/inferno/raw/main/development/downloads/penguin_data.csv"><code>penguin_data.csv</code></a>.
+<p>In our example we shall use data from the
+<code>datasets::penguins</code> dataset, included in R version 4.5.0 and
+above. We shuffle this dataset to erase any particular ordering of its
+data, and call the new dataset <code>penguin</code> (without the final
+‘s’). For your convenience you can download the shuffled dataset as the
+CSV file <a href="https://github.com/pglpm/inferno/raw/main/development/downloads/penguin_data.csv"><code>penguin_data.csv</code></a>.
 Otherwise you can create such file from R 4.5.0 or above as follows:</p>
 <div class="sourceCode" id="cb2"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">50</span>) <span class="do">## replace with your favourite seed number</span></span>
 <span id="cb2-2"><a href="#cb2-2" tabindex="-1"></a></span>
@@ -1384,8 +1385,8 @@ be downloaded as the file <a href="https://github.com/pglpm/inferno/raw/main/dev
 Once you have downloaded it in your working directory you can just
 invoke</p>
 <div class="sourceCode" id="cb6"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" tabindex="-1"></a>learnt10 <span class="ot">&lt;-</span> <span class="st">&#39;learnt10.rds&#39;</span></span></code></pre></div>
-<p>which produces an object <code>learnt10</code> (just a string, in
-this case) which can be used in the following analysis.</p>
+<p>which produces an object <code>learnt10</code> (just a character
+string, in this case) which can be used in the following analysis.</p>
 <p><br />
 </p>
 </div>
