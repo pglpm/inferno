@@ -18,7 +18,7 @@ E(
 \arguments{
 \item{X}{Matrix or data.table or \code{NULL}: set of values of variates on which we want to condition the joint probability of \code{Y}. If \code{NULL} (default), no conditioning is made (except for conditioning on the learning dataset and prior assumptions). One variate per column, one set of values per row.}
 
-\item{learnt}{Either a string with the name of a directory or full
+\item{learnt}{Either a character with the name of a directory or full
 path for an 'learnt.rds' object, or such an object itself}
 
 \item{quantiles}{Numeric vector, between 0 and 1, or \code{NULL}: desired quantiles of the variability of the probability for \code{Y}. Default \code{c(0.05, 0.95)} or the 5\% and 95\% quantiles.}
@@ -34,7 +34,7 @@ Default \code{FALSE}.}
 \item{usememory}{Logical: save partial results to disc, to avoid crashes?
 Default \code{TRUE}.}
 
-\item{Y1names}{String vector: joint variates
+\item{Y1names}{Character vector: joint variates
 the joint probability of. One variate per column, one set of values per row.}
 }
 \value{

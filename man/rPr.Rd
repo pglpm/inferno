@@ -13,7 +13,7 @@ rPr(n, Ynames, X = NULL, learnt, tails = NULL, mcsamples = NULL)
 
 \item{X}{List or data.table or \code{NULL}: set of values of variates on which we want to condition the joint probability for \code{Y}. If \code{NULL} (default), no conditioning is made. Any rows beyond the first are discarded}
 
-\item{learnt}{Either a string with the name of a directory or full path for a 'learnt.rds' object, produced by the \code{\link[=learn]{learn()}} function, or such an object itself.}
+\item{learnt}{Either a character with the name of a directory or full path for a 'learnt.rds' object, produced by the \code{\link[=learn]{learn()}} function, or such an object itself.}
 
 \item{tails}{Named vector or list, or \code{NULL} (default). The names must match some or all of the variates in arguments \code{X}. For variates in this list, the probability conditional is understood in an semi-open interval sense: \verb{X ≤ x} or \verb{X ≥ x}, an so on. See analogous argument in \code{\link[=Pr]{Pr()}}.}
 

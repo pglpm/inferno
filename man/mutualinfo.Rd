@@ -17,13 +17,13 @@ mutualinfo(
 )
 }
 \arguments{
-\item{Y1names}{String vector: first group of joint variates}
+\item{Y1names}{Character vector: first group of joint variates}
 
-\item{Y2names}{String vector or NULL: second group of joint variates}
+\item{Y2names}{Character vector or NULL: second group of joint variates}
 
 \item{X}{Matrix or data.frame or NULL: values of some variates conditional on which we want the probabilities.}
 
-\item{learnt}{Either a string with the name of a directory or full path
+\item{learnt}{Either a character with the name of a directory or full path
 for an 'learnt.rds' object, or such an object itself.}
 
 \item{tails}{Named vector or list, or \code{NULL} (default). The names must match some or all of the variates in arguments \code{X}. For variates in this list, the probability conditional is understood in an semi-open interval sense: \verb{X ≤ x} or \verb{X ≥ x}, an so on. See analogous argument in \code{\link[=Pr]{Pr()}}.}

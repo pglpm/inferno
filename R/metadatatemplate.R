@@ -6,7 +6,7 @@
 #'
 #' @param data A dataset, given as a [base::data.frame()]
 #' or as a file path to a csv file.
-#' @param file String: name of csv file where the metadata should be saved;
+#' @param file Character: name of csv file where the metadata should be saved;
 #'   if `NULL`: output metadata as `VALUE`.
 #' @param includevrt Character or `NULL`: name of variates in dataset to be included.
 #' @param excludevrt Character or `NULL`: name of variates in dataset to be excluded.

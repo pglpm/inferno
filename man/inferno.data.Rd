@@ -13,7 +13,7 @@ read.csvi(file, ...)
 \arguments{
 \item{x}{The object to be written, preferably a matrix or data frame. If not, it is attempted to coerce \code{x} to a data frame. See \code{\link[utils:write.table]{utils::write.table()}}.}
 
-\item{file}{Either a character string naming a file or a connection open for writing or reading. See \code{\link[utils:write.table]{utils::write.table()}} and \code{\link[utils:read.table]{utils::read.table()}}.}
+\item{file}{Either a character naming a file or a connection open for writing or reading. See \code{\link[utils:write.table]{utils::write.table()}} and \code{\link[utils:read.table]{utils::read.table()}}.}
 
 \item{...}{Other parameters to be passed to \code{\link[utils:write.table]{utils::write.table()}} or \code{\link[utils:read.table]{utils::read.table()}}.}
 }

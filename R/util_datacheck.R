@@ -7,7 +7,7 @@
 #'
 #' @param x The object to be written, preferably a matrix or data frame. If not, it is attempted to coerce `x` to a data frame. See [utils::write.table()].
 #'
-#' @param file Either a character string naming a file or a connection open for writing or reading. See [utils::write.table()] and [utils::read.table()].
+#' @param file Either a character naming a file or a connection open for writing or reading. See [utils::write.table()] and [utils::read.table()].
 #' @param ... Other parameters to be passed to [utils::write.table()] or [utils::read.table()].
 #'
 #' @details

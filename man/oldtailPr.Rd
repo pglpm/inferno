@@ -24,7 +24,7 @@ the joint probability of. One variate per column, one set of values per row.}
 
 \item{X}{Matrix or data.table or \code{NULL}: set of values of variates on which we want to condition the joint probability of \code{Y}. If \code{NULL} (default), no conditioning is made (except for conditioning on the learning dataset and prior assumptions). One variate per column, one set of values per row.}
 
-\item{learnt}{Either a string with the name of a directory or full path for a 'learnt.rds' object, produced by the \code{\link[=learn]{learn()}} function, or such an object itself.}
+\item{learnt}{Either a character with the name of a directory or full path for a 'learnt.rds' object, produced by the \code{\link[=learn]{learn()}} function, or such an object itself.}
 
 \item{nsamples}{Integer or \code{NULL} or \code{"all"}: desired number of samples of the variability of the probability for \code{Y}. If \code{NULL}, no samples are reported. If \code{"all"} (or \code{Inf}), all samples obtained by the \code{\link[=learn]{learn()}} function are used. Default \code{"all"}.}
 

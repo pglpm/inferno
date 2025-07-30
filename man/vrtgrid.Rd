@@ -9,7 +9,7 @@ vrtgrid(vrt, learnt, length.out = 129)
 \arguments{
 \item{vrt}{Character: name of the variate, must match one of the names in the \code{metadata} file provided to the \code{\link[=learn]{learn()}} function.}
 
-\item{learnt}{Either a string with the name of a directory or full path for a 'learnt.rds' object, produced by the \code{\link[=learn]{learn()}} function, or such an object itself.}
+\item{learnt}{Either a character with the name of a directory or full path for a 'learnt.rds' object, produced by the \code{\link[=learn]{learn()}} function, or such an object itself.}
 
 \item{length.out}{Numeric, positive (default 129): number of values to be created; used only for continuous, non-rounded variates (see \code{\link{metadata}}).}
 }

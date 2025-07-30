@@ -7,7 +7,7 @@
 \method{subset}{probability}(x, subset)
 }
 \arguments{
-\item{x}{Object of class "probability", obtained with \code{\link[=Pr]{Pr()}} or \code{\link[=tailPr]{tailPr()}}.}
+\item{x}{Object of class "probability", obtained with \code{\link[=Pr]{Pr()}}.}
 
 \item{subset}{Named list or named vector: variates to subset, given as list names, and corresponding values to subset.}
 }
@@ -15,5 +15,5 @@
 A list of class \code{probability}, identical to the original object \code{x} except for a reduced range of values in some if its variates.
 }
 \description{
-An object of class \code{probability}, calculated by the \code{\link[=Pr]{Pr()}} or \code{\link[=tailPr]{tailPr()}} functions, holds the probabilities for all possible combinations of values of a set of joint variates \code{Y} conditional on a set of joint variates \code{X}. In some cases one may wish to exclude some of the values of the \code{Y} or \code{X} variates. For instance \code{Y} in the probability-class object could include the variate "age" with values from 18 to 100, and one may want to retain the values from 60 to 80.
+An object of class \code{probability}, obtained with the \code{\link[=Pr]{Pr()}} function, holds the probabilities for all possible combinations of values of a set of joint variates \code{Y} conditional on a set of joint variates \code{X}. In some cases one may wish to exclude some of the values of the \code{Y} or \code{X} variates. For instance \code{Y} in the probability-class object could include the variate "age" with values from 18 to 100, and one may want to retain the values from 60 to 80.
 }

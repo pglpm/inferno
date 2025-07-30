@@ -106,10 +106,10 @@ flexiplot <- function(
 #' Plot pairs of quantiles
 #'
 #' @description
-#' Utility function to plot pair of quantiles obtained with [Pr()] or [tailPr()].
+#' Utility function to plot pair of quantiles obtained with [Pr()].
 #'
 #' @param x Numeric or character: vector of x-coordinates. See [flexiplot()].
-#' @param y Numeric: a matrix having as many rows as `x` and an even number of columns, with one column per quantile. Typically these quantiles have been obtained with [Pr()] or [tailPr()], as their `$quantiles` value. This value is a three-dimensional array, and one of its columns (corresponding to the possible values of the `X` argument of [Pr()]) or one of its rows (corresponding to the possible values of the `Y` argument of [Pr()]) should be selected before being used as `y` input.
+#' @param y Numeric: a matrix having as many rows as `x` and an even number of columns, with one column per quantile. Typically these quantiles have been obtained with [Pr()], as their `$quantiles` value. This value is a three-dimensional array, and one of its columns (corresponding to the possible values of the `X` argument of [Pr()]) or one of its rows (corresponding to the possible values of the `Y` argument of [Pr()]) should be selected before being used as `y` input.
 #' @param xdomain Character or numeric or `NULL` (default): vector of possible values of the variable represented in the x-axis, if the `x` argument is a character vector. The ordering of the values is respected. If `NULL`, then `unique(x)` is used.
 #' @param alpha.f Numeric, default 0.25: opacity of the quantile bands, `0` being completely invisible and `1` completely opaque.
 #' @param col Fill colour of the quantile bands. Can be specified in any of the usual ways, see for instance [grDevices::col2rgb()]. Default `#4477AA`.
@@ -175,9 +175,9 @@ plotquantiles <- function(
 #' Plot an object of class "probability"
 #'
 #' @description
-#' This [base::plot()] method is a utility to plot probabilities obtained with [Pr()] or [tailPr()], as well as their variabilities. The probabilities are plotted either against `Y`, with one curve for each value of `X`, or vice versa.
+#' This [base::plot()] method is a utility to plot probabilities obtained with [Pr()], as well as their variabilities. The probabilities are plotted either against `Y`, with one curve for each value of `X`, or vice versa.
 #'
-#' @param p Object of class "probability", obtained with [Pr()] or [tailPr()].
+#' @param p Object of class "probability", obtained with [Pr()].
 #' @param variability One of the values `'quantiles'`, `'samples'`, `'none'` (equivalent to `NA` or `FALSE`), or `NULL` (default), in which case the variability available in `p` is used. This argument chooses how to represent the variability of the probability; see [Pr()]. If the requested variability is not available in the object `p`, then a warning is issued and no variability is plotted.
 #' @param PvsY Logical or `NULL`: should probabilities be plotted against their `Y` argument? If `NULL`, the argument between `Y` and `X` having larger number of values is chosen. As many probability curves will be plotted as the number of values of the other argument.
 #' @param legend One of the values `'bottomright'`, `'bottom'`, `'bottomleft'`, `'left'`, `'topleft'`, `'top'`, `'topright'`, `'right'`, `'center'` (see [graphics::legend()]): plot a legend at that position. A value `FALSE` or any other does not plot any legend. Default `'top'`.
@@ -421,9 +421,9 @@ plot.probability <- function(
 #' Plot the variability of an object of class "probability" as a histogram
 #'
 #' @description
-#' This [graphics::hist()]ogram method is a utility to visualize the variability of the probabilities obtained with [Pr()] or [tailPr()], which can also be interpreted as the probability density for the whole-population frequencies.
+#' This [graphics::hist()]ogram method is a utility to visualize the variability of the probabilities obtained with [Pr()], which can also be interpreted as the probability density for the whole-population frequencies.
 #'
-#' @param p Object of class "probability", obtained with [Pr()] or [tailPr()].
+#' @param p Object of class "probability", obtained with [Pr()].
 #' @param breaks `NULL` or as in function [graphics::hist()]. If `NULL` (default), an optimal number of breaks for each probability distribution is computed.
 #' @param fill.alpha.f Numeric, default 0.125: opacity of the histogram filling. `0` means no filling.
 #' @param legend One of the values `"bottomright"`, `"bottom"`, `"bottomleft"`, `"left"`, `"topleft"`, `"top"`, `"topright"`, `"right"`, `"center"` (see [graphics::legend()]): plot a legend at that position. A value `FALSE` or any other does not plot any legend. Default `"top"`.

@@ -19,7 +19,7 @@ metadatatemplate(
 \item{data}{A dataset, given as a \code{\link[base:data.frame]{base::data.frame()}}
 or as a file path to a csv file.}
 
-\item{file}{String: name of csv file where the metadata should be saved;
+\item{file}{Character: name of csv file where the metadata should be saved;
 if \code{NULL}: output metadata as \code{VALUE}.}
 
 \item{includevrt}{Character or \code{NULL}: name of variates in dataset to be included.}

@@ -1,11 +1,11 @@
 #' Plot one-dimensional posterior probabilities
 #'
-#' @param filename String: name of plot output file
-#' @param learned Either a string with the name of a directory or full
+#' @param filename Character: name of plot output file
+#' @param learned Either a character with the name of a directory or full
 #'   path for an 'learnt.rds' object, or such an object itself
 #' @param data data.table object or filepath: datapoints
 #' @param plotprobability Logical: plot the resulting probability curve
-#' @param plotvariability String, either 'samples' or 'quantiles':
+#' @param plotvariability Character, either 'samples' or 'quantiles':
 #'   how to plot the variability of the probability distribution with new samples
 #' @param nFsamples Positive number: if plotvariability='samples', then
 #'   number of samples of representative frequency distributions to display

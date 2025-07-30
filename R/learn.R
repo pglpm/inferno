@@ -22,7 +22,7 @@
 #' @param cleanup Logical: remove diagnostic files at the end of the computation? Default `TRUE`.
 #' @param appendtimestamp Logical: append a timestamp to the name of the output directory `outputdir`? Default `TRUE`.
 #' @param appendinfo Logical: append information about dataset and Monte Carlo parameters to the name of the output directory `outputdir`? Default `TRUE`.
-#' @param output Character: if `'directory'`, return the output directory name as `VALUE`; if string `'learnt'`, return the `'learnt'` object containing the parameters obtained from the Monte Carlo computation. Any other value: `VALUE` is `NULL`.
+#' @param output Character: if `'directory'`, return the output directory name as `VALUE`; if character `'learnt'`, return the `'learnt'` object containing the parameters obtained from the Monte Carlo computation. Any other value: `VALUE` is `NULL`.
 #' @param subsampledata Integer: use only a subset of this many datapoints for the Monte Carlo computation.
 #' @param prior Logical: Calculate the prior distribution?
 #' @param startupMCiterations Integer: number of initial Monte Carlo iterations. Default 3600.

@@ -2,10 +2,10 @@
 #'
 #' Under construction: this function is not working yet
 #'
-#' @param Y1names String vector: joint variates
+#' @param Y1names Character vector: joint variates
 #'   the joint probability of. One variate per column, one set of values per row.
 #' @param X Matrix or data.table or `NULL`: set of values of variates on which we want to condition the joint probability of `Y`. If `NULL` (default), no conditioning is made (except for conditioning on the learning dataset and prior assumptions). One variate per column, one set of values per row.
-#' @param learnt Either a string with the name of a directory or full
+#' @param learnt Either a character with the name of a directory or full
 #'   path for an 'learnt.rds' object, or such an object itself
 #' @param quantiles Numeric vector, between 0 and 1, or `NULL`: desired quantiles of the variability of the probability for `Y`. Default `c(0.05, 0.95)` or the 5% and 95% quantiles.
 #' @param nsamples Integer or `NULL`: desired number of samples of the variability of the probability for `Y`. Default `100`.

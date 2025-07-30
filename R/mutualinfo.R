@@ -2,10 +2,10 @@
 #'
 #' This function calculates various entropic information measures of two variates (each variate may consist of joint variates): the mutual information, the conditional entropies, and the entropies.
 #'
-#' @param Y1names String vector: first group of joint variates
-#' @param Y2names String vector or NULL: second group of joint variates
+#' @param Y1names Character vector: first group of joint variates
+#' @param Y2names Character vector or NULL: second group of joint variates
 #' @param X Matrix or data.frame or NULL: values of some variates conditional on which we want the probabilities.
-#' @param learnt Either a string with the name of a directory or full path
+#' @param learnt Either a character with the name of a directory or full path
 #'   for an 'learnt.rds' object, or such an object itself.
 #' @param tails Named vector or list, or `NULL` (default). The names must match some or all of the variates in arguments `X`. For variates in this list, the probability conditional is understood in an semi-open interval sense: `X ≤ x` or `X ≥ x`, an so on. See analogous argument in [Pr()].
 #' @param n Integer or `NULL` (default): number of samples from which to approximately calculate the mutual information. Default as many as Monte Carlo samples in `learnt`.

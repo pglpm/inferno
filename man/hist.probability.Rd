@@ -25,7 +25,7 @@
 )
 }
 \arguments{
-\item{p}{Object of class "probability", obtained with \code{\link[=Pr]{Pr()}} or \code{\link[=tailPr]{tailPr()}}.}
+\item{p}{Object of class "probability", obtained with \code{\link[=Pr]{Pr()}}.}
 
 \item{breaks}{\code{NULL} or as in function \code{\link[graphics:hist]{graphics::hist()}}. If \code{NULL} (default), an optimal number of breaks for each probability distribution is computed.}
 
@@ -38,5 +38,5 @@
 \item{...}{Other parameters to be passed to \code{\link[=flexiplot]{flexiplot()}}.}
 }
 \description{
-This \code{\link[graphics:hist]{graphics::hist()}}ogram method is a utility to visualize the variability of the probabilities obtained with \code{\link[=Pr]{Pr()}} or \code{\link[=tailPr]{tailPr()}}, which can also be interpreted as the probability density for the whole-population frequencies.
+This \code{\link[graphics:hist]{graphics::hist()}}ogram method is a utility to visualize the variability of the probabilities obtained with \code{\link[=Pr]{Pr()}}, which can also be interpreted as the probability density for the whole-population frequencies.
 }

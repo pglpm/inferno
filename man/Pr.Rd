@@ -24,7 +24,7 @@ the joint probability of. One variate per column, one set of values per row.}
 
 \item{X}{Matrix or data.table or \code{NULL}: set of values of variates on which we want to condition the joint probability of \code{Y}. If \code{NULL} (default), no conditioning is made (except for conditioning on the learning dataset and prior assumptions). One variate per column, one set of values per row.}
 
-\item{learnt}{Either a string with the name of a directory or full path for a 'learnt.rds' object, produced by the \code{\link[=learn]{learn()}} function, or such an object itself.}
+\item{learnt}{Either a character with the name of a directory or full path for a 'learnt.rds' object, produced by the \code{\link[=learn]{learn()}} function, or such an object itself.}
 
 \item{tails}{Named vector or list, or \code{NULL} (default). The names must match some or all of the variates in arguments \code{Y} and \code{X}. For variates in this list, the probability arguments are understood in an semi-open interval sense: \verb{Y ≤ y} or \verb{Y ≥ y}, an so on. This is true for variates on the left and on the right of the conditional sign \verb{\\|}. A left-open interval \verb{Y ≤ y} is indicated by the values \code{'<='} or \code{'left'} or \code{-1}; a right-open interval \verb{Y ≥ y} is indicated by the values \code{'>='} or \code{'right'} or \code{+1}. Values \code{NULL}, \code{'=='}, \code{0} indicate that a point value \code{Y = y} (not an interval) should be calculated. NB: the semi-open intervals \emph{always} include the given value; this is important for ordinal or rounded variates. Therefore, if \code{Y} is for instance an integer variate, then to calculate  \code{P(Y < 3)} you should require \code{P(Y <= 2)}.}
 

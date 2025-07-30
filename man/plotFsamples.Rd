@@ -18,13 +18,13 @@ plotFsamples(
 )
 }
 \arguments{
-\item{filename}{String: name of plot output file}
+\item{filename}{Character: name of plot output file}
 
 \item{data}{data.table object or filepath: datapoints}
 
 \item{plotprobability}{Logical: plot the resulting probability curve}
 
-\item{plotvariability}{String, either 'samples' or 'quantiles':
+\item{plotvariability}{Character, either 'samples' or 'quantiles':
 how to plot the variability of the probability distribution with new samples}
 
 \item{nFsamples}{Positive number: if plotvariability='samples', then
@@ -42,7 +42,7 @@ workers, or how many to create and use}
 
 \item{silent}{Logical: give warnings or updates in the computation}
 
-\item{learned}{Either a string with the name of a directory or full
+\item{learned}{Either a character with the name of a directory or full
 path for an 'learnt.rds' object, or such an object itself}
 }
 \value{

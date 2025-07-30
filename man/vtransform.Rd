@@ -22,12 +22,12 @@ vtransform(
 
 \item{auxmetadata}{auxmetadata object}
 
-\item{Rout}{String, output of R-type variate, with possible values:
+\item{Rout}{Character, output of R-type variate, with possible values:
 'normalized': for internal MCMC use
 'mi': for use in mutualinfo()
 'original': original representation}
 
-\item{Cout}{String, output of C-type variate, with possible values:
+\item{Cout}{Character, output of C-type variate, with possible values:
 'init': for internal MCMC use (init input)
 'left', 'right': for internal MCMC use
 'aux', 'lat': for internal MCMC use
@@ -36,7 +36,7 @@ vtransform(
 'mi': for use in mutualinfo()
 'original': original representation}
 
-\item{Dout}{String, output of D-type variate, with possible values:
+\item{Dout}{Character, output of D-type variate, with possible values:
 'init': for internal MCMC use (init input)
 'left', 'right': for internal MCMC use
 'aux': for internal MCMC use
@@ -45,19 +45,19 @@ vtransform(
 'mi': for use in mutualinfo()
 'original': original representation}
 
-\item{Bout}{String, output of B-type variate, with possible values:
+\item{Bout}{Character, output of B-type variate, with possible values:
 'numeric': for internal MCMC use, values 0,1
 'original': original representation}
 
-\item{Oout}{String, output of O-type variate, with possible values:
+\item{Oout}{Character, output of O-type variate, with possible values:
 'numeric': for internal MCMC use, values 1,2,...
 'original': original representation}
 
-\item{Nout}{String, output of N-type variate, with possible values:
+\item{Nout}{Character, output of N-type variate, with possible values:
 'numeric': for internal MCMC use, values 1,2,...
 'original': original representation}
 
-\item{variates}{String vector, names of variates
+\item{variates}{Character vector, names of variates
 corresponding to columns of x (in case x misses column names)}
 
 \item{logjacobianOr}{Logical or \code{NULL}: output is the log-Jacobian in orginal or transformed domain? \code{NULL} (default) means do not calculate the log-Jacobians}
