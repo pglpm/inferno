@@ -1,0 +1,14 @@
+---
+title: "Associations among variates and mutual information"
+output:
+  rmarkdown::html_vignette:
+    number_sections: true
+vignette: >
+  %\VignetteIndexEntry{Associations among variates and mutual information}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+
+
+*(TO BE WRITTEN)*

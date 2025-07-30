@@ -35,7 +35,7 @@ You're now welcome to open R in your favourite integrated development environmen
 library('inferno')
 ```
 
-In our example we shall use data from the `penguins` dataset, included in R version 4.5.0 and above. We shuffle this dataset to erase any particular ordering of its data, and call the new dataset `penguin` (without the final 's'). For your convenience you can download the shuffled dataset as the CSV file [`'penguin_data.csv'`](https://github.com/pglpm/inferno/raw/main/development/downloads/penguin_data.csv). Otherwise you can create such file from R 4.5.0 or above as follows:
+In our example we shall use data from the `penguins` dataset, included in R version 4.5.0 and above. We shuffle this dataset to erase any particular ordering of its data, and call the new dataset `penguin` (without the final 's'). For your convenience you can download the shuffled dataset as the CSV file [`penguin_data.csv`](https://github.com/pglpm/inferno/raw/main/development/downloads/penguin_data.csv). Otherwise you can create such file from R 4.5.0 or above as follows:
 
 
 ``` r
@@ -48,7 +48,7 @@ write.csvi(penguin, file = 'penguin_data.csv')
 
 The utility function `write.csvi()` saves the dataset as a CSV file that respects the [formatting rules required by ***inferno***](#format).
 
-We assume that you now have the `'penguin_data.csv'` file.
+We assume that you now have the `penguin_data.csv` file.
 
 \
 
@@ -69,7 +69,7 @@ In order to approach these and other future questions, we decide which set of pe
 
 - Species (`species`)
 - Island (`island`)
-- Bill (`bill_len`): [the length of a penguin's "beak"](https://allisonhorst.github.io/palmerpenguins/reference/figures/culmen_depth.png) in millimetres
+- Bill length (`bill_len`): [the length of a penguin's "beak"](https://allisonhorst.github.io/palmerpenguins/reference/figures/culmen_depth.png) in millimetres
 - Bill depth (`bill_dep`): [the depth of a penguin's "beak"](https://allisonhorst.github.io/palmerpenguins/reference/figures/culmen_depth.png) in millimetres
 - Flipper length (`flipper_len`): the length of a penguin's "wing" in millimetres
 - Body mass (`body_mass`) in grams
@@ -116,7 +116,7 @@ One important feature of Bayesian inference is that *we don't need to choose bef
 
 Imagine that, a while after the sampling begun, our colleagues start sending the collected sample data to us, a little batch at a time. For the moment we assume that the batches are chosen without any systematic order; in particular, their order is unrelated to the time of sampling. We make this assumption in order to avoid trends, which we'll discuss in another vignette.
 
-We receive the first 10 samples from our sampling survey and store them in the file `'penguin_data10.csv'`, respecting the [formatting rules required by ***inferno***](#format):
+We receive the first 10 samples from our sampling survey and store them in the file `penguin_data10.csv`, respecting the [formatting rules required by ***inferno***](#format):
 
 
 ``` r
@@ -189,7 +189,7 @@ Values (`V1`, `V2`, ...)
 
 Because it performs *nonparametric* inference. In other words, it does not assume the frequency distribution of the variates in the whole population to have any specific class of shapes, such as a Gaussians; nor does it assume any functional relation at all, as instead is the case for, say, linear regression. Bayesian nonparametric population inference and ***inferno*** try to extrapolate the frequency distribution of the whole population from the sample data provided. We must therefore provide to ***inferno*** the same general information that we ourselves have about the variates, and about any artificial modifications performed on their values, such as rounding or pooling.
 
-In order to prepare the metadata file we can use ***inferno***'s `metadatatemplate()` helper function. This function reads the sample data and prepares a preliminary file containing heuristic *guesses* about the metadata. We must then check and correct this file. The function motivates its guesses and warns about especially uncertain ones. Here is the code to generate a `'penguin_metadata.csv'` file, and the output and warnings of the helper function:
+In order to prepare the metadata file we can use ***inferno***'s `metadatatemplate()` helper function. This function reads the sample data and prepares a preliminary file containing heuristic *guesses* about the metadata. We must then check and correct this file. The function motivates its guesses and warns about especially uncertain ones. Here is the code to generate a `penguin_metadata.csv` file, and the output and warnings of the helper function:
 
 
 ``` r
@@ -289,7 +289,7 @@ Also the `sex` variate is correctly guessed: `nominal` type with possible values
 \
 The guesses about the `flipper_len` and `body_mass` variates are not correct, however: these variates are continuous, with a minimal value of `0` and no maximal value. They are rounded to `1` mm and `25` g (this was correctly guessed).
 
-We must open the preliminary metadata file `'penguin_metadata.csv'` with our favourite editor, and correct and complete the guesses of the helper function. In this case we end up with the following corrected metadata file, also available for download as [`'penguin_data.csv'`](https://github.com/pglpm/inferno/raw/main/development/downloads/penguin_metadata.csv):
+We must open the preliminary metadata file `penguin_metadata.csv` with our favourite editor, and correct and complete the guesses of the helper function. In this case we end up with the following corrected metadata file, also available for download as [`penguin_data.csv`](https://github.com/pglpm/inferno/raw/main/development/downloads/penguin_metadata.csv):
 
 
 
@@ -376,9 +376,9 @@ learnt10 <- learn(
 
 The initial output gives a summary of the sample size, number of variates, saving directory, and other computational details. An "`estimated end time`" line (not appearing in the output above) is updated from time to time with a better estimate of the computation's end time. Once the computation is finished, some final information about the underlying Monte Carlo computation and time and memory use is provided.^[The Monte Carlo expert will notice that the effective sample size is around 900 or more. The Monte Carlo sampling is designed to stop when 3600 samples have been obtained with an effective sample size of at least 450, or equivalently a relative Monte Carlo standard error under 0.05. This is enough, considering that the statistical uncertainty in the results can be tens or hundreds of times larger than this. The desired number of samples and maximal Monte Carlo standard error can be specified with the `nsamples` and `maxrelMCSE` arguments.] Note that the inference above, with 10 sample data and 8 variates, took around 3 GB and 7 minutes to complete on 4 cores.
 
-The results of this main inference are now stored in the compressed file `'learnt.rds'` (around 32 MB) within the specified output directory. The name of this directory is also saved as the final value of the `learn()` function. We saved this directory name in the `learnt10` variable in the code above, by invoking `learnt10 <- learn(...)`.
+The results of this main inference are now stored in the compressed file `learnt.rds` (around 32 MB) within the specified output directory. The name of this directory is also saved as the final value of the `learn()` function. We saved this directory name in the `learnt10` variable in the code above, by invoking `learnt10 <- learn(...)`.
 
-For your convenience the object produced by the computation above can be downloaded as the file [`'learnt10.rds'`](https://github.com/pglpm/inferno/raw/main/development/downloads/learnt10.rds). Once you have downloaded it in your working directory you can just invoke
+For your convenience the object produced by the computation above can be downloaded as the file [`learnt10.rds`](https://github.com/pglpm/inferno/raw/main/development/downloads/learnt10.rds). Once you have downloaded it in your working directory you can just invoke
 
 
 ``` r
@@ -782,7 +782,7 @@ signif(digits = 2, ## round
 
 The preliminary analysis based on only 10 samples of penguins revealed possible interesting hypotheses, for instance that the relative frequencies of Adélie and Chinstrap penguins are both around 0.2 on Biscoe island, and differ by 10% or more apart on Dream island. But the analysis and hypotheses had very large uncertainties.
 
-Now imagine that our sampling colleagues send us 50 more datapoints, which we add to the 10 we already have. Let's store the 60 datapoints in the file `'penguin_data60.csv'`:
+Now imagine that our sampling colleagues send us 50 more datapoints, which we add to the 10 we already have. Let's store the 60 datapoints in the file `penguin_data60.csv`:
 
 
 ``` r
@@ -853,7 +853,7 @@ learnt60 <- learn(
 
 The calculation with 60 sample data took around 3 GB and 6 minutes on 4 cores.
 
-The results of this updated inference are now stored in the compressed file `'learnt.rds'` within the new output directory. For your convenience the object produced by the computation above can be downloaded as the file [`'learnt60.rds'`](https://github.com/pglpm/inferno/raw/main/development/downloads/learnt60.rds). Once you have downloaded it in your working directory, invoke
+The results of this updated inference are now stored in the compressed file `learnt.rds` within the new output directory. For your convenience the object produced by the computation above can be downloaded as the file [`learnt60.rds`](https://github.com/pglpm/inferno/raw/main/development/downloads/learnt60.rds). Once you have downloaded it in your working directory, invoke
 
 
 ``` r
@@ -1122,12 +1122,12 @@ Let's emphasize again an important feature of Bayesian inference: you can *monit
 
 With 60 data samples, we consider our uncertainties about our research questions **Q1** and **Q2** still too large -- except for an important result about Gentoo and Chinstrap species on Biscoe island, which we can already announce. Let's suppose that we continued sampling; our colleagues sent us 284 more data samples, for a total of 344 with the ones previously sent. The sampling then stopped, so this is all the data we have to report our final findings and their uncertainty.
 
-Let's store all datapoints in the file `'penguin_data.csv'`:
+Let's store all datapoints in the file `penguin_data.csv`:
 
 
 ``` r
 datafile <- 'penguin_data.csv'
-write.csvi(penguin, datafile) ## write the first 60 samples
+write.csvi(penguin, datafile)
 ```
 As usual we perform the updated inference with the `learn()` function (and as usual please wait before running the code below):
 
@@ -1190,7 +1190,7 @@ learntall <- learn(
 
 The calculation with 344 sample data took around 3.5 GB and 2 hours on 4 cores.
 
-The results of this final inference are stored in the compressed file `'learnt.rds'` within the new output directory. The object produced by the computation above can be downloaded as the file [`'learntall.rds'`](https://github.com/pglpm/inferno/raw/main/development/downloads/learntall.rds). Once you have downloaded it in your working directory, invoke
+The results of this final inference are stored in the compressed file `learnt.rds` within the new output directory. The object produced by the computation above can be downloaded as the file [`learntall.rds`](https://github.com/pglpm/inferno/raw/main/development/downloads/learntall.rds). Once you have downloaded it in your working directory, invoke
 
 
 ``` r
