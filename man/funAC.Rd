@@ -7,7 +7,7 @@
 funAC(y)
 }
 \arguments{
-\item{y:}{time series}
+\item{y}{Time series}
 }
 \value{
 Autocovariances at different lags

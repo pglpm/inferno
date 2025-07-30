@@ -1,22 +1,22 @@
 #' Plot one-dimensional posterior probabilities
 #'
-#' @param filename string: name of plot output file
+#' @param filename String: name of plot output file
 #' @param learned Either a string with the name of a directory or full
 #'   path for an 'learnt.rds' object, or such an object itself
 #' @param data data.table object or filepath: datapoints
-#' @param plotprobability logical: plot the resulting probability curve
-#' @param plotvariability string, either 'samples' or 'quantiles':
+#' @param plotprobability Logical: plot the resulting probability curve
+#' @param plotvariability String, either 'samples' or 'quantiles':
 #'   how to plot the variability of the probability distribution with new samples
-#' @param nFsamples positive number: if plotvariability='samples', then
+#' @param nFsamples Positive number: if plotvariability='samples', then
 #'   number of samples of representative frequency distributions to display
 #'   as variability;
 #'   if plotvariability='quantiles', then
 #'   the quantiles (in range 0 to 0.5) to show
-#' @param datahistogram logical: plot the data as histogram?
-#' @param datascatter logical: plot the data as scatterplot along the x-axis?
-#' @param parallel Bool or numeric: whether to use pre-existing parallel
+#' @param datahistogram Logical: plot the data as histogram?
+#' @param datascatter Logical: plot the data as scatterplot along the x-axis?
+#' @param parallel Logical or numeric: whether to use pre-existing parallel
 #'   workers, or how many to create and use
-#' @param silent logical: give warnings or updates in the computation
+#' @param silent Logical: give warnings or updates in the computation
 #'
 #' @return A list with the mutual information, its error, and its unit
 #'

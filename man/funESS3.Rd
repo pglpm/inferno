@@ -7,7 +7,7 @@
 funESS3(x)
 }
 \arguments{
-\item{x:}{vector of Monte Carlo samples}
+\item{x}{Vector of Monte Carlo samples}
 }
 \value{
 Effective Sample Size

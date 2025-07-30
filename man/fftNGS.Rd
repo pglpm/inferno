@@ -7,7 +7,7 @@
 fftNGS(N)
 }
 \arguments{
-\item{N:}{integer.}
+\item{N}{Integer.}
 }
 \value{
 Optimal FFT size

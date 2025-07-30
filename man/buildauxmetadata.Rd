@@ -11,11 +11,11 @@ buildauxmetadata(data, metadata, Dthreshold = 1, tscalefactor = 4.266)
 
 \item{metadata}{data.frame object}
 
-\item{Dthreshold}{positive number: threshold of fraction
+\item{Dthreshold}{Positive number: threshold of fraction
 of unique datapoints to total datapoints, to decide
 whether to treat a rounded variate as continuous}
 
-\item{tscalefactor}{positive number: scaling factor for variate conversion}
+\item{tscalefactor}{Positive number: scaling factor for variate conversion}
 }
 \value{
 an auxmetadata data.frame object

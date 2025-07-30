@@ -2,11 +2,11 @@
 #'
 #' @param x data.table object containing data to be transformed
 #' @param auxmetadata auxmetadata object
-#' @param Rout string, output of R-type variate, with possible values:
+#' @param Rout String, output of R-type variate, with possible values:
 #'  'normalized': for internal MCMC use
 #'  'mi': for use in mutualinfo()
 #'  'original': original representation
-#' @param Cout string, output of C-type variate, with possible values:
+#' @param Cout String, output of C-type variate, with possible values:
 #'  'init': for internal MCMC use (init input)
 #'  'left', 'right': for internal MCMC use
 #'  'aux', 'lat': for internal MCMC use
@@ -14,7 +14,7 @@
 #'  'boundisinf': for sampling functions
 #'  'mi': for use in mutualinfo()
 #'  'original': original representation
-#' @param Dout string, output of D-type variate, with possible values:
+#' @param Dout String, output of D-type variate, with possible values:
 #'  'init': for internal MCMC use (init input)
 #'  'left', 'right': for internal MCMC use
 #'  'aux': for internal MCMC use
@@ -22,18 +22,18 @@
 #'  'normalized': for sampling functions
 #'  'mi': for use in mutualinfo()
 #'  'original': original representation
-#' @param Oout string, output of O-type variate, with possible values:
+#' @param Oout String, output of O-type variate, with possible values:
 #'  'numeric': for internal MCMC use, values 1,2,...
 #'  'original': original representation
-#' @param Nout string, output of N-type variate, with possible values:
+#' @param Nout String, output of N-type variate, with possible values:
 #'  'numeric': for internal MCMC use, values 1,2,...
 #'  'original': original representation
-#' @param Bout string, output of B-type variate, with possible values:
+#' @param Bout String, output of B-type variate, with possible values:
 #'  'numeric': for internal MCMC use, values 0,1
 #'  'original': original representation
-#' @param variates string vector, names of variates
+#' @param variates String vector, names of variates
 #'   corresponding to columns of x (in case x misses column names)
-#' @param logjacobianOr logical or `NULL`: output is the log-Jacobian in orginal or transformed domain? `NULL` (default) means do not calculate the log-Jacobians
+#' @param logjacobianOr Logical or `NULL`: output is the log-Jacobian in orginal or transformed domain? `NULL` (default) means do not calculate the log-Jacobians
 #'
 #' @return data frame of transformed variates, or their log-Jacobians
 #' @keywords internal

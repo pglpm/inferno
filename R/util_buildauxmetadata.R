@@ -2,10 +2,10 @@
 #'
 #' @param data data.frame object
 #' @param metadata data.frame object
-#' @param Dthreshold positive number: threshold of fraction
+#' @param Dthreshold Positive number: threshold of fraction
 #'   of unique datapoints to total datapoints, to decide
 #'   whether to treat a rounded variate as continuous
-#' @param tscalefactor positive number: scaling factor for variate conversion
+#' @param tscalefactor Positive number: scaling factor for variate conversion
 #'
 #' @return an auxmetadata data.frame object
 #' @keywords internal

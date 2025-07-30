@@ -7,17 +7,17 @@
 rPr(n, Ynames, X = NULL, learnt, tails = NULL, mcsamples = NULL)
 }
 \arguments{
-\item{n}{positive integer: number of samples to draw.}
+\item{n}{Positive integer: number of samples to draw.}
 
-\item{Ynames}{character vector: names of variates to draw jointly}
+\item{Ynames}{Character vector: names of variates to draw jointly}
 
-\item{X}{list or data.table or \code{NULL}: set of values of variates on which we want to condition the joint probability for \code{Y}. If \code{NULL} (default), no conditioning is made. Any rows beyond the first are discarded}
+\item{X}{List or data.table or \code{NULL}: set of values of variates on which we want to condition the joint probability for \code{Y}. If \code{NULL} (default), no conditioning is made. Any rows beyond the first are discarded}
 
-\item{learnt}{either a string with the name of a directory or full path for a 'learnt.rds' object, produced by the \code{\link[=learn]{learn()}} function, or such an object itself.}
+\item{learnt}{Either a string with the name of a directory or full path for a 'learnt.rds' object, produced by the \code{\link[=learn]{learn()}} function, or such an object itself.}
 
-\item{tails}{named vector or list, or \code{NULL} (default). The names must match some or all of the variates in arguments \code{X}. For variates in this list, the probability conditional is understood in an semi-open interval sense: \verb{X ≤ x} or \verb{X ≥ x}, an so on. See analogous argument in \code{\link[=Pr]{Pr()}}.}
+\item{tails}{Named vector or list, or \code{NULL} (default). The names must match some or all of the variates in arguments \code{X}. For variates in this list, the probability conditional is understood in an semi-open interval sense: \verb{X ≤ x} or \verb{X ≥ x}, an so on. See analogous argument in \code{\link[=Pr]{Pr()}}.}
 
-\item{mcsamples}{vector of integers, or \code{'all'}, or \code{NULL} (default): which Monte Carlo samples calculated by the \code{\link[=learn]{learn()}} function should be used to draw the variate values. The default is to choose a random subset if \code{n} is smaller than their number, otherwise to recycle them as necessary.}
+\item{mcsamples}{Vector of integers, or \code{'all'}, or \code{NULL} (default): which Monte Carlo samples calculated by the \code{\link[=learn]{learn()}} function should be used to draw the variate values. The default is to choose a random subset if \code{n} is smaller than their number, otherwise to recycle them as necessary.}
 }
 \value{
 A data frame of joint draws of the variates \code{Ynames} from the posterior distribution, conditional on \code{X}. The row names of the data frame report the Monte Carlo sample (from \code{\link[=learn]{learn()}}) used for that draw, and the total number of draws from that sample so far.

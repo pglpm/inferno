@@ -16,22 +16,22 @@ E(
 )
 }
 \arguments{
-\item{X}{matrix or data.table or \code{NULL}: set of values of variates on which we want to condition the joint probability of \code{Y}. If \code{NULL} (default), no conditioning is made (except for conditioning on the learning dataset and prior assumptions). One variate per column, one set of values per row.}
+\item{X}{Matrix or data.table or \code{NULL}: set of values of variates on which we want to condition the joint probability of \code{Y}. If \code{NULL} (default), no conditioning is made (except for conditioning on the learning dataset and prior assumptions). One variate per column, one set of values per row.}
 
 \item{learnt}{Either a string with the name of a directory or full
 path for an 'learnt.rds' object, or such an object itself}
 
-\item{quantiles}{numeric vector, between 0 and 1, or \code{NULL}: desired quantiles of the variability of the probability for \code{Y}. Default \code{c(0.05, 0.95)} or the 5\% and 95\% quantiles.}
+\item{quantiles}{Numeric vector, between 0 and 1, or \code{NULL}: desired quantiles of the variability of the probability for \code{Y}. Default \code{c(0.05, 0.95)} or the 5\% and 95\% quantiles.}
 
-\item{nsamples}{integer or \code{NULL}: desired number of samples of the variability of the probability for \code{Y}. Default \code{100}.}
+\item{nsamples}{Integer or \code{NULL}: desired number of samples of the variability of the probability for \code{Y}. Default \code{100}.}
 
-\item{parallel}{logical or integer: whether to use pre-existing parallel
+\item{parallel}{Logical or integer: whether to use pre-existing parallel
 workers, or how many to create and use. Default \code{TRUE}.}
 
-\item{silent}{logical: give warnings or updates in the computation?
+\item{silent}{Logical: give warnings or updates in the computation?
 Default \code{FALSE}.}
 
-\item{usememory}{logical: save partial results to disc, to avoid crashes?
+\item{usememory}{Logical: save partial results to disc, to avoid crashes?
 Default \code{TRUE}.}
 
 \item{Y1names}{String vector: joint variates

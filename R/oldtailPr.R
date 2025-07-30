@@ -2,20 +2,20 @@
 #'
 #' This function calculates the probability `P(Y <= y | X, data)`, where Y and X are two (non overlapping) sets of joint variates (if the `lower.tail` argument is `FALSE`, then `P(Y > y | X, data)` is calculated). The function also gives quantiles about the possible variability of the probability `P(Y <= y | X, newdata, data)` that we could have if more learning data were provided, as well as a number of samples of the possible values of such probabilities. If several joint values are given for Y or X, the function will create a 2D grid of results for all possible compbinations of the given Y and X values.
 #'
-#' @param Y matrix or data.table: set of values of variates of which we want
+#' @param Y Matrix or data.table: set of values of variates of which we want
 #'   the joint probability of. One variate per column, one set of values per row.
-#' @param X matrix or data.table or `NULL`: set of values of variates on which we want to condition the joint probability of `Y`. If `NULL` (default), no conditioning is made (except for conditioning on the learning dataset and prior assumptions). One variate per column, one set of values per row.
+#' @param X Matrix or data.table or `NULL`: set of values of variates on which we want to condition the joint probability of `Y`. If `NULL` (default), no conditioning is made (except for conditioning on the learning dataset and prior assumptions). One variate per column, one set of values per row.
 #' @param learnt Either a string with the name of a directory or full path for a 'learnt.rds' object, produced by the [learn()] function, or such an object itself.
-#' @param nsamples integer or `NULL` or `"all"`: desired number of samples of the variability of the probability for `Y`. If `NULL`, no samples are reported. If `"all"` (or `Inf`), all samples obtained by the [learn()] function are used. Default `"all"`.
-#' @param quantiles numeric vector, between 0 and 1, or `NULL`: desired quantiles of the variability of the probability for `Y`. Default `c(0.055, 0.25, 0.75, 0.945)`, that is, the 5.5%, 25%, 75%, 94.5% quantiles (these are typical quantile values in the Bayesian literature: they give 50% and 89% credibility intervals, which correspond to 1 shannons and 0.5 shannons of uncertainty). If `NULL`, no quantiles are calculated.
+#' @param nsamples Integer or `NULL` or `"all"`: desired number of samples of the variability of the probability for `Y`. If `NULL`, no samples are reported. If `"all"` (or `Inf`), all samples obtained by the [learn()] function are used. Default `"all"`.
+#' @param quantiles Numeric vector, between 0 and 1, or `NULL`: desired quantiles of the variability of the probability for `Y`. Default `c(0.055, 0.25, 0.75, 0.945)`, that is, the 5.5%, 25%, 75%, 94.5% quantiles (these are typical quantile values in the Bayesian literature: they give 50% and 89% credibility intervals, which correspond to 1 shannons and 0.5 shannons of uncertainty). If `NULL`, no quantiles are calculated.
 #' @param parallel Logical or `NULL` or positive integer: `TRUE`: use roughly half of available cores; `FALSE`: use serial computation; `NULL`: don't do anything (use pre-registered condition); integer: use this many cores. Default `NULL`
-#' @param eq logical: include `Y = y` in the cumulative probability? Default `TRUE`.
-#' @param lower.tail logical: calculate `P(Y < y)`? (`TRUE`, default) Or `P(Y > y)`? (`FALSE`).
-#' @param silent logical: give warnings or updates in the computation?
+#' @param eq Logical: include `Y = y` in the cumulative probability? Default `TRUE`.
+#' @param lower.tail Logical: calculate `P(Y < y)`? (`TRUE`, default) Or `P(Y > y)`? (`FALSE`).
+#' @param silent Logical: give warnings or updates in the computation?
 #'   Default `FALSE`.
-#' @param usememory logical: save partial results to disc, to avoid crashes?
+#' @param usememory Logical: save partial results to disc, to avoid crashes?
 #'   Default `TRUE`.
-#' @param keepYX logical, default `TRUE`: keep a copy of the `Y` and `X` arguments in the output? This is used for the plot method.
+#' @param keepYX Logical, default `TRUE`: keep a copy of the `Y` and `X` arguments in the output? This is used for the plot method.
 #'
 #' @return A list of class `probability`, consisting of the elements `values`,  `quantiles` (possibly `NULL`), `samples` (possibly `NULL`), `Y`, `X`. Element `values`: a matrix with the probabilities P(Y|X,data,assumptions), for all combinations of values of `Y` (rows) and `X` (columns). Element `quantiles`: an array with the variability quantiles (3rd dimension of the array) for such probabilities. Element `samples`: an array with the variability samples (3rd dimension of the array) for such probabilities. Elements `Y`, `X`: copies of the `Y` and `X` arguments.
 #'

@@ -35,7 +35,7 @@ util_lprob(
 \arguments{
 \item{nR}{etc: Parameters containing appropriate indices}
 
-\item{X}{numerical matrix: transformed variates}
+\item{X}{Numerical matrix: transformed variates}
 
 \item{learnt:}{Monte-Carlo-output object}
 }

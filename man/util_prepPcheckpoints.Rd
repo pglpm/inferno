@@ -7,11 +7,11 @@
 util_prepPcheckpoints(x, auxmetadata, pointsid = NULL)
 }
 \arguments{
-\item{x}{datapoints to be used for checking MCMC progress}
+\item{x}{Datapoints to be used for checking MCMC progress}
 
 \item{auxmetadata}{auxmetadata object}
 
-\item{pointsid}{id of datapoints}
+\item{pointsid}{Id of datapoints}
 }
 \value{
 some arguments to be repeatedly used in util_Pcheckpoints

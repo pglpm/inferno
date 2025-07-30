@@ -7,9 +7,9 @@
 \method{subset}{probability}(x, subset)
 }
 \arguments{
-\item{x}{object of class "probability", obtained with \code{\link[=Pr]{Pr()}} or \code{\link[=tailPr]{tailPr()}}.}
+\item{x}{Object of class "probability", obtained with \code{\link[=Pr]{Pr()}} or \code{\link[=tailPr]{tailPr()}}.}
 
-\item{subset}{named list or named vector: variates to subset, given as list names, and corresponding values to subset.}
+\item{subset}{Named list or named vector: variates to subset, given as list names, and corresponding values to subset.}
 }
 \value{
 A list of class \code{probability}, identical to the original object \code{x} except for a reduced range of values in some if its variates.

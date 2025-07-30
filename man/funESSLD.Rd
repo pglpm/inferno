@@ -7,7 +7,7 @@
 funESSLD(x)
 }
 \arguments{
-\item{x:}{a matrix, rows being MC samples and columns being quantities whose MCSE is to be estimated.}
+\item{x}{A matrix, rows being MC samples and columns being quantities whose MCSE is to be estimated.}
 }
 \value{
 Estimates of the effective sample size for each trace.

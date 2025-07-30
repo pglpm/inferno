@@ -22,12 +22,12 @@ vtransform(
 
 \item{auxmetadata}{auxmetadata object}
 
-\item{Rout}{string, output of R-type variate, with possible values:
+\item{Rout}{String, output of R-type variate, with possible values:
 'normalized': for internal MCMC use
 'mi': for use in mutualinfo()
 'original': original representation}
 
-\item{Cout}{string, output of C-type variate, with possible values:
+\item{Cout}{String, output of C-type variate, with possible values:
 'init': for internal MCMC use (init input)
 'left', 'right': for internal MCMC use
 'aux', 'lat': for internal MCMC use
@@ -36,7 +36,7 @@ vtransform(
 'mi': for use in mutualinfo()
 'original': original representation}
 
-\item{Dout}{string, output of D-type variate, with possible values:
+\item{Dout}{String, output of D-type variate, with possible values:
 'init': for internal MCMC use (init input)
 'left', 'right': for internal MCMC use
 'aux': for internal MCMC use
@@ -45,22 +45,22 @@ vtransform(
 'mi': for use in mutualinfo()
 'original': original representation}
 
-\item{Bout}{string, output of B-type variate, with possible values:
+\item{Bout}{String, output of B-type variate, with possible values:
 'numeric': for internal MCMC use, values 0,1
 'original': original representation}
 
-\item{Oout}{string, output of O-type variate, with possible values:
+\item{Oout}{String, output of O-type variate, with possible values:
 'numeric': for internal MCMC use, values 1,2,...
 'original': original representation}
 
-\item{Nout}{string, output of N-type variate, with possible values:
+\item{Nout}{String, output of N-type variate, with possible values:
 'numeric': for internal MCMC use, values 1,2,...
 'original': original representation}
 
-\item{variates}{string vector, names of variates
+\item{variates}{String vector, names of variates
 corresponding to columns of x (in case x misses column names)}
 
-\item{logjacobianOr}{logical or \code{NULL}: output is the log-Jacobian in orginal or transformed domain? \code{NULL} (default) means do not calculate the log-Jacobians}
+\item{logjacobianOr}{Logical or \code{NULL}: output is the log-Jacobian in orginal or transformed domain? \code{NULL} (default) means do not calculate the log-Jacobians}
 }
 \value{
 data frame of transformed variates, or their log-Jacobians

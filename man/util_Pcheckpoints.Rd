@@ -7,7 +7,7 @@
 util_Pcheckpoints(testdata, learnt)
 }
 \arguments{
-\item{testdata}{list of objects calculated with util_prepPcheckpoints}
+\item{testdata}{List of objects calculated with util_prepPcheckpoints}
 
 \item{learnt}{mcsamples object}
 }

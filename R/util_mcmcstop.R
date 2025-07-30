@@ -14,7 +14,7 @@
 #' Modified from
 #' from https://github.com/LaplacesDemonR/LaplacesDemon/blob/master/R/ESS.R
 #'
-#' @param x: a matrix, rows being MC samples and columns being quantities whose MCSE is to be estimated.
+#' @param x A matrix, rows being MC samples and columns being quantities whose MCSE is to be estimated.
 #'
 #' @return Estimates of the MC standard error for each trace. Division by sqrt(N) is already performed.
 #'
@@ -34,9 +34,9 @@ funMCEI <- function(x, fn, p = c(0.055, 0.945), ...) {
 #'
 #' Modified from Vehtari et al.
 #'
-#' @param x: a vector of MC samples
-#' @param prob: quantile whose error intervalis being estimated
-#' @param Qpair: lower and higher credibility-quantiles requested
+#' @param x A vector of MC samples
+#' @param prob: Quantile whose error intervalis being estimated
+#' @param Qpair: Lower and higher credibility-quantiles requested
 #' 
 #' @return Estimates lower and higher credibility-quantiles on estimated quantile
 #'
@@ -70,7 +70,7 @@ funMCEQ <- function(x, prob = c(0.055, 0.945), Qpair = pnorm(c(-1, 1))){
 #' Modified from
 #' from https://github.com/LaplacesDemonR/LaplacesDemon/blob/master/R/ESS.R
 #'
-#' @param x: a matrix, rows being MC samples and columns being quantities whose MCSE is to be estimated.
+#' @param x A matrix, rows being MC samples and columns being quantities whose MCSE is to be estimated.
 #'
 #' @return Estimates of the MC standard error for each trace. Division by sqrt(N) is already performed.
 #'
@@ -94,7 +94,7 @@ funMCSELD <- function(x) {
 #' Modified from
 #' from https://github.com/LaplacesDemonR/LaplacesDemon/blob/master/R/ESS.R
 #'
-#' @param x: a matrix, rows being MC samples and columns being quantities whose MCSE is to be estimated.
+#' @param x A matrix, rows being MC samples and columns being quantities whose MCSE is to be estimated.
 #'
 #' @return Estimates of the effective sample size for each trace.
 #'
@@ -128,7 +128,7 @@ funESSLD <- function(x){
 
 ## #' Calculate MC standard error, from Geyer's mcmc package
 ## #'
-## #' @param x: a matrix, rows being MC samples and columns being quantities whose MCSE is to be estimated.
+## #' @param x A matrix, rows being MC samples and columns being quantities whose MCSE is to be estimated.
 ## #'
 ## #' @return Estimates of the MC standard error for each trace. Division by sqrt(N) is already performed.
 ## #'
@@ -143,7 +143,7 @@ funESSLD <- function(x){
 
 ## #' Function for calculating MC standard error, from Geyer's mcmc package
 ## #'
-## #' @param x: a matrix, rows being MC samples and columns being quantities whose ESS is to be estimated.
+## #' @param x A matrix, rows being MC samples and columns being quantities whose ESS is to be estimated.
 ## #'
 ## #' @return Estimates of ESS for each trace.
 ## #'
@@ -158,7 +158,7 @@ funESSLD <- function(x){
 #'
 #' From **rstan** <https://github.com/stan-dev/rstan/blob/develop/rstan/rstan/R/monitor.R>
 #'
-#' @param N: integer.
+#' @param N Integer.
 #'
 #' @return Optimal FFT size
 #'
@@ -183,7 +183,7 @@ fftNGS <- function(N) {
 #'
 #' From **rstan** <https://github.com/stan-dev/rstan/blob/develop/rstan/rstan/R/monitor.R>
 #'
-#' @param y: time series
+#' @param y Time series
 #'
 #' @return Autocovariances at different lags
 #'
@@ -205,7 +205,7 @@ funAC <- function(y) {
 #'
 #' From **rstan** <https://github.com/stan-dev/rstan/blob/develop/rstan/rstan/R/monitor.R>
 #'
-#' @param x: vector of Monte Carlo samples
+#' @param x Vector of Monte Carlo samples
 #'
 #' @return Effective Sample Size
 #'

@@ -1,8 +1,8 @@
 #' Format datapoints for testing of MCMC progress
 #'
-#' @param x datapoints to be used for checking MCMC progress
+#' @param x Datapoints to be used for checking MCMC progress
 #' @param auxmetadata auxmetadata object
-#' @param pointsid id of datapoints
+#' @param pointsid Id of datapoints
 #'
 #' @keywords internal
 #'
@@ -263,7 +263,7 @@ util_prepPcheckpoints <- function(
 
 #' Calculate joint frequencies for checkpoints in learn()
 #'
-#' @param testdata list of objects calculated with util_prepPcheckpoints
+#' @param testdata List of objects calculated with util_prepPcheckpoints
 #' @param learnt mcsamples object
 #' 
 #' @keywords internal
