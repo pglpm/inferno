@@ -11,4 +11,17 @@ vignette: >
 
 
 
-*(TO BE WRITTEN)*
+This vignette gives an introduction and guide to the visual and quantitative capabilities and functions of the ***inferno*** package, for the study of associations, correlations, and links.
+
+See the `vignette('inferno_start')` for an introduction to the package. The present vignette continues with the same example and dataset.
+
+\
+
+# Context: penguins
+
+The `vignette('inferno_start')` focuses on the [`datasets::penguins`] dataset, and shows how to calculate probabilities of single and joint variates from that dataset; also probabilities conditional on given variates. The probabilities 
+
+shows examples of calculations of probabilities and conditional probabilities 
+
+
+*(TO BE CONTINUED)*
