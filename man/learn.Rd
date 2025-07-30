@@ -2,7 +2,7 @@
 % Please edit documentation in R/learn.R
 \name{learn}
 \alias{learn}
-\title{Monte Carlo computation of posterior probability distribution conditional on given data}
+\title{Monte Carlo computation of posterior probability distribution}
 \usage{
 learn(
   data,
@@ -40,11 +40,11 @@ learn(
 )
 }
 \arguments{
-\item{data}{A dataset, given as a \code{\link[base]{data.frame}} or as a file path to a csv file.}
+\item{data}{A dataset, given as a \code{\link[base:data.frame]{base::data.frame()}} or as a file path to a CSV file.}
 
-\item{metadata}{A metadata object, given either as a data.frame object, or as a file pa to a csv file.}
+\item{metadata}{A \code{\link{metadata}} object, given either as a data.frame object, or as a file pa to a CSV file.}
 
-\item{auxdata}{A larger dataset, given as a data.frame or as a file path to a csv file. Such a dataset would be too many to use in the Monte Carlo sampling, but can be used to calculate hyperparameters.}
+\item{auxdata}{A larger dataset, given as a base::data.frame() or as a file path to a CSV file. Such a dataset would be too many to use in the Monte Carlo sampling, but can be used to calculate hyperparameters.}
 
 \item{outputdir}{Character: path to folder where the output should be saved. If omitted, a directory is created that has the same name as the data file but with suffix "\verb{_output_}".}
 
@@ -100,5 +100,12 @@ learn(
 Name of directory containing output files, or learnt object, or \code{NULL}, depending on argument \code{output}.
 }
 \description{
-Monte Carlo computation of posterior probability distribution conditional on given data
+Core function to compute the posterior probability distribution of the variates conditional on the given data.
+}
+\details{
+This function takes as main inputs a set of data and metadata, and computes the probability distribution for new data. Its computation can also be interpreted as an estimation of the frequencies of the variates in the \emph{whole population}, beyond the sample data. The probability distribution is not assumed to be Gaussian or of any other specific shape. The computation is done via Markov-chain Monte Carlo.
+
+This function creates an object, contained in a \code{learnt.rds} file, which is used in all subsequent probabilistic computations. Other information about the computation is provided in logs and plots, saved in a directory specified by the user.
+
+See vignette('inferno_start', package = 'inferno') for an introductory example.
 }

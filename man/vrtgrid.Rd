@@ -7,9 +7,9 @@
 vrtgrid(vrt, learnt, length.out = 129)
 }
 \arguments{
-\item{vrt}{character: name of the variate, must match one of the names in the \code{metadata} file provided to the \code{\link{learn}} function.}
+\item{vrt}{character: name of the variate, must match one of the names in the \code{metadata} file provided to the \code{\link[=learn]{learn()}} function.}
 
-\item{learnt}{Either a string with the name of a directory or full path for a 'learnt.rds' object, produced by the \code{\link{learn}} function, or such an object itself.}
+\item{learnt}{Either a string with the name of a directory or full path for a 'learnt.rds' object, produced by the \code{\link[=learn]{learn()}} function, or such an object itself.}
 
 \item{length.out}{numeric, positive (default 129): number of values to be created; used only for continuous, non-rounded variates (see \code{\link{metadata}}).}
 }
@@ -17,5 +17,5 @@ vrtgrid(vrt, learnt, length.out = 129)
 A numeric or character vector of values.
 }
 \description{
-This function create a set of values for a variate \code{vrt}, based on the metadata stored in a \code{learnt} object created by the \code{\link{learn}} function). The set of values depends on the type of variate (nominal or continuous, rounded, and so on, see \code{\link{metadata}}). The range of values is chosen to include, and extend slightly beyond, the range observed in the data used in the \code{\link{learn}} function. Variate domains are always respected.
+This function create a set of values for a variate \code{vrt}, based on the metadata stored in a \code{learnt} object created by the \code{\link[=learn]{learn()}} function). The set of values depends on the type of variate (nominal or continuous, rounded, and so on, see \code{\link{metadata}}). The range of values is chosen to include, and extend slightly beyond, the range observed in the data used in the \code{\link[=learn]{learn()}} function. Variate domains are always respected.
 }

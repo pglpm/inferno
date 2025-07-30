@@ -25,20 +25,20 @@
 )
 }
 \arguments{
-\item{p}{object of class "probability", obtained with \code{\link{Pr}} or \code{\link{tailPr}}.}
+\item{p}{Object of class "probability", obtained with \code{\link[=Pr]{Pr()}} or \code{\link[=tailPr]{tailPr()}}.}
 
-\item{variability}{one of the values \code{"quantiles"}, \code{"samples"}, \code{"none"} (equivalent to \code{NA} or \code{FALSE}), or \code{NULL} (default), in which case the variability available in \code{p} is used. This argument chooses how to represent the variability of the probability; see \code{\link{Pr}}. If the requested variability is not available in the object \code{p}, then a warning is issued and no variability is plotted.}
+\item{variability}{One of the values \code{'quantiles'}, \code{'samples'}, \code{'none'} (equivalent to \code{NA} or \code{FALSE}), or \code{NULL} (default), in which case the variability available in \code{p} is used. This argument chooses how to represent the variability of the probability; see \code{\link[=Pr]{Pr()}}. If the requested variability is not available in the object \code{p}, then a warning is issued and no variability is plotted.}
 
-\item{PvsY}{logical or \code{NULL}: should probabilities be plotted against their \code{Y} argument? If \code{NULL}, the argument between \code{Y} and \code{X} having larger number of values is chosen. As many probability curves will be plotted as the number of values of the other argument.}
+\item{PvsY}{Logical or \code{NULL}: should probabilities be plotted against their \code{Y} argument? If \code{NULL}, the argument between \code{Y} and \code{X} having larger number of values is chosen. As many probability curves will be plotted as the number of values of the other argument.}
 
-\item{legend}{one of the values \code{"bottomright"}, \code{"bottom"}, \code{"bottomleft"}, \code{"left"}, \code{"topleft"}, \code{"top"}, \code{"topright"}, \code{"right"}, \code{"center"} (see \code{\link[graphics]{legend}}): plot a legend at that position. A value \code{FALSE} or any other does not plot any legend. Default \code{"top"}.}
+\item{legend}{One of the values \code{'bottomright'}, \code{'bottom'}, \code{'bottomleft'}, \code{'left'}, \code{'topleft'}, \code{'top'}, \code{'topright'}, \code{'right'}, \code{'center'} (see \code{\link[graphics:legend]{graphics::legend()}}): plot a legend at that position. A value \code{FALSE} or any other does not plot any legend. Default \code{'top'}.}
 
 \item{alpha.f}{Numeric, default 0.25: opacity of the colours, \code{0} being completely invisible and \code{1} completely opaque.}
 
 \item{var.alpha.f}{Numeric: opacity of the quantile bands or of the samples, \code{0} being completely invisible and \code{1} completely opaque.}
 
-\item{...}{other parameters to be passed to \code{\link{flexiplot}}.}
+\item{...}{Other parameters to be passed to \code{\link[=flexiplot]{flexiplot()}}.}
 }
 \description{
-This \code{\link[base]{plot}} method is a utility to plot probabilities obtained with \code{\link{Pr}} or \code{\link{tailPr}}, as well as their variabilities. The probabilities are plotted either against \code{Y}, with one curve for each value of \code{X}, or vice versa.
+This \code{\link[base:plot]{base::plot()}} method is a utility to plot probabilities obtained with \code{\link[=Pr]{Pr()}} or \code{\link[=tailPr]{tailPr()}}, as well as their variabilities. The probabilities are plotted either against \code{Y}, with one curve for each value of \code{X}, or vice versa.
 }

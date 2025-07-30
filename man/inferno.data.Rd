@@ -11,11 +11,11 @@ write.csvi(x, file, ...)
 read.csvi(file, ...)
 }
 \arguments{
-\item{x}{the object to be written, preferably a matrix or data frame. If not, it is attempted to coerce \code{x} to a data frame. See \code{\link[utils]{write.table}}.}
+\item{x}{the object to be written, preferably a matrix or data frame. If not, it is attempted to coerce \code{x} to a data frame. See \code{\link[utils:write.table]{utils::write.table()}}.}
 
-\item{file}{either a character string naming a file or a connection open for writing or reading. See \code{\link[utils]{write.table}} and \code{\link[utils]{read.table}}.}
+\item{file}{either a character string naming a file or a connection open for writing or reading. See \code{\link[utils:write.table]{utils::write.table()}} and \code{\link[utils:read.table]{utils::read.table()}}.}
 
-\item{...}{Other parameters to be passed to \code{\link[utils]{write.table}} or \code{\link[utils]{read.table}}.}
+\item{...}{Other parameters to be passed to \code{\link[utils:write.table]{utils::write.table()}} or \code{\link[utils:read.table]{utils::read.table()}}.}
 }
 \description{
 Utility functions to read and write CSV files in the format required by \strong{inferno}
@@ -27,8 +27,8 @@ The functions of the \strong{inferno} package accept CSV files formatted as foll
 \item Character and names should be quoted in single or double quotes. Example: \code{"female"}.
 \item Values should be separated by \emph{commas}, not by tabs or semicolons.
 \item Missing values should be simply \emph{empty}, not denoted by "NA", "missing", "-", or similar.
-\item Preferably there should not be \code{\link[base]{factor}}s; use character names instead.
+\item Preferably there should not be \code{\link[base:factor]{base::factor}}s; use character names instead.
 }
 
-The utility functions \code{\link[=write.csvi]{write.csvi()}} and \code{\link[=read.csvi]{read.csvi()}} are wrappers to \code{\link[utils]{write.table}} or \code{\link[utils]{read.table}} that sets appropriate default parameters
+The utility functions \code{\link[=write.csvi]{write.csvi()}} and \code{\link[=read.csvi]{read.csvi()}} are wrappers to \code{\link[utils:write.table]{utils::write.table()}} or \code{\link[utils:read.table]{utils::read.table()}} that sets appropriate default parameters
 }

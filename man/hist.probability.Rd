@@ -25,18 +25,18 @@
 )
 }
 \arguments{
-\item{p}{object of class "probability", obtained with \code{\link{Pr}} or \code{\link{tailPr}}.}
+\item{p}{Object of class "probability", obtained with \code{\link[=Pr]{Pr()}} or \code{\link[=tailPr]{tailPr()}}.}
 
-\item{breaks}{\code{NULL} or as in function \code{\link[graphics]{hist}}. If \code{NULL} (default), an optimal number of breaks for each probability distribution is computed.}
+\item{breaks}{\code{NULL} or as in function \code{\link[graphics:hist]{graphics::hist()}}. If \code{NULL} (default), an optimal number of breaks for each probability distribution is computed.}
 
-\item{legend}{one of the values \code{"bottomright"}, \code{"bottom"}, \code{"bottomleft"}, \code{"left"}, \code{"topleft"}, \code{"top"}, \code{"topright"}, \code{"right"}, \code{"center"} (see \code{\link[graphics]{legend}}): plot a legend at that position. A value \code{FALSE} or any other does not plot any legend. Default \code{"top"}.}
+\item{legend}{One of the values \code{"bottomright"}, \code{"bottom"}, \code{"bottomleft"}, \code{"left"}, \code{"topleft"}, \code{"top"}, \code{"topright"}, \code{"right"}, \code{"center"} (see \code{\link[graphics:legend]{graphics::legend()}}): plot a legend at that position. A value \code{FALSE} or any other does not plot any legend. Default \code{"top"}.}
 
 \item{fill.alpha.f}{Numeric, default 0.125: opacity of the histogram filling. \code{0} means no filling.}
 
-\item{showmean}{logical: show the means of the probability distributions? The means correspond to the probabilities about the next observed unit.}
+\item{showmean}{Logical, default \code{TRUE}: show the means of the probability distributions? The means correspond to the probabilities about the next observed unit.}
 
-\item{...}{other parameters to be passed to \code{\link{flexiplot}}.}
+\item{...}{Other parameters to be passed to \code{\link[=flexiplot]{flexiplot()}}.}
 }
 \description{
-This \code{\link[graphics]{hist}}ogram method is a utility to visualize the variability of the probabilities obtained with \code{\link{Pr}} or \code{\link{tailPr}}, which can also be interpreted as the probability density for the whole-population frequencies.
+This \code{\link[graphics:hist]{graphics::hist()}}ogram method is a utility to visualize the variability of the probabilities obtained with \code{\link[=Pr]{Pr()}} or \code{\link[=tailPr]{tailPr()}}, which can also be interpreted as the probability density for the whole-population frequencies.
 }

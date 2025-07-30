@@ -16,7 +16,7 @@ metadatatemplate(
 )
 }
 \arguments{
-\item{data}{A dataset, given as a \code{\link[base]{data.frame}}
+\item{data}{A dataset, given as a \code{\link[base:data.frame]{base::data.frame()}}
 or as a file path to a csv file.}
 
 \item{file}{String: name of csv file where the metadata should be saved;
@@ -37,18 +37,18 @@ Default \code{TRUE}.}
 \value{
 If \code{file = NULL}, a preliminary metadata file is created
 and \code{VALUE} is \code{NULL};
-otherwise \code{VALUE} is a \code{\link[base]{data.frame}} containing the metadata.
+otherwise \code{VALUE} is a \code{\link[base:data.frame]{base::data.frame()}} containing the metadata.
 }
 \description{
 Metadata and helper function to create a template metadata file or object.
 }
 \details{
-The \code{\link{learn}} function needs metadata about the variates present in the data. Such metadata can be provided either as a \code{csv} file or as a \code{\link[base]{data.frame}}. The function \code{buildmetadata} creates a template metadata csv-file, or outputs a metadata data.frame, by trying to \emph{guess} metadata information from the dataset.The guesses may be very incorrect (as already said, metadata is information not contained in the data, so no algorithm can exist that extracts it from the data). \strong{The user \emph{must} modify and correct this template, using it as a starting point to prepare the correct metadata information.}
+The \code{\link[=learn]{learn()}} function needs metadata about the variates present in the data. Such metadata can be provided either as a \code{csv} file or as a \code{\link[base:data.frame]{base::data.frame()}}. The function \code{buildmetadata} creates a template metadata csv-file, or outputs a metadata data.frame, by trying to \emph{guess} metadata information from the dataset.The guesses may be very incorrect (as already said, metadata is information not contained in the data, so no algorithm can exist that extracts it from the data). \strong{The user \emph{must} modify and correct this template, using it as a starting point to prepare the correct metadata information.}
 }
 \section{Metadata information and format}{
 
 
-In order to correctly learn from a dataset, the \code{\link{learn}} function needs information that is not contained in the data themeselves; that is, it needs \emph{meta}data. Metadata are provided either as a \code{csv} file or as a \code{\link[base]{data.frame}}.
+In order to correctly learn from a dataset, the \code{\link[=learn]{learn()}} function needs information that is not contained in the data themeselves; that is, it needs \emph{meta}data. Metadata are provided either as a \code{csv} file or as a \code{\link[base:data.frame]{base::data.frame()}}.
 
 A metadata file or data.frame must contain one row for each simple variate in the given inference problem, and the following fields (columns), even if some of them may be empty:
 

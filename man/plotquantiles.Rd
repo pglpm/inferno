@@ -16,20 +16,20 @@ plotquantiles(
 )
 }
 \arguments{
-\item{x}{Numeric or character: vector of x-coordinates. See \code{\link{flexiplot}}.}
+\item{x}{Numeric or character: vector of x-coordinates. See \code{\link[=flexiplot]{flexiplot()}}.}
 
-\item{y}{Numeric: a matrix having as many rows as \code{x} and an even number of columns, with one column per quantile. Typically these quantiles have been obtained with \code{\link{Pr}} or \code{\link{tailPr}}, as their \verb{$quantiles} value. This value is a three-dimensional array, and one of its columns (corresponding to the possible values of the \code{X} argument of \code{\link{Pr}}) or one of its rows (corresponding to the possible values of the \code{Y} argument of \code{\link{Pr}}) should be selected before being used as \code{y} input.}
+\item{y}{Numeric: a matrix having as many rows as \code{x} and an even number of columns, with one column per quantile. Typically these quantiles have been obtained with \code{\link[=Pr]{Pr()}} or \code{\link[=tailPr]{tailPr()}}, as their \verb{$quantiles} value. This value is a three-dimensional array, and one of its columns (corresponding to the possible values of the \code{X} argument of \code{\link[=Pr]{Pr()}}) or one of its rows (corresponding to the possible values of the \code{Y} argument of \code{\link[=Pr]{Pr()}}) should be selected before being used as \code{y} input.}
 
 \item{xdomain}{Character or numeric or \code{NULL} (default): vector of possible values of the variable represented in the x-axis, if the \code{x} argument is a character vector. The ordering of the values is respected. If \code{NULL}, then \code{unique(x)} is used.}
 
 \item{alpha.f}{Numeric, default 0.25: opacity of the quantile bands, \code{0} being completely invisible and \code{1} completely opaque.}
 
-\item{col}{Fill colour of the quantile bands. Can be specified in any of the usual ways, see for instance \code{\link[grDevices]{col2rgb}}. Default \verb{#4477AA}.}
+\item{col}{Fill colour of the quantile bands. Can be specified in any of the usual ways, see for instance \code{\link[grDevices:col2rgb]{grDevices::col2rgb()}}. Default \verb{#4477AA}.}
 
-\item{border}{Fill colour of the quantile bands. Can be specified in any of the usual ways, see for instance \code{\link[grDevices]{col2rgb}}. If \code{NA} (default), no border is drawn.}
+\item{border}{Fill colour of the quantile bands. Can be specified in any of the usual ways, see for instance \code{\link[grDevices:col2rgb]{grDevices::col2rgb()}}. If \code{NA} (default), no border is drawn.}
 
-\item{...}{Other parameters to be passed to \code{\link{flexiplot}}.}
+\item{...}{Other parameters to be passed to \code{\link[=flexiplot]{flexiplot()}}.}
 }
 \description{
-Utility function to plot pair of quantiles obtained with \code{\link{Pr}} or \code{\link{tailPr}}.
+Utility function to plot pair of quantiles obtained with \code{\link[=Pr]{Pr()}} or \code{\link[=tailPr]{tailPr()}}.
 }

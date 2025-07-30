@@ -24,13 +24,13 @@ the joint probability of. One variate per column, one set of values per row.}
 
 \item{X}{matrix or data.table or \code{NULL}: set of values of variates on which we want to condition the joint probability of \code{Y}. If \code{NULL} (default), no conditioning is made (except for conditioning on the learning dataset and prior assumptions). One variate per column, one set of values per row.}
 
-\item{learnt}{either a string with the name of a directory or full path for a 'learnt.rds' object, produced by the \code{\link{learn}} function, or such an object itself.}
+\item{learnt}{either a string with the name of a directory or full path for a 'learnt.rds' object, produced by the \code{\link[=learn]{learn()}} function, or such an object itself.}
 
 \item{tails}{named vector or list, or \code{NULL} (default). The names must match some or all of the variates in arguments \code{Y} and \code{X}. For variates in this list, the probability arguments are understood in an semi-open interval sense: \verb{Y ≤ y} or \verb{Y ≥ y}, an so on. This is true for variates on the left and on the right of the conditional sign \verb{\\|}. A left-open interval \verb{Y ≤ y} is indicated by the values \code{'<='} or \code{'left'} or \code{-1}; a right-open interval \verb{Y ≥ y} is indicated by the values \code{'>='} or \code{'right'} or \code{+1}. Values \code{NULL}, \code{'=='}, \code{0} indicate that a point value \code{Y = y} (not an interval) should be calculated. NB: the semi-open intervals \emph{always} include the given value; this is important for ordinal or rounded variates. Therefore, if \code{Y} is for instance an integer variate, then to calculate  \code{P(Y < 3)} you should require \code{P(Y <= 2)}.}
 
 \item{priorY}{numeric vector with the same length as the rows of \code{Y}, or \code{TRUE}, or \code{NULL} (default): prior probabilities or base rates for the \code{Y} values. If \code{TRUE}, the prior probabilities are assumed to be all equal.}
 
-\item{nsamples}{integer or \code{NULL} or \code{'all'}: desired number of samples of the variability of the probability for \code{Y}. If \code{NULL}, no samples are reported. If \code{'all'} (or \code{Inf}), all samples obtained by the \code{\link{learn}} function are used. Default \code{'all'}.}
+\item{nsamples}{integer or \code{NULL} or \code{'all'}: desired number of samples of the variability of the probability for \code{Y}. If \code{NULL}, no samples are reported. If \code{'all'} (or \code{Inf}), all samples obtained by the \code{\link[=learn]{learn()}} function are used. Default \code{'all'}.}
 
 \item{quantiles}{numeric vector, between 0 and 1, or \code{NULL}: desired quantiles of the variability of the probability for \code{Y}. Default \code{c(0.055, 0.25, 0.75, 0.945)}, that is, the 5.5\%, 25\%, 75\%, 94.5\% quantiles (these are typical quantile values in the Bayesian literature: they give 50\% and 89\% credibility intervals, which correspond to 1 shannons and 0.5 shannons of uncertainty). If \code{NULL}, no quantiles are calculated.}
 

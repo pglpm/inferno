@@ -13,7 +13,7 @@
 #' @param grid Logical: whether to plot a light grid. Default `TRUE`.
 #' @param alpha.f Numeric, default 1: opacity of the colours, `0` being completely invisible and `1` completely opaque.
 #' @param xjitter,yjitter Logical or `NULL` (default): add [base::jitter()] to `x`- or `y`-values? Useful when plotting discrete variates. If `NULL`, jitter is added if the values are of character class.
-#' @param ... Other parameters to be passed to [base::matplot()].
+#' @param ... Other parameters to be passed to [graphics::matplot()].
 #'
 #' @export
 flexiplot <- function(

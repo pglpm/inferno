@@ -26,7 +26,7 @@ mutualinfo(
 \item{learnt}{Either a string with the name of a directory or full path
 for an 'learnt.rds' object, or such an object itself.}
 
-\item{tails}{named vector or list, or \code{NULL} (default). The names must match some or all of the variates in arguments \code{X}. For variates in this list, the probability conditional is understood in an semi-open interval sense: \verb{X ≤ x} or \verb{X ≥ x}, an so on. See analogous argument in \code{\link{Pr()}}.}
+\item{tails}{named vector or list, or \code{NULL} (default). The names must match some or all of the variates in arguments \code{X}. For variates in this list, the probability conditional is understood in an semi-open interval sense: \verb{X ≤ x} or \verb{X ≥ x}, an so on. See analogous argument in \code{\link[=Pr]{Pr()}}.}
 
 \item{n}{integer or \code{NULL} (default): number of samples from which to approximately calculate the mutual information. Default as many as Monte Carlo samples in \code{learnt}.}
 
@@ -37,7 +37,7 @@ for an 'learnt.rds' object, or such an object itself.}
 \item{silent}{logical: give warnings or updates in the computation?}
 }
 \value{
-A list consisting of the elements \code{MI}, \code{CondEn12}, \code{CondEn21}, \code{En1}, \code{En2}, \code{MImax}, \code{unit}, \code{Y1names}, \code{Y1names}. All elements except \code{unit}, \code{Y1names}, \code{Y2names} are a vector of \code{value} and \code{accuracy}. Element \code{MI} is the mutual information between (joint) variates \code{Y1names} and (joint) variates \code{Y2names}. Element\code{CondEn12} is the conditional entropy of the first variate given the second, and vice versa for \code{CondEn21}. Elements \code{En1} and \code{En1} are the (differential) entropies of the first and second variates. Element \code{MImax} is the maximum possible value of the mutual information. Elements \code{unit}, \code{Y1names}, \code{Y2names} are identical to the same inputs.
+A list consisting of the elements \code{MI}, \code{CondEn12}, \code{CondEn21}, \code{En1}, \code{En2}, \code{rGauss}, \code{unit}, \code{Y1names}, \code{Y1names}. All elements except \code{unit}, \code{Y1names}, \code{Y2names} are a vector of \code{value} and \code{accuracy}. Element \code{MI} is the mutual information between (joint) variates \code{Y1names} and (joint) variates \code{Y2names}. Element\code{CondEn12} is the conditional entropy of the first variate given the second, and vice versa for \code{CondEn21}. Elements \code{En1} and \code{En1} are the (differential) entropies of the first and second variates. Elements \code{unit}, \code{Y1names}, \code{Y2names} are identical to the same inputs. Element \code{rGauss} is the absolute value of the Pearson correlation coefficient of a \emph{multivariate Gaussian distribution} having mutual information \code{MI} (the two are related by \code{MI = -log(1 - rGauss^2)/2}); it may provide a vague intuition for the \code{MI} value for people more familiar with Pearson's correlation, but should be taken with a grain of salt.
 }
 \description{
 This function calculates various entropic information measures of two variates (each variate may consist of joint variates): the mutual information, the conditional entropies, and the entropies.
