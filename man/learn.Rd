@@ -107,5 +107,5 @@ This function takes as main inputs a set of data and metadata, and computes the 
 
 This function creates an object, contained in a \code{learnt.rds} file, which is used in all subsequent probabilistic computations. Other information about the computation is provided in logs and plots, saved in a directory specified by the user.
 
-See vignette('inferno_start') for an introductory example.
+See vignette("inferno_start") for an introductory example.
 }
