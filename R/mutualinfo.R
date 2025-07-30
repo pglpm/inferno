@@ -523,11 +523,11 @@ mutualinfo <- function(
             mi <- lpY1and2 - lpY1 - lpY2
             c(
                 MI = mi,
-                MIalt = (mi + lpY1given2 - lpY1 + lpY2given1 - lpY2) / 3,
                 CondEn12 = -lpY1given2,
                 CondEn21 = -lpY2given1,
                 En1 = -lpY1,
                 En2 = -lpY2,
+                MIalt = (mi + lpY1given2 - lpY1 + lpY2given1 - lpY2) / 3,
                 MI.rGauss = sqrt(1 - exp(- 2 * mi * log(base)))
             )
         } # End foreach loop
