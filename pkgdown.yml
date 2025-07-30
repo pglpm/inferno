@@ -3,8 +3,9 @@ pkgdown: 2.1.3
 pkgdown_sha: ~
 articles:
   inferno_start: inferno_start.html
+  mutualinfo: mutualinfo.html
   vignette_mutualinfo: vignette_mutualinfo.html
-last_built: 2025-07-30T08:19Z
+last_built: 2025-07-30T08:32Z
 urls:
   reference: https://pglpm.github.io/inferno/reference
   article: https://pglpm.github.io/inferno/articles

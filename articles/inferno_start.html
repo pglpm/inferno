@@ -34,6 +34,7 @@
   <button class="nav-link dropdown-toggle" type="button" id="dropdown-articles" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Articles</button>
   <ul class="dropdown-menu" aria-labelledby="dropdown-articles">
 <li><a class="dropdown-item" href="../articles/inferno_start.html">Bayesian nonparametric inference with inferno</a></li>
+    <li><a class="dropdown-item" href="../articles/mutualinfo.html">Associations among variates and mutual information</a></li>
     <li><a class="dropdown-item" href="../articles/vignette_mutualinfo.html">Associations of variates with mutual information</a></li>
   </ul>
 </li>
@@ -119,7 +120,7 @@ that follows. Let’s start by loading the
 dataset, included in R version 4.5.0 and above. We shuffle this dataset
 to erase any particular ordering of its data, and call the new dataset
 <code>penguin</code> (without the final ‘s’). For your convenience you
-can download the shuffled dataset as the CSV file <a href="https://github.com/pglpm/inferno/raw/main/development/downloads/penguin_data.csv" class="external-link"><code>'penguin_data.csv'</code></a>.
+can download the shuffled dataset as the CSV file <a href="https://github.com/pglpm/inferno/raw/main/development/downloads/penguin_data.csv" class="external-link"><code>penguin_data.csv</code></a>.
 Otherwise you can create such file from R 4.5.0 or above as follows:</p>
 <div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/Random.html" class="external-link">set.seed</a></span><span class="op">(</span><span class="fl">50</span><span class="op">)</span> <span class="co">## replace with your favourite seed number</span></span>
@@ -130,7 +131,7 @@ Otherwise you can create such file from R 4.5.0 or above as follows:</p>
 <p>The utility function <code><a href="../reference/inferno.data.html">write.csvi()</a></code> saves the dataset as a
 CSV file that respects the <a href="#format">formatting rules required
 by <strong><em>inferno</em></strong></a>.</p>
-<p>We assume that you now have the <code>'penguin_data.csv'</code>
+<p>We assume that you now have the <code>penguin_data.csv</code>
 file.</p>
 <p><br></p>
 </div>
@@ -178,7 +179,7 @@ the following variates, each denoted by a short
 <ul>
 <li>Species (<code>species</code>)</li>
 <li>Island (<code>island</code>)</li>
-<li>Bill (<code>bill_len</code>): <a href="https://allisonhorst.github.io/palmerpenguins/reference/figures/culmen_depth.png" class="external-link">the
+<li>Bill length (<code>bill_len</code>): <a href="https://allisonhorst.github.io/palmerpenguins/reference/figures/culmen_depth.png" class="external-link">the
 length of a penguin’s “beak”</a> in millimetres</li>
 <li>Bill depth (<code>bill_dep</code>): <a href="https://allisonhorst.github.io/palmerpenguins/reference/figures/culmen_depth.png" class="external-link">the
 depth of a penguin’s “beak”</a> in millimetres</li>
@@ -298,7 +299,7 @@ order; in particular, their order is unrelated to the time of sampling.
 We make this assumption in order to avoid trends, which we’ll discuss in
 another vignette.</p>
 <p>We receive the first 10 samples from our sampling survey and store
-them in the file <code>'penguin_data10.csv'</code>, respecting the <a href="#format">formatting rules required by
+them in the file <code>penguin_data10.csv</code>, respecting the <a href="#format">formatting rules required by
 <strong><em>inferno</em></strong></a>:</p>
 <div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">datafile</span> <span class="op">&lt;-</span> <span class="st">'penguin_data10.csv'</span></span>
@@ -573,7 +574,7 @@ helper function. This function reads the sample data and prepares a
 preliminary file containing heuristic <em>guesses</em> about the
 metadata. We must then check and correct this file. The function
 motivates its guesses and warns about especially uncertain ones. Here is
-the code to generate a <code>'penguin_metadata.csv'</code> file, and the
+the code to generate a <code>penguin_metadata.csv</code> file, and the
 output and warnings of the helper function:</p>
 <div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">metadatafile</span> <span class="op">&lt;-</span> <span class="st">'penguin_metadata.csv'</span></span>
@@ -884,10 +885,10 @@ are continuous, with a minimal value of <code>0</code> and no maximal
 value. They are rounded to <code>1</code> mm and <code>25</code> g (this
 was correctly guessed).</p>
 <p>We must open the preliminary metadata file
-<code>'penguin_metadata.csv'</code> with our favourite editor, and
-correct and complete the guesses of the helper function. In this case we
-end up with the following corrected metadata file, also available for
-download as <a href="https://github.com/pglpm/inferno/raw/main/development/downloads/penguin_metadata.csv" class="external-link"><code>'penguin_data.csv'</code></a>:</p>
+<code>penguin_metadata.csv</code> with our favourite editor, and correct
+and complete the guesses of the helper function. In this case we end up
+with the following corrected metadata file, also available for download
+as <a href="https://github.com/pglpm/inferno/raw/main/development/downloads/penguin_metadata.csv" class="external-link"><code>penguin_data.csv</code></a>:</p>
 <table style="width:100%;" class="table">
 <colgroup>
 <col width="11%">
@@ -1116,13 +1117,13 @@ error can be specified with the &lt;code&gt;nsamples&lt;/code&gt; and
 10 sample data and 8 variates, took around 3 GB and 7 minutes to
 complete on 4 cores.</p>
 <p>The results of this main inference are now stored in the compressed
-file <code>'learnt.rds'</code> (around 32 MB) within the specified
-output directory. The name of this directory is also saved as the final
-value of the <code><a href="../reference/learn.html">learn()</a></code> function. We saved this directory name
-in the <code>learnt10</code> variable in the code above, by invoking
+file <code>learnt.rds</code> (around 32 MB) within the specified output
+directory. The name of this directory is also saved as the final value
+of the <code><a href="../reference/learn.html">learn()</a></code> function. We saved this directory name in
+the <code>learnt10</code> variable in the code above, by invoking
 <code>learnt10 &lt;- learn(...)</code>.</p>
 <p>For your convenience the object produced by the computation above can
-be downloaded as the file <a href="https://github.com/pglpm/inferno/raw/main/development/downloads/learnt10.rds" class="external-link"><code>'learnt10.rds'</code></a>.
+be downloaded as the file <a href="https://github.com/pglpm/inferno/raw/main/development/downloads/learnt10.rds" class="external-link"><code>learnt10.rds</code></a>.
 Once you have downloaded it in your working directory you can just
 invoke</p>
 <div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
@@ -1669,7 +1670,7 @@ Biscoe island, and differ by 10% or more apart on Dream island. But the
 analysis and hypotheses had very large uncertainties.</p>
 <p>Now imagine that our sampling colleagues send us 50 more datapoints,
 which we add to the 10 we already have. Let’s store the 60 datapoints in
-the file <code>'penguin_data60.csv'</code>:</p>
+the file <code>penguin_data60.csv</code>:</p>
 <div class="sourceCode" id="cb21"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">datafile</span> <span class="op">&lt;-</span> <span class="st">'penguin_data60.csv'</span></span>
 <span><span class="fu"><a href="../reference/inferno.data.html">write.csvi</a></span><span class="op">(</span><span class="va">penguin</span><span class="op">[</span><span class="fl">1</span><span class="op">:</span><span class="fl">60</span>, <span class="op">]</span>, <span class="va">datafile</span><span class="op">)</span> <span class="co">## write the first 60 samples</span></span></code></pre></div>
@@ -1737,9 +1738,9 @@ computer:</p>
 <p>The calculation with 60 sample data took around 3 GB and 6 minutes on
 4 cores.</p>
 <p>The results of this updated inference are now stored in the
-compressed file <code>'learnt.rds'</code> within the new output
-directory. For your convenience the object produced by the computation
-above can be downloaded as the file <a href="https://github.com/pglpm/inferno/raw/main/development/downloads/learnt60.rds" class="external-link"><code>'learnt60.rds'</code></a>.
+compressed file <code>learnt.rds</code> within the new output directory.
+For your convenience the object produced by the computation above can be
+downloaded as the file <a href="https://github.com/pglpm/inferno/raw/main/development/downloads/learnt60.rds" class="external-link"><code>learnt60.rds</code></a>.
 Once you have downloaded it in your working directory, invoke</p>
 <div class="sourceCode" id="cb23"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">learnt60</span> <span class="op">&lt;-</span> <span class="st">'learnt60.rds'</span></span></code></pre></div>
@@ -2043,10 +2044,10 @@ samples, for a total of 344 with the ones previously sent. The sampling
 then stopped, so this is all the data we have to report our final
 findings and their uncertainty.</p>
 <p>Let’s store all datapoints in the file
-<code>'penguin_data.csv'</code>:</p>
+<code>penguin_data.csv</code>:</p>
 <div class="sourceCode" id="cb37"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">datafile</span> <span class="op">&lt;-</span> <span class="st">'penguin_data.csv'</span></span>
-<span><span class="fu"><a href="../reference/inferno.data.html">write.csvi</a></span><span class="op">(</span><span class="va">penguin</span>, <span class="va">datafile</span><span class="op">)</span> <span class="co">## write the first 60 samples</span></span></code></pre></div>
+<span><span class="fu"><a href="../reference/inferno.data.html">write.csvi</a></span><span class="op">(</span><span class="va">penguin</span>, <span class="va">datafile</span><span class="op">)</span></span></code></pre></div>
 <p>As usual we perform the updated inference with the
 <code><a href="../reference/learn.html">learn()</a></code> function (and as usual please wait before running
 the code below):</p>
@@ -2107,8 +2108,8 @@ the code below):</p>
 <p>The calculation with 344 sample data took around 3.5 GB and 2 hours
 on 4 cores.</p>
 <p>The results of this final inference are stored in the compressed file
-<code>'learnt.rds'</code> within the new output directory. The object
-produced by the computation above can be downloaded as the file <a href="https://github.com/pglpm/inferno/raw/main/development/downloads/learntall.rds" class="external-link"><code>'learntall.rds'</code></a>.
+<code>learnt.rds</code> within the new output directory. The object
+produced by the computation above can be downloaded as the file <a href="https://github.com/pglpm/inferno/raw/main/development/downloads/learntall.rds" class="external-link"><code>learntall.rds</code></a>.
 Once you have downloaded it in your working directory, invoke</p>
 <div class="sourceCode" id="cb39"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">learntall</span> <span class="op">&lt;-</span> <span class="st">'learntall.rds'</span></span></code></pre></div>
