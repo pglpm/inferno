@@ -43,7 +43,7 @@ Let's load the ***inferno*** package, if we haven't already done so, and set a r
 ``` r
 library('inferno')
 
-set.seed(30)
+set.seed(10)
 ```
 
 As in the `vignette('inferno_start')`, we work with a specific population of penguins, of which we have 344 sample data stored in the [`datasets::penguins`] dataset, included in R version 4.5.0 and above. For your convenience you can download the shuffled dataset as the CSV file [`penguin_data.csv`](https://github.com/pglpm/inferno/raw/main/development/downloads/penguin_data.csv), then load it with the `read.csvi()` function as follows:
@@ -85,6 +85,8 @@ flexiplot(x = penguin$island, y = penguin$species,
 <p class="caption">**Scatter plot of sample data**</p>
 </div>
 
+Note how `flexiplot()` automatically add a slight jitter (by means of `base::jitter()`) to the discrete variates, so that the points don't just overlap rendering the plot otherwise incomprehensible.
+
 We immediately see some basic features of these variates in this sample. For example:
 
 - the most common occurrence is the pair `island = 'Biscoe'` and `species = 'Gentoo'`;
@@ -122,12 +124,12 @@ rPr(
     Ynames = c('island', 'species'),
     learnt = learnt
 )
-#           island   species
-# 255_1  Torgersen    Adelie
-# 826_1      Dream Chinstrap
-# 1418_1 Torgersen    Adelie
-# 2394_1     Dream    Adelie
-# 2855_1 Torgersen    Adelie
+#        island   species
+# 644_1  Biscoe    Gentoo
+# 996_1  Biscoe    Gentoo
+# 1228_1 Biscoe    Adelie
+# 2230_1  Dream Chinstrap
+# 3083_1  Dream Chinstrap
 ```
 
 The rows of the resulting data frame are named according to the Monte Carlo samples used from the `learnt` object; they can be useful for peculiar studies but we can completely ignore them in the present case.
@@ -149,6 +151,49 @@ flexiplot(x = samples$island, y = samples$species,
 </div>
 
 The scatter plot above correctly reflects the *estimated* features of the *whole* population.
+
+## Examples with other variates
+
+The sampling and plotting from the previous example is easily extended to any other pair or variates, or even to pairs of sets of variates. Let us visualize for instance the joint probability of `body_mass` and `species` with another scatter plot.
+
+We generate 2000 whole-population samples of the two variates with `rPr()`, and then scatter-plot them with `flexiplot()`:
+
+
+``` r
+samples <- rPr(n = 2000, Ynames = c('body_mass', 'species'), learnt = learnt)
+
+flexiplot(x = samples$body_mass, y = samples$species,
+    type = 'p', xlab = 'body_mass / g', ylab = 'species',
+    ydomain = speciesvalues)
+```
+
+<div class="figure">
+<img src="figure/gensamplesplotbodymassspecies-1.png" alt="**Scatter plot for whole population**" width="100%" />
+<p class="caption">**Scatter plot for whole population**</p>
+</div>
+
+Note again how `flexiplot()` automatically add a jitter to the discrete variate `species`, but not to the continuous `body_mass`.
+
+From the plot we see that there is an association between the Adélie and Chinstrap species and lighter body mass, around 3500 g; and between the Gentoo species and heavier body mass, around 5000 g. Incidentally, this reflects the probability plot at the end of the `vignette('inferno_start')`.
+
+\
+In a completely analogous way we can visually assess the association of two continuous variates, such as body mass and bill length (`bill_len`):
+
+
+``` r
+samples <- rPr(n = 2000, Ynames = c('body_mass', 'bill_len'), learnt = learnt)
+
+flexiplot(x = samples$body_mass, y = samples$bill_len,
+    type = 'p', xlab = 'body_mass / g', ylab = 'bill_len / mm')
+```
+
+<div class="figure">
+<img src="figure/gensamplesplotbodybilllen-1.png" alt="**Scatter plot for whole population**" width="100%" />
+<p class="caption">**Scatter plot for whole population**</p>
+</div>
+
+
+
 
 \
 
