@@ -19,10 +19,10 @@ See the `vignette('inferno_start')` for an introduction to the package. The pres
 
 # Probabilities and associations
 
-The `vignette('inferno_start')` focuses on the [`datasets::penguins`] dataset, and shows how to calculate probabilities of single and joint variates from that dataset; also probabilities conditional on given variates. These probabilities refers to a *new unit*; for example:
+The `vignette('inferno_start')` focuses on the `datasets::penguins` dataset, and shows how to calculate probabilities of single and joint variates from that dataset; also probabilities conditional on given variates. These probabilities refers to a *new unit*; for example:
 
-- If we find that $\operatorname{Pr}(\text{species}\mathrel{\!=\!} \text{Adelie}) = 44\%$, then there's a 44% probability that the next penguin we sample (from the same population) is of the *Adélie* species.
-- If we find that $\operatorname{Pr}(\text{species}\mathrel{\!=\!} \text{Gentoo} \,\vert\, \text{island} \mathrel{\!=\!} \text{Biscoe}) = 1\%$, then if we have a new penguin, and we know it is from Biscoe island, there's a 1% probability that it is of the *Gentoo* species.
+- If we find that $\mathrm{Pr}(\text{species}\mathrel{\!=\!} \text{Adelie}) = 44\%$, then there's a 44% probability that the next penguin we sample (from the same population) is of the *Adélie* species.
+- If we find that $\mathrm{Pr}(\text{species}\mathrel{\!=\!} \text{Gentoo} \,\vert\, \text{island} \mathrel{\!=\!} \text{Biscoe}) = 1\%$, then if we have a new penguin, and we know it is from Biscoe island, there's a 1% probability that it is of the *Gentoo* species.
 
 And these probabilities can also be interpreted as "estimates" of the corresponding *whole-population* frequencies.
 
@@ -33,7 +33,7 @@ We shall now explore first some visual ways to examine associations with ***infe
 
 \
 
-# Drawing and plotting *new* samples
+# Generating and plotting *new* samples
 
 ## Setup
 
@@ -58,7 +58,7 @@ learnt <- 'learntall.rds'
 ```
 which produces an object `learnt` (just a character string, in this case) which shall be used in the following analysis.
 
-## Drawing new samples
+## Generating new samples
 
 Let's focus on the `island` and `species` variates. Each variate has three possible values; ***inferno***'s utility function `vrtgrid()` allows us to create a vector of all possible values of each variate, which are stored in the metadata of the `learnt` object:
 
@@ -106,7 +106,7 @@ signif(prob$values, digits = 2)
 \
 This example shows the limitations of using sample data for visualizing features of the *whole* population. How would a scatter plot analogous to the one above look like, for the *whole* population of for a much larger sample?
 
-The ***inferno*** package offers the function `rPr()` to generate fictitious samples from the estimated frequencies of the whole population. These samples are collected in a data frame. They samples can be used for different purposes, for instance to produce a scatter plot. The main arguments of `rPr()` are:
+The ***inferno*** package offers the function `rPr()` to generate a data.frame of fictitious samples from the estimated frequencies of the whole population. These samples can be used for different purposes, for instance to produce a scatter plot. The main arguments of `rPr()` are:
 
 - `n`: a positive integer, the number of samples to generate.
 - `Ynames`: vector of variate names; samples are generates for these variates jointly.

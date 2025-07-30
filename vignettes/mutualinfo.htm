@@ -355,16 +355,16 @@ dataset.</p>
 <h1><span class="header-section-number">1</span> Probabilities and
 associations</h1>
 <p>The <code>vignette(&#39;inferno_start&#39;)</code> focuses on the
-[<code>datasets::penguins</code>] dataset, and shows how to calculate
+<code>datasets::penguins</code> dataset, and shows how to calculate
 probabilities of single and joint variates from that dataset; also
 probabilities conditional on given variates. These probabilities refers
 to a <em>new unit</em>; for example:</p>
 <ul>
-<li>If we find that <span class="math inline">\(\operatorname{Pr}(\text{species}\mathrel{\!=\!}
+<li>If we find that <span class="math inline">\(\mathrm{Pr}(\text{species}\mathrel{\!=\!}
 \text{Adelie}) = 44\%\)</span>, then there’s a 44% probability that the
 next penguin we sample (from the same population) is of the
 <em>Adélie</em> species.</li>
-<li>If we find that <span class="math inline">\(\operatorname{Pr}(\text{species}\mathrel{\!=\!}
+<li>If we find that <span class="math inline">\(\mathrm{Pr}(\text{species}\mathrel{\!=\!}
 \text{Gentoo} \,\vert\, \text{island} \mathrel{\!=\!} \text{Biscoe}) =
 1\%\)</span>, then if we have a new penguin, and we know it is from
 Biscoe island, there’s a 1% probability that it is of the
@@ -393,8 +393,8 @@ impossible.</p>
 <p><br />
 </p>
 </div>
-<div id="drawing-and-plotting-new-samples" class="section level1" number="2">
-<h1><span class="header-section-number">2</span> Drawing and plotting
+<div id="generating-and-plotting-new-samples" class="section level1" number="2">
+<h1><span class="header-section-number">2</span> Generating and plotting
 <em>new</em> samples</h1>
 <div id="setup" class="section level2" number="2.1">
 <h2><span class="header-section-number">2.1</span> Setup</h2>
@@ -423,8 +423,8 @@ invoke</p>
 <p>which produces an object <code>learnt</code> (just a character
 string, in this case) which shall be used in the following analysis.</p>
 </div>
-<div id="drawing-new-samples" class="section level2" number="2.2">
-<h2><span class="header-section-number">2.2</span> Drawing new
+<div id="generating-new-samples" class="section level2" number="2.2">
+<h2><span class="header-section-number">2.2</span> Generating new
 samples</h2>
 <p>Let’s focus on the <code>island</code> and <code>species</code>
 variates. Each variate has three possible values;
@@ -480,11 +480,10 @@ features of the <em>whole</em> population. How would a scatter plot
 analogous to the one above look like, for the <em>whole</em> population
 of for a much larger sample?</p>
 <p>The <strong><em>inferno</em></strong> package offers the function
-<code>rPr()</code> to generate fictitious samples from the estimated
-frequencies of the whole population. These samples are collected in a
-data frame. They samples can be used for different purposes, for
-instance to produce a scatter plot. The main arguments of
-<code>rPr()</code> are:</p>
+<code>rPr()</code> to generate a data.frame of fictitious samples from
+the estimated frequencies of the whole population. These samples can be
+used for different purposes, for instance to produce a scatter plot. The
+main arguments of <code>rPr()</code> are:</p>
 <ul>
 <li><code>n</code>: a positive integer, the number of samples to
 generate.</li>
