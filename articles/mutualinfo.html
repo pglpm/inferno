@@ -262,7 +262,7 @@ plot:</p>
 features of the <em>whole</em> population.</p>
 </div>
 <div class="section level3">
-<h3 id="examples-with-other-variates">Examples with other variates<a class="anchor" aria-label="anchor" href="#examples-with-other-variates"></a>
+<h3 id="example-with-a-continuous-and-a-discrete-variate">Example with a continuous and a discrete variate<a class="anchor" aria-label="anchor" href="#example-with-a-continuous-and-a-discrete-variate"></a>
 </h3>
 <p>The sampling and plotting from the previous example is easily
 extended to any other pair or variates, or even to pairs of sets of
@@ -271,16 +271,22 @@ variates. Let us visualize for instance the joint probability of
 plot.</p>
 <p>We generate 2000 whole-population samples of the two variates with
 <code><a href="../reference/rPr.html">rPr()</a></code>, and then scatter-plot them with
-<code><a href="../reference/flexiplot.html">flexiplot()</a></code>:</p>
+<code><a href="../reference/flexiplot.html">flexiplot()</a></code>. First we select an appropriate plot range for
+the continuous variate <code>body_mass</code> by means of
+<strong><em>inferno</em></strong>’s utility function
+<code><a href="../reference/vrtgrid.html">vrtgrid()</a></code>: this function chooses an optimal value based on,
+and including, the range of data previously observed:</p>
 <div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">samples</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/rPr.html">rPr</a></span><span class="op">(</span>n <span class="op">=</span> <span class="fl">2000</span>, Ynames <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">'body_mass'</span>, <span class="st">'species'</span><span class="op">)</span>, learnt <span class="op">=</span> <span class="va">learnt</span><span class="op">)</span></span>
+<code class="sourceCode R"><span><span class="va">body_massrange</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/range.html" class="external-link">range</a></span><span class="op">(</span><span class="fu"><a href="../reference/vrtgrid.html">vrtgrid</a></span><span class="op">(</span>vrt <span class="op">=</span> <span class="st">'body_mass'</span>, learnt <span class="op">=</span> <span class="va">learnt</span><span class="op">)</span><span class="op">)</span></span>
+<span></span>
+<span><span class="va">samples</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/rPr.html">rPr</a></span><span class="op">(</span>n <span class="op">=</span> <span class="fl">2000</span>, Ynames <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">'body_mass'</span>, <span class="st">'species'</span><span class="op">)</span>, learnt <span class="op">=</span> <span class="va">learnt</span><span class="op">)</span></span>
 <span></span>
 <span><span class="fu"><a href="../reference/flexiplot.html">flexiplot</a></span><span class="op">(</span>x <span class="op">=</span> <span class="va">samples</span><span class="op">$</span><span class="va">body_mass</span>, y <span class="op">=</span> <span class="va">samples</span><span class="op">$</span><span class="va">species</span>,</span>
 <span>    type <span class="op">=</span> <span class="st">'p'</span>, xlab <span class="op">=</span> <span class="st">'body_mass / g'</span>, ylab <span class="op">=</span> <span class="st">'species'</span>,</span>
-<span>    ydomain <span class="op">=</span> <span class="va">speciesvalues</span><span class="op">)</span></span></code></pre></div>
+<span>    xlim <span class="op">=</span> <span class="va">body_massrange</span>, ydomain <span class="op">=</span> <span class="va">speciesvalues</span><span class="op">)</span></span></code></pre></div>
 <div class="figure">
-<img src="figure/gensamplesplotbodymassspecies-1.png" alt="**Scatter plot for whole population**" width="100%"><p class="caption">
-<strong>Scatter plot for whole population</strong>
+<img src="figure/gensamplesplotbodymassspecies-1.png" alt="**Scatter plot for body mass and species**" width="100%"><p class="caption">
+<strong>Scatter plot for body mass and species</strong>
 </p>
 </div>
 <p>Note again how <code><a href="../reference/flexiplot.html">flexiplot()</a></code> automatically add a jitter to
@@ -291,20 +297,89 @@ and Chinstrap species and lighter body mass, around 3500 g; and between
 the Gentoo species and heavier body mass, around 5000 g. Incidentally,
 this reflects the probability plot at the end of the
 <code><a href="../articles/inferno_start.html">vignette('inferno_start')</a></code>.</p>
-<p><br>
-In a completely analogous way we can visually assess the association of
-two continuous variates, such as body mass and bill length
+</div>
+<div class="section level3">
+<h3 id="samples-and-plots-for-different-subpopulations">Samples and plots for different subpopulations<a class="anchor" aria-label="anchor" href="#samples-and-plots-for-different-subpopulations"></a>
+</h3>
+<p>In a completely analogous way we can visually assess the association
+of two continuous variates, such as body mass and bill length
 (<code>bill_len</code>):</p>
 <div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">samples</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/rPr.html">rPr</a></span><span class="op">(</span>n <span class="op">=</span> <span class="fl">2000</span>, Ynames <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">'body_mass'</span>, <span class="st">'bill_len'</span><span class="op">)</span>, learnt <span class="op">=</span> <span class="va">learnt</span><span class="op">)</span></span>
+<code class="sourceCode R"><span><span class="va">bill_lenrange</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/range.html" class="external-link">range</a></span><span class="op">(</span><span class="fu"><a href="../reference/vrtgrid.html">vrtgrid</a></span><span class="op">(</span>vrt <span class="op">=</span> <span class="st">'bill_len'</span>, learnt <span class="op">=</span> <span class="va">learnt</span><span class="op">)</span><span class="op">)</span></span>
+<span></span>
+<span><span class="va">samples</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/rPr.html">rPr</a></span><span class="op">(</span>n <span class="op">=</span> <span class="fl">2000</span>, Ynames <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">'body_mass'</span>, <span class="st">'bill_len'</span><span class="op">)</span>, learnt <span class="op">=</span> <span class="va">learnt</span><span class="op">)</span></span>
 <span></span>
 <span><span class="fu"><a href="../reference/flexiplot.html">flexiplot</a></span><span class="op">(</span>x <span class="op">=</span> <span class="va">samples</span><span class="op">$</span><span class="va">body_mass</span>, y <span class="op">=</span> <span class="va">samples</span><span class="op">$</span><span class="va">bill_len</span>,</span>
-<span>    type <span class="op">=</span> <span class="st">'p'</span>, xlab <span class="op">=</span> <span class="st">'body_mass / g'</span>, ylab <span class="op">=</span> <span class="st">'bill_len / mm'</span><span class="op">)</span></span></code></pre></div>
+<span>    type <span class="op">=</span> <span class="st">'p'</span>, xlab <span class="op">=</span> <span class="st">'body_mass / g'</span>, ylab <span class="op">=</span> <span class="st">'bill_len / mm'</span>,</span>
+<span>    xlim <span class="op">=</span> <span class="va">body_massrange</span>, ylim <span class="op">=</span> <span class="va">bill_lenrange</span><span class="op">)</span></span></code></pre></div>
 <div class="figure">
-<img src="figure/gensamplesplotbodybilllen-1.png" alt="**Scatter plot for whole population**" width="100%"><p class="caption">
-<strong>Scatter plot for whole population</strong>
+<img src="figure/gensamplesplotbodybilllen-1.png" alt="**Scatter plot of body mass and bill length**" width="100%"><p class="caption">
+<strong>Scatter plot of body mass and bill length</strong>
 </p>
 </div>
+<p>The scatter plot shows that there is a partly linear relationship
+between body mass and bill length; but there’s a sort of additional
+cluster around 4000 g for body mass and 45 mm for bill length.</p>
+<p>This observation leads to another interesting question: is the
+association between <code>body_mass</code> and <code>bill_len</code>
+different for different species? Perhaps the additional cluster is
+characteristic of one species only. We are therefore interested in
+studying this association for different
+<strong>subpopulations</strong>.</p>
+<p>Subpopulation sampling and plots can also be easily done with the
+<code><a href="../reference/rPr.html">rPr()</a></code> and <code><a href="../reference/flexiplot.html">flexiplot()</a></code> functions. In the
+<code><a href="../reference/rPr.html">rPr()</a></code> function we can specify the requested subpopulation
+via the <code>X</code> argument, analogously to the <code><a href="../reference/Pr.html">Pr()</a></code>
+function.</p>
+<p>Let’s generate sets of samples separately for the species
+<code>'Adelie'</code>, <code>'Chinstrap'</code>,
+<code>'Gentoo'</code>:</p>
+<div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">samplesAdelie</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/rPr.html">rPr</a></span><span class="op">(</span></span>
+<span>    n <span class="op">=</span> <span class="fl">1000</span>,</span>
+<span>    Ynames <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">'body_mass'</span>, <span class="st">'bill_len'</span><span class="op">)</span>,</span>
+<span>    X <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span>species <span class="op">=</span> <span class="st">'Adelie'</span><span class="op">)</span>,</span>
+<span>    learnt <span class="op">=</span> <span class="va">learnt</span><span class="op">)</span></span>
+<span></span>
+<span><span class="va">samplesChinstrap</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/rPr.html">rPr</a></span><span class="op">(</span></span>
+<span>    n <span class="op">=</span> <span class="fl">1000</span>,</span>
+<span>    Ynames <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">'body_mass'</span>, <span class="st">'bill_len'</span><span class="op">)</span>,</span>
+<span>    X <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span>species <span class="op">=</span> <span class="st">'Chinstrap'</span><span class="op">)</span>,</span>
+<span>    learnt <span class="op">=</span> <span class="va">learnt</span><span class="op">)</span></span>
+<span></span>
+<span><span class="va">samplesGentoo</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/rPr.html">rPr</a></span><span class="op">(</span></span>
+<span>    n <span class="op">=</span> <span class="fl">1000</span>,</span>
+<span>    Ynames <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">'body_mass'</span>, <span class="st">'bill_len'</span><span class="op">)</span>,</span>
+<span>    X <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span>species <span class="op">=</span> <span class="st">'Gentoo'</span><span class="op">)</span>,</span>
+<span>    learnt <span class="op">=</span> <span class="va">learnt</span><span class="op">)</span></span></code></pre></div>
+<p>Now we plot these samples together with <code><a href="../reference/flexiplot.html">flexiplot()</a></code>,
+choosing different colours and shapes for the three subpopulations. We
+also use the <code>alpha.f</code> argument to make sure that the plot
+points don’t completely cover one another:</p>
+<div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="../reference/flexiplot.html">flexiplot</a></span><span class="op">(</span></span>
+<span>    x <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/cbind.html" class="external-link">cbind</a></span><span class="op">(</span><span class="va">samplesAdelie</span><span class="op">$</span><span class="va">body_mass</span>,</span>
+<span>        <span class="va">samplesChinstrap</span><span class="op">$</span><span class="va">body_mass</span>,</span>
+<span>        <span class="va">samplesGentoo</span><span class="op">$</span><span class="va">body_mass</span><span class="op">)</span>,</span>
+<span>    y <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/cbind.html" class="external-link">cbind</a></span><span class="op">(</span><span class="va">samplesAdelie</span><span class="op">$</span><span class="va">bill_len</span>,</span>
+<span>        <span class="va">samplesChinstrap</span><span class="op">$</span><span class="va">bill_len</span>,</span>
+<span>        <span class="va">samplesGentoo</span><span class="op">$</span><span class="va">bill_len</span><span class="op">)</span>,</span>
+<span>    type <span class="op">=</span> <span class="st">'p'</span>, xlab <span class="op">=</span> <span class="st">'body_mass / g'</span>, ylab <span class="op">=</span> <span class="st">'bill_len / mm'</span>,</span>
+<span>    xlim <span class="op">=</span> <span class="va">body_massrange</span>, ylim <span class="op">=</span> <span class="va">bill_lenrange</span>,</span>
+<span>    pch <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0</span>, <span class="fl">2</span>, <span class="fl">5</span><span class="op">)</span>, col <span class="op">=</span> <span class="fl">2</span><span class="op">:</span><span class="fl">4</span>, alpha.f <span class="op">=</span> <span class="fl">0.2</span><span class="op">)</span></span>
+<span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/graphics/legend.html" class="external-link">legend</a></span><span class="op">(</span><span class="st">'top'</span>, <span class="va">speciesvalues</span>, pch <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0</span>, <span class="fl">2</span>, <span class="fl">5</span><span class="op">)</span>, col <span class="op">=</span> <span class="fl">2</span><span class="op">:</span><span class="fl">4</span>,</span>
+<span>    horiz <span class="op">=</span> <span class="cn">TRUE</span>, bty <span class="op">=</span> <span class="st">'n'</span><span class="op">)</span></span></code></pre></div>
+<div class="figure">
+<img src="figure/plotbodybilllen3-1.png" alt="**Scatter plot for species subpopulations**" width="100%"><p class="caption">
+<strong>Scatter plot for species subpopulations</strong>
+</p>
+</div>
+<p>The plot above shows quite clearly that the
+<code>body_mass</code>-<code>bill_len</code> association is indeed
+different for each species. The roughly linear relationship that we
+thought we saw earlier was partially spurious, coming from the
+combination of associations for Adélie and Gentoo penguins.</p>
 <p><br></p>
 <p><em>(TO BE CONTINUED)</em></p>
 </div>
