@@ -34,7 +34,7 @@ the installation will also automatically install all required R-dependencies.
 
 ## Documentation
 
-The vignette [*Bayesian nonparametric inference with **inferno***](https://pglpm.github.io/inferno/articles/vignette_start.html) is a step-by-step introduction to **inferno** and also to Bayesian nonparametrics. It guides you through a concrete example with various kinds of inferences. You may also try to follow it using a dataset of your own.
+The vignette [*Bayesian nonparametric inference with **inferno***](https://pglpm.github.io/inferno/articles/inferno_start.html) is a step-by-step introduction to **inferno** and also to Bayesian nonparametrics. It guides you through a concrete example with various kinds of inferences. You may also try to follow it using a dataset of your own.
 
 Other tutorials, still drafts, are available at [pglpm.github.io/inferno](https://pglpm.github.io/inferno)
 
