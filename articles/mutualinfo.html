@@ -75,17 +75,195 @@ the package. The present vignette continues with the same example and
 dataset.</p>
 <p><br></p>
 <div class="section level2">
-<h2 id="context-penguins">Context: penguins<a class="anchor" aria-label="anchor" href="#context-penguins"></a>
+<h2 id="probabilities-and-associations">Probabilities and associations<a class="anchor" aria-label="anchor" href="#probabilities-and-associations"></a>
 </h2>
 <p>The <code><a href="../articles/inferno_start.html">vignette('inferno_start')</a></code> focuses on the
 [<code><a href="https://rdrr.io/r/datasets/penguins.html" class="external-link">datasets::penguins</a></code>] dataset, and shows how to calculate
 probabilities of single and joint variates from that dataset; also
-probabilities conditional on given variates. The probabilities</p>
-<p>shows examples of calculations of probabilities and conditional
-probabilities</p>
+probabilities conditional on given variates. These probabilities refers
+to a <em>new unit</em>; for example:</p>
+<ul>
+<li>If we find that
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo>Pr</mo><mrow><mo stretchy="true" form="prefix">(</mo><mtext mathvariant="normal">species</mtext><mrow><mspace width="-0.167em"></mspace><mo>=</mo><mspace width="-0.167em"></mspace></mrow><mtext mathvariant="normal">Adelie</mtext><mo stretchy="true" form="postfix">)</mo></mrow><mo>=</mo><mn>44</mn><mi>%</mi></mrow><annotation encoding="application/x-tex">\operatorname{Pr}(\text{species}\mathrel{\!=\!} \text{Adelie}) = 44\%</annotation></semantics></math>,
+then there’s a 44% probability that the next penguin we sample (from the
+same population) is of the <em>Adélie</em> species.</li>
+<li>If we find that
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo>Pr</mo><mrow><mo stretchy="true" form="prefix">(</mo><mtext mathvariant="normal">species</mtext><mrow><mspace width="-0.167em"></mspace><mo>=</mo><mspace width="-0.167em"></mspace></mrow><mtext mathvariant="normal">Gentoo</mtext><mspace width="0.167em"></mspace><mo stretchy="false" form="postfix">|</mo><mspace width="0.167em"></mspace><mtext mathvariant="normal">island</mtext><mrow><mspace width="-0.167em"></mspace><mo>=</mo><mspace width="-0.167em"></mspace></mrow><mtext mathvariant="normal">Biscoe</mtext><mo stretchy="true" form="postfix">)</mo></mrow><mo>=</mo><mn>1</mn><mi>%</mi></mrow><annotation encoding="application/x-tex">\operatorname{Pr}(\text{species}\mathrel{\!=\!} \text{Gentoo} \,\vert\, \text{island} \mathrel{\!=\!} \text{Biscoe}) = 1\%</annotation></semantics></math>,
+then if we have a new penguin, and we know it is from Biscoe island,
+there’s a 1% probability that it is of the <em>Gentoo</em> species.</li>
+</ul>
+<p>And these probabilities can also be interpreted as “estimates” of the
+corresponding <em>whole-population</em> frequencies.</p>
+<p><br>
+Joint probabilities and conditional probabilities already give a
+quantitative measure of the “association”, “correlation”, or “link”
+between several variates. They tell us for instance that it can be rare
+or very common to observe particular pairs of values together; or that
+it is rare or very common to observe values of some variates in cases
+where other variates have particular values. In the example above, it’s
+rare to observe the value <code>'Gentoo'</code> of the variate
+<code>species</code> in penguins that have value <code>'Biscoe'</code>
+for the variate <code>island</code>. These associations are extremely
+important in fields like medicine, where we may want to diagnose or
+prognose a disease from possible symptoms, or we try to understand which
+clinical conditions are associated with the disease, possibly because of
+underlying biological reasons.</p>
+<p>We shall now explore first some visual ways to examine associations
+with <strong><em>inferno</em></strong>, and then some more precise
+quantitative ways, which also apply when visualization becomes
+impossible.</p>
+<p><br></p>
+</div>
+<div class="section level2">
+<h2 id="drawing-and-plotting-new-samples">Drawing and plotting <em>new</em> samples<a class="anchor" aria-label="anchor" href="#drawing-and-plotting-new-samples"></a>
+</h2>
+<div class="section level3">
+<h3 id="setup">Setup<a class="anchor" aria-label="anchor" href="#setup"></a>
+</h3>
+<p>Let’s load the <strong><em>inferno</em></strong> package, if we
+haven’t already done so, and set a random seed to ensure
+reproducibility:</p>
+<div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="st"><a href="https://github.com/pglpm/inferno/" class="external-link">'inferno'</a></span><span class="op">)</span></span>
+<span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/Random.html" class="external-link">set.seed</a></span><span class="op">(</span><span class="fl">30</span><span class="op">)</span></span></code></pre></div>
+<p>As in the <code><a href="../articles/inferno_start.html">vignette('inferno_start')</a></code>, we work with a
+specific population of penguins, of which we have 344 sample data stored
+in the [<code><a href="https://rdrr.io/r/datasets/penguins.html" class="external-link">datasets::penguins</a></code>] dataset, included in R version
+4.5.0 and above. For your convenience you can download the shuffled
+dataset as the CSV file <a href="https://github.com/pglpm/inferno/raw/main/development/downloads/penguin_data.csv" class="external-link"><code>penguin_data.csv</code></a>,
+then load it with the <code><a href="../reference/inferno.data.html">read.csvi()</a></code> function as follows:</p>
+<p>We assume that we have already learned all predictive information
+from this dataset by means of the <strong><em>inferno</em></strong>
+function <code><a href="../reference/learn.html">learn()</a></code>. This information is stored in an object
+stored in the compressed file <code>learnt.rds</code> within the output
+directory that was specified in the <code><a href="../reference/learn.html">learn()</a></code> function. For
+your convenience the object produced by the computation above can be
+downloaded as the file <a href="https://github.com/pglpm/inferno/raw/main/development/downloads/learntall.rds" class="external-link"><code>learntall.rds</code></a>.
+Once you have downloaded it in your working directory you can just
+invoke</p>
+<div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">learnt</span> <span class="op">&lt;-</span> <span class="st">'learntall.rds'</span></span></code></pre></div>
+<p>which produces an object <code>learnt</code> (just a character
+string, in this case) which shall be used in the following analysis.</p>
+</div>
+<div class="section level3">
+<h3 id="drawing-new-samples">Drawing new samples<a class="anchor" aria-label="anchor" href="#drawing-new-samples"></a>
+</h3>
+<p>Let’s focus on the <code>island</code> and <code>species</code>
+variates. Each variate has three possible values;
+<strong><em>inferno</em></strong>’s utility function
+<code><a href="../reference/vrtgrid.html">vrtgrid()</a></code> allows us to create a vector of all possible
+values of each variate, which are stored in the metadata of the
+<code>learnt</code> object:</p>
+<div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">islandvalues</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/vrtgrid.html">vrtgrid</a></span><span class="op">(</span>vrt <span class="op">=</span> <span class="st">'island'</span>, learnt <span class="op">=</span> <span class="va">learnt</span><span class="op">)</span></span>
+<span><span class="co"># [1] "Biscoe"    "Dream"     "Torgersen"</span></span>
+<span></span>
+<span><span class="va">speciesvalues</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/vrtgrid.html">vrtgrid</a></span><span class="op">(</span>vrt <span class="op">=</span> <span class="st">'species'</span>, learnt <span class="op">=</span> <span class="va">learnt</span><span class="op">)</span></span>
+<span><span class="co"># [1] "Adelie"    "Chinstrap" "Gentoo"</span></span></code></pre></div>
+<p>The <code><a href="../reference/flexiplot.html">flexiplot()</a></code> function allows us to display the
+<code>island</code> and <code>species</code> variates against each
+other, for all <em>sample</em> data, as a scatter plot:</p>
+<div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="../reference/flexiplot.html">flexiplot</a></span><span class="op">(</span>x <span class="op">=</span> <span class="va">penguin</span><span class="op">[</span>, <span class="st">'island'</span><span class="op">]</span>, y <span class="op">=</span> <span class="va">penguin</span><span class="op">[</span>, <span class="st">'species'</span><span class="op">]</span>,</span>
+<span>    type <span class="op">=</span> <span class="st">'p'</span>, xlab <span class="op">=</span> <span class="st">'island'</span>, ylab <span class="op">=</span> <span class="st">'species'</span>,</span>
+<span>    xdomain <span class="op">=</span> <span class="va">islandvalues</span>, ydomain <span class="op">=</span> <span class="va">speciesvalues</span><span class="op">)</span></span></code></pre></div>
+<div class="figure">
+<img src="figure/vissample-1.png" alt="**Scatter plot of sample data**" width="100%"><p class="caption">
+<strong>Scatter plot of sample data</strong>
+</p>
+</div>
+<p>We immediately see some basic features of these variates in this
+sample. For example:</p>
+<ul>
+<li>the most common occurrence is the pair
+<code>island = 'Biscoe'</code> and <code>species = 'Gentoo'</code>;</li>
+<li>the pair <code>island = 'Torgersen'</code> and
+<code>species = 'Chinstrap'</code> does <em>not</em> occur at all.</li>
+</ul>
+<p>These are only features of this specific data sample, however. Can we
+generalize them to the <em>whole</em> population? Intuitively it seems
+probable that the <code>'Biscoe'</code>-<code>'Gentoo'</code> pair can
+indeed be the commonest occurrence in the whole population as well. But
+we can’t say for sure that the
+<code>'Torgersen'</code>-<code>'Chinstrap'</code> pair never occurs in
+the whole population: our sample included only 344 penguins, so what we
+can say is that this pair roughly occurs less frequently than once every
+344 penguins. In fact, a calculation with the <code><a href="../reference/Pr.html">Pr()</a></code> function
+shows that its probability is around 0.3%:</p>
+<div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">prob</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/Pr.html">Pr</a></span><span class="op">(</span>Y <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span>island <span class="op">=</span> <span class="st">'Torgersen'</span>, species <span class="op">=</span> <span class="st">'Chinstrap'</span><span class="op">)</span>,</span>
+<span>    learnt <span class="op">=</span> <span class="va">learnt</span><span class="op">)</span></span>
+<span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/Round.html" class="external-link">signif</a></span><span class="op">(</span><span class="va">prob</span><span class="op">$</span><span class="va">values</span>, digits <span class="op">=</span> <span class="fl">2</span><span class="op">)</span></span>
+<span><span class="co">#                      X</span></span>
+<span><span class="co"># Y                      [,1]</span></span>
+<span><span class="co">#   Torgersen,Chinstrap 0.003</span></span></code></pre></div>
+<p><br>
+This example shows the limitations of using sample data for visualizing
+features of the <em>whole</em> population. How would a scatter plot
+analogous to the one above look like, for the <em>whole</em> population
+of for a much larger sample?</p>
+<p>The <strong><em>inferno</em></strong> package offers the function
+<code><a href="../reference/rPr.html">rPr()</a></code> to generate fictitious samples from the estimated
+frequencies of the whole population. These samples are collected in a
+data frame. They samples can be used for different purposes, for
+instance to produce a scatter plot. The main arguments of
+<code><a href="../reference/rPr.html">rPr()</a></code> are:</p>
+<ul>
+<li>
+<code>n</code>: a positive integer, the number of samples to
+generate.</li>
+<li>
+<code>Ynames</code>: vector of variate names; samples are generates
+for these variates jointly.</li>
+<li>
+<code>X</code>: data frame of variate values to restrict the
+sampling to specific subpopulations.</li>
+<li>
+<code>learnt</code>: the object that points to the computation made
+with the <code><a href="../reference/learn.html">learn()</a></code> function.</li>
+</ul>
+<p>Let’s first generate 5 samples from the estimated whole population of
+penguins, as an example:</p>
+<div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="../reference/rPr.html">rPr</a></span><span class="op">(</span></span>
+<span>    n <span class="op">=</span> <span class="fl">5</span>,</span>
+<span>    Ynames <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">'island'</span>, <span class="st">'species'</span><span class="op">)</span>,</span>
+<span>    learnt <span class="op">=</span> <span class="va">learnt</span></span>
+<span><span class="op">)</span></span>
+<span><span class="co">#           island   species</span></span>
+<span><span class="co"># 255_1  Torgersen    Adelie</span></span>
+<span><span class="co"># 826_1      Dream Chinstrap</span></span>
+<span><span class="co"># 1418_1 Torgersen    Adelie</span></span>
+<span><span class="co"># 2394_1     Dream    Adelie</span></span>
+<span><span class="co"># 2855_1 Torgersen    Adelie</span></span></code></pre></div>
+<p>The rows of the resulting data frame are named according to the Monte
+Carlo samples used from the <code>learnt</code> object; they can be
+useful for peculiar studies but we can completely ignore them in the
+present case.</p>
+<p>Now let’s generate 2000 samples, and then plot them in a scatter
+plot:</p>
+<div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">samples</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/rPr.html">rPr</a></span><span class="op">(</span>n <span class="op">=</span> <span class="fl">2000</span>, Ynames <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">'island'</span>, <span class="st">'species'</span><span class="op">)</span>, learnt <span class="op">=</span> <span class="va">learnt</span><span class="op">)</span></span>
+<span></span>
+<span><span class="fu"><a href="../reference/flexiplot.html">flexiplot</a></span><span class="op">(</span>x <span class="op">=</span> <span class="va">samples</span><span class="op">[</span>, <span class="st">'island'</span><span class="op">]</span>, y <span class="op">=</span> <span class="va">samples</span><span class="op">[</span>, <span class="st">'species'</span><span class="op">]</span>,</span>
+<span>    type <span class="op">=</span> <span class="st">'p'</span>, xlab <span class="op">=</span> <span class="st">'island'</span>, ylab <span class="op">=</span> <span class="st">'species'</span>,</span>
+<span>    xdomain <span class="op">=</span> <span class="va">islandvalues</span>, ydomain <span class="op">=</span> <span class="va">speciesvalues</span><span class="op">)</span></span></code></pre></div>
+<div class="figure">
+<img src="figure/gensamplesplot-1.png" alt="**Scatter plot for whole population**" width="100%"><p class="caption">
+<strong>Scatter plot for whole population</strong>
+</p>
+</div>
+<p>The scatter plot above correctly reflects the <em>estimated</em>
+features of the <em>whole</em> population</p>
+<p><br></p>
 <p><em>(TO BE CONTINUED)</em></p>
 </div>
-  </main>
+</div>
+  </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>
+    </nav></aside>
 </div>
 
 
