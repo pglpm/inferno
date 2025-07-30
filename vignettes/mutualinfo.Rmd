@@ -10,6 +10,7 @@ vignette: >
 ---
 
 
+$\newcommand{\mo}{\mathrel{\!=\!}}$
 
 This vignette gives an introduction and guide to the visual and quantitative capabilities and functions of the ***inferno*** package, for the study of associations, correlations, and links.
 
@@ -21,8 +22,8 @@ See the `vignette('inferno_start')` for an introduction to the package. The pres
 
 The `vignette('inferno_start')` focuses on the `datasets::penguins` dataset, and shows how to calculate probabilities of single and joint variates from that dataset; also probabilities conditional on given variates. These probabilities refers to a *new unit*; for example:
 
-- If we find that $\mathrm{Pr}(\text{species}\mathrel{\!=\!} \text{Adelie}) = 44\%$, then there's a 44% probability that the next penguin we sample (from the same population) is of the *Adélie* species.
-- If we find that $\mathrm{Pr}(\text{species}\mathrel{\!=\!} \text{Gentoo} \,\vert\, \text{island} \mathrel{\!=\!} \text{Biscoe}) = 1\%$, then if we have a new penguin, and we know it is from Biscoe island, there's a 1% probability that it is of the *Gentoo* species.
+- If we find that $\mathrm{Pr}(\text{species}\mo \text{Adelie}) = 44\%$, then there's a 44% probability that the next penguin we sample (from the same population) is of the *Adélie* species.
+- If we find that $\mathrm{Pr}(\text{species}\mo \text{Gentoo} \,\vert\, \text{island} \mo \text{Biscoe}) = 1\%$, then if we have a new penguin, and we know it is from Biscoe island, there's a 1% probability that it is of the *Gentoo* species.
 
 And these probabilities can also be interpreted as "estimates" of the corresponding *whole-population* frequencies.
 
@@ -263,25 +264,25 @@ Plots like the ones above allow us to explore in a qualitative or semi-quantitat
 
 One very common and quite abused measure of "association" is the [Pearson correlation coefficient](https://mathworld.wolfram.com/CorrelationCoefficient.html), usually denoted "$r$". This measure is extremely limited, however. It is essentially [based on the assumption that all variates involved have a joint Gaussian distribution](https://doi.org/10.1080/01621459.1954.10501231). As a consequence, it is a measure of *linear* association, rather than general association.
 
-For instance, if the distribution of two continuous variates $X$ and $Y$ lies in a semicircle, then $Y$ is actually a function of $X$, and is therefore perfectly associated with $X$: if we know $X$, then we can exactly predict the value of $Y$. Yet the Pearson correlation coefficient between the two variates is $0$ in this case, simply because the functional dependence of $Y$ on $X$ is not linear. Here is an example plot and value:
+For instance, if the distribution of two continuous variates $Y_1$ and $Y_2$ lies in a semicircle, then $Y_2$ is actually a function of $Y_1$, and is therefore perfectly associated with $Y_1$: if we know $Y_1$, then we can exactly predict the value of $Y_2$. Yet the Pearson correlation coefficient between the two variates is $0$ in this case, simply because the functional dependence of $Y_2$ on $Y_1$ is not linear. Here is an example plot and value:
 
 
 ``` r
-X <- seq(-1, 1, length.out = 129) ## X-values
-Y <- sqrt(1 - X^2) ## Y-values: function of X
+Y1 <- seq(-1, 1, length.out = 129) ## Y1-values
+Y2 <- sqrt(1 - Y1^2) ## Y2-values: function of Y1
 
 ## Calculate Pearson correlation coefficient
-r <- cor(X, Y, method = 'pearson')
+r <- cor(Y1, Y2, method = 'pearson')
 print(r)
 # [1] 0
 
-flexiplot(x = X, y = Y, type = 'p',
+flexiplot(x = Y1, y = Y2, type = 'p',
     main = paste0('Pearson correlation: ', signif(r, 2)))
 ```
 
 <div class="figure">
-<img src="figure/pearsonplot-1.png" alt="**Perfect correlation from $X$ to $Y$, with zero Pearson correlation coefficient**" width="100%" />
-<p class="caption">**Perfect correlation from $X$ to $Y$, with zero Pearson correlation coefficient**</p>
+<img src="figure/pearsonplot-1.png" alt="**Perfect correlation from $Y_1$ to $Y_2$, with zero Pearson correlation coefficient**" width="100%" />
+<p class="caption">**Perfect correlation from $Y_1$ to $Y_2$, with zero Pearson correlation coefficient**</p>
 </div>
 
 Similar limitations of the Pearson correlation coefficient are demonstrated by the "[Anscombe quartet](https://doi.org/10.2307/2682899)" of datasets.
@@ -296,22 +297,70 @@ Is there a measure of association that enjoys at least the following three prope
 - It does not make any assumptions (such as Gaussianity) about the distribution of variates.
 - It can be used for any kind of variates.
 
-The answer is *yes, there is*! It is called the **mutual information** between variates $X$ and $Y$, and can be defined for any kinds of variates. It has in fact the following important properties:
+The answer is *yes, there is*! It is called the **mutual information** or [**mean transinformation content**](https://www.electropedia.org/iev/iev.nsf/display?openform&ievref=171-07-27) between variates $Y_1$ and $Y_2$. It has the following important properties:
 
-- If there is no association whatever between $X$ and $Y$, in the sense that knowledge of one never changes our probabilities about the other, then the mutual information between them is zero. Vice versa, if the mutual information is zero, then there is no association whatever between $X$ and $Y$.
+- If there is no association whatever between $Y_1$ and $Y_2$, in the sense that knowledge of one never changes our probabilities about the other, then the mutual information between them is zero. Vice versa, if the mutual information is zero, then there is no association of any kind between $Y_1$ and $Y_2$.
 
-- If $X$ and $Y$ have a perfect association, that is, if knowing $X$ gives us perfect knowledge about $Y$ or vice versa, or in yet other words if $Y$ is a function of $X$ or vice versa, then the mutual information between them takes on its maximal possible value. Vice versa, if the mutual information takes on its maximal value, then one variate is a function of the other.
+- It can be defined for a pair of variates $Y_1$, $Y_2$ of any kind -- continuous, nominal, binary, images, audio signals, and so on.
 
-Regarding the last feature, note that the functional dependence between $X$ and $Y$ can be *of any kind*, not just linear. This means that in the case of the semicircle plot above, the mutual information between $X$ and $Y$ has its maximal value.
+- It is defined for any probability distribution $\mathrm{Pr}(Y_1, Y_2)$ for the two variates, without assumptions such as Gaussian shapes.
 
-There's also a special case in which the *maximal* value of the mutual information is zero, which indicates that $Y$ is, technically speaking, a function of $X$, yet knowledge of $X$ doesn't give us any knowledge about $Y$. It's the case where $Y$ has just one value, independently of $X$:
+Mutual information is always positive or zero, and can be defined in several mathematically equivalent ways, such as the following:
+
+$$
+\sum_{y_1, y_2} \mathrm{Pr}(Y_1 \mo y_1, Y_2 \mo y_2) \, 
+\log_2 \frac{
+\mathrm{Pr}(Y_1 \mo y_1, Y_2 \mo y_2)
+}{
+\mathrm{Pr}(Y_1 \mo y_1) \cdot \mathrm{Pr}(Y_2 \mo y_2)
+} \; \mathrm{Sh}
+$$
+
+with integrals replacing the sums in the case of continuous variates. It is measured in *shannons* (symbol $\mathrm{Sh}$), or *hartleys* (symbol $\mathrm{Hart}$), or *natural units* (symbol $\mathrm{nat}$). These units and other properties of the mutual information are [standardized by the International Organization for Standardization (ISO) and the International Electrotechnical Commission (IEC)](https://archive.org/details/iso-standards-collection/BS%20EN%2080000-13-2008%20-%201%20Quantities%20and%20units).
+
+Mutual information is in fact a core quantity of communication theory and information theory. The design and assessment of communication channels depends crucially on it. This makes sense: the main requisite of a communication channel is a strong association between two variates: its input and output messages. You can find a brilliant introduction to its meaning and uses in MacKay's book, see [references]{#references}.
+
+\
+The ***inferno*** package provides the function `mutualinfo()` to calculate the mutual information between two variates or two sets of joint variates. Its main arguments are the following:
+
+- `Y1names`, `Y2names`: two vectors of variate names; the mutual information is calculated between these two sets.
+- `X`: data frame of variate values to restrict the calculation to specific subpopulations.
+- `learnt`: the object that points to the computation made with the `learn()` function.
+- Optionally, `unit`: the mutual information unit; default "shannons" (Sh).
+- Optionally, `parallel` specifies how many cores we should use for the computation.
+
+For example let's calculate the mutual information between the variates `island` and `species`, [previously discussed and visualized](#newsamples):
 
 
-Mutual information is measured in *shannons* (symbol $\mathrm{Sh}$), or *hartleys* (symbol $\mathrm{Hart}$), or *natural units* (symbol $\mathrm{nat}$). These units and other properties of the mutual information are [standardized by the International Organization for Standardization (ISO) and the International Electrotechnical Commission (IEC)](https://archive.org/details/iso-standards-collection/BS%20EN%2080000-13-2008%20-%201%20Quantities%20and%20units). The minimum possible value of the mutual information is always zero. The maximum possible value depends instead on the variates $X$ and $Y$.
+``` r
+MIislandspecies <- mutualinfo(
+    Y1names = 'island', Y2names = 'species',
+    learnt = learnt,
+    parallel = 4 ## let's use 4 cores
+)
+# Registered doParallelSNOW with 4 workers
+# 
+# Closing connections to cores.
+```
+The resulting object `MIislandspecies` is a list of several quantities; the mutual information is given in the `$MI` element, which includes the accuracy of the result:
 
+
+``` r
+MIislandspecies$MI
+#    value accuracy 
+# 0.633996 0.015000
+```
 
 
 
 \
 
 *(TO BE CONTINUED)*
+
+\
+
+# Appendices {#appendix}
+
+## References {#references}
+
+- MacKay: [*Information Theory, Inference, and Learning Algorithms*](https://www.inference.org.uk/itila/book.html) (2005).
