@@ -7,13 +7,13 @@
 #' @param X matrix or data.frame or NULL: values of some variates conditional on which we want the probabilities.
 #' @param learnt Either a string with the name of a directory or full path
 #'   for an 'learnt.rds' object, or such an object itself.
-#' @param tails named vector or list, or `NULL` (default). The names must match some or all of the variates in arguments `X`. For variates in this list, the probability conditional is understood in an semi-open interval sense: `X ≤ x` or `X ≥ x`, an so on. See analogous argument in \code{\link{Pr()}}.
+#' @param tails named vector or list, or `NULL` (default). The names must match some or all of the variates in arguments `X`. For variates in this list, the probability conditional is understood in an semi-open interval sense: `X ≤ x` or `X ≥ x`, an so on. See analogous argument in [Pr()].
 #' @param n integer or `NULL` (default): number of samples from which to approximately calculate the mutual information. Default as many as Monte Carlo samples in `learnt`.
 #' @param unit Either one of 'Sh' for *shannon* (default), 'Hart' for *hartley*, 'nat' for *natural unit*, or a positive real indicating the base of the logarithms to be used.
 #' @param parallel Logical or `NULL` or positive integer: `TRUE`: use roughly half of available cores; `FALSE`: use serial computation; `NULL`: don't do anything (use pre-registered condition); integer: use this many cores. Default `NULL`
 #' @param silent logical: give warnings or updates in the computation?
 #'
-#' @return A list consisting of the elements `MI`, `CondEn12`, `CondEn21`, `En1`, `En2`, `MImax`, `unit`, `Y1names`, `Y1names`. All elements except `unit`, `Y1names`, `Y2names` are a vector of `value` and `accuracy`. Element `MI` is the mutual information between (joint) variates `Y1names` and (joint) variates `Y2names`. Element`CondEn12` is the conditional entropy of the first variate given the second, and vice versa for `CondEn21`. Elements `En1` and `En1` are the (differential) entropies of the first and second variates. Element `MImax` is the maximum possible value of the mutual information. Elements `unit`, `Y1names`, `Y2names` are identical to the same inputs.
+#' @return A list consisting of the elements `MI`, `CondEn12`, `CondEn21`, `En1`, `En2`, `rGauss`, `unit`, `Y1names`, `Y1names`. All elements except `unit`, `Y1names`, `Y2names` are a vector of `value` and `accuracy`. Element `MI` is the mutual information between (joint) variates `Y1names` and (joint) variates `Y2names`. Element`CondEn12` is the conditional entropy of the first variate given the second, and vice versa for `CondEn21`. Elements `En1` and `En1` are the (differential) entropies of the first and second variates. Elements `unit`, `Y1names`, `Y2names` are identical to the same inputs. Element `rGauss` is the absolute value of the Pearson correlation coefficient of a *multivariate Gaussian distribution* having mutual information `MI` (the two are related by `MI = -log(1 - rGauss^2)/2`); it may provide a vague intuition for the `MI` value for people more familiar with Pearson's correlation, but should be taken with a grain of salt.
 #'
 #' @import parallel foreach doParallel
 #'
@@ -520,14 +520,15 @@ mutualinfo <- function(
                 colSums(exp(lprobY2 + lprobnorm)) / colSums(exp(lprobnorm)),
                 na.rm = TRUE), base = base)
 
+            mi <- lpY1and2 - lpY1 - lpY2
             c(
-                MI = lpY1and2 - lpY1 - lpY2,
-                ## mi1 = lpY1given2 - lpY1,
-                ## mi2 = lpY2given1 - lpY2,
+                MI = mi,
+                MIalt = (mi + lpY1given2 - lpY1 + lpY2given1 - lpY2) / 3,
                 CondEn12 = -lpY1given2,
                 CondEn21 = -lpY2given1,
                 En1 = -lpY1,
-                En2 = -lpY2
+                En2 = -lpY2,
+                rGauss = sqrt(1 - exp(- 2 * mi * log(base)))
             )
         } # End foreach loop
 
@@ -544,13 +545,15 @@ mutualinfo <- function(
             logjacobianOr = FALSE)),
         na.rm = TRUE)
 
-    out[, -1] <- out[, -1] - c(logjacobians1, logjacobians2)/log(base)
+    out[, c('CondEn12', 'CondEn21', 'En1', 'En2')] <-
+        out[, c('CondEn12', 'CondEn21', 'En1', 'En2')] -
+        c(logjacobians1, logjacobians2) / log(base)
 
     out <- unlist(apply(X = rbind(
         value = colMeans(out, na.rm = TRUE),
         accuracy = signif(x = apply(
             X = out, MARGIN = 2, FUN = sd, na.rm = TRUE, simplify = TRUE
-        )/sqrt(n), digits = 2)
+        ) / sqrt(n), digits = 2)
     ), MARGIN = 2, FUN = list, simplify = TRUE), recursive = FALSE)
 
     ## ## generally there's no MI maximum for continous variates

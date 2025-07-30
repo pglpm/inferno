@@ -1,15 +1,15 @@
 #' Generate datapoints
 #'
-#' This function generate datapoints according to the posterior probability `Pr(Y | X, data)` calculated with \code{\link{learn()}}, for the variates specified in the argument `Y`, and conditional on the variate values specified in the argument `X`. If `X` is omitted or `NULL`, then the posterior probability `Pr(Y | data)` is used. Each variate in the argument `X` can be specified either as a point-value `X = x` or as a left-open interval `X ≤ x` or as a right-open interval `X ≥ x`, through the argument `tails`.
+#' This function generate datapoints according to the posterior probability `Pr(Y | X, data)` calculated with [learn()], for the variates specified in the argument `Y`, and conditional on the variate values specified in the argument `X`. If `X` is omitted or `NULL`, then the posterior probability `Pr(Y | data)` is used. Each variate in the argument `X` can be specified either as a point-value `X = x` or as a left-open interval `X ≤ x` or as a right-open interval `X ≥ x`, through the argument `tails`.
 #'
 #' @param n positive integer: number of samples to draw.
 #' @param Ynames character vector: names of variates to draw jointly
 #' @param X list or data.table or `NULL`: set of values of variates on which we want to condition the joint probability for `Y`. If `NULL` (default), no conditioning is made. Any rows beyond the first are discarded
-#' @param learnt either a string with the name of a directory or full path for a 'learnt.rds' object, produced by the \code{\link{learn()}} function, or such an object itself.
-#' @param tails named vector or list, or `NULL` (default). The names must match some or all of the variates in arguments `X`. For variates in this list, the probability conditional is understood in an semi-open interval sense: `X ≤ x` or `X ≥ x`, an so on. See analogous argument in \code{\link{Pr()}}.
-#' @param mcsamples vector of integers, or `'all'`, or `NULL` (default): which Monte Carlo samples calculated by the \code{\link{learn()}} function should be used to draw the variate values. The default is to choose a random subset if `n` is smaller than their number, otherwise to recycle them as necessary.
+#' @param learnt either a string with the name of a directory or full path for a 'learnt.rds' object, produced by the [learn()] function, or such an object itself.
+#' @param tails named vector or list, or `NULL` (default). The names must match some or all of the variates in arguments `X`. For variates in this list, the probability conditional is understood in an semi-open interval sense: `X ≤ x` or `X ≥ x`, an so on. See analogous argument in [Pr()].
+#' @param mcsamples vector of integers, or `'all'`, or `NULL` (default): which Monte Carlo samples calculated by the [learn()] function should be used to draw the variate values. The default is to choose a random subset if `n` is smaller than their number, otherwise to recycle them as necessary.
 #'
-#' @return A data frame of joint draws of the variates `Ynames` from the posterior distribution, conditional on `X`. The row names of the data frame report the Monte Carlo sample (from \code{\link{learn()}}) used for that draw, and the total number of draws from that sample so far.
+#' @return A data frame of joint draws of the variates `Ynames` from the posterior distribution, conditional on `X`. The row names of the data frame report the Monte Carlo sample (from [learn()]) used for that draw, and the total number of draws from that sample so far.
 #'
 #' @export
 rPr <- function(

@@ -5,10 +5,10 @@
 #'
 #' @description Utility functions to read and write CSV files in the format required by **inferno**
 #'
-#' @param x the object to be written, preferably a matrix or data frame. If not, it is attempted to coerce `x` to a data frame. See \code{\link[utils]{write.table}}.
+#' @param x the object to be written, preferably a matrix or data frame. If not, it is attempted to coerce `x` to a data frame. See [utils::write.table()].
 #'
-#' @param file either a character string naming a file or a connection open for writing or reading. See \code{\link[utils]{write.table}} and \code{\link[utils]{read.table}}.
-#' @param ... Other parameters to be passed to \code{\link[utils]{write.table}} or \code{\link[utils]{read.table}}.
+#' @param file either a character string naming a file or a connection open for writing or reading. See [utils::write.table()] and [utils::read.table()].
+#' @param ... Other parameters to be passed to [utils::write.table()] or [utils::read.table()].
 #'
 #' @details
 #' The functions of the **inferno** package accept CSV files formatted as follows:
@@ -17,9 +17,9 @@
 #' - Character and names should be quoted in single or double quotes. Example: `"female"`.
 #' - Values should be separated by *commas*, not by tabs or semicolons.
 #' - Missing values should be simply *empty*, not denoted by "NA", "missing", "-", or similar.
-#' - Preferably there should not be \code{\link[base]{factor}}s; use character names instead.
+#' - Preferably there should not be [`base::factor`]s; use character names instead.
 #'
-#' The utility functions [write.csvi()] and [read.csvi()] are wrappers to \code{\link[utils]{write.table}} or \code{\link[utils]{read.table}} that sets appropriate default parameters
+#' The utility functions [write.csvi()] and [read.csvi()] are wrappers to [utils::write.table()] or [utils::read.table()] that sets appropriate default parameters
 NULL
 
 #' @rdname inferno.data

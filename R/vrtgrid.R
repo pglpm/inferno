@@ -1,10 +1,10 @@
 #' Create a grid of values for a variate
 #'
-#' This function create a set of values for a variate `vrt`, based on the metadata stored in a `learnt` object created by the \code{\link{learn}} function). The set of values depends on the type of variate (nominal or continuous, rounded, and so on, see \code{\link{metadata}}). The range of values is chosen to include, and extend slightly beyond, the range observed in the data used in the \code{\link{learn}} function. Variate domains are always respected.
+#' This function create a set of values for a variate `vrt`, based on the metadata stored in a `learnt` object created by the [learn()] function). The set of values depends on the type of variate (nominal or continuous, rounded, and so on, see [`metadata`]). The range of values is chosen to include, and extend slightly beyond, the range observed in the data used in the [learn()] function. Variate domains are always respected.
 #'
-#' @param vrt character: name of the variate, must match one of the names in the `metadata` file provided to the \code{\link{learn}} function.
-#' @param learnt Either a string with the name of a directory or full path for a 'learnt.rds' object, produced by the \code{\link{learn}} function, or such an object itself.
-#' @param length.out numeric, positive (default 129): number of values to be created; used only for continuous, non-rounded variates (see \code{\link{metadata}}).
+#' @param vrt character: name of the variate, must match one of the names in the `metadata` file provided to the [learn()] function.
+#' @param learnt Either a string with the name of a directory or full path for a 'learnt.rds' object, produced by the [learn()] function, or such an object itself.
+#' @param length.out numeric, positive (default 129): number of values to be created; used only for continuous, non-rounded variates (see [`metadata`]).
 #'
 #' @return A numeric or character vector of values.
 #'

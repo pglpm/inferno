@@ -2,9 +2,9 @@
 #'
 #' Metadata and helper function to create a template metadata file or object.
 #'
-#' The \code{\link{learn}} function needs metadata about the variates present in the data. Such metadata can be provided either as a `csv` file or as a \code{\link[base]{data.frame}}. The function `buildmetadata` creates a template metadata csv-file, or outputs a metadata data.frame, by trying to *guess* metadata information from the dataset.The guesses may be very incorrect (as already said, metadata is information not contained in the data, so no algorithm can exist that extracts it from the data). **The user *must* modify and correct this template, using it as a starting point to prepare the correct metadata information.**
+#' The [learn()] function needs metadata about the variates present in the data. Such metadata can be provided either as a `csv` file or as a [base::data.frame()]. The function `buildmetadata` creates a template metadata csv-file, or outputs a metadata data.frame, by trying to *guess* metadata information from the dataset.The guesses may be very incorrect (as already said, metadata is information not contained in the data, so no algorithm can exist that extracts it from the data). **The user *must* modify and correct this template, using it as a starting point to prepare the correct metadata information.**
 #'
-#' @param data A dataset, given as a \code{\link[base]{data.frame}}
+#' @param data A dataset, given as a [base::data.frame()]
 #' or as a file path to a csv file.
 #' @param file String: name of csv file where the metadata should be saved;
 #'   if `NULL`: output metadata as `VALUE`.
@@ -18,11 +18,11 @@
 #'
 #' @return If `file = NULL`, a preliminary metadata file is created
 #'   and `VALUE` is `NULL`;
-#'   otherwise `VALUE` is a \code{\link[base]{data.frame}} containing the metadata.
+#'   otherwise `VALUE` is a [base::data.frame()] containing the metadata.
 #'
 #' @section Metadata information and format:
 #'
-#' In order to correctly learn from a dataset, the \code{\link{learn}} function needs information that is not contained in the data themeselves; that is, it needs *meta*data. Metadata are provided either as a `csv` file or as a \code{\link[base]{data.frame}}.
+#' In order to correctly learn from a dataset, the [learn()] function needs information that is not contained in the data themeselves; that is, it needs *meta*data. Metadata are provided either as a `csv` file or as a [base::data.frame()].
 #'
 #' A metadata file or data.frame must contain one row for each simple variate in the given inference problem, and the following fields (columns), even if some of them may be empty:
 #'

@@ -1,8 +1,18 @@
-#' Monte Carlo computation of posterior probability distribution conditional on given data
+#' Monte Carlo computation of posterior probability distribution
 #'
-#' @param data A dataset, given as a \code{\link[base]{data.frame}} or as a file path to a csv file.
-#' @param metadata A metadata object, given either as a data.frame object, or as a file pa to a csv file.
-#' @param auxdata A larger dataset, given as a data.frame or as a file path to a csv file. Such a dataset would be too many to use in the Monte Carlo sampling, but can be used to calculate hyperparameters.
+#' @description
+#' Core function to compute the posterior probability distribution of the variates conditional on the given data.
+#'
+#' @details
+#' This function takes as main inputs a set of data and metadata, and computes the probability distribution for new data. Its computation can also be interpreted as an estimation of the frequencies of the variates in the *whole population*, beyond the sample data. The probability distribution is not assumed to be Gaussian or of any other specific shape. The computation is done via Markov-chain Monte Carlo.
+#'
+#' This function creates an object, contained in a `learnt.rds` file, which is used in all subsequent probabilistic computations. Other information about the computation is provided in logs and plots, saved in a directory specified by the user.
+#'
+#' See vignette('inferno_start', package = 'inferno') for an introductory example.
+#'
+#' @param data A dataset, given as a [base::data.frame()] or as a file path to a CSV file.
+#' @param metadata A [`metadata`] object, given either as a data.frame object, or as a file pa to a CSV file.
+#' @param auxdata A larger dataset, given as a base::data.frame() or as a file path to a CSV file. Such a dataset would be too many to use in the Monte Carlo sampling, but can be used to calculate hyperparameters.
 #' @param outputdir Character: path to folder where the output should be saved. If omitted, a directory is created that has the same name as the data file but with suffix "`_output_`".
 #' @param nsamples Integer: number of desired Monte Carlo samples. Default 3600.
 #' @param nchains Integer: number of Monte Carlo chains. Default 4.
