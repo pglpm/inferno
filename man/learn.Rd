@@ -64,7 +64,7 @@ learn(
 
 \item{appendinfo}{Logical: append information about dataset and Monte Carlo parameters to the name of the output directory \code{outputdir}? Default \code{TRUE}.}
 
-\item{output}{Character: if \code{'directory'}, return the output directory name as \code{VALUE}; if character \code{'learnt'}, return the \code{'learnt'} object containing the parameters obtained from the Monte Carlo computation. Any other value: \code{VALUE} is \code{NULL}.}
+\item{output}{Character: if \code{'directory'}, return the output directory name as \code{VALUE}; if character \code{'learnt'}, return the \code{learnt} object containing the parameters obtained from the Monte Carlo computation. Any other value: \code{VALUE} is \code{NULL}.}
 
 \item{subsampledata}{Integer: use only a subset of this many datapoints for the Monte Carlo computation.}
 
