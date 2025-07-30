@@ -165,7 +165,7 @@ values of each variate, which are stored in the metadata of the
 <code>island</code> and <code>species</code> variates against each
 other, for all <em>sample</em> data, as a scatter plot:</p>
 <div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="../reference/flexiplot.html">flexiplot</a></span><span class="op">(</span>x <span class="op">=</span> <span class="va">penguin</span><span class="op">[</span>, <span class="st">'island'</span><span class="op">]</span>, y <span class="op">=</span> <span class="va">penguin</span><span class="op">[</span>, <span class="st">'species'</span><span class="op">]</span>,</span>
+<code class="sourceCode R"><span><span class="fu"><a href="../reference/flexiplot.html">flexiplot</a></span><span class="op">(</span>x <span class="op">=</span> <span class="va">penguin</span><span class="op">$</span><span class="va">island</span>, y <span class="op">=</span> <span class="va">penguin</span><span class="op">$</span><span class="va">species</span>,</span>
 <span>    type <span class="op">=</span> <span class="st">'p'</span>, xlab <span class="op">=</span> <span class="st">'island'</span>, ylab <span class="op">=</span> <span class="st">'species'</span>,</span>
 <span>    xdomain <span class="op">=</span> <span class="va">islandvalues</span>, ydomain <span class="op">=</span> <span class="va">speciesvalues</span><span class="op">)</span></span></code></pre></div>
 <div class="figure">
@@ -247,7 +247,7 @@ plot:</p>
 <div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">samples</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/rPr.html">rPr</a></span><span class="op">(</span>n <span class="op">=</span> <span class="fl">2000</span>, Ynames <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">'island'</span>, <span class="st">'species'</span><span class="op">)</span>, learnt <span class="op">=</span> <span class="va">learnt</span><span class="op">)</span></span>
 <span></span>
-<span><span class="fu"><a href="../reference/flexiplot.html">flexiplot</a></span><span class="op">(</span>x <span class="op">=</span> <span class="va">samples</span><span class="op">[</span>, <span class="st">'island'</span><span class="op">]</span>, y <span class="op">=</span> <span class="va">samples</span><span class="op">[</span>, <span class="st">'species'</span><span class="op">]</span>,</span>
+<span><span class="fu"><a href="../reference/flexiplot.html">flexiplot</a></span><span class="op">(</span>x <span class="op">=</span> <span class="va">samples</span><span class="op">$</span><span class="va">island</span>, y <span class="op">=</span> <span class="va">samples</span><span class="op">$</span><span class="va">species</span>,</span>
 <span>    type <span class="op">=</span> <span class="st">'p'</span>, xlab <span class="op">=</span> <span class="st">'island'</span>, ylab <span class="op">=</span> <span class="st">'species'</span>,</span>
 <span>    xdomain <span class="op">=</span> <span class="va">islandvalues</span>, ydomain <span class="op">=</span> <span class="va">speciesvalues</span><span class="op">)</span></span></code></pre></div>
 <div class="figure">
@@ -256,7 +256,7 @@ plot:</p>
 </p>
 </div>
 <p>The scatter plot above correctly reflects the <em>estimated</em>
-features of the <em>whole</em> population</p>
+features of the <em>whole</em> population.</p>
 <p><br></p>
 <p><em>(TO BE CONTINUED)</em></p>
 </div>
