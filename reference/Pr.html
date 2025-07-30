@@ -63,32 +63,32 @@
 
 
 <dl><dt id="arg-y">Y<a class="anchor" aria-label="anchor" href="#arg-y"></a></dt>
-<dd><p>matrix or data.table: set of values of variates of which we want
+<dd><p>Matrix or data.table: set of values of variates of which we want
 the joint probability of. One variate per column, one set of values per row.</p></dd>
 
 
 <dt id="arg-x">X<a class="anchor" aria-label="anchor" href="#arg-x"></a></dt>
-<dd><p>matrix or data.table or <code>NULL</code>: set of values of variates on which we want to condition the joint probability of <code>Y</code>. If <code>NULL</code> (default), no conditioning is made (except for conditioning on the learning dataset and prior assumptions). One variate per column, one set of values per row.</p></dd>
+<dd><p>Matrix or data.table or <code>NULL</code>: set of values of variates on which we want to condition the joint probability of <code>Y</code>. If <code>NULL</code> (default), no conditioning is made (except for conditioning on the learning dataset and prior assumptions). One variate per column, one set of values per row.</p></dd>
 
 
 <dt id="arg-learnt">learnt<a class="anchor" aria-label="anchor" href="#arg-learnt"></a></dt>
-<dd><p>either a string with the name of a directory or full path for a 'learnt.rds' object, produced by the <code><a href="learn.html">learn()</a></code> function, or such an object itself.</p></dd>
+<dd><p>Either a string with the name of a directory or full path for a 'learnt.rds' object, produced by the <code><a href="learn.html">learn()</a></code> function, or such an object itself.</p></dd>
 
 
 <dt id="arg-tails">tails<a class="anchor" aria-label="anchor" href="#arg-tails"></a></dt>
-<dd><p>named vector or list, or <code>NULL</code> (default). The names must match some or all of the variates in arguments <code>Y</code> and <code>X</code>. For variates in this list, the probability arguments are understood in an semi-open interval sense: <code>Y ≤ y</code> or <code>Y ≥ y</code>, an so on. This is true for variates on the left and on the right of the conditional sign <code>\|</code>. A left-open interval <code>Y ≤ y</code> is indicated by the values <code>'&lt;='</code> or <code>'left'</code> or <code>-1</code>; a right-open interval <code>Y ≥ y</code> is indicated by the values <code>'&gt;='</code> or <code>'right'</code> or <code>+1</code>. Values <code>NULL</code>, <code>'=='</code>, <code>0</code> indicate that a point value <code>Y = y</code> (not an interval) should be calculated. NB: the semi-open intervals <em>always</em> include the given value; this is important for ordinal or rounded variates. Therefore, if <code>Y</code> is for instance an integer variate, then to calculate  <code>P(Y &lt; 3)</code> you should require <code>P(Y &lt;= 2)</code>.</p></dd>
+<dd><p>Named vector or list, or <code>NULL</code> (default). The names must match some or all of the variates in arguments <code>Y</code> and <code>X</code>. For variates in this list, the probability arguments are understood in an semi-open interval sense: <code>Y ≤ y</code> or <code>Y ≥ y</code>, an so on. This is true for variates on the left and on the right of the conditional sign <code>\|</code>. A left-open interval <code>Y ≤ y</code> is indicated by the values <code>'&lt;='</code> or <code>'left'</code> or <code>-1</code>; a right-open interval <code>Y ≥ y</code> is indicated by the values <code>'&gt;='</code> or <code>'right'</code> or <code>+1</code>. Values <code>NULL</code>, <code>'=='</code>, <code>0</code> indicate that a point value <code>Y = y</code> (not an interval) should be calculated. NB: the semi-open intervals <em>always</em> include the given value; this is important for ordinal or rounded variates. Therefore, if <code>Y</code> is for instance an integer variate, then to calculate  <code>P(Y &lt; 3)</code> you should require <code>P(Y &lt;= 2)</code>.</p></dd>
 
 
 <dt id="arg-priory">priorY<a class="anchor" aria-label="anchor" href="#arg-priory"></a></dt>
-<dd><p>numeric vector with the same length as the rows of <code>Y</code>, or <code>TRUE</code>, or <code>NULL</code> (default): prior probabilities or base rates for the <code>Y</code> values. If <code>TRUE</code>, the prior probabilities are assumed to be all equal.</p></dd>
+<dd><p>Numeric vector with the same length as the rows of <code>Y</code>, or <code>TRUE</code>, or <code>NULL</code> (default): prior probabilities or base rates for the <code>Y</code> values. If <code>TRUE</code>, the prior probabilities are assumed to be all equal.</p></dd>
 
 
 <dt id="arg-nsamples">nsamples<a class="anchor" aria-label="anchor" href="#arg-nsamples"></a></dt>
-<dd><p>integer or <code>NULL</code> or <code>'all'</code>: desired number of samples of the variability of the probability for <code>Y</code>. If <code>NULL</code>, no samples are reported. If <code>'all'</code> (or <code>Inf</code>), all samples obtained by the <code><a href="learn.html">learn()</a></code> function are used. Default <code>'all'</code>.</p></dd>
+<dd><p>Integer or <code>NULL</code> or <code>'all'</code>: desired number of samples of the variability of the probability for <code>Y</code>. If <code>NULL</code>, no samples are reported. If <code>'all'</code> (or <code>Inf</code>), all samples obtained by the <code><a href="learn.html">learn()</a></code> function are used. Default <code>'all'</code>.</p></dd>
 
 
 <dt id="arg-quantiles">quantiles<a class="anchor" aria-label="anchor" href="#arg-quantiles"></a></dt>
-<dd><p>numeric vector, between 0 and 1, or <code>NULL</code>: desired quantiles of the variability of the probability for <code>Y</code>. Default <code>c(0.055, 0.25, 0.75, 0.945)</code>, that is, the 5.5%, 25%, 75%, 94.5% quantiles (these are typical quantile values in the Bayesian literature: they give 50% and 89% credibility intervals, which correspond to 1 shannons and 0.5 shannons of uncertainty). If <code>NULL</code>, no quantiles are calculated.</p></dd>
+<dd><p>Numeric vector, between 0 and 1, or <code>NULL</code>: desired quantiles of the variability of the probability for <code>Y</code>. Default <code>c(0.055, 0.25, 0.75, 0.945)</code>, that is, the 5.5%, 25%, 75%, 94.5% quantiles (these are typical quantile values in the Bayesian literature: they give 50% and 89% credibility intervals, which correspond to 1 shannons and 0.5 shannons of uncertainty). If <code>NULL</code>, no quantiles are calculated.</p></dd>
 
 
 <dt id="arg-parallel">parallel<a class="anchor" aria-label="anchor" href="#arg-parallel"></a></dt>
@@ -96,17 +96,17 @@ the joint probability of. One variate per column, one set of values per row.</p>
 
 
 <dt id="arg-silent">silent<a class="anchor" aria-label="anchor" href="#arg-silent"></a></dt>
-<dd><p>logical: give warnings or updates in the computation?
+<dd><p>Logical: give warnings or updates in the computation?
 Default <code>FALSE</code>.</p></dd>
 
 
 <dt id="arg-usememory">usememory<a class="anchor" aria-label="anchor" href="#arg-usememory"></a></dt>
-<dd><p>logical: save partial results to disc, to avoid crashes?
+<dd><p>Logical: save partial results to disc, to avoid crashes?
 Default <code>TRUE</code>.</p></dd>
 
 
 <dt id="arg-keepyx">keepYX<a class="anchor" aria-label="anchor" href="#arg-keepyx"></a></dt>
-<dd><p>logical, default <code>TRUE</code>: keep a copy of the <code>Y</code> and <code>X</code> arguments in the output? This is used for the plot method.</p></dd>
+<dd><p>Logical, default <code>TRUE</code>: keep a copy of the <code>Y</code> and <code>X</code> arguments in the output? This is used for the plot method.</p></dd>
 
 </dl></div>
     <div class="section level2">

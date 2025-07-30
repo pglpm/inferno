@@ -51,27 +51,27 @@
 
 
 <dl><dt id="arg-n">n<a class="anchor" aria-label="anchor" href="#arg-n"></a></dt>
-<dd><p>positive integer: number of samples to draw.</p></dd>
+<dd><p>Positive integer: number of samples to draw.</p></dd>
 
 
 <dt id="arg-ynames">Ynames<a class="anchor" aria-label="anchor" href="#arg-ynames"></a></dt>
-<dd><p>character vector: names of variates to draw jointly</p></dd>
+<dd><p>Character vector: names of variates to draw jointly</p></dd>
 
 
 <dt id="arg-x">X<a class="anchor" aria-label="anchor" href="#arg-x"></a></dt>
-<dd><p>list or data.table or <code>NULL</code>: set of values of variates on which we want to condition the joint probability for <code>Y</code>. If <code>NULL</code> (default), no conditioning is made. Any rows beyond the first are discarded</p></dd>
+<dd><p>List or data.table or <code>NULL</code>: set of values of variates on which we want to condition the joint probability for <code>Y</code>. If <code>NULL</code> (default), no conditioning is made. Any rows beyond the first are discarded</p></dd>
 
 
 <dt id="arg-learnt">learnt<a class="anchor" aria-label="anchor" href="#arg-learnt"></a></dt>
-<dd><p>either a string with the name of a directory or full path for a 'learnt.rds' object, produced by the <code><a href="learn.html">learn()</a></code> function, or such an object itself.</p></dd>
+<dd><p>Either a string with the name of a directory or full path for a 'learnt.rds' object, produced by the <code><a href="learn.html">learn()</a></code> function, or such an object itself.</p></dd>
 
 
 <dt id="arg-tails">tails<a class="anchor" aria-label="anchor" href="#arg-tails"></a></dt>
-<dd><p>named vector or list, or <code>NULL</code> (default). The names must match some or all of the variates in arguments <code>X</code>. For variates in this list, the probability conditional is understood in an semi-open interval sense: <code>X ≤ x</code> or <code>X ≥ x</code>, an so on. See analogous argument in <code><a href="Pr.html">Pr()</a></code>.</p></dd>
+<dd><p>Named vector or list, or <code>NULL</code> (default). The names must match some or all of the variates in arguments <code>X</code>. For variates in this list, the probability conditional is understood in an semi-open interval sense: <code>X ≤ x</code> or <code>X ≥ x</code>, an so on. See analogous argument in <code><a href="Pr.html">Pr()</a></code>.</p></dd>
 
 
 <dt id="arg-mcsamples">mcsamples<a class="anchor" aria-label="anchor" href="#arg-mcsamples"></a></dt>
-<dd><p>vector of integers, or <code>'all'</code>, or <code>NULL</code> (default): which Monte Carlo samples calculated by the <code><a href="learn.html">learn()</a></code> function should be used to draw the variate values. The default is to choose a random subset if <code>n</code> is smaller than their number, otherwise to recycle them as necessary.</p></dd>
+<dd><p>Vector of integers, or <code>'all'</code>, or <code>NULL</code> (default): which Monte Carlo samples calculated by the <code><a href="learn.html">learn()</a></code> function should be used to draw the variate values. The default is to choose a random subset if <code>n</code> is smaller than their number, otherwise to recycle them as necessary.</p></dd>
 
 </dl></div>
     <div class="section level2">

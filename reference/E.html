@@ -60,7 +60,7 @@
 
 
 <dl><dt id="arg-x">X<a class="anchor" aria-label="anchor" href="#arg-x"></a></dt>
-<dd><p>matrix or data.table or <code>NULL</code>: set of values of variates on which we want to condition the joint probability of <code>Y</code>. If <code>NULL</code> (default), no conditioning is made (except for conditioning on the learning dataset and prior assumptions). One variate per column, one set of values per row.</p></dd>
+<dd><p>Matrix or data.table or <code>NULL</code>: set of values of variates on which we want to condition the joint probability of <code>Y</code>. If <code>NULL</code> (default), no conditioning is made (except for conditioning on the learning dataset and prior assumptions). One variate per column, one set of values per row.</p></dd>
 
 
 <dt id="arg-learnt">learnt<a class="anchor" aria-label="anchor" href="#arg-learnt"></a></dt>
@@ -69,25 +69,25 @@ path for an 'learnt.rds' object, or such an object itself</p></dd>
 
 
 <dt id="arg-quantiles">quantiles<a class="anchor" aria-label="anchor" href="#arg-quantiles"></a></dt>
-<dd><p>numeric vector, between 0 and 1, or <code>NULL</code>: desired quantiles of the variability of the probability for <code>Y</code>. Default <code>c(0.05, 0.95)</code> or the 5% and 95% quantiles.</p></dd>
+<dd><p>Numeric vector, between 0 and 1, or <code>NULL</code>: desired quantiles of the variability of the probability for <code>Y</code>. Default <code>c(0.05, 0.95)</code> or the 5% and 95% quantiles.</p></dd>
 
 
 <dt id="arg-nsamples">nsamples<a class="anchor" aria-label="anchor" href="#arg-nsamples"></a></dt>
-<dd><p>integer or <code>NULL</code>: desired number of samples of the variability of the probability for <code>Y</code>. Default <code>100</code>.</p></dd>
+<dd><p>Integer or <code>NULL</code>: desired number of samples of the variability of the probability for <code>Y</code>. Default <code>100</code>.</p></dd>
 
 
 <dt id="arg-parallel">parallel<a class="anchor" aria-label="anchor" href="#arg-parallel"></a></dt>
-<dd><p>logical or integer: whether to use pre-existing parallel
+<dd><p>Logical or integer: whether to use pre-existing parallel
 workers, or how many to create and use. Default <code>TRUE</code>.</p></dd>
 
 
 <dt id="arg-silent">silent<a class="anchor" aria-label="anchor" href="#arg-silent"></a></dt>
-<dd><p>logical: give warnings or updates in the computation?
+<dd><p>Logical: give warnings or updates in the computation?
 Default <code>FALSE</code>.</p></dd>
 
 
 <dt id="arg-usememory">usememory<a class="anchor" aria-label="anchor" href="#arg-usememory"></a></dt>
-<dd><p>logical: save partial results to disc, to avoid crashes?
+<dd><p>Logical: save partial results to disc, to avoid crashes?
 Default <code>TRUE</code>.</p></dd>
 
 
