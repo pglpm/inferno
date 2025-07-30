@@ -4,8 +4,7 @@ pkgdown_sha: ~
 articles:
   inferno_start: inferno_start.html
   vignette_mutualinfo: vignette_mutualinfo.html
-  vignette_parkinson: vignette_parkinson.html
-last_built: 2025-07-30T07:34Z
+last_built: 2025-07-30T07:43Z
 urls:
   reference: https://pglpm.github.io/inferno/reference
   article: https://pglpm.github.io/inferno/articles
