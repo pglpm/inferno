@@ -16,11 +16,11 @@ subset.probability <- function(
     Xnames <- names(x$X)
     subset <- as.list(subset)
     vrtnames <- names(subset)
-    
+
     if(!all(vrtnames %in% c(Ynames, Xnames))){
         stop("probability object does not contain some of the given variates")
     }
-    
+
     ## subset Y
     for(vrt in vrtnames[vrtnames %in% Ynames]){
         selvals <- x$Y[[vrt]] %in% subset[[vrt]]

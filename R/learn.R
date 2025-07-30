@@ -92,7 +92,7 @@ learn <- function(
         tscalefactor = 4.266,
         Oprior = 'Hadamard',
         Nprior = 'Hadamard',
-        avoidzeroW = NULL, # NULL: Turek's, TRUE: 1e-100 non-conj., FALSE: conj.
+        avoidzeroW = NULL, # NULL: Turek's, TRUE: eps non-conj., FALSE: conj.
         initmethod = 'datacentre',
         Qerror = pnorm(c(-1, 1))
         ## Qerror = c(0.055, 0.945) # pnorm(c(-1, 1))

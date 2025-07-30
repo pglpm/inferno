@@ -22,7 +22,7 @@ Pr(
 \item{Y}{Matrix or data.table: set of values of variates of which we want
 the joint probability of. One variate per column, one set of values per row.}
 
-\item{X}{Matrix or data.table or \code{NULL}: set of values of variates on which we want to condition the joint probability of \code{Y}. If \code{NULL} (default), no conditioning is made (except for conditioning on the learning dataset and prior assumptions). One variate per column, one set of values per row.}
+\item{X}{Matrix or data.table or \code{NULL} (default): set of values of variates on which we want to condition the joint probability of \code{Y}. If \code{NULL}, no conditioning is made (except for conditioning on the learning dataset and prior assumptions). One variate per column, one set of values per row.}
 
 \item{learnt}{Either a character with the name of a directory or full path for a 'learnt.rds' object, produced by the \code{\link[=learn]{learn()}} function, or such an object itself.}
 
@@ -30,17 +30,15 @@ the joint probability of. One variate per column, one set of values per row.}
 
 \item{priorY}{Numeric vector with the same length as the rows of \code{Y}, or \code{TRUE}, or \code{NULL} (default): prior probabilities or base rates for the \code{Y} values. If \code{TRUE}, the prior probabilities are assumed to be all equal.}
 
-\item{nsamples}{Integer or \code{NULL} or \code{'all'}: desired number of samples of the variability of the probability for \code{Y}. If \code{NULL}, no samples are reported. If \code{'all'} (or \code{Inf}), all samples obtained by the \code{\link[=learn]{learn()}} function are used. Default \code{'all'}.}
+\item{nsamples}{Integer or \code{NULL} or \code{'all'} (default): desired number of samples of the variability of the probability for \code{Y}. If \code{NULL}, no samples are reported. If \code{'all'} (or \code{Inf}), all samples obtained by the \code{\link[=learn]{learn()}} function are used.}
 
 \item{quantiles}{Numeric vector, between 0 and 1, or \code{NULL}: desired quantiles of the variability of the probability for \code{Y}. Default \code{c(0.055, 0.25, 0.75, 0.945)}, that is, the 5.5\%, 25\%, 75\%, 94.5\% quantiles (these are typical quantile values in the Bayesian literature: they give 50\% and 89\% credibility intervals, which correspond to 1 shannons and 0.5 shannons of uncertainty). If \code{NULL}, no quantiles are calculated.}
 
-\item{parallel}{Logical or \code{NULL} or positive integer: \code{TRUE}: use roughly half of available cores; \code{FALSE}: use serial computation; \code{NULL}: don't do anything (use pre-registered condition); integer: use this many cores. Default \code{NULL}}
+\item{parallel}{Logical or \code{NULL} (default) or positive integer: \code{TRUE}: use roughly half of available cores; \code{FALSE}: use serial computation; \code{NULL}: don't do anything (use pre-registered condition); integer: use this many cores.}
 
-\item{silent}{Logical: give warnings or updates in the computation?
-Default \code{FALSE}.}
+\item{silent}{Logical, default \code{FALSE}: give warnings or updates in the computation?}
 
-\item{usememory}{Logical: save partial results to disc, to avoid crashes?
-Default \code{TRUE}.}
+\item{usememory}{Logical, default \code{TRUE}: save partial results to disc, to avoid crashes?}
 
 \item{keepYX}{Logical, default \code{TRUE}: keep a copy of the \code{Y} and \code{X} arguments in the output? This is used for the plot method.}
 }
