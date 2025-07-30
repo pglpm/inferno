@@ -69,7 +69,7 @@ the joint probability of. One variate per column, one set of values per row.</p>
 
 
 <dt id="arg-x">X<a class="anchor" aria-label="anchor" href="#arg-x"></a></dt>
-<dd><p>Matrix or data.table or <code>NULL</code>: set of values of variates on which we want to condition the joint probability of <code>Y</code>. If <code>NULL</code> (default), no conditioning is made (except for conditioning on the learning dataset and prior assumptions). One variate per column, one set of values per row.</p></dd>
+<dd><p>Matrix or data.table or <code>NULL</code> (default): set of values of variates on which we want to condition the joint probability of <code>Y</code>. If <code>NULL</code>, no conditioning is made (except for conditioning on the learning dataset and prior assumptions). One variate per column, one set of values per row.</p></dd>
 
 
 <dt id="arg-learnt">learnt<a class="anchor" aria-label="anchor" href="#arg-learnt"></a></dt>
@@ -85,7 +85,7 @@ the joint probability of. One variate per column, one set of values per row.</p>
 
 
 <dt id="arg-nsamples">nsamples<a class="anchor" aria-label="anchor" href="#arg-nsamples"></a></dt>
-<dd><p>Integer or <code>NULL</code> or <code>'all'</code>: desired number of samples of the variability of the probability for <code>Y</code>. If <code>NULL</code>, no samples are reported. If <code>'all'</code> (or <code>Inf</code>), all samples obtained by the <code><a href="learn.html">learn()</a></code> function are used. Default <code>'all'</code>.</p></dd>
+<dd><p>Integer or <code>NULL</code> or <code>'all'</code> (default): desired number of samples of the variability of the probability for <code>Y</code>. If <code>NULL</code>, no samples are reported. If <code>'all'</code> (or <code>Inf</code>), all samples obtained by the <code><a href="learn.html">learn()</a></code> function are used.</p></dd>
 
 
 <dt id="arg-quantiles">quantiles<a class="anchor" aria-label="anchor" href="#arg-quantiles"></a></dt>
@@ -93,17 +93,15 @@ the joint probability of. One variate per column, one set of values per row.</p>
 
 
 <dt id="arg-parallel">parallel<a class="anchor" aria-label="anchor" href="#arg-parallel"></a></dt>
-<dd><p>Logical or <code>NULL</code> or positive integer: <code>TRUE</code>: use roughly half of available cores; <code>FALSE</code>: use serial computation; <code>NULL</code>: don't do anything (use pre-registered condition); integer: use this many cores. Default <code>NULL</code></p></dd>
+<dd><p>Logical or <code>NULL</code> (default) or positive integer: <code>TRUE</code>: use roughly half of available cores; <code>FALSE</code>: use serial computation; <code>NULL</code>: don't do anything (use pre-registered condition); integer: use this many cores.</p></dd>
 
 
 <dt id="arg-silent">silent<a class="anchor" aria-label="anchor" href="#arg-silent"></a></dt>
-<dd><p>Logical: give warnings or updates in the computation?
-Default <code>FALSE</code>.</p></dd>
+<dd><p>Logical, default <code>FALSE</code>: give warnings or updates in the computation?</p></dd>
 
 
 <dt id="arg-usememory">usememory<a class="anchor" aria-label="anchor" href="#arg-usememory"></a></dt>
-<dd><p>Logical: save partial results to disc, to avoid crashes?
-Default <code>TRUE</code>.</p></dd>
+<dd><p>Logical, default <code>TRUE</code>: save partial results to disc, to avoid crashes?</p></dd>
 
 
 <dt id="arg-keepyx">keepYX<a class="anchor" aria-label="anchor" href="#arg-keepyx"></a></dt>
