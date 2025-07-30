@@ -8,7 +8,7 @@
 #'
 #' This function creates an object, contained in a `learnt.rds` file, which is used in all subsequent probabilistic computations. Other information about the computation is provided in logs and plots, saved in a directory specified by the user.
 #'
-#' See vignette("inferno_start") for an introductory example.
+#' See `vignette("inferno_start")` for an introductory example.
 #'
 #' @param data A dataset, given as a [base::data.frame()] or as a file path to a CSV file.
 #' @param metadata A [`metadata`] object, given either as a data.frame object, or as a file pa to a CSV file.
