@@ -65,6 +65,7 @@
 
     
     
+<p><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow></mrow><annotation encoding="application/x-tex">\newcommand{\mo}{\mathrel{\!=\!}}</annotation></semantics></math></p>
 <p>This vignette gives an introduction and guide to the visual and
 quantitative capabilities and functions of the
 <strong><em>inferno</em></strong> package, for the study of
@@ -82,14 +83,14 @@ probabilities of single and joint variates from that dataset; also
 probabilities conditional on given variates. These probabilities refers
 to a <em>new unit</em>; for example:</p>
 <ul>
-<li>If we find that
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mrow><mi mathvariant="normal">P</mi><mi mathvariant="normal">r</mi></mrow><mrow><mo stretchy="true" form="prefix">(</mo><mtext mathvariant="normal">species</mtext><mrow><mspace width="-0.167em"></mspace><mo>=</mo><mspace width="-0.167em"></mspace></mrow><mtext mathvariant="normal">Adelie</mtext><mo stretchy="true" form="postfix">)</mo></mrow><mo>=</mo><mn>44</mn><mi>%</mi></mrow><annotation encoding="application/x-tex">\mathrm{Pr}(\text{species}\mathrel{\!=\!} \text{Adelie}) = 44\%</annotation></semantics></math>,
-then there’s a 44% probability that the next penguin we sample (from the
-same population) is of the <em>Adélie</em> species.</li>
-<li>If we find that
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mrow><mi mathvariant="normal">P</mi><mi mathvariant="normal">r</mi></mrow><mrow><mo stretchy="true" form="prefix">(</mo><mtext mathvariant="normal">species</mtext><mrow><mspace width="-0.167em"></mspace><mo>=</mo><mspace width="-0.167em"></mspace></mrow><mtext mathvariant="normal">Gentoo</mtext><mspace width="0.167em"></mspace><mo stretchy="false" form="postfix">|</mo><mspace width="0.167em"></mspace><mtext mathvariant="normal">island</mtext><mrow><mspace width="-0.167em"></mspace><mo>=</mo><mspace width="-0.167em"></mspace></mrow><mtext mathvariant="normal">Biscoe</mtext><mo stretchy="true" form="postfix">)</mo></mrow><mo>=</mo><mn>1</mn><mi>%</mi></mrow><annotation encoding="application/x-tex">\mathrm{Pr}(\text{species}\mathrel{\!=\!} \text{Gentoo} \,\vert\, \text{island} \mathrel{\!=\!} \text{Biscoe}) = 1\%</annotation></semantics></math>,
-then if we have a new penguin, and we know it is from Biscoe island,
-there’s a 1% probability that it is of the <em>Gentoo</em> species.</li>
+<li>If we find that <span class="math inline">$\mathrm{Pr}(\text{species}\mo \text{Adelie}) =
+44\%$</span>, then there’s a 44% probability that the next penguin we
+sample (from the same population) is of the <em>Adélie</em>
+species.</li>
+<li>If we find that <span class="math inline">$\mathrm{Pr}(\text{species}\mo \text{Gentoo}
+\,\vert\, \text{island} \mo \text{Biscoe}) = 1\%$</span>, then if we
+have a new penguin, and we know it is from Biscoe island, there’s a 1%
+probability that it is of the <em>Gentoo</em> species.</li>
 </ul>
 <p>And these probabilities can also be interpreted as “estimates” of the
 corresponding <em>whole-population</em> frequencies.</p>
@@ -147,7 +148,7 @@ invoke</p>
 string, in this case) which shall be used in the following analysis.</p>
 </div>
 <div class="section level3">
-<h3 id="generating-new-samples">Generating new samples<a class="anchor" aria-label="anchor" href="#generating-new-samples"></a>
+<h3 id="newsamples">Generating new samples<a class="anchor" aria-label="anchor" href="#newsamples"></a>
 </h3>
 <p>Let’s focus on the <code>island</code> and <code>species</code>
 variates. Each variate has three possible values;
@@ -254,8 +255,8 @@ plot:</p>
 <span>    type <span class="op">=</span> <span class="st">'p'</span>, xlab <span class="op">=</span> <span class="st">'island'</span>, ylab <span class="op">=</span> <span class="st">'species'</span>,</span>
 <span>    xdomain <span class="op">=</span> <span class="va">islandvalues</span>, ydomain <span class="op">=</span> <span class="va">speciesvalues</span><span class="op">)</span></span></code></pre></div>
 <div class="figure">
-<img src="figure/gensamplesplot-1.png" alt="**Scatter plot for whole population**" width="100%"><p class="caption">
-<strong>Scatter plot for whole population</strong>
+<img src="figure/gensamplesplot-1.png" alt="**Scatter plot for *whole* population**" width="100%"><p class="caption">
+<strong>Scatter plot for <em>whole</em> population</strong>
 </p>
 </div>
 <p>The scatter plot above correctly reflects the <em>estimated</em>
@@ -381,7 +382,196 @@ different for each species. The roughly linear relationship that we
 thought we saw earlier was partially spurious, coming from the
 combination of associations for Adélie and Gentoo penguins.</p>
 <p><br></p>
+</div>
+</div>
+<div class="section level2">
+<h2 id="quantifying-associations-and-correlations-mutual-information">Quantifying associations and correlations: mutual information<a class="anchor" aria-label="anchor" href="#quantifying-associations-and-correlations-mutual-information"></a>
+</h2>
+<div class="section level3">
+<h3 id="pearson-correlation-coefficient-and-its-limitations">Pearson correlation coefficient and its limitations<a class="anchor" aria-label="anchor" href="#pearson-correlation-coefficient-and-its-limitations"></a>
+</h3>
+<p>Plots like the ones above allow us to explore in a qualitative or
+semi-quantitative way the associations and correlations between two or
+three different variates and for different subpopulations. But we would
+like to <em>quantify</em> associations in a more precise way. And
+visualization may become impossible when we want to study the
+association between complex sets of joint variates.</p>
+<p>One very common and quite abused measure of “association” is the <a href="https://mathworld.wolfram.com/CorrelationCoefficient.html" class="external-link">Pearson
+correlation coefficient</a>, usually denoted
+“<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>r</mi><annotation encoding="application/x-tex">r</annotation></semantics></math>”.
+This measure is extremely limited, however. It is essentially <a href="https://doi.org/10.1080/01621459.1954.10501231" class="external-link">based on the
+assumption that all variates involved have a joint Gaussian
+distribution</a>. As a consequence, it is a measure of <em>linear</em>
+association, rather than general association.</p>
+<p>For instance, if the distribution of two continuous variates
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>Y</mi><mn>1</mn></msub><annotation encoding="application/x-tex">Y_1</annotation></semantics></math>
+and
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>Y</mi><mn>2</mn></msub><annotation encoding="application/x-tex">Y_2</annotation></semantics></math>
+lies in a semicircle, then
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>Y</mi><mn>2</mn></msub><annotation encoding="application/x-tex">Y_2</annotation></semantics></math>
+is actually a function of
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>Y</mi><mn>1</mn></msub><annotation encoding="application/x-tex">Y_1</annotation></semantics></math>,
+and is therefore perfectly associated with
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>Y</mi><mn>1</mn></msub><annotation encoding="application/x-tex">Y_1</annotation></semantics></math>:
+if we know
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>Y</mi><mn>1</mn></msub><annotation encoding="application/x-tex">Y_1</annotation></semantics></math>,
+then we can exactly predict the value of
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>Y</mi><mn>2</mn></msub><annotation encoding="application/x-tex">Y_2</annotation></semantics></math>.
+Yet the Pearson correlation coefficient between the two variates is
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mn>0</mn><annotation encoding="application/x-tex">0</annotation></semantics></math>
+in this case, simply because the functional dependence of
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>Y</mi><mn>2</mn></msub><annotation encoding="application/x-tex">Y_2</annotation></semantics></math>
+on
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>Y</mi><mn>1</mn></msub><annotation encoding="application/x-tex">Y_1</annotation></semantics></math>
+is not linear. Here is an example plot and value:</p>
+<div class="sourceCode" id="cb12"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">Y1</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq</a></span><span class="op">(</span><span class="op">-</span><span class="fl">1</span>, <span class="fl">1</span>, length.out <span class="op">=</span> <span class="fl">129</span><span class="op">)</span> <span class="co">## Y1-values</span></span>
+<span><span class="va">Y2</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/MathFun.html" class="external-link">sqrt</a></span><span class="op">(</span><span class="fl">1</span> <span class="op">-</span> <span class="va">Y1</span><span class="op">^</span><span class="fl">2</span><span class="op">)</span> <span class="co">## Y2-values: function of Y1</span></span>
+<span></span>
+<span><span class="co">## Calculate Pearson correlation coefficient</span></span>
+<span><span class="va">r</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/stats/cor.html" class="external-link">cor</a></span><span class="op">(</span><span class="va">Y1</span>, <span class="va">Y2</span>, method <span class="op">=</span> <span class="st">'pearson'</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="va">r</span><span class="op">)</span></span>
+<span><span class="co"># [1] 0</span></span>
+<span></span>
+<span><span class="fu"><a href="../reference/flexiplot.html">flexiplot</a></span><span class="op">(</span>x <span class="op">=</span> <span class="va">Y1</span>, y <span class="op">=</span> <span class="va">Y2</span>, type <span class="op">=</span> <span class="st">'p'</span>,</span>
+<span>    main <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/paste.html" class="external-link">paste0</a></span><span class="op">(</span><span class="st">'Pearson correlation: '</span>, <span class="fu"><a href="https://rdrr.io/r/base/Round.html" class="external-link">signif</a></span><span class="op">(</span><span class="va">r</span>, <span class="fl">2</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
+<div class="figure">
+<img src="figure/pearsonplot-1.png" alt="**Perfect correlation from $Y_1$ to $Y_2$, with zero Pearson correlation coefficient**" width="100%"><p class="caption">
+<strong>Perfect correlation from
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>Y</mi><mn>1</mn></msub><annotation encoding="application/x-tex">Y_1</annotation></semantics></math>
+to
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>Y</mi><mn>2</mn></msub><annotation encoding="application/x-tex">Y_2</annotation></semantics></math>,
+with zero Pearson correlation coefficient</strong>
+</p>
+</div>
+<p>Similar limitations of the Pearson correlation coefficient are
+demonstrated by the “<a href="https://doi.org/10.2307/2682899" class="external-link">Anscombe
+quartet</a>” of datasets.</p>
+<p>The Pearson correlation coefficient, moreover, cannot be used in the
+case of nominal variates, because they cannot be sorted in any
+meaningful order. Yet there can be clear associations among nominal
+variates, as <a href="#newsamples">was shown for the island and species
+variates</a>.</p>
+</div>
+<div class="section level3">
+<h3 id="mutual-information">Mutual information<a class="anchor" aria-label="anchor" href="#mutual-information"></a>
+</h3>
+<p>Is there a measure of association that enjoys at least the following
+three properties?:</p>
+<ul>
+<li>It quantifies general associations, not just linearity.</li>
+<li>It does not make any assumptions (such as Gaussianity) about the
+distribution of variates.</li>
+<li>It can be used for any kind of variates.</li>
+</ul>
+<p>The answer is <em>yes, there is</em>! It is called the <strong>mutual
+information</strong> or <a href="https://www.electropedia.org/iev/iev.nsf/display?openform&amp;ievref=171-07-27" class="external-link"><strong>mean
+transinformation content</strong></a> between variates
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>Y</mi><mn>1</mn></msub><annotation encoding="application/x-tex">Y_1</annotation></semantics></math>
+and
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>Y</mi><mn>2</mn></msub><annotation encoding="application/x-tex">Y_2</annotation></semantics></math>.
+It has the following important properties:</p>
+<ul>
+<li><p>If there is no association whatever between
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>Y</mi><mn>1</mn></msub><annotation encoding="application/x-tex">Y_1</annotation></semantics></math>
+and
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>Y</mi><mn>2</mn></msub><annotation encoding="application/x-tex">Y_2</annotation></semantics></math>,
+in the sense that knowledge of one never changes our probabilities about
+the other, then the mutual information between them is zero. Vice versa,
+if the mutual information is zero, then there is no association of any
+kind between
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>Y</mi><mn>1</mn></msub><annotation encoding="application/x-tex">Y_1</annotation></semantics></math>
+and
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>Y</mi><mn>2</mn></msub><annotation encoding="application/x-tex">Y_2</annotation></semantics></math>.</p></li>
+<li><p>It can be defined for a pair of variates
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>Y</mi><mn>1</mn></msub><annotation encoding="application/x-tex">Y_1</annotation></semantics></math>,
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>Y</mi><mn>2</mn></msub><annotation encoding="application/x-tex">Y_2</annotation></semantics></math>
+of any kind – continuous, nominal, binary, images, audio signals, and so
+on.</p></li>
+<li><p>It is defined for any probability distribution
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mrow><mi mathvariant="normal">P</mi><mi mathvariant="normal">r</mi></mrow><mrow><mo stretchy="true" form="prefix">(</mo><msub><mi>Y</mi><mn>1</mn></msub><mo>,</mo><msub><mi>Y</mi><mn>2</mn></msub><mo stretchy="true" form="postfix">)</mo></mrow></mrow><annotation encoding="application/x-tex">\mathrm{Pr}(Y_1, Y_2)</annotation></semantics></math>
+for the two variates, without assumptions such as Gaussian
+shapes.</p></li>
+</ul>
+<p>Mutual information is always positive or zero, and can be defined in
+several mathematically equivalent ways, such as the following:</p>
+<p><span class="math display">$$
+\sum_{y_1, y_2} \mathrm{Pr}(Y_1 \mo y_1, Y_2 \mo y_2) \,
+\log_2 \frac{
+\mathrm{Pr}(Y_1 \mo y_1, Y_2 \mo y_2)
+}{
+\mathrm{Pr}(Y_1 \mo y_1) \cdot \mathrm{Pr}(Y_2 \mo y_2)
+} \; \mathrm{Sh}
+$$</span></p>
+<p>with integrals replacing the sums in the case of continuous variates.
+It is measured in <em>shannons</em> (symbol
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi mathvariant="normal">S</mi><mi mathvariant="normal">h</mi></mrow><annotation encoding="application/x-tex">\mathrm{Sh}</annotation></semantics></math>),
+or <em>hartleys</em> (symbol
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi mathvariant="normal">H</mi><mi mathvariant="normal">a</mi><mi mathvariant="normal">r</mi><mi mathvariant="normal">t</mi></mrow><annotation encoding="application/x-tex">\mathrm{Hart}</annotation></semantics></math>),
+or <em>natural units</em> (symbol
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi mathvariant="normal">n</mi><mi mathvariant="normal">a</mi><mi mathvariant="normal">t</mi></mrow><annotation encoding="application/x-tex">\mathrm{nat}</annotation></semantics></math>).
+These units and other properties of the mutual information are <a href="https://archive.org/details/iso-standards-collection/BS%20EN%2080000-13-2008%20-%201%20Quantities%20and%20units" class="external-link">standardized
+by the International Organization for Standardization (ISO) and the
+International Electrotechnical Commission (IEC)</a>.</p>
+<p>Mutual information is in fact a core quantity of communication theory
+and information theory. The design and assessment of communication
+channels depends crucially on it. This makes sense: the main requisite
+of a communication channel is a strong association between two variates:
+its input and output messages. You can find a brilliant introduction to
+its meaning and uses in MacKay’s book, see <span id="references">references</span>.</p>
+<p><br>
+The <strong><em>inferno</em></strong> package provides the function
+<code><a href="../reference/mutualinfo.html">mutualinfo()</a></code> to calculate the mutual information between
+two variates or two sets of joint variates. Its main arguments are the
+following:</p>
+<ul>
+<li>
+<code>Y1names</code>, <code>Y2names</code>: two vectors of variate
+names; the mutual information is calculated between these two sets.</li>
+<li>
+<code>X</code>: data frame of variate values to restrict the
+calculation to specific subpopulations.</li>
+<li>
+<code>learnt</code>: the object that points to the computation made
+with the <code><a href="../reference/learn.html">learn()</a></code> function.</li>
+<li>Optionally, <code>unit</code>: the mutual information unit; default
+“shannons” (Sh).</li>
+<li>Optionally, <code>parallel</code> specifies how many cores we should
+use for the computation.</li>
+</ul>
+<p>For example let’s calculate the mutual information between the
+variates <code>island</code> and <code>species</code>, <a href="#newsamples">previously discussed and visualized</a>:</p>
+<div class="sourceCode" id="cb13"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">MIislandspecies</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/mutualinfo.html">mutualinfo</a></span><span class="op">(</span></span>
+<span>    Y1names <span class="op">=</span> <span class="st">'island'</span>, Y2names <span class="op">=</span> <span class="st">'species'</span>,</span>
+<span>    learnt <span class="op">=</span> <span class="va">learnt</span>,</span>
+<span>    parallel <span class="op">=</span> <span class="fl">4</span> <span class="co">## let's use 4 cores</span></span>
+<span><span class="op">)</span></span>
+<span><span class="co"># Registered doParallelSNOW with 4 workers</span></span>
+<span><span class="co"># </span></span>
+<span><span class="co"># Closing connections to cores.</span></span></code></pre></div>
+<p>The resulting object <code>MIislandspecies</code> is a list of
+several quantities; the mutual information is given in the
+<code>$MI</code> element, which includes the accuracy of the result:</p>
+<div class="sourceCode" id="cb14"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">MIislandspecies</span><span class="op">$</span><span class="va">MI</span></span>
+<span><span class="co">#    value accuracy </span></span>
+<span><span class="co"># 0.633996 0.015000</span></span></code></pre></div>
+<p><br></p>
 <p><em>(TO BE CONTINUED)</em></p>
+<p><br></p>
+</div>
+</div>
+<div class="section level2">
+<h2 id="appendix">Appendices<a class="anchor" aria-label="anchor" href="#appendix"></a>
+</h2>
+<div class="section level3">
+<h3 id="references">References<a class="anchor" aria-label="anchor" href="#references"></a>
+</h3>
+<ul>
+<li>MacKay: <a href="https://www.inference.org.uk/itila/book.html" class="external-link"><em>Information
+Theory, Inference, and Learning Algorithms</em></a> (2005).</li>
+</ul>
 </div>
 </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>
