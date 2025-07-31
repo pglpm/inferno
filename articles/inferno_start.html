@@ -110,9 +110,9 @@ methodology.</p></li>
 </ul>
 <p><br>
 You’re now welcome to open R in your favourite integrated development
-environment, choose a directory to work in, and test yourself the code
-that follows. Let’s start by loading the
-<strong><em>inferno</em></strong> package:</p>
+environment, choose a directory to work in, and test the code that
+follows. Let’s start by loading the <strong><em>inferno</em></strong>
+package:</p>
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="st"><a href="https://github.com/pglpm/inferno/" class="external-link">'inferno'</a></span><span class="op">)</span></span></code></pre></div>
 <p>In our example we shall use data from the
@@ -216,8 +216,8 @@ some study.</p>
 <p>It is practically impossible to specify an exact criterion for
 membership in a population under study. We may try to cover and delimit
 as many factors as possible, but there may always appear a new one we
-didn’t think of. There’s no “objective” specification of a population:
-the specification depends on our research purpose – which often is not
+didn’t think of. There’s no objective specification of a population: the
+specification depends on our research purpose, which is often not
 precisely specified either. We must therefore always be prepared to
 further specify the population of our study. In some cases we may even
 need to modify our previous specification, and thus discard some data or
@@ -238,17 +238,19 @@ of the population.</p>
 Suppose we were interested only in all the penguins alive today on a
 specific, very small island. The island turns out to have 17 penguins.
 We check all of them. We find that 6 of these are females, and 11 are
-males. It’s then a fact that 6/17${}$35.3% of penguins in this specific
-population are females, and 64.7% are males. And if someone picked a
-penguin from this population and asked us to guess its sex, we would
-give a 35.3% probability to that penguin’s being female, and 64.7% to
-its being male.<a class="footnote-ref" tabindex="0" data-bs-toggle="popover" data-bs-content="&lt;p&gt;Note the difference between probability and frequency.
-If an expert colleague tells us “I was able to take a quick look at that
-penguin, and it looks female to me, though I’m not completely sure”,
-then our &lt;em&gt;probability&lt;/em&gt; that this specific penguin is female would
-get higher than 50%. If we observe the penguin and see that it’s female,
-our probability for female would become 100%. Yet the &lt;em&gt;frequency&lt;/em&gt;
-of females in the population is still 35.3%.&lt;/p&gt;"><sup>1</sup></a></p>
+males. It’s then a fact that
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mn>6</mn><mi>/</mi><mn>17</mn><mo>≈</mo><mn>35.3</mn><mi>%</mi></mrow><annotation encoding="application/x-tex">6/17 \approx 35.3\%</annotation></semantics></math>
+of penguins in this specific population are females, and 64.7% are
+males. And if someone picked a penguin from this population and asked us
+to guess its sex, we would give a 35.3% probability to that penguin’s
+being female, and 64.7% to its being male.<a class="footnote-ref" tabindex="0" data-bs-toggle="popover" data-bs-content="&lt;p&gt;Note the difference between &lt;em&gt;probability&lt;/em&gt; and
+&lt;em&gt;frequency&lt;/em&gt;. If an expert colleague tells us “I was able to take
+a quick look at that penguin, and it looks female to me, though I’m not
+completely sure”, then our &lt;em&gt;probability&lt;/em&gt; that this specific
+penguin is female would get higher than 50%. If we observe the penguin
+and see that it’s female, our probability for female would become 100%.
+Yet the &lt;em&gt;frequency&lt;/em&gt; of females in the population is still
+35.3%.&lt;/p&gt;"><sup>1</sup></a></p>
 <p>But it is often impractical or impossible to take a complete census.
 Think of the case were the whole population includes members or variates
 that will only exist in the future. For this reason we proceed as
