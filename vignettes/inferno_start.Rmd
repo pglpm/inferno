@@ -1484,6 +1484,8 @@ Consider also this question: "Do Adélie and Chinstrap penguins have identical b
 
 - Jaynes: [*Probability Theory*](https://doi.org/10.1017/CBO9780511790423) (2003).
 
+- MacKay: [*Information Theory, Inference, and Learning Algorithms*](https://www.inference.org.uk/itila/book.html) (2005).
+
 - [*ADA 511: Foundations of data science*](https://pglpm.github.io/ADA511).
 
 ### On medical decision-making: {#referencesmedical}
