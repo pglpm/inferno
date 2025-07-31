@@ -166,7 +166,7 @@ body_massrange <- range(vrtgrid(vrt = 'body_mass', learnt = learnt))
 samples <- rPr(n = 2000, Ynames = c('body_mass', 'species'), learnt = learnt)
 
 flexiplot(x = samples$body_mass, y = samples$species,
-    type = 'p', xlab = 'body_mass / g', ylab = 'species',
+    type = 'p', xlab = 'body mass / g', ylab = 'species',
     xlim = body_massrange, ydomain = speciesvalues)
 ```
 
@@ -179,7 +179,7 @@ Note again how `flexiplot()` automatically add a jitter to the discrete variate 
 
 From the plot we see that there is an association between the Adélie and Chinstrap species and lighter body mass, around 3500 g; and between the Gentoo species and heavier body mass, around 5000 g. Incidentally, this reflects the probability plot at the end of the `vignette('inferno_start')`.
 
-## Samples and plots for different subpopulations
+## Samples and plots for different subpopulations {#subpopplots}
 
 In a completely analogous way we can visually assess the association of two continuous variates, such as body mass and bill length (`bill_len`):
 
@@ -190,7 +190,7 @@ bill_lenrange <- range(vrtgrid(vrt = 'bill_len', learnt = learnt))
 samples <- rPr(n = 2000, Ynames = c('body_mass', 'bill_len'), learnt = learnt)
 
 flexiplot(x = samples$body_mass, y = samples$bill_len,
-    type = 'p', xlab = 'body_mass / g', ylab = 'bill_len / mm',
+    type = 'p', xlab = 'body mass / g', ylab = 'bill length / mm',
     xlim = body_massrange, ylim = bill_lenrange)
 ```
 
@@ -239,7 +239,7 @@ flexiplot(
     y = cbind(samplesAdelie$bill_len,
         samplesChinstrap$bill_len,
         samplesGentoo$bill_len),
-    type = 'p', xlab = 'body_mass / g', ylab = 'bill_len / mm',
+    type = 'p', xlab = 'body mass / g', ylab = 'bill length / mm',
     xlim = body_massrange, ylim = bill_lenrange,
     pch = c(0, 2, 5), col = 2:4, alpha.f = 0.2)
 
@@ -268,8 +268,8 @@ For instance, if the distribution of two continuous variates $Y_1$ and $Y_2$ lie
 
 
 ``` r
-Y1 <- seq(-1, 1, length.out = 129) ## Y1-values
-Y2 <- sqrt(1 - Y1^2) ## Y2-values: function of Y1
+Y1 <- seq(-1, 1, length.out = 129) ## Y1 values
+Y2 <- sqrt(1 - Y1^2) ## Y2 values: function of Y1
 
 ## Calculate Pearson correlation coefficient
 r <- cor(Y1, Y2, method = 'pearson')
@@ -277,6 +277,7 @@ print(r)
 # [1] 0
 
 flexiplot(x = Y1, y = Y2, type = 'p',
+    xlab = 'Y1', ylab = 'Y2',
     main = paste0('Pearson correlation: ', signif(r, 2)))
 ```
 
@@ -309,14 +310,14 @@ Mutual information is always positive or zero, and can be defined in several mat
 
 $$
 \sum_{y_1, y_2} \mathrm{Pr}(Y_1 \mo y_1, Y_2 \mo y_2) \, 
-\log_2 \frac{
+\log_{2} \frac{
 \mathrm{Pr}(Y_1 \mo y_1, Y_2 \mo y_2)
 }{
 \mathrm{Pr}(Y_1 \mo y_1) \cdot \mathrm{Pr}(Y_2 \mo y_2)
 } \; \mathrm{Sh}
 $$
 
-with integrals replacing the sums in the case of continuous variates. It is measured in *shannons* (symbol $\mathrm{Sh}$), or *hartleys* (symbol $\mathrm{Hart}$), or *natural units* (symbol $\mathrm{nat}$). These units and other properties of the mutual information are [standardized by the International Organization for Standardization (ISO) and the International Electrotechnical Commission (IEC)](https://archive.org/details/iso-standards-collection/BS%20EN%2080000-13-2008%20-%201%20Quantities%20and%20units).
+with integrals replacing the sums in the case of continuous variates. It is measured in [*shannons*](https://www.electropedia.org/iev/iev.nsf/display?openform&ievref=171-07-11) (symbol $\mathrm{Sh}$), or [*hartleys*](https://www.electropedia.org/iev/iev.nsf/display?openform&ievref=171-07-12) (symbol $\mathrm{Hart}$), or [*natural units*](https://www.electropedia.org/iev/iev.nsf/display?openform&ievref=171-07-13) (symbol $\mathrm{nat}$). These units and other properties of the mutual information are [standardized by the International Organization for Standardization (ISO) and the International Electrotechnical Commission (IEC)](https://archive.org/details/iso-standards-collection/BS%20EN%2080000-13-2008%20-%201%20Quantities%20and%20units).
 
 Mutual information is in fact a core quantity of communication theory and information theory. The design and assessment of communication channels depends crucially on it. This makes sense: the main requisite of a communication channel is a strong association between two variates: its input and output messages. You can find a brilliant introduction to its meaning and uses in MacKay's book, see [references]{#references}.
 
@@ -342,16 +343,206 @@ MIislandspecies <- mutualinfo(
 # 
 # Closing connections to cores.
 ```
+
+
+
+
+
+
 The resulting object `MIislandspecies` is a list of several quantities; the mutual information is given in the `$MI` element, which includes the accuracy of the result:
 
 
 ``` r
 MIislandspecies$MI
 #    value accuracy 
-# 0.633996 0.015000
+# 0.621682 0.016000
 ```
 
+Between variates `island` and `species` there is thus a mutual information of 0.62 Sh. But what does this mean?
 
+## Understanding mutual-information values
+
+You might argue: "sure, this mutual information has all these wonderful properties, but what does its value actually mean? I know how to interpret a value of the Pearson correlation coefficient $r$".
+
+It's important to be fair though. Remember the very first times you learned and used the Pearson correlation coefficient: were you able to give a meaning to "$r = 0.23" for example? was that value high or low? We learned how to interpret $r$ values only through repeated use and application to real situations. The same is true of mutual information: through repeated use and application, you'll develop an understanding of its possible values.
+
+Mutual information does have an operational meaning. Saying that the mutual information between $X$ and $Y$ is $h\,\mathrm{Sh}$, means that knowledge of $X$ reduces, on average, $2^h$ times the number of uncertain possibilities of $Y$. For example suppose that a clinician during a diagnosis is equally uncertain about four possible diseases. There is a particular clinical indicator associated with the disease and the mutual information between the indicator and the disease is $0.415\,\mathrm{Sh}$. Then, upon testing the clinical indicator, the clinician will be roughly uncertain among *three* possible diseases, rather than four, because knowledge of the indicator reduces the four possibilities by $2^{0.415}$ ($4/(2^{0.415}) \approx 3$). If the mutual information were $2\,\mathrm{Sh}$ instead, then the indicator would tell the disease with *certainty*, as it would reduce the four possibilities by $2^{2}$ ($4/(2^{2}) = 1$).
+
+But the function `mutualinfo()` has an additional output to help you get a rough understanding of the mutual-information value. In the special case of two continuous variates having a joint *Gaussian* distribution, there is a precise relationship between their mutual information $I$ and their Pearson correlation coefficient $r$:
+
+$$
+I = -\frac{1}{2} \log_{2}\bigl(1 - r^2\bigr)\;\mathrm{Sh} 
+\,,\qquad
+\lvert r\rvert = \sqrt{1 - 2^{- 2 I/\mathrm{Sh}}}
+$$
+
+<div class="figure">
+<img src="figure/Ivsr-1.png" alt="**$I$ vs $\lvert r\rvert$ for jointly Gaussian variates**" width="75%" />
+<p class="caption">**$I$ vs $\lvert r\rvert$ for jointly Gaussian variates**</p>
+</div>
+
+This relationship can be a *rough* guide to get familiar with mutual-information values also for non-Gaussian variates. The `mutualinfo()` function has an additional output element `$MI.rGauss$` with the corresponding $\lvert r \rvert$ value. In the previous case of the `island` and `species` variates we have
+
+
+``` r
+MIislandspecies$MI
+#    value accuracy 
+# 0.621682 0.016000
+
+MIislandspecies$MI.rGauss
+#    value accuracy 
+# 0.760009 0.008900
+```
+
+## Mutual information for previous examples
+
+Let's re-display the scatter plots of the three pairs of variates explored previously, and calculate also their mutual information.
+
+### Island and species
+
+
+``` r
+## mutual info, previously calculated
+mi <- signif(MIislandspecies$MI['value'], digits = 2)
+
+## approx r-equivalent
+r <- signif(MIislandspecies$MI.rGauss['value'], digits = 2)
+
+samples <- rPr(n = 2000, Ynames = c('island', 'species'), learnt = learnt)
+
+flexiplot(x = samples$island, y = samples$species,
+    type = 'p', xlab = 'island', ylab = 'species',
+    xdomain = islandvalues, ydomain = speciesvalues,
+    main = paste0('mutual info: ', mi, ' Sh',
+        '  (rough r-equiv: ', r, ')') )
+```
+
+<div class="figure">
+<img src="figure/gensamplesplotbis-1.png" alt="**Scatter plot for `island` and `species`**" width="100%" />
+<p class="caption">**Scatter plot for `island` and `species`**</p>
+</div>
+
+### Body mass and species
+
+Calculation of mutual info:
+
+
+``` r
+MIbodymassspecies <- mutualinfo(
+    Y1names = 'body_mass', Y2names = 'species',
+    learnt = learnt,
+    parallel = 4
+)
+# Registered doParallelSNOW with 4 workers
+# 
+# Closing connections to cores.
+```
+
+Scatter plot:
+
+
+``` r
+## mutual info
+mi <- signif(MIbodymassspecies$MI['value'], digits = 2)
+
+## approx r-equivalent
+r <- signif(MIbodymassspecies$MI.rGauss['value'], digits = 2)
+
+samples <- rPr(n = 2000, Ynames = c('body_mass', 'species'), learnt = learnt)
+
+flexiplot(x = samples$body_mass, y = samples$species,
+    type = 'p', xlab = 'body mass / g', ylab = 'species',
+    xlim = body_massrange, ydomain = speciesvalues,
+    main = paste0('mutual info: ', mi, ' Sh',
+        '  (rough r-equiv: ', r, ')') )
+```
+
+<div class="figure">
+<img src="figure/gensamplesplotbodymassspeciesbis-1.png" alt="**Scatter plot for body mass and species**" width="100%" />
+<p class="caption">**Scatter plot for body mass and species**</p>
+</div>
+
+### Body mass and bill length
+
+Calculation of mutual information:
+
+
+``` r
+MIbodymassbilllen <- mutualinfo(
+    Y1names = 'body_mass', Y2names = 'bill_len',
+    learnt = learnt,
+    parallel = 4
+)
+# Registered doParallelSNOW with 4 workers
+# 
+# Closing connections to cores.
+```
+
+Scatter plot:
+
+
+``` r
+## mutual info
+mi <- signif(MIbodymassbilllen$MI['value'], digits = 2)
+
+## approx r-equivalent
+r <- signif(MIbodymassbilllen$MI.rGauss['value'], digits = 2)
+
+samples <- rPr(n = 2000, Ynames = c('body_mass', 'bill_len'), learnt = learnt)
+
+flexiplot(x = samples$body_mass, y = samples$bill_len,
+    type = 'p', xlab = 'body mass / g', ylab = 'bill length / mm',
+    xlim = body_massrange, ylim = bill_lenrange,
+    main = paste0('mutual info: ', mi, ' Sh',
+        '  (rough r-equiv: ', r, ')') )
+```
+
+<div class="figure">
+<img src="figure/gensamplesplotbodymassbilllenbis-1.png" alt="**Scatter plot for body mass and bill length**" width="100%" />
+<p class="caption">**Scatter plot for body mass and bill length**</p>
+</div>
+
+Note that in this case the Pearson correlation between `body_mass` and `bill_len` is
+
+
+``` r
+cor(samples$body_mass, samples$bill_len, method = 'pearson')
+# [1] 0.562959
+```
+
+which is different from the rough $r$-equivalent 0.67.
+
+\
+
+## Mutual information within subgroups
+
+We [previously discovered](#subpopplots) that the association between body mass and bill length is different for different penguin species. The `mutualinfo()` function allows us to calculate mutual information between two sets of variates within a particular subpopulation. This way we can determine whether two variates are more tightly associated within a particular subpopulation than within another. This kind of studies is important in medicine, where for instance a particular symptom may be a stronger indicator of a disease in a particular subgroup (e.g. females) than in another (e.g. males).
+
+The subpopulation is chosen with the parameter `X`, as in the `Pr()` and `rPr()` functions. Let's calculate the mutual information between `body_mass` and `bill_len` within each penguin species:
+
+
+``` r
+MIadelie <- mutualinfo(
+    Y1names = 'body_mass', Y2names = 'bill_len',
+    X = data.frame(species = 'Adelie'), ## choose subpopulation
+    learnt = learnt,
+    parallel = 4
+)
+
+MIchinstrap <- mutualinfo(
+    Y1names = 'body_mass', Y2names = 'bill_len',
+    X = data.frame(species = 'Chinstrap'), ## choose subpopulation
+    learnt = learnt,
+    parallel = 4
+)
+
+MIgentoo <- mutualinfo(
+    Y1names = 'body_mass', Y2names = 'bill_len',
+    X = data.frame(species = 'Gentoo'), ## choose subpopulation
+    learnt = learnt,
+    parallel = 4
+)
+```
 
 \
 

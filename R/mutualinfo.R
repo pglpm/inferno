@@ -167,7 +167,7 @@ mutualinfo <- function(
     } else if (unit == 'Hart') {
         lbase <- log(10)
     } else if (unit == 'nat') {
-        base <- 1
+        lbase <- 1
     } else if (is.numeric(unit) && unit > 0) {
         lbase <- log(unit)
     } else {
@@ -526,13 +526,12 @@ mutualinfo <- function(
                 CondEn12 = -lpY1given2,
                 CondEn21 = -lpY2given1,
                 En1 = -lpY1,
-                En2 = -lpY2,
+                En2 = -lpY2
                 ## MIalt = (mi + lpY1given2 - lpY1 + lpY2given1 - lpY2) / 3,
-                MI.rGauss = sqrt(1 - exp(- 2 * mi))
             )
         } # End foreach loop
 
-        ## Jacobian factors
+    ## Jacobian factors
     logjacobians1 <- rowSums(
         as.matrix(vtransform(Y1transf,
             auxmetadata = auxmetadata,
@@ -548,7 +547,6 @@ mutualinfo <- function(
     out[, c('CondEn12', 'CondEn21', 'En1', 'En2')] <-
         out[, c('CondEn12', 'CondEn21', 'En1', 'En2')] -
         c(logjacobians1, logjacobians2)
-    out[, 'MI.rGauss'] <- out[, 'MI.rGauss'] * lbase
 
     out <- unlist(apply(
         X = rbind(
@@ -559,11 +557,24 @@ mutualinfo <- function(
         ),
         MARGIN = 2, FUN = list, simplify = TRUE), recursive = FALSE)
 
+    if(out$MI['value'] < 0){
+        out$MI['accuracy'] <- out$MI['accuracy'] + out$MI['value']
+        out$MI['value'] <- 0
+    }
+
+
     ## ## generally there's no MI maximum for continous variates
     ## mmax <- paste0('En', which.min(c(out$En1['value'], out$En2['value'])) )
+    rgauss <- sqrt(1 - exp(-2 * out$MI['value'] * lbase))
 
     c(out,
         list(#MImax = out[[mmax]],
+            MI.rGauss = c(
+                rgauss,
+                signif(x = out$MI['accuracy'] *
+                           exp(-2 * out$MI['value'] * lbase) / rgauss,
+                    digits = 2)
+            ),
             unit = unit, Y1names = Y1names, Y2names = Y2names
         )
     )
