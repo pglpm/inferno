@@ -596,6 +596,8 @@ cor(samplesGentoo$body_mass, samplesGentoo$bill_len, method = 'pearson')
 # [1] 0.479998
 ```
 
+The Pearson correlation yields the same the association *ranking* as the mutual information does (first Gentoo, then Adélie, then Chinstrap), but it yields the association for the Adélie subpopulation to be closer to the Gentoo one than to the Chinstrap one. The mutual information yields the opposite.
+
 \
 
 *(TO BE CONTINUED)*
