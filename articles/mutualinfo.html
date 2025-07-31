@@ -844,6 +844,11 @@ correlation coefficient:</p>
 <span><span class="co">## Pearson r for Gentoo subpopulation:</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/stats/cor.html" class="external-link">cor</a></span><span class="op">(</span><span class="va">samplesGentoo</span><span class="op">$</span><span class="va">body_mass</span>, <span class="va">samplesGentoo</span><span class="op">$</span><span class="va">bill_len</span>, method <span class="op">=</span> <span class="st">'pearson'</span><span class="op">)</span></span>
 <span><span class="co"># [1] 0.479998</span></span></code></pre></div>
+<p>The Pearson correlation yields the same the association
+<em>ranking</em> as the mutual information does (first Gentoo, then
+Adélie, then Chinstrap), but it yields the association for the Adélie
+subpopulation to be closer to the Gentoo one than to the Chinstrap one.
+The mutual information yields the opposite.</p>
 <p><br></p>
 <p><em>(TO BE CONTINUED)</em></p>
 <p><br></p>
