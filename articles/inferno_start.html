@@ -1037,7 +1037,11 @@ information will be suffixed to this directory name. We can give a
 <code>parallel</code> argument specifying the number of cores to be used
 for parallel computation. A <code>seed</code> argument can also be given
 if we want to reproduce the same output in another run; or alternatively
-we can first call <code><a href="https://rdrr.io/r/base/Random.html" class="external-link">set.seed()</a></code> in the usual R-way.</p>
+we can first call <code><a href="https://rdrr.io/r/base/Random.html" class="external-link">set.seed()</a></code> in the usual R-way, as we did
+at the beginning of this vignette. (Note that <code><a href="../reference/learn.html">learn()</a></code> in
+any case always saves the current random-seed status in its output
+directory, in the file <code>rng_seed.rds</code>, so it’s always
+possible to recover its initial state.)</p>
 <p>This function in fact does Monte Carlo sampling and is
 computationally expensive. It may take minutes, hours, or days to run,
 depending on the amount of sample data and the number of variates. In
@@ -1049,7 +1053,7 @@ the number of cores you actually have!).</p>
 cores – <em>please wait before running this code</em>, it might take
 longer time on your computer:</p>
 <div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/Random.html" class="external-link">set.seed</a></span><span class="op">(</span><span class="fl">16</span><span class="op">)</span>  <span class="co">## for reproducibility</span></span>
+<code class="sourceCode R"><span><span class="co">## set.seed() already called</span></span>
 <span></span>
 <span><span class="va">learnt10</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/learn.html">learn</a></span><span class="op">(</span></span>
 <span>    data <span class="op">=</span> <span class="va">datafile</span>,</span>
@@ -1685,9 +1689,7 @@ done again with the <code><a href="../reference/learn.html">learn()</a></code> f
 before running this code</em>, it might take longer time on your
 computer:</p>
 <div class="sourceCode" id="cb22"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/Random.html" class="external-link">set.seed</a></span><span class="op">(</span><span class="fl">16</span><span class="op">)</span>  <span class="co">## for reproducibility</span></span>
-<span></span>
-<span><span class="va">learnt60</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/learn.html">learn</a></span><span class="op">(</span></span>
+<code class="sourceCode R"><span><span class="va">learnt60</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/learn.html">learn</a></span><span class="op">(</span></span>
 <span>    data <span class="op">=</span> <span class="va">datafile</span>,</span>
 <span>    metadata <span class="op">=</span> <span class="va">metadatafile</span>,</span>
 <span>    outputdir <span class="op">=</span> <span class="st">'penguin_inference'</span>,</span>
@@ -2055,9 +2057,7 @@ findings and their uncertainty.</p>
 <code><a href="../reference/learn.html">learn()</a></code> function (and as usual please wait before running
 the code below):</p>
 <div class="sourceCode" id="cb38"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/Random.html" class="external-link">set.seed</a></span><span class="op">(</span><span class="fl">16</span><span class="op">)</span>  <span class="co">## for reproducibility</span></span>
-<span></span>
-<span><span class="va">learntall</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/learn.html">learn</a></span><span class="op">(</span></span>
+<code class="sourceCode R"><span><span class="va">learntall</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/learn.html">learn</a></span><span class="op">(</span></span>
 <span>    data <span class="op">=</span> <span class="va">datafile</span>,</span>
 <span>    metadata <span class="op">=</span> <span class="va">metadatafile</span>,</span>
 <span>    outputdir <span class="op">=</span> <span class="st">'penguin_inference'</span>,</span>
