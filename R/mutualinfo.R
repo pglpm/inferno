@@ -136,7 +136,7 @@ mutualinfo <- function(
         sseq <- sort(sample.int(nmcs, n))
     } else {
         sseq <- c(rep(x = seq_len(nmcs), times = n %/% nmcs),
-            mcsamples[sort.int(sample.int(nmcs, n %% nmcs))])
+            seq_len(nmcs)[sort.int(sample.int(nmcs, n %% nmcs))])
     }
 
     if(all(is.na(X))){X <- NULL}
@@ -163,13 +163,13 @@ mutualinfo <- function(
 
     ## Consistency checks
     if (unit == 'Sh') {
-        base <- 2
+        lbase <- log(2)
     } else if (unit == 'Hart') {
-        base <- 10
+        lbase <- log(10)
     } else if (unit == 'nat') {
-        base <- exp(1)
+        base <- 1
     } else if (is.numeric(unit) && unit > 0) {
-        base <- unit
+        lbase <- log(unit)
     } else {
         stop("unit must be 'Sh', 'Hart', 'nat', or a positive real")
     }
@@ -500,25 +500,25 @@ mutualinfo <- function(
 ### Construct probabilities from lprobY1, lprobY2
             lpY1and2 <- log(mean(
                 colSums(exp(lprobY1 + lprobY2 + lWnorm)) / celWnorm,
-                na.rm = TRUE), base = base)
+                na.rm = TRUE))
 
             lpY1 <- log(mean(
                 colSums(exp(lprobY1 + lWnorm)) / celWnorm,
-                na.rm = TRUE), base = base)
+                na.rm = TRUE))
 
             lpY2 <- log(mean(
                 colSums(exp(lprobY2 + lWnorm)) / celWnorm,
-                na.rm = TRUE), base = base)
+                na.rm = TRUE))
 
             lprobnorm <- denorm(lprobY2 + lW)
             lpY1given2 <- log(mean(
                 colSums(exp(lprobY1 + lprobnorm)) / colSums(exp(lprobnorm)),
-                na.rm = TRUE), base = base)
+                na.rm = TRUE))
 
             lprobnorm <- denorm(lprobY1 + lW)
             lpY2given1 <- log(mean(
                 colSums(exp(lprobY2 + lprobnorm)) / colSums(exp(lprobnorm)),
-                na.rm = TRUE), base = base)
+                na.rm = TRUE))
 
             mi <- lpY1and2 - lpY1 - lpY2
             c(
@@ -527,8 +527,8 @@ mutualinfo <- function(
                 CondEn21 = -lpY2given1,
                 En1 = -lpY1,
                 En2 = -lpY2,
-                MIalt = (mi + lpY1given2 - lpY1 + lpY2given1 - lpY2) / 3,
-                MI.rGauss = sqrt(1 - exp(- 2 * mi * log(base)))
+                ## MIalt = (mi + lpY1given2 - lpY1 + lpY2given1 - lpY2) / 3,
+                MI.rGauss = sqrt(1 - exp(- 2 * mi))
             )
         } # End foreach loop
 
@@ -547,14 +547,17 @@ mutualinfo <- function(
 
     out[, c('CondEn12', 'CondEn21', 'En1', 'En2')] <-
         out[, c('CondEn12', 'CondEn21', 'En1', 'En2')] -
-        c(logjacobians1, logjacobians2) / log(base)
+        c(logjacobians1, logjacobians2)
+    out[, 'MI.rGauss'] <- out[, 'MI.rGauss'] * lbase
 
-    out <- unlist(apply(X = rbind(
-        value = colMeans(out, na.rm = TRUE),
-        accuracy = signif(x = apply(
-            X = out, MARGIN = 2, FUN = sd, na.rm = TRUE, simplify = TRUE
-        ) / sqrt(n), digits = 2)
-    ), MARGIN = 2, FUN = list, simplify = TRUE), recursive = FALSE)
+    out <- unlist(apply(
+        X = rbind(
+            value = colMeans(x = out, na.rm = TRUE) / lbase,
+            accuracy = signif(x = apply(
+                X = out, MARGIN = 2, FUN = sd, na.rm = TRUE, simplify = TRUE
+            ) / (sqrt(n) * lbase), digits = 2)
+        ),
+        MARGIN = 2, FUN = list, simplify = TRUE), recursive = FALSE)
 
     ## ## generally there's no MI maximum for continous variates
     ## mmax <- paste0('En', which.min(c(out$En1['value'], out$En2['value'])) )
