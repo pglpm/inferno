@@ -311,7 +311,7 @@ We must open the preliminary metadata file `penguin_metadata.csv` with our favou
 
 Now comes the essential part of our analysis: from the sample data and the metadata information,***inferno*** will draw inferences about the *whole* population of penguins, including new penguins (from the same population) that we shall observe in the future. Subsequent analyses are based on this main inference. The general theory behind this kind of inference, based on the property of *exchangeability* and related mathematical theorems, is explained in the [references](#references).
 
-This inference is performed by calling the `learn()` function. Its minimal arguments are three: the sample `data`, the `metadata`, and the name `outputdir` of a directory where the inference results should be saved; some additional information will be suffixed to this directory name. We can give a `parallel` argument specifying the number of cores to be used for parallel computation. A `seed` argument can also be given if we want to reproduce the same output in another run; or alternatively we can first call `set.seed()` in the usual R-way.
+This inference is performed by calling the `learn()` function. Its minimal arguments are three: the sample `data`, the `metadata`, and the name `outputdir` of a directory where the inference results should be saved; some additional information will be suffixed to this directory name. We can give a `parallel` argument specifying the number of cores to be used for parallel computation. A `seed` argument can also be given if we want to reproduce the same output in another run; or alternatively we can first call `set.seed()` in the usual R-way, as we did at the beginning of this vignette. (Note that `learn()` in any case always saves the current random-seed status in its output directory, in the file `rng_seed.rds`, so it's always possible to recover its initial state.)
 
 This function in fact does Monte Carlo sampling and is computationally expensive. It may take minutes, hours, or days to run, depending on the amount of sample data and the number of variates. In order to speed up its computations, it tries to use any multi-cores capabilities of the machine it runs in, or the number of cores specified in the `parallel` argument (which shouldn't be larger than the number of cores you actually have!).
 
@@ -319,7 +319,7 @@ The output below was obtained from running `learn()` on 4 cores -- *please wait 
 
 
 ``` r
-set.seed(16)  ## for reproducibility
+## set.seed() already called
 
 learnt10 <- learn(
     data = datafile,
@@ -796,8 +796,6 @@ Let's now update our inferences with the new sampled data. This is done again wi
 
 
 ``` r
-set.seed(16)  ## for reproducibility
-
 learnt60 <- learn(
     data = datafile,
     metadata = metadatafile,
@@ -1133,8 +1131,6 @@ As usual we perform the updated inference with the `learn()` function (and as us
 
 
 ``` r
-set.seed(16)  ## for reproducibility
-
 learntall <- learn(
     data = datafile,
     metadata = metadatafile,

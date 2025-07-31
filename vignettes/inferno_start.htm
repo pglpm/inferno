@@ -1302,7 +1302,11 @@ information will be suffixed to this directory name. We can give a
 <code>parallel</code> argument specifying the number of cores to be used
 for parallel computation. A <code>seed</code> argument can also be given
 if we want to reproduce the same output in another run; or alternatively
-we can first call <code>set.seed()</code> in the usual R-way.</p>
+we can first call <code>set.seed()</code> in the usual R-way, as we did
+at the beginning of this vignette. (Note that <code>learn()</code> in
+any case always saves the current random-seed status in its output
+directory, in the file <code>rng_seed.rds</code>, so it’s always
+possible to recover its initial state.)</p>
 <p>This function in fact does Monte Carlo sampling and is
 computationally expensive. It may take minutes, hours, or days to run,
 depending on the amount of sample data and the number of variates. In
@@ -1313,7 +1317,7 @@ the number of cores you actually have!).</p>
 <p>The output below was obtained from running <code>learn()</code> on 4
 cores – <em>please wait before running this code</em>, it might take
 longer time on your computer:</p>
-<div class="sourceCode" id="cb5"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">16</span>)  <span class="do">## for reproducibility</span></span>
+<div class="sourceCode" id="cb5"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" tabindex="-1"></a><span class="do">## set.seed() already called</span></span>
 <span id="cb5-2"><a href="#cb5-2" tabindex="-1"></a></span>
 <span id="cb5-3"><a href="#cb5-3" tabindex="-1"></a>learnt10 <span class="ot">&lt;-</span> <span class="fu">learn</span>(</span>
 <span id="cb5-4"><a href="#cb5-4" tabindex="-1"></a>    <span class="at">data =</span> datafile,</span>
@@ -1930,59 +1934,57 @@ a problem for Bayesian theory and <strong><em>inferno</em></strong>.</p>
 done again with the <code>learn()</code> function. <em>Please wait
 before running this code</em>, it might take longer time on your
 computer:</p>
-<div class="sourceCode" id="cb22"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb22-1"><a href="#cb22-1" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">16</span>)  <span class="do">## for reproducibility</span></span>
-<span id="cb22-2"><a href="#cb22-2" tabindex="-1"></a></span>
-<span id="cb22-3"><a href="#cb22-3" tabindex="-1"></a>learnt60 <span class="ot">&lt;-</span> <span class="fu">learn</span>(</span>
-<span id="cb22-4"><a href="#cb22-4" tabindex="-1"></a>    <span class="at">data =</span> datafile,</span>
-<span id="cb22-5"><a href="#cb22-5" tabindex="-1"></a>    <span class="at">metadata =</span> metadatafile,</span>
-<span id="cb22-6"><a href="#cb22-6" tabindex="-1"></a>    <span class="at">outputdir =</span> <span class="st">&#39;penguin_inference&#39;</span>,</span>
-<span id="cb22-7"><a href="#cb22-7" tabindex="-1"></a>    <span class="at">parallel =</span> <span class="dv">4</span> <span class="do">## how many cores to use for the computation</span></span>
-<span id="cb22-8"><a href="#cb22-8" tabindex="-1"></a>)</span>
-<span id="cb22-9"><a href="#cb22-9" tabindex="-1"></a><span class="co"># Registered doParallelSNOW with 4 workers</span></span>
+<div class="sourceCode" id="cb22"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb22-1"><a href="#cb22-1" tabindex="-1"></a>learnt60 <span class="ot">&lt;-</span> <span class="fu">learn</span>(</span>
+<span id="cb22-2"><a href="#cb22-2" tabindex="-1"></a>    <span class="at">data =</span> datafile,</span>
+<span id="cb22-3"><a href="#cb22-3" tabindex="-1"></a>    <span class="at">metadata =</span> metadatafile,</span>
+<span id="cb22-4"><a href="#cb22-4" tabindex="-1"></a>    <span class="at">outputdir =</span> <span class="st">&#39;penguin_inference&#39;</span>,</span>
+<span id="cb22-5"><a href="#cb22-5" tabindex="-1"></a>    <span class="at">parallel =</span> <span class="dv">4</span> <span class="do">## how many cores to use for the computation</span></span>
+<span id="cb22-6"><a href="#cb22-6" tabindex="-1"></a>)</span>
+<span id="cb22-7"><a href="#cb22-7" tabindex="-1"></a><span class="co"># Registered doParallelSNOW with 4 workers</span></span>
+<span id="cb22-8"><a href="#cb22-8" tabindex="-1"></a><span class="co"># </span></span>
+<span id="cb22-9"><a href="#cb22-9" tabindex="-1"></a><span class="co"># Calculating auxiliary metadata</span></span>
 <span id="cb22-10"><a href="#cb22-10" tabindex="-1"></a><span class="co"># </span></span>
-<span id="cb22-11"><a href="#cb22-11" tabindex="-1"></a><span class="co"># Calculating auxiliary metadata</span></span>
+<span id="cb22-11"><a href="#cb22-11" tabindex="-1"></a><span class="co"># Learning:  60 datapoints,  8 variates</span></span>
 <span id="cb22-12"><a href="#cb22-12" tabindex="-1"></a><span class="co"># </span></span>
-<span id="cb22-13"><a href="#cb22-13" tabindex="-1"></a><span class="co"># Learning:  60 datapoints,  8 variates</span></span>
-<span id="cb22-14"><a href="#cb22-14" tabindex="-1"></a><span class="co"># </span></span>
-<span id="cb22-15"><a href="#cb22-15" tabindex="-1"></a><span class="co">#  ************************************************** </span></span>
-<span id="cb22-16"><a href="#cb22-16" tabindex="-1"></a><span class="co">#  Saving output in directory</span></span>
-<span id="cb22-17"><a href="#cb22-17" tabindex="-1"></a><span class="co">#  penguin_inference-261231T235959-vrt8_dat60_smp3600 </span></span>
-<span id="cb22-18"><a href="#cb22-18" tabindex="-1"></a><span class="co">#  ************************************************** </span></span>
-<span id="cb22-19"><a href="#cb22-19" tabindex="-1"></a><span class="co"># Starting Monte Carlo sampling of 3600 samples by 4 chains</span></span>
-<span id="cb22-20"><a href="#cb22-20" tabindex="-1"></a><span class="co"># in a space of 1023 (effectively 16706) dimensions.</span></span>
-<span id="cb22-21"><a href="#cb22-21" tabindex="-1"></a><span class="co"># Using 4 cores: 900 samples per chain, max 1 chains per core.</span></span>
-<span id="cb22-22"><a href="#cb22-22" tabindex="-1"></a><span class="co"># Requested:   ESS 450   rel.MCSE 0.047 </span></span>
-<span id="cb22-23"><a href="#cb22-23" tabindex="-1"></a><span class="co"># Core logs are being saved in individual files.</span></span>
-<span id="cb22-24"><a href="#cb22-24" tabindex="-1"></a><span class="co"># </span></span>
-<span id="cb22-25"><a href="#cb22-25" tabindex="-1"></a><span class="co"># C-compiling samplers appropriate to the variates (package Nimble)</span></span>
-<span id="cb22-26"><a href="#cb22-26" tabindex="-1"></a><span class="co"># Compiled core 1. Number of samplers: 1328.             </span></span>
-<span id="cb22-27"><a href="#cb22-27" tabindex="-1"></a><span class="co"># Core 2 finished.                                        </span></span>
-<span id="cb22-28"><a href="#cb22-28" tabindex="-1"></a><span class="co"># Core 1 finished.                                        </span></span>
-<span id="cb22-29"><a href="#cb22-29" tabindex="-1"></a><span class="co"># Core 4 finished.                                        </span></span>
-<span id="cb22-30"><a href="#cb22-30" tabindex="-1"></a><span class="co"># Core 3 finished.                                        </span></span>
-<span id="cb22-31"><a href="#cb22-31" tabindex="-1"></a><span class="co"># Finished Monte Carlo sampling.                                 </span></span>
-<span id="cb22-32"><a href="#cb22-32" tabindex="-1"></a><span class="co"># Highest number of Monte Carlo iterations across chains: 18000 </span></span>
-<span id="cb22-33"><a href="#cb22-33" tabindex="-1"></a><span class="co"># Highest number of used mixture components: 7 </span></span>
-<span id="cb22-34"><a href="#cb22-34" tabindex="-1"></a><span class="co"># </span></span>
-<span id="cb22-35"><a href="#cb22-35" tabindex="-1"></a><span class="co"># Checking test data</span></span>
-<span id="cb22-36"><a href="#cb22-36" tabindex="-1"></a><span class="co"># ( #8 #15 #17 #20 #27 #30 #33 #42 #43 #46 #55 #59 )</span></span>
-<span id="cb22-37"><a href="#cb22-37" tabindex="-1"></a><span class="co"># </span></span>
-<span id="cb22-38"><a href="#cb22-38" tabindex="-1"></a><span class="co"># </span></span>
-<span id="cb22-39"><a href="#cb22-39" tabindex="-1"></a><span class="co"># rel. CI error: 0.0464 to 0.339</span></span>
-<span id="cb22-40"><a href="#cb22-40" tabindex="-1"></a><span class="co"># ESS: 1090 to 3320</span></span>
-<span id="cb22-41"><a href="#cb22-41" tabindex="-1"></a><span class="co"># needed thinning: 7.75 to 415</span></span>
-<span id="cb22-42"><a href="#cb22-42" tabindex="-1"></a><span class="co"># average: 1.26e-09 to 4.73e-08</span></span>
-<span id="cb22-43"><a href="#cb22-43" tabindex="-1"></a><span class="co"># width: 1.83e-09 to 9.73e-08</span></span>
-<span id="cb22-44"><a href="#cb22-44" tabindex="-1"></a><span class="co"># Plotting final Monte Carlo traces and marginal samples...</span></span>
-<span id="cb22-45"><a href="#cb22-45" tabindex="-1"></a><span class="co"># </span></span>
-<span id="cb22-46"><a href="#cb22-46" tabindex="-1"></a><span class="co"># Total computation time: 5.8 mins </span></span>
-<span id="cb22-47"><a href="#cb22-47" tabindex="-1"></a><span class="co"># Average preparation &amp; finalization time: 1.5 mins </span></span>
-<span id="cb22-48"><a href="#cb22-48" tabindex="-1"></a><span class="co"># Average Monte Carlo time per chain: 2.8 mins </span></span>
-<span id="cb22-49"><a href="#cb22-49" tabindex="-1"></a><span class="co"># Max total memory used: approx 3200 MB</span></span>
-<span id="cb22-50"><a href="#cb22-50" tabindex="-1"></a><span class="co"># Max memory used per core: approx 800 MB</span></span>
-<span id="cb22-51"><a href="#cb22-51" tabindex="-1"></a><span class="co"># Finished.</span></span>
-<span id="cb22-52"><a href="#cb22-52" tabindex="-1"></a><span class="co"># </span></span>
-<span id="cb22-53"><a href="#cb22-53" tabindex="-1"></a><span class="co"># Closing connections to cores.</span></span></code></pre></div>
+<span id="cb22-13"><a href="#cb22-13" tabindex="-1"></a><span class="co">#  ************************************************** </span></span>
+<span id="cb22-14"><a href="#cb22-14" tabindex="-1"></a><span class="co">#  Saving output in directory</span></span>
+<span id="cb22-15"><a href="#cb22-15" tabindex="-1"></a><span class="co">#  penguin_inference-261231T235959-vrt8_dat60_smp3600 </span></span>
+<span id="cb22-16"><a href="#cb22-16" tabindex="-1"></a><span class="co">#  ************************************************** </span></span>
+<span id="cb22-17"><a href="#cb22-17" tabindex="-1"></a><span class="co"># Starting Monte Carlo sampling of 3600 samples by 4 chains</span></span>
+<span id="cb22-18"><a href="#cb22-18" tabindex="-1"></a><span class="co"># in a space of 1023 (effectively 16706) dimensions.</span></span>
+<span id="cb22-19"><a href="#cb22-19" tabindex="-1"></a><span class="co"># Using 4 cores: 900 samples per chain, max 1 chains per core.</span></span>
+<span id="cb22-20"><a href="#cb22-20" tabindex="-1"></a><span class="co"># Requested:   ESS 450   rel.MCSE 0.047 </span></span>
+<span id="cb22-21"><a href="#cb22-21" tabindex="-1"></a><span class="co"># Core logs are being saved in individual files.</span></span>
+<span id="cb22-22"><a href="#cb22-22" tabindex="-1"></a><span class="co"># </span></span>
+<span id="cb22-23"><a href="#cb22-23" tabindex="-1"></a><span class="co"># C-compiling samplers appropriate to the variates (package Nimble)</span></span>
+<span id="cb22-24"><a href="#cb22-24" tabindex="-1"></a><span class="co"># Compiled core 1. Number of samplers: 1328.             </span></span>
+<span id="cb22-25"><a href="#cb22-25" tabindex="-1"></a><span class="co"># Core 2 finished.                                        </span></span>
+<span id="cb22-26"><a href="#cb22-26" tabindex="-1"></a><span class="co"># Core 1 finished.                                        </span></span>
+<span id="cb22-27"><a href="#cb22-27" tabindex="-1"></a><span class="co"># Core 4 finished.                                        </span></span>
+<span id="cb22-28"><a href="#cb22-28" tabindex="-1"></a><span class="co"># Core 3 finished.                                        </span></span>
+<span id="cb22-29"><a href="#cb22-29" tabindex="-1"></a><span class="co"># Finished Monte Carlo sampling.                                 </span></span>
+<span id="cb22-30"><a href="#cb22-30" tabindex="-1"></a><span class="co"># Highest number of Monte Carlo iterations across chains: 18000 </span></span>
+<span id="cb22-31"><a href="#cb22-31" tabindex="-1"></a><span class="co"># Highest number of used mixture components: 7 </span></span>
+<span id="cb22-32"><a href="#cb22-32" tabindex="-1"></a><span class="co"># </span></span>
+<span id="cb22-33"><a href="#cb22-33" tabindex="-1"></a><span class="co"># Checking test data</span></span>
+<span id="cb22-34"><a href="#cb22-34" tabindex="-1"></a><span class="co"># ( #8 #15 #17 #20 #27 #30 #33 #42 #43 #46 #55 #59 )</span></span>
+<span id="cb22-35"><a href="#cb22-35" tabindex="-1"></a><span class="co"># </span></span>
+<span id="cb22-36"><a href="#cb22-36" tabindex="-1"></a><span class="co"># </span></span>
+<span id="cb22-37"><a href="#cb22-37" tabindex="-1"></a><span class="co"># rel. CI error: 0.0464 to 0.339</span></span>
+<span id="cb22-38"><a href="#cb22-38" tabindex="-1"></a><span class="co"># ESS: 1090 to 3320</span></span>
+<span id="cb22-39"><a href="#cb22-39" tabindex="-1"></a><span class="co"># needed thinning: 7.75 to 415</span></span>
+<span id="cb22-40"><a href="#cb22-40" tabindex="-1"></a><span class="co"># average: 1.26e-09 to 4.73e-08</span></span>
+<span id="cb22-41"><a href="#cb22-41" tabindex="-1"></a><span class="co"># width: 1.83e-09 to 9.73e-08</span></span>
+<span id="cb22-42"><a href="#cb22-42" tabindex="-1"></a><span class="co"># Plotting final Monte Carlo traces and marginal samples...</span></span>
+<span id="cb22-43"><a href="#cb22-43" tabindex="-1"></a><span class="co"># </span></span>
+<span id="cb22-44"><a href="#cb22-44" tabindex="-1"></a><span class="co"># Total computation time: 5.8 mins </span></span>
+<span id="cb22-45"><a href="#cb22-45" tabindex="-1"></a><span class="co"># Average preparation &amp; finalization time: 1.5 mins </span></span>
+<span id="cb22-46"><a href="#cb22-46" tabindex="-1"></a><span class="co"># Average Monte Carlo time per chain: 2.8 mins </span></span>
+<span id="cb22-47"><a href="#cb22-47" tabindex="-1"></a><span class="co"># Max total memory used: approx 3200 MB</span></span>
+<span id="cb22-48"><a href="#cb22-48" tabindex="-1"></a><span class="co"># Max memory used per core: approx 800 MB</span></span>
+<span id="cb22-49"><a href="#cb22-49" tabindex="-1"></a><span class="co"># Finished.</span></span>
+<span id="cb22-50"><a href="#cb22-50" tabindex="-1"></a><span class="co"># </span></span>
+<span id="cb22-51"><a href="#cb22-51" tabindex="-1"></a><span class="co"># Closing connections to cores.</span></span></code></pre></div>
 <p>The calculation with 60 sample data took around 3 GB and 6 minutes on
 4 cores.</p>
 <p>The results of this updated inference are now stored in the
@@ -2288,59 +2290,57 @@ findings and their uncertainty.</p>
 <p>As usual we perform the updated inference with the
 <code>learn()</code> function (and as usual please wait before running
 the code below):</p>
-<div class="sourceCode" id="cb38"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb38-1"><a href="#cb38-1" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">16</span>)  <span class="do">## for reproducibility</span></span>
-<span id="cb38-2"><a href="#cb38-2" tabindex="-1"></a></span>
-<span id="cb38-3"><a href="#cb38-3" tabindex="-1"></a>learntall <span class="ot">&lt;-</span> <span class="fu">learn</span>(</span>
-<span id="cb38-4"><a href="#cb38-4" tabindex="-1"></a>    <span class="at">data =</span> datafile,</span>
-<span id="cb38-5"><a href="#cb38-5" tabindex="-1"></a>    <span class="at">metadata =</span> metadatafile,</span>
-<span id="cb38-6"><a href="#cb38-6" tabindex="-1"></a>    <span class="at">outputdir =</span> <span class="st">&#39;penguin_inference&#39;</span>,</span>
-<span id="cb38-7"><a href="#cb38-7" tabindex="-1"></a>    <span class="at">parallel =</span> <span class="dv">4</span> <span class="do">## how many cores to use for the computation</span></span>
-<span id="cb38-8"><a href="#cb38-8" tabindex="-1"></a>)</span>
-<span id="cb38-9"><a href="#cb38-9" tabindex="-1"></a><span class="co"># Registered doParallelSNOW with 4 workers</span></span>
+<div class="sourceCode" id="cb38"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb38-1"><a href="#cb38-1" tabindex="-1"></a>learntall <span class="ot">&lt;-</span> <span class="fu">learn</span>(</span>
+<span id="cb38-2"><a href="#cb38-2" tabindex="-1"></a>    <span class="at">data =</span> datafile,</span>
+<span id="cb38-3"><a href="#cb38-3" tabindex="-1"></a>    <span class="at">metadata =</span> metadatafile,</span>
+<span id="cb38-4"><a href="#cb38-4" tabindex="-1"></a>    <span class="at">outputdir =</span> <span class="st">&#39;penguin_inference&#39;</span>,</span>
+<span id="cb38-5"><a href="#cb38-5" tabindex="-1"></a>    <span class="at">parallel =</span> <span class="dv">4</span> <span class="do">## how many cores to use for the computation</span></span>
+<span id="cb38-6"><a href="#cb38-6" tabindex="-1"></a>)</span>
+<span id="cb38-7"><a href="#cb38-7" tabindex="-1"></a><span class="co"># Registered doParallelSNOW with 4 workers</span></span>
+<span id="cb38-8"><a href="#cb38-8" tabindex="-1"></a><span class="co"># </span></span>
+<span id="cb38-9"><a href="#cb38-9" tabindex="-1"></a><span class="co"># Calculating auxiliary metadata</span></span>
 <span id="cb38-10"><a href="#cb38-10" tabindex="-1"></a><span class="co"># </span></span>
-<span id="cb38-11"><a href="#cb38-11" tabindex="-1"></a><span class="co"># Calculating auxiliary metadata</span></span>
+<span id="cb38-11"><a href="#cb38-11" tabindex="-1"></a><span class="co"># Learning:  344 datapoints,  8 variates</span></span>
 <span id="cb38-12"><a href="#cb38-12" tabindex="-1"></a><span class="co"># </span></span>
-<span id="cb38-13"><a href="#cb38-13" tabindex="-1"></a><span class="co"># Learning:  344 datapoints,  8 variates</span></span>
-<span id="cb38-14"><a href="#cb38-14" tabindex="-1"></a><span class="co"># </span></span>
-<span id="cb38-15"><a href="#cb38-15" tabindex="-1"></a><span class="co">#  ******************************************************* </span></span>
-<span id="cb38-16"><a href="#cb38-16" tabindex="-1"></a><span class="co">#  Saving output in directory</span></span>
-<span id="cb38-17"><a href="#cb38-17" tabindex="-1"></a><span class="co">#  penguin_inference_def-261231T135959-vrt8_dat344_smp3600 </span></span>
-<span id="cb38-18"><a href="#cb38-18" tabindex="-1"></a><span class="co">#  ******************************************************* </span></span>
-<span id="cb38-19"><a href="#cb38-19" tabindex="-1"></a><span class="co"># Starting Monte Carlo sampling of 3600 samples by 4 chains</span></span>
-<span id="cb38-20"><a href="#cb38-20" tabindex="-1"></a><span class="co"># in a space of 1023 (effectively 89707) dimensions.</span></span>
-<span id="cb38-21"><a href="#cb38-21" tabindex="-1"></a><span class="co"># Using 4 cores: 900 samples per chain, max 1 chains per core.</span></span>
-<span id="cb38-22"><a href="#cb38-22" tabindex="-1"></a><span class="co"># Requested:   ESS 450   rel.MCSE 0.047 </span></span>
-<span id="cb38-23"><a href="#cb38-23" tabindex="-1"></a><span class="co"># Core logs are being saved in individual files.</span></span>
-<span id="cb38-24"><a href="#cb38-24" tabindex="-1"></a><span class="co"># </span></span>
-<span id="cb38-25"><a href="#cb38-25" tabindex="-1"></a><span class="co"># C-compiling samplers appropriate to the variates (package Nimble)</span></span>
-<span id="cb38-26"><a href="#cb38-26" tabindex="-1"></a><span class="co"># Compiled core 1. Number of samplers: 2757.             </span></span>
-<span id="cb38-27"><a href="#cb38-27" tabindex="-1"></a><span class="co"># Core 2 finished.                                        </span></span>
-<span id="cb38-28"><a href="#cb38-28" tabindex="-1"></a><span class="co"># Core 4 finished.                                        </span></span>
-<span id="cb38-29"><a href="#cb38-29" tabindex="-1"></a><span class="co"># Core 3 finished.                                        </span></span>
-<span id="cb38-30"><a href="#cb38-30" tabindex="-1"></a><span class="co"># Core 1 finished.                                        </span></span>
-<span id="cb38-31"><a href="#cb38-31" tabindex="-1"></a><span class="co"># Finished Monte Carlo sampling.                                 </span></span>
-<span id="cb38-32"><a href="#cb38-32" tabindex="-1"></a><span class="co"># Highest number of Monte Carlo iterations across chains: 179789 </span></span>
-<span id="cb38-33"><a href="#cb38-33" tabindex="-1"></a><span class="co"># Highest number of used mixture components: 7 </span></span>
-<span id="cb38-34"><a href="#cb38-34" tabindex="-1"></a><span class="co"># </span></span>
-<span id="cb38-35"><a href="#cb38-35" tabindex="-1"></a><span class="co"># Checking test data</span></span>
-<span id="cb38-36"><a href="#cb38-36" tabindex="-1"></a><span class="co"># ( #62 #64 #67 #125 #127 #189 #225 #234 #264 #271 #276 #315 )</span></span>
-<span id="cb38-37"><a href="#cb38-37" tabindex="-1"></a><span class="co"># </span></span>
-<span id="cb38-38"><a href="#cb38-38" tabindex="-1"></a><span class="co"># </span></span>
-<span id="cb38-39"><a href="#cb38-39" tabindex="-1"></a><span class="co"># rel. CI error: 0.0246 to 0.122</span></span>
-<span id="cb38-40"><a href="#cb38-40" tabindex="-1"></a><span class="co"># ESS: 709 to 3800</span></span>
-<span id="cb38-41"><a href="#cb38-41" tabindex="-1"></a><span class="co"># needed thinning: 2.19 to 53.4</span></span>
-<span id="cb38-42"><a href="#cb38-42" tabindex="-1"></a><span class="co"># average: 9.38e-11 to 1.74e-07</span></span>
-<span id="cb38-43"><a href="#cb38-43" tabindex="-1"></a><span class="co"># width: 1.79e-10 to 1.86e-07</span></span>
-<span id="cb38-44"><a href="#cb38-44" tabindex="-1"></a><span class="co"># Plotting final Monte Carlo traces and marginal samples...</span></span>
-<span id="cb38-45"><a href="#cb38-45" tabindex="-1"></a><span class="co"># </span></span>
-<span id="cb38-46"><a href="#cb38-46" tabindex="-1"></a><span class="co"># Total computation time: 2 hours </span></span>
-<span id="cb38-47"><a href="#cb38-47" tabindex="-1"></a><span class="co"># Average preparation &amp; finalization time: 2.4 mins </span></span>
-<span id="cb38-48"><a href="#cb38-48" tabindex="-1"></a><span class="co"># Average Monte Carlo time per chain: 34 mins </span></span>
-<span id="cb38-49"><a href="#cb38-49" tabindex="-1"></a><span class="co"># Max total memory used: approx 3500 MB</span></span>
-<span id="cb38-50"><a href="#cb38-50" tabindex="-1"></a><span class="co"># Max memory used per core: approx 920 MB</span></span>
-<span id="cb38-51"><a href="#cb38-51" tabindex="-1"></a><span class="co"># Finished.</span></span>
-<span id="cb38-52"><a href="#cb38-52" tabindex="-1"></a><span class="co"># </span></span>
-<span id="cb38-53"><a href="#cb38-53" tabindex="-1"></a><span class="co"># Closing connections to cores.</span></span></code></pre></div>
+<span id="cb38-13"><a href="#cb38-13" tabindex="-1"></a><span class="co">#  ******************************************************* </span></span>
+<span id="cb38-14"><a href="#cb38-14" tabindex="-1"></a><span class="co">#  Saving output in directory</span></span>
+<span id="cb38-15"><a href="#cb38-15" tabindex="-1"></a><span class="co">#  penguin_inference_def-261231T135959-vrt8_dat344_smp3600 </span></span>
+<span id="cb38-16"><a href="#cb38-16" tabindex="-1"></a><span class="co">#  ******************************************************* </span></span>
+<span id="cb38-17"><a href="#cb38-17" tabindex="-1"></a><span class="co"># Starting Monte Carlo sampling of 3600 samples by 4 chains</span></span>
+<span id="cb38-18"><a href="#cb38-18" tabindex="-1"></a><span class="co"># in a space of 1023 (effectively 89707) dimensions.</span></span>
+<span id="cb38-19"><a href="#cb38-19" tabindex="-1"></a><span class="co"># Using 4 cores: 900 samples per chain, max 1 chains per core.</span></span>
+<span id="cb38-20"><a href="#cb38-20" tabindex="-1"></a><span class="co"># Requested:   ESS 450   rel.MCSE 0.047 </span></span>
+<span id="cb38-21"><a href="#cb38-21" tabindex="-1"></a><span class="co"># Core logs are being saved in individual files.</span></span>
+<span id="cb38-22"><a href="#cb38-22" tabindex="-1"></a><span class="co"># </span></span>
+<span id="cb38-23"><a href="#cb38-23" tabindex="-1"></a><span class="co"># C-compiling samplers appropriate to the variates (package Nimble)</span></span>
+<span id="cb38-24"><a href="#cb38-24" tabindex="-1"></a><span class="co"># Compiled core 1. Number of samplers: 2757.             </span></span>
+<span id="cb38-25"><a href="#cb38-25" tabindex="-1"></a><span class="co"># Core 2 finished.                                        </span></span>
+<span id="cb38-26"><a href="#cb38-26" tabindex="-1"></a><span class="co"># Core 4 finished.                                        </span></span>
+<span id="cb38-27"><a href="#cb38-27" tabindex="-1"></a><span class="co"># Core 3 finished.                                        </span></span>
+<span id="cb38-28"><a href="#cb38-28" tabindex="-1"></a><span class="co"># Core 1 finished.                                        </span></span>
+<span id="cb38-29"><a href="#cb38-29" tabindex="-1"></a><span class="co"># Finished Monte Carlo sampling.                                 </span></span>
+<span id="cb38-30"><a href="#cb38-30" tabindex="-1"></a><span class="co"># Highest number of Monte Carlo iterations across chains: 179789 </span></span>
+<span id="cb38-31"><a href="#cb38-31" tabindex="-1"></a><span class="co"># Highest number of used mixture components: 7 </span></span>
+<span id="cb38-32"><a href="#cb38-32" tabindex="-1"></a><span class="co"># </span></span>
+<span id="cb38-33"><a href="#cb38-33" tabindex="-1"></a><span class="co"># Checking test data</span></span>
+<span id="cb38-34"><a href="#cb38-34" tabindex="-1"></a><span class="co"># ( #62 #64 #67 #125 #127 #189 #225 #234 #264 #271 #276 #315 )</span></span>
+<span id="cb38-35"><a href="#cb38-35" tabindex="-1"></a><span class="co"># </span></span>
+<span id="cb38-36"><a href="#cb38-36" tabindex="-1"></a><span class="co"># </span></span>
+<span id="cb38-37"><a href="#cb38-37" tabindex="-1"></a><span class="co"># rel. CI error: 0.0246 to 0.122</span></span>
+<span id="cb38-38"><a href="#cb38-38" tabindex="-1"></a><span class="co"># ESS: 709 to 3800</span></span>
+<span id="cb38-39"><a href="#cb38-39" tabindex="-1"></a><span class="co"># needed thinning: 2.19 to 53.4</span></span>
+<span id="cb38-40"><a href="#cb38-40" tabindex="-1"></a><span class="co"># average: 9.38e-11 to 1.74e-07</span></span>
+<span id="cb38-41"><a href="#cb38-41" tabindex="-1"></a><span class="co"># width: 1.79e-10 to 1.86e-07</span></span>
+<span id="cb38-42"><a href="#cb38-42" tabindex="-1"></a><span class="co"># Plotting final Monte Carlo traces and marginal samples...</span></span>
+<span id="cb38-43"><a href="#cb38-43" tabindex="-1"></a><span class="co"># </span></span>
+<span id="cb38-44"><a href="#cb38-44" tabindex="-1"></a><span class="co"># Total computation time: 2 hours </span></span>
+<span id="cb38-45"><a href="#cb38-45" tabindex="-1"></a><span class="co"># Average preparation &amp; finalization time: 2.4 mins </span></span>
+<span id="cb38-46"><a href="#cb38-46" tabindex="-1"></a><span class="co"># Average Monte Carlo time per chain: 34 mins </span></span>
+<span id="cb38-47"><a href="#cb38-47" tabindex="-1"></a><span class="co"># Max total memory used: approx 3500 MB</span></span>
+<span id="cb38-48"><a href="#cb38-48" tabindex="-1"></a><span class="co"># Max memory used per core: approx 920 MB</span></span>
+<span id="cb38-49"><a href="#cb38-49" tabindex="-1"></a><span class="co"># Finished.</span></span>
+<span id="cb38-50"><a href="#cb38-50" tabindex="-1"></a><span class="co"># </span></span>
+<span id="cb38-51"><a href="#cb38-51" tabindex="-1"></a><span class="co"># Closing connections to cores.</span></span></code></pre></div>
 <p>The calculation with 344 sample data took around 3.5 GB and 2 hours
 on 4 cores.</p>
 <p>The results of this final inference are stored in the compressed file
