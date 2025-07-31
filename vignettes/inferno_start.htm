@@ -385,9 +385,9 @@ methodology.</p></li>
 </ul>
 <p><br />
 You’re now welcome to open R in your favourite integrated development
-environment, choose a directory to work in, and test yourself the code
-that follows. Let’s start by loading the
-<strong><em>inferno</em></strong> package:</p>
+environment, choose a directory to work in, and test the code that
+follows. Let’s start by loading the <strong><em>inferno</em></strong>
+package:</p>
 <div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" tabindex="-1"></a><span class="fu">library</span>(<span class="st">&#39;inferno&#39;</span>)</span></code></pre></div>
 <p>In our example we shall use data from the
 <code>datasets::penguins</code> dataset, included in R version 4.5.0 and
@@ -488,8 +488,8 @@ some study.</p>
 <p>It is practically impossible to specify an exact criterion for
 membership in a population under study. We may try to cover and delimit
 as many factors as possible, but there may always appear a new one we
-didn’t think of. There’s no “objective” specification of a population:
-the specification depends on our research purpose – which often is not
+didn’t think of. There’s no objective specification of a population: the
+specification depends on our research purpose, which is often not
 precisely specified either. We must therefore always be prepared to
 further specify the population of our study. In some cases we may even
 need to modify our previous specification, and thus discard some data or
@@ -509,11 +509,11 @@ of the population.</p>
 Suppose we were interested only in all the penguins alive today on a
 specific, very small island. The island turns out to have 17 penguins.
 We check all of them. We find that 6 of these are females, and 11 are
-males. It’s then a fact that 6/17${}$35.3% of penguins in this specific
-population are females, and 64.7% are males. And if someone picked a
-penguin from this population and asked us to guess its sex, we would
-give a 35.3% probability to that penguin’s being female, and 64.7% to
-its being male.<a href="#fn1" class="footnote-ref" id="fnref1"><sup>1</sup></a></p>
+males. It’s then a fact that <span class="math inline">\(6/17 \approx
+35.3\%\)</span> of penguins in this specific population are females, and
+64.7% are males. And if someone picked a penguin from this population
+and asked us to guess its sex, we would give a 35.3% probability to that
+penguin’s being female, and 64.7% to its being male.<a href="#fn1" class="footnote-ref" id="fnref1"><sup>1</sup></a></p>
 <p>But it is often impractical or impossible to take a complete census.
 Think of the case were the whole population includes members or variates
 that will only exist in the future. For this reason we proceed as
@@ -2697,13 +2697,14 @@ rules</a>.</p>
 <div class="footnotes footnotes-end-of-document">
 <hr />
 <ol>
-<li id="fn1"><p>Note the difference between probability and frequency.
-If an expert colleague tells us “I was able to take a quick look at that
-penguin, and it looks female to me, though I’m not completely sure”,
-then our <em>probability</em> that this specific penguin is female would
-get higher than 50%. If we observe the penguin and see that it’s female,
-our probability for female would become 100%. Yet the <em>frequency</em>
-of females in the population is still 35.3%.<a href="#fnref1" class="footnote-back">↩︎</a></p></li>
+<li id="fn1"><p>Note the difference between <em>probability</em> and
+<em>frequency</em>. If an expert colleague tells us “I was able to take
+a quick look at that penguin, and it looks female to me, though I’m not
+completely sure”, then our <em>probability</em> that this specific
+penguin is female would get higher than 50%. If we observe the penguin
+and see that it’s female, our probability for female would become 100%.
+Yet the <em>frequency</em> of females in the population is still
+35.3%.<a href="#fnref1" class="footnote-back">↩︎</a></p></li>
 <li id="fn2"><p>The Monte Carlo expert will notice that the effective
 sample size is around 900 or more. The Monte Carlo sampling is designed
 to stop when 3600 samples have been obtained with an effective sample
