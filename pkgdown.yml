@@ -4,7 +4,7 @@ pkgdown_sha: ~
 articles:
   inferno_start: inferno_start.html
   mutualinfo: mutualinfo.html
-last_built: 2025-07-31T12:19Z
+last_built: 2025-07-31T12:24Z
 urls:
   reference: https://pglpm.github.io/inferno/reference
   article: https://pglpm.github.io/inferno/articles
