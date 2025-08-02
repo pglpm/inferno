@@ -549,11 +549,11 @@ or more”; in such case we must make sure to state that
 These are characters or strings, only defined for nominal or non-numeric
 ordinal variates. They are the values that a nominal or ordinal variate
 can <em>in principle</em> take on in the population of interest. Note
-that they are include not only the values that are observed in a sample,
-but also those that could be observed in the rest of the population. A
-nominal or ordinal variate must have at least two distinct values; it
-wouldn’t make much sense to draw inferences about it otherwise. The
-metadata file can contain further empty <strong>V…</strong> columns.
+that they include not only the values observed in a sample, but also
+those that could be observed in the rest of the population. A nominal or
+ordinal variate must have at least two distinct values; it wouldn’t make
+much sense to draw inferences about it otherwise. The metadata file can
+contain further empty <strong>V…</strong> columns.
 </dd>
 </dl>
 <div class="section level4">
@@ -859,8 +859,8 @@ variates: they are of <code>'nominal'</code> type, and all their
 possible values are correctly listed. If any of the possible values are
 missing from the sample, and therefore missing in the preliminary
 metadata, then we should add them under the additional
-<strong>V…</strong> columns. Note that we can sort the nominal values in
-any order we please.</p>
+<strong>V…</strong> columns. We can sort the nominal values in any order
+we please.</p>
 <p>Also the <code>bill_len</code> and <code>bill_dep</code> variates are
 correct: they are continuous, rounded to the nearest tenth of
 millimetre, and cannot be less than zero. The absence of
@@ -1038,7 +1038,7 @@ information will be suffixed to this directory name. We can give a
 for parallel computation. A <code>seed</code> argument can also be given
 if we want to reproduce the same output in another run; or alternatively
 we can first call <code><a href="https://rdrr.io/r/base/Random.html" class="external-link">set.seed()</a></code> in the usual R-way, as we did
-at the beginning of this vignette. (Note that <code><a href="../reference/learn.html">learn()</a></code> in
+at the beginning of this vignette. (The function <code><a href="../reference/learn.html">learn()</a></code> in
 any case always saves the current random-seed status in its output
 directory, in the file <code>rng_seed.rds</code>, so it’s always
 possible to recover its initial state.)</p>
@@ -1120,9 +1120,9 @@ error under 0.05. This is enough, considering that the statistical
 uncertainty in the results can be tens or hundreds of times larger than
 this. The desired number of samples and maximal Monte Carlo standard
 error can be specified with the &lt;code&gt;nsamples&lt;/code&gt; and
-&lt;code&gt;maxrelMCSE&lt;/code&gt; arguments.&lt;/p&gt;"><sup>2</sup></a> Note that the inference above, with
-10 sample data and 8 variates, took around 3 GB and 7 minutes to
-complete on 4 cores.</p>
+&lt;code&gt;maxrelMCSE&lt;/code&gt; arguments.&lt;/p&gt;"><sup>2</sup></a> The inference above, with 10 sample data
+and 8 variates, took around 3 GB and 7 minutes to complete on
+4 cores.</p>
 <p>The results of this main inference are now stored in the compressed
 file <code>learnt.rds</code> (around 32 MB) within the specified output
 directory. The name of this directory is also saved as the final value
@@ -1260,7 +1260,7 @@ latter has a much more involved and less straightforward meaning.</p>
 intervals for each frequency estimate: a 50% one, and an 89% one. In our
 present inference, the 50%-credibility intervals are shown in the plot
 above as the darker grey band, and the 89%-credibility intervals as the
-lighter grey band. Note that these intervals contain the 50% ones.</p>
+lighter grey band. These intervals contain the 50% ones.</p>
 <p>For instance, the plot indicates that there’s a 50% probability that
 the relative frequency of all <code>Adelie</code> penguins is roughly
 between 0.21 and 0.38; and an 89% probability that their relative
@@ -1766,9 +1766,9 @@ on Dream island?</em></li>
 <p>We can update our answers – frequency estimates, their credible
 intervals, and their probability distributions – from the increased data
 sample, using the <code><a href="../reference/Pr.html">Pr()</a></code> function <a href="#learningfirst">as
-before</a>. Note that in the <code>learnt =</code> argument we must now
-use the new <code>learnt60</code> object, which points to the updated
-inference. Here is the calculation for all three questions:</p>
+before</a>. In the <code>learnt =</code> argument we must now use the
+new <code>learnt60</code> object, which points to the updated inference.
+Here is the calculation for all three questions:</p>
 <div class="sourceCode" id="cb24"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co">## 'Y' and 'X' were previously defined with:</span></span>
 <span><span class="co">## Y &lt;- data.frame(species = c('Adelie', 'Chinstrap', 'Gentoo'))</span></span>
@@ -2354,9 +2354,9 @@ probability.
 </dd>
 </dl>
 </blockquote>
-<p>Note that in this case our uncertainties do <em>not</em> allow us to
-exclude the possibility that Adélies penguins are roughly equally
-distributed on the three islands.</p>
+<p>In this case our uncertainties do <em>not</em> allow us to exclude
+the possibility that Adélies penguins are roughly equally distributed on
+the three islands.</p>
 </div>
 <div class="section level4">
 <h4 id="q2c-body-mass-across-the-three-species">
