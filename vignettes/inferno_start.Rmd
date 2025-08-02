@@ -183,7 +183,7 @@ Inclusion of inimum and maximum (`minincluded`, `maxincluded`)
 : These are logical or `yes`/`no`, only defined for continuous variates. They tell whether the minimum and maximum of a continuous variate are themselves possible values or not. Often such extreme values have a special meaning, and this information is important with censored or pooled data. For example, a *length* continuous variate might be expressed in decimetres and reported without rounding, but all lengths above 1 dm might be pooled together into the value "1 dm or more"; in such case we must make sure to state that `maxincluded` is `TRUE` or `"yes"`.
 
 Values (`V1`, `V2`, ...)
-: These are characters or strings, only defined for nominal or non-numeric ordinal variates. They are the values that a nominal or ordinal variate can *in principle* take on in the population of interest. Note that they are include not only the values that are observed in a sample, but also those that could be observed in the rest of the population. A nominal or ordinal variate must have at least two distinct values; it wouldn't make much sense to draw inferences about it otherwise. The metadata file can contain further empty **V...** columns.
+: These are characters or strings, only defined for nominal or non-numeric ordinal variates. They are the values that a nominal or ordinal variate can *in principle* take on in the population of interest. Note that they include not only the values observed in a sample, but also those that could be observed in the rest of the population. A nominal or ordinal variate must have at least two distinct values; it wouldn't make much sense to draw inferences about it otherwise. The metadata file can contain further empty **V...** columns.
 
 ### Why does ***inferno*** need metadata?
 
@@ -278,7 +278,7 @@ The preliminary metadata file created by `metadatatemplate()` looks like this:
 
 If you generated the `penguin` dataset yourself, then you might obtain different guesses. Try to follow the following guidelines for the present example.
 
-We see that `metadatatemplate()` guessed correctly about the `species`, `island`, `sex` variates: they are of `'nominal'` type, and all their possible values are correctly listed. If any of the possible values are missing from the sample, and therefore missing in the preliminary metadata, then we should add them under the  additional **V...** columns. Note that we can sort the nominal values in any order we please.
+We see that `metadatatemplate()` guessed correctly about the `species`, `island`, `sex` variates: they are of `'nominal'` type, and all their possible values are correctly listed. If any of the possible values are missing from the sample, and therefore missing in the preliminary metadata, then we should add them under the  additional **V...** columns. We can sort the nominal values in any order we please.
 
 Also the `bill_len` and `bill_dep` variates are correct: they are continuous, rounded to the nearest tenth of millimetre, and cannot be less than zero. The absence of **domainmax** values means that the theoretical maximum is plus infinity. We could replace this maximum with something more realistic, for instance `1000` mm or less, but typically this kind of changes do not lead to relevant differences in our inferences. The absence of **minincluded** means that the minimum, `0`, is not a possible value; similarly for **maxincluded**.
 
@@ -311,7 +311,7 @@ We must open the preliminary metadata file `penguin_metadata.csv` with our favou
 
 Now comes the essential part of our analysis: from the sample data and the metadata information,***inferno*** will draw inferences about the *whole* population of penguins, including new penguins (from the same population) that we shall observe in the future. Subsequent analyses are based on this main inference. The general theory behind this kind of inference, based on the property of *exchangeability* and related mathematical theorems, is explained in the [references](#references).
 
-This inference is performed by calling the `learn()` function. Its minimal arguments are three: the sample `data`, the `metadata`, and the name `outputdir` of a directory where the inference results should be saved; some additional information will be suffixed to this directory name. We can give a `parallel` argument specifying the number of cores to be used for parallel computation. A `seed` argument can also be given if we want to reproduce the same output in another run; or alternatively we can first call `set.seed()` in the usual R-way, as we did at the beginning of this vignette. (Note that `learn()` in any case always saves the current random-seed status in its output directory, in the file `rng_seed.rds`, so it's always possible to recover its initial state.)
+This inference is performed by calling the `learn()` function. Its minimal arguments are three: the sample `data`, the `metadata`, and the name `outputdir` of a directory where the inference results should be saved; some additional information will be suffixed to this directory name. We can give a `parallel` argument specifying the number of cores to be used for parallel computation. A `seed` argument can also be given if we want to reproduce the same output in another run; or alternatively we can first call `set.seed()` in the usual R-way, as we did at the beginning of this vignette. (The function `learn()` in any case always saves the current random-seed status in its output directory, in the file `rng_seed.rds`, so it's always possible to recover its initial state.)
 
 This function in fact does Monte Carlo sampling and is computationally expensive. It may take minutes, hours, or days to run, depending on the amount of sample data and the number of variates. In order to speed up its computations, it tries to use any multi-cores capabilities of the machine it runs in, or the number of cores specified in the `parallel` argument (which shouldn't be larger than the number of cores you actually have!).
 
@@ -374,7 +374,7 @@ learnt10 <- learn(
 # Closing connections to cores.
 ```
 
-The initial output gives a summary of the sample size, number of variates, saving directory, and other computational details. An "`estimated end time`" line (not appearing in the output above) is updated from time to time with a better estimate of the computation's end time. Once the computation is finished, some final information about the underlying Monte Carlo computation and time and memory use is provided.^[The Monte Carlo expert will notice that the effective sample size is around 900 or more. The Monte Carlo sampling is designed to stop when 3600 samples have been obtained with an effective sample size of at least 450, or equivalently a relative Monte Carlo standard error under 0.05. This is enough, considering that the statistical uncertainty in the results can be tens or hundreds of times larger than this. The desired number of samples and maximal Monte Carlo standard error can be specified with the `nsamples` and `maxrelMCSE` arguments.] Note that the inference above, with 10 sample data and 8 variates, took around 3 GB and 7 minutes to complete on 4 cores.
+The initial output gives a summary of the sample size, number of variates, saving directory, and other computational details. An "`estimated end time`" line (not appearing in the output above) is updated from time to time with a better estimate of the computation's end time. Once the computation is finished, some final information about the underlying Monte Carlo computation and time and memory use is provided.^[The Monte Carlo expert will notice that the effective sample size is around 900 or more. The Monte Carlo sampling is designed to stop when 3600 samples have been obtained with an effective sample size of at least 450, or equivalently a relative Monte Carlo standard error under 0.05. This is enough, considering that the statistical uncertainty in the results can be tens or hundreds of times larger than this. The desired number of samples and maximal Monte Carlo standard error can be specified with the `nsamples` and `maxrelMCSE` arguments.] The inference above, with 10 sample data and 8 variates, took around 3 GB and 7 minutes to complete on 4 cores.
 
 The results of this main inference are now stored in the compressed file `learnt.rds` (around 32 MB) within the specified output directory. The name of this directory is also saved as the final value of the `learn()` function. We saved this directory name in the `learnt10` variable in the code above, by invoking `learnt10 <- learn(...)`.
 
@@ -467,7 +467,7 @@ What about the uncertainty of these estimates?
 
 In Bayesian theory, a compact way of expressing the uncertainty in a quantity is by means of a **credibility interval** with a given probability. For instance, if we say that a particular quantity has a 70%-credibility interval equal to $(0.41, 0.69)$, what we mean is that there's an 70% probability that the true value of that quantity is between $0.41$ and $0.69$ -- pretty straightforward! *Please be careful not to confuse the Bayesian credibility interval with a "confidence interval"*: the latter has a much more involved and less straightforward meaning.
 
-The `Pr()` function by default calculates two credibility intervals for each frequency estimate: a 50% one, and an 89% one. In our present inference, the 50%-credibility intervals are shown in the plot above as the darker grey band, and the 89%-credibility intervals as the lighter grey band. Note that these intervals contain the 50% ones.
+The `Pr()` function by default calculates two credibility intervals for each frequency estimate: a 50% one, and an 89% one. In our present inference, the 50%-credibility intervals are shown in the plot above as the darker grey band, and the 89%-credibility intervals as the lighter grey band. These intervals contain the 50% ones.
 
 For instance, the plot indicates that there's a 50% probability that the relative frequency of all `Adelie` penguins is roughly between 0.21 and 0.38; and an 89% probability that their relative frequency is roughly between 0.12 and 0.51.
 
@@ -869,7 +869,7 @@ In our preliminary analysis we focused on three questions:
 - *What's the difference between Adélies and Chinstrap frequencies on Biscoe island?*
 - *What's the difference between Adélies and Chinstrap frequencies on Dream island?*
 
-We can update our answers -- frequency estimates, their credible intervals, and their probability distributions -- from the increased data sample, using the `Pr()` function [as before](#learningfirst). Note that in the `learnt =` argument we must now use the new `learnt60` object, which points to the updated inference. Here is the calculation for all three questions:
+We can update our answers -- frequency estimates, their credible intervals, and their probability distributions -- from the increased data sample, using the `Pr()` function [as before](#learningfirst). In the `learnt =` argument we must now use the new `learnt60` object, which points to the updated inference. Here is the calculation for all three questions:
 
 
 ``` r
@@ -1407,7 +1407,7 @@ Conclusions:
 > : estimate 0.34
 >  <br>true rel. frequency between 0.28 and 0.40 with 89% probability.
 
-Note that in this case our uncertainties do *not* allow us to exclude the possibility that Adélies penguins are roughly equally distributed on the three islands.
+In this case our uncertainties do *not* allow us to exclude the possibility that Adélies penguins are roughly equally distributed on the three islands.
 
 
 ### **Q2c**: Body mass across the three species
