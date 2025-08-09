@@ -18,7 +18,7 @@ git-truncate.sh
 .Rhistory
 .RData
 *~
-_*
+__*
 _region_.*
 prv_*
 _data*/
@@ -28,6 +28,5 @@ auto/
 fontconfig/
 .backups/
 docs/
-!_pkgdown.yml
 inst/doc
 .lintr
