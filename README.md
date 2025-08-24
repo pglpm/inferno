@@ -8,27 +8,35 @@ The package is under development and has not yet reached a stable phase: functio
 
 But the core functionalities do work, and have been tested in concrete research questions; see [example applications](#example-applications) below.
 
-The package internally does the computations necessary for Bayesian inference by means of Monte Carlo methods, thanks to the R package [*Nimble*](https://r-nimble.org/). Users unfamiliar with Monte Carlo methods don't have to worry, because the computations are handled automatically. Users familiar with Monte Carlo methods can easily have access to computational details and can even change some of the computation hyperparameters.
+The package internally does the computations necessary for Bayesian inference by means of Monte Carlo methods, thanks to the R package [**Nimble**](https://r-nimble.org/). Users unfamiliar with Monte Carlo methods don't have to worry, because the computations are handled automatically. Users familiar with Monte Carlo methods can easily have access to computational details and can even change some of the computation hyperparameters.
 
 If you want to test the package we'd be very happy to help in resolving possible issues and in understanding the functionalities.
 
 ## Installation
-Install the package with R by using the `remotes` package:
+
+You need to have the package [**Nimble**](https://r-nimble.org/) installed. Please follow its [installation instructions](https://r-nimble.org/manual/cha-installing-nimble.html) for your operating system.
+
+You can then install **inferno** in R by using the `remotes` package:
 ```
 remotes::install_github('pglpm/inferno')
 ```
+
 To install a tagged version:
 ```
 remotes::install_github('pglpm/inferno@vx.y.z')
 ```
+
 To install from source, first clone the repo:
 ```
 git clone https://github.com/pglpm/inferno.git
 ```
+
 then install the package in R:
+
 ```
 install.packages(pkgs='path/to/inferno', repos=NULL)
 ```
+
 the installation will also automatically install all required R-dependencies.
 
 
@@ -72,3 +80,8 @@ Projects using ***inferno***:
 
 Please report bugs and request features or specific documentation on [GitHub Issues](https://github.com/pglpm/inferno/issues).
 If you have other questions about application, theory, technical implementation, feel free to contact Luca <pglXYZ@portamanaXYZ.org> (remove 'XYZ' for anti-spam purposes).
+
+
+## Disclaimer
+
+No large language models were used in the production of this software and its documents.
