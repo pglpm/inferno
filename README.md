@@ -84,4 +84,4 @@ If you have other questions about application, theory, technical implementation,
 
 ## Disclaimer
 
-No large language models were used in the production of this software and its documents.
+No large language models were used in the production of this software and of its documents.
