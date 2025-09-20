@@ -18,13 +18,15 @@
 #' @export
 flexiplot <- function(
     x, y,
-    xdomain = NULL, ydomain = NULL,
-    xlim = NULL, ylim = NULL,
     type = 'l',
-    pch = c(1, 2, 0, 5, 6, 3), #, 4,
     lty = c(1, 2, 4, 3, 6, 5),
     lwd = 2,
+    pch = c(1, 2, 0, 5, 6, 3), #, 4,
     col = palette(),
+    xlab = NULL, ylab = NULL,
+    xlim = NULL, ylim = NULL,
+    add = FALSE,
+    xdomain = NULL, ydomain = NULL,
     alpha.f = 1,
     xjitter = NULL,
     yjitter = NULL,
@@ -38,16 +40,36 @@ flexiplot <- function(
     ## ),
     grid = TRUE,
     cex.main = 1,
-    add = FALSE,
     ...
 ){
     xat <- yat <- NULL
 
     if(missing('x') && !missing('y')){
-        x <- seq_len(NROW(y))
+        x <- numeric(NROW(y))
+        if(is.null(xdomain) && is.null(xlim)){
+            xat <- 0
+            xdomain <- NA
+            if(!is.null(xjitter)){
+                xlim <- c(-0.04, 0.04)
+            }
+            if(is.null(xlab)){ xlab <- NA }
+            if(is.null(ylab)){ ylab <- deparse1(substitute(y)) }
+        }
     } else if(!missing('x') && missing('y')){
-        y <- seq_len(NROW(x))
-    } else if(missing('x') && missing('y')){
+        y <- numeric(NROW(x))
+        if(is.null(ydomain) && is.null(ylim)){
+            yat <- 0
+            ydomain <- NA
+            if(!is.null(yjitter)){
+                ylim <- c(-0.04, 0.04)
+            }
+            if(is.null(ylab)){ ylab <- NA }
+            if(is.null(xlab)){ xlab <- deparse1(substitute(x)) }
+        }
+    } else if(!missing('x') && !missing('y')){
+        if(is.null(xlab)){ xlab <- deparse1(substitute(x)) }
+        if(is.null(ylab)){ ylab <- deparse1(substitute(y)) }
+    } else {
         stop('Arguments "x" and "y" cannot both be missing')
     }
 
@@ -76,7 +98,7 @@ flexiplot <- function(
     if(isTRUE(yjitter)){y <- jitter(y)}
 
     ## Syntax of xlim and ylim that allows
-    ## for the specification of only upper- or lower-bond
+    ## for the specification of only upper- or lower-bound
     if(length(xlim) == 2){
         if(is.null(xlim[1]) || !is.finite(xlim[1])){ xlim[1] <- min(x[is.finite(x)]) }
         if(is.null(xlim[2]) || !is.finite(xlim[2])){ xlim[2] <- max(x[is.finite(x)]) }
@@ -86,12 +108,14 @@ flexiplot <- function(
         if(is.null(ylim[2]) || !is.finite(ylim[2])){ ylim[2] <- max(y[is.finite(y)]) }
     }
 
+    if(is.null(xlab) && !missing(x)) {
+        xlab <- deparse1(substitute(x))
+    }
     if(is.na(alpha.f)){alpha.f <- 1}
     col <- adjustcolor(col, alpha.f = alpha.f)
 
     graphics::matplot(x, y, xlim = xlim, ylim = ylim, type = type, axes = F,
-        col = col, lty = lty, lwd = lwd, pch = pch, cex.main = cex.main, add = add,
-        ...)
+        col = col, lty = lty, lwd = lwd, pch = pch, cex.main = cex.main, add = add, xlab = xlab, ylab = ylab, ...)
     if(!add){
         graphics::axis(1, at = xat, labels = xdomain, tick = !grid,
             col = 'black', lwd = 1, lty = 1, ...)
