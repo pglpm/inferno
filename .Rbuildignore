@@ -9,6 +9,7 @@
 ^\.gitattributes$
 ^\.Rhistory$
 ^\.gitignore$
+^vignettes/_.+$
 ^robots\.txt$
 ^_git-truncate\.sh$
 ^exclude$

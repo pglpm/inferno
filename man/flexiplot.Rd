@@ -7,21 +7,23 @@
 flexiplot(
   x,
   y,
-  xdomain = NULL,
-  ydomain = NULL,
-  xlim = NULL,
-  ylim = NULL,
   type = "l",
-  pch = c(1, 2, 0, 5, 6, 3),
   lty = c(1, 2, 4, 3, 6, 5),
   lwd = 2,
+  pch = c(1, 2, 0, 5, 6, 3),
   col = palette(),
+  xlab = NULL,
+  ylab = NULL,
+  xlim = NULL,
+  ylim = NULL,
+  add = FALSE,
+  xdomain = NULL,
+  ydomain = NULL,
   alpha.f = 1,
   xjitter = NULL,
   yjitter = NULL,
   grid = TRUE,
   cex.main = 1,
-  add = FALSE,
   ...
 )
 }
@@ -30,9 +32,9 @@ flexiplot(
 
 \item{y}{Numeric or character: vector of y coordinates. If missing, a numeric vector \code{1:...} is created having as many values as the rows of \code{x}.}
 
-\item{xdomain, ydomain}{Character or numeric or \code{NULL} (default): vector of possible values of the variables represented in the \code{x}- and \code{y}-axes, in case the \code{x} or \code{y} argument is a character vector. The ordering of the values is respected. If \code{NULL}, then \code{unique(x)} or \code{unique(y)} is used.}
-
 \item{xlim, ylim}{\code{NULL} (default) or a vector of two values. In the latter case, if any of the two values is not finite (including \code{NA} or \code{NULL}), then the \code{min} or \code{max} \code{x}- or \code{y}-coordinates of the plotted points are used.}
+
+\item{xdomain, ydomain}{Character or numeric or \code{NULL} (default): vector of possible values of the variables represented in the \code{x}- and \code{y}-axes, in case the \code{x} or \code{y} argument is a character vector. The ordering of the values is respected. If \code{NULL}, then \code{unique(x)} or \code{unique(y)} is used.}
 
 \item{alpha.f}{Numeric, default 1: opacity of the colours, \code{0} being completely invisible and \code{1} completely opaque.}
 

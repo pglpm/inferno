@@ -744,8 +744,7 @@ should obviously have different names.
 </dd>
 <dt>Variate type (<code>type</code>)</dt>
 <dd>
-<p><strong><em>inferno</em></strong> can handle three kinds of
-variates:</p>
+<strong><em>inferno</em></strong> can handle three kinds of variates:
 <ul>
 <li><code>nominal</code>: it can take on a finite number of discrete
 values, which do not have any natural ordering. Examples could be sex or
@@ -759,18 +758,18 @@ scale</a>.</li>
 number of continuous values, although they can be discretized or
 rounded. Examples could be age or weight.</li>
 </ul>
-<p>Many other types of variates exist. For example images and audio are
+Many other types of variates exist. For example images and audio are
 also types of variates; but <strong><em>inferno</em></strong> cannot
 handle these complex types. A simple type of variate that
 <strong><em>inferno</em></strong> cannot properly handle is the
 <em>cyclic</em> one, such as time of day. There are no clear-cut
 separations between different types of variates; thus it’s sometimes
-difficult to assess the type.</p>
+difficult to assess the type.
 </dd>
 <dt>Domain minimum and maximum (<code>domainmin</code>,
 <code>domainmax</code>)</dt>
 <dd>
-<p>These are numbers, only defined for numeric-ordinal and continuous
+These are numbers, only defined for numeric-ordinal and continuous
 variates. These metadata are the minimum and maximum value a variate can
 take on in a given study. For example, in a study about health or
 employment of adults, a variate <em>age</em> might have a minimum of
@@ -778,11 +777,11 @@ employment of adults, a variate <em>age</em> might have a minimum of
 minimum would be 0. In a health study where people of 90 years or more
 are pooled together, the maximum would be 90 years. A minimum could also
 be minus-infinity, and a maximum plus-infinity. Obviously the minimum
-should be lower than the maximum.</p>
-<p>Sometimes the minimum or maximum is not clear-cut. For instance,
-there is no theoretical maximum on a person’s age, although we can
-consider an age of 300 impossible to reach today. In such cases the
-maximum or minimum can be taken to be plus or minus infinity.</p>
+should be lower than the maximum.
+Sometimes the minimum or maximum is not clear-cut. For instance, there
+is no theoretical maximum on a person’s age, although we can consider an
+age of 300 impossible to reach today. In such cases the maximum or
+minimum can be taken to be plus or minus infinity.
 </dd>
 <dt>Interval between values (<code>datastep</code>)</dt>
 <dd>

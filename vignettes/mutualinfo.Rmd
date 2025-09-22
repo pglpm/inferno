@@ -10,7 +10,7 @@ vignette: >
 ---
 
 
-$\newcommand{\mo}{\mathrel{\!=\!}}$
+\newcommand{\mo}{\mathrel{\!=\!}}
 
 This vignette gives an introduction and guide to the visual and quantitative capabilities and functions of the ***inferno*** package, for the study of associations, correlations, and links.
 
