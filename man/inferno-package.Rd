@@ -6,18 +6,18 @@
 \alias{inferno-package}
 \title{inferno: Inference in R with Bayesian nonparametrics}
 \description{
-Functions for Bayesian nonparametric population inference (also called exchangeable inference, or density inference). From a machine-learning perspective, they offer a model-free, uncertainty-quantified prediction algorithm.
+Functions for Bayesian nonparametric population inference (also called exchangeable inference or density inference).
 }
 \seealso{
 Useful links:
 \itemize{
-  \item \url{https://github.com/pglpm/inferno/}
   \item \url{https://pglpm.github.io/inferno/}
+  \item \url{https://github.com/pglpm/inferno/}
 }
 
 }
 \author{
-\strong{Maintainer}: PierGianLuca Porta Mana \email{pgl@portamana.org} (\href{https://orcid.org/0000-0002-6070-0784}{ORCID})
+\strong{Maintainer}: PierGianLuca Porta Mana \email{pgl@portamana.org} (\href{https://orcid.org/0000-0002-6070-0784}{ORCID}) [copyright holder]
 
 Authors:
 \itemize{
