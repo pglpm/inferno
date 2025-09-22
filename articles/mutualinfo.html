@@ -65,7 +65,6 @@
 
     
     
-<p><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow></mrow><annotation encoding="application/x-tex">\newcommand{\mo}{\mathrel{\!=\!}}</annotation></semantics></math></p>
 <p>This vignette gives an introduction and guide to the visual and
 quantitative capabilities and functions of the
 <strong><em>inferno</em></strong> package, for the study of
@@ -83,14 +82,14 @@ probabilities of single and joint variates from that dataset; also
 probabilities conditional on given variates. These probabilities refers
 to a <em>new unit</em>; for example:</p>
 <ul>
-<li>If we find that <span class="math inline">$\mathrm{Pr}(\text{species}\mo \text{Adelie}) =
-44\%$</span>, then there’s a 44% probability that the next penguin we
-sample (from the same population) is of the <em>Adélie</em>
-species.</li>
-<li>If we find that <span class="math inline">$\mathrm{Pr}(\text{species}\mo \text{Gentoo}
-\,\vert\, \text{island} \mo \text{Biscoe}) = 1\%$</span>, then if we
-have a new penguin, and we know it is from Biscoe island, there’s a 1%
-probability that it is of the <em>Gentoo</em> species.</li>
+<li>If we find that
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mrow><mi mathvariant="normal">P</mi><mi mathvariant="normal">r</mi></mrow><mrow><mo stretchy="true" form="prefix">(</mo><mtext mathvariant="normal">species</mtext><mrow><mspace width="-0.167em"></mspace><mo>=</mo><mspace width="-0.167em"></mspace></mrow><mtext mathvariant="normal">Adelie</mtext><mo stretchy="true" form="postfix">)</mo></mrow><mo>=</mo><mn>44</mn><mi>%</mi></mrow><annotation encoding="application/x-tex">\mathrm{Pr}(\text{species}\mathrel{\!=\!}\text{Adelie}) = 44\%</annotation></semantics></math>,
+then there’s a 44% probability that the next penguin we sample (from the
+same population) is of the <em>Adélie</em> species.</li>
+<li>If we find that
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mrow><mi mathvariant="normal">P</mi><mi mathvariant="normal">r</mi></mrow><mrow><mo stretchy="true" form="prefix">(</mo><mtext mathvariant="normal">species</mtext><mrow><mspace width="-0.167em"></mspace><mo>=</mo><mspace width="-0.167em"></mspace></mrow><mtext mathvariant="normal">Gentoo</mtext><mspace width="0.167em"></mspace><mo stretchy="false" form="postfix">|</mo><mspace width="0.167em"></mspace><mtext mathvariant="normal">island</mtext><mrow><mspace width="-0.167em"></mspace><mo>=</mo><mspace width="-0.167em"></mspace></mrow><mtext mathvariant="normal">Biscoe</mtext><mo stretchy="true" form="postfix">)</mo></mrow><mo>=</mo><mn>1</mn><mi>%</mi></mrow><annotation encoding="application/x-tex">\mathrm{Pr}(\text{species}\mathrel{\!=\!}\text{Gentoo} \,\vert\, \text{island} \mathrel{\!=\!}\text{Biscoe}) = 1\%</annotation></semantics></math>,
+then if we have a new penguin, and we know it is from Biscoe island,
+there’s a 1% probability that it is of the <em>Gentoo</em> species.</li>
 </ul>
 <p>And these probabilities can also be interpreted as “estimates” of the
 corresponding <em>whole-population</em> frequencies.</p>
@@ -124,7 +123,7 @@ impossible.</p>
 haven’t already done so, and set a random seed to ensure
 reproducibility:</p>
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="st"><a href="https://github.com/pglpm/inferno/" class="external-link">'inferno'</a></span><span class="op">)</span></span>
+<code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="st"><a href="https://pglpm.github.io/inferno/">'inferno'</a></span><span class="op">)</span></span>
 <span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/Random.html" class="external-link">set.seed</a></span><span class="op">(</span><span class="fl">10</span><span class="op">)</span></span></code></pre></div>
 <p>As in the <code><a href="../articles/inferno_start.html">vignette('inferno_start')</a></code>, we work with a
@@ -496,14 +495,14 @@ shapes.</p></li>
 </ul>
 <p>Mutual information is always positive or zero, and can be defined in
 several mathematically equivalent ways, such as the following:</p>
-<p><span class="math display">$$
-\sum_{y_1, y_2} \mathrm{Pr}(Y_1 \mo y_1, Y_2 \mo y_2) \,
+<p><math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><munder><mo>∑</mo><mrow><msub><mi>y</mi><mn>1</mn></msub><mo>,</mo><msub><mi>y</mi><mn>2</mn></msub></mrow></munder><mrow><mi mathvariant="normal">P</mi><mi mathvariant="normal">r</mi></mrow><mrow><mo stretchy="true" form="prefix">(</mo><msub><mi>Y</mi><mn>1</mn></msub><mrow><mspace width="-0.167em"></mspace><mo>=</mo><mspace width="-0.167em"></mspace></mrow><msub><mi>y</mi><mn>1</mn></msub><mo>,</mo><msub><mi>Y</mi><mn>2</mn></msub><mrow><mspace width="-0.167em"></mspace><mo>=</mo><mspace width="-0.167em"></mspace></mrow><msub><mi>y</mi><mn>2</mn></msub><mo stretchy="true" form="postfix">)</mo></mrow><mspace width="0.167em"></mspace><msub><mo>log</mo><mn>2</mn></msub><mfrac><mrow><mrow><mi mathvariant="normal">P</mi><mi mathvariant="normal">r</mi></mrow><mrow><mo stretchy="true" form="prefix">(</mo><msub><mi>Y</mi><mn>1</mn></msub><mrow><mspace width="-0.167em"></mspace><mo>=</mo><mspace width="-0.167em"></mspace></mrow><msub><mi>y</mi><mn>1</mn></msub><mo>,</mo><msub><mi>Y</mi><mn>2</mn></msub><mrow><mspace width="-0.167em"></mspace><mo>=</mo><mspace width="-0.167em"></mspace></mrow><msub><mi>y</mi><mn>2</mn></msub><mo stretchy="true" form="postfix">)</mo></mrow></mrow><mrow><mrow><mi mathvariant="normal">P</mi><mi mathvariant="normal">r</mi></mrow><mrow><mo stretchy="true" form="prefix">(</mo><msub><mi>Y</mi><mn>1</mn></msub><mrow><mspace width="-0.167em"></mspace><mo>=</mo><mspace width="-0.167em"></mspace></mrow><msub><mi>y</mi><mn>1</mn></msub><mo stretchy="true" form="postfix">)</mo></mrow><mo>⋅</mo><mrow><mi mathvariant="normal">P</mi><mi mathvariant="normal">r</mi></mrow><mrow><mo stretchy="true" form="prefix">(</mo><msub><mi>Y</mi><mn>2</mn></msub><mrow><mspace width="-0.167em"></mspace><mo>=</mo><mspace width="-0.167em"></mspace></mrow><msub><mi>y</mi><mn>2</mn></msub><mo stretchy="true" form="postfix">)</mo></mrow></mrow></mfrac><mspace width="0.278em"></mspace><mrow><mi mathvariant="normal">S</mi><mi mathvariant="normal">h</mi></mrow></mrow><annotation encoding="application/x-tex">
+\sum_{y_1, y_2} \mathrm{Pr}(Y_1 \mathrel{\!=\!}y_1, Y_2 \mathrel{\!=\!}y_2) \, 
 \log_{2} \frac{
-\mathrm{Pr}(Y_1 \mo y_1, Y_2 \mo y_2)
+\mathrm{Pr}(Y_1 \mathrel{\!=\!}y_1, Y_2 \mathrel{\!=\!}y_2)
 }{
-\mathrm{Pr}(Y_1 \mo y_1) \cdot \mathrm{Pr}(Y_2 \mo y_2)
+\mathrm{Pr}(Y_1 \mathrel{\!=\!}y_1) \cdot \mathrm{Pr}(Y_2 \mathrel{\!=\!}y_2)
 } \; \mathrm{Sh}
-$$</span></p>
+</annotation></semantics></math></p>
 <p>with integrals replacing the sums in the case of continuous variates.
 It is measured in <a href="https://www.electropedia.org/iev/iev.nsf/display?openform&amp;ievref=171-07-11" class="external-link"><em>shannons</em></a>
 (symbol

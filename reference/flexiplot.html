@@ -46,21 +46,23 @@
     <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">flexiplot</span><span class="op">(</span></span>
 <span>  <span class="va">x</span>,</span>
 <span>  <span class="va">y</span>,</span>
-<span>  xdomain <span class="op">=</span> <span class="cn">NULL</span>,</span>
-<span>  ydomain <span class="op">=</span> <span class="cn">NULL</span>,</span>
-<span>  xlim <span class="op">=</span> <span class="cn">NULL</span>,</span>
-<span>  ylim <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  type <span class="op">=</span> <span class="st">"l"</span>,</span>
-<span>  pch <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1</span>, <span class="fl">2</span>, <span class="fl">0</span>, <span class="fl">5</span>, <span class="fl">6</span>, <span class="fl">3</span><span class="op">)</span>,</span>
 <span>  lty <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1</span>, <span class="fl">2</span>, <span class="fl">4</span>, <span class="fl">3</span>, <span class="fl">6</span>, <span class="fl">5</span><span class="op">)</span>,</span>
 <span>  lwd <span class="op">=</span> <span class="fl">2</span>,</span>
+<span>  pch <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1</span>, <span class="fl">2</span>, <span class="fl">0</span>, <span class="fl">5</span>, <span class="fl">6</span>, <span class="fl">3</span><span class="op">)</span>,</span>
 <span>  col <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/grDevices/palette.html" class="external-link">palette</a></span><span class="op">(</span><span class="op">)</span>,</span>
+<span>  xlab <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  ylab <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  xlim <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  ylim <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  add <span class="op">=</span> <span class="cn">FALSE</span>,</span>
+<span>  xdomain <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  ydomain <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  alpha.f <span class="op">=</span> <span class="fl">1</span>,</span>
 <span>  xjitter <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  yjitter <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  grid <span class="op">=</span> <span class="cn">TRUE</span>,</span>
 <span>  cex.main <span class="op">=</span> <span class="fl">1</span>,</span>
-<span>  add <span class="op">=</span> <span class="cn">FALSE</span>,</span>
 <span>  <span class="va">...</span></span>
 <span><span class="op">)</span></span></code></pre></div>
     </div>
@@ -77,12 +79,12 @@
 <dd><p>Numeric or character: vector of y coordinates. If missing, a numeric vector <code>1:...</code> is created having as many values as the rows of <code>x</code>.</p></dd>
 
 
-<dt id="arg-xdomain-ydomain">xdomain, ydomain<a class="anchor" aria-label="anchor" href="#arg-xdomain-ydomain"></a></dt>
-<dd><p>Character or numeric or <code>NULL</code> (default): vector of possible values of the variables represented in the <code>x</code>- and <code>y</code>-axes, in case the <code>x</code> or <code>y</code> argument is a character vector. The ordering of the values is respected. If <code>NULL</code>, then <code>unique(x)</code> or <code>unique(y)</code> is used.</p></dd>
-
-
 <dt id="arg-xlim-ylim">xlim, ylim<a class="anchor" aria-label="anchor" href="#arg-xlim-ylim"></a></dt>
 <dd><p><code>NULL</code> (default) or a vector of two values. In the latter case, if any of the two values is not finite (including <code>NA</code> or <code>NULL</code>), then the <code>min</code> or <code>max</code> <code>x</code>- or <code>y</code>-coordinates of the plotted points are used.</p></dd>
+
+
+<dt id="arg-xdomain-ydomain">xdomain, ydomain<a class="anchor" aria-label="anchor" href="#arg-xdomain-ydomain"></a></dt>
+<dd><p>Character or numeric or <code>NULL</code> (default): vector of possible values of the variables represented in the <code>x</code>- and <code>y</code>-axes, in case the <code>x</code> or <code>y</code> argument is a character vector. The ordering of the values is respected. If <code>NULL</code>, then <code>unique(x)</code> or <code>unique(y)</code> is used.</p></dd>
 
 
 <dt id="arg-alpha-f">alpha.f<a class="anchor" aria-label="anchor" href="#arg-alpha-f"></a></dt>
