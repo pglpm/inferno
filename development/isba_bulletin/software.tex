@@ -190,45 +190,41 @@
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
+\newcommand{\citebi}{\cite}
+\newcommand{\citein}{\cite}
+\newcommand*{\subtitleproc}[1]{}
+\newcommand*{\chapb}{}
+
 \MyFilledBox{SOFTWARE HIGHLIGHT}
 \begin{center}
 {\large Luca\enspace Porta Mana} \\
 {\tt \href{mailto:pgl@portamana.org}{pgl@portamana.org}}
 
-\bigskip
 
 \Large
 \textsc{inferno\\
 INFERence in R with Bayesian NOnparametrics}
 \end{center}
-\newcommand{\citebi}{\cite}
-\newcommand{\citein}{\cite}
-\newcommand*{\subtitleproc}[1]{}
-\newcommand*{\chapb}{ch.}
 
-A very important kind of inference in research fields such as medicine is \emph{population inference}, often also called ``density inference'' or ``density regression''. Its general goal is to infer the frequency distribution of some variates in a population. This is different, for instance, from \emph{functional regression}, where the goal is to infer the functional relationship -- assumed to exist -- between a set of predictor variates and a target or ``predictand'' variate. In population inference  the existence of a functional relation cannot be assumed; in fact there may not even be a clear distinction between predictor and predictand variates. A clinician may want to know the probability of a medical condition given a symptom, but also that of a symptom given a medical condition. And neither need be fully determined by the other. De~Finetti's theorem \citep[see e.g.][\S\S\,4.2, 4.3, 4.6]{bernardoetal1994_r2000} lies at the heart of population-inference methods; a particularly brilliant discussion is given by Lindley \& Novick \citeyearpar{lindleyetal1981}.
+\section{Population inference and Bayesian nonparametrics}
+\label{sec:popinference}
 
-Sadly many researchers still approach population-inference problems by means of $p$-values or other frequentist practices, which only give limited, very coarse, and at times misleading results about a population's frequency distribution. Some researchers adopt Bayesian methods but limiting themselves to parametric ones, which make special and possibly unrealistic assumptions about the frequency distribution.
+A very important kind of inference in research fields such as medicine is \emph{population inference}, often also called ``density inference'' or ``density regression''. Its general goal is to infer the frequency distribution of some variates in a population. This is different, for instance, from \emph{functional regression}, where the goal is to infer the functional relationship -- assumed to exist -- between a set of predictor variates and a target or ``predictand'' variate. In population inference the existence of a functional relation cannot be assumed. In fact there may not even be a clear distinction between predictor and predictand variates. A typical goal is the inference of frequency distributions within particular sub-populations or sub-groups, thus all kinds of conditional probabilities are required. A clinician may be interested in the statistics and probability of a medical condition given a symptom, but also that of a symptom given a medical condition; and maybe only within subjects of a given sex or age. De~Finetti's theorem \citep[see e.g.][\S\S\,4.2, 4.3, 4.6]{bernardoetal1994_r2000} lies at the heart of population-inference methods; a particularly brilliant discussion is given by Lindley \& Novick \citeyearpar{lindleyetal1981}.
 
-Until a couple decades ago such practices could somehow be justified by pragmatic reasons:
-\begin{itemize}
-\item Better methods were computationally too expensive.
-\item The population-inference problems were low-dimensional; one could \emph{visually} check whether the method or assumptions were appropriate to the problem, and change them otherwise, or consider the results as simply qualitative.
-\end{itemize}
+Sadly many researchers still approach population-inference problems by means of $p$-values or other frequentist practices, which only give limited, coarse, and not seldom misleading results about a population's frequency distribution. Some researchers adopt Bayesian methods but limit themselves to \emph{parametric} ones, which make very restrictive and possibly unrealistic assumptions about the population's distribution; as opposed to \emph{nonparametric} ones, which don't.
 
-But today, in many cases, the reasons above cannot meaningfully be given anymore:
-\begin{itemize}
-\item Bayesian methods, even nonparametric, have become computationally feasible for many inference problems.
-\item Many population-inference problems today involve tens or hundreds of variates of different kinds, and are therefore very high-dimensional. It is impossible to visually check whether frequentist results or parametric assumptions are acceptable, or by how much they err. Results may therefore be affected by large errors \citep{draper1995}, whose existence is often not even reported.
-\end{itemize}
+Until a couple decades ago the use of parametric methods, and maybe even of frequentist practices, was somehow justified by pragmatic reasons. Better methods were computationally too costly or unfeasible. Population-inference problems were low-dimensional; one could \emph{visually} check whether the assumptions were appropriate to the problem and the results reasonable. Today the reasons cannot be earnestly be given, however. Bayesian nonparametric methods have become computationally feasible for many kinds of population inference. And many population-inference problems today involve tens, hundreds, or thousands of variates of different kinds; being so high-dimensional, it is impossible to visually check whether frequentist practices or parametric assumptions are acceptable, or by how much they err. Results may therefore be affected by large errors \citep{draper1995}, whose existence is often not even reported.
 
-There is one reason that can still be given today for not using Bayesian methods, especially parametric ones, in population inference: \emph{lack of user-friendly software}. Clinicians who'd be curious to try out Bayesian analysis of their studies simply can't, because that would require the study of Markov-chain Monte Carlo techniques, of programming languages to implement them, and of a plethora of debated methods and acquired visual skills to ``assess convergence''. Most clinicians don't have time to learn all this even if they wanted to.
+One reason can still be given today for the avoidance of Bayesian nonparametric methods for population inferences: \emph{lack of user-friendly software}. Clinicians who'd be curious to try out a Bayesian nonparametric analysis of their studies simply can't: that would require the study of Markov-chain Monte Carlo techniques, of programming languages to implement the latter, and of a plethora of debated practices to ``assess convergence''. Most clinicians don't have time to learn all this even if they wanted to. Available packages for Bayesian nonparametrics are not quite suited to population inference. Some focus on functional regression, which as discussed above is not an appropriate assumption. Some make an a priori distinction between predictor and predictand variates, limiting the range of useful inferences. Most still require non-statistical technical expertise.
 
-Available packages for Bayesian nonparametrics focus moreover on the problem of \emph{regression}, that is, the inference of a functional relationship -- assumed to exist -- between a set of predictor variates and a target or ``predictand'' variate. These packages are not appropriate to \emph{population inference}, where no functional relationships exist a priori, and where often there is no a priori division between predictor and predictand variates. In clinical studies one may be interested in calculating the probability of an effect or symptom given a condition, and of a condition given an effect or symptom.
+\medskip
 
-The R-package \textbf{inferno} was built to try to fill the need for this kind of software.
+The R-package \textbf{inferno}\footnote{\url{https://pglpm.github.io/inferno/}} was built to try to remedy the lack of this kind of software.
 
+\section{Features and application range}
+\label{sec:features}
 
+The package
 
 
 
@@ -240,3 +236,4 @@ The R-package \textbf{inferno} was built to try to fill the need for this kind o
 \bibliography{../manual/portamanabib.bib}
 
 \end{document}
+, that is, the inference of a functional relationship -- assumed to exist -- between a set of predictor variates and a target or ``predictand'' variate. These packages are not appropriate to \emph{population inference}, where no functional relationships exist a priori, and where often there is no a priori division between predictor and predictand variates. In clinical studies one may be interested in calculating the probability of an effect or symptom given a condition, and of a condition given an effect or symptom.
