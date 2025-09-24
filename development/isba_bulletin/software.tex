@@ -206,7 +206,9 @@ INFERence in R with Bayesian NOnparametrics}
 \newcommand*{\subtitleproc}[1]{}
 \newcommand*{\chapb}{ch.}
 
-Many researchers in important fields, such as medicine, sadly still use $p$-values and frequentist statistics to do \emph{population inference}, despite their intrinsic flaws. Some researchers use Bayesian methods but limit themselves to parametric ones, which make possibly unrealistic statistical assumptions.
+A very important kind of inference in research fields such as medicine is \emph{population inference}, often also called ``density inference'' or ``density regression''. Its general goal is to infer the frequency distribution of some variates in a population. This is different, for instance, from \emph{functional regression}, where the goal is to infer the functional relationship -- assumed to exist -- between a set of predictor variates and a target or ``predictand'' variate. In population inference  the existence of a functional relation cannot be assumed; in fact there may not even be a clear distinction between predictor and predictand variates. A clinician may want to know the probability of a medical condition given a symptom, but also that of a symptom given a medical condition. And neither need be fully determined by the other. De~Finetti's theorem \citep[see e.g.][\S\S\,4.2, 4.3, 4.6]{bernardoetal1994_r2000} lies at the heart of population-inference methods; a particularly brilliant discussion is given by Lindley \& Novick \citeyearpar{lindleyetal1981}.
+
+Sadly many researchers still approach population-inference problems by means of $p$-values or other frequentist practices, which only give limited, very coarse, and at times misleading results about a population's frequency distribution. Some researchers adopt Bayesian methods but limiting themselves to parametric ones, which make special and possibly unrealistic assumptions about the frequency distribution.
 
 Until a couple decades ago such practices could somehow be justified by pragmatic reasons:
 \begin{itemize}
