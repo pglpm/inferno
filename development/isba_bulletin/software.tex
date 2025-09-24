@@ -194,6 +194,24 @@
 \newcommand{\citein}{\cite}
 \newcommand*{\subtitleproc}[1]{}
 \newcommand*{\chapb}{}
+\providecommand{\doi}[1]{}
+\renewcommand{\doi}[1]{\href{https://doi.org/#1}{doi:#1}}
+\newcommand*{\osfdoi}{doi}
+\newcommand*{\amp}{\&}
+%% Probability macros
+\renewcommand*{\P}{\mathrm{P}}%probability
+\renewcommand*{\|}[1][]{\nonscript\:#1\vert\nonscript\:\mathopen{}}
+\newcommand*{\mo}[1][=]{\mathclose{}\mathord{\nonscript\mkern0.5mu#1\nonscript\mkern0.5mu}\mathopen{}}
+\newcommand*{\yF}{F}
+\newcommand*{\yf}{f}
+\newcommand*{\di}{\mathop{}\!\mathrm{d}}
+%%
+\newcommand*{\HV}{\mathrm{HV}}
+\newcommand*{\GDS}{\mathrm{GDS}}
+\newcommand*{\cAD}{\mathrm{cAD}}
+\newcommand*{\yy}{\mathrm{Y}}
+\newcommand*{\yn}{\mathrm{N}}
+
 
 \MyFilledBox{SOFTWARE HIGHLIGHT}
 \begin{center}
@@ -221,13 +239,119 @@ One reason can still be given today for the avoidance of Bayesian nonparametric 
 
 The R-package \textbf{inferno}\footnote{\url{https://pglpm.github.io/inferno/}} was built to try to remedy the lack of this kind of software.
 
-\section{Features and application range}
+\section{Use and features}
 \label{sec:features}
 
-The package
+(In the following, for brevity, the term `probability' will also stand for `probability density' depending on nature of the quantities involved; similarly for `frequency'.)
+
+The application of the package is simple. The user provides a sample of variates $D$ from a population, for instance the age, sex, symptom, disease, and kind of treatment of a number of patients. Thereafter, the user can calculate any of the following:
+\begin{itemize}
+\item For a new unit of the population, say a new patient, the conditional probability for the values of \emph{any} set of variates $X \mo x, Y \mo y, \dotso$ given \emph{any} other set $Z \mo z, W \mo w, \dotso$:
+  \begin{equation}\label{eq:prob_var}
+    \P(X \mo x, Y \mo y, \dotso \|Z \mo z, W \mo w, \dotso , D)
+  \end{equation}
+  Such a probability could for instance be used in medical decision making \citep{soxetal1988_r2024,huninketal2001_r2014}. The conditional could also be empty.
+
+\item The probability distribution for the conditional \emph{frequencies}, in the whole unsampled population, of the values of any set of variates given any other set. If we denote by $\yF$ the frequency and by $\yf$ a specific value,
+  \begin{equation}\label{eq:prob_freq}
+    \P\bigl[ \yF(X \mo x, \dotso \|Z \mo z, \dotso) = \yf \|[\big] D\bigr]
+    \ .
+  \end{equation}
+This probability distribution is represented by Monte Carlo samples drawn from it.
+
+\item The mutual information \citep[Ch.~8]{mackay1995_r2005} between any two sets of quantities.
+\end{itemize}
+
+Probabilities~\eqref{eq:prob_var} and~\eqref{eq:prob_freq} are connected by a variant of de~Finetti's theorem:
+\begin{equation}
+  \label{eq:definetti1}
+  \P(X \mo x, \dotso \|Z \mo z, \dotso , D)  =
+  \int \yf \,
+  \P\bigl[ \yF(X \mo x, \dotso \|Z \mo z, \dotso) = \yf \|[\big] D\bigr]
+  \,\di\yf
+\end{equation}
+
+In a manner of speaking, the probability distribution~\eqref{eq:prob_freq} expresses how much the probability value~\eqref{eq:prob_var} could change, if it were updated by sampling the whole population. It expresses the uncertainty in the statistical results owing to finite sample size.
+
+
+\begin{figure}[t]\caption{}\label{fig:distr}
+  \centering
+  \includegraphics[width=0.49\linewidth]{figures/population_distr_HV.pdf}\hfill%
+  \includegraphics[width=0.49\linewidth]{figures/population_distr_GDS.pdf}
+\end{figure}
+The package allows the user to visualize the probabilities above when just one ``predictand'' and one predictor variates are involved.
+Figure~\ref{fig:distr} shows two examples from a study \citep{portamanaetal2023b} about conversion from Mild Cognitive Impairment (MCI) to Alzheimer's Disease (AD); they can be used to further illustrate the probability distributions discussed above.
+
+In the plot on the left, the predictand variate is hippocampal volume ($\HV$); the predictor is the binary, yes/no variate `will convert to AD' ($\cAD$). The solid blue thick line and dashed red thick line are the conditional probability distributions (omitting the data dependence)
+\begin{equation*}
+  \P( \HV \| \cAD \mo \yn)\ ,\qquad
+  \P( \HV \| \cAD \mo \yy) \ .
+\end{equation*}
+The cloud of blue thinner lines that surrounds the first distribution above  represents the probability distribution of possible frequency distributions
+\begin{equation*}
+  \P\bigl[ \yF(\HV \| \cAD \mo \yn)\bigr]
+\end{equation*}
+each thin line is a sample from such distribution.
+
+Looking at this plot, a clinician can immediately see that the frequency distribution of hyppocampal volume is clearly different in the sub-populations of patients that will convert to Alzheimer's and those who won't. Such a difference is almost certain even considering the uncertainty from the finite sample size.
+
+The plot on the right is analogous but for the predictand variate `geriatric depression scale' ($\GDS$) in stead of hippocampal volume. In this case the two conditional frequency distributions cannot be distinguished within the finite-sample uncertainty.
+
+It must be remarked that it is exactly this kind of differences and uncertainties that clinical researchers often try to clumsily capture by using $p$-values. Several practitioners expressed relief and even awe at the possibility of visualizing the estimates of different sub-population statistics and even the uncertainties they carry because of finite sample size.
+
+The quick analysis above was purely qualitative, but concrete numbers, such as quantiles and expected values, can be given instead. This becomes necessary when many variates are considered jointly and visualization is impossible. In such high-dimensional cases the package allows the user to compute any kind of distance between two frequency distributions (such as Hellinger or Kantorovich or Shannon-Jansen distance, or relative entropy) as well as its credibility intervals. The computation of the mutual information between any two sets of variates gives moreover a quantitative measure of their association that does not depend on assumptions such as linearity or gaussianity.
+
+\medskip
+
+\begin{figure}[t]\caption{}\label{fig:distr_inv}
+  \centering
+  \includegraphics[width=0.49\linewidth]{figures/prob_conversion_HV.pdf}\hfill%
+  \includegraphics[width=0.49\linewidth]{figures/prob_conversion_GDS.pdf}
+\end{figure}
+The ability to swap the ``predictor'' and ``predictand'' roles of any variates is illustrated in the plots of fig.~\ref{fig:distr_inv}, which parallel those of fig.~\ref{fig:distr}. The thicker lines show the probabilities
+\begin{equation*}
+    \P( \cAD \mo \yy \| HV)\ ,\qquad
+  \P( \cAD \mo \yy \| \HV)
+\end{equation*}
+for various values of the $\HV$ variate, which becomes a predictor in this case. The clouds of thinner lines are samples of the corresponding probability distributions of the frequency distributions. On the plot on the left, for instance, we see that among individuals from this population having hippocampal volume around $5.0$, between 30\% and 40\% will convert to Alzheimer's. Among those with volume around $2.0$, we can only say that between roughly 45\% and 80\% will convert; in this case the finite-sample size (few samples with this $\HV$ value) leads to a much larger uncertainty of the frequency estimates.
+
+\medskip
+
+The \textbf{inferno} package can work with any combination of continuous, discrete ordinal, discrete nominal, and binary variates. Continuous variates can also be defined in bounded intervals, and can also have boundary values capable of finite probability mass, as it may happen with censoring. The package cannot handle variates with complex topology, such as images, or periodic variates.
+
+\section{Nonparametric representation}
+\label{sec:representation}
+
+In Bayesian nonparametric population inference the posterior probability distribution is over the set of all possible frequency distributions. The mathematical representation of this set is therefore crucial. The package uses the ingenious representation of a distribution as a mixture of product kernels introduced by Dunson \& Bhattacharya \citeyear{dunsonetal2011}. For instance, for variates $X$ and $Y$ the frequency distribution is written as
+\begin{equation}
+  \label{eq:mixture_kernel}
+  \yF(X, Y) = \sum_{i} w_{i}\, K_{X}(X \| \xi_{i})\, K_{Y}(Y \| \upsilon_{i})
+\end{equation}
+where $w_{i}$ are positive and normalized weights, $K_{X}$ is a distribution for variate $X$ depending on parameters $\xi_{i}$, and similarly for $K_{Y}$. The product is easily generalized to any number of variates. In principle the sum should be countably infinite, but as discussed in Ishwaran \& Zarepour \citeyear{ishwaranetal2002b,ishwaranetal2002c} and in Dunson \& Bhattacharya \citeyear{dunsonetal2011}, it is possible to truncate it to a finite number of values if an appropriate prior distribution is used for the weights $w_{i}$. Thus a frequency distribution $\yF$ is effectively represented -- non-uniquely -- by a large but finite set of parameters $(w_{i}, \xi_{i}, \upsilon_{i})$.
+
+
+The above representation by products of individual kernels has been somewhat deprecated in more recent works \citep[e.g.][]{wadeetal2014,wadeetal2014b} which, however, consider inference problems where variates have clear predictor or predictand roles. As previously discussed, in many research fields such roles have no clear a-priori division and are quite dynamic. A representation that easily allow to swap the two role of variates, without overemphasizing either, is therefore most appropriate. The representation~\eqref{eq:mixture_kernel} leads to very simple and symmetric analytical expressions for the conditional of $X$ given $Y$ and vice versa, as well as any marginal:
+\begin{equation*}
+  \begin{gathered}
+    \yF(X \| Y) = \sum_{i}
+    \frac{w_{i}}{\sum_{j} w_{j}K_{Y}(Y \| \upsilon_{j})}\, K_{X}(X \| \xi_{i})\, K_{Y}(Y \| \upsilon_{i})
+    \\
+    \yF(Y \| X) = \sum_{i}
+    \frac{w_{i}}{\sum_{j} w_{j}K_{X}(X \| \xi_{j})}\, K_{Y}(Y \| \upsilon_{i})\, K_{X}(X \| \xi_{i})
+    \\
+    \yF(X) = \sum_{i}
+    w_{i}\, K_{X}(X \| \xi_{i}) \ .
+  \end{gathered}
+\end{equation*}
 
 
 
+This posterior is represented by samples of such distributions, obtained by Markov-chain Monte Carlo.
+
+
+
+
+[bayes base rate]
 
 
 \citep{walker2010}
