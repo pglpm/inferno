@@ -1,0 +1,189 @@
+%!TEX TS-program = pdflatex
+\documentclass{article}
+\usepackage[round]{natbib}
+\usepackage{graphicx}
+\usepackage{pifont,fancybox,multicol,palatcm}
+\usepackage{caption}
+\usepackage{float}
+\usepackage{fancyhdr}
+\usepackage{geometry}
+\pagestyle{fancy} 
+\geometry{margin=1.2in,top=1in,bottom=1in}
+\usepackage{amsmath,amssymb}
+\usepackage{bm}
+\usepackage{textcomp}
+\usepackage[usenames,dvipsnames]{color}
+\usepackage[pdfmenubar=false,pdftex,pdfpagelabels=true,colorlinks=true,linkcolor=ISBABlue,citecolor=ISBABlue,urlcolor=DarkOrange]{hyperref}
+\usepackage[export]{adjustbox}
+\usepackage{soul}
+\usepackage{wrapfig}
+\usepackage{subcaption}
+\usepackage{tabularx, booktabs}
+%%%% Features this issue
+\usepackage{pgfplots}
+\usepackage{tikz}
+\usepackage{url}
+\usepackage{placeins}
+%%%%
+
+
+
+
+\graphicspath{{figures/}}
+
+\usepackage{framed}
+\makeatletter
+\newenvironment{kframe}{%
+ \def\at@end@of@kframe{}%
+ \ifinner\ifhmode%
+  \def\at@end@of@kframe{\end{minipage}}%
+  \begin{minipage}{\columnwidth}%
+ \fi\fi%
+ \def\FrameCommand##1{\hskip\@totalleftmargin \hskip-\fboxsep
+ \colorbox{shadecolor}{##1}\hskip-\fboxsep
+     % There is no \\@totalrightmargin, so:
+     \hskip-\linewidth \hskip-\@totalleftmargin \hskip\columnwidth}%
+ \MakeFramed {\advance\hsize-\width
+   \@totalleftmargin\z@ \linewidth\hsize
+   \@setminipage}}%
+ {\par\unskip\endMakeFramed%
+ \at@end@of@kframe}
+\makeatother
+
+\parskip 1.5ex
+\parindent 0em
+
+\newcommand{\para}[1]{\vspace{.3em}\textbf{#1}\par}
+
+\newcommand{\issue}{ISBA Bulletin, \textbf{32}(3), September 2025}
+\newcommand{\blue}[1]{\textcolor{blue}{#1}}
+
+\newcommand{\MyFilledBox}[1]{
+\label{#1}
+\vspace{1em}
+\markright{\emph{#1}}{}
+\hypertarget{#1}{}
+\fcolorbox{White}{LightBlue}
+{\begin{minipage}[t]{15.3cm}
+\begin{center}
+
+	\vspace{2.4mm}
+	\subsection*{#1}
+
+	\vspace{.3mm}
+\end{center}
+\end{minipage}}
+\vspace{1mm}}
+
+\newcommand{\MyFilledbox}[2]{
+\hspace{-2.3mm}
+\fcolorbox{White}{LightBlue}
+{
+\begin{minipage}[t]{#2}
+	\begin{center}
+	
+		\textbf{\large #1}
+	
+	\end{center}
+\end{minipage}}\\[2mm]}
+
+\newcommand{\MyFancyBox}[3]{
+\hspace{-4mm}
+\fcolorbox{Black}{VeryLightBlue}{
+\begin{minipage}[t]{#3}
+	\MyFilledbox{#1}{#3}\\
+	#2
+\end{minipage}
+}}
+
+\newcommand{\MyFancyBoxWhite}[3]{
+\hspace{-4mm}
+\fcolorbox{Black}{White}{
+\begin{minipage}[t]{#3}
+	\MyFilledbox{#1}{#3}\\
+	#2
+\end{minipage}
+}}
+
+\renewcommand{\sectionmark}[1]{\markboth{#1}{}}
+
+\definecolor{ISBABlue}{rgb}{0, .122, .388}
+\definecolor{LightBlue}{rgb}{0.70, 0.75, 0.85}
+\definecolor{VeryLightBlue}{rgb}{0.95,0.95,0.99}
+\definecolor{DarkOrange}{rgb}{.9, 0.39, 0.0}
+
+\fancyhead[L]{\issue}
+\fancyhead[R]{}
+\fancyfoot[C]{\thepage}
+\fancyfoot[R]{\tt \href{https://www.bayesian.org}{www.bayesian.org}}
+
+%---------- packages and commands for code blocks @software
+\usepackage{mathtools}
+\usepackage{fancyvrb}
+\newcommand{\VerbBar}{|}
+\newcommand{\VERB}{\Verb[commandchars=\\\{\}]}
+\DefineVerbatimEnvironment{Highlighting}{Verbatim}{commandchars=\\\{\}}
+% Add ',fontsize=\small' for more characters per line
+\definecolor{shadecolor}{RGB}{248,248,248}
+\newenvironment{Shaded}{\begin{snugshade}}{\end{snugshade}}
+\newcommand{\AlertTok}[1]{\textcolor[rgb]{0.94,0.16,0.16}{#1}}
+\newcommand{\AnnotationTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textbf{\textit{#1}}}}
+\newcommand{\AttributeTok}[1]{\textcolor[rgb]{0.13,0.29,0.53}{#1}}
+\newcommand{\BaseNTok}[1]{\textcolor[rgb]{0.00,0.00,0.81}{#1}}
+\newcommand{\BuiltInTok}[1]{#1}
+\newcommand{\CharTok}[1]{\textcolor[rgb]{0.31,0.60,0.02}{#1}}
+\newcommand{\CommentTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textit{#1}}}
+\newcommand{\CommentVarTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textbf{\textit{#1}}}}
+\newcommand{\ConstantTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{#1}}
+\newcommand{\ControlFlowTok}[1]{\textcolor[rgb]{0.13,0.29,0.53}{\textbf{#1}}}
+\newcommand{\DataTypeTok}[1]{\textcolor[rgb]{0.13,0.29,0.53}{#1}}
+\newcommand{\DecValTok}[1]{\textcolor[rgb]{0.00,0.00,0.81}{#1}}
+\newcommand{\DocumentationTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textbf{\textit{#1}}}}
+\newcommand{\ErrorTok}[1]{\textcolor[rgb]{0.64,0.00,0.00}{\textbf{#1}}}
+\newcommand{\ExtensionTok}[1]{#1}
+\newcommand{\FloatTok}[1]{\textcolor[rgb]{0.00,0.00,0.81}{#1}}
+\newcommand{\FunctionTok}[1]{\textcolor[rgb]{0.13,0.29,0.53}{\textbf{#1}}}
+\newcommand{\ImportTok}[1]{#1}
+\newcommand{\InformationTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textbf{\textit{#1}}}}
+\newcommand{\KeywordTok}[1]{\textcolor[rgb]{0.13,0.29,0.53}{\textbf{#1}}}
+\newcommand{\NormalTok}[1]{#1}
+\newcommand{\OperatorTok}[1]{\textcolor[rgb]{0.81,0.36,0.00}{\textbf{#1}}}
+\newcommand{\OtherTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{#1}}
+\newcommand{\PreprocessorTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textit{#1}}}
+\newcommand{\RegionMarkerTok}[1]{#1}
+\newcommand{\SpecialCharTok}[1]{\textcolor[rgb]{0.81,0.36,0.00}{\textbf{#1}}}
+\newcommand{\SpecialStringTok}[1]{\textcolor[rgb]{0.31,0.60,0.02}{#1}}
+\newcommand{\StringTok}[1]{\textcolor[rgb]{0.31,0.60,0.02}{#1}}
+\newcommand{\VariableTok}[1]{\textcolor[rgb]{0.00,0.00,0.00}{#1}}
+\newcommand{\VerbatimStringTok}[1]{\textcolor[rgb]{0.31,0.60,0.02}{#1}}
+\newcommand{\WarningTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textbf{\textit{#1}}}}
+%----------
+
+\begin{document}
+\hypertarget{TOP}{}
+\thispagestyle{empty}
+{\hfill \sc September 2025}
+
+\vspace*{-.7em}
+{\hfill \sc Vol.\ 32 No.\ 3}
+
+\vspace*{-1.5em}
+\begin{center}
+\includegraphics[width=7cm]{isbalogo}
+\end{center}
+\fcolorbox{Black}{LightBlue}
+{
+\begin{minipage}[t]{15.1cm}
+	\begin{center}	  
+		\vspace{.5em}
+%		\includegraphics[width=5cm]{isbalogotrans}\\[2em]
+		\textbf{\Huge{ \sc{The \hspace{.1mm} ISBA\hspace{3mm} Bulletin}}}\\[2mm]
+%		 		 {\sc Vol.\ 28 No.\ 1 \hfill  March 2021}\\[1pc] 				 
+		 		 {\sc {\large Official bulletin of the International Society for Bayesian Analysis}}
+		 		 \vspace{.5em}
+	\end{center}
+\end{minipage}
+}
+
+
+\clearpage
