@@ -1,5 +1,4 @@
 \input{preamble.tex}
-
 \newcommand{\citebi}{\cite}
 \newcommand{\citein}{\cite}
 \newcommand*{\subtitleproc}[1]{}
@@ -7,6 +6,7 @@
 \providecommand{\doi}[1]{}
 \renewcommand{\doi}[1]{\href{https://doi.org/#1}{doi:#1}}
 \newcommand*{\osfdoi}[1]{Open Science Framework \doi{#1}}
+\newcommand*{\arxivdoi}[1]{arXiv \doi{#1}}
 \newcommand*{\amp}{\&}
 %% Probability macros
 \renewcommand*{\P}{\mathrm{P}}%probability
@@ -116,7 +116,7 @@ each thin line is a sample from this distribution.
 
 Looking at this plot, a clinician can immediately see that the frequency distributions of hippocampal volume in the sub-populations of patients that will convert to Alzheimer's, and in those who won't, are different. Such a difference is almost certain even considering the uncertainty from the finite sample size. The plot on the right is analogous but for the predictand variate `Geriatric Depression Scale' ($\GDS$) in stead of hippocampal volume. In this case the frequency distributions for the two sub-populations cannot be distinguished within the finite-sample uncertainty.
 
-It must be remarked that it is exactly this kind of differences and uncertainties that clinical researchers often try to clumsily capture by using $p$-values. In private communications, several practitioners expressed contentment at the possibility of visualizing the estimates of different sub-population statistics and even the uncertainties they carry because of finite sample size.
+It must be remarked that it is exactly this kind of differences and uncertainties that clinical researchers often try to clumsily capture by using $p$-values. In private communications, several practitioners expressed elation at the capacity to visualize the estimates of different sub-population statistics, and even the uncertainties they carry because of finite sample size.
 
 The quick analysis above is mostly qualitative, but concrete numbers, such as quantiles and expected values, can be easily produced. This becomes necessary when many variates are considered jointly and visualization is impossible. In such high-dimensional cases the package allows the user to compute the credibility intervals for any kind of distance between two frequency distributions (e.g. Hellinger or Kantorovich or Shannon-Jansen distance, or relative entropy). The computation of the mutual information between any two sets of variates gives moreover a measure of their association that does not depend on assumptions such as linearity or gaussianity.
 
@@ -128,16 +128,16 @@ The quick analysis above is mostly qualitative, but concrete numbers, such as qu
 \includegraphics[width=0.45\linewidth]{figures/prob_conversion_GDS.pdf}%
 \\ \caption{}\label{fig:distr_inv}
 \end{figure}
-The ability to swap the ``predictor'' and ``predictand'' roles of any variates is illustrated in the plots of fig.~\ref{fig:distr_inv}, parallel to those of fig.~\ref{fig:distr}. The thicker lines show the probabilities
+The ability to swap the ``predictor'' and ``predictand'' roles of any variates is illustrated in the plots of fig.~\ref{fig:distr_inv}, parallel to those of fig.~\ref{fig:distr}. In the left plot, the thicker lines show the probabilities
 \begin{equation*}
-    \P( \cAD \mo \yy \| \HV)\ ,\qquad
-  \P( \cAD \mo \yy \| \HV)
+  \P( \cAD \mo \yy \| \HV)\
+%  ,\qquad  \P( \cAD \mo \yy \| \GDS)
 \end{equation*}
 for various values of the $\HV$ variate, which is now a predictor.
 % The clouds of thinner lines are samples of the corresponding probability distributions of the frequency distributions.
-In the plot on the left we see for example that among individuals having hippocampal volume around $5.0$, between 30\% and 40\% will convert to Alzheimer's. Among those with volume around $2.0$, we can only say that between roughly 45\% and 80\% will convert; in this case the finite-sample size (few samples with this $\HV$ value) leads to a much larger uncertainty of the frequency estimates.
+We see for example that among individuals having hippocampal volume around $5.0$, between 30\% and 40\% will convert to Alzheimer's. Among those with volume around $2.0$, we can only say that between roughly 45\% and 80\% will convert; in this case the finite-sample size (few samples with this $\HV$ value) leads to a much larger uncertainty of the frequency estimates.
 
-The possibility of swapping predictor and predictand roles makes it also possible to implement, on the fly, correction for base rates by using Bayes's theorem \citep[\S\,4]{lindleyetal1981}.
+The possibility of swapping predictor and predictand roles makes it also possible to implement, on the fly, correction for base rates by using Bayes's theorem \cite[\S\,4]{lindleyetal1981}.%\citep[\S\,3.2]{portamanaetal2023b}.
 
 \medskip
 
@@ -150,7 +150,7 @@ probs <- Pr(Y = list(A = seq(0, 8, 0.1)), X = list(C = c('yes', 'no')), learnt)
 
 plot(probs)
 \end{verbatim}
-More extensive use examples are given in the package's main vignette\footnote{\url{https://pglpm.github.io/inferno/articles/inferno_start.html}}. Readers of the ISBA Bulletin are probably interested in the internals of the package, discussed next.
+More extensive use examples are given in the package's main vignette\footnote{\url{https://pglpm.github.io/inferno/articles/inferno_start.html}}. The package has also been used to ``calibrate'' the output of machine-learning algorithms \citep{dyrlandetal2022b}, leading to improved performance. Readers of the ISBA Bulletin are probably interested in the internals of the package, discussed next.
 
 
 \subsection*{Internals}
@@ -161,7 +161,7 @@ In nonparametric population inference the prior and posterior probability distri
   \label{eq:mixture_kernel}
   \yF(A, B) = \sum_{i} w_{i}\, K_{A}(A \| \alpha_{i})\, K_{B}(B \| \beta_{i})
 \end{equation}
-where $w_{i}$ are normalized weights, $K_{A}$ a distribution for variate $A$ depending on parameters $\alpha_{i}$, and similarly for $K_{B}$. The product is easily generalized to any number of variates. In principle the sum should be countably infinite, but as discussed in Ishwaran \& Zarepour \citeyear{ishwaranetal2002b,ishwaranetal2002c} it is possible to truncate it to a finite number of values if an appropriate Dirichlet distribution is used for the weights $w_{i}$. Thus a frequency distribution $\yF$ is effectively represented, non-uniquely, by a large but finite set of parameters $(w_{i}, \alpha_{i}, \beta_{i})$.
+where $w_{i}$ are normalized weights, $K_{A}$ a distribution for variate $A$ depending on parameters $\alpha_{i}$, and similarly for $K_{B}$. The product is easily generalized to any number of variates. In principle the sum should be countably infinite, but as discussed in Ishwaran \& Zarepour \citeyear{ishwaranetal2002c} it is possible to truncate it to a finite number of values if an appropriate Dirichlet distribution is used for the weights $w_{i}$. Thus a frequency distribution $\yF$ is effectively represented, non-uniquely, by a large but finite set of parameters $(w_{i}, \alpha_{i}, \beta_{i})$.
 
 The representation above was somewhat deprecated in recent works which, however, consider inference problems where variates have clear predictor or predictand roles \citep[e.g.][]{wadeetal2014,wadeetal2014b}. As previously discussed, in many research fields there are no such a-priori roles; any variate could assume both. A representation that can easily swap the two roles  without overemphasizing either is therefore most appropriate. The representation~\eqref{eq:mixture_kernel} leads to very simple, symmetric analytical expressions for the conditional of $A$ given $B$ and vice versa, as well as for any marginal:
 \begin{equation*}
@@ -184,18 +184,18 @@ The MCMC computation is based on Gibbs sampling; several chains are run in paral
 
 \textbullet\ For this kind of inference problems there is no need for tens of thousands or more independent MCMC samples (effective sample size). The package's default is just 3600. The mean of such samples is the probability~\eqref{eq:prob_var}, and the numerical uncertainty in this mean is thus around $\sqrt{3600} = 60$ times smaller than the ``variability'' of this probability, given by eq.~\eqref{eq:prob_freq}.
 
-\textbullet\ It is acceptable that the sampling has not \emph{fully} converged. Consider that machine-learning algorithms such as neural networks are effectively Bayesian nonparametric functional regressors, and their training is essentially an \emph{unconverged} Monte Carlo sampling \citep{mackay1992,gal2016,mandtetal2017,huszar2017}. This ``sampling'' stops at a \emph{local} maximum of the posterior, and all samples are discarded. Thanks to this lack of convergence, machine-learning training fast; despite of this lack of convergence the inferences can still be impressive. The same stance can be adopted in Bayesian nonparametrics: inferences can still be impressive and informative despite lack of full MCMC convergence; and the uncertainty in the results can moreover be assessed, instead of being discarded as in neural-network training.
+\textbullet\ It is acceptable that the sampling has not \emph{fully} converged (with emphasis on `fully'). Consider that machine-learning algorithms such as neural networks are effectively Bayesian nonparametric functional regressors, and their training is essentially an \emph{unconverged} Monte Carlo sampling \citep{mackay1992,gal2016,mandtetal2017,huszar2017}. This ``sampling'' stops at a \emph{local} maximum of the posterior, and all samples are discarded. Thanks to this lack of convergence, neural-network training is fast; despite of this lack of convergence, the inferences can still be impressive. This writer's opinion is that the same stance can be adopted in Bayesian nonparametrics: inferences can still be impressive and informative despite lack of full MCMC convergence, and superior to those of many machine-learning algorithms designed for the same task. And moreover the uncertainty in the results can be assessed, instead of being discarded as in neural-network training. So far, in applying \textbf{inferno} to concrete problems, we noticed that the MCMC sampling had converged in the majority of cases. In those in which it had not fully converged, the results were still correct to a good approximation, for example with credibility intervals that erred by less than 2\% from their MCMC-converged values.
 
-These stances are motivated by the need for user-friendliness. The ultimate goal of the package is to let frequentist practitioners try and appreciate Bayesian methods (the package's main vignette is specially written for them), and to let Bayesian-parametric practitioners try nonparametrics. Once the  merits are seen, practitioners can slowly move to more complex packages that allow for more control and custom problem-solving.
+These stances are motivated by the need for user-friendliness. The ultimate goal of the package is to let frequentist practitioners try and appreciate Bayesian methods (the package's main vignette is specially written for them); to let Bayesian-parametric practitioners try nonparametrics; and to show that Bayesian methods can be almost as fast but more powerful than many machine-learning algorithms. Once the  merits are seen, practitioners can slowly move to more complex packages that allow for more control and custom problem-solving.
 
-
-{\small\input{software.bbl}}
-
+\textbf{inferno} has been already used and tested in several studies, but we'd like more testing before submitting it to CRAN. Testers and feedback are very welcome!
 
 
-% \bibliographystyle{abbrvnat}
-% {\small
-% \bibliography{../manual/portamanabib.bib}
-% }
+%{\small\input{software.bbl}}
+
+\bibliographystyle{abbrvnat}
+{\small
+\bibliography{software.bib}
+}
 \end{document}
 
