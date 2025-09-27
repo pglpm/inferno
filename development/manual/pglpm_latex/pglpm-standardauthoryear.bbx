@@ -33,7 +33,7 @@
 \DeclareFieldFormat{journaltitle}{#1}
 \DeclareFieldFormat{issuetitle}{#1}
 %\DeclareFieldFormat[article]{number}{/#1}% number of a journal
-\DeclareFieldFormat[article,incollection,inproceedings]{pages}{#1}%
+\DeclareFieldFormat[article,incollection,inproceedings,inbook]{pages}{#1}%
 %\DeclareFieldFormat[article]{year}{#1}%
 \DeclareFieldFormat[inbook,incollection]{chapter}{\mkpageprefix[bookpagination]{#1}}%
 %\DeclareFieldFormat{edition}{%
@@ -861,9 +861,9 @@
 
 \newbibmacro*{chapter+pages}{%
 %  \setunit{\bibpagespunct}%
-  \setunit{\addcolon}%
+  \setunit{\addcomma}%
 \printfield{chapter}%
-  \setunit{\addcolon}%
+  \setunit{\addcomma\space}%
 %  \setunit{\bibpagespunct}%
   \printfield{pages}%
   \newunit}
