@@ -748,7 +748,7 @@ length</strong>
 <code>body_mass</code> and <code>bill_len</code> is</p>
 <div class="sourceCode" id="cb21"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/stats/cor.html" class="external-link">cor</a></span><span class="op">(</span><span class="va">samples</span><span class="op">$</span><span class="va">body_mass</span>, <span class="va">samples</span><span class="op">$</span><span class="va">bill_len</span>, method <span class="op">=</span> <span class="st">'pearson'</span><span class="op">)</span></span>
-<span><span class="co"># [1] 0.562959</span></span></code></pre></div>
+<span><span class="co"># [1] 0.545892</span></span></code></pre></div>
 <p>which is different from the rough
 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>r</mi><annotation encoding="application/x-tex">r</annotation></semantics></math>-equivalent
 0.67.</p>
@@ -834,15 +834,15 @@ correlation coefficient:</p>
 <div class="sourceCode" id="cb24"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co">## Pearson r for Adelie subpopulation:</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/stats/cor.html" class="external-link">cor</a></span><span class="op">(</span><span class="va">samplesAdelie</span><span class="op">$</span><span class="va">body_mass</span>, <span class="va">samplesAdelie</span><span class="op">$</span><span class="va">bill_len</span>, method <span class="op">=</span> <span class="st">'pearson'</span><span class="op">)</span></span>
-<span><span class="co"># [1] 0.467353</span></span>
+<span><span class="co"># [1] 0.417085</span></span>
 <span></span>
 <span><span class="co">## Pearson r for Chinstrap subpopulation:</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/stats/cor.html" class="external-link">cor</a></span><span class="op">(</span><span class="va">samplesChinstrap</span><span class="op">$</span><span class="va">body_mass</span>, <span class="va">samplesChinstrap</span><span class="op">$</span><span class="va">bill_len</span>, method <span class="op">=</span> <span class="st">'pearson'</span><span class="op">)</span></span>
-<span><span class="co"># [1] 0.352141</span></span>
+<span><span class="co"># [1] 0.311494</span></span>
 <span></span>
 <span><span class="co">## Pearson r for Gentoo subpopulation:</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/stats/cor.html" class="external-link">cor</a></span><span class="op">(</span><span class="va">samplesGentoo</span><span class="op">$</span><span class="va">body_mass</span>, <span class="va">samplesGentoo</span><span class="op">$</span><span class="va">bill_len</span>, method <span class="op">=</span> <span class="st">'pearson'</span><span class="op">)</span></span>
-<span><span class="co"># [1] 0.479998</span></span></code></pre></div>
+<span><span class="co"># [1] 0.562958</span></span></code></pre></div>
 <p>The Pearson correlation yields the same the association
 <em>ranking</em> as the mutual information does (first Gentoo, then
 Adélie, then Chinstrap), but it yields the association for the Adélie
