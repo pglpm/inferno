@@ -1,6 +1,6 @@
 Package: inferno
 Title: Inference in R with Bayesian nonparametrics
-Version: 0.3.1
+Version: 0.3.2
 Authors@R: c(
   person("PierGianLuca", "Porta Mana", ,
   "pgl@portamana.org", role = c("aut", "cre", "cph"),
