@@ -18,7 +18,7 @@
 #' @export
 flexiplot <- function(
     x, y,
-    type = 'l',
+    type = NULL,
     lty = c(1, 2, 4, 3, 6, 5),
     lwd = 2,
     pch = c(1, 2, 0, 5, 6, 3), #, 4,
@@ -42,29 +42,35 @@ flexiplot <- function(
     cex.main = 1,
     ...
 ){
-    xat <- yat <- NULL
+    xat <- yat <- xaxp <- yaxp <- NULL
 
     if(missing('x') && !missing('y')){
-        x <- numeric(NROW(y))
+        x <- y
+        x[] <- rep(seq_len(NCOL(y)), each = NROW(y))
+        if(is.null(ylab)){ ylab <- deparse1(substitute(y)) }
+        if(is.null(yjitter)){ yjitter <- FALSE }
         if(is.null(xdomain) && is.null(xlim)){
-            xat <- 0
+            xat <- seq_len(NCOL(y))
             xdomain <- NA
-            if(!is.null(xjitter)){
-                xlim <- c(-0.04, 0.04)
-            }
+            ## if(!is.null(xjitter)){
+            ##     xlim <- range(x) + c(-0.04, 0.04)
+            ## }
             if(is.null(xlab)){ xlab <- NA }
-            if(is.null(ylab)){ ylab <- deparse1(substitute(y)) }
+            if(is.null(type)){ type <- 'p' }
         }
     } else if(!missing('x') && missing('y')){
-        y <- numeric(NROW(x))
+        y <- x
+        y[] <- rep(seq_len(NCOL(x)), each = NROW(x))
+        if(is.null(xlab)){ xlab <- deparse1(substitute(x)) }
+        if(is.null(xjitter)){ xjitter <- FALSE }
         if(is.null(ydomain) && is.null(ylim)){
-            yat <- 0
+            yat <- seq_len(NCOL(x))
             ydomain <- NA
-            if(!is.null(yjitter)){
-                ylim <- c(-0.04, 0.04)
-            }
+            ## if(!is.null(yjitter)){
+            ##     ylim <- range(y) + c(-0.04, 0.04)
+            ## }
             if(is.null(ylab)){ ylab <- NA }
-            if(is.null(xlab)){ xlab <- deparse1(substitute(x)) }
+            if(is.null(type)){ type <- 'p' }
         }
     } else if(!missing('x') && !missing('y')){
         if(is.null(xlab)){ xlab <- deparse1(substitute(x)) }
@@ -73,17 +79,39 @@ flexiplot <- function(
         stop('Arguments "x" and "y" cannot both be missing')
     }
 
+    if(NROW(y) == 1 && NCOL(y) == NCOL(x)){
+        y <- rep(y, each = NROW(x))
+        dim(y) <- dim(x)
+        if(is.null(type)){ type <- 'p' }
+    }
+    if(NROW(x) == 1 && NCOL(x) == NCOL(y)){
+        x <- rep(x, each = NROW(y))
+        dim(x) <- dim(y)
+        if(is.null(type)){ type <- 'p' }
+    }
+
+    if(is.character(x) && is.character(y)) {
+        if(is.null(xjitter)){xjitter <- TRUE}
+        if(is.null(yjitter)){yjitter <- TRUE}
+    }
     ## if x is character, convert to numeric
     if(is.character(x)){
         if(is.null(xdomain)){ xdomain <- unique(x) }
         ## we assume the user has sorted the vaules in a meaningful order
         ## because the lexical order may not be correct
         ## (think of values like 'low', 'medium', 'high')
+        . <- dim(x)
         x <- as.numeric(factor(x, levels = xdomain))
-        if(is.null(xjitter)){xjitter <- TRUE}
+        dim(x) <- .
         xat <- seq_along(xdomain)
+        xaxp <- c(range(xat), length(xat) - 1)
+        if(is.null(type)){ type <- 'p' }
     }
-    if(isTRUE(xjitter)){x <- jitter(x)}
+    if(isTRUE(xjitter)){
+        xaxp <- c(range(xat) + c(-0.5, 0.5), length(xat))
+        ## xaxp <- c(range(xat), length(xat) - 1)
+        x <- jitter(x, factor = 5/3)
+    }
 
     ## if y is character, convert to numeric
     if(is.character(y)){
@@ -91,11 +119,18 @@ flexiplot <- function(
         ## we assume the user has sorted the vaules in a meaningful order
         ## because the lexical order may not be correct
         ## (think of values like 'low', 'medium', 'high')
+        . <- dim(y)
         y <- as.numeric(factor(y, levels = ydomain))
-        if(is.null(yjitter)){yjitter <- TRUE}
+        dim(y) <- .
         yat <- seq_along(ydomain)
+        yaxp <- c(range(yat), length(yat) - 1)
+        if(is.null(type)){ type <- 'p' }
     }
-    if(isTRUE(yjitter)){y <- jitter(y)}
+    if(isTRUE(yjitter)){
+        yaxp <- c(range(yat) + c(-0.5, 0.5), length(yat))
+        ## yaxp <- c(range(yat), length(yat) - 1)
+        y <- jitter(y, factor = 5/3)
+    }
 
     ## Syntax of xlim and ylim that allows
     ## for the specification of only upper- or lower-bound
@@ -108,13 +143,11 @@ flexiplot <- function(
         if(is.null(ylim[2]) || !is.finite(ylim[2])){ ylim[2] <- max(y[is.finite(y)]) }
     }
 
-    if(is.null(xlab) && !missing(x)) {
-        xlab <- deparse1(substitute(x))
-    }
+    if(is.null(type)){ type <- 'l' }
+
     if(is.na(alpha.f)){alpha.f <- 1}
     col <- adjustcolor(col, alpha.f = alpha.f)
-
-    graphics::matplot(x, y, xlim = xlim, ylim = ylim, type = type, axes = F,
+    graphics::matplot(x, y, xlim = xlim, ylim = ylim, type = type, axes = FALSE,
         col = col, lty = lty, lwd = lwd, pch = pch, cex.main = cex.main, add = add, xlab = xlab, ylab = ylab, ...)
     if(!add){
         graphics::axis(1, at = xat, labels = xdomain, tick = !grid,
@@ -122,10 +155,122 @@ flexiplot <- function(
         graphics::axis(2, at = yat, labels = ydomain, tick = !grid,
             col = 'black', lwd = 1, lty = 1, ...)
         if(grid){
+            if(exists('xaxp')){ par(xaxp = xaxp) }
+            if(exists('yaxp')){ par(yaxp = yaxp) }
             graphics::grid(nx = NULL, ny = NULL, lty = 1, col = '#BBBBBB80')
         }
     }
 }
+## flexiplot <- function(
+##     x, y,
+##     type = 'l',
+##     lty = c(1, 2, 4, 3, 6, 5),
+##     lwd = 2,
+##     pch = c(1, 2, 0, 5, 6, 3), #, 4,
+##     col = palette(),
+##     xlab = NULL, ylab = NULL,
+##     xlim = NULL, ylim = NULL,
+##     add = FALSE,
+##     xdomain = NULL, ydomain = NULL,
+##     alpha.f = 1,
+##     xjitter = NULL,
+##     yjitter = NULL,
+##     ## c( ## Tol's colour-blind-safe scheme
+##     ##     '#4477AA',
+##     ##     '#EE6677',
+##     ##     '#228833',
+##     ##     '#CCBB44',
+##     ##     '#66CCEE',
+##     ##     '#AA3377' #, '#BBBBBB'
+##     ## ),
+##     grid = TRUE,
+##     cex.main = 1,
+##     ...
+## ){
+##     xat <- yat <- NULL
+## 
+##     if(missing('x') && !missing('y')){
+##         x <- numeric(NROW(y))
+##         if(is.null(xdomain) && is.null(xlim)){
+##             xat <- 0
+##             xdomain <- NA
+##             if(!is.null(xjitter)){
+##                 xlim <- c(-0.04, 0.04)
+##             }
+##             if(is.null(xlab)){ xlab <- NA }
+##             if(is.null(ylab)){ ylab <- deparse1(substitute(y)) }
+##         }
+##     } else if(!missing('x') && missing('y')){
+##         y <- numeric(NROW(x))
+##         if(is.null(ydomain) && is.null(ylim)){
+##             yat <- 0
+##             ydomain <- NA
+##             if(!is.null(yjitter)){
+##                 ylim <- c(-0.04, 0.04)
+##             }
+##             if(is.null(ylab)){ ylab <- NA }
+##             if(is.null(xlab)){ xlab <- deparse1(substitute(x)) }
+##         }
+##     } else if(!missing('x') && !missing('y')){
+##         if(is.null(xlab)){ xlab <- deparse1(substitute(x)) }
+##         if(is.null(ylab)){ ylab <- deparse1(substitute(y)) }
+##     } else {
+##         stop('Arguments "x" and "y" cannot both be missing')
+##     }
+## 
+##     ## if x is character, convert to numeric
+##     if(is.character(x)){
+##         if(is.null(xdomain)){ xdomain <- unique(x) }
+##         ## we assume the user has sorted the vaules in a meaningful order
+##         ## because the lexical order may not be correct
+##         ## (think of values like 'low', 'medium', 'high')
+##         x <- as.numeric(factor(x, levels = xdomain))
+##         if(is.null(xjitter)){xjitter <- TRUE}
+##         xat <- seq_along(xdomain)
+##     }
+##     if(isTRUE(xjitter)){x <- jitter(x)}
+## 
+##     ## if y is character, convert to numeric
+##     if(is.character(y)){
+##         if(is.null(ydomain)){ ydomain <- unique(y) }
+##         ## we assume the user has sorted the vaules in a meaningful order
+##         ## because the lexical order may not be correct
+##         ## (think of values like 'low', 'medium', 'high')
+##         y <- as.numeric(factor(y, levels = ydomain))
+##         if(is.null(yjitter)){yjitter <- TRUE}
+##         yat <- seq_along(ydomain)
+##     }
+##     if(isTRUE(yjitter)){y <- jitter(y)}
+## 
+##     ## Syntax of xlim and ylim that allows
+##     ## for the specification of only upper- or lower-bound
+##     if(length(xlim) == 2){
+##         if(is.null(xlim[1]) || !is.finite(xlim[1])){ xlim[1] <- min(x[is.finite(x)]) }
+##         if(is.null(xlim[2]) || !is.finite(xlim[2])){ xlim[2] <- max(x[is.finite(x)]) }
+##     }
+##     if(length(ylim) == 2){
+##         if(is.null(ylim[1]) || !is.finite(ylim[1])){ ylim[1] <- min(y[is.finite(y)]) }
+##         if(is.null(ylim[2]) || !is.finite(ylim[2])){ ylim[2] <- max(y[is.finite(y)]) }
+##     }
+## 
+##     if(is.null(xlab) && !missing(x)) {
+##         xlab <- deparse1(substitute(x))
+##     }
+##     if(is.na(alpha.f)){alpha.f <- 1}
+##     col <- adjustcolor(col, alpha.f = alpha.f)
+## 
+##     graphics::matplot(x, y, xlim = xlim, ylim = ylim, type = type, axes = F,
+##         col = col, lty = lty, lwd = lwd, pch = pch, cex.main = cex.main, add = add, xlab = xlab, ylab = ylab, ...)
+##     if(!add){
+##         graphics::axis(1, at = xat, labels = xdomain, tick = !grid,
+##             col = 'black', lwd = 1, lty = 1, ...)
+##         graphics::axis(2, at = yat, labels = ydomain, tick = !grid,
+##             col = 'black', lwd = 1, lty = 1, ...)
+##         if(grid){
+##             graphics::grid(nx = NULL, ny = NULL, lty = 1, col = '#BBBBBB80')
+##         }
+##     }
+## }
 
 #' Plot pairs of quantiles
 #'

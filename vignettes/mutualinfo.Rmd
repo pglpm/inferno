@@ -507,7 +507,7 @@ Note that in this case the Pearson correlation between `body_mass` and `bill_len
 
 ``` r
 cor(samples$body_mass, samples$bill_len, method = 'pearson')
-# [1] 0.562959
+# [1] 0.545892
 ```
 
 which is different from the rough $r$-equivalent 0.67.
@@ -585,15 +585,15 @@ It is interesting to contrast this result with values of the Pearson correlation
 ``` r
 ## Pearson r for Adelie subpopulation:
 cor(samplesAdelie$body_mass, samplesAdelie$bill_len, method = 'pearson')
-# [1] 0.467353
+# [1] 0.417085
 
 ## Pearson r for Chinstrap subpopulation:
 cor(samplesChinstrap$body_mass, samplesChinstrap$bill_len, method = 'pearson')
-# [1] 0.352141
+# [1] 0.311494
 
 ## Pearson r for Gentoo subpopulation:
 cor(samplesGentoo$body_mass, samplesGentoo$bill_len, method = 'pearson')
-# [1] 0.479998
+# [1] 0.562958
 ```
 
 The Pearson correlation yields the same the association *ranking* as the mutual information does (first Gentoo, then Adélie, then Chinstrap), but it yields the association for the Adélie subpopulation to be closer to the Gentoo one than to the Chinstrap one. The mutual information yields the opposite.
