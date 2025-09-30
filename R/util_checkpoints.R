@@ -13,6 +13,7 @@ util_prepPcheckpoints <- function(
 
     auxV0a <- auxV0b <- auxV1a <- auxV1b <- auxV1c <- auxV1d <- NULL
     auxV2 <- auxVN1 <- auxVN2 <- auxVB <- NULL
+    V2steps <- NULL
 
     nV0 <- nV1 <- nV2 <- nVN <- nVB <- FALSE
 

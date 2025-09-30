@@ -32,22 +32,27 @@ buildauxmetadata <- function(data, metadata, Dthreshold = 1, tscalefactor = 4.26
     posN <- posO <- 0L
 
 #### Prepare empty metadata frame
-    auxmetadata <- as.data.frame(
-                list(
-                    name = NA, type = NA, mcmctype = NA, id = NA, # censored= NA,
-                    transform = NA,
-                    Nvalues = NA_integer_, # keep this as integer
-                    indexpos = NA_integer_, # keep this as integer
-                    halfstep = NA,
-                    domainmin = NA, domainmax = NA,
-                    minincluded = NA, maxincluded = NA,
-                    tdomainmin = NA, tdomainmax = NA,
-                    domainminplushs = NA, domainmaxminushs = NA,
-                    tdomainminplushs = NA, tdomainmaxminushs = NA,
-                    tlocation = NA, tscale = NA,
-                    plotmin = NA, plotmax = NA
-                )
-    )[-1, ]
+    auxmetadata <- list(
+        name = NA, type = NA, mcmctype = NA, id = NA, # censored= NA,
+        transform = NA,
+        Nvalues = NA_integer_, # keep this as integer
+        indexpos = NA_integer_, # keep this as integer
+        halfstep = NA,
+        domainmin = NA, domainmax = NA,
+        minincluded = NA, maxincluded = NA,
+        tdomainmin = NA, tdomainmax = NA,
+        domainminplushs = NA, domainmaxminushs = NA,
+        tdomainminplushs = NA, tdomainmaxminushs = NA,
+        tlocation = NA, tscale = NA,
+        plotmin = NA, plotmax = NA
+    )
+
+    ## Correct for missing columns in metadata
+    for(column in names(auxmetadata)){
+        if(is.null(metadata[[column]])){ metadata[[column]] <- NA}
+    }
+
+    auxmetadata <- as.data.frame(auxmetadata)[-1, ]
 
     for (name in metadata$name) {
         minfo <- as.list(metadata[metadata$name == name, ])
@@ -243,14 +248,14 @@ buildauxmetadata <- function(data, metadata, Dthreshold = 1, tscalefactor = 4.26
             Nvalues <- NA_integer_
             ## Rounded variates
             ## Empty datastep means 0
-            if (is.null(halfstep) || is.na(halfstep)) {
+            if (length(halfstep) == 0 || is.null(halfstep) || is.na(halfstep)) {
                 halfstep <- 0
             }
             ## Empty domainmin/max values mean -+Inf
-            if(is.null(domainmin) || is.na(domainmin)) {
+            if(length(domainmin) == 0 || is.null(domainmin) || is.na(domainmin)) {
                 domainmin <- -Inf
             }
-            if(is.null(domainmax) || is.na(domainmax)) {
+            if(length(domainmax) == 0 || is.null(domainmax) || is.na(domainmax)) {
                 domainmax <- +Inf
             }
             minincluded <- (tolower(minfo$minincluded) %in%

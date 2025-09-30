@@ -13,7 +13,7 @@
 #' @param data A dataset, given as a [base::data.frame()] or as a file path to a CSV file.
 #' @param metadata A [`metadata`] object, given either as a data.frame object, or as a file pa to a CSV file.
 #' @param auxdata A larger dataset, given as a base::data.frame() or as a file path to a CSV file. Such a dataset would be too many to use in the Monte Carlo sampling, but can be used to calculate hyperparameters.
-#' @param outputdir Character: path to folder where the output should be saved. If omitted, a directory is created that has the same name as the data file but with suffix "`_output_`".
+#' @param outputdir Character: path to folder where the output should be saved. If omitted or `NULL` (default), a directory is created that has the same name as the data file but with suffix "`_output_`". If `FALSE`, a directory is created in the temporary-directory space.
 #' @param nsamples Integer: number of desired Monte Carlo samples. Default 3600.
 #' @param nchains Integer: number of Monte Carlo chains. Default 4.
 #' @param nsamplesperchain Integer: number of Monte Carlo samples per chain.
@@ -40,6 +40,17 @@
 #' @param hyperparams List: hyperparameters of the prior.
 #'
 #' @return Name of directory containing output files, or learnt object, or `NULL`, depending on argument `output`.
+#'
+#' @examples
+#'
+#' ## Create dataset with 10 points of variate 'V' for demonstration
+#' dataset <- data.frame(V = rnorm(n = 10))
+#'
+#' ## Create metadatafile
+#' metadata <- data.frame(
+#'     name = 'V',
+#'     type = 'continuous'
+#' )
 #'
 #' @import parallel foreach doParallel doRNG nimble
 #'
@@ -450,32 +461,37 @@ learn <- function(
         nrow(auxmetadata), 'variates\n')
 
 #### Output-folder setup
-    if (is.null(outputdir)) {
-        outputdir <- paste0('_output_', sub('.csv$', '', datafile))
-    }
+    if(isFALSE(outputdir)){
+        ## Use a temporary directory
+        dirname <- tempdir()
+    } else {
+        if (is.null(outputdir)) {
+            outputdir <- paste0('_output_', sub('.csv$', '', datafile))
+        }
 
-    ## append time and info to output directory, if requested
-    suffix <- NULL
-    if (appendtimestamp) {
-        suffix <- paste0(suffix, '-',
-            format(Sys.time(), '%y%m%dT%H%M%S') )
+            ## append time and info to output directory, if requested
+            suffix <- NULL
+            if (appendtimestamp) {
+                suffix <- paste0(suffix, '-',
+                    format(Sys.time(), '%y%m%dT%H%M%S') )
+            }
+            if (appendinfo) {
+                suffix <- paste0(suffix,
+                    '-vrt', nrow(auxmetadata),
+                    '_dat',
+                    (if (npoints == 1 && all(is.na(data))) {
+                        0
+                    } else {
+                        npoints
+                    }),
+                    ## '-K', ncomponents, # unimportant for user
+                    '_smp', nsamples)
+            }
+            dirname <- paste0(outputdir, suffix)
+            ##
+            ## Create output directory if it does not exist
+            dir.create(dirname, showWarnings = FALSE)
     }
-    if (appendinfo) {
-        suffix <- paste0(suffix,
-            '-vrt', nrow(auxmetadata),
-            '_dat',
-            (if (npoints == 1 && all(is.na(data))) {
-                0
-            } else {
-                npoints
-            }),
-            ## '-K', ncomponents, # unimportant for user
-            '_smp', nsamples)
-    }
-    dirname <- paste0(outputdir, suffix)
-    ##
-    ## Create output directory if it does not exist
-    dir.create(dirname, showWarnings = FALSE)
     ## Print information
     cat('\n', paste0(rep('*', max(nchar(dirname), 26)), collapse = ''),
         '\n Saving output in directory\n', dirname, '\n',
@@ -909,6 +925,15 @@ learn <- function(
     cat('\nC-compiling samplers appropriate to the variates (package Nimble)\n')
     cat('this can take tens of minutes. Please wait...\r')
 
+    restoresink <- function(){
+        if(sink.number() > 0) {
+            ## Close output to log files
+            sink(file = NULL, type = 'output')
+            sink(file = NULL, type = 'message')
+        }
+    }
+    on.exit(restoresink())
+
 
 #####################################################
 #### BEGINNING OF FOREACH LOOP OVER CORES
@@ -928,7 +953,7 @@ learn <- function(
         ), open = 'w')
         sink(file = outcon, type = 'output')
         sink(file = outcon, type = 'message')
-        if(acore < 0){
+        if(TRUE){
             closecons <- function(){
                 ## Close output to log files
                 sink(file = NULL, type = 'output')

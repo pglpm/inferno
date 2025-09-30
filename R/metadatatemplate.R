@@ -575,30 +575,30 @@ metadatatemplate <- function(
         cat('=========\n')
     }
 
-                                        # Save to file if the file parameter is set
-    if (!is.null(file)) {
-                                        # If file is a string, name the metadata file that
+    ## Save to file if the file parameter is set
+    if (!(is.null(file) || isFALSE(file))) {
+        ## If file is a string, name the metadata file that
         if (is.character(file)) {
             file <- paste0(sub('.csv$', '', file), '.csv')
         }
-                                        # If file is not a string, and the data is read from a file,
-                                        # save the metadata as metadata_<datafile>.csv
+        ## If file is not a string, and the data is read from a file,
+        ## save the metadata as metadata_<datafile>.csv
         else if (!is.null(datafile)) {
             file <- paste0(sub('.csv$', '', file), '_metadata.csv')
         }
-                                        # If the file already exists, rename the old file as a backup file
-                                        # and name this metadata file as intended
+        ## If the file already exists, rename the old file as a backup file
+        ## and name this metadata file as intended
         if (backupfiles) {
             if (file.exists(file)) {
                 file.rename(from = file, to = paste0(sub('.csv$', '', file), '_bak', format(Sys.time(), '%y%m%dT%H%M%S'), '.csv'))
             }
         }
-                                        # Save the file
+        ## Save the file
         write.csv(metadata, file, row.names = FALSE, quote = TRUE, na = '')
         cat('\nSaved proposal metadata file as', paste0('"', file, '"'), '\n')
 
     } else {
-                                        # Else just print to console
+        ## Else just print to console
         metadata
     }
 }

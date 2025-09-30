@@ -46,7 +46,7 @@ learn(
 
 \item{auxdata}{A larger dataset, given as a base::data.frame() or as a file path to a CSV file. Such a dataset would be too many to use in the Monte Carlo sampling, but can be used to calculate hyperparameters.}
 
-\item{outputdir}{Character: path to folder where the output should be saved. If omitted, a directory is created that has the same name as the data file but with suffix "\verb{_output_}".}
+\item{outputdir}{Character: path to folder where the output should be saved. If omitted or \code{NULL} (default), a directory is created that has the same name as the data file but with suffix "\verb{_output_}". If \code{FALSE}, a directory is created in the temporary-directory space.}
 
 \item{nsamples}{Integer: number of desired Monte Carlo samples. Default 3600.}
 
@@ -108,4 +108,16 @@ This function takes as main inputs a set of data and metadata, and computes the 
 This function creates an object, contained in a \code{learnt.rds} file, which is used in all subsequent probabilistic computations. Other information about the computation is provided in logs and plots, saved in a directory specified by the user.
 
 See \code{vignette('inferno_start')} for an introductory example.
+}
+\examples{
+
+## Create dataset with 10 points of variate 'V' for demonstration
+dataset <- data.frame(V = rnorm(n = 10))
+
+## Create metadatafile
+metadata <- data.frame(
+    name = 'V',
+    type = 'continuous'
+)
+
 }
