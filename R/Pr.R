@@ -328,6 +328,8 @@ Pr <- function(
         learnt = learnt,
         tails = tails
     )
+        print('***lpargs')
+        str(lpargs)
     ## jacobians <- exp(-rowSums(
     ##     log(vtransform(Y,
     ##         auxmetadata = auxmetadata,

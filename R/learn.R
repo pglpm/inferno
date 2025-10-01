@@ -968,7 +968,7 @@ learn <- function(
             }
             on.exit(closecons())
         }
-        usedmem <- sum(gc()[,6])
+            usedmem <- sum(gc()[,6])
 
         ## Timer
         headertimestart <- Sys.time()
