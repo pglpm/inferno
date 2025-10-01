@@ -17,7 +17,7 @@
 #' @param nsamples Integer: number of desired Monte Carlo samples. Default 3600.
 #' @param nchains Integer: number of Monte Carlo chains. Default 4.
 #' @param nsamplesperchain Integer: number of Monte Carlo samples per chain.
-#' @param parallel Logical or `NULL` or positive integer: `TRUE`: use roughly half of available cores; `FALSE`: use serial computation; `NULL` (default): don't do anything (use pre-registered condition); integer: use this many cores.
+#' @param parallel Logical or positive integer or cluster object. `TRUE`: use roughly half of available cores; `FALSE`: use serial computation; integer: use this many cores. It can also be a cluster object previously created with [parallel::makeClustner()]; in this case the parallel computation will use this object.
 #' @param seed Integer: use this seed for the random number generator. If missing or `NULL` (default), do not set the seed.
 #' @param cleanup Logical: remove diagnostic files at the end of the computation? Default `TRUE`.
 #' @param appendtimestamp Logical: append a timestamp to the name of the output directory `outputdir`? Default `TRUE`.
@@ -63,7 +63,7 @@ learn <- function(
     nsamples = 3600,
     nchains = 8,
     nsamplesperchain = 450,
-    parallel = NULL,
+    parallel = TRUE,
     seed = NULL,
     cleanup = TRUE,
     appendtimestamp = TRUE,
