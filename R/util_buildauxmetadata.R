@@ -32,7 +32,7 @@ buildauxmetadata <- function(data, metadata, Dthreshold = 1, tscalefactor = 4.26
     posN <- posO <- 0L
 
 #### Prepare empty metadata frame
-    auxmetadata <- list(
+    auxmetadata <- as.data.frame(list(
         name = NA, type = NA, mcmctype = NA, id = NA, # censored= NA,
         transform = NA,
         Nvalues = NA_integer_, # keep this as integer
@@ -45,14 +45,14 @@ buildauxmetadata <- function(data, metadata, Dthreshold = 1, tscalefactor = 4.26
         tdomainminplushs = NA, tdomainmaxminushs = NA,
         tlocation = NA, tscale = NA,
         plotmin = NA, plotmax = NA
-    )
+    ))[-1, ]
 
     ## Correct for missing columns in metadata
-    for(column in names(auxmetadata)){
-        if(is.null(metadata[[column]])){ metadata[[column]] <- NA}
+    for(column in c('domainmin', 'domainmax', 'datastep',
+        'minincluded', 'maxincluded',
+        'V1', 'V2')){
+        if(is.null(metadata[[column]])){ metadata[[column]] <- NA }
     }
-
-    auxmetadata <- as.data.frame(auxmetadata)[-1, ]
 
     for (name in metadata$name) {
         minfo <- as.list(metadata[metadata$name == name, ])
@@ -627,29 +627,52 @@ buildauxmetadata <- function(data, metadata, Dthreshold = 1, tscalefactor = 4.26
         ## tscale=tscale, plotmin=plotmin, plotmax=plotmax, Q1=Q1, Q2=Q2, Q3=Q3),
         ## datavalues
         ## )))
-        auxmetadata <- merge(auxmetadata,
-            c(
-                list(
-                    name = name, type = minfo$type, mcmctype = mcmctype,
-                    id = id, # censored=cens,
-                    transform = transf,
-                    Nvalues = Nvalues, indexpos = indexpos,
-                    halfstep = halfstep,
-                    domainmin = domainmin, domainmax = domainmax,
-                    minincluded = minincluded, maxincluded = maxincluded,
-                    tdomainmin = tdomainmin, tdomainmax = tdomainmax,
-                    domainminplushs = domainminplushs,
-                    domainmaxminushs = domainmaxminushs,
-                    tdomainminplushs = tdomainminplushs,
-                    tdomainmaxminushs = tdomainmaxminushs,
-                    tlocation = tlocation, tscale = tscale,
-                    plotmin = plotmin, plotmax = plotmax
-                    ## Q1 = Q1, Q2 = Q2, Q3 = Q3, # not used in other scripts, possibly remove
-                    ## mctest1 = mctest1, mctest2 = mctest2, mctest3 = mctest3
-                ),
-                as.list(datavalues)
+        newrow <- c(
+            list(
+                name = name, type = minfo$type, mcmctype = mcmctype,
+                id = id, # censored=cens,
+                transform = transf,
+                Nvalues = Nvalues, indexpos = indexpos,
+                halfstep = halfstep,
+                domainmin = domainmin, domainmax = domainmax,
+                minincluded = minincluded, maxincluded = maxincluded,
+                tdomainmin = tdomainmin, tdomainmax = tdomainmax,
+                domainminplushs = domainminplushs,
+                domainmaxminushs = domainmaxminushs,
+                tdomainminplushs = tdomainminplushs,
+                tdomainmaxminushs = tdomainmaxminushs,
+                tlocation = tlocation, tscale = tscale,
+                plotmin = plotmin, plotmax = plotmax
+                ## Q1 = Q1, Q2 = Q2, Q3 = Q3, # not used in other scripts, possibly remove
+                ## mctest1 = mctest1, mctest2 = mctest2, mctest3 = mctest3
             ),
-            sort = FALSE, all = TRUE)
+            as.list(datavalues)
+        )
+
+        auxmetadata <- rbind(auxmetadata, newrow)
+        ## auxmetadata <- merge(auxmetadata,
+        ##     c(
+        ##         list(
+        ##             name = name, type = minfo$type, mcmctype = mcmctype,
+        ##             id = id, # censored=cens,
+        ##             transform = transf,
+        ##             Nvalues = Nvalues, indexpos = indexpos,
+        ##             halfstep = halfstep,
+        ##             domainmin = domainmin, domainmax = domainmax,
+        ##             minincluded = minincluded, maxincluded = maxincluded,
+        ##             tdomainmin = tdomainmin, tdomainmax = tdomainmax,
+        ##             domainminplushs = domainminplushs,
+        ##             domainmaxminushs = domainmaxminushs,
+        ##             tdomainminplushs = tdomainminplushs,
+        ##             tdomainmaxminushs = tdomainmaxminushs,
+        ##             tlocation = tlocation, tscale = tscale,
+        ##             plotmin = plotmin, plotmax = plotmax
+        ##             ## Q1 = Q1, Q2 = Q2, Q3 = Q3, # not used in other scripts, possibly remove
+        ##             ## mctest1 = mctest1, mctest2 = mctest2, mctest3 = mctest3
+        ##         ),
+        ##         as.list(datavalues)
+        ##     ),
+        ##     sort = FALSE, all = TRUE)
     }
 
     ## print(auxmetadata) # for debugging

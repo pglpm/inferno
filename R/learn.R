@@ -646,9 +646,9 @@ learn <- function(
     ## We need to send some messages to the log files, others to the user.
     ## This is done by changing output sink:
     print2user <- function(msg, outcon) {
+        flush(outcon)
         sink(file = NULL, type = 'message')
         message(msg, appendLF = FALSE)
-        flush.console()
         sink(file = outcon, type = 'message')
     }
 
@@ -923,16 +923,24 @@ learn <- function(
         '  rel.MCSE', signif(maxrelMCSE, 3), '\n')
     cat('Core logs are being saved in individual files.\n')
     cat('\nC-compiling samplers appropriate to the variates (package Nimble)\n')
-    cat('this can take tens of minutes. Please wait...\r')
+    cat('this can take tens of minutes. Please wait...\n')
 
-    restoresink <- function(){
-        if(sink.number() > 0) {
-            ## Close output to log files
-            sink(file = NULL, type = 'output')
-            sink(file = NULL, type = 'message')
-        }
-    }
-    on.exit(restoresink())
+    ## outconmain <- file(file.path(dirname,
+    ##     paste0('log', dashnameroot,
+    ##         '-', 0, '.log')
+    ## ), open = 'w')
+    ## sink(file = outconmain, type = 'output')
+    ## sink(file = outconmain, type = 'message')
+
+    ## restoresink <- function(){
+    ##     if(sink.number() > 0) {
+    ##         ## Close output to log files
+    ##         sink(file = NULL, type = 'output')
+    ##         sink(file = NULL, type = 'message')
+    ##         close(outconmain)
+    ##     }
+    ## }
+    ## on.exit(restoresink())
 
 
 #####################################################
@@ -953,9 +961,11 @@ learn <- function(
         ), open = 'w')
         sink(file = outcon, type = 'output')
         sink(file = outcon, type = 'message')
-        if(TRUE){
+        ## Leave this FALSE to bypass message bug in doParallel
+        if(FALSE){
             closecons <- function(){
                 ## Close output to log files
+                flush(outcon)
                 sink(file = NULL, type = 'output')
                 sink(file = NULL, type = 'message')
                 close(outcon)
@@ -2834,6 +2844,10 @@ learn <- function(
             usedmem = max(usedmem, sum(gc()[,6]))
         )
     }
+    ## restore output to std
+    ## flush(outconmain)
+    ## sink(file = NULL, type = 'output')
+    ## sink(file = NULL, type = 'message')
 ############################################################
 #### END OF PARALLEL FOREACH OVER CORES
 ############################################################
@@ -3016,6 +3030,9 @@ learn <- function(
     ##
     ## colpalette <- seq_len(ncol(oktraces))
     ## names(colpalette) <- colnames(oktraces)
+    ## sink(file = outconmain, type = 'output')
+    ## sink(file = outconmain, type = 'message')
+##    suppressMessages({
     graphics.off()
     pdf(file.path(dirname,
         paste0('MCtraces', dashnameroot, '.pdf')
@@ -3075,9 +3092,27 @@ learn <- function(
         datahistogram = TRUE, datascatter = TRUE,
         parallel = NULL, silent = TRUE
     )
+##})
+    ## restore output to std
+    ## flush(outconmain)
     ## sink(file = NULL, type = 'output')
     ## sink(file = NULL, type = 'message')
-    ## close(outcon)
+    ## close(outconmain)
+
+    ## Close connections
+    invisible(foreach(acore = 1:ncores) %dochains% {
+        outcon <- file(file.path(dirname,
+            paste0('log', dashnameroot,
+                '-', acore, '.log')
+        ), open = 'a')
+        sink(file = outcon, type = 'output')
+        sink(file = outcon, type = 'message')
+        flush(outcon)
+        sink(file = NULL, type = 'output')
+        sink(file = NULL, type = 'message')
+        close(outcon)
+    })
+
 
     totalfinaltime <- difftime(Sys.time(), timestart0, units = 'auto')
     cat('\nTotal computation time:', printtimediff(totalfinaltime), '\n')

@@ -253,7 +253,6 @@ Pr <- function(
             `%doy%` <- `%do%`
         }
     }
-
     dosamples <- !is.null(nsamples)
 
 
@@ -342,7 +341,7 @@ Pr <- function(
         c(FUN = `rbind`, lapply(X = list(...), FUN = `[`, keys, drop = FALSE))),
         keys)}
     ## combfnc <- function(...){setNames(do.call(mapply, c(FUN=cbind, lapply(list(...), `[`, keys))), keys)}
-    out <- foreach(
+        out <- foreach(
         jj = seq_len(nX),
         .combine = `combfnr`,
         .inorder = TRUE
