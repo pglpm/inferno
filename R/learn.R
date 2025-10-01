@@ -52,7 +52,7 @@
 #'     type = 'continuous'
 #' )
 #'
-#' @import parallel foreach doParallel doRNG nimble
+#' @import parallel nimble
 #'
 #' @export
 learn <- function(
@@ -225,31 +225,29 @@ learn <- function(
 #### Requested parallel processing
     ## NB: doesn't make sense to have more cores than chains
     closeexit <- FALSE
-    if (isTRUE(parallel)) {
+    if ('cluster' %in% class(parallel)){
+        ## user provides a cluster object
+        cl <- parallel
+    } else if (isTRUE(parallel)) {
         ## user wants us to register a parallel backend
         ## and to choose number of cores
         ncores <- max(1,
             min(nchains, floor(parallel::detectCores() / 2)))
         cl <- parallel::makeCluster(ncores)
-        doParallel::registerDoParallel(cl)
+        ## doParallel::registerDoParallel(cl)
         closeexit <- TRUE
-        cat('Registered', foreach::getDoParName(),
-            'with', foreach::getDoParWorkers(), 'workers\n\n')
+        cat('Registered', ncores, 'workers\n\n')
     } else if (isFALSE(parallel)) {
         ## user wants us not to use parallel cores
         ncores <- 1
-        foreach::registerDoSEQ()
-    } else if (is.null(parallel)) {
-        ## user wants us not to do anything
-        ncores <- foreach::getDoParWorkers()
-    } else if (is.finite(parallel) && parallel >= 1) {
+        cl <- parallel::makeCluster(ncores)
+    } else if (is.numeric(parallel) &&
+                   is.finite(parallel) && parallel >= 1) {
         ## user wants us to register 'parallel' # of cores
         ncores <- min(nchains, parallel)
         cl <- parallel::makeCluster(ncores)
-        doParallel::registerDoParallel(cl)
         closeexit <- TRUE
-        cat('Registered', foreach::getDoParName(),
-            'with', foreach::getDoParWorkers(), 'workers\n\n')
+        cat('Registered', ncores, 'workers\n\n')
     } else {
         stop("Unknown value of argument 'parallel'")
     }
@@ -258,11 +256,8 @@ learn <- function(
     if(closeexit) {
         closecoresonexit <- function(){
             cat('\nClosing connections to cores.\n')
-            foreach::registerDoSEQ()
             parallel::stopCluster(cl)
             ## parallel::setDefaultCluster(NULL)
-            env <- foreach:::.foreachGlobals
-            rm(list=ls(name=env), pos=env)
         }
         on.exit(closecoresonexit())
     }
@@ -278,12 +273,6 @@ learn <- function(
 
     ## Parallellisation is done in any case,
     ## so that objects from the Monte Carlo simulation are not left in memory.
-    ## Done now in case ncores was reduced because of nchains argument
-    if (ncores < 1) {
-        `%dochains%` <- `%do%`
-    } else {
-        `%dochains%` <- `%dorng%`
-    }
 
     ## Make sure 'startupMCiterations' is at least equal to 2
     startupMCiterations <- max(2, startupMCiterations)
@@ -510,7 +499,7 @@ learn <- function(
     ## Save initial RNG seed in case needed by user
     saveRDS(currentseed,
         file = file.path(dirname, paste0('rng_seed', dashnameroot, '.rds')))
-
+    parallel::clusterSetRNGStream(cl = cl, currentseed)
 #### number of checkpoints for Monte Carlo stopping rule
     if(is.null(ncheckpoints)) {
         ncheckpoints <- nrow(auxmetadata) + 1
@@ -947,12 +936,19 @@ learn <- function(
 #### BEGINNING OF FOREACH LOOP OVER CORES
 #####################################################
     ## Parallel execution over cores
-    chaininfo <- foreach(acore = 1:ncores,
-        .combine = rbind,
-        .inorder = FALSE,
-        ##.packages = c('predict'),
-        .noexport = c('data')
-    ) %dochains% {
+    ## parallel:clusterExport(cl = cl,
+    ##     varlist = c(
+    ##         'dirname',
+    ##         'dashnameroot',
+    ##         'avoidzeroW',
+    ##         'constants',
+    ##         'initmethod'
+    ##     ),
+    ##     envir = .GlobalEnv)
+    chaininfo <- parallel::parLapply(
+        cl = cl,
+        X = 1:ncores,
+        fun = function(acore) {
         ## Create log file
         ## Redirect diagnostics and service messages there
         outcon <- file(file.path(dirname,
@@ -962,7 +958,7 @@ learn <- function(
         sink(file = outcon, type = 'output')
         sink(file = outcon, type = 'message')
         ## Leave this FALSE to bypass message bug in doParallel
-        if(FALSE){
+        if(TRUE){
             closecons <- function(){
                 ## Close output to log files
                 flush(outcon)
@@ -2188,7 +2184,7 @@ learn <- function(
                 }
             )
             ##
-            neworder <- foreach(var = samplerorder, .combine = c) %do% {
+            neworder <- unlist(lapply(samplerorder, function(var){
                 grep(
                     paste0('^', var, '(\\[.+\\])*$'),
                     sapply(confnimble$getSamplers(), function(x) {
@@ -2199,7 +2195,7 @@ learn <- function(
                         }
                     })
                 )
-            }
+            }))
             ## ## Uncomment for debugging
             ## cat('\nNEW ORDER',neworder,'\n')
             confnimble$setSamplerExecutionOrder(c(setdiff(
@@ -2843,7 +2839,8 @@ learn <- function(
             MCtime = difftime(Sys.time(), MCtimestart, units = 'secs'),
             usedmem = max(usedmem, sum(gc()[,6]))
         )
-    }
+        })
+    chaininfo <- do.call(rbind, chaininfo)
     ## restore output to std
     ## flush(outconmain)
     ## sink(file = NULL, type = 'output')
@@ -2884,7 +2881,7 @@ learn <- function(
         mapply(
             function(xx, yy) {
                 temp <- c(xx, yy)
-                dx <- dim(xx)[-length(dim(xx))]
+                dx <- dim(yy)[-length(dim(yy))]
                 dim(temp) <- c(dx, length(temp) / prod(dx))
                 temp
             },
@@ -2892,15 +2889,51 @@ learn <- function(
             SIMPLIFY = FALSE
         )
     }
-    mcsamples <- foreach(chainnumber = 1:nchains,
-        .combine = joinmc, .multicombine = FALSE) %do% {
-            padchainnumber <- sprintf(paste0('%0', nchar(nchains), 'i'), chainnumber)
 
-            readRDS(file = file.path(dirname,
+## mcsamples0 <- foreach(chainnumber = 1:nchains,
+##         .combine = joinmc, .multicombine = FALSE) %do% {
+##             padchainnumber <- sprintf(paste0('%0', nchar(nchains), 'i'), chainnumber)
+## 
+##             readRDS(file = file.path(dirname,
+##                 paste0('___mcsamples', dashnameroot, '--',
+##                     padchainnumber, '.rds')
+##             ))
+##         }
+
+    for(chainnumber in 1:nchains){
+        padchainnumber <- sprintf(paste0('%0', nchar(nchains), 'i'), chainnumber)
+        if(chainnumber == 1){
+            mcsamples <- readRDS(file = file.path(dirname,
                 paste0('___mcsamples', dashnameroot, '--',
                     padchainnumber, '.rds')
             ))
+        } else {
+            mcsamples <- joinmc(mcsamples,
+                readRDS(file = file.path(dirname,
+                    paste0('___mcsamples', dashnameroot, '--',
+                        padchainnumber, '.rds')
+                ))
+            )
         }
+    }
+
+    ## chainnumber <- 1
+    ## padchainnumber <- sprintf(paste0('%0', nchar(nchains), 'i'), chainnumber)
+    ## mcsamples <- readRDS(file = file.path(dirname,
+    ##             paste0('___mcsamples', dashnameroot, '--',
+    ##                 padchainnumber, '.rds')
+    ## ))
+    ## if(nchains > 1){
+    ##     for(chainnumber in 2:nchains){
+    ##         padchainnumber <- sprintf(paste0('%0', nchar(nchains), 'i'), chainnumber)
+    ##         mcsamples <- joinmc(mcsamples,
+    ##             readRDS(file = file.path(dirname,
+    ##             paste0('___mcsamples', dashnameroot, '--',
+    ##                 padchainnumber, '.rds')
+    ##             ))
+    ##         )
+    ##     }
+    ## }
 
 #### Save all final parameters together with the aux-metadata in one file
     saveRDS(c(mcsamples,
@@ -3100,18 +3133,18 @@ learn <- function(
     ## close(outconmain)
 
     ## Close connections
-    invisible(foreach(acore = 1:ncores) %dochains% {
-        outcon <- file(file.path(dirname,
-            paste0('log', dashnameroot,
-                '-', acore, '.log')
-        ), open = 'a')
-        sink(file = outcon, type = 'output')
-        sink(file = outcon, type = 'message')
-        flush(outcon)
-        sink(file = NULL, type = 'output')
-        sink(file = NULL, type = 'message')
-        close(outcon)
-    })
+    ## invisible(foreach(acore = 1:ncores) %dochains% {
+    ##     outcon <- file(file.path(dirname,
+    ##         paste0('log', dashnameroot,
+    ##             '-', acore, '.log')
+    ##     ), open = 'a')
+    ##     sink(file = outcon, type = 'output')
+    ##     sink(file = outcon, type = 'message')
+    ##     flush(outcon)
+    ##     sink(file = NULL, type = 'output')
+    ##     sink(file = NULL, type = 'message')
+    ##     close(outcon)
+    ## })
 
 
     totalfinaltime <- difftime(Sys.time(), timestart0, units = 'auto')

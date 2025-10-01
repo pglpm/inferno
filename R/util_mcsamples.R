@@ -1,4 +1,5 @@
-#### Eliminate samples from a 'learnt' object
+#' Eliminate samples from a 'learnt' object
+#'
 #' @keywords internal
 mcsubset <- function(learnt, subsamples) {
     lapply(learnt, function(xx) {
@@ -11,13 +12,14 @@ mcsubset <- function(learnt, subsamples) {
     })
 }
 
-#### Concatenate mcsample objects
+#' Concatenate mcsample objects
+#'
 #' @keywords internal
 mcjoin <- function(x, y){
     mapply(
         function(xx, yy) {
             temp <- c(xx, yy)
-            dx <- dim(xx)[-length(dim(xx))]
+            dx <- dim(yy)[-length(dim(yy))]
             dim(temp) <- c(dx, length(temp) / prod(dx))
             temp
         },
@@ -26,7 +28,8 @@ mcjoin <- function(x, y){
     )
 }
 
-#### Bind 3D arrays by first dimension
+#' Bind 3D arrays by first dimension
+#'
 #' @keywords internal
 learnbind <- function(x, y) {
     if(is.null(x)) {
@@ -49,7 +52,8 @@ learnbind <- function(x, y) {
 ## }
 
 
-#### Cumulative sum along first dimension
+#' Cumulative sum along first dimension
+#'
 #' @keywords internal
 rowcumsum <- function(x){
     for(i in 2:(dim(x)[1])){
@@ -58,7 +62,8 @@ rowcumsum <- function(x){
     x
 }
 
-#### Inverseumulative sum along first dimension
+#' Inverse cumulative sum along first dimension
+#'
 #' @keywords internal
 rowinvcumsum <- function(x){
     for(i in (dim(x)[1] - 1):1){
