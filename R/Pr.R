@@ -1,6 +1,6 @@
 #' Calculate posterior probabilities
 #'
-#' This function calculates the posteior probability `Pr(Y | X, data)`, where `Y` and `X` are two (non overlapping) sets of joint variate values. If `X` is omitted or `NULL`, then the posterior probability `Pr(Y | data)` is calculated. The function also gives quantiles about the possible variability of the probability `Pr(Y | X, newdata, data)` that we could have if more learning data were provided, as well as a number of samples of the possible values of such probabilities. If several joint values are given for `Y` or `X`, the function will create a 2D grid of results for all possible compbinations of the given `Y` and `X` values. This function also allows for base-rate or other prior-probability corrections: If a prior (for instance, a base rate) for `Y` is given, the function will calculate the `Pr(Y | X, data, prior)` from `Pr(X | Y, data)` and the prior by means of Bayes's theorem. Each variate in each argument `Y`, `X` can be specified either as a point-value `Y = y` or as a left-open interval `Y ≤ y` or as a right-open interval `Y ≥ y`, through the argument `tails`.
+#' This function calculates the posterior probability `Pr(Y | X, data)`, where `Y` and `X` are two (non overlapping) sets of joint variate values. If `X` is omitted or `NULL`, then the posterior probability `Pr(Y | data)` is calculated. The function also gives quantiles about the possible variability of the probability `Pr(Y | X, newdata, data)` that we could have if more learning data were provided, as well as a number of samples of the possible values of such probabilities. If several joint values are given for `Y` or `X`, the function will create a 2D grid of results for all possible compbinations of the given `Y` and `X` values. This function also allows for base-rate or other prior-probability corrections: If a prior (for instance, a base rate) for `Y` is given, the function will calculate the `Pr(Y | X, data, prior)` from `Pr(X | Y, data)` and the prior by means of Bayes's theorem. Each variate in each argument `Y`, `X` can be specified either as a point-value `Y = y` or as a left-open interval `Y ≤ y` or as a right-open interval `Y ≥ y`, through the argument `tails`.
 #'
 #' @param Y Matrix or data.table: set of values of variates of which we want
 #'   the joint probability of. One variate per column, one set of values per row.
@@ -236,42 +236,29 @@ Pr <- function(
 
     ## determine if parallel computation is possible and needed
     if (ncores < 2) {
-        `%dox%` <- `%do%`
-        `%doy%` <- `%do%`
+        `%doyx%` <- `%do%`
     } else {
-        if(nX >= 2 * ncores) {
-            `%dox%` <- `%dopar%`
-        } else {
-            ## no point using more parallel cores than X values
-            `%dox%` <- `%do%`
-        }
-        ##
-        if(nY * nX >= 2 * ncores) {
-            `%doy%` <- `%dopar%`
-        } else {
-            ## no point using more parallel cores than Y values
-            `%doy%` <- `%do%`
-        }
+        `%doyx%` <- `%dopar%`
     }
     dosamples <- !is.null(nsamples)
 
 
-#### First calculate and save arrays for X values:
+#### tmp dir where to save X and Y objects
+    temporarydir <- tempdir()
+
+
+#### Calculate and save arrays for X values:
     if (is.null(X)) {
         lprobX <- log(learnt$W)
         usememory <- FALSE
     } else {
         ## Construction of the arguments for util_lprobs, X argument
-
         lpargs <- util_lprobsargs(
             x = X,
             auxmetadata = auxmetadata,
             learnt = learnt,
             tails = tails
         )
-
-        ## create unique dir where to save X objects
-        temporarydir <- tempdir()
 
         invisible(foreach(
             jj = seq_len(nX),
@@ -282,7 +269,7 @@ Pr <- function(
             xVB = lpargs$xVB,
             .combine = `c`,
             .inorder = TRUE
-        ) %dox% {
+        ) %doyx% {
             lprobX <- c(log(learnt$W)) +
                 util_lprobs(
                     nV0 = lpargs$nV0,
@@ -319,15 +306,10 @@ Pr <- function(
         })
     }
 
-#### Now calculate for each Y value, combining with each X value
-    ## transformation of inputs
 
-    lpargs <- util_lprobsargs(
-        x = Y,
-        auxmetadata = auxmetadata,
-        learnt = learnt,
-        tails = tails
-    )
+#### Calculate and save arrays for Y values:
+
+    ## Construction of the arguments for util_lprobs, Y argument
     ## jacobians <- exp(-rowSums(
     ##     log(vtransform(Y,
     ##         auxmetadata = auxmetadata,
@@ -335,25 +317,23 @@ Pr <- function(
     ##     na.rm = TRUE
     ## ))
 
-    keys <- c('values', 'quantiles', 'samples', 'values.MCaccuracy', 'quantiles.MCaccuracy')
-    ##
-    combfnr <- function(...){setNames(do.call(mapply,
-        c(FUN = `rbind`, lapply(X = list(...), FUN = `[`, keys, drop = FALSE))),
-        keys)}
-    ## combfnc <- function(...){setNames(do.call(mapply, c(FUN=cbind, lapply(list(...), `[`, keys))), keys)}
-        out <- foreach(
-        jj = seq_len(nX),
-        .combine = `combfnr`,
+    lpargs <- util_lprobsargs(
+        x = Y,
+        auxmetadata = auxmetadata,
+        learnt = learnt,
+        tails = tails
+    )
+
+    invisible(foreach(
+        jj = seq_len(nY),
+        xV0 = lpargs$xV0,
+        xV1 = lpargs$xV1,
+        xV2 = lpargs$xV2,
+        xVN = lpargs$xVN,
+        xVB = lpargs$xVB,
+        .combine = `c`,
         .inorder = TRUE
-    ) %:% foreach(
-            xV0 = lpargs$xV0,
-            xV1 = lpargs$xV1,
-            xV2 = lpargs$xV2,
-            xVN = lpargs$xVN,
-            xVB = lpargs$xVB,
-            .combine = `combfnr`,
-            .inorder = TRUE
-    ) %doy% {
+    ) %doyx% {
         lprobY <- util_lprobs(
             nV0 = lpargs$nV0,
             V0mean = lpargs$V0mean,
@@ -376,9 +356,38 @@ Pr <- function(
             xVB = c(xVB)
         ) # rows=components, columns=samples
 
+        saveRDS(lprobY,
+            file.path(temporarydir,
+                paste0('__Y', jj, '__.rds'))
+        )
+        NULL
+    })
+
+
+
+    keys <- c('values', 'quantiles', 'samples', 'values.MCaccuracy', 'quantiles.MCaccuracy')
+    ##
+    combfnr <- function(...){setNames(do.call(mapply,
+        c(FUN = `rbind`, lapply(X = list(...), FUN = `[`, keys, drop = FALSE))),
+        keys)}
+    ## combfnc <- function(...){setNames(do.call(mapply, c(FUN=cbind, lapply(list(...), `[`, keys))), keys)}
+
+    out <- foreach(
+        jx = seq_len(nX),
+        .combine = `combfnr`,
+        .inorder = TRUE
+    ) %:% foreach(
+        jy = seq_len(nY),
+        .combine = `combfnr`,
+        .inorder = TRUE
+    ) %doyx% {
+
         if(usememory) {
             lprobX <- readRDS(file.path(temporarydir,
-                paste0('__X', jj, '__.rds')
+                paste0('__X', jx, '__.rds')
+            ))
+            lprobY <- readRDS(file.path(temporarydir,
+                paste0('__Y', jy, '__.rds')
             ))
         }
 
@@ -408,6 +417,19 @@ Pr <- function(
             ## error = sd(FF, na.rm = TRUE)/sqrt(nmcsamples)
         )
     } # End foreach over Y and X
+
+    ## clean temp files
+    if(usememory) {
+        unlink(x = c(
+            sapply(seq_len(nX), function(jx){
+                file.path(temporarydir, paste0('__X', jx, '__.rds'))
+            }),
+            sapply(seq_len(nY), function(jy){
+                file.path(temporarydir, paste0('__Y', jy, '__.rds'))
+            })
+        ))
+    }
+
 
     if(is.null(priorY)){
         y <- Y
