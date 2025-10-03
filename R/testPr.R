@@ -253,57 +253,21 @@ testPr <- function(
         usememory <- FALSE
     } else {
         ## Construction of the arguments for util_lprobs, X argument
-        lpargs <- util_lprobsargs(
+        lpargs <- util_lprobsargsyx(
             x = X,
             auxmetadata = auxmetadata,
             learnt = learnt,
             tails = tails
         )
 
-        invisible(foreach(
-            jj = seq_len(nX),
-            xV0 = lpargs$xV0,
-            xV1 = lpargs$xV1,
-            xV2 = lpargs$xV2,
-            xVN = lpargs$xVN,
-            xVB = lpargs$xVB,
-            .combine = `c`,
-            .inorder = TRUE
-        ) %doyx% {
-            lprobX <- c(log(learnt$W)) +
-                util_lprobs(
-                    nV0 = lpargs$nV0,
-                    V0mean = lpargs$V0mean,
-                    V0sd = lpargs$V0sd,
-                    xV0 = xV0,
-                    nV1 = lpargs$nV1,
-                    V1mean = lpargs$V1mean,
-                    V1sd = lpargs$V1sd,
-                    xV1 = xV1,
-                    nV2 = lpargs$nV2,
-                    V2mean = lpargs$V2mean,
-                    V2sd = lpargs$V2sd,
-                    V2steps = lpargs$V2steps,
-                    xV2 = xV2,
-                    nVN = lpargs$nVN,
-                    VNprobs = lpargs$VNprobs,
-                    xVN = xVN,
-                    nVB = lpargs$nVB,
-                    VBprobs = lpargs$VBprobs,
-                    xVB = c(xVB)
-                ) # rows=components, columns=samples
-
-            ## ## seems to lead to garbage for extreme values
-            ## lprobX <- apply(lprobX, 2, function(xx) {
-            ##     xx - max(xx[is.finite(xx)])
-            ## })
-
-            saveRDS(lprobX,
-                file.path(temporarydir,
-                    paste0('__X', jj, '__.rds'))
-            )
-            NULL
-        })
+        invisible(parLapply(cl = cl,
+            X = lpargs$xVs,
+            fun = util_lprobsave,
+            params = lpargs$params,
+            logW = c(log(learnt$W)),
+            temporarydir = temporarydir,
+            lab = '__X'
+        ))
     }
 
 
@@ -324,46 +288,14 @@ testPr <- function(
         tails = tails
     )
 
-    invisible(foreach(
-        jj = seq_len(nY),
-        xV0 = lpargs$xV0,
-        xV1 = lpargs$xV1,
-        xV2 = lpargs$xV2,
-        xVN = lpargs$xVN,
-        xVB = lpargs$xVB,
-        .combine = `c`,
-        .inorder = TRUE
-    ) %doyx% {
-        lprobY <- util_lprobs(
-            nV0 = lpargs$nV0,
-            V0mean = lpargs$V0mean,
-            V0sd = lpargs$V0sd,
-            xV0 = xV0,
-            nV1 = lpargs$nV1,
-            V1mean = lpargs$V1mean,
-            V1sd = lpargs$V1sd,
-            xV1 = xV1,
-            nV2 = lpargs$nV2,
-            V2mean = lpargs$V2mean,
-            V2sd = lpargs$V2sd,
-            V2steps = lpargs$V2steps,
-            xV2 = xV2,
-            nVN = lpargs$nVN,
-            VNprobs = lpargs$VNprobs,
-            xVN = xVN,
-            nVB = lpargs$nVB,
-            VBprobs = lpargs$VBprobs,
-            xVB = c(xVB)
-        ) # rows=components, columns=samples
-
-        saveRDS(lprobY,
-            file.path(temporarydir,
-                paste0('__Y', jj, '__.rds'))
-        )
-        NULL
-    })
-
-
+    invisible(parLapply(cl = cl,
+        X = lpargs$xVs,
+        fun = util_lprobsave,
+        params = lpargs$params,
+        logW = 0,
+        temporarydir = temporarydir,
+        lab = '__Y'
+    ))
 
     keys <- c('values', 'quantiles', 'samples', 'values.MCaccuracy', 'quantiles.MCaccuracy')
     ##

@@ -1,19 +1,9 @@
 #' Calculate collection of log-probabilities for different components and samples
-#'
-#' @param X Numerical matrix: transformed variates
-#' @param learnt: Monte-Carlo-output object
-#' @param nR etc: Parameters containing appropriate indices
-#'
 #' @return Matrix with as many rows as components and as many cols as samples
 #' @keywords internal
-util_lprobs <- function(
-    nV0, V0mean, V0sd, xV0,
-    nV1, V1mean, V1sd, xV1,
-    nV2, V2mean, V2sd, V2steps, xV2,
-    nVN, VNprobs, xVN,
-    nVB, VBprobs, xVB
-) {
-    out <- 0
+util_lprobsave <- function(xVs, params, logW = 0, temporarydir, lab) {
+    with(c(xVs, params), {
+    out <- logW
     ## point probability density
     if(nV0) {
         out <- out + colSums(
@@ -63,5 +53,9 @@ util_lprobs <- function(
             na.rm = TRUE, dims = 1)
     }
 
-    out
+    saveRDS(logW + out,
+        file.path(temporarydir,
+            paste0(lab, ii, '__.rds'))
+    )
+    })
 }
