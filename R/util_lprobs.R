@@ -13,6 +13,7 @@ util_lprobs <- function(
     nVN, VNprobs, xVN,
     nVB, VBprobs, xVB
 ) {
+    print('***call***')
     out <- 0
     ## point probability density
     if(nV0) {
