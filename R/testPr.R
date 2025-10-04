@@ -251,7 +251,7 @@ testPr <- function(
 
         invisible(parLapply(cl = cl,
             X = lpargs$xVs,
-            fun = util_lprobsave,
+            fun = util_lprobsbase,
             params = lpargs$params,
             logW = c(log(learnt$W)),
             temporarydir = temporarydir,
@@ -279,7 +279,7 @@ testPr <- function(
 
     invisible(parLapply(cl = cl,
         X = lpargs$xVs,
-        fun = util_lprobsave,
+        fun = util_lprobsbase,
         params = lpargs$params,
         logW = 0,
         temporarydir = temporarydir,
@@ -294,7 +294,7 @@ testPr <- function(
         keys)}
     ## combfnc <- function(...){setNames(do.call(mapply, c(FUN=cbind, lapply(list(...), `[`, keys))), keys)}
 
-    out <- parApply(cl = cl,
+    out <- combfnr(parApply(cl = cl,
             X = expand.grid(jy = seq_len(nY), jx = seq_len(nX)),
             MARGIN = 1,
             FUN = util_combineYX,
@@ -302,8 +302,7 @@ testPr <- function(
             doquantiles = doquantiles, quantiles = quantiles,
             dosamples = dosamples, nsamples = nsamples,
             Qerror = Qerror
-        )
-    out <- combfnr(out)
+        ))
 
     ## clean temp files
     if(usememory) {

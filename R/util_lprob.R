@@ -417,10 +417,15 @@ util_lprobsargsyx <- function(
     )
 }
 
+
+
 #' Calculate collection of log-probabilities for different components and samples
 #' @return Matrix with as many rows as components and as many cols as samples
 #' @keywords internal
-util_lprobsave <- function(xVs, params, logW = 0, temporarydir, lab) {
+util_lprobsbase <- function(
+    xVs, params, logW,
+    temporarydir = NULL, lab = ''
+) {
     with(c(xVs, params), {
     out <- logW
     ## point probability density
@@ -472,9 +477,73 @@ util_lprobsave <- function(xVs, params, logW = 0, temporarydir, lab) {
             na.rm = TRUE, dims = 1)
     }
 
-    saveRDS(out,
-        file.path(temporarydir,
-            paste0(lab, ii, '__.rds'))
-    )
+    if(is.null(temporarydir)){
+        out
+    }else{
+        saveRDS(out,
+            file.path(temporarydir,
+                paste0(lab, ii, '__.rds'))
+        )
+    }
     })
+}
+
+
+
+## #' Calculate collection of log-probabilities for different components and samples
+## #' @return Matrix with as many rows as components and as many cols as samples
+## #' @keywords internal
+## util_lprobssave <- function(xVs, params, logW, temporarydir, lab) {
+## 
+##     out <- util_lprobsbase(xVs = xVs, params = params, logW = logW)
+## 
+##     saveRDS(out,
+##         file.path(temporarydir,
+##             paste0(lab, xVs$ii, '__.rds'))
+##     )
+## }
+
+
+
+#' Calculate pairs of log-probabilities for mutualinfo()
+#' @keywords internal
+util_lprobsmi <- function(xVs, params1, params2, lWnorm, lW, denorm) {
+
+    lprobY1 <- util_lprobsbase(xVs = xVs[1:6], params = params1, logW = 0)
+    lprobY2 <- util_lprobsbase(xVs = xVs[7:12], params = params2, logW = 0)
+
+    celWnorm <- colSums(exp(lWnorm))
+
+### Construct probabilities from lprobY1, lprobY2
+    lpY1and2 <- log(mean(
+        colSums(exp(lprobY1 + lprobY2 + lWnorm)) / celWnorm,
+        na.rm = TRUE))
+
+    lpY1 <- log(mean(
+        colSums(exp(lprobY1 + lWnorm)) / celWnorm,
+        na.rm = TRUE))
+
+    lpY2 <- log(mean(
+        colSums(exp(lprobY2 + lWnorm)) / celWnorm,
+        na.rm = TRUE))
+
+    lprobnorm <- denorm(lprobY2 + lW)
+    lpY1given2 <- log(mean(
+        colSums(exp(lprobY1 + lprobnorm)) / colSums(exp(lprobnorm)),
+        na.rm = TRUE))
+
+    lprobnorm <- denorm(lprobY1 + lW)
+    lpY2given1 <- log(mean(
+        colSums(exp(lprobY2 + lprobnorm)) / colSums(exp(lprobnorm)),
+        na.rm = TRUE))
+
+    mi <- lpY1and2 - lpY1 - lpY2
+    c(
+        MI = mi,
+        CondEn12 = -lpY1given2,
+        CondEn21 = -lpY2given1,
+        En1 = -lpY1,
+        En2 = -lpY2
+        ## MIalt = (mi + lpY1given2 - lpY1 + lpY2given1 - lpY2) / 3,
+    )
 }

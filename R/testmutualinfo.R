@@ -52,31 +52,29 @@ testmutualinfo <- function(
 #### Requested parallel processing
     ## NB: doesn't make sense to have more cores than chains
     closeexit <- FALSE
-    if (isTRUE(parallel)) {
+    if ('cluster' %in% class(parallel)){
+        ## user provides a cluster object
+        cl <- parallel
+    } else if (isTRUE(parallel)) {
         ## user wants us to register a parallel backend
         ## and to choose number of cores
         ncores <- max(1,
             floor(parallel::detectCores() / 2))
         cl <- parallel::makeCluster(ncores)
-        doParallel::registerDoParallel(cl)
+        ## doParallel::registerDoParallel(cl)
         closeexit <- TRUE
-        if(!silent){cat('Registered', foreach::getDoParName(),
-            'with', foreach::getDoParWorkers(), 'workers\n')}
+        cat('Registered', capture.output(print(cl)), '\n\n')
     } else if (isFALSE(parallel)) {
         ## user wants us not to use parallel cores
         ncores <- 1
-        foreach::registerDoSEQ()
-    } else if (is.null(parallel)) {
-        ## user wants us not to do anything
-        ncores <- foreach::getDoParWorkers()
-    } else if (is.finite(parallel) && parallel >= 1) {
-        ## user wants us to register 'parallal' # of cores
+        cl <- parallel::makeCluster(ncores)
+    } else if (is.numeric(parallel) &&
+                   is.finite(parallel) && parallel >= 1) {
+        ## user wants us to register 'parallel' # of cores
         ncores <- parallel
         cl <- parallel::makeCluster(ncores)
-        doParallel::registerDoParallel(cl)
         closeexit <- TRUE
-        if(!silent){cat('Registered', foreach::getDoParName(),
-            'with', foreach::getDoParWorkers(), 'workers\n')}
+        cat('Registered', capture.output(print(cl)), '\n\n')
     } else {
         stop("Unknown value of argument 'parallel'")
     }
@@ -84,21 +82,11 @@ testmutualinfo <- function(
     ## Close parallel connections if any were opened
     if(closeexit) {
         closecoresonexit <- function(){
-            if(!silent){cat('\nClosing connections to cores.\n')}
-            foreach::registerDoSEQ()
+            cat('\nClosing connections to cores.\n')
             parallel::stopCluster(cl)
             ## parallel::setDefaultCluster(NULL)
-            env <- foreach:::.foreachGlobals
-            rm(list=ls(name=env), pos=env)
         }
         on.exit(closecoresonexit())
-    }
-
-    ## determine if parallel computation is possible and needed
-    if (ncores < 2) {
-        `%dochains%` <- `%do%`
-    } else {
-        `%dochains%` <- `%dopar%`
     }
 
     ## Extract Monte Carlo output & aux-metadata
@@ -246,35 +234,19 @@ testmutualinfo <- function(
     if(is.null(X)){
         lW <- log(learnt$W)
     } else {
-        lpargs <- util_lprobsargs(
+        lpargs <- util_lprobsargsyx(
             x = X,
             auxmetadata = auxmetadata,
             learnt = learnt,
             tails = tails
         )
 
-        lW <- log(learnt$W) +
-            util_lprobs(
-                nV0 = lpargs$nV0,
-                V0mean = lpargs$V0mean,
-                V0sd = lpargs$V0sd,
-                xV0 = lpargs$xV0,
-                nV1 = lpargs$nV1,
-                V1mean = lpargs$V1mean,
-                V1sd = lpargs$V1sd,
-                xV1 = lpargs$xV1,
-                nV2 = lpargs$nV2,
-                V2mean = lpargs$V2mean,
-                V2sd = lpargs$V2sd,
-                V2steps = lpargs$V2steps,
-                xV2 = lpargs$xV2,
-                nVN = lpargs$nVN,
-                VNprobs = lpargs$VNprobs,
-                xVN = lpargs$xVN,
-                nVB = lpargs$nVB,
-                VBprobs = lpargs$VBprobs,
-                xVB = c(lpargs$xVB)
-            ) # rows=components, columns=samples
+        lW <- util_lprobsbase(
+            xVs = lpargs$xVs[[1]],
+            params = lpargs$params,
+            logW =  log(learnt$W)
+        ) # rows=components, columns=samples
+
     } # end definition of lW if non-null X
 
 
@@ -434,110 +406,17 @@ testmutualinfo <- function(
         tails = NULL
     )
 
-    out <- parLapply(cl = cl,
-        X = lpargs$xVs,
-        fun = util_lprobsave,
-        params = lpargs$params,
-        logW = 0,
-        temporarydir = temporarydir,
-        lab = '__Y'
-    )
-    out <- foreach(
-            x1V0 = lpargs1$xV0,
-            x1V1 = lpargs1$xV1,
-            x1V2 = lpargs1$xV2,
-            x1VN = lpargs1$xVN,
-            x1VB = lpargs1$xVB,
-            ##
-            x2V0 = lpargs2$xV0,
-            x2V1 = lpargs2$xV1,
-            x2V2 = lpargs2$xV2,
-            x2VN = lpargs2$xVN,
-            x2VB = lpargs2$xVB,
-            .combine = rbind,
-            .inorder = TRUE
-        ) %dochains% {
-### lprobY2
-            lprobY2 <- util_lprobs(
-                    nV0 = lpargs2$nV0,
-                    V0mean = lpargs2$V0mean,
-                    V0sd = lpargs2$V0sd,
-                    xV0 = x2V0,
-                    nV1 = lpargs2$nV1,
-                    V1mean = lpargs2$V1mean,
-                    V1sd = lpargs2$V1sd,
-                    xV1 = x2V1,
-                    nV2 = lpargs2$nV2,
-                    V2mean = lpargs2$V2mean,
-                    V2sd = lpargs2$V2sd,
-                    V2steps = lpargs2$V2steps,
-                    xV2 = x2V2,
-                    nVN = lpargs2$nVN,
-                    VNprobs = lpargs2$VNprobs,
-                    xVN = x2VN,
-                    nVB = lpargs2$nVB,
-                    VBprobs = lpargs2$VBprobs,
-                    xVB = c(x2VB)
-            ) # rows=components, columns=samples
-
-### lprobY1
-            lprobY1 <- util_lprobs(
-                    nV0 = lpargs1$nV0,
-                    V0mean = lpargs1$V0mean,
-                    V0sd = lpargs1$V0sd,
-                    xV0 = x1V0,
-                    nV1 = lpargs1$nV1,
-                    V1mean = lpargs1$V1mean,
-                    V1sd = lpargs1$V1sd,
-                    xV1 = x1V1,
-                    nV2 = lpargs1$nV2,
-                    V2mean = lpargs1$V2mean,
-                    V2sd = lpargs1$V2sd,
-                    V2steps = lpargs1$V2steps,
-                    xV2 = x1V2,
-                    nVN = lpargs1$nVN,
-                    VNprobs = lpargs1$VNprobs,
-                    xVN = x1VN,
-                    nVB = lpargs1$nVB,
-                    VBprobs = lpargs1$VBprobs,
-                    xVB = c(x1VB)
-                ) # rows=components, columns=samples
-
-            celWnorm <- colSums(exp(lWnorm))
-
-### Construct probabilities from lprobY1, lprobY2
-            lpY1and2 <- log(mean(
-                colSums(exp(lprobY1 + lprobY2 + lWnorm)) / celWnorm,
-                na.rm = TRUE))
-
-            lpY1 <- log(mean(
-                colSums(exp(lprobY1 + lWnorm)) / celWnorm,
-                na.rm = TRUE))
-
-            lpY2 <- log(mean(
-                colSums(exp(lprobY2 + lWnorm)) / celWnorm,
-                na.rm = TRUE))
-
-            lprobnorm <- denorm(lprobY2 + lW)
-            lpY1given2 <- log(mean(
-                colSums(exp(lprobY1 + lprobnorm)) / colSums(exp(lprobnorm)),
-                na.rm = TRUE))
-
-            lprobnorm <- denorm(lprobY1 + lW)
-            lpY2given1 <- log(mean(
-                colSums(exp(lprobY2 + lprobnorm)) / colSums(exp(lprobnorm)),
-                na.rm = TRUE))
-
-            mi <- lpY1and2 - lpY1 - lpY2
-            c(
-                MI = mi,
-                CondEn12 = -lpY1given2,
-                CondEn21 = -lpY2given1,
-                En1 = -lpY1,
-                En2 = -lpY2
-                ## MIalt = (mi + lpY1given2 - lpY1 + lpY2given1 - lpY2) / 3,
-            )
-        } # End foreach loop
+    out <- do.call(rbind,
+        parLapply(cl = cl,
+        X = mapply(c, lpargs1$xVs, lpargs2$xVs, SIMPLIFY = FALSE),
+        fun = util_lprobsmi,
+        params1 = lpargs1$params,
+        params2 = lpargs2$params,
+        lWnorm = lWnorm,
+        lW = lW,
+        denorm = denorm
+        )
+        )
 
     ## Jacobian factors
     logjacobians1 <- rowSums(
