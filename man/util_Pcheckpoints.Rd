@@ -12,7 +12,7 @@ util_Pcheckpoints(testdata, learnt)
 \item{learnt}{mcsamples object}
 }
 \value{
-The joint frequencies of Y correspoinding to the Monte Carlo samples
+The joint frequencies of Y corresponding to the Monte Carlo samples
 }
 \description{
 Calculate joint frequencies for checkpoints in learn()

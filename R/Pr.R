@@ -239,7 +239,10 @@ Pr <- function(
 #### Calculate and save arrays for X values:
     if (is.null(X)) {
         lprobX <- log(learnt$W)
-        usememory <- FALSE
+        saveRDS(lprobX,
+            file.path(temporarydir,
+                paste0('__X', 1, '__.rds'))
+        )
     } else {
         ## Construction of the arguments for util_lprobs, X argument
         lpargs <- util_lprobsargsyx(
@@ -742,7 +745,10 @@ old_Pr <- function(
 #### Calculate and save arrays for X values:
     if (is.null(X)) {
         lprobX <- log(learnt$W)
-        usememory <- FALSE
+        saveRDS(lprobX,
+            file.path(temporarydir,
+                paste0('__X', 1, '__.rds'))
+        )
     } else {
         ## Construction of the arguments for util_lprobs, X argument
         lpargs <- util_lprobsargs(
