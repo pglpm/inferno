@@ -236,7 +236,7 @@ learn <- function(
         cl <- parallel::makeCluster(ncores)
         ## doParallel::registerDoParallel(cl)
         closeexit <- TRUE
-        cat('Registered', ncores, 'workers\n\n')
+        cat('Registered', capture.output(print(cl)), '\n\n')
     } else if (isFALSE(parallel)) {
         ## user wants us not to use parallel cores
         ncores <- 1
@@ -247,7 +247,7 @@ learn <- function(
         ncores <- min(nchains, parallel)
         cl <- parallel::makeCluster(ncores)
         closeexit <- TRUE
-        cat('Registered', ncores, 'workers\n\n')
+        cat('Registered', capture.output(print(cl)), '\n\n')
     } else {
         stop("Unknown value of argument 'parallel'")
     }
@@ -922,7 +922,7 @@ learn <- function(
     }
 
 #####################################################
-#### BEGINNING OF FOREACH LOOP OVER CORES
+#### BEGINNING OF PARALLEL LOOP OVER CORES
 #####################################################
     ## Parallel execution over cores
     ## parallel:clusterExport(cl = cl,
@@ -981,7 +981,7 @@ learn <- function(
     ## sink(file = NULL, type = 'output')
     ## sink(file = NULL, type = 'message')
 ############################################################
-#### END OF PARALLEL FOREACH OVER CORES
+#### END OF PARALLEL LOOP OVER CORES
 ############################################################
 
     maxusedcomponents <- max(chaininfo[, 'maxusedcomponents'])

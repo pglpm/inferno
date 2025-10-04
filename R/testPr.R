@@ -17,7 +17,7 @@
 #'
 #' @return A list of class `probability`, consisting of the elements `values`,  `quantiles` (possibly `NULL`), `samples` (possibly `NULL`), `values.MCaccuracy`, `quantiles.MCaccuracy` (possibly `NULL`), `Y`, `X`. Element `values`: a matrix with the probabilities P(Y|X,data,assumptions), for all combinations of values of `Y` (rows) and `X` (columns). Element `quantiles`: an array with the variability quantiles (3rd dimension of the array) for such probabilities. Element `samples`: an array with the variability samples (3rd dimension of the array) for such probabilities. Elements `values.MCaccuracy` and `quantiles.MCaccuracy`: arrays with the numerical accuracies (roughly speaking a standard deviation) of the Monte Carlo calculations for the `values` and `quantiles` elements. Elements `Y`, `X`: copies of the `Y` and `X` arguments.
 #'
-#' @import parallel foreach doParallel
+#' @import parallel
 #'
 #' @export
 testPr <- function(
@@ -42,31 +42,29 @@ testPr <- function(
 #### Requested parallel processing
     ## NB: doesn't make sense to have more cores than chains
     closeexit <- FALSE
-    if (isTRUE(parallel)) {
+    if ('cluster' %in% class(parallel)){
+        ## user provides a cluster object
+        cl <- parallel
+    } else if (isTRUE(parallel)) {
         ## user wants us to register a parallel backend
         ## and to choose number of cores
         ncores <- max(1,
             floor(parallel::detectCores() / 2))
         cl <- parallel::makeCluster(ncores)
-        doParallel::registerDoParallel(cl)
+        ## doParallel::registerDoParallel(cl)
         closeexit <- TRUE
-        if(!silent){cat('Registered', foreach::getDoParName(),
-            'with', foreach::getDoParWorkers(), 'workers\n')}
+        cat('Registered', capture.output(print(cl)), '\n\n')
     } else if (isFALSE(parallel)) {
         ## user wants us not to use parallel cores
         ncores <- 1
-        foreach::registerDoSEQ()
-    } else if (is.null(parallel)) {
-        ## user wants us not to do anything
-        ncores <- foreach::getDoParWorkers()
-    } else if (is.finite(parallel) && parallel >= 1) {
-        ## user wants us to register 'parallal' # of cores
+        cl <- parallel::makeCluster(ncores)
+    } else if (is.numeric(parallel) &&
+                   is.finite(parallel) && parallel >= 1) {
+        ## user wants us to register 'parallel' # of cores
         ncores <- parallel
         cl <- parallel::makeCluster(ncores)
-        doParallel::registerDoParallel(cl)
         closeexit <- TRUE
-        if(!silent){cat('Registered', foreach::getDoParName(),
-            'with', foreach::getDoParWorkers(), 'workers\n')}
+        cat('Registered', capture.output(print(cl)), '\n\n')
     } else {
         stop("Unknown value of argument 'parallel'")
     }
@@ -74,12 +72,9 @@ testPr <- function(
     ## Close parallel connections if any were opened
     if(closeexit) {
         closecoresonexit <- function(){
-            if(!silent){cat('\nClosing connections to cores.\n')}
-            foreach::registerDoSEQ()
+            cat('\nClosing connections to cores.\n')
             parallel::stopCluster(cl)
             ## parallel::setDefaultCluster(NULL)
-            env <- foreach:::.foreachGlobals
-            rm(list=ls(name=env), pos=env)
         }
         on.exit(closecoresonexit())
     }
@@ -234,12 +229,6 @@ testPr <- function(
     nY <- nrow(Y)
     nX <- max(nrow(X), 1L)
 
-    ## determine if parallel computation is possible and needed
-    if (ncores < 2) {
-        `%doyx%` <- `%do%`
-    } else {
-        `%doyx%` <- `%dopar%`
-    }
     dosamples <- !is.null(nsamples)
 
 
@@ -281,7 +270,7 @@ testPr <- function(
     ##     na.rm = TRUE
     ## ))
 
-    lpargs <- util_lprobsargs(
+    lpargs <- util_lprobsargsyx(
         x = Y,
         auxmetadata = auxmetadata,
         learnt = learnt,
@@ -297,58 +286,24 @@ testPr <- function(
         lab = '__Y'
     ))
 
+    ## Calculation with all Y and X combinations
     keys <- c('values', 'quantiles', 'samples', 'values.MCaccuracy', 'quantiles.MCaccuracy')
     ##
     combfnr <- function(...){setNames(do.call(mapply,
-        c(FUN = `rbind`, lapply(X = list(...), FUN = `[`, keys, drop = FALSE))),
+        c(FUN = `rbind`, lapply(X = ..., FUN = `[`, keys, drop = FALSE))),
         keys)}
     ## combfnc <- function(...){setNames(do.call(mapply, c(FUN=cbind, lapply(list(...), `[`, keys))), keys)}
 
-    out <- foreach(
-        jx = seq_len(nX),
-        .combine = `combfnr`,
-        .inorder = TRUE
-    ) %:% foreach(
-        jy = seq_len(nY),
-        .combine = `combfnr`,
-        .inorder = TRUE
-    ) %doyx% {
-
-        if(usememory) {
-            lprobX <- readRDS(file.path(temporarydir,
-                paste0('__X', jx, '__.rds')
-            ))
-            lprobY <- readRDS(file.path(temporarydir,
-                paste0('__Y', jy, '__.rds')
-            ))
-        }
-
-        FF <- colSums(x = exp(lprobX + lprobY), na.rm = TRUE) /
-            colSums(x = exp(lprobX), na.rm = TRUE)
-
-        list(
-            values = mean(x = FF, na.rm = TRUE),
-            ##
-            quantiles = if(doquantiles) {
-                quantile(x = FF, probs = quantiles, type = 6,
-                    na.rm = TRUE, names = FALSE)
-            },
-            ##
-            samples = if(dosamples) {
-                FF <- FF[!is.na(FF)]
-                FF[round(seq(1, length(FF), length.out = nsamples))]
-            },
-            ##
-            values.MCaccuracy = funMCSELD(x = FF),
-            ##
-            quantiles.MCaccuracy = if(doquantiles) {
-                temp <- funMCEQ(x = FF, prob = quantiles, Qpair = Qerror)
-                (temp[2, ] - temp[1, ]) / 2
-            }
-            ##
-            ## error = sd(FF, na.rm = TRUE)/sqrt(nmcsamples)
+    out <- parApply(cl = cl,
+            X = expand.grid(jy = seq_len(nY), jx = seq_len(nX)),
+            MARGIN = 1,
+            FUN = util_combineYX,
+            temporarydir = temporarydir, usememory = usememory,
+            doquantiles = doquantiles, quantiles = quantiles,
+            dosamples = dosamples, nsamples = nsamples,
+            Qerror = Qerror
         )
-    } # End foreach over Y and X
+    out <- combfnr(out)
 
     ## clean temp files
     if(usememory) {
@@ -483,3 +438,52 @@ testPr <- function(
     class(out) <- 'probability'
     out
 }
+
+
+#' Calculate probabilities, quantiles, etc, for all Y and X combinations
+#'
+#' @keywords internal
+util_combineYX <- function(
+    iyx,
+    temporarydir, usememory = TRUE,
+    doquantiles, quantiles,
+    dosamples, nsamples,
+    Qerror
+) {
+
+    if(usememory) {
+        lprobX <- readRDS(file.path(temporarydir,
+            paste0('__X', iyx['jx'], '__.rds')
+        ))
+        lprobY <- readRDS(file.path(temporarydir,
+            paste0('__Y', iyx['jy'], '__.rds')
+        ))
+    }
+
+    FF <- colSums(x = exp(lprobX + lprobY), na.rm = TRUE) /
+        colSums(x = exp(lprobX), na.rm = TRUE)
+
+    list(
+        values = mean(x = FF, na.rm = TRUE),
+        ##
+        quantiles = if(doquantiles) {
+            quantile(x = FF, probs = quantiles, type = 6,
+                na.rm = TRUE, names = FALSE)
+        },
+        ##
+        samples = if(dosamples) {
+            FF <- FF[!is.na(FF)]
+            FF[round(seq(1, length(FF), length.out = nsamples))]
+        },
+        ##
+        values.MCaccuracy = funMCSELD(x = FF),
+        ##
+        quantiles.MCaccuracy = if(doquantiles) {
+            temp <- funMCEQ(x = FF, prob = quantiles, Qpair = Qerror)
+            (temp[2, ] - temp[1, ]) / 2
+        }
+        ##
+        ## error = sd(FF, na.rm = TRUE)/sqrt(nmcsamples)
+    )
+}
+

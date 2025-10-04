@@ -53,7 +53,7 @@ util_lprobsave <- function(xVs, params, logW = 0, temporarydir, lab) {
             na.rm = TRUE, dims = 1)
     }
 
-    saveRDS(logW + out,
+    saveRDS(out,
         file.path(temporarydir,
             paste0(lab, ii, '__.rds'))
     )
