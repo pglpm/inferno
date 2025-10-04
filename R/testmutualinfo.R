@@ -250,20 +250,12 @@ testmutualinfo <- function(
     } # end definition of lW if non-null X
 
 
-    ## Utility function to avoid finite-precision accuracys
-    denorm <- function(lprob) {
-        apply(X = lprob, MARGIN = 2, FUN = function(xx) {
-            xx - max(xx[is.finite(xx)])
-        }, simplify = TRUE)
-    }
-
-
 #### Combine Y1,Y2 into single Y for speed
     Ynames <- c(Y1names, Y2names)
 
 #### STEP 1. Draw samples of Ynames (that is, Y1names,Y2names)
 
-    lWnorm <- denorm(lW)
+    lWnorm <- util_denorm(lW)
     Ws <- extraDistr::rcat(n = n, prob = t(
         apply(X = lWnorm[, sseq, drop = FALSE], MARGIN = 2, FUN = function(xx){
             xx <- exp(xx)
@@ -413,8 +405,7 @@ testmutualinfo <- function(
         params1 = lpargs1$params,
         params2 = lpargs2$params,
         lWnorm = lWnorm,
-        lW = lW,
-        denorm = denorm
+        lW = lW
         )
         )
 

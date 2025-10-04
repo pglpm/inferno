@@ -1,7 +1,7 @@
-#' Prepare arguments for util_lprobsyx from data
+#' Prepare arguments for util_lprobs from data
 #'
 #' @keywords internal
-util_lprobsargsyx <- function(
+util_lprobsargs <- function(
     x, auxmetadata, learnt, tails = NULL
 ) {
     Xv <- colnames(x)
@@ -397,37 +397,34 @@ util_lprobsargsyx <- function(
     }
 
     list(
-        params = list(
-            nV0 = nV0, V0mean = V0mean, V0sd = V0sd,
-            nV1 = nV1, V1mean = V1mean, V1sd = V1sd,
-            nV2 = nV2, V2mean = V2mean, V2sd = V2sd,
-            V2steps = V2steps,
-            nVN = nVN, VNprobs = VNprobs,
-            nVB = nVB, VBprobs = VBprobs
-        ),
-        xVs = lapply(seq_len(nX), function(i){
-            list(
-                ii = i,
-                xV0 = xV0[,i],
-                xV1 = xV1[,i],
-                xV2 = xV2[,i],
-                xVN = xVN[,i],
-                xVB = xVB[,i]
-            )})
+        nV0 = nV0, xV0 = xV0, V0mean = V0mean, V0sd = V0sd,
+        nV1 = nV1, xV1 = xV1, V1mean = V1mean, V1sd = V1sd,
+        nV2 = nV2, xV2 = xV2, V2mean = V2mean, V2sd = V2sd,
+        V2steps = V2steps,
+        nVN = nVN, VNprobs = VNprobs, xVN = xVN,
+        nVB = nVB, VBprobs = VBprobs, xVB = xVB
     )
 }
 
 
 
+
 #' Calculate collection of log-probabilities for different components and samples
+#'
+#' @param X Numerical matrix: transformed variates
+#' @param learnt: Monte-Carlo-output object
+#' @param nR etc: Parameters containing appropriate indices
+#'
 #' @return Matrix with as many rows as components and as many cols as samples
 #' @keywords internal
-util_lprobsbase <- function(
-    xVs, params, logW,
-    temporarydir = NULL, lab = ''
+util_lprobs <- function(
+    nV0, V0mean, V0sd, xV0,
+    nV1, V1mean, V1sd, xV1,
+    nV2, V2mean, V2sd, V2steps, xV2,
+    nVN, VNprobs, xVN,
+    nVB, VBprobs, xVB
 ) {
-    with(c(xVs, params), {
-    out <- logW
+    out <- 0
     ## point probability density
     if(nV0) {
         out <- out + colSums(
@@ -477,73 +474,74 @@ util_lprobsbase <- function(
             na.rm = TRUE, dims = 1)
     }
 
-    if(is.null(temporarydir)){
-        out
-    }else{
-        saveRDS(out,
-            file.path(temporarydir,
-                paste0(lab, ii, '__.rds'))
-        )
-    }
-    })
+    out
 }
 
 
-
-## #' Calculate collection of log-probabilities for different components and samples
-## #' @return Matrix with as many rows as components and as many cols as samples
-## #' @keywords internal
-## util_lprobssave <- function(xVs, params, logW, temporarydir, lab) {
-## 
-##     out <- util_lprobsbase(xVs = xVs, params = params, logW = logW)
-## 
-##     saveRDS(out,
-##         file.path(temporarydir,
-##             paste0(lab, xVs$ii, '__.rds'))
-##     )
-## }
-
-
-
-#' Calculate pairs of log-probabilities for mutualinfo()
+#' Calculate collection of log-probabilities for different components and samples
+#'
+#' @param X Numerical matrix: transformed variates
+#' @param learnt: Monte-Carlo-output object
+#' @param nR etc: Parameters containing appropriate indices
+#'
+#' @return Matrix with as many rows as components and as many cols as samples
 #' @keywords internal
-util_lprobsmi <- function(xVs, params1, params2, lWnorm, lW, denorm) {
+util_lprobs <- function(
+    nV0, V0mean, V0sd, xV0,
+    nV1, V1mean, V1sd, xV1,
+    nV2, V2mean, V2sd, V2steps, xV2,
+    nVN, VNprobs, xVN,
+    nVB, VBprobs, xVB
+) {
+    out <- 0
+    ## point probability density
+    if(nV0) {
+        out <- out + colSums(
+            x = dnorm(x = xV0, mean = V0mean, sd = V0sd, log = TRUE),
+            na.rm = TRUE, dims = 1)
+    }
+    ## tail probability
+    if(nV1) {
+        out <- out + colSums(
+            x = pnorm(q = xV1, mean = V1mean, sd = V1sd,
+                log.p = TRUE, lower.tail = TRUE),
+            na.rm = TRUE, dims = 1)
+    }
+    ## interval probability
+    if(nV2) {
+        pright <- pnorm(q = xV2 + V2steps, mean = V2mean, sd = V2sd,
+            log.p = TRUE, lower.tail = TRUE)
+        ##
+        out <- out + colSums(
+            x = pright + log(-expm1(
+                pnorm(q = xV2 - V2steps, mean = V2mean, sd = V2sd,
+                    log.p = TRUE, lower.tail = TRUE) - pright
+            )),
+            na.rm = TRUE, dims = 1)
+        ## ## this alternate form leads to infinities in some cases
+        ## pleft <- pnorm(q = xV2 - V2steps, mean = V2mean, sd = V2sd,
+        ##     log.p = TRUE, lower.tail = TRUE)
+        ## ##
+        ## out <- out + colSums(
+        ##     x = pleft + log(expm1(
+        ##         pnorm(q = xV2 + V2steps, mean = V2mean, sd = V2sd,
+        ##             log.p = TRUE, lower.tail = TRUE) - pleft
+        ##     )),
+        ##     na.rm = TRUE, dims = 1)
+    }
+    ##
+    if(nVN) {
+        out <- out + colSums(
+            x = log(VNprobs[xVN, , , drop = FALSE]),
+            na.rm = TRUE, dims = 1)
+    }
+    ##
+    if(nVB) {
+        ## VBprob is the probability that x = 1
+        out <- out + colSums(
+            x = log(1 - xVB - VBprobs + 2 * xVB * VBprobs),
+            na.rm = TRUE, dims = 1)
+    }
 
-    lprobY1 <- util_lprobsbase(xVs = xVs[1:6], params = params1, logW = 0)
-    lprobY2 <- util_lprobsbase(xVs = xVs[7:12], params = params2, logW = 0)
-
-    celWnorm <- colSums(exp(lWnorm))
-
-### Construct probabilities from lprobY1, lprobY2
-    lpY1and2 <- log(mean(
-        colSums(exp(lprobY1 + lprobY2 + lWnorm)) / celWnorm,
-        na.rm = TRUE))
-
-    lpY1 <- log(mean(
-        colSums(exp(lprobY1 + lWnorm)) / celWnorm,
-        na.rm = TRUE))
-
-    lpY2 <- log(mean(
-        colSums(exp(lprobY2 + lWnorm)) / celWnorm,
-        na.rm = TRUE))
-
-    lprobnorm <- denorm(lprobY2 + lW)
-    lpY1given2 <- log(mean(
-        colSums(exp(lprobY1 + lprobnorm)) / colSums(exp(lprobnorm)),
-        na.rm = TRUE))
-
-    lprobnorm <- denorm(lprobY1 + lW)
-    lpY2given1 <- log(mean(
-        colSums(exp(lprobY2 + lprobnorm)) / colSums(exp(lprobnorm)),
-        na.rm = TRUE))
-
-    mi <- lpY1and2 - lpY1 - lpY2
-    c(
-        MI = mi,
-        CondEn12 = -lpY1given2,
-        CondEn21 = -lpY2given1,
-        En1 = -lpY1,
-        En2 = -lpY2
-        ## MIalt = (mi + lpY1given2 - lpY1 + lpY2given1 - lpY2) / 3,
-    )
+    out
 }

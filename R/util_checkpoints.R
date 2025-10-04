@@ -11,6 +11,8 @@ util_prepPcheckpoints <- function(
     x, auxmetadata, pointsid = NULL
 ) {
 
+    nX <- nrow(x)
+
     auxV0a <- auxV0b <- auxV1a <- auxV1b <- auxV1c <- auxV1d <- NULL
     auxV2 <- auxVN1 <- auxVN2 <- auxVB <- NULL
     V2steps <- NULL
@@ -18,7 +20,7 @@ util_prepPcheckpoints <- function(
     nV0 <- nV1 <- nV2 <- nVN <- nVB <- FALSE
 
     xV0 <- xV1 <- xV2 <- xVN <- xVB <- matrix(data = NA_real_,
-        nrow = 0, ncol = nrow(x), dimnames = NULL)
+        nrow = 0, ncol = nX, dimnames = NULL)
 
 ###
 ### point probability density
@@ -248,14 +250,23 @@ util_prepPcheckpoints <- function(
 
     list(
         nV0 = nV0, nV1 = nV1, nV2 = nV2, nVN = nVN, nVB = nVB,
-        xV0 = xV0, xV1 = xV1, xV2 = xV2, xVN = xVN, xVB = xVB,
+        ## xV0 = xV0, xV1 = xV1, xV2 = xV2, xVN = xVN, xVB = xVB,
         auxV0a = auxV0a, auxV0b = auxV0b,
         auxV1a = auxV1a, auxV1b = auxV1b, auxV1c = auxV1c, auxV1d = auxV1d,
         auxV2 = auxV2,
         auxVN1 = auxVN1, auxVN2 = auxVN2,
         auxVB = auxVB,
         V2steps = V2steps,
-        pointsid = pointsid
+        pointsid = pointsid,
+        ##
+        xVs = lapply(seq_len(nX), function(i){
+            list(
+                xV0 = xV0[,i],
+                xV1 = xV1[,i],
+                xV2 = xV2[,i],
+                xVN = xVN[,i],
+                xVB = xVB[,i]
+            )})
     )
 }
 
@@ -269,15 +280,15 @@ util_prepPcheckpoints <- function(
 #' 
 #' @keywords internal
 #'
-#' @return The joint frequencies of Y correspoinding to the Monte Carlo samples
+#' @return The joint frequencies of Y corresponding to the Monte Carlo samples
 util_Pcheckpoints <- function(
     testdata, learnt
 ) {
+    with(c(testdata, learnt), {
 
-    nsamples <- ncol(learnt$W)
-    ncomponents <- nrow(learnt$W)
+        nsamples <- ncol(W)
+        ncomponents <- nrow(W)
 
-    with(testdata, {
 
 ###
 ### point probability density
@@ -287,17 +298,17 @@ util_Pcheckpoints <- function(
 ### R-variates not in 'cumul'
         if(length(auxV0a) > 0){
             V0mean <- learnbind(V0mean,
-                learnt$Rmean)
+                Rmean)
             V0sd <- learnbind(V0sd,
-                sqrt(learnt$Rvar))
+                sqrt(Rvar))
         }
 
 ### C-variates not in 'cumul' and with some non-boundary value
         if(length(auxV0b) > 0) {
             V0mean <- learnbind(V0mean,
-                learnt$Cmean[auxV0b, , , drop = FALSE])
+                Cmean[auxV0b, , , drop = FALSE])
             V0sd <- learnbind(V0sd,
-                sqrt(learnt$Cvar[auxV0b, , , drop = FALSE]))
+                sqrt(Cvar[auxV0b, , , drop = FALSE]))
         }
 
 ###
@@ -308,33 +319,33 @@ util_Pcheckpoints <- function(
 ### C-variates not in 'cumul' and with left boundary values
         if(length(auxV1a) > 0){
             V1mean <- learnbind(V1mean,
-                learnt$Cmean[auxV1a, , , drop = FALSE])
+                Cmean[auxV1a, , , drop = FALSE])
             V1sd <- learnbind(V1sd,
-                sqrt(learnt$Cvar[auxV1a, , , drop = FALSE]))
+                sqrt(Cvar[auxV1a, , , drop = FALSE]))
         }
 
 ### C-variates not in 'cumul' and with right boundary values
         if(length(auxV1b) > 0){
             V1mean <- learnbind(V1mean,
-                - learnt$Cmean[auxV1b, , , drop = FALSE]) # minus sign
+                - Cmean[auxV1b, , , drop = FALSE]) # minus sign
             V1sd <- learnbind(V1sd,
-                sqrt(learnt$Cvar[auxV1b, , , drop = FALSE]))
+                sqrt(Cvar[auxV1b, , , drop = FALSE]))
         }
 
 ### D-variates not in 'cumul' and with left boundary values
         if(length(auxV1c) > 0){
             V1mean <- learnbind(V1mean,
-                learnt$Dmean[auxV1c, , , drop = FALSE])
+                Dmean[auxV1c, , , drop = FALSE])
             V1sd <- learnbind(V1sd,
-                sqrt(learnt$Dvar[auxV1c, , , drop = FALSE]))
+                sqrt(Dvar[auxV1c, , , drop = FALSE]))
         }
 
 ### D-variates not in 'cumul' and with right boundary values
         if(length(auxV1d) > 0){
             V1mean <- learnbind(V1mean,
-                - learnt$Dmean[auxV1d, , , drop = FALSE]) # minus sign
+                - Dmean[auxV1d, , , drop = FALSE]) # minus sign
             V1sd <- learnbind(V1sd,
-                sqrt(learnt$Dvar[auxV1d, , , drop = FALSE]))
+                sqrt(Dvar[auxV1d, , , drop = FALSE]))
         }
 
 ###
@@ -343,8 +354,8 @@ util_Pcheckpoints <- function(
 
 ### D-variates not in 'cumul'
         if(length(auxV2) > 0){
-            V2mean <- learnt$Dmean
-            V2sd <- sqrt(learnt$Dvar)
+            V2mean <- Dmean
+            V2sd <- sqrt(Dvar)
         }
 
 ###
@@ -355,12 +366,12 @@ util_Pcheckpoints <- function(
 ### O-variates not in 'cumul'
         if(length(auxVN1) > 0){
             VNprobs <- learnbind(VNprobs,
-                learnt$Oprob)
+                Oprob)
         }
 ### N-variates
         if(length(auxVN2) > 0){
             VNprobs <- learnbind(VNprobs,
-                learnt$Nprob)
+                Nprob)
         }
 
 ###
@@ -369,40 +380,72 @@ util_Pcheckpoints <- function(
 
 ### B-variates
         if(length(auxVB) > 0){
-            VBprobs <- learnt$Bprob
+            VBprobs <- Bprob
         }
 
-        do.call(cbind, foreach(
-            xV0 = xV0,
-            xV1 = xV1,
-            xV2 = xV2,
-            xVN = xVN,
-            xVB = xVB
-        ) %do% {
-            lprobY <- util_lprobs(
-                nV0 = nV0,
-                V0mean = V0mean,
-                V0sd = V0sd,
-                xV0 = xV0,
-                nV1 = nV1,
-                V1mean = V1mean,
-                V1sd = V1sd,
-                xV1 = xV1,
-                nV2 = nV2,
-                V2mean = V2mean,
-                V2sd = V2sd,
-                V2steps = V2steps,
-                xV2 = xV2,
-                nVN = nVN,
-                VNprobs = VNprobs,
-                xVN = xVN,
-                nVB = nVB,
-                VBprobs = VBprobs,
-                xVB = c(xVB)
+
+
+        lprobX <- log(W)
+        do.call(cbind,
+            lapply(
+                X = Xvs,
+                FUN = function(xx){
+                    lprobY <- util_lprobsbase(
+                        xVs = xx,
+                        params = list(
+                            nV0 = nV0,
+                            V0mean = V0mean,
+                            V0sd = V0sd,
+                            nV1 = nV1,
+                            V1mean = V1mean,
+                            V1sd = V1sd,
+                            nV2 = nV2,
+                            V2mean = V2mean,
+                            V2sd = V2sd,
+                            V2steps = V2steps,
+                            nVN = nVN,
+                            VNprobs = VNprobs,
+                            nVB = nVB,
+                            VBprobs = VBprobs,
+                            ),
+                        logW = lprobX,
+                        temporarydir = NULL
+                    )
+
+                    ## Output: rows=components, columns=samples
+                    colSums(exp(lprobY)) / colSums(W)
+                })
             )
-#### Output: rows=components, columns=samples
-            lprobX <- log(learnt$W)
-            colSums(exp(lprobX + lprobY)) / colSums(exp(lprobX))
-        })
+##         do.call(cbind, foreach(
+##             xV0 = xV0,
+##             xV1 = xV1,
+##             xV2 = xV2,
+##             xVN = xVN,
+##             xVB = xVB
+##         ) %do% {
+##             lprobY <- util_lprobs(
+##                 nV0 = nV0,
+##                 V0mean = V0mean,
+##                 V0sd = V0sd,
+##                 xV0 = xV0,
+##                 nV1 = nV1,
+##                 V1mean = V1mean,
+##                 V1sd = V1sd,
+##                 xV1 = xV1,
+##                 nV2 = nV2,
+##                 V2mean = V2mean,
+##                 V2sd = V2sd,
+##                 V2steps = V2steps,
+##                 xV2 = xV2,
+##                 nVN = nVN,
+##                 VNprobs = VNprobs,
+##                 xVN = xVN,
+##                 nVB = nVB,
+##                 VBprobs = VBprobs,
+##                 xVB = c(xVB)
+##             )
+## #### Output: rows=components, columns=samples
+##             colSums(exp(lprobX + lprobY)) / colSums(exp(lprobX))
+##         })
     })
 }
