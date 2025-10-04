@@ -1,4 +1,5 @@
-library('inferno')
+#library('inferno')
+devtools::load_all()
 
 set.seed(16)
 parallel <- 2
@@ -7,7 +8,7 @@ outputdir <- '__testbase_ess100'
 learntdir <- learn(
     data = 'data_basetest.csv',
     metadata = 'metadata_basetest.csv',
-    nsamples = 3600,
+    nsamples = 200,
     nchains = parallel,
     ## minMCiterations = 3600 * 3,
     prior = FALSE,
@@ -23,7 +24,7 @@ learntdir <- learn(
     ##
     ## ## parameters for short test run:
     ## subsampledata = 10,
-    ## maxhours = 0,
+    maxhours = 0,
     ## nsamplesperchain = 60,
     ## nchains = parallel + 1,
     ##
