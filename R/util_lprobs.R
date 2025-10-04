@@ -488,6 +488,53 @@ util_lprobsbase <- function(
     })
 }
 
+#' Calculate probabilities, quantiles, etc, for all Y and X combinations
+#'
+#' @keywords internal
+util_combineYX <- function(
+    iyx,
+    temporarydir, usememory = TRUE,
+    doquantiles, quantiles,
+    dosamples, nsamples,
+    Qerror
+) {
+
+    if(usememory) {
+        lprobX <- readRDS(file.path(temporarydir,
+            paste0('__X', iyx['jx'], '__.rds')
+        ))
+        lprobY <- readRDS(file.path(temporarydir,
+            paste0('__Y', iyx['jy'], '__.rds')
+        ))
+    }
+
+    FF <- colSums(x = exp(lprobX + lprobY), na.rm = TRUE) /
+        colSums(x = exp(lprobX), na.rm = TRUE)
+
+    list(
+        values = mean(x = FF, na.rm = TRUE),
+        ##
+        quantiles = if(doquantiles) {
+            quantile(x = FF, probs = quantiles, type = 6,
+                na.rm = TRUE, names = FALSE)
+        },
+        ##
+        samples = if(dosamples) {
+            FF <- FF[!is.na(FF)]
+            FF[round(seq(1, length(FF), length.out = nsamples))]
+        },
+        ##
+        values.MCaccuracy = funMCSELD(x = FF),
+        ##
+        quantiles.MCaccuracy = if(doquantiles) {
+            temp <- funMCEQ(x = FF, prob = quantiles, Qpair = Qerror)
+            (temp[2, ] - temp[1, ]) / 2
+        }
+        ##
+        ## error = sd(FF, na.rm = TRUE)/sqrt(nmcsamples)
+    )
+}
+
 
 
 ## #' Calculate collection of log-probabilities for different components and samples

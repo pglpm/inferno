@@ -27,10 +27,7 @@ RoxygenNote: 7.3.3
 Depends:
     R (>= 3.5.0)
 Imports:
-    doParallel,
-    doRNG,
     extraDistr,
-    foreach,
     nimble
 Suggests:
     knitr,

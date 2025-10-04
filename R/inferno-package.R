@@ -2,6 +2,6 @@
 "_PACKAGE"
 
 ## usethis namespace: start
-#' @import foreach doParallel doRNG
+#' @import parallel
 ## usethis namespace: end
 NULL

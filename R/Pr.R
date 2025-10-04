@@ -442,57 +442,6 @@ Pr <- function(
 }
 
 
-#' Calculate probabilities, quantiles, etc, for all Y and X combinations
-#'
-#' @keywords internal
-util_combineYX <- function(
-    iyx,
-    temporarydir, usememory = TRUE,
-    doquantiles, quantiles,
-    dosamples, nsamples,
-    Qerror
-) {
-
-    if(usememory) {
-        lprobX <- readRDS(file.path(temporarydir,
-            paste0('__X', iyx['jx'], '__.rds')
-        ))
-        lprobY <- readRDS(file.path(temporarydir,
-            paste0('__Y', iyx['jy'], '__.rds')
-        ))
-    }
-
-    FF <- colSums(x = exp(lprobX + lprobY), na.rm = TRUE) /
-        colSums(x = exp(lprobX), na.rm = TRUE)
-
-    list(
-        values = mean(x = FF, na.rm = TRUE),
-        ##
-        quantiles = if(doquantiles) {
-            quantile(x = FF, probs = quantiles, type = 6,
-                na.rm = TRUE, names = FALSE)
-        },
-        ##
-        samples = if(dosamples) {
-            FF <- FF[!is.na(FF)]
-            FF[round(seq(1, length(FF), length.out = nsamples))]
-        },
-        ##
-        values.MCaccuracy = funMCSELD(x = FF),
-        ##
-        quantiles.MCaccuracy = if(doquantiles) {
-            temp <- funMCEQ(x = FF, prob = quantiles, Qpair = Qerror)
-            (temp[2, ] - temp[1, ]) / 2
-        }
-        ##
-        ## error = sd(FF, na.rm = TRUE)/sqrt(nmcsamples)
-    )
-}
-
-
-
-
-
 #' Calculate posterior probabilities
 #'
 #' This function calculates the posterior probability `Pr(Y | X, data)`, where `Y` and `X` are two (non overlapping) sets of joint variate values. If `X` is omitted or `NULL`, then the posterior probability `Pr(Y | data)` is calculated. The function also gives quantiles about the possible variability of the probability `Pr(Y | X, newdata, data)` that we could have if more learning data were provided, as well as a number of samples of the possible values of such probabilities. If several joint values are given for `Y` or `X`, the function will create a 2D grid of results for all possible compbinations of the given `Y` and `X` values. This function also allows for base-rate or other prior-probability corrections: If a prior (for instance, a base rate) for `Y` is given, the function will calculate the `Pr(Y | X, data, prior)` from `Pr(X | Y, data)` and the prior by means of Bayes's theorem. Each variate in each argument `Y`, `X` can be specified either as a point-value `Y = y` or as a left-open interval `Y ≤ y` or as a right-open interval `Y ≥ y`, through the argument `tails`.
@@ -512,9 +461,9 @@ util_combineYX <- function(
 #'
 #' @return A list of class `probability`, consisting of the elements `values`,  `quantiles` (possibly `NULL`), `samples` (possibly `NULL`), `values.MCaccuracy`, `quantiles.MCaccuracy` (possibly `NULL`), `Y`, `X`. Element `values`: a matrix with the probabilities P(Y|X,data,assumptions), for all combinations of values of `Y` (rows) and `X` (columns). Element `quantiles`: an array with the variability quantiles (3rd dimension of the array) for such probabilities. Element `samples`: an array with the variability samples (3rd dimension of the array) for such probabilities. Elements `values.MCaccuracy` and `quantiles.MCaccuracy`: arrays with the numerical accuracies (roughly speaking a standard deviation) of the Monte Carlo calculations for the `values` and `quantiles` elements. Elements `Y`, `X`: copies of the `Y` and `X` arguments.
 #'
-#' @import parallel foreach doParallel
+#' @import parallel
 #'
-#' @export
+#' @keywords internal
 old_Pr <- function(
     Y,
     X = NULL,

@@ -25,3 +25,4 @@ A data frame of joint draws of the variates \code{Ynames} from the posterior dis
 \description{
 This function generate datapoints according to the posterior probability \code{Pr(Y | X, data)} calculated with \code{\link[=learn]{learn()}}, for the variates specified in the argument \code{Y}, and conditional on the variate values specified in the argument \code{X}. If \code{X} is omitted or \code{NULL}, then the posterior probability \code{Pr(Y | data)} is used. Each variate in the argument \code{X} can be specified either as a point-value \code{X = x} or as a left-open interval \verb{X ≤ x} or as a right-open interval \verb{X ≥ x}, through the argument \code{tails}.
 }
+\keyword{internal}

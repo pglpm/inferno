@@ -42,3 +42,4 @@ A list consisting of the elements \code{MI}, \code{CondEn12}, \code{CondEn21}, \
 \description{
 This function calculates various entropic information measures of two variates (each variate may consist of joint variates): the mutual information, the conditional entropies, and the entropies.
 }
+\keyword{internal}
