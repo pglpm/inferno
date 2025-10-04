@@ -36,7 +36,8 @@ workerfun(
   initES,
   nsamplesperchain,
   minMCiterations,
-  printtimediff
+  printtimediff,
+  family
 )
 }
 \description{

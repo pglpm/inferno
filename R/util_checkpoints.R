@@ -388,7 +388,7 @@ util_Pcheckpoints <- function(
         lprobX <- log(W)
         do.call(cbind,
             lapply(
-                X = Xvs,
+                X = xVs,
                 FUN = function(xx){
                     lprobY <- util_lprobsbase(
                         xVs = xx,
@@ -406,7 +406,7 @@ util_Pcheckpoints <- function(
                             nVN = nVN,
                             VNprobs = VNprobs,
                             nVB = nVB,
-                            VBprobs = VBprobs,
+                            VBprobs = VBprobs
                             ),
                         logW = lprobX,
                         temporarydir = NULL

@@ -760,7 +760,7 @@ learn <- function(
             ##
             list(
                 On = vn$O,
-                ## Ocards = Ocards,
+                Ocards = Ocards,
                 Oi = Oi,
                 Of = Of,
                 Oalpha0 = Oalpha0
@@ -786,7 +786,7 @@ learn <- function(
             ##
             list(
                 Nn = vn$N,
-                ## Ncards = Ncards,
+                Ncards = Ncards,
                 Ni = Ni,
                 Nf = Nf,
                 Nalpha0 = Nalpha0
@@ -971,6 +971,7 @@ learn <- function(
         nsamplesperchain = nsamplesperchain,
         minMCiterations = minMCiterations,
         printtimediff = printtimediff,
+        family = family,
         ##
         chunk.size = NULL
         )
@@ -1246,7 +1247,7 @@ learn <- function(
         plotvariability = 'samples',
         nFsamples = showsamples, plotprobability = TRUE,
         datahistogram = TRUE, datascatter = TRUE,
-        parallel = NULL, silent = TRUE
+        parallel = cl, silent = TRUE
     )
 
     ## cat('Plotting marginal samples with quantiles.\n')
@@ -1258,7 +1259,7 @@ learn <- function(
         plotvariability = 'quantiles',
         nFsamples = plotDisplayedQuantiles, plotprobability = TRUE,
         datahistogram = TRUE, datascatter = TRUE,
-        parallel = NULL, silent = TRUE
+        parallel = cl, silent = TRUE
     )
 ##})
     ## restore output to std
@@ -1370,7 +1371,8 @@ workerfun <- function(
     initES,
     nsamplesperchain,
     minMCiterations,
-    printtimediff
+    printtimediff,
+    family
 ) {
     ## functions to format printing of time
     printtimeend <- function(tim) {
@@ -1814,9 +1816,9 @@ workerfun <- function(
                 outlist <- c(
                     outlist,
                     list(
-                        Oprob = matrix(unlist(sapply(Ocards, function(acard){
+                        Oprob = matrix(unlist(sapply(constants$Ocards, function(acard){
                             rep(1 / acard, acard)
-                        })), nrow = sum(Ocards), ncol = ncomponents)
+                        })), nrow = sum(constants$Ocards), ncol = ncomponents)
                     )
                 )
             }
@@ -1824,9 +1826,9 @@ workerfun <- function(
                 outlist <- c(
                     outlist,
                     list(
-                        Nprob = matrix(unlist(sapply(Ncards, function(acard){
+                        Nprob = matrix(unlist(sapply(constants$Ncards, function(acard){
                             rep(1 / acard, acard)
-                        })), nrow = sum(Ncards), ncol = ncomponents)
+                        })), nrow = sum(constants$Ncards), ncol = ncomponents)
                     )
                 )
             }
@@ -2054,9 +2056,9 @@ workerfun <- function(
                 outlist <- c(
                     outlist,
                     list(
-                        Oprob = matrix(unlist(sapply(Ocards, function(acard){
+                        Oprob = matrix(unlist(sapply(constants$Ocards, function(acard){
                             rep(1 / acard, acard)
-                        })), nrow = sum(Ocards), ncol = ncomponents)
+                        })), nrow = sum(constants$Ocards), ncol = ncomponents)
                     )
                 )
             }
@@ -2064,9 +2066,9 @@ workerfun <- function(
                 outlist <- c(
                     outlist,
                     list(
-                        Nprob = matrix(unlist(sapply(Ncards, function(acard){
+                        Nprob = matrix(unlist(sapply(constants$Ncards, function(acard){
                             rep(1 / acard, acard)
-                        })), nrow = sum(Ncards), ncol = ncomponents)
+                        })), nrow = sum(constants$Ncards), ncol = ncomponents)
                     )
                 )
             }
@@ -2184,9 +2186,9 @@ workerfun <- function(
                 outlist <- c(
                     outlist,
                     list(
-                        Oprob = matrix(unlist(sapply(Ocards, function(acard){
+                        Oprob = matrix(unlist(sapply(constants$Ocards, function(acard){
                             rep(1 / acard, acard)
-                        })), nrow = sum(Ocards), ncol = ncomponents)
+                        })), nrow = sum(constants$Ocards), ncol = ncomponents)
                     )
                 )
             }
@@ -2283,9 +2285,9 @@ workerfun <- function(
                 outlist <- c(
                     outlist,
                     list(
-                        Oprob = matrix(unlist(sapply(Ocards, function(acard){
+                        Oprob = matrix(unlist(sapply(constants$Ocards, function(acard){
                             rep(1 / acard, acard)
-                        })), nrow = sum(Ocards), ncol = ncomponents)
+                        })), nrow = sum(constants$Ocards), ncol = ncomponents)
                     )
                 )
             }
@@ -2293,9 +2295,9 @@ workerfun <- function(
                 outlist <- c(
                     outlist,
                     list(
-                        Nprob = matrix(unlist(sapply(Ncards, function(acard){
+                        Nprob = matrix(unlist(sapply(constants$Ncards, function(acard){
                             rep(1 / acard, acard)
-                        })), nrow = sum(Ncards), ncol = ncomponents)
+                        })), nrow = sum(constants$Ncards), ncol = ncomponents)
                     )
                 )
             }
@@ -2408,10 +2410,10 @@ workerfun <- function(
                 outlist <- c(
                     outlist,
                     list(
-                        Oprob = matrix(unlist(sapply(seq_along(Ocards),
+                        Oprob = matrix(unlist(sapply(seq_along(constants$Ocards),
                             function(v){nimble::rdirch(n = 1,
                                 alpha = Oalpha0[Oi[v]:Of[v]])
-                            })), nrow = sum(Ocards), ncol = ncomponents)
+                            })), nrow = sum(constants$Ocards), ncol = ncomponents)
                     )
                 )
             }
@@ -2419,10 +2421,10 @@ workerfun <- function(
                 outlist <- c(
                     outlist,
                     list(
-                        Nprob = matrix(unlist(sapply(seq_along(Ncards),
+                        Nprob = matrix(unlist(sapply(seq_along(constants$Ncards),
                             function(v){nimble::rdirch(n = 1,
                                 alpha = Nalpha0[Ni[v]:Nf[v]])
-                            })), nrow = sum(Ncards), ncol = ncomponents)
+                            })), nrow = sum(constants$Ncards), ncol = ncomponents)
                     )
                 )
             }
@@ -3004,7 +3006,7 @@ workerfun <- function(
             if(as.double(Sys.time() - timestart0, units = 'hours') >= timeleft &&
                    remainiter > 0 && nitertot >= nsamplesperchain
             ) {
-                cat('but stopping chain owing to lack of time\n')
+                cat('but stopping chain because of lack of time\n')
                 stoppedchains <- stoppedchains + 1L
                 remainiter <- 0
             }
@@ -3096,6 +3098,7 @@ workerfun <- function(
                         }
                     )
                 )
+                print('***OK before flexiplot')
                 ## Traces of likelihood and cond. probabilities
                 par(mfrow = c(1, 1))
                 for (avar in 1:ncol(traces)) {
