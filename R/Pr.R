@@ -10,7 +10,7 @@
 #' @param priorY Numeric vector with the same length as the rows of `Y`, or `TRUE`, or `NULL` (default): prior probabilities or base rates for the `Y` values. If `TRUE`, the prior probabilities are assumed to be all equal.
 #' @param nsamples Integer or `NULL` or `'all'` (default): desired number of samples of the variability of the probability for `Y`. If `NULL`, no samples are reported. If `'all'` (or `Inf`), all samples obtained by the [learn()] function are used.
 #' @param quantiles Numeric vector, between 0 and 1, or `NULL`: desired quantiles of the variability of the probability for `Y`. Default `c(0.055, 0.25, 0.75, 0.945)`, that is, the 5.5%, 25%, 75%, 94.5% quantiles (these are typical quantile values in the Bayesian literature: they give 50% and 89% credibility intervals, which correspond to 1 shannons and 0.5 shannons of uncertainty). If `NULL`, no quantiles are calculated.
-#' @param parallel Logical or `NULL` (default) or positive integer: `TRUE`: use roughly half of available cores; `FALSE`: use serial computation; `NULL`: don't do anything (use pre-registered condition); integer: use this many cores.
+#' @param parallel Logical or positive integer or cluster object. `TRUE`: use roughly half of available cores; `FALSE`: use serial computation; integer: use this many cores. It can also be a cluster object previously created with [parallel::makeCluster()]; in this case the parallel computation will use this object.
 #' @param silent Logical, default `FALSE`: give warnings or updates in the computation?
 #' @param usememory Logical, default `TRUE`: save partial results to disc, to avoid crashes?
 #' @param keepYX Logical, default `TRUE`: keep a copy of the `Y` and `X` arguments in the output? This is used for the plot method.
@@ -51,7 +51,7 @@ Pr <- function(
         cl <- parallel::makeCluster(ncores)
         ## doParallel::registerDoParallel(cl)
         closeexit <- TRUE
-        cat('Registered', capture.output(print(cl)), '\n\n')
+        message('Registered', capture.output(print(cl)), '.')
     } else if (isFALSE(parallel)) {
         ## user wants us not to use parallel cores
         ncores <- 1
@@ -62,15 +62,15 @@ Pr <- function(
         ncores <- parallel
         cl <- parallel::makeCluster(ncores)
         closeexit <- TRUE
-        cat('Registered', capture.output(print(cl)), '\n\n')
+        message('Registered', capture.output(print(cl)), '.')
     } else {
-        stop("Unknown value of argument 'parallel'")
+        stop("Unknown value of argument 'parallel'.")
     }
 
     ## Close parallel connections if any were opened
     if(closeexit) {
         closecoresonexit <- function(){
-            cat('\nClosing connections to cores.\n')
+            message('Closing connections to cores.')
             parallel::stopCluster(cl)
             ## parallel::setDefaultCluster(NULL)
         }

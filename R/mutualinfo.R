@@ -10,7 +10,7 @@
 #' @param tails Named vector or list, or `NULL` (default). The names must match some or all of the variates in arguments `X`. For variates in this list, the probability conditional is understood in an semi-open interval sense: `X ≤ x` or `X ≥ x`, an so on. See analogous argument in [Pr()].
 #' @param n Integer or `NULL` (default): number of samples from which to approximately calculate the mutual information. Default as many as Monte Carlo samples in `learnt`.
 #' @param unit Either one of 'Sh' for *shannon* (default), 'Hart' for *hartley*, 'nat' for *natural unit*, or a positive real indicating the base of the logarithms to be used.
-#' @param parallel Logical or `NULL` or positive integer: `TRUE`: use roughly half of available cores; `FALSE`: use serial computation; `NULL`: don't do anything (use pre-registered condition); integer: use this many cores. Default `NULL`
+#' @param parallel Logical or positive integer or cluster object. `TRUE`: use roughly half of available cores; `FALSE`: use serial computation; integer: use this many cores. It can also be a cluster object previously created with [parallel::makeCluster()]; in this case the parallel computation will use this object.
 #' @param silent Logical: give warnings or updates in the computation?
 #'
 #' @return A list consisting of the elements `MI`, `CondEn12`, `CondEn21`, `En1`, `En2`, `MI.rGauss`, `unit`, `Y1names`, `Y1names`. All elements except `unit`, `Y1names`, `Y2names` are a vector of `value` and `accuracy`. Element `MI` is the mutual information between (joint) variates `Y1names` and (joint) variates `Y2names`. Element`CondEn12` is the conditional entropy of the first variate given the second, and vice versa for `CondEn21`. Elements `En1` and `En1` are the (differential) entropies of the first and second variates. Elements `unit`, `Y1names`, `Y2names` are identical to the same inputs. Element `MI.rGauss` is the absolute value of the Pearson correlation coefficient of a *multivariate Gaussian distribution* having mutual information `MI` (the two are related by `MI = -log(1 - MI.rGauss^2)/2`); it may provide a vague intuition for the `MI` value for people more familiar with Pearson's correlation, but should be taken with a grain of salt.
@@ -61,7 +61,7 @@ mutualinfo <- function(
         cl <- parallel::makeCluster(ncores)
         ## doParallel::registerDoParallel(cl)
         closeexit <- TRUE
-        cat('Registered', capture.output(print(cl)), '\n\n')
+        message('Registered', capture.output(print(cl)), '.')
     } else if (isFALSE(parallel)) {
         ## user wants us not to use parallel cores
         ncores <- 1
@@ -72,15 +72,15 @@ mutualinfo <- function(
         ncores <- parallel
         cl <- parallel::makeCluster(ncores)
         closeexit <- TRUE
-        cat('Registered', capture.output(print(cl)), '\n\n')
+        message('Registered', capture.output(print(cl)), '.')
     } else {
-        stop("Unknown value of argument 'parallel'")
+        stop("Unknown value of argument 'parallel'.")
     }
 
     ## Close parallel connections if any were opened
     if(closeexit) {
         closecoresonexit <- function(){
-            cat('\nClosing connections to cores.\n')
+            message('Closing connections to cores.')
             parallel::stopCluster(cl)
             ## parallel::setDefaultCluster(NULL)
         }

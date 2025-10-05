@@ -234,7 +234,7 @@ learn <- function(
         cl <- parallel::makeCluster(ncores)
         ## doParallel::registerDoParallel(cl)
         closeexit <- TRUE
-        cat('Registered', capture.output(print(cl)), '\n\n')
+        message('Registered', capture.output(print(cl)), '.')
     } else if (isFALSE(parallel)) {
         ## user wants us not to use parallel cores
         ncores <- 1
@@ -245,15 +245,15 @@ learn <- function(
         ncores <- min(nchains, parallel)
         cl <- parallel::makeCluster(ncores)
         closeexit <- TRUE
-        cat('Registered', capture.output(print(cl)), '\n\n')
+        message('Registered', capture.output(print(cl)), '.')
     } else {
-        stop("Unknown value of argument 'parallel'")
+        stop("Unknown value of argument 'parallel'.")
     }
 
     ## Close parallel connections if any were opened
     if(closeexit) {
         closecoresonexit <- function(){
-            cat('\nClosing connections to cores.\n')
+            message('Closing connections to cores.')
             parallel::stopCluster(cl)
             ## parallel::setDefaultCluster(NULL)
         }
