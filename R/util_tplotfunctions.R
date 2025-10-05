@@ -46,7 +46,7 @@ flexiplot <- function(
 
     if(missing('x') && !missing('y')){
         x <- y
-        x[] <- rep(seq_len(NCOL(y)), each = NROW(y))
+        x[] <- rep(seq_len(NROW(y)), each = NCOL(y))
         if(is.null(ylab)){ ylab <- deparse1(substitute(y)) }
         if(is.null(yjitter)){ yjitter <- FALSE }
         if(is.null(xdomain) && is.null(xlim)){
@@ -60,7 +60,7 @@ flexiplot <- function(
         }
     } else if(!missing('x') && missing('y')){
         y <- x
-        y[] <- rep(seq_len(NCOL(x)), each = NROW(x))
+        y[] <- rep(seq_len(NROW(x)), each = NCOL(x))
         if(is.null(xlab)){ xlab <- deparse1(substitute(x)) }
         if(is.null(xjitter)){ xjitter <- FALSE }
         if(is.null(ydomain) && is.null(ylim)){
