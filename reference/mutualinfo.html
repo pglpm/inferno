@@ -90,7 +90,7 @@ for an 'learnt.rds' object, or such an object itself.</p></dd>
 
 
 <dt id="arg-parallel">parallel<a class="anchor" aria-label="anchor" href="#arg-parallel"></a></dt>
-<dd><p>Logical or <code>NULL</code> or positive integer: <code>TRUE</code>: use roughly half of available cores; <code>FALSE</code>: use serial computation; <code>NULL</code>: don't do anything (use pre-registered condition); integer: use this many cores. Default <code>NULL</code></p></dd>
+<dd><p>Logical or positive integer or cluster object. <code>TRUE</code>: use roughly half of available cores; <code>FALSE</code>: use serial computation; integer: use this many cores. It can also be a cluster object previously created with <code><a href="https://rdrr.io/r/parallel/makeCluster.html" class="external-link">parallel::makeCluster()</a></code>; in this case the parallel computation will use this object.</p></dd>
 
 
 <dt id="arg-silent">silent<a class="anchor" aria-label="anchor" href="#arg-silent"></a></dt>
