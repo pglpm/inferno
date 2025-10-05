@@ -52,7 +52,8 @@
 #'     type = 'continuous'
 #' )
 #'
-#' @import nimble parallel
+#' @rawNamespace import(nimble, except = rcat)
+#' @import parallel
 #' 
 #' @export
 learn <- function(
