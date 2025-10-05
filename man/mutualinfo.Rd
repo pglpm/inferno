@@ -32,7 +32,7 @@ for an 'learnt.rds' object, or such an object itself.}
 
 \item{unit}{Either one of 'Sh' for \emph{shannon} (default), 'Hart' for \emph{hartley}, 'nat' for \emph{natural unit}, or a positive real indicating the base of the logarithms to be used.}
 
-\item{parallel}{Logical or \code{NULL} or positive integer: \code{TRUE}: use roughly half of available cores; \code{FALSE}: use serial computation; \code{NULL}: don't do anything (use pre-registered condition); integer: use this many cores. Default \code{NULL}}
+\item{parallel}{Logical or positive integer or cluster object. \code{TRUE}: use roughly half of available cores; \code{FALSE}: use serial computation; integer: use this many cores. It can also be a cluster object previously created with \code{\link[parallel:makeCluster]{parallel::makeCluster()}}; in this case the parallel computation will use this object.}
 
 \item{silent}{Logical: give warnings or updates in the computation?}
 }
