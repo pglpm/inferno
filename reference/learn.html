@@ -7,7 +7,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">inferno</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.3.2</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.4.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -51,7 +51,7 @@
 <span>  nsamples <span class="op">=</span> <span class="fl">3600</span>,</span>
 <span>  nchains <span class="op">=</span> <span class="fl">8</span>,</span>
 <span>  nsamplesperchain <span class="op">=</span> <span class="fl">450</span>,</span>
-<span>  parallel <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  parallel <span class="op">=</span> <span class="cn">TRUE</span>,</span>
 <span>  seed <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  cleanup <span class="op">=</span> <span class="cn">TRUE</span>,</span>
 <span>  appendtimestamp <span class="op">=</span> <span class="cn">TRUE</span>,</span>
@@ -112,7 +112,7 @@
 
 
 <dt id="arg-parallel">parallel<a class="anchor" aria-label="anchor" href="#arg-parallel"></a></dt>
-<dd><p>Logical or <code>NULL</code> or positive integer: <code>TRUE</code>: use roughly half of available cores; <code>FALSE</code>: use serial computation; <code>NULL</code> (default): don't do anything (use pre-registered condition); integer: use this many cores.</p></dd>
+<dd><p>Logical or positive integer or cluster object. <code>TRUE</code>: use roughly half of available cores; <code>FALSE</code>: use serial computation; integer: use this many cores. It can also be a cluster object previously created with <code><a href="https://rdrr.io/r/parallel/makeCluster.html" class="external-link">parallel::makeCluster()</a></code>; in this case the parallel computation will use this object.</p></dd>
 
 
 <dt id="arg-seed">seed<a class="anchor" aria-label="anchor" href="#arg-seed"></a></dt>

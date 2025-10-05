@@ -20,7 +20,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">inferno</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.3.2</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.4.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -198,11 +198,10 @@ shows that its probability is around 0.3%:</p>
 <div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">prob</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/Pr.html">Pr</a></span><span class="op">(</span>Y <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span>island <span class="op">=</span> <span class="st">'Torgersen'</span>, species <span class="op">=</span> <span class="st">'Chinstrap'</span><span class="op">)</span>,</span>
 <span>    learnt <span class="op">=</span> <span class="va">learnt</span><span class="op">)</span></span>
+<span><span class="co"># Error in Pr(Y = data.frame(island = "Torgersen", species = "Chinstrap"), : Unknown value of argument 'parallel'</span></span>
 <span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/Round.html" class="external-link">signif</a></span><span class="op">(</span><span class="va">prob</span><span class="op">$</span><span class="va">values</span>, digits <span class="op">=</span> <span class="fl">2</span><span class="op">)</span></span>
-<span><span class="co">#                      X</span></span>
-<span><span class="co"># Y                      [,1]</span></span>
-<span><span class="co">#   Torgersen,Chinstrap 0.003</span></span></code></pre></div>
+<span><span class="co"># Error: object 'prob' not found</span></span></code></pre></div>
 <p><br>
 This example shows the limitations of using sample data for visualizing
 features of the <em>whole</em> population. How would a scatter plot
@@ -553,7 +552,7 @@ joint variates.</p>
 <span>    learnt <span class="op">=</span> <span class="va">learnt</span>,</span>
 <span>    parallel <span class="op">=</span> <span class="fl">4</span> <span class="co">## let's use 4 cores</span></span>
 <span><span class="op">)</span></span>
-<span><span class="co"># Registered doParallelSNOW with 4 workers</span></span>
+<span><span class="co"># Registered socket cluster with 4 nodes on host ‘localhost’</span></span>
 <span><span class="co"># </span></span>
 <span><span class="co"># Closing connections to cores.</span></span></code></pre></div>
 <p>The resulting object <code>MIislandspecies</code> is a list of
@@ -686,7 +685,7 @@ explored previously, and calculate also their mutual information.</p>
 <span>    learnt <span class="op">=</span> <span class="va">learnt</span>,</span>
 <span>    parallel <span class="op">=</span> <span class="fl">4</span></span>
 <span><span class="op">)</span></span>
-<span><span class="co"># Registered doParallelSNOW with 4 workers</span></span>
+<span><span class="co"># Registered socket cluster with 4 nodes on host ‘localhost’</span></span>
 <span><span class="co"># </span></span>
 <span><span class="co"># Closing connections to cores.</span></span></code></pre></div>
 <p>Scatter plot:</p>
@@ -720,7 +719,7 @@ explored previously, and calculate also their mutual information.</p>
 <span>    learnt <span class="op">=</span> <span class="va">learnt</span>,</span>
 <span>    parallel <span class="op">=</span> <span class="fl">4</span></span>
 <span><span class="op">)</span></span>
-<span><span class="co"># Registered doParallelSNOW with 4 workers</span></span>
+<span><span class="co"># Registered socket cluster with 4 nodes on host ‘localhost’</span></span>
 <span><span class="co"># </span></span>
 <span><span class="co"># Closing connections to cores.</span></span></code></pre></div>
 <p>Scatter plot:</p>
