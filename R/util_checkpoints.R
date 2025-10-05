@@ -447,5 +447,5 @@ util_Pcheckpoints <- function(
 ## #### Output: rows=components, columns=samples
 ##             colSums(exp(lprobX + lprobY)) / colSums(exp(lprobX))
 ##         })
-    })
+    }) # Output: rows=components, columns=samples
 }

@@ -1,7 +1,8 @@
-## NB: the functional form of this function does not depend on
-##   the number of components, minalpha, and maxalpha parameters
-
 #' Calculate and save transformation function for ordinal variates
+#'
+#' NB: the functional form of this function does not depend on
+#'   the number of components, minalpha, and maxalpha parameters
+#'
 #' @keywords internal
 createQfunction <- function(
     nint = 3600,
@@ -45,9 +46,12 @@ createQfunction <- function(
     }
     ##
     xsamples <- util_Q(seqnint)
-    oquants <- foreach(x = xsamples, .combine = c) %dopar% {
-        mean(dnorm(x, mean = means, sd = sds))
-    }
+    cl <- parallel::makeCluster(8)
+    oquants <- parallel::parSapply(cl, xsamples,
+        function(x, mean, sd){ mean(dnorm(x, mean = mean, sd = sd)) },
+        mean = means, sd = sds
+        )
+    stopCluster(cl)
     oquants <- (oquants + rev(oquants)) / 2
     ##
     ##
