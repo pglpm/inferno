@@ -327,7 +327,7 @@ learnt10 <- learn(
     outputdir = 'penguin_inference',
     parallel = 4 ## how many cores to use for the computation
 )
-# Registered doParallelSNOW with 4 workers
+# Registered socket cluster with 4 nodes on host ‘localhost’
 # 
 # Calculating auxiliary metadata
 # 
@@ -417,7 +417,8 @@ Fspecies10 <- Pr(
     learnt = learnt10,
     parallel = 4 ## let's use 4 cores
 )
-# Registered doParallelSNOW with 4 workers
+# Registered socket cluster with 4 nodes on host 'localhost' 
+# 
 # 
 # Closing connections to cores.
 ```
@@ -564,7 +565,8 @@ Fspeciessex10 <- Pr(
     learnt = learnt10,
     parallel = 4 ## let's use 4 cores
 )
-# Registered doParallelSNOW with 4 workers
+# Registered socket cluster with 4 nodes on host 'localhost' 
+# 
 # 
 # Closing connections to cores.
 
@@ -612,7 +614,8 @@ Fspecies10I <- Pr(
     learnt = learnt10,
     parallel = 4 ## let's use 4 cores
 )
-# Registered doParallelSNOW with 4 workers
+# Registered socket cluster with 4 nodes on host 'localhost' 
+# 
 # 
 # Closing connections to cores.
 ```
@@ -752,7 +755,8 @@ Fspecies10IS <- Pr(
     learnt = learnt10,
     parallel = 4 ## let's use 4 cores
 )
-# Registered doParallelSNOW with 4 workers
+# Registered socket cluster with 4 nodes on host 'localhost' 
+# 
 # 
 # Closing connections to cores.
 
@@ -802,7 +806,7 @@ learnt60 <- learn(
     outputdir = 'penguin_inference',
     parallel = 4 ## how many cores to use for the computation
 )
-# Registered doParallelSNOW with 4 workers
+# Registered socket cluster with 4 nodes on host ‘localhost’
 # 
 # Calculating auxiliary metadata
 # 
@@ -882,7 +886,8 @@ Fspecies60 <- Pr(
     learnt = learnt60, ## updated inference
     parallel = 4 ## let's use 4 cores
 )
-# Registered doParallelSNOW with 4 workers
+# Registered socket cluster with 4 nodes on host 'localhost' 
+# 
 # 
 # Closing connections to cores.
 
@@ -892,7 +897,8 @@ Fspecies60I <- Pr(
     learnt = learnt60, ## updated inference
     parallel = 4 ## let's use 4 cores
 )
-# Registered doParallelSNOW with 4 workers
+# Registered socket cluster with 4 nodes on host 'localhost' 
+# 
 # 
 # Closing connections to cores.
 ```
@@ -1137,7 +1143,7 @@ learntall <- learn(
     outputdir = 'penguin_inference',
     parallel = 4 ## how many cores to use for the computation
 )
-# Registered doParallelSNOW with 4 workers
+# Registered socket cluster with 4 nodes on host ‘localhost’
 # 
 # Calculating auxiliary metadata
 # 
@@ -1207,7 +1213,8 @@ Fspeciesall <- Pr(
     learnt = learntall, ## updated inference
     parallel = 4 ## let's use 4 cores
 )
-# Registered doParallelSNOW with 4 workers
+# Registered socket cluster with 4 nodes on host 'localhost' 
+# 
 # 
 # Closing connections to cores.
 ```
@@ -1291,7 +1298,8 @@ X <- data.frame(Xvls)
 colnames(X) <- Xvrt
 
 Fanalysis <- Pr(Y = Y, X = X, learnt = learntall, parallel = 4)
-# Registered doParallelSNOW with 4 workers
+# Registered socket cluster with 4 nodes on host 'localhost' 
+# 
 # 
 # Closing connections to cores.
 ```
@@ -1361,7 +1369,8 @@ colnames(X) <- Xvrt
 
 ## NB: rewriting the previous 'Fanalysis' object
 Fanalysis <- Pr(Y = Y, X = X, learnt = learntall, parallel = 4)
-# Registered doParallelSNOW with 4 workers
+# Registered socket cluster with 4 nodes on host 'localhost' 
+# 
 # 
 # Closing connections to cores.
 ```
@@ -1431,7 +1440,8 @@ colnames(X) <- Xvrt
 
 ## NB: rewriting the previous 'Fanalysis' object
 Fanalysis <- Pr(Y = Y, X = X, learnt = learntall, parallel = 4)
-# Registered doParallelSNOW with 4 workers
+# Registered socket cluster with 4 nodes on host 'localhost' 
+# 
 # 
 # Closing connections to cores.
 ```

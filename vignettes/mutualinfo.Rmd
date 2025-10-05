@@ -99,11 +99,10 @@ These are only features of this specific data sample, however. Can we generalize
 ``` r
 prob <- Pr(Y = data.frame(island = 'Torgersen', species = 'Chinstrap'),
     learnt = learnt)
+# Error in Pr(Y = data.frame(island = "Torgersen", species = "Chinstrap"), : Unknown value of argument 'parallel'
 
 signif(prob$values, digits = 2)
-#                      X
-# Y                      [,1]
-#   Torgersen,Chinstrap 0.003
+# Error: object 'prob' not found
 ```
 
 \
@@ -341,7 +340,7 @@ MIislandspecies <- mutualinfo(
     learnt = learnt,
     parallel = 4 ## let's use 4 cores
 )
-# Registered doParallelSNOW with 4 workers
+# Registered socket cluster with 4 nodes on host ‘localhost’
 # 
 # Closing connections to cores.
 ```
@@ -433,7 +432,7 @@ MIbodymassspecies <- mutualinfo(
     learnt = learnt,
     parallel = 4
 )
-# Registered doParallelSNOW with 4 workers
+# Registered socket cluster with 4 nodes on host ‘localhost’
 # 
 # Closing connections to cores.
 ```
@@ -473,7 +472,7 @@ MIbodymassbilllen <- mutualinfo(
     learnt = learnt,
     parallel = 4
 )
-# Registered doParallelSNOW with 4 workers
+# Registered socket cluster with 4 nodes on host ‘localhost’
 # 
 # Closing connections to cores.
 ```
