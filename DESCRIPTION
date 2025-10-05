@@ -28,7 +28,8 @@ Depends:
     R (>= 3.5.0)
 Imports:
     extraDistr,
-    nimble
+    nimble,
+    parallel
 Suggests:
     knitr,
     rmarkdown

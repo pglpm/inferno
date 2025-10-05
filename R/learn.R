@@ -52,8 +52,6 @@
 #'     type = 'continuous'
 #' )
 #'
-#' @import parallel nimble
-#'
 #' @export
 learn <- function(
     data,
