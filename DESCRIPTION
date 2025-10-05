@@ -19,7 +19,7 @@ Authors@R: c(
   comment = c(ORCID = "0009-0005-6158-2846"))
   )
 Description: Functions for Bayesian nonparametric population inference (also called exchangeable inference or density inference).
-License: AGPL (>= 3) + file LICENSE
+License: AGPL (>= 3)
 URL: https://pglpm.github.io/inferno/, https://github.com/pglpm/inferno/
 Encoding: UTF-8
 Roxygen: list(markdown = TRUE)
