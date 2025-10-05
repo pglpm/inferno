@@ -19,8 +19,6 @@ reference:
     - rPr
     - subset.probability
     - vrtgrid
-    - oldtailPr
-    - oldPr
 - title: "Internal functions"
   desc: "For developers."
   contents:
