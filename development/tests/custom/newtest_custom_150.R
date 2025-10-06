@@ -23,7 +23,7 @@ outputdirPrefix <- file.path('_packagetest')
 currenttestdir <- learn(data = 'data_test_custom_150.csv',
                         metadata = 'metadata_test_custom.csv',
                         outputdir = outputdirPrefix,
-                        output = 'directory',
+                        outputvalue = 'directory',
                         appendtimestamp = TRUE,
                         appendinfo = TRUE,
                         nsamples = 120, nchains = 12,

@@ -65,7 +65,7 @@ mutualinfo <- function(
         cl <- parallel::makeCluster(ncores)
         ## doParallel::registerDoParallel(cl)
         closeexit <- TRUE
-        message('Registered', capture.output(print(cl)), '.')
+        message('Registered ', capture.output(print(cl)), '.')
     } else if (isFALSE(parallel)) {
         ## user wants us not to use parallel cores
         ncores <- 1
@@ -76,7 +76,7 @@ mutualinfo <- function(
         ncores <- parallel
         cl <- parallel::makeCluster(ncores)
         closeexit <- TRUE
-        message('Registered', capture.output(print(cl)), '.')
+        message('Registered ', capture.output(print(cl)), '.')
     } else {
         stop("Unknown value of argument 'parallel'.")
     }

@@ -1,6 +1,6 @@
 library('inferno')
 
-dataset <- data.frame(V = 1:10)
+dataset <- data.frame(V = 1:2)
 metadata <- data.frame(name = 'V', type = 'continuous')
 
 set.seed(16)
@@ -14,7 +14,7 @@ learntdir <- learn(
     nchains = 2,
     minMCiterations = 200,
     outputdir = outputdir,
-    output = 'directory',
+    outputvalue = 'outputdir',
     parallel = parallel,
     maxrelMCSE = +Inf,
     minESS = 100,

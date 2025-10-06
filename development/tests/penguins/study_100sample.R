@@ -13,7 +13,7 @@ learntdir <- learn(
     outputdir = outputdir,
     appendtimestamp = TRUE,
     appendinfo = TRUE,
-    output = 'directory',
+    outputvalue = 'directory',
     parallel = parallel,
     ## parameters for short test run:
     ## subsampledata = 10,

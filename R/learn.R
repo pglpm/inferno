@@ -1,7 +1,7 @@
 #' Monte Carlo computation of posterior probability distribution
 #'
 #' @description
-#' Core function to compute the posterior probability distribution of the variates conditional on the given data.
+#' Compute the posterior probability distribution of the variates conditional on the given data.
 #'
 #' @details
 #' This function takes as main inputs a set of data and metadata, and computes the probability distribution for new data. Its computation can also be interpreted as an estimation of the frequencies of the variates in the *whole population*, beyond the sample data. The probability distribution is not assumed to be Gaussian or of any other specific shape. The computation is done via Markov-chain Monte Carlo.
@@ -13,7 +13,8 @@
 #' @param data A dataset, given as a [base::data.frame()] or as a file path to a CSV file.
 #' @param metadata A [`metadata`] object, given either as a data.frame object, or as a file pa to a CSV file.
 #' @param auxdata A larger dataset, given as a base::data.frame() or as a file path to a CSV file. Such a dataset would be too many to use in the Monte Carlo sampling, but can be used to calculate hyperparameters.
-#' @param outputdir Character: path to folder where the output should be saved. If omitted or `NULL` (default), a directory is created that has the same name as the data file but with suffix "`_output_`". If `FALSE`, a directory is created in the temporary-directory space.
+#' @param outputdir Character: path to folder where the output should be saved. If `NULL` (default), a directory is created that has the same name as the data file but with suffix "`_output_`". If `FALSE`, a directory is created in the temporary-directory space.
+#' @param outputvalue Character: if `'directory'`, return the output directory name as `VALUE`; if character `'learnt'`, return the `learnt` object containing the parameters obtained from the Monte Carlo computation. Any other value: `VALUE` is `NULL`.
 #' @param nsamples Integer: number of desired Monte Carlo samples. Default 3600.
 #' @param nchains Integer: number of Monte Carlo chains. Default 4.
 #' @param nsamplesperchain Integer: number of Monte Carlo samples per chain.
@@ -22,7 +23,6 @@
 #' @param cleanup Logical: remove diagnostic files at the end of the computation? Default `TRUE`.
 #' @param appendtimestamp Logical: append a timestamp to the name of the output directory `outputdir`? Default `TRUE`.
 #' @param appendinfo Logical: append information about dataset and Monte Carlo parameters to the name of the output directory `outputdir`? Default `TRUE`.
-#' @param output Character: if `'directory'`, return the output directory name as `VALUE`; if character `'learnt'`, return the `learnt` object containing the parameters obtained from the Monte Carlo computation. Any other value: `VALUE` is `NULL`.
 #' @param subsampledata Integer: use only a subset of this many datapoints for the Monte Carlo computation.
 #' @param prior Logical: Calculate the prior distribution?
 #' @param startupMCiterations Integer: number of initial Monte Carlo iterations. Default 3600.
@@ -39,7 +39,7 @@
 #' @param showAlphatraces Logical: save plots of the Monte Carlo traces of the Alpha parameter? Default `FALSE`.
 #' @param hyperparams List: hyperparameters of the prior.
 #'
-#' @return Name of directory containing output files, or learnt object, or `NULL`, depending on argument `output`.
+#' @return Name of directory containing output files, or learnt object, or `NULL`, depending on argument `outputvalue`.
 #'
 #' @examples
 #'
@@ -69,7 +69,7 @@ learn <- function(
     cleanup = TRUE,
     appendtimestamp = TRUE,
     appendinfo = TRUE,
-    output = 'directory',
+    outputvalue = 'directory',
     subsampledata = NULL,
     prior = missing(data) || is.null(data),
     startupMCiterations = 3600,
@@ -237,7 +237,7 @@ learn <- function(
         cl <- parallel::makeCluster(ncores)
         ## doParallel::registerDoParallel(cl)
         closeexit <- TRUE
-        message('Registered', capture.output(print(cl)), '.')
+        message('Registered ', capture.output(print(cl)), '.')
     } else if (isFALSE(parallel)) {
         ## user wants us not to use parallel cores
         ncores <- 1
@@ -248,7 +248,7 @@ learn <- function(
         ncores <- min(nchains, parallel)
         cl <- parallel::makeCluster(ncores)
         closeexit <- TRUE
-        message('Registered', capture.output(print(cl)), '.')
+        message('Registered ', capture.output(print(cl)), '.')
     } else {
         stop("Unknown value of argument 'parallel'.")
     }
@@ -337,7 +337,7 @@ learn <- function(
 
         ## convert factors to strings if necessary
         if(any(sapply(data, is.factor))){
-            cat('Converting factors to characters\n')
+            message('Converting factors to characters.')
             . <- sapply(data, is.factor)
             data[, .] <- lapply(data[, ., drop = FALSE], as.character)
         }
@@ -352,7 +352,7 @@ learn <- function(
 
         ## Drop variates in data that are not in the metadata file
         if (!all(colnames(data) %in% metadata[['name']])) {
-            cat('Warning: data have additional variates. Dropping them.\n')
+            message('Warning: data have additional variates. Dropping them.')
             subvar <- intersect(colnames(data), metadata[['name']])
             data <- data[, subvar, drop = FALSE]
             rm(subvar)
@@ -363,7 +363,7 @@ learn <- function(
         if(length(tokeep) == 0 && !prior) {
             stop('Data are given but empty')
         } else if(length(tokeep) < nrow(data)) {
-            cat('Warning: data contain empty datapoints. Dropping them.\n')
+            message('Warning: data contain empty datapoints. Dropping them.')
             data <- data[tokeep, , drop = FALSE]
         }
         rm(tokeep)
@@ -371,7 +371,7 @@ learn <- function(
         ## Check if the user wants to use a subset of the dataset
         if (is.numeric(subsampledata)) {
             ## @@TODO: find faster and memory-saving subsetting
-            cat('Subsampling data, as requested.\n')
+            message('Subsampling data, as requested.')
             data <- data[sample(seq_len(nrow(data)),
                 min(subsampledata, nrow(data)),
                 replace = FALSE), ]
@@ -415,7 +415,7 @@ learn <- function(
 
         ## Drop variates in auxdata that are not in the metadata file
         if (!all(colnames(auxdata) %in% metadata[['name']])) {
-            cat('Warning: auxdata have additional variates. Dropping them.\n')
+            message('Warning: auxdata have additional variates. Dropping them.')
             subvar <- intersect(colnames(auxdata), metadata[['name']])
             auxdata <- auxdata[, subvar, drop = FALSE]
             rm(subvar)
@@ -426,7 +426,7 @@ learn <- function(
         if(length(tokeep) == 0 && !prior) {
             stop('Auxdata are given but empty')
         } else if(length(tokeep) < nrow(auxdata)) {
-            cat('Warning: auxdata contain empty datapoints. Dropping them.\n')
+            message('Warning: auxdata contain empty datapoints. Dropping them.')
             auxdata <- auxdata[tokeep, , drop = FALSE]
         }
         rm(tokeep)
@@ -438,7 +438,7 @@ learn <- function(
 
 
     ## Build auxiliary metadata object; we'll save it later
-    cat('Calculating auxiliary metadata\n')
+    ## message('Calculating auxiliary metadata.')
     auxmetadata <- buildauxmetadata(
         data = (if (is.null(auxdata)) {data} else {auxdata}),
         metadata = metadata,
@@ -447,13 +447,16 @@ learn <- function(
     )
     ## print(auxmetadata) # for debugging
 
-    cat('\nLearning: ', npoints, 'datapoints, ',
-        nrow(auxmetadata), 'variates\n')
+    message('\nLearning from ', npoints, ' datapoints, ',
+        nrow(auxmetadata), ' variates.')
 
 #### Output-folder setup
     if(isFALSE(outputdir)){
         ## Use a temporary directory
         dirname <- tempdir()
+        if(!is.character(outputvalue) || outputvalue != 'learnt') {
+            message('\nWARNING: with the chosen "outputdir" and "outputvalue" arguments, results are not saved to a persistent directory and not outputted; they will likely be lost.')
+        }
     } else {
         if (is.null(outputdir)) {
             outputdir <- paste0('_output_', sub('.csv$', '', datafile))
@@ -483,9 +486,10 @@ learn <- function(
             dir.create(dirname, showWarnings = FALSE)
     }
     ## Print information
-    cat('\n', paste0(rep('*', max(nchar(dirname), 26)), collapse = ''),
+    asterisks <- paste0(rep('*', max(nchar(dirname), 26)), collapse = '')
+    cat('\n', asterisks,
         '\n Saving output in directory\n', dirname, '\n',
-        paste0(rep('*', max(nchar(dirname), 26)), collapse = ''), '\n')
+        asterisks, '\n\n')
 
     ## This is in case we need to add some extra specifier to the output files
     ## all 'dashnameroot' can be deleted in a final version
@@ -869,10 +873,8 @@ learn <- function(
         file = file.path(dirname, paste0('___datapoints', dashnameroot, '.rds')))
 
 #### Output information to user
-    cat(
-        'Starting Monte Carlo sampling of', nsamples, 'samples by',
-        nchains, 'chains'
-    )
+    message('Starting Monte Carlo sampling of ', nsamples, ' samples by ',
+        nchains, ' chains')
 
     samplespacedims <- (vn$R * 2 + vn$C * 2 + vn$D * 2 + # means, vars
                             (if(vn$O > 0){Omaxn - vn$O}else{0}) +
@@ -887,18 +889,17 @@ learn <- function(
         sum(is.na(data)) # missing data
 
 
-    cat('\nin a space of', samplespacedims,
-        '(effectively', paste0(samplespacedims + samplespacexdims, ')'),
-        'dimensions.\n')
+    message('in a space of ', samplespacedims, ' (effectively ',
+        samplespacedims + samplespacexdims, ') dimensions.')
 
-    cat('Using', ncores, 'cores:',
-        nsamplesperchain, 'samples per chain, max',
-        minchainspercore + (coreswithextrachain > 0), 'chains per core.\n')
-    cat('Requested:   ESS', round(minESS),
-        '  rel.MCSE', signif(maxrelMCSE, 3), '\n')
-    cat('Core logs are being saved in individual files.\n')
-    cat('\nC-compiling samplers appropriate to the variates (package Nimble)\n')
-    cat('this can take tens of minutes. Please wait...\n')
+    message('Using ', ncores, ' cores: ',
+        nsamplesperchain, ' samples per chain, max ',
+        minchainspercore + (coreswithextrachain > 0), ' chains per core.')
+    message('Requested:   ESS ', round(minESS),
+        '   rel.MCSE ', signif(maxrelMCSE, 3), '.')
+    message('Core logs are being saved in individual files.')
+    message('C-compiling samplers appropriate to the variates (package Nimble)')
+    message('this can take tens of minutes. Please wait...')
 
     ## outconmain <- file(file.path(dirname,
     ##     paste0('log', dashnameroot,
@@ -1072,36 +1073,50 @@ learn <- function(
     ##     }
     ## }
 
-#### Save all final parameters together with the aux-metadata in one file
-    saveRDS(c(mcsamples,
-        list(auxmetadata = auxmetadata,
-            auxinfo = list(
-                nchains = nchains,
-                npoints = npoints,
-                hyperparams = hyperparams
-            ))
-    ),
-    file = file.path(dirname,
-        paste0('learnt', dashnameroot, '.rds')
+#### Save all final parameters together with some aux metadata in one file
+    learnt <- c(mcsamples, list(
+        auxmetadata = auxmetadata,
+        auxinfo = list(
+            nchains = nchains,
+            npoints = npoints,
+            hyperparams = hyperparams,
+            maxiterations = maxiterations,
+            maxusedcomponents = maxusedcomponents,
+            nonfinitechains = nonfinitechains,
+            stoppedchains = stoppedchains
+        )
     ))
+    ## The 'learnt' object is preliminarily saved as soon as possible,
+    ## in case something crashes during subsequent diagnostics
+    saveRDS(learnt,
+        file = file.path(dirname, paste0('learnt', dashnameroot, '.rds'))
+    )
 
-    cat('\rFinished Monte Carlo sampling.                                 \n')
+    ## This cat() is to delete the last 'estimated end time'
+    cat('\r                                                               \n')
 
-    cat('Highest number of Monte Carlo iterations across chains:', maxiterations, '\n')
-    cat('Highest number of used mixture components:', maxusedcomponents, '\n')
+    message('Finished Monte Carlo sampling.')
+
+    message(
+        'Highest number of Monte Carlo iterations across chains: ',
+        maxiterations, '.',
+        '\nHighest number of used mixture components: ',
+        maxusedcomponents, '.'
+    )
     if (maxusedcomponents > ncomponents - 5) {
-        cat('TOO MANY MIXTURE COMPONENTS USED!\nConsider',
-            're-running with increased "ncomponents" parameter\n')
+        message('\nTOO MANY MIXTURE COMPONENTS USED!\n',
+            'Consider re-running with increased "ncomponents" parameter.')
     }
 
     if (nonfinitechains > 0) {
-        cat('\nNote:', nonfinitechains, 'chains had some non-finite outputs\n')
+        message('\nNote: ', nonfinitechains,
+            ' chains had some non-finite outputs.')
     }
+
     if (stoppedchains > 0) {
-        cat('\nNote:', stoppedchains,
-            'chains were stopped',
-            'before reaching required precision\nin order',
-            'to meet the required time constraints\n')
+        message('\nNOTE: ', stoppedchains,
+            ' chains were stopped before reaching required precision\n',
+            'in order to meet the required time constraints.')
     }
 
 
@@ -1112,7 +1127,8 @@ learn <- function(
 
     testdata <- readRDS(file = file.path(dirname,
         paste0('___testdata_', 0, '.rds')))
-    cat('\nChecking test data\n(', paste0('#', testdata$pointsid), ')\n')
+    message('\nChecking test data\n(',
+        paste0('#', testdata$pointsid, collapse = ' '), '):')
 
     oktraces <- util_Pcheckpoints(
         testdata = testdata,
@@ -1148,7 +1164,7 @@ learn <- function(
         Xhi <- quantile(x = atrace, probs = Qhi,
             na.rm = FALSE, names = FALSE, type = 6)
         ## quantile width
-        width <- Xhi - Xlo
+        qwidth <- Xhi - Xlo
 
         ## CIs for lower and upper quantiles
         temp <- funMCEQ(x = atrace, prob = c(Qlo, Qhi), Qpair = Qerror)
@@ -1162,13 +1178,13 @@ learn <- function(
         ))
 
         ## We check: relative error of quantiles and ess of norm-rank-mean
-        relmcse <- c(1 / sqrt(essnrmean), wXlo / width, wXhi / width)
+        relmcse <- c(1 / sqrt(essnrmean), wXlo / qwidth, wXhi / qwidth)
 
         autothinning <- N * max(relmcse)^2
 
 ### same as within cores
 
-        c(max(relmcse[-1]), essnrmean, autothinning, width)
+        c(max(relmcse[-1]), essnrmean, autothinning, qwidth)
     })
 
     ## Output available diagnostics
@@ -1177,14 +1193,17 @@ learn <- function(
         'ESS' = jointdiagn[2, ],
         'needed thinning' = jointdiagn[3, ],
         'average' = colMeans(oktraces),
-        'width' = jointdiagn[4, ]
+        'quantile width' = jointdiagn[4, ]
+    )
+    learnt$auxinfo <- c(learnt$auxinfo, toprint)
+    saveRDS(learnt,
+        file = file.path(dirname, paste0('learnt', dashnameroot, '.rds'))
     )
 
 ####
-    cat('\n')
     for(i in names(toprint)) {
         thisdiagn <- toprint[[i]]
-        cat(paste0('\n', i, ':'),
+        message(i, ': ',
             if(length(thisdiagn) > 1){
                 paste(signif(range(thisdiagn), 3), collapse = ' to ')
             } else {
@@ -1195,7 +1214,7 @@ learn <- function(
 
 
     ## Plot various info and traces
-    cat('\nPlotting final Monte Carlo traces and marginal samples...\n')
+    message('\nPlotting final Monte Carlo traces and marginal samples...\n')
 
     ##
     ## colpalette <- seq_len(ncol(oktraces))
@@ -1243,7 +1262,7 @@ learn <- function(
     plotFsamples(
         filename = file.path(dirname,
             paste0('plotsamples_learnt', dashnameroot)),
-        learnt = c(mcsamples, list(auxmetadata = auxmetadata)),
+        learnt = learnt,
         data = data,
         plotvariability = 'samples',
         nFsamples = showsamples, plotprobability = TRUE,
@@ -1255,7 +1274,7 @@ learn <- function(
     plotFsamples(
         filename = file.path(dirname,
             paste0('plotquantiles_learnt', dashnameroot)),
-        learnt = c(mcsamples, list(auxmetadata = auxmetadata)),
+        learnt = learnt,
         data = data,
         plotvariability = 'quantiles',
         nFsamples = plotDisplayedQuantiles, plotprobability = TRUE,
@@ -1285,18 +1304,19 @@ learn <- function(
 
 
     totalfinaltime <- difftime(Sys.time(), timestart0, units = 'auto')
-    cat('\nTotal computation time:', printtimediff(totalfinaltime), '\n')
-    cat('Average preparation & finalization time:',
+    message(
+        'Total computation time: ', printtimediff(totalfinaltime),
+        '\nAverage preparation & finalization time: ',
         printtimediff(
             difftime(Sys.time() + headertime, headertimestart, units = 'auto')
-        ), '\n')
-    cat('Average Monte Carlo time per chain:',
+        ), '.',
+        '\nAverage Monte Carlo time per chain: ',
         printtimediff(
             difftime(headertimestart + MCtime, headertimestart, units = 'auto')
-        ), '\n')
-    cat('Max total memory used: approx', signif(totusedmem, 2), 'MB\n')
-    cat('Max memory used per core: approx', signif(maxusedmem, 2), 'MB\n')
-
+        ), '.',
+        '\nMax total memory used: approx ', signif(totusedmem, 2), 'MB.',
+        '\nMax memory used per core: approx ', signif(maxusedmem, 2), 'MB.'
+    )
     ## if (exists('cl')) {
     ##     cat('\nClosing connections to cores.\n')
     ##     foreach::registerDoSEQ()
@@ -1309,7 +1329,7 @@ learn <- function(
     ## Should we leave the plots of partial traces?
     ## maybe create an additional argument to let the user decide?
     if (cleanup) {
-        cat('\nRemoving temporary output files.\n')
+        message('Removing temporary output files.')
         file.remove(dir(dirname,
             pattern = paste0('^___.*\\..*$'),
             full.names = TRUE
@@ -1321,15 +1341,13 @@ learn <- function(
     ## a histogram over number of components over all chains
     ## (for the moment there's one plot per chain)
 
-    cat('Finished.\n')
+    message('\nFinished.')
 
     ## What should we output? how about the full name of the output dir?
-    if (is.character(output) && output == 'directory') {
+    if (is.character(outputvalue) && outputvalue == 'directory') {
         dirname
-    } else if (is.character(output) && output == 'learnt') {
-        readRDS(file.path(dirname,
-            paste0('learnt', dashnameroot, '.rds')
-        ))
+    } else if (is.character(outputvalue) && outputvalue == 'learnt') {
+        learnt
     }
 }
 
@@ -2907,7 +2925,7 @@ workerfun <- function(
             Xhi <- quantile(x = oktraces, probs = Qhi,
                 na.rm = FALSE, names = FALSE, type = 6)
             ## quantile width
-            width <- Xhi - Xlo
+            qwidth <- Xhi - Xlo
 
             ## CIs for lower and upper quantiles
             temp <- funMCEQ(x = oktraces, prob = c(Qlo, Qhi), Qpair = Qerror)
@@ -2920,7 +2938,7 @@ workerfun <- function(
             ))
 
             ## We check: relative error of quantiles and ess of norm-rank-mean
-            relmcse <- c(1 / sqrt(essnrmean), wXlo / width, wXhi / width)
+            relmcse <- c(1 / sqrt(essnrmean), wXlo / qwidth, wXhi / qwidth)
 
             autothinning <- N * max(relmcse)^2
 
@@ -2930,7 +2948,7 @@ workerfun <- function(
                 'ESS' = essnrmean,
                 'needed thinning' = autothinning,
                 'average' = mean(oktraces),
-                'width' = width
+                'quantile width' = qwidth
             )
 
 ####

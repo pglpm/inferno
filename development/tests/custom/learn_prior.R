@@ -29,7 +29,7 @@ currenttestdir <- learn(
     data = 'dataset_custom30.csv',
     metadata = 'metadata_custom_prior.csv',
     outputdir = outputdirPrefix,
-    output = 'directory',
+    outputvalue = 'directory',
     appendtimestamp = FALSE,
     appendinfo = FALSE,
     nsamples = 120,

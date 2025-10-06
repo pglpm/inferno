@@ -17,7 +17,7 @@ learn(
   cleanup = TRUE,
   appendtimestamp = TRUE,
   appendinfo = TRUE,
-  output = "directory",
+  outputvalue = "directory",
   subsampledata = NULL,
   prior = missing(data) || is.null(data),
   startupMCiterations = 3600,
@@ -46,7 +46,7 @@ learn(
 
 \item{auxdata}{A larger dataset, given as a base::data.frame() or as a file path to a CSV file. Such a dataset would be too many to use in the Monte Carlo sampling, but can be used to calculate hyperparameters.}
 
-\item{outputdir}{Character: path to folder where the output should be saved. If omitted or \code{NULL} (default), a directory is created that has the same name as the data file but with suffix "\verb{_output_}". If \code{FALSE}, a directory is created in the temporary-directory space.}
+\item{outputdir}{Character: path to folder where the output should be saved. If \code{NULL} (default), a directory is created that has the same name as the data file but with suffix "\verb{_output_}". If \code{FALSE}, a directory is created in the temporary-directory space.}
 
 \item{nsamples}{Integer: number of desired Monte Carlo samples. Default 3600.}
 
@@ -64,7 +64,7 @@ learn(
 
 \item{appendinfo}{Logical: append information about dataset and Monte Carlo parameters to the name of the output directory \code{outputdir}? Default \code{TRUE}.}
 
-\item{output}{Character: if \code{'directory'}, return the output directory name as \code{VALUE}; if character \code{'learnt'}, return the \code{learnt} object containing the parameters obtained from the Monte Carlo computation. Any other value: \code{VALUE} is \code{NULL}.}
+\item{outputvalue}{Character: if \code{'directory'}, return the output directory name as \code{VALUE}; if character \code{'learnt'}, return the \code{learnt} object containing the parameters obtained from the Monte Carlo computation. Any other value: \code{VALUE} is \code{NULL}.}
 
 \item{subsampledata}{Integer: use only a subset of this many datapoints for the Monte Carlo computation.}
 
@@ -97,10 +97,10 @@ learn(
 \item{hyperparams}{List: hyperparameters of the prior.}
 }
 \value{
-Name of directory containing output files, or learnt object, or \code{NULL}, depending on argument \code{output}.
+Name of directory containing output files, or learnt object, or \code{NULL}, depending on argument \code{outputvalue}.
 }
 \description{
-Core function to compute the posterior probability distribution of the variates conditional on the given data.
+Compute the posterior probability distribution of the variates conditional on the given data.
 }
 \details{
 This function takes as main inputs a set of data and metadata, and computes the probability distribution for new data. Its computation can also be interpreted as an estimation of the frequencies of the variates in the \emph{whole population}, beyond the sample data. The probability distribution is not assumed to be Gaussian or of any other specific shape. The computation is done via Markov-chain Monte Carlo.

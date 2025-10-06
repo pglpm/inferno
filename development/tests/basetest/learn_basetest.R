@@ -16,7 +16,7 @@ learntdir <- learn(
     appendtimestamp = TRUE,
     appendinfo = TRUE,
     cleanup = FALSE,
-    output = 'directory',
+    outputvalue = 'directory',
     parallel = parallel,
     maxrelMCSE = +Inf,
     minESS = 100,
