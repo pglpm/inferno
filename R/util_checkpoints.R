@@ -351,6 +351,7 @@ util_Pcheckpoints <- function(
 ###
 ### interval probability
 ###
+        V2mean <- V2sd <- NULL
 
 ### D-variates not in 'cumul'
         if(length(auxV2) > 0){
@@ -377,6 +378,7 @@ util_Pcheckpoints <- function(
 ###
 ### binary case
 ###
+        VBprobs <- NULL
 
 ### B-variates
         if(length(auxVB) > 0){

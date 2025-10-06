@@ -1,32 +1,24 @@
-#library('inferno')
-#devtools::load_all()
+library('inferno')
+
+dataset <- data.frame(V = 1:10)
+metadata <- data.frame(name = 'V', type = 'continuous')
 
 set.seed(16)
-parallel <- 2
+parallel <- 1
 
-outputdir <- '__testbase_ess100'
+outputdir <- 'minitest'
 learntdir <- learn(
-    data = 'data_basetest.csv',
-    metadata = 'metadata_basetest.csv',
+    data = dataset,
+    metadata = metadata,
     nsamples = 200,
-    nchains = parallel,
-    ## minMCiterations = 3600 * 3,
-    prior = FALSE,
+    nchains = 2,
+    minMCiterations = 200,
     outputdir = outputdir,
-    appendtimestamp = TRUE,
-    appendinfo = TRUE,
-    cleanup = FALSE,
     output = 'directory',
     parallel = parallel,
     maxrelMCSE = +Inf,
     minESS = 100,
-    ## ncheckpoints = 12,
-    ##
-    ## ## parameters for short test run:
-    ## subsampledata = 10,
     maxhours = 0,
-    ## nsamplesperchain = 60,
-    ## nchains = parallel + 1,
     ##
     hyperparams = list(
         ## ncomponents = 64,

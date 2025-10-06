@@ -52,10 +52,10 @@
 #'     type = 'continuous'
 #' )
 #'
-#' @rawNamespace import(nimble, except = rcat)
 #' @import parallel
 #' 
 #' @export
+## #' @rawNamespace import(nimble, except = rcat)
 learn <- function(
     data,
     metadata,
@@ -2840,10 +2840,12 @@ workerfun <- function(
             ## Log-likelihood
             diagntime <- Sys.time()
             ##
+            print('***pre ll')
             ll <- util_Pcheckpoints(
                 testdata = testdata,
                 learnt = mcsamples
             )
+            print('***post ll')
 
             ll <- cbind(
                 exp(rowMeans(log(ll), na.rm = TRUE)), # geometric mean
@@ -3099,7 +3101,7 @@ workerfun <- function(
                         }
                     )
                 )
-                print('***OK before flexiplot')
+
                 ## Traces of likelihood and cond. probabilities
                 par(mfrow = c(1, 1))
                 for (avar in 1:ncol(traces)) {
