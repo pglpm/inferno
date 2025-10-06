@@ -2840,12 +2840,11 @@ workerfun <- function(
             ## Log-likelihood
             diagntime <- Sys.time()
             ##
-            print('***pre ll')
+
             ll <- util_Pcheckpoints(
                 testdata = testdata,
                 learnt = mcsamples
             )
-            print('***post ll')
 
             ll <- cbind(
                 exp(rowMeans(log(ll), na.rm = TRUE)), # geometric mean
