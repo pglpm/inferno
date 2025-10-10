@@ -1,4 +1,4 @@
-#' Calculate posterior probabilities
+#' Calculate quantiles
 #'
 #' This function calculates the posterior probability `Pr(Y | X, data)`, where `Y` and `X` are two (non overlapping) sets of joint variate values. If `X` is omitted or `NULL`, then the posterior probability `Pr(Y | data)` is calculated. The function also gives quantiles about the possible variability of the probability `Pr(Y | X, newdata, data)` that we could have if more learning data were provided, as well as a number of samples of the possible values of such probabilities. If several joint values are given for `Y` or `X`, the function will create a 2D grid of results for all possible compbinations of the given `Y` and `X` values. This function also allows for base-rate or other prior-probability corrections: If a prior (for instance, a base rate) for `Y` is given, the function will calculate the `Pr(Y | X, data, prior)` from `Pr(X | Y, data)` and the prior by means of Bayes's theorem. Each variate in each argument `Y`, `X` can be specified either as a point-value `Y = y` or as a left-open interval `Y ≤ y` or as a right-open interval `Y ≥ y`, through the argument `tails`.
 #'
@@ -17,10 +17,10 @@
 #' @return A list of class `probability`, consisting of the elements `values`,  `quantiles` (possibly `NULL`), `samples` (possibly `NULL`), `values.MCaccuracy`, `quantiles.MCaccuracy` (possibly `NULL`), `Y`, `X`. Element `values`: a matrix with the probabilities P(Y|X,data,assumptions), for all combinations of values of `Y` (rows) and `X` (columns). Element `quantiles`: an array with the variability quantiles (3rd dimension of the array) for such probabilities. Element `samples`: an array with the variability samples (3rd dimension of the array) for such probabilities. Elements `values.MCaccuracy` and `quantiles.MCaccuracy`: arrays with the numerical accuracies (roughly speaking a standard deviation) of the Monte Carlo calculations for the `values` and `quantiles` elements. Elements `Y`, `X`: copies of the `Y` and `X` arguments.
 #'
 #' @import parallel
-#'
-#' @export
-Pr <- function(
-    Y,
+#' 
+##  #' @export
+qPr <- function(
+    pY,
     X = NULL,
     learnt,
     tails = NULL,
@@ -116,8 +116,9 @@ Pr <- function(
     }
 
 
-    Y <- as.data.frame(Y)
-    Yv <- colnames(Y)
+    pY <- as.list(pY)
+    if(length(pY) > 1){stop('Specify only one variate in "pY".')}
+    Yv <- names(Y)
 
     if(all(is.na(X))){X <- NULL}
     if(!is.null(X)){X <- as.data.frame(X)}
@@ -129,6 +130,7 @@ Pr <- function(
             stop('Missing variate names in "tails"')
         }
     }
+
     tailscentre <- list('==', 0, '0', NULL)
     tailsleft <- list('<=', -1, '-1', 'left')
     tailsright <- list('>=', 1, '+1', 'right')

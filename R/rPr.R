@@ -110,10 +110,13 @@ rPr <- function(
         stop('overlap in Y and X variates\n')
     }
 
-    if (!all(tailsv %in% Xv)) {
-        warning('variate ',
-            paste0(tailsv[!(tailsv %in% Xv)], collapse = ' '),
-            ' not among X; ignored\n')
+    tailsv <- names(tails)
+    if (!all(tailsv %in% c(Yv, Xv))) {
+        warning('"tails" variate ',
+            paste0(tailsv[!(tailsv %in% c(Yv, Xv))], collapse = ' '),
+            ' not among Y and X; ignored\n')
+        tails <- tails[(tailsv %in% c(Yv, Xv))]
+        tailsv <- names(tails)
     }
     if (length(unique(tailsv)) != length(tailsv)) {
         stop('duplicate "tails" variates\n')
