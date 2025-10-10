@@ -547,7 +547,7 @@ util_qYX <- function(
     dosamples, nsamples,
     Qerror
 ) {
-
+## check type of Y in order to use appropriate qfun
     if(usememory) {
         lprobX <- readRDS(file.path(temporarydir,
             paste0('__X', iyx['jx'], '__.rds')
