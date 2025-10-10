@@ -118,7 +118,7 @@ qPr <- function(
 
     pY <- as.list(pY)
     if(length(pY) > 1){stop('Specify only one variate in "pY".')}
-    Yv <- names(Y)
+    Yv <- names(pY)
 
     if(all(is.na(X))){X <- NULL}
     if(!is.null(X)){X <- as.data.frame(X)}
@@ -231,7 +231,8 @@ qPr <- function(
         rm(.)
     }
 
-    nY <- nrow(Y)
+    nY <- length(pY[[1]])
+    Y <- pY[[1]]
     nX <- max(nrow(X), 1L)
 
     dosamples <- !is.null(nsamples)
@@ -303,7 +304,7 @@ qPr <- function(
     ## combfnc <- function(...){setNames(do.call(mapply, c(FUN=cbind, lapply(list(...), `[`, keys))), keys)}
 
     out <- combfnr(parallel::parApply(cl = cl,
-            X = expand.grid(jy = seq_len(nY), jx = seq_len(nX)),
+            X = expand.grid(p = Y, jx = seq_len(nX)),
             MARGIN = 1,
             FUN = util_combineYX,
             temporarydir = temporarydir, usememory = usememory,
