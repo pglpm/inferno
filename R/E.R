@@ -434,3 +434,67 @@ E <- function(
 
     out
 }
+
+
+
+## bs <- function(f, x){
+##     eps <- .Machine$double.eps
+##     if(f(x[2]) < f(x[1])){
+##         x <- rev(x)
+##     } else if(f(x[2]) == f(x[1])){
+##         stop('function must have opposite sign at x')
+##     }
+##     newx <- sum(x)/2
+##     fx <- f(newx)
+##     while(abs(fx) > eps){
+##         x[sign(fx)/2 + 1.5] <- newx
+##         newx <- sum(x)/2
+##         fx <- f(newx)
+##     }
+##     newx
+## }
+
+
+## vbs2 <- function(f, x){
+##     eps <- .Machine$double.eps
+##     xseq <- 1:nrow(x)
+##     newx <- rowSums(x)/2
+##     fx <- f(newx)
+##     while(any(abs(fx) > eps)){
+##         x[cbind(xseq, 1.5 + sign(fx)/2)] <- newx
+##         newx <- rowSums(x)/2
+##         fx <- f(newx)
+##     }
+##     newx
+## }
+
+## vbs <- function(f, x){
+##     eps <- .Machine$double.eps
+##     nx <- nrow(x)
+##     xseq <- 1:nx
+##     newx <- rowSums(x)/2
+##     fx <- f(newx)
+##     while(any(abs(fx) > eps)){
+##         choose <- c(xseq, 1.5 + sign(fx)/2)
+##         dim(choose) <- c(nx, 2)
+##         x[choose] <- newx
+##         newx <- rowSums(x)/2
+##         fx <- f(newx)
+##     }
+##     newx
+## }
+## 
+## 
+## svbs <- function(ff, y){
+##     eps <- .Machine$double.eps
+##     apply(1:nrow(y), 1, function(i){
+## m        newx <- sum(x)/2
+##         fx <- f(newx)
+##         while(abs(fx) > eps){
+##             x[1.5 + sign(fx)/2] <- newx
+##             newx <- sum(x)/2
+##             fx <- f(newx)
+##         }
+##         newx
+##     })
+## }
