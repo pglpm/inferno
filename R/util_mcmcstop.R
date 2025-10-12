@@ -26,7 +26,7 @@ funMCEI <- function(x, fn, p = c(0.055, 0.945), ...) {
     y <- x[rep(x = seq_len(a), each = b) +
                round(seq(from = 0, to = N-a, length.out = b))]
     dim(y) <- c(b, a)
-    quantile(apply(y, 2, FUN = fn, ...),
+    quantile(x = apply(y, 2, FUN = fn, ...),
         probs = p, na.rm = FALSE, names = FALSE, type = 6)
 }
 
@@ -45,7 +45,7 @@ funMCEQ <- function(x, prob = c(0.055, 0.945), Qpair = pnorm(c(-1, 1))){
     N <- length(x)
     straces <- sort(x)
     sapply(prob, function(aprob) {
-        Xlo <- quantile(x, aprob, na.rm = FALSE, names = FALSE, type = 6)
+        Xlo <- quantile(x = x, probs = aprob, na.rm = FALSE, names = FALSE, type = 6)
         ##
         essXlo <- funESS3(x <= Xlo)
         ##
@@ -56,7 +56,7 @@ funMCEQ <- function(x, prob = c(0.055, 0.945), Qpair = pnorm(c(-1, 1))){
 ## funMCEQ0 <- function(x, prob, Qpair){
 ##     N <- length(x)
 ##     straces <- sort(x)
-##         Xlo <- quantile(x, prob, na.rm = FALSE, names = FALSE, type = 6)
+##         Xlo <- quantile(x = x, probs = prob, na.rm = FALSE, names = FALSE, type = 6)
 ##         ##
 ##         essXlo <- funESS3(x <= Xlo)
 ##         ##

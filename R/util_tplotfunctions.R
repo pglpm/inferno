@@ -706,9 +706,15 @@ hist.probability <- function(
            (legend %in%
                  c("bottomright", "bottom", "bottomleft", "left", "topleft",
                      "top", "topright", "right", "center"))){
+        if(!is.null(p$Y)){
         legs <- paste0(apply(p$Y, 1, function(xxx){
                 paste0(paste0(names(xxx), ' = ', xxx), collapse = ', ')
         }))
+        } else {
+        legs <- paste0(apply(as.data.frame(p$pY), 1, function(xxx){
+                paste0(paste0(xxx, '-quantile'), collapse = ', ')
+        }))
+        }
         if(!is.null(p$X)){
             legs <- c(outer( legs,
                 paste0(' | ',

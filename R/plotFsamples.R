@@ -136,9 +136,9 @@ plotFsamples <- function(
                 ## Find appropriate plot height across plots
                 if (plotvariability == 'samples') {
                     dim(probabilities$samples) <- dim(probabilities$samples)[-2]
-                    ymax <- quantile(apply(probabilities$samples, 2,
+                    ymax <- quantile(x = apply(probabilities$samples, 2,
                         function(x) {
-                            quantile(c(x), probs = 31 / 32, type = 6,
+                            quantile(x = c(x), probs = 31 / 32, type = 6,
                                 na.rm = TRUE, names = FALSE)
                         }
                     ), probs = 31 / 32, type = 6, na.rm = TRUE, names = FALSE)
@@ -148,7 +148,7 @@ plotFsamples <- function(
                         is.finite(probabilities$quantiles)])
                     ##     apply(probabilities[, , drop = FALSE], 1,
                     ##     function(x) {
-                    ##         quantile(x, max(quants), type = 6, na.rm = TRUE)
+                    ##         quantile(x = x, max(quants), type = 6, na.rm = TRUE)
                     ##     }
                     ## )
                     ## ymax <- max(ymax[is.finite(ymax)])
@@ -195,7 +195,7 @@ plotFsamples <- function(
                     addplot <- TRUE # new plots must keep this one
                 } else if (plotvariability == 'quantiles') {
                     ## marguncertainty <- t(apply(probabilities, 1, function(x) {
-                    ##     quantile(x, quants, type = 6, na.rm = TRUE)
+                    ##     quantile(x = x, probs = quants, type = 6, na.rm = TRUE)
                     ## }))
 
                     plotquantiles(
@@ -291,17 +291,17 @@ plotFsamples <- function(
                 ## Find appropriate plot height across plots
                 if (plotvariability == 'samples') {
                     dim(probabilities$samples) <- dim(probabilities$samples)[-2]
-                    ymax <- quantile(apply(
+                    ymax <- quantile(x = apply(
                         probabilities$samples[xin, , drop = FALSE], 2,
                         function(x) {
-                            quantile(c(x), probs = 31 / 32, type = 6,
+                            quantile(x = c(x), probs = 31 / 32, type = 6,
                                 na.rm = TRUE, names = FALSE)
                         }
                     ), probs = 31 / 32, type = 6, na.rm = TRUE, names = FALSE)
-                    ## ymax <- quantile(apply(
+                    ## ymax <- quantile(x = apply(
                     ##     probabilities[xin, subsamples, drop = FALSE],
                     ##     2, function(x) {
-                    ##         quantile(x, 31 / 32, type = 6, na.rm = TRUE)
+                    ##         quantile(x = x, probs = 31 / 32, type = 6, na.rm = TRUE)
                     ##     }
                     ## ), 31 / 32, type = 6, na.rm = TRUE)
                 } else {
@@ -574,9 +574,9 @@ plotFsamples <- function(
                 ## Find appropriate plot height across plots
                 if (plotvariability == 'samples') {
                     dim(probabilities$samples) <- dim(probabilities$samples)[-2]
-                    ymax <- quantile(apply(probabilities$samples, 2,
+                    ymax <- quantile(x = apply(probabilities$samples, 2,
                         function(x) {
-                            quantile(x, probs = 31 / 32, type = 6,
+                            quantile(x = x, probs = 31 / 32, type = 6,
                                 na.rm = TRUE, names = FALSE)
                         }
                     ), probs = 31 / 32, type = 6, na.rm = TRUE, names = FALSE)

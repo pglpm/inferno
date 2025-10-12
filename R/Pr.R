@@ -424,7 +424,7 @@ Pr <- function(
             }
         }
 
-        temp <- names(quantile(1, probs = quantiles, names = TRUE))
+        temp <- names(quantile(x = 1, probs = quantiles, names = TRUE))
         dimnames(out$quantiles) <- list(Y = Ynames, X = Xnames, temp)
         dimnames(out$quantiles.MCaccuracy) <- dimnames(out$quantiles)
     }

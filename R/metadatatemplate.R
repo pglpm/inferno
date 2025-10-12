@@ -395,9 +395,9 @@ metadatatemplate <- function(
             domainmin <- NA # signif(datamax - 3 * rangex, 1)
             domainmax <- NA # signif(datamax + 3 * rangex, 1)
 
-            ## Q1 <- quantile(x, probs = 0.25, type = 6)
-            ## centralvalue <- quantile(x, probs = 0.5, type = 6)
-            ## Q3 <- quantile(x, probs = 0.75, type = 6)
+            ## Q1 <- quantile(x = x, probs = 0.25, type = 6)
+            ## centralvalue <- quantile(x = x, probs = 0.5, type = 6)
+            ## Q3 <- quantile(x = x, probs = 0.75, type = 6)
             ## ## Borderline case if the first and second quartile have the same value
             ## if (lowvalue == highvalue) {
             ##   lowvalue <- if (sum(x < Q1) > 0) {
