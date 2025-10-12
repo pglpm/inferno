@@ -2,10 +2,10 @@
 #'
 #' This function calculates the posterior probability `Pr(Y | X, data)`, where `Y` and `X` are two (non overlapping) sets of joint variate values. If `X` is omitted or `NULL`, then the posterior probability `Pr(Y | data)` is calculated. The function also gives quantiles about the possible variability of the probability `Pr(Y | X, newdata, data)` that we could have if more learning data were provided, as well as a number of samples of the possible values of such probabilities. If several joint values are given for `Y` or `X`, the function will create a 2D grid of results for all possible compbinations of the given `Y` and `X` values. This function also allows for base-rate or other prior-probability corrections: If a prior (for instance, a base rate) for `Y` is given, the function will calculate the `Pr(Y | X, data, prior)` from `Pr(X | Y, data)` and the prior by means of Bayes's theorem. Each variate in each argument `Y`, `X` can be specified either as a point-value `Y = y` or as a left-open interval `Y ≤ y` or as a right-open interval `Y ≥ y`, through the argument `tails`.
 #'
-#' @param pY Named numerical vector or one-element list: set of probabilities of a variate for which we want to find the quantiles. The variate is given as the name of the vector or list. Default: `c(0.055, 0.25, 0.75, 0.945)`, that is, the 5.5%, 25%, 75%, 94.5% quantiles.
+#' @param pY One-element list: set of probabilities of a variate for which we want to find the quantiles. The variate is given as the name of the vector or list element. Default: `c(0.055, 0.25, 0.75, 0.945)`, that is, the 5.5%, 25%, 75%, 94.5% quantiles.
 #' @param X Matrix or data.table or `NULL` (default): set of values of variates on which we want to condition. If `NULL`, no conditioning is made (except for conditioning on the learning dataset and prior assumptions). One variate per column, one set of values per row.
 #' @param learnt Either a character with the name of a directory or full path for a 'learnt.rds' object, produced by the [learn()] function, or such an object itself.
-#' @param tails Named vector or list, or `NULL` (default). The names must match some or all of the variates in argument `X`. For variates in this list, the probability arguments are understood in an semi-open interval sense: `X ≤ x` or `X ≥ x`, an so on. A left-open interval `X ≤ x` is indicated by the values `'<='` or `'left'` or `-1`; a right-open interval `X ≥ x` is indicated by the values `'>='` or `'right'` or `+1`. Values `NULL`, `'=='`, `0` indicate that a point value `Y = y` (not an interval) should be calculated. **NB**: the semi-open intervals *always* include the given value; this is important for ordinal or rounded variates. For instance, if `X` is an integer variate, then to condition on  `X < 3` we should require `X <= 2`.
+#' @param tails Named vector or list, or `NULL` (default). The names must match some or all of the variates in arguments `X`. For variates in this list, the probability conditional is understood in an semi-open interval sense: `X ≤ x` or `X ≥ x`, an so on. See analogous argument in [Pr()].
 #' @param priorY Numeric vector with the same length as the rows of `Y`, or `TRUE`, or `NULL` (default): prior probabilities or base rates for the `Y` values. If `TRUE`, the prior probabilities are assumed to be all equal. For the moment only the value `NULL` is accepted.
 #' @param nsamples Integer or `NULL` or `'all'` (default): desired number of samples of the variability of the quantile for `Y`. If `NULL`, no samples are reported. If `'all'` (or `Inf`), all samples obtained by the [learn()] function are used.
 #' @param quantiles Numeric vector, between 0 and 1, or `NULL`: desired quantiles of the variability of the quantile for `Y`. Default `c(0.055, 0.25, 0.75, 0.945)`, that is, the 5.5%, 25%, 75%, 94.5% quantiles (these are typical quantile values in the Bayesian literature: they give 50% and 89% credibility intervals, which correspond to 1 shannons and 0.5 shannons of uncertainty). If `NULL`, no quantiles are calculated.
@@ -273,7 +273,10 @@ qPr <- function(
 
 #### Determine the type of Y variate, set params accordingly
     if(auxY$mcmctype == 'O'){
-        params1 = learnt$Oprob[auxY$indexpos + seq_len(auxY$Nvalues), ,]
+        params1 = log(apply(
+            learnt$Oprob[auxY$indexpos + seq_len(auxY$Nvalues), ,],
+            c(2, 3), cumsum
+        ))
         params2 = NULL
         util_qYX <- util_qYXdiscr
     } else if(auxY$mcmctype == 'R'){
@@ -305,8 +308,8 @@ qPr <- function(
             X = expand.grid(pY = Y, jx = seq_len(nX)),
             MARGIN = 1,
             FUN = util_qYX,
-            auxmetadata = auxY,
             params1 = params1, params2 = params2,
+            auxmetadata = auxY,
             temporarydir = temporarydir, usememory = usememory,
             doquantiles = doquantiles, quantiles = quantiles,
             dosamples = dosamples, nsamples = nsamples,
@@ -380,11 +383,11 @@ qPr <- function(
         } else {
             ## Bayes's theorem
             out$samples <- priorY * aperm(a = out$samples, perm = c(2, 1, 3),
-                resize = FALSE)
+                resize = TRUE)
             normf <- c(t(colSums(out$samples, na.rm = TRUE)))
             out$samples <- aperm(a = aperm(a = out$samples, perm = NULL,
-                resize = FALSE) / normf, perm = NULL,
-                resize = FALSE)
+                resize = TRUE) / normf, perm = NULL,
+                resize = TRUE)
         }
 
         dimnames(out$samples) <- c(Ynames, list(X = Xnames,
@@ -407,7 +410,7 @@ qPr <- function(
                     probs = quantiles, type = 6,
                     na.rm = TRUE, names = FALSE,
                     simplify = TRUE),
-                perm = c(2, 3, 1), resize = FALSE)
+                perm = c(2, 3, 1), resize = TRUE)
 
             ## adjust number of samples as originally requested
             if(is.null(nsamples0)) {

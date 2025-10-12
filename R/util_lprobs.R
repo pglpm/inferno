@@ -667,7 +667,6 @@ util_qYXcont <- function(
 
 #### Calculate quantile for the frequency samples
     if(doquantiles){
-        nmaxsamples <- ncol(params1)
         selsamples <- TRUE
     } else if(dosamples) {
         nmaxsamples <- nsamples
@@ -702,6 +701,116 @@ util_qYXcont <- function(
                     lower.tail = TRUE, log.p = TRUE)
             ), na.rm = TRUE) / sumlpX - pY
         tocheck <- abs(FF) > eps & Yvals[, 2] - Yvals[, 1] > eps
+        }
+        samples <- unname(unlist(vtransform(samples,
+            auxmetadata = auxmetadata,
+            Rout = 'original',
+            Cout = 'original',
+            Dout = 'original',
+            Oout = 'original',
+            Nout = 'original',
+            Bout = 'original',
+            variates <- auxmetadata$name,
+            logjacobianOr = NULL)))
+    }
+
+    list(
+        values = values,
+        ##
+        quantiles = if(doquantiles) {
+            quantile(x = samples, probs = quantiles, type = 6,
+                na.rm = TRUE, names = FALSE)
+        },
+        ##
+        samples = if(dosamples) {
+            samples[round(seq(1, length(samples), length.out = nsamples))]
+        }
+        ## values.MCaccuracy
+        ## quantiles.MCaccuracy
+)
+}
+
+
+
+#' Calculate quantiles for discrete Y by bisection
+#'
+#' @keywords internal
+util_qYXdiscr <- function(
+    iyx,
+    params1, params2,
+    auxmetadata,
+    temporarydir, usememory = TRUE,
+    doquantiles, quantiles,
+    dosamples, nsamples,
+    Qerror,
+    eps = NULL
+) {
+    pY <- iyx['pY']
+
+    if(usememory) {
+        lprobX <- readRDS(file.path(temporarydir,
+            paste0('__X', iyx['jx'], '__.rds')
+        ))
+    }
+    sumlpX <- colSums(exp(lprobX), na.rm = TRUE)
+
+    nmaxsamples <- dim(params1)[3]
+    Nvalues <- auxmetadata$Nvalues
+
+#### Calculate quantile for the posterior probability distribution
+
+    values <- 1L
+
+    FF <- mean(colSums(exp(
+        lprobX + params1[values, ,]
+    ), na.rm = TRUE) / sumlpX)
+
+    while(FF < pY && values <= Nvalues){
+        values <- values + 1L
+        FF <- mean(colSums(exp(
+            lprobX + params1[values, ,]
+        ), na.rm = TRUE) / sumlpX)
+    }
+    values <- unname(unlist(vtransform(values,
+        auxmetadata = auxmetadata,
+        Rout = 'original',
+        Cout = 'original',
+        Dout = 'original',
+        Oout = 'original',
+        Nout = 'original',
+        Bout = 'original',
+        variates <- auxmetadata$name,
+        logjacobianOr = NULL)))
+
+#### Calculate quantile for the frequency samples
+    if(doquantiles){
+        selsamples <- TRUE
+    } else if(dosamples) {
+        nmaxsamples <- nsamples
+        selsamples <- round(seq(1, ncol(params1), length.out = nsamples))
+    }
+
+    if(doquantiles || dosamples) {
+        params1 <- aperm(a = params1[, , selsamples],
+            perm = c(1, 3, 2), resize = TRUE)
+        lprobX <- t(lprobX[, selsamples])
+
+        samples <- rep(1L, nmaxsamples)
+
+        i <- 1L
+
+        FF <- rowSums(exp(
+            lprobX + params1[i, ,]
+        ), na.rm = TRUE) / sumlpX
+
+        tocheck <- FF < pY
+        while(any(tocheck)) {
+            i <-  i + 1L
+            samples[tocheck] <- i
+            FF <- rowSums(exp(
+            lprobX + params1[i, ,]
+            ), na.rm = TRUE) / sumlpX
+            tocheck <- FF < pY
         }
         samples <- unname(unlist(vtransform(samples,
             auxmetadata = auxmetadata,

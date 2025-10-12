@@ -386,11 +386,11 @@ Pr <- function(
         } else {
             ## Bayes's theorem
             out$samples <- priorY * aperm(a = out$samples, perm = c(2, 1, 3),
-                resize = FALSE)
+                resize = TRUE)
             normf <- c(t(colSums(out$samples, na.rm = TRUE)))
             out$samples <- aperm(a = aperm(a = out$samples, perm = NULL,
-                resize = FALSE) / normf, perm = NULL,
-                resize = FALSE)
+                resize = TRUE) / normf, perm = NULL,
+                resize = TRUE)
         }
 
         dimnames(out$samples) <- list(Y = Ynames, X = Xnames,
