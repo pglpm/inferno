@@ -111,11 +111,11 @@ rPr <- function(
     }
 
     tailsv <- names(tails)
-    if (!all(tailsv %in% c(Yv, Xv))) {
+    if (!all(tailsv %in% Xv)) {
         warning('"tails" variate ',
-            paste0(tailsv[!(tailsv %in% c(Yv, Xv))], collapse = ' '),
+            paste0(tailsv[!(tailsv %in% Xv)], collapse = ' '),
             ' not among Y and X; ignored\n')
-        tails <- tails[(tailsv %in% c(Yv, Xv))]
+        tails <- tails[(tailsv %in% Xv)]
         tailsv <- names(tails)
     }
     if (length(unique(tailsv)) != length(tailsv)) {
@@ -162,15 +162,16 @@ rPr <- function(
 
 
     ## Utility function to avoid finite-precision errors
-    denorm <- function(lprob) {
-        apply(X = lprob, MARGIN = 2, FUN = function(xx) {
-            xx - max(xx[is.finite(xx)])
-        }, simplify = TRUE)
-    }
+    ## now externally defined
+    ## denorm <- function(lprob) {
+    ##     apply(X = lprob, MARGIN = 2, FUN = function(xx) {
+    ##         xx - max(xx[is.finite(xx)])
+    ##     }, simplify = TRUE)
+    ## }
 
 #### Draw samples of Ynames
 
-    lWnorm <- denorm(lW[, sseq, drop = FALSE])
+    lWnorm <- util_denorm(lW[, sseq, drop = FALSE])
     Ws <- extraDistr::rcat(n = n, prob = t(
         apply(X = lWnorm, MARGIN = 2, FUN = function(xx){
             xx <- exp(xx)
