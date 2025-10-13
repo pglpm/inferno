@@ -619,7 +619,7 @@ util_qYXcont <- function(
     doquantiles, quantiles,
     dosamples, nsamples,
     Qerror,
-    eps = .Machine$double.eps * 3
+    tol = .Machine$double.eps * 3
 ) {
     pY <- iyx['pY']
 
@@ -630,11 +630,11 @@ util_qYXcont <- function(
     }
     sumlpX <- colSums(exp(lprobX), na.rm = TRUE)
 
-    maxsamples <- ncol(params1)
-
-    Yvals <- .Machine$double.xmax * c(-0.125, 0.125)
+    nmaxsamples <- ncol(params1)
 
 #### Calculate quantile for the posterior probability distribution
+
+    Yvals <- .Machine$double.xmax * c(-0.125, 0.125)
 
     values <- (Yvals[1] + Yvals[2]) / 2
 
@@ -644,7 +644,7 @@ util_qYXcont <- function(
             lower.tail = TRUE, log.p = TRUE)
     ), na.rm = TRUE) / sumlpX) - pY
 
-    while(abs(FF) > eps && Yvals[2] - Yvals[1] > eps){
+    while(abs(FF) > tol && Yvals[2] - Yvals[1] > tol){
         Yvals[(FF > 0) + 1L] <- values
         values <- (Yvals[1] + Yvals[2]) / 2
         FF <- mean(colSums(exp(
@@ -689,7 +689,7 @@ util_qYXcont <- function(
                 lower.tail = TRUE, log.p = TRUE)
         ), na.rm = TRUE) / sumlpX - pY
 
-        tocheck <- abs(FF) > eps
+        tocheck <- abs(FF) > tol
         while(any(tocheck)) {
             choose <- c(sampleseq[tocheck], (FF[tocheck] > 0) + 1L)
             dim(choose) <- c(sum(tocheck), 2)
@@ -700,7 +700,7 @@ util_qYXcont <- function(
                     mean = params1, sd = params2,
                     lower.tail = TRUE, log.p = TRUE)
             ), na.rm = TRUE) / sumlpX - pY
-        tocheck <- abs(FF) > eps & Yvals[, 2] - Yvals[, 1] > eps
+        tocheck <- abs(FF) > tol & Yvals[, 2] - Yvals[, 1] > tol
         }
         samples <- unname(unlist(vtransform(samples,
             auxmetadata = auxmetadata,
@@ -742,8 +742,8 @@ util_qYXdiscr <- function(
     temporarydir, usememory = TRUE,
     doquantiles, quantiles,
     dosamples, nsamples,
-    Qerror,
-    eps = NULL
+    Qerror = NULL,
+    tol = NULL
 ) {
     pY <- iyx['pY']
 

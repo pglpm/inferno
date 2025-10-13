@@ -14,7 +14,6 @@ Pr(
   quantiles = c(0.055, 0.25, 0.75, 0.945),
   parallel = NULL,
   silent = FALSE,
-  usememory = TRUE,
   keepYX = TRUE
 )
 }
@@ -37,8 +36,6 @@ the joint probability of. One variate per column, one set of values per row.}
 \item{parallel}{Logical or positive integer or cluster object. \code{TRUE}: use roughly half of available cores; \code{FALSE}: use serial computation; integer: use this many cores. It can also be a cluster object previously created with \code{\link[parallel:makeCluster]{parallel::makeCluster()}}; in this case the parallel computation will use this object.}
 
 \item{silent}{Logical, default \code{FALSE}: give warnings or updates in the computation?}
-
-\item{usememory}{Logical, default \code{TRUE}: save partial results to disc, to avoid crashes?}
 
 \item{keepYX}{Logical, default \code{TRUE}: keep a copy of the \code{Y} and \code{X} arguments in the output? This is used for the plot method.}
 }

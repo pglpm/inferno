@@ -652,7 +652,13 @@ hist.probability <- function(
         densitylist[[i]] <- hd$density
     } }
 
-    if(is.null(xlab)){xlab <- 'relative frequency'}
+    if(is.null(xlab)){
+        if(!is.null(p$Y)){
+            xlab <- 'relative frequency'
+        } else {
+            xlab <- 'quantile'
+        }
+    }
     if(is.null(ylab)){ylab <- 'probability density'}
     if(isFALSE(fill.alpha.f) || !is.numeric(fill.alpha.f)){fill.alpha.f <- 0}
 
@@ -712,7 +718,7 @@ hist.probability <- function(
         }))
         } else {
         legs <- paste0(apply(as.data.frame(p$pY), 1, function(xxx){
-                paste0(paste0(xxx, '-quantile'), collapse = ', ')
+                paste0(paste0(xxx, '-qtl'), collapse = ', ')
         }))
         }
         if(!is.null(p$X)){

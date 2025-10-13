@@ -1,8 +1,9 @@
 #' Calculate quantiles
 #'
-#' This function calculates the posterior probability `Pr(Y | X, data)`, where `Y` and `X` are two (non overlapping) sets of joint variate values. If `X` is omitted or `NULL`, then the posterior probability `Pr(Y | data)` is calculated. The function also gives quantiles about the possible variability of the probability `Pr(Y | X, newdata, data)` that we could have if more learning data were provided, as well as a number of samples of the possible values of such probabilities. If several joint values are given for `Y` or `X`, the function will create a 2D grid of results for all possible compbinations of the given `Y` and `X` values. This function also allows for base-rate or other prior-probability corrections: If a prior (for instance, a base rate) for `Y` is given, the function will calculate the `Pr(Y | X, data, prior)` from `Pr(X | Y, data)` and the prior by means of Bayes's theorem. Each variate in each argument `Y`, `X` can be specified either as a point-value `Y = y` or as a left-open interval `Y ≤ y` or as a right-open interval `Y ≥ y`, through the argument `tails`.
+#' This function calculates the quantiles of `Pr(Y | X, data)` at specified probability levels, as well as the variability of those quantiles if more learning data were provided. The variability can be expressed in the form of quantiles, samples, or both, as in the [Pr()] function. If several joint values are given for the probability levels and for `X`, the function creates a 2D grid of results for all possible compbinations of the given probability levels and `X` values. Each variate in the argument `X` can be specified either as a point-value `X = x` or as a left-open interval `X ≤ x` or as a right-open interval `X ≥ x`, through the argument `tails`.
 #'
-#' @param pY One-element list: set of probabilities of a variate for which we want to find the quantiles. The variate is given as the name of the vector or list element. Default: `c(0.055, 0.25, 0.75, 0.945)`, that is, the 5.5%, 25%, 75%, 94.5% quantiles.
+#' @param p Numeric vector of probability levels. Default: `c(0.055, 0.5, 0.945)`.
+#' @param Yname Character vector: name of variate whose quantiles will be computed.
 #' @param X Matrix or data.table or `NULL` (default): set of values of variates on which we want to condition. If `NULL`, no conditioning is made (except for conditioning on the learning dataset and prior assumptions). One variate per column, one set of values per row.
 #' @param learnt Either a character with the name of a directory or full path for a 'learnt.rds' object, produced by the [learn()] function, or such an object itself.
 #' @param tails Named vector or list, or `NULL` (default). The names must match some or all of the variates in arguments `X`. For variates in this list, the probability conditional is understood in an semi-open interval sense: `X ≤ x` or `X ≥ x`, an so on. See analogous argument in [Pr()].
@@ -12,14 +13,17 @@
 #' @param parallel Logical or positive integer or cluster object. `TRUE`: use roughly half of available cores; `FALSE`: use serial computation; integer: use this many cores. It can also be a cluster object previously created with [parallel::makeCluster()]; in this case the parallel computation will use this object.
 #' @param silent Logical, default `FALSE`: give warnings or updates in the computation?
 #' @param keepYX Logical, default `TRUE`: keep a copy of the `Y` and `X` arguments in the output? This is used for the plot method.
+#' @param tol numeric positive: tolerance in the calculation of quantiles. Default: `.Machine$double.eps * 10` (typically `2.22045e-15`).
+
 #'
-#' @return A list of the elements `values`,  `quantiles` (possibly `NULL`), `samples` (possibly `NULL`), `values.MCaccuracy`, `quantiles.MCaccuracy` (possibly `NULL`), `Y`, `X`. Element `values`: a matrix with the requested `Y`-quantiles conditional on the requested `X`-values, for all combinations of `pY` (rows) and `X` (columns). Element `quantiles`: an array with the variability quantiles (3rd dimension of the array). Element `samples`: an array with the variability samples (3rd dimension of the array). Elements `values.MCaccuracy` and `quantiles.MCaccuracy`: arrays with the numerical accuracies (roughly speaking a standard deviation) of the Monte Carlo calculations for the `values` and `quantiles` elements. Elements `pY`, `X`: copies of the `pY` and `X` arguments.
+#' @return A list of the elements `values`,  `quantiles` (possibly `NULL`), `samples` (possibly `NULL`), `Y`, `X`. Element `values`: a matrix with the requested `Y`-quantiles conditional on the requested `X`-values, for all combinations of `p` (rows) and `X` (columns). Element `quantiles`: an array with the variability quantiles (3rd dimension of the array). Element `samples`: an array with the variability samples (3rd dimension of the array). Elements `Y`, `X`: copies of the `p` and `X` arguments.
 #'
 #' @import parallel
 #' 
 ##  #' @export
 qPr <- function(
-    pY,
+    p = c(0.055, 0.5, 0.945),
+    Yname,
     X = NULL,
     learnt,
     tails = NULL,
@@ -28,7 +32,9 @@ qPr <- function(
     quantiles = c(0.055, 0.5, 0.945),
     parallel = NULL,
     silent = FALSE,
-    keepYX = TRUE
+    keepYX = TRUE,
+    tol = .Machine$double.eps * 10
+
 ) {
     ## #' @param usememory Logical, default `TRUE`: save partial results to disc, to avoid excessive RAM use. (For the moment only possible value is `TRUE`.)
     usememory <- TRUE
@@ -115,9 +121,7 @@ qPr <- function(
     }
 
 
-    pY <- as.list(pY)
-    if(length(pY) > 1){stop('Specify only one variate in "pY".')}
-    Yv <- names(pY)
+    if(length(Yname) > 1){stop('Specify only one variate in "Yname".')}
 
     if(all(is.na(X))){X <- NULL}
     if(!is.null(X)){X <- as.data.frame(X)}
@@ -137,15 +141,15 @@ qPr <- function(
 
     ## Consistency checks
 
-    if (!all(Yv %in% auxmetadata$name)) {
+    if (!all(Yname %in% auxmetadata$name)) {
         stop('unknown Y variate ',
-            paste0(Yv[!(Yv %in% auxmetadata$name)], collapse = ' '),
+            paste0(Yname[!(Yname %in% auxmetadata$name)], collapse = ' '),
             '\n')
     }
-    if (auxmetadata[auxmetadata$name == Yv, 'mcmctype'] %in% c('B', 'N')){
+    if (auxmetadata[auxmetadata$name == Yname, 'mcmctype'] %in% c('B', 'N')){
         stop('quantiles are undefined for binary and nominal variates.')
     }
-    if (length(unique(Yv)) != length(Yv)) {
+    if (length(unique(Yname)) != length(Yname)) {
         stop('duplicate Y variates\n')
     }
 
@@ -158,7 +162,7 @@ qPr <- function(
         stop('duplicate X variates\n')
     }
 
-    if (any(Yv %in% Xv)) {
+    if (any(Yname %in% Xv)) {
         stop('overlap in Y and X variates\n')
     }
 
@@ -227,16 +231,15 @@ qPr <- function(
         Y <- X
         X <- .
         rm(.)
-        . <- Yv
-        Yv <- Xv
+        . <- Yname
+        Yname <- Xv
         Xv <- .
         rm(.)
     }
 
-    nY <- length(pY[[1]])
-    Y <- pY[[1]]
+    nY <- length(p)
     nX <- max(nrow(X), 1L)
-    auxY <- auxmetadata[auxmetadata$name == Yv, ]
+    auxY <- auxmetadata[auxmetadata$name == Yname, ]
 
     dosamples <- !is.null(nsamples)
 
@@ -305,7 +308,7 @@ qPr <- function(
     ## combfnc <- function(...){setNames(do.call(mapply, c(FUN=cbind, lapply(list(...), `[`, keys))), keys)}
 
     out <- combfnr(parallel::parApply(cl = cl,
-            X = expand.grid(pY = Y, jx = seq_len(nX)),
+            X = expand.grid(pY = p, jx = seq_len(nX)),
             MARGIN = 1,
             FUN = util_qYX,
             params1 = params1, params2 = params2,
@@ -314,7 +317,7 @@ qPr <- function(
             doquantiles = doquantiles, quantiles = quantiles,
             dosamples = dosamples, nsamples = nsamples,
             Qerror = Qerror,
-            eps = .Machine$double.eps * 10
+            tol = tol
     ))
 
     ## clean temp files
@@ -343,7 +346,7 @@ qPr <- function(
     if(is.null(priorY)){
 
         ## if(ncol(Y) == 1){Ynames <- Y[, 1]} else {Ynames <- NULL}
-        Ynames <- pY
+        Ynames <- setNames(object = list(p), nm = Yname)
 
         if(!is.null(X)){
             Xnames <- apply(X = X, MARGIN = 1, FUN = paste0, collapse=',',
@@ -429,7 +432,7 @@ qPr <- function(
     if(isTRUE(keepYX)){
         ## save Y and X values in the output; useful for plotting methods
         if(is.null(priorY)){
-            out$pY <- pY
+            out$pY <- Ynames
             out$X <- X
         } else {
             out$Y <- X
