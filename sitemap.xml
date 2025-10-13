@@ -6,7 +6,6 @@
 <url><loc>https://pglpm.github.io/inferno/articles/mutualinfo.html</loc></url>
 <url><loc>https://pglpm.github.io/inferno/authors.html</loc></url>
 <url><loc>https://pglpm.github.io/inferno/index.html</loc></url>
-<url><loc>https://pglpm.github.io/inferno/reference/E.html</loc></url>
 <url><loc>https://pglpm.github.io/inferno/reference/Pr.html</loc></url>
 <url><loc>https://pglpm.github.io/inferno/reference/buildauxmetadata.html</loc></url>
 <url><loc>https://pglpm.github.io/inferno/reference/createQfunction.html</loc></url>
@@ -31,6 +30,7 @@
 <url><loc>https://pglpm.github.io/inferno/reference/plot.probability.html</loc></url>
 <url><loc>https://pglpm.github.io/inferno/reference/plotFsamples.html</loc></url>
 <url><loc>https://pglpm.github.io/inferno/reference/plotquantiles.html</loc></url>
+<url><loc>https://pglpm.github.io/inferno/reference/qPr.html</loc></url>
 <url><loc>https://pglpm.github.io/inferno/reference/rPr.html</loc></url>
 <url><loc>https://pglpm.github.io/inferno/reference/rowcumsum.html</loc></url>
 <url><loc>https://pglpm.github.io/inferno/reference/rowinvcumsum.html</loc></url>
@@ -38,10 +38,14 @@
 <url><loc>https://pglpm.github.io/inferno/reference/util_Pcheckpoints.html</loc></url>
 <url><loc>https://pglpm.github.io/inferno/reference/util_combineYX.html</loc></url>
 <url><loc>https://pglpm.github.io/inferno/reference/util_denorm.html</loc></url>
+<url><loc>https://pglpm.github.io/inferno/reference/util_joinPtraces.html</loc></url>
+<url><loc>https://pglpm.github.io/inferno/reference/util_learntvar2sd.html</loc></url>
 <url><loc>https://pglpm.github.io/inferno/reference/util_lprobsargsyx.html</loc></url>
 <url><loc>https://pglpm.github.io/inferno/reference/util_lprobsbase.html</loc></url>
 <url><loc>https://pglpm.github.io/inferno/reference/util_lprobsmi.html</loc></url>
 <url><loc>https://pglpm.github.io/inferno/reference/util_prepPcheckpoints.html</loc></url>
+<url><loc>https://pglpm.github.io/inferno/reference/util_qYXcont.html</loc></url>
+<url><loc>https://pglpm.github.io/inferno/reference/util_qYXdiscr.html</loc></url>
 <url><loc>https://pglpm.github.io/inferno/reference/vrtgrid.html</loc></url>
 <url><loc>https://pglpm.github.io/inferno/reference/vtransform.html</loc></url>
 <url><loc>https://pglpm.github.io/inferno/reference/workerfun.html</loc></url>

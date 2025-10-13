@@ -20,7 +20,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">inferno</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.4.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.5.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -65,6 +65,7 @@
 
     
     
+<p><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow></mrow><annotation encoding="application/x-tex">\newcommand{\mo}{\mathrel{\!=\!}}</annotation></semantics></math></p>
 <p>This vignette gives an introduction and guide to the visual and
 quantitative capabilities and functions of the
 <strong><em>inferno</em></strong> package, for the study of
@@ -82,14 +83,14 @@ probabilities of single and joint variates from that dataset; also
 probabilities conditional on given variates. These probabilities refers
 to a <em>new unit</em>; for example:</p>
 <ul>
-<li>If we find that
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mrow><mi mathvariant="normal">P</mi><mi mathvariant="normal">r</mi></mrow><mrow><mo stretchy="true" form="prefix">(</mo><mtext mathvariant="normal">species</mtext><mrow><mspace width="-0.167em"></mspace><mo>=</mo><mspace width="-0.167em"></mspace></mrow><mtext mathvariant="normal">Adelie</mtext><mo stretchy="true" form="postfix">)</mo></mrow><mo>=</mo><mn>44</mn><mi>%</mi></mrow><annotation encoding="application/x-tex">\mathrm{Pr}(\text{species}\mathrel{\!=\!}\text{Adelie}) = 44\%</annotation></semantics></math>,
-then there’s a 44% probability that the next penguin we sample (from the
-same population) is of the <em>Adélie</em> species.</li>
-<li>If we find that
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mrow><mi mathvariant="normal">P</mi><mi mathvariant="normal">r</mi></mrow><mrow><mo stretchy="true" form="prefix">(</mo><mtext mathvariant="normal">species</mtext><mrow><mspace width="-0.167em"></mspace><mo>=</mo><mspace width="-0.167em"></mspace></mrow><mtext mathvariant="normal">Gentoo</mtext><mspace width="0.167em"></mspace><mo stretchy="false" form="postfix">|</mo><mspace width="0.167em"></mspace><mtext mathvariant="normal">island</mtext><mrow><mspace width="-0.167em"></mspace><mo>=</mo><mspace width="-0.167em"></mspace></mrow><mtext mathvariant="normal">Biscoe</mtext><mo stretchy="true" form="postfix">)</mo></mrow><mo>=</mo><mn>1</mn><mi>%</mi></mrow><annotation encoding="application/x-tex">\mathrm{Pr}(\text{species}\mathrel{\!=\!}\text{Gentoo} \,\vert\, \text{island} \mathrel{\!=\!}\text{Biscoe}) = 1\%</annotation></semantics></math>,
-then if we have a new penguin, and we know it is from Biscoe island,
-there’s a 1% probability that it is of the <em>Gentoo</em> species.</li>
+<li>If we find that <span class="math inline">$\mathrm{Pr}(\text{species}\mo \text{Adelie}) =
+44\%$</span>, then there’s a 44% probability that the next penguin we
+sample (from the same population) is of the <em>Adélie</em>
+species.</li>
+<li>If we find that <span class="math inline">$\mathrm{Pr}(\text{species}\mo \text{Gentoo}
+\,\vert\, \text{island} \mo \text{Biscoe}) = 1\%$</span>, then if we
+have a new penguin, and we know it is from Biscoe island, there’s a 1%
+probability that it is of the <em>Gentoo</em> species.</li>
 </ul>
 <p>And these probabilities can also be interpreted as “estimates” of the
 corresponding <em>whole-population</em> frequencies.</p>
@@ -198,7 +199,7 @@ shows that its probability is around 0.3%:</p>
 <div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">prob</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/Pr.html">Pr</a></span><span class="op">(</span>Y <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span>island <span class="op">=</span> <span class="st">'Torgersen'</span>, species <span class="op">=</span> <span class="st">'Chinstrap'</span><span class="op">)</span>,</span>
 <span>    learnt <span class="op">=</span> <span class="va">learnt</span><span class="op">)</span></span>
-<span><span class="co"># Error in Pr(Y = data.frame(island = "Torgersen", species = "Chinstrap"), : Unknown value of argument 'parallel'</span></span>
+<span><span class="co"># Error in Pr(Y = data.frame(island = "Torgersen", species = "Chinstrap"), : Unknown value of argument 'parallel'.</span></span>
 <span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/Round.html" class="external-link">signif</a></span><span class="op">(</span><span class="va">prob</span><span class="op">$</span><span class="va">values</span>, digits <span class="op">=</span> <span class="fl">2</span><span class="op">)</span></span>
 <span><span class="co"># Error: object 'prob' not found</span></span></code></pre></div>
@@ -494,14 +495,14 @@ shapes.</p></li>
 </ul>
 <p>Mutual information is always positive or zero, and can be defined in
 several mathematically equivalent ways, such as the following:</p>
-<p><math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><munder><mo>∑</mo><mrow><msub><mi>y</mi><mn>1</mn></msub><mo>,</mo><msub><mi>y</mi><mn>2</mn></msub></mrow></munder><mrow><mi mathvariant="normal">P</mi><mi mathvariant="normal">r</mi></mrow><mrow><mo stretchy="true" form="prefix">(</mo><msub><mi>Y</mi><mn>1</mn></msub><mrow><mspace width="-0.167em"></mspace><mo>=</mo><mspace width="-0.167em"></mspace></mrow><msub><mi>y</mi><mn>1</mn></msub><mo>,</mo><msub><mi>Y</mi><mn>2</mn></msub><mrow><mspace width="-0.167em"></mspace><mo>=</mo><mspace width="-0.167em"></mspace></mrow><msub><mi>y</mi><mn>2</mn></msub><mo stretchy="true" form="postfix">)</mo></mrow><mspace width="0.167em"></mspace><msub><mo>log</mo><mn>2</mn></msub><mfrac><mrow><mrow><mi mathvariant="normal">P</mi><mi mathvariant="normal">r</mi></mrow><mrow><mo stretchy="true" form="prefix">(</mo><msub><mi>Y</mi><mn>1</mn></msub><mrow><mspace width="-0.167em"></mspace><mo>=</mo><mspace width="-0.167em"></mspace></mrow><msub><mi>y</mi><mn>1</mn></msub><mo>,</mo><msub><mi>Y</mi><mn>2</mn></msub><mrow><mspace width="-0.167em"></mspace><mo>=</mo><mspace width="-0.167em"></mspace></mrow><msub><mi>y</mi><mn>2</mn></msub><mo stretchy="true" form="postfix">)</mo></mrow></mrow><mrow><mrow><mi mathvariant="normal">P</mi><mi mathvariant="normal">r</mi></mrow><mrow><mo stretchy="true" form="prefix">(</mo><msub><mi>Y</mi><mn>1</mn></msub><mrow><mspace width="-0.167em"></mspace><mo>=</mo><mspace width="-0.167em"></mspace></mrow><msub><mi>y</mi><mn>1</mn></msub><mo stretchy="true" form="postfix">)</mo></mrow><mo>⋅</mo><mrow><mi mathvariant="normal">P</mi><mi mathvariant="normal">r</mi></mrow><mrow><mo stretchy="true" form="prefix">(</mo><msub><mi>Y</mi><mn>2</mn></msub><mrow><mspace width="-0.167em"></mspace><mo>=</mo><mspace width="-0.167em"></mspace></mrow><msub><mi>y</mi><mn>2</mn></msub><mo stretchy="true" form="postfix">)</mo></mrow></mrow></mfrac><mspace width="0.278em"></mspace><mrow><mi mathvariant="normal">S</mi><mi mathvariant="normal">h</mi></mrow></mrow><annotation encoding="application/x-tex">
-\sum_{y_1, y_2} \mathrm{Pr}(Y_1 \mathrel{\!=\!}y_1, Y_2 \mathrel{\!=\!}y_2) \, 
+<p><span class="math display">$$
+\sum_{y_1, y_2} \mathrm{Pr}(Y_1 \mo y_1, Y_2 \mo y_2) \,
 \log_{2} \frac{
-\mathrm{Pr}(Y_1 \mathrel{\!=\!}y_1, Y_2 \mathrel{\!=\!}y_2)
+\mathrm{Pr}(Y_1 \mo y_1, Y_2 \mo y_2)
 }{
-\mathrm{Pr}(Y_1 \mathrel{\!=\!}y_1) \cdot \mathrm{Pr}(Y_2 \mathrel{\!=\!}y_2)
+\mathrm{Pr}(Y_1 \mo y_1) \cdot \mathrm{Pr}(Y_2 \mo y_2)
 } \; \mathrm{Sh}
-</annotation></semantics></math></p>
+$$</span></p>
 <p>with integrals replacing the sums in the case of continuous variates.
 It is measured in <a href="https://www.electropedia.org/iev/iev.nsf/display?openform&amp;ievref=171-07-11" class="external-link"><em>shannons</em></a>
 (symbol
@@ -552,7 +553,7 @@ joint variates.</p>
 <span>    learnt <span class="op">=</span> <span class="va">learnt</span>,</span>
 <span>    parallel <span class="op">=</span> <span class="fl">4</span> <span class="co">## let's use 4 cores</span></span>
 <span><span class="op">)</span></span>
-<span><span class="co"># Registered socket cluster with 4 nodes on host ‘localhost’</span></span>
+<span><span class="co"># Registered doParallelSNOW with 4 workers</span></span>
 <span><span class="co"># </span></span>
 <span><span class="co"># Closing connections to cores.</span></span></code></pre></div>
 <p>The resulting object <code>MIislandspecies</code> is a list of
@@ -685,7 +686,7 @@ explored previously, and calculate also their mutual information.</p>
 <span>    learnt <span class="op">=</span> <span class="va">learnt</span>,</span>
 <span>    parallel <span class="op">=</span> <span class="fl">4</span></span>
 <span><span class="op">)</span></span>
-<span><span class="co"># Registered socket cluster with 4 nodes on host ‘localhost’</span></span>
+<span><span class="co"># Registered doParallelSNOW with 4 workers</span></span>
 <span><span class="co"># </span></span>
 <span><span class="co"># Closing connections to cores.</span></span></code></pre></div>
 <p>Scatter plot:</p>
@@ -719,7 +720,7 @@ explored previously, and calculate also their mutual information.</p>
 <span>    learnt <span class="op">=</span> <span class="va">learnt</span>,</span>
 <span>    parallel <span class="op">=</span> <span class="fl">4</span></span>
 <span><span class="op">)</span></span>
-<span><span class="co"># Registered socket cluster with 4 nodes on host ‘localhost’</span></span>
+<span><span class="co"># Registered doParallelSNOW with 4 workers</span></span>
 <span><span class="co"># </span></span>
 <span><span class="co"># Closing connections to cores.</span></span></code></pre></div>
 <p>Scatter plot:</p>
