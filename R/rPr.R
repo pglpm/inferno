@@ -114,7 +114,7 @@ rPr <- function(
         warning('"tails" variate ',
             paste0(tailsv[!(tailsv %in% Xv)], collapse = ' '),
             ' not among X; ignored\n')
-        tails <- tails[(tailsv %in% Xv)]
+        tails <- tails[tailsv %in% Xv]
         tailsv <- names(tails)
     }
     if (length(unique(tailsv)) != length(tailsv)) {

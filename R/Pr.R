@@ -163,7 +163,7 @@ Pr <- function(
         warning('"tails" variate ',
             paste0(tailsv[!(tailsv %in% c(Yv, Xv))], collapse = ' '),
             ' not among Y and X; ignored\n')
-        tails <- tails[(tailsv %in% c(Yv, Xv))]
+        tails <- tails[tailsv %in% c(Yv, Xv)]
         tailsv <- names(tails)
     }
     if (length(unique(tailsv)) != length(tailsv)) {

@@ -145,7 +145,7 @@ mutualinfo <- function(
             stop('Missing variate names in "tails"')
         }
     }
-
+    tailsv <- names(tails)
     tailscentre <- list('==', 0, '0', NULL)
     tailsleft <- list('<=', -1, '-1', 'left')
     tailsright <- list('>=', 1, '+1', 'right')
@@ -204,12 +204,11 @@ mutualinfo <- function(
         stop('overlap in Y2 and X variates\n')
     }
 
-    tailsv <- names(tails)
-    if (!all(tailsv %in% c(Yv, Xv))) {
-        warning('"tails" variate ',
-            paste0(tailsv[!(tailsv %in% c(Yv, Xv))], collapse = ' '),
-            ' not among Y and X; ignored\n')
-        tails <- tails[(tailsv %in% c(Yv, Xv))]
+    if (!all(tailsv %in% Xv)) {
+        warning('variate ',
+            paste0(tailsv[!(tailsv %in% Xv)], collapse = ' '),
+            ' not among X; ignored\n')
+        tails <- tails[tailsv %in% Xv]
         tailsv <- names(tails)
     }
     if (length(unique(tailsv)) != length(tailsv)) {
