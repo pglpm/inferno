@@ -1324,7 +1324,7 @@ longer time on your computer:</p>
 <span id="cb5-6"><a href="#cb5-6" tabindex="-1"></a>    <span class="at">outputdir =</span> <span class="st">&#39;penguin_inference&#39;</span>,</span>
 <span id="cb5-7"><a href="#cb5-7" tabindex="-1"></a>    <span class="at">parallel =</span> <span class="dv">4</span> <span class="do">## how many cores to use for the computation</span></span>
 <span id="cb5-8"><a href="#cb5-8" tabindex="-1"></a>)</span>
-<span id="cb5-9"><a href="#cb5-9" tabindex="-1"></a><span class="co"># Registered socket cluster with 4 nodes on host ‘localhost’</span></span>
+<span id="cb5-9"><a href="#cb5-9" tabindex="-1"></a><span class="co"># Registered doParallelSNOW with 4 workers</span></span>
 <span id="cb5-10"><a href="#cb5-10" tabindex="-1"></a><span class="co"># </span></span>
 <span id="cb5-11"><a href="#cb5-11" tabindex="-1"></a><span class="co"># Calculating auxiliary metadata</span></span>
 <span id="cb5-12"><a href="#cb5-12" tabindex="-1"></a><span class="co"># </span></span>
@@ -1436,11 +1436,7 @@ most a couple of seconds:</p>
 <span id="cb7-5"><a href="#cb7-5" tabindex="-1"></a>    <span class="at">Y =</span> Y,</span>
 <span id="cb7-6"><a href="#cb7-6" tabindex="-1"></a>    <span class="at">learnt =</span> learnt10,</span>
 <span id="cb7-7"><a href="#cb7-7" tabindex="-1"></a>    <span class="at">parallel =</span> <span class="dv">4</span> <span class="do">## let&#39;s use 4 cores</span></span>
-<span id="cb7-8"><a href="#cb7-8" tabindex="-1"></a>)</span>
-<span id="cb7-9"><a href="#cb7-9" tabindex="-1"></a><span class="co"># Registered socket cluster with 4 nodes on host &#39;localhost&#39; </span></span>
-<span id="cb7-10"><a href="#cb7-10" tabindex="-1"></a><span class="co"># </span></span>
-<span id="cb7-11"><a href="#cb7-11" tabindex="-1"></a><span class="co"># </span></span>
-<span id="cb7-12"><a href="#cb7-12" tabindex="-1"></a><span class="co"># Closing connections to cores.</span></span></code></pre></div>
+<span id="cb7-8"><a href="#cb7-8" tabindex="-1"></a>)</span></code></pre></div>
 <p>The answer to our question is now contained in the
 <code>Fspecies10</code> object (we chose this name for
 “<code>F</code>requency distribution of <code>species</code>, estimated
@@ -1642,26 +1638,22 @@ moment we only show the example code for such an analysis:</p>
 <span id="cb13-11"><a href="#cb13-11" tabindex="-1"></a>    <span class="at">learnt =</span> learnt10,</span>
 <span id="cb13-12"><a href="#cb13-12" tabindex="-1"></a>    <span class="at">parallel =</span> <span class="dv">4</span> <span class="do">## let&#39;s use 4 cores</span></span>
 <span id="cb13-13"><a href="#cb13-13" tabindex="-1"></a>)</span>
-<span id="cb13-14"><a href="#cb13-14" tabindex="-1"></a><span class="co"># Registered socket cluster with 4 nodes on host &#39;localhost&#39; </span></span>
-<span id="cb13-15"><a href="#cb13-15" tabindex="-1"></a><span class="co"># </span></span>
-<span id="cb13-16"><a href="#cb13-16" tabindex="-1"></a><span class="co"># </span></span>
-<span id="cb13-17"><a href="#cb13-17" tabindex="-1"></a><span class="co"># Closing connections to cores.</span></span>
-<span id="cb13-18"><a href="#cb13-18" tabindex="-1"></a></span>
-<span id="cb13-19"><a href="#cb13-19" tabindex="-1"></a><span class="do">## Display the estimated frequencies of all six combinations,</span></span>
-<span id="cb13-20"><a href="#cb13-20" tabindex="-1"></a><span class="do">## as well as their 89%-credibility intervals</span></span>
-<span id="cb13-21"><a href="#cb13-21" tabindex="-1"></a><span class="fu">signif</span>(<span class="at">digits =</span> <span class="dv">2</span>, <span class="do">## round to two significant digits</span></span>
-<span id="cb13-22"><a href="#cb13-22" tabindex="-1"></a>    <span class="fu">cbind</span>(</span>
-<span id="cb13-23"><a href="#cb13-23" tabindex="-1"></a>        Fspeciessex10<span class="sc">$</span>values,</span>
-<span id="cb13-24"><a href="#cb13-24" tabindex="-1"></a>        Fspeciessex10<span class="sc">$</span>quantiles[, , <span class="fu">c</span>(<span class="st">&#39;5.5%&#39;</span>, <span class="st">&#39;94.5%&#39;</span>)]</span>
-<span id="cb13-25"><a href="#cb13-25" tabindex="-1"></a>    )</span>
-<span id="cb13-26"><a href="#cb13-26" tabindex="-1"></a>)</span>
-<span id="cb13-27"><a href="#cb13-27" tabindex="-1"></a><span class="co">#                        5.5% 94.5%</span></span>
-<span id="cb13-28"><a href="#cb13-28" tabindex="-1"></a><span class="co"># Adelie,female    0.17 0.050  0.33</span></span>
-<span id="cb13-29"><a href="#cb13-29" tabindex="-1"></a><span class="co"># Chinstrap,female 0.13 0.038  0.27</span></span>
-<span id="cb13-30"><a href="#cb13-30" tabindex="-1"></a><span class="co"># Gentoo,female    0.29 0.120  0.50</span></span>
-<span id="cb13-31"><a href="#cb13-31" tabindex="-1"></a><span class="co"># Adelie,male      0.13 0.034  0.28</span></span>
-<span id="cb13-32"><a href="#cb13-32" tabindex="-1"></a><span class="co"># Chinstrap,male   0.17 0.055  0.35</span></span>
-<span id="cb13-33"><a href="#cb13-33" tabindex="-1"></a><span class="co"># Gentoo,male      0.11 0.021  0.24</span></span></code></pre></div>
+<span id="cb13-14"><a href="#cb13-14" tabindex="-1"></a></span>
+<span id="cb13-15"><a href="#cb13-15" tabindex="-1"></a><span class="do">## Display the estimated frequencies of all six combinations,</span></span>
+<span id="cb13-16"><a href="#cb13-16" tabindex="-1"></a><span class="do">## as well as their 89%-credibility intervals</span></span>
+<span id="cb13-17"><a href="#cb13-17" tabindex="-1"></a><span class="fu">signif</span>(<span class="at">digits =</span> <span class="dv">2</span>, <span class="do">## round to two significant digits</span></span>
+<span id="cb13-18"><a href="#cb13-18" tabindex="-1"></a>    <span class="fu">cbind</span>(</span>
+<span id="cb13-19"><a href="#cb13-19" tabindex="-1"></a>        Fspeciessex10<span class="sc">$</span>values,</span>
+<span id="cb13-20"><a href="#cb13-20" tabindex="-1"></a>        Fspeciessex10<span class="sc">$</span>quantiles[, , <span class="fu">c</span>(<span class="st">&#39;5.5%&#39;</span>, <span class="st">&#39;94.5%&#39;</span>)]</span>
+<span id="cb13-21"><a href="#cb13-21" tabindex="-1"></a>    )</span>
+<span id="cb13-22"><a href="#cb13-22" tabindex="-1"></a>)</span>
+<span id="cb13-23"><a href="#cb13-23" tabindex="-1"></a><span class="co">#                        5.5% 94.5%</span></span>
+<span id="cb13-24"><a href="#cb13-24" tabindex="-1"></a><span class="co"># Adelie,female    0.17 0.050  0.33</span></span>
+<span id="cb13-25"><a href="#cb13-25" tabindex="-1"></a><span class="co"># Chinstrap,female 0.13 0.038  0.27</span></span>
+<span id="cb13-26"><a href="#cb13-26" tabindex="-1"></a><span class="co"># Gentoo,female    0.29 0.120  0.50</span></span>
+<span id="cb13-27"><a href="#cb13-27" tabindex="-1"></a><span class="co"># Adelie,male      0.13 0.034  0.28</span></span>
+<span id="cb13-28"><a href="#cb13-28" tabindex="-1"></a><span class="co"># Chinstrap,male   0.17 0.055  0.35</span></span>
+<span id="cb13-29"><a href="#cb13-29" tabindex="-1"></a><span class="co"># Gentoo,male      0.11 0.021  0.24</span></span></code></pre></div>
 <p>Now let’s continue with our simpler plan.</p>
 <p><br />
 </p>
@@ -1709,11 +1701,7 @@ follows:</p>
 <span id="cb14-6"><a href="#cb14-6" tabindex="-1"></a>    <span class="at">X =</span> X, <span class="do">## argument for conditional inferences</span></span>
 <span id="cb14-7"><a href="#cb14-7" tabindex="-1"></a>    <span class="at">learnt =</span> learnt10,</span>
 <span id="cb14-8"><a href="#cb14-8" tabindex="-1"></a>    <span class="at">parallel =</span> <span class="dv">4</span> <span class="do">## let&#39;s use 4 cores</span></span>
-<span id="cb14-9"><a href="#cb14-9" tabindex="-1"></a>)</span>
-<span id="cb14-10"><a href="#cb14-10" tabindex="-1"></a><span class="co"># Registered socket cluster with 4 nodes on host &#39;localhost&#39; </span></span>
-<span id="cb14-11"><a href="#cb14-11" tabindex="-1"></a><span class="co"># </span></span>
-<span id="cb14-12"><a href="#cb14-12" tabindex="-1"></a><span class="co"># </span></span>
-<span id="cb14-13"><a href="#cb14-13" tabindex="-1"></a><span class="co"># Closing connections to cores.</span></span></code></pre></div>
+<span id="cb14-9"><a href="#cb14-9" tabindex="-1"></a>)</span></code></pre></div>
 <p>The answer to our question is now contained in the
 <code>Fspecies10I</code> object (we add <code>I</code> for “island” to
 the previous name). The estimates of the frequencies and their
@@ -1891,26 +1879,22 @@ combination of subpopulations. The procedure is analogous to the one we
 <span id="cb20-12"><a href="#cb20-12" tabindex="-1"></a>    <span class="at">learnt =</span> learnt10,</span>
 <span id="cb20-13"><a href="#cb20-13" tabindex="-1"></a>    <span class="at">parallel =</span> <span class="dv">4</span> <span class="do">## let&#39;s use 4 cores</span></span>
 <span id="cb20-14"><a href="#cb20-14" tabindex="-1"></a>)</span>
-<span id="cb20-15"><a href="#cb20-15" tabindex="-1"></a><span class="co"># Registered socket cluster with 4 nodes on host &#39;localhost&#39; </span></span>
-<span id="cb20-16"><a href="#cb20-16" tabindex="-1"></a><span class="co"># </span></span>
-<span id="cb20-17"><a href="#cb20-17" tabindex="-1"></a><span class="co"># </span></span>
-<span id="cb20-18"><a href="#cb20-18" tabindex="-1"></a><span class="co"># Closing connections to cores.</span></span>
-<span id="cb20-19"><a href="#cb20-19" tabindex="-1"></a></span>
-<span id="cb20-20"><a href="#cb20-20" tabindex="-1"></a><span class="do">## Display the estimated frequencies of species</span></span>
-<span id="cb20-21"><a href="#cb20-21" tabindex="-1"></a><span class="do">## within all six combinations of subpopulations</span></span>
-<span id="cb20-22"><a href="#cb20-22" tabindex="-1"></a><span class="fu">signif</span>(<span class="at">digits =</span> <span class="dv">2</span>, <span class="do">## round</span></span>
-<span id="cb20-23"><a href="#cb20-23" tabindex="-1"></a>    Fspecies10IS<span class="sc">$</span>values</span>
-<span id="cb20-24"><a href="#cb20-24" tabindex="-1"></a>)</span>
-<span id="cb20-25"><a href="#cb20-25" tabindex="-1"></a><span class="co">#            X</span></span>
-<span id="cb20-26"><a href="#cb20-26" tabindex="-1"></a><span class="co"># Y           Biscoe,female Dream,female Torgersen,female Biscoe,male Dream,male</span></span>
-<span id="cb20-27"><a href="#cb20-27" tabindex="-1"></a><span class="co">#   Adelie             0.13          0.4             0.48        0.21       0.32</span></span>
-<span id="cb20-28"><a href="#cb20-28" tabindex="-1"></a><span class="co">#   Chinstrap          0.12          0.4             0.27        0.22       0.54</span></span>
-<span id="cb20-29"><a href="#cb20-29" tabindex="-1"></a><span class="co">#   Gentoo             0.76          0.2             0.25        0.57       0.14</span></span>
-<span id="cb20-30"><a href="#cb20-30" tabindex="-1"></a><span class="co">#            X</span></span>
-<span id="cb20-31"><a href="#cb20-31" tabindex="-1"></a><span class="co"># Y           Torgersen,male</span></span>
-<span id="cb20-32"><a href="#cb20-32" tabindex="-1"></a><span class="co">#   Adelie              0.44</span></span>
-<span id="cb20-33"><a href="#cb20-33" tabindex="-1"></a><span class="co">#   Chinstrap           0.38</span></span>
-<span id="cb20-34"><a href="#cb20-34" tabindex="-1"></a><span class="co">#   Gentoo              0.18</span></span></code></pre></div>
+<span id="cb20-15"><a href="#cb20-15" tabindex="-1"></a></span>
+<span id="cb20-16"><a href="#cb20-16" tabindex="-1"></a><span class="do">## Display the estimated frequencies of species</span></span>
+<span id="cb20-17"><a href="#cb20-17" tabindex="-1"></a><span class="do">## within all six combinations of subpopulations</span></span>
+<span id="cb20-18"><a href="#cb20-18" tabindex="-1"></a><span class="fu">signif</span>(<span class="at">digits =</span> <span class="dv">2</span>, <span class="do">## round</span></span>
+<span id="cb20-19"><a href="#cb20-19" tabindex="-1"></a>    Fspecies10IS<span class="sc">$</span>values</span>
+<span id="cb20-20"><a href="#cb20-20" tabindex="-1"></a>)</span>
+<span id="cb20-21"><a href="#cb20-21" tabindex="-1"></a><span class="co">#            X</span></span>
+<span id="cb20-22"><a href="#cb20-22" tabindex="-1"></a><span class="co"># Y           Biscoe,female Dream,female Torgersen,female Biscoe,male Dream,male</span></span>
+<span id="cb20-23"><a href="#cb20-23" tabindex="-1"></a><span class="co">#   Adelie             0.13          0.4             0.48        0.21       0.32</span></span>
+<span id="cb20-24"><a href="#cb20-24" tabindex="-1"></a><span class="co">#   Chinstrap          0.12          0.4             0.27        0.22       0.54</span></span>
+<span id="cb20-25"><a href="#cb20-25" tabindex="-1"></a><span class="co">#   Gentoo             0.76          0.2             0.25        0.57       0.14</span></span>
+<span id="cb20-26"><a href="#cb20-26" tabindex="-1"></a><span class="co">#            X</span></span>
+<span id="cb20-27"><a href="#cb20-27" tabindex="-1"></a><span class="co"># Y           Torgersen,male</span></span>
+<span id="cb20-28"><a href="#cb20-28" tabindex="-1"></a><span class="co">#   Adelie              0.44</span></span>
+<span id="cb20-29"><a href="#cb20-29" tabindex="-1"></a><span class="co">#   Chinstrap           0.38</span></span>
+<span id="cb20-30"><a href="#cb20-30" tabindex="-1"></a><span class="co">#   Gentoo              0.18</span></span></code></pre></div>
 <p><br />
 </p>
 </div>
@@ -1943,7 +1927,7 @@ computer:</p>
 <span id="cb22-4"><a href="#cb22-4" tabindex="-1"></a>    <span class="at">outputdir =</span> <span class="st">&#39;penguin_inference&#39;</span>,</span>
 <span id="cb22-5"><a href="#cb22-5" tabindex="-1"></a>    <span class="at">parallel =</span> <span class="dv">4</span> <span class="do">## how many cores to use for the computation</span></span>
 <span id="cb22-6"><a href="#cb22-6" tabindex="-1"></a>)</span>
-<span id="cb22-7"><a href="#cb22-7" tabindex="-1"></a><span class="co"># Registered socket cluster with 4 nodes on host ‘localhost’</span></span>
+<span id="cb22-7"><a href="#cb22-7" tabindex="-1"></a><span class="co"># Registered doParallelSNOW with 4 workers</span></span>
 <span id="cb22-8"><a href="#cb22-8" tabindex="-1"></a><span class="co"># </span></span>
 <span id="cb22-9"><a href="#cb22-9" tabindex="-1"></a><span class="co"># Calculating auxiliary metadata</span></span>
 <span id="cb22-10"><a href="#cb22-10" tabindex="-1"></a><span class="co"># </span></span>
@@ -2025,21 +2009,13 @@ Here is the calculation for all three questions:</p>
 <span id="cb24-7"><a href="#cb24-7" tabindex="-1"></a>    <span class="at">learnt =</span> learnt60, <span class="do">## updated inference</span></span>
 <span id="cb24-8"><a href="#cb24-8" tabindex="-1"></a>    <span class="at">parallel =</span> <span class="dv">4</span> <span class="do">## let&#39;s use 4 cores</span></span>
 <span id="cb24-9"><a href="#cb24-9" tabindex="-1"></a>)</span>
-<span id="cb24-10"><a href="#cb24-10" tabindex="-1"></a><span class="co"># Registered socket cluster with 4 nodes on host &#39;localhost&#39; </span></span>
-<span id="cb24-11"><a href="#cb24-11" tabindex="-1"></a><span class="co"># </span></span>
-<span id="cb24-12"><a href="#cb24-12" tabindex="-1"></a><span class="co"># </span></span>
-<span id="cb24-13"><a href="#cb24-13" tabindex="-1"></a><span class="co"># Closing connections to cores.</span></span>
-<span id="cb24-14"><a href="#cb24-14" tabindex="-1"></a></span>
-<span id="cb24-15"><a href="#cb24-15" tabindex="-1"></a>Fspecies60I <span class="ot">&lt;-</span> <span class="fu">Pr</span>(</span>
-<span id="cb24-16"><a href="#cb24-16" tabindex="-1"></a>    <span class="at">Y =</span> Y,</span>
-<span id="cb24-17"><a href="#cb24-17" tabindex="-1"></a>    <span class="at">X =</span> X, <span class="do">## argument for conditional inferences</span></span>
-<span id="cb24-18"><a href="#cb24-18" tabindex="-1"></a>    <span class="at">learnt =</span> learnt60, <span class="do">## updated inference</span></span>
-<span id="cb24-19"><a href="#cb24-19" tabindex="-1"></a>    <span class="at">parallel =</span> <span class="dv">4</span> <span class="do">## let&#39;s use 4 cores</span></span>
-<span id="cb24-20"><a href="#cb24-20" tabindex="-1"></a>)</span>
-<span id="cb24-21"><a href="#cb24-21" tabindex="-1"></a><span class="co"># Registered socket cluster with 4 nodes on host &#39;localhost&#39; </span></span>
-<span id="cb24-22"><a href="#cb24-22" tabindex="-1"></a><span class="co"># </span></span>
-<span id="cb24-23"><a href="#cb24-23" tabindex="-1"></a><span class="co"># </span></span>
-<span id="cb24-24"><a href="#cb24-24" tabindex="-1"></a><span class="co"># Closing connections to cores.</span></span></code></pre></div>
+<span id="cb24-10"><a href="#cb24-10" tabindex="-1"></a></span>
+<span id="cb24-11"><a href="#cb24-11" tabindex="-1"></a>Fspecies60I <span class="ot">&lt;-</span> <span class="fu">Pr</span>(</span>
+<span id="cb24-12"><a href="#cb24-12" tabindex="-1"></a>    <span class="at">Y =</span> Y,</span>
+<span id="cb24-13"><a href="#cb24-13" tabindex="-1"></a>    <span class="at">X =</span> X, <span class="do">## argument for conditional inferences</span></span>
+<span id="cb24-14"><a href="#cb24-14" tabindex="-1"></a>    <span class="at">learnt =</span> learnt60, <span class="do">## updated inference</span></span>
+<span id="cb24-15"><a href="#cb24-15" tabindex="-1"></a>    <span class="at">parallel =</span> <span class="dv">4</span> <span class="do">## let&#39;s use 4 cores</span></span>
+<span id="cb24-16"><a href="#cb24-16" tabindex="-1"></a>)</span></code></pre></div>
 <p>Just like in the preliminary analysis we can use the
 <code>plot()</code> and <code>hist()</code> functions to visualize
 estimates, credibility intervals, and probability distributions.</p>
@@ -2301,7 +2277,7 @@ the code below):</p>
 <span id="cb38-4"><a href="#cb38-4" tabindex="-1"></a>    <span class="at">outputdir =</span> <span class="st">&#39;penguin_inference&#39;</span>,</span>
 <span id="cb38-5"><a href="#cb38-5" tabindex="-1"></a>    <span class="at">parallel =</span> <span class="dv">4</span> <span class="do">## how many cores to use for the computation</span></span>
 <span id="cb38-6"><a href="#cb38-6" tabindex="-1"></a>)</span>
-<span id="cb38-7"><a href="#cb38-7" tabindex="-1"></a><span class="co"># Registered socket cluster with 4 nodes on host ‘localhost’</span></span>
+<span id="cb38-7"><a href="#cb38-7" tabindex="-1"></a><span class="co"># Registered doParallelSNOW with 4 workers</span></span>
 <span id="cb38-8"><a href="#cb38-8" tabindex="-1"></a><span class="co"># </span></span>
 <span id="cb38-9"><a href="#cb38-9" tabindex="-1"></a><span class="co"># Calculating auxiliary metadata</span></span>
 <span id="cb38-10"><a href="#cb38-10" tabindex="-1"></a><span class="co"># </span></span>
@@ -2366,11 +2342,7 @@ species are computed in the usual way:</p>
 <span id="cb40-5"><a href="#cb40-5" tabindex="-1"></a>    <span class="at">Y =</span> Y,</span>
 <span id="cb40-6"><a href="#cb40-6" tabindex="-1"></a>    <span class="at">learnt =</span> learntall, <span class="do">## updated inference</span></span>
 <span id="cb40-7"><a href="#cb40-7" tabindex="-1"></a>    <span class="at">parallel =</span> <span class="dv">4</span> <span class="do">## let&#39;s use 4 cores</span></span>
-<span id="cb40-8"><a href="#cb40-8" tabindex="-1"></a>)</span>
-<span id="cb40-9"><a href="#cb40-9" tabindex="-1"></a><span class="co"># Registered socket cluster with 4 nodes on host &#39;localhost&#39; </span></span>
-<span id="cb40-10"><a href="#cb40-10" tabindex="-1"></a><span class="co"># </span></span>
-<span id="cb40-11"><a href="#cb40-11" tabindex="-1"></a><span class="co"># </span></span>
-<span id="cb40-12"><a href="#cb40-12" tabindex="-1"></a><span class="co"># Closing connections to cores.</span></span></code></pre></div>
+<span id="cb40-8"><a href="#cb40-8" tabindex="-1"></a>)</span></code></pre></div>
 <p>Let’s plot the estimated frequencies with their credibility
 intervals, and also their probability distributions:</p>
 <div class="sourceCode" id="cb41"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb41-1"><a href="#cb41-1" tabindex="-1"></a><span class="fu">plot</span>(Fspeciesall, <span class="at">ylim =</span> <span class="fu">c</span>(<span class="dv">0</span>, <span class="dv">1</span>))</span></code></pre></div>
@@ -2465,11 +2437,7 @@ the frequency about, and an object <code>X</code> for the
 <span id="cb44-10"><a href="#cb44-10" tabindex="-1"></a>X <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(Xvls)</span>
 <span id="cb44-11"><a href="#cb44-11" tabindex="-1"></a><span class="fu">colnames</span>(X) <span class="ot">&lt;-</span> Xvrt</span>
 <span id="cb44-12"><a href="#cb44-12" tabindex="-1"></a></span>
-<span id="cb44-13"><a href="#cb44-13" tabindex="-1"></a>Fanalysis <span class="ot">&lt;-</span> <span class="fu">Pr</span>(<span class="at">Y =</span> Y, <span class="at">X =</span> X, <span class="at">learnt =</span> learntall, <span class="at">parallel =</span> <span class="dv">4</span>)</span>
-<span id="cb44-14"><a href="#cb44-14" tabindex="-1"></a><span class="co"># Registered socket cluster with 4 nodes on host &#39;localhost&#39; </span></span>
-<span id="cb44-15"><a href="#cb44-15" tabindex="-1"></a><span class="co"># </span></span>
-<span id="cb44-16"><a href="#cb44-16" tabindex="-1"></a><span class="co"># </span></span>
-<span id="cb44-17"><a href="#cb44-17" tabindex="-1"></a><span class="co"># Closing connections to cores.</span></span></code></pre></div>
+<span id="cb44-13"><a href="#cb44-13" tabindex="-1"></a>Fanalysis <span class="ot">&lt;-</span> <span class="fu">Pr</span>(<span class="at">Y =</span> Y, <span class="at">X =</span> X, <span class="at">learnt =</span> learntall, <span class="at">parallel =</span> <span class="dv">4</span>)</span></code></pre></div>
 <p>Here are the probability distributions and the credibility intervals
 for the three frequencies:</p>
 <div class="sourceCode" id="cb45"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb45-1"><a href="#cb45-1" tabindex="-1"></a><span class="fu">hist</span>(Fanalysis, <span class="at">xlim =</span> <span class="fu">c</span>(<span class="dv">0</span>, <span class="dv">1</span>), <span class="at">col =</span> <span class="dv">2</span><span class="sc">:</span><span class="dv">4</span>, <span class="do">## same colours as before!</span></span>
@@ -2531,11 +2499,7 @@ probability.
 <span id="cb47-11"><a href="#cb47-11" tabindex="-1"></a><span class="fu">colnames</span>(X) <span class="ot">&lt;-</span> Xvrt</span>
 <span id="cb47-12"><a href="#cb47-12" tabindex="-1"></a></span>
 <span id="cb47-13"><a href="#cb47-13" tabindex="-1"></a><span class="do">## NB: rewriting the previous &#39;Fanalysis&#39; object</span></span>
-<span id="cb47-14"><a href="#cb47-14" tabindex="-1"></a>Fanalysis <span class="ot">&lt;-</span> <span class="fu">Pr</span>(<span class="at">Y =</span> Y, <span class="at">X =</span> X, <span class="at">learnt =</span> learntall, <span class="at">parallel =</span> <span class="dv">4</span>)</span>
-<span id="cb47-15"><a href="#cb47-15" tabindex="-1"></a><span class="co"># Registered socket cluster with 4 nodes on host &#39;localhost&#39; </span></span>
-<span id="cb47-16"><a href="#cb47-16" tabindex="-1"></a><span class="co"># </span></span>
-<span id="cb47-17"><a href="#cb47-17" tabindex="-1"></a><span class="co"># </span></span>
-<span id="cb47-18"><a href="#cb47-18" tabindex="-1"></a><span class="co"># Closing connections to cores.</span></span></code></pre></div>
+<span id="cb47-14"><a href="#cb47-14" tabindex="-1"></a>Fanalysis <span class="ot">&lt;-</span> <span class="fu">Pr</span>(<span class="at">Y =</span> Y, <span class="at">X =</span> X, <span class="at">learnt =</span> learntall, <span class="at">parallel =</span> <span class="dv">4</span>)</span></code></pre></div>
 <p>Here are the probability distributions and confidence intervals for
 the three frequencies:</p>
 <div class="sourceCode" id="cb48"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb48-1"><a href="#cb48-1" tabindex="-1"></a><span class="fu">hist</span>(Fanalysis, <span class="at">xlim =</span> <span class="fu">c</span>(<span class="dv">0</span>, <span class="dv">1</span>), <span class="at">col =</span> <span class="dv">5</span><span class="sc">:</span><span class="dv">7</span>,</span>
@@ -2602,11 +2566,7 @@ body mass in three separate subpopulations: <code>Adelie</code>,
 <span id="cb50-12"><a href="#cb50-12" tabindex="-1"></a><span class="fu">colnames</span>(X) <span class="ot">&lt;-</span> Xvrt</span>
 <span id="cb50-13"><a href="#cb50-13" tabindex="-1"></a></span>
 <span id="cb50-14"><a href="#cb50-14" tabindex="-1"></a><span class="do">## NB: rewriting the previous &#39;Fanalysis&#39; object</span></span>
-<span id="cb50-15"><a href="#cb50-15" tabindex="-1"></a>Fanalysis <span class="ot">&lt;-</span> <span class="fu">Pr</span>(<span class="at">Y =</span> Y, <span class="at">X =</span> X, <span class="at">learnt =</span> learntall, <span class="at">parallel =</span> <span class="dv">4</span>)</span>
-<span id="cb50-16"><a href="#cb50-16" tabindex="-1"></a><span class="co"># Registered socket cluster with 4 nodes on host &#39;localhost&#39; </span></span>
-<span id="cb50-17"><a href="#cb50-17" tabindex="-1"></a><span class="co"># </span></span>
-<span id="cb50-18"><a href="#cb50-18" tabindex="-1"></a><span class="co"># </span></span>
-<span id="cb50-19"><a href="#cb50-19" tabindex="-1"></a><span class="co"># Closing connections to cores.</span></span></code></pre></div>
+<span id="cb50-15"><a href="#cb50-15" tabindex="-1"></a>Fanalysis <span class="ot">&lt;-</span> <span class="fu">Pr</span>(<span class="at">Y =</span> Y, <span class="at">X =</span> X, <span class="at">learnt =</span> learntall, <span class="at">parallel =</span> <span class="dv">4</span>)</span></code></pre></div>
 <p>Here is the estimated frequency distribution of body mass within each
 species</p>
 <div class="sourceCode" id="cb51"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb51-1"><a href="#cb51-1" tabindex="-1"></a><span class="fu">plot</span>(Fanalysis, <span class="at">col =</span> <span class="dv">2</span><span class="sc">:</span><span class="dv">4</span>, <span class="at">legend =</span> <span class="st">&#39;topright&#39;</span>)</span></code></pre></div>

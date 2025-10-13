@@ -1,0 +1,47 @@
+
+Registered socket cluster with 2 nodes on host ‘localhost’.
+
+Learning from 2 datapoints, 1 variates.
+
+ *************************************** 
+ Saving output in directory
+ minitest-251013T120835-vrt1_dat2_smp200 
+ *************************************** 
+
+Starting Monte Carlo sampling of 200 samples by 2 chains
+in a space of 191 (effectively 258) dimensions.
+Using 2 cores: 100 samples per chain, max 1 chains per core.
+Requested:   ESS 100   rel.MCSE 0.099.
+Core logs are being saved in individual files.
+C-compiling samplers appropriate to the variates (package Nimble)
+this can take tens of minutes. Please wait...
+Compiled core 1. Number of samplers: 196.             
+Estimating remaining time, please be patient...Sampling. Core 1 estimated end time: 2025-10-13 12:12   Core 1 finished.                                        
+Sampling. Core 2 estimated end time: 2025-10-13 12:12   Core 2 finished.                                        
+                                                               
+Finished Monte Carlo sampling.
+Highest number of Monte Carlo iterations across chains: 3600.
+Highest number of used mixture components: 2.
+
+NOTE: 2 chains were stopped before reaching required precision
+in order to meet the required time constraints.
+
+Checking test data
+(#1 #2):
+rel. CI error: 0.464 to 0.502
+ESS: 161 to 178
+needed thinning: 43.1 to 50.4
+average: 0.169 to 0.368
+quantile width: 0.525 to 1.17
+
+Plotting final Monte Carlo traces and marginal samples...
+
+Total computation time: 35 secs
+Average preparation & finalization time: 33 secs.
+Average Monte Carlo time per chain: 1.4 secs.
+Max total memory used: approx 810MB.
+Max memory used per core: approx 400MB.
+Removing temporary output files.
+
+Finished.
+Closing connections to cores.

@@ -4,7 +4,7 @@ dataset <- data.frame(V = 1:2)
 metadata <- data.frame(name = 'V', type = 'continuous')
 
 set.seed(16)
-parallel <- 1
+parallel <- 2
 
 outputdir <- 'minitest'
 learntdir <- learn(

@@ -327,7 +327,7 @@ learnt10 <- learn(
     outputdir = 'penguin_inference',
     parallel = 4 ## how many cores to use for the computation
 )
-# Registered socket cluster with 4 nodes on host ‘localhost’
+# Registered doParallelSNOW with 4 workers
 # 
 # Calculating auxiliary metadata
 # 
@@ -417,10 +417,6 @@ Fspecies10 <- Pr(
     learnt = learnt10,
     parallel = 4 ## let's use 4 cores
 )
-# Registered socket cluster with 4 nodes on host 'localhost' 
-# 
-# 
-# Closing connections to cores.
 ```
 
 The answer to our question is now contained in the `Fspecies10` object (we chose this name for "`F`requency distribution of `species`, estimated from `10` samples"). The estimate and its uncertainty can be immediately visualized by calling `plot()` with this object:
@@ -565,10 +561,6 @@ Fspeciessex10 <- Pr(
     learnt = learnt10,
     parallel = 4 ## let's use 4 cores
 )
-# Registered socket cluster with 4 nodes on host 'localhost' 
-# 
-# 
-# Closing connections to cores.
 
 ## Display the estimated frequencies of all six combinations,
 ## as well as their 89%-credibility intervals
@@ -614,10 +606,6 @@ Fspecies10I <- Pr(
     learnt = learnt10,
     parallel = 4 ## let's use 4 cores
 )
-# Registered socket cluster with 4 nodes on host 'localhost' 
-# 
-# 
-# Closing connections to cores.
 ```
 
 The answer to our question is now contained in the `Fspecies10I` object (we add `I` for "island" to the previous name). The estimates of the frequencies and their uncertainties can again be visualized by calling `plot()`:
@@ -755,10 +743,6 @@ Fspecies10IS <- Pr(
     learnt = learnt10,
     parallel = 4 ## let's use 4 cores
 )
-# Registered socket cluster with 4 nodes on host 'localhost' 
-# 
-# 
-# Closing connections to cores.
 
 ## Display the estimated frequencies of species
 ## within all six combinations of subpopulations
@@ -806,7 +790,7 @@ learnt60 <- learn(
     outputdir = 'penguin_inference',
     parallel = 4 ## how many cores to use for the computation
 )
-# Registered socket cluster with 4 nodes on host ‘localhost’
+# Registered doParallelSNOW with 4 workers
 # 
 # Calculating auxiliary metadata
 # 
@@ -886,10 +870,6 @@ Fspecies60 <- Pr(
     learnt = learnt60, ## updated inference
     parallel = 4 ## let's use 4 cores
 )
-# Registered socket cluster with 4 nodes on host 'localhost' 
-# 
-# 
-# Closing connections to cores.
 
 Fspecies60I <- Pr(
     Y = Y,
@@ -897,10 +877,6 @@ Fspecies60I <- Pr(
     learnt = learnt60, ## updated inference
     parallel = 4 ## let's use 4 cores
 )
-# Registered socket cluster with 4 nodes on host 'localhost' 
-# 
-# 
-# Closing connections to cores.
 ```
 
 Just like in the preliminary analysis we can use the `plot()` and `hist()` functions to visualize estimates, credibility intervals, and probability distributions.
@@ -1143,7 +1119,7 @@ learntall <- learn(
     outputdir = 'penguin_inference',
     parallel = 4 ## how many cores to use for the computation
 )
-# Registered socket cluster with 4 nodes on host ‘localhost’
+# Registered doParallelSNOW with 4 workers
 # 
 # Calculating auxiliary metadata
 # 
@@ -1213,10 +1189,6 @@ Fspeciesall <- Pr(
     learnt = learntall, ## updated inference
     parallel = 4 ## let's use 4 cores
 )
-# Registered socket cluster with 4 nodes on host 'localhost' 
-# 
-# 
-# Closing connections to cores.
 ```
 
 Let's plot the estimated frequencies with their credibility intervals, and also their probability distributions:
@@ -1298,10 +1270,6 @@ X <- data.frame(Xvls)
 colnames(X) <- Xvrt
 
 Fanalysis <- Pr(Y = Y, X = X, learnt = learntall, parallel = 4)
-# Registered socket cluster with 4 nodes on host 'localhost' 
-# 
-# 
-# Closing connections to cores.
 ```
 Here are the probability distributions and the credibility intervals for the three frequencies:
 
@@ -1369,10 +1337,6 @@ colnames(X) <- Xvrt
 
 ## NB: rewriting the previous 'Fanalysis' object
 Fanalysis <- Pr(Y = Y, X = X, learnt = learntall, parallel = 4)
-# Registered socket cluster with 4 nodes on host 'localhost' 
-# 
-# 
-# Closing connections to cores.
 ```
 Here are the probability distributions and confidence intervals for the three frequencies:
 
@@ -1440,10 +1404,6 @@ colnames(X) <- Xvrt
 
 ## NB: rewriting the previous 'Fanalysis' object
 Fanalysis <- Pr(Y = Y, X = X, learnt = learntall, parallel = 4)
-# Registered socket cluster with 4 nodes on host 'localhost' 
-# 
-# 
-# Closing connections to cores.
 ```
 Here is the estimated frequency distribution of body mass within each species
 

@@ -19,7 +19,8 @@ util_cleanup <- function(path){
 }
 
 
-#### Join '____tempPtraces-' files
+#' Join '____tempPtraces-' files
+#' 
 #' @keywords internal
 util_joinPtraces <- function(path){
     Plist <- list.files(path = path, pattern = '^____tempPtraces-.*\\.rds$')
@@ -53,4 +54,37 @@ util_joinPtraces <- function(path){
         ))
     }
     cat('\nDone.\n')
+}
+
+#' Convert learnt with R/C/Dvar to learnt with R/C/Dsd
+#' 
+#' @keywords internal
+util_learntvar2sd <- function(file){
+    learnt <- readRDS(file = file)
+    ## Swap variances and standard deviations
+    if(!is.null(learnt$Rvar)){
+        learnt$Rvar <- sqrt(learnt$Rvar)
+        names(learnt)[which(names(learnt) == 'Rvar')] <- 'Rsd'
+    } else if(!is.null(learnt$Rsd)){
+        learnt$Rsd <- learnt$Rsd^2
+        names(learnt)[which(names(learnt) == 'Rsd')] <- 'Rvar'
+    }
+    ##
+    if(!is.null(learnt$Cvar)){
+        learnt$Cvar <- sqrt(learnt$Cvar)
+        names(learnt)[which(names(learnt) == 'Cvar')] <- 'Csd'
+    } else if(!is.null(learnt$Csd)){
+        learnt$Csd <- learnt$Csd^2
+        names(learnt)[which(names(learnt) == 'Csd')] <- 'Cvar'
+    }
+    ##
+    if(!is.null(learnt$Dvar)){
+        learnt$Dvar <- sqrt(learnt$Dvar)
+        names(learnt)[which(names(learnt) == 'Dvar')] <- 'Dsd'
+    } else if(!is.null(learnt$Dsd)){
+        learnt$Dsd <- learnt$Dsd^2
+        names(learnt)[which(names(learnt) == 'Dsd')] <- 'Dvar'
+    }
+    ##
+    saveRDS(object = learnt, file = file)
 }

@@ -297,10 +297,8 @@ util_Pcheckpoints <- function(
 
 ### R-variates not in 'cumul'
         if(length(auxV0a) > 0){
-            V0mean <- learnbind(V0mean,
-                Rmean)
-            V0sd <- learnbind(V0sd,
-                sqrt(Rvar))
+            V0mean <- learnbind(V0mean, Rmean)
+            V0sd <- learnbind(V0sd, sqrt(Rvar)) # still variance
         }
 
 ### C-variates not in 'cumul' and with some non-boundary value
@@ -308,7 +306,7 @@ util_Pcheckpoints <- function(
             V0mean <- learnbind(V0mean,
                 Cmean[auxV0b, , , drop = FALSE])
             V0sd <- learnbind(V0sd,
-                sqrt(Cvar[auxV0b, , , drop = FALSE]))
+                sqrt(Cvar[auxV0b, , , drop = FALSE])) # still variance
         }
 
 ###
@@ -321,7 +319,7 @@ util_Pcheckpoints <- function(
             V1mean <- learnbind(V1mean,
                 Cmean[auxV1a, , , drop = FALSE])
             V1sd <- learnbind(V1sd,
-                sqrt(Cvar[auxV1a, , , drop = FALSE]))
+                sqrt(Cvar[auxV1a, , , drop = FALSE])) # still variance
         }
 
 ### C-variates not in 'cumul' and with right boundary values
@@ -329,7 +327,7 @@ util_Pcheckpoints <- function(
             V1mean <- learnbind(V1mean,
                 - Cmean[auxV1b, , , drop = FALSE]) # minus sign
             V1sd <- learnbind(V1sd,
-                sqrt(Cvar[auxV1b, , , drop = FALSE]))
+                sqrt(Cvar[auxV1b, , , drop = FALSE])) # still variance
         }
 
 ### D-variates not in 'cumul' and with left boundary values
@@ -337,7 +335,7 @@ util_Pcheckpoints <- function(
             V1mean <- learnbind(V1mean,
                 Dmean[auxV1c, , , drop = FALSE])
             V1sd <- learnbind(V1sd,
-                sqrt(Dvar[auxV1c, , , drop = FALSE]))
+                sqrt(Dvar[auxV1c, , , drop = FALSE])) # still variance
         }
 
 ### D-variates not in 'cumul' and with right boundary values
@@ -345,7 +343,7 @@ util_Pcheckpoints <- function(
             V1mean <- learnbind(V1mean,
                 - Dmean[auxV1d, , , drop = FALSE]) # minus sign
             V1sd <- learnbind(V1sd,
-                sqrt(Dvar[auxV1d, , , drop = FALSE]))
+                sqrt(Dvar[auxV1d, , , drop = FALSE])) # still variance
         }
 
 ###
@@ -356,7 +354,7 @@ util_Pcheckpoints <- function(
 ### D-variates not in 'cumul'
         if(length(auxV2) > 0){
             V2mean <- Dmean
-            V2sd <- sqrt(Dvar)
+            V2sd <- sqrt(Dvar) # still variance
         }
 
 ###

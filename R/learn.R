@@ -1137,15 +1137,15 @@ learn <- function(
     )
 
     ## Substitute variances for standard deviations
-    if(!is.null(learnt$Rvar){
+    if(!is.null(learnt$Rvar)){
         learnt$Rvar <- sqrt(learnt$Rvar)
         names(learnt)[which(names(learnt) == 'Rvar')] <- 'Rsd'
     }
-    if(!is.null(learnt$Cvar){
+    if(!is.null(learnt$Cvar)){
         learnt$Cvar <- sqrt(learnt$Cvar)
         names(learnt)[which(names(learnt) == 'Cvar')] <- 'Csd'
     }
-    if(!is.null(learnt$Dvar){
+    if(!is.null(learnt$Dvar)){
         learnt$Dvar <- sqrt(learnt$Dvar)
         names(learnt)[which(names(learnt) == 'Dvar')] <- 'Dsd'
     }

@@ -3,7 +3,6 @@
 S3method(hist,probability)
 S3method(plot,probability)
 S3method(subset,probability)
-export(E)
 export(Pr)
 export(flexiplot)
 export(learn)

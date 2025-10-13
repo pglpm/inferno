@@ -1,4 +1,4 @@
-#library('inferno')
+library('inferno')
 #devtools::load_all()
 
 set.seed(16)

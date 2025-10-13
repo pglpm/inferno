@@ -5,7 +5,6 @@ template:
 reference:
 - title: "Main functions"
   contents:
-    - E
     - flexiplot
     - hist.probability
     - inferno.data
@@ -16,6 +15,7 @@ reference:
     - plotFsamples
     - plotquantiles
     - Pr
+    - qPr
     - rPr
     - subset.probability
     - vrtgrid

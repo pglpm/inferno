@@ -10,7 +10,7 @@ vignette: >
 ---
 
 
-\newcommand{\mo}{\mathrel{\!=\!}}
+$\newcommand{\mo}{\mathrel{\!=\!}}$
 
 This vignette gives an introduction and guide to the visual and quantitative capabilities and functions of the ***inferno*** package, for the study of associations, correlations, and links.
 
@@ -99,7 +99,7 @@ These are only features of this specific data sample, however. Can we generalize
 ``` r
 prob <- Pr(Y = data.frame(island = 'Torgersen', species = 'Chinstrap'),
     learnt = learnt)
-# Error in Pr(Y = data.frame(island = "Torgersen", species = "Chinstrap"), : Unknown value of argument 'parallel'
+# Error in Pr(Y = data.frame(island = "Torgersen", species = "Chinstrap"), : Unknown value of argument 'parallel'.
 
 signif(prob$values, digits = 2)
 # Error: object 'prob' not found
@@ -340,7 +340,7 @@ MIislandspecies <- mutualinfo(
     learnt = learnt,
     parallel = 4 ## let's use 4 cores
 )
-# Registered socket cluster with 4 nodes on host ‘localhost’
+# Registered doParallelSNOW with 4 workers
 # 
 # Closing connections to cores.
 ```
@@ -432,7 +432,7 @@ MIbodymassspecies <- mutualinfo(
     learnt = learnt,
     parallel = 4
 )
-# Registered socket cluster with 4 nodes on host ‘localhost’
+# Registered doParallelSNOW with 4 workers
 # 
 # Closing connections to cores.
 ```
@@ -472,7 +472,7 @@ MIbodymassbilllen <- mutualinfo(
     learnt = learnt,
     parallel = 4
 )
-# Registered socket cluster with 4 nodes on host ‘localhost’
+# Registered doParallelSNOW with 4 workers
 # 
 # Closing connections to cores.
 ```
