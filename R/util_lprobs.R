@@ -26,7 +26,7 @@ util_lprobsargsyx <- function(
         V0mean <- learnbind(V0mean,
             learnt$Rmean[aux$id, , , drop = FALSE])
         V0sd <- learnbind(V0sd,
-            sqrt(learnt$Rvar[aux$id, , , drop = FALSE]))
+            learnt$Rsd[aux$id, , , drop = FALSE])
         xV0 <- rbind(xV0,
             t(as.matrix(vtransform(
                 x[, aux$name, drop = FALSE],
@@ -54,7 +54,7 @@ util_lprobsargsyx <- function(
         V0mean <- learnbind(V0mean,
             learnt$Cmean[aux$id, , , drop = FALSE])
         V0sd <- learnbind(V0sd,
-            sqrt(learnt$Cvar[aux$id, , , drop = FALSE]))
+            learnt$Csd[aux$id, , , drop = FALSE])
         xV0 <- rbind(xV0,
             t(as.matrix(vtransform(
                 x[, aux$name, drop = FALSE],
@@ -81,7 +81,7 @@ util_lprobsargsyx <- function(
         V1mean <- learnbind(V1mean,
                 tails[aux$name] * learnt$Rmean[aux$id, , , drop = FALSE])
         V1sd <- learnbind(V1sd,
-            sqrt(learnt$Rvar[aux$id, , , drop = FALSE]))
+            learnt$Rsd[aux$id, , , drop = FALSE])
         xV1 <- rbind(xV1,
             tails[aux$name] *
                 t(as.matrix(vtransform(
@@ -103,7 +103,7 @@ util_lprobsargsyx <- function(
         V1mean <- learnbind(V1mean,
                 tails[aux$name] * learnt$Cmean[aux$id, , , drop = FALSE])
         V1sd <- learnbind(V1sd,
-            sqrt(learnt$Cvar[aux$id, , , drop = FALSE]))
+            learnt$Csd[aux$id, , , drop = FALSE])
         xV1 <- rbind(xV1,
             tails[aux$name] *
                 t(as.matrix(vtransform(
@@ -125,7 +125,7 @@ util_lprobsargsyx <- function(
         V1mean <- learnbind(V1mean,
                 tails[aux$name] * learnt$Dmean[aux$id, , , drop = FALSE])
         V1sd <- learnbind(V1sd,
-            sqrt(learnt$Dvar[aux$id, , , drop = FALSE]))
+            learnt$Dsd[aux$id, , , drop = FALSE])
         xV1 <- rbind(xV1,
             tails[aux$name] *
                 t(as.matrix(vtransform(
@@ -154,7 +154,7 @@ util_lprobsargsyx <- function(
         V1mean <- learnbind(V1mean,
                 learnt$Cmean[aux$id, , , drop = FALSE])
         V1sd <- learnbind(V1sd,
-            sqrt(learnt$Cvar[aux$id, , , drop = FALSE]))
+            learnt$Csd[aux$id, , , drop = FALSE])
         xV1 <- rbind(xV1,
                 t(as.matrix(vtransform(
                     x[, aux$name, drop = FALSE],
@@ -181,7 +181,7 @@ util_lprobsargsyx <- function(
         V1mean <- learnbind(V1mean,
                 - learnt$Cmean[aux$id, , , drop = FALSE]) # minus sign
         V1sd <- learnbind(V1sd,
-            sqrt(learnt$Cvar[aux$id, , , drop = FALSE]))
+            learnt$Csd[aux$id, , , drop = FALSE])
         xV1 <- rbind(xV1,
                - t(as.matrix(vtransform( # minus sign
                     x[, aux$name, drop = FALSE],
@@ -208,7 +208,7 @@ util_lprobsargsyx <- function(
         V1mean <- learnbind(V1mean,
                 learnt$Dmean[aux$id, , , drop = FALSE])
         V1sd <- learnbind(V1sd,
-            sqrt(learnt$Dvar[aux$id, , , drop = FALSE]))
+            learnt$Dsd[aux$id, , , drop = FALSE])
         xV1 <- rbind(xV1,
                 t(as.matrix(vtransform(
                     x[, aux$name, drop = FALSE],
@@ -236,7 +236,7 @@ util_lprobsargsyx <- function(
         V1mean <- learnbind(V1mean,
                 - learnt$Dmean[aux$id, , , drop = FALSE]) # minus sign
         V1sd <- learnbind(V1sd,
-            sqrt(learnt$Dvar[aux$id, , , drop = FALSE]))
+            learnt$Dsd[aux$id, , , drop = FALSE])
         xV1 <- rbind(xV1,
                - t(as.matrix(vtransform( # minus sign
                     x[, aux$name, drop = FALSE],
@@ -272,7 +272,7 @@ util_lprobsargsyx <- function(
         V2mean <- learnbind(V2mean,
                 learnt$Dmean[aux$id, , , drop = FALSE])
         V2sd <- learnbind(V2sd,
-            sqrt(learnt$Dvar[aux$id, , , drop = FALSE]))
+            learnt$Dsd[aux$id, , , drop = FALSE])
         V2steps <- aux$halfstep / aux$tscale
         xV2 <- rbind(xV2,
                 t(as.matrix(vtransform(

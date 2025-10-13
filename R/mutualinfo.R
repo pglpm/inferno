@@ -281,7 +281,7 @@ mutualinfo <- function(
         Yout <- c(Yout,
             rnorm(n = n * nvrt,
                 mean = learnt$Rmean[totake],
-                sd = sqrt(learnt$Rvar[totake]) )
+                sd = learnt$Rsd[totake] )
         )
     }
 
@@ -296,7 +296,7 @@ mutualinfo <- function(
         Yout <- c(Yout,
             rnorm(n = n * nvrt,
                 mean = learnt$Cmean[totake],
-                sd = sqrt(learnt$Cvar[totake]) )
+                sd = learnt$Csd[totake] )
         )
     }
 
@@ -311,7 +311,7 @@ mutualinfo <- function(
         Yout <- c(Yout,
             rnorm(n = n * nvrt,
                 mean = learnt$Dmean[totake],
-                sd = sqrt(learnt$Dvar[totake]) )
+                sd = learnt$Dsd[totake] )
         )
     }
 

@@ -280,19 +280,19 @@ qPr <- function(
             learnt$Oprob[auxY$indexpos + seq_len(auxY$Nvalues), ,],
             c(2, 3), cumsum
         ))
-        params2 = NULL
+        params2 <- NULL
         util_qYX <- util_qYXdiscr
     } else if(auxY$mcmctype == 'R'){
-        params1 = learnt$Rmean[auxY$id, ,]
-        params2 = sqrt(learnt$Rvar[auxY$id, ,])
+        params1 <- learnt$Rmean[auxY$id, ,]
+        params2 <- learnt$Rsd[auxY$id, ,]
         util_qYX <- util_qYXcont
     } else if(auxY$mcmctype == 'D'){
-        params1 = learnt$Dmean[auxY$id, ,]
-        params2 = sqrt(learnt$Dvar[auxY$id, ,])
+        params1 <- learnt$Dmean[auxY$id, ,]
+        params2 <- learnt$Dvar[auxY$id, ,]
         util_qYX <- util_qYXcont
     } else if(auxY$mcmctype == 'C'){
-        params1 = learnt$Cmean[auxY$id, ,]
-        params2 = sqrt(learnt$Cvar[auxY$id, ,])
+        params1 <- learnt$Cmean[auxY$id, ,]
+        params2 <- learnt$Csd[auxY$id, ,]
         util_qYX <- util_qYXcont
     } else {
         stop('type of Y not found')

@@ -1086,10 +1086,11 @@ learn <- function(
             stoppedchains = stoppedchains
         )
     ))
+    rm(mcsamples)
     ## The 'learnt' object is preliminarily saved as soon as possible,
     ## in case something crashes during subsequent diagnostics
     saveRDS(learnt,
-        file = file.path(dirname, paste0('learnt', dashnameroot, '.rds'))
+        file = file.path(dirname, paste0('___learnt', dashnameroot, '.rds'))
     )
 
     ## This cat() is to delete the last 'estimated end time'
@@ -1132,8 +1133,28 @@ learn <- function(
 
     oktraces <- util_Pcheckpoints(
         testdata = testdata,
-        learnt = mcsamples
+        learnt = learnt
     )
+
+    ## Substitute variances for standard deviations
+    if(!is.null(learnt$Rvar){
+        learnt$Rvar <- sqrt(learnt$Rvar)
+        names(learnt)[which(names(learnt) == 'Rvar')] <- 'Rsd'
+    }
+    if(!is.null(learnt$Cvar){
+        learnt$Cvar <- sqrt(learnt$Cvar)
+        names(learnt)[which(names(learnt) == 'Cvar')] <- 'Csd'
+    }
+    if(!is.null(learnt$Dvar){
+        learnt$Dvar <- sqrt(learnt$Dvar)
+        names(learnt)[which(names(learnt) == 'Dvar')] <- 'Dsd'
+    }
+
+    ## Save 'learnt' object
+    saveRDS(learnt,
+        file = file.path(dirname, paste0('learnt', dashnameroot, '.rds'))
+    )
+
 
     oktraces <- cbind(
         exp(rowMeans(log(oktraces), na.rm = TRUE)), # geometric mean

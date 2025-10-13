@@ -201,9 +201,6 @@ E <- function(
     YtR <- which(!is.na(YiR))
     YiR <- YiR[YtR]
     YnR <- length(YiR)
-    if (YnR > 0 || XnR > 0) {
-        learnt$Rvar <- sqrt(learnt$Rvar)
-    }
 
 #### Type C
     vnames <- auxmetadata[auxmetadata$mcmctype == 'C', 'name']
@@ -217,7 +214,6 @@ E <- function(
     YiC <- YiC[YtC]
     YnC <- length(YiC)
     if (YnC > 0 || XnC > 0) {
-        learnt$Cvar <- sqrt(learnt$Cvar)
         Clefts <- auxmetadata[match(vnames, auxmetadata$name), 'tdomainminplushs']
         Crights <- auxmetadata[match(vnames, auxmetadata$name), 'tdomainmaxminushs']
     }
@@ -234,7 +230,6 @@ E <- function(
     YiD <- YiD[YtD]
     YnD <- length(YiD)
     if (YnD > 0 || XnD > 0) {
-        learnt$Dvar <- sqrt(learnt$Dvar)
         Dsteps <- auxmetadata[match(vnames, auxmetadata$name), 'halfstep'] /
             auxmetadata[match(vnames, auxmetadata$name), 'tscale']
         Dlefts <- auxmetadata[match(vnames, auxmetadata$name), 'tdomainminplushs']
