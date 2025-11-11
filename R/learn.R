@@ -436,7 +436,6 @@ learn <- function(
         auxdata <- NULL
     }
 
-
     ## Build auxiliary metadata object; we'll save it later
     ## message('Calculating auxiliary metadata.')
     auxmetadata <- buildauxmetadata(

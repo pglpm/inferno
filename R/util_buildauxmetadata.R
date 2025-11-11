@@ -649,6 +649,17 @@ buildauxmetadata <- function(data, metadata, Dthreshold = 1, tscalefactor = 4.26
             as.list(datavalues)
         )
 
+        if(nrow(auxmetadata) > 0){
+            if(length(newrow) > ncol(auxmetadata)){
+                auxmetadata[,
+                    setdiff(names(newrow), colnames(auxmetadata))] <-
+                    NA_character_
+            } else if(length(newrow) < ncol(auxmetadata)){
+                newrow[setdiff(colnames(auxmetadata), names(newrow))] <-
+                    NA_character_
+            }
+        }
+
         auxmetadata <- rbind(auxmetadata, newrow)
         ## auxmetadata <- merge(auxmetadata,
         ##     c(
