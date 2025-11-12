@@ -21,12 +21,12 @@ Source:
 
 Porta Mana P, Grefsrud A, Mydland H, Ohvrill M, Hesthamar Hauge S
 (2025). *inferno: Inference in R with Bayesian nonparametrics*. R
-package version 0.5.0, <https://pglpm.github.io/inferno/>.
+package version 0.5.1, <https://pglpm.github.io/inferno/>.
 
     @Manual{,
       title = {inferno: Inference in R with Bayesian nonparametrics},
       author = {PierGianLuca {Porta Mana} and Aurora Grefsrud and Håkon Mydland and Maksim Ohvrill and Simen {Hesthamar Hauge}},
       year = {2025},
-      note = {R package version 0.5.0},
+      note = {R package version 0.5.1},
       url = {https://pglpm.github.io/inferno/},
     }
