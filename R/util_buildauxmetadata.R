@@ -649,41 +649,19 @@ buildauxmetadata <- function(data, metadata, Dthreshold = 1, tscalefactor = 4.26
             as.list(datavalues)
         )
 
-        if(nrow(auxmetadata) > 0){
-            if(length(newrow) > ncol(auxmetadata)){
-                auxmetadata[,
-                    setdiff(names(newrow), colnames(auxmetadata))] <-
-                    NA_character_
-            } else if(length(newrow) < ncol(auxmetadata)){
-                newrow[setdiff(colnames(auxmetadata), names(newrow))] <-
-                    NA_character_
-            }
-        }
+        ## if(nrow(auxmetadata) > 0){
+        ##     if(length(newrow) > ncol(auxmetadata)){
+        ##         auxmetadata[,
+        ##             setdiff(names(newrow), colnames(auxmetadata))] <-
+        ##             NA_character_
+        ##     } else if(length(newrow) < ncol(auxmetadata)){
+        ##         newrow[setdiff(colnames(auxmetadata), names(newrow))] <-
+        ##             NA_character_
+        ##     }
+        ## }
+        ## auxmetadata <- rbind(auxmetadata, newrow)
 
-        auxmetadata <- rbind(auxmetadata, newrow)
-        ## auxmetadata <- merge(auxmetadata,
-        ##     c(
-        ##         list(
-        ##             name = name, type = minfo$type, mcmctype = mcmctype,
-        ##             id = id, # censored=cens,
-        ##             transform = transf,
-        ##             Nvalues = Nvalues, indexpos = indexpos,
-        ##             halfstep = halfstep,
-        ##             domainmin = domainmin, domainmax = domainmax,
-        ##             minincluded = minincluded, maxincluded = maxincluded,
-        ##             tdomainmin = tdomainmin, tdomainmax = tdomainmax,
-        ##             domainminplushs = domainminplushs,
-        ##             domainmaxminushs = domainmaxminushs,
-        ##             tdomainminplushs = tdomainminplushs,
-        ##             tdomainmaxminushs = tdomainmaxminushs,
-        ##             tlocation = tlocation, tscale = tscale,
-        ##             plotmin = plotmin, plotmax = plotmax
-        ##             ## Q1 = Q1, Q2 = Q2, Q3 = Q3, # not used in other scripts, possibly remove
-        ##             ## mctest1 = mctest1, mctest2 = mctest2, mctest3 = mctest3
-        ##         ),
-        ##         as.list(datavalues)
-        ##     ),
-        ##     sort = FALSE, all = TRUE)
+        auxmetadata <- merge(auxmetadata, newrow, sort = FALSE, all = TRUE)
     }
 
     ## print(auxmetadata) # for debugging
