@@ -569,10 +569,11 @@ plot.probability <- function(
             ...)
 
         ## Plot legends
-    if(!is.null(leg) && is.character(legend) &&
-           (legend %in%
-                c("bottomright", "bottom", "bottomleft", "left", "topleft",
-                    "top", "topright", "right", "center"))){
+        if(!is.null(leg)){
+           ##  && is.character(legend) &&
+           ## (legend %in%
+           ##      c("bottomright", "bottom", "bottomleft", "left", "topleft",
+           ##          "top", "topright", "right", "center"))
         graphics::legend(x = legend,
             legend = apply(leg, 1, function(xxx){
                 paste0(paste0(names(xxx), ' = ', xxx), collapse = ', ')
