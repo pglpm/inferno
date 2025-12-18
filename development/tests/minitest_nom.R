@@ -6,7 +6,7 @@ metadata <- data.frame(name = 'V', type = 'nominal', V1 = letters[1], V2 = lette
 set.seed(16)
 parallel <- 2
 
-outputdir <- 'minitest_nom'
+outputdir <- '__minitest_nom'
 learntdir <- learn(
     data = dataset,
     metadata = metadata,

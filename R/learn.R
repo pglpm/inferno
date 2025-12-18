@@ -748,7 +748,7 @@ learn <- function(
             Ocards <- auxmetadata[auxmetadata$name %in% vnames$O, 'Nvalues']
             Omaxn <- sum(Ocards)
             Oi <- auxmetadata[auxmetadata$name %in% vnames$O, 'indexpos'] + 1L
-            if(vn$O == 1){Oi <- c(Oi, NA_integer_)}
+            ## if(vn$O == 1){Oi <- c(Oi, NA_integer_)}
             Of <- Oi + Ocards - 1L
             ## ## we choose a flatter hyperprior for ordinal variates
             ## we choose a Hadamard-like hyperprior for nominal variates
@@ -774,7 +774,7 @@ learn <- function(
             Ncards <- auxmetadata[auxmetadata$name %in% vnames$N, 'Nvalues']
             Nmaxn <- sum(Ncards)
             Ni <- auxmetadata[auxmetadata$name %in% vnames$N, 'indexpos'] + 1L
-            if(vn$N == 1){Ni <- c(Ni, NA_integer_)}
+            ## if(vn$N == 1){Ni <- c(Ni, NA_integer_)}
             Nf <- Ni + Ncards - 1L
             ## ## we choose a flatter hyperprior for ordinal variates
             ## we choose a Hadamard-like hyperprior for nominal variates
@@ -1545,12 +1545,18 @@ workerfun <- function(
             ##         Lvar[v, k] ~ dinvgamma(shape = Lshapelo, rate = Lrate[v, k])
             ##     }
             ## }
-            if (vn$O > 0) { # ordinal
+            if (vn$O == 1) { # ordinal, one only
+                Oprob[Oi:Of, k] ~ ddirch(alpha = Oalpha0[Oi:Of])
+            }
+            if (vn$O > 1) { # ordinal, many
                 for (v in 1:On) {
                     Oprob[Oi[v]:Of[v], k] ~ ddirch(alpha = Oalpha0[Oi[v]:Of[v]])
                 }
             }
-            if (vn$N > 0) { # nominal
+            if (vn$N == 1) { # nominal, one only
+                    Nprob[Ni:Nf, k] ~ ddirch(alpha = Nalpha0[Ni:Nf])
+            }
+            if (vn$N > 1) { # nominal, many
                 for (v in 1:Nn) {
                     Nprob[Ni[v]:Nf[v], k] ~ ddirch(alpha = Nalpha0[Ni[v]:Nf[v]])
                 }
@@ -1595,12 +1601,18 @@ workerfun <- function(
             ##         Llat[d, v] ~ dnorm(mean = Lmean[v, K[d]], var = Lvar[v, K[d]])
             ##     }
             ## }
-            if (vn$O > 0) { # nominal
+            if (vn$O == 1) { # ordinal, one only
+                Odata[d, 1] ~ dcat(prob = Oprob[Oi:Of, K[d]])
+            }
+            if (vn$O > 1) { # ordinal, many
                 for (v in 1:On) {
                     Odata[d, v] ~ dcat(prob = Oprob[Oi[v]:Of[v], K[d]])
                 }
             }
-            if (vn$N > 0) { # nominal
+            if (vn$N == 1) { # nominal, one only
+                Ndata[d, 1] ~ dcat(prob = Nprob[Ni:Nf, K[d]])
+            }
+            if (vn$N > 1) { # nominal, many
                 for (v in 1:Nn) {
                     Ndata[d, v] ~ dcat(prob = Nprob[Ni[v]:Nf[v], K[d]])
                 }

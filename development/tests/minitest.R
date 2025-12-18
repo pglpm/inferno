@@ -6,7 +6,7 @@ metadata <- data.frame(name = 'V', type = 'continuous')
 set.seed(16)
 parallel <- 2
 
-outputdir <- 'minitest'
+outputdir <- '__minitest'
 learntdir <- learn(
     data = dataset,
     metadata = metadata,
