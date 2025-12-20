@@ -1,6 +1,21 @@
-<img src="https://github.com/pglpm/inferno/raw/main/development/manual/inferno_symbol.png" alt="Ensemble of densities" width="100%"/>
+.<img src="https://github.com/pglpm/inferno/raw/main/development/manual/inferno_symbol.png" alt="Ensemble of densities" width="100%"/>
 
 # inferno: ***infer***ence in ***R*** with Bayesian ***no***nparametrics
+
+----
+
+### NOTE: 
+
+at the moment there's a bug that doesn't allow Nimble v1.4.0 to be used. Please either use Nimble v1.3.0 or the patched version from GitHub:
+
+```
+remove.packages('nimble')
+library(remotes)
+remotes::install_github('nimble-dev/nimble', ref = 'conj_sizes_fix', subdir = 'packages/nimble')
+```
+
+----
+
 
 This repository provides an R package and some theoretical background for *Bayesian nonparametric population inference*, which can also be called "inference under exchangeability" or "density inference". The package is especially apt for the study of statistics and associations of subpopulations or subgroups. The [introductory vignette](https://pglpm.github.io/inferno/articles/inferno_start.html) explains with an example the main ideas and functions, in particular for researchers who are more familiar with traditional "frequentist" statistics but would like to try the Bayesian approach; see the [post](https://www.apadivisions.org/division-7/publications/newsletters/developmental/2018/07/bayesian-statistics) by Barbara W. Sarnecka, frequentist statistician turned Bayesian, for a brilliant overview of the Bayesian advantages.
 
