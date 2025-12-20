@@ -14,7 +14,7 @@ util_prepPcheckpoints <- function(
     nX <- nrow(x)
 
     auxV0a <- auxV0b <- auxV1a <- auxV1b <- auxV1c <- auxV1d <- NULL
-    auxV2 <- auxVN1 <- auxVN2 <- auxVB <- NULL
+    auxV2 <- auxVNO <- auxVNN <- auxVB <- NULL
     V2steps <- NULL
 
     nV0 <- nV1 <- nV2 <- nVN <- nVB <- FALSE
@@ -194,7 +194,7 @@ util_prepPcheckpoints <- function(
     if(length(toselect) > 0){
         nVN <- TRUE
         aux <- auxmetadata[toselect, ]
-        auxVN1 <- aux$id
+        auxVNO <- aux$id
         Nindices <- unlist(mapply(FUN = function(i, n) {i + seq_len(n)},
             aux$indexpos, aux$Nvalues,
             SIMPLIFY = FALSE))
@@ -212,9 +212,9 @@ util_prepPcheckpoints <- function(
 ### N-variates
     toselect <- which(auxmetadata$mcmctype == 'N')
     if(length(toselect) > 0){
-        nVB <- TRUE
+        nVN <- TRUE
         aux <- auxmetadata[toselect, ]
-        auxVN2 <- aux$id
+        auxVNN <- aux$id
         Nindices <- unlist(mapply(FUN = function(i, n) {i + seq_len(n)},
             aux$indexpos, aux$Nvalues,
             SIMPLIFY = FALSE))
@@ -236,6 +236,7 @@ util_prepPcheckpoints <- function(
 ### B-variates
     toselect <- which(auxmetadata$mcmctype == 'B')
     if(length(toselect) > 0){
+        nVB <- TRUE
         aux <- auxmetadata[toselect, ]
         auxVB <- aux$id
         xVB <- rbind(xVB,
@@ -254,7 +255,7 @@ util_prepPcheckpoints <- function(
         auxV0a = auxV0a, auxV0b = auxV0b,
         auxV1a = auxV1a, auxV1b = auxV1b, auxV1c = auxV1c, auxV1d = auxV1d,
         auxV2 = auxV2,
-        auxVN1 = auxVN1, auxVN2 = auxVN2,
+        auxVNO = auxVNO, auxVNN = auxVNN,
         auxVB = auxVB,
         V2steps = V2steps,
         pointsid = pointsid,
@@ -363,12 +364,12 @@ util_Pcheckpoints <- function(
         VNprobs <- NULL
 
 ### O-variates not in 'cumul'
-        if(length(auxVN1) > 0){
+        if(length(auxVNO) > 0){
             VNprobs <- learnbind(VNprobs,
                 Oprob)
         }
 ### N-variates
-        if(length(auxVN2) > 0){
+        if(length(auxVNN) > 0){
             VNprobs <- learnbind(VNprobs,
                 Nprob)
         }
@@ -382,7 +383,6 @@ util_Pcheckpoints <- function(
         if(length(auxVB) > 0){
             VBprobs <- Bprob
         }
-
 
 
         lprobX <- log(W)
@@ -411,8 +411,7 @@ util_Pcheckpoints <- function(
                         logW = lprobX,
                         temporarydir = NULL
                     )
-
-                    ## Output: rows=components, columns=samples
+                   ## Output: rows=components, columns=samples
                     colSums(exp(lprobY)) / colSums(W)
                 })
             )
