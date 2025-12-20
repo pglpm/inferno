@@ -1,32 +1,27 @@
 library('inferno')
-#devtools::load_all()
+
+vrt <- 'Ovrt'
+metadata <- read.csvi('metadata_basetest.csv')
+metadata <- metadata[metadata$name == vrt, , drop = FALSE]
+dataset <- read.csvi('data_basetest.csv')
+dataset <- dataset[, vrt, drop = FALSE]
 
 set.seed(16)
 parallel <- 2
 
-outputdir <- '__testbase_ess100'
+outputdir <- '__minitest_O'
 learntdir <- learn(
-    data = 'data_basetest.csv',
-    metadata = 'metadata_basetest.csv',
+    data = dataset,
+    metadata = metadata,
     nsamples = 200,
-    nchains = parallel,
-    ## minMCiterations = 3600 * 3,
-    prior = FALSE,
+    nchains = 2,
+    minMCiterations = 200,
     outputdir = outputdir,
-    appendtimestamp = TRUE,
-    appendinfo = TRUE,
-    cleanup = FALSE,
-    outputvalue = 'directory',
+    outputvalue = 'outputdir',
     parallel = parallel,
     maxrelMCSE = +Inf,
     minESS = 100,
-    ## ncheckpoints = 12,
-    ##
-    ## ## parameters for short test run:
-    ## subsampledata = 10,
     maxhours = 0,
-    ## nsamplesperchain = 60,
-    ## nchains = parallel + 1,
     ##
     hyperparams = list(
         ## ncomponents = 64,

@@ -1,12 +1,15 @@
 library('inferno')
 
-dataset <- data.frame(V = letters[1:2])
-metadata <- data.frame(name = 'V', type = 'nominal', V1 = letters[1], V2 = letters[2])
+vrt <- 'Bvrt'
+metadata <- read.csvi('metadata_basetest.csv')
+metadata <- metadata[metadata$name == vrt, , drop = FALSE]
+dataset <- read.csvi('data_basetest.csv')
+dataset <- dataset[, vrt, drop = FALSE]
 
 set.seed(16)
 parallel <- 2
 
-outputdir <- 'minitest_bin'
+outputdir <- '__minitest_B'
 learntdir <- learn(
     data = dataset,
     metadata = metadata,

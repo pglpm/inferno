@@ -1,12 +1,15 @@
 library('inferno')
 
-dataset <- data.frame(V = letters[1:5])
-metadata <- data.frame(name = 'V', type = 'nominal', V1 = letters[1], V2 = letters[2], V3 = letters[3], V4 = letters[4], V5 = letters[5])
+vrt <- 'RPvrt'
+metadata <- read.csvi('metadata_basetest.csv')
+metadata <- metadata[metadata$name == vrt, , drop = FALSE]
+dataset <- read.csvi('data_basetest.csv')
+dataset <- dataset[, vrt, drop = FALSE]
 
 set.seed(16)
 parallel <- 2
 
-outputdir <- '__minitest_nom'
+outputdir <- '__minitest_Rp'
 learntdir <- learn(
     data = dataset,
     metadata = metadata,
@@ -39,7 +42,7 @@ learntdir <- learn(
         ## Dthreshold = 1,
         ## tscalefactor = 1,
         ## initmethod = 'allinone',
-        ## avoidzeroW = FALSE
+        ## avoidzeroW = TRUE
         ## precluster, prior
     )
 )
