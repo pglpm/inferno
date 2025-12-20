@@ -52,15 +52,25 @@
   </div>
 </nav><div class="container template-home">
 <div class="row">
-  <main id="main" class="col-md-9"><p><img src="https://github.com/pglpm/inferno/raw/main/development/manual/inferno_symbol.png" alt="Ensemble of densities" width="100%"></p>
+  <main id="main" class="col-md-9"><p>.<img src="https://github.com/pglpm/inferno/raw/main/development/manual/inferno_symbol.png" alt="Ensemble of densities" width="100%"></p>
 <div class="section level1">
 <div class="page-header"><h1 id="inferno-inference-in-r-with-bayesian-nonparametrics">inferno: <strong><em>infer</em></strong>ence in <strong><em>R</em></strong> with Bayesian <strong><em>no</em></strong>nparametrics<a class="anchor" aria-label="anchor" href="#inferno-inference-in-r-with-bayesian-nonparametrics"></a>
 </h1></div>
+<hr>
+<div class="section level3">
+<h3 id="note">NOTE:<a class="anchor" aria-label="anchor" href="#note"></a>
+</h3>
+<p>at the moment there’s a bug that doesn’t allow Nimble v1.4.0 to be used. Please either use Nimble v1.3.0 or the patched version from GitHub:</p>
+<pre><code><span><span class="fu"><a href="https://rdrr.io/r/utils/remove.packages.html" class="external-link">remove.packages</a></span><span class="op">(</span><span class="st">'nimble'</span><span class="op">)</span></span>
+<span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://remotes.r-lib.org" class="external-link">remotes</a></span><span class="op">)</span></span>
+<span><span class="fu">remotes</span><span class="fu">::</span><span class="fu">install_github</span><span class="op">(</span><span class="st">'nimble-dev/nimble'</span>, ref <span class="op">=</span> <span class="st">'conj_sizes_fix'</span>, subdir <span class="op">=</span> <span class="st">'packages/nimble'</span><span class="op">)</span></span></code></pre>
+<hr>
 <p>This repository provides an R package and some theoretical background for <em>Bayesian nonparametric population inference</em>, which can also be called “inference under exchangeability” or “density inference”. The package is especially apt for the study of statistics and associations of subpopulations or subgroups. The <a href="https://pglpm.github.io/inferno/articles/inferno_start.html">introductory vignette</a> explains with an example the main ideas and functions, in particular for researchers who are more familiar with traditional “frequentist” statistics but would like to try the Bayesian approach; see the <a href="https://www.apadivisions.org/division-7/publications/newsletters/developmental/2018/07/bayesian-statistics" class="external-link">post</a> by Barbara W. Sarnecka, frequentist statistician turned Bayesian, for a brilliant overview of the Bayesian advantages.</p>
 <p>The package is under development and has not yet reached a stable phase: function names and arguments may still change, new functions will be added. More tutorials will be prepared. Also the package name is still under consideration.</p>
 <p>But the core functionalities do work, and have been tested in concrete research questions; see <a href="#example-applications">example applications</a> below.</p>
 <p>The package internally does the computations necessary for Bayesian inference by means of Monte Carlo methods, thanks to the R package <a href="https://r-nimble.org/" class="external-link"><strong>Nimble</strong></a>. Users unfamiliar with Monte Carlo methods don’t have to worry, because the computations are handled automatically. Users familiar with Monte Carlo methods can easily have access to computational details and can even change some of the computation hyperparameters.</p>
 <p>If you want to test the package we’d be very happy to help in resolving possible issues and in understanding the functionalities.</p>
+</div>
 <div class="section level2">
 <h2 id="installation">Installation<a class="anchor" aria-label="anchor" href="#installation"></a>
 </h2>

@@ -1,7 +1,20 @@
 # inferno: ***infer***ence in ***R*** with Bayesian ***no***nparametrics
 
-![Ensemble of
+.![Ensemble of
 densities](https://github.com/pglpm/inferno/raw/main/development/manual/inferno_symbol.png)
+
+------------------------------------------------------------------------
+
+### NOTE:
+
+at the moment there’s a bug that doesn’t allow Nimble v1.4.0 to be used.
+Please either use Nimble v1.3.0 or the patched version from GitHub:
+
+    remove.packages('nimble')
+    library(remotes)
+    remotes::install_github('nimble-dev/nimble', ref = 'conj_sizes_fix', subdir = 'packages/nimble')
+
+------------------------------------------------------------------------
 
 This repository provides an R package and some theoretical background
 for *Bayesian nonparametric population inference*, which can also be
