@@ -1877,7 +1877,8 @@ workerfun <- function(
                 outlist <- c(
                     outlist,
                     list(
-                        Nprob = matrix(unlist(sapply(constants$Ncards, function(acard){
+                        Nprob = matrix(unlist(sapply(constants$
+                                                         Ncards, function(acard){
                             rep(1 / acard, acard)
                         })), nrow = sum(constants$Ncards), ncol = ncomponents)
                     )
