@@ -83,6 +83,9 @@ An application has been built upon ***inferno***. This app can be used for testi
 
 - [*Does the evaluation stand up to evaluation? A first-principle approach to the evaluation of classifiers*](https://doi.org/10.31219/osf.io/7rz8t)
 
+- [*Calibrated and uncertain? Evaluating uncertainty estimates in
+binary classification models*](https://doi.org/10.1088/2632-2153/ae45ed)
+
 
 Projects using ***inferno***:
 
