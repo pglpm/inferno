@@ -131,6 +131,9 @@ clicks, without having to write any code in R yourself.
   approach to the evaluation of
   classifiers*](https://doi.org/10.31219/osf.io/7rz8t)
 
+- [*Calibrated and uncertain? Evaluating uncertainty estimates in binary
+  classification models*](https://doi.org/10.1088/2632-2153/ae45ed)
+
 Projects using ***inferno***:
 
 - [InfernoCalibNet](https://m4siko.github.io/InfernoCalibNet).
