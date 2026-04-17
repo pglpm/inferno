@@ -2,21 +2,6 @@
 
 # inferno: ***infer***ence in ***R*** with Bayesian ***no***nparametrics
 
-----
-
-### NOTE: 
-
-at the moment there's a bug that doesn't allow Nimble v1.4.0 to be used. Please either use Nimble v1.3.0 or the patched version from GitHub:
-
-```
-remove.packages('nimble')
-library(remotes)
-remotes::install_github('nimble-dev/nimble', ref = 'conj_sizes_fix', subdir = 'packages/nimble')
-```
-
-----
-
-
 This repository provides an R package and some theoretical background for *Bayesian nonparametric population inference*, which can also be called "inference under exchangeability" or "density inference". The package is especially apt for the study of statistics and associations of subpopulations or subgroups. The [introductory vignette](https://pglpm.github.io/inferno/articles/inferno_start.html) explains with an example the main ideas and functions, in particular for researchers who are more familiar with traditional "frequentist" statistics but would like to try the Bayesian approach; see the [post](https://www.apadivisions.org/division-7/publications/newsletters/developmental/2018/07/bayesian-statistics) by Barbara W. Sarnecka, frequentist statistician turned Bayesian, for a brilliant overview of the Bayesian advantages.
 
 The package is under development and has not yet reached a stable phase: function names and arguments may still change, new functions will be added. More tutorials will be prepared. Also the package name is still under consideration.
@@ -29,7 +14,7 @@ If you want to test the package we'd be very happy to help in resolving possible
 
 ## Installation
 
-You need to have the package [**Nimble**](https://r-nimble.org/) installed. Please follow its [installation instructions](https://r-nimble.org/manual/cha-installing-nimble.html) for your operating system.
+You need to have the package [**Nimble**](https://r-nimble.org/), *at least version 1.4.2*, installed. Please follow its [installation instructions](https://r-nimble.org/manual/cha-installing-nimble.html) for your operating system.
 
 You can then install **inferno** in R by using the `remotes` package:
 ```
