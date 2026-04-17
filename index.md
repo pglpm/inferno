@@ -3,19 +3,6 @@
 .![Ensemble of
 densities](https://github.com/pglpm/inferno/raw/main/development/manual/inferno_symbol.png)
 
-------------------------------------------------------------------------
-
-### NOTE:
-
-at the moment there’s a bug that doesn’t allow Nimble v1.4.0 to be used.
-Please either use Nimble v1.3.0 or the patched version from GitHub:
-
-    remove.packages('nimble')
-    library(remotes)
-    remotes::install_github('nimble-dev/nimble', ref = 'conj_sizes_fix', subdir = 'packages/nimble')
-
-------------------------------------------------------------------------
-
 This repository provides an R package and some theoretical background
 for *Bayesian nonparametric population inference*, which can also be
 called “inference under exchangeability” or “density inference”. The
@@ -51,8 +38,8 @@ possible issues and in understanding the functionalities.
 
 ## Installation
 
-You need to have the package [**Nimble**](https://r-nimble.org/)
-installed. Please follow its [installation
+You need to have the package [**Nimble**](https://r-nimble.org/), *at
+least version 1.4.2*, installed. Please follow its [installation
 instructions](https://r-nimble.org/manual/cha-installing-nimble.html)
 for your operating system.
 
