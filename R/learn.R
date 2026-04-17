@@ -897,7 +897,8 @@ learn <- function(
     message('Requested:   ESS ', round(minESS),
         '   rel.MCSE ', signif(maxrelMCSE, 3), '.')
     message('Core logs are being saved in individual files.')
-    message('C-compiling samplers appropriate to the variates (package Nimble)')
+    message('C-compiling samplers appropriate to the variates (Nimble ',
+        paste0('v', packageVersion('nimble')), ')')
     message('this can take tens of minutes. Please wait...')
 
     ## outconmain <- file(file.path(dirname,
@@ -1457,6 +1458,7 @@ workerfun <- function(
     cat('\n')
 
     suppressPackageStartupMessages(require('nimble'))
+    cat('Loaded Nimble', paste0('v', packageVersion('nimble')), '\n')
     ## requireNamespace("nimble", quietly = TRUE)
     ##library('nimble')
 

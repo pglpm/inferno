@@ -28,7 +28,7 @@ Depends:
     R (>= 3.5.0)
 Imports:
     extraDistr,
-    nimble,
+    nimble (>= 1.4.2),
     parallel
 Suggests:
     knitr,
