@@ -203,6 +203,7 @@ metadatatemplate <- function(
             datavalues <- NULL
         } else {
             datavalues <- as.character(unx)
+            unx <- as.character(unx)
         }
 
 ### Check whether the variate has been first rounded
