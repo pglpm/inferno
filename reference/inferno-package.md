@@ -18,6 +18,9 @@ Useful links:
 
 Authors:
 
+- PierGianLuca Porta Mana <pgl@portamana.org>
+  ([ORCID](https://orcid.org/0000-0002-6070-0784)) \[copyright holder\]
+
 - Aurora Grefsrud <agre@hvl.no>
   ([ORCID](https://orcid.org/0009-0005-9063-4131))
 

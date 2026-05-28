@@ -7,8 +7,8 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 <title>Associations among variates and mutual information • inferno</title>
 <script src="../deps/jquery-3.6.0/jquery-3.6.0.min.js"></script><meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-<link href="../deps/bootstrap-5.3.1/bootstrap.min.css" rel="stylesheet">
-<script src="../deps/bootstrap-5.3.1/bootstrap.bundle.min.js"></script><link href="../deps/font-awesome-6.5.2/css/all.min.css" rel="stylesheet">
+<link href="../deps/bootstrap-5.3.8/bootstrap.min.css" rel="stylesheet">
+<script src="../deps/bootstrap-5.3.8/bootstrap.bundle.min.js"></script><link href="../deps/font-awesome-6.5.2/css/all.min.css" rel="stylesheet">
 <link href="../deps/font-awesome-6.5.2/css/v4-shims.min.css" rel="stylesheet">
 <script src="../deps/headroom-0.11.0/headroom.min.js"></script><script src="../deps/headroom-0.11.0/jQuery.headroom.min.js"></script><script src="../deps/bootstrap-toc-1.0.1/bootstrap-toc.min.js"></script><script src="../deps/clipboard.js-2.0.11/clipboard.min.js"></script><script src="../deps/search-1.0.0/autocomplete.jquery.min.js"></script><script src="../deps/search-1.0.0/fuse.min.js"></script><script src="../deps/search-1.0.0/mark.min.js"></script><!-- pkgdown --><script src="../pkgdown.js"></script><meta property="og:title" content="Associations among variates and mutual information">
 </head>
@@ -489,7 +489,7 @@ and
 of any kind – continuous, nominal, binary, images, audio signals, and so
 on.</p></li>
 <li><p>It is defined for any probability distribution
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mrow><mi mathvariant="normal">P</mi><mi mathvariant="normal">r</mi></mrow><mrow><mo stretchy="true" form="prefix">(</mo><msub><mi>Y</mi><mn>1</mn></msub><mo>,</mo><msub><mi>Y</mi><mn>2</mn></msub><mo stretchy="true" form="postfix">)</mo></mrow></mrow><annotation encoding="application/x-tex">\mathrm{Pr}(Y_1, Y_2)</annotation></semantics></math>
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mrow><mi mathvariant="normal">P</mi><mi mathvariant="normal">r</mi></mrow><mo stretchy="false" form="prefix">(</mo><msub><mi>Y</mi><mn>1</mn></msub><mo>,</mo><msub><mi>Y</mi><mn>2</mn></msub><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">\mathrm{Pr}(Y_1, Y_2)</annotation></semantics></math>
 for the two variates, without assumptions such as Gaussian
 shapes.</p></li>
 </ul>
@@ -603,13 +603,13 @@ Then, upon testing the clinical indicator, the clinician will be roughly
 uncertain among <em>three</em> possible diseases, rather than four,
 because knowledge of the indicator reduces the four possibilities by
 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msup><mn>2</mn><mn>0.415</mn></msup><annotation encoding="application/x-tex">2^{0.415}</annotation></semantics></math>
-(<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mn>4</mn><mi>/</mi><mrow><mo stretchy="true" form="prefix">(</mo><msup><mn>2</mn><mn>0.415</mn></msup><mo stretchy="true" form="postfix">)</mo></mrow><mo>≈</mo><mn>3</mn></mrow><annotation encoding="application/x-tex">4/(2^{0.415}) \approx 3</annotation></semantics></math>).
+(<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mn>4</mn><mi>/</mi><mo stretchy="false" form="prefix">(</mo><msup><mn>2</mn><mn>0.415</mn></msup><mo stretchy="false" form="postfix">)</mo><mo>≈</mo><mn>3</mn></mrow><annotation encoding="application/x-tex">4/(2^{0.415}) \approx 3</annotation></semantics></math>).
 If the mutual information were
 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mn>2</mn><mspace width="0.167em"></mspace><mrow><mi mathvariant="normal">S</mi><mi mathvariant="normal">h</mi></mrow></mrow><annotation encoding="application/x-tex">2\,\mathrm{Sh}</annotation></semantics></math>
 instead, then the indicator would tell the disease with
 <em>certainty</em>, as it would reduce the four possibilities by
 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msup><mn>2</mn><mn>2</mn></msup><annotation encoding="application/x-tex">2^{2}</annotation></semantics></math>
-(<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mn>4</mn><mi>/</mi><mrow><mo stretchy="true" form="prefix">(</mo><msup><mn>2</mn><mn>2</mn></msup><mo stretchy="true" form="postfix">)</mo></mrow><mo>=</mo><mn>1</mn></mrow><annotation encoding="application/x-tex">4/(2^{2}) = 1</annotation></semantics></math>).</p>
+(<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mn>4</mn><mi>/</mi><mo stretchy="false" form="prefix">(</mo><msup><mn>2</mn><mn>2</mn></msup><mo stretchy="false" form="postfix">)</mo><mo>=</mo><mn>1</mn></mrow><annotation encoding="application/x-tex">4/(2^{2}) = 1</annotation></semantics></math>).</p>
 <p>But the function <code><a href="../reference/mutualinfo.html">mutualinfo()</a></code> has an additional output
 to help you get a rough understanding of the mutual-information value.
 In the special case of two continuous variates having a joint
@@ -618,7 +618,7 @@ their mutual information
 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>I</mi><annotation encoding="application/x-tex">I</annotation></semantics></math>
 and their Pearson correlation coefficient
 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>r</mi><annotation encoding="application/x-tex">r</annotation></semantics></math>:</p>
-<p><math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>I</mi><mo>=</mo><mo>−</mo><mfrac><mn>1</mn><mn>2</mn></mfrac><msub><mo>log</mo><mn>2</mn></msub><mo minsize="1.2" maxsize="1.2" stretchy="false" form="prefix">(</mo><mn>1</mn><mo>−</mo><msup><mi>r</mi><mn>2</mn></msup><mo minsize="1.2" maxsize="1.2" stretchy="false" form="postfix">)</mo><mspace width="0.278em"></mspace><mrow><mi mathvariant="normal">S</mi><mi mathvariant="normal">h</mi></mrow><mspace width="0.167em"></mspace><mo>,</mo><mspace width="2.0em"></mspace><mo stretchy="false" form="prefix">|</mo><mi>r</mi><mo stretchy="false" form="postfix">|</mo><mo>=</mo><msqrt><mrow><mn>1</mn><mo>−</mo><msup><mn>2</mn><mrow><mo>−</mo><mn>2</mn><mi>I</mi><mi>/</mi><mrow><mi mathvariant="normal">S</mi><mi mathvariant="normal">h</mi></mrow></mrow></msup></mrow></msqrt></mrow><annotation encoding="application/x-tex">
+<p><math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>I</mi><mo>=</mo><mi>−</mi><mfrac><mn>1</mn><mn>2</mn></mfrac><msub><mrow><mi mathvariant="normal">log</mi><mo>⁡</mo></mrow><mn>2</mn></msub><mo minsize="120%" maxsize="120%" stretchy="true" form="prefix">(</mo><mn>1</mn><mo>−</mo><msup><mi>r</mi><mn>2</mn></msup><mo minsize="120%" maxsize="120%" stretchy="true" form="postfix">)</mo><mspace width="0.278em"></mspace><mrow><mi mathvariant="normal">S</mi><mi mathvariant="normal">h</mi></mrow><mspace width="0.167em"></mspace><mo>,</mo><mspace width="2.0em"></mspace><mo stretchy="false" form="prefix">|</mo><mi>r</mi><mo stretchy="false" form="postfix">|</mo><mo>=</mo><msqrt><mrow><mn>1</mn><mo>−</mo><msup><mn>2</mn><mrow><mi>−</mi><mn>2</mn><mi>I</mi><mi>/</mi><mrow><mi mathvariant="normal">S</mi><mi mathvariant="normal">h</mi></mrow></mrow></msup></mrow></msqrt></mrow><annotation encoding="application/x-tex">
 I = -\frac{1}{2} \log_{2}\bigl(1 - r^2\bigr)\;\mathrm{Sh} 
 \,,\qquad
 \lvert r\rvert = \sqrt{1 - 2^{- 2 I/\mathrm{Sh}}}

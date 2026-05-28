@@ -7,8 +7,8 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 <title>Bayesian nonparametric inference with inferno • inferno</title>
 <script src="../deps/jquery-3.6.0/jquery-3.6.0.min.js"></script><meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-<link href="../deps/bootstrap-5.3.1/bootstrap.min.css" rel="stylesheet">
-<script src="../deps/bootstrap-5.3.1/bootstrap.bundle.min.js"></script><link href="../deps/font-awesome-6.5.2/css/all.min.css" rel="stylesheet">
+<link href="../deps/bootstrap-5.3.8/bootstrap.min.css" rel="stylesheet">
+<script src="../deps/bootstrap-5.3.8/bootstrap.bundle.min.js"></script><link href="../deps/font-awesome-6.5.2/css/all.min.css" rel="stylesheet">
 <link href="../deps/font-awesome-6.5.2/css/v4-shims.min.css" rel="stylesheet">
 <script src="../deps/headroom-0.11.0/headroom.min.js"></script><script src="../deps/headroom-0.11.0/jQuery.headroom.min.js"></script><script src="../deps/bootstrap-toc-1.0.1/bootstrap-toc.min.js"></script><script src="../deps/clipboard.js-2.0.11/clipboard.min.js"></script><script src="../deps/search-1.0.0/autocomplete.jquery.min.js"></script><script src="../deps/search-1.0.0/fuse.min.js"></script><script src="../deps/search-1.0.0/mark.min.js"></script><!-- pkgdown --><script src="../pkgdown.js"></script><meta property="og:title" content="Bayesian nonparametric inference with inferno">
 </head>
@@ -479,8 +479,7 @@ should obviously have different names.
 </dd>
 <dt>Variate type (<code>type</code>)</dt>
 <dd>
-<p><strong><em>inferno</em></strong> can handle three kinds of
-variates:</p>
+<strong><em>inferno</em></strong> can handle three kinds of variates:
 <ul>
 <li>
 <code>nominal</code>: it can take on a finite number of discrete
@@ -497,18 +496,18 @@ scale</a>.</li>
 number of continuous values, although they can be discretized or
 rounded. Examples could be age or weight.</li>
 </ul>
-<p>Many other types of variates exist. For example images and audio are
+Many other types of variates exist. For example images and audio are
 also types of variates; but <strong><em>inferno</em></strong> cannot
 handle these complex types. A simple type of variate that
 <strong><em>inferno</em></strong> cannot properly handle is the
 <em>cyclic</em> one, such as time of day. There are no clear-cut
 separations between different types of variates; thus it’s sometimes
-difficult to assess the type.</p>
+difficult to assess the type.
 </dd>
 <dt>Domain minimum and maximum (<code>domainmin</code>,
 <code>domainmax</code>)</dt>
 <dd>
-<p>These are numbers, only defined for numeric-ordinal and continuous
+These are numbers, only defined for numeric-ordinal and continuous
 variates. These metadata are the minimum and maximum value a variate can
 take on in a given study. For example, in a study about health or
 employment of adults, a variate <em>age</em> might have a minimum of
@@ -516,11 +515,11 @@ employment of adults, a variate <em>age</em> might have a minimum of
 minimum would be 0. In a health study where people of 90 years or more
 are pooled together, the maximum would be 90 years. A minimum could also
 be minus-infinity, and a maximum plus-infinity. Obviously the minimum
-should be lower than the maximum.</p>
-<p>Sometimes the minimum or maximum is not clear-cut. For instance,
-there is no theoretical maximum on a person’s age, although we can
-consider an age of 300 impossible to reach today. In such cases the
-maximum or minimum can be taken to be plus or minus infinity.</p>
+should be lower than the maximum.
+Sometimes the minimum or maximum is not clear-cut. For instance, there
+is no theoretical maximum on a person’s age, although we can consider an
+age of 300 impossible to reach today. In such cases the maximum or
+minimum can be taken to be plus or minus infinity.
 </dd>
 <dt>Interval between values (<code>datastep</code>)</dt>
 <dd>
@@ -1244,7 +1243,7 @@ probabilities<a class="anchor" aria-label="anchor" href="#uncertainty-of-estimat
 quantity is by means of a <strong>credibility interval</strong> with a
 given probability. For instance, if we say that a particular quantity
 has a 70%-credibility interval equal to
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo stretchy="true" form="prefix">(</mo><mn>0.41</mn><mo>,</mo><mn>0.69</mn><mo stretchy="true" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">(0.41, 0.69)</annotation></semantics></math>,
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo stretchy="false" form="prefix">(</mo><mn>0.41</mn><mo>,</mo><mn>0.69</mn><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">(0.41, 0.69)</annotation></semantics></math>,
 what we mean is that there’s an 70% probability that the true value of
 that quantity is between
 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mn>0.41</mn><annotation encoding="application/x-tex">0.41</annotation></semantics></math>

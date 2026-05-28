@@ -221,6 +221,7 @@ for an introductory example.
 ## Examples
 
 ``` r
+
 ## Create dataset with 10 points of variate 'V' for demonstration
 dataset <- data.frame(V = rnorm(n = 10))
 

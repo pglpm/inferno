@@ -50,6 +50,7 @@ environment, choose a directory to work in, and test the code that
 follows. Let’s start by loading the ***inferno*** package:
 
 ``` r
+
 library('inferno')
 ```
 
@@ -63,6 +64,7 @@ the shuffled dataset as the CSV file
 Otherwise you can create such file from R 4.5.0 or above as follows:
 
 ``` r
+
 set.seed(50) ## replace with your favourite seed number
 
 penguin <- penguins[sample(1:nrow(penguins)), ] ## shuffle
@@ -178,11 +180,11 @@ To make this point clearer, imagine a slightly different population.
 Suppose we were interested only in all the penguins alive today on a
 specific, very small island. The island turns out to have 17 penguins.
 We check all of them. We find that 6 of these are females, and 11 are
-males. It’s then a fact that $6/17 \approx 35.3\%$ of penguins in this
+males. It’s then a fact that $`6/17 \approx 35.3\%`$ of penguins in this
 specific population are females, and 64.7% are males. And if someone
 picked a penguin from this population and asked us to guess its sex, we
 would give a 35.3% probability to that penguin’s being female, and 64.7%
-to its being male.[¹](#fn1)
+to its being male.[^1]
 
 But it is often impractical or impossible to take a complete census.
 Think of the case were the whole population includes members or variates
@@ -239,6 +241,7 @@ in the file `penguin_data10.csv`, respecting the [formatting rules
 required by ***inferno***](#format):
 
 ``` r
+
 datafile <- 'penguin_data10.csv'
 write.csvi(penguin[1:10, ], datafile) ## write the first 10 samples
 ```
@@ -321,12 +324,11 @@ population:
   minimum would be 0. In a health study where people of 90 years or more
   are pooled together, the maximum would be 90 years. A minimum could
   also be minus-infinity, and a maximum plus-infinity. Obviously the
-  minimum should be lower than the maximum.
-
-  Sometimes the minimum or maximum is not clear-cut. For instance, there
-  is no theoretical maximum on a person’s age, although we can consider
-  an age of 300 impossible to reach today. In such cases the maximum or
-  minimum can be taken to be plus or minus infinity.
+  minimum should be lower than the maximum. Sometimes the minimum or
+  maximum is not clear-cut. For instance, there is no theoretical
+  maximum on a person’s age, although we can consider an age of 300
+  impossible to reach today. In such cases the maximum or minimum can be
+  taken to be plus or minus infinity.
 
 - Interval between values (`datastep`):
 
@@ -384,6 +386,7 @@ generate a `penguin_metadata.csv` file, and the output and warnings of
 the helper function:
 
 ``` r
+
 metadatafile <- 'penguin_metadata.csv'
 
 metadatatemplate(data = datafile, file = metadatafile)
@@ -454,16 +457,16 @@ The preliminary metadata file created by
 [`metadatatemplate()`](https://pglpm.github.io/inferno/reference/metadatatemplate.md)
 looks like this:
 
-| name        | type       | domainmin | domainmax | datastep | minincluded | maxincluded | V1     | V2        | V3        |  V4 |  V5 |  V6 |  V7 |  V8 |  V9 | V10 | V11 |
-|:------------|:-----------|----------:|----------:|---------:|------------:|------------:|:-------|:----------|:----------|----:|----:|----:|----:|----:|----:|----:|----:|
-| species     | nominal    |           |           |          |             |             | Adelie | Chinstrap | Gentoo    |     |     |     |     |     |     |     |     |
-| island      | nominal    |           |           |          |             |             | Biscoe | Dream     | Torgersen |     |     |     |     |     |     |     |     |
-| bill_len    | continuous |         0 |           |      0.1 |             |             |        |           |           |     |     |     |     |     |     |     |     |
-| bill_dep    | continuous |         0 |           |      0.1 |             |             |        |           |           |     |     |     |     |     |     |     |     |
-| flipper_len | ordinal    |       186 |       222 |      1.0 |             |             |        |           |           |     |     |     |     |     |     |     |     |
-| body_mass   | ordinal    |      3300 |      4875 |     25.0 |             |             |        |           |           |     |     |     |     |     |     |     |     |
-| sex         | nominal    |           |           |          |             |             | female | male      |           |     |     |     |     |     |     |     |     |
-| year        | ordinal    |      2007 |      2009 |      1.0 |             |             |        |           |           |     |     |     |     |     |     |     |     |
+| name | type | domainmin | domainmax | datastep | minincluded | maxincluded | V1 | V2 | V3 | V4 | V5 | V6 | V7 | V8 | V9 | V10 | V11 |
+|:---|:---|---:|---:|---:|---:|---:|:---|:---|:---|---:|---:|---:|---:|---:|---:|---:|---:|
+| species | nominal |  |  |  |  |  | Adelie | Chinstrap | Gentoo |  |  |  |  |  |  |  |  |
+| island | nominal |  |  |  |  |  | Biscoe | Dream | Torgersen |  |  |  |  |  |  |  |  |
+| bill_len | continuous | 0 |  | 0.1 |  |  |  |  |  |  |  |  |  |  |  |  |  |
+| bill_dep | continuous | 0 |  | 0.1 |  |  |  |  |  |  |  |  |  |  |  |  |  |
+| flipper_len | ordinal | 186 | 222 | 1.0 |  |  |  |  |  |  |  |  |  |  |  |  |  |
+| body_mass | ordinal | 3300 | 4875 | 25.0 |  |  |  |  |  |  |  |  |  |  |  |  |  |
+| sex | nominal |  |  |  |  |  | female | male |  |  |  |  |  |  |  |  |  |
+| year | ordinal | 2007 | 2009 | 1.0 |  |  |  |  |  |  |  |  |  |  |  |  |  |
 
 If you generated the `penguin` dataset yourself, then you might obtain
 different guesses. Try to follow the following guidelines for the
@@ -509,16 +512,16 @@ function. In this case we end up with the following corrected metadata
 file, also available for download as
 [`penguin_data.csv`](https://github.com/pglpm/inferno/raw/main/development/downloads/penguin_metadata.csv):
 
-| name        | type       | domainmin | domainmax | datastep | minincluded | maxincluded | V1     | V2        | V3        |
-|:------------|:-----------|----------:|----------:|---------:|------------:|------------:|:-------|:----------|:----------|
-| species     | nominal    |           |           |          |             |             | Adelie | Chinstrap | Gentoo    |
-| island      | nominal    |           |           |          |             |             | Biscoe | Dream     | Torgersen |
-| bill_len    | continuous |         0 |           |      0.1 |             |             |        |           |           |
-| bill_dep    | continuous |         0 |           |      0.1 |             |             |        |           |           |
-| flipper_len | continuous |         0 |           |      1.0 |             |             |        |           |           |
-| body_mass   | continuous |         0 |           |     25.0 |             |             |        |           |           |
-| sex         | nominal    |           |           |          |             |             | female | male      |           |
-| year        | ordinal    |      2007 |      2009 |      1.0 |             |             |        |           |           |
+| name | type | domainmin | domainmax | datastep | minincluded | maxincluded | V1 | V2 | V3 |
+|:---|:---|---:|---:|---:|---:|---:|:---|:---|:---|
+| species | nominal |  |  |  |  |  | Adelie | Chinstrap | Gentoo |
+| island | nominal |  |  |  |  |  | Biscoe | Dream | Torgersen |
+| bill_len | continuous | 0 |  | 0.1 |  |  |  |  |  |
+| bill_dep | continuous | 0 |  | 0.1 |  |  |  |  |  |
+| flipper_len | continuous | 0 |  | 1.0 |  |  |  |  |  |
+| body_mass | continuous | 0 |  | 25.0 |  |  |  |  |  |
+| sex | nominal |  |  |  |  |  | female | male |  |
+| year | ordinal | 2007 | 2009 | 1.0 |  |  |  |  |  |
 
 ### “Learning” and extrapolating from the sample data
 
@@ -560,6 +563,7 @@ cores – *please wait before running this code*, it might take longer
 time on your computer:
 
 ``` r
+
 ## set.seed() already called
 
 learnt10 <- learn(
@@ -621,8 +625,8 @@ variates, saving directory, and other computational details. An
 updated from time to time with a better estimate of the computation’s
 end time. Once the computation is finished, some final information about
 the underlying Monte Carlo computation and time and memory use is
-provided.[²](#fn2) The inference above, with 10 sample data and
-8 variates, took around 3 GB and 7 minutes to complete on 4 cores.
+provided.[^2] The inference above, with 10 sample data and 8 variates,
+took around 3 GB and 7 minutes to complete on 4 cores.
 
 The results of this main inference are now stored in the compressed file
 `learnt.rds` (around 32 MB) within the specified output directory. The
@@ -638,6 +642,7 @@ Once you have downloaded it in your working directory you can just
 invoke
 
 ``` r
+
 learnt10 <- 'learnt10.rds'
 ```
 
@@ -680,6 +685,7 @@ Here is a way to call the function; the computation should take at most
 a couple of seconds:
 
 ``` r
+
 ## data frame with the variate and values we want to know the frequencies of
 Y <- data.frame(species = c('Adelie', 'Chinstrap', 'Gentoo'))
 
@@ -698,6 +704,7 @@ immediately visualized by calling
 object:
 
 ``` r
+
 plot(Fspecies10)
 ```
 
@@ -727,6 +734,7 @@ The three estimated frequencies are:
 and can be read from the `values` element of the `Fspecies10` object:
 
 ``` r
+
 Fspecies10$values
 #            X
 # Y               [,1]
@@ -755,12 +763,12 @@ What about the uncertainty of these estimates?
 In Bayesian theory, a compact way of expressing the uncertainty in a
 quantity is by means of a **credibility interval** with a given
 probability. For instance, if we say that a particular quantity has a
-70%-credibility interval equal to $(0.41,0.69)$, what we mean is that
+70%-credibility interval equal to $`(0.41, 0.69)`$, what we mean is that
 there’s an 70% probability that the true value of that quantity is
-between $0.41$ and $0.69$ – pretty straightforward! *Please be careful
-not to confuse the Bayesian credibility interval with a “confidence
-interval”*: the latter has a much more involved and less straightforward
-meaning.
+between $`0.41`$ and $`0.69`$ – pretty straightforward! *Please be
+careful not to confuse the Bayesian credibility interval with a
+“confidence interval”*: the latter has a much more involved and less
+straightforward meaning.
 
 The [`Pr()`](https://pglpm.github.io/inferno/reference/Pr.md) function
 by default calculates two credibility intervals for each frequency
@@ -793,6 +801,7 @@ of each species. We can plot the probabilities of the frequencies of the
 `Adelie` species as follows:
 
 ``` r
+
 ## select only Adelie
 onlyAdelie <- subset(Fspecies10, list(species = 'Adelie'))
 
@@ -829,6 +838,7 @@ element of the `Fspecies10` object. For instance, we can read the
 89%-credibility intervals as follows:
 
 ``` r
+
 Fspecies10$quantiles[, , c('5.5%', '94.5%')]
 #            
 # Y               5.5%    94.5%
@@ -857,6 +867,7 @@ But we can also give a fuller answer by displaying the probability
 distributions for all three frequencies:
 
 ``` r
+
 hist(Fspecies10, legend = 'topright', col = 2:4)
 ```
 
@@ -886,6 +897,7 @@ with ***inferno***, with any number of variates. For the moment we only
 show the example code for such an analysis:
 
 ``` r
+
 ## data frame with all combination of values from 'species' and 'sex'
 ## use base-R function 'expand.grid()'
 Y2 <- expand.grid(
@@ -957,6 +969,7 @@ whose `island` variate has the values `'Biscoe` or `'Dream'`. The code
 is as follows:
 
 ``` r
+
 ## data frame with the variate and values of the subpopulations of interest
 X <- data.frame(island = c('Biscoe', 'Dream'))
 
@@ -974,6 +987,7 @@ frequencies and their uncertainties can again be visualized by calling
 [`plot()`](https://rdrr.io/r/graphics/plot.default.html):
 
 ``` r
+
 plot(Fspecies10I, col = 5:6)
 ```
 
@@ -991,6 +1005,7 @@ precise values are contained in the `values` element of the
 `Fspecies10I` object:
 
 ``` r
+
 Fspecies10I$values
 #            X
 # Y             Biscoe    Dream
@@ -1012,6 +1027,7 @@ how much they overlap.
 For Biscoe island we find
 
 ``` r
+
 ## select only Biscoe
 onlyBiscoe <- subset(Fspecies10I, list(island = 'Biscoe'))
 
@@ -1038,6 +1054,7 @@ Will more sampling data confirm “no difference”?
 For Dream island we find
 
 ``` r
+
 ## select only Dream
 onlyDream <- subset(Fspecies10I, list(island = 'Dream'))
 
@@ -1072,6 +1089,7 @@ A more compact summary can again be given with credibility intervals. We
 can produce it as follows:
 
 ``` r
+
 signif(digits = 2, ## round to two digits
     aperm(perm = c(1, 3, 2), ## change order for better display
         Fspecies10I$quantiles[, , c('5.5%', '94.5%')]
@@ -1151,6 +1169,7 @@ discussed](#twovariates) very briefly.
 Also in this case we only show the example code for the moment:
 
 ``` r
+
 ## data frame with all combination of values from 'island' and 'sex'
 ## use base-R function 'expand.grid()'
 X2 <- expand.grid(
@@ -1200,6 +1219,7 @@ which we add to the 10 we already have. Let’s store the 60 datapoints in
 the file `penguin_data60.csv`:
 
 ``` r
+
 datafile <- 'penguin_data60.csv'
 write.csvi(penguin[1:60, ], datafile) ## write the first 60 samples
 ```
@@ -1215,6 +1235,7 @@ function. *Please wait before running this code*, it might take longer
 time on your computer:
 
 ``` r
+
 learnt60 <- learn(
     data = datafile,
     metadata = metadatafile,
@@ -1279,6 +1300,7 @@ file
 Once you have downloaded it in your working directory, invoke
 
 ``` r
+
 learnt60 <- 'learnt60.rds'
 ```
 
@@ -1304,6 +1326,7 @@ new `learnt60` object, which points to the updated inference. Here is
 the calculation for all three questions:
 
 ``` r
+
 ## 'Y' and 'X' were previously defined with:
 ## Y <- data.frame(species = c('Adelie', 'Chinstrap', 'Gentoo'))
 ## X <- data.frame(island = c('Biscoe', 'Dream'))
@@ -1332,6 +1355,7 @@ Consider the first question: overall statistical occurrence of the three
 species. Let’s plot the new estimates and their credibility intervals:
 
 ``` r
+
 plot(Fspecies60)
 ```
 
@@ -1347,6 +1371,7 @@ those of the previous estimates. Let’s actually overlap the plots of the
 initial and updated inferences, to better see how they got updated:
 
 ``` r
+
 ## find common y-maximum for correct visual comparison
 ymax <- max(Fspecies10$quantiles, Fspecies60$quantiles)
 
@@ -1384,6 +1409,7 @@ frequencies of the three species. Let’s plot them below the previous
 ones to highlight the changes:
 
 ``` r
+
 hist(Fspecies10, legend = 'topright', xlim = c(0, 1),
     ylim = c(0, 10), ## y-range same for both plots
     col = 2:4, main = '10 samples')
@@ -1392,6 +1418,7 @@ hist(Fspecies10, legend = 'topright', xlim = c(0, 1),
 ![](figure/hist60-1.png)
 
 ``` r
+
 
 hist(Fspecies60, legend = 'topright', xlim = c(0, 1),
     ylim = c(0, 10), ## y-range same for both plots
@@ -1423,6 +1450,7 @@ statistical occurrence of the three species in the whole population?*”
 is as follows:
 
 ``` r
+
 signif(digits = 2,
     Fspecies60$quantiles[, , c('5.5%', '94.5%')]
 )
@@ -1453,6 +1481,7 @@ inference.
 #### For `Dream` island
 
 ``` r
+
 ## select only Dream
 onlyDream10 <- subset(Fspecies10I, list(island = 'Dream'))
 onlyDream60 <- subset(Fspecies60I, list(island = 'Dream'))
@@ -1465,6 +1494,7 @@ hist(onlyDream10, legend = 'topright', xlim = c(0, 1),
 ![](figure/hist60Dream-1.png)
 
 ``` r
+
 
 hist(onlyDream60, legend = 'topright', xlim = c(0, 1),
     ylim = c(0, 13), ## same y-range
@@ -1482,6 +1512,7 @@ were correctly warned about their possible change.
 #### For `Biscoe` island: a surprising result
 
 ``` r
+
 ## select only Biscoe
 onlyBiscoe10 <- subset(Fspecies10I, list(island = 'Biscoe'))
 onlyBiscoe60 <- subset(Fspecies60I, list(island = 'Biscoe'))
@@ -1494,6 +1525,7 @@ hist(onlyBiscoe10, legend = 'topright', xlim = c(0, 1),
 ![](figure/hist60Biscoe-1.png)
 
 ``` r
+
 
 hist(onlyBiscoe60, legend = 'topright', xlim = c(0, 1),
     ylim = c(0, 17), ## same y-range from previous plot
@@ -1517,6 +1549,7 @@ Yes, the probability of their difference can be calculated and
 visualized as follows:
 
 ``` r
+
 freqdiff <- Fspecies60I$samples['Gentoo', 'Biscoe',] -
     Fspecies60I$samples['Chinstrap', 'Biscoe',]
 
@@ -1535,6 +1568,7 @@ than `Chinstrap` frequency, on `Biscoe` island. We can report an
 estimate (median) and an 89%-credibility interval about this difference:
 
 ``` r
+
 median(freqdiff)
 # [1] 0.705916
 
@@ -1551,6 +1585,7 @@ quantile(freqdiff, c(0.055, 0.945))
 Maybe you prefer a ratio between the two frequencies:
 
 ``` r
+
 freqratio <- Fspecies60I$samples['Gentoo', 'Biscoe',] /
     Fspecies60I$samples['Chinstrap', 'Biscoe',]
 
@@ -1605,6 +1640,7 @@ we have to report our final findings and their uncertainty.
 Let’s store all datapoints in the file `penguin_data.csv`:
 
 ``` r
+
 datafile <- 'penguin_data.csv'
 write.csvi(penguin, datafile)
 ```
@@ -1614,6 +1650,7 @@ As usual we perform the updated inference with the
 (and as usual please wait before running the code below):
 
 ``` r
+
 learntall <- learn(
     data = datafile,
     metadata = metadatafile,
@@ -1677,6 +1714,7 @@ computation above can be downloaded as the file
 Once you have downloaded it in your working directory, invoke
 
 ``` r
+
 learntall <- 'learntall.rds'
 ```
 
@@ -1686,6 +1724,7 @@ Our final results about the overall relative frequencies of the three
 species are computed in the usual way:
 
 ``` r
+
 ## 'Y' and 'X' were previously defined with:
 ## Y <- data.frame(species = c('Adelie', 'Chinstrap', 'Gentoo'))
 
@@ -1700,12 +1739,14 @@ Let’s plot the estimated frequencies with their credibility intervals,
 and also their probability distributions:
 
 ``` r
+
 plot(Fspeciesall, ylim = c(0, 1))
 ```
 
 ![](figure/visall-1.png)
 
 ``` r
+
 
 hist(Fspeciesall, xlim = c(0, 1), legend = 'topright')
 ```
@@ -1718,6 +1759,7 @@ the three species in the whole population?*”. A quantitative summary can
 be extracted from the `Fspeciesall` in the usual way:
 
 ``` r
+
 Fspeciesall$values
 #            X
 # Y               [,1]
@@ -1789,6 +1831,7 @@ about, and an object `X` for the *subpopulation* we’re restricting our
 analysis to:
 
 ``` r
+
 Yvrt <- 'species' ## variate of interest
 Yvls <- sort(unique(penguin[, Yvrt])) ## values from dataset
 ## build Y object
@@ -1808,6 +1851,7 @@ Here are the probability distributions and the credibility intervals for
 the three frequencies:
 
 ``` r
+
 hist(Fanalysis, xlim = c(0, 1), col = 2:4, ## same colours as before!
     legend = 'topright')
 ```
@@ -1815,6 +1859,7 @@ hist(Fanalysis, xlim = c(0, 1), col = 2:4, ## same colours as before!
 ![](figure/unnamed-chunk-8-1.png)
 
 ``` r
+
 
 Fanalysis$values
 #            X
@@ -1859,6 +1904,7 @@ already quite on the spot.
 In this case, `Adelie` penguins are our subpopulation:
 
 ``` r
+
 Yvrt <- 'island' ## variate of interest
 Yvls <- c('Biscoe', 'Dream', 'Torgersen') ## values of interest
 ## build Y object
@@ -1879,6 +1925,7 @@ Here are the probability distributions and confidence intervals for the
 three frequencies:
 
 ``` r
+
 hist(Fanalysis, xlim = c(0, 1), col = 5:7,
     legend = 'topright')
 ```
@@ -1886,6 +1933,7 @@ hist(Fanalysis, xlim = c(0, 1), col = 5:7,
 ![](figure/unnamed-chunk-9-1.png)
 
 ``` r
+
 
 Fanalysis$values
 #            X
@@ -1933,6 +1981,7 @@ mass in three separate subpopulations: `Adelie`, `Chinstrap`, and
 `Gentoo` penguins:
 
 ``` r
+
 Yvrt <- 'body_mass' ## variate of interest
 Yrange <- c('3000', '5000') ## range of interest
 Yvls <- seq(Yrange[1], Yrange[2], by = 25)
@@ -1954,6 +2003,7 @@ Here is the estimated frequency distribution of body mass within each
 species
 
 ``` r
+
 plot(Fanalysis, col = 2:4, legend = 'topright')
 ```
 
@@ -2049,9 +2099,7 @@ Names of variates and character variate values should be strings
 conforming to [R’s
 rules](https://cran.r-project.org/doc/FAQ/R-FAQ.html#What-are-valid-names_003f).
 
-------------------------------------------------------------------------
-
-1.  Note the difference between *probability* and *frequency*. If an
+[^1]: Note the difference between *probability* and *frequency*. If an
     expert colleague tells us “I was able to take a quick look at that
     penguin, and it looks female to me, though I’m not completely sure”,
     then our *probability* that this specific penguin is female would
@@ -2059,8 +2107,8 @@ rules](https://cran.r-project.org/doc/FAQ/R-FAQ.html#What-are-valid-names_003f).
     female, our probability for female would become 100%. Yet the
     *frequency* of females in the population is still 35.3%.
 
-2.  The Monte Carlo expert will notice that the effective sample size is
-    around 900 or more. The Monte Carlo sampling is designed to stop
+[^2]: The Monte Carlo expert will notice that the effective sample size
+    is around 900 or more. The Monte Carlo sampling is designed to stop
     when 3600 samples have been obtained with an effective sample size
     of at least 450, or equivalently a relative Monte Carlo standard
     error under 0.05. This is enough, considering that the statistical
