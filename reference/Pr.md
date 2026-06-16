@@ -64,7 +64,7 @@ Pr(
   or all of the variates in arguments `Y` and `X`. For variates in this
   list, the probability arguments are understood in an semi-open
   interval sense: `Y ≤ y` or `Y ≥ y`, an so on. This is true for
-  variates on the left and on the right of the conditional sign `\|`. A
+  variates on the left and on the right of the conditional sign `|`. A
   left-open interval `Y ≤ y` is indicated by the values `'<='` or
   `'left'` or `-1`; a right-open interval `Y ≥ y` is indicated by the
   values `'>='` or `'right'` or `+1`. Values `NULL`, `'=='`, `0`
@@ -95,10 +95,11 @@ Pr(
   Numeric vector, between 0 and 1, or `NULL`: desired quantiles of the
   variability of the probability for `Y`. Default
   `c(0.055, 0.25, 0.75, 0.945)`, that is, the 5.5%, 25%, 75%, 94.5%
-  quantiles (these are typical quantile values in the Bayesian
+  quantiles. These are typical quantile values in the Bayesian
   literature: they give 50% and 89% credibility intervals, which
-  correspond to 1 shannons and 0.5 shannons of uncertainty). If `NULL`,
-  no quantiles are calculated.
+  correspond to 1 shannons and 0.5 shannons of uncertainty (see
+  <doi:10.5281/zenodo.17072199>). If `NULL`, no quantiles are
+  calculated.
 
 - parallel:
 
