@@ -214,7 +214,9 @@ is used in all subsequent probabilistic computations. Other information
 about the computation is provided in logs and plots, saved in a
 directory specified by the user.
 
-See `vignette('Prova_start')` for an introductory example.
+See
+[`vignette('start')`](https://pglpm.github.io/prova/articles/start.md)
+for an introductory example.
 
 ## Examples
 

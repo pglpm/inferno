@@ -80,8 +80,8 @@ For developers.
   Eliminate samples from a 'learnt' object
 - [`prova`](https://pglpm.github.io/prova/reference/prova-package.md)
   [`prova-package`](https://pglpm.github.io/prova/reference/prova-package.md)
-  : prova: Probabilistic-statistical analysis with Bayesian
-  nonparametrics
+  : prova: Probabilistic-statistical analysis and inference with
+  Bayesian nonparametrics
 - [`rowcumsum()`](https://pglpm.github.io/prova/reference/rowcumsum.md)
   : Cumulative sum along first dimension
 - [`rowinvcumsum()`](https://pglpm.github.io/prova/reference/rowinvcumsum.md)
