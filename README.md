@@ -1,8 +1,8 @@
-*[If you're looking for the package "inferno", you've come to the right place! It has been renamed "prova"]*
+*[If you're looking for the package "inferno", you've come to the right place! It has been renamed "Prova"]*
 
 <img src="https://github.com/pglpm/prova/raw/main/development/manual/prova_symbol.png" alt="Ensemble of densities" width="100%"/>
 
-# ***prova***: Probabilistic-statistical analysis and inference with Bayesian nonparametrics
+# ***Prova***: Probabilistic-statistical analysis and inference with Bayesian nonparametrics
 
 This repository provides an R package and some theoretical background for *Bayesian nonparametric population inference*, which can also be called "inference under exchangeability" or "density inference". The package is especially apt for the study of statistics and associations of subpopulations or subgroups. The [introductory vignette](https://pglpm.github.io/prova/articles/start.html) explains with an example the main ideas and functions, in particular for researchers who are more familiar with traditional "frequentist" statistics but would like to try the Bayesian approach; see the [post](https://www.apadivisions.org/division-7/publications/newsletters/developmental/2018/07/bayesian-statistics) by Barbara W. Sarnecka, frequentist statistician turned Bayesian, for a brilliant overview of the Bayesian advantages.
 
@@ -18,7 +18,7 @@ If you want to test the package we'd be very happy to help in resolving possible
 
 You need to have the package [**Nimble**](https://r-nimble.org/), *at least version 1.4.2*, installed. Please follow its [installation instructions](https://r-nimble.org/manual/cha-installing-nimble.html) for your operating system.
 
-You can then install **prova** in R by using the `remotes` package:
+You can then install **Prova** in R by using the `remotes` package:
 ```
 remotes::install_github('pglpm/prova')
 ```
@@ -44,7 +44,7 @@ the installation will also automatically install all required R-dependencies.
 
 ## Documentation
 
-The vignette [*Bayesian nonparametric inference with **prova***](https://pglpm.github.io/prova/articles/start.html) is a step-by-step introduction to **prova** and also to Bayesian nonparametrics. It guides you through a concrete example with various kinds of inferences. You may also try to follow it using a dataset of your own.
+The vignette [*Bayesian nonparametric inference with **Prova***](https://pglpm.github.io/prova/articles/start.html) is a step-by-step introduction to **Prova** and also to Bayesian nonparametrics. It guides you through a concrete example with various kinds of inferences. You may also try to follow it using a dataset of your own.
 
 Other tutorials, still drafts, are available at [pglpm.github.io/prova](https://pglpm.github.io/prova)
 
@@ -53,8 +53,8 @@ A summary of the theoretical foundations, including further references, is avail
 For a low-level course on Bayesian nonparametric inference and Decision Theory see [Foundations of data science](https://pglpm.github.io/ADA511).
 
 
-## **prova** App
-An application has been built upon **prova**. This app can be used for testing out the features of **prova** with just a few button clicks, without having to write any code in R yourself.
+## **Prova** App
+An application has been built upon **Prova**. This app can be used for testing out the features of **Prova** with just a few button clicks, without having to write any code in R yourself.
 
 ### Desktop Application
 * Currently available for Windows and MacOS. Download and install the desktop application by following this: [Installation Guide](https://github.com/h587916/Inferno-App/releases/tag/1.0.2).
@@ -74,7 +74,7 @@ An application has been built upon **prova**. This app can be used for testing o
 binary classification models*](https://doi.org/10.1088/2632-2153/ae45ed)
 
 
-Projects using **prova**:
+Projects using **Prova**:
 
 - [InfernoCalibNet](https://m4siko.github.io/InfernoCalibNet).
 - [parkinsonbayes](https://github.com/pglpm/parkinsonbayes).

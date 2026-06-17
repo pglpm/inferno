@@ -343,7 +343,7 @@ information</h1>
 
 
 <p>This vignette gives an introduction and guide to the visual and
-quantitative capabilities and functions of the <strong>prova</strong>
+quantitative capabilities and functions of the <strong>Prova</strong>
 package, for the study of associations, correlations, and links.</p>
 <p>See the <code>vignette(&#39;start&#39;)</code> for an introduction to the
 package. The present vignette continues with the same example and
@@ -385,7 +385,7 @@ prognose a disease from possible symptoms, or we try to understand which
 clinical conditions are associated with the disease, possibly because of
 underlying biological reasons.</p>
 <p>We shall now explore first some visual ways to examine associations
-with <strong>prova</strong>, and then some more precise quantitative
+with <strong>Prova</strong>, and then some more precise quantitative
 ways, which also apply when visualization becomes impossible.</p>
 <p><br />
 </p>
@@ -395,7 +395,7 @@ ways, which also apply when visualization becomes impossible.</p>
 <em>new</em> samples</h1>
 <div id="setup" class="section level2" number="2.1">
 <h2><span class="header-section-number">2.1</span> Setup</h2>
-<p>Let’s load the <strong>prova</strong> package, if we haven’t already
+<p>Let’s load the <strong>Prova</strong> package, if we haven’t already
 done so, and set a random seed to ensure reproducibility:</p>
 <div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" tabindex="-1"></a><span class="fu">library</span>(<span class="st">&#39;prova&#39;</span>)</span>
 <span id="cb1-2"><a href="#cb1-2" tabindex="-1"></a></span>
@@ -407,7 +407,7 @@ and above. For your convenience you can download the shuffled dataset as
 the CSV file <a href="https://github.com/pglpm/prova/raw/main/development/downloads/penguin_data.csv"><code>penguin_data.csv</code></a>,
 then load it with the <code>read.csvi()</code> function as follows:</p>
 <p>We assume that we have already learned all predictive information
-from this dataset by means of the <strong>prova</strong> function
+from this dataset by means of the <strong>Prova</strong> function
 <code>learn()</code>. This information is stored in an object stored in
 the compressed file <code>learnt.rds</code> within the output directory
 that was specified in the <code>learn()</code> function. For your
@@ -424,7 +424,7 @@ string, in this case) which shall be used in the following analysis.</p>
 samples</h2>
 <p>Let’s focus on the <code>island</code> and <code>species</code>
 variates. Each variate has three possible values;
-<strong>prova</strong>’s utility function <code>vrtgrid()</code> allows
+<strong>Prova</strong>’s utility function <code>vrtgrid()</code> allows
 us to create a vector of all possible values of each variate, which are
 stored in the metadata of the <code>learnt</code> object:</p>
 <div class="sourceCode" id="cb3"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" tabindex="-1"></a>islandvalues <span class="ot">&lt;-</span> <span class="fu">vrtgrid</span>(<span class="at">vrt =</span> <span class="st">&#39;island&#39;</span>, <span class="at">learnt =</span> learnt)</span>
@@ -479,7 +479,7 @@ This example shows the limitations of using sample data for visualizing
 features of the <em>whole</em> population. How would a scatter plot
 analogous to the one above look like, for the <em>whole</em> population
 of for a much larger sample?</p>
-<p>The <strong>prova</strong> package offers the function
+<p>The <strong>Prova</strong> package offers the function
 <code>rPr()</code> to generate a data.frame of fictitious samples from
 the estimated frequencies of the whole population. These samples can be
 used for different purposes, for instance to produce a scatter plot. The
@@ -539,7 +539,7 @@ plot.</p>
 <code>rPr()</code>, and then scatter-plot them with
 <code>flexiplot()</code>. First we select an appropriate plot range for
 the continuous variate <code>body_mass</code> by means of
-<strong>prova</strong>’s utility function <code>vrtgrid()</code>: this
+<strong>Prova</strong>’s utility function <code>vrtgrid()</code>: this
 function chooses an optimal value based on, and including, the range of
 data previously observed:</p>
 <div class="sourceCode" id="cb8"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" tabindex="-1"></a>body_massrange <span class="ot">&lt;-</span> <span class="fu">range</span>(<span class="fu">vrtgrid</span>(<span class="at">vrt =</span> <span class="st">&#39;body_mass&#39;</span>, <span class="at">learnt =</span> learnt))</span>
@@ -754,7 +754,7 @@ of a communication channel is a strong association between two variates:
 its input and output messages. You can find a brilliant introduction to
 its meaning and uses in MacKay’s book, see <span id="references">references</span>.</p>
 <p><br />
-The <strong>prova</strong> package provides the function
+The <strong>Prova</strong> package provides the function
 <code>mutualinfo()</code> to calculate the mutual information between
 two variates or two sets of joint variates. Its main arguments are the
 following:</p>
