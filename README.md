@@ -1,10 +1,10 @@
 *[If you're looking for the package "inferno", you've come to the right place! It has been renamed "prova"]*
 
-<img src="https://github.com/pglpm/inferno/raw/main/development/manual/inferno_symbol.png" alt="Ensemble of densities" width="100%"/>
+<img src="https://github.com/pglpm/prova/raw/main/development/manual/prova_symbol.png" alt="Ensemble of densities" width="100%"/>
 
 # ***prova***: Probabilistic-statistical analysis and inference with Bayesian nonparametrics
 
-This repository provides an R package and some theoretical background for *Bayesian nonparametric population inference*, which can also be called "inference under exchangeability" or "density inference". The package is especially apt for the study of statistics and associations of subpopulations or subgroups. The [introductory vignette](https://pglpm.github.io/inferno/articles/inferno_start.html) explains with an example the main ideas and functions, in particular for researchers who are more familiar with traditional "frequentist" statistics but would like to try the Bayesian approach; see the [post](https://www.apadivisions.org/division-7/publications/newsletters/developmental/2018/07/bayesian-statistics) by Barbara W. Sarnecka, frequentist statistician turned Bayesian, for a brilliant overview of the Bayesian advantages.
+This repository provides an R package and some theoretical background for *Bayesian nonparametric population inference*, which can also be called "inference under exchangeability" or "density inference". The package is especially apt for the study of statistics and associations of subpopulations or subgroups. The [introductory vignette](https://pglpm.github.io/prova/articles/start.html) explains with an example the main ideas and functions, in particular for researchers who are more familiar with traditional "frequentist" statistics but would like to try the Bayesian approach; see the [post](https://www.apadivisions.org/division-7/publications/newsletters/developmental/2018/07/bayesian-statistics) by Barbara W. Sarnecka, frequentist statistician turned Bayesian, for a brilliant overview of the Bayesian advantages.
 
 The package is under development and has not yet reached a stable phase: function names and arguments may still change, new functions will be added. More tutorials will be prepared. Also the package name is still under consideration.
 
@@ -20,23 +20,23 @@ You need to have the package [**Nimble**](https://r-nimble.org/), *at least vers
 
 You can then install **prova** in R by using the `remotes` package:
 ```
-remotes::install_github('pglpm/inferno')
+remotes::install_github('pglpm/prova')
 ```
 
 To install a tagged version:
 ```
-remotes::install_github('pglpm/inferno@vx.y.z')
+remotes::install_github('pglpm/prova@vx.y.z')
 ```
 
 To install from source, first clone the repo:
 ```
-git clone https://github.com/pglpm/inferno.git
+git clone https://github.com/pglpm/prova.git
 ```
 
 then install the package in R:
 
 ```
-install.packages(pkgs='path/to/inferno', repos=NULL)
+install.packages(pkgs='path/to/prova', repos=NULL)
 ```
 
 the installation will also automatically install all required R-dependencies.
@@ -44,11 +44,11 @@ the installation will also automatically install all required R-dependencies.
 
 ## Documentation
 
-The vignette [*Bayesian nonparametric inference with **prova***](https://pglpm.github.io/inferno/articles/inferno_start.html) is a step-by-step introduction to **prova** and also to Bayesian nonparametrics. It guides you through a concrete example with various kinds of inferences. You may also try to follow it using a dataset of your own.
+The vignette [*Bayesian nonparametric inference with **prova***](https://pglpm.github.io/prova/articles/start.html) is a step-by-step introduction to **prova** and also to Bayesian nonparametrics. It guides you through a concrete example with various kinds of inferences. You may also try to follow it using a dataset of your own.
 
-Other tutorials, still drafts, are available at [pglpm.github.io/inferno](https://pglpm.github.io/inferno)
+Other tutorials, still drafts, are available at [pglpm.github.io/prova](https://pglpm.github.io/prova)
 
-A summary of the theoretical foundations, including further references, is available in [this draft](https://github.com/pglpm/inferno/raw/main/development/manual/optimal_predictor_machine.pdf). The main idea for the internal mathematical representation comes from [Dunson & Bhattacharya](https://doi.org/10.1093/acprof:oso/9780199694587.003.0005) and [Ishwaran & Zarepour](https://doi.org/10.2307/3315951).
+A summary of the theoretical foundations, including further references, is available in [this draft](https://github.com/pglpm/prova/raw/main/development/manual/optimal_predictor_machine.pdf). The main idea for the internal mathematical representation comes from [Dunson & Bhattacharya](https://doi.org/10.1093/acprof:oso/9780199694587.003.0005) and [Ishwaran & Zarepour](https://doi.org/10.2307/3315951).
 
 For a low-level course on Bayesian nonparametric inference and Decision Theory see [Foundations of data science](https://pglpm.github.io/ADA511).
 
@@ -83,7 +83,7 @@ Projects using **prova**:
 
 ## Contact
 
-Please report bugs and request features or specific documentation on [GitHub Issues](https://github.com/pglpm/inferno/issues).
+Please report bugs and request features or specific documentation on [GitHub Issues](https://github.com/pglpm/prova/issues).
 If you have other questions about application, theory, technical implementation, feel free to contact Luca <pglXYZ@portamanaXYZ.org> (remove 'XYZ' for anti-spam purposes).
 
 
