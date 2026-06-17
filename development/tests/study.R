@@ -1,5 +1,5 @@
-unloadNamespace('inferno')
-library('inferno')
+unloadNamespace('prova')
+library('prova')
 
 
 ## metadatatemplate(penguins, file='meta_penguins')

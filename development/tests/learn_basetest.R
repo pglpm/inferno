@@ -1,4 +1,4 @@
-library('inferno')
+library('prova')
 #devtools::load_all()
 
 set.seed(16)

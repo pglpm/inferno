@@ -1,9 +1,9 @@
-#' @name inferno.data
-#' @rdname inferno.data
+#' @name prova.data
+#' @rdname prova.data
 #'
-#' @title Write and read data in **inferno**
+#' @title Write and read data in **prova**
 #'
-#' @description Utility functions to read and write CSV files in the format required by **inferno**
+#' @description Utility functions to read and write CSV files in the format required by **prova**
 #'
 #' @param x The object to be written, preferably a matrix or data frame. If not, it is attempted to coerce `x` to a data frame. See [utils::write.table()].
 #'
@@ -11,7 +11,7 @@
 #' @param ... Other parameters to be passed to [utils::write.table()] or [utils::read.table()].
 #'
 #' @details
-#' The functions of the **inferno** package accept CSV files formatted as follows:
+#' The functions of the **prova** package accept CSV files formatted as follows:
 #'
 #' - Decimal values should be separated by a *dot*; no comma should be used to separate thousands etc. Example: `86342.75` .
 #' - Character and names should be quoted in single or double quotes. Example: `"female"`.
@@ -22,7 +22,7 @@
 #' The utility functions [write.csvi()] and [read.csvi()] are wrappers to [utils::write.table()] or [utils::read.table()] that sets appropriate default parameters
 NULL
 
-#' @rdname inferno.data
+#' @rdname prova.data
 #' @export
 write.csvi <- function(x, file, ...){
     write.csv(x = x, file = file,
@@ -34,7 +34,7 @@ write.csvi <- function(x, file, ...){
         ...)
 }
 
-#' @rdname inferno.data
+#' @rdname prova.data
 #' @export
 read.csvi <- function(file, ...){
     read.csv(file = file,

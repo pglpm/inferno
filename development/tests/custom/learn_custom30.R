@@ -1,4 +1,4 @@
-library('inferno')
+library('prova')
 
 seed <- 16
 parallel <- 4

@@ -1,5 +1,5 @@
-source('/home/pglpm/repos/inferno/R/util_buildauxmetadata.R')
-source('/home/pglpm/repos/inferno/R/util_vtransform.R')
+source('/home/pglpm/repos/prova/R/util_buildauxmetadata.R')
+source('/home/pglpm/repos/prova/R/util_vtransform.R')
 logprob <- function(data, metadata, initmethod, hyperparams = NULL){
     #### hyperparams
     if(is.null(hyperparams)){
@@ -118,7 +118,7 @@ logprob <- function(data, metadata, initmethod, hyperparams = NULL){
     }
 
 
-    auxmetadata <- inferno:::buildauxmetadata(
+    auxmetadata <- prova:::buildauxmetadata(
         data = data,
         metadata = metadata,
         Dthreshold = hyperparams$Dthreshold,
@@ -168,13 +168,13 @@ logprob <- function(data, metadata, initmethod, hyperparams = NULL){
                 Cvar1 = rep(1, 1),
                 Cshapelo = rep(Cshapelo, 1),
                 Cshapehi = rep(Cshapehi, 1),
-                Cleft = as.matrix(inferno:::vtransform(data[, vnames$C, drop = FALSE],
+                Cleft = as.matrix(prova:::vtransform(data[, vnames$C, drop = FALSE],
                     auxmetadata = auxmetadata,
                     Cout = 'left', logjacobianOr = NULL)),
-                Cright = as.matrix(inferno:::vtransform(data[, vnames$C, drop = FALSE],
+                Cright = as.matrix(prova:::vtransform(data[, vnames$C, drop = FALSE],
                     auxmetadata = auxmetadata,
                     Cout = 'right', logjacobianOr = NULL)),
-                Clatinit = as.matrix(inferno:::vtransform(data[, vnames$C, drop = FALSE],
+                Clatinit = as.matrix(prova:::vtransform(data[, vnames$C, drop = FALSE],
                     auxmetadata,
                     Cout = 'init', logjacobianOr = NULL))
             )
@@ -190,13 +190,13 @@ logprob <- function(data, metadata, initmethod, hyperparams = NULL){
                 Dvar1 = rep(1, 1),
                 Dshapelo = rep(Dshapelo, 1),
                 Dshapehi = rep(Dshapehi, 1),
-                Dleft = as.matrix(inferno:::vtransform(data[, vnames$D, drop = FALSE],
+                Dleft = as.matrix(prova:::vtransform(data[, vnames$D, drop = FALSE],
                     auxmetadata = auxmetadata,
                     Dout = 'left', logjacobianOr = NULL)),
-                Dright = as.matrix(inferno:::vtransform(data[, vnames$D, drop = FALSE],
+                Dright = as.matrix(prova:::vtransform(data[, vnames$D, drop = FALSE],
                     auxmetadata = auxmetadata,
                     Dout = 'right', logjacobianOr = NULL)),
-                Dlatinit = as.matrix(inferno:::vtransform(data[, vnames$D, drop = FALSE],
+                Dlatinit = as.matrix(prova:::vtransform(data[, vnames$D, drop = FALSE],
                     auxmetadata,
                     Dout = 'init', logjacobianOr = NULL))
             )
@@ -209,13 +209,13 @@ logprob <- function(data, metadata, initmethod, hyperparams = NULL){
         ##         Lvar1 = rep(1, 1),
         ##         Lshapelo = rep(Lshapelo, 1),
         ##         Lshapehi = rep(Lshapehi, 1),
-        ##         Lleft = as.matrix(inferno:::vtransform(data[, vnames$L, drop = FALSE],
+        ##         Lleft = as.matrix(prova:::vtransform(data[, vnames$L, drop = FALSE],
         ##             auxmetadata = auxmetadata,
         ##             Lout = 'left')),
-        ##         Lright = as.matrix(inferno:::vtransform(data[, vnames$L, drop = FALSE],
+        ##         Lright = as.matrix(prova:::vtransform(data[, vnames$L, drop = FALSE],
         ##             auxmetadata = auxmetadata,
         ##             Lout = 'right')),
-        ##         Llatinit = as.matrix(inferno:::vtransform(data[, vnames$L, drop = FALSE],
+        ##         Llatinit = as.matrix(prova:::vtransform(data[, vnames$L, drop = FALSE],
         ##             auxmetadata,
         ##             Lout = 'init'))
         ##     )
@@ -264,52 +264,52 @@ logprob <- function(data, metadata, initmethod, hyperparams = NULL){
     datapoints <- c(
         if (vn$R > 0) { # continuous open domain
             list(
-                Rdata = as.matrix(inferno:::vtransform(data[, vnames$R, drop = FALSE],
+                Rdata = as.matrix(prova:::vtransform(data[, vnames$R, drop = FALSE],
                     auxmetadata = auxmetadata,
                     Rout = 'normalized', logjacobianOr = NULL))
             )
         },
         if (vn$C > 0) { # continuous closed domain
             list(
-                Caux = as.matrix(inferno:::vtransform(data[, vnames$C, drop = FALSE],
+                Caux = as.matrix(prova:::vtransform(data[, vnames$C, drop = FALSE],
                     auxmetadata = auxmetadata,
                     Cout = 'aux', logjacobianOr = NULL)),
-                Clat = as.matrix(inferno:::vtransform(data[, vnames$C, drop = FALSE],
+                Clat = as.matrix(prova:::vtransform(data[, vnames$C, drop = FALSE],
                     auxmetadata = auxmetadata,
                     Cout = 'lat', logjacobianOr = NULL))
             )
         },
         if (vn$D > 0) { # continuous rounded
             list(
-                Daux = as.matrix(inferno:::vtransform(data[, vnames$D, drop = FALSE],
+                Daux = as.matrix(prova:::vtransform(data[, vnames$D, drop = FALSE],
                     auxmetadata = auxmetadata,
                     Dout = 'aux', logjacobianOr = NULL))
             )
         },
         ## if (vn$L > 0) { # latent
         ##     list(
-        ##         Laux = as.matrix(inferno:::vtransform(data[, vnames$L, drop = FALSE],
+        ##         Laux = as.matrix(prova:::vtransform(data[, vnames$L, drop = FALSE],
         ##             auxmetadata = auxmetadata,
         ##             Lout = 'aux'))
         ##     )
         ## },
         if (vn$O > 0) { # nominal
             list(
-                Odata = as.matrix(inferno:::vtransform(data[, vnames$O, drop = FALSE],
+                Odata = as.matrix(prova:::vtransform(data[, vnames$O, drop = FALSE],
                     auxmetadata = auxmetadata,
                     Oout = 'numeric', logjacobianOr = NULL))
             )
         },
         if (vn$N > 0) { # nominal
             list(
-                Ndata = as.matrix(inferno:::vtransform(data[, vnames$N, drop = FALSE],
+                Ndata = as.matrix(prova:::vtransform(data[, vnames$N, drop = FALSE],
                     auxmetadata = auxmetadata,
                     Nout = 'numeric', logjacobianOr = NULL))
             )
         },
         if (vn$B > 0) { # binary
             list(
-                Bdata = as.matrix(inferno:::vtransform(data[, vnames$B, drop = FALSE],
+                Bdata = as.matrix(prova:::vtransform(data[, vnames$B, drop = FALSE],
                     auxmetadata = auxmetadata,
                     Bout = 'numeric', logjacobianOr = NULL))
             )
@@ -489,7 +489,7 @@ logprob <- function(data, metadata, initmethod, hyperparams = NULL){
                                 nrow = vn$C, ncol = constants$ncomponents),
                             ## for data with boundary values
                             Clat = constants$Clatinit
-                            ## Clat = inferno:::vtransform(data[, vnames$C, with = FALSE],
+                            ## Clat = prova:::vtransform(data[, vnames$C, with = FALSE],
                             ##   auxmetadata, Cout = 'init')
                         )
                     )
@@ -509,7 +509,7 @@ logprob <- function(data, metadata, initmethod, hyperparams = NULL){
                                 nrow = vn$D, ncol = constants$ncomponents),
                             ## for data with boundary values
                             Dlat = constants$Dlatinit
-                            ## Dlat = inferno:::vtransform(data[, vnames$D, with = FALSE],
+                            ## Dlat = prova:::vtransform(data[, vnames$D, with = FALSE],
                             ##   auxmetadata, Dout = 'init')
                         )
                     )
@@ -529,7 +529,7 @@ logprob <- function(data, metadata, initmethod, hyperparams = NULL){
                 ##                 nrow = vn$L, ncol = constants$ncomponents),
                 ##             ## for data with boundary values
                 ##             Llat = constants$Llatinit
-                ##             ## Llat = inferno:::vtransform(data[, vnames$L, with = FALSE],
+                ##             ## Llat = prova:::vtransform(data[, vnames$L, with = FALSE],
                 ##             ##   auxmetadata, Lout = 'init')
                 ##         )
                 ##     )
@@ -735,7 +735,7 @@ logprob <- function(data, metadata, initmethod, hyperparams = NULL){
                                 nrow = vn$C, ncol = constants$ncomponents),
                             ## for data with boundary values
                             Clat = constants$Clatinit
-                            ## Clat = inferno:::vtransform(data[, vnames$C, with = FALSE],
+                            ## Clat = prova:::vtransform(data[, vnames$C, with = FALSE],
                             ##   auxmetadata, Cout = 'init')
                         )
                     )
@@ -755,7 +755,7 @@ logprob <- function(data, metadata, initmethod, hyperparams = NULL){
                                 nrow = vn$D, ncol = constants$ncomponents),
                             ## for data with boundary values
                             Dlat = constants$Dlatinit
-                            ## Dlat = inferno:::vtransform(data[, vnames$D, with = FALSE],
+                            ## Dlat = prova:::vtransform(data[, vnames$D, with = FALSE],
                             ##   auxmetadata, Dout = 'init')
                         )
                     )
@@ -775,7 +775,7 @@ logprob <- function(data, metadata, initmethod, hyperparams = NULL){
                 ##                 nrow = vn$L, ncol = constants$ncomponents),
                 ##             ## for data with boundary values
                 ##             Llat = constants$Llatinit
-                ##             ## Llat = inferno:::vtransform(data[, vnames$L, with = FALSE],
+                ##             ## Llat = prova:::vtransform(data[, vnames$L, with = FALSE],
                 ##             ##   auxmetadata, Lout = 'init')
                 ##         )
                 ##     )
@@ -1464,19 +1464,19 @@ compareinitm <- function(
 }
 
 
-## > inim <- 'allcentre' ; summary(sapply(1:100, function(ii){max(sapply(1:10,function(i)logprob(data='/home/pglpm/repos/inferno/development/downloads/penguin_data.csv', metadata='/home/pglpm/repos/inferno/development/downloads/penguin_metadata.csv', initmethod=inim)))}))
+## > inim <- 'allcentre' ; summary(sapply(1:100, function(ii){max(sapply(1:10,function(i)logprob(data='/home/pglpm/repos/prova/development/downloads/penguin_data.csv', metadata='/home/pglpm/repos/prova/development/downloads/penguin_metadata.csv', initmethod=inim)))}))
 ##    Min. 1st Qu.  Median    Mean 3rd Qu.    Max. 
 ## -18543  -11807  -10639  -10975   -9792   -7866
 ## 
-## > inim <- 'prior' ; summary(sapply(1:100, function(ii){max(sapply(1:10,function(i)logprob(data='/home/pglpm/repos/inferno/development/downloads/penguin_data.csv', metadata='/home/pglpm/repos/inferno/development/downloads/penguin_metadata.csv', initmethod=inim)))}))
+## > inim <- 'prior' ; summary(sapply(1:100, function(ii){max(sapply(1:10,function(i)logprob(data='/home/pglpm/repos/prova/development/downloads/penguin_data.csv', metadata='/home/pglpm/repos/prova/development/downloads/penguin_metadata.csv', initmethod=inim)))}))
 ##    Min. 1st Qu.  Median    Mean 3rd Qu.    Max. 
 ## -31174  -12945  -10978  -12044  -10119   -8330
 ## 
-## > inim <- 'allinone' ; summary(sapply(1:100, function(ii){max(sapply(1:10,function(i)logprob(data='/home/pglpm/repos/inferno/development/downloads/penguin_data.csv', metadata='/home/pglpm/repos/inferno/development/downloads/penguin_metadata.csv', initmethod=inim)))}))
+## > inim <- 'allinone' ; summary(sapply(1:100, function(ii){max(sapply(1:10,function(i)logprob(data='/home/pglpm/repos/prova/development/downloads/penguin_data.csv', metadata='/home/pglpm/repos/prova/development/downloads/penguin_metadata.csv', initmethod=inim)))}))
 ##    Min. 1st Qu.  Median    Mean 3rd Qu.    Max. 
 ## -24717  -12004  -10615  -11113   -9803   -8251
 ## 
-## > inim <- 'precluster' ; summary(sapply(1:100, function(ii){max(sapply(1:10,function(i)logprob(data='/home/pglpm/repos/inferno/development/downloads/penguin_data.csv', metadata='/home/pglpm/repos/inferno/development/downloads/penguin_metadata.csv', initmethod=inim)))}))
+## > inim <- 'precluster' ; summary(sapply(1:100, function(ii){max(sapply(1:10,function(i)logprob(data='/home/pglpm/repos/prova/development/downloads/penguin_data.csv', metadata='/home/pglpm/repos/prova/development/downloads/penguin_metadata.csv', initmethod=inim)))}))
 ##    Min. 1st Qu.  Median    Mean 3rd Qu.    Max. 
 ##  -28001  -11789  -10827  -11147  -10016   -8049 
 
@@ -1484,19 +1484,19 @@ compareinitm <- function(
 
 
 
-## > inim <- 'precluster' ; summary(foreach(ii=1:360, .combine=c, .inorder = F)%dorng%{max(sapply(1:10,function(i)logprob(data='/home/pglpm/repos/inferno/development/downloads/penguin_data.csv', metadata='/home/pglpm/repos/inferno/development/downloads/penguin_metadata.csv', initmethod=inim)))})
+## > inim <- 'precluster' ; summary(foreach(ii=1:360, .combine=c, .inorder = F)%dorng%{max(sapply(1:10,function(i)logprob(data='/home/pglpm/repos/prova/development/downloads/penguin_data.csv', metadata='/home/pglpm/repos/prova/development/downloads/penguin_metadata.csv', initmethod=inim)))})
 ##    Min. 1st Qu.  Median    Mean 3rd Qu.    Max. 
 ##  -44986  -12270  -10963  -11649   -9894   -7570 
 ## >
-## > inim <- 'prior' ; summary(foreach(ii=1:360, .combine=c, .inorder = F)%dorng%{max(sapply(1:10,function(i)logprob(data='/home/pglpm/repos/inferno/development/downloads/penguin_data.csv', metadata='/home/pglpm/repos/inferno/development/downloads/penguin_metadata.csv', initmethod=inim)))})
+## > inim <- 'prior' ; summary(foreach(ii=1:360, .combine=c, .inorder = F)%dorng%{max(sapply(1:10,function(i)logprob(data='/home/pglpm/repos/prova/development/downloads/penguin_data.csv', metadata='/home/pglpm/repos/prova/development/downloads/penguin_metadata.csv', initmethod=inim)))})
 ##    Min. 1st Qu.  Median    Mean 3rd Qu.    Max. 
 ##  -25088  -11902  -10628  -11210   -9694   -7895 
 ## >
-## > inim <- 'allinone' ; summary(foreach(ii=1:360, .combine=c, .inorder = F)%dorng%{max(sapply(1:10,function(i)logprob(data='/home/pglpm/repos/inferno/development/downloads/penguin_data.csv', metadata='/home/pglpm/repos/inferno/development/downloads/penguin_metadata.csv', initmethod=inim)))})
+## > inim <- 'allinone' ; summary(foreach(ii=1:360, .combine=c, .inorder = F)%dorng%{max(sapply(1:10,function(i)logprob(data='/home/pglpm/repos/prova/development/downloads/penguin_data.csv', metadata='/home/pglpm/repos/prova/development/downloads/penguin_metadata.csv', initmethod=inim)))})
 ##    Min. 1st Qu.  Median    Mean 3rd Qu.    Max. 
 ##  -29009  -12051  -10725  -11330   -9834   -7988 
 ## 
-## > inim <- 'allcentre' ; summary(foreach(ii=1:360, .combine=c, .inorder = F)%dorng%{max(sapply(1:10,function(i)logprob(data='/home/pglpm/repos/inferno/development/downloads/penguin_data.csv', metadata='/home/pglpm/repos/inferno/development/downloads/penguin_metadata.csv', initmethod=inim)))})
+## > inim <- 'allcentre' ; summary(foreach(ii=1:360, .combine=c, .inorder = F)%dorng%{max(sapply(1:10,function(i)logprob(data='/home/pglpm/repos/prova/development/downloads/penguin_data.csv', metadata='/home/pglpm/repos/prova/development/downloads/penguin_metadata.csv', initmethod=inim)))})
 ##    Min. 1st Qu.  Median    Mean 3rd Qu.    Max. 
 ##  -27662  -12021  -10733  -11432   -9826   -8139 
 ## > 
@@ -1506,7 +1506,7 @@ compareinitm <- function(
 
 #### varm 8, tsf 1
 
-## > inim <- 'prior' ; . <- (foreach(ii=1:360, .combine=c, .inorder = F)%dorng%{max(sapply(1:10,function(i)logprob(data='/home/pglpm/repos/inferno/development/downloads/penguin_data.csv', metadata='/home/pglpm/repos/inferno/development/downloads/penguin_metadata.csv', initmethod=inim)))}) ; summary(.) ; summary(.[is.finite(.)])
+## > inim <- 'prior' ; . <- (foreach(ii=1:360, .combine=c, .inorder = F)%dorng%{max(sapply(1:10,function(i)logprob(data='/home/pglpm/repos/prova/development/downloads/penguin_data.csv', metadata='/home/pglpm/repos/prova/development/downloads/penguin_metadata.csv', initmethod=inim)))}) ; summary(.) ; summary(.[is.finite(.)])
 ##     Min.  1st Qu.   Median     Mean  3rd Qu.     Max. 
 ## -5406854      Inf      Inf      Inf      Inf      Inf 
 ##     Min.  1st Qu.   Median     Mean  3rd Qu.     Max. 
@@ -1514,19 +1514,19 @@ compareinitm <- function(
 ## > sum(!is.finite(.))
 ## [1] 349
 
-## > inim <- 'precluster' ; summary(foreach(ii=1:360, .combine=c, .inorder = F)%dorng%{max(sapply(1:10,function(i)logprob(data='/home/pglpm/repos/inferno/development/downloads/penguin_data.csv', metadata='/home/pglpm/repos/inferno/development/downloads/penguin_metadata.csv', initmethod=inim)))})
+## > inim <- 'precluster' ; summary(foreach(ii=1:360, .combine=c, .inorder = F)%dorng%{max(sapply(1:10,function(i)logprob(data='/home/pglpm/repos/prova/development/downloads/penguin_data.csv', metadata='/home/pglpm/repos/prova/development/downloads/penguin_metadata.csv', initmethod=inim)))})
 ##    Min. 1st Qu.  Median    Mean 3rd Qu.    Max. 
 ##   -6460   -6356   -6346   -6349   -6337   -6306 
 
-## > inim <- 'allinone' ; summary(foreach(ii=1:360, .combine=c, .inorder = F)%dorng%{max(sapply(1:10,function(i)logprob(data='/home/pglpm/repos/inferno/development/downloads/penguin_data.csv', metadata='/home/pglpm/repos/inferno/development/downloads/penguin_metadata.csv', initmethod=inim)))})
+## > inim <- 'allinone' ; summary(foreach(ii=1:360, .combine=c, .inorder = F)%dorng%{max(sapply(1:10,function(i)logprob(data='/home/pglpm/repos/prova/development/downloads/penguin_data.csv', metadata='/home/pglpm/repos/prova/development/downloads/penguin_metadata.csv', initmethod=inim)))})
 ##    Min. 1st Qu.  Median    Mean 3rd Qu.    Max. 
 ## -108175  -22705  -16265  -19936  -12584   -8280 
 
-## > inim <- 'allcentre' ; summary(foreach(ii=1:360, .combine=c, .inorder = F)%dorng%{max(sapply(1:10,function(i)logprob(data='/home/pglpm/repos/inferno/development/downloads/penguin_data.csv', metadata='/home/pglpm/repos/inferno/development/downloads/penguin_metadata.csv', initmethod=inim)))})
+## > inim <- 'allcentre' ; summary(foreach(ii=1:360, .combine=c, .inorder = F)%dorng%{max(sapply(1:10,function(i)logprob(data='/home/pglpm/repos/prova/development/downloads/penguin_data.csv', metadata='/home/pglpm/repos/prova/development/downloads/penguin_metadata.csv', initmethod=inim)))})
 ##    Min. 1st Qu.  Median    Mean 3rd Qu.    Max. 
 ##   -8157   -8157   -8157   -8157   -8157   -8157 
 
-## > inim <- 'priorbutfirst' ; . <- (foreach(ii=1:360, .combine=c, .inorder = F)%dorng%{max(sapply(1:10,function(i)logprob(data='/home/pglpm/repos/inferno/development/downloads/penguin_data.csv', metadata='/home/pglpm/repos/inferno/development/downloads/penguin_metadata.csv', initmethod=inim)))}) ; summary(.) ; summary(.[is.finite(.)])
+## > inim <- 'priorbutfirst' ; . <- (foreach(ii=1:360, .combine=c, .inorder = F)%dorng%{max(sapply(1:10,function(i)logprob(data='/home/pglpm/repos/prova/development/downloads/penguin_data.csv', metadata='/home/pglpm/repos/prova/development/downloads/penguin_metadata.csv', initmethod=inim)))}) ; summary(.) ; summary(.[is.finite(.)])
 ##    Min. 1st Qu.  Median    Mean 3rd Qu.    Max.    NA's 
 ##  -28022     Inf     Inf     Inf     Inf     Inf      89 
 ##    Min. 1st Qu.  Median    Mean 3rd Qu.    Max. 
@@ -1534,6 +1534,6 @@ compareinitm <- function(
 
 
 #### varm 8, tsf 1.35
-## > inim <- 'precluster' ; summary(foreach(ii=1:360, .combine=c, .inorder = F)%dorng%{max(sapply(1:10,function(i)logprob(data='/home/pglpm/repos/inferno/development/downloads/penguin_data.csv', metadata='/home/pglpm/repos/inferno/development/downloads/penguin_metadata.csv', initmethod=inim)))})
+## > inim <- 'precluster' ; summary(foreach(ii=1:360, .combine=c, .inorder = F)%dorng%{max(sapply(1:10,function(i)logprob(data='/home/pglpm/repos/prova/development/downloads/penguin_data.csv', metadata='/home/pglpm/repos/prova/development/downloads/penguin_metadata.csv', initmethod=inim)))})
 ##    Min. 1st Qu.  Median    Mean 3rd Qu.    Max. 
 ##   -6590   -6435   -6414   -6417   -6394   -6340 
