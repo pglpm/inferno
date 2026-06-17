@@ -55,7 +55,7 @@ Pr(
 
   Either a character with the name of a directory or full path for a
   'learnt.rds' object, produced by the
-  [`learn()`](https://pglpm.github.io/inferno/reference/learn.md)
+  [`learn()`](https://pglpm.github.io/prova/reference/learn.md)
   function, or such an object itself.
 
 - tails:
@@ -87,8 +87,8 @@ Pr(
   Integer or `NULL` or `'all'` (default): desired number of samples of
   the variability of the probability for `Y`. If `NULL`, no samples are
   reported. If `'all'` (or `Inf`), all samples obtained by the
-  [`learn()`](https://pglpm.github.io/inferno/reference/learn.md)
-  function are used.
+  [`learn()`](https://pglpm.github.io/prova/reference/learn.md) function
+  are used.
 
 - quantiles:
 

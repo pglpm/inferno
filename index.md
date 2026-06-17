@@ -1,6 +1,9 @@
-# inferno: ***infer***ence in ***R*** with Bayesian ***no***nparametrics
+# ***prova***: Probabilistic-statistical analysis and inference with Bayesian nonparametrics
 
-.![Ensemble of
+*\[If you’re looking for the package “inferno”, you’ve come to the right
+place! It has been renamed “prova”\]*
+
+![Ensemble of
 densities](https://github.com/pglpm/inferno/raw/main/development/manual/inferno_symbol.png)
 
 This repository provides an R package and some theoretical background
@@ -43,7 +46,7 @@ least version 1.4.2*, installed. Please follow its [installation
 instructions](https://r-nimble.org/manual/cha-installing-nimble.html)
 for your operating system.
 
-You can then install **inferno** in R by using the `remotes` package:
+You can then install **prova** in R by using the `remotes` package:
 
     remotes::install_github('pglpm/inferno')
 
@@ -65,8 +68,8 @@ R-dependencies.
 ## Documentation
 
 The vignette [*Bayesian nonparametric inference with
-**inferno***](https://pglpm.github.io/inferno/articles/inferno_start.html)
-is a step-by-step introduction to **inferno** and also to Bayesian
+**prova***](https://pglpm.github.io/inferno/articles/inferno_start.html)
+is a step-by-step introduction to **prova** and also to Bayesian
 nonparametrics. It guides you through a concrete example with various
 kinds of inferences. You may also try to follow it using a dataset of
 your own.
@@ -86,11 +89,11 @@ For a low-level course on Bayesian nonparametric inference and Decision
 Theory see [Foundations of data
 science](https://pglpm.github.io/ADA511).
 
-## *inferno* App
+## **prova** App
 
-An application has been built upon ***inferno***. This app can be used
-for testing out the features of ***inferno*** with just a few button
-clicks, without having to write any code in R yourself.
+An application has been built upon **prova**. This app can be used for
+testing out the features of **prova** with just a few button clicks,
+without having to write any code in R yourself.
 
 ### Desktop Application
 
@@ -121,7 +124,7 @@ clicks, without having to write any code in R yourself.
 - [*Calibrated and uncertain? Evaluating uncertainty estimates in binary
   classification models*](https://doi.org/10.1088/2632-2153/ae45ed)
 
-Projects using ***inferno***:
+Projects using **prova**:
 
 - [InfernoCalibNet](https://m4siko.github.io/InfernoCalibNet).
 - [parkinsonbayes](https://github.com/pglpm/parkinsonbayes).

@@ -60,7 +60,7 @@ containing the metadata.
 
 ## Details
 
-The [`learn()`](https://pglpm.github.io/inferno/reference/learn.md)
+The [`learn()`](https://pglpm.github.io/prova/reference/learn.md)
 function needs metadata about the variates present in the data. Such
 metadata can be provided either as a `csv` file or as a
 [`base::data.frame()`](https://rdrr.io/r/base/data.frame.html). The
@@ -75,7 +75,7 @@ correct metadata information.**
 ## Metadata information and format
 
 In order to correctly learn from a dataset, the
-[`learn()`](https://pglpm.github.io/inferno/reference/learn.md) function
+[`learn()`](https://pglpm.github.io/prova/reference/learn.md) function
 needs information that is not contained in the data themeselves; that
 is, it needs *meta*data. Metadata are provided either as a `csv` file or
 as a [`base::data.frame()`](https://rdrr.io/r/base/data.frame.html).

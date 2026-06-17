@@ -4,7 +4,7 @@ This function calculates the quantiles of `Pr(Y | X, data)` at specified
 probability levels, as well as the variability of those quantiles if
 more learning data were provided. The variability can be expressed in
 the form of quantiles, samples, or both, as in the
-[`Pr()`](https://pglpm.github.io/inferno/reference/Pr.md) function. If
+[`Pr()`](https://pglpm.github.io/prova/reference/Pr.md) function. If
 several joint values are given for the probability levels and for `X`,
 the function creates a 2D grid of results for all possible compbinations
 of the given probability levels and `X` values. Each variate in the
@@ -52,7 +52,7 @@ qPr(
 
   Either a character with the name of a directory or full path for a
   'learnt.rds' object, produced by the
-  [`learn()`](https://pglpm.github.io/inferno/reference/learn.md)
+  [`learn()`](https://pglpm.github.io/prova/reference/learn.md)
   function, or such an object itself.
 
 - tails:
@@ -61,7 +61,7 @@ qPr(
   or all of the variates in arguments `X`. For variates in this list,
   the probability conditional is understood in an semi-open interval
   sense: `X ≤ x` or `X ≥ x`, an so on. See analogous argument in
-  [`Pr()`](https://pglpm.github.io/inferno/reference/Pr.md).
+  [`Pr()`](https://pglpm.github.io/prova/reference/Pr.md).
 
 - priorY:
 
@@ -75,8 +75,8 @@ qPr(
   Integer or `NULL` or `'all'` (default): desired number of samples of
   the variability of the quantile for `Y`. If `NULL`, no samples are
   reported. If `'all'` (or `Inf`), all samples obtained by the
-  [`learn()`](https://pglpm.github.io/inferno/reference/learn.md)
-  function are used.
+  [`learn()`](https://pglpm.github.io/prova/reference/learn.md) function
+  are used.
 
 - quantiles:
 

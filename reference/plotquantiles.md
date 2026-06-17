@@ -1,7 +1,7 @@
 # Plot pairs of quantiles
 
 Utility function to plot pair of quantiles obtained with
-[`Pr()`](https://pglpm.github.io/inferno/reference/Pr.md).
+[`Pr()`](https://pglpm.github.io/prova/reference/Pr.md).
 
 ## Usage
 
@@ -23,19 +23,19 @@ plotquantiles(
 - x:
 
   Numeric or character: vector of x-coordinates. See
-  [`flexiplot()`](https://pglpm.github.io/inferno/reference/flexiplot.md).
+  [`flexiplot()`](https://pglpm.github.io/prova/reference/flexiplot.md).
 
 - y:
 
   Numeric: a matrix having as many rows as `x` and an even number of
   columns, with one column per quantile. Typically these quantiles have
   been obtained with
-  [`Pr()`](https://pglpm.github.io/inferno/reference/Pr.md), as their
+  [`Pr()`](https://pglpm.github.io/prova/reference/Pr.md), as their
   `$quantiles` value. This value is a three-dimensional array, and one
   of its columns (corresponding to the possible values of the `X`
-  argument of [`Pr()`](https://pglpm.github.io/inferno/reference/Pr.md))
+  argument of [`Pr()`](https://pglpm.github.io/prova/reference/Pr.md))
   or one of its rows (corresponding to the possible values of the `Y`
-  argument of [`Pr()`](https://pglpm.github.io/inferno/reference/Pr.md))
+  argument of [`Pr()`](https://pglpm.github.io/prova/reference/Pr.md))
   should be selected before being used as `y` input.
 
 - xdomain:
@@ -67,4 +67,4 @@ plotquantiles(
 - ...:
 
   Other parameters to be passed to
-  [`flexiplot()`](https://pglpm.github.io/inferno/reference/flexiplot.md).
+  [`flexiplot()`](https://pglpm.github.io/prova/reference/flexiplot.md).

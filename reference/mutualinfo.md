@@ -46,7 +46,7 @@ mutualinfo(
   or all of the variates in arguments `X`. For variates in this list,
   the probability conditional is understood in an semi-open interval
   sense: `X ≤ x` or `X ≥ x`, an so on. See analogous argument in
-  [`Pr()`](https://pglpm.github.io/inferno/reference/Pr.md).
+  [`Pr()`](https://pglpm.github.io/prova/reference/Pr.md).
 
 - n:
 

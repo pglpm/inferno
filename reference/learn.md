@@ -53,7 +53,7 @@ learn(
 - metadata:
 
   A
-  [`metadata`](https://pglpm.github.io/inferno/reference/metadatatemplate.md)
+  [`metadata`](https://pglpm.github.io/prova/reference/metadatatemplate.md)
   object, given either as a data.frame object, or as a file pa to a CSV
   file.
 
@@ -214,9 +214,7 @@ is used in all subsequent probabilistic computations. Other information
 about the computation is provided in logs and plots, saved in a
 directory specified by the user.
 
-See
-[`vignette('inferno_start')`](https://pglpm.github.io/inferno/articles/inferno_start.md)
-for an introductory example.
+See `vignette('Prova_start')` for an introductory example.
 
 ## Examples
 

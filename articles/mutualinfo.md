@@ -1,13 +1,11 @@
 # Associations among variates and mutual information
 
-$`\newcommand{\mo}{\mathrel{\!=\!}}`$
-
 This vignette gives an introduction and guide to the visual and
-quantitative capabilities and functions of the ***inferno*** package,
-for the study of associations, correlations, and links.
+quantitative capabilities and functions of the **prova** package, for
+the study of associations, correlations, and links.
 
 See the
-[`vignette('inferno_start')`](https://pglpm.github.io/inferno/articles/inferno_start.md)
+[`vignette('start')`](https://pglpm.github.io/prova/articles/start.md)
 for an introduction to the package. The present vignette continues with
 the same example and dataset.
 
@@ -16,20 +14,21 @@ the same example and dataset.
 ## Probabilities and associations
 
 The
-[`vignette('inferno_start')`](https://pglpm.github.io/inferno/articles/inferno_start.md)
+[`vignette('start')`](https://pglpm.github.io/prova/articles/start.md)
 focuses on the
 [`datasets::penguins`](https://rdrr.io/r/datasets/penguins.html)
 dataset, and shows how to calculate probabilities of single and joint
 variates from that dataset; also probabilities conditional on given
 variates. These probabilities refers to a *new unit*; for example:
 
-- If we find that \$\mathrm{Pr}(\text{species}\mo \text{Adelie}) =
-  44\\\$, then there’s a 44% probability that the next penguin we sample
-  (from the same population) is of the *Adélie* species.
-- If we find that \$\mathrm{Pr}(\text{species}\mo \text{Gentoo}
-  \\\vert\\ \text{island} \mo \text{Biscoe}) = 1\\\$, then if we have a
-  new penguin, and we know it is from Biscoe island, there’s a 1%
-  probability that it is of the *Gentoo* species.
+- If we find that
+  $`\mathrm{Pr}(\text{species}\mathrel{\!=\!}\text{Adelie}) = 44\%`$,
+  then there’s a 44% probability that the next penguin we sample (from
+  the same population) is of the *Adélie* species.
+- If we find that
+  $`\mathrm{Pr}(\text{species}\mathrel{\!=\!}\text{Gentoo} \,\vert\, \text{island} \mathrel{\!=\!}\text{Biscoe}) = 1\%`$,
+  then if we have a new penguin, and we know it is from Biscoe island,
+  there’s a 1% probability that it is of the *Gentoo* species.
 
 And these probabilities can also be interpreted as “estimates” of the
 corresponding *whole-population* frequencies.
@@ -49,7 +48,7 @@ try to understand which clinical conditions are associated with the
 disease, possibly because of underlying biological reasons.
 
 We shall now explore first some visual ways to examine associations with
-***inferno***, and then some more precise quantitative ways, which also
+**prova**, and then some more precise quantitative ways, which also
 apply when visualization becomes impossible.
 
   
@@ -58,37 +57,37 @@ apply when visualization becomes impossible.
 
 ### Setup
 
-Let’s load the ***inferno*** package, if we haven’t already done so, and
-set a random seed to ensure reproducibility:
+Let’s load the **prova** package, if we haven’t already done so, and set
+a random seed to ensure reproducibility:
 
 ``` r
 
-library('inferno')
+library('prova')
 
 set.seed(10)
 ```
 
 As in the
-[`vignette('inferno_start')`](https://pglpm.github.io/inferno/articles/inferno_start.md),
+[`vignette('start')`](https://pglpm.github.io/prova/articles/start.md),
 we work with a specific population of penguins, of which we have
 344 sample data stored in the
 \[[`datasets::penguins`](https://rdrr.io/r/datasets/penguins.html)\]
 dataset, included in R version 4.5.0 and above. For your convenience you
 can download the shuffled dataset as the CSV file
-[`penguin_data.csv`](https://github.com/pglpm/inferno/raw/main/development/downloads/penguin_data.csv),
+[`penguin_data.csv`](https://github.com/pglpm/prova/raw/main/development/downloads/penguin_data.csv),
 then load it with the
-[`read.csvi()`](https://pglpm.github.io/inferno/reference/inferno.data.md)
+[`read.csvi()`](https://pglpm.github.io/prova/reference/prova.data.md)
 function as follows:
 
 We assume that we have already learned all predictive information from
-this dataset by means of the ***inferno*** function
-[`learn()`](https://pglpm.github.io/inferno/reference/learn.md). This
+this dataset by means of the **prova** function
+[`learn()`](https://pglpm.github.io/prova/reference/learn.md). This
 information is stored in an object stored in the compressed file
 `learnt.rds` within the output directory that was specified in the
-[`learn()`](https://pglpm.github.io/inferno/reference/learn.md)
-function. For your convenience the object produced by the computation
-above can be downloaded as the file
-[`learntall.rds`](https://github.com/pglpm/inferno/raw/main/development/downloads/learntall.rds).
+[`learn()`](https://pglpm.github.io/prova/reference/learn.md) function.
+For your convenience the object produced by the computation above can be
+downloaded as the file
+[`learntall.rds`](https://github.com/pglpm/prova/raw/main/development/downloads/learntall.rds).
 Once you have downloaded it in your working directory you can just
 invoke
 
@@ -103,10 +102,10 @@ case) which shall be used in the following analysis.
 ### Generating new samples
 
 Let’s focus on the `island` and `species` variates. Each variate has
-three possible values; ***inferno***’s utility function
-[`vrtgrid()`](https://pglpm.github.io/inferno/reference/vrtgrid.md)
-allows us to create a vector of all possible values of each variate,
-which are stored in the metadata of the `learnt` object:
+three possible values; **prova**’s utility function
+[`vrtgrid()`](https://pglpm.github.io/prova/reference/vrtgrid.md) allows
+us to create a vector of all possible values of each variate, which are
+stored in the metadata of the `learnt` object:
 
 ``` r
 
@@ -118,7 +117,7 @@ speciesvalues <- vrtgrid(vrt = 'species', learnt = learnt)
 ```
 
 The
-[`flexiplot()`](https://pglpm.github.io/inferno/reference/flexiplot.md)
+[`flexiplot()`](https://pglpm.github.io/prova/reference/flexiplot.md)
 function allows us to display the `island` and `species` variates
 against each other, for all *sample* data, as a scatter plot:
 
@@ -134,7 +133,7 @@ flexiplot(x = penguin$island, y = penguin$species,
 **Scatter plot of sample data**
 
 Note how
-[`flexiplot()`](https://pglpm.github.io/inferno/reference/flexiplot.md)
+[`flexiplot()`](https://pglpm.github.io/prova/reference/flexiplot.md)
 automatically add a slight jitter (by means of
 [`base::jitter()`](https://rdrr.io/r/base/jitter.html)) to the discrete
 variates, so that the points don’t just overlap rendering the plot
@@ -156,17 +155,19 @@ that the `'Torgersen'`-`'Chinstrap'` pair never occurs in the whole
 population: our sample included only 344 penguins, so what we can say is
 that this pair roughly occurs less frequently than once every 344
 penguins. In fact, a calculation with the
-[`Pr()`](https://pglpm.github.io/inferno/reference/Pr.md) function shows
+[`Pr()`](https://pglpm.github.io/prova/reference/Pr.md) function shows
 that its probability is around 0.3%:
 
 ``` r
 
 prob <- Pr(Y = data.frame(island = 'Torgersen', species = 'Chinstrap'),
     learnt = learnt)
-# Error in Pr(Y = data.frame(island = "Torgersen", species = "Chinstrap"), : Unknown value of argument 'parallel'.
+# Error in `Pr()`:
+# ! Unknown value of argument 'parallel'.
 
 signif(prob$values, digits = 2)
-# Error: object 'prob' not found
+# Error:
+# ! object 'prob' not found
 ```
 
   
@@ -175,12 +176,12 @@ features of the *whole* population. How would a scatter plot analogous
 to the one above look like, for the *whole* population of for a much
 larger sample?
 
-The ***inferno*** package offers the function
-[`rPr()`](https://pglpm.github.io/inferno/reference/rPr.md) to generate
-a data.frame of fictitious samples from the estimated frequencies of the
+The **prova** package offers the function
+[`rPr()`](https://pglpm.github.io/prova/reference/rPr.md) to generate a
+data.frame of fictitious samples from the estimated frequencies of the
 whole population. These samples can be used for different purposes, for
 instance to produce a scatter plot. The main arguments of
-[`rPr()`](https://pglpm.github.io/inferno/reference/rPr.md) are:
+[`rPr()`](https://pglpm.github.io/prova/reference/rPr.md) are:
 
 - `n`: a positive integer, the number of samples to generate.
 - `Ynames`: vector of variate names; samples are generates for these
@@ -188,7 +189,7 @@ instance to produce a scatter plot. The main arguments of
 - `X`: data frame of variate values to restrict the sampling to specific
   subpopulations.
 - `learnt`: the object that points to the computation made with the
-  [`learn()`](https://pglpm.github.io/inferno/reference/learn.md)
+  [`learn()`](https://pglpm.github.io/prova/reference/learn.md)
   function.
 
 Let’s first generate 5 samples from the estimated whole population of
@@ -240,33 +241,32 @@ us visualize for instance the joint probability of `body_mass` and
 `species` with another scatter plot.
 
 We generate 2000 whole-population samples of the two variates with
-[`rPr()`](https://pglpm.github.io/inferno/reference/rPr.md), and then
+[`rPr()`](https://pglpm.github.io/prova/reference/rPr.md), and then
 scatter-plot them with
-[`flexiplot()`](https://pglpm.github.io/inferno/reference/flexiplot.md).
+[`flexiplot()`](https://pglpm.github.io/prova/reference/flexiplot.md).
 First we select an appropriate plot range for the continuous variate
-`body_mass` by means of ***inferno***’s utility function
-[`vrtgrid()`](https://pglpm.github.io/inferno/reference/vrtgrid.md):
-this function chooses an optimal value based on, and including, the
-range of data previously observed:
+`body_mass` by means of **prova**’s utility function
+[`vrtgrid()`](https://pglpm.github.io/prova/reference/vrtgrid.md): this
+function chooses an optimal value based on, and including, the range of
+data previously observed:
 
 ``` r
 
 body_massrange <- range(vrtgrid(vrt = 'body_mass', learnt = learnt))
 
 samples <- rPr(n = 2000, Ynames = c('body_mass', 'species'), learnt = learnt)
+# Error in `rnorm()`:
+# ! invalid arguments
 
 flexiplot(x = samples$body_mass, y = samples$species,
     type = 'p', xlab = 'body mass / g', ylab = 'species',
     xlim = body_massrange, ydomain = speciesvalues)
+# Error in `dim(x) <- c(n, 1L)`:
+# ! attempt to set an attribute on NULL
 ```
 
-![\*\*Scatter plot for body mass and
-species\*\*](figure/gensamplesplotbodymassspecies-1.png)
-
-**Scatter plot for body mass and species**
-
 Note again how
-[`flexiplot()`](https://pglpm.github.io/inferno/reference/flexiplot.md)
+[`flexiplot()`](https://pglpm.github.io/prova/reference/flexiplot.md)
 automatically add a jitter to the discrete variate `species`, but not to
 the continuous `body_mass`.
 
@@ -274,7 +274,7 @@ From the plot we see that there is an association between the Adélie and
 Chinstrap species and lighter body mass, around 3500 g; and between the
 Gentoo species and heavier body mass, around 5000 g. Incidentally, this
 reflects the probability plot at the end of the
-[`vignette('inferno_start')`](https://pglpm.github.io/inferno/articles/inferno_start.md).
+[`vignette('start')`](https://pglpm.github.io/prova/articles/start.md).
 
 ### Samples and plots for different subpopulations
 
@@ -286,16 +286,15 @@ two continuous variates, such as body mass and bill length (`bill_len`):
 bill_lenrange <- range(vrtgrid(vrt = 'bill_len', learnt = learnt))
 
 samples <- rPr(n = 2000, Ynames = c('body_mass', 'bill_len'), learnt = learnt)
+# Error in `rnorm()`:
+# ! invalid arguments
 
 flexiplot(x = samples$body_mass, y = samples$bill_len,
     type = 'p', xlab = 'body mass / g', ylab = 'bill length / mm',
     xlim = body_massrange, ylim = bill_lenrange)
+# Error in `dim(x) <- c(n, 1L)`:
+# ! attempt to set an attribute on NULL
 ```
-
-![\*\*Scatter plot of body mass and bill
-length\*\*](figure/gensamplesplotbodybilllen-1.png)
-
-**Scatter plot of body mass and bill length**
 
 The scatter plot shows that there is a partly linear relationship
 between body mass and bill length; but there’s a sort of additional
@@ -308,13 +307,13 @@ only. We are therefore interested in studying this association for
 different **subpopulations**.
 
 Subpopulation sampling and plots can also be easily done with the
-[`rPr()`](https://pglpm.github.io/inferno/reference/rPr.md) and
-[`flexiplot()`](https://pglpm.github.io/inferno/reference/flexiplot.md)
+[`rPr()`](https://pglpm.github.io/prova/reference/rPr.md) and
+[`flexiplot()`](https://pglpm.github.io/prova/reference/flexiplot.md)
 functions. In the
-[`rPr()`](https://pglpm.github.io/inferno/reference/rPr.md) function we
+[`rPr()`](https://pglpm.github.io/prova/reference/rPr.md) function we
 can specify the requested subpopulation via the `X` argument,
 analogously to the
-[`Pr()`](https://pglpm.github.io/inferno/reference/Pr.md) function.
+[`Pr()`](https://pglpm.github.io/prova/reference/Pr.md) function.
 
 Let’s generate sets of samples separately for the species `'Adelie'`,
 `'Chinstrap'`, `'Gentoo'`:
@@ -326,22 +325,28 @@ samplesAdelie <- rPr(
     Ynames = c('body_mass', 'bill_len'),
     X = data.frame(species = 'Adelie'),
     learnt = learnt)
+# Error in `rnorm()`:
+# ! invalid arguments
 
 samplesChinstrap <- rPr(
     n = 1000,
     Ynames = c('body_mass', 'bill_len'),
     X = data.frame(species = 'Chinstrap'),
     learnt = learnt)
+# Error in `rnorm()`:
+# ! invalid arguments
 
 samplesGentoo <- rPr(
     n = 1000,
     Ynames = c('body_mass', 'bill_len'),
     X = data.frame(species = 'Gentoo'),
     learnt = learnt)
+# Error in `rnorm()`:
+# ! invalid arguments
 ```
 
 Now we plot these samples together with
-[`flexiplot()`](https://pglpm.github.io/inferno/reference/flexiplot.md),
+[`flexiplot()`](https://pglpm.github.io/prova/reference/flexiplot.md),
 choosing different colours and shapes for the three subpopulations. We
 also use the `alpha.f` argument to make sure that the plot points don’t
 completely cover one another:
@@ -358,15 +363,14 @@ flexiplot(
     type = 'p', xlab = 'body mass / g', ylab = 'bill length / mm',
     xlim = body_massrange, ylim = bill_lenrange,
     pch = c(0, 2, 5), col = 2:4, alpha.f = 0.2)
+# Error:
+# ! object 'samplesAdelie' not found
 
 legend('top', speciesvalues, pch = c(0, 2, 5), col = 2:4,
     horiz = TRUE, bty = 'n')
+# Error:
+# ! plot.new has not been called yet
 ```
-
-![\*\*Scatter plot for species
-subpopulations\*\*](figure/plotbodybilllen3-1.png)
-
-**Scatter plot for species subpopulations**
 
 The plot above shows quite clearly that the `body_mass`-`bill_len`
 association is indeed different for each species. The roughly linear
@@ -468,9 +472,14 @@ properties:
 Mutual information is always positive or zero, and can be defined in
 several mathematically equivalent ways, such as the following:
 
-\$\$ \sum\_{y_1, y_2} \mathrm{Pr}(Y_1 \mo y_1, Y_2 \mo y_2) \\ \log\_{2}
-\frac{ \mathrm{Pr}(Y_1 \mo y_1, Y_2 \mo y_2) }{ \mathrm{Pr}(Y_1 \mo y_1)
-\cdot \mathrm{Pr}(Y_2 \mo y_2) } \\ \mathrm{Sh} \$\$
+``` math
+\sum_{y_1, y_2} \mathrm{Pr}(Y_1 \mathrel{\!=\!}y_1, Y_2 \mathrel{\!=\!}y_2) \, 
+\log_{2} \frac{
+\mathrm{Pr}(Y_1 \mathrel{\!=\!}y_1, Y_2 \mathrel{\!=\!}y_2)
+}{
+\mathrm{Pr}(Y_1 \mathrel{\!=\!}y_1) \cdot \mathrm{Pr}(Y_2 \mathrel{\!=\!}y_2)
+} \; \mathrm{Sh}
+```
 
 with integrals replacing the sums in the case of continuous variates. It
 is measured in
@@ -493,8 +502,8 @@ its input and output messages. You can find a brilliant introduction to
 its meaning and uses in MacKay’s book, see references.
 
   
-The ***inferno*** package provides the function
-[`mutualinfo()`](https://pglpm.github.io/inferno/reference/mutualinfo.md)
+The **prova** package provides the function
+[`mutualinfo()`](https://pglpm.github.io/prova/reference/mutualinfo.md)
 to calculate the mutual information between two variates or two sets of
 joint variates. Its main arguments are the following:
 
@@ -503,7 +512,7 @@ joint variates. Its main arguments are the following:
 - `X`: data frame of variate values to restrict the calculation to
   specific subpopulations.
 - `learnt`: the object that points to the computation made with the
-  [`learn()`](https://pglpm.github.io/inferno/reference/learn.md)
+  [`learn()`](https://pglpm.github.io/prova/reference/learn.md)
   function.
 - Optionally, `unit`: the mutual information unit; default “shannons”
   (Sh).
@@ -523,8 +532,7 @@ MIislandspecies <- mutualinfo(
     learnt = learnt,
     parallel = 4 ## let's use 4 cores
 )
-# Registered doParallelSNOW with 4 workers
-# 
+# Registered socket cluster with 4 nodes on host ‘localhost’.
 # Closing connections to cores.
 ```
 
@@ -572,7 +580,7 @@ would tell the disease with *certainty*, as it would reduce the four
 possibilities by $`2^{2}`$ ($`4/(2^{2}) = 1`$).
 
 But the function
-[`mutualinfo()`](https://pglpm.github.io/inferno/reference/mutualinfo.md)
+[`mutualinfo()`](https://pglpm.github.io/prova/reference/mutualinfo.md)
 has an additional output to help you get a rough understanding of the
 mutual-information value. In the special case of two continuous variates
 having a joint *Gaussian* distribution, there is a precise relationship
@@ -592,7 +600,7 @@ variates\*\*](figure/Ivsr-1.png)
 
 This relationship can be a *rough* guide to get familiar with
 mutual-information values also for non-Gaussian variates. The
-[`mutualinfo()`](https://pglpm.github.io/inferno/reference/mutualinfo.md)
+[`mutualinfo()`](https://pglpm.github.io/prova/reference/mutualinfo.md)
 function has an additional output element `$MI.rGauss$` with the
 corresponding $`\lvert r \rvert`$ value. In the previous case of the
 `island` and `species` variates we have
@@ -648,8 +656,7 @@ MIbodymassspecies <- mutualinfo(
     learnt = learnt,
     parallel = 4
 )
-# Registered doParallelSNOW with 4 workers
-# 
+# Registered socket cluster with 4 nodes on host ‘localhost’.
 # Closing connections to cores.
 ```
 
@@ -664,18 +671,17 @@ mi <- signif(MIbodymassspecies$MI['value'], digits = 2)
 r <- signif(MIbodymassspecies$MI.rGauss['value'], digits = 2)
 
 samples <- rPr(n = 2000, Ynames = c('body_mass', 'species'), learnt = learnt)
+# Error in `rnorm()`:
+# ! invalid arguments
 
 flexiplot(x = samples$body_mass, y = samples$species,
     type = 'p', xlab = 'body mass / g', ylab = 'species',
     xlim = body_massrange, ydomain = speciesvalues,
     main = paste0('mutual info: ', mi, ' Sh',
         '  (rough r-equiv: ', r, ')') )
+# Error in `dim(x) <- c(n, 1L)`:
+# ! attempt to set an attribute on NULL
 ```
-
-![\*\*Scatter plot and mutual info for body mass and
-species\*\*](figure/gensamplesplotbodymassspeciesbis-1.png)
-
-**Scatter plot and mutual info for body mass and species**
 
 #### Body mass and bill length
 
@@ -688,8 +694,7 @@ MIbodymassbilllen <- mutualinfo(
     learnt = learnt,
     parallel = 4
 )
-# Registered doParallelSNOW with 4 workers
-# 
+# Registered socket cluster with 4 nodes on host ‘localhost’.
 # Closing connections to cores.
 ```
 
@@ -704,18 +709,17 @@ mi <- signif(MIbodymassbilllen$MI['value'], digits = 2)
 r <- signif(MIbodymassbilllen$MI.rGauss['value'], digits = 2)
 
 samples <- rPr(n = 2000, Ynames = c('body_mass', 'bill_len'), learnt = learnt)
+# Error in `rnorm()`:
+# ! invalid arguments
 
 flexiplot(x = samples$body_mass, y = samples$bill_len,
     type = 'p', xlab = 'body mass / g', ylab = 'bill length / mm',
     xlim = body_massrange, ylim = bill_lenrange,
     main = paste0('mutual info: ', mi, ' Sh',
         '  (rough r-equiv: ', r, ')') )
+# Error in `dim(x) <- c(n, 1L)`:
+# ! attempt to set an attribute on NULL
 ```
-
-![\*\*Scatter plot and mutual info for body mass and bill
-length\*\*](figure/gensamplesplotbodymassbilllenbis-1.png)
-
-**Scatter plot and mutual info for body mass and bill length**
 
 Note that in this case the Pearson correlation between `body_mass` and
 `bill_len` is
@@ -723,7 +727,8 @@ Note that in this case the Pearson correlation between `body_mass` and
 ``` r
 
 cor(samples$body_mass, samples$bill_len, method = 'pearson')
-# [1] 0.545892
+# Error in `cor()`:
+# ! supply both 'x' and 'y' or a matrix-like 'x'
 ```
 
 which is different from the rough $`r`$-equivalent 0.67.
@@ -735,7 +740,7 @@ which is different from the rough $`r`$-equivalent 0.67.
 We [previously discovered](#subpopplots) that the association between
 body mass and bill length is different for different penguin species.
 The
-[`mutualinfo()`](https://pglpm.github.io/inferno/reference/mutualinfo.md)
+[`mutualinfo()`](https://pglpm.github.io/prova/reference/mutualinfo.md)
 function allows us to calculate mutual information between two sets of
 variates within a particular subpopulation. This way we can determine
 whether two variates are more tightly associated within a particular
@@ -745,8 +750,8 @@ indicator of a disease in a particular subgroup (e.g. females) than in
 another (e.g. males).
 
 The subpopulation is chosen with the argument `X`, as in the
-[`Pr()`](https://pglpm.github.io/inferno/reference/Pr.md) and
-[`rPr()`](https://pglpm.github.io/inferno/reference/rPr.md) functions.
+[`Pr()`](https://pglpm.github.io/prova/reference/Pr.md) and
+[`rPr()`](https://pglpm.github.io/prova/reference/rPr.md) functions.
 Let’s calculate the mutual information between `body_mass` and
 `bill_len` within each penguin species (please be aware that the whole
 computation could take half an hour):
@@ -798,17 +803,16 @@ flexiplot(
     type = 'p', xlab = 'body mass / g', ylab = 'bill length / mm',
     xlim = body_massrange, ylim = bill_lenrange,
     pch = c(0, 2, 5), col = 2:4, alpha.f = 0.2)
+# Error:
+# ! object 'samplesAdelie' not found
 
 legend('top',
     paste(speciesvalues, paste0(mispecies, ' Sh'), sep = ': '),
     pch = c(0, 2, 5), col = 2:4,
     horiz = TRUE, bty = 'n')
+# Error:
+# ! plot.new has not been called yet
 ```
-
-![\*\*Scatter plot and mutual info for species
-subpopulations\*\*](figure/plotbodybilllen3mi-1.png)
-
-**Scatter plot and mutual info for species subpopulations**
 
 We see that body mass and bill length have a stronger association in the
 Gentoo species than in the Adélie or Chinstrap ones. In other words we
@@ -822,15 +826,18 @@ correlation coefficient:
 
 ## Pearson r for Adelie subpopulation:
 cor(samplesAdelie$body_mass, samplesAdelie$bill_len, method = 'pearson')
-# [1] 0.417085
+# Error:
+# ! object 'samplesAdelie' not found
 
 ## Pearson r for Chinstrap subpopulation:
 cor(samplesChinstrap$body_mass, samplesChinstrap$bill_len, method = 'pearson')
-# [1] 0.311494
+# Error:
+# ! object 'samplesChinstrap' not found
 
 ## Pearson r for Gentoo subpopulation:
 cor(samplesGentoo$body_mass, samplesGentoo$bill_len, method = 'pearson')
-# [1] 0.562958
+# Error:
+# ! object 'samplesGentoo' not found
 ```
 
 The Pearson correlation yields the same the association *ranking* as the

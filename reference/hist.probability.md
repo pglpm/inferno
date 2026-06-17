@@ -2,7 +2,7 @@
 
 This [`graphics::hist()`](https://rdrr.io/r/graphics/hist.html)ogram
 method is a utility to visualize the variability of the probabilities
-obtained with [`Pr()`](https://pglpm.github.io/inferno/reference/Pr.md),
+obtained with [`Pr()`](https://pglpm.github.io/prova/reference/Pr.md),
 which can also be interpreted as the probability density for the
 whole-population frequencies.
 
@@ -36,7 +36,7 @@ hist(
 - p:
 
   Object of class "probability", obtained with
-  [`Pr()`](https://pglpm.github.io/inferno/reference/Pr.md).
+  [`Pr()`](https://pglpm.github.io/prova/reference/Pr.md).
 
 - breaks:
 
@@ -67,4 +67,4 @@ hist(
 - ...:
 
   Other parameters to be passed to
-  [`flexiplot()`](https://pglpm.github.io/inferno/reference/flexiplot.md).
+  [`flexiplot()`](https://pglpm.github.io/prova/reference/flexiplot.md).

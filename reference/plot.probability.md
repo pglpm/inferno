@@ -2,7 +2,7 @@
 
 This [`base::plot()`](https://rdrr.io/r/base/plot.html) method is a
 utility to plot probabilities obtained with
-[`Pr()`](https://pglpm.github.io/inferno/reference/Pr.md), as well as
+[`Pr()`](https://pglpm.github.io/prova/reference/Pr.md), as well as
 their variabilities. The probabilities are plotted either against `Y`,
 with one curve for each value of `X`, or vice versa.
 
@@ -36,7 +36,7 @@ plot(
 - p:
 
   Object of class "probability", obtained with
-  [`Pr()`](https://pglpm.github.io/inferno/reference/Pr.md).
+  [`Pr()`](https://pglpm.github.io/prova/reference/Pr.md).
 
 - variability:
 
@@ -44,7 +44,7 @@ plot(
   `NA` or `FALSE`), or `NULL` (default), in which case the variability
   available in `p` is used. This argument chooses how to represent the
   variability of the probability; see
-  [`Pr()`](https://pglpm.github.io/inferno/reference/Pr.md). If the
+  [`Pr()`](https://pglpm.github.io/prova/reference/Pr.md). If the
   requested variability is not available in the object `p`, then a
   warning is issued and no variability is plotted.
 
@@ -76,4 +76,4 @@ plot(
 - ...:
 
   Other parameters to be passed to
-  [`flexiplot()`](https://pglpm.github.io/inferno/reference/flexiplot.md).
+  [`flexiplot()`](https://pglpm.github.io/prova/reference/flexiplot.md).
