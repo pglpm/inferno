@@ -1,6 +1,6 @@
 Package: prova
 Title: Probabilistic-statistical analysis and inference with Bayesian nonparametrics
-Version: 0.5.5
+Version: 0.6.0
 Authors@R: c(
   person("PierGianLuca", "Porta Mana", ,
   "pgl@portamana.org", role = c("aut", "cre", "cph"),
