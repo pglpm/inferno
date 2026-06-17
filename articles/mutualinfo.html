@@ -34,7 +34,7 @@
   <button class="nav-link dropdown-toggle" type="button" id="dropdown-articles" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Articles</button>
   <ul class="dropdown-menu" aria-labelledby="dropdown-articles">
 <li><a class="dropdown-item" href="../articles/mutualinfo.html">Associations among variates and mutual information</a></li>
-    <li><a class="dropdown-item" href="../articles/start.html">Probabilistic-statistical analysis with prova</a></li>
+    <li><a class="dropdown-item" href="../articles/start.html">Probabilistic-statistical analysis with Prova</a></li>
   </ul>
 </li>
       </ul>
@@ -66,7 +66,7 @@
     
     
 <p>This vignette gives an introduction and guide to the visual and
-quantitative capabilities and functions of the <strong>prova</strong>
+quantitative capabilities and functions of the <strong>Prova</strong>
 package, for the study of associations, correlations, and links.</p>
 <p>See the <code><a href="../articles/start.html">vignette('start')</a></code> for an introduction to the
 package. The present vignette continues with the same example and
@@ -107,7 +107,7 @@ prognose a disease from possible symptoms, or we try to understand which
 clinical conditions are associated with the disease, possibly because of
 underlying biological reasons.</p>
 <p>We shall now explore first some visual ways to examine associations
-with <strong>prova</strong>, and then some more precise quantitative
+with <strong>Prova</strong>, and then some more precise quantitative
 ways, which also apply when visualization becomes impossible.</p>
 <p><br></p>
 </div>
@@ -117,7 +117,7 @@ ways, which also apply when visualization becomes impossible.</p>
 <div class="section level3">
 <h3 id="setup">Setup<a class="anchor" aria-label="anchor" href="#setup"></a>
 </h3>
-<p>Let’s load the <strong>prova</strong> package, if we haven’t already
+<p>Let’s load the <strong>Prova</strong> package, if we haven’t already
 done so, and set a random seed to ensure reproducibility:</p>
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="st"><a href="https://pglpm.github.io/inferno/" class="external-link">'prova'</a></span><span class="op">)</span></span>
@@ -130,7 +130,7 @@ and above. For your convenience you can download the shuffled dataset as
 the CSV file <a href="https://github.com/pglpm/prova/raw/main/development/downloads/penguin_data.csv" class="external-link"><code>penguin_data.csv</code></a>,
 then load it with the <code><a href="../reference/prova.data.html">read.csvi()</a></code> function as follows:</p>
 <p>We assume that we have already learned all predictive information
-from this dataset by means of the <strong>prova</strong> function
+from this dataset by means of the <strong>Prova</strong> function
 <code><a href="../reference/learn.html">learn()</a></code>. This information is stored in an object stored in
 the compressed file <code>learnt.rds</code> within the output directory
 that was specified in the <code><a href="../reference/learn.html">learn()</a></code> function. For your
@@ -148,7 +148,7 @@ string, in this case) which shall be used in the following analysis.</p>
 </h3>
 <p>Let’s focus on the <code>island</code> and <code>species</code>
 variates. Each variate has three possible values;
-<strong>prova</strong>’s utility function <code><a href="../reference/vrtgrid.html">vrtgrid()</a></code> allows
+<strong>Prova</strong>’s utility function <code><a href="../reference/vrtgrid.html">vrtgrid()</a></code> allows
 us to create a vector of all possible values of each variate, which are
 stored in the metadata of the <code>learnt</code> object:</p>
 <div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
@@ -205,7 +205,7 @@ This example shows the limitations of using sample data for visualizing
 features of the <em>whole</em> population. How would a scatter plot
 analogous to the one above look like, for the <em>whole</em> population
 of for a much larger sample?</p>
-<p>The <strong>prova</strong> package offers the function
+<p>The <strong>Prova</strong> package offers the function
 <code><a href="../reference/rPr.html">rPr()</a></code> to generate a data.frame of fictitious samples from
 the estimated frequencies of the whole population. These samples can be
 used for different purposes, for instance to produce a scatter plot. The
@@ -270,7 +270,7 @@ plot.</p>
 <code><a href="../reference/rPr.html">rPr()</a></code>, and then scatter-plot them with
 <code><a href="../reference/flexiplot.html">flexiplot()</a></code>. First we select an appropriate plot range for
 the continuous variate <code>body_mass</code> by means of
-<strong>prova</strong>’s utility function <code><a href="../reference/vrtgrid.html">vrtgrid()</a></code>: this
+<strong>Prova</strong>’s utility function <code><a href="../reference/vrtgrid.html">vrtgrid()</a></code>: this
 function chooses an optimal value based on, and including, the range of
 data previously observed:</p>
 <div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
@@ -523,7 +523,7 @@ of a communication channel is a strong association between two variates:
 its input and output messages. You can find a brilliant introduction to
 its meaning and uses in MacKay’s book, see <span id="references">references</span>.</p>
 <p><br>
-The <strong>prova</strong> package provides the function
+The <strong>Prova</strong> package provides the function
 <code><a href="../reference/mutualinfo.html">mutualinfo()</a></code> to calculate the mutual information between
 two variates or two sets of joint variates. Its main arguments are the
 following:</p>

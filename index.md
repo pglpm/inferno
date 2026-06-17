@@ -1,7 +1,7 @@
-# ***prova***: Probabilistic-statistical analysis and inference with Bayesian nonparametrics
+# ***Prova***: Probabilistic-statistical analysis and inference with Bayesian nonparametrics
 
 *\[If you’re looking for the package “inferno”, you’ve come to the right
-place! It has been renamed “prova”\]*
+place! It has been renamed “Prova”\]*
 
 ![Ensemble of
 densities](https://github.com/pglpm/prova/raw/main/development/manual/prova_symbol.png)
@@ -46,7 +46,7 @@ least version 1.4.2*, installed. Please follow its [installation
 instructions](https://r-nimble.org/manual/cha-installing-nimble.html)
 for your operating system.
 
-You can then install **prova** in R by using the `remotes` package:
+You can then install **Prova** in R by using the `remotes` package:
 
     remotes::install_github('pglpm/prova')
 
@@ -68,8 +68,8 @@ R-dependencies.
 ## Documentation
 
 The vignette [*Bayesian nonparametric inference with
-**prova***](https://pglpm.github.io/prova/articles/start.html) is a
-step-by-step introduction to **prova** and also to Bayesian
+**Prova***](https://pglpm.github.io/prova/articles/start.html) is a
+step-by-step introduction to **Prova** and also to Bayesian
 nonparametrics. It guides you through a concrete example with various
 kinds of inferences. You may also try to follow it using a dataset of
 your own.
@@ -89,10 +89,10 @@ For a low-level course on Bayesian nonparametric inference and Decision
 Theory see [Foundations of data
 science](https://pglpm.github.io/ADA511).
 
-## **prova** App
+## **Prova** App
 
-An application has been built upon **prova**. This app can be used for
-testing out the features of **prova** with just a few button clicks,
+An application has been built upon **Prova**. This app can be used for
+testing out the features of **Prova** with just a few button clicks,
 without having to write any code in R yourself.
 
 ### Desktop Application
@@ -124,7 +124,7 @@ without having to write any code in R yourself.
 - [*Calibrated and uncertain? Evaluating uncertainty estimates in binary
   classification models*](https://doi.org/10.1088/2632-2153/ae45ed)
 
-Projects using **prova**:
+Projects using **Prova**:
 
 - [InfernoCalibNet](https://m4siko.github.io/InfernoCalibNet).
 - [parkinsonbayes](https://github.com/pglpm/parkinsonbayes).

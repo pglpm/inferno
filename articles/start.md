@@ -1,9 +1,9 @@
-# Probabilistic-statistical analysis with prova
+# Probabilistic-statistical analysis with Prova
 
 This vignette gives an introduction and guide to the kinds of *Bayesian
-nonparametric inference* that can be done with **prova**, by means of a
+nonparametric inference* that can be done with **Prova**, by means of a
 concrete example. It also has the purpose to clarify the terminology
-used in the **prova** package.
+used in the **Prova** package.
 
   
 
@@ -47,7 +47,7 @@ Two extremely important warnings before you follow the example:
   
 You’re now welcome to open R in your favourite integrated development
 environment, choose a directory to work in, and test the code that
-follows. Let’s start by loading the **prova** package:
+follows. Let’s start by loading the **Prova** package:
 
 ``` r
 
@@ -75,7 +75,7 @@ write.csvi(penguin, file = 'penguin_data.csv')
 The utility function
 [`write.csvi()`](https://pglpm.github.io/prova/reference/prova.data.md)
 saves the dataset as a CSV file that respects the [formatting rules
-required by **prova**](#format).
+required by **Prova**](#format).
 
 We assume that you now have the `penguin_data.csv` file.
 
@@ -238,7 +238,7 @@ another vignette.
 
 We receive the first 10 samples from our sampling survey and store them
 in the file `penguin_data10.csv`, respecting the [formatting rules
-required by **prova**](#format):
+required by **Prova**](#format):
 
 ``` r
 
@@ -266,12 +266,12 @@ samples may be different.
 
 In the data above, samples \#1 and \#6 have one or more missing
 variates. But incomplete data are not a problem: inferences can still be
-performed from them, because Bayesian methods and **prova**
+performed from them, because Bayesian methods and **Prova**
 automatically perform *imputation* of missing data, and they do so in a
 principled way (via the marginalization rule of probability theory).
 
 With these datapoints we start our Bayesian nonparametric analysis using
-**prova**!
+**Prova**!
 
 There are now two preliminary steps, which we must usually follow to
 perform an analysis:
@@ -293,7 +293,7 @@ population:
 
 - Variate type (`type`):
 
-  **prova** can handle three kinds of variates:
+  **Prova** can handle three kinds of variates:
 
   - `nominal`: it can take on a finite number of discrete values, which
     do not have any natural ordering. Examples could be sex or
@@ -308,8 +308,8 @@ population:
     Examples could be age or weight.
 
   Many other types of variates exist. For example images and audio are
-  also types of variates; but **prova** cannot handle these complex
-  types. A simple type of variate that **prova** cannot properly handle
+  also types of variates; but **Prova** cannot handle these complex
+  types. A simple type of variate that **Prova** cannot properly handle
   is the *cyclic* one, such as time of day. There are no clear-cut
   separations between different types of variates; thus it’s sometimes
   difficult to assess the type.
@@ -363,20 +363,20 @@ population:
   it otherwise. The metadata file can contain further empty **V…**
   columns.
 
-#### Why does **prova** need metadata?
+#### Why does **Prova** need metadata?
 
 Because it performs *nonparametric* inference. In other words, it does
 not assume the frequency distribution of the variates in the whole
 population to have any specific class of shapes, such as a Gaussians;
 nor does it assume any functional relation at all, as instead is the
 case for, say, linear regression. Bayesian nonparametric population
-inference and **prova** try to extrapolate the frequency distribution of
+inference and **Prova** try to extrapolate the frequency distribution of
 the whole population from the sample data provided. We must therefore
-provide to **prova** the same general information that we ourselves have
+provide to **Prova** the same general information that we ourselves have
 about the variates, and about any artificial modifications performed on
 their values, such as rounding or pooling.
 
-In order to prepare the metadata file we can use **prova**’s
+In order to prepare the metadata file we can use **Prova**’s
 [`metadatatemplate()`](https://pglpm.github.io/prova/reference/metadatatemplate.md)
 helper function. This function reads the sample data and prepares a
 preliminary file containing heuristic *guesses* about the metadata. We
@@ -494,7 +494,7 @@ The `year` variate is correctly classified as ordinal, with values
 between 2007 and 2009. If the sampling had a later end date, we would
 correct the 2009 value. The `year` variate could alternatively be
 considered continuous and rounded; in the present case this alternative
-classification wouldn’t affect our inferences: **prova** treats this
+classification wouldn’t affect our inferences: **Prova** treats this
 kind of ambiguous cases in the same way.
 
 Also the `sex` variate is correctly guessed: `nominal` type with
@@ -526,7 +526,7 @@ file, also available for download as
 ### “Learning” and extrapolating from the sample data
 
 Now comes the essential part of our analysis: from the sample data and
-the metadata information,**prova** will draw inferences about the
+the metadata information,**Prova** will draw inferences about the
 *whole* population of penguins, including new penguins (from the same
 population) that we shall observe in the future. Subsequent analyses are
 based on this main inference. The general theory behind this kind of
@@ -662,7 +662,7 @@ relative frequencies of the three species in the whole population are
 unknown to us, so we cannot give a simple answer such as,
 hypothetically, “Adélie: 0.10, Chinstrap: 0.34, Gentoo: 0.56”.
 
-Bayesian nonparametrics and **prova** give a first answer to this
+Bayesian nonparametrics and **Prova** give a first answer to this
 question in the form of:
 
 - an *estimate* of the whole-population frequency distribution,
@@ -894,7 +894,7 @@ For example, we could be interested in `species` (three values) and
 `sex` (two values) jointly, and wonder what the relative frequencies of
 all six possibilities – `Adelie` and `female`, `Adelie` and `male`,
 `Chinstrap` and `female`, and so on – could be. This can also be done
-with **prova**, with any number of variates. For the moment we only show
+with **Prova**, with any number of variates. For the moment we only show
 the example code for such an analysis:
 
 ``` r
@@ -904,7 +904,7 @@ the example code for such an analysis:
 Y2 <- expand.grid(
     species = c('Adelie', 'Chinstrap', 'Gentoo'),
     sex = c('female', 'male'),
-    stringsAsFactors = FALSE ## important! prova doesn't use factors
+    stringsAsFactors = FALSE ## important! Prova doesn't use factors
 )
 
 Fspeciessex10 <- Pr(
@@ -960,7 +960,7 @@ obtained through a complete census of the **subpopulation** or
 **subgroup** of penguins who live on Biscoe. We are therefore speaking
 about a **conditional frequencies** and **conditional probabilities**.
 
-Bayesian nonparametrics and **prova** can also draw this kind of
+Bayesian nonparametrics and **Prova** can also draw this kind of
 inferences. We use again the
 [`Pr()`](https://pglpm.github.io/prova/reference/Pr.md) function, but
 this time we supply an additional `X` argument, which tells which
@@ -1163,7 +1163,7 @@ We may be interested in the frequencies of the three species in more
 complex subpopulations, for example the subpopulation of female penguins
 living on Biscoe island; in other words, penguins with `island` variate
 equal to `'Biscoe'`, and `sex` variate equal to `'female'`. These cases
-are also easily handled by **prova**, for any combination of
+are also easily handled by **Prova**, for any combination of
 subpopulations. The procedure is analogous to the one we [previously
 discussed](#twovariates) very briefly.
 
@@ -1176,7 +1176,7 @@ Also in this case we only show the example code for the moment:
 X2 <- expand.grid(
     island = c('Biscoe', 'Dream', 'Torgersen'),
     sex = c('female', 'male'),
-    stringsAsFactors = FALSE ## important! prova doesn't use factors
+    stringsAsFactors = FALSE ## important! Prova doesn't use factors
 )
 
 Fspecies10IS <- Pr(
@@ -1227,7 +1227,7 @@ write.csvi(penguin[1:60, ], datafile) ## write the first 60 samples
 
 Feel free to take a look at your extended sample data. There may be new
 datapoints with missing values, but as already discussed this isn’t a
-problem for Bayesian theory and **prova**.
+problem for Bayesian theory and **Prova**.
 
 Let’s now update our inferences with the new sampled data. This is done
 again with the
@@ -1807,7 +1807,7 @@ analyses. We are essentially asking about frequency estimates of some
 variates in particular subpopulations; for instance frequencies of the
 three species among penguins living in one or another island. These
 kinds of inference are straightforward with Bayesian theory and
-**prova**. As examples partly different from the previous ones, let’s
+**Prova**. As examples partly different from the previous ones, let’s
 focus on these three:
 
 - **Q2a** *What are the relative frequencies of the three species, on
@@ -2061,7 +2061,7 @@ outside each other’s 89%-credibility interval.
 - Lindley, Novick: [*The role of exchangeability in
   inference*](https://doi.org/10.1214/aos/1176345331) (1981).
 
-- **prova** accompanying manual: [*Foundations of inference under
+- **Prova** accompanying manual: [*Foundations of inference under
   symmetry*](https://github.com/pglpm/prova/raw/main/development/manual/optimal_predictor_machine.pdf)
   (draft).
 
@@ -2089,7 +2089,7 @@ outside each other’s 89%-credibility interval.
 
 ### Format for data and metadata files and their contents
 
-The functions of the **prova** package accept CSV files formatted as
+The functions of the **Prova** package accept CSV files formatted as
 follows:
 
 - Decimal values should be separated by a *dot*; no comma should be used

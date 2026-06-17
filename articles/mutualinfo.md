@@ -1,7 +1,7 @@
 # Associations among variates and mutual information
 
 This vignette gives an introduction and guide to the visual and
-quantitative capabilities and functions of the **prova** package, for
+quantitative capabilities and functions of the **Prova** package, for
 the study of associations, correlations, and links.
 
 See the
@@ -48,7 +48,7 @@ try to understand which clinical conditions are associated with the
 disease, possibly because of underlying biological reasons.
 
 We shall now explore first some visual ways to examine associations with
-**prova**, and then some more precise quantitative ways, which also
+**Prova**, and then some more precise quantitative ways, which also
 apply when visualization becomes impossible.
 
   
@@ -57,7 +57,7 @@ apply when visualization becomes impossible.
 
 ### Setup
 
-Let’s load the **prova** package, if we haven’t already done so, and set
+Let’s load the **Prova** package, if we haven’t already done so, and set
 a random seed to ensure reproducibility:
 
 ``` r
@@ -80,7 +80,7 @@ then load it with the
 function as follows:
 
 We assume that we have already learned all predictive information from
-this dataset by means of the **prova** function
+this dataset by means of the **Prova** function
 [`learn()`](https://pglpm.github.io/prova/reference/learn.md). This
 information is stored in an object stored in the compressed file
 `learnt.rds` within the output directory that was specified in the
@@ -102,7 +102,7 @@ case) which shall be used in the following analysis.
 ### Generating new samples
 
 Let’s focus on the `island` and `species` variates. Each variate has
-three possible values; **prova**’s utility function
+three possible values; **Prova**’s utility function
 [`vrtgrid()`](https://pglpm.github.io/prova/reference/vrtgrid.md) allows
 us to create a vector of all possible values of each variate, which are
 stored in the metadata of the `learnt` object:
@@ -176,7 +176,7 @@ features of the *whole* population. How would a scatter plot analogous
 to the one above look like, for the *whole* population of for a much
 larger sample?
 
-The **prova** package offers the function
+The **Prova** package offers the function
 [`rPr()`](https://pglpm.github.io/prova/reference/rPr.md) to generate a
 data.frame of fictitious samples from the estimated frequencies of the
 whole population. These samples can be used for different purposes, for
@@ -245,7 +245,7 @@ We generate 2000 whole-population samples of the two variates with
 scatter-plot them with
 [`flexiplot()`](https://pglpm.github.io/prova/reference/flexiplot.md).
 First we select an appropriate plot range for the continuous variate
-`body_mass` by means of **prova**’s utility function
+`body_mass` by means of **Prova**’s utility function
 [`vrtgrid()`](https://pglpm.github.io/prova/reference/vrtgrid.md): this
 function chooses an optimal value based on, and including, the range of
 data previously observed:
@@ -502,7 +502,7 @@ its input and output messages. You can find a brilliant introduction to
 its meaning and uses in MacKay’s book, see references.
 
   
-The **prova** package provides the function
+The **Prova** package provides the function
 [`mutualinfo()`](https://pglpm.github.io/prova/reference/mutualinfo.md)
 to calculate the mutual information between two variates or two sets of
 joint variates. Its main arguments are the following:

@@ -5,12 +5,12 @@
 <meta charset="utf-8">
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-<title>Probabilistic-statistical analysis with prova • prova</title>
+<title>Probabilistic-statistical analysis with Prova • prova</title>
 <script src="../deps/jquery-3.6.0/jquery-3.6.0.min.js"></script><meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 <link href="../deps/bootstrap-5.3.8/bootstrap.min.css" rel="stylesheet">
 <script src="../deps/bootstrap-5.3.8/bootstrap.bundle.min.js"></script><link href="../deps/font-awesome-6.5.2/css/all.min.css" rel="stylesheet">
 <link href="../deps/font-awesome-6.5.2/css/v4-shims.min.css" rel="stylesheet">
-<script src="../deps/headroom-0.11.0/headroom.min.js"></script><script src="../deps/headroom-0.11.0/jQuery.headroom.min.js"></script><script src="../deps/bootstrap-toc-1.0.1/bootstrap-toc.min.js"></script><script src="../deps/clipboard.js-2.0.11/clipboard.min.js"></script><script src="../deps/search-1.0.0/autocomplete.jquery.min.js"></script><script src="../deps/search-1.0.0/fuse.min.js"></script><script src="../deps/search-1.0.0/mark.min.js"></script><!-- pkgdown --><script src="../pkgdown.js"></script><meta property="og:title" content="Probabilistic-statistical analysis with prova">
+<script src="../deps/headroom-0.11.0/headroom.min.js"></script><script src="../deps/headroom-0.11.0/jQuery.headroom.min.js"></script><script src="../deps/bootstrap-toc-1.0.1/bootstrap-toc.min.js"></script><script src="../deps/clipboard.js-2.0.11/clipboard.min.js"></script><script src="../deps/search-1.0.0/autocomplete.jquery.min.js"></script><script src="../deps/search-1.0.0/fuse.min.js"></script><script src="../deps/search-1.0.0/mark.min.js"></script><!-- pkgdown --><script src="../pkgdown.js"></script><meta property="og:title" content="Probabilistic-statistical analysis with Prova">
 </head>
 <body>
     <a href="#main" class="visually-hidden-focusable">Skip to contents</a>
@@ -34,7 +34,7 @@
   <button class="nav-link dropdown-toggle" type="button" id="dropdown-articles" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Articles</button>
   <ul class="dropdown-menu" aria-labelledby="dropdown-articles">
 <li><a class="dropdown-item" href="../articles/mutualinfo.html">Associations among variates and mutual information</a></li>
-    <li><a class="dropdown-item" href="../articles/start.html">Probabilistic-statistical analysis with prova</a></li>
+    <li><a class="dropdown-item" href="../articles/start.html">Probabilistic-statistical analysis with Prova</a></li>
   </ul>
 </li>
       </ul>
@@ -56,7 +56,7 @@
 <div class="row">
   <main id="main" class="col-md-9"><div class="page-header">
 
-      <h1>Probabilistic-statistical analysis with prova</h1>
+      <h1>Probabilistic-statistical analysis with Prova</h1>
             
       
       <small class="dont-index">Source: <a href="https://github.com/pglpm/inferno/blob/main/vignettes/start.Rmd" class="external-link"><code>vignettes/start.Rmd</code></a></small>
@@ -67,8 +67,8 @@
     
 <p>This vignette gives an introduction and guide to the kinds of
 <em>Bayesian nonparametric inference</em> that can be done with
-<strong>prova</strong>, by means of a concrete example. It also has the
-purpose to clarify the terminology used in the <strong>prova</strong>
+<strong>Prova</strong>, by means of a concrete example. It also has the
+purpose to clarify the terminology used in the <strong>Prova</strong>
 package.</p>
 <p><br></p>
 <div class="section level2">
@@ -111,7 +111,7 @@ methodology.</p></li>
 <p><br>
 You’re now welcome to open R in your favourite integrated development
 environment, choose a directory to work in, and test the code that
-follows. Let’s start by loading the <strong>prova</strong> package:</p>
+follows. Let’s start by loading the <strong>Prova</strong> package:</p>
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="st"><a href="https://pglpm.github.io/inferno/" class="external-link">'prova'</a></span><span class="op">)</span></span></code></pre></div>
 <p>In our example we shall use data from the
@@ -129,7 +129,7 @@ Otherwise you can create such file from R 4.5.0 or above as follows:</p>
 <span><span class="fu"><a href="../reference/prova.data.html">write.csvi</a></span><span class="op">(</span><span class="va">penguin</span>, file <span class="op">=</span> <span class="st">'penguin_data.csv'</span><span class="op">)</span></span></code></pre></div>
 <p>The utility function <code><a href="../reference/prova.data.html">write.csvi()</a></code> saves the dataset as a
 CSV file that respects the <a href="#format">formatting rules required
-by <strong>prova</strong></a>.</p>
+by <strong>Prova</strong></a>.</p>
 <p>We assume that you now have the <code>penguin_data.csv</code>
 file.</p>
 <p><br></p>
@@ -302,7 +302,7 @@ We make this assumption in order to avoid trends, which we’ll discuss in
 another vignette.</p>
 <p>We receive the first 10 samples from our sampling survey and store
 them in the file <code>penguin_data10.csv</code>, respecting the <a href="#format">formatting rules required by
-<strong>prova</strong></a>:</p>
+<strong>Prova</strong></a>:</p>
 <div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">datafile</span> <span class="op">&lt;-</span> <span class="st">'penguin_data10.csv'</span></span>
 <span><span class="fu"><a href="../reference/prova.data.html">write.csvi</a></span><span class="op">(</span><span class="va">penguin</span><span class="op">[</span><span class="fl">1</span><span class="op">:</span><span class="fl">10</span>, <span class="op">]</span>, <span class="va">datafile</span><span class="op">)</span> <span class="co">## write the first 10 samples</span></span></code></pre></div>
@@ -447,12 +447,12 @@ them in the file <code>penguin_data10.csv</code>, respecting the <a href="#forma
 first 10 samples may be different.</p>
 <p>In the data above, samples #1 and #6 have one or more missing
 variates. But incomplete data are not a problem: inferences can still be
-performed from them, because Bayesian methods and <strong>prova</strong>
+performed from them, because Bayesian methods and <strong>Prova</strong>
 automatically perform <em>imputation</em> of missing data, and they do
 so in a principled way (via the marginalization rule of probability
 theory).</p>
 <p>With these datapoints we start our Bayesian nonparametric analysis
-using <strong>prova</strong>!</p>
+using <strong>Prova</strong>!</p>
 <p>There are now two preliminary steps, which we must usually follow to
 perform an analysis:</p>
 <ol style="list-style-type: decimal">
@@ -478,7 +478,7 @@ should obviously have different names.
 </dd>
 <dt>Variate type (<code>type</code>)</dt>
 <dd>
-<strong>prova</strong> can handle three kinds of variates:
+<strong>Prova</strong> can handle three kinds of variates:
 <ul>
 <li>
 <code>nominal</code>: it can take on a finite number of discrete
@@ -496,8 +496,8 @@ number of continuous values, although they can be discretized or
 rounded. Examples could be age or weight.</li>
 </ul>
 Many other types of variates exist. For example images and audio are
-also types of variates; but <strong>prova</strong> cannot handle these
-complex types. A simple type of variate that <strong>prova</strong>
+also types of variates; but <strong>Prova</strong> cannot handle these
+complex types. A simple type of variate that <strong>Prova</strong>
 cannot properly handle is the <em>cyclic</em> one, such as time of day.
 There are no clear-cut separations between different types of variates;
 thus it’s sometimes difficult to assess the type.
@@ -554,21 +554,21 @@ contain further empty <strong>V…</strong> columns.
 </dd>
 </dl>
 <div class="section level4">
-<h4 id="why-does-prova-need-metadata">Why does <strong>prova</strong> need metadata?<a class="anchor" aria-label="anchor" href="#why-does-prova-need-metadata"></a>
+<h4 id="why-does-prova-need-metadata">Why does <strong>Prova</strong> need metadata?<a class="anchor" aria-label="anchor" href="#why-does-prova-need-metadata"></a>
 </h4>
 <p>Because it performs <em>nonparametric</em> inference. In other words,
 it does not assume the frequency distribution of the variates in the
 whole population to have any specific class of shapes, such as a
 Gaussians; nor does it assume any functional relation at all, as instead
 is the case for, say, linear regression. Bayesian nonparametric
-population inference and <strong>prova</strong> try to extrapolate the
+population inference and <strong>Prova</strong> try to extrapolate the
 frequency distribution of the whole population from the sample data
-provided. We must therefore provide to <strong>prova</strong> the same
+provided. We must therefore provide to <strong>Prova</strong> the same
 general information that we ourselves have about the variates, and about
 any artificial modifications performed on their values, such as rounding
 or pooling.</p>
 <p>In order to prepare the metadata file we can use
-<strong>prova</strong>’s <code><a href="../reference/metadatatemplate.html">metadatatemplate()</a></code> helper
+<strong>Prova</strong>’s <code><a href="../reference/metadatatemplate.html">metadatatemplate()</a></code> helper
 function. This function reads the sample data and prepares a preliminary
 file containing heuristic <em>guesses</em> about the metadata. We must
 then check and correct this file. The function motivates its guesses and
@@ -872,7 +872,7 @@ with values between 2007 and 2009. If the sampling had a later end date,
 we would correct the 2009 value. The <code>year</code> variate could
 alternatively be considered continuous and rounded; in the present case
 this alternative classification wouldn’t affect our inferences:
-<strong>prova</strong> treats this kind of ambiguous cases in the same
+<strong>Prova</strong> treats this kind of ambiguous cases in the same
 way.</p>
 <p>Also the <code>sex</code> variate is correctly guessed:
 <code>nominal</code> type with possible values <code>'female'</code> and
@@ -1018,7 +1018,7 @@ as <a href="https://github.com/pglpm/prova/raw/main/development/downloads/pengui
 <h3 id="learningfirst">“Learning” and extrapolating from the sample data<a class="anchor" aria-label="anchor" href="#learningfirst"></a>
 </h3>
 <p>Now comes the essential part of our analysis: from the sample data
-and the metadata information,<strong>prova</strong> will draw inferences
+and the metadata information,<strong>Prova</strong> will draw inferences
 about the <em>whole</em> population of penguins, including new penguins
 (from the same population) that we shall observe in the future.
 Subsequent analyses are based on this main inference. The general theory
@@ -1149,7 +1149,7 @@ overall statistical occurrence of the three species in the whole
 population? The relative frequencies of the three species in the whole
 population are unknown to us, so we cannot give a simple answer such as,
 hypothetically, “Adélie: 0.10, Chinstrap: 0.34, Gentoo: 0.56”.</p>
-<p>Bayesian nonparametrics and <strong>prova</strong> give a first
+<p>Bayesian nonparametrics and <strong>Prova</strong> give a first
 answer to this question in the form of:</p>
 <ul>
 <li>an <em>estimate</em> of the whole-population frequency
@@ -1372,7 +1372,7 @@ same time? For example, we could be interested in <code>species</code>
 what the relative frequencies of all six possibilities –
 <code>Adelie</code> and <code>female</code>, <code>Adelie</code> and
 <code>male</code>, <code>Chinstrap</code> and <code>female</code>, and
-so on – could be. This can also be done with <strong>prova</strong>,
+so on – could be. This can also be done with <strong>Prova</strong>,
 with any number of variates. For the moment we only show the example
 code for such an analysis:</p>
 <div class="sourceCode" id="cb13"><pre class="downlit sourceCode r">
@@ -1381,7 +1381,7 @@ code for such an analysis:</p>
 <span><span class="va">Y2</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/expand.grid.html" class="external-link">expand.grid</a></span><span class="op">(</span></span>
 <span>    species <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">'Adelie'</span>, <span class="st">'Chinstrap'</span>, <span class="st">'Gentoo'</span><span class="op">)</span>,</span>
 <span>    sex <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">'female'</span>, <span class="st">'male'</span><span class="op">)</span>,</span>
-<span>    stringsAsFactors <span class="op">=</span> <span class="cn">FALSE</span> <span class="co">## important! prova doesn't use factors</span></span>
+<span>    stringsAsFactors <span class="op">=</span> <span class="cn">FALSE</span> <span class="co">## important! Prova doesn't use factors</span></span>
 <span><span class="op">)</span></span>
 <span></span>
 <span><span class="va">Fspeciessex10</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/Pr.html">Pr</a></span><span class="op">(</span></span>
@@ -1435,7 +1435,7 @@ complete census of the <strong>subpopulation</strong> or
 <strong>subgroup</strong> of penguins who live on Biscoe. We are
 therefore speaking about a <strong>conditional frequencies</strong> and
 <strong>conditional probabilities</strong>.</p>
-<p>Bayesian nonparametrics and <strong>prova</strong> can also draw this
+<p>Bayesian nonparametrics and <strong>Prova</strong> can also draw this
 kind of inferences. We use again the <code><a href="../reference/Pr.html">Pr()</a></code> function, but
 this time we supply an additional <code>X</code> argument, which tells
 which subpopulations we want to focus on. For simplicity, let’s say that
@@ -1611,7 +1611,7 @@ complex subpopulations, for example the subpopulation of female penguins
 living on Biscoe island; in other words, penguins with
 <code>island</code> variate equal to <code>'Biscoe'</code>, and
 <code>sex</code> variate equal to <code>'female'</code>. These cases are
-also easily handled by <strong>prova</strong>, for any combination of
+also easily handled by <strong>Prova</strong>, for any combination of
 subpopulations. The procedure is analogous to the one we <a href="#twovariates">previously discussed</a> very briefly.</p>
 <p>Also in this case we only show the example code for the moment:</p>
 <div class="sourceCode" id="cb20"><pre class="downlit sourceCode r">
@@ -1620,7 +1620,7 @@ subpopulations. The procedure is analogous to the one we <a href="#twovariates">
 <span><span class="va">X2</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/expand.grid.html" class="external-link">expand.grid</a></span><span class="op">(</span></span>
 <span>    island <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">'Biscoe'</span>, <span class="st">'Dream'</span>, <span class="st">'Torgersen'</span><span class="op">)</span>,</span>
 <span>    sex <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">'female'</span>, <span class="st">'male'</span><span class="op">)</span>,</span>
-<span>    stringsAsFactors <span class="op">=</span> <span class="cn">FALSE</span> <span class="co">## important! prova doesn't use factors</span></span>
+<span>    stringsAsFactors <span class="op">=</span> <span class="cn">FALSE</span> <span class="co">## important! Prova doesn't use factors</span></span>
 <span><span class="op">)</span></span>
 <span></span>
 <span><span class="va">Fspecies10IS</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/Pr.html">Pr</a></span><span class="op">(</span></span>
@@ -1667,7 +1667,7 @@ the file <code>penguin_data60.csv</code>:</p>
 <span><span class="fu"><a href="../reference/prova.data.html">write.csvi</a></span><span class="op">(</span><span class="va">penguin</span><span class="op">[</span><span class="fl">1</span><span class="op">:</span><span class="fl">60</span>, <span class="op">]</span>, <span class="va">datafile</span><span class="op">)</span> <span class="co">## write the first 60 samples</span></span></code></pre></div>
 <p>Feel free to take a look at your extended sample data. There may be
 new datapoints with missing values, but as already discussed this isn’t
-a problem for Bayesian theory and <strong>prova</strong>.</p>
+a problem for Bayesian theory and <strong>Prova</strong>.</p>
 <p>Let’s now update our inferences with the new sampled data. This is
 done again with the <code><a href="../reference/learn.html">learn()</a></code> function. <em>Please wait
 before running this code</em>, it might take longer time on your
@@ -2173,7 +2173,7 @@ lead to many diverse analyses. We are essentially asking about frequency
 estimates of some variates in particular subpopulations; for instance
 frequencies of the three species among penguins living in one or another
 island. These kinds of inference are straightforward with Bayesian
-theory and <strong>prova</strong>. As examples partly different from the
+theory and <strong>Prova</strong>. As examples partly different from the
 previous ones, let’s focus on these three:</p>
 <ul>
 <li>
@@ -2400,7 +2400,7 @@ theorem on exchangeable variables</em></a> (1976).</p></li>
 measures on Cartesian products</em></a> (1955).</p></li>
 <li><p>Lindley, Novick: <a href="https://doi.org/10.1214/aos/1176345331" class="external-link"><em>The role of
 exchangeability in inference</em></a> (1981).</p></li>
-<li><p><strong>prova</strong> accompanying manual: <a href="https://github.com/pglpm/prova/raw/main/development/manual/optimal_predictor_machine.pdf" class="external-link"><em>Foundations
+<li><p><strong>Prova</strong> accompanying manual: <a href="https://github.com/pglpm/prova/raw/main/development/manual/optimal_predictor_machine.pdf" class="external-link"><em>Foundations
 of inference under symmetry</em></a> (draft).</p></li>
 </ul>
 </div>
@@ -2433,7 +2433,7 @@ ed. 2014).</p></li>
 <div class="section level3">
 <h3 id="format">Format for data and metadata files and their contents<a class="anchor" aria-label="anchor" href="#format"></a>
 </h3>
-<p>The functions of the <strong>prova</strong> package accept CSV files
+<p>The functions of the <strong>Prova</strong> package accept CSV files
 formatted as follows:</p>
 <ul>
 <li>Decimal values should be separated by a <em>dot</em>; no comma
