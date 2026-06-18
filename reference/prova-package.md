@@ -1,4 +1,4 @@
-# prova: Probabilistic-statistical analysis and inference with Bayesian nonparametrics
+# prova: Probabilistic-statistical variate analysis and inference with Bayesian nonparametrics
 
 Functions for Bayesian nonparametric statistical inference.
 
