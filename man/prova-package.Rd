@@ -4,7 +4,7 @@
 \name{prova-package}
 \alias{prova}
 \alias{prova-package}
-\title{prova: Probabilistic-statistical analysis and inference with Bayesian nonparametrics}
+\title{prova: Probabilistic-statistical variate analysis and inference with Bayesian nonparametrics}
 \description{
 Functions for Bayesian nonparametric statistical inference.
 }
