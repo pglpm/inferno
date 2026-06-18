@@ -1,0 +1,3 @@
+name,type,domainmin,domainmax,datastep,minincluded,maxincluded,V1,V2,V3
+species,nominal,,,,,,Adelie,Chinstrap,Gentoo
+bill_len,continuous,0,,0.1,,,,,
