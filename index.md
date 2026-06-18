@@ -6,6 +6,13 @@ place! It has been renamed “Prova”\]*
 ![Ensemble of
 densities](https://github.com/pglpm/prova/raw/main/development/manual/prova_symbol.png)
 
+“prova” /’prɔva/ (Italian) -
+[(noun)](https://dictionary.cambridge.org/dictionary/italian-english/prova):
+test, trial, assessment, proof, evidence, sign, indication, try,
+attempt. -
+[(verb)](https://dictionary.cambridge.org/dictionary/italian-english/provare):
+test!, try out!, assess!, attempt!, prove! demonstrate!, show!
+
 This repository provides an R package and some theoretical background
 for *Bayesian nonparametric population inference*, which can also be
 called “inference under exchangeability” or “density inference”. The
