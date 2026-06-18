@@ -16,6 +16,17 @@
 #'
 #' @return A list of class `probability`, consisting of the elements `values`,  `quantiles` (possibly `NULL`), `samples` (possibly `NULL`), `values.MCaccuracy`, `quantiles.MCaccuracy` (possibly `NULL`), `Y`, `X`. Element `values`: a matrix with the probabilities P(Y|X,data,assumptions), for all combinations of values of `Y` (rows) and `X` (columns). Element `quantiles`: an array with the variability quantiles (3rd dimension of the array) for such probabilities. Element `samples`: an array with the variability samples (3rd dimension of the array) for such probabilities. Elements `values.MCaccuracy` and `quantiles.MCaccuracy`: arrays with the numerical accuracies (roughly speaking a standard deviation) of the Monte Carlo calculations for the `values` and `quantiles` elements. Elements `Y`, `X`: copies of the `Y` and `X` arguments.
 #'
+#' @references
+#' E. T. Jaynes: *Probability Theory: The Logic of Science*. Cambridge University Press, 2003 <doi:10.1017/CBO9780511790423>.
+#'
+#' J.-M. Bernardo, A. F. Smith: *Bayesian Theory*. Wiley, 2000 <doi:10.1002/9780470316870>.
+#'
+#' D. J. C. MacKay: *Information Theory, Inference, and Learning Algorithms*. Cambridge University Press, 2005 <https://www.inference.org.uk/itila/book.html>.
+#'
+#'
+#' @examples
+#'
+#'
 #' @import parallel
 #'
 #' @export
