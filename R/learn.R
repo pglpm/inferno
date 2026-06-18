@@ -47,9 +47,12 @@
 #' dataset <- data.frame(V = rnorm(n = 10))
 #'
 #' ## Create metadatafile
-#' metadata <- data.frame(
-#'     name = 'V',
-#'     type = 'continuous'
+#' metadata <- data.frame(name = 'V', type = 'continuous')
+#'
+#' ## Learn from the data
+#' learnt <- learn(
+#'   data = dataset,
+#'   metadata = metadata
 #' )
 #'
 #' @import parallel
