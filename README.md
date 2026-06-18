@@ -7,7 +7,7 @@
 - [(verb)](https://dictionary.cambridge.org/dictionary/italian-english/provare): test!, try out!, assess!, attempt!, prove! demonstrate!, show!
 
 
-# ***Prova***: Probabilistic-statistical analysis and inference with Bayesian nonparametrics
+# ***Prova***: Probabilistic-statistical variate analysis and inference with Bayesian nonparametrics
 
 This repository provides an R package and some theoretical background for *Bayesian nonparametric population inference*, which can also be called "inference under exchangeability" or "density inference". The package is especially apt for the study of statistics and associations of subpopulations or subgroups. The [introductory vignette](https://pglpm.github.io/prova/articles/start.html) explains with an example the main ideas and functions, in particular for researchers who are more familiar with traditional "frequentist" statistics but would like to try the Bayesian approach; see the [post](https://www.apadivisions.org/division-7/publications/newsletters/developmental/2018/07/bayesian-statistics) by Barbara W. Sarnecka, frequentist statistician turned Bayesian, for a brilliant overview of the Bayesian advantages.
 

@@ -1,5 +1,5 @@
 Package: prova
-Title: Probabilistic-statistical analysis and inference with Bayesian nonparametrics
+Title: Probabilistic-statistical variate analysis and inference with Bayesian nonparametrics
 Version: 0.6.0
 Authors@R: c(
   person("PierGianLuca", "Porta Mana", ,
