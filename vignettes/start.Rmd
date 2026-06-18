@@ -289,7 +289,7 @@ Also the `sex` variate is correctly guessed: `nominal` type with possible values
 \
 The guesses about the `flipper_len` and `body_mass` variates are not correct, however: these variates are continuous, with a minimal value of `0` and no maximal value. They are rounded to `1` mm and `25` g (this was correctly guessed).
 
-We must open the preliminary metadata file `penguin_metadata.csv` with our favourite editor, and correct and complete the guesses of the helper function. In this case we end up with the following corrected metadata file, also available for download as [`penguin_data.csv`](https://github.com/pglpm/prova/raw/main/development/downloads/penguin_metadata.csv):
+We must open the preliminary metadata file `penguin_metadata.csv` with our favourite editor, and correct and complete the guesses of the helper function. In this case we end up with the following corrected metadata file, also available for download as [`penguin_metadata.csv`](https://github.com/pglpm/prova/raw/main/development/downloads/penguin_metadata.csv):
 
 
 
@@ -1408,8 +1408,6 @@ colnames(X) <- Xvrt
 
 ## NB: rewriting the previous 'Fanalysis' object
 Fanalysis <- Pr(Y = Y, X = X, learnt = learntall, parallel = 4)
-# Error in `checkForRemoteErrors()`:
-# ! 4 nodes produced errors; first error: Non-numeric argument to mathematical function
 ```
 Here is the estimated frequency distribution of body mass within each species
 
