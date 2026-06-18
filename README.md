@@ -2,9 +2,9 @@
 
 <img src="https://github.com/pglpm/prova/raw/main/development/manual/prova_symbol.png" alt="Ensemble of densities" width="100%"/>
 
-["prova"](https://dictionary.cambridge.org/dictionary/italian-english/prova) /'prɔva/ (Italian)
-- (noun): test, trial, assessment, proof, evidence, sign, indication, try, attempt.
-- (verb): test!, try out!, assess!, attempt!, prove! demonstrate!, show!
+"prova" /'prɔva/ (Italian)
+- [(noun)](https://dictionary.cambridge.org/dictionary/italian-english/prova): test, trial, assessment, proof, evidence, sign, indication, try, attempt.
+- [(verb)](https://dictionary.cambridge.org/dictionary/italian-english/provare): test!, try out!, assess!, attempt!, prove! demonstrate!, show!
 
 
 # ***Prova***: Probabilistic-statistical analysis and inference with Bayesian nonparametrics
