@@ -4,5 +4,5 @@
 
 - [Associations among variates and mutual
   information](https://pglpm.github.io/prova/articles/mutualinfo.md):
-- [Probabilistic-statistical analysis with
+- [Probabilistic-statistical variate analysis with
   Prova](https://pglpm.github.io/prova/articles/start.md):

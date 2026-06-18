@@ -1,4 +1,4 @@
-# Probabilistic-statistical analysis with Prova
+# Probabilistic-statistical variate analysis with Prova
 
 This vignette gives an introduction and guide to the kinds of *Bayesian
 nonparametric inference* that can be done with **Prova**, by means of a
@@ -510,7 +510,7 @@ We must open the preliminary metadata file `penguin_metadata.csv` with
 our favourite editor, and correct and complete the guesses of the helper
 function. In this case we end up with the following corrected metadata
 file, also available for download as
-[`penguin_data.csv`](https://github.com/pglpm/prova/raw/main/development/downloads/penguin_metadata.csv):
+[`penguin_metadata.csv`](https://github.com/pglpm/prova/raw/main/development/downloads/penguin_metadata.csv):
 
 | name | type | domainmin | domainmax | datastep | minincluded | maxincluded | V1 | V2 | V3 |
 |:---|:---|---:|---:|---:|---:|---:|:---|:---|:---|
@@ -2000,8 +2000,6 @@ colnames(X) <- Xvrt
 
 ## NB: rewriting the previous 'Fanalysis' object
 Fanalysis <- Pr(Y = Y, X = X, learnt = learntall, parallel = 4)
-# Error in `checkForRemoteErrors()`:
-# ! 4 nodes produced errors; first error: Non-numeric argument to mathematical function
 ```
 
 Here is the estimated frequency distribution of body mass within each
