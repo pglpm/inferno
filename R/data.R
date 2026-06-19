@@ -20,7 +20,7 @@
 #'
 #' @format ## `learntExample`
 #' A list containing results from Markov-chain Monte Carlo computation, including diagnostics and variate metadata.
-#' 
+#'
 #' @seealso
 #' [learn()] which produces this kind of object, [Pr()] which calculates variousposterior probabilities based on this kind of object.
 "learntExample"
