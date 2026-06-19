@@ -225,7 +225,7 @@ for an introductory example.
 ## Create dataset with 5 points of variate 'V' for demonstration:
 dataset <- data.frame(V = rnorm(n = 5))
 
-## Create metadatafile:
+## Create metadata file:
 metadata <- data.frame(name = 'V', type = 'continuous')
 
 ## Learn from the data:
@@ -241,7 +241,7 @@ learnt <- learn(
 #> Learning from 5 datapoints, 1 variates.
 #> 
 #>  Saving output in directory
-#>  /tmp/RtmpGvCjFu/prova-V1_D5_S10_260619T074535_19e44247e3a0 
+#>  /tmp/RtmpW0QwzN/prova-V1_D5_S10_260619T171904_1a2a8f35698 
 #> 
 #> Starting Monte Carlo sampling of 10 samples by 1 chains
 #> in a space of 191 (effectively 261) dimensions.
@@ -267,18 +267,18 @@ learnt <- learn(
 #> quantile width: 0.057 to 0.353
 #> 
 #> Plotting final Monte Carlo traces and marginal samples...
-#> Total computation time: 38 secs
-#> Average preparation & finalization time: 37 secs.
-#> Average Monte Carlo time per chain: 0.39 secs.
+#> Total computation time: 35 secs
+#> Average preparation & finalization time: 34 secs.
+#> Average Monte Carlo time per chain: 0.29 secs.
 #> Max total memory used: approx 360MB.
 #> Max memory used per core: approx 360MB.
 #> Removing temporary output files.
 #> 
 #> Finished.
-#> **********************************************************
+#> *********************************************************
 #>  Output saved in directory
-#> /tmp/RtmpGvCjFu/prova-V1_D5_S10_260619T074535_19e44247e3a0
-#> **********************************************************
+#> /tmp/RtmpW0QwzN/prova-V1_D5_S10_260619T171904_1a2a8f35698
+#> *********************************************************
 #> Closing connections to cores.
 
 ## Check structure of `learnt` object:

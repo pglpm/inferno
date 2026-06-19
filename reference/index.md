@@ -18,6 +18,14 @@
 - [`learn()`](https://pglpm.github.io/prova/reference/learn.md) : Monte
   Carlo computation of posterior probability distribution
 
+- [`learntExample`](https://pglpm.github.io/prova/reference/learntExample.md)
+  :
+
+  Example `learnt` object produced by learn()
+
+- [`metadataExample`](https://pglpm.github.io/prova/reference/metadataExample.md)
+  : Example metadata file
+
 - [`metadatatemplate()`](https://pglpm.github.io/prova/reference/metadatatemplate.md)
   : Metadata and helper function for metadata
 
