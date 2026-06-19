@@ -45,3 +45,21 @@ A list of class \code{probability}, consisting of the elements \code{values},  \
 \description{
 This function calculates the posterior probability \code{Pr(Y | X, data)}, where \code{Y} and \code{X} are two (non overlapping) sets of joint variate values. If \code{X} is omitted or \code{NULL}, then the posterior probability \code{Pr(Y | data)} is calculated. The function also gives quantiles about the possible variability of the probability \code{Pr(Y | X, newdata, data)} that we could have if more learning data were provided, as well as a number of samples of the possible values of such probabilities. If several joint values are given for \code{Y} or \code{X}, the function will create a 2D grid of results for all possible compbinations of the given \code{Y} and \code{X} values. This function also allows for base-rate or other prior-probability corrections: If a prior (for instance, a base rate) for \code{Y} is given, the function will calculate the \code{Pr(Y | X, data, prior)} from \code{Pr(X | Y, data)} and the prior by means of Bayes's theorem. Each variate in each argument \code{Y}, \code{X} can be specified either as a point-value \code{Y = y} or as a left-open interval \verb{Y ≤ y} or as a right-open interval \verb{Y ≥ y}, through the argument \code{tails}.
 }
+\examples{
+
+Y <- data.frame(species = c('Adelie', 'Chinstrap', 'Gentoo'))
+X <- data.frame(bill_len = c(43, 44))
+learnt <- learntExample
+
+probs <- Pr(Y = Y, X = X, learnt = learnt, parallel = 2)
+
+str(probs)
+
+}
+\references{
+E. T. Jaynes: \emph{Probability Theory: The Logic of Science}. Cambridge University Press, 2003 \url{doi:10.1017/CBO9780511790423}.
+
+J.-M. Bernardo, A. F. Smith: \emph{Bayesian Theory}. Wiley, 2000 \url{doi:10.1002/9780470316870}.
+
+D. J. C. MacKay: \emph{Information Theory, Inference, and Learning Algorithms}. Cambridge University Press, 2005 \url{https://www.inference.org.uk/itila/book.html}.
+}

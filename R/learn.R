@@ -13,16 +13,15 @@
 #' @param data A dataset, given as a [base::data.frame()] or as a file path to a CSV file.
 #' @param metadata A [`metadata`] object, given either as a data.frame object, or as a file pa to a CSV file.
 #' @param auxdata A larger dataset, given as a base::data.frame() or as a file path to a CSV file. Such a dataset would be too many to use in the Monte Carlo sampling, but can be used to calculate hyperparameters.
-#' @param outputdir Character: path to folder where the output should be saved. If `NULL` (default), a directory is created that has the same name as the data file but with suffix "`_output_`". If `FALSE`, a directory is created in the temporary-directory space.
-#' @param outputvalue Character: if `'directory'`, return the output directory name as `VALUE`; if character `'learnt'`, return the `learnt` object containing the parameters obtained from the Monte Carlo computation. Any other value: `VALUE` is `NULL`.
+#' @param outputdir `NULL` or `NA` or character: path to folder where output information and diagnostics should be saved. If `NULL` (default), a directory is created in the temporary-directory space given by [base::tempdir()]. If `NA`, a directory is created in the current working directory given by [base::getwd()]. If character, this is taken to be the output directory; it should of course be writable by the user.
+#' @param valueislearnt Logical or `NULL`: should the `VALUE` returned be the `learnt` object containing the parameters obtained from the Monte Carlo computation? If `FALSE`, then `VALUE` is the output directory name. If `NULL`, then `VALUE` is `NULL`. Default `TRUE`.
 #' @param nsamples Integer: number of desired Monte Carlo samples. Default 3600.
 #' @param nchains Integer: number of Monte Carlo chains. Default 4.
 #' @param nsamplesperchain Integer: number of Monte Carlo samples per chain.
 #' @param parallel Logical or positive integer or cluster object. `TRUE`: use roughly half of available cores; `FALSE`: use serial computation; integer: use this many cores. It can also be a cluster object previously created with [parallel::makeCluster()]; in this case the parallel computation will use this object.
 #' @param seed Integer: use this seed for the random number generator. If missing or `NULL` (default), do not set the seed.
 #' @param cleanup Logical: remove diagnostic files at the end of the computation? Default `TRUE`.
-#' @param appendtimestamp Logical: append a timestamp to the name of the output directory `outputdir`? Default `TRUE`.
-#' @param appendinfo Logical: append information about dataset and Monte Carlo parameters to the name of the output directory `outputdir`? Default `TRUE`.
+#' @param appendinfo Logical: append information about number of variates ('V'), number of data points ('D'), number of Monte Carlo samples ('S'), and timestamp, to the name of the output directory `outputdir`? The appended string has the format 'Vn_Dn_Sn_YYMMDDTHHMMSS'. Default `TRUE`.
 #' @param subsampledata Integer: use only a subset of this many datapoints for the Monte Carlo computation.
 #' @param prior Logical: Calculate the prior distribution?
 #' @param startupMCiterations Integer: number of initial Monte Carlo iterations. Default 3600.
@@ -39,24 +38,29 @@
 #' @param showAlphatraces Logical: save plots of the Monte Carlo traces of the Alpha parameter? Default `FALSE`.
 #' @param hyperparams List: hyperparameters of the prior.
 #'
-#' @return Name of directory containing output files, or learnt object, or `NULL`, depending on argument `outputvalue`.
+#' @returns Learnt object, or name of directory containing output files, or `NULL`, depending on argument `valueislearnt`.
 #'
 #' @examples
 #'
-#' ## Create dataset with 10 points of variate 'V' for demonstration
-#' dataset <- data.frame(V = rnorm(n = 10))
+#' ## Create dataset with 5 points of variate 'V' for demonstration:
+#' dataset <- data.frame(V = rnorm(n = 5))
 #'
-#' ## Create metadatafile
+#' ## Create metadatafile:
 #' metadata <- data.frame(name = 'V', type = 'continuous')
 #'
-#' ## Learn from the data
+#' ## Learn from the data:
 #' learnt <- learn(
-#'   data = dataset,
-#'   metadata = metadata
+#'   data = dataset, metadata = metadata,
+#'       ## the following parameters are unrealistic
+#'       ## only used to reduce computation time for this example
+#'   nsamples = 10, nchains = 1, startupMCiterations = 10, maxhours = 0
 #' )
 #'
+#' ## Check structure of `learnt` object:
+#' str(learnt)
+#'
 #' @import parallel
-#' 
+#'
 #' @export
 ## #' @rawNamespace import(nimble, except = rcat)
 learn <- function(
@@ -70,9 +74,8 @@ learn <- function(
     parallel = TRUE,
     seed = NULL,
     cleanup = TRUE,
-    appendtimestamp = TRUE,
     appendinfo = TRUE,
-    outputvalue = 'directory',
+    valueislearnt = TRUE,
     subsampledata = NULL,
     prior = missing(data) || is.null(data),
     startupMCiterations = 3600,
@@ -453,45 +456,39 @@ learn <- function(
         nrow(auxmetadata), ' variates.')
 
 #### Output-folder setup
-    if(isFALSE(outputdir)){
-        ## Use a temporary directory
-        dirname <- tempdir()
-        if(!is.character(outputvalue) || outputvalue != 'learnt') {
-            message('\nWARNING: with the chosen "outputdir" and "outputvalue" arguments, results are not saved to a persistent directory and not outputted; they will likely be lost.')
+    prefix <- paste0(
+        'V', nrow(auxmetadata),
+        '_D',
+        (if (npoints == 1 && all(is.na(data))) {
+            0
+        } else {
+            npoints
+        }),
+        ## '-K', ncomponents, # unimportant for user
+        '_S', nsamples,
+        '_', format(Sys.time(), '%y%m%dT%H%M%S_')
+    )
+    if(is.null(outputdir)){
+        if(!isTRUE(valueislearnt)) {
+            message('\nWARNING: with the chosen "outputdir" and "valueisearnt" arguments, results are not saved to a persistent directory and not outputted; they will likely be lost.')
         }
+        ## Use a temporary output directory
+        dirname <- tempfile(pattern = paste0('prova-', prefix))
+    } else if (is.na(outputdir)) {
+        ## Create unique output directory within current directory
+        dirname <- tempfile(pattern = paste0('prova-', prefix),
+            tmpdir = getwd())
+    } else if (is.character(outputdir)) {
+        ## Create directory specified by user
+        dirname <- outputdir
+        if (appendinfo){ dirname <- paste0(dirname, '-', prefix) }
     } else {
-        if (is.null(outputdir)) {
-            outputdir <- paste0('_output_', sub('.csv$', '', datafile))
-        }
-
-            ## append time and info to output directory, if requested
-            suffix <- NULL
-            if (appendtimestamp) {
-                suffix <- paste0(suffix, '-',
-                    format(Sys.time(), '%y%m%dT%H%M%S') )
-            }
-            if (appendinfo) {
-                suffix <- paste0(suffix,
-                    '-vrt', nrow(auxmetadata),
-                    '_dat',
-                    (if (npoints == 1 && all(is.na(data))) {
-                        0
-                    } else {
-                        npoints
-                    }),
-                    ## '-K', ncomponents, # unimportant for user
-                    '_smp', nsamples)
-            }
-            dirname <- paste0(outputdir, suffix)
-            ##
-            ## Create output directory if it does not exist
-            dir.create(dirname, showWarnings = FALSE)
+        stop('Invalid "outputdir" argument')
     }
+    dir.create(dirname)
+
     ## Print information
-    asterisks <- paste0(rep('*', max(nchar(dirname), 26)), collapse = '')
-    cat('\n', asterisks,
-        '\n Saving output in directory\n', dirname, '\n',
-        asterisks, '\n\n')
+    cat('\n Saving output in directory\n', dirname, '\n\n')
 
     ## This is in case we need to add some extra specifier to the output files
     ## all 'dashnameroot' can be deleted in a final version
@@ -1365,13 +1362,17 @@ learn <- function(
     ## a histogram over number of components over all chains
     ## (for the moment there's one plot per chain)
 
-    message('\nFinished.')
+    asterisks <- paste0(rep('*', max(nchar(dirname), 26)), collapse = '')
+    message('\nFinished.\n', asterisks,
+        '\n Output saved in directory\n', dirname, '\n',
+        asterisks, '\n')
+
 
     ## What should we output? how about the full name of the output dir?
-    if (is.character(outputvalue) && outputvalue == 'directory') {
-        dirname
-    } else if (is.character(outputvalue) && outputvalue == 'learnt') {
+    if (isTRUE(valueislearnt)) {
         learnt
+    } else if (isFALSE(valueislearnt)) {
+        dirname
     }
 }
 

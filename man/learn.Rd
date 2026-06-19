@@ -15,9 +15,8 @@ learn(
   parallel = TRUE,
   seed = NULL,
   cleanup = TRUE,
-  appendtimestamp = TRUE,
   appendinfo = TRUE,
-  outputvalue = "directory",
+  valueislearnt = TRUE,
   subsampledata = NULL,
   prior = missing(data) || is.null(data),
   startupMCiterations = 3600,
@@ -46,7 +45,7 @@ learn(
 
 \item{auxdata}{A larger dataset, given as a base::data.frame() or as a file path to a CSV file. Such a dataset would be too many to use in the Monte Carlo sampling, but can be used to calculate hyperparameters.}
 
-\item{outputdir}{Character: path to folder where the output should be saved. If \code{NULL} (default), a directory is created that has the same name as the data file but with suffix "\verb{_output_}". If \code{FALSE}, a directory is created in the temporary-directory space.}
+\item{outputdir}{\code{NULL} or \code{NA} or character: path to folder where output information and diagnostics should be saved. If \code{NULL} (default), a directory is created in the temporary-directory space given by \code{\link[base:tempdir]{base::tempdir()}}. If \code{NA}, a directory is created in the current working directory given by \code{\link[base:getwd]{base::getwd()}}. If character, this is taken to be the output directory; it should of course be writable by the user.}
 
 \item{nsamples}{Integer: number of desired Monte Carlo samples. Default 3600.}
 
@@ -60,11 +59,9 @@ learn(
 
 \item{cleanup}{Logical: remove diagnostic files at the end of the computation? Default \code{TRUE}.}
 
-\item{appendtimestamp}{Logical: append a timestamp to the name of the output directory \code{outputdir}? Default \code{TRUE}.}
+\item{appendinfo}{Logical: append information about number of variates ('V'), number of data points ('D'), number of Monte Carlo samples ('S'), and timestamp, to the name of the output directory \code{outputdir}? The appended string has the format 'Vn_Dn_Sn_YYMMDDTHHMMSS'. Default \code{TRUE}.}
 
-\item{appendinfo}{Logical: append information about dataset and Monte Carlo parameters to the name of the output directory \code{outputdir}? Default \code{TRUE}.}
-
-\item{outputvalue}{Character: if \code{'directory'}, return the output directory name as \code{VALUE}; if character \code{'learnt'}, return the \code{learnt} object containing the parameters obtained from the Monte Carlo computation. Any other value: \code{VALUE} is \code{NULL}.}
+\item{valueislearnt}{Logical or \code{NULL}: should the \code{VALUE} returned be the \code{learnt} object containing the parameters obtained from the Monte Carlo computation? If \code{FALSE}, then \code{VALUE} is the output directory name. If \code{NULL}, then \code{VALUE} is \code{NULL}. Default \code{TRUE}.}
 
 \item{subsampledata}{Integer: use only a subset of this many datapoints for the Monte Carlo computation.}
 
@@ -97,7 +94,7 @@ learn(
 \item{hyperparams}{List: hyperparameters of the prior.}
 }
 \value{
-Name of directory containing output files, or learnt object, or \code{NULL}, depending on argument \code{outputvalue}.
+Learnt object, or name of directory containing output files, or \code{NULL}, depending on argument \code{valueislearnt}.
 }
 \description{
 Compute the posterior probability distribution of the variates conditional on the given data.
@@ -111,13 +108,21 @@ See \code{vignette('start')} for an introductory example.
 }
 \examples{
 
-## Create dataset with 10 points of variate 'V' for demonstration
-dataset <- data.frame(V = rnorm(n = 10))
+## Create dataset with 5 points of variate 'V' for demonstration:
+dataset <- data.frame(V = rnorm(n = 5))
 
-## Create metadatafile
-metadata <- data.frame(
-    name = 'V',
-    type = 'continuous'
+## Create metadatafile:
+metadata <- data.frame(name = 'V', type = 'continuous')
+
+## Learn from the data:
+learnt <- learn(
+  data = dataset, metadata = metadata,
+      ## the following parameters are unrealistic
+      ## only used to reduce computation time for this example
+  nsamples = 10, nchains = 1, startupMCiterations = 10, maxhours = 0
 )
+
+## Check structure of `learnt` object:
+str(learnt)
 
 }

@@ -26,6 +26,13 @@
 #'
 #' @examples
 #'
+#' Y <- data.frame(species = c('Adelie', 'Chinstrap', 'Gentoo'))
+#' X <- data.frame(bill_len = c(43, 44))
+#' learnt <- learntExample
+#'
+#' probs <- Pr(Y = Y, X = X, learnt = learnt, parallel = 2)
+#'
+#' str(probs)
 #'
 #' @import parallel
 #'
