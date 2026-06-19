@@ -134,3 +134,59 @@ array) for such probabilities. Elements `values.MCaccuracy` and
 speaking a standard deviation) of the Monte Carlo calculations for the
 `values` and `quantiles` elements. Elements `Y`, `X`: copies of the `Y`
 and `X` arguments.
+
+## References
+
+E. T. Jaynes: *Probability Theory: The Logic of Science*. Cambridge
+University Press, 2003 <doi:10.1017/CBO9780511790423>.
+
+J.-M. Bernardo, A. F. Smith: *Bayesian Theory*. Wiley, 2000
+<doi:10.1002/9780470316870>.
+
+D. J. C. MacKay: *Information Theory, Inference, and Learning
+Algorithms*. Cambridge University Press, 2005
+<https://www.inference.org.uk/itila/book.html>.
+
+## Examples
+
+``` r
+
+Y <- data.frame(species = c('Adelie', 'Chinstrap', 'Gentoo'))
+X <- data.frame(bill_len = c(43, 44))
+learnt <- learntExample
+
+probs <- Pr(Y = Y, X = X, learnt = learnt, parallel = 2)
+#> Registered socket cluster with 2 nodes on host ‘localhost’.
+#> Closing connections to cores.
+
+str(probs)
+#> List of 7
+#>  $ values              : num [1:3, 1:2] 0.465 0.147 0.388 0.224 0.21 ...
+#>   ..- attr(*, "dimnames")=List of 2
+#>   .. ..$ Y: chr [1:3] "Adelie" "Chinstrap" "Gentoo"
+#>   .. ..$ X: chr [1:2] "43" "44"
+#>  $ quantiles           : num [1:3, 1:2, 1:4] 0.353 0.0894 0.2941 0.1418 0.1323 ...
+#>   ..- attr(*, "dimnames")=List of 3
+#>   .. ..$ Y: chr [1:3] "Adelie" "Chinstrap" "Gentoo"
+#>   .. ..$ X: chr [1:2] "43" "44"
+#>   .. ..$  : chr [1:4] "5.5%" "25%" "75%" "94.5%"
+#>  $ samples             : num [1:3, 1:2, 1:360] 0.457 0.171 0.372 0.25 0.268 ...
+#>   ..- attr(*, "dimnames")=List of 3
+#>   .. ..$ Y: chr [1:3] "Adelie" "Chinstrap" "Gentoo"
+#>   .. ..$ X: chr [1:2] "43" "44"
+#>   .. ..$  : chr [1:360] "1" "2" "3" "4" ...
+#>  $ values.MCaccuracy   : num [1:3, 1:2] 0.003 0.0017 0.0026 0.0028 0.0026 0.0031
+#>   ..- attr(*, "dimnames")=List of 2
+#>   .. ..$ Y: chr [1:3] "Adelie" "Chinstrap" "Gentoo"
+#>   .. ..$ X: chr [1:2] "43" "44"
+#>  $ quantiles.MCaccuracy: num [1:3, 1:2, 1:4] 0.01 0.0024 0.0062 0.0056 0.0042 0.0093 0.0055 0.0032 0.0044 0.0021 ...
+#>   ..- attr(*, "dimnames")=List of 3
+#>   .. ..$ Y: chr [1:3] "Adelie" "Chinstrap" "Gentoo"
+#>   .. ..$ X: chr [1:2] "43" "44"
+#>   .. ..$  : chr [1:4] "5.5%" "25%" "75%" "94.5%"
+#>  $ Y                   :'data.frame':    3 obs. of  1 variable:
+#>   ..$ species: chr [1:3] "Adelie" "Chinstrap" "Gentoo"
+#>  $ X                   :'data.frame':    2 obs. of  1 variable:
+#>   ..$ bill_len: num [1:2] 43 44
+#>  - attr(*, "class")= chr "probability"
+```

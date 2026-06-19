@@ -54,9 +54,8 @@
 <span>  parallel <span class="op">=</span> <span class="cn">TRUE</span>,</span>
 <span>  seed <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  cleanup <span class="op">=</span> <span class="cn">TRUE</span>,</span>
-<span>  appendtimestamp <span class="op">=</span> <span class="cn">TRUE</span>,</span>
 <span>  appendinfo <span class="op">=</span> <span class="cn">TRUE</span>,</span>
-<span>  outputvalue <span class="op">=</span> <span class="st">"directory"</span>,</span>
+<span>  valueislearnt <span class="op">=</span> <span class="cn">TRUE</span>,</span>
 <span>  subsampledata <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  prior <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/missing.html" class="external-link">missing</a></span><span class="op">(</span><span class="va">data</span><span class="op">)</span> <span class="op">||</span> <span class="fu"><a href="https://rdrr.io/r/base/NULL.html" class="external-link">is.null</a></span><span class="op">(</span><span class="va">data</span><span class="op">)</span>,</span>
 <span>  startupMCiterations <span class="op">=</span> <span class="fl">3600</span>,</span>
@@ -96,7 +95,7 @@
 
 
 <dt id="arg-outputdir">outputdir<a class="anchor" aria-label="anchor" href="#arg-outputdir"></a></dt>
-<dd><p>Character: path to folder where the output should be saved. If <code>NULL</code> (default), a directory is created that has the same name as the data file but with suffix "<code>_output_</code>". If <code>FALSE</code>, a directory is created in the temporary-directory space.</p></dd>
+<dd><p><code>NULL</code> or <code>NA</code> or character: path to folder where output information and diagnostics should be saved. If <code>NULL</code> (default), a directory is created in the temporary-directory space given by <code><a href="https://rdrr.io/r/base/tempfile.html" class="external-link">base::tempdir()</a></code>. If <code>NA</code>, a directory is created in the current working directory given by <code><a href="https://rdrr.io/r/base/getwd.html" class="external-link">base::getwd()</a></code>. If character, this is taken to be the output directory; it should of course be writable by the user.</p></dd>
 
 
 <dt id="arg-nsamples">nsamples<a class="anchor" aria-label="anchor" href="#arg-nsamples"></a></dt>
@@ -123,16 +122,12 @@
 <dd><p>Logical: remove diagnostic files at the end of the computation? Default <code>TRUE</code>.</p></dd>
 
 
-<dt id="arg-appendtimestamp">appendtimestamp<a class="anchor" aria-label="anchor" href="#arg-appendtimestamp"></a></dt>
-<dd><p>Logical: append a timestamp to the name of the output directory <code>outputdir</code>? Default <code>TRUE</code>.</p></dd>
-
-
 <dt id="arg-appendinfo">appendinfo<a class="anchor" aria-label="anchor" href="#arg-appendinfo"></a></dt>
-<dd><p>Logical: append information about dataset and Monte Carlo parameters to the name of the output directory <code>outputdir</code>? Default <code>TRUE</code>.</p></dd>
+<dd><p>Logical: append information about number of variates ('V'), number of data points ('D'), number of Monte Carlo samples ('S'), and timestamp, to the name of the output directory <code>outputdir</code>? The appended string has the format 'Vn_Dn_Sn_YYMMDDTHHMMSS'. Default <code>TRUE</code>.</p></dd>
 
 
-<dt id="arg-outputvalue">outputvalue<a class="anchor" aria-label="anchor" href="#arg-outputvalue"></a></dt>
-<dd><p>Character: if <code>'directory'</code>, return the output directory name as <code>VALUE</code>; if character <code>'learnt'</code>, return the <code>learnt</code> object containing the parameters obtained from the Monte Carlo computation. Any other value: <code>VALUE</code> is <code>NULL</code>.</p></dd>
+<dt id="arg-valueislearnt">valueislearnt<a class="anchor" aria-label="anchor" href="#arg-valueislearnt"></a></dt>
+<dd><p>Logical or <code>NULL</code>: should the <code>VALUE</code> returned be the <code>learnt</code> object containing the parameters obtained from the Monte Carlo computation? If <code>FALSE</code>, then <code>VALUE</code> is the output directory name. If <code>NULL</code>, then <code>VALUE</code> is <code>NULL</code>. Default <code>TRUE</code>.</p></dd>
 
 
 <dt id="arg-subsampledata">subsampledata<a class="anchor" aria-label="anchor" href="#arg-subsampledata"></a></dt>
@@ -197,7 +192,7 @@
 </dl></div>
     <div class="section level2">
     <h2 id="value">Value<a class="anchor" aria-label="anchor" href="#value"></a></h2>
-    <p>Name of directory containing output files, or learnt object, or <code>NULL</code>, depending on argument <code>outputvalue</code>.</p>
+    <p>Learnt object, or name of directory containing output files, or <code>NULL</code>, depending on argument <code>valueislearnt</code>.</p>
     </div>
     <div class="section level2">
     <h2 id="details">Details<a class="anchor" aria-label="anchor" href="#details"></a></h2>
@@ -209,14 +204,136 @@
     <div class="section level2">
     <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
     <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span></span></span>
-<span class="r-in"><span><span class="co">## Create dataset with 10 points of variate 'V' for demonstration</span></span></span>
-<span class="r-in"><span><span class="va">dataset</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span>V <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/stats/Normal.html" class="external-link">rnorm</a></span><span class="op">(</span>n <span class="op">=</span> <span class="fl">10</span><span class="op">)</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="co">## Create dataset with 5 points of variate 'V' for demonstration:</span></span></span>
+<span class="r-in"><span><span class="va">dataset</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span>V <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/stats/Normal.html" class="external-link">rnorm</a></span><span class="op">(</span>n <span class="op">=</span> <span class="fl">5</span><span class="op">)</span><span class="op">)</span></span></span>
 <span class="r-in"><span></span></span>
-<span class="r-in"><span><span class="co">## Create metadatafile</span></span></span>
-<span class="r-in"><span><span class="va">metadata</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span></span></span>
-<span class="r-in"><span>    name <span class="op">=</span> <span class="st">'V'</span>,</span></span>
-<span class="r-in"><span>    type <span class="op">=</span> <span class="st">'continuous'</span></span></span>
+<span class="r-in"><span><span class="co">## Create metadatafile:</span></span></span>
+<span class="r-in"><span><span class="va">metadata</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span>name <span class="op">=</span> <span class="st">'V'</span>, type <span class="op">=</span> <span class="st">'continuous'</span><span class="op">)</span></span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co">## Learn from the data:</span></span></span>
+<span class="r-in"><span><span class="va">learnt</span> <span class="op">&lt;-</span> <span class="fu">learn</span><span class="op">(</span></span></span>
+<span class="r-in"><span>  data <span class="op">=</span> <span class="va">dataset</span>, metadata <span class="op">=</span> <span class="va">metadata</span>,</span></span>
+<span class="r-in"><span>      <span class="co">## the following parameters are unrealistic</span></span></span>
+<span class="r-in"><span>      <span class="co">## only used to reduce computation time for this example</span></span></span>
+<span class="r-in"><span>  nsamples <span class="op">=</span> <span class="fl">10</span>, nchains <span class="op">=</span> <span class="fl">1</span>, startupMCiterations <span class="op">=</span> <span class="fl">10</span>, maxhours <span class="op">=</span> <span class="fl">0</span></span></span>
 <span class="r-in"><span><span class="op">)</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Registered socket cluster with 1 nodes on host ‘localhost’.</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Learning from 5 datapoints, 1 variates.</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  Saving output in directory</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  /tmp/RtmpGvCjFu/prova-V1_D5_S10_260619T074535_19e44247e3a0 </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Starting Monte Carlo sampling of 10 samples by 1 chains</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> in a space of 191 (effectively 261) dimensions.</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Using 1 cores: 10 samples per chain, max 1 chains per core.</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Requested:   ESS 450   rel.MCSE 0.047.</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Core logs are being saved in individual files.</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> C-compiling samplers appropriate to the variates (Nimble v1.4.2)</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> this can take tens of minutes. Please wait...</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>                                                                </span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Finished Monte Carlo sampling.</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Highest number of Monte Carlo iterations across chains: 10.</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Highest number of used mixture components: 2.</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> NOTE: 1 chains were stopped before reaching required precision</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> in order to meet the required time constraints.</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Checking test data</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> (#1 #2 #3 #4 #5):</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> rel. CI error: 0.203 to 0.724</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> ESS: 10 to 10</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> needed thinning: 1 to 5.24</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> average: 0.0382 to 0.213</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> quantile width: 0.057 to 0.353</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Plotting final Monte Carlo traces and marginal samples...</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Total computation time: 38 secs</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Average preparation &amp; finalization time: 37 secs.</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Average Monte Carlo time per chain: 0.39 secs.</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Max total memory used: approx 360MB.</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Max memory used per core: approx 360MB.</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Removing temporary output files.</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Finished.</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> **********************************************************</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span>  Output saved in directory</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> /tmp/RtmpGvCjFu/prova-V1_D5_S10_260619T074535_19e44247e3a0</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> **********************************************************</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Closing connections to cores.</span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co">## Check structure of `learnt` object:</span></span></span>
+<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/utils/str.html" class="external-link">str</a></span><span class="op">(</span><span class="va">learnt</span><span class="op">)</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> List of 6</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  $ Rmean      : num [1, 1:64, 1:10] -2.04 -1.89 -1.19 5.13 3.06 ...</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  $ Rsd        : num [1, 1:64, 1:10] 3.048 0.439 3.562 0.403 0.817 ...</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  $ W          : num [1:64, 1:10] 5.08e-01 1.48e-11 3.39e-64 3.25e-285 1.10e-91 ...</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  $ MCindex    : num [1:10(1d)] 1 2 3 4 5 6 7 8 9 10</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  $ auxmetadata:'data.frame':	1 obs. of  24 variables:</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   ..$ name             : chr "V"</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   ..$ type             : chr "continuous"</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   ..$ mcmctype         : chr "R"</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   ..$ id               : int 1</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   ..$ transform        : chr "identity"</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   ..$ Nvalues          : int NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   ..$ indexpos         : int NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   ..$ halfstep         : num 0</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   ..$ domainmin        : num -Inf</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   ..$ domainmax        : num Inf</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   ..$ minincluded      : logi FALSE</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   ..$ maxincluded      : logi FALSE</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   ..$ tdomainmin       : num -Inf</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   ..$ tdomainmax       : num Inf</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   ..$ domainminplushs  : num -Inf</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   ..$ domainmaxminushs : num Inf</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   ..$ tdomainminplushs : num -Inf</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   ..$ tdomainmaxminushs: num Inf</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   ..$ tlocation        : num -0.00557</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   ..$ tscale           : num 0.553</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   ..$ plotmin          : num -3.62</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   ..$ plotmax          : num 1.8</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   ..$ V1               : logi NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   ..$ V2               : logi NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  $ auxinfo    :List of 12</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   ..$ nchains          : num 1</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   ..$ npoints          : int 5</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   ..$ hyperparams      :List of 21</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   .. ..$ ncomponents : num 64</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   .. ..$ minalpha    : num -4</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   .. ..$ maxalpha    : num 4</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   .. ..$ byalpha     : num 1</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   .. ..$ Rshapelo    : num 0.5</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   .. ..$ Rshapehi    : num 0.5</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   .. ..$ Rvarm1      : num 9</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   .. ..$ Cshapelo    : num 0.5</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   .. ..$ Cshapehi    : num 0.5</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   .. ..$ Cvarm1      : num 9</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   .. ..$ Dshapelo    : num 0.5</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   .. ..$ Dshapehi    : num 0.5</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   .. ..$ Dvarm1      : num 9</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   .. ..$ Bshapelo    : num 1</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   .. ..$ Bshapehi    : num 1</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   .. ..$ Dthreshold  : num 1</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   .. ..$ tscalefactor: num 4.27</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   .. ..$ Oprior      : chr "Hadamard"</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   .. ..$ Nprior      : chr "Hadamard"</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   .. ..$ initmethod  : chr "datacentre"</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   .. ..$ Qerror      : num [1:2] 0.159 0.841</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   ..$ maxiterations    : num 10</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   ..$ maxusedcomponents: num 2</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   ..$ nonfinitechains  : num 0</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   ..$ stoppedchains    : num 1</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   ..$ rel. CI error    : Named num [1:6] 0.724 0.641 0.503 0.659 0.203 ...</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   .. ..- attr(*, "names")= chr [1:6] "gmean" "1" "2" "3" ...</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   ..$ ESS              : Named num [1:6] 10 10 10 10 10 10</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   .. ..- attr(*, "names")= chr [1:6] "gmean" "1" "2" "3" ...</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   ..$ needed thinning  : Named num [1:6] 5.24 4.11 2.53 4.35 1 ...</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   .. ..- attr(*, "names")= chr [1:6] "gmean" "1" "2" "3" ...</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   ..$ average          : Named num [1:6] 0.1026 0.0968 0.2133 0.0382 0.2004 ...</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   .. ..- attr(*, "names")= chr [1:6] "gmean" "1" "2" "3" ...</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   ..$ quantile width   : Named num [1:6] 0.057 0.2138 0.3305 0.0963 0.2226 ...</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   .. ..- attr(*, "names")= chr [1:6] "gmean" "1" "2" "3" ...</span>
 <span class="r-in"><span></span></span>
 </code></pre></div>
     </div>
