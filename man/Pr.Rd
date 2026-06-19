@@ -47,13 +47,18 @@ This function calculates the posterior probability \code{Pr(Y | X, data)}, where
 }
 \examples{
 
+## Load an example `learnt` object, included in the package
+learnt <- learntExample
+
 Y <- data.frame(species = c('Adelie', 'Chinstrap', 'Gentoo'))
 X <- data.frame(bill_len = c(43, 44))
 learnt <- learntExample
 
-probs <- Pr(Y = Y, X = X, learnt = learnt, parallel = 2)
+probs <- Pr(Y = Y, X = X, learnt = learnt, parallel = 1)
 
-str(probs)
+probs$values
+
+probs$quantiles[, , c('5.5\%', '94.5\%')]
 
 }
 \references{

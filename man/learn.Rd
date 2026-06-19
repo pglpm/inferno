@@ -111,7 +111,7 @@ See \code{vignette('start')} for an introductory example.
 ## Create dataset with 5 points of variate 'V' for demonstration:
 dataset <- data.frame(V = rnorm(n = 5))
 
-## Create metadatafile:
+## Create metadata file:
 metadata <- data.frame(name = 'V', type = 'continuous')
 
 ## Learn from the data:
