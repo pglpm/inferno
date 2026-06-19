@@ -9,6 +9,8 @@ reference:
     - hist.probability
     - prova.data
     - learn
+    - learntExample
+    - metadataExample
     - metadatatemplate
     - mutualinfo
     - plot.probability
