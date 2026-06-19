@@ -16,7 +16,7 @@ learntExample
 \description{
 An example \code{learnt} object obtained by means of the \code{\link[=learn]{learn()}} function, using the \link[datasets:penguins]{datasets::penguins} dataset and the metadata in \link{metadataExample}. It is a list that essentially contains posterior hyperparameters for drawing statistical inferences about the variates \code{species} and \code{bill_len}.
 
-\strong{Note} that the \code{\link[=learn]{learn()}} function that produced \code{learntExample} was called with special, poor parameter values to reduce its computation time and memory size, at the cost of Monte Carlo convergence. Thus no real inferential or statistical meaning should be attached to probabilities obtained from \code{learntExample}. It is only used for illustration purposes of the package's capabilities.
+\strong{Note} that the \code{\link[=learn]{learn()}} function that produced \code{learntExample} was called with the option to create only a limited number (360) of Monte Carlo samples, in order to reduce its memory size. Thus the numerical error associated with the Monte Carlo approximation is relatively in inferences drawn from the posterior hyperparameters saved in \code{learntExample}. It is only meant to be used for illustration purposes of the package's capabilities.
 }
 \seealso{
 \code{\link[=learn]{learn()}} which produces this kind of object, \code{\link[=Pr]{Pr()}} which calculates variousposterior probabilities based on this kind of object.
