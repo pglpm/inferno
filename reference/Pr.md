@@ -152,11 +152,19 @@ Algorithms*. Cambridge University Press, 2005
 [`learn()`](https://pglpm.github.io/prova/reference/learn.md), which
 generates the `learnt` objects required by `Pr()`.
 
-[`plot()`](https://rdrr.io/r/graphics/plot.default.html) to plot
-probabilities and quantiles calculated by `Pr()`.
+[`plot.probability()`](https://pglpm.github.io/prova/reference/plot.probability.md)
+to plot probabilities and quantiles calculated by `Pr()`.
 
-[`hist()`](https://rdrr.io/r/graphics/hist.html) to plot histograms of
-the probability distributions calculated by `Pr()`.
+[`hist.probability()`](https://pglpm.github.io/prova/reference/hist.probability.md)
+to plot histograms of the probability distributions calculated by
+`Pr()`.
+
+[`qPr()`](https://pglpm.github.io/prova/reference/qPr.md) to calculate
+quantiles for a specific variate, that is, the variate values having
+given probabilities.
+
+[`rPr()`](https://pglpm.github.io/prova/reference/rPr.md) to generate
+datapoints.
 
 ## Examples
 

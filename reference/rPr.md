@@ -1,14 +1,14 @@
 # Generate datapoints
 
 This function generate datapoints according to the posterior probability
-`Pr(Y | X, data)` calculated with
-[`learn()`](https://pglpm.github.io/prova/reference/learn.md), for the
-variates specified in the argument `Y`, and conditional on the variate
-values specified in the argument `X`. If `X` is omitted or `NULL`, then
-the posterior probability `Pr(Y | data)` is used. Each variate in the
-argument `X` can be specified either as a point-value `X = x` or as a
-left-open interval `X ≤ x` or as a right-open interval `X ≥ x`, through
-the argument `tails`.
+`Pr(Y | X, data)`, for the variates specified in the argument `Y`, and
+conditional on the variate values specified in the argument `X`. It is
+somewhat analogous to the `r`-variants of R distribution functions, such
+as [`stats::rnorm()`](https://rdrr.io/r/stats/Normal.html). If `X` is
+omitted or `NULL`, then the posterior probability `Pr(Y | data)` is
+used. Each variate in the argument `X` can be specified either as a
+point-value `X = x` or as a left-open interval `X ≤ x` or as a
+right-open interval `X ≥ x`, through the argument `tails`.
 
 ## Usage
 
@@ -63,3 +63,15 @@ distribution, conditional on `X`. The row names of the data frame report
 the Monte Carlo sample (from
 [`learn()`](https://pglpm.github.io/prova/reference/learn.md)) used for
 that draw, and the total number of draws from that sample so far.
+
+## See also
+
+[`learn()`](https://pglpm.github.io/prova/reference/learn.md), which
+generates the `learnt` objects required by
+[`qPr()`](https://pglpm.github.io/prova/reference/qPr.md).
+
+[`Pr()`](https://pglpm.github.io/prova/reference/Pr.md) to calculate
+joint and conditional probabilities.
+
+[`qPr()`](https://pglpm.github.io/prova/reference/qPr.md) to calculate
+quantiles.

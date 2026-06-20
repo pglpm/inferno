@@ -1,12 +1,15 @@
 # Calculate quantiles
 
-This function calculates the quantiles of `Pr(Y | X, data)` at specified
+This function calculates the quantiles of `Pr(Y | X, data)` – that is,
+the values of `Y` having specified probabilities – at specified
 probability levels, as well as the variability of those quantiles if
-more learning data were provided. The variability can be expressed in
-the form of quantiles, samples, or both, as in the
+more learning data were provided. It is somewhat analogous to the
+`q`-variants of R distribution functions, such as
+[`stats::qnorm()`](https://rdrr.io/r/stats/Normal.html). The variability
+can be expressed in the form of quantiles, samples, or both, as in the
 [`Pr()`](https://pglpm.github.io/prova/reference/Pr.md) function. If
 several joint values are given for the probability levels and for `X`,
-the function creates a 2D grid of results for all possible compbinations
+the function creates a 2D grid of results for all possible combinations
 of the given probability levels and `X` values. Each variate in the
 argument `X` can be specified either as a point-value `X = x` or as a
 left-open interval `X ≤ x` or as a right-open interval `X ≥ x`, through
@@ -120,3 +123,42 @@ all combinations of `p` (rows) and `X` (columns). Element `quantiles`:
 an array with the variability quantiles (3rd dimension of the array).
 Element `samples`: an array with the variability samples (3rd dimension
 of the array). Elements `Y`, `X`: copies of the `p` and `X` arguments.
+
+## See also
+
+[`learn()`](https://pglpm.github.io/prova/reference/learn.md), which
+generates the `learnt` objects required by `qPr()`.
+
+[`Pr()`](https://pglpm.github.io/prova/reference/Pr.md) to calculate
+joint and conditional probabilities.
+
+[`rPr()`](https://pglpm.github.io/prova/reference/rPr.md) to generate
+datapoints.
+
+## Examples
+
+``` r
+
+## Load the example `learnt` object included in the package
+learnt <- learntExample
+
+## ## Example 1:
+## Calculate the 5.5%-, 50%-, and 94.5%-quantiles for the variate "bill lengt",
+## that is, the bill lengths having such probabilities
+
+quants <- qPr(
+  Yname = 'bill_len',
+  learnt = learnt, parallel = 1
+)
+#> Registered socket cluster with 1 nodes on host ‘localhost’.
+#> Error in checkForRemoteErrors(val): one node produced an error: Non-numeric argument to mathematical function
+#> Closing connections to cores.
+
+## display the quantile values
+quants$values
+#> Error: object 'quants' not found
+
+## display the uncertainty about the quantiles
+quants$quantiles
+#> Error: object 'quants' not found
+```
