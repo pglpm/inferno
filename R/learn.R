@@ -3238,7 +3238,7 @@ workerfun <- function(
 #### Determine which MC samples should be saved
         cat('\nKeeping ', nsamplesperchain, '\n')
 
-        tokeep <- round(seq(from = autothinning * 2L,
+        tokeep <- round(seq(from = autothinning * initES,
             to = nitertot,
             length.out = nsamplesperchain
         ))
