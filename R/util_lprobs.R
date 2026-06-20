@@ -653,6 +653,7 @@ util_qYXcont <- function(
                 lower.tail = TRUE, log.p = TRUE)
         ), na.rm = TRUE) / sumlpX) - pY
     }
+
     values <- unname(unlist(vtransform(values,
         auxmetadata = auxmetadata,
         Rout = 'original',
@@ -663,7 +664,6 @@ util_qYXcont <- function(
         Bout = 'original',
         variates <- auxmetadata$name,
         logjacobianOr = NULL)))
-
 
 #### Calculate quantile for the frequency samples
     if(doquantiles){

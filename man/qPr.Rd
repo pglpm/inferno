@@ -48,7 +48,7 @@ qPr(
 A list of the elements \code{values},  \code{quantiles} (possibly \code{NULL}), \code{samples} (possibly \code{NULL}), \code{Y}, \code{X}. Element \code{values}: a matrix with the requested \code{Y}-quantiles conditional on the requested \code{X}-values, for all combinations of \code{p} (rows) and \code{X} (columns). Element \code{quantiles}: an array with the variability quantiles (3rd dimension of the array). Element \code{samples}: an array with the variability samples (3rd dimension of the array). Elements \code{Y}, \code{X}: copies of the \code{p} and \code{X} arguments.
 }
 \description{
-This function calculates the quantiles of \code{Pr(Y | X, data)}  -- that is, the values of \code{Y} having specified probabilities -- at specified probability levels, as well as the variability of those quantiles if more learning data were provided. It is somewhat analogous to the \code{q}-variants of R distribution functions, such as \code{\link[stats:qnorm]{stats::qnorm()}}. The variability can be expressed in the form of quantiles, samples, or both, as in the \code{\link[=Pr]{Pr()}} function. If several joint values are given for the probability levels and for \code{X}, the function creates a 2D grid of results for all possible combinations of the given probability levels and \code{X} values. Each variate in the argument \code{X} can be specified either as a point-value \code{X = x} or as a left-open interval \verb{X ≤ x} or as a right-open interval \verb{X ≥ x}, through the argument \code{tails}.
+This function calculates the quantiles of \code{Pr(Y | X, data)} at specified cumulative-probability levels (that is, the values of \code{Y} having specified cumulative probabilities), as well as the variability of those quantiles if more learning data were provided. It is somewhat analogous to the \code{q}-variants of R distribution functions, such as \code{\link[stats:qnorm]{stats::qnorm()}}. The variability can be expressed in the form of quantiles, samples, or both, as in the \code{\link[=Pr]{Pr()}} function. If several joint values are given for the probability levels and for \code{X}, the function creates a 2D grid of results for all possible combinations of the given probability levels and \code{X} values. Each variate in the argument \code{X} can be specified either as a point-value \code{X = x} or as a left-open interval \verb{X ≤ x} or as a right-open interval \verb{X ≥ x}, through the argument \code{tails}.
 }
 \examples{
 
@@ -70,6 +70,9 @@ quants$values
 ## display the uncertainty about the quantiles
 quants$quantiles
 
+}
+\references{
+P.G.L. Porta Mana: \emph{What's special about 89\% credibility intervals?}. 2025 \url{doi:10.5281/zenodo.17072199}.
 }
 \seealso{
 \code{\link[=learn]{learn()}}, which generates the \code{learnt} objects required by \code{qPr()}.

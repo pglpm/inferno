@@ -1,6 +1,6 @@
 #' Calculate quantiles
 #'
-#' This function calculates the quantiles of `Pr(Y | X, data)`  -- that is, the values of `Y` having specified probabilities -- at specified probability levels, as well as the variability of those quantiles if more learning data were provided. It is somewhat analogous to the `q`-variants of R distribution functions, such as [stats::qnorm()]. The variability can be expressed in the form of quantiles, samples, or both, as in the [Pr()] function. If several joint values are given for the probability levels and for `X`, the function creates a 2D grid of results for all possible combinations of the given probability levels and `X` values. Each variate in the argument `X` can be specified either as a point-value `X = x` or as a left-open interval `X ≤ x` or as a right-open interval `X ≥ x`, through the argument `tails`.
+#' This function calculates the quantiles of `Pr(Y | X, data)` at specified cumulative-probability levels (that is, the values of `Y` having specified cumulative probabilities), as well as the variability of those quantiles if more learning data were provided. It is somewhat analogous to the `q`-variants of R distribution functions, such as [stats::qnorm()]. The variability can be expressed in the form of quantiles, samples, or both, as in the [Pr()] function. If several joint values are given for the probability levels and for `X`, the function creates a 2D grid of results for all possible combinations of the given probability levels and `X` values. Each variate in the argument `X` can be specified either as a point-value `X = x` or as a left-open interval `X ≤ x` or as a right-open interval `X ≥ x`, through the argument `tails`.
 #'
 #' @param p Numeric vector of probability levels. Default: `c(0.055, 0.5, 0.945)`.
 #' @param Yname Character vector: name of variate whose quantiles will be computed.
@@ -17,6 +17,9 @@
 
 #'
 #' @return A list of the elements `values`,  `quantiles` (possibly `NULL`), `samples` (possibly `NULL`), `Y`, `X`. Element `values`: a matrix with the requested `Y`-quantiles conditional on the requested `X`-values, for all combinations of `p` (rows) and `X` (columns). Element `quantiles`: an array with the variability quantiles (3rd dimension of the array). Element `samples`: an array with the variability samples (3rd dimension of the array). Elements `Y`, `X`: copies of the `p` and `X` arguments.
+#'
+#' @references
+#' P.G.L. Porta Mana: *What's special about 89% credibility intervals?*. 2025 <doi:10.5281/zenodo.17072199>.
 #'
 #' @seealso
 #' [learn()], which generates the `learnt` objects required by `qPr()`.
@@ -315,14 +318,14 @@ qPr <- function(
         util_qYX <- util_qYXcont
     } else if(auxY$mcmctype == 'D'){
         params1 <- learnt$Dmean[auxY$id, ,]
-        params2 <- learnt$Dvar[auxY$id, ,]
+        params2 <- learnt$Dsd[auxY$id, ,]
         util_qYX <- util_qYXcont
     } else if(auxY$mcmctype == 'C'){
         params1 <- learnt$Cmean[auxY$id, ,]
         params2 <- learnt$Csd[auxY$id, ,]
         util_qYX <- util_qYXcont
     } else {
-        stop('type of Y not found')
+        stop('type of Yname not found')
     }
 
 #### Calculation with all pY and X combinations
