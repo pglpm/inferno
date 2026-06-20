@@ -262,7 +262,7 @@ learnt <- learn(
 #> Learning from 5 datapoints, 1 variates.
 #> 
 #>  Saving output in directory
-#>  /tmp/RtmpaqA1SH/prova-V1_D5_S10_260620T151900_1a24b8251e4 
+#>  /tmp/Rtmpz1alUt/prova-V1_D5_S10_260620T155613_1a2c7b1d5ddc 
 #> 
 #> Starting Monte Carlo sampling of 10 samples by 1 chains
 #> in a space of 191 (effectively 261) dimensions.
@@ -288,18 +288,18 @@ learnt <- learn(
 #> quantile width: 0.057 to 0.353
 #> 
 #> Plotting final Monte Carlo traces and marginal samples...
-#> Total computation time: 38 secs
-#> Average preparation & finalization time: 37 secs.
-#> Average Monte Carlo time per chain: 0.61 secs.
+#> Total computation time: 36 secs
+#> Average preparation & finalization time: 35 secs.
+#> Average Monte Carlo time per chain: 0.58 secs.
 #> Max total memory used: approx 360MB.
 #> Max memory used per core: approx 360MB.
 #> Removing temporary output files.
 #> 
 #> Finished.
-#> *********************************************************
+#> **********************************************************
 #>  Output saved in directory
-#> /tmp/RtmpaqA1SH/prova-V1_D5_S10_260620T151900_1a24b8251e4
-#> *********************************************************
+#> /tmp/Rtmpz1alUt/prova-V1_D5_S10_260620T155613_1a2c7b1d5ddc
+#> **********************************************************
 #> Closing connections to cores.
 
 ## Check structure of `learnt` object:

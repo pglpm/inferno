@@ -1,10 +1,10 @@
 # Calculate quantiles
 
-This function calculates the quantiles of `Pr(Y | X, data)` – that is,
-the values of `Y` having specified probabilities – at specified
-probability levels, as well as the variability of those quantiles if
-more learning data were provided. It is somewhat analogous to the
-`q`-variants of R distribution functions, such as
+This function calculates the quantiles of `Pr(Y | X, data)` at specified
+cumulative-probability levels (that is, the values of `Y` having
+specified cumulative probabilities), as well as the variability of those
+quantiles if more learning data were provided. It is somewhat analogous
+to the `q`-variants of R distribution functions, such as
 [`stats::qnorm()`](https://rdrr.io/r/stats/Normal.html). The variability
 can be expressed in the form of quantiles, samples, or both, as in the
 [`Pr()`](https://pglpm.github.io/prova/reference/Pr.md) function. If
@@ -124,6 +124,11 @@ an array with the variability quantiles (3rd dimension of the array).
 Element `samples`: an array with the variability samples (3rd dimension
 of the array). Elements `Y`, `X`: copies of the `p` and `X` arguments.
 
+## References
+
+P.G.L. Porta Mana: *What's special about 89% credibility intervals?*.
+2025 <doi:10.5281/zenodo.17072199>.
+
 ## See also
 
 [`learn()`](https://pglpm.github.io/prova/reference/learn.md), which
@@ -151,14 +156,40 @@ quants <- qPr(
   learnt = learnt, parallel = 1
 )
 #> Registered socket cluster with 1 nodes on host ‘localhost’.
-#> Error in checkForRemoteErrors(val): one node produced an error: Non-numeric argument to mathematical function
 #> Closing connections to cores.
 
 ## display the quantile values
 quants$values
-#> Error: object 'quants' not found
+#>         X
+#> bill_len [,1]
+#>    0.055 35.7
+#>    0.5   44.3
+#>    0.945 52.1
 
 ## display the uncertainty about the quantiles
 quants$quantiles
-#> Error: object 'quants' not found
+#> , ,  = 5.5%
+#> 
+#>         X
+#> bill_len [,1]
+#>    0.055 35.3
+#>    0.5   43.3
+#>    0.945 51.5
+#> 
+#> , ,  = 50%
+#> 
+#>         X
+#> bill_len [,1]
+#>    0.055 35.7
+#>    0.5   44.3
+#>    0.945 52.1
+#> 
+#> , ,  = 94.5%
+#> 
+#>         X
+#> bill_len [,1]
+#>    0.055 36.2
+#>    0.5   45.1
+#>    0.945 52.8
+#> 
 ```
