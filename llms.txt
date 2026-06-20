@@ -281,5 +281,5 @@ For developers.
 
 - [Associations among variates and mutual
   information](https://pglpm.github.io/prova/articles/mutualinfo.md):
-- [Probabilistic-statistical variate analysis with
-  Prova](https://pglpm.github.io/prova/articles/start.md):
+- [An introduction to probabilistic-statistical variate
+  analysis](https://pglpm.github.io/prova/articles/start.md):

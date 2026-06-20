@@ -1,4 +1,4 @@
-# Probabilistic-statistical variate analysis with Prova
+# An introduction to probabilistic-statistical variate analysis
 
 This vignette gives an introduction and guide to the kinds of *Bayesian
 nonparametric inference* that can be done with **Prova**, by means of a
@@ -921,13 +921,13 @@ signif(digits = 2, ## round to two significant digits
         Fspeciessex10$quantiles[, , c('5.5%', '94.5%')]
     )
 )
-#                        5.5% 94.5%
-# Adelie,female    0.17 0.050  0.33
-# Chinstrap,female 0.13 0.038  0.27
-# Gentoo,female    0.29 0.120  0.50
-# Adelie,male      0.13 0.034  0.28
-# Chinstrap,male   0.17 0.055  0.35
-# Gentoo,male      0.11 0.021  0.24
+#                       5.5% 94.5%
+# Adelie,female    0.30 0.12  0.51
+# Chinstrap,female 0.31 0.12  0.52
+# Gentoo,female    0.40 0.19  0.62
+# Adelie,male      0.30 0.12  0.51
+# Chinstrap,male   0.31 0.12  0.52
+# Gentoo,male      0.40 0.19  0.62
 ```
 
 Now let’s continue with our simpler plan.
@@ -1193,14 +1193,14 @@ signif(digits = 2, ## round
 )
 #            X
 # Y           Biscoe,female Dream,female Torgersen,female Biscoe,male
-#   Adelie             0.13          0.4             0.48        0.21
-#   Chinstrap          0.12          0.4             0.27        0.22
-#   Gentoo             0.76          0.2             0.25        0.57
+#   Adelie             0.14         0.36             0.46        0.14
+#   Chinstrap          0.14         0.47             0.32        0.14
+#   Gentoo             0.72         0.17             0.21        0.72
 #            X
 # Y           Dream,male Torgersen,male
-#   Adelie          0.32           0.44
-#   Chinstrap       0.54           0.38
-#   Gentoo          0.14           0.18
+#   Adelie          0.36           0.46
+#   Chinstrap       0.47           0.32
+#   Gentoo          0.17           0.21
 ```
 
   
@@ -2000,6 +2000,8 @@ colnames(X) <- Xvrt
 
 ## NB: rewriting the previous 'Fanalysis' object
 Fanalysis <- Pr(Y = Y, X = X, learnt = learntall, parallel = 4)
+# Error in `checkForRemoteErrors()`:
+# ! 4 nodes produced errors; first error: Non-numeric argument to mathematical function
 ```
 
 Here is the estimated frequency distribution of body mass within each
