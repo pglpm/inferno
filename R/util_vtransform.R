@@ -100,7 +100,7 @@ vtransform <- function(
 
                     } else if (Rout != 'mi'){
                         ## used in mutualinfo()
-                        stop('Unknown transformation for variate', v)
+                        stop('Unknown transformation for variate ', v)
                     }
 
 #### Continuous, closed domain
@@ -443,6 +443,9 @@ vtransform <- function(
                         bvalues <- seq_len(Nvalues)
                         names(bvalues) <- sapply(bvalues, function(x)get(paste0('V', x)))
                         ## names(bvalues) <- unlist(xinfo[paste0('V', bvalues)])
+                        if(!all(as.character(datum[!is.na(datum)]) %in% names(bvalues))) {
+                            stop('Unknown values for variate ', v)
+                        }
                         datum <- bvalues[as.character(datum)]
 
                     } else if (Nout == 'index') {
@@ -458,7 +461,7 @@ vtransform <- function(
                         datum <- names(bvalues[datum])
 
                     } else if (Nout != 'mi') {
-                        stop('Unknown transformation for variate', v)
+                        stop('Unknown transformation for variate ', v)
                     }
 
                     ## Binary
@@ -470,6 +473,10 @@ vtransform <- function(
                         bvalues <- 0:1
                         names(bvalues) <- sapply(bvalues + 1L,
                             function(x)get(paste0('V', x)))
+                        if(!all(as.character(datum[!is.na(datum)]) %in% names(bvalues))) {
+                            stop('Unknown values for variate ', v)
+                        }
+                        datum <- bvalues[as.character(datum)]
                         datum <- bvalues[as.character(datum)]
 
                     } else if (Bout == 'original') {
