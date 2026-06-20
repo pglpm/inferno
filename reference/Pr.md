@@ -151,17 +151,132 @@ Algorithms*. Cambridge University Press, 2005
 
 ``` r
 
-## Load an example `learnt` object, included in the package
+## Load the example `learnt` object included in the package
 learnt <- learntExample
 
+## ## Example 1:
+## Calculate the probability that an unknown penguin from this population
+## is of species 'Adelie'
+
+probs <- Pr(
+  Y = data.frame(species = 'Adelie'),
+  learnt = learnt, parallel = 1
+)
+#> Registered socket cluster with 1 nodes on host ‘localhost’.
+#> Closing connections to cores.
+
+## display the probability value
+probs$values
+#>         X
+#> Y            [,1]
+#>   Adelie 0.440685
+
+## the full-population frequency of 'Adelie' penguins is unknown;
+## display the 5.5%- and 94.5%-probability values
+## for such frequency
+probs$quantiles[, , c('5.5%', '94.5%')]
+#>      5.5%     94.5% 
+#> 0.3988210 0.4829919 
+
+
+## ## Example 2:
+## Calculate the 3 probabilities that an unknown penguin from this population
+## is of species 'Adelie', 'Chinstrap', 'Gentoo'
+
+probs <- Pr(
+  Y = data.frame(species = c('Adelie', 'Chinstrap', 'Gentoo')),
+  learnt = learnt, parallel = 1
+)
+#> Registered socket cluster with 1 nodes on host ‘localhost’.
+#> Closing connections to cores.
+
+## display the 3 probability values
+probs$values
+#>            X
+#> Y                [,1]
+#>   Adelie    0.4406850
+#>   Chinstrap 0.1984161
+#>   Gentoo    0.3608989
+
+## the full-population frequencies of the three species are unknown;
+## display the 5.5%- and 94.5%-probability values
+## for such frequencies
+probs$quantiles[, , c('5.5%', '94.5%')]
+#>            
+#> Y                5.5%     94.5%
+#>   Adelie    0.3988210 0.4829919
+#>   Chinstrap 0.1623616 0.2357522
+#>   Gentoo    0.3237028 0.4017671
+
+## plot the probabilities and quantiles
+plot(probs)
+
+
+
+## ## Example 3:
+## Calculate the probability that an unknown penguin is of species 'Adelie'
+## GIVEN that its bill length is 43 mm
+
+probs <- Pr(
+  Y = data.frame(species = 'Adelie'),
+  X = data.frame(bill_len = 43),
+  learnt = learnt, parallel = 1
+)
+#> Registered socket cluster with 1 nodes on host ‘localhost’.
+#> Closing connections to cores.
+
+## display the probability value
+probs$values
+#>         X
+#> Y               43
+#>   Adelie 0.4647433
+
+## the full-subpopulation frequency of 'Adelie' penguins,
+## among penguins having bill length of 43 mm, is unknown;
+## display the 5.5%- and 94.5%-probability values
+## for such conditional frequency
+probs$quantiles[, , c('5.5%', '94.5%')]
+#>      5.5%     94.5% 
+#> 0.3669249 0.5678666 
+
+
+## ## Example 4:
+## Calculate the probability that
+## an unknown penguin is of species 'Adelie' AND its bill length is 43 mm
+
+probs <- Pr(
+  Y = data.frame(species = 'Adelie', bill_len = 43),
+  learnt = learnt, parallel = 1
+)
+#> Registered socket cluster with 1 nodes on host ‘localhost’.
+#> Closing connections to cores.
+
+## display the probability value
+probs$values
+#>            X
+#> Y                  [,1]
+#>   Adelie,43 0.001819114
+
+## display the 5.5%- and 94.5%-probability values
+## for the full-population frequency of 'Adelie' penguins with 43 mm bills
+probs$quantiles[, , c('5.5%', '94.5%')]
+#>        5.5%       94.5% 
+#> 0.001245039 0.002371801 
+
+
+## ## Example 5:
+## Calculate the 3 x 2 probabilities for the 3 species
+## GIVEN bill-lengths of 43 mm and 44 mm
+
 Y <- data.frame(species = c('Adelie', 'Chinstrap', 'Gentoo'))
+
 X <- data.frame(bill_len = c(43, 44))
-learnt <- learntExample
 
 probs <- Pr(Y = Y, X = X, learnt = learnt, parallel = 1)
 #> Registered socket cluster with 1 nodes on host ‘localhost’.
 #> Closing connections to cores.
 
+## display the 3 x 2 probability values
 probs$values
 #>            X
 #> Y                  43        44
@@ -169,6 +284,8 @@ probs$values
 #>   Chinstrap 0.1458345 0.2054491
 #>   Gentoo    0.3894222 0.5722285
 
+## display the 5.5%- and 94.5%-probability values
+## for the full-population joint frequencies
 probs$quantiles[, , c('5.5%', '94.5%')]
 #> , ,  = 5.5%
 #> 
@@ -186,4 +303,46 @@ probs$quantiles[, , c('5.5%', '94.5%')]
 #>   Chinstrap 0.2190872 0.2965559
 #>   Gentoo    0.4811995 0.6718201
 #> 
+
+## plot the probabilities and quantiles
+plot(probs)
+
+
+
+## ## Example 6:
+## Calculate the 3 x 2 joint probabilities for the 3 species
+## AND bill-lengths of 43 mm and 44 mm
+
+Y <- expand.grid(
+  species = c('Adelie', 'Chinstrap', 'Gentoo'),
+  bill_len = c(43, 44)
+)
+
+probs <- Pr(Y = Y, learnt = learnt, parallel = 1)
+#> Registered socket cluster with 1 nodes on host ‘localhost’.
+#> Closing connections to cores.
+
+## display the 6 joint-probability values
+probs$values
+#>               X
+#> Y                      [,1]
+#>   Adelie,43    0.0018191137
+#>   Chinstrap,43 0.0005712174
+#>   Gentoo,43    0.0015231253
+#>   Adelie,44    0.0009554396
+#>   Chinstrap,44 0.0008826070
+#>   Gentoo,44    0.0024593339
+
+## display the 5.5%- and 94.5%-probability values
+## for the full-population joint frequencies
+probs$quantiles[, , c('5.5%', '94.5%')]
+#>               
+#> Y                      5.5%       94.5%
+#>   Adelie,43    0.0012450391 0.002371801
+#>   Chinstrap,43 0.0003027243 0.000897585
+#>   Gentoo,43    0.0010682562 0.002025675
+#>   Adelie,44    0.0005600381 0.001361621
+#>   Chinstrap,44 0.0004820964 0.001288832
+#>   Gentoo,44    0.0017899847 0.003151722
+
 ```
