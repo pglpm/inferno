@@ -161,8 +161,8 @@ and of its documents.
   : Plot the variability of an object of class "probability" as a
   histogram
 
-- [`write.csvi()`](https://pglpm.github.io/prova/reference/prova.data.md)
-  [`read.csvi()`](https://pglpm.github.io/prova/reference/prova.data.md)
+- [`pwrite.csv()`](https://pglpm.github.io/prova/reference/prova.data.md)
+  [`pread.csv()`](https://pglpm.github.io/prova/reference/prova.data.md)
   :
 
   Write and read data in **prova**

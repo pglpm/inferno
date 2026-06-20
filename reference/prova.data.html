@@ -43,9 +43,9 @@
 
     <div class="section level2">
     <h2 id="ref-usage">Usage<a class="anchor" aria-label="anchor" href="#ref-usage"></a></h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">write.csvi</span><span class="op">(</span><span class="va">x</span>, <span class="va">file</span>, <span class="va">...</span><span class="op">)</span></span>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">pwrite.csv</span><span class="op">(</span><span class="va">x</span>, <span class="va">file</span>, <span class="va">...</span><span class="op">)</span></span>
 <span></span>
-<span><span class="fu">read.csvi</span><span class="op">(</span><span class="va">file</span>, <span class="va">...</span><span class="op">)</span></span></code></pre></div>
+<span><span class="fu">pread.csv</span><span class="op">(</span><span class="va">file</span>, <span class="va">...</span><span class="op">)</span></span></code></pre></div>
     </div>
 
     <div class="section level2">
@@ -71,7 +71,7 @@
 <li><p>Values should be separated by <em>commas</em>, not by tabs or semicolons.</p></li>
 <li><p>Missing values should be simply <em>empty</em>, not denoted by "NA", "missing", "-", or similar.</p></li>
 <li><p>Preferably there should not be <code><a href="https://rdrr.io/r/base/factor.html" class="external-link">base::factor</a></code>s; use character names instead.</p></li>
-</ul><p>The utility functions <code>write.csvi()</code> and <code>read.csvi()</code> are wrappers to <code><a href="https://rdrr.io/r/utils/write.table.html" class="external-link">utils::write.table()</a></code> or <code><a href="https://rdrr.io/r/utils/read.table.html" class="external-link">utils::read.table()</a></code> that sets appropriate default parameters</p>
+</ul><p>The utility functions <code>pwrite.csv()</code> and <code>pread.csv()</code> are wrappers to <code><a href="https://rdrr.io/r/utils/write.table.html" class="external-link">utils::write.table()</a></code> and <code><a href="https://rdrr.io/r/utils/read.table.html" class="external-link">utils::read.table()</a></code> that set appropriate default parameters</p>
     </div>
 
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>

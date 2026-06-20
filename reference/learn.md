@@ -218,6 +218,27 @@ See
 [`vignette('start')`](https://pglpm.github.io/prova/articles/start.md)
 for an introductory example.
 
+## See also
+
+[metadatatemplate](https://pglpm.github.io/prova/reference/metadatatemplate.md)
+to help writing a metadata file.
+
+[`Pr()`](https://pglpm.github.io/prova/reference/Pr.md) to calculate
+probabilities, and
+[`qPr()`](https://pglpm.github.io/prova/reference/qPr.md) to calculate
+quantiles, given the data processed by `learn()`.
+
+[`rPr()`](https://pglpm.github.io/prova/reference/rPr.md) to generate
+datapoints similar to the data processed by `learn()`.
+
+[`mutualinfo()`](https://pglpm.github.io/prova/reference/mutualinfo.md)
+to calculate mutual information given the data processed by `learn()`.
+
+[`pread.csv()`](https://pglpm.github.io/prova/reference/prova.data.md)
+and
+[`pwrite.csv()`](https://pglpm.github.io/prova/reference/prova.data.md)
+to read and write CSV files in the format used by `learn()`.
+
 ## Examples
 
 ``` r
@@ -241,7 +262,7 @@ learnt <- learn(
 #> Learning from 5 datapoints, 1 variates.
 #> 
 #>  Saving output in directory
-#>  /tmp/RtmpJEu1an/prova-V1_D5_S10_260620T112447_1a204c36835c 
+#>  /tmp/RtmpEu2EN0/prova-V1_D5_S10_260620T145154_19ce733bfd88 
 #> 
 #> Starting Monte Carlo sampling of 10 samples by 1 chains
 #> in a space of 191 (effectively 261) dimensions.
@@ -267,9 +288,9 @@ learnt <- learn(
 #> quantile width: 0.057 to 0.353
 #> 
 #> Plotting final Monte Carlo traces and marginal samples...
-#> Total computation time: 35 secs
-#> Average preparation & finalization time: 34 secs.
-#> Average Monte Carlo time per chain: 0.55 secs.
+#> Total computation time: 40 secs
+#> Average preparation & finalization time: 38 secs.
+#> Average Monte Carlo time per chain: 0.83 secs.
 #> Max total memory used: approx 360MB.
 #> Max memory used per core: approx 360MB.
 #> Removing temporary output files.
@@ -277,7 +298,7 @@ learnt <- learn(
 #> Finished.
 #> **********************************************************
 #>  Output saved in directory
-#> /tmp/RtmpJEu1an/prova-V1_D5_S10_260620T112447_1a204c36835c
+#> /tmp/RtmpEu2EN0/prova-V1_D5_S10_260620T145154_19ce733bfd88
 #> **********************************************************
 #> Closing connections to cores.
 

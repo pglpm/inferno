@@ -19,8 +19,7 @@ A data frame with 2 rows and 10 columns.
 ## See also
 
 [`metadatatemplate()`](https://pglpm.github.io/prova/reference/metadatatemplate.md)
-which helps producing this metadata file from a given dataset,
-[`learn()`](https://pglpm.github.io/prova/reference/learn.md) which uses
-to produce hyperparameters for posterior infereces,
-[learntExample](https://pglpm.github.io/prova/reference/learntExample.md)
-as a \`learnt' object produced from these metadata.
+which helps producing this kind of metadata files from a given dataset.
+
+[`learn()`](https://pglpm.github.io/prova/reference/learn.md) which
+needs this kind of metadata files to "learn" from data.

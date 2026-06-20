@@ -38,7 +38,13 @@ including diagnostics and variate metadata.
 
 ## See also
 
-[`learn()`](https://pglpm.github.io/prova/reference/learn.md) which
-produces this kind of object,
-[`Pr()`](https://pglpm.github.io/prova/reference/Pr.md) which calculates
-variousposterior probabilities based on this kind of object.
+[`learn()`](https://pglpm.github.io/prova/reference/learn.md), which
+produces this kind of object.
+
+[`Pr()`](https://pglpm.github.io/prova/reference/Pr.md),
+[`qPr()`](https://pglpm.github.io/prova/reference/qPr.md),
+[`rPr()`](https://pglpm.github.io/prova/reference/rPr.md),
+[`mutualinfo()`](https://pglpm.github.io/prova/reference/mutualinfo.md):
+functions that require this kind of object in order to calculate
+probabilities and quantiles, generate data points, and calculate mutual
+information.

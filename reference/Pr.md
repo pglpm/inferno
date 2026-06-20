@@ -147,6 +147,17 @@ D. J. C. MacKay: *Information Theory, Inference, and Learning
 Algorithms*. Cambridge University Press, 2005
 <https://www.inference.org.uk/itila/book.html>.
 
+## See also
+
+[`learn()`](https://pglpm.github.io/prova/reference/learn.md), which
+generates the `learnt` objects required by `Pr()`.
+
+[`plot()`](https://rdrr.io/r/graphics/plot.default.html) to plot
+probabilities and quantiles calculated by `Pr()`.
+
+[`hist()`](https://rdrr.io/r/graphics/hist.html) to plot histograms of
+the probability distributions calculated by `Pr()`.
+
 ## Examples
 
 ``` r

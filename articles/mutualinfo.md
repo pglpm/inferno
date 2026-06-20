@@ -76,8 +76,11 @@ dataset, included in R version 4.5.0 and above. For your convenience you
 can download the shuffled dataset as the CSV file
 [`penguin_data.csv`](https://github.com/pglpm/prova/raw/main/development/downloads/penguin_data.csv),
 then load it with the
-[`read.csvi()`](https://pglpm.github.io/prova/reference/prova.data.md)
+[`pread.csv()`](https://pglpm.github.io/prova/reference/prova.data.md)
 function as follows:
+
+    # Error in `pread.csv()`:
+    # ! could not find function "pread.csv"
 
 We assume that we have already learned all predictive information from
 this dataset by means of the **Prova** function
@@ -126,11 +129,9 @@ against each other, for all *sample* data, as a scatter plot:
 flexiplot(x = penguin$island, y = penguin$species,
     type = 'p', xlab = 'island', ylab = 'species',
     xdomain = islandvalues, ydomain = speciesvalues)
+# Error:
+# ! object 'penguin' not found
 ```
-
-![\*\*Scatter plot of sample data\*\*](figure/vissample-1.png)
-
-**Scatter plot of sample data**
 
 Note how
 [`flexiplot()`](https://pglpm.github.io/prova/reference/flexiplot.md)
@@ -202,12 +203,12 @@ rPr(
     Ynames = c('island', 'species'),
     learnt = learnt
 )
-#        island   species
-# 644_1  Biscoe    Gentoo
-# 996_1  Biscoe    Gentoo
-# 1228_1 Biscoe    Adelie
-# 2230_1  Dream Chinstrap
-# 3083_1  Dream Chinstrap
+#           island species
+# 368_1     Biscoe  Adelie
+# 491_1     Biscoe  Adelie
+# 1484_1    Biscoe  Gentoo
+# 2487_1 Torgersen  Adelie
+# 3402_1 Torgersen  Adelie
 ```
 
 The rows of the resulting data frame are named according to the Monte

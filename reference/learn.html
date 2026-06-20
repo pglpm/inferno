@@ -200,6 +200,14 @@
 <p>This function creates an object, contained in a <code>learnt.rds</code> file, which is used in all subsequent probabilistic computations. Other information about the computation is provided in logs and plots, saved in a directory specified by the user.</p>
 <p>See <code><a href="../articles/start.html">vignette('start')</a></code> for an introductory example.</p>
     </div>
+    <div class="section level2">
+    <h2 id="see-also">See also<a class="anchor" aria-label="anchor" href="#see-also"></a></h2>
+    <div class="dont-index"><p><a href="metadatatemplate.html">metadatatemplate</a> to help writing a metadata file.</p>
+<p><code><a href="Pr.html">Pr()</a></code> to calculate probabilities, and <code><a href="qPr.html">qPr()</a></code> to calculate quantiles, given the data processed by <code>learn()</code>.</p>
+<p><code><a href="rPr.html">rPr()</a></code> to generate datapoints similar to the data processed by <code>learn()</code>.</p>
+<p><code><a href="mutualinfo.html">mutualinfo()</a></code> to calculate mutual information given the data processed by <code>learn()</code>.</p>
+<p><code><a href="prova.data.html">pread.csv()</a></code> and <code><a href="prova.data.html">pwrite.csv()</a></code> to read and write CSV files in the format used by <code>learn()</code>.</p></div>
+    </div>
 
     <div class="section level2">
     <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
@@ -223,7 +231,7 @@
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Learning from 5 datapoints, 1 variates.</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>  Saving output in directory</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  /tmp/RtmpJEu1an/prova-V1_D5_S10_260620T112447_1a204c36835c </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  /tmp/RtmpEu2EN0/prova-V1_D5_S10_260620T145154_19ce733bfd88 </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Starting Monte Carlo sampling of 10 samples by 1 chains</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> in a space of 191 (effectively 261) dimensions.</span>
@@ -249,9 +257,9 @@
 <span class="r-msg co"><span class="r-pr">#&gt;</span> quantile width: 0.057 to 0.353</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Plotting final Monte Carlo traces and marginal samples...</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> Total computation time: 35 secs</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> Average preparation &amp; finalization time: 34 secs.</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> Average Monte Carlo time per chain: 0.55 secs.</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Total computation time: 40 secs</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Average preparation &amp; finalization time: 38 secs.</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Average Monte Carlo time per chain: 0.83 secs.</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Max total memory used: approx 360MB.</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Max memory used per core: approx 360MB.</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Removing temporary output files.</span>
@@ -259,7 +267,7 @@
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Finished.</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> **********************************************************</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span>  Output saved in directory</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> /tmp/RtmpJEu1an/prova-V1_D5_S10_260620T112447_1a204c36835c</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> /tmp/RtmpEu2EN0/prova-V1_D5_S10_260620T145154_19ce733bfd88</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> **********************************************************</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Closing connections to cores.</span>
 <span class="r-in"><span></span></span>

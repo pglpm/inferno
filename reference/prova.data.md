@@ -6,9 +6,9 @@ Utility functions to read and write CSV files in the format required by
 ## Usage
 
 ``` r
-write.csvi(x, file, ...)
+pwrite.csv(x, file, ...)
 
-read.csvi(file, ...)
+pread.csv(file, ...)
 ```
 
 ## Arguments
@@ -52,7 +52,7 @@ follows:
   [`base::factor`](https://rdrr.io/r/base/factor.html)s; use character
   names instead.
 
-The utility functions `write.csvi()` and `read.csvi()` are wrappers to
-[`utils::write.table()`](https://rdrr.io/r/utils/write.table.html) or
+The utility functions `pwrite.csv()` and `pread.csv()` are wrappers to
+[`utils::write.table()`](https://rdrr.io/r/utils/write.table.html) and
 [`utils::read.table()`](https://rdrr.io/r/utils/read.table.html) that
-sets appropriate default parameters
+set appropriate default parameters
