@@ -26,9 +26,13 @@
 #' @seealso
 #' [learn()], which generates the `learnt` objects required by `Pr()`.
 #'
-#' [plot()] to plot probabilities and quantiles calculated by `Pr()`.
+#' [plot.probability()] to plot probabilities and quantiles calculated by `Pr()`.
 #'
-#' [hist()] to plot histograms of the probability distributions calculated by `Pr()`.
+#' [hist.probability()] to plot histograms of the probability distributions calculated by `Pr()`.
+#'
+#' [qPr()] to calculate quantiles for a specific variate, that is, the variate values having given probabilities.
+#'
+#' [rPr()] to generate datapoints.
 #'
 #' @examples
 #'

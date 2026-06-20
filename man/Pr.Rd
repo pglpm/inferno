@@ -177,7 +177,11 @@ D. J. C. MacKay: \emph{Information Theory, Inference, and Learning Algorithms}. 
 \seealso{
 \code{\link[=learn]{learn()}}, which generates the \code{learnt} objects required by \code{Pr()}.
 
-\code{\link[=plot]{plot()}} to plot probabilities and quantiles calculated by \code{Pr()}.
+\code{\link[=plot.probability]{plot.probability()}} to plot probabilities and quantiles calculated by \code{Pr()}.
 
-\code{\link[=hist]{hist()}} to plot histograms of the probability distributions calculated by \code{Pr()}.
+\code{\link[=hist.probability]{hist.probability()}} to plot histograms of the probability distributions calculated by \code{Pr()}.
+
+\code{\link[=qPr]{qPr()}} to calculate quantiles for a specific variate, that is, the variate values having given probabilities.
+
+\code{\link[=rPr]{rPr()}} to generate datapoints.
 }
