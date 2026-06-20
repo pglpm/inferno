@@ -3085,7 +3085,6 @@ workerfun <- function(
 
             if (remainiter > 0) { # This chain is going to continue
 
-
                 ## limit number of iterations per loop, to save memory
                 niter <- min(remainiter + 1L, startupMCiterations)
                 subiter <- subiter + 1L
