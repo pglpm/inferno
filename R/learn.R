@@ -2983,6 +2983,7 @@ workerfun <- function(
             ## Output available diagnostics
             toprint <- list(
                 'rel. CI error' = max(relmcse[-1]),
+                'ESS from rel. CI error' = (1/max(relmcse))^2,
                 'ESS' = essnrmean,
                 'needed thinning' = autothinning,
                 'average' = mean(oktraces),
