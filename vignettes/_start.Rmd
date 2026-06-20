@@ -1,10 +1,10 @@
 ---
-title: "Probabilistic-statistical variate analysis with Prova"
+title: "An introduction to probabilistic-statistical variate analysis"
 output:
   rmarkdown::html_vignette:
     number_sections: true
 vignette: >
-  %\VignetteIndexEntry{Probabilistic-statistical variate analysis with Prova}
+  %\VignetteIndexEntry{An introduction to probabilistic-statistical variate analysis}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 ---
