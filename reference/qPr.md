@@ -149,7 +149,7 @@ learnt <- learntExample
 
 ## ## Example 1:
 ## Calculate the 5.5%-, 50%-, and 94.5%-quantiles for the variate "bill lengt",
-## that is, the bill lengths having such probabilities
+## that is, the bill lengths having such cumulative probabilities
 
 quants <- qPr(
   Yname = 'bill_len',
@@ -165,6 +165,22 @@ quants$values
 #>    0.055 35.7
 #>    0.5   44.3
 #>    0.945 52.1
+
+## verify these values using Pr():
+probs <- Pr(
+  Y = data.frame(bill_len = c(quants$values)),
+  tails = list(bill_len = -1),
+  learnt = learnt, parallel = 1)
+#> Registered socket cluster with 1 nodes on host ‘localhost’.
+#> Closing connections to cores.
+
+## the cumulative probabilities are indeed 0.055, 0.5, 0.945 within numerical error:
+probs$values
+#>       X
+#> Y            [,1]
+#>   35.7 0.05541489
+#>   44.3 0.50269977
+#>   52.1 0.94784616
 
 ## display the uncertainty about the quantiles
 quants$quantiles
