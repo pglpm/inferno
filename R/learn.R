@@ -40,6 +40,17 @@
 #'
 #' @returns Learnt object, or name of directory containing output files, or `NULL`, depending on argument `valueislearnt`.
 #'
+#' @seealso
+#' [metadatatemplate] to help writing a metadata file.
+#'
+#' [Pr()] to calculate probabilities, and [qPr()] to calculate quantiles, given the data processed by `learn()`.
+#'
+#' [rPr()] to generate datapoints similar to the data processed by `learn()`.
+#'
+#' [mutualinfo()] to calculate mutual information given the data processed by `learn()`.
+#'
+#' [pread.csv()] and [pwrite.csv()] to read and write CSV files in the format used by `learn()`.
+#'
 #' @examples
 #'
 #' ## Create dataset with 5 points of variate 'V' for demonstration:

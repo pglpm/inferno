@@ -19,12 +19,12 @@
 #' - Missing values should be simply *empty*, not denoted by "NA", "missing", "-", or similar.
 #' - Preferably there should not be [`base::factor`]s; use character names instead.
 #'
-#' The utility functions [write.csvi()] and [read.csvi()] are wrappers to [utils::write.table()] or [utils::read.table()] that sets appropriate default parameters
+#' The utility functions `pwrite.csv()` and `pread.csv()` are wrappers to [utils::write.table()] and [utils::read.table()] that set appropriate default parameters
 NULL
 
 #' @rdname prova.data
 #' @export
-write.csvi <- function(x, file, ...){
+pwrite.csv <- function(x, file, ...){
     write.csv(x = x, file = file,
         row.names = FALSE,
         quote = TRUE,
@@ -36,7 +36,7 @@ write.csvi <- function(x, file, ...){
 
 #' @rdname prova.data
 #' @export
-read.csvi <- function(file, ...){
+pread.csv <- function(file, ...){
     read.csv(file = file,
         na.strings = '',
         stringsAsFactors = FALSE,

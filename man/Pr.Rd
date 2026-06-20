@@ -174,3 +174,10 @@ J.-M. Bernardo, A. F. Smith: \emph{Bayesian Theory}. Wiley, 2000 \url{doi:10.100
 
 D. J. C. MacKay: \emph{Information Theory, Inference, and Learning Algorithms}. Cambridge University Press, 2005 \url{https://www.inference.org.uk/itila/book.html}.
 }
+\seealso{
+\code{\link[=learn]{learn()}}, which generates the \code{learnt} objects required by \code{Pr()}.
+
+\code{\link[=plot]{plot()}} to plot probabilities and quantiles calculated by \code{Pr()}.
+
+\code{\link[=hist]{hist()}} to plot histograms of the probability distributions calculated by \code{Pr()}.
+}

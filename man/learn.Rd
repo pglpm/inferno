@@ -126,3 +126,14 @@ learnt <- learn(
 str(learnt)
 
 }
+\seealso{
+\link{metadatatemplate} to help writing a metadata file.
+
+\code{\link[=Pr]{Pr()}} to calculate probabilities, and \code{\link[=qPr]{qPr()}} to calculate quantiles, given the data processed by \code{learn()}.
+
+\code{\link[=rPr]{rPr()}} to generate datapoints similar to the data processed by \code{learn()}.
+
+\code{\link[=mutualinfo]{mutualinfo()}} to calculate mutual information given the data processed by \code{learn()}.
+
+\code{\link[=pread.csv]{pread.csv()}} and \code{\link[=pwrite.csv]{pwrite.csv()}} to read and write CSV files in the format used by \code{learn()}.
+}

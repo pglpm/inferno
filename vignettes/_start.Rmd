@@ -68,10 +68,10 @@ set.seed(50) ## replace with your favourite seed number
 
 penguin <- penguins[sample(1:nrow(penguins)), ] ## shuffle
 
-write.csvi(penguin, file = 'penguin_data.csv')
+pwrite.csv(penguin, file = 'penguin_data.csv')
 ```
 
-The utility function `write.csvi()` saves the dataset as a CSV file that respects the [formatting rules required by **Prova**](#format).
+The utility function `pwrite.csv()` saves the dataset as a CSV file that respects the [formatting rules required by **Prova**](#format).
 
 We assume that you now have the `penguin_data.csv` file.
 
@@ -145,13 +145,13 @@ We receive the first 10 samples from our sampling survey and store them in the f
 
 ```{r save10, eval = FALSE}
 datafile <- 'penguin_data10.csv'
-write.csvi(penguin[1:10, ], datafile) ## write the first 10 samples
+pwrite.csv(penguin[1:10, ], datafile) ## write the first 10 samples
 ```
 
 Here they are:
 ```{r show10, echo = FALSE}
 datafile <- 'penguin_data10.csv'
-penguin <- read.csvi(datafile)
+penguin <- pread.csv(datafile)
 knitr::kable(penguin, row.names = TRUE)
 ```
 
@@ -274,7 +274,7 @@ metadatatemplate(data = datafile, file = metadatafile)
 The preliminary metadata file created by `metadatatemplate()` looks like this:
 
 ```{r, echo = FALSE}
-dat <- read.csvi('penguin_metadata_temp.csv')
+dat <- pread.csv('penguin_metadata_temp.csv')
 knitr::kable(dat, row.names = FALSE)
 ```
 
@@ -295,7 +295,7 @@ We must open the preliminary metadata file `penguin_metadata.csv` with our favou
 
 ```{r, echo = FALSE, eval = TRUE}
 metadatafile <- 'penguin_metadata.csv'
-dat <- read.csvi(metadatafile)
+dat <- pread.csv(metadatafile)
 knitr::kable(dat, row.names = FALSE)
 ```
 
@@ -676,7 +676,7 @@ Now imagine that our sampling colleagues send us 50 more datapoints, which we ad
 
 ```{r save60, eval = FALSE}
 datafile <- 'penguin_data60.csv'
-write.csvi(penguin[1:60, ], datafile) ## write the first 60 samples
+pwrite.csv(penguin[1:60, ], datafile) ## write the first 60 samples
 ```
 
 Feel free to take a look at your extended sample data. There may be new datapoints with missing values, but as already discussed this isn't a problem for Bayesian theory and **Prova**.
@@ -953,7 +953,7 @@ Let's store all datapoints in the file `penguin_data.csv`:
 
 ```{r saveall, eval = FALSE}
 datafile <- 'penguin_data.csv'
-write.csvi(penguin, datafile)
+pwrite.csv(penguin, datafile)
 ```
 As usual we perform the updated inference with the `learn()` function (and as usual please wait before running the code below):
 

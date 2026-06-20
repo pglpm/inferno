@@ -25,6 +25,8 @@ It is a list that essentially contains posterior hyperparameters for drawing sta
 \strong{Note} that the \code{\link[=learn]{learn()}} function that produced \code{learntExample} was called with the option to create only a limited number (225) of Monte Carlo samples, in order to reduce its memory size. Thus the numerical error associated with the Monte Carlo approximation is relatively in inferences drawn from the posterior hyperparameters saved in \code{learntExample}. It is only meant to be used for illustration purposes of the package's capabilities.
 }
 \seealso{
-\code{\link[=learn]{learn()}} which produces this kind of object, \code{\link[=Pr]{Pr()}} which calculates variousposterior probabilities based on this kind of object.
+\code{\link[=learn]{learn()}}, which produces this kind of object.
+
+\code{\link[=Pr]{Pr()}}, \code{\link[=qPr]{qPr()}}, \code{\link[=rPr]{rPr()}}, \code{\link[=mutualinfo]{mutualinfo()}}: functions that require this kind of object in order to calculate probabilities and quantiles, generate data points, and calculate mutual information.
 }
 \keyword{datasets}

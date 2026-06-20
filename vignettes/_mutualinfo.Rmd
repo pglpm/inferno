@@ -74,11 +74,11 @@ library('prova')
 set.seed(10)
 ```
 
-As in the `vignette('start')`, we work with a specific population of penguins, of which we have 344 sample data stored in the [`datasets::penguins`] dataset, included in R version 4.5.0 and above. For your convenience you can download the shuffled dataset as the CSV file [`penguin_data.csv`](https://github.com/pglpm/prova/raw/main/development/downloads/penguin_data.csv), then load it with the `read.csvi()` function as follows:
+As in the `vignette('start')`, we work with a specific population of penguins, of which we have 344 sample data stored in the [`datasets::penguins`] dataset, included in R version 4.5.0 and above. For your convenience you can download the shuffled dataset as the CSV file [`penguin_data.csv`](https://github.com/pglpm/prova/raw/main/development/downloads/penguin_data.csv), then load it with the `pread.csv()` function as follows:
 
 ```{r loadpenguin, echo = FALSE}
 datafile <- 'penguin_data.csv'
-penguin <- read.csvi(datafile)
+penguin <- pread.csv(datafile)
 ```
 
 We assume that we have already learned all predictive information from this dataset by means of the **Prova** function `learn()`. This information is stored in an object stored in the compressed file `learnt.rds` within the output directory that was specified in the `learn()` function. For your convenience the object produced by the computation above can be downloaded as the file [`learntall.rds`](https://github.com/pglpm/prova/raw/main/development/downloads/learntall.rds). Once you have downloaded it in your working directory you can just invoke

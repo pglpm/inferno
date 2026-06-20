@@ -7,7 +7,9 @@
 #' A data frame with 2 rows and 10 columns.
 #'
 #' @seealso
-#' [metadatatemplate()] which helps producing this metadata file from a given dataset, [learn()] which uses to produce hyperparameters for posterior infereces, [learntExample] as a `learnt' object produced from these metadata.
+#' [metadatatemplate()] which helps producing this kind of metadata files from a given dataset.
+#'
+#' [learn()] which needs this kind of metadata files to "learn" from data.
 "metadataExample"
 
 
@@ -29,5 +31,7 @@
 #' A list containing results from Markov-chain Monte Carlo computation, including diagnostics and variate metadata.
 #'
 #' @seealso
-#' [learn()] which produces this kind of object, [Pr()] which calculates variousposterior probabilities based on this kind of object.
+#' [learn()], which produces this kind of object.
+#'
+#' [Pr()], [qPr()], [rPr()], [mutualinfo()]: functions that require this kind of object in order to calculate probabilities and quantiles, generate data points, and calculate mutual information.
 "learntExample"

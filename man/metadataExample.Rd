@@ -17,6 +17,8 @@ metadataExample
 A data frame containing the prior information about the variates \code{species} and \code{bill_len} of the \link[datasets:penguins]{datasets::penguins} dataset.
 }
 \seealso{
-\code{\link[=metadatatemplate]{metadatatemplate()}} which helps producing this metadata file from a given dataset, \code{\link[=learn]{learn()}} which uses to produce hyperparameters for posterior infereces, \link{learntExample} as a `learnt' object produced from these metadata.
+\code{\link[=metadatatemplate]{metadatatemplate()}} which helps producing this kind of metadata files from a given dataset.
+
+\code{\link[=learn]{learn()}} which needs this kind of metadata files to "learn" from data.
 }
 \keyword{datasets}

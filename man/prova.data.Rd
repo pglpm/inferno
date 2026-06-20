@@ -2,13 +2,13 @@
 % Please edit documentation in R/util_datacheck.R
 \name{prova.data}
 \alias{prova.data}
-\alias{write.csvi}
-\alias{read.csvi}
+\alias{pwrite.csv}
+\alias{pread.csv}
 \title{Write and read data in \strong{prova}}
 \usage{
-write.csvi(x, file, ...)
+pwrite.csv(x, file, ...)
 
-read.csvi(file, ...)
+pread.csv(file, ...)
 }
 \arguments{
 \item{x}{The object to be written, preferably a matrix or data frame. If not, it is attempted to coerce \code{x} to a data frame. See \code{\link[utils:write.table]{utils::write.table()}}.}
@@ -30,5 +30,5 @@ The functions of the \strong{prova} package accept CSV files formatted as follow
 \item Preferably there should not be \code{\link[base:factor]{base::factor}}s; use character names instead.
 }
 
-The utility functions \code{\link[=write.csvi]{write.csvi()}} and \code{\link[=read.csvi]{read.csvi()}} are wrappers to \code{\link[utils:write.table]{utils::write.table()}} or \code{\link[utils:read.table]{utils::read.table()}} that sets appropriate default parameters
+The utility functions \code{pwrite.csv()} and \code{pread.csv()} are wrappers to \code{\link[utils:write.table]{utils::write.table()}} and \code{\link[utils:read.table]{utils::read.table()}} that set appropriate default parameters
 }
