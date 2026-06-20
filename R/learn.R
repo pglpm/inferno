@@ -3015,11 +3015,7 @@ workerfun <- function(
             dim(mcsamples$MCindex) <- ncol(mcsamples$W)
 
             ## concatenate samples
-            if (is.null(allmcsamples)) {
-                allmcsamples <- mcsamples
-            } else {
                 allmcsamples <- mcjoin(allmcsamples, mcsamples)
-            }
 
             if (is.null(allmcsamplesKA)) {
                 allmcsamplesKA <- mcsamplesKA
@@ -3072,7 +3068,7 @@ workerfun <- function(
             if (remainiter > 0) { # This chain is going to continue
 
                 ## Save cumulated mcsamples to save memory
-                if(niter >= startupMCiterations){
+                if(ncol(allmcsamples$W) >= startupMCiterations){
                     savedchunks <- savedchunks + 1L
                     saveRDS(
                         mcsubset(allmcsamples, seq_len(startupMCiterations)),
@@ -3100,7 +3096,18 @@ workerfun <- function(
                     '(chain', achain, 'of', nchainsperthiscore,
                     'for this core): increasing by', niter, '\n'
                 )
+            } else {
+                ## Save last mcsamples of this chain
+                savedchunks <- savedchunks + 1L
+                saveRDS(
+                    allmcsamples,
+                    file = file.path(dirname,
+                        paste0('____tempmcsamples-',
+                            padchainnumber, '-',
+                            savedchunks, '.rds'))
+                )
             }
+
 
             ## ###########
             ## ## PLOTS ##
@@ -3251,17 +3258,15 @@ workerfun <- function(
             length.out = nsamplesperchain
         ))
         if(length(tokeep) > length(unique(tokeep))){
-            cat('\nWARNING: have to reduce thinning owing to time constraints\n')
+            cat('\nWARNING: reduced thinning owing to time constraints\n')
             tokeep <- round(seq(from = max(1, nitertot - nsamplesperchain + 1L),
                 to = nitertot,
                 length.out = nsamplesperchain))
         }
 
-        allmcsamples <- mcsubset(allmcsamples,
-            which(allmcsamples$MCindex %in% tokeep)
-        )
-
-        for(chunk in rev(seq_len(savedchunks))){
+        ## Read, subset, combine saved samples
+        allmcsamples <- NULL
+        for(chunk in seq_len(savedchunks)){
             tempmcsamples <- readRDS(file = file.path(
                 dirname,
                 paste0('____tempmcsamples-',
@@ -3272,7 +3277,7 @@ workerfun <- function(
                 which(tempmcsamples$MCindex %in% tokeep)
             )
 
-            allmcsamples <- mcjoin(tempmcsamples, allmcsamples)
+                allmcsamples <- mcjoin(allmcsamples, tempmcsamples)
         }
 
         ## Save thinned total chain

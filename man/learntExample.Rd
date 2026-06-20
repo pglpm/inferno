@@ -14,9 +14,15 @@ A list containing results from Markov-chain Monte Carlo computation, including d
 learntExample
 }
 \description{
-An example \code{learnt} object obtained by means of the \code{\link[=learn]{learn()}} function, using the \link[datasets:penguins]{datasets::penguins} dataset and the metadata in \link{metadataExample}. It is a list that essentially contains posterior hyperparameters for drawing statistical inferences about the variates \code{species} and \code{bill_len}.
+An example \code{learnt} object obtained by means of the \code{\link[=learn]{learn()}} function, using the \link[datasets:penguins]{datasets::penguins} dataset and the metadata in \link{metadataExample}, according to the call
 
-\strong{Note} that the \code{\link[=learn]{learn()}} function that produced \code{learntExample} was called with the option to create only a limited number (360) of Monte Carlo samples, in order to reduce its memory size. Thus the numerical error associated with the Monte Carlo approximation is relatively in inferences drawn from the posterior hyperparameters saved in \code{learntExample}. It is only meant to be used for illustration purposes of the package's capabilities.
+\if{html}{\out{<div class="sourceCode">}}\preformatted{learn(data = penguins, metadata = metadataExample,
+  nsamples = 225, nchains = 15)
+}\if{html}{\out{</div>}}
+
+It is a list that essentially contains posterior hyperparameters for drawing statistical inferences about the variates \code{species} and \code{bill_len}.
+
+\strong{Note} that the \code{\link[=learn]{learn()}} function that produced \code{learntExample} was called with the option to create only a limited number (225) of Monte Carlo samples, in order to reduce its memory size. Thus the numerical error associated with the Monte Carlo approximation is relatively in inferences drawn from the posterior hyperparameters saved in \code{learntExample}. It is only meant to be used for illustration purposes of the package's capabilities.
 }
 \seealso{
 \code{\link[=learn]{learn()}} which produces this kind of object, \code{\link[=Pr]{Pr()}} which calculates variousposterior probabilities based on this kind of object.

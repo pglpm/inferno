@@ -2,11 +2,11 @@
 % Please edit documentation in R/util_mcsamples.R
 \name{mcsubset}
 \alias{mcsubset}
-\title{Eliminate samples from a 'learnt' object}
+\title{Eliminate samples from mcsamples object}
 \usage{
 mcsubset(learnt, subsamples)
 }
 \description{
-Eliminate samples from a 'learnt' object
+Eliminate samples from mcsamples object
 }
 \keyword{internal}

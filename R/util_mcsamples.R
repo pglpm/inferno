@@ -1,4 +1,4 @@
-#' Eliminate samples from a 'learnt' object
+#' Eliminate samples from mcsamples object
 #'
 #' @keywords internal
 mcsubset <- function(learnt, subsamples) {
@@ -16,16 +16,20 @@ mcsubset <- function(learnt, subsamples) {
 #'
 #' @keywords internal
 mcjoin <- function(x, y){
-    mapply(
-        function(xx, yy) {
-            temp <- c(xx, yy)
-            dx <- dim(yy)[-length(dim(yy))]
-            dim(temp) <- c(dx, length(temp) / prod(dx))
-            temp
-        },
-        x, y,
-        SIMPLIFY = FALSE
-    )
+    if(is.null(x)){
+        y
+    } else {
+        mapply(
+            function(xx, yy) {
+                temp <- c(xx, yy)
+                dx <- dim(yy)[-length(dim(yy))]
+                dim(temp) <- c(dx, length(temp) / prod(dx))
+                temp
+            },
+            x, y,
+            SIMPLIFY = FALSE
+        )
+    }
 }
 
 #' Bind 3D arrays by first dimension

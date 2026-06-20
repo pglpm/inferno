@@ -13,10 +13,8 @@ learntdir <- learn(
     ## minMCiterations = 3600 * 3,
     prior = FALSE,
     outputdir = outputdir,
-    appendtimestamp = TRUE,
     appendinfo = TRUE,
     cleanup = FALSE,
-    outputvalue = 'directory',
     parallel = parallel,
     maxrelMCSE = +Inf,
     minESS = 100,
@@ -24,7 +22,7 @@ learntdir <- learn(
     ##
     ## ## parameters for short test run:
     ## subsampledata = 10,
-    maxhours = 0,
+    ## maxhours = 0,
     ## nsamplesperchain = 60,
     ## nchains = parallel + 1,
     ##
