@@ -143,7 +143,6 @@ datapoints.
 ## Examples
 
 ``` r
-
 ## Load the example `learnt` object included in the package
 learnt <- learntExample
 
@@ -208,4 +207,42 @@ quants$quantiles
 #>    0.5   45.1
 #>    0.945 52.8
 #> 
+
+
+## ## Example 2:
+## Calculate the 5.5%-, 50%-, and 94.5%-quantiles for the variate "bill lengt",
+## for the subpopulation of species 'Adelie'
+
+quants <- qPr(
+  Yname = 'bill_len',
+  X = data.frame(species = 'Adelie'),
+  learnt = learnt, parallel = 1
+)
+#> Registered socket cluster with 1 nodes on host ‘localhost’.
+#> Closing connections to cores.
+
+## display the quantile values
+quants$values
+#>         X
+#> bill_len Adelie
+#>    0.055   34.6
+#>    0.5     38.8
+#>    0.945   43.3
+
+## verify these values using Pr():
+probs <- Pr(
+  Y = data.frame(bill_len = c(quants$values)),
+  X = data.frame(species = 'Adelie'),
+  tails = list(bill_len = -1),
+  learnt = learnt, parallel = 1)
+#> Registered socket cluster with 1 nodes on host ‘localhost’.
+#> Closing connections to cores.
+
+## the cumulative probabilities are indeed 0.055, 0.5, 0.945 within numerical error:
+probs$values
+#>       X
+#> Y          Adelie
+#>   34.6 0.05787695
+#>   38.8 0.50508827
+#>   43.3 0.94621702
 ```

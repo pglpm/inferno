@@ -75,3 +75,62 @@ joint and conditional probabilities.
 
 [`qPr()`](https://pglpm.github.io/prova/reference/qPr.md) to calculate
 quantiles.
+
+## Examples
+
+``` r
+## Load the example `learnt` object included in the package
+learnt <- learntExample
+
+## ## Example 1:
+## Generate 10 values of the 'species' variate,
+## according to the frequency distribution estimated from the data
+
+datapoints <- rPr(
+  n = 10,
+  Ynames = 'species',
+  learnt = learnt
+)
+
+c(datapoints)
+#> $species
+#>  [1] "Adelie"    "Adelie"    "Adelie"    "Chinstrap" "Adelie"    "Chinstrap"
+#>  [7] "Adelie"    "Gentoo"    "Adelie"    "Adelie"   
+#> 
+
+
+## ## Example 2:
+## Generate 5 joint values of the 'species' and 'bill_len' variates.
+
+datapoints <- rPr(
+  n = 5,
+  Ynames = c('species', 'bill_len'),
+  learnt = learnt
+)
+
+print(datapoints, row.names = FALSE) ## row names give MCMC information
+#>    species bill_len
+#>     Gentoo     42.9
+#>     Gentoo     47.9
+#>     Adelie     38.1
+#>  Chinstrap     43.9
+#>     Adelie     37.6
+
+
+## ## Example 3:
+## Generate 5 values of the 'species' variate,
+## for the subpopulation of penguins having bill length shorter than 40 mm
+
+datapoints <- rPr(
+  n = 5,
+  Ynames = 'species',
+  X = data.frame(bill_len = 40),
+  tails = list(bill_len = -1),
+  learnt = learnt
+)
+
+c(datapoints)
+#> $species
+#> [1] "Adelie" "Adelie" "Adelie" "Adelie" "Adelie"
+#> 
+```

@@ -85,6 +85,65 @@
 <p><code><a href="qPr.html">qPr()</a></code> to calculate quantiles.</p></div>
     </div>
 
+    <div class="section level2">
+    <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="co">## Load the example `learnt` object included in the package</span></span></span>
+<span class="r-in"><span><span class="va">learnt</span> <span class="op">&lt;-</span> <span class="va">learntExample</span></span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co">## ## Example 1:</span></span></span>
+<span class="r-in"><span><span class="co">## Generate 10 values of the 'species' variate,</span></span></span>
+<span class="r-in"><span><span class="co">## according to the frequency distribution estimated from the data</span></span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="va">datapoints</span> <span class="op">&lt;-</span> <span class="fu">rPr</span><span class="op">(</span></span></span>
+<span class="r-in"><span>  n <span class="op">=</span> <span class="fl">10</span>,</span></span>
+<span class="r-in"><span>  Ynames <span class="op">=</span> <span class="st">'species'</span>,</span></span>
+<span class="r-in"><span>  learnt <span class="op">=</span> <span class="va">learnt</span></span></span>
+<span class="r-in"><span><span class="op">)</span></span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="va">datapoints</span><span class="op">)</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> $species</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  [1] "Adelie"    "Adelie"    "Adelie"    "Chinstrap" "Adelie"    "Chinstrap"</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  [7] "Adelie"    "Gentoo"    "Adelie"    "Adelie"   </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co">## ## Example 2:</span></span></span>
+<span class="r-in"><span><span class="co">## Generate 5 joint values of the 'species' and 'bill_len' variates.</span></span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="va">datapoints</span> <span class="op">&lt;-</span> <span class="fu">rPr</span><span class="op">(</span></span></span>
+<span class="r-in"><span>  n <span class="op">=</span> <span class="fl">5</span>,</span></span>
+<span class="r-in"><span>  Ynames <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">'species'</span>, <span class="st">'bill_len'</span><span class="op">)</span>,</span></span>
+<span class="r-in"><span>  learnt <span class="op">=</span> <span class="va">learnt</span></span></span>
+<span class="r-in"><span><span class="op">)</span></span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="va">datapoints</span>, row.names <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span> <span class="co">## row names give MCMC information</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>    species bill_len</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     Gentoo     42.9</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     Gentoo     47.9</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     Adelie     38.1</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  Chinstrap     43.9</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     Adelie     37.6</span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co">## ## Example 3:</span></span></span>
+<span class="r-in"><span><span class="co">## Generate 5 values of the 'species' variate,</span></span></span>
+<span class="r-in"><span><span class="co">## for the subpopulation of penguins having bill length shorter than 40 mm</span></span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="va">datapoints</span> <span class="op">&lt;-</span> <span class="fu">rPr</span><span class="op">(</span></span></span>
+<span class="r-in"><span>  n <span class="op">=</span> <span class="fl">5</span>,</span></span>
+<span class="r-in"><span>  Ynames <span class="op">=</span> <span class="st">'species'</span>,</span></span>
+<span class="r-in"><span>  X <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span>bill_len <span class="op">=</span> <span class="fl">40</span><span class="op">)</span>,</span></span>
+<span class="r-in"><span>  tails <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>bill_len <span class="op">=</span> <span class="op">-</span><span class="fl">1</span><span class="op">)</span>,</span></span>
+<span class="r-in"><span>  learnt <span class="op">=</span> <span class="va">learnt</span></span></span>
+<span class="r-in"><span><span class="op">)</span></span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="va">datapoints</span><span class="op">)</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> $species</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] "Adelie" "Adelie" "Adelie" "Adelie" "Adelie"</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-in"><span></span></span>
+</code></pre></div>
+    </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>
     </nav></aside></div>
 
