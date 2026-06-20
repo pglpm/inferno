@@ -3065,39 +3065,11 @@ workerfun <- function(
                 remainiter <- 0
             }
 
-            if (remainiter > 0) { # This chain is going to continue
-
-                ## Save cumulated mcsamples to save memory
-                if(ncol(allmcsamples$W) >= startupMCiterations){
-                    savedchunks <- savedchunks + 1L
-                    saveRDS(
-                        mcsubset(allmcsamples, seq_len(startupMCiterations)),
-                        file = file.path(dirname,
-                            paste0('____tempmcsamples-',
-                                padchainnumber, '-',
-                                savedchunks, '.rds'))
-                    )
-
-                    if(ncol(allmcsamples$W) < startupMCiterations){
-                        ## discard saved samples
-                        allmcsamples <- mcsubset(allmcsamples,
-                            -seq_len(startupMCiterations))
-                    } else {
-                        ## all samples saved
-                        allmcsamples <- NULL
-                    }
-                }
-                gc()
-
-                ## limit number of iterations per loop, to save memory
-                niter <- min(remainiter + 1L, startupMCiterations)
-                subiter <- subiter + 1L
-                cat('\nChain #', chainnumber, '- chunk', subiter,
-                    '(chain', achain, 'of', nchainsperthiscore,
-                    'for this core): increasing by', niter, '\n'
-                )
-            } else {
-                ## Save last mcsamples of this chain
+            ## Save cumulated mcsamples to save memory
+            ## Only saved when we have at least
+            ## 'startupMCiterations' samples
+            if(ncol(allmcsamples$W) > startupMCiterations/2 ||
+                   remainiter =< 0){
                 savedchunks <- savedchunks + 1L
                 saveRDS(
                     allmcsamples,
@@ -3106,8 +3078,21 @@ workerfun <- function(
                             padchainnumber, '-',
                             savedchunks, '.rds'))
                 )
+                allmcsamples <- NULL
             }
+            gc()
 
+            if (remainiter > 0) { # This chain is going to continue
+
+
+                ## limit number of iterations per loop, to save memory
+                niter <- min(remainiter + 1L, startupMCiterations)
+                subiter <- subiter + 1L
+                cat('\nChain #', chainnumber, '- chunk', subiter,
+                    '(chain', achain, 'of', nchainsperthiscore,
+                    'for this core): increasing by', niter, '\n'
+                )
+            }
 
             ## ###########
             ## ## PLOTS ##
@@ -3265,7 +3250,6 @@ workerfun <- function(
         }
 
         ## Read, subset, combine saved samples
-        allmcsamples <- NULL
         for(chunk in seq_len(savedchunks)){
             tempmcsamples <- readRDS(file = file.path(
                 dirname,
