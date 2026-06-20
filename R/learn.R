@@ -3273,6 +3273,8 @@ workerfun <- function(
                     padchainnumber, '-',
                     chunk, '.rds')
             ))
+            ## ***
+            cat('***\nchunk ', chunk, ' keeping ', length(which(tempmcsamples$MCindex %in% tokeep)), '\n')
             tempmcsamples <- mcsubset(tempmcsamples,
                 which(tempmcsamples$MCindex %in% tokeep)
             )
@@ -3328,7 +3330,7 @@ workerfun <- function(
     ## ## timing text, for white spaces:
     ## ## "Sampling. Core 2 estimated end time: xxxx-xx-xx xx:xx   "
     print2user(paste0('\rCore ', acore,
-        ' finished.                                        \n'),
+        ' finished.                                        \nSampling. Estimating remaining time...'),
         outcon)
 
     ## output information from a core,
