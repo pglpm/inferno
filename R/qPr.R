@@ -29,7 +29,6 @@
 #' [rPr()] to generate datapoints.
 #'
 #' @examples
-#'
 #' ## Load the example `learnt` object included in the package
 #' learnt <- learntExample
 #'
@@ -56,6 +55,30 @@
 #'
 #' ## display the uncertainty about the quantiles
 #' quants$quantiles
+#'
+#'
+#' ## ## Example 2:
+#' ## Calculate the 5.5%-, 50%-, and 94.5%-quantiles for the variate "bill lengt",
+#' ## for the subpopulation of species 'Adelie'
+#'
+#' quants <- qPr(
+#'   Yname = 'bill_len',
+#'   X = data.frame(species = 'Adelie'),
+#'   learnt = learnt, parallel = 1
+#' )
+#'
+#' ## display the quantile values
+#' quants$values
+#'
+#' ## verify these values using Pr():
+#' probs <- Pr(
+#'   Y = data.frame(bill_len = c(quants$values)),
+#'   X = data.frame(species = 'Adelie'),
+#'   tails = list(bill_len = -1),
+#'   learnt = learnt, parallel = 1)
+#'
+#' ## the cumulative probabilities are indeed 0.055, 0.5, 0.945 within numerical error:
+#' probs$values
 #'
 #' @import parallel
 #'

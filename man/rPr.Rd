@@ -25,6 +25,50 @@ A data frame of joint draws of the variates \code{Ynames} from the posterior dis
 \description{
 This function generate datapoints according to the posterior probability \code{Pr(Y | X, data)}, for the variates specified in the argument \code{Y}, and conditional on the variate values specified in the argument \code{X}. It is somewhat analogous to the \code{r}-variants of R distribution functions, such as \code{\link[stats:rnorm]{stats::rnorm()}}. If \code{X} is omitted or \code{NULL}, then the posterior probability \code{Pr(Y | data)} is used. Each variate in the argument \code{X} can be specified either as a point-value \code{X = x} or as a left-open interval \verb{X ≤ x} or as a right-open interval \verb{X ≥ x}, through the argument \code{tails}.
 }
+\examples{
+## Load the example `learnt` object included in the package
+learnt <- learntExample
+
+## ## Example 1:
+## Generate 10 values of the 'species' variate,
+## according to the frequency distribution estimated from the data
+
+datapoints <- rPr(
+  n = 10,
+  Ynames = 'species',
+  learnt = learnt
+)
+
+c(datapoints)
+
+
+## ## Example 2:
+## Generate 5 joint values of the 'species' and 'bill_len' variates.
+
+datapoints <- rPr(
+  n = 5,
+  Ynames = c('species', 'bill_len'),
+  learnt = learnt
+)
+
+print(datapoints, row.names = FALSE) ## row names give MCMC information
+
+
+## ## Example 3:
+## Generate 5 values of the 'species' variate,
+## for the subpopulation of penguins having bill length shorter than 40 mm
+
+datapoints <- rPr(
+  n = 5,
+  Ynames = 'species',
+  X = data.frame(bill_len = 40),
+  tails = list(bill_len = -1),
+  learnt = learnt
+)
+
+c(datapoints)
+
+}
 \seealso{
 \code{\link[=learn]{learn()}}, which generates the \code{learnt} objects required by \code{qPr()}.
 
