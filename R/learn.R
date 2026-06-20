@@ -3069,7 +3069,7 @@ workerfun <- function(
             ## Only saved when we have at least
             ## 'startupMCiterations' samples
             if(ncol(allmcsamples$W) > startupMCiterations/2 ||
-                   remainiter =< 0){
+                   remainiter <= 0){
                 savedchunks <- savedchunks + 1L
                 saveRDS(
                     allmcsamples,
