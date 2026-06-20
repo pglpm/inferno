@@ -3257,8 +3257,6 @@ workerfun <- function(
                     padchainnumber, '-',
                     chunk, '.rds')
             ))
-            ## ***
-            cat('***\nchunk ', chunk, ' keeping ', length(which(tempmcsamples$MCindex %in% tokeep)), '\n')
             tempmcsamples <- mcsubset(tempmcsamples,
                 which(tempmcsamples$MCindex %in% tokeep)
             )
