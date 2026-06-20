@@ -466,17 +466,17 @@ learn <- function(
         }),
         ## '-K', ncomponents, # unimportant for user
         '_S', nsamples,
-        '_', format(Sys.time(), '%y%m%dT%H%M%S_')
+        '_', format(Sys.time(), '%y%m%dT%H%M%S')
     )
     if(is.null(outputdir)){
         if(!isTRUE(valueislearnt)) {
-            message('\nWARNING: with the chosen "outputdir" and "valueisearnt" arguments, results are not saved to a persistent directory and not outputted; they will likely be lost.')
+            message('\nWARNING: with the chosen "outputdir" and "valueislearnt" arguments, results are not saved to a persistent directory and not outputted; they will likely be lost.')
         }
         ## Use a temporary output directory
-        dirname <- tempfile(pattern = paste0('prova-', prefix))
+        dirname <- tempfile(pattern = paste0('prova-', prefix, '_'))
     } else if (is.na(outputdir)) {
         ## Create unique output directory within current directory
-        dirname <- tempfile(pattern = paste0('prova-', prefix),
+        dirname <- tempfile(pattern = paste0('prova-', prefix, '_'),
             tmpdir = getwd())
     } else if (is.character(outputdir)) {
         ## Create directory specified by user
