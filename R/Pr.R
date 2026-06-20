@@ -26,18 +26,124 @@
 #'
 #' @examples
 #'
-#' ## Load an example `learnt` object, included in the package
+#' ## Load the example `learnt` object included in the package
 #' learnt <- learntExample
 #'
+#' ## ## Example 1:
+#' ## Calculate the probability that an unknown penguin from this population
+#' ## is of species 'Adelie'
+#'
+#' probs <- Pr(
+#'   Y = data.frame(species = 'Adelie'),
+#'   learnt = learnt, parallel = 1
+#' )
+#'
+#' ## display the probability value
+#' probs$values
+#'
+#' ## the full-population frequency of 'Adelie' penguins is unknown;
+#' ## display the 5.5%- and 94.5%-probability values
+#' ## for such frequency
+#' probs$quantiles[, , c('5.5%', '94.5%')]
+#'
+#'
+#' ## ## Example 2:
+#' ## Calculate the 3 probabilities that an unknown penguin from this population
+#' ## is of species 'Adelie', 'Chinstrap', 'Gentoo'
+#'
+#' probs <- Pr(
+#'   Y = data.frame(species = c('Adelie', 'Chinstrap', 'Gentoo')),
+#'   learnt = learnt, parallel = 1
+#' )
+#'
+#' ## display the 3 probability values
+#' probs$values
+#'
+#' ## the full-population frequencies of the three species are unknown;
+#' ## display the 5.5%- and 94.5%-probability values
+#' ## for such frequencies
+#' probs$quantiles[, , c('5.5%', '94.5%')]
+#'
+#' ## plot the probabilities and quantiles
+#' plot(probs)
+#'
+#'
+#' ## ## Example 3:
+#' ## Calculate the probability that an unknown penguin is of species 'Adelie'
+#' ## GIVEN that its bill length is 43 mm
+#'
+#' probs <- Pr(
+#'   Y = data.frame(species = 'Adelie'),
+#'   X = data.frame(bill_len = 43),
+#'   learnt = learnt, parallel = 1
+#' )
+#'
+#' ## display the probability value
+#' probs$values
+#'
+#' ## the full-subpopulation frequency of 'Adelie' penguins,
+#' ## among penguins having bill length of 43 mm, is unknown;
+#' ## display the 5.5%- and 94.5%-probability values
+#' ## for such conditional frequency
+#' probs$quantiles[, , c('5.5%', '94.5%')]
+#'
+#'
+#' ## ## Example 4:
+#' ## Calculate the probability that
+#' ## an unknown penguin is of species 'Adelie' AND its bill length is 43 mm
+#'
+#' probs <- Pr(
+#'   Y = data.frame(species = 'Adelie', bill_len = 43),
+#'   learnt = learnt, parallel = 1
+#' )
+#'
+#' ## display the probability value
+#' probs$values
+#'
+#' ## display the 5.5%- and 94.5%-probability values
+#' ## for the full-population frequency of 'Adelie' penguins with 43 mm bills
+#' probs$quantiles[, , c('5.5%', '94.5%')]
+#'
+#'
+#' ## ## Example 5:
+#' ## Calculate the 3 x 2 probabilities for the 3 species
+#' ## GIVEN bill-lengths of 43 mm and 44 mm
+#'
 #' Y <- data.frame(species = c('Adelie', 'Chinstrap', 'Gentoo'))
+#'
 #' X <- data.frame(bill_len = c(43, 44))
-#' learnt <- learntExample
 #'
 #' probs <- Pr(Y = Y, X = X, learnt = learnt, parallel = 1)
 #'
+#' ## display the 3 x 2 probability values
 #' probs$values
 #'
+#' ## display the 5.5%- and 94.5%-probability values
+#' ## for the full-population joint frequencies
 #' probs$quantiles[, , c('5.5%', '94.5%')]
+#'
+#' ## plot the probabilities and quantiles
+#' plot(probs)
+#'
+#'
+#' ## ## Example 6:
+#' ## Calculate the 3 x 2 joint probabilities for the 3 species
+#' ## AND bill-lengths of 43 mm and 44 mm
+#'
+#' Y <- expand.grid(
+#'   species = c('Adelie', 'Chinstrap', 'Gentoo'),
+#'   bill_len = c(43, 44)
+#' )
+#'
+#' probs <- Pr(Y = Y, learnt = learnt, parallel = 1)
+#'
+#' ## display the 6 joint-probability values
+#' probs$values
+#'
+#' ## display the 5.5%- and 94.5%-probability values
+#' ## for the full-population joint frequencies
+#' probs$quantiles[, , c('5.5%', '94.5%')]
+#'
 #'
 #' @import parallel
 #'
