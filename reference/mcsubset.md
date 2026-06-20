@@ -1,6 +1,6 @@
-# Eliminate samples from a 'learnt' object
+# Eliminate samples from mcsamples object
 
-Eliminate samples from a 'learnt' object
+Eliminate samples from mcsamples object
 
 ## Usage
 

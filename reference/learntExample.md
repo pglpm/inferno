@@ -4,7 +4,12 @@ An example `learnt` object obtained by means of the
 [`learn()`](https://pglpm.github.io/prova/reference/learn.md) function,
 using the [datasets::penguins](https://rdrr.io/r/datasets/penguins.html)
 dataset and the metadata in
-[metadataExample](https://pglpm.github.io/prova/reference/metadataExample.md).
+[metadataExample](https://pglpm.github.io/prova/reference/metadataExample.md),
+according to the call
+
+    learn(data = penguins, metadata = metadataExample,
+      nsamples = 225, nchains = 15)
+
 It is a list that essentially contains posterior hyperparameters for
 drawing statistical inferences about the variates `species` and
 `bill_len`.
@@ -12,7 +17,7 @@ drawing statistical inferences about the variates `species` and
 **Note** that the
 [`learn()`](https://pglpm.github.io/prova/reference/learn.md) function
 that produced `learntExample` was called with the option to create only
-a limited number (360) of Monte Carlo samples, in order to reduce its
+a limited number (225) of Monte Carlo samples, in order to reduce its
 memory size. Thus the numerical error associated with the Monte Carlo
 approximation is relatively in inferences drawn from the posterior
 hyperparameters saved in `learntExample`. It is only meant to be used

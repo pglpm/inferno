@@ -85,7 +85,7 @@ For developers.
 - [`mcjoin()`](https://pglpm.github.io/prova/reference/mcjoin.md) :
   Concatenate mcsample objects
 - [`mcsubset()`](https://pglpm.github.io/prova/reference/mcsubset.md) :
-  Eliminate samples from a 'learnt' object
+  Eliminate samples from mcsamples object
 - [`prova`](https://pglpm.github.io/prova/reference/prova-package.md)
   [`prova-package`](https://pglpm.github.io/prova/reference/prova-package.md)
   : prova: Probabilistic-statistical variate analysis and inference with
