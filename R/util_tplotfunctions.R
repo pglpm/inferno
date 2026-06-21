@@ -44,6 +44,9 @@ flexiplot <- function(
 ){
     xat <- yat <- xaxp <- yaxp <- NULL
 
+    if(!missing(x) && is.factor(x)){x <- as.character(x)}
+    if(!missing(y) && is.factor(y)){y <- as.character(y)}
+
     if(missing('x') && !missing('y')){
         x <- y
         x[] <- rep(seq_len(NROW(y)), each = NCOL(y))
@@ -94,10 +97,12 @@ flexiplot <- function(
         if(is.null(xjitter)){xjitter <- TRUE}
         if(is.null(yjitter)){yjitter <- TRUE}
     }
+
     ## if x is character, convert to numeric
     if(is.character(x)){
         if(is.null(xdomain)){ xdomain <- unique(x) }
-        ## we assume the user has sorted the vaules in a meaningful order
+        str(factor(x, levels = xdomain))
+        ## we assume the user has sorted the values in a meaningful order
         ## because the lexical order may not be correct
         ## (think of values like 'low', 'medium', 'high')
         . <- dim(x)
@@ -116,7 +121,7 @@ flexiplot <- function(
     ## if y is character, convert to numeric
     if(is.character(y)){
         if(is.null(ydomain)){ ydomain <- unique(y) }
-        ## we assume the user has sorted the vaules in a meaningful order
+        ## we assume the user has sorted the values in a meaningful order
         ## because the lexical order may not be correct
         ## (think of values like 'low', 'medium', 'high')
         . <- dim(y)
@@ -147,6 +152,7 @@ flexiplot <- function(
 
     if(is.na(alpha.f)){alpha.f <- 1}
     col <- adjustcolor(col, alpha.f = alpha.f)
+
     graphics::matplot(x, y, xlim = xlim, ylim = ylim, type = type, axes = FALSE,
         col = col, lty = lty, lwd = lwd, pch = pch, cex.main = cex.main, add = add, xlab = xlab, ylab = ylab, ...)
     if(!add){
@@ -221,7 +227,7 @@ flexiplot <- function(
 ##     ## if x is character, convert to numeric
 ##     if(is.character(x)){
 ##         if(is.null(xdomain)){ xdomain <- unique(x) }
-##         ## we assume the user has sorted the vaules in a meaningful order
+##         ## we assume the user has sorted the values in a meaningful order
 ##         ## because the lexical order may not be correct
 ##         ## (think of values like 'low', 'medium', 'high')
 ##         x <- as.numeric(factor(x, levels = xdomain))
@@ -233,7 +239,7 @@ flexiplot <- function(
 ##     ## if y is character, convert to numeric
 ##     if(is.character(y)){
 ##         if(is.null(ydomain)){ ydomain <- unique(y) }
-##         ## we assume the user has sorted the vaules in a meaningful order
+##         ## we assume the user has sorted the values in a meaningful order
 ##         ## because the lexical order may not be correct
 ##         ## (think of values like 'low', 'medium', 'high')
 ##         y <- as.numeric(factor(y, levels = ydomain))
@@ -328,7 +334,7 @@ plotquantiles <- function(
     ## if x is character, convert to numeric
     if(is.character(x)){
         if(is.null(xdomain)){ xdomain <- unique(x) }
-        ## we assume the user has sorted the vaules in a meaningful order
+        ## we assume the user has sorted the values in a meaningful order
         ## because the lexical order may not be correct
         ## (think of values like 'low', 'medium', 'high')
         x <- as.numeric(factor(x, levels = xdomain))

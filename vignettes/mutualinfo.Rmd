@@ -50,18 +50,14 @@ set.seed(10)
 As in the `vignette('start')`, we work with a specific population of penguins, of which we have 344 sample data stored in the [`datasets::penguins`] dataset, included in R version 4.5.0 and above. For your convenience you can download the shuffled dataset as the CSV file [`penguin_data.csv`](https://github.com/pglpm/prova/raw/main/development/downloads/penguin_data.csv), then load it with the `pread.csv()` function as follows:
 
 
-```
-# Error in `pread.csv()`:
-# ! could not find function "pread.csv"
-```
 
-We assume that we have already learned all predictive information from this dataset by means of the **Prova** function `learn()`. This information is stored in an object stored in the compressed file `learnt.rds` within the output directory that was specified in the `learn()` function. For your convenience the object produced by the computation above can be downloaded as the file [`learntall.rds`](https://github.com/pglpm/prova/raw/main/development/downloads/learntall.rds). Once you have downloaded it in your working directory you can just invoke
+We assume that we have already learned all predictive information from this dataset by means of the **Prova** function `learn()`. This information is stored in a "learnt" object, which is either loaded in memory, or stored in the compressed file `learnt.rds` within the output directory that was specified in the `learn()` function. For your convenience the object produced by the computation mentioned above can be downloaded as the file [`learntall.rds`](https://github.com/pglpm/prova/raw/main/development/downloads/learntall.rds). Once you have downloaded it in your working directory you can just set
 
 
 ``` r
 learnt <- 'learntall.rds'
 ```
-which produces an object `learnt` (just a character string, in this case) which shall be used in the following analysis.
+in this case `learnt` is just a character string pointing to the file containing the actual "learnt" object.
 
 ## Generating new samples {#newsamples}
 
@@ -83,9 +79,13 @@ The `flexiplot()` function allows us to display the `island` and `species` varia
 flexiplot(x = penguin$island, y = penguin$species,
     type = 'p', xlab = 'island', ylab = 'species',
     xdomain = islandvalues, ydomain = speciesvalues)
-# Error:
-# ! object 'penguin' not found
+#  Factor w/ 3 levels "Biscoe","Dream",..: 3 2 2 2 1 1 3 1 2 1 ...
 ```
+
+<div class="figure">
+<img src="figure/vissample-1.png" alt="**Scatter plot of sample data**" width="100%" />
+<p class="caption">**Scatter plot of sample data**</p>
+</div>
 
 Note how `flexiplot()` automatically add a slight jitter (by means of `base::jitter()`) to the discrete variates, so that the points don't just overlap rendering the plot otherwise incomprehensible.
 
@@ -127,12 +127,12 @@ rPr(
     Ynames = c('island', 'species'),
     learnt = learnt
 )
-#           island species
-# 368_1     Biscoe  Adelie
-# 491_1     Biscoe  Adelie
-# 1484_1    Biscoe  Gentoo
-# 2487_1 Torgersen  Adelie
-# 3402_1 Torgersen  Adelie
+#        island   species
+# 644_1  Biscoe    Gentoo
+# 996_1  Biscoe    Gentoo
+# 1228_1 Biscoe    Adelie
+# 2230_1  Dream Chinstrap
+# 3083_1  Dream Chinstrap
 ```
 
 The rows of the resulting data frame are named according to the Monte Carlo samples used from the `learnt` object; they can be useful for peculiar studies but we can completely ignore them in the present case.
@@ -146,6 +146,7 @@ samples <- rPr(n = 2000, Ynames = c('island', 'species'), learnt = learnt)
 flexiplot(x = samples$island, y = samples$species,
     type = 'p', xlab = 'island', ylab = 'species',
     xdomain = islandvalues, ydomain = speciesvalues)
+#  Factor w/ 3 levels "Biscoe","Dream",..: 2 1 1 3 2 2 1 1 3 2 ...
 ```
 
 <div class="figure">
@@ -419,6 +420,7 @@ flexiplot(x = samples$island, y = samples$species,
     xdomain = islandvalues, ydomain = speciesvalues,
     main = paste0('mutual info: ', mi, ' Sh',
         '  (rough r-equiv: ', r, ')') )
+#  Factor w/ 3 levels "Biscoe","Dream",..: 2 2 1 2 1 1 2 2 1 1 ...
 ```
 
 <div class="figure">
@@ -601,14 +603,18 @@ cor(samplesGentoo$body_mass, samplesGentoo$bill_len, method = 'pearson')
 
 The Pearson correlation yields the same the association *ranking* as the mutual information does (first Gentoo, then Adélie, then Chinstrap), but it yields the association for the Adélie subpopulation to be closer to the Gentoo one than to the Chinstrap one. The mutual information yields the opposite.
 
-\
+<!-- 
+\ 
 
-*(TO BE CONTINUED)*
+*(To be continued in future versions)*
+-->
 
 \
 
 # Appendices {#appendix}
 
 ## References {#references}
+
+- Cover, Thomas: [*Elements of Information Theory*](https://doi.org/10.1002/0471200611) (2nd ed. 2005).
 
 - MacKay: [*Information Theory, Inference, and Learning Algorithms*](https://www.inference.org.uk/itila/book.html) (2005).

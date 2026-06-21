@@ -81,12 +81,12 @@ datafile <- 'penguin_data.csv'
 penguin <- pread.csv(datafile)
 ```
 
-We assume that we have already learned all predictive information from this dataset by means of the **Prova** function `learn()`. This information is stored in an object stored in the compressed file `learnt.rds` within the output directory that was specified in the `learn()` function. For your convenience the object produced by the computation above can be downloaded as the file [`learntall.rds`](https://github.com/pglpm/prova/raw/main/development/downloads/learntall.rds). Once you have downloaded it in your working directory you can just invoke
+We assume that we have already learned all predictive information from this dataset by means of the **Prova** function `learn()`. This information is stored in a "learnt" object, which is either loaded in memory, or stored in the compressed file `learnt.rds` within the output directory that was specified in the `learn()` function. For your convenience the object produced by the computation mentioned above can be downloaded as the file [`learntall.rds`](https://github.com/pglpm/prova/raw/main/development/downloads/learntall.rds). Once you have downloaded it in your working directory you can just set
 
 ```{r loadlearnt, eval = TRUE, echo = TRUE}
 learnt <- 'learntall.rds'
 ```
-which produces an object `learnt` (just a character string, in this case) which shall be used in the following analysis.
+in this case `learnt` is just a character string pointing to the file containing the actual "learnt" object.
 
 ## Generating new samples {#newsamples}
 
@@ -544,14 +544,18 @@ cor(samplesGentoo$body_mass, samplesGentoo$bill_len, method = 'pearson')
 
 The Pearson correlation yields the same the association *ranking* as the mutual information does (first Gentoo, then Adélie, then Chinstrap), but it yields the association for the Adélie subpopulation to be closer to the Gentoo one than to the Chinstrap one. The mutual information yields the opposite.
 
-\
+<!-- 
+\ 
 
-*(TO BE CONTINUED)*
+*(To be continued in future versions)*
+-->
 
 \
 
 # Appendices {#appendix}
 
 ## References {#references}
+
+- Cover, Thomas: [*Elements of Information Theory*](https://doi.org/10.1002/0471200611) (2nd ed. 2005).
 
 - MacKay: [*Information Theory, Inference, and Learning Algorithms*](https://www.inference.org.uk/itila/book.html) (2005).

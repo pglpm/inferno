@@ -61,7 +61,7 @@ You're now welcome to open R in your favourite integrated development environmen
 library('prova')
 ```
 
-In our example we shall use data from the `datasets::penguins` dataset, included in R version 4.5.0 and above. We shuffle this dataset to erase any particular ordering of its data, and call the new dataset `penguin` (without the final 's'). For your convenience you can download the shuffled dataset as the CSV file [`penguin_data.csv`](https://github.com/pglpm/prova/raw/main/development/downloads/penguin_data.csv). Otherwise you can create such file from R 4.5.0 or above as follows:
+In our example we shall use data from the `datasets::penguins` dataset, included in R version 4.5.0 and above. We shuffle this dataset to erase any particular ordering of its data, and call the new dataset `penguin` (without the final 's'):
 
 ```{r create_penguindata, eval = FALSE}
 set.seed(50) ## replace with your favourite seed number
@@ -71,9 +71,7 @@ penguin <- penguins[sample(1:nrow(penguins)), ] ## shuffle
 pwrite.csv(penguin, file = 'penguin_data.csv')
 ```
 
-The utility function `pwrite.csv()` saves the dataset as a CSV file that respects the [formatting rules required by **Prova**](#format).
-
-We assume that you now have the `penguin_data.csv` file.
+The utility function `pwrite.csv()` saves the dataset as a CSV file that respects the [formatting rules required by **Prova**](#format). For your convenience you can also download the shuffled dataset as the CSV file [`penguin_data.csv`](https://github.com/pglpm/prova/raw/main/development/downloads/penguin_data.csv). We assume that you now have the `penguin_data.csv` file.
 
 \
 
