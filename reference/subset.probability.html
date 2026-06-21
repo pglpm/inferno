@@ -63,7 +63,59 @@
     <h2 id="value">Value<a class="anchor" aria-label="anchor" href="#value"></a></h2>
     <p>A list of class <code>probability</code>, identical to the original object <code>x</code> except for a reduced range of values in some if its variates.</p>
     </div>
+    <div class="section level2">
+    <h2 id="see-also">See also<a class="anchor" aria-label="anchor" href="#see-also"></a></h2>
+    <div class="dont-index"><p><code><a href="Pr.html">Pr()</a></code>, which generates probability objects.</p>
+<p><code><a href="plot.probability.html">plot.probability()</a></code> to plot probabilities and quantiles calculated by <code><a href="Pr.html">Pr()</a></code> and subset by <code>subset.probability()</code>.</p>
+<p><code><a href="hist.probability.html">hist.probability()</a></code> to plot histograms of the probability distributions calculated by <code><a href="Pr.html">Pr()</a></code> and subset by <code>subset.probability()</code>.</p></div>
+    </div>
 
+    <div class="section level2">
+    <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="co">## Load the example `learnt` object included in the package</span></span></span>
+<span class="r-in"><span><span class="va">learnt</span> <span class="op">&lt;-</span> <span class="va">learntExample</span></span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co">## Calculate the probability object for the three values of variate 'species',</span></span></span>
+<span class="r-in"><span><span class="co">## given values 43 and 44 of variate 'bill_len';</span></span></span>
+<span class="r-in"><span><span class="co">## this object contains probabilities, quantiles, and other information</span></span></span>
+<span class="r-in"><span><span class="va">probs</span> <span class="op">&lt;-</span> <span class="fu"><a href="Pr.html">Pr</a></span><span class="op">(</span></span></span>
+<span class="r-in"><span>  Y <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span>species <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">'Adelie'</span>, <span class="st">'Chinstrap'</span>, <span class="st">'Gentoo'</span><span class="op">)</span><span class="op">)</span>,</span></span>
+<span class="r-in"><span>  X <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span>bill_len <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">43</span>, <span class="fl">44</span><span class="op">)</span><span class="op">)</span>,</span></span>
+<span class="r-in"><span>  learnt <span class="op">=</span> <span class="va">learnt</span>, parallel <span class="op">=</span> <span class="fl">1</span></span></span>
+<span class="r-in"><span><span class="op">)</span></span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Registered socket cluster with 1 nodes on host ‘localhost’.</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Closing connections to cores.</span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="va">probs</span><span class="op">$</span><span class="va">values</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>            X</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Y                  43        44</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   Adelie    0.4647433 0.2223224</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   Chinstrap 0.1458345 0.2054491</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   Gentoo    0.3894222 0.5722285</span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co">## Subset by retaining the values 'Adelie' and 'Gentoo' for species,</span></span></span>
+<span class="r-in"><span><span class="co">## and 44 for bill length</span></span></span>
+<span class="r-in"><span><span class="va">newprobs</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/subset.html" class="external-link">subset</a></span><span class="op">(</span></span></span>
+<span class="r-in"><span>  <span class="va">probs</span>,</span></span>
+<span class="r-in"><span>  subset <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>species <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">'Adelie'</span>, <span class="st">'Gentoo'</span><span class="op">)</span>, bill_len <span class="op">=</span> <span class="fl">43</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="op">)</span></span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="va">newprobs</span><span class="op">$</span><span class="va">values</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>         X</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Y               43</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   Adelie 0.4647433</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   Gentoo 0.3894222</span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co">## Plot these conditional probabilities and the distribution of the conditional frequencies</span></span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">newprobs</span><span class="op">)</span></span></span>
+<span class="r-plt img"><img src="subset.probability-1.png" alt="" width="700" height="433"></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/graphics/hist.html" class="external-link">hist</a></span><span class="op">(</span><span class="va">newprobs</span><span class="op">)</span></span></span>
+<span class="r-plt img"><img src="subset.probability-2.png" alt="" width="700" height="433"></span>
+<span class="r-in"><span></span></span>
+</code></pre></div>
+    </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>
     </nav></aside></div>
 

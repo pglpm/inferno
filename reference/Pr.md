@@ -159,6 +159,9 @@ to plot probabilities and quantiles calculated by `Pr()`.
 to plot histograms of the probability distributions calculated by
 `Pr()`.
 
+[`subset.probability()`](https://pglpm.github.io/prova/reference/subset.probability.md)
+to subset some variate values in probabilities calculated by `Pr()`.
+
 [`qPr()`](https://pglpm.github.io/prova/reference/qPr.md) to calculate
 quantiles for a specific variate, that is, the variate values having
 given probabilities.
