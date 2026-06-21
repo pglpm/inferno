@@ -57,7 +57,8 @@ This function is essentially a wrapper around \code{\link[graphics:matplot]{grap
 }
 }
 \examples{
-## Scatter plot of the 'island' vs 'species' nominal variates of the penguins dataset; note how jitter is automatically added:
+## Scatter plot of the 'island' vs 'species' nominal variates of the penguins dataset;
+## note how jitter is automatically added:
 flexiplot(x = penguins[, 'species'], y = penguins[, 'island'])
 
 
@@ -65,11 +66,14 @@ flexiplot(x = penguins[, 'species'], y = penguins[, 'island'])
 flexiplot(x = penguins[, 'species'], y = penguins[, 'bill_len'])
 
 ## We can add jitter to separate the nominal values:
-flexiplot(x = penguins[, 'species'], y = penguins[, 'bill_len'], xjitter = TRUE)
+flexiplot(x = penguins[, 'species'], y = penguins[, 'bill_len'],
+  xjitter = TRUE)
 
 
-## Scatter plot of the 'bill_len' vs 'body_mass' variates of the penguins dataset; in this case we pust specify the scatter-plot option `type = 'p'`:
-flexiplot(x = penguins[, 'body_mass'], y = penguins[, 'bill_len'], type = 'p')
+## Scatter plot of the 'bill_len' vs 'body_mass' variates;
+## in this case we must specify the scatter-plot option `type = 'p'`:
+flexiplot(x = penguins[, 'body_mass'], y = penguins[, 'bill_len'],
+  type = 'p')
 
 ## Calculate the values of a normal distribution in a restricted range
 x <- seq(from = -2, to = 2, length.out = 127)
