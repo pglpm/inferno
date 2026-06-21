@@ -181,6 +181,8 @@ D. J. C. MacKay: \emph{Information Theory, Inference, and Learning Algorithms}. 
 
 \code{\link[=hist.probability]{hist.probability()}} to plot histograms of the probability distributions calculated by \code{Pr()}.
 
+\code{\link[=subset.probability]{subset.probability()}} to subset some variate values in probabilities calculated by \code{Pr()}.
+
 \code{\link[=qPr]{qPr()}} to calculate quantiles for a specific variate, that is, the variate values having given probabilities.
 
 \code{\link[=rPr]{rPr()}} to generate datapoints.

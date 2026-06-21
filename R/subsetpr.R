@@ -7,6 +7,43 @@
 #'
 #' @return A list of class `probability`, identical to the original object `x` except for a reduced range of values in some if its variates.
 #'
+#' @seealso
+#' [Pr()], which generates probability objects.
+#'
+#' [plot.probability()] to plot probabilities and quantiles calculated by `Pr()` and subset by [subset.probability()].
+#'
+#' [hist.probability()] to plot histograms of the probability distributions calculated by `Pr()` and subset by [subset.probability()].
+#'
+#' @examples
+#' ## Load the example `learnt` object included in the package
+#' learnt <- learntExample
+#'
+#' ## Calculate the probability object for the three values of variate 'species',
+#' ## given values 43 and 44 of variate 'bill_len';
+#' ## this object contains probabilities, quantiles, and other information
+#' probs <- Pr(
+#'   Y = data.frame(species = c('Adelie', 'Chinstrap', 'Gentoo')),
+#'   X = data.frame(bill_len = c(43, 44)),
+#'   learnt = learnt, parallel = 1
+#' )
+#'
+#' probs$values
+#'
+#' ## Subset by retaining the values 'Adelie' and 'Gentoo' for species,
+#' ## and 44 for bill length
+#' newprobs <- subset(
+#'   probs,
+#'   subset = list(species = c('Adelie', 'Gentoo'), bill_len = 43)
+#' )
+#'
+#' newprobs$values
+#'
+#' ## Plot these conditional probabilities and the distribution of the conditional frequencies
+#'
+#' plot(newprobs)
+#'
+#' hist(newprobs)
+#'
 #' @export
 subset.probability <- function(
     x,

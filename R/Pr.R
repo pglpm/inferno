@@ -30,6 +30,8 @@
 #'
 #' [hist.probability()] to plot histograms of the probability distributions calculated by `Pr()`.
 #'
+#' [subset.probability()] to subset some variate values in probabilities calculated by `Pr()`.
+#'
 #' [qPr()] to calculate quantiles for a specific variate, that is, the variate values having given probabilities.
 #'
 #' [rPr()] to generate datapoints.
