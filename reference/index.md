@@ -32,9 +32,6 @@
 - [`plot(`*`<probability>`*`)`](https://pglpm.github.io/prova/reference/plot.probability.md)
   : Plot an object of class "probability"
 
-- [`plotFsamples()`](https://pglpm.github.io/prova/reference/plotFsamples.md)
-  : Plot one-dimensional posterior probabilities
-
 - [`plotquantiles()`](https://pglpm.github.io/prova/reference/plotquantiles.md)
   : Plot pairs of quantiles
 
@@ -86,6 +83,8 @@ For developers.
   Concatenate mcsample objects
 - [`mcsubset()`](https://pglpm.github.io/prova/reference/mcsubset.md) :
   Eliminate samples from mcsamples object
+- [`plotFsamples()`](https://pglpm.github.io/prova/reference/plotFsamples.md)
+  : Plot one-dimensional posterior probabilities
 - [`prova`](https://pglpm.github.io/prova/reference/prova-package.md)
   [`prova-package`](https://pglpm.github.io/prova/reference/prova-package.md)
   : prova: Probabilistic-statistical variate analysis and inference with
