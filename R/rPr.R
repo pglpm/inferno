@@ -71,7 +71,8 @@ rPr <- function(
     X = NULL,
     learnt,
     tails = NULL,
-    mcsamples = NULL
+    mcsamples = NULL,
+    parallel = NULL # unused
 ) {
 
     ## Extract Monte Carlo output & aux-metadata

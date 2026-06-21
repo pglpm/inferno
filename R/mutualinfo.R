@@ -28,7 +28,7 @@ mutualinfo <- function(
     tails = NULL,
     n = NULL,
     unit = 'Sh',
-    parallel = NULL,
+    parallel = 1,
     silent = FALSE
 ){
 
@@ -63,13 +63,13 @@ mutualinfo <- function(
         ncores <- max(1,
             floor(parallel::detectCores() / 2))
         cl <- parallel::makeCluster(ncores)
-        ## doParallel::registerDoParallel(cl)
         closeexit <- TRUE
         message('Registered ', capture.output(print(cl)), '.')
     } else if (isFALSE(parallel)) {
         ## user wants us not to use parallel cores
         ncores <- 1
         cl <- parallel::makeCluster(ncores)
+        closeexit <- TRUE
     } else if (is.numeric(parallel) &&
                    is.finite(parallel) && parallel >= 1) {
         ## user wants us to register 'parallel' # of cores
