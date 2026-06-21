@@ -107,7 +107,6 @@ This function creates an object, contained in a \code{learnt.rds} file, which is
 See \code{vignette('start')} for an introductory example.
 }
 \examples{
-
 ## Create dataset with 5 points of variate 'V' for demonstration:
 dataset <- data.frame(V = rnorm(n = 5))
 
