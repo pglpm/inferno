@@ -101,8 +101,13 @@ provided by `flexiplot` are the following:
   where we want to specify the lower, `0` limit, but want the upper
   limit to simply be the the maximum probability.
 
+- Transparency of lines or markers can be specified through argument
+  `alpha.f`.
+
 - The plotting style is different, and default argument `type = 'l'`
   (line plot) rather than `type = 'p'` (point plot).
+
+See the package's vignettes for more examples.
 
 ## Examples
 
