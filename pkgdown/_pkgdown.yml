@@ -5,9 +5,9 @@ template:
 reference:
 - title: "Main functions"
   contents:
+    - Pr
     - flexiplot
     - hist.probability
-    - prova.data
     - learn
     - learntExample
     - metadataExample
@@ -16,7 +16,7 @@ reference:
     - plot.probability
     - plotFsamples
     - plotquantiles
-    - Pr
+    - prova.data
     - qPr
     - rPr
     - subset.probability
