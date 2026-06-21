@@ -78,6 +78,20 @@ plot(
   Other parameters to be passed to
   [`flexiplot()`](https://pglpm.github.io/prova/reference/flexiplot.md).
 
+## See also
+
+[`Pr()`](https://pglpm.github.io/prova/reference/Pr.md) to calculate
+posterior probabilities and quantiles.
+
+[`hist.probability()`](https://pglpm.github.io/prova/reference/hist.probability.md)
+to plot the variability of the probabilities as a distribution.
+
+[`flexiplot()`](https://pglpm.github.io/prova/reference/flexiplot.md)
+(on which `plot.probability()` is based) for more general plots.
+
+[`plotquantiles()`](https://pglpm.github.io/prova/reference/plotquantiles.md)
+to plot quantile ranges.
+
 ## Examples
 
 ``` r

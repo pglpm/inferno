@@ -1,10 +1,23 @@
 # Plot the variability of an object of class "probability" as a histogram
 
-This [`graphics::hist()`](https://rdrr.io/r/graphics/hist.html)ogram
-method is a utility to visualize the variability of the probabilities
-obtained with [`Pr()`](https://pglpm.github.io/prova/reference/Pr.md),
-which can also be interpreted as the probability density for the
-whole-population frequencies.
+The posterior probabilities calculated with the
+[`Pr()`](https://pglpm.github.io/prova/reference/Pr.md) function, and
+outputted as a `probability` object, have an associated variability that
+comes from the finite size of the data sample. This variability can be
+interpreted in two ways:
+
+- How the probabilities would change, if we could collect a very large
+  (infinite) amount of additional data, and how likely would such change
+  be;
+
+- The relative frequency of a particular variate value in the full
+  (sampled and unsampled) population is unknown; we can quantify our
+  uncertainty about this relative frequency with a probability
+  distribution.
+
+The [`hist()`](https://rdrr.io/r/graphics/hist.html) method for a
+`probability` object is a utility to visualize this kind of variability,
+in the form of a distribution.
 
 ## Usage
 
@@ -68,3 +81,40 @@ hist(
 
   Other parameters to be passed to
   [`flexiplot()`](https://pglpm.github.io/prova/reference/flexiplot.md).
+
+## See also
+
+[`Pr()`](https://pglpm.github.io/prova/reference/Pr.md) to calculate
+posterior probabilities and quantiles.
+
+[`plot.probability()`](https://pglpm.github.io/prova/reference/plot.probability.md)
+to plot the posterior probabilities.
+
+[`flexiplot()`](https://pglpm.github.io/prova/reference/flexiplot.md)
+(on which `hist.probability()` is based) for more general plots.
+
+[`plotquantiles()`](https://pglpm.github.io/prova/reference/plotquantiles.md)
+to plot quantile ranges.
+
+## Examples
+
+``` r
+## Load the example `learnt` object included in the package
+learnt <- learntExample
+
+## calculate the probability, and its variability,
+## for the value 'Adelie' of the "species" variate
+probs <- Pr(Y = data.frame(species = 'Adelie'), learnt = learnt, parallel = 1)
+#> Registered socket cluster with 1 nodes on host ‘localhost’.
+#> Closing connections to cores.
+probs$values
+#>         X
+#> Y            [,1]
+#>   Adelie 0.440685
+
+## show the variability of this probability; equivalently show
+## the probability distribution for the relative frequency of
+## 'Adelie' penguins in the full population
+hist(probs, legend = 'topright')
+
+```
