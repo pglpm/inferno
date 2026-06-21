@@ -53,8 +53,11 @@ This function is essentially a wrapper around \code{\link[graphics:matplot]{grap
 \item Either or both \code{x} and \code{y} arguments can be of class \code{\link[base:character]{base::character}}. In this case, axes labels corresponding to the unique values are used (see arguments \code{xdomain} and \code{ydomain}). This makes it easier to plot nominal and ordinal variates.
 \item A jitter can also be added to the generated points, via the \code{xjitter} and \code{yjitter} switches. This makes it easier to generate scatter plots of nominal and ordinal variates.
 \item It is possible to specify only a lower or upper limit in the \code{xlim} and \code{ylim} arguments, letting the other limit to be found automatically. This can be useful in plotting probabilities, in cases where we want to specify the lower, \code{0} limit, but want the upper limit to simply be the the maximum probability.
+\item Transparency of lines or markers can be specified through argument \code{alpha.f}.
 \item The plotting style is different, and default argument \code{type = 'l'} (line plot) rather than \code{type = 'p'} (point plot).
 }
+
+See the package's vignettes for more examples.
 }
 \examples{
 ## Scatter plot of the 'island' vs 'species' nominal variates of the penguins dataset;

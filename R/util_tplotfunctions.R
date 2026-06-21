@@ -12,7 +12,7 @@
 #' - Transparency of lines or markers can be specified through argument `alpha.f`.
 #' - The plotting style is different, and default argument `type = 'l'` (line plot) rather than `type = 'p'` (point plot).
 #'
-#' See
+#' See the package's vignettes for more examples.
 #'
 #' @param x Numeric or character: vector of x-coordinates. If missing, a numeric vector `1:...` is created having as many values as the rows of `y`.
 #' @param y Numeric or character: vector of y coordinates. If missing, a numeric vector `1:...` is created having as many values as the rows of `x`.
