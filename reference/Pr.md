@@ -200,7 +200,7 @@ probs$quantiles[, , c('5.5%', '94.5%')]
 #> 0.3988210 0.4829919 
 
 ## we can also plot the probability distribution for this full-population frequency
-hist(probs)
+hist(probs, legend = 'topright')
 
 
 
