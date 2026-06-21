@@ -232,10 +232,7 @@ probs$quantiles[, , c('5.5%', '94.5%')]
 
 ## plot the probabilities and quantiles
 plot(probs)
-#>  Factor w/ 3 levels "Adelie","Chinstrap",..: 1 2 3
 
-#>  Factor w/ 3 levels "Adelie","Chinstrap",..: 1 2 3
-#>  - attr(*, "names")= chr [1:3] "species1" "species2" "species3"
 
 
 ## ## Example 3:
@@ -331,11 +328,7 @@ probs$quantiles[, , c('5.5%', '94.5%')]
 
 ## plot the probabilities and quantiles
 plot(probs)
-#>  Factor w/ 3 levels "Adelie","Chinstrap",..: 1 2 3
 
-#>  Factor w/ 3 levels "Adelie","Chinstrap",..: 1 2 3
-#>  Factor w/ 3 levels "Adelie","Chinstrap",..: 1 2 3
-#>  - attr(*, "names")= chr [1:3] "species1" "species2" "species3"
 
 
 ## ## Example 6:

@@ -88,10 +88,7 @@ newprobs$values
 ## Plot these conditional probabilities and the distribution of the conditional frequencies
 
 plot(newprobs)
-#>  Factor w/ 2 levels "Adelie","Gentoo": 1 2
 
-#>  Factor w/ 2 levels "Adelie","Gentoo": 1 2
-#>  - attr(*, "names")= chr [1:2] "species1" "species2"
 
 hist(newprobs)
 
