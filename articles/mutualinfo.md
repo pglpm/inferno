@@ -79,28 +79,25 @@ then load it with the
 [`pread.csv()`](https://pglpm.github.io/prova/reference/prova.data.md)
 function as follows:
 
-    # Error in `pread.csv()`:
-    # ! could not find function "pread.csv"
-
 We assume that we have already learned all predictive information from
 this dataset by means of the **Prova** function
 [`learn()`](https://pglpm.github.io/prova/reference/learn.md). This
-information is stored in an object stored in the compressed file
-`learnt.rds` within the output directory that was specified in the
+information is stored in a “learnt” object, which is either loaded in
+memory, or stored in the compressed file `learnt.rds` within the output
+directory that was specified in the
 [`learn()`](https://pglpm.github.io/prova/reference/learn.md) function.
-For your convenience the object produced by the computation above can be
-downloaded as the file
+For your convenience the object produced by the computation mentioned
+above can be downloaded as the file
 [`learntall.rds`](https://github.com/pglpm/prova/raw/main/development/downloads/learntall.rds).
-Once you have downloaded it in your working directory you can just
-invoke
+Once you have downloaded it in your working directory you can just set
 
 ``` r
 
 learnt <- 'learntall.rds'
 ```
 
-which produces an object `learnt` (just a character string, in this
-case) which shall be used in the following analysis.
+in this case `learnt` is just a character string pointing to the file
+containing the actual “learnt” object.
 
 ### Generating new samples
 
@@ -129,9 +126,12 @@ against each other, for all *sample* data, as a scatter plot:
 flexiplot(x = penguin$island, y = penguin$species,
     type = 'p', xlab = 'island', ylab = 'species',
     xdomain = islandvalues, ydomain = speciesvalues)
-# Error:
-# ! object 'penguin' not found
+#  Factor w/ 3 levels "Biscoe","Dream",..: 3 2 2 2 1 1 3 1 2 1 ...
 ```
+
+![\*\*Scatter plot of sample data\*\*](figure/vissample-1.png)
+
+**Scatter plot of sample data**
 
 Note how
 [`flexiplot()`](https://pglpm.github.io/prova/reference/flexiplot.md)
@@ -203,12 +203,12 @@ rPr(
     Ynames = c('island', 'species'),
     learnt = learnt
 )
-#           island species
-# 368_1     Biscoe  Adelie
-# 491_1     Biscoe  Adelie
-# 1484_1    Biscoe  Gentoo
-# 2487_1 Torgersen  Adelie
-# 3402_1 Torgersen  Adelie
+#        island   species
+# 644_1  Biscoe    Gentoo
+# 996_1  Biscoe    Gentoo
+# 1228_1 Biscoe    Adelie
+# 2230_1  Dream Chinstrap
+# 3083_1  Dream Chinstrap
 ```
 
 The rows of the resulting data frame are named according to the Monte
@@ -224,6 +224,7 @@ samples <- rPr(n = 2000, Ynames = c('island', 'species'), learnt = learnt)
 flexiplot(x = samples$island, y = samples$species,
     type = 'p', xlab = 'island', ylab = 'species',
     xdomain = islandvalues, ydomain = speciesvalues)
+#  Factor w/ 3 levels "Biscoe","Dream",..: 2 1 1 3 2 2 1 1 3 2 ...
 ```
 
 ![\*\*Scatter plot for \*whole\*
@@ -639,6 +640,7 @@ flexiplot(x = samples$island, y = samples$species,
     xdomain = islandvalues, ydomain = speciesvalues,
     main = paste0('mutual info: ', mi, ' Sh',
         '  (rough r-equiv: ', r, ')') )
+#  Factor w/ 3 levels "Biscoe","Dream",..: 2 2 1 2 1 1 2 2 1 1 ...
 ```
 
 ![\*\*Scatter plot for \`island\` and
@@ -849,13 +851,12 @@ the opposite.
 
   
 
-*(TO BE CONTINUED)*
-
-  
-
 ## Appendices
 
 ### References
+
+- Cover, Thomas: [*Elements of Information
+  Theory*](https://doi.org/10.1002/0471200611) (2nd ed. 2005).
 
 - MacKay: [*Information Theory, Inference, and Learning
   Algorithms*](https://www.inference.org.uk/itila/book.html) (2005).

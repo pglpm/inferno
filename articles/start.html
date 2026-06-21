@@ -118,9 +118,7 @@ follows. Let’s start by loading the <strong>Prova</strong> package:</p>
 <code><a href="https://rdrr.io/r/datasets/penguins.html" class="external-link">datasets::penguins</a></code> dataset, included in R version 4.5.0 and
 above. We shuffle this dataset to erase any particular ordering of its
 data, and call the new dataset <code>penguin</code> (without the final
-‘s’). For your convenience you can download the shuffled dataset as the
-CSV file <a href="https://github.com/pglpm/prova/raw/main/development/downloads/penguin_data.csv" class="external-link"><code>penguin_data.csv</code></a>.
-Otherwise you can create such file from R 4.5.0 or above as follows:</p>
+‘s’):</p>
 <div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/Random.html" class="external-link">set.seed</a></span><span class="op">(</span><span class="fl">50</span><span class="op">)</span> <span class="co">## replace with your favourite seed number</span></span>
 <span></span>
@@ -129,9 +127,9 @@ Otherwise you can create such file from R 4.5.0 or above as follows:</p>
 <span><span class="fu"><a href="../reference/prova.data.html">pwrite.csv</a></span><span class="op">(</span><span class="va">penguin</span>, file <span class="op">=</span> <span class="st">'penguin_data.csv'</span><span class="op">)</span></span></code></pre></div>
 <p>The utility function <code><a href="../reference/prova.data.html">pwrite.csv()</a></code> saves the dataset as a
 CSV file that respects the <a href="#format">formatting rules required
-by <strong>Prova</strong></a>.</p>
-<p>We assume that you now have the <code>penguin_data.csv</code>
-file.</p>
+by <strong>Prova</strong></a>. For your convenience you can also
+download the shuffled dataset as the CSV file <a href="https://github.com/pglpm/prova/raw/main/development/downloads/penguin_data.csv" class="external-link"><code>penguin_data.csv</code></a>.
+We assume that you now have the <code>penguin_data.csv</code> file.</p>
 <p><br></p>
 </div>
 <div class="section level2">
@@ -307,10 +305,142 @@ them in the file <code>penguin_data10.csv</code>, respecting the <a href="#forma
 <code class="sourceCode R"><span><span class="va">datafile</span> <span class="op">&lt;-</span> <span class="st">'penguin_data10.csv'</span></span>
 <span><span class="fu"><a href="../reference/prova.data.html">pwrite.csv</a></span><span class="op">(</span><span class="va">penguin</span><span class="op">[</span><span class="fl">1</span><span class="op">:</span><span class="fl">10</span>, <span class="op">]</span>, <span class="va">datafile</span><span class="op">)</span> <span class="co">## write the first 10 samples</span></span></code></pre></div>
 <p>Here they are:</p>
-<pre><code><span><span class="co"># Error in `pread.csv()`:</span></span>
-<span><span class="co"># ! could not find function "pread.csv"</span></span>
-<span><span class="co"># Error:</span></span>
-<span><span class="co"># ! object 'penguin' not found</span></span></code></pre>
+<table class="table">
+<colgroup>
+<col width="4%">
+<col width="13%">
+<col width="13%">
+<col width="12%">
+<col width="12%">
+<col width="16%">
+<col width="13%">
+<col width="9%">
+<col width="6%">
+</colgroup>
+<thead><tr class="header">
+<th align="left"></th>
+<th align="left">species</th>
+<th align="left">island</th>
+<th align="right">bill_len</th>
+<th align="right">bill_dep</th>
+<th align="right">flipper_len</th>
+<th align="right">body_mass</th>
+<th align="left">sex</th>
+<th align="right">year</th>
+</tr></thead>
+<tbody>
+<tr class="odd">
+<td align="left">1</td>
+<td align="left">Adelie</td>
+<td align="left">Torgersen</td>
+<td align="right">37.8</td>
+<td align="right">17.1</td>
+<td align="right">186</td>
+<td align="right">3300</td>
+<td align="left"></td>
+<td align="right">2007</td>
+</tr>
+<tr class="even">
+<td align="left">2</td>
+<td align="left">Chinstrap</td>
+<td align="left">Dream</td>
+<td align="right">54.2</td>
+<td align="right">20.8</td>
+<td align="right">201</td>
+<td align="right">4300</td>
+<td align="left">male</td>
+<td align="right">2008</td>
+</tr>
+<tr class="odd">
+<td align="left">3</td>
+<td align="left">Adelie</td>
+<td align="left">Dream</td>
+<td align="right">36.2</td>
+<td align="right">17.3</td>
+<td align="right">187</td>
+<td align="right">3300</td>
+<td align="left">female</td>
+<td align="right">2008</td>
+</tr>
+<tr class="even">
+<td align="left">4</td>
+<td align="left">Chinstrap</td>
+<td align="left">Dream</td>
+<td align="right">52.0</td>
+<td align="right">19.0</td>
+<td align="right">197</td>
+<td align="right">4150</td>
+<td align="left">male</td>
+<td align="right">2007</td>
+</tr>
+<tr class="odd">
+<td align="left">5</td>
+<td align="left">Gentoo</td>
+<td align="left">Biscoe</td>
+<td align="right">45.3</td>
+<td align="right">13.7</td>
+<td align="right">210</td>
+<td align="right">4300</td>
+<td align="left">female</td>
+<td align="right">2008</td>
+</tr>
+<tr class="even">
+<td align="left">6</td>
+<td align="left">Gentoo</td>
+<td align="left">Biscoe</td>
+<td align="right"></td>
+<td align="right"></td>
+<td align="right"></td>
+<td align="right"></td>
+<td align="left"></td>
+<td align="right">2009</td>
+</tr>
+<tr class="odd">
+<td align="left">7</td>
+<td align="left">Adelie</td>
+<td align="left">Torgersen</td>
+<td align="right">42.5</td>
+<td align="right">20.7</td>
+<td align="right">197</td>
+<td align="right">4500</td>
+<td align="left">male</td>
+<td align="right">2007</td>
+</tr>
+<tr class="even">
+<td align="left">8</td>
+<td align="left">Gentoo</td>
+<td align="left">Biscoe</td>
+<td align="right">48.5</td>
+<td align="right">15.0</td>
+<td align="right">219</td>
+<td align="right">4850</td>
+<td align="left">female</td>
+<td align="right">2009</td>
+</tr>
+<tr class="odd">
+<td align="left">9</td>
+<td align="left">Chinstrap</td>
+<td align="left">Dream</td>
+<td align="right">46.5</td>
+<td align="right">17.9</td>
+<td align="right">192</td>
+<td align="right">3500</td>
+<td align="left">female</td>
+<td align="right">2007</td>
+</tr>
+<tr class="even">
+<td align="left">10</td>
+<td align="left">Gentoo</td>
+<td align="left">Biscoe</td>
+<td align="right">46.9</td>
+<td align="right">14.6</td>
+<td align="right">222</td>
+<td align="right">4875</td>
+<td align="left">female</td>
+<td align="right">2009</td>
+</tr>
+</tbody>
+</table>
 <p>If you generated the <code>penguin</code> dataset yourself, then your
 first 10 samples may be different.</p>
 <p>In the data above, samples #1 and #6 have one or more missing
@@ -443,7 +573,7 @@ then check and correct this file. The function motivates its guesses and
 warns about especially uncertain ones. Here is the code to generate a
 <code>penguin_metadata.csv</code> file, and the output and warnings of
 the helper function:</p>
-<div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">metadatafile</span> <span class="op">&lt;-</span> <span class="st">'penguin_metadata.csv'</span></span>
 <span></span>
 <span><span class="fu"><a href="../reference/metadatatemplate.html">metadatatemplate</a></span><span class="op">(</span>data <span class="op">=</span> <span class="va">datafile</span>, file <span class="op">=</span> <span class="va">metadatafile</span><span class="op">)</span></span>
@@ -510,10 +640,210 @@ the helper function:</p>
 <span><span class="co"># Saved proposal metadata file as "penguin_metadata.csv" </span></span></code></pre></div>
 <p>The preliminary metadata file created by
 <code><a href="../reference/metadatatemplate.html">metadatatemplate()</a></code> looks like this:</p>
-<pre><code><span><span class="co"># Error in `pread.csv()`:</span></span>
-<span><span class="co"># ! could not find function "pread.csv"</span></span>
-<span><span class="co"># Error:</span></span>
-<span><span class="co"># ! object 'dat' not found</span></span></code></pre>
+<table style="width:100%;" class="table">
+<colgroup>
+<col width="9%">
+<col width="8%">
+<col width="7%">
+<col width="7%">
+<col width="6%">
+<col width="9%">
+<col width="9%">
+<col width="5%">
+<col width="7%">
+<col width="7%">
+<col width="2%">
+<col width="2%">
+<col width="2%">
+<col width="2%">
+<col width="2%">
+<col width="2%">
+<col width="3%">
+<col width="3%">
+</colgroup>
+<thead><tr class="header">
+<th align="left">name</th>
+<th align="left">type</th>
+<th align="right">domainmin</th>
+<th align="right">domainmax</th>
+<th align="right">datastep</th>
+<th align="right">minincluded</th>
+<th align="right">maxincluded</th>
+<th align="left">V1</th>
+<th align="left">V2</th>
+<th align="left">V3</th>
+<th align="right">V4</th>
+<th align="right">V5</th>
+<th align="right">V6</th>
+<th align="right">V7</th>
+<th align="right">V8</th>
+<th align="right">V9</th>
+<th align="right">V10</th>
+<th align="right">V11</th>
+</tr></thead>
+<tbody>
+<tr class="odd">
+<td align="left">species</td>
+<td align="left">nominal</td>
+<td align="right"></td>
+<td align="right"></td>
+<td align="right"></td>
+<td align="right"></td>
+<td align="right"></td>
+<td align="left">Adelie</td>
+<td align="left">Chinstrap</td>
+<td align="left">Gentoo</td>
+<td align="right"></td>
+<td align="right"></td>
+<td align="right"></td>
+<td align="right"></td>
+<td align="right"></td>
+<td align="right"></td>
+<td align="right"></td>
+<td align="right"></td>
+</tr>
+<tr class="even">
+<td align="left">island</td>
+<td align="left">nominal</td>
+<td align="right"></td>
+<td align="right"></td>
+<td align="right"></td>
+<td align="right"></td>
+<td align="right"></td>
+<td align="left">Biscoe</td>
+<td align="left">Dream</td>
+<td align="left">Torgersen</td>
+<td align="right"></td>
+<td align="right"></td>
+<td align="right"></td>
+<td align="right"></td>
+<td align="right"></td>
+<td align="right"></td>
+<td align="right"></td>
+<td align="right"></td>
+</tr>
+<tr class="odd">
+<td align="left">bill_len</td>
+<td align="left">continuous</td>
+<td align="right">0</td>
+<td align="right"></td>
+<td align="right">0.1</td>
+<td align="right"></td>
+<td align="right"></td>
+<td align="left"></td>
+<td align="left"></td>
+<td align="left"></td>
+<td align="right"></td>
+<td align="right"></td>
+<td align="right"></td>
+<td align="right"></td>
+<td align="right"></td>
+<td align="right"></td>
+<td align="right"></td>
+<td align="right"></td>
+</tr>
+<tr class="even">
+<td align="left">bill_dep</td>
+<td align="left">continuous</td>
+<td align="right">0</td>
+<td align="right"></td>
+<td align="right">0.1</td>
+<td align="right"></td>
+<td align="right"></td>
+<td align="left"></td>
+<td align="left"></td>
+<td align="left"></td>
+<td align="right"></td>
+<td align="right"></td>
+<td align="right"></td>
+<td align="right"></td>
+<td align="right"></td>
+<td align="right"></td>
+<td align="right"></td>
+<td align="right"></td>
+</tr>
+<tr class="odd">
+<td align="left">flipper_len</td>
+<td align="left">ordinal</td>
+<td align="right">186</td>
+<td align="right">222</td>
+<td align="right">1.0</td>
+<td align="right"></td>
+<td align="right"></td>
+<td align="left"></td>
+<td align="left"></td>
+<td align="left"></td>
+<td align="right"></td>
+<td align="right"></td>
+<td align="right"></td>
+<td align="right"></td>
+<td align="right"></td>
+<td align="right"></td>
+<td align="right"></td>
+<td align="right"></td>
+</tr>
+<tr class="even">
+<td align="left">body_mass</td>
+<td align="left">ordinal</td>
+<td align="right">3300</td>
+<td align="right">4875</td>
+<td align="right">25.0</td>
+<td align="right"></td>
+<td align="right"></td>
+<td align="left"></td>
+<td align="left"></td>
+<td align="left"></td>
+<td align="right"></td>
+<td align="right"></td>
+<td align="right"></td>
+<td align="right"></td>
+<td align="right"></td>
+<td align="right"></td>
+<td align="right"></td>
+<td align="right"></td>
+</tr>
+<tr class="odd">
+<td align="left">sex</td>
+<td align="left">nominal</td>
+<td align="right"></td>
+<td align="right"></td>
+<td align="right"></td>
+<td align="right"></td>
+<td align="right"></td>
+<td align="left">female</td>
+<td align="left">male</td>
+<td align="left"></td>
+<td align="right"></td>
+<td align="right"></td>
+<td align="right"></td>
+<td align="right"></td>
+<td align="right"></td>
+<td align="right"></td>
+<td align="right"></td>
+<td align="right"></td>
+</tr>
+<tr class="even">
+<td align="left">year</td>
+<td align="left">ordinal</td>
+<td align="right">2007</td>
+<td align="right">2009</td>
+<td align="right">1.0</td>
+<td align="right"></td>
+<td align="right"></td>
+<td align="left"></td>
+<td align="left"></td>
+<td align="left"></td>
+<td align="right"></td>
+<td align="right"></td>
+<td align="right"></td>
+<td align="right"></td>
+<td align="right"></td>
+<td align="right"></td>
+<td align="right"></td>
+<td align="right"></td>
+</tr>
+</tbody>
+</table>
 <p>If you generated the <code>penguin</code> dataset yourself, then you
 might obtain different guesses. Try to follow the following guidelines
 for the present example.</p>
@@ -556,10 +886,130 @@ was correctly guessed).</p>
 and complete the guesses of the helper function. In this case we end up
 with the following corrected metadata file, also available for download
 as <a href="https://github.com/pglpm/prova/raw/main/development/downloads/penguin_metadata.csv" class="external-link"><code>penguin_metadata.csv</code></a>:</p>
-<pre><code><span><span class="co"># Error in `pread.csv()`:</span></span>
-<span><span class="co"># ! could not find function "pread.csv"</span></span>
-<span><span class="co"># Error:</span></span>
-<span><span class="co"># ! object 'dat' not found</span></span></code></pre>
+<table style="width:100%;" class="table">
+<colgroup>
+<col width="11%">
+<col width="10%">
+<col width="9%">
+<col width="9%">
+<col width="8%">
+<col width="11%">
+<col width="11%">
+<col width="6%">
+<col width="9%">
+<col width="9%">
+</colgroup>
+<thead><tr class="header">
+<th align="left">name</th>
+<th align="left">type</th>
+<th align="right">domainmin</th>
+<th align="right">domainmax</th>
+<th align="right">datastep</th>
+<th align="right">minincluded</th>
+<th align="right">maxincluded</th>
+<th align="left">V1</th>
+<th align="left">V2</th>
+<th align="left">V3</th>
+</tr></thead>
+<tbody>
+<tr class="odd">
+<td align="left">species</td>
+<td align="left">nominal</td>
+<td align="right"></td>
+<td align="right"></td>
+<td align="right"></td>
+<td align="right"></td>
+<td align="right"></td>
+<td align="left">Adelie</td>
+<td align="left">Chinstrap</td>
+<td align="left">Gentoo</td>
+</tr>
+<tr class="even">
+<td align="left">island</td>
+<td align="left">nominal</td>
+<td align="right"></td>
+<td align="right"></td>
+<td align="right"></td>
+<td align="right"></td>
+<td align="right"></td>
+<td align="left">Biscoe</td>
+<td align="left">Dream</td>
+<td align="left">Torgersen</td>
+</tr>
+<tr class="odd">
+<td align="left">bill_len</td>
+<td align="left">continuous</td>
+<td align="right">0</td>
+<td align="right"></td>
+<td align="right">0.1</td>
+<td align="right"></td>
+<td align="right"></td>
+<td align="left"></td>
+<td align="left"></td>
+<td align="left"></td>
+</tr>
+<tr class="even">
+<td align="left">bill_dep</td>
+<td align="left">continuous</td>
+<td align="right">0</td>
+<td align="right"></td>
+<td align="right">0.1</td>
+<td align="right"></td>
+<td align="right"></td>
+<td align="left"></td>
+<td align="left"></td>
+<td align="left"></td>
+</tr>
+<tr class="odd">
+<td align="left">flipper_len</td>
+<td align="left">continuous</td>
+<td align="right">0</td>
+<td align="right"></td>
+<td align="right">1.0</td>
+<td align="right"></td>
+<td align="right"></td>
+<td align="left"></td>
+<td align="left"></td>
+<td align="left"></td>
+</tr>
+<tr class="even">
+<td align="left">body_mass</td>
+<td align="left">continuous</td>
+<td align="right">0</td>
+<td align="right"></td>
+<td align="right">25.0</td>
+<td align="right"></td>
+<td align="right"></td>
+<td align="left"></td>
+<td align="left"></td>
+<td align="left"></td>
+</tr>
+<tr class="odd">
+<td align="left">sex</td>
+<td align="left">nominal</td>
+<td align="right"></td>
+<td align="right"></td>
+<td align="right"></td>
+<td align="right"></td>
+<td align="right"></td>
+<td align="left">female</td>
+<td align="left">male</td>
+<td align="left"></td>
+</tr>
+<tr class="even">
+<td align="left">year</td>
+<td align="left">ordinal</td>
+<td align="right">2007</td>
+<td align="right">2009</td>
+<td align="right">1.0</td>
+<td align="right"></td>
+<td align="right"></td>
+<td align="left"></td>
+<td align="left"></td>
+<td align="left"></td>
+</tr>
+</tbody>
+</table>
 </div>
 </div>
 <div class="section level3">
@@ -596,7 +1046,7 @@ the number of cores you actually have!).</p>
 <p>The output below was obtained from running <code><a href="../reference/learn.html">learn()</a></code> on 4
 cores – <em>please wait before running this code</em>, it might take
 longer time on your computer:</p>
-<div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co">## set.seed() already called</span></span>
 <span></span>
 <span><span class="va">learnt10</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/learn.html">learn</a></span><span class="op">(</span></span>
@@ -679,7 +1129,7 @@ the <code>learnt10</code> variable in the code above, by invoking
 be downloaded as the file <a href="https://github.com/pglpm/prova/raw/main/development/downloads/learnt10.rds" class="external-link"><code>learnt10.rds</code></a>.
 Once you have downloaded it in your working directory you can just
 invoke</p>
-<div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">learnt10</span> <span class="op">&lt;-</span> <span class="st">'learnt10.rds'</span></span></code></pre></div>
 <p>which produces an object <code>learnt10</code> (just a character
 string, in this case) which can be used in the following analysis.</p>
@@ -722,7 +1172,7 @@ use for the computation.</li>
 </ul>
 <p>Here is a way to call the function; the computation should take at
 most a couple of seconds:</p>
-<div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co">## data frame with the variate and values we want to know the frequencies of</span></span>
 <span><span class="va">Y</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span>species <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">'Adelie'</span>, <span class="st">'Chinstrap'</span>, <span class="st">'Gentoo'</span><span class="op">)</span><span class="op">)</span></span>
 <span></span>
@@ -737,14 +1187,17 @@ most a couple of seconds:</p>
 from <code>10</code> samples”). The estimate and its uncertainty can be
 immediately visualized by calling <code><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot()</a></code> with this
 object:</p>
-<div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">Fspecies10</span><span class="op">)</span></span></code></pre></div>
+<div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">Fspecies10</span><span class="op">)</span></span>
+<span><span class="co">#  Factor w/ 3 levels "Adelie","Chinstrap",..: 1 2 3</span></span></code></pre></div>
 <div class="figure">
 <img src="figure/vis10-1.png" alt="**Estimates and uncertainty of relative frequencies of penguin species**" width="100%"><p class="caption">
 <strong>Estimates and uncertainty of relative frequencies of penguin
 species</strong>
 </p>
 </div>
+<pre><code><span><span class="co">#  Factor w/ 3 levels "Adelie","Chinstrap",..: 1 2 3</span></span>
+<span><span class="co">#  - attr(*, "names")= chr [1:3] "species1" "species2" "species3"</span></span></code></pre>
 <p><br></p>
 <p>The x-axis of this plot shows the three possible values of the
 <code>species</code> variate. The y-axis reports fractions which may be
@@ -762,7 +1215,7 @@ to compare several frequency distributions, as we’ll do later.)</p>
 </ul>
 <p>and can be read from the <code>values</code> element of the
 <code>Fspecies10</code> object:</p>
-<div class="sourceCode" id="cb12"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">Fspecies10</span><span class="op">$</span><span class="va">values</span></span>
 <span><span class="co">#            X</span></span>
 <span><span class="co"># Y               [,1]</span></span>
@@ -824,7 +1277,7 @@ because this is just a small sample.</p>
 probabilities for all possible frequencies of each species. We can plot
 the probabilities of the frequencies of the <code>Adelie</code> species
 as follows:</p>
-<div class="sourceCode" id="cb13"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co">## select only Adelie</span></span>
 <span><span class="va">onlyAdelie</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/subset.html" class="external-link">subset</a></span><span class="op">(</span><span class="va">Fspecies10</span>, <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>species <span class="op">=</span> <span class="st">'Adelie'</span><span class="op">)</span><span class="op">)</span></span>
 <span></span>
@@ -856,7 +1309,7 @@ The credibility intervals are calculated from the probability
 distribution above. They can be quickly obtained from the
 <code>quantiles</code> element of the <code>Fspecies10</code> object.
 For instance, we can read the 89%-credibility intervals as follows:</p>
-<div class="sourceCode" id="cb14"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb12"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">Fspecies10</span><span class="op">$</span><span class="va">quantiles</span><span class="op">[</span>, , <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">'5.5%'</span>, <span class="st">'94.5%'</span><span class="op">)</span><span class="op">]</span></span>
 <span><span class="co">#            </span></span>
 <span><span class="co"># Y               5.5%    94.5%</span></span>
@@ -894,7 +1347,7 @@ rel. frequency between 0.19 and 0.62, with 89% probability.
 </blockquote>
 <p>But we can also give a fuller answer by displaying the probability
 distributions for all three frequencies:</p>
-<div class="sourceCode" id="cb15"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb13"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/graphics/hist.html" class="external-link">hist</a></span><span class="op">(</span><span class="va">Fspecies10</span>, legend <span class="op">=</span> <span class="st">'topright'</span>, col <span class="op">=</span> <span class="fl">2</span><span class="op">:</span><span class="fl">4</span><span class="op">)</span></span></code></pre></div>
 <div class="figure">
 <img src="figure/hist10-1.png" alt="**Probability distribution for the rel. requencies of penguin species**" width="100%"><p class="caption">
@@ -923,7 +1376,7 @@ what the relative frequencies of all six possibilities –
 so on – could be. This can also be done with <strong>Prova</strong>,
 with any number of variates. For the moment we only show the example
 code for such an analysis:</p>
-<div class="sourceCode" id="cb16"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb14"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co">## data frame with all combination of values from 'species' and 'sex'</span></span>
 <span><span class="co">## use base-R function 'expand.grid()'</span></span>
 <span><span class="va">Y2</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/expand.grid.html" class="external-link">expand.grid</a></span><span class="op">(</span></span>
@@ -990,7 +1443,7 @@ which subpopulations we want to focus on. For simplicity, let’s say that
 we want to focus on penguins living on Biscoe or Dream, that is, those
 whose <code>island</code> variate has the values <code>'Biscoe</code> or
 <code>'Dream'</code>. The code is as follows:</p>
-<div class="sourceCode" id="cb17"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb15"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co">## data frame with the variate and values of the subpopulations of interest</span></span>
 <span><span class="va">X</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span>island <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">'Biscoe'</span>, <span class="st">'Dream'</span><span class="op">)</span><span class="op">)</span></span>
 <span></span>
@@ -1005,20 +1458,24 @@ whose <code>island</code> variate has the values <code>'Biscoe</code> or
 the previous name). The estimates of the frequencies and their
 uncertainties can again be visualized by calling
 <code><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot()</a></code>:</p>
-<div class="sourceCode" id="cb18"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">Fspecies10I</span>, col <span class="op">=</span> <span class="fl">5</span><span class="op">:</span><span class="fl">6</span><span class="op">)</span></span></code></pre></div>
+<div class="sourceCode" id="cb16"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">Fspecies10I</span>, col <span class="op">=</span> <span class="fl">5</span><span class="op">:</span><span class="fl">6</span><span class="op">)</span></span>
+<span><span class="co">#  Factor w/ 3 levels "Adelie","Chinstrap",..: 1 2 3</span></span></code></pre></div>
 <div class="figure">
 <img src="figure/vis10I-1.png" alt="**Estimates and uncertainty of conditional frequencies**" width="100%"><p class="caption">
 <strong>Estimates and uncertainty of conditional frequencies</strong>
 </p>
 </div>
+<pre><code><span><span class="co">#  Factor w/ 3 levels "Adelie","Chinstrap",..: 1 2 3</span></span>
+<span><span class="co">#  Factor w/ 3 levels "Adelie","Chinstrap",..: 1 2 3</span></span>
+<span><span class="co">#  - attr(*, "names")= chr [1:3] "species1" "species2" "species3"</span></span></code></pre>
 <p><br></p>
 <p>The estimated frequencies for the <code>Biscoe</code> subpopulation
 are shown by the solid yellow curve with small circles; those for the
 <code>Dream</code> subpopulation by the dashed purple curve with small
 squares. More precise values are contained in the <code>values</code>
 element of the <code>Fspecies10I</code> object:</p>
-<div class="sourceCode" id="cb19"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb18"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">Fspecies10I</span><span class="op">$</span><span class="va">values</span></span>
 <span><span class="co">#            X</span></span>
 <span><span class="co"># Y             Biscoe    Dream</span></span>
@@ -1034,7 +1491,7 @@ frequency are quite wide. Also in this case we can get a better picture
 by displaying the probability distribution of each frequency, by means
 of the <code><a href="https://rdrr.io/r/graphics/hist.html" class="external-link">hist()</a></code> function, and see how much they overlap.</p>
 <p>For Biscoe island we find</p>
-<div class="sourceCode" id="cb20"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb19"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co">## select only Biscoe</span></span>
 <span><span class="va">onlyBiscoe</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/subset.html" class="external-link">subset</a></span><span class="op">(</span><span class="va">Fspecies10I</span>, <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>island <span class="op">=</span> <span class="st">'Biscoe'</span><span class="op">)</span><span class="op">)</span></span>
 <span></span>
@@ -1057,7 +1514,7 @@ difference, but we are warned about a large uncertainty. Will more
 sampling data confirm “no difference”?</p>
 <p><br>
 For Dream island we find</p>
-<div class="sourceCode" id="cb21"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb20"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co">## select only Dream</span></span>
 <span><span class="va">onlyDream</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/subset.html" class="external-link">subset</a></span><span class="op">(</span><span class="va">Fspecies10I</span>, <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>island <span class="op">=</span> <span class="st">'Dream'</span><span class="op">)</span><span class="op">)</span></span>
 <span></span>
@@ -1087,7 +1544,7 @@ estimates, but full probability distributions showing their
 uncertainties.</p>
 <p>A more compact summary can again be given with credibility intervals.
 We can produce it as follows:</p>
-<div class="sourceCode" id="cb22"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb21"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/Round.html" class="external-link">signif</a></span><span class="op">(</span>digits <span class="op">=</span> <span class="fl">2</span>, <span class="co">## round to two digits</span></span>
 <span>    <span class="fu"><a href="https://rdrr.io/r/base/aperm.html" class="external-link">aperm</a></span><span class="op">(</span>perm <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1</span>, <span class="fl">3</span>, <span class="fl">2</span><span class="op">)</span>, <span class="co">## change order for better display</span></span>
 <span>        <span class="va">Fspecies10I</span><span class="op">$</span><span class="va">quantiles</span><span class="op">[</span>, , <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">'5.5%'</span>, <span class="st">'94.5%'</span><span class="op">)</span><span class="op">]</span></span>
@@ -1162,7 +1619,7 @@ living on Biscoe island; in other words, penguins with
 also easily handled by <strong>Prova</strong>, for any combination of
 subpopulations. The procedure is analogous to the one we <a href="#twovariates">previously discussed</a> very briefly.</p>
 <p>Also in this case we only show the example code for the moment:</p>
-<div class="sourceCode" id="cb23"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb22"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co">## data frame with all combination of values from 'island' and 'sex'</span></span>
 <span><span class="co">## use base-R function 'expand.grid()'</span></span>
 <span><span class="va">X2</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/expand.grid.html" class="external-link">expand.grid</a></span><span class="op">(</span></span>
@@ -1210,7 +1667,7 @@ analysis and hypotheses had very large uncertainties.</p>
 <p>Now imagine that our sampling colleagues send us 50 more datapoints,
 which we add to the 10 we already have. Let’s store the 60 datapoints in
 the file <code>penguin_data60.csv</code>:</p>
-<div class="sourceCode" id="cb24"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb23"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">datafile</span> <span class="op">&lt;-</span> <span class="st">'penguin_data60.csv'</span></span>
 <span><span class="fu"><a href="../reference/prova.data.html">pwrite.csv</a></span><span class="op">(</span><span class="va">penguin</span><span class="op">[</span><span class="fl">1</span><span class="op">:</span><span class="fl">60</span>, <span class="op">]</span>, <span class="va">datafile</span><span class="op">)</span> <span class="co">## write the first 60 samples</span></span></code></pre></div>
 <p>Feel free to take a look at your extended sample data. There may be
@@ -1220,7 +1677,7 @@ a problem for Bayesian theory and <strong>Prova</strong>.</p>
 done again with the <code><a href="../reference/learn.html">learn()</a></code> function. <em>Please wait
 before running this code</em>, it might take longer time on your
 computer:</p>
-<div class="sourceCode" id="cb25"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb24"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">learnt60</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/learn.html">learn</a></span><span class="op">(</span></span>
 <span>    data <span class="op">=</span> <span class="va">datafile</span>,</span>
 <span>    metadata <span class="op">=</span> <span class="va">metadatafile</span>,</span>
@@ -1281,7 +1738,7 @@ compressed file <code>learnt.rds</code> within the new output directory.
 For your convenience the object produced by the computation above can be
 downloaded as the file <a href="https://github.com/pglpm/prova/raw/main/development/downloads/learnt60.rds" class="external-link"><code>learnt60.rds</code></a>.
 Once you have downloaded it in your working directory, invoke</p>
-<div class="sourceCode" id="cb26"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb25"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">learnt60</span> <span class="op">&lt;-</span> <span class="st">'learnt60.rds'</span></span></code></pre></div>
 <p>which we now use to update our analysis.</p>
 </div>
@@ -1303,7 +1760,7 @@ sample, using the <code><a href="../reference/Pr.html">Pr()</a></code> function 
 before</a>. In the <code>learnt =</code> argument we must now use the
 new <code>learnt60</code> object, which points to the updated inference.
 Here is the calculation for all three questions:</p>
-<div class="sourceCode" id="cb27"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb26"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co">## 'Y' and 'X' were previously defined with:</span></span>
 <span><span class="co">## Y &lt;- data.frame(species = c('Adelie', 'Chinstrap', 'Gentoo'))</span></span>
 <span><span class="co">## X &lt;- data.frame(island = c('Biscoe', 'Dream'))</span></span>
@@ -1327,13 +1784,16 @@ estimates, credibility intervals, and probability distributions.</p>
 Consider the first question: overall statistical occurrence of the three
 species. Let’s plot the new estimates and their credibility
 intervals:</p>
-<div class="sourceCode" id="cb28"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">Fspecies60</span><span class="op">)</span></span></code></pre></div>
+<div class="sourceCode" id="cb27"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">Fspecies60</span><span class="op">)</span></span>
+<span><span class="co">#  Factor w/ 3 levels "Adelie","Chinstrap",..: 1 2 3</span></span></code></pre></div>
 <div class="figure">
 <img src="figure/vis60-1.png" alt="**Updated frequency estimates of penguin species**" width="100%"><p class="caption">
 <strong>Updated frequency estimates of penguin species</strong>
 </p>
 </div>
+<pre><code><span><span class="co">#  Factor w/ 3 levels "Adelie","Chinstrap",..: 1 2 3</span></span>
+<span><span class="co">#  - attr(*, "names")= chr [1:3] "species1" "species2" "species3"</span></span></code></pre>
 <p><br></p>
 <p>You notice that the credibility intervals are now narrower, compared
 to those of the previous estimates. Let’s actually overlap the plots of
@@ -1345,9 +1805,15 @@ updated:</p>
 <span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">Fspecies10</span>, ylim <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0</span>, <span class="va">ymax</span><span class="op">)</span>,</span>
 <span>    col <span class="op">=</span> <span class="fl">2</span>, lty <span class="op">=</span> <span class="fl">2</span>, lwd <span class="op">=</span> <span class="fl">3</span>, pch <span class="op">=</span> <span class="fl">2</span><span class="op">)</span> <span class="co">## distinguish the two plots</span></span>
+<span><span class="co">#  Factor w/ 3 levels "Adelie","Chinstrap",..: 1 2 3</span></span>
+<span><span class="co">#  Factor w/ 3 levels "Adelie","Chinstrap",..: 1 2 3</span></span>
+<span><span class="co">#  - attr(*, "names")= chr [1:3] "species1" "species2" "species3"</span></span>
 <span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">Fspecies60</span>, ylim <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0</span>, <span class="va">ymax</span><span class="op">)</span>, add <span class="op">=</span> <span class="cn">TRUE</span>,</span>
 <span>    col <span class="op">=</span> <span class="fl">1</span>, lty <span class="op">=</span> <span class="fl">1</span>, lwd <span class="op">=</span> <span class="fl">2</span>, pch <span class="op">=</span> <span class="fl">1</span><span class="op">)</span> <span class="co">## distinguish the two plots</span></span>
+<span><span class="co">#  Factor w/ 3 levels "Adelie","Chinstrap",..: 1 2 3</span></span>
+<span><span class="co">#  Factor w/ 3 levels "Adelie","Chinstrap",..: 1 2 3</span></span>
+<span><span class="co">#  - attr(*, "names")= chr [1:3] "species1" "species2" "species3"</span></span>
 <span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/graphics/legend.html" class="external-link">legend</a></span><span class="op">(</span><span class="st">'top'</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">'10 samples'</span>, <span class="st">'60 samples'</span><span class="op">)</span>,</span>
 <span>    col <span class="op">=</span> <span class="fl">2</span><span class="op">:</span><span class="fl">1</span>, lty <span class="op">=</span> <span class="fl">2</span><span class="op">:</span><span class="fl">1</span>, pch <span class="op">=</span> <span class="fl">2</span><span class="op">:</span><span class="fl">1</span>, bty <span class="op">=</span> <span class="st">'n'</span><span class="op">)</span></span></code></pre></div>
@@ -1662,11 +2128,13 @@ species are computed in the usual way:</p>
 <p>Let’s plot the estimated frequencies with their credibility
 intervals, and also their probability distributions:</p>
 <div class="sourceCode" id="cb44"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">Fspeciesall</span>, ylim <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0</span>, <span class="fl">1</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
+<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">Fspeciesall</span>, ylim <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0</span>, <span class="fl">1</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="co">#  Factor w/ 3 levels "Adelie","Chinstrap",..: 1 2 3</span></span></code></pre></div>
 <p><img src="figure/visall-1.png" alt="" width="100%"></p>
-<div class="sourceCode" id="cb45"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/graphics/hist.html" class="external-link">hist</a></span><span class="op">(</span><span class="va">Fspeciesall</span>, xlim <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0</span>, <span class="fl">1</span><span class="op">)</span>, legend <span class="op">=</span> <span class="st">'topright'</span><span class="op">)</span></span></code></pre></div>
+<pre><code><span><span class="co">#  Factor w/ 3 levels "Adelie","Chinstrap",..: 1 2 3</span></span>
+<span><span class="co">#  - attr(*, "names")= chr [1:3] "species1" "species2" "species3"</span></span>
+<span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/graphics/hist.html" class="external-link">hist</a></span><span class="op">(</span><span class="va">Fspeciesall</span>, xlim <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0</span>, <span class="fl">1</span><span class="op">)</span>, legend <span class="op">=</span> <span class="st">'topright'</span><span class="op">)</span></span></code></pre>
 <p><img src="figure/visall-2.png" alt="" width="100%"></p>
 <p>The last plot is visually the most complete answer we can give to our
 research question <strong>Q1</strong>: “<em>What’s the overall
@@ -1752,12 +2220,8 @@ the frequency about, and an object <code>X</code> for the
 <div class="sourceCode" id="cb47"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">Yvrt</span> <span class="op">&lt;-</span> <span class="st">'species'</span> <span class="co">## variate of interest</span></span>
 <span><span class="va">Yvls</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/sort.html" class="external-link">sort</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/unique.html" class="external-link">unique</a></span><span class="op">(</span><span class="va">penguin</span><span class="op">[</span>, <span class="va">Yvrt</span><span class="op">]</span><span class="op">)</span><span class="op">)</span> <span class="co">## values from dataset</span></span>
-<span><span class="co"># Error:</span></span>
-<span><span class="co"># ! object 'penguin' not found</span></span>
 <span><span class="co">## build Y object</span></span>
 <span><span class="va">Y</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span><span class="va">Yvls</span><span class="op">)</span></span>
-<span><span class="co"># Error:</span></span>
-<span><span class="co"># ! object 'Yvls' not found</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/colnames.html" class="external-link">colnames</a></span><span class="op">(</span><span class="va">Y</span><span class="op">)</span> <span class="op">&lt;-</span> <span class="va">Yvrt</span></span>
 <span></span>
 <span><span class="va">Xvrt</span> <span class="op">&lt;-</span> <span class="st">'island'</span> <span class="co">## subpopulation variate</span></span>
@@ -1909,8 +2373,11 @@ body mass in three separate subpopulations: <code>Adelie</code>,
 <p>Here is the estimated frequency distribution of body mass within each
 species</p>
 <div class="sourceCode" id="cb54"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">Fanalysis</span>, col <span class="op">=</span> <span class="fl">2</span><span class="op">:</span><span class="fl">4</span>, legend <span class="op">=</span> <span class="st">'topright'</span><span class="op">)</span></span></code></pre></div>
+<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">Fanalysis</span>, col <span class="op">=</span> <span class="fl">2</span><span class="op">:</span><span class="fl">4</span>, legend <span class="op">=</span> <span class="st">'topright'</span><span class="op">)</span></span>
+<span><span class="co">#  Factor w/ 3 levels "Biscoe","Dream",..: 1 2 3</span></span></code></pre></div>
 <p><img src="figure/unnamed-chunk-10-1.png" alt="" width="100%"></p>
+<pre><code><span><span class="co">#  Factor w/ 3 levels "Biscoe","Dream",..: 1 2 3</span></span>
+<span><span class="co">#  - attr(*, "names")= chr [1:3] "island1" "island2" "island3"</span></span></code></pre>
 <p>Note how the plots above give us much more information than just a
 set of estimates about medians and quantiles, or means and standard
 deviations. Note also how the distributions are not Gaussian. We can

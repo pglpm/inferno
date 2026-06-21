@@ -58,10 +58,7 @@ In our example we shall use data from the
 [`datasets::penguins`](https://rdrr.io/r/datasets/penguins.html)
 dataset, included in R version 4.5.0 and above. We shuffle this dataset
 to erase any particular ordering of its data, and call the new dataset
-`penguin` (without the final ‘s’). For your convenience you can download
-the shuffled dataset as the CSV file
-[`penguin_data.csv`](https://github.com/pglpm/prova/raw/main/development/downloads/penguin_data.csv).
-Otherwise you can create such file from R 4.5.0 or above as follows:
+`penguin` (without the final ‘s’):
 
 ``` r
 
@@ -75,8 +72,9 @@ pwrite.csv(penguin, file = 'penguin_data.csv')
 The utility function
 [`pwrite.csv()`](https://pglpm.github.io/prova/reference/prova.data.md)
 saves the dataset as a CSV file that respects the [formatting rules
-required by **Prova**](#format).
-
+required by **Prova**](#format). For your convenience you can also
+download the shuffled dataset as the CSV file
+[`penguin_data.csv`](https://github.com/pglpm/prova/raw/main/development/downloads/penguin_data.csv).
 We assume that you now have the `penguin_data.csv` file.
 
   
@@ -248,10 +246,18 @@ pwrite.csv(penguin[1:10, ], datafile) ## write the first 10 samples
 
 Here they are:
 
-    # Error in `pread.csv()`:
-    # ! could not find function "pread.csv"
-    # Error:
-    # ! object 'penguin' not found
+|     | species   | island    | bill_len | bill_dep | flipper_len | body_mass | sex    | year |
+|:----|:----------|:----------|---------:|---------:|------------:|----------:|:-------|-----:|
+| 1   | Adelie    | Torgersen |     37.8 |     17.1 |         186 |      3300 |        | 2007 |
+| 2   | Chinstrap | Dream     |     54.2 |     20.8 |         201 |      4300 | male   | 2008 |
+| 3   | Adelie    | Dream     |     36.2 |     17.3 |         187 |      3300 | female | 2008 |
+| 4   | Chinstrap | Dream     |     52.0 |     19.0 |         197 |      4150 | male   | 2007 |
+| 5   | Gentoo    | Biscoe    |     45.3 |     13.7 |         210 |      4300 | female | 2008 |
+| 6   | Gentoo    | Biscoe    |          |          |             |           |        | 2009 |
+| 7   | Adelie    | Torgersen |     42.5 |     20.7 |         197 |      4500 | male   | 2007 |
+| 8   | Gentoo    | Biscoe    |     48.5 |     15.0 |         219 |      4850 | female | 2009 |
+| 9   | Chinstrap | Dream     |     46.5 |     17.9 |         192 |      3500 | female | 2007 |
+| 10  | Gentoo    | Biscoe    |     46.9 |     14.6 |         222 |      4875 | female | 2009 |
 
 If you generated the `penguin` dataset yourself, then your first 10
 samples may be different.
@@ -449,10 +455,16 @@ The preliminary metadata file created by
 [`metadatatemplate()`](https://pglpm.github.io/prova/reference/metadatatemplate.md)
 looks like this:
 
-    # Error in `pread.csv()`:
-    # ! could not find function "pread.csv"
-    # Error:
-    # ! object 'dat' not found
+| name | type | domainmin | domainmax | datastep | minincluded | maxincluded | V1 | V2 | V3 | V4 | V5 | V6 | V7 | V8 | V9 | V10 | V11 |
+|:---|:---|---:|---:|---:|---:|---:|:---|:---|:---|---:|---:|---:|---:|---:|---:|---:|---:|
+| species | nominal |  |  |  |  |  | Adelie | Chinstrap | Gentoo |  |  |  |  |  |  |  |  |
+| island | nominal |  |  |  |  |  | Biscoe | Dream | Torgersen |  |  |  |  |  |  |  |  |
+| bill_len | continuous | 0 |  | 0.1 |  |  |  |  |  |  |  |  |  |  |  |  |  |
+| bill_dep | continuous | 0 |  | 0.1 |  |  |  |  |  |  |  |  |  |  |  |  |  |
+| flipper_len | ordinal | 186 | 222 | 1.0 |  |  |  |  |  |  |  |  |  |  |  |  |  |
+| body_mass | ordinal | 3300 | 4875 | 25.0 |  |  |  |  |  |  |  |  |  |  |  |  |  |
+| sex | nominal |  |  |  |  |  | female | male |  |  |  |  |  |  |  |  |  |
+| year | ordinal | 2007 | 2009 | 1.0 |  |  |  |  |  |  |  |  |  |  |  |  |  |
 
 If you generated the `penguin` dataset yourself, then you might obtain
 different guesses. Try to follow the following guidelines for the
@@ -498,10 +510,16 @@ function. In this case we end up with the following corrected metadata
 file, also available for download as
 [`penguin_metadata.csv`](https://github.com/pglpm/prova/raw/main/development/downloads/penguin_metadata.csv):
 
-    # Error in `pread.csv()`:
-    # ! could not find function "pread.csv"
-    # Error:
-    # ! object 'dat' not found
+| name | type | domainmin | domainmax | datastep | minincluded | maxincluded | V1 | V2 | V3 |
+|:---|:---|---:|---:|---:|---:|---:|:---|:---|:---|
+| species | nominal |  |  |  |  |  | Adelie | Chinstrap | Gentoo |
+| island | nominal |  |  |  |  |  | Biscoe | Dream | Torgersen |
+| bill_len | continuous | 0 |  | 0.1 |  |  |  |  |  |
+| bill_dep | continuous | 0 |  | 0.1 |  |  |  |  |  |
+| flipper_len | continuous | 0 |  | 1.0 |  |  |  |  |  |
+| body_mass | continuous | 0 |  | 25.0 |  |  |  |  |  |
+| sex | nominal |  |  |  |  |  | female | male |  |
+| year | ordinal | 2007 | 2009 | 1.0 |  |  |  |  |  |
 
 ### “Learning” and extrapolating from the sample data
 
@@ -687,12 +705,16 @@ object:
 ``` r
 
 plot(Fspecies10)
+#  Factor w/ 3 levels "Adelie","Chinstrap",..: 1 2 3
 ```
 
 ![\*\*Estimates and uncertainty of relative frequencies of penguin
 species\*\*](figure/vis10-1.png)
 
 **Estimates and uncertainty of relative frequencies of penguin species**
+
+    #  Factor w/ 3 levels "Adelie","Chinstrap",..: 1 2 3
+    #  - attr(*, "names")= chr [1:3] "species1" "species2" "species3"
 
   
 
@@ -970,12 +992,17 @@ frequencies and their uncertainties can again be visualized by calling
 ``` r
 
 plot(Fspecies10I, col = 5:6)
+#  Factor w/ 3 levels "Adelie","Chinstrap",..: 1 2 3
 ```
 
 ![\*\*Estimates and uncertainty of conditional
 frequencies\*\*](figure/vis10I-1.png)
 
 **Estimates and uncertainty of conditional frequencies**
+
+    #  Factor w/ 3 levels "Adelie","Chinstrap",..: 1 2 3
+    #  Factor w/ 3 levels "Adelie","Chinstrap",..: 1 2 3
+    #  - attr(*, "names")= chr [1:3] "species1" "species2" "species3"
 
   
 
@@ -1340,12 +1367,16 @@ species. Let’s plot the new estimates and their credibility intervals:
 ``` r
 
 plot(Fspecies60)
+#  Factor w/ 3 levels "Adelie","Chinstrap",..: 1 2 3
 ```
 
 ![\*\*Updated frequency estimates of penguin
 species\*\*](figure/vis60-1.png)
 
 **Updated frequency estimates of penguin species**
+
+    #  Factor w/ 3 levels "Adelie","Chinstrap",..: 1 2 3
+    #  - attr(*, "names")= chr [1:3] "species1" "species2" "species3"
 
   
 
@@ -1360,9 +1391,15 @@ ymax <- max(Fspecies10$quantiles, Fspecies60$quantiles)
 
 plot(Fspecies10, ylim = c(0, ymax),
     col = 2, lty = 2, lwd = 3, pch = 2) ## distinguish the two plots
+#  Factor w/ 3 levels "Adelie","Chinstrap",..: 1 2 3
+#  Factor w/ 3 levels "Adelie","Chinstrap",..: 1 2 3
+#  - attr(*, "names")= chr [1:3] "species1" "species2" "species3"
 
 plot(Fspecies60, ylim = c(0, ymax), add = TRUE,
     col = 1, lty = 1, lwd = 2, pch = 1) ## distinguish the two plots
+#  Factor w/ 3 levels "Adelie","Chinstrap",..: 1 2 3
+#  Factor w/ 3 levels "Adelie","Chinstrap",..: 1 2 3
+#  - attr(*, "names")= chr [1:3] "species1" "species2" "species3"
 
 legend('top', c('10 samples', '60 samples'),
     col = 2:1, lty = 2:1, pch = 2:1, bty = 'n')
@@ -1724,15 +1761,15 @@ and also their probability distributions:
 ``` r
 
 plot(Fspeciesall, ylim = c(0, 1))
+#  Factor w/ 3 levels "Adelie","Chinstrap",..: 1 2 3
 ```
 
 ![](figure/visall-1.png)
 
-``` r
+    #  Factor w/ 3 levels "Adelie","Chinstrap",..: 1 2 3
+    #  - attr(*, "names")= chr [1:3] "species1" "species2" "species3"
 
-
-hist(Fspeciesall, xlim = c(0, 1), legend = 'topright')
-```
+    hist(Fspeciesall, xlim = c(0, 1), legend = 'topright')
 
 ![](figure/visall-2.png)
 
@@ -1817,12 +1854,8 @@ analysis to:
 
 Yvrt <- 'species' ## variate of interest
 Yvls <- sort(unique(penguin[, Yvrt])) ## values from dataset
-# Error:
-# ! object 'penguin' not found
 ## build Y object
 Y <- data.frame(Yvls)
-# Error:
-# ! object 'Yvls' not found
 colnames(Y) <- Yvrt
 
 Xvrt <- 'island' ## subpopulation variate
@@ -1994,9 +2027,13 @@ species
 ``` r
 
 plot(Fanalysis, col = 2:4, legend = 'topright')
+#  Factor w/ 3 levels "Biscoe","Dream",..: 1 2 3
 ```
 
 ![](figure/unnamed-chunk-10-1.png)
+
+    #  Factor w/ 3 levels "Biscoe","Dream",..: 1 2 3
+    #  - attr(*, "names")= chr [1:3] "island1" "island2" "island3"
 
 Note how the plots above give us much more information than just a set
 of estimates about medians and quantiles, or means and standard
