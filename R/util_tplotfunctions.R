@@ -431,6 +431,15 @@ plotquantiles <- function(
 #' @param var.alpha.f Numeric: opacity of the quantile bands or of the samples, `0` being completely invisible and `1` completely opaque.
 #' @param ... Other parameters to be passed to [flexiplot()].
 #'
+#' @seealso
+#' [Pr()] to calculate posterior probabilities and quantiles.
+#'
+#' [hist.probability()] to plot the variability of the probabilities as a distribution.
+#'
+#' [flexiplot()] (on which `plot.probability()` is based) for more general plots.
+#'
+#' [plotquantiles()] to plot quantile ranges.
+#'
 #' @examples
 #' ## Load the example `learnt` object included in the package
 #' learnt <- learntExample
@@ -682,7 +691,12 @@ plot.probability <- function(
 #' Plot the variability of an object of class "probability" as a histogram
 #'
 #' @description
-#' This [graphics::hist()]ogram method is a utility to visualize the variability of the probabilities obtained with [Pr()], which can also be interpreted as the probability density for the whole-population frequencies.
+#' The posterior probabilities calculated with the [Pr()] function, and outputted as a `probability` object, have an associated variability that comes from the finite size of the data sample. This variability can be interpreted in two ways:
+#'
+#' - How the probabilities would change, if we could collect a very large (infinite) amount of additional data, and how likely would such change be;
+#' - The relative frequency of a particular variate value in the full (sampled and unsampled) population is unknown; we can quantify our uncertainty about this relative frequency with a probability distribution.
+#'
+#' The `hist()` method for a `probability` object is a utility to visualize this kind of variability, in the form of a distribution.
 #'
 #' @param p Object of class "probability", obtained with [Pr()].
 #' @param breaks `NULL` or as in function [graphics::hist()]. If `NULL` (default), an optimal number of breaks for each probability distribution is computed.
@@ -690,6 +704,29 @@ plot.probability <- function(
 #' @param legend One of the values `"bottomright"`, `"bottom"`, `"bottomleft"`, `"left"`, `"topleft"`, `"top"`, `"topright"`, `"right"`, `"center"` (see [graphics::legend()]): plot a legend at that position. A value `FALSE` or any other does not plot any legend. Default `"top"`.
 #' @param showmean Logical, default `TRUE`: show the means of the probability distributions? The means correspond to the probabilities about the next observed unit.
 #' @param ... Other parameters to be passed to [flexiplot()].
+#'
+#' @seealso
+#' [Pr()] to calculate posterior probabilities and quantiles.
+#'
+#' [plot.probability()] to plot the posterior probabilities.
+#'
+#' [flexiplot()] (on which `hist.probability()` is based) for more general plots.
+#'
+#' [plotquantiles()] to plot quantile ranges.
+#'
+#' @examples
+#' ## Load the example `learnt` object included in the package
+#' learnt <- learntExample
+#'
+#' ## calculate the probability, and its variability,
+#' ## for the value 'Adelie' of the "species" variate
+#' probs <- Pr(Y = data.frame(species = 'Adelie'), learnt = learnt, parallel = 1)
+#' probs$values
+#'
+#' ## show the variability of this probability; equivalently show
+#' ## the probability distribution for the relative frequency of
+#' ## 'Adelie' penguins in the full population
+#' hist(probs, legend = 'topright')
 #'
 #' @export
 hist.probability <- function(

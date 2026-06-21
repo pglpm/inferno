@@ -57,6 +57,9 @@
 #' ## for such frequency
 #' probs$quantiles[, , c('5.5%', '94.5%')]
 #'
+#' ## we can also plot the probability distribution for this full-population frequency
+#' hist(probs)
+#'
 #'
 #' ## ## Example 2:
 #' ## Calculate the 3 probabilities that an unknown penguin from this population
@@ -78,6 +81,9 @@
 #' ## plot the probabilities and quantiles
 #' plot(probs)
 #'
+#' ## plot the probability distribution for the full-population frequency
+#' ## of each species
+#' hist(probs)
 #'
 #' ## ## Example 3:
 #' ## Calculate the probability that an unknown penguin is of species 'Adelie'

@@ -38,5 +38,35 @@
 \item{...}{Other parameters to be passed to \code{\link[=flexiplot]{flexiplot()}}.}
 }
 \description{
-This \code{\link[graphics:hist]{graphics::hist()}}ogram method is a utility to visualize the variability of the probabilities obtained with \code{\link[=Pr]{Pr()}}, which can also be interpreted as the probability density for the whole-population frequencies.
+The posterior probabilities calculated with the \code{\link[=Pr]{Pr()}} function, and outputted as a \code{probability} object, have an associated variability that comes from the finite size of the data sample. This variability can be interpreted in two ways:
+\itemize{
+\item How the probabilities would change, if we could collect a very large (infinite) amount of additional data, and how likely would such change be;
+\item The relative frequency of a particular variate value in the full (sampled and unsampled) population is unknown; we can quantify our uncertainty about this relative frequency with a probability distribution.
+}
+
+The \code{hist()} method for a \code{probability} object is a utility to visualize this kind of variability, in the form of a distribution.
+}
+\examples{
+## Load the example `learnt` object included in the package
+learnt <- learntExample
+
+## calculate the probability, and its variability,
+## for the value 'Adelie' of the "species" variate
+probs <- Pr(Y = data.frame(species = 'Adelie'), learnt = learnt, parallel = 1)
+probs$values
+
+## show the variability of this probability; equivalently show
+## the probability distribution for the relative frequency of
+## 'Adelie' penguins in the full population
+hist(probs, legend = 'topright')
+
+}
+\seealso{
+\code{\link[=Pr]{Pr()}} to calculate posterior probabilities and quantiles.
+
+\code{\link[=plot.probability]{plot.probability()}} to plot the posterior probabilities.
+
+\code{\link[=flexiplot]{flexiplot()}} (on which \code{hist.probability()} is based) for more general plots.
+
+\code{\link[=plotquantiles]{plotquantiles()}} to plot quantile ranges.
 }

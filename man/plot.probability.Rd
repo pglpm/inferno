@@ -57,3 +57,12 @@ probs <- Pr(Y = data.frame(bill_len = values), learnt = learnt, parallel = 1)
 plot(probs)
 
 }
+\seealso{
+\code{\link[=Pr]{Pr()}} to calculate posterior probabilities and quantiles.
+
+\code{\link[=hist.probability]{hist.probability()}} to plot the variability of the probabilities as a distribution.
+
+\code{\link[=flexiplot]{flexiplot()}} (on which \code{plot.probability()} is based) for more general plots.
+
+\code{\link[=plotquantiles]{plotquantiles()}} to plot quantile ranges.
+}
