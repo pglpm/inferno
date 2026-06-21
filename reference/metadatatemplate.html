@@ -64,8 +64,7 @@ or as a file path to a csv file.</p></dd>
 
 
 <dt id="arg-file">file<a class="anchor" aria-label="anchor" href="#arg-file"></a></dt>
-<dd><p>Character: name of csv file where the metadata should be saved;
-if <code>NULL</code>: output metadata as <code>VALUE</code>.</p></dd>
+<dd><p>Character or <code>NULL</code> (default): name of csv file where the metadata should be saved; if <code>NULL</code>: output metadata as <code>VALUE</code>.</p></dd>
 
 
 <dt id="arg-includevrt">includevrt<a class="anchor" aria-label="anchor" href="#arg-includevrt"></a></dt>
@@ -92,9 +91,7 @@ Default <code>TRUE</code>.</p></dd>
 </dl></div>
     <div class="section level2">
     <h2 id="value">Value<a class="anchor" aria-label="anchor" href="#value"></a></h2>
-    <p>If <code>file = NULL</code>, a preliminary metadata file is created
-and <code>VALUE</code> is <code>NULL</code>;
-otherwise <code>VALUE</code> is a <code><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">base::data.frame()</a></code> containing the metadata.</p>
+    <p>If <code>file = NULL</code>, a preliminary <code><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">base::data.frame()</a></code> containing the metadata; if <code>file</code> is a character, a preliminary metadata file is created with that name and path.</p>
     </div>
     <div class="section level2">
     <h2 id="details">Details<a class="anchor" aria-label="anchor" href="#details"></a></h2>
@@ -134,7 +131,255 @@ otherwise <code>VALUE</code> is a <code><a href="https://rdrr.io/r/base/data.fra
 
 <p>To be written.</p>
     </div>
+    <div class="section level2">
+    <h2 id="see-also">See also<a class="anchor" aria-label="anchor" href="#see-also"></a></h2>
+    <div class="dont-index"><p><code><a href="learn.html">learn()</a></code>, which generates the information necessary to calculate posterior probabilities, based on data and metadata.</p></div>
+    </div>
 
+    <div class="section level2">
+    <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="co">## Create a preliminary data frame of metadata for the `penguins` dataset</span></span></span>
+<span class="r-in"><span><span class="va">metadata</span> <span class="op">&lt;-</span> <span class="fu">metadatatemplate</span><span class="op">(</span>data <span class="op">=</span> <span class="fu">datasets</span><span class="fu">::</span><span class="va"><a href="https://rdrr.io/r/datasets/penguins.html" class="external-link">penguins</a></span>, file <span class="op">=</span> <span class="cn">NULL</span><span class="op">)</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Converting factors to characters</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Analyzing 8 variates for 344 datapoints.</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> * "species" variate:</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   -  3 different  values detected:</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  "Adelie", "Chinstrap", "Gentoo" </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   which do not seem to refer to an ordered scale.</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   Assuming variate to be NOMINAL.</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> * "island" variate:</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   -  3 different  values detected:</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  "Biscoe", "Dream", "Torgersen" </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   which do not seem to refer to an ordered scale.</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   Assuming variate to be NOMINAL.</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> * "bill_len" variate:</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   - Numeric values between 32.1 and 59.6 </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   Assuming variate to be CONTINUOUS.</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   - Distance between datapoints is a multiple of 0.1 </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   Assuming variate to be ROUNDED.</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   - All values are positive</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   Assuming "domainmin" to be 0</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> * "bill_dep" variate:</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   - Numeric values between 13.1 and 21.5 </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   Assuming variate to be CONTINUOUS.</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   - Distance between datapoints is a multiple of 0.1 </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   Assuming variate to be ROUNDED.</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   - All values are positive</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   Assuming "domainmin" to be 0</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> * "flipper_len" variate:</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   - Numeric values between 172 and 231 </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   Assuming variate to be CONTINUOUS.</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   - Distance between datapoints is a multiple of 1 </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   Assuming variate to be ROUNDED.</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   - All values are positive</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   Assuming "domainmin" to be 0</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> * "body_mass" variate:</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   - Numeric values between 2700 and 6300 </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   Assuming variate to be CONTINUOUS.</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   - Distance between datapoints is a multiple of 25 </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   Assuming variate to be ROUNDED.</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   - All values are positive</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   Assuming "domainmin" to be 0</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> * "sex" variate:</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   -  2 different  values detected:</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  "female", "male" </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   which do not seem to refer to an ordered scale.</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   Assuming variate to be NOMINAL.</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> * "year" variate:</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   - Only 3 different numeric values detected:</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> from 2007 to 2009 in steps of 1 </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   Assuming variate to be ORDINAL.</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> =========</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> WARNINGS - please make sure to check these variates in the metadata file:</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> * "flipper_len" variate appears to be continuous and rounded,</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> but it could also be an ordinal variate</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> * "body_mass" variate appears to be continuous and rounded,</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> but it could also be an ordinal variate</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> * "year" variate appears to have been rounded</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> and then transformed to logarithmic scale.</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> This may lead to problems in the inference.</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Preferably, transform it back to non-logarithmic scale.</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> =========</span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co">## Note how the preliminary data frame includes additional spots for values of nominal and ordinal variates which could be missing from the data</span></span></span>
+<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="va">metadata</span><span class="op">)</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>          name       type domainmin domainmax datastep minincluded maxincluded</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1     species    nominal        NA        NA       NA          NA          NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 2      island    nominal        NA        NA       NA          NA          NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 3    bill_len continuous         0        NA      0.1          NA          NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 4    bill_dep continuous         0        NA      0.1          NA          NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 5 flipper_len continuous         0        NA      1.0          NA          NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 6   body_mass continuous         0        NA     25.0          NA          NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 7         sex    nominal        NA        NA       NA          NA          NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 8        year    ordinal      2007      2009      1.0          NA          NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>       V1        V2        V3 V4 V5 V6 V7 V8 V9 V10 V11</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1 Adelie Chinstrap    Gentoo NA NA NA NA NA NA  NA  NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 2 Biscoe     Dream Torgersen NA NA NA NA NA NA  NA  NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 3   &lt;NA&gt;      &lt;NA&gt;      &lt;NA&gt; NA NA NA NA NA NA  NA  NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 4   &lt;NA&gt;      &lt;NA&gt;      &lt;NA&gt; NA NA NA NA NA NA  NA  NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 5   &lt;NA&gt;      &lt;NA&gt;      &lt;NA&gt; NA NA NA NA NA NA  NA  NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 6   &lt;NA&gt;      &lt;NA&gt;      &lt;NA&gt; NA NA NA NA NA NA  NA  NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 7 female      male      &lt;NA&gt; NA NA NA NA NA NA  NA  NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 8   &lt;NA&gt;      &lt;NA&gt;      &lt;NA&gt; NA NA NA NA NA NA  NA  NA</span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co">## Create a preliminary data frame of metadata for the `penguins` dataset,</span></span></span>
+<span class="r-in"><span><span class="co">## including only the 'species' and 'bill_len' variates:</span></span></span>
+<span class="r-in"><span><span class="va">metadata2</span> <span class="op">&lt;-</span> <span class="fu">metadatatemplate</span><span class="op">(</span></span></span>
+<span class="r-in"><span>  data <span class="op">=</span> <span class="fu">datasets</span><span class="fu">::</span><span class="va"><a href="https://rdrr.io/r/datasets/penguins.html" class="external-link">penguins</a></span>, file <span class="op">=</span> <span class="cn">NULL</span>,</span></span>
+<span class="r-in"><span>  includevrt <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">'species'</span>, <span class="st">'bill_len'</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="op">)</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Converting factors to characters</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Analyzing 2 variates for 344 datapoints.</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> * "species" variate:</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   -  3 different  values detected:</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  "Adelie", "Chinstrap", "Gentoo" </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   which do not seem to refer to an ordered scale.</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   Assuming variate to be NOMINAL.</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> * "bill_len" variate:</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   - Numeric values between 32.1 and 59.6 </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   Assuming variate to be CONTINUOUS.</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   - Distance between datapoints is a multiple of 0.1 </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   Assuming variate to be ROUNDED.</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   - All values are positive</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   Assuming "domainmin" to be 0</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="va">metadata2</span><span class="op">)</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>       name       type domainmin domainmax datastep minincluded maxincluded</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1  species    nominal        NA        NA       NA          NA          NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 2 bill_len continuous         0        NA      0.1          NA          NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>       V1        V2     V3 V4 V5 V6 V7 V8 V9 V10 V11</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1 Adelie Chinstrap Gentoo NA NA NA NA NA NA  NA  NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 2   &lt;NA&gt;      &lt;NA&gt;   &lt;NA&gt; NA NA NA NA NA NA  NA  NA</span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co">## Create a preliminary data frame of metadata for the `penguins` dataset,</span></span></span>
+<span class="r-in"><span><span class="co">## excluding the 'year' variate:</span></span></span>
+<span class="r-in"><span><span class="va">metadata3</span> <span class="op">&lt;-</span> <span class="fu">metadatatemplate</span><span class="op">(</span></span></span>
+<span class="r-in"><span>  data <span class="op">=</span> <span class="fu">datasets</span><span class="fu">::</span><span class="va"><a href="https://rdrr.io/r/datasets/penguins.html" class="external-link">penguins</a></span>, file <span class="op">=</span> <span class="cn">NULL</span>,</span></span>
+<span class="r-in"><span>  excludevrt <span class="op">=</span> <span class="st">'year'</span></span></span>
+<span class="r-in"><span><span class="op">)</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Converting factors to characters</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Analyzing 7 variates for 344 datapoints.</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> * "species" variate:</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   -  3 different  values detected:</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  "Adelie", "Chinstrap", "Gentoo" </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   which do not seem to refer to an ordered scale.</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   Assuming variate to be NOMINAL.</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> * "island" variate:</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   -  3 different  values detected:</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  "Biscoe", "Dream", "Torgersen" </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   which do not seem to refer to an ordered scale.</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   Assuming variate to be NOMINAL.</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> * "bill_len" variate:</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   - Numeric values between 32.1 and 59.6 </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   Assuming variate to be CONTINUOUS.</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   - Distance between datapoints is a multiple of 0.1 </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   Assuming variate to be ROUNDED.</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   - All values are positive</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   Assuming "domainmin" to be 0</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> * "bill_dep" variate:</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   - Numeric values between 13.1 and 21.5 </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   Assuming variate to be CONTINUOUS.</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   - Distance between datapoints is a multiple of 0.1 </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   Assuming variate to be ROUNDED.</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   - All values are positive</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   Assuming "domainmin" to be 0</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> * "flipper_len" variate:</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   - Numeric values between 172 and 231 </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   Assuming variate to be CONTINUOUS.</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   - Distance between datapoints is a multiple of 1 </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   Assuming variate to be ROUNDED.</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   - All values are positive</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   Assuming "domainmin" to be 0</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> * "body_mass" variate:</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   - Numeric values between 2700 and 6300 </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   Assuming variate to be CONTINUOUS.</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   - Distance between datapoints is a multiple of 25 </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   Assuming variate to be ROUNDED.</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   - All values are positive</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   Assuming "domainmin" to be 0</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> * "sex" variate:</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   -  2 different  values detected:</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  "female", "male" </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   which do not seem to refer to an ordered scale.</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   Assuming variate to be NOMINAL.</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> =========</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> WARNINGS - please make sure to check these variates in the metadata file:</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> * "flipper_len" variate appears to be continuous and rounded,</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> but it could also be an ordinal variate</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> * "body_mass" variate appears to be continuous and rounded,</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> but it could also be an ordinal variate</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> =========</span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="va">metadata3</span><span class="op">)</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>          name       type domainmin domainmax datastep minincluded maxincluded</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1     species    nominal        NA        NA       NA          NA          NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 2      island    nominal        NA        NA       NA          NA          NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 3    bill_len continuous         0        NA      0.1          NA          NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 4    bill_dep continuous         0        NA      0.1          NA          NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 5 flipper_len continuous         0        NA      1.0          NA          NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 6   body_mass continuous         0        NA     25.0          NA          NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 7         sex    nominal        NA        NA       NA          NA          NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>       V1        V2        V3 V4 V5 V6 V7 V8 V9 V10 V11</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1 Adelie Chinstrap    Gentoo NA NA NA NA NA NA  NA  NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 2 Biscoe     Dream Torgersen NA NA NA NA NA NA  NA  NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 3   &lt;NA&gt;      &lt;NA&gt;      &lt;NA&gt; NA NA NA NA NA NA  NA  NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 4   &lt;NA&gt;      &lt;NA&gt;      &lt;NA&gt; NA NA NA NA NA NA  NA  NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 5   &lt;NA&gt;      &lt;NA&gt;      &lt;NA&gt; NA NA NA NA NA NA  NA  NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 6   &lt;NA&gt;      &lt;NA&gt;      &lt;NA&gt; NA NA NA NA NA NA  NA  NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 7 female      male      &lt;NA&gt; NA NA NA NA NA NA  NA  NA</span>
+<span class="r-in"><span><span class="co">## Generate 10 points for a continuous variate in (0, 1)</span></span></span>
+<span class="r-in"><span><span class="va">dataset</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/stats/Uniform.html" class="external-link">runif</a></span><span class="op">(</span><span class="fl">10</span><span class="op">)</span></span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co">## `metadatatemplate` correctly guesses the variate minimum, but not the maximum (`NA` is equivalent to `+Inf`)</span></span></span>
+<span class="r-in"><span><span class="va">metadata</span> <span class="op">&lt;-</span> <span class="fu">metadatatemplate</span><span class="op">(</span>data <span class="op">=</span> <span class="va">dataset</span>, file <span class="op">=</span> <span class="cn">NULL</span><span class="op">)</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Analyzing 1 variates for 10 datapoints.</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> * "data" variate:</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   - Numeric values between 0.1803388 and 0.9485766 </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   Assuming variate to be CONTINUOUS.</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   - All values are positive</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   Assuming "domainmin" to be 0</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   with 0 excluded from domain.</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="va">metadata</span><span class="op">)</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   name       type domainmin domainmax datastep minincluded maxincluded V1 V2 V3</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1 data continuous         0        NA       NA          NA          NA NA NA NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   V4 V5 V6 V7 V8 V9 V10 V11</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1 NA NA NA NA NA NA  NA  NA</span>
+<span class="r-in"><span></span></span>
+</code></pre></div>
+    </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>
     </nav></aside></div>
 
