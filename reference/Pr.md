@@ -172,7 +172,6 @@ datapoints.
 ## Examples
 
 ``` r
-
 ## Load the example `learnt` object included in the package
 learnt <- learntExample
 

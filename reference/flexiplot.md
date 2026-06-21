@@ -82,7 +82,7 @@ flexiplot(
 This function is essentially a wrapper around
 [`graphics::matplot()`](https://rdrr.io/r/graphics/matplot.html),
 augmenting the latter with some additional features useful for plotting
-data and results handled by **prova**. Some of the additional features
+data and results handled by **Prova**. Some of the additional features
 provided by `flexiplot` are the following:
 
 - Either or both `x` and `y` arguments can be of class
@@ -108,6 +108,18 @@ provided by `flexiplot` are the following:
   (line plot) rather than `type = 'p'` (point plot).
 
 See the package's vignettes for more examples.
+
+## See also
+
+[`Pr()`](https://pglpm.github.io/prova/reference/Pr.md) to calculate
+posterior probabilities and quantiles.
+
+[`plot.probability()`](https://pglpm.github.io/prova/reference/plot.probability.md)
+to directly plot posterior probabilities and quantiles contained in a
+probability object.
+
+[`plotquantiles()`](https://pglpm.github.io/prova/reference/plotquantiles.md)
+to plot quantile ranges.
 
 ## Examples
 

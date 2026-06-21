@@ -87,11 +87,11 @@
 
 
 <dt id="arg-metadata">metadata<a class="anchor" aria-label="anchor" href="#arg-metadata"></a></dt>
-<dd><p>A <code><a href="metadatatemplate.html">metadata</a></code> object, given either as a data.frame object, or as a file pa to a CSV file.</p></dd>
+<dd><p><a href="metadatatemplate.html">metadata</a> about the dataset's variates, given either as a data frame or as a file path to a CSV file.</p></dd>
 
 
 <dt id="arg-auxdata">auxdata<a class="anchor" aria-label="anchor" href="#arg-auxdata"></a></dt>
-<dd><p>A larger dataset, given as a base::data.frame() or as a file path to a CSV file. Such a dataset would be too many to use in the Monte Carlo sampling, but can be used to calculate hyperparameters.</p></dd>
+<dd><p>A larger dataset, given as a data frame or as a file path to a CSV file. Such a dataset would be too many to use in the Monte Carlo sampling, but can be used to calculate hyperparameters.</p></dd>
 
 
 <dt id="arg-outputdir">outputdir<a class="anchor" aria-label="anchor" href="#arg-outputdir"></a></dt>
@@ -111,7 +111,7 @@
 
 
 <dt id="arg-parallel">parallel<a class="anchor" aria-label="anchor" href="#arg-parallel"></a></dt>
-<dd><p>Logical or positive integer or cluster object. <code>TRUE</code>: use roughly half of available cores; <code>FALSE</code>: use serial computation; integer: use this many cores. It can also be a cluster object previously created with <code><a href="https://rdrr.io/r/parallel/makeCluster.html" class="external-link">parallel::makeCluster()</a></code>; in this case the parallel computation will use this object.</p></dd>
+<dd><p>Logical or positive integer or cluster object. <code>TRUE</code>: use roughly half of available cores; <code>FALSE</code> (default): use serial computation; integer: use this many cores. It can also be a cluster object previously created with <code><a href="https://rdrr.io/r/parallel/makeCluster.html" class="external-link">parallel::makeCluster()</a></code>; in this case the parallel computation will use this object.</p></dd>
 
 
 <dt id="arg-seed">seed<a class="anchor" aria-label="anchor" href="#arg-seed"></a></dt>
@@ -127,7 +127,7 @@
 
 
 <dt id="arg-valueislearnt">valueislearnt<a class="anchor" aria-label="anchor" href="#arg-valueislearnt"></a></dt>
-<dd><p>Logical or <code>NULL</code>: should the <code>VALUE</code> returned be the <code>learnt</code> object containing the parameters obtained from the Monte Carlo computation? If <code>FALSE</code>, then <code>VALUE</code> is the output directory name. If <code>NULL</code>, then <code>VALUE</code> is <code>NULL</code>. Default <code>TRUE</code>.</p></dd>
+<dd><p>Logical or <code>NULL</code>: should the <code>VALUE</code> returned be the <code>learnt</code> object containing the results from the Monte Carlo computation? If <code>FALSE</code>, then <code>VALUE</code> is the output directory name. If <code>NULL</code>, then <code>VALUE</code> is <code>NULL</code>. Default <code>TRUE</code>.</p></dd>
 
 
 <dt id="arg-subsampledata">subsampledata<a class="anchor" aria-label="anchor" href="#arg-subsampledata"></a></dt>
@@ -192,17 +192,17 @@
 </dl></div>
     <div class="section level2">
     <h2 id="value">Value<a class="anchor" aria-label="anchor" href="#value"></a></h2>
-    <p>Learnt object, or name of directory containing output files, or <code>NULL</code>, depending on argument <code>valueislearnt</code>.</p>
+    <p>A "learnt" object, or name of directory containing output files, or <code>NULL</code>, depending on argument <code>valueislearnt</code>.</p>
     </div>
     <div class="section level2">
     <h2 id="details">Details<a class="anchor" aria-label="anchor" href="#details"></a></h2>
     <p>This function takes as main inputs a set of data and metadata, and computes the probability distribution for new data. Its computation can also be interpreted as an estimation of the frequencies of the variates in the <em>whole population</em>, beyond the sample data. The probability distribution is not assumed to be Gaussian or of any other specific shape. The computation is done via Markov-chain Monte Carlo.</p>
-<p>This function creates an object, contained in a <code>learnt.rds</code> file, which is used in all subsequent probabilistic computations. Other information about the computation is provided in logs and plots, saved in a directory specified by the user.</p>
+<p>This function creates an object, typically saved in a <code>learnt.rds</code> file, which is used in all subsequent probabilistic computations. Other information about the computation is provided in logs and plots, saved in a directory specified by the user.</p>
 <p>See <code><a href="../articles/start.html">vignette('start')</a></code> for an introductory example.</p>
     </div>
     <div class="section level2">
     <h2 id="see-also">See also<a class="anchor" aria-label="anchor" href="#see-also"></a></h2>
-    <div class="dont-index"><p><a href="metadatatemplate.html">metadatatemplate</a> to help writing a metadata file.</p>
+    <div class="dont-index"><p><code><a href="metadatatemplate.html">metadatatemplate()</a></code> to help writing a metadata file.</p>
 <p><code><a href="Pr.html">Pr()</a></code> to calculate probabilities, and <code><a href="qPr.html">qPr()</a></code> to calculate quantiles, given the data processed by <code>learn()</code>.</p>
 <p><code><a href="rPr.html">rPr()</a></code> to generate datapoints similar to the data processed by <code>learn()</code>.</p>
 <p><code><a href="mutualinfo.html">mutualinfo()</a></code> to calculate mutual information given the data processed by <code>learn()</code>.</p>
@@ -230,7 +230,7 @@
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Learning from 5 datapoints, 1 variates.</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>  Saving output in directory</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  /tmp/RtmpYY9Io9/prova-V1_D5_S10_260621T104008_1a8138599b67 </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  /tmp/Rtmp0QWWNW/prova-V1_D5_S10_260621T110847_1a2b3a51353b </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Starting Monte Carlo sampling of 10 samples by 1 chains</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> in a space of 191 (effectively 261) dimensions.</span>
@@ -258,7 +258,7 @@
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Plotting final Monte Carlo traces and marginal samples...</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Total computation time: 34 secs</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Average preparation &amp; finalization time: 33 secs.</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> Average Monte Carlo time per chain: 0.56 secs.</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Average Monte Carlo time per chain: 0.57 secs.</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Max total memory used: approx 360MB.</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Max memory used per core: approx 360MB.</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Removing temporary output files.</span>
@@ -266,7 +266,7 @@
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Finished.</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> **********************************************************</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span>  Output saved in directory</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> /tmp/RtmpYY9Io9/prova-V1_D5_S10_260621T104008_1a8138599b67</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> /tmp/Rtmp0QWWNW/prova-V1_D5_S10_260621T110847_1a2b3a51353b</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> **********************************************************</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Closing connections to cores.</span>
 <span class="r-in"><span></span></span>

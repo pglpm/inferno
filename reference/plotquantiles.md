@@ -1,6 +1,6 @@
 # Plot pairs of quantiles
 
-Utility function to plot pair of quantiles obtained with
+Utility function to plot pairs of quantiles obtained with
 [`Pr()`](https://pglpm.github.io/prova/reference/Pr.md).
 
 ## Usage
@@ -68,3 +68,39 @@ plotquantiles(
 
   Other parameters to be passed to
   [`flexiplot()`](https://pglpm.github.io/prova/reference/flexiplot.md).
+
+## See also
+
+[`Pr()`](https://pglpm.github.io/prova/reference/Pr.md) to calculate
+posterior probabilities and quantiles.
+
+[`plot.probability()`](https://pglpm.github.io/prova/reference/plot.probability.md)
+to directly plot posterior probabilities and quantiles contained in a
+probability object.
+
+[`flexiplot()`](https://pglpm.github.io/prova/reference/flexiplot.md)
+for more general plots.
+
+## Examples
+
+``` r
+## Load the example `learnt` object included in the package
+learnt <- learntExample
+
+## create a grid of values for variate "bill length",
+## based on the information in the dataset and metadata:
+values <- vrtgrid(vrt = 'bill_len', learnt = learnt)
+
+## calculate the probabilities and quantiles
+probs <- Pr(Y = data.frame(bill_len = values), learnt = learnt, parallel = 1)
+#> Registered socket cluster with 1 nodes on host ‘localhost’.
+#> Closing connections to cores.
+
+## plot the quantiles, setting lower plot range to zero
+plotquantiles(x = values, y = probs$quantiles[, 1, ], ylim = c(0, NA),
+  xlab = 'bill length', ylab = 'probability')
+
+## add a plot of the probabilities in thick dashed red
+flexiplot(x = values, y = probs$values, lwd = 5, lty = 2, col = 2, add = TRUE)
+
+```

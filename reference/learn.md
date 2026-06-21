@@ -51,15 +51,14 @@ learn(
 
 - metadata:
 
-  A
-  [`metadata`](https://pglpm.github.io/prova/reference/metadatatemplate.md)
-  object, given either as a data.frame object, or as a file pa to a CSV
-  file.
+  [metadata](https://pglpm.github.io/prova/reference/metadatatemplate.md)
+  about the dataset's variates, given either as a data frame or as a
+  file path to a CSV file.
 
 - auxdata:
 
-  A larger dataset, given as a base::data.frame() or as a file path to a
-  CSV file. Such a dataset would be too many to use in the Monte Carlo
+  A larger dataset, given as a data frame or as a file path to a CSV
+  file. Such a dataset would be too many to use in the Monte Carlo
   sampling, but can be used to calculate hyperparameters.
 
 - outputdir:
@@ -88,9 +87,9 @@ learn(
 - parallel:
 
   Logical or positive integer or cluster object. `TRUE`: use roughly
-  half of available cores; `FALSE`: use serial computation; integer: use
-  this many cores. It can also be a cluster object previously created
-  with
+  half of available cores; `FALSE` (default): use serial computation;
+  integer: use this many cores. It can also be a cluster object
+  previously created with
   [`parallel::makeCluster()`](https://rdrr.io/r/parallel/makeCluster.html);
   in this case the parallel computation will use this object.
 
@@ -114,9 +113,9 @@ learn(
 - valueislearnt:
 
   Logical or `NULL`: should the `VALUE` returned be the `learnt` object
-  containing the parameters obtained from the Monte Carlo computation?
-  If `FALSE`, then `VALUE` is the output directory name. If `NULL`, then
-  `VALUE` is `NULL`. Default `TRUE`.
+  containing the results from the Monte Carlo computation? If `FALSE`,
+  then `VALUE` is the output directory name. If `NULL`, then `VALUE` is
+  `NULL`. Default `TRUE`.
 
 - subsampledata:
 
@@ -197,8 +196,8 @@ learn(
 
 ## Value
 
-Learnt object, or name of directory containing output files, or `NULL`,
-depending on argument `valueislearnt`.
+A "learnt" object, or name of directory containing output files, or
+`NULL`, depending on argument `valueislearnt`.
 
 ## Details
 
@@ -209,10 +208,10 @@ in the *whole population*, beyond the sample data. The probability
 distribution is not assumed to be Gaussian or of any other specific
 shape. The computation is done via Markov-chain Monte Carlo.
 
-This function creates an object, contained in a `learnt.rds` file, which
-is used in all subsequent probabilistic computations. Other information
-about the computation is provided in logs and plots, saved in a
-directory specified by the user.
+This function creates an object, typically saved in a `learnt.rds` file,
+which is used in all subsequent probabilistic computations. Other
+information about the computation is provided in logs and plots, saved
+in a directory specified by the user.
 
 See
 [`vignette('start')`](https://pglpm.github.io/prova/articles/start.md)
@@ -220,7 +219,7 @@ for an introductory example.
 
 ## See also
 
-[metadatatemplate](https://pglpm.github.io/prova/reference/metadatatemplate.md)
+[`metadatatemplate()`](https://pglpm.github.io/prova/reference/metadatatemplate.md)
 to help writing a metadata file.
 
 [`Pr()`](https://pglpm.github.io/prova/reference/Pr.md) to calculate
@@ -261,7 +260,7 @@ learnt <- learn(
 #> Learning from 5 datapoints, 1 variates.
 #> 
 #>  Saving output in directory
-#>  /tmp/RtmpYY9Io9/prova-V1_D5_S10_260621T104008_1a8138599b67 
+#>  /tmp/Rtmp0QWWNW/prova-V1_D5_S10_260621T110847_1a2b3a51353b 
 #> 
 #> Starting Monte Carlo sampling of 10 samples by 1 chains
 #> in a space of 191 (effectively 261) dimensions.
@@ -289,7 +288,7 @@ learnt <- learn(
 #> Plotting final Monte Carlo traces and marginal samples...
 #> Total computation time: 34 secs
 #> Average preparation & finalization time: 33 secs.
-#> Average Monte Carlo time per chain: 0.56 secs.
+#> Average Monte Carlo time per chain: 0.57 secs.
 #> Max total memory used: approx 360MB.
 #> Max memory used per core: approx 360MB.
 #> Removing temporary output files.
@@ -297,7 +296,7 @@ learnt <- learn(
 #> Finished.
 #> **********************************************************
 #>  Output saved in directory
-#> /tmp/RtmpYY9Io9/prova-V1_D5_S10_260621T104008_1a8138599b67
+#> /tmp/Rtmp0QWWNW/prova-V1_D5_S10_260621T110847_1a2b3a51353b
 #> **********************************************************
 #> Closing connections to cores.
 

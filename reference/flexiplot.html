@@ -105,12 +105,18 @@
 </dl></div>
     <div class="section level2">
     <h2 id="details">Details<a class="anchor" aria-label="anchor" href="#details"></a></h2>
-    <p>This function is essentially a wrapper around <code><a href="https://rdrr.io/r/graphics/matplot.html" class="external-link">graphics::matplot()</a></code>, augmenting the latter with some additional features useful for plotting data and results handled by <strong>prova</strong>. Some of the additional features provided by <code>flexiplot</code> are the following:</p><ul><li><p>Either or both <code>x</code> and <code>y</code> arguments can be of class <code><a href="https://rdrr.io/r/base/character.html" class="external-link">base::character</a></code>. In this case, axes labels corresponding to the unique values are used (see arguments <code>xdomain</code> and <code>ydomain</code>). This makes it easier to plot nominal and ordinal variates.</p></li>
+    <p>This function is essentially a wrapper around <code><a href="https://rdrr.io/r/graphics/matplot.html" class="external-link">graphics::matplot()</a></code>, augmenting the latter with some additional features useful for plotting data and results handled by <strong>Prova</strong>. Some of the additional features provided by <code>flexiplot</code> are the following:</p><ul><li><p>Either or both <code>x</code> and <code>y</code> arguments can be of class <code><a href="https://rdrr.io/r/base/character.html" class="external-link">base::character</a></code>. In this case, axes labels corresponding to the unique values are used (see arguments <code>xdomain</code> and <code>ydomain</code>). This makes it easier to plot nominal and ordinal variates.</p></li>
 <li><p>A jitter can also be added to the generated points, via the <code>xjitter</code> and <code>yjitter</code> switches. This makes it easier to generate scatter plots of nominal and ordinal variates.</p></li>
 <li><p>It is possible to specify only a lower or upper limit in the <code>xlim</code> and <code>ylim</code> arguments, letting the other limit to be found automatically. This can be useful in plotting probabilities, in cases where we want to specify the lower, <code>0</code> limit, but want the upper limit to simply be the the maximum probability.</p></li>
 <li><p>Transparency of lines or markers can be specified through argument <code>alpha.f</code>.</p></li>
 <li><p>The plotting style is different, and default argument <code>type = 'l'</code> (line plot) rather than <code>type = 'p'</code> (point plot).</p></li>
 </ul><p>See the package's vignettes for more examples.</p>
+    </div>
+    <div class="section level2">
+    <h2 id="see-also">See also<a class="anchor" aria-label="anchor" href="#see-also"></a></h2>
+    <div class="dont-index"><p><code><a href="Pr.html">Pr()</a></code> to calculate posterior probabilities and quantiles.</p>
+<p><code><a href="plot.probability.html">plot.probability()</a></code> to directly plot posterior probabilities and quantiles contained in a probability object.</p>
+<p><code><a href="plotquantiles.html">plotquantiles()</a></code> to plot quantile ranges.</p></div>
     </div>
 
     <div class="section level2">
