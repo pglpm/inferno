@@ -9,7 +9,10 @@
 #' - Either or both `x` and `y` arguments can be of class [`base::character`]. In this case, axes labels corresponding to the unique values are used (see arguments `xdomain` and `ydomain`). This makes it easier to plot nominal and ordinal variates.
 #' - A jitter can also be added to the generated points, via the `xjitter` and `yjitter` switches. This makes it easier to generate scatter plots of nominal and ordinal variates.
 #' - It is possible to specify only a lower or upper limit in the `xlim` and `ylim` arguments, letting the other limit to be found automatically. This can be useful in plotting probabilities, in cases where we want to specify the lower, `0` limit, but want the upper limit to simply be the the maximum probability.
+#' - Transparency of lines or markers can be specified through argument `alpha.f`.
 #' - The plotting style is different, and default argument `type = 'l'` (line plot) rather than `type = 'p'` (point plot).
+#'
+#' See
 #'
 #' @param x Numeric or character: vector of x-coordinates. If missing, a numeric vector `1:...` is created having as many values as the rows of `y`.
 #' @param y Numeric or character: vector of y coordinates. If missing, a numeric vector `1:...` is created having as many values as the rows of `x`.

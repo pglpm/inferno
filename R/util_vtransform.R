@@ -477,7 +477,6 @@ vtransform <- function(
                             stop('Unknown values for variate ', v)
                         }
                         datum <- bvalues[as.character(datum)]
-                        datum <- bvalues[as.character(datum)]
 
                     } else if (Bout == 'original') {
                         bvalues <- 0:1
