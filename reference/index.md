@@ -2,18 +2,15 @@
 
 ## Main functions
 
+- [`Pr()`](https://pglpm.github.io/prova/reference/Pr.md) : Calculate
+  posterior probabilities
+
 - [`flexiplot()`](https://pglpm.github.io/prova/reference/flexiplot.md)
   : Plot numeric or character values
 
 - [`hist(`*`<probability>`*`)`](https://pglpm.github.io/prova/reference/hist.probability.md)
   : Plot the variability of an object of class "probability" as a
   histogram
-
-- [`pwrite.csv()`](https://pglpm.github.io/prova/reference/prova.data.md)
-  [`pread.csv()`](https://pglpm.github.io/prova/reference/prova.data.md)
-  :
-
-  Write and read data in **prova**
 
 - [`learn()`](https://pglpm.github.io/prova/reference/learn.md) : Monte
   Carlo computation of posterior probability distribution
@@ -41,8 +38,11 @@
 - [`plotquantiles()`](https://pglpm.github.io/prova/reference/plotquantiles.md)
   : Plot pairs of quantiles
 
-- [`Pr()`](https://pglpm.github.io/prova/reference/Pr.md) : Calculate
-  posterior probabilities
+- [`pwrite.csv()`](https://pglpm.github.io/prova/reference/prova.data.md)
+  [`pread.csv()`](https://pglpm.github.io/prova/reference/prova.data.md)
+  :
+
+  Write and read data in **prova**
 
 - [`qPr()`](https://pglpm.github.io/prova/reference/qPr.md) : Calculate
   quantiles
