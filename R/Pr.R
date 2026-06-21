@@ -37,7 +37,6 @@
 #' [rPr()] to generate datapoints.
 #'
 #' @examples
-#'
 #' ## Load the example `learnt` object included in the package
 #' learnt <- learntExample
 #'

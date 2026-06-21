@@ -6,19 +6,19 @@
 #' @details
 #' This function takes as main inputs a set of data and metadata, and computes the probability distribution for new data. Its computation can also be interpreted as an estimation of the frequencies of the variates in the *whole population*, beyond the sample data. The probability distribution is not assumed to be Gaussian or of any other specific shape. The computation is done via Markov-chain Monte Carlo.
 #'
-#' This function creates an object, contained in a `learnt.rds` file, which is used in all subsequent probabilistic computations. Other information about the computation is provided in logs and plots, saved in a directory specified by the user.
+#' This function creates an object, typically saved in a `learnt.rds` file, which is used in all subsequent probabilistic computations. Other information about the computation is provided in logs and plots, saved in a directory specified by the user.
 #'
 #' See `vignette('start')` for an introductory example.
 #'
 #' @param data A dataset, given as a [base::data.frame()] or as a file path to a CSV file.
-#' @param metadata A [`metadata`] object, given either as a data.frame object, or as a file pa to a CSV file.
-#' @param auxdata A larger dataset, given as a base::data.frame() or as a file path to a CSV file. Such a dataset would be too many to use in the Monte Carlo sampling, but can be used to calculate hyperparameters.
+#' @param metadata [metadata] about the dataset's variates, given either as a data frame or as a file path to a CSV file.
+#' @param auxdata A larger dataset, given as a data frame or as a file path to a CSV file. Such a dataset would be too many to use in the Monte Carlo sampling, but can be used to calculate hyperparameters.
 #' @param outputdir `NULL` or `NA` or character: path to folder where output information and diagnostics should be saved. If `NULL` (default), a directory is created in the temporary-directory space given by [base::tempdir()]. If `NA`, a directory is created in the current working directory given by [base::getwd()]. If character, this is taken to be the output directory; it should of course be writable by the user.
-#' @param valueislearnt Logical or `NULL`: should the `VALUE` returned be the `learnt` object containing the parameters obtained from the Monte Carlo computation? If `FALSE`, then `VALUE` is the output directory name. If `NULL`, then `VALUE` is `NULL`. Default `TRUE`.
+#' @param valueislearnt Logical or `NULL`: should the `VALUE` returned be the `learnt` object containing the results from the Monte Carlo computation? If `FALSE`, then `VALUE` is the output directory name. If `NULL`, then `VALUE` is `NULL`. Default `TRUE`.
 #' @param nsamples Integer: number of desired Monte Carlo samples. Default 3600.
 #' @param nchains Integer: number of Monte Carlo chains. Default 4.
 #' @param nsamplesperchain Integer: number of Monte Carlo samples per chain.
-#' @param parallel Logical or positive integer or cluster object. `TRUE`: use roughly half of available cores; `FALSE`: use serial computation; integer: use this many cores. It can also be a cluster object previously created with [parallel::makeCluster()]; in this case the parallel computation will use this object.
+#' @param parallel Logical or positive integer or cluster object. `TRUE`: use roughly half of available cores; `FALSE` (default): use serial computation; integer: use this many cores. It can also be a cluster object previously created with [parallel::makeCluster()]; in this case the parallel computation will use this object.
 #' @param seed Integer: use this seed for the random number generator. If missing or `NULL` (default), do not set the seed.
 #' @param cleanup Logical: remove diagnostic files at the end of the computation? Default `TRUE`.
 #' @param appendinfo Logical: append information about number of variates ('V'), number of data points ('D'), number of Monte Carlo samples ('S'), and timestamp, to the name of the output directory `outputdir`? The appended string has the format 'Vn_Dn_Sn_YYMMDDTHHMMSS'. Default `TRUE`.
@@ -38,10 +38,10 @@
 #' @param showAlphatraces Logical: save plots of the Monte Carlo traces of the Alpha parameter? Default `FALSE`.
 #' @param hyperparams List: hyperparameters of the prior.
 #'
-#' @returns Learnt object, or name of directory containing output files, or `NULL`, depending on argument `valueislearnt`.
+#' @returns A "learnt" object, or name of directory containing output files, or `NULL`, depending on argument `valueislearnt`.
 #'
 #' @seealso
-#' [metadatatemplate] to help writing a metadata file.
+#' [metadatatemplate()] to help writing a metadata file.
 #'
 #' [Pr()] to calculate probabilities, and [qPr()] to calculate quantiles, given the data processed by `learn()`.
 #'

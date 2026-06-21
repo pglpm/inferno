@@ -4,7 +4,7 @@
 #' Plot function that modifies and expands the **graphics** package's [graphics::matplot()] function in several ways.
 #'
 #' @details
-#' This function is essentially a wrapper around [graphics::matplot()], augmenting the latter with some additional features useful for plotting data and results handled by **prova**. Some of the additional features provided by `flexiplot` are the following:
+#' This function is essentially a wrapper around [graphics::matplot()], augmenting the latter with some additional features useful for plotting data and results handled by **Prova**. Some of the additional features provided by `flexiplot` are the following:
 #'
 #' - Either or both `x` and `y` arguments can be of class [`base::character`]. In this case, axes labels corresponding to the unique values are used (see arguments `xdomain` and `ydomain`). This makes it easier to plot nominal and ordinal variates.
 #' - A jitter can also be added to the generated points, via the `xjitter` and `yjitter` switches. This makes it easier to generate scatter plots of nominal and ordinal variates.
@@ -22,6 +22,13 @@
 #' @param alpha.f Numeric, default 1: opacity of the colours, `0` being completely invisible and `1` completely opaque.
 #' @param xjitter,yjitter Logical or `NULL` (default): add [base::jitter()] to `x`- or `y`-values? Useful when plotting discrete variates. If `NULL`, jitter is added if the values are of character (or factor) class.
 #' @param ... Other parameters to be passed to [graphics::matplot()].
+#'
+#' @seealso
+#' [Pr()] to calculate posterior probabilities and quantiles.
+#'
+#' [plot.probability()] to directly plot posterior probabilities and quantiles contained in a probability object.
+#'
+#' [plotquantiles()] to plot quantile ranges.
 #'
 #' @examples
 #' ## Scatter plot of the 'island' vs 'species' nominal variates of the penguins dataset;
@@ -320,7 +327,7 @@ flexiplot <- function(
 #' Plot pairs of quantiles
 #'
 #' @description
-#' Utility function to plot pair of quantiles obtained with [Pr()].
+#' Utility function to plot pairs of quantiles obtained with [Pr()].
 #'
 #' @param x Numeric or character: vector of x-coordinates. See [flexiplot()].
 #' @param y Numeric: a matrix having as many rows as `x` and an even number of columns, with one column per quantile. Typically these quantiles have been obtained with [Pr()], as their `$quantiles` value. This value is a three-dimensional array, and one of its columns (corresponding to the possible values of the `X` argument of [Pr()]) or one of its rows (corresponding to the possible values of the `Y` argument of [Pr()]) should be selected before being used as `y` input.
@@ -329,6 +336,31 @@ flexiplot <- function(
 #' @param col Fill colour of the quantile bands. Can be specified in any of the usual ways, see for instance [grDevices::col2rgb()]. Default `#4477AA`.
 #' @param border Fill colour of the quantile bands. Can be specified in any of the usual ways, see for instance [grDevices::col2rgb()]. If `NA` (default), no border is drawn.
 #' @param ... Other parameters to be passed to [flexiplot()].
+#'
+#' @seealso
+#' [Pr()] to calculate posterior probabilities and quantiles.
+#'
+#' [plot.probability()] to directly plot posterior probabilities and quantiles contained in a probability object.
+#'
+#' [flexiplot()] for more general plots.
+#'
+#' @examples
+#' ## Load the example `learnt` object included in the package
+#' learnt <- learntExample
+#'
+#' ## create a grid of values for variate "bill length",
+#' ## based on the information in the dataset and metadata:
+#' values <- vrtgrid(vrt = 'bill_len', learnt = learnt)
+#'
+#' ## calculate the probabilities and quantiles
+#' probs <- Pr(Y = data.frame(bill_len = values), learnt = learnt, parallel = 1)
+#'
+#' ## plot the quantiles, setting lower plot range to zero
+#' plotquantiles(x = values, y = probs$quantiles[, 1, ], ylim = c(0, NA),
+#'   xlab = 'bill length', ylab = 'probability')
+#'
+#' ## add a plot of the probabilities in thick dashed red
+#' flexiplot(x = values, y = probs$values, lwd = 5, lty = 2, col = 2, add = TRUE)
 #'
 #' @export
 plotquantiles <- function(
@@ -398,6 +430,20 @@ plotquantiles <- function(
 #' @param alpha.f Numeric, default 0.25: opacity of the colours, `0` being completely invisible and `1` completely opaque.
 #' @param var.alpha.f Numeric: opacity of the quantile bands or of the samples, `0` being completely invisible and `1` completely opaque.
 #' @param ... Other parameters to be passed to [flexiplot()].
+#'
+#' @examples
+#' ## Load the example `learnt` object included in the package
+#' learnt <- learntExample
+#'
+#' ## create a grid of values for variate "bill length",
+#' ## based on the information in the dataset and metadata:
+#' values <- vrtgrid(vrt = 'bill_len', learnt = learnt)
+#'
+#' ## calculate the probabilities and quantiles
+#' probs <- Pr(Y = data.frame(bill_len = values), learnt = learnt, parallel = 1)
+#'
+#' ## plot the probabilities and quantiles
+#' plot(probs)
 #'
 #' @export
 plot.probability <- function(

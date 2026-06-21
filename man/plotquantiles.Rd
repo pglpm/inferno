@@ -31,5 +31,31 @@ plotquantiles(
 \item{...}{Other parameters to be passed to \code{\link[=flexiplot]{flexiplot()}}.}
 }
 \description{
-Utility function to plot pair of quantiles obtained with \code{\link[=Pr]{Pr()}}.
+Utility function to plot pairs of quantiles obtained with \code{\link[=Pr]{Pr()}}.
+}
+\examples{
+## Load the example `learnt` object included in the package
+learnt <- learntExample
+
+## create a grid of values for variate "bill length",
+## based on the information in the dataset and metadata:
+values <- vrtgrid(vrt = 'bill_len', learnt = learnt)
+
+## calculate the probabilities and quantiles
+probs <- Pr(Y = data.frame(bill_len = values), learnt = learnt, parallel = 1)
+
+## plot the quantiles, setting lower plot range to zero
+plotquantiles(x = values, y = probs$quantiles[, 1, ], ylim = c(0, NA),
+  xlab = 'bill length', ylab = 'probability')
+
+## add a plot of the probabilities in thick dashed red
+flexiplot(x = values, y = probs$values, lwd = 5, lty = 2, col = 2, add = TRUE)
+
+}
+\seealso{
+\code{\link[=Pr]{Pr()}} to calculate posterior probabilities and quantiles.
+
+\code{\link[=plot.probability]{plot.probability()}} to directly plot posterior probabilities and quantiles contained in a probability object.
+
+\code{\link[=flexiplot]{flexiplot()}} for more general plots.
 }

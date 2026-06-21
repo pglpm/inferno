@@ -41,9 +41,9 @@ learn(
 \arguments{
 \item{data}{A dataset, given as a \code{\link[base:data.frame]{base::data.frame()}} or as a file path to a CSV file.}
 
-\item{metadata}{A \code{\link{metadata}} object, given either as a data.frame object, or as a file pa to a CSV file.}
+\item{metadata}{\link{metadata} about the dataset's variates, given either as a data frame or as a file path to a CSV file.}
 
-\item{auxdata}{A larger dataset, given as a base::data.frame() or as a file path to a CSV file. Such a dataset would be too many to use in the Monte Carlo sampling, but can be used to calculate hyperparameters.}
+\item{auxdata}{A larger dataset, given as a data frame or as a file path to a CSV file. Such a dataset would be too many to use in the Monte Carlo sampling, but can be used to calculate hyperparameters.}
 
 \item{outputdir}{\code{NULL} or \code{NA} or character: path to folder where output information and diagnostics should be saved. If \code{NULL} (default), a directory is created in the temporary-directory space given by \code{\link[base:tempdir]{base::tempdir()}}. If \code{NA}, a directory is created in the current working directory given by \code{\link[base:getwd]{base::getwd()}}. If character, this is taken to be the output directory; it should of course be writable by the user.}
 
@@ -53,7 +53,7 @@ learn(
 
 \item{nsamplesperchain}{Integer: number of Monte Carlo samples per chain.}
 
-\item{parallel}{Logical or positive integer or cluster object. \code{TRUE}: use roughly half of available cores; \code{FALSE}: use serial computation; integer: use this many cores. It can also be a cluster object previously created with \code{\link[parallel:makeCluster]{parallel::makeCluster()}}; in this case the parallel computation will use this object.}
+\item{parallel}{Logical or positive integer or cluster object. \code{TRUE}: use roughly half of available cores; \code{FALSE} (default): use serial computation; integer: use this many cores. It can also be a cluster object previously created with \code{\link[parallel:makeCluster]{parallel::makeCluster()}}; in this case the parallel computation will use this object.}
 
 \item{seed}{Integer: use this seed for the random number generator. If missing or \code{NULL} (default), do not set the seed.}
 
@@ -61,7 +61,7 @@ learn(
 
 \item{appendinfo}{Logical: append information about number of variates ('V'), number of data points ('D'), number of Monte Carlo samples ('S'), and timestamp, to the name of the output directory \code{outputdir}? The appended string has the format 'Vn_Dn_Sn_YYMMDDTHHMMSS'. Default \code{TRUE}.}
 
-\item{valueislearnt}{Logical or \code{NULL}: should the \code{VALUE} returned be the \code{learnt} object containing the parameters obtained from the Monte Carlo computation? If \code{FALSE}, then \code{VALUE} is the output directory name. If \code{NULL}, then \code{VALUE} is \code{NULL}. Default \code{TRUE}.}
+\item{valueislearnt}{Logical or \code{NULL}: should the \code{VALUE} returned be the \code{learnt} object containing the results from the Monte Carlo computation? If \code{FALSE}, then \code{VALUE} is the output directory name. If \code{NULL}, then \code{VALUE} is \code{NULL}. Default \code{TRUE}.}
 
 \item{subsampledata}{Integer: use only a subset of this many datapoints for the Monte Carlo computation.}
 
@@ -94,7 +94,7 @@ learn(
 \item{hyperparams}{List: hyperparameters of the prior.}
 }
 \value{
-Learnt object, or name of directory containing output files, or \code{NULL}, depending on argument \code{valueislearnt}.
+A "learnt" object, or name of directory containing output files, or \code{NULL}, depending on argument \code{valueislearnt}.
 }
 \description{
 Compute the posterior probability distribution of the variates conditional on the given data.
@@ -102,7 +102,7 @@ Compute the posterior probability distribution of the variates conditional on th
 \details{
 This function takes as main inputs a set of data and metadata, and computes the probability distribution for new data. Its computation can also be interpreted as an estimation of the frequencies of the variates in the \emph{whole population}, beyond the sample data. The probability distribution is not assumed to be Gaussian or of any other specific shape. The computation is done via Markov-chain Monte Carlo.
 
-This function creates an object, contained in a \code{learnt.rds} file, which is used in all subsequent probabilistic computations. Other information about the computation is provided in logs and plots, saved in a directory specified by the user.
+This function creates an object, typically saved in a \code{learnt.rds} file, which is used in all subsequent probabilistic computations. Other information about the computation is provided in logs and plots, saved in a directory specified by the user.
 
 See \code{vignette('start')} for an introductory example.
 }
@@ -126,7 +126,7 @@ str(learnt)
 
 }
 \seealso{
-\link{metadatatemplate} to help writing a metadata file.
+\code{\link[=metadatatemplate]{metadatatemplate()}} to help writing a metadata file.
 
 \code{\link[=Pr]{Pr()}} to calculate probabilities, and \code{\link[=qPr]{qPr()}} to calculate quantiles, given the data processed by \code{learn()}.
 

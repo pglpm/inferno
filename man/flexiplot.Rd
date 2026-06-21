@@ -48,7 +48,7 @@ flexiplot(
 Plot function that modifies and expands the \strong{graphics} package's \code{\link[graphics:matplot]{graphics::matplot()}} function in several ways.
 }
 \details{
-This function is essentially a wrapper around \code{\link[graphics:matplot]{graphics::matplot()}}, augmenting the latter with some additional features useful for plotting data and results handled by \strong{prova}. Some of the additional features provided by \code{flexiplot} are the following:
+This function is essentially a wrapper around \code{\link[graphics:matplot]{graphics::matplot()}}, augmenting the latter with some additional features useful for plotting data and results handled by \strong{Prova}. Some of the additional features provided by \code{flexiplot} are the following:
 \itemize{
 \item Either or both \code{x} and \code{y} arguments can be of class \code{\link[base:character]{base::character}}. In this case, axes labels corresponding to the unique values are used (see arguments \code{xdomain} and \code{ydomain}). This makes it easier to plot nominal and ordinal variates.
 \item A jitter can also be added to the generated points, via the \code{xjitter} and \code{yjitter} switches. This makes it easier to generate scatter plots of nominal and ordinal variates.
@@ -85,4 +85,11 @@ y <- dnorm(x, mean = 0, sd = 1)
 ## plot the distribution, with 0 as the lower plot range:
 flexiplot(x = x, y = y, ylim = c(0, NA))
 
+}
+\seealso{
+\code{\link[=Pr]{Pr()}} to calculate posterior probabilities and quantiles.
+
+\code{\link[=plot.probability]{plot.probability()}} to directly plot posterior probabilities and quantiles contained in a probability object.
+
+\code{\link[=plotquantiles]{plotquantiles()}} to plot quantile ranges.
 }
