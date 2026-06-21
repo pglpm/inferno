@@ -126,7 +126,6 @@ against each other, for all *sample* data, as a scatter plot:
 flexiplot(x = penguin$island, y = penguin$species,
     type = 'p', xlab = 'island', ylab = 'species',
     xdomain = islandvalues, ydomain = speciesvalues)
-#  Factor w/ 3 levels "Biscoe","Dream",..: 3 2 2 2 1 1 3 1 2 1 ...
 ```
 
 ![\*\*Scatter plot of sample data\*\*](figure/vissample-1.png)
@@ -163,12 +162,11 @@ that its probability is around 0.3%:
 
 prob <- Pr(Y = data.frame(island = 'Torgersen', species = 'Chinstrap'),
     learnt = learnt)
-# Error in `Pr()`:
-# ! Unknown value of argument 'parallel'.
 
 signif(prob$values, digits = 2)
-# Error:
-# ! object 'prob' not found
+#                      X
+# Y                      [,1]
+#   Torgersen,Chinstrap 0.003
 ```
 
   
@@ -224,7 +222,6 @@ samples <- rPr(n = 2000, Ynames = c('island', 'species'), learnt = learnt)
 flexiplot(x = samples$island, y = samples$species,
     type = 'p', xlab = 'island', ylab = 'species',
     xdomain = islandvalues, ydomain = speciesvalues)
-#  Factor w/ 3 levels "Biscoe","Dream",..: 2 1 1 3 2 2 1 1 3 2 ...
 ```
 
 ![\*\*Scatter plot for \*whole\*
@@ -257,15 +254,16 @@ data previously observed:
 body_massrange <- range(vrtgrid(vrt = 'body_mass', learnt = learnt))
 
 samples <- rPr(n = 2000, Ynames = c('body_mass', 'species'), learnt = learnt)
-# Error in `rnorm()`:
-# ! invalid arguments
 
 flexiplot(x = samples$body_mass, y = samples$species,
     type = 'p', xlab = 'body mass / g', ylab = 'species',
     xlim = body_massrange, ydomain = speciesvalues)
-# Error in `dim(x) <- c(n, 1L)`:
-# ! attempt to set an attribute on NULL
 ```
+
+![\*\*Scatter plot for body mass and
+species\*\*](figure/gensamplesplotbodymassspecies-1.png)
+
+**Scatter plot for body mass and species**
 
 Note again how
 [`flexiplot()`](https://pglpm.github.io/prova/reference/flexiplot.md)
@@ -288,15 +286,16 @@ two continuous variates, such as body mass and bill length (`bill_len`):
 bill_lenrange <- range(vrtgrid(vrt = 'bill_len', learnt = learnt))
 
 samples <- rPr(n = 2000, Ynames = c('body_mass', 'bill_len'), learnt = learnt)
-# Error in `rnorm()`:
-# ! invalid arguments
 
 flexiplot(x = samples$body_mass, y = samples$bill_len,
     type = 'p', xlab = 'body mass / g', ylab = 'bill length / mm',
     xlim = body_massrange, ylim = bill_lenrange)
-# Error in `dim(x) <- c(n, 1L)`:
-# ! attempt to set an attribute on NULL
 ```
+
+![\*\*Scatter plot of body mass and bill
+length\*\*](figure/gensamplesplotbodybilllen-1.png)
+
+**Scatter plot of body mass and bill length**
 
 The scatter plot shows that there is a partly linear relationship
 between body mass and bill length; but there’s a sort of additional
@@ -327,24 +326,18 @@ samplesAdelie <- rPr(
     Ynames = c('body_mass', 'bill_len'),
     X = data.frame(species = 'Adelie'),
     learnt = learnt)
-# Error in `rnorm()`:
-# ! invalid arguments
 
 samplesChinstrap <- rPr(
     n = 1000,
     Ynames = c('body_mass', 'bill_len'),
     X = data.frame(species = 'Chinstrap'),
     learnt = learnt)
-# Error in `rnorm()`:
-# ! invalid arguments
 
 samplesGentoo <- rPr(
     n = 1000,
     Ynames = c('body_mass', 'bill_len'),
     X = data.frame(species = 'Gentoo'),
     learnt = learnt)
-# Error in `rnorm()`:
-# ! invalid arguments
 ```
 
 Now we plot these samples together with
@@ -365,14 +358,15 @@ flexiplot(
     type = 'p', xlab = 'body mass / g', ylab = 'bill length / mm',
     xlim = body_massrange, ylim = bill_lenrange,
     pch = c(0, 2, 5), col = 2:4, alpha.f = 0.2)
-# Error:
-# ! object 'samplesAdelie' not found
 
 legend('top', speciesvalues, pch = c(0, 2, 5), col = 2:4,
     horiz = TRUE, bty = 'n')
-# Error:
-# ! plot.new has not been called yet
 ```
+
+![\*\*Scatter plot for species
+subpopulations\*\*](figure/plotbodybilllen3-1.png)
+
+**Scatter plot for species subpopulations**
 
 The plot above shows quite clearly that the `body_mass`-`bill_len`
 association is indeed different for each species. The roughly linear
@@ -640,7 +634,6 @@ flexiplot(x = samples$island, y = samples$species,
     xdomain = islandvalues, ydomain = speciesvalues,
     main = paste0('mutual info: ', mi, ' Sh',
         '  (rough r-equiv: ', r, ')') )
-#  Factor w/ 3 levels "Biscoe","Dream",..: 2 2 1 2 1 1 2 2 1 1 ...
 ```
 
 ![\*\*Scatter plot for \`island\` and
@@ -674,17 +667,18 @@ mi <- signif(MIbodymassspecies$MI['value'], digits = 2)
 r <- signif(MIbodymassspecies$MI.rGauss['value'], digits = 2)
 
 samples <- rPr(n = 2000, Ynames = c('body_mass', 'species'), learnt = learnt)
-# Error in `rnorm()`:
-# ! invalid arguments
 
 flexiplot(x = samples$body_mass, y = samples$species,
     type = 'p', xlab = 'body mass / g', ylab = 'species',
     xlim = body_massrange, ydomain = speciesvalues,
     main = paste0('mutual info: ', mi, ' Sh',
         '  (rough r-equiv: ', r, ')') )
-# Error in `dim(x) <- c(n, 1L)`:
-# ! attempt to set an attribute on NULL
 ```
+
+![\*\*Scatter plot and mutual info for body mass and
+species\*\*](figure/gensamplesplotbodymassspeciesbis-1.png)
+
+**Scatter plot and mutual info for body mass and species**
 
 #### Body mass and bill length
 
@@ -712,17 +706,18 @@ mi <- signif(MIbodymassbilllen$MI['value'], digits = 2)
 r <- signif(MIbodymassbilllen$MI.rGauss['value'], digits = 2)
 
 samples <- rPr(n = 2000, Ynames = c('body_mass', 'bill_len'), learnt = learnt)
-# Error in `rnorm()`:
-# ! invalid arguments
 
 flexiplot(x = samples$body_mass, y = samples$bill_len,
     type = 'p', xlab = 'body mass / g', ylab = 'bill length / mm',
     xlim = body_massrange, ylim = bill_lenrange,
     main = paste0('mutual info: ', mi, ' Sh',
         '  (rough r-equiv: ', r, ')') )
-# Error in `dim(x) <- c(n, 1L)`:
-# ! attempt to set an attribute on NULL
 ```
+
+![\*\*Scatter plot and mutual info for body mass and bill
+length\*\*](figure/gensamplesplotbodymassbilllenbis-1.png)
+
+**Scatter plot and mutual info for body mass and bill length**
 
 Note that in this case the Pearson correlation between `body_mass` and
 `bill_len` is
@@ -730,8 +725,7 @@ Note that in this case the Pearson correlation between `body_mass` and
 ``` r
 
 cor(samples$body_mass, samples$bill_len, method = 'pearson')
-# Error in `cor()`:
-# ! supply both 'x' and 'y' or a matrix-like 'x'
+# [1] 0.545892
 ```
 
 which is different from the rough $`r`$-equivalent 0.67.
@@ -806,16 +800,17 @@ flexiplot(
     type = 'p', xlab = 'body mass / g', ylab = 'bill length / mm',
     xlim = body_massrange, ylim = bill_lenrange,
     pch = c(0, 2, 5), col = 2:4, alpha.f = 0.2)
-# Error:
-# ! object 'samplesAdelie' not found
 
 legend('top',
     paste(speciesvalues, paste0(mispecies, ' Sh'), sep = ': '),
     pch = c(0, 2, 5), col = 2:4,
     horiz = TRUE, bty = 'n')
-# Error:
-# ! plot.new has not been called yet
 ```
+
+![\*\*Scatter plot and mutual info for species
+subpopulations\*\*](figure/plotbodybilllen3mi-1.png)
+
+**Scatter plot and mutual info for species subpopulations**
 
 We see that body mass and bill length have a stronger association in the
 Gentoo species than in the Adélie or Chinstrap ones. In other words we
@@ -829,18 +824,15 @@ correlation coefficient:
 
 ## Pearson r for Adelie subpopulation:
 cor(samplesAdelie$body_mass, samplesAdelie$bill_len, method = 'pearson')
-# Error:
-# ! object 'samplesAdelie' not found
+# [1] 0.417085
 
 ## Pearson r for Chinstrap subpopulation:
 cor(samplesChinstrap$body_mass, samplesChinstrap$bill_len, method = 'pearson')
-# Error:
-# ! object 'samplesChinstrap' not found
+# [1] 0.311494
 
 ## Pearson r for Gentoo subpopulation:
 cor(samplesGentoo$body_mass, samplesGentoo$bill_len, method = 'pearson')
-# Error:
-# ! object 'samplesGentoo' not found
+# [1] 0.562958
 ```
 
 The Pearson correlation yields the same the association *ranking* as the

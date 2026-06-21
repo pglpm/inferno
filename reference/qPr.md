@@ -27,7 +27,7 @@ qPr(
   priorY = NULL,
   nsamples = "all",
   quantiles = c(0.055, 0.5, 0.945),
-  parallel = NULL,
+  parallel = FALSE,
   silent = FALSE,
   keepYX = TRUE,
   tol = .Machine$double.eps * 10
@@ -94,9 +94,9 @@ qPr(
 - parallel:
 
   Logical or positive integer or cluster object. `TRUE`: use roughly
-  half of available cores; `FALSE`: use serial computation; integer: use
-  this many cores. It can also be a cluster object previously created
-  with
+  half of available cores; `FALSE` (default): use serial computation;
+  integer: use this many cores. It can also be a cluster object
+  previously created with
   [`parallel::makeCluster()`](https://rdrr.io/r/parallel/makeCluster.html);
   in this case the parallel computation will use this object.
 

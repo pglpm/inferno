@@ -705,16 +705,12 @@ object:
 ``` r
 
 plot(Fspecies10)
-#  Factor w/ 3 levels "Adelie","Chinstrap",..: 1 2 3
 ```
 
 ![\*\*Estimates and uncertainty of relative frequencies of penguin
 species\*\*](figure/vis10-1.png)
 
 **Estimates and uncertainty of relative frequencies of penguin species**
-
-    #  Factor w/ 3 levels "Adelie","Chinstrap",..: 1 2 3
-    #  - attr(*, "names")= chr [1:3] "species1" "species2" "species3"
 
   
 
@@ -992,17 +988,12 @@ frequencies and their uncertainties can again be visualized by calling
 ``` r
 
 plot(Fspecies10I, col = 5:6)
-#  Factor w/ 3 levels "Adelie","Chinstrap",..: 1 2 3
 ```
 
 ![\*\*Estimates and uncertainty of conditional
 frequencies\*\*](figure/vis10I-1.png)
 
 **Estimates and uncertainty of conditional frequencies**
-
-    #  Factor w/ 3 levels "Adelie","Chinstrap",..: 1 2 3
-    #  Factor w/ 3 levels "Adelie","Chinstrap",..: 1 2 3
-    #  - attr(*, "names")= chr [1:3] "species1" "species2" "species3"
 
   
 
@@ -1367,16 +1358,12 @@ species. Let’s plot the new estimates and their credibility intervals:
 ``` r
 
 plot(Fspecies60)
-#  Factor w/ 3 levels "Adelie","Chinstrap",..: 1 2 3
 ```
 
 ![\*\*Updated frequency estimates of penguin
 species\*\*](figure/vis60-1.png)
 
 **Updated frequency estimates of penguin species**
-
-    #  Factor w/ 3 levels "Adelie","Chinstrap",..: 1 2 3
-    #  - attr(*, "names")= chr [1:3] "species1" "species2" "species3"
 
   
 
@@ -1391,15 +1378,9 @@ ymax <- max(Fspecies10$quantiles, Fspecies60$quantiles)
 
 plot(Fspecies10, ylim = c(0, ymax),
     col = 2, lty = 2, lwd = 3, pch = 2) ## distinguish the two plots
-#  Factor w/ 3 levels "Adelie","Chinstrap",..: 1 2 3
-#  Factor w/ 3 levels "Adelie","Chinstrap",..: 1 2 3
-#  - attr(*, "names")= chr [1:3] "species1" "species2" "species3"
 
 plot(Fspecies60, ylim = c(0, ymax), add = TRUE,
     col = 1, lty = 1, lwd = 2, pch = 1) ## distinguish the two plots
-#  Factor w/ 3 levels "Adelie","Chinstrap",..: 1 2 3
-#  Factor w/ 3 levels "Adelie","Chinstrap",..: 1 2 3
-#  - attr(*, "names")= chr [1:3] "species1" "species2" "species3"
 
 legend('top', c('10 samples', '60 samples'),
     col = 2:1, lty = 2:1, pch = 2:1, bty = 'n')
@@ -1761,15 +1742,15 @@ and also their probability distributions:
 ``` r
 
 plot(Fspeciesall, ylim = c(0, 1))
-#  Factor w/ 3 levels "Adelie","Chinstrap",..: 1 2 3
 ```
 
 ![](figure/visall-1.png)
 
-    #  Factor w/ 3 levels "Adelie","Chinstrap",..: 1 2 3
-    #  - attr(*, "names")= chr [1:3] "species1" "species2" "species3"
+``` r
 
-    hist(Fspeciesall, xlim = c(0, 1), legend = 'topright')
+
+hist(Fspeciesall, xlim = c(0, 1), legend = 'topright')
+```
 
 ![](figure/visall-2.png)
 
@@ -2017,8 +1998,6 @@ colnames(X) <- Xvrt
 
 ## NB: rewriting the previous 'Fanalysis' object
 Fanalysis <- Pr(Y = Y, X = X, learnt = learntall, parallel = 4)
-# Error in `checkForRemoteErrors()`:
-# ! 4 nodes produced errors; first error: Non-numeric argument to mathematical function
 ```
 
 Here is the estimated frequency distribution of body mass within each
@@ -2027,13 +2006,9 @@ species
 ``` r
 
 plot(Fanalysis, col = 2:4, legend = 'topright')
-#  Factor w/ 3 levels "Biscoe","Dream",..: 1 2 3
 ```
 
 ![](figure/unnamed-chunk-10-1.png)
-
-    #  Factor w/ 3 levels "Biscoe","Dream",..: 1 2 3
-    #  - attr(*, "names")= chr [1:3] "island1" "island2" "island3"
 
 Note how the plots above give us much more information than just a set
 of estimates about medians and quantiles, or means and standard
