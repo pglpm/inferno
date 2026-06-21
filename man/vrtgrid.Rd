@@ -17,5 +17,43 @@ vrtgrid(vrt, learnt, length.out = 129)
 A numeric or character vector of values.
 }
 \description{
-This function create a set of values for a variate \code{vrt}, based on the metadata stored in a \code{learnt} object created by the \code{\link[=learn]{learn()}} function). The set of values depends on the type of variate (nominal or continuous, rounded, and so on, see \code{\link{metadata}}). The range of values is chosen to include, and extend slightly beyond, the range observed in the data used in the \code{\link[=learn]{learn()}} function. Variate domains are always respected.
+This function creates a set of values for a variate, based on the information from data and metadata stored in a \code{learnt} object, created by the \code{\link[=learn]{learn()}} function. The set of values depends on the type of variate (nominal or continuous, rounded, and so on, see \link{metadata}). The range of values is chosen to include, and extend slightly beyond, the range observed in the data used in the \code{\link[=learn]{learn()}} function. Variate domains are always respected.
+}
+\examples{
+## Load the example `learnt` object included in the package
+learnt <- learntExample
+
+## set of values for the variate "species";
+## since this variate is of a nominal kind, all values are included
+valuesSpecies <- vrtgrid(vrt = 'species', learnt = learnt)
+
+print(valuesSpecies)
+
+## create a set of values for the variate "bill length";
+## this variate is continuous and rounded, only realistic values are included
+valuesBill <- vrtgrid(vrt = 'bill_len', learnt = learnt)
+
+range(valuesBill)
+
+## let's take a subset of these values, to speed up computation
+valuesBill <- valuesBill[seq(to = length(valuesBill), length.out = 65)]
+
+## calculate the conditional probabilities for the 'bill_len' values above,
+## given the values of 'species'
+probs <- Pr(
+  Y = data.frame(bill_len = valuesBill),
+  X = data.frame(species = valuesSpecies),
+  learnt = learnt, parallel = 1
+)
+
+## plot the conditional probability distributions, and their variability
+plot(probs)
+
+}
+\seealso{
+\code{\link[=learn]{learn()}}, which generates the \code{learnt} objects required by \code{vrtgrid()}.
+
+\code{\link[=Pr]{Pr()}} to calculate probabilities and their variability.
+
+\code{\link[=plot.probability]{plot.probability()}} to plot probabilities and quantiles calculated by \code{Pr()}.
 }

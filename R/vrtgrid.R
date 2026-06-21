@@ -1,6 +1,6 @@
 #' Create a grid of values for a variate
 #'
-#' This function create a set of values for a variate `vrt`, based on the metadata stored in a `learnt` object created by the [learn()] function). The set of values depends on the type of variate (nominal or continuous, rounded, and so on, see [`metadata`]). The range of values is chosen to include, and extend slightly beyond, the range observed in the data used in the [learn()] function. Variate domains are always respected.
+#' This function creates a set of values for a variate, based on the information from data and metadata stored in a `learnt` object, created by the [learn()] function. The set of values depends on the type of variate (nominal or continuous, rounded, and so on, see [metadata]). The range of values is chosen to include, and extend slightly beyond, the range observed in the data used in the [learn()] function. Variate domains are always respected.
 #'
 #' @param vrt Character: name of the variate, must match one of the names in the `metadata` file provided to the [learn()] function.
 #' @param learnt Either a character with the name of a directory or full path for a 'learnt.rds' object, produced by the [learn()] function, or such an object itself.
@@ -8,6 +8,43 @@
 #'
 #' @return A numeric or character vector of values.
 #'
+#' @seealso
+#' [learn()], which generates the `learnt` objects required by `vrtgrid()`.
+#'
+#' [Pr()] to calculate probabilities and their variability.
+#'
+#' [plot.probability()] to plot probabilities and quantiles calculated by `Pr()`.
+#'
+#' @examples
+#' ## Load the example `learnt` object included in the package
+#' learnt <- learntExample
+#'
+#' ## set of values for the variate "species";
+#' ## since this variate is of a nominal kind, all values are included
+#' valuesSpecies <- vrtgrid(vrt = 'species', learnt = learnt)
+#'
+#' print(valuesSpecies)
+#'
+#' ## create a set of values for the variate "bill length";
+#' ## this variate is continuous and rounded, only realistic values are included
+#' valuesBill <- vrtgrid(vrt = 'bill_len', learnt = learnt)
+#'
+#' range(valuesBill)
+#'
+#' ## let's take a subset of these values, to speed up computation
+#' valuesBill <- valuesBill[seq(to = length(valuesBill), length.out = 65)]
+#' 
+#' ## calculate the conditional probabilities for the 'bill_len' values above,
+#' ## given the values of 'species'
+#' probs <- Pr(
+#'   Y = data.frame(bill_len = valuesBill),
+#'   X = data.frame(species = valuesSpecies),
+#'   learnt = learnt, parallel = 1
+#' )
+#'
+#' ## plot the conditional probability distributions, and their variability
+#' plot(probs)
+#' 
 #' @export
 vrtgrid <- function(
     vrt,
