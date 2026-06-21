@@ -242,7 +242,6 @@ to read and write CSV files in the format used by `learn()`.
 ## Examples
 
 ``` r
-
 ## Create dataset with 5 points of variate 'V' for demonstration:
 dataset <- data.frame(V = rnorm(n = 5))
 
@@ -262,7 +261,7 @@ learnt <- learn(
 #> Learning from 5 datapoints, 1 variates.
 #> 
 #>  Saving output in directory
-#>  /tmp/Rtmpj5NnrO/prova-V1_D5_S10_260621T064054_1a5b432e6de1 
+#>  /tmp/RtmpAFN9sv/prova-V1_D5_S10_260621T064412_1a2c331a75b2 
 #> 
 #> Starting Monte Carlo sampling of 10 samples by 1 chains
 #> in a space of 191 (effectively 261) dimensions.
@@ -289,8 +288,8 @@ learnt <- learn(
 #> 
 #> Plotting final Monte Carlo traces and marginal samples...
 #> Total computation time: 36 secs
-#> Average preparation & finalization time: 34 secs.
-#> Average Monte Carlo time per chain: 0.7 secs.
+#> Average preparation & finalization time: 35 secs.
+#> Average Monte Carlo time per chain: 0.6 secs.
 #> Max total memory used: approx 360MB.
 #> Max memory used per core: approx 360MB.
 #> Removing temporary output files.
@@ -298,7 +297,7 @@ learnt <- learn(
 #> Finished.
 #> **********************************************************
 #>  Output saved in directory
-#> /tmp/Rtmpj5NnrO/prova-V1_D5_S10_260621T064054_1a5b432e6de1
+#> /tmp/RtmpAFN9sv/prova-V1_D5_S10_260621T064412_1a2c331a75b2
 #> **********************************************************
 #> Closing connections to cores.
 
