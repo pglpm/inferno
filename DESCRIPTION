@@ -24,7 +24,7 @@ URL: https://pglpm.github.io/inferno/, https://github.com/pglpm/inferno/
 Encoding: UTF-8
 Roxygen: list(markdown = TRUE)
 Depends:
-    R (>= 3.5.0)
+    R (>= 4.5.0)
 Imports:
     extraDistr,
     nimble (>= 1.4.2),

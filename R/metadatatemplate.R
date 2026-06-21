@@ -6,8 +6,7 @@
 #'
 #' @param data A dataset, given as a [base::data.frame()]
 #' or as a file path to a csv file.
-#' @param file Character: name of csv file where the metadata should be saved;
-#'   if `NULL`: output metadata as `VALUE`.
+#' @param file Character or `NULL` (default): name of csv file where the metadata should be saved; if `NULL`: output metadata as `VALUE`.
 #' @param includevrt Character or `NULL`: name of variates in dataset to be included.
 #' @param excludevrt Character or `NULL`: name of variates in dataset to be excluded.
 #' @param addsummary2metadata Logical: also output some diagnostic statistics
@@ -16,9 +15,7 @@
 #' Default `TRUE`.
 #' @param verbose Logical: output heuristics for each variate? Default `TRUE`.
 #'
-#' @return If `file = NULL`, a preliminary metadata file is created
-#'   and `VALUE` is `NULL`;
-#'   otherwise `VALUE` is a [base::data.frame()] containing the metadata.
+#' @return If `file = NULL`, a preliminary [base::data.frame()] containing the metadata; if `file` is a character, a preliminary metadata file is created with that name and path.
 #'
 #' @section Metadata information and format:
 #'
@@ -61,6 +58,43 @@
 #' @section Necessity of metadata:
 #'
 #' To be written.
+#'
+#' @seealso
+#' [learn()], which generates the information necessary to calculate posterior probabilities, based on data and metadata.
+#'
+#' @examples
+#' ## Create a preliminary data frame of metadata for the `penguins` dataset
+#' metadata <- metadatatemplate(data = datasets::penguins, file = NULL)
+#'
+#' ## Note how the preliminary data frame includes additional spots for values of nominal and ordinal variates which could be missing from the data
+#' print(metadata)
+#'
+#'
+#' ## Create a preliminary data frame of metadata for the `penguins` dataset,
+#' ## including only the 'species' and 'bill_len' variates:
+#' metadata2 <- metadatatemplate(
+#'   data = datasets::penguins, file = NULL,
+#'   includevrt = c('species', 'bill_len')
+#' )
+#'
+#' print(metadata2)
+#'
+#'
+#' ## Create a preliminary data frame of metadata for the `penguins` dataset,
+#' ## excluding the 'year' variate:
+#' metadata3 <- metadatatemplate(
+#'   data = datasets::penguins, file = NULL,
+#'   excludevrt = 'year'
+#' )
+#'
+#' print(metadata3)
+
+#' ## Generate 10 points for a continuous variate in (0, 1)
+#' dataset <- runif(10)
+#'
+#' ## `metadatatemplate` correctly guesses the variate minimum, but not the maximum (`NA` is equivalent to `+Inf`)
+#' metadata <- metadatatemplate(data = dataset, file = NULL)
+#' print(metadata)
 #'
 #' @aliases metadata metadatatemplate
 #'

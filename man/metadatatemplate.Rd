@@ -19,8 +19,7 @@ metadatatemplate(
 \item{data}{A dataset, given as a \code{\link[base:data.frame]{base::data.frame()}}
 or as a file path to a csv file.}
 
-\item{file}{Character: name of csv file where the metadata should be saved;
-if \code{NULL}: output metadata as \code{VALUE}.}
+\item{file}{Character or \code{NULL} (default): name of csv file where the metadata should be saved; if \code{NULL}: output metadata as \code{VALUE}.}
 
 \item{includevrt}{Character or \code{NULL}: name of variates in dataset to be included.}
 
@@ -35,9 +34,7 @@ Default \code{TRUE}.}
 \item{verbose}{Logical: output heuristics for each variate? Default \code{TRUE}.}
 }
 \value{
-If \code{file = NULL}, a preliminary metadata file is created
-and \code{VALUE} is \code{NULL};
-otherwise \code{VALUE} is a \code{\link[base:data.frame]{base::data.frame()}} containing the metadata.
+If \code{file = NULL}, a preliminary \code{\link[base:data.frame]{base::data.frame()}} containing the metadata; if \code{file} is a character, a preliminary metadata file is created with that name and path.
 }
 \description{
 Metadata and helper function to create a template metadata file or object.
@@ -92,3 +89,40 @@ To be written.
 To be written.
 }
 
+\examples{
+## Create a preliminary data frame of metadata for the `penguins` dataset
+metadata <- metadatatemplate(data = datasets::penguins, file = NULL)
+
+## Note how the preliminary data frame includes additional spots for values of nominal and ordinal variates which could be missing from the data
+print(metadata)
+
+
+## Create a preliminary data frame of metadata for the `penguins` dataset,
+## including only the 'species' and 'bill_len' variates:
+metadata2 <- metadatatemplate(
+  data = datasets::penguins, file = NULL,
+  includevrt = c('species', 'bill_len')
+)
+
+print(metadata2)
+
+
+## Create a preliminary data frame of metadata for the `penguins` dataset,
+## excluding the 'year' variate:
+metadata3 <- metadatatemplate(
+  data = datasets::penguins, file = NULL,
+  excludevrt = 'year'
+)
+
+print(metadata3)
+## Generate 10 points for a continuous variate in (0, 1)
+dataset <- runif(10)
+
+## `metadatatemplate` correctly guesses the variate minimum, but not the maximum (`NA` is equivalent to `+Inf`)
+metadata <- metadatatemplate(data = dataset, file = NULL)
+print(metadata)
+
+}
+\seealso{
+\code{\link[=learn]{learn()}}, which generates the information necessary to calculate posterior probabilities, based on data and metadata.
+}
