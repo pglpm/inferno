@@ -8,7 +8,7 @@ outputdir <- '__testbase_ess100'
 learntdir <- learn(
     data = 'data_basetest.csv',
     metadata = 'metadata_basetest.csv',
-    nsamples = 3753,
+    nsamples = 3600,
     nchains = parallel,
     ## minMCiterations = 3600 * 3,
     prior = FALSE,

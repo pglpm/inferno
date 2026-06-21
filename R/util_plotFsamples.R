@@ -20,7 +20,7 @@
 #'
 #' @return A list with the mutual information, its error, and its unit
 #'
-#' @export
+#' @keywords internal
 plotFsamples <- function(
     filename,
     learnt,

@@ -15,7 +15,7 @@
 A list of class \code{probability}, identical to the original object \code{x} except for a reduced range of values in some if its variates.
 }
 \description{
-An object of class \code{probability}, obtained with the \code{\link[=Pr]{Pr()}} function, holds the probabilities for all possible combinations of values of a set of joint variates \code{Y} conditional on a set of joint variates \code{X}. In some cases one may wish to exclude some of the values of the \code{Y} or \code{X} variates. For instance \code{Y} in the probability-class object could include the variate "age" with values from 18 to 100, and one may want to retain the values from 60 to 80.
+An object of class \code{probability}, obtained with the \code{\link[=Pr]{Pr()}} function, holds the probabilities for all possible combinations of values of a set of joint variates \code{Y} conditional on a set of joint variates \code{X}, together with the variabilities of these probabilities and some other information. In some cases one may wish to exclude some of the values of the \code{Y} or \code{X} variates. For instance \code{Y} in the probability-class object could include the variate "age" with values from 18 to 100, and one may want to retain the values from 60 to 80.
 }
 \examples{
 ## Load the example `learnt` object included in the package
@@ -41,8 +41,7 @@ newprobs <- subset(
 
 newprobs$values
 
-## Plot these conditional probabilities and the distribution of the conditional frequencies
-
+## Plot these conditional probabilities and their variabilities
 plot(newprobs)
 
 hist(newprobs)
