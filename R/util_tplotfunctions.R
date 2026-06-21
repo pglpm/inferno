@@ -4,7 +4,12 @@
 #' Plot function that modifies and expands the **graphics** package's [graphics::matplot()] function in several ways.
 #'
 #' @details
-#' Some of the additional features provided by `flexiplot` are the following. First, either or both `x` and `y` arguments can be of class [`base::character`]. In this case, axes labels corresponding to the unique values are used (see arguments `xdomain` and `ydomain`). A jitter can also be added to the generated points, via the `xjitter` and `yjitter` switches. Second, it allows for the specification of only a lower or upper limit in the `xlim` and `ylim` arguments. Third, it uses a cleaner plotting style and a default argument `type = 'l'` (line plot) rather than `type = 'p'` (point plot).
+#' This function is essentially a wrapper around [graphics::matplot()], augmenting the latter with some additional features useful for plotting data and results handled by **prova**. Some of the additional features provided by `flexiplot` are the following:
+#'
+#' - Either or both `x` and `y` arguments can be of class [`base::character`]. In this case, axes labels corresponding to the unique values are used (see arguments `xdomain` and `ydomain`). This makes it easier to plot nominal and ordinal variates.
+#' - A jitter can also be added to the generated points, via the `xjitter` and `yjitter` switches. This makes it easier to generate scatter plots of nominal and ordinal variates.
+#' - It is possible to specify only a lower or upper limit in the `xlim` and `ylim` arguments, letting the other limit to be found automatically. This can be useful in plotting probabilities, in cases where we want to specify the lower, `0` limit, but want the upper limit to simply be the the maximum probability.
+#' - The plotting style is different, and default argument `type = 'l'` (line plot) rather than `type = 'p'` (point plot).
 #'
 #' @param x Numeric or character: vector of x-coordinates. If missing, a numeric vector `1:...` is created having as many values as the rows of `y`.
 #' @param y Numeric or character: vector of y coordinates. If missing, a numeric vector `1:...` is created having as many values as the rows of `x`.
@@ -12,8 +17,30 @@
 #' @param xlim,ylim `NULL` (default) or a vector of two values. In the latter case, if any of the two values is not finite (including `NA` or `NULL`), then the `min` or `max` `x`- or `y`-coordinates of the plotted points are used.
 #' @param grid Logical: whether to plot a light grid. Default `TRUE`.
 #' @param alpha.f Numeric, default 1: opacity of the colours, `0` being completely invisible and `1` completely opaque.
-#' @param xjitter,yjitter Logical or `NULL` (default): add [base::jitter()] to `x`- or `y`-values? Useful when plotting discrete variates. If `NULL`, jitter is added if the values are of character class.
+#' @param xjitter,yjitter Logical or `NULL` (default): add [base::jitter()] to `x`- or `y`-values? Useful when plotting discrete variates. If `NULL`, jitter is added if the values are of character (or factor) class.
 #' @param ... Other parameters to be passed to [graphics::matplot()].
+#'
+#' @examples
+#' ## Scatter plot of the 'island' vs 'species' nominal variates of the penguins dataset; note how jitter is automatically added:
+#' flexiplot(x = penguins[, 'species'], y = penguins[, 'island'])
+#'
+#'
+#' ## Scatter plot of the 'bill_len' vs 'species' variates of the penguins dataset:
+#' flexiplot(x = penguins[, 'species'], y = penguins[, 'bill_len'])
+#'
+#' ## We can add jitter to separate the nominal values:
+#' flexiplot(x = penguins[, 'species'], y = penguins[, 'bill_len'], xjitter = TRUE)
+#'
+#'
+#' ## Scatter plot of the 'bill_len' vs 'body_mass' variates of the penguins dataset; in this case we pust specify the scatter-plot option `type = 'p'`:
+#' flexiplot(x = penguins[, 'body_mass'], y = penguins[, 'bill_len'], type = 'p')
+#'
+#' ## Calculate the values of a normal distribution in a restricted range
+#' x <- seq(from = -2, to = 2, length.out = 127)
+#' y <- dnorm(x, mean = 0, sd = 1)
+#'
+#' ## plot the distribution, with 0 as the lower plot range:
+#' flexiplot(x = x, y = y, ylim = c(0, NA))
 #'
 #' @export
 flexiplot <- function(
@@ -44,8 +71,14 @@ flexiplot <- function(
 ){
     xat <- yat <- xaxp <- yaxp <- NULL
 
-    if(!missing(x) && is.factor(x)){x <- as.character(x)}
-    if(!missing(y) && is.factor(y)){y <- as.character(y)}
+    if(!missing(x) && is.factor(x)){
+        if(is.null(xlab)){ xlab <- deparse1(substitute(x)) }
+        x <- as.character(x)
+    }
+    if(!missing(y) && is.factor(y)){
+        if(is.null(ylab)){ ylab <- deparse1(substitute(y)) }
+        y <- as.character(y)
+    }
 
     if(missing('x') && !missing('y')){
         x <- y
@@ -101,7 +134,6 @@ flexiplot <- function(
     ## if x is character, convert to numeric
     if(is.character(x)){
         if(is.null(xdomain)){ xdomain <- unique(x) }
-        str(factor(x, levels = xdomain))
         ## we assume the user has sorted the values in a meaningful order
         ## because the lexical order may not be correct
         ## (think of values like 'low', 'medium', 'high')
