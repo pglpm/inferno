@@ -7,6 +7,7 @@
 \method{plot}{probability}(
   x,
   variability = NULL,
+  subset = NULL,
   PvsY = NULL,
   legend = "top",
   lty = c(1, 2, 4, 3, 6, 5),
@@ -28,6 +29,8 @@
 \item{x}{Object of class "probability", obtained with \code{\link[=Pr]{Pr()}}.}
 
 \item{variability}{One of the values \code{'quantiles'}, \code{'samples'}, \code{'none'} (equivalent to \code{NA} or \code{FALSE}), or \code{NULL} (default), in which case the variability available in \code{p} is used. This argument chooses how to represent the variability of the probability; see \code{\link[=Pr]{Pr()}}. If the requested variability is not available in the object \code{p}, then a warning is issued and no variability is plotted.}
+
+\item{subset}{Named list or named vector: which variate values to display. For the variates corresponding to the names in this list, only the vector of values corresponding to that variate is displayed.}
 
 \item{PvsY}{Logical or \code{NULL}: should probabilities be plotted against their \code{Y} argument? If \code{NULL}, the argument between \code{Y} and \code{X} having larger number of values is chosen. As many probability curves will be plotted as the number of values of the other argument.}
 

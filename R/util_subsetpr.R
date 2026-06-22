@@ -10,9 +10,9 @@
 #' @seealso
 #' [Pr()], which generates probability objects.
 #'
-#' [plot.probability()] to plot probabilities and quantiles calculated by `Pr()` and subset by [subset.probability()].
+#' [plot.probability()] to plot probabilities and quantiles calculated by `Pr()'.
 #'
-#' [hist.probability()] to plot histograms of the probability distributions calculated by `Pr()` and subset by [subset.probability()].
+#' [hist.probability()] to plot histograms of the probability distributions calculated by `Pr()`.
 #'
 #' @examples
 #' ## Load the example `learnt` object calculated from the "penguins" dataset;
@@ -32,7 +32,7 @@
 #'
 #' ## Subset by retaining the values 'Adelie' and 'Gentoo' for species,
 #' ## and 44 for bill length
-#' newprobs <- subset(
+#' newprobs <- prsubset(
 #'   probs,
 #'   subset = list(species = c('Adelie', 'Gentoo'), bill_len = 43)
 #' )
@@ -44,8 +44,8 @@
 #'
 #' hist(newprobs)
 #'
-#' @export
-subset.probability <- function(
+#' @keywords internal
+prsubset <- function(
     x,
     subset
 ){
@@ -62,14 +62,14 @@ subset.probability <- function(
     for(vrt in vrtnames[vrtnames %in% Ynames]){
         selvals <- x$Y[[vrt]] %in% subset[[vrt]]
         x$values <- x$values[selvals, , drop = FALSE]
-        if(!is.null(x$values.MCerror)){
-            x$values.MCerror <- x$values.MCerror[selvals, , drop = FALSE]
+        if(!is.null(x$values.MCaccuracy)){
+            x$values.MCaccuracy <- x$values.MCaccuracy[selvals, , drop = FALSE]
         }
         if(!is.null(x$quantiles)){
             x$quantiles <- x$quantiles[selvals, , , drop = FALSE]
         }
-        if(!is.null(x$quantiles.MCerror)){
-            x$quantiles.MCerror <- x$quantiles.MCerror[selvals, , , drop = FALSE]
+        if(!is.null(x$quantiles.MCaccuracy)){
+            x$quantiles.MCaccuracy <- x$quantiles.MCaccuracy[selvals, , , drop = FALSE]
         }
         if(!is.null(x$samples)){
             x$samples <- x$samples[selvals, , , drop = FALSE]
@@ -81,14 +81,14 @@ subset.probability <- function(
     for(vrt in vrtnames[vrtnames %in% Xnames]){
         selvals <- x$X[[vrt]] %in% subset[[vrt]]
         x$values <- x$values[, selvals, drop = FALSE]
-        if(!is.null(x$values.MCerror)){
-            x$values.MCerror <- x$values.MCerror[, selvals, drop = FALSE]
+        if(!is.null(x$values.MCaccuracy)){
+            x$values.MCaccuracy <- x$values.MCaccuracy[, selvals, drop = FALSE]
         }
         if(!is.null(x$quantiles)){
             x$quantiles <- x$quantiles[, selvals, , drop = FALSE]
         }
-        if(!is.null(x$quantiles.MCerror)){
-            x$quantiles.MCerror <- x$quantiles.MCerror[, selvals, , drop = FALSE]
+        if(!is.null(x$quantiles.MCaccuracy)){
+            x$quantiles.MCaccuracy <- x$quantiles.MCaccuracy[, selvals, , drop = FALSE]
         }
         if(!is.null(x$samples)){
             x$samples <- x$samples[, selvals, , drop = FALSE]

@@ -13,6 +13,7 @@ Pr(
   nsamples = "all",
   quantiles = c(0.055, 0.25, 0.75, 0.945),
   parallel = TRUE,
+  sep = ",",
   silent = FALSE,
   keepYX = TRUE
 )
@@ -35,12 +36,21 @@ the joint probability of. One variate per column, one set of values per row.}
 
 \item{parallel}{Logical or positive integer or cluster object. \code{TRUE} (default): use roughly half of available cores; \code{FALSE}: use serial computation; integer: use this many cores. It can also be a cluster object previously created with \code{\link[parallel:makeCluster]{parallel::makeCluster()}}; in this case the parallel computation will use this object.}
 
+\item{sep}{character, default \code{','}: character to separate variate names and values}
+
 \item{silent}{Logical, default \code{FALSE}: give warnings or updates in the computation?}
 
 \item{keepYX}{Logical, default \code{TRUE}: keep a copy of the \code{Y} and \code{X} arguments in the output? This is used for the plot method.}
 }
 \value{
-A list of class \code{probability}, consisting of the elements \code{values},  \code{quantiles} (possibly \code{NULL}), \code{samples} (possibly \code{NULL}), \code{values.MCaccuracy}, \code{quantiles.MCaccuracy} (possibly \code{NULL}), \code{Y}, \code{X}. Element \code{values}: a matrix with the probabilities P(Y|X,data,assumptions), for all combinations of values of \code{Y} (rows) and \code{X} (columns). Element \code{quantiles}: an array with the variability quantiles (3rd dimension of the array) for such probabilities. Element \code{samples}: an array with the variability samples (3rd dimension of the array) for such probabilities. Elements \code{values.MCaccuracy} and \code{quantiles.MCaccuracy}: arrays with the numerical accuracies (roughly speaking a standard deviation) of the Monte Carlo calculations for the \code{values} and \code{quantiles} elements. Elements \code{Y}, \code{X}: copies of the \code{Y} and \code{X} arguments.
+A list of class \code{probability}, consisting of the following elements:
+\itemize{
+\item \code{values}: a matrix with the probabilities P(Y|X,data), for all joint values of the Y-variates (rows) and X-variates (columns).
+\item \code{quantiles} (possibly \code{NULL}): an array with the variability quantiles (3rd dimension of the array) for such probabilities.
+\item \code{samples} (possibly \code{NULL}): an array with the variability samples (3rd dimension of the array) for such probabilities.
+\item \code{values.MCaccuracy}, \code{quantiles.MCaccuracy}: arrays with the numerical accuracies (roughly speaking a standard deviation) of the Monte Carlo calculations for the \code{values} and \code{quantiles} elements.
+\item \code{Y}, \code{X}: copies of the \code{Y} and \code{X} arguments.
+}
 }
 \description{
 This function calculates the posterior probability \code{Pr(Y | X, data)}, where \code{Y} and \code{X} are two (non overlapping) sets of joint variate values. If \code{X} is omitted or \code{NULL}, then the posterior probability \code{Pr(Y | data)} is calculated. The function also gives quantiles about the possible variability of the probability \code{Pr(Y | X, newdata, data)} that we could have if more learning data were provided, as well as a number of samples of the possible values of such probabilities. If several joint values are given for \code{Y} or \code{X}, the function will create a 2D grid of results for all possible compbinations of the given \code{Y} and \code{X} values. This function also allows for base-rate or other prior-probability corrections: If a prior (for instance, a base rate) for \code{Y} is given, the function will calculate the \code{Pr(Y | X, data, prior)} from \code{Pr(X | Y, data)} and the prior by means of Bayes's theorem. Each variate in each argument \code{Y}, \code{X} can be specified either as a point-value \code{Y = y} or as a left-open interval \code{Y <= y} or as a right-open interval \code{Y >= y}, through the argument \code{tails}.
@@ -187,7 +197,7 @@ D. J. C. MacKay: \emph{Information Theory, Inference, and Learning Algorithms}. 
 
 \code{\link[=hist.probability]{hist.probability()}} to plot histograms of the probability distributions calculated by \code{Pr()}.
 
-\code{\link[=subset.probability]{subset.probability()}} to subset some variate values in probabilities calculated by \code{Pr()}.
+\code{\link[=print.probability]{print.probability()}} to print the main elements of the probabilities calculated by \code{Pr()}.
 
 \code{\link[=qPr]{qPr()}} to calculate quantiles for a specific variate, that is, the variate values having given probabilities.
 

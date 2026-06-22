@@ -433,6 +433,8 @@ plotquantiles <- function(
 #'
 #' @param x Object of class "probability", obtained with [Pr()].
 #' @param variability One of the values `'quantiles'`, `'samples'`, `'none'` (equivalent to `NA` or `FALSE`), or `NULL` (default), in which case the variability available in `p` is used. This argument chooses how to represent the variability of the probability; see [Pr()]. If the requested variability is not available in the object `p`, then a warning is issued and no variability is plotted.
+#' @param subset Named list or named vector: which variate values to display. For the variates corresponding to the names in this list, only the vector of values corresponding to that variate is displayed.
+#'
 #' @param PvsY Logical or `NULL`: should probabilities be plotted against their `Y` argument? If `NULL`, the argument between `Y` and `X` having larger number of values is chosen. As many probability curves will be plotted as the number of values of the other argument.
 #' @param legend One of the values `'bottomright'`, `'bottom'`, `'bottomleft'`, `'left'`, `'topleft'`, `'top'`, `'topright'`, `'right'`, `'center'` (see [graphics::legend()]): plot a legend at that position. A value `FALSE` or any other does not plot any legend. Default `'top'`.
 #' @param alpha.f Numeric, default 0.25: opacity of the colours, `0` being completely invisible and `1` completely opaque.
@@ -470,6 +472,7 @@ plotquantiles <- function(
 plot.probability <- function(
     x,
     variability = NULL,
+    subset = NULL,
     PvsY = NULL,
     legend = 'top',
     lty = c(1, 2, 4, 3, 6, 5),
@@ -494,6 +497,12 @@ plot.probability <- function(
     add = FALSE,
     ...
 ){
+
+    ## Replace object x keeping only values given in 'subset'
+    if(!is.null(subset)){
+        x <- prsubset(x, subset = subset)
+    }
+
     ## Check how we should represent the variability
     ## The user can choose among three options
     ## provided that option is available in argument 'x'
@@ -526,11 +535,11 @@ plot.probability <- function(
     Ylen <- nrow(x$values)
     Xlen <- ncol(x$values)
 
-    ## We rename the variability object so as to avoid if-else below
+    ## Rename the variability object so as to avoid if-else below
     if(variability == 'quantiles'){
         mainpercentiles <- c(5.5, 94.5) # By default we choose an 89% band
         pvar <- x$quantiles
-        ## if we are only plotting more than one curve, just keep the 89% band
+        ## if we are plotting more than one curve, keep only the 89% band
         if(Xlen > 1 && Ylen > 1){
             qnames <- as.numeric(sub('%', '', dimnames(pvar)[[3]]))
             choosepercentiles <- sapply(mainpercentiles,
@@ -885,4 +894,59 @@ hist.probability <- function(
             ...)
     }
 
+}
+
+
+#' Print an object of class "probability"
+#'
+#' @description
+#' This [base::print()] method is a utility to display selected elements of a "probability" object obtained with [Pr()]; typically its posterior probabilies (element `$values`) and their variabilities (element `$quantiles`). If the `Y` or `X` variates are joint variates, this method also allow to display only selected values of them
+#'
+#' @param x Object of class "probability", obtained with [Pr()].
+#' @param elements character or integer vector, or `NULL` (default): elements of the "probability" object to display. The syntax is the same as [base::[]. If `NULL`, display elements `$values` and `$quantiles`.
+#' @param subset Named list or named vector: which variate values to display. For the variates corresponding to the names in this list, only the vector of values corresponding to that variate is displayed.
+#' @param ... Other parameters to be passed to [base::print()].
+#'
+#' @seealso
+#' [Pr()] to calculate posterior probabilities and quantiles.
+#'
+#' [plot.probability()] to plot probabilities and quantiles calculated by `Pr()'.
+#' [hist.probability()] to plot the variability of the probabilities as a distribution.
+#'
+#' @examples
+#' ## Load the example `learnt` object calculated from the "penguins" dataset;
+#' ## variates: 'species' and 'bill_len'
+#' learnt <- learntExample
+#'
+#' ## Calculate the 3 x 2 probabilities for the 3 species
+#' ## given bill-lengths of 43 mm and 44 mm
+#'
+#' Y <- data.frame(species = c('Adelie', 'Chinstrap', 'Gentoo'))
+#' X <- data.frame(bill_len = c(43, 44))
+#'
+#' probs <- Pr(Y = Y, X = X, learnt = learnt, parallel = 1)
+#'
+#' ## display the values and variabilities of these probabilities
+#' print(probs)
+#'
+#' ## diplay 'values' only, and only for the species value 'Gentoo'
+#' print(probs, elements = 'values', subset = list(species = 'Gentoo'))
+#'
+#' @export
+print.probability <- function(
+    x,
+    elements = NULL,
+    subset = NULL,
+    ...
+){
+    ## Replace object x keeping only values given in 'subset'
+    if(!is.null(subset)){
+        x <- prsubset(x, subset = subset)
+    }
+
+    if(is.null(elements)){
+        elements <- c('values', 'quantiles')
+    }
+
+    print(x[elements], ...)
 }
