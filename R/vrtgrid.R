@@ -16,7 +16,8 @@
 #' [plot.probability()] to plot probabilities and quantiles calculated by `Pr()`.
 #'
 #' @examples
-#' ## Load the example `learnt` object included in the package
+#' ## Load the example `learnt` object calculated from the "penguins" dataset;
+#' ## variates: 'species' and 'bill_len'
 #' learnt <- learntExample
 #'
 #' ## set of values for the variate "species";

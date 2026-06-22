@@ -41,7 +41,7 @@
 #' @returns A "learnt" object, or name of directory containing output files, or `NULL`, depending on argument `valueislearnt`.
 #'
 #' @seealso
-#' [metadatatemplate()] to help writing a metadata file.
+#' [metadatatemplate()] to help writing metadata files.
 #'
 #' [Pr()] to calculate probabilities, and [qPr()] to calculate quantiles, given the data processed by `learn()`.
 #'

@@ -345,7 +345,8 @@ flexiplot <- function(
 #' [flexiplot()] for more general plots.
 #'
 #' @examples
-#' ## Load the example `learnt` object included in the package
+#' ## Load the example `learnt` object calculated from the "penguins" dataset;
+#' ## variates: 'species' and 'bill_len'
 #' learnt <- learntExample
 #'
 #' ## create a grid of values for variate "bill length",
@@ -441,7 +442,8 @@ plotquantiles <- function(
 #' [plotquantiles()] to plot quantile ranges.
 #'
 #' @examples
-#' ## Load the example `learnt` object included in the package
+#' ## Load the example `learnt` object calculated from the "penguins" dataset;
+#' ## variates: 'species' and 'bill_len'
 #' learnt <- learntExample
 #'
 #' ## create a grid of values for variate "bill length",
@@ -715,7 +717,8 @@ plot.probability <- function(
 #' [plotquantiles()] to plot quantile ranges.
 #'
 #' @examples
-#' ## Load the example `learnt` object included in the package
+#' ## Load the example `learnt` object calculated from the "penguins" dataset;
+#' ## variates: 'species' and 'bill_len'
 #' learnt <- learntExample
 #'
 #' ## calculate the probability, and its variability,

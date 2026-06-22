@@ -4,31 +4,46 @@
 \alias{prova.data}
 \alias{pwrite.csv}
 \alias{pread.csv}
-\title{Write and read data in \strong{prova}}
+\title{Write and read CSV files in \strong{Prova}}
 \usage{
 pwrite.csv(x, file, ...)
 
 pread.csv(file, ...)
 }
 \arguments{
-\item{x}{The object to be written, preferably a matrix or data frame. If not, it is attempted to coerce \code{x} to a data frame. See \code{\link[utils:write.table]{utils::write.table()}}.}
+\item{x}{The object to be written. Preferably a matrix or data frame; if not, it is attempted to coerce \code{x} to a data frame. See \code{\link[utils:write.table]{utils::write.table()}}.}
 
 \item{file}{Either a character naming a file or a connection open for writing or reading. See \code{\link[utils:write.table]{utils::write.table()}} and \code{\link[utils:read.table]{utils::read.table()}}.}
 
-\item{...}{Other parameters to be passed to \code{\link[utils:write.table]{utils::write.table()}} or \code{\link[utils:read.table]{utils::read.table()}}.}
+\item{...}{Other arguments to be passed to \code{\link[utils:write.table]{utils::write.table()}} or \code{\link[utils:read.table]{utils::read.table()}}. Arguments 'row.names', 'quote', 'na', 'na.strings', 'tryLogical', 'sep', 'dec' are not allowed.}
 }
 \description{
-Utility functions to read and write CSV files in the format required by \strong{prova}
+Utility functions to read and write CSV files in the format required by \strong{Prova}
 }
 \details{
-The functions of the \strong{prova} package accept CSV files formatted as follows:
+The functions \code{\link[=learn]{learn()}} and \code{\link[=metadatatemplate]{metadatatemplate()}} accept CSV files formatted as follows:
 \itemize{
 \item Decimal values should be separated by a \emph{dot}; no comma should be used to separate thousands etc. Example: \code{86342.75} .
 \item Character and names should be quoted in single or double quotes. Example: \code{"female"}.
 \item Values should be separated by \emph{commas}, not by tabs or semicolons.
 \item Missing values should be simply \emph{empty}, not denoted by "NA", "missing", "-", or similar.
-\item Preferably there should not be \code{\link[base:factor]{base::factor}}s; use character names instead.
+\item Preferably there should not be factors (see \link[base:factor]{base::factor}); use character names instead.
 }
 
-The utility functions \code{pwrite.csv()} and \code{pread.csv()} are wrappers to \code{\link[utils:write.table]{utils::write.table()}} and \code{\link[utils:read.table]{utils::read.table()}} that set appropriate default parameters
+The utility functions \code{pwrite.csv()} and \code{pread.csv()} are wrappers to \code{\link[utils:write.table]{utils::write.table()}} and \code{\link[utils:read.table]{utils::read.table()}} that set appropriate default parameters according to the formatting rules above.
+}
+\examples{
+## Save the 'penguins' dataset in a (temporary) file
+filename <- tempfile(fileext = '.csv')
+
+pwrite.csv(penguins, file = filename)
+
+## check first few lines of the raw file
+writeLines(readLines(filename, n = 10))
+
+}
+\seealso{
+\code{\link[=metadatatemplate]{metadatatemplate()}} to help writing metadata files.
+
+\code{\link[=learn]{learn()}}, which needs a metadata data-frame or CSV file.
 }

@@ -43,7 +43,8 @@
 This \code{\link[base:plot]{base::plot()}} method is a utility to plot probabilities obtained with \code{\link[=Pr]{Pr()}}, as well as their variabilities. The probabilities are plotted either against \code{Y}, with one curve for each value of \code{X}, or vice versa.
 }
 \examples{
-## Load the example `learnt` object included in the package
+## Load the example `learnt` object calculated from the "penguins" dataset;
+## variates: 'species' and 'bill_len'
 learnt <- learntExample
 
 ## create a grid of values for variate "bill length",

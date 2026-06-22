@@ -47,7 +47,8 @@ The posterior probabilities calculated with the \code{\link[=Pr]{Pr()}} function
 The \code{hist()} method for a \code{probability} object is a utility to visualize this kind of variability, in the form of a distribution.
 }
 \examples{
-## Load the example `learnt` object included in the package
+## Load the example `learnt` object calculated from the "penguins" dataset;
+## variates: 'species' and 'bill_len'
 learnt <- learntExample
 
 ## calculate the probability, and its variability,

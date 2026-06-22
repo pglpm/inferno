@@ -51,7 +51,8 @@ A list of the elements \code{values},  \code{quantiles} (possibly \code{NULL}), 
 This function calculates the quantiles of \code{Pr(Y | X, data)} at specified cumulative-probability levels (that is, the values of \code{Y} having specified cumulative probabilities), as well as the variability of those quantiles if more learning data were provided. It is somewhat analogous to the \code{q}-variants of R distribution functions, such as \code{\link[stats:qnorm]{stats::qnorm()}}. The variability can be expressed in the form of quantiles, samples, or both, as in the \code{\link[=Pr]{Pr()}} function. If several joint values are given for the probability levels and for \code{X}, the function creates a 2D grid of results for all possible combinations of the given probability levels and \code{X} values. Each variate in the argument \code{X} can be specified either as a point-value \code{X = x} or as a left-open interval \verb{X ≤ x} or as a right-open interval \verb{X ≥ x}, through the argument \code{tails}.
 }
 \examples{
-## Load the example `learnt` object included in the package
+## Load the example `learnt` object calculated from the "penguins" dataset;
+## variates: 'species' and 'bill_len'
 learnt <- learntExample
 
 ## ## Example 1:

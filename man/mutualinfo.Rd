@@ -50,8 +50,7 @@ A list consisting of the following elements:
 This function calculates various entropic information measures of two variates (each variate may consist of joint variates): the mutual information, the conditional entropies, and the entropies.
 }
 \examples{
-## Load the example `learnt` object included in the package
-## calculated from the "penguins" dataset;
+## Load the example `learnt` object calculated from the "penguins" dataset;
 ## variates: 'species' and 'bill_len'
 learnt <- learntExample
 

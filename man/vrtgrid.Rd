@@ -20,7 +20,8 @@ A numeric or character vector of values.
 This function creates a set of values for a variate, based on the information from data and metadata stored in a \code{learnt} object, created by the \code{\link[=learn]{learn()}} function. The set of values depends on the type of variate (nominal or continuous, rounded, and so on, see \link{metadata}). The range of values is chosen to include, and extend slightly beyond, the range observed in the data used in the \code{\link[=learn]{learn()}} function. Variate domains are always respected.
 }
 \examples{
-## Load the example `learnt` object included in the package
+## Load the example `learnt` object calculated from the "penguins" dataset;
+## variates: 'species' and 'bill_len'
 learnt <- learntExample
 
 ## set of values for the variate "species";

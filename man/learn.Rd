@@ -126,7 +126,7 @@ str(learnt)
 
 }
 \seealso{
-\code{\link[=metadatatemplate]{metadatatemplate()}} to help writing a metadata file.
+\code{\link[=metadatatemplate]{metadatatemplate()}} to help writing metadata files.
 
 \code{\link[=Pr]{Pr()}} to calculate probabilities, and \code{\link[=qPr]{qPr()}} to calculate quantiles, given the data processed by \code{learn()}.
 

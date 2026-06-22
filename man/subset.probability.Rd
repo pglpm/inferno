@@ -18,7 +18,8 @@ A list of class \code{probability}, identical to the original object \code{x} ex
 An object of class \code{probability}, obtained with the \code{\link[=Pr]{Pr()}} function, holds the probabilities for all possible combinations of values of a set of joint variates \code{Y} conditional on a set of joint variates \code{X}, together with the variabilities of these probabilities and some other information. In some cases one may wish to exclude some of the values of the \code{Y} or \code{X} variates. For instance \code{Y} in the probability-class object could include the variate "age" with values from 18 to 100, and one may want to retain the values from 60 to 80.
 }
 \examples{
-## Load the example `learnt` object included in the package
+## Load the example `learnt` object calculated from the "penguins" dataset;
+## variates: 'species' and 'bill_len'
 learnt <- learntExample
 
 ## Calculate the probability object for the three values of variate 'species',
