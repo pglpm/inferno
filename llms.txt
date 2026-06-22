@@ -1,6 +1,6 @@
 # ***Prova***: Probabilistic-statistical variate analysis and inference with Bayesian nonparametrics
 
-*\[Looking for the R package “inferno”? you’ve come to the right place!
+*\[Looking for the R package “inferno”? you came to the right place!
 It’s been renamed “Prova”\]*
 
 ![Ensemble of
