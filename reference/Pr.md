@@ -29,7 +29,7 @@ Pr(
   priorY = NULL,
   nsamples = "all",
   quantiles = c(0.055, 0.25, 0.75, 0.945),
-  parallel = FALSE,
+  parallel = TRUE,
   silent = FALSE,
   keepYX = TRUE
 )
@@ -103,8 +103,8 @@ Pr(
 
 - parallel:
 
-  Logical or positive integer or cluster object. `TRUE`: use roughly
-  half of available cores; `FALSE` (default): use serial computation;
+  Logical or positive integer or cluster object. `TRUE` (default): use
+  roughly half of available cores; `FALSE`: use serial computation;
   integer: use this many cores. It can also be a cluster object
   previously created with
   [`parallel::makeCluster()`](https://rdrr.io/r/parallel/makeCluster.html);

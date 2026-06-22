@@ -13,7 +13,15 @@ right-open interval `X ≥ x`, through the argument `tails`.
 ## Usage
 
 ``` r
-rPr(n, Ynames, X = NULL, learnt, tails = NULL, mcsamples = NULL)
+rPr(
+  n,
+  Ynames,
+  X = NULL,
+  learnt,
+  tails = NULL,
+  mcsamples = NULL,
+  parallel = NULL
+)
 ```
 
 ## Arguments
@@ -94,8 +102,8 @@ datapoints <- rPr(
 
 c(datapoints)
 #> $species
-#>  [1] "Adelie"    "Adelie"    "Gentoo"    "Chinstrap" "Gentoo"    "Adelie"   
-#>  [7] "Chinstrap" "Chinstrap" "Gentoo"    "Gentoo"   
+#>  [1] "Gentoo"    "Gentoo"    "Gentoo"    "Gentoo"    "Gentoo"    "Chinstrap"
+#>  [7] "Gentoo"    "Adelie"    "Adelie"    "Adelie"   
 #> 
 
 
@@ -110,11 +118,11 @@ datapoints <- rPr(
 
 print(datapoints, row.names = FALSE) ## row names give MCMC information
 #>    species bill_len
-#>     Adelie     43.3
-#>     Adelie     38.1
-#>  Chinstrap     49.3
-#>     Adelie     38.6
-#>  Chinstrap     51.3
+#>     Adelie     36.0
+#>     Adelie     38.4
+#>     Adelie     35.8
+#>  Chinstrap     42.1
+#>  Chinstrap     48.6
 
 
 ## ## Example 3:

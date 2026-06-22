@@ -86,10 +86,10 @@ learn(
 
 - parallel:
 
-  Logical or positive integer or cluster object. `TRUE`: use roughly
-  half of available cores; `FALSE` (default): use serial computation;
-  integer: use this many cores. It can also be a cluster object
-  previously created with
+  Logical or positive integer or cluster object. `TRUE` (default): use
+  roughly half of available cores; `FALSE` (default): use serial
+  computation; integer: use this many cores. It can also be a cluster
+  object previously created with
   [`parallel::makeCluster()`](https://rdrr.io/r/parallel/makeCluster.html);
   in this case the parallel computation will use this object.
 
@@ -260,7 +260,7 @@ learnt <- learn(
 #> Learning from 5 datapoints, 1 variates.
 #> 
 #>  Saving output in directory
-#>  /tmp/Rtmpwz3NhE/prova-V1_D5_S10_260621T124015_1a7e1ece2dc3 
+#>  /tmp/RtmpuMGx7v/prova-V1_D5_S10_260622T065249_1a19e28cd10 
 #> 
 #> Starting Monte Carlo sampling of 10 samples by 1 chains
 #> in a space of 191 (effectively 261) dimensions.
@@ -286,18 +286,18 @@ learnt <- learn(
 #> quantile width: 0.127 to 3.7
 #> 
 #> Plotting final Monte Carlo traces and marginal samples...
-#> Total computation time: 36 secs
-#> Average preparation & finalization time: 35 secs.
-#> Average Monte Carlo time per chain: 0.57 secs.
+#> Total computation time: 33 secs
+#> Average preparation & finalization time: 32 secs.
+#> Average Monte Carlo time per chain: 0.68 secs.
 #> Max total memory used: approx 360MB.
 #> Max memory used per core: approx 360MB.
 #> Removing temporary output files.
 #> 
 #> Finished.
-#> **********************************************************
+#> *********************************************************
 #>  Output saved in directory
-#> /tmp/Rtmpwz3NhE/prova-V1_D5_S10_260621T124015_1a7e1ece2dc3
-#> **********************************************************
+#> /tmp/RtmpuMGx7v/prova-V1_D5_S10_260622T065249_1a19e28cd10
+#> *********************************************************
 #> Closing connections to cores.
 
 ## Check structure of `learnt` object:
