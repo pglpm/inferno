@@ -6,22 +6,22 @@
 \usage{
 mutualinfo(
   Y1names,
-  Y2names,
+  Y2names = NULL,
   X = NULL,
   learnt,
   tails = NULL,
   n = NULL,
   unit = "Sh",
-  parallel = NULL,
+  parallel = TRUE,
   silent = FALSE
 )
 }
 \arguments{
 \item{Y1names}{Character vector: first group of joint variates}
 
-\item{Y2names}{Character vector or NULL: second group of joint variates}
+\item{Y2names}{Character vector or \code{NULL}: second group of joint variates}
 
-\item{X}{Matrix or data.frame or NULL: values of some variates conditional on which we want the probabilities.}
+\item{X}{Matrix or data.frame or \code{NULL}: values of some variates conditional on which we want the probabilities.}
 
 \item{learnt}{Either a character with the name of a directory or full path
 for an 'learnt.rds' object, or such an object itself.}
@@ -32,13 +32,63 @@ for an 'learnt.rds' object, or such an object itself.}
 
 \item{unit}{Either one of 'Sh' for \emph{shannon} (default), 'Hart' for \emph{hartley}, 'nat' for \emph{natural unit}, or a positive real indicating the base of the logarithms to be used.}
 
-\item{parallel}{Logical or positive integer or cluster object. \code{TRUE}: use roughly half of available cores; \code{FALSE}: use serial computation; integer: use this many cores. It can also be a cluster object previously created with \code{\link[parallel:makeCluster]{parallel::makeCluster()}}; in this case the parallel computation will use this object.}
+\item{parallel}{Logical or positive integer or cluster object. \code{TRUE} (default): use roughly half of available cores; \code{FALSE}: use serial computation; integer: use this many cores. It can also be a cluster object previously created with \code{\link[parallel:makeCluster]{parallel::makeCluster()}}; in this case the parallel computation will use this object.}
 
 \item{silent}{Logical: give warnings or updates in the computation?}
 }
 \value{
-A list consisting of the elements \code{MI}, \code{CondEn12}, \code{CondEn21}, \code{En1}, \code{En2}, \code{MI.rGauss}, \code{unit}, \code{Y1names}, \code{Y1names}. All elements except \code{unit}, \code{Y1names}, \code{Y2names} are a vector of \code{value} and \code{accuracy}. Element \code{MI} is the mutual information between (joint) variates \code{Y1names} and (joint) variates \code{Y2names}. Element\code{CondEn12} is the conditional entropy of the first variate given the second, and vice versa for \code{CondEn21}. Elements \code{En1} and \code{En1} are the (differential) entropies of the first and second variates. Elements \code{unit}, \code{Y1names}, \code{Y2names} are identical to the same inputs. Element \code{MI.rGauss} is the absolute value of the Pearson correlation coefficient of a \emph{multivariate Gaussian distribution} having mutual information \code{MI} (the two are related by \code{MI = -log(1 - MI.rGauss^2)/2}); it may provide a vague intuition for the \code{MI} value for people more familiar with Pearson's correlation, but should be taken with a grain of salt.
+A list consisting of the following elements:
+\itemize{
+\item \code{MI}, a vector of \code{value} and \code{accuracy}: the mutual information between (joint) variates \code{Y1names} and (joint) variates \code{Y2names}.
+\item \code{CondEn12}, \code{CondEn21}, vectors of \code{value} and \code{accuracy}: the conditional entropy of the first variate given the second, and vice versa.
+\item \code{En1}, \code{En2}, vectors of \code{value} and \code{accuracy}: the (differential) entropies of the first and second variates.
+\item \code{MI.rGauss}, a vector of \code{value} and \code{accuracy}: the absolute value of the Pearson correlation coefficient of a \emph{multivariate Gaussian distribution} having mutual information \code{MI} (the two are related by \code{MI = -log(1 - MI.rGauss^2)/2}); it may provide a vague intuition for the \code{MI} value for people more familiar with Pearson's correlation, but should be taken with a grain of salt.
+\item \code{unit}, \code{Y1names}, \code{Y1names}: same as the input arguments, included for the user's convenience.
+}
 }
 \description{
 This function calculates various entropic information measures of two variates (each variate may consist of joint variates): the mutual information, the conditional entropies, and the entropies.
+}
+\examples{
+## Load the example `learnt` object included in the package
+## calculated from the "penguins" dataset;
+## variates: 'species' and 'bill_len'
+learnt <- learntExample
+
+## mutual information between variates 'species' and 'bill_len'
+MI <- mutualinfo(Y1names = 'species', Y2names = 'bill_len',
+  learnt = learnt, parallel = 1)
+
+paste0(MI$MI, ' ', MI$unit, collapse = ' +/- ')
+
+## Shannon entropy of variate 'species'
+paste0(MI$En1, ' ', MI$unit, collapse = ' +/- ')
+
+
+## Shannon entropy of variate 'species',
+## conditional on a bill length of 30 mm:
+entr <- mutualinfo(
+  Y1names = 'species',
+  X = data.frame(bill_len = 30),
+  learnt = learnt, parallel = 1
+)
+
+paste0(entr$En1, ' ', entr$unit, collapse = ' +/- ')
+
+## the entropy is now lower; indeed a penguin with a short bill length
+## is more probably of the 'Adelie' species:
+probs <- Pr(
+  Y = data.frame(species = c('Adelie', 'Gentoo', 'Chinstrap')),
+  X = data.frame(bill_len = 30),
+  learnt = learnt, parallel = 1
+)
+
+probs$values
+
+
+}
+\seealso{
+\code{\link[=Pr]{Pr()}} to calculate probabilities and their variability.
+
+\code{\link[=learn]{learn()}}, which generates the \code{learnt} objects required by \code{mutualinfo()}.
 }

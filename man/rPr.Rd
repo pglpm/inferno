@@ -4,7 +4,15 @@
 \alias{rPr}
 \title{Generate datapoints}
 \usage{
-rPr(n, Ynames, X = NULL, learnt, tails = NULL, mcsamples = NULL)
+rPr(
+  n,
+  Ynames,
+  X = NULL,
+  learnt,
+  tails = NULL,
+  mcsamples = NULL,
+  parallel = NULL
+)
 }
 \arguments{
 \item{n}{Positive integer: number of samples to draw.}

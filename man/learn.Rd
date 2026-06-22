@@ -53,7 +53,7 @@ learn(
 
 \item{nsamplesperchain}{Integer: number of Monte Carlo samples per chain.}
 
-\item{parallel}{Logical or positive integer or cluster object. \code{TRUE}: use roughly half of available cores; \code{FALSE} (default): use serial computation; integer: use this many cores. It can also be a cluster object previously created with \code{\link[parallel:makeCluster]{parallel::makeCluster()}}; in this case the parallel computation will use this object.}
+\item{parallel}{Logical or positive integer or cluster object. \code{TRUE} (default): use roughly half of available cores; \code{FALSE} (default): use serial computation; integer: use this many cores. It can also be a cluster object previously created with \code{\link[parallel:makeCluster]{parallel::makeCluster()}}; in this case the parallel computation will use this object.}
 
 \item{seed}{Integer: use this seed for the random number generator. If missing or \code{NULL} (default), do not set the seed.}
 
