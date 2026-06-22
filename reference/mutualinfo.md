@@ -140,7 +140,7 @@ paste0(entr$En1, ' ', entr$unit, collapse = ' +/- ')
 #> [1] "0.440800870784225 Sh +/- 0.081 Sh"
 
 ## the entropy is now lower; indeed a penguin with a short bill length
-## is more probably of the 'Adelie' species:
+## is most probably of the 'Adelie' species:
 probs <- Pr(
   Y = data.frame(species = c('Adelie', 'Gentoo', 'Chinstrap')),
   X = data.frame(bill_len = 30),
