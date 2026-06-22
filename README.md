@@ -1,4 +1,4 @@
-*[If you're looking for the package "inferno", you've come to the right place! It has been renamed "Prova"]*
+*[Looking for the R package "inferno"? you've come to the right place! It's been renamed "Prova"]*
 
 <img src="https://github.com/pglpm/prova/raw/main/development/manual/prova_symbol.png" alt="Ensemble of densities" width="100%"/>
 
