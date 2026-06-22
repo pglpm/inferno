@@ -1,7 +1,7 @@
 #' Plot one-dimensional posterior probabilities
 #'
 #' @param filename Character: name of plot output file
-#' @param learned Either a character with the name of a directory or full
+#' @param learnt Either a character with the name of a directory or full
 #'   path for an 'learnt.rds' object, or such an object itself
 #' @param data data.table object or filepath: datapoints
 #' @param plotprobability Logical: plot the resulting probability curve
@@ -19,6 +19,10 @@
 #' @param silent Logical: give warnings or updates in the computation
 #'
 #' @return A list with the mutual information, its error, and its unit
+#'
+#' @import grDevices
+#' @import graphics
+#' @import utils
 #'
 #' @keywords internal
 plotFsamples <- function(

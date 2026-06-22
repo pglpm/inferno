@@ -20,6 +20,9 @@ plotFsamples(
 \arguments{
 \item{filename}{Character: name of plot output file}
 
+\item{learnt}{Either a character with the name of a directory or full
+path for an 'learnt.rds' object, or such an object itself}
+
 \item{data}{data.table object or filepath: datapoints}
 
 \item{plotprobability}{Logical: plot the resulting probability curve}
@@ -41,9 +44,6 @@ the quantiles (in range 0 to 0.5) to show}
 workers, or how many to create and use}
 
 \item{silent}{Logical: give warnings or updates in the computation}
-
-\item{learned}{Either a character with the name of a directory or full
-path for an 'learnt.rds' object, or such an object itself}
 }
 \value{
 A list with the mutual information, its error, and its unit

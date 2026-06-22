@@ -3,6 +3,9 @@
 #' NB: the functional form of this function does not depend on
 #'   the number of components, minalpha, and maxalpha parameters
 #'
+#' @import grDevices
+#' @import graphics
+#' @import stats
 #' @keywords internal
 createQfunction <- function(
     nint = 3600,
@@ -13,7 +16,7 @@ createQfunction <- function(
     shapehi = 0.5,
     rate = 1,
     file = paste0('__Qfunction', nint, '_', sd),
-    save = TRUE, # save using usethis::use_data()
+#    save = TRUE, # save using usethis::use_data()
     plot = FALSE
 ) {
     ##
@@ -63,12 +66,15 @@ createQfunction <- function(
         ##
         nint <- 256
         xgrid <- seq(1 / nint, (nint - 1) / nint, length.out = nint - 1)
-        pdff(plot)
-        tplot(
+        pdf(file = paste0(sub('.pdf$', '', plot), '.pdf'),
+            paper = 'special',
+            height = floor(841 / sqrt(2)^(5)) / 25.4,
+            width = floor(841 / sqrt(2)^(5 - 1)) / 25.4)
+        flexiplot(
             x = xgrid, y = list(
                 util_Q(xgrid), qnorm(xgrid, sd = thismad / qnorm(3 / 4)), qcauchy(xgrid, scale = thismad) # ,qlogis(xgrid,scale=1/qlogis(3/4))
             ),
-            lwd = c(3, 2, 2, 5), lty = c(1, 2, 4, 3), alpha = c(1, rep(0.75, 3)),
+            lwd = c(3, 2, 2, 5), lty = c(1, 2, 4, 3), alpha.f = c(1, rep(0.75, 3)),
             ylim = range(util_Q(xgrid)),
             ## xticks=c(0,0.25,0.5,0.75,1),xlabels=c(0,expression(italic(m)/4),expression(italic(m)/2),expression(3*italic(m)/4),expression(italic(m))),
             xlab = expression(italic(x)), ylab = expression(italic(Q)(italic(x))),
@@ -78,10 +84,10 @@ createQfunction <- function(
         dev.off()
     }
 
-    if(save){
-        usethis::use_data(util_Q, util_invQ, util_invDQ,
-            internal = TRUE, overwrite = TRUE)
-    }
+    ## if(save){
+    ##     usethis::use_data(util_Q, util_invQ, util_invDQ,
+    ##         internal = TRUE, overwrite = TRUE)
+    ## }
 
     list(util_Q = util_Q, util_invQ = util_invQ, util_invDQ = util_invDQ)
 }

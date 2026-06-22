@@ -26,7 +26,7 @@ mutualinfo(
 \item{learnt}{Either a character with the name of a directory or full path
 for an 'learnt.rds' object, or such an object itself.}
 
-\item{tails}{Named vector or list, or \code{NULL} (default). The names must match some or all of the variates in arguments \code{X}. For variates in this list, the probability conditional is understood in an semi-open interval sense: \verb{X ≤ x} or \verb{X ≥ x}, an so on. See analogous argument in \code{\link[=Pr]{Pr()}}.}
+\item{tails}{Named vector or list, or \code{NULL} (default). The names must match some or all of the variates in arguments \code{X}. For variates in this list, the probability conditional is understood in an semi-open interval sense: \code{X <= x} or \code{X >= x}, an so on. See analogous argument in \code{\link[=Pr]{Pr()}}.}
 
 \item{n}{Integer or \code{NULL} (default): number of samples from which to approximately calculate the mutual information. Default as many as Monte Carlo samples in \code{learnt}.}
 

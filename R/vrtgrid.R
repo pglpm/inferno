@@ -45,7 +45,9 @@
 #'
 #' ## plot the conditional probability distributions, and their variability
 #' plot(probs)
-#' 
+#'
+#' @import utils
+#'
 #' @export
 vrtgrid <- function(
     vrt,

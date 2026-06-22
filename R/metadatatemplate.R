@@ -66,7 +66,9 @@
 #' ## Create a preliminary data frame of metadata for the `penguins` dataset
 #' metadata <- metadatatemplate(data = datasets::penguins, file = NULL)
 #'
-#' ## Note how the preliminary data frame includes additional spots for values of nominal and ordinal variates which could be missing from the data
+#' ## Note how the preliminary data frame includes additional spots
+#' ## for values of nominal and ordinal variates
+#' ## which could be missing from the data
 #' print(metadata)
 #'
 #'
@@ -92,11 +94,15 @@
 #' ## Generate 10 points for a continuous variate in (0, 1)
 #' dataset <- runif(10)
 #'
-#' ## `metadatatemplate` correctly guesses the variate minimum, but not the maximum (`NA` is equivalent to `+Inf`)
+#' ## `metadatatemplate` correctly guesses the variate minimum,
+#' ## but not the maximum (`NA` is equivalent to `+Inf`)
 #' metadata <- metadatatemplate(data = dataset, file = NULL)
 #' print(metadata)
 #'
 #' @aliases metadata metadatatemplate
+#'
+#' @import stats
+#' @import utils
 #'
 #' @export
 metadatatemplate <- function(
@@ -629,7 +635,7 @@ metadatatemplate <- function(
             }
         }
         ## Save the file
-        write.csv(metadata, file, row.names = FALSE, quote = TRUE, na = '')
+        pwrite.csv(metadata, file)
         cat('\nSaved proposal metadata file as', paste0('"', file, '"'), '\n')
 
     } else {

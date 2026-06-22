@@ -23,7 +23,7 @@ Utility functions to read and write CSV files in the format required by \strong{
 \details{
 The functions \code{\link[=learn]{learn()}} and \code{\link[=metadatatemplate]{metadatatemplate()}} accept CSV files formatted as follows:
 \itemize{
-\item Decimal values should be separated by a \emph{dot}; no comma should be used to separate thousands etc. Example: \code{86342.75} .
+\item Decimal values should be separated by a \emph{dot}; no comma should be used to separate thousands etc. Example: \code{86342.75}.
 \item Character and names should be quoted in single or double quotes. Example: \code{"female"}.
 \item Values should be separated by \emph{commas}, not by tabs or semicolons.
 \item Missing values should be simply \emph{empty}, not denoted by "NA", "missing", "-", or similar.

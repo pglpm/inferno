@@ -8,6 +8,7 @@
 #' @param tscalefactor Positive number: scaling factor for variate conversion
 #'
 #' @return an auxmetadata data.frame object
+#' @import stats
 #' @keywords internal
 buildauxmetadata <- function(data, metadata, Dthreshold = 1, tscalefactor = 4.266) {
 

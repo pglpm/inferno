@@ -13,7 +13,7 @@
 #' @details
 #' The functions [learn()] and [metadatatemplate()] accept CSV files formatted as follows:
 #'
-#' - Decimal values should be separated by a *dot*; no comma should be used to separate thousands etc. Example: `86342.75` .
+#' - Decimal values should be separated by a *dot*; no comma should be used to separate thousands etc. Example: `86342.75`.
 #' - Character and names should be quoted in single or double quotes. Example: `"female"`.
 #' - Values should be separated by *commas*, not by tabs or semicolons.
 #' - Missing values should be simply *empty*, not denoted by "NA", "missing", "-", or similar.
@@ -38,6 +38,9 @@
 NULL
 
 #' @rdname prova.data
+#'
+#' @import utils
+#'
 #' @export
 pwrite.csv <- function(x, file, ...){
     write.csv(x = x, file = file,
@@ -50,6 +53,9 @@ pwrite.csv <- function(x, file, ...){
 }
 
 #' @rdname prova.data
+#'
+#' @import utils
+#'
 #' @export
 pread.csv <- function(file, ...){
     read.csv(file = file,

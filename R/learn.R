@@ -69,7 +69,11 @@
 #' ## Check structure of `learnt` object:
 #' str(learnt)
 #'
+#' @import grDevices
+#' @import graphics
 #' @import parallel
+#' @import stats
+#' @import utils
 #'
 #' @export
 ## #' @rawNamespace import(nimble, except = rcat)
@@ -1391,6 +1395,11 @@ learn <- function(
 #' Worker function called by learn()
 #'
 #' This worker function is defined outside of learn.R in order to avoid import of spurious objects into the parallel workers, with waste of memory
+#'
+#' @import grDevices
+#' @import graphics
+#' @import stats
+#' @import utils
 #'
 #' @keywords internal
 workerfun <- function(

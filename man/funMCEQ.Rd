@@ -9,9 +9,9 @@ funMCEQ(x, prob = c(0.055, 0.945), Qpair = pnorm(c(-1, 1)))
 \arguments{
 \item{x}{A vector of MC samples}
 
-\item{prob:}{Quantile whose error intervalis being estimated}
+\item{prob}{Quantile whose error intervalis being estimated}
 
-\item{Qpair:}{Lower and higher credibility-quantiles requested}
+\item{Qpair}{Lower and higher credibility-quantiles requested}
 }
 \value{
 Estimates lower and higher credibility-quantiles on estimated quantile

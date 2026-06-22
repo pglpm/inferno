@@ -7,7 +7,7 @@
 #' @param X Matrix or data.frame or `NULL`: values of some variates conditional on which we want the probabilities.
 #' @param learnt Either a character with the name of a directory or full path
 #'   for an 'learnt.rds' object, or such an object itself.
-#' @param tails Named vector or list, or `NULL` (default). The names must match some or all of the variates in arguments `X`. For variates in this list, the probability conditional is understood in an semi-open interval sense: `X ≤ x` or `X ≥ x`, an so on. See analogous argument in [Pr()].
+#' @param tails Named vector or list, or `NULL` (default). The names must match some or all of the variates in arguments `X`. For variates in this list, the probability conditional is understood in an semi-open interval sense: `X <= x` or `X >= x`, an so on. See analogous argument in [Pr()].
 #' @param n Integer or `NULL` (default): number of samples from which to approximately calculate the mutual information. Default as many as Monte Carlo samples in `learnt`.
 #' @param unit Either one of 'Sh' for *shannon* (default), 'Hart' for *hartley*, 'nat' for *natural unit*, or a positive real indicating the base of the logarithms to be used.
 #' @param parallel Logical or positive integer or cluster object. `TRUE` (default): use roughly half of available cores; `FALSE`: use serial computation; integer: use this many cores. It can also be a cluster object previously created with [parallel::makeCluster()]; in this case the parallel computation will use this object.
@@ -65,6 +65,8 @@
 #' @importFrom extraDistr rcat
 #' @importFrom extraDistr rbern
 #' @import parallel
+#' @import stats
+#' @import utils
 #'
 #' @export
 mutualinfo <- function(

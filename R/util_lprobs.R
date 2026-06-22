@@ -490,6 +490,8 @@ util_lprobsbase <- function(
 
 #' Calculate probabilities, quantiles, etc, for all Y and X combinations
 #'
+#' @import stats
+#'
 #' @keywords internal
 util_combineYX <- function(
     iyx,
@@ -609,6 +611,8 @@ util_lprobsmi <- function(xVs, params1, params2, lWnorm, lW) {
 
 
 #' Calculate quantiles for continuous Y by bisection
+#'
+#' @import stats
 #'
 #' @keywords internal
 util_qYXcont <- function(
@@ -733,6 +737,8 @@ util_qYXcont <- function(
 
 
 #' Calculate quantiles for discrete Y by bisection
+#'
+#' @import stats
 #'
 #' @keywords internal
 util_qYXdiscr <- function(
