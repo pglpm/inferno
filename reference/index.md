@@ -39,7 +39,7 @@
   [`pread.csv()`](https://pglpm.github.io/prova/reference/prova.data.md)
   :
 
-  Write and read data in **prova**
+  Write and read CSV files in **Prova**
 
 - [`qPr()`](https://pglpm.github.io/prova/reference/qPr.md) : Calculate
   quantiles

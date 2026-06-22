@@ -95,7 +95,8 @@ to plot quantile ranges.
 ## Examples
 
 ``` r
-## Load the example `learnt` object included in the package
+## Load the example `learnt` object calculated from the "penguins" dataset;
+## variates: 'species' and 'bill_len'
 learnt <- learntExample
 
 ## create a grid of values for variate "bill length",

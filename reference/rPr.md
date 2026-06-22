@@ -87,7 +87,8 @@ quantiles.
 ## Examples
 
 ``` r
-## Load the example `learnt` object included in the package
+## Load the example `learnt` object calculated from the "penguins" dataset;
+## variates: 'species' and 'bill_len'
 learnt <- learntExample
 
 ## ## Example 1:

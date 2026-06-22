@@ -52,7 +52,8 @@ to plot histograms of the probability distributions calculated by
 ## Examples
 
 ``` r
-## Load the example `learnt` object included in the package
+## Load the example `learnt` object calculated from the "penguins" dataset;
+## variates: 'species' and 'bill_len'
 learnt <- learntExample
 
 ## Calculate the probability object for the three values of variate 'species',

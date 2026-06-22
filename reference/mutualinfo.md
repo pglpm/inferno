@@ -108,8 +108,7 @@ generates the `learnt` objects required by `mutualinfo()`.
 ## Examples
 
 ``` r
-## Load the example `learnt` object included in the package
-## calculated from the "penguins" dataset;
+## Load the example `learnt` object calculated from the "penguins" dataset;
 ## variates: 'species' and 'bill_len'
 learnt <- learntExample
 

@@ -220,7 +220,7 @@ for an introductory example.
 ## See also
 
 [`metadatatemplate()`](https://pglpm.github.io/prova/reference/metadatatemplate.md)
-to help writing a metadata file.
+to help writing metadata files.
 
 [`Pr()`](https://pglpm.github.io/prova/reference/Pr.md) to calculate
 probabilities, and
@@ -260,7 +260,7 @@ learnt <- learn(
 #> Learning from 5 datapoints, 1 variates.
 #> 
 #>  Saving output in directory
-#>  /tmp/RtmpuMGx7v/prova-V1_D5_S10_260622T065249_1a19e28cd10 
+#>  /tmp/RtmpwVP4wB/prova-V1_D5_S10_260622T072715_1a3231c15594 
 #> 
 #> Starting Monte Carlo sampling of 10 samples by 1 chains
 #> in a space of 191 (effectively 261) dimensions.
@@ -286,18 +286,18 @@ learnt <- learn(
 #> quantile width: 0.127 to 3.7
 #> 
 #> Plotting final Monte Carlo traces and marginal samples...
-#> Total computation time: 33 secs
-#> Average preparation & finalization time: 32 secs.
-#> Average Monte Carlo time per chain: 0.68 secs.
+#> Total computation time: 34 secs
+#> Average preparation & finalization time: 33 secs.
+#> Average Monte Carlo time per chain: 0.55 secs.
 #> Max total memory used: approx 360MB.
 #> Max memory used per core: approx 360MB.
 #> Removing temporary output files.
 #> 
 #> Finished.
-#> *********************************************************
+#> **********************************************************
 #>  Output saved in directory
-#> /tmp/RtmpuMGx7v/prova-V1_D5_S10_260622T065249_1a19e28cd10
-#> *********************************************************
+#> /tmp/RtmpwVP4wB/prova-V1_D5_S10_260622T072715_1a3231c15594
+#> **********************************************************
 #> Closing connections to cores.
 
 ## Check structure of `learnt` object:
