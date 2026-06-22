@@ -21,13 +21,13 @@ Source:
 
 Porta Mana P, Grefsrud A, Mydland H, Ohvrill M, Hesthamar Hauge S
 (2026). *prova: Probabilistic-statistical variate analysis and inference
-with Bayesian nonparametrics*. R package version 0.6.0,
+with Bayesian nonparametrics*. R package version 0.6.5,
 <https://pglpm.github.io/inferno/>.
 
     @Manual{,
       title = {prova: Probabilistic-statistical variate analysis and inference with Bayesian nonparametrics},
       author = {PierGianLuca {Porta Mana} and Aurora Grefsrud and Håkon Mydland and Maksim Ohvrill and Simen {Hesthamar Hauge}},
       year = {2026},
-      note = {R package version 0.6.0},
+      note = {R package version 0.6.5},
       url = {https://pglpm.github.io/inferno/},
     }
