@@ -512,6 +512,7 @@ Pr <- function(
             Xvrts <- paste0(colnames(X), collapse=sep)
         } else {
             Xnames <- NULL
+            Xvrts <- NULL
         }
         dimnames(out$values.MCaccuracy) <-
             dimnames(out$values) <- list(Y = Ynames, X = Xnames)
@@ -536,6 +537,7 @@ Pr <- function(
             Xvrts <- paste0(colnames(Y), collapse=sep)
         } else {
             Xnames <- NULL
+            Xvrts <- NULL
         }
         dimnames(out$values) <- list(Y = Ynames, X = Xnames)
         names(dimnames(out$values)) <- c(Yvrts, Xvrts)
