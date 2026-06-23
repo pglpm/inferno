@@ -2,15 +2,17 @@
 #'
 #' This function calculates the quantiles of `Pr(Y | X, data)` at specified cumulative-probability levels (that is, the values of `Y` having specified cumulative probabilities), as well as the variability of those quantiles if more learning data were provided. It is somewhat analogous to the `q`-variants of R distribution functions, such as [stats::qnorm()]. The variability can be expressed in the form of quantiles, samples, or both, as in the [Pr()] function. If several joint values are given for the probability levels and for `X`, the function creates a 2D grid of results for all possible combinations of the given probability levels and `X` values. Each variate in the argument `X` can be specified either as a point-value `X = x` or as a left-open interval `X <= x` or as a right-open interval `X >= x`, through the argument `tails`.
 #'
-#' @param p Numeric vector of probability levels. Default: `c(0.055, 0.5, 0.945)`.
+#' @param p Numeric vector of probability levels. Default: `c(0.25, 0.5, 0.75)`.
 #' @param Yname Character vector: name of variate whose quantiles will be computed.
 #' @param X Matrix or data.table or `NULL` (default): set of values of variates on which we want to condition. If `NULL`, no conditioning is made (except for conditioning on the learning dataset and prior assumptions). One variate per column, one set of values per row.
 #' @param learnt Either a character with the name of a directory or full path for a 'learnt.rds' object, produced by the [learn()] function, or such an object itself.
 #' @param tails Named vector or list, or `NULL` (default). The names must match some or all of the variates in arguments `X`. For variates in this list, the probability conditional is understood in an semi-open interval sense: `X <= x` or `X >= x`, an so on. See analogous argument in [Pr()].
-#' @param priorY Numeric vector with the same length as the rows of `Y`, or `TRUE`, or `NULL` (default): prior probabilities or base rates for the `Y` values. If `TRUE`, the prior probabilities are assumed to be all equal. For the moment only the value `NULL` is accepted.
+#' @param priorY Reserved for use in future versions of the package.
+## #' @param priorY Numeric vector with the same length as the rows of `Y`, or `TRUE`, or `NULL` (default): prior probabilities or base rates for the `Y` values. If `TRUE`, the prior probabilities are assumed to be all equal. For the moment only the value `NULL` is accepted.
 #' @param nsamples Integer or `NULL` or `'all'` (default): desired number of samples of the variability of the quantile for `Y`. If `NULL`, no samples are reported. If `'all'` (or `Inf`), all samples obtained by the [learn()] function are used.
 #' @param quantiles Numeric vector, between 0 and 1, or `NULL`: desired quantiles of the variability of the quantile for `Y`. Default `c(0.055, 0.25, 0.75, 0.945)`, that is, the 5.5%, 25%, 75%, 94.5% quantiles (these are typical quantile values in the Bayesian literature: they give 50% and 89% credibility intervals, which correspond to 1 shannons and 0.5 shannons of uncertainty). If `NULL`, no quantiles are calculated.
 #' @param parallel Logical or positive integer or cluster object. `TRUE` (default): use roughly half of available cores; `FALSE`: use serial computation; integer: use this many cores. It can also be a cluster object previously created with [parallel::makeCluster()]; in this case the parallel computation will use this object.
+#' @param sep character, default `','`: character to separate variate names and values
 #' @param silent Logical, default `FALSE`: give warnings or updates in the computation?
 #' @param keepYX Logical, default `TRUE`: keep a copy of the `Y` and `X` arguments in the output? This is used for the plot method.
 #' @param tol numeric positive: tolerance in the calculation of quantiles. Default: `.Machine$double.eps * 10` (typically `2.22045e-15`).
@@ -88,7 +90,7 @@
 #'
 #' @export
 qPr <- function(
-    p = c(0.055, 0.5, 0.945),
+    p = c(0.25, 0.5, 0.75),
     Yname,
     X = NULL,
     learnt,
@@ -97,6 +99,7 @@ qPr <- function(
     nsamples = 'all',
     quantiles = c(0.055, 0.5, 0.945),
     parallel = TRUE,
+    sep = ',',
     silent = FALSE,
     keepYX = TRUE,
     tol = .Machine$double.eps * 10
@@ -408,20 +411,35 @@ qPr <- function(
 
     ## transform to grid
     ## in the output-list elements the Y & X values are the rows
-    ## dim(out$values.MCaccuracy) <- dim(out$values) <- c(nY, nX)
+    ## dim(out$values.MCaccuracy) <-
+    dim(out$values) <- c(nY, nX)
+
+    ## dimension & value names for variates
+    if(!is.null(X)){
+        Xnames <- setNames(object = list(
+            apply(X = X, MARGIN = 1, FUN = paste0, collapse = sep,
+                simplify = TRUE)),
+            nm = paste0(colnames(X), collapse = sep)
+        )
+    } else {
+        Xnames <- list(NULL)
+    }
+    if(!is.null(Yname)){
+        Ynames <- setNames(object = list(p), nm = Yname)
+        ## Ynames <- setNames(object = list(
+        ##     apply(X = Y, MARGIN = 1, FUN = paste0, collapse = sep,
+        ##         simplify = TRUE)),
+        ##     nm = paste0(colnames(Y), collapse = sep)
+        ## )
+    } else {
+        Ynames <- list(NULL)
+    }
+
     if(is.null(priorY)){
 
-        ## if(ncol(Y) == 1){Ynames <- Y[, 1]} else {Ynames <- NULL}
-        Ynames <- setNames(object = list(p), nm = Yname)
+        dimnames(out$values) <- c(Ynames, Xnames)
+        ## dimnames(out$values.MCaccuracy) <- c(Ynames, Xnames)
 
-        if(!is.null(X)){
-            Xnames <- apply(X = X, MARGIN = 1, FUN = paste0, collapse=',',
-                simplify = TRUE)
-        } else {
-            Xnames <- NULL
-        }
-        dimnames(out$values) <- c(Ynames, list(X = Xnames))
-        ## dimnames(out$values.MCaccuracy) <- dimnames(out$values)
     } else {
         ## Bayes's theorem
         out$values <- t(priorY * t(out$values))
@@ -429,26 +447,19 @@ qPr <- function(
         normf <- rowSums(out$values, na.rm = TRUE)
         out$values <- t(out$values/normf)
 
-        ## if(ncol(X) == 1){Ynames <- X[, 1]} else {Ynames <- NULL}
-        Ynames <- apply(X = X, MARGIN = 1, FUN = paste0, collapse=',',
-            simplify = TRUE)
-
-        if(!is.null(Y)){
-            Xnames <- apply(X = Y, MARGIN = 1, FUN = paste0, collapse=',',
-                simplify = TRUE)
-        } else {
-            Xnames <- NULL
-        }
-        dimnames(out$values) <- c(Ynames, list(X = Xnames))
+        dimnames(out$values) <- c(Xnames, Ynames)
     }
 
     if(dosamples){
+        temp <- list(sample = round(seq(1, nmcsamples, length.out = nsamples)))
+
         ## transform to grid
         dim(out$samples) <- c(nY, nX, nsamples)
 
         if(is.null(priorY)){
             ## multiply by jacobian factors
             ## out$samples <- out$samples * jacobians
+            dimnames(out$samples) <- c(Ynames, Xnames, temp)
         } else {
             ## Bayes's theorem
             out$samples <- priorY * aperm(a = out$samples, perm = c(2, 1, 3),
@@ -457,13 +468,14 @@ qPr <- function(
             out$samples <- aperm(a = aperm(a = out$samples, perm = NULL,
                 resize = TRUE) / normf, perm = NULL,
                 resize = TRUE)
+
+            dimnames(out$samples) <- c(Xnames, Ynames, temp)
         }
 
-        dimnames(out$samples) <- c(Ynames, list(X = Xnames,
-            round(seq(1, nmcsamples, length.out = nsamples))))
     }
 
     if(doquantiles){
+        temp <- list(Q = names(quantile(x = 1, probs = quantiles, names = TRUE)))
         if(is.null(priorY)){
             ## transform to grid
             dim(out$quantiles) <- c(nY, nX, length(quantiles))
@@ -472,6 +484,9 @@ qPr <- function(
             ## out$quantiles <- out$quantiles * jacobians
             ## out$quantiles.MCaccuracy <- signif(x = out$quantiles.MCaccuracy * jacobians,
             ##     digits = 2)
+
+            dimnames(out$quantiles) <- c(Ynames, Xnames, temp)
+            ## dimnames(out$quantiles.MCaccuracy) <- c(Ynames, Xnames, temp)
         } else {
             ## calculate quantiles from samples
             out$quantiles <- aperm(
@@ -488,11 +503,10 @@ qPr <- function(
                 out$samples <-out$samples[ , ,
                     round(seq(1, nsamples, length.out = nsamples0))]
             }
-        }
 
-        temp <- names(quantile(x = 1, probs = quantiles, names = TRUE))
-        dimnames(out$quantiles) <- c(Ynames, list(X = Xnames, temp))
-        ## dimnames(out$quantiles.MCaccuracy) <- dimnames(out$quantiles)
+            dimnames(out$quantiles) <- c(Xnames, Ynames, temp)
+            ## dimnames(out$quantiles.MCaccuracy) <- c(Xnames, Ynames, temp)
+        }
     }
 
     if(isTRUE(keepYX)){

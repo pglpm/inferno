@@ -496,28 +496,34 @@ Pr <- function(
     ## in the output-list elements the Y & X values are the rows
     dim(out$values.MCaccuracy) <- dim(out$values) <- c(nY, nX)
 
+    ## dimension & value names for variates
+    if(!is.null(X)){
+        Xnames <- setNames(object = list(
+            apply(X = X, MARGIN = 1, FUN = paste0, collapse = sep,
+                simplify = TRUE)),
+            nm = paste0(colnames(X), collapse = sep)
+        )
+    } else {
+        Xnames <- list(NULL)
+    }
+    if(!is.null(Y)){
+        Ynames <- setNames(object = list(
+            apply(X = Y, MARGIN = 1, FUN = paste0, collapse = sep,
+                simplify = TRUE)),
+            nm = paste0(colnames(Y), collapse = sep)
+        )
+    } else {
+        Ynames <- list(NULL)
+    }
+
     if(is.null(priorY)){
         ## multiply by jacobian factors
         out$values <- out$values * jacobians
-        out$values.MCaccuracy <- signif(x = out$values.MCaccuracy * jacobians, digits = 2)
+        out$values.MCaccuracy <- signif(x = out$values.MCaccuracy * jacobians,
+            digits = 2)
 
-        ## if(ncol(Y) == 1){Ynames <- Y[, 1]} else {Ynames <- NULL}
-        Ynames <- apply(X = Y, MARGIN = 1, FUN = paste0, collapse=sep,
-            simplify = TRUE)
-        Yvrts <- paste0(colnames(Y), collapse=sep)
-
-        if(!is.null(X)){
-            Xnames <- apply(X = X, MARGIN = 1, FUN = paste0, collapse=sep,
-                simplify = TRUE)
-            Xvrts <- paste0(colnames(X), collapse=sep)
-        } else {
-            Xnames <- NULL
-            Xvrts <- NULL
-        }
-        dimnames(out$values.MCaccuracy) <-
-            dimnames(out$values) <- list(Y = Ynames, X = Xnames)
-        names(dimnames(out$values.MCaccuracy)) <-
-            names(dimnames(out$values)) <- c(Yvrts, Xvrts)
+        dimnames(out$values) <- c(Ynames, Xnames)
+        dimnames(out$values.MCaccuracy) <- c(Ynames, Xnames)
 
     } else {
         ## Bayes's theorem
@@ -526,30 +532,21 @@ Pr <- function(
         normf <- rowSums(out$values, na.rm = TRUE)
         out$values <- t(out$values/normf)
 
-        ## if(ncol(X) == 1){Ynames <- X[, 1]} else {Ynames <- NULL}
-        Ynames <- apply(X = X, MARGIN = 1, FUN = paste0, collapse=sep,
-            simplify = TRUE)
-        Yvrts <- paste0(colnames(X), collapse=sep)
-
-        if(!is.null(Y)){
-            Xnames <- apply(X = Y, MARGIN = 1, FUN = paste0, collapse=sep,
-                simplify = TRUE)
-            Xvrts <- paste0(colnames(Y), collapse=sep)
-        } else {
-            Xnames <- NULL
-            Xvrts <- NULL
-        }
-        dimnames(out$values) <- list(Y = Ynames, X = Xnames)
-        names(dimnames(out$values)) <- c(Yvrts, Xvrts)
+        dimnames(out$values) <- c(Xnames, Ynames)
     }
 
     if(dosamples){
+        temp <- list(sample = round(seq(1, nmcsamples, length.out = nsamples)))
+
         ## transform to grid
         dim(out$samples) <- c(nY, nX, nsamples)
 
         if(is.null(priorY)){
             ## multiply by jacobian factors
             out$samples <- out$samples * jacobians
+
+            dimnames(out$samples) <- c(Ynames, Xnames, temp)
+
         } else {
             ## Bayes's theorem
             out$samples <- priorY * aperm(a = out$samples, perm = c(2, 1, 3),
@@ -558,14 +555,13 @@ Pr <- function(
             out$samples <- aperm(a = aperm(a = out$samples, perm = NULL,
                 resize = TRUE) / normf, perm = NULL,
                 resize = TRUE)
-        }
 
-        dimnames(out$samples) <- list(Y = Ynames, X = Xnames,
-            round(seq(1, nmcsamples, length.out = nsamples)))
-        names(dimnames(out$samples)) <- c(Yvrts, Xvrts, 'sample')
+            dimnames(out$samples) <- c(Xnames, Ynames, temp)
+        }
     }
 
     if(doquantiles){
+        temp <- list(Q = names(quantile(x = 1, probs = quantiles, names = TRUE)))
         if(is.null(priorY)){
             ## transform to grid
             dim(out$quantiles) <- c(nY, nX, length(quantiles))
@@ -574,6 +570,10 @@ Pr <- function(
             out$quantiles <- out$quantiles * jacobians
             out$quantiles.MCaccuracy <- signif(x = out$quantiles.MCaccuracy * jacobians,
                 digits = 2)
+
+            dimnames(out$quantiles) <- c(Ynames, Xnames, temp)
+            dimnames(out$quantiles.MCaccuracy) <- c(Ynames, Xnames, temp)
+
         } else {
             ## calculate quantiles from samples
             out$quantiles <- aperm(
@@ -590,13 +590,11 @@ Pr <- function(
                 out$samples <-out$samples[ , ,
                     round(seq(1, nsamples, length.out = nsamples0))]
             }
+
+            dimnames(out$quantiles) <- c(Xnames, Ynames, temp)
+            dimnames(out$quantiles.MCaccuracy) <- c(Xnames, Ynames, temp)
         }
 
-        temp <- names(quantile(x = 1, probs = quantiles, names = TRUE))
-        dimnames(out$quantiles) <-
-        dimnames(out$quantiles.MCaccuracy) <- list(Y = Ynames, X = Xnames, temp)
-        names(dimnames(out$quantiles)) <-
-        names(dimnames(out$quantiles.MCaccuracy)) <-  c(Yvrts, Xvrts, 'Q')
     }
 
     if(isTRUE(keepYX)){

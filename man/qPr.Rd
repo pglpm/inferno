@@ -5,7 +5,7 @@
 \title{Calculate quantiles}
 \usage{
 qPr(
-  p = c(0.055, 0.5, 0.945),
+  p = c(0.25, 0.5, 0.75),
   Yname,
   X = NULL,
   learnt,
@@ -14,13 +14,14 @@ qPr(
   nsamples = "all",
   quantiles = c(0.055, 0.5, 0.945),
   parallel = TRUE,
+  sep = ",",
   silent = FALSE,
   keepYX = TRUE,
   tol = .Machine$double.eps * 10
 )
 }
 \arguments{
-\item{p}{Numeric vector of probability levels. Default: \code{c(0.055, 0.5, 0.945)}.}
+\item{p}{Numeric vector of probability levels. Default: \code{c(0.25, 0.5, 0.75)}.}
 
 \item{Yname}{Character vector: name of variate whose quantiles will be computed.}
 
@@ -30,13 +31,15 @@ qPr(
 
 \item{tails}{Named vector or list, or \code{NULL} (default). The names must match some or all of the variates in arguments \code{X}. For variates in this list, the probability conditional is understood in an semi-open interval sense: \code{X <= x} or \code{X >= x}, an so on. See analogous argument in \code{\link[=Pr]{Pr()}}.}
 
-\item{priorY}{Numeric vector with the same length as the rows of \code{Y}, or \code{TRUE}, or \code{NULL} (default): prior probabilities or base rates for the \code{Y} values. If \code{TRUE}, the prior probabilities are assumed to be all equal. For the moment only the value \code{NULL} is accepted.}
+\item{priorY}{Reserved for use in future versions of the package.}
 
 \item{nsamples}{Integer or \code{NULL} or \code{'all'} (default): desired number of samples of the variability of the quantile for \code{Y}. If \code{NULL}, no samples are reported. If \code{'all'} (or \code{Inf}), all samples obtained by the \code{\link[=learn]{learn()}} function are used.}
 
 \item{quantiles}{Numeric vector, between 0 and 1, or \code{NULL}: desired quantiles of the variability of the quantile for \code{Y}. Default \code{c(0.055, 0.25, 0.75, 0.945)}, that is, the 5.5\%, 25\%, 75\%, 94.5\% quantiles (these are typical quantile values in the Bayesian literature: they give 50\% and 89\% credibility intervals, which correspond to 1 shannons and 0.5 shannons of uncertainty). If \code{NULL}, no quantiles are calculated.}
 
 \item{parallel}{Logical or positive integer or cluster object. \code{TRUE} (default): use roughly half of available cores; \code{FALSE}: use serial computation; integer: use this many cores. It can also be a cluster object previously created with \code{\link[parallel:makeCluster]{parallel::makeCluster()}}; in this case the parallel computation will use this object.}
+
+\item{sep}{character, default \code{','}: character to separate variate names and values}
 
 \item{silent}{Logical, default \code{FALSE}: give warnings or updates in the computation?}
 
