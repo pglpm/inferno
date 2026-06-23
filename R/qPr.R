@@ -35,7 +35,7 @@
 #'
 #' ## ## Example 1:
 #' ## Calculate the 5.5%-, 50%-, and 94.5%-quantiles for the variate "bill lengt",
-#' ## that is, the bill lengths having such cumulative probabilities
+#' ## that is, the values of "bill length" having such cumulative probabilities
 #'
 #' quants <- qPr(
 #'   Yname = 'bill_len',
@@ -49,12 +49,13 @@
 #' probs <- Pr(
 #'   Y = data.frame(bill_len = c(quants$values)),
 #'   tails = list(bill_len = -1),
-#'   learnt = learnt, parallel = 1)
+#'   learnt = learnt, parallel = 1
+#' )
 #'
 #' ## the cumulative probabilities are indeed 0.055, 0.5, 0.945 within numerical error:
 #' probs$values
 #'
-#' ## display the uncertainty about the quantiles
+#' ## display the variability about the quantiles
 #' quants$quantiles
 #'
 #'
