@@ -1,6 +1,6 @@
 *[Looking for the R package "inferno"? you came to the right place! It's been renamed "Prova"]*
 
-<img src="https://github.com/pglpm/prova/raw/main/development/manual/prova_symbol.png" alt="Ensemble of densities" width="100%"/>
+<img src="https://github.com/pglpm/prova/raw/main/figures/prova_symbol.jpg" alt="Ensemble of densities" width="100%"/>
 
 "prova" /'prɔva/ (Italian)
 
@@ -52,21 +52,12 @@ the installation will also automatically install all required R-dependencies.
 
 The vignette [*Bayesian nonparametric inference with **Prova***](https://pglpm.github.io/prova/articles/start.html) is a step-by-step introduction to **Prova** and also to Bayesian nonparametrics. It guides you through a concrete example with various kinds of inferences. You may also try to follow it using a dataset of your own.
 
-Other tutorials, still drafts, are available at [pglpm.github.io/prova](https://pglpm.github.io/prova)
+Other tutorials are available at [pglpm.github.io/prova](https://pglpm.github.io/prova/)
 
 A summary of the theoretical foundations, including further references, is available in [this draft](https://github.com/pglpm/prova/raw/main/development/manual/optimal_predictor_machine.pdf). The main idea for the internal mathematical representation comes from [Dunson & Bhattacharya](https://doi.org/10.1093/acprof:oso/9780199694587.003.0005) and [Ishwaran & Zarepour](https://doi.org/10.2307/3315951).
 
-For a low-level course on Bayesian nonparametric inference and Decision Theory see [Foundations of data science](https://pglpm.github.io/ADA511).
+For a low-level course on Bayesian nonparametric inference and Decision Theory see [Data Science and AI Prototyping](https://pglpm.github.io/ADA511/).
 
-
-## **Prova** App
-An application has been built upon **Prova**. This app can be used for testing out the features of **Prova** with just a few button clicks, without having to write any code in R yourself.
-
-### Desktop Application
-* Currently available for Windows and MacOS. Download and install the desktop application by following this: [Installation Guide](https://github.com/h587916/Inferno-App/releases/tag/1.0.2).
-
-### Cross-Platform Open Source Version
-* For Windows, macOS, and Linux, you can run the PySide6 app locally using Python by following this: [Setup Guide](https://github.com/h587916/Inferno-App?tab=readme-ov-file#inferno-app).
 
 ## Example applications
 
@@ -82,9 +73,9 @@ binary classification models*](https://doi.org/10.1088/2632-2153/ae45ed)
 
 Projects using **Prova**:
 
-- [InfernoCalibNet](https://m4siko.github.io/InfernoCalibNet).
-- [parkinsonbayes](https://github.com/pglpm/parkinsonbayes).
-
+- [InfernoCalibNet](https://m4siko.github.io/InfernoCalibNet/): uncertainty-aware predictions for medical AI using CNN and Bayesian nonparametrics framework
+- [parkinsonbayes](https://github.com/pglpm/parkinsonbayes/): Examples of Bayesian nonparametric inference for studies of Parkinson's Disease
+- [Inferno-App](https://github.com/Myddis/Inferno-App/): PySide6 application that integrates Python and R functionality using the **Inferno** (old version of **Prova**) R package.
 
 
 ## Contact

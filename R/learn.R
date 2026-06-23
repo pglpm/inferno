@@ -52,8 +52,8 @@
 #' [pread.csv()] and [pwrite.csv()] to read and write CSV files in the format used by `learn()`.
 #'
 #' @examples
-#' ## Create dataset with 5 points of variate 'V' for demonstration:
-#' dataset <- data.frame(V = rnorm(n = 5))
+#' ## Create dataset with 3 points of variate 'V' for demonstration:
+#' dataset <- data.frame(V = rnorm(n = 3))
 #'
 #' ## Create metadata file:
 #' metadata <- data.frame(name = 'V', type = 'continuous')

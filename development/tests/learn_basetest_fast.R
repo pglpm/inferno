@@ -2,7 +2,7 @@ library('prova')
 #devtools::load_all()
 
 set.seed(16)
-parallel <- 1
+parallel <- 2
 
 outputdir <- '__testbase_ess100'
 learntdir <- learn(

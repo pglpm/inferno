@@ -10,6 +10,8 @@
 ^\.Rhistory$
 ^\.gitignore$
 ^vignettes/_.+$
+figure$
+^apptainer.*$
 ^robots\.txt$
 ^_git-truncate\.sh$
 ^exclude$
