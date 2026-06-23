@@ -15,6 +15,7 @@ qPr(
   quantiles = c(0.055, 0.5, 0.945),
   parallel = TRUE,
   sep = ",",
+  solidus = "|",
   silent = FALSE,
   keepYX = TRUE,
   tol = .Machine$double.eps * 10
@@ -40,6 +41,8 @@ qPr(
 \item{parallel}{Logical or positive integer or cluster object. \code{TRUE} (default): use roughly half of available cores; \code{FALSE}: use serial computation; integer: use this many cores. It can also be a cluster object previously created with \code{\link[parallel:makeCluster]{parallel::makeCluster()}}; in this case the parallel computation will use this object.}
 
 \item{sep}{character, default \code{','}: character to separate variate names and values}
+
+\item{solidus}{character, default \code{'|'}: character prepended to names of the variates in the conditional (typically the \code{X} variates).}
 
 \item{silent}{Logical, default \code{FALSE}: give warnings or updates in the computation?}
 

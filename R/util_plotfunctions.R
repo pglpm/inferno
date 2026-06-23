@@ -950,9 +950,15 @@ print.probability <- function(
 
     if(is.null(elements)){
         ## rearrange and combine values and quantiles in a special way
-        
-        elements <- c('values', 'quantiles')
-    }
-
-    print(x[elements], ...)
+        print(x = aperm(
+            a = array(c(x$values, x$quantiles),
+                dim = dim(x$quantiles) + c(0, 0, 1),
+                dimnames = c(
+                    dimnames(x$values),
+                    list(c('value', paste0('Q ',dimnames(x$quantiles)[[3]])))
+                ) ), perm = c(1,3,2)),
+            ...)
+    } else {
+        print(x = x[elements], ...)
+        }
 }

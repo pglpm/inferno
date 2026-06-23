@@ -13,6 +13,7 @@
 #' @param quantiles Numeric vector, between 0 and 1, or `NULL`: desired quantiles of the variability of the quantile for `Y`. Default `c(0.055, 0.25, 0.75, 0.945)`, that is, the 5.5%, 25%, 75%, 94.5% quantiles (these are typical quantile values in the Bayesian literature: they give 50% and 89% credibility intervals, which correspond to 1 shannons and 0.5 shannons of uncertainty). If `NULL`, no quantiles are calculated.
 #' @param parallel Logical or positive integer or cluster object. `TRUE` (default): use roughly half of available cores; `FALSE`: use serial computation; integer: use this many cores. It can also be a cluster object previously created with [parallel::makeCluster()]; in this case the parallel computation will use this object.
 #' @param sep character, default `','`: character to separate variate names and values
+#' @param solidus character, default `'|'`: character prepended to names of the variates in the conditional (typically the `X` variates).
 #' @param silent Logical, default `FALSE`: give warnings or updates in the computation?
 #' @param keepYX Logical, default `TRUE`: keep a copy of the `Y` and `X` arguments in the output? This is used for the plot method.
 #' @param tol numeric positive: tolerance in the calculation of quantiles. Default: `.Machine$double.eps * 10` (typically `2.22045e-15`).
@@ -100,6 +101,7 @@ qPr <- function(
     quantiles = c(0.055, 0.5, 0.945),
     parallel = TRUE,
     sep = ',',
+    solidus = '|',
     silent = FALSE,
     keepYX = TRUE,
     tol = .Machine$double.eps * 10
@@ -419,8 +421,8 @@ qPr <- function(
         Xnames <- setNames(object = list(
             apply(X = X, MARGIN = 1, FUN = paste0, collapse = sep,
                 simplify = TRUE)),
-            nm = paste0(colnames(X), collapse = sep)
-        )
+            nm = paste0(if(is.null(priorY)){solidus},
+                paste0(colnames(X), collapse = sep)) )
     } else {
         Xnames <- list(NULL)
     }
