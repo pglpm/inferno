@@ -18,7 +18,6 @@ reference:
     - prova.data
     - qPr
     - rPr
-    - subset.probability
     - vrtgrid
 - title: "Internal functions"
   desc: "For developers."
