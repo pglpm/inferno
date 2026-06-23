@@ -10,8 +10,8 @@
 ^\.Rhistory$
 ^\.gitignore$
 ^vignettes/_.+$
-^vignettes/*.rds$
-^vignettes/*.csv$
+^vignettes/.*\.rds$
+^vignettes/.*\.csv$
 figure$
 ^apptainer.*$
 ^robots\.txt$
