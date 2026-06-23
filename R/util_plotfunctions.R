@@ -949,6 +949,8 @@ print.probability <- function(
     }
 
     if(is.null(elements)){
+        ## rearrange and combine values and quantiles in a special way
+        
         elements <- c('values', 'quantiles')
     }
 
