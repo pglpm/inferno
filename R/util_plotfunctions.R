@@ -957,9 +957,10 @@ print.probability <- function(
                 dim = dim(x$quantiles) + c(0, 0, 1),
                 dimnames = c(
                     dimnames(x$values),
-                    list(c('value', paste0('Q ',dimnames(x$quantiles)[[3]])))
+                    list(`prob. & vrb.` = c('value', paste0('Q', dimnames(x$quantiles)[[3]])))
                 ) ), perm = c(1,3,2))
-        if(is.null(x$X)){temp <- temp[, drop = TRUE]}
+
+        if(is.null(x$X)){temp <- temp[,,]}
 
         print(x = temp, digits = digits, ...)
 

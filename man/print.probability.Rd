@@ -13,7 +13,7 @@
 
 \item{subset}{Named list or named vector: which variate values to display. For the variates corresponding to the names in this list, only the vector of values corresponding to that variate is displayed.}
 
-\item{digits}{positive number, default 2: minimal number of significant digits, see \link[base:print.default]{base::print.default}.}
+\item{digits}{positive number, default 2: minimal number of significant digits, see \code{\link[base:print.default]{base::print.default()}}.}
 
 \item{...}{Other parameters to be passed to \code{\link[base:print]{base::print()}}.}
 }

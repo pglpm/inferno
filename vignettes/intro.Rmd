@@ -454,9 +454,13 @@ Fspecies10$values
 #   Gentoo    0.395305
 
 ## or
-print(Fspecies, 'values')
-# Error:
-# ! object 'Fspecies' not found
+print(Fspecies10, 'values')
+# $values
+#            
+# species     [,1]
+#   Adelie    0.30
+#   Chinstrap 0.31
+#   Gentoo    0.40
 ```
 
 These frequency estimates have also another important meaning: they are the *probabilities for the species of the **next** penguin we'll observe*. More generally, they are the probabilities for the next observation. In the present context they are maybe not so relevant -- unless you're placing bets on which data will arrive next with your colleagues -- but in other inference contexts they may be very important. In a clinical setting, for example, where we try to infer some condition about the next patient, these probabilities are used for clinical decision-making; see the textbooks by Sox & al. and by Hunink & al., and the paper by Lindley & Novick in the [references]{#referencesmedical}.
@@ -515,13 +519,11 @@ or we can use the `print()` function to display values and quantiles together:
 
 ``` r
 print(Fspecies10)
-# , , 1
-# 
-#            
-# species     value Q 5.5% Q 25% Q 75% Q 94.5%
-#   Adelie     0.30   0.12  0.21  0.38    0.51
-#   Chinstrap  0.31   0.12  0.21  0.39    0.52
-#   Gentoo     0.40   0.19  0.30  0.49    0.62
+#            prob. & vrb.
+# species     value Q5.5% Q25% Q75% Q94.5%
+#   Adelie     0.30  0.12 0.21 0.38   0.51
+#   Chinstrap  0.31  0.12 0.21 0.39   0.52
+#   Gentoo     0.40  0.19 0.30 0.49   0.62
 ```
 
 <!-- As the name tells, this element actually report the *quantiles* of the probability. For example, look at the `= 25%` output: among other things it says `Adelie 0.227634`. This means that there's a 25% probability that the frequency of Adélie penguins is below $0.227634$, and thus a 75% probability that it's above $0.227634$.
@@ -582,20 +584,16 @@ Fspeciessex10 <- Pr(
 )
 
 ## Display the estimated frequencies of all six combinations,
-## as well as their 89%-credibility intervals
-signif(digits = 2, ## round to two significant digits
-    cbind(
-        Fspeciessex10$values,
-        Fspeciessex10$quantiles[, , c('5.5%', '94.5%')]
-    )
-)
-#                        5.5% 94.5%
-# Adelie,female    0.17 0.050  0.33
-# Chinstrap,female 0.13 0.038  0.27
-# Gentoo,female    0.29 0.120  0.50
-# Adelie,male      0.13 0.034  0.28
-# Chinstrap,male   0.17 0.055  0.35
-# Gentoo,male      0.11 0.021  0.24
+## as well as their credibility intervals
+print(Fspeciessex10)
+#                   prob. & vrb.
+# species,sex        value Q5.5%  Q25% Q75% Q94.5%
+#   Adelie,female     0.17 0.050 0.100 0.22   0.33
+#   Chinstrap,female  0.13 0.038 0.075 0.18   0.27
+#   Gentoo,female     0.29 0.119 0.199 0.36   0.50
+#   Adelie,male       0.13 0.034 0.074 0.17   0.28
+#   Chinstrap,male    0.17 0.055 0.104 0.23   0.35
+#   Gentoo,male       0.11 0.021 0.054 0.14   0.24
 ```
 
 Now let's continue with our simpler plan.
@@ -644,12 +642,22 @@ The estimated frequencies for the `Biscoe` subpopulation are shown by the solid 
 
 
 ``` r
-Fspecies10I$values
-#            |island
-# species       Biscoe    Dream
-#   Adelie    0.143465 0.361208
-#   Chinstrap 0.139706 0.473024
-#   Gentoo    0.716829 0.165768
+print(Fspecies10I, digits = 3)
+# , , |island = Biscoe
+# 
+#            prob. & vrb.
+# species     value  Q5.5%   Q25%  Q75% Q94.5%
+#   Adelie    0.143 0.0145 0.0520 0.201  0.372
+#   Chinstrap 0.140 0.0143 0.0513 0.195  0.371
+#   Gentoo    0.717 0.4118 0.6142 0.847  0.938
+# 
+# , , |island = Dream
+# 
+#            prob. & vrb.
+# species     value  Q5.5%   Q25%  Q75% Q94.5%
+#   Adelie    0.361 0.1052 0.2243 0.482  0.663
+#   Chinstrap 0.473 0.1900 0.3363 0.603  0.770
+#   Gentoo    0.166 0.0182 0.0648 0.235  0.415
 ```
 
 According to these estimates, on Biscoe there should be a predominance of Gentoo penguins, with lower, roughly equal numbers of Adélie and Chinstrap. On Dream, on the other hand, Gentoo should be the minority, and Chinstrap should be the majority. But how sure are we about these estimates? We see that the 89%-credibility intervals of each frequency are quite wide. Also in this case we can get a better picture by displaying the probability distribution of each frequency, by means of the `hist()` function, and see how much they overlap.
@@ -697,30 +705,26 @@ Among other things we see here a larger difference in the estimated frequencies 
 
 The last two plots are a visual answer to our research question: "is there any difference in species frequency on the different islands?", restricted to Biscoe and Dream islands. This answer does not only give estimates, but full probability distributions showing their uncertainties.
 
-A more compact summary can again be given with credibility intervals. We can produce it as follows:
+A more compact summary can again be given with credibility intervals. We can produce it with the `print()` function as usual:
 
 
 ``` r
-signif(digits = 2, ## round to two digits
-    aperm(perm = c(1, 3, 2), ## change order for better display
-        Fspecies10I$quantiles[, , c('5.5%', '94.5%')]
-    )
-)
+print(Fspecies10I)
 # , , |island = Biscoe
 # 
-#            Q
-# species      5.5% 94.5%
-#   Adelie    0.014  0.37
-#   Chinstrap 0.014  0.37
-#   Gentoo    0.410  0.94
+#            prob. & vrb.
+# species     value Q5.5%  Q25% Q75% Q94.5%
+#   Adelie     0.14 0.014 0.052 0.20   0.37
+#   Chinstrap  0.14 0.014 0.051 0.20   0.37
+#   Gentoo     0.72 0.412 0.614 0.85   0.94
 # 
 # , , |island = Dream
 # 
-#            Q
-# species      5.5% 94.5%
-#   Adelie    0.110  0.66
-#   Chinstrap 0.190  0.77
-#   Gentoo    0.018  0.41
+#            prob. & vrb.
+# species     value Q5.5%  Q25% Q75% Q94.5%
+#   Adelie     0.36 0.105 0.224 0.48   0.66
+#   Chinstrap  0.47 0.190 0.336 0.60   0.77
+#   Gentoo     0.17 0.018 0.065 0.24   0.41
 ```
 
 ## Differences from "null-hypothesis testing" and *p*-value methods {#nht}
@@ -763,9 +767,8 @@ Fspecies10IS <- Pr(
 
 ## Display the estimated frequencies of species
 ## within all six combinations of subpopulations
-signif(digits = 2, ## round
-    Fspecies10IS$values
-)
+print(Fspecies10IS, 'values')
+# $values
 #            |island,sex
 # species     Biscoe,female Dream,female Torgersen,female Biscoe,male
 #   Adelie             0.13          0.4             0.48        0.21

@@ -532,13 +532,8 @@ Fspeciessex10 <- Pr(
 )
 
 ## Display the estimated frequencies of all six combinations,
-## as well as their 89%-credibility intervals
-signif(digits = 2, ## round to two significant digits
-    cbind(
-        Fspeciessex10$values,
-        Fspeciessex10$quantiles[, , c('5.5%', '94.5%')]
-    )
-)
+## as well as their credibility intervals
+print(Fspeciessex10)
 ```
 
 Now let's continue with our simpler plan.
@@ -579,7 +574,7 @@ plot(Fspecies10I, col = 5:6)
 The estimated frequencies for the `Biscoe` subpopulation are shown by the solid yellow curve with small circles; those for the `Dream` subpopulation by the dashed purple curve with small squares. More precise values are contained in the `values` element of the `Fspecies10I` object:
 
 ```{r freq10I, eval = TRUE}
-Fspecies10I$values
+print(Fspecies10I, digits = 3)
 ```
 
 According to these estimates, on Biscoe there should be a predominance of Gentoo penguins, with lower, roughly equal numbers of Adélie and Chinstrap. On Dream, on the other hand, Gentoo should be the minority, and Chinstrap should be the majority. But how sure are we about these estimates? We see that the 89%-credibility intervals of each frequency are quite wide. Also in this case we can get a better picture by displaying the probability distribution of each frequency, by means of the `hist()` function, and see how much they overlap.
@@ -615,14 +610,10 @@ Among other things we see here a larger difference in the estimated frequencies 
 
 The last two plots are a visual answer to our research question: "is there any difference in species frequency on the different islands?", restricted to Biscoe and Dream islands. This answer does not only give estimates, but full probability distributions showing their uncertainties.
 
-A more compact summary can again be given with credibility intervals. We can produce it as follows:
+A more compact summary can again be given with credibility intervals. We can produce it with the `print()` function as usual:
 
 ```{r quant10I, eval = TRUE}
-signif(digits = 2, ## round to two digits
-    aperm(perm = c(1, 3, 2), ## change order for better display
-        Fspecies10I$quantiles[, , c('5.5%', '94.5%')]
-    )
-)
+print(Fspecies10I)
 ```
 
 ## Differences from "null-hypothesis testing" and *p*-value methods {#nht}
@@ -664,9 +655,7 @@ Fspecies10IS <- Pr(
 
 ## Display the estimated frequencies of species
 ## within all six combinations of subpopulations
-signif(digits = 2, ## round
-    Fspecies10IS$values
-)
+print(Fspecies10IS, 'values')
 ```
 
 
