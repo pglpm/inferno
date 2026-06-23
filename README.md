@@ -71,7 +71,7 @@ For a low-level course on Bayesian nonparametric inference and Decision Theory s
 binary classification models*](https://doi.org/10.1088/2632-2153/ae45ed)
 
 
-Projects using **Prova**:
+## Projects using **Prova**:
 
 - [InfernoCalibNet](https://m4siko.github.io/InfernoCalibNet/): uncertainty-aware predictions for medical AI using CNN and Bayesian nonparametrics framework
 - [parkinsonbayes](https://github.com/pglpm/parkinsonbayes/): Examples of Bayesian nonparametric inference for studies of Parkinson's Disease
