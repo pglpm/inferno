@@ -202,20 +202,73 @@ A "learnt" object, or name of directory containing output files, or
 ## Details
 
 This function takes as main inputs a set of data and metadata, and
-computes the probability distribution for new data. Its computation can
-also be interpreted as an estimation of the frequencies of the variates
-in the *whole population*, beyond the sample data. The probability
-distribution is not assumed to be Gaussian or of any other specific
-shape. The computation is done via Markov-chain Monte Carlo.
+computes the full joint probability distribution for new data, including
+its variability; see
+[`Pr()`](https://pglpm.github.io/prova/reference/Pr.md). This
+computation can also be interpreted as an estimation of the full joint
+frequency distribution of the variates in the *whole population*, beyond
+the sample data, together with its uncertainty.
+
+The computation is "non-parametric": probability or frequency
+distributions are not assumed to be Gaussian or of any other specific
+shape; no "model" is assumed. The mathematical representation of the
+space of joint frequency distributions follows Dunson & Bhattacharya
+(2011).
+
+The computation is done via Markov-chain Monte Carlo a
 
 This function creates an object, typically saved in a `learnt.rds` file,
 which is used in all subsequent probabilistic computations. Other
 information about the computation is provided in logs and plots, saved
 in a directory specified by the user.
 
-See
-[`vignette('start')`](https://pglpm.github.io/prova/articles/start.md)
-for an introductory example.
+See `vignette('start')` for an introductory example.
+
+## References
+
+For the mathematical representation of the frequency space:
+
+- Dunson, Bhattacharya (2011): *Nonparametric Bayes regression and
+  classification through mixtures of product kernels*
+  <doi:10.1093/acprof:oso/9780199694587.003.0005>.
+
+- Ishwaran, Zarepour (2002): *Exact and approximate sum representations
+  for the Dirichlet process* <doi:10.2307/3315951>.
+
+About Bayesian inference under exchangeability ("population inference")
+
+- Lindley, Novick (1981): *The role of exchangeability in inference*,
+  <doi:10.1214/aos/1176345331>.
+
+- Bernardo, Smith (2000): *Bayesian Theory*. Wiley
+  <doi:10.1002/9780470316870>. About nonparametrics:
+
+- Müller et al. (2015): *Nonparametric Bayesian inference*. IMS
+  <doi:10.1007/978-3-319-18968-0>.
+
+- Hjort et al. (2010): *Bayesian Nonparametrics*. Cambridge University
+  Press <doi:10.1017/CBO9780511802478>.
+
+About Markov-chain Monte Carlo and "convergence":
+
+- Kwon & al. (2025): *MCMC stopping rules in latent variable modelling*
+  <doi:10.1111/bmsp.12357>.
+
+- Vehtari & al. (2021): *Rank-normalization, folding, and localization:
+  an improved R-hat for assessing convergence of MCMC*
+  <doi:10.1214/20-BA1221>.
+
+- Gilks & al. (1998): *Markov Chain Monte Carlo in Practice*. Chapman &
+  Hall/CRC <doi:10.1201/b14835>.
+
+- D. J. C. MacKay (2005): *Information Theory, Inference, and Learning
+  Algorithms*. Cambridge University Press
+  <https://www.inference.org.uk/itila/book.html>.
+
+Mathematical background of **Prova**:
+
+- Porta Mana
+  <https://github.com/pglpm/prova/raw/main/development/manual/pglpm2024-bayes_nonparam.pdf>.
 
 ## See also
 
@@ -260,7 +313,7 @@ learnt <- learn(
 #> Learning from 3 datapoints, 1 variates.
 #> 
 #>  Saving output in directory
-#>  /tmp/RtmpXXDqOK/prova-V1_D3_S10_260623T120930_19c22bb7b55e 
+#>  /tmp/Rtmp3KfssY/prova-V1_D3_S10_260623T202249_1a803262f4f5 
 #> 
 #> Starting Monte Carlo sampling of 10 samples by 1 chains
 #> in a space of 191 (effectively 259) dimensions.
@@ -286,9 +339,9 @@ learnt <- learn(
 #> quantile width: 0.216 to 3.27
 #> 
 #> Plotting final Monte Carlo traces and marginal samples...
-#> Total computation time: 29 secs
-#> Average preparation & finalization time: 28 secs.
-#> Average Monte Carlo time per chain: 0.66 secs.
+#> Total computation time: 35 secs
+#> Average preparation & finalization time: 34 secs.
+#> Average Monte Carlo time per chain: 0.58 secs.
 #> Max total memory used: approx 360MB.
 #> Max memory used per core: approx 360MB.
 #> Removing temporary output files.
@@ -296,7 +349,7 @@ learnt <- learn(
 #> Finished.
 #> **********************************************************
 #>  Output saved in directory
-#> /tmp/RtmpXXDqOK/prova-V1_D3_S10_260623T120930_19c22bb7b55e
+#> /tmp/Rtmp3KfssY/prova-V1_D3_S10_260623T202249_1a803262f4f5
 #> **********************************************************
 #> Closing connections to cores.
 

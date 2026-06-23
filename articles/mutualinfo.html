@@ -20,7 +20,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">prova</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.6.5</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.7.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -33,8 +33,8 @@
 <li class="active nav-item dropdown">
   <button class="nav-link dropdown-toggle" type="button" id="dropdown-articles" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Articles</button>
   <ul class="dropdown-menu" aria-labelledby="dropdown-articles">
-<li><a class="dropdown-item" href="../articles/mutualinfo.html">Associations among variates and mutual information</a></li>
-    <li><a class="dropdown-item" href="../articles/start.html">An introduction to probabilistic-statistical variate analysis</a></li>
+<li><a class="dropdown-item" href="../articles/intro.html">An introduction to probabilistic-statistical variate analysis</a></li>
+    <li><a class="dropdown-item" href="../articles/mutualinfo.html">Associations among variates and mutual information</a></li>
   </ul>
 </li>
       </ul>
@@ -68,14 +68,14 @@
 <p>This vignette gives an introduction and guide to the visual and
 quantitative capabilities and functions of the <strong>Prova</strong>
 package, for the study of associations, correlations, and links.</p>
-<p>See the <code><a href="../articles/start.html">vignette('start')</a></code> for an introduction to the
+<p>See the <code>vignette('start')</code> for an introduction to the
 package. The present vignette continues with the same example and
 dataset.</p>
 <p><br></p>
 <div class="section level2">
 <h2 id="probabilities-and-associations">Probabilities and associations<a class="anchor" aria-label="anchor" href="#probabilities-and-associations"></a>
 </h2>
-<p>The <code><a href="../articles/start.html">vignette('start')</a></code> focuses on the
+<p>The <code>vignette('start')</code> focuses on the
 <code><a href="https://rdrr.io/r/datasets/penguins.html" class="external-link">datasets::penguins</a></code> dataset, and shows how to calculate
 probabilities of single and joint variates from that dataset; also
 probabilities conditional on given variates. These probabilities refers
@@ -123,7 +123,7 @@ done so, and set a random seed to ensure reproducibility:</p>
 <code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="st"><a href="https://pglpm.github.io/prova/">'prova'</a></span><span class="op">)</span></span>
 <span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/Random.html" class="external-link">set.seed</a></span><span class="op">(</span><span class="fl">10</span><span class="op">)</span></span></code></pre></div>
-<p>As in the <code><a href="../articles/start.html">vignette('start')</a></code>, we work with a specific
+<p>As in the <code>vignette('start')</code>, we work with a specific
 population of penguins, of which we have 344 sample data stored in the
 [<code><a href="https://rdrr.io/r/datasets/penguins.html" class="external-link">datasets::penguins</a></code>] dataset, included in R version 4.5.0
 and above. For your convenience you can download the shuffled dataset as
@@ -196,10 +196,9 @@ shows that its probability is around 0.3%:</p>
 <code class="sourceCode R"><span><span class="va">prob</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/Pr.html">Pr</a></span><span class="op">(</span>Y <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span>island <span class="op">=</span> <span class="st">'Torgersen'</span>, species <span class="op">=</span> <span class="st">'Chinstrap'</span><span class="op">)</span>,</span>
 <span>    learnt <span class="op">=</span> <span class="va">learnt</span><span class="op">)</span></span>
 <span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/base/Round.html" class="external-link">signif</a></span><span class="op">(</span><span class="va">prob</span><span class="op">$</span><span class="va">values</span>, digits <span class="op">=</span> <span class="fl">2</span><span class="op">)</span></span>
-<span><span class="co">#                      NA</span></span>
-<span><span class="co"># island,species         [,1]</span></span>
-<span><span class="co">#   Torgersen,Chinstrap 0.003</span></span></code></pre></div>
+<span><span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="va">prob</span><span class="op">)</span></span>
+<span><span class="co">#   value   Q5.5%    Q25%    Q75%  Q94.5% </span></span>
+<span><span class="co"># 0.00309 0.00041 0.00117 0.00415 0.00825</span></span></code></pre></div>
 <p><br>
 This example shows the limitations of using sample data for visualizing
 features of the <em>whole</em> population. How would a scatter plot
@@ -233,11 +232,11 @@ penguins, as an example:</p>
 <span>    learnt <span class="op">=</span> <span class="va">learnt</span></span>
 <span><span class="op">)</span></span>
 <span><span class="co">#        island   species</span></span>
-<span><span class="co"># 644_1  Biscoe    Gentoo</span></span>
-<span><span class="co"># 996_1  Biscoe    Gentoo</span></span>
-<span><span class="co"># 1228_1 Biscoe    Adelie</span></span>
-<span><span class="co"># 2230_1  Dream Chinstrap</span></span>
-<span><span class="co"># 3083_1  Dream Chinstrap</span></span></code></pre></div>
+<span><span class="co"># 644_1   Dream Chinstrap</span></span>
+<span><span class="co"># 996_1   Dream Chinstrap</span></span>
+<span><span class="co"># 1228_1  Dream Chinstrap</span></span>
+<span><span class="co"># 2230_1 Biscoe    Gentoo</span></span>
+<span><span class="co"># 3083_1  Dream    Adelie</span></span></code></pre></div>
 <p>The rows of the resulting data frame are named according to the Monte
 Carlo samples used from the <code>learnt</code> object; they can be
 useful for peculiar studies but we can completely ignore them in the
@@ -293,7 +292,7 @@ the discrete variate <code>species</code>, but not to the continuous
 and Chinstrap species and lighter body mass, around 3500 g; and between
 the Gentoo species and heavier body mass, around 5000 g. Incidentally,
 this reflects the probability plot at the end of the
-<code><a href="../articles/start.html">vignette('start')</a></code>.</p>
+<code>vignette('start')</code>.</p>
 </div>
 <div class="section level3">
 <h3 id="subpopplots">Samples and plots for different subpopulations<a class="anchor" aria-label="anchor" href="#subpopplots"></a>
@@ -571,8 +570,9 @@ to interpret a value of the Pearson correlation coefficient
 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>r</mi><annotation encoding="application/x-tex">r</annotation></semantics></math>”.</p>
 <p>It’s important to be fair though. Remember the very first times you
 learned and used the Pearson correlation coefficient: were you able to
-give a meaning to “$r = 0.23” for example? was that value high or low?
-We learned how to interpret
+give a meaning to
+“<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>r</mi><mo>=</mo><mn>0.23</mn></mrow><annotation encoding="application/x-tex">r = 0.23</annotation></semantics></math>”
+for example? was that value high or low? We learned how to interpret
 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>r</mi><annotation encoding="application/x-tex">r</annotation></semantics></math>
 values only through repeated use and application to real situations. The
 same is true of mutual information: through repeated use and
@@ -742,7 +742,7 @@ length</strong>
 <code>body_mass</code> and <code>bill_len</code> is</p>
 <div class="sourceCode" id="cb21"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/stats/cor.html" class="external-link">cor</a></span><span class="op">(</span><span class="va">samples</span><span class="op">$</span><span class="va">body_mass</span>, <span class="va">samples</span><span class="op">$</span><span class="va">bill_len</span>, method <span class="op">=</span> <span class="st">'pearson'</span><span class="op">)</span></span>
-<span><span class="co"># [1] 0.545892</span></span></code></pre></div>
+<span><span class="co"># [1] 0.553292</span></span></code></pre></div>
 <p>which is different from the rough
 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>r</mi><annotation encoding="application/x-tex">r</annotation></semantics></math>-equivalent
 0.67.</p>
@@ -828,15 +828,15 @@ correlation coefficient:</p>
 <div class="sourceCode" id="cb24"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co">## Pearson r for Adelie subpopulation:</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/stats/cor.html" class="external-link">cor</a></span><span class="op">(</span><span class="va">samplesAdelie</span><span class="op">$</span><span class="va">body_mass</span>, <span class="va">samplesAdelie</span><span class="op">$</span><span class="va">bill_len</span>, method <span class="op">=</span> <span class="st">'pearson'</span><span class="op">)</span></span>
-<span><span class="co"># [1] 0.417085</span></span>
+<span><span class="co"># [1] 0.405675</span></span>
 <span></span>
 <span><span class="co">## Pearson r for Chinstrap subpopulation:</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/stats/cor.html" class="external-link">cor</a></span><span class="op">(</span><span class="va">samplesChinstrap</span><span class="op">$</span><span class="va">body_mass</span>, <span class="va">samplesChinstrap</span><span class="op">$</span><span class="va">bill_len</span>, method <span class="op">=</span> <span class="st">'pearson'</span><span class="op">)</span></span>
-<span><span class="co"># [1] 0.311494</span></span>
+<span><span class="co"># [1] 0.304721</span></span>
 <span></span>
 <span><span class="co">## Pearson r for Gentoo subpopulation:</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/stats/cor.html" class="external-link">cor</a></span><span class="op">(</span><span class="va">samplesGentoo</span><span class="op">$</span><span class="va">body_mass</span>, <span class="va">samplesGentoo</span><span class="op">$</span><span class="va">bill_len</span>, method <span class="op">=</span> <span class="st">'pearson'</span><span class="op">)</span></span>
-<span><span class="co"># [1] 0.562958</span></span></code></pre></div>
+<span><span class="co"># [1] 0.547162</span></span></code></pre></div>
 <p>The Pearson correlation yields the same the association
 <em>ranking</em> as the mutual information does (first Gentoo, then
 Adélie, then Chinstrap), but it yields the association for the Adélie
@@ -861,6 +861,8 @@ The mutual information yields the opposite.</p>
 Theory</em></a> (2nd ed. 2005).</p></li>
 <li><p>MacKay: <a href="https://www.inference.org.uk/itila/book.html" class="external-link"><em>Information
 Theory, Inference, and Learning Algorithms</em></a> (2005).</p></li>
+<li><p>Chapter “Information, relevance, independence, association” in <a href="https://pglpm.github.io/ADA511/information.html" class="external-link"><em>Data Science
+and AI Prototyping</em></a>.</p></li>
 </ul>
 </div>
 </div>

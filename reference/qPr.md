@@ -29,6 +29,7 @@ qPr(
   quantiles = c(0.055, 0.5, 0.945),
   parallel = TRUE,
   sep = ",",
+  solidus = "|",
   silent = FALSE,
   keepYX = TRUE,
   tol = .Machine$double.eps * 10
@@ -102,6 +103,11 @@ qPr(
 
   character, default `','`: character to separate variate names and
   values
+
+- solidus:
+
+  character, default `'|'`: character prepended to names of the variates
+  in the conditional (typically the `X` variates).
 
 - silent:
 
@@ -228,7 +234,7 @@ quants <- qPr(
 
 ## display the quantile values
 quants$values
-#>         species
+#>         |species
 #> bill_len Adelie
 #>     0.25   37.0
 #>     0.5    38.8
@@ -245,7 +251,7 @@ probs <- Pr(
 
 ## the cumulative probabilities are indeed 0.055, 0.5, 0.945 within numerical error:
 probs$values
-#>         species
+#>         |species
 #> bill_len    Adelie
 #>     37   0.2530943
 #>     38.8 0.5050883

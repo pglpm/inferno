@@ -4,18 +4,14 @@ This vignette gives an introduction and guide to the visual and
 quantitative capabilities and functions of the **Prova** package, for
 the study of associations, correlations, and links.
 
-See the
-[`vignette('start')`](https://pglpm.github.io/prova/articles/start.md)
-for an introduction to the package. The present vignette continues with
-the same example and dataset.
+See the `vignette('start')` for an introduction to the package. The
+present vignette continues with the same example and dataset.
 
   
 
 ## Probabilities and associations
 
-The
-[`vignette('start')`](https://pglpm.github.io/prova/articles/start.md)
-focuses on the
+The `vignette('start')` focuses on the
 [`datasets::penguins`](https://rdrr.io/r/datasets/penguins.html)
 dataset, and shows how to calculate probabilities of single and joint
 variates from that dataset; also probabilities conditional on given
@@ -67,10 +63,8 @@ library('prova')
 set.seed(10)
 ```
 
-As in the
-[`vignette('start')`](https://pglpm.github.io/prova/articles/start.md),
-we work with a specific population of penguins, of which we have
-344 sample data stored in the
+As in the `vignette('start')`, we work with a specific population of
+penguins, of which we have 344 sample data stored in the
 \[[`datasets::penguins`](https://rdrr.io/r/datasets/penguins.html)\]
 dataset, included in R version 4.5.0 and above. For your convenience you
 can download the shuffled dataset as the CSV file
@@ -163,10 +157,9 @@ that its probability is around 0.3%:
 prob <- Pr(Y = data.frame(island = 'Torgersen', species = 'Chinstrap'),
     learnt = learnt)
 
-signif(prob$values, digits = 2)
-#                      NA
-# island,species         [,1]
-#   Torgersen,Chinstrap 0.003
+print(prob)
+#   value   Q5.5%    Q25%    Q75%  Q94.5% 
+# 0.00309 0.00041 0.00117 0.00415 0.00825
 ```
 
   
@@ -202,11 +195,11 @@ rPr(
     learnt = learnt
 )
 #        island   species
-# 644_1  Biscoe    Gentoo
-# 996_1  Biscoe    Gentoo
-# 1228_1 Biscoe    Adelie
-# 2230_1  Dream Chinstrap
-# 3083_1  Dream Chinstrap
+# 644_1   Dream Chinstrap
+# 996_1   Dream Chinstrap
+# 1228_1  Dream Chinstrap
+# 2230_1 Biscoe    Gentoo
+# 3083_1  Dream    Adelie
 ```
 
 The rows of the resulting data frame are named according to the Monte
@@ -273,8 +266,7 @@ the continuous `body_mass`.
 From the plot we see that there is an association between the Adélie and
 Chinstrap species and lighter body mass, around 3500 g; and between the
 Gentoo species and heavier body mass, around 5000 g. Incidentally, this
-reflects the probability plot at the end of the
-[`vignette('start')`](https://pglpm.github.io/prova/articles/start.md).
+reflects the probability plot at the end of the `vignette('start')`.
 
 ### Samples and plots for different subpopulations
 
@@ -554,11 +546,11 @@ interpret a value of the Pearson correlation coefficient $`r`$”.
 
 It’s important to be fair though. Remember the very first times you
 learned and used the Pearson correlation coefficient: were you able to
-give a meaning to “\$r = 0.23” for example? was that value high or low?
-We learned how to interpret $`r`$ values only through repeated use and
-application to real situations. The same is true of mutual information:
-through repeated use and application, you’ll develop an understanding of
-its possible values.
+give a meaning to “$`r = 0.23`$” for example? was that value high or
+low? We learned how to interpret $`r`$ values only through repeated use
+and application to real situations. The same is true of mutual
+information: through repeated use and application, you’ll develop an
+understanding of its possible values.
 
 Mutual information does have an operational meaning. Saying that the
 mutual information between $`X`$ and $`Y`$ is $`h\,\mathrm{Sh}`$, means
@@ -725,7 +717,7 @@ Note that in this case the Pearson correlation between `body_mass` and
 ``` r
 
 cor(samples$body_mass, samples$bill_len, method = 'pearson')
-# [1] 0.545892
+# [1] 0.553292
 ```
 
 which is different from the rough $`r`$-equivalent 0.67.
@@ -824,15 +816,15 @@ correlation coefficient:
 
 ## Pearson r for Adelie subpopulation:
 cor(samplesAdelie$body_mass, samplesAdelie$bill_len, method = 'pearson')
-# [1] 0.417085
+# [1] 0.405675
 
 ## Pearson r for Chinstrap subpopulation:
 cor(samplesChinstrap$body_mass, samplesChinstrap$bill_len, method = 'pearson')
-# [1] 0.311494
+# [1] 0.304721
 
 ## Pearson r for Gentoo subpopulation:
 cor(samplesGentoo$body_mass, samplesGentoo$bill_len, method = 'pearson')
-# [1] 0.562958
+# [1] 0.547162
 ```
 
 The Pearson correlation yields the same the association *ranking* as the
@@ -852,3 +844,7 @@ the opposite.
 
 - MacKay: [*Information Theory, Inference, and Learning
   Algorithms*](https://www.inference.org.uk/itila/book.html) (2005).
+
+- Chapter “Information, relevance, independence, association” in [*Data
+  Science and AI
+  Prototyping*](https://pglpm.github.io/ADA511/information.html).

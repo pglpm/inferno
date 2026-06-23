@@ -7,7 +7,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">prova</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.6.5</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.7.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -18,8 +18,8 @@
       <ul class="navbar-nav me-auto"><li class="active nav-item"><a class="nav-link" href="../reference/index.html">Reference</a></li>
 <li class="nav-item dropdown">
   <button class="nav-link dropdown-toggle" type="button" id="dropdown-articles" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Articles</button>
-  <ul class="dropdown-menu" aria-labelledby="dropdown-articles"><li><a class="dropdown-item" href="../articles/mutualinfo.html">Associations among variates and mutual information</a></li>
-    <li><a class="dropdown-item" href="../articles/start.html">An introduction to probabilistic-statistical variate analysis</a></li>
+  <ul class="dropdown-menu" aria-labelledby="dropdown-articles"><li><a class="dropdown-item" href="../articles/intro.html">An introduction to probabilistic-statistical variate analysis</a></li>
+    <li><a class="dropdown-item" href="../articles/mutualinfo.html">Associations among variates and mutual information</a></li>
   </ul></li>
       </ul><ul class="navbar-nav"><li class="nav-item"><form class="form-inline" role="search">
  <input class="form-control" type="search" name="search-input" id="search-input" autocomplete="off" aria-label="Search site" placeholder="Search for" data-search-index="../search.json"></form></li>
@@ -196,10 +196,27 @@
     </div>
     <div class="section level2">
     <h2 id="details">Details<a class="anchor" aria-label="anchor" href="#details"></a></h2>
-    <p>This function takes as main inputs a set of data and metadata, and computes the probability distribution for new data. Its computation can also be interpreted as an estimation of the frequencies of the variates in the <em>whole population</em>, beyond the sample data. The probability distribution is not assumed to be Gaussian or of any other specific shape. The computation is done via Markov-chain Monte Carlo.</p>
+    <p>This function takes as main inputs a set of data and metadata, and computes the full joint probability distribution for new data, including its variability; see <code><a href="Pr.html">Pr()</a></code>. This computation can also be interpreted as an estimation of the full joint frequency distribution of the variates in the <em>whole population</em>, beyond the sample data, together with its uncertainty.</p>
+<p>The computation is "non-parametric": probability or frequency distributions are not assumed to be Gaussian or of any other specific shape; no "model" is assumed. The mathematical representation of the space of joint frequency distributions follows Dunson &amp; Bhattacharya (2011).</p>
+<p>The computation is done via Markov-chain Monte Carlo a</p>
 <p>This function creates an object, typically saved in a <code>learnt.rds</code> file, which is used in all subsequent probabilistic computations. Other information about the computation is provided in logs and plots, saved in a directory specified by the user.</p>
-<p>See <code><a href="../articles/start.html">vignette('start')</a></code> for an introductory example.</p>
+<p>See <code>vignette('start')</code> for an introductory example.</p>
     </div>
+    <div class="section level2">
+    <h2 id="references">References<a class="anchor" aria-label="anchor" href="#references"></a></h2>
+    <p>For the mathematical representation of the frequency space:</p><ul><li><p>Dunson, Bhattacharya (2011): <em>Nonparametric Bayes regression and classification through mixtures of product kernels</em> <a href="doi:10.1093/acprof:oso/9780199694587.003.0005">doi:10.1093/acprof:oso/9780199694587.003.0005</a>.</p></li>
+<li><p>Ishwaran, Zarepour (2002): <em>Exact and approximate sum representations for the Dirichlet process</em> <a href="doi:10.2307/3315951">doi:10.2307/3315951</a>.</p></li>
+</ul><p>About Bayesian inference under exchangeability ("population inference")</p><ul><li><p>Lindley, Novick (1981): <em>The role of exchangeability in inference</em>, <a href="doi:10.1214/aos/1176345331">doi:10.1214/aos/1176345331</a>.</p></li>
+<li><p>Bernardo, Smith (2000): <em>Bayesian Theory</em>. Wiley <a href="doi:10.1002/9780470316870">doi:10.1002/9780470316870</a>.
+About nonparametrics:</p></li>
+<li><p>Müller et al. (2015): <em>Nonparametric Bayesian inference</em>. IMS <a href="doi:10.1007/978-3-319-18968-0">doi:10.1007/978-3-319-18968-0</a>.</p></li>
+<li><p>Hjort et al. (2010): <em>Bayesian Nonparametrics</em>. Cambridge University Press <a href="doi:10.1017/CBO9780511802478">doi:10.1017/CBO9780511802478</a>.</p></li>
+</ul><p>About Markov-chain Monte Carlo and "convergence":</p><ul><li><p>Kwon &amp; al. (2025): <em>MCMC stopping rules in latent variable modelling</em> <a href="doi:10.1111/bmsp.12357">doi:10.1111/bmsp.12357</a>.</p></li>
+<li><p>Vehtari &amp; al. (2021): <em>Rank-normalization, folding, and localization: an improved R-hat for assessing convergence of MCMC</em> <a href="doi:10.1214/20-BA1221">doi:10.1214/20-BA1221</a>.</p></li>
+<li><p>Gilks &amp; al. (1998): <em>Markov Chain Monte Carlo in Practice</em>. Chapman &amp; Hall/CRC <a href="doi:10.1201/b14835">doi:10.1201/b14835</a>.</p></li>
+<li><p>D. J. C. MacKay (2005): <em>Information Theory, Inference, and Learning Algorithms</em>. Cambridge University Press <a href="https://www.inference.org.uk/itila/book.html" class="external-link">https://www.inference.org.uk/itila/book.html</a>.</p></li>
+</ul><p>Mathematical background of <strong>Prova</strong>:</p><ul><li><p>Porta Mana <a href="https://github.com/pglpm/prova/raw/main/development/manual/pglpm2024-bayes_nonparam.pdf" class="external-link">https://github.com/pglpm/prova/raw/main/development/manual/pglpm2024-bayes_nonparam.pdf</a>.</p></li>
+</ul></div>
     <div class="section level2">
     <h2 id="see-also">See also<a class="anchor" aria-label="anchor" href="#see-also"></a></h2>
     <div class="dont-index"><p><code><a href="metadatatemplate.html">metadatatemplate()</a></code> to help writing metadata files.</p>
@@ -230,7 +247,7 @@
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Learning from 3 datapoints, 1 variates.</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>  Saving output in directory</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  /tmp/RtmpXXDqOK/prova-V1_D3_S10_260623T120930_19c22bb7b55e </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  /tmp/Rtmp3KfssY/prova-V1_D3_S10_260623T202249_1a803262f4f5 </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Starting Monte Carlo sampling of 10 samples by 1 chains</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> in a space of 191 (effectively 259) dimensions.</span>
@@ -256,9 +273,9 @@
 <span class="r-msg co"><span class="r-pr">#&gt;</span> quantile width: 0.216 to 3.27</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Plotting final Monte Carlo traces and marginal samples...</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> Total computation time: 29 secs</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> Average preparation &amp; finalization time: 28 secs.</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> Average Monte Carlo time per chain: 0.66 secs.</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Total computation time: 35 secs</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Average preparation &amp; finalization time: 34 secs.</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Average Monte Carlo time per chain: 0.58 secs.</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Max total memory used: approx 360MB.</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Max memory used per core: approx 360MB.</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Removing temporary output files.</span>
@@ -266,7 +283,7 @@
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Finished.</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> **********************************************************</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span>  Output saved in directory</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> /tmp/RtmpXXDqOK/prova-V1_D3_S10_260623T120930_19c22bb7b55e</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> /tmp/Rtmp3KfssY/prova-V1_D3_S10_260623T202249_1a803262f4f5</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> **********************************************************</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Closing connections to cores.</span>
 <span class="r-in"><span></span></span>

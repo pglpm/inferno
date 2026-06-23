@@ -11,7 +11,7 @@ this method also allow to display only selected values of them
 
 ``` r
 # S3 method for class 'probability'
-print(x, elements = NULL, subset = NULL, ...)
+print(x, elements = NULL, subset = NULL, digits = 2, ...)
 ```
 
 ## Arguments
@@ -24,14 +24,20 @@ print(x, elements = NULL, subset = NULL, ...)
 - elements:
 
   character or integer vector, or `NULL` (default): elements of the
-  "probability" object to display. The syntax is the same as
-  \[base::\[\]. If `NULL`, display elements `$values` and `$quantiles`.
+  "probability" object to display. The syntax is the same as with
+  [`[`](https://rdrr.io/r/base/Extract.html). If `NULL`, the elements
+  `$values` and `$quantiles` are displayed together in a special way.
 
 - subset:
 
   Named list or named vector: which variate values to display. For the
   variates corresponding to the names in this list, only the vector of
   values corresponding to that variate is displayed.
+
+- digits:
+
+  positive number, default 2: minimal number of significant digits, see
+  [`base::print.default()`](https://rdrr.io/r/base/print.default.html).
 
 - ...:
 
@@ -67,53 +73,28 @@ probs <- Pr(Y = Y, X = X, learnt = learnt, parallel = 1)
 
 ## display the values and variabilities of these probabilities
 print(probs)
-#> $values
-#>            bill_len
-#> species            43        44
-#>   Adelie    0.4647433 0.2223224
-#>   Chinstrap 0.1458345 0.2054491
-#>   Gentoo    0.3894222 0.5722285
+#> , , |bill_len = 43
 #> 
-#> $quantiles
-#> , , Q = 5.5%
+#>            prob. & vrb.
+#> species     value Q5.5% Q25% Q75% Q94.5%
+#>   Adelie     0.46 0.367 0.42 0.51   0.57
+#>   Chinstrap  0.15 0.081 0.12 0.17   0.22
+#>   Gentoo     0.39 0.299 0.35 0.43   0.48
 #> 
-#>            bill_len
-#> species             43        44
-#>   Adelie    0.36692485 0.1447719
-#>   Chinstrap 0.08096214 0.1197566
-#>   Gentoo    0.29852092 0.4671262
+#> , , |bill_len = 44
 #> 
-#> , , Q = 25%
-#> 
-#>            bill_len
-#> species            43        44
-#>   Adelie    0.4211860 0.1865739
-#>   Chinstrap 0.1167195 0.1716849
-#>   Gentoo    0.3476311 0.5269590
-#> 
-#> , , Q = 75%
-#> 
-#>            bill_len
-#> species            43        44
-#>   Adelie    0.5131288 0.2551308
-#>   Chinstrap 0.1722602 0.2429360
-#>   Gentoo    0.4302261 0.6203536
-#> 
-#> , , Q = 94.5%
-#> 
-#>            bill_len
-#> species            43        44
-#>   Adelie    0.5678666 0.3069388
-#>   Chinstrap 0.2190872 0.2965559
-#>   Gentoo    0.4811995 0.6718201
-#> 
+#>            prob. & vrb.
+#> species     value Q5.5% Q25% Q75% Q94.5%
+#>   Adelie     0.22  0.14 0.19 0.26   0.31
+#>   Chinstrap  0.21  0.12 0.17 0.24   0.30
+#>   Gentoo     0.57  0.47 0.53 0.62   0.67
 #> 
 
 ## diplay 'values' only, and only for the species value 'Gentoo'
 print(probs, elements = 'values', subset = list(species = 'Gentoo'))
 #> $values
-#>         bill_len
-#> species         43        44
-#>   Gentoo 0.3894222 0.5722285
+#>         |bill_len
+#> species    43   44
+#>   Gentoo 0.39 0.57
 #> 
 ```

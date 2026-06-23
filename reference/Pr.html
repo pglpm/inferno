@@ -7,7 +7,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">prova</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.6.5</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.7.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -18,8 +18,8 @@
       <ul class="navbar-nav me-auto"><li class="active nav-item"><a class="nav-link" href="../reference/index.html">Reference</a></li>
 <li class="nav-item dropdown">
   <button class="nav-link dropdown-toggle" type="button" id="dropdown-articles" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Articles</button>
-  <ul class="dropdown-menu" aria-labelledby="dropdown-articles"><li><a class="dropdown-item" href="../articles/mutualinfo.html">Associations among variates and mutual information</a></li>
-    <li><a class="dropdown-item" href="../articles/start.html">An introduction to probabilistic-statistical variate analysis</a></li>
+  <ul class="dropdown-menu" aria-labelledby="dropdown-articles"><li><a class="dropdown-item" href="../articles/intro.html">An introduction to probabilistic-statistical variate analysis</a></li>
+    <li><a class="dropdown-item" href="../articles/mutualinfo.html">Associations among variates and mutual information</a></li>
   </ul></li>
       </ul><ul class="navbar-nav"><li class="nav-item"><form class="form-inline" role="search">
  <input class="form-control" type="search" name="search-input" id="search-input" autocomplete="off" aria-label="Search site" placeholder="Search for" data-search-index="../search.json"></form></li>
@@ -53,6 +53,7 @@
 <span>  quantiles <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0.055</span>, <span class="fl">0.25</span>, <span class="fl">0.75</span>, <span class="fl">0.945</span><span class="op">)</span>,</span>
 <span>  parallel <span class="op">=</span> <span class="cn">TRUE</span>,</span>
 <span>  sep <span class="op">=</span> <span class="st">","</span>,</span>
+<span>  solidus <span class="op">=</span> <span class="st">"|"</span>,</span>
 <span>  silent <span class="op">=</span> <span class="cn">FALSE</span>,</span>
 <span>  keepYX <span class="op">=</span> <span class="cn">TRUE</span></span>
 <span><span class="op">)</span></span></code></pre></div>
@@ -99,6 +100,10 @@ the joint probability of. One variate per column, one set of values per row.</p>
 <dd><p>character, default <code>','</code>: character to separate variate names and values</p></dd>
 
 
+<dt id="arg-solidus">solidus<a class="anchor" aria-label="anchor" href="#arg-solidus"></a></dt>
+<dd><p>character, default <code>'|'</code>: character prepended to names of the variates in the conditional (typically the <code>X</code> variates).</p></dd>
+
+
 <dt id="arg-silent">silent<a class="anchor" aria-label="anchor" href="#arg-silent"></a></dt>
 <dd><p>Logical, default <code>FALSE</code>: give warnings or updates in the computation?</p></dd>
 
@@ -117,10 +122,12 @@ the joint probability of. One variate per column, one set of values per row.</p>
 </ul></div>
     <div class="section level2">
     <h2 id="references">References<a class="anchor" aria-label="anchor" href="#references"></a></h2>
-    <p>E. T. Jaynes: <em>Probability Theory: The Logic of Science</em>. Cambridge University Press, 2003 <a href="doi:10.1017/CBO9780511790423">doi:10.1017/CBO9780511790423</a>.</p>
-<p>J.-M. Bernardo, A. F. Smith: <em>Bayesian Theory</em>. Wiley, 2000 <a href="doi:10.1002/9780470316870">doi:10.1002/9780470316870</a>.</p>
-<p>D. J. C. MacKay: <em>Information Theory, Inference, and Learning Algorithms</em>. Cambridge University Press, 2005 <a href="https://www.inference.org.uk/itila/book.html" class="external-link">https://www.inference.org.uk/itila/book.html</a>.</p>
-    </div>
+
+<ul><li><p>Lindley, Novick (1981): <em>The role of exchangeability in inference</em>, <a href="doi:10.1214/aos/1176345331">doi:10.1214/aos/1176345331</a>.</p></li>
+<li><p>Bernardo, Smith (2000): <em>Bayesian Theory</em>. Wiley <a href="doi:10.1002/9780470316870">doi:10.1002/9780470316870</a>.</p></li>
+<li><p>Jaynes (2003): <em>Probability Theory: The Logic of Science</em>. Cambridge University Press <a href="doi:10.1017/CBO9780511790423">doi:10.1017/CBO9780511790423</a>.</p></li>
+<li><p>MacKay (2005): <em>Information Theory, Inference, and Learning Algorithms</em>. Cambridge University Press <a href="https://www.inference.org.uk/itila/book.html" class="external-link">https://www.inference.org.uk/itila/book.html</a>.</p></li>
+</ul></div>
     <div class="section level2">
     <h2 id="see-also">See also<a class="anchor" aria-label="anchor" href="#see-also"></a></h2>
     <div class="dont-index"><p><code><a href="learn.html">learn()</a></code>, which generates the <code>learnt</code> objects required by <code>Pr()</code>.</p>
@@ -218,7 +225,7 @@ the joint probability of. One variate per column, one set of values per row.</p>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co">## display the probability value</span></span></span>
 <span class="r-in"><span><span class="va">probs</span><span class="op">$</span><span class="va">values</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>         bill_len</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>         |bill_len</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> species         43</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   Adelie 0.4647433</span>
 <span class="r-in"><span></span></span>
@@ -269,7 +276,7 @@ the joint probability of. One variate per column, one set of values per row.</p>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co">## display the 3 x 2 probability values</span></span></span>
 <span class="r-in"><span><span class="va">probs</span><span class="op">$</span><span class="va">values</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>            bill_len</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>            |bill_len</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> species            43        44</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   Adelie    0.4647433 0.2223224</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   Chinstrap 0.1458345 0.2054491</span>
@@ -280,7 +287,7 @@ the joint probability of. One variate per column, one set of values per row.</p>
 <span class="r-in"><span><span class="va">probs</span><span class="op">$</span><span class="va">quantiles</span><span class="op">[</span>, , <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">'5.5%'</span>, <span class="st">'94.5%'</span><span class="op">)</span><span class="op">]</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> , , Q = 5.5%</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>            bill_len</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>            |bill_len</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> species             43        44</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   Adelie    0.36692485 0.1447719</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   Chinstrap 0.08096214 0.1197566</span>
@@ -288,7 +295,7 @@ the joint probability of. One variate per column, one set of values per row.</p>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> , , Q = 94.5%</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>            bill_len</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>            |bill_len</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> species            43        44</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   Adelie    0.5678666 0.3069388</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   Chinstrap 0.2190872 0.2965559</span>

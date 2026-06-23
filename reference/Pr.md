@@ -31,6 +31,7 @@ Pr(
   quantiles = c(0.055, 0.25, 0.75, 0.945),
   parallel = TRUE,
   sep = ",",
+  solidus = "|",
   silent = FALSE,
   keepYX = TRUE
 )
@@ -116,6 +117,11 @@ Pr(
   character, default `','`: character to separate variate names and
   values
 
+- solidus:
+
+  character, default `'|'`: character prepended to names of the variates
+  in the conditional (typically the `X` variates).
+
 - silent:
 
   Logical, default `FALSE`: give warnings or updates in the computation?
@@ -146,15 +152,18 @@ A list of class `probability`, consisting of the following elements:
 
 ## References
 
-E. T. Jaynes: *Probability Theory: The Logic of Science*. Cambridge
-University Press, 2003 <doi:10.1017/CBO9780511790423>.
+- Lindley, Novick (1981): *The role of exchangeability in inference*,
+  <doi:10.1214/aos/1176345331>.
 
-J.-M. Bernardo, A. F. Smith: *Bayesian Theory*. Wiley, 2000
-<doi:10.1002/9780470316870>.
+- Bernardo, Smith (2000): *Bayesian Theory*. Wiley
+  <doi:10.1002/9780470316870>.
 
-D. J. C. MacKay: *Information Theory, Inference, and Learning
-Algorithms*. Cambridge University Press, 2005
-<https://www.inference.org.uk/itila/book.html>.
+- Jaynes (2003): *Probability Theory: The Logic of Science*. Cambridge
+  University Press <doi:10.1017/CBO9780511790423>.
+
+- MacKay (2005): *Information Theory, Inference, and Learning
+  Algorithms*. Cambridge University Press
+  <https://www.inference.org.uk/itila/book.html>.
 
 ## See also
 
@@ -266,7 +275,7 @@ probs <- Pr(
 
 ## display the probability value
 probs$values
-#>         bill_len
+#>         |bill_len
 #> species         43
 #>   Adelie 0.4647433
 
@@ -317,7 +326,7 @@ probs <- Pr(Y = Y, X = X, learnt = learnt, parallel = 1)
 
 ## display the 3 x 2 probability values
 probs$values
-#>            bill_len
+#>            |bill_len
 #> species            43        44
 #>   Adelie    0.4647433 0.2223224
 #>   Chinstrap 0.1458345 0.2054491
@@ -328,7 +337,7 @@ probs$values
 probs$quantiles[, , c('5.5%', '94.5%')]
 #> , , Q = 5.5%
 #> 
-#>            bill_len
+#>            |bill_len
 #> species             43        44
 #>   Adelie    0.36692485 0.1447719
 #>   Chinstrap 0.08096214 0.1197566
@@ -336,7 +345,7 @@ probs$quantiles[, , c('5.5%', '94.5%')]
 #> 
 #> , , Q = 94.5%
 #> 
-#>            bill_len
+#>            |bill_len
 #> species            43        44
 #>   Adelie    0.5678666 0.3069388
 #>   Chinstrap 0.2190872 0.2965559

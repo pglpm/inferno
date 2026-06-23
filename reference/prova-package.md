@@ -12,10 +12,12 @@ Porta Mana et al. (2026)
 [doi:10.31219/osf.io/8nr56](https://doi.org/10.31219/osf.io/8nr56) ,
 Dunson & Bhattacharya (2011)
 [doi:10.1093/acprof:oso/9780199694587.003.0005](https://doi.org/10.1093/acprof%3Aoso/9780199694587.003.0005)
-, Müller et al. (2015)
+, Lindley & Novick (1981)
+[doi:10.1214/aos/1176345331](https://doi.org/10.1214/aos/1176345331) ,
+Bernardo & Smith (2000)
+[doi:10.1002/9780470316870](https://doi.org/10.1002/9780470316870) ,
+Müller et al. (2015)
 [doi:10.1007/978-3-319-18968-0](https://doi.org/10.1007/978-3-319-18968-0)
-, Hjort et al. (2010)
-[doi:10.1017/CBO9780511802478](https://doi.org/10.1017/CBO9780511802478)
 . Requires the packages 'Nimble', 'parallel', 'extraDistr'.
 
 ## See also

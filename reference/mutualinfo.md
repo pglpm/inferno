@@ -150,7 +150,7 @@ probs <- Pr(
 #> Closing connections to cores.
 
 probs$values
-#>            bill_len
+#>            |bill_len
 #> species             30
 #>   Adelie    0.92985096
 #>   Gentoo    0.03626731
