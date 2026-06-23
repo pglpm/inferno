@@ -19,7 +19,7 @@ through the argument `tails`.
 
 ``` r
 qPr(
-  p = c(0.055, 0.5, 0.945),
+  p = c(0.25, 0.5, 0.75),
   Yname,
   X = NULL,
   learnt,
@@ -28,6 +28,7 @@ qPr(
   nsamples = "all",
   quantiles = c(0.055, 0.5, 0.945),
   parallel = TRUE,
+  sep = ",",
   silent = FALSE,
   keepYX = TRUE,
   tol = .Machine$double.eps * 10
@@ -38,7 +39,7 @@ qPr(
 
 - p:
 
-  Numeric vector of probability levels. Default: `c(0.055, 0.5, 0.945)`.
+  Numeric vector of probability levels. Default: `c(0.25, 0.5, 0.75)`.
 
 - Yname:
 
@@ -68,10 +69,7 @@ qPr(
 
 - priorY:
 
-  Numeric vector with the same length as the rows of `Y`, or `TRUE`, or
-  `NULL` (default): prior probabilities or base rates for the `Y`
-  values. If `TRUE`, the prior probabilities are assumed to be all
-  equal. For the moment only the value `NULL` is accepted.
+  Reserved for use in future versions of the package.
 
 - nsamples:
 
@@ -99,6 +97,11 @@ qPr(
   previously created with
   [`parallel::makeCluster()`](https://rdrr.io/r/parallel/makeCluster.html);
   in this case the parallel computation will use this object.
+
+- sep:
+
+  character, default `','`: character to separate variate names and
+  values
 
 - silent:
 
@@ -160,11 +163,11 @@ quants <- qPr(
 
 ## display the quantile values
 quants$values
-#>         X
+#>         
 #> bill_len [,1]
-#>    0.055 35.7
-#>    0.5   44.3
-#>    0.945 52.1
+#>     0.25 39.2
+#>     0.5  44.3
+#>     0.75 48.3
 
 ## verify these values using Pr():
 probs <- Pr(
@@ -177,37 +180,37 @@ probs <- Pr(
 
 ## the cumulative probabilities are indeed 0.055, 0.5, 0.945 within numerical error:
 probs$values
-#>         NA
-#> bill_len       [,1]
-#>     35.7 0.05541489
-#>     44.3 0.50269977
-#>     52.1 0.94784616
+#>         
+#> bill_len      [,1]
+#>     39.2 0.2528194
+#>     44.3 0.5026998
+#>     48.3 0.7501943
 
 ## display the variability about the quantiles
 quants$quantiles
-#> , ,  = 5.5%
+#> , , Q = 5.5%
 #> 
-#>         X
+#>         
 #> bill_len [,1]
-#>    0.055 35.3
-#>    0.5   43.3
-#>    0.945 51.5
+#>     0.25 38.7
+#>     0.5  43.3
+#>     0.75 47.8
 #> 
-#> , ,  = 50%
+#> , , Q = 50%
 #> 
-#>         X
+#>         
 #> bill_len [,1]
-#>    0.055 35.7
-#>    0.5   44.3
-#>    0.945 52.1
+#>     0.25 39.2
+#>     0.5  44.3
+#>     0.75 48.3
 #> 
-#> , ,  = 94.5%
+#> , , Q = 94.5%
 #> 
-#>         X
+#>         
 #> bill_len [,1]
-#>    0.055 36.2
-#>    0.5   45.1
-#>    0.945 52.8
+#>     0.25 39.7
+#>     0.5  45.1
+#>     0.75 48.9
 #> 
 
 
@@ -225,11 +228,11 @@ quants <- qPr(
 
 ## display the quantile values
 quants$values
-#>         X
+#>         species
 #> bill_len Adelie
-#>    0.055   34.6
-#>    0.5     38.8
-#>    0.945   43.3
+#>     0.25   37.0
+#>     0.5    38.8
+#>     0.75   40.6
 
 ## verify these values using Pr():
 probs <- Pr(
@@ -243,8 +246,8 @@ probs <- Pr(
 ## the cumulative probabilities are indeed 0.055, 0.5, 0.945 within numerical error:
 probs$values
 #>         species
-#> bill_len     Adelie
-#>     34.6 0.05787695
-#>     38.8 0.50508827
-#>     43.3 0.94621702
+#> bill_len    Adelie
+#>     37   0.2530943
+#>     38.8 0.5050883
+#>     40.6 0.7515390
 ```

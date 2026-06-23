@@ -198,7 +198,7 @@ probs <- Pr(
 
 ## display the probability value
 probs$values
-#>         NA
+#>         
 #> species      [,1]
 #>   Adelie 0.440685
 
@@ -227,7 +227,7 @@ probs <- Pr(
 
 ## display the 3 probability values
 probs$values
-#>            NA
+#>            
 #> species          [,1]
 #>   Adelie    0.4406850
 #>   Chinstrap 0.1984161
@@ -237,7 +237,7 @@ probs$values
 ## display the 5.5%- and 94.5%-probability values
 ## for such frequencies
 probs$quantiles[, , c('5.5%', '94.5%')]
-#>            NA
+#>            Q
 #> species          5.5%     94.5%
 #>   Adelie    0.3988210 0.4829919
 #>   Chinstrap 0.1623616 0.2357522
@@ -292,7 +292,7 @@ probs <- Pr(
 
 ## display the probability value
 probs$values
-#>                 NA
+#>                 
 #> species,bill_len        [,1]
 #>        Adelie,43 0.001819114
 
@@ -363,7 +363,7 @@ probs <- Pr(Y = Y, learnt = learnt, parallel = 1)
 
 ## display the 6 joint-probability values
 probs$values
-#>                 NA
+#>                 
 #> species,bill_len         [,1]
 #>     Adelie,43    0.0018191137
 #>     Chinstrap,43 0.0005712174
@@ -375,7 +375,7 @@ probs$values
 ## display the 5.5%- and 94.5%-probability values
 ## for the full-population joint frequencies
 probs$quantiles[, , c('5.5%', '94.5%')]
-#>                 NA
+#>                 Q
 #> species,bill_len         5.5%       94.5%
 #>     Adelie,43    0.0012450391 0.002371801
 #>     Chinstrap,43 0.0003027243 0.000897585

@@ -44,7 +44,7 @@
     <div class="section level2">
     <h2 id="ref-usage">Usage<a class="anchor" aria-label="anchor" href="#ref-usage"></a></h2>
     <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">qPr</span><span class="op">(</span></span>
-<span>  p <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0.055</span>, <span class="fl">0.5</span>, <span class="fl">0.945</span><span class="op">)</span>,</span>
+<span>  p <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0.25</span>, <span class="fl">0.5</span>, <span class="fl">0.75</span><span class="op">)</span>,</span>
 <span>  <span class="va">Yname</span>,</span>
 <span>  X <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  <span class="va">learnt</span>,</span>
@@ -53,6 +53,7 @@
 <span>  nsamples <span class="op">=</span> <span class="st">"all"</span>,</span>
 <span>  quantiles <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0.055</span>, <span class="fl">0.5</span>, <span class="fl">0.945</span><span class="op">)</span>,</span>
 <span>  parallel <span class="op">=</span> <span class="cn">TRUE</span>,</span>
+<span>  sep <span class="op">=</span> <span class="st">","</span>,</span>
 <span>  silent <span class="op">=</span> <span class="cn">FALSE</span>,</span>
 <span>  keepYX <span class="op">=</span> <span class="cn">TRUE</span>,</span>
 <span>  tol <span class="op">=</span> <span class="va">.Machine</span><span class="op">$</span><span class="va">double.eps</span> <span class="op">*</span> <span class="fl">10</span></span>
@@ -64,7 +65,7 @@
 
 
 <dl><dt id="arg-p">p<a class="anchor" aria-label="anchor" href="#arg-p"></a></dt>
-<dd><p>Numeric vector of probability levels. Default: <code>c(0.055, 0.5, 0.945)</code>.</p></dd>
+<dd><p>Numeric vector of probability levels. Default: <code>c(0.25, 0.5, 0.75)</code>.</p></dd>
 
 
 <dt id="arg-yname">Yname<a class="anchor" aria-label="anchor" href="#arg-yname"></a></dt>
@@ -84,7 +85,7 @@
 
 
 <dt id="arg-priory">priorY<a class="anchor" aria-label="anchor" href="#arg-priory"></a></dt>
-<dd><p>Numeric vector with the same length as the rows of <code>Y</code>, or <code>TRUE</code>, or <code>NULL</code> (default): prior probabilities or base rates for the <code>Y</code> values. If <code>TRUE</code>, the prior probabilities are assumed to be all equal. For the moment only the value <code>NULL</code> is accepted.</p></dd>
+<dd><p>Reserved for use in future versions of the package.</p></dd>
 
 
 <dt id="arg-nsamples">nsamples<a class="anchor" aria-label="anchor" href="#arg-nsamples"></a></dt>
@@ -97,6 +98,10 @@
 
 <dt id="arg-parallel">parallel<a class="anchor" aria-label="anchor" href="#arg-parallel"></a></dt>
 <dd><p>Logical or positive integer or cluster object. <code>TRUE</code> (default): use roughly half of available cores; <code>FALSE</code>: use serial computation; integer: use this many cores. It can also be a cluster object previously created with <code><a href="https://rdrr.io/r/parallel/makeCluster.html" class="external-link">parallel::makeCluster()</a></code>; in this case the parallel computation will use this object.</p></dd>
+
+
+<dt id="arg-sep">sep<a class="anchor" aria-label="anchor" href="#arg-sep"></a></dt>
+<dd><p>character, default <code>','</code>: character to separate variate names and values</p></dd>
 
 
 <dt id="arg-silent">silent<a class="anchor" aria-label="anchor" href="#arg-silent"></a></dt>
@@ -145,11 +150,11 @@
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co">## display the quantile values</span></span></span>
 <span class="r-in"><span><span class="va">quants</span><span class="op">$</span><span class="va">values</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>         X</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>         </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> bill_len [,1]</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>    0.055 35.7</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>    0.5   44.3</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>    0.945 52.1</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     0.25 39.2</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     0.5  44.3</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     0.75 48.3</span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co">## verify these values using Pr():</span></span></span>
 <span class="r-in"><span><span class="va">probs</span> <span class="op">&lt;-</span> <span class="fu"><a href="Pr.html">Pr</a></span><span class="op">(</span></span></span>
@@ -162,37 +167,37 @@
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co">## the cumulative probabilities are indeed 0.055, 0.5, 0.945 within numerical error:</span></span></span>
 <span class="r-in"><span><span class="va">probs</span><span class="op">$</span><span class="va">values</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>         NA</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> bill_len       [,1]</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>     35.7 0.05541489</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>     44.3 0.50269977</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>     52.1 0.94784616</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>         </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> bill_len      [,1]</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     39.2 0.2528194</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     44.3 0.5026998</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     48.3 0.7501943</span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co">## display the variability about the quantiles</span></span></span>
 <span class="r-in"><span><span class="va">quants</span><span class="op">$</span><span class="va">quantiles</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> , ,  = 5.5%</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> , , Q = 5.5%</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>         X</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>         </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> bill_len [,1]</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>    0.055 35.3</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>    0.5   43.3</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>    0.945 51.5</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     0.25 38.7</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     0.5  43.3</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     0.75 47.8</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> , ,  = 50%</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> , , Q = 50%</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>         X</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>         </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> bill_len [,1]</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>    0.055 35.7</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>    0.5   44.3</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>    0.945 52.1</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     0.25 39.2</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     0.5  44.3</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     0.75 48.3</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> , ,  = 94.5%</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> , , Q = 94.5%</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>         X</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>         </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> bill_len [,1]</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>    0.055 36.2</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>    0.5   45.1</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>    0.945 52.8</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     0.25 39.7</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     0.5  45.1</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     0.75 48.9</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span></span></span>
@@ -210,11 +215,11 @@
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co">## display the quantile values</span></span></span>
 <span class="r-in"><span><span class="va">quants</span><span class="op">$</span><span class="va">values</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>         X</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>         species</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> bill_len Adelie</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>    0.055   34.6</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>    0.5     38.8</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>    0.945   43.3</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     0.25   37.0</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     0.5    38.8</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     0.75   40.6</span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co">## verify these values using Pr():</span></span></span>
 <span class="r-in"><span><span class="va">probs</span> <span class="op">&lt;-</span> <span class="fu"><a href="Pr.html">Pr</a></span><span class="op">(</span></span></span>
@@ -228,10 +233,10 @@
 <span class="r-in"><span><span class="co">## the cumulative probabilities are indeed 0.055, 0.5, 0.945 within numerical error:</span></span></span>
 <span class="r-in"><span><span class="va">probs</span><span class="op">$</span><span class="va">values</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>         species</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> bill_len     Adelie</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>     34.6 0.05787695</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>     38.8 0.50508827</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>     43.3 0.94621702</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> bill_len    Adelie</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     37   0.2530943</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     38.8 0.5050883</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     40.6 0.7515390</span>
 <span class="r-in"><span></span></span>
 </code></pre></div>
     </div>

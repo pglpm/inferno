@@ -121,7 +121,7 @@ probs <- Pr(Y = data.frame(species = 'Adelie'), learnt = learnt, parallel = 1)
 #> Registered socket cluster with 1 nodes on host ‘localhost’.
 #> Closing connections to cores.
 probs$values
-#>         NA
+#>         
 #> species      [,1]
 #>   Adelie 0.440685
 
