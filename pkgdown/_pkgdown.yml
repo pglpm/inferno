@@ -15,6 +15,7 @@ reference:
     - mutualinfo
     - plot.probability
     - plotquantiles
+    - print.probability
     - prova.data
     - qPr
     - rPr
