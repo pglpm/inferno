@@ -33,7 +33,7 @@
   <main id="main" class="col-md-9"><div class="page-header">
 
       <h1>Plot an object of class "probability"</h1>
-      <small class="dont-index">Source: <a href="https://github.com/pglpm/prova/blob/main/R/util_tplotfunctions.R" class="external-link"><code>R/util_tplotfunctions.R</code></a></small>
+      <small class="dont-index">Source: <a href="https://github.com/pglpm/prova/blob/main/R/util_plotfunctions.R" class="external-link"><code>R/util_plotfunctions.R</code></a></small>
       <div class="d-none name"><code>plot.probability.Rd</code></div>
     </div>
 
@@ -45,8 +45,9 @@
     <h2 id="ref-usage">Usage<a class="anchor" aria-label="anchor" href="#ref-usage"></a></h2>
     <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="co"># S3 method for class 'probability'</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span></span>
-<span>  <span class="va">p</span>,</span>
+<span>  <span class="va">x</span>,</span>
 <span>  variability <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  subset <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  PvsY <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  legend <span class="op">=</span> <span class="st">"top"</span>,</span>
 <span>  lty <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1</span>, <span class="fl">2</span>, <span class="fl">4</span>, <span class="fl">3</span>, <span class="fl">6</span>, <span class="fl">5</span><span class="op">)</span>,</span>
@@ -69,12 +70,16 @@
     <h2 id="arguments">Arguments<a class="anchor" aria-label="anchor" href="#arguments"></a></h2>
 
 
-<dl><dt id="arg-p">p<a class="anchor" aria-label="anchor" href="#arg-p"></a></dt>
+<dl><dt id="arg-x">x<a class="anchor" aria-label="anchor" href="#arg-x"></a></dt>
 <dd><p>Object of class "probability", obtained with <code><a href="Pr.html">Pr()</a></code>.</p></dd>
 
 
 <dt id="arg-variability">variability<a class="anchor" aria-label="anchor" href="#arg-variability"></a></dt>
 <dd><p>One of the values <code>'quantiles'</code>, <code>'samples'</code>, <code>'none'</code> (equivalent to <code>NA</code> or <code>FALSE</code>), or <code>NULL</code> (default), in which case the variability available in <code>p</code> is used. This argument chooses how to represent the variability of the probability; see <code><a href="Pr.html">Pr()</a></code>. If the requested variability is not available in the object <code>p</code>, then a warning is issued and no variability is plotted.</p></dd>
+
+
+<dt id="arg-subset">subset<a class="anchor" aria-label="anchor" href="#arg-subset"></a></dt>
+<dd><p>Named list or named vector: which variate values to display. For the variates corresponding to the names in this list, only the vector of values corresponding to that variate is displayed.</p></dd>
 
 
 <dt id="arg-pvsy">PvsY<a class="anchor" aria-label="anchor" href="#arg-pvsy"></a></dt>
@@ -83,6 +88,10 @@
 
 <dt id="arg-legend">legend<a class="anchor" aria-label="anchor" href="#arg-legend"></a></dt>
 <dd><p>One of the values <code>'bottomright'</code>, <code>'bottom'</code>, <code>'bottomleft'</code>, <code>'left'</code>, <code>'topleft'</code>, <code>'top'</code>, <code>'topright'</code>, <code>'right'</code>, <code>'center'</code> (see <code><a href="https://rdrr.io/r/graphics/legend.html" class="external-link">graphics::legend()</a></code>): plot a legend at that position. A value <code>FALSE</code> or any other does not plot any legend. Default <code>'top'</code>.</p></dd>
+
+
+<dt id="arg-lty-lwd-col-type-xlab-ylab-main-ylim-grid-add">lty, lwd, col, type, xlab, ylab, main, ylim, grid, add<a class="anchor" aria-label="anchor" href="#arg-lty-lwd-col-type-xlab-ylab-main-ylim-grid-add"></a></dt>
+<dd><p>see analogous arguments in <code><a href="https://rdrr.io/r/graphics/matplot.html" class="external-link">graphics::matplot()</a></code></p></dd>
 
 
 <dt id="arg-alpha-f">alpha.f<a class="anchor" aria-label="anchor" href="#arg-alpha-f"></a></dt>

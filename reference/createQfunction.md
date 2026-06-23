@@ -15,7 +15,6 @@ createQfunction(
   shapehi = 0.5,
   rate = 1,
   file = paste0("__Qfunction", nint, "_", sd),
-  save = TRUE,
   plot = FALSE
 )
 ```

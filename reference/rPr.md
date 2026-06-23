@@ -7,8 +7,8 @@ somewhat analogous to the `r`-variants of R distribution functions, such
 as [`stats::rnorm()`](https://rdrr.io/r/stats/Normal.html). If `X` is
 omitted or `NULL`, then the posterior probability `Pr(Y | data)` is
 used. Each variate in the argument `X` can be specified either as a
-point-value `X = x` or as a left-open interval `X ≤ x` or as a
-right-open interval `X ≥ x`, through the argument `tails`.
+point-value `X = x` or as a left-open interval `X <= x` or as a
+right-open interval `X >= x`, through the argument `tails`.
 
 ## Usage
 
@@ -52,7 +52,7 @@ rPr(
   Named vector or list, or `NULL` (default). The names must match some
   or all of the variates in arguments `X`. For variates in this list,
   the probability conditional is understood in an semi-open interval
-  sense: `X ≤ x` or `X ≥ x`, an so on. See analogous argument in
+  sense: `X <= x` or `X >= x`, an so on. See analogous argument in
   [`Pr()`](https://pglpm.github.io/prova/reference/Pr.md).
 
 - mcsamples:
@@ -63,6 +63,10 @@ rPr(
   should be used to draw the variate values. The default is to choose a
   random subset if `n` is smaller than their number, otherwise to
   recycle them as necessary.
+
+- parallel:
+
+  Not used: this function does not use parallelization.
 
 ## Value
 

@@ -43,7 +43,7 @@ The hist() method for a probability object is a utility to visualize this kind o
   <main id="main" class="col-md-9"><div class="page-header">
 
       <h1>Plot the variability of an object of class "probability" as a histogram</h1>
-      <small class="dont-index">Source: <a href="https://github.com/pglpm/prova/blob/main/R/util_tplotfunctions.R" class="external-link"><code>R/util_tplotfunctions.R</code></a></small>
+      <small class="dont-index">Source: <a href="https://github.com/pglpm/prova/blob/main/R/util_plotfunctions.R" class="external-link"><code>R/util_plotfunctions.R</code></a></small>
       <div class="d-none name"><code>hist.probability.Rd</code></div>
     </div>
 
@@ -57,7 +57,7 @@ The hist() method for a probability object is a utility to visualize this kind o
     <h2 id="ref-usage">Usage<a class="anchor" aria-label="anchor" href="#ref-usage"></a></h2>
     <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="co"># S3 method for class 'probability'</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/graphics/hist.html" class="external-link">hist</a></span><span class="op">(</span></span>
-<span>  <span class="va">p</span>,</span>
+<span>  <span class="va">x</span>,</span>
 <span>  breaks <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  legend <span class="op">=</span> <span class="st">"top"</span>,</span>
 <span>  lty <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1</span>, <span class="fl">2</span>, <span class="fl">4</span>, <span class="fl">3</span>, <span class="fl">6</span>, <span class="fl">5</span><span class="op">)</span>,</span>
@@ -81,7 +81,7 @@ The hist() method for a probability object is a utility to visualize this kind o
     <h2 id="arguments">Arguments<a class="anchor" aria-label="anchor" href="#arguments"></a></h2>
 
 
-<dl><dt id="arg-p">p<a class="anchor" aria-label="anchor" href="#arg-p"></a></dt>
+<dl><dt id="arg-x">x<a class="anchor" aria-label="anchor" href="#arg-x"></a></dt>
 <dd><p>Object of class "probability", obtained with <code><a href="Pr.html">Pr()</a></code>.</p></dd>
 
 
@@ -91,6 +91,10 @@ The hist() method for a probability object is a utility to visualize this kind o
 
 <dt id="arg-legend">legend<a class="anchor" aria-label="anchor" href="#arg-legend"></a></dt>
 <dd><p>One of the values <code>"bottomright"</code>, <code>"bottom"</code>, <code>"bottomleft"</code>, <code>"left"</code>, <code>"topleft"</code>, <code>"top"</code>, <code>"topright"</code>, <code>"right"</code>, <code>"center"</code> (see <code><a href="https://rdrr.io/r/graphics/legend.html" class="external-link">graphics::legend()</a></code>): plot a legend at that position. A value <code>FALSE</code> or any other does not plot any legend. Default <code>"top"</code>.</p></dd>
+
+
+<dt id="arg-lty-lwd-col-alpha-f-xlab-ylab-xlim-ylim-main-grid-add">lty, lwd, col, alpha.f, xlab, ylab, xlim, ylim, main, grid, add<a class="anchor" aria-label="anchor" href="#arg-lty-lwd-col-alpha-f-xlab-ylab-xlim-ylim-main-grid-add"></a></dt>
+<dd><p>see analogous arguments in <code><a href="https://rdrr.io/r/graphics/matplot.html" class="external-link">graphics::matplot()</a></code></p></dd>
 
 
 <dt id="arg-fill-alpha-f">fill.alpha.f<a class="anchor" aria-label="anchor" href="#arg-fill-alpha-f"></a></dt>
@@ -125,8 +129,8 @@ The hist() method for a probability object is a utility to visualize this kind o
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Registered socket cluster with 1 nodes on host ‘localhost’.</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Closing connections to cores.</span>
 <span class="r-in"><span><span class="va">probs</span><span class="op">$</span><span class="va">values</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>         X</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Y            [,1]</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>         NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> species      [,1]</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   Adelie 0.440685</span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co">## show the variability of this probability; equivalently show</span></span></span>

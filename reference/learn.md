@@ -241,8 +241,8 @@ to read and write CSV files in the format used by `learn()`.
 ## Examples
 
 ``` r
-## Create dataset with 5 points of variate 'V' for demonstration:
-dataset <- data.frame(V = rnorm(n = 5))
+## Create dataset with 3 points of variate 'V' for demonstration:
+dataset <- data.frame(V = rnorm(n = 3))
 
 ## Create metadata file:
 metadata <- data.frame(name = 'V', type = 'continuous')
@@ -257,13 +257,13 @@ learnt <- learn(
 #> 
 #> Registered socket cluster with 1 nodes on host ‘localhost’.
 #> 
-#> Learning from 5 datapoints, 1 variates.
+#> Learning from 3 datapoints, 1 variates.
 #> 
 #>  Saving output in directory
-#>  /tmp/RtmpXYdZSE/prova-V1_D5_S10_260622T090138_1a2869d4ceb7 
+#>  /tmp/RtmpLazL43/prova-V1_D3_S10_260623T063734_1a4792cb210 
 #> 
 #> Starting Monte Carlo sampling of 10 samples by 1 chains
-#> in a space of 191 (effectively 261) dimensions.
+#> in a space of 191 (effectively 259) dimensions.
 #> Using 1 cores: 10 samples per chain, max 1 chains per core.
 #> Requested:   ESS 450   rel.MCSE 0.047.
 #> Core logs are being saved in individual files.
@@ -272,40 +272,40 @@ learnt <- learn(
 #>                                                                
 #> Finished Monte Carlo sampling.
 #> Highest number of Monte Carlo iterations across chains: 10.
-#> Highest number of used mixture components: 3.
+#> Highest number of used mixture components: 2.
 #> 
 #> NOTE: 1 chains were stopped before reaching required precision
 #> in order to meet the required time constraints.
 #> 
 #> Checking test data
-#> (#1 #2 #3 #4 #5):
-#> rel. CI error: 0.349 to 0.93
-#> ESS: 4.73 to 10
-#> needed thinning: 1.22 to 8.65
-#> average: 0.0749 to 0.67
-#> quantile width: 0.127 to 3.7
+#> (#1 #2 #3):
+#> rel. CI error: 0.277 to 0.757
+#> ESS: 10 to 10
+#> needed thinning: 1 to 5.72
+#> average: 0.135 to 0.867
+#> quantile width: 0.216 to 3.27
 #> 
 #> Plotting final Monte Carlo traces and marginal samples...
-#> Total computation time: 41 secs
-#> Average preparation & finalization time: 40 secs.
-#> Average Monte Carlo time per chain: 0.7 secs.
+#> Total computation time: 34 secs
+#> Average preparation & finalization time: 33 secs.
+#> Average Monte Carlo time per chain: 0.55 secs.
 #> Max total memory used: approx 360MB.
 #> Max memory used per core: approx 360MB.
 #> Removing temporary output files.
 #> 
 #> Finished.
-#> **********************************************************
+#> *********************************************************
 #>  Output saved in directory
-#> /tmp/RtmpXYdZSE/prova-V1_D5_S10_260622T090138_1a2869d4ceb7
-#> **********************************************************
+#> /tmp/RtmpLazL43/prova-V1_D3_S10_260623T063734_1a4792cb210
+#> *********************************************************
 #> Closing connections to cores.
 
 ## Check structure of `learnt` object:
 str(learnt)
 #> List of 6
-#>  $ Rmean      : num [1, 1:64, 1:10] -3.34 2.52 2.83 -3.87 -2.56 ...
-#>  $ Rsd        : num [1, 1:64, 1:10] 0.799 1.649 0.74 0.984 1.6 ...
-#>  $ W          : num [1:64, 1:10] 6.31e-01 1.83e-11 4.20e-64 4.04e-285 1.36e-91 ...
+#>  $ Rmean      : num [1, 1:64, 1:10] 2.92 -1.05 3.25 2.55 -2.54 ...
+#>  $ Rsd        : num [1, 1:64, 1:10] 0.346 7.822 1.841 1.145 0.638 ...
+#>  $ W          : num [1:64, 1:10] 1.11e-12 1.17e-09 1.76e-27 3.55e-262 7.41e-28 ...
 #>  $ MCindex    : num [1:10(1d)] 1 2 3 4 5 6 7 8 9 10
 #>  $ auxmetadata:'data.frame': 1 obs. of  24 variables:
 #>   ..$ name             : chr "V"
@@ -327,14 +327,14 @@ str(learnt)
 #>   ..$ tdomainminplushs : num -Inf
 #>   ..$ tdomainmaxminushs: num Inf
 #>   ..$ tlocation        : num 0.0796
-#>   ..$ tscale           : num 0.459
-#>   ..$ plotmin          : num -2.24
-#>   ..$ plotmax          : num 2.01
+#>   ..$ tscale           : num 0.507
+#>   ..$ plotmin          : num -2.34
+#>   ..$ plotmax          : num 1.99
 #>   ..$ V1               : logi NA
 #>   ..$ V2               : logi NA
 #>  $ auxinfo    :List of 12
 #>   ..$ nchains          : num 1
-#>   ..$ npoints          : int 5
+#>   ..$ npoints          : int 3
 #>   ..$ hyperparams      :List of 21
 #>   .. ..$ ncomponents : num 64
 #>   .. ..$ minalpha    : num -4
@@ -358,17 +358,17 @@ str(learnt)
 #>   .. ..$ initmethod  : chr "datacentre"
 #>   .. ..$ Qerror      : num [1:2] 0.159 0.841
 #>   ..$ maxiterations    : num 10
-#>   ..$ maxusedcomponents: num 3
+#>   ..$ maxusedcomponents: num 2
 #>   ..$ nonfinitechains  : num 0
 #>   ..$ stoppedchains    : num 1
-#>   ..$ rel. CI error    : Named num [1:6] 0.397 0.462 0.902 0.628 0.93 ...
-#>   .. ..- attr(*, "names")= chr [1:6] "gmean" "1" "2" "3" ...
-#>   ..$ ESS              : Named num [1:6] 10 10 10 10 4.73 ...
-#>   .. ..- attr(*, "names")= chr [1:6] "gmean" "1" "2" "3" ...
-#>   ..$ needed thinning  : Named num [1:6] 1.58 2.13 8.14 3.94 8.65 ...
-#>   .. ..- attr(*, "names")= chr [1:6] "gmean" "1" "2" "3" ...
-#>   ..$ average          : Named num [1:6] 0.1262 0.0749 0.2593 0.1149 0.6699 ...
-#>   .. ..- attr(*, "names")= chr [1:6] "gmean" "1" "2" "3" ...
-#>   ..$ quantile width   : Named num [1:6] 0.127 0.129 1.106 0.239 3.701 ...
-#>   .. ..- attr(*, "names")= chr [1:6] "gmean" "1" "2" "3" ...
+#>   ..$ rel. CI error    : Named num [1:4] 0.384 0.277 0.395 0.757
+#>   .. ..- attr(*, "names")= chr [1:4] "gmean" "1" "2" "3"
+#>   ..$ ESS              : Named num [1:4] 10 10 10 10
+#>   .. ..- attr(*, "names")= chr [1:4] "gmean" "1" "2" "3"
+#>   ..$ needed thinning  : Named num [1:4] 1.48 1 1.56 5.72
+#>   .. ..- attr(*, "names")= chr [1:4] "gmean" "1" "2" "3"
+#>   ..$ average          : Named num [1:4] 0.194 0.178 0.135 0.867
+#>   .. ..- attr(*, "names")= chr [1:4] "gmean" "1" "2" "3"
+#>   ..$ quantile width   : Named num [1:4] 0.216 0.26 0.229 3.267
+#>   .. ..- attr(*, "names")= chr [1:4] "gmean" "1" "2" "3"
 ```

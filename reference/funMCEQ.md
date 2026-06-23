@@ -14,11 +14,11 @@ funMCEQ(x, prob = c(0.055, 0.945), Qpair = pnorm(c(-1, 1)))
 
   A vector of MC samples
 
-- prob::
+- prob:
 
   Quantile whose error intervalis being estimated
 
-- Qpair::
+- Qpair:
 
   Lower and higher credibility-quantiles requested
 

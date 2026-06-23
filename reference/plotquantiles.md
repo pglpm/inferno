@@ -64,6 +64,11 @@ plotquantiles(
   [`grDevices::col2rgb()`](https://rdrr.io/r/grDevices/col2rgb.html). If
   `NA` (default), no border is drawn.
 
+- type:
+
+  see analogous argument in
+  [`flexiplot()`](https://pglpm.github.io/prova/reference/flexiplot.md).
+
 - ...:
 
   Other parameters to be passed to

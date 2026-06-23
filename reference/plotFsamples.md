@@ -25,6 +25,11 @@ plotFsamples(
 
   Character: name of plot output file
 
+- learnt:
+
+  Either a character with the name of a directory or full path for an
+  'learnt.rds' object, or such an object itself
+
 - data:
 
   data.table object or filepath: datapoints
@@ -61,11 +66,6 @@ plotFsamples(
 - silent:
 
   Logical: give warnings or updates in the computation
-
-- learned:
-
-  Either a character with the name of a directory or full path for an
-  'learnt.rds' object, or such an object itself
 
 ## Value
 

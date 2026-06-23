@@ -15,7 +15,7 @@ for `Y` is given, the function will calculate the
 `Pr(Y | X, data, prior)` from `Pr(X | Y, data)` and the prior by means
 of Bayes's theorem. Each variate in each argument `Y`, `X` can be
 specified either as a point-value `Y = y` or as a left-open interval
-`Y ≤ y` or as a right-open interval `Y ≥ y`, through the argument
+`Y <= y` or as a right-open interval `Y >= y`, through the argument
 `tails`.
 
 ## Usage
@@ -30,6 +30,7 @@ Pr(
   nsamples = "all",
   quantiles = c(0.055, 0.25, 0.75, 0.945),
   parallel = TRUE,
+  sep = ",",
   silent = FALSE,
   keepYX = TRUE
 )
@@ -63,10 +64,10 @@ Pr(
   Named vector or list, or `NULL` (default). The names must match some
   or all of the variates in arguments `Y` and `X`. For variates in this
   list, the probability arguments are understood in an semi-open
-  interval sense: `Y ≤ y` or `Y ≥ y`, an so on. This is true for
+  interval sense: `Y <= y` or `Y >= y`, an so on. This is true for
   variates on the left and on the right of the conditional sign `|`. A
-  left-open interval `Y ≤ y` is indicated by the values `'<='` or
-  `'left'` or `-1`; a right-open interval `Y ≥ y` is indicated by the
+  left-open interval `Y <= y` is indicated by the values `'<='` or
+  `'left'` or `-1`; a right-open interval `Y >= y` is indicated by the
   values `'>='` or `'right'` or `+1`. Values `NULL`, `'=='`, `0`
   indicate that a point value `Y = y` (not an interval) should be
   calculated. **NB**: the semi-open intervals *always* include the given
@@ -110,6 +111,11 @@ Pr(
   [`parallel::makeCluster()`](https://rdrr.io/r/parallel/makeCluster.html);
   in this case the parallel computation will use this object.
 
+- sep:
+
+  character, default `','`: character to separate variate names and
+  values
+
 - silent:
 
   Logical, default `FALSE`: give warnings or updates in the computation?
@@ -121,19 +127,22 @@ Pr(
 
 ## Value
 
-A list of class `probability`, consisting of the elements `values`,
-`quantiles` (possibly `NULL`), `samples` (possibly `NULL`),
-`values.MCaccuracy`, `quantiles.MCaccuracy` (possibly `NULL`), `Y`, `X`.
-Element `values`: a matrix with the probabilities
-P(Y\|X,data,assumptions), for all combinations of values of `Y` (rows)
-and `X` (columns). Element `quantiles`: an array with the variability
-quantiles (3rd dimension of the array) for such probabilities. Element
-`samples`: an array with the variability samples (3rd dimension of the
-array) for such probabilities. Elements `values.MCaccuracy` and
-`quantiles.MCaccuracy`: arrays with the numerical accuracies (roughly
-speaking a standard deviation) of the Monte Carlo calculations for the
-`values` and `quantiles` elements. Elements `Y`, `X`: copies of the `Y`
-and `X` arguments.
+A list of class `probability`, consisting of the following elements:
+
+- `values`: a matrix with the probabilities P(Y\|X,data), for all joint
+  values of the Y-variates (rows) and X-variates (columns).
+
+- `quantiles` (possibly `NULL`): an array with the variability quantiles
+  (3rd dimension of the array) for such probabilities.
+
+- `samples` (possibly `NULL`): an array with the variability samples
+  (3rd dimension of the array) for such probabilities.
+
+- `values.MCaccuracy`, `quantiles.MCaccuracy`: arrays with the numerical
+  accuracies (roughly speaking a standard deviation) of the Monte Carlo
+  calculations for the `values` and `quantiles` elements.
+
+- `Y`, `X`: copies of the `Y` and `X` arguments.
 
 ## References
 
@@ -159,8 +168,8 @@ to plot probabilities and quantiles calculated by `Pr()`.
 to plot histograms of the probability distributions calculated by
 `Pr()`.
 
-[`subset.probability()`](https://pglpm.github.io/prova/reference/subset.probability.md)
-to subset some variate values in probabilities calculated by `Pr()`.
+[`print.probability()`](https://pglpm.github.io/prova/reference/print.probability.md)
+to print the main elements of the probabilities calculated by `Pr()`.
 
 [`qPr()`](https://pglpm.github.io/prova/reference/qPr.md) to calculate
 quantiles for a specific variate, that is, the variate values having
@@ -189,8 +198,8 @@ probs <- Pr(
 
 ## display the probability value
 probs$values
-#>         X
-#> Y            [,1]
+#>         NA
+#> species      [,1]
 #>   Adelie 0.440685
 
 ## the full-population frequency of 'Adelie' penguins is unknown;
@@ -218,8 +227,8 @@ probs <- Pr(
 
 ## display the 3 probability values
 probs$values
-#>            X
-#> Y                [,1]
+#>            NA
+#> species          [,1]
 #>   Adelie    0.4406850
 #>   Chinstrap 0.1984161
 #>   Gentoo    0.3608989
@@ -228,8 +237,8 @@ probs$values
 ## display the 5.5%- and 94.5%-probability values
 ## for such frequencies
 probs$quantiles[, , c('5.5%', '94.5%')]
-#>            
-#> Y                5.5%     94.5%
+#>            NA
+#> species          5.5%     94.5%
 #>   Adelie    0.3988210 0.4829919
 #>   Chinstrap 0.1623616 0.2357522
 #>   Gentoo    0.3237028 0.4017671
@@ -257,8 +266,8 @@ probs <- Pr(
 
 ## display the probability value
 probs$values
-#>         X
-#> Y               43
+#>         bill_len
+#> species         43
 #>   Adelie 0.4647433
 
 ## the full-subpopulation frequency of 'Adelie' penguins,
@@ -283,9 +292,9 @@ probs <- Pr(
 
 ## display the probability value
 probs$values
-#>            X
-#> Y                  [,1]
-#>   Adelie,43 0.001819114
+#>                 NA
+#> species,bill_len        [,1]
+#>        Adelie,43 0.001819114
 
 ## display the 5.5%- and 94.5%-probability values
 ## for the full-population frequency of 'Adelie' penguins with 43 mm bills
@@ -308,8 +317,8 @@ probs <- Pr(Y = Y, X = X, learnt = learnt, parallel = 1)
 
 ## display the 3 x 2 probability values
 probs$values
-#>            X
-#> Y                  43        44
+#>            bill_len
+#> species            43        44
 #>   Adelie    0.4647433 0.2223224
 #>   Chinstrap 0.1458345 0.2054491
 #>   Gentoo    0.3894222 0.5722285
@@ -317,18 +326,18 @@ probs$values
 ## display the 5.5%- and 94.5%-probability values
 ## for the full-population joint frequencies
 probs$quantiles[, , c('5.5%', '94.5%')]
-#> , ,  = 5.5%
+#> , , Q = 5.5%
 #> 
-#>            X
-#> Y                   43        44
+#>            bill_len
+#> species             43        44
 #>   Adelie    0.36692485 0.1447719
 #>   Chinstrap 0.08096214 0.1197566
 #>   Gentoo    0.29852092 0.4671262
 #> 
-#> , ,  = 94.5%
+#> , , Q = 94.5%
 #> 
-#>            X
-#> Y                  43        44
+#>            bill_len
+#> species            43        44
 #>   Adelie    0.5678666 0.3069388
 #>   Chinstrap 0.2190872 0.2965559
 #>   Gentoo    0.4811995 0.6718201
@@ -354,25 +363,25 @@ probs <- Pr(Y = Y, learnt = learnt, parallel = 1)
 
 ## display the 6 joint-probability values
 probs$values
-#>               X
-#> Y                      [,1]
-#>   Adelie,43    0.0018191137
-#>   Chinstrap,43 0.0005712174
-#>   Gentoo,43    0.0015231253
-#>   Adelie,44    0.0009554396
-#>   Chinstrap,44 0.0008826070
-#>   Gentoo,44    0.0024593339
+#>                 NA
+#> species,bill_len         [,1]
+#>     Adelie,43    0.0018191137
+#>     Chinstrap,43 0.0005712174
+#>     Gentoo,43    0.0015231253
+#>     Adelie,44    0.0009554396
+#>     Chinstrap,44 0.0008826070
+#>     Gentoo,44    0.0024593339
 
 ## display the 5.5%- and 94.5%-probability values
 ## for the full-population joint frequencies
 probs$quantiles[, , c('5.5%', '94.5%')]
-#>               
-#> Y                      5.5%       94.5%
-#>   Adelie,43    0.0012450391 0.002371801
-#>   Chinstrap,43 0.0003027243 0.000897585
-#>   Gentoo,43    0.0010682562 0.002025675
-#>   Adelie,44    0.0005600381 0.001361621
-#>   Chinstrap,44 0.0004820964 0.001288832
-#>   Gentoo,44    0.0017899847 0.003151722
+#>                 NA
+#> species,bill_len         5.5%       94.5%
+#>     Adelie,43    0.0012450391 0.002371801
+#>     Chinstrap,43 0.0003027243 0.000897585
+#>     Gentoo,43    0.0010682562 0.002025675
+#>     Adelie,44    0.0005600381 0.001361621
+#>     Chinstrap,44 0.0004820964 0.001288832
+#>     Gentoo,44    0.0017899847 0.003151722
 
 ```

@@ -24,7 +24,7 @@ in the form of a distribution.
 ``` r
 # S3 method for class 'probability'
 hist(
-  p,
+  x,
   breaks = NULL,
   legend = "top",
   lty = c(1, 2, 4, 3, 6, 5),
@@ -46,7 +46,7 @@ hist(
 
 ## Arguments
 
-- p:
+- x:
 
   Object of class "probability", obtained with
   [`Pr()`](https://pglpm.github.io/prova/reference/Pr.md).
@@ -65,6 +65,11 @@ hist(
   (see [`graphics::legend()`](https://rdrr.io/r/graphics/legend.html)):
   plot a legend at that position. A value `FALSE` or any other does not
   plot any legend. Default `"top"`.
+
+- lty, lwd, col, alpha.f, xlab, ylab, xlim, ylim, main, grid, add:
+
+  see analogous arguments in
+  [`graphics::matplot()`](https://rdrr.io/r/graphics/matplot.html)
 
 - fill.alpha.f:
 
@@ -109,8 +114,8 @@ probs <- Pr(Y = data.frame(species = 'Adelie'), learnt = learnt, parallel = 1)
 #> Registered socket cluster with 1 nodes on host ‘localhost’.
 #> Closing connections to cores.
 probs$values
-#>         X
-#> Y            [,1]
+#>         NA
+#> species      [,1]
 #>   Adelie 0.440685
 
 ## show the variability of this probability; equivalently show

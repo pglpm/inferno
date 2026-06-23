@@ -42,7 +42,7 @@ The functions
 accept CSV files formatted as follows:
 
 - Decimal values should be separated by a *dot*; no comma should be used
-  to separate thousands etc. Example: `86342.75` .
+  to separate thousands etc. Example: `86342.75`.
 
 - Character and names should be quoted in single or double quotes.
   Example: `"female"`.

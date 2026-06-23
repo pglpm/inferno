@@ -12,8 +12,8 @@ several joint values are given for the probability levels and for `X`,
 the function creates a 2D grid of results for all possible combinations
 of the given probability levels and `X` values. Each variate in the
 argument `X` can be specified either as a point-value `X = x` or as a
-left-open interval `X ≤ x` or as a right-open interval `X ≥ x`, through
-the argument `tails`.
+left-open interval `X <= x` or as a right-open interval `X >= x`,
+through the argument `tails`.
 
 ## Usage
 
@@ -63,7 +63,7 @@ qPr(
   Named vector or list, or `NULL` (default). The names must match some
   or all of the variates in arguments `X`. For variates in this list,
   the probability conditional is understood in an semi-open interval
-  sense: `X ≤ x` or `X ≥ x`, an so on. See analogous argument in
+  sense: `X <= x` or `X >= x`, an so on. See analogous argument in
   [`Pr()`](https://pglpm.github.io/prova/reference/Pr.md).
 
 - priorY:
@@ -176,11 +176,11 @@ probs <- Pr(
 
 ## the cumulative probabilities are indeed 0.055, 0.5, 0.945 within numerical error:
 probs$values
-#>       X
-#> Y            [,1]
-#>   35.7 0.05541489
-#>   44.3 0.50269977
-#>   52.1 0.94784616
+#>         NA
+#> bill_len       [,1]
+#>     35.7 0.05541489
+#>     44.3 0.50269977
+#>     52.1 0.94784616
 
 ## display the uncertainty about the quantiles
 quants$quantiles
@@ -241,9 +241,9 @@ probs <- Pr(
 
 ## the cumulative probabilities are indeed 0.055, 0.5, 0.945 within numerical error:
 probs$values
-#>       X
-#> Y          Adelie
-#>   34.6 0.05787695
-#>   38.8 0.50508827
-#>   43.3 0.94621702
+#>         species
+#> bill_len     Adelie
+#>     34.6 0.05787695
+#>     38.8 0.50508827
+#>     43.3 0.94621702
 ```

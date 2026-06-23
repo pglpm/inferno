@@ -43,6 +43,11 @@ flexiplot(
   Numeric or character: vector of y coordinates. If missing, a numeric
   vector `1:...` is created having as many values as the rows of `x`.
 
+- type, lty, lwd, pch, col, xlab, ylab, add, cex.main:
+
+  see analogous arguments in
+  [`graphics::matplot()`](https://rdrr.io/r/graphics/matplot.html)
+
 - xlim, ylim:
 
   `NULL` (default) or a vector of two values. In the latter case, if any

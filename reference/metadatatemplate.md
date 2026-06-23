@@ -290,7 +290,9 @@ metadata <- metadatatemplate(data = datasets::penguins, file = NULL)
 #> Preferably, transform it back to non-logarithmic scale.
 #> =========
 
-## Note how the preliminary data frame includes additional spots for values of nominal and ordinal variates which could be missing from the data
+## Note how the preliminary data frame includes additional spots
+## for values of nominal and ordinal variates
+## which could be missing from the data
 print(metadata)
 #>          name       type domainmin domainmax datastep minincluded maxincluded
 #> 1     species    nominal        NA        NA       NA          NA          NA
@@ -436,13 +438,14 @@ print(metadata3)
 ## Generate 10 points for a continuous variate in (0, 1)
 dataset <- runif(10)
 
-## `metadatatemplate` correctly guesses the variate minimum, but not the maximum (`NA` is equivalent to `+Inf`)
+## `metadatatemplate` correctly guesses the variate minimum,
+## but not the maximum (`NA` is equivalent to `+Inf`)
 metadata <- metadatatemplate(data = dataset, file = NULL)
 #> 
 #> Analyzing 1 variates for 10 datapoints.
 #> 
 #> * "data" variate:
-#>   - Numeric values between 0.1429437 and 0.8852476 
+#>   - Numeric values between 0.002492428 and 0.9964129 
 #>   Assuming variate to be CONTINUOUS.
 #>   - All values are positive
 #>   Assuming "domainmin" to be 0

@@ -45,7 +45,7 @@ mutualinfo(
   Named vector or list, or `NULL` (default). The names must match some
   or all of the variates in arguments `X`. For variates in this list,
   the probability conditional is understood in an semi-open interval
-  sense: `X ≤ x` or `X ≥ x`, an so on. See analogous argument in
+  sense: `X <= x` or `X >= x`, an so on. See analogous argument in
   [`Pr()`](https://pglpm.github.io/prova/reference/Pr.md).
 
 - n:
@@ -150,8 +150,8 @@ probs <- Pr(
 #> Closing connections to cores.
 
 probs$values
-#>            X
-#> Y                   30
+#>            bill_len
+#> species             30
 #>   Adelie    0.92985096
 #>   Gentoo    0.03626731
 #>   Chinstrap 0.03388172

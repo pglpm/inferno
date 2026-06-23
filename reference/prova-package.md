@@ -1,4 +1,4 @@
-# prova: Probabilistic-statistical variate analysis and inference with Bayesian nonparametrics
+# prova: Probabilistic-Statistical Variate Analysis and Inference with Bayesian Nonparametrics
 
 Functions for calculating posterior joint and conditional probabilities,
 probability distributions of population frequencies, and
