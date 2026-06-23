@@ -46,7 +46,7 @@ penguin <- penguins[sample(1:nrow(penguins)), ] ## shuffle
 pwrite.csv(penguin, file = 'penguin_data.csv')
 ```
 
-The utility function `pwrite.csv()` saves the dataset as a CSV file that respects the [formatting rules required by **Prova**](#format). For your convenience you can also download the shuffled dataset as the CSV file [`penguin_data.csv`](https://github.com/pglpm/prova/raw/main/development/downloads/penguin_data.csv). We assume that you now have the `penguin_data.csv` file.
+The utility function `pwrite.csv()` saves the dataset as a CSV file that respects the [formatting rules required by **Prova**](#format). For your convenience you can also download the shuffled dataset as the CSV file [`penguin_data.csv`](https://github.com/pglpm/prova/raw/main/vignettes/penguin_data.csv). We assume that you now have the `penguin_data.csv` file.
 
 \
 
@@ -287,7 +287,7 @@ Also the `sex` variate is correctly guessed: `nominal` type with possible values
 \
 The guesses about the `flipper_len` and `body_mass` variates are not correct, however: these variates are continuous, with a minimal value of `0` and no maximal value. They are rounded to `1` mm and `25` g (this was correctly guessed).
 
-We must open the preliminary metadata file `penguin_metadata.csv` with our favourite editor, and correct and complete the guesses of the helper function. In this case we end up with the following corrected metadata file, also available for download as [`penguin_metadata.csv`](https://github.com/pglpm/prova/raw/main/development/downloads/penguin_metadata.csv):
+We must open the preliminary metadata file `penguin_metadata.csv` with our favourite editor, and correct and complete the guesses of the helper function. In this case we end up with the following corrected metadata file, also available for download as [`penguin_metadata.csv`](https://github.com/pglpm/prova/raw/main/vignettes/penguin_metadata.csv):
 
 
 
@@ -325,60 +325,61 @@ learnt10 <- learn(
     outputdir = 'penguin_inference',
     parallel = 4 ## how many cores to use for the computation
 )
-# Registered socket cluster with 4 nodes on host ‘localhost’.
-# Calculating auxiliary metadata
-# 
-# Learning:  10 datapoints,  8 variates
-# 
-#  ************************************************** 
-#  Saving output in directory
-#  penguin_inference-261231T135959-vrt8_dat10_smp3600 
-#  ************************************************** 
-# Starting Monte Carlo sampling of 3600 samples by 8 chains
-# in a space of 1023 (effectively 3856) dimensions.
-# Using 4 cores: 450 samples per chain, max 2 chains per core.
-# Requested:   ESS 450   rel.MCSE 0.047 
-# Core logs are being saved in individual files.
-# 
-# C-compiling samplers appropriate to the variates (package Nimble)
-# this can take tens of minutes. Please wait...
-# Compiled core 1. Number of samplers: 1078.             
-# Estimating remaining time, please be patient...
-# Core 2 finished.                                        
-# Core 4 finished.                                        
-# Core 3 finished.                                        
-# Core 1 finished.                                        
-# Finished Monte Carlo sampling.                                 
-# Highest number of Monte Carlo iterations across chains: 115200 
-# Highest number of used mixture components: 5 
-# 
-# Checking test data
-# ( #1 #2 #3 #4 #5 #6 #7 #8 #9 #10 )
-# 
-# 
-# rel. CI error: 0.0331 to 0.265
-# ESS: 3110 to 3880
-# needed thinning: 3.93 to 252
-# average: 2.69e-08 to 0.186
-# width: 3.92e-08 to 0.322
-# Plotting final Monte Carlo traces and marginal samples...
-# 
-# Total computation time: 9.8 mins 
-# Average preparation & finalization time: 1.1 mins 
-# Average Monte Carlo time per chain: 4.1 mins 
-# Max total memory used: approx 3100 MB
-# Max memory used per core: approx 790 MB
-# 
-# Removing temporary output files.
-# Finished.
-# Closing connections to cores.
+## Registered socket cluster with 4 nodes on host ‘localhost’.
+## 
+## Learning from 10 datapoints, 8 variates.
+## 
+##  Saving output in directory
+##  __penguin_inference_10-V8_D10_S3600_260621T120628 
+## 
+## Starting Monte Carlo sampling of 3600 samples by 8 chains
+## in a space of 1023 (effectively 3856) dimensions.
+## Using 4 cores: 450 samples per chain, max 2 chains per core.
+## Requested:   ESS 450   rel.MCSE 0.047.
+## Core logs are being saved in individual files.
+## C-compiling samplers appropriate to the variates (Nimble v1.4.2)
+## this can take tens of minutes. Please wait...
+## Compiled core 1. Number of samplers: 1078.             
+## Estimating remaining time, please be patient...
+## Core 2 finished.                                        
+## Core 4 finished.                                        
+## Core 1 finished.                                        
+## Core 3 finished.                                        
+## Finished Monte Carlo sampling.
+## Highest number of Monte Carlo iterations across chains: 115200.
+## Highest number of used mixture components: 5.
+## 
+## Checking test data
+## (#1 #2 #3 #4 #5 #6 #7 #8 #9 #10):
+## rel. CI error: 0.0331 to 0.265
+## ESS: 3110 to 3880
+## needed thinning: 3.93 to 252
+## average: 2.69e-08 to 0.186
+## quantile width: 3.92e-08 to 0.322
+## 
+## Plotting final Monte Carlo traces and marginal samples...
+## 
+## Total computation time: 15 mins
+## Average preparation & finalization time: 1.7 mins.
+## Average Monte Carlo time per chain: 5.5 mins.
+## Max total memory used: approx 3100MB.
+## Max memory used per core: approx 770MB.
+## Removing temporary output files.
+## 
+## Finished.
+## *************************************************
+##  Output saved in directory
+## __penguin_inference_10-V8_D10_S3600_260621T120628
+## *************************************************
+## 
+## Closing connections to cores.
 ```
 
-The initial output gives a summary of the sample size, number of variates, saving directory, and other computational details. An "`estimated end time`" line (not appearing in the output above) is updated from time to time with a better estimate of the computation's end time. Once the computation is finished, some final information about the underlying Monte Carlo computation and time and memory use is provided.^[The Monte Carlo expert will notice that the effective sample size is around 900 or more. The Monte Carlo sampling is designed to stop when 3600 samples have been obtained with an effective sample size of at least 450, or equivalently a relative Monte Carlo standard error under 0.05. This is enough, considering that the statistical uncertainty in the results can be tens or hundreds of times larger than this. The desired number of samples and maximal Monte Carlo standard error can be specified with the `nsamples` and `maxrelMCSE` arguments.] The inference above, with 10 sample data and 8 variates, took around 3 GB and 10 minutes to complete on 4 cores.
+The initial output gives a summary of the sample size, number of variates, saving directory, and other computational details. An "`estimated end time`" line (not appearing in the output above) is updated from time to time with a better estimate of the computation's end time. Once the computation is finished, some final information about the underlying Monte Carlo computation and time and memory use is provided.^[The Monte Carlo expert will notice that the effective sample size is around 3000 or more. The Monte Carlo sampling is designed to stop when 3600 samples have been obtained from 8 chains, each with an effective sample size of at least 450, or equivalently a relative Monte Carlo standard error under 0.047. This is enough, considering that the statistical uncertainty in the results can be tens or hundreds of times larger than this. The desired number of samples and maximal Monte Carlo standard error can be specified with the `nsamples`, `minESS`, and `maxrelMCSE` arguments.] The inference above, with 10 sample data and 8 variates, took around 3 GB and 15 minutes to complete on 4 cores.
 
 The results of this main inference are now stored in the compressed file `learnt.rds` (around 32 MB) within the specified output directory. The name of this directory is also saved as the final value of the `learn()` function. We saved this directory name in the `learnt10` variable in the code above, by invoking `learnt10 <- learn(...)`.
 
-For your convenience the object produced by the computation above can be downloaded as the file [`learnt10.rds`](https://github.com/pglpm/prova/raw/main/development/downloads/learnt10.rds). Once you have downloaded it in your working directory you can just invoke
+For your convenience the object produced by the computation above can be downloaded as the file [`learnt10.rds`](https://github.com/pglpm/prova/raw/main/vignettes/learnt10.rds). Once you have downloaded it in your working directory you can just invoke
 
 
 ``` r
@@ -439,7 +440,7 @@ The estimated frequency distribution for the species is the central, solid red c
 The three estimated frequencies are:
 
 - Adélie: 0.30
-- Chinstrap: 0.31
+- Chinstrap: 0.30
 - Gentoo: 0.40
 
 and can be read from the `values` element of the `Fspecies10` object, either directly or by using the `print()` function, which by default shows two significant digits:
@@ -449,18 +450,18 @@ and can be read from the `values` element of the `Fspecies10` object, either dir
 Fspecies10$values
 #            
 # species         [,1]
-#   Adelie    0.297758
-#   Chinstrap 0.306937
-#   Gentoo    0.395305
+#   Adelie    0.298718
+#   Chinstrap 0.304615
+#   Gentoo    0.396668
 
 ## or
 print(Fspecies10, 'values')
 # $values
 #            
 # species     [,1]
-#   Adelie    0.30
-#   Chinstrap 0.31
-#   Gentoo    0.40
+#   Adelie     0.3
+#   Chinstrap  0.3
+#   Gentoo     0.4
 ```
 
 These frequency estimates have also another important meaning: they are the *probabilities for the species of the **next** penguin we'll observe*. More generally, they are the probabilities for the next observation. In the present context they are maybe not so relevant -- unless you're placing bets on which data will arrive next with your colleagues -- but in other inference contexts they may be very important. In a clinical setting, for example, where we try to infer some condition about the next patient, these probabilities are used for clinical decision-making; see the textbooks by Sox & al. and by Hunink & al., and the paper by Lindley & Novick in the [references]{#referencesmedical}.
@@ -509,9 +510,9 @@ The credibility intervals are calculated from the probability distribution above
 Fspecies10$quantiles[, , c('5.5%', '94.5%')]
 #            Q
 # species         5.5%    94.5%
-#   Adelie    0.120096 0.513786
-#   Chinstrap 0.124214 0.523065
-#   Gentoo    0.191072 0.621872
+#   Adelie    0.121767 0.506820
+#   Chinstrap 0.122984 0.522063
+#   Gentoo    0.192130 0.618288
 ```
 
 or we can use the `print()` function to display values and quantiles together:
@@ -521,9 +522,9 @@ or we can use the `print()` function to display values and quantiles together:
 print(Fspecies10)
 #            prob. & vrb.
 # species     value Q5.5% Q25% Q75% Q94.5%
-#   Adelie     0.30  0.12 0.21 0.38   0.51
-#   Chinstrap  0.31  0.12 0.21 0.39   0.52
-#   Gentoo     0.40  0.19 0.30 0.49   0.62
+#   Adelie      0.3  0.12 0.21 0.38   0.51
+#   Chinstrap   0.3  0.12 0.21 0.39   0.52
+#   Gentoo      0.4  0.19 0.30 0.49   0.62
 ```
 
 <!-- As the name tells, this element actually report the *quantiles* of the probability. For example, look at the `= 25%` output: among other things it says `Adelie 0.227634`. This means that there's a 25% probability that the frequency of Adélie penguins is below $0.227634$, and thus a 75% probability that it's above $0.227634$.
@@ -588,12 +589,12 @@ Fspeciessex10 <- Pr(
 print(Fspeciessex10)
 #                   prob. & vrb.
 # species,sex        value Q5.5%  Q25% Q75% Q94.5%
-#   Adelie,female     0.17 0.050 0.100 0.22   0.33
-#   Chinstrap,female  0.13 0.038 0.075 0.18   0.27
-#   Gentoo,female     0.29 0.119 0.199 0.36   0.50
-#   Adelie,male       0.13 0.034 0.074 0.17   0.28
-#   Chinstrap,male    0.17 0.055 0.104 0.23   0.35
-#   Gentoo,male       0.11 0.021 0.054 0.14   0.24
+#   Adelie,female     0.16 0.051 0.098 0.22   0.32
+#   Chinstrap,female  0.13 0.034 0.073 0.17   0.27
+#   Gentoo,female     0.29 0.124 0.199 0.37   0.50
+#   Adelie,male       0.14 0.038 0.075 0.18   0.28
+#   Chinstrap,male    0.18 0.056 0.105 0.23   0.35
+#   Gentoo,male       0.11 0.022 0.053 0.15   0.25
 ```
 
 Now let's continue with our simpler plan.
@@ -647,17 +648,17 @@ print(Fspecies10I, digits = 3)
 # 
 #            prob. & vrb.
 # species     value  Q5.5%   Q25%  Q75% Q94.5%
-#   Adelie    0.143 0.0145 0.0520 0.201  0.372
-#   Chinstrap 0.140 0.0143 0.0513 0.195  0.371
-#   Gentoo    0.717 0.4118 0.6142 0.847  0.938
+#   Adelie    0.145 0.0148 0.0526 0.207  0.380
+#   Chinstrap 0.137 0.0124 0.0476 0.193  0.378
+#   Gentoo    0.718 0.4188 0.6086 0.853  0.941
 # 
 # , , |island = Dream
 # 
 #            prob. & vrb.
-# species     value  Q5.5%   Q25%  Q75% Q94.5%
-#   Adelie    0.361 0.1052 0.2243 0.482  0.663
-#   Chinstrap 0.473 0.1900 0.3363 0.603  0.770
-#   Gentoo    0.166 0.0182 0.0648 0.235  0.415
+# species     value  Q5.5%  Q25%  Q75% Q94.5%
+#   Adelie    0.358 0.1041 0.228 0.477  0.657
+#   Chinstrap 0.475 0.1863 0.338 0.607  0.774
+#   Gentoo    0.167 0.0192 0.068 0.237  0.417
 ```
 
 According to these estimates, on Biscoe there should be a predominance of Gentoo penguins, with lower, roughly equal numbers of Adélie and Chinstrap. On Dream, on the other hand, Gentoo should be the minority, and Chinstrap should be the majority. But how sure are we about these estimates? We see that the 89%-credibility intervals of each frequency are quite wide. Also in this case we can get a better picture by displaying the probability distribution of each frequency, by means of the `hist()` function, and see how much they overlap.
@@ -714,17 +715,17 @@ print(Fspecies10I)
 # 
 #            prob. & vrb.
 # species     value Q5.5%  Q25% Q75% Q94.5%
-#   Adelie     0.14 0.014 0.052 0.20   0.37
-#   Chinstrap  0.14 0.014 0.051 0.20   0.37
-#   Gentoo     0.72 0.412 0.614 0.85   0.94
+#   Adelie     0.15 0.015 0.053 0.21   0.38
+#   Chinstrap  0.14 0.012 0.048 0.19   0.38
+#   Gentoo     0.72 0.419 0.609 0.85   0.94
 # 
 # , , |island = Dream
 # 
 #            prob. & vrb.
 # species     value Q5.5%  Q25% Q75% Q94.5%
-#   Adelie     0.36 0.105 0.224 0.48   0.66
-#   Chinstrap  0.47 0.190 0.336 0.60   0.77
-#   Gentoo     0.17 0.018 0.065 0.24   0.41
+#   Adelie     0.36 0.104 0.228 0.48   0.66
+#   Chinstrap  0.47 0.186 0.338 0.61   0.77
+#   Gentoo     0.17 0.019 0.068 0.24   0.42
 ```
 
 ## Differences from "null-hypothesis testing" and *p*-value methods {#nht}
@@ -771,14 +772,14 @@ print(Fspecies10IS, 'values')
 # $values
 #            |island,sex
 # species     Biscoe,female Dream,female Torgersen,female Biscoe,male
-#   Adelie             0.13          0.4             0.48        0.21
-#   Chinstrap          0.12          0.4             0.27        0.22
-#   Gentoo             0.76          0.2             0.25        0.57
+#   Adelie             0.13         0.40             0.48        0.21
+#   Chinstrap          0.11         0.40             0.27        0.22
+#   Gentoo             0.76         0.21             0.25        0.57
 #            |island,sex
 # species     Dream,male Torgersen,male
-#   Adelie          0.32           0.44
+#   Adelie          0.32           0.45
 #   Chinstrap       0.54           0.38
-#   Gentoo          0.14           0.18
+#   Gentoo          0.14           0.17
 ```
 
 
@@ -810,58 +811,60 @@ learnt60 <- learn(
     outputdir = 'penguin_inference',
     parallel = 4 ## how many cores to use for the computation
 )
-# Registered socket cluster with 4 nodes on host ‘localhost’.
-# 
-# Calculating auxiliary metadata
-# 
-# Learning:  60 datapoints,  8 variates
-# 
-#  ************************************************** 
-#  Saving output in directory
-#  penguin_inference-261231T235959-vrt8_dat60_smp3600 
-#  ************************************************** 
-# Starting Monte Carlo sampling of 3600 samples by 8 chains
-# in a space of 1023 (effectively 16706) dimensions.
-# Using 4 cores: 450 samples per chain, max 2 chains per core.
-# Requested:   ESS 450   rel.MCSE 0.047 
-# Core logs are being saved in individual files.
-# 
-# C-compiling samplers appropriate to the variates (package Nimble)
-# this can take tens of minutes. Please wait...
-# Compiled core 1. Number of samplers: 1328.             
-# Core 4 finished.                                        
-# Core 1 finished.                                        
-# Core 2 finished.                                        
-# Core 3 finished.                                        
-# Finished Monte Carlo sampling.                                 
-# Highest number of Monte Carlo iterations across chains: 39600 
-# Highest number of used mixture components: 7 
-# 
-# Checking test data
-# ( #3 #8 #11 #16 #18 #27 #31 #46 #48 #50 #52 #57 )
-# 
-# 
-# rel. CI error: 0.0333 to 0.0975
-# ESS: 2920 to 3690
-# needed thinning: 3.98 to 34.2
-# average: 3.29e-09 to 1.51e-07
-# width: 4.27e-09 to 3.13e-07
-# Plotting final Monte Carlo traces and marginal samples...
-# 
-# Total computation time: 9.3 mins 
-# Average preparation & finalization time: 1.5 mins 
-# Average Monte Carlo time per chain: 2.4 mins 
-# Max total memory used: approx 3300 MB
-# Max memory used per core: approx 860 MB
-# 
-# Removing temporary output files.
-# Finished.
-# Closing connections to cores.
+
+## Registered socket cluster with 4 nodes on host ‘localhost’.
+## 
+## Learning from 60 datapoints, 8 variates.
+## 
+##  Saving output in directory
+##  __penguin_inference_60-V8_D60_S3600_260621T120619 
+## 
+## Starting Monte Carlo sampling of 3600 samples by 8 chains
+## in a space of 1023 (effectively 16706) dimensions.
+## Using 4 cores: 450 samples per chain, max 2 chains per core.
+## Requested:   ESS 450   rel.MCSE 0.047.
+## Core logs are being saved in individual files.
+## C-compiling samplers appropriate to the variates (Nimble v1.4.2)
+## this can take tens of minutes. Please wait...
+## Compiled core 1. Number of samplers: 1328.             
+## Estimating remaining time, please be patient...
+## Core 4 finished.                                        
+## Core 1 finished.                                        
+## Core 2 finished.                                        
+## Core 3 finished.                                        
+## Finished Monte Carlo sampling.
+## Highest number of Monte Carlo iterations across chains: 39600.
+## Highest number of used mixture components: 7.
+## 
+## Checking test data
+## (#3 #8 #11 #16 #18 #27 #31 #46 #48 #50 #52 #57):
+## rel. CI error: 0.0333 to 0.0975
+## ESS: 2920 to 3690
+## needed thinning: 3.98 to 34.2
+## average: 3.29e-09 to 1.51e-07
+## quantile width: 4.27e-09 to 3.13e-07
+## 
+## Plotting final Monte Carlo traces and marginal samples...
+## 
+## Total computation time: 12 mins
+## Average preparation & finalization time: 2.5 mins.
+## Average Monte Carlo time per chain: 3.1 mins.
+## Max total memory used: approx 3300MB.
+## Max memory used per core: approx 850MB.
+## Removing temporary output files.
+## 
+## Finished.
+## *************************************************
+##  Output saved in directory
+## __penguin_inference_60-V8_D60_S3600_260621T120619
+## *************************************************
+## 
+## Closing connections to cores.
 ```
 
 The calculation with 60 sample data took around 3 GB and 10 minutes on 4 cores.
 
-The results of this updated inference are now stored in the compressed file `learnt.rds` within the new output directory. For your convenience the object produced by the computation above can be downloaded as the file [`learnt60.rds`](https://github.com/pglpm/prova/raw/main/development/downloads/learnt60.rds). Once you have downloaded it in your working directory, invoke
+The results of this updated inference are now stored in the compressed file `learnt.rds` within the new output directory. For your convenience the object produced by the computation above can be downloaded as the file [`learnt60.rds`](https://github.com/pglpm/prova/raw/main/vignettes/learnt60.rds). Once you have downloaded it in your working directory, invoke
 
 
 ``` r
@@ -980,7 +983,7 @@ print(Fspecies60)
 #            prob. & vrb.
 # species     value Q5.5% Q25% Q75% Q94.5%
 #   Adelie     0.40  0.30 0.35 0.44   0.50
-#   Chinstrap  0.21  0.13 0.18 0.24   0.30
+#   Chinstrap  0.21  0.13 0.17 0.24   0.30
 #   Gentoo     0.39  0.30 0.35 0.44   0.49
 ```
 
@@ -1075,14 +1078,14 @@ There's clearly a high probability that `Gentoo` frequency is larger than `Chins
 
 ``` r
 median(freqdiff)
-# [1] 0.705916
+# [1] 0.704726
 
 quantile(freqdiff, c(0.055, 0.945))
 #     5.5%    94.5% 
-# 0.536313 0.830717
+# 0.536058 0.831464
 ```
 
-> From a sample of 60 penguins, the difference between the frequencies of `Gentoo` species and `Chinstrap` species, on `Biscoe` island, is estimated with a median of 0.71, and it is between 0.54 and 0.83 with 89% probability.
+> From a sample of 60 penguins, the difference between the frequencies of `Gentoo` species and `Chinstrap` species, on `Biscoe` island, is estimated with a median of 0.7, and it is between 0.54 and 0.83 with 89% probability.
 
 
 Maybe you prefer a ratio between the two frequencies:
@@ -1093,14 +1096,14 @@ freqratio <- Fspecies60I$samples['Gentoo', 'Biscoe',] /
     Fspecies60I$samples['Chinstrap', 'Biscoe',]
 
 median(freqratio)
-# [1] 20.5569
+# [1] 20.5296
 
 quantile(freqratio, c(0.055, 0.945))
-#      5.5%     94.5% 
-#   6.52203 102.34883
+#     5.5%    94.5% 
+#  6.65212 96.02806
 ```
 
-> From a sample of 60 penguins, the ratio between the frequencies of `Gentoo` species on `Chinstrap` species, on `Biscoe` island, is estimated with a median of 21, and it is between 6.52 and 102.35 with 89% probability.
+> From a sample of 60 penguins, the ratio between the frequencies of `Gentoo` species on `Chinstrap` species, on `Biscoe` island, is estimated with a median of 21, and it is between 6.65 and 96.03 with 89% probability.
 
 It is remarkable that with only 60 penguins -- and not all of them from Biscoe island -- we can conclude with a high probability (95%) that there are at least 7 times more Gentoo penguins than Chinstrap penguins on Biscoe island! Note an important consequence from the point of view of hypothesis testing:
 
@@ -1125,7 +1128,7 @@ Let's store all datapoints in the file `penguin_data.csv`:
 datafile <- 'penguin_data.csv'
 pwrite.csv(penguin, datafile)
 ```
-As usual we perform the updated inference with the `learn()` function (and as usual please wait before running the code below):
+As usual we perform the updated inference with the `learn()` function (and as usual please wait before running the code below); this time we use 8 parallel cores:
 
 
 ``` r
@@ -1133,58 +1136,65 @@ learntall <- learn(
     data = datafile,
     metadata = metadatafile,
     outputdir = 'penguin_inference',
-    parallel = 4 ## how many cores to use for the computation
+    parallel = 8 ## how many cores to use for the computation
 )
-# Registered socket cluster with 4 nodes on host ‘localhost’.
-# 
-# Calculating auxiliary metadata
-# 
-# Learning:  344 datapoints,  8 variates
-# 
-#  ******************************************************* 
-#  Saving output in directory
-#  penguin_inference_def-261231T135959-vrt8_dat344_smp3600 
-#  ******************************************************* 
-# Starting Monte Carlo sampling of 3600 samples by 4 chains
-# in a space of 1023 (effectively 89707) dimensions.
-# Using 4 cores: 900 samples per chain, max 1 chains per core.
-# Requested:   ESS 450   rel.MCSE 0.047 
-# Core logs are being saved in individual files.
-# 
-# C-compiling samplers appropriate to the variates (package Nimble)
-# Compiled core 1. Number of samplers: 2757.             
-# Core 2 finished.                                        
-# Core 4 finished.                                        
-# Core 3 finished.                                        
-# Core 1 finished.                                        
-# Finished Monte Carlo sampling.                                 
-# Highest number of Monte Carlo iterations across chains: 179789 
-# Highest number of used mixture components: 7 
-# 
-# Checking test data
-# ( #62 #64 #67 #125 #127 #189 #225 #234 #264 #271 #276 #315 )
-# 
-# 
-# rel. CI error: 0.0246 to 0.122
-# ESS: 709 to 3800
-# needed thinning: 2.19 to 53.4
-# average: 9.38e-11 to 1.74e-07
-# width: 1.79e-10 to 1.86e-07
-# Plotting final Monte Carlo traces and marginal samples...
-# 
-# Total computation time: 2 hours 
-# Average preparation & finalization time: 2.4 mins 
-# Average Monte Carlo time per chain: 34 mins 
-# Max total memory used: approx 3500 MB
-# Max memory used per core: approx 920 MB
-# Finished.
-# 
-# Closing connections to cores.
+## Registered socket cluster with 8 nodes on host ‘localhost’.
+## 
+## Learning from 344 datapoints, 8 variates.
+## 
+##  Saving output in directory
+##  __penguin_inference_all-V8_D344_S3600_260622T073853 
+## 
+## Starting Monte Carlo sampling of 3600 samples by 8 chains
+## in a space of 1023 (effectively 89707) dimensions.
+## Using 8 cores: 450 samples per chain, max 1 chains per core.
+## Requested:   ESS 450   rel.MCSE 0.047.
+## Core logs are being saved in individual files.
+## C-compiling samplers appropriate to the variates (Nimble v1.4.2)
+## this can take tens of minutes. Please wait...
+## Compiled core 1. Number of samplers: 2757.             
+## Estimating remaining time, please be patient...
+## Core 1 finished.                                        
+## Core 3 finished.                                        
+## Core 8 finished.                                        
+## Core 7 finished.                                        
+## Core 4 finished.                                        
+## Core 5 finished.                                        
+## Core 2 finished.                                        
+## Core 6 finished.                                        
+## Finished Monte Carlo sampling.
+## Highest number of Monte Carlo iterations across chains: 1541125.
+## Highest number of used mixture components: 8.
+## 
+## Checking test data
+## (#8 #37 #80 #90 #96 #115 #116 #129 #162 #230 #258 #342):
+## rel. CI error: 0.0243 to 0.293
+## ESS: 627 to 3520
+## needed thinning: 2.13 to 310
+## average: 3.18e-09 to 5.58e-08
+## quantile width: 5.45e-09 to 7.18e-08
+## 
+## Plotting final Monte Carlo traces and marginal samples...
+## 
+## Total computation time: 17 hours
+## Average preparation & finalization time: 5.4 mins.
+## Average Monte Carlo time per chain: 2.8 hours.
+## Max total memory used: approx 7100MB.
+## Max memory used per core: approx 1100MB.
+## Removing temporary output files.
+## 
+## Finished.
+## ***************************************************
+##  Output saved in directory
+## __penguin_inference_all-V8_D344_S3600_260622T073853
+## ***************************************************
+## 
+## Closing connections to cores.
 ```
 
-The calculation with 344 sample data took around 3.5 GB and 2 hours on 4 cores.
+The calculation with 344 sample data took around 7 GB and 17 hours.
 
-The results of this final inference are stored in the compressed file `learnt.rds` within the new output directory. The object produced by the computation above can be downloaded as the file [`learntall.rds`](https://github.com/pglpm/prova/raw/main/development/downloads/learntall.rds). Once you have downloaded it in your working directory, invoke
+The results of this final inference are stored in the compressed file `learnt.rds` within the new output directory. The object produced by the computation above can be downloaded as the file [`learntall.rds`](https://github.com/pglpm/prova/raw/main/vignettes/learntall.rds). Once you have downloaded it in your working directory, invoke
 
 
 ``` r
@@ -1230,7 +1240,7 @@ The last plot is visually the most complete answer we can give to our research q
 print(Fspeciesall)
 #            prob. & vrb.
 # species     value Q5.5% Q25% Q75% Q94.5%
-#   Adelie     0.44  0.40 0.42 0.46   0.49
+#   Adelie     0.44  0.40 0.42 0.46   0.48
 #   Chinstrap  0.20  0.17 0.18 0.21   0.23
 #   Gentoo     0.36  0.32 0.34 0.38   0.40
 ```
@@ -1239,7 +1249,7 @@ print(Fspeciesall)
 > 
 > Adélie
 > : estimate 0.44
->  <br>true rel. frequency between 0.40 and 0.49 with 89% probability.
+>  <br>true rel. frequency between 0.40 and 0.48 with 89% probability.
 > 
 > Chinstrap
 > : estimate 0.20
@@ -1297,9 +1307,9 @@ print(Fanalysis)
 # 
 #            prob. & vrb.
 # species     value  Q5.5%   Q25%  Q75% Q94.5%
-#   Adelie    0.269 0.2174 0.2451 0.291  0.324
-#   Chinstrap 0.012 0.0027 0.0061 0.016  0.027
-#   Gentoo    0.719 0.6614 0.6975 0.743  0.772
+#   Adelie    0.266 0.2132 0.2427 0.288  0.322
+#   Chinstrap 0.012 0.0028 0.0059 0.016  0.025
+#   Gentoo    0.722 0.6662 0.6993 0.746  0.775
 ```
 
 Conclusion:
@@ -1308,7 +1318,7 @@ Conclusion:
 > 
 > Adélie
 > : estimate 0.27
->  <br>true rel. frequency between 0.22 and 0.32 with 89% probability.
+>  <br>true rel. frequency between 0.21 and 0.32 with 89% probability.
 > 
 > Chinstrap
 > : estimate 0.01
@@ -1316,7 +1326,7 @@ Conclusion:
 > 
 > Gentoo
 > : estimate 0.72
->  <br>true rel. frequency between 0.66 and 0.77 with 89% probability.
+>  <br>true rel. frequency between 0.67 and 0.77 with 89% probability.
 
 Note how our [previous estimates from 60 samples](#surprise) were already quite on the spot.
 
@@ -1359,7 +1369,7 @@ print(Fanalysis)
 #            prob. & vrb.
 # island      value Q5.5% Q25% Q75% Q94.5%
 #   Biscoe     0.29  0.24 0.27 0.32   0.35
-#   Dream      0.37  0.31 0.34 0.39   0.43
+#   Dream      0.37  0.31 0.34 0.40   0.43
 #   Torgersen  0.34  0.28 0.31 0.36   0.40
 ```
 
@@ -1445,7 +1455,7 @@ Consider also this question: "Do Adélie and Chinstrap penguins have identical b
 
 - Lindley, Novick: [*The role of exchangeability in inference*](https://doi.org/10.1214/aos/1176345331) (1981).
 
-- **Prova** accompanying manual: [*Foundations of inference under symmetry*](https://github.com/pglpm/prova/raw/main/development/manual/optimal_predictor_machine.pdf) (draft).
+- **Prova** accompanying manual: [*Foundations of inference under symmetry*](https://github.com/pglpm/prova/raw/main/development/manual/pglpm2024-bayes_nonparam.pdf) (draft).
 
 ### On Bayesian theory in general: {#referencesbayes}
 

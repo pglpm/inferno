@@ -133,6 +133,7 @@ str(learnt)
 For the mathematical representation of the frequency space:
 \itemize{
 \item Dunson, Bhattacharya (2011): \emph{Nonparametric Bayes regression and classification through mixtures of product kernels} \url{doi:10.1093/acprof:oso/9780199694587.003.0005}.
+\item Ishwaran, Zarepour (2002): \emph{Exact and approximate sum representations for the Dirichlet process} \url{doi:10.2307/3315951}.
 }
 
 About Bayesian inference under exchangeability ("population inference")
@@ -147,7 +148,7 @@ About nonparametrics:
 About Markov-chain Monte Carlo and "convergence":
 \itemize{
 \item Kwon & al. (2025): \emph{MCMC stopping rules in latent variable modelling} \url{doi:10.1111/bmsp.12357}.
-\item Vehtari & al. (2021): \emph{Rank-normalization, folding, and localization: an improved $\hat{R}$ for assessing convergence of MCMC} \url{doi:10.1214/20-BA1221}.
+\item Vehtari & al. (2021): \emph{Rank-normalization, folding, and localization: an improved R-hat for assessing convergence of MCMC} \url{doi:10.1214/20-BA1221}.
 \item Gilks & al. (1998): \emph{Markov Chain Monte Carlo in Practice}. Chapman & Hall/CRC \url{doi:10.1201/b14835}.
 \item D. J. C. MacKay (2005): \emph{Information Theory, Inference, and Learning Algorithms}. Cambridge University Press \url{https://www.inference.org.uk/itila/book.html}.
 }

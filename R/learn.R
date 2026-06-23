@@ -49,6 +49,7 @@
 #' For the mathematical representation of the frequency space:
 #'
 #' - Dunson, Bhattacharya (2011): *Nonparametric Bayes regression and classification through mixtures of product kernels* <doi:10.1093/acprof:oso/9780199694587.003.0005>.
+#' - Ishwaran, Zarepour (2002): *Exact and approximate sum representations for the Dirichlet process* <doi:10.2307/3315951>.
 #'
 #' About Bayesian inference under exchangeability ("population inference")
 #'
@@ -62,7 +63,7 @@
 #' About Markov-chain Monte Carlo and "convergence":
 #'
 #' - Kwon & al. (2025): *MCMC stopping rules in latent variable modelling* <doi:10.1111/bmsp.12357>.
-#' - Vehtari & al. (2021): *Rank-normalization, folding, and localization: an improved $\hat{R}$ for assessing convergence of MCMC* <doi:10.1214/20-BA1221>.
+#' - Vehtari & al. (2021): *Rank-normalization, folding, and localization: an improved R-hat for assessing convergence of MCMC* <doi:10.1214/20-BA1221>.
 #' - Gilks & al. (1998): *Markov Chain Monte Carlo in Practice*. Chapman & Hall/CRC <doi:10.1201/b14835>.
 #' - D. J. C. MacKay (2005): *Information Theory, Inference, and Learning Algorithms*. Cambridge University Press <https://www.inference.org.uk/itila/book.html>.
 #'

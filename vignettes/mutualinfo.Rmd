@@ -102,7 +102,7 @@ prob <- Pr(Y = data.frame(island = 'Torgersen', species = 'Chinstrap'),
 
 print(prob)
 #   value   Q5.5%    Q25%    Q75%  Q94.5% 
-# 0.00296 0.00039 0.00121 0.00395 0.00778
+# 0.00309 0.00041 0.00117 0.00415 0.00825
 ```
 
 \
@@ -125,11 +125,11 @@ rPr(
     learnt = learnt
 )
 #        island   species
-# 644_1  Biscoe    Gentoo
-# 996_1  Biscoe    Gentoo
-# 1228_1 Biscoe    Adelie
-# 2230_1  Dream Chinstrap
-# 3083_1  Dream Chinstrap
+# 644_1   Dream Chinstrap
+# 996_1   Dream Chinstrap
+# 1228_1  Dream Chinstrap
+# 2230_1 Biscoe    Gentoo
+# 3083_1  Dream    Adelie
 ```
 
 The rows of the resulting data frame are named according to the Monte Carlo samples used from the `learnt` object; they can be useful for peculiar studies but we can completely ignore them in the present case.
@@ -503,7 +503,7 @@ Note that in this case the Pearson correlation between `body_mass` and `bill_len
 
 ``` r
 cor(samples$body_mass, samples$bill_len, method = 'pearson')
-# [1] 0.545892
+# [1] 0.553292
 ```
 
 which is different from the rough $r$-equivalent 0.67.
@@ -581,15 +581,15 @@ It is interesting to contrast this result with values of the Pearson correlation
 ``` r
 ## Pearson r for Adelie subpopulation:
 cor(samplesAdelie$body_mass, samplesAdelie$bill_len, method = 'pearson')
-# [1] 0.417085
+# [1] 0.405675
 
 ## Pearson r for Chinstrap subpopulation:
 cor(samplesChinstrap$body_mass, samplesChinstrap$bill_len, method = 'pearson')
-# [1] 0.311494
+# [1] 0.304721
 
 ## Pearson r for Gentoo subpopulation:
 cor(samplesGentoo$body_mass, samplesGentoo$bill_len, method = 'pearson')
-# [1] 0.562958
+# [1] 0.547162
 ```
 
 The Pearson correlation yields the same the association *ranking* as the mutual information does (first Gentoo, then Adélie, then Chinstrap), but it yields the association for the Adélie subpopulation to be closer to the Gentoo one than to the Chinstrap one. The mutual information yields the opposite.
@@ -609,3 +609,5 @@ The Pearson correlation yields the same the association *ranking* as the mutual 
 - Cover, Thomas: [*Elements of Information Theory*](https://doi.org/10.1002/0471200611) (2nd ed. 2005).
 
 - MacKay: [*Information Theory, Inference, and Learning Algorithms*](https://www.inference.org.uk/itila/book.html) (2005).
+
+- Chapter "Information, relevance, independence, association" in [*Data Science and AI Prototyping*](https://pglpm.github.io/ADA511/information.html).
