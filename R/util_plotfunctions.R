@@ -497,7 +497,6 @@ plot.probability <- function(
     add = FALSE,
     ...
 ){
-
     ## Replace object x keeping only values given in 'subset'
     if(!is.null(subset)){
         x <- prsubset(x, subset = subset)
@@ -506,7 +505,6 @@ plot.probability <- function(
     ## Check how we should represent the variability
     ## The user can choose among three options
     ## provided that option is available in argument 'x'
-
     if(is.null(variability)) { # User is not choosing
         ## We choose 'quantiles' or what's available
         if(!is.null(x$quantiles)) {
@@ -720,6 +718,7 @@ plot.probability <- function(
 #' The `hist()` method for a `probability` object is a utility to visualize this kind of variability, in the form of a distribution.
 #'
 #' @param x Object of class "probability", obtained with [Pr()].
+#' @param subset Named list or named vector: which variate values to display. For the variates corresponding to the names in this list, only the vector of values corresponding to that variate is displayed.
 #' @param breaks `NULL` or as in function [graphics::hist()]. If `NULL` (default), an optimal number of breaks for each probability distribution is computed.
 #' @param fill.alpha.f Numeric, default 0.125: opacity of the histogram filling. `0` means no filling.
 #' @param legend One of the values `"bottomright"`, `"bottom"`, `"bottomleft"`, `"left"`, `"topleft"`, `"top"`, `"topright"`, `"right"`, `"center"` (see [graphics::legend()]): plot a legend at that position. A value `FALSE` or any other does not plot any legend. Default `"top"`.
@@ -756,6 +755,7 @@ plot.probability <- function(
 #' @export
 hist.probability <- function(
     x,
+    subset = NULL,
     breaks = NULL,
     legend = 'top',
     lty = c(1, 2, 4, 3, 6, 5),
@@ -781,8 +781,12 @@ hist.probability <- function(
     add = FALSE,
     ...
 ){
-    ## Check that samples are available in the probability object
+    ## Replace object x keeping only values given in 'subset'
+    if(!is.null(subset)){
+        x <- prsubset(x, subset = subset)
+    }
 
+    ## Check that samples are available in the probability object
     if(is.null(x$samples)) {
         stop('The probability object does not contain any frequency samples')
         }

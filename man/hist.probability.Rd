@@ -6,6 +6,7 @@
 \usage{
 \method{hist}{probability}(
   x,
+  subset = NULL,
   breaks = NULL,
   legend = "top",
   lty = c(1, 2, 4, 3, 6, 5),
@@ -26,6 +27,8 @@
 }
 \arguments{
 \item{x}{Object of class "probability", obtained with \code{\link[=Pr]{Pr()}}.}
+
+\item{subset}{Named list or named vector: which variate values to display. For the variates corresponding to the names in this list, only the vector of values corresponding to that variate is displayed.}
 
 \item{breaks}{\code{NULL} or as in function \code{\link[graphics:hist]{graphics::hist()}}. If \code{NULL} (default), an optimal number of breaks for each probability distribution is computed.}
 

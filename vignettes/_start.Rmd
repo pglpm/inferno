@@ -450,17 +450,17 @@ For the `Gentoo` species, there's a 50% probability that its relative frequency 
 
 We can Actually do more: we can plot the probabilities of all possible frequencies. To understand this idea, let's ask: what is the relative frequency of Adélie penguins in the whole population? Possible values could be anything between 0 and 1. But some of these values may be more probable than others. If we look at our 10 samples, we see that 3 out of 10 are `Adelie`. So a relative frequency around 0.3 is a little more probable, although there's still a lot of uncertainty because this is just a small sample.
 
-The `Pr()` function has actually calculated the probabilities for all possible frequencies of each species. We can plot the probabilities of the frequencies of the `Adelie` species as follows:
+The `Pr()` function has actually calculated the probabilities for all possible frequencies of each species. We can plot the probabilities of the frequencies of the `Adelie` species only, as follows:
 
 ```{r hist10adelie, eval = TRUE, fig.cap='**Probability distribution for the frequency of Adelie penguins**'}
-## select only Adelie
-onlyAdelie <- subset(Fspecies10, list(species = 'Adelie'))
-
-hist(onlyAdelie, xlim = c(0, 1), legend = 'topright', col = 2)
+## select only Adelie by means of argument 'subset ='
+hist(Fspecies10,
+    subset = list(species = 'Adelie'),
+    xlim = c(0, 1), legend = 'topright', col = 2)
 ```
 \
 
-With the `subset()` function we first extract from the `Fspecies10` object the information pertaining only to the `Adelie` species, saving it into the `onlyAdelie` object. Then the `hist()` function plots the probability distribution for all the frequency values. We see that frequencies between around `r printprob(quantile(onlyAdelie$samples, 0.25),1)` and `r printprob(quantile(onlyAdelie$samples, 0.75),1)` have highest probability. But the probability distribution is quite wide; even a frequency of `r printprob(quantile(onlyAdelie$samples, 0.99),1)` has some probability. The vertical line indicates the mean of this probability distribution, which we take as our frequency estimate and as the probability that the next penguin we observe is of the Adélie species.
+The `hist()` function plots the probability distribution for all the frequency values; its `subset =` argument selects the information pertaining only to the `Adelie` species. We see that frequencies between around `r printprob(quantile(Fspecies10$samples['Adelie',,], 0.25),1)` and `r printprob(quantile(Fspecies10$samples['Adelie',,], 0.75),1)` have highest probability. But the probability distribution is quite wide; even a frequency of `r printprob(quantile(Fspecies10$samples['Adelie',,], 0.99),1)` has some probability. The vertical line indicates the mean of this probability distribution, which we take as our frequency estimate and as the probability that the next penguin we observe is of the Adélie species.
 
 The width of this probability distribution reflects our large uncertainty, which in turn comes from the fact that we have only seen a small sample of penguins. We shall see that this uncertainty decreases and we gather more samples.
 
@@ -578,9 +578,8 @@ For Biscoe island we find
 
 ```{r hist10biscoe, eval = TRUE, fig.cap='**Probability distribution for species frequencies on Biscoe**'}
 ## select only Biscoe
-onlyBiscoe <- subset(Fspecies10I, list(island = 'Biscoe'))
-
-hist(onlyBiscoe, xlim = c(0, 1), legend = 'topright', col = 2:4)
+hist(Fspecies10I, subset = list(island = 'Biscoe'),
+    xlim = c(0, 1), legend = 'topright', col = 2:4)
 ```
 
 Note how, according to these preliminary estimates, the frequencies of Adélie and Chinstrap are very close, around `r printprob(mean(c(Fspecies10I$values['Adelie','Biscoe'], Fspecies10I$values['Chinstrap','Biscoe'])),1)`, and quite different from the frequency of Gentoo, around `r printprob(Fspecies10I$values['Gentoo','Biscoe'],1)`. Yet, the probability distributions are wide; each distribution gives a non-zero probability to all three estimates.
@@ -592,9 +591,8 @@ For Dream island we find
 
 ```{r hist10dream, eval = TRUE, fig.cap='**Probability distribution for species frequencies on Biscoe**'}
 ## select only Dream
-onlyDream <- subset(Fspecies10I, list(island = 'Dream'))
-
-hist(onlyDream, xlim = c(0, 1), legend = 'topright', col = 2:4)
+hist(Fspecies10I, subset = list(island = 'Dream'),
+    xlim = c(0, 1), legend = 'topright', col = 2:4)
 ```
 \
 
@@ -860,39 +858,35 @@ We can quickly repeat the analysis above for the *conditional* frequencies on th
 ### For `Dream` island
 
 ```{r hist60Dream, eval = TRUE, fig.cap=''}
-## select only Dream
-onlyDream10 <- subset(Fspecies10I, list(island = 'Dream'))
-onlyDream60 <- subset(Fspecies60I, list(island = 'Dream'))
-
-hist(onlyDream10, legend = 'topright', xlim = c(0, 1),
+hist(Fspecies10I, subset = list(island = 'Dream'),
+    legend = 'topright', xlim = c(0, 1),
     ylim = c(0, 13), ## same y-range
     col = 2:4, main = '10 samples, Dream island')
 
-hist(onlyDream60, legend = 'topright', xlim = c(0, 1),
+hist(Fspecies60I, subset = list(island = 'Dream'),
+    legend = 'topright', xlim = c(0, 1),
     ylim = c(0, 13), ## same y-range
     col = 2:4, main = '60 samples, Dream island')
 ```
 
-The new frequency estimates for `Adelies` (solid red line) and `Chinstrap` (dashed blue line) are now around `r printprob(abs(diff(onlyDream60$values[c('Adelie','Chinstrap'),1])),1)` apart; the previous estimates had them around `r printprob(abs(diff(onlyDream10$values[c('Adelie','Chinstrap'),1])),1)` apart. This change is not unexpected: the new estimates are well within the previous credibility intervals; we were correctly warned about their possible change.
+The new frequency estimates for `Adelies` (solid red line) and `Chinstrap` (dashed blue line) are now around `r printprob(abs(diff(Fspecies60I$values[c('Adelie','Chinstrap'),'Dream'])),1)` apart; the previous estimates had them around `r printprob(abs(diff(Fspecies10I$values[c('Adelie','Chinstrap'),'Dream'])),1)` apart. This change is not unexpected: the new estimates are well within the previous credibility intervals; we were correctly warned about their possible change.
 
 
 ### For `Biscoe` island: a surprising result {#surprise}
 
 ```{r hist60Biscoe, eval = TRUE, fig.cap=''}
-## select only Biscoe
-onlyBiscoe10 <- subset(Fspecies10I, list(island = 'Biscoe'))
-onlyBiscoe60 <- subset(Fspecies60I, list(island = 'Biscoe'))
-
-hist(onlyBiscoe10, legend = 'topright', xlim = c(0, 1),
+hist(Fspecies10I, subset = list(island = 'Biscoe'),
+    legend = 'topright', xlim = c(0, 1),
     ylim = c(0, 17), ## same y-range from previous plot
     col = 2:4, main = '10 samples, Biscoe island')
 
-hist(onlyBiscoe60, legend = 'topright', xlim = c(0, 1),
+hist(Fspecies60I, subset = list(island = 'Biscoe'),
+    legend = 'topright', xlim = c(0, 1),
     ylim = c(0, 17), ## same y-range from previous plot
     col = 2:4, main = '60 samples, Biscoe island')
 ```
 
-The new frequency estimates for `Adelies` (solid red line) and `Chinstrap` (dashed blue line) are now around `r printprob(abs(diff(onlyBiscoe60$values[c('Adelie','Chinstrap'),1])),1)` apart, whereas the previous estimates were almost equal. Again this is not unexpected, and these changes are well within the previous credibility intervals.
+The new frequency estimates for `Adelies` (solid red line) and `Chinstrap` (dashed blue line) are now around `r printprob(abs(diff(Fspecies60I$values[c('Adelie','Chinstrap'),'Biscoe'])),1)` apart, whereas the previous estimates were almost equal. Again this is not unexpected, and these changes are well within the previous credibility intervals.
 
 Notably, we see now a clear separation between the probability distribution for the frequency of `Gentoo` (dot-dashed green), and that for `Chinstrap` (dashed blue). This means that these two frequencies must be clearly different. Can we quantify how different, and with which uncertainty?
 
