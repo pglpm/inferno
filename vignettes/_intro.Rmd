@@ -427,10 +427,13 @@ The three estimated frequencies are:
 - Chinstrap: `r printprob(Fspecies10$values['Chinstrap',1])`
 - Gentoo: `r printprob(Fspecies10$values['Gentoo',1])`
 
-and can be read from the `values` element of the `Fspecies10` object:
+and can be read from the `values` element of the `Fspecies10` object, either directly or by using the `print()` function, which by default shows two significant digits:
 
 ```{r freq10, eval = TRUE}
 Fspecies10$values
+
+## or
+print(Fspecies10, 'values')
 ```
 
 These frequency estimates have also another important meaning: they are the *probabilities for the species of the **next** penguin we'll observe*. More generally, they are the probabilities for the next observation. In the present context they are maybe not so relevant -- unless you're placing bets on which data will arrive next with your colleagues -- but in other inference contexts they may be very important. In a clinical setting, for example, where we try to infer some condition about the next patient, these probabilities are used for clinical decision-making; see the textbooks by Sox & al. and by Hunink & al., and the paper by Lindley & Novick in the [references]{#referencesmedical}.
@@ -472,6 +475,12 @@ The credibility intervals are calculated from the probability distribution above
 Fspecies10$quantiles[, , c('5.5%', '94.5%')]
 ```
 
+or we can use the `print()` function to display values and quantiles together:
+
+```{r quant10print, eval = TRUE}
+print(Fspecies10)
+```
+
 <!-- As the name tells, this element actually report the *quantiles* of the probability. For example, look at the `= 25%` output: among other things it says `Adelie 0.227634`. This means that there's a 25% probability that the frequency of Adélie penguins is below $0.227634$, and thus a 75% probability that it's above $0.227634$.
  -->
 
@@ -501,7 +510,7 @@ hist(Fspecies10, legend = 'topright', col = 2:4)
 
 It's important to keep in mind that the three frequencies must add up to 1, so if our future estimates of some of them increase, then the estimate of some others must decrease.
 
-## What if I'm interested in more than one variate? {#twovariates}
+## What if we're interested in more than one variate? {#twovariates}
 
 Our first example inference, just discussed, focused on the specific 'species' variate. It should be obvious how a similar analysis and code could be made for a another variate. We shall see more example later on.
 
@@ -631,7 +640,7 @@ One problem with *p*-values is that if you re-calculate them anew, as new sample
 Bayesian estimates don't suffer from this problem. You can update the estimates and their uncertainties as new samples arrive. What happens is that the uncertainties decrease, and the estimates converge to their true values. This feature keeps you safe and gives you greater flexibility in designing your experiments and in changing strategies along the way. We demonstrate this in the next section.
 
 
-## What if I'm interested in combinations of subpopulations? {#twosubgroups}
+## What if we're interested in combinations of subpopulations? {#twosubgroups}
 
 We may be interested in the frequencies of the three species in more complex subpopulations, for example the subpopulation of female penguins living on Biscoe island; in other words, penguins with `island` variate equal to `'Biscoe'`, and `sex` variate equal to `'female'`. These cases are also easily handled by **Prova**, for any combination of subpopulations. The procedure is analogous to the one we [previously discussed](#twovariates) very briefly.
 

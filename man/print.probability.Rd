@@ -4,14 +4,16 @@
 \alias{print.probability}
 \title{Print an object of class "probability"}
 \usage{
-\method{print}{probability}(x, elements = NULL, subset = NULL, ...)
+\method{print}{probability}(x, elements = NULL, subset = NULL, digits = 2, ...)
 }
 \arguments{
 \item{x}{Object of class "probability", obtained with \code{\link[=Pr]{Pr()}}.}
 
-\item{elements}{character or integer vector, or \code{NULL} (default): elements of the "probability" object to display. The syntax is the same as [base::[]. If \code{NULL}, display elements \verb{$values} and \verb{$quantiles}.}
+\item{elements}{character or integer vector, or \code{NULL} (default): elements of the "probability" object to display. The syntax is the same as with \code{\link[base:Extract]{[}}. If \code{NULL}, the elements \verb{$values} and \verb{$quantiles} are displayed together in a special way.}
 
 \item{subset}{Named list or named vector: which variate values to display. For the variates corresponding to the names in this list, only the vector of values corresponding to that variate is displayed.}
+
+\item{digits}{positive number, default 2: minimal number of significant digits, see \link[base:print.default]{base::print.default}.}
 
 \item{...}{Other parameters to be passed to \code{\link[base:print]{base::print()}}.}
 }

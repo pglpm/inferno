@@ -907,8 +907,9 @@ hist.probability <- function(
 #' This [base::print()] method is a utility to display selected elements of a "probability" object obtained with [Pr()]; typically its posterior probabilies (element `$values`) and their variabilities (element `$quantiles`). If the `Y` or `X` variates are joint variates, this method also allow to display only selected values of them
 #'
 #' @param x Object of class "probability", obtained with [Pr()].
-#' @param elements character or integer vector, or `NULL` (default): elements of the "probability" object to display. The syntax is the same as [base::[]. If `NULL`, display elements `$values` and `$quantiles`.
+#' @param elements character or integer vector, or `NULL` (default): elements of the "probability" object to display. The syntax is the same as with [`[`][base::Extract]. If `NULL`, the elements `$values` and `$quantiles` are displayed together in a special way.
 #' @param subset Named list or named vector: which variate values to display. For the variates corresponding to the names in this list, only the vector of values corresponding to that variate is displayed.
+#' @param digits positive number, default 2: minimal number of significant digits, see [base::print.default()].
 #' @param ... Other parameters to be passed to [base::print()].
 #'
 #' @seealso
@@ -941,6 +942,7 @@ print.probability <- function(
     x,
     elements = NULL,
     subset = NULL,
+    digits = 2,
     ...
 ){
     ## Replace object x keeping only values given in 'subset'
@@ -950,15 +952,18 @@ print.probability <- function(
 
     if(is.null(elements)){
         ## rearrange and combine values and quantiles in a special way
-        print(x = aperm(
+        temp <- aperm(
             a = array(c(x$values, x$quantiles),
                 dim = dim(x$quantiles) + c(0, 0, 1),
                 dimnames = c(
                     dimnames(x$values),
                     list(c('value', paste0('Q ',dimnames(x$quantiles)[[3]])))
-                ) ), perm = c(1,3,2)),
-            ...)
+                ) ), perm = c(1,3,2))
+        if(is.null(x$X)){temp <- temp[, drop = TRUE]}
+
+        print(x = temp, digits = digits, ...)
+
     } else {
-        print(x = x[elements], ...)
-        }
+        print(x = x[elements], digits = digits, ...)
+    }
 }

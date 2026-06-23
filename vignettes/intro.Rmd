@@ -442,16 +442,21 @@ The three estimated frequencies are:
 - Chinstrap: 0.31
 - Gentoo: 0.40
 
-and can be read from the `values` element of the `Fspecies10` object:
+and can be read from the `values` element of the `Fspecies10` object, either directly or by using the `print()` function, which by default shows two significant digits:
 
 
 ``` r
 Fspecies10$values
-#            NA
+#            
 # species         [,1]
 #   Adelie    0.297758
 #   Chinstrap 0.306937
 #   Gentoo    0.395305
+
+## or
+print(Fspecies, 'values')
+# Error:
+# ! object 'Fspecies' not found
 ```
 
 These frequency estimates have also another important meaning: they are the *probabilities for the species of the **next** penguin we'll observe*. More generally, they are the probabilities for the next observation. In the present context they are maybe not so relevant -- unless you're placing bets on which data will arrive next with your colleagues -- but in other inference contexts they may be very important. In a clinical setting, for example, where we try to infer some condition about the next patient, these probabilities are used for clinical decision-making; see the textbooks by Sox & al. and by Hunink & al., and the paper by Lindley & Novick in the [references]{#referencesmedical}.
@@ -498,11 +503,25 @@ The credibility intervals are calculated from the probability distribution above
 
 ``` r
 Fspecies10$quantiles[, , c('5.5%', '94.5%')]
-#            NA
+#            Q
 # species         5.5%    94.5%
 #   Adelie    0.120096 0.513786
 #   Chinstrap 0.124214 0.523065
 #   Gentoo    0.191072 0.621872
+```
+
+or we can use the `print()` function to display values and quantiles together:
+
+
+``` r
+print(Fspecies10)
+# , , 1
+# 
+#            
+# species     value Q 5.5% Q 25% Q 75% Q 94.5%
+#   Adelie     0.30   0.12  0.21  0.38    0.51
+#   Chinstrap  0.31   0.12  0.21  0.39    0.52
+#   Gentoo     0.40   0.19  0.30  0.49    0.62
 ```
 
 <!-- As the name tells, this element actually report the *quantiles* of the probability. For example, look at the `= 25%` output: among other things it says `Adelie 0.227634`. This means that there's a 25% probability that the frequency of Adélie penguins is below $0.227634$, and thus a 75% probability that it's above $0.227634$.
@@ -540,7 +559,7 @@ hist(Fspecies10, legend = 'topright', col = 2:4)
 
 It's important to keep in mind that the three frequencies must add up to 1, so if our future estimates of some of them increase, then the estimate of some others must decrease.
 
-## What if I'm interested in more than one variate? {#twovariates}
+## What if we're interested in more than one variate? {#twovariates}
 
 Our first example inference, just discussed, focused on the specific 'species' variate. It should be obvious how a similar analysis and code could be made for a another variate. We shall see more example later on.
 
@@ -626,7 +645,7 @@ The estimated frequencies for the `Biscoe` subpopulation are shown by the solid 
 
 ``` r
 Fspecies10I$values
-#            island
+#            |island
 # species       Biscoe    Dream
 #   Adelie    0.143465 0.361208
 #   Chinstrap 0.139706 0.473024
@@ -687,7 +706,7 @@ signif(digits = 2, ## round to two digits
         Fspecies10I$quantiles[, , c('5.5%', '94.5%')]
     )
 )
-# , , island = Biscoe
+# , , |island = Biscoe
 # 
 #            Q
 # species      5.5% 94.5%
@@ -695,7 +714,7 @@ signif(digits = 2, ## round to two digits
 #   Chinstrap 0.014  0.37
 #   Gentoo    0.410  0.94
 # 
-# , , island = Dream
+# , , |island = Dream
 # 
 #            Q
 # species      5.5% 94.5%
@@ -719,7 +738,7 @@ One problem with *p*-values is that if you re-calculate them anew, as new sample
 Bayesian estimates don't suffer from this problem. You can update the estimates and their uncertainties as new samples arrive. What happens is that the uncertainties decrease, and the estimates converge to their true values. This feature keeps you safe and gives you greater flexibility in designing your experiments and in changing strategies along the way. We demonstrate this in the next section.
 
 
-## What if I'm interested in combinations of subpopulations? {#twosubgroups}
+## What if we're interested in combinations of subpopulations? {#twosubgroups}
 
 We may be interested in the frequencies of the three species in more complex subpopulations, for example the subpopulation of female penguins living on Biscoe island; in other words, penguins with `island` variate equal to `'Biscoe'`, and `sex` variate equal to `'female'`. These cases are also easily handled by **Prova**, for any combination of subpopulations. The procedure is analogous to the one we [previously discussed](#twovariates) very briefly.
 
@@ -747,12 +766,12 @@ Fspecies10IS <- Pr(
 signif(digits = 2, ## round
     Fspecies10IS$values
 )
-#            island,sex
+#            |island,sex
 # species     Biscoe,female Dream,female Torgersen,female Biscoe,male
 #   Adelie             0.13          0.4             0.48        0.21
 #   Chinstrap          0.12          0.4             0.27        0.22
 #   Gentoo             0.76          0.2             0.25        0.57
-#            island,sex
+#            |island,sex
 # species     Dream,male Torgersen,male
 #   Adelie          0.32           0.44
 #   Chinstrap       0.54           0.38
@@ -957,7 +976,7 @@ Our updated quantitative answer to the question "*What's the overall statistical
 signif(digits = 2,
     Fspecies60$quantiles[, , c('5.5%', '94.5%')]
 )
-#            NA
+#            Q
 # species     5.5% 94.5%
 #   Adelie    0.30  0.50
 #   Chinstrap 0.13  0.30
@@ -1208,14 +1227,14 @@ The last plot is visually the most complete answer we can give to our research q
 
 ``` r
 Fspeciesall$values
-#            NA
+#            
 # species         [,1]
 #   Adelie    0.442881
 #   Chinstrap 0.198745
 #   Gentoo    0.358373
 
 Fspeciesall$quantiles[, , c('5.5%', '94.5%')]
-#            NA
+#            Q
 # species         5.5%    94.5%
 #   Adelie    0.400371 0.485420
 #   Chinstrap 0.165767 0.234254
@@ -1280,7 +1299,7 @@ hist(Fanalysis, xlim = c(0, 1), col = 2:4, ## same colours as before!
 ``` r
 
 Fanalysis$values
-#            island
+#            |island
 # species        Biscoe
 #   Adelie    0.2687262
 #   Chinstrap 0.0119153
@@ -1346,7 +1365,7 @@ hist(Fanalysis, xlim = c(0, 1), col = 5:7,
 ``` r
 
 Fanalysis$values
-#            species
+#            |species
 # island        Adelie
 #   Biscoe    0.294065
 #   Dream     0.368828
