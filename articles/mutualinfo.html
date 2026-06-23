@@ -166,7 +166,7 @@ other, for all <em>sample</em> data, as a scatter plot:</p>
 <span>    type <span class="op">=</span> <span class="st">'p'</span>, xlab <span class="op">=</span> <span class="st">'island'</span>, ylab <span class="op">=</span> <span class="st">'species'</span>,</span>
 <span>    xdomain <span class="op">=</span> <span class="va">islandvalues</span>, ydomain <span class="op">=</span> <span class="va">speciesvalues</span><span class="op">)</span></span></code></pre></div>
 <div class="figure">
-<img src="figure/vissample-1.png" alt="**Scatter plot of sample data**" width="100%"><p class="caption">
+<img src="figure/vissample-1.jpeg" alt="**Scatter plot of sample data**" width="100%"><p class="caption">
 <strong>Scatter plot of sample data</strong>
 </p>
 </div>
@@ -197,8 +197,8 @@ shows that its probability is around 0.3%:</p>
 <span>    learnt <span class="op">=</span> <span class="va">learnt</span><span class="op">)</span></span>
 <span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/Round.html" class="external-link">signif</a></span><span class="op">(</span><span class="va">prob</span><span class="op">$</span><span class="va">values</span>, digits <span class="op">=</span> <span class="fl">2</span><span class="op">)</span></span>
-<span><span class="co">#                      X</span></span>
-<span><span class="co"># Y                      [,1]</span></span>
+<span><span class="co">#                      NA</span></span>
+<span><span class="co"># island,species         [,1]</span></span>
 <span><span class="co">#   Torgersen,Chinstrap 0.003</span></span></code></pre></div>
 <p><br>
 This example shows the limitations of using sample data for visualizing
@@ -251,7 +251,7 @@ plot:</p>
 <span>    type <span class="op">=</span> <span class="st">'p'</span>, xlab <span class="op">=</span> <span class="st">'island'</span>, ylab <span class="op">=</span> <span class="st">'species'</span>,</span>
 <span>    xdomain <span class="op">=</span> <span class="va">islandvalues</span>, ydomain <span class="op">=</span> <span class="va">speciesvalues</span><span class="op">)</span></span></code></pre></div>
 <div class="figure">
-<img src="figure/gensamplesplot-1.png" alt="**Scatter plot for *whole* population**" width="100%"><p class="caption">
+<img src="figure/gensamplesplot-1.jpeg" alt="**Scatter plot for *whole* population**" width="100%"><p class="caption">
 <strong>Scatter plot for <em>whole</em> population</strong>
 </p>
 </div>
@@ -282,7 +282,7 @@ data previously observed:</p>
 <span>    type <span class="op">=</span> <span class="st">'p'</span>, xlab <span class="op">=</span> <span class="st">'body mass / g'</span>, ylab <span class="op">=</span> <span class="st">'species'</span>,</span>
 <span>    xlim <span class="op">=</span> <span class="va">body_massrange</span>, ydomain <span class="op">=</span> <span class="va">speciesvalues</span><span class="op">)</span></span></code></pre></div>
 <div class="figure">
-<img src="figure/gensamplesplotbodymassspecies-1.png" alt="**Scatter plot for body mass and species**" width="100%"><p class="caption">
+<img src="figure/gensamplesplotbodymassspecies-1.jpeg" alt="**Scatter plot for body mass and species**" width="100%"><p class="caption">
 <strong>Scatter plot for body mass and species</strong>
 </p>
 </div>
@@ -310,7 +310,7 @@ of two continuous variates, such as body mass and bill length
 <span>    type <span class="op">=</span> <span class="st">'p'</span>, xlab <span class="op">=</span> <span class="st">'body mass / g'</span>, ylab <span class="op">=</span> <span class="st">'bill length / mm'</span>,</span>
 <span>    xlim <span class="op">=</span> <span class="va">body_massrange</span>, ylim <span class="op">=</span> <span class="va">bill_lenrange</span><span class="op">)</span></span></code></pre></div>
 <div class="figure">
-<img src="figure/gensamplesplotbodybilllen-1.png" alt="**Scatter plot of body mass and bill length**" width="100%"><p class="caption">
+<img src="figure/gensamplesplotbodybilllen-1.jpeg" alt="**Scatter plot of body mass and bill length**" width="100%"><p class="caption">
 <strong>Scatter plot of body mass and bill length</strong>
 </p>
 </div>
@@ -368,7 +368,7 @@ points don’t completely cover one another:</p>
 <span><span class="fu"><a href="https://rdrr.io/r/graphics/legend.html" class="external-link">legend</a></span><span class="op">(</span><span class="st">'top'</span>, <span class="va">speciesvalues</span>, pch <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0</span>, <span class="fl">2</span>, <span class="fl">5</span><span class="op">)</span>, col <span class="op">=</span> <span class="fl">2</span><span class="op">:</span><span class="fl">4</span>,</span>
 <span>    horiz <span class="op">=</span> <span class="cn">TRUE</span>, bty <span class="op">=</span> <span class="st">'n'</span><span class="op">)</span></span></code></pre></div>
 <div class="figure">
-<img src="figure/plotbodybilllen3-1.png" alt="**Scatter plot for species subpopulations**" width="100%"><p class="caption">
+<img src="figure/plotbodybilllen3-1.jpeg" alt="**Scatter plot for species subpopulations**" width="100%"><p class="caption">
 <strong>Scatter plot for species subpopulations</strong>
 </p>
 </div>
@@ -433,7 +433,7 @@ is not linear. Here is an example plot and value:</p>
 <span>    xlab <span class="op">=</span> <span class="st">'Y1'</span>, ylab <span class="op">=</span> <span class="st">'Y2'</span>,</span>
 <span>    main <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/paste.html" class="external-link">paste0</a></span><span class="op">(</span><span class="st">'Pearson correlation: '</span>, <span class="fu"><a href="https://rdrr.io/r/base/Round.html" class="external-link">signif</a></span><span class="op">(</span><span class="va">r</span>, <span class="fl">2</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
 <div class="figure">
-<img src="figure/pearsonplot-1.png" alt="**Perfect correlation from $Y_1$ to $Y_2$, with zero Pearson correlation coefficient**" width="100%"><p class="caption">
+<img src="figure/pearsonplot-1.jpeg" alt="**Perfect correlation from $Y_1$ to $Y_2$, with zero Pearson correlation coefficient**" width="100%"><p class="caption">
 <strong>Perfect correlation from
 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>Y</mi><mn>1</mn></msub><annotation encoding="application/x-tex">Y_1</annotation></semantics></math>
 to
@@ -620,7 +620,7 @@ I = -\frac{1}{2} \log_{2}\bigl(1 - r^2\bigr)\;\mathrm{Sh}
 \lvert r\rvert = \sqrt{1 - 2^{- 2 I/\mathrm{Sh}}}
 </annotation></semantics></math></p>
 <div class="figure">
-<img src="figure/Ivsr-1.png" alt="**$I$ vs $\lvert r\rvert$ for jointly Gaussian variates**" width="75%"><p class="caption">
+<img src="figure/Ivsr-1.jpeg" alt="**$I$ vs $\lvert r\rvert$ for jointly Gaussian variates**" width="75%"><p class="caption">
 <strong><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>I</mi><annotation encoding="application/x-tex">I</annotation></semantics></math>
 vs
 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo stretchy="false" form="prefix">|</mo><mi>r</mi><mo stretchy="false" form="postfix">|</mo></mrow><annotation encoding="application/x-tex">\lvert r\rvert</annotation></semantics></math>
@@ -666,7 +666,7 @@ explored previously, and calculate also their mutual information.</p>
 <span>    main <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/paste.html" class="external-link">paste0</a></span><span class="op">(</span><span class="st">'mutual info: '</span>, <span class="va">mi</span>, <span class="st">' Sh'</span>,</span>
 <span>        <span class="st">'  (rough r-equiv: '</span>, <span class="va">r</span>, <span class="st">')'</span><span class="op">)</span> <span class="op">)</span></span></code></pre></div>
 <div class="figure">
-<img src="figure/gensamplesplotbis-1.png" alt="**Scatter plot for `island` and `species`**" width="100%"><p class="caption">
+<img src="figure/gensamplesplotbis-1.jpeg" alt="**Scatter plot for `island` and `species`**" width="100%"><p class="caption">
 <strong>Scatter plot for <code>island</code> and
 <code>species</code></strong>
 </p>
@@ -700,7 +700,7 @@ explored previously, and calculate also their mutual information.</p>
 <span>    main <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/paste.html" class="external-link">paste0</a></span><span class="op">(</span><span class="st">'mutual info: '</span>, <span class="va">mi</span>, <span class="st">' Sh'</span>,</span>
 <span>        <span class="st">'  (rough r-equiv: '</span>, <span class="va">r</span>, <span class="st">')'</span><span class="op">)</span> <span class="op">)</span></span></code></pre></div>
 <div class="figure">
-<img src="figure/gensamplesplotbodymassspeciesbis-1.png" alt="**Scatter plot and mutual info for body mass and species**" width="100%"><p class="caption">
+<img src="figure/gensamplesplotbodymassspeciesbis-1.jpeg" alt="**Scatter plot and mutual info for body mass and species**" width="100%"><p class="caption">
 <strong>Scatter plot and mutual info for body mass and species</strong>
 </p>
 </div>
@@ -733,7 +733,7 @@ explored previously, and calculate also their mutual information.</p>
 <span>    main <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/paste.html" class="external-link">paste0</a></span><span class="op">(</span><span class="st">'mutual info: '</span>, <span class="va">mi</span>, <span class="st">' Sh'</span>,</span>
 <span>        <span class="st">'  (rough r-equiv: '</span>, <span class="va">r</span>, <span class="st">')'</span><span class="op">)</span> <span class="op">)</span></span></code></pre></div>
 <div class="figure">
-<img src="figure/gensamplesplotbodymassbilllenbis-1.png" alt="**Scatter plot and mutual info for body mass and bill length**" width="100%"><p class="caption">
+<img src="figure/gensamplesplotbodymassbilllenbis-1.jpeg" alt="**Scatter plot and mutual info for body mass and bill length**" width="100%"><p class="caption">
 <strong>Scatter plot and mutual info for body mass and bill
 length</strong>
 </p>
@@ -815,7 +815,7 @@ together with the previous scatter plot:</p>
 <span>    pch <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0</span>, <span class="fl">2</span>, <span class="fl">5</span><span class="op">)</span>, col <span class="op">=</span> <span class="fl">2</span><span class="op">:</span><span class="fl">4</span>,</span>
 <span>    horiz <span class="op">=</span> <span class="cn">TRUE</span>, bty <span class="op">=</span> <span class="st">'n'</span><span class="op">)</span></span></code></pre></div>
 <div class="figure">
-<img src="figure/plotbodybilllen3mi-1.png" alt="**Scatter plot and mutual info for species subpopulations**" width="100%"><p class="caption">
+<img src="figure/plotbodybilllen3mi-1.jpeg" alt="**Scatter plot and mutual info for species subpopulations**" width="100%"><p class="caption">
 <strong>Scatter plot and mutual info for species subpopulations</strong>
 </p>
 </div>

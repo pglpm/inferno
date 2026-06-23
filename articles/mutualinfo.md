@@ -128,7 +128,7 @@ flexiplot(x = penguin$island, y = penguin$species,
     xdomain = islandvalues, ydomain = speciesvalues)
 ```
 
-![\*\*Scatter plot of sample data\*\*](figure/vissample-1.png)
+![\*\*Scatter plot of sample data\*\*](figure/vissample-1.jpeg)
 
 **Scatter plot of sample data**
 
@@ -164,8 +164,8 @@ prob <- Pr(Y = data.frame(island = 'Torgersen', species = 'Chinstrap'),
     learnt = learnt)
 
 signif(prob$values, digits = 2)
-#                      X
-# Y                      [,1]
+#                      NA
+# island,species         [,1]
 #   Torgersen,Chinstrap 0.003
 ```
 
@@ -225,7 +225,7 @@ flexiplot(x = samples$island, y = samples$species,
 ```
 
 ![\*\*Scatter plot for \*whole\*
-population\*\*](figure/gensamplesplot-1.png)
+population\*\*](figure/gensamplesplot-1.jpeg)
 
 **Scatter plot for *whole* population**
 
@@ -261,7 +261,7 @@ flexiplot(x = samples$body_mass, y = samples$species,
 ```
 
 ![\*\*Scatter plot for body mass and
-species\*\*](figure/gensamplesplotbodymassspecies-1.png)
+species\*\*](figure/gensamplesplotbodymassspecies-1.jpeg)
 
 **Scatter plot for body mass and species**
 
@@ -293,7 +293,7 @@ flexiplot(x = samples$body_mass, y = samples$bill_len,
 ```
 
 ![\*\*Scatter plot of body mass and bill
-length\*\*](figure/gensamplesplotbodybilllen-1.png)
+length\*\*](figure/gensamplesplotbodybilllen-1.jpeg)
 
 **Scatter plot of body mass and bill length**
 
@@ -364,7 +364,7 @@ legend('top', speciesvalues, pch = c(0, 2, 5), col = 2:4,
 ```
 
 ![\*\*Scatter plot for species
-subpopulations\*\*](figure/plotbodybilllen3-1.png)
+subpopulations\*\*](figure/plotbodybilllen3-1.jpeg)
 
 **Scatter plot for species subpopulations**
 
@@ -421,7 +421,7 @@ flexiplot(x = Y1, y = Y2, type = 'p',
 ```
 
 ![\*\*Perfect correlation from \$Y_1\$ to \$Y_2\$, with zero Pearson
-correlation coefficient\*\*](figure/pearsonplot-1.png)
+correlation coefficient\*\*](figure/pearsonplot-1.jpeg)
 
 **Perfect correlation from $`Y_1`$ to $`Y_2`$, with zero Pearson
 correlation coefficient**
@@ -590,7 +590,7 @@ I = -\frac{1}{2} \log_{2}\bigl(1 - r^2\bigr)\;\mathrm{Sh}
 ```
 
 ![\*\*\$I\$ vs \$\lvert r\rvert\$ for jointly Gaussian
-variates\*\*](figure/Ivsr-1.png)
+variates\*\*](figure/Ivsr-1.jpeg)
 
 **$`I`$ vs $`\lvert r\rvert`$ for jointly Gaussian variates**
 
@@ -637,7 +637,7 @@ flexiplot(x = samples$island, y = samples$species,
 ```
 
 ![\*\*Scatter plot for \`island\` and
-\`species\`\*\*](figure/gensamplesplotbis-1.png)
+\`species\`\*\*](figure/gensamplesplotbis-1.jpeg)
 
 **Scatter plot for `island` and `species`**
 
@@ -676,7 +676,7 @@ flexiplot(x = samples$body_mass, y = samples$species,
 ```
 
 ![\*\*Scatter plot and mutual info for body mass and
-species\*\*](figure/gensamplesplotbodymassspeciesbis-1.png)
+species\*\*](figure/gensamplesplotbodymassspeciesbis-1.jpeg)
 
 **Scatter plot and mutual info for body mass and species**
 
@@ -715,7 +715,7 @@ flexiplot(x = samples$body_mass, y = samples$bill_len,
 ```
 
 ![\*\*Scatter plot and mutual info for body mass and bill
-length\*\*](figure/gensamplesplotbodymassbilllenbis-1.png)
+length\*\*](figure/gensamplesplotbodymassbilllenbis-1.jpeg)
 
 **Scatter plot and mutual info for body mass and bill length**
 
@@ -808,7 +808,7 @@ legend('top',
 ```
 
 ![\*\*Scatter plot and mutual info for species
-subpopulations\*\*](figure/plotbodybilllen3mi-1.png)
+subpopulations\*\*](figure/plotbodybilllen3mi-1.jpeg)
 
 **Scatter plot and mutual info for species subpopulations**
 
