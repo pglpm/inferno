@@ -1,6 +1,6 @@
 *[Looking for the R package "inferno"? you came to the right place! It's been renamed "Prova"]*
 
-<img src="https://github.com/pglpm/prova/raw/main/figures/prova_symbol.jpg" alt="Ensemble of densities" width="100%"/>
+<img src="https://github.com/pglpm/prova/raw/main/man/figures/prova_symbol.jpg" alt="Ensemble of densities" width="100%"/>
 
 "prova" /'prɔva/ (Italian)
 
