@@ -4,7 +4,11 @@
 #' Compute the posterior probability distribution of the variates conditional on the given data.
 #'
 #' @details
-#' This function takes as main inputs a set of data and metadata, and computes the probability distribution for new data. Its computation can also be interpreted as an estimation of the frequencies of the variates in the *whole population*, beyond the sample data. The probability distribution is not assumed to be Gaussian or of any other specific shape. The computation is done via Markov-chain Monte Carlo.
+#' This function takes as main inputs a set of data and metadata, and computes the full joint probability distribution for new data, including its variability; see [Pr()]. This computation can also be interpreted as an estimation of the full joint frequency distribution of the variates in the *whole population*, beyond the sample data, together with its uncertainty.
+#'
+#' The computation is "non-parametric": probability or frequency distributions are not assumed to be Gaussian or of any other specific shape; no "model" is assumed. The mathematical representation of the space of joint frequency distributions follows Dunson & Bhattacharya (2011).
+#'
+#' The computation is done via Markov-chain Monte Carlo a
 #'
 #' This function creates an object, typically saved in a `learnt.rds` file, which is used in all subsequent probabilistic computations. Other information about the computation is provided in logs and plots, saved in a directory specified by the user.
 #'
@@ -39,6 +43,32 @@
 #' @param hyperparams List: hyperparameters of the prior.
 #'
 #' @returns A "learnt" object, or name of directory containing output files, or `NULL`, depending on argument `valueislearnt`.
+#'
+#' @references
+#'
+#' For the mathematical representation of the frequency space:
+#'
+#' - Dunson, Bhattacharya (2011): *Nonparametric Bayes regression and classification through mixtures of product kernels* <doi:10.1093/acprof:oso/9780199694587.003.0005>.
+#'
+#' About Bayesian inference under exchangeability ("population inference")
+#'
+#' - Lindley, Novick (1981): *The role of exchangeability in inference*, <doi:10.1214/aos/1176345331>.
+#' - Bernardo, Smith (2000): *Bayesian Theory*. Wiley <doi:10.1002/9780470316870>.
+#' About nonparametrics:
+#'
+#' - Müller et al. (2015): *Nonparametric Bayesian inference*. IMS <doi:10.1007/978-3-319-18968-0>.
+#' - Hjort et al. (2010): *Bayesian Nonparametrics*. Cambridge University Press <doi:10.1017/CBO9780511802478>.
+#'
+#' About Markov-chain Monte Carlo and "convergence":
+#'
+#' - Kwon & al. (2025): *MCMC stopping rules in latent variable modelling* <doi:10.1111/bmsp.12357>.
+#' - Vehtari & al. (2021): *Rank-normalization, folding, and localization: an improved $\hat{R}$ for assessing convergence of MCMC* <doi:10.1214/20-BA1221>.
+#' - Gilks & al. (1998): *Markov Chain Monte Carlo in Practice*. Chapman & Hall/CRC <doi:10.1201/b14835>.
+#' - D. J. C. MacKay (2005): *Information Theory, Inference, and Learning Algorithms*. Cambridge University Press <https://www.inference.org.uk/itila/book.html>.
+#'
+#' Mathematical background of **Prova**:
+#'
+#' - Porta Mana <https://github.com/pglpm/prova/raw/main/development/manual/pglpm2024-bayes_nonparam.pdf>.
 #'
 #' @seealso
 #' [metadatatemplate()] to help writing metadata files.

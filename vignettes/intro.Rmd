@@ -473,7 +473,7 @@ What about the uncertainty of these estimates?
 
 In Bayesian theory, a compact way of expressing the uncertainty in a quantity is by means of a **credibility interval** with a given probability. For instance, if we say that a particular quantity has a 70%-credibility interval equal to $(0.41, 0.69)$, what we mean is that there's an 70% probability that the true value of that quantity is between $0.41$ and $0.69$ -- pretty straightforward! *Please be careful not to confuse the Bayesian credibility interval with a "confidence interval"*: the latter has a much more involved and less straightforward meaning.
 
-The `Pr()` function by default calculates two credibility intervals for each frequency estimate: a 50% one, and an 89% one. In our present inference, the 50%-credibility intervals are shown in the plot above as the darker grey band, and the 89%-credibility intervals as the lighter grey band. These intervals contain the 50% ones.
+The `Pr()` function by default calculates two credibility intervals for each frequency estimate: a 50% one, and an 89% one (why? see [references]{#referencesbayes} for an explanation). In our present inference, the 50%-credibility intervals are shown in the plot above as the darker grey band, and the 89%-credibility intervals as the lighter grey band. These intervals contain the 50% ones.
 
 For instance, the plot indicates that there's a 50% probability that the relative frequency of all `Adelie` penguins is roughly between 0.21 and 0.38; and an 89% probability that their relative frequency is roughly between 0.12 and 0.51.
 
@@ -976,14 +976,12 @@ Our updated quantitative answer to the question "*What's the overall statistical
 
 
 ``` r
-signif(digits = 2,
-    Fspecies60$quantiles[, , c('5.5%', '94.5%')]
-)
-#            Q
-# species     5.5% 94.5%
-#   Adelie    0.30  0.50
-#   Chinstrap 0.13  0.30
-#   Gentoo    0.30  0.49
+print(Fspecies60)
+#            prob. & vrb.
+# species     value Q5.5% Q25% Q75% Q94.5%
+#   Adelie     0.40  0.30 0.35 0.44   0.50
+#   Chinstrap  0.21  0.13 0.18 0.24   0.30
+#   Gentoo     0.39  0.30 0.35 0.44   0.49
 ```
 
 > From a sample of 10 penguins, the inference about the relative frequencies of the three species in the full population is as follows:
@@ -1229,19 +1227,12 @@ The last plot is visually the most complete answer we can give to our research q
 
 
 ``` r
-Fspeciesall$values
-#            
-# species         [,1]
-#   Adelie    0.442881
-#   Chinstrap 0.198745
-#   Gentoo    0.358373
-
-Fspeciesall$quantiles[, , c('5.5%', '94.5%')]
-#            Q
-# species         5.5%    94.5%
-#   Adelie    0.400371 0.485420
-#   Chinstrap 0.165767 0.234254
-#   Gentoo    0.316112 0.399976
+print(Fspeciesall)
+#            prob. & vrb.
+# species     value Q5.5% Q25% Q75% Q94.5%
+#   Adelie     0.44  0.40 0.42 0.46   0.49
+#   Chinstrap  0.20  0.17 0.18 0.21   0.23
+#   Gentoo     0.36  0.32 0.34 0.38   0.40
 ```
 
 > From a sample of 344 penguins [add a more thorough specification of population and sampling procedure here], the relative frequencies of the three species in the full population are estimated as follows (obviously the three estimates and uncertainties are not independent, because the frequencies must add up to 1):
@@ -1301,19 +1292,14 @@ hist(Fanalysis, xlim = c(0, 1), col = 2:4, ## same colours as before!
 
 ``` r
 
-Fanalysis$values
-#            |island
-# species        Biscoe
-#   Adelie    0.2687262
-#   Chinstrap 0.0119153
-#   Gentoo    0.7193585
-
-Fanalysis$quantiles[, , c('5.5%', '94.5%')]
-#            Q
-# species           5.5%     94.5%
-#   Adelie    0.21740036 0.3244096
-#   Chinstrap 0.00267211 0.0267293
-#   Gentoo    0.66138036 0.7716449
+print(Fanalysis)
+# , , |island = Biscoe
+# 
+#            prob. & vrb.
+# species     value  Q5.5%   Q25%  Q75% Q94.5%
+#   Adelie    0.269 0.2174 0.2451 0.291  0.324
+#   Chinstrap 0.012 0.0027 0.0061 0.016  0.027
+#   Gentoo    0.719 0.6614 0.6975 0.743  0.772
 ```
 
 Conclusion:
@@ -1367,19 +1353,14 @@ hist(Fanalysis, xlim = c(0, 1), col = 5:7,
 
 ``` r
 
-Fanalysis$values
-#            |species
-# island        Adelie
-#   Biscoe    0.294065
-#   Dream     0.368828
-#   Torgersen 0.337107
-
-Fanalysis$quantiles[, , c('5.5%', '94.5%')]
-#            Q
-# island          5.5%    94.5%
-#   Biscoe    0.237883 0.351495
-#   Dream     0.308741 0.428640
-#   Torgersen 0.275429 0.400154
+print(Fanalysis)
+# , , |species = Adelie
+# 
+#            prob. & vrb.
+# island      value Q5.5% Q25% Q75% Q94.5%
+#   Biscoe     0.29  0.24 0.27 0.32   0.35
+#   Dream      0.37  0.31 0.34 0.39   0.43
+#   Torgersen  0.34  0.28 0.31 0.36   0.40
 ```
 
 Conclusions:
@@ -1472,7 +1453,9 @@ Consider also this question: "Do Adélie and Chinstrap penguins have identical b
 
 - MacKay: [*Information Theory, Inference, and Learning Algorithms*](https://www.inference.org.uk/itila/book.html) (2005).
 
-- [*ADA 511: Foundations of data science*](https://pglpm.github.io/ADA511).
+- [*Data Science and AI Prototyping*](https://pglpm.github.io/ADA511).
+
+- [*What's special about 89% credibility intervals?*](https://doi.org/10.5281/zenodo.17072199)
 
 ### On medical decision-making: {#referencesmedical}
 

@@ -187,11 +187,12 @@ probs$quantiles[, , c('5.5\%', '94.5\%')]
 
 }
 \references{
-E. T. Jaynes: \emph{Probability Theory: The Logic of Science}. Cambridge University Press, 2003 \url{doi:10.1017/CBO9780511790423}.
-
-J.-M. Bernardo, A. F. Smith: \emph{Bayesian Theory}. Wiley, 2000 \url{doi:10.1002/9780470316870}.
-
-D. J. C. MacKay: \emph{Information Theory, Inference, and Learning Algorithms}. Cambridge University Press, 2005 \url{https://www.inference.org.uk/itila/book.html}.
+\itemize{
+\item Lindley, Novick (1981): \emph{The role of exchangeability in inference}, \url{doi:10.1214/aos/1176345331}.
+\item Bernardo, Smith (2000): \emph{Bayesian Theory}. Wiley \url{doi:10.1002/9780470316870}.
+\item Jaynes (2003): \emph{Probability Theory: The Logic of Science}. Cambridge University Press \url{doi:10.1017/CBO9780511790423}.
+\item MacKay (2005): \emph{Information Theory, Inference, and Learning Algorithms}. Cambridge University Press \url{https://www.inference.org.uk/itila/book.html}.
+}
 }
 \seealso{
 \code{\link[=learn]{learn()}}, which generates the \code{learnt} objects required by \code{Pr()}.

@@ -122,7 +122,7 @@ These are only features of this specific data sample, however. Can we generalize
 prob <- Pr(Y = data.frame(island = 'Torgersen', species = 'Chinstrap'),
     learnt = learnt)
 
-signif(prob$values, digits = 2)
+print(prob)
 ```
 
 \
@@ -560,3 +560,5 @@ The Pearson correlation yields the same the association *ranking* as the mutual 
 - Cover, Thomas: [*Elements of Information Theory*](https://doi.org/10.1002/0471200611) (2nd ed. 2005).
 
 - MacKay: [*Information Theory, Inference, and Learning Algorithms*](https://www.inference.org.uk/itila/book.html) (2005).
+
+- Chapter "Information, relevance, independence, association" in [*Data Science and AI Prototyping*](https://pglpm.github.io/ADA511/information.html).

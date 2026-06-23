@@ -470,10 +470,9 @@ shows that its probability is around 0.3%:</p>
 <div class="sourceCode" id="cb5"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" tabindex="-1"></a>prob <span class="ot">&lt;-</span> <span class="fu">Pr</span>(<span class="at">Y =</span> <span class="fu">data.frame</span>(<span class="at">island =</span> <span class="st">&#39;Torgersen&#39;</span>, <span class="at">species =</span> <span class="st">&#39;Chinstrap&#39;</span>),</span>
 <span id="cb5-2"><a href="#cb5-2" tabindex="-1"></a>    <span class="at">learnt =</span> learnt)</span>
 <span id="cb5-3"><a href="#cb5-3" tabindex="-1"></a></span>
-<span id="cb5-4"><a href="#cb5-4" tabindex="-1"></a><span class="fu">signif</span>(prob<span class="sc">$</span>values, <span class="at">digits =</span> <span class="dv">2</span>)</span>
-<span id="cb5-5"><a href="#cb5-5" tabindex="-1"></a><span class="co">#                      NA</span></span>
-<span id="cb5-6"><a href="#cb5-6" tabindex="-1"></a><span class="co"># island,species         [,1]</span></span>
-<span id="cb5-7"><a href="#cb5-7" tabindex="-1"></a><span class="co">#   Torgersen,Chinstrap 0.003</span></span></code></pre></div>
+<span id="cb5-4"><a href="#cb5-4" tabindex="-1"></a><span class="fu">print</span>(prob)</span>
+<span id="cb5-5"><a href="#cb5-5" tabindex="-1"></a><span class="co">#   value   Q5.5%    Q25%    Q75%  Q94.5% </span></span>
+<span id="cb5-6"><a href="#cb5-6" tabindex="-1"></a><span class="co"># 0.00296 0.00039 0.00121 0.00395 0.00778</span></span></code></pre></div>
 <p><br />
 This example shows the limitations of using sample data for visualizing
 features of the <em>whole</em> population. How would a scatter plot
@@ -799,11 +798,11 @@ wonderful properties, but what does its value actually mean? I know how
 to interpret a value of the Pearson correlation coefficient <span class="math inline">\(r\)</span>”.</p>
 <p>It’s important to be fair though. Remember the very first times you
 learned and used the Pearson correlation coefficient: were you able to
-give a meaning to “$r = 0.23” for example? was that value high or low?
-We learned how to interpret <span class="math inline">\(r\)</span>
-values only through repeated use and application to real situations. The
-same is true of mutual information: through repeated use and
-application, you’ll develop an understanding of its possible values.</p>
+give a meaning to “<span class="math inline">\(r = 0.23\)</span>” for
+example? was that value high or low? We learned how to interpret <span class="math inline">\(r\)</span> values only through repeated use and
+application to real situations. The same is true of mutual information:
+through repeated use and application, you’ll develop an understanding of
+its possible values.</p>
 <p>Mutual information does have an operational meaning. Saying that the
 mutual information between <span class="math inline">\(X\)</span> and
 <span class="math inline">\(Y\)</span> is <span class="math inline">\(h\,\mathrm{Sh}\)</span>, means that knowledge of

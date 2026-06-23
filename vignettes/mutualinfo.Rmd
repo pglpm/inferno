@@ -100,10 +100,9 @@ These are only features of this specific data sample, however. Can we generalize
 prob <- Pr(Y = data.frame(island = 'Torgersen', species = 'Chinstrap'),
     learnt = learnt)
 
-signif(prob$values, digits = 2)
-#                      NA
-# island,species         [,1]
-#   Torgersen,Chinstrap 0.003
+print(prob)
+#   value   Q5.5%    Q25%    Q75%  Q94.5% 
+# 0.00296 0.00039 0.00121 0.00395 0.00778
 ```
 
 \
@@ -363,7 +362,7 @@ Between variates `island` and `species` there is thus a mutual information of 0.
 
 You might argue: "sure, this mutual information has all these wonderful properties, but what does its value actually mean? I know how to interpret a value of the Pearson correlation coefficient $r$".
 
-It's important to be fair though. Remember the very first times you learned and used the Pearson correlation coefficient: were you able to give a meaning to "$r = 0.23" for example? was that value high or low? We learned how to interpret $r$ values only through repeated use and application to real situations. The same is true of mutual information: through repeated use and application, you'll develop an understanding of its possible values.
+It's important to be fair though. Remember the very first times you learned and used the Pearson correlation coefficient: were you able to give a meaning to "$r = 0.23$" for example? was that value high or low? We learned how to interpret $r$ values only through repeated use and application to real situations. The same is true of mutual information: through repeated use and application, you'll develop an understanding of its possible values.
 
 Mutual information does have an operational meaning. Saying that the mutual information between $X$ and $Y$ is $h\,\mathrm{Sh}$, means that knowledge of $X$ reduces, on average, $2^h$ times the number of uncertain possibilities of $Y$. For example suppose that a clinician during a diagnosis is equally uncertain about four possible diseases. There is a particular clinical indicator associated with the disease and the mutual information between the indicator and the disease is $0.415\,\mathrm{Sh}$. Then, upon testing the clinical indicator, the clinician will be roughly uncertain among *three* possible diseases, rather than four, because knowledge of the indicator reduces the four possibilities by $2^{0.415}$ ($4/(2^{0.415}) \approx 3$). If the mutual information were $2\,\mathrm{Sh}$ instead, then the indicator would tell the disease with *certainty*, as it would reduce the four possibilities by $2^{2}$ ($4/(2^{2}) = 1$).
 
