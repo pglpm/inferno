@@ -427,7 +427,7 @@ plot(Fspecies10)
 ```
 
 <div class="figure">
-<img src="figure/vis10-1.png" alt="**Estimates and uncertainty of relative frequencies of penguin species**" width="100%" />
+<img src="figure/vis10-1.jpeg" alt="**Estimates and uncertainty of relative frequencies of penguin species**" width="100%" />
 <p class="caption">**Estimates and uncertainty of relative frequencies of penguin species**</p>
 </div>
 \
@@ -483,7 +483,7 @@ hist(Fspecies10,
 ```
 
 <div class="figure">
-<img src="figure/hist10adelie-1.png" alt="**Probability distribution for the frequency of Adelie penguins**" width="100%" />
+<img src="figure/hist10adelie-1.jpeg" alt="**Probability distribution for the frequency of Adelie penguins**" width="100%" />
 <p class="caption">**Probability distribution for the frequency of Adelie penguins**</p>
 </div>
 \
@@ -533,7 +533,7 @@ hist(Fspecies10, legend = 'topright', col = 2:4)
 ```
 
 <div class="figure">
-<img src="figure/hist10-1.png" alt="**Probability distribution for the rel. requencies of penguin species**" width="100%" />
+<img src="figure/hist10-1.jpeg" alt="**Probability distribution for the rel. requencies of penguin species**" width="100%" />
 <p class="caption">**Probability distribution for the rel. requencies of penguin species**</p>
 </div>
 \
@@ -616,7 +616,7 @@ plot(Fspecies10I, col = 5:6)
 ```
 
 <div class="figure">
-<img src="figure/vis10I-1.png" alt="**Estimates and uncertainty of conditional frequencies**" width="100%" />
+<img src="figure/vis10I-1.jpeg" alt="**Estimates and uncertainty of conditional frequencies**" width="100%" />
 <p class="caption">**Estimates and uncertainty of conditional frequencies**</p>
 </div>
 \
@@ -645,7 +645,7 @@ hist(Fspecies10I, subset = list(island = 'Biscoe'),
 ```
 
 <div class="figure">
-<img src="figure/hist10biscoe-1.png" alt="**Probability distribution for species frequencies on Biscoe**" width="100%" />
+<img src="figure/hist10biscoe-1.jpeg" alt="**Probability distribution for species frequencies on Biscoe**" width="100%" />
 <p class="caption">**Probability distribution for species frequencies on Biscoe**</p>
 </div>
 
@@ -664,7 +664,7 @@ hist(Fspecies10I, subset = list(island = 'Dream'),
 ```
 
 <div class="figure">
-<img src="figure/hist10dream-1.png" alt="**Probability distribution for species frequencies on Biscoe**" width="100%" />
+<img src="figure/hist10dream-1.jpeg" alt="**Probability distribution for species frequencies on Biscoe**" width="100%" />
 <p class="caption">**Probability distribution for species frequencies on Biscoe**</p>
 </div>
 \
@@ -890,7 +890,7 @@ plot(Fspecies60)
 ```
 
 <div class="figure">
-<img src="figure/vis60-1.png" alt="**Updated frequency estimates of penguin species**" width="100%" />
+<img src="figure/vis60-1.jpeg" alt="**Updated frequency estimates of penguin species**" width="100%" />
 <p class="caption">**Updated frequency estimates of penguin species**</p>
 </div>
 \
@@ -912,7 +912,7 @@ legend('top', c('10 samples', '60 samples'),
     col = 2:1, lty = 2:1, pch = 2:1, bty = 'n')
 ```
 
-<img src="figure/vis60compare-1.png" alt="" width="100%" />
+<img src="figure/vis60compare-1.jpeg" alt="" width="100%" />
 
 We notice the following differences, among others:
 
@@ -933,7 +933,7 @@ hist(Fspecies10, legend = 'topright', xlim = c(0, 1),
     col = 2:4, main = '10 samples')
 ```
 
-<img src="figure/hist60-1.png" alt="" width="100%" />
+<img src="figure/hist60-1.jpeg" alt="" width="100%" />
 
 ``` r
 
@@ -942,7 +942,7 @@ hist(Fspecies60, legend = 'topright', xlim = c(0, 1),
     col = 2:4, main = '60 samples')
 ```
 
-<img src="figure/hist60-2.png" alt="" width="100%" />
+<img src="figure/hist60-2.jpeg" alt="" width="100%" />
 
 We see that in our initial inference (top plot) all three probability distributions largely overlapped, indicating our uncertainty on whether any of these frequencies might be very different from the others.
 
@@ -992,7 +992,7 @@ hist(Fspecies10I, subset = list(island = 'Dream'),
     col = 2:4, main = '10 samples, Dream island')
 ```
 
-<img src="figure/hist60Dream-1.png" alt="" width="100%" />
+<img src="figure/hist60Dream-1.jpeg" alt="" width="100%" />
 
 ``` r
 
@@ -1002,7 +1002,7 @@ hist(Fspecies60I, subset = list(island = 'Dream'),
     col = 2:4, main = '60 samples, Dream island')
 ```
 
-<img src="figure/hist60Dream-2.png" alt="" width="100%" />
+<img src="figure/hist60Dream-2.jpeg" alt="" width="100%" />
 
 The new frequency estimates for `Adelies` (solid red line) and `Chinstrap` (dashed blue line) are now around 0.2 apart; the previous estimates had them around 0.1 apart. This change is not unexpected: the new estimates are well within the previous credibility intervals; we were correctly warned about their possible change.
 
@@ -1017,7 +1017,7 @@ hist(Fspecies10I, subset = list(island = 'Biscoe'),
     col = 2:4, main = '10 samples, Biscoe island')
 ```
 
-<img src="figure/hist60Biscoe-1.png" alt="" width="100%" />
+<img src="figure/hist60Biscoe-1.jpeg" alt="" width="100%" />
 
 ``` r
 
@@ -1027,7 +1027,7 @@ hist(Fspecies60I, subset = list(island = 'Biscoe'),
     col = 2:4, main = '60 samples, Biscoe island')
 ```
 
-<img src="figure/hist60Biscoe-2.png" alt="" width="100%" />
+<img src="figure/hist60Biscoe-2.jpeg" alt="" width="100%" />
 
 The new frequency estimates for `Adelies` (solid red line) and `Chinstrap` (dashed blue line) are now around 0.2 apart, whereas the previous estimates were almost equal. Again this is not unexpected, and these changes are well within the previous credibility intervals.
 
@@ -1046,7 +1046,7 @@ hist(freqdiff, plot = TRUE, xlim = c(-0.5, 1),
 ```
 
 <div class="figure">
-<img src="figure/probdifference-1.png" alt="**probability of frequency difference between Gentoo and Chinstrap**" width="100%" />
+<img src="figure/probdifference-1.jpeg" alt="**probability of frequency difference between Gentoo and Chinstrap**" width="100%" />
 <p class="caption">**probability of frequency difference between Gentoo and Chinstrap**</p>
 </div>
 
@@ -1194,14 +1194,14 @@ Let's plot the estimated frequencies with their credibility intervals, and also 
 plot(Fspeciesall, ylim = c(0, 1))
 ```
 
-<img src="figure/visall-1.png" alt="" width="100%" />
+<img src="figure/visall-1.jpeg" alt="" width="100%" />
 
 ``` r
 
 hist(Fspeciesall, xlim = c(0, 1), legend = 'topright')
 ```
 
-<img src="figure/visall-2.png" alt="" width="100%" />
+<img src="figure/visall-2.jpeg" alt="" width="100%" />
 
 The last plot is visually the most complete answer we can give to our research question **Q1**: "*What's the overall statistical occurrence of the three species in the whole population?*". A quantitative summary can be extracted from the `Fspeciesall` in the usual way:
 
@@ -1275,7 +1275,7 @@ hist(Fanalysis, xlim = c(0, 1), col = 2:4, ## same colours as before!
     legend = 'topright')
 ```
 
-<img src="figure/unnamed-chunk-8-1.png" alt="" width="100%" />
+<img src="figure/unnamed-chunk-8-1.jpeg" alt="" width="100%" />
 
 ``` r
 
@@ -1341,7 +1341,7 @@ hist(Fanalysis, xlim = c(0, 1), col = 5:7,
     legend = 'topright')
 ```
 
-<img src="figure/unnamed-chunk-9-1.png" alt="" width="100%" />
+<img src="figure/unnamed-chunk-9-1.jpeg" alt="" width="100%" />
 
 ``` r
 
@@ -1407,7 +1407,7 @@ Here is the estimated frequency distribution of body mass within each species
 plot(Fanalysis, col = 2:4, legend = 'topright')
 ```
 
-<img src="figure/unnamed-chunk-10-1.png" alt="" width="100%" />
+<img src="figure/unnamed-chunk-10-1.jpeg" alt="" width="100%" />
 
 Note how the plots above give us much more information than just a set of estimates about medians and quantiles, or means and standard deviations. Note also how the distributions are not Gaussian. We can definitely say that Gentoo penguins (dot-dashed green curve) are statistically heavier than Adélie or Chinstrap ones.
 

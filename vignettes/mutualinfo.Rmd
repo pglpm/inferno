@@ -82,7 +82,7 @@ flexiplot(x = penguin$island, y = penguin$species,
 ```
 
 <div class="figure">
-<img src="figure/vissample-1.png" alt="**Scatter plot of sample data**" width="100%" />
+<img src="figure/vissample-1.jpeg" alt="**Scatter plot of sample data**" width="100%" />
 <p class="caption">**Scatter plot of sample data**</p>
 </div>
 
@@ -101,8 +101,8 @@ prob <- Pr(Y = data.frame(island = 'Torgersen', species = 'Chinstrap'),
     learnt = learnt)
 
 signif(prob$values, digits = 2)
-#                      X
-# Y                      [,1]
+#                      NA
+# island,species         [,1]
 #   Torgersen,Chinstrap 0.003
 ```
 
@@ -147,7 +147,7 @@ flexiplot(x = samples$island, y = samples$species,
 ```
 
 <div class="figure">
-<img src="figure/gensamplesplot-1.png" alt="**Scatter plot for *whole* population**" width="100%" />
+<img src="figure/gensamplesplot-1.jpeg" alt="**Scatter plot for *whole* population**" width="100%" />
 <p class="caption">**Scatter plot for *whole* population**</p>
 </div>
 
@@ -171,7 +171,7 @@ flexiplot(x = samples$body_mass, y = samples$species,
 ```
 
 <div class="figure">
-<img src="figure/gensamplesplotbodymassspecies-1.png" alt="**Scatter plot for body mass and species**" width="100%" />
+<img src="figure/gensamplesplotbodymassspecies-1.jpeg" alt="**Scatter plot for body mass and species**" width="100%" />
 <p class="caption">**Scatter plot for body mass and species**</p>
 </div>
 
@@ -195,7 +195,7 @@ flexiplot(x = samples$body_mass, y = samples$bill_len,
 ```
 
 <div class="figure">
-<img src="figure/gensamplesplotbodybilllen-1.png" alt="**Scatter plot of body mass and bill length**" width="100%" />
+<img src="figure/gensamplesplotbodybilllen-1.jpeg" alt="**Scatter plot of body mass and bill length**" width="100%" />
 <p class="caption">**Scatter plot of body mass and bill length**</p>
 </div>
 
@@ -248,7 +248,7 @@ legend('top', speciesvalues, pch = c(0, 2, 5), col = 2:4,
 ```
 
 <div class="figure">
-<img src="figure/plotbodybilllen3-1.png" alt="**Scatter plot for species subpopulations**" width="100%" />
+<img src="figure/plotbodybilllen3-1.jpeg" alt="**Scatter plot for species subpopulations**" width="100%" />
 <p class="caption">**Scatter plot for species subpopulations**</p>
 </div>
 
@@ -282,7 +282,7 @@ flexiplot(x = Y1, y = Y2, type = 'p',
 ```
 
 <div class="figure">
-<img src="figure/pearsonplot-1.png" alt="**Perfect correlation from $Y_1$ to $Y_2$, with zero Pearson correlation coefficient**" width="100%" />
+<img src="figure/pearsonplot-1.jpeg" alt="**Perfect correlation from $Y_1$ to $Y_2$, with zero Pearson correlation coefficient**" width="100%" />
 <p class="caption">**Perfect correlation from $Y_1$ to $Y_2$, with zero Pearson correlation coefficient**</p>
 </div>
 
@@ -376,7 +376,7 @@ I = -\frac{1}{2} \log_{2}\bigl(1 - r^2\bigr)\;\mathrm{Sh}
 $$
 
 <div class="figure">
-<img src="figure/Ivsr-1.png" alt="**$I$ vs $\lvert r\rvert$ for jointly Gaussian variates**" width="75%" />
+<img src="figure/Ivsr-1.jpeg" alt="**$I$ vs $\lvert r\rvert$ for jointly Gaussian variates**" width="75%" />
 <p class="caption">**$I$ vs $\lvert r\rvert$ for jointly Gaussian variates**</p>
 </div>
 
@@ -417,7 +417,7 @@ flexiplot(x = samples$island, y = samples$species,
 ```
 
 <div class="figure">
-<img src="figure/gensamplesplotbis-1.png" alt="**Scatter plot for `island` and `species`**" width="100%" />
+<img src="figure/gensamplesplotbis-1.jpeg" alt="**Scatter plot for `island` and `species`**" width="100%" />
 <p class="caption">**Scatter plot for `island` and `species`**</p>
 </div>
 
@@ -456,7 +456,7 @@ flexiplot(x = samples$body_mass, y = samples$species,
 ```
 
 <div class="figure">
-<img src="figure/gensamplesplotbodymassspeciesbis-1.png" alt="**Scatter plot and mutual info for body mass and species**" width="100%" />
+<img src="figure/gensamplesplotbodymassspeciesbis-1.jpeg" alt="**Scatter plot and mutual info for body mass and species**" width="100%" />
 <p class="caption">**Scatter plot and mutual info for body mass and species**</p>
 </div>
 
@@ -495,7 +495,7 @@ flexiplot(x = samples$body_mass, y = samples$bill_len,
 ```
 
 <div class="figure">
-<img src="figure/gensamplesplotbodymassbilllenbis-1.png" alt="**Scatter plot and mutual info for body mass and bill length**" width="100%" />
+<img src="figure/gensamplesplotbodymassbilllenbis-1.jpeg" alt="**Scatter plot and mutual info for body mass and bill length**" width="100%" />
 <p class="caption">**Scatter plot and mutual info for body mass and bill length**</p>
 </div>
 
@@ -570,7 +570,7 @@ legend('top',
 ```
 
 <div class="figure">
-<img src="figure/plotbodybilllen3mi-1.png" alt="**Scatter plot and mutual info for species subpopulations**" width="100%" />
+<img src="figure/plotbodybilllen3mi-1.jpeg" alt="**Scatter plot and mutual info for species subpopulations**" width="100%" />
 <p class="caption">**Scatter plot and mutual info for species subpopulations**</p>
 </div>
 
