@@ -94,6 +94,7 @@
 #' [pread.csv()] and [pwrite.csv()] to read and write CSV files in the format used by `learn()`.
 #'
 #' @examples
+#' \donttest{
 #' ### WARNING: the following example, if run, might even take a minute or more.
 #'
 #' ## Create dataset with 3 points of variate 'V' for demonstration:
@@ -102,7 +103,6 @@
 #' ## Create metadata file:
 #' metadata <- data.frame(name = 'V', type = 'continuous')
 #'
-#' \donttest{
 #' ## Learn from the data:
 #' learnt <- learn(
 #'   data = dataset, metadata = metadata,
@@ -176,6 +176,12 @@ learn <- function(
         ## Qerror = c(0.055, 0.945) # pnorm(c(-1, 1))
     )
 ) {
+    ## Handles R CMD check:
+    ## these are variables or functions handled in a special way by Nimble
+    ## but R CMD check erroneously sees them as "rogue"
+    if(FALSE){
+        Dthreshold <- tscalefactor <- minalpha <- maxalpha <- byalpha <- ncomponents <- Rvarm1 <- Rshapelo <- Rshapehi <- Cvarm1 <- Cshapelo <- Cshapehi <- Dvarm1 <- Dshapelo <- Dshapehi <- Oprior <- Nprior <- Bshapelo <- Bshapehi <- avoidzeroW <- initmethod <- Qerror <- NULL
+    }
 
 ##################################################
 #### Various internal parameters
@@ -1483,6 +1489,13 @@ workerfun <- function(
     printtimediff,
     family
 ) {
+    ## Handles R CMD check:
+    ## these are variables or functions handled in a special way by Nimble
+    ## but R CMD check erroneously sees them as "rogue"
+    if(FALSE){
+nimbleFunction <- sampler_BASE <- extractControlElement <- model <- target <- Ndeps <- depNodes <- rdirch <- eps <- model <- calcNodes <- nimCopy <- mvSaved <- nimbleCode <- dirchalphas <- alphabase <- Alpha <- W <- epsd <- Rn <- Cn <- Dn <- On <- Nn <- Bn <- npoints <- probalpha0 <- Nmaxn <- Bshapelo <- Bshapehi <- Oalpha0 <- Oi <- Of <- Nalpha0 <- Ni <- Nf <- nimbleModel <- compileNimble <- configureMCMC <- buildMCMC <- ncomponentsamples <- nalpha <- minalpha <- maxalpha <- byalpha <- NULL
+    }
+
     ## functions to format printing of time
     printtimeend <- function(tim) {
         format(Sys.time() + tim, format='%Y-%m-%d %H:%M')
