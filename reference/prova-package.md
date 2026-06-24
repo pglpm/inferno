@@ -38,13 +38,15 @@ Authors:
 - PierGianLuca Porta Mana <pgl@portamana.org>
   ([ORCID](https://orcid.org/0000-0002-6070-0784)) \[copyright holder\]
 
+Other contributors:
+
 - Aurora Grefsrud <agre@hvl.no>
-  ([ORCID](https://orcid.org/0009-0005-9063-4131))
+  ([ORCID](https://orcid.org/0009-0005-9063-4131)) \[contributor\]
 
 - Håkon Mydland <haakon.mydland@gmail.com>
-  ([ORCID](https://orcid.org/0009-0004-9558-8894))
+  ([ORCID](https://orcid.org/0009-0004-9558-8894)) \[contributor\]
 
-- Maksim Ohvrill <maksimohvrill@hotmail.com>
+- Maksim Ohvrill <maksimohvrill@hotmail.com> \[contributor\]
 
 - Simen Hesthamar Hauge <simen@hhnet.no>
-  ([ORCID](https://orcid.org/0009-0005-6158-2846))
+  ([ORCID](https://orcid.org/0009-0005-6158-2846)) \[contributor\]

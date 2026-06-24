@@ -259,7 +259,7 @@ About Markov-chain Monte Carlo and "convergence":
 
 - de Valpine, Paciorek, Turek, & al. (2026): *NIMBLE: MCMC, Particle
   Filtering, and Programmable Hierarchical Modeling*
-  <doi:10.5281/zenodo.1211190>
+  <doi:10.5281/zenodo.1211190>,
   <https://cran.r-project.org/package=nimble>.
 
 - Kwon & al. (2025): *MCMC stopping rules in latent variable modelling*
@@ -324,7 +324,7 @@ learnt <- learn(
 #> Learning from 3 datapoints, 1 variates.
 #> 
 #>  Saving output in directory
-#>  /tmp/RtmpcqiYg1/prova-V1_D3_S10_260624T064459_1a47362cefbb 
+#>  /tmp/RtmpMAvghG/prova-V1_D3_S10_260624T081630_1ab8610c226c 
 #> 
 #> Starting Monte Carlo sampling of 10 samples by 1 chains
 #> in a space of 191 (effectively 259) dimensions.
@@ -350,9 +350,9 @@ learnt <- learn(
 #> quantile width: 0.216 to 3.27
 #> 
 #> Plotting final Monte Carlo traces and marginal samples...
-#> Total computation time: 35 secs
-#> Average preparation & finalization time: 34 secs.
-#> Average Monte Carlo time per chain: 0.82 secs.
+#> Total computation time: 34 secs
+#> Average preparation & finalization time: 33 secs.
+#> Average Monte Carlo time per chain: 0.66 secs.
 #> Max total memory used: approx 360MB.
 #> Max memory used per core: approx 360MB.
 #> Removing temporary output files.
@@ -360,7 +360,7 @@ learnt <- learn(
 #> Finished.
 #> **********************************************************
 #>  Output saved in directory
-#> /tmp/RtmpcqiYg1/prova-V1_D3_S10_260624T064459_1a47362cefbb
+#> /tmp/RtmpMAvghG/prova-V1_D3_S10_260624T081630_1ab8610c226c
 #> **********************************************************
 #> Closing connections to cores.
 

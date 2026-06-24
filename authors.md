@@ -5,13 +5,15 @@
 - **PierGianLuca Porta Mana**. Author, maintainer, copyright holder.
   [](https://orcid.org/0000-0002-6070-0784)
 
-- **Aurora Grefsrud**. Author. [](https://orcid.org/0009-0005-9063-4131)
+- **Aurora Grefsrud**. Contributor.
+  [](https://orcid.org/0009-0005-9063-4131)
 
-- **Håkon Mydland**. Author. [](https://orcid.org/0009-0004-9558-8894)
+- **Håkon Mydland**. Contributor.
+  [](https://orcid.org/0009-0004-9558-8894)
 
-- **Maksim Ohvrill**. Author.
+- **Maksim Ohvrill**. Contributor.
 
-- **Simen Hesthamar Hauge**. Author.
+- **Simen Hesthamar Hauge**. Contributor.
   [](https://orcid.org/0009-0005-6158-2846)
 
 ## Citation
@@ -19,14 +21,13 @@
 Source:
 [`DESCRIPTION`](https://github.com/pglpm/prova/blob/main/DESCRIPTION)
 
-Porta Mana P, Grefsrud A, Mydland H, Ohvrill M, Hesthamar Hauge S
-(2026). *prova: Probabilistic-Statistical Variate Analysis and Inference
-with Bayesian Nonparametrics*. R package version 0.7.0,
+Porta Mana P (2026). *prova: Probabilistic-Statistical Variate Analysis
+and Inference with Bayesian Nonparametrics*. R package version 0.7.0,
 <https://pglpm.github.io/prova/>.
 
     @Manual{,
       title = {prova: Probabilistic-Statistical Variate Analysis and Inference with Bayesian Nonparametrics},
-      author = {PierGianLuca {Porta Mana} and Aurora Grefsrud and Håkon Mydland and Maksim Ohvrill and Simen {Hesthamar Hauge}},
+      author = {PierGianLuca {Porta Mana}},
       year = {2026},
       note = {R package version 0.7.0},
       url = {https://pglpm.github.io/prova/},
