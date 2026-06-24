@@ -6,16 +6,16 @@ Authors@R: c(
   "pgl@portamana.org", role = c("aut", "cre", "cph"),
   comment = c(ORCID = "0000-0002-6070-0784")),
   person("Aurora", "Grefsrud", ,
-  "agre@hvl.no", role = c("aut"),
+  "agre@hvl.no", role = c("ctb"),
   comment = c(ORCID = "0009-0005-9063-4131")),
   person("Håkon", "Mydland", ,
-  "haakon.mydland@gmail.com", role = c("aut"),
+  "haakon.mydland@gmail.com", role = c("ctb"),
   comment = c(ORCID = "0009-0004-9558-8894")),
   person("Maksim", "Ohvrill", ,
-  "maksimohvrill@hotmail.com", role = c("aut"),
+  "maksimohvrill@hotmail.com", role = c("ctb"),
   comment = c(ORCID = "")),
   person("Simen", "Hesthamar Hauge", ,
-  "simen@hhnet.no", role = c("aut"),
+  "simen@hhnet.no", role = c("ctb"),
   comment = c(ORCID = "0009-0005-6158-2846"))
   )
 Description: Functions for calculating posterior joint and conditional probabilities, probability distributions of population frequencies, and information-theoretic measures, by means of Bayesian nonparametric methods. Markov-chain Monte Carlo calculations are automatically handled and do not require user supervision. Applications range from statistical estimation and probabilistic hypothesis testing to evidence-based inference and decision making, in a wide range of disciplines from astrophysics to medicine. For more details and examples see for instance Porta Mana et al. (2026) <doi:10.31219/osf.io/8nr56>, Dunson & Bhattacharya (2011) <doi:10.1093/acprof:oso/9780199694587.003.0005>, Lindley & Novick (1981) <doi:10.1214/aos/1176345331>, Bernardo & Smith (2000) <doi:10.1002/9780470316870>, Müller et al. (2015) <doi:10.1007/978-3-319-18968-0>. Requires the packages 'Nimble', 'parallel', 'extraDistr'.

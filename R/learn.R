@@ -62,7 +62,7 @@
 #'
 #' About Markov-chain Monte Carlo and "convergence":
 #'
-#' - de Valpine, Paciorek, Turek, & al. (2026): *NIMBLE: MCMC, Particle Filtering, and Programmable Hierarchical Modeling* <doi:10.5281/zenodo.1211190> <https://cran.r-project.org/package=nimble>.
+#' - de Valpine, Paciorek, Turek, & al. (2026): *NIMBLE: MCMC, Particle Filtering, and Programmable Hierarchical Modeling* <doi:10.5281/zenodo.1211190>, <https://cran.r-project.org/package=nimble>.
 #' - Kwon & al. (2025): *MCMC stopping rules in latent variable modelling* <doi:10.1111/bmsp.12357>.
 #' - Vehtari & al. (2021): *Rank-normalization, folding, and localization: an improved R-hat for assessing convergence of MCMC* <doi:10.1214/20-BA1221>.
 #' - Gilks & al. (1998): *Markov Chain Monte Carlo in Practice*. Chapman & Hall/CRC <doi:10.1201/b14835>.
