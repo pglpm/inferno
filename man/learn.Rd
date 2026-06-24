@@ -95,6 +95,17 @@ learn(
 }
 \value{
 A "learnt" object, or name of directory containing output files, or \code{NULL}, depending on argument \code{valueislearnt}.
+
+\code{learn()} saves several files in a directory. By default this output directory is a temporary directory within the one used by \code{\link[base:tempdir]{base::tempdir()}}, but an alternative one can be chosen with the argument \verb{outputdir =}. The output directory contain several diagnostic files for the Monte Carlo computation; in particular:
+\itemize{
+\item \code{MCtraces.pdf}: shows several trace plots of the Monte Carlo sampling; the correspondin data are in the file \code{MCtraces.rds}.
+\item \code{plotsamples_learnt.pdf}, \code{plotquantiles_learnt.pdf}: show the marginal posterior distributions of each individual variate, together with their variability (as samples or quantiles).
+\item \verb{log-1.log}, \verb{log-2.log}, ... one for each parallel core; report the progress of each parallel Monte Carlo computation and notes about it.
+\item \code{rng_seed.rds}: the state of the pseudorandom seed (see \link[base:Random]{base::Random}) when \code{learn()} was called.
+\item \code{metadata.csv}: a copy of the metadata.
+}
+
+It is recommended that you give an explicit argument \verb{outputdir =} and save the directory with the files above for future reference. In particular, the \code{MCtraces.pdf} plot and \code{MCtraces.rds} data can be useful to report Monte Carlo convergence in any work of yours that used \strong{Prova}.
 }
 \description{
 Compute the posterior joint probability distribution of the variates conditional on the given data, by means of Markov-chain Monte Carlo, using the package \strong{Nimble}.

@@ -44,6 +44,16 @@
 #'
 #' @returns A "learnt" object, or name of directory containing output files, or `NULL`, depending on argument `valueislearnt`.
 #'
+#' `learn()` saves several files in a directory. By default this output directory is a temporary directory within the one used by [base::tempdir()], but an alternative one can be chosen with the argument `outputdir =`. The output directory contain several diagnostic files for the Monte Carlo computation; in particular:
+#'
+#' - `MCtraces.pdf`: shows several trace plots of the Monte Carlo sampling; the correspondin data are in the file `MCtraces.rds`.
+#' - `plotsamples_learnt.pdf`, `plotquantiles_learnt.pdf`: show the marginal posterior distributions of each individual variate, together with their variability (as samples or quantiles).
+#' - `log-1.log`, `log-2.log`, ... one for each parallel core; report the progress of each parallel Monte Carlo computation and notes about it.
+#' - `rng_seed.rds`: the state of the pseudorandom seed (see [base::Random]) when `learn()` was called.
+#' - `metadata.csv`: a copy of the metadata.
+#'
+#' It is recommended that you give an explicit argument `outputdir =` and save the directory with the files above for future reference. In particular, the `MCtraces.pdf` plot and `MCtraces.rds` data can be useful to report Monte Carlo convergence in any work of yours that used **Prova**.
+#'
 #' @references
 #'
 #' For the mathematical representation of the frequency space:
