@@ -193,6 +193,12 @@
     <div class="section level2">
     <h2 id="value">Value<a class="anchor" aria-label="anchor" href="#value"></a></h2>
     <p>A "learnt" object, or name of directory containing output files, or <code>NULL</code>, depending on argument <code>valueislearnt</code>.</p>
+<p><code>learn()</code> saves several files in a directory. By default this output directory is a temporary directory within the one used by <code><a href="https://rdrr.io/r/base/tempfile.html" class="external-link">base::tempdir()</a></code>, but an alternative one can be chosen with the argument <code>outputdir =</code>. The output directory contain several diagnostic files for the Monte Carlo computation; in particular:</p><ul><li><p><code>MCtraces.pdf</code>: shows several trace plots of the Monte Carlo sampling; the correspondin data are in the file <code>MCtraces.rds</code>.</p></li>
+<li><p><code>plotsamples_learnt.pdf</code>, <code>plotquantiles_learnt.pdf</code>: show the marginal posterior distributions of each individual variate, together with their variability (as samples or quantiles).</p></li>
+<li><p><code>log-1.log</code>, <code>log-2.log</code>, ... one for each parallel core; report the progress of each parallel Monte Carlo computation and notes about it.</p></li>
+<li><p><code>rng_seed.rds</code>: the state of the pseudorandom seed (see <a href="https://rdrr.io/r/base/Random.html" class="external-link">base::Random</a>) when <code>learn()</code> was called.</p></li>
+<li><p><code>metadata.csv</code>: a copy of the metadata.</p></li>
+</ul><p>It is recommended that you give an explicit argument <code>outputdir =</code> and save the directory with the files above for future reference. In particular, the <code>MCtraces.pdf</code> plot and <code>MCtraces.rds</code> data can be useful to report Monte Carlo convergence in any work of yours that used <strong>Prova</strong>.</p>
     </div>
     <div class="section level2">
     <h2 id="details">Details<a class="anchor" aria-label="anchor" href="#details"></a></h2>
@@ -248,7 +254,7 @@ About nonparametrics:</p></li>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Learning from 3 datapoints, 1 variates.</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>  Saving output in directory</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  /tmp/RtmpMAvghG/prova-V1_D3_S10_260624T081630_1ab8610c226c </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  /tmp/Rtmpldemr2/prova-V1_D3_S10_260624T084756_197265e4330d </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Starting Monte Carlo sampling of 10 samples by 1 chains</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> in a space of 191 (effectively 259) dimensions.</span>
@@ -274,9 +280,9 @@ About nonparametrics:</p></li>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> quantile width: 0.216 to 3.27</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Plotting final Monte Carlo traces and marginal samples...</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> Total computation time: 34 secs</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> Average preparation &amp; finalization time: 33 secs.</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> Average Monte Carlo time per chain: 0.66 secs.</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Total computation time: 31 secs</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Average preparation &amp; finalization time: 30 secs.</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Average Monte Carlo time per chain: 0.67 secs.</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Max total memory used: approx 360MB.</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Max memory used per core: approx 360MB.</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Removing temporary output files.</span>
@@ -284,7 +290,7 @@ About nonparametrics:</p></li>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Finished.</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> **********************************************************</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span>  Output saved in directory</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> /tmp/RtmpMAvghG/prova-V1_D3_S10_260624T081630_1ab8610c226c</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> /tmp/Rtmpldemr2/prova-V1_D3_S10_260624T084756_197265e4330d</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> **********************************************************</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Closing connections to cores.</span>
 <span class="r-in"><span></span></span>

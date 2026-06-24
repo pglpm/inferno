@@ -200,6 +200,35 @@ learn(
 A "learnt" object, or name of directory containing output files, or
 `NULL`, depending on argument `valueislearnt`.
 
+`learn()` saves several files in a directory. By default this output
+directory is a temporary directory within the one used by
+[`base::tempdir()`](https://rdrr.io/r/base/tempfile.html), but an
+alternative one can be chosen with the argument `outputdir =`. The
+output directory contain several diagnostic files for the Monte Carlo
+computation; in particular:
+
+- `MCtraces.pdf`: shows several trace plots of the Monte Carlo sampling;
+  the correspondin data are in the file `MCtraces.rds`.
+
+- `plotsamples_learnt.pdf`, `plotquantiles_learnt.pdf`: show the
+  marginal posterior distributions of each individual variate, together
+  with their variability (as samples or quantiles).
+
+- `log-1.log`, `log-2.log`, ... one for each parallel core; report the
+  progress of each parallel Monte Carlo computation and notes about it.
+
+- `rng_seed.rds`: the state of the pseudorandom seed (see
+  [base::Random](https://rdrr.io/r/base/Random.html)) when `learn()` was
+  called.
+
+- `metadata.csv`: a copy of the metadata.
+
+It is recommended that you give an explicit argument `outputdir =` and
+save the directory with the files above for future reference. In
+particular, the `MCtraces.pdf` plot and `MCtraces.rds` data can be
+useful to report Monte Carlo convergence in any work of yours that used
+**Prova**.
+
 ## Details
 
 This function takes as main inputs a set of data and metadata, and
@@ -324,7 +353,7 @@ learnt <- learn(
 #> Learning from 3 datapoints, 1 variates.
 #> 
 #>  Saving output in directory
-#>  /tmp/RtmpMAvghG/prova-V1_D3_S10_260624T081630_1ab8610c226c 
+#>  /tmp/Rtmpldemr2/prova-V1_D3_S10_260624T084756_197265e4330d 
 #> 
 #> Starting Monte Carlo sampling of 10 samples by 1 chains
 #> in a space of 191 (effectively 259) dimensions.
@@ -350,9 +379,9 @@ learnt <- learn(
 #> quantile width: 0.216 to 3.27
 #> 
 #> Plotting final Monte Carlo traces and marginal samples...
-#> Total computation time: 34 secs
-#> Average preparation & finalization time: 33 secs.
-#> Average Monte Carlo time per chain: 0.66 secs.
+#> Total computation time: 31 secs
+#> Average preparation & finalization time: 30 secs.
+#> Average Monte Carlo time per chain: 0.67 secs.
 #> Max total memory used: approx 360MB.
 #> Max memory used per core: approx 360MB.
 #> Removing temporary output files.
@@ -360,7 +389,7 @@ learnt <- learn(
 #> Finished.
 #> **********************************************************
 #>  Output saved in directory
-#> /tmp/RtmpMAvghG/prova-V1_D3_S10_260624T081630_1ab8610c226c
+#> /tmp/Rtmpldemr2/prova-V1_D3_S10_260624T084756_197265e4330d
 #> **********************************************************
 #> Closing connections to cores.
 
