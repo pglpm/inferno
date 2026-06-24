@@ -2077,7 +2077,7 @@ outside each other’s 89%-credibility interval.
 - MacKay: [*Information Theory, Inference, and Learning
   Algorithms*](https://www.inference.org.uk/itila/book.html) (2005).
 
-- [*Data Science and AI Prototyping*](https://pglpm.github.io/ADA511).
+- [*Data Science and AI Prototyping*](https://pglpm.github.io/ADA511/).
 
 - [*What’s special about 89% credibility
   intervals?*](https://doi.org/10.5281/zenodo.17072199)
