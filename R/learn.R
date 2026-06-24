@@ -94,12 +94,15 @@
 #' [pread.csv()] and [pwrite.csv()] to read and write CSV files in the format used by `learn()`.
 #'
 #' @examples
+#' ### WARNING: the following example, if run, might even take a minute or more.
+#'
 #' ## Create dataset with 3 points of variate 'V' for demonstration:
 #' dataset <- data.frame(V = rnorm(n = 3))
 #'
 #' ## Create metadata file:
 #' metadata <- data.frame(name = 'V', type = 'continuous')
 #'
+#' \donttest{
 #' ## Learn from the data:
 #' learnt <- learn(
 #'   data = dataset, metadata = metadata,
@@ -110,6 +113,7 @@
 #'
 #' ## Check structure of `learnt` object:
 #' str(learnt)
+#' }
 #'
 #' @import grDevices
 #' @import graphics
@@ -1479,12 +1483,6 @@ workerfun <- function(
     printtimediff,
     family
 ) {
-  ##    if (!requireNamespace('nimble', quietly = TRUE)) {
-  ##   stop(
-  ##     "Package 'nimble' must be installed.",
-  ##     call. = FALSE
-  ##   )
-  ## }
     ## functions to format printing of time
     printtimeend <- function(tim) {
         format(Sys.time() + tim, format='%Y-%m-%d %H:%M')
@@ -1528,7 +1526,14 @@ workerfun <- function(
         strftime(as.POSIXlt(headertimestart), '%Y-%m-%d %H:%M:%S'))
     cat('\n')
 
-    suppressPackageStartupMessages(require('nimble'))
+    ## Check if Nimble package is installed and load it
+    if (!requireNamespace('nimble', quietly = TRUE)) {
+        stop(
+            "Package 'nimble' must be installed.",
+            call. = FALSE
+        )
+    }
+    suppressPackageStartupMessages(library('nimble'))
     cat('Loaded Nimble', paste0('v', packageVersion('nimble')), '\n')
     ## requireNamespace("nimble", quietly = TRUE)
     ##library('nimble')

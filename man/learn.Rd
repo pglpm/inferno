@@ -122,12 +122,15 @@ This function creates a "learnt" object, typically saved in a \code{learnt.rds} 
 See \code{vignette('intro')} for an introductory example.
 }
 \examples{
+### WARNING: the following example, if run, might even take a minute or more.
+
 ## Create dataset with 3 points of variate 'V' for demonstration:
 dataset <- data.frame(V = rnorm(n = 3))
 
 ## Create metadata file:
 metadata <- data.frame(name = 'V', type = 'continuous')
 
+\donttest{
 ## Learn from the data:
 learnt <- learn(
   data = dataset, metadata = metadata,
@@ -138,6 +141,7 @@ learnt <- learn(
 
 ## Check structure of `learnt` object:
 str(learnt)
+}
 
 }
 \references{

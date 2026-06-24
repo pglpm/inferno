@@ -1,6 +1,6 @@
 Package: prova
 Title: Probabilistic-Statistical Variate Analysis and Inference with Bayesian Nonparametrics
-Version: 0.7.0
+Version: 0.8.0
 Authors@R: c(
   person("PierGianLuca", "Porta Mana", ,
   "pgl@portamana.org", role = c("aut", "cre", "cph"),
@@ -27,9 +27,9 @@ Depends:
     R (>= 4.5.0)
 Imports:
     extraDistr,
-    nimble (>= 1.4.2),
     parallel
 Suggests:
+    nimble (>= 1.4.2),
     knitr,
     rmarkdown
 VignetteBuilder: knitr

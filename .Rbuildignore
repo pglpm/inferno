@@ -24,3 +24,5 @@ figure$
 ^pkgdown$
 ^\.github$
 ^.+/__.+$
+^cran-comments\.md$
+^CRAN-SUBMISSION$

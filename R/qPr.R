@@ -36,6 +36,8 @@
 #' [rPr()] to generate datapoints.
 #'
 #' @examples
+#' ### WARNING: the following examples, if run, might even take a minute or more.
+#'
 #' ## Load the example `learnt` object calculated from the "penguins" dataset;
 #' ## variates: 'species' and 'bill_len'
 #' learnt <- learntExample
@@ -65,7 +67,7 @@
 #' ## display the variability about the quantiles
 #' quants$quantiles
 #'
-#'
+#' \donttest{
 #' ## ## Example 2:
 #' ## Calculate the 5.5%-, 50%-, and 94.5%-quantiles for the variate "bill lengt",
 #' ## for the subpopulation of species 'Adelie'
@@ -88,6 +90,7 @@
 #'
 #' ## the cumulative probabilities are indeed 0.055, 0.5, 0.945 within numerical error:
 #' probs$values
+#' }
 #'
 #' @import parallel
 #' @import utils

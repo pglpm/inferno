@@ -34,9 +34,11 @@ As an alternative solution I considered reporting 'Nimble' only in the 'Suggests
 
 Again, I'd be grateful if the CRAN maintainers could provide an alternative solution, or grant the Warning and the handling of the 'Nimble' package to be acceptable.
 
-### Explanation about the Notes
+### Explanation about the Note and spellings
 
 - Note 1: Maintainer has another package on CRAN ('Pinference').
+
+- Words spellings (surnames) have been double-checked and are correct.
 
 - Note 2: No visible bindings for several global variables (in functions 'learn()' and 'workerfun()' which handles package 'Nimble' in a separate R session): this is because of how some variables are internally handled by the 'Nimble' package.
 
