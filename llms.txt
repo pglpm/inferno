@@ -1,4 +1,4 @@
-# ***Prova***: nonparametric probabilistic-statistical variate analysis and inference, with automated Markov-chain Monte Carlo.
+# ***Prova***: probabilistic-statistical variate analysis and inference, nonparametric and with automated Markov-chain Monte Carlo
 
 *\[Looking for the R package “inferno”? you came to the right place!
 It’s been renamed “Prova”\]*
