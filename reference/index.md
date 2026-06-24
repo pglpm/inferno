@@ -98,8 +98,8 @@ For developers.
 
 - [`prova`](https://pglpm.github.io/prova/reference/prova-package.md)
   [`prova-package`](https://pglpm.github.io/prova/reference/prova-package.md)
-  : prova: Probabilistic-Statistical Variate Analysis and Inference with
-  Bayesian Nonparametrics
+  : prova: Nonparametric Probabilistic-Statistical Variate Analysis with
+  Automated Markov-Chain Monte Carlo
 
 - [`prsubset()`](https://pglpm.github.io/prova/reference/prsubset.md) :
 
