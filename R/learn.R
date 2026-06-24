@@ -1479,6 +1479,12 @@ workerfun <- function(
     printtimediff,
     family
 ) {
+  ##    if (!requireNamespace('nimble', quietly = TRUE)) {
+  ##   stop(
+  ##     "Package 'nimble' must be installed.",
+  ##     call. = FALSE
+  ##   )
+  ## }
     ## functions to format printing of time
     printtimeend <- function(tim) {
         format(Sys.time() + tim, format='%Y-%m-%d %H:%M')
