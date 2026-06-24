@@ -86,10 +86,10 @@ We are researchers interested in penguins; specifically the
 *Torgersen*. Our research questions are not yet precisely defined, but
 some initial questions of interest are the following. The penguins can
 be of three species:
-[*Adélie*](https://www.bas.ac.uk/about/antarctica/wildlife/penguins/adelie-penguin/),
-[*Chinstrap*](https://www.bas.ac.uk/about/antarctica/wildlife/penguins/chinstrap-penguin/),
-[*Gentoo*](https://www.bas.ac.uk/about/antarctica/wildlife/penguins/gentoo-penguin/);
-we’d like to know:
+[*Adélie*](https://penguin-place.co.nz/penguins/adelie-penguin),
+[*Chinstrap*](https://penguin-place.co.nz/penguins/chinstrap-penguin),
+[*Gentoo*](https://penguin-place.co.nz/penguins/gentoo-penguin); we’d
+like to know:
 
 - Q1: What’s the overall statistical occurrence of the three species,
   independently of location or other details? In other words, what is
