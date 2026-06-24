@@ -68,7 +68,7 @@ penguins, of which we have 344 sample data stored in the
 \[[`datasets::penguins`](https://rdrr.io/r/datasets/penguins.html)\]
 dataset, included in R version 4.5.0 and above. For your convenience you
 can download the shuffled dataset as the CSV file
-[`penguin_data.csv`](https://github.com/pglpm/prova/raw/main/development/downloads/penguin_data.csv),
+[`penguin_data.csv`](https://github.com/pglpm/prova/raw/main/vignettes/penguin_data.csv),
 then load it with the
 [`pread.csv()`](https://pglpm.github.io/prova/reference/prova.data.md)
 function as follows:
@@ -82,7 +82,7 @@ directory that was specified in the
 [`learn()`](https://pglpm.github.io/prova/reference/learn.md) function.
 For your convenience the object produced by the computation mentioned
 above can be downloaded as the file
-[`learntall.rds`](https://github.com/pglpm/prova/raw/main/development/downloads/learntall.rds).
+[`learntall.rds`](https://github.com/pglpm/prova/raw/main/vignettes/learntall.rds).
 Once you have downloaded it in your working directory you can just set
 
 ``` r

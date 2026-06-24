@@ -7,7 +7,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">prova</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.7.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.8.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -143,7 +143,9 @@
 
     <div class="section level2">
     <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="co">## Load the example `learnt` object calculated from the "penguins" dataset;</span></span></span>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="co">### WARNING: the following examples, if run, might even take a minute or more.</span></span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co">## Load the example `learnt` object calculated from the "penguins" dataset;</span></span></span>
 <span class="r-in"><span><span class="co">## variates: 'species' and 'bill_len'</span></span></span>
 <span class="r-in"><span><span class="va">learnt</span> <span class="op">&lt;-</span> <span class="va">learntExample</span></span></span>
 <span class="r-in"><span></span></span>
@@ -210,7 +212,7 @@
 <span class="r-out co"><span class="r-pr">#&gt;</span>     0.75 48.9</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-in"><span></span></span>
-<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co"># \donttest{</span></span></span>
 <span class="r-in"><span><span class="co">## ## Example 2:</span></span></span>
 <span class="r-in"><span><span class="co">## Calculate the 5.5%-, 50%-, and 94.5%-quantiles for the variate "bill lengt",</span></span></span>
 <span class="r-in"><span><span class="co">## for the subpopulation of species 'Adelie'</span></span></span>
@@ -247,6 +249,7 @@
 <span class="r-out co"><span class="r-pr">#&gt;</span>     37   0.2530943</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>     38.8 0.5050883</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>     40.6 0.7515390</span>
+<span class="r-in"><span><span class="co"># }</span></span></span>
 <span class="r-in"><span></span></span>
 </code></pre></div>
     </div>

@@ -22,13 +22,13 @@ Source:
 [`DESCRIPTION`](https://github.com/pglpm/prova/blob/main/DESCRIPTION)
 
 Porta Mana P (2026). *prova: Probabilistic-Statistical Variate Analysis
-and Inference with Bayesian Nonparametrics*. R package version 0.7.0,
+and Inference with Bayesian Nonparametrics*. R package version 0.8.0,
 <https://pglpm.github.io/prova/>.
 
     @Manual{,
       title = {prova: Probabilistic-Statistical Variate Analysis and Inference with Bayesian Nonparametrics},
       author = {PierGianLuca {Porta Mana}},
       year = {2026},
-      note = {R package version 0.7.0},
+      note = {R package version 0.8.0},
       url = {https://pglpm.github.io/prova/},
     }

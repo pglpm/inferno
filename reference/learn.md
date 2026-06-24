@@ -334,6 +334,9 @@ to read and write CSV files in the format used by `learn()`.
 ## Examples
 
 ``` r
+# \donttest{
+### WARNING: the following example, if run, might even take a minute or more.
+
 ## Create dataset with 3 points of variate 'V' for demonstration:
 dataset <- data.frame(V = rnorm(n = 3))
 
@@ -353,7 +356,7 @@ learnt <- learn(
 #> Learning from 3 datapoints, 1 variates.
 #> 
 #>  Saving output in directory
-#>  /tmp/RtmpycFdQ5/prova-V1_D3_S10_260624T115823_1a5620e0a136 
+#>  /tmp/RtmpSq9BYN/prova-V1_D3_S10_260624T134651_19e54f77c251 
 #> 
 #> Starting Monte Carlo sampling of 10 samples by 1 chains
 #> in a space of 191 (effectively 259) dimensions.
@@ -379,9 +382,9 @@ learnt <- learn(
 #> quantile width: 0.216 to 3.27
 #> 
 #> Plotting final Monte Carlo traces and marginal samples...
-#> Total computation time: 37 secs
-#> Average preparation & finalization time: 36 secs.
-#> Average Monte Carlo time per chain: 0.61 secs.
+#> Total computation time: 36 secs
+#> Average preparation & finalization time: 34 secs.
+#> Average Monte Carlo time per chain: 0.7 secs.
 #> Max total memory used: approx 360MB.
 #> Max memory used per core: approx 360MB.
 #> Removing temporary output files.
@@ -389,7 +392,7 @@ learnt <- learn(
 #> Finished.
 #> **********************************************************
 #>  Output saved in directory
-#> /tmp/RtmpycFdQ5/prova-V1_D3_S10_260624T115823_1a5620e0a136
+#> /tmp/RtmpSq9BYN/prova-V1_D3_S10_260624T134651_19e54f77c251
 #> **********************************************************
 #> Closing connections to cores.
 
@@ -464,4 +467,5 @@ str(learnt)
 #>   .. ..- attr(*, "names")= chr [1:4] "gmean" "1" "2" "3"
 #>   ..$ quantile width   : Named num [1:4] 0.216 0.26 0.229 3.267
 #>   .. ..- attr(*, "names")= chr [1:4] "gmean" "1" "2" "3"
+# }
 ```
