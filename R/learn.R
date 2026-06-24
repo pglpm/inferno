@@ -518,7 +518,9 @@ learn <- function(
     )
     ## print(auxmetadata) # for debugging
 
-    message('\nLearning from ', npoints, ' datapoints, ',
+    message(paste0('\nProva v', packageVersion('prova'), '.'))
+
+    message('Learning from ', npoints, ' datapoints, ',
         nrow(auxmetadata), ' variates.')
 
 #### Output-folder setup
@@ -1540,13 +1542,10 @@ nimbleFunction <- sampler_BASE <- extractControlElement <- model <- target <- Nd
     cat('\n')
 
     ## Check if Nimble package is installed and load it
-    if (!requireNamespace('nimble', quietly = TRUE)) {
-        stop(
-            "Package 'nimble' must be installed.",
-            call. = FALSE
-        )
+    if (!require('nimble', quietly = TRUE)) {
+        stop("Package 'nimble' must be installed.", call. = FALSE)
     }
-    suppressPackageStartupMessages(library('nimble'))
+    ## suppressPackageStartupMessages(library('nimble'))
     cat('Loaded Nimble', paste0('v', packageVersion('nimble')), '\n')
     ## requireNamespace("nimble", quietly = TRUE)
     ##library('nimble')

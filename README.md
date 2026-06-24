@@ -8,49 +8,27 @@
 - [(verb)](https://dictionary.cambridge.org/dictionary/italian-english/provare): test!, try out!, assess!, attempt!, prove!, demonstrate!, show!
 
 
-# ***Prova***: Probabilistic-statistical variate analysis and inference with Bayesian nonparametrics
+# ***Prova***: nonparametric probabilistic-statistical variate analysis and inference, with automated Markov-chain Monte Carlo.
 
-This repository provides an R package and some theoretical background for *Bayesian nonparametric population inference*, which can also be called "inference under exchangeability" or "density inference". The package is especially apt for the study of statistics and associations of subpopulations or subgroups. The [introductory vignette](https://pglpm.github.io/prova/articles/start.html) explains with an example the main ideas and functions, in particular for researchers who are more familiar with traditional "frequentist" statistics but would like to try the Bayesian approach; see the [post](https://www.apadivisions.org/division-7/publications/newsletters/developmental/2018/07/bayesian-statistics) by Barbara W. Sarnecka, frequentist statistician turned Bayesian, for a brilliant overview of the Bayesian advantages.
+This repository provides an R package and some theoretical background for *Bayesian nonparametric population inference*, which can also be called "inference under exchangeability" or "density inference". The package is especially apt for the study of statistics and associations of subpopulations or subgroups. The [introductory vignette](https://pglpm.github.io/prova/articles/intro.html) explains with an example the main ideas and functions, in particular for researchers who are more familiar with traditional "frequentist" statistics but would like to try the Bayesian approach. See the [post](https://www.apadivisions.org/division-7/publications/newsletters/developmental/2018/07/bayesian-statistics) by Barbara W. Sarnecka, frequentist statistician turned Bayesian, for a brilliant overview of the Bayesian advantages.
 
-The package is under development and has not yet reached a stable phase: function names and arguments may still change, new functions will be added. More tutorials will be prepared. Also the package name is still under consideration.
-
-But the core functionalities do work, and have been tested in concrete research questions; see [example applications](#example-applications) below.
+The package is under continuous development, but the core functionalities work and have been tested in concrete research questions; see [example applications](#example-applications) below.
 
 The package internally does the computations necessary for Bayesian inference by means of Monte Carlo methods, thanks to the R package [**Nimble**](https://r-nimble.org/). Users unfamiliar with Monte Carlo methods don't have to worry, because the computations are handled automatically. Users familiar with Monte Carlo methods can easily have access to computational details and can even change some of the computation hyperparameters.
 
-If you want to test the package we'd be very happy to help in resolving possible issues and in understanding the functionalities.
-
 ## Installation
 
-You need to have the package [**Nimble**](https://r-nimble.org/), *at least version 1.4.2*, installed. Please follow its [installation instructions](https://r-nimble.org/manual/cha-installing-nimble.html) for your operating system.
+**You need to have installed the package [**Nimble**](https://r-nimble.org/), *at least version 1.4.2*.** Please follow its [installation instructions](https://r-nimble.org/manual/cha-installing-nimble.html) for your operating system.
 
-You can then install **Prova** in R by using the `remotes` package:
+Newer versions of **Prova** can be installed with
 ```
 remotes::install_github('pglpm/prova')
 ```
 
-To install a tagged version:
-```
-remotes::install_github('pglpm/prova@vx.y.z')
-```
-
-To install from source, first clone the repo:
-```
-git clone https://github.com/pglpm/prova.git
-```
-
-then install the package in R:
-
-```
-install.packages(pkgs='path/to/prova', repos=NULL)
-```
-
-the installation will also automatically install all required R-dependencies.
-
 
 ## Documentation
 
-The vignette [*Bayesian nonparametric inference with **Prova***](https://pglpm.github.io/prova/articles/start.html) is a step-by-step introduction to **Prova** and also to Bayesian nonparametrics. It guides you through a concrete example with various kinds of inferences. You may also try to follow it using a dataset of your own.
+The vignette [*Bayesian nonparametric inference with **Prova***](https://pglpm.github.io/prova/articles/intro.html) is a step-by-step introduction to **Prova** and also to Bayesian nonparametrics. It guides you through a concrete example with various kinds of inferences. You may also try to follow it using a dataset of your own.
 
 Other tutorials are available at [pglpm.github.io/prova](https://pglpm.github.io/prova/)
 

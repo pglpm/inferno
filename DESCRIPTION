@@ -1,5 +1,5 @@
 Package: prova
-Title: Probabilistic-Statistical Variate Analysis and Inference with Bayesian Nonparametrics
+Title: Nonparametric Probabilistic-Statistical Variate Analysis with Automated Markov-Chain Monte Carlo
 Version: 0.8.0
 Authors@R: c(
   person("PierGianLuca", "Porta Mana", ,
