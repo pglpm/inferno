@@ -21,7 +21,7 @@
 #' @param grid Logical: whether to plot a light grid. Default `TRUE`.
 #' @param alpha.f Numeric, default 1: opacity of the colours, `0` being completely invisible and `1` completely opaque.
 #' @param xjitter,yjitter Logical or `NULL` (default): add [base::jitter()] to `x`- or `y`-values? Useful when plotting discrete variates. If `NULL`, jitter is added if the values are of character (or factor) class.
-#' @param type,lty,lwd,pch,col,xlab,ylab,add,cex.main see analogous arguments in [graphics::matplot()]
+#' @param type,lty,lwd,pch,col,xlab,ylab,add,cex.main see analogous arguments in [graphics::matplot()].
 #' @param ... Other parameters to be passed to [graphics::matplot()].
 #'
 #' @seealso
@@ -907,7 +907,7 @@ hist.probability <- function(
 #' This [base::print()] method is a utility to display selected elements of a "probability" object obtained with [Pr()]; typically its posterior probabilies (element `$values`) and their variabilities (element `$quantiles`). If the `Y` or `X` variates are joint variates, this method also allow to display only selected values of them
 #'
 #' @param x Object of class "probability", obtained with [Pr()].
-#' @param elements character or integer vector, or `NULL` (default): elements of the "probability" object to display. The syntax is the same as with [`[`][base::Extract]. If `NULL`, the elements `$values` and `$quantiles` are displayed together in a special way.
+#' @param elements character or integer vector, or `NULL` (default): elements of the "probability" object to display. The syntax is the same as with [` [ `][base::Extract]. If `NULL`, the elements `$values` and `$quantiles` are displayed together in a special way.
 #' @param subset Named list or named vector: which variate values to display. For the variates corresponding to the names in this list, only the vector of values corresponding to that variate is displayed.
 #' @param digits positive number, default 2: minimal number of significant digits, see [base::print.default()].
 #' @param ... Other parameters to be passed to [base::print()].

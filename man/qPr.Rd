@@ -30,7 +30,7 @@ qPr(
 
 \item{learnt}{Either a character with the name of a directory or full path for a 'learnt.rds' object, produced by the \code{\link[=learn]{learn()}} function, or such an object itself.}
 
-\item{tails}{Named vector or list, or \code{NULL} (default). The names must match some or all of the variates in arguments \code{X}. For variates in this list, the probability conditional is understood in an semi-open interval sense: \code{X <= x} or \code{X >= x}, an so on. See analogous argument in \code{\link[=Pr]{Pr()}}.}
+\item{tails}{Named vector or list, or \code{NULL} (default). The names must match some or all of the variates in arguments \code{X}. For variates in this list, the probability conditional is understood in an semi-open interval sense: \eqn{X \le x} or \eqn{X \ge x}, an so on. See analogous argument in \code{\link[=Pr]{Pr()}}.}
 
 \item{priorY}{Reserved for use in future versions of the package.}
 
@@ -51,10 +51,16 @@ qPr(
 \item{tol}{numeric positive: tolerance in the calculation of quantiles. Default: \code{.Machine$double.eps * 10} (typically \code{2.22045e-15}).}
 }
 \value{
-A list of the elements \code{values},  \code{quantiles} (possibly \code{NULL}), \code{samples} (possibly \code{NULL}), \code{Y}, \code{X}. Element \code{values}: a matrix with the requested \code{Y}-quantiles conditional on the requested \code{X}-values, for all combinations of \code{p} (rows) and \code{X} (columns). Element \code{quantiles}: an array with the variability quantiles (3rd dimension of the array). Element \code{samples}: an array with the variability samples (3rd dimension of the array). Elements \code{Y}, \code{X}: copies of the \code{p} and \code{X} arguments.
+A list of the following elements:
+\itemize{
+\item \code{values}: a matrix with the requested \eqn{Y}-quantiles \code{p} conditional on the requested \eqn{X}-values in \code{X}, for all combinations of \code{p} (rows) and \code{X} (columns).
+\item \code{quantiles} (possibly \code{NULL}): an array with the variability quantiles (3rd dimension of the array) for the quantiles of the \code{value} element.
+\item \code{samples} (possibly \code{NULL}): an array with the variability samples (3rd dimension of the array) for such quantiles.
+\item \code{Y}, \code{X}: copies of the \code{Y} and \code{X} arguments.
+}
 }
 \description{
-This function calculates the quantiles of \code{Pr(Y | X, data)} at specified cumulative-probability levels (that is, the values of \code{Y} having specified cumulative probabilities), as well as the variability of those quantiles if more learning data were provided. It is somewhat analogous to the \code{q}-variants of R distribution functions, such as \code{\link[stats:qnorm]{stats::qnorm()}}. The variability can be expressed in the form of quantiles, samples, or both, as in the \code{\link[=Pr]{Pr()}} function. If several joint values are given for the probability levels and for \code{X}, the function creates a 2D grid of results for all possible combinations of the given probability levels and \code{X} values. Each variate in the argument \code{X} can be specified either as a point-value \code{X = x} or as a left-open interval \code{X <= x} or as a right-open interval \code{X >= x}, through the argument \code{tails}.
+This function calculates the quantiles of \eqn{\mathrm{Pr}(Y = y \vert X = x, \text{data})} at specified cumulative-probability levels (that is, the values of \eqn{Y} having specified cumulative probabilities), as well as the variability of those quantiles if more learning data were provided. It is somewhat analogous to the \code{q}-variants of R distribution functions, such as \code{\link[stats:qnorm]{stats::qnorm()}}. The variability can be expressed in the form of quantiles, samples, or both, as in the \code{\link[=Pr]{Pr()}} function. If several joint values are given for the probability levels and for \code{X}, the function creates a 2D grid of results for all possible combinations of the given probability levels and \code{X} values. Each variate in the argument \code{X} can be specified either as a point-value \eqn{X = x} or as a left-open interval \eqn{X \le x} or as a right-open interval \eqn{X \ge x}, through the argument \code{tails}.
 }
 \examples{
 ## Load the example `learnt` object calculated from the "penguins" dataset;
@@ -112,7 +118,9 @@ probs$values
 
 }
 \references{
-P.G.L. Porta Mana: \emph{What's special about 89\% credibility intervals?}. 2025 \url{doi:10.5281/zenodo.17072199}.
+\itemize{
+\item Porta Mana (2025): \emph{What's special about 89\% credibility intervals?} \url{doi:10.5281/zenodo.17072199}.
+}
 }
 \seealso{
 \code{\link[=learn]{learn()}}, which generates the \code{learnt} objects required by \code{qPr()}.

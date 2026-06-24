@@ -26,7 +26,7 @@ mutualinfo(
 \item{learnt}{Either a character with the name of a directory or full path
 for an 'learnt.rds' object, or such an object itself.}
 
-\item{tails}{Named vector or list, or \code{NULL} (default). The names must match some or all of the variates in arguments \code{X}. For variates in this list, the probability conditional is understood in an semi-open interval sense: \code{X <= x} or \code{X >= x}, an so on. See analogous argument in \code{\link[=Pr]{Pr()}}.}
+\item{tails}{Named vector or list, or \code{NULL} (default). The names must match some or all of the variates in arguments \code{X}. For variates in this list, the probability conditional is understood in an semi-open interval sense: \eqn{X \le x} or \eqn{X \ge x}, an so on. See analogous argument in \code{\link[=Pr]{Pr()}}.}
 
 \item{n}{Integer or \code{NULL} (default): number of samples from which to approximately calculate the mutual information. Default as many as Monte Carlo samples in \code{learnt}.}
 
@@ -42,7 +42,7 @@ A list consisting of the following elements:
 \item \code{MI}, a vector of \code{value} and \code{accuracy}: the mutual information between (joint) variates \code{Y1names} and (joint) variates \code{Y2names}.
 \item \code{CondEn12}, \code{CondEn21}, vectors of \code{value} and \code{accuracy}: the conditional entropy of the first variate given the second, and vice versa.
 \item \code{En1}, \code{En2}, vectors of \code{value} and \code{accuracy}: the (differential) entropies of the first and second variates.
-\item \code{MI.rGauss}, a vector of \code{value} and \code{accuracy}: the absolute value of the Pearson correlation coefficient of a \emph{multivariate Gaussian distribution} having mutual information \code{MI} (the two are related by \code{MI = -log(1 - MI.rGauss^2)/2}); it may provide a vague intuition for the \code{MI} value for people more familiar with Pearson's correlation, but should be taken with a grain of salt.
+\item \code{MI.rGauss}, a vector of \code{value} and \code{accuracy}: the absolute value of the Pearson correlation coefficient \eqn{r} of a \emph{multivariate Gaussian distribution} having mutual information \code{MI}; the two are related by \eqn{\mathrm{MI} = -\ln(1 - r^2)/2}. It may provide a vague intuition for the \code{MI} value for people more familiar with Pearson's correlation, but should be taken with a grain of salt.
 \item \code{unit}, \code{Y1names}, \code{Y1names}: same as the input arguments, included for the user's convenience.
 }
 }

@@ -97,18 +97,18 @@ learn(
 A "learnt" object, or name of directory containing output files, or \code{NULL}, depending on argument \code{valueislearnt}.
 }
 \description{
-Compute the posterior probability distribution of the variates conditional on the given data.
+Compute the posterior joint probability distribution of the variates conditional on the given data, by means of Markov-chain Monte Carlo, using the package \strong{Nimble}.
 }
 \details{
 This function takes as main inputs a set of data and metadata, and computes the full joint probability distribution for new data, including its variability; see \code{\link[=Pr]{Pr()}}. This computation can also be interpreted as an estimation of the full joint frequency distribution of the variates in the \emph{whole population}, beyond the sample data, together with its uncertainty.
 
 The computation is "non-parametric": probability or frequency distributions are not assumed to be Gaussian or of any other specific shape; no "model" is assumed. The mathematical representation of the space of joint frequency distributions follows Dunson & Bhattacharya (2011).
 
-The computation is done via Markov-chain Monte Carlo a
+The computation is done via Markov-chain Monte Carlo, using the package \href{https://cran.r-project.org/package=nimble}{\strong{Nimble}}. "Convergence" of the Monte Carlo computation is assessed with methods described in Vehtari & al. (2021) and Kwon & al. (2025).
 
-This function creates an object, typically saved in a \code{learnt.rds} file, which is used in all subsequent probabilistic computations. Other information about the computation is provided in logs and plots, saved in a directory specified by the user.
+This function creates a "learnt" object, typically saved in a \code{learnt.rds} file, which is used in all subsequent probabilistic computations. Other information about the computation is provided in logs and plots, saved in a directory specified by the user.
 
-See \code{vignette('start')} for an introductory example.
+See \code{vignette('intro')} for an introductory example.
 }
 \examples{
 ## Create dataset with 3 points of variate 'V' for demonstration:
@@ -136,7 +136,7 @@ For the mathematical representation of the frequency space:
 \item Ishwaran, Zarepour (2002): \emph{Exact and approximate sum representations for the Dirichlet process} \url{doi:10.2307/3315951}.
 }
 
-About Bayesian inference under exchangeability ("population inference")
+About Bayesian inference under exchangeability ("population inference"):
 \itemize{
 \item Lindley, Novick (1981): \emph{The role of exchangeability in inference}, \url{doi:10.1214/aos/1176345331}.
 \item Bernardo, Smith (2000): \emph{Bayesian Theory}. Wiley \url{doi:10.1002/9780470316870}.
@@ -147,6 +147,7 @@ About nonparametrics:
 
 About Markov-chain Monte Carlo and "convergence":
 \itemize{
+\item de Valpine, Paciorek, Turek, & al. (2026): \emph{NIMBLE: MCMC, Particle Filtering, and Programmable Hierarchical Modeling} \url{doi:10.5281/zenodo.1211190} \url{https://cran.r-project.org/package=nimble}.
 \item Kwon & al. (2025): \emph{MCMC stopping rules in latent variable modelling} \url{doi:10.1111/bmsp.12357}.
 \item Vehtari & al. (2021): \emph{Rank-normalization, folding, and localization: an improved R-hat for assessing convergence of MCMC} \url{doi:10.1214/20-BA1221}.
 \item Gilks & al. (1998): \emph{Markov Chain Monte Carlo in Practice}. Chapman & Hall/CRC \url{doi:10.1201/b14835}.

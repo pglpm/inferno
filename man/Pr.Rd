@@ -27,7 +27,7 @@ the joint probability of. One variate per column, one set of values per row.}
 
 \item{learnt}{Either a character with the name of a directory or full path for a 'learnt.rds' object, produced by the \code{\link[=learn]{learn()}} function, or such an object itself.}
 
-\item{tails}{Named vector or list, or \code{NULL} (default). The names must match some or all of the variates in arguments \code{Y} and \code{X}. For variates in this list, the probability arguments are understood in an semi-open interval sense: \code{Y <= y} or \code{Y >= y}, an so on. This is true for variates on the left and on the right of the conditional sign \code{|}. A left-open interval \code{Y <= y} is indicated by the values \code{'<='} or \code{'left'} or \code{-1}; a right-open interval \code{Y >= y} is indicated by the values \code{'>='} or \code{'right'} or \code{+1}. Values \code{NULL}, \code{'=='}, \code{0} indicate that a point value \code{Y = y} (not an interval) should be calculated. \strong{NB}: the semi-open intervals \emph{always} include the given value; this is important for ordinal or rounded variates. For instance, if \code{Y} is an integer variate, then to calculate  \code{P(Y < 3)} you should require \code{P(Y <= 2)}; for this reason we also have that \code{P(Y <= 2)} and  \code{P(Y >= 2)} generally add up to \emph{more} than 1.}
+\item{tails}{Named vector or list, or \code{NULL} (default). The names must match some or all of the variates in arguments \code{Y} and \code{X}. For variates in this list, the probability arguments are understood in an semi-open interval sense: \eqn{Y \le y} or \eqn{Y \ge y}, an so on. This is true for \code{Y} and \code{X} variates (on the left and on the right of the conditional sign \eqn{\,\vert\,}). A left-open interval \eqn{Y \le y} is indicated by \code{'<='} or \code{'left'} or \code{-1}; a right-open interval \eqn{Y \ge y} is indicated by \code{'>='} or \code{'right'} or \code{+1}. Values \code{NULL}, \code{'=='}, \code{0} indicate that a point value \code{Y = y} (not an interval) should be calculated. \strong{NB}: the semi-open intervals \emph{always} include the given value; this is important for ordinal or rounded variates. For instance, if \eqn{Y} is an integer variate, then to calculate  \eqn{\mathrm{Pr}(Y < 3)} you should require \eqn{\mathrm{Pr}(Y \le 2)}; for this reason we also have that \eqn{\mathrm{Pr}(Y \le 2)} and  \eqn{\mathrm{Pr}(Y \ge 2)} generally add up to \emph{more} than 1.}
 
 \item{priorY}{Numeric vector with the same length as the rows of \code{Y}, or \code{TRUE}, or \code{NULL} (default): prior probabilities or base rates for the \code{Y} values. If \code{TRUE}, the prior probabilities are assumed to be all equal.}
 
@@ -48,7 +48,7 @@ the joint probability of. One variate per column, one set of values per row.}
 \value{
 A list of class \code{probability}, consisting of the following elements:
 \itemize{
-\item \code{values}: a matrix with the probabilities P(Y|X,data), for all joint values of the Y-variates (rows) and X-variates (columns).
+\item \code{values}: a matrix with the probabilities \eqn{\mathrm{Pr}(Y = y \vert X = x, \text{data})}, for all joint values \eqn{y} of the \eqn{Y}-variates (rows) and  all joint values \eqn{x} of the \eqn{X}-variates (columns).
 \item \code{quantiles} (possibly \code{NULL}): an array with the variability quantiles (3rd dimension of the array) for such probabilities.
 \item \code{samples} (possibly \code{NULL}): an array with the variability samples (3rd dimension of the array) for such probabilities.
 \item \code{values.MCaccuracy}, \code{quantiles.MCaccuracy}: arrays with the numerical accuracies (roughly speaking a standard deviation) of the Monte Carlo calculations for the \code{values} and \code{quantiles} elements.
@@ -56,7 +56,18 @@ A list of class \code{probability}, consisting of the following elements:
 }
 }
 \description{
-This function calculates the posterior probability \code{Pr(Y | X, data)}, where \code{Y} and \code{X} are two (non overlapping) sets of joint variate values. If \code{X} is omitted or \code{NULL}, then the posterior probability \code{Pr(Y | data)} is calculated. The function also gives quantiles about the possible variability of the probability \code{Pr(Y | X, newdata, data)} that we could have if more learning data were provided, as well as a number of samples of the possible values of such probabilities. If several joint values are given for \code{Y} or \code{X}, the function will create a 2D grid of results for all possible compbinations of the given \code{Y} and \code{X} values. This function also allows for base-rate or other prior-probability corrections: If a prior (for instance, a base rate) for \code{Y} is given, the function will calculate the \code{Pr(Y | X, data, prior)} from \code{Pr(X | Y, data)} and the prior by means of Bayes's theorem. Each variate in each argument \code{Y}, \code{X} can be specified either as a point-value \code{Y = y} or as a left-open interval \code{Y <= y} or as a right-open interval \code{Y >= y}, through the argument \code{tails}.
+This function calculates the posterior probability \eqn{\mathrm{Pr}(Y = y \vert X = x, \text{data})}, where \eqn{Y = y} and \eqn{X = x} are two (non overlapping) sets of joint variate values, inputted as \link[base:data.frame]{data frame} arguments \code{Y} and \code{X}. If \code{X} is omitted or \code{NULL}, then the posterior probability \eqn{\mathrm{Pr}(Y = y \vert \text{data})} is calculated.
+}
+\details{
+The function also gives quantiles about the possible variability of the probability \eqn{\mathrm{Pr}(Y = y \vert X = x, \text{new\,data}, \text{data})} that we could have if more learning data were provided, as well as a number of samples of the possible values of such probability.
+
+If several joint values are given for \code{Y} or \code{X}, the function will create a 2D grid of results for all possible combinations of the given \code{Y} and \code{X} values.
+
+This function also allows for base-rate or other prior-probability corrections: If a prior (for instance, a base rate) for \code{Y} is given, the function will calculate the probability \eqn{\mathrm{Pr}(Y = y \vert X = x, \text{data}, \text{prior})} from \eqn{\mathrm{Pr}(X = x \vert Y = y, \text{data})} and the prior, by means of Bayes's theorem.
+
+Each variate in each argument \code{Y}, \code{X} can be specified either as a point-value \eqn{Y = y} or as a left-open interval \eqn{Y \le y} or as a right-open interval \eqn{Y \ge y}, through the argument \code{tails}.
+
+See \code{vignette('intro')} for example uses.
 }
 \examples{
 ## Load the example `learnt` object calculated from the "penguins" dataset;
@@ -192,6 +203,7 @@ probs$quantiles[, , c('5.5\%', '94.5\%')]
 \item Bernardo, Smith (2000): \emph{Bayesian Theory}. Wiley \url{doi:10.1002/9780470316870}.
 \item Jaynes (2003): \emph{Probability Theory: The Logic of Science}. Cambridge University Press \url{doi:10.1017/CBO9780511790423}.
 \item MacKay (2005): \emph{Information Theory, Inference, and Learning Algorithms}. Cambridge University Press \url{https://www.inference.org.uk/itila/book.html}.
+\item Porta Mana (2025): \emph{What's special about 89\% credibility intervals?} \url{doi:10.5281/zenodo.17072199}.
 }
 }
 \seealso{

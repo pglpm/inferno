@@ -1,12 +1,12 @@
 #' Calculate quantiles
 #'
-#' This function calculates the quantiles of `Pr(Y | X, data)` at specified cumulative-probability levels (that is, the values of `Y` having specified cumulative probabilities), as well as the variability of those quantiles if more learning data were provided. It is somewhat analogous to the `q`-variants of R distribution functions, such as [stats::qnorm()]. The variability can be expressed in the form of quantiles, samples, or both, as in the [Pr()] function. If several joint values are given for the probability levels and for `X`, the function creates a 2D grid of results for all possible combinations of the given probability levels and `X` values. Each variate in the argument `X` can be specified either as a point-value `X = x` or as a left-open interval `X <= x` or as a right-open interval `X >= x`, through the argument `tails`.
+#' This function calculates the quantiles of \eqn{\mathrm{Pr}(Y = y \vert X = x, \text{data})} at specified cumulative-probability levels (that is, the values of \eqn{Y} having specified cumulative probabilities), as well as the variability of those quantiles if more learning data were provided. It is somewhat analogous to the `q`-variants of R distribution functions, such as [stats::qnorm()]. The variability can be expressed in the form of quantiles, samples, or both, as in the [Pr()] function. If several joint values are given for the probability levels and for `X`, the function creates a 2D grid of results for all possible combinations of the given probability levels and `X` values. Each variate in the argument `X` can be specified either as a point-value \eqn{X = x} or as a left-open interval \eqn{X \le x} or as a right-open interval \eqn{X \ge x}, through the argument `tails`.
 #'
 #' @param p Numeric vector of probability levels. Default: `c(0.25, 0.5, 0.75)`.
 #' @param Yname Character vector: name of variate whose quantiles will be computed.
 #' @param X Matrix or data.table or `NULL` (default): set of values of variates on which we want to condition. If `NULL`, no conditioning is made (except for conditioning on the learning dataset and prior assumptions). One variate per column, one set of values per row.
 #' @param learnt Either a character with the name of a directory or full path for a 'learnt.rds' object, produced by the [learn()] function, or such an object itself.
-#' @param tails Named vector or list, or `NULL` (default). The names must match some or all of the variates in arguments `X`. For variates in this list, the probability conditional is understood in an semi-open interval sense: `X <= x` or `X >= x`, an so on. See analogous argument in [Pr()].
+#' @param tails Named vector or list, or `NULL` (default). The names must match some or all of the variates in arguments `X`. For variates in this list, the probability conditional is understood in an semi-open interval sense: \eqn{X \le x} or \eqn{X \ge x}, an so on. See analogous argument in [Pr()].
 #' @param priorY Reserved for use in future versions of the package.
 ## #' @param priorY Numeric vector with the same length as the rows of `Y`, or `TRUE`, or `NULL` (default): prior probabilities or base rates for the `Y` values. If `TRUE`, the prior probabilities are assumed to be all equal. For the moment only the value `NULL` is accepted.
 #' @param nsamples Integer or `NULL` or `'all'` (default): desired number of samples of the variability of the quantile for `Y`. If `NULL`, no samples are reported. If `'all'` (or `Inf`), all samples obtained by the [learn()] function are used.
@@ -19,10 +19,14 @@
 #' @param tol numeric positive: tolerance in the calculation of quantiles. Default: `.Machine$double.eps * 10` (typically `2.22045e-15`).
 
 #'
-#' @return A list of the elements `values`,  `quantiles` (possibly `NULL`), `samples` (possibly `NULL`), `Y`, `X`. Element `values`: a matrix with the requested `Y`-quantiles conditional on the requested `X`-values, for all combinations of `p` (rows) and `X` (columns). Element `quantiles`: an array with the variability quantiles (3rd dimension of the array). Element `samples`: an array with the variability samples (3rd dimension of the array). Elements `Y`, `X`: copies of the `p` and `X` arguments.
+#' @return A list of the following elements:
+#' - `values`: a matrix with the requested \eqn{Y}-quantiles `p` conditional on the requested \eqn{X}-values in `X`, for all combinations of `p` (rows) and `X` (columns).
+#' - `quantiles` (possibly `NULL`): an array with the variability quantiles (3rd dimension of the array) for the quantiles of the `value` element.
+#' - `samples` (possibly `NULL`): an array with the variability samples (3rd dimension of the array) for such quantiles.
+#' - `Y`, `X`: copies of the `Y` and `X` arguments.
 #'
 #' @references
-#' P.G.L. Porta Mana: *What's special about 89% credibility intervals?*. 2025 <doi:10.5281/zenodo.17072199>.
+#' - Porta Mana (2025): *What's special about 89% credibility intervals?* <doi:10.5281/zenodo.17072199>.
 #'
 #' @seealso
 #' [learn()], which generates the `learnt` objects required by `qPr()`.

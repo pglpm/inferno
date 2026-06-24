@@ -23,7 +23,7 @@ rPr(
 
 \item{learnt}{Either a character with the name of a directory or full path for a 'learnt.rds' object, produced by the \code{\link[=learn]{learn()}} function, or such an object itself.}
 
-\item{tails}{Named vector or list, or \code{NULL} (default). The names must match some or all of the variates in arguments \code{X}. For variates in this list, the probability conditional is understood in an semi-open interval sense: \code{X <= x} or \code{X >= x}, an so on. See analogous argument in \code{\link[=Pr]{Pr()}}.}
+\item{tails}{Named vector or list, or \code{NULL} (default). The names must match some or all of the variates in arguments \code{X}. For variates in this list, the probability conditional is understood in an semi-open interval sense: \eqn{X \le x} or \eqn{X \ge x}, an so on. See analogous argument in \code{\link[=Pr]{Pr()}}.}
 
 \item{mcsamples}{Vector of integers, or \code{'all'}, or \code{NULL} (default): which Monte Carlo samples calculated by the \code{\link[=learn]{learn()}} function should be used to draw the variate values. The default is to choose a random subset if \code{n} is smaller than their number, otherwise to recycle them as necessary.}
 
@@ -33,7 +33,7 @@ rPr(
 A data frame of joint draws of the variates \code{Ynames} from the posterior distribution, conditional on \code{X}. The row names of the data frame report the Monte Carlo sample (from \code{\link[=learn]{learn()}}) used for that draw, and the total number of draws from that sample so far.
 }
 \description{
-This function generate datapoints according to the posterior probability \code{Pr(Y | X, data)}, for the variates specified in the argument \code{Y}, and conditional on the variate values specified in the argument \code{X}. It is somewhat analogous to the \code{r}-variants of R distribution functions, such as \code{\link[stats:rnorm]{stats::rnorm()}}. If \code{X} is omitted or \code{NULL}, then the posterior probability \code{Pr(Y | data)} is used. Each variate in the argument \code{X} can be specified either as a point-value \code{X = x} or as a left-open interval \code{X <= x} or as a right-open interval \code{X >= x}, through the argument \code{tails}.
+This function generate datapoints according to the posterior probability \eqn{\mathrm{Pr}(Y = y \vert X = x, \text{data})}, for the variates specified in the argument \code{Y}, and conditional on the variate values specified in the argument \code{X}. It is somewhat analogous to the \code{r}-variants of R distribution functions, such as \code{\link[stats:rnorm]{stats::rnorm()}}. If \code{X} is omitted or \code{NULL}, then the posterior probability \code{Pr(Y | data)} is used. Each variate in the argument \code{X} can be specified either as a point-value \eqn{X = x} or as a left-open interval \eqn{X \le x} or as a right-open interval \eqn{X \ge x}, through the argument \code{tails}.
 }
 \examples{
 ## Load the example `learnt` object calculated from the "penguins" dataset;

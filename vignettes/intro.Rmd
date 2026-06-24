@@ -1439,9 +1439,11 @@ Consider also this question: "Do Adélie and Chinstrap penguins have identical b
 
 # Appendices {#appendix}
 
-## References {#references}
+## References and further reading {#references}
 
 ### On *exchangeability*: {#referencesexchang}
+
+- Lindley, Novick: [*The role of exchangeability in inference*](https://doi.org/10.1214/aos/1176345331) (1981).
 
 - Bernardo, Smith: [*Bayesian Theory*](https://doi.org/10.1002/9780470316870) (repr. 2000). See especially §§ 4.2--4.3, 4.6.
 
@@ -1452,8 +1454,6 @@ Consider also this question: "Do Adélie and Chinstrap penguins have identical b
 - Heath, Sudderth: [*De Finetti's theorem on exchangeable variables*](https://doi.org/10.1080/00031305.1976.10479175) (1976).
 
 - Hewitt, Savage: [*Symmetric measures on Cartesian products*](https://doi.org/10.1090/S0002-9947-1955-0076206-8) (1955).
-
-- Lindley, Novick: [*The role of exchangeability in inference*](https://doi.org/10.1214/aos/1176345331) (1981).
 
 - **Prova** accompanying manual: [*Foundations of inference under symmetry*](https://github.com/pglpm/prova/raw/main/development/manual/pglpm2024-bayes_nonparam.pdf) (draft).
 

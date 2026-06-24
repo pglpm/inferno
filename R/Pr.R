@@ -1,12 +1,22 @@
 #' Calculate posterior probabilities
 #'
-#' This function calculates the posterior probability `Pr(Y | X, data)`, where `Y` and `X` are two (non overlapping) sets of joint variate values. If `X` is omitted or `NULL`, then the posterior probability `Pr(Y | data)` is calculated. The function also gives quantiles about the possible variability of the probability `Pr(Y | X, newdata, data)` that we could have if more learning data were provided, as well as a number of samples of the possible values of such probabilities. If several joint values are given for `Y` or `X`, the function will create a 2D grid of results for all possible compbinations of the given `Y` and `X` values. This function also allows for base-rate or other prior-probability corrections: If a prior (for instance, a base rate) for `Y` is given, the function will calculate the `Pr(Y | X, data, prior)` from `Pr(X | Y, data)` and the prior by means of Bayes's theorem. Each variate in each argument `Y`, `X` can be specified either as a point-value `Y = y` or as a left-open interval `Y <= y` or as a right-open interval `Y >= y`, through the argument `tails`.
+#' This function calculates the posterior probability \eqn{\mathrm{Pr}(Y = y \vert X = x, \text{data})}, where \eqn{Y = y} and \eqn{X = x} are two (non overlapping) sets of joint variate values, inputted as [data frame][base::data.frame()] arguments `Y` and `X`. If `X` is omitted or `NULL`, then the posterior probability \eqn{\mathrm{Pr}(Y = y \vert \text{data})} is calculated.
+#'
+#' The function also gives quantiles about the possible variability of the probability \eqn{\mathrm{Pr}(Y = y \vert X = x, \text{new\,data}, \text{data})} that we could have if more learning data were provided, as well as a number of samples of the possible values of such probability.
+#'
+#' If several joint values are given for `Y` or `X`, the function will create a 2D grid of results for all possible combinations of the given `Y` and `X` values.
+#'
+#' This function also allows for base-rate or other prior-probability corrections: If a prior (for instance, a base rate) for `Y` is given, the function will calculate the probability \eqn{\mathrm{Pr}(Y = y \vert X = x, \text{data}, \text{prior})} from \eqn{\mathrm{Pr}(X = x \vert Y = y, \text{data})} and the prior, by means of Bayes's theorem.
+#'
+#' Each variate in each argument `Y`, `X` can be specified either as a point-value \eqn{Y = y} or as a left-open interval \eqn{Y \le y} or as a right-open interval \eqn{Y \ge y}, through the argument `tails`.
+#'
+#' See `vignette('intro')` for example uses.
 #'
 #' @param Y Matrix or data.table: set of values of variates of which we want
 #'   the joint probability of. One variate per column, one set of values per row.
 #' @param X Matrix or data.table or `NULL` (default): set of values of variates on which we want to condition the joint probability of `Y`. If `NULL`, no conditioning is made (except for conditioning on the learning dataset and prior assumptions). One variate per column, one set of values per row.
 #' @param learnt Either a character with the name of a directory or full path for a 'learnt.rds' object, produced by the [learn()] function, or such an object itself.
-#' @param tails Named vector or list, or `NULL` (default). The names must match some or all of the variates in arguments `Y` and `X`. For variates in this list, the probability arguments are understood in an semi-open interval sense: `Y <= y` or `Y >= y`, an so on. This is true for variates on the left and on the right of the conditional sign ` | `. A left-open interval `Y <= y` is indicated by the values `'<='` or `'left'` or `-1`; a right-open interval `Y >= y` is indicated by the values `'>='` or `'right'` or `+1`. Values `NULL`, `'=='`, `0` indicate that a point value `Y = y` (not an interval) should be calculated. **NB**: the semi-open intervals *always* include the given value; this is important for ordinal or rounded variates. For instance, if `Y` is an integer variate, then to calculate  `P(Y < 3)` you should require `P(Y <= 2)`; for this reason we also have that `P(Y <= 2)` and  `P(Y >= 2)` generally add up to *more* than 1.
+#' @param tails Named vector or list, or `NULL` (default). The names must match some or all of the variates in arguments `Y` and `X`. For variates in this list, the probability arguments are understood in an semi-open interval sense: \eqn{Y \le y} or \eqn{Y \ge y}, an so on. This is true for `Y` and `X` variates (on the left and on the right of the conditional sign \eqn{\,\vert\,}). A left-open interval \eqn{Y \le y} is indicated by `'<='` or `'left'` or `-1`; a right-open interval \eqn{Y \ge y} is indicated by `'>='` or `'right'` or `+1`. Values `NULL`, `'=='`, `0` indicate that a point value `Y = y` (not an interval) should be calculated. **NB**: the semi-open intervals *always* include the given value; this is important for ordinal or rounded variates. For instance, if \eqn{Y} is an integer variate, then to calculate  \eqn{\mathrm{Pr}(Y < 3)} you should require \eqn{\mathrm{Pr}(Y \le 2)}; for this reason we also have that \eqn{\mathrm{Pr}(Y \le 2)} and  \eqn{\mathrm{Pr}(Y \ge 2)} generally add up to *more* than 1.
 #' @param priorY Numeric vector with the same length as the rows of `Y`, or `TRUE`, or `NULL` (default): prior probabilities or base rates for the `Y` values. If `TRUE`, the prior probabilities are assumed to be all equal.
 #' @param nsamples Integer or `NULL` or `'all'` (default): desired number of samples of the variability of the probability for `Y`. If `NULL`, no samples are reported. If `'all'` (or `Inf`), all samples obtained by the [learn()] function are used.
 #' @param quantiles Numeric vector, between 0 and 1, or `NULL`: desired quantiles of the variability of the probability for `Y`. Default `c(0.055, 0.25, 0.75, 0.945)`, that is, the 5.5%, 25%, 75%, 94.5% quantiles. These are typical quantile values in the Bayesian literature: they give 50% and 89% credibility intervals, which correspond to 1 shannons and 0.5 shannons of uncertainty (see <doi:10.5281/zenodo.17072199>). If `NULL`, no quantiles are calculated.
@@ -18,7 +28,7 @@
 #'
 #' @return A list of class `probability`, consisting of the following elements:
 #'
-#' - `values`: a matrix with the probabilities P(Y|X,data), for all joint values of the Y-variates (rows) and X-variates (columns).
+#' - `values`: a matrix with the probabilities \eqn{\mathrm{Pr}(Y = y \vert X = x, \text{data})}, for all joint values \eqn{y} of the \eqn{Y}-variates (rows) and  all joint values \eqn{x} of the \eqn{X}-variates (columns).
 #' - `quantiles` (possibly `NULL`): an array with the variability quantiles (3rd dimension of the array) for such probabilities.
 #' - `samples` (possibly `NULL`): an array with the variability samples (3rd dimension of the array) for such probabilities.
 #' - `values.MCaccuracy`, `quantiles.MCaccuracy`: arrays with the numerical accuracies (roughly speaking a standard deviation) of the Monte Carlo calculations for the `values` and `quantiles` elements.
@@ -30,6 +40,7 @@
 #' - Bernardo, Smith (2000): *Bayesian Theory*. Wiley <doi:10.1002/9780470316870>.
 #' - Jaynes (2003): *Probability Theory: The Logic of Science*. Cambridge University Press <doi:10.1017/CBO9780511790423>.
 #' - MacKay (2005): *Information Theory, Inference, and Learning Algorithms*. Cambridge University Press <https://www.inference.org.uk/itila/book.html>.
+#' - Porta Mana (2025): *What's special about 89% credibility intervals?* <doi:10.5281/zenodo.17072199>.
 #'
 #' @seealso
 #' [learn()], which generates the `learnt` objects required by `Pr()`.
