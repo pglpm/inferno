@@ -1,14 +1,15 @@
 # Generate datapoints
 
 This function generate datapoints according to the posterior probability
-`Pr(Y | X, data)`, for the variates specified in the argument `Y`, and
-conditional on the variate values specified in the argument `X`. It is
-somewhat analogous to the `r`-variants of R distribution functions, such
-as [`stats::rnorm()`](https://rdrr.io/r/stats/Normal.html). If `X` is
+\\\mathrm{Pr}(Y = y \vert X = x, \text{data})\\, for the variates
+specified in the argument `Y`, and conditional on the variate values
+specified in the argument `X`. It is somewhat analogous to the
+`r`-variants of R distribution functions, such as
+[`stats::rnorm()`](https://rdrr.io/r/stats/Normal.html). If `X` is
 omitted or `NULL`, then the posterior probability `Pr(Y | data)` is
 used. Each variate in the argument `X` can be specified either as a
-point-value `X = x` or as a left-open interval `X <= x` or as a
-right-open interval `X >= x`, through the argument `tails`.
+point-value \\X = x\\ or as a left-open interval \\X \le x\\ or as a
+right-open interval \\X \ge x\\, through the argument `tails`.
 
 ## Usage
 
@@ -52,7 +53,7 @@ rPr(
   Named vector or list, or `NULL` (default). The names must match some
   or all of the variates in arguments `X`. For variates in this list,
   the probability conditional is understood in an semi-open interval
-  sense: `X <= x` or `X >= x`, an so on. See analogous argument in
+  sense: \\X \le x\\ or \\X \ge x\\, an so on. See analogous argument in
   [`Pr()`](https://pglpm.github.io/prova/reference/Pr.md).
 
 - mcsamples:

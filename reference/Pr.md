@@ -1,22 +1,11 @@
 # Calculate posterior probabilities
 
-This function calculates the posterior probability `Pr(Y | X, data)`,
-where `Y` and `X` are two (non overlapping) sets of joint variate
-values. If `X` is omitted or `NULL`, then the posterior probability
-`Pr(Y | data)` is calculated. The function also gives quantiles about
-the possible variability of the probability `Pr(Y | X, newdata, data)`
-that we could have if more learning data were provided, as well as a
-number of samples of the possible values of such probabilities. If
-several joint values are given for `Y` or `X`, the function will create
-a 2D grid of results for all possible compbinations of the given `Y` and
-`X` values. This function also allows for base-rate or other
-prior-probability corrections: If a prior (for instance, a base rate)
-for `Y` is given, the function will calculate the
-`Pr(Y | X, data, prior)` from `Pr(X | Y, data)` and the prior by means
-of Bayes's theorem. Each variate in each argument `Y`, `X` can be
-specified either as a point-value `Y = y` or as a left-open interval
-`Y <= y` or as a right-open interval `Y >= y`, through the argument
-`tails`.
+This function calculates the posterior probability \\\mathrm{Pr}(Y = y
+\vert X = x, \text{data})\\, where \\Y = y\\ and \\X = x\\ are two (non
+overlapping) sets of joint variate values, inputted as [data
+frame](https://rdrr.io/r/base/data.frame.html) arguments `Y` and `X`. If
+`X` is omitted or `NULL`, then the posterior probability \\\mathrm{Pr}(Y
+= y \vert \text{data})\\ is calculated.
 
 ## Usage
 
@@ -65,17 +54,18 @@ Pr(
   Named vector or list, or `NULL` (default). The names must match some
   or all of the variates in arguments `Y` and `X`. For variates in this
   list, the probability arguments are understood in an semi-open
-  interval sense: `Y <= y` or `Y >= y`, an so on. This is true for
-  variates on the left and on the right of the conditional sign `|`. A
-  left-open interval `Y <= y` is indicated by the values `'<='` or
-  `'left'` or `-1`; a right-open interval `Y >= y` is indicated by the
-  values `'>='` or `'right'` or `+1`. Values `NULL`, `'=='`, `0`
+  interval sense: \\Y \le y\\ or \\Y \ge y\\, an so on. This is true for
+  `Y` and `X` variates (on the left and on the right of the conditional
+  sign \\\\\vert\\\\). A left-open interval \\Y \le y\\ is indicated by
+  `'<='` or `'left'` or `-1`; a right-open interval \\Y \ge y\\ is
+  indicated by `'>='` or `'right'` or `+1`. Values `NULL`, `'=='`, `0`
   indicate that a point value `Y = y` (not an interval) should be
   calculated. **NB**: the semi-open intervals *always* include the given
   value; this is important for ordinal or rounded variates. For
-  instance, if `Y` is an integer variate, then to calculate `P(Y < 3)`
-  you should require `P(Y <= 2)`; for this reason we also have that
-  `P(Y <= 2)` and `P(Y >= 2)` generally add up to *more* than 1.
+  instance, if \\Y\\ is an integer variate, then to calculate
+  \\\mathrm{Pr}(Y \< 3)\\ you should require \\\mathrm{Pr}(Y \le 2)\\;
+  for this reason we also have that \\\mathrm{Pr}(Y \le 2)\\ and
+  \\\mathrm{Pr}(Y \ge 2)\\ generally add up to *more* than 1.
 
 - priorY:
 
@@ -135,8 +125,9 @@ Pr(
 
 A list of class `probability`, consisting of the following elements:
 
-- `values`: a matrix with the probabilities P(Y\|X,data), for all joint
-  values of the Y-variates (rows) and X-variates (columns).
+- `values`: a matrix with the probabilities \\\mathrm{Pr}(Y = y \vert X
+  = x, \text{data})\\, for all joint values \\y\\ of the \\Y\\-variates
+  (rows) and all joint values \\x\\ of the \\X\\-variates (columns).
 
 - `quantiles` (possibly `NULL`): an array with the variability quantiles
   (3rd dimension of the array) for such probabilities.
@@ -149,6 +140,32 @@ A list of class `probability`, consisting of the following elements:
   calculations for the `values` and `quantiles` elements.
 
 - `Y`, `X`: copies of the `Y` and `X` arguments.
+
+## Details
+
+The function also gives quantiles about the possible variability of the
+probability \\\mathrm{Pr}(Y = y \vert X = x, \text{new\\data},
+\text{data})\\ that we could have if more learning data were provided,
+as well as a number of samples of the possible values of such
+probability.
+
+If several joint values are given for `Y` or `X`, the function will
+create a 2D grid of results for all possible combinations of the given
+`Y` and `X` values.
+
+This function also allows for base-rate or other prior-probability
+corrections: If a prior (for instance, a base rate) for `Y` is given,
+the function will calculate the probability \\\mathrm{Pr}(Y = y \vert X
+= x, \text{data}, \text{prior})\\ from \\\mathrm{Pr}(X = x \vert Y = y,
+\text{data})\\ and the prior, by means of Bayes's theorem.
+
+Each variate in each argument `Y`, `X` can be specified either as a
+point-value \\Y = y\\ or as a left-open interval \\Y \le y\\ or as a
+right-open interval \\Y \ge y\\, through the argument `tails`.
+
+See
+[`vignette('intro')`](https://pglpm.github.io/prova/articles/intro.md)
+for example uses.
 
 ## References
 
@@ -164,6 +181,9 @@ A list of class `probability`, consisting of the following elements:
 - MacKay (2005): *Information Theory, Inference, and Learning
   Algorithms*. Cambridge University Press
   <https://www.inference.org.uk/itila/book.html>.
+
+- Porta Mana (2025): *What's special about 89% credibility intervals?*
+  <doi:10.5281/zenodo.17072199>.
 
 ## See also
 

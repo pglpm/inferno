@@ -45,7 +45,7 @@ mutualinfo(
   Named vector or list, or `NULL` (default). The names must match some
   or all of the variates in arguments `X`. For variates in this list,
   the probability conditional is understood in an semi-open interval
-  sense: `X <= x` or `X >= x`, an so on. See analogous argument in
+  sense: \\X \le x\\ or \\X \ge x\\, an so on. See analogous argument in
   [`Pr()`](https://pglpm.github.io/prova/reference/Pr.md).
 
 - n:
@@ -88,11 +88,11 @@ A list consisting of the following elements:
   entropies of the first and second variates.
 
 - `MI.rGauss`, a vector of `value` and `accuracy`: the absolute value of
-  the Pearson correlation coefficient of a *multivariate Gaussian
-  distribution* having mutual information `MI` (the two are related by
-  `MI = -log(1 - MI.rGauss^2)/2`); it may provide a vague intuition for
-  the `MI` value for people more familiar with Pearson's correlation,
-  but should be taken with a grain of salt.
+  the Pearson correlation coefficient \\r\\ of a *multivariate Gaussian
+  distribution* having mutual information `MI`; the two are related by
+  \\\mathrm{MI} = -\ln(1 - r^2)/2\\. It may provide a vague intuition
+  for the `MI` value for people more familiar with Pearson's
+  correlation, but should be taken with a grain of salt.
 
 - `unit`, `Y1names`, `Y1names`: same as the input arguments, included
   for the user's convenience.

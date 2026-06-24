@@ -1,7 +1,8 @@
 # Monte Carlo computation of posterior probability distribution
 
-Compute the posterior probability distribution of the variates
-conditional on the given data.
+Compute the posterior joint probability distribution of the variates
+conditional on the given data, by means of Markov-chain Monte Carlo,
+using the package **Nimble**.
 
 ## Usage
 
@@ -215,14 +216,19 @@ shape; no "model" is assumed. The mathematical representation of the
 space of joint frequency distributions follows Dunson & Bhattacharya
 (2011).
 
-The computation is done via Markov-chain Monte Carlo a
+The computation is done via Markov-chain Monte Carlo, using the package
+[**Nimble**](https://cran.r-project.org/package=nimble). "Convergence"
+of the Monte Carlo computation is assessed with methods described in
+Vehtari & al. (2021) and Kwon & al. (2025).
 
-This function creates an object, typically saved in a `learnt.rds` file,
-which is used in all subsequent probabilistic computations. Other
-information about the computation is provided in logs and plots, saved
-in a directory specified by the user.
+This function creates a "learnt" object, typically saved in a
+`learnt.rds` file, which is used in all subsequent probabilistic
+computations. Other information about the computation is provided in
+logs and plots, saved in a directory specified by the user.
 
-See `vignette('start')` for an introductory example.
+See
+[`vignette('intro')`](https://pglpm.github.io/prova/articles/intro.md)
+for an introductory example.
 
 ## References
 
@@ -235,7 +241,7 @@ For the mathematical representation of the frequency space:
 - Ishwaran, Zarepour (2002): *Exact and approximate sum representations
   for the Dirichlet process* <doi:10.2307/3315951>.
 
-About Bayesian inference under exchangeability ("population inference")
+About Bayesian inference under exchangeability ("population inference"):
 
 - Lindley, Novick (1981): *The role of exchangeability in inference*,
   <doi:10.1214/aos/1176345331>.
@@ -250,6 +256,11 @@ About Bayesian inference under exchangeability ("population inference")
   Press <doi:10.1017/CBO9780511802478>.
 
 About Markov-chain Monte Carlo and "convergence":
+
+- de Valpine, Paciorek, Turek, & al. (2026): *NIMBLE: MCMC, Particle
+  Filtering, and Programmable Hierarchical Modeling*
+  <doi:10.5281/zenodo.1211190>
+  <https://cran.r-project.org/package=nimble>.
 
 - Kwon & al. (2025): *MCMC stopping rules in latent variable modelling*
   <doi:10.1111/bmsp.12357>.
@@ -313,7 +324,7 @@ learnt <- learn(
 #> Learning from 3 datapoints, 1 variates.
 #> 
 #>  Saving output in directory
-#>  /tmp/Rtmp3KfssY/prova-V1_D3_S10_260623T202249_1a803262f4f5 
+#>  /tmp/RtmpcqiYg1/prova-V1_D3_S10_260624T064459_1a47362cefbb 
 #> 
 #> Starting Monte Carlo sampling of 10 samples by 1 chains
 #> in a space of 191 (effectively 259) dimensions.
@@ -341,7 +352,7 @@ learnt <- learn(
 #> Plotting final Monte Carlo traces and marginal samples...
 #> Total computation time: 35 secs
 #> Average preparation & finalization time: 34 secs.
-#> Average Monte Carlo time per chain: 0.58 secs.
+#> Average Monte Carlo time per chain: 0.82 secs.
 #> Max total memory used: approx 360MB.
 #> Max memory used per core: approx 360MB.
 #> Removing temporary output files.
@@ -349,7 +360,7 @@ learnt <- learn(
 #> Finished.
 #> **********************************************************
 #>  Output saved in directory
-#> /tmp/Rtmp3KfssY/prova-V1_D3_S10_260623T202249_1a803262f4f5
+#> /tmp/RtmpcqiYg1/prova-V1_D3_S10_260624T064459_1a47362cefbb
 #> **********************************************************
 #> Closing connections to cores.
 

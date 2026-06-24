@@ -2041,9 +2041,12 @@ outside each other’s 89%-credibility interval.
 
 ## Appendices
 
-### References
+### References and further reading
 
 #### On *exchangeability*:
+
+- Lindley, Novick: [*The role of exchangeability in
+  inference*](https://doi.org/10.1214/aos/1176345331) (1981).
 
 - Bernardo, Smith: [*Bayesian
   Theory*](https://doi.org/10.1002/9780470316870) (repr. 2000). See
@@ -2061,9 +2064,6 @@ outside each other’s 89%-credibility interval.
 
 - Hewitt, Savage: [*Symmetric measures on Cartesian
   products*](https://doi.org/10.1090/S0002-9947-1955-0076206-8) (1955).
-
-- Lindley, Novick: [*The role of exchangeability in
-  inference*](https://doi.org/10.1214/aos/1176345331) (1981).
 
 - **Prova** accompanying manual: [*Foundations of inference under
   symmetry*](https://github.com/pglpm/prova/raw/main/development/manual/pglpm2024-bayes_nonparam.pdf)

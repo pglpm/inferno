@@ -46,7 +46,7 @@ flexiplot(
 - type, lty, lwd, pch, col, xlab, ylab, add, cex.main:
 
   see analogous arguments in
-  [`graphics::matplot()`](https://rdrr.io/r/graphics/matplot.html)
+  [`graphics::matplot()`](https://rdrr.io/r/graphics/matplot.html).
 
 - xlim, ylim:
 
