@@ -74,6 +74,7 @@ entr <- mutualinfo(
 
 paste0(entr$En1, ' ', entr$unit, collapse = ' +/- ')
 
+\donttest{
 ## the entropy is now lower; indeed a penguin with a short bill length
 ## is most probably of the 'Adelie' species:
 probs <- Pr(
@@ -82,8 +83,8 @@ probs <- Pr(
   learnt = learnt, parallel = 1
 )
 
-probs$values
-
+print(probs)
+}
 
 }
 \seealso{

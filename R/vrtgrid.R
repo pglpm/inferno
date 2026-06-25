@@ -34,7 +34,7 @@
 #'
 #' ## let's take a subset of these values, to speed up computation
 #' valuesBill <- valuesBill[seq(to = length(valuesBill), length.out = 65)]
-#' 
+#'
 #' ## calculate the conditional probabilities for the 'bill_len' values above,
 #' ## given the values of 'species'
 #' probs <- Pr(

@@ -49,6 +49,6 @@ workers, or how many to create and use}
 A list with the mutual information, its error, and its unit
 }
 \description{
-Plot one-dimensional posterior probabilities
+Used in 'learn()' to plot diagnostics.
 }
 \keyword{internal}

@@ -1,5 +1,7 @@
 #' Eliminate samples from mcsamples object
 #'
+#' Used in 'learn()'.
+#'
 #' @keywords internal
 mcsubset <- function(learnt, subsamples) {
     lapply(learnt, function(xx) {
@@ -12,7 +14,10 @@ mcsubset <- function(learnt, subsamples) {
     })
 }
 
+
 #' Concatenate mcsample objects
+#'
+#' Used in 'learn()'.
 #'
 #' @keywords internal
 mcjoin <- function(x, y){
@@ -32,7 +37,20 @@ mcjoin <- function(x, y){
     }
 }
 
+
 #' Bind 3D arrays by first dimension
+#'
+#' Used in 'util_checkpoints()' within 'learn()', and in various functions in 'util_lprobs.R'.
+#'
+#' NB: the following variant is slower:
+#'
+#' ```
+#' function(x, y) {
+#'     out <- c(aperm(x), aperm(y))
+#'     dim(out) <- c(rev(dim(x)[-1]), dim(x)[1] + dim(y)[1])
+#'     aperm(out)
+#' }
+#' ```
 #'
 #' @keywords internal
 learnbind <- function(x, y) {
@@ -47,31 +65,4 @@ learnbind <- function(x, y) {
         out[nrx + seq_len(nry), ,] <- y
         out
     }
-}
-## ## old, slower variant
-## learnbind2 <- function(x, y) {
-##     out <- c(aperm(x), aperm(y))
-##     dim(out) <- c(rev(dim(x)[-1]), dim(x)[1] + dim(y)[1])
-##     aperm(out)
-## }
-
-
-#' Cumulative sum along first dimension
-#'
-#' @keywords internal
-rowcumsum <- function(x){
-    for(i in 2:(dim(x)[1])){
-        x[i,,] <- x[i,,] + x[i-1,,]
-    }
-    x
-}
-
-#' Inverse cumulative sum along first dimension
-#'
-#' @keywords internal
-rowinvcumsum <- function(x){
-    for(i in (dim(x)[1] - 1):1){
-        x[i,,] <- x[i,,] + x[i+1,,]
-    }
-    x
 }

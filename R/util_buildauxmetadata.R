@@ -1,4 +1,10 @@
-#' Build preliminary metadata flie
+#' Build augmented metadata file
+#'
+#' Builds an augmented metadata data frame from the metadata and data given to 'learn()'. This augmented metadata object is saved in the 'learnt' object produced by 'learn()'.
+#'
+#' In addition to the original metadata it contains info about transformed variates and their domains, estimated location- and scale-parameters, and similar metadata.
+#'
+#' Used in 'learn()'.
 #'
 #' @param data data.frame object
 #' @param metadata data.frame object
@@ -667,6 +673,10 @@ buildauxmetadata <- function(data, metadata, Dthreshold = 1, tscalefactor = 4.26
 
     ## print(auxmetadata) # for debugging
     auxmetadata
+
+    ## ## Used under package development:
+    ## ## in case it's useful to print the 'auxmetadata' to file.
+    ## 
     ## if (!missing(file) && file != FALSE) { # must save to file
     ##   if (is.character(file)) {
     ##     file <- paste0(sub('.rds$', '', file), '.rds')

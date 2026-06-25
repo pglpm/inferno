@@ -1,6 +1,6 @@
 Package: prova
 Title: Nonparametric Probabilistic-Statistical Variate Analysis with Automated Markov-Chain Monte Carlo
-Version: 0.8.0
+Version: 0.9.0
 Authors@R: c(
   person("PierGianLuca", "Porta Mana", ,
   "pgl@portamana.org", role = c("aut", "cre", "cph"),

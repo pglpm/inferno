@@ -7,6 +7,6 @@
 mcsubset(learnt, subsamples)
 }
 \description{
-Eliminate samples from mcsamples object
+Used in 'learn()'.
 }
 \keyword{internal}

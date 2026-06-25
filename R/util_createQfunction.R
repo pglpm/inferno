@@ -1,7 +1,11 @@
 #' Calculate and save transformation function for ordinal variates
 #'
+#' It creates the interpolation functions 'util_Q', 'util_invQ', 'util_invDQ' and saves them into 'sysdata.rda'.
+#'
+#' Those three functions are used to transform variates having bounded domains into variates with unbounded domains. See <https://github.com/pglpm/prova/raw/main/development/manual/pglpm2024-bayes_nonparam.pdf>.
+#'
 #' NB: the functional form of this function does not depend on
-#'   the number of components, minalpha, and maxalpha parameters
+#' the number of components, minalpha, and maxalpha parameters
 #'
 #' @import grDevices
 #' @import graphics
@@ -84,6 +88,7 @@ createQfunction <- function(
         dev.off()
     }
 
+    ## ## This is only used during package development
     ## if(save){
     ##     usethis::use_data(util_Q, util_invQ, util_invDQ,
     ##         internal = TRUE, overwrite = TRUE)

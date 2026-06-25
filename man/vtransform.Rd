@@ -66,6 +66,6 @@ corresponding to columns of x (in case x misses column names)}
 data frame of transformed variates, or their log-Jacobians
 }
 \description{
-Transforms variates to different representations
+See \url{https://github.com/pglpm/prova/raw/main/development/manual/pglpm2024-bayes_nonparam.pdf}.
 }
 \keyword{internal}

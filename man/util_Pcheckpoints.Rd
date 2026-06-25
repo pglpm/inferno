@@ -2,7 +2,7 @@
 % Please edit documentation in R/util_checkpoints.R
 \name{util_Pcheckpoints}
 \alias{util_Pcheckpoints}
-\title{Calculate joint frequencies for checkpoints in learn()}
+\title{Calculate joint frequencies for MCMC-monitoring checkpoints}
 \usage{
 util_Pcheckpoints(testdata, learnt)
 }
@@ -15,6 +15,6 @@ util_Pcheckpoints(testdata, learnt)
 The joint frequencies of Y corresponding to the Monte Carlo samples
 }
 \description{
-Calculate joint frequencies for checkpoints in learn()
+Used in 'learn()'.
 }
 \keyword{internal}

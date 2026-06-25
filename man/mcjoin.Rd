@@ -7,6 +7,6 @@
 mcjoin(x, y)
 }
 \description{
-Concatenate mcsample objects
+Used in 'learn()'.
 }
 \keyword{internal}

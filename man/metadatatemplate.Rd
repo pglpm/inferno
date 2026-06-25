@@ -77,18 +77,6 @@ Here are the meanings and possible values of the fields:
 \strong{\code{minincluded}}, \strong{\code{maxincluded}}: Whether the minimum (\code{domainmin}) and maximum(\code{domainmax}) values of a \emph{continuous} variate can really appear in the data or not. Possible values are \code{true} (or \code{t} or \code{yes}) or \code{false} (or \code{f}, \code{no}, or an empty field); upper- or lower-case is irrelevant. Here are some examples about the meaning of these fields. (a) A continuous \emph{unrounded} variate such as temperature has 0 as a minimum possible value \code{domainmin}, but this value itself is physically impossible and can never appear in data; in this case \code{minincluded} is empty (or set to \code{false} or \code{no}). (b) A variate related to the \emph{unrounded} length, in metres, of some objects may take on any positive real value; but suppose that all objects of length 5 or less are grouped together under the value \code{5}. It is then possible for several datapoints to have value \code{5}: one such datapoint could originally have the value 3.782341...; another the value 4.929673..., and so on. In this case \code{domainmin} is set to \code{5}, and \code{minincluded} is set to \code{true} (or \code{yes}). Similarly for the maximum value of a variate and \code{maxincluded}. Note that if \code{domainmin} is minus-infinity (empty value in the metadata file), then \code{minincluded} is automatically empty (that is, \code{false}), and similarly for \code{maxincluded} if \code{domainmax} is infinity.
 }
 
-\section{Rounded continuous variates}{
-
-
-To be written.
-}
-
-\section{Necessity of metadata}{
-
-
-To be written.
-}
-
 \examples{
 ## Create a preliminary data frame of metadata for the `penguins` dataset
 metadata <- metadatatemplate(data = datasets::penguins, file = NULL)
@@ -117,6 +105,7 @@ metadata3 <- metadatatemplate(
 )
 
 print(metadata3)
+
 ## Generate 10 points for a continuous variate in (0, 1)
 dataset <- runif(10)
 

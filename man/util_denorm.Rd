@@ -7,6 +7,6 @@
 util_denorm(lprob)
 }
 \description{
-Utility function to avoid finite-precision accuracys
+Used in 'rPr()', 'mutualinfo()', 'util_lprobsmi()'.
 }
 \keyword{internal}

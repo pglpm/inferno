@@ -533,4 +533,3 @@ qPr <- function(
     class(out) <- 'probability'
     out
 }
-

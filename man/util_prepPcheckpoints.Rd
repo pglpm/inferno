@@ -2,7 +2,7 @@
 % Please edit documentation in R/util_checkpoints.R
 \name{util_prepPcheckpoints}
 \alias{util_prepPcheckpoints}
-\title{Format datapoints for testing of MCMC progress}
+\title{Format datapoints used for MCMC monitoring}
 \usage{
 util_prepPcheckpoints(x, auxmetadata, pointsid = NULL)
 }
@@ -17,6 +17,6 @@ util_prepPcheckpoints(x, auxmetadata, pointsid = NULL)
 some arguments to be repeatedly used in util_Pcheckpoints
 }
 \description{
-Format datapoints for testing of MCMC progress
+Used in 'util_Pcheckpoints()' within 'learn()'.
 }
 \keyword{internal}

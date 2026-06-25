@@ -1,5 +1,7 @@
 #' Transforms variates to different representations
 #'
+#' See <https://github.com/pglpm/prova/raw/main/development/manual/pglpm2024-bayes_nonparam.pdf>.
+#'
 #' @param x data.table object containing data to be transformed
 #' @param auxmetadata auxmetadata object
 #' @param Rout Character, output of R-type variate, with possible values:

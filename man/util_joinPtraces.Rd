@@ -7,6 +7,9 @@
 util_joinPtraces(path)
 }
 \description{
-Join '____tempPtraces-' files
+For deeper monitoring of the MCMC, the user can require the 'learn()' function not to clean intermediate MCMC-related files generated during the computation. The files with prefix '____tempPtraces-' contain chunks of MCMC traces.
+}
+\details{
+The present function can be used to join them into a single trace.
 }
 \keyword{internal}

@@ -1,4 +1,9 @@
-#### Cleanup a learn()-output directory
+#' Cleanup a learn()-output directory
+#'
+#' For deeper monitoring of the MCMC, the user can require the 'learn()' function not to clean intermediate MCMC-related files generated during the computation.
+#'
+#' The present function can be used to remove these intermediate files from the output directory created by 'learn()'.
+#'
 #' @keywords internal
 util_cleanup <- function(path){
     if(all(file.exists(file.path(path, c(
@@ -20,6 +25,10 @@ util_cleanup <- function(path){
 
 
 #' Join '____tempPtraces-' files
+#'
+#' For deeper monitoring of the MCMC, the user can require the 'learn()' function not to clean intermediate MCMC-related files generated during the computation. The files with prefix '____tempPtraces-' contain chunks of MCMC traces.
+#'
+#' The present function can be used to join them into a single trace.
 #' 
 #' @keywords internal
 util_joinPtraces <- function(path){
@@ -54,37 +63,4 @@ util_joinPtraces <- function(path){
         ))
     }
     cat('\nDone.\n')
-}
-
-#' Convert learnt with R/C/Dvar to learnt with R/C/Dsd
-#' 
-#' @keywords internal
-util_learntvar2sd <- function(file){
-    learnt <- readRDS(file = file)
-    ## Swap variances and standard deviations
-    if(!is.null(learnt$Rvar)){
-        learnt$Rvar <- sqrt(learnt$Rvar)
-        names(learnt)[which(names(learnt) == 'Rvar')] <- 'Rsd'
-    } else if(!is.null(learnt$Rsd)){
-        learnt$Rsd <- learnt$Rsd^2
-        names(learnt)[which(names(learnt) == 'Rsd')] <- 'Rvar'
-    }
-    ##
-    if(!is.null(learnt$Cvar)){
-        learnt$Cvar <- sqrt(learnt$Cvar)
-        names(learnt)[which(names(learnt) == 'Cvar')] <- 'Csd'
-    } else if(!is.null(learnt$Csd)){
-        learnt$Csd <- learnt$Csd^2
-        names(learnt)[which(names(learnt) == 'Csd')] <- 'Cvar'
-    }
-    ##
-    if(!is.null(learnt$Dvar)){
-        learnt$Dvar <- sqrt(learnt$Dvar)
-        names(learnt)[which(names(learnt) == 'Dvar')] <- 'Dsd'
-    } else if(!is.null(learnt$Dsd)){
-        learnt$Dsd <- learnt$Dsd^2
-        names(learnt)[which(names(learnt) == 'Dsd')] <- 'Dvar'
-    }
-    ##
-    saveRDS(object = learnt, file = file)
 }

@@ -20,6 +20,6 @@ util_qYXcont(
 )
 }
 \description{
-Calculate quantiles for continuous Y by bisection
+Used in 'qPr()'.
 }
 \keyword{internal}

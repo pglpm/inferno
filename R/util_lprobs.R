@@ -1,5 +1,7 @@
 #' Prepare arguments for util_lprobsyx from data
 #'
+#' Used in 'Pr()', 'qPr()', 'rPr()', 'mutualinfo()'
+#'
 #' @keywords internal
 util_lprobsargsyx <- function(
     x, auxmetadata, learnt, tails = NULL
@@ -419,7 +421,9 @@ util_lprobsargsyx <- function(
 
 
 
-#' Calculate collection of log-probabilities for different components and samples
+#' Calculate collection of log-probabilities for different components and sample#'
+#' Used in 'Pr()', 'qPr()', 'rPr()', 'mutualinfo()', 'util_checkpoints()'.
+#'
 #' @return Matrix with as many rows as components and as many cols as samples
 #' @keywords internal
 util_lprobsbase <- function(
@@ -488,7 +492,11 @@ util_lprobsbase <- function(
     })
 }
 
+
+
 #' Calculate probabilities, quantiles, etc, for all Y and X combinations
+#'
+#' Used in 'Pr()'.
 #'
 #' @import stats
 #'
@@ -539,33 +547,10 @@ util_combineYX <- function(
 
 
 
-
-
-## #' Calculate collection of log-probabilities for different components and samples
-## #' @return Matrix with as many rows as components and as many cols as samples
-## #' @keywords internal
-## util_lprobssave <- function(xVs, params, logW, temporarydir, lab) {
-## 
-##     out <- util_lprobsbase(xVs = xVs, params = params, logW = logW)
-## 
-##     saveRDS(out,
-##         file.path(temporarydir,
-##             paste0(lab, xVs$ii, '__.rds'))
-##     )
-## }
-
-#' Utility function to avoid finite-precision accuracys
-#' 
-#' @keywords internal
-util_denorm <- function(lprob) {
-    apply(X = lprob, MARGIN = 2, FUN = function(xx) {
-        xx - max(xx[is.finite(xx)])
-    }, simplify = TRUE)
-}
-
-
 #' Calculate pairs of log-probabilities for mutualinfo()
-#' 
+#'
+#' Used in 'mutualinfo()'.
+#'
 #' @keywords internal
 util_lprobsmi <- function(xVs, params1, params2, lWnorm, lW) {
 
@@ -611,6 +596,8 @@ util_lprobsmi <- function(xVs, params1, params2, lWnorm, lW) {
 
 
 #' Calculate quantiles for continuous Y by bisection
+#'
+#' Used in 'qPr()'.
 #'
 #' @import stats
 #'
@@ -738,6 +725,8 @@ util_qYXcont <- function(
 
 #' Calculate quantiles for discrete Y by bisection
 #'
+#' Used in 'qPr()'.
+#'
 #' @import stats
 #'
 #' @keywords internal
@@ -750,7 +739,7 @@ util_qYXdiscr <- function(
     dosamples, nsamples,
     Qerror = NULL,
     tol = NULL
-) {
+){
     pY <- iyx['pY']
 
     if(usememory) {
@@ -844,4 +833,43 @@ util_qYXdiscr <- function(
         ## values.MCaccuracy
         ## quantiles.MCaccuracy
 )
+}
+
+
+
+#' Utility function to avoid finite-precision accuracys
+#'
+#' Used in 'rPr()', 'mutualinfo()', 'util_lprobsmi()'.
+#'
+#' @keywords internal
+util_denorm <- function(lprob) {
+    apply(X = lprob, MARGIN = 2, FUN = function(xx) {
+        xx - max(xx[is.finite(xx)])
+    }, simplify = TRUE)
+}
+
+
+#' Cumulative sum along first dimension
+#'
+#' Used in 'util_lprobsargsyx()'.
+#'
+#' @keywords internal
+rowcumsum <- function(x){
+    for(i in 2:(dim(x)[1])){
+        x[i,,] <- x[i,,] + x[i-1,,]
+    }
+    x
+}
+
+
+#' Inverse cumulative sum along first dimension
+#'
+#' Used in 'util_lprobsargsyx()'.
+#'
+#' @keywords internal
+rowinvcumsum <- function(x){
+    for(i in (dim(x)[1] - 1):1){
+        x[i,,] <- x[i,,] + x[i+1,,]
+    }
+    x
 }

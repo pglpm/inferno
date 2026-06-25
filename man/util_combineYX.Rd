@@ -16,6 +16,6 @@ util_combineYX(
 )
 }
 \description{
-Calculate probabilities, quantiles, etc, for all Y and X combinations
+Used in 'Pr()'.
 }
 \keyword{internal}

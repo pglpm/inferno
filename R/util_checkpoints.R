@@ -1,15 +1,17 @@
-#' Format datapoints for testing of MCMC progress
+#' Format datapoints used for MCMC monitoring
+#'
+#' Used in 'util_Pcheckpoints()' within 'learn()'.
 #'
 #' @param x Datapoints to be used for checking MCMC progress
 #' @param auxmetadata auxmetadata object
 #' @param pointsid Id of datapoints
 #'
-#' @keywords internal
-#'
 #' @return some arguments to be repeatedly used in util_Pcheckpoints
+#'
+#' @keywords internal
 util_prepPcheckpoints <- function(
     x, auxmetadata, pointsid = NULL
-) {
+){
 
     nX <- nrow(x)
 
@@ -274,11 +276,13 @@ util_prepPcheckpoints <- function(
 
 
 
-#' Calculate joint frequencies for checkpoints in learn()
+#' Calculate joint frequencies for MCMC-monitoring checkpoints
+#'
+#' Used in 'learn()'.
 #'
 #' @param testdata List of objects calculated with util_prepPcheckpoints
 #' @param learnt mcsamples object
-#' 
+#'
 #' @keywords internal
 #'
 #' @return The joint frequencies of Y corresponding to the Monte Carlo samples
@@ -415,36 +419,5 @@ util_Pcheckpoints <- function(
                     colSums(exp(lprobY)) / colSums(W)
                 })
             )
-##         do.call(cbind, foreach(
-##             xV0 = xV0,
-##             xV1 = xV1,
-##             xV2 = xV2,
-##             xVN = xVN,
-##             xVB = xVB
-##         ) %do% {
-##             lprobY <- util_lprobs(
-##                 nV0 = nV0,
-##                 V0mean = V0mean,
-##                 V0sd = V0sd,
-##                 xV0 = xV0,
-##                 nV1 = nV1,
-##                 V1mean = V1mean,
-##                 V1sd = V1sd,
-##                 xV1 = xV1,
-##                 nV2 = nV2,
-##                 V2mean = V2mean,
-##                 V2sd = V2sd,
-##                 V2steps = V2steps,
-##                 xV2 = xV2,
-##                 nVN = nVN,
-##                 VNprobs = VNprobs,
-##                 xVN = xVN,
-##                 nVB = nVB,
-##                 VBprobs = VBprobs,
-##                 xVB = c(xVB)
-##             )
-## #### Output: rows=components, columns=samples
-##             colSums(exp(lprobX + lprobY)) / colSums(exp(lprobX))
-##         })
     }) # Output: rows=components, columns=samples
 }

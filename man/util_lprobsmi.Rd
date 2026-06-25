@@ -7,6 +7,6 @@
 util_lprobsmi(xVs, params1, params2, lWnorm, lW)
 }
 \description{
-Calculate pairs of log-probabilities for mutualinfo()
+Used in 'mutualinfo()'.
 }
 \keyword{internal}

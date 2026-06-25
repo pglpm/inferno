@@ -2,7 +2,8 @@
 % Please edit documentation in R/util_lprobs.R
 \name{util_lprobsbase}
 \alias{util_lprobsbase}
-\title{Calculate collection of log-probabilities for different components and samples}
+\title{Calculate collection of log-probabilities for different components and sample#'
+Used in 'Pr()', 'qPr()', 'rPr()', 'mutualinfo()', 'util_checkpoints()'.}
 \usage{
 util_lprobsbase(xVs, params, logW, temporarydir = NULL, lab = "")
 }
@@ -10,6 +11,7 @@ util_lprobsbase(xVs, params, logW, temporarydir = NULL, lab = "")
 Matrix with as many rows as components and as many cols as samples
 }
 \description{
-Calculate collection of log-probabilities for different components and samples
+Calculate collection of log-probabilities for different components and sample#'
+Used in 'Pr()', 'qPr()', 'rPr()', 'mutualinfo()', 'util_checkpoints()'.
 }
 \keyword{internal}

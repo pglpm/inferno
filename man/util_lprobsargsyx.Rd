@@ -7,6 +7,6 @@
 util_lprobsargsyx(x, auxmetadata, learnt, tails = NULL)
 }
 \description{
-Prepare arguments for util_lprobsyx from data
+Used in 'Pr()', 'qPr()', 'rPr()', 'mutualinfo()'
 }
 \keyword{internal}

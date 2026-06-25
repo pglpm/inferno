@@ -1,5 +1,7 @@
 #' Plot one-dimensional posterior probabilities
 #'
+#' Used in 'learn()' to plot diagnostics.
+#'
 #' @param filename Character: name of plot output file
 #' @param learnt Either a character with the name of a directory or full
 #'   path for an 'learnt.rds' object, or such an object itself

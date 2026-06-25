@@ -20,6 +20,10 @@ A matrix with two rows and as many columns as elements in 'prob'. Forr each colu
 Calculates the lower and upper bound of a credibility interval, for various quantiles of the empirical distribution of a vector of MC samples.
 }
 \details{
+Tests show that it gives a very good approximation of the "true" credibility quantiles in the case of independent samples.
+
+Tested also on t-distributions with df=1.1 and Pareto with a=1.5 (mean exists, variance infinite).
+
 Used in 'workerfun()' in 'learn()'
 }
 \keyword{internal}

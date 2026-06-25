@@ -7,6 +7,16 @@
 learnbind(x, y)
 }
 \description{
-Bind 3D arrays by first dimension
+Used in 'util_checkpoints()' within 'learn()', and in various functions in 'util_lprobs.R'.
+}
+\details{
+NB: the following variant is slower:
+
+\if{html}{\out{<div class="sourceCode">}}\preformatted{function(x, y) \{
+    out <- c(aperm(x), aperm(y))
+    dim(out) <- c(rev(dim(x)[-1]), dim(x)[1] + dim(y)[1])
+    aperm(out)
+\}
+}\if{html}{\out{</div>}}
 }
 \keyword{internal}

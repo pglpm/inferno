@@ -217,116 +217,7 @@ flexiplot <- function(
         }
     }
 }
-## flexiplot <- function(
-##     x, y,
-##     type = 'l',
-##     lty = c(1, 2, 4, 3, 6, 5),
-##     lwd = 2,
-##     pch = c(1, 2, 0, 5, 6, 3), #, 4,
-##     col = palette(),
-##     xlab = NULL, ylab = NULL,
-##     xlim = NULL, ylim = NULL,
-##     add = FALSE,
-##     xdomain = NULL, ydomain = NULL,
-##     alpha.f = 1,
-##     xjitter = NULL,
-##     yjitter = NULL,
-##     ## c( ## Tol's colour-blind-safe scheme
-##     ##     '#4477AA',
-##     ##     '#EE6677',
-##     ##     '#228833',
-##     ##     '#CCBB44',
-##     ##     '#66CCEE',
-##     ##     '#AA3377' #, '#BBBBBB'
-##     ## ),
-##     grid = TRUE,
-##     cex.main = 1,
-##     ...
-## ){
-##     xat <- yat <- NULL
-## 
-##     if(missing('x') && !missing('y')){
-##         x <- numeric(NROW(y))
-##         if(is.null(xdomain) && is.null(xlim)){
-##             xat <- 0
-##             xdomain <- NA
-##             if(!is.null(xjitter)){
-##                 xlim <- c(-0.04, 0.04)
-##             }
-##             if(is.null(xlab)){ xlab <- NA }
-##             if(is.null(ylab)){ ylab <- deparse1(substitute(y)) }
-##         }
-##     } else if(!missing('x') && missing('y')){
-##         y <- numeric(NROW(x))
-##         if(is.null(ydomain) && is.null(ylim)){
-##             yat <- 0
-##             ydomain <- NA
-##             if(!is.null(yjitter)){
-##                 ylim <- c(-0.04, 0.04)
-##             }
-##             if(is.null(ylab)){ ylab <- NA }
-##             if(is.null(xlab)){ xlab <- deparse1(substitute(x)) }
-##         }
-##     } else if(!missing('x') && !missing('y')){
-##         if(is.null(xlab)){ xlab <- deparse1(substitute(x)) }
-##         if(is.null(ylab)){ ylab <- deparse1(substitute(y)) }
-##     } else {
-##         stop('Arguments "x" and "y" cannot both be missing')
-##     }
-## 
-##     ## if x is character, convert to numeric
-##     if(is.character(x)){
-##         if(is.null(xdomain)){ xdomain <- unique(x) }
-##         ## we assume the user has sorted the values in a meaningful order
-##         ## because the lexical order may not be correct
-##         ## (think of values like 'low', 'medium', 'high')
-##         x <- as.numeric(factor(x, levels = xdomain))
-##         if(is.null(xjitter)){xjitter <- TRUE}
-##         xat <- seq_along(xdomain)
-##     }
-##     if(isTRUE(xjitter)){x <- jitter(x)}
-## 
-##     ## if y is character, convert to numeric
-##     if(is.character(y)){
-##         if(is.null(ydomain)){ ydomain <- unique(y) }
-##         ## we assume the user has sorted the values in a meaningful order
-##         ## because the lexical order may not be correct
-##         ## (think of values like 'low', 'medium', 'high')
-##         y <- as.numeric(factor(y, levels = ydomain))
-##         if(is.null(yjitter)){yjitter <- TRUE}
-##         yat <- seq_along(ydomain)
-##     }
-##     if(isTRUE(yjitter)){y <- jitter(y)}
-## 
-##     ## Syntax of xlim and ylim that allows
-##     ## for the specification of only upper- or lower-bound
-##     if(length(xlim) == 2){
-##         if(is.null(xlim[1]) || !is.finite(xlim[1])){ xlim[1] <- min(x[is.finite(x)]) }
-##         if(is.null(xlim[2]) || !is.finite(xlim[2])){ xlim[2] <- max(x[is.finite(x)]) }
-##     }
-##     if(length(ylim) == 2){
-##         if(is.null(ylim[1]) || !is.finite(ylim[1])){ ylim[1] <- min(y[is.finite(y)]) }
-##         if(is.null(ylim[2]) || !is.finite(ylim[2])){ ylim[2] <- max(y[is.finite(y)]) }
-##     }
-## 
-##     if(is.null(xlab) && !missing(x)) {
-##         xlab <- deparse1(substitute(x))
-##     }
-##     if(is.na(alpha.f)){alpha.f <- 1}
-##     col <- adjustcolor(col, alpha.f = alpha.f)
-## 
-##     graphics::matplot(x, y, xlim = xlim, ylim = ylim, type = type, axes = F,
-##         col = col, lty = lty, lwd = lwd, pch = pch, cex.main = cex.main, add = add, xlab = xlab, ylab = ylab, ...)
-##     if(!add){
-##         graphics::axis(1, at = xat, labels = xdomain, tick = !grid,
-##             col = 'black', lwd = 1, lty = 1, ...)
-##         graphics::axis(2, at = yat, labels = ydomain, tick = !grid,
-##             col = 'black', lwd = 1, lty = 1, ...)
-##         if(grid){
-##             graphics::grid(nx = NULL, ny = NULL, lty = 1, col = '#BBBBBB80')
-##         }
-##     }
-## }
+
 
 #' Plot pairs of quantiles
 #'
@@ -425,6 +316,7 @@ plotquantiles <- function(
             col = col, border = border)
     }
 }
+
 
 #' Plot an object of class "probability"
 #'
@@ -900,13 +792,6 @@ hist.probability <- function(
 
 }
 
-#### Possibly for future versions
-## #' Summary for an object of class 'probability'
-## #'
-## #' Should this be 'print'?
-## #'
-## #' @export
-## summary.probability <- function(x, ...){print.default(x, ...)}
 
 #' Print an object of class "probability"
 #'

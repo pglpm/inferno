@@ -20,6 +20,6 @@ util_qYXdiscr(
 )
 }
 \description{
-Calculate quantiles for discrete Y by bisection
+Used in 'qPr()'.
 }
 \keyword{internal}

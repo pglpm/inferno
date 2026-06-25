@@ -51,13 +51,10 @@
 #'
 #' **`minincluded`**, **`maxincluded`**: Whether the minimum (`domainmin`) and maximum(`domainmax`) values of a *continuous* variate can really appear in the data or not. Possible values are `true` (or `t` or `yes`) or `false` (or `f`, `no`, or an empty field); upper- or lower-case is irrelevant. Here are some examples about the meaning of these fields. (a) A continuous *unrounded* variate such as temperature has 0 as a minimum possible value `domainmin`, but this value itself is physically impossible and can never appear in data; in this case `minincluded` is empty (or set to `false` or `no`). (b) A variate related to the *unrounded* length, in metres, of some objects may take on any positive real value; but suppose that all objects of length 5 or less are grouped together under the value `5`. It is then possible for several datapoints to have value `5`: one such datapoint could originally have the value 3.782341...; another the value 4.929673..., and so on. In this case `domainmin` is set to `5`, and `minincluded` is set to `true` (or `yes`). Similarly for the maximum value of a variate and `maxincluded`. Note that if `domainmin` is minus-infinity (empty value in the metadata file), then `minincluded` is automatically empty (that is, `false`), and similarly for `maxincluded` if `domainmax` is infinity.
 #'
-#' @section Rounded continuous variates:
-#'
-#' To be written.
-#'
-#' @section Necessity of metadata:
-#'
-#' To be written.
+#' 
+## #' @section Necessity of metadata:
+## #'
+## #' To be written.
 #'
 #' @seealso
 #' [learn()], which generates the information necessary to calculate posterior probabilities, based on data and metadata.
@@ -90,7 +87,7 @@
 #' )
 #'
 #' print(metadata3)
-
+#'
 #' ## Generate 10 points for a continuous variate in (0, 1)
 #' dataset <- runif(10)
 #'
