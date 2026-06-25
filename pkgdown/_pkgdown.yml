@@ -1,7 +1,9 @@
 url: https://pglpm.github.io/prova/
 template:
   bootstrap: 5
-  bootswatch: zephyr
+  bslib:
+    bootswatch: zephyr
+    pkgdown-nav-height: 100px
 reference:
 - title: "Main functions"
   contents:
