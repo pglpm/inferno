@@ -126,8 +126,7 @@ For developers.
 
 - [`util_lprobsbase()`](https://pglpm.github.io/prova/reference/util_lprobsbase.md)
   : Calculate collection of log-probabilities for different components
-  and sample#' Used in 'Pr()', 'qPr()', 'rPr()', 'mutualinfo()',
-  'util_checkpoints()'.
+  and samples
 
 - [`util_lprobsmi()`](https://pglpm.github.io/prova/reference/util_lprobsmi.md)
   : Calculate pairs of log-probabilities for mutualinfo()
