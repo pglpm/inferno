@@ -7,7 +7,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">prova</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.8.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.9.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -117,20 +117,6 @@ Default <code>TRUE</code>.</p></dd>
 <p><strong><code>domainmax</code></strong>: The maximum value that the variate (ordinal or continuous) can take on. Possible values are a real number, or an empty value, which is then interpreted as <code>+Inf</code> (explicit values like <code>Inf</code>, <code>inf</code>, <code>infinity</code> should also work). As with <code>domainmin</code>, the maximum value depends on the context. An age-related variate could theoretically have <code>domainmax</code> equal to infinity (empty value in the metadata file); but if a given study categorizes some people as "90 years old or older", then <code>domainmax</code> should be set to <code>90</code>.</p>
 <p><strong><code>datastep</code></strong>: The minimum distance between the values of a variate (ordinal or continuous). Possible values are a positive real number or an empty value, which is then interpreted as 0 (the explicit value <code>0</code> is also accepted). For a numeric ordinal variate, <code>datastep</code> is the step between consecutive values. For a continuous <em>rounded</em> variate, <code>datastep</code> is the minimum distance between different values that occurs because of rounding; see the examples given above. The function <code>buildmetadata</code> has some heuristics to determine whether the variate is rounded or not. See further details under the section Rounding below.</p>
 <p><strong><code>minincluded</code></strong>, <strong><code>maxincluded</code></strong>: Whether the minimum (<code>domainmin</code>) and maximum(<code>domainmax</code>) values of a <em>continuous</em> variate can really appear in the data or not. Possible values are <code>true</code> (or <code>t</code> or <code>yes</code>) or <code>false</code> (or <code>f</code>, <code>no</code>, or an empty field); upper- or lower-case is irrelevant. Here are some examples about the meaning of these fields. (a) A continuous <em>unrounded</em> variate such as temperature has 0 as a minimum possible value <code>domainmin</code>, but this value itself is physically impossible and can never appear in data; in this case <code>minincluded</code> is empty (or set to <code>false</code> or <code>no</code>). (b) A variate related to the <em>unrounded</em> length, in metres, of some objects may take on any positive real value; but suppose that all objects of length 5 or less are grouped together under the value <code>5</code>. It is then possible for several datapoints to have value <code>5</code>: one such datapoint could originally have the value 3.782341...; another the value 4.929673..., and so on. In this case <code>domainmin</code> is set to <code>5</code>, and <code>minincluded</code> is set to <code>true</code> (or <code>yes</code>). Similarly for the maximum value of a variate and <code>maxincluded</code>. Note that if <code>domainmin</code> is minus-infinity (empty value in the metadata file), then <code>minincluded</code> is automatically empty (that is, <code>false</code>), and similarly for <code>maxincluded</code> if <code>domainmax</code> is infinity.</p>
-    </div>
-    <div class="section level2">
-    <h2 id="rounded-continuous-variates">Rounded continuous variates<a class="anchor" aria-label="anchor" href="#rounded-continuous-variates"></a></h2>
-
-
-
-<p>To be written.</p>
-    </div>
-    <div class="section level2">
-    <h2 id="necessity-of-metadata">Necessity of metadata<a class="anchor" aria-label="anchor" href="#necessity-of-metadata"></a></h2>
-
-
-
-<p>To be written.</p>
     </div>
     <div class="section level2">
     <h2 id="see-also">See also<a class="anchor" aria-label="anchor" href="#see-also"></a></h2>
@@ -360,6 +346,7 @@ Default <code>TRUE</code>.</p></dd>
 <span class="r-out co"><span class="r-pr">#&gt;</span> 5   &lt;NA&gt;      &lt;NA&gt;      &lt;NA&gt; NA NA NA NA NA NA  NA  NA</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> 6   &lt;NA&gt;      &lt;NA&gt;      &lt;NA&gt; NA NA NA NA NA NA  NA  NA</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> 7 female      male      &lt;NA&gt; NA NA NA NA NA NA  NA  NA</span>
+<span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co">## Generate 10 points for a continuous variate in (0, 1)</span></span></span>
 <span class="r-in"><span><span class="va">dataset</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/stats/Uniform.html" class="external-link">runif</a></span><span class="op">(</span><span class="fl">10</span><span class="op">)</span></span></span>
 <span class="r-in"><span></span></span>

@@ -1,6 +1,6 @@
-# Calculate joint frequencies for checkpoints in learn()
+# Calculate joint frequencies for MCMC-monitoring checkpoints
 
-Calculate joint frequencies for checkpoints in learn()
+Used in 'learn()'.
 
 ## Usage
 

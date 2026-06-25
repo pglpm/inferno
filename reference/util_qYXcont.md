@@ -1,6 +1,6 @@
 # Calculate quantiles for continuous Y by bisection
 
-Calculate quantiles for continuous Y by bisection
+Used in 'qPr()'.
 
 ## Usage
 

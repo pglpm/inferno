@@ -1,6 +1,6 @@
 # Calculate probabilities, quantiles, etc, for all Y and X combinations
 
-Calculate probabilities, quantiles, etc, for all Y and X combinations
+Used in 'Pr()'.
 
 ## Usage
 

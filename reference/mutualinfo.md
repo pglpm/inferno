@@ -139,6 +139,7 @@ entr <- mutualinfo(
 paste0(entr$En1, ' ', entr$unit, collapse = ' +/- ')
 #> [1] "0.440800870784225 Sh +/- 0.081 Sh"
 
+# \donttest{
 ## the entropy is now lower; indeed a penguin with a short bill length
 ## is most probably of the 'Adelie' species:
 probs <- Pr(
@@ -149,11 +150,14 @@ probs <- Pr(
 #> Registered socket cluster with 1 nodes on host ‘localhost’.
 #> Closing connections to cores.
 
-probs$values
-#>            |bill_len
-#> species             30
-#>   Adelie    0.92985096
-#>   Gentoo    0.03626731
-#>   Chinstrap 0.03388172
-
+print(probs)
+#> , , |bill_len = 30
+#> 
+#>            prob. & vrb.
+#> species     value   Q5.5%   Q25%  Q75% Q94.5%
+#>   Adelie    0.930 0.62555 0.9426 0.992   1.00
+#>   Gentoo    0.036 0.00021 0.0025 0.022   0.15
+#>   Chinstrap 0.034 0.00019 0.0016 0.022   0.17
+#> 
+# }
 ```

@@ -197,14 +197,6 @@ Note that if `domainmin` is minus-infinity (empty value in the metadata
 file), then `minincluded` is automatically empty (that is, `false`), and
 similarly for `maxincluded` if `domainmax` is infinity.
 
-## Rounded continuous variates
-
-To be written.
-
-## Necessity of metadata
-
-To be written.
-
 ## See also
 
 [`learn()`](https://pglpm.github.io/prova/reference/learn.md), which
@@ -435,6 +427,7 @@ print(metadata3)
 #> 5   <NA>      <NA>      <NA> NA NA NA NA NA NA  NA  NA
 #> 6   <NA>      <NA>      <NA> NA NA NA NA NA NA  NA  NA
 #> 7 female      male      <NA> NA NA NA NA NA NA  NA  NA
+
 ## Generate 10 points for a continuous variate in (0, 1)
 dataset <- runif(10)
 

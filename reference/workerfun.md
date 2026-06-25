@@ -1,8 +1,8 @@
 # Worker function called by learn()
 
-This worker function is defined outside of learn.R in order to avoid
-import of spurious objects into the parallel workers, with waste of
-memory
+This worker function is defined outside of learn() in order to avoid
+import of spurious objects into the parallel workers, and from the
+parallel workes into the main R session, with waste of memory.
 
 ## Usage
 

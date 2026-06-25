@@ -1,6 +1,6 @@
 # Eliminate samples from mcsamples object
 
-Eliminate samples from mcsamples object
+Used in 'learn()'.
 
 ## Usage
 

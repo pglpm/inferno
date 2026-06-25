@@ -7,7 +7,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">prova</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.8.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.9.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -165,7 +165,7 @@
           <code><a href="buildauxmetadata.html">buildauxmetadata()</a></code>
 
         </dt>
-        <dd>Build preliminary metadata flie</dd>
+        <dd>Build augmented metadata file</dd>
 
         <dt>
 
@@ -270,7 +270,14 @@
           <code><a href="util_Pcheckpoints.html">util_Pcheckpoints()</a></code>
 
         </dt>
-        <dd>Calculate joint frequencies for checkpoints in learn()</dd>
+        <dd>Calculate joint frequencies for MCMC-monitoring checkpoints</dd>
+
+        <dt>
+
+          <code><a href="util_cleanup.html">util_cleanup()</a></code>
+
+        </dt>
+        <dd>Cleanup a learn()-output directory</dd>
 
         <dt>
 
@@ -295,13 +302,6 @@
 
         <dt>
 
-          <code><a href="util_learntvar2sd.html">util_learntvar2sd()</a></code>
-
-        </dt>
-        <dd>Convert learnt with R/C/Dvar to learnt with R/C/Dsd</dd>
-
-        <dt>
-
           <code><a href="util_lprobsargsyx.html">util_lprobsargsyx()</a></code>
 
         </dt>
@@ -312,7 +312,7 @@
           <code><a href="util_lprobsbase.html">util_lprobsbase()</a></code>
 
         </dt>
-        <dd>Calculate collection of log-probabilities for different components and samples</dd>
+        <dd>Calculate collection of log-probabilities for different components and sample#' Used in 'Pr()', 'qPr()', 'rPr()', 'mutualinfo()', 'util_checkpoints()'.</dd>
 
         <dt>
 
@@ -326,7 +326,7 @@
           <code><a href="util_prepPcheckpoints.html">util_prepPcheckpoints()</a></code>
 
         </dt>
-        <dd>Format datapoints for testing of MCMC progress</dd>
+        <dd>Format datapoints used for MCMC monitoring</dd>
 
         <dt>
 

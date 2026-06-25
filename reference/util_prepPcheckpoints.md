@@ -1,6 +1,6 @@
-# Format datapoints for testing of MCMC progress
+# Format datapoints used for MCMC monitoring
 
-Format datapoints for testing of MCMC progress
+Used in 'util_Pcheckpoints()' within 'learn()'.
 
 ## Usage
 

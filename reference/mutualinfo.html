@@ -7,7 +7,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">prova</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.8.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.9.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -145,6 +145,7 @@ for an 'learnt.rds' object, or such an object itself.</p></dd>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/paste.html" class="external-link">paste0</a></span><span class="op">(</span><span class="va">entr</span><span class="op">$</span><span class="va">En1</span>, <span class="st">' '</span>, <span class="va">entr</span><span class="op">$</span><span class="va">unit</span>, collapse <span class="op">=</span> <span class="st">' +/- '</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [1] "0.440800870784225 Sh +/- 0.081 Sh"</span>
 <span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co"># \donttest{</span></span></span>
 <span class="r-in"><span><span class="co">## the entropy is now lower; indeed a penguin with a short bill length</span></span></span>
 <span class="r-in"><span><span class="co">## is most probably of the 'Adelie' species:</span></span></span>
 <span class="r-in"><span><span class="va">probs</span> <span class="op">&lt;-</span> <span class="fu"><a href="Pr.html">Pr</a></span><span class="op">(</span></span></span>
@@ -155,13 +156,16 @@ for an 'learnt.rds' object, or such an object itself.</p></dd>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Registered socket cluster with 1 nodes on host ‘localhost’.</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Closing connections to cores.</span>
 <span class="r-in"><span></span></span>
-<span class="r-in"><span><span class="va">probs</span><span class="op">$</span><span class="va">values</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>            |bill_len</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> species             30</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   Adelie    0.92985096</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   Gentoo    0.03626731</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   Chinstrap 0.03388172</span>
-<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="va">probs</span><span class="op">)</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> , , |bill_len = 30</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>            prob. &amp; vrb.</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> species     value   Q5.5%   Q25%  Q75% Q94.5%</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   Adelie    0.930 0.62555 0.9426 0.992   1.00</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   Gentoo    0.036 0.00021 0.0025 0.022   0.15</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   Chinstrap 0.034 0.00019 0.0016 0.022   0.17</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-in"><span><span class="co"># }</span></span></span>
 <span class="r-in"><span></span></span>
 </code></pre></div>
     </div>

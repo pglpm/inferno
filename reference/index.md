@@ -58,7 +58,7 @@
 For developers.
 
 - [`buildauxmetadata()`](https://pglpm.github.io/prova/reference/buildauxmetadata.md)
-  : Build preliminary metadata flie
+  : Build augmented metadata file
 
 - [`createQfunction()`](https://pglpm.github.io/prova/reference/createQfunction.md)
   : Calculate and save transformation function for ordinal variates
@@ -106,7 +106,10 @@ For developers.
   : Inverse cumulative sum along first dimension
 
 - [`util_Pcheckpoints()`](https://pglpm.github.io/prova/reference/util_Pcheckpoints.md)
-  : Calculate joint frequencies for checkpoints in learn()
+  : Calculate joint frequencies for MCMC-monitoring checkpoints
+
+- [`util_cleanup()`](https://pglpm.github.io/prova/reference/util_cleanup.md)
+  : Cleanup a learn()-output directory
 
 - [`util_combineYX()`](https://pglpm.github.io/prova/reference/util_combineYX.md)
   : Calculate probabilities, quantiles, etc, for all Y and X
@@ -118,21 +121,19 @@ For developers.
 - [`util_joinPtraces()`](https://pglpm.github.io/prova/reference/util_joinPtraces.md)
   : Join '\_\_\_\_tempPtraces-' files
 
-- [`util_learntvar2sd()`](https://pglpm.github.io/prova/reference/util_learntvar2sd.md)
-  : Convert learnt with R/C/Dvar to learnt with R/C/Dsd
-
 - [`util_lprobsargsyx()`](https://pglpm.github.io/prova/reference/util_lprobsargsyx.md)
   : Prepare arguments for util_lprobsyx from data
 
 - [`util_lprobsbase()`](https://pglpm.github.io/prova/reference/util_lprobsbase.md)
   : Calculate collection of log-probabilities for different components
-  and samples
+  and sample#' Used in 'Pr()', 'qPr()', 'rPr()', 'mutualinfo()',
+  'util_checkpoints()'.
 
 - [`util_lprobsmi()`](https://pglpm.github.io/prova/reference/util_lprobsmi.md)
   : Calculate pairs of log-probabilities for mutualinfo()
 
 - [`util_prepPcheckpoints()`](https://pglpm.github.io/prova/reference/util_prepPcheckpoints.md)
-  : Format datapoints for testing of MCMC progress
+  : Format datapoints used for MCMC monitoring
 
 - [`util_qYXcont()`](https://pglpm.github.io/prova/reference/util_qYXcont.md)
   : Calculate quantiles for continuous Y by bisection

@@ -1,7 +1,8 @@
-# Calculate collection of log-probabilities for different components and samples
+# Calculate collection of log-probabilities for different components and sample#' Used in 'Pr()', 'qPr()', 'rPr()', 'mutualinfo()', 'util_checkpoints()'.
 
 Calculate collection of log-probabilities for different components and
-samples
+sample#' Used in 'Pr()', 'qPr()', 'rPr()', 'mutualinfo()',
+'util_checkpoints()'.
 
 ## Usage
 

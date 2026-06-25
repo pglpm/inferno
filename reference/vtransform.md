@@ -1,6 +1,7 @@
 # Transforms variates to different representations
 
-Transforms variates to different representations
+See
+<https://github.com/pglpm/prova/raw/main/development/manual/pglpm2024-bayes_nonparam.pdf>.
 
 ## Usage
 

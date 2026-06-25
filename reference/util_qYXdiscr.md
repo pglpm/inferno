@@ -1,6 +1,6 @@
 # Calculate quantiles for discrete Y by bisection
 
-Calculate quantiles for discrete Y by bisection
+Used in 'qPr()'.
 
 ## Usage
 

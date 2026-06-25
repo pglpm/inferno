@@ -35,4 +35,10 @@ bound of the credibility interval of width `Qpair[2] - Qpair[2]`.
 
 ## Details
 
+Tests show that it gives a very good approximation of the "true"
+credibility quantiles in the case of independent samples.
+
+Tested also on t-distributions with df=1.1 and Pareto with a=1.5 (mean
+exists, variance infinite).
+
 Used in 'workerfun()' in 'learn()'

@@ -1,6 +1,6 @@
 # Plot one-dimensional posterior probabilities
 
-Plot one-dimensional posterior probabilities
+Used in 'learn()' to plot diagnostics.
 
 ## Usage
 

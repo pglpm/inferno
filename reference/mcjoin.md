@@ -1,6 +1,6 @@
 # Concatenate mcsample objects
 
-Concatenate mcsample objects
+Used in 'learn()'.
 
 ## Usage
 

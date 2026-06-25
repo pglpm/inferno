@@ -1,6 +1,6 @@
 # Calculate pairs of log-probabilities for mutualinfo()
 
-Calculate pairs of log-probabilities for mutualinfo()
+Used in 'mutualinfo()'.
 
 ## Usage
 
