@@ -421,7 +421,8 @@ util_lprobsargsyx <- function(
 
 
 
-#' Calculate collection of log-probabilities for different components and sample#'
+#' Calculate collection of log-probabilities for different components and samples
+#'
 #' Used in 'Pr()', 'qPr()', 'rPr()', 'mutualinfo()', 'util_checkpoints()'.
 #'
 #' @return Matrix with as many rows as components and as many cols as samples
