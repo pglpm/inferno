@@ -165,6 +165,7 @@ About Markov-chain Monte Carlo and "convergence":
 \item de Valpine, Paciorek, Turek, & al. (2026): \emph{NIMBLE: MCMC, Particle Filtering, and Programmable Hierarchical Modeling} \url{doi:10.5281/zenodo.1211190}, \url{https://cran.r-project.org/package=nimble}.
 \item Kwon & al. (2025): \emph{MCMC stopping rules in latent variable modelling} \url{doi:10.1111/bmsp.12357}.
 \item Vehtari & al. (2021): \emph{Rank-normalization, folding, and localization: an improved R-hat for assessing convergence of MCMC} \url{doi:10.1214/20-BA1221}.
+\item Roy (2020): \emph{Convergence diagnostics for Markov chain Monte Carlo} \url{doi:10.1146/annurev-statistics-031219-041300}.
 \item Gilks & al. (1998): \emph{Markov Chain Monte Carlo in Practice}. Chapman & Hall/CRC \url{doi:10.1201/b14835}.
 \item D. J. C. MacKay (2005): \emph{Information Theory, Inference, and Learning Algorithms}. Cambridge University Press \url{https://www.inference.org.uk/itila/book.html}.
 }
