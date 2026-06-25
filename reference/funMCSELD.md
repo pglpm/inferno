@@ -13,10 +13,14 @@ funMCSELD(x)
 
 - x:
 
-  A matrix, rows being MC samples and columns being quantities whose
+  matrix, each row being a "trace", that is a set of MC samples, whose
   MCSE is to be estimated.
 
 ## Value
 
-Estimates of the MC standard error for each trace. Division by sqrt(N)
-is already performed.
+MCSE estimates, one for each trace. Division by sqrt(N) is already
+performed.
+
+## Details
+
+Used in 'util_combineYX()' in 'Pr()'.

@@ -55,12 +55,16 @@ from https://github.com/LaplacesDemonR/LaplacesDemon/blob/master/R/ESS.R</p>
 
 
 <dl><dt id="arg-x">x<a class="anchor" aria-label="anchor" href="#arg-x"></a></dt>
-<dd><p>A matrix, rows being MC samples and columns being quantities whose MCSE is to be estimated.</p></dd>
+<dd><p>matrix, each row being a "trace", that is a set of MC samples, whose MCSE is to be estimated.</p></dd>
 
 </dl></div>
     <div class="section level2">
     <h2 id="value">Value<a class="anchor" aria-label="anchor" href="#value"></a></h2>
-    <p>Estimates of the MC standard error for each trace. Division by sqrt(N) is already performed.</p>
+    <p>MCSE estimates, one for each trace. Division by sqrt(N) is already performed.</p>
+    </div>
+    <div class="section level2">
+    <h2 id="details">Details<a class="anchor" aria-label="anchor" href="#details"></a></h2>
+    <p>Used in 'util_combineYX()' in 'Pr()'.</p>
     </div>
 
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>

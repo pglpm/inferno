@@ -1,7 +1,7 @@
 # Find optimal FFT size
 
-From **rstan**
-<https://github.com/stan-dev/rstan/blob/develop/rstan/rstan/R/monitor.R>
+Modified from rstan
+<https://github.com/stan-dev/rstan/blob/develop/rstan/rstan/R/monitor.R>.
 
 ## Usage
 
@@ -18,3 +18,7 @@ fftNGS(N)
 ## Value
 
 Optimal FFT size
+
+## Details
+
+Used in 'funAC()'.

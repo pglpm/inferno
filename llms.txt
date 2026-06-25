@@ -190,12 +190,6 @@ For developers.
 - [`funESS3()`](https://pglpm.github.io/prova/reference/funESS3.md) :
   Compute ESS
 
-- [`funESSLD()`](https://pglpm.github.io/prova/reference/funESSLD.md) :
-  Calculate MC effective sample size using LaplacesDemon's algorithm
-
-- [`funMCEI()`](https://pglpm.github.io/prova/reference/funMCEI.md) :
-  Calculate quantile width through batches
-
 - [`funMCEQ()`](https://pglpm.github.io/prova/reference/funMCEQ.md) :
   Calculate credibility quantiles on estimated quantile
 

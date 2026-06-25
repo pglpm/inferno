@@ -1,6 +1,6 @@
 # Compute ESS
 
-From **rstan**
+Modified from 'rstan'
 <https://github.com/stan-dev/rstan/blob/develop/rstan/rstan/R/monitor.R>
 
 ## Usage
@@ -13,8 +13,12 @@ funESS3(x)
 
 - x:
 
-  Vector of Monte Carlo samples
+  Vector of MC samples.
 
 ## Value
 
-Effective Sample Size
+Effective Sample Size.
+
+## Details
+
+Used in 'workerfun()' in 'learn()', and in 'funMCEQ()'.
