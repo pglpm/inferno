@@ -1248,7 +1248,8 @@ learn <- function(
     jointdiagn <- apply(oktraces, 2, function(atrace) {
 ### same as within cores
 
-        ## quantiles to monitor
+        ## Calculate empirical quantiles of the vector of MC samples,
+        ## having 'Qlo' and 'Qhi' probabilities
         Xlo <- quantile(x = atrace, probs = Qlo,
             na.rm = FALSE, names = FALSE, type = 6)
         Xhi <- quantile(x = atrace, probs = Qhi,
@@ -1256,18 +1257,29 @@ learn <- function(
         ## quantile width
         qwidth <- Xhi - Xlo
 
-        ## CIs for lower and upper quantiles
+        ## Calculate credibility intervals (proxy for MCSE)
+        ## for the empirical quantiles above
+        ## as in Vehtari et al. 2021
         temp <- funMCEQ(x = atrace, prob = c(Qlo, Qhi), Qpair = Qerror)
         wXlo <- temp[2, 1] - temp[1, 1]
         wXhi <- temp[2, 2] - temp[1, 2]
 
-        ## Transform samples to normalized ranks, as in Vehtari et al. 2021
+        ## Transform MC samples to normalized ranks,
+        ## then calculate the ESSs of their mean,
+        ## as in Vehtari et al. 2021
         essnrmean <- funESS3(qnorm(
         (rank(atrace, na.last = NA, ties.method = 'average') -
              0.5) / N
         ))
 
-        ## We check: relative error of quantiles and ess of norm-rank-mean
+        ## We check the relative MCSE of the following quantities:
+        ## - the mean of the MC samples, transformed to normalized ranks
+        ## - the lower quantile 'Qlo'
+        ## - the upper quantile 'Qhi'
+        ## so as to ensure the stability of the mean value
+        ## (representing the "long-run frequency")
+        ## and of its 'Qlo'- and 'Qhi'-quantiles
+        ## (representing the uncertainty about the freq. estimate)
         relmcse <- c(1 / sqrt(essnrmean), wXlo / qwidth, wXhi / qwidth)
 
         autothinning <- N * max(relmcse)^2
@@ -3042,25 +3054,37 @@ nimbleFunction <- sampler_BASE <- extractControlElement <- model <- target <- Nd
 
             N <- nrow(oktraces)
 
-            ## quantiles to monitor
+            ## Calculate empirical quantiles of the vector of MC samples,
+            ## having 'Qlo' and 'Qhi' probabilities
             Xlo <- quantile(x = oktraces, probs = Qlo,
                 na.rm = FALSE, names = FALSE, type = 6)
             Xhi <- quantile(x = oktraces, probs = Qhi,
                 na.rm = FALSE, names = FALSE, type = 6)
-            ## quantile width
+            ## quantile width between empirical quantiles
             qwidth <- Xhi - Xlo
 
-            ## CIs for lower and upper quantiles
+            ## Calculate credibility intervals (proxy for MCSE)
+            ## for the empirical quantiles above
+            ## as in Vehtari et al. 2021
             temp <- funMCEQ(x = oktraces, prob = c(Qlo, Qhi), Qpair = Qerror)
             wXlo <- temp[2, 1] - temp[1, 1]
             wXhi <- temp[2, 2] - temp[1, 2]
 
-            ## Transform samples to normalized ranks, as in Vehtari et al. 2021
+            ## Transform MC samples to normalized ranks,
+            ## then calculate the ESSs of their mean,
+            ## as in Vehtari et al. 2021
             essnrmean <- funESS3(qnorm(
             (rank(oktraces, na.last = NA, ties.method = 'average') - 0.5) / N
             ))
 
-            ## We check: relative error of quantiles and ess of norm-rank-mean
+            ## We check the relative MCSE of the following quantities:
+            ## - the mean of the MC samples, transformed to normalized ranks
+            ## - the lower quantile 'Qlo'
+            ## - the upper quantile 'Qhi'
+            ## so as to ensure the stability of the mean value
+            ## (representing the "long-run frequency")
+            ## and of its 'Qlo'- and 'Qhi'-quantiles
+            ## (representing the uncertainty about the freq. estimate)
             relmcse <- c(1 / sqrt(essnrmean), wXlo / qwidth, wXhi / qwidth)
 
             autothinning <- N * max(relmcse)^2

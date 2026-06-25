@@ -13,6 +13,9 @@ funAC(y)
 Autocovariances at different lags
 }
 \description{
-From \strong{rstan} \url{https://github.com/stan-dev/rstan/blob/develop/rstan/rstan/R/monitor.R}
+Modified from rstan \url{https://github.com/stan-dev/rstan/blob/develop/rstan/rstan/R/monitor.R}.
+}
+\details{
+Used in 'funESS3()'.
 }
 \keyword{internal}

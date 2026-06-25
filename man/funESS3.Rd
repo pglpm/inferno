@@ -7,12 +7,15 @@
 funESS3(x)
 }
 \arguments{
-\item{x}{Vector of Monte Carlo samples}
+\item{x}{Vector of MC samples.}
 }
 \value{
-Effective Sample Size
+Effective Sample Size.
 }
 \description{
-From \strong{rstan} \url{https://github.com/stan-dev/rstan/blob/develop/rstan/rstan/R/monitor.R}
+Modified from 'rstan' \url{https://github.com/stan-dev/rstan/blob/develop/rstan/rstan/R/monitor.R}
+}
+\details{
+Used in 'workerfun()' in 'learn()', and in 'funMCEQ()'.
 }
 \keyword{internal}

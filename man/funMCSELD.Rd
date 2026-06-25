@@ -7,13 +7,16 @@
 funMCSELD(x)
 }
 \arguments{
-\item{x}{A matrix, rows being MC samples and columns being quantities whose MCSE is to be estimated.}
+\item{x}{matrix, each row being a "trace", that is a set of MC samples, whose MCSE is to be estimated.}
 }
 \value{
-Estimates of the MC standard error for each trace. Division by sqrt(N) is already performed.
+MCSE estimates, one for each trace. Division by sqrt(N) is already performed.
 }
 \description{
 Modified from
 from https://github.com/LaplacesDemonR/LaplacesDemon/blob/master/R/ESS.R
+}
+\details{
+Used in 'util_combineYX()' in 'Pr()'.
 }
 \keyword{internal}

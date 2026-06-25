@@ -900,6 +900,13 @@ hist.probability <- function(
 
 }
 
+#### Possibly for future versions
+## #' Summary for an object of class 'probability'
+## #'
+## #' Should this be 'print'?
+## #'
+## #' @export
+## summary.probability <- function(x, ...){print.default(x, ...)}
 
 #' Print an object of class "probability"
 #'
