@@ -1,3 +1,7 @@
+<!-- badges: start -->
+  [![Zenodo](https://zenodo.org/badge/DOI/10.5281/zenodo.19136582.svg)](https://doi.org/10.5281/zenodo.17226082)
+<!-- badges: end -->
+
 *[Looking for the R package "inferno"? you came to the right place! It's been renamed "Prova"]*
 
 <img src="https://github.com/pglpm/prova/raw/main/man/figures/prova_symbol.jpg" alt="Ensemble of densities" width="100%"/>
