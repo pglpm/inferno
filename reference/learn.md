@@ -298,6 +298,9 @@ About Markov-chain Monte Carlo and "convergence":
   an improved R-hat for assessing convergence of MCMC*
   <doi:10.1214/20-BA1221>.
 
+- Roy (2020): *Convergence diagnostics for Markov chain Monte Carlo*
+  <doi:10.1146/annurev-statistics-031219-041300>.
+
 - Gilks & al. (1998): *Markov Chain Monte Carlo in Practice*. Chapman &
   Hall/CRC <doi:10.1201/b14835>.
 
@@ -357,7 +360,7 @@ learnt <- learn(
 #> Learning from 3 datapoints, 1 variates.
 #> 
 #>  Saving output in directory
-#>  /tmp/RtmpHrmqcr/prova-V1_D3_S10_260625T064233_1a30541e2f33 
+#>  /tmp/RtmpK5QPqe/prova-V1_D3_S10_260625T102949_1a15ec510ea 
 #> 
 #> Starting Monte Carlo sampling of 10 samples by 1 chains
 #> in a space of 191 (effectively 259) dimensions.
@@ -383,18 +386,18 @@ learnt <- learn(
 #> quantile width: 0.216 to 3.27
 #> 
 #> Plotting final Monte Carlo traces and marginal samples...
-#> Total computation time: 35 secs
-#> Average preparation & finalization time: 34 secs.
-#> Average Monte Carlo time per chain: 0.73 secs.
+#> Total computation time: 34 secs
+#> Average preparation & finalization time: 33 secs.
+#> Average Monte Carlo time per chain: 0.68 secs.
 #> Max total memory used: approx 350MB.
 #> Max memory used per core: approx 350MB.
 #> Removing temporary output files.
 #> 
 #> Finished.
-#> **********************************************************
+#> *********************************************************
 #>  Output saved in directory
-#> /tmp/RtmpHrmqcr/prova-V1_D3_S10_260625T064233_1a30541e2f33
-#> **********************************************************
+#> /tmp/RtmpK5QPqe/prova-V1_D3_S10_260625T102949_1a15ec510ea
+#> *********************************************************
 #> Closing connections to cores.
 
 ## Check structure of `learnt` object:
