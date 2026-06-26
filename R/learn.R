@@ -1264,12 +1264,15 @@ learn <- function(
         wXlo <- temp[2, 1] - temp[1, 1]
         wXhi <- temp[2, 2] - temp[1, 2]
 
-        ## Transform MC samples to normalized ranks,
-        ## then calculate the ESSs of their mean,
+        ## For each monitored point,
+        ## transform its posterior samples to normalized ranks,
+        ## then calculate the ESSs of their means,
         ## as in Vehtari et al. 2021
+        ## and Blom 1958 sect 6.10 eqn (6.10.5)
+        ## (alternative (6.10.3) gives roughly same results
+        ## but is computationally slightly more expensive)
         essnrmean <- funESS3(qnorm(
-        (rank(atrace, na.last = NA, ties.method = 'average') -
-             0.5) / N
+        (rank(atrace, na.last = NA, ties.method = 'average') - 0.5) / N
         ))
 
         ## We check the relative MCSE of the following quantities:
@@ -3070,9 +3073,13 @@ nimbleFunction <- sampler_BASE <- extractControlElement <- model <- target <- Nd
             wXlo <- temp[2, 1] - temp[1, 1]
             wXhi <- temp[2, 2] - temp[1, 2]
 
-            ## Transform MC samples to normalized ranks,
-            ## then calculate the ESSs of their mean,
+            ## For each monitored point,
+            ## transform its posterior samples to normalized ranks,
+            ## then calculate the ESSs of their means,
             ## as in Vehtari et al. 2021
+            ## and Blom 1958 sect 6.10 eqn (6.10.5)
+            ## (alternative (6.10.3) gives roughly same results
+            ## but is computationally slightly more expensive)
             essnrmean <- funESS3(qnorm(
             (rank(oktraces, na.last = NA, ties.method = 'average') - 0.5) / N
             ))
