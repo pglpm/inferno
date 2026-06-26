@@ -10,6 +10,13 @@
 #'
 #' The computation is done via Markov-chain Monte Carlo, using the package [**Nimble**](https://cran.r-project.org/package=nimble). "Convergence" of the Monte Carlo computation is assessed with methods described in Vehtari & al. (2021) and Kwon & al. (2025).
 #'
+#' The default values for convergence require that all these three conditions be fulilled:
+#'
+#' - The computation's numerical error (Monte-Carlo Standard Error) for the posterior probability must be smaller than 4.7% of the standard deviation of the posterior's variability.
+#'  - The computation's numerical error for the 0.055- and 0.945-percentiles of the posterior's variability should be smaller than 4.7% of the distance between them.
+#'
+#' Typically this requirement leads to final results obtained with the [Pr()] function having at least two significant digits.
+#'
 #' This function creates a "learnt" object, typically saved in a `learnt.rds` file, which is used in all subsequent probabilistic computations. Other information about the computation is provided in logs and plots, saved in a directory specified by the user.
 #'
 #' See `vignette('intro')` for an introductory example.
@@ -33,9 +40,9 @@
 #' @param maxMCiterations Integer: Do at most this many Monte Carlo iterations per chain. Default `Inf`.
 #' @param maxhours Numeric: approximate time limit, in hours, for the Monte Carlo computation to last. Default `Inf`.
 #' @param ncheckpoints Integer: number of datapoints to use for checking when the Monte Carlo computation should end. If `NULL`, this is equal to number of variates + 2. If Inf, use all datapoints. Default 12.
-#' @param maxrelMCSE Numeric positive: desired maximal *relative Monte Carlo Standard Error* of calculated probabilities with respect to their variability with new data. Default `+Inf`, so that `minESS` is used instead. `maxrelMCSE` is related to `minESS` by `maxrelMCSE = 1/sqrt(minESS + initES)`.
-#' @param minESS Numeric positive: desired minimal Monte Carlo *Expected Sample Size*. If `NULL`, it is equal to the final `nsamplesperchain`. Default 400. `minESS` is related to `maxrelMCSE` by `minESS = 1/maxrelMCSE^2 - initES`.
-#' @param initES Numeric positive: number of initial  *Expected Samples* to discard.
+#' @param maxrelMCSE Numeric positive: desired maximal *relative Monte Carlo Standard Error* of calculated probabilities with respect to their variability with new data. Default `+Inf`, so that `minESS` is used instead. `maxrelMCSE` is related to `minESS` by \eqn{\mathrm{maxrelMCSE} = 1/\sqrt{\mathrm{minESS} + \mathrm{initES}}}.
+#' @param minESS Numeric positive or `NULL': desired minimal Monte Carlo *Expected Sample Size*. Default 450. If `NULL`, it is equal to the final `nsamplesperchain`. `minESS` is related to `maxrelMCSE` by \eqn{\mathrm{minESS} = 1/\mathrm{maxrelMCSE}^2 - \mathrm{initES}}.
+#' @param initES Numeric positive: number of initial samples, separated by the Expected Sample Size, to discard.
 #' @param thinning Integer: thin out the Monte Carlo samples by this value. If `NULL` (default): let the diagnostics decide the thinning value.
 #' @param plottraces Logical: save plots of the Monte Carlo traces of diagnostic values? Default `TRUE`.
 #' @param showKtraces Logical: save plots of the Monte Carlo traces of the K parameter? Default `FALSE`.
@@ -1294,7 +1301,7 @@ learn <- function(
 
     ## Output available diagnostics
     toprint <- list(
-        'rel. CI error' = jointdiagn[1, ],
+        'rel. quantile error' = jointdiagn[1, ],
         'ESS' = jointdiagn[2, ],
         'needed thinning' = jointdiagn[3, ],
         'average' = colMeans(oktraces),
@@ -3098,8 +3105,8 @@ nimbleFunction <- sampler_BASE <- extractControlElement <- model <- target <- Nd
 
             ## Output available diagnostics
             toprint <- list(
-                'rel. CI error' = max(relmcse[-1]),
-                'ESS from rel. CI error' = (1/max(relmcse))^2,
+                'rel. quantile error' = max(relmcse[-1]),
+                'ESS from rel. qt. error' = (1/max(relmcse[-1]))^2,
                 'ESS' = essnrmean,
                 'needed thinning' = autothinning,
                 'average' = mean(oktraces),

@@ -77,11 +77,11 @@ learn(
 
 \item{ncheckpoints}{Integer: number of datapoints to use for checking when the Monte Carlo computation should end. If \code{NULL}, this is equal to number of variates + 2. If Inf, use all datapoints. Default 12.}
 
-\item{maxrelMCSE}{Numeric positive: desired maximal \emph{relative Monte Carlo Standard Error} of calculated probabilities with respect to their variability with new data. Default \code{+Inf}, so that \code{minESS} is used instead. \code{maxrelMCSE} is related to \code{minESS} by \code{maxrelMCSE = 1/sqrt(minESS + initES)}.}
+\item{maxrelMCSE}{Numeric positive: desired maximal \emph{relative Monte Carlo Standard Error} of calculated probabilities with respect to their variability with new data. Default \code{+Inf}, so that \code{minESS} is used instead. \code{maxrelMCSE} is related to \code{minESS} by \eqn{\mathrm{maxrelMCSE} = 1/\sqrt{\mathrm{minESS} + \mathrm{initES}}}.}
 
-\item{minESS}{Numeric positive: desired minimal Monte Carlo \emph{Expected Sample Size}. If \code{NULL}, it is equal to the final \code{nsamplesperchain}. Default 400. \code{minESS} is related to \code{maxrelMCSE} by \code{minESS = 1/maxrelMCSE^2 - initES}.}
+\item{minESS}{Numeric positive or \verb{NULL': desired minimal Monte Carlo *Expected Sample Size*. Default 450. If }NULL\verb{, it is equal to the final }nsamplesperchain\code{. }minESS\verb{is related to}maxrelMCSE` by \eqn{\mathrm{minESS} = 1/\mathrm{maxrelMCSE}^2 - \mathrm{initES}}.}
 
-\item{initES}{Numeric positive: number of initial  \emph{Expected Samples} to discard.}
+\item{initES}{Numeric positive: number of initial samples, separated by the Expected Sample Size, to discard.}
 
 \item{thinning}{Integer: thin out the Monte Carlo samples by this value. If \code{NULL} (default): let the diagnostics decide the thinning value.}
 
@@ -116,6 +116,14 @@ This function takes as main inputs a set of data and metadata, and computes the 
 The computation is "non-parametric": probability or frequency distributions are not assumed to be Gaussian or of any other specific shape; no "model" is assumed. The mathematical representation of the space of joint frequency distributions follows Dunson & Bhattacharya (2011).
 
 The computation is done via Markov-chain Monte Carlo, using the package \href{https://cran.r-project.org/package=nimble}{\strong{Nimble}}. "Convergence" of the Monte Carlo computation is assessed with methods described in Vehtari & al. (2021) and Kwon & al. (2025).
+
+The default values for convergence require that all these three conditions be fulilled:
+\itemize{
+\item The computation's numerical error (Monte-Carlo Standard Error) for the posterior probability must be smaller than 4.7\% of the standard deviation of the posterior's variability.
+\item The computation's numerical error for the 0.055- and 0.945-percentiles of the posterior's variability should be smaller than 4.7\% of the distance between them.
+}
+
+Typically this requirement leads to final results obtained with the \code{\link[=Pr]{Pr()}} function having at least two significant digits.
 
 This function creates a "learnt" object, typically saved in a \code{learnt.rds} file, which is used in all subsequent probabilistic computations. Other information about the computation is provided in logs and plots, saved in a directory specified by the user.
 
