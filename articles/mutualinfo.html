@@ -6,7 +6,13 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 <title>Associations among variates and mutual information • prova</title>
-<script src="../deps/jquery-3.6.0/jquery-3.6.0.min.js"></script><meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+<!-- mathjax math --><script src="https://cdn.jsdelivr.net/npm/mathjax@3.2.2/es5/tex-mml-chtml.js" integrity="sha256-MASABpB4tYktI2Oitl4t+78w/lyA+D7b/s9GEP0JOGI=" crossorigin="anonymous"></script><script>
+  window.MathJax = {
+    chtml: {
+      fontURL: "https://cdn.jsdelivr.net/npm/mathjax@3.2.2/es5/output/chtml/fonts/woff-v2"
+    }
+  };
+</script><script src="../deps/jquery-3.6.0/jquery-3.6.0.min.js"></script><meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 <link href="../deps/bootstrap-5.3.8/bootstrap.min.css" rel="stylesheet">
 <script src="../deps/bootstrap-5.3.8/bootstrap.bundle.min.js"></script><link href="../deps/font-awesome-6.5.2/css/all.min.css" rel="stylesheet">
 <link href="../deps/font-awesome-6.5.2/css/v4-shims.min.css" rel="stylesheet">
@@ -82,12 +88,12 @@ probabilities of single and joint variates from that dataset; also
 probabilities conditional on given variates. These probabilities refers
 to a <em>new unit</em>; for example:</p>
 <ul>
-<li>If we find that
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mrow><mi mathvariant="normal">P</mi><mi mathvariant="normal">r</mi></mrow><mo stretchy="false" form="prefix">(</mo><mtext mathvariant="normal">species</mtext><mrow><mspace width="-0.167em"></mspace><mo>=</mo><mspace width="-0.167em"></mspace></mrow><mtext mathvariant="normal">Adelie</mtext><mo stretchy="false" form="postfix">)</mo><mo>=</mo><mn>44</mn><mi>%</mi></mrow><annotation encoding="application/x-tex">\mathrm{Pr}(\text{species}\mathrel{\!=\!}\text{Adelie}) = 44\%</annotation></semantics></math>,
-then there’s a 44% probability that the next penguin we sample (from the
-same population) is of the <em>Adélie</em> species.</li>
-<li>If we find that
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mrow><mi mathvariant="normal">P</mi><mi mathvariant="normal">r</mi></mrow><mo stretchy="false" form="prefix">(</mo><mtext mathvariant="normal">species</mtext><mrow><mspace width="-0.167em"></mspace><mo>=</mo><mspace width="-0.167em"></mspace></mrow><mtext mathvariant="normal">Gentoo</mtext><mspace width="0.167em"></mspace><mo stretchy="false" form="postfix">|</mo><mspace width="0.167em"></mspace><mtext mathvariant="normal">island</mtext><mrow><mspace width="-0.167em"></mspace><mo>=</mo><mspace width="-0.167em"></mspace></mrow><mtext mathvariant="normal">Biscoe</mtext><mo stretchy="false" form="postfix">)</mo><mo>=</mo><mn>1</mn><mi>%</mi></mrow><annotation encoding="application/x-tex">\mathrm{Pr}(\text{species}\mathrel{\!=\!}\text{Gentoo} \,\vert\, \text{island} \mathrel{\!=\!}\text{Biscoe}) = 1\%</annotation></semantics></math>,
+<li>If we find that <span class="math inline">\(\mathrm{Pr}(\text{species}\mathrel{\!=\!}\text{Adelie})
+= 44\%\)</span>, then there’s a 44% probability that the next penguin we
+sample (from the same population) is of the <em>Adélie</em>
+species.</li>
+<li>If we find that <span class="math inline">\(\mathrm{Pr}(\text{species}\mathrel{\!=\!}\text{Gentoo}
+\,\vert\, \text{island} \mathrel{\!=\!}\text{Biscoe}) = 1\%\)</span>,
 then if we have a new penguin, and we know it is from Biscoe island,
 there’s a 1% probability that it is of the <em>Gentoo</em> species.</li>
 </ul>
@@ -393,33 +399,19 @@ like to <em>quantify</em> associations in a more precise way. And
 visualization may become impossible when we want to study the
 association between complex sets of joint variates.</p>
 <p>One very common and quite abused measure of “association” is the <a href="https://mathworld.wolfram.com/CorrelationCoefficient.html" class="external-link">Pearson
-correlation coefficient</a>, usually denoted
-“<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>r</mi><annotation encoding="application/x-tex">r</annotation></semantics></math>”.
-This measure is extremely limited, however. It is essentially <a href="https://doi.org/10.1080/01621459.1954.10501231" class="external-link">based on the
+correlation coefficient</a>, usually denoted “<span class="math inline">\(r\)</span>”. This measure is extremely limited,
+however. It is essentially <a href="https://doi.org/10.1080/01621459.1954.10501231" class="external-link">based on the
 assumption that all variates involved have a joint Gaussian
 distribution</a>. As a consequence, it is a measure of <em>linear</em>
 association, rather than general association.</p>
-<p>For instance, if the distribution of two continuous variates
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>Y</mi><mn>1</mn></msub><annotation encoding="application/x-tex">Y_1</annotation></semantics></math>
-and
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>Y</mi><mn>2</mn></msub><annotation encoding="application/x-tex">Y_2</annotation></semantics></math>
-lies in a semicircle, then
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>Y</mi><mn>2</mn></msub><annotation encoding="application/x-tex">Y_2</annotation></semantics></math>
-is actually a function of
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>Y</mi><mn>1</mn></msub><annotation encoding="application/x-tex">Y_1</annotation></semantics></math>,
-and is therefore perfectly associated with
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>Y</mi><mn>1</mn></msub><annotation encoding="application/x-tex">Y_1</annotation></semantics></math>:
-if we know
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>Y</mi><mn>1</mn></msub><annotation encoding="application/x-tex">Y_1</annotation></semantics></math>,
-then we can exactly predict the value of
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>Y</mi><mn>2</mn></msub><annotation encoding="application/x-tex">Y_2</annotation></semantics></math>.
-Yet the Pearson correlation coefficient between the two variates is
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mn>0</mn><annotation encoding="application/x-tex">0</annotation></semantics></math>
-in this case, simply because the functional dependence of
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>Y</mi><mn>2</mn></msub><annotation encoding="application/x-tex">Y_2</annotation></semantics></math>
-on
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>Y</mi><mn>1</mn></msub><annotation encoding="application/x-tex">Y_1</annotation></semantics></math>
-is not linear. Here is an example plot and value:</p>
+<p>For instance, if the distribution of two continuous variates <span class="math inline">\(Y_1\)</span> and <span class="math inline">\(Y_2\)</span> lies in a semicircle, then <span class="math inline">\(Y_2\)</span> is actually a function of <span class="math inline">\(Y_1\)</span>, and is therefore perfectly
+associated with <span class="math inline">\(Y_1\)</span>: if we know
+<span class="math inline">\(Y_1\)</span>, then we can exactly predict
+the value of <span class="math inline">\(Y_2\)</span>. Yet the Pearson
+correlation coefficient between the two variates is <span class="math inline">\(0\)</span> in this case, simply because the
+functional dependence of <span class="math inline">\(Y_2\)</span> on
+<span class="math inline">\(Y_1\)</span> is not linear. Here is an
+example plot and value:</p>
 <div class="sourceCode" id="cb12"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">Y1</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq</a></span><span class="op">(</span><span class="op">-</span><span class="fl">1</span>, <span class="fl">1</span>, length.out <span class="op">=</span> <span class="fl">129</span><span class="op">)</span> <span class="co">## Y1 values</span></span>
 <span><span class="va">Y2</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/MathFun.html" class="external-link">sqrt</a></span><span class="op">(</span><span class="fl">1</span> <span class="op">-</span> <span class="va">Y1</span><span class="op">^</span><span class="fl">2</span><span class="op">)</span> <span class="co">## Y2 values: function of Y1</span></span>
@@ -434,11 +426,8 @@ is not linear. Here is an example plot and value:</p>
 <span>    main <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/paste.html" class="external-link">paste0</a></span><span class="op">(</span><span class="st">'Pearson correlation: '</span>, <span class="fu"><a href="https://rdrr.io/r/base/Round.html" class="external-link">signif</a></span><span class="op">(</span><span class="va">r</span>, <span class="fl">2</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
 <div class="figure">
 <img src="figure/pearsonplot-1.jpeg" alt="**Perfect correlation from $Y_1$ to $Y_2$, with zero Pearson correlation coefficient**" width="100%"><p class="caption">
-<strong>Perfect correlation from
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>Y</mi><mn>1</mn></msub><annotation encoding="application/x-tex">Y_1</annotation></semantics></math>
-to
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>Y</mi><mn>2</mn></msub><annotation encoding="application/x-tex">Y_2</annotation></semantics></math>,
-with zero Pearson correlation coefficient</strong>
+<strong>Perfect correlation from <span class="math inline">\(Y_1\)</span> to <span class="math inline">\(Y_2\)</span>, with zero Pearson correlation
+coefficient</strong>
 </p>
 </div>
 <p>Similar limitations of the Pearson correlation coefficient are
@@ -463,54 +452,36 @@ distribution of variates.</li>
 </ul>
 <p>The answer is <em>yes, there is</em>! It is called the <strong>mutual
 information</strong> or <a href="https://www.electropedia.org/iev/iev.nsf/display?openform&amp;ievref=171-07-27" class="external-link"><strong>mean
-transinformation content</strong></a> between variates
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>Y</mi><mn>1</mn></msub><annotation encoding="application/x-tex">Y_1</annotation></semantics></math>
-and
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>Y</mi><mn>2</mn></msub><annotation encoding="application/x-tex">Y_2</annotation></semantics></math>.
-It has the following important properties:</p>
+transinformation content</strong></a> between variates <span class="math inline">\(Y_1\)</span> and <span class="math inline">\(Y_2\)</span>. It has the following important
+properties:</p>
 <ul>
-<li><p>If there is no association whatever between
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>Y</mi><mn>1</mn></msub><annotation encoding="application/x-tex">Y_1</annotation></semantics></math>
-and
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>Y</mi><mn>2</mn></msub><annotation encoding="application/x-tex">Y_2</annotation></semantics></math>,
-in the sense that knowledge of one never changes our probabilities about
-the other, then the mutual information between them is zero. Vice versa,
-if the mutual information is zero, then there is no association of any
-kind between
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>Y</mi><mn>1</mn></msub><annotation encoding="application/x-tex">Y_1</annotation></semantics></math>
-and
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>Y</mi><mn>2</mn></msub><annotation encoding="application/x-tex">Y_2</annotation></semantics></math>.</p></li>
-<li><p>It can be defined for a pair of variates
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>Y</mi><mn>1</mn></msub><annotation encoding="application/x-tex">Y_1</annotation></semantics></math>,
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>Y</mi><mn>2</mn></msub><annotation encoding="application/x-tex">Y_2</annotation></semantics></math>
-of any kind – continuous, nominal, binary, images, audio signals, and so
-on.</p></li>
-<li><p>It is defined for any probability distribution
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mrow><mi mathvariant="normal">P</mi><mi mathvariant="normal">r</mi></mrow><mo stretchy="false" form="prefix">(</mo><msub><mi>Y</mi><mn>1</mn></msub><mo>,</mo><msub><mi>Y</mi><mn>2</mn></msub><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">\mathrm{Pr}(Y_1, Y_2)</annotation></semantics></math>
-for the two variates, without assumptions such as Gaussian
-shapes.</p></li>
+<li><p>If there is no association whatever between <span class="math inline">\(Y_1\)</span> and <span class="math inline">\(Y_2\)</span>, in the sense that knowledge of one
+never changes our probabilities about the other, then the mutual
+information between them is zero. Vice versa, if the mutual information
+is zero, then there is no association of any kind between <span class="math inline">\(Y_1\)</span> and <span class="math inline">\(Y_2\)</span>.</p></li>
+<li><p>It can be defined for a pair of variates <span class="math inline">\(Y_1\)</span>, <span class="math inline">\(Y_2\)</span> of any kind – continuous, nominal,
+binary, images, audio signals, and so on.</p></li>
+<li><p>It is defined for any probability distribution <span class="math inline">\(\mathrm{Pr}(Y_1, Y_2)\)</span> for the two
+variates, without assumptions such as Gaussian shapes.</p></li>
 </ul>
 <p>Mutual information is always positive or zero, and can be defined in
 several mathematically equivalent ways, such as the following:</p>
-<p><math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><munder><mo>∑</mo><mrow><msub><mi>y</mi><mn>1</mn></msub><mo>,</mo><msub><mi>y</mi><mn>2</mn></msub></mrow></munder><mrow><mi mathvariant="normal">P</mi><mi mathvariant="normal">r</mi></mrow><mo stretchy="false" form="prefix">(</mo><msub><mi>Y</mi><mn>1</mn></msub><mrow><mspace width="-0.167em"></mspace><mo>=</mo><mspace width="-0.167em"></mspace></mrow><msub><mi>y</mi><mn>1</mn></msub><mo>,</mo><msub><mi>Y</mi><mn>2</mn></msub><mrow><mspace width="-0.167em"></mspace><mo>=</mo><mspace width="-0.167em"></mspace></mrow><msub><mi>y</mi><mn>2</mn></msub><mo stretchy="false" form="postfix">)</mo><mspace width="0.167em"></mspace><msub><mrow><mi mathvariant="normal">log</mi><mo>⁡</mo></mrow><mn>2</mn></msub><mfrac><mrow><mrow><mi mathvariant="normal">P</mi><mi mathvariant="normal">r</mi></mrow><mo stretchy="false" form="prefix">(</mo><msub><mi>Y</mi><mn>1</mn></msub><mrow><mspace width="-0.167em"></mspace><mo>=</mo><mspace width="-0.167em"></mspace></mrow><msub><mi>y</mi><mn>1</mn></msub><mo>,</mo><msub><mi>Y</mi><mn>2</mn></msub><mrow><mspace width="-0.167em"></mspace><mo>=</mo><mspace width="-0.167em"></mspace></mrow><msub><mi>y</mi><mn>2</mn></msub><mo stretchy="false" form="postfix">)</mo></mrow><mrow><mrow><mi mathvariant="normal">P</mi><mi mathvariant="normal">r</mi></mrow><mo stretchy="false" form="prefix">(</mo><msub><mi>Y</mi><mn>1</mn></msub><mrow><mspace width="-0.167em"></mspace><mo>=</mo><mspace width="-0.167em"></mspace></mrow><msub><mi>y</mi><mn>1</mn></msub><mo stretchy="false" form="postfix">)</mo><mo>⋅</mo><mrow><mi mathvariant="normal">P</mi><mi mathvariant="normal">r</mi></mrow><mo stretchy="false" form="prefix">(</mo><msub><mi>Y</mi><mn>2</mn></msub><mrow><mspace width="-0.167em"></mspace><mo>=</mo><mspace width="-0.167em"></mspace></mrow><msub><mi>y</mi><mn>2</mn></msub><mo stretchy="false" form="postfix">)</mo></mrow></mfrac><mspace width="0.278em"></mspace><mrow><mi mathvariant="normal">S</mi><mi mathvariant="normal">h</mi></mrow></mrow><annotation encoding="application/x-tex">
-\sum_{y_1, y_2} \mathrm{Pr}(Y_1 \mathrel{\!=\!}y_1, Y_2 \mathrel{\!=\!}y_2) \, 
+<p><span class="math display">\[
+\sum_{y_1, y_2} \mathrm{Pr}(Y_1 \mathrel{\!=\!}y_1, Y_2
+\mathrel{\!=\!}y_2) \,
 \log_{2} \frac{
 \mathrm{Pr}(Y_1 \mathrel{\!=\!}y_1, Y_2 \mathrel{\!=\!}y_2)
 }{
-\mathrm{Pr}(Y_1 \mathrel{\!=\!}y_1) \cdot \mathrm{Pr}(Y_2 \mathrel{\!=\!}y_2)
+\mathrm{Pr}(Y_1 \mathrel{\!=\!}y_1) \cdot \mathrm{Pr}(Y_2
+\mathrel{\!=\!}y_2)
 } \; \mathrm{Sh}
-</annotation></semantics></math></p>
+\]</span></p>
 <p>with integrals replacing the sums in the case of continuous variates.
 It is measured in <a href="https://www.electropedia.org/iev/iev.nsf/display?openform&amp;ievref=171-07-11" class="external-link"><em>shannons</em></a>
-(symbol
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi mathvariant="normal">S</mi><mi mathvariant="normal">h</mi></mrow><annotation encoding="application/x-tex">\mathrm{Sh}</annotation></semantics></math>),
-or <a href="https://www.electropedia.org/iev/iev.nsf/display?openform&amp;ievref=171-07-12" class="external-link"><em>hartleys</em></a>
-(symbol
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi mathvariant="normal">H</mi><mi mathvariant="normal">a</mi><mi mathvariant="normal">r</mi><mi mathvariant="normal">t</mi></mrow><annotation encoding="application/x-tex">\mathrm{Hart}</annotation></semantics></math>),
-or <a href="https://www.electropedia.org/iev/iev.nsf/display?openform&amp;ievref=171-07-13" class="external-link"><em>natural
-units</em></a> (symbol
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi mathvariant="normal">n</mi><mi mathvariant="normal">a</mi><mi mathvariant="normal">t</mi></mrow><annotation encoding="application/x-tex">\mathrm{nat}</annotation></semantics></math>).
-These units and other properties of the mutual information are <a href="https://archive.org/details/iso-standards-collection/BS%20EN%2080000-13-2008%20-%201%20Quantities%20and%20units" class="external-link">standardized
+(symbol <span class="math inline">\(\mathrm{Sh}\)</span>), or <a href="https://www.electropedia.org/iev/iev.nsf/display?openform&amp;ievref=171-07-12" class="external-link"><em>hartleys</em></a>
+(symbol <span class="math inline">\(\mathrm{Hart}\)</span>), or <a href="https://www.electropedia.org/iev/iev.nsf/display?openform&amp;ievref=171-07-13" class="external-link"><em>natural
+units</em></a> (symbol <span class="math inline">\(\mathrm{nat}\)</span>). These units and other
+properties of the mutual information are <a href="https://archive.org/details/iso-standards-collection/BS%20EN%2080000-13-2008%20-%201%20Quantities%20and%20units" class="external-link">standardized
 by the International Organization for Standardization (ISO) and the
 International Electrotechnical Commission (IEC)</a>.</p>
 <p>Mutual information is in fact a core quantity of communication theory
@@ -567,74 +538,52 @@ is thus a mutual information of 0.62 Sh. But what does this mean?</p>
 </h3>
 <p>You might argue: “sure, this mutual information has all these
 wonderful properties, but what does its value actually mean? I know how
-to interpret a value of the Pearson correlation coefficient
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>r</mi><annotation encoding="application/x-tex">r</annotation></semantics></math>”.</p>
+to interpret a value of the Pearson correlation coefficient <span class="math inline">\(r\)</span>”.</p>
 <p>It’s important to be fair though. Remember the very first times you
 learned and used the Pearson correlation coefficient: were you able to
-give a meaning to
-“<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>r</mi><mo>=</mo><mn>0.23</mn></mrow><annotation encoding="application/x-tex">r = 0.23</annotation></semantics></math>”
-for example? was that value high or low? We learned how to interpret
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>r</mi><annotation encoding="application/x-tex">r</annotation></semantics></math>
-values only through repeated use and application to real situations. The
-same is true of mutual information: through repeated use and
-application, you’ll develop an understanding of its possible values.</p>
+give a meaning to “<span class="math inline">\(r = 0.23\)</span>” for
+example? was that value high or low? We learned how to interpret <span class="math inline">\(r\)</span> values only through repeated use and
+application to real situations. The same is true of mutual information:
+through repeated use and application, you’ll develop an understanding of
+its possible values.</p>
 <p>Mutual information does have an operational meaning. Saying that the
-mutual information between
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>X</mi><annotation encoding="application/x-tex">X</annotation></semantics></math>
-and
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>Y</mi><annotation encoding="application/x-tex">Y</annotation></semantics></math>
-is
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>h</mi><mspace width="0.167em"></mspace><mrow><mi mathvariant="normal">S</mi><mi mathvariant="normal">h</mi></mrow></mrow><annotation encoding="application/x-tex">h\,\mathrm{Sh}</annotation></semantics></math>,
-means that knowledge of
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>X</mi><annotation encoding="application/x-tex">X</annotation></semantics></math>
-reduces, on average,
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msup><mn>2</mn><mi>h</mi></msup><annotation encoding="application/x-tex">2^h</annotation></semantics></math>
-times the number of uncertain possibilities of
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>Y</mi><annotation encoding="application/x-tex">Y</annotation></semantics></math>.
-For example suppose that a clinician during a diagnosis is equally
-uncertain about four possible diseases. There is a particular clinical
-indicator associated with the disease and the mutual information between
-the indicator and the disease is
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mn>0.415</mn><mspace width="0.167em"></mspace><mrow><mi mathvariant="normal">S</mi><mi mathvariant="normal">h</mi></mrow></mrow><annotation encoding="application/x-tex">0.415\,\mathrm{Sh}</annotation></semantics></math>.
-Then, upon testing the clinical indicator, the clinician will be roughly
-uncertain among <em>three</em> possible diseases, rather than four,
-because knowledge of the indicator reduces the four possibilities by
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msup><mn>2</mn><mn>0.415</mn></msup><annotation encoding="application/x-tex">2^{0.415}</annotation></semantics></math>
-(<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mn>4</mn><mi>/</mi><mo stretchy="false" form="prefix">(</mo><msup><mn>2</mn><mn>0.415</mn></msup><mo stretchy="false" form="postfix">)</mo><mo>≈</mo><mn>3</mn></mrow><annotation encoding="application/x-tex">4/(2^{0.415}) \approx 3</annotation></semantics></math>).
-If the mutual information were
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mn>2</mn><mspace width="0.167em"></mspace><mrow><mi mathvariant="normal">S</mi><mi mathvariant="normal">h</mi></mrow></mrow><annotation encoding="application/x-tex">2\,\mathrm{Sh}</annotation></semantics></math>
+mutual information between <span class="math inline">\(X\)</span> and
+<span class="math inline">\(Y\)</span> is <span class="math inline">\(h\,\mathrm{Sh}\)</span>, means that knowledge of
+<span class="math inline">\(X\)</span> reduces, on average, <span class="math inline">\(2^h\)</span> times the number of uncertain
+possibilities of <span class="math inline">\(Y\)</span>. For example
+suppose that a clinician during a diagnosis is equally uncertain about
+four possible diseases. There is a particular clinical indicator
+associated with the disease and the mutual information between the
+indicator and the disease is <span class="math inline">\(0.415\,\mathrm{Sh}\)</span>. Then, upon testing
+the clinical indicator, the clinician will be roughly uncertain among
+<em>three</em> possible diseases, rather than four, because knowledge of
+the indicator reduces the four possibilities by <span class="math inline">\(2^{0.415}\)</span> (<span class="math inline">\(4/(2^{0.415}) \approx 3\)</span>). If the mutual
+information were <span class="math inline">\(2\,\mathrm{Sh}\)</span>
 instead, then the indicator would tell the disease with
-<em>certainty</em>, as it would reduce the four possibilities by
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msup><mn>2</mn><mn>2</mn></msup><annotation encoding="application/x-tex">2^{2}</annotation></semantics></math>
-(<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mn>4</mn><mi>/</mi><mo stretchy="false" form="prefix">(</mo><msup><mn>2</mn><mn>2</mn></msup><mo stretchy="false" form="postfix">)</mo><mo>=</mo><mn>1</mn></mrow><annotation encoding="application/x-tex">4/(2^{2}) = 1</annotation></semantics></math>).</p>
+<em>certainty</em>, as it would reduce the four possibilities by <span class="math inline">\(2^{2}\)</span> (<span class="math inline">\(4/(2^{2}) = 1\)</span>).</p>
 <p>But the function <code><a href="../reference/mutualinfo.html">mutualinfo()</a></code> has an additional output
 to help you get a rough understanding of the mutual-information value.
 In the special case of two continuous variates having a joint
 <em>Gaussian</em> distribution, there is a precise relationship between
-their mutual information
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>I</mi><annotation encoding="application/x-tex">I</annotation></semantics></math>
-and their Pearson correlation coefficient
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>r</mi><annotation encoding="application/x-tex">r</annotation></semantics></math>:</p>
-<p><math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>I</mi><mo>=</mo><mi>−</mi><mfrac><mn>1</mn><mn>2</mn></mfrac><msub><mrow><mi mathvariant="normal">log</mi><mo>⁡</mo></mrow><mn>2</mn></msub><mo minsize="120%" maxsize="120%" stretchy="true" form="prefix">(</mo><mn>1</mn><mo>−</mo><msup><mi>r</mi><mn>2</mn></msup><mo minsize="120%" maxsize="120%" stretchy="true" form="postfix">)</mo><mspace width="0.278em"></mspace><mrow><mi mathvariant="normal">S</mi><mi mathvariant="normal">h</mi></mrow><mspace width="0.167em"></mspace><mo>,</mo><mspace width="2.0em"></mspace><mo stretchy="false" form="prefix">|</mo><mi>r</mi><mo stretchy="false" form="postfix">|</mo><mo>=</mo><msqrt><mrow><mn>1</mn><mo>−</mo><msup><mn>2</mn><mrow><mi>−</mi><mn>2</mn><mi>I</mi><mi>/</mi><mrow><mi mathvariant="normal">S</mi><mi mathvariant="normal">h</mi></mrow></mrow></msup></mrow></msqrt></mrow><annotation encoding="application/x-tex">
-I = -\frac{1}{2} \log_{2}\bigl(1 - r^2\bigr)\;\mathrm{Sh} 
+their mutual information <span class="math inline">\(I\)</span> and
+their Pearson correlation coefficient <span class="math inline">\(r\)</span>:</p>
+<p><span class="math display">\[
+I = -\frac{1}{2} \log_{2}\bigl(1 - r^2\bigr)\;\mathrm{Sh}
 \,,\qquad
 \lvert r\rvert = \sqrt{1 - 2^{- 2 I/\mathrm{Sh}}}
-</annotation></semantics></math></p>
+\]</span></p>
 <div class="figure">
 <img src="figure/Ivsr-1.jpeg" alt="**$I$ vs $\lvert r\rvert$ for jointly Gaussian variates**" width="75%"><p class="caption">
-<strong><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>I</mi><annotation encoding="application/x-tex">I</annotation></semantics></math>
-vs
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo stretchy="false" form="prefix">|</mo><mi>r</mi><mo stretchy="false" form="postfix">|</mo></mrow><annotation encoding="application/x-tex">\lvert r\rvert</annotation></semantics></math>
-for jointly Gaussian variates</strong>
+<strong><span class="math inline">\(I\)</span> vs <span class="math inline">\(\lvert r\rvert\)</span> for jointly Gaussian
+variates</strong>
 </p>
 </div>
 <p>This relationship can be a <em>rough</em> guide to get familiar with
 mutual-information values also for non-Gaussian variates. The
 <code><a href="../reference/mutualinfo.html">mutualinfo()</a></code> function has an additional output element
-<code>$MI.rGauss$</code> with the corresponding
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo stretchy="false" form="prefix">|</mo><mi>r</mi><mo stretchy="false" form="postfix">|</mo></mrow><annotation encoding="application/x-tex">\lvert r \rvert</annotation></semantics></math>
-value. In the previous case of the <code>island</code> and
-<code>species</code> variates we have</p>
+<code>$MI.rGauss$</code> with the corresponding <span class="math inline">\(\lvert r \rvert\)</span> value. In the previous
+case of the <code>island</code> and <code>species</code> variates we
+have</p>
 <div class="sourceCode" id="cb15"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">MIislandspecies</span><span class="op">$</span><span class="va">MI</span></span>
 <span><span class="co">#    value accuracy </span></span>
@@ -744,9 +693,7 @@ length</strong>
 <div class="sourceCode" id="cb21"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/stats/cor.html" class="external-link">cor</a></span><span class="op">(</span><span class="va">samples</span><span class="op">$</span><span class="va">body_mass</span>, <span class="va">samples</span><span class="op">$</span><span class="va">bill_len</span>, method <span class="op">=</span> <span class="st">'pearson'</span><span class="op">)</span></span>
 <span><span class="co"># [1] 0.553292</span></span></code></pre></div>
-<p>which is different from the rough
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>r</mi><annotation encoding="application/x-tex">r</annotation></semantics></math>-equivalent
-0.67.</p>
+<p>which is different from the rough <span class="math inline">\(r\)</span>-equivalent 0.67.</p>
 <p><br></p>
 </div>
 </div>

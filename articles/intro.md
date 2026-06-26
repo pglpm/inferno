@@ -178,7 +178,7 @@ To make this point clearer, imagine a slightly different population.
 Suppose we were interested only in all the penguins alive today on a
 specific, very small island. The island turns out to have 17 penguins.
 We check all of them. We find that 6 of these are females, and 11 are
-males. It’s then a fact that $`6/17 \approx 35.3\%`$ of penguins in this
+males. It’s then a fact that \\6/17 \approx 35.3\\\\ of penguins in this
 specific population are females, and 64.7% are males. And if someone
 picked a penguin from this population and asked us to guess its sex, we
 would give a 35.3% probability to that penguin’s being female, and 64.7%
@@ -775,9 +775,9 @@ What about the uncertainty of these estimates?
 In Bayesian theory, a compact way of expressing the uncertainty in a
 quantity is by means of a **credibility interval** with a given
 probability. For instance, if we say that a particular quantity has a
-70%-credibility interval equal to $`(0.41, 0.69)`$, what we mean is that
+70%-credibility interval equal to \\(0.41, 0.69)\\, what we mean is that
 there’s an 70% probability that the true value of that quantity is
-between $`0.41`$ and $`0.69`$ – pretty straightforward! *Please be
+between \\0.41\\ and \\0.69\\ – pretty straightforward! *Please be
 careful not to confuse the Bayesian credibility interval with a
 “confidence interval”*: the latter has a much more involved and less
 straightforward meaning.

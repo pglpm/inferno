@@ -18,13 +18,14 @@ variates from that dataset; also probabilities conditional on given
 variates. These probabilities refers to a *new unit*; for example:
 
 - If we find that
-  $`\mathrm{Pr}(\text{species}\mathrel{\!=\!}\text{Adelie}) = 44\%`$,
+  \\\mathrm{Pr}(\text{species}\mathrel{\\=\\}\text{Adelie}) = 44\\\\,
   then there’s a 44% probability that the next penguin we sample (from
   the same population) is of the *Adélie* species.
 - If we find that
-  $`\mathrm{Pr}(\text{species}\mathrel{\!=\!}\text{Gentoo} \,\vert\, \text{island} \mathrel{\!=\!}\text{Biscoe}) = 1\%`$,
-  then if we have a new penguin, and we know it is from Biscoe island,
-  there’s a 1% probability that it is of the *Gentoo* species.
+  \\\mathrm{Pr}(\text{species}\mathrel{\\=\\}\text{Gentoo} \\\vert\\
+  \text{island} \mathrel{\\=\\}\text{Biscoe}) = 1\\\\, then if we have a
+  new penguin, and we know it is from Biscoe island, there’s a 1%
+  probability that it is of the *Gentoo* species.
 
 And these probabilities can also be interpreted as “estimates” of the
 corresponding *whole-population* frequencies.
@@ -382,20 +383,20 @@ complex sets of joint variates.
 One very common and quite abused measure of “association” is the
 [Pearson correlation
 coefficient](https://mathworld.wolfram.com/CorrelationCoefficient.html),
-usually denoted “$`r`$”. This measure is extremely limited, however. It
+usually denoted “\\r\\”. This measure is extremely limited, however. It
 is essentially [based on the assumption that all variates involved have
 a joint Gaussian
 distribution](https://doi.org/10.1080/01621459.1954.10501231). As a
 consequence, it is a measure of *linear* association, rather than
 general association.
 
-For instance, if the distribution of two continuous variates $`Y_1`$ and
-$`Y_2`$ lies in a semicircle, then $`Y_2`$ is actually a function of
-$`Y_1`$, and is therefore perfectly associated with $`Y_1`$: if we know
-$`Y_1`$, then we can exactly predict the value of $`Y_2`$. Yet the
-Pearson correlation coefficient between the two variates is $`0`$ in
-this case, simply because the functional dependence of $`Y_2`$ on
-$`Y_1`$ is not linear. Here is an example plot and value:
+For instance, if the distribution of two continuous variates \\Y_1\\ and
+\\Y_2\\ lies in a semicircle, then \\Y_2\\ is actually a function of
+\\Y_1\\, and is therefore perfectly associated with \\Y_1\\: if we know
+\\Y_1\\, then we can exactly predict the value of \\Y_2\\. Yet the
+Pearson correlation coefficient between the two variates is \\0\\ in
+this case, simply because the functional dependence of \\Y_2\\ on
+\\Y_1\\ is not linear. Here is an example plot and value:
 
 ``` r
 
@@ -415,7 +416,7 @@ flexiplot(x = Y1, y = Y2, type = 'p',
 ![\*\*Perfect correlation from \$Y_1\$ to \$Y_2\$, with zero Pearson
 correlation coefficient\*\*](figure/pearsonplot-1.jpeg)
 
-**Perfect correlation from $`Y_1`$ to $`Y_2`$, with zero Pearson
+**Perfect correlation from \\Y_1\\ to \\Y_2\\, with zero Pearson
 correlation coefficient**
 
 Similar limitations of the Pearson correlation coefficient are
@@ -441,42 +442,39 @@ three properties?:
 The answer is *yes, there is*! It is called the **mutual information**
 or [**mean transinformation
 content**](https://www.electropedia.org/iev/iev.nsf/display?openform&ievref=171-07-27)
-between variates $`Y_1`$ and $`Y_2`$. It has the following important
+between variates \\Y_1\\ and \\Y_2\\. It has the following important
 properties:
 
-- If there is no association whatever between $`Y_1`$ and $`Y_2`$, in
+- If there is no association whatever between \\Y_1\\ and \\Y_2\\, in
   the sense that knowledge of one never changes our probabilities about
   the other, then the mutual information between them is zero. Vice
   versa, if the mutual information is zero, then there is no association
-  of any kind between $`Y_1`$ and $`Y_2`$.
+  of any kind between \\Y_1\\ and \\Y_2\\.
 
-- It can be defined for a pair of variates $`Y_1`$, $`Y_2`$ of any kind
+- It can be defined for a pair of variates \\Y_1\\, \\Y_2\\ of any kind
   – continuous, nominal, binary, images, audio signals, and so on.
 
-- It is defined for any probability distribution
-  $`\mathrm{Pr}(Y_1, Y_2)`$ for the two variates, without assumptions
-  such as Gaussian shapes.
+- It is defined for any probability distribution \\\mathrm{Pr}(Y_1,
+  Y_2)\\ for the two variates, without assumptions such as Gaussian
+  shapes.
 
 Mutual information is always positive or zero, and can be defined in
 several mathematically equivalent ways, such as the following:
 
-``` math
-\sum_{y_1, y_2} \mathrm{Pr}(Y_1 \mathrel{\!=\!}y_1, Y_2 \mathrel{\!=\!}y_2) \, 
-\log_{2} \frac{
-\mathrm{Pr}(Y_1 \mathrel{\!=\!}y_1, Y_2 \mathrel{\!=\!}y_2)
-}{
-\mathrm{Pr}(Y_1 \mathrel{\!=\!}y_1) \cdot \mathrm{Pr}(Y_2 \mathrel{\!=\!}y_2)
-} \; \mathrm{Sh}
-```
+\\ \sum\_{y_1, y_2} \mathrm{Pr}(Y_1 \mathrel{\\=\\}y_1, Y_2
+\mathrel{\\=\\}y_2) \\ \log\_{2} \frac{ \mathrm{Pr}(Y_1
+\mathrel{\\=\\}y_1, Y_2 \mathrel{\\=\\}y_2) }{ \mathrm{Pr}(Y_1
+\mathrel{\\=\\}y_1) \cdot \mathrm{Pr}(Y_2 \mathrel{\\=\\}y_2) } \\
+\mathrm{Sh} \\
 
 with integrals replacing the sums in the case of continuous variates. It
 is measured in
 [*shannons*](https://www.electropedia.org/iev/iev.nsf/display?openform&ievref=171-07-11)
-(symbol $`\mathrm{Sh}`$), or
+(symbol \\\mathrm{Sh}\\), or
 [*hartleys*](https://www.electropedia.org/iev/iev.nsf/display?openform&ievref=171-07-12)
-(symbol $`\mathrm{Hart}`$), or [*natural
+(symbol \\\mathrm{Hart}\\), or [*natural
 units*](https://www.electropedia.org/iev/iev.nsf/display?openform&ievref=171-07-13)
-(symbol $`\mathrm{nat}`$). These units and other properties of the
+(symbol \\\mathrm{nat}\\). These units and other properties of the
 mutual information are [standardized by the International Organization
 for Standardization (ISO) and the International Electrotechnical
 Commission
@@ -542,55 +540,52 @@ information of 0.62 Sh. But what does this mean?
 
 You might argue: “sure, this mutual information has all these wonderful
 properties, but what does its value actually mean? I know how to
-interpret a value of the Pearson correlation coefficient $`r`$”.
+interpret a value of the Pearson correlation coefficient \\r\\”.
 
 It’s important to be fair though. Remember the very first times you
 learned and used the Pearson correlation coefficient: were you able to
-give a meaning to “$`r = 0.23`$” for example? was that value high or
-low? We learned how to interpret $`r`$ values only through repeated use
+give a meaning to “\\r = 0.23\\” for example? was that value high or
+low? We learned how to interpret \\r\\ values only through repeated use
 and application to real situations. The same is true of mutual
 information: through repeated use and application, you’ll develop an
 understanding of its possible values.
 
 Mutual information does have an operational meaning. Saying that the
-mutual information between $`X`$ and $`Y`$ is $`h\,\mathrm{Sh}`$, means
-that knowledge of $`X`$ reduces, on average, $`2^h`$ times the number of
-uncertain possibilities of $`Y`$. For example suppose that a clinician
+mutual information between \\X\\ and \\Y\\ is \\h\\\mathrm{Sh}\\, means
+that knowledge of \\X\\ reduces, on average, \\2^h\\ times the number of
+uncertain possibilities of \\Y\\. For example suppose that a clinician
 during a diagnosis is equally uncertain about four possible diseases.
 There is a particular clinical indicator associated with the disease and
 the mutual information between the indicator and the disease is
-$`0.415\,\mathrm{Sh}`$. Then, upon testing the clinical indicator, the
+\\0.415\\\mathrm{Sh}\\. Then, upon testing the clinical indicator, the
 clinician will be roughly uncertain among *three* possible diseases,
 rather than four, because knowledge of the indicator reduces the four
-possibilities by $`2^{0.415}`$ ($`4/(2^{0.415}) \approx 3`$). If the
-mutual information were $`2\,\mathrm{Sh}`$ instead, then the indicator
+possibilities by \\2^{0.415}\\ (\\4/(2^{0.415}) \approx 3\\). If the
+mutual information were \\2\\\mathrm{Sh}\\ instead, then the indicator
 would tell the disease with *certainty*, as it would reduce the four
-possibilities by $`2^{2}`$ ($`4/(2^{2}) = 1`$).
+possibilities by \\2^{2}\\ (\\4/(2^{2}) = 1\\).
 
 But the function
 [`mutualinfo()`](https://pglpm.github.io/prova/reference/mutualinfo.md)
 has an additional output to help you get a rough understanding of the
 mutual-information value. In the special case of two continuous variates
 having a joint *Gaussian* distribution, there is a precise relationship
-between their mutual information $`I`$ and their Pearson correlation
-coefficient $`r`$:
+between their mutual information \\I\\ and their Pearson correlation
+coefficient \\r\\:
 
-``` math
-I = -\frac{1}{2} \log_{2}\bigl(1 - r^2\bigr)\;\mathrm{Sh} 
-\,,\qquad
-\lvert r\rvert = \sqrt{1 - 2^{- 2 I/\mathrm{Sh}}}
-```
+\\ I = -\frac{1}{2} \log\_{2}\bigl(1 - r^2\bigr)\\\mathrm{Sh} \\,\qquad
+\lvert r\rvert = \sqrt{1 - 2^{- 2 I/\mathrm{Sh}}} \\
 
 ![\*\*\$I\$ vs \$\lvert r\rvert\$ for jointly Gaussian
 variates\*\*](figure/Ivsr-1.jpeg)
 
-**$`I`$ vs $`\lvert r\rvert`$ for jointly Gaussian variates**
+**\\I\\ vs \\\lvert r\rvert\\ for jointly Gaussian variates**
 
 This relationship can be a *rough* guide to get familiar with
 mutual-information values also for non-Gaussian variates. The
 [`mutualinfo()`](https://pglpm.github.io/prova/reference/mutualinfo.md)
 function has an additional output element `$MI.rGauss$` with the
-corresponding $`\lvert r \rvert`$ value. In the previous case of the
+corresponding \\\lvert r \rvert\\ value. In the previous case of the
 `island` and `species` variates we have
 
 ``` r
@@ -720,7 +715,7 @@ cor(samples$body_mass, samples$bill_len, method = 'pearson')
 # [1] 0.553292
 ```
 
-which is different from the rough $`r`$-equivalent 0.67.
+which is different from the rough \\r\\-equivalent 0.67.
 
   
 
