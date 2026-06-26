@@ -160,15 +160,15 @@
 
 
 <dt id="arg-maxrelmcse">maxrelMCSE<a class="anchor" aria-label="anchor" href="#arg-maxrelmcse"></a></dt>
-<dd><p>Numeric positive: desired maximal <em>relative Monte Carlo Standard Error</em> of calculated probabilities with respect to their variability with new data. Default <code>+Inf</code>, so that <code>minESS</code> is used instead. <code>maxrelMCSE</code> is related to <code>minESS</code> by <code>maxrelMCSE = 1/sqrt(minESS + initES)</code>.</p></dd>
+<dd><p>Numeric positive: desired maximal <em>relative Monte Carlo Standard Error</em> of calculated probabilities with respect to their variability with new data. Default <code>+Inf</code>, so that <code>minESS</code> is used instead. <code>maxrelMCSE</code> is related to <code>minESS</code> by \(\mathrm{maxrelMCSE} = 1/\sqrt{\mathrm{minESS} + \mathrm{initES}}\).</p></dd>
 
 
 <dt id="arg-miness">minESS<a class="anchor" aria-label="anchor" href="#arg-miness"></a></dt>
-<dd><p>Numeric positive: desired minimal Monte Carlo <em>Expected Sample Size</em>. If <code>NULL</code>, it is equal to the final <code>nsamplesperchain</code>. Default 400. <code>minESS</code> is related to <code>maxrelMCSE</code> by <code>minESS = 1/maxrelMCSE^2 - initES</code>.</p></dd>
+<dd><p>Numeric positive or <code>NULL': desired minimal Monte Carlo *Expected Sample Size*. Default 450. If </code>NULL<code>, it is equal to the final </code>nsamplesperchain<code>. </code>minESS<code>is related to</code>maxrelMCSE` by \(\mathrm{minESS} = 1/\mathrm{maxrelMCSE}^2 - \mathrm{initES}\).</p></dd>
 
 
 <dt id="arg-inites">initES<a class="anchor" aria-label="anchor" href="#arg-inites"></a></dt>
-<dd><p>Numeric positive: number of initial  <em>Expected Samples</em> to discard.</p></dd>
+<dd><p>Numeric positive: number of initial samples, separated by the Expected Sample Size, to discard.</p></dd>
 
 
 <dt id="arg-thinning">thinning<a class="anchor" aria-label="anchor" href="#arg-thinning"></a></dt>
@@ -206,6 +206,9 @@
     <p>This function takes as main inputs a set of data and metadata, and computes the full joint probability distribution for new data, including its variability; see <code><a href="Pr.html">Pr()</a></code>. This computation can also be interpreted as an estimation of the full joint frequency distribution of the variates in the <em>whole population</em>, beyond the sample data, together with its uncertainty.</p>
 <p>The computation is "non-parametric": probability or frequency distributions are not assumed to be Gaussian or of any other specific shape; no "model" is assumed. The mathematical representation of the space of joint frequency distributions follows Dunson &amp; Bhattacharya (2011).</p>
 <p>The computation is done via Markov-chain Monte Carlo, using the package <a href="https://cran.r-project.org/package=nimble" class="external-link"><strong>Nimble</strong></a>. "Convergence" of the Monte Carlo computation is assessed with methods described in Vehtari &amp; al. (2021) and Kwon &amp; al. (2025).</p>
+<p>The default values for convergence require that all these three conditions be fulilled:</p><ul><li><p>The computation's numerical error (Monte-Carlo Standard Error) for the posterior probability must be smaller than 4.7% of the standard deviation of the posterior's variability.</p></li>
+<li><p>The computation's numerical error for the 0.055- and 0.945-percentiles of the posterior's variability should be smaller than 4.7% of the distance between them.</p></li>
+</ul><p>Typically this requirement leads to final results obtained with the <code><a href="Pr.html">Pr()</a></code> function having at least two significant digits.</p>
 <p>This function creates a "learnt" object, typically saved in a <code>learnt.rds</code> file, which is used in all subsequent probabilistic computations. Other information about the computation is provided in logs and plots, saved in a directory specified by the user.</p>
 <p>See <code><a href="../articles/intro.html">vignette('intro')</a></code> for an introductory example.</p>
     </div>
@@ -260,7 +263,7 @@ About nonparametrics:</p></li>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Learning from 3 datapoints, 1 variates.</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>  Saving output in directory</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  /tmp/RtmpqDhuHW/prova-V1_D3_S10_260625T191133_1a0e5de82e9e </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  /tmp/RtmpF6mLVh/prova-V1_D3_S10_260626T194146_1a20564aa497 </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Starting Monte Carlo sampling of 10 samples by 1 chains</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> in a space of 191 (effectively 259) dimensions.</span>
@@ -279,16 +282,16 @@ About nonparametrics:</p></li>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Checking test data</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> (#1 #2 #3):</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> rel. CI error: 0.277 to 0.757</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> rel. quantile error: 0.277 to 0.757</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> ESS: 10 to 10</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> needed thinning: 1 to 5.72</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> average: 0.135 to 0.867</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> quantile width: 0.216 to 3.27</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Plotting final Monte Carlo traces and marginal samples...</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> Total computation time: 35 secs</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Total computation time: 34 secs</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Average preparation &amp; finalization time: 33 secs.</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> Average Monte Carlo time per chain: 0.72 secs.</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Average Monte Carlo time per chain: 0.54 secs.</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Max total memory used: approx 350MB.</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Max memory used per core: approx 350MB.</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Removing temporary output files.</span>
@@ -296,7 +299,7 @@ About nonparametrics:</p></li>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Finished.</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> **********************************************************</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span>  Output saved in directory</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> /tmp/RtmpqDhuHW/prova-V1_D3_S10_260625T191133_1a0e5de82e9e</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> /tmp/RtmpF6mLVh/prova-V1_D3_S10_260626T194146_1a20564aa497</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> **********************************************************</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Closing connections to cores.</span>
 <span class="r-in"><span></span></span>
@@ -333,9 +336,9 @@ About nonparametrics:</p></li>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   ..$ V1               : logi NA</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   ..$ V2               : logi NA</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>  $ auxinfo    :List of 12</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   ..$ nchains          : num 1</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   ..$ npoints          : int 3</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   ..$ hyperparams      :List of 21</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   ..$ nchains            : num 1</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   ..$ npoints            : int 3</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   ..$ hyperparams        :List of 21</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   .. ..$ ncomponents : num 64</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   .. ..$ minalpha    : num -4</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   .. ..$ maxalpha    : num 4</span>
@@ -357,19 +360,19 @@ About nonparametrics:</p></li>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   .. ..$ Nprior      : chr "Hadamard"</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   .. ..$ initmethod  : chr "datacentre"</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   .. ..$ Qerror      : num [1:2] 0.159 0.841</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   ..$ maxiterations    : num 10</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   ..$ maxusedcomponents: num 2</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   ..$ nonfinitechains  : num 0</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   ..$ stoppedchains    : num 1</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   ..$ rel. CI error    : Named num [1:4] 0.384 0.277 0.395 0.757</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   ..$ maxiterations      : num 10</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   ..$ maxusedcomponents  : num 2</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   ..$ nonfinitechains    : num 0</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   ..$ stoppedchains      : num 1</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   ..$ rel. quantile error: Named num [1:4] 0.384 0.277 0.395 0.757</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   .. ..- attr(*, "names")= chr [1:4] "gmean" "1" "2" "3"</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   ..$ ESS              : Named num [1:4] 10 10 10 10</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   ..$ ESS                : Named num [1:4] 10 10 10 10</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   .. ..- attr(*, "names")= chr [1:4] "gmean" "1" "2" "3"</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   ..$ needed thinning  : Named num [1:4] 1.48 1 1.56 5.72</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   ..$ needed thinning    : Named num [1:4] 1.48 1 1.56 5.72</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   .. ..- attr(*, "names")= chr [1:4] "gmean" "1" "2" "3"</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   ..$ average          : Named num [1:4] 0.194 0.178 0.135 0.867</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   ..$ average            : Named num [1:4] 0.194 0.178 0.135 0.867</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   .. ..- attr(*, "names")= chr [1:4] "gmean" "1" "2" "3"</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   ..$ quantile width   : Named num [1:4] 0.216 0.26 0.229 3.267</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   ..$ quantile width     : Named num [1:4] 0.216 0.26 0.229 3.267</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   .. ..- attr(*, "names")= chr [1:4] "gmean" "1" "2" "3"</span>
 <span class="r-in"><span><span class="co"># }</span></span></span>
 <span class="r-in"><span></span></span>

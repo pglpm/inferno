@@ -157,19 +157,19 @@ learn(
   Numeric positive: desired maximal *relative Monte Carlo Standard
   Error* of calculated probabilities with respect to their variability
   with new data. Default `+Inf`, so that `minESS` is used instead.
-  `maxrelMCSE` is related to `minESS` by
-  `maxrelMCSE = 1/sqrt(minESS + initES)`.
+  `maxrelMCSE` is related to `minESS` by \\\mathrm{maxrelMCSE} =
+  1/\sqrt{\mathrm{minESS} + \mathrm{initES}}\\.
 
 - minESS:
 
-  Numeric positive: desired minimal Monte Carlo *Expected Sample Size*.
-  If `NULL`, it is equal to the final `nsamplesperchain`. Default 400.
-  `minESS` is related to `maxrelMCSE` by
-  `minESS = 1/maxrelMCSE^2 - initES`.
+  Numeric positive or
+  `NULL': desired minimal Monte Carlo *Expected Sample Size*. Default 450. If `NULL`, it is equal to the final `nsamplesperchain`. `minESS`is related to`maxrelMCSE\`
+  by \\\mathrm{minESS} = 1/\mathrm{maxrelMCSE}^2 - \mathrm{initES}\\.
 
 - initES:
 
-  Numeric positive: number of initial *Expected Samples* to discard.
+  Numeric positive: number of initial samples, separated by the Expected
+  Sample Size, to discard.
 
 - thinning:
 
@@ -249,6 +249,21 @@ The computation is done via Markov-chain Monte Carlo, using the package
 [**Nimble**](https://cran.r-project.org/package=nimble). "Convergence"
 of the Monte Carlo computation is assessed with methods described in
 Vehtari & al. (2021) and Kwon & al. (2025).
+
+The default values for convergence require that all these three
+conditions be fulilled:
+
+- The computation's numerical error (Monte-Carlo Standard Error) for the
+  posterior probability must be smaller than 4.7% of the standard
+  deviation of the posterior's variability.
+
+- The computation's numerical error for the 0.055- and 0.945-percentiles
+  of the posterior's variability should be smaller than 4.7% of the
+  distance between them.
+
+Typically this requirement leads to final results obtained with the
+[`Pr()`](https://pglpm.github.io/prova/reference/Pr.md) function having
+at least two significant digits.
 
 This function creates a "learnt" object, typically saved in a
 `learnt.rds` file, which is used in all subsequent probabilistic
@@ -360,7 +375,7 @@ learnt <- learn(
 #> Learning from 3 datapoints, 1 variates.
 #> 
 #>  Saving output in directory
-#>  /tmp/RtmpqDhuHW/prova-V1_D3_S10_260625T191133_1a0e5de82e9e 
+#>  /tmp/RtmpF6mLVh/prova-V1_D3_S10_260626T194146_1a20564aa497 
 #> 
 #> Starting Monte Carlo sampling of 10 samples by 1 chains
 #> in a space of 191 (effectively 259) dimensions.
@@ -379,16 +394,16 @@ learnt <- learn(
 #> 
 #> Checking test data
 #> (#1 #2 #3):
-#> rel. CI error: 0.277 to 0.757
+#> rel. quantile error: 0.277 to 0.757
 #> ESS: 10 to 10
 #> needed thinning: 1 to 5.72
 #> average: 0.135 to 0.867
 #> quantile width: 0.216 to 3.27
 #> 
 #> Plotting final Monte Carlo traces and marginal samples...
-#> Total computation time: 35 secs
+#> Total computation time: 34 secs
 #> Average preparation & finalization time: 33 secs.
-#> Average Monte Carlo time per chain: 0.72 secs.
+#> Average Monte Carlo time per chain: 0.54 secs.
 #> Max total memory used: approx 350MB.
 #> Max memory used per core: approx 350MB.
 #> Removing temporary output files.
@@ -396,7 +411,7 @@ learnt <- learn(
 #> Finished.
 #> **********************************************************
 #>  Output saved in directory
-#> /tmp/RtmpqDhuHW/prova-V1_D3_S10_260625T191133_1a0e5de82e9e
+#> /tmp/RtmpF6mLVh/prova-V1_D3_S10_260626T194146_1a20564aa497
 #> **********************************************************
 #> Closing connections to cores.
 
@@ -433,9 +448,9 @@ str(learnt)
 #>   ..$ V1               : logi NA
 #>   ..$ V2               : logi NA
 #>  $ auxinfo    :List of 12
-#>   ..$ nchains          : num 1
-#>   ..$ npoints          : int 3
-#>   ..$ hyperparams      :List of 21
+#>   ..$ nchains            : num 1
+#>   ..$ npoints            : int 3
+#>   ..$ hyperparams        :List of 21
 #>   .. ..$ ncomponents : num 64
 #>   .. ..$ minalpha    : num -4
 #>   .. ..$ maxalpha    : num 4
@@ -457,19 +472,19 @@ str(learnt)
 #>   .. ..$ Nprior      : chr "Hadamard"
 #>   .. ..$ initmethod  : chr "datacentre"
 #>   .. ..$ Qerror      : num [1:2] 0.159 0.841
-#>   ..$ maxiterations    : num 10
-#>   ..$ maxusedcomponents: num 2
-#>   ..$ nonfinitechains  : num 0
-#>   ..$ stoppedchains    : num 1
-#>   ..$ rel. CI error    : Named num [1:4] 0.384 0.277 0.395 0.757
+#>   ..$ maxiterations      : num 10
+#>   ..$ maxusedcomponents  : num 2
+#>   ..$ nonfinitechains    : num 0
+#>   ..$ stoppedchains      : num 1
+#>   ..$ rel. quantile error: Named num [1:4] 0.384 0.277 0.395 0.757
 #>   .. ..- attr(*, "names")= chr [1:4] "gmean" "1" "2" "3"
-#>   ..$ ESS              : Named num [1:4] 10 10 10 10
+#>   ..$ ESS                : Named num [1:4] 10 10 10 10
 #>   .. ..- attr(*, "names")= chr [1:4] "gmean" "1" "2" "3"
-#>   ..$ needed thinning  : Named num [1:4] 1.48 1 1.56 5.72
+#>   ..$ needed thinning    : Named num [1:4] 1.48 1 1.56 5.72
 #>   .. ..- attr(*, "names")= chr [1:4] "gmean" "1" "2" "3"
-#>   ..$ average          : Named num [1:4] 0.194 0.178 0.135 0.867
+#>   ..$ average            : Named num [1:4] 0.194 0.178 0.135 0.867
 #>   .. ..- attr(*, "names")= chr [1:4] "gmean" "1" "2" "3"
-#>   ..$ quantile width   : Named num [1:4] 0.216 0.26 0.229 3.267
+#>   ..$ quantile width     : Named num [1:4] 0.216 0.26 0.229 3.267
 #>   .. ..- attr(*, "names")= chr [1:4] "gmean" "1" "2" "3"
 # }
 ```
