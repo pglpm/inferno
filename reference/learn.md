@@ -178,9 +178,10 @@ learn(
 
 - minESS:
 
-  Numeric positive or
-  `NULL', default 450: desired minimal Monte Carlo *Expected Sample Size*. If `NULL`, it is equal to the final `nsamplesperchain`. `minESS`is related to`maxrelMCSE\`
-  by \\\mathrm{minESS} = 1/\mathrm{maxrelMCSE}^2 - \mathrm{initES}\\.
+  Numeric positive or `NULL`, default 450: desired minimal Monte Carlo
+  *Expected Sample Size*. If `NULL`, it is equal to the final
+  `nsamplesperchain`. `minESS` is related to `maxrelMCSE` by
+  \\\mathrm{minESS} = 1/\mathrm{maxrelMCSE}^2 - \mathrm{initES}\\.
 
 - initES:
 
@@ -393,7 +394,7 @@ learnt <- learn(
 #> Learning from 3 datapoints, 1 variates.
 #> 
 #>  Saving output in directory
-#>  /tmp/Rtmph8bD2F/prova-V1_D3_S10_260627T124753_1a0a6421fa03 
+#>  /tmp/RtmpTo5YzJ/prova-V1_D3_S10_260627T125412_1a376fd923a 
 #> 
 #> Starting Monte Carlo sampling of 10 samples by 1 chains
 #> in a space of 191 (effectively 259) dimensions.
@@ -420,17 +421,17 @@ learnt <- learn(
 #> 
 #> Plotting final Monte Carlo traces and marginal samples...
 #> Total computation time: 36 secs
-#> Average preparation & finalization time: 34 secs.
-#> Average Monte Carlo time per chain: 0.69 secs.
+#> Average preparation & finalization time: 35 secs.
+#> Average Monte Carlo time per chain: 0.56 secs.
 #> Max total memory used: approx 350MB.
 #> Max memory used per core: approx 350MB.
 #> Removing temporary output files.
 #> 
 #> Finished.
-#> **********************************************************
+#> *********************************************************
 #>  Output saved in directory
-#> /tmp/Rtmph8bD2F/prova-V1_D3_S10_260627T124753_1a0a6421fa03
-#> **********************************************************
+#> /tmp/RtmpTo5YzJ/prova-V1_D3_S10_260627T125412_1a376fd923a
+#> *********************************************************
 #> Closing connections to cores.
 
 ## Check structure of `learnt` object:
