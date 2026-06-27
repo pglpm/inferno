@@ -47,7 +47,7 @@
 #' @param plottraces Logical, default `TRUE`: save plots of the Monte Carlo traces of diagnostic values?
 #' @param showKtraces Logical, default `FALSE`: save plots of the Monte Carlo traces of the K parameter?
 #' @param showAlphatraces Logical, default `FALSE`: save plots of the Monte Carlo traces of the Alpha parameter?
-#' @param hyperparams List: hyperparameters of the hyperprior; seee values in "Usage".
+#' @param hyperparams List: hyperparameters of the hyperprior; see values in "Usage".
 #'
 #' @returns A "learnt" object, or name of directory containing such an object and other output files, or `NULL`, depending on argument `valueislearnt`.
 #'

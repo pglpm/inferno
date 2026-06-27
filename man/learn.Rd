@@ -91,7 +91,7 @@ learn(
 
 \item{showAlphatraces}{Logical, default \code{FALSE}: save plots of the Monte Carlo traces of the Alpha parameter?}
 
-\item{hyperparams}{List: hyperparameters of the hyperprior; seee values in "Usage".}
+\item{hyperparams}{List: hyperparameters of the hyperprior; see values in "Usage".}
 }
 \value{
 A "learnt" object, or name of directory containing such an object and other output files, or \code{NULL}, depending on argument \code{valueislearnt}.
