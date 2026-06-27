@@ -26,9 +26,9 @@
 #' @param auxdata A larger dataset, given as a data frame or as a file path to a CSV file. Such a dataset would be too many to use in the Monte Carlo sampling, but can be used to calculate hyperparameters.
 #' @param outputdir `NULL` or `NA` or character: path to folder where output information and diagnostics should be saved. If `NULL` (default), a directory is created in the temporary-directory space given by [base::tempdir()]. If `NA`, a directory is created in the current working directory given by [base::getwd()]. If character, this is taken to be the output directory; it should of course be writable by the user.
 #' @param valueislearnt Logical or `NULL`: should the `VALUE` returned be the `learnt` object containing the results from the Monte Carlo computation? If `FALSE`, then `VALUE` is the output directory name. If `NULL`, then `VALUE` is `NULL`. Default `TRUE`.
-#' @param nsamples Integer: number of desired Monte Carlo samples. Default 3600.
-#' @param nchains Integer: number of Monte Carlo chains. Default 4.
-#' @param nsamplesperchain Integer: number of Monte Carlo samples per chain.
+#' @param nsamples Integer, default 3600: number of desired Monte Carlo samples. If this argument is changed, the user is also required to explicitly give either `nchains` or `nsamplesperchain`, but not both; the remaining third argument is determined from \eqn{\mathrm{nsamples} = \mathrm{nchains} \times \mathrm{nsamplesperchain}}.
+#' @param nchains Integer, default 8: number of Monte Carlo chains. If this argument is changed, the user is also required to explicitly give either `nsamples` or `nsamplesperchain`, but not both; the remaining third argument is determined from \eqn{\mathrm{nsamples} = \mathrm{nchains} \times \mathrm{nsamplesperchain}}.
+#' @param nsamplesperchain Integer, default 450: number of Monte Carlo samples per chain. If this argument is changed, the user is also required to explicitly give either `nsamples` or `nchains`, but not both; the remaining third argument is determined from \eqn{\mathrm{nsamples} = \mathrm{nchains} \times \mathrm{nsamplesperchain}}.
 #' @param parallel Logical or positive integer or cluster object. `TRUE` (default): use roughly half of available cores; `FALSE` (default): use serial computation; integer: use this many cores. It can also be a cluster object previously created with [parallel::makeCluster()]; in this case the parallel computation will use this object.
 #' @param seed Integer: use this seed for the random number generator. If missing or `NULL` (default), do not set the seed.
 #' @param cleanup Logical: remove diagnostic files at the end of the computation? Default `TRUE`.
@@ -271,7 +271,7 @@ learn <- function(
 ##################################################
 
 #### Consistency checks for numbers of samples, chains, cores
-    ## The defaults are 3600 samples from 60 chains, so 60 samples per chain
+    ## The defaults are 3600 samples from 8 chains, 450 samples per chain
     ## The user can choose any two
     ## nsamples = nchains * nsamplesperchain
 
@@ -304,7 +304,12 @@ learn <- function(
 
 
 #### Requested parallel processing
-    ## NB: doesn't make sense to have more cores than chains
+
+    ## Parallellisation is done in any case,
+    ## so that objects from the Monte Carlo simulation are not left in memory.
+
+    ## Number of cores is reduced if larger than 'nchains':
+    ## doesn't make sense to have more cores than chains
     closeexit <- FALSE
     if ('cluster' %in% class(parallel)){
         ## user provides a cluster object
@@ -338,6 +343,7 @@ learn <- function(
         closecoresonexit <- function(){
             message('Closing connections to cores.')
             parallel::stopCluster(cl)
+            gc(full = TRUE)
             ## parallel::setDefaultCluster(NULL)
         }
         on.exit(closecoresonexit())
@@ -351,9 +357,6 @@ learn <- function(
     } else if (!is.null(thinning)) {
         stop('Invalid "thinning" argument.')
     }
-
-    ## Parallellisation is done in any case,
-    ## so that objects from the Monte Carlo simulation are not left in memory.
 
     ## Make sure 'startupMCiterations' is at least equal to 2
     startupMCiterations <- max(2, startupMCiterations)
@@ -1554,7 +1557,7 @@ nimbleFunction <- sampler_BASE <- extractControlElement <- model <- target <- Nd
         on.exit(closecons())
     }
 
-    usedmem <- sum(gc()[,6])
+    usedmem <- sum(gc(full = TRUE)[,6])
 
     ## Timer
     headertimestart <- Sys.time()
@@ -2666,7 +2669,7 @@ nimbleFunction <- sampler_BASE <- extractControlElement <- model <- target <- Nd
 
     Cfinitemixnimble <- compileNimble(finitemixnimble,
         showCompilerOutput = FALSE)
-    usedmem <- max(usedmem, sum(gc()[,6])) #garbage collection
+    usedmem <- max(usedmem, sum(gc(full = TRUE)[,6])) #garbage collection
 
     confnimble <- configureMCMC(
         Cfinitemixnimble, # nodes = NULL
@@ -2844,7 +2847,8 @@ nimbleFunction <- sampler_BASE <- extractControlElement <- model <- target <- Nd
     nonfinitechains <- 0L
     ## keep count of chains stopped prematurely
     stoppedchains <- 0L
-    usedmem <- max(usedmem, sum(gc()[,6])) #garbage collection
+    usedmem <- max(usedmem, sum(gc(full = TRUE)[,6])) #garbage collection
+
 #### LOOP OVER CHAINS IN CORE
     nchainsperthiscore <- minchainspercore + (acore <= coreswithextrachain)
     ## print2user(paste0('\ncore ',acore,': ',nchainsperthiscore,'\n'), outcon)
@@ -3204,7 +3208,7 @@ nimbleFunction <- sampler_BASE <- extractControlElement <- model <- target <- Nd
                 )
                 allmcsamples <- NULL
             }
-            gc()
+            gc(full = TRUE)
 
             if (remainiter > 0) { # This chain is going to continue
 

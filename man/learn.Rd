@@ -47,11 +47,11 @@ learn(
 
 \item{outputdir}{\code{NULL} or \code{NA} or character: path to folder where output information and diagnostics should be saved. If \code{NULL} (default), a directory is created in the temporary-directory space given by \code{\link[base:tempdir]{base::tempdir()}}. If \code{NA}, a directory is created in the current working directory given by \code{\link[base:getwd]{base::getwd()}}. If character, this is taken to be the output directory; it should of course be writable by the user.}
 
-\item{nsamples}{Integer: number of desired Monte Carlo samples. Default 3600.}
+\item{nsamples}{Integer, default 3600: number of desired Monte Carlo samples. If this argument is changed, the user is also required to explicitly give either \code{nchains} or \code{nsamplesperchain}, but not both; the remaining third argument is determined from \eqn{\mathrm{nsamples} = \mathrm{nchains} \times \mathrm{nsamplesperchain}}.}
 
-\item{nchains}{Integer: number of Monte Carlo chains. Default 4.}
+\item{nchains}{Integer, default 8: number of Monte Carlo chains. If this argument is changed, the user is also required to explicitly give either \code{nsamples} or \code{nsamplesperchain}, but not both; the remaining third argument is determined from \eqn{\mathrm{nsamples} = \mathrm{nchains} \times \mathrm{nsamplesperchain}}.}
 
-\item{nsamplesperchain}{Integer: number of Monte Carlo samples per chain.}
+\item{nsamplesperchain}{Integer, default 450: number of Monte Carlo samples per chain. If this argument is changed, the user is also required to explicitly give either \code{nsamples} or \code{nchains}, but not both; the remaining third argument is determined from \eqn{\mathrm{nsamples} = \mathrm{nchains} \times \mathrm{nsamplesperchain}}.}
 
 \item{parallel}{Logical or positive integer or cluster object. \code{TRUE} (default): use roughly half of available cores; \code{FALSE} (default): use serial computation; integer: use this many cores. It can also be a cluster object previously created with \code{\link[parallel:makeCluster]{parallel::makeCluster()}}; in this case the parallel computation will use this object.}
 
