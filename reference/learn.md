@@ -75,15 +75,27 @@ learn(
 
 - nsamples:
 
-  Integer: number of desired Monte Carlo samples. Default 3600.
+  Integer, default 3600: number of desired Monte Carlo samples. If this
+  argument is changed, the user is also required to explicitly give
+  either `nchains` or `nsamplesperchain`, but not both; the remaining
+  third argument is determined from \\\mathrm{nsamples} =
+  \mathrm{nchains} \times \mathrm{nsamplesperchain}\\.
 
 - nchains:
 
-  Integer: number of Monte Carlo chains. Default 4.
+  Integer, default 8: number of Monte Carlo chains. If this argument is
+  changed, the user is also required to explicitly give either
+  `nsamples` or `nsamplesperchain`, but not both; the remaining third
+  argument is determined from \\\mathrm{nsamples} = \mathrm{nchains}
+  \times \mathrm{nsamplesperchain}\\.
 
 - nsamplesperchain:
 
-  Integer: number of Monte Carlo samples per chain.
+  Integer, default 450: number of Monte Carlo samples per chain. If this
+  argument is changed, the user is also required to explicitly give
+  either `nsamples` or `nchains`, but not both; the remaining third
+  argument is determined from \\\mathrm{nsamples} = \mathrm{nchains}
+  \times \mathrm{nsamplesperchain}\\.
 
 - parallel:
 
@@ -375,7 +387,7 @@ learnt <- learn(
 #> Learning from 3 datapoints, 1 variates.
 #> 
 #>  Saving output in directory
-#>  /tmp/RtmpFV0t74/prova-V1_D3_S10_260626T201521_1a2710d399f0 
+#>  /tmp/RtmpvRzw1K/prova-V1_D3_S10_260627T064147_1a103b048751 
 #> 
 #> Starting Monte Carlo sampling of 10 samples by 1 chains
 #> in a space of 191 (effectively 259) dimensions.
@@ -401,9 +413,9 @@ learnt <- learn(
 #> quantile width: 0.216 to 3.27
 #> 
 #> Plotting final Monte Carlo traces and marginal samples...
-#> Total computation time: 34 secs
-#> Average preparation & finalization time: 33 secs.
-#> Average Monte Carlo time per chain: 0.58 secs.
+#> Total computation time: 36 secs
+#> Average preparation & finalization time: 35 secs.
+#> Average Monte Carlo time per chain: 0.59 secs.
 #> Max total memory used: approx 350MB.
 #> Max memory used per core: approx 350MB.
 #> Removing temporary output files.
@@ -411,7 +423,7 @@ learnt <- learn(
 #> Finished.
 #> **********************************************************
 #>  Output saved in directory
-#> /tmp/RtmpFV0t74/prova-V1_D3_S10_260626T201521_1a2710d399f0
+#> /tmp/RtmpvRzw1K/prova-V1_D3_S10_260627T064147_1a103b048751
 #> **********************************************************
 #> Closing connections to cores.
 
