@@ -212,7 +212,7 @@ learn(
 
 - hyperparams:
 
-  List: hyperparameters of the hyperprior; seee values in "Usage".
+  List: hyperparameters of the hyperprior; see values in "Usage".
 
 ## Value
 
@@ -394,7 +394,7 @@ learnt <- learn(
 #> Learning from 3 datapoints, 1 variates.
 #> 
 #>  Saving output in directory
-#>  /tmp/RtmpTo5YzJ/prova-V1_D3_S10_260627T125412_1a376fd923a 
+#>  /tmp/RtmpDQtnf5/prova-V1_D3_S10_260627T125721_1a194dc3ae17 
 #> 
 #> Starting Monte Carlo sampling of 10 samples by 1 chains
 #> in a space of 191 (effectively 259) dimensions.
@@ -420,18 +420,18 @@ learnt <- learn(
 #> quantile width: 0.216 to 3.27
 #> 
 #> Plotting final Monte Carlo traces and marginal samples...
-#> Total computation time: 36 secs
-#> Average preparation & finalization time: 35 secs.
+#> Total computation time: 35 secs
+#> Average preparation & finalization time: 33 secs.
 #> Average Monte Carlo time per chain: 0.56 secs.
 #> Max total memory used: approx 350MB.
 #> Max memory used per core: approx 350MB.
 #> Removing temporary output files.
 #> 
 #> Finished.
-#> *********************************************************
+#> **********************************************************
 #>  Output saved in directory
-#> /tmp/RtmpTo5YzJ/prova-V1_D3_S10_260627T125412_1a376fd923a
-#> *********************************************************
+#> /tmp/RtmpDQtnf5/prova-V1_D3_S10_260627T125721_1a194dc3ae17
+#> **********************************************************
 #> Closing connections to cores.
 
 ## Check structure of `learnt` object:
