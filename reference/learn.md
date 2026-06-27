@@ -59,8 +59,8 @@ learn(
 - auxdata:
 
   A larger dataset, given as a data frame or as a file path to a CSV
-  file. Such a dataset would be too many to use in the Monte Carlo
-  sampling, but can be used to calculate hyperparameters.
+  file. Such a dataset would be too large to use in the Monte Carlo
+  sampling, but can still be used to help estimate some hyperparameters.
 
 - outputdir:
 
@@ -75,11 +75,12 @@ learn(
 
 - nsamples:
 
-  Integer, default 3600: number of desired Monte Carlo samples. If this
-  argument is changed, the user is also required to explicitly give
-  either `nchains` or `nsamplesperchain`, but not both; the remaining
-  third argument is determined from \\\mathrm{nsamples} =
-  \mathrm{nchains} \times \mathrm{nsamplesperchain}\\.
+  Integer, default 3600: number of desired, *approximately independent*
+  Monte Carlo samples. If this argument is changed, the user is also
+  required to explicitly give either `nchains` or `nsamplesperchain`,
+  but not both; the remaining third argument is determined from
+  \\\mathrm{nsamples} = \mathrm{nchains} \times
+  \mathrm{nsamplesperchain}\\.
 
 - nchains:
 
@@ -91,11 +92,12 @@ learn(
 
 - nsamplesperchain:
 
-  Integer, default 450: number of Monte Carlo samples per chain. If this
-  argument is changed, the user is also required to explicitly give
-  either `nsamples` or `nchains`, but not both; the remaining third
-  argument is determined from \\\mathrm{nsamples} = \mathrm{nchains}
-  \times \mathrm{nsamplesperchain}\\.
+  Integer, default 450: number of *approximately independent* Monte
+  Carlo samples per chain. If this argument is changed, the user is also
+  required to explicitly give either `nsamples` or `nchains`, but not
+  both; the remaining third argument is determined from
+  \\\mathrm{nsamples} = \mathrm{nchains} \times
+  \mathrm{nsamplesperchain}\\.
 
 - parallel:
 
@@ -387,7 +389,7 @@ learnt <- learn(
 #> Learning from 3 datapoints, 1 variates.
 #> 
 #>  Saving output in directory
-#>  /tmp/RtmpvRzw1K/prova-V1_D3_S10_260627T064147_1a103b048751 
+#>  /tmp/Rtmpe5Vg3Z/prova-V1_D3_S10_260627T074855_1a18341d4577 
 #> 
 #> Starting Monte Carlo sampling of 10 samples by 1 chains
 #> in a space of 191 (effectively 259) dimensions.
@@ -413,9 +415,9 @@ learnt <- learn(
 #> quantile width: 0.216 to 3.27
 #> 
 #> Plotting final Monte Carlo traces and marginal samples...
-#> Total computation time: 36 secs
-#> Average preparation & finalization time: 35 secs.
-#> Average Monte Carlo time per chain: 0.59 secs.
+#> Total computation time: 35 secs
+#> Average preparation & finalization time: 34 secs.
+#> Average Monte Carlo time per chain: 0.61 secs.
 #> Max total memory used: approx 350MB.
 #> Max memory used per core: approx 350MB.
 #> Removing temporary output files.
@@ -423,7 +425,7 @@ learnt <- learn(
 #> Finished.
 #> **********************************************************
 #>  Output saved in directory
-#> /tmp/RtmpvRzw1K/prova-V1_D3_S10_260627T064147_1a103b048751
+#> /tmp/Rtmpe5Vg3Z/prova-V1_D3_S10_260627T074855_1a18341d4577
 #> **********************************************************
 #> Closing connections to cores.
 

@@ -98,7 +98,7 @@
 
 
 <dt id="arg-auxdata">auxdata<a class="anchor" aria-label="anchor" href="#arg-auxdata"></a></dt>
-<dd><p>A larger dataset, given as a data frame or as a file path to a CSV file. Such a dataset would be too many to use in the Monte Carlo sampling, but can be used to calculate hyperparameters.</p></dd>
+<dd><p>A larger dataset, given as a data frame or as a file path to a CSV file. Such a dataset would be too large to use in the Monte Carlo sampling, but can still be used to help estimate some hyperparameters.</p></dd>
 
 
 <dt id="arg-outputdir">outputdir<a class="anchor" aria-label="anchor" href="#arg-outputdir"></a></dt>
@@ -106,7 +106,7 @@
 
 
 <dt id="arg-nsamples">nsamples<a class="anchor" aria-label="anchor" href="#arg-nsamples"></a></dt>
-<dd><p>Integer, default 3600: number of desired Monte Carlo samples. If this argument is changed, the user is also required to explicitly give either <code>nchains</code> or <code>nsamplesperchain</code>, but not both; the remaining third argument is determined from \(\mathrm{nsamples} = \mathrm{nchains} \times \mathrm{nsamplesperchain}\).</p></dd>
+<dd><p>Integer, default 3600: number of desired, <em>approximately independent</em> Monte Carlo samples. If this argument is changed, the user is also required to explicitly give either <code>nchains</code> or <code>nsamplesperchain</code>, but not both; the remaining third argument is determined from \(\mathrm{nsamples} = \mathrm{nchains} \times \mathrm{nsamplesperchain}\).</p></dd>
 
 
 <dt id="arg-nchains">nchains<a class="anchor" aria-label="anchor" href="#arg-nchains"></a></dt>
@@ -114,7 +114,7 @@
 
 
 <dt id="arg-nsamplesperchain">nsamplesperchain<a class="anchor" aria-label="anchor" href="#arg-nsamplesperchain"></a></dt>
-<dd><p>Integer, default 450: number of Monte Carlo samples per chain. If this argument is changed, the user is also required to explicitly give either <code>nsamples</code> or <code>nchains</code>, but not both; the remaining third argument is determined from \(\mathrm{nsamples} = \mathrm{nchains} \times \mathrm{nsamplesperchain}\).</p></dd>
+<dd><p>Integer, default 450: number of <em>approximately independent</em> Monte Carlo samples per chain. If this argument is changed, the user is also required to explicitly give either <code>nsamples</code> or <code>nchains</code>, but not both; the remaining third argument is determined from \(\mathrm{nsamples} = \mathrm{nchains} \times \mathrm{nsamplesperchain}\).</p></dd>
 
 
 <dt id="arg-parallel">parallel<a class="anchor" aria-label="anchor" href="#arg-parallel"></a></dt>
@@ -269,7 +269,7 @@ About nonparametrics:</p></li>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Learning from 3 datapoints, 1 variates.</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>  Saving output in directory</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  /tmp/RtmpvRzw1K/prova-V1_D3_S10_260627T064147_1a103b048751 </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  /tmp/Rtmpe5Vg3Z/prova-V1_D3_S10_260627T074855_1a18341d4577 </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Starting Monte Carlo sampling of 10 samples by 1 chains</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> in a space of 191 (effectively 259) dimensions.</span>
@@ -295,9 +295,9 @@ About nonparametrics:</p></li>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> quantile width: 0.216 to 3.27</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Plotting final Monte Carlo traces and marginal samples...</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> Total computation time: 36 secs</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> Average preparation &amp; finalization time: 35 secs.</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> Average Monte Carlo time per chain: 0.59 secs.</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Total computation time: 35 secs</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Average preparation &amp; finalization time: 34 secs.</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Average Monte Carlo time per chain: 0.61 secs.</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Max total memory used: approx 350MB.</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Max memory used per core: approx 350MB.</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Removing temporary output files.</span>
@@ -305,7 +305,7 @@ About nonparametrics:</p></li>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Finished.</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> **********************************************************</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span>  Output saved in directory</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> /tmp/RtmpvRzw1K/prova-V1_D3_S10_260627T064147_1a103b048751</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> /tmp/Rtmpe5Vg3Z/prova-V1_D3_S10_260627T074855_1a18341d4577</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> **********************************************************</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Closing connections to cores.</span>
 <span class="r-in"><span></span></span>
