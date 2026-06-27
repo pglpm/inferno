@@ -90,7 +90,7 @@
 
 
 <dl><dt id="arg-data">data<a class="anchor" aria-label="anchor" href="#arg-data"></a></dt>
-<dd><p>A dataset, given as a <code><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">base::data.frame()</a></code> or as a file path to a CSV file.</p></dd>
+<dd><p>A dataset, given as a <code><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">base::data.frame()</a></code> or as a file path to a CSV file. If missing or <code>NULL</code>, then the prior probability distribution is calculated.</p></dd>
 
 
 <dt id="arg-metadata">metadata<a class="anchor" aria-label="anchor" href="#arg-metadata"></a></dt>
@@ -102,7 +102,7 @@
 
 
 <dt id="arg-outputdir">outputdir<a class="anchor" aria-label="anchor" href="#arg-outputdir"></a></dt>
-<dd><p><code>NULL</code> or <code>NA</code> or character: path to folder where output information and diagnostics should be saved. If <code>NULL</code> (default), a directory is created in the temporary-directory space given by <code><a href="https://rdrr.io/r/base/tempfile.html" class="external-link">base::tempdir()</a></code>. If <code>NA</code>, a directory is created in the current working directory given by <code><a href="https://rdrr.io/r/base/getwd.html" class="external-link">base::getwd()</a></code>. If character, this is taken to be the output directory; it should of course be writable by the user.</p></dd>
+<dd><p><code>NULL</code> (default) or <code>NA</code> or character: path to folder where output information and diagnostics should be saved. If <code>NULL</code>, a directory is created in the temporary-directory space given by <code><a href="https://rdrr.io/r/base/tempfile.html" class="external-link">base::tempdir()</a></code>. If <code>NA</code>, a directory is created in the current working directory given by <code><a href="https://rdrr.io/r/base/getwd.html" class="external-link">base::getwd()</a></code>. If character, this is taken to be the output directory; it should of course be writable by the user.</p></dd>
 
 
 <dt id="arg-nsamples">nsamples<a class="anchor" aria-label="anchor" href="#arg-nsamples"></a></dt>
@@ -122,84 +122,84 @@
 
 
 <dt id="arg-seed">seed<a class="anchor" aria-label="anchor" href="#arg-seed"></a></dt>
-<dd><p>Integer: use this seed for the random number generator. If missing or <code>NULL</code> (default), do not set the seed.</p></dd>
+<dd><p>Integer or <code>NULL</code> (default): use this seed for the random number generator. If <code>NULL</code>, do not set the seed.</p></dd>
 
 
 <dt id="arg-cleanup">cleanup<a class="anchor" aria-label="anchor" href="#arg-cleanup"></a></dt>
-<dd><p>Logical: remove diagnostic files at the end of the computation? Default <code>TRUE</code>.</p></dd>
+<dd><p>Logical, default <code>TRUE</code>: remove diagnostic files at the end of the computation?</p></dd>
 
 
 <dt id="arg-appendinfo">appendinfo<a class="anchor" aria-label="anchor" href="#arg-appendinfo"></a></dt>
-<dd><p>Logical: append information about number of variates ('V'), number of data points ('D'), number of Monte Carlo samples ('S'), and timestamp, to the name of the output directory <code>outputdir</code>? The appended string has the format 'Vn_Dn_Sn_YYMMDDTHHMMSS'. Default <code>TRUE</code>.</p></dd>
+<dd><p>Logical, default <code>TRUE</code>: append information about number of variates ('V'), number of data points ('D'), number of Monte Carlo samples ('S'), and timestamp, to the name of the output directory <code>outputdir</code>? The appended string has the format 'Vn_Dn_Sn_YYMMDDTHHMMSS'.</p></dd>
 
 
 <dt id="arg-valueislearnt">valueislearnt<a class="anchor" aria-label="anchor" href="#arg-valueislearnt"></a></dt>
-<dd><p>Logical or <code>NULL</code>: should the <code>VALUE</code> returned be the <code>learnt</code> object containing the results from the Monte Carlo computation? If <code>FALSE</code>, then <code>VALUE</code> is the output directory name. If <code>NULL</code>, then <code>VALUE</code> is <code>NULL</code>. Default <code>TRUE</code>.</p></dd>
+<dd><p>Logical or <code>NULL</code>: should the <code>VALUE</code> returned be the <code>learnt</code> object containing the results from the Monte Carlo computation? Default <code>TRUE</code>. If <code>FALSE</code>, then <code>VALUE</code> is the output directory name. If <code>NULL</code>, then <code>VALUE</code> is <code>NULL</code>.</p></dd>
 
 
 <dt id="arg-subsampledata">subsampledata<a class="anchor" aria-label="anchor" href="#arg-subsampledata"></a></dt>
-<dd><p>Integer: use only a subset of this many datapoints for the Monte Carlo computation.</p></dd>
+<dd><p>Integer or <code>NULL</code> (default): if integer, use only that many datapoints from the original dataset in the <code>data</code> argument.</p></dd>
 
 
 <dt id="arg-prior">prior<a class="anchor" aria-label="anchor" href="#arg-prior"></a></dt>
-<dd><p>Logical: Calculate the prior distribution?</p></dd>
+<dd><p>Logical: Calculate the prior distribution? Default is <code>FALSE</code> unless <code>data</code> argument is missing or <code>NULL</code>.</p></dd>
 
 
 <dt id="arg-startupmciterations">startupMCiterations<a class="anchor" aria-label="anchor" href="#arg-startupmciterations"></a></dt>
-<dd><p>Integer: number of initial Monte Carlo iterations. Default 3600.</p></dd>
+<dd><p>Integer, default 3600: number of initial Monte Carlo iterations.</p></dd>
 
 
 <dt id="arg-minmciterations">minMCiterations<a class="anchor" aria-label="anchor" href="#arg-minmciterations"></a></dt>
-<dd><p>Integer: minimum number of Monte Carlo iterations to be doneby a chain. Default 0.</p></dd>
+<dd><p>Integer, default 0: minimum number of Monte Carlo iterations to be doneby a chain.</p></dd>
 
 
 <dt id="arg-maxmciterations">maxMCiterations<a class="anchor" aria-label="anchor" href="#arg-maxmciterations"></a></dt>
-<dd><p>Integer: Do at most this many Monte Carlo iterations per chain. Default <code>Inf</code>.</p></dd>
+<dd><p>Integer, default <code>Inf</code>: Do at most this many Monte Carlo iterations per chain.</p></dd>
 
 
 <dt id="arg-maxhours">maxhours<a class="anchor" aria-label="anchor" href="#arg-maxhours"></a></dt>
-<dd><p>Numeric: approximate time limit, in hours, for the Monte Carlo computation to last. Default <code>Inf</code>.</p></dd>
+<dd><p>Numeric, default <code>Inf</code>: approximate time limit, in hours, for the Monte Carlo computation to last.</p></dd>
 
 
 <dt id="arg-ncheckpoints">ncheckpoints<a class="anchor" aria-label="anchor" href="#arg-ncheckpoints"></a></dt>
-<dd><p>Integer: number of datapoints to use for checking when the Monte Carlo computation should end. If <code>NULL</code>, this is equal to number of variates + 2. If Inf, use all datapoints. Default 12.</p></dd>
+<dd><p>Integer or <code>NULL</code>, default 12: number of datapoints (per chain) to use for checking when the Monte Carlo computation should end. If <code>NULL</code>, this is equal to number of variates + 2. If Inf, use all datapoints.</p></dd>
 
 
 <dt id="arg-maxrelmcse">maxrelMCSE<a class="anchor" aria-label="anchor" href="#arg-maxrelmcse"></a></dt>
-<dd><p>Numeric positive: desired maximal <em>relative Monte Carlo Standard Error</em> of calculated probabilities with respect to their variability with new data. Default <code>+Inf</code>, so that <code>minESS</code> is used instead. <code>maxrelMCSE</code> is related to <code>minESS</code> by \(\mathrm{maxrelMCSE} = 1/\sqrt{\mathrm{minESS} + \mathrm{initES}}\).</p></dd>
+<dd><p>Numeric positive, default <code>+Inf</code>: desired maximal <em>relative Monte Carlo Standard Error</em> of calculated probabilities with respect to their variability with new data. The default <code>+Inf</code> means that <code>minESS</code> is used instead. <code>maxrelMCSE</code> is related to <code>minESS</code> by \(\mathrm{maxrelMCSE} = 1/\sqrt{\mathrm{minESS} + \mathrm{initES}}\).</p></dd>
 
 
 <dt id="arg-miness">minESS<a class="anchor" aria-label="anchor" href="#arg-miness"></a></dt>
-<dd><p>Numeric positive or <code>NULL': desired minimal Monte Carlo *Expected Sample Size*. Default 450. If </code>NULL<code>, it is equal to the final </code>nsamplesperchain<code>. </code>minESS<code>is related to</code>maxrelMCSE` by \(\mathrm{minESS} = 1/\mathrm{maxrelMCSE}^2 - \mathrm{initES}\).</p></dd>
+<dd><p>Numeric positive or <code>NULL', default 450: desired minimal Monte Carlo *Expected Sample Size*. If </code>NULL<code>, it is equal to the final </code>nsamplesperchain<code>. </code>minESS<code>is related to</code>maxrelMCSE` by \(\mathrm{minESS} = 1/\mathrm{maxrelMCSE}^2 - \mathrm{initES}\).</p></dd>
 
 
 <dt id="arg-inites">initES<a class="anchor" aria-label="anchor" href="#arg-inites"></a></dt>
-<dd><p>Numeric positive: number of initial samples, separated by the Expected Sample Size, to discard.</p></dd>
+<dd><p>Numeric positive, default 2: number of initial "burn-in" samples, separated by the Expected Sample Size, to be discarded. Note that the Monte Carlo chain typically starts in a high-probability region, so there is no reason to discard many initial samples.</p></dd>
 
 
 <dt id="arg-thinning">thinning<a class="anchor" aria-label="anchor" href="#arg-thinning"></a></dt>
-<dd><p>Integer: thin out the Monte Carlo samples by this value. If <code>NULL</code> (default): let the diagnostics decide the thinning value.</p></dd>
+<dd><p>Integer or <code>NULL</code> (default): thin out the Monte Carlo samples by this value. If <code>NULL</code>: let the diagnostics decide the thinning value.</p></dd>
 
 
 <dt id="arg-plottraces">plottraces<a class="anchor" aria-label="anchor" href="#arg-plottraces"></a></dt>
-<dd><p>Logical: save plots of the Monte Carlo traces of diagnostic values? Default <code>TRUE</code>.</p></dd>
+<dd><p>Logical, default <code>TRUE</code>: save plots of the Monte Carlo traces of diagnostic values?</p></dd>
 
 
 <dt id="arg-showktraces">showKtraces<a class="anchor" aria-label="anchor" href="#arg-showktraces"></a></dt>
-<dd><p>Logical: save plots of the Monte Carlo traces of the K parameter? Default <code>FALSE</code>.</p></dd>
+<dd><p>Logical, default <code>FALSE</code>: save plots of the Monte Carlo traces of the K parameter?</p></dd>
 
 
 <dt id="arg-showalphatraces">showAlphatraces<a class="anchor" aria-label="anchor" href="#arg-showalphatraces"></a></dt>
-<dd><p>Logical: save plots of the Monte Carlo traces of the Alpha parameter? Default <code>FALSE</code>.</p></dd>
+<dd><p>Logical, default <code>FALSE</code>: save plots of the Monte Carlo traces of the Alpha parameter?</p></dd>
 
 
 <dt id="arg-hyperparams">hyperparams<a class="anchor" aria-label="anchor" href="#arg-hyperparams"></a></dt>
-<dd><p>List: hyperparameters of the prior.</p></dd>
+<dd><p>List: hyperparameters of the hyperprior; seee values in "Usage".</p></dd>
 
 </dl></div>
     <div class="section level2">
     <h2 id="value">Value<a class="anchor" aria-label="anchor" href="#value"></a></h2>
-    <p>A "learnt" object, or name of directory containing output files, or <code>NULL</code>, depending on argument <code>valueislearnt</code>.</p>
+    <p>A "learnt" object, or name of directory containing such an object and other output files, or <code>NULL</code>, depending on argument <code>valueislearnt</code>.</p>
 <p><code>learn()</code> saves several files in a directory. By default this output directory is a temporary directory within the one used by <code><a href="https://rdrr.io/r/base/tempfile.html" class="external-link">base::tempdir()</a></code>, but an alternative one can be chosen with the argument <code>outputdir =</code>. The output directory contain several diagnostic files for the Monte Carlo computation; in particular:</p><ul><li><p><code>MCtraces.pdf</code>: shows several trace plots of the Monte Carlo sampling; the correspondin data are in the file <code>MCtraces.rds</code>.</p></li>
 <li><p><code>plotsamples_learnt.pdf</code>, <code>plotquantiles_learnt.pdf</code>: show the marginal posterior distributions of each individual variate, together with their variability (as samples or quantiles).</p></li>
 <li><p><code>log-1.log</code>, <code>log-2.log</code>, ... one for each parallel core; report the progress of each parallel Monte Carlo computation and notes about it.</p></li>
@@ -212,7 +212,7 @@
     <p>This function takes as main inputs a set of data and metadata, and computes the full joint probability distribution for new data, including its variability; see <code><a href="Pr.html">Pr()</a></code>. This computation can also be interpreted as an estimation of the full joint frequency distribution of the variates in the <em>whole population</em>, beyond the sample data, together with its uncertainty.</p>
 <p>The computation is "non-parametric": probability or frequency distributions are not assumed to be Gaussian or of any other specific shape; no "model" is assumed. The mathematical representation of the space of joint frequency distributions follows Dunson &amp; Bhattacharya (2011).</p>
 <p>The computation is done via Markov-chain Monte Carlo, using the package <a href="https://cran.r-project.org/package=nimble" class="external-link"><strong>Nimble</strong></a>. "Convergence" of the Monte Carlo computation is assessed with methods described in Vehtari &amp; al. (2021) and Kwon &amp; al. (2025).</p>
-<p>The default values for convergence require that all these three conditions be fulilled:</p><ul><li><p>The computation's numerical error (Monte-Carlo Standard Error) for the posterior probability must be smaller than 4.7% of the standard deviation of the posterior's variability.</p></li>
+<p>The default values for convergence require that all of the following three conditions be fulilled:</p><ul><li><p>The computation's numerical error (Monte-Carlo Standard Error) for the posterior probability must be smaller than 4.7% of the standard deviation of the posterior's variability.</p></li>
 <li><p>The computation's numerical error for the 0.055- and 0.945-percentiles of the posterior's variability should be smaller than 4.7% of the distance between them.</p></li>
 </ul><p>Typically this requirement leads to final results obtained with the <code><a href="Pr.html">Pr()</a></code> function having at least two significant digits.</p>
 <p>This function creates a "learnt" object, typically saved in a <code>learnt.rds</code> file, which is used in all subsequent probabilistic computations. Other information about the computation is provided in logs and plots, saved in a directory specified by the user.</p>
@@ -269,7 +269,7 @@ About nonparametrics:</p></li>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Learning from 3 datapoints, 1 variates.</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>  Saving output in directory</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  /tmp/Rtmpe5Vg3Z/prova-V1_D3_S10_260627T074855_1a18341d4577 </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  /tmp/RtmpO6F7Vd/prova-V1_D3_S10_260627T124504_1aa63d78b9e9 </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Starting Monte Carlo sampling of 10 samples by 1 chains</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> in a space of 191 (effectively 259) dimensions.</span>
@@ -295,9 +295,9 @@ About nonparametrics:</p></li>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> quantile width: 0.216 to 3.27</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Plotting final Monte Carlo traces and marginal samples...</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> Total computation time: 35 secs</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> Average preparation &amp; finalization time: 34 secs.</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> Average Monte Carlo time per chain: 0.61 secs.</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Total computation time: 36 secs</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Average preparation &amp; finalization time: 35 secs.</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Average Monte Carlo time per chain: 0.55 secs.</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Max total memory used: approx 350MB.</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Max memory used per core: approx 350MB.</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Removing temporary output files.</span>
@@ -305,7 +305,7 @@ About nonparametrics:</p></li>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Finished.</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> **********************************************************</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span>  Output saved in directory</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> /tmp/Rtmpe5Vg3Z/prova-V1_D3_S10_260627T074855_1a18341d4577</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> /tmp/RtmpO6F7Vd/prova-V1_D3_S10_260627T124504_1aa63d78b9e9</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> **********************************************************</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Closing connections to cores.</span>
 <span class="r-in"><span></span></span>

@@ -48,7 +48,8 @@ learn(
 
   A dataset, given as a
   [`base::data.frame()`](https://rdrr.io/r/base/data.frame.html) or as a
-  file path to a CSV file.
+  file path to a CSV file. If missing or `NULL`, then the prior
+  probability distribution is calculated.
 
 - metadata:
 
@@ -64,8 +65,8 @@ learn(
 
 - outputdir:
 
-  `NULL` or `NA` or character: path to folder where output information
-  and diagnostics should be saved. If `NULL` (default), a directory is
+  `NULL` (default) or `NA` or character: path to folder where output
+  information and diagnostics should be saved. If `NULL`, a directory is
   created in the temporary-directory space given by
   [`base::tempdir()`](https://rdrr.io/r/base/tempfile.html). If `NA`, a
   directory is created in the current working directory given by
@@ -110,109 +111,112 @@ learn(
 
 - seed:
 
-  Integer: use this seed for the random number generator. If missing or
-  `NULL` (default), do not set the seed.
+  Integer or `NULL` (default): use this seed for the random number
+  generator. If `NULL`, do not set the seed.
 
 - cleanup:
 
-  Logical: remove diagnostic files at the end of the computation?
-  Default `TRUE`.
+  Logical, default `TRUE`: remove diagnostic files at the end of the
+  computation?
 
 - appendinfo:
 
-  Logical: append information about number of variates ('V'), number of
-  data points ('D'), number of Monte Carlo samples ('S'), and timestamp,
-  to the name of the output directory `outputdir`? The appended string
-  has the format 'Vn_Dn_Sn_YYMMDDTHHMMSS'. Default `TRUE`.
+  Logical, default `TRUE`: append information about number of variates
+  ('V'), number of data points ('D'), number of Monte Carlo samples
+  ('S'), and timestamp, to the name of the output directory `outputdir`?
+  The appended string has the format 'Vn_Dn_Sn_YYMMDDTHHMMSS'.
 
 - valueislearnt:
 
   Logical or `NULL`: should the `VALUE` returned be the `learnt` object
-  containing the results from the Monte Carlo computation? If `FALSE`,
-  then `VALUE` is the output directory name. If `NULL`, then `VALUE` is
-  `NULL`. Default `TRUE`.
+  containing the results from the Monte Carlo computation? Default
+  `TRUE`. If `FALSE`, then `VALUE` is the output directory name. If
+  `NULL`, then `VALUE` is `NULL`.
 
 - subsampledata:
 
-  Integer: use only a subset of this many datapoints for the Monte Carlo
-  computation.
+  Integer or `NULL` (default): if integer, use only that many datapoints
+  from the original dataset in the `data` argument.
 
 - prior:
 
-  Logical: Calculate the prior distribution?
+  Logical: Calculate the prior distribution? Default is `FALSE` unless
+  `data` argument is missing or `NULL`.
 
 - startupMCiterations:
 
-  Integer: number of initial Monte Carlo iterations. Default 3600.
+  Integer, default 3600: number of initial Monte Carlo iterations.
 
 - minMCiterations:
 
-  Integer: minimum number of Monte Carlo iterations to be doneby a
-  chain. Default 0.
+  Integer, default 0: minimum number of Monte Carlo iterations to be
+  doneby a chain.
 
 - maxMCiterations:
 
-  Integer: Do at most this many Monte Carlo iterations per chain.
-  Default `Inf`.
+  Integer, default `Inf`: Do at most this many Monte Carlo iterations
+  per chain.
 
 - maxhours:
 
-  Numeric: approximate time limit, in hours, for the Monte Carlo
-  computation to last. Default `Inf`.
+  Numeric, default `Inf`: approximate time limit, in hours, for the
+  Monte Carlo computation to last.
 
 - ncheckpoints:
 
-  Integer: number of datapoints to use for checking when the Monte Carlo
-  computation should end. If `NULL`, this is equal to number of
-  variates + 2. If Inf, use all datapoints. Default 12.
+  Integer or `NULL`, default 12: number of datapoints (per chain) to use
+  for checking when the Monte Carlo computation should end. If `NULL`,
+  this is equal to number of variates + 2. If Inf, use all datapoints.
 
 - maxrelMCSE:
 
-  Numeric positive: desired maximal *relative Monte Carlo Standard
-  Error* of calculated probabilities with respect to their variability
-  with new data. Default `+Inf`, so that `minESS` is used instead.
-  `maxrelMCSE` is related to `minESS` by \\\mathrm{maxrelMCSE} =
-  1/\sqrt{\mathrm{minESS} + \mathrm{initES}}\\.
+  Numeric positive, default `+Inf`: desired maximal *relative Monte
+  Carlo Standard Error* of calculated probabilities with respect to
+  their variability with new data. The default `+Inf` means that
+  `minESS` is used instead. `maxrelMCSE` is related to `minESS` by
+  \\\mathrm{maxrelMCSE} = 1/\sqrt{\mathrm{minESS} + \mathrm{initES}}\\.
 
 - minESS:
 
   Numeric positive or
-  `NULL': desired minimal Monte Carlo *Expected Sample Size*. Default 450. If `NULL`, it is equal to the final `nsamplesperchain`. `minESS`is related to`maxrelMCSE\`
+  `NULL', default 450: desired minimal Monte Carlo *Expected Sample Size*. If `NULL`, it is equal to the final `nsamplesperchain`. `minESS`is related to`maxrelMCSE\`
   by \\\mathrm{minESS} = 1/\mathrm{maxrelMCSE}^2 - \mathrm{initES}\\.
 
 - initES:
 
-  Numeric positive: number of initial samples, separated by the Expected
-  Sample Size, to discard.
+  Numeric positive, default 2: number of initial "burn-in" samples,
+  separated by the Expected Sample Size, to be discarded. Note that the
+  Monte Carlo chain typically starts in a high-probability region, so
+  there is no reason to discard many initial samples.
 
 - thinning:
 
-  Integer: thin out the Monte Carlo samples by this value. If `NULL`
-  (default): let the diagnostics decide the thinning value.
+  Integer or `NULL` (default): thin out the Monte Carlo samples by this
+  value. If `NULL`: let the diagnostics decide the thinning value.
 
 - plottraces:
 
-  Logical: save plots of the Monte Carlo traces of diagnostic values?
-  Default `TRUE`.
+  Logical, default `TRUE`: save plots of the Monte Carlo traces of
+  diagnostic values?
 
 - showKtraces:
 
-  Logical: save plots of the Monte Carlo traces of the K parameter?
-  Default `FALSE`.
+  Logical, default `FALSE`: save plots of the Monte Carlo traces of the
+  K parameter?
 
 - showAlphatraces:
 
-  Logical: save plots of the Monte Carlo traces of the Alpha parameter?
-  Default `FALSE`.
+  Logical, default `FALSE`: save plots of the Monte Carlo traces of the
+  Alpha parameter?
 
 - hyperparams:
 
-  List: hyperparameters of the prior.
+  List: hyperparameters of the hyperprior; seee values in "Usage".
 
 ## Value
 
-A "learnt" object, or name of directory containing output files, or
-`NULL`, depending on argument `valueislearnt`.
+A "learnt" object, or name of directory containing such an object and
+other output files, or `NULL`, depending on argument `valueislearnt`.
 
 `learn()` saves several files in a directory. By default this output
 directory is a temporary directory within the one used by
@@ -264,8 +268,8 @@ The computation is done via Markov-chain Monte Carlo, using the package
 of the Monte Carlo computation is assessed with methods described in
 Vehtari & al. (2021) and Kwon & al. (2025).
 
-The default values for convergence require that all these three
-conditions be fulilled:
+The default values for convergence require that all of the following
+three conditions be fulilled:
 
 - The computation's numerical error (Monte-Carlo Standard Error) for the
   posterior probability must be smaller than 4.7% of the standard
@@ -389,7 +393,7 @@ learnt <- learn(
 #> Learning from 3 datapoints, 1 variates.
 #> 
 #>  Saving output in directory
-#>  /tmp/Rtmpe5Vg3Z/prova-V1_D3_S10_260627T074855_1a18341d4577 
+#>  /tmp/RtmpO6F7Vd/prova-V1_D3_S10_260627T124504_1aa63d78b9e9 
 #> 
 #> Starting Monte Carlo sampling of 10 samples by 1 chains
 #> in a space of 191 (effectively 259) dimensions.
@@ -415,9 +419,9 @@ learnt <- learn(
 #> quantile width: 0.216 to 3.27
 #> 
 #> Plotting final Monte Carlo traces and marginal samples...
-#> Total computation time: 35 secs
-#> Average preparation & finalization time: 34 secs.
-#> Average Monte Carlo time per chain: 0.61 secs.
+#> Total computation time: 36 secs
+#> Average preparation & finalization time: 35 secs.
+#> Average Monte Carlo time per chain: 0.55 secs.
 #> Max total memory used: approx 350MB.
 #> Max memory used per core: approx 350MB.
 #> Removing temporary output files.
@@ -425,7 +429,7 @@ learnt <- learn(
 #> Finished.
 #> **********************************************************
 #>  Output saved in directory
-#> /tmp/Rtmpe5Vg3Z/prova-V1_D3_S10_260627T074855_1a18341d4577
+#> /tmp/RtmpO6F7Vd/prova-V1_D3_S10_260627T124504_1aa63d78b9e9
 #> **********************************************************
 #> Closing connections to cores.
 
