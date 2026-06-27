@@ -79,7 +79,7 @@ learn(
 
 \item{maxrelMCSE}{Numeric positive, default \code{+Inf}: desired maximal \emph{relative Monte Carlo Standard Error} of calculated probabilities with respect to their variability with new data. The default \code{+Inf} means that \code{minESS} is used instead. \code{maxrelMCSE} is related to \code{minESS} by \eqn{\mathrm{maxrelMCSE} = 1/\sqrt{\mathrm{minESS} + \mathrm{initES}}}.}
 
-\item{minESS}{Numeric positive or \verb{NULL', default 450: desired minimal Monte Carlo *Expected Sample Size*. If }NULL\verb{, it is equal to the final }nsamplesperchain\code{. }minESS\verb{is related to}maxrelMCSE` by \eqn{\mathrm{minESS} = 1/\mathrm{maxrelMCSE}^2 - \mathrm{initES}}.}
+\item{minESS}{Numeric positive or \code{NULL}, default 450: desired minimal Monte Carlo \emph{Expected Sample Size}. If \code{NULL}, it is equal to the final \code{nsamplesperchain}. \code{minESS} is related to \code{maxrelMCSE} by \eqn{\mathrm{minESS} = 1/\mathrm{maxrelMCSE}^2 - \mathrm{initES}}.}
 
 \item{initES}{Numeric positive, default 2: number of initial "burn-in" samples, separated by the Expected Sample Size, to be discarded. Note that the Monte Carlo chain typically starts in a high-probability region, so there is no reason to discard many initial samples.}
 
