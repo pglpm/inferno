@@ -10,7 +10,7 @@
 #'
 #' The computation is done via Markov-chain Monte Carlo, using the package [**Nimble**](https://cran.r-project.org/package=nimble). "Convergence" of the Monte Carlo computation is assessed with methods described in Vehtari & al. (2021) and Kwon & al. (2025).
 #'
-#' The default values for convergence require that all these three conditions be fulilled:
+#' The default values for convergence require that all of the following three conditions be fulilled:
 #'
 #' - The computation's numerical error (Monte-Carlo Standard Error) for the posterior probability must be smaller than 4.7% of the standard deviation of the posterior's variability.
 #'  - The computation's numerical error for the 0.055- and 0.945-percentiles of the posterior's variability should be smaller than 4.7% of the distance between them.
@@ -21,35 +21,35 @@
 #'
 #' See `vignette('intro')` for an introductory example.
 #'
-#' @param data A dataset, given as a [base::data.frame()] or as a file path to a CSV file.
+#' @param data A dataset, given as a [base::data.frame()] or as a file path to a CSV file. If missing or `NULL`, then the prior probability distribution is calculated.
 #' @param metadata [metadata] about the dataset's variates, given either as a data frame or as a file path to a CSV file.
 #' @param auxdata A larger dataset, given as a data frame or as a file path to a CSV file. Such a dataset would be too large to use in the Monte Carlo sampling, but can still be used to help estimate some hyperparameters.
-#' @param outputdir `NULL` or `NA` or character: path to folder where output information and diagnostics should be saved. If `NULL` (default), a directory is created in the temporary-directory space given by [base::tempdir()]. If `NA`, a directory is created in the current working directory given by [base::getwd()]. If character, this is taken to be the output directory; it should of course be writable by the user.
-#' @param valueislearnt Logical or `NULL`: should the `VALUE` returned be the `learnt` object containing the results from the Monte Carlo computation? If `FALSE`, then `VALUE` is the output directory name. If `NULL`, then `VALUE` is `NULL`. Default `TRUE`.
+#' @param outputdir `NULL` (default) or `NA` or character: path to folder where output information and diagnostics should be saved. If `NULL`, a directory is created in the temporary-directory space given by [base::tempdir()]. If `NA`, a directory is created in the current working directory given by [base::getwd()]. If character, this is taken to be the output directory; it should of course be writable by the user.
+#' @param valueislearnt Logical or `NULL`: should the `VALUE` returned be the `learnt` object containing the results from the Monte Carlo computation? Default `TRUE`. If `FALSE`, then `VALUE` is the output directory name. If `NULL`, then `VALUE` is `NULL`.
 #' @param nsamples Integer, default 3600: number of desired, *approximately independent* Monte Carlo samples. If this argument is changed, the user is also required to explicitly give either `nchains` or `nsamplesperchain`, but not both; the remaining third argument is determined from \eqn{\mathrm{nsamples} = \mathrm{nchains} \times \mathrm{nsamplesperchain}}.
 #' @param nchains Integer, default 8: number of Monte Carlo chains. If this argument is changed, the user is also required to explicitly give either `nsamples` or `nsamplesperchain`, but not both; the remaining third argument is determined from \eqn{\mathrm{nsamples} = \mathrm{nchains} \times \mathrm{nsamplesperchain}}.
 #' @param nsamplesperchain Integer, default 450: number of *approximately independent* Monte Carlo samples per chain. If this argument is changed, the user is also required to explicitly give either `nsamples` or `nchains`, but not both; the remaining third argument is determined from \eqn{\mathrm{nsamples} = \mathrm{nchains} \times \mathrm{nsamplesperchain}}.
 #' @param parallel Logical or positive integer or cluster object. `TRUE` (default): use roughly half of available cores; `FALSE` (default): use serial computation; integer: use this many cores. It can also be a cluster object previously created with [parallel::makeCluster()]; in this case the parallel computation will use this object.
-#' @param seed Integer: use this seed for the random number generator. If missing or `NULL` (default), do not set the seed.
-#' @param cleanup Logical: remove diagnostic files at the end of the computation? Default `TRUE`.
-#' @param appendinfo Logical: append information about number of variates ('V'), number of data points ('D'), number of Monte Carlo samples ('S'), and timestamp, to the name of the output directory `outputdir`? The appended string has the format 'Vn_Dn_Sn_YYMMDDTHHMMSS'. Default `TRUE`.
-#' @param subsampledata Integer: use only a subset of this many datapoints for the Monte Carlo computation.
-#' @param prior Logical: Calculate the prior distribution?
-#' @param startupMCiterations Integer: number of initial Monte Carlo iterations. Default 3600.
-#' @param minMCiterations Integer: minimum number of Monte Carlo iterations to be doneby a chain. Default 0.
-#' @param maxMCiterations Integer: Do at most this many Monte Carlo iterations per chain. Default `Inf`.
-#' @param maxhours Numeric: approximate time limit, in hours, for the Monte Carlo computation to last. Default `Inf`.
-#' @param ncheckpoints Integer: number of datapoints to use for checking when the Monte Carlo computation should end. If `NULL`, this is equal to number of variates + 2. If Inf, use all datapoints. Default 12.
-#' @param maxrelMCSE Numeric positive: desired maximal *relative Monte Carlo Standard Error* of calculated probabilities with respect to their variability with new data. Default `+Inf`, so that `minESS` is used instead. `maxrelMCSE` is related to `minESS` by \eqn{\mathrm{maxrelMCSE} = 1/\sqrt{\mathrm{minESS} + \mathrm{initES}}}.
-#' @param minESS Numeric positive or `NULL': desired minimal Monte Carlo *Expected Sample Size*. Default 450. If `NULL`, it is equal to the final `nsamplesperchain`. `minESS` is related to `maxrelMCSE` by \eqn{\mathrm{minESS} = 1/\mathrm{maxrelMCSE}^2 - \mathrm{initES}}.
-#' @param initES Numeric positive: number of initial samples, separated by the Expected Sample Size, to discard.
-#' @param thinning Integer: thin out the Monte Carlo samples by this value. If `NULL` (default): let the diagnostics decide the thinning value.
-#' @param plottraces Logical: save plots of the Monte Carlo traces of diagnostic values? Default `TRUE`.
-#' @param showKtraces Logical: save plots of the Monte Carlo traces of the K parameter? Default `FALSE`.
-#' @param showAlphatraces Logical: save plots of the Monte Carlo traces of the Alpha parameter? Default `FALSE`.
-#' @param hyperparams List: hyperparameters of the prior.
+#' @param seed Integer or `NULL` (default): use this seed for the random number generator. If `NULL`, do not set the seed.
+#' @param cleanup Logical, default `TRUE`: remove diagnostic files at the end of the computation?
+#' @param appendinfo Logical, default `TRUE`: append information about number of variates ('V'), number of data points ('D'), number of Monte Carlo samples ('S'), and timestamp, to the name of the output directory `outputdir`? The appended string has the format 'Vn_Dn_Sn_YYMMDDTHHMMSS'.
+#' @param subsampledata Integer or `NULL` (default): if integer, use only that many datapoints from the original dataset in the `data` argument.
+#' @param prior Logical: Calculate the prior distribution? Default is `FALSE` unless `data` argument is missing or `NULL`.
+#' @param startupMCiterations Integer, default 3600: number of initial Monte Carlo iterations.
+#' @param minMCiterations Integer, default 0: minimum number of Monte Carlo iterations to be doneby a chain.
+#' @param maxMCiterations Integer, default `Inf`: Do at most this many Monte Carlo iterations per chain.
+#' @param maxhours Numeric, default `Inf`: approximate time limit, in hours, for the Monte Carlo computation to last.
+#' @param ncheckpoints Integer or `NULL`, default 12: number of datapoints (per chain) to use for checking when the Monte Carlo computation should end. If `NULL`, this is equal to number of variates + 2. If Inf, use all datapoints.
+#' @param maxrelMCSE Numeric positive, default `+Inf`: desired maximal *relative Monte Carlo Standard Error* of calculated probabilities with respect to their variability with new data. The default `+Inf` means that `minESS` is used instead. `maxrelMCSE` is related to `minESS` by \eqn{\mathrm{maxrelMCSE} = 1/\sqrt{\mathrm{minESS} + \mathrm{initES}}}.
+#' @param minESS Numeric positive or `NULL', default 450: desired minimal Monte Carlo *Expected Sample Size*. If `NULL`, it is equal to the final `nsamplesperchain`. `minESS` is related to `maxrelMCSE` by \eqn{\mathrm{minESS} = 1/\mathrm{maxrelMCSE}^2 - \mathrm{initES}}.
+#' @param initES Numeric positive, default 2: number of initial "burn-in" samples, separated by the Expected Sample Size, to be discarded. Note that the Monte Carlo chain typically starts in a high-probability region, so there is no reason to discard many initial samples.
+#' @param thinning Integer or `NULL` (default): thin out the Monte Carlo samples by this value. If `NULL`: let the diagnostics decide the thinning value.
+#' @param plottraces Logical, default `TRUE`: save plots of the Monte Carlo traces of diagnostic values?
+#' @param showKtraces Logical, default `FALSE`: save plots of the Monte Carlo traces of the K parameter?
+#' @param showAlphatraces Logical, default `FALSE`: save plots of the Monte Carlo traces of the Alpha parameter?
+#' @param hyperparams List: hyperparameters of the hyperprior; seee values in "Usage".
 #'
-#' @returns A "learnt" object, or name of directory containing output files, or `NULL`, depending on argument `valueislearnt`.
+#' @returns A "learnt" object, or name of directory containing such an object and other output files, or `NULL`, depending on argument `valueislearnt`.
 #'
 #' `learn()` saves several files in a directory. By default this output directory is a temporary directory within the one used by [base::tempdir()], but an alternative one can be chosen with the argument `outputdir =`. The output directory contain several diagnostic files for the Monte Carlo computation; in particular:
 #'

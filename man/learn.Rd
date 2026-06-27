@@ -39,13 +39,13 @@ learn(
 )
 }
 \arguments{
-\item{data}{A dataset, given as a \code{\link[base:data.frame]{base::data.frame()}} or as a file path to a CSV file.}
+\item{data}{A dataset, given as a \code{\link[base:data.frame]{base::data.frame()}} or as a file path to a CSV file. If missing or \code{NULL}, then the prior probability distribution is calculated.}
 
 \item{metadata}{\link{metadata} about the dataset's variates, given either as a data frame or as a file path to a CSV file.}
 
 \item{auxdata}{A larger dataset, given as a data frame or as a file path to a CSV file. Such a dataset would be too large to use in the Monte Carlo sampling, but can still be used to help estimate some hyperparameters.}
 
-\item{outputdir}{\code{NULL} or \code{NA} or character: path to folder where output information and diagnostics should be saved. If \code{NULL} (default), a directory is created in the temporary-directory space given by \code{\link[base:tempdir]{base::tempdir()}}. If \code{NA}, a directory is created in the current working directory given by \code{\link[base:getwd]{base::getwd()}}. If character, this is taken to be the output directory; it should of course be writable by the user.}
+\item{outputdir}{\code{NULL} (default) or \code{NA} or character: path to folder where output information and diagnostics should be saved. If \code{NULL}, a directory is created in the temporary-directory space given by \code{\link[base:tempdir]{base::tempdir()}}. If \code{NA}, a directory is created in the current working directory given by \code{\link[base:getwd]{base::getwd()}}. If character, this is taken to be the output directory; it should of course be writable by the user.}
 
 \item{nsamples}{Integer, default 3600: number of desired, \emph{approximately independent} Monte Carlo samples. If this argument is changed, the user is also required to explicitly give either \code{nchains} or \code{nsamplesperchain}, but not both; the remaining third argument is determined from \eqn{\mathrm{nsamples} = \mathrm{nchains} \times \mathrm{nsamplesperchain}}.}
 
@@ -55,46 +55,46 @@ learn(
 
 \item{parallel}{Logical or positive integer or cluster object. \code{TRUE} (default): use roughly half of available cores; \code{FALSE} (default): use serial computation; integer: use this many cores. It can also be a cluster object previously created with \code{\link[parallel:makeCluster]{parallel::makeCluster()}}; in this case the parallel computation will use this object.}
 
-\item{seed}{Integer: use this seed for the random number generator. If missing or \code{NULL} (default), do not set the seed.}
+\item{seed}{Integer or \code{NULL} (default): use this seed for the random number generator. If \code{NULL}, do not set the seed.}
 
-\item{cleanup}{Logical: remove diagnostic files at the end of the computation? Default \code{TRUE}.}
+\item{cleanup}{Logical, default \code{TRUE}: remove diagnostic files at the end of the computation?}
 
-\item{appendinfo}{Logical: append information about number of variates ('V'), number of data points ('D'), number of Monte Carlo samples ('S'), and timestamp, to the name of the output directory \code{outputdir}? The appended string has the format 'Vn_Dn_Sn_YYMMDDTHHMMSS'. Default \code{TRUE}.}
+\item{appendinfo}{Logical, default \code{TRUE}: append information about number of variates ('V'), number of data points ('D'), number of Monte Carlo samples ('S'), and timestamp, to the name of the output directory \code{outputdir}? The appended string has the format 'Vn_Dn_Sn_YYMMDDTHHMMSS'.}
 
-\item{valueislearnt}{Logical or \code{NULL}: should the \code{VALUE} returned be the \code{learnt} object containing the results from the Monte Carlo computation? If \code{FALSE}, then \code{VALUE} is the output directory name. If \code{NULL}, then \code{VALUE} is \code{NULL}. Default \code{TRUE}.}
+\item{valueislearnt}{Logical or \code{NULL}: should the \code{VALUE} returned be the \code{learnt} object containing the results from the Monte Carlo computation? Default \code{TRUE}. If \code{FALSE}, then \code{VALUE} is the output directory name. If \code{NULL}, then \code{VALUE} is \code{NULL}.}
 
-\item{subsampledata}{Integer: use only a subset of this many datapoints for the Monte Carlo computation.}
+\item{subsampledata}{Integer or \code{NULL} (default): if integer, use only that many datapoints from the original dataset in the \code{data} argument.}
 
-\item{prior}{Logical: Calculate the prior distribution?}
+\item{prior}{Logical: Calculate the prior distribution? Default is \code{FALSE} unless \code{data} argument is missing or \code{NULL}.}
 
-\item{startupMCiterations}{Integer: number of initial Monte Carlo iterations. Default 3600.}
+\item{startupMCiterations}{Integer, default 3600: number of initial Monte Carlo iterations.}
 
-\item{minMCiterations}{Integer: minimum number of Monte Carlo iterations to be doneby a chain. Default 0.}
+\item{minMCiterations}{Integer, default 0: minimum number of Monte Carlo iterations to be doneby a chain.}
 
-\item{maxMCiterations}{Integer: Do at most this many Monte Carlo iterations per chain. Default \code{Inf}.}
+\item{maxMCiterations}{Integer, default \code{Inf}: Do at most this many Monte Carlo iterations per chain.}
 
-\item{maxhours}{Numeric: approximate time limit, in hours, for the Monte Carlo computation to last. Default \code{Inf}.}
+\item{maxhours}{Numeric, default \code{Inf}: approximate time limit, in hours, for the Monte Carlo computation to last.}
 
-\item{ncheckpoints}{Integer: number of datapoints to use for checking when the Monte Carlo computation should end. If \code{NULL}, this is equal to number of variates + 2. If Inf, use all datapoints. Default 12.}
+\item{ncheckpoints}{Integer or \code{NULL}, default 12: number of datapoints (per chain) to use for checking when the Monte Carlo computation should end. If \code{NULL}, this is equal to number of variates + 2. If Inf, use all datapoints.}
 
-\item{maxrelMCSE}{Numeric positive: desired maximal \emph{relative Monte Carlo Standard Error} of calculated probabilities with respect to their variability with new data. Default \code{+Inf}, so that \code{minESS} is used instead. \code{maxrelMCSE} is related to \code{minESS} by \eqn{\mathrm{maxrelMCSE} = 1/\sqrt{\mathrm{minESS} + \mathrm{initES}}}.}
+\item{maxrelMCSE}{Numeric positive, default \code{+Inf}: desired maximal \emph{relative Monte Carlo Standard Error} of calculated probabilities with respect to their variability with new data. The default \code{+Inf} means that \code{minESS} is used instead. \code{maxrelMCSE} is related to \code{minESS} by \eqn{\mathrm{maxrelMCSE} = 1/\sqrt{\mathrm{minESS} + \mathrm{initES}}}.}
 
-\item{minESS}{Numeric positive or \verb{NULL': desired minimal Monte Carlo *Expected Sample Size*. Default 450. If }NULL\verb{, it is equal to the final }nsamplesperchain\code{. }minESS\verb{is related to}maxrelMCSE` by \eqn{\mathrm{minESS} = 1/\mathrm{maxrelMCSE}^2 - \mathrm{initES}}.}
+\item{minESS}{Numeric positive or \verb{NULL', default 450: desired minimal Monte Carlo *Expected Sample Size*. If }NULL\verb{, it is equal to the final }nsamplesperchain\code{. }minESS\verb{is related to}maxrelMCSE` by \eqn{\mathrm{minESS} = 1/\mathrm{maxrelMCSE}^2 - \mathrm{initES}}.}
 
-\item{initES}{Numeric positive: number of initial samples, separated by the Expected Sample Size, to discard.}
+\item{initES}{Numeric positive, default 2: number of initial "burn-in" samples, separated by the Expected Sample Size, to be discarded. Note that the Monte Carlo chain typically starts in a high-probability region, so there is no reason to discard many initial samples.}
 
-\item{thinning}{Integer: thin out the Monte Carlo samples by this value. If \code{NULL} (default): let the diagnostics decide the thinning value.}
+\item{thinning}{Integer or \code{NULL} (default): thin out the Monte Carlo samples by this value. If \code{NULL}: let the diagnostics decide the thinning value.}
 
-\item{plottraces}{Logical: save plots of the Monte Carlo traces of diagnostic values? Default \code{TRUE}.}
+\item{plottraces}{Logical, default \code{TRUE}: save plots of the Monte Carlo traces of diagnostic values?}
 
-\item{showKtraces}{Logical: save plots of the Monte Carlo traces of the K parameter? Default \code{FALSE}.}
+\item{showKtraces}{Logical, default \code{FALSE}: save plots of the Monte Carlo traces of the K parameter?}
 
-\item{showAlphatraces}{Logical: save plots of the Monte Carlo traces of the Alpha parameter? Default \code{FALSE}.}
+\item{showAlphatraces}{Logical, default \code{FALSE}: save plots of the Monte Carlo traces of the Alpha parameter?}
 
-\item{hyperparams}{List: hyperparameters of the prior.}
+\item{hyperparams}{List: hyperparameters of the hyperprior; seee values in "Usage".}
 }
 \value{
-A "learnt" object, or name of directory containing output files, or \code{NULL}, depending on argument \code{valueislearnt}.
+A "learnt" object, or name of directory containing such an object and other output files, or \code{NULL}, depending on argument \code{valueislearnt}.
 
 \code{learn()} saves several files in a directory. By default this output directory is a temporary directory within the one used by \code{\link[base:tempdir]{base::tempdir()}}, but an alternative one can be chosen with the argument \verb{outputdir =}. The output directory contain several diagnostic files for the Monte Carlo computation; in particular:
 \itemize{
@@ -117,7 +117,7 @@ The computation is "non-parametric": probability or frequency distributions are 
 
 The computation is done via Markov-chain Monte Carlo, using the package \href{https://cran.r-project.org/package=nimble}{\strong{Nimble}}. "Convergence" of the Monte Carlo computation is assessed with methods described in Vehtari & al. (2021) and Kwon & al. (2025).
 
-The default values for convergence require that all these three conditions be fulilled:
+The default values for convergence require that all of the following three conditions be fulilled:
 \itemize{
 \item The computation's numerical error (Monte-Carlo Standard Error) for the posterior probability must be smaller than 4.7\% of the standard deviation of the posterior's variability.
 \item The computation's numerical error for the 0.055- and 0.945-percentiles of the posterior's variability should be smaller than 4.7\% of the distance between them.
