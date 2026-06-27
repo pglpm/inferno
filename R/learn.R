@@ -23,12 +23,12 @@
 #'
 #' @param data A dataset, given as a [base::data.frame()] or as a file path to a CSV file.
 #' @param metadata [metadata] about the dataset's variates, given either as a data frame or as a file path to a CSV file.
-#' @param auxdata A larger dataset, given as a data frame or as a file path to a CSV file. Such a dataset would be too many to use in the Monte Carlo sampling, but can be used to calculate hyperparameters.
+#' @param auxdata A larger dataset, given as a data frame or as a file path to a CSV file. Such a dataset would be too large to use in the Monte Carlo sampling, but can still be used to help estimate some hyperparameters.
 #' @param outputdir `NULL` or `NA` or character: path to folder where output information and diagnostics should be saved. If `NULL` (default), a directory is created in the temporary-directory space given by [base::tempdir()]. If `NA`, a directory is created in the current working directory given by [base::getwd()]. If character, this is taken to be the output directory; it should of course be writable by the user.
 #' @param valueislearnt Logical or `NULL`: should the `VALUE` returned be the `learnt` object containing the results from the Monte Carlo computation? If `FALSE`, then `VALUE` is the output directory name. If `NULL`, then `VALUE` is `NULL`. Default `TRUE`.
-#' @param nsamples Integer, default 3600: number of desired Monte Carlo samples. If this argument is changed, the user is also required to explicitly give either `nchains` or `nsamplesperchain`, but not both; the remaining third argument is determined from \eqn{\mathrm{nsamples} = \mathrm{nchains} \times \mathrm{nsamplesperchain}}.
+#' @param nsamples Integer, default 3600: number of desired, *approximately independent* Monte Carlo samples. If this argument is changed, the user is also required to explicitly give either `nchains` or `nsamplesperchain`, but not both; the remaining third argument is determined from \eqn{\mathrm{nsamples} = \mathrm{nchains} \times \mathrm{nsamplesperchain}}.
 #' @param nchains Integer, default 8: number of Monte Carlo chains. If this argument is changed, the user is also required to explicitly give either `nsamples` or `nsamplesperchain`, but not both; the remaining third argument is determined from \eqn{\mathrm{nsamples} = \mathrm{nchains} \times \mathrm{nsamplesperchain}}.
-#' @param nsamplesperchain Integer, default 450: number of Monte Carlo samples per chain. If this argument is changed, the user is also required to explicitly give either `nsamples` or `nchains`, but not both; the remaining third argument is determined from \eqn{\mathrm{nsamples} = \mathrm{nchains} \times \mathrm{nsamplesperchain}}.
+#' @param nsamplesperchain Integer, default 450: number of *approximately independent* Monte Carlo samples per chain. If this argument is changed, the user is also required to explicitly give either `nsamples` or `nchains`, but not both; the remaining third argument is determined from \eqn{\mathrm{nsamples} = \mathrm{nchains} \times \mathrm{nsamplesperchain}}.
 #' @param parallel Logical or positive integer or cluster object. `TRUE` (default): use roughly half of available cores; `FALSE` (default): use serial computation; integer: use this many cores. It can also be a cluster object previously created with [parallel::makeCluster()]; in this case the parallel computation will use this object.
 #' @param seed Integer: use this seed for the random number generator. If missing or `NULL` (default), do not set the seed.
 #' @param cleanup Logical: remove diagnostic files at the end of the computation? Default `TRUE`.
@@ -151,8 +151,8 @@ learn <- function(
     maxMCiterations = +Inf,
     maxhours = +Inf,
     ncheckpoints = 12,
-    maxrelMCSE = +Inf, ## Gong-Flegal: 0.038, Z=1000: 0.076, Z=400: 0.12
-    minESS = 450, ## Gong-Flegal: 0.038, Z=1000: 0.076, Z=400: 0.12
+    maxrelMCSE = +Inf,
+    minESS = 450,
     initES = 2,
     thinning = NULL,
     plottraces = !cleanup,

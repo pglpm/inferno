@@ -43,15 +43,15 @@ learn(
 
 \item{metadata}{\link{metadata} about the dataset's variates, given either as a data frame or as a file path to a CSV file.}
 
-\item{auxdata}{A larger dataset, given as a data frame or as a file path to a CSV file. Such a dataset would be too many to use in the Monte Carlo sampling, but can be used to calculate hyperparameters.}
+\item{auxdata}{A larger dataset, given as a data frame or as a file path to a CSV file. Such a dataset would be too large to use in the Monte Carlo sampling, but can still be used to help estimate some hyperparameters.}
 
 \item{outputdir}{\code{NULL} or \code{NA} or character: path to folder where output information and diagnostics should be saved. If \code{NULL} (default), a directory is created in the temporary-directory space given by \code{\link[base:tempdir]{base::tempdir()}}. If \code{NA}, a directory is created in the current working directory given by \code{\link[base:getwd]{base::getwd()}}. If character, this is taken to be the output directory; it should of course be writable by the user.}
 
-\item{nsamples}{Integer, default 3600: number of desired Monte Carlo samples. If this argument is changed, the user is also required to explicitly give either \code{nchains} or \code{nsamplesperchain}, but not both; the remaining third argument is determined from \eqn{\mathrm{nsamples} = \mathrm{nchains} \times \mathrm{nsamplesperchain}}.}
+\item{nsamples}{Integer, default 3600: number of desired, \emph{approximately independent} Monte Carlo samples. If this argument is changed, the user is also required to explicitly give either \code{nchains} or \code{nsamplesperchain}, but not both; the remaining third argument is determined from \eqn{\mathrm{nsamples} = \mathrm{nchains} \times \mathrm{nsamplesperchain}}.}
 
 \item{nchains}{Integer, default 8: number of Monte Carlo chains. If this argument is changed, the user is also required to explicitly give either \code{nsamples} or \code{nsamplesperchain}, but not both; the remaining third argument is determined from \eqn{\mathrm{nsamples} = \mathrm{nchains} \times \mathrm{nsamplesperchain}}.}
 
-\item{nsamplesperchain}{Integer, default 450: number of Monte Carlo samples per chain. If this argument is changed, the user is also required to explicitly give either \code{nsamples} or \code{nchains}, but not both; the remaining third argument is determined from \eqn{\mathrm{nsamples} = \mathrm{nchains} \times \mathrm{nsamplesperchain}}.}
+\item{nsamplesperchain}{Integer, default 450: number of \emph{approximately independent} Monte Carlo samples per chain. If this argument is changed, the user is also required to explicitly give either \code{nsamples} or \code{nchains}, but not both; the remaining third argument is determined from \eqn{\mathrm{nsamples} = \mathrm{nchains} \times \mathrm{nsamplesperchain}}.}
 
 \item{parallel}{Logical or positive integer or cluster object. \code{TRUE} (default): use roughly half of available cores; \code{FALSE} (default): use serial computation; integer: use this many cores. It can also be a cluster object previously created with \code{\link[parallel:makeCluster]{parallel::makeCluster()}}; in this case the parallel computation will use this object.}
 
