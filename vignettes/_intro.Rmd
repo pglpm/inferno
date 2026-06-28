@@ -428,7 +428,7 @@ The three estimated frequencies are:
 - Chinstrap: `r printprob(Fspecies10$values['Chinstrap',1])`
 - Gentoo: `r printprob(Fspecies10$values['Gentoo',1])`
 
-and can be read from the `values` element of the `Fspecies10` object, either directly or by using the `print()` function, which by default shows two significant digits:
+and can be read from the `values` element of the `Fspecies10` object, either directly or by using the `print()` function, which by default a number of significant digits corresponding to the Monte Carlo numerical error:
 
 ```{r freq10, eval = TRUE}
 Fspecies10$values
@@ -575,7 +575,7 @@ plot(Fspecies10I, col = 5:6)
 The estimated frequencies for the `Biscoe` subpopulation are shown by the solid yellow curve with small circles; those for the `Dream` subpopulation by the dashed purple curve with small squares. More precise values are contained in the `values` element of the `Fspecies10I` object:
 
 ```{r freq10I, eval = TRUE}
-print(Fspecies10I, digits = 3)
+print(Fspecies10I)
 ```
 
 According to these estimates, on Biscoe there should be a predominance of Gentoo penguins, with lower, roughly equal numbers of Adélie and Chinstrap. On Dream, on the other hand, Gentoo should be the minority, and Chinstrap should be the majority. But how sure are we about these estimates? We see that the 89%-credibility intervals of each frequency are quite wide. Also in this case we can get a better picture by displaying the probability distribution of each frequency, by means of the `hist()` function, and see how much they overlap.

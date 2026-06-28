@@ -801,7 +801,7 @@ hist.probability <- function(
 #' @param x Object of class "probability", obtained with [Pr()].
 #' @param elements character or integer vector, or `NULL` (default): elements of the "probability" object to display. The syntax is the same as with [` [ `][base::Extract]. If `NULL`, the elements `$values` and `$quantiles` are displayed together in a special way.
 #' @param subset Named list or named vector: which variate values to display. For the variates corresponding to the names in this list, only the vector of values corresponding to that variate is displayed.
-#' @param digits positive number on `NULL` (default): minimal number of significant digits, see [base::print.default()]. If value is `NULL` and `elements` argument is also `NULL`, then the significant digits are determined from the `$values.MCaccuracy` element of the `probability` object; see [Pr()]. In other cases a `NULL` value is equivalent to a value 2.
+#' @param digits positive number or `NULL` or `TRUE` (default): minimal number of significant digits, see [base::print.default()]. If value is `TRUE`, then the significant digits for elements `$values` and `$quantiles` are determined from their respective `$values.MCaccuracy` and `$quantiles.MCaccuracy` elements of the `probability` object, see [Pr()]; whereas `$samples` elements use 2 significant digits.
 #' @param ... Other parameters to be passed to [base::print()].
 #'
 #' @seealso
@@ -834,7 +834,7 @@ print.probability <- function(
     x,
     elements = NULL,
     subset = NULL,
-    digits = NULL,
+    digits = TRUE,
     ...
 ){
     ## Replace object x keeping only values given in 'subset'
@@ -845,23 +845,51 @@ print.probability <- function(
     if(is.null(elements)){
         ## rearrange and combine values and quantiles in a special way
 
-        if(is.null(digits)){digits <- 1 + log10(c(x$values / x$values.MCaccuracy))}
+        if(isTRUE(digits)){
+            temp <- aperm(
+                a = array(signif(x = c(x$values, x$quantiles),
+                    digits = 1 + log10(
+                        c(x$values / x$values.MCaccuracy,
+                            x$quantiles / x$quantiles.MCaccuracy)
+                    )),
+                    dim = dim(x$quantiles) + c(0, 0, 1),
+                    dimnames = c(
+                        dimnames(x$values),
+                        list(`prob. & vrb.` = c('value', paste0('Q', dimnames(x$quantiles)[[3]])))
+                    ) ), perm = c(1,3,2))
 
-        temp <- aperm(
-            a = array(signif(x = c(x$values, x$quantiles), digits = digits),
-                dim = dim(x$quantiles) + c(0, 0, 1),
-                dimnames = c(
-                    dimnames(x$values),
-                    list(`prob. & vrb.` = c('value', paste0('Q', dimnames(x$quantiles)[[3]])))
-                ) ), perm = c(1,3,2))
+            if(is.null(x$X)){temp <- temp[,,]}
 
-        if(is.null(x$X)){temp <- temp[,,]}
+            print(x = temp, ...)
+        }else{
+            temp <- aperm(
+                a = array(c(x$values, x$quantiles),
+                    dim = dim(x$quantiles) + c(0, 0, 1),
+                    dimnames = c(
+                        dimnames(x$values),
+                        list(`prob. & vrb.` = c('value', paste0('Q', dimnames(x$quantiles)[[3]])))
+                    ) ), perm = c(1,3,2))
 
-        print(x = temp, ...)
+            if(is.null(x$X)){temp <- temp[,,]}
 
+            print(x = temp, digits = digits, ...)
+        }
     } else {
-        if(is.null(digits)){digits <- 2}
-
-        print(x = signif(x[elements], digit = digits), ...)
+        if(isTRUE(digits)){
+            if('values' %in% elements){
+                x$values <- signif(x = x$values,
+                    digits = 1 + log10(c(x$values / x$values.MCaccuracy)) )
+            }
+            if('quantiles' %in% elements){
+                x$quantiles <- signif(x = x$quantiles,
+                    digits = 1 + log10(c(x$quantiles / x$quantiles.MCaccuracy)) )
+            }
+            if('samples' %in% elements){
+                x$samples <- signif(x = x$samples, digits = 2)
+            }
+        print(x = x[elements], ...)
+        } else {
+        print(x = x[elements], digits = digits, ...)
+        }
     }
 }

@@ -4,7 +4,7 @@
 \alias{print.probability}
 \title{Print an object of class "probability"}
 \usage{
-\method{print}{probability}(x, elements = NULL, subset = NULL, digits = NULL, ...)
+\method{print}{probability}(x, elements = NULL, subset = NULL, digits = TRUE, ...)
 }
 \arguments{
 \item{x}{Object of class "probability", obtained with \code{\link[=Pr]{Pr()}}.}
@@ -13,7 +13,7 @@
 
 \item{subset}{Named list or named vector: which variate values to display. For the variates corresponding to the names in this list, only the vector of values corresponding to that variate is displayed.}
 
-\item{digits}{positive number on \code{NULL} (default): minimal number of significant digits, see \code{\link[base:print.default]{base::print.default()}}. If value is \code{NULL} and \code{elements} argument is also \code{NULL}, then the significant digits are determined from the \verb{$values.MCaccuracy} element of the \code{probability} object; see \code{\link[=Pr]{Pr()}}. In other cases a \code{NULL} value is equivalent to a value 2.}
+\item{digits}{positive number or \code{NULL} or \code{TRUE} (default): minimal number of significant digits, see \code{\link[base:print.default]{base::print.default()}}. If value is \code{TRUE}, then the significant digits for elements \verb{$values} and \verb{$quantiles} are determined from their respective \verb{$values.MCaccuracy} and \verb{$quantiles.MCaccuracy} elements of the \code{probability} object, see \code{\link[=Pr]{Pr()}}; whereas \verb{$samples} elements use 2 significant digits.}
 
 \item{...}{Other parameters to be passed to \code{\link[base:print]{base::print()}}.}
 }
