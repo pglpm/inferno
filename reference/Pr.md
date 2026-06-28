@@ -1,11 +1,10 @@
 # Calculate posterior probabilities
 
-This function calculates the posterior probability \\\mathrm{Pr}(Y = y
-\vert X = x, \text{data})\\, where \\Y = y\\ and \\X = x\\ are two (non
-overlapping) sets of joint variate values, inputted as [data
-frame](https://rdrr.io/r/base/data.frame.html) arguments `Y` and `X`. If
-`X` is omitted or `NULL`, then the posterior probability \\\mathrm{Pr}(Y
-= y \vert \text{data})\\ is calculated.
+This function calculates posterior probability densities, cumulative
+posterior probabilities, and mixtures thereof. It also outputs the
+variability of such probabilities if more training data were available,
+and the Monte Carlo Standard Error for the calculated posterior
+probabilities.
 
 ## Usage
 
@@ -143,11 +142,34 @@ A list of class `probability`, consisting of the following elements:
 
 ## Details
 
-The function also gives quantiles about the possible variability of the
-probability \\\mathrm{Pr}(Y = y \vert X = x, \text{new\\data},
-\text{data})\\ that we could have if more learning data were provided,
-as well as a number of samples of the possible values of such
-probability.
+This function calculates the posterior probability \\\mathrm{Pr}(Y = y
+\vert X = x, \text{data})\\, where \\Y = y\\ and \\X = x\\ are two (non
+overlapping) sets of joint variate values, inputted as [data
+frame](https://rdrr.io/r/base/data.frame.html) arguments `Y` and `X`. If
+`X` is omitted or `NULL`, then the posterior probability \\\mathrm{Pr}(Y
+= y \vert \text{data})\\ is calculated.
+
+For some variates in `Y` or `X`, tail values can also be prescribed, so
+that this function calculates mixed probabilities such as
+\$\$\mathrm{Pr}(Y_1 = y_1, Y_2 \le y_2, \dotsc \vert X_1 = x_1, X_2 \ge
+x_2, \dotsc, \text{data})\\ .\$\$ Tail values are inputted via the
+`'tails'` argument; see "Usage".
+
+This function also outputs the variability of the posterior
+probabilities above, that is, probabilities such as \\\mathrm{Pr}(Y = y
+\vert X = x, \text{new\\data}, \text{data})\\ that we could have if more
+learning data were provided, as well as a number of samples of the
+possible values of such probability. This variability can be outputted
+in two ways; the user can choose either, or both, or none:
+
+- As samples (default 3600 samples, depending on the 'nsamples' argument
+  given to the
+  [`learn()`](https://pglpm.github.io/prova/reference/learn.md)
+  function) of the alternative values that the posterior probability
+  could have.
+
+- As quantiles (default 5.5%, 25%, 75%, 94.5%) of the possible
+  variability.
 
 If several joint values are given for `Y` or `X`, the function will
 create a 2D grid of results for all possible combinations of the given
