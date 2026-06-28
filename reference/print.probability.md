@@ -11,7 +11,7 @@ this method also allow to display only selected values of them
 
 ``` r
 # S3 method for class 'probability'
-print(x, elements = NULL, subset = NULL, digits = 2, ...)
+print(x, elements = NULL, subset = NULL, digits = NULL, ...)
 ```
 
 ## Arguments
@@ -36,8 +36,14 @@ print(x, elements = NULL, subset = NULL, digits = 2, ...)
 
 - digits:
 
-  positive number, default 2: minimal number of significant digits, see
+  positive number on `NULL` (default): minimal number of significant
+  digits, see
   [`base::print.default()`](https://rdrr.io/r/base/print.default.html).
+  If value is `NULL` and `elements` argument is also `NULL`, then the
+  significant digits are determined from the `$values.MCaccuracy`
+  element of the `probability` object; see
+  [`Pr()`](https://pglpm.github.io/prova/reference/Pr.md). In other
+  cases a `NULL` value is equivalent to a value 2.
 
 - ...:
 
@@ -76,25 +82,21 @@ print(probs)
 #> , , |bill_len = 43
 #> 
 #>            prob. & vrb.
-#> species     value Q5.5% Q25% Q75% Q94.5%
-#>   Adelie     0.46 0.367 0.42 0.51   0.57
-#>   Chinstrap  0.15 0.081 0.12 0.17   0.22
-#>   Gentoo     0.39 0.299 0.35 0.43   0.48
+#> species     value Q5.5%  Q25%  Q75% Q94.5%
+#>   Adelie    0.465 0.367 0.421 0.513  0.568
+#>   Chinstrap 0.146 0.081 0.117 0.172  0.219
+#>   Gentoo    0.389 0.299 0.348 0.430  0.481
 #> 
 #> , , |bill_len = 44
 #> 
 #>            prob. & vrb.
-#> species     value Q5.5% Q25% Q75% Q94.5%
-#>   Adelie     0.22  0.14 0.19 0.26   0.31
-#>   Chinstrap  0.21  0.12 0.17 0.24   0.30
-#>   Gentoo     0.57  0.47 0.53 0.62   0.67
+#> species     value Q5.5%  Q25%  Q75% Q94.5%
+#>   Adelie    0.222 0.145 0.187 0.255  0.307
+#>   Chinstrap 0.205 0.120 0.172 0.243  0.297
+#>   Gentoo    0.572 0.467 0.527 0.620  0.672
 #> 
 
 ## diplay 'values' only, and only for the species value 'Gentoo'
 print(probs, elements = 'values', subset = list(species = 'Gentoo'))
-#> $values
-#>         |bill_len
-#> species    43   44
-#>   Gentoo 0.39 0.57
-#> 
+#> Error in signif(x[elements], digit = digits): non-numeric argument to mathematical function
 ```

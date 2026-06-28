@@ -1,8 +1,8 @@
 # Calculate mutual information between groups of joint variates
 
-This function calculates various entropic information measures of two
-variates (each variate may consist of joint variates): the mutual
-information, the conditional entropies, and the entropies.
+This function calculates various entropic information measures between
+two grops of joint variates: the mutual information, the conditional
+entropies, and the entropies.
 
 ## Usage
 
@@ -97,6 +97,58 @@ A list consisting of the following elements:
 - `unit`, `Y1names`, `Y1names`: same as the input arguments, included
   for the user's convenience.
 
+## Details
+
+If \\Y_1\\ and \\Y_2\\ are two variates, each of which can be a joint
+variate such as \\Y_1 = (Y\_{1,1}, Y\_{1,2}, \dotsc)\\, and \\X\\ a
+third, also possibly join, variate, then the mutual information
+\\\mathit{MI}\\ between \\Y_1\\ and \\Y_2\\, conditional on \\X = x\\,
+is given by \$\$\mathit{MI}(Y_1, Y_2 \vert X = x) \coloneqq \sum\_{y_1,
+y_2} \mathrm{Pr}(Y_1 = y_1, Y_2 = y_2 \vert X = x, \text{data})
+\log_2\frac{ \mathrm{Pr}(Y_1 = y_1, Y_2 = y_2 \vert X = x, \text{data})
+}{ \mathrm{Pr}(Y_1 = y_1 \vert X = x, \text{data}) \cdot \mathrm{Pr}(Y_2
+= y_2 \vert X = x, \text{data}) } \\ \mathrm{Sh} \$\$ an expression
+which can also be written in several other equivalent ways. It is an
+information-theoretic measure of association that is model-free, that
+is, does not depend on assumptions such as linearity, gaussianity, and
+similar. See
+[`vignette('mutualinfo')`](https://pglpm.github.io/prova/articles/mutualinfo.md)
+for discussion and example uses, and also the "References" section. If
+\\Y_1, Y_2\\ are *jointly gaussian variates*, then there is a
+mathematical correspondence between their mutual information and their
+Pearson correlation coefficient; see output `MI.rGauss` in the "Value"
+section.
+
+The conditional entropy of \\Y_1\\ with respect to \\Y_2\\, conditional
+on \\X = x\\, is given by \$\$\mathit{CondEn12}(Y_1, Y_2 \vert X = x)
+\coloneqq -\sum\_{y_1, y_2} \mathrm{Pr}(Y_1 = y_1 \vert Y_2 = y_2, X =
+x, \text{data}) \log_2 \mathrm{Pr}(Y_1 = y_1 \vert Y_2 = y_2, X = x,
+\text{data}) \cdot \mathrm{Pr}(Y_2 = y_2 \vert X = x, \text{data}) \\
+\mathrm{Sh} \$\$
+
+The (differential) entropy of \\Y_1\\, conditional on \\X = x\\, is
+given by \$\$\mathit{En1}(Y_1 \vert X = x) \coloneqq -\sum\_{y_1}
+\mathrm{Pr}(Y_1 = y_1 \vert X = x, \text{data}) \log_2 \mathrm{Pr}(Y_1 =
+y_1 \vert X = x, \text{data}) \\ \mathrm{Sh} \$\$
+
+see "References" section for discussions about entropy and conditional
+entropy.
+
+The function `mutualinfo()` calculates the quantities above for the
+joint variates specified in the arguments `Y1names` and `Y2names`,
+conditional on the values of the variates specified in the data frame
+`X`. If `X` is omitted or `NULL`, then the posterior probabilities
+\\\mathrm{Pr}(Y_1 \| \text{data})\\ etc. are used. Each variate in the
+argument `X` can be specified either as a point-value \\X = x\\ or as a
+left-open interval \\X \le x\\ or as a right-open interval \\X \ge x\\,
+through the argument `tails`.
+
+The computation of these quantities is done via Monte Carlo integration,
+using the samples produced by the
+[`learn()`](https://pglpm.github.io/prova/reference/learn.md) function.
+The present function also output the numerical error associated with
+this computation.
+
 ## See also
 
 [`Pr()`](https://pglpm.github.io/prova/reference/Pr.md) to calculate
@@ -155,9 +207,9 @@ print(probs)
 #> 
 #>            prob. & vrb.
 #> species     value   Q5.5%   Q25%  Q75% Q94.5%
-#>   Adelie    0.930 0.62555 0.9426 0.992   1.00
-#>   Gentoo    0.036 0.00021 0.0025 0.022   0.15
-#>   Chinstrap 0.034 0.00019 0.0016 0.022   0.17
+#>   Adelie    0.930 0.62600 0.9430 0.992  0.998
+#>   Gentoo    0.036 0.00021 0.0025 0.022  0.150
+#>   Chinstrap 0.034 0.00019 0.0016 0.022  0.170
 #> 
 # }
 ```

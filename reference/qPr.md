@@ -132,12 +132,12 @@ A list of the following elements:
 
 This function calculates the quantiles of \\\mathrm{Pr}(Y = y \vert X =
 x, \text{data})\\ or of \\\mathrm{Pr}(Y = y \vert X \le x,
-\text{data})\\ or mixtures thereof, at specified cumulative-probability
-levels. In other words, it calculates the values of \\Y\\ having
-specified cumulative probabilities or conditional probabilities. It also
-calculates the variability of those quantiles if more learning data were
-provided. It is somewhat analogous to the `q`-variants of R distribution
-functions, such as
+\text{data})\\ or combinations thereof, at specified
+cumulative-probability levels. In other words, it calculates the values
+of \\Y\\ having specified cumulative probabilities or conditional
+probabilities. It also calculates the variability of those quantiles if
+more learning data were provided. It is somewhat analogous to the
+`q`-variants of R distribution functions, such as
 [`stats::qnorm()`](https://rdrr.io/r/stats/Normal.html). The variability
 can be expressed in the form of quantiles, samples, or both, as in the
 [`Pr()`](https://pglpm.github.io/prova/reference/Pr.md) function. If
