@@ -120,14 +120,14 @@ Pearson correlation coefficient; see output `MI.rGauss` in the "Value"
 section.
 
 The conditional entropy of \\Y_1\\ with respect to \\Y_2\\, conditional
-on \\X = x\\, is given by \$\$\mathit{CondEn12}(Y_1, Y_2 \vert X = x)
-\coloneqq -\sum\_{y_1, y_2} \mathrm{Pr}(Y_1 = y_1 \vert Y_2 = y_2, X =
-x, \text{data}) \log_2 \mathrm{Pr}(Y_1 = y_1 \vert Y_2 = y_2, X = x,
+on \\X = x\\, is given by \$\$\mathit{CondEn12}(Y_1, Y_2 \vert X = x) :=
+-\sum\_{y_1, y_2} \mathrm{Pr}(Y_1 = y_1 \vert Y_2 = y_2, X = x,
+\text{data}) \log_2 \mathrm{Pr}(Y_1 = y_1 \vert Y_2 = y_2, X = x,
 \text{data}) \cdot \mathrm{Pr}(Y_2 = y_2 \vert X = x, \text{data}) \\
 \mathrm{Sh} \$\$
 
 The (differential) entropy of \\Y_1\\, conditional on \\X = x\\, is
-given by \$\$\mathit{En1}(Y_1 \vert X = x) \coloneqq -\sum\_{y_1}
+given by \$\$\mathit{En1}(Y_1 \vert X = x) := -\sum\_{y_1}
 \mathrm{Pr}(Y_1 = y_1 \vert X = x, \text{data}) \log_2 \mathrm{Pr}(Y_1 =
 y_1 \vert X = x, \text{data}) \\ \mathrm{Sh} \$\$
 
