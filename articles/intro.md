@@ -734,7 +734,8 @@ The three estimated frequencies are:
 and can be read from the `values` element of the `Fspecies10` object,
 either directly or by using the
 [`print()`](https://rdrr.io/r/base/print.html) function, which by
-default shows two significant digits:
+default a number of significant digits corresponding to the Monte Carlo
+numerical error:
 
 ``` r
 
@@ -749,10 +750,10 @@ Fspecies10$values
 print(Fspecies10, 'values')
 # $values
 #            
-# species     [,1]
-#   Adelie     0.3
-#   Chinstrap  0.3
-#   Gentoo     0.4
+# species      [,1]
+#   Adelie    0.299
+#   Chinstrap 0.305
+#   Gentoo    0.397
 ```
 
 These frequency estimates have also another important meaning: they are
@@ -866,10 +867,10 @@ function to display values and quantiles together:
 
 print(Fspecies10)
 #            prob. & vrb.
-# species     value Q5.5% Q25% Q75% Q94.5%
-#   Adelie      0.3  0.12 0.21 0.38   0.51
-#   Chinstrap   0.3  0.12 0.21 0.39   0.52
-#   Gentoo      0.4  0.19 0.30 0.49   0.62
+# species     value Q5.5%  Q25%  Q75% Q94.5%
+#   Adelie    0.299 0.122 0.207 0.376  0.507
+#   Chinstrap 0.305 0.123 0.211 0.389  0.522
+#   Gentoo    0.397 0.192 0.300 0.489  0.618
 ```
 
 ### A preliminary report on question Q1
@@ -941,13 +942,13 @@ Fspeciessex10 <- Pr(
 ## as well as their credibility intervals
 print(Fspeciessex10)
 #                   prob. & vrb.
-# species,sex        value Q5.5%  Q25% Q75% Q94.5%
-#   Adelie,female     0.16 0.051 0.098 0.22   0.32
-#   Chinstrap,female  0.13 0.034 0.073 0.17   0.27
-#   Gentoo,female     0.29 0.124 0.199 0.37   0.50
-#   Adelie,male       0.14 0.038 0.075 0.18   0.28
-#   Chinstrap,male    0.18 0.056 0.105 0.23   0.35
-#   Gentoo,male       0.11 0.022 0.053 0.15   0.25
+# species,sex        value  Q5.5%   Q25%  Q75% Q94.5%
+#   Adelie,female    0.163 0.0508 0.0984 0.215  0.319
+#   Chinstrap,female 0.129 0.0340 0.0728 0.171  0.272
+#   Gentoo,female    0.288 0.1240 0.1990 0.366  0.495
+#   Adelie,male      0.135 0.0380 0.0754 0.179  0.280
+#   Chinstrap,male   0.175 0.0556 0.1050 0.229  0.351
+#   Gentoo,male      0.109 0.0216 0.0530 0.146  0.247
 ```
 
 Now let’s continue with our simpler plan.
@@ -1027,22 +1028,22 @@ precise values are contained in the `values` element of the
 
 ``` r
 
-print(Fspecies10I, digits = 3)
+print(Fspecies10I)
 # , , |island = Biscoe
 # 
 #            prob. & vrb.
-# species     value  Q5.5%   Q25%  Q75% Q94.5%
-#   Adelie    0.145 0.0148 0.0526 0.207  0.380
-#   Chinstrap 0.137 0.0124 0.0476 0.193  0.378
-#   Gentoo    0.718 0.4188 0.6086 0.853  0.941
+# species     value Q5.5%   Q25%  Q75% Q94.5%
+#   Adelie    0.145 0.015 0.0526 0.207 0.3800
+#   Chinstrap 0.137 0.012 0.0476 0.193 0.3780
+#   Gentoo    0.718 0.419 0.6090 0.853 0.9409
 # 
 # , , |island = Dream
 # 
 #            prob. & vrb.
-# species     value  Q5.5%  Q25%  Q75% Q94.5%
-#   Adelie    0.358 0.1041 0.228 0.477  0.657
-#   Chinstrap 0.475 0.1863 0.338 0.607  0.774
-#   Gentoo    0.167 0.0192 0.068 0.237  0.417
+# species     value Q5.5%  Q25%  Q75% Q94.5%
+#   Adelie    0.358 0.100 0.228 0.477  0.657
+#   Chinstrap 0.475 0.186 0.338 0.607  0.774
+#   Gentoo    0.167 0.019 0.068 0.237  0.417
 ```
 
 According to these estimates, on Biscoe there should be a predominance
@@ -1124,18 +1125,18 @@ print(Fspecies10I)
 # , , |island = Biscoe
 # 
 #            prob. & vrb.
-# species     value Q5.5%  Q25% Q75% Q94.5%
-#   Adelie     0.15 0.015 0.053 0.21   0.38
-#   Chinstrap  0.14 0.012 0.048 0.19   0.38
-#   Gentoo     0.72 0.419 0.609 0.85   0.94
+# species     value Q5.5%   Q25%  Q75% Q94.5%
+#   Adelie    0.145 0.015 0.0526 0.207 0.3800
+#   Chinstrap 0.137 0.012 0.0476 0.193 0.3780
+#   Gentoo    0.718 0.419 0.6090 0.853 0.9409
 # 
 # , , |island = Dream
 # 
 #            prob. & vrb.
-# species     value Q5.5%  Q25% Q75% Q94.5%
-#   Adelie     0.36 0.104 0.228 0.48   0.66
-#   Chinstrap  0.47 0.186 0.338 0.61   0.77
-#   Gentoo     0.17 0.019 0.068 0.24   0.42
+# species     value Q5.5%  Q25%  Q75% Q94.5%
+#   Adelie    0.358 0.100 0.228 0.477  0.657
+#   Chinstrap 0.475 0.186 0.338 0.607  0.774
+#   Gentoo    0.167 0.019 0.068 0.237  0.417
 ```
 
 ### Differences from “null-hypothesis testing” and *p*-value methods
@@ -1217,14 +1218,14 @@ print(Fspecies10IS, 'values')
 # $values
 #            |island,sex
 # species     Biscoe,female Dream,female Torgersen,female Biscoe,male
-#   Adelie             0.13         0.40             0.48        0.21
-#   Chinstrap          0.11         0.40             0.27        0.22
-#   Gentoo             0.76         0.21             0.25        0.57
+#   Adelie            0.128        0.399            0.483       0.211
+#   Chinstrap         0.111        0.395            0.266       0.221
+#   Gentoo            0.761        0.205            0.251       0.569
 #            |island,sex
 # species     Dream,male Torgersen,male
-#   Adelie          0.32           0.45
-#   Chinstrap       0.54           0.38
-#   Gentoo          0.14           0.17
+#   Adelie         0.322          0.450
+#   Chinstrap      0.542          0.376
+#   Gentoo         0.137          0.175
 ```
 
   
@@ -1482,10 +1483,10 @@ is as follows:
 
 print(Fspecies60)
 #            prob. & vrb.
-# species     value Q5.5% Q25% Q75% Q94.5%
-#   Adelie     0.40  0.30 0.35 0.44   0.50
-#   Chinstrap  0.21  0.13 0.17 0.24   0.30
-#   Gentoo     0.39  0.30 0.35 0.44   0.49
+# species     value Q5.5%  Q25%  Q75% Q94.5%
+#   Adelie    0.395 0.296 0.352 0.436  0.498
+#   Chinstrap 0.210 0.133 0.174 0.242  0.295
+#   Gentoo    0.395 0.298 0.353 0.436  0.495
 ```
 
 > From a sample of 10 penguins, the inference about the relative
@@ -1792,10 +1793,10 @@ be extracted from the `Fspeciesall` in the usual way:
 
 print(Fspeciesall)
 #            prob. & vrb.
-# species     value Q5.5% Q25% Q75% Q94.5%
-#   Adelie     0.44  0.40 0.42 0.46   0.48
-#   Chinstrap  0.20  0.17 0.18 0.21   0.23
-#   Gentoo     0.36  0.32 0.34 0.38   0.40
+# species      value  Q5.5%   Q25%   Q75% Q94.5%
+#   Adelie    0.4417 0.3981 0.4231 0.4603 0.4838
+#   Chinstrap 0.1988 0.1660 0.1839 0.2126 0.2340
+#   Gentoo    0.3594 0.3194 0.3413 0.3773 0.4002
 ```
 
 > From a sample of 344 penguins \[add a more thorough specification of
@@ -1888,10 +1889,10 @@ print(Fanalysis)
 # , , |island = Biscoe
 # 
 #            prob. & vrb.
-# species     value  Q5.5%   Q25%  Q75% Q94.5%
-#   Adelie    0.266 0.2132 0.2427 0.288  0.322
-#   Chinstrap 0.012 0.0028 0.0059 0.016  0.025
-#   Gentoo    0.722 0.6662 0.6993 0.746  0.775
+# species      value  Q5.5%   Q25%   Q75% Q94.5%
+#   Adelie    0.2662 0.2130 0.2427 0.2880 0.3220
+#   Chinstrap 0.0117 0.0028 0.0059 0.0156 0.0254
+#   Gentoo    0.7221 0.6662 0.6993 0.7463 0.7747
 ```
 
 Conclusion:
@@ -1957,10 +1958,10 @@ print(Fanalysis)
 # , , |species = Adelie
 # 
 #            prob. & vrb.
-# island      value Q5.5% Q25% Q75% Q94.5%
-#   Biscoe     0.29  0.24 0.27 0.32   0.35
-#   Dream      0.37  0.31 0.34 0.40   0.43
-#   Torgersen  0.34  0.28 0.31 0.36   0.40
+# island       value Q5.5%   Q25%   Q75% Q94.5%
+#   Biscoe    0.2919 0.238 0.2668 0.3156  0.353
+#   Dream     0.3696 0.308 0.3427 0.3964  0.434
+#   Torgersen 0.3385 0.279 0.3115 0.3641  0.401
 ```
 
 Conclusions:

@@ -11,7 +11,7 @@ this method also allow to display only selected values of them
 
 ``` r
 # S3 method for class 'probability'
-print(x, elements = NULL, subset = NULL, digits = NULL, ...)
+print(x, elements = NULL, subset = NULL, digits = TRUE, ...)
 ```
 
 ## Arguments
@@ -36,14 +36,15 @@ print(x, elements = NULL, subset = NULL, digits = NULL, ...)
 
 - digits:
 
-  positive number on `NULL` (default): minimal number of significant
-  digits, see
+  positive number or `NULL` or `TRUE` (default): minimal number of
+  significant digits, see
   [`base::print.default()`](https://rdrr.io/r/base/print.default.html).
-  If value is `NULL` and `elements` argument is also `NULL`, then the
-  significant digits are determined from the `$values.MCaccuracy`
-  element of the `probability` object; see
-  [`Pr()`](https://pglpm.github.io/prova/reference/Pr.md). In other
-  cases a `NULL` value is equivalent to a value 2.
+  If value is `TRUE`, then the significant digits for elements `$values`
+  and `$quantiles` are determined from their respective
+  `$values.MCaccuracy` and `$quantiles.MCaccuracy` elements of the
+  `probability` object, see
+  [`Pr()`](https://pglpm.github.io/prova/reference/Pr.md); whereas
+  `$samples` elements use 2 significant digits.
 
 - ...:
 
@@ -91,12 +92,16 @@ print(probs)
 #> 
 #>            prob. & vrb.
 #> species     value Q5.5%  Q25%  Q75% Q94.5%
-#>   Adelie    0.222 0.145 0.187 0.255  0.307
+#>   Adelie    0.222 0.140 0.187 0.255  0.307
 #>   Chinstrap 0.205 0.120 0.172 0.243  0.297
 #>   Gentoo    0.572 0.467 0.527 0.620  0.672
 #> 
 
 ## diplay 'values' only, and only for the species value 'Gentoo'
 print(probs, elements = 'values', subset = list(species = 'Gentoo'))
-#> Error in signif(x[elements], digit = digits): non-numeric argument to mathematical function
+#> $values
+#>         |bill_len
+#> species     43    44
+#>   Gentoo 0.389 0.572
+#> 
 ```
