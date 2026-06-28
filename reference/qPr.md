@@ -1,20 +1,8 @@
 # Calculate quantiles
 
-This function calculates the quantiles of \\\mathrm{Pr}(Y = y \vert X =
-x, \text{data})\\ at specified cumulative-probability levels (that is,
-the values of \\Y\\ having specified cumulative probabilities), as well
-as the variability of those quantiles if more learning data were
-provided. It is somewhat analogous to the `q`-variants of R distribution
-functions, such as
-[`stats::qnorm()`](https://rdrr.io/r/stats/Normal.html). The variability
-can be expressed in the form of quantiles, samples, or both, as in the
-[`Pr()`](https://pglpm.github.io/prova/reference/Pr.md) function. If
-several joint values are given for the probability levels and for `X`,
-the function creates a 2D grid of results for all possible combinations
-of the given probability levels and `X` values. Each variate in the
-argument `X` can be specified either as a point-value \\X = x\\ or as a
-left-open interval \\X \le x\\ or as a right-open interval \\X \ge x\\,
-through the argument `tails`.
+This function calculates the quantiles of posterior probabilities and
+posterior conditional probabilities. It also outputs the variability of
+such quantiles if more training data were available.
 
 ## Usage
 
@@ -65,7 +53,7 @@ qPr(
 
   Named vector or list, or `NULL` (default). The names must match some
   or all of the variates in arguments `X`. For variates in this list,
-  the probability conditional is understood in an semi-open interval
+  the probability conditional is understood in a semi-open interval
   sense: \\X \le x\\ or \\X \ge x\\, an so on. See analogous argument in
   [`Pr()`](https://pglpm.github.io/prova/reference/Pr.md).
 
@@ -139,6 +127,26 @@ A list of the following elements:
   (3rd dimension of the array) for such quantiles.
 
 - `Y`, `X`: copies of the `Y` and `X` arguments.
+
+## Details
+
+This function calculates the quantiles of \\\mathrm{Pr}(Y = y \vert X =
+x, \text{data})\\ or of \\\mathrm{Pr}(Y = y \vert X \le x,
+\text{data})\\ or mixtures thereof, at specified cumulative-probability
+levels. In other words, it calculates the values of \\Y\\ having
+specified cumulative probabilities or conditional probabilities. It also
+calculates the variability of those quantiles if more learning data were
+provided. It is somewhat analogous to the `q`-variants of R distribution
+functions, such as
+[`stats::qnorm()`](https://rdrr.io/r/stats/Normal.html). The variability
+can be expressed in the form of quantiles, samples, or both, as in the
+[`Pr()`](https://pglpm.github.io/prova/reference/Pr.md) function. If
+several joint values are given for the probability levels and for `X`,
+the function creates a 2D grid of results for all possible combinations
+of the given probability levels and `X` values. Each variate in the
+argument `X` can be specified either as a point-value \\X = x\\ or as a
+left-open interval \\X \le x\\ or as a right-open interval \\X \ge x\\,
+through the argument `tails`.
 
 ## References
 

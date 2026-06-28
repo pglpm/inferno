@@ -145,9 +145,13 @@ A list of class `probability`, consisting of the following elements:
 This function calculates the posterior probability \\\mathrm{Pr}(Y = y
 \vert X = x, \text{data})\\, where \\Y = y\\ and \\X = x\\ are two (non
 overlapping) sets of joint variate values, inputted as [data
-frame](https://rdrr.io/r/base/data.frame.html) arguments `Y` and `X`. If
-`X` is omitted or `NULL`, then the posterior probability \\\mathrm{Pr}(Y
-= y \vert \text{data})\\ is calculated.
+frame](https://rdrr.io/r/base/data.frame.html) arguments `Y` and `X`. It
+is somewhat analogous to the `d`-variants and `p`-variantes of R
+distribution functions, such as
+[`stats::dnorm()`](https://rdrr.io/r/stats/Normal.html) and
+[`stats::pnorm()`](https://rdrr.io/r/stats/Normal.html). If `X` is
+omitted or `NULL`, then the posterior probability \\\mathrm{Pr}(Y = y
+\vert \text{data})\\ is calculated.
 
 For some variates in `Y` or `X`, tail values can also be prescribed, so
 that this function calculates mixed probabilities such as
