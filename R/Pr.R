@@ -2,7 +2,7 @@
 #'
 #' @description This function calculates posterior probability densities, cumulative posterior probabilities, and mixtures thereof. It also outputs the variability of such probabilities if more training data were available, and the Monte Carlo Standard Error for the calculated posterior probabilities.
 #'
-#' @details This function calculates the posterior probability \eqn{\mathrm{Pr}(Y = y \vert X = x, \text{data})}, where \eqn{Y = y} and \eqn{X = x} are two (non overlapping) sets of joint variate values, inputted as [data frame][base::data.frame()] arguments `Y` and `X`. If `X` is omitted or `NULL`, then the posterior probability \eqn{\mathrm{Pr}(Y = y \vert \text{data})} is calculated.
+#' @details This function calculates the posterior probability \eqn{\mathrm{Pr}(Y = y \vert X = x, \text{data})}, where \eqn{Y = y} and \eqn{X = x} are two (non overlapping) sets of joint variate values, inputted as [data frame][base::data.frame()] arguments `Y` and `X`. It is somewhat analogous to the `d`-variants and `p`-variantes of R distribution functions, such as [stats::dnorm()] and [stats::pnorm()]. If `X` is omitted or `NULL`, then the posterior probability \eqn{\mathrm{Pr}(Y = y \vert \text{data})} is calculated.
 #'
 #' For some variates in `Y` or `X`, tail values can also be prescribed, so that this function calculates mixed probabilities such as \deqn{\mathrm{Pr}(Y_1 = y_1, Y_2 \le y_2, \dotsc \vert X_1 = x_1, X_2 \ge x_2, \dotsc, \text{data})\ .} Tail values are inputted via the `'tails'` argument; see "Usage".
 #'

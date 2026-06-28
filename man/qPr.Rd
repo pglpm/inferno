@@ -30,7 +30,7 @@ qPr(
 
 \item{learnt}{Either a character with the name of a directory or full path for a 'learnt.rds' object, produced by the \code{\link[=learn]{learn()}} function, or such an object itself.}
 
-\item{tails}{Named vector or list, or \code{NULL} (default). The names must match some or all of the variates in arguments \code{X}. For variates in this list, the probability conditional is understood in an semi-open interval sense: \eqn{X \le x} or \eqn{X \ge x}, an so on. See analogous argument in \code{\link[=Pr]{Pr()}}.}
+\item{tails}{Named vector or list, or \code{NULL} (default). The names must match some or all of the variates in arguments \code{X}. For variates in this list, the probability conditional is understood in a semi-open interval sense: \eqn{X \le x} or \eqn{X \ge x}, an so on. See analogous argument in \code{\link[=Pr]{Pr()}}.}
 
 \item{priorY}{Reserved for use in future versions of the package.}
 
@@ -60,7 +60,10 @@ A list of the following elements:
 }
 }
 \description{
-This function calculates the quantiles of \eqn{\mathrm{Pr}(Y = y \vert X = x, \text{data})} at specified cumulative-probability levels (that is, the values of \eqn{Y} having specified cumulative probabilities), as well as the variability of those quantiles if more learning data were provided. It is somewhat analogous to the \code{q}-variants of R distribution functions, such as \code{\link[stats:qnorm]{stats::qnorm()}}. The variability can be expressed in the form of quantiles, samples, or both, as in the \code{\link[=Pr]{Pr()}} function. If several joint values are given for the probability levels and for \code{X}, the function creates a 2D grid of results for all possible combinations of the given probability levels and \code{X} values. Each variate in the argument \code{X} can be specified either as a point-value \eqn{X = x} or as a left-open interval \eqn{X \le x} or as a right-open interval \eqn{X \ge x}, through the argument \code{tails}.
+This function calculates the quantiles of posterior probabilities and posterior conditional probabilities. It also outputs the variability of such quantiles if more training data were available.
+}
+\details{
+This function calculates the quantiles of \eqn{\mathrm{Pr}(Y = y \vert X = x, \text{data})} or of \eqn{\mathrm{Pr}(Y = y \vert X \le x, \text{data})} or mixtures thereof, at specified cumulative-probability levels. In other words, it calculates the values of \eqn{Y} having specified cumulative probabilities or conditional probabilities. It also calculates the variability of those quantiles if more learning data were provided. It is somewhat analogous to the \code{q}-variants of R distribution functions, such as \code{\link[stats:qnorm]{stats::qnorm()}}. The variability can be expressed in the form of quantiles, samples, or both, as in the \code{\link[=Pr]{Pr()}} function. If several joint values are given for the probability levels and for \code{X}, the function creates a 2D grid of results for all possible combinations of the given probability levels and \code{X} values. Each variate in the argument \code{X} can be specified either as a point-value \eqn{X = x} or as a left-open interval \eqn{X \le x} or as a right-open interval \eqn{X \ge x}, through the argument \code{tails}.
 }
 \examples{
 ### WARNING: the following examples, if run, might even take a minute or more.

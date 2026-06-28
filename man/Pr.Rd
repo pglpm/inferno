@@ -59,7 +59,7 @@ A list of class \code{probability}, consisting of the following elements:
 This function calculates posterior probability densities, cumulative posterior probabilities, and mixtures thereof. It also outputs the variability of such probabilities if more training data were available, and the Monte Carlo Standard Error for the calculated posterior probabilities.
 }
 \details{
-This function calculates the posterior probability \eqn{\mathrm{Pr}(Y = y \vert X = x, \text{data})}, where \eqn{Y = y} and \eqn{X = x} are two (non overlapping) sets of joint variate values, inputted as \link[base:data.frame]{data frame} arguments \code{Y} and \code{X}. If \code{X} is omitted or \code{NULL}, then the posterior probability \eqn{\mathrm{Pr}(Y = y \vert \text{data})} is calculated.
+This function calculates the posterior probability \eqn{\mathrm{Pr}(Y = y \vert X = x, \text{data})}, where \eqn{Y = y} and \eqn{X = x} are two (non overlapping) sets of joint variate values, inputted as \link[base:data.frame]{data frame} arguments \code{Y} and \code{X}. It is somewhat analogous to the \code{d}-variants and \code{p}-variantes of R distribution functions, such as \code{\link[stats:dnorm]{stats::dnorm()}} and \code{\link[stats:pnorm]{stats::pnorm()}}. If \code{X} is omitted or \code{NULL}, then the posterior probability \eqn{\mathrm{Pr}(Y = y \vert \text{data})} is calculated.
 
 For some variates in \code{Y} or \code{X}, tail values can also be prescribed, so that this function calculates mixed probabilities such as \deqn{\mathrm{Pr}(Y_1 = y_1, Y_2 \le y_2, \dotsc \vert X_1 = x_1, X_2 \ge x_2, \dotsc, \text{data})\ .} Tail values are inputted via the \code{'tails'} argument; see "Usage".
 
