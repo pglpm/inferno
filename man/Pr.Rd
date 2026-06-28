@@ -56,10 +56,18 @@ A list of class \code{probability}, consisting of the following elements:
 }
 }
 \description{
-This function calculates the posterior probability \eqn{\mathrm{Pr}(Y = y \vert X = x, \text{data})}, where \eqn{Y = y} and \eqn{X = x} are two (non overlapping) sets of joint variate values, inputted as \link[base:data.frame]{data frame} arguments \code{Y} and \code{X}. If \code{X} is omitted or \code{NULL}, then the posterior probability \eqn{\mathrm{Pr}(Y = y \vert \text{data})} is calculated.
+This function calculates posterior probability densities, cumulative posterior probabilities, and mixtures thereof. It also outputs the variability of such probabilities if more training data were available, and the Monte Carlo Standard Error for the calculated posterior probabilities.
 }
 \details{
-The function also gives quantiles about the possible variability of the probability \eqn{\mathrm{Pr}(Y = y \vert X = x, \text{new\,data}, \text{data})} that we could have if more learning data were provided, as well as a number of samples of the possible values of such probability.
+This function calculates the posterior probability \eqn{\mathrm{Pr}(Y = y \vert X = x, \text{data})}, where \eqn{Y = y} and \eqn{X = x} are two (non overlapping) sets of joint variate values, inputted as \link[base:data.frame]{data frame} arguments \code{Y} and \code{X}. If \code{X} is omitted or \code{NULL}, then the posterior probability \eqn{\mathrm{Pr}(Y = y \vert \text{data})} is calculated.
+
+For some variates in \code{Y} or \code{X}, tail values can also be prescribed, so that this function calculates mixed probabilities such as \deqn{\mathrm{Pr}(Y_1 = y_1, Y_2 \le y_2, \dotsc \vert X_1 = x_1, X_2 \ge x_2, \dotsc, \text{data})\ .} Tail values are inputted via the \code{'tails'} argument; see "Usage".
+
+This function also outputs the variability of the posterior probabilities above, that is, probabilities such as \eqn{\mathrm{Pr}(Y = y \vert X = x, \text{new\,data}, \text{data})} that we could have if more learning data were provided, as well as a number of samples of the possible values of such probability. This variability can be outputted in two ways; the user can choose either, or both, or none:
+\itemize{
+\item As samples (default 3600 samples, depending on the 'nsamples' argument given to the \code{\link[=learn]{learn()}} function) of the alternative values that the posterior probability could have.
+\item As quantiles (default 5.5\%, 25\%, 75\%, 94.5\%) of the possible variability.
+}
 
 If several joint values are given for \code{Y} or \code{X}, the function will create a 2D grid of results for all possible combinations of the given \code{Y} and \code{X} values.
 
