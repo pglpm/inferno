@@ -1,6 +1,46 @@
 #' Calculate mutual information between groups of joint variates
 #'
-#' This function calculates various entropic information measures of two variates (each variate may consist of joint variates): the mutual information, the conditional entropies, and the entropies.
+#' @description This function calculates various entropic information measures between two grops of joint variates: the mutual information, the conditional entropies, and the entropies.
+#'
+#' @details If \eqn{Y_1} and \eqn{Y_2} are two variates, each of which can be a joint variate such as \eqn{Y_1 = (Y_{1,1}, Y_{1,2}, \dotsc)}, and \eqn{X} a third, also possibly join, variate, then the mutual information \eqn{\mathit{MI}} between \eqn{Y_1} and \eqn{Y_2}, conditional on \eqn{X = x}, is given by
+#' \deqn{\mathit{MI}(Y_1, Y_2 \vert X = x) \coloneqq
+#' \sum_{y_1, y_2}
+#' \mathrm{Pr}(Y_1 = y_1, Y_2 = y_2 \vert X = x, \text{data})
+#' \log_2\frac{
+#' \mathrm{Pr}(Y_1 = y_1, Y_2 = y_2 \vert X = x, \text{data})
+#' }{
+#' \mathrm{Pr}(Y_1 = y_1 \vert X = x, \text{data})
+#' \cdot
+#' \mathrm{Pr}(Y_2 = y_2 \vert X = x, \text{data})
+#' } \, \mathrm{Sh}
+#' }
+#' an expression which can also be written in several other equivalent ways. It is an information-theoretic measure of association that is model-free, that is, does not depend on assumptions such as linearity, gaussianity, and similar. See `vignette('mutualinfo')` for discussion and example uses, and also the "References" section.  If \eqn{Y_1, Y_2} are *jointly gaussian variates*, then there is a mathematical correspondence between their mutual information and their Pearson correlation coefficient; see output `MI.rGauss` in the "Value" section.
+#'
+#' The conditional entropy of \eqn{Y_1} with respect to \eqn{Y_2}, conditional on \eqn{X = x}, is given by
+#' \deqn{\mathit{CondEn12}(Y_1, Y_2 \vert X = x) \coloneqq
+#' -\sum_{y_1, y_2}
+#' \mathrm{Pr}(Y_1 = y_1 \vert Y_2 = y_2, X = x, \text{data})
+#' \log_2
+#' \mathrm{Pr}(Y_1 = y_1 \vert Y_2 = y_2, X = x, \text{data})
+#' \cdot
+#' \mathrm{Pr}(Y_2 = y_2 \vert X = x, \text{data})
+#' \, \mathrm{Sh}
+#' }
+#'
+#' The (differential) entropy of \eqn{Y_1}, conditional on \eqn{X = x}, is given by
+#' \deqn{\mathit{En1}(Y_1 \vert X = x) \coloneqq
+#' -\sum_{y_1}
+#' \mathrm{Pr}(Y_1 = y_1 \vert X = x, \text{data})
+#' \log_2
+#' \mathrm{Pr}(Y_1 = y_1 \vert  X = x, \text{data})
+#' \, \mathrm{Sh}
+#' }
+#'
+#' see "References" section for discussions about entropy and conditional entropy.
+#'
+#' The function `mutualinfo()` calculates the quantities above for the joint variates specified in the arguments `Y1names` and `Y2names`, conditional on the values of the variates specified in the data frame `X`. If `X` is omitted or `NULL`, then the posterior probabilities \eqn{\mathrm{Pr}(Y_1 | \text{data})} etc. are used. Each variate in the argument `X` can be specified either as a point-value \eqn{X = x} or as a left-open interval \eqn{X \le x} or as a right-open interval \eqn{X \ge x}, through the argument `tails`.
+#'
+#' The computation of these quantities is done via Monte Carlo integration, using the samples produced by the [learn()] function. The present function also output the numerical error associated with this computation.
 #'
 #' @param Y1names Character vector: first group of joint variates
 #' @param Y2names Character vector or `NULL`: second group of joint variates

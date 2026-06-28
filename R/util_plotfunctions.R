@@ -801,7 +801,7 @@ hist.probability <- function(
 #' @param x Object of class "probability", obtained with [Pr()].
 #' @param elements character or integer vector, or `NULL` (default): elements of the "probability" object to display. The syntax is the same as with [` [ `][base::Extract]. If `NULL`, the elements `$values` and `$quantiles` are displayed together in a special way.
 #' @param subset Named list or named vector: which variate values to display. For the variates corresponding to the names in this list, only the vector of values corresponding to that variate is displayed.
-#' @param digits positive number, default 2: minimal number of significant digits, see [base::print.default()].
+#' @param digits positive number on `NULL` (default): minimal number of significant digits, see [base::print.default()]. If value is `NULL` and `elements` argument is also `NULL`, then the significant digits are determined from the `$values.MCaccuracy` element of the `probability` object; see [Pr()]. In other cases a `NULL` value is equivalent to a value 2.
 #' @param ... Other parameters to be passed to [base::print()].
 #'
 #' @seealso
@@ -834,7 +834,7 @@ print.probability <- function(
     x,
     elements = NULL,
     subset = NULL,
-    digits = 2,
+    digits = NULL,
     ...
 ){
     ## Replace object x keeping only values given in 'subset'
@@ -844,8 +844,11 @@ print.probability <- function(
 
     if(is.null(elements)){
         ## rearrange and combine values and quantiles in a special way
+
+        if(is.null(digits)){digits <- 1 + log10(c(x$values / x$values.MCaccuracy))}
+
         temp <- aperm(
-            a = array(c(x$values, x$quantiles),
+            a = array(signif(x = c(x$values, x$quantiles), digits = digits),
                 dim = dim(x$quantiles) + c(0, 0, 1),
                 dimnames = c(
                     dimnames(x$values),
@@ -854,9 +857,11 @@ print.probability <- function(
 
         if(is.null(x$X)){temp <- temp[,,]}
 
-        print(x = temp, digits = digits, ...)
+        print(x = temp, ...)
 
     } else {
-        print(x = x[elements], digits = digits, ...)
+        if(is.null(digits)){digits <- 2}
+
+        print(x = signif(x[elements], digit = digits), ...)
     }
 }
