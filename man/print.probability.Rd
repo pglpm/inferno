@@ -17,6 +17,9 @@
 
 \item{...}{Other parameters to be passed to \code{\link[base:print]{base::print()}}.}
 }
+\value{
+Its \code{x} argument, \emph{invisibly}; see \code{\link[base:print]{base::print()}}.
+}
 \description{
 This \code{\link[base:print]{base::print()}} method is a utility to display selected elements of a "probability" object obtained with \code{\link[=Pr]{Pr()}}; typically its posterior probabilies (element \verb{$values}) and their variabilities (element \verb{$quantiles}). If the \code{Y} or \code{X} variates are joint variates, this method also allow to display only selected values of them
 }

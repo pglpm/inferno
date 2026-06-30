@@ -32,6 +32,9 @@ plotquantiles(
 
 \item{...}{Other parameters to be passed to \code{\link[=flexiplot]{flexiplot()}}.}
 }
+\value{
+\code{NULL}, produces a plot, see \code{\link[graphics:matplot]{graphics::matplot()}}.
+}
 \description{
 Utility function to plot pairs of quantiles obtained with \code{\link[=Pr]{Pr()}}.
 }

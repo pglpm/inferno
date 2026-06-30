@@ -6,6 +6,8 @@
 #' @format ## `metadataExample`
 #' A data frame with 2 rows and 10 columns.
 #'
+#' @returns No return value.
+#'
 #' @seealso
 #' [metadatatemplate()] which helps producing this kind of metadata files from a given dataset.
 #'
@@ -29,6 +31,8 @@
 #'
 #' @format ## `learntExample`
 #' A list containing results from Markov-chain Monte Carlo computation, including diagnostics and variate metadata.
+#'
+#' @returns No return value.
 #'
 #' @seealso
 #' [learn()], which produces this kind of object.

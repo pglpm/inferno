@@ -13,6 +13,9 @@ A data frame with 2 rows and 10 columns.
 \usage{
 metadataExample
 }
+\value{
+No return value.
+}
 \description{
 A data frame containing the prior information about the variates \code{species} and \code{bill_len} of the \link[datasets:penguins]{datasets::penguins} dataset.
 }

@@ -44,6 +44,9 @@
 
 \item{...}{Other parameters to be passed to \code{\link[=flexiplot]{flexiplot()}}.}
 }
+\value{
+\code{NULL}, produces a plot, see \code{\link[graphics:matplot]{graphics::matplot()}}.
+}
 \description{
 This \code{\link[base:plot]{base::plot()}} method is a utility to plot probabilities obtained with \code{\link[=Pr]{Pr()}}, as well as their variabilities. The probabilities are plotted either against \code{Y}, with one curve for each value of \code{X}, or vice versa.
 }

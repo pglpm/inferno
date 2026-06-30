@@ -13,6 +13,9 @@ A list containing results from Markov-chain Monte Carlo computation, including d
 \usage{
 learntExample
 }
+\value{
+No return value.
+}
 \description{
 An example \code{learnt} object obtained by means of the \code{\link[=learn]{learn()}} function, using the \link[datasets:penguins]{datasets::penguins} dataset and the metadata in \link{metadataExample}, according to the call
 

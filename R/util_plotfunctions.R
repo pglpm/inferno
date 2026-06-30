@@ -24,6 +24,8 @@
 #' @param type,lty,lwd,pch,col,xlab,ylab,add,cex.main see analogous arguments in [graphics::matplot()].
 #' @param ... Other parameters to be passed to [graphics::matplot()].
 #'
+#' @returns `NULL`, produces a plot, see [graphics::matplot()].
+#'
 #' @seealso
 #' [Pr()] to calculate posterior probabilities and quantiles.
 #'
@@ -204,7 +206,8 @@ flexiplot <- function(
     col <- adjustcolor(col, alpha.f = alpha.f)
 
     graphics::matplot(x, y, xlim = xlim, ylim = ylim, type = type, axes = FALSE,
-        col = col, lty = lty, lwd = lwd, pch = pch, cex.main = cex.main, add = add, xlab = xlab, ylab = ylab, ...)
+        col = col, lty = lty, lwd = lwd, pch = pch, cex.main = cex.main,
+        add = add, xlab = xlab, ylab = ylab, ...)
     if(!add){
         graphics::axis(1, at = xat, labels = xdomain, tick = !grid,
             col = 'black', lwd = 1, lty = 1, ...)
@@ -216,6 +219,7 @@ flexiplot <- function(
             graphics::grid(nx = NULL, ny = NULL, lty = 1, col = '#BBBBBB80')
         }
     }
+    NULL
 }
 
 
@@ -232,6 +236,8 @@ flexiplot <- function(
 #' @param border Fill colour of the quantile bands. Can be specified in any of the usual ways, see for instance [grDevices::col2rgb()]. If `NA` (default), no border is drawn.
 #' @param type see analogous argument in [flexiplot()].
 #' @param ... Other parameters to be passed to [flexiplot()].
+#'
+#' @returns `NULL`, produces a plot, see [graphics::matplot()].
 #'
 #' @seealso
 #' [Pr()] to calculate posterior probabilities and quantiles.
@@ -315,6 +321,7 @@ plotquantiles <- function(
         graphics::polygon(x=c(x, rev(x)), y=c(y[,ii], rev(y[, nquant + 1 - ii])),
             col = col, border = border)
     }
+    NULL
 }
 
 
@@ -333,6 +340,8 @@ plotquantiles <- function(
 #' @param var.alpha.f Numeric: opacity of the quantile bands or of the samples, `0` being completely invisible and `1` completely opaque.
 #' @param lty,lwd,col,type,xlab,ylab,main,ylim,grid,add see analogous arguments in [graphics::matplot()]
 #' @param ... Other parameters to be passed to [flexiplot()].
+#'
+#' @returns `NULL`, produces a plot, see [graphics::matplot()].
 #'
 #' @seealso
 #' [Pr()] to calculate posterior probabilities and quantiles.
@@ -596,6 +605,7 @@ plot.probability <- function(
             ...)
     }
     }
+    NULL
 }
 
 
@@ -617,6 +627,8 @@ plot.probability <- function(
 #' @param showmean Logical, default `TRUE`: show the means of the probability distributions? The means correspond to the probabilities about the next observed unit.
 #' @param lty,lwd,col,alpha.f,xlab,ylab,xlim,ylim,main,grid,add see analogous arguments in [graphics::matplot()]
 #' @param ... Other parameters to be passed to [flexiplot()].
+#'
+#' @returns An object of class "histogram", see [graphics::hist()].
 #'
 #' @seealso
 #' [Pr()] to calculate posterior probabilities and quantiles.
@@ -789,7 +801,8 @@ hist.probability <- function(
             lwd = lwd,
             ...)
     }
-
+    ## Return output of initial hist()
+    hd
 }
 
 
@@ -803,6 +816,8 @@ hist.probability <- function(
 #' @param subset Named list or named vector: which variate values to display. For the variates corresponding to the names in this list, only the vector of values corresponding to that variate is displayed.
 #' @param digits positive number or `NULL` or `TRUE` (default): minimal number of significant digits, see [base::print.default()]. If value is `TRUE`, then the significant digits for elements `$values` and `$quantiles` are determined from their respective `$values.MCaccuracy` and `$quantiles.MCaccuracy` elements of the `probability` object, see [Pr()]; whereas `$samples` elements use 2 significant digits.
 #' @param ... Other parameters to be passed to [base::print()].
+#'
+#' @returns Its `x` argument, *invisibly*; see [base::print()].
 #'
 #' @seealso
 #' [Pr()] to calculate posterior probabilities and quantiles.
