@@ -13,8 +13,7 @@ plotFsamples(
   nFsamples = NULL,
   datahistogram = !(missing(data) || is.null(data)),
   datascatter = !(missing(data) || is.null(data)),
-  parallel = TRUE,
-  silent = FALSE
+  parallel = TRUE
 )
 }
 \arguments{
@@ -42,8 +41,6 @@ the quantiles (in range 0 to 0.5) to show}
 
 \item{parallel}{Logical or numeric: whether to use pre-existing parallel
 workers, or how many to create and use}
-
-\item{silent}{Logical: give warnings or updates in the computation}
 }
 \value{
 A list with the mutual information, its error, and its unit

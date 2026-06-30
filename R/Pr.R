@@ -30,7 +30,7 @@
 #' @param parallel Logical or positive integer or cluster object. `TRUE` (default): use roughly half of available cores; `FALSE`: use serial computation; integer: use this many cores. It can also be a cluster object previously created with [parallel::makeCluster()]; in this case the parallel computation will use this object.
 #' @param sep character, default `','`: character to separate variate names and values
 #' @param solidus character, default `'|'`: character prepended to names of the variates in the conditional (typically the `X` variates).
-#' @param silent Logical, default `FALSE`: give warnings or updates in the computation?
+#' @param verbose Logical, default `FALSE`: give messages about parallel processing?
 #' @param keepYX Logical, default `TRUE`: keep a copy of the `Y` and `X` arguments in the output? This is used for the plot method.
 #'
 #' @return A list of class `probability`, consisting of the following elements:
@@ -205,17 +205,13 @@ Pr <- function(
     parallel = TRUE,
     sep = ',',
     solidus = '|',
-    silent = FALSE,
+    verbose = FALSE,
     keepYX = TRUE
 ) {
     ## #' @param usememory Logical, default `TRUE`: save partial results to disc, to avoid excessive RAM use. (For the moment only possible value is `TRUE`.)
     usememory <- TRUE
 
     Qerror <- pnorm(c(-1, 1))
-
-    ## if (!silent) {
-    ##     cat('\n')
-    ## }
 
 #### Requested parallel processing
     ## NB: doesn't make sense to have more cores than chains
@@ -230,7 +226,7 @@ Pr <- function(
             floor(parallel::detectCores() / 2))
         cl <- parallel::makeCluster(ncores)
         closeexit <- TRUE
-        message('Registered ', capture.output(print(cl)), '.')
+        if(verbose){cat('Registered ', capture.output(print(cl)), '.\n')}
     } else if (isFALSE(parallel)) {
         ## user wants us not to use parallel cores
         ncores <- 1
@@ -242,7 +238,7 @@ Pr <- function(
         ncores <- parallel
         cl <- parallel::makeCluster(ncores)
         closeexit <- TRUE
-        message('Registered ', capture.output(print(cl)), '.')
+        if(verbose){cat('Registered ', capture.output(print(cl)), '.\n')}
     } else {
         stop("Unknown value of argument 'parallel'.")
     }
@@ -250,7 +246,7 @@ Pr <- function(
     ## Close parallel connections if any were opened
     if(closeexit) {
         closecoresonexit <- function(){
-            message('Closing connections to cores.')
+            if(verbose){cat('Closing connections to cores.\n')}
             parallel::stopCluster(cl)
             ## parallel::setDefaultCluster(NULL)
         }

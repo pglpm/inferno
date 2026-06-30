@@ -1,5 +1,5 @@
-library('prova')
-#devtools::load_all()
+#library('prova')
+devtools::load_all()
 
 set.seed(16)
 dataset <- data.frame(V = rnorm(n = 3))

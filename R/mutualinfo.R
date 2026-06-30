@@ -51,7 +51,7 @@
 #' @param n Integer or `NULL` (default): number of samples from which to approximately calculate the mutual information. Default as many as Monte Carlo samples in `learnt`.
 #' @param unit Either one of 'Sh' for *shannon* (default), 'Hart' for *hartley*, 'nat' for *natural unit*, or a positive real indicating the base of the logarithms to be used.
 #' @param parallel Logical or positive integer or cluster object. `TRUE` (default): use roughly half of available cores; `FALSE`: use serial computation; integer: use this many cores. It can also be a cluster object previously created with [parallel::makeCluster()]; in this case the parallel computation will use this object.
-#' @param silent Logical: give warnings or updates in the computation?
+#' @param verbose Logical, default `FALSE`: give messages about parallel processing?
 #'
 #' @return A list consisting of the following elements:
 #'
@@ -119,7 +119,7 @@ mutualinfo <- function(
     n = NULL,
     unit = 'Sh',
     parallel = TRUE,
-    silent = FALSE
+    verbose = FALSE
 ){
 #### Mutual information and conditional entropy between Y2 and Y1
 #### conditional on X, data, prior information
@@ -153,7 +153,7 @@ mutualinfo <- function(
             floor(parallel::detectCores() / 2))
         cl <- parallel::makeCluster(ncores)
         closeexit <- TRUE
-        message('Registered ', capture.output(print(cl)), '.')
+        if(verbose){cat('Registered ', capture.output(print(cl)), '.\n')}
     } else if (isFALSE(parallel)) {
         ## user wants us not to use parallel cores
         ncores <- 1
@@ -165,7 +165,7 @@ mutualinfo <- function(
         ncores <- parallel
         cl <- parallel::makeCluster(ncores)
         closeexit <- TRUE
-        message('Registered ', capture.output(print(cl)), '.')
+        if(verbose){cat('Registered ', capture.output(print(cl)), '.\n')}
     } else {
         stop("Unknown value of argument 'parallel'.")
     }
@@ -173,7 +173,7 @@ mutualinfo <- function(
     ## Close parallel connections if any were opened
     if(closeexit) {
         closecoresonexit <- function(){
-            message('Closing connections to cores.')
+            if(verbose){cat('Closing connections to cores.\n')}
             parallel::stopCluster(cl)
             ## parallel::setDefaultCluster(NULL)
         }

@@ -15,7 +15,7 @@ Pr(
   parallel = TRUE,
   sep = ",",
   solidus = "|",
-  silent = FALSE,
+  verbose = FALSE,
   keepYX = TRUE
 )
 }
@@ -41,7 +41,7 @@ the joint probability of. One variate per column, one set of values per row.}
 
 \item{solidus}{character, default \code{'|'}: character prepended to names of the variates in the conditional (typically the \code{X} variates).}
 
-\item{silent}{Logical, default \code{FALSE}: give warnings or updates in the computation?}
+\item{verbose}{Logical, default \code{FALSE}: give messages about parallel processing?}
 
 \item{keepYX}{Logical, default \code{TRUE}: keep a copy of the \code{Y} and \code{X} arguments in the output? This is used for the plot method.}
 }

@@ -18,7 +18,6 @@
 #' @param datascatter Logical: plot the data as scatterplot along the x-axis?
 #' @param parallel Logical or numeric: whether to use pre-existing parallel
 #'   workers, or how many to create and use
-#' @param silent Logical: give warnings or updates in the computation
 #'
 #' @return A list with the mutual information, its error, and its unit
 #'
@@ -36,8 +35,7 @@ plotFsamples <- function(
     nFsamples = NULL,
     datahistogram = !(missing(data) || is.null(data)),
     datascatter = !(missing(data) || is.null(data)),
-    parallel = TRUE,
-    silent = FALSE
+    parallel = TRUE
 ) {
     fontfamily <- 'Palatino'
     ## Tol colour-blind-friendly palette
@@ -106,9 +104,16 @@ plotFsamples <- function(
     addplot <- FALSE
 
     graphics.off()
+    ## make sure graphics device is closed also in case of error
+    on.exit(dev.off())
+    
     pdf(file = paste0(filename, '.pdf'), family = fontfamily,
         height = 8.27, width = 11.69)
-    par(mfrow = c(1, 1))
+    ## Save user's par()
+    ## oldpar <- par(mfrow = c(1, 1))
+    ## oldpar$new <- NULL
+    ## on.exit(par(oldpar))
+    ## on.exit(dev.off(), add = TRUE)
 
     for (name in auxmetadata[['name']]) {
         ## Check if we have proper data for this variate
@@ -134,7 +139,7 @@ plotFsamples <- function(
                     quantiles = quants,
                     nsamples = nmcsamples,
                     parallel = parallel,
-                    silent = TRUE,
+                    verbose = FALSE,
                     keepYX = FALSE)
 
                 dim(probabilities$values) <- NULL
@@ -289,7 +294,7 @@ plotFsamples <- function(
                     quantiles = quants,
                     nsamples = nmcsamples,
                     parallel = parallel,
-                    silent = TRUE,
+                    verbose = FALSE,
                     keepYX = FALSE)
 
                 dim(probabilities$values) <- NULL
@@ -571,7 +576,7 @@ plotFsamples <- function(
                     quantiles = quants,
                     nsamples = nmcsamples,
                     parallel = parallel,
-                    silent = TRUE,
+                    verbose = FALSE,
                     keepYX = FALSE)
 
                 dim(probabilities$values) <- NULL
@@ -770,6 +775,5 @@ plotFsamples <- function(
             }
         }) # End with
     }
-
-    dev.off()
+    NULL
 }

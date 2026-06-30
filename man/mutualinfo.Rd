@@ -13,7 +13,7 @@ mutualinfo(
   n = NULL,
   unit = "Sh",
   parallel = TRUE,
-  silent = FALSE
+  verbose = FALSE
 )
 }
 \arguments{
@@ -34,7 +34,7 @@ for an 'learnt.rds' object, or such an object itself.}
 
 \item{parallel}{Logical or positive integer or cluster object. \code{TRUE} (default): use roughly half of available cores; \code{FALSE}: use serial computation; integer: use this many cores. It can also be a cluster object previously created with \code{\link[parallel:makeCluster]{parallel::makeCluster()}}; in this case the parallel computation will use this object.}
 
-\item{silent}{Logical: give warnings or updates in the computation?}
+\item{verbose}{Logical, default \code{FALSE}: give messages about parallel processing?}
 }
 \value{
 A list consisting of the following elements:

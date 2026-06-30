@@ -44,6 +44,7 @@
 #' @param minESS Numeric positive or `NULL`, default 450: desired minimal Monte Carlo *Expected Sample Size*. If `NULL`, it is equal to the final `nsamplesperchain`. `minESS` is related to `maxrelMCSE` by \eqn{\mathrm{minESS} = 1/\mathrm{maxrelMCSE}^2 - \mathrm{initES}}.
 #' @param initES Numeric positive, default 2: number of initial "burn-in" samples, separated by the Expected Sample Size, to be discarded. Note that the Monte Carlo chain typically starts in a high-probability region, so there is no reason to discard many initial samples.
 #' @param thinning Integer or `NULL` (default): thin out the Monte Carlo samples by this value. If `NULL`: let the diagnostics decide the thinning value.
+#' @param verbose Logical, default `TRUE`: output the progress to terminal? If `FALSE`, the progress is outputted to the file `'main.log'` in the `outputdir` directory.
 #' @param plottraces Logical, default `TRUE`: save plots of the Monte Carlo traces of diagnostic values?
 #' @param showKtraces Logical, default `FALSE`: save plots of the Monte Carlo traces of the K parameter?
 #' @param showAlphatraces Logical, default `FALSE`: save plots of the Monte Carlo traces of the Alpha parameter?
@@ -155,6 +156,7 @@ learn <- function(
     minESS = 450,
     initES = 2,
     thinning = NULL,
+    verbose = TRUE,
     plottraces = !cleanup,
     showKtraces = FALSE,
     showAlphatraces = FALSE,
@@ -184,6 +186,12 @@ learn <- function(
         ## Qerror = c(0.055, 0.945) # pnorm(c(-1, 1))
     )
 ) {
+    ## Collect preliminary messages that will be printed to
+    ## the main log file in 'outputdir' (and to terminal if verbose = TRUE)
+    ## They cannot yet be printed because the 'outputdir' name
+    ## may depend on the output of the messages themselves
+    predirmsgs <- NULL
+
     ## Handles R CMD check:
     ## these are variables or functions handled in a special way by Nimble
     ## but R CMD check erroneously sees them as "rogue"
@@ -221,6 +229,10 @@ learn <- function(
         Qerror = pnorm(c(-1, 1))
         ## Qerror = c(0.055, 0.945) # pnorm(c(-1, 1))
     )
+
+    ## Reference credibility-interval width
+    ## maybe in future versions there will be arguments
+    ## for these parameters
     Qlo <- 0.055 # (100 - 89) / 200 # 0.055
     Qhi <- 0.945 # (100 + 89) / 200 # 0.945
 
@@ -258,7 +270,7 @@ learn <- function(
 #### Start timer
     timestart0 <- Sys.time()
 
-    cat('\n') # make sure possible error messages start on new line
+    ## cat('\n') # make sure possible error messages start on new line
 
     ## Set the RNG seed if given by user, or if no seed already exists
     if (!is.null(seed) || !exists('.Random.seed')) {
@@ -285,8 +297,9 @@ learn <- function(
         nchains <- ceiling(nsamples / nsamplesperchain)
         if(nsamples != nchains * nsamplesperchain){
             nsamples <- nchains * nsamplesperchain
-            cat('Increasing number of samples to', nsamples,
-                'to comply with given "nsamplesperchain"\n')
+            predirmsgs <- c(predirmsgs,
+                list('Increasing number of samples to', nsamples,
+                    'to comply with given "nsamplesperchain"\n'))
         }
     } else if (!missing(nchains) && missing(nsamplesperchain) &&
                    !missing(nsamples)){
@@ -294,8 +307,9 @@ learn <- function(
         nsamplesperchain <- ceiling(nsamples / nchains)
         if(nsamples != nchains * nsamplesperchain){
             nsamples <- nchains * nsamplesperchain
-            cat('Increasing number of samples to', nsamples,
-                'to comply with given "nchains"\n')
+            predirmsgs <- c(predirmsgs,
+                list('Increasing number of samples to', nsamples,
+                    'to comply with given "nchains"\n'))
         }
     } else if (!(missing(nchains) && missing(nsamplesperchain) &&
                      missing(nsamples))){
@@ -321,7 +335,8 @@ learn <- function(
             min(nchains, floor(parallel::detectCores() / 2)))
         cl <- parallel::makeCluster(ncores)
         closeexit <- TRUE
-        message('Registered ', capture.output(print(cl)), '.')
+            predirmsgs <- c(predirmsgs,
+                list('Registered', capture.output(print(cl)), '.'))
     } else if (isFALSE(parallel)) {
         ## user wants us not to use parallel cores
         ncores <- 1
@@ -333,7 +348,8 @@ learn <- function(
         ncores <- min(nchains, parallel)
         cl <- parallel::makeCluster(ncores)
         closeexit <- TRUE
-        message('Registered ', capture.output(print(cl)), '.')
+            predirmsgs <- c(predirmsgs,
+                list('Registered', capture.output(print(cl)), '.'))
     } else {
         stop("Unknown value of argument 'parallel'.")
     }
@@ -341,7 +357,7 @@ learn <- function(
     ## Close parallel connections if any were opened
     if(closeexit) {
         closecoresonexit <- function(){
-            message('Closing connections to cores.')
+            cat('\nClosing connections to cores.\n')
             parallel::stopCluster(cl)
             gc(full = TRUE)
             ## parallel::setDefaultCluster(NULL)
@@ -420,7 +436,7 @@ learn <- function(
 
         ## convert factors to strings if necessary
         if(any(sapply(data, is.factor))){
-            message('Converting factors to characters.')
+            ## message('Converting factors to characters.')
             . <- sapply(data, is.factor)
             data[, .] <- lapply(data[, ., drop = FALSE], as.character)
         }
@@ -435,7 +451,8 @@ learn <- function(
 
         ## Drop variates in data that are not in the metadata file
         if (!all(colnames(data) %in% metadata[['name']])) {
-            message('Warning: data have additional variates. Dropping them.')
+            predirmsgs <- c(predirmsgs,
+                list('Data have additional variates. Dropping them.\n'))
             subvar <- intersect(colnames(data), metadata[['name']])
             data <- data[, subvar, drop = FALSE]
             rm(subvar)
@@ -454,7 +471,8 @@ learn <- function(
         ## Check if the user wants to use a subset of the dataset
         if (is.numeric(subsampledata)) {
             ## @@TODO: find faster and memory-saving subsetting
-            message('Subsampling data, as requested.')
+            predirmsgs <- c(predirmsgs,
+                list('Subsampling data, as requested.\n'))
             data <- data[sample(seq_len(nrow(data)),
                 min(subsampledata, nrow(data)),
                 replace = FALSE), ]
@@ -464,7 +482,8 @@ learn <- function(
 
     } else {
         ## data not given: we assume user wants prior calculation
-        message('Missing data')
+        predirmsgs <- c(predirmsgs,
+            list('Missing data'))
         prior <- TRUE
         npoints <- 0
     }
@@ -498,7 +517,8 @@ learn <- function(
 
         ## Drop variates in auxdata that are not in the metadata file
         if (!all(colnames(auxdata) %in% metadata[['name']])) {
-            message('Warning: auxdata have additional variates. Dropping them.')
+            predirmsgs <- c(predirmsgs,
+                list('Warning: auxdata have additional variates. Dropping them.\n'))
             subvar <- intersect(colnames(auxdata), metadata[['name']])
             auxdata <- auxdata[, subvar, drop = FALSE]
             rm(subvar)
@@ -509,7 +529,8 @@ learn <- function(
         if(length(tokeep) == 0 && !prior) {
             stop('Auxdata are given but empty')
         } else if(length(tokeep) < nrow(auxdata)) {
-            message('Warning: auxdata contain empty datapoints. Dropping them.')
+            predirmsgs <- c(predirmsgs,
+                list('Warning: auxdata contain empty datapoints. Dropping them.\n'))
             auxdata <- auxdata[tokeep, , drop = FALSE]
         }
         rm(tokeep)
@@ -529,10 +550,10 @@ learn <- function(
     )
     ## print(auxmetadata) # for debugging
 
-    message(paste0('\nProva v', packageVersion('prova'), '.'))
-
-    message('Learning from ', npoints, ' datapoints, ',
-        nrow(auxmetadata), ' variates.')
+    predirmsgs <- c(predirmsgs,
+        list(paste0('\nProva v', packageVersion('prova'), '.\n',
+        'Learning from ', npoints, ' datapoints, ',
+        nrow(auxmetadata), ' variates.\n')) )
 
 #### Output-folder setup
     prefix <- paste0(
@@ -549,7 +570,7 @@ learn <- function(
     )
     if(is.null(outputdir)){
         if(!isTRUE(valueislearnt)) {
-            message('\nWARNING: with the chosen "outputdir" and "valueislearnt" arguments, results are not saved to a persistent directory and not outputted; they will likely be lost.')
+            warning('With the chosen "outputdir" and "valueislearnt" arguments, results are not saved to a persistent directory and not outputted; they will likely be lost.')
         }
         ## Use a temporary output directory
         dirname <- tempfile(pattern = paste0('prova-', prefix, '_'))
@@ -566,12 +587,30 @@ learn <- function(
     }
     dir.create(dirname)
 
-    ## Print information
-    cat('\n Saving output in directory\n', dirname, '\n\n')
-
-    ## This is in case we need to add some extra specifier to the output files
+    ## This is in case we need to add some extra specifier to the  files
     ## all 'dashnameroot' can be deleted in a final version
     dashnameroot <- NULL
+
+    ## Print information about output directory
+    message('\nSaving output in directory\n', dirname, '\n')
+
+    ## Create main log file in output directory, and direct cat() to it
+    ## also keep printing to terminal if verbose = TRUE
+    mainlog <- file.path(dirname, 'main.log')
+    maincon0 <- file(mainlog, open = 'w')
+    sink(file = maincon0, split = verbose)
+    closecons0 <- function(){
+        ## Close output to log files
+        flush(maincon0)
+        sink(file = NULL, type = 'output')
+        sink(file = NULL, type = 'message')
+        close(maincon0)
+    }
+    on.exit(closecons0(), add = TRUE)
+
+    ## Print accumulated messages
+    do.call(what = cat, args = predirmsgs)
+    flush(maincon0)
 
     ## Save copy of metadata and auxmetadata in directory
     write.csv(metadata, file = file.path(dirname, 'metadata.csv'),
@@ -614,7 +653,7 @@ learn <- function(
 
 #### Check if user wants to calculate prior
     if (prior) {
-        message('CALCULATING PRIOR DISTRIBUTION')
+        cat('CALCULATING PRIOR DISTRIBUTION\n')
         if(is.null(data)) {
             ## no data available: construct one datapoint from the metadata info
             testdata <- as.matrix(
@@ -951,8 +990,8 @@ learn <- function(
         file = file.path(dirname, paste0('___datapoints', dashnameroot, '.rds')))
 
 #### Output information to user
-    message('Starting Monte Carlo sampling of ', nsamples, ' samples by ',
-        nchains, ' chains')
+    cat('Starting Monte Carlo sampling of', nsamples, 'samples by',
+        nchains, 'chains\n')
 
     samplespacedims <- (vn$R * 2 + vn$C * 2 + vn$D * 2 + # means, vars
                             (if(vn$O > 0){Omaxn - vn$O}else{0}) +
@@ -967,18 +1006,15 @@ learn <- function(
         sum(is.na(data)) # missing data
 
 
-    message('in a space of ', samplespacedims, ' (effectively ',
-        samplespacedims + samplespacexdims, ') dimensions.')
+    cat('in a space of', samplespacedims, paste0('(effectively ',
+        samplespacedims + samplespacexdims, ') dimensions.\n'))
 
-    message('Using ', ncores, ' cores: ',
-        nsamplesperchain, ' samples per chain, max ',
-        minchainspercore + (coreswithextrachain > 0), ' chains per core.')
-    message('Requested:   ESS ', round(minESS),
-        '   rel.MCSE ', signif(maxrelMCSE, 3), '.')
-    message('Core logs are being saved in individual files.')
-    message('C-compiling samplers appropriate to the variates (Nimble ',
-        paste0('v', packageVersion('nimble')), ')')
-    message('this can take tens of minutes. Please wait...')
+    cat('Using', ncores, 'cores:',
+        nsamplesperchain, 'samples per chain, max',
+        minchainspercore + (coreswithextrachain > 0), 'chains per core.\n')
+    cat('Requested:   ESS', round(minESS),
+        '  rel.MCSE', signif(maxrelMCSE, 3), '.\n')
+    cat('Core logs are being saved in individual files.\n')
 
     ## outconmain <- file(file.path(dirname,
     ##     paste0('log', dashnameroot,
@@ -996,6 +1032,13 @@ learn <- function(
     ##     }
     ## }
     ## on.exit(restoresink())
+
+    ## Restore sink before starting parallel processes
+    ## It will be handled by them
+    ## flush(maincon0)
+    ## sink(file = NULL, type = 'output')
+    ## sink(file = NULL, type = 'message')
+    ## close(maincon0)
 
     ## function  to format printing of time
     printtimediff <- function(tim) {
@@ -1053,11 +1096,13 @@ learn <- function(
         minMCiterations = minMCiterations,
         printtimediff = printtimediff,
         family = family,
+        mainlog = mainlog,
+        verbose = verbose,
         ##
         chunk.size = NULL
         )
 
-    chaininfo <- do.call(rbind, chaininfo)
+    chaininfo <- do.call(what = rbind, args = chaininfo)
     ## restore output to std
     ## flush(outconmain)
     ## sink(file = NULL, type = 'output')
@@ -1175,28 +1220,35 @@ learn <- function(
     ## This cat() is to delete the last 'estimated end time'
     cat('\r                                                               \n')
 
-    message('Finished Monte Carlo sampling.')
+    cat('Finished Monte Carlo sampling.\n')
 
-    message(
-        'Highest number of Monte Carlo iterations across chains: ',
+    cat(
+        'Highest number of Monte Carlo iterations across chains:',
         maxiterations, '.',
-        '\nHighest number of used mixture components: ',
-        maxusedcomponents, '.'
+        '\nHighest number of used mixture components:',
+        maxusedcomponents, '.\n'
     )
     if (maxusedcomponents > ncomponents - 5) {
-        message('\nTOO MANY MIXTURE COMPONENTS USED!\n',
-            'Consider re-running with increased "ncomponents" parameter.')
+        cat('\nTOO MANY MIXTURE COMPONENTS USED!\n',
+            'Consider re-running with increased "ncomponents" parameter.\n')
+        warning('\nTOO MANY MIXTURE COMPONENTS USED!\n',
+            'Consider re-running with increased "ncomponents" parameter.\n')
     }
 
     if (nonfinitechains > 0) {
-        message('\nNote: ', nonfinitechains,
-            ' chains had some non-finite outputs.')
+        cat('\nNote:', nonfinitechains, 'chains had some non-finite outputs.\n')
     }
 
     if (stoppedchains > 0) {
-        message('\nNOTE: ', stoppedchains,
-            ' chains were stopped before reaching required precision\n',
-            'in order to meet the required time constraints.')
+        cat('\nNOTE:', stoppedchains,
+            'chains were stopped before reaching required precision\n',
+            'in order to meet the required time constraints.\n')
+        ## Important to warn the user about this
+        if(!verbose){
+            message('\nNOTE: ', stoppedchains,
+                ' chains were stopped before reaching required precision\n',
+                'in order to meet the required time constraints.')
+        }
     }
 
 
@@ -1207,8 +1259,8 @@ learn <- function(
 
     testdata <- readRDS(file = file.path(dirname,
         paste0('___testdata_', 0, '.rds')))
-    message('\nChecking test data\n(',
-        paste0('#', testdata$pointsid, collapse = ' '), '):')
+    cat('\nChecking test data\n(',
+        paste0('#', testdata$pointsid, collapse = ' '), '):\n')
 
     oktraces <- util_Pcheckpoints(
         testdata = testdata,
@@ -1318,18 +1370,18 @@ learn <- function(
 ####
     for(i in names(toprint)) {
         thisdiagn <- toprint[[i]]
-        message(i, ': ',
+        cat(i, ':',
             if(length(thisdiagn) > 1){
                 paste(signif(range(thisdiagn), 3), collapse = ' to ')
             } else {
                 signif(thisdiagn, 3)
-            }
+            }, '\n'
         )
     }
 
 
     ## Plot various info and traces
-    message('\nPlotting final Monte Carlo traces and marginal samples...\n')
+    cat('\nPlotting final Monte Carlo traces and marginal samples...\n')
 
     ##
     ## colpalette <- seq_len(ncol(oktraces))
@@ -1382,7 +1434,7 @@ learn <- function(
         plotvariability = 'samples',
         nFsamples = showsamples, plotprobability = TRUE,
         datahistogram = TRUE, datascatter = TRUE,
-        parallel = cl, silent = TRUE
+        parallel = cl
     )
 
     ## cat('Plotting marginal samples with quantiles.\n')
@@ -1394,7 +1446,7 @@ learn <- function(
         plotvariability = 'quantiles',
         nFsamples = plotDisplayedQuantiles, plotprobability = TRUE,
         datahistogram = TRUE, datascatter = TRUE,
-        parallel = cl, silent = TRUE
+        parallel = cl
     )
 ##})
     ## restore output to std
@@ -1419,18 +1471,18 @@ learn <- function(
 
 
     totalfinaltime <- difftime(Sys.time(), timestart0, units = 'auto')
-    message(
-        'Total computation time: ', printtimediff(totalfinaltime),
-        '\nAverage preparation & finalization time: ',
+    cat(
+        'Total computation time:', printtimediff(totalfinaltime),
+        '\nAverage preparation & finalization time:',
         printtimediff(
             difftime(Sys.time() + headertime, headertimestart, units = 'auto')
         ), '.',
-        '\nAverage Monte Carlo time per chain: ',
+        '\nAverage Monte Carlo time per chain:',
         printtimediff(
             difftime(headertimestart + MCtime, headertimestart, units = 'auto')
         ), '.',
-        '\nMax total memory used: approx ', signif(totusedmem, 2), 'MB.',
-        '\nMax memory used per core: approx ', signif(maxusedmem, 2), 'MB.'
+        '\nMax total memory used: approx', signif(totusedmem, 2), 'MB.',
+        '\nMax memory used per core: approx', signif(maxusedmem, 2), 'MB.\n'
     )
     ## if (exists('cl')) {
     ##     cat('\nClosing connections to cores.\n')
@@ -1444,7 +1496,7 @@ learn <- function(
     ## Should we leave the plots of partial traces?
     ## maybe create an additional argument to let the user decide?
     if (cleanup) {
-        message('Removing temporary output files.')
+        cat('Removing temporary output files.\n')
         file.remove(dir(dirname,
             pattern = paste0('^___.*\\..*$'),
             full.names = TRUE
@@ -1457,9 +1509,12 @@ learn <- function(
     ## (for the moment there's one plot per chain)
 
     asterisks <- paste0(rep('*', max(nchar(dirname), 26)), collapse = '')
-    message('\nFinished.\n', asterisks,
+    cat('\nFinished.\n\n', asterisks,
         '\n Output saved in directory\n', dirname, '\n',
         asterisks, '\n')
+    ## message('\nFinished.\n', asterisks,
+    ##     '\n Output saved in directory\n', dirname, '\n',
+    ##     asterisks, '\n')
 
 
     ## What should we output? how about the full name of the output dir?
@@ -1515,8 +1570,10 @@ workerfun <- function(
     nsamplesperchain,
     minMCiterations,
     printtimediff,
-    family
-) {
+    family,
+    mainlog,
+    verbose
+){
     ## Handles R CMD check:
     ## these are variables or functions handled in a special way by Nimble
     ## but R CMD check erroneously sees them as "rogue"
@@ -1528,14 +1585,6 @@ nimbleFunction <- sampler_BASE <- extractControlElement <- model <- target <- Nd
     printtimeend <- function(tim) {
         format(Sys.time() + tim, format='%Y-%m-%d %H:%M')
     }
-    ## We need to send some messages to the log files, others to the user.
-    ## This is done by changing output sink:
-    print2user <- function(msg, outcon) {
-        flush(outcon)
-        sink(file = NULL, type = 'message')
-        message(msg, appendLF = FALSE)
-        sink(file = outcon, type = 'message')
-    }
 
     ## Create log file
     ## Redirect diagnostics and service messages there
@@ -1543,18 +1592,35 @@ nimbleFunction <- sampler_BASE <- extractControlElement <- model <- target <- Nd
         paste0('log', dashnameroot,
             '-', acore, '.log')
     ), open = 'w')
-    sink(file = outcon, type = 'output')
-    sink(file = outcon, type = 'message')
-    ## Leave this FALSE to bypass message bug in doParallel
-    if(TRUE){
-        closecons <- function(){
-            ## Close output to log files
-            flush(outcon)
-            sink(file = NULL, type = 'output')
+    sink(file = outcon, type = 'output', split = FALSE)
+    sink(file = outcon, type = 'message', split = FALSE)
+    ## Restore sink in case of exit or error
+    closecons <- function(){
+        ## Close output to log files
+        flush(outcon)
+        sink(file = NULL, type = 'output')
+        sink(file = NULL, type = 'message')
+        close(outcon)
+    }
+    on.exit(closecons())
+
+    ## We need to send some messages to individual core-log files,
+    ## others to the main log file (and to terminal if verbose = TRUE)
+    ## This is done by changing output sink:
+    maincon <- file(mainlog, open = 'a')
+    print2user <- function(msg, outcon) {
+        flush(outcon)
+        ## sink(file = NULL)
+        ## cat(msg)
+        ## sink(file = outcon)
+        if(verbose){
             sink(file = NULL, type = 'message')
-            close(outcon)
+            message(msg, appendLF = FALSE)
         }
-        on.exit(closecons())
+        sink(file = maincon, type = 'message')
+        ## message(msg, appendLF = FALSE)
+        message(msg, appendLF = FALSE)
+        sink(file = outcon, type = 'message')
     }
 
     usedmem <- sum(gc(full = TRUE)[,6])
@@ -1571,6 +1637,15 @@ nimbleFunction <- sampler_BASE <- extractControlElement <- model <- target <- Nd
     if (!require('nimble', quietly = TRUE)) {
         stop("Package 'nimble' must be installed.", call. = FALSE)
     }
+
+    if (acore == 1) {
+        print2user(paste0(
+        'C-compiling samplers appropriate to the variates (Nimble v',
+        packageVersion('nimble'), ')\n',
+        'this can take tens of minutes. Please wait...\n'
+        ), outcon)
+    }
+
     ## suppressPackageStartupMessages(library('nimble'))
     cat('Loaded Nimble', paste0('v', packageVersion('nimble')), '\n')
     ## requireNamespace("nimble", quietly = TRUE)
@@ -3125,7 +3200,7 @@ nimbleFunction <- sampler_BASE <- extractControlElement <- model <- target <- Nd
                         paste(signif(range(thisdiagn), 3), collapse = ' to ')
                     } else {
                         signif(thisdiagn, 3)
-                    }
+                    }, '\n'
                 )
             }
 
@@ -3277,7 +3352,11 @@ nimbleFunction <- sampler_BASE <- extractControlElement <- model <- target <- Nd
                 )
 
                 ## Traces of likelihood and cond. probabilities
-                par(mfrow = c(1, 1))
+                ## Save user's par()
+                ## oldpar <- par(mfrow = c(1, 1))
+                ## oldpar$new <- NULL
+                ## on.exit(par(oldpar), add = TRUE)
+
                 for (avar in 1:ncol(traces)) {
                     flexiplot(
                         y = 10*log10(traces[is.finite(traces[, avar]), avar]),

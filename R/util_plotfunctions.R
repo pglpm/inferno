@@ -214,12 +214,15 @@ flexiplot <- function(
         graphics::axis(2, at = yat, labels = ydomain, tick = !grid,
             col = 'black', lwd = 1, lty = 1, ...)
         if(grid){
+            ## Save and restore user's par()
+            oldpar <- par(no.readonly = TRUE)
             if(exists('xaxp')){ par(xaxp = xaxp) }
             if(exists('yaxp')){ par(yaxp = yaxp) }
+            on.exit(par(oldpar))
             graphics::grid(nx = NULL, ny = NULL, lty = 1, col = '#BBBBBB80')
         }
     }
-    NULL
+    invisible()
 }
 
 
@@ -321,7 +324,7 @@ plotquantiles <- function(
         graphics::polygon(x=c(x, rev(x)), y=c(y[,ii], rev(y[, nquant + 1 - ii])),
             col = col, border = border)
     }
-    NULL
+    invisible()
 }
 
 
@@ -605,7 +608,7 @@ plot.probability <- function(
             ...)
     }
     }
-    NULL
+    invisible()
 }
 
 
@@ -628,7 +631,7 @@ plot.probability <- function(
 #' @param lty,lwd,col,alpha.f,xlab,ylab,xlim,ylim,main,grid,add see analogous arguments in [graphics::matplot()]
 #' @param ... Other parameters to be passed to [flexiplot()].
 #'
-#' @returns An object of class "histogram", see [graphics::hist()].
+#' @returns Invisibly (see [base::invisible()]), an object of class "histogram", see [graphics::hist()].
 #'
 #' @seealso
 #' [Pr()] to calculate posterior probabilities and quantiles.
@@ -802,7 +805,7 @@ hist.probability <- function(
             ...)
     }
     ## Return output of initial hist()
-    hd
+    invisible(hd)
 }
 
 

@@ -37,7 +37,9 @@ workerfun(
   nsamplesperchain,
   minMCiterations,
   printtimediff,
-  family
+  family,
+  mainlog,
+  verbose
 )
 }
 \description{

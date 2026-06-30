@@ -1,5 +1,5 @@
-library('prova')
-#devtools::load_all()
+#library('prova')
+devtools::load_all()
 
 set.seed(16)
 parallel <- 2
@@ -18,6 +18,7 @@ learntdir <- learn(
     parallel = parallel,
     maxrelMCSE = +Inf,
     minESS = 100,
+    verbose = FALSE,
     ## ncheckpoints = 12,
     ##
     ## ## parameters for short test run:

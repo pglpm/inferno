@@ -28,6 +28,7 @@ learn(
   minESS = 450,
   initES = 2,
   thinning = NULL,
+  verbose = TRUE,
   plottraces = !cleanup,
   showKtraces = FALSE,
   showAlphatraces = FALSE,
@@ -84,6 +85,8 @@ learn(
 \item{initES}{Numeric positive, default 2: number of initial "burn-in" samples, separated by the Expected Sample Size, to be discarded. Note that the Monte Carlo chain typically starts in a high-probability region, so there is no reason to discard many initial samples.}
 
 \item{thinning}{Integer or \code{NULL} (default): thin out the Monte Carlo samples by this value. If \code{NULL}: let the diagnostics decide the thinning value.}
+
+\item{verbose}{Logical, default \code{TRUE}: output the progress to terminal? If \code{FALSE}, the progress is outputted to the file \code{'main.log'} in the \code{outputdir} directory.}
 
 \item{plottraces}{Logical, default \code{TRUE}: save plots of the Monte Carlo traces of diagnostic values?}
 

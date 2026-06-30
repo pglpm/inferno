@@ -43,7 +43,7 @@
 \item{...}{Other parameters to be passed to \code{\link[=flexiplot]{flexiplot()}}.}
 }
 \value{
-An object of class "histogram", see \code{\link[graphics:hist]{graphics::hist()}}.
+Invisibly (see \code{\link[base:invisible]{base::invisible()}}), an object of class "histogram", see \code{\link[graphics:hist]{graphics::hist()}}.
 }
 \description{
 The posterior probabilities calculated with the \code{\link[=Pr]{Pr()}} function, and outputted as a \code{probability} object, have an associated variability that comes from the finite size of the data sample. This variability can be interpreted in two ways:
