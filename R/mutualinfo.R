@@ -17,7 +17,7 @@
 #' an expression which can also be written in several other equivalent ways. It is an information-theoretic measure of association that is model-free, that is, does not depend on assumptions such as linearity, gaussianity, and similar. See `vignette('mutualinfo')` for discussion and example uses, and also the "References" section.  If \eqn{Y_1, Y_2} are *jointly gaussian variates*, then there is a mathematical correspondence between their mutual information and their Pearson correlation coefficient; see output `MI.rGauss` in the "Value" section.
 #'
 #' The conditional entropy of \eqn{Y_1} with respect to \eqn{Y_2}, conditional on \eqn{X = x}, is given by
-#' \deqn{\mathit{CondEn12}(Y_1, Y_2 \vert X = x) :=
+#' \deqn{\mathit{CondEn12}(Y_1, Y_2 \vert X = x) \mathrel{:=}
 #' -\sum_{y_1, y_2}
 #' \mathrm{Pr}(Y_1 = y_1 \vert Y_2 = y_2, X = x, \text{data})
 #' \log_2
@@ -28,7 +28,7 @@
 #' }
 #'
 #' The (differential) entropy of \eqn{Y_1}, conditional on \eqn{X = x}, is given by
-#' \deqn{\mathit{En1}(Y_1 \vert X = x) :=
+#' \deqn{\mathit{En1}(Y_1 \vert X = x) \mathrel{:=}
 #' -\sum_{y_1}
 #' \mathrm{Pr}(Y_1 = y_1 \vert X = x, \text{data})
 #' \log_2

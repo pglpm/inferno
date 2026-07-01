@@ -22,7 +22,7 @@ This repository provides an R package and some theoretical background to perform
 - **Automatic imputation** of missing data: all sample data are used, even those that lacks some variate values. The imputation is done with a principled method (the marginalization rule of probability theory), rather than ad-hoc procedures.
 - Easy and straightforward **subgroup analyses** and **stratified analyses**, for any division of variates, with full statistical details.
 - **Quantification of generalization** beyond the finite sample size. In other words, quantification of uncertainty of results regarding the whole, unsampled, population.
-- Straightforward use within **decision theory**, such as **clinical decision-making**. Users can immediately combine the probabilistic results with any measures of utilities, such as [quality-adjusted life years](https://radiopaedia.org/articles/quality-adjusted-life-year-1).
+- Straightforward use within **decision theory**, such as **clinical decision-making**. Users can immediately combine the probabilistic results with any measures of utilities, such as [quality-adjusted life years](https://toolbox.eupati.eu/glossary/quality-adjusted-life-year/).
 - **Quantification of associations** between any kinds of variates, without modelling assumptions (gaussianity, linearity, etc.), thanks to the use of [*mutual information*](https://electropedia.org/iev/iev.nsf/display?openform&ievref=171-07-26).
 - **Automated Markov-chain Monte Carlo** computation. Users unfamiliar with Monte Carlo methods don't have to worry, because the computations are handled automatically.
 
