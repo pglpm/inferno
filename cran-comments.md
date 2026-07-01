@@ -1,42 +1,25 @@
-## CRAN comments for prova 0.7.0
+## CRAN comments for prova 1.0.0
 
-Second submission.
+Corrections after reviewer's feedback (many thanks):
 
-- Changed dependence type from 'Nimble' package to avoid Warning.
-- Solved "no visible bindings for several global variables" Note.
-- Put examples that take too long computation within '\donttest{}'.
+- Removed redundant "Functions for..." from DESCRIPTION.
 
+- Added \value to .Rd files for all functions (even those with no return value), including description of structure of returned object. Added appropriate links to classes for return objects of special class (e.g. "histogram" in 'hist.probability()').
+
+- Added argument 'verbose =' to all functions that output information to console. Default for all is 'FALSE', so no messages to console unless the user explicitly asks for it. Only exception with 'verbose = TRUE' is the function 'learn()', from which users typically want information about remaining computation time. But also in this case no information at all is printed to console if the user sets 'verbose = FALSE'.
+  
+  Please note: 'cat()' and 'print()' in the internal function 'workerfun()' only print to temporary files, never to console, and they do so in a temporary, non-interactive R session spawned by 'parallel::parLapply()'.
+
+- Changes to user's 'par()' are now returned to initial values by means of 'on.exit()', as recommended by the reviewer (only occur in function 'flexiplot()', file 'util_plotfunctions.R'). No other changes to 'par()' or 'options()' or working directory occur in the code.
+
+- Cleaned code, added documentation, improved a vignette.
 
 ### R CMD check results
 
 Linux (R-devel), Windows (win-builder, R-devel):
 
-0 errors | 0 warnings | 2 notes
-
-Please see explanations below about Notes.
-
+0 errors | 0 warnings | 1 note
 
 ### Reverse dependency check:
 
 No reverse dependencies.
-
-
-### Explanation about Notes and other items
-
-- Words spellings have been double-checked and are correct.
-
-- URLs to 'dictionary.cambridge.org' are valid; probably they are blocked by Cloudflare when checked by a bot.
-
-
-- Note 1: Maintainer has another package on CRAN ('Pinference').
-
-
-- Note 2: The package 'nimble', used by the 'learn()' function of the present package, cannot be only loaded with 'requireNamespace()' and called with '::', as opposed to attached with 'require()' or 'library()'. This is because of the way it works; see discussion at <https://groups.google.com/g/nimble-users/c/dDNE3L_sPxI/m/IyRgmXOaBwAJ>.
-
-However, the function 'learn()' is the only one that uses the 'nimble' package, and *it only uses that package in one or more temporary, separate, non-interactive R sessions*, spawned by the 'parallel' package. Those sessions are closed before 'learn()' returns its output. This function does not need 'nimble' at all outside those temporary R sessions. And the 'nimble' package is *not* used or needed by any other functions of the present package.
-
-The functions of this package can become very memory expensive, so the code is written as to minimize memory use. If 'nimble' were added among the "Imports", it would always be attached upon attaching the present package, unnecessarily occupying around 100 MB of memory.
-
-For this reason I would prefer to leave 'nimble' among the "Suggested" packages, rather than among the "Imports" ones, and attach it with 'require()' the temporary, non-interactive R session where it is used.
-
-I am happy to hear about better solutions from the CRAN reviewers.
