@@ -1,3 +1,11 @@
+# Prova v1.0.0
+
+* Improved documentation, also of internal functions.
+* Introduced argument `verbose =` in several function, so as to show information to console only if the user so desires. This argument is `FALSE` for all functions except `learn()`.
+* Added example of imputation in vignette.
+* Rewritten README with description of the package's main features.
+* Cleaned up code.
+
 # Prova v0.9.0
 
 * Improved documentation, also of internal functions.
