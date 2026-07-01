@@ -55,8 +55,9 @@ learn(
 - metadata:
 
   [metadata](https://pglpm.github.io/prova/reference/metadatatemplate.md)
-  about the dataset's variates, given either as a data frame or as a
-  file path to a CSV file.
+  about the dataset's variates, given either as a [data
+  frame](https://rdrr.io/r/base/data.frame.html) or as a file path to a
+  CSV file.
 
 - auxdata:
 
@@ -434,10 +435,10 @@ learnt <- learn(
 )
 #> 
 #> Saving output in directory
-#> /tmp/RtmpVur9pF/prova-V1_D3_S10_260701T084206_1a6b1a241ca5
+#> /tmp/RtmpmaLeiT/prova-V1_D3_S10_260701T122030_1a5e7ee4d9b5
 #> 
 #> Saving output in directory
-#> /tmp/RtmpVur9pF/prova-V1_D3_S10_260701T084206_1a6b1a241ca5
+#> /tmp/RtmpmaLeiT/prova-V1_D3_S10_260701T122030_1a5e7ee4d9b5
 #> Prova v1.0.0.
 #> Prova v1.0.0.
 #> Registered socket cluster with 1 nodes on host ‘localhost’.
@@ -481,14 +482,14 @@ learnt <- learn(
 #> Plotting final Monte Carlo traces and marginal samples...
 #> 
 #> Plotting final Monte Carlo traces and marginal samples...
-#> Total computation time: 34 secs
-#> Average preparation & finalization time: 33 secs.
-#> Average Monte Carlo time per chain: 0.58 secs.
+#> Total computation time: 33 secs
+#> Average preparation & finalization time: 32 secs.
+#> Average Monte Carlo time per chain: 0.72 secs.
 #> Max total memory used: approx 350MB.
 #> Max memory used per core: approx 350MB.
-#> Total computation time: 34 secs
-#> Average preparation & finalization time: 33 secs.
-#> Average Monte Carlo time per chain: 0.58 secs.
+#> Total computation time: 33 secs
+#> Average preparation & finalization time: 32 secs.
+#> Average Monte Carlo time per chain: 0.72 secs.
 #> Max total memory used: approx 350MB.
 #> Max memory used per core: approx 350MB.
 #> Removing temporary output files.
@@ -497,13 +498,13 @@ learnt <- learn(
 #> 
 #> **********************************************************
 #> Output saved in directory
-#> /tmp/RtmpVur9pF/prova-V1_D3_S10_260701T084206_1a6b1a241ca5
+#> /tmp/RtmpmaLeiT/prova-V1_D3_S10_260701T122030_1a5e7ee4d9b5
 #> **********************************************************
 #> Finished.
 #> 
 #> **********************************************************
 #> Output saved in directory
-#> /tmp/RtmpVur9pF/prova-V1_D3_S10_260701T084206_1a6b1a241ca5
+#> /tmp/RtmpmaLeiT/prova-V1_D3_S10_260701T122030_1a5e7ee4d9b5
 #> **********************************************************
 #> Closing connections to cores.
 #> Closing connections to cores.

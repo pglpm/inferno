@@ -84,7 +84,8 @@ flexiplot(
 
 ## Value
 
-`NULL`, produces a plot, see
+`NULL`, [invisibly](https://rdrr.io/r/base/invisible.html); produces a
+plot, see
 [`graphics::matplot()`](https://rdrr.io/r/graphics/matplot.html).
 
 ## Details

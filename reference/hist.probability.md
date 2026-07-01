@@ -96,10 +96,8 @@ hist(
 
 ## Value
 
-Invisibly (see
-[`base::invisible()`](https://rdrr.io/r/base/invisible.html)), an object
-of class "histogram", see
-[`graphics::hist()`](https://rdrr.io/r/graphics/hist.html).
+[Invisibly](https://rdrr.io/r/base/invisible.html), an object of class
+["histogram"](https://rdrr.io/r/graphics/hist.html).
 
 ## See also
 

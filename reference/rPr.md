@@ -63,9 +63,9 @@ rPr(
 
 ## Value
 
-A data frame of joint draws of the variates `Ynames` from the posterior
-distribution, conditional on `X`. The row names of the data frame report
-the Monte Carlo sample (from
+A [data frame](https://rdrr.io/r/base/data.frame.html) of joint draws of
+the variates `Ynames` from the posterior distribution, conditional on
+`X`. The row names of the data frame report the Monte Carlo sample (from
 [`learn()`](https://pglpm.github.io/prova/reference/learn.md)) used for
 that draw, and the total number of draws from that sample so far.
 

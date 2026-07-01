@@ -121,7 +121,7 @@ the joint probability of. One variate per column, one set of values per row.</p>
 </dl></div>
     <div class="section level2">
     <h2 id="value">Value<a class="anchor" aria-label="anchor" href="#value"></a></h2>
-    <p>A list of class <code>probability</code>, consisting of the following elements:</p><ul><li><p><code>values</code>: a matrix with the probabilities \(\mathrm{Pr}(Y = y \vert X = x, \text{data})\), for all joint values \(y\) of the \(Y\)-variates (rows) and  all joint values \(x\) of the \(X\)-variates (columns).</p></li>
+    <p>An object of class "probability", effectively a list consisting of the following elements:</p><ul><li><p><code>values</code>: a matrix with the probabilities \(\mathrm{Pr}(Y = y \vert X = x, \text{data})\), for all joint values \(y\) of the \(Y\)-variates (rows) and  all joint values \(x\) of the \(X\)-variates (columns).</p></li>
 <li><p><code>quantiles</code> (possibly <code>NULL</code>): an array with the variability quantiles (3rd dimension of the array) for such probabilities.</p></li>
 <li><p><code>samples</code> (possibly <code>NULL</code>): an array with the variability samples (3rd dimension of the array) for such probabilities.</p></li>
 <li><p><code>values.MCaccuracy</code>, <code>quantiles.MCaccuracy</code>: arrays with the numerical accuracies (roughly speaking a standard deviation) of the Monte Carlo calculations for the <code>values</code> and <code>quantiles</code> elements.</p></li>

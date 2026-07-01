@@ -16,23 +16,33 @@ pread.csv(file, ...)
 - x:
 
   The object to be written. Preferably a matrix or data frame; if not,
-  it is attempted to coerce `x` to a data frame. See
-  [`utils::write.table()`](https://rdrr.io/r/utils/write.table.html).
+  it is attempted to coerce `x` to a [data
+  frame](https://rdrr.io/r/base/data.frame.html). See
+  [`utils::write.csv()`](https://rdrr.io/r/utils/write.table.html).
 
 - file:
 
   Either a character naming a file or a connection open for writing or
   reading. See
-  [`utils::write.table()`](https://rdrr.io/r/utils/write.table.html) and
-  [`utils::read.table()`](https://rdrr.io/r/utils/read.table.html).
+  [`utils::write.csv()`](https://rdrr.io/r/utils/write.table.html) and
+  [`utils::read.csv()`](https://rdrr.io/r/utils/read.table.html).
 
 - ...:
 
   Other arguments to be passed to
-  [`utils::write.table()`](https://rdrr.io/r/utils/write.table.html) or
-  [`utils::read.table()`](https://rdrr.io/r/utils/read.table.html).
+  [`utils::write.csv()`](https://rdrr.io/r/utils/write.table.html) or
+  [`utils::read.csv()`](https://rdrr.io/r/utils/read.table.html).
   Arguments 'row.names', 'quote', 'na', 'na.strings', 'tryLogical',
   'sep', 'dec' are not allowed.
+
+## Value
+
+`pread.csv` returns a [data
+frame](https://rdrr.io/r/base/data.frame.html) containing a
+representation of the data in the file; see
+[`utils::read.csv()`](https://rdrr.io/r/utils/read.table.html).
+`pwrite.csv' returns `NULL\`
+[invisibly](https://rdrr.io/r/base/invisible.html).
 
 ## Details
 
@@ -57,10 +67,9 @@ accept CSV files formatted as follows:
   names instead.
 
 The utility functions `pwrite.csv()` and `pread.csv()` are wrappers to
-[`utils::write.table()`](https://rdrr.io/r/utils/write.table.html) and
-[`utils::read.table()`](https://rdrr.io/r/utils/read.table.html) that
-set appropriate default parameters according to the formatting rules
-above.
+[`utils::write.csv()`](https://rdrr.io/r/utils/write.table.html) and
+[`utils::read.csv()`](https://rdrr.io/r/utils/read.table.html) that set
+appropriate default parameters according to the formatting rules above.
 
 ## See also
 

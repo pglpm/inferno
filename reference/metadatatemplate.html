@@ -66,7 +66,7 @@
 
 
 <dl><dt id="arg-data">data<a class="anchor" aria-label="anchor" href="#arg-data"></a></dt>
-<dd><p>A dataset, given as a <code><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">base::data.frame()</a></code>
+<dd><p>A dataset, given as a <a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data frame</a>
 or as a file path to a csv file.</p></dd>
 
 
@@ -98,7 +98,7 @@ Default <code>TRUE</code>.</p></dd>
 </dl></div>
     <div class="section level2">
     <h2 id="value">Value<a class="anchor" aria-label="anchor" href="#value"></a></h2>
-    <p>If <code>file = NULL</code>, a preliminary <code><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">base::data.frame()</a></code> containing the metadata; if <code>file</code> is a character, a preliminary metadata file is created with that name and path.</p>
+    <p>A preliminary <a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data frame</a> containing the metadata, <a href="https://rdrr.io/r/base/invisible.html" class="external-link">invisibly</a> if <code>file = NULL</code>. If argument <code>file</code> is a character, a preliminary metadata file is also created with that name or path.</p>
     </div>
     <div class="section level2">
     <h2 id="details">Details<a class="anchor" aria-label="anchor" href="#details"></a></h2>
@@ -133,65 +133,55 @@ Default <code>TRUE</code>.</p></dd>
     <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
     <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="co">## Create a preliminary data frame of metadata for the `penguins` dataset</span></span></span>
 <span class="r-in"><span><span class="va">metadata</span> <span class="op">&lt;-</span> <span class="fu">metadatatemplate</span><span class="op">(</span>data <span class="op">=</span> <span class="fu">datasets</span><span class="fu">::</span><span class="va"><a href="https://rdrr.io/r/datasets/penguins.html" class="external-link">penguins</a></span>, file <span class="op">=</span> <span class="cn">NULL</span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Converting factors to characters</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Analyzing 8 variates for 344 datapoints.</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> * "species" variate:</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   -  3 different  values detected:</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  "Adelie", "Chinstrap", "Gentoo" </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   which do not seem to refer to an ordered scale.</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   Assuming variate to be NOMINAL.</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> * "island" variate:</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   -  3 different  values detected:</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  "Biscoe", "Dream", "Torgersen" </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   which do not seem to refer to an ordered scale.</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   Assuming variate to be NOMINAL.</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> * "bill_len" variate:</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   - Numeric values between 32.1 and 59.6 </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   Assuming variate to be CONTINUOUS.</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   - Distance between datapoints is a multiple of 0.1 </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   Assuming variate to be ROUNDED.</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   - All values are positive</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   Assuming "domainmin" to be 0</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> * "bill_dep" variate:</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   - Numeric values between 13.1 and 21.5 </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   Assuming variate to be CONTINUOUS.</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   - Distance between datapoints is a multiple of 0.1 </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   Assuming variate to be ROUNDED.</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   - All values are positive</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   Assuming "domainmin" to be 0</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> * "flipper_len" variate:</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   - Numeric values between 172 and 231 </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   Assuming variate to be CONTINUOUS.</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   - Distance between datapoints is a multiple of 1 </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   Assuming variate to be ROUNDED.</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   - All values are positive</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   Assuming "domainmin" to be 0</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> * "body_mass" variate:</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   - Numeric values between 2700 and 6300 </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   Assuming variate to be CONTINUOUS.</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   - Distance between datapoints is a multiple of 25 </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   Assuming variate to be ROUNDED.</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   - All values are positive</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   Assuming "domainmin" to be 0</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> * "sex" variate:</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   -  2 different  values detected:</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  "female", "male" </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   which do not seem to refer to an ordered scale.</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   Assuming variate to be NOMINAL.</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> * "year" variate:</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   - Only 3 different numeric values detected:</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> from 2007 to 2009 in steps of 1 </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   Assuming variate to be ORDINAL.</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Converting factors to characters</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Analyzing8variates for344datapoints.</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> * "species" variate:</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span>   - 3 different values detected:</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> "Adelie", "Chinstrap", "Gentoo"</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span>   which do not seem to refer to an ordered scale.</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span>   Assuming variate to be NOMINAL.</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> * "island" variate:</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span>   - 3 different values detected:</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> "Biscoe", "Dream", "Torgersen"</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span>   which do not seem to refer to an ordered scale.</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span>   Assuming variate to be NOMINAL.</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> * "bill_len" variate:</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span>   - Numeric values between 32.1 and 59.6</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span>   Assuming variate to be CONTINUOUS.</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span>   - Distance between datapoints is a multiple of 0.1</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span>   Assuming variate to be ROUNDED.</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span>   - All values are positive</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span>   Assuming "domainmin" to be 0</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> * "bill_dep" variate:</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span>   - Numeric values between 13.1 and 21.5</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span>   Assuming variate to be CONTINUOUS.</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span>   - Distance between datapoints is a multiple of 0.1</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span>   Assuming variate to be ROUNDED.</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span>   - All values are positive</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span>   Assuming "domainmin" to be 0</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> * "flipper_len" variate:</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span>   - Numeric values between 172 and 231</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span>   Assuming variate to be CONTINUOUS.</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span>   - Distance between datapoints is a multiple of 1</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span>   Assuming variate to be ROUNDED.</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span>   - All values are positive</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span>   Assuming "domainmin" to be 0</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> * "body_mass" variate:</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span>   - Numeric values between 2700 and 6300</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span>   Assuming variate to be CONTINUOUS.</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span>   - Distance between datapoints is a multiple of 25</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span>   Assuming variate to be ROUNDED.</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span>   - All values are positive</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span>   Assuming "domainmin" to be 0</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> * "sex" variate:</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span>   - 2 different values detected:</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> "female", "male"</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span>   which do not seem to refer to an ordered scale.</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span>   Assuming variate to be NOMINAL.</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> * "year" variate:</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span>   - Only3 different numeric values detected:</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> from 2007 to 2009 in steps of 1</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span>   Assuming variate to be ORDINAL.</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> =========</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> WARNINGS - please make sure to check these variates in the metadata file:</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
@@ -205,7 +195,7 @@ Default <code>TRUE</code>.</p></dd>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> and then transformed to logarithmic scale.</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> This may lead to problems in the inference.</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Preferably, transform it back to non-logarithmic scale.</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> =========</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> =========</span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co">## Note how the preliminary data frame includes additional spots</span></span></span>
 <span class="r-in"><span><span class="co">## for values of nominal and ordinal variates</span></span></span>
@@ -237,24 +227,20 @@ Default <code>TRUE</code>.</p></dd>
 <span class="r-in"><span>  data <span class="op">=</span> <span class="fu">datasets</span><span class="fu">::</span><span class="va"><a href="https://rdrr.io/r/datasets/penguins.html" class="external-link">penguins</a></span>, file <span class="op">=</span> <span class="cn">NULL</span>,</span></span>
 <span class="r-in"><span>  includevrt <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">'species'</span>, <span class="st">'bill_len'</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Converting factors to characters</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Analyzing 2 variates for 344 datapoints.</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> * "species" variate:</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   -  3 different  values detected:</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  "Adelie", "Chinstrap", "Gentoo" </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   which do not seem to refer to an ordered scale.</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   Assuming variate to be NOMINAL.</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> * "bill_len" variate:</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   - Numeric values between 32.1 and 59.6 </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   Assuming variate to be CONTINUOUS.</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   - Distance between datapoints is a multiple of 0.1 </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   Assuming variate to be ROUNDED.</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   - All values are positive</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   Assuming "domainmin" to be 0</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Converting factors to characters</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Analyzing2variates for344datapoints.</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> * "species" variate:</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span>   - 3 different values detected:</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> "Adelie", "Chinstrap", "Gentoo"</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span>   which do not seem to refer to an ordered scale.</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span>   Assuming variate to be NOMINAL.</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> * "bill_len" variate:</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span>   - Numeric values between 32.1 and 59.6</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span>   Assuming variate to be CONTINUOUS.</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span>   - Distance between datapoints is a multiple of 0.1</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span>   Assuming variate to be ROUNDED.</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span>   - All values are positive</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span>   Assuming "domainmin" to be 0</span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="va">metadata2</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>       name       type domainmin domainmax datastep minincluded maxincluded</span>
@@ -271,60 +257,51 @@ Default <code>TRUE</code>.</p></dd>
 <span class="r-in"><span>  data <span class="op">=</span> <span class="fu">datasets</span><span class="fu">::</span><span class="va"><a href="https://rdrr.io/r/datasets/penguins.html" class="external-link">penguins</a></span>, file <span class="op">=</span> <span class="cn">NULL</span>,</span></span>
 <span class="r-in"><span>  excludevrt <span class="op">=</span> <span class="st">'year'</span></span></span>
 <span class="r-in"><span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Converting factors to characters</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Analyzing 7 variates for 344 datapoints.</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> * "species" variate:</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   -  3 different  values detected:</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  "Adelie", "Chinstrap", "Gentoo" </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   which do not seem to refer to an ordered scale.</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   Assuming variate to be NOMINAL.</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> * "island" variate:</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   -  3 different  values detected:</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  "Biscoe", "Dream", "Torgersen" </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   which do not seem to refer to an ordered scale.</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   Assuming variate to be NOMINAL.</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> * "bill_len" variate:</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   - Numeric values between 32.1 and 59.6 </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   Assuming variate to be CONTINUOUS.</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   - Distance between datapoints is a multiple of 0.1 </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   Assuming variate to be ROUNDED.</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   - All values are positive</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   Assuming "domainmin" to be 0</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> * "bill_dep" variate:</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   - Numeric values between 13.1 and 21.5 </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   Assuming variate to be CONTINUOUS.</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   - Distance between datapoints is a multiple of 0.1 </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   Assuming variate to be ROUNDED.</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   - All values are positive</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   Assuming "domainmin" to be 0</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> * "flipper_len" variate:</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   - Numeric values between 172 and 231 </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   Assuming variate to be CONTINUOUS.</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   - Distance between datapoints is a multiple of 1 </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   Assuming variate to be ROUNDED.</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   - All values are positive</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   Assuming "domainmin" to be 0</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> * "body_mass" variate:</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   - Numeric values between 2700 and 6300 </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   Assuming variate to be CONTINUOUS.</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   - Distance between datapoints is a multiple of 25 </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   Assuming variate to be ROUNDED.</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   - All values are positive</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   Assuming "domainmin" to be 0</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> * "sex" variate:</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   -  2 different  values detected:</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  "female", "male" </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   which do not seem to refer to an ordered scale.</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   Assuming variate to be NOMINAL.</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Converting factors to characters</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Analyzing7variates for344datapoints.</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> * "species" variate:</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span>   - 3 different values detected:</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> "Adelie", "Chinstrap", "Gentoo"</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span>   which do not seem to refer to an ordered scale.</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span>   Assuming variate to be NOMINAL.</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> * "island" variate:</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span>   - 3 different values detected:</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> "Biscoe", "Dream", "Torgersen"</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span>   which do not seem to refer to an ordered scale.</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span>   Assuming variate to be NOMINAL.</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> * "bill_len" variate:</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span>   - Numeric values between 32.1 and 59.6</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span>   Assuming variate to be CONTINUOUS.</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span>   - Distance between datapoints is a multiple of 0.1</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span>   Assuming variate to be ROUNDED.</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span>   - All values are positive</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span>   Assuming "domainmin" to be 0</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> * "bill_dep" variate:</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span>   - Numeric values between 13.1 and 21.5</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span>   Assuming variate to be CONTINUOUS.</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span>   - Distance between datapoints is a multiple of 0.1</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span>   Assuming variate to be ROUNDED.</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span>   - All values are positive</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span>   Assuming "domainmin" to be 0</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> * "flipper_len" variate:</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span>   - Numeric values between 172 and 231</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span>   Assuming variate to be CONTINUOUS.</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span>   - Distance between datapoints is a multiple of 1</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span>   Assuming variate to be ROUNDED.</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span>   - All values are positive</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span>   Assuming "domainmin" to be 0</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> * "body_mass" variate:</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span>   - Numeric values between 2700 and 6300</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span>   Assuming variate to be CONTINUOUS.</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span>   - Distance between datapoints is a multiple of 25</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span>   Assuming variate to be ROUNDED.</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span>   - All values are positive</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span>   Assuming "domainmin" to be 0</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> * "sex" variate:</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span>   - 2 different values detected:</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> "female", "male"</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span>   which do not seem to refer to an ordered scale.</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span>   Assuming variate to be NOMINAL.</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> =========</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> WARNINGS - please make sure to check these variates in the metadata file:</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
@@ -333,7 +310,7 @@ Default <code>TRUE</code>.</p></dd>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> * "body_mass" variate appears to be continuous and rounded,</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> but it could also be an ordinal variate</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> =========</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> =========</span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="va">metadata3</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>          name       type domainmin domainmax datastep minincluded maxincluded</span>
@@ -359,16 +336,13 @@ Default <code>TRUE</code>.</p></dd>
 <span class="r-in"><span><span class="co">## `metadatatemplate` correctly guesses the variate minimum,</span></span></span>
 <span class="r-in"><span><span class="co">## but not the maximum (`NA` is equivalent to `+Inf`)</span></span></span>
 <span class="r-in"><span><span class="va">metadata</span> <span class="op">&lt;-</span> <span class="fu">metadatatemplate</span><span class="op">(</span>data <span class="op">=</span> <span class="va">dataset</span>, file <span class="op">=</span> <span class="cn">NULL</span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Analyzing 1 variates for 10 datapoints.</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> * "data" variate:</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   - Numeric values between 0.002492428 and 0.9964129 </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   Assuming variate to be CONTINUOUS.</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   - All values are positive</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   Assuming "domainmin" to be 0</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   with 0 excluded from domain.</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Analyzing1variates for10datapoints.</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> * "data" variate:</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span>   - Numeric values between 0.00249242829158902 and 0.996412934735417</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span>   Assuming variate to be CONTINUOUS.</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span>   - All values are positive</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span>   Assuming "domainmin" to be 0</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span>   with 0 excluded from domain.</span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="va">metadata</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   name       type domainmin domainmax datastep minincluded maxincluded V1 V2 V3</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> 1 data continuous         0        NA       NA          NA          NA NA NA NA</span>

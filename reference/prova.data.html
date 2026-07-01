@@ -60,17 +60,21 @@
 
 
 <dl><dt id="arg-x">x<a class="anchor" aria-label="anchor" href="#arg-x"></a></dt>
-<dd><p>The object to be written. Preferably a matrix or data frame; if not, it is attempted to coerce <code>x</code> to a data frame. See <code><a href="https://rdrr.io/r/utils/write.table.html" class="external-link">utils::write.table()</a></code>.</p></dd>
+<dd><p>The object to be written. Preferably a matrix or data frame; if not, it is attempted to coerce <code>x</code> to a <a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data frame</a>. See <code><a href="https://rdrr.io/r/utils/write.table.html" class="external-link">utils::write.csv()</a></code>.</p></dd>
 
 
 <dt id="arg-file">file<a class="anchor" aria-label="anchor" href="#arg-file"></a></dt>
-<dd><p>Either a character naming a file or a connection open for writing or reading. See <code><a href="https://rdrr.io/r/utils/write.table.html" class="external-link">utils::write.table()</a></code> and <code><a href="https://rdrr.io/r/utils/read.table.html" class="external-link">utils::read.table()</a></code>.</p></dd>
+<dd><p>Either a character naming a file or a connection open for writing or reading. See <code><a href="https://rdrr.io/r/utils/write.table.html" class="external-link">utils::write.csv()</a></code> and <code><a href="https://rdrr.io/r/utils/read.table.html" class="external-link">utils::read.csv()</a></code>.</p></dd>
 
 
 <dt id="arg--">...<a class="anchor" aria-label="anchor" href="#arg--"></a></dt>
-<dd><p>Other arguments to be passed to <code><a href="https://rdrr.io/r/utils/write.table.html" class="external-link">utils::write.table()</a></code> or <code><a href="https://rdrr.io/r/utils/read.table.html" class="external-link">utils::read.table()</a></code>. Arguments 'row.names', 'quote', 'na', 'na.strings', 'tryLogical', 'sep', 'dec' are not allowed.</p></dd>
+<dd><p>Other arguments to be passed to <code><a href="https://rdrr.io/r/utils/write.table.html" class="external-link">utils::write.csv()</a></code> or <code><a href="https://rdrr.io/r/utils/read.table.html" class="external-link">utils::read.csv()</a></code>. Arguments 'row.names', 'quote', 'na', 'na.strings', 'tryLogical', 'sep', 'dec' are not allowed.</p></dd>
 
 </dl></div>
+    <div class="section level2">
+    <h2 id="value">Value<a class="anchor" aria-label="anchor" href="#value"></a></h2>
+    <p><code>pread.csv</code> returns a <a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data frame</a> containing a representation of the data in the file; see <code><a href="https://rdrr.io/r/utils/read.table.html" class="external-link">utils::read.csv()</a></code>. <code>pwrite.csv' returns </code>NULL` <a href="https://rdrr.io/r/base/invisible.html" class="external-link">invisibly</a>.</p>
+    </div>
     <div class="section level2">
     <h2 id="details">Details<a class="anchor" aria-label="anchor" href="#details"></a></h2>
     <p>The functions <code><a href="learn.html">learn()</a></code> and <code><a href="metadatatemplate.html">metadatatemplate()</a></code> accept CSV files formatted as follows:</p><ul><li><p>Decimal values should be separated by a <em>dot</em>; no comma should be used to separate thousands etc. Example: <code>86342.75</code>.</p></li>
@@ -78,7 +82,7 @@
 <li><p>Values should be separated by <em>commas</em>, not by tabs or semicolons.</p></li>
 <li><p>Missing values should be simply <em>empty</em>, not denoted by "NA", "missing", "-", or similar.</p></li>
 <li><p>Preferably there should not be factors (see <a href="https://rdrr.io/r/base/factor.html" class="external-link">base::factor</a>); use character names instead.</p></li>
-</ul><p>The utility functions <code>pwrite.csv()</code> and <code>pread.csv()</code> are wrappers to <code><a href="https://rdrr.io/r/utils/write.table.html" class="external-link">utils::write.table()</a></code> and <code><a href="https://rdrr.io/r/utils/read.table.html" class="external-link">utils::read.table()</a></code> that set appropriate default parameters according to the formatting rules above.</p>
+</ul><p>The utility functions <code>pwrite.csv()</code> and <code>pread.csv()</code> are wrappers to <code><a href="https://rdrr.io/r/utils/write.table.html" class="external-link">utils::write.csv()</a></code> and <code><a href="https://rdrr.io/r/utils/read.table.html" class="external-link">utils::read.csv()</a></code> that set appropriate default parameters according to the formatting rules above.</p>
     </div>
     <div class="section level2">
     <h2 id="see-also">See also<a class="anchor" aria-label="anchor" href="#see-also"></a></h2>

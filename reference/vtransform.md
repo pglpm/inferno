@@ -82,4 +82,5 @@ vtransform(
 
 ## Value
 
-data frame of transformed variates, or their log-Jacobians.
+A [data frame](https://rdrr.io/r/base/data.frame.html) of transformed
+variates, or their log-Jacobians.

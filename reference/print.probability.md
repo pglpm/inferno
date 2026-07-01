@@ -53,8 +53,8 @@ print(x, elements = NULL, subset = NULL, digits = TRUE, ...)
 
 ## Value
 
-Its `x` argument, *invisibly*; see
-[`base::print()`](https://rdrr.io/r/base/print.html).
+Its `x` argument, [invisibly](https://rdrr.io/r/base/invisible.html);
+see [`base::print()`](https://rdrr.io/r/base/print.html).
 
 ## See also
 

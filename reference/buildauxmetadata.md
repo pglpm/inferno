@@ -1,8 +1,9 @@
 # Build augmented metadata file
 
-Builds an augmented metadata data frame from the metadata and data given
-to 'learn()'. This augmented metadata object is saved in the 'learnt'
-object produced by 'learn()'.
+Builds an augmented metadata [data
+frame](https://rdrr.io/r/base/data.frame.html) from the metadata and
+data given to 'learn()'. This augmented metadata object is saved in the
+'learnt' object produced by 'learn()'.
 
 ## Usage
 
@@ -31,7 +32,7 @@ buildauxmetadata(data, metadata, Dthreshold = 1, tscalefactor = 4.266)
 
 ## Value
 
-an auxmetadata data.frame object
+A [data frame](https://rdrr.io/r/base/data.frame.html) with auxmetadata.
 
 ## Details
 

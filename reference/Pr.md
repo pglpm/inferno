@@ -122,7 +122,8 @@ Pr(
 
 ## Value
 
-A list of class `probability`, consisting of the following elements:
+An object of class "probability", effectively a list consisting of the
+following elements:
 
 - `values`: a matrix with the probabilities \\\mathrm{Pr}(Y = y \vert X
   = x, \text{data})\\, for all joint values \\y\\ of the \\Y\\-variates

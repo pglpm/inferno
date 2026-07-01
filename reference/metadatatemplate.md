@@ -21,9 +21,9 @@ metadatatemplate(
 
 - data:
 
-  A dataset, given as a
-  [`base::data.frame()`](https://rdrr.io/r/base/data.frame.html) or as a
-  file path to a csv file.
+  A dataset, given as a [data
+  frame](https://rdrr.io/r/base/data.frame.html) or as a file path to a
+  csv file.
 
 - file:
 
@@ -53,10 +53,11 @@ metadatatemplate(
 
 ## Value
 
-If `file = NULL`, a preliminary
-[`base::data.frame()`](https://rdrr.io/r/base/data.frame.html)
-containing the metadata; if `file` is a character, a preliminary
-metadata file is created with that name and path.
+A preliminary [data frame](https://rdrr.io/r/base/data.frame.html)
+containing the metadata,
+[invisibly](https://rdrr.io/r/base/invisible.html) if `file = NULL`. If
+argument `file` is a character, a preliminary metadata file is also
+created with that name or path.
 
 ## Details
 
@@ -208,65 +209,55 @@ probabilities, based on data and metadata.
 ``` r
 ## Create a preliminary data frame of metadata for the `penguins` dataset
 metadata <- metadatatemplate(data = datasets::penguins, file = NULL)
-#> 
 #> Converting factors to characters
-#> Analyzing 8 variates for 344 datapoints.
-#> 
+#> Analyzing8variates for344datapoints.
 #> * "species" variate:
-#>   -  3 different  values detected:
-#>  "Adelie", "Chinstrap", "Gentoo" 
+#>   - 3 different values detected:
+#> "Adelie", "Chinstrap", "Gentoo"
 #>   which do not seem to refer to an ordered scale.
 #>   Assuming variate to be NOMINAL.
-#> 
 #> * "island" variate:
-#>   -  3 different  values detected:
-#>  "Biscoe", "Dream", "Torgersen" 
+#>   - 3 different values detected:
+#> "Biscoe", "Dream", "Torgersen"
 #>   which do not seem to refer to an ordered scale.
 #>   Assuming variate to be NOMINAL.
-#> 
 #> * "bill_len" variate:
-#>   - Numeric values between 32.1 and 59.6 
+#>   - Numeric values between 32.1 and 59.6
 #>   Assuming variate to be CONTINUOUS.
-#>   - Distance between datapoints is a multiple of 0.1 
+#>   - Distance between datapoints is a multiple of 0.1
 #>   Assuming variate to be ROUNDED.
 #>   - All values are positive
 #>   Assuming "domainmin" to be 0
-#> 
 #> * "bill_dep" variate:
-#>   - Numeric values between 13.1 and 21.5 
+#>   - Numeric values between 13.1 and 21.5
 #>   Assuming variate to be CONTINUOUS.
-#>   - Distance between datapoints is a multiple of 0.1 
+#>   - Distance between datapoints is a multiple of 0.1
 #>   Assuming variate to be ROUNDED.
 #>   - All values are positive
 #>   Assuming "domainmin" to be 0
-#> 
 #> * "flipper_len" variate:
-#>   - Numeric values between 172 and 231 
+#>   - Numeric values between 172 and 231
 #>   Assuming variate to be CONTINUOUS.
-#>   - Distance between datapoints is a multiple of 1 
+#>   - Distance between datapoints is a multiple of 1
 #>   Assuming variate to be ROUNDED.
 #>   - All values are positive
 #>   Assuming "domainmin" to be 0
-#> 
 #> * "body_mass" variate:
-#>   - Numeric values between 2700 and 6300 
+#>   - Numeric values between 2700 and 6300
 #>   Assuming variate to be CONTINUOUS.
-#>   - Distance between datapoints is a multiple of 25 
+#>   - Distance between datapoints is a multiple of 25
 #>   Assuming variate to be ROUNDED.
 #>   - All values are positive
 #>   Assuming "domainmin" to be 0
-#> 
 #> * "sex" variate:
-#>   -  2 different  values detected:
-#>  "female", "male" 
+#>   - 2 different values detected:
+#> "female", "male"
 #>   which do not seem to refer to an ordered scale.
 #>   Assuming variate to be NOMINAL.
-#> 
 #> * "year" variate:
-#>   - Only 3 different numeric values detected:
-#> from 2007 to 2009 in steps of 1 
+#>   - Only3 different numeric values detected:
+#> from 2007 to 2009 in steps of 1
 #>   Assuming variate to be ORDINAL.
-#> 
 #> =========
 #> WARNINGS - please make sure to check these variates in the metadata file:
 #> 
@@ -312,24 +303,20 @@ metadata2 <- metadatatemplate(
   data = datasets::penguins, file = NULL,
   includevrt = c('species', 'bill_len')
 )
-#> 
 #> Converting factors to characters
-#> Analyzing 2 variates for 344 datapoints.
-#> 
+#> Analyzing2variates for344datapoints.
 #> * "species" variate:
-#>   -  3 different  values detected:
-#>  "Adelie", "Chinstrap", "Gentoo" 
+#>   - 3 different values detected:
+#> "Adelie", "Chinstrap", "Gentoo"
 #>   which do not seem to refer to an ordered scale.
 #>   Assuming variate to be NOMINAL.
-#> 
 #> * "bill_len" variate:
-#>   - Numeric values between 32.1 and 59.6 
+#>   - Numeric values between 32.1 and 59.6
 #>   Assuming variate to be CONTINUOUS.
-#>   - Distance between datapoints is a multiple of 0.1 
+#>   - Distance between datapoints is a multiple of 0.1
 #>   Assuming variate to be ROUNDED.
 #>   - All values are positive
 #>   Assuming "domainmin" to be 0
-#> 
 
 print(metadata2)
 #>       name       type domainmin domainmax datastep minincluded maxincluded
@@ -346,60 +333,51 @@ metadata3 <- metadatatemplate(
   data = datasets::penguins, file = NULL,
   excludevrt = 'year'
 )
-#> 
 #> Converting factors to characters
-#> Analyzing 7 variates for 344 datapoints.
-#> 
+#> Analyzing7variates for344datapoints.
 #> * "species" variate:
-#>   -  3 different  values detected:
-#>  "Adelie", "Chinstrap", "Gentoo" 
+#>   - 3 different values detected:
+#> "Adelie", "Chinstrap", "Gentoo"
 #>   which do not seem to refer to an ordered scale.
 #>   Assuming variate to be NOMINAL.
-#> 
 #> * "island" variate:
-#>   -  3 different  values detected:
-#>  "Biscoe", "Dream", "Torgersen" 
+#>   - 3 different values detected:
+#> "Biscoe", "Dream", "Torgersen"
 #>   which do not seem to refer to an ordered scale.
 #>   Assuming variate to be NOMINAL.
-#> 
 #> * "bill_len" variate:
-#>   - Numeric values between 32.1 and 59.6 
+#>   - Numeric values between 32.1 and 59.6
 #>   Assuming variate to be CONTINUOUS.
-#>   - Distance between datapoints is a multiple of 0.1 
+#>   - Distance between datapoints is a multiple of 0.1
 #>   Assuming variate to be ROUNDED.
 #>   - All values are positive
 #>   Assuming "domainmin" to be 0
-#> 
 #> * "bill_dep" variate:
-#>   - Numeric values between 13.1 and 21.5 
+#>   - Numeric values between 13.1 and 21.5
 #>   Assuming variate to be CONTINUOUS.
-#>   - Distance between datapoints is a multiple of 0.1 
+#>   - Distance between datapoints is a multiple of 0.1
 #>   Assuming variate to be ROUNDED.
 #>   - All values are positive
 #>   Assuming "domainmin" to be 0
-#> 
 #> * "flipper_len" variate:
-#>   - Numeric values between 172 and 231 
+#>   - Numeric values between 172 and 231
 #>   Assuming variate to be CONTINUOUS.
-#>   - Distance between datapoints is a multiple of 1 
+#>   - Distance between datapoints is a multiple of 1
 #>   Assuming variate to be ROUNDED.
 #>   - All values are positive
 #>   Assuming "domainmin" to be 0
-#> 
 #> * "body_mass" variate:
-#>   - Numeric values between 2700 and 6300 
+#>   - Numeric values between 2700 and 6300
 #>   Assuming variate to be CONTINUOUS.
-#>   - Distance between datapoints is a multiple of 25 
+#>   - Distance between datapoints is a multiple of 25
 #>   Assuming variate to be ROUNDED.
 #>   - All values are positive
 #>   Assuming "domainmin" to be 0
-#> 
 #> * "sex" variate:
-#>   -  2 different  values detected:
-#>  "female", "male" 
+#>   - 2 different values detected:
+#> "female", "male"
 #>   which do not seem to refer to an ordered scale.
 #>   Assuming variate to be NOMINAL.
-#> 
 #> =========
 #> WARNINGS - please make sure to check these variates in the metadata file:
 #> 
@@ -434,16 +412,13 @@ dataset <- runif(10)
 ## `metadatatemplate` correctly guesses the variate minimum,
 ## but not the maximum (`NA` is equivalent to `+Inf`)
 metadata <- metadatatemplate(data = dataset, file = NULL)
-#> 
-#> Analyzing 1 variates for 10 datapoints.
-#> 
+#> Analyzing1variates for10datapoints.
 #> * "data" variate:
-#>   - Numeric values between 0.002492428 and 0.9964129 
+#>   - Numeric values between 0.00249242829158902 and 0.996412934735417
 #>   Assuming variate to be CONTINUOUS.
 #>   - All values are positive
 #>   Assuming "domainmin" to be 0
 #>   with 0 excluded from domain.
-#> 
 print(metadata)
 #>   name       type domainmin domainmax datastep minincluded maxincluded V1 V2 V3
 #> 1 data continuous         0        NA       NA          NA          NA NA NA NA

@@ -1,7 +1,7 @@
 # Example metadata file
 
-A data frame containing the prior information about the variates
-`species` and `bill_len` of the
+A [data frame](https://rdrr.io/r/base/data.frame.html) containing the
+prior information about the variates `species` and `bill_len` of the
 [datasets::penguins](https://rdrr.io/r/datasets/penguins.html) dataset.
 
 ## Usage
@@ -14,7 +14,8 @@ metadataExample
 
 ### `metadataExample`
 
-A data frame with 2 rows and 10 columns.
+A [data frame](https://rdrr.io/r/base/data.frame.html) with 2 rows and
+10 columns.
 
 ## Value
 
