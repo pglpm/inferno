@@ -14,7 +14,18 @@
 
 # ***Prova***: probabilistic-statistical variate analysis and inference, nonparametric and with automated Markov-chain Monte Carlo
 
-This repository provides an R package and some theoretical background for *Bayesian nonparametric population inference*, which can also be called "inference under exchangeability" or "density inference". The package is especially apt for the study of statistics and associations of subpopulations or subgroups. The [introductory vignette](https://pglpm.github.io/prova/articles/intro.html) explains with an example the main ideas and functions, in particular for researchers who are more familiar with traditional "frequentist" statistics but would like to try the Bayesian approach. See the [post](https://www.apadivisions.org/division-7/publications/newsletters/developmental/2018/07/bayesian-statistics) by Barbara W. Sarnecka, frequentist statistician turned Bayesian, for a brilliant overview of the Bayesian advantages.
+This repository provides an R package and some theoretical background to perform probabilistic and statistical analysis of data. These are the main features:
+
+- No modelling assumptions such as gaussianity, linearity, or any other kind of model. The analysis and inferences are fully *non-parametric*.
+- No assumptions about functional dependence between variates. The analysis and inferences are therefore more general than those by neural networks, random forests, or similar machine-learning algorithms.
+- Automatic imputation of missing data: all sample data are used, even those that lacks some variate values. The imputation is done with a principled method (the marginalization rule of probability theory), rather than ad-hoc procedures.
+- Easy and straightforward study of *subgroups* or *subpopulations*, with full statistical details.
+- Quantification of generalizability beyond the finite sample size. In other words, quantification of uncertainty of results regarding the whole, unsampled, population.
+- Quantification of associations between any kinds of variates, without modelling assumptions (gaussianity, linearity, etc.), thanks to the use of *mutual information*
+- Automated Markov-chain Monte Carlo computations. Users unfamiliar with Monte Carlo methods don't have to worry, because the computations are handled automatically. Users familiar with Monte Carlo methods can easily access computational details and can even change some of the computation hyperparameters.
+
+
+*Bayesian nonparametric population inference*, which can also be called "inference under exchangeability" or "density inference". The package is especially apt for the study of statistics and associations of subpopulations or subgroups. The [introductory vignette](https://pglpm.github.io/prova/articles/intro.html) explains with an example the main ideas and functions, in particular for researchers who are more familiar with traditional "frequentist" statistics but would like to try the Bayesian approach. See the [post](https://www.apadivisions.org/division-7/publications/newsletters/developmental/2018/07/bayesian-statistics) by Barbara W. Sarnecka, frequentist statistician turned Bayesian, for a brilliant overview of the Bayesian advantages.
 
 The package is under continuous development, but the core functionalities work and have been tested in concrete research questions; see [example applications](#example-applications) below.
 

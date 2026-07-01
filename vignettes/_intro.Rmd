@@ -156,9 +156,9 @@ knitr::kable(penguin, row.names = TRUE)
 
 If you generated the `penguin` dataset yourself, then your first 10 samples may be different.
 
-In the data above, samples #1 and #6 have one or more missing variates. But incomplete data are not a problem: inferences can still be performed from them, because Bayesian methods and **Prova** automatically perform *imputation* of missing data, and they do so in a principled way (via the marginalization rule of probability theory).
+Note that in the data above, samples #1 and #6 have one or more missing variates. But incomplete data are not a problem: inferences can still be performed from them, because Bayesian methods and **Prova** automatically perform *imputation* of missing data, and they do so in a principled way (via the marginalization rule of probability theory). We shall see this in a [later section]{#imputation}.
 
-With these datapoints we start our Bayesian nonparametric analysis using **Prova**! 
+With these datapoints we start our Bayesian nonparametric analysis using **Prova**!
 
 There are now two preliminary steps, which we must usually follow to perform an analysis:
 
@@ -484,6 +484,49 @@ print(Fspecies10)
 
 <!-- As the name tells, this element actually report the *quantiles* of the probability. For example, look at the `= 25%` output: among other things it says `Adelie 0.227634`. This means that there's a 25% probability that the frequency of Adélie penguins is below $0.227634$, and thus a 75% probability that it's above $0.227634$.
  -->
+
+## Imputation of missing data {#imputation}
+
+In our initial dataset, datapoint #1 lacks the value of the `sex` variate, and datapoint #6 lacks the values of variates `bill_len`, `bill_dep`, `flipper_len`, `body_mass`. These partial information of these two datapoints was nevertheless used to learn about the full population. We can probabilistically infer, that is, do imputation, of all these missing data.
+
+Let's take datapoint #1 for instance, and infer its missing variate `sex` from all other, known, variates:
+
+```{r imputation1, eval = TRUE}
+Yimp <- data.frame(sex = c('female', 'male'))
+
+## Extract data from datapoint #1 of our shuffled dataset 'penguin'
+## excluding 'sex' variate
+X <- penguin[1, colnames(penguin) != 'sex']
+
+imputeddata <- Pr(Y = Yimp, X = X, learnt = learnt10, parallel = 4)
+
+print(imputeddata)
+```
+
+We see that penguin #1 might have been female with probability `r printprob(imputeddata$values['female',1])`, although further data might shift that probability somewhere between `r printprob(imputeddata$quantiles['female',1,1])` and `r printprob(imputeddata$quantiles['female',1,4])`.
+
+Now let's take datapoint #6 and infer the value of `bill_len`. We can use the function `vrtgrid()` to generate a grid of realistic values based on the data, and then see the probability distribution over these values:
+
+```{r imputation6, eval = TRUE, fig.cap=''}
+## Generate grid of realistic values for 'bill_len' using vrtgrid()
+Yimp <- data.frame(bill_len = vrtgrid(vrt = 'bill_len', learnt = learnt10))
+
+## Extract data from datapoint #6 of our shuffled dataset 'penguin'
+X <- penguin[6, ]
+
+## drop unknown variates
+X <- X[, !is.na(X)]
+
+imputeddata <- Pr(Y = Yimp, X = X, learnt = learnt10, parallel = 4)
+
+plot(imputeddata)
+```
+
+<!-- The bill length of penguin #6 can be estimated with a median of around `r printprob(qPr(Yname = 'bill_len', p = 0.5, X = X, learnt = learnt10, parallel = 4)$values[1,1])`. -->
+
+\
+
+# Analysis example: frequencies on different islands  {#prelimQ2}
 
 ## A preliminary report on question Q1
 
@@ -1074,14 +1117,13 @@ Each question can be answered by means of the `Pr()` function, and visualized wi
 
 ### **Q2a**: species on Biscoe
 
-We define an object `Y` for the variate we want to know the frequency about, and an object `X` for the *subpopulation* we're restricting our analysis to:
+We define an object `Y` for the variate we want to know the frequency about, and an object `X` for the *subpopulation* we're restricting our analysis to. Recall that we can use the function `vrtgrid()` to form a grid of all possible realistic values:
 
 ```{r speciesBiscoeF, eval = TRUE}
-Yvrt <- 'species' ## variate of interest
-Yvls <- sort(unique(penguin[, Yvrt])) ## values from dataset
+## All values for the variate of interest
+Yvls <- vrtgrid(vrt = 'species', learnt = learntall)
 ## build Y object
-Y <- data.frame(Yvls)
-colnames(Y) <- Yvrt
+Y <- data.frame(species = Yvls)
 
 Xvrt <- 'island' ## subpopulation variate
 Xvls <- 'Biscoe' ## subpopulation value or values
@@ -1124,11 +1166,9 @@ Note how our [previous estimates from 60 samples](#surprise) were already quite
 In this case, `Adelie` penguins are our subpopulation:
 
 ```{r islandAdelieF, eval = TRUE}
-Yvrt <- 'island' ## variate of interest
-Yvls <- c('Biscoe', 'Dream', 'Torgersen') ## values of interest
+Yvls <- vrtgrid(vrt = 'island', learnt = learntall)
 ## build Y object
-Y <- data.frame(Yvls)
-colnames(Y) <- Yvrt
+Y <- data.frame(island = Yvls)
 
 Xvrt <- 'species' ## subpopulation variate
 Xvls <- 'Adelie' ## subpopulation value or values
@@ -1168,21 +1208,18 @@ In this case our uncertainties do *not* allow us to exclude the possibility that
 
 ### **Q2c**: Body mass across the three species
 
-In this case we are interested in the (continuous) distribution of body mass in three separate subpopulations: `Adelie`, `Chinstrap`, and `Gentoo` penguins:
+In this case we are interested in the (continuous) distribution of body mass in three separate subpopulations: `Adelie`, `Chinstrap`, and `Gentoo` penguins.
 
 ```{r bodyspeciesF, eval = TRUE}
-Yvrt <- 'body_mass' ## variate of interest
-Yrange <- c('3000', '5000') ## range of interest
-Yvls <- seq(Yrange[1], Yrange[2], by = 25)
+## Grid of realistic values for 'body_mass'
+Yvls <- vrtgrid(vrt = 'body_mass', learnt = learntall)
 ## build Y object
-Y <- data.frame(Yvls)
-colnames(Y) <- Yvrt
+Y <- data.frame(body_mass = Yvls)
 
-Xvrt <- 'species' ## subpopulation variate
-Xvls <- c('Adelie', 'Chinstrap', 'Gentoo') ## subpopulation values
+## Grid of values for 'species', the subpopulation variate
+Xvls <- vrtgrid(vrt = 'species', learnt = learntall)
 ## build X object
-X <- data.frame(Xvls)
-colnames(X) <- Xvrt
+X <- data.frame(species = Xvls)
 
 ## NB: rewriting the previous 'Fanalysis' object
 Fanalysis <- Pr(Y = Y, X = X, learnt = learntall, parallel = 4)
