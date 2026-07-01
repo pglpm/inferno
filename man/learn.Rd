@@ -147,7 +147,9 @@ learnt <- learn(
   data = dataset, metadata = metadata,
       ## the following parameters are unrealistic
       ## only used to reduce computation time for this example
-  nsamples = 10, nchains = 1, startupMCiterations = 10, maxhours = 0
+  nsamples = 10, nchains = 1,
+  startupMCiterations = 10, maxMCiterations = 10,
+  minESS = 0, initES = 0
 )
 
 ## Check structure of `learnt` object:

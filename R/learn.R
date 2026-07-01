@@ -117,7 +117,9 @@
 #'   data = dataset, metadata = metadata,
 #'       ## the following parameters are unrealistic
 #'       ## only used to reduce computation time for this example
-#'   nsamples = 10, nchains = 1, startupMCiterations = 10, maxhours = 0
+#'   nsamples = 10, nchains = 1,
+#'   startupMCiterations = 10, maxMCiterations = 10,
+#'   minESS = 0, initES = 0
 #' )
 #'
 #' ## Check structure of `learnt` object:
@@ -190,7 +192,8 @@ learn <- function(
     ## the main log file in 'outputdir' (and to terminal if verbose = TRUE)
     ## They cannot yet be printed because the 'outputdir' name
     ## may depend on the output of the messages themselves
-    predirmsgs <- NULL
+    predirmsgs <- list(paste0('Prova v', packageVersion('prova'), '.'))
+
 
     ## Handles R CMD check:
     ## these are variables or functions handled in a special way by Nimble
@@ -297,9 +300,10 @@ learn <- function(
         nchains <- ceiling(nsamples / nsamplesperchain)
         if(nsamples != nchains * nsamplesperchain){
             nsamples <- nchains * nsamplesperchain
-            predirmsgs <- c(predirmsgs,
-                list('Increasing number of samples to', nsamples,
-                    'to comply with given "nsamplesperchain"\n'))
+            predirmsgs <- c(predirmsgs, list(
+                paste0('Increasing number of samples to ', nsamples,
+                    ' to comply with given "nsamplesperchain".')
+            ))
         }
     } else if (!missing(nchains) && missing(nsamplesperchain) &&
                    !missing(nsamples)){
@@ -307,9 +311,10 @@ learn <- function(
         nsamplesperchain <- ceiling(nsamples / nchains)
         if(nsamples != nchains * nsamplesperchain){
             nsamples <- nchains * nsamplesperchain
-            predirmsgs <- c(predirmsgs,
-                list('Increasing number of samples to', nsamples,
-                    'to comply with given "nchains"\n'))
+            predirmsgs <- c(predirmsgs, list(
+                paste0('Increasing number of samples to ', nsamples,
+                    ' to comply with given "nchains".')
+            ))
         }
     } else if (!(missing(nchains) && missing(nsamplesperchain) &&
                      missing(nsamples))){
@@ -335,8 +340,9 @@ learn <- function(
             min(nchains, floor(parallel::detectCores() / 2)))
         cl <- parallel::makeCluster(ncores)
         closeexit <- TRUE
-            predirmsgs <- c(predirmsgs,
-                list('Registered', capture.output(print(cl)), '.'))
+        predirmsgs <- c(predirmsgs, list(
+            paste0('Registered ', capture.output(print(cl)), '.')
+        ))
     } else if (isFALSE(parallel)) {
         ## user wants us not to use parallel cores
         ncores <- 1
@@ -348,8 +354,9 @@ learn <- function(
         ncores <- min(nchains, parallel)
         cl <- parallel::makeCluster(ncores)
         closeexit <- TRUE
-            predirmsgs <- c(predirmsgs,
-                list('Registered', capture.output(print(cl)), '.'))
+        predirmsgs <- c(predirmsgs, list(
+            paste0('Registered ', capture.output(print(cl)), '.')
+        ))
     } else {
         stop("Unknown value of argument 'parallel'.")
     }
@@ -357,7 +364,9 @@ learn <- function(
     ## Close parallel connections if any were opened
     if(closeexit) {
         closecoresonexit <- function(){
-            cat('\nClosing connections to cores.\n')
+            if(exists('maincon0')){
+                print2user('Closing connections to cores.')
+            }
             parallel::stopCluster(cl)
             gc(full = TRUE)
             ## parallel::setDefaultCluster(NULL)
@@ -451,8 +460,9 @@ learn <- function(
 
         ## Drop variates in data that are not in the metadata file
         if (!all(colnames(data) %in% metadata[['name']])) {
-            predirmsgs <- c(predirmsgs,
-                list('Data have additional variates. Dropping them.\n'))
+            predirmsgs <- c(predirmsgs, list(
+                'Data have additional variates. Dropping them.'
+            ))
             subvar <- intersect(colnames(data), metadata[['name']])
             data <- data[, subvar, drop = FALSE]
             rm(subvar)
@@ -471,8 +481,9 @@ learn <- function(
         ## Check if the user wants to use a subset of the dataset
         if (is.numeric(subsampledata)) {
             ## @@TODO: find faster and memory-saving subsetting
-            predirmsgs <- c(predirmsgs,
-                list('Subsampling data, as requested.\n'))
+            predirmsgs <- c(predirmsgs, list(
+                'Subsampling data, as requested.'
+            ))
             data <- data[sample(seq_len(nrow(data)),
                 min(subsampledata, nrow(data)),
                 replace = FALSE), ]
@@ -482,8 +493,7 @@ learn <- function(
 
     } else {
         ## data not given: we assume user wants prior calculation
-        predirmsgs <- c(predirmsgs,
-            list('Missing data'))
+        predirmsgs <- c(predirmsgs, list('Missing data'))
         prior <- TRUE
         npoints <- 0
     }
@@ -517,8 +527,9 @@ learn <- function(
 
         ## Drop variates in auxdata that are not in the metadata file
         if (!all(colnames(auxdata) %in% metadata[['name']])) {
-            predirmsgs <- c(predirmsgs,
-                list('Warning: auxdata have additional variates. Dropping them.\n'))
+            predirmsgs <- c(predirmsgs, list(
+                '"auxdata" have additional variates. Dropping them.'
+            ))
             subvar <- intersect(colnames(auxdata), metadata[['name']])
             auxdata <- auxdata[, subvar, drop = FALSE]
             rm(subvar)
@@ -529,8 +540,9 @@ learn <- function(
         if(length(tokeep) == 0 && !prior) {
             stop('Auxdata are given but empty')
         } else if(length(tokeep) < nrow(auxdata)) {
-            predirmsgs <- c(predirmsgs,
-                list('Warning: auxdata contain empty datapoints. Dropping them.\n'))
+            predirmsgs <- c(predirmsgs, list(
+                '"auxdata" contain empty datapoints. Dropping them.'
+            ))
             auxdata <- auxdata[tokeep, , drop = FALSE]
         }
         rm(tokeep)
@@ -550,10 +562,10 @@ learn <- function(
     )
     ## print(auxmetadata) # for debugging
 
-    predirmsgs <- c(predirmsgs,
-        list(paste0('\nProva v', packageVersion('prova'), '.\n',
-        'Learning from ', npoints, ' datapoints, ',
-        nrow(auxmetadata), ' variates.\n')) )
+    predirmsgs <- c(predirmsgs, list(
+        paste0('Learning from ', npoints, ' datapoints, ',
+            nrow(auxmetadata), ' variates.')
+    ))
 
 #### Output-folder setup
     prefix <- paste0(
@@ -591,25 +603,41 @@ learn <- function(
     ## all 'dashnameroot' can be deleted in a final version
     dashnameroot <- NULL
 
-    ## Print information about output directory
-    message('\nSaving output in directory\n', dirname, '\n')
-
     ## Create main log file in output directory, and direct cat() to it
     ## also keep printing to terminal if verbose = TRUE
     mainlog <- file.path(dirname, 'main.log')
     maincon0 <- file(mainlog, open = 'w')
-    sink(file = maincon0, split = verbose)
+    sink(file = maincon0, type = 'message')
     closecons0 <- function(){
         ## Close output to log files
         flush(maincon0)
-        sink(file = NULL, type = 'output')
+        ## sink(file = NULL), type = 'output')
         sink(file = NULL, type = 'message')
         close(maincon0)
     }
     on.exit(closecons0(), add = TRUE)
 
+    if(verbose){
+        print2user <- function(...){
+            ## print to console
+            sink(file = NULL, type = 'message')
+            message(...)
+            ## print to main log file
+            sink(file = maincon0, type = 'message')
+            message(...)
+        }
+    }else{
+        print2user <- function(...){
+            ## print only to main log file
+            message(...)
+        }
+    }
+
+    ## Print information about output directory
+    print2user('\nSaving output in directory\n', dirname, '\n')
+
     ## Print accumulated messages
-    do.call(what = cat, args = predirmsgs)
+    for(msg in predirmsgs){print2user(msg)}
     flush(maincon0)
 
     ## Save copy of metadata and auxmetadata in directory
@@ -653,7 +681,7 @@ learn <- function(
 
 #### Check if user wants to calculate prior
     if (prior) {
-        cat('CALCULATING PRIOR DISTRIBUTION\n')
+        print2user('CALCULATING PRIOR DISTRIBUTION')
         if(is.null(data)) {
             ## no data available: construct one datapoint from the metadata info
             testdata <- as.matrix(
@@ -990,8 +1018,8 @@ learn <- function(
         file = file.path(dirname, paste0('___datapoints', dashnameroot, '.rds')))
 
 #### Output information to user
-    cat('Starting Monte Carlo sampling of', nsamples, 'samples by',
-        nchains, 'chains\n')
+    print2user('Starting Monte Carlo sampling of ', nsamples, ' samples by ',
+        nchains, ' chains')
 
     samplespacedims <- (vn$R * 2 + vn$C * 2 + vn$D * 2 + # means, vars
                             (if(vn$O > 0){Omaxn - vn$O}else{0}) +
@@ -1006,15 +1034,15 @@ learn <- function(
         sum(is.na(data)) # missing data
 
 
-    cat('in a space of', samplespacedims, paste0('(effectively ',
-        samplespacedims + samplespacexdims, ') dimensions.\n'))
+    print2user('in a space of ', samplespacedims, ' (effectively ',
+        samplespacedims + samplespacexdims, ') dimensions.')
 
-    cat('Using', ncores, 'cores:',
-        nsamplesperchain, 'samples per chain, max',
-        minchainspercore + (coreswithextrachain > 0), 'chains per core.\n')
-    cat('Requested:   ESS', round(minESS),
-        '  rel.MCSE', signif(maxrelMCSE, 3), '.\n')
-    cat('Core logs are being saved in individual files.\n')
+    print2user('Using ', ncores, ' cores: ',
+        nsamplesperchain, ' samples per chain, max ',
+        minchainspercore + (coreswithextrachain > 0), ' chains per core.')
+    print2user('Requested:   ESS ', round(minESS),
+        '   rel.MCSE ', signif(maxrelMCSE, 3), '.')
+    print2user('Core logs are being saved in individual files.')
 
     ## outconmain <- file(file.path(dirname,
     ##     paste0('log', dashnameroot,
@@ -1220,36 +1248,34 @@ learn <- function(
     ## This cat() is to delete the last 'estimated end time'
     cat('\r                                                               \n')
 
-    cat('Finished Monte Carlo sampling.\n')
+    print2user('Finished Monte Carlo sampling.')
 
-    cat(
-        'Highest number of Monte Carlo iterations across chains:',
+    print2user(
+        'Highest number of Monte Carlo iterations across chains: ',
         maxiterations, '.',
-        '\nHighest number of used mixture components:',
-        maxusedcomponents, '.\n'
+        '\nHighest number of used mixture components: ',
+        maxusedcomponents, '.'
     )
     if (maxusedcomponents > ncomponents - 5) {
-        cat('\nTOO MANY MIXTURE COMPONENTS USED!\n',
-            'Consider re-running with increased "ncomponents" parameter.\n')
+        print2user('\nTOO MANY MIXTURE COMPONENTS USED!\n',
+            'Consider re-running with increased "ncomponents" parameter.')
         warning('\nTOO MANY MIXTURE COMPONENTS USED!\n',
             'Consider re-running with increased "ncomponents" parameter.\n')
     }
 
     if (nonfinitechains > 0) {
-        cat('\nNote:', nonfinitechains, 'chains had some non-finite outputs.\n')
+        print2user('\nNote: ', nonfinitechains, ' chains had some non-finite outputs.')
     }
 
     if (stoppedchains > 0) {
-        cat('\nNOTE:', stoppedchains,
-            'chains were stopped before reaching required precision\n',
-            'in order to meet the required time constraints.\n')
+        print2user('\nWarning: ', stoppedchains,
+            ' chains were stopped before reaching required precision\n',
+            'in order to meet the required time constraints.')
         ## Important to warn the user about this
-        if(!verbose){
-            message('\nNOTE: ', stoppedchains,
+            warning(stoppedchains,
                 ' chains were stopped before reaching required precision\n',
                 'in order to meet the required time constraints.')
         }
-    }
 
 
 
@@ -1259,8 +1285,8 @@ learn <- function(
 
     testdata <- readRDS(file = file.path(dirname,
         paste0('___testdata_', 0, '.rds')))
-    cat('\nChecking test data\n(',
-        paste0('#', testdata$pointsid, collapse = ' '), '):\n')
+    print2user('\nChecking test data\n(',
+        paste0('#', testdata$pointsid, collapse = ' '), '):')
 
     oktraces <- util_Pcheckpoints(
         testdata = testdata,
@@ -1370,18 +1396,18 @@ learn <- function(
 ####
     for(i in names(toprint)) {
         thisdiagn <- toprint[[i]]
-        cat(i, ':',
+        print2user(i, ': ',
             if(length(thisdiagn) > 1){
                 paste(signif(range(thisdiagn), 3), collapse = ' to ')
             } else {
                 signif(thisdiagn, 3)
-            }, '\n'
+            }
         )
     }
 
 
     ## Plot various info and traces
-    cat('\nPlotting final Monte Carlo traces and marginal samples...\n')
+    print2user('\nPlotting final Monte Carlo traces and marginal samples...\n')
 
     ##
     ## colpalette <- seq_len(ncol(oktraces))
@@ -1471,18 +1497,18 @@ learn <- function(
 
 
     totalfinaltime <- difftime(Sys.time(), timestart0, units = 'auto')
-    cat(
-        'Total computation time:', printtimediff(totalfinaltime),
-        '\nAverage preparation & finalization time:',
+    print2user(
+        'Total computation time: ', printtimediff(totalfinaltime),
+        '\nAverage preparation & finalization time: ',
         printtimediff(
             difftime(Sys.time() + headertime, headertimestart, units = 'auto')
         ), '.',
-        '\nAverage Monte Carlo time per chain:',
+        '\nAverage Monte Carlo time per chain: ',
         printtimediff(
             difftime(headertimestart + MCtime, headertimestart, units = 'auto')
         ), '.',
-        '\nMax total memory used: approx', signif(totusedmem, 2), 'MB.',
-        '\nMax memory used per core: approx', signif(maxusedmem, 2), 'MB.\n'
+        '\nMax total memory used: approx ', signif(totusedmem, 2), 'MB.',
+        '\nMax memory used per core: approx ', signif(maxusedmem, 2), 'MB.'
     )
     ## if (exists('cl')) {
     ##     cat('\nClosing connections to cores.\n')
@@ -1496,7 +1522,7 @@ learn <- function(
     ## Should we leave the plots of partial traces?
     ## maybe create an additional argument to let the user decide?
     if (cleanup) {
-        cat('Removing temporary output files.\n')
+        print2user('Removing temporary output files.')
         file.remove(dir(dirname,
             pattern = paste0('^___.*\\..*$'),
             full.names = TRUE
@@ -1509,12 +1535,9 @@ learn <- function(
     ## (for the moment there's one plot per chain)
 
     asterisks <- paste0(rep('*', max(nchar(dirname), 26)), collapse = '')
-    cat('\nFinished.\n\n', asterisks,
-        '\n Output saved in directory\n', dirname, '\n',
+    print2user('Finished.\n\n', asterisks,
+        '\nOutput saved in directory\n', dirname, '\n',
         asterisks, '\n')
-    ## message('\nFinished.\n', asterisks,
-    ##     '\n Output saved in directory\n', dirname, '\n',
-    ##     asterisks, '\n')
 
 
     ## What should we output? how about the full name of the output dir?
@@ -1608,33 +1631,42 @@ nimbleFunction <- sampler_BASE <- extractControlElement <- model <- target <- Nd
     ## others to the main log file (and to terminal if verbose = TRUE)
     ## This is done by changing output sink:
     maincon <- file(mainlog, open = 'a')
-    print2user <- function(msg, outcon) {
-        flush(outcon)
-        ## sink(file = NULL)
-        ## cat(msg)
-        ## sink(file = outcon)
-        if(verbose){
+    if(verbose){
+        print2user <- function(msg, outcon){
+            flush(outcon)
+            ## print to console
             sink(file = NULL, type = 'message')
             message(msg, appendLF = FALSE)
+            ## print to main log file
+            sink(file = maincon, type = 'message')
+            message(msg, appendLF = FALSE)
+            sink(file = outcon, type = 'message')
         }
-        sink(file = maincon, type = 'message')
-        ## message(msg, appendLF = FALSE)
-        message(msg, appendLF = FALSE)
-        sink(file = outcon, type = 'message')
+    }else{
+        print2user <- function(msg, outcon){
+            flush(outcon)
+            ## print only to main log file
+            sink(file = maincon, type = 'message')
+            message(msg, appendLF = FALSE)
+            sink(file = outcon, type = 'message')
+        }
     }
 
     usedmem <- sum(gc(full = TRUE)[,6])
 
     ## Timer
     headertimestart <- Sys.time()
-
     cat('Log core', acore)
     cat(' - Current time:',
         strftime(as.POSIXlt(headertimestart), '%Y-%m-%d %H:%M:%S'))
     cat('\n')
 
     ## Check if Nimble package is installed and load it
-    if (!require('nimble', quietly = TRUE)) {
+    ## NB: Nimble *must* be attached (not just loaded)
+    ## with 'require()' or 'library()',
+    ## see <https://groups.google.com/g/nimble-users/c/dDNE3L_sPxI/m/IyRgmXOaBwAJ>.
+    loadnimble <- require
+    if (!loadnimble('nimble', quietly = TRUE)) {
         stop("Package 'nimble' must be installed.", call. = FALSE)
     }
 

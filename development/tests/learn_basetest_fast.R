@@ -23,6 +23,7 @@ learntdir <- learn(
     ## ## parameters for short test run:
     ## subsampledata = 10,
     maxhours = 0,
+    verbose = TRUE,
     ## nsamplesperchain = 60,
     ## nchains = parallel + 1,
     ##

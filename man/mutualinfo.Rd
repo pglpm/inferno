@@ -51,7 +51,7 @@ This function calculates various entropic information measures between two grops
 }
 \details{
 If \eqn{Y_1} and \eqn{Y_2} are two variates, each of which can be a joint variate such as \eqn{Y_1 = (Y_{1,1}, Y_{1,2}, \dotsc)}, and \eqn{X} a third, also possibly join, variate, then the mutual information \eqn{\mathit{MI}} between \eqn{Y_1} and \eqn{Y_2}, conditional on \eqn{X = x}, is given by
-\deqn{\mathit{MI}(Y_1, Y_2 \vert X = x) \coloneqq
+\deqn{\mathit{MI}(Y_1, Y_2 \vert X = x) \mathrel{:=}
 \sum_{y_1, y_2}
 \mathrm{Pr}(Y_1 = y_1, Y_2 = y_2 \vert X = x, \text{data})
 \log_2\frac{
