@@ -37,7 +37,8 @@
 #'   corresponding to columns of x (in case x misses column names)
 #' @param logjacobianOr Logical or `NULL`: output is the log-Jacobian in orginal or transformed domain? `NULL` (default) means do not calculate the log-Jacobians
 #'
-#' @return data frame of transformed variates, or their log-Jacobians
+#' @return data frame of transformed variates, or their log-Jacobians.
+#' 
 #' @keywords internal
 vtransform <- function(
     x,

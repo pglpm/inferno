@@ -358,8 +358,8 @@ learnt10 <- learn(
 ## Max total memory used: approx 3100MB.
 ## Max memory used per core: approx 770MB.
 ## Removing temporary output files.
-## 
 ## Finished.
+## 
 ## *************************************************
 ##  Output saved in directory
 ## __penguin_inference_10-V8_D10_S3600_260621T120628
@@ -770,8 +770,8 @@ learnt60 <- learn(
 ## Max total memory used: approx 3300MB.
 ## Max memory used per core: approx 850MB.
 ## Removing temporary output files.
-## 
 ## Finished.
+## 
 ## *************************************************
 ##  Output saved in directory
 ## __penguin_inference_60-V8_D60_S3600_260621T120619
@@ -1043,8 +1043,8 @@ learntall <- learn(
 ## Max total memory used: approx 7100MB.
 ## Max memory used per core: approx 1100MB.
 ## Removing temporary output files.
-## 
 ## Finished.
+## 
 ## ***************************************************
 ##  Output saved in directory
 ## __penguin_inference_all-V8_D344_S3600_260622T073853

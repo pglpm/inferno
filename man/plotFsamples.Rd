@@ -43,7 +43,7 @@ the quantiles (in range 0 to 0.5) to show}
 workers, or how many to create and use}
 }
 \value{
-A list with the mutual information, its error, and its unit
+No return value.
 }
 \description{
 Used in 'learn()' to plot diagnostics.

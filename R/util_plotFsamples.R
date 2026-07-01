@@ -19,7 +19,7 @@
 #' @param parallel Logical or numeric: whether to use pre-existing parallel
 #'   workers, or how many to create and use
 #'
-#' @return A list with the mutual information, its error, and its unit
+#' @return No return value.
 #'
 #' @import grDevices
 #' @import graphics
@@ -775,5 +775,5 @@ plotFsamples <- function(
             }
         }) # End with
     }
-    NULL
+    invisible()
 }

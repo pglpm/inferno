@@ -63,7 +63,7 @@ corresponding to columns of x (in case x misses column names)}
 \item{logjacobianOr}{Logical or \code{NULL}: output is the log-Jacobian in orginal or transformed domain? \code{NULL} (default) means do not calculate the log-Jacobians}
 }
 \value{
-data frame of transformed variates, or their log-Jacobians
+data frame of transformed variates, or their log-Jacobians.
 }
 \description{
 See \url{https://github.com/pglpm/prova/raw/main/development/manual/pglpm2024-bayes_nonparam.pdf}.
