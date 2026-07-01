@@ -259,25 +259,40 @@ useful to report Monte Carlo convergence in any work of yours that used
 
 This function takes as main inputs a set of data and metadata, and
 computes the full joint probability distribution for new data, including
-its variability; see
-[`Pr()`](https://pglpm.github.io/prova/reference/Pr.md). This
-computation can also be interpreted as an estimation of the full joint
-frequency distribution of the variates in the *whole population*, beyond
-the sample data, together with its uncertainty.
+its variability. From this full joint distribution any other
+distributions of interest can subsequently be computed; see
+[`Pr()`](https://pglpm.github.io/prova/reference/Pr.md) and related
+functions. This computation can also be interpreted as an estimation of
+the full joint frequency distribution of the variates in the *whole
+population*, beyond the sample data, together with its uncertainty. The
+computation allows for the use of datapoints with partially missing
+variables: imputation is automatically made. This imputation is
+*principled*, made according to the rules of probability theory.
+
+The output is a "learnt" object, typically saved in a `learnt.rds` file,
+which is used in all subsequent probabilistic computations. Other
+information about the computation is provided in logs and plots, saved
+in a directory specified by the user.
+
+See
+[`vignette('intro')`](https://pglpm.github.io/prova/articles/intro.md)
+for introductory examples.
 
 The computation is "non-parametric": probability or frequency
 distributions are not assumed to be Gaussian or of any other specific
 shape; no "model" is assumed. The mathematical representation of the
-space of joint frequency distributions follows Dunson & Bhattacharya
-(2011).
+space of joint frequency distributions follows ideas of Dunson &
+Bhattacharya (2011); see [technical
+manual](https://github.com/pglpm/prova/raw/main/development/manual/pglpm2024-bayes_nonparam.pdf)
+for details.
 
 The computation is done via Markov-chain Monte Carlo, using the package
 [**Nimble**](https://cran.r-project.org/package=nimble). "Convergence"
-of the Monte Carlo computation is assessed with methods described in
-Vehtari & al. (2021) and Kwon & al. (2025).
-
-The default values for convergence require that all of the following
-three conditions be fulilled:
+of the Monte Carlo computation is automatically assessed with methods
+described in Vehtari & al. (2021) and Kwon & al. (2025); see [technical
+manual](https://github.com/pglpm/prova/raw/main/development/manual/pglpm2024-bayes_nonparam.pdf)
+for details. The default values for convergence require that all of the
+following three conditions be fulilled:
 
 - The computation's numerical error (Monte-Carlo Standard Error) for the
   posterior probability must be smaller than 4.7% of the standard
@@ -291,14 +306,29 @@ Typically this requirement leads to final results obtained with the
 [`Pr()`](https://pglpm.github.io/prova/reference/Pr.md) function having
 at least two significant digits.
 
-This function creates a "learnt" object, typically saved in a
-`learnt.rds` file, which is used in all subsequent probabilistic
-computations. Other information about the computation is provided in
-logs and plots, saved in a directory specified by the user.
+The `learn()` function can take hours or even days to perform its
+computations, depending on the size of the dataset, number of variates,
+and the (initially unknown) "shape" of the underlying probability
+distribution. For this reason it is typically called within an R script,
+executed via [utils::Rscript](https://rdrr.io/r/utils/Rscript.html). For
+example, a script 'myscript.R' could have the following structure:
 
-See
-[`vignette('intro')`](https://pglpm.github.io/prova/articles/intro.md)
-for an introductory example.
+    library('prova')
+
+    learn(
+      data = 'filename_with_data.csv', # CSV file containing the dataset
+      metadata = 'filename_with_metadata.csv', # CSV file containing the metadata
+      outputdir = 'some_directory', # path to output directory
+      parallel = 8 # machine has more than 8 cores, so we use 8
+      ## possibly other arguments to learn()
+    )
+
+and then be called on a bash terminal with
+
+    $ Rscript myscript.R > learnoutput.log 2>&1
+
+with such a call, the file 'learnoutput.log' will contain information
+about how the computation is proceeding and the estimated end time.
 
 ## References
 
@@ -311,13 +341,21 @@ For the mathematical representation of the frequency space:
 - Ishwaran, Zarepour (2002): *Exact and approximate sum representations
   for the Dirichlet process* <doi:10.2307/3315951>.
 
+- Porta Mana
+  <https://github.com/pglpm/prova/raw/main/development/manual/pglpm2024-bayes_nonparam.pdf>.
+
 About Bayesian inference under exchangeability ("population inference"):
 
 - Lindley, Novick (1981): *The role of exchangeability in inference*,
   <doi:10.1214/aos/1176345331>.
 
 - Bernardo, Smith (2000): *Bayesian Theory*. Wiley
-  <doi:10.1002/9780470316870>. About nonparametrics:
+  <doi:10.1002/9780470316870>.
+
+- Porta Mana
+  <https://github.com/pglpm/prova/raw/main/development/manual/pglpm2024-bayes_nonparam.pdf>.
+
+About nonparametrics:
 
 - Müller et al. (2015): *Nonparametric Bayesian inference*. IMS
   <doi:10.1007/978-3-319-18968-0>.
@@ -348,8 +386,6 @@ About Markov-chain Monte Carlo and "convergence":
 - D. J. C. MacKay (2005): *Information Theory, Inference, and Learning
   Algorithms*. Cambridge University Press
   <https://www.inference.org.uk/itila/book.html>.
-
-Mathematical background of **Prova**:
 
 - Porta Mana
   <https://github.com/pglpm/prova/raw/main/development/manual/pglpm2024-bayes_nonparam.pdf>.
@@ -398,12 +434,12 @@ learnt <- learn(
 )
 #> 
 #> Saving output in directory
-#> /tmp/Rtmp16vrMi/prova-V1_D3_S10_260701T052203_1a6130da7707
+#> /tmp/RtmpVur9pF/prova-V1_D3_S10_260701T084206_1a6b1a241ca5
 #> 
 #> Saving output in directory
-#> /tmp/Rtmp16vrMi/prova-V1_D3_S10_260701T052203_1a6130da7707
-#> Prova v0.9.2.
-#> Prova v0.9.2.
+#> /tmp/RtmpVur9pF/prova-V1_D3_S10_260701T084206_1a6b1a241ca5
+#> Prova v1.0.0.
+#> Prova v1.0.0.
 #> Registered socket cluster with 1 nodes on host ‘localhost’.
 #> Registered socket cluster with 1 nodes on host ‘localhost’.
 #> Learning from 3 datapoints, 1 variates.
@@ -445,14 +481,14 @@ learnt <- learn(
 #> Plotting final Monte Carlo traces and marginal samples...
 #> 
 #> Plotting final Monte Carlo traces and marginal samples...
-#> Total computation time: 33 secs
-#> Average preparation & finalization time: 32 secs.
-#> Average Monte Carlo time per chain: 0.56 secs.
+#> Total computation time: 34 secs
+#> Average preparation & finalization time: 33 secs.
+#> Average Monte Carlo time per chain: 0.58 secs.
 #> Max total memory used: approx 350MB.
 #> Max memory used per core: approx 350MB.
-#> Total computation time: 33 secs
-#> Average preparation & finalization time: 32 secs.
-#> Average Monte Carlo time per chain: 0.56 secs.
+#> Total computation time: 34 secs
+#> Average preparation & finalization time: 33 secs.
+#> Average Monte Carlo time per chain: 0.58 secs.
 #> Max total memory used: approx 350MB.
 #> Max memory used per core: approx 350MB.
 #> Removing temporary output files.
@@ -461,13 +497,13 @@ learnt <- learn(
 #> 
 #> **********************************************************
 #> Output saved in directory
-#> /tmp/Rtmp16vrMi/prova-V1_D3_S10_260701T052203_1a6130da7707
+#> /tmp/RtmpVur9pF/prova-V1_D3_S10_260701T084206_1a6b1a241ca5
 #> **********************************************************
 #> Finished.
 #> 
 #> **********************************************************
 #> Output saved in directory
-#> /tmp/Rtmp16vrMi/prova-V1_D3_S10_260701T052203_1a6130da7707
+#> /tmp/RtmpVur9pF/prova-V1_D3_S10_260701T084206_1a6b1a241ca5
 #> **********************************************************
 #> Closing connections to cores.
 #> Closing connections to cores.

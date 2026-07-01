@@ -13,7 +13,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">prova</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.9.2</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.0.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -214,23 +214,36 @@
     </div>
     <div class="section level2">
     <h2 id="details">Details<a class="anchor" aria-label="anchor" href="#details"></a></h2>
-    <p>This function takes as main inputs a set of data and metadata, and computes the full joint probability distribution for new data, including its variability; see <code><a href="Pr.html">Pr()</a></code>. This computation can also be interpreted as an estimation of the full joint frequency distribution of the variates in the <em>whole population</em>, beyond the sample data, together with its uncertainty.</p>
-<p>The computation is "non-parametric": probability or frequency distributions are not assumed to be Gaussian or of any other specific shape; no "model" is assumed. The mathematical representation of the space of joint frequency distributions follows Dunson &amp; Bhattacharya (2011).</p>
-<p>The computation is done via Markov-chain Monte Carlo, using the package <a href="https://cran.r-project.org/package=nimble" class="external-link"><strong>Nimble</strong></a>. "Convergence" of the Monte Carlo computation is assessed with methods described in Vehtari &amp; al. (2021) and Kwon &amp; al. (2025).</p>
-<p>The default values for convergence require that all of the following three conditions be fulilled:</p><ul><li><p>The computation's numerical error (Monte-Carlo Standard Error) for the posterior probability must be smaller than 4.7% of the standard deviation of the posterior's variability.</p></li>
+    <p>This function takes as main inputs a set of data and metadata, and computes the full joint probability distribution for new data, including its variability. From this full joint distribution any other distributions of interest can subsequently be computed; see <code><a href="Pr.html">Pr()</a></code> and related functions. This computation can also be interpreted as an estimation of the full joint frequency distribution of the variates in the <em>whole population</em>, beyond the sample data, together with its uncertainty. The computation allows for the use of datapoints with partially missing variables: imputation is automatically made. This imputation is <em>principled</em>, made according to the rules of probability theory.</p>
+<p>The output is a "learnt" object, typically saved in a <code>learnt.rds</code> file, which is used in all subsequent probabilistic computations. Other information about the computation is provided in logs and plots, saved in a directory specified by the user.</p>
+<p>See <code><a href="../articles/intro.html">vignette('intro')</a></code> for introductory examples.</p>
+<p>The computation is "non-parametric": probability or frequency distributions are not assumed to be Gaussian or of any other specific shape; no "model" is assumed. The mathematical representation of the space of joint frequency distributions follows ideas of Dunson &amp; Bhattacharya (2011); see <a href="https://github.com/pglpm/prova/raw/main/development/manual/pglpm2024-bayes_nonparam.pdf" class="external-link">technical manual</a> for details.</p>
+<p>The computation is done via Markov-chain Monte Carlo, using the package <a href="https://cran.r-project.org/package=nimble" class="external-link"><strong>Nimble</strong></a>. "Convergence" of the Monte Carlo computation is automatically assessed with methods described in Vehtari &amp; al. (2021) and Kwon &amp; al. (2025); see <a href="https://github.com/pglpm/prova/raw/main/development/manual/pglpm2024-bayes_nonparam.pdf" class="external-link">technical manual</a> for details. The default values for convergence require that all of the following three conditions be fulilled:</p><ul><li><p>The computation's numerical error (Monte-Carlo Standard Error) for the posterior probability must be smaller than 4.7% of the standard deviation of the posterior's variability.</p></li>
 <li><p>The computation's numerical error for the 0.055- and 0.945-percentiles of the posterior's variability should be smaller than 4.7% of the distance between them.</p></li>
 </ul><p>Typically this requirement leads to final results obtained with the <code><a href="Pr.html">Pr()</a></code> function having at least two significant digits.</p>
-<p>This function creates a "learnt" object, typically saved in a <code>learnt.rds</code> file, which is used in all subsequent probabilistic computations. Other information about the computation is provided in logs and plots, saved in a directory specified by the user.</p>
-<p>See <code><a href="../articles/intro.html">vignette('intro')</a></code> for an introductory example.</p>
+<p>The <code>learn()</code> function can take hours or even days to perform its computations, depending on the size of the dataset, number of variates, and the (initially unknown) "shape" of the underlying probability distribution. For this reason it is typically called within an R script, executed via <a href="https://rdrr.io/r/utils/Rscript.html" class="external-link">utils::Rscript</a>. For example, a script 'myscript.R' could have the following structure:</p>
+<p></p><div class="sourceCode"><pre><code><span id="cb1-1"><a href="#cb1-1" tabindex="-1"></a><span class="fu">library</span>(<span class="st">'prova'</span>)</span>
+<span id="cb1-2"><a href="#cb1-2" tabindex="-1"></a></span>
+<span id="cb1-3"><a href="#cb1-3" tabindex="-1"></a><span class="fu">learn</span>(</span>
+<span id="cb1-4"><a href="#cb1-4" tabindex="-1"></a>  <span class="at">data =</span> <span class="st">'filename_with_data.csv'</span>, <span class="co"># CSV file containing the dataset</span></span>
+<span id="cb1-5"><a href="#cb1-5" tabindex="-1"></a>  <span class="at">metadata =</span> <span class="st">'filename_with_metadata.csv'</span>, <span class="co"># CSV file containing the metadata</span></span>
+<span id="cb1-6"><a href="#cb1-6" tabindex="-1"></a>  <span class="at">outputdir =</span> <span class="st">'some_directory'</span>, <span class="co"># path to output directory</span></span>
+<span id="cb1-7"><a href="#cb1-7" tabindex="-1"></a>  <span class="at">parallel =</span> <span class="dv">8</span> <span class="co"># machine has more than 8 cores, so we use 8</span></span>
+<span id="cb1-8"><a href="#cb1-8" tabindex="-1"></a>  <span class="do">## possibly other arguments to learn()</span></span>
+<span id="cb1-9"><a href="#cb1-9" tabindex="-1"></a>)</span></code></pre><p></p></div>
+<p>and then be called on a bash terminal with</p>
+<p></p><div class="sourceCode"><pre><code><span id="cb1-1"><a href="#cb1-1" tabindex="-1"></a><span class="sc">$</span> Rscript myscript.R <span class="sc">&gt;</span> learnoutput.log <span class="dv">2</span><span class="sc">&gt;</span><span class="er">&amp;</span><span class="dv">1</span></span></code></pre><p></p></div>
+<p>with such a call, the file 'learnoutput.log' will contain information about how the computation is proceeding and the estimated end time.</p>
     </div>
     <div class="section level2">
     <h2 id="references">References<a class="anchor" aria-label="anchor" href="#references"></a></h2>
     <p>For the mathematical representation of the frequency space:</p><ul><li><p>Dunson, Bhattacharya (2011): <em>Nonparametric Bayes regression and classification through mixtures of product kernels</em> <a href="doi:10.1093/acprof:oso/9780199694587.003.0005">doi:10.1093/acprof:oso/9780199694587.003.0005</a>.</p></li>
 <li><p>Ishwaran, Zarepour (2002): <em>Exact and approximate sum representations for the Dirichlet process</em> <a href="doi:10.2307/3315951">doi:10.2307/3315951</a>.</p></li>
+<li><p>Porta Mana <a href="https://github.com/pglpm/prova/raw/main/development/manual/pglpm2024-bayes_nonparam.pdf" class="external-link">https://github.com/pglpm/prova/raw/main/development/manual/pglpm2024-bayes_nonparam.pdf</a>.</p></li>
 </ul><p>About Bayesian inference under exchangeability ("population inference"):</p><ul><li><p>Lindley, Novick (1981): <em>The role of exchangeability in inference</em>, <a href="doi:10.1214/aos/1176345331">doi:10.1214/aos/1176345331</a>.</p></li>
-<li><p>Bernardo, Smith (2000): <em>Bayesian Theory</em>. Wiley <a href="doi:10.1002/9780470316870">doi:10.1002/9780470316870</a>.
-About nonparametrics:</p></li>
-<li><p>Müller et al. (2015): <em>Nonparametric Bayesian inference</em>. IMS <a href="doi:10.1007/978-3-319-18968-0">doi:10.1007/978-3-319-18968-0</a>.</p></li>
+<li><p>Bernardo, Smith (2000): <em>Bayesian Theory</em>. Wiley <a href="doi:10.1002/9780470316870">doi:10.1002/9780470316870</a>.</p></li>
+<li><p>Porta Mana <a href="https://github.com/pglpm/prova/raw/main/development/manual/pglpm2024-bayes_nonparam.pdf" class="external-link">https://github.com/pglpm/prova/raw/main/development/manual/pglpm2024-bayes_nonparam.pdf</a>.</p></li>
+</ul><p>About nonparametrics:</p><ul><li><p>Müller et al. (2015): <em>Nonparametric Bayesian inference</em>. IMS <a href="doi:10.1007/978-3-319-18968-0">doi:10.1007/978-3-319-18968-0</a>.</p></li>
 <li><p>Hjort et al. (2010): <em>Bayesian Nonparametrics</em>. Cambridge University Press <a href="doi:10.1017/CBO9780511802478">doi:10.1017/CBO9780511802478</a>.</p></li>
 </ul><p>About Markov-chain Monte Carlo and "convergence":</p><ul><li><p>de Valpine, Paciorek, Turek, &amp; al. (2026): <em>NIMBLE: MCMC, Particle Filtering, and Programmable Hierarchical Modeling</em> <a href="doi:10.5281/zenodo.1211190">doi:10.5281/zenodo.1211190</a>, <a href="https://cran.r-project.org/package=nimble" class="external-link">https://cran.r-project.org/package=nimble</a>.</p></li>
 <li><p>Kwon &amp; al. (2025): <em>MCMC stopping rules in latent variable modelling</em> <a href="doi:10.1111/bmsp.12357">doi:10.1111/bmsp.12357</a>.</p></li>
@@ -238,7 +251,7 @@ About nonparametrics:</p></li>
 <li><p>Roy (2020): <em>Convergence diagnostics for Markov chain Monte Carlo</em> <a href="doi:10.1146/annurev-statistics-031219-041300">doi:10.1146/annurev-statistics-031219-041300</a>.</p></li>
 <li><p>Gilks &amp; al. (1998): <em>Markov Chain Monte Carlo in Practice</em>. Chapman &amp; Hall/CRC <a href="doi:10.1201/b14835">doi:10.1201/b14835</a>.</p></li>
 <li><p>D. J. C. MacKay (2005): <em>Information Theory, Inference, and Learning Algorithms</em>. Cambridge University Press <a href="https://www.inference.org.uk/itila/book.html" class="external-link">https://www.inference.org.uk/itila/book.html</a>.</p></li>
-</ul><p>Mathematical background of <strong>Prova</strong>:</p><ul><li><p>Porta Mana <a href="https://github.com/pglpm/prova/raw/main/development/manual/pglpm2024-bayes_nonparam.pdf" class="external-link">https://github.com/pglpm/prova/raw/main/development/manual/pglpm2024-bayes_nonparam.pdf</a>.</p></li>
+<li><p>Porta Mana <a href="https://github.com/pglpm/prova/raw/main/development/manual/pglpm2024-bayes_nonparam.pdf" class="external-link">https://github.com/pglpm/prova/raw/main/development/manual/pglpm2024-bayes_nonparam.pdf</a>.</p></li>
 </ul></div>
     <div class="section level2">
     <h2 id="see-also">See also<a class="anchor" aria-label="anchor" href="#see-also"></a></h2>
@@ -271,12 +284,12 @@ About nonparametrics:</p></li>
 <span class="r-in"><span><span class="op">)</span></span></span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Saving output in directory</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> /tmp/Rtmp16vrMi/prova-V1_D3_S10_260701T052203_1a6130da7707</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> /tmp/RtmpVur9pF/prova-V1_D3_S10_260701T084206_1a6b1a241ca5</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Saving output in directory</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> /tmp/Rtmp16vrMi/prova-V1_D3_S10_260701T052203_1a6130da7707</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> Prova v0.9.2.</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> Prova v0.9.2.</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> /tmp/RtmpVur9pF/prova-V1_D3_S10_260701T084206_1a6b1a241ca5</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Prova v1.0.0.</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Prova v1.0.0.</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Registered socket cluster with 1 nodes on host ‘localhost’.</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Registered socket cluster with 1 nodes on host ‘localhost’.</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Learning from 3 datapoints, 1 variates.</span>
@@ -318,14 +331,14 @@ About nonparametrics:</p></li>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Plotting final Monte Carlo traces and marginal samples...</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Plotting final Monte Carlo traces and marginal samples...</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> Total computation time: 33 secs</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> Average preparation &amp; finalization time: 32 secs.</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> Average Monte Carlo time per chain: 0.56 secs.</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Total computation time: 34 secs</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Average preparation &amp; finalization time: 33 secs.</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Average Monte Carlo time per chain: 0.58 secs.</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Max total memory used: approx 350MB.</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Max memory used per core: approx 350MB.</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> Total computation time: 33 secs</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> Average preparation &amp; finalization time: 32 secs.</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> Average Monte Carlo time per chain: 0.56 secs.</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Total computation time: 34 secs</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Average preparation &amp; finalization time: 33 secs.</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Average Monte Carlo time per chain: 0.58 secs.</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Max total memory used: approx 350MB.</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Max memory used per core: approx 350MB.</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Removing temporary output files.</span>
@@ -334,13 +347,13 @@ About nonparametrics:</p></li>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> **********************************************************</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Output saved in directory</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> /tmp/Rtmp16vrMi/prova-V1_D3_S10_260701T052203_1a6130da7707</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> /tmp/RtmpVur9pF/prova-V1_D3_S10_260701T084206_1a6b1a241ca5</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> **********************************************************</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Finished.</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> **********************************************************</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Output saved in directory</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> /tmp/Rtmp16vrMi/prova-V1_D3_S10_260701T052203_1a6130da7707</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> /tmp/RtmpVur9pF/prova-V1_D3_S10_260701T084206_1a6b1a241ca5</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> **********************************************************</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Closing connections to cores.</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Closing connections to cores.</span>

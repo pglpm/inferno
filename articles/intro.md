@@ -262,11 +262,12 @@ Here they are:
 If you generated the `penguin` dataset yourself, then your first 10
 samples may be different.
 
-In the data above, samples \#1 and \#6 have one or more missing
-variates. But incomplete data are not a problem: inferences can still be
-performed from them, because Bayesian methods and **Prova**
+Note that in the data above, samples \#1 and \#6 have one or more
+missing variates. But incomplete data are not a problem: inferences can
+still be performed from them, because Bayesian methods and **Prova**
 automatically perform *imputation* of missing data, and they do so in a
-principled way (via the marginalization rule of probability theory).
+principled way (via the marginalization rule of probability theory). We
+shall see this in a later section.
 
 With these datapoints we start our Bayesian nonparametric analysis using
 **Prova**!
@@ -609,8 +610,8 @@ learnt10 <- learn(
 ## Max total memory used: approx 3100MB.
 ## Max memory used per core: approx 770MB.
 ## Removing temporary output files.
-## 
 ## Finished.
+## 
 ## *************************************************
 ##  Output saved in directory
 ## __penguin_inference_10-V8_D10_S3600_260621T120628
@@ -872,6 +873,69 @@ print(Fspecies10)
 #   Chinstrap 0.305 0.123 0.211 0.389  0.522
 #   Gentoo    0.397 0.192 0.300 0.489  0.618
 ```
+
+### Imputation of missing data
+
+In our initial dataset, datapoint \#1 lacks the value of the `sex`
+variate, and datapoint \#6 lacks the values of variates `bill_len`,
+`bill_dep`, `flipper_len`, `body_mass`. These partial information of
+these two datapoints was nevertheless used to learn about the full
+population. We can probabilistically infer, that is, do imputation, of
+all these missing data.
+
+Let’s take datapoint \#1 for instance, and infer its missing variate
+`sex` from all other, known, variates:
+
+``` r
+
+Yimp <- data.frame(sex = c('female', 'male'))
+
+## Extract data from datapoint #1 of our shuffled dataset 'penguin'
+## excluding 'sex' variate
+X <- penguin[1, colnames(penguin) != 'sex']
+
+imputeddata <- Pr(Y = Yimp, X = X, learnt = learnt10, parallel = 4)
+
+print(imputeddata)
+# , , |species,island,bill_len,bill_dep,flipper_len,body_mass,year = Adelie,Torgersen,37.8,17.1,186,3300,2007
+# 
+#         prob. & vrb.
+# sex      value Q5.5%  Q25%  Q75% Q94.5%
+#   female 0.674 0.240 0.516 0.872 0.9735
+#   male   0.326 0.027 0.128 0.484 0.7610
+```
+
+We see that penguin \#1 might have been female with probability 0.67,
+although further data might shift that probability somewhere between
+0.24 and 0.97.
+
+Now let’s take datapoint \#6 and infer the value of `bill_len`. We can
+use the function
+[`vrtgrid()`](https://pglpm.github.io/prova/reference/vrtgrid.md) to
+generate a grid of realistic values based on the data, and then see the
+probability distribution over these values:
+
+``` r
+
+## Generate grid of realistic values for 'bill_len' using vrtgrid()
+Yimp <- data.frame(bill_len = vrtgrid(vrt = 'bill_len', learnt = learnt10))
+
+## Extract data from datapoint #6 of our shuffled dataset 'penguin'
+X <- penguin[6, ]
+
+## drop unknown variates
+X <- X[, !is.na(X)]
+
+imputeddata <- Pr(Y = Yimp, X = X, learnt = learnt10, parallel = 4)
+
+plot(imputeddata)
+```
+
+![](figure/imputation6-1.jpeg)
+
+  
+
+## Analysis example: frequencies on different islands
 
 ### A preliminary report on question Q1
 
@@ -1309,8 +1373,8 @@ learnt60 <- learn(
 ## Max total memory used: approx 3300MB.
 ## Max memory used per core: approx 850MB.
 ## Removing temporary output files.
-## 
 ## Finished.
+## 
 ## *************************************************
 ##  Output saved in directory
 ## __penguin_inference_60-V8_D60_S3600_260621T120619
@@ -1726,8 +1790,8 @@ learntall <- learn(
 ## Max total memory used: approx 7100MB.
 ## Max memory used per core: approx 1100MB.
 ## Removing temporary output files.
-## 
 ## Finished.
+## 
 ## ***************************************************
 ##  Output saved in directory
 ## __penguin_inference_all-V8_D344_S3600_260622T073853
@@ -1852,15 +1916,16 @@ adapted from one analysis to the other.
 
 We define an object `Y` for the variate we want to know the frequency
 about, and an object `X` for the *subpopulation* we’re restricting our
-analysis to:
+analysis to. Recall that we can use the function
+[`vrtgrid()`](https://pglpm.github.io/prova/reference/vrtgrid.md) to
+form a grid of all possible realistic values:
 
 ``` r
 
-Yvrt <- 'species' ## variate of interest
-Yvls <- sort(unique(penguin[, Yvrt])) ## values from dataset
+## All values for the variate of interest
+Yvls <- vrtgrid(vrt = 'species', learnt = learntall)
 ## build Y object
-Y <- data.frame(Yvls)
-colnames(Y) <- Yvrt
+Y <- data.frame(species = Yvls)
 
 Xvrt <- 'island' ## subpopulation variate
 Xvls <- 'Biscoe' ## subpopulation value or values
@@ -1924,11 +1989,9 @@ In this case, `Adelie` penguins are our subpopulation:
 
 ``` r
 
-Yvrt <- 'island' ## variate of interest
-Yvls <- c('Biscoe', 'Dream', 'Torgersen') ## values of interest
+Yvls <- vrtgrid(vrt = 'island', learnt = learntall)
 ## build Y object
-Y <- data.frame(Yvls)
-colnames(Y) <- Yvrt
+Y <- data.frame(island = Yvls)
 
 Xvrt <- 'species' ## subpopulation variate
 Xvls <- 'Adelie' ## subpopulation value or values
@@ -1992,22 +2055,19 @@ three islands.
 
 In this case we are interested in the (continuous) distribution of body
 mass in three separate subpopulations: `Adelie`, `Chinstrap`, and
-`Gentoo` penguins:
+`Gentoo` penguins.
 
 ``` r
 
-Yvrt <- 'body_mass' ## variate of interest
-Yrange <- c('3000', '5000') ## range of interest
-Yvls <- seq(Yrange[1], Yrange[2], by = 25)
+## Grid of realistic values for 'body_mass'
+Yvls <- vrtgrid(vrt = 'body_mass', learnt = learntall)
 ## build Y object
-Y <- data.frame(Yvls)
-colnames(Y) <- Yvrt
+Y <- data.frame(body_mass = Yvls)
 
-Xvrt <- 'species' ## subpopulation variate
-Xvls <- c('Adelie', 'Chinstrap', 'Gentoo') ## subpopulation values
+## Grid of values for 'species', the subpopulation variate
+Xvls <- vrtgrid(vrt = 'species', learnt = learntall)
 ## build X object
-X <- data.frame(Xvls)
-colnames(X) <- Xvrt
+X <- data.frame(species = Xvls)
 
 ## NB: rewriting the previous 'Fanalysis' object
 Fanalysis <- Pr(Y = Y, X = X, learnt = learntall, parallel = 4)
@@ -2110,6 +2170,67 @@ follows:
 Names of variates and character variate values should be strings
 conforming to [R’s
 rules](https://cran.r-project.org/doc/FAQ/R-FAQ.html#What-are-valid-names_003f).
+
+  
+
+### Typical use of the `learn()` function
+
+The computations performed by the
+[`learn()`](https://pglpm.github.io/prova/reference/learn.md) function
+can take from minutes to days, depending on the size of the dataset, the
+number of variates, and the “shape” of the (initially unknown!)
+probability distribution underlying the inference problem.
+
+For inferences with large datasets or high number of variates,
+[`learn()`](https://pglpm.github.io/prova/reference/learn.md) is
+typically called separately on a powerful machine, workstation or
+High-Performance Computing server. A script may launch the function in
+the background and the progress can be periodically monitored.
+
+For example, a script ‘launch_learn.R’ could be prepared, having the
+following structure:
+
+``` r
+
+library('prova')
+
+learn(
+  data = 'filename_with_data.csv', # CSV file containing the dataset
+  metadata = 'filename_with_metadata.csv', # CSV file containing the metadata
+  outputdir = 'some_directory', # path to output directory
+  parallel = 8 # machine has more than 8 cores, so we use 8
+  ## possibly other arguments to learn()
+)
+```
+
+The script ‘launch_learn.R’ could then be called to work on the
+background on a bash session with
+
+``` bash
+$ Rscript myscript.R > logfile.log 2>&1 &
+```
+
+The file ‘logfile.log’ will then contain messages about the progress of
+the computation, and an estimated end time, updated regularly. When
+desired, this file can be simply opened and inspected, for instance with
+the bash command `tail`:
+
+``` bash
+$ tail logfile.log
+```
+
+This is just an example; the details and correct procedure will depend
+on your operating system and computing environment.
+
+  
+
+Given the possibly long computation times, it is recommended that you
+first do some simpler trial runs of
+[`learn()`](https://pglpm.github.io/prova/reference/learn.md) with a
+reduced dataset and fixed number of Monte Carlo iterations, or a time
+bound. These simplified runs can be easily made using the arguments
+`subsampledata =` and `maxMCiterations =` or `maxhours =` of
+[`learn()`](https://pglpm.github.io/prova/reference/learn.md).
 
 [^1]: Note the difference between *probability* and *frequency*. If an
     expert colleague tells us “I was able to take a quick look at that

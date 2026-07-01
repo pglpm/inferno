@@ -13,7 +13,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">prova</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.9.2</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.0.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -128,7 +128,7 @@ $$\mathit{MI}(Y_1, Y_2 \vert X = x) \mathrel{:=}
 $$
 an expression which can also be written in several other equivalent ways. It is an information-theoretic measure of association that is model-free, that is, does not depend on assumptions such as linearity, gaussianity, and similar. See <code><a href="../articles/mutualinfo.html">vignette('mutualinfo')</a></code> for discussion and example uses, and also the "References" section.  If \(Y_1, Y_2\) are <em>jointly gaussian variates</em>, then there is a mathematical correspondence between their mutual information and their Pearson correlation coefficient; see output <code>MI.rGauss</code> in the "Value" section.</p>
 <p>The conditional entropy of \(Y_1\) with respect to \(Y_2\), conditional on \(X = x\), is given by
-$$\mathit{CondEn12}(Y_1, Y_2 \vert X = x) :=
+$$\mathit{CondEn12}(Y_1, Y_2 \vert X = x) \mathrel{:=}
 -\sum_{y_1, y_2}
 \mathrm{Pr}(Y_1 = y_1 \vert Y_2 = y_2, X = x, \text{data})
 \log_2
@@ -138,7 +138,7 @@ $$\mathit{CondEn12}(Y_1, Y_2 \vert X = x) :=
 \, \mathrm{Sh}
 $$</p>
 <p>The (differential) entropy of \(Y_1\), conditional on \(X = x\), is given by
-$$\mathit{En1}(Y_1 \vert X = x) :=
+$$\mathit{En1}(Y_1 \vert X = x) \mathrel{:=}
 -\sum_{y_1}
 \mathrm{Pr}(Y_1 = y_1 \vert X = x, \text{data})
 \log_2

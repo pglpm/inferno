@@ -82,4 +82,4 @@ vtransform(
 
 ## Value
 
-data frame of transformed variates, or their log-Jacobians
+data frame of transformed variates, or their log-Jacobians.

@@ -1,14 +1,15 @@
 # prova: Nonparametric Probabilistic-Statistical Variate Analysis with Automated Markov-Chain Monte Carlo
 
-Functions for calculating posterior joint and conditional probabilities,
-probability distributions of population frequencies, and
-information-theoretic measures, by means of Bayesian nonparametric
-methods. Markov-chain Monte Carlo calculations are automatically handled
-and do not require user supervision. Applications range from statistical
-estimation and probabilistic hypothesis testing to evidence-based
-inference and decision making, in a wide range of disciplines from
-astrophysics to medicine. For more details and examples see for instance
-Porta Mana et al. (2026)
+Calculate posterior joint and conditional probabilities, probability
+distributions of population frequencies, and information-theoretic
+measures, by means of Bayesian nonparametric methods. Data imputation is
+automatic and done in a principled way. Markov-chain Monte Carlo
+calculations are automatically handled and do not require user
+supervision. Applications range from statistical estimation and
+probabilistic hypothesis testing to evidence-based inference and
+decision making, in a wide range of disciplines from astrophysics to
+medicine. For more details and examples see for instance Porta Mana et
+al. (2026)
 [doi:10.31219/osf.io/8nr56](https://doi.org/10.31219/osf.io/8nr56) ,
 Dunson & Bhattacharya (2011)
 [doi:10.1093/acprof:oso/9780199694587.003.0005](https://doi.org/10.1093/acprof%3Aoso/9780199694587.003.0005)

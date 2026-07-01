@@ -23,12 +23,12 @@ Source:
 
 Porta Mana P (2026). *prova: Nonparametric Probabilistic-Statistical
 Variate Analysis with Automated Markov-Chain Monte Carlo*. R package
-version 0.9.2, <https://pglpm.github.io/prova/>.
+version 1.0.0, <https://pglpm.github.io/prova/>.
 
     @Manual{,
       title = {prova: Nonparametric Probabilistic-Statistical Variate Analysis with Automated Markov-Chain Monte Carlo},
       author = {PierGianLuca {Porta Mana}},
       year = {2026},
-      note = {R package version 0.9.2},
+      note = {R package version 1.0.0},
       url = {https://pglpm.github.io/prova/},
     }

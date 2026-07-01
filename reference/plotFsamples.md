@@ -64,4 +64,4 @@ plotFsamples(
 
 ## Value
 
-A list with the mutual information, its error, and its unit
+No return value.
