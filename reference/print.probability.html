@@ -79,6 +79,10 @@
 
 </dl></div>
     <div class="section level2">
+    <h2 id="value">Value<a class="anchor" aria-label="anchor" href="#value"></a></h2>
+    <p>Its <code>x</code> argument, <em>invisibly</em>; see <code><a href="https://rdrr.io/r/base/print.html" class="external-link">base::print()</a></code>.</p>
+    </div>
+    <div class="section level2">
     <h2 id="see-also">See also<a class="anchor" aria-label="anchor" href="#see-also"></a></h2>
     <div class="dont-index"><p><code><a href="Pr.html">Pr()</a></code> to calculate posterior probabilities and quantiles.</p>
 <p><code><a href="plot.probability.html">plot.probability()</a></code> to plot probabilities and quantiles calculated by `Pr()'.
@@ -98,8 +102,6 @@
 <span class="r-in"><span><span class="va">X</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span>bill_len <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">43</span>, <span class="fl">44</span><span class="op">)</span><span class="op">)</span></span></span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="va">probs</span> <span class="op">&lt;-</span> <span class="fu"><a href="Pr.html">Pr</a></span><span class="op">(</span>Y <span class="op">=</span> <span class="va">Y</span>, X <span class="op">=</span> <span class="va">X</span>, learnt <span class="op">=</span> <span class="va">learnt</span>, parallel <span class="op">=</span> <span class="fl">1</span><span class="op">)</span></span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> Registered socket cluster with 1 nodes on host ‘localhost’.</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> Closing connections to cores.</span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co">## display the values and variabilities of these probabilities</span></span></span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="va">probs</span><span class="op">)</span></span></span>

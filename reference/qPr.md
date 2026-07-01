@@ -19,7 +19,7 @@ qPr(
   parallel = TRUE,
   sep = ",",
   solidus = "|",
-  silent = FALSE,
+  verbose = FALSE,
   keepYX = TRUE,
   tol = .Machine$double.eps * 10
 )
@@ -98,9 +98,9 @@ qPr(
   character, default `'|'`: character prepended to names of the variates
   in the conditional (typically the `X` variates).
 
-- silent:
+- verbose:
 
-  Logical, default `FALSE`: give warnings or updates in the computation?
+  Logical, default `FALSE`: give messages about parallel processing?
 
 - keepYX:
 
@@ -182,8 +182,6 @@ quants <- qPr(
   Yname = 'bill_len',
   learnt = learnt, parallel = 1
 )
-#> Registered socket cluster with 1 nodes on host ‘localhost’.
-#> Closing connections to cores.
 
 ## display the quantile values
 quants$values
@@ -199,8 +197,6 @@ probs <- Pr(
   tails = list(bill_len = -1),
   learnt = learnt, parallel = 1
 )
-#> Registered socket cluster with 1 nodes on host ‘localhost’.
-#> Closing connections to cores.
 
 ## the cumulative probabilities are indeed 0.055, 0.5, 0.945 within numerical error:
 probs$values
@@ -247,8 +243,6 @@ quants <- qPr(
   X = data.frame(species = 'Adelie'),
   learnt = learnt, parallel = 1
 )
-#> Registered socket cluster with 1 nodes on host ‘localhost’.
-#> Closing connections to cores.
 
 ## display the quantile values
 quants$values
@@ -264,8 +258,6 @@ probs <- Pr(
   X = data.frame(species = 'Adelie'),
   tails = list(bill_len = -1),
   learnt = learnt, parallel = 1)
-#> Registered socket cluster with 1 nodes on host ‘localhost’.
-#> Closing connections to cores.
 
 ## the cumulative probabilities are indeed 0.055, 0.5, 0.945 within numerical error:
 probs$values

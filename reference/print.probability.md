@@ -51,6 +51,11 @@ print(x, elements = NULL, subset = NULL, digits = TRUE, ...)
   Other parameters to be passed to
   [`base::print()`](https://rdrr.io/r/base/print.html).
 
+## Value
+
+Its `x` argument, *invisibly*; see
+[`base::print()`](https://rdrr.io/r/base/print.html).
+
 ## See also
 
 [`Pr()`](https://pglpm.github.io/prova/reference/Pr.md) to calculate
@@ -75,8 +80,6 @@ Y <- data.frame(species = c('Adelie', 'Chinstrap', 'Gentoo'))
 X <- data.frame(bill_len = c(43, 44))
 
 probs <- Pr(Y = Y, X = X, learnt = learnt, parallel = 1)
-#> Registered socket cluster with 1 nodes on host ‘localhost’.
-#> Closing connections to cores.
 
 ## display the values and variabilities of these probabilities
 print(probs)

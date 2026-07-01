@@ -122,6 +122,10 @@ The hist() method for a probability object is a utility to visualize this kind o
 
 </dl></div>
     <div class="section level2">
+    <h2 id="value">Value<a class="anchor" aria-label="anchor" href="#value"></a></h2>
+    <p>Invisibly (see <code><a href="https://rdrr.io/r/base/invisible.html" class="external-link">base::invisible()</a></code>), an object of class "histogram", see <code><a href="https://rdrr.io/r/graphics/hist.html" class="external-link">graphics::hist()</a></code>.</p>
+    </div>
+    <div class="section level2">
     <h2 id="see-also">See also<a class="anchor" aria-label="anchor" href="#see-also"></a></h2>
     <div class="dont-index"><p><code><a href="Pr.html">Pr()</a></code> to calculate posterior probabilities and quantiles.</p>
 <p><code><a href="plot.probability.html">plot.probability()</a></code> to plot the posterior probabilities.</p>
@@ -138,8 +142,6 @@ The hist() method for a probability object is a utility to visualize this kind o
 <span class="r-in"><span><span class="co">## calculate the probability, and its variability,</span></span></span>
 <span class="r-in"><span><span class="co">## for the value 'Adelie' of the "species" variate</span></span></span>
 <span class="r-in"><span><span class="va">probs</span> <span class="op">&lt;-</span> <span class="fu"><a href="Pr.html">Pr</a></span><span class="op">(</span>Y <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span>species <span class="op">=</span> <span class="st">'Adelie'</span><span class="op">)</span>, learnt <span class="op">=</span> <span class="va">learnt</span>, parallel <span class="op">=</span> <span class="fl">1</span><span class="op">)</span></span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> Registered socket cluster with 1 nodes on host ‘localhost’.</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> Closing connections to cores.</span>
 <span class="r-in"><span><span class="va">probs</span><span class="op">$</span><span class="va">values</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>         </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> species      [,1]</span>

@@ -61,7 +61,7 @@
 <span>  parallel <span class="op">=</span> <span class="cn">TRUE</span>,</span>
 <span>  sep <span class="op">=</span> <span class="st">","</span>,</span>
 <span>  solidus <span class="op">=</span> <span class="st">"|"</span>,</span>
-<span>  silent <span class="op">=</span> <span class="cn">FALSE</span>,</span>
+<span>  verbose <span class="op">=</span> <span class="cn">FALSE</span>,</span>
 <span>  keepYX <span class="op">=</span> <span class="cn">TRUE</span></span>
 <span><span class="op">)</span></span></code></pre></div>
     </div>
@@ -111,8 +111,8 @@ the joint probability of. One variate per column, one set of values per row.</p>
 <dd><p>character, default <code>'|'</code>: character prepended to names of the variates in the conditional (typically the <code>X</code> variates).</p></dd>
 
 
-<dt id="arg-silent">silent<a class="anchor" aria-label="anchor" href="#arg-silent"></a></dt>
-<dd><p>Logical, default <code>FALSE</code>: give warnings or updates in the computation?</p></dd>
+<dt id="arg-verbose">verbose<a class="anchor" aria-label="anchor" href="#arg-verbose"></a></dt>
+<dd><p>Logical, default <code>FALSE</code>: give messages about parallel processing?</p></dd>
 
 
 <dt id="arg-keepyx">keepYX<a class="anchor" aria-label="anchor" href="#arg-keepyx"></a></dt>
@@ -171,8 +171,6 @@ the joint probability of. One variate per column, one set of values per row.</p>
 <span class="r-in"><span>  Y <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span>species <span class="op">=</span> <span class="st">'Adelie'</span><span class="op">)</span>,</span></span>
 <span class="r-in"><span>  learnt <span class="op">=</span> <span class="va">learnt</span>, parallel <span class="op">=</span> <span class="fl">1</span></span></span>
 <span class="r-in"><span><span class="op">)</span></span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> Registered socket cluster with 1 nodes on host ‘localhost’.</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> Closing connections to cores.</span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co">## display the probability value</span></span></span>
 <span class="r-in"><span><span class="va">probs</span><span class="op">$</span><span class="va">values</span></span></span>
@@ -200,8 +198,6 @@ the joint probability of. One variate per column, one set of values per row.</p>
 <span class="r-in"><span>  Y <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span>species <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">'Adelie'</span>, <span class="st">'Chinstrap'</span>, <span class="st">'Gentoo'</span><span class="op">)</span><span class="op">)</span>,</span></span>
 <span class="r-in"><span>  learnt <span class="op">=</span> <span class="va">learnt</span>, parallel <span class="op">=</span> <span class="fl">1</span></span></span>
 <span class="r-in"><span><span class="op">)</span></span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> Registered socket cluster with 1 nodes on host ‘localhost’.</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> Closing connections to cores.</span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co">## display the 3 probability values</span></span></span>
 <span class="r-in"><span><span class="va">probs</span><span class="op">$</span><span class="va">values</span></span></span>
@@ -239,8 +235,6 @@ the joint probability of. One variate per column, one set of values per row.</p>
 <span class="r-in"><span>  X <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span>bill_len <span class="op">=</span> <span class="fl">43</span><span class="op">)</span>,</span></span>
 <span class="r-in"><span>  learnt <span class="op">=</span> <span class="va">learnt</span>, parallel <span class="op">=</span> <span class="fl">1</span></span></span>
 <span class="r-in"><span><span class="op">)</span></span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> Registered socket cluster with 1 nodes on host ‘localhost’.</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> Closing connections to cores.</span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co">## display the probability value</span></span></span>
 <span class="r-in"><span><span class="va">probs</span><span class="op">$</span><span class="va">values</span></span></span>
@@ -265,8 +259,6 @@ the joint probability of. One variate per column, one set of values per row.</p>
 <span class="r-in"><span>  Y <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span>species <span class="op">=</span> <span class="st">'Adelie'</span>, bill_len <span class="op">=</span> <span class="fl">43</span><span class="op">)</span>,</span></span>
 <span class="r-in"><span>  learnt <span class="op">=</span> <span class="va">learnt</span>, parallel <span class="op">=</span> <span class="fl">1</span></span></span>
 <span class="r-in"><span><span class="op">)</span></span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> Registered socket cluster with 1 nodes on host ‘localhost’.</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> Closing connections to cores.</span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co">## display the probability value</span></span></span>
 <span class="r-in"><span><span class="va">probs</span><span class="op">$</span><span class="va">values</span></span></span>
@@ -290,8 +282,6 @@ the joint probability of. One variate per column, one set of values per row.</p>
 <span class="r-in"><span><span class="va">X</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span>bill_len <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">43</span>, <span class="fl">44</span><span class="op">)</span><span class="op">)</span></span></span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="va">probs</span> <span class="op">&lt;-</span> <span class="fu">Pr</span><span class="op">(</span>Y <span class="op">=</span> <span class="va">Y</span>, X <span class="op">=</span> <span class="va">X</span>, learnt <span class="op">=</span> <span class="va">learnt</span>, parallel <span class="op">=</span> <span class="fl">1</span><span class="op">)</span></span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> Registered socket cluster with 1 nodes on host ‘localhost’.</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> Closing connections to cores.</span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co">## display the 3 x 2 probability values</span></span></span>
 <span class="r-in"><span><span class="va">probs</span><span class="op">$</span><span class="va">values</span></span></span>
@@ -336,8 +326,6 @@ the joint probability of. One variate per column, one set of values per row.</p>
 <span class="r-in"><span><span class="op">)</span></span></span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="va">probs</span> <span class="op">&lt;-</span> <span class="fu">Pr</span><span class="op">(</span>Y <span class="op">=</span> <span class="va">Y</span>, learnt <span class="op">=</span> <span class="va">learnt</span>, parallel <span class="op">=</span> <span class="fl">1</span><span class="op">)</span></span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> Registered socket cluster with 1 nodes on host ‘localhost’.</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> Closing connections to cores.</span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co">## display the 6 joint-probability values</span></span></span>
 <span class="r-in"><span><span class="va">probs</span><span class="op">$</span><span class="va">values</span></span></span>

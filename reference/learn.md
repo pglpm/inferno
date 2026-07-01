@@ -31,6 +31,7 @@ learn(
   minESS = 450,
   initES = 2,
   thinning = NULL,
+  verbose = TRUE,
   plottraces = !cleanup,
   showKtraces = FALSE,
   showAlphatraces = FALSE,
@@ -194,6 +195,12 @@ learn(
 
   Integer or `NULL` (default): thin out the Monte Carlo samples by this
   value. If `NULL`: let the diagnostics decide the thinning value.
+
+- verbose:
+
+  Logical, default `TRUE`: output the progress to terminal? If `FALSE`,
+  the progress is outputted to the file `'main.log'` in the `outputdir`
+  directory.
 
 - plottraces:
 
@@ -385,62 +392,93 @@ learnt <- learn(
   data = dataset, metadata = metadata,
       ## the following parameters are unrealistic
       ## only used to reduce computation time for this example
-  nsamples = 10, nchains = 1, startupMCiterations = 10, maxhours = 0
+  nsamples = 10, nchains = 1,
+  startupMCiterations = 10, maxMCiterations = 10,
+  minESS = 0, initES = 0
 )
 #> 
-#> Registered socket cluster with 1 nodes on host ‘localhost’.
+#> Saving output in directory
+#> /tmp/Rtmp16vrMi/prova-V1_D3_S10_260701T052203_1a6130da7707
 #> 
+#> Saving output in directory
+#> /tmp/Rtmp16vrMi/prova-V1_D3_S10_260701T052203_1a6130da7707
 #> Prova v0.9.2.
+#> Prova v0.9.2.
+#> Registered socket cluster with 1 nodes on host ‘localhost’.
+#> Registered socket cluster with 1 nodes on host ‘localhost’.
 #> Learning from 3 datapoints, 1 variates.
-#> 
-#>  Saving output in directory
-#>  /tmp/RtmpuiooIH/prova-V1_D3_S10_260628T123927_1a5f3d8b0f9c 
-#> 
+#> Learning from 3 datapoints, 1 variates.
+#> Starting Monte Carlo sampling of 10 samples by 1 chains
 #> Starting Monte Carlo sampling of 10 samples by 1 chains
 #> in a space of 191 (effectively 259) dimensions.
+#> in a space of 191 (effectively 259) dimensions.
 #> Using 1 cores: 10 samples per chain, max 1 chains per core.
-#> Requested:   ESS 450   rel.MCSE 0.047.
+#> Using 1 cores: 10 samples per chain, max 1 chains per core.
+#> Requested:   ESS 0   rel.MCSE Inf.
+#> Requested:   ESS 0   rel.MCSE Inf.
 #> Core logs are being saved in individual files.
-#> C-compiling samplers appropriate to the variates (Nimble v1.4.2)
-#> this can take tens of minutes. Please wait...
+#> Core logs are being saved in individual files.
 #>                                                                
+#> Finished Monte Carlo sampling.
 #> Finished Monte Carlo sampling.
 #> Highest number of Monte Carlo iterations across chains: 10.
 #> Highest number of used mixture components: 2.
+#> Highest number of Monte Carlo iterations across chains: 10.
+#> Highest number of used mixture components: 2.
 #> 
-#> NOTE: 1 chains were stopped before reaching required precision
-#> in order to meet the required time constraints.
+#> Checking test data
+#> (#1 #2 #3):
 #> 
 #> Checking test data
 #> (#1 #2 #3):
 #> rel. quantile error: 0.277 to 0.757
-#> ESS: 10 to 10
-#> needed thinning: 1 to 5.72
-#> average: 0.135 to 0.867
+#> rel. quantile error: 0.277 to 0.757
+#> ESS: 8.59 to 8.59
+#> ESS: 8.59 to 8.59
+#> needed thinning: 1.05 to 5.15
+#> needed thinning: 1.05 to 5.15
+#> average: 0.144 to 0.904
+#> average: 0.144 to 0.904
+#> quantile width: 0.216 to 3.27
 #> quantile width: 0.216 to 3.27
 #> 
 #> Plotting final Monte Carlo traces and marginal samples...
-#> Total computation time: 34 secs
-#> Average preparation & finalization time: 33 secs.
-#> Average Monte Carlo time per chain: 0.57 secs.
+#> 
+#> Plotting final Monte Carlo traces and marginal samples...
+#> Total computation time: 33 secs
+#> Average preparation & finalization time: 32 secs.
+#> Average Monte Carlo time per chain: 0.56 secs.
+#> Max total memory used: approx 350MB.
+#> Max memory used per core: approx 350MB.
+#> Total computation time: 33 secs
+#> Average preparation & finalization time: 32 secs.
+#> Average Monte Carlo time per chain: 0.56 secs.
 #> Max total memory used: approx 350MB.
 #> Max memory used per core: approx 350MB.
 #> Removing temporary output files.
-#> 
+#> Removing temporary output files.
 #> Finished.
+#> 
 #> **********************************************************
-#>  Output saved in directory
-#> /tmp/RtmpuiooIH/prova-V1_D3_S10_260628T123927_1a5f3d8b0f9c
+#> Output saved in directory
+#> /tmp/Rtmp16vrMi/prova-V1_D3_S10_260701T052203_1a6130da7707
 #> **********************************************************
+#> Finished.
+#> 
+#> **********************************************************
+#> Output saved in directory
+#> /tmp/Rtmp16vrMi/prova-V1_D3_S10_260701T052203_1a6130da7707
+#> **********************************************************
+#> Closing connections to cores.
 #> Closing connections to cores.
 
 ## Check structure of `learnt` object:
 str(learnt)
 #> List of 6
-#>  $ Rmean      : num [1, 1:64, 1:10] 2.92 -1.05 3.25 2.55 -2.54 ...
-#>  $ Rsd        : num [1, 1:64, 1:10] 0.346 7.822 1.841 1.145 0.638 ...
-#>  $ W          : num [1:64, 1:10] 1.11e-12 1.17e-09 1.76e-27 3.55e-262 7.41e-28 ...
-#>  $ MCindex    : num [1:10(1d)] 1 2 3 4 5 6 7 8 9 10
+#>  $ Rmean      : num [1, 1:64, 1:9] 2.92 -1.05 3.25 2.55 -2.54 ...
+#>  $ Rsd        : num [1, 1:64, 1:9] 0.346 7.822 1.841 1.145 0.638 ...
+#>  $ W          : num [1:64, 1:9] 1.11e-12 1.17e-09 1.76e-27 3.55e-262 7.41e-28 ...
+#>  $ MCindex    : num [1:9(1d)] 1 2 3 4 6 7 8 9 10
 #>  $ auxmetadata:'data.frame': 1 obs. of  24 variables:
 #>   ..$ name             : chr "V"
 #>   ..$ type             : chr "continuous"
@@ -494,14 +532,14 @@ str(learnt)
 #>   ..$ maxiterations      : num 10
 #>   ..$ maxusedcomponents  : num 2
 #>   ..$ nonfinitechains    : num 0
-#>   ..$ stoppedchains      : num 1
+#>   ..$ stoppedchains      : num 0
 #>   ..$ rel. quantile error: Named num [1:4] 0.384 0.277 0.395 0.757
 #>   .. ..- attr(*, "names")= chr [1:4] "gmean" "1" "2" "3"
-#>   ..$ ESS                : Named num [1:4] 10 10 10 10
+#>   ..$ ESS                : Named num [1:4] 8.59 8.59 8.59 8.59
 #>   .. ..- attr(*, "names")= chr [1:4] "gmean" "1" "2" "3"
-#>   ..$ needed thinning    : Named num [1:4] 1.48 1 1.56 5.72
+#>   ..$ needed thinning    : Named num [1:4] 1.33 1.05 1.41 5.15
 #>   .. ..- attr(*, "names")= chr [1:4] "gmean" "1" "2" "3"
-#>   ..$ average            : Named num [1:4] 0.194 0.178 0.135 0.867
+#>   ..$ average            : Named num [1:4] 0.198 0.18 0.144 0.904
 #>   .. ..- attr(*, "names")= chr [1:4] "gmean" "1" "2" "3"
 #>   ..$ quantile width     : Named num [1:4] 0.216 0.26 0.229 3.267
 #>   .. ..- attr(*, "names")= chr [1:4] "gmean" "1" "2" "3"

@@ -74,6 +74,7 @@
 <span>  minESS <span class="op">=</span> <span class="fl">450</span>,</span>
 <span>  initES <span class="op">=</span> <span class="fl">2</span>,</span>
 <span>  thinning <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  verbose <span class="op">=</span> <span class="cn">TRUE</span>,</span>
 <span>  plottraces <span class="op">=</span> <span class="op">!</span><span class="va">cleanup</span>,</span>
 <span>  showKtraces <span class="op">=</span> <span class="cn">FALSE</span>,</span>
 <span>  showAlphatraces <span class="op">=</span> <span class="cn">FALSE</span>,</span>
@@ -181,6 +182,10 @@
 <dd><p>Integer or <code>NULL</code> (default): thin out the Monte Carlo samples by this value. If <code>NULL</code>: let the diagnostics decide the thinning value.</p></dd>
 
 
+<dt id="arg-verbose">verbose<a class="anchor" aria-label="anchor" href="#arg-verbose"></a></dt>
+<dd><p>Logical, default <code>TRUE</code>: output the progress to terminal? If <code>FALSE</code>, the progress is outputted to the file <code>'main.log'</code> in the <code>outputdir</code> directory.</p></dd>
+
+
 <dt id="arg-plottraces">plottraces<a class="anchor" aria-label="anchor" href="#arg-plottraces"></a></dt>
 <dd><p>Logical, default <code>TRUE</code>: save plots of the Monte Carlo traces of diagnostic values?</p></dd>
 
@@ -260,62 +265,93 @@ About nonparametrics:</p></li>
 <span class="r-in"><span>  data <span class="op">=</span> <span class="va">dataset</span>, metadata <span class="op">=</span> <span class="va">metadata</span>,</span></span>
 <span class="r-in"><span>      <span class="co">## the following parameters are unrealistic</span></span></span>
 <span class="r-in"><span>      <span class="co">## only used to reduce computation time for this example</span></span></span>
-<span class="r-in"><span>  nsamples <span class="op">=</span> <span class="fl">10</span>, nchains <span class="op">=</span> <span class="fl">1</span>, startupMCiterations <span class="op">=</span> <span class="fl">10</span>, maxhours <span class="op">=</span> <span class="fl">0</span></span></span>
+<span class="r-in"><span>  nsamples <span class="op">=</span> <span class="fl">10</span>, nchains <span class="op">=</span> <span class="fl">1</span>,</span></span>
+<span class="r-in"><span>  startupMCiterations <span class="op">=</span> <span class="fl">10</span>, maxMCiterations <span class="op">=</span> <span class="fl">10</span>,</span></span>
+<span class="r-in"><span>  minESS <span class="op">=</span> <span class="fl">0</span>, initES <span class="op">=</span> <span class="fl">0</span></span></span>
 <span class="r-in"><span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> Registered socket cluster with 1 nodes on host ‘localhost’.</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Saving output in directory</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> /tmp/Rtmp16vrMi/prova-V1_D3_S10_260701T052203_1a6130da7707</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Saving output in directory</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> /tmp/Rtmp16vrMi/prova-V1_D3_S10_260701T052203_1a6130da7707</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Prova v0.9.2.</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Prova v0.9.2.</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Registered socket cluster with 1 nodes on host ‘localhost’.</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Registered socket cluster with 1 nodes on host ‘localhost’.</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Learning from 3 datapoints, 1 variates.</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  Saving output in directory</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  /tmp/RtmpuiooIH/prova-V1_D3_S10_260628T123927_1a5f3d8b0f9c </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Learning from 3 datapoints, 1 variates.</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Starting Monte Carlo sampling of 10 samples by 1 chains</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Starting Monte Carlo sampling of 10 samples by 1 chains</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> in a space of 191 (effectively 259) dimensions.</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> in a space of 191 (effectively 259) dimensions.</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Using 1 cores: 10 samples per chain, max 1 chains per core.</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> Requested:   ESS 450   rel.MCSE 0.047.</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Using 1 cores: 10 samples per chain, max 1 chains per core.</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Requested:   ESS 0   rel.MCSE Inf.</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Requested:   ESS 0   rel.MCSE Inf.</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Core logs are being saved in individual files.</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> C-compiling samplers appropriate to the variates (Nimble v1.4.2)</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> this can take tens of minutes. Please wait...</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Core logs are being saved in individual files.</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>                                                                </span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Finished Monte Carlo sampling.</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Finished Monte Carlo sampling.</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Highest number of Monte Carlo iterations across chains: 10.</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Highest number of used mixture components: 2.</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Highest number of Monte Carlo iterations across chains: 10.</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Highest number of used mixture components: 2.</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> NOTE: 1 chains were stopped before reaching required precision</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> in order to meet the required time constraints.</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Checking test data</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> (#1 #2 #3):</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Checking test data</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> (#1 #2 #3):</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> rel. quantile error: 0.277 to 0.757</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> ESS: 10 to 10</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> needed thinning: 1 to 5.72</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> average: 0.135 to 0.867</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> rel. quantile error: 0.277 to 0.757</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> ESS: 8.59 to 8.59</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> ESS: 8.59 to 8.59</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> needed thinning: 1.05 to 5.15</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> needed thinning: 1.05 to 5.15</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> average: 0.144 to 0.904</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> average: 0.144 to 0.904</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> quantile width: 0.216 to 3.27</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> quantile width: 0.216 to 3.27</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Plotting final Monte Carlo traces and marginal samples...</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> Total computation time: 34 secs</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> Average preparation &amp; finalization time: 33 secs.</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> Average Monte Carlo time per chain: 0.57 secs.</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Plotting final Monte Carlo traces and marginal samples...</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Total computation time: 33 secs</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Average preparation &amp; finalization time: 32 secs.</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Average Monte Carlo time per chain: 0.56 secs.</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Max total memory used: approx 350MB.</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Max memory used per core: approx 350MB.</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Total computation time: 33 secs</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Average preparation &amp; finalization time: 32 secs.</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Average Monte Carlo time per chain: 0.56 secs.</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Max total memory used: approx 350MB.</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Max memory used per core: approx 350MB.</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Removing temporary output files.</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Removing temporary output files.</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Finished.</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> **********************************************************</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span>  Output saved in directory</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> /tmp/RtmpuiooIH/prova-V1_D3_S10_260628T123927_1a5f3d8b0f9c</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Output saved in directory</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> /tmp/Rtmp16vrMi/prova-V1_D3_S10_260701T052203_1a6130da7707</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> **********************************************************</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Finished.</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> **********************************************************</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Output saved in directory</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> /tmp/Rtmp16vrMi/prova-V1_D3_S10_260701T052203_1a6130da7707</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> **********************************************************</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Closing connections to cores.</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Closing connections to cores.</span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co">## Check structure of `learnt` object:</span></span></span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/utils/str.html" class="external-link">str</a></span><span class="op">(</span><span class="va">learnt</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> List of 6</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  $ Rmean      : num [1, 1:64, 1:10] 2.92 -1.05 3.25 2.55 -2.54 ...</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  $ Rsd        : num [1, 1:64, 1:10] 0.346 7.822 1.841 1.145 0.638 ...</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  $ W          : num [1:64, 1:10] 1.11e-12 1.17e-09 1.76e-27 3.55e-262 7.41e-28 ...</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  $ MCindex    : num [1:10(1d)] 1 2 3 4 5 6 7 8 9 10</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  $ Rmean      : num [1, 1:64, 1:9] 2.92 -1.05 3.25 2.55 -2.54 ...</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  $ Rsd        : num [1, 1:64, 1:9] 0.346 7.822 1.841 1.145 0.638 ...</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  $ W          : num [1:64, 1:9] 1.11e-12 1.17e-09 1.76e-27 3.55e-262 7.41e-28 ...</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  $ MCindex    : num [1:9(1d)] 1 2 3 4 6 7 8 9 10</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>  $ auxmetadata:'data.frame':	1 obs. of  24 variables:</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   ..$ name             : chr "V"</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   ..$ type             : chr "continuous"</span>
@@ -369,14 +405,14 @@ About nonparametrics:</p></li>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   ..$ maxiterations      : num 10</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   ..$ maxusedcomponents  : num 2</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   ..$ nonfinitechains    : num 0</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   ..$ stoppedchains      : num 1</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   ..$ stoppedchains      : num 0</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   ..$ rel. quantile error: Named num [1:4] 0.384 0.277 0.395 0.757</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   .. ..- attr(*, "names")= chr [1:4] "gmean" "1" "2" "3"</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   ..$ ESS                : Named num [1:4] 10 10 10 10</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   ..$ ESS                : Named num [1:4] 8.59 8.59 8.59 8.59</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   .. ..- attr(*, "names")= chr [1:4] "gmean" "1" "2" "3"</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   ..$ needed thinning    : Named num [1:4] 1.48 1 1.56 5.72</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   ..$ needed thinning    : Named num [1:4] 1.33 1.05 1.41 5.15</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   .. ..- attr(*, "names")= chr [1:4] "gmean" "1" "2" "3"</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   ..$ average            : Named num [1:4] 0.194 0.178 0.135 0.867</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   ..$ average            : Named num [1:4] 0.198 0.18 0.144 0.904</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   .. ..- attr(*, "names")= chr [1:4] "gmean" "1" "2" "3"</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   ..$ quantile width     : Named num [1:4] 0.216 0.26 0.229 3.267</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   .. ..- attr(*, "names")= chr [1:4] "gmean" "1" "2" "3"</span>

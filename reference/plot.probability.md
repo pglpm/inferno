@@ -90,6 +90,11 @@ plot(
   Other parameters to be passed to
   [`flexiplot()`](https://pglpm.github.io/prova/reference/flexiplot.md).
 
+## Value
+
+`NULL`, produces a plot, see
+[`graphics::matplot()`](https://rdrr.io/r/graphics/matplot.html).
+
 ## See also
 
 [`Pr()`](https://pglpm.github.io/prova/reference/Pr.md) to calculate
@@ -117,8 +122,6 @@ values <- vrtgrid(vrt = 'bill_len', learnt = learnt)
 
 ## calculate the probabilities and quantiles
 probs <- Pr(Y = data.frame(bill_len = values), learnt = learnt, parallel = 1)
-#> Registered socket cluster with 1 nodes on host ‘localhost’.
-#> Closing connections to cores.
 
 ## plot the probabilities and quantiles
 plot(probs)

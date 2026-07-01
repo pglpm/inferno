@@ -62,7 +62,7 @@
 <span>  parallel <span class="op">=</span> <span class="cn">TRUE</span>,</span>
 <span>  sep <span class="op">=</span> <span class="st">","</span>,</span>
 <span>  solidus <span class="op">=</span> <span class="st">"|"</span>,</span>
-<span>  silent <span class="op">=</span> <span class="cn">FALSE</span>,</span>
+<span>  verbose <span class="op">=</span> <span class="cn">FALSE</span>,</span>
 <span>  keepYX <span class="op">=</span> <span class="cn">TRUE</span>,</span>
 <span>  tol <span class="op">=</span> <span class="va">.Machine</span><span class="op">$</span><span class="va">double.eps</span> <span class="op">*</span> <span class="fl">10</span></span>
 <span><span class="op">)</span></span></code></pre></div>
@@ -116,8 +116,8 @@
 <dd><p>character, default <code>'|'</code>: character prepended to names of the variates in the conditional (typically the <code>X</code> variates).</p></dd>
 
 
-<dt id="arg-silent">silent<a class="anchor" aria-label="anchor" href="#arg-silent"></a></dt>
-<dd><p>Logical, default <code>FALSE</code>: give warnings or updates in the computation?</p></dd>
+<dt id="arg-verbose">verbose<a class="anchor" aria-label="anchor" href="#arg-verbose"></a></dt>
+<dd><p>Logical, default <code>FALSE</code>: give messages about parallel processing?</p></dd>
 
 
 <dt id="arg-keepyx">keepYX<a class="anchor" aria-label="anchor" href="#arg-keepyx"></a></dt>
@@ -168,8 +168,6 @@
 <span class="r-in"><span>  Yname <span class="op">=</span> <span class="st">'bill_len'</span>,</span></span>
 <span class="r-in"><span>  learnt <span class="op">=</span> <span class="va">learnt</span>, parallel <span class="op">=</span> <span class="fl">1</span></span></span>
 <span class="r-in"><span><span class="op">)</span></span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> Registered socket cluster with 1 nodes on host ‘localhost’.</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> Closing connections to cores.</span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co">## display the quantile values</span></span></span>
 <span class="r-in"><span><span class="va">quants</span><span class="op">$</span><span class="va">values</span></span></span>
@@ -185,8 +183,6 @@
 <span class="r-in"><span>  tails <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>bill_len <span class="op">=</span> <span class="op">-</span><span class="fl">1</span><span class="op">)</span>,</span></span>
 <span class="r-in"><span>  learnt <span class="op">=</span> <span class="va">learnt</span>, parallel <span class="op">=</span> <span class="fl">1</span></span></span>
 <span class="r-in"><span><span class="op">)</span></span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> Registered socket cluster with 1 nodes on host ‘localhost’.</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> Closing connections to cores.</span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co">## the cumulative probabilities are indeed 0.055, 0.5, 0.945 within numerical error:</span></span></span>
 <span class="r-in"><span><span class="va">probs</span><span class="op">$</span><span class="va">values</span></span></span>
@@ -233,8 +229,6 @@
 <span class="r-in"><span>  X <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span>species <span class="op">=</span> <span class="st">'Adelie'</span><span class="op">)</span>,</span></span>
 <span class="r-in"><span>  learnt <span class="op">=</span> <span class="va">learnt</span>, parallel <span class="op">=</span> <span class="fl">1</span></span></span>
 <span class="r-in"><span><span class="op">)</span></span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> Registered socket cluster with 1 nodes on host ‘localhost’.</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> Closing connections to cores.</span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co">## display the quantile values</span></span></span>
 <span class="r-in"><span><span class="va">quants</span><span class="op">$</span><span class="va">values</span></span></span>
@@ -250,8 +244,6 @@
 <span class="r-in"><span>  X <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span>species <span class="op">=</span> <span class="st">'Adelie'</span><span class="op">)</span>,</span></span>
 <span class="r-in"><span>  tails <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>bill_len <span class="op">=</span> <span class="op">-</span><span class="fl">1</span><span class="op">)</span>,</span></span>
 <span class="r-in"><span>  learnt <span class="op">=</span> <span class="va">learnt</span>, parallel <span class="op">=</span> <span class="fl">1</span><span class="op">)</span></span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> Registered socket cluster with 1 nodes on host ‘localhost’.</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> Closing connections to cores.</span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co">## the cumulative probabilities are indeed 0.055, 0.5, 0.945 within numerical error:</span></span></span>
 <span class="r-in"><span><span class="va">probs</span><span class="op">$</span><span class="va">values</span></span></span>

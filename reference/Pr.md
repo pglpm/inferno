@@ -20,7 +20,7 @@ Pr(
   parallel = TRUE,
   sep = ",",
   solidus = "|",
-  silent = FALSE,
+  verbose = FALSE,
   keepYX = TRUE
 )
 ```
@@ -111,9 +111,9 @@ Pr(
   character, default `'|'`: character prepended to names of the variates
   in the conditional (typically the `X` variates).
 
-- silent:
+- verbose:
 
-  Logical, default `FALSE`: give warnings or updates in the computation?
+  Logical, default `FALSE`: give messages about parallel processing?
 
 - keepYX:
 
@@ -248,8 +248,6 @@ probs <- Pr(
   Y = data.frame(species = 'Adelie'),
   learnt = learnt, parallel = 1
 )
-#> Registered socket cluster with 1 nodes on host ‘localhost’.
-#> Closing connections to cores.
 
 ## display the probability value
 probs$values
@@ -277,8 +275,6 @@ probs <- Pr(
   Y = data.frame(species = c('Adelie', 'Chinstrap', 'Gentoo')),
   learnt = learnt, parallel = 1
 )
-#> Registered socket cluster with 1 nodes on host ‘localhost’.
-#> Closing connections to cores.
 
 ## display the 3 probability values
 probs$values
@@ -316,8 +312,6 @@ probs <- Pr(
   X = data.frame(bill_len = 43),
   learnt = learnt, parallel = 1
 )
-#> Registered socket cluster with 1 nodes on host ‘localhost’.
-#> Closing connections to cores.
 
 ## display the probability value
 probs$values
@@ -342,8 +336,6 @@ probs <- Pr(
   Y = data.frame(species = 'Adelie', bill_len = 43),
   learnt = learnt, parallel = 1
 )
-#> Registered socket cluster with 1 nodes on host ‘localhost’.
-#> Closing connections to cores.
 
 ## display the probability value
 probs$values
@@ -367,8 +359,6 @@ Y <- data.frame(species = c('Adelie', 'Chinstrap', 'Gentoo'))
 X <- data.frame(bill_len = c(43, 44))
 
 probs <- Pr(Y = Y, X = X, learnt = learnt, parallel = 1)
-#> Registered socket cluster with 1 nodes on host ‘localhost’.
-#> Closing connections to cores.
 
 ## display the 3 x 2 probability values
 probs$values
@@ -413,8 +403,6 @@ Y <- expand.grid(
 )
 
 probs <- Pr(Y = Y, learnt = learnt, parallel = 1)
-#> Registered socket cluster with 1 nodes on host ‘localhost’.
-#> Closing connections to cores.
 
 ## display the 6 joint-probability values
 probs$values

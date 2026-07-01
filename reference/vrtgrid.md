@@ -86,8 +86,6 @@ probs <- Pr(
   X = data.frame(species = valuesSpecies),
   learnt = learnt, parallel = 1
 )
-#> Registered socket cluster with 1 nodes on host ‘localhost’.
-#> Closing connections to cores.
 
 ## plot the conditional probability distributions, and their variability
 plot(probs)

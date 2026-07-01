@@ -59,7 +59,7 @@
 <span>  n <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  unit <span class="op">=</span> <span class="st">"Sh"</span>,</span>
 <span>  parallel <span class="op">=</span> <span class="cn">TRUE</span>,</span>
-<span>  silent <span class="op">=</span> <span class="cn">FALSE</span></span>
+<span>  verbose <span class="op">=</span> <span class="cn">FALSE</span></span>
 <span><span class="op">)</span></span></code></pre></div>
     </div>
 
@@ -100,8 +100,8 @@ for an 'learnt.rds' object, or such an object itself.</p></dd>
 <dd><p>Logical or positive integer or cluster object. <code>TRUE</code> (default): use roughly half of available cores; <code>FALSE</code>: use serial computation; integer: use this many cores. It can also be a cluster object previously created with <code><a href="https://rdrr.io/r/parallel/makeCluster.html" class="external-link">parallel::makeCluster()</a></code>; in this case the parallel computation will use this object.</p></dd>
 
 
-<dt id="arg-silent">silent<a class="anchor" aria-label="anchor" href="#arg-silent"></a></dt>
-<dd><p>Logical: give warnings or updates in the computation?</p></dd>
+<dt id="arg-verbose">verbose<a class="anchor" aria-label="anchor" href="#arg-verbose"></a></dt>
+<dd><p>Logical, default <code>FALSE</code>: give messages about parallel processing?</p></dd>
 
 </dl></div>
     <div class="section level2">
@@ -115,7 +115,7 @@ for an 'learnt.rds' object, or such an object itself.</p></dd>
     <div class="section level2">
     <h2 id="details">Details<a class="anchor" aria-label="anchor" href="#details"></a></h2>
     <p>If \(Y_1\) and \(Y_2\) are two variates, each of which can be a joint variate such as \(Y_1 = (Y_{1,1}, Y_{1,2}, \dotsc)\), and \(X\) a third, also possibly join, variate, then the mutual information \(\mathit{MI}\) between \(Y_1\) and \(Y_2\), conditional on \(X = x\), is given by
-$$\mathit{MI}(Y_1, Y_2 \vert X = x) \coloneqq
+$$\mathit{MI}(Y_1, Y_2 \vert X = x) \mathrel{:=}
 \sum_{y_1, y_2}
 \mathrm{Pr}(Y_1 = y_1, Y_2 = y_2 \vert X = x, \text{data})
 \log_2\frac{
@@ -164,8 +164,6 @@ $$</p>
 <span class="r-in"><span><span class="co">## mutual information between variates 'species' and 'bill_len'</span></span></span>
 <span class="r-in"><span><span class="va">MI</span> <span class="op">&lt;-</span> <span class="fu">mutualinfo</span><span class="op">(</span>Y1names <span class="op">=</span> <span class="st">'species'</span>, Y2names <span class="op">=</span> <span class="st">'bill_len'</span>,</span></span>
 <span class="r-in"><span>  learnt <span class="op">=</span> <span class="va">learnt</span>, parallel <span class="op">=</span> <span class="fl">1</span><span class="op">)</span></span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> Registered socket cluster with 1 nodes on host ‘localhost’.</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> Closing connections to cores.</span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/paste.html" class="external-link">paste0</a></span><span class="op">(</span><span class="va">MI</span><span class="op">$</span><span class="va">MI</span>, <span class="st">' '</span>, <span class="va">MI</span><span class="op">$</span><span class="va">unit</span>, collapse <span class="op">=</span> <span class="st">' +/- '</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [1] "0.699139790987302 Sh +/- 0.053 Sh"</span>
@@ -182,8 +180,6 @@ $$</p>
 <span class="r-in"><span>  X <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span>bill_len <span class="op">=</span> <span class="fl">30</span><span class="op">)</span>,</span></span>
 <span class="r-in"><span>  learnt <span class="op">=</span> <span class="va">learnt</span>, parallel <span class="op">=</span> <span class="fl">1</span></span></span>
 <span class="r-in"><span><span class="op">)</span></span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> Registered socket cluster with 1 nodes on host ‘localhost’.</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> Closing connections to cores.</span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/paste.html" class="external-link">paste0</a></span><span class="op">(</span><span class="va">entr</span><span class="op">$</span><span class="va">En1</span>, <span class="st">' '</span>, <span class="va">entr</span><span class="op">$</span><span class="va">unit</span>, collapse <span class="op">=</span> <span class="st">' +/- '</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [1] "0.440800870784225 Sh +/- 0.081 Sh"</span>
@@ -196,8 +192,6 @@ $$</p>
 <span class="r-in"><span>  X <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span>bill_len <span class="op">=</span> <span class="fl">30</span><span class="op">)</span>,</span></span>
 <span class="r-in"><span>  learnt <span class="op">=</span> <span class="va">learnt</span>, parallel <span class="op">=</span> <span class="fl">1</span></span></span>
 <span class="r-in"><span><span class="op">)</span></span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> Registered socket cluster with 1 nodes on host ‘localhost’.</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> Closing connections to cores.</span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="va">probs</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> , , |bill_len = 30</span>

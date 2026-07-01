@@ -16,6 +16,10 @@ metadataExample
 
 A data frame with 2 rows and 10 columns.
 
+## Value
+
+No return value.
+
 ## See also
 
 [`metadatatemplate()`](https://pglpm.github.io/prova/reference/metadatatemplate.md)

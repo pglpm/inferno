@@ -94,6 +94,13 @@ hist(
   Other parameters to be passed to
   [`flexiplot()`](https://pglpm.github.io/prova/reference/flexiplot.md).
 
+## Value
+
+Invisibly (see
+[`base::invisible()`](https://rdrr.io/r/base/invisible.html)), an object
+of class "histogram", see
+[`graphics::hist()`](https://rdrr.io/r/graphics/hist.html).
+
 ## See also
 
 [`Pr()`](https://pglpm.github.io/prova/reference/Pr.md) to calculate
@@ -118,8 +125,6 @@ learnt <- learntExample
 ## calculate the probability, and its variability,
 ## for the value 'Adelie' of the "species" variate
 probs <- Pr(Y = data.frame(species = 'Adelie'), learnt = learnt, parallel = 1)
-#> Registered socket cluster with 1 nodes on host ‘localhost’.
-#> Closing connections to cores.
 probs$values
 #>         
 #> species      [,1]

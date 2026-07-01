@@ -16,7 +16,7 @@ mutualinfo(
   n = NULL,
   unit = "Sh",
   parallel = TRUE,
-  silent = FALSE
+  verbose = FALSE
 )
 ```
 
@@ -69,9 +69,9 @@ mutualinfo(
   [`parallel::makeCluster()`](https://rdrr.io/r/parallel/makeCluster.html);
   in this case the parallel computation will use this object.
 
-- silent:
+- verbose:
 
-  Logical: give warnings or updates in the computation?
+  Logical, default `FALSE`: give messages about parallel processing?
 
 ## Value
 
@@ -103,15 +103,15 @@ If \\Y_1\\ and \\Y_2\\ are two variates, each of which can be a joint
 variate such as \\Y_1 = (Y\_{1,1}, Y\_{1,2}, \dotsc)\\, and \\X\\ a
 third, also possibly join, variate, then the mutual information
 \\\mathit{MI}\\ between \\Y_1\\ and \\Y_2\\, conditional on \\X = x\\,
-is given by \$\$\mathit{MI}(Y_1, Y_2 \vert X = x) \coloneqq \sum\_{y_1,
-y_2} \mathrm{Pr}(Y_1 = y_1, Y_2 = y_2 \vert X = x, \text{data})
-\log_2\frac{ \mathrm{Pr}(Y_1 = y_1, Y_2 = y_2 \vert X = x, \text{data})
-}{ \mathrm{Pr}(Y_1 = y_1 \vert X = x, \text{data}) \cdot \mathrm{Pr}(Y_2
-= y_2 \vert X = x, \text{data}) } \\ \mathrm{Sh} \$\$ an expression
-which can also be written in several other equivalent ways. It is an
-information-theoretic measure of association that is model-free, that
-is, does not depend on assumptions such as linearity, gaussianity, and
-similar. See
+is given by \$\$\mathit{MI}(Y_1, Y_2 \vert X = x) \mathrel{:=}
+\sum\_{y_1, y_2} \mathrm{Pr}(Y_1 = y_1, Y_2 = y_2 \vert X = x,
+\text{data}) \log_2\frac{ \mathrm{Pr}(Y_1 = y_1, Y_2 = y_2 \vert X = x,
+\text{data}) }{ \mathrm{Pr}(Y_1 = y_1 \vert X = x, \text{data}) \cdot
+\mathrm{Pr}(Y_2 = y_2 \vert X = x, \text{data}) } \\ \mathrm{Sh} \$\$ an
+expression which can also be written in several other equivalent ways.
+It is an information-theoretic measure of association that is
+model-free, that is, does not depend on assumptions such as linearity,
+gaussianity, and similar. See
 [`vignette('mutualinfo')`](https://pglpm.github.io/prova/articles/mutualinfo.md)
 for discussion and example uses, and also the "References" section. If
 \\Y_1, Y_2\\ are *jointly gaussian variates*, then there is a
@@ -167,8 +167,6 @@ learnt <- learntExample
 ## mutual information between variates 'species' and 'bill_len'
 MI <- mutualinfo(Y1names = 'species', Y2names = 'bill_len',
   learnt = learnt, parallel = 1)
-#> Registered socket cluster with 1 nodes on host ‘localhost’.
-#> Closing connections to cores.
 
 paste0(MI$MI, ' ', MI$unit, collapse = ' +/- ')
 #> [1] "0.699139790987302 Sh +/- 0.053 Sh"
@@ -185,8 +183,6 @@ entr <- mutualinfo(
   X = data.frame(bill_len = 30),
   learnt = learnt, parallel = 1
 )
-#> Registered socket cluster with 1 nodes on host ‘localhost’.
-#> Closing connections to cores.
 
 paste0(entr$En1, ' ', entr$unit, collapse = ' +/- ')
 #> [1] "0.440800870784225 Sh +/- 0.081 Sh"
@@ -199,8 +195,6 @@ probs <- Pr(
   X = data.frame(bill_len = 30),
   learnt = learnt, parallel = 1
 )
-#> Registered socket cluster with 1 nodes on host ‘localhost’.
-#> Closing connections to cores.
 
 print(probs)
 #> , , |bill_len = 30

@@ -115,6 +115,10 @@
 
 </dl></div>
     <div class="section level2">
+    <h2 id="value">Value<a class="anchor" aria-label="anchor" href="#value"></a></h2>
+    <p><code>NULL</code>, produces a plot, see <code><a href="https://rdrr.io/r/graphics/matplot.html" class="external-link">graphics::matplot()</a></code>.</p>
+    </div>
+    <div class="section level2">
     <h2 id="details">Details<a class="anchor" aria-label="anchor" href="#details"></a></h2>
     <p>This function is essentially a wrapper around <code><a href="https://rdrr.io/r/graphics/matplot.html" class="external-link">graphics::matplot()</a></code>, augmenting the latter with some additional features useful for plotting data and results handled by <strong>Prova</strong>. Some of the additional features provided by <code>flexiplot</code> are the following:</p><ul><li><p>Either or both <code>x</code> and <code>y</code> arguments can be of class <code><a href="https://rdrr.io/r/base/character.html" class="external-link">base::character</a></code>. In this case, axes labels corresponding to the unique values are used (see arguments <code>xdomain</code> and <code>ydomain</code>). This makes it easier to plot nominal and ordinal variates.</p></li>
 <li><p>A jitter can also be added to the generated points, via the <code>xjitter</code> and <code>yjitter</code> switches. This makes it easier to generate scatter plots of nominal and ordinal variates.</p></li>

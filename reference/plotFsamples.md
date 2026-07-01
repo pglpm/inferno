@@ -14,8 +14,7 @@ plotFsamples(
   nFsamples = NULL,
   datahistogram = !(missing(data) || is.null(data)),
   datascatter = !(missing(data) || is.null(data)),
-  parallel = TRUE,
-  silent = FALSE
+  parallel = TRUE
 )
 ```
 
@@ -62,10 +61,6 @@ plotFsamples(
 
   Logical or numeric: whether to use pre-existing parallel workers, or
   how many to create and use
-
-- silent:
-
-  Logical: give warnings or updates in the computation
 
 ## Value
 

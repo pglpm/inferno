@@ -82,6 +82,11 @@ flexiplot(
   Other parameters to be passed to
   [`graphics::matplot()`](https://rdrr.io/r/graphics/matplot.html).
 
+## Value
+
+`NULL`, produces a plot, see
+[`graphics::matplot()`](https://rdrr.io/r/graphics/matplot.html).
+
 ## Details
 
 This function is essentially a wrapper around

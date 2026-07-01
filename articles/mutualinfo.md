@@ -475,10 +475,10 @@ is measured in
 (symbol \\\mathrm{Hart}\\), or [*natural
 units*](https://www.electropedia.org/iev/iev.nsf/display?openform&ievref=171-07-13)
 (symbol \\\mathrm{nat}\\). These units and other properties of the
-mutual information are [standardized by the International Organization
+mutual information are standardized by the International Organization
 for Standardization (ISO) and the International Electrotechnical
 Commission
-(IEC)](https://archive.org/details/iso-standards-collection/BS%20EN%2080000-13-2008%20-%201%20Quantities%20and%20units).
+(IEC).\](<https://electropedia.org/iev/iev.nsf/display?openform&ievref=171-07-10>).
 
 Mutual information is in fact a core quantity of communication theory
 and information theory. The design and assessment of communication

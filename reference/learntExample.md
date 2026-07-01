@@ -36,6 +36,10 @@ learntExample
 A list containing results from Markov-chain Monte Carlo computation,
 including diagnostics and variate metadata.
 
+## Value
+
+No return value.
+
 ## See also
 
 [`learn()`](https://pglpm.github.io/prova/reference/learn.md), which
