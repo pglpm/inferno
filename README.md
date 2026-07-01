@@ -16,20 +16,23 @@
 
 This repository provides an R package and some theoretical background to perform probabilistic and statistical analysis of data. These are the main features:
 
-- No modelling assumptions such as gaussianity, linearity, or any other kind of model. The analysis and inferences are fully *non-parametric*.
-- No assumptions about functional dependence between variates. The analysis and inferences are therefore more general than those by neural networks, random forests, or similar machine-learning algorithms.
-- Automatic imputation of missing data: all sample data are used, even those that lacks some variate values. The imputation is done with a principled method (the marginalization rule of probability theory), rather than ad-hoc procedures.
-- Easy and straightforward study of *subgroups* or *subpopulations*, with full statistical details.
-- Quantification of generalizability beyond the finite sample size. In other words, quantification of uncertainty of results regarding the whole, unsampled, population.
-- Quantification of associations between any kinds of variates, without modelling assumptions (gaussianity, linearity, etc.), thanks to the use of *mutual information*
-- Automated Markov-chain Monte Carlo computations. Users unfamiliar with Monte Carlo methods don't have to worry, because the computations are handled automatically. Users familiar with Monte Carlo methods can easily access computational details and can even change some of the computation hyperparameters.
+- Any combination of **binary**, **nominal**, **ordinal**, **continuous** variates. Continuous variates can be bounded or unbounded, and also rounded or discretized.
+- **No modelling assumptions** such as gaussianity, linearity, or any other kind of model. The analysis and inferences are fully *non-parametric*.
+- **No assumptions about functional dependence** between variates. The analysis and inferences are therefore more general than those by neural networks, random forests, or similar machine-learning algorithms.
+- **Automatic imputation** of missing data: all sample data are used, even those that lacks some variate values. The imputation is done with a principled method (the marginalization rule of probability theory), rather than ad-hoc procedures.
+- Easy and straightforward **subgroup analyses** and **stratified analyses**, for any division of variates, with full statistical details.
+- **Quantification of generalization** beyond the finite sample size. In other words, quantification of uncertainty of results regarding the whole, unsampled, population.
+- Straightforward use within **decision theory**, such as **clinical decision-making**. Users can immediately combine the probabilistic results with any measures of utilities, such as [quality-adjusted life years](https://radiopaedia.org/articles/quality-adjusted-life-year-1).
+- **Quantification of associations** between any kinds of variates, without modelling assumptions (gaussianity, linearity, etc.), thanks to the use of [*mutual information*](https://electropedia.org/iev/iev.nsf/display?openform&ievref=171-07-26).
+- **Automated Markov-chain Monte Carlo** computation. Users unfamiliar with Monte Carlo methods don't have to worry, because the computations are handled automatically.
 
+The package at bottom does Bayesian nonparametric inference (also called "density inference" or "inference under exchangeability"), which makes all features above possible.
 
-*Bayesian nonparametric population inference*, which can also be called "inference under exchangeability" or "density inference". The package is especially apt for the study of statistics and associations of subpopulations or subgroups. The [introductory vignette](https://pglpm.github.io/prova/articles/intro.html) explains with an example the main ideas and functions, in particular for researchers who are more familiar with traditional "frequentist" statistics but would like to try the Bayesian approach. See the [post](https://www.apadivisions.org/division-7/publications/newsletters/developmental/2018/07/bayesian-statistics) by Barbara W. Sarnecka, frequentist statistician turned Bayesian, for a brilliant overview of the Bayesian advantages.
+The [introductory vignette](https://pglpm.github.io/prova/articles/intro.html) explains, with a guided example, most of the features above, as well as the main ideas and functions. It can be particularly useful for researchers who are more familiar with traditional "frequentist" statistics but would like to try the Bayesian approach. See the [post](https://www.apadivisions.org/division-7/publications/newsletters/developmental/2018/07/bayesian-statistics) by Barbara W. Sarnecka, frequentist statistician turned Bayesian, for a brilliant overview of the Bayesian advantages. The [vignette about mutual information](https://pglpm.github.io/prova/articles/mutualinfo.html) explains the use of this powerful measure of association.
 
 The package is under continuous development, but the core functionalities work and have been tested in concrete research questions; see [example applications](#example-applications) below.
 
-The package internally does the computations necessary for Bayesian inference by means of Monte Carlo methods, thanks to the R package [**Nimble**](https://r-nimble.org/). Users unfamiliar with Monte Carlo methods don't have to worry, because the computations are handled automatically. Users familiar with Monte Carlo methods can easily have access to computational details and can even change some of the computation hyperparameters.
+The package internally does the computations necessary for Bayesian inference by means of Monte Carlo methods thanks to the R package [**Nimble**](https://r-nimble.org/). As already mentioned, this computation is automated. Users familiar with Monte Carlo methods can still access computational details and can even change some of the computation hyperparameters.
 
 ## Installation
 
@@ -45,7 +48,7 @@ remotes::install_github('pglpm/prova')
 
 The vignette [*Bayesian nonparametric inference with **Prova***](https://pglpm.github.io/prova/articles/intro.html) is a step-by-step introduction to **Prova** and also to Bayesian nonparametrics. It guides you through a concrete example with various kinds of inferences. You may also try to follow it using a dataset of your own.
 
-Other tutorials are available at [pglpm.github.io/prova](https://pglpm.github.io/prova/)
+Other tutorials are available at [pglpm.github.io/prova](https://pglpm.github.io/prova/), or can be accessed in an R session with `browseVignettes('prova')`.
 
 A summary of the theoretical foundations, including further references, is available in [this draft](https://github.com/pglpm/prova/raw/main/development/manual/pglpm2024-bayes_nonparam.pdf). The main idea for the internal mathematical representation comes from [Dunson & Bhattacharya](https://doi.org/10.1093/acprof:oso/9780199694587.003.0005) and [Ishwaran & Zarepour](https://doi.org/10.2307/3315951).
 
