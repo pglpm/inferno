@@ -176,6 +176,7 @@ paste0(MI$En1, ' ', MI$unit, collapse = ' +/- ')
 #> [1] "1.5404796693525 Sh +/- 0.029 Sh"
 
 
+# \donttest{
 ## Shannon entropy of variate 'species',
 ## conditional on a bill length of 30 mm:
 entr <- mutualinfo(
@@ -187,7 +188,6 @@ entr <- mutualinfo(
 paste0(entr$En1, ' ', entr$unit, collapse = ' +/- ')
 #> [1] "0.440800870784225 Sh +/- 0.081 Sh"
 
-# \donttest{
 ## the entropy is now lower; indeed a penguin with a short bill length
 ## is most probably of the 'Adelie' species:
 probs <- Pr(

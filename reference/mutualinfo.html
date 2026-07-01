@@ -173,6 +173,7 @@ $$</p>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [1] "1.5404796693525 Sh +/- 0.029 Sh"</span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co"># \donttest{</span></span></span>
 <span class="r-in"><span><span class="co">## Shannon entropy of variate 'species',</span></span></span>
 <span class="r-in"><span><span class="co">## conditional on a bill length of 30 mm:</span></span></span>
 <span class="r-in"><span><span class="va">entr</span> <span class="op">&lt;-</span> <span class="fu">mutualinfo</span><span class="op">(</span></span></span>
@@ -184,7 +185,6 @@ $$</p>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/paste.html" class="external-link">paste0</a></span><span class="op">(</span><span class="va">entr</span><span class="op">$</span><span class="va">En1</span>, <span class="st">' '</span>, <span class="va">entr</span><span class="op">$</span><span class="va">unit</span>, collapse <span class="op">=</span> <span class="st">' +/- '</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [1] "0.440800870784225 Sh +/- 0.081 Sh"</span>
 <span class="r-in"><span></span></span>
-<span class="r-in"><span><span class="co"># \donttest{</span></span></span>
 <span class="r-in"><span><span class="co">## the entropy is now lower; indeed a penguin with a short bill length</span></span></span>
 <span class="r-in"><span><span class="co">## is most probably of the 'Adelie' species:</span></span></span>
 <span class="r-in"><span><span class="va">probs</span> <span class="op">&lt;-</span> <span class="fu"><a href="Pr.html">Pr</a></span><span class="op">(</span></span></span>
