@@ -46,7 +46,7 @@ the joint probability of. One variate per column, one set of values per row.}
 \item{keepYX}{Logical, default \code{TRUE}: keep a copy of the \code{Y} and \code{X} arguments in the output? This is used for the plot method.}
 }
 \value{
-A list of class \code{probability}, consisting of the following elements:
+An object of class "probability", effectively a list consisting of the following elements:
 \itemize{
 \item \code{values}: a matrix with the probabilities \eqn{\mathrm{Pr}(Y = y \vert X = x, \text{data})}, for all joint values \eqn{y} of the \eqn{Y}-variates (rows) and  all joint values \eqn{x} of the \eqn{X}-variates (columns).
 \item \code{quantiles} (possibly \code{NULL}): an array with the variability quantiles (3rd dimension of the array) for such probabilities.

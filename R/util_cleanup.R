@@ -1,8 +1,11 @@
 #' Cleanup a learn()-output directory
 #'
+#' @details
 #' For deeper monitoring of the MCMC, the user can require the 'learn()' function not to clean intermediate MCMC-related files generated during the computation.
 #'
 #' The present function can be used to remove these intermediate files from the output directory created by 'learn()'.
+#'
+#' @return No return value; called for side effects.
 #'
 #' @keywords internal
 util_cleanup <- function(path){
@@ -21,15 +24,19 @@ util_cleanup <- function(path){
     } else {
         stop("This doesn't look like a 'learn()' output directory")
     }
+    invisible()
 }
 
 
 #' Join '____tempPtraces-' files
 #'
+#' @details
 #' For deeper monitoring of the MCMC, the user can require the 'learn()' function not to clean intermediate MCMC-related files generated during the computation. The files with prefix '____tempPtraces-' contain chunks of MCMC traces.
 #'
 #' The present function can be used to join them into a single trace.
-#' 
+#'
+#' @return A [data frame][base::data.frame()] of MCMC traces.
+#'
 #' @keywords internal
 util_joinPtraces <- function(path){
     Plist <- list.files(path = path, pattern = '^____tempPtraces-.*\\.rds$')
@@ -62,5 +69,5 @@ util_joinPtraces <- function(path){
             paste0('_allPtraces-', achain, '.rds')
         ))
     }
-    cat('\nDone.\n')
+    message('\nDone.\n')
 }

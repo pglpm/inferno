@@ -18,10 +18,10 @@ whether to treat a rounded variate as continuous}
 \item{tscalefactor}{Positive number: scaling factor for variate conversion}
 }
 \value{
-an auxmetadata data.frame object
+A \link[base:data.frame]{data frame} with auxmetadata.
 }
 \description{
-Builds an augmented metadata data frame from the metadata and data given to 'learn()'. This augmented metadata object is saved in the 'learnt' object produced by 'learn()'.
+Builds an augmented metadata \link[base:data.frame]{data frame} from the metadata and data given to 'learn()'. This augmented metadata object is saved in the 'learnt' object produced by 'learn()'.
 }
 \details{
 In addition to the original metadata it contains info about transformed variates and their domains, estimated location- and scale-parameters, and similar metadata.

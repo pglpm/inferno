@@ -4,7 +4,7 @@
 #'
 #' The [learn()] function needs metadata about the variates present in the data. Such metadata can be provided either as a `csv` file or as a [base::data.frame()]. The function `buildmetadata` creates a template metadata csv-file, or outputs a metadata data.frame, by trying to *guess* metadata information from the dataset.The guesses may be very incorrect (as already said, metadata is information not contained in the data, so no algorithm can exist that extracts it from the data). **The user *must* modify and correct this template, using it as a starting point to prepare the correct metadata information.**
 #'
-#' @param data A dataset, given as a [base::data.frame()]
+#' @param data A dataset, given as a [data frame][base::data.frame()]
 #' or as a file path to a csv file.
 #' @param file Character or `NULL` (default): name of csv file where the metadata should be saved; if `NULL`: output metadata as `VALUE`.
 #' @param includevrt Character or `NULL`: name of variates in dataset to be included.
@@ -15,7 +15,7 @@
 #' Default `TRUE`.
 #' @param verbose Logical: output heuristics for each variate? Default `TRUE`.
 #'
-#' @return If `file = NULL`, a preliminary [base::data.frame()] containing the metadata; if `file` is a character, a preliminary metadata file is created with that name and path.
+#' @return A preliminary [data frame][base::data.frame()] containing the metadata, [invisibly][base::invisible()] if `file = NULL`. If argument `file` is a character, a preliminary metadata file is also created with that name or path.
 #'
 #' @section Metadata information and format:
 #'
@@ -139,7 +139,7 @@ metadatatemplate <- function(
 
     ## convert factors to strings if necessary
     if(any(sapply(data, is.factor))){
-    if(verbose){ cat('\nConverting factors to characters') }
+    if(verbose){ message('Converting factors to characters') }
         . <- sapply(data, is.factor)
         data[, .] <- lapply(data[, ., drop = FALSE], as.character)
     }
@@ -179,13 +179,12 @@ metadatatemplate <- function(
         variatelist <- setdiff(variatelist, excludevrt)
     }
 
-    if(verbose){ cat('\nAnalyzing', length(variatelist), 'variates for',
-        nrow(data), 'datapoints.\n') }
+    if(verbose){message('Analyzing', length(variatelist), 'variates for',
+        nrow(data), 'datapoints.') }
 
     ## Loop over variates (columns) in data frame
-    ## cat('\n')
     for (name in variatelist) {
-        if(verbose){ cat(paste0('\n* "', name, '" variate:\n')) }
+        if(verbose){ message('* "', name, '" variate:') }
         ## remove missing values
         x <- data[[name]]
         x <- x[!is.na(x)]
@@ -202,7 +201,7 @@ metadatatemplate <- function(
         ## if this variate has only one value, give a special warning
         if (uniquex < 2) {
             ## if(verbose){
-            ##     cat('  Only one value present.\n')
+            ##     message('  Only one value present.')
             ## }
             warninglist <- c(warninglist,
                 paste0('\n* "', name, '" variate',
@@ -272,6 +271,7 @@ metadatatemplate <- function(
 
 #### Now make educated guess for the type of variate
 
+        ## #### For the moment binary variates counted within nominal ones
         ## if (uniquex == 2) {
         ##     ## Binary variate? (has only two unique values)
         ##     type <- 'binary'
@@ -289,10 +289,9 @@ metadatatemplate <- function(
         ##     names(datavalues) <- paste0('V', 1:2)
         ##     ##
         ##     if(verbose){
-        ##         cat('  Two different values detected:\n',
-        ##             paste0('"', datavalues, '"', collapse=', '),
-        ##             '\n')
-        ##         cat('  Assuming variate to be BINARY.\n')
+        ##         message('  Two different values detected:\n',
+        ##             paste0('"', datavalues, '"', collapse=', '))
+        ##         message('  Assuming variate to be BINARY.')
         ##     }
         ##
         ## } else
@@ -316,13 +315,10 @@ metadatatemplate <- function(
             names(datavalues) <- paste0('V', 1:Nvalues)
             ##
             if(verbose){
-                cat('  - ', Nvalues, 'different',
-                    ## if(uniquex > 2){' non-numeric'},
-                    ' values detected:\n',
-                    paste0('"', datavalues, '"', collapse = ', '),
-                    '\n')
-                cat('  which do not seem to refer to an ordered scale.\n')
-                cat('  Assuming variate to be NOMINAL.\n')
+                message('  - ', Nvalues, ' different values detected:\n',
+                    paste0('"', datavalues, '"', collapse = ', '))
+                message('  which do not seem to refer to an ordered scale.')
+                message('  Assuming variate to be NOMINAL.')
             }
 
         } else if (!is.numeric(x)) {
@@ -343,12 +339,11 @@ metadatatemplate <- function(
             names(datavalues) <- paste0('V', 1:Nvalues)
             ##
             if(verbose){
-                cat('  - ', Nvalues, 'different non-numeric values detected:\n',
-                    paste0('"', datavalues, '"', collapse = ', '),
-                    '\n')
-                cat('  which seem to refer to an ordered scale.\n')
-                cat('  Assuming variate to be ORDINAL.\n')
-                cat('  Please appropriately reorder its values in metadata file.\n')
+                message('  - ', Nvalues, ' different non-numeric values detected:\n',
+                    paste0('"', datavalues, '"', collapse = ', '))
+                message('  which seem to refer to an ordered scale.')
+                message('  Assuming variate to be ORDINAL.')
+                message('  Please appropriately reorder its values in metadata file.')
             }
             warninglist <- c(warninglist,
                 paste0('\n* "', name, '" variate',
@@ -386,16 +381,17 @@ metadatatemplate <- function(
             ## plotmax <- NA
             ##
             if(verbose){
-                cat('  - Only', Nvalues, 'different numeric values detected:\n')
+                message('  - Only', Nvalues, ' different numeric values detected:\n')
                 if(jumpquantum == round(jumpquantum)) {
-                    cat('from', domainmin, 'to', domainmax,
-                        'in steps of', jumpquantum, '\n')
+                    message('from ', domainmin, ' to ', domainmax,
+                        ' in steps of ', jumpquantum)
                 } else {
-                    cat(paste0('"', datavalues, '"', collapse = ', '), '\n')
+                    message(paste0('"', datavalues, '"', collapse = ', '))
                 }
-                cat('  Assuming variate to be ORDINAL.\n')
+                message('  Assuming variate to be ORDINAL.')
             }
 
+            ## #### This categorization is not used in the present version
             ## } else if (uniquex <= 10 && ) {
             ##     ## Ordinal variate with many numeric values?
             ##     type <- 'ordinal'
@@ -413,10 +409,10 @@ metadatatemplate <- function(
             ##     datavalues <- NULL
             ##     ##
             ##     if(verbose){
-            ##         cat(' - ', Nvalues, 'different numeric values detected\n')
-            ##         cat('  distance between datapoints is a multiple of integer',
-            ##             jumpquantum, '\n')
-            ##         cat('  Assuming variate to be ORDINAL.\n')
+            ##         message(' - ', Nvalues, ' different numeric values detected')
+            ##         message('  distance between datapoints is a multiple of integer',
+            ##             jumpquantum)
+            ##         message('  Assuming variate to be ORDINAL.')
             ##     }
             ##     warninglist <- c(warninglist,
             ##         paste0('* "', name, '" variate',
@@ -454,9 +450,9 @@ metadatatemplate <- function(
             datavalues <- NULL
             ##
             if(verbose){
-                cat('  - Numeric values between',
-                    datamin, 'and', datamax, '\n')
-                cat('  Assuming variate to be CONTINUOUS.\n')
+                message('  - Numeric values between ',
+                    datamin, ' and ', datamax)
+                message('  Assuming variate to be CONTINUOUS.')
             }
 
             roundedflag <- FALSE
@@ -485,9 +481,9 @@ metadatatemplate <- function(
                 minincluded <- maxincluded <- NA
                 ##
                 if(verbose){
-                    cat('  - Distance between datapoints',
-                        'is a multiple of', jumpquantum, '\n')
-                    cat('  Assuming variate to be ROUNDED.\n')
+                    message('  - Distance between datapoints is a multiple of ',
+                        jumpquantum)
+                    message('  Assuming variate to be ROUNDED.')
                 }
                 if(jumpquantum >=1) {
                     warninglist <- c(warninglist,
@@ -515,11 +511,11 @@ metadatatemplate <- function(
                 }
                 ##
                 if(verbose){
-                    cat('  - Several datapoints have minimum value', datamin, '\n')
-                    cat('  Assuming "domainmin" to be this minimum observed value\n')
+                    message('  - Several datapoints have minimum value ',
+                        datamin)
+                    message('  Assuming "domainmin" to be this minimum observed value')
                     if(!roundedflag){
-                        cat('  and to be included in the domain',
-                            '(singular probabilities there).\n')
+                        message('  and to be included in the domain (singular probabilities there).')
                     }
                 }
             } else if (all(unx > 0)) {
@@ -531,10 +527,10 @@ metadatatemplate <- function(
                 }
                 ##
                 if(verbose){
-                    cat('  - All values are positive\n')
-                    cat('  Assuming "domainmin" to be 0\n')
+                    message('  - All values are positive')
+                    message('  Assuming "domainmin" to be 0')
                     if(!roundedflag){
-                        cat('  with 0 excluded from domain.\n')
+                        message('  with 0 excluded from domain.')
                     }
                 }
             } else if (all(unx >= 0)) {
@@ -546,10 +542,10 @@ metadatatemplate <- function(
                 }
                 ##
                 if(verbose){
-                    cat('  - All values are non-negative\n')
-                    cat('  Assuming "domainmin" to be 0\n')
+                    message('  - All values are non-negative')
+                    message('  Assuming "domainmin" to be 0')
                     if(!roundedflag){
-                        cat('  with 0 included in the domain.\n')
+                        message('  with 0 included in the domain.')
                     }
                 }
             }
@@ -563,11 +559,11 @@ metadatatemplate <- function(
                 }
                 ##
                 if(verbose){
-                    cat('  - Many datapoints have maximum value,', datamax, '\n')
-                    cat('  Assuming "domainmax" to be this maximum observed value\n')
+                    message('  - Many datapoints have maximum value ',
+                        datamax)
+                    message('  Assuming "domainmax" to be this maximum observed value')
                     if(!roundedflag){
-                        cat('  and to be included in the domain',
-                            '(singular probabilities there).\n')
+                        message('  and to be included in the domain (singular probabilities there).')
                     }
                 }
             }
@@ -601,7 +597,6 @@ metadatatemplate <- function(
             ),
             sort = FALSE, all = TRUE)
     } # End loop over variates
-    if(verbose){cat('\n')}
 
     ## Print warnings
     if(!is.null(warninglist)){
@@ -610,7 +605,7 @@ metadatatemplate <- function(
             '\nWARNINGS',
             ' - please make sure to check these variates in the metadata file:')
         for(awarning in warninglist){message(awarning)}
-        cat('=========\n')
+        message('=========')
     }
 
     ## Save to file if the file parameter is set
@@ -631,10 +626,11 @@ metadatatemplate <- function(
                 file.rename(from = file, to = paste0(sub('.csv$', '', file), '_bak', format(Sys.time(), '%y%m%dT%H%M%S'), '.csv'))
             }
         }
-        ## Save the file
+        ## Save the file and print invisibly
         pwrite.csv(metadata, file)
-        cat('\nSaved proposal metadata file as', paste0('"', file, '"'), '\n')
-
+        message('\nSaved proposal metadata file as ',
+            paste0('"', file, '"'))
+        invisible(metadata)
     } else {
         ## Else just print to console
         metadata

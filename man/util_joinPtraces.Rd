@@ -6,10 +6,15 @@
 \usage{
 util_joinPtraces(path)
 }
+\value{
+A \link[base:data.frame]{data frame} of MCMC traces.
+}
 \description{
-For deeper monitoring of the MCMC, the user can require the 'learn()' function not to clean intermediate MCMC-related files generated during the computation. The files with prefix '____tempPtraces-' contain chunks of MCMC traces.
+Join '____tempPtraces-' files
 }
 \details{
+For deeper monitoring of the MCMC, the user can require the 'learn()' function not to clean intermediate MCMC-related files generated during the computation. The files with prefix '____tempPtraces-' contain chunks of MCMC traces.
+
 The present function can be used to join them into a single trace.
 }
 \keyword{internal}

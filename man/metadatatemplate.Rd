@@ -16,7 +16,7 @@ metadatatemplate(
 )
 }
 \arguments{
-\item{data}{A dataset, given as a \code{\link[base:data.frame]{base::data.frame()}}
+\item{data}{A dataset, given as a \link[base:data.frame]{data frame}
 or as a file path to a csv file.}
 
 \item{file}{Character or \code{NULL} (default): name of csv file where the metadata should be saved; if \code{NULL}: output metadata as \code{VALUE}.}
@@ -34,7 +34,7 @@ Default \code{TRUE}.}
 \item{verbose}{Logical: output heuristics for each variate? Default \code{TRUE}.}
 }
 \value{
-If \code{file = NULL}, a preliminary \code{\link[base:data.frame]{base::data.frame()}} containing the metadata; if \code{file} is a character, a preliminary metadata file is created with that name and path.
+A preliminary \link[base:data.frame]{data frame} containing the metadata, \link[base:invisible]{invisibly} if \code{file = NULL}. If argument \code{file} is a character, a preliminary metadata file is also created with that name or path.
 }
 \description{
 Metadata and helper function to create a template metadata file or object.

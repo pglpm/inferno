@@ -11,11 +11,14 @@ pwrite.csv(x, file, ...)
 pread.csv(file, ...)
 }
 \arguments{
-\item{x}{The object to be written. Preferably a matrix or data frame; if not, it is attempted to coerce \code{x} to a data frame. See \code{\link[utils:write.table]{utils::write.table()}}.}
+\item{x}{The object to be written. Preferably a matrix or data frame; if not, it is attempted to coerce \code{x} to a \link[base:data.frame]{data frame}. See \code{\link[utils:write.csv]{utils::write.csv()}}.}
 
-\item{file}{Either a character naming a file or a connection open for writing or reading. See \code{\link[utils:write.table]{utils::write.table()}} and \code{\link[utils:read.table]{utils::read.table()}}.}
+\item{file}{Either a character naming a file or a connection open for writing or reading. See \code{\link[utils:write.csv]{utils::write.csv()}} and \code{\link[utils:read.csv]{utils::read.csv()}}.}
 
-\item{...}{Other arguments to be passed to \code{\link[utils:write.table]{utils::write.table()}} or \code{\link[utils:read.table]{utils::read.table()}}. Arguments 'row.names', 'quote', 'na', 'na.strings', 'tryLogical', 'sep', 'dec' are not allowed.}
+\item{...}{Other arguments to be passed to \code{\link[utils:write.csv]{utils::write.csv()}} or \code{\link[utils:read.csv]{utils::read.csv()}}. Arguments 'row.names', 'quote', 'na', 'na.strings', 'tryLogical', 'sep', 'dec' are not allowed.}
+}
+\value{
+\code{pread.csv} returns a \link[base:data.frame]{data frame} containing a representation of the data in the file; see \code{\link[utils:read.csv]{utils::read.csv()}}. \verb{pwrite.csv' returns }NULL` \link[base:invisible]{invisibly}.
 }
 \description{
 Utility functions to read and write CSV files in the format required by \strong{Prova}
@@ -30,7 +33,7 @@ The functions \code{\link[=learn]{learn()}} and \code{\link[=metadatatemplate]{m
 \item Preferably there should not be factors (see \link[base:factor]{base::factor}); use character names instead.
 }
 
-The utility functions \code{pwrite.csv()} and \code{pread.csv()} are wrappers to \code{\link[utils:write.table]{utils::write.table()}} and \code{\link[utils:read.table]{utils::read.table()}} that set appropriate default parameters according to the formatting rules above.
+The utility functions \code{pwrite.csv()} and \code{pread.csv()} are wrappers to \code{\link[utils:write.csv]{utils::write.csv()}} and \code{\link[utils:read.csv]{utils::read.csv()}} that set appropriate default parameters according to the formatting rules above.
 }
 \examples{
 ## Save the 'penguins' dataset in a (temporary) file

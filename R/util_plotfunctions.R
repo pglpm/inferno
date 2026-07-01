@@ -24,7 +24,7 @@
 #' @param type,lty,lwd,pch,col,xlab,ylab,add,cex.main see analogous arguments in [graphics::matplot()].
 #' @param ... Other parameters to be passed to [graphics::matplot()].
 #'
-#' @returns `NULL`, produces a plot, see [graphics::matplot()].
+#' @return `NULL`, [invisibly][base::invisible()]; produces a plot, see [graphics::matplot()].
 #'
 #' @seealso
 #' [Pr()] to calculate posterior probabilities and quantiles.
@@ -240,7 +240,7 @@ flexiplot <- function(
 #' @param type see analogous argument in [flexiplot()].
 #' @param ... Other parameters to be passed to [flexiplot()].
 #'
-#' @returns `NULL`, produces a plot, see [graphics::matplot()].
+#' @return `NULL`, [invisibly][base::invisible()]; produces a plot, see [graphics::matplot()].
 #'
 #' @seealso
 #' [Pr()] to calculate posterior probabilities and quantiles.
@@ -344,7 +344,7 @@ plotquantiles <- function(
 #' @param lty,lwd,col,type,xlab,ylab,main,ylim,grid,add see analogous arguments in [graphics::matplot()]
 #' @param ... Other parameters to be passed to [flexiplot()].
 #'
-#' @returns `NULL`, produces a plot, see [graphics::matplot()].
+#' @return `NULL`, [invisibly][base::invisible()]; produces a plot, see [graphics::matplot()].
 #'
 #' @seealso
 #' [Pr()] to calculate posterior probabilities and quantiles.
@@ -406,6 +406,14 @@ plot.probability <- function(
         x <- prsubset(x, subset = subset)
     }
 
+    ## If there's only one probability it doesn't make sense to plot anything:
+    ## print() the result instead
+    if(length(x$values) == 1){
+        return(print(x))
+    }
+
+
+
     ## Check how we should represent the variability
     ## The user can choose among three options
     ## provided that option is available in argument 'x'
@@ -466,11 +474,6 @@ plot.probability <- function(
         }
     }
 
-    ## If there's only one probability it doesn't make sense to plot anything
-    if(length(x$values) == 1){
-        print(sort(c(Pr = x$values, pvar[1, 1, ])))
-    }
-
     ## If 'PvsY' is NULL, then we guess that the longest between Y and X
     ## is meant to be abscissa
     if(is.null(PvsY)){ PvsY <- (Ylen >= Xlen) }
@@ -507,10 +510,10 @@ plot.probability <- function(
 
     if(is.null(xlab)){xlab <- tempxlab}
     if(missing(main)){
-        main <- paste0('prob. & freq.  ',
+        main <- paste0('prob. or freq.  ',
             paste0(names(x$Y), collapse = ', '),
             if(!is.null(x$X)){paste0(' | ', paste0(names(x$X), collapse = ', '))}
-            )
+        )
         if(variability == 'quantiles'){
             main <- paste0(main, '  [',
                 paste0(round(qnames, 1), '%', collapse = ', '),
@@ -518,7 +521,7 @@ plot.probability <- function(
         }
     }
     if(is.null(ylab)){
-        ylab <- 'probability & rel.frequency'
+        ylab <- 'probability or rel.frequency'
     }
 
     if(is.null(type)){
@@ -533,7 +536,7 @@ plot.probability <- function(
     if(is.na(ylim[1])){
         ylim[1] <- min(pvar, x$values)
     }
-    if(variability == 'quantiles' && length(x$values) > 1){
+    if(variability == 'quantiles'){
         for(i in seq_len(dim(pvar)[2])){
             plotquantiles(x = unlist(xxx), y = pvar[, i, ],
                 col = col[(i - 1) %% length(col) + 1],
@@ -549,7 +552,7 @@ plot.probability <- function(
             add <- TRUE
         }
 
-    } else if(variability == 'samples' && length(x$values) > 1){
+    } else if(variability == 'samples'){
         ## the samples are plotted alternating between the different subgroups,
         ## rather than one group at a time, in order to avoid that
         ## the samples of the last subgroup cover the previous ones
@@ -574,29 +577,28 @@ plot.probability <- function(
     }
 
     ## Plot the probabilities
-    if(length(x$values) > 1){
-        flexiplot(x = xxx, y = x$values,
-            type = type,
-            col = col,
-            alpha.f = alpha.f,
-            lty = lty,
-            lwd = lwd,
-            xlab = xlab,
-            ylab = ylab,
-            ylim = ylim,
-            main = main,
-            grid = grid,
-            xjitter = FALSE,
-            yjitter = FALSE,
-            add = add,
-            ...)
+    flexiplot(x = xxx, y = x$values,
+        type = type,
+        col = col,
+        alpha.f = alpha.f,
+        lty = lty,
+        lwd = lwd,
+        xlab = xlab,
+        ylab = ylab,
+        ylim = ylim,
+        main = main,
+        grid = grid,
+        xjitter = FALSE,
+        yjitter = FALSE,
+        add = add,
+        ...)
 
-        ## Plot legends
-        if(!is.null(leg)){
-           ##  && is.character(legend) &&
-           ## (legend %in%
-           ##      c("bottomright", "bottom", "bottomleft", "left", "topleft",
-           ##          "top", "topright", "right", "center"))
+    ## Plot legends
+    if(!is.null(leg)){
+        ##  && is.character(legend) &&
+        ## (legend %in%
+        ##      c("bottomright", "bottom", "bottomleft", "left", "topleft",
+        ##          "top", "topright", "right", "center"))
         graphics::legend(x = legend,
             legend = apply(leg, 1, function(xxx){
                 paste0(paste0(names(xxx), ' = ', xxx), collapse = ', ')
@@ -606,7 +608,6 @@ plot.probability <- function(
             lty = lty,
             lwd = lwd,
             ...)
-    }
     }
     invisible()
 }
@@ -631,7 +632,7 @@ plot.probability <- function(
 #' @param lty,lwd,col,alpha.f,xlab,ylab,xlim,ylim,main,grid,add see analogous arguments in [graphics::matplot()]
 #' @param ... Other parameters to be passed to [flexiplot()].
 #'
-#' @returns Invisibly (see [base::invisible()]), an object of class "histogram", see [graphics::hist()].
+#' @return [Invisibly][base::invisible()], an object of class ["histogram"][graphics::hist()].
 #'
 #' @seealso
 #' [Pr()] to calculate posterior probabilities and quantiles.
@@ -820,7 +821,7 @@ hist.probability <- function(
 #' @param digits positive number or `NULL` or `TRUE` (default): minimal number of significant digits, see [base::print.default()]. If value is `TRUE`, then the significant digits for elements `$values` and `$quantiles` are determined from their respective `$values.MCaccuracy` and `$quantiles.MCaccuracy` elements of the `probability` object, see [Pr()]; whereas `$samples` elements use 2 significant digits.
 #' @param ... Other parameters to be passed to [base::print()].
 #'
-#' @returns Its `x` argument, *invisibly*; see [base::print()].
+#' @return Its `x` argument, [invisibly][base::invisible()]; see [base::print()].
 #'
 #' @seealso
 #' [Pr()] to calculate posterior probabilities and quantiles.
@@ -910,4 +911,5 @@ print.probability <- function(
         print(x = x[elements], digits = digits, ...)
         }
     }
+    invisible(x)
 }

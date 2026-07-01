@@ -33,7 +33,7 @@
 #' @param verbose Logical, default `FALSE`: give messages about parallel processing?
 #' @param keepYX Logical, default `TRUE`: keep a copy of the `Y` and `X` arguments in the output? This is used for the plot method.
 #'
-#' @return A list of class `probability`, consisting of the following elements:
+#' @return An object of class "probability", effectively a list consisting of the following elements:
 #'
 #' - `values`: a matrix with the probabilities \eqn{\mathrm{Pr}(Y = y \vert X = x, \text{data})}, for all joint values \eqn{y} of the \eqn{Y}-variates (rows) and  all joint values \eqn{x} of the \eqn{X}-variates (columns).
 #' - `quantiles` (possibly `NULL`): an array with the variability quantiles (3rd dimension of the array) for such probabilities.
@@ -226,7 +226,7 @@ Pr <- function(
             floor(parallel::detectCores() / 2))
         cl <- parallel::makeCluster(ncores)
         closeexit <- TRUE
-        if(verbose){cat('Registered ', capture.output(print(cl)), '.\n')}
+        if(verbose){message('Registered ', capture.output(print(cl)), '.')}
     } else if (isFALSE(parallel)) {
         ## user wants us not to use parallel cores
         ncores <- 1
@@ -238,7 +238,7 @@ Pr <- function(
         ncores <- parallel
         cl <- parallel::makeCluster(ncores)
         closeexit <- TRUE
-        if(verbose){cat('Registered ', capture.output(print(cl)), '.\n')}
+        if(verbose){message('Registered ', capture.output(print(cl)), '.')}
     } else {
         stop("Unknown value of argument 'parallel'.")
     }
@@ -246,7 +246,7 @@ Pr <- function(
     ## Close parallel connections if any were opened
     if(closeexit) {
         closecoresonexit <- function(){
-            if(verbose){cat('Closing connections to cores.\n')}
+            if(verbose){message('Closing connections to cores.')}
             parallel::stopCluster(cl)
             ## parallel::setDefaultCluster(NULL)
         }

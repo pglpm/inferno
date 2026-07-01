@@ -42,7 +42,7 @@
 #' with such a call, the file 'learnoutput.log' will contain information about how the computation is proceeding and the estimated end time.
 #'
 #' @param data A dataset, given as a [base::data.frame()] or as a file path to a CSV file. If missing or `NULL`, then the prior probability distribution is calculated.
-#' @param metadata [metadata] about the dataset's variates, given either as a data frame or as a file path to a CSV file.
+#' @param metadata [metadata] about the dataset's variates, given either as a [data frame][base::data.frame()] or as a file path to a CSV file.
 #' @param auxdata A larger dataset, given as a data frame or as a file path to a CSV file. Such a dataset would be too large to use in the Monte Carlo sampling, but can still be used to help estimate some hyperparameters.
 #' @param outputdir `NULL` (default) or `NA` or character: path to folder where output information and diagnostics should be saved. If `NULL`, a directory is created in the temporary-directory space given by [base::tempdir()]. If `NA`, a directory is created in the current working directory given by [base::getwd()]. If character, this is taken to be the output directory; it should of course be writable by the user.
 #' @param valueislearnt Logical or `NULL`: should the `VALUE` returned be the `learnt` object containing the results from the Monte Carlo computation? Default `TRUE`. If `FALSE`, then `VALUE` is the output directory name. If `NULL`, then `VALUE` is `NULL`.
@@ -1065,30 +1065,6 @@ learn <- function(
         '   rel.MCSE ', signif(maxrelMCSE, 3), '.')
     print2user('Core logs are being saved in individual files.')
 
-    ## outconmain <- file(file.path(dirname,
-    ##     paste0('log', dashnameroot,
-    ##         '-', 0, '.log')
-    ## ), open = 'w')
-    ## sink(file = outconmain, type = 'output')
-    ## sink(file = outconmain, type = 'message')
-
-    ## restoresink <- function(){
-    ##     if(sink.number() > 0) {
-    ##         ## Close output to log files
-    ##         sink(file = NULL, type = 'output')
-    ##         sink(file = NULL, type = 'message')
-    ##         close(outconmain)
-    ##     }
-    ## }
-    ## on.exit(restoresink())
-
-    ## Restore sink before starting parallel processes
-    ## It will be handled by them
-    ## flush(maincon0)
-    ## sink(file = NULL, type = 'output')
-    ## sink(file = NULL, type = 'message')
-    ## close(maincon0)
-
     ## function  to format printing of time
     printtimediff <- function(tim) {
         paste0(signif(tim, 2), ' ', attr(tim, 'units'))
@@ -1152,10 +1128,7 @@ learn <- function(
         )
 
     chaininfo <- do.call(what = rbind, args = chaininfo)
-    ## restore output to std
-    ## flush(outconmain)
-    ## sink(file = NULL, type = 'output')
-    ## sink(file = NULL, type = 'message')
+
 ############################################################
 #### END OF PARALLEL LOOP OVER CORES
 ############################################################
@@ -1430,12 +1403,6 @@ learn <- function(
     ## Plot various info and traces
     print2user('\nPlotting final Monte Carlo traces and marginal samples...\n')
 
-    ##
-    ## colpalette <- seq_len(ncol(oktraces))
-    ## names(colpalette) <- colnames(oktraces)
-    ## sink(file = outconmain, type = 'output')
-    ## sink(file = outconmain, type = 'message')
-##    suppressMessages({
     graphics.off()
     pdf(file.path(dirname,
         paste0('MCtraces', dashnameroot, '.pdf')
@@ -1469,10 +1436,6 @@ learn <- function(
             lty = 2, col = 2, lwd = 1)
     }
 
-    ## outcon <- file(file.path(dirname, 'log-1.log'), open = 'a')
-    ## sink(file = outcon, type = 'output')
-    ## sink(file = outcon, type = 'message')
-    ## cat('Plotting marginal samples.\n')
     plotFsamples(
         filename = file.path(dirname,
             paste0('plotsamples_learnt', dashnameroot)),
@@ -1484,7 +1447,6 @@ learn <- function(
         parallel = cl
     )
 
-    ## cat('Plotting marginal samples with quantiles.\n')
     plotFsamples(
         filename = file.path(dirname,
             paste0('plotquantiles_learnt', dashnameroot)),
@@ -1495,27 +1457,6 @@ learn <- function(
         datahistogram = TRUE, datascatter = TRUE,
         parallel = cl
     )
-##})
-    ## restore output to std
-    ## flush(outconmain)
-    ## sink(file = NULL, type = 'output')
-    ## sink(file = NULL, type = 'message')
-    ## close(outconmain)
-
-    ## Close connections
-    ## invisible(foreach(acore = 1:ncores) %dochains% {
-    ##     outcon <- file(file.path(dirname,
-    ##         paste0('log', dashnameroot,
-    ##             '-', acore, '.log')
-    ##     ), open = 'a')
-    ##     sink(file = outcon, type = 'output')
-    ##     sink(file = outcon, type = 'message')
-    ##     flush(outcon)
-    ##     sink(file = NULL, type = 'output')
-    ##     sink(file = NULL, type = 'message')
-    ##     close(outcon)
-    ## })
-
 
     totalfinaltime <- difftime(Sys.time(), timestart0, units = 'auto')
     print2user(
@@ -1531,12 +1472,6 @@ learn <- function(
         '\nMax total memory used: approx ', signif(totusedmem, 2), 'MB.',
         '\nMax memory used per core: approx ', signif(maxusedmem, 2), 'MB.'
     )
-    ## if (exists('cl')) {
-    ##     cat('\nClosing connections to cores.\n')
-    ##     foreach::registerDoSEQ()
-    ##     parallel::stopCluster(cl)
-    ## }
-
 
 #### Remove partial files if required
     ## Partial files are identified by at last three initial underscores "___"
@@ -1630,6 +1565,15 @@ nimbleFunction <- sampler_BASE <- extractControlElement <- model <- target <- Nd
         format(Sys.time() + tim, format='%Y-%m-%d %H:%M')
     }
 
+#### NOTA BENE:
+#### All cat() and print() commands within this function print only to a file,
+#### in a directory selected by the user (or within tempdir()),
+#### and they do so only within a temporary, non-interactive R session
+#### spawned by parallel.
+#### The user therefore never sees them and has no need to suppress them.
+#### The information thus saved in the file can be important
+#### in the case of publications and similar.
+    
     ## Create log file
     ## Redirect diagnostics and service messages there
     outcon <- file(file.path(dirname,
@@ -1683,9 +1627,11 @@ nimbleFunction <- sampler_BASE <- extractControlElement <- model <- target <- Nd
     cat('\n')
 
     ## Check if Nimble package is installed and load it
-    ## NB: Nimble *must* be attached (not just loaded)
-    ## with 'require()' or 'library()',
-    ## see <https://groups.google.com/g/nimble-users/c/dDNE3L_sPxI/m/IyRgmXOaBwAJ>.
+
+#### NB: Nimble *must* be attached (not just loaded)
+#### with 'require()' or 'library()', see
+#### <https://groups.google.com/g/nimble-users/c/dDNE3L_sPxI/m/IyRgmXOaBwAJ>.
+#### This situation was approved by CRAN reviewer at submission of prova v0.8.0
     loadnimble <- require
     if (!loadnimble('nimble', quietly = TRUE)) {
         stop("Package 'nimble' must be installed.", call. = FALSE)

@@ -47,7 +47,7 @@ flexiplot(
 \item{...}{Other parameters to be passed to \code{\link[graphics:matplot]{graphics::matplot()}}.}
 }
 \value{
-\code{NULL}, produces a plot, see \code{\link[graphics:matplot]{graphics::matplot()}}.
+\code{NULL}, \link[base:invisible]{invisibly}; produces a plot, see \code{\link[graphics:matplot]{graphics::matplot()}}.
 }
 \description{
 Plot function that modifies and expands the \strong{graphics} package's \code{\link[graphics:matplot]{graphics::matplot()}} function in several ways.

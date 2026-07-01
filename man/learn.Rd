@@ -42,7 +42,7 @@ learn(
 \arguments{
 \item{data}{A dataset, given as a \code{\link[base:data.frame]{base::data.frame()}} or as a file path to a CSV file. If missing or \code{NULL}, then the prior probability distribution is calculated.}
 
-\item{metadata}{\link{metadata} about the dataset's variates, given either as a data frame or as a file path to a CSV file.}
+\item{metadata}{\link{metadata} about the dataset's variates, given either as a \link[base:data.frame]{data frame} or as a file path to a CSV file.}
 
 \item{auxdata}{A larger dataset, given as a data frame or as a file path to a CSV file. Such a dataset would be too large to use in the Monte Carlo sampling, but can still be used to help estimate some hyperparameters.}
 

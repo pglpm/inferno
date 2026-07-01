@@ -153,7 +153,7 @@ mutualinfo <- function(
             floor(parallel::detectCores() / 2))
         cl <- parallel::makeCluster(ncores)
         closeexit <- TRUE
-        if(verbose){cat('Registered ', capture.output(print(cl)), '.\n')}
+        if(verbose){message('Registered ', capture.output(print(cl)), '.')}
     } else if (isFALSE(parallel)) {
         ## user wants us not to use parallel cores
         ncores <- 1
@@ -165,7 +165,7 @@ mutualinfo <- function(
         ncores <- parallel
         cl <- parallel::makeCluster(ncores)
         closeexit <- TRUE
-        if(verbose){cat('Registered ', capture.output(print(cl)), '.\n')}
+        if(verbose){message('Registered ', capture.output(print(cl)), '.')}
     } else {
         stop("Unknown value of argument 'parallel'.")
     }
@@ -173,7 +173,7 @@ mutualinfo <- function(
     ## Close parallel connections if any were opened
     if(closeexit) {
         closecoresonexit <- function(){
-            if(verbose){cat('Closing connections to cores.\n')}
+            if(verbose){message('Closing connections to cores.')}
             parallel::stopCluster(cl)
             ## parallel::setDefaultCluster(NULL)
         }
@@ -222,7 +222,7 @@ mutualinfo <- function(
     if(!is.null(X)){
         X <- as.data.frame(X)
         if (nrow(X) > 1) {
-            message('Only the first row of X is considered')
+            warning('Only the first row of X is considered')
             X <- X[1, , drop = FALSE]
         }
     }

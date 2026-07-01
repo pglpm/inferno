@@ -12,7 +12,7 @@
 #' @param mcsamples Vector of integers, or `'all'`, or `NULL` (default): which Monte Carlo samples calculated by the [learn()] function should be used to draw the variate values. The default is to choose a random subset if `n` is smaller than their number, otherwise to recycle them as necessary.
 #' @param parallel Not used: this function does not use parallelization.
 #'
-#' @return A data frame of joint draws of the variates `Ynames` from the posterior distribution, conditional on `X`. The row names of the data frame report the Monte Carlo sample (from [learn()]) used for that draw, and the total number of draws from that sample so far.
+#' @return A [data frame][base::data.frame()] of joint draws of the variates `Ynames` from the posterior distribution, conditional on `X`. The row names of the data frame report the Monte Carlo sample (from [learn()]) used for that draw, and the total number of draws from that sample so far.
 #'
 #' @seealso
 #' [learn()], which generates the `learnt` objects required by `qPr()`.
@@ -128,7 +128,7 @@ rPr <- function(
     if(!is.null(X)){
         X <- as.data.frame(X)
         if (nrow(X) > 1) {
-            message('Only the first row of X is considered')
+            warning('Only the first row of X is considered')
             X <- X[1, , drop = FALSE]
         }
     }

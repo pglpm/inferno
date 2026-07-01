@@ -1,6 +1,6 @@
 #' Build augmented metadata file
 #'
-#' Builds an augmented metadata data frame from the metadata and data given to 'learn()'. This augmented metadata object is saved in the 'learnt' object produced by 'learn()'.
+#' Builds an augmented metadata [data frame][base::data.frame()] from the metadata and data given to 'learn()'. This augmented metadata object is saved in the 'learnt' object produced by 'learn()'.
 #'
 #' In addition to the original metadata it contains info about transformed variates and their domains, estimated location- and scale-parameters, and similar metadata.
 #'
@@ -13,7 +13,7 @@
 #'   whether to treat a rounded variate as continuous
 #' @param tscalefactor Positive number: scaling factor for variate conversion
 #'
-#' @return an auxmetadata data.frame object
+#' @return A [data frame][base::data.frame()] with auxmetadata.
 #' @import stats
 #' @keywords internal
 buildauxmetadata <- function(data, metadata, Dthreshold = 1, tscalefactor = 4.266) {
@@ -690,7 +690,7 @@ buildauxmetadata <- function(data, metadata, Dthreshold = 1, tscalefactor = 4.26
     ##                             format(Sys.time(), '%y%m%dT%H%M%S'), '.rds'))
     ##   }
     ##   saveRDS(auxmetadata, file)
-    ##   cat('Saved proposal aux-metadata file as', file, '\n')
+    ##   message('Saved proposal aux-metadata file as', file, '\n')
     ## } else {
     ##   auxmetadata
     ## }

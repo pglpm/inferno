@@ -75,11 +75,11 @@ plotFsamples <- function(
     nodata <- missing(data) || is.null(data) || isFALSE(data)
     if (datahistogram && nodata) {
         datahistogram <- FALSE
-        cat('\nNOTE: "datahistogram" is TRUE but there is no data\n')
+        message('NOTE while plotting: "datahistogram" is TRUE but there is no data')
     }
     if (datascatter && nodata) {
         datascatter <- FALSE
-        cat('\nNOTE: "datascatter" is TRUE but there is no data\n')
+        message('NOTE while plotting: "datascatter" is TRUE but there is no data')
     }
 
     addylab <- ''
@@ -106,7 +106,7 @@ plotFsamples <- function(
     graphics.off()
     ## make sure graphics device is closed also in case of error
     on.exit(dev.off())
-    
+
     pdf(file = paste0(filename, '.pdf'), family = fontfamily,
         height = 8.27, width = 11.69)
     ## Save user's par()
@@ -733,7 +733,7 @@ plotFsamples <- function(
                 }
                 ## End D, O, N, B case
             } else {
-                message('Unknown MC type for variate ', name)
+                message('NOTE while plotting: unknown MC type for variate ', name)
             }
 
             ## Scatter plot of data if required

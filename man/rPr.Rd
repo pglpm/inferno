@@ -30,7 +30,7 @@ rPr(
 \item{parallel}{Not used: this function does not use parallelization.}
 }
 \value{
-A data frame of joint draws of the variates \code{Ynames} from the posterior distribution, conditional on \code{X}. The row names of the data frame report the Monte Carlo sample (from \code{\link[=learn]{learn()}}) used for that draw, and the total number of draws from that sample so far.
+A \link[base:data.frame]{data frame} of joint draws of the variates \code{Ynames} from the posterior distribution, conditional on \code{X}. The row names of the data frame report the Monte Carlo sample (from \code{\link[=learn]{learn()}}) used for that draw, and the total number of draws from that sample so far.
 }
 \description{
 This function generates datapoints of chosen joint variates, according to posterior probabilities and posterior conditional probabilities.

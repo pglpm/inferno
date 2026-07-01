@@ -1,10 +1,10 @@
 #' Example metadata file
 #'
 #' @description
-#' A data frame containing the prior information about the variates `species` and `bill_len` of the [datasets::penguins] dataset.
+#' A [data frame][base::data.frame()] containing the prior information about the variates `species` and `bill_len` of the [datasets::penguins] dataset.
 #'
 #' @format ## `metadataExample`
-#' A data frame with 2 rows and 10 columns.
+#' A [data frame][base::data.frame()] with 2 rows and 10 columns.
 #'
 #' @returns No return value.
 #'

@@ -7,7 +7,7 @@
 \format{
 \subsection{\code{metadataExample}}{
 
-A data frame with 2 rows and 10 columns.
+A \link[base:data.frame]{data frame} with 2 rows and 10 columns.
 }
 }
 \usage{
@@ -17,7 +17,7 @@ metadataExample
 No return value.
 }
 \description{
-A data frame containing the prior information about the variates \code{species} and \code{bill_len} of the \link[datasets:penguins]{datasets::penguins} dataset.
+A \link[base:data.frame]{data frame} containing the prior information about the variates \code{species} and \code{bill_len} of the \link[datasets:penguins]{datasets::penguins} dataset.
 }
 \seealso{
 \code{\link[=metadatatemplate]{metadatatemplate()}} which helps producing this kind of metadata files from a given dataset.

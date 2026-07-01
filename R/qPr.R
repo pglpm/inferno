@@ -135,7 +135,7 @@ qPr <- function(
             floor(parallel::detectCores() / 2))
         cl <- parallel::makeCluster(ncores)
         closeexit <- TRUE
-        if(verbose){cat('Registered ', capture.output(print(cl)), '.\n')}
+        if(verbose){message('Registered ', capture.output(print(cl)), '.')}
     } else if (isFALSE(parallel)) {
         ## user wants us not to use parallel cores
         ncores <- 1
@@ -147,7 +147,7 @@ qPr <- function(
         ncores <- parallel
         cl <- parallel::makeCluster(ncores)
         closeexit <- TRUE
-        if(verbose){cat('Registered ', capture.output(print(cl)), '.\n')}
+        if(verbose){message('Registered ', capture.output(print(cl)), '.')}
     } else {
         stop("Unknown value of argument 'parallel'.")
     }
@@ -155,7 +155,7 @@ qPr <- function(
     ## Close parallel connections if any were opened
     if(closeexit) {
         closecoresonexit <- function(){
-            if(verbose){cat('Closing connections to cores.\n')}
+            if(verbose){message('Closing connections to cores.')}
             parallel::stopCluster(cl)
             ## parallel::setDefaultCluster(NULL)
         }

@@ -5,10 +5,12 @@
 #'
 #' @description Utility functions to read and write CSV files in the format required by **Prova**
 #'
-#' @param x The object to be written. Preferably a matrix or data frame; if not, it is attempted to coerce `x` to a data frame. See [utils::write.table()].
+#' @param x The object to be written. Preferably a matrix or data frame; if not, it is attempted to coerce `x` to a [data frame][base::data.frame()]. See [utils::write.csv()].
 #'
-#' @param file Either a character naming a file or a connection open for writing or reading. See [utils::write.table()] and [utils::read.table()].
-#' @param ... Other arguments to be passed to [utils::write.table()] or [utils::read.table()]. Arguments 'row.names', 'quote', 'na', 'na.strings', 'tryLogical', 'sep', 'dec' are not allowed.
+#' @param file Either a character naming a file or a connection open for writing or reading. See [utils::write.csv()] and [utils::read.csv()].
+#' @param ... Other arguments to be passed to [utils::write.csv()] or [utils::read.csv()]. Arguments 'row.names', 'quote', 'na', 'na.strings', 'tryLogical', 'sep', 'dec' are not allowed.
+#'
+#' @return `pread.csv` returns a [data frame][base::data.frame()] containing a representation of the data in the file; see [utils::read.csv()]. `pwrite.csv' returns `NULL` [invisibly][base::invisible()].
 #'
 #' @details
 #' The functions [learn()] and [metadatatemplate()] accept CSV files formatted as follows:
@@ -19,7 +21,7 @@
 #' - Missing values should be simply *empty*, not denoted by "NA", "missing", "-", or similar.
 #' - Preferably there should not be factors (see [base::factor]); use character names instead.
 #'
-#' The utility functions `pwrite.csv()` and `pread.csv()` are wrappers to [utils::write.table()] and [utils::read.table()] that set appropriate default parameters according to the formatting rules above.
+#' The utility functions `pwrite.csv()` and `pread.csv()` are wrappers to [utils::write.csv()] and [utils::read.csv()] that set appropriate default parameters according to the formatting rules above.
 #'
 #' @seealso
 #' [metadatatemplate()] to help writing metadata files.
