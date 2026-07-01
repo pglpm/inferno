@@ -2720,6 +2720,50 @@ semicolons.</li>
 <p>Names of variates and character variate values should be strings
 conforming to <a href="https://cran.r-project.org/doc/FAQ/R-FAQ.html#What-are-valid-names_003f">R’s
 rules</a>.</p>
+<p><br />
+</p>
+</div>
+<div id="learnuse" class="section level2" number="9.3">
+<h2><span class="header-section-number">9.3</span> Typical use of the
+<code>learn()</code> function</h2>
+<p>The computations performed by the <code>learn()</code> function can
+take from minutes to days, depending on the size of the dataset, the
+number of variates, and the “shape” of the (initially unknown!)
+probability distribution underlying the inference problem.</p>
+<p>For inferences with large datasets or high number of variates,
+<code>learn()</code> is typically called separately on a powerful
+machine, workstation or High-Performance Computing server. A script may
+launch the function in the background and the progress can be
+periodically monitored.</p>
+<p>For example, a script ‘launch_learn.R’ could be prepared, having the
+following structure:</p>
+<div class="sourceCode" id="cb55"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb55-1"><a href="#cb55-1" tabindex="-1"></a><span class="fu">library</span>(<span class="st">&#39;prova&#39;</span>)</span>
+<span id="cb55-2"><a href="#cb55-2" tabindex="-1"></a></span>
+<span id="cb55-3"><a href="#cb55-3" tabindex="-1"></a><span class="fu">learn</span>(</span>
+<span id="cb55-4"><a href="#cb55-4" tabindex="-1"></a>  <span class="at">data =</span> <span class="st">&#39;filename_with_data.csv&#39;</span>, <span class="co"># CSV file containing the dataset</span></span>
+<span id="cb55-5"><a href="#cb55-5" tabindex="-1"></a>  <span class="at">metadata =</span> <span class="st">&#39;filename_with_metadata.csv&#39;</span>, <span class="co"># CSV file containing the metadata</span></span>
+<span id="cb55-6"><a href="#cb55-6" tabindex="-1"></a>  <span class="at">outputdir =</span> <span class="st">&#39;some_directory&#39;</span>, <span class="co"># path to output directory</span></span>
+<span id="cb55-7"><a href="#cb55-7" tabindex="-1"></a>  <span class="at">parallel =</span> <span class="dv">8</span> <span class="co"># machine has more than 8 cores, so we use 8</span></span>
+<span id="cb55-8"><a href="#cb55-8" tabindex="-1"></a>  <span class="do">## possibly other arguments to learn()</span></span>
+<span id="cb55-9"><a href="#cb55-9" tabindex="-1"></a>)</span></code></pre></div>
+<p>The script ‘launch_learn.R’ could then be called to work on the
+background on a bash session with</p>
+<div class="sourceCode" id="cb56"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb56-1"><a href="#cb56-1" tabindex="-1"></a><span class="ex">$</span> Rscript myscript.R <span class="op">&gt;</span> logfile.log <span class="dv">2</span><span class="op">&gt;&amp;</span><span class="dv">1</span> <span class="kw">&amp;</span></span></code></pre></div>
+<p>The file ‘logfile.log’ will then contain messages about the progress
+of the computation, and an estimated end time, updated regularly. When
+desired, this file can be simply opened and inspected, for instance with
+the bash command <code>tail</code>:</p>
+<div class="sourceCode" id="cb57"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb57-1"><a href="#cb57-1" tabindex="-1"></a><span class="ex">$</span> tail logfile.log</span></code></pre></div>
+<p>This is just an example; the details and correct procedure will
+depend on your operating system and computing environment.</p>
+<p><br />
+</p>
+<p>Given the possibly long computation times, it is recommended that you
+first do some simpler trial runs of <code>learn()</code> with a reduced
+dataset and fixed number of Monte Carlo iterations, or a time bound.
+These simplified runs can be easily made using the arguments
+<code>subsampledata =</code> and <code>maxMCiterations =</code> or
+<code>maxhours =</code> of <code>learn()</code>.</p>
 </div>
 </div>
 <div class="footnotes footnotes-end-of-document">

@@ -134,14 +134,18 @@ The \code{learn()} function can take hours or even days to perform its computati
 
 \if{html}{\out{<div class="sourceCode">}}\preformatted{library('prova')
 
-learnt(
-  [relevant input arguments, including dataset file names and output directory]
+learn(
+  data = 'filename_with_data.csv', # CSV file containing the dataset
+  metadata = 'filename_with_metadata.csv', # CSV file containing the metadata
+  outputdir = 'some_directory', # path to output directory
+  parallel = 8 # machine has more than 8 cores, so we use 8
+  ## possibly other arguments to learn()
 )
 }\if{html}{\out{</div>}}
 
-and then be called on a terminal with
+and then be called on a bash terminal with
 
-\if{html}{\out{<div class="sourceCode">}}\preformatted{> Rscript myscript.R |& tee learnoutput.log
+\if{html}{\out{<div class="sourceCode">}}\preformatted{$ Rscript myscript.R > learnoutput.log 2>&1
 }\if{html}{\out{</div>}}
 
 with such a call, the file 'learnoutput.log' will contain information about how the computation is proceeding and the estimated end time.

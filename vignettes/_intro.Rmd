@@ -1293,3 +1293,42 @@ The functions of the **Prova** package accept CSV files formatted as follows:
 
 Names of variates and character variate values should be strings conforming to [R's rules](https://cran.r-project.org/doc/FAQ/R-FAQ.html#What-are-valid-names_003f).
 
+\
+
+## Typical use of the `learn()` function {#learnuse}
+
+The computations performed by the `learn()` function can take from minutes to days, depending on the size of the dataset, the number of variates, and the "shape" of the (initially unknown!) probability distribution underlying the inference problem.
+
+For inferences with large datasets or high number of variates, `learn()` is typically called separately on a powerful machine, workstation or High-Performance Computing server. A script may launch the function in the background and the progress can be periodically monitored.
+
+For example, a script 'launch_learn.R' could be prepared, having the following structure:
+
+``` r
+library('prova')
+
+learn(
+  data = 'filename_with_data.csv', # CSV file containing the dataset
+  metadata = 'filename_with_metadata.csv', # CSV file containing the metadata
+  outputdir = 'some_directory', # path to output directory
+  parallel = 8 # machine has more than 8 cores, so we use 8
+  ## possibly other arguments to learn()
+)
+```
+
+The script 'launch_learn.R' could then be called to work on the background on a bash session with
+
+``` bash
+$ Rscript myscript.R > logfile.log 2>&1 &
+```
+
+The file 'logfile.log' will then contain messages about the progress of the computation, and an estimated end time, updated regularly. When desired, this file can be simply opened and inspected, for instance with the bash command `tail`:
+
+``` bash
+$ tail logfile.log
+```
+
+This is just an example; the details and correct procedure will depend on your operating system and computing environment.
+
+\
+
+Given the possibly long computation times, it is recommended that you first do some simpler trial runs of `learn()` with a reduced dataset and fixed number of Monte Carlo iterations, or a time bound. These simplified runs can be easily made using the arguments `subsampledata =` and `maxMCiterations =` or `maxhours =` of `learn()`.
