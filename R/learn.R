@@ -4,22 +4,38 @@
 #' Compute the posterior joint probability distribution of the variates conditional on the given data, by means of Markov-chain Monte Carlo, using the package **Nimble**.
 #'
 #' @details
-#' This function takes as main inputs a set of data and metadata, and computes the full joint probability distribution for new data, including its variability; see [Pr()]. This computation can also be interpreted as an estimation of the full joint frequency distribution of the variates in the *whole population*, beyond the sample data, together with its uncertainty.
+#' This function takes as main inputs a set of data and metadata, and computes the full joint probability distribution for new data, including its variability. From this full joint distribution any other distributions of interest can subsequently be computed; see [Pr()] and related functions. This computation can also be interpreted as an estimation of the full joint frequency distribution of the variates in the *whole population*, beyond the sample data, together with its uncertainty. The computation allows for the use of datapoints with partially missing variables: imputation is automatically made. This imputation is *principled*, made according to the rules of probability theory.
 #'
-#' The computation is "non-parametric": probability or frequency distributions are not assumed to be Gaussian or of any other specific shape; no "model" is assumed. The mathematical representation of the space of joint frequency distributions follows Dunson & Bhattacharya (2011).
+#' The output is a "learnt" object, typically saved in a `learnt.rds` file, which is used in all subsequent probabilistic computations. Other information about the computation is provided in logs and plots, saved in a directory specified by the user.
 #'
-#' The computation is done via Markov-chain Monte Carlo, using the package [**Nimble**](https://cran.r-project.org/package=nimble). "Convergence" of the Monte Carlo computation is assessed with methods described in Vehtari & al. (2021) and Kwon & al. (2025).
+#' See `vignette('intro')` for introductory examples.
 #'
-#' The default values for convergence require that all of the following three conditions be fulilled:
+#' The computation is "non-parametric": probability or frequency distributions are not assumed to be Gaussian or of any other specific shape; no "model" is assumed. The mathematical representation of the space of joint frequency distributions follows ideas of Dunson & Bhattacharya (2011); see [technical manual](https://github.com/pglpm/prova/raw/main/development/manual/pglpm2024-bayes_nonparam.pdf) for details.
+#'
+#' The computation is done via Markov-chain Monte Carlo, using the package [**Nimble**](https://cran.r-project.org/package=nimble). "Convergence" of the Monte Carlo computation is automatically assessed with methods described in Vehtari & al. (2021) and Kwon & al. (2025); see [technical manual](https://github.com/pglpm/prova/raw/main/development/manual/pglpm2024-bayes_nonparam.pdf) for details. The default values for convergence require that all of the following three conditions be fulilled:
 #'
 #' - The computation's numerical error (Monte-Carlo Standard Error) for the posterior probability must be smaller than 4.7% of the standard deviation of the posterior's variability.
 #'  - The computation's numerical error for the 0.055- and 0.945-percentiles of the posterior's variability should be smaller than 4.7% of the distance between them.
 #'
 #' Typically this requirement leads to final results obtained with the [Pr()] function having at least two significant digits.
 #'
-#' This function creates a "learnt" object, typically saved in a `learnt.rds` file, which is used in all subsequent probabilistic computations. Other information about the computation is provided in logs and plots, saved in a directory specified by the user.
+#' The `learn()` function can take hours or even days to perform its computations, depending on the size of the dataset, number of variates, and the (initially unknown) "shape" of the underlying probability distribution. For this reason it is typically called within an R script, executed via [utils::Rscript]. For example, a script 'myscript.R' could have the following structure:
 #'
-#' See `vignette('intro')` for an introductory example.
+#' ```
+#' library('prova')
+#'
+#' learnt(
+#'   [relevant input arguments, including dataset file names and output directory]
+#' )
+#' ```
+#'
+#' and then be called on a terminal with
+#'
+#' ```
+#' > Rscript myscript.R |& tee learnoutput.log
+#' ```
+#'
+#' with such a call, the file 'learnoutput.log' will contain information about how the computation is proceeding and the estimated end time.
 #'
 #' @param data A dataset, given as a [base::data.frame()] or as a file path to a CSV file. If missing or `NULL`, then the prior probability distribution is calculated.
 #' @param metadata [metadata] about the dataset's variates, given either as a data frame or as a file path to a CSV file.
@@ -68,11 +84,14 @@
 #'
 #' - Dunson, Bhattacharya (2011): *Nonparametric Bayes regression and classification through mixtures of product kernels* <doi:10.1093/acprof:oso/9780199694587.003.0005>.
 #' - Ishwaran, Zarepour (2002): *Exact and approximate sum representations for the Dirichlet process* <doi:10.2307/3315951>.
+#' - Porta Mana <https://github.com/pglpm/prova/raw/main/development/manual/pglpm2024-bayes_nonparam.pdf>.
 #'
 #' About Bayesian inference under exchangeability ("population inference"):
 #'
 #' - Lindley, Novick (1981): *The role of exchangeability in inference*, <doi:10.1214/aos/1176345331>.
 #' - Bernardo, Smith (2000): *Bayesian Theory*. Wiley <doi:10.1002/9780470316870>.
+#' - Porta Mana <https://github.com/pglpm/prova/raw/main/development/manual/pglpm2024-bayes_nonparam.pdf>.
+#'
 #' About nonparametrics:
 #'
 #' - Müller et al. (2015): *Nonparametric Bayesian inference*. IMS <doi:10.1007/978-3-319-18968-0>.
@@ -86,10 +105,8 @@
 #' - Roy (2020): *Convergence diagnostics for Markov chain Monte Carlo* <doi:10.1146/annurev-statistics-031219-041300>.
 #' - Gilks & al. (1998): *Markov Chain Monte Carlo in Practice*. Chapman & Hall/CRC <doi:10.1201/b14835>.
 #' - D. J. C. MacKay (2005): *Information Theory, Inference, and Learning Algorithms*. Cambridge University Press <https://www.inference.org.uk/itila/book.html>.
-#'
-#' Mathematical background of **Prova**:
-#'
 #' - Porta Mana <https://github.com/pglpm/prova/raw/main/development/manual/pglpm2024-bayes_nonparam.pdf>.
+#'
 #'
 #' @seealso
 #' [metadatatemplate()] to help writing metadata files.
