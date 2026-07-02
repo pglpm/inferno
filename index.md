@@ -1,4 +1,4 @@
-# ***Prova***: probabilistic-statistical variate analysis and inference, nonparametric and with automated Markov-chain Monte Carlo
+# ***Prova***: probabilistic-statistical variate analysis, nonparametric and with automated Markov-chain Monte Carlo
 
 *\[Looking for the R package “inferno”? you came to the right place!
 It’s been renamed “Prova”\]*
@@ -15,8 +15,8 @@ densities](https://github.com/pglpm/prova/raw/main/man/figures/prova_symbol.jpg)
   test!, try out!, assess!, attempt!, prove!, demonstrate!, show!
 
 This repository provides an R package and some theoretical background to
-perform probabilistic and statistical analysis of data. These are the
-main features:
+perform probabilistic and statistical data analysis and inference. These
+are its main features:
 
 - Any combination of **binary**, **nominal**, **ordinal**,
   **continuous** variates. Continuous variates can be bounded or

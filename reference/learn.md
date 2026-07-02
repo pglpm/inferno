@@ -326,7 +326,7 @@ example, a script 'myscript.R' could have the following structure:
 
 and then be called on a bash terminal with
 
-    $ Rscript myscript.R > learnoutput.log 2>&1
+    $ Rscript myscript.R > learnoutput.log 2>&1 &
 
 with such a call, the file 'learnoutput.log' will contain information
 about how the computation is proceeding and the estimated end time.
@@ -435,79 +435,41 @@ learnt <- learn(
 )
 #> 
 #> Saving output in directory
-#> /tmp/RtmpNPXIuL/prova-V1_D3_S10_260701T125203_1a4a26549f9b
-#> 
-#> Saving output in directory
-#> /tmp/RtmpNPXIuL/prova-V1_D3_S10_260701T125203_1a4a26549f9b
-#> Prova v1.0.0.
+#> /tmp/RtmpXPq2u4/prova-V1_D3_S10_260702T071437_19fc765b485b
 #> Prova v1.0.0.
 #> Registered socket cluster with 1 nodes on host ‘localhost’.
-#> Registered socket cluster with 1 nodes on host ‘localhost’.
-#> Learning from 3 datapoints, 1 variates.
 #> Learning from 3 datapoints, 1 variates.
 #> Starting Monte Carlo sampling of 10 samples by 1 chains
-#> Starting Monte Carlo sampling of 10 samples by 1 chains
-#> in a space of 191 (effectively 259) dimensions.
 #> in a space of 191 (effectively 259) dimensions.
 #> Using 1 cores: 10 samples per chain, max 1 chains per core.
-#> Using 1 cores: 10 samples per chain, max 1 chains per core.
 #> Requested:   ESS 0   rel.MCSE Inf.
-#> Requested:   ESS 0   rel.MCSE Inf.
-#> Core logs are being saved in individual files.
 #> Core logs are being saved in individual files.
 #>                                                                
 #> Finished Monte Carlo sampling.
-#> Finished Monte Carlo sampling.
-#> Highest number of Monte Carlo iterations across chains: 10.
-#> Highest number of used mixture components: 2.
 #> Highest number of Monte Carlo iterations across chains: 10.
 #> Highest number of used mixture components: 2.
 #> 
 #> Checking test data
 #> (#1 #2 #3):
-#> 
-#> Checking test data
-#> (#1 #2 #3):
-#> rel. quantile error: 0.277 to 0.757
 #> rel. quantile error: 0.277 to 0.757
 #> ESS: 8.59 to 8.59
-#> ESS: 8.59 to 8.59
-#> needed thinning: 1.05 to 5.15
 #> needed thinning: 1.05 to 5.15
 #> average: 0.144 to 0.904
-#> average: 0.144 to 0.904
-#> quantile width: 0.216 to 3.27
 #> quantile width: 0.216 to 3.27
 #> 
 #> Plotting final Monte Carlo traces and marginal samples...
-#> 
-#> Plotting final Monte Carlo traces and marginal samples...
-#> Total computation time: 35 secs
-#> Average preparation & finalization time: 34 secs.
-#> Average Monte Carlo time per chain: 0.7 secs.
+#> Total computation time: 34 secs
+#> Average preparation & finalization time: 33 secs.
+#> Average Monte Carlo time per chain: 0.56 secs.
 #> Max total memory used: approx 350MB.
 #> Max memory used per core: approx 350MB.
-#> Total computation time: 35 secs
-#> Average preparation & finalization time: 34 secs.
-#> Average Monte Carlo time per chain: 0.7 secs.
-#> Max total memory used: approx 350MB.
-#> Max memory used per core: approx 350MB.
-#> Removing temporary output files.
 #> Removing temporary output files.
 #> Finished.
 #> 
 #> **********************************************************
 #> Output saved in directory
-#> /tmp/RtmpNPXIuL/prova-V1_D3_S10_260701T125203_1a4a26549f9b
+#> /tmp/RtmpXPq2u4/prova-V1_D3_S10_260702T071437_19fc765b485b
 #> **********************************************************
-#> Finished.
-#> 
-#> **********************************************************
-#> Output saved in directory
-#> /tmp/RtmpNPXIuL/prova-V1_D3_S10_260701T125203_1a4a26549f9b
-#> **********************************************************
-#> Closing connections to cores.
-#> Closing connections to cores.
 
 ## Check structure of `learnt` object:
 str(learnt)
