@@ -23,21 +23,23 @@ are its main features:
   unbounded, and also rounded or discretized.
 - **No modelling assumptions** such as gaussianity, linearity, or any
   other kind of model. The analysis and inferences are fully
-  *non-parametric*.
+  [*non-parametric*](https://dictionary.apa.org/nonparametric).
 - **No assumptions about functional dependence** between variates. The
   analysis and inferences are therefore more general than those by
   neural networks, random forests, or similar machine-learning
   algorithms.
-- **Automatic imputation** of missing data: all sample data are used,
-  even those that lacks some variate values. The imputation is done with
-  a principled method (the marginalization rule of probability theory),
-  rather than ad-hoc procedures.
+- **Automatic [imputation](https://dictionary.apa.org/imputation)** of
+  missing data: all sample data are used, even those that lacks some
+  variate values. The imputation is done with a principled method (the
+  marginalization rule of probability theory), rather than ad-hoc
+  procedures.
 - Easy and straightforward **subgroup analyses** and **stratified
   analyses**, for any division of variates, with full statistical
   details.
-- **Quantification of generalization** beyond the finite sample size. In
-  other words, quantification of uncertainty of results regarding the
-  whole, unsampled, population.
+- **Quantification of
+  [generalizability](https://dictionary.apa.org/generalizability)**
+  beyond the finite sample size. In other words, quantification of
+  uncertainty of results regarding the whole, unsampled, population.
 - Straightforward use within **decision theory**, such as **clinical
   decision-making**. Users can immediately combine the probabilistic
   results with any measures of utilities, such as [quality-adjusted life
