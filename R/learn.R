@@ -294,8 +294,6 @@ learn <- function(
 #### Start timer
     timestart0 <- Sys.time()
 
-    ## cat('\n') # make sure possible error messages start on new line
-
     ## Set the RNG seed if given by user, or if no seed already exists
     if (!is.null(seed) || !exists('.Random.seed')) {
         set.seed(seed)
@@ -385,9 +383,6 @@ learn <- function(
     ## Close parallel connections if any were opened
     if(closeexit) {
         closecoresonexit <- function(){
-            if(exists('maincon0')){
-                print2user('Closing connections to cores.')
-            }
             parallel::stopCluster(cl)
             gc(full = TRUE)
             ## parallel::setDefaultCluster(NULL)
@@ -624,33 +619,32 @@ learn <- function(
     ## all 'dashnameroot' can be deleted in a final version
     dashnameroot <- NULL
 
-    ## Create main log file in output directory, and direct cat() to it
+    ## Create main log file in output directory
     ## also keep printing to terminal if verbose = TRUE
     mainlog <- file.path(dirname, 'main.log')
     maincon0 <- file(mainlog, open = 'w')
-    sink(file = maincon0, type = 'message')
     closecons0 <- function(){
-        ## Close output to log files
-        flush(maincon0)
-        ## sink(file = NULL), type = 'output')
-        sink(file = NULL, type = 'message')
-        close(maincon0)
+        ## Close output to main log file
+        ## wrap in try() in case errors happen during parallel processing,
+        ## during which the connection is closed
+        try(flush(maincon0), silent = TRUE)
+        try(close(maincon0), silent = TRUE)
     }
     on.exit(closecons0(), add = TRUE)
 
     if(verbose){
         print2user <- function(...){
             ## print to console
-            sink(file = NULL, type = 'message')
             message(...)
             ## print to main log file
-            sink(file = maincon0, type = 'message')
-            message(...)
+            writeLines(text = paste0(...), con = maincon0, sep = '\n')
+            flush(maincon0)
         }
     }else{
         print2user <- function(...){
             ## print only to main log file
-            message(...)
+            writeLines(text = paste0(...), con = maincon0, sep = '\n')
+            flush(maincon0)
         }
     }
 
@@ -659,7 +653,6 @@ learn <- function(
 
     ## Print accumulated messages
     for(msg in predirmsgs){print2user(msg)}
-    flush(maincon0)
 
     ## Save copy of metadata and auxmetadata in directory
     write.csv(metadata, file = file.path(dirname, 'metadata.csv'),
@@ -1070,6 +1063,9 @@ learn <- function(
         paste0(signif(tim, 2), ' ', attr(tim, 'units'))
     }
 
+    ## Close output to main log file
+    close(maincon0)
+    
 #####################################################
 #### BEGINNING OF PARALLEL LOOP OVER CORES
 #####################################################
@@ -1125,9 +1121,11 @@ learn <- function(
         verbose = verbose,
         ##
         chunk.size = NULL
-        )
-
+    )
     chaininfo <- do.call(what = rbind, args = chaininfo)
+
+    ## Resume output to main log file
+    maincon0 <- file(mainlog, open = 'a')
 
 ############################################################
 #### END OF PARALLEL LOOP OVER CORES
@@ -1177,7 +1175,7 @@ learn <- function(
 ## mcsamples0 <- foreach(chainnumber = 1:nchains,
 ##         .combine = joinmc, .multicombine = FALSE) %do% {
 ##             padchainnumber <- sprintf(paste0('%0', nchar(nchains), 'i'), chainnumber)
-## 
+##
 ##             readRDS(file = file.path(dirname,
 ##                 paste0('___mcsamples', dashnameroot, '--',
 ##                     padchainnumber, '.rds')
@@ -1239,8 +1237,8 @@ learn <- function(
         file = file.path(dirname, paste0('___learnt', dashnameroot, '.rds'))
     )
 
-    ## This cat() is to delete the last 'estimated end time'
-    cat('\r                                                               \n')
+    ## This is to delete the last 'estimated end time'
+    print2user('\r                                                               \n')
 
     print2user('Finished Monte Carlo sampling.')
 
@@ -1573,7 +1571,11 @@ nimbleFunction <- sampler_BASE <- extractControlElement <- model <- target <- Nd
 #### The user therefore never sees them and has no need to suppress them.
 #### The information thus saved in the file can be important
 #### in the case of publications and similar.
-    
+####
+#### Use of sink() together with cat() is forced by the fact that
+#### Nimble would otherwise send diagnostic messages to the main session/console
+#### as it uses cat() internally.
+
     ## Create log file
     ## Redirect diagnostics and service messages there
     outcon <- file(file.path(dirname,
@@ -1582,37 +1584,44 @@ nimbleFunction <- sampler_BASE <- extractControlElement <- model <- target <- Nd
     ), open = 'w')
     sink(file = outcon, type = 'output', split = FALSE)
     sink(file = outcon, type = 'message', split = FALSE)
+    maincon <- file(mainlog, open = 'a')
     ## Restore sink in case of exit or error
     closecons <- function(){
-        ## Close output to log files
+        ## Close output to core log files
         flush(outcon)
         sink(file = NULL, type = 'output')
         sink(file = NULL, type = 'message')
         close(outcon)
+        ## Close output to main log file & console
+        flush(maincon)
+        close(maincon)
     }
     on.exit(closecons())
 
     ## We need to send some messages to individual core-log files,
     ## others to the main log file (and to terminal if verbose = TRUE)
     ## This is done by changing output sink:
-    maincon <- file(mainlog, open = 'a')
     if(verbose){
-        print2user <- function(msg, outcon){
+        print2user <- function(...){
             flush(outcon)
             ## print to console
             sink(file = NULL, type = 'message')
-            message(msg, appendLF = FALSE)
+            message(..., appendLF = FALSE)
             ## print to main log file
             sink(file = maincon, type = 'message')
-            message(msg, appendLF = FALSE)
+            message(..., appendLF = FALSE)
+            flush(maincon)
+            ## redirect to core log file
             sink(file = outcon, type = 'message')
         }
     }else{
-        print2user <- function(msg, outcon){
+        print2user <- function(...){
             flush(outcon)
             ## print only to main log file
             sink(file = maincon, type = 'message')
-            message(msg, appendLF = FALSE)
+            message(..., appendLF = FALSE)
+            flush(maincon)
+            ## redirect to core log file
             sink(file = outcon, type = 'message')
         }
     }
@@ -1623,8 +1632,7 @@ nimbleFunction <- sampler_BASE <- extractControlElement <- model <- target <- Nd
     headertimestart <- Sys.time()
     cat('Log core', acore)
     cat(' - Current time:',
-        strftime(as.POSIXlt(headertimestart), '%Y-%m-%d %H:%M:%S'))
-    cat('\n')
+        strftime(as.POSIXlt(headertimestart), '%Y-%m-%d %H:%M:%S'), '\n')
 
     ## Check if Nimble package is installed and load it
 
@@ -1642,7 +1650,7 @@ nimbleFunction <- sampler_BASE <- extractControlElement <- model <- target <- Nd
         'C-compiling samplers appropriate to the variates (Nimble v',
         packageVersion('nimble'), ')\n',
         'this can take tens of minutes. Please wait...\n'
-        ), outcon)
+        ))
     }
 
     ## suppressPackageStartupMessages(library('nimble'))
@@ -2904,8 +2912,7 @@ nimbleFunction <- sampler_BASE <- extractControlElement <- model <- target <- Nd
         print2user(paste0('\rCompiled core ', acore, '. ',
             'Number of samplers: ',
             length(confnimble$samplerExecutionOrder), '.             \n',
-            'Estimating remaining time, please be patient...'),
-            outcon)
+            'Estimating remaining time, please be patient...'))
     }
 
     ## cat('Loop over chains')
@@ -2925,7 +2932,7 @@ nimbleFunction <- sampler_BASE <- extractControlElement <- model <- target <- Nd
 
 #### LOOP OVER CHAINS IN CORE
     nchainsperthiscore <- minchainspercore + (acore <= coreswithextrachain)
-    ## print2user(paste0('\ncore ',acore,': ',nchainsperthiscore,'\n'), outcon)
+    ## print2user(paste0('\ncore ',acore,': ',nchainsperthiscore,'\n'))
 
     for (achain in 1:nchainsperthiscore) {
 
@@ -3199,7 +3206,7 @@ nimbleFunction <- sampler_BASE <- extractControlElement <- model <- target <- Nd
                         paste(signif(range(thisdiagn), 3), collapse = ' to ')
                     } else {
                         signif(thisdiagn, 3)
-                    }, '\n'
+                    }
                 )
             }
 
@@ -3422,14 +3429,10 @@ nimbleFunction <- sampler_BASE <- extractControlElement <- model <- target <- Nd
             endTime <- Sys.time() + 180 +
                 ( (nchainsperthiscore + (acore > coreswithextrachain) - fracchain) *
                       difftime(Sys.time(), MCtimestart) / fracchain )
-            print2user(
-                paste0(
-                    '\rSampling. Core ', acore, ' estimated end time: ',
-                    format(endTime, format='%Y-%m-%d %H:%M'),
-                    '   '
-                ),
-                outcon
-            )
+            print2user(paste0(
+                '\rSampling. Core ', acore, ' estimated end time: ',
+                format(endTime, format='%Y-%m-%d %H:%M'), '   '
+                ))
 
             reset <- FALSE
         }
@@ -3517,8 +3520,7 @@ nimbleFunction <- sampler_BASE <- extractControlElement <- model <- target <- Nd
     ## ## timing text, for white spaces:
     ## ## "Sampling. Core 2 estimated end time: xxxx-xx-xx xx:xx   "
     print2user(paste0('\rCore ', acore,
-        ' finished.                                        \nSampling. Estimating remaining time...'),
-        outcon)
+        ' finished.                                        \nSampling. Estimating remaining time...'))
 
     ## output information from a core,
     ## passed to the originally calling process
