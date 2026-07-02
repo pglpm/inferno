@@ -14,6 +14,10 @@ Corrections after reviewer's feedback (many thanks):
 
 - Cleaned code, added documentation, improved a vignette.
 
+- Spellings signalled in CRAN automated check have been double-checked.
+
+- URLs signalled in CRAN automated check have been checked, they work.
+
 ### R CMD check results
 
 Linux (R-devel), Windows (win-builder, R-devel):

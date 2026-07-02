@@ -36,7 +36,7 @@
 #' and then be called on a bash terminal with
 #'
 #' ```
-#' $ Rscript myscript.R > learnoutput.log 2>&1
+#' $ Rscript myscript.R > learnoutput.log 2>&1 &
 #' ```
 #'
 #' with such a call, the file 'learnoutput.log' will contain information about how the computation is proceeding and the estimated end time.

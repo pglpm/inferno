@@ -145,7 +145,7 @@ learn(
 
 and then be called on a bash terminal with
 
-\if{html}{\out{<div class="sourceCode">}}\preformatted{$ Rscript myscript.R > learnoutput.log 2>&1
+\if{html}{\out{<div class="sourceCode">}}\preformatted{$ Rscript myscript.R > learnoutput.log 2>&1 &
 }\if{html}{\out{</div>}}
 
 with such a call, the file 'learnoutput.log' will contain information about how the computation is proceeding and the estimated end time.
